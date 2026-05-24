@@ -55,6 +55,21 @@ export interface IMovementStepCostBreakdown {
   readonly blockedReason?: string;
 }
 
+function elevationCostMultiplier(
+  movementType: UnitMovementType,
+  context: IMovementCostContext,
+): number {
+  if (
+    context.movementTerrainProfile === 'infantry' ||
+    movementType === 'tracked' ||
+    movementType === 'wheeled' ||
+    movementType === 'hover'
+  ) {
+    return 2;
+  }
+  return 1;
+}
+
 /**
  * Calculate running MP from walking MP.
  * Run MP = ceil(walk MP * 1.5)
@@ -296,16 +311,18 @@ export function getMovementStepCostBreakdown(
     const fromHex = getHex(grid, fromCoord);
     if (fromHex) {
       elevationDelta = hex.elevation - fromHex.elevation;
-      if (elevationDelta > 0 && paysElevationCost(movementType)) {
+      const elevationChange = Math.abs(elevationDelta);
+      if (elevationChange > 0 && paysElevationCost(movementType)) {
         elevationCost =
-          elevationDelta *
-          (context.movementTerrainProfile === 'infantry' ? 2 : 1);
-        const maxElevationChange =
-          maxElevationChangeForMovementType(movementType);
+          elevationChange * elevationCostMultiplier(movementType, context);
+        const maxElevationChange = maxElevationChangeForMovementType(
+          movementType,
+          context,
+        );
 
         if (
           maxElevationChange !== null &&
-          elevationDelta > maxElevationChange
+          elevationChange > maxElevationChange
         ) {
           const limitLabel =
             maxElevationChange === 2
@@ -317,7 +334,7 @@ export function getMovementStepCostBreakdown(
             terrainCost,
             elevationCost,
             elevationDelta,
-            blockedReason: `Elevation change of ${elevationDelta} exceeds ${limitLabel}`,
+            blockedReason: `Elevation change of ${elevationChange} exceeds ${limitLabel}`,
           };
         }
       }

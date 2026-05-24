@@ -553,6 +553,26 @@ describe('movement', () => {
       });
     });
 
+    it('should double ground vehicle elevation costs', () => {
+      let grid = createHexGrid({ radius: 3 });
+      grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+      grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.Clear, 1);
+
+      const step = getMovementStepCostBreakdown(
+        grid,
+        { q: 1, r: 0 },
+        'tracked',
+        { q: 0, r: 0 },
+      );
+
+      expect(step).toMatchObject({
+        mpCost: 3,
+        baseCost: 1,
+        elevationDelta: 1,
+        elevationCost: 2,
+      });
+    });
+
     it('should add 2 MP for two level elevation change', () => {
       let grid = createHexGrid({ radius: 3 });
       grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
@@ -575,15 +595,20 @@ describe('movement', () => {
       expect(cost).toBe(Infinity);
     });
 
-    it('should not add cost for elevation change going down', () => {
+    it('should add MP for elevation change going down', () => {
       let grid = createHexGrid({ radius: 3 });
       grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 2);
       grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.Clear, 0);
-      const cost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', {
+      const step = getMovementStepCostBreakdown(grid, { q: 1, r: 0 }, 'walk', {
         q: 0,
         r: 0,
       });
-      expect(cost).toBe(1);
+      expect(step).toMatchObject({
+        mpCost: 3,
+        baseCost: 1,
+        elevationDelta: -2,
+        elevationCost: 2,
+      });
     });
 
     it('should combine terrain and elevation costs', () => {
@@ -646,6 +671,7 @@ describe('movement', () => {
       expect(tracked).toMatchObject({
         mpCost: Infinity,
         elevationDelta: 2,
+        elevationCost: 4,
         blockedReason: 'Elevation change of 2 exceeds Tracked movement limit',
       });
     });

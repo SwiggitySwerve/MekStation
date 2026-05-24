@@ -193,8 +193,10 @@ function hasGroundElevationLimit(movementType: UnitMovementType): boolean {
 
 export function maxElevationChangeForMovementType(
   movementType: UnitMovementType,
+  context: Pick<IMovementCostContext, 'movementTerrainProfile'> = {},
 ): number | null {
   if (!hasGroundElevationLimit(movementType)) return null;
+  if (context.movementTerrainProfile === 'infantry') return 1;
   if (
     movementType === 'tracked' ||
     movementType === 'wheeled' ||

@@ -256,6 +256,21 @@ this motive" from missing cost data. Coverage lives in
 `src/components/gameplay/HexMapDisplay/HexCell.movementBadges.tsx` and
 `src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.movementAnimation.test.tsx`.
 
+Additional absolute elevation-cost pin: MegaMek `MoveStep.java:2816-2841`
+prices non-WiGE elevation changes using `Math.abs` of the elevation delta, then
+doubles that elevation MP for non-flying infantry and tracked/wheeled/hover
+ground vehicles. MegaMek `MoveStep.java:3135-3156` checks both downhill and
+uphill changes against the entity's allowed elevation change, with the default
+downhill limit delegated through `Entity.java:8688-8694`; `Tank.java:1421-1433`
+pins ground-vehicle one-level limits. MekStation now uses absolute elevation
+delta for projected ground movement costs, doubles represented infantry and
+vehicle elevation MP, and reports over-limit drops with the same explicit
+terrain-blocked metadata as climbs. Coverage lives in
+`src/utils/gameplay/movement/calculations.ts`,
+`src/utils/gameplay/movement/terrainRules.ts`,
+`src/__tests__/unit/utils/gameplay/movement.test.ts`, and
+`src/utils/gameplay/movement/__tests__/reachable.test.ts`.
+
 Additional infantry terrain-cost pin: MegaMek `MoveStep.java:2828-2837`
 doubles elevation MP for non-flying infantry, and `MoveStep.java:2892-2899`
 reduces non-mechanized infantry woods-entry cost by 1 MP while preserving a

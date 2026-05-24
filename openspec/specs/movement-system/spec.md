@@ -515,6 +515,15 @@ reachable: true}`
 - **AND** intermediate hexes between origin and landing SHALL NOT be in
   the result
 
+#### Scenario: Ground elevation costs use absolute elevation change
+
+- **GIVEN** a non-exempt ground movement step changes elevation upward or downward
+- **WHEN** movement projection computes the step cost
+- **THEN** the elevation MP component SHALL be based on the absolute elevation delta
+- **AND** represented ground vehicles and non-flying infantry SHALL double that elevation MP component
+- **AND** over-limit downhill changes SHALL be blocked with the same explicit terrain-blocked projection reason as over-limit climbs
+- **AND** VTOL, WiGE, jump, naval, and swim movement SHALL keep their existing elevation-cost exemptions
+
 ### Requirement: Movement Commit Event Emission
 
 The movement system SHALL, on player-confirmed movement commit, append a

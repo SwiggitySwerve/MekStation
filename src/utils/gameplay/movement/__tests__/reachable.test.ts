@@ -554,7 +554,7 @@ describe('deriveReachableHexes', () => {
     expect(tracked).toMatchObject({
       mpCost: Infinity,
       elevationDelta: 2,
-      elevationCost: 2,
+      elevationCost: 4,
       movementMode: 'tracked',
       reachable: false,
       movementInvalidReason: 'TerrainBlocked',
@@ -567,6 +567,47 @@ describe('deriveReachableHexes', () => {
       elevationCost: 2,
       movementMode: 'walk',
       reachable: true,
+    });
+  });
+
+  it('uses MegaMek absolute elevation costs for downhill ground movement', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 2);
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 0);
+    const unit = makeUnitAtOrigin();
+
+    const downhill = deriveReachableHexes(unit, MovementType.Walk, grid, {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'walk',
+    }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+
+    expect(downhill).toMatchObject({
+      mpCost: 3,
+      elevationDelta: -2,
+      elevationCost: 2,
+      movementMode: 'walk',
+      reachable: true,
+    });
+
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 3);
+    const blockedDrop = deriveReachableHexes(unit, MovementType.Walk, grid, {
+      walkMP: 5,
+      runMP: 8,
+      jumpMP: 0,
+      movementMode: 'walk',
+    }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+
+    expect(blockedDrop).toMatchObject({
+      mpCost: Infinity,
+      elevationDelta: -3,
+      elevationCost: 3,
+      movementMode: 'walk',
+      reachable: false,
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails:
+        'Elevation change of 3 exceeds ground movement limit',
     });
   });
 
