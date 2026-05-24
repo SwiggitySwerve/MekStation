@@ -508,6 +508,11 @@ describe('HexMapDisplay tactical visual layers', () => {
       'data-terrain-building-ids',
       'warehouse-a',
     );
+    expect(reachable).toHaveAttribute('data-terrain-building-levels', '2');
+    expect(reachable).toHaveAttribute(
+      'data-terrain-construction-factors',
+      '30',
+    );
     expect(reachable).toHaveAttribute('data-terrain-primary', 'building');
     expect(reachable).toHaveAttribute('data-mp-cost', '3');
     expect(reachable).toHaveAttribute('data-terrain-cost', '1');
@@ -578,6 +583,10 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(reachable).toHaveAttribute(
       'aria-label',
+      expect.stringContaining('level 2 CF 30'),
+    );
+    expect(reachable).toHaveAttribute(
+      'aria-label',
       expect.stringContaining('walk via tracked reachable'),
     );
 
@@ -596,10 +605,16 @@ describe('HexMapDisplay tactical visual layers', () => {
     ).toHaveTextContent('Elevation: +1');
     expect(
       screen.getByTestId('hex-movement-tooltip-building-context'),
-    ).toHaveTextContent('Building: warehouse-a');
+    ).toHaveTextContent('Building: warehouse-a (level 2, CF 30)');
     expect(
       screen.getByTestId('hex-movement-tooltip-building-context'),
     ).toHaveAttribute('data-terrain-building-ids', 'warehouse-a');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-building-context'),
+    ).toHaveAttribute('data-terrain-building-levels', '2');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-building-context'),
+    ).toHaveAttribute('data-terrain-construction-factors', '30');
     const projectionContext = screen.getByTestId(
       'hex-movement-tooltip-projection-context',
     );
@@ -1079,6 +1094,14 @@ describe('HexMapDisplay tactical visual layers', () => {
       'warehouse-a',
     );
     expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-terrain-building-levels',
+      '2',
+    );
+    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-terrain-construction-factors',
+      '30',
+    );
+    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
       'data-tactical-projection-sources',
       expect.stringContaining(
         'terrain-elevation:mekstation:Rendered map terrain/elevation grid:light_woods,building level 2 id warehouse-a CF 30 elevation 1',
@@ -1092,10 +1115,16 @@ describe('HexMapDisplay tactical visual layers', () => {
     ).toHaveTextContent('Elevation: +1');
     expect(
       screen.getByTestId('hex-terrain-tooltip-building-id'),
-    ).toHaveTextContent('Building: warehouse-a');
+    ).toHaveTextContent('Building: warehouse-a (level 2, CF 30)');
     expect(
       screen.getByTestId('hex-terrain-tooltip-building-id'),
     ).toHaveAttribute('data-terrain-building-ids', 'warehouse-a');
+    expect(
+      screen.getByTestId('hex-terrain-tooltip-building-id'),
+    ).toHaveAttribute('data-terrain-building-levels', '2');
+    expect(
+      screen.getByTestId('hex-terrain-tooltip-building-id'),
+    ).toHaveAttribute('data-terrain-construction-factors', '30');
     expect(screen.getByTestId('hex-terrain-tooltip-cover')).toHaveTextContent(
       'Cover: partial',
     );

@@ -12,6 +12,12 @@ import {
   formatTerrainFeaturesLabel,
 } from './HexCell.labels';
 import { ProjectionContextRows } from './HexMapDisplay.projectionTooltipRows';
+import {
+  terrainBuildingConstructionFactorsAttribute,
+  terrainBuildingDetailLabel,
+  terrainBuildingIdsAttribute,
+  terrainBuildingLevelsAttribute,
+} from './HexMapDisplay.terrainMetadata';
 
 function terrainCoverLabel(terrain: IHexTerrain): CoverLevel {
   let bestCover = CoverLevel.None;
@@ -21,16 +27,6 @@ function terrainCoverLabel(terrain: IHexTerrain): CoverLevel {
     if (cover === CoverLevel.Partial) bestCover = cover;
   }
   return bestCover;
-}
-
-function terrainBuildingIdsForTerrain(terrain: IHexTerrain): readonly string[] {
-  return Array.from(
-    new Set(
-      terrain.features
-        .map((feature) => feature.buildingId)
-        .filter((id): id is string => Boolean(id)),
-    ),
-  );
 }
 
 export function IsometricOccluderContextRows({
@@ -79,9 +75,11 @@ export function TerrainHoverTooltip({
   readonly isometricOccluderInfo?: IsometricTerrainOccluderInfo;
 }): React.ReactElement {
   const terrainTypes = terrain.features.map((feature) => feature.type);
-  const buildingIds = terrainBuildingIdsForTerrain(terrain);
-  const buildingIdAttribute =
-    buildingIds.length > 0 ? buildingIds.join(',') : undefined;
+  const buildingIdAttribute = terrainBuildingIdsAttribute(terrain);
+  const buildingLevelAttribute = terrainBuildingLevelsAttribute(terrain);
+  const buildingCfAttribute =
+    terrainBuildingConstructionFactorsAttribute(terrain);
+  const buildingDetailLabel = terrainBuildingDetailLabel(terrain);
   const blocksLos = terrain.features.some(
     (feature) => TERRAIN_PROPERTIES[feature.type].blocksLOS,
   );
@@ -105,12 +103,14 @@ export function TerrainHoverTooltip({
       <div data-testid="hex-terrain-tooltip-elevation">
         Elevation: {formatElevationLabel(terrain.elevation)}
       </div>
-      {buildingIdAttribute && (
+      {buildingDetailLabel && (
         <div
           data-testid="hex-terrain-tooltip-building-id"
           data-terrain-building-ids={buildingIdAttribute}
+          data-terrain-building-levels={buildingLevelAttribute}
+          data-terrain-construction-factors={buildingCfAttribute}
         >
-          Building: {buildingIds.join(', ')}
+          Building: {buildingDetailLabel}
         </div>
       )}
       <div data-testid="hex-terrain-tooltip-cover">
@@ -153,9 +153,11 @@ export function TerrainContextRows({
   readonly testIdPrefix: string;
 }): React.ReactElement {
   const terrainTypes = terrain.features.map((feature) => feature.type);
-  const buildingIds = terrainBuildingIdsForTerrain(terrain);
-  const buildingIdAttribute =
-    buildingIds.length > 0 ? buildingIds.join(',') : undefined;
+  const buildingIdAttribute = terrainBuildingIdsAttribute(terrain);
+  const buildingLevelAttribute = terrainBuildingLevelsAttribute(terrain);
+  const buildingCfAttribute =
+    terrainBuildingConstructionFactorsAttribute(terrain);
+  const buildingDetailLabel = terrainBuildingDetailLabel(terrain);
 
   return (
     <div className="mt-1 border-t border-slate-700/70 pt-1 text-[11px] text-slate-200">
@@ -165,12 +167,14 @@ export function TerrainContextRows({
       <div data-testid={`${testIdPrefix}-elevation-context`}>
         Elevation: {formatElevationLabel(terrain.elevation)}
       </div>
-      {buildingIdAttribute && (
+      {buildingDetailLabel && (
         <div
           data-testid={`${testIdPrefix}-building-context`}
           data-terrain-building-ids={buildingIdAttribute}
+          data-terrain-building-levels={buildingLevelAttribute}
+          data-terrain-construction-factors={buildingCfAttribute}
         >
-          Building: {buildingIds.join(', ')}
+          Building: {buildingDetailLabel}
         </div>
       )}
     </div>

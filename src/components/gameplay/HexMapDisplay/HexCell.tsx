@@ -74,6 +74,11 @@ import {
 } from './HexCell.movementOptionSummaries';
 import { ProjectionStatusBadge } from './HexCell.projectionBadges';
 import {
+  terrainBuildingConstructionFactorsAttribute,
+  terrainBuildingIdsAttribute,
+  terrainBuildingLevelsAttribute,
+} from './HexMapDisplay.terrainMetadata';
+import {
   isIsometricProjection,
   type IsometricTerrainOccluderInfo,
 } from './projection';
@@ -111,19 +116,6 @@ function colorForMovementType(type: MovementType): string {
     default:
       return HEX_COLORS.movementRange;
   }
-}
-
-function terrainBuildingIdsForTerrain(
-  terrain: IHexTerrain | undefined,
-): readonly string[] {
-  if (!terrain) return [];
-  return Array.from(
-    new Set(
-      terrain.features
-        .map((feature) => feature.buildingId)
-        .filter((id): id is string => Boolean(id)),
-    ),
-  );
 }
 
 export interface HexCellProps {
@@ -217,9 +209,10 @@ export const HexCell = React.memo(function HexCell({
   const primaryFeature = getPrimaryTerrainFeature(terrain);
   const terrainType = primaryFeature?.type ?? null;
   const terrainTypes = terrain?.features.map((feature) => feature.type) ?? [];
-  const terrainBuildingIds = terrainBuildingIdsForTerrain(terrain);
-  const terrainBuildingIdAttribute =
-    terrainBuildingIds.length > 0 ? terrainBuildingIds.join(',') : undefined;
+  const terrainBuildingIdAttribute = terrainBuildingIdsAttribute(terrain);
+  const terrainBuildingLevelAttribute = terrainBuildingLevelsAttribute(terrain);
+  const terrainBuildingCfAttribute =
+    terrainBuildingConstructionFactorsAttribute(terrain);
   const elevation = terrain?.elevation ?? 0;
   const elevationLabel = formatElevationLabel(elevation);
   const isIsometricTile = isIsometricProjection(projectionMode);
@@ -312,6 +305,15 @@ export const HexCell = React.memo(function HexCell({
     combatLosBlockerFor && combatLosBlockerFor.length > 0
       ? combatLosBlockerFor.map((ref) => ref.blocker.reason).join('|')
       : undefined;
+  const buildingStructureLabel = [
+    terrainBuildingIdAttribute ? `building ${terrainBuildingIdAttribute}` : '',
+    terrainBuildingLevelAttribute
+      ? `level ${terrainBuildingLevelAttribute}`
+      : '',
+    terrainBuildingCfAttribute ? `CF ${terrainBuildingCfAttribute}` : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
   const movementOptionCount = movementInfo?.movementModeOptions?.length;
   const movementOptions =
     movementInfo?.movementModeOptions &&
@@ -321,7 +323,7 @@ export const HexCell = React.memo(function HexCell({
   const hexLabel = `Hex ${hex.q},${hex.r}; terrain ${formatTerrainFeaturesLabel(
     terrainTypes,
   )}; primary ${formatTerrainLabel(terrainType)}; elevation ${elevationLabel}${
-    terrainBuildingIdAttribute ? `; building ${terrainBuildingIdAttribute}` : ''
+    buildingStructureLabel ? `; ${buildingStructureLabel}` : ''
   }${
     movementLabel ? `; ${movementLabel}` : ''
   }${combatLabel ? `; ${combatLabel}` : ''}${
@@ -379,6 +381,8 @@ export const HexCell = React.memo(function HexCell({
         terrainTypes.length > 0 ? terrainTypes.join(',') : undefined
       }
       data-terrain-building-ids={terrainBuildingIdAttribute}
+      data-terrain-building-levels={terrainBuildingLevelAttribute}
+      data-terrain-construction-factors={terrainBuildingCfAttribute}
       data-elevation-delta={movementInfo?.elevationDelta}
       data-elevation-cost={movementInfo?.elevationCost}
       data-stand-up-required={
