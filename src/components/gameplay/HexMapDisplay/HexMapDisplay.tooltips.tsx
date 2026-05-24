@@ -18,6 +18,7 @@ import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
 import { CombinedTacticalHoverTooltip } from './HexMapDisplay.combinedTooltip';
 import { MovementModeOptionRows } from './HexMapDisplay.movementOptionRows';
 import { MapMovementPointLegend } from './HexMapDisplay.mpLegend';
+import { ProjectionContextRows } from './HexMapDisplay.projectionTooltipRows';
 import {
   IsometricOccluderContextRows,
   TerrainContextRows,
@@ -70,6 +71,7 @@ export function MapHtmlOverlays({
       {!showCombinedTacticalTooltip && hoverMovementInfo && (
         <MovementHoverTooltip
           movementInfo={hoverMovementInfo}
+          projection={hoverProjectionInfo}
           terrain={hoverTerrainInfo}
           isometricOccluderInfo={hoverIsometricOccluderInfo}
         />
@@ -111,6 +113,7 @@ export function MapHtmlOverlays({
         hoverCombatInfo && (
           <CombatHoverTooltip
             combatInfo={hoverCombatInfo}
+            projection={hoverProjectionInfo}
             terrain={hoverTerrainInfo}
             isometricOccluderInfo={hoverIsometricOccluderInfo}
           />
@@ -134,10 +137,12 @@ export function MapHtmlOverlays({
 
 function MovementHoverTooltip({
   movementInfo,
+  projection,
   terrain,
   isometricOccluderInfo,
 }: {
   readonly movementInfo: IMovementRangeHex;
+  readonly projection?: ITacticalMapHexProjection;
   readonly terrain?: IHexTerrain;
   readonly isometricOccluderInfo?: IsometricTerrainOccluderInfo;
 }): React.ReactElement {
@@ -174,6 +179,10 @@ function MovementHoverTooltip({
       )}
       <IsometricOccluderContextRows
         info={isometricOccluderInfo}
+        testIdPrefix="hex-movement-tooltip"
+      />
+      <ProjectionContextRows
+        projection={projection}
         testIdPrefix="hex-movement-tooltip"
       />
       <MovementModeOptionRows
@@ -242,10 +251,12 @@ function MovementHoverTooltip({
 
 function CombatHoverTooltip({
   combatInfo,
+  projection,
   terrain,
   isometricOccluderInfo,
 }: {
   readonly combatInfo: ICombatRangeHex;
+  readonly projection?: ITacticalMapHexProjection;
   readonly terrain?: IHexTerrain;
   readonly isometricOccluderInfo?: IsometricTerrainOccluderInfo;
 }): React.ReactElement {
@@ -304,6 +315,10 @@ function CombatHoverTooltip({
       )}
       <IsometricOccluderContextRows
         info={isometricOccluderInfo}
+        testIdPrefix="hex-combat-tooltip"
+      />
+      <ProjectionContextRows
+        projection={projection}
         testIdPrefix="hex-combat-tooltip"
       />
       {weaponLabel && (

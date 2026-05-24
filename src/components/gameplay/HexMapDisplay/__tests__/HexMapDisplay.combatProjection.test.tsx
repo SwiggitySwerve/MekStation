@@ -554,6 +554,35 @@ describe('HexMapDisplay combat projection', () => {
 
     fireEvent.mouseEnter(targetHex);
 
+    const projectionContext = screen.getByTestId(
+      'hex-combat-tooltip-projection-context',
+    );
+    expect(projectionContext).toHaveAttribute(
+      'data-tactical-tooltip-status',
+      'legal',
+    );
+    expect(projectionContext).toHaveAttribute(
+      'data-tactical-tooltip-intent',
+      'combat',
+    );
+    expect(projectionContext).toHaveAttribute(
+      'data-tactical-tooltip-movement-status',
+      'none',
+    );
+    expect(projectionContext).toHaveAttribute(
+      'data-tactical-tooltip-combat-status',
+      'attackable',
+    );
+    expect(projectionContext).toHaveAttribute(
+      'data-tactical-tooltip-explanation',
+      expect.stringContaining('weapon heat +4'),
+    );
+    expect(
+      screen.getByTestId('hex-combat-tooltip-projection-status'),
+    ).toHaveTextContent('Projection: Legal - combat');
+    expect(
+      screen.getByTestId('hex-combat-tooltip-projection-channel-status'),
+    ).toHaveTextContent('Movement channel: none; combat channel: attackable');
     expect(screen.getByTestId('hex-combat-tooltip-weapons')).toHaveTextContent(
       'Weapons: medium-laser, ac-5',
     );

@@ -268,7 +268,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(screen.getByTestId('cover-overlay-hex-1-0')).toHaveAttribute(
       'aria-label',
-      'Partial cover',
+      'Partial cover; terrain light woods; elevation 0',
     );
     expect(screen.getByTestId('cover-overlay-hex-0-0')).toHaveAttribute(
       'data-cover-level',
@@ -558,6 +558,35 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(
       screen.getByTestId('hex-movement-tooltip-elevation-context'),
     ).toHaveTextContent('Elevation: +1');
+    const projectionContext = screen.getByTestId(
+      'hex-movement-tooltip-projection-context',
+    );
+    expect(projectionContext).toHaveAttribute(
+      'data-tactical-tooltip-status',
+      'legal',
+    );
+    expect(projectionContext).toHaveAttribute(
+      'data-tactical-tooltip-intent',
+      'movement',
+    );
+    expect(projectionContext).toHaveAttribute(
+      'data-tactical-tooltip-movement-status',
+      'legal',
+    );
+    expect(projectionContext).toHaveAttribute(
+      'data-tactical-tooltip-combat-status',
+      'none',
+    );
+    expect(projectionContext).toHaveAttribute(
+      'data-tactical-tooltip-explanation',
+      expect.stringContaining('Walk reachable 3 MP'),
+    );
+    expect(
+      screen.getByTestId('hex-movement-tooltip-projection-status'),
+    ).toHaveTextContent('Projection: Legal - movement');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-projection-channel-status'),
+    ).toHaveTextContent('Movement channel: legal; combat channel: none');
     expect(
       screen.getByTestId('hex-movement-tooltip-terrain'),
     ).toHaveTextContent('Terrain cost: +1');
