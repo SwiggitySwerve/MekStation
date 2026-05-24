@@ -11,6 +11,7 @@ import {
   GameStatus,
   IGameEvent,
   IGameState,
+  IHex,
   IHexGrid,
   IDamageAppliedPayload,
   IPhysicalAttackDeclaredPayload,
@@ -73,6 +74,44 @@ class DeclaresPhysicalAttackAI implements IAIPlayer {
         attackerId: attacker.unitId,
         targetId: 'opponent-1',
         attackType: this.attackType,
+      },
+    };
+  }
+}
+
+class DeclaresMappedPhysicalAttackAI implements IAIPlayer {
+  constructor(
+    private readonly declarations: Record<
+      string,
+      { readonly targetId: string; readonly attackType: PhysicalAttackType }
+    >,
+  ) {}
+
+  evaluateRetreat(): IRetreatEvent | null {
+    return null;
+  }
+
+  playMovementPhase(
+    _unit: IAIUnitState,
+    _grid: IHexGrid,
+    _capability: IMovementCapability,
+  ): IMovementEvent | null {
+    return null;
+  }
+
+  playAttackPhase(_attacker: IAIUnitState): IAttackEvent | null {
+    return null;
+  }
+
+  playPhysicalAttackPhase(attacker: IAIUnitState): IPhysicalAttackEvent | null {
+    const declaration = this.declarations[attacker.unitId];
+    if (!declaration) return null;
+    return {
+      type: GameEventType.PhysicalAttackDeclared,
+      payload: {
+        attackerId: attacker.unitId,
+        targetId: declaration.targetId,
+        attackType: declaration.attackType,
       },
     };
   }
@@ -193,6 +232,66 @@ function createPhysicalGrid(
     elevation: 0,
   });
   return { config: { radius: 2 }, hexes };
+}
+
+function createSamePhaseDisplacementState(): IGameState {
+  const state = createState();
+  return {
+    ...state,
+    units: {
+      'player-1': createUnit(
+        'player-1',
+        GameSide.Player,
+        { q: 0, r: 0 },
+        {
+          facing: Facing.Southeast,
+          piloting: 0,
+        },
+      ),
+      'opponent-1': createUnit(
+        'opponent-1',
+        GameSide.Opponent,
+        { q: 1, r: 0 },
+        { pilotConscious: false },
+      ),
+      'player-2': createUnit(
+        'player-2',
+        GameSide.Player,
+        { q: 0, r: 2 },
+        {
+          facing: Facing.Northeast,
+          movementThisTurn: MovementType.Run,
+          hexesMovedThisTurn: 5,
+          piloting: 0,
+        },
+      ),
+      'opponent-2': createUnit(
+        'opponent-2',
+        GameSide.Opponent,
+        { q: 1, r: 1 },
+        { pilotConscious: false },
+      ),
+    },
+  };
+}
+
+function createSamePhaseDisplacementGrid(): IHexGrid {
+  const hexes = new Map<string, IHex>();
+  const setHex = (q: number, r: number, occupantId: string | null): void => {
+    hexes.set(`${q},${r}`, {
+      coord: { q, r },
+      occupantId,
+      terrain: TerrainType.Clear,
+      elevation: 0,
+    });
+  };
+
+  setHex(0, 0, 'player-1');
+  setHex(1, 0, 'opponent-1');
+  setHex(2, 0, null);
+  setHex(0, 2, 'player-2');
+  setHex(1, 1, 'opponent-2');
+  return { config: { radius: 3 }, hexes };
 }
 
 function runPhase(
@@ -1501,6 +1600,67 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       expect.objectContaining({ reasonCode: PSRTrigger.Charged }),
     );
     expect(result.units['player-1'].pendingPSRs).not.toContainEqual(
+      expect.objectContaining({ reasonCode: PSRTrigger.Charged }),
+    );
+  });
+
+  it('refreshes runner grid occupancy after displacement before later same-phase attacks', () => {
+    const events: IGameEvent[] = [];
+    const violations: IViolation[] = [];
+    const state = createSamePhaseDisplacementState();
+
+    const result = runPhysicalAttackPhase({
+      state,
+      botPlayer: new DeclaresMappedPhysicalAttackAI({
+        'player-1': { targetId: 'opponent-1', attackType: 'push' },
+        'player-2': { targetId: 'opponent-2', attackType: 'charge' },
+      }),
+      invariantRunner: new InvariantRunner(),
+      violations,
+      events,
+      gameId: state.gameId,
+      grid: createSamePhaseDisplacementGrid(),
+      random: new SeededRandom(11),
+    });
+    const resolved = events
+      .filter((event) => event.type === GameEventType.PhysicalAttackResolved)
+      .map((event) => event.payload as IPhysicalAttackResolvedPayload);
+
+    expect(resolved).toHaveLength(2);
+    expect(resolved[0]).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'push',
+      hit: true,
+    });
+    expect(resolved[0].displacements).toEqual([
+      {
+        unitId: 'opponent-1',
+        from: { q: 1, r: 0 },
+        to: { q: 2, r: 0 },
+        reason: 'push',
+      },
+      {
+        unitId: 'player-1',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        reason: 'push',
+      },
+    ]);
+    expect(resolved[1]).toMatchObject({
+      attackerId: 'player-2',
+      targetId: 'opponent-2',
+      attackType: 'charge',
+      hit: true,
+    });
+    expect(resolved[1].displacements).toBeUndefined();
+    expect(result.units['opponent-1'].position).toEqual({ q: 2, r: 0 });
+    expect(result.units['opponent-2'].position).toEqual({ q: 1, r: 1 });
+    expect(result.units['player-2'].position).toEqual({ q: 0, r: 2 });
+    expect(result.units['opponent-2'].pendingPSRs).not.toContainEqual(
+      expect.objectContaining({ reasonCode: PSRTrigger.Charged }),
+    );
+    expect(result.units['player-2'].pendingPSRs).not.toContainEqual(
       expect.objectContaining({ reasonCode: PSRTrigger.Charged }),
     );
   });

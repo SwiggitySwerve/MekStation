@@ -48,6 +48,7 @@ import {
   applyPhysicalDamageClusters,
 } from './physicalAttackDamage';
 import {
+  applyPhysicalDisplacementsToGrid,
   computePhysicalDisplacementOutcome,
   displaceUnit,
   elevationDifferenceBetween,
@@ -203,6 +204,7 @@ export function runPhysicalAttackPhase(options: {
     violations,
   } = options;
   let currentState = { ...state, phase: GamePhase.PhysicalAttack };
+  let physicalGrid = grid;
   violations.push(...invariantRunner.runAll(currentState));
 
   const d6Roller = createD6Roller(random);
@@ -264,7 +266,7 @@ export function runPhysicalAttackPhase(options: {
     } else {
       target = enemies[random.nextInt(enemies.length)];
       const elevationDifference = elevationDifferenceBetween(
-        grid,
+        physicalGrid,
         unit,
         target,
       );
@@ -315,15 +317,19 @@ export function runPhysicalAttackPhase(options: {
       unit.movementThisTurn,
     ).value;
     const isUnderwater =
-      grid !== undefined &&
-      (waterDepthAtPosition(grid, unit.position) > 0 ||
-        waterDepthAtPosition(grid, target.position) > 0);
-    const elevationDifference = elevationDifferenceBetween(grid, unit, target);
+      physicalGrid !== undefined &&
+      (waterDepthAtPosition(physicalGrid, unit.position) > 0 ||
+        waterDepthAtPosition(physicalGrid, target.position) > 0);
+    const elevationDifference = elevationDifferenceBetween(
+      physicalGrid,
+      unit,
+      target,
+    );
     const pushDestinationValid =
-      bestAttack !== 'push' || !grid
+      bestAttack !== 'push' || !physicalGrid
         ? true
         : isValidDisplacement(
-            grid,
+            physicalGrid,
             computePushDisplacement(target.position, unit.facing),
             {
               excludeUnitId: target.id,
@@ -409,7 +415,7 @@ export function runPhysicalAttackPhase(options: {
     const displacementOutcome =
       result.restrictionReasonCode === undefined
         ? computePhysicalDisplacementOutcome({
-            grid,
+            grid: physicalGrid,
             attackType: bestAttack,
             attacker: unit,
             target,
@@ -423,7 +429,7 @@ export function runPhysicalAttackPhase(options: {
     const chargeHitDisplacementBlocked =
       result.hit &&
       bestAttack === 'charge' &&
-      Boolean(grid) &&
+      Boolean(physicalGrid) &&
       displacements.length === 0;
     const dfaMissFall =
       !result.hit &&
@@ -526,6 +532,10 @@ export function runPhysicalAttackPhase(options: {
         displacement.to,
       );
     }
+    physicalGrid = applyPhysicalDisplacementsToGrid(
+      physicalGrid,
+      displacements,
+    );
 
     if (dfaMissFall !== undefined) {
       currentState = applyPhysicalDamageClusterLocations({

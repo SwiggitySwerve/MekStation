@@ -1,4 +1,5 @@
 import { IGameState, IHexGrid, IPhysicalDisplacement } from '@/types/gameplay';
+import { coordToKey } from '@/utils/gameplay/hexMath';
 import {
   computeChargeDisplacementOutcome,
   computeDfaDisplacementOutcome,
@@ -45,6 +46,33 @@ export function displaceUnit(
       },
     },
   };
+}
+
+export function applyPhysicalDisplacementsToGrid(
+  grid: IHexGrid | undefined,
+  displacements: readonly IPhysicalDisplacement[],
+): IHexGrid | undefined {
+  if (!grid || displacements.length === 0) return grid;
+
+  let nextGrid = grid;
+  for (const displacement of displacements) {
+    const fromKey = coordToKey(displacement.from);
+    const toKey = coordToKey(displacement.to);
+    const hexes = new Map(nextGrid.hexes);
+    const fromHex = hexes.get(fromKey);
+    const toHex = hexes.get(toKey);
+
+    if (fromHex?.occupantId === displacement.unitId) {
+      hexes.set(fromKey, { ...fromHex, occupantId: null });
+    }
+    if (toHex) {
+      hexes.set(toKey, { ...toHex, occupantId: displacement.unitId });
+    }
+
+    nextGrid = { ...nextGrid, hexes };
+  }
+
+  return nextGrid;
 }
 
 export function computePhysicalDisplacements(options: {

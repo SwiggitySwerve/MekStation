@@ -1617,6 +1617,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       'movement-validation',
       'objective-outcome',
       'physical-attack-resolution',
+      'physical-displacement-grid-occupancy',
       'psr-piloting-skill',
       'psr-resolution',
       'terminal-game-ended-event',

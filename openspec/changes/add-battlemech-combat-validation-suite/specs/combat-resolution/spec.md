@@ -206,6 +206,15 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **AND** helper, event-sourced resolution, runner resolution, catalog, and source-truth audit evidence SHALL cite the MegaMek `Compute.isValidDisplacement` and `Mek.getMaxElevationChange` anchors
 - **AND** domino-chain displacement, friendly-unit avoidance, and DropShip-radius displacement SHALL remain explicit gaps
 
+#### Scenario: Runner physical displacement refreshes same-phase occupancy
+
+- **GIVEN** one physical attack displaces a unit into a hex that a later same-phase physical attack would otherwise use as its displacement destination
+- **WHEN** the runner resolves the later physical attack
+- **THEN** the runner SHALL evaluate displacement legality against the refreshed grid occupancy from the earlier displacement payload
+- **AND** the later attack SHALL NOT emit a displacement payload or charge-specific displacement PSRs when that refreshed destination is occupied
+- **AND** runner behavior, parity catalog, task list, and source-truth audit evidence SHALL report the same stale-occupancy closure
+- **AND** domino-chain displacement, friendly-unit avoidance, and DropShip-radius displacement SHALL remain explicit gaps
+
 #### Scenario: Push rejects arm-mounted weapons fired this turn
 
 - **GIVEN** a push declaration is evaluated with evidence that either attacker arm fired a weapon this turn

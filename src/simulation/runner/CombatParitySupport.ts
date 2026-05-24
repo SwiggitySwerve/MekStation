@@ -37,6 +37,10 @@ export const RUNNER_INTERACTIVE_PARITY_SUPPORT = {
     'physical-attack-resolution',
     'quick-sim runPhysicalAttackPhase and session physical resolution consume shared resolvePhysicalAttack helpers with movement-derived physical to-hit modifiers and active TSM damage context',
   ),
+  'physical-displacement-grid-occupancy': integrated(
+    'physical-displacement-grid-occupancy',
+    'quick-sim runPhysicalAttackPhase mirrors emitted physical displacements back into its local grid occupancy view before later same-phase displacement checks',
+  ),
   'heat-core-resolution': integrated(
     'heat-core-resolution',
     'quick-sim runHeatPhase and session resolveHeatPhase both process weapon heat, heat sink count/type dissipation, startup attempts, shutdown checks, and ammo explosion risk',

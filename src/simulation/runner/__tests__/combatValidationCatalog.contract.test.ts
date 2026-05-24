@@ -136,6 +136,7 @@ describe('BattleMech combat validation catalog index', () => {
         'equipment',
         'pilot-death',
         'ejection-damage-preservation',
+        'physical-displacement-grid-occupancy',
         'phase-psr-queue-lifecycle',
         'ranged-gunnery-to-hit',
         'ranged-to-hit-calculation',
