@@ -556,6 +556,32 @@ describe('Piloting Skill Rolls', () => {
       );
       expect(vehicleMods).toHaveLength(0);
     });
+
+    it('should apply Mountaineer only to entering-rubble PSRs', () => {
+      const rubbleMods = calculatePSRModifiers(
+        createRubblePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['terrain-master-mountaineer'],
+      );
+      const damageMods = calculatePSRModifiers(
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['tm_mountaineer'],
+      );
+
+      expect(rubbleMods).toEqual([
+        {
+          name: 'Mountaineer',
+          source: 'spa',
+          value: -1,
+        },
+      ]);
+      expect(damageMods).toHaveLength(0);
+    });
   });
 
   describe('PSR Trigger Generators — all 27 triggers', () => {

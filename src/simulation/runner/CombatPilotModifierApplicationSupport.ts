@@ -3,6 +3,13 @@ import type {
   ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 
+import {
+  MEGAMEK_CALLED_SHOT_SOURCE_REFS,
+  MEGAMEK_PSR_SPA_SOURCE_REFS,
+  MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS,
+  MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS,
+} from './CombatPilotModifierSourceRefs';
+
 function integrated(
   id: string,
   evidence: string,
@@ -38,110 +45,6 @@ function unsupported(
 
   return sourceRefs ? { ...entry, sourceRefs } : entry;
 }
-
-const MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION =
-  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
-
-const MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS = [
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek Compute.getSecondaryTargetMod applies the secondary-target modifier and reduces it for Multi-Tasker.',
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/compute/Compute.java#L2494-L2615`,
-    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
-  },
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek OptionsConstants defines GUNNERY_MULTI_TASKER as multi_tasker.',
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/options/OptionsConstants.java#L192-L200`,
-    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
-  },
-] satisfies readonly ICombatFeatureSourceReference[];
-
-const MEGAMEK_CALLED_SHOT_SOURCE_REFS = [
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek ComputeAttackerToHitMods applies +3 TacOps called-shot modifiers for high, low, left, and right called shots.',
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/actions/compute/ComputeAttackerToHitMods.java#L108-L138`,
-    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
-  },
-] satisfies readonly ICombatFeatureSourceReference[];
-
-const MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS = [
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek ComputeAbilityMods.processDefenderSPAs applies +1 Forest Ranger for walking targets in vegetation and +1 Swamp Beast for running targets in mud or swamp.',
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/actions/compute/ComputeAbilityMods.java#L282-L293`,
-    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
-  },
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek OptionsConstants defines Terrain Master Forest Ranger and Swamp Beast as tm_forest_ranger and tm_swamp_beast.',
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/options/OptionsConstants.java#L183-L187`,
-    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
-  },
-] satisfies readonly ICombatFeatureSourceReference[];
-
-const MEGAMEK_MANEUVERING_ACE_SKID_SOURCE_REFS = [
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek Entity.getMovementBeforeSkidPSRModifier reduces the skidding PSR movement-distance modifier by 1 for PILOT_MANEUVERING_ACE.',
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L8638-L8660`,
-    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
-  },
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek OptionsConstants defines PILOT_MANEUVERING_ACE as maneuvering_ace.',
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/options/OptionsConstants.java#L173-L180`,
-    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
-  },
-] satisfies readonly ICombatFeatureSourceReference[];
-
-const MEGAMEK_ANIMAL_MIMICRY_QUAD_PSR_SOURCE_REFS = [
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek QuadMek.addEntityBonuses applies -1 Animal Mimicry to quad Mek piloting rolls.',
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/units/QuadMek.java#L460-L469`,
-    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
-  },
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek OptionsConstants defines PILOT_ANIMAL_MIMIC as animal_mimic.',
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/options/OptionsConstants.java#L171-L178`,
-    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
-  },
-] satisfies readonly ICombatFeatureSourceReference[];
-
-const MEGAMEK_FROGMAN_WATER_PSR_SOURCE_REFS = [
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek Entity.checkWaterMove applies water-depth PSR modifiers and -1 Frogman for Mek or ProtoMek units entering depth-2+ water.',
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L8324-L8352`,
-    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
-  },
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek OptionsConstants defines PILOT_TM_FROGMAN as tm_frogman.',
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/options/OptionsConstants.java#L183-L187`,
-    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
-  },
-] satisfies readonly ICombatFeatureSourceReference[];
-
-const MEGAMEK_PSR_SPA_SOURCE_REFS = [
-  ...MEGAMEK_MANEUVERING_ACE_SKID_SOURCE_REFS,
-  ...MEGAMEK_ANIMAL_MIMICRY_QUAD_PSR_SOURCE_REFS,
-  ...MEGAMEK_FROGMAN_WATER_PSR_SOURCE_REFS,
-] satisfies readonly ICombatFeatureSourceReference[];
 
 export interface IPilotModifierResolverAssignment {
   readonly spaIds: readonly string[];
@@ -199,8 +102,8 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'psr-spa-application': helperOnly(
     'psr-spa-application',
-    'calculatePSRModifiers, runPSRPhase, resolvePendingPSRs, and stand-up PSR paths apply source-backed Maneuvering Ace skidding relief, Animal Mimicry quad-Mek relief, and Terrain Master: Frogman water-entry relief to PSR target numbers',
-    'Maneuvering Ace terrain PSRs beyond skidding, Animal Mimicry terrain-designation movement effects, Terrain Master variants beyond Frogman water-entry, Acrobat, Cross-Country, and Natural Grace PSR modifiers are not wired',
+    'calculatePSRModifiers, runPSRPhase, resolvePendingPSRs, and stand-up PSR paths apply source-backed Maneuvering Ace skidding relief, Animal Mimicry quad-Mek relief, Terrain Master: Frogman water-entry relief, and Terrain Master: Mountaineer rubble-entry relief to PSR target numbers',
+    'Maneuvering Ace terrain PSRs beyond skidding, Animal Mimicry terrain-designation movement effects, Terrain Master variants beyond Frogman water-entry and Mountaineer rubble-entry, Acrobat, Cross-Country, and Natural Grace PSR modifiers are not wired',
     MEGAMEK_PSR_SPA_SOURCE_REFS,
   ),
   'initiative-application': helperOnly(
@@ -359,6 +262,7 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
       'maneuvering-ace',
       'terrain-master',
       'tm_frogman',
+      'tm_mountaineer',
       'acrobat',
       'cross-country',
       'natural-grace',

@@ -556,7 +556,7 @@ Ranged to-hit validation SHALL apply MegaMek's jump-attacker SPA relief: Jumping
 
 ### Requirement: Source-Backed Terrain Master Frogman Physical To-Hit
 
-Physical to-hit validation SHALL apply MegaMek's Terrain Master: Frogman relief as a `-1` to-hit modifier only when the attacker has canonical `tm_frogman` or legacy `terrain-master-frogman`, the attacker is a Mek or ProtoMek, and the attacker occupies water deeper than level 1. Runner and event-sourced physical resolution SHALL derive or accept attacker water depth without using target-only water. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry relief SHALL remain an explicit gap until separately source-backed.
+Physical to-hit validation SHALL apply MegaMek's Terrain Master: Frogman relief as a `-1` to-hit modifier only when the attacker has canonical `tm_frogman` or legacy `terrain-master-frogman`, the attacker is a Mek or ProtoMek, and the attacker occupies water deeper than level 1. Runner and event-sourced physical resolution SHALL derive or accept attacker water depth without using target-only water. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry and Mountaineer rubble-entry relief SHALL remain an explicit gap until separately source-backed.
 
 #### Scenario: Frogman applies in depth-2 attacker water
 
@@ -603,9 +603,26 @@ Movement PSR validation SHALL apply MegaMek's water-entry depth modifier when a 
 - **WHEN** the PSR reason is not entering water
 - **THEN** no `Frogman` PSR modifier SHALL apply
 
+### Requirement: Source-Backed Terrain Master Mountaineer Rubble-Entry PSR
+
+Movement PSR validation SHALL apply MegaMek's Terrain Master: Mountaineer relief as a named `-1` SPA modifier only when the pending PSR is an entering-rubble PSR and the acting unit has canonical `tm_mountaineer` or legacy `terrain-master-mountaineer`. Mountaineer movement-cost and elevation movement effects SHALL remain explicit gaps until separately wired.
+
+#### Scenario: Mountaineer applies to entering-rubble PSR
+
+- **GIVEN** a unit with `tm_mountaineer`
+- **AND** the unit has a pending entering-rubble PSR
+- **WHEN** the PSR target number is computed
+- **THEN** the PSR target number SHALL include a `Mountaineer` SPA modifier of `-1`
+
+#### Scenario: Mountaineer rubble-entry boundaries
+
+- **GIVEN** a unit with `tm_mountaineer`
+- **WHEN** the pending PSR reason is not entering rubble
+- **THEN** no `Mountaineer` PSR modifier SHALL apply
+
 ### Requirement: Source-Backed Terrain Master Defender To-Hit Variants
 
-Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit variants from target state and target terrain: Forest Ranger SHALL add a `+1` to-hit modifier only when the target has canonical `tm_forest_ranger` or legacy `terrain-master-forest-ranger`, the target moved by walking, and the target occupies wooded terrain; Swamp Beast SHALL add a `+1` to-hit modifier only when the target has canonical `tm_swamp_beast` or legacy `terrain-master-swamp-beast`, the target moved by running, and the target occupies mud or swamp. Runner ranged attacks SHALL hydrate target terrain features into to-hit state. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry relief SHALL remain an explicit gap until separately source-backed.
+Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit variants from target state and target terrain: Forest Ranger SHALL add a `+1` to-hit modifier only when the target has canonical `tm_forest_ranger` or legacy `terrain-master-forest-ranger`, the target moved by walking, and the target occupies wooded terrain; Swamp Beast SHALL add a `+1` to-hit modifier only when the target has canonical `tm_swamp_beast` or legacy `terrain-master-swamp-beast`, the target moved by running, and the target occupies mud or swamp. Runner ranged attacks SHALL hydrate target terrain features into to-hit state. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry and Mountaineer rubble-entry relief SHALL remain an explicit gap until separately source-backed.
 
 #### Scenario: Forest Ranger applies to walking wooded targets
 

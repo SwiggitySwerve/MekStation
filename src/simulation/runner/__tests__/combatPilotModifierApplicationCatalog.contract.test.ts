@@ -327,10 +327,32 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'MegaMek OptionsConstants defines PILOT_ANIMAL_MIMIC as animal_mimic.',
       'MegaMek Entity.checkWaterMove applies water-depth PSR modifiers and -1 Frogman for Mek or ProtoMek units entering depth-2+ water.',
       'MegaMek OptionsConstants defines PILOT_TM_FROGMAN as tm_frogman.',
+      'MegaMek Entity.checkRubbleMove applies -1 Mountaineer to entering-rubble piloting rolls.',
+      'MegaMek OptionsConstants defines PILOT_TM_MOUNTAINEER as tm_mountaineer.',
     ]);
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['psr-spa-application'].spaIds,
-    ).toEqual(expect.arrayContaining(['tm_frogman']));
+    ).toEqual(expect.arrayContaining(['tm_frogman', 'tm_mountaineer']));
+  });
+
+  it('pins Terrain Master Mountaineer rubble PSR relief to MegaMek semantics', () => {
+    const mountaineerRefs = SPA_COMBAT_SUPPORT.tm_mountaineer.sourceRefs ?? [];
+
+    expect(SPA_COMBAT_SUPPORT.tm_mountaineer).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('Mountaineer'),
+      gap: expect.stringContaining('movement-cost'),
+    });
+    expect(SPA_COMBAT_SUPPORT['terrain-master'].gap).toContain(
+      'tm_mountaineer',
+    );
+    expect(mountaineerRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek Entity.checkRubbleMove applies -1 Mountaineer to entering-rubble piloting rolls.',
+      'MegaMek OptionsConstants defines Terrain Master: Mountaineer as tm_mountaineer.',
+    ]);
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['psr-spa-application'].spaIds,
+    ).toEqual(expect.arrayContaining(['tm_mountaineer']));
   });
 
   it('pins Terrain Master defender to-hit variants to MegaMek terrain and movement semantics', () => {
@@ -397,6 +419,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(SPA_COMBAT_SUPPORT['jumping-jack'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT.tm_frogman.sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT.tm_forest_ranger.sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT.tm_mountaineer.sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT.tm_swamp_beast.sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'multi-target-penalty-application'

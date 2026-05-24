@@ -290,6 +290,27 @@ const MEGAMEK_325B_TERRAIN_MASTER_DEFENSIVE_SOURCE_REFS = [
   MEGAMEK_325B_TERRAIN_MASTER_OPTIONS,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_325B_MOUNTAINEER_RUBBLE_PSR = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Entity.checkRubbleMove applies -1 Mountaineer to entering-rubble piloting rolls.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L8240-L8256',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_MOUNTAINEER_OPTION = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek OptionsConstants defines Terrain Master: Mountaineer as tm_mountaineer.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/options/OptionsConstants.java#L183-L187',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_MOUNTAINEER_SOURCE_REFS = [
+  MEGAMEK_325B_MOUNTAINEER_RUBBLE_PSR,
+  MEGAMEK_325B_MOUNTAINEER_OPTION,
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_325B_DODGE_MANEUVER_TO_HIT = {
   kind: 'megamek-source',
   citation:
@@ -428,7 +449,7 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'terrain-master': unsupported(
     'terrain-master',
-    'Generic Terrain Master movement behavior and variants beyond Frogman/Forest Ranger/Swamp Beast are not wired; source-backed Frogman physical to-hit relief, Frogman water-entry PSR relief, and Forest Ranger/Swamp Beast defensive to-hit variants are tracked separately as tm_frogman, tm_forest_ranger, and tm_swamp_beast',
+    'Generic Terrain Master movement behavior and variants beyond Frogman/Mountaineer/Forest Ranger/Swamp Beast are not wired; source-backed Frogman physical to-hit relief, Frogman water-entry PSR relief, Mountaineer rubble-entry PSR relief, and Forest Ranger/Swamp Beast defensive to-hit variants are tracked separately as tm_frogman, tm_mountaineer, tm_forest_ranger, and tm_swamp_beast',
   ),
   tm_frogman: integrated(
     'tm_frogman',
@@ -439,6 +460,12 @@ export const SPA_COMBAT_SUPPORT = {
     'tm_forest_ranger',
     'Source-backed calculateTerrainMasterDefensiveToHitModifier plus calculateToHit and runner target terrain hydration apply +1 to-hit against walking targets in woods',
     MEGAMEK_325B_TERRAIN_MASTER_DEFENSIVE_SOURCE_REFS,
+  ),
+  tm_mountaineer: helperOnly(
+    'tm_mountaineer',
+    'Source-backed getMountaineerRubblePSRModifier plus calculatePSRModifiers apply Mountaineer rubble-entry relief as -1 to entering-rubble PSR target numbers',
+    'Terrain Master: Mountaineer movement-cost and elevation movement effects are not wired',
+    MEGAMEK_325B_MOUNTAINEER_SOURCE_REFS,
   ),
   tm_swamp_beast: integrated(
     'tm_swamp_beast',

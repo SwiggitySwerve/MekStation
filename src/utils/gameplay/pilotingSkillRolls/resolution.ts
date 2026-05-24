@@ -13,6 +13,7 @@ import {
   getAnimalMimicryPSRModifier,
   getFrogmanWaterPSRModifier,
   getManeuveringAceSkidModifier,
+  getMountaineerRubblePSRModifier,
 } from '../spaModifiers';
 import { IPSRResult, IPSRBatchResult, IPSRModifier, PSRTrigger } from './types';
 
@@ -279,6 +280,17 @@ export function calculatePSRModifiers(
       modifiers.push({
         name: 'Frogman',
         value: frogmanModifier,
+        source: 'spa',
+      });
+    }
+  }
+
+  if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.EnteringRubble) {
+    const mountaineerModifier = getMountaineerRubblePSRModifier(pilotAbilities);
+    if (mountaineerModifier !== 0) {
+      modifiers.push({
+        name: 'Mountaineer',
+        value: mountaineerModifier,
         source: 'spa',
       });
     }

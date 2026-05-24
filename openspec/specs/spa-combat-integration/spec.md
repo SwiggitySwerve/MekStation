@@ -301,6 +301,20 @@ The Terrain Master: Frogman SPA SHALL grant -1 to physical attack to-hit numbers
 - **WHEN** an explicit non-Mek/non-ProtoMek unit with Terrain Master: Frogman enters depth-2 or deeper water
 - **THEN** no Frogman PSR modifier SHALL apply
 
+### Requirement: Piloting SPA - Terrain Master: Mountaineer
+
+The Terrain Master: Mountaineer SPA SHALL grant -1 to entering-rubble PSRs when a unit with `tm_mountaineer` or `terrain-master-mountaineer` has a pending entering-rubble PSR.
+
+#### Scenario: Mountaineer rubble-entry PSR bonus
+
+- **WHEN** a pilot with Terrain Master: Mountaineer enters rubble and the entering-rubble PSR is resolved
+- **THEN** the PSR SHALL receive a -1 Mountaineer modifier
+
+#### Scenario: Mountaineer non-rubble PSR boundary
+
+- **WHEN** a pilot with Terrain Master: Mountaineer resolves a non-rubble PSR
+- **THEN** no Mountaineer PSR modifier SHALL apply
+
 ### Requirement: Piloting SPA - Terrain Master: Forest Ranger
 
 The Terrain Master: Forest Ranger SPA SHALL grant +1 enemy to-hit only when the target owns `tm_forest_ranger`, moved by walking, and occupies wooded terrain.

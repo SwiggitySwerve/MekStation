@@ -83,6 +83,11 @@ export const SPA_LEGACY_ALIASES: readonly ISPAIdAlias[] = [
     source: 'systemB',
   },
   {
+    legacyId: 'terrain-master-mountaineer',
+    canonicalId: 'tm_mountaineer',
+    source: 'systemB',
+  },
+  {
     legacyId: 'terrain-master-forest-ranger',
     canonicalId: 'tm_forest_ranger',
     source: 'systemB',

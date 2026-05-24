@@ -21,6 +21,7 @@ export {
   getIronManModifier,
   getManeuveringAceSkidModifier,
   getMeleeMasterDamageBonus,
+  getMountaineerRubblePSRModifier,
   getSomeLikeItHotHeatPenaltyReduction,
   getTacticalGeniusBonus,
 } from './abilityModifiers';

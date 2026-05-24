@@ -170,8 +170,17 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     id: 'tm_frogman',
     name: 'Terrain Master: Frogman',
     category: 'piloting',
-    pipelines: ['to-hit'],
-    combatEffect: '-1 physical attack to-hit in depth-2+ water',
+    pipelines: ['to-hit', 'psr'],
+    combatEffect:
+      '-1 physical attack to-hit and entering-water PSR in depth-2+ water',
+    requiresDesignation: false,
+  },
+  tm_mountaineer: {
+    id: 'tm_mountaineer',
+    name: 'Terrain Master: Mountaineer',
+    category: 'piloting',
+    pipelines: ['psr'],
+    combatEffect: '-1 entering-rubble PSR',
     requiresDesignation: false,
   },
   tm_forest_ranger: {

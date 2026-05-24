@@ -238,6 +238,15 @@ export function getFrogmanWaterPSRModifier(
 }
 
 /**
+ * Terrain Master: Mountaineer: -1 to entering-rubble PSRs.
+ */
+export function getMountaineerRubblePSRModifier(
+  abilities: readonly string[],
+): number {
+  return hasSPA(abilities, 'tm_mountaineer') ? -1 : 0;
+}
+
+/**
  * Melee Master: +1 physical attack damage bonus.
  * Not a to-hit modifier — returns a damage bonus.
  */

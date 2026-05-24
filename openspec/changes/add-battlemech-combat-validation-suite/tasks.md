@@ -95,6 +95,7 @@
 - [x] 3.4.15 Integrate source-backed Terrain Master: Frogman physical to-hit relief through SPA helper, physical to-hit aggregation, runner terrain hydration, interactive attacker-water-depth hydration, canonicalization, catalog, and OpenSpec coverage.
 - [x] 3.4.16 Integrate source-backed Terrain Master: Forest Ranger and Swamp Beast defender to-hit variants through SPA helper, ranged to-hit aggregation, runner target-terrain hydration, canonicalization, catalog, and OpenSpec coverage while leaving generic Terrain Master movement/PSR behavior explicit.
 - [x] 3.4.17 Integrate source-backed Terrain Master: Frogman water-entry PSR relief through depth-aware terrain PSR queueing, PSR modifier resolution, catalog, and OpenSpec coverage while leaving other Terrain Master PSR/movement variants explicit.
+- [x] 3.4.18 Integrate source-backed Terrain Master: Mountaineer rubble-entry PSR relief through SPA helper, PSR modifier resolution, canonicalization, catalog, and OpenSpec coverage while leaving Mountaineer movement-cost relief explicit.
 - [ ] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -130,3 +131,4 @@
 - [x] 4.3.17 Cross-check MegaMek's Terrain Master: Frogman physical BTH relief and canonical ability id.
 - [x] 4.3.18 Cross-check MegaMek's Terrain Master: Forest Ranger and Swamp Beast defensive to-hit modifiers, movement gates, terrain gates, and canonical ability ids.
 - [x] 4.3.19 Cross-check MegaMek's Terrain Master: Frogman water-entry PSR relief, water-depth PSR modifiers, Mek/ProtoMek gate, and canonical ability id.
+- [x] 4.3.20 Cross-check MegaMek's Terrain Master: Mountaineer rubble-entry PSR relief and canonical ability id.

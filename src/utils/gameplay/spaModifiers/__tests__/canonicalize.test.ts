@@ -22,6 +22,7 @@ import {
   getHotDogShutdownThresholdBonus,
   getIronManModifier,
   getMeleeMasterDamageBonus,
+  getMountaineerRubblePSRModifier,
   getSomeLikeItHotHeatPenaltyReduction,
   getTacticalGeniusBonus,
 } from '../abilityModifiers';
@@ -180,6 +181,13 @@ describe('combat modifiers accept canonical ids', () => {
         [{ type: TerrainType.Swamp, level: 1 }],
       )?.value,
     ).toBe(1);
+  });
+
+  it('Terrain Master: Mountaineer fires on canonical and legacy ids', () => {
+    expect(getMountaineerRubblePSRModifier(['tm_mountaineer'])).toBe(-1);
+    expect(
+      getMountaineerRubblePSRModifier(['terrain-master-mountaineer']),
+    ).toBe(-1);
   });
 
   it('getMeleeMasterDamageBonus fires on canonical id', () => {

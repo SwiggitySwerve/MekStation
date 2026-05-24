@@ -294,6 +294,36 @@ describe('runPSRPhase behavior', () => {
     });
   });
 
+  it('applies Mountaineer to source-backed entering-rubble PSRs', () => {
+    const unit = makeUnit({
+      abilities: ['tm_mountaineer'],
+      pendingPSRs: [createRubblePSR('player-1')],
+    });
+    const state = makeState(unit);
+    const events: IGameEvent[] = [];
+
+    runPSRPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: fixedRandom(0.5),
+    });
+
+    const resolved = events.find((e) => e.type === GameEventType.PSRResolved)
+      ?.payload as IPSRResolvedPayload | undefined;
+    expect(resolved).toMatchObject({
+      unitId: 'player-1',
+      targetNumber: 4,
+      modifiers: -1,
+      passed: true,
+      reasonCode: PSRTrigger.EnteringRubble,
+    });
+    expect(SPA_COMBAT_SUPPORT.tm_mountaineer).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('Mountaineer rubble-entry relief'),
+    });
+  });
+
   it('turns a failed pending PSR into a fall, pilot wound, and pilot-death destruction', () => {
     const unit = makeUnit({
       pilotWounds: 5,

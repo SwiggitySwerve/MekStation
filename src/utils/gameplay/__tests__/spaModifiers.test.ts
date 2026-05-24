@@ -17,6 +17,7 @@ import {
   calculateTerrainMasterDefensiveToHitModifier,
   getFrogmanWaterPSRModifier,
   getMeleeMasterDamageBonus,
+  getMountaineerRubblePSRModifier,
   getTacticalGeniusBonus,
   getEffectiveWounds,
   getIronManModifier,
@@ -379,6 +380,16 @@ describe('spaModifiers', () => {
       );
       expect(getFrogmanWaterPSRModifier(['tm_frogman'], 2, 'Vehicle')).toBe(0);
       expect(getFrogmanWaterPSRModifier([], 2, 'BattleMech')).toBe(0);
+    });
+  });
+
+  describe('Terrain Master: Mountaineer', () => {
+    it('returns -1 entering-rubble PSR relief for canonical and legacy ids', () => {
+      expect(getMountaineerRubblePSRModifier(['tm_mountaineer'])).toBe(-1);
+      expect(
+        getMountaineerRubblePSRModifier(['terrain-master-mountaineer']),
+      ).toBe(-1);
+      expect(getMountaineerRubblePSRModifier([])).toBe(0);
     });
   });
 
