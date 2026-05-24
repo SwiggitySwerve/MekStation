@@ -2,7 +2,12 @@ import { expect, test, type Page } from '@playwright/test';
 import sharp from 'sharp';
 
 async function expectNonBlankRender(page: Page, label: string): Promise<void> {
-  let screenshot: Buffer | undefined;
+  let lastMetrics:
+    | {
+        readonly quantizedColorCount: number;
+        readonly contrastedPixels: number;
+      }
+    | undefined;
   let lastError: unknown;
 
   for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -10,16 +15,36 @@ async function expectNonBlankRender(page: Page, label: string): Promise<void> {
 
     try {
       await expect(locator).toBeVisible();
-      screenshot = await locator.screenshot({ animations: 'disabled' });
-      break;
+      const screenshot = await locator.screenshot({ animations: 'disabled' });
+      lastMetrics = await measureRenderedContrast(screenshot);
+      if (
+        lastMetrics.quantizedColorCount > 8 &&
+        lastMetrics.contrastedPixels > 150
+      ) {
+        return;
+      }
     } catch (error) {
       lastError = error;
-      await page.waitForTimeout(100);
     }
+    await page.waitForTimeout(100);
   }
 
-  if (!screenshot) throw lastError;
+  if (!lastMetrics) throw lastError;
 
+  expect(
+    lastMetrics.quantizedColorCount,
+    `${label} should render more than a flat color`,
+  ).toBeGreaterThan(8);
+  expect(
+    lastMetrics.contrastedPixels,
+    `${label} should contain visible terrain/token/overlay contrast`,
+  ).toBeGreaterThan(150);
+}
+
+async function measureRenderedContrast(screenshot: Buffer): Promise<{
+  readonly quantizedColorCount: number;
+  readonly contrastedPixels: number;
+}> {
   const { data } = await sharp(screenshot)
     .ensureAlpha()
     .raw()
@@ -42,14 +67,10 @@ async function expectNonBlankRender(page: Page, label: string): Promise<void> {
     }
   }
 
-  expect(
-    quantizedColors.size,
-    `${label} should render more than a flat color`,
-  ).toBeGreaterThan(8);
-  expect(
+  return {
+    quantizedColorCount: quantizedColors.size,
     contrastedPixels,
-    `${label} should contain visible terrain/token/overlay contrast`,
-  ).toBeGreaterThan(150);
+  };
 }
 
 test.describe('Tactical map visual smoke @smoke @game', () => {
@@ -521,6 +542,60 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(
       page.getByTestId('hex-isometric-occluder-highlight--1-0'),
     ).toHaveAttribute('data-isometric-occludes-units', 'occluded');
+  });
+
+  test('shows jump elevation delta with zero elevation MP cost in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=jump-elevation-cost');
+
+    const jumpHex = page.getByTestId('hex-0-1');
+    await expect(jumpHex).toHaveAttribute('data-reachable', 'true');
+    await expect(jumpHex).toHaveAttribute('data-movement-type', 'jump');
+    await expect(jumpHex).toHaveAttribute('data-movement-mode', 'jump');
+    await expect(jumpHex).toHaveAttribute('data-mp-cost', '3');
+    await expect(jumpHex).toHaveAttribute('data-terrain-cost', '0');
+    await expect(jumpHex).toHaveAttribute('data-elevation-delta', '1');
+    await expect(jumpHex).toHaveAttribute('data-elevation-cost', '0');
+    await expect(jumpHex).toHaveAttribute('data-heat-generated', '3');
+
+    const movementBadge = page.getByTestId('hex-movement-badge-0-1');
+    await expect(movementBadge.locator('text')).toHaveText('J 3MP');
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-type',
+      'jump',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-mode',
+      'jump',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-mp-cost',
+      '3',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-heat-generated',
+      '3',
+    );
+
+    const costBadge = page.getByTestId('hex-movement-cost-badge-0-1');
+    await expect(costBadge.locator('text')).toHaveText('E+0 UP1');
+    await expect(costBadge).toHaveAttribute(
+      'data-movement-step-terrain-cost',
+      '0',
+    );
+    await expect(costBadge).toHaveAttribute(
+      'data-movement-step-elevation-cost',
+      '0',
+    );
+    await expect(costBadge).toHaveAttribute(
+      'data-movement-step-elevation-delta',
+      '1',
+    );
+    await expect(costBadge).toHaveAttribute(
+      'aria-label',
+      'Movement step cost: elevation cost +0; elevation delta +1',
+    );
   });
 
   test('shows all selected weapons out of range as blocked in browser', async ({

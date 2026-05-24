@@ -2849,6 +2849,9 @@ Replay and recovery surfaces SHALL render terrain and elevation from the same ev
 - **AND** a movement-highlighted hex with multiple legal movement modes SHALL
   expose the walk, run, and jump option costs, terrain costs, elevation costs,
   and heat metadata together
+- **AND** a jump-highlighted hex with a represented elevation change and no
+  elevation MP adder SHALL expose both the elevation delta and explicit `E+0`
+  movement-cost badge metadata
 - **AND** a reachable movement-highlighted hex with a blocked movement mode
   SHALL expose legal option states, blocked option reason metadata, and a
   separate blocked-options badge that does not rely on color alone

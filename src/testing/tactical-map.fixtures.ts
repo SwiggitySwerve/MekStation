@@ -379,6 +379,15 @@ export const tacticalMapMovementRange: readonly IMovementRangeHex[] = [
   },
 ];
 
+export const tacticalMapJumpElevationMovementRange: readonly IMovementRangeHex[] =
+  tacticalMapMovementRange.filter(
+    (movement) =>
+      movement.hex.q === 0 &&
+      movement.hex.r === 1 &&
+      movement.movementType === MovementType.Jump &&
+      movement.reachable,
+  );
+
 export const tacticalMapHighlightPath: readonly IHexCoordinate[] = [
   { q: -1, r: 0 },
   { q: 0, r: 0 },
@@ -392,4 +401,10 @@ export const tacticalMapMpLegend: MapMovementPointLegendState = {
   runMP: 6,
   jumpMP: 3,
   jumpAvailable: true,
+};
+
+export const tacticalMapJumpElevationMpLegend: MapMovementPointLegendState = {
+  ...tacticalMapMpLegend,
+  active: 'jump',
+  movementMode: 'jump',
 };

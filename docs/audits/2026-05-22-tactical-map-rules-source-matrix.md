@@ -403,6 +403,11 @@ this motive" from missing cost data. Coverage lives in
 `src/components/gameplay/HexMapDisplay/HexCell.movementBadges.tsx` and
 `src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.movementAnimation.test.tsx`.
 
+2026-05-24 browser update: the tactical-map browser harness now includes a
+jump-only uphill movement scenario that verifies the rendered top-down movement
+cost badge exposes `E+0`, the positive elevation delta, zero terrain cost, and
+jump heat metadata for a legal vertical jump.
+
 Additional absolute elevation-cost pin: MegaMek `MoveStep.java:2816-2841`
 prices non-WiGE elevation changes using `Math.abs` of the elevation delta, then
 doubles that elevation MP for non-flying infantry and tracked/wheeled/hover

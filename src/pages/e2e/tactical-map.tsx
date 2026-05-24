@@ -5,6 +5,8 @@ import {
   tacticalMapCombatState,
   tacticalMapHexTerrain,
   tacticalMapHighlightPath,
+  tacticalMapJumpElevationMovementRange,
+  tacticalMapJumpElevationMpLegend,
   tacticalMapMovementRange,
   tacticalMapMpLegend,
   tacticalMapOutOfRangeSelectedWeaponIds,
@@ -21,10 +23,18 @@ const isTestEnv =
 export default function TacticalMapE2EHarness(): React.JSX.Element {
   const router = useRouter();
   const isOutOfRangeScenario = router.query.scenario === 'out-of-range';
+  const isJumpElevationScenario =
+    router.query.scenario === 'jump-elevation-cost';
   const selectedWeaponIds = isOutOfRangeScenario
     ? tacticalMapOutOfRangeSelectedWeaponIds
     : tacticalMapSelectedWeaponIds;
   const targetUnitId = isOutOfRangeScenario ? 'medium-target' : 'occluded';
+  const movementRange = isJumpElevationScenario
+    ? tacticalMapJumpElevationMovementRange
+    : tacticalMapMovementRange;
+  const mpLegend = isJumpElevationScenario
+    ? tacticalMapJumpElevationMpLegend
+    : tacticalMapMpLegend;
 
   if (!isTestEnv) {
     return (
@@ -54,9 +64,9 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
             combatState={tacticalMapCombatState}
             selectedWeaponIds={selectedWeaponIds}
             showCoordinates
-            movementRange={tacticalMapMovementRange}
+            movementRange={movementRange}
             highlightPath={tacticalMapHighlightPath}
-            mpLegend={tacticalMapMpLegend}
+            mpLegend={mpLegend}
           />
         </div>
       </section>

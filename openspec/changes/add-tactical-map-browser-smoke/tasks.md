@@ -37,6 +37,8 @@
   selected weapons available at extreme range.
 - [x] 2.15 Add browser coverage proving all-selected-weapons-out-of-range
   targets remain non-attackable while exposing blocked weapon metadata.
+- [x] 2.16 Add browser coverage proving jump elevation changes expose zero
+  elevation MP cost instead of hiding the cost breakdown.
 
 ## 3. Validation
 
@@ -67,3 +69,5 @@
   availability metadata.
 - [x] 3.15 Focused Playwright smoke passes with
   all-selected-weapons-out-of-range rejection metadata.
+- [x] 3.16 Focused Playwright smoke passes with jump zero-cost elevation
+  movement metadata.
