@@ -1707,14 +1707,16 @@ describe('BattleMech combat feature-gap tracking', () => {
       supportIdsByLevel(DESTRUCTION_CAUSE_COMBAT_SUPPORT, 'integrated'),
     ).toEqual([
       'ammo_explosion',
+      'ct_destroyed',
       'damage',
       'engine_destroyed',
+      'head_destroyed',
       'impossible_displacement',
       'pilot_death',
     ]);
     expect(
       supportIdsByLevel(DESTRUCTION_CAUSE_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['ct_destroyed', 'head_destroyed', 'shutdown']);
+    ).toEqual(['shutdown']);
 
     expect(
       DESTRUCTION_CAUSE_COMBAT_SUPPORT.impossible_displacement.sourceRefs?.map(

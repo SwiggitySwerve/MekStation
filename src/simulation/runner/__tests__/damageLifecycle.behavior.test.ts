@@ -88,7 +88,7 @@ function freshComponentDamage(): IComponentDamageState {
 }
 
 describe('BattleMech damage lifecycle validation anchors', () => {
-  it('persists fatal center-torso and head destruction as generic damage causes until cause-specific support lands', () => {
+  it('persists fatal center-torso and head destruction as cause-specific terminal states', () => {
     const highRoller = () => 6;
 
     const centerTorsoKill = resolveDamage(
@@ -101,11 +101,11 @@ describe('BattleMech damage lifecycle validation anchors', () => {
 
     expect(centerTorsoKill.result).toMatchObject({
       unitDestroyed: true,
-      destructionCause: 'damage',
+      destructionCause: 'ct_destroyed',
     });
     expect(headKill.result).toMatchObject({
       unitDestroyed: true,
-      destructionCause: 'damage',
+      destructionCause: 'head_destroyed',
     });
 
     const updated = applyDamageResultToState(
@@ -116,7 +116,7 @@ describe('BattleMech damage lifecycle validation anchors', () => {
     );
 
     expect(updated.units.target.destroyed).toBe(true);
-    expect(updated.units.target.destructionCause).toBe('damage');
+    expect(updated.units.target.destructionCause).toBe('ct_destroyed');
   });
 
   it('persists explicit destruction-cause overrides from runner cascades', () => {

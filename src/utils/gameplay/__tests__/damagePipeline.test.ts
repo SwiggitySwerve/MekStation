@@ -270,7 +270,7 @@ describe('Damage Pipeline - Transfer Chain', () => {
 
     const result = resolveDamage(state, 'center_torso', 5);
     expect(result.result.unitDestroyed).toBe(true);
-    expect(result.result.destructionCause).toBe('damage');
+    expect(result.result.destructionCause).toBe('ct_destroyed');
   });
 });
 
@@ -831,7 +831,7 @@ describe('resolveDamage - Head Destruction', () => {
 
     const result = resolveDamage(state, 'head', 3);
     expect(result.result.unitDestroyed).toBe(true);
-    expect(result.result.destructionCause).toBe('damage');
+    expect(result.result.destructionCause).toBe('head_destroyed');
   });
 });
 

@@ -213,15 +213,13 @@ export const DESTRUCTION_CAUSE_COMBAT_SUPPORT = {
     'pilot_death',
     'applyPilotDamage, cockpit crits, and PSR fall wounds emit pilot_death destruction',
   ),
-  ct_destroyed: helperOnly(
+  ct_destroyed: integrated(
     'ct_destroyed',
-    'DestructionCause type includes ct_destroyed',
-    'fatal center-torso destruction currently collapses to generic damage',
+    'checkUnitDestruction, resolveDamage, runner state snapshots, and UnitDestroyed emissions preserve ct_destroyed for fatal center-torso destruction',
   ),
-  head_destroyed: helperOnly(
+  head_destroyed: integrated(
     'head_destroyed',
-    'DestructionCause type includes head_destroyed',
-    'fatal head destruction currently collapses to generic damage unless represented as pilot_death',
+    'checkUnitDestruction, resolveDamage, runner state snapshots, and UnitDestroyed emissions preserve head_destroyed for fatal head destruction while pilot_death keeps priority at lethal wounds',
   ),
   shutdown: helperOnly(
     'shutdown',

@@ -125,6 +125,7 @@
 - [x] 3.5.8 Integrate ejected-target physical targetability removal/rejection through helper, eligibility, event-sourced declaration/resolution, runner target selection, catalog, and audit coverage.
 - [x] 3.5.9 Integrate retreated-target physical targetability removal/rejection through helper, eligibility, event-sourced declaration/resolution, runner target selection, catalog, and audit coverage.
 - [x] 3.5.10 Integrate destruction-cause persistence through runner state snapshots, ammo-explosion cause overrides, event replay, catalog support, and OpenSpec coverage as a MekStation lifecycle contract.
+- [x] 3.5.11 Integrate cause-specific fatal-location destruction for `head_destroyed` and `ct_destroyed` through damage helpers, runner snapshots, UnitDestroyed events, catalog support, and existing source-priority specs.
 
 ## 4. Source-truth cross-checks
 

@@ -30,6 +30,18 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** ammo-explosion cascades SHALL be able to override generic damage destruction with `ammo_explosion`
 - **AND** this persistence SHALL be cataloged as a MekStation lifecycle contract rather than an external rulebook claim
 
+#### Scenario: Fatal head and center-torso destruction use cause-specific terminal labels
+
+- **GIVEN** a BattleMech damage path destroys the head location without reaching lethal pilot wounds
+- **WHEN** the damage pipeline checks unit destruction
+- **THEN** the terminal cause SHALL be `head_destroyed`
+- **AND** runner snapshots and `UnitDestroyed` events SHALL preserve `head_destroyed`
+- **GIVEN** a BattleMech damage path destroys the center torso location
+- **WHEN** the damage pipeline checks unit destruction
+- **THEN** the terminal cause SHALL be `ct_destroyed`
+- **AND** runner snapshots and `UnitDestroyed` events SHALL preserve `ct_destroyed`
+- **AND** lethal pilot wounds SHALL still take priority as `pilot_death`
+
 #### Scenario: Missing action surfaces stay visible
 
 - **GIVEN** a BattleMech action surface has source-backed or product-visible relevance but no authoritative command, game intent, wire payload, P2P translation, or runner action path
