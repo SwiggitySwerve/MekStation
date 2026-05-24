@@ -1372,11 +1372,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual([
-      'c3-equipment-network-formation',
-      'c3-spotter-los-hydration',
-      'ecm',
-    ]);
+    ).toEqual(['c3-equipment-network-formation', 'ecm']);
   });
 
   it('pins source-backed to-hit modifiers to MegaMek refs', () => {
@@ -1405,7 +1401,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(c3Refs.map(({ citation }) => citation)).toEqual([
       'MegaMek Compute.getRangeMods asks ComputeC3Spotter for a valid spotter and applies the best C3 range bracket when it improves the attack range.',
-      'MegaMek ComputeC3Spotter rejects C3 node paths when ComputeECM reports ECM effects on either leg of the network connection.',
+      'MegaMek ComputeC3Spotter returns the first ECM-connected C3 spotter without LOS gating under default rules, while PLAYTEST_3 adds spotter LOS gating.',
     ]);
     expect(hullDownRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek ComputeTerrainMods applies WeaponAttackAction.HullDown as a +2 terrain modifier for hull-down Mek targets with LOS cover.',

@@ -5,7 +5,7 @@
  * network targeting systems:
  * - C3 Master/Slave: 4-unit max, requires master, master destruction dissolves network
  * - C3i (Improved): 6-unit max, peer-to-peer, no single point of failure
- * - Targeting benefit: use best range bracket among networked units with LOS to target
+ * - Targeting benefit: use best range bracket among operational networked units
  * - ECM disruption: ECM blocks C3 benefit for affected attacks (flag-based check)
  *
  * @spec openspec/specs/c3-network-targeting/spec.md

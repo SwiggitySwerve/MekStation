@@ -34,6 +34,7 @@ import {
   createEmptyC3State,
 } from '@/utils/gameplay/c3Network';
 import { createEnvironmentalConditions } from '@/utils/gameplay/environmentalModifiers';
+import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 import { getTerrainToHitModifier } from '@/utils/gameplay/toHit';
 
 import type {
@@ -599,6 +600,74 @@ describe('runAttackPhase to-hit modifier integration', () => {
     });
     expect(RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT.c3).toMatchObject({
       level: 'integrated',
+    });
+  });
+
+  it('does not require C3 spotter line of sight for default range sharing', () => {
+    const network = createC3MasterSlaveNetwork('runner-c3-no-los', [
+      createC3Unit({
+        entityId: 'player-1',
+        teamId: GameSide.Player,
+        role: 'master',
+        position: { q: 5, r: 0 },
+      }),
+      createC3Unit({
+        entityId: 'spotter-1',
+        teamId: GameSide.Player,
+        role: 'slave',
+        position: { q: 2, r: 1 },
+      }),
+    ]);
+    const state = createWeaponAttackState({
+      attacker: { position: { q: 5, r: 0 } },
+      target: { position: { q: 0, r: 0 } },
+    });
+    const grid = createGrid(TerrainType.Clear, [
+      { q: 1, r: 1, terrain: TerrainType.HeavyWoods },
+    ]);
+
+    expect(network).not.toBeNull();
+    expect(
+      calculateLOS(state.units['player-1'].position, { q: 0, r: 0 }, grid)
+        .hasLOS,
+    ).toBe(true);
+    expect(calculateLOS({ q: 2, r: 1 }, { q: 0, r: 0 }, grid).hasLOS).toBe(
+      false,
+    );
+
+    const c3State: IGameState = {
+      ...state,
+      c3Network: addC3Network(createEmptyC3State(), network!),
+      units: {
+        ...state.units,
+        'spotter-1': createUnit({
+          id: 'spotter-1',
+          side: GameSide.Player,
+          position: { q: 2, r: 1 },
+        }),
+      },
+    };
+
+    const events = runModifierScenario({ state: c3State, grid });
+
+    expect(
+      events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+
+    const payload = attackDeclaredPayload(events);
+    expect(payload).toMatchObject({
+      range: 'medium',
+      toHitNumber: 4,
+    });
+    expectModifier(payload, {
+      name: 'Range (short)',
+      value: 0,
+      source: 'range',
+    });
+    expectModifier(payload, {
+      name: 'C3 Network',
+      value: 0,
+      source: 'equipment',
     });
   });
 

@@ -10,7 +10,7 @@ import { IC3NetworkState, IC3TargetingResult } from './types';
  * units in the attacker's C3 network.
  *
  * This is the core C3 targeting mechanic: the attacker uses the best range bracket
- * among all networked units that have LOS to the target.
+ * among all operational networked units.
  *
  * @param attackerEntityId - The attacking unit's entity ID
  * @param targetPosition - Target hex position
