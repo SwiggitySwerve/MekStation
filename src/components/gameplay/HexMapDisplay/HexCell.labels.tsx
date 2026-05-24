@@ -9,6 +9,8 @@ import type {
 
 import { TERRAIN_LAYER_ORDER } from '@/constants/terrain';
 
+import { formatCombatC3Label } from './HexMapDisplay.combatC3Context';
+
 export function formatElevationLabel(elevation: number): string {
   if (elevation > 0) return `+${elevation}`;
   return `${elevation}`;
@@ -64,6 +66,8 @@ export function formatCombatLabel(combatInfo: ICombatRangeHex): string {
   const minimumRangeLabel = combatInfo.minimumRangeReason
     ? `, ${combatInfo.minimumRangeReason}`
     : '';
+  const c3Label = formatCombatC3Label(combatInfo);
+  const c3BenefitLabel = c3Label ? `, ${c3Label}` : '';
   const toHitLabel = combatInfo.toHitReason
     ? `, ${combatInfo.toHitReason}`
     : '';
@@ -84,7 +88,7 @@ export function formatCombatLabel(combatInfo: ICombatRangeHex): string {
   return `combat ${combatInfo.rangeBracket.replace(
     /_/g,
     ' ',
-  )} at ${combatInfo.distance} hexes, LOS ${combatInfo.losState}, ${combatInfo.firingArc} arc${targetLabel}${weaponImpactLabel}${visibilityLabel}${coverLabel}${minimumRangeLabel}${toHitLabel}${losBlockerLabel}${invalidLabel}${indirectLabel}${note}`;
+  )} at ${combatInfo.distance} hexes, LOS ${combatInfo.losState}, ${combatInfo.firingArc} arc${targetLabel}${weaponImpactLabel}${visibilityLabel}${coverLabel}${minimumRangeLabel}${c3BenefitLabel}${toHitLabel}${losBlockerLabel}${invalidLabel}${indirectLabel}${note}`;
 }
 
 function formatAmmoImpactLabel(combatInfo: ICombatRangeHex): string {

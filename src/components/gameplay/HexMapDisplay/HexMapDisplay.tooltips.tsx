@@ -14,6 +14,7 @@ import {
   formatElevationLabel,
   formatMovementModeLabel,
 } from './HexCell.labels';
+import { CombatC3ContextRows } from './HexMapDisplay.combatC3Context';
 import { CombatWeaponImpactRows } from './HexMapDisplay.combatWeaponImpacts';
 import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
 import { CombinedTacticalHoverTooltip } from './HexMapDisplay.combinedTooltip';
@@ -359,6 +360,10 @@ function CombatHoverTooltip({
           {indirectFireLabel}
         </div>
       )}
+      <CombatC3ContextRows
+        combatInfo={combatInfo}
+        testId="hex-combat-tooltip-c3-context"
+      />
       {modifierLabel && (
         <div data-testid="hex-combat-tooltip-modifiers">{modifierLabel}</div>
       )}

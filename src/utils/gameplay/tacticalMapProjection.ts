@@ -763,6 +763,16 @@ function formatProjectionExplanation({
     if (combat.minimumRangeReason) {
       parts.push(combat.minimumRangeReason);
     }
+    if (combat.c3BenefitApplied) {
+      const spotter = combat.c3SpotterId ?? 'unknown';
+      const spotterRange =
+        combat.c3SpotterRange === null || combat.c3SpotterRange === undefined
+          ? 'unknown'
+          : `${combat.c3SpotterRange}`;
+      parts.push(
+        `C3 spotter ${spotter} range ${spotterRange} effective ${combat.rangeBracket}`,
+      );
+    }
     if (combat.toHitNumber !== undefined) {
       parts.push(
         combat.toHitReason ?? `to-hit target number ${combat.toHitNumber}`,

@@ -14,6 +14,12 @@ import {
   TokenUnitType,
 } from '@/types/gameplay';
 import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
+import {
+  addC3Network,
+  createC3MasterSlaveNetwork,
+  createC3Unit,
+  createEmptyC3State,
+} from '@/utils/gameplay/c3Network';
 
 import { HexMapDisplay } from '../HexMapDisplay';
 
@@ -123,6 +129,37 @@ function makeAerospaceCombatState(altitude: number) {
     maxThrust: 9,
     altitude,
   });
+}
+
+function makeC3CombatState(): IGameState {
+  const baseState = makeCombatState({
+    selected: { side: GameSide.Player, position: { q: 0, r: 0 } },
+    spotter: { side: GameSide.Player, position: { q: 5, r: -1 } },
+    enemy: { side: GameSide.Opponent, position: { q: 6, r: 0 } },
+  });
+  const network = createC3MasterSlaveNetwork('map-c3-network', [
+    createC3Unit({
+      entityId: 'selected',
+      teamId: GameSide.Player,
+      role: 'master',
+      position: { q: 0, r: 0 },
+    }),
+    createC3Unit({
+      entityId: 'spotter',
+      teamId: GameSide.Player,
+      role: 'slave',
+      position: { q: 5, r: -1 },
+    }),
+  ]);
+
+  if (!network) {
+    throw new Error('Expected valid C3 network fixture');
+  }
+
+  return {
+    ...baseState,
+    c3State: addC3Network(createEmptyC3State(), network),
+  };
 }
 
 describe('HexMapDisplay combat projection', () => {
@@ -827,6 +864,155 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-badge-label',
       'X8',
     );
+  });
+
+  it('surfaces C3 range benefit context in combat hover explanations', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const spotter = makeToken({
+      unitId: 'spotter',
+      side: GameSide.Player,
+      position: { q: 5, r: -1 },
+    });
+    const enemy = makeToken({
+      unitId: 'enemy',
+      side: GameSide.Opponent,
+      position: { q: 6, r: 0 },
+    });
+
+    render(
+      <HexMapDisplay
+        mapId="combat-map"
+        radius={6}
+        tokens={[selected, spotter, enemy]}
+        selectedHex={null}
+        combatState={makeC3CombatState()}
+        unitWeapons={{
+          selected: [
+            makeWeapon({
+              id: 'c3-laser',
+              ranges: { short: 2, medium: 4, long: 6 },
+            }),
+          ],
+        }}
+      />,
+    );
+
+    const targetHex = screen.getByTestId('hex-6-0');
+    expect(targetHex).toHaveAttribute('data-combat-range-bracket', 'short');
+    expect(targetHex).toHaveAttribute('data-combat-c3-benefit', 'true');
+    expect(targetHex).toHaveAttribute('data-combat-c3-spotter', 'spotter');
+    expect(targetHex).toHaveAttribute('data-combat-c3-spotter-range', '2');
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('C3 spotter spotter range 2 effective short'),
+    );
+    expect(targetHex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining(
+        'C3: spotter spotter at 2 hexes improves to short range',
+      ),
+    );
+
+    fireEvent.mouseEnter(targetHex);
+
+    const c3Context = screen.getByTestId('hex-combat-tooltip-c3-context');
+    expect(c3Context).toHaveTextContent(
+      'C3: spotter spotter at 2 hexes improves to short range',
+    );
+    expect(c3Context).toHaveAttribute('data-combat-c3-benefit', 'true');
+    expect(c3Context).toHaveAttribute('data-combat-c3-spotter', 'spotter');
+    expect(c3Context).toHaveAttribute('data-combat-c3-spotter-range', '2');
+    expect(c3Context).toHaveAttribute(
+      'data-combat-c3-effective-range',
+      'short',
+    );
+
+    const toHitRows = screen.getByTestId('hex-combat-tooltip-to-hit-modifiers');
+    expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-names',
+      expect.stringContaining('C3 Network'),
+    );
+    expect(getToHitModifierRow(toHitRows, 'C3 Network')).toHaveTextContent(
+      'C3 Network +0',
+    );
+  });
+
+  it('surfaces C3 range benefit context in combined tactical hover explanations', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const spotter = makeToken({
+      unitId: 'spotter',
+      side: GameSide.Player,
+      position: { q: 5, r: -1 },
+    });
+    const enemy = makeToken({
+      unitId: 'enemy',
+      side: GameSide.Opponent,
+      position: { q: 6, r: 0 },
+    });
+
+    render(
+      <HexMapDisplay
+        mapId="combat-map"
+        radius={6}
+        tokens={[selected, spotter, enemy]}
+        selectedHex={null}
+        combatState={makeC3CombatState()}
+        movementRange={[
+          {
+            hex: { q: 6, r: 0 },
+            mpCost: 6,
+            terrainCost: 0,
+            elevationDelta: 0,
+            elevationCost: 0,
+            heatGenerated: 0,
+            movementMode: 'walk',
+            reachable: true,
+            movementType: MovementType.Walk,
+          },
+        ]}
+        unitWeapons={{
+          selected: [
+            makeWeapon({
+              id: 'c3-laser',
+              ranges: { short: 2, medium: 4, long: 6 },
+            }),
+          ],
+        }}
+      />,
+    );
+
+    const targetHex = screen.getByTestId('hex-6-0');
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-intent',
+      'movement-combat',
+    );
+
+    fireEvent.mouseEnter(targetHex);
+
+    const c3Context = screen.getByTestId(
+      'hex-tactical-tooltip-combat-c3-context',
+    );
+    expect(c3Context).toHaveTextContent(
+      'C3: spotter spotter at 2 hexes improves to short range',
+    );
+    expect(c3Context).toHaveAttribute('data-combat-c3-benefit', 'true');
+    expect(c3Context).toHaveAttribute('data-combat-c3-spotter', 'spotter');
+    expect(c3Context).toHaveAttribute('data-combat-c3-spotter-range', '2');
+    expect(c3Context).toHaveAttribute(
+      'data-combat-c3-effective-range',
+      'short',
+    );
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-range'),
+    ).toHaveTextContent('Range: short at 6 hexes');
   });
 
   it('preserves rules projection metadata when switching from top-down to isometric', () => {

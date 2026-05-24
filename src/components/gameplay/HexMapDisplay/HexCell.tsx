@@ -473,6 +473,9 @@ export const HexCell = React.memo(function HexCell({
         ?.map((modifier) => `${modifier.name}:${modifier.value}`)
         .join('|')}
       data-combat-to-hit-reason={combatInfo?.toHitReason}
+      data-combat-c3-benefit={combatInfo?.c3BenefitApplied ? 'true' : undefined}
+      data-combat-c3-spotter={combatInfo?.c3SpotterId ?? undefined}
+      data-combat-c3-spotter-range={combatInfo?.c3SpotterRange ?? undefined}
       data-combat-firing-arc={combatInfo?.firingArc}
       data-combat-target-visibility={combatInfo?.targetVisibilityState}
       data-combat-visible-target-ids={combatInfo?.visibleTargetUnitIds.join(
