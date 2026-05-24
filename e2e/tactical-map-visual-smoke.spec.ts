@@ -522,4 +522,117 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       page.getByTestId('hex-isometric-occluder-highlight--1-0'),
     ).toHaveAttribute('data-isometric-occludes-units', 'occluded');
   });
+
+  test('shows all selected weapons out of range as blocked in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=out-of-range');
+
+    const targetHex = page.getByTestId('hex-1-2');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'medium-target',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-range-bracket',
+      'out_of_range',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-distance', '4');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-valid-target',
+      'false',
+    );
+    await expect(targetHex).toHaveAttribute('data-weapons-in-range', '');
+    await expect(targetHex).toHaveAttribute('data-weapons-available', '');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-reason',
+      'OutOfRange',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-details',
+      "Target at 4 hexes is outside the selected weapons' range",
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-blocked-reason',
+      'Out of weapon range',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-ranges',
+      'small-laser:out_of_range|minimum-lrm:out_of_range',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-availability',
+      'small-laser:blocked|minimum-lrm:blocked',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-blocked-reasons',
+      'small-laser:out of range|minimum-lrm:out of range',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-status',
+      'blocked',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-combat-status',
+      'blocked',
+    );
+
+    const combatBadge = page.getByTestId('hex-combat-badge-1-2');
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-range',
+      'out_of_range',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-label',
+      'OUT4',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-attackable',
+      'false',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapons-available',
+      '',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-ranges',
+      'small-laser:out_of_range|minimum-lrm:out_of_range',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-availability',
+      'small-laser:blocked|minimum-lrm:blocked',
+    );
+
+    const weaponCountBadge = page.getByTestId(
+      'hex-combat-weapon-count-badge-1-2',
+    );
+    await expect(weaponCountBadge.locator('text')).toHaveText('0/2 WPN');
+    await expect(weaponCountBadge).toHaveAttribute(
+      'data-combat-weapon-count-badge-available',
+      '0',
+    );
+    await expect(weaponCountBadge).toHaveAttribute(
+      'data-combat-weapon-count-badge-total',
+      '2',
+    );
+    await expect(weaponCountBadge).toHaveAttribute(
+      'data-combat-weapon-count-badge-blocked',
+      '2',
+    );
+    await expect(weaponCountBadge).toHaveAttribute(
+      'data-combat-weapon-count-badge-weapons-available',
+      '',
+    );
+    await expect(weaponCountBadge).toHaveAttribute(
+      'data-combat-weapon-count-badge-blocked-reasons',
+      'small-laser:out of range|minimum-lrm:out of range',
+    );
+
+    await expect(
+      page.getByTestId('hex-combat-invalid-badge-1-2'),
+    ).toHaveAttribute('data-invalid-badge-code', 'OutOfRange');
+    await expect(
+      page.getByTestId('hex-projection-status-badge-1-2'),
+    ).toHaveAttribute('data-projection-status-badge-status', 'blocked');
+  });
 });

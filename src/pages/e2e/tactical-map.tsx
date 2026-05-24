@@ -1,3 +1,5 @@
+import { useRouter } from 'next/router';
+
 import { HexMapDisplay } from '@/components/gameplay/HexMapDisplay/HexMapDisplay';
 import {
   tacticalMapCombatState,
@@ -5,6 +7,7 @@ import {
   tacticalMapHighlightPath,
   tacticalMapMovementRange,
   tacticalMapMpLegend,
+  tacticalMapOutOfRangeSelectedWeaponIds,
   tacticalMapSelectedWeaponIds,
   tacticalMapTokens,
   tacticalMapUnitWeapons,
@@ -16,6 +19,13 @@ const isTestEnv =
   process.env.NEXT_PUBLIC_E2E_MODE === 'true';
 
 export default function TacticalMapE2EHarness(): React.JSX.Element {
+  const router = useRouter();
+  const isOutOfRangeScenario = router.query.scenario === 'out-of-range';
+  const selectedWeaponIds = isOutOfRangeScenario
+    ? tacticalMapOutOfRangeSelectedWeaponIds
+    : tacticalMapSelectedWeaponIds;
+  const targetUnitId = isOutOfRangeScenario ? 'medium-target' : 'occluded';
+
   if (!isTestEnv) {
     return (
       <div style={{ padding: 40, textAlign: 'center' }}>
@@ -38,11 +48,11 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
             radius={3}
             tokens={tacticalMapTokens}
             selectedHex={{ q: -1, r: 0 }}
-            targetUnitId="occluded"
+            targetUnitId={targetUnitId}
             hexTerrain={tacticalMapHexTerrain}
             unitWeapons={tacticalMapUnitWeapons}
             combatState={tacticalMapCombatState}
-            selectedWeaponIds={tacticalMapSelectedWeaponIds}
+            selectedWeaponIds={selectedWeaponIds}
             showCoordinates
             movementRange={tacticalMapMovementRange}
             highlightPath={tacticalMapHighlightPath}

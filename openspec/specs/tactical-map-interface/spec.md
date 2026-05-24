@@ -2864,6 +2864,9 @@ Replay and recovery surfaces SHALL render terrain and elevation from the same ev
 - **AND** a selected weapon at its represented extreme range cutoff SHALL remain
   available and expose an `extreme` per-weapon range option instead of being
   reported as out of range
+- **AND** when every selected weapon is out of range of a represented target,
+  the target SHALL remain non-attackable while exposing `OutOfRange`, blocked
+  weapon option metadata, and a non-color weapon count badge
 - **AND** a target inside a represented weapon minimum range SHALL expose the
   minimum-range penalty, affected weapon ids, to-hit modifier, reason, and a
   badge that does not rely on color alone

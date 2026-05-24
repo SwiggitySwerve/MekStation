@@ -35,6 +35,8 @@
   expose affected weapon ids, to-hit modifier metadata, and a non-color badge.
 - [x] 2.14 Add browser coverage proving represented extreme-range cutoffs keep
   selected weapons available at extreme range.
+- [x] 2.15 Add browser coverage proving all-selected-weapons-out-of-range
+  targets remain non-attackable while exposing blocked weapon metadata.
 
 ## 3. Validation
 
@@ -63,3 +65,5 @@
   penalty metadata.
 - [x] 3.14 Focused Playwright smoke passes with represented extreme-range
   availability metadata.
+- [x] 3.15 Focused Playwright smoke passes with
+  all-selected-weapons-out-of-range rejection metadata.

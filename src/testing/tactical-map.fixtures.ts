@@ -252,6 +252,11 @@ export const tacticalMapSelectedWeaponIds = [
   'extreme-lrm',
 ];
 
+export const tacticalMapOutOfRangeSelectedWeaponIds = [
+  'small-laser',
+  'minimum-lrm',
+];
+
 export const tacticalMapMovementRange: readonly IMovementRangeHex[] = [
   {
     hex: { q: 0, r: 1 },

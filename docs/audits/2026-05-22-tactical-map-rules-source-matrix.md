@@ -93,8 +93,14 @@ harness.
 also selects a represented extreme-range weapon with long range 3 and extreme
 range 4 against the four-hex target, verifying that the weapon stays available
 with `extreme` per-weapon range metadata instead of being marked out of range.
-Remaining browser range gaps are all-selected-weapons-out-of-range sweeps
-beyond the smoke harness.
+At that point, the remaining browser range gap was
+all-selected-weapons-out-of-range sweeps beyond the smoke harness.
+
+2026-05-24 all-out-of-range browser update: the tactical-map browser harness
+now includes an alternate browser scenario that selects only the represented
+short-range weapons against the four-hex target, verifying that the target is
+non-attackable with `OutOfRange`, empty available-weapon metadata, per-weapon
+`out_of_range` options, and a non-color `0/2 WPN` badge.
 
 2026-05-24 partial-cover browser update: the tactical-map browser harness now
 also renders a Mech-style target in depth-1 water and verifies that the top-down
