@@ -182,7 +182,12 @@ describe('id canonicalization helpers', () => {
 
   it('canonicalizeSPAIds maps legacy ids to canonical form and drops unknowns', () => {
     expect(
-      canonicalizeSPAIds(['iron-man', 'nonsense', 'weapon_specialist']),
-    ).toEqual(['iron_man', 'weapon_specialist']);
+      canonicalizeSPAIds([
+        'hopping-jack',
+        'iron-man',
+        'nonsense',
+        'weapon_specialist',
+      ]),
+    ).toEqual(['hopping_jack', 'iron_man', 'weapon_specialist']);
   });
 });

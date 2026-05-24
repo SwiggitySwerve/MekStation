@@ -196,6 +196,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'blood-stalker',
         'multi-tasker',
         'range-master',
+        'hopping-jack',
         'jumping-jack',
         'dodge-maneuver',
         'pain-resistance',
@@ -269,6 +270,26 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ]);
   });
 
+  it('pins Jumping Jack and Hopping Jack to MegaMek jump attacker penalties', () => {
+    const jumpingRefs = SPA_COMBAT_SUPPORT['jumping-jack'].sourceRefs ?? [];
+    const hoppingRefs = SPA_COMBAT_SUPPORT['hopping-jack'].sourceRefs ?? [];
+
+    expect(SPA_COMBAT_SUPPORT['jumping-jack']).toMatchObject({
+      level: 'integrated',
+    });
+    expect(SPA_COMBAT_SUPPORT['hopping-jack']).toMatchObject({
+      level: 'integrated',
+    });
+    expect(jumpingRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek Compute.getAttackerMovementModifier applies +1 for Jumping Jack, +2 for Hopping Jack, and +3 for plain jump movement',
+      'MegaMek OptionsConstants defines the source-backed Hopping Jack and Jumping Jack SPA ids as hopping_jack and jumping_jack',
+    ]);
+    expect(hoppingRefs).toEqual(jumpingRefs);
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['ranged-to-hit-calculation'].spaIds,
+    ).toEqual(expect.arrayContaining(['hopping-jack', 'jumping-jack']));
+  });
+
   it('keeps local called-shot helpers out of MegaMek-backed SPA claims', () => {
     expect(SPA_COMBAT_SUPPORT.marksman).toMatchObject({
       level: 'helper-only',
@@ -299,6 +320,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(SPA_COMBAT_SUPPORT['multi-tasker'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['multi-target'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['dodge-maneuver'].sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT['hopping-jack'].sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT['jumping-jack'].sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'multi-target-penalty-application'
       ].sourceRefs ?? []),

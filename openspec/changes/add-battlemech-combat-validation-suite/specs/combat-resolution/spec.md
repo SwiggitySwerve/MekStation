@@ -528,6 +528,32 @@ Runner ranged to-hit validation SHALL apply Dodge Maneuver as a +2 target modifi
 - **WHEN** the target unit type is explicit and is not a Mek type
 - **THEN** the declared to-hit number SHALL NOT include a `Dodge Maneuver` modifier
 
+### Requirement: Source-Backed Jump Attack SPA To-Hit Relief
+
+Ranged to-hit validation SHALL apply MegaMek's jump-attacker SPA relief: Jumping Jack reduces the attacker's jump movement penalty from +3 to +1, Hopping Jack reduces it from +3 to +2, and plain jump movement remains +3. Both canonical (`jumping_jack`, `hopping_jack`) and legacy (`jumping-jack`, `hopping-jack`) ids SHALL resolve through the SPA canonicalization layer. If both jump SPAs are present, Jumping Jack SHALL take precedence.
+
+#### Scenario: Jumping Jack applies stronger jump attacker relief
+
+- **GIVEN** a ranged weapon attack is declared by an attacker with `jumping_jack`
+- **AND** the attacker moved by jumping this turn
+- **WHEN** the to-hit number is computed
+- **THEN** the declared to-hit number SHALL include a `Jumping Jack` SPA modifier of `-2`
+- **AND** the net attacker jump movement penalty SHALL be +1
+
+#### Scenario: Hopping Jack applies lighter jump attacker relief
+
+- **GIVEN** a ranged weapon attack is declared by an attacker with `hopping_jack`
+- **AND** the attacker moved by jumping this turn
+- **WHEN** the to-hit number is computed
+- **THEN** the declared to-hit number SHALL include a `Hopping Jack` SPA modifier of `-1`
+- **AND** the net attacker jump movement penalty SHALL be +2
+
+#### Scenario: Non-jumping attackers do not consume jump SPAs
+
+- **GIVEN** a ranged weapon attack is declared by an attacker with `hopping_jack` or `jumping_jack`
+- **WHEN** the attacker did not jump this turn
+- **THEN** no jump-attack SPA modifier SHALL apply
+
 ### Requirement: Source-Backed Maneuvering Ace Skidding PSR Relief
 
 Runner movement and PSR resolution SHALL apply MegaMek's movement-before-skid PSR distance table and subtract 1 for canonical Maneuvering Ace only when resolving skidding PSRs. The skidding distance modifier SHALL be queued as PSR trigger state, while Maneuvering Ace SHALL be applied during PSR resolution from hydrated pilot ability state so runner and interactive paths share the same target-number math. Terrain-specific Maneuvering Ace PSR behavior beyond skidding SHALL remain an explicit catalog gap.

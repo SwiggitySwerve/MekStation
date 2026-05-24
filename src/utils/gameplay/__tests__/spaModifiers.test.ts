@@ -245,6 +245,16 @@ describe('spaModifiers', () => {
       const result = calculateJumpingJackModifier([], MovementType.Jump);
       expect(result).toBeNull();
     });
+
+    it('returns -1 for Hopping Jack when jumping', () => {
+      const result = calculateJumpingJackModifier(
+        ['hopping-jack'],
+        MovementType.Jump,
+      );
+      expect(result).not.toBeNull();
+      expect(result!.name).toBe('Hopping Jack');
+      expect(result!.value).toBe(-1);
+    });
   });
 
   describe('Dodge Maneuver', () => {
@@ -442,6 +452,7 @@ describe('spaModifiers', () => {
         'range-master',
         'cluster-hitter',
         'multi-tasker',
+        'hopping-jack',
         'jumping-jack',
         'dodge-maneuver',
         'melee-specialist',
@@ -575,6 +586,22 @@ describe('spaModifiers', () => {
       );
       expect(result.some((m) => m.name === 'Jumping Jack')).toBe(true);
       expect(result.find((m) => m.name === 'Jumping Jack')!.value).toBe(-2);
+    });
+
+    it('includes hopping jack when attacker jumped', () => {
+      const attacker: IAttackerState = {
+        ...baseAttacker,
+        movementType: MovementType.Jump,
+        abilities: ['hopping-jack'],
+      };
+      const result = calculateAttackerSPAModifiers(
+        attacker,
+        baseTarget,
+        RangeBracket.Short,
+        0,
+      );
+      expect(result.some((m) => m.name === 'Hopping Jack')).toBe(true);
+      expect(result.find((m) => m.name === 'Hopping Jack')!.value).toBe(-1);
     });
 
     it('includes dodge maneuver from target abilities', () => {
@@ -728,6 +755,19 @@ describe('spaModifiers', () => {
         rangeBracket: RangeBracket.Short,
         range: 1,
         expectedFinalToHit: 4,
+      },
+      {
+        id: 'hopping-jack',
+        modifierName: 'Hopping Jack',
+        attacker: {
+          ...baseAttacker,
+          abilities: ['hopping-jack'],
+          movementType: MovementType.Jump,
+        },
+        target: baseTarget,
+        rangeBracket: RangeBracket.Short,
+        range: 1,
+        expectedFinalToHit: 6,
       },
       {
         id: 'jumping-jack',

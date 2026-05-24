@@ -1,6 +1,6 @@
 /**
  * General Ability Modifiers
- * Blood Stalker, Multi-Tasker, Jumping Jack, Dodge, Melee Specialist,
+ * Blood Stalker, Multi-Tasker, Jumping/Hopping Jack, Dodge, Melee Specialist,
  * Tactical Genius, Iron Man, Hot Dog, Cluster Hitter, and related abilities.
  */
 
@@ -70,21 +70,34 @@ export function getClusterHitterBonus(abilities: readonly string[]): number {
 }
 
 /**
- * Jumping Jack: reduces jump attack modifier from +3 to +1.
+ * Jumping Jack reduces jump attack modifier from +3 to +1.
+ * Hopping Jack reduces jump attack modifier from +3 to +2.
  */
 export function calculateJumpingJackModifier(
   abilities: readonly string[],
   movementType: MovementType,
 ): IToHitModifierDetail | null {
-  if (!hasSPA(abilities, 'jumping_jack')) return null;
   if (movementType !== MovementType.Jump) return null;
 
-  return {
-    name: 'Jumping Jack',
-    value: -2,
-    source: 'spa',
-    description: 'Jumping Jack: jump modifier reduced to +1 (instead of +3)',
-  };
+  if (hasSPA(abilities, 'jumping_jack')) {
+    return {
+      name: 'Jumping Jack',
+      value: -2,
+      source: 'spa',
+      description: 'Jumping Jack: jump modifier reduced to +1 (instead of +3)',
+    };
+  }
+
+  if (hasSPA(abilities, 'hopping_jack')) {
+    return {
+      name: 'Hopping Jack',
+      value: -1,
+      source: 'spa',
+      description: 'Hopping Jack: jump modifier reduced to +2 (instead of +3)',
+    };
+  }
+
+  return null;
 }
 
 /**

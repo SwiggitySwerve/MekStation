@@ -109,6 +109,14 @@ describe('combat modifiers accept canonical ids', () => {
     expect(mod?.value).toBe(-2);
   });
 
+  it('Hopping Jack fires on canonical id', () => {
+    const mod = calculateJumpingJackModifier(
+      ['hopping_jack'],
+      MovementType.Jump,
+    );
+    expect(mod?.value).toBe(-1);
+  });
+
   it('Dodge Maneuver fires on canonical id', () => {
     const mod = calculateDodgeManeuverModifier(['dodge_maneuver'], true);
     expect(mod?.value).toBe(2);

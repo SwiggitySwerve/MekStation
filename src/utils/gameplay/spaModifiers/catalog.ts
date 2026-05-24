@@ -126,6 +126,14 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     combatEffect: 'Jump attack modifier reduced from +3 to +1',
     requiresDesignation: false,
   },
+  'hopping-jack': {
+    id: 'hopping-jack',
+    name: 'Hopping Jack',
+    category: 'piloting',
+    pipelines: ['to-hit'],
+    combatEffect: 'Jump attack modifier reduced from +3 to +2',
+    requiresDesignation: false,
+  },
   'melee-specialist': {
     id: 'melee-specialist',
     name: 'Melee Specialist',

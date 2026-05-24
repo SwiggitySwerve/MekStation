@@ -218,6 +218,27 @@ const MEGAMEK_325B_MULTI_TASKER_SOURCE_REFS = [
   MEGAMEK_325B_MULTI_TASKER_OPTION,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_325B_JUMP_ATTACKER_MOVEMENT = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Compute.getAttackerMovementModifier applies +1 for Jumping Jack, +2 for Hopping Jack, and +3 for plain jump movement',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/compute/Compute.java#L2670-L2677',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_JUMP_ATTACKER_OPTIONS = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek OptionsConstants defines the source-backed Hopping Jack and Jumping Jack SPA ids as hopping_jack and jumping_jack',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/options/OptionsConstants.java#L176-L178',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_JUMP_ATTACKER_SOURCE_REFS = [
+  MEGAMEK_325B_JUMP_ATTACKER_MOVEMENT,
+  MEGAMEK_325B_JUMP_ATTACKER_OPTIONS,
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_325B_DODGE_MANEUVER_TO_HIT = {
   kind: 'megamek-source',
   citation:
@@ -332,7 +353,13 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'jumping-jack': integrated(
     'jumping-jack',
-    'calculateJumpingJackModifier + calculateToHit',
+    'Source-backed calculateJumpingJackModifier + calculateToHit reduce the attacker jump movement penalty from +3 to +1',
+    MEGAMEK_325B_JUMP_ATTACKER_SOURCE_REFS,
+  ),
+  'hopping-jack': integrated(
+    'hopping-jack',
+    'Source-backed calculateJumpingJackModifier + calculateToHit reduce the attacker jump movement penalty from +3 to +2',
+    MEGAMEK_325B_JUMP_ATTACKER_SOURCE_REFS,
   ),
   'melee-specialist': integrated(
     'melee-specialist',

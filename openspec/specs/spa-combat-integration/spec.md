@@ -177,13 +177,13 @@ The Sharpshooter SPA SHALL reduce called shot modifier by 1 (from +3 to +2).
 
 The Jumping Jack SPA SHALL modify the attacker's to-hit when the attacker jumped this turn, NOT the target's piloting roll.
 
-When an attacker with Jumping Jack jumped, the jump-movement to-hit penalty (normally +3) SHALL be reduced by 1 (net +2). The SPA SHALL NOT affect any piloting-skill-roll calculation.
+When an attacker with Jumping Jack jumped, the jump-movement to-hit penalty (normally +3) SHALL be reduced to +1. The SPA SHALL NOT affect any piloting-skill-roll calculation.
 
 #### Scenario: Attacker with Jumping Jack jumps and fires
 
 - **GIVEN** an attacker with the Jumping Jack SPA who jumped this turn
 - **WHEN** the to-hit modifier is computed
-- **THEN** the jumping-attacker penalty SHALL be +2 (reduced from +3)
+- **THEN** the jumping-attacker penalty SHALL be +1 (reduced from +3)
 
 #### Scenario: Attacker with Jumping Jack did not jump
 
@@ -197,6 +197,25 @@ When an attacker with Jumping Jack jumped, the jump-movement to-hit penalty (nor
 - **GIVEN** an attacker with the Jumping Jack SPA who triggers a piloting-skill roll
 - **WHEN** the PSR modifiers are aggregated
 - **THEN** Jumping Jack SHALL NOT contribute any modifier to the PSR
+
+### Requirement: Piloting SPA - Hopping Jack
+
+The Hopping Jack SPA SHALL modify the attacker's to-hit when the attacker jumped this turn, NOT the target's piloting roll.
+
+When an attacker with Hopping Jack jumped, the jump-movement to-hit penalty (normally +3) SHALL be reduced to +2. If an attacker has both Jumping Jack and Hopping Jack, Jumping Jack SHALL take precedence because it grants the stronger jump-attack relief.
+
+#### Scenario: Attacker with Hopping Jack jumps and fires
+
+- **GIVEN** an attacker with the Hopping Jack SPA who jumped this turn
+- **WHEN** the to-hit modifier is computed
+- **THEN** the jumping-attacker penalty SHALL be +2 (reduced from +3)
+
+#### Scenario: Attacker with Hopping Jack did not jump
+
+- **GIVEN** an attacker with the Hopping Jack SPA who walked this turn
+- **WHEN** the to-hit modifier is computed
+- **THEN** no Hopping Jack modifier SHALL apply
+- **AND** the standard walking penalty (+1) SHALL apply
 
 ### Requirement: Piloting SPA — Dodge Maneuver
 
