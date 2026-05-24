@@ -575,7 +575,8 @@ describe('tacticalMapProjection', () => {
     });
     expect(projectionLookup.get('1,0')).toMatchObject({
       intent: 'path',
-      status: 'legal',
+      status: 'neutral',
+      combatStatus: 'range-only',
       isHovered: true,
       pathIndex: 1,
       inAttackRange: true,

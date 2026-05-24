@@ -173,7 +173,6 @@ export function buildTacticalMapHexProjection({
   const status = deriveProjectionStatus({
     movement,
     combat,
-    inAttackRange,
   });
   const sourceReferences = collectProjectionSourceReferences({
     terrain,
@@ -321,18 +320,16 @@ function deriveProjectionIntent({
 function deriveProjectionStatus({
   movement,
   combat,
-  inAttackRange,
 }: {
   readonly movement?: IMovementRangeHex;
   readonly combat?: ICombatRangeHex;
-  readonly inAttackRange: boolean;
 }): TacticalMapHexProjectionStatus {
   const movementLegal = movementHasReachableOption(movement);
   const movementBlocked = movementHasBlockedOption(movement);
   const legal =
     movementLegal ||
     Boolean(combat?.attackable) ||
-    (inAttackRange && !combat?.hasTarget);
+    Boolean(combat?.inRange && !combat.hasTarget);
   const blocked =
     movementBlocked ||
     (combat ? combat.hasTarget && !combat.attackable : false);

@@ -276,7 +276,9 @@ raw legacy `attackRange` overlay coordinates. That prevents stale caller-owned
 highlight arrays from painting attackable-looking hexes that the shared
 projection has already classified as out of range, blocked, empty, or otherwise
 not commit-ready. Raw `attackRange` remains a fallback only for legacy callers
-without weapon-backed combat projection.
+without weapon-backed combat projection, and legacy-only fallback hexes retain
+their range tint while reporting neutral top-level projection status with
+`range-only` combat metadata instead of claiming source-backed legality.
 
 Additional selected-weapon arc-overlay pin: the firing-arc overlay now uses
 the selected unit's operational weapon mounting arcs when a weapon list is

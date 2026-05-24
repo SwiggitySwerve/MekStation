@@ -179,6 +179,18 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       legacyAttackHex.querySelector(`path[fill="${HEX_COLORS.attackRange}"]`),
     ).not.toBeNull();
+    expect(legacyAttackHex).toHaveAttribute(
+      'data-tactical-projection-status',
+      'neutral',
+    );
+    expect(legacyAttackHex).toHaveAttribute(
+      'data-tactical-projection-combat-status',
+      'range-only',
+    );
+    expect(
+      legacyAttackHex.getAttribute('data-tactical-projection-sources'),
+    ).toContain('legacy-attack-range:mekstation:Legacy attackRange fallback');
+    expect(screen.queryByTestId('hex-projection-status-badge-2-0')).toBeNull();
   });
 
   it('limits firing-arc overlay to operational selected weapon mounting arcs', () => {
