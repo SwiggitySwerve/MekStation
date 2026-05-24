@@ -60,6 +60,9 @@ export interface ITerrainFeature {
   /** For buildings: Construction Factor */
   readonly constructionFactor?: number;
 
+  /** For buildings: stable footprint identity shared by connected hexes */
+  readonly buildingId?: string;
+
   /** Whether this terrain is currently on fire */
   readonly isOnFire?: boolean;
 

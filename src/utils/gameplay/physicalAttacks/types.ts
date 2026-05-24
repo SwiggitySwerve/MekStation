@@ -90,12 +90,14 @@ export interface IPhysicalAttackElevationContext {
 
 /**
  * Represented terrain state for physical-attack gates that depend on more than
- * elevation. Building identity is not modeled yet, so callers only set the
- * coarse "occupies a building hex" flags that can be proven from the grid.
+ * elevation. Building identity is optional because legacy/simple terrain tags
+ * only prove whether a unit occupies a building hex.
  */
 export interface IPhysicalAttackTerrainContext {
   readonly attackerInBuilding: boolean;
   readonly targetInBuilding: boolean;
+  readonly attackerBuildingId?: string;
+  readonly targetBuildingId?: string;
 }
 
 export interface IPhysicalAttackInput {

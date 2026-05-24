@@ -1,6 +1,14 @@
+import type {
+  IComponentDamageState,
+  IHex,
+  IHexGrid,
+  IUnitGameState,
+} from '@/types/gameplay';
+
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
-import { Facing, IComponentDamageState } from '@/types/gameplay';
+import { Facing, TerrainType } from '@/types/gameplay';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 import {
   calculatePunchDamage,
@@ -25,6 +33,7 @@ import {
   canKick,
   canPush,
   canMeleeWeapon,
+  buildPhysicalTerrainContext,
   getEffectiveWeight,
   applyUnderwaterModifier,
   determinePhysicalHitLocation,
@@ -66,6 +75,24 @@ function makeDiceSequence(values: number[]) {
     if (i >= values.length) return values[values.length - 1];
     return values[i++];
   };
+}
+
+function makeTerrainGrid(terrainByKey: Record<string, string>): IHexGrid {
+  const hexes = new Map<string, IHex>();
+  Object.entries(terrainByKey).forEach(([key, terrain]) => {
+    const [q, r] = key.split(',').map(Number);
+    hexes.set(key, {
+      coord: { q, r },
+      occupantId: null,
+      terrain,
+      elevation: 0,
+    });
+  });
+  return { config: { radius: 2 }, hexes };
+}
+
+function unitAt(id: string, q: number, r: number): IUnitGameState {
+  return { id, position: { q, r } } as IUnitGameState;
 }
 
 // =============================================================================
@@ -571,6 +598,74 @@ describe('physicalAttacks', () => {
         allowed: false,
         reason: 'Target is inside building',
         reasonCode: 'TargetInsideBuilding',
+      });
+    });
+
+    it('should disallow pushes against a different known building', () => {
+      const result = canPush(
+        makeInput({
+          attackType: 'push',
+          terrainContext: {
+            attackerInBuilding: true,
+            targetInBuilding: true,
+            attackerBuildingId: 'warehouse-a',
+            targetBuildingId: 'warehouse-b',
+          },
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Target is inside building',
+        reasonCode: 'TargetInsideBuilding',
+      });
+    });
+
+    it('should allow pushes inside the same known building', () => {
+      const result = canPush(
+        makeInput({
+          attackType: 'push',
+          terrainContext: {
+            attackerInBuilding: true,
+            targetInBuilding: true,
+            attackerBuildingId: 'warehouse-a',
+            targetBuildingId: 'warehouse-a',
+          },
+        }),
+      );
+
+      expect(result).toEqual({ allowed: true });
+    });
+
+    it('should derive known building ids from encoded terrain context', () => {
+      const grid = makeTerrainGrid({
+        '0,0': terrainStringFromFeatures([
+          {
+            type: TerrainType.Building,
+            level: 1,
+            buildingId: 'warehouse-a',
+          },
+        ]),
+        '1,0': terrainStringFromFeatures([
+          {
+            type: TerrainType.Building,
+            level: 2,
+            buildingId: 'warehouse-b',
+          },
+        ]),
+      });
+
+      expect(
+        buildPhysicalTerrainContext(
+          unitAt('attacker', 0, 0),
+          unitAt('target', 1, 0),
+          grid,
+        ),
+      ).toEqual({
+        attackerInBuilding: true,
+        targetInBuilding: true,
+        attackerBuildingId: 'warehouse-a',
+        targetBuildingId: 'warehouse-b',
       });
     });
 

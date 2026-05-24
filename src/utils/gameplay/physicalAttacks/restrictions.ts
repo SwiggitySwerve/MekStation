@@ -292,9 +292,14 @@ export function canPush(
     };
   }
 
+  const terrainContext = input.terrainContext;
+  const differentKnownBuilding =
+    terrainContext?.attackerBuildingId !== undefined &&
+    terrainContext.targetBuildingId !== undefined &&
+    terrainContext.attackerBuildingId !== terrainContext.targetBuildingId;
   if (
-    input.terrainContext?.targetInBuilding === true &&
-    input.terrainContext.attackerInBuilding !== true
+    terrainContext?.targetInBuilding === true &&
+    (terrainContext.attackerInBuilding !== true || differentKnownBuilding)
   ) {
     return {
       allowed: false,
