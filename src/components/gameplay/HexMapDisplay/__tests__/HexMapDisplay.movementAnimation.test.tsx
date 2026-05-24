@@ -252,6 +252,14 @@ describe('HexMapDisplay tactical visual layers', () => {
       'data-terrain-movement-cost',
       '2',
     );
+    expect(screen.getByTestId('movement-cost-overlay-hex-1-0')).toHaveAttribute(
+      'data-terrain-movement-cost-band',
+      'medium',
+    );
+    expect(screen.getByTestId('movement-cost-overlay-hex-1-0')).toHaveAttribute(
+      'data-terrain-movement-cost-fill',
+      '#eab308',
+    );
     expect(
       screen.getByTestId('movement-cost-overlay-hex-1-0'),
     ).toHaveTextContent('T2');
@@ -259,6 +267,15 @@ describe('HexMapDisplay tactical visual layers', () => {
       'aria-label',
       'Terrain movement cost 2; terrain light woods; elevation 0',
     );
+    expect(
+      screen.getByTestId('movement-cost-overlay-hex--1-0'),
+    ).toHaveAttribute('data-terrain-movement-cost', '1');
+    expect(
+      screen.getByTestId('movement-cost-overlay-hex--1-0'),
+    ).toHaveAttribute('data-terrain-movement-cost-band', 'low');
+    expect(
+      screen.getByTestId('movement-cost-overlay-hex--1-0'),
+    ).toHaveAttribute('data-terrain-movement-cost-fill', '#22c55e');
     expect(screen.getByTestId('cover-overlay-hex-1-0')).toHaveAttribute(
       'data-cover-level',
       'partial',

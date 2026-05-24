@@ -26,12 +26,33 @@ export interface MovementCostOverlayProps {
   terrain: IHexTerrain | undefined;
 }
 
+type MovementCostBand = 'low' | 'medium' | 'high';
+
+function movementCostBandFor(cost: number): MovementCostBand {
+  if (cost <= 1) return 'low';
+  if (cost <= 3) return 'medium';
+  return 'high';
+}
+
+function movementCostBandFill(band: MovementCostBand): string {
+  switch (band) {
+    case 'low':
+      return '#22c55e';
+    case 'medium':
+      return '#eab308';
+    case 'high':
+      return '#ef4444';
+  }
+}
+
 export const MovementCostOverlay = React.memo(function MovementCostOverlay({
   hex,
   terrain,
 }: MovementCostOverlayProps): React.ReactElement {
   const { x, y } = hexToPixel(hex);
   const cost = getTerrainMovementCost(terrain);
+  const costBand = movementCostBandFor(cost);
+  const costBandFill = movementCostBandFill(costBand);
   const terrainTypes = terrain?.features.map((feature) => feature.type) ?? [];
   const terrainLabel = formatTerrainFeaturesLabel(terrainTypes);
   const elevation = terrain?.elevation ?? 0;
@@ -46,11 +67,21 @@ export const MovementCostOverlay = React.memo(function MovementCostOverlay({
       data-terrain-features={
         terrainTypes.length > 0 ? terrainTypes.join(',') : undefined
       }
+      data-terrain-movement-cost-band={costBand}
+      data-terrain-movement-cost-fill={costBandFill}
       data-elevation={elevation}
       aria-label={title}
     >
       <title>{title}</title>
-      <circle cx={x} cy={y} r={12} fill="#1e293b" opacity={0.85} />
+      <circle
+        cx={x}
+        cy={y}
+        r={12}
+        fill={costBandFill}
+        stroke="#1e293b"
+        strokeWidth={1.5}
+        opacity={0.88}
+      />
       <text
         x={x}
         y={y + 4}
