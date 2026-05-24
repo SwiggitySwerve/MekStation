@@ -74,6 +74,13 @@ combat badge expose the medium range band, distance, available weapon id, and
 per-weapon range option metadata. Remaining browser combat gaps are special
 range-mode sweeps beyond the smoke harness.
 
+2026-05-24 partial-cover browser update: the tactical-map browser harness now
+also renders a Mech-style target in depth-1 water and verifies that the top-down
+hex and cover badge expose partial cover, cover modifier, cover reason, and the
+to-hit partial-cover modifier from the shared combat projection. Remaining
+browser combat gaps are broader cover/elevation families and special range-mode
+sweeps beyond the smoke harness.
+
 2026-05-24 movement gap update: the movement row's older frogman/swim and
 TacOps infantry pavement-bonus gaps are closed by the current
 `tactical-map-interface` spec and fixtures. Remaining movement oracle gaps are

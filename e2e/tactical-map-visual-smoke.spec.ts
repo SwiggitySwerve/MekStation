@@ -211,6 +211,45 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-combat-badge-weapon-option-availability',
       'medium-laser:available',
     );
+    const coverTargetHex = page.getByTestId('hex-0-2');
+    await expect(coverTargetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'water-cover-target',
+    );
+    await expect(coverTargetHex).toHaveAttribute(
+      'data-combat-valid-target',
+      'true',
+    );
+    await expect(coverTargetHex).toHaveAttribute(
+      'data-combat-target-cover-level',
+      'partial',
+    );
+    await expect(coverTargetHex).toHaveAttribute(
+      'data-combat-target-partial-cover',
+      'true',
+    );
+    await expect(coverTargetHex).toHaveAttribute(
+      'data-combat-cover-modifier',
+      '1',
+    );
+    await expect(coverTargetHex).toHaveAttribute(
+      'data-combat-cover-reason',
+      'Target in water partial cover (+1)',
+    );
+    await expect(coverTargetHex).toHaveAttribute(
+      'data-combat-to-hit-modifiers',
+      /Partial Cover:1/,
+    );
+    const coverBadge = page.getByTestId('hex-cover-badge-0-2');
+    await expect(coverBadge.locator('text')).toHaveText('P+1');
+    await expect(coverBadge).toHaveAttribute(
+      'data-combat-cover-badge-level',
+      'partial',
+    );
+    await expect(coverBadge).toHaveAttribute(
+      'data-combat-cover-badge-reason',
+      'Target in water partial cover (+1)',
+    );
     const blockedTargetHex = page.getByTestId('hex-2-0');
     await expect(blockedTargetHex).toHaveAttribute(
       'data-combat-target-ids',

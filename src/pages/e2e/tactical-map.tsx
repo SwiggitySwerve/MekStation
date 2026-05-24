@@ -1,10 +1,17 @@
-import type { IHexTerrain, IUnitToken, IWeaponStatus } from '@/types/gameplay';
+import type {
+  IGameState,
+  IHexTerrain,
+  IUnitToken,
+  IWeaponStatus,
+} from '@/types/gameplay';
 
 import { HexMapDisplay } from '@/components/gameplay/HexMapDisplay/HexMapDisplay';
 import {
   Facing,
   FiringArc,
+  GamePhase,
   GameSide,
+  GameStatus,
   MovementType,
   TerrainType,
   TokenUnitType,
@@ -65,6 +72,18 @@ const tokens: readonly IUnitToken[] = [
     isValidTarget: true,
     unitType: TokenUnitType.Mech,
   },
+  {
+    unitId: 'water-cover-target',
+    name: 'Commando COM-2D',
+    designation: 'COM',
+    position: { q: 0, r: 2 },
+    facing: Facing.Southwest,
+    side: GameSide.Opponent,
+    isDestroyed: false,
+    isSelected: false,
+    isValidTarget: true,
+    unitType: TokenUnitType.Mech,
+  },
 ];
 
 const hexTerrain: readonly IHexTerrain[] = [
@@ -92,6 +111,11 @@ const hexTerrain: readonly IHexTerrain[] = [
     coordinate: { q: 1, r: -1 },
     elevation: 0,
     features: [{ type: TerrainType.Rough, level: 1 }],
+  },
+  {
+    coordinate: { q: 0, r: 2 },
+    elevation: 0,
+    features: [{ type: TerrainType.Water, level: 1 }],
   },
 ];
 
@@ -121,6 +145,34 @@ const unitWeapons: Record<string, readonly IWeaponStatus[]> = {
   ],
 };
 
+const combatState: IGameState = {
+  gameId: 'tactical-map-e2e',
+  status: GameStatus.Active,
+  turn: 1,
+  phase: GamePhase.WeaponAttack,
+  activationIndex: 0,
+  turnEvents: [],
+  units: Object.fromEntries(
+    tokens.map((token) => [
+      token.unitId,
+      {
+        id: token.unitId,
+        side: token.side,
+        position: token.position,
+        facing: token.facing,
+        heat: 0,
+        movementThisTurn: MovementType.Stationary,
+        hexesMovedThisTurn: 0,
+        prone: false,
+        destroyed: token.isDestroyed,
+        shutdown: false,
+        hasRetreated: false,
+        gunnery: 4,
+      },
+    ]),
+  ) as IGameState['units'],
+};
+
 export default function TacticalMapE2EHarness(): React.JSX.Element {
   if (!isTestEnv) {
     return (
@@ -147,6 +199,7 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
             targetUnitId="occluded"
             hexTerrain={hexTerrain}
             unitWeapons={unitWeapons}
+            combatState={combatState}
             selectedWeaponIds={['medium-laser']}
             showCoordinates
             movementRange={[

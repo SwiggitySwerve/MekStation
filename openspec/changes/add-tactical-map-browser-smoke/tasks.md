@@ -25,6 +25,8 @@
   blocked movement-mode option with a separate non-color blocked-options badge.
 - [x] 2.9 Add browser coverage proving a target at medium weapon range exposes
   distance, range-band, and available weapon option metadata.
+- [x] 2.10 Add browser coverage proving a target in represented partial cover
+  exposes cover modifier, to-hit modifier, reason, and cover badge metadata.
 
 ## 3. Validation
 
@@ -42,4 +44,6 @@
 - [x] 3.8 Focused Playwright smoke passes with mixed reachable/blocked movement
   option metadata.
 - [x] 3.9 Focused Playwright smoke passes with medium-range combat target
+  metadata.
+- [x] 3.10 Focused Playwright smoke passes with partial-cover combat target
   metadata.
