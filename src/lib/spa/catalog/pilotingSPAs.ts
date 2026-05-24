@@ -81,7 +81,8 @@ export const PILOTING_SPAS: readonly ISPADefinition[] = [
   piloting({
     id: 'shaky_stick',
     displayName: 'Shaky Stick',
-    description: '+1 enemy to-hit with indirect fire against this unit.',
+    description:
+      '+1 enemy to-hit when this airborne unit is attacked from the ground.',
     pipelines: ['to-hit'],
     category: 'defensive',
   }),

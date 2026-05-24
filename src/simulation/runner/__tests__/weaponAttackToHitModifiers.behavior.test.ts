@@ -949,6 +949,63 @@ describe('runAttackPhase to-hit modifier integration', () => {
     ).toBe(false);
   });
 
+  it('applies source-backed Shaky Stick only for ground-to-air attacks', () => {
+    const groundToAirPayload = attackDeclaredPayload(
+      runModifierScenario({
+        state: createWeaponAttackState({
+          target: {
+            abilities: ['shaky_stick'],
+            isAirborne: true,
+          },
+        }),
+      }),
+    );
+    const airToAirPayload = attackDeclaredPayload(
+      runModifierScenario({
+        state: createWeaponAttackState({
+          attacker: { isAirborne: true },
+          target: {
+            abilities: ['shaky_stick'],
+            isAirborne: true,
+          },
+        }),
+      }),
+    );
+    const groundedTargetPayload = attackDeclaredPayload(
+      runModifierScenario({
+        state: createWeaponAttackState({
+          target: {
+            abilities: ['shaky_stick'],
+            isAirborne: false,
+          },
+        }),
+      }),
+    );
+
+    expect(groundToAirPayload.toHitNumber).toBe(5);
+    expectModifier(groundToAirPayload, {
+      name: 'Shaky Stick',
+      value: 1,
+      source: 'spa',
+    });
+    expect(airToAirPayload.toHitNumber).toBe(4);
+    expect(groundedTargetPayload.toHitNumber).toBe(4);
+    expect(
+      airToAirPayload.modifiers.some(
+        (modifier) => modifier.name === 'Shaky Stick',
+      ),
+    ).toBe(false);
+    expect(
+      groundedTargetPayload.modifiers.some(
+        (modifier) => modifier.name === 'Shaky Stick',
+      ),
+    ).toBe(false);
+    expect(SPA_COMBAT_SUPPORT.shaky_stick).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('airborne target'),
+    });
+  });
+
   it('hydrates target terrain for source-backed Terrain Master defender to-hit variants', () => {
     const forestRangerPayload = attackDeclaredPayload(
       runModifierScenario({

@@ -187,6 +187,26 @@ export function calculateTerrainMasterDefensiveToHitModifier(
 }
 
 /**
+ * Shaky Stick: +1 enemy to-hit for airborne targets attacked from the ground.
+ */
+export function calculateShakyStickModifier(
+  targetAbilities: readonly string[],
+  targetIsAirborne?: boolean,
+  attackerIsAirborne?: boolean,
+): IToHitModifierDetail | null {
+  if (!hasSPA(targetAbilities, 'shaky_stick')) return null;
+  if (targetIsAirborne !== true) return null;
+  if (attackerIsAirborne === true) return null;
+
+  return {
+    name: 'Shaky Stick',
+    value: 1,
+    source: 'spa',
+    description: 'Shaky Stick: airborne target attacked from ground (+1)',
+  };
+}
+
+/**
  * Melee Specialist: -1 to-hit for physical attacks.
  */
 export function calculateMeleeSpecialistModifier(

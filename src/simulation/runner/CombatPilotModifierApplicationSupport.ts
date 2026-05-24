@@ -13,6 +13,7 @@ import {
   MEGAMEK_PSR_SPA_SOURCE_REFS,
   MEGAMEK_SANDBLASTER_SOURCE_REFS,
   MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS,
+  MEGAMEK_SHAKY_STICK_SOURCE_REFS,
   MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,
   MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
   MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS,
@@ -62,13 +63,19 @@ export interface IPilotModifierResolverAssignment {
 export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   'ranged-to-hit-calculation': integrated(
     'ranged-to-hit-calculation',
-    'calculateToHit calls calculateAttackerSPAModifiers and calculateAttackerQuirkModifiers when attacker/target state includes abilities, target terrain features, or unit quirks',
-    MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS,
+    'calculateToHit calls calculateAttackerSPAModifiers and calculateAttackerQuirkModifiers when attacker/target state includes abilities, target terrain features, airborne state, or unit quirks',
+    [
+      ...MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS,
+      ...MEGAMEK_SHAKY_STICK_SOURCE_REFS,
+    ],
   ),
   'ranged-to-hit-state-hydration': integrated(
     'ranged-to-hit-state-hydration',
-    'runAttackPhase and declareAttack hydrate pilot abilities, SPA designations, unit quirks, weapon quirks, target unit type, target dodge state, wounds, sensor hits, attacker prone state, secondary-target state, and coarse arm-actuator damage into ranged to-hit state; runAttackPhase also hydrates target terrain features for source-backed Terrain Master defender to-hit variants',
-    MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS,
+    'runAttackPhase and declareAttack hydrate pilot abilities, SPA designations, unit quirks, weapon quirks, target unit type, target dodge state, airborne attacker/target state, wounds, sensor hits, attacker prone state, secondary-target state, and coarse arm-actuator damage into ranged to-hit state; runAttackPhase also hydrates target terrain features for source-backed Terrain Master defender to-hit variants',
+    [
+      ...MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS,
+      ...MEGAMEK_SHAKY_STICK_SOURCE_REFS,
+    ],
   ),
   'weapon-to-hit-quirk-application': integrated(
     'weapon-to-hit-quirk-application',
@@ -197,6 +204,7 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
       'hopping-jack',
       'jumping-jack',
       'dodge-maneuver',
+      'shaky_stick',
       'tm_forest_ranger',
       'tm_swamp_beast',
       'pain-resistance',
@@ -225,6 +233,7 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
       'hopping-jack',
       'jumping-jack',
       'dodge-maneuver',
+      'shaky_stick',
       'tm_forest_ranger',
       'tm_swamp_beast',
       'pain-resistance',

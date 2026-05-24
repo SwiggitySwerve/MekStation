@@ -11,6 +11,7 @@ export {
   calculateJumpingJackModifier,
   calculateMeleeSpecialistModifier,
   calculateMultiTaskerModifier,
+  calculateShakyStickModifier,
   calculateTerrainMasterDefensiveToHitModifier,
   getAnimalMimicryPSRModifier,
   getClusterHitterBonus,

@@ -680,15 +680,16 @@ Pilot modifier validation SHALL keep MegaMek's Heavy Lifter SPA visible as an un
 - **AND** the movement resolver family SHALL own the visible carry/throw action gap
 - **AND** Heavy Lifter SHALL NOT be represented as a physical damage or to-hit modifier
 
-### Requirement: Source-Backed Shaky Stick Ground-To-Air Gap
+### Requirement: Source-Backed Shaky Stick Ground-To-Air To-Hit
 
-Pilot modifier validation SHALL keep MegaMek's Shaky Stick SPA visible as an unsupported ground-to-air defender to-hit gap. The source-backed behavior SHALL be recorded as a `+1` defender modifier only when an airborne or airborne VTOL/WIGE target is attacked by a non-airborne attacker, while MekStation lacks airborne attacker/target state for the BattleMech ranged to-hit matrix.
+Pilot modifier validation SHALL integrate MegaMek's Shaky Stick SPA as a ground-to-air defender to-hit modifier. The ranged to-hit pipeline SHALL apply a `+1` defender modifier only when a target with Shaky Stick is airborne and the attacker is not airborne, and SHALL NOT apply Shaky Stick to air-to-air attacks, grounded targets, generic target movement, terrain, or PSR checks. VTOL/WIGE-specific airborne subtype parity SHALL remain outside this BattleMech matrix until richer airborne movement-state hydration exists.
 
-#### Scenario: Shaky Stick is cataloged as airborne target-state gap
+#### Scenario: Shaky Stick applies only to ground-to-air attacks
 
-- **GIVEN** the canonical SPA combat scope catalog is generated
-- **WHEN** Shaky Stick support is inspected
-- **THEN** the SPA SHALL be unsupported with MegaMek source references to the airborne target and non-airborne attacker gates
+- **GIVEN** a ranged attack against an airborne target with Shaky Stick
+- **WHEN** the attacker is not airborne
+- **THEN** the attack to-hit number SHALL include a `+1` Shaky Stick modifier with MegaMek source references
+- **AND** the SPA support row and pilot modifier resolver rows SHALL be integrated
 - **AND** Shaky Stick SHALL NOT be represented as a generic BattleMech target movement, terrain, or PSR modifier
 
 ### Requirement: Source-Backed Initiative Quirk Bonuses

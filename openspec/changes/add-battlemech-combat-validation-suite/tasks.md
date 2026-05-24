@@ -108,6 +108,7 @@
 - [x] 3.4.18 Integrate source-backed Terrain Master: Mountaineer rubble-entry PSR relief through SPA helper, PSR modifier resolution, canonicalization, catalog, and OpenSpec coverage while leaving Mountaineer movement-cost relief explicit.
 - [x] 3.4.19 Catalog MegaMek-backed Heavy Lifter lift-capacity behavior as an unsupported carry/throw-object action gap instead of an unscoped physical modifier.
 - [x] 3.4.20 Catalog MegaMek-backed Shaky Stick ground-to-air defender to-hit behavior as an unsupported airborne target-state gap instead of a generic BattleMech target modifier.
+- [x] 3.4.20.1 Integrate source-backed Shaky Stick ground-to-air defender to-hit through ranged to-hit state hydration, SPA helper aggregation, runner AttackDeclared coverage, catalog support, and OpenSpec coverage while leaving VTOL/WIGE-specific airborne subtype parity explicit.
 - [x] 3.4.21 Integrate source-backed Command Mech/Battle Computer initiative quirk bonuses into `rollInitiative` while leaving Tactical Genius reroll, Combat Intuition, and command-console/HQ equipment bonuses explicit.
 - [x] 3.4.22 Integrate source-backed explicit HQ/command initiative equipment bonuses into `rollInitiative` while leaving automatic equipment hydration explicit.
 - [x] 3.4.23 Integrate source-backed Tactical Genius initiative reroll requests into `rollInitiative` while leaving Combat Intuition sequencing and automatic equipment hydration explicit.
@@ -152,6 +153,7 @@
 - [x] 4.3.22 Cross-check MegaMek's Cross-Country combat-vehicle movement-cost/passability gates and canonical ability id.
 - [x] 4.3.23 Cross-check MegaMek's Heavy Lifter BattleMech/ProtoMek ground-object lift-capacity multiplier and canonical ability id.
 - [x] 4.3.24 Cross-check MegaMek's Shaky Stick ground-to-air defender to-hit modifier, airborne target gate, non-airborne attacker gate, and canonical ability id.
+- [x] 4.3.24.1 Verify implemented Shaky Stick ranged to-hit routing against MegaMek's airborne target and non-airborne attacker gates.
 - [x] 4.3.25 Cross-check MegaMek's Sandblaster cluster-table range modifiers, designated-weapon matching, Cluster Hitter precedence, eligible-weapon helper, and canonical ability id.
 - [x] 4.3.26 Cross-check MegaMek's Command Mech/Battle Computer non-cumulative initiative quirk bonus and Tactical Genius reroll gate.
 - [x] 4.3.27 Cross-check MegaMek's team initiative bonus composition for HQ, quirks, command console, and tech-officer command bonuses.

@@ -1274,9 +1274,8 @@ describe('BattleMech combat feature-gap tracking', () => {
       'unsupported',
     );
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.shaky_stick).toMatchObject({
-      level: 'unsupported',
-      evidence: expect.stringContaining('Source-backed'),
-      gap: expect.stringContaining('ground-to-air'),
+      level: 'integrated',
+      evidence: expect.stringContaining('ground-to-air'),
     });
     expect(
       CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.shaky_stick.sourceRefs?.map(

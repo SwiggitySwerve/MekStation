@@ -44,6 +44,7 @@ import { calculateBloodStalkerModifier } from './abilityModifiers';
 import { calculateMultiTaskerModifier } from './abilityModifiers';
 import { calculateJumpingJackModifier } from './abilityModifiers';
 import { calculateDodgeManeuverModifier } from './abilityModifiers';
+import { calculateShakyStickModifier } from './abilityModifiers';
 import { calculateTerrainMasterDefensiveToHitModifier } from './abilityModifiers';
 import { calculateWeaponSpecialistModifier } from './weaponSpecialists';
 import { calculateGunnerySpecialistModifier } from './weaponSpecialists';
@@ -134,6 +135,13 @@ export function calculateAttackerSPAModifiers(
       target.terrainFeatures ?? [],
     );
   if (terrainMasterDefensiveMod) modifiers.push(terrainMasterDefensiveMod);
+
+  const shakyStickMod = calculateShakyStickModifier(
+    targetAbilities,
+    target.isAirborne,
+    attacker.isAirborne,
+  );
+  if (shakyStickMod) modifiers.push(shakyStickMod);
 
   return modifiers;
 }

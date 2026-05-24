@@ -203,6 +203,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'hopping-jack',
         'jumping-jack',
         'dodge-maneuver',
+        'shaky_stick',
         'tm_forest_ranger',
         'tm_swamp_beast',
         'pain-resistance',
@@ -600,6 +601,26 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual(expect.arrayContaining(['tm_forest_ranger', 'tm_swamp_beast']));
   });
 
+  it('pins Shaky Stick to MegaMek ground-to-air defender semantics', () => {
+    const refs = SPA_COMBAT_SUPPORT.shaky_stick.sourceRefs ?? [];
+
+    expect(SPA_COMBAT_SUPPORT.shaky_stick).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('ground-to-air'),
+    });
+    expect(refs.map(({ citation }) => citation)).toEqual([
+      'MegaMek ComputeAbilityMods.processDefenderSPAs applies +1 Shaky Stick when an airborne or airborne VTOL/WIGE target is attacked by a non-airborne attacker.',
+      'MegaMek OptionsConstants defines PILOT_SHAKY_STICK as shaky_stick.',
+    ]);
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['ranged-to-hit-calculation'].spaIds,
+    ).toEqual(expect.arrayContaining(['shaky_stick']));
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['ranged-to-hit-state-hydration']
+        .spaIds,
+    ).toEqual(expect.arrayContaining(['shaky_stick']));
+  });
+
   it('keeps local called-shot helpers out of MegaMek-backed SPA claims', () => {
     expect(SPA_COMBAT_SUPPORT.marksman).toMatchObject({
       level: 'helper-only',
@@ -679,6 +700,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(SPA_COMBAT_SUPPORT['multi-tasker'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['multi-target'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['dodge-maneuver'].sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT.shaky_stick.sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['hopping-jack'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['jumping-jack'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT.tm_frogman.sourceRefs ?? []),

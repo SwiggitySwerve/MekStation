@@ -13,6 +13,7 @@ import {
   MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
   MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   MEGAMEK_SANDBLASTER_SOURCE_REFS,
+  MEGAMEK_SHAKY_STICK_SOURCE_REFS,
   MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,
   MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
@@ -508,6 +509,11 @@ export const SPA_COMBAT_SUPPORT = {
     'dodge-maneuver',
     'Source-backed calculateDodgeManeuverModifier + calculateToHit applies +2 only for explicit dodging Mek targets',
     MEGAMEK_325B_DODGE_MANEUVER_SOURCE_REFS,
+  ),
+  shaky_stick: integrated(
+    'shaky_stick',
+    'Source-backed calculateShakyStickModifier + calculateToHit applies +1 only for ground-to-air attacks when an airborne target is attacked by a non-airborne attacker',
+    MEGAMEK_SHAKY_STICK_SOURCE_REFS,
   ),
   evasive: unsupported('evasive', 'TMM bonus is not wired'),
   'natural-grace': unsupported(

@@ -47,6 +47,7 @@ export function buildWeaponAttackAttackerToHitState(
   return {
     gunnery,
     movementType: unit.movementThisTurn,
+    isAirborne: unit.isAirborne,
     heat: unit.heat,
     damageModifiers: [],
     pilotWounds: unit.pilotWounds,
@@ -77,6 +78,7 @@ export function buildWeaponAttackTargetToHitState(
   return {
     unitType: unit.unitType,
     movementType: unit.movementThisTurn,
+    isAirborne: unit.isAirborne,
     hexesMoved: unit.hexesMovedThisTurn,
     prone: unit.prone ?? false,
     immobile: unit.shutdown ?? false,

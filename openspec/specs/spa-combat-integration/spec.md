@@ -546,13 +546,13 @@ The Heavy Lifter SPA SHALL remain an explicit carry/throw-object action gap in t
 
 ### Requirement: Piloting SPA - Shaky Stick
 
-The Shaky Stick SPA SHALL remain an explicit ground-to-air defender to-hit gap in the BattleMech combat matrix until airborne attacker and target state exists. Source-backed MegaMek behavior SHALL be recorded as a `+1` modifier only when an airborne or airborne VTOL/WIGE target is attacked by a non-airborne attacker, not as a generic BattleMech target movement, terrain, or PSR modifier.
+The Shaky Stick SPA SHALL apply as a source-backed ground-to-air defender to-hit modifier in the BattleMech combat matrix. MegaMek behavior SHALL be represented as a `+1` modifier only when an airborne target is attacked by a non-airborne attacker, not as a generic BattleMech target movement, terrain, or PSR modifier. VTOL/WIGE-specific airborne subtype parity SHALL remain outside this BattleMech matrix until richer movement-state hydration exists.
 
-#### Scenario: Shaky Stick remains airborne-state gated
+#### Scenario: Shaky Stick applies only to ground-to-air attacks
 
 - **WHEN** the BattleMech combat validation catalog is generated
-- **THEN** Shaky Stick SHALL be marked unsupported with MegaMek source references to the ground-to-air defender to-hit behavior
-- **AND** the catalog SHALL state that airborne attacker and target state are not implemented for this canonical SPA
+- **THEN** Shaky Stick SHALL be marked integrated with MegaMek source references to the ground-to-air defender to-hit behavior
+- **AND** airborne target and non-airborne attacker state SHALL gate the modifier
 
 ### Requirement: Piloting SPA — Animal Mimicry
 

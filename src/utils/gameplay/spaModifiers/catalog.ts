@@ -229,6 +229,14 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     combatEffect: '+2 enemy to-hit when dodging (forfeit attack)',
     requiresDesignation: false,
   },
+  shaky_stick: {
+    id: 'shaky_stick',
+    name: 'Shaky Stick',
+    category: 'defensive',
+    pipelines: ['to-hit'],
+    combatEffect: '+1 enemy to-hit when airborne and attacked from ground',
+    requiresDesignation: false,
+  },
   evasive: {
     id: 'evasive',
     name: 'Evasive',

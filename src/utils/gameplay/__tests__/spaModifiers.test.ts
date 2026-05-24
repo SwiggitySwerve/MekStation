@@ -15,6 +15,7 @@ import {
   calculateMeleeSpecialistModifier,
   calculateFrogmanPhysicalToHitModifier,
   calculateTerrainMasterDefensiveToHitModifier,
+  calculateShakyStickModifier,
   getFrogmanWaterPSRModifier,
   getMeleeMasterDamageBonus,
   getMountaineerRubblePSRModifier,
@@ -333,6 +334,25 @@ describe('spaModifiers', () => {
     });
   });
 
+  describe('Shaky Stick', () => {
+    it('returns +1 only when an airborne target is attacked from the ground', () => {
+      const result = calculateShakyStickModifier(['shaky_stick'], true, false);
+
+      expect(result).not.toBeNull();
+      expect(result!.name).toBe('Shaky Stick');
+      expect(result!.value).toBe(1);
+      expect(result!.source).toBe('spa');
+
+      expect(
+        calculateShakyStickModifier(['shaky_stick'], false, false),
+      ).toBeNull();
+      expect(
+        calculateShakyStickModifier(['shaky_stick'], true, true),
+      ).toBeNull();
+      expect(calculateShakyStickModifier([], true, false)).toBeNull();
+    });
+  });
+
   describe('Melee Specialist', () => {
     it('returns -1 modifier', () => {
       const result = calculateMeleeSpecialistModifier(['melee-specialist']);
@@ -565,6 +585,7 @@ describe('spaModifiers', () => {
         'hopping-jack',
         'jumping-jack',
         'dodge-maneuver',
+        'shaky_stick',
         'melee-specialist',
         'melee-master',
         'tactical-genius',
@@ -768,6 +789,31 @@ describe('spaModifiers', () => {
           0,
         ).some((m) => m.name === 'Swamp Beast'),
       ).toBe(true);
+    });
+
+    it('includes source-backed Shaky Stick from airborne target state', () => {
+      const target: ITargetState = {
+        ...baseTarget,
+        abilities: ['shaky_stick'],
+        isAirborne: true,
+      };
+
+      expect(
+        calculateAttackerSPAModifiers(
+          baseAttacker,
+          target,
+          RangeBracket.Short,
+          0,
+        ).some((m) => m.name === 'Shaky Stick'),
+      ).toBe(true);
+      expect(
+        calculateAttackerSPAModifiers(
+          { ...baseAttacker, isAirborne: true },
+          target,
+          RangeBracket.Short,
+          0,
+        ).some((m) => m.name === 'Shaky Stick'),
+      ).toBe(false);
     });
 
     it('includes sniper at long range', () => {

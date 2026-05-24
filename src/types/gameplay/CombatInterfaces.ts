@@ -635,6 +635,7 @@ export interface IIndirectFire {
 export interface IAttackerState {
   readonly gunnery: number;
   readonly movementType: MovementType;
+  readonly isAirborne?: boolean;
   readonly heat: number;
   readonly damageModifiers: readonly IToHitModifierDetail[];
   readonly pilotWounds?: number;
@@ -676,6 +677,7 @@ export interface IAttackerState {
 export interface ITargetState {
   readonly unitType?: string;
   readonly movementType: MovementType;
+  readonly isAirborne?: boolean;
   readonly hexesMoved: number;
   readonly prone: boolean;
   readonly immobile: boolean;
