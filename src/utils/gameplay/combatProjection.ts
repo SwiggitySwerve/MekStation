@@ -74,7 +74,6 @@ function expectedDamageForProjection(
 function blockerKindForLOS(
   los: ReturnType<typeof classifyLOS>,
 ): CombatLineOfSightBlockerKind {
-  if (los.engineResult.blockingUnit) return 'wreck';
   if (los.engineResult.blockingElevation !== undefined) return 'elevation';
   if (los.state === 'partial') return 'cover';
   if (los.blockerAnnotations[0]?.terrain || los.engineResult.blockingTerrain) {
@@ -94,7 +93,6 @@ function lineOfSightBlockerForLOS(
     hex,
     kind: blockerKindForLOS(los),
     terrain: annotation?.terrain ?? los.engineResult.blockingTerrain,
-    unitId: los.engineResult.blockingUnit?.unitId,
     reason: annotation?.title ?? lineOfSightBlockedDetails(los),
   };
 }
@@ -195,7 +193,7 @@ export function deriveCombatRangeHexes({
             ),
           )
         : rangeBracket;
-    const los = classifyLOS(attacker.position, hex, grid, { tokens });
+    const los = classifyLOS(attacker.position, hex, grid);
     const lineOfSightBlocker = lineOfSightBlockerForLOS(los);
     const lineOfSightBlockerReason =
       los.state === 'blocked'
@@ -287,7 +285,6 @@ export function deriveCombatRangeHexes({
       weaponIdsAvailable,
       directLosBlocked: los.state === 'blocked',
       grid,
-      losTokens: tokens,
     });
     const visibilityBlockedReason = visibilityBlockedReasonForHex(
       targetVisibilityState,

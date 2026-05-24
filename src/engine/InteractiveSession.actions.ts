@@ -19,7 +19,6 @@ import type {
   IWeaponAttack,
   WeaponFireMode,
 } from '@/types/gameplay/CombatInterfaces';
-import type { IUnitToken } from '@/types/gameplay/GameplayUIInterfaces';
 import type { IAttackInvalidPayload } from '@/types/gameplay/GameSessionAttackEvents';
 import type { IGameSession } from '@/types/gameplay/GameSessionInterfaces';
 import type {
@@ -32,7 +31,7 @@ import {
   calculateSwarmDamage,
   type IBASwarmFireSquadDef,
 } from '@/lib/combat/baCombat';
-import { GameEventType, TokenUnitType } from '@/types/gameplay';
+import { GameEventType } from '@/types/gameplay';
 import {
   Facing,
   MovementType,
@@ -341,25 +340,6 @@ function indirectInterveningTerrainEffects({
     .interveningTerrainEffects;
 }
 
-function buildLineOfSightTokens(
-  state: IGameSession['currentState'],
-): readonly IUnitToken[] {
-  return Object.values(state.units)
-    .filter((unit) => unit.destroyed && !unit.hasRetreated)
-    .map((unit) => ({
-      unitId: unit.id,
-      name: unit.id,
-      side: unit.side,
-      position: unit.position,
-      facing: unit.facing,
-      isSelected: false,
-      isValidTarget: false,
-      isDestroyed: true,
-      designation: unit.id,
-      unitType: TokenUnitType.Mech,
-    }));
-}
-
 function appendInteractiveAttackInvalid(
   session: IGameSession,
   attackerId: string,
@@ -526,8 +506,6 @@ export function applyInteractiveSessionAttack(
         })
       : true,
   );
-  const losTokens = buildLineOfSightTokens(input.session.currentState);
-
   // Wave 8 PR-K5: pre-compute indirect-fire resolution when grid available.
   let indirectFireResolution: IIndirectFireResolution | undefined;
   if (input.grid && usableWeaponAttacks.length > 0) {
@@ -543,7 +521,6 @@ export function applyInteractiveSessionAttack(
           input.grid,
           input.pilotSpasByUnitId,
           input.targetId,
-          losTokens,
         );
         if (result.permitted && result.isIndirect) {
           indirectFireResolution = result;
@@ -594,9 +571,6 @@ export function applyInteractiveSessionAttack(
       attackerUnit.position,
       resolvedTargetHex,
       input.grid,
-      undefined,
-      undefined,
-      losTokens,
     );
     const indirectAllowed =
       indirectFireResolution?.permitted === true &&

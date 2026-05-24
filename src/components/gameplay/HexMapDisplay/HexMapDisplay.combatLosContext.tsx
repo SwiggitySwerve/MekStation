@@ -11,10 +11,9 @@ export function formatCombatLosContextLabel(
   if (!blocker) return null;
 
   const terrain = blocker.terrain ? `, terrain ${blocker.terrain}` : '';
-  const unit = blocker.unitId ? `, unit ${blocker.unitId}` : '';
   return `LOS context: ${combatInfo.losState} via ${blocker.kind} at ${coordToKey(
     blocker.hex,
-  )}${terrain}${unit} - ${blocker.reason}`;
+  )}${terrain} - ${blocker.reason}`;
 }
 
 export function CombatLosContextRows({
@@ -36,7 +35,6 @@ export function CombatLosContextRows({
       data-combat-los-blocker-hex={coordToKey(blocker.hex)}
       data-combat-los-blocker-kind={blocker.kind}
       data-combat-los-blocker-terrain={blocker.terrain}
-      data-combat-los-blocker-unit={blocker.unitId}
       data-combat-los-blocker-reason={blocker.reason}
     >
       {label}

@@ -129,8 +129,6 @@ function formatLOSBlockerBadgeLabel(
   switch (ref.blocker.kind) {
     case 'elevation':
       return 'LOS ELEV';
-    case 'wreck':
-      return 'LOS WRK';
     case 'terrain':
       return `LOS ${formatLOSBlockerTerrainLabel(ref.blocker.terrain)}`;
     default:
@@ -228,7 +226,6 @@ export function CombatLineOfSightBlockerBadge({
       data-combat-los-blocker-state={primary.losState}
       data-combat-los-blocker-kind={primary.blocker.kind}
       data-combat-los-blocker-terrain={primary.blocker.terrain}
-      data-combat-los-blocker-unit={primary.blocker.unitId}
       data-combat-los-blocker-reason={primary.blocker.reason}
     >
       <title>{title}</title>

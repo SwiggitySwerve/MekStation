@@ -11,11 +11,7 @@
  * @spec openspec/changes/full-combat-parity/specs/indirect-fire-system/spec.md
  */
 
-import {
-  MovementType,
-  type IUnitToken,
-  type IndirectFireBasis,
-} from '@/types/gameplay';
+import { MovementType, type IndirectFireBasis } from '@/types/gameplay';
 import { IHexCoordinate, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 
 import { hexDistance } from './hexMath';
@@ -103,8 +99,6 @@ export interface IIndirectFireRequest {
   readonly spotterCandidates: readonly ISpotterCandidate[];
   /** The hex grid (for LOS checks) */
   readonly grid: IHexGrid;
-  /** Optional unit-token blockers used by LOS, especially destroyed wrecks. */
-  readonly losTokens?: readonly IUnitToken[];
   /**
    * Whether the target has been NARC-marked by the attacker's team.
    * Optional for backward compatibility — existing call sites without NARC
@@ -254,16 +248,8 @@ export function spotterHasLOS(
   spotter: ISpotterCandidate,
   targetPosition: IHexCoordinate,
   grid: IHexGrid,
-  losTokens: readonly IUnitToken[] = [],
 ): ILOSResult {
-  return calculateLOS(
-    spotter.position,
-    targetPosition,
-    grid,
-    undefined,
-    undefined,
-    losTokens,
-  );
+  return calculateLOS(spotter.position, targetPosition, grid);
 }
 
 /**
@@ -279,7 +265,6 @@ export function findBestSpotter(
   attackerTeamId: string,
   targetPosition: IHexCoordinate,
   grid: IHexGrid,
-  losTokens: readonly IUnitToken[] = [],
 ): { spotter: ISpotterCandidate; losResult: ILOSResult } | null {
   // Filter to eligible spotters
   const eligible = candidates.filter((c) =>
@@ -297,7 +282,7 @@ export function findBestSpotter(
   } | null = null;
 
   for (const candidate of eligible) {
-    const losResult = spotterHasLOS(candidate, targetPosition, grid, losTokens);
+    const losResult = spotterHasLOS(candidate, targetPosition, grid);
     if (!losResult.hasLOS) continue;
 
     const contender = {
@@ -463,7 +448,6 @@ export function resolveIndirectFire(
     request.attackerTeamId,
     request.targetPosition,
     request.grid,
-    request.losTokens,
   );
 
   if (spotterResult) {

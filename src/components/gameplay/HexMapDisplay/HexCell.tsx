@@ -452,7 +452,6 @@ export const HexCell = React.memo(function HexCell({
       }
       data-combat-los-blocker-kind={combatInfo?.lineOfSightBlocker?.kind}
       data-combat-los-blocker-terrain={combatInfo?.lineOfSightBlocker?.terrain}
-      data-combat-los-blocker-unit={combatInfo?.lineOfSightBlocker?.unitId}
       data-combat-target-cover-level={combatInfo?.targetCoverLevel}
       data-combat-target-partial-cover={
         combatInfo

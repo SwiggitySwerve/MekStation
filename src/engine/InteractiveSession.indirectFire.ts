@@ -15,7 +15,6 @@
  */
 
 import type { IIndirectFireResolution } from '@/types/gameplay/CombatInterfaces';
-import type { IUnitToken } from '@/types/gameplay/GameplayUIInterfaces';
 import type { IGameState } from '@/types/gameplay/GameSessionInterfaces';
 import type {
   IHexCoordinate,
@@ -80,7 +79,6 @@ export function computeIndirectFireContext(
   grid: IHexGrid,
   pilotSpasByUnitId?: Readonly<Record<string, readonly string[]>>,
   targetEntityId?: string,
-  losTokens: readonly IUnitToken[] = [],
 ): IIndirectFireResolution {
   const attackerUnit = gameState.units[attackerId];
   if (!attackerUnit) {
@@ -105,14 +103,7 @@ export function computeIndirectFireContext(
   }
 
   // Compute attacker→target LOS to determine whether indirect is needed.
-  const attackerLOS = calculateLOS(
-    attackerUnit.position,
-    targetHex,
-    grid,
-    undefined,
-    undefined,
-    losTokens,
-  );
+  const attackerLOS = calculateLOS(attackerUnit.position, targetHex, grid);
   if (attackerLOS.hasLOS) {
     // Direct fire is available; indirect context is a pass-through.
     return {
@@ -184,7 +175,6 @@ export function computeIndirectFireContext(
       attackerAirborne: isAirborneGameUnit(attackerUnit),
       spotterCandidates,
       grid,
-      losTokens,
       targetNarcMarkedByTeam,
       targetINarcMarkedByTeam,
     },

@@ -5,8 +5,6 @@
  * @spec openspec/specs/terrain-system/spec.md
  */
 
-import type { IUnitToken } from '@/types/gameplay';
-
 import { IHexCoordinate, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 import {
   TerrainType,
@@ -33,8 +31,6 @@ export interface ILOSResult {
   readonly blockingTerrain?: TerrainType;
   /** Pure terrain elevation that blocks LOS without a blocking terrain feature */
   readonly blockingElevation?: number;
-  /** Destroyed unit token that blocks LOS as a wreck (if blocked) */
-  readonly blockingUnit?: IUnitToken;
   /** All intervening hexes (excluding endpoints) */
   readonly interveningHexes: readonly IHexCoordinate[];
   /** Intervening terrain that affects LOS as a to-hit/visibility modifier */
@@ -160,7 +156,6 @@ export function calculateLOS(
   grid: IHexGrid,
   fromElevation?: number,
   toElevation?: number,
-  tokens: readonly IUnitToken[] = [],
 ): ILOSResult {
   // Get all hexes on the line (includes endpoints)
   const lineHexes = hexLine(from, to);
@@ -196,17 +191,6 @@ export function calculateLOS(
   // Check each intervening hex for blocking terrain
   for (let i = 0; i < interveningHexes.length; i++) {
     const hex = interveningHexes[i];
-    const blockingUnit = findBlockingWreck(hex, tokens);
-    if (blockingUnit) {
-      return {
-        hasLOS: false,
-        blockedBy: hex,
-        blockingUnit,
-        interveningHexes,
-        interveningTerrainEffects,
-      };
-    }
-
     const hexData = grid.hexes.get(coordToKey(hex));
 
     if (!hexData) {
@@ -350,9 +334,6 @@ export function formatLOSBlockedDetails(result: ILOSResult): string {
   if (!blockedBy) return 'Line of sight blocked';
 
   const hexLabel = `(${blockedBy.q}, ${blockedBy.r})`;
-  if (result.blockingUnit) {
-    return `Blocked by wreck ${result.blockingUnit.name} at ${hexLabel}`;
-  }
   if (result.blockingTerrain) {
     return `Blocked by ${
       stackedBlockingTerrainLabel(result) ??
@@ -363,17 +344,6 @@ export function formatLOSBlockedDetails(result: ILOSResult): string {
     return `Blocked by elevation ${formatElevationLabel(result.blockingElevation)} at ${hexLabel}`;
   }
   return `Line of sight blocked at ${hexLabel}`;
-}
-
-function findBlockingWreck(
-  hex: IHexCoordinate,
-  tokens: readonly IUnitToken[],
-): IUnitToken | null {
-  return (
-    tokens.find(
-      (token) => token.isDestroyed && hexEquals(token.position, hex),
-    ) ?? null
-  );
 }
 
 /**

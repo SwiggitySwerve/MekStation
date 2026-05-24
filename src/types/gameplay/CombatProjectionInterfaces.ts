@@ -25,7 +25,6 @@ export type CombatTargetVisibilityState =
 export type CombatLineOfSightBlockerKind =
   | 'terrain'
   | 'elevation'
-  | 'wreck'
   | 'cover'
   | 'unknown';
 
@@ -36,8 +35,6 @@ export interface ICombatLineOfSightBlocker {
   readonly kind: CombatLineOfSightBlockerKind;
   /** Blocking or modifying terrain type when the classifier identified one. */
   readonly terrain?: TerrainType;
-  /** Wreck/unit id when a destroyed unit blocks LOS. */
-  readonly unitId?: string;
   /** Player-facing explanation from the shared LOS classifier. */
   readonly reason: string;
 }

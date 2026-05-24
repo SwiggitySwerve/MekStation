@@ -2173,6 +2173,55 @@ describe('HexMapDisplay combat projection', () => {
     ).toHaveTextContent('Blocked by building');
   });
 
+  it('keeps destroyed unit markers from creating LOS blocker highlights', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const wreck = makeToken({
+      unitId: 'wreck',
+      name: 'Wreck',
+      side: GameSide.Opponent,
+      position: { q: 1, r: 0 },
+      isDestroyed: true,
+    });
+    const enemy = makeToken({
+      unitId: 'enemy',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+    });
+
+    render(
+      <HexMapDisplay
+        mapId="combat-map"
+        radius={2}
+        tokens={[selected, wreck, enemy]}
+        selectedHex={null}
+        unitWeapons={{ selected: [makeWeapon()] }}
+      />,
+    );
+
+    const targetHex = screen.getByTestId('hex-2-0');
+    expect(targetHex).toHaveAttribute('data-combat-los-state', 'clear');
+    expect(targetHex).not.toHaveAttribute('data-combat-los-blocker-reason');
+    expect(targetHex).not.toHaveAttribute('data-combat-los-blocker-hex');
+    expect(targetHex).not.toHaveAttribute('data-combat-los-blocker-kind');
+    expect(targetHex).not.toHaveAttribute('data-combat-invalid-reason');
+    expect(
+      screen.queryByTestId('hex-combat-los-blocker-badge-1-0'),
+    ).not.toBeInTheDocument();
+
+    fireEvent.mouseEnter(targetHex);
+
+    expect(
+      screen.queryByTestId('hex-combat-tooltip-los-context'),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId('hex-combat-tooltip-geometry')).toHaveTextContent(
+      'LOS clear; front arc',
+    );
+  });
+
   it('shows elevation blocker reasons without relying on terrain type fallback', () => {
     const selected = makeToken({
       unitId: 'selected',

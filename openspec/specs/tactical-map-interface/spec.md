@@ -1672,8 +1672,8 @@ cloud burst and transition the token to a wreck sprite variant.
 - **AND** the token SHALL transition to a homemade wreck sprite variant
   for its archetype
 - **AND** the wreck SHALL render at ~50% opacity
-- **AND** the wreck SHALL remain on the hex blocking LOS per existing
-  rules
+- **AND** the wreck marker SHALL NOT create LOS-blocker highlights or
+  `NoLineOfSight` attack projections by itself
 
 #### Scenario: Pilot killed triggers destruction effect
 

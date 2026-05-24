@@ -12,7 +12,7 @@ the player commits.
 
 - **GIVEN** a combat projection has `lineOfSightBlocker` from the shared LOS classifier
 - **WHEN** the player inspects combat hover context for the target hex
-- **THEN** the tooltip SHALL show the LOS state, blocker hex, blocker kind, terrain or unit metadata when present, and blocker reason
+- **THEN** the tooltip SHALL show the LOS state, blocker hex, blocker kind, terrain metadata when present, and blocker reason
 - **AND** the same metadata SHALL be exposed through stable machine-readable attributes
 - **AND** combined movement+combat tactical hover context SHALL expose the same LOS blocker facts
 - **AND** the UI SHALL read this context from `ICombatRangeHex` rather than recalculating LOS locally

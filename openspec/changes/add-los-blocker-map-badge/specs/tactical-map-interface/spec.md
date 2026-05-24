@@ -13,5 +13,5 @@ The tactical map interface SHALL expose rules-backed combat projection details f
 - **WHEN** the tactical map renders the battlefield
 - **THEN** the map SHALL mark the intervening blocker hex with a compact LOS blocker badge
 - **AND** the badge SHALL visibly distinguish blocked LOS from partial-cover LOS
-- **AND** the badge SHALL expose the affected target hex, target unit ids, LOS state, blocker kind, blocker terrain or unit metadata when known, and player-facing reason from the combat projection
+- **AND** the badge SHALL expose the affected target hex, target unit ids, LOS state, blocker kind, blocker terrain metadata when known, and player-facing reason from the combat projection
 - **AND** the renderer SHALL NOT recalculate LOS, cover, weapon legality, or attack legality

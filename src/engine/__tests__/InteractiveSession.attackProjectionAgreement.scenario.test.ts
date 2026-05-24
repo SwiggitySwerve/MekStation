@@ -984,9 +984,9 @@ describe('interactive attack projection agreement', () => {
     });
   });
 
-  it('uses the same wreck LOS rejection reason in preview and committed attacks', () => {
+  it('keeps preview and committed attacks clear through destroyed unit markers', () => {
     const session = setupWreckSessionAtWeaponAttack();
-    const grid = makeEncodedBlockerGrid();
+    const grid = makeClearGrid(3);
     const attackerToken = makeToken({
       unitId: 'a1',
       isSelected: true,
@@ -1018,13 +1018,13 @@ describe('interactive attack projection agreement', () => {
 
     expect(projection).toBeDefined();
     expect(projection).toMatchObject({
-      losState: 'blocked',
-      attackable: false,
-      attackInvalidReason: 'NoLineOfSight',
-      attackInvalidDetails: 'Blocked by wreck w1 at (1, 0)',
-      lineOfSightBlockerReason: 'Blocked by wreck w1 at (1, 0)',
+      losState: 'clear',
+      attackable: true,
     });
-    expect(projection?.blockedReason).toContain('Blocked by wreck w1');
+    expect(projection?.attackInvalidReason).toBeUndefined();
+    expect(projection?.attackInvalidDetails).toBeUndefined();
+    expect(projection?.lineOfSightBlockerReason).toBeUndefined();
+    expect(projection?.lineOfSightBlocker).toBeUndefined();
 
     const result = applyInteractiveSessionAttack({
       session,
@@ -1039,19 +1039,15 @@ describe('interactive attack projection agreement', () => {
       result.events.some(
         (event) => event.type === GameEventType.AttackDeclared,
       ),
-    ).toBe(false);
+    ).toBe(true);
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackLocked),
+    ).toBe(true);
 
     const invalid = result.events.find(
       (event) => event.type === GameEventType.AttackInvalid,
     );
-    expect(invalid).toBeDefined();
-    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
-      attackerId: 'a1',
-      targetId: 't1',
-      weaponId: 'medium-laser',
-      reason: projection!.attackInvalidReason,
-      details: projection!.attackInvalidDetails,
-    });
+    expect(invalid).toBeUndefined();
   });
 
   it('uses the same elevation LOS rejection reason in preview and committed attacks', () => {
@@ -3094,7 +3090,7 @@ describe('interactive attack projection agreement', () => {
     });
   });
 
-  it('keeps wreck-blocked indirect-fire preview aligned with a committed spotter attack', () => {
+  it('does not switch to indirect fire solely because a destroyed marker sits between attacker and target', () => {
     const session = setupIndirectWreckSessionAtWeaponAttack();
     const grid = makeIndirectFireWreckGrid();
     const attackerToken = makeToken({
@@ -3142,15 +3138,12 @@ describe('interactive attack projection agreement', () => {
 
     expect(projection).toBeDefined();
     expect(projection).toMatchObject({
-      losState: 'blocked',
+      losState: 'clear',
       attackable: true,
-      indirectFireAvailable: true,
-      indirectFireSpotterId: 's1',
-      indirectFireBasis: 'los',
-      indirectFireToHitPenalty: 1,
-      indirectFireReason: 'Indirect fire via spotter s1 (+1)',
-      lineOfSightBlockerReason: 'Blocked by wreck Wreck at (3, 0)',
     });
+    expect(projection?.indirectFireAvailable).toBeUndefined();
+    expect(projection?.indirectFireSpotterId).toBeUndefined();
+    expect(projection?.lineOfSightBlockerReason).toBeUndefined();
     expect(projection?.attackInvalidReason).toBeUndefined();
 
     const result = applyInteractiveSessionAttack({
@@ -3174,6 +3167,6 @@ describe('interactive attack projection agreement', () => {
       result.events.some(
         (event) => event.type === GameEventType.IndirectFireSpotterSelected,
       ),
-    ).toBe(true);
+    ).toBe(false);
   });
 });

@@ -140,7 +140,6 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
                 origin={selectedUnitPosition}
                 target={hoveredHex}
                 grid={hexGrid}
-                tokens={tokens}
                 testId="los-overlay"
               />
             )}

@@ -77,7 +77,6 @@ function formatCombatInvalidBadgeLabel(combatInfo: ICombatRangeHex): string {
     if (includesReason(blockerReason, 'building')) return 'BLDG';
     if (includesReason(blockerReason, 'woods')) return 'WOOD';
     if (includesReason(blockerReason, 'smoke')) return 'SMK';
-    if (includesReason(blockerReason, 'wreck')) return 'WRCK';
   }
 
   switch (combatInfo.attackInvalidReason) {

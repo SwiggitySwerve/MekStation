@@ -6,7 +6,7 @@ The combat projection already carries the exact intervening LOS blocker or
 partial-cover hex selected by the shared MegaMek-aligned classifier. Hex badges
 and metadata expose that evidence, but combat and combined tactical hovers still
 collapse it into a generic reason line. Players need the hover itself to answer
-which hex, blocker kind, terrain or wreck/unit, and source reason caused a
+which hex, blocker kind, terrain/elevation context, and source reason caused a
 blocked or partial line of sight.
 
 ## What Changes
@@ -21,4 +21,4 @@ blocked or partial line of sight.
 ## Out Of Scope
 
 - Changing LOS classification, to-hit modifier, indirect-fire, or commit rules.
-- Expanding the water/TacOps/wreck LOS fixture matrix.
+- Expanding the water/TacOps/elevation LOS fixture matrix.

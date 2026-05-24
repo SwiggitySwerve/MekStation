@@ -284,7 +284,6 @@ export function deriveIndirectFireProjection({
   weaponIdsAvailable,
   directLosBlocked,
   grid,
-  losTokens,
 }: {
   readonly attacker: IUnitToken;
   readonly combatState?: IGameState | null;
@@ -293,7 +292,6 @@ export function deriveIndirectFireProjection({
   readonly weaponIdsAvailable: readonly string[];
   readonly directLosBlocked: boolean;
   readonly grid: IHexGrid;
-  readonly losTokens: readonly IUnitToken[];
 }):
   | {
       readonly available: true;
@@ -327,7 +325,6 @@ export function deriveIndirectFireProjection({
       attackerAirborne: isAirborneGameUnit(attackerUnit),
       spotterCandidates: buildSpotterCandidates(combatState),
       grid,
-      losTokens,
       targetNarcMarkedByTeam:
         targetStatus.narcMarkedByTeams.includes(attackerTeamId),
       targetINarcMarkedByTeam:
