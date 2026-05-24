@@ -33,6 +33,8 @@ export {
 
 export { goProne } from './gameSessionProne';
 
+export { activateMovementEnhancement } from './gameSessionMovementEnhancements';
+
 export { resolveHeatPhase } from './gameSessionHeat';
 
 export {

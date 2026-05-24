@@ -631,6 +631,7 @@ describe('game session role and intent contracts', () => {
       'declareMovement',
       'stand',
       'goProne',
+      'activateMovementEnhancement',
       'declareAttack',
       'declarePhysical',
       'confirmHeat',

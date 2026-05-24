@@ -6,6 +6,7 @@ import { buildPhysicalAttackCommands } from '@/components/gameplay/TacticalActio
 import { buildUtilityCommands } from '@/components/gameplay/TacticalActionDock/commands/utilityCommands';
 import { buildWeaponAttackCommands } from '@/components/gameplay/TacticalActionDock/commands/weaponAttackCommands';
 import {
+  activateMovementEnhancementIntent,
   concedeIntent,
   declareAttackIntent,
   declareMovementIntent,
@@ -105,6 +106,8 @@ describe('BattleMech combat action support catalog', () => {
       'heat-end.end-phase',
       'heat-end.next-turn',
       'heat.continue',
+      'movement.activate-masc',
+      'movement.activate-supercharger',
       'movement.go-prone',
       'movement.jump',
       'movement.run',
@@ -152,18 +155,12 @@ describe('BattleMech combat action support catalog', () => {
     ]);
 
     expect(sortedKeys(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([
-      'movement.activate-masc',
-      'movement.activate-supercharger',
       'movement.sprint',
     ]);
     expect(supportGaps(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(BATTLEMECH_ABSENT_ACTION_SUPPORT, 'unsupported'),
-    ).toEqual([
-      'movement.activate-masc',
-      'movement.activate-supercharger',
-      'movement.sprint',
-    ]);
+    ).toEqual(['movement.sprint']);
     expect(
       sortedKeys(BATTLEMECH_ABSENT_ACTION_SUPPORT).filter((id) =>
         playerCommandIds.includes(id),
@@ -173,11 +170,6 @@ describe('BattleMech combat action support catalog', () => {
     expect(BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.sprint']).toMatchObject({
       layer: 'absent-action-surface',
       gap: expect.stringContaining('no authoritative sprint action path'),
-    });
-    expect(
-      BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.activate-masc'],
-    ).toMatchObject({
-      gap: expect.stringContaining('no tactical command'),
     });
   });
 
@@ -200,6 +192,12 @@ describe('BattleMech combat action support catalog', () => {
       stand: toServerIntent(standIntent(peer, { unitId: 'player-1' }))?.kind,
       goProne: toServerIntent(goProneIntent(peer, { unitId: 'player-1' }))
         ?.kind,
+      activateMovementEnhancement: toServerIntent(
+        activateMovementEnhancementIntent(peer, {
+          unitId: 'player-1',
+          enhancement: 'MASC',
+        }),
+      )?.kind,
       declareAttack: toServerIntent(
         declareAttackIntent(peer, {
           attackerId: 'player-1',
@@ -267,6 +265,7 @@ describe('BattleMech combat action support catalog', () => {
     expect(
       supportIdsByLevel(P2P_INTENT_TRANSLATION_SUPPORT, 'integrated'),
     ).toEqual([
+      'activateMovementEnhancement',
       'concede',
       'confirmHeat',
       'declareAttack',

@@ -68,6 +68,11 @@ export interface IHostIntentRouterAdapter {
   readonly stand: (unitId: string) => void;
   /** Apply a host-owned voluntary prone action. */
   readonly goProne: (unitId: string) => void;
+  /** Apply a host-owned MASC/Supercharger activation. */
+  readonly activateMovementEnhancement: (
+    unitId: string,
+    enhancement: 'MASC' | 'Supercharger',
+  ) => void;
   /**
    * Broadcast a structured rejection back to the guest. Called when
    * the translator returns `{ ok: false }` or when the host is
@@ -158,6 +163,16 @@ export function createHostIntentRouter(
           };
         case 'goProne':
           adapter.goProne(translation.command.unitId);
+          return {
+            outcome: 'applied',
+            events: [],
+            command: translation.command,
+          };
+        case 'activateMovementEnhancement':
+          adapter.activateMovementEnhancement(
+            translation.command.unitId,
+            translation.command.enhancement,
+          );
           return {
             outcome: 'applied',
             events: [],

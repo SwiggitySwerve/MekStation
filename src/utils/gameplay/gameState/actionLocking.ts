@@ -2,6 +2,7 @@ import {
   IAttackDeclaredPayload,
   IGameEvent,
   IGameState,
+  IMovementEnhancementActivatedPayload,
   IMovementDeclaredPayload,
   IUnitGameState,
   LockState,
@@ -62,6 +63,29 @@ export function applyMovementLocked(
       },
     },
     activationIndex: state.activationIndex + 1,
+  };
+}
+
+export function applyMovementEnhancementActivated(
+  state: IGameState,
+  payload: IMovementEnhancementActivatedPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) {
+    return state;
+  }
+
+  const updatedUnit: IUnitGameState =
+    payload.enhancement === 'MASC'
+      ? { ...unit, activeMASC: true }
+      : { ...unit, activeSupercharger: true };
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: updatedUnit,
+    },
   };
 }
 

@@ -15,6 +15,7 @@ import {
   IHeatPayload,
   IInitiativeRolledPayload,
   IMoraleShiftedPayload,
+  IMovementEnhancementActivatedPayload,
   IMovementDeclaredPayload,
   IObjectiveCapturedPayload,
   IObjectiveLostPayload,
@@ -43,6 +44,7 @@ import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveE
 import {
   applyAttackDeclared,
   applyAttackLocked,
+  applyMovementEnhancementActivated,
   applyMovementDeclared,
   applyMovementLocked,
 } from './actionLocking';
@@ -125,6 +127,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.MovementLocked:
       return applyMovementLocked(state, event);
+
+    case GameEventType.MovementEnhancementActivated:
+      return applyMovementEnhancementActivated(
+        state,
+        event.payload as IMovementEnhancementActivatedPayload,
+      );
 
     case GameEventType.AttackDeclared:
       return applyAttackDeclared(

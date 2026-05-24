@@ -12,6 +12,7 @@ import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import { IntentPayloadSchema } from '@/types/multiplayer/Protocol';
 
 import {
+  activateMovementEnhancementIntent,
   concedeIntent,
   declareAttackIntent,
   declareMovementIntent,
@@ -106,6 +107,34 @@ describe('toServerIntent go-prone', () => {
 
   it('returns null for go-prone without a unit id', () => {
     expect(toServerIntent(goProneIntent(PEER, { unitId: '' }))).toBeNull();
+  });
+});
+
+describe('toServerIntent movement enhancement activation', () => {
+  it('maps a MASC activation intent to an ActivateMovementEnhancement wire payload', () => {
+    const wire = toServerIntent(
+      activateMovementEnhancementIntent(PEER, {
+        unitId: 'player-1',
+        enhancement: 'MASC',
+      }),
+    );
+    expect(wire).toEqual({
+      kind: 'ActivateMovementEnhancement',
+      unitId: 'player-1',
+      enhancement: 'MASC',
+    });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('returns null for activation without a unit id', () => {
+    expect(
+      toServerIntent(
+        activateMovementEnhancementIntent(PEER, {
+          unitId: '',
+          enhancement: 'Supercharger',
+        }),
+      ),
+    ).toBeNull();
   });
 });
 

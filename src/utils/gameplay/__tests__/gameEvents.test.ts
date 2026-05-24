@@ -24,6 +24,7 @@ import {
   createGameEndedEvent,
   createPhaseChangedEvent,
   createInitiativeRolledEvent,
+  createMovementEnhancementActivatedEvent,
   createGoProneMovementDeclaredEvent,
   createMovementDeclaredEvent,
   createMovementLockedEvent,
@@ -565,6 +566,26 @@ describe('Movement Event Factories', () => {
       expect(payload.steps).toEqual([
         { kind: 'goProne', index: 0, at: position, mpCost: 1 },
       ]);
+    });
+  });
+
+  describe('createMovementEnhancementActivatedEvent', () => {
+    it('should create a movement enhancement activation event', () => {
+      const event = createMovementEnhancementActivatedEvent(
+        'game-1',
+        11,
+        2,
+        'unit-1',
+        'MASC',
+      );
+
+      expect(event.type).toBe(GameEventType.MovementEnhancementActivated);
+      expect(event.phase).toBe(GamePhase.Movement);
+      expect(event.actorId).toBe('unit-1');
+      expect(event.payload).toEqual({
+        unitId: 'unit-1',
+        enhancement: 'MASC',
+      });
     });
   });
 

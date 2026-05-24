@@ -33,6 +33,7 @@ import {
   type IGameUnit,
   type IGameEvent,
   type IGameState,
+  type MovementEnhancementActivationKind,
 } from '@/types/gameplay/GameSessionInterfaces';
 import {
   Facing,
@@ -48,6 +49,7 @@ import {
   appendEvent,
   declarePhysicalAttack,
   endGame,
+  activateMovementEnhancement as activateMovementEnhancementAction,
   goProne as goProneAction,
   attemptStandUp as attemptStandUpAction,
   type IPhysicalAttackContext,
@@ -365,6 +367,18 @@ export class InteractiveSession {
 
   goProne(unitId: string): void {
     this.session = goProneAction(this.session, unitId);
+    this.tryFinalizeAndPublish();
+  }
+
+  activateMovementEnhancement(
+    unitId: string,
+    enhancement: MovementEnhancementActivationKind,
+  ): void {
+    this.session = activateMovementEnhancementAction(
+      this.session,
+      unitId,
+      enhancement,
+    );
     this.tryFinalizeAndPublish();
   }
 

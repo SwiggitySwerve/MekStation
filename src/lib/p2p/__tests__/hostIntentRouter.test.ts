@@ -25,6 +25,7 @@ import {
   type IHostIntentRouterAdapter,
 } from '../hostIntentRouter';
 import {
+  buildActivateMovementEnhancementIntent,
   buildConcedeIntent,
   buildDeclareMovementIntent,
   buildGoProneIntent,
@@ -95,6 +96,10 @@ function makeAdapter(initial: IGameSession): {
   concededSides: GameSide[];
   standAttempts: string[];
   proneAttempts: string[];
+  enhancementActivations: Array<{
+    unitId: string;
+    enhancement: 'MASC' | 'Supercharger';
+  }>;
   rejections: { reason: string; detail?: string }[];
   setSession: (session: IGameSession) => void;
   setGuestPending: (pending: boolean) => void;
@@ -105,6 +110,10 @@ function makeAdapter(initial: IGameSession): {
   const concededSides: GameSide[] = [];
   const standAttempts: string[] = [];
   const proneAttempts: string[] = [];
+  const enhancementActivations: Array<{
+    unitId: string;
+    enhancement: 'MASC' | 'Supercharger';
+  }> = [];
   const rejections: { reason: string; detail?: string }[] = [];
 
   const adapter: IHostIntentRouterAdapter = {
@@ -122,6 +131,9 @@ function makeAdapter(initial: IGameSession): {
     goProne: (unitId) => {
       proneAttempts.push(unitId);
     },
+    activateMovementEnhancement: (unitId, enhancement) => {
+      enhancementActivations.push({ unitId, enhancement });
+    },
     broadcastRejection: (rejection) => {
       rejections.push({
         reason: String(rejection.reason),
@@ -137,6 +149,7 @@ function makeAdapter(initial: IGameSession): {
     concededSides,
     standAttempts,
     proneAttempts,
+    enhancementActivations,
     rejections,
     setSession: (next) => {
       session = next;
@@ -192,6 +205,32 @@ describe('hostIntentRouter', () => {
       unitId: 'guest-0',
     });
     expect(harness.proneAttempts).toEqual(['guest-0']);
+    expect(harness.appended).toEqual([]);
+    expect(harness.rejections).toEqual([]);
+  });
+
+  it('routes a guest-owned movement enhancement activation through the host command path', () => {
+    const harness = makeAdapter(fixtureSession());
+    const router = createHostIntentRouter(harness.adapter);
+
+    const result = router.handleIntent(
+      buildActivateMovementEnhancementIntent(GUEST_PEER, {
+        unitId: 'guest-0',
+        enhancement: 'MASC',
+      }),
+    );
+
+    expect(result.outcome).toBe('applied');
+    if (result.outcome !== 'applied') return;
+    expect(result.events).toEqual([]);
+    expect(result.command).toEqual({
+      kind: 'activateMovementEnhancement',
+      unitId: 'guest-0',
+      enhancement: 'MASC',
+    });
+    expect(harness.enhancementActivations).toEqual([
+      { unitId: 'guest-0', enhancement: 'MASC' },
+    ]);
     expect(harness.appended).toEqual([]);
     expect(harness.rejections).toEqual([]);
   });

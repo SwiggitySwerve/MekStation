@@ -5,8 +5,10 @@ import {
   IGameEvent,
   IGoProneStep,
   IHexCoordinate,
+  IMovementEnhancementActivatedPayload,
   IMovementDeclaredPayload,
   IMovementLockedPayload,
+  MovementEnhancementActivationKind,
   MovementType,
 } from '@/types/gameplay';
 import {
@@ -110,6 +112,31 @@ export function createMovementLockedEvent(
       gameId,
       sequence,
       GameEventType.MovementLocked,
+      turn,
+      GamePhase.Movement,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+export function createMovementEnhancementActivatedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  unitId: string,
+  enhancement: MovementEnhancementActivationKind,
+): IGameEvent {
+  const payload: IMovementEnhancementActivatedPayload = {
+    unitId,
+    enhancement,
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.MovementEnhancementActivated,
       turn,
       GamePhase.Movement,
       unitId,

@@ -26,6 +26,7 @@ import {
   GameSide,
   type GameIntentType,
   type IGameIntent,
+  type MovementEnhancementActivationKind,
 } from '@/types/gameplay/GameSessionInterfaces';
 import { isSupportedPhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types';
 
@@ -55,6 +56,11 @@ export interface IStandPayload {
 
 export interface IGoPronePayload {
   readonly unitId: string;
+}
+
+export interface IActivateMovementEnhancementPayload {
+  readonly unitId: string;
+  readonly enhancement: MovementEnhancementActivationKind;
 }
 
 /**
@@ -128,6 +134,13 @@ export function goProneIntent(
   return { type: 'goProne', payload, authorPeerId };
 }
 
+export function activateMovementEnhancementIntent(
+  authorPeerId: string,
+  payload: IActivateMovementEnhancementPayload,
+): IGameIntent {
+  return { type: 'activateMovementEnhancement', payload, authorPeerId };
+}
+
 export function declareAttackIntent(
   authorPeerId: string,
   payload: IDeclareAttackPayload,
@@ -198,6 +211,8 @@ export function toServerIntent(intent: IGameIntent): IIntentPayload | null {
       return toStandIntent(intent.payload);
     case 'goProne':
       return toGoProneIntent(intent.payload);
+    case 'activateMovementEnhancement':
+      return toActivateMovementEnhancementIntent(intent.payload);
     case 'declareAttack':
       return toAttackIntent(intent.payload);
     case 'declarePhysical':
@@ -253,6 +268,16 @@ function toGoProneIntent(payload: unknown): IIntentPayload | null {
   const { unitId } = payload;
   if (typeof unitId !== 'string' || unitId.length === 0) return null;
   return { kind: 'GoProne', unitId };
+}
+
+function toActivateMovementEnhancementIntent(
+  payload: unknown,
+): IIntentPayload | null {
+  if (!isRecord(payload)) return null;
+  const { unitId, enhancement } = payload;
+  if (typeof unitId !== 'string' || unitId.length === 0) return null;
+  if (enhancement !== 'MASC' && enhancement !== 'Supercharger') return null;
+  return { kind: 'ActivateMovementEnhancement', unitId, enhancement };
 }
 
 function toAttackIntent(payload: unknown): IIntentPayload | null {

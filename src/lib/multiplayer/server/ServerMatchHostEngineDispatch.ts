@@ -31,6 +31,10 @@ export function dispatchToEngine(
       session.goProne(intent.unitId);
       return;
     }
+    case 'ActivateMovementEnhancement': {
+      session.activateMovementEnhancement(intent.unitId, intent.enhancement);
+      return;
+    }
     case 'Attack': {
       session.applyAttack(intent.attackerId, intent.targetId, intent.weaponIds);
       return;

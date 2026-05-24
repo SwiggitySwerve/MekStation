@@ -149,6 +149,13 @@ export interface IGoProneStep {
   readonly mpCost: number;
 }
 
+export type MovementEnhancementActivationKind = 'MASC' | 'Supercharger';
+
+export interface IMovementEnhancementActivatedPayload {
+  readonly unitId: string;
+  readonly enhancement: MovementEnhancementActivationKind;
+}
+
 export interface IChargeDeclaredStep {
   readonly kind: 'chargeDeclared';
   readonly index: number;

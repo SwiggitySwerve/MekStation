@@ -26,6 +26,10 @@ export const P2P_INTENT_TRANSLATION_SUPPORT = {
     'goProne',
     'translateIntentToEvents returns a goProne host command and hostIntentRouter routes it to InteractiveSession.goProne',
   ),
+  activateMovementEnhancement: integrated(
+    'activateMovementEnhancement',
+    'translateIntentToEvents returns an activateMovementEnhancement host command and hostIntentRouter routes it to InteractiveSession.activateMovementEnhancement',
+  ),
   declareAttack: integrated(
     'declareAttack',
     'translateIntentToEvents emits AttackDeclared and AttackLocked',

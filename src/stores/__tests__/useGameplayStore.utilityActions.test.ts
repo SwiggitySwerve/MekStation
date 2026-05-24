@@ -12,6 +12,7 @@ import {
   MovementType,
   type IGameSession,
   type IGameUnit,
+  type IMovementEnhancementActivatedPayload,
   type IMovementDeclaredPayload,
 } from '@/types/gameplay';
 import {
@@ -397,6 +398,96 @@ describe('useGameplayStore utility actions', () => {
     expect(useGameplayStore.getState().ui.selectedUnitId).toBeNull();
     expect(useGameplayStore.getState().ui.targetUnitId).toBeNull();
     expect(useGameplayStore.getState().ui.queuedWeaponIds).toEqual([]);
+  });
+
+  it('activates MASC through a replayable local movement enhancement event', () => {
+    const base = forceMovementState(makeSession());
+    const session = {
+      ...base,
+      currentState: {
+        ...base.currentState,
+        units: {
+          ...base.currentState.units,
+          'player-a': {
+            ...base.currentState.units['player-a'],
+            hasMASC: true,
+          },
+        },
+      },
+    };
+    useGameplayStore.setState({
+      session,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+      },
+    });
+
+    useGameplayStore.getState().handleAction('activate-masc');
+
+    const updated = useGameplayStore.getState().session!;
+    const event = updated.events.find(
+      (entry) => entry.type === GameEventType.MovementEnhancementActivated,
+    );
+    expect(event?.payload as IMovementEnhancementActivatedPayload).toEqual({
+      unitId: 'player-a',
+      enhancement: 'MASC',
+    });
+    expect(updated.currentState.units['player-a'].activeMASC).toBe(true);
+    expect(updated.currentState.units['player-a'].lockState).toBe(
+      LockState.Pending,
+    );
+    expect(useGameplayStore.getState().ui.selectedUnitId).toBe('player-a');
+  });
+
+  it('delegates Supercharger activation to InteractiveSession when one is active', () => {
+    let snapshot = forceMovementState(makeSession());
+    const activations: Array<{
+      unitId: string;
+      enhancement: 'MASC' | 'Supercharger';
+    }> = [];
+    const fake = {
+      activateMovementEnhancement: (
+        unitId: string,
+        enhancement: 'MASC' | 'Supercharger',
+      ) => {
+        activations.push({ unitId, enhancement });
+        snapshot = {
+          ...snapshot,
+          currentState: {
+            ...snapshot.currentState,
+            units: {
+              ...snapshot.currentState.units,
+              [unitId]: {
+                ...snapshot.currentState.units[unitId],
+                activeSupercharger: enhancement === 'Supercharger',
+              },
+            },
+          },
+        };
+      },
+      getSession: () => snapshot,
+    } as unknown as InteractiveSession;
+
+    useGameplayStore.setState({
+      session: snapshot,
+      interactiveSession: fake,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+      },
+    });
+
+    useGameplayStore.getState().handleAction('activate-supercharger');
+
+    expect(activations).toEqual([
+      { unitId: 'player-a', enhancement: 'Supercharger' },
+    ]);
+    expect(
+      useGameplayStore.getState().session!.currentState.units['player-a']
+        .activeSupercharger,
+    ).toBe(true);
+    expect(useGameplayStore.getState().ui.selectedUnitId).toBe('player-a');
   });
 
   it('turns facing-right into a same-hex movement declaration for local sessions', () => {

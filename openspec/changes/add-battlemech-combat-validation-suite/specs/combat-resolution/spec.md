@@ -55,7 +55,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 
 - **GIVEN** a BattleMech action surface has source-backed or product-visible relevance but no authoritative command, game intent, wire payload, P2P translation, or runner action path
 - **WHEN** the action support catalog is contract-tested
-- **THEN** sprint movement, MASC activation, and Supercharger activation SHALL appear as unsupported absent-action rows
+- **THEN** sprint movement SHALL appear as an unsupported absent-action row
 - **AND** those rows SHALL NOT be inferred from helper prose or omitted because no UI command currently emits them
 
 #### Scenario: Voluntary go-prone emits source-backed movement step
@@ -65,6 +65,14 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **THEN** the action SHALL emit a same-hex `MovementDeclared` payload with a `goProne` step, `mpUsed: 1`, `heatGenerated: 0`, and `hexesMoved: 0`
 - **AND** the reducer SHALL mark the unit prone and lock its movement activation
 - **AND** hull-down, swarmer dislodge, inferno wash-off, and runner AI/planning choice SHALL remain explicit follow-up gaps
+
+#### Scenario: Movement booster activation emits replayable active state
+
+- **GIVEN** a BattleMech has installed MASC or Supercharger equipment
+- **WHEN** the unit commits the matching activation command through local, wire, or P2P command routing during movement
+- **THEN** the action SHALL emit a `MovementEnhancementActivated` event for `MASC` or `Supercharger`
+- **AND** the reducer SHALL mark `activeMASC` or `activeSupercharger` without locking movement activation
+- **AND** later run movement validation SHALL consume the active booster state for boosted MP and failure-PSR handling
 
 #### Scenario: Weapon catalog hygiene traps stay explicit
 
@@ -572,7 +580,7 @@ Runner movement validation SHALL consume explicit BattleMech `hasTSM` state and 
 
 ### Requirement: Source-Backed Active MASC/Supercharger Run Movement Boundary
 
-Runner movement validation SHALL consume explicit active `activeMASC` and `activeSupercharger` BattleMech combat state when calculating running movement capability. A single active MASC or Supercharger SHALL double the effective walk MP for run validation, and active MASC plus active Supercharger SHALL validate run movement against `ceil(effectiveWalkMP * 2.5)`. Runner movement SHALL queue the corresponding MASC and/or Supercharger failure PSR triggers when an explicit active booster is used for running movement. Those pending PSRs SHALL carry source-backed standard fixed target numbers from explicit `mascTurnsUsed` and `superchargerTurnsUsed` prior-use state, defaulting first use to 3 and mapping prior-use counts through `[3, 5, 7, 11, 13, 13, 13]`. At turn reset, runner state SHALL advance the used booster's prior-use counter, clear active booster use, and decay idle prior-use counters. Alternate MASC option tables, IndustrialMek/support-unit supercharger adjustment, `MovementType.Sprint`, activation command/wire payloads, Edge rerolls, and failure critical-slot damage SHALL remain explicit gaps.
+Runner movement validation SHALL consume explicit active `activeMASC` and `activeSupercharger` BattleMech combat state when calculating running movement capability. A single active MASC or Supercharger SHALL double the effective walk MP for run validation, and active MASC plus active Supercharger SHALL validate run movement against `ceil(effectiveWalkMP * 2.5)`. Runner movement SHALL queue the corresponding MASC and/or Supercharger failure PSR triggers when an explicit active booster is used for running movement. Those pending PSRs SHALL carry source-backed standard fixed target numbers from explicit `mascTurnsUsed` and `superchargerTurnsUsed` prior-use state, defaulting first use to 3 and mapping prior-use counts through `[3, 5, 7, 11, 13, 13, 13]`. At turn reset, runner state SHALL advance the used booster's prior-use counter, clear active booster use, and decay idle prior-use counters. Alternate MASC option tables, IndustrialMek/support-unit supercharger adjustment, `MovementType.Sprint`, Edge rerolls, and failure critical-slot damage SHALL remain explicit gaps.
 
 #### Scenario: Active MASC expands run validation and queues a failure PSR
 

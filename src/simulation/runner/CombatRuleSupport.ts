@@ -525,13 +525,13 @@ export const MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT = {
   [MovementEnhancementType.MASC]: helperOnly(
     MovementEnhancementType.MASC,
     'UnitHydration detects installed MASC, runMovementPhase consumes explicit active MASC run MP, movementEnhancementPsr queues createMASCFailurePSR with source-backed standard fixed failure target numbers, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers still expose sprint_masc formula support',
-    'No combat MovementType.Sprint, activation game intent, wire payload, alternate MASC option tables, Edge reroll, or failure critical-slot damage is wired',
+    'No combat MovementType.Sprint, alternate MASC option tables, Edge reroll, or failure critical-slot damage is wired',
     MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
   ),
   [MovementEnhancementType.SUPERCHARGER]: helperOnly(
     MovementEnhancementType.SUPERCHARGER,
     'UnitHydration detects installed Supercharger, runMovementPhase consumes explicit active Supercharger run MP, movementEnhancementPsr queues createSuperchargerFailurePSR with source-backed standard fixed failure target numbers, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers still expose sprint_combined formula support',
-    'No combat MovementType.Sprint, activation game intent, wire payload, IndustrialMek/support-unit supercharger roll adjustment, Edge reroll, or failure critical-slot damage is wired',
+    'No combat MovementType.Sprint, IndustrialMek/support-unit supercharger roll adjustment, Edge reroll, or failure critical-slot damage is wired',
     MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
   ),
   [MovementEnhancementType.TSM]: integrated(

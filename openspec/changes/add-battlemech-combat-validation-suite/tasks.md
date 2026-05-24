@@ -78,11 +78,12 @@
 - [x] 3.2.3 Integrate source-backed Partial Wing jump MP and jump-heat behavior through explicit runner movement capability state while leaving atmosphere and damaged critical-slot refinements explicit.
 - [x] 3.2.4 Integrate source-backed explicit active MASC/Supercharger run MP and runner PSR trigger queueing as the initial active-run boundary before fixed target-number handling.
 - [x] 3.2.5 Integrate source-backed standard MASC/Supercharger fixed failure target numbers through explicit prior-use state while leaving alternate MASC option tables, IndustrialMek/support-unit supercharger adjustment, Edge rerolls, and failure critical-slot damage explicit.
-- [x] 3.2.6 Add first-class absent-action catalog rows for then-missing sprint, voluntary go-prone, MASC activation, and Supercharger activation so missing movement action paths cannot hide behind helper prose.
+- [x] 3.2.6 Add first-class absent-action catalog rows for then-missing sprint, voluntary go-prone, MASC activation, and Supercharger activation so missing movement action paths cannot hide behind helper prose; collapse rows as each action receives an authoritative replayable path.
 - [x] 3.2.7 Integrate source-backed MASC/Supercharger prior-use counter advance/decay at runner turn reset while leaving activation action paths and failure damage explicit.
 - [x] 3.2.8 Catalog MegaMek-backed BattleMech swamp bog-down and Swamp Beast bog-down relief as a source-backed terrain/stuck-state gap instead of representing it as a normal failed-PSR fall.
 - [x] 3.2.9 Catalog MegaMek-backed Cross-Country as a non-BattleMech combat-vehicle movement/passability scope split instead of a BattleMech terrain PSR modifier.
 - [x] 3.2.10 Integrate source-backed voluntary go-prone through tactical command, game intent, wire intent, P2P host command, interactive/session reducer, and same-hex `goProne` movement-step evidence while leaving hull-down, swarmer dislodge, inferno wash-off, and runner AI/planning choice explicit.
+- [x] 3.2.11 Integrate source-backed MASC/Supercharger activation through tactical commands, game intent, wire intent, P2P host command, interactive/session reducer, and explicit active-booster events while leaving sprint movement and full failure-damage lifecycle explicit.
 - [ ] 3.3 Expand heat validation coverage for buildup, dissipation, shutdown, ammo explosions, pilot damage, and heat-driven modifiers.
 - [x] 3.3.1 Cross-link every heat rule support row into heat generation, dissipation, and lifecycle requirement checklists.
 - [x] 3.3.2 Add structured MegaMek source anchors for heat startup, avoidable/automatic shutdown, ammo-explosion risk, and pilot heat damage support rows.

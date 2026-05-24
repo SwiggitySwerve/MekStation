@@ -68,9 +68,9 @@ export type ISessionJoin = z.infer<typeof SessionJoinSchema>;
  * (out-of-phase, wrong side, unknown unit, etc.) and either applies +
  * broadcasts the resulting events or replies with an `Error` envelope.
  *
- * Wave 1 supports `Move`, `Stand`, `GoProne`, `Attack`, `Physical`,
- * `AdvancePhase`, `Eject`, `Withdraw`, `Concede`. Lobby intents (`OccupySeat`, `LeaveSeat`,
- * `Ready`, `LaunchMatch`) land in Wave 3b and slot in here as additional
+ * Wave 1 supports `Move`, `Stand`, `GoProne`, `ActivateMovementEnhancement`,
+ * `Attack`, `Physical`, `AdvancePhase`, `Eject`, `Withdraw`, `Concede`.
+ * Lobby intents (`OccupySeat`, `LeaveSeat`, `Ready`, `LaunchMatch`) land in Wave 3b and slot in here as additional
  * discriminants.
  */
 export const MoveIntentSchema = z.object({
@@ -93,6 +93,15 @@ export const GoProneIntentSchema = z.object({
   unitId: z.string().min(1),
 });
 export type IGoProneIntent = z.infer<typeof GoProneIntentSchema>;
+
+export const ActivateMovementEnhancementIntentSchema = z.object({
+  kind: z.literal('ActivateMovementEnhancement'),
+  unitId: z.string().min(1),
+  enhancement: z.enum(['MASC', 'Supercharger']),
+});
+export type IActivateMovementEnhancementIntent = z.infer<
+  typeof ActivateMovementEnhancementIntentSchema
+>;
 
 export const AttackIntentSchema = z.object({
   kind: z.literal('Attack'),
@@ -231,6 +240,7 @@ export const IntentPayloadSchema = z.discriminatedUnion('kind', [
   MoveIntentSchema,
   StandIntentSchema,
   GoProneIntentSchema,
+  ActivateMovementEnhancementIntentSchema,
   AttackIntentSchema,
   PhysicalIntentSchema,
   AdvancePhaseIntentSchema,

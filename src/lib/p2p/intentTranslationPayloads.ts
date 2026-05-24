@@ -2,6 +2,7 @@ import {
   GamePhase,
   GameSide,
   type IGameIntent,
+  type MovementEnhancementActivationKind,
   type IWeaponAttackData,
 } from '@/types/gameplay/GameSessionInterfaces';
 import {
@@ -37,6 +38,11 @@ export interface IStandIntentPayload {
 
 export interface IGoProneIntentPayload {
   readonly unitId: string;
+}
+
+export interface IActivateMovementEnhancementIntentPayload {
+  readonly unitId: string;
+  readonly enhancement: MovementEnhancementActivationKind;
 }
 
 /**
@@ -119,6 +125,22 @@ export function asGoPronePayload(
     return null;
   }
   return payload as unknown as IGoProneIntentPayload;
+}
+
+export function asActivateMovementEnhancementPayload(
+  payload: unknown,
+): IActivateMovementEnhancementIntentPayload | null {
+  if (!isRecord(payload)) return null;
+  if (typeof payload.unitId !== 'string' || payload.unitId.length === 0) {
+    return null;
+  }
+  if (
+    payload.enhancement !== 'MASC' &&
+    payload.enhancement !== 'Supercharger'
+  ) {
+    return null;
+  }
+  return payload as unknown as IActivateMovementEnhancementIntentPayload;
 }
 
 export function asAttackPayload(
@@ -246,6 +268,17 @@ export function buildGoProneIntent(
 ): IGameIntent {
   return {
     type: 'goProne',
+    payload,
+    authorPeerId,
+  };
+}
+
+export function buildActivateMovementEnhancementIntent(
+  authorPeerId: string,
+  payload: IActivateMovementEnhancementIntentPayload,
+): IGameIntent {
+  return {
+    type: 'activateMovementEnhancement',
     payload,
     authorPeerId,
   };

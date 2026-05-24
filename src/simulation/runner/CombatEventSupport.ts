@@ -70,6 +70,10 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
     GameEventType.MovementLocked,
     'lockMovement emits MovementLocked and applyMovementLocked closes movement action eligibility',
   ),
+  [GameEventType.MovementEnhancementActivated]: integrated(
+    GameEventType.MovementEnhancementActivated,
+    'activateMovementEnhancement emits MovementEnhancementActivated and applyMovementEnhancementActivated records replayable active MASC/Supercharger state before movement is locked',
+  ),
   [GameEventType.FacingChanged]: unsupported(
     GameEventType.FacingChanged,
     'Facing is carried by MovementDeclared; no standalone facing-change event is emitted',

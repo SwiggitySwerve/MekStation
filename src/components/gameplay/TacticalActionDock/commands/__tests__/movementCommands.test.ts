@@ -30,7 +30,7 @@ function makeCtx(
 describe('movementCommands', () => {
   const commands = buildMovementCommands();
 
-  it('exposes walk / run / jump / stand / go-prone / stabilize / cancel', () => {
+  it('exposes walk / run / jump / stand / go-prone / boosters / stabilize / cancel', () => {
     const ids = commands.map((c) => c.id);
     expect(ids).toEqual([
       'movement.walk',
@@ -38,6 +38,8 @@ describe('movementCommands', () => {
       'movement.jump',
       'movement.stand',
       'movement.go-prone',
+      'movement.activate-masc',
+      'movement.activate-supercharger',
       'movement.stabilize',
       'movement.cancel',
     ]);
@@ -102,5 +104,16 @@ describe('movementCommands', () => {
   it('go-prone commit produces a go-prone actionId', () => {
     const goProne = commands.find((c) => c.id === 'movement.go-prone')!;
     expect(goProne.commit(makeCtx()).actionId).toBe('go-prone');
+  });
+
+  it('booster activation commands produce movement enhancement action ids', () => {
+    const masc = commands.find((c) => c.id === 'movement.activate-masc')!;
+    const supercharger = commands.find(
+      (c) => c.id === 'movement.activate-supercharger',
+    )!;
+    expect(masc.commit(makeCtx()).actionId).toBe('activate-masc');
+    expect(supercharger.commit(makeCtx()).actionId).toBe(
+      'activate-supercharger',
+    );
   });
 });

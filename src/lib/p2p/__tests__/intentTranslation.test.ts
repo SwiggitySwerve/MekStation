@@ -17,6 +17,7 @@ import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 import { createGameSession, startGame } from '@/utils/gameplay/gameSessionCore';
 
 import {
+  buildActivateMovementEnhancementIntent,
   buildConcedeIntent,
   buildDeclareAttackIntent,
   buildDeclareMovementIntent,
@@ -225,6 +226,41 @@ describe('translateIntentToEvents', () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.reason).toBe('unowned-unit');
+  });
+
+  it('translates a guest-owned movement enhancement activation into a host command', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const intent = buildActivateMovementEnhancementIntent(GUEST_PEER, {
+      unitId: 'guest-0',
+      enhancement: 'Supercharger',
+    });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.events).toEqual([]);
+    expect('command' in result).toBe(true);
+    if (!('command' in result)) return;
+    expect(result.command).toEqual({
+      kind: 'activateMovementEnhancement',
+      unitId: 'guest-0',
+      enhancement: 'Supercharger',
+    });
+  });
+
+  it('rejects movement enhancement activation outside the Movement phase', () => {
+    const session = withPhase(fixtureSession(), GamePhase.WeaponAttack);
+    const intent = buildActivateMovementEnhancementIntent(GUEST_PEER, {
+      unitId: 'guest-0',
+      enhancement: 'MASC',
+    });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe('wrong-phase');
   });
 
   it('rejects an attack declared from outside the WeaponAttack phase', () => {

@@ -568,15 +568,18 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'movement-actions': helperOnly(
     'movement-actions',
-    'Action and movement rule maps cover walk, run, jump, same-hex facing rotation, stand, source-backed voluntary go-prone, prone state, torso-twist exposure, and first-class absent-action rows for sprint and MASC/Supercharger activation',
-    'Sprint, MASC/Supercharger activation, and torso-twist state are not authoritative end-to-end actions',
+    'Action and movement rule maps cover walk, run, jump, same-hex facing rotation, stand, source-backed voluntary go-prone, source-backed MASC/Supercharger activation, prone state, torso-twist exposure, and a first-class absent-action row for sprint',
+    'Sprint and torso-twist state are not authoritative end-to-end actions',
     [
       'actions.tacticalCommands.movement.walk',
       'actions.tacticalCommands.movement.stand',
       'actions.tacticalCommands.movement.go-prone',
+      'actions.tacticalCommands.movement.activate-masc',
+      'actions.tacticalCommands.movement.activate-supercharger',
       'actions.absentActionSurfaces.movement.sprint',
-      'actions.absentActionSurfaces.movement.activate-masc',
-      'actions.absentActionSurfaces.movement.activate-supercharger',
+      'actions.gameIntents.activateMovementEnhancement',
+      'actions.wireIntents.ActivateMovementEnhancement',
+      'actions.p2pIntents.activateMovementEnhancement',
       'actions.tacticalCommands.facing.rotate-left',
       'actions.tacticalCommands.facing.rotate-right',
       'actions.tacticalCommands.facing.torso-twist',
@@ -596,8 +599,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'movement-enhancements': helperOnly(
     'movement-enhancements',
-    'Movement enhancement support catalogs MASC, supercharger, source-backed active TSM movement validation, source-backed standard MASC/Supercharger fixed failure target numbers, automatic prior-use counter advance/decay at runner turn reset, and source-backed Partial Wing jump MP/heat validation against combat movement behavior',
-    'MASC and supercharger remain helper-only until MovementType.Sprint, activation intents/wire payloads, alternate MASC option tables, IndustrialMek/support-unit supercharger roll adjustment, Edge rerolls, and failure critical-slot damage are wired; Partial Wing atmosphere and damaged critical-slot lifecycle refinements remain explicit gaps until combat state hydrates them',
+    'Movement enhancement support catalogs MASC, supercharger, source-backed replayable activation, source-backed active TSM movement validation, source-backed standard MASC/Supercharger fixed failure target numbers, automatic prior-use counter advance/decay at runner turn reset, and source-backed Partial Wing jump MP/heat validation against combat movement behavior',
+    'MASC and supercharger remain helper-only until MovementType.Sprint, alternate MASC option tables, IndustrialMek/support-unit supercharger roll adjustment, Edge rerolls, and failure critical-slot damage are wired; Partial Wing atmosphere and damaged critical-slot lifecycle refinements remain explicit gaps until combat state hydrates them',
     MOVEMENT_ENHANCEMENT_SUPPORT_REFS,
   ),
   'heat-generation': integrated(

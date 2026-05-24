@@ -47,6 +47,7 @@ import {
 import { createPhaseChangedEvent } from '@/utils/gameplay/gameEvents/turnPhase';
 
 import {
+  asActivateMovementEnhancementPayload,
   asAttackPayload,
   asConcedePayload,
   asEjectPayload,
@@ -59,6 +60,7 @@ import {
 } from './intentTranslationPayloads';
 
 export {
+  buildActivateMovementEnhancementIntent,
   buildConcedeIntent,
   buildDeclareAttackIntent,
   buildDeclareMovementIntent,
@@ -68,6 +70,7 @@ export {
   buildGoProneIntent,
   buildStandIntent,
   buildWithdrawIntent,
+  type IActivateMovementEnhancementIntentPayload,
   type IConcedeIntentPayload,
   type IDeclareAttackIntentPayload,
   type IDeclareMovementIntentPayload,
@@ -118,6 +121,11 @@ export type IntentTranslationCommand =
   | {
       readonly kind: 'goProne';
       readonly unitId: string;
+    }
+  | {
+      readonly kind: 'activateMovementEnhancement';
+      readonly unitId: string;
+      readonly enhancement: 'MASC' | 'Supercharger';
     };
 
 export interface IIntentCommandTranslation {
@@ -164,6 +172,8 @@ export function translateIntentToEvents(
       return translateStand(intent, session);
     case 'goProne':
       return translateGoProne(intent, session);
+    case 'activateMovementEnhancement':
+      return translateActivateMovementEnhancement(intent, session);
     case 'declareAttack':
       return translateDeclareAttack(intent, session);
     case 'declarePhysical':
@@ -271,6 +281,34 @@ function translateGoProne(
     ok: true,
     events: [],
     command: { kind: 'goProne', unitId: payload.unitId },
+  };
+}
+
+function translateActivateMovementEnhancement(
+  intent: IGameIntent,
+  session: IGameSession,
+): IntentTranslationResult {
+  const payload = asActivateMovementEnhancementPayload(intent.payload);
+  if (!payload) {
+    return { ok: false, reason: 'malformed-payload' };
+  }
+
+  if (session.currentState.phase !== GamePhase.Movement) {
+    return { ok: false, reason: 'wrong-phase' };
+  }
+
+  if (!canLocalPeerControlUnit(session, intent.authorPeerId, payload.unitId)) {
+    return { ok: false, reason: 'unowned-unit' };
+  }
+
+  return {
+    ok: true,
+    events: [],
+    command: {
+      kind: 'activateMovementEnhancement',
+      unitId: payload.unitId,
+      enhancement: payload.enhancement,
+    },
   };
 }
 

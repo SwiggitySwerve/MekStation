@@ -102,6 +102,7 @@ describe('BattleMech combat event support catalog', () => {
     ).toEqual(
       expect.arrayContaining([
         GameEventType.MovementDeclared,
+        GameEventType.MovementEnhancementActivated,
         GameEventType.AttackDeclared,
         GameEventType.AttackInvalid,
         GameEventType.AttackResolved,

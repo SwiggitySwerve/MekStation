@@ -2,15 +2,18 @@ import type { InteractiveSession } from '@/engine/GameEngine';
 
 import { getPrefersReducedMotion } from '@/hooks/useReducedMotion';
 import {
-  IGameSession,
-  IGameplayUIState,
   GamePhase,
   GameSide,
+  LockState,
   MovementType,
+  type IGameSession,
+  type IGameplayUIState,
+  type MovementEnhancementActivationKind,
 } from '@/types/gameplay';
 import { createUnitEjectedEvent } from '@/utils/gameplay/gameEvents';
 import {
   lockMovement,
+  activateMovementEnhancement,
   declareMovement,
   goProne,
   attemptStandUp,
@@ -169,6 +172,35 @@ export function handleActionLogic(
       set({
         session: goProne(session, unitId),
         ui: clearCombatSelection(ui),
+      });
+      break;
+    }
+    case 'activate-masc':
+    case 'activate-supercharger': {
+      const unitId = ui.selectedUnitId;
+      if (!unitId || phase !== GamePhase.Movement) return;
+
+      const enhancement: MovementEnhancementActivationKind =
+        actionId === 'activate-masc' ? 'MASC' : 'Supercharger';
+      const unit = session.currentState.units[unitId];
+      if (
+        !unit ||
+        unit.destroyed ||
+        unit.hasRetreated ||
+        unit.hasEjected ||
+        unit.lockState === LockState.Locked
+      ) {
+        return;
+      }
+
+      if (interactiveSession) {
+        interactiveSession.activateMovementEnhancement(unitId, enhancement);
+        set({ session: interactiveSession.getSession() });
+        break;
+      }
+
+      set({
+        session: activateMovementEnhancement(session, unitId, enhancement),
       });
       break;
     }

@@ -64,6 +64,23 @@ describe('dispatchToEngine', () => {
     expect(proneUnitIds).toEqual(['player-1']);
   });
 
+  it('routes ActivateMovementEnhancement wire intents to InteractiveSession.activateMovementEnhancement', () => {
+    const activations: Array<readonly [string, string]> = [];
+    const session = {
+      activateMovementEnhancement: (unitId: string, enhancement: string) => {
+        activations.push([unitId, enhancement]);
+      },
+    } as unknown as InteractiveSession;
+
+    dispatchToEngine(session, {
+      kind: 'ActivateMovementEnhancement',
+      unitId: 'player-1',
+      enhancement: 'MASC',
+    });
+
+    expect(activations).toEqual([['player-1', 'MASC']]);
+  });
+
   it('routes Withdraw wire intents to InteractiveSession.declareWithdrawal', () => {
     const withdrawals: Array<readonly [string, string]> = [];
     const session = {

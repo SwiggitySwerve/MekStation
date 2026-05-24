@@ -37,6 +37,8 @@ export function buildMovementCommands(): readonly ITacticalCommand[] {
     MovementJumpCommand,
     MovementStandCommand,
     MovementGoProneCommand,
+    MovementActivateMASCCommand,
+    MovementActivateSuperchargerCommand,
     MovementStabilizeCommand,
     MovementCancelCommand,
   ];
@@ -149,6 +151,42 @@ const MovementGoProneCommand: ITacticalCommand = {
   },
   commit() {
     return { actionId: 'go-prone', payload: {} };
+  },
+};
+
+const MovementActivateMASCCommand: ITacticalCommand = {
+  id: 'movement.activate-masc',
+  category: 'movement',
+  label: 'Activate MASC',
+  phaseConstraints: [GamePhase.Movement],
+  requiresConfirmation: false,
+  undoable: true,
+  availability(ctx) {
+    if (!ctx.activeUnitId)
+      return { available: false, reason: 'No unit is active.' };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    return { available: true };
+  },
+  commit() {
+    return { actionId: 'activate-masc', payload: {} };
+  },
+};
+
+const MovementActivateSuperchargerCommand: ITacticalCommand = {
+  id: 'movement.activate-supercharger',
+  category: 'movement',
+  label: 'Activate Supercharger',
+  phaseConstraints: [GamePhase.Movement],
+  requiresConfirmation: false,
+  undoable: true,
+  availability(ctx) {
+    if (!ctx.activeUnitId)
+      return { available: false, reason: 'No unit is active.' };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    return { available: true };
+  },
+  commit() {
+    return { actionId: 'activate-supercharger', payload: {} };
   },
 };
 

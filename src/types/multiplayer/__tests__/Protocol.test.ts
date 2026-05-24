@@ -127,6 +127,21 @@ describe('Protocol envelope schemas', () => {
       expect(IntentSchema.safeParse(env).success).toBe(true);
     });
 
+    it('parses an ActivateMovementEnhancement intent', () => {
+      const env = {
+        kind: 'Intent' as const,
+        matchId: 'm',
+        ts: nowIso(),
+        playerId: 'p',
+        intent: {
+          kind: 'ActivateMovementEnhancement' as const,
+          unitId: 'u1',
+          enhancement: 'MASC' as const,
+        },
+      };
+      expect(IntentSchema.safeParse(env).success).toBe(true);
+    });
+
     it('parses a Physical intent', () => {
       const env = {
         kind: 'Intent' as const,
@@ -255,6 +270,21 @@ describe('Protocol envelope schemas', () => {
         ts: nowIso(),
         playerId: 'p',
         intent: { kind: 'GoProne', unitId: '' },
+      };
+      expect(IntentSchema.safeParse(env).success).toBe(false);
+    });
+
+    it('rejects ActivateMovementEnhancement with an unsupported enhancement', () => {
+      const env = {
+        kind: 'Intent',
+        matchId: 'm',
+        ts: nowIso(),
+        playerId: 'p',
+        intent: {
+          kind: 'ActivateMovementEnhancement',
+          unitId: 'u1',
+          enhancement: 'TSM',
+        },
       };
       expect(IntentSchema.safeParse(env).success).toBe(false);
     });

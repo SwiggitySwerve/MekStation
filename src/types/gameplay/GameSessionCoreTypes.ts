@@ -78,6 +78,7 @@ export enum GameEventType {
   // Movement events
   MovementDeclared = 'movement_declared',
   MovementLocked = 'movement_locked',
+  MovementEnhancementActivated = 'movement_enhancement_activated',
   FacingChanged = 'facing_changed',
 
   // Combat events
@@ -372,6 +373,7 @@ export const GAME_INTENT_TYPES = [
   'declareMovement',
   'stand',
   'goProne',
+  'activateMovementEnhancement',
   'declareAttack',
   'declarePhysical',
   'confirmHeat',

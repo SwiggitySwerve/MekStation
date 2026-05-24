@@ -276,6 +276,7 @@ describe('§9.2 guest intent translates into a host-appended event', () => {
       concede: () => undefined,
       stand: () => undefined,
       goProne: () => undefined,
+      activateMovementEnhancement: () => undefined,
       broadcastRejection: (rejection) => {
         hostChannel.broadcastRejection({ reason: rejection.reason });
       },
@@ -338,6 +339,7 @@ describe('§9.2 guest intent translates into a host-appended event', () => {
       },
       stand: () => undefined,
       goProne: () => undefined,
+      activateMovementEnhancement: () => undefined,
       broadcastRejection: (rejection) => {
         hostChannel.broadcastRejection({ reason: rejection.reason });
       },
@@ -393,6 +395,7 @@ describe('§9.2 guest intent translates into a host-appended event', () => {
         standAttempts.push(unitId);
       },
       goProne: () => undefined,
+      activateMovementEnhancement: () => undefined,
       broadcastRejection: (rejection) => {
         hostChannel.broadcastRejection({ reason: rejection.reason });
       },

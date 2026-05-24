@@ -86,6 +86,30 @@ const MEGAMEK_GO_PRONE_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MovePath derives active MASC/Supercharger use from movement steps marked as using those boosters.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/moves/MovePath.java#L859-L879',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MoveStep tags either or both boosters on qualifying boosted movement steps and stores their target numbers.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/moves/MoveStep.java#L2581-L2610',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MovePathHandler checks active MASC/Supercharger on the first movement step and invokes the failure checks.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L1507-L1519',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const COMBAT_COMMAND_ACTION_SUPPORT = {
   'movement.walk': integrated(
     'movement.walk',
@@ -112,6 +136,18 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'tactical-command',
     'buildMovementCommands commits go-prone; useGameplayStore, goProne game intent, GoProne wire payload, server dispatch, P2P host command, and InteractiveSession.goProne emit a source-backed same-hex MovementDeclared goProne step with 1 MP and no heat',
     MEGAMEK_GO_PRONE_SOURCE_REFS,
+  ),
+  'movement.activate-masc': integrated(
+    'movement.activate-masc',
+    'tactical-command',
+    'buildMovementCommands commits activate-masc; useGameplayStore, activateMovementEnhancement game intent, ActivateMovementEnhancement wire payload, server dispatch, P2P host command, and InteractiveSession.activateMovementEnhancement set replayable activeMASC state before the movement declaration consumes boosted MP and PSR checks',
+    MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS,
+  ),
+  'movement.activate-supercharger': integrated(
+    'movement.activate-supercharger',
+    'tactical-command',
+    'buildMovementCommands commits activate-supercharger; useGameplayStore, activateMovementEnhancement game intent, ActivateMovementEnhancement wire payload, server dispatch, P2P host command, and InteractiveSession.activateMovementEnhancement set replayable activeSupercharger state before the movement declaration consumes boosted MP and PSR checks',
+    MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS,
   ),
   'movement.stabilize': unsupported(
     'movement.stabilize',
@@ -280,16 +316,6 @@ export const BATTLEMECH_ABSENT_ACTION_SUPPORT = {
     'absent-action-surface',
     'Sprint has source-backed MASC/Supercharger movement formulas in rule support, but MovementType, tactical commands, game intents, wire payloads, P2P translation, and runner movement phases have no authoritative sprint action path',
   ),
-  'movement.activate-masc': unsupported(
-    'movement.activate-masc',
-    'absent-action-surface',
-    'Runner movement can consume explicit activeMASC state, but no tactical command, game intent, wire payload, P2P translation, or reducer path can activate MASC during combat',
-  ),
-  'movement.activate-supercharger': unsupported(
-    'movement.activate-supercharger',
-    'absent-action-surface',
-    'Runner movement can consume explicit activeSupercharger state, but no tactical command, game intent, wire payload, P2P translation, or reducer path can activate the Supercharger during combat',
-  ),
 } satisfies Record<string, ICombatActionSupportEntry>;
 
 export const COMBAT_DIRECT_UI_ACTION_SUPPORT = {
@@ -304,6 +330,7 @@ export const GAME_INTENT_TO_WIRE_KIND = {
   declareMovement: 'Move',
   stand: 'Stand',
   goProne: 'GoProne',
+  activateMovementEnhancement: 'ActivateMovementEnhancement',
   declareAttack: 'Attack',
   declarePhysical: 'Physical',
   confirmHeat: 'AdvancePhase',
@@ -329,6 +356,12 @@ export const GAME_INTENT_ACTION_SUPPORT = {
     'game-intent',
     'toServerIntent maps goProne to GoProne',
     MEGAMEK_GO_PRONE_SOURCE_REFS,
+  ),
+  activateMovementEnhancement: integrated(
+    'activateMovementEnhancement',
+    'game-intent',
+    'toServerIntent maps activateMovementEnhancement to ActivateMovementEnhancement',
+    MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS,
   ),
   declareAttack: integrated(
     'declareAttack',
@@ -375,6 +408,7 @@ export const ENGINE_WIRE_COMBAT_INTENT_KINDS = [
   'Move',
   'Physical',
   'GoProne',
+  'ActivateMovementEnhancement',
   'Stand',
   'Withdraw',
 ] as const satisfies readonly IIntentPayload['kind'][];
@@ -422,6 +456,12 @@ export const WIRE_INTENT_KIND_ACTION_SUPPORT = {
     'wire-intent',
     'dispatchToEngine routes GoProne to InteractiveSession.goProne',
     MEGAMEK_GO_PRONE_SOURCE_REFS,
+  ),
+  ActivateMovementEnhancement: integrated(
+    'ActivateMovementEnhancement',
+    'wire-intent',
+    'dispatchToEngine routes ActivateMovementEnhancement to InteractiveSession.activateMovementEnhancement',
+    MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS,
   ),
   Stand: integrated(
     'Stand',

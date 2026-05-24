@@ -16,6 +16,7 @@ const PUBLIC_EVENTS = new Set<GameEventType>([
 
 const ACTOR_ONLY_EVENTS = new Set<GameEventType>([
   GameEventType.MovementDeclared,
+  GameEventType.MovementEnhancementActivated,
   GameEventType.AttackDeclared,
   GameEventType.AttackLocked,
   GameEventType.PhysicalAttackDeclared,

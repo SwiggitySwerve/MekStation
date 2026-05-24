@@ -179,6 +179,7 @@ export {
 } from './mirrorSession';
 
 export {
+  buildActivateMovementEnhancementIntent,
   buildConcedeIntent,
   buildDeclareAttackIntent,
   buildDeclareMovementIntent,
@@ -189,6 +190,7 @@ export {
   buildStandIntent,
   buildWithdrawIntent,
   translateIntentToEvents,
+  type IActivateMovementEnhancementIntentPayload,
   type IConcedeIntentPayload,
   type IDeclareAttackIntentPayload,
   type IDeclareMovementIntentPayload,

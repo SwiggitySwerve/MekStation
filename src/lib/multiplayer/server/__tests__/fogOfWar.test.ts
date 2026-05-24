@@ -180,6 +180,11 @@ describe('fog-of-war event filtering', () => {
       classifyEventVisibility({ type: GameEventType.MovementDeclared }),
     ).toBe('actor-only');
     expect(
+      classifyEventVisibility({
+        type: GameEventType.MovementEnhancementActivated,
+      }),
+    ).toBe('actor-only');
+    expect(
       classifyEventVisibility({ type: GameEventType.MovementLocked }),
     ).toBe('observer-visible');
     expect(
