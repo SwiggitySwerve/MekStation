@@ -19,6 +19,10 @@ import {
   IC3NetworkUnit,
   IC3Network,
 } from '../c3Network';
+import {
+  createEmptyEWState,
+  resolveC3ECMDisruption,
+} from '../electronicWarfare';
 import { IWeaponRangeProfile } from '../range';
 import { calculateToHitWithC3 } from '../toHit';
 
@@ -807,6 +811,71 @@ describe('calculateToHitWithC3', () => {
         weaponRangeProfile: MEDIUM_LASER,
         c3State,
         attackerEcmDisrupted: true,
+      },
+    );
+
+    expect(result.c3Result.benefitApplied).toBe(false);
+    expect(result.c3Result.denialReason).toBe('C3 Network disrupted by ECM');
+
+    const rangeModifier = result.modifiers.find((m) => m.source === 'range');
+    expect(rangeModifier?.value).toBe(4);
+  });
+
+  it('should use own bracket when iNARC ECM pod state disrupts C3', () => {
+    const network = createC3MasterSlaveNetwork('net1', [
+      createC3Unit({
+        entityId: 'attacker',
+        teamId: 'team1',
+        role: 'master',
+        position: { q: 8, r: 0 },
+      }),
+      createC3Unit({
+        entityId: 'spotter',
+        teamId: 'team1',
+        role: 'slave',
+        position: { q: 2, r: 0 },
+      }),
+    ])!;
+
+    const disruption = resolveC3ECMDisruption(
+      [
+        {
+          entityId: 'attacker',
+          teamId: 'team1',
+          position: { q: 8, r: 0 },
+          iNarcPods: [{ teamId: 'team2', podType: 'ecm' }],
+        },
+        {
+          entityId: 'spotter',
+          teamId: 'team1',
+          position: { q: 2, r: 0 },
+          iNarcPods: [{ teamId: 'team2', podType: 'haywire' }],
+        },
+      ],
+      createEmptyEWState(),
+    );
+    let c3State = addC3Network(createEmptyC3State(), network);
+    c3State = updateC3UnitECMStatus(
+      c3State,
+      'attacker',
+      disruption.get('attacker') ?? false,
+    );
+    c3State = updateC3UnitECMStatus(
+      c3State,
+      'spotter',
+      disruption.get('spotter') ?? false,
+    );
+
+    const result = calculateToHitWithC3(
+      baseAttacker,
+      baseTarget,
+      RangeBracket.Long,
+      8,
+      {
+        attackerEntityId: 'attacker',
+        targetPosition: { q: 0, r: 0 },
+        weaponRangeProfile: MEDIUM_LASER,
+        c3State,
       },
     );
 

@@ -868,6 +868,36 @@ describe('resolveC3ECMDisruption', () => {
     expect(result.get('c3_2')).toBe(false);
   });
 
+  it('should mark members carrying iNARC ECM pods as C3-disrupted', () => {
+    const ewState = createEmptyEWState();
+    const members = [
+      {
+        entityId: 'c3_1',
+        teamId: 'A',
+        position: { q: 0, r: 0 } as IHexCoordinate,
+        iNarcPods: [{ teamId: 'B', podType: 'ecm' }],
+      },
+      {
+        entityId: 'c3_2',
+        teamId: 'A',
+        position: { q: 5, r: 0 } as IHexCoordinate,
+        iNarcPods: [{ teamId: 'B', podType: 'haywire' }],
+      },
+      {
+        entityId: 'c3_3',
+        teamId: 'A',
+        position: { q: 6, r: 0 } as IHexCoordinate,
+        iNarcPods: [{ teamId: 'B', podType: 'homing' }],
+      },
+    ];
+
+    const result = resolveC3ECMDisruption(members, ewState);
+
+    expect(result.get('c3_1')).toBe(true);
+    expect(result.get('c3_2')).toBe(false);
+    expect(result.get('c3_3')).toBe(false);
+  });
+
   it('should account for ECCM countering enemy ECM', () => {
     const ewState = createEWState(
       [

@@ -156,6 +156,10 @@ export function resolveC3ECMDisruption(
     readonly entityId: string;
     readonly teamId: string;
     readonly position: IHexCoordinate;
+    readonly iNarcPods?: readonly {
+      readonly teamId?: string;
+      readonly podType: string;
+    }[];
   }[],
   ewState: IElectronicWarfareState,
 ): ReadonlyMap<string, boolean> {
@@ -168,7 +172,9 @@ export function resolveC3ECMDisruption(
       member.entityId,
       ewState,
     );
-    result.set(member.entityId, status.ecmDisrupted);
+    const hasINarcECMPod =
+      member.iNarcPods?.some((pod) => pod.podType === 'ecm') === true;
+    result.set(member.entityId, status.ecmDisrupted || hasINarcECMPod);
   }
 
   return result;

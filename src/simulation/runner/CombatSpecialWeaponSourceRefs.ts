@@ -109,6 +109,18 @@ export const MEGAMEK_INARC_ECM_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEGAMEK_INARC_ECM_C3_SOURCE_REFS = [
+  MEGAMEK_INARC_ECM_SOURCE_REFS[0],
+  MEGAMEK_INARC_ECM_SOURCE_REFS[1],
+  {
+    kind: 'megamek-source',
+    citation:
+      'ComputeC3Spotter rejects C3 node paths when ComputeECM reports ECM effects on either leg of the network connection.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/compute/ComputeC3Spotter.java#L214-L250',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEGAMEK_INARC_NEMESIS_SOURCE_REFS = [
   MEGAMEK_INARC_VARIANT_SOURCE_REFS[0],
   {

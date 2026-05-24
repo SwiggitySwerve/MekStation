@@ -721,6 +721,7 @@ describe('BattleMech combat catalog validation lane', () => {
       'artemis-ecm-suppression',
       'artemis-stealth-suppression',
       'inarc-ecm-attacker-flight-path-suppression',
+      'inarc-ecm-c3-disruption',
       'inarc-haywire-to-hit-modifier',
       'inarc-homing-cluster-modifier',
       'inarc-homing-marker-attachment',
@@ -1046,6 +1047,13 @@ describe('BattleMech combat catalog validation lane', () => {
       'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
       'ComputeECM treats an entity with an iNarc ECM pod as ECM-affected at its own position while evaluating the attacker-to-target path.',
       'MissileWeaponHandler suppresses Artemis, prototype Artemis, and Artemis V cluster guidance when the attacker-to-target missile path is ECM affected.',
+    ]);
+    expect(
+      sourceRefsFor('inarc-ecm-c3-disruption').map(({ citation }) => citation),
+    ).toEqual([
+      'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
+      'ComputeECM treats an entity with an iNarc ECM pod as ECM-affected at its own position while evaluating the attacker-to-target path.',
+      'ComputeC3Spotter rejects C3 node paths when ComputeECM reports ECM effects on either leg of the network connection.',
     ]);
     expect(
       sourceRefsFor('inarc-nemesis-redirect').map(({ citation }) => citation),
