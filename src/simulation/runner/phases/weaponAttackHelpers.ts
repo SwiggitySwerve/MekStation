@@ -210,7 +210,6 @@ export function emitCritEvents(options: {
     | 'pilot_death'
     | 'engine_destroyed'
     | 'impossible_displacement'
-    | 'shutdown'
     | 'ct_destroyed'
     | 'head_destroyed'
     | undefined;
@@ -233,7 +232,6 @@ export function emitCritEvents(options: {
     | 'pilot_death'
     | 'engine_destroyed'
     | 'impossible_displacement'
-    | 'shutdown'
     | 'ct_destroyed'
     | 'head_destroyed'
     | undefined = undefined;
@@ -383,7 +381,6 @@ export function emitCritEvents(options: {
         | 'pilot_death'
         | 'engine_destroyed'
         | 'impossible_displacement'
-        | 'shutdown'
         | 'ct_destroyed'
         | 'head_destroyed' =
         rawCause === 'damage'
@@ -393,7 +390,6 @@ export function emitCritEvents(options: {
             : (rawCause as
                 | 'ammo_explosion'
                 | 'impossible_displacement'
-                | 'shutdown'
                 | 'ct_destroyed'
                 | 'head_destroyed');
 

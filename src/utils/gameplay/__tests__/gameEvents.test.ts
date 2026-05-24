@@ -1050,9 +1050,9 @@ describe('Status Event Factories', () => {
         'game-1',
         70,
         7,
-        GamePhase.Heat,
+        GamePhase.WeaponAttack,
         'mech-destroyed',
-        'shutdown',
+        'engine_destroyed',
       );
       const payload = event.payload as {
         unitId: string;
@@ -1060,7 +1060,7 @@ describe('Status Event Factories', () => {
       };
 
       expect(payload.unitId).toBe('mech-destroyed');
-      expect(payload.cause).toBe('shutdown');
+      expect(payload.cause).toBe('engine_destroyed');
     });
 
     it('should handle all destruction causes', () => {
@@ -1068,7 +1068,10 @@ describe('Status Event Factories', () => {
         'damage',
         'ammo_explosion',
         'pilot_death',
-        'shutdown',
+        'engine_destroyed',
+        'impossible_displacement',
+        'ct_destroyed',
+        'head_destroyed',
       ] as const;
 
       for (const cause of causes) {

@@ -126,6 +126,7 @@
 - [x] 3.5.9 Integrate retreated-target physical targetability removal/rejection through helper, eligibility, event-sourced declaration/resolution, runner target selection, catalog, and audit coverage.
 - [x] 3.5.10 Integrate destruction-cause persistence through runner state snapshots, ammo-explosion cause overrides, event replay, catalog support, and OpenSpec coverage as a MekStation lifecycle contract.
 - [x] 3.5.11 Integrate cause-specific fatal-location destruction for `head_destroyed` and `ct_destroyed` through damage helpers, runner snapshots, UnitDestroyed events, catalog support, and existing source-priority specs.
+- [x] 3.5.12 Remove shutdown from the `UnitDestroyed` destruction-cause taxonomy and keep it covered by lifecycle/action-eligibility support instead.
 
 ## 4. Source-truth cross-checks
 
@@ -169,3 +170,4 @@
 - [x] 4.3.34 Cross-check MegaMek's standard life-support heat damage against optional MaxTech heat-damage avoid-number relief so Hot Dog does not invent a default pilot heat-damage threshold shift.
 - [x] 4.3.35 Cross-check opt-in MaxTech pilot heat-damage runtime routing against MegaMek `HeatResolver`.
 - [x] 4.3.36 Cross-check opt-in MaxTech heat-scale critical-damage runtime routing against MegaMek `HeatResolver` heat 36/44+ avoid rolls and `oneCriticalEntity(... Compute.randomInt(8))` location selection.
+- [x] 4.3.37 Cross-check shutdown lifecycle classification against current MekStation heat support and damage specs so shutdown remains a lifecycle/PSR state rather than a destruction cause.

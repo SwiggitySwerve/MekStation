@@ -614,6 +614,9 @@ describe('BattleMech combat validation requirement crosswalk', () => {
 
   it('backs damage and death requirements with every damage support row', () => {
     expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['damage-resolution'].level,
+    ).toBe('integrated');
+    expect(
       missingRefsForRequirement(
         'damage-resolution',
         'damageAndDeath',

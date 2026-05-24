@@ -221,9 +221,4 @@ export const DESTRUCTION_CAUSE_COMBAT_SUPPORT = {
     'head_destroyed',
     'checkUnitDestruction, resolveDamage, runner state snapshots, and UnitDestroyed emissions preserve head_destroyed for fatal head destruction while pilot_death keeps priority at lethal wounds',
   ),
-  shutdown: helperOnly(
-    'shutdown',
-    'DestructionCause type includes shutdown and heat phase persists shutdown lifecycle state',
-    'shutdown removes actions but does not emit UnitDestroyed cause=shutdown',
-  ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;

@@ -42,6 +42,15 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** runner snapshots and `UnitDestroyed` events SHALL preserve `ct_destroyed`
 - **AND** lethal pilot wounds SHALL still take priority as `pilot_death`
 
+#### Scenario: Shutdown stays outside UnitDestroyed cause taxonomy
+
+- **GIVEN** a BattleMech overheats into avoidable or automatic shutdown
+- **WHEN** the heat lifecycle persists shutdown state
+- **THEN** the unit SHALL leave normal action rotation through shutdown lifecycle support
+- **AND** the engine SHALL NOT emit `UnitDestroyed` with `cause: 'shutdown'`
+- **AND** the canonical `UnitDestroyed.cause` and damage `destructionCause` unions SHALL exclude `shutdown`
+- **AND** destruction-cause catalog coverage SHALL not carry a helper-only shutdown row
+
 #### Scenario: Missing action surfaces stay visible
 
 - **GIVEN** a BattleMech action surface has source-backed or product-visible relevance but no authoritative command, game intent, wire payload, P2P translation, or runner action path

@@ -202,11 +202,11 @@ describe('Scenario: Alpha-strike → heat shutdown (Phase 4 task 4.6)', () => {
     expect(heatGenerated.amount).toBe(32);
     expect(heatGenerated.newTotal).toBe(22);
 
-    // 2. HeatDissipated fired with 10 baseDissipation.
+    // 2. HeatDissipated fired with negative 10 baseDissipation.
     const heatDissipated = events.find(
       (e) => e.type === GameEventType.HeatDissipated,
     )!.payload as IHeatPayload;
-    expect(heatDissipated.amount).toBe(10);
+    expect(heatDissipated.amount).toBe(-10);
 
     // 3. Multi-threshold HeatEffectApplied chain — at heat 22, the
     // ladder fires 5/8/13/14/15/17/19 (7 events).

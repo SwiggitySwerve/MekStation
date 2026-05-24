@@ -30,7 +30,6 @@ type DestructionCause =
   | 'pilot_death'
   | 'engine_destroyed'
   | 'impossible_displacement'
-  | 'shutdown'
   | 'ct_destroyed'
   | 'head_destroyed'
   | undefined;

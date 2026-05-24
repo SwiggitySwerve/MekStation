@@ -1,3 +1,5 @@
+import type { IUnitDestroyedPayload } from '@/types/gameplay/GameSessionInterfaces';
+
 import {
   CombatLocation,
   GameEventType,
@@ -466,11 +468,8 @@ export function resolveAttack(
           turn,
           GamePhase.WeaponAttack,
           targetId,
-          (damageResult.result.destructionCause as
-            | 'damage'
-            | 'ammo_explosion'
-            | 'pilot_death'
-            | 'shutdown') ?? 'damage',
+          (damageResult.result
+            .destructionCause as IUnitDestroyedPayload['cause']) ?? 'damage',
         );
         currentSession = appendEvent(currentSession, destroyEvent);
       }

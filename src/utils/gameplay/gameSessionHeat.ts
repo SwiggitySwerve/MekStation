@@ -130,7 +130,6 @@ function mapCriticalDestructionCause(
   | 'pilot_death'
   | 'engine_destroyed'
   | 'impossible_displacement'
-  | 'shutdown'
   | 'ct_destroyed'
   | 'head_destroyed' {
   return cause === 'damage'
@@ -141,7 +140,6 @@ function mapCriticalDestructionCause(
         | 'pilot_death'
         | 'engine_destroyed'
         | 'impossible_displacement'
-        | 'shutdown'
         | 'ct_destroyed'
         | 'head_destroyed');
 }

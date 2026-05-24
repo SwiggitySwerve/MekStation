@@ -766,10 +766,9 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
     ],
   ),
-  'damage-resolution': helperOnly(
+  'damage-resolution': integrated(
     'damage-resolution',
-    'Damage support covers armor, internal structure, rear armor, transfer, location destruction, heat ammo explosion cascades, 20+ damage PSRs, and destruction-cause classification',
-    'Shutdown terminal destruction classification remains helper-only because shutdown removes actions but does not destroy the unit',
+    'Damage support covers armor, internal structure, rear armor, transfer, location destruction, heat ammo explosion cascades, 20+ damage PSRs, and the canonical destruction-cause taxonomy; shutdown remains modeled by lifecycle support rather than UnitDestroyed',
     [...DAMAGE_RESOLUTION_SUPPORT_REFS, ...DESTRUCTION_CAUSE_SUPPORT_REFS],
   ),
   'critical-effects': helperOnly(

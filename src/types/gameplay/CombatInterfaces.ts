@@ -342,8 +342,11 @@ export interface IDamageResult {
    * (in `GameSessionInterfaces.ts`) and the `cause` field on
    * `IDestructionCheckResult` / `destructionCause` field on
    * `IUnitDamageState` (in `utils/gameplay/damage/types.ts`). All three
-   * MUST contain exactly the same 8 values per the
+   * MUST contain exactly the same 7 values per the
    * `add-combat-fidelity-suite` Phase 0.5 reconciliation.
+   *
+   * Heat shutdown is modeled as lifecycle state rather than a
+   * destruction cause.
    */
   readonly destructionCause?:
     | 'damage'
@@ -351,7 +354,6 @@ export interface IDamageResult {
     | 'pilot_death'
     | 'engine_destroyed'
     | 'impossible_displacement'
-    | 'shutdown'
     | 'ct_destroyed'
     | 'head_destroyed';
 }

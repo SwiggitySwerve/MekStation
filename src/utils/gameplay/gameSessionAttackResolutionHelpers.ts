@@ -1,4 +1,7 @@
-import type { IComponentDamageState } from '@/types/gameplay/GameSessionInterfaces';
+import type {
+  IComponentDamageState,
+  IUnitDestroyedPayload,
+} from '@/types/gameplay/GameSessionInterfaces';
 
 import {
   CombatLocation,
@@ -124,11 +127,7 @@ export function emitCriticalEvents(
           turn,
           GamePhase.WeaponAttack,
           unitId,
-          payload.cause as
-            | 'damage'
-            | 'ammo_explosion'
-            | 'pilot_death'
-            | 'shutdown',
+          payload.cause as IUnitDestroyedPayload['cause'],
         ),
       );
       continue;

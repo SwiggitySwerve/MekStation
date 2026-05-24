@@ -1716,7 +1716,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(DESTRUCTION_CAUSE_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['shutdown']);
+    ).toEqual([]);
 
     expect(
       DESTRUCTION_CAUSE_COMBAT_SUPPORT.impossible_displacement.sourceRefs?.map(

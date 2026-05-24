@@ -168,14 +168,18 @@ describe('Damage Attribution Fields', () => {
         | 'damage'
         | 'ammo_explosion'
         | 'pilot_death'
+        | 'engine_destroyed'
         | 'impossible_displacement'
-        | 'shutdown'
+        | 'ct_destroyed'
+        | 'head_destroyed'
       > = [
         'damage',
         'ammo_explosion',
         'pilot_death',
+        'engine_destroyed',
         'impossible_displacement',
-        'shutdown',
+        'ct_destroyed',
+        'head_destroyed',
       ];
 
       causes.forEach((cause) => {
@@ -187,6 +191,16 @@ describe('Damage Attribution Fields', () => {
 
         expect(payload.cause).toBe(cause);
       });
+    });
+
+    it('should reject heat shutdown as a destruction cause at type level', () => {
+      const payload = {
+        unitId: 'unit-1',
+        // @ts-expect-error shutdown is a lifecycle state, not UnitDestroyed.
+        cause: 'shutdown',
+      } satisfies IUnitDestroyedPayload;
+
+      expect(payload.cause).toBe('shutdown');
     });
   });
 

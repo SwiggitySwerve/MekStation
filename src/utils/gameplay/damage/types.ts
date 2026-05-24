@@ -53,7 +53,6 @@ export interface IUnitDamageState {
     | 'pilot_death'
     | 'engine_destroyed'
     | 'impossible_displacement'
-    | 'shutdown'
     | 'ct_destroyed'
     | 'head_destroyed';
   /**
@@ -88,7 +87,6 @@ export interface IDestructionCheckResult {
     | 'pilot_death'
     | 'engine_destroyed'
     | 'impossible_displacement'
-    | 'shutdown'
     | 'ct_destroyed'
     | 'head_destroyed';
 }

@@ -330,7 +330,11 @@ export interface IUnitDestroyedPayload {
    * turn (per `damage-system` spec):
    *   `pilot_death` > `head_destroyed` > `ct_destroyed` >
    *   `engine_destroyed` > `ammo_explosion` >
-   *   `impossible_displacement` > `shutdown` > `damage`.
+   *   `impossible_displacement` > `damage`.
+   *
+   * Heat shutdown is a lifecycle/action-eligibility state, not a
+   * destruction cause. It is reported by `ShutdownCheck`/heat lifecycle
+   * events and should not be encoded as `UnitDestroyed`.
    */
   readonly cause:
     | 'damage'
@@ -338,7 +342,6 @@ export interface IUnitDestroyedPayload {
     | 'pilot_death'
     | 'engine_destroyed'
     | 'impossible_displacement'
-    | 'shutdown'
     | 'ct_destroyed'
     | 'head_destroyed';
   /** Unit that killed this unit (undefined for self-destruction: ammo explosions, pilot death, etc.) */
