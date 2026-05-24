@@ -55,6 +55,9 @@
 - [x] 2.22 Add fixture-level parity coverage proving the minimum-range browser
   projection is accepted by attack commit validation with a matching minimum
   range to-hit modifier.
+- [x] 2.23 Route the jump elevation browser scenario through the shared
+  movement destination projection and prove commit validation accepts it with
+  matching MP, heat, elevation delta, and path.
 
 ## 3. Validation
 
@@ -99,3 +102,5 @@
   projection and attack commit validator handoff.
 - [x] 3.22 Focused Jest parity test passes for the minimum-range browser
   projection and attack commit validator handoff.
+- [x] 3.23 Focused Jest parity test passes for the jump elevation browser
+  projection and movement commit validator handoff.

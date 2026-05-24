@@ -23,19 +23,37 @@ import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 import {
   tacticalMapHexTerrain,
-  tacticalMapMovementRange,
   tacticalMapMpLegend,
   tacticalMapTokens,
 } from './tactical-map.fixtures';
 
-export const tacticalMapJumpElevationMovementRange: readonly IMovementRangeHex[] =
-  tacticalMapMovementRange.filter(
-    (movement) =>
-      movement.hex.q === 0 &&
-      movement.hex.r === 1 &&
-      movement.movementType === MovementType.Jump &&
-      movement.reachable,
-  );
+const tacticalMapBipedCapability: IMovementCapability = {
+  walkMP: 4,
+  runMP: 6,
+  jumpMP: 3,
+  movementHeatProfile: 'mek',
+};
+
+const tacticalMapJumpElevationDestination = { q: 0, r: 1 } as const;
+
+const tacticalMapMovementUnit: IUnitGameState = {
+  id: 'attacker',
+  side: GameSide.Player,
+  position: { q: -1, r: 0 },
+  facing: Facing.Northeast,
+  heat: 0,
+  movementThisTurn: MovementType.Stationary,
+  hexesMovedThisTurn: 0,
+  armor: {},
+  structure: {},
+  destroyedLocations: [],
+  destroyedEquipment: [],
+  ammo: {},
+  pilotWounds: 0,
+  pilotConscious: true,
+  destroyed: false,
+  lockState: LockState.Pending,
+};
 
 export const tacticalMapJumpElevationMpLegend: MapMovementPointLegendState = {
   ...tacticalMapMpLegend,
@@ -65,26 +83,7 @@ const tacticalMapVtolCapability: IMovementCapability = {
 
 const tacticalMapVtolElevationDestination = { q: 1, r: 0 } as const;
 
-const tacticalMapVtolUnit: IUnitGameState = {
-  id: 'attacker',
-  side: GameSide.Player,
-  position: { q: -1, r: 0 },
-  facing: Facing.Northeast,
-  heat: 0,
-  movementThisTurn: MovementType.Stationary,
-  hexesMovedThisTurn: 0,
-  armor: {},
-  structure: {},
-  destroyedLocations: [],
-  destroyedEquipment: [],
-  ammo: {},
-  pilotWounds: 0,
-  pilotConscious: true,
-  destroyed: false,
-  lockState: LockState.Pending,
-};
-
-function tacticalMapVtolGrid(): IHexGrid {
+function tacticalMapMovementGrid(): IHexGrid {
   const grid = createHexGrid({ radius: 3 });
   const hexes = new Map(grid.hexes);
 
@@ -106,17 +105,40 @@ function requireMovementProjection(
   projection: IMovementRangeHex | null,
 ): readonly IMovementRangeHex[] {
   if (!projection) {
-    throw new Error('Expected VTOL tactical-map movement projection');
+    throw new Error('Expected tactical-map movement projection');
   }
   return [projection];
+}
+
+export const tacticalMapJumpElevationMovementRange: readonly IMovementRangeHex[] =
+  requireMovementProjection(
+    deriveMovementRangeHexForDestination(
+      tacticalMapMovementUnit,
+      MovementType.Jump,
+      tacticalMapMovementGrid(),
+      tacticalMapBipedCapability,
+      tacticalMapJumpElevationDestination,
+    ),
+  );
+
+export function tacticalMapJumpElevationCommitInput(): ICommittedMovementValidationInput {
+  return {
+    grid: tacticalMapMovementGrid(),
+    unit: tacticalMapMovementUnit,
+    to: tacticalMapJumpElevationDestination,
+    facing: Facing.Northeast,
+    movementType: MovementType.Jump,
+    capability: tacticalMapBipedCapability,
+    path: tacticalMapJumpElevationMovementRange[0]?.path,
+  };
 }
 
 export const tacticalMapVtolElevationMovementRange: readonly IMovementRangeHex[] =
   requireMovementProjection(
     deriveMovementRangeHexForDestination(
-      tacticalMapVtolUnit,
+      tacticalMapMovementUnit,
       MovementType.Run,
-      tacticalMapVtolGrid(),
+      tacticalMapMovementGrid(),
       tacticalMapVtolCapability,
       tacticalMapVtolElevationDestination,
     ),
@@ -124,8 +146,8 @@ export const tacticalMapVtolElevationMovementRange: readonly IMovementRangeHex[]
 
 export function tacticalMapVtolElevationCommitInput(): ICommittedMovementValidationInput {
   return {
-    grid: tacticalMapVtolGrid(),
-    unit: tacticalMapVtolUnit,
+    grid: tacticalMapMovementGrid(),
+    unit: tacticalMapMovementUnit,
     to: tacticalMapVtolElevationDestination,
     facing: Facing.Northeast,
     movementType: MovementType.Run,

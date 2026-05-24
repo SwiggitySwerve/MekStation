@@ -553,14 +553,14 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(jumpHex).toHaveAttribute('data-reachable', 'true');
     await expect(jumpHex).toHaveAttribute('data-movement-type', 'jump');
     await expect(jumpHex).toHaveAttribute('data-movement-mode', 'jump');
-    await expect(jumpHex).toHaveAttribute('data-mp-cost', '3');
+    await expect(jumpHex).toHaveAttribute('data-mp-cost', '2');
     await expect(jumpHex).toHaveAttribute('data-terrain-cost', '0');
-    await expect(jumpHex).toHaveAttribute('data-elevation-delta', '1');
+    await expect(jumpHex).toHaveAttribute('data-elevation-delta', '-4');
     await expect(jumpHex).toHaveAttribute('data-elevation-cost', '0');
     await expect(jumpHex).toHaveAttribute('data-heat-generated', '3');
 
     const movementBadge = page.getByTestId('hex-movement-badge-0-1');
-    await expect(movementBadge.locator('text')).toHaveText('J 3MP');
+    await expect(movementBadge.locator('text')).toHaveText('J 2MP');
     await expect(movementBadge).toHaveAttribute(
       'data-movement-badge-type',
       'jump',
@@ -571,7 +571,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
     await expect(movementBadge).toHaveAttribute(
       'data-movement-badge-mp-cost',
-      '3',
+      '2',
     );
     await expect(movementBadge).toHaveAttribute(
       'data-movement-badge-heat-generated',
@@ -579,7 +579,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
 
     const costBadge = page.getByTestId('hex-movement-cost-badge-0-1');
-    await expect(costBadge.locator('text')).toHaveText('E+0 UP1');
+    await expect(costBadge.locator('text')).toHaveText('E+0 DN4');
     await expect(costBadge).toHaveAttribute(
       'data-movement-step-terrain-cost',
       '0',
@@ -590,11 +590,11 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
     await expect(costBadge).toHaveAttribute(
       'data-movement-step-elevation-delta',
-      '1',
+      '-4',
     );
     await expect(costBadge).toHaveAttribute(
       'aria-label',
-      'Movement step cost: elevation cost +0; elevation delta +1',
+      'Movement step cost: elevation cost +0; elevation delta -4',
     );
   });
 

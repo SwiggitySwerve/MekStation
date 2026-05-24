@@ -134,6 +134,14 @@ now narrower: dynamic runtime conversion-state changes after import,
 infantry mount/dismount updates after import, and a broader external oracle
 differential fixture matrix across movement profiles.
 
+2026-05-24 jump browser parity update: the jump elevation browser scenario now
+uses `deriveMovementRangeHexForDestination` instead of a hand-authored movement
+row, so the rendered top-down jump badge exposes the same MP cost, heat, path,
+and origin-to-destination elevation delta that `validateCommittedMovement`
+accepts. This corrected the browser fixture from a static `3 MP / +1 elevation`
+row to the engine-backed `2 MP / -4 elevation` descent produced by the
+represented terrain on the test map.
+
 Additional isometric building-height pin: `lineOfSight.ts` already treats
 represented building feature levels as vertical LOS height. The isometric
 readability projection now mirrors that vertical fact for presentation-only
