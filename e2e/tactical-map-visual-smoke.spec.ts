@@ -782,6 +782,57 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     expect(isometricPassengerIsHostOwned).toBe(true);
   });
 
+  test('renders state-derived aerospace altitude and velocity in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=aerospace-velocity-projection');
+
+    const projectionLayer = page.getByTestId('map-projection-layer');
+    await expect(projectionLayer).toHaveAttribute(
+      'data-projection-mode',
+      'topDown',
+    );
+
+    const aerospaceToken = page.getByTestId('unit-token-aero-attacker');
+    await expect(aerospaceToken).toBeVisible();
+    await expect(aerospaceToken).toHaveAttribute('data-unit-type', 'aerospace');
+    await expect(aerospaceToken).toHaveAttribute(
+      'data-aerospace-altitude',
+      '4',
+    );
+    await expect(aerospaceToken).toHaveAttribute(
+      'data-aerospace-velocity',
+      '7',
+    );
+    await expect(aerospaceToken).toHaveAttribute('aria-label', /altitude 4/);
+    await expect(aerospaceToken).toHaveAttribute('aria-label', /velocity 7/);
+    await expect(page.getByTestId('altitude-badge')).toHaveText('4');
+    await expect(page.getByTestId('velocity-vector')).toBeVisible();
+
+    await page.getByTestId('projection-toggle').click();
+
+    await expect(projectionLayer).toHaveAttribute(
+      'data-projection-mode',
+      'isometric2d',
+    );
+    await expect(
+      page.getByTestId('isometric-scene-token-aero-attacker'),
+    ).toBeVisible();
+    const isometricAerospaceToken = page.getByTestId(
+      'unit-token-aero-attacker',
+    );
+    await expect(isometricAerospaceToken).toHaveAttribute(
+      'data-aerospace-altitude',
+      '4',
+    );
+    await expect(isometricAerospaceToken).toHaveAttribute(
+      'data-aerospace-velocity',
+      '7',
+    );
+    await expect(page.getByTestId('altitude-badge')).toHaveText('4');
+    await expect(page.getByTestId('velocity-vector')).toBeVisible();
+  });
+
   test('shows all selected weapons out of range as blocked in browser', async ({
     page,
   }) => {

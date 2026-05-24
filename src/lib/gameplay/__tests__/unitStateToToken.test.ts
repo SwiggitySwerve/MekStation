@@ -120,7 +120,10 @@ describe('unitStateToToken — mech / no-envelope path', () => {
 // =============================================================================
 
 describe('unitStateToToken — aerospace projection', () => {
-  function aeroState(altitude: number): IUnitGameState {
+  function aeroState(
+    altitude: number,
+    currentVelocity: number = 0,
+  ): IUnitGameState {
     return baseState({
       combatState: {
         kind: 'aero',
@@ -132,6 +135,7 @@ describe('unitStateToToken — aerospace projection', () => {
           safeThrust: 5,
           maxThrust: 8,
           altitude,
+          currentVelocity,
         }),
       },
     });
@@ -148,9 +152,9 @@ describe('unitStateToToken — aerospace projection', () => {
     expect((token as { altitude?: number }).altitude).toBe(0);
   });
 
-  it('leaves velocity undefined (movement slice 2 future work)', () => {
-    const token = unitStateToToken('u1', aeroState(1), UNIT_INFO);
-    expect((token as { velocity?: number }).velocity).toBeUndefined();
+  it('projects current velocity from aerospace combat state', () => {
+    const token = unitStateToToken('u1', aeroState(4, 7), UNIT_INFO);
+    expect((token as { velocity?: number }).velocity).toBe(7);
   });
 });
 

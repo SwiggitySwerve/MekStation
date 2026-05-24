@@ -105,6 +105,10 @@ function buildCombatStateForUnit(
         safeThrust: init.safeThrust,
         maxThrust: init.maxThrust,
         altitude: init.altitude ?? 1,
+        currentVelocity: init.currentVelocity,
+        nextVelocity: init.nextVelocity,
+        airborneState: init.airborneState,
+        dogfightWith: init.dogfightWith,
       }),
     };
   }

@@ -30,6 +30,59 @@ function makeState() {
 }
 
 describe('clampSI', () => {
+  it('initializes grounded aerospace deployment state with zero velocity', () => {
+    const state = createAerospaceCombatState({
+      maxSI: 6,
+      armorByArc: {
+        nose: 20,
+        leftWing: 15,
+        rightWing: 15,
+        aft: 10,
+      },
+      heatSinks: 10,
+      fuelPoints: 20,
+      safeThrust: 6,
+      maxThrust: 9,
+      altitude: 0,
+    });
+
+    expect(state).toMatchObject({
+      altitude: 0,
+      currentVelocity: 0,
+      nextVelocity: 0,
+      airborneState: 'grounded',
+    });
+  });
+
+  it('preserves explicit aerospace velocity and airborne state', () => {
+    const state = createAerospaceCombatState({
+      maxSI: 6,
+      armorByArc: {
+        nose: 20,
+        leftWing: 15,
+        rightWing: 15,
+        aft: 10,
+      },
+      heatSinks: 10,
+      fuelPoints: 20,
+      safeThrust: 6,
+      maxThrust: 9,
+      altitude: 4,
+      currentVelocity: 7,
+      nextVelocity: 8,
+      airborneState: 'airborne',
+      dogfightWith: 'bandit-1',
+    });
+
+    expect(state).toMatchObject({
+      altitude: 4,
+      currentVelocity: 7,
+      nextVelocity: 8,
+      airborneState: 'airborne',
+      dogfightWith: 'bandit-1',
+    });
+  });
+
   it('caps currentSI at maxSI when exceeded', () => {
     const base = makeState();
     const inflated = { ...base, currentSI: 99 };

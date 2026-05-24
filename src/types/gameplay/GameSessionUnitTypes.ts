@@ -129,6 +129,14 @@ export interface IGameUnit {
     readonly maxThrust: number;
     /** Initial altitude band; defaults to `1` (airborne) when omitted. */
     readonly altitude?: number;
+    /** Velocity entering the first turn; defaults to 0. */
+    readonly currentVelocity?: number;
+    /** Velocity after initial thrust planning; defaults to currentVelocity. */
+    readonly nextVelocity?: number;
+    /** Initial aerospace lifecycle state; defaults from altitude. */
+    readonly airborneState?: import('@/utils/gameplay/aerospace/state').AerospaceAirborneState;
+    /** Dogfight opponent if the scenario starts mid-engagement. */
+    readonly dogfightWith?: string;
   };
   readonly infantryInit?: import('@/types/unit/PersonnelInterfaces').IInfantry;
   readonly protoMechInit?: {

@@ -31,6 +31,12 @@ export interface IAerospaceArcArmor {
   aft: number;
 }
 
+export type AerospaceAirborneState =
+  | 'grounded'
+  | 'taking-off'
+  | 'airborne'
+  | 'landing';
+
 // ============================================================================
 // Attack direction (inbound attack relative to target facing)
 // ============================================================================
@@ -104,10 +110,18 @@ export interface IAerospaceCombatState {
    * `wire-combat-behavior-dispatch` (Council #1), this field is the canonical
    * altitude source consumed by `unitStateToToken`. The factory defaults to
    * `1` (airborne) — matching the prior render-time fallback in
-   * `AerospaceToken`. `velocity` is intentionally absent in PR7 and will be
-   * wired when "movement slice 2" lands.
+   * `AerospaceToken`; velocity is projected alongside altitude by the same
+   * adapter.
    */
   altitude: number;
+  /** Velocity entering the current turn. */
+  currentVelocity: number;
+  /** Velocity after this turn's thrust spending. */
+  nextVelocity: number;
+  /** Current aerospace lifecycle state. */
+  airborneState: AerospaceAirborneState;
+  /** Opposing aerospace unit this unit is dogfighting, when any. */
+  dogfightWith?: string;
 }
 
 // ============================================================================
@@ -190,7 +204,18 @@ export function createAerospaceCombatState(params: {
    * `AerospaceToken` render fallback. Pass `0` to spawn the unit landed.
    */
   readonly altitude?: number;
+  /** Velocity entering the current turn. Defaults to 0. */
+  readonly currentVelocity?: number;
+  /** Velocity after this turn's thrust spending. Defaults to currentVelocity. */
+  readonly nextVelocity?: number;
+  /** Aerospace lifecycle state. Defaults from altitude. */
+  readonly airborneState?: AerospaceAirborneState;
+  /** Dogfight opponent if the scenario starts mid-dogfight. */
+  readonly dogfightWith?: string;
 }): IAerospaceCombatState {
+  const altitude = params.altitude ?? 1;
+  const currentVelocity = params.currentVelocity ?? 0;
+
   return {
     maxSI: params.maxSI,
     currentSI: params.maxSI,
@@ -207,7 +232,12 @@ export function createAerospaceCombatState(params: {
     avionicsDamaged: false,
     crewStunned: false,
     destroyed: false,
-    altitude: params.altitude ?? 1,
+    altitude,
+    currentVelocity,
+    nextVelocity: params.nextVelocity ?? currentVelocity,
+    airborneState:
+      params.airborneState ?? (altitude === 0 ? 'grounded' : 'airborne'),
+    dogfightWith: params.dogfightWith,
     baseSafeThrust: params.safeThrust,
     baseMaxThrust: params.maxThrust,
   };

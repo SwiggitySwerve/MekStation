@@ -600,6 +600,14 @@ swarm logic from needing a parallel UI-only attachment model. The browser map
 harness now proves this ownership in both top-down and isometric projections,
 including host map position and BA source-position metadata.
 
+Additional aerospace velocity map pin: aerospace combat state now carries
+`currentVelocity`, `nextVelocity`, `airborneState`, and optional `dogfightWith`.
+The shared `unitStateToToken` adapter projects `currentVelocity` into
+`IAerospaceToken.velocity`, so the tactical-map velocity vector is no longer a
+manual token-only hint. The browser map harness proves state-derived altitude
+and velocity metadata, altitude badge, and velocity vector in top-down and
+isometric projections.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

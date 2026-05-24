@@ -121,7 +121,7 @@ export function unitStateToToken(
         ...base,
         unitType: TokenUnitType.Aerospace,
         altitude: cs.state.altitude,
-        // velocity intentionally omitted: TODO movement slice 2.
+        velocity: cs.state.currentVelocity,
       };
     case 'platoon':
       return {

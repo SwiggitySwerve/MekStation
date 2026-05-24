@@ -44,10 +44,8 @@ export const AerospaceToken = React.memo(function AerospaceToken({
   // unitStateToToken adapter (per `wire-combat-behavior-dispatch`,
   // Council #1 PR7).
   const altitude = token.altitude;
-  // velocity is intentionally NOT wired in PR7 — it belongs to the
-  // future "movement slice 2". Keep the `?? 0` fallback until then.
-  // TODO(movement slice 2): remove `?? 0` once IAerospaceCombatState
-  //   carries velocity and the unitStateToToken adapter projects it.
+  // Hand-authored fixtures may still omit velocity; engine-backed tokens
+  // receive this from IAerospaceCombatState.currentVelocity.
   const velocity = token.velocity ?? 0;
   const isLanded = altitude === 0;
 

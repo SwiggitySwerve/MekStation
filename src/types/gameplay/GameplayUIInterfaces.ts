@@ -312,12 +312,9 @@ export interface IAerospaceToken extends IUnitTokenBase {
    */
   readonly altitude: number;
   /**
-   * Current velocity in thrust points.
-   * TODO(movement slice 2): velocity belongs to a future movement-tick
-   * slice and is intentionally NOT wired by `wire-combat-behavior-dispatch`
-   * (Council #1 PR7). When the aerospace movement slice lands, add a
-   * `velocity` field to `IAerospaceCombatState` and project it through
-   * the `unitStateToToken` adapter alongside `altitude`.
+   * Current velocity in thrust points. Wired from
+   * `IAerospaceCombatState.currentVelocity` through the shared
+   * `unitStateToToken` adapter so token vectors mirror engine state.
    */
   readonly velocity?: number;
 }

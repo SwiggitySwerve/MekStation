@@ -10,9 +10,10 @@
 
 ## 2. Aero combat state extension
 
-- [ ] 2.1 Extend `IAerospaceCombatState` in `src/types/gameplay/CombatInterfaces.ts` with `altitude: number` (0-10), `currentVelocity: number`, `nextVelocity: number`, `airborneState: 'grounded' | 'taking-off' | 'airborne' | 'landing'`, `dogfightWith?: string` (entityId of dogfight opponent this turn)
-- [ ] 2.2 Resolve the existing TODO at `src/types/gameplay/GameplayUIInterfaces.ts:299-307` by populating `IAerospaceToken.velocity` from `combatState.aero.currentVelocity`
-- [ ] 2.3 Unit-test: initial state for a grounded aero is `{ altitude: 0, currentVelocity: 0, nextVelocity: 0, airborneState: 'grounded' }`
+- [x] 2.1 Extend `IAerospaceCombatState` in `src/utils/gameplay/aerospace/state.ts` with `altitude: number` (0-10), `currentVelocity: number`, `nextVelocity: number`, `airborneState: 'grounded' | 'taking-off' | 'airborne' | 'landing'`, `dogfightWith?: string` (entityId of dogfight opponent this turn)
+- [x] 2.2 Resolve the existing TODO at `src/types/gameplay/GameplayUIInterfaces.ts:299-307` by populating `IAerospaceToken.velocity` from `combatState.aero.currentVelocity`
+- [x] 2.3 Unit-test: initial state for a grounded aero is `{ altitude: 0, currentVelocity: 0, nextVelocity: 0, airborneState: 'grounded' }`
+- [x] 2.4 Browser test (map harness): state-derived aerospace altitude and current velocity render as token metadata, altitude badge, and velocity vector in both top-down and isometric tactical-map projections.
 
 ## 3. Altitude bands + transitions
 

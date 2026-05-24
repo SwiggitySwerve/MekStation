@@ -2,6 +2,10 @@ import { useRouter } from 'next/router';
 
 import { HexMapDisplay } from '@/components/gameplay/HexMapDisplay/HexMapDisplay';
 import {
+  tacticalMapAerospaceCombatState,
+  tacticalMapAerospaceTokens,
+} from '@/testing/tactical-map.aerospace-scenarios';
+import {
   tacticalMapMountedBattleArmorCombatState,
   tacticalMapMountedBattleArmorTokens,
 } from '@/testing/tactical-map.battle-armor-scenarios';
@@ -44,39 +48,58 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
     router.query.scenario === 'biped-option-projection';
   const isMountedBattleArmorScenario =
     router.query.scenario === 'mounted-ba-passenger';
-  const selectedWeaponIds = isOutOfRangeScenario
-    ? tacticalMapOutOfRangeSelectedWeaponIds
-    : tacticalMapSelectedWeaponIds;
-  const targetUnitId = isOutOfRangeScenario ? 'medium-target' : 'occluded';
+  const isAerospaceVelocityScenario =
+    router.query.scenario === 'aerospace-velocity-projection';
+  const selectedWeaponIds = isAerospaceVelocityScenario
+    ? []
+    : isOutOfRangeScenario
+      ? tacticalMapOutOfRangeSelectedWeaponIds
+      : tacticalMapSelectedWeaponIds;
+  const targetUnitId = isAerospaceVelocityScenario
+    ? null
+    : isOutOfRangeScenario
+      ? 'medium-target'
+      : 'occluded';
   const tokens = isVtolElevationScenario
     ? tacticalMapVtolTokens
     : isBipedOptionScenario
       ? tacticalMapBipedOptionTokens
       : isMountedBattleArmorScenario
         ? tacticalMapMountedBattleArmorTokens
-        : tacticalMapTokens;
+        : isAerospaceVelocityScenario
+          ? tacticalMapAerospaceTokens
+          : tacticalMapTokens;
   const combatState = isMountedBattleArmorScenario
     ? tacticalMapMountedBattleArmorCombatState
-    : tacticalMapCombatState;
-  const movementRange = isJumpElevationScenario
-    ? tacticalMapJumpElevationMovementRange
-    : isVtolElevationScenario
-      ? tacticalMapVtolElevationMovementRange
-      : isBipedOptionScenario
-        ? tacticalMapBipedOptionMovementRange
-        : tacticalMapMovementRange;
-  const mpLegend = isJumpElevationScenario
-    ? tacticalMapJumpElevationMpLegend
-    : isVtolElevationScenario
-      ? tacticalMapVtolElevationMpLegend
-      : isBipedOptionScenario
-        ? tacticalMapBipedOptionMpLegend
-        : tacticalMapMpLegend;
+    : isAerospaceVelocityScenario
+      ? tacticalMapAerospaceCombatState
+      : tacticalMapCombatState;
+  const movementRange = isAerospaceVelocityScenario
+    ? undefined
+    : isJumpElevationScenario
+      ? tacticalMapJumpElevationMovementRange
+      : isVtolElevationScenario
+        ? tacticalMapVtolElevationMovementRange
+        : isBipedOptionScenario
+          ? tacticalMapBipedOptionMovementRange
+          : tacticalMapMovementRange;
+  const mpLegend = isAerospaceVelocityScenario
+    ? undefined
+    : isJumpElevationScenario
+      ? tacticalMapJumpElevationMpLegend
+      : isVtolElevationScenario
+        ? tacticalMapVtolElevationMpLegend
+        : isBipedOptionScenario
+          ? tacticalMapBipedOptionMpLegend
+          : tacticalMapMpLegend;
   const selectedHex = isBipedOptionScenario
     ? tacticalMapBipedOptionSelectedHex
-    : isMountedBattleArmorScenario
+    : isMountedBattleArmorScenario || isAerospaceVelocityScenario
       ? { q: 0, r: 0 }
       : { q: -1, r: 0 };
+  const highlightPath = isAerospaceVelocityScenario
+    ? undefined
+    : tacticalMapHighlightPath;
 
   if (!isTestEnv) {
     return (
@@ -107,7 +130,7 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
             selectedWeaponIds={selectedWeaponIds}
             showCoordinates
             movementRange={movementRange}
-            highlightPath={tacticalMapHighlightPath}
+            highlightPath={highlightPath}
             mpLegend={mpLegend}
           />
         </div>

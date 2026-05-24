@@ -198,6 +198,36 @@ describe('createInitialUnitState — aerospace seeding', () => {
     const state = createInitialUnitState(buildAeroUnit(0), POSITION);
     if (state.combatState?.kind === 'aero') {
       expect(state.combatState.state.altitude).toBe(0);
+      expect(state.combatState.state.currentVelocity).toBe(0);
+      expect(state.combatState.state.nextVelocity).toBe(0);
+      expect(state.combatState.state.airborneState).toBe('grounded');
+    } else {
+      throw new Error('expected aero combatState');
+    }
+  });
+
+  it('honours explicit aerospace velocity fields', () => {
+    const unit = baseGameUnit({
+      id: 'aero-velocity',
+      unitType: UnitType.AEROSPACE,
+      aerospaceInit: {
+        ...SAMPLE_AERO_INIT,
+        altitude: 4,
+        currentVelocity: 7,
+        nextVelocity: 8,
+        airborneState: 'airborne',
+        dogfightWith: 'bandit-1',
+      },
+    });
+    const state = createInitialUnitState(unit, POSITION);
+    if (state.combatState?.kind === 'aero') {
+      expect(state.combatState.state).toMatchObject({
+        altitude: 4,
+        currentVelocity: 7,
+        nextVelocity: 8,
+        airborneState: 'airborne',
+        dogfightWith: 'bandit-1',
+      });
     } else {
       throw new Error('expected aero combatState');
     }
