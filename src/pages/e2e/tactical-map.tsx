@@ -2,6 +2,10 @@ import { useRouter } from 'next/router';
 
 import { HexMapDisplay } from '@/components/gameplay/HexMapDisplay/HexMapDisplay';
 import {
+  tacticalMapMountedBattleArmorCombatState,
+  tacticalMapMountedBattleArmorTokens,
+} from '@/testing/tactical-map.battle-armor-scenarios';
+import {
   tacticalMapCombatState,
   tacticalMapHexTerrain,
   tacticalMapHighlightPath,
@@ -38,6 +42,8 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
     router.query.scenario === 'vtol-elevation-cost';
   const isBipedOptionScenario =
     router.query.scenario === 'biped-option-projection';
+  const isMountedBattleArmorScenario =
+    router.query.scenario === 'mounted-ba-passenger';
   const selectedWeaponIds = isOutOfRangeScenario
     ? tacticalMapOutOfRangeSelectedWeaponIds
     : tacticalMapSelectedWeaponIds;
@@ -46,7 +52,12 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
     ? tacticalMapVtolTokens
     : isBipedOptionScenario
       ? tacticalMapBipedOptionTokens
-      : tacticalMapTokens;
+      : isMountedBattleArmorScenario
+        ? tacticalMapMountedBattleArmorTokens
+        : tacticalMapTokens;
+  const combatState = isMountedBattleArmorScenario
+    ? tacticalMapMountedBattleArmorCombatState
+    : tacticalMapCombatState;
   const movementRange = isJumpElevationScenario
     ? tacticalMapJumpElevationMovementRange
     : isVtolElevationScenario
@@ -63,7 +74,9 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
         : tacticalMapMpLegend;
   const selectedHex = isBipedOptionScenario
     ? tacticalMapBipedOptionSelectedHex
-    : { q: -1, r: 0 };
+    : isMountedBattleArmorScenario
+      ? { q: 0, r: 0 }
+      : { q: -1, r: 0 };
 
   if (!isTestEnv) {
     return (
@@ -90,7 +103,7 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
             targetUnitId={targetUnitId}
             hexTerrain={tacticalMapHexTerrain}
             unitWeapons={tacticalMapUnitWeapons}
-            combatState={tacticalMapCombatState}
+            combatState={combatState}
             selectedWeaponIds={selectedWeaponIds}
             showCoordinates
             movementRange={movementRange}

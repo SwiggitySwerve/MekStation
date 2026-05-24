@@ -85,6 +85,9 @@
 - [x] 9.4 Unit test (rendering): BA token with `mountedOn` set + host token
   in scene -> only the host owns the map render group; the BA badge is a
   child of the host render group.
+- [x] 9.5 Browser test (map harness): mounted BA passenger badge renders as a
+  host-owned child group in both top-down and isometric tactical-map
+  projections.
 
 ## 10. Combat-resolution dispatch + event-log
 

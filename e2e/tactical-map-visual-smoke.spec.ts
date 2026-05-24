@@ -708,6 +708,80 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('renders mounted battle armor as a host passenger badge in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=mounted-ba-passenger');
+
+    const projectionLayer = page.getByTestId('map-projection-layer');
+    await expect(projectionLayer).toHaveAttribute(
+      'data-projection-mode',
+      'topDown',
+    );
+
+    const host = page.getByTestId('unit-token-attacker');
+    const passenger = page.getByTestId('unit-token-ba-passenger');
+    await expect(host).toBeVisible();
+    await expect(passenger).toBeVisible();
+    await expect(passenger).toHaveAttribute('data-unit-type', 'battle_armor');
+    await expect(passenger).toHaveAttribute('data-mounted-on', 'attacker');
+    await expect(passenger).toHaveAttribute('data-passenger-host', 'attacker');
+    await expect(passenger).toHaveAttribute('data-passenger-slot', 'back');
+    await expect(passenger).toHaveAttribute('data-token-map-position', '0,0');
+    await expect(passenger).toHaveAttribute(
+      'data-token-source-position',
+      '2,0',
+    );
+    await expect(passenger).toHaveAttribute(
+      'aria-label',
+      /mounted on attacker/,
+    );
+    await expect(passenger).toHaveAttribute(
+      'aria-label',
+      /passenger slot back/,
+    );
+
+    const badge = page.getByTestId('ba-badge-ba-passenger');
+    await expect(badge).toHaveAttribute(
+      'data-ba-passenger-name',
+      'Gray Death Scout BA',
+    );
+    await expect(badge).toHaveAttribute('data-ba-passenger-designation', 'GDS');
+    await expect(badge).toHaveAttribute('data-ba-passenger-troopers', '4');
+    await expect(badge.locator('text').first()).toContainText('BA');
+    await expect(badge.locator('text').nth(1)).toHaveText('GDS');
+
+    const topDownPassengerIsHostOwned = await passenger.evaluate((node) =>
+      Boolean(node.closest('[data-testid="unit-token-attacker"]')),
+    );
+    expect(topDownPassengerIsHostOwned).toBe(true);
+
+    await page.getByTestId('projection-toggle').click();
+
+    await expect(projectionLayer).toHaveAttribute(
+      'data-projection-mode',
+      'isometric2d',
+    );
+    await expect(
+      page.getByTestId('isometric-scene-token-attacker'),
+    ).toBeVisible();
+    const isometricPassenger = page.getByTestId('unit-token-ba-passenger');
+    await expect(isometricPassenger).toBeVisible();
+    await expect(isometricPassenger).toHaveAttribute(
+      'data-token-map-position',
+      '0,0',
+    );
+    await expect(isometricPassenger).toHaveAttribute(
+      'data-token-source-position',
+      '2,0',
+    );
+    const isometricPassengerIsHostOwned = await isometricPassenger.evaluate(
+      (node) =>
+        Boolean(node.closest('[data-testid="isometric-scene-token-attacker"]')),
+    );
+    expect(isometricPassengerIsHostOwned).toBe(true);
+  });
+
   test('shows all selected weapons out of range as blocked in browser', async ({
     page,
   }) => {

@@ -596,7 +596,9 @@ explicit `passengerBadge` render hint and, when the host token is present,
 render as child badges owned by the host token group instead of standalone
 tokens at their source hex. The rules-state relationship remains
 `mountedOn`; the badge slot is presentation-only and keeps future transport or
-swarm logic from needing a parallel UI-only attachment model.
+swarm logic from needing a parallel UI-only attachment model. The browser map
+harness now proves this ownership in both top-down and isometric projections,
+including host map position and BA source-position metadata.
 
 ## Acceptance Gate
 
