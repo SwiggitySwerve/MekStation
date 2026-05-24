@@ -2072,9 +2072,105 @@ describe('HexMapDisplay combat projection', () => {
     expect(screen.getByTestId('hex-combat-tooltip-geometry')).toHaveTextContent(
       'LOS blocked; front arc',
     );
+    const losContext = screen.getByTestId('hex-combat-tooltip-los-context');
+    expect(losContext).toHaveTextContent(
+      'LOS context: blocked via terrain at 1,0, terrain building - Blocked by building at (1, 0)',
+    );
+    expect(losContext).toHaveAttribute('data-combat-los-state', 'blocked');
+    expect(losContext).toHaveAttribute('data-combat-los-blocker-hex', '1,0');
+    expect(losContext).toHaveAttribute(
+      'data-combat-los-blocker-kind',
+      'terrain',
+    );
+    expect(losContext).toHaveAttribute(
+      'data-combat-los-blocker-terrain',
+      TerrainType.Building,
+    );
+    expect(losContext).toHaveAttribute(
+      'data-combat-los-blocker-reason',
+      'Blocked by building at (1, 0)',
+    );
     expect(screen.getByTestId('hex-combat-tooltip-reason')).toHaveTextContent(
       'Blocked by building',
     );
+  });
+
+  it('surfaces LOS blocker context in combined tactical hover explanations', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const enemy = makeToken({
+      unitId: 'enemy',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+    });
+
+    render(
+      <HexMapDisplay
+        mapId="combat-map"
+        radius={2}
+        tokens={[selected, enemy]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 2, r: 0 },
+            mpCost: 2,
+            terrainCost: 1,
+            elevationDelta: 0,
+            elevationCost: 0,
+            movementMode: 'walk',
+            reachable: true,
+            movementType: MovementType.Walk,
+          },
+        ]}
+        unitWeapons={{ selected: [makeWeapon()] }}
+        hexTerrain={[
+          {
+            coordinate: { q: 1, r: 0 },
+            elevation: 0,
+            features: [{ type: TerrainType.Building, level: 2 }],
+          },
+        ]}
+      />,
+    );
+
+    const targetHex = screen.getByTestId('hex-2-0');
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-intent',
+      'movement-combat',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-combat-status',
+      'blocked',
+    );
+
+    fireEvent.mouseEnter(targetHex);
+
+    const losContext = screen.getByTestId(
+      'hex-tactical-tooltip-combat-los-context',
+    );
+    expect(losContext).toHaveTextContent(
+      'LOS context: blocked via terrain at 1,0, terrain building - Blocked by building at (1, 0)',
+    );
+    expect(losContext).toHaveAttribute('data-combat-los-state', 'blocked');
+    expect(losContext).toHaveAttribute('data-combat-los-blocker-hex', '1,0');
+    expect(losContext).toHaveAttribute(
+      'data-combat-los-blocker-kind',
+      'terrain',
+    );
+    expect(losContext).toHaveAttribute(
+      'data-combat-los-blocker-terrain',
+      TerrainType.Building,
+    );
+    expect(losContext).toHaveAttribute(
+      'data-combat-los-blocker-reason',
+      'Blocked by building at (1, 0)',
+    );
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-reason'),
+    ).toHaveTextContent('Blocked by building');
   });
 
   it('shows elevation blocker reasons without relying on terrain type fallback', () => {
@@ -2142,6 +2238,24 @@ describe('HexMapDisplay combat projection', () => {
       'elevation',
     );
     expect(blockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-reason',
+      'Blocked by elevation +2 at (1, 0)',
+    );
+
+    fireEvent.mouseEnter(targetHex);
+
+    const losContext = screen.getByTestId('hex-combat-tooltip-los-context');
+    expect(losContext).toHaveTextContent(
+      'LOS context: blocked via elevation at 1,0 - Blocked by elevation +2 at (1, 0)',
+    );
+    expect(losContext).toHaveAttribute('data-combat-los-state', 'blocked');
+    expect(losContext).toHaveAttribute('data-combat-los-blocker-hex', '1,0');
+    expect(losContext).toHaveAttribute(
+      'data-combat-los-blocker-kind',
+      'elevation',
+    );
+    expect(losContext).not.toHaveAttribute('data-combat-los-blocker-terrain');
+    expect(losContext).toHaveAttribute(
       'data-combat-los-blocker-reason',
       'Blocked by elevation +2 at (1, 0)',
     );
