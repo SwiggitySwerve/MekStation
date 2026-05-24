@@ -12,6 +12,7 @@ import {
   getAmmoExplosionTN,
   getHeatMovementPenalty,
   getHeatToHitModifier,
+  getMaxTechHeatCriticalDamageAvoidTN,
   getPilotHeatDamage,
   getMaxTechPilotHeatDamageAvoidTN,
 } from '../heat';
@@ -359,5 +360,22 @@ describe('getMaxTechPilotHeatDamageAvoidTN', () => {
     expect(getMaxTechPilotHeatDamageAvoidTN(47, -1)).toBe(11);
     expect(getPilotHeatDamage(15, 1)).toBe(1);
     expect(getPilotHeatDamage(25, 1)).toBe(2);
+  });
+});
+
+describe('getMaxTechHeatCriticalDamageAvoidTN', () => {
+  it('should return 0 below optional MaxTech critical damage checks', () => {
+    expect(getMaxTechHeatCriticalDamageAvoidTN(35)).toBe(0);
+  });
+
+  it('should return optional MaxTech high-heat critical damage avoidance TNs', () => {
+    expect(getMaxTechHeatCriticalDamageAvoidTN(36)).toBe(8);
+    expect(getMaxTechHeatCriticalDamageAvoidTN(43)).toBe(8);
+    expect(getMaxTechHeatCriticalDamageAvoidTN(44)).toBe(10);
+  });
+
+  it('should apply Hot Dog-style target-number relief', () => {
+    expect(getMaxTechHeatCriticalDamageAvoidTN(36, -1)).toBe(7);
+    expect(getMaxTechHeatCriticalDamageAvoidTN(44, -1)).toBe(9);
   });
 });

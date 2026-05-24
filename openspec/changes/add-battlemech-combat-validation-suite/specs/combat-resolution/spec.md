@@ -800,28 +800,27 @@ Runner and interactive PSR resolution SHALL apply MegaMek's source-backed Animal
 
 ### Requirement: Source-Backed Heat Lifecycle Catalog Anchors
 
-Heat lifecycle support rows SHALL carry MegaMek source references before they are treated as integrated validation coverage. Startup SHALL be pinned to `HeatResolver` automatic restart below heat 14 and startup rolls at heat 14+ for non-manual shutdown. Shutdown SHALL be pinned to avoidable heat 14+ shutdown checks and automatic default heat 30 shutdown. Ammo-explosion risk SHALL be pinned to the heat 19+ roll path, and pilot heat damage SHALL be pinned to life-support heat 15/25+ damage resolution. Any future heat profile, optional TacOps heat, equipment-mode, or crew modifier expansion SHALL update those source references or add explicit gap rows instead of relying on prose.
+Heat lifecycle support rows SHALL carry MegaMek source references before they are treated as integrated validation coverage. Startup SHALL be pinned to `HeatResolver` automatic restart below heat 14 and startup rolls at heat 14+ for non-manual shutdown. Shutdown SHALL be pinned to avoidable heat 14+ shutdown checks and automatic default heat 30 shutdown. Ammo-explosion risk SHALL be pinned to the heat 19+ roll path, pilot heat damage SHALL be pinned to life-support heat 15/25+ damage resolution, and optional MaxTech critical damage SHALL be pinned to the heat 36/44+ avoid-roll path. Any future heat profile, optional TacOps heat, equipment-mode, or crew modifier expansion SHALL update those source references or add explicit gap rows instead of relying on prose.
 
 #### Scenario: Heat lifecycle support rows expose source truth
 
 - **GIVEN** the BattleMech heat rule support catalog is generated
-- **WHEN** startup, shutdown, ammo-explosion risk, heat-induced ammo explosion, and pilot heat damage rows are inspected
+- **WHEN** startup, shutdown, ammo-explosion risk, heat-induced ammo explosion, pilot heat damage, and optional MaxTech heat critical damage rows are inspected
 - **THEN** each row SHALL expose structured MegaMek source references with commit-pinned URLs and line anchors
 - **AND** the active OpenSpec task list SHALL record the cross-check as a completed heat-validation slice
 
 ### Requirement: Source-Backed Heat SPA Boundary
 
-Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior from local helper behavior before claiming parity. Some Like It Hot SHALL carry MegaMek source references for reducing positive heat firing modifiers by 1. Hot Dog startup, shutdown, heat-induced ammo-explosion, and opt-in MaxTech pilot heat-damage checks SHALL apply MegaMek's `hotDogMod = 1` target-number relief without shifting heat thresholds. Default life-support heat damage SHALL remain threshold-based at heat 15/25+ because MegaMek does not apply `hotDogMod` to that path. Hot Dog SHALL remain helper-only until optional MaxTech critical-damage roll routing is represented or explicitly scoped out. Cool Under Fire SHALL remain helper-only until a source authority for generated-heat relief is identified.
+Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior from local helper behavior before claiming parity. Some Like It Hot SHALL carry MegaMek source references for reducing positive heat firing modifiers by 1. Hot Dog startup, shutdown, heat-induced ammo-explosion, opt-in MaxTech pilot heat-damage, and opt-in MaxTech critical-damage checks SHALL apply MegaMek's `hotDogMod = 1` target-number relief without shifting heat thresholds. Default life-support heat damage SHALL remain threshold-based at heat 15/25+ because MegaMek does not apply `hotDogMod` to that path. Hot Dog SHALL be integrated for BattleMech heat lifecycle resolution once those source-backed paths are executable in runner and interactive heat resolution. Cool Under Fire SHALL remain helper-only until a source authority for generated-heat relief is identified.
 
 #### Scenario: Heat SPA support rows expose source truth
 
 - **GIVEN** the BattleMech SPA and pilot modifier catalogs are generated
 - **WHEN** Hot Dog, Cool Under Fire, Some Like It Hot, and the heat-application resolver row are inspected
 - **THEN** Some Like It Hot SHALL be integrated with structured MegaMek source references
-- **AND** Hot Dog SHALL be helper-only with structured MegaMek source references and executable startup, shutdown, ammo-explosion, and optional MaxTech pilot heat-damage target-number coverage
-- **AND** Hot Dog SHALL record remaining optional MaxTech heat-scale critical damage runtime routing as an explicit gap
+- **AND** Hot Dog SHALL be integrated with structured MegaMek source references and executable startup, shutdown, ammo-explosion, optional MaxTech pilot heat-damage, and optional MaxTech critical-damage target-number coverage
 - **AND** Cool Under Fire SHALL be helper-only with the unresolved source authority recorded as a gap
-- **AND** the heat-application resolver SHALL be helper-only until those heat-SPA gaps are resolved
+- **AND** the heat-application resolver SHALL remain helper-only while Cool Under Fire source authority is unresolved
 
 ### Requirement: Source-Truth Cross-Check Discipline
 

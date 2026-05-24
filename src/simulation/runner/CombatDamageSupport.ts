@@ -129,6 +129,10 @@ export const PILOT_DAMAGE_COMBAT_SUPPORT = {
     'maxtech-heat-pilot-damage',
     'runHeatPhase and resolveHeatPhase emit opt-in MaxTech heat-scale PilotHit source=heat at heat 32+ when the avoid roll fails, including Hot Dog avoid-number relief',
   ),
+  'maxtech-heat-critical-damage': integrated(
+    'maxtech-heat-critical-damage',
+    'runHeatPhase and resolveHeatPhase emit opt-in MaxTech heat-scale CriticalHit, CriticalHitResolved, ComponentDestroyed, PSRTriggered, PilotHit, and UnitDestroyed chains from failed heat 36+ critical damage avoid rolls',
+  ),
   'fall-pilot-damage': integrated(
     'fall-pilot-damage',
     'runPSRPhase, resolvePendingPSRs, and source-backed missed-DFA fall resolution emit PilotHit source=fall, persist wound totals, and destroy pilots at lethal fall wounds',

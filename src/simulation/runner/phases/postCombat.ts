@@ -7,6 +7,11 @@ import {
   IGameState,
   IHexGrid,
 } from '@/types/gameplay';
+import {
+  buildDefaultCriticalSlotManifest,
+  type CriticalHitEvent,
+  type CriticalSlotManifest,
+} from '@/utils/gameplay/criticalHitResolution';
 import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
 import { calculateEnvironmentalHeatModifier } from '@/utils/gameplay/environmentalModifiers';
 import { getGridTerrainHeatEffect } from '@/utils/gameplay/heat';
@@ -30,6 +35,7 @@ import {
   LETHAL_PILOT_WOUNDS,
 } from '../SimulationRunnerConstants';
 import { applyHeatInducedAmmoExplosions } from './heatAmmoExplosions';
+import { applyRunnerMaxTechHeatCriticalDamage } from './heatCriticalDamage';
 import {
   computeMovementHeat,
   computeWeaponHeat,
@@ -39,6 +45,7 @@ import { queueRunnerShutdownPSR } from './heatShutdownPsr';
 import { applyRunnerStartupAttempt } from './heatStartup';
 import { emitHeatThresholdEvents } from './heatThresholdEvents';
 import { createD6Roller, createGameEvent } from './utils';
+import { applyCriticalPSRTriggers } from './weaponAttackPsrTriggers';
 
 export function runPSRPhase(options: {
   state: IGameState;
@@ -230,15 +237,31 @@ export function runHeatPhase(options: {
   grid?: IHexGrid;
   environmentalConditions?: IEnvironmentalConditions;
   maxTechHeatScale?: boolean;
+  manifestsByUnit?: Map<string, CriticalSlotManifest>;
 }): IGameState {
   const { state, events, gameId, random } = options;
-  const { weaponsByUnit, grid, environmentalConditions, maxTechHeatScale } =
-    options;
+  const {
+    weaponsByUnit,
+    grid,
+    environmentalConditions,
+    maxTechHeatScale,
+    manifestsByUnit,
+  } = options;
   let currentState = { ...state };
 
   const canEmit =
     events !== undefined && gameId !== undefined && random !== undefined;
   const d6Roller = random !== undefined ? createD6Roller(random) : undefined;
+  const getOrSeedManifest = (id: string): CriticalSlotManifest => {
+    if (manifestsByUnit) {
+      const existing = manifestsByUnit.get(id);
+      if (existing) return existing;
+      const seeded = buildDefaultCriticalSlotManifest();
+      manifestsByUnit.set(id, seeded);
+      return seeded;
+    }
+    return buildDefaultCriticalSlotManifest();
+  };
 
   for (const unitId of Object.keys(currentState.units)) {
     const unit = currentState.units[unitId];
@@ -437,17 +460,46 @@ export function runHeatPhase(options: {
       maxTechHeatScale,
     });
 
+    let heatCriticalUnit = heatPilotUnit;
+    let heatCriticalEvents: readonly CriticalHitEvent[] | undefined;
+    if (maxTechHeatScale && d6Roller !== undefined && random !== undefined) {
+      const heatCriticalResult = applyRunnerMaxTechHeatCriticalDamage({
+        unit: heatPilotUnit,
+        unitId,
+        heat: newHeat,
+        turn: currentState.turn,
+        manifest: getOrSeedManifest(unitId),
+        componentDamage:
+          heatPilotUnit.componentDamage ??
+          componentDamage ??
+          DEFAULT_COMPONENT_DAMAGE,
+        d6Roller,
+        locationIndexRoller: () => random.nextInt(8),
+        events: canEmit ? events : undefined,
+        gameId: canEmit ? gameId : undefined,
+        hotDogTargetNumberModifier,
+        maxTechHeatScale,
+      });
+      heatCriticalUnit = heatCriticalResult.unit;
+      heatCriticalEvents = heatCriticalResult.criticalEvents;
+      if (manifestsByUnit) {
+        manifestsByUnit.set(unitId, heatCriticalResult.manifest);
+      }
+    }
+
     currentState = {
       ...currentState,
       units: {
         ...currentState.units,
         [unitId]: {
-          ...heatPilotUnit,
+          ...heatCriticalUnit,
           heat: newHeat,
           shutdown: shutdownNow,
         },
       },
     };
+
+    currentState = applyCriticalPSRTriggers(currentState, heatCriticalEvents);
   }
 
   return currentState;

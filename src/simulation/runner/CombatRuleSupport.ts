@@ -88,6 +88,12 @@ const MEGAMEK_HEAT_MAXTECH_PILOT_DAMAGE_SOURCE_REF = megamekHeatSourceRef(
   'L795-L817',
 );
 
+const MEGAMEK_HEAT_MAXTECH_CRITICAL_DAMAGE_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek HeatResolver applies optional MaxTech heat-scale critical damage avoid rolls at heat 36/44+, subtracts hotDogMod, and routes failed rolls to one random BattleMech critical location',
+  'server/totalWarfare/HeatResolver.java',
+  'L847-L862',
+);
+
 const MEGAMEK_SECONDARY_TARGET_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -674,6 +680,11 @@ export const HEAT_RULE_COMBAT_SUPPORT = {
     'maxtech-pilot-heat-damage',
     'runHeatPhase and resolveHeatPhase consume opt-in MaxTech heat-scale pilot damage checks at heat 32+ and apply Hot Dog avoid-number relief',
     [MEGAMEK_HEAT_MAXTECH_PILOT_DAMAGE_SOURCE_REF],
+  ),
+  'maxtech-heat-critical-damage': integrated(
+    'maxtech-heat-critical-damage',
+    'runHeatPhase and resolveHeatPhase consume opt-in MaxTech heat-scale critical damage checks at heat 36+, apply Hot Dog avoid-number relief, and route failed rolls through one random BattleMech critical location',
+    [MEGAMEK_HEAT_MAXTECH_CRITICAL_DAMAGE_SOURCE_REF],
   ),
   'water-cooling': integrated(
     'water-cooling',

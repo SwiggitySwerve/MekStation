@@ -10,19 +10,27 @@ import {
   GamePhase,
   IAttackDeclaredPayload,
   IEnvironmentalConditions,
+  IGameEvent,
   IGameSession,
   IHexCoordinate,
   IMovementDeclaredPayload,
   PSRTrigger,
 } from '@/types/gameplay';
+import {
+  buildDefaultCriticalSlotManifest,
+  type CriticalHitEvent,
+  type CriticalSlotManifest,
+} from '@/utils/gameplay/criticalHitResolution';
 import { logger } from '@/utils/logger';
 
 import { resolveAmmoExplosion } from './ammoTracking';
 import { resolvePilotConsciousnessCheck } from './damage';
-import { type DiceRoller } from './diceTypes';
+import { type D6Roller, type DiceRoller } from './diceTypes';
 import { calculateEnvironmentalHeatModifier } from './environmentalModifiers';
 import {
   createAmmoExplosionEvent,
+  createComponentDestroyedEvent,
+  createCriticalHitResolvedEvent,
   createHeatDissipatedEvent,
   createHeatGeneratedEvent,
   createPilotHitEvent,
@@ -31,8 +39,11 @@ import {
   createStartupAttemptEvent,
   createUnitDestroyedEvent,
 } from './gameEvents';
+import { createEventBase } from './gameEvents/base';
+import { buildDefaultComponentDamageState } from './gameSessionAttackResolutionHelpers';
 import { appendEvent } from './gameSessionCore';
 import { getWaterCoolingBonus } from './heat';
+import { resolveMaxTechHeatCriticalDamage } from './heatCriticalDamage';
 import { roll2d6 as rollDice } from './hitLocation';
 import {
   getWeaponCoolingHeatModifier,
@@ -60,6 +71,8 @@ export interface IResolveHeatPhaseOptions {
   ) => number;
   readonly environmentalConditions?: IEnvironmentalConditions;
   readonly maxTechHeatScale?: boolean;
+  readonly criticalManifestsByUnit?: Map<string, CriticalSlotManifest>;
+  readonly maxTechCriticalLocationRoller?: () => number;
 }
 
 function hasMaxTechHeatScaleRule(optionalRules: readonly string[]): boolean {
@@ -71,6 +84,184 @@ function hasMaxTechHeatScaleRule(optionalRules: readonly string[]): boolean {
       'tacops-heat-scale',
     ].includes(rule.toLowerCase()),
   );
+}
+
+function createD6RollerFromDiceRoller(diceRoller: DiceRoller): D6Roller {
+  let queuedDice: number[] = [];
+  return () => {
+    if (queuedDice.length === 0) {
+      queuedDice = [...diceRoller().dice];
+    }
+    return queuedDice.shift() ?? 1;
+  };
+}
+
+function createHeatCriticalHitEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  unitId: string,
+  location: string,
+  component: string,
+): IGameEvent {
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.CriticalHit,
+      turn,
+      GamePhase.Heat,
+      unitId,
+    ),
+    payload: {
+      unitId,
+      location,
+      component,
+      count: 1,
+    },
+  };
+}
+
+function mapCriticalDestructionCause(
+  cause: string,
+):
+  | 'damage'
+  | 'ammo_explosion'
+  | 'pilot_death'
+  | 'engine_destroyed'
+  | 'impossible_displacement'
+  | 'shutdown'
+  | 'ct_destroyed'
+  | 'head_destroyed' {
+  return cause === 'damage'
+    ? 'engine_destroyed'
+    : (cause as
+        | 'damage'
+        | 'ammo_explosion'
+        | 'pilot_death'
+        | 'engine_destroyed'
+        | 'impossible_displacement'
+        | 'shutdown'
+        | 'ct_destroyed'
+        | 'head_destroyed');
+}
+
+function emitHeatCriticalEvents(
+  session: IGameSession,
+  criticalEvents: readonly CriticalHitEvent[],
+  turn: number,
+  unitId: string,
+): IGameSession {
+  let currentSession = session;
+
+  for (const event of criticalEvents) {
+    const sequence = currentSession.events.length;
+
+    if (event.type === 'critical_hit_resolved') {
+      const payload = event.payload;
+      currentSession = appendEvent(
+        currentSession,
+        createHeatCriticalHitEvent(
+          currentSession.id,
+          sequence,
+          turn,
+          payload.unitId,
+          payload.location,
+          payload.componentType,
+        ),
+      );
+      currentSession = appendEvent(
+        currentSession,
+        createCriticalHitResolvedEvent(
+          currentSession.id,
+          currentSession.events.length,
+          turn,
+          GamePhase.Heat,
+          payload.unitId,
+          payload.location,
+          payload.slotIndex,
+          payload.componentType,
+          payload.componentName,
+          payload.effect,
+          payload.destroyed,
+        ),
+      );
+      if (payload.destroyed) {
+        currentSession = appendEvent(
+          currentSession,
+          createComponentDestroyedEvent(
+            currentSession.id,
+            currentSession.events.length,
+            turn,
+            payload.unitId,
+            payload.location,
+            payload.componentType,
+            payload.slotIndex,
+            payload.componentName,
+            GamePhase.Heat,
+          ),
+        );
+      }
+      continue;
+    }
+
+    if (event.type === 'psr_triggered') {
+      const payload = event.payload;
+      const psrUnit = currentSession.units.find((u) => u.id === payload.unitId);
+      currentSession = appendEvent(
+        currentSession,
+        createPSRTriggeredEvent(
+          currentSession.id,
+          sequence,
+          turn,
+          GamePhase.Heat,
+          payload.unitId,
+          payload.reason,
+          payload.additionalModifier,
+          payload.triggerSource,
+          psrUnit?.piloting,
+          payload.reasonCode,
+        ),
+      );
+      continue;
+    }
+
+    if (event.type === 'pilot_hit') {
+      const payload = event.payload;
+      currentSession = appendEvent(
+        currentSession,
+        createPilotHitEvent(
+          currentSession.id,
+          sequence,
+          turn,
+          GamePhase.Heat,
+          payload.unitId,
+          payload.wounds,
+          payload.totalWounds,
+          payload.source,
+          payload.consciousnessCheckRequired,
+          payload.consciousnessCheckPassed,
+        ),
+      );
+      continue;
+    }
+
+    if (event.type === 'unit_destroyed') {
+      currentSession = appendEvent(
+        currentSession,
+        createUnitDestroyedEvent(
+          currentSession.id,
+          sequence,
+          turn,
+          GamePhase.Heat,
+          unitId,
+          mapCriticalDestructionCause(event.payload.cause),
+        ),
+      );
+    }
+  }
+
+  return currentSession;
 }
 
 export function resolveHeatPhase(
@@ -87,6 +278,17 @@ export function resolveHeatPhase(
   const maxTechHeatScale =
     options?.maxTechHeatScale ??
     hasMaxTechHeatScaleRule(session.config.optionalRules);
+  const getOrSeedCriticalManifest = (unitId: string): CriticalSlotManifest => {
+    const existing = options?.criticalManifestsByUnit?.get(unitId);
+    if (existing) return existing;
+    const seeded = buildDefaultCriticalSlotManifest();
+    options?.criticalManifestsByUnit?.set(unitId, seeded);
+    return seeded;
+  };
+  const heatCriticalD6Roller = createD6RollerFromDiceRoller(diceRoller);
+  const maxTechCriticalLocationRoller =
+    options?.maxTechCriticalLocationRoller ??
+    (() => Math.floor(Math.random() * 8));
 
   const turnEvents = session.events.filter((event) => event.turn === turn);
   const unitIds = Object.keys(session.currentState.units);
@@ -615,6 +817,33 @@ export function resolveHeatPhase(
           consciousnessPassed,
         ),
       );
+    }
+
+    if (maxTechHeatScale) {
+      const currentUnitState = currentSession.currentState.units[unitId];
+      const heatCriticalResult = resolveMaxTechHeatCriticalDamage({
+        unitId,
+        heat: finalHeat,
+        manifest: getOrSeedCriticalManifest(unitId),
+        componentDamage:
+          currentUnitState.componentDamage ??
+          buildDefaultComponentDamageState(),
+        d6Roller: heatCriticalD6Roller,
+        locationIndexRoller: maxTechCriticalLocationRoller,
+        targetNumberModifier: hotDogTargetNumberModifier,
+      });
+      options?.criticalManifestsByUnit?.set(
+        unitId,
+        heatCriticalResult.updatedManifest,
+      );
+      if (heatCriticalResult.applied) {
+        currentSession = emitHeatCriticalEvents(
+          currentSession,
+          heatCriticalResult.events,
+          turn,
+          unitId,
+        );
+      }
     }
   }
 

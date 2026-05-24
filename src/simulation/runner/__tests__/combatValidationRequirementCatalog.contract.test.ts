@@ -428,6 +428,7 @@ describe('BattleMech combat validation requirement crosswalk', () => {
       'ruleSupport.heatRules.heat-induced-ammo-explosion',
       'ruleSupport.heatRules.pilot-heat-damage',
       'ruleSupport.heatRules.maxtech-pilot-heat-damage',
+      'ruleSupport.heatRules.maxtech-heat-critical-damage',
     ]);
   });
 

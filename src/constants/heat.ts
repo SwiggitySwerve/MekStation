@@ -249,6 +249,26 @@ export function getMaxTechPilotHeatDamageAvoidTN(
   return 0;
 }
 
+/**
+ * Get the optional MaxTech heat-scale critical damage avoidance target number.
+ *
+ * MegaMek's MaxTech heat resolver checks this separately from pilot heat
+ * damage: heat 36+ risks one random-location critical, with a harder avoid
+ * roll at heat 44+.
+ *
+ * @param heat - Current heat level
+ * @param targetNumberModifier - Heat-check target-number modifier (default 0)
+ * @returns TN for 2d6 roll, or 0 for no optional check needed
+ */
+export function getMaxTechHeatCriticalDamageAvoidTN(
+  heat: number,
+  targetNumberModifier: number = 0,
+): number {
+  if (heat >= 44) return 10 + targetNumberModifier;
+  if (heat >= 36) return 8 + targetNumberModifier;
+  return 0;
+}
+
 // =============================================================================
 // Heat Display Thresholds (UI)
 // =============================================================================

@@ -159,6 +159,17 @@ function createAtlasWeapons(): readonly IWeapon[] {
   ];
 }
 
+function createScriptedHeatRandom(
+  d6Rolls: readonly number[],
+  locationIndex = 2,
+): SeededRandom {
+  const values = d6Rolls.map((roll) => (roll - 1) / 6 + 0.001);
+  return {
+    next: () => values.shift() ?? 0,
+    nextInt: () => locationIndex,
+  } as unknown as SeededRandom;
+}
+
 function createUnit(
   id: string,
   side: GameSide,
@@ -1069,6 +1080,97 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
     expect(baseState.units['player-1'].pilotWounds).toBe(1);
     expect(hotDogPilotHits).toHaveLength(0);
     expect(hotDogState.units['player-1'].pilotWounds).toBe(0);
+  });
+
+  it('routes optional MaxTech heat critical damage through a random BattleMech critical location', () => {
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heat: 36,
+        heatSinks: 0,
+        abilities: ['artificial_pain_shunt'],
+      },
+    );
+    const events: IGameEvent[] = [];
+    const manifestsByUnit = new Map<string, CriticalSlotManifest>();
+
+    const newState = runHeatPhase({
+      state: makeMinimalState({ 'player-1': unit }),
+      events,
+      gameId: 'maxtech-heat-critical-damage-test',
+      random: createScriptedHeatRandom([3, 3, 1], 2),
+      maxTechHeatScale: true,
+      manifestsByUnit,
+    });
+
+    const criticalHit = events.find(
+      (event) => event.type === GameEventType.CriticalHit,
+    );
+    const criticalResolved = events.find(
+      (event) => event.type === GameEventType.CriticalHitResolved,
+    );
+    const componentDestroyed = events.find(
+      (event) => event.type === GameEventType.ComponentDestroyed,
+    );
+
+    expect(criticalHit).toMatchObject({
+      phase: GamePhase.Heat,
+      payload: expect.objectContaining({
+        unitId: 'player-1',
+        location: 'right_torso',
+        component: 'engine',
+        count: 1,
+      }),
+    });
+    expect(criticalResolved).toMatchObject({
+      phase: GamePhase.Heat,
+      payload: expect.objectContaining({
+        unitId: 'player-1',
+        location: 'right_torso',
+        componentType: 'engine',
+      }),
+    });
+    expect(componentDestroyed).toMatchObject({
+      phase: GamePhase.Heat,
+      payload: expect.objectContaining({
+        unitId: 'player-1',
+        location: 'right_torso',
+        componentType: 'engine',
+      }),
+    });
+    expect(newState.units['player-1'].componentDamage?.engineHits).toBe(1);
+    expect(manifestsByUnit.get('player-1')?.right_torso?.[0]?.destroyed).toBe(
+      true,
+    );
+  });
+
+  it('applies Hot Dog relief to optional MaxTech heat critical damage rolls', () => {
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heat: 36,
+        heatSinks: 0,
+        abilities: ['artificial_pain_shunt', 'hot-dog'],
+      },
+    );
+    const events: IGameEvent[] = [];
+
+    const newState = runHeatPhase({
+      state: makeMinimalState({ 'player-1': unit }),
+      events,
+      gameId: 'maxtech-heat-critical-hot-dog-test',
+      random: createScriptedHeatRandom([3, 4], 2),
+      maxTechHeatScale: true,
+    });
+
+    expect(
+      events.some((event) => event.type === GameEventType.CriticalHitResolved),
+    ).toBe(false);
+    expect(newState.units['player-1'].componentDamage?.engineHits ?? 0).toBe(0);
   });
 
   it('applies consciousness SPAs to heat-sourced pilot damage', () => {

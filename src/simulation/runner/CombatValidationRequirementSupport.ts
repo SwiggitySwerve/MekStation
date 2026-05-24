@@ -293,6 +293,7 @@ const HEAT_LIFECYCLE_SUPPORT_REFS = [
   'heat-induced-ammo-explosion',
   'pilot-heat-damage',
   'maxtech-pilot-heat-damage',
+  'maxtech-heat-critical-damage',
 ].map((id) => `ruleSupport.heatRules.${id}`);
 
 const RANGE_BRACKET_SUPPORT_REFS = supportRefs(
@@ -611,7 +612,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'heat-lifecycle': integrated(
     'heat-lifecycle',
-    'Heat rules cover threshold effects, shutdown checks, auto-shutdown, startup, heat pilot damage, and heat-induced ammo explosion selection plus damage cascade',
+    'Heat rules cover threshold effects, shutdown checks, auto-shutdown, startup, heat pilot damage, optional MaxTech heat critical damage, and heat-induced ammo explosion selection plus damage cascade',
     HEAT_LIFECYCLE_SUPPORT_REFS,
   ),
   'range-validation': integrated(

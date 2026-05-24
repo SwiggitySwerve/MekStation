@@ -655,17 +655,19 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       [];
 
     expect(SPA_COMBAT_SUPPORT['hot-dog']).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('heat-induced ammo-explosion'),
-      gap: expect.stringContaining('Optional MaxTech heat-scale'),
     });
     expect(SPA_COMBAT_SUPPORT['hot-dog'].evidence).toContain(
       'opt-in MaxTech pilot heat-damage',
     );
+    expect(SPA_COMBAT_SUPPORT['hot-dog'].evidence).toContain(
+      'opt-in MaxTech critical-damage',
+    );
     expect(hotDogRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek HeatResolver sets PILOT_HOT_DOG to hotDogMod = 1 before resolving heat effects.',
       'MegaMek HeatResolver subtracts hotDogMod from startup and shutdown target numbers instead of shifting the shutdown heat threshold.',
-      'MegaMek HeatResolver subtracts hotDogMod from heat ammo-explosion target numbers and optional MaxTech heat-scale pilot damage target numbers; default life-support heat damage remains threshold-based.',
+      'MegaMek HeatResolver subtracts hotDogMod from heat ammo-explosion target numbers plus optional MaxTech heat-scale pilot-damage and critical-damage target numbers; default life-support heat damage remains threshold-based.',
       'MegaMek OptionsConstants defines PILOT_HOT_DOG as hot_dog.',
     ]);
 
@@ -690,7 +692,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toMatchObject({
       level: 'helper-only',
       evidence: expect.stringContaining('source-backed Some Like It Hot'),
-      gap: expect.stringContaining('Optional MaxTech heat-scale'),
+      gap: expect.stringContaining('Cool Under Fire'),
     });
     expect(heatApplicationRefs).toEqual([...hotDogRefs, ...someLikeItHotRefs]);
   });

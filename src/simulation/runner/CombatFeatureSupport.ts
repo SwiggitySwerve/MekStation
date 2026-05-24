@@ -550,10 +550,9 @@ export const SPA_COMBAT_SUPPORT = {
     'combat-intuition',
     'Round-one initiative override is not wired',
   ),
-  'hot-dog': helperOnly(
+  'hot-dog': integrated(
     'hot-dog',
-    'getHotDogHeatTargetNumberModifier plus runHeatPhase and resolveHeatPhase apply source-backed -1 startup/shutdown, heat-induced ammo-explosion, and opt-in MaxTech pilot heat-damage avoid-number relief while preserving default life-support heat damage thresholds',
-    'Optional MaxTech heat-scale critical-damage rolls are not routed through runtime heat resolution, and non-BattleMech/aero Hot Dog heat effects are outside the BattleMech matrix',
+    'getHotDogHeatTargetNumberModifier plus runHeatPhase and resolveHeatPhase apply source-backed -1 startup/shutdown, heat-induced ammo-explosion, opt-in MaxTech pilot heat-damage, and opt-in MaxTech critical-damage avoid-number relief while preserving default life-support heat damage thresholds',
     MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
   ),
   'cool-under-fire': helperOnly(

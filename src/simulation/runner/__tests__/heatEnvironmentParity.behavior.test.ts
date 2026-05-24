@@ -7,6 +7,7 @@
  * so the validation catalog does not overstate runner parity.
  */
 
+import type { CriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
 import type { DiceRoller } from '@/utils/gameplay/diceTypes';
 
 import {
@@ -76,6 +77,22 @@ const rollSeven: DiceRoller = () => ({
   isSnakeEyes: false,
   isBoxcars: false,
 });
+
+function createScriptedDiceRoller(
+  rolls: readonly (readonly [number, number])[],
+): DiceRoller {
+  const queuedRolls = [...rolls];
+  return () => {
+    const dice = queuedRolls.shift() ?? [6, 6];
+    const total = dice[0] + dice[1];
+    return {
+      dice,
+      total,
+      isSnakeEyes: total === 2,
+      isBoxcars: total === 12,
+    };
+  };
+}
 
 function createConfig(): IGameConfig {
   return {
@@ -418,8 +435,8 @@ describe('heat environment runner/interactive parity boundaries', () => {
       ]),
     );
     expect(SPA_COMBAT_SUPPORT['hot-dog']).toMatchObject({
-      level: 'helper-only',
-      gap: expect.stringContaining('Optional MaxTech heat-scale'),
+      level: 'integrated',
+      evidence: expect.stringContaining('opt-in MaxTech critical-damage'),
     });
   });
 
@@ -753,5 +770,73 @@ describe('heat environment runner/interactive parity boundaries', () => {
     expect(runnerBase.units['player-1'].pilotWounds).toBe(1);
     expect(runnerHotDogPilotHits).toHaveLength(0);
     expect(runnerHotDog.units['player-1'].pilotWounds).toBe(0);
+  });
+
+  it('routes optional MaxTech heat critical damage in both heat resolvers', () => {
+    const interactiveManifests = new Map<string, CriticalSlotManifest>();
+    const interactive = resolveHeatPhase(
+      withInteractiveUnit(createInteractiveHeatSession(), 'player-1', {
+        heat: 46,
+      }),
+      createScriptedDiceRoller([
+        [6, 6],
+        [3, 3],
+        [1, 1],
+      ]),
+      {
+        maxTechHeatScale: true,
+        maxTechCriticalLocationRoller: () => 2,
+        criticalManifestsByUnit: interactiveManifests,
+      },
+    );
+
+    const runnerEvents: IGameEvent[] = [];
+    const runnerD6 = [6, 6, 3, 3, 1].map((roll) => (roll - 1) / 6 + 0.001);
+    const runnerState = runHeatPhase({
+      state: createRunnerHeatState(
+        createRunnerUnit({
+          heat: 36,
+          heatSinks: 0,
+        }),
+      ),
+      events: runnerEvents,
+      gameId: 'heat-environment-parity-test',
+      random: {
+        next: () => runnerD6.shift() ?? 0,
+        nextInt: () => 2,
+      } as unknown as SeededRandom,
+      maxTechHeatScale: true,
+      manifestsByUnit: new Map<string, CriticalSlotManifest>(),
+    });
+
+    const interactiveCritical = interactive.events.find(
+      (event) =>
+        event.type === GameEventType.CriticalHitResolved &&
+        event.phase === GamePhase.Heat,
+    );
+    const runnerCritical = runnerEvents.find(
+      (event) =>
+        event.type === GameEventType.CriticalHitResolved &&
+        event.phase === GamePhase.Heat,
+    );
+
+    expect(interactiveCritical).toMatchObject({
+      payload: expect.objectContaining({
+        unitId: 'player-1',
+        location: 'right_torso',
+        componentType: 'engine',
+      }),
+    });
+    expect(runnerCritical).toMatchObject({
+      payload: expect.objectContaining({
+        unitId: 'player-1',
+        location: 'right_torso',
+        componentType: 'engine',
+      }),
+    });
+    expect(
+      interactive.currentState.units['player-1'].componentDamage?.engineHits,
+    ).toBe(1);
+    expect(runnerState.units['player-1'].componentDamage?.engineHits).toBe(1);
   });
 });

@@ -43,8 +43,8 @@ export const MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS = [
     'megamek/src/megamek/server/totalWarfare/HeatResolver.java#L500-L636',
   ),
   megamekRef(
-    'MegaMek HeatResolver subtracts hotDogMod from heat ammo-explosion target numbers and optional MaxTech heat-scale pilot damage target numbers; default life-support heat damage remains threshold-based.',
-    'megamek/src/megamek/server/totalWarfare/HeatResolver.java#L690-L848',
+    'MegaMek HeatResolver subtracts hotDogMod from heat ammo-explosion target numbers plus optional MaxTech heat-scale pilot-damage and critical-damage target numbers; default life-support heat damage remains threshold-based.',
+    'megamek/src/megamek/server/totalWarfare/HeatResolver.java#L690-L862',
   ),
   megamekRef(
     'MegaMek OptionsConstants defines PILOT_HOT_DOG as hot_dog.',
