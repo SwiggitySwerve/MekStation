@@ -177,6 +177,7 @@ describe('buildCommandPreviewInputs', () => {
       weaponIdsAvailable: ['medium-laser'],
       rangeBracket: RangeBracket.Short,
     });
+    expect(inputs.combatInfoByTargetId?.t1).toBe(inputs.combatInfo);
     expect(inputs.combatInfo?.toHitNumber).toBe(4);
   });
 
@@ -259,6 +260,8 @@ describe('buildCommandPreviewInputs', () => {
         expect.objectContaining({ name: 'Partial Cover' }),
       ]),
     );
+    expect(inputs.combatInfoByTargetId?.t1).toBe(inputs.combatInfo);
+    expect(inputs.combatInfoByTargetId?.v1).toBe(inputs.combatInfo);
   });
 
   it('bridges a hovered target hex into shared combat projection data before target lock', () => {

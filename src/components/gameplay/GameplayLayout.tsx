@@ -866,6 +866,13 @@ export function GameplayLayout({
               activeUnitId: selectedUnitId,
               selectedUnitId,
               targetUnitId: activeTargetId ?? null,
+              targetCombatProjection: activeTargetId
+                ? (commandPreviewInputs.combatInfoByTargetId?.[
+                    activeTargetId
+                  ] ?? commandPreviewInputs.combatInfo)
+                : null,
+              combatProjectionByTargetId:
+                commandPreviewInputs.combatInfoByTargetId,
               hoveredHex: null,
               phase: currentState.phase,
               canAct: isPlayerTurn,

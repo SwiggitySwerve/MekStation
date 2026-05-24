@@ -88,6 +88,8 @@ export interface ICommandPreviewInputs {
   readonly weaponRangeBand?: 'short' | 'medium' | 'long' | 'extreme' | 'out';
   /** Shared rules-backed combat projection for the hovered/target hex. */
   readonly combatInfo?: ICombatRangeHex;
+  /** Target-id keyed shared combat projections for command availability. */
+  readonly combatInfoByTargetId?: Readonly<Record<string, ICombatRangeHex>>;
   /** Selected unit weapon statuses retained for call-site compatibility. */
   readonly weaponStatuses?: readonly IWeaponStatus[];
   /** Target unit selected in the physical-attack planning projection. */

@@ -46,6 +46,7 @@ import type {
   PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks/types';
 
+import type { ICombatRangeHex } from './CombatProjectionInterfaces';
 import type { IAttackInvalidPayload } from './GameSessionAttackEvents';
 import type { GamePhase, LockState } from './GameSessionCoreTypes';
 import type { IHexCoordinate, IMovementCapability } from './HexGridInterfaces';
@@ -112,6 +113,20 @@ export interface ITacticalCommandContext {
   readonly selectedUnitId: string | null;
   /** Target the player is aiming at (attack commands). */
   readonly targetUnitId: string | null;
+  /**
+   * Shared combat projection for targetUnitId, when the map has already
+   * derived one. Weapon commands use this to reject blocked volleys before
+   * commit with the same rules-backed reason shown on the map.
+   */
+  readonly targetCombatProjection?: ICombatRangeHex | null;
+  /**
+   * Target-id keyed combat projections. Context menus can override
+   * targetUnitId and pick the matching projection without recalculating
+   * range, arc, LOS, visibility, or weapon availability in the menu layer.
+   */
+  readonly combatProjectionByTargetId?: Readonly<
+    Record<string, ICombatRangeHex>
+  >;
   /** Hex the cursor is hovering, if any. */
   readonly hoveredHex: IHexCoordinate | null;
   /** Current game phase. Drives phase-filter at the registry level. */

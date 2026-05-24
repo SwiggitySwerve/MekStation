@@ -280,6 +280,40 @@ describe('TacticalActionDock', () => {
     confirmSpy.mockRestore();
   });
 
+  it('does not confirm or dispatch a fire volley blocked by combat projection', () => {
+    const onAction = jest.fn();
+    const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+    render(
+      <TacticalActionDock
+        ctx={makeCtx({
+          phase: GamePhase.WeaponAttack,
+          targetUnitId: 'enemy-x',
+          targetCombatProjection: makeCombatInfo({
+            attackable: false,
+            validTargetUnitIds: [],
+            attackInvalidReason: 'NoLineOfSight',
+            attackInvalidDetails: 'Blocked by building at (1, 0)',
+            blockedReason: 'Blocked by building at (1, 0)',
+            toHitNumber: undefined,
+          }),
+        })}
+        shellMode="combat"
+        onAction={onAction}
+      />,
+    );
+
+    const button = screen.getByTestId('command-btn-weapon.fire-volley');
+    expect(button).toBeDisabled();
+    fireEvent.mouseEnter(button.parentElement!);
+    expect(
+      screen.getByTestId('command-disabled-reason-weapon.fire-volley'),
+    ).toHaveTextContent('Blocked by building at (1, 0)');
+    fireEvent.click(button);
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(onAction).not.toHaveBeenCalled();
+    confirmSpy.mockRestore();
+  });
+
   it('confirm-accepted commands dispatch the actionId', () => {
     const onAction = jest.fn();
     const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);

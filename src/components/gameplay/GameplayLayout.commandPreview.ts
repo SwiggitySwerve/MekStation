@@ -43,6 +43,21 @@ export interface IBuildCommandPreviewInputsParams {
   readonly hoverUnreachable?: boolean;
 }
 
+function buildCombatProjectionByTargetId(
+  projections: readonly NonNullable<ICommandPreviewInputs['combatInfo']>[],
+): Readonly<Record<string, NonNullable<ICommandPreviewInputs['combatInfo']>>> {
+  const byTargetId: Record<
+    string,
+    NonNullable<ICommandPreviewInputs['combatInfo']>
+  > = {};
+  for (const projection of projections) {
+    for (const targetId of projection.targetUnitIds) {
+      byTargetId[targetId] = projection;
+    }
+  }
+  return byTargetId;
+}
+
 export function buildCommandPreviewInputs({
   currentState,
   selectedUnitId,
@@ -177,6 +192,7 @@ export function buildCommandPreviewInputs({
         )
       : undefined;
   const combatInfo = targetCombatInfo ?? hoverCombatInfo;
+  const combatInfoByTargetId = buildCombatProjectionByTargetId(projections);
 
-  return { ...baseInputs, combatInfo };
+  return { ...baseInputs, combatInfo, combatInfoByTargetId };
 }

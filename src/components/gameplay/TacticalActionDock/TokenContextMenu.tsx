@@ -129,7 +129,13 @@ export function TokenContextMenu({
   // `Enemy token context menu targets enemy` scenario.
   const effectiveCtx: ITacticalCommandContext = isFriendly
     ? ctx
-    : { ...ctx, targetUnitId: tokenUnitId };
+    : {
+        ...ctx,
+        targetUnitId: tokenUnitId,
+        targetCombatProjection:
+          ctx.combatProjectionByTargetId?.[tokenUnitId] ??
+          ctx.targetCombatProjection,
+      };
 
   // Same registry as the dock — single source of truth.
   const commands = useCommandRegistry(effectiveCtx, shellMode);
