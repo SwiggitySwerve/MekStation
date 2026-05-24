@@ -23,6 +23,8 @@ height for this readability projection
 **WHEN** the map is rendered in isometric mode
 **THEN** the occluding terrain hex SHALL render an isometric-only highlight
 **AND** its elevation stack SHALL indicate that it is the source of occlusion
+**AND** the highlight's accessible label SHALL report the effective occluder
+height, including represented building levels
 
 #### Scenario: Camera rotation clears stale occluder highlights
 

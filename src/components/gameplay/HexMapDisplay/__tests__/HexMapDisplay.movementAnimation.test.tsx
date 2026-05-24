@@ -2208,9 +2208,20 @@ describe('HexMapDisplay tactical visual layers', () => {
       'data-isometric-occlusion-reasons',
       'Elevated terrain +5 at (1, 0) may hide unit at elevation +0',
     );
-    expect(
-      screen.getByTestId('hex-isometric-occluder-highlight-1-0'),
-    ).toHaveAttribute('data-isometric-occludes-units', 'occluded');
+    const occluderHighlight = screen.getByTestId(
+      'hex-isometric-occluder-highlight-1-0',
+    );
+    expect(occluderHighlight).toHaveAttribute(
+      'data-isometric-occludes-units',
+      'occluded',
+    );
+    expect(occluderHighlight).toHaveAttribute(
+      'aria-label',
+      'Tall elevation +5 may hide units occluded',
+    );
+    expect(occluderHighlight.querySelector('title')).toHaveTextContent(
+      'Tall elevation +5 may hide units occluded',
+    );
     expect(screen.getByTestId('hex-elevation-stack-1-0')).toHaveAttribute(
       'data-isometric-occludes-units',
       'occluded',

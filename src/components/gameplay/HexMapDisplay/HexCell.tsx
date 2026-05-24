@@ -268,6 +268,9 @@ export const HexCell = React.memo(function HexCell({
     isIsometricTile &&
     isometricOccluderInfo !== undefined &&
     isometricOccluderInfo.occludedUnitIds.length > 0;
+  const occluderElevationLabel = isIsometricOccluder
+    ? formatElevationLabel(isometricOccluderInfo.occluderElevation)
+    : elevationLabel;
   const occludedUnitIds = isIsometricOccluder
     ? isometricOccluderInfo.occludedUnitIds.join(',')
     : undefined;
@@ -585,10 +588,10 @@ export const HexCell = React.memo(function HexCell({
           data-testid={`hex-isometric-occluder-highlight-${hex.q}-${hex.r}`}
           data-isometric-occludes-units={occludedUnitIds}
           data-isometric-occlusion-reasons={occlusionReasons}
-          aria-label={`Tall elevation ${elevationLabel} may hide units ${occludedUnitIds}`}
+          aria-label={`Tall elevation ${occluderElevationLabel} may hide units ${occludedUnitIds}`}
         >
           <title>
-            {`Tall elevation ${elevationLabel} may hide units ${occludedUnitIds}`}
+            {`Tall elevation ${occluderElevationLabel} may hide units ${occludedUnitIds}`}
           </title>
           <path
             d={pathD}

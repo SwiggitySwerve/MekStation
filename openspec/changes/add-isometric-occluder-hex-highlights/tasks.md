@@ -12,6 +12,7 @@
 - [x] 2.3 Render isometric-only occluder attributes, outline, badge, and stack emphasis
 - [x] 2.4 Count represented building levels in isometric occluder height and
       scene depth ordering
+- [x] 2.5 Report effective occluder height in the visible highlight label
 
 ## 3. Verification
 
@@ -23,3 +24,4 @@
 - [x] 3.6 `npm.cmd run format:check` passes
 - [x] 3.7 `npx.cmd openspec validate add-isometric-occluder-hex-highlights --strict` passes
 - [x] 3.8 Focused building-level occluder coverage passes
+- [x] 3.9 Focused occluder highlight label coverage passes
