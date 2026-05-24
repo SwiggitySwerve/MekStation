@@ -99,7 +99,7 @@ function applyPhysicalDamage(options: {
         GamePhase.PhysicalAttack,
         {
           unitId,
-          cause: 'damage' as const,
+          cause: dmgResult.result.destructionCause ?? 'damage',
           ...(sourceUnitId !== undefined && sourceUnitId !== unitId
             ? { killerUnitId: sourceUnitId }
             : {}),

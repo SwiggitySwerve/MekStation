@@ -135,7 +135,10 @@ export function applyCritAmmoExplosions(options: {
         currentState,
         targetId,
         cascadeResult.state,
-        cascadeResult.result,
+        {
+          ...cascadeResult.result,
+          destructionCause: 'ammo_explosion',
+        },
       );
       // Ensure the emptied ammoState persists on the unit too —
       // applyDamageResultToState doesn't touch ammoState.

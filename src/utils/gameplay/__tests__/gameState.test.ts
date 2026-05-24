@@ -775,6 +775,7 @@ describe('applyEvent - UnitDestroyed', () => {
     const newState = applyEvent(state, destroyedEvent);
 
     expect(newState.units['unit-1'].destroyed).toBe(true);
+    expect(newState.units['unit-1'].destructionCause).toBe('damage');
   });
 });
 

@@ -89,10 +89,9 @@ export const DAMAGE_RESOLUTION_COMBAT_SUPPORT = {
     'heat-ammo-explosion-damage-cascade',
     'runHeatPhase empties the selected heat-cookoff bin, routes explosion damage through resolveDamage, emits damage/transfer/destruction events, and tags fatal cookoffs as ammo_explosion',
   ),
-  'destruction-cause-state-persistence': helperOnly(
+  'destruction-cause-state-persistence': integrated(
     'destruction-cause-state-persistence',
-    'resolveDamage returns destructionCause and UnitDestroyed events carry cause',
-    'applyDamageResultToState persists destroyed but not destructionCause on IUnitGameState',
+    'resolveDamage returns destructionCause, applyDamageResultToState persists it on IUnitGameState, ammo explosion cascades can override generic damage, and UnitDestroyed replay stores the event cause',
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 

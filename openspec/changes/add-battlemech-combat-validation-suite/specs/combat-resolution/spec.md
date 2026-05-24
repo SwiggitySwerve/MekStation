@@ -21,6 +21,15 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **THEN** the row SHALL reference executable tests or source support
 - **AND** the referenced tests SHALL validate behavior through the narrowest helper and at least one higher-level combat path when that path exists
 
+#### Scenario: Destruction cause persists through combat state and replay
+
+- **GIVEN** a BattleMech damage path reports `unitDestroyed=true` with a canonical destruction cause
+- **WHEN** runner state snapshots apply that result or event replay applies the corresponding `UnitDestroyed` event
+- **THEN** `IUnitGameState.destroyed` SHALL be true
+- **AND** `IUnitGameState.destructionCause` SHALL preserve the same canonical cause
+- **AND** ammo-explosion cascades SHALL be able to override generic damage destruction with `ammo_explosion`
+- **AND** this persistence SHALL be cataloged as a MekStation lifecycle contract rather than an external rulebook claim
+
 #### Scenario: Missing action surfaces stay visible
 
 - **GIVEN** a BattleMech action surface has source-backed or product-visible relevance but no authoritative command, game intent, wire payload, P2P translation, or runner action path

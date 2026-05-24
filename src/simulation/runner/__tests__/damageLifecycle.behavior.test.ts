@@ -88,7 +88,7 @@ function freshComponentDamage(): IComponentDamageState {
 }
 
 describe('BattleMech damage lifecycle validation anchors', () => {
-  it('keeps fatal center-torso and head destruction visible as generic damage causes until cause-specific support lands', () => {
+  it('persists fatal center-torso and head destruction as generic damage causes until cause-specific support lands', () => {
     const highRoller = () => 6;
 
     const centerTorsoKill = resolveDamage(
@@ -116,10 +116,29 @@ describe('BattleMech damage lifecycle validation anchors', () => {
     );
 
     expect(updated.units.target.destroyed).toBe(true);
-    expect(
-      (updated.units.target as { readonly destructionCause?: string })
-        .destructionCause,
-    ).toBeUndefined();
+    expect(updated.units.target.destructionCause).toBe('damage');
+  });
+
+  it('persists explicit destruction-cause overrides from runner cascades', () => {
+    const centerTorsoKill = resolveDamage(
+      createDamageState(),
+      'center_torso',
+      20,
+      () => 6,
+    );
+
+    const updated = applyDamageResultToState(
+      createGameState(),
+      'target',
+      centerTorsoKill.state,
+      {
+        ...centerTorsoKill.result,
+        destructionCause: 'ammo_explosion',
+      },
+    );
+
+    expect(updated.units.target.destroyed).toBe(true);
+    expect(updated.units.target.destructionCause).toBe('ammo_explosion');
   });
 
   it('documents that default runner critical slots cover core components while equipment crits remain helper-only', () => {

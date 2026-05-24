@@ -1657,6 +1657,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ).toEqual([
       'armor-damage',
       'damage-transfer',
+      'destruction-cause-state-persistence',
       'head-damage-cap',
       'heat-ammo-explosion-damage-cascade',
       'internal-structure-damage',
@@ -1668,7 +1669,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(DAMAGE_RESOLUTION_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['destruction-cause-state-persistence']);
+    ).toEqual([]);
 
     expect(
       supportIdsByLevel(PILOT_DAMAGE_COMBAT_SUPPORT, 'integrated'),

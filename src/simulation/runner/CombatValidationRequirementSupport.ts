@@ -769,7 +769,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'damage-resolution': helperOnly(
     'damage-resolution',
     'Damage support covers armor, internal structure, rear armor, transfer, location destruction, heat ammo explosion cascades, 20+ damage PSRs, and destruction-cause classification',
-    'Cause-specific state persistence for several destruction causes is still helper-only',
+    'Cause-specific ct_destroyed, head_destroyed, and shutdown classification remains helper-only',
     [...DAMAGE_RESOLUTION_SUPPORT_REFS, ...DESTRUCTION_CAUSE_SUPPORT_REFS],
   ),
   'critical-effects': helperOnly(

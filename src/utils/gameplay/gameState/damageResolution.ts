@@ -154,6 +154,7 @@ export function applyUnitDestroyed(
       [payload.unitId]: {
         ...unit,
         destroyed: true,
+        destructionCause: payload.cause,
       },
     },
   };

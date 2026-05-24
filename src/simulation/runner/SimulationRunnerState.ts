@@ -422,6 +422,7 @@ export function buildDamageState(unit: IUnitGameState): IUnitDamageState {
     pilotConscious: unit.pilotConscious,
     pilotAbilities: unit.abilities,
     destroyed: unit.destroyed,
+    destructionCause: unit.destructionCause,
   };
 }
 
@@ -437,6 +438,7 @@ export function applyDamageResultToState(
       readonly destroyed: boolean;
     }[];
     readonly unitDestroyed: boolean;
+    readonly destructionCause?: IUnitGameState['destructionCause'];
   },
   /**
    * Per `add-combat-fidelity-suite` Phase 3: when the runner threaded a
@@ -483,6 +485,10 @@ export function applyDamageResultToState(
     }
   }
 
+  const destructionCause = damageResult.unitDestroyed
+    ? (damageResult.destructionCause ?? target.destructionCause ?? 'damage')
+    : target.destructionCause;
+
   const updatedUnit: IUnitGameState = {
     ...target,
     armor: newArmor,
@@ -491,6 +497,7 @@ export function applyDamageResultToState(
     pilotWounds: damageState.pilotWounds,
     pilotConscious: damageState.pilotConscious,
     destroyed: damageResult.unitDestroyed,
+    ...(destructionCause !== undefined ? { destructionCause } : {}),
     // When the runner supplied post-crit component damage, persist it.
     // Engine/gyro hits drive PSR + heat thresholds + walk-MP penalties
     // downstream; without persistence the runner re-rolls a fresh

@@ -16,6 +16,7 @@ import type { IProtoMechCombatState } from '@/utils/gameplay/protomech/state';
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 
 import type { IBattleArmorCombatState } from './BattleArmorCombatInterfaces';
+import type { IUnitDestroyedPayload } from './GameSessionAttackEvents';
 import type { IGameEvent } from './GameSessionStatusEvents';
 import type { IGameConfig, IGameUnit } from './GameSessionUnitTypes';
 
@@ -334,6 +335,8 @@ export interface IUnitGameState {
   readonly pilotConscious: boolean;
   /** Is unit destroyed? */
   readonly destroyed: boolean;
+  /** Canonical destruction cause once destroyed. */
+  readonly destructionCause?: IUnitDestroyedPayload['cause'];
   /** Lock state for current phase */
   readonly lockState: LockState;
   /** Pending action (if planning) */

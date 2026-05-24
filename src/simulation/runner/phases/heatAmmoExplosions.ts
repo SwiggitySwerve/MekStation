@@ -150,7 +150,10 @@ export function applyHeatInducedAmmoExplosions(
       currentState,
       unitId,
       cascadeResult.state,
-      cascadeResult.result,
+      {
+        ...cascadeResult.result,
+        destructionCause: 'ammo_explosion',
+      },
     );
     currentState = {
       ...currentState,
