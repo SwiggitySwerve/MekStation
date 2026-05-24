@@ -2523,6 +2523,8 @@ Movement highlights SHALL expose the BattleTech movement facts required to under
 
 For each projected movement hex, the map SHALL expose at least movement mode, cumulative MP cost, terrain cost, elevation delta/cost, heat impact where applicable, path/facing preview where applicable, and invalid reason when blocked.
 
+When live movement overlays combine multiple projections for the same destination, they SHALL preserve the per-mode option facts instead of collapsing them into an unexplained single state.
+
 #### Scenario: Walk/run/jump ranges explain costs
 
 - **GIVEN** a unit is selected during the Movement phase
@@ -2530,6 +2532,20 @@ For each projected movement hex, the map SHALL expose at least movement mode, cu
 - **THEN** each reachable hex SHALL display or expose its cumulative MP cost
 - **AND** each reachable hex SHALL expose the movement mode by which it is reachable
 - **AND** each reachable hex SHALL expose terrain and elevation contributors to that cost
+
+#### Scenario: Live run overlay preserves walk and run options
+
+- **GIVEN** a selected unit can evaluate the same destination by both walking and running
+- **WHEN** the run movement overlay renders that destination
+- **THEN** the highlighted hex SHALL expose both walk and run option metadata, including reachability, MP cost, terrain cost, elevation delta/cost, and heat impact
+- **AND** a reachable run projection SHALL remain the primary active-mode projection for map-click movement planning
+
+#### Scenario: Live run overlay keeps blocked run reason with walk fallback
+
+- **GIVEN** a selected unit can walk to a destination but the corresponding run projection is blocked
+- **WHEN** the run movement overlay renders that destination
+- **THEN** the highlighted hex SHALL use the reachable walk fallback as the primary projection
+- **AND** the same-hex option metadata SHALL still expose the blocked run option and its invalid reason
 
 #### Scenario: Blocked movement explains reason
 

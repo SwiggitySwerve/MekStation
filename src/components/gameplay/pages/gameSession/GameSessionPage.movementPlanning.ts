@@ -5,6 +5,7 @@ import type {
   IHexCoordinate,
   IMovementCapability,
   IMovementRangeHex,
+  IMovementRangeModeOption,
 } from '@/types/gameplay';
 
 import { getHeatMovementPenalty } from '@/constants/heat';
@@ -197,20 +198,72 @@ export function movementPathFromRangeHex(
   return [origin, movementRangeHex.hex];
 }
 
+function movementRangeModeOptionFor(
+  movementRangeHex: IMovementRangeHex,
+): IMovementRangeModeOption {
+  return {
+    movementType: movementRangeHex.movementType,
+    movementMode: movementRangeHex.movementMode,
+    reachable: movementRangeHex.reachable,
+    mpCost: movementRangeHex.mpCost,
+    terrainCost: movementRangeHex.terrainCost,
+    elevationDelta: movementRangeHex.elevationDelta,
+    elevationCost: movementRangeHex.elevationCost,
+    heatGenerated: movementRangeHex.heatGenerated,
+    blockedReason: movementRangeHex.blockedReason,
+    movementInvalidReason: movementRangeHex.movementInvalidReason,
+    movementInvalidDetails: movementRangeHex.movementInvalidDetails,
+  };
+}
+
+function chooseRunOverlayPrimary(
+  candidates: readonly IMovementRangeHex[],
+): IMovementRangeHex {
+  const activeRun = candidates.find(
+    (candidate) => candidate.movementType === MovementType.Run,
+  );
+  const reachableWalk = candidates.find(
+    (candidate) =>
+      candidate.movementType === MovementType.Walk && candidate.reachable,
+  );
+  if (activeRun && !activeRun.reachable && reachableWalk) return reachableWalk;
+  return activeRun ?? candidates[0];
+}
+
+function withRunOverlayMovementOptions(
+  candidates: readonly IMovementRangeHex[],
+): IMovementRangeHex {
+  const primary = chooseRunOverlayPrimary(candidates);
+  if (candidates.length === 1) return primary;
+  const ordered = [
+    primary,
+    ...candidates.filter((candidate) => candidate !== primary),
+  ];
+  return {
+    ...primary,
+    movementModeOptions: ordered.map(movementRangeModeOptionFor),
+  };
+}
+
 export function mergeRunMovementRangeHexes(
   run: readonly IMovementRangeHex[],
   walk: readonly IMovementRangeHex[],
 ): readonly IMovementRangeHex[] {
-  const keyed = new Map<string, IMovementRangeHex>();
-  for (const h of run) keyed.set(movementRangeKey(h.hex), h);
-  for (const h of walk) {
-    const key = movementRangeKey(h.hex);
-    const existing = keyed.get(key);
-    if (!existing || (!existing.reachable && h.reachable)) {
-      keyed.set(key, h);
+  const grouped = new Map<string, IMovementRangeHex[]>();
+  const addRangeHex = (movementRangeHex: IMovementRangeHex): void => {
+    const key = movementRangeKey(movementRangeHex.hex);
+    const entries = grouped.get(key);
+    if (entries) {
+      entries.push(movementRangeHex);
+      return;
     }
-  }
-  return Array.from(keyed.values());
+    grouped.set(key, [movementRangeHex]);
+  };
+
+  for (const movementRangeHex of run) addRangeHex(movementRangeHex);
+  for (const movementRangeHex of walk) addRangeHex(movementRangeHex);
+
+  return Array.from(grouped.values()).map(withRunOverlayMovementOptions);
 }
 
 export function appendHoveredMovementProjection(
