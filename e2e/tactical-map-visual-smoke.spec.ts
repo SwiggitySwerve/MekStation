@@ -227,15 +227,15 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
     await expect(mediumTargetHex).toHaveAttribute(
       'data-weapons-available',
-      'medium-laser',
+      'medium-laser,extreme-lrm',
     );
     await expect(mediumTargetHex).toHaveAttribute(
       'data-combat-weapon-option-ranges',
-      'medium-laser:medium|small-laser:out_of_range|minimum-lrm:out_of_range',
+      'medium-laser:medium|small-laser:out_of_range|minimum-lrm:out_of_range|extreme-lrm:extreme',
     );
     await expect(mediumTargetHex).toHaveAttribute(
       'data-combat-weapon-option-availability',
-      'medium-laser:available|small-laser:blocked|minimum-lrm:blocked',
+      'medium-laser:available|small-laser:blocked|minimum-lrm:blocked|extreme-lrm:available',
     );
     await expect(mediumTargetHex).toHaveAttribute(
       'data-combat-weapon-option-blocked-reasons',
@@ -252,15 +252,15 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
     await expect(mediumCombatBadge).toHaveAttribute(
       'data-combat-badge-weapons-available',
-      'medium-laser',
+      'medium-laser,extreme-lrm',
     );
     await expect(mediumCombatBadge).toHaveAttribute(
       'data-combat-badge-weapon-option-ranges',
-      'medium-laser:medium|small-laser:out_of_range|minimum-lrm:out_of_range',
+      'medium-laser:medium|small-laser:out_of_range|minimum-lrm:out_of_range|extreme-lrm:extreme',
     );
     await expect(mediumCombatBadge).toHaveAttribute(
       'data-combat-badge-weapon-option-availability',
-      'medium-laser:available|small-laser:blocked|minimum-lrm:blocked',
+      'medium-laser:available|small-laser:blocked|minimum-lrm:blocked|extreme-lrm:available',
     );
     await expect(mediumCombatBadge).toHaveAttribute(
       'data-combat-badge-weapon-option-blocked-reasons',
@@ -269,14 +269,14 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     const mediumWeaponCountBadge = page.getByTestId(
       'hex-combat-weapon-count-badge-1-2',
     );
-    await expect(mediumWeaponCountBadge.locator('text')).toHaveText('1/3 WPN');
+    await expect(mediumWeaponCountBadge.locator('text')).toHaveText('2/4 WPN');
     await expect(mediumWeaponCountBadge).toHaveAttribute(
       'data-combat-weapon-count-badge-available',
-      '1',
+      '2',
     );
     await expect(mediumWeaponCountBadge).toHaveAttribute(
       'data-combat-weapon-count-badge-total',
-      '3',
+      '4',
     );
     await expect(mediumWeaponCountBadge).toHaveAttribute(
       'data-combat-weapon-count-badge-blocked',
@@ -284,7 +284,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
     await expect(mediumWeaponCountBadge).toHaveAttribute(
       'data-combat-weapon-count-badge-weapons-available',
-      'medium-laser',
+      'medium-laser,extreme-lrm',
     );
     await expect(mediumWeaponCountBadge).toHaveAttribute(
       'data-combat-weapon-count-badge-blocked-reasons',

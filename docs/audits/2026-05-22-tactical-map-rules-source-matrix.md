@@ -89,6 +89,13 @@ modifier metadata, and a non-color `MIN+` badge. Remaining browser range gaps
 are extreme range and all-selected-weapons-out-of-range sweeps beyond the smoke
 harness.
 
+2026-05-24 extreme-range browser update: the tactical-map browser harness now
+also selects a represented extreme-range weapon with long range 3 and extreme
+range 4 against the four-hex target, verifying that the weapon stays available
+with `extreme` per-weapon range metadata instead of being marked out of range.
+Remaining browser range gaps are all-selected-weapons-out-of-range sweeps
+beyond the smoke harness.
+
 2026-05-24 partial-cover browser update: the tactical-map browser harness now
 also renders a Mech-style target in depth-1 water and verifies that the top-down
 hex and cover badge expose partial cover, cover modifier, cover reason, and the

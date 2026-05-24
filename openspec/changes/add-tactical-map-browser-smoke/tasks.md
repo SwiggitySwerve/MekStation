@@ -33,6 +33,8 @@
   availability keeps the target legal while exposing blocked weapon metadata.
 - [x] 2.13 Add browser coverage proving represented minimum-range penalties
   expose affected weapon ids, to-hit modifier metadata, and a non-color badge.
+- [x] 2.14 Add browser coverage proving represented extreme-range cutoffs keep
+  selected weapons available at extreme range.
 
 ## 3. Validation
 
@@ -59,3 +61,5 @@
   availability metadata.
 - [x] 3.13 Focused Playwright smoke passes with represented minimum-range
   penalty metadata.
+- [x] 3.14 Focused Playwright smoke passes with represented extreme-range
+  availability metadata.
