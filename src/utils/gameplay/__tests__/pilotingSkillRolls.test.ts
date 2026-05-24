@@ -44,6 +44,7 @@ import {
   createRunningDamagedHipPSR,
   createRunningDamagedGyroPSR,
   createBuildingCollapsePSR,
+  getMASCOrSuperchargerFailureTargetNumber,
   createMASCFailurePSR,
   createSuperchargerFailurePSR,
   PSRTrigger,
@@ -156,6 +157,54 @@ describe('Piloting Skill Rolls', () => {
       expect(result.targetNumber).toBe(3);
       expect(result.roll).toBe(3);
       expect(result.passed).toBe(true);
+    });
+
+    it('uses source-backed fixed MASC/Supercharger target numbers without piloting modifiers', () => {
+      const psr: IPendingPSR = createMASCFailurePSR('unit-1', 2);
+      const compDamage: IComponentDamageState = {
+        ...DEFAULT_COMP_DAMAGE,
+        gyroHits: 1,
+      };
+      const roller = makeDiceSequence([3, 3]); // total = 6
+      const result = resolvePSR(3, psr, compDamage, 2, roller, [
+        UNIT_QUIRK_IDS.STABLE,
+      ]);
+
+      expect(getMASCOrSuperchargerFailureTargetNumber(2)).toBe(7);
+      expect(psr.fixedTargetNumber).toBe(7);
+      expect(result.targetNumber).toBe(7);
+      expect(result.roll).toBe(6);
+      expect(result.passed).toBe(false);
+      expect(result.modifiers).toEqual([]);
+    });
+
+    it('applies explicit trigger modifiers on fixed target numbers without piloting modifiers', () => {
+      const psr: IPendingPSR = {
+        entityId: 'unit-1',
+        reason: 'Fixed system check',
+        additionalModifier: 1,
+        triggerSource: 'system_check',
+        fixedTargetNumber: 7,
+      };
+      const compDamage: IComponentDamageState = {
+        ...DEFAULT_COMP_DAMAGE,
+        gyroHits: 1,
+      };
+      const roller = makeDiceSequence([3, 5]); // total = 8
+      const result = resolvePSR(3, psr, compDamage, 2, roller, [
+        UNIT_QUIRK_IDS.STABLE,
+      ]);
+
+      expect(result.targetNumber).toBe(8);
+      expect(result.roll).toBe(8);
+      expect(result.passed).toBe(true);
+      expect(result.modifiers).toEqual([
+        {
+          name: 'Fixed system check modifier',
+          value: 1,
+          source: 'system_check',
+        },
+      ]);
     });
 
     it('should apply DFA miss +4 modifier', () => {

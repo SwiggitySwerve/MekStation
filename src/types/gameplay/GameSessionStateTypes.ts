@@ -98,6 +98,12 @@ export interface IPendingPSR {
   readonly entityId: string;
   /** Human-readable reason for the PSR */
   readonly reason: string;
+  /**
+   * Fixed target number for system checks that do not use the pilot's
+   * piloting skill or damage/wound modifiers, such as MASC/Supercharger
+   * failure rolls.
+   */
+  readonly fixedTargetNumber?: number;
   /** Additional modifier to the piloting skill roll */
   readonly additionalModifier: number;
   /** What triggered this PSR */
@@ -252,6 +258,10 @@ export interface IUnitGameState {
   readonly activeMASC?: boolean;
   /** Supercharger active for this movement declaration. */
   readonly activeSupercharger?: boolean;
+  /** Consecutive previous turns of MASC use, for source-backed failure TNs. */
+  readonly mascTurnsUsed?: number;
+  /** Consecutive previous turns of Supercharger use, for source-backed failure TNs. */
+  readonly superchargerTurnsUsed?: number;
   /**
    * Explicit BattleMech Partial Wing jump bonus after source-backed equipment
    * hydration. Undefined means no supported Partial Wing combat state.

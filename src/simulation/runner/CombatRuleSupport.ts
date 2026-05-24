@@ -154,7 +154,7 @@ const MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS = [
     kind: 'megamek-source',
     citation:
       'MegaMek MPBoosters.calculateRunMP doubles walk MP for MASC xor Supercharger and uses ceil(walk MP * 2.5) when both are active.',
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/units/MPBoosters.java#L84-L96`,
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/enums/MPBoosters.java#L79-L86`,
     sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
   },
   {
@@ -162,6 +162,20 @@ const MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS = [
     citation:
       'MegaMek MovePathHandler invokes MASC and Supercharger failure checks during movement resolution when the path has active boosters.',
     url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L1507-L1519`,
+    sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Entity stores the standard MASC/Supercharger fixed failure target-number table used by prior-use turn count.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L858-L860`,
+    sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Entity derives MASC and Supercharger failure targets from previous consecutive-use turn counters.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L13660-L13770`,
     sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
@@ -436,14 +450,14 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
 export const MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT = {
   [MovementEnhancementType.MASC]: helperOnly(
     MovementEnhancementType.MASC,
-    'UnitHydration detects installed MASC, runMovementPhase consumes explicit active MASC run MP, movementEnhancementPsr queues createMASCFailurePSR, and construction helpers still expose sprint_masc formula support',
-    'No combat MovementType.Sprint, activation game intent, wire payload, repeated-use target-number lifecycle, Edge reroll, or failure critical-slot damage is wired',
+    'UnitHydration detects installed MASC, runMovementPhase consumes explicit active MASC run MP, movementEnhancementPsr queues createMASCFailurePSR with source-backed standard fixed failure target numbers from explicit prior-use state, and construction helpers still expose sprint_masc formula support',
+    'No combat MovementType.Sprint, activation game intent, wire payload, alternate MASC option tables, automatic prior-use turn-counter lifecycle, Edge reroll, or failure critical-slot damage is wired',
     MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
   ),
   [MovementEnhancementType.SUPERCHARGER]: helperOnly(
     MovementEnhancementType.SUPERCHARGER,
-    'UnitHydration detects installed Supercharger, runMovementPhase consumes explicit active Supercharger run MP, movementEnhancementPsr queues createSuperchargerFailurePSR, and construction helpers still expose sprint_combined formula support',
-    'No combat MovementType.Sprint, activation game intent, wire payload, repeated-use target-number lifecycle, Edge reroll, or failure critical-slot damage is wired',
+    'UnitHydration detects installed Supercharger, runMovementPhase consumes explicit active Supercharger run MP, movementEnhancementPsr queues createSuperchargerFailurePSR with source-backed standard fixed failure target numbers from explicit prior-use state, and construction helpers still expose sprint_combined formula support',
+    'No combat MovementType.Sprint, activation game intent, wire payload, IndustrialMek/support-unit supercharger roll adjustment, automatic prior-use turn-counter lifecycle, Edge reroll, or failure critical-slot damage is wired',
     MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
   ),
   [MovementEnhancementType.TSM]: integrated(

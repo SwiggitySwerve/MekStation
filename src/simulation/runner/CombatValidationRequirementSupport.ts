@@ -587,8 +587,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'movement-enhancements': helperOnly(
     'movement-enhancements',
-    'Movement enhancement support catalogs MASC, supercharger, source-backed active TSM movement validation, and source-backed Partial Wing jump MP/heat validation against combat movement behavior',
-    'MASC and supercharger remain helper-only until MovementType.Sprint, activation intents/wire payloads, repeated-use target-number lifecycle, Edge rerolls, and failure critical-slot damage are wired; Partial Wing atmosphere and damaged critical-slot lifecycle refinements remain explicit gaps until combat state hydrates them',
+    'Movement enhancement support catalogs MASC, supercharger, source-backed active TSM movement validation, source-backed standard MASC/Supercharger fixed failure target numbers from explicit prior-use state, and source-backed Partial Wing jump MP/heat validation against combat movement behavior',
+    'MASC and supercharger remain helper-only until MovementType.Sprint, activation intents/wire payloads, alternate MASC option tables, IndustrialMek/support-unit supercharger roll adjustment, automatic prior-use turn-counter lifecycle, Edge rerolls, and failure critical-slot damage are wired; Partial Wing atmosphere and damaged critical-slot lifecycle refinements remain explicit gaps until combat state hydrates them',
     MOVEMENT_ENHANCEMENT_SUPPORT_REFS,
   ),
   'heat-generation': integrated(
@@ -784,8 +784,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'psr-trigger-catalog': helperOnly(
     'psr-trigger-catalog',
-    'PSR trigger support catalogs damage, leg/actuator/gyro/engine, kicked, charged, DFA, pushed, shutdown, standing, terrain, skid, MASC, and supercharger triggers',
-    'Building-collapse remains helper-only; MASC and supercharger still lack repeated-use target-number lifecycle, Edge rerolls, and failure critical-slot damage after runner movement queues explicit active-run triggers',
+    'PSR trigger support catalogs damage, leg/actuator/gyro/engine, kicked, charged, DFA, pushed, shutdown, standing, terrain, skid, MASC, and supercharger triggers, including source-backed standard MASC/Supercharger fixed failure target numbers from explicit prior-use state',
+    'Building-collapse remains helper-only; MASC and supercharger still lack alternate MASC option tables, IndustrialMek/support-unit supercharger roll adjustment, automatic prior-use turn-counter lifecycle, Edge rerolls, and failure critical-slot damage after runner movement queues explicit active-run triggers',
     PSR_TRIGGER_SUPPORT_REFS,
   ),
   'turn-rotation-removal': integrated(

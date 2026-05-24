@@ -21,13 +21,17 @@ export function queueMovementEnhancementPSRs(options: {
   movementType: MovementType;
   activeMASC: boolean | undefined;
   activeSupercharger: boolean | undefined;
+  mascTurnsUsed: number | undefined;
+  superchargerTurnsUsed: number | undefined;
 }): IGameState {
   const {
     activeMASC,
     activeSupercharger,
     events,
     gameId,
+    mascTurnsUsed,
     movementType,
+    superchargerTurnsUsed,
     unitId,
   } = options;
 
@@ -37,10 +41,10 @@ export function queueMovementEnhancementPSRs(options: {
 
   const psrs: IPendingPSR[] = [];
   if (activeMASC === true) {
-    psrs.push(createMASCFailurePSR(unitId));
+    psrs.push(createMASCFailurePSR(unitId, mascTurnsUsed));
   }
   if (activeSupercharger === true) {
-    psrs.push(createSuperchargerFailurePSR(unitId));
+    psrs.push(createSuperchargerFailurePSR(unitId, superchargerTurnsUsed));
   }
 
   let currentState = options.currentState;
@@ -58,6 +62,7 @@ export function queueMovementEnhancementPSRs(options: {
         psr.triggerSource,
         currentState.units[unitId]?.piloting,
         psr.reasonCode,
+        psr.fixedTargetNumber,
       ),
     );
   }

@@ -402,6 +402,12 @@ export interface IPSRTriggeredPayload {
    */
   readonly basePilotingSkill?: number;
   /**
+   * Fixed system target number for PSRs that do not derive from the
+   * pilot's piloting skill. Optional for back-compat with older event
+   * streams and omitted for normal piloting-skill rolls.
+   */
+  readonly fixedTargetNumber?: number;
+  /**
    * Per `structure-psr-reason-as-discriminated-code` (PR E): canonical
    * `PSRTrigger` enum value paired with the human-readable `reason`
    * string. Display consumers (`EventLogDisplay`, `format-event-log.py`)

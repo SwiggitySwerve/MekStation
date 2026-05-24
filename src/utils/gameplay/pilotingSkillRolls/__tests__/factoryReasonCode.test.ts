@@ -47,6 +47,7 @@ import {
   createRunningDamagedGyroPSR,
   createMASCFailurePSR,
   createSuperchargerFailurePSR,
+  getMASCOrSuperchargerFailureTargetNumber,
   PSRTrigger,
 } from '../../pilotingSkillRolls';
 import { createStandUpAttempt } from '../../pilotingSkillRolls';
@@ -76,6 +77,23 @@ describe('PSR factory reasonCode population (PR E)', () => {
       expect(psr.reasonCode).toBe(expected);
       expect(typeof psr.reason).toBe('string');
       expect(psr.reason.length).toBeGreaterThan(0);
+    });
+
+    it('system booster factories stamp source-backed fixed failure target numbers', () => {
+      expect(getMASCOrSuperchargerFailureTargetNumber(undefined)).toBe(3);
+      expect(getMASCOrSuperchargerFailureTargetNumber(0)).toBe(3);
+      expect(getMASCOrSuperchargerFailureTargetNumber(1)).toBe(5);
+      expect(getMASCOrSuperchargerFailureTargetNumber(2)).toBe(7);
+      expect(getMASCOrSuperchargerFailureTargetNumber(3)).toBe(11);
+      expect(getMASCOrSuperchargerFailureTargetNumber(99)).toBe(13);
+      expect(createMASCFailurePSR(ENTITY, 2)).toMatchObject({
+        reasonCode: PSRTrigger.MASCFailure,
+        fixedTargetNumber: 7,
+      });
+      expect(createSuperchargerFailurePSR(ENTITY, 3)).toMatchObject({
+        reasonCode: PSRTrigger.SuperchargerFailure,
+        fixedTargetNumber: 11,
+      });
     });
   });
 

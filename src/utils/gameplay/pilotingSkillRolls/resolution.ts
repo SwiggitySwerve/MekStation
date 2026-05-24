@@ -45,6 +45,7 @@ export function resolvePSR(
   diceRoller: D6Roller = defaultD6Roller,
   unitQuirks: readonly string[] = [],
 ): IPSRResult {
+  const usesFixedTargetNumber = psr.fixedTargetNumber !== undefined;
   const modifiers = calculatePSRModifiers(
     psr,
     componentDamage,
@@ -56,7 +57,11 @@ export function resolvePSR(
 
   // Special case: Shutdown PSR has fixed TN 3 (piloting skill not used)
   const isShutdownPSR = psr.triggerSource === PSRTrigger.Shutdown;
-  const targetNumber = isShutdownPSR ? 3 : pilotingSkill + totalModifier;
+  const targetNumber = usesFixedTargetNumber
+    ? psr.fixedTargetNumber + totalModifier
+    : isShutdownPSR
+      ? 3
+      : pilotingSkill + totalModifier;
 
   const roll = roll2d6(diceRoller);
 
@@ -148,6 +153,18 @@ export function calculatePSRModifiers(
   pilotWounds: number,
   unitQuirks: readonly string[] = [],
 ): readonly IPSRModifier[] {
+  if (psr.fixedTargetNumber !== undefined) {
+    return psr.additionalModifier !== 0
+      ? [
+          {
+            name: `${psr.reason} modifier`,
+            value: psr.additionalModifier,
+            source: psr.triggerSource,
+          },
+        ]
+      : [];
+  }
+
   const modifiers: IPSRModifier[] = [];
 
   // Gyro damage: +3 per hit

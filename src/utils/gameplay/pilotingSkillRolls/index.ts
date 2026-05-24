@@ -49,10 +49,12 @@ export {
 } from './environmentFactories';
 
 export {
+  MASC_SUPERCHARGER_FAILURE_TARGET_NUMBERS,
   createRunningDamagedHipPSR,
   createRunningDamagedGyroPSR,
   createMASCFailurePSR,
   createSuperchargerFailurePSR,
+  getMASCOrSuperchargerFailureTargetNumber,
 } from './systemFactories';
 
 // Phase checks

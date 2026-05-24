@@ -380,6 +380,29 @@ describe('Phase 4: IUnitGameState Extension', () => {
       });
     });
 
+    it('preserves fixed PSR target numbers on pending PSRs', () => {
+      const state = createStateWithUnit();
+      const event = makeEvent(GameEventType.PSRTriggered, {
+        unitId: 'unit-1',
+        reason: 'MASC failure check',
+        additionalModifier: 0,
+        triggerSource: PSRTrigger.MASCFailure,
+        reasonCode: PSRTrigger.MASCFailure,
+        fixedTargetNumber: 7,
+      } satisfies IPSRTriggeredPayload);
+
+      const result = applyEvent(state, event);
+      const psrs = result.units['unit-1'].pendingPSRs ?? [];
+
+      expect(psrs).toHaveLength(1);
+      expect(psrs[0]).toMatchObject({
+        entityId: 'unit-1',
+        reason: 'MASC failure check',
+        reasonCode: PSRTrigger.MASCFailure,
+        fixedTargetNumber: 7,
+      });
+    });
+
     it('accumulates multiple PSRs', () => {
       const initial = createStateWithUnit();
 

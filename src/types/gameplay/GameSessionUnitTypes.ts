@@ -101,6 +101,10 @@ export interface IGameUnit {
   readonly activeMASC?: boolean;
   /** Supercharger active for the current movement declaration. */
   readonly activeSupercharger?: boolean;
+  /** Consecutive previous turns of MASC use, for source-backed failure TNs. */
+  readonly mascTurnsUsed?: number;
+  /** Consecutive previous turns of Supercharger use, for source-backed failure TNs. */
+  readonly superchargerTurnsUsed?: number;
   /** Pilot SPA ids copied into combat state for modifier resolution. */
   readonly abilities?: readonly string[];
   /** SPA designation fields copied into combat state for to-hit resolution. */

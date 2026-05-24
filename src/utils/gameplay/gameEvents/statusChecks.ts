@@ -26,6 +26,7 @@ export function createPSRTriggeredEvent(
   triggerSource: string,
   basePilotingSkill?: number,
   reasonCode?: PSRTrigger,
+  fixedTargetNumber?: number,
 ): IGameEvent {
   const payload: IPSRTriggeredPayload = {
     unitId,
@@ -34,6 +35,7 @@ export function createPSRTriggeredEvent(
     triggerSource,
     ...(basePilotingSkill !== undefined ? { basePilotingSkill } : {}),
     ...(reasonCode !== undefined ? { reasonCode } : {}),
+    ...(fixedTargetNumber !== undefined ? { fixedTargetNumber } : {}),
   };
 
   return {

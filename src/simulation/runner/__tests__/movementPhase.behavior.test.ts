@@ -357,10 +357,14 @@ describe('runMovementPhase movement validation parity', () => {
     });
     expect(next.units['player-1'].position).toEqual(target);
     expect(next.units['player-1'].pendingPSRs).toContainEqual(
-      expect.objectContaining({ reasonCode: PSRTrigger.MASCFailure }),
+      expect.objectContaining({
+        fixedTargetNumber: 3,
+        reasonCode: PSRTrigger.MASCFailure,
+      }),
     );
     expect(payloads).toContainEqual(
       expect.objectContaining({
+        fixedTargetNumber: 3,
         unitId: 'player-1',
         reasonCode: PSRTrigger.MASCFailure,
         triggerSource: PSRTrigger.MASCFailure,
@@ -428,16 +432,24 @@ describe('runMovementPhase movement validation parity', () => {
     expect(next.units['player-1'].position).toEqual(target);
     expect(next.units['player-1'].pendingPSRs).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ reasonCode: PSRTrigger.MASCFailure }),
         expect.objectContaining({
+          fixedTargetNumber: 3,
+          reasonCode: PSRTrigger.MASCFailure,
+        }),
+        expect.objectContaining({
+          fixedTargetNumber: 3,
           reasonCode: PSRTrigger.SuperchargerFailure,
         }),
       ]),
     );
     expect(payloads).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ reasonCode: PSRTrigger.MASCFailure }),
         expect.objectContaining({
+          fixedTargetNumber: 3,
+          reasonCode: PSRTrigger.MASCFailure,
+        }),
+        expect.objectContaining({
+          fixedTargetNumber: 3,
           reasonCode: PSRTrigger.SuperchargerFailure,
         }),
       ]),
@@ -451,6 +463,52 @@ describe('runMovementPhase movement validation parity', () => {
         expect.objectContaining({ kind: 'megamek-source' }),
       ]),
     });
+  });
+
+  it('uses explicit prior booster use counts for MASC/Supercharger failure target numbers', () => {
+    const target = { q: 10, r: 0 };
+    const { next, events } = runScriptedMove(
+      createMinimalGrid(11),
+      target,
+      {
+        hasMASC: true,
+        hasSupercharger: true,
+        activeMASC: true,
+        activeSupercharger: true,
+        mascTurnsUsed: 2,
+        superchargerTurnsUsed: 3,
+      },
+      {
+        movementType: MovementType.Run,
+        capability: { walkMP: 4, runMP: 6, jumpMP: 0 },
+      },
+    );
+    const payloads = psrPayloads(events);
+
+    expect(next.units['player-1'].pendingPSRs).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          fixedTargetNumber: 7,
+          reasonCode: PSRTrigger.MASCFailure,
+        }),
+        expect.objectContaining({
+          fixedTargetNumber: 11,
+          reasonCode: PSRTrigger.SuperchargerFailure,
+        }),
+      ]),
+    );
+    expect(payloads).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          fixedTargetNumber: 7,
+          reasonCode: PSRTrigger.MASCFailure,
+        }),
+        expect.objectContaining({
+          fixedTargetNumber: 11,
+          reasonCode: PSRTrigger.SuperchargerFailure,
+        }),
+      ]),
+    );
   });
 
   it('applies explicit Partial Wing jump MP and jump heat support', () => {

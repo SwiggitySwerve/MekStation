@@ -47,6 +47,9 @@ export function applyPSRTriggered(
             ...(payload.reasonCode !== undefined
               ? { reasonCode: payload.reasonCode }
               : {}),
+            ...(payload.fixedTargetNumber !== undefined
+              ? { fixedTargetNumber: payload.fixedTargetNumber }
+              : {}),
           },
         ],
       },

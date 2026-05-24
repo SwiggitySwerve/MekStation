@@ -257,6 +257,8 @@ export function runMovementPhase(options: {
         movementType: committedPayload.movementType,
         activeMASC: unit.activeMASC,
         activeSupercharger: unit.activeSupercharger,
+        mascTurnsUsed: unit.mascTurnsUsed,
+        superchargerTurnsUsed: unit.superchargerTurnsUsed,
       });
     }
   }
