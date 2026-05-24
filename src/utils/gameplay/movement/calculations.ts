@@ -19,7 +19,7 @@ import { getPrimaryTerrainFeatureFromTerrainTag } from '@/utils/gameplay/terrain
 import type { UnitMovementType } from './types';
 
 import { getHex } from '../hexGrid';
-import { hexDistance } from '../hexMath';
+import { hexDistance, hexLine } from '../hexMath';
 import {
   movementCostContextForStep,
   type IMovementCostContext,
@@ -381,6 +381,44 @@ export function getJumpElevationBlockedReason(
   const elevationDelta = getJumpElevationDelta(grid, from, to);
   if (elevationDelta <= effectiveJumpMP) return null;
   return `Jump elevation rise of ${elevationDelta} exceeds jump MP ${effectiveJumpMP}`;
+}
+
+function formatElevationForReason(elevation: number): string {
+  return elevation >= 0 ? `+${elevation}` : `${elevation}`;
+}
+
+function representedJumpTerrainHeight(
+  grid: IHexGrid,
+  coord: IHexCoordinate,
+): number | null {
+  const hex = getHex(grid, coord);
+  if (!hex) return null;
+
+  const buildingHeight = Math.max(
+    0,
+    ...terrainFeaturesFromString(hex.terrain)
+      .filter((feature) => feature.type === TerrainType.Building)
+      .map((feature) => feature.level),
+  );
+  return hex.elevation + buildingHeight;
+}
+
+export function getJumpClearanceBlockedReason(
+  grid: IHexGrid,
+  from: IHexCoordinate,
+  to: IHexCoordinate,
+  effectiveJumpMP: number,
+): string | null {
+  const fromHex = getHex(grid, from);
+  if (!fromHex) return null;
+
+  const jumpClearance = fromHex.elevation + effectiveJumpMP;
+  for (const hex of hexLine(from, to).slice(1)) {
+    const terrainHeight = representedJumpTerrainHeight(grid, hex);
+    if (terrainHeight === null || terrainHeight <= jumpClearance) continue;
+    return `Jump path height ${formatElevationForReason(terrainHeight)} at (${hex.q},${hex.r}) exceeds jump clearance ${formatElevationForReason(jumpClearance)}`;
+  }
+  return null;
 }
 
 export function calculatePathMovementCost(

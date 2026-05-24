@@ -1700,7 +1700,7 @@ describe('deriveReachableHexes', () => {
     });
   });
 
-  it('jump reach is a flat hex-distance gate regardless of path', () => {
+  it('jump reach is a flat hex-distance gate on clear paths', () => {
     const grid = createHexGrid({ radius: 5 });
     const unit = makeUnitAtOrigin();
     const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 3 };
@@ -1730,15 +1730,15 @@ describe('deriveReachableHexes', () => {
   it('caps jump landing rise by jump MP while allowing equal rises and drops', () => {
     let grid = createHexGrid({ radius: 5 });
     grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 3);
-    grid = setHex(grid, { q: 2, r: 0 }, TerrainType.Clear, 2);
-    grid = setHex(grid, { q: 0, r: 2 }, TerrainType.Clear, -5);
+    grid = setHex(grid, { q: 0, r: 2 }, TerrainType.Clear, 2);
+    grid = setHex(grid, { q: -2, r: 0 }, TerrainType.Clear, -5);
     const unit = makeUnitAtOrigin();
     const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 2 };
 
     const jump = deriveReachableHexes(unit, MovementType.Jump, grid, cap);
     const tooHigh = jump.find((r) => r.hex.q === 1 && r.hex.r === 0);
-    const equalRise = jump.find((r) => r.hex.q === 2 && r.hex.r === 0);
-    const drop = jump.find((r) => r.hex.q === 0 && r.hex.r === 2);
+    const equalRise = jump.find((r) => r.hex.q === 0 && r.hex.r === 2);
+    const drop = jump.find((r) => r.hex.q === -2 && r.hex.r === 0);
 
     expect(tooHigh).toMatchObject({
       mpCost: 1,
@@ -1769,6 +1769,36 @@ describe('deriveReachableHexes', () => {
       heatGenerated: 3,
       reachable: true,
       movementType: MovementType.Jump,
+    });
+  });
+
+  it('blocks jump paths that cannot clear intervening represented terrain height', () => {
+    let grid = createHexGrid({ radius: 5 });
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([{ type: TerrainType.Building, level: 4 }]),
+      0,
+    );
+    grid = setHex(grid, { q: 3, r: 0 }, TerrainType.Clear, 0);
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 3 };
+
+    const jump = deriveReachableHexes(unit, MovementType.Jump, grid, cap);
+    const blockedLanding = jump.find((r) => r.hex.q === 3 && r.hex.r === 0);
+
+    expect(blockedLanding).toMatchObject({
+      mpCost: 3,
+      elevationDelta: 0,
+      elevationCost: 0,
+      terrainCost: 0,
+      heatGenerated: 0,
+      reachable: false,
+      movementType: MovementType.Jump,
+      blockedReason: 'Jump path height +4 at (1,0) exceeds jump clearance +3',
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails:
+        'Jump path height +4 at (1,0) exceeds jump clearance +3',
     });
   });
 

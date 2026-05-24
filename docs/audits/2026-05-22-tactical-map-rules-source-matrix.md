@@ -225,6 +225,16 @@ VTOL, WiGE, naval, swim, and UMU behavior. Coverage lives in
 `src/utils/gameplay/movement/__tests__/reachable.test.ts`, and
 `src/engine/__tests__/InteractiveSession.movement.scenario.test.ts`.
 
+Additional jump-clearance pin: MegaMek `MoveStep.java:523-590` derives jump
+elevation from available Jump MP plus the origin level, and
+`MoveStep.java:3331-3340` rejects jump movement when a destination step's
+effective altitude is above that jump clearance. MekStation now mirrors the
+represented subset by checking the straight jump path against base elevation
+plus encoded building levels, while keeping ordinary jump terrain MP at 0.
+Movement projection and committed movement validation both return the same
+typed terrain-blocked reason when a landing is within hex distance but hidden
+behind too-tall represented terrain.
+
 Additional small-unit movement data pin: MegaMek `Infantry.java:560-568` and
 `BattleArmor.java:520-523` return walk MP as base run MP unless optional TacOps
 fast infantry movement is enabled. MegaMek `ProtoMek.java:602-606` falls back to

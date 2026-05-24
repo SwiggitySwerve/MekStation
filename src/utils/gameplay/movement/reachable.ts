@@ -43,6 +43,7 @@ import { representedUnitImmobileReason } from '@/utils/gameplay/unitImmobility';
 
 import {
   calculatePathMovementCost,
+  getJumpClearanceBlockedReason,
   getJumpElevationBlockedReason,
   getJumpElevationDelta,
   getMaxMP,
@@ -398,7 +399,9 @@ export function deriveMovementRangeHexForDestination(
   if (mpType === MovementType.Jump) {
     const elevationDelta = getJumpElevationDelta(grid, origin, hex);
     const blockedReason = getJumpElevationBlockedReason(grid, origin, hex, mp);
-    if (blockedReason) {
+    const clearanceBlockedReason =
+      blockedReason ?? getJumpClearanceBlockedReason(grid, origin, hex, mp);
+    if (clearanceBlockedReason) {
       return {
         hex,
         mpCost: dist,
@@ -410,9 +413,9 @@ export function deriveMovementRangeHexForDestination(
         movementMode,
         reachable: false,
         movementType: MovementType.Jump,
-        blockedReason,
+        blockedReason: clearanceBlockedReason,
         movementInvalidReason: 'TerrainBlocked',
-        movementInvalidDetails: blockedReason,
+        movementInvalidDetails: clearanceBlockedReason,
       };
     }
 

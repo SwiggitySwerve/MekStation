@@ -2359,6 +2359,76 @@ describe('applyInteractiveSessionMovement', () => {
     });
   });
 
+  it('keeps jump preview and commit validation aligned for blocked jump clearance', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: -1, r: 0 },
+    };
+    const grid = makeGrid();
+    grid.hexes.set(
+      '1,0',
+      makeHex(
+        1,
+        0,
+        terrainStringFromFeatures([{ type: TerrainType.Building, level: 4 }]),
+      ),
+    );
+    grid.hexes.set('3,0', makeHex(3, 0));
+    const movementByUnit = capability({
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 3,
+    });
+
+    const preview = deriveReachableHexes(
+      session.currentState.units.m1,
+      MovementType.Jump,
+      grid,
+      movementByUnit.get('m1')!,
+    ).find((entry) => entry.hex.q === 3 && entry.hex.r === 0);
+
+    expect(preview).toMatchObject({
+      reachable: false,
+      heatGenerated: 0,
+      movementType: MovementType.Jump,
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails:
+        'Jump path height +4 at (1,0) exceeds jump clearance +3',
+    });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 3, r: 0 },
+      facing: Facing.Northeast,
+      movementType: MovementType.Jump,
+      path: [
+        { q: 0, r: 0 },
+        { q: 3, r: 0 },
+      ],
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.MovementDeclared,
+      ),
+    ).toBe(false);
+
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.MovementInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IMovementInvalidPayload).toMatchObject({
+      unitId: 'm1',
+      reason: preview!.movementInvalidReason,
+      details: preview!.movementInvalidDetails,
+      heatGenerated: preview!.heatGenerated,
+    });
+  });
+
   it('keeps heat-reduced zero jump MP hover and commit validation aligned', () => {
     const session = setupSessionAtMovement();
     session.currentState.units.m1 = {
