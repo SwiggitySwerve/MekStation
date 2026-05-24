@@ -18,7 +18,12 @@ import {
   TokenUnitType,
 } from '@/types/gameplay';
 
-import { formatElevationLabel, formatTerrainLabel } from '../HexCell.labels';
+import {
+  formatElevationLabel,
+  formatTerrainFeatureReferenceLabel,
+  formatTerrainLabel,
+  terrainFeatureLevelsAttribute,
+} from '../HexCell.labels';
 import { HexMapDisplay } from '../HexMapDisplay';
 import {
   FOCUS_BUMP_ZOOM,
@@ -119,6 +124,12 @@ function assertTerrainAndElevationBadges(
     const { q, r } = terrain.coordinate;
     const terrainType = terrain.features[0].type;
     const terrainLabel = formatTerrainLabel(terrainType);
+    const terrainReferenceLabel = formatTerrainFeatureReferenceLabel(
+      terrain.features,
+    );
+    const terrainFeatureLevels = terrainFeatureLevelsAttribute(
+      terrain.features,
+    );
     const elevationLabel = formatElevationLabel(terrain.elevation);
     const elevationSign =
       terrain.elevation > 0
@@ -130,7 +141,7 @@ function assertTerrainAndElevationBadges(
     expect(screen.getByTestId(`hex-${q}-${r}`)).toHaveAttribute(
       'aria-label',
       expect.stringContaining(
-        `terrain ${terrainLabel}; primary ${terrainLabel}; elevation ${elevationLabel}`,
+        `terrain ${terrainReferenceLabel}; primary ${terrainLabel}; elevation ${elevationLabel}`,
       ),
     );
     expect(screen.getByTestId(`hex-${q}-${r}`)).toHaveAttribute(
@@ -141,13 +152,17 @@ function assertTerrainAndElevationBadges(
       'data-elevation',
       `${terrain.elevation}`,
     );
+    expect(screen.getByTestId(`hex-${q}-${r}`)).toHaveAttribute(
+      'data-terrain-feature-levels',
+      terrainFeatureLevels,
+    );
 
     expect(screen.getByTestId(`hex-terrain-label-${q}-${r}`)).toHaveTextContent(
       TERRAIN_BADGE_BY_TYPE[terrainType],
     );
     expect(screen.getByTestId(`hex-terrain-label-${q}-${r}`)).toHaveAttribute(
       'aria-label',
-      `Terrain ${terrainLabel}`,
+      `Terrain ${terrainReferenceLabel}`,
     );
     expect(screen.getByTestId(`hex-terrain-label-${q}-${r}`)).toHaveAttribute(
       'data-terrain-badge',
@@ -156,6 +171,10 @@ function assertTerrainAndElevationBadges(
     expect(screen.getByTestId(`hex-terrain-label-${q}-${r}`)).toHaveAttribute(
       'data-terrain-feature-count',
       `${terrain.features.length}`,
+    );
+    expect(screen.getByTestId(`hex-terrain-label-${q}-${r}`)).toHaveAttribute(
+      'data-terrain-feature-levels',
+      terrainFeatureLevels,
     );
     expect(screen.getByTestId(`hex-terrain-label-${q}-${r}`)).toHaveAttribute(
       'data-projection-mode',
@@ -242,6 +261,82 @@ describe('HexMapDisplay terrain and elevation labels', () => {
         `hex-elevation-stack-${tallHex?.coordinate.q}-${tallHex?.coordinate.r}`,
       ),
     ).toBeInTheDocument();
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('exposes terrain feature levels for layered terrain in both map projections', () => {
+    const layeredTerrain: IHexTerrain = {
+      coordinate: { q: 1, r: 0 },
+      elevation: 2,
+      features: [
+        { type: TerrainType.Water, level: 2 },
+        { type: TerrainType.Smoke, level: 2 },
+        { type: TerrainType.Building, level: 3 },
+      ],
+    };
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="layered-terrain-labels"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        hexTerrain={[layeredTerrain]}
+      />,
+    );
+
+    const assertLayeredReference = (
+      projectionMode: MapProjectionMode,
+    ): void => {
+      const hex = screen.getByTestId('hex-1-0');
+      const terrainBadge = screen.getByTestId('hex-terrain-label-1-0');
+
+      expect(hex).toHaveAttribute(
+        'aria-label',
+        expect.stringContaining(
+          'terrain smoke L2, building L3, water L2; primary smoke; elevation +2',
+        ),
+      );
+      expect(hex).toHaveAttribute(
+        'data-terrain-feature-levels',
+        'smoke:2|building:3|water:2',
+      );
+      expect(terrainBadge).toHaveTextContent('SMK2/BLDG3+1');
+      expect(terrainBadge).toHaveAttribute(
+        'aria-label',
+        'Terrain smoke L2, building L3, water L2',
+      );
+      expect(terrainBadge).toHaveAttribute(
+        'data-terrain-badge',
+        'SMK2/BLDG3+1',
+      );
+      expect(terrainBadge).toHaveAttribute(
+        'data-terrain-features',
+        'smoke,building,water',
+      );
+      expect(terrainBadge).toHaveAttribute(
+        'data-terrain-feature-levels',
+        'smoke:2|building:3|water:2',
+      );
+      expect(terrainBadge).toHaveAttribute('data-terrain-feature-count', '3');
+      expect(terrainBadge).toHaveAttribute(
+        'data-projection-mode',
+        projectionMode,
+      );
+    };
+
+    assertLayeredReference('topDown');
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+
+    expect(screen.getByTestId('map-projection-layer')).toHaveAttribute(
+      'data-projection-mode',
+      'isometric2d',
+    );
+    assertLayeredReference('isometric2d');
 
     act(() => {
       unmount();

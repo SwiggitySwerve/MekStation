@@ -49,8 +49,9 @@ import {
   formatCombatLabel,
   formatElevationLabel,
   formatMovementLabel,
-  formatTerrainFeaturesLabel,
+  formatTerrainFeatureReferenceLabel,
   formatTerrainLabel,
+  terrainFeatureLevelsAttribute,
 } from './HexCell.labels';
 import {
   MovementPathStepBadge,
@@ -208,7 +209,8 @@ export const HexCell = React.memo(function HexCell({
   const terrainFill = getTerrainFill(terrain);
   const primaryFeature = getPrimaryTerrainFeature(terrain);
   const terrainType = primaryFeature?.type ?? null;
-  const terrainTypes = terrain?.features.map((feature) => feature.type) ?? [];
+  const terrainFeatures = terrain?.features ?? [];
+  const terrainTypes = terrainFeatures.map((feature) => feature.type);
   const terrainBuildingIdAttribute = terrainBuildingIdsAttribute(terrain);
   const terrainBuildingLevelAttribute = terrainBuildingLevelsAttribute(terrain);
   const terrainBuildingCfAttribute =
@@ -320,8 +322,8 @@ export const HexCell = React.memo(function HexCell({
     movementInfo.movementModeOptions.length > 1
       ? movementInfo.movementModeOptions
       : undefined;
-  const hexLabel = `Hex ${hex.q},${hex.r}; terrain ${formatTerrainFeaturesLabel(
-    terrainTypes,
+  const hexLabel = `Hex ${hex.q},${hex.r}; terrain ${formatTerrainFeatureReferenceLabel(
+    terrainFeatures,
   )}; primary ${formatTerrainLabel(terrainType)}; elevation ${elevationLabel}${
     buildingStructureLabel ? `; ${buildingStructureLabel}` : ''
   }${
@@ -380,6 +382,9 @@ export const HexCell = React.memo(function HexCell({
       data-terrain-features={
         terrainTypes.length > 0 ? terrainTypes.join(',') : undefined
       }
+      data-terrain-feature-levels={terrainFeatureLevelsAttribute(
+        terrainFeatures,
+      )}
       data-terrain-building-ids={terrainBuildingIdAttribute}
       data-terrain-building-levels={terrainBuildingLevelAttribute}
       data-terrain-construction-factors={terrainBuildingCfAttribute}
@@ -645,7 +650,7 @@ export const HexCell = React.memo(function HexCell({
         x={x}
         y={y}
         hex={hex}
-        terrainTypes={terrainTypes}
+        terrainFeatures={terrainFeatures}
         projectionMode={projectionMode}
       />
       {hoverMpCost === undefined && (

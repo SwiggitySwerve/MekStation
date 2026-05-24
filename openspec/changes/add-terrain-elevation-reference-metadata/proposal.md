@@ -7,7 +7,10 @@ Top-down and isometric hexes already render compact terrain and elevation badges
 ## What Changes
 
 - Expose raw elevation value, sign, and projection mode on each elevation badge.
-- Expose terrain feature count and projection mode on each terrain badge.
+- Expose terrain feature count, feature level/depth/intensity, and projection
+  mode on each terrain badge.
+- Include terrain feature level/depth/intensity in the hex reference label so
+  stacked terrain remains understandable without relying only on color.
 - Keep the visible badge layout unchanged so this remains a narrow readability/reference improvement.
 
 ## Out of Scope

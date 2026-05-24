@@ -3,6 +3,7 @@ import React from 'react';
 import type {
   ICombatRangeHex,
   IHexCoordinate,
+  ITerrainFeature,
   IMovementRangeHex,
   MapProjectionMode,
 } from '@/types/gameplay';
@@ -25,6 +26,29 @@ export function formatTerrainFeaturesLabel(
 ): string {
   if (terrainTypes.length === 0) return 'clear';
   return terrainTypes.map(formatTerrainLabel).join(', ');
+}
+
+function formatTerrainFeatureReference(feature: ITerrainFeature): string {
+  const label = formatTerrainLabel(feature.type);
+  return feature.level > 0 ? `${label} L${feature.level}` : label;
+}
+
+export function formatTerrainFeatureReferenceLabel(
+  terrainFeatures: readonly ITerrainFeature[],
+): string {
+  const displayFeatures = sortTerrainFeaturesForDisplay(terrainFeatures);
+  if (displayFeatures.length === 0) return 'clear';
+  return displayFeatures.map(formatTerrainFeatureReference).join(', ');
+}
+
+export function terrainFeatureLevelsAttribute(
+  terrainFeatures: readonly ITerrainFeature[],
+): string {
+  const displayFeatures = sortTerrainFeaturesForDisplay(terrainFeatures);
+  if (displayFeatures.length === 0) return 'clear:0';
+  return displayFeatures
+    .map((feature) => `${feature.type}:${feature.level}`)
+    .join('|');
 }
 
 export function formatMovementModeLabel(mode: string | undefined): string {
@@ -200,24 +224,33 @@ function formatTerrainBadge(terrainType: string | null): string {
   }
 }
 
-function sortTerrainTypesForDisplay(
-  terrainTypes: readonly string[],
-): readonly string[] {
-  return [...terrainTypes].sort((a, b) => {
-    const aOrder = TERRAIN_LAYER_ORDER[a as keyof typeof TERRAIN_LAYER_ORDER];
-    const bOrder = TERRAIN_LAYER_ORDER[b as keyof typeof TERRAIN_LAYER_ORDER];
+function sortTerrainFeaturesForDisplay(
+  terrainFeatures: readonly ITerrainFeature[],
+): readonly ITerrainFeature[] {
+  return [...terrainFeatures].sort((a, b) => {
+    const aOrder =
+      TERRAIN_LAYER_ORDER[a.type as keyof typeof TERRAIN_LAYER_ORDER];
+    const bOrder =
+      TERRAIN_LAYER_ORDER[b.type as keyof typeof TERRAIN_LAYER_ORDER];
     return (bOrder ?? 0) - (aOrder ?? 0);
   });
 }
 
-function formatTerrainBadgeLabel(terrainTypes: readonly string[]): string {
-  const displayTypes = sortTerrainTypesForDisplay(terrainTypes);
-  if (displayTypes.length === 0) return formatTerrainBadge(null);
+function formatTerrainBadgeFeature(feature: ITerrainFeature): string {
+  const badge = formatTerrainBadge(feature.type);
+  return feature.level > 1 ? `${badge}${feature.level}` : badge;
+}
 
-  const visibleBadges = displayTypes
+function formatTerrainBadgeLabel(
+  terrainFeatures: readonly ITerrainFeature[],
+): string {
+  const displayFeatures = sortTerrainFeaturesForDisplay(terrainFeatures);
+  if (displayFeatures.length === 0) return formatTerrainBadge(null);
+
+  const visibleBadges = displayFeatures
     .slice(0, 2)
-    .map((terrainType) => formatTerrainBadge(terrainType));
-  const hiddenCount = displayTypes.length - visibleBadges.length;
+    .map(formatTerrainBadgeFeature);
+  const hiddenCount = displayFeatures.length - visibleBadges.length;
   return `${visibleBadges.join('/')}${hiddenCount > 0 ? `+${hiddenCount}` : ''}`;
 }
 
@@ -281,18 +314,19 @@ export function TerrainBadge({
   x,
   y,
   hex,
-  terrainTypes,
+  terrainFeatures,
   projectionMode,
 }: {
   readonly x: number;
   readonly y: number;
   readonly hex: IHexCoordinate;
-  readonly terrainTypes: readonly string[];
+  readonly terrainFeatures: readonly ITerrainFeature[];
   readonly projectionMode: MapProjectionMode;
 }): React.ReactElement {
-  const displayTypes = sortTerrainTypesForDisplay(terrainTypes);
-  const label = formatTerrainBadgeLabel(displayTypes);
-  const title = `Terrain ${formatTerrainFeaturesLabel(displayTypes)}`;
+  const displayFeatures = sortTerrainFeaturesForDisplay(terrainFeatures);
+  const displayTypes = displayFeatures.map((feature) => feature.type);
+  const label = formatTerrainBadgeLabel(displayFeatures);
+  const title = `Terrain ${formatTerrainFeatureReferenceLabel(displayFeatures)}`;
   const width = Math.max(30, label.length * 6 + 8);
 
   return (
@@ -305,6 +339,9 @@ export function TerrainBadge({
       data-terrain-features={
         displayTypes.length > 0 ? displayTypes.join(',') : 'clear'
       }
+      data-terrain-feature-levels={terrainFeatureLevelsAttribute(
+        displayFeatures,
+      )}
       data-terrain-feature-count={displayTypes.length}
       data-projection-mode={projectionMode}
     >

@@ -2789,6 +2789,14 @@ Replay and recovery surfaces SHALL render terrain and elevation from the same ev
 - **AND** each visible hex SHALL show or expose its elevation number
 - **AND** movement/combat overlays SHALL NOT obscure all elevation information needed for tactical decisions
 
+#### Scenario: Terrain feature levels remain referenceable
+
+- **GIVEN** a top-down or isometric tactical map hex contains layered terrain such as depth-2 water, level-2 smoke, and a level-3 building
+- **WHEN** the hex and terrain badge render
+- **THEN** the hex reference label SHALL include each terrain feature's level/depth/intensity
+- **AND** the terrain badge SHALL expose stable feature-level metadata for the same ordered terrain features
+- **AND** the compact terrain badge SHALL preserve a visible level/depth/intensity suffix when a represented feature level is greater than 1
+
 #### Scenario: Replay starts with seeded terrain and elevation
 
 - **GIVEN** a replay event log whose `GameCreated` event carries `payload.hexTerrain`
