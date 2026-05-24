@@ -620,9 +620,26 @@ Movement PSR validation SHALL apply MegaMek's Terrain Master: Mountaineer relief
 - **WHEN** the pending PSR reason is not entering rubble
 - **THEN** no `Mountaineer` PSR modifier SHALL apply
 
+### Requirement: Source-Backed Swamp Bog-Down Gap
+
+Terrain PSR validation SHALL keep MegaMek's BattleMech swamp bog-down rule visible as an explicit unsupported stuck-state gap until MekStation has a bogged/stuck lifecycle state. The catalog SHALL NOT model swamp bog-down as a normal pending PSR that causes a fall on failure. MegaMek mud bog-down SHALL remain excluded from the BattleMech swamp gap because biped and quad movement modes do not bog down in mud. Terrain Master: Swamp Beast bog-down relief SHALL remain helper-only until the stuck-state path exists.
+
+#### Scenario: Swamp bog-down is cataloged as stuck-state gap
+
+- **GIVEN** the terrain PSR support catalog is generated
+- **WHEN** swamp terrain support is inspected
+- **THEN** swamp SHALL be helper-only with MegaMek source references for bog-down and Swamp Beast relief
+- **AND** the gap SHALL name the missing bogged/stuck lifecycle state
+
+#### Scenario: Mud is not promoted to a BattleMech bog-down gap
+
+- **GIVEN** the terrain PSR support catalog is generated
+- **WHEN** mud terrain support is inspected
+- **THEN** mud SHALL remain integrated for the existing BattleMech movement-cost and terrain-modifier coverage
+
 ### Requirement: Source-Backed Terrain Master Defender To-Hit Variants
 
-Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit variants from target state and target terrain: Forest Ranger SHALL add a `+1` to-hit modifier only when the target has canonical `tm_forest_ranger` or legacy `terrain-master-forest-ranger`, the target moved by walking, and the target occupies wooded terrain; Swamp Beast SHALL add a `+1` to-hit modifier only when the target has canonical `tm_swamp_beast` or legacy `terrain-master-swamp-beast`, the target moved by running, and the target occupies mud or swamp. Runner ranged attacks SHALL hydrate target terrain features into to-hit state. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry and Mountaineer rubble-entry relief SHALL remain an explicit gap until separately source-backed.
+Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit variants from target state and target terrain: Forest Ranger SHALL add a `+1` to-hit modifier only when the target has canonical `tm_forest_ranger` or legacy `terrain-master-forest-ranger`, the target moved by walking, and the target occupies wooded terrain; Swamp Beast SHALL add a `+1` to-hit modifier only when the target has canonical `tm_swamp_beast` or legacy `terrain-master-swamp-beast`, the target moved by running, and the target occupies mud or swamp. Runner ranged attacks SHALL hydrate target terrain features into to-hit state. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry and Mountaineer rubble-entry relief, including Swamp Beast bog-down relief, SHALL remain an explicit gap until separately source-backed.
 
 #### Scenario: Forest Ranger applies to walking wooded targets
 

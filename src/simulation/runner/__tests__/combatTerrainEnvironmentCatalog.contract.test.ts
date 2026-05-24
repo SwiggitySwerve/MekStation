@@ -121,21 +121,27 @@ describe('BattleMech terrain and environment combat support catalog', () => {
     ).toEqual(Object.values(TerrainType).sort());
   });
 
-  it('keeps building-collapse PSR responsibility visible without inventing PSR gaps for movement-cost terrain', () => {
+  it('keeps source-backed terrain PSR gaps visible without inventing non-BattleMech gaps', () => {
     expect([...TERRAIN_TYPES_WITH_PSR_GAPS].sort()).toEqual([
       TerrainType.Building,
+      TerrainType.Swamp,
     ]);
     expect(
       supportIdsByLevel(TERRAIN_TYPE_PSR_COMBAT_SUPPORT, 'helper-only'),
     ).toEqual([...TERRAIN_TYPES_WITH_PSR_GAPS].sort());
+    expect(TERRAIN_TYPE_PSR_COMBAT_SUPPORT[TerrainType.Swamp]).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('bog-down'),
+      gap: expect.stringContaining('bogged/stuck lifecycle state'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({ kind: 'megamek-source' }),
+      ]),
+    });
     expect(
-      [
-        TerrainType.Mud,
-        TerrainType.Sand,
-        TerrainType.Snow,
-        TerrainType.Swamp,
-      ].map((terrain) => TERRAIN_TYPE_PSR_COMBAT_SUPPORT[terrain].level),
-    ).toEqual(['integrated', 'integrated', 'integrated', 'integrated']);
+      [TerrainType.Mud, TerrainType.Sand, TerrainType.Snow].map(
+        (terrain) => TERRAIN_TYPE_PSR_COMBAT_SUPPORT[terrain].level,
+      ),
+    ).toEqual(['integrated', 'integrated', 'integrated']);
   });
 
   it('keeps environment requirements without TerrainType enum values explicitly cataloged', () => {

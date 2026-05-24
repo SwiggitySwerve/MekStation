@@ -88,9 +88,25 @@ const MEGAMEK_MOUNTAINEER_RUBBLE_PSR_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_SWAMP_BEAST_BOG_DOWN_PSR_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek Entity.checkBogDown applies -1 Swamp Beast to avoid-bogging-down piloting rolls.',
+    'megamek/src/megamek/common/units/Entity.java#L8263-L8288',
+  ),
+  megamekRef(
+    'MegaMek Terrain.getBogDownModifier makes swamp a BattleMech bog-down terrain while mud does not bog down biped or quad movement modes.',
+    'megamek/src/megamek/common/units/Terrain.java#L616-L637',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines PILOT_TM_SWAMP_BEAST as tm_swamp_beast.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L183-L187',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEGAMEK_PSR_SPA_SOURCE_REFS = [
   ...MEGAMEK_MANEUVERING_ACE_SKID_SOURCE_REFS,
   ...MEGAMEK_ANIMAL_MIMICRY_QUAD_PSR_SOURCE_REFS,
   ...MEGAMEK_FROGMAN_WATER_PSR_SOURCE_REFS,
   ...MEGAMEK_MOUNTAINEER_RUBBLE_PSR_SOURCE_REFS,
+  ...MEGAMEK_SWAMP_BEAST_BOG_DOWN_PSR_SOURCE_REFS,
 ] satisfies readonly ICombatFeatureSourceReference[];

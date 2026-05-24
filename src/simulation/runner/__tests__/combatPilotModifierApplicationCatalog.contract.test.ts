@@ -309,7 +309,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual(expect.arrayContaining(['melee-specialist', 'tm_frogman']));
   });
 
-  it('pins PSR SPA application to MegaMek skidding, quad, and Frogman water-entry semantics', () => {
+  it('pins PSR SPA application to MegaMek skidding, quad, Terrain Master PSR, and visible gap semantics', () => {
     const psrSpaRefs =
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application']
         .sourceRefs ?? [];
@@ -329,10 +329,19 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'MegaMek OptionsConstants defines PILOT_TM_FROGMAN as tm_frogman.',
       'MegaMek Entity.checkRubbleMove applies -1 Mountaineer to entering-rubble piloting rolls.',
       'MegaMek OptionsConstants defines PILOT_TM_MOUNTAINEER as tm_mountaineer.',
+      'MegaMek Entity.checkBogDown applies -1 Swamp Beast to avoid-bogging-down piloting rolls.',
+      'MegaMek Terrain.getBogDownModifier makes swamp a BattleMech bog-down terrain while mud does not bog down biped or quad movement modes.',
+      'MegaMek OptionsConstants defines PILOT_TM_SWAMP_BEAST as tm_swamp_beast.',
     ]);
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['psr-spa-application'].spaIds,
-    ).toEqual(expect.arrayContaining(['tm_frogman', 'tm_mountaineer']));
+    ).toEqual(
+      expect.arrayContaining([
+        'tm_frogman',
+        'tm_mountaineer',
+        'tm_swamp_beast',
+      ]),
+    );
   });
 
   it('pins Terrain Master Mountaineer rubble PSR relief to MegaMek semantics', () => {
@@ -364,6 +373,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     });
     expect(SPA_COMBAT_SUPPORT.tm_swamp_beast).toMatchObject({
       level: 'integrated',
+      evidence: expect.stringContaining('to-hit'),
     });
     expect(SPA_COMBAT_SUPPORT['terrain-master'].gap).toContain(
       'tm_forest_ranger',
@@ -375,7 +385,11 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'MegaMek ComputeAbilityMods.processDefenderSPAs applies +1 Forest Ranger for walking targets in vegetation and +1 Swamp Beast for running targets in mud or swamp',
       'MegaMek OptionsConstants defines Terrain Master Forest Ranger and Swamp Beast SPA ids as tm_forest_ranger and tm_swamp_beast',
     ]);
-    expect(swampRefs).toEqual(forestRefs);
+    expect(swampRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek ComputeAbilityMods.processDefenderSPAs applies +1 Forest Ranger for walking targets in vegetation and +1 Swamp Beast for running targets in mud or swamp',
+      'MegaMek Entity.checkBogDown applies -1 Swamp Beast to avoid-bogging-down piloting rolls.',
+      'MegaMek OptionsConstants defines Terrain Master Forest Ranger and Swamp Beast SPA ids as tm_forest_ranger and tm_swamp_beast',
+    ]);
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['ranged-to-hit-calculation'].spaIds,
     ).toEqual(expect.arrayContaining(['tm_forest_ranger', 'tm_swamp_beast']));

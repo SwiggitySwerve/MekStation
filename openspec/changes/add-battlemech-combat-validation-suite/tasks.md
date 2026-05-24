@@ -75,6 +75,7 @@
 - [x] 3.2.5 Integrate source-backed standard MASC/Supercharger fixed failure target numbers through explicit prior-use state while leaving alternate MASC option tables, IndustrialMek/support-unit supercharger adjustment, Edge rerolls, and failure critical-slot damage explicit.
 - [x] 3.2.6 Add first-class absent-action catalog rows for sprint, voluntary go-prone, MASC activation, and Supercharger activation so missing movement action paths cannot hide behind helper prose.
 - [x] 3.2.7 Integrate source-backed MASC/Supercharger prior-use counter advance/decay at runner turn reset while leaving activation action paths and failure damage explicit.
+- [x] 3.2.8 Catalog MegaMek-backed BattleMech swamp bog-down and Swamp Beast bog-down relief as a source-backed terrain/stuck-state gap instead of representing it as a normal failed-PSR fall.
 - [ ] 3.3 Expand heat validation coverage for buildup, dissipation, shutdown, ammo explosions, pilot damage, and heat-driven modifiers.
 - [x] 3.3.1 Cross-link every heat rule support row into heat generation, dissipation, and lifecycle requirement checklists.
 - [ ] 3.4 Expand to-hit validation coverage for range, movement, terrain, pilot skills, special abilities, quirks, sensors, prone state, and indirect fire.
@@ -132,3 +133,4 @@
 - [x] 4.3.18 Cross-check MegaMek's Terrain Master: Forest Ranger and Swamp Beast defensive to-hit modifiers, movement gates, terrain gates, and canonical ability ids.
 - [x] 4.3.19 Cross-check MegaMek's Terrain Master: Frogman water-entry PSR relief, water-depth PSR modifiers, Mek/ProtoMek gate, and canonical ability id.
 - [x] 4.3.20 Cross-check MegaMek's Terrain Master: Mountaineer rubble-entry PSR relief and canonical ability id.
+- [x] 4.3.21 Cross-check MegaMek's swamp bog-down piloting roll, BattleMech mud exclusion, stuck-state outcome, Swamp Beast bog-down relief, and canonical ability id.

@@ -1,22 +1,54 @@
 import { TERRAIN_PROPERTIES, TerrainType } from '@/types/gameplay/TerrainTypes';
 
-import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
+import type {
+  ICombatFeatureSourceReference,
+  ICombatFeatureSupportEntry,
+} from './CombatFeatureSupport';
 
-function integrated(id: string, evidence: string): ICombatFeatureSupportEntry {
-  return { id, level: 'integrated', evidence };
+const MEGAMEK_SWAMP_BOG_DOWN_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Entity.checkBogDown queues an avoid-bogging-down piloting roll when a unit enters bog-down terrain and applies -1 Swamp Beast relief.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L8263-L8288',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Terrain.getBogDownModifier makes swamp a BattleMech bog-down terrain while mud does not bog down biped or quad movement modes.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Terrain.java#L616-L637',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+function integrated(
+  id: string,
+  evidence: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'integrated', evidence, sourceRefs }
+    : { id, level: 'integrated', evidence };
 }
 
 function helperOnly(
   id: string,
   evidence: string,
   gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatFeatureSupportEntry {
-  return { id, level: 'helper-only', evidence, gap };
+  return sourceRefs
+    ? { id, level: 'helper-only', evidence, gap, sourceRefs }
+    : { id, level: 'helper-only', evidence, gap };
 }
 
 export const TERRAIN_TYPE_COMBAT_COVERAGE = Object.values(TerrainType);
 
-export const TERRAIN_TYPES_WITH_PSR_GAPS = [TerrainType.Building] as const;
+export const TERRAIN_TYPES_WITH_PSR_GAPS = [
+  TerrainType.Building,
+  TerrainType.Swamp,
+] as const;
 
 const terrainTypesWithPsrGaps = new Set<TerrainType>(
   TERRAIN_TYPES_WITH_PSR_GAPS,
@@ -95,6 +127,15 @@ function makeTerrainHeatEntry(
 
 function makeTerrainPsrEntry(terrain: TerrainType): ICombatFeatureSupportEntry {
   if (terrainTypesWithPsrGaps.has(terrain)) {
+    if (terrain === TerrainType.Swamp) {
+      return helperOnly(
+        terrain,
+        'MegaMek source shows BattleMechs entering swamp can make a bog-down piloting roll with Terrain Master: Swamp Beast relief',
+        'MekStation has no bogged/stuck lifecycle state, so swamp bog-down must not be modeled as a normal failed-PSR fall',
+        MEGAMEK_SWAMP_BOG_DOWN_SOURCE_REFS,
+      );
+    }
+
     return helperOnly(
       terrain,
       'PSRTrigger terrain factories and resolveAllPSRs can represent terrain-entry/skid checks',

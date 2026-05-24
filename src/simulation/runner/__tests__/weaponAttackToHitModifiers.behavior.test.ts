@@ -1011,6 +1011,7 @@ describe('runAttackPhase to-hit modifier integration', () => {
     });
     expect(SPA_COMBAT_SUPPORT.tm_swamp_beast).toMatchObject({
       level: 'integrated',
+      evidence: expect.stringContaining('to-hit'),
     });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['ranged-to-hit-state-hydration'],

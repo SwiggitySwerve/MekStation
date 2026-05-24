@@ -333,7 +333,7 @@ The Terrain Master: Forest Ranger SPA SHALL grant +1 enemy to-hit only when the 
 
 ### Requirement: Piloting SPA - Terrain Master: Swamp Beast
 
-The Terrain Master: Swamp Beast SPA SHALL grant +1 enemy to-hit only when the target owns `tm_swamp_beast`, moved by running, and occupies mud or swamp terrain.
+The Terrain Master: Swamp Beast SPA SHALL grant +1 enemy to-hit only when the target owns `tm_swamp_beast`, moved by running, and occupies mud or swamp terrain. MegaMek's Swamp Beast bog-down PSR relief SHALL remain helper-only until MekStation has a bogged/stuck lifecycle state; it SHALL NOT be modeled as a normal failed-PSR fall.
 
 #### Scenario: Swamp Beast running mud or swamp defense
 
@@ -346,6 +346,12 @@ The Terrain Master: Swamp Beast SPA SHALL grant +1 enemy to-hit only when the ta
 - **THEN** no Swamp Beast to-hit modifier SHALL apply
 - **WHEN** the same pilot ran outside mud or swamp
 - **THEN** no Swamp Beast to-hit modifier SHALL apply
+
+#### Scenario: Swamp Beast bog-down relief remains explicit gap
+
+- **WHEN** a BattleMech with Terrain Master: Swamp Beast enters swamp
+- **THEN** the validation catalog SHALL mark bog-down relief as a source-backed stuck-state gap
+- **AND** the combat PSR resolver SHALL NOT apply a fake fall-causing swamp bog-down PSR
 
 ### Requirement: Piloting SPA — Acrobat
 

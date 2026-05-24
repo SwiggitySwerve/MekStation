@@ -652,7 +652,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'terrain-environment-modifiers': helperOnly(
     'terrain-environment-modifiers',
     'Terrain/environment maps track woods, rubble, rough, water, ice, swamp, buildings, fire, smoke, fog, night, dust, mines, and extreme conditions',
-    'Building-collapse, dust, and minefield modifiers remain helper-only until runner phases consume those battlefield conditions',
+    'Building-collapse, source-backed swamp bog-down/stuck state, dust, and minefield modifiers remain helper-only until runner phases consume those battlefield conditions',
     [
       ...TERRAIN_ENVIRONMENT_SUPPORT_REFS,
       ...TERRAIN_TYPE_ATTACK_MODIFIER_SUPPORT_REFS,
@@ -792,7 +792,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'psr-trigger-catalog': helperOnly(
     'psr-trigger-catalog',
     'PSR trigger support catalogs damage, leg/actuator/gyro/engine, kicked, charged, DFA, pushed, shutdown, standing, terrain, skid, MASC, and supercharger triggers, including source-backed standard MASC/Supercharger fixed failure target numbers plus automatic prior-use counter advance/decay at runner turn reset',
-    'Building-collapse remains helper-only; MASC and supercharger still lack alternate MASC option tables, IndustrialMek/support-unit supercharger roll adjustment, Edge rerolls, and failure critical-slot damage after runner movement queues explicit active-run triggers',
+    'Building-collapse remains helper-only; swamp bog-down is tracked as a terrain/stuck-state gap rather than a fall PSR; MASC and supercharger still lack alternate MASC option tables, IndustrialMek/support-unit supercharger roll adjustment, Edge rerolls, and failure critical-slot damage after runner movement queues explicit active-run triggers',
     PSR_TRIGGER_SUPPORT_REFS,
   ),
   'turn-rotation-removal': integrated(

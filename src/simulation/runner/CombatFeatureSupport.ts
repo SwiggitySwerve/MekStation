@@ -290,6 +290,20 @@ const MEGAMEK_325B_TERRAIN_MASTER_DEFENSIVE_SOURCE_REFS = [
   MEGAMEK_325B_TERRAIN_MASTER_OPTIONS,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_325B_SWAMP_BEAST_BOG_DOWN_PSR = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Entity.checkBogDown applies -1 Swamp Beast to avoid-bogging-down piloting rolls.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L8263-L8288',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_SWAMP_BEAST_SOURCE_REFS = [
+  MEGAMEK_325B_TERRAIN_MASTER_DEFENSIVE_TO_HIT,
+  MEGAMEK_325B_SWAMP_BEAST_BOG_DOWN_PSR,
+  MEGAMEK_325B_TERRAIN_MASTER_OPTIONS,
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_325B_MOUNTAINEER_RUBBLE_PSR = {
   kind: 'megamek-source',
   citation:
@@ -449,7 +463,7 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'terrain-master': unsupported(
     'terrain-master',
-    'Generic Terrain Master movement behavior and variants beyond Frogman/Mountaineer/Forest Ranger/Swamp Beast are not wired; source-backed Frogman physical to-hit relief, Frogman water-entry PSR relief, Mountaineer rubble-entry PSR relief, and Forest Ranger/Swamp Beast defensive to-hit variants are tracked separately as tm_frogman, tm_mountaineer, tm_forest_ranger, and tm_swamp_beast',
+    'Generic Terrain Master movement behavior and variants beyond Frogman/Mountaineer/Forest Ranger/Swamp Beast are not wired; source-backed Frogman physical to-hit relief, Frogman water-entry PSR relief, Mountaineer rubble-entry PSR relief, and Forest Ranger/Swamp Beast defensive to-hit variants are tracked separately as tm_frogman, tm_mountaineer, tm_forest_ranger, and tm_swamp_beast, while Swamp Beast bog-down relief remains a source-backed stuck-state gap',
   ),
   tm_frogman: integrated(
     'tm_frogman',
@@ -469,8 +483,8 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   tm_swamp_beast: integrated(
     'tm_swamp_beast',
-    'Source-backed calculateTerrainMasterDefensiveToHitModifier plus calculateToHit and runner target terrain hydration apply +1 to-hit against running targets in mud or swamp',
-    MEGAMEK_325B_TERRAIN_MASTER_DEFENSIVE_SOURCE_REFS,
+    'Source-backed calculateTerrainMasterDefensiveToHitModifier plus calculateToHit and runner target terrain hydration apply +1 to-hit against running targets in mud or swamp; source-backed bog-down relief is tracked under the PSR and terrain stuck-state gap rows',
+    MEGAMEK_325B_SWAMP_BEAST_SOURCE_REFS,
   ),
   acrobat: unsupported('acrobat', 'DFA PSR modifier is not wired'),
   'cross-country': unsupported(
