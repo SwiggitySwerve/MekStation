@@ -29,6 +29,19 @@ function isWaterRunExemptMotive(movementType: UnitMovementType): boolean {
   );
 }
 
+function isPlaytest2RunWaterExemptMotive(
+  movementType: UnitMovementType,
+  context: IMovementCostContext,
+): boolean {
+  if (
+    !hasOptionalRule(context.optionalRules ?? [], PLAYTEST_2_OPTIONAL_RULE_KEY)
+  ) {
+    return false;
+  }
+  if (context.movementTerrainProfile === 'infantry') return false;
+  return movementType === 'walk' || movementType === 'run';
+}
+
 function isWaterDepthCostExemptMotive(movementType: UnitMovementType): boolean {
   return (
     movementType === 'jump' ||
@@ -58,6 +71,7 @@ export function blocksWaterMovement(
   if (
     isRunningWaterEntry &&
     !isWaterRunExemptMotive(movementType) &&
+    !isPlaytest2RunWaterExemptMotive(movementType, context) &&
     !context.isFirstStep
   ) {
     return !context.waterCapability?.fullyAmphibious;

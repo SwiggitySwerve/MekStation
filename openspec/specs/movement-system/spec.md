@@ -536,6 +536,17 @@ reachable: true}`
 - **AND** depth-1 water, amphibious, frogman, hover, VTOL, WiGE, naval, swim, and UMU water movement pricing SHALL keep their existing costs
 - **AND** committed movement validation SHALL agree with the previewed Playtest2 deep-water MP cost for the same supplied path
 
+#### Scenario: Playtest2 Mek-style running may enter water after the first step
+
+- **GIVEN** represented Mek-style ground movement declares Run
+- **AND** the run path enters water after its first step
+- **WHEN** the Playtest2 optional rule is disabled
+- **THEN** the movement projection SHALL block that path with the standard water terrain-blocked reason
+- **WHEN** the same path is projected with the represented Playtest2 optional rule enabled
+- **THEN** the movement projection SHALL allow the run-water path
+- **AND** infantry-profile, vehicle, naval, hover, VTOL, WiGE, UMU, swim, amphibious, bridge, and ice water movement rules SHALL keep their existing legality behavior
+- **AND** committed movement validation SHALL agree with the previewed Playtest2 run-water legality and MP cost for the same supplied path
+
 ### Requirement: Movement Commit Event Emission
 
 The movement system SHALL, on player-confirmed movement commit, append a

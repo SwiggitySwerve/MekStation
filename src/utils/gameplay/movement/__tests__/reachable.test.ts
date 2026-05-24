@@ -806,6 +806,61 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('lets Playtest2 Mek-style running enter water after the first step', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(
+      grid,
+      { q: 2, r: 0 },
+      terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
+      0,
+    );
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+    };
+
+    const standardRun = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Run,
+      grid,
+      cap,
+      { q: 2, r: 0 },
+    );
+    const playtest2Run = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Run,
+      grid,
+      cap,
+      { q: 2, r: 0 },
+      'normal',
+      { optionalRules: ['playtest_2'] },
+    );
+
+    expect(standardRun).toMatchObject({
+      reachable: false,
+      movementMode: 'run',
+      blockedReason: 'Water blocks ground movement',
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails: 'Water blocks ground movement',
+    });
+    expect(playtest2Run).toMatchObject({
+      reachable: true,
+      movementMode: 'run',
+      mpCost: 4,
+      terrainCost: 2,
+      heatGenerated: 2,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+        { q: 2, r: 0 },
+      ],
+    });
+  });
+
   it('lets UMU movement cross deep water without water-depth MP surcharges', () => {
     let grid = createHexGrid({ radius: 3 });
     grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);

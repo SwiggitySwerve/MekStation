@@ -212,13 +212,15 @@ and keeps UMU preview/commit behavior aligned for deep-water movement. Frogman
 Mek/ProtoMek modifiers and full underwater elevation envelopes remain outside
 this slice.
 
-Additional Playtest2 deep-water MP pin: MegaMek `MoveStep.java:2792-2798`
+Additional Playtest2 water-movement pin: MegaMek `MoveStep.java:2792-2798`
 switches depth-2+ water from the standard +3 MP surcharge to +2 MP when
-`OptionsConstants.PLAYTEST_2` is enabled. MekStation now applies the
-represented `playtest_2` optional rule to non-exempt deep-water movement
-projection and commit validation while preserving depth-1, amphibious,
-frogman, hover, VTOL, WiGE, naval, swim, and UMU costs. Broader Playtest2
-run-water legality exceptions remain outside this slice. Coverage lives in
+`OptionsConstants.PLAYTEST_2` is enabled, and `MoveStep.java:3236-3279`
+exempts biped/quad/tripod-style movement from the post-first-step run-water
+prohibition under the same option. MekStation now applies the represented
+`playtest_2` optional rule to non-exempt deep-water movement costs and
+Mek-style run-water legality in projection and commit validation while
+preserving depth-1, infantry-profile, vehicle, amphibious, frogman, hover,
+VTOL, WiGE, naval, swim, and UMU behavior. Coverage lives in
 `src/utils/gameplay/movement/terrainRules.ts`,
 `src/utils/gameplay/movement/__tests__/reachable.test.ts`, and
 `src/engine/__tests__/InteractiveSession.movement.scenario.test.ts`.

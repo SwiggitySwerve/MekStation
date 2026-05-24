@@ -496,6 +496,92 @@ describe('applyInteractiveSessionMovement', () => {
     });
   });
 
+  it('keeps Playtest2 Mek-style run into water aligned after the first step', () => {
+    const baseSession = setupSessionAtMovement();
+    const session: IGameSession = {
+      ...baseSession,
+      config: {
+        ...baseSession.config,
+        optionalRules: ['playtest_2'],
+      },
+    };
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    grid.hexes.set('1,0', makeHex(1, 0));
+    grid.hexes.set(
+      '2,0',
+      makeHex(
+        2,
+        0,
+        terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
+      ),
+    );
+    const movementByUnit = capability({
+      walkMP: 3,
+      runMP: 5,
+    });
+
+    const preview = deriveMovementRangeHexForDestination(
+      session.currentState.units.m1,
+      MovementType.Run,
+      grid,
+      movementByUnit.get('m1')!,
+      { q: 2, r: 0 },
+      'normal',
+      { optionalRules: session.config.optionalRules },
+    );
+
+    expect(preview).toMatchObject({
+      reachable: true,
+      movementMode: 'run',
+      mpCost: 4,
+      terrainCost: 2,
+      heatGenerated: 2,
+      movementType: MovementType.Run,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+        { q: 2, r: 0 },
+      ],
+    });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 2, r: 0 },
+      facing: Facing.Southeast,
+      movementType: MovementType.Run,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+        { q: 2, r: 0 },
+      ],
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.MovementInvalid,
+      ),
+    ).toBe(false);
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared).toBeDefined();
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      to: preview!.hex,
+      movementType: preview!.movementType,
+      mpUsed: preview!.mpCost,
+      heatGenerated: preview!.heatGenerated,
+    });
+  });
+
   it('keeps UMU deep-water movement legal between preview and commit validation', () => {
     const session = setupSessionAtMovement();
     session.currentState.units.blocker = {
