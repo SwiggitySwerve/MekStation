@@ -2029,6 +2029,79 @@ describe('interactive attack projection agreement', () => {
     );
   });
 
+  it('keeps selected-weapon arc rejection aligned between preview and committed attacks', () => {
+    const session = setupSessionAtWeaponAttack();
+    session.currentState.units.a1 = {
+      ...session.currentState.units.a1,
+      facing: Facing.North,
+    };
+    session.currentState.units.t1 = {
+      ...session.currentState.units.t1,
+      position: { q: 0, r: 3 },
+    };
+    const grid = makeClearGrid(3);
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 0, r: 3 },
+      facing: Facing.North,
+    });
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons: [
+        makeWeaponStatus({
+          id: 'front-close',
+          ranges: { short: 3, medium: 5, long: 7 },
+          mountingArc: FiringArc.Front,
+        }),
+      ],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 0 && hex.hex.r === 3);
+
+    expect(projection).toBeDefined();
+    expect(projection).toMatchObject({
+      attackable: false,
+      firingArc: 'rear',
+      rangeBracket: RangeBracket.Short,
+      weaponIdsInRange: ['front-close'],
+      weaponIdsInArc: [],
+      weaponIdsAvailable: [],
+    });
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildMixedArcWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['front-close'],
+      grid,
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload).toMatchObject({
+      reason: projection!.attackInvalidReason,
+      details: projection!.attackInvalidDetails,
+    } satisfies Partial<IAttackInvalidPayload>);
+  });
+
   it('uses C3 spotter range brackets in preview and committed attacks', () => {
     const session = setupC3SessionAtWeaponAttack();
     const grid = makeClearGrid(6);

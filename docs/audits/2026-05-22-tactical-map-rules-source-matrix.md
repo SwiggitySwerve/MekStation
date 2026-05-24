@@ -47,6 +47,24 @@ Coverage: `InteractiveSession.queries.ts`, `weaponAttackBuilder.ts`,
 `weaponAttackBuilder.test.ts`, and
 `InteractiveSession.attackProjectionAgreement.scenario.test.ts`.
 
+Additional selected-weapon projection pin: selected weapon IDs are a
+MekStation attack-plan constraint layered on top of MegaMek-style per-weapon
+range and arc legality. The map now passes the active selected weapon IDs into
+combat range, firing-arc, valid-target, and command-preview projection instead
+of projecting from every configured weapon after the player narrows the attack
+plan. Empty selected-weapon lists retain the broad all-weapons preview. A
+preview/commit agreement fixture now verifies that selecting only an out-of-arc
+weapon produces the same invalid reason in map projection and committed attack
+resolution. Coverage:
+`src/utils/gameplay/combatProjection.weaponSelection.ts`,
+`src/components/gameplay/HexMapDisplay/HexMapDisplay.state.tsx`,
+`src/components/gameplay/GameplayLayout.commandPreview.ts`,
+`src/utils/gameplay/combatTargetIds.ts`,
+`src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.combatProjection.test.tsx`,
+`src/components/gameplay/__tests__/GameplayLayout.commandPreview.test.ts`,
+`src/utils/gameplay/__tests__/combatProjection.test.ts`, and
+`src/engine/__tests__/InteractiveSession.attackProjectionAgreement.scenario.test.ts`.
+
 Additional battlefield-wreck terrain pin: MegaMek
 `OptionsConstants.java:364` defines `tacops_battle_wreck`, `GameOptions.java:140`
 defaults it off, and `TWGameManager.java:22276-22291` converts qualifying
