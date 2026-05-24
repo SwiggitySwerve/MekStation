@@ -2742,6 +2742,22 @@ When the attack plan has one or more selected weapon IDs, combat projection surf
 - **THEN** the overlay SHALL avoid claiming a narrower arc than the rules projection can justify
 - **AND** target validation SHALL remain the authority for final legality
 
+#### Scenario: Vehicle equipment IDs are imported for combat projection
+
+- **GIVEN** a represented vehicle weapon mount carries `equipmentId`
+- **AND** its mount `id` is only a mount-slot identifier
+- **WHEN** the unit is adapted for combat
+- **THEN** the weapon SHALL be resolved from `equipmentId`
+- **AND** the mount-slot id SHALL NOT be treated as the weapon catalog id
+
+#### Scenario: Vehicle sponson mount highlights only covered arcs
+
+- **GIVEN** a selected vehicle weapon is represented as a left sponson mount
+- **WHEN** combat projection and firing-arc shading render
+- **THEN** front and left-side target hexes SHALL be treated as covered
+- **AND** rear and right-side target hexes SHALL be blocked as out of arc
+- **AND** committed attacks SHALL accept and reject the same targets as the map projection
+
 #### Scenario: Physical attack elevation legality matches commit
 
 - **GIVEN** a unit previews punch or kick options against an adjacent target on a different elevation

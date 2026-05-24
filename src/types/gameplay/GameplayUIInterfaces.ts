@@ -590,6 +590,11 @@ export interface IWeaponStatus {
   readonly location: string;
   /** Mounted firing arc, when known. Missing means legacy omnidirectional. */
   readonly mountingArc?: FiringArc;
+  /**
+   * Mounted firing arcs when the represented mount covers multiple chassis
+   * arcs. Missing means legacy omnidirectional/unknown coverage.
+   */
+  readonly mountingArcs?: readonly FiringArc[];
   /** Is weapon destroyed? */
   readonly destroyed: boolean;
   /** Was weapon fired this turn? */

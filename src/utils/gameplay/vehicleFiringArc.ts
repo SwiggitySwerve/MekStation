@@ -124,6 +124,8 @@ export function getVehicleWeaponArcs(params: {
 
   // Chassis-mounted weapon: fires in the arc matching its location.
   switch (params.mountLocation) {
+    case VehicleLocation.BODY:
+    case VTOLLocation.BODY:
     case VehicleLocation.FRONT:
       return [FiringArc.Front];
     case VehicleLocation.LEFT:

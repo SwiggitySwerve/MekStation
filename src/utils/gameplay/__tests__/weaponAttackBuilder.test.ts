@@ -100,6 +100,17 @@ describe('buildWeaponAttack', () => {
     expect(result?.mountingArc).toBe(FiringArc.Rear);
   });
 
+  it('preserves represented multi-arc mounts for engine arc checks', () => {
+    const result = buildWeaponAttack('sponson-ml-1', [
+      {
+        ...mediumLaser,
+        id: 'sponson-ml-1',
+        mountingArcs: [FiringArc.Front, FiringArc.Left],
+      },
+    ]);
+    expect(result?.mountingArcs).toEqual([FiringArc.Front, FiringArc.Left]);
+  });
+
   it('returns null + warns when the weapon id is not on the unit', () => {
     const warnSpy = jest.spyOn(logger, 'warn').mockImplementation();
     const result = buildWeaponAttack('nonexistent', [mediumLaser], 'unit-1');

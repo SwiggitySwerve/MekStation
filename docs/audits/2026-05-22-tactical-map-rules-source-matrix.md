@@ -433,6 +433,18 @@ front-mounted selected weapons no longer shade unrelated arcs as tactically
 available; weapons without a represented mount keep the legacy all-arc display,
 and destroyed-only weapon lists produce no arc shading.
 
+Additional vehicle weapon-mount import pin: MegaMek `Tank.getWeaponArc`
+(`Tank.java:1039-1103`) routes vehicle body/front, side, rear, turret, and
+sponson mounts into firing arcs, while `Mounted.java:1462-1469` exposes the
+sponson turret flag. MekStation now imports represented vehicle weapon
+identities from `equipmentId` before falling back to legacy `id`/`name`, carries
+single-arc and multi-arc mount coverage through the shared weapon status and
+attack declaration shapes, and uses one helper for map projection, AI weapon
+filtering, attack planning, and committed attack validation. Focused fixtures
+cover rear chassis mounts, left sponson front+left coverage, all-arc turret
+coverage, top-down firing-arc overlay narrowing, and preview-to-commit
+agreement for represented multi-arc mounts.
+
 Additional selected-weapon extreme-range overlay pin: the firing-arc overlay
 now uses represented `ranges.extreme` when present while deriving selected
 operational weapon reach. Extreme-range target hexes that combat projection

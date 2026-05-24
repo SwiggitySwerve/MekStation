@@ -10,10 +10,11 @@ import type { classifyLOS } from '@/utils/overlays/losClassifier';
 
 import { RangeBracket } from '@/types/gameplay';
 
-import { canFireFromArc, determineArc } from './firingArcs';
+import { determineArc } from './firingArcs';
 import { coordToKey } from './hexMath';
 import { formatLOSBlockedDetails } from './lineOfSight';
 import { getMinimumRangePenalty, getWeaponRangeBracket } from './range';
+import { weaponMountCoversTargetArc } from './weaponMountArcs';
 
 const RANGE_BRACKET_RANK: Readonly<Record<RangeBracket, number>> = {
   [RangeBracket.Short]: 0,
@@ -99,9 +100,7 @@ export function weaponCanCoverTargetArc(
   weapon: IWeaponStatus,
   targetArc: ReturnType<typeof determineArc>['arc'] | null,
 ): boolean {
-  if (!targetArc) return false;
-  if (weapon.mountingArc === undefined) return true;
-  return canFireFromArc(weapon.mountingArc, targetArc);
+  return weaponMountCoversTargetArc(weapon, targetArc);
 }
 
 export function minimumRangePenaltyForWeapon(

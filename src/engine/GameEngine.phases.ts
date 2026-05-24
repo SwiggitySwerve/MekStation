@@ -23,7 +23,7 @@ import {
   type DiceRoller,
   defaultD6Roller,
 } from '@/utils/gameplay/diceTypes';
-import { canFireFromArc, determineArc } from '@/utils/gameplay/firingArcs';
+import { determineArc } from '@/utils/gameplay/firingArcs';
 import {
   createRetreatTriggeredEvent,
   createUnitRetreatedEvent,
@@ -62,6 +62,7 @@ import { calculateTargetTerrainModifierFromHex } from '@/utils/gameplay/toHit';
 import { weaponPassesRepresentedWaterAttackRules } from '@/utils/gameplay/underwaterAttacks';
 import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
+import { weaponMountCoversTargetArc } from '@/utils/gameplay/weaponMountArcs';
 
 import { toAIUnitState } from './GameEngine.helpers';
 import { applyInteractiveSessionMovement } from './InteractiveSession.actions';
@@ -140,8 +141,7 @@ function weaponCoversTargetArc(
   weapon: IWeaponAttack,
   targetArc: ReturnType<typeof determineArc>['arc'],
 ): boolean {
-  if (weapon.mountingArc === undefined) return true;
-  return canFireFromArc(weapon.mountingArc, targetArc);
+  return weaponMountCoversTargetArc(weapon, targetArc);
 }
 
 function indirectInterveningTerrainEffects({

@@ -17,6 +17,7 @@ import { GameSide, TerrainType } from '@/types/gameplay';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
 import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
 import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
+import { representedWeaponMountArcs } from '@/utils/gameplay/weaponMountArcs';
 import {
   firingArcToUiArc,
   type UiFiringArc,
@@ -352,14 +353,18 @@ export function useSelectedWeaponVisibleFiringArcs({
   return useMemo(() => {
     if (!hasConfiguredWeaponList) return undefined;
     if (operationalWeapons.length === 0) return [];
-    if (operationalWeapons.some((weapon) => weapon.mountingArc === undefined)) {
+    if (
+      operationalWeapons.some(
+        (weapon) => representedWeaponMountArcs(weapon) === undefined,
+      )
+    ) {
       return undefined;
     }
 
     const arcs = new Set<UiFiringArc>();
     for (const weapon of operationalWeapons) {
-      if (weapon.mountingArc) {
-        arcs.add(firingArcToUiArc(weapon.mountingArc));
+      for (const arc of representedWeaponMountArcs(weapon) ?? []) {
+        arcs.add(firingArcToUiArc(arc));
       }
     }
     return Array.from(arcs);

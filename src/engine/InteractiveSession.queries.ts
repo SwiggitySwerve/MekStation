@@ -176,6 +176,7 @@ function engineWeaponToStatus(
     mode: 'Direct',
     location: 'unknown',
     mountingArc: weapon.mountingArc,
+    mountingArcs: weapon.mountingArcs,
     destroyed: weapon.destroyed,
     firedThisTurn: false,
     ...ammoTotals,

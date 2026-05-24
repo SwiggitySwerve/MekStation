@@ -72,6 +72,7 @@ export function buildWeaponAttack(
     weaponName: wData.name,
     mode: resolveWeaponFireMode(wData.id, weaponModesByWeaponId?.[wData.id]),
     mountingArc: wData.mountingArc,
+    mountingArcs: wData.mountingArcs,
     damage: wData.damage,
     heat: wData.heat,
     category: inferWeaponCategory(wData),

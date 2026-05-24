@@ -1,5 +1,9 @@
 import type { IFullUnit } from '@/services/units/CanonicalUnitService';
 
+import { VehicleLocation } from '@/types/construction/UnitLocation';
+import { FiringArc } from '@/types/gameplay';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
+
 import {
   adaptUnit,
   adaptUnitFromData,
@@ -138,6 +142,33 @@ function createHunchbackData(): IFullUnit {
       { id: 'medium-laser', location: 'RIGHT_ARM' },
       { id: 'small-laser', location: 'HEAD' },
     ],
+  } as unknown as IFullUnit;
+}
+
+function createVehicleData(overrides: Partial<IFullUnit> = {}): IFullUnit {
+  return {
+    id: 'manticore-heavy-tank',
+    chassis: 'Manticore',
+    variant: 'Heavy Tank',
+    tonnage: 60,
+    techBase: 'INNER_SPHERE',
+    era: 'SUCCESSION_WARS',
+    unitType: 'Vehicle',
+    engine: { type: 'FUSION', rating: 240 },
+    armor: {
+      type: 'STANDARD',
+      allocation: {
+        FRONT: 40,
+        LEFT: 30,
+        RIGHT: 30,
+        REAR: 20,
+        TURRET: 30,
+      },
+    },
+    structure: { type: 'STANDARD' },
+    movement: { walk: 4, run: 6 },
+    equipment: [],
+    ...overrides,
   } as unknown as IFullUnit;
 }
 
@@ -326,6 +357,108 @@ describe('CompendiumAdapter', () => {
       } finally {
         warnSpy.mockRestore();
       }
+    });
+
+    it('resolves vehicle equipmentId mounts and preserves chassis weapon arcs', () => {
+      const result = adaptUnitFromData(
+        createVehicleData({
+          equipment: [
+            {
+              id: 'mount-0',
+              equipmentId: 'AC/5',
+              name: 'AC/5',
+              location: VehicleLocation.REAR,
+              isTurretMounted: false,
+              isSponsonMounted: false,
+            },
+          ],
+        }),
+      );
+
+      expect(result.weapons).toHaveLength(1);
+      expect(result.weapons[0]).toMatchObject({
+        name: 'AC/5',
+        mountingArc: FiringArc.Rear,
+        mountingArcs: [FiringArc.Rear],
+      });
+    });
+
+    it('uses a represented weapon name when a vehicle mount id is only a slot id', () => {
+      const result = adaptUnitFromData(
+        createVehicleData({
+          equipment: [
+            {
+              id: 'mount-0',
+              name: 'Medium Laser',
+              location: VehicleLocation.FRONT,
+              isTurretMounted: false,
+              isSponsonMounted: false,
+            },
+          ],
+        }),
+      );
+
+      expect(result.weapons).toHaveLength(1);
+      expect(result.weapons[0]).toMatchObject({
+        name: 'Medium Laser',
+        mountingArc: FiringArc.Front,
+      });
+    });
+
+    it('preserves represented vehicle sponson mounts as front plus same-side arcs', () => {
+      const result = adaptUnitFromData(
+        createVehicleData({
+          equipment: [
+            {
+              id: 'mount-0',
+              equipmentId: 'Medium Laser',
+              name: 'Medium Laser',
+              location: VehicleLocation.LEFT,
+              isTurretMounted: false,
+              isSponsonMounted: true,
+            },
+          ],
+        }),
+      );
+
+      expect(result.weapons).toHaveLength(1);
+      expect(result.weapons[0].mountingArc).toBeUndefined();
+      expect(result.weapons[0].mountingArcs).toEqual([
+        FiringArc.Front,
+        FiringArc.Left,
+      ]);
+    });
+
+    it('preserves represented vehicle turret mounts as all chassis arcs', () => {
+      const result = adaptUnitFromData(
+        createVehicleData({
+          turret: {
+            type: TurretType.SINGLE,
+            maxWeight: 6,
+            currentWeight: 0,
+            rotationArc: 360,
+          },
+          equipment: [
+            {
+              id: 'mount-0',
+              equipmentId: 'PPC',
+              name: 'PPC',
+              location: VehicleLocation.TURRET,
+              isTurretMounted: true,
+              isSponsonMounted: false,
+            },
+          ],
+        }),
+      );
+
+      expect(result.weapons).toHaveLength(1);
+      expect(result.weapons[0].mountingArc).toBeUndefined();
+      expect(result.weapons[0].mountingArcs).toEqual([
+        FiringArc.Front,
+        FiringArc.Left,
+        FiringArc.Right,
+        FiringArc.Rear,
+      ]);
     });
   });
 

@@ -40,7 +40,7 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
-import { canFireFromArc, determineArc } from '@/utils/gameplay/firingArcs';
+import { determineArc } from '@/utils/gameplay/firingArcs';
 import {
   createAttackInvalidEvent,
   createMovementInvalidEvent,
@@ -78,6 +78,7 @@ import {
 } from '@/utils/gameplay/underwaterAttacks';
 import { canPlayerSeeUnit } from '@/utils/gameplay/visibility';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
+import { weaponMountCoversTargetArc } from '@/utils/gameplay/weaponMountArcs';
 
 import { computeIndirectFireContext } from './InteractiveSession.indirectFire';
 
@@ -311,8 +312,7 @@ function weaponCoversTargetArc(
   weapon: IWeaponAttack,
   targetArc: ReturnType<typeof determineArc>['arc'],
 ): boolean {
-  if (weapon.mountingArc === undefined) return true;
-  return canFireFromArc(weapon.mountingArc, targetArc);
+  return weaponMountCoversTargetArc(weapon, targetArc);
 }
 
 function indirectInterveningTerrainEffects({

@@ -292,6 +292,60 @@ describe('deriveCombatRangeHexes', () => {
     });
   });
 
+  it('uses represented multi-arc mounts when deciding weapon availability', () => {
+    const grid = createHexGrid({ radius: 2 });
+    const attacker = makeToken({
+      unitId: 'attacker',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
+    const leftTarget = makeToken({
+      unitId: 'left-target',
+      side: GameSide.Opponent,
+      position: { q: -1, r: 1 },
+    });
+    const rearTarget = makeToken({
+      unitId: 'rear-target',
+      side: GameSide.Opponent,
+      position: { q: 0, r: 1 },
+    });
+
+    const projection = deriveCombatRangeHexes({
+      attacker,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attacker, leftTarget, rearTarget],
+      weapons: [
+        makeWeapon({
+          id: 'left-sponson-laser',
+          mountingArcs: [FiringArc.Front, FiringArc.Left],
+        }),
+      ],
+    });
+
+    const leftHex = projection.find(
+      (hex) => hex.hex.q === -1 && hex.hex.r === 1,
+    );
+    const rearHex = projection.find(
+      (hex) => hex.hex.q === 0 && hex.hex.r === 1,
+    );
+
+    expect(leftHex).toMatchObject({
+      firingArc: 'left-side',
+      inArc: true,
+      attackable: true,
+      weaponIdsAvailable: ['left-sponson-laser'],
+    });
+    expect(rearHex).toMatchObject({
+      firingArc: 'rear',
+      inArc: false,
+      attackable: false,
+      weaponIdsAvailable: [],
+      attackInvalidReason: 'OutOfArc',
+    });
+  });
+
   it('keeps mixed per-weapon range and arc options explainable', () => {
     const grid = createHexGrid({ radius: 3 });
     const attacker = makeToken({

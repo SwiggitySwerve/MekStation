@@ -40,6 +40,7 @@ describe('weaponStatusToPlanningWeapon', () => {
         ammoRemaining: 12,
         ammoMax: 20,
         mountingArc: FiringArc.Left,
+        mountingArcs: [FiringArc.Front, FiringArc.Left],
         ranges: {
           short: 6,
           medium: 12,
@@ -61,6 +62,7 @@ describe('weaponStatusToPlanningWeapon', () => {
       ammoPerTon: 20,
       destroyed: false,
       mountingArc: FiringArc.Left,
+      mountingArcs: [FiringArc.Front, FiringArc.Left],
     });
   });
 

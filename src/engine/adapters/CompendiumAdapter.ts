@@ -9,6 +9,10 @@ import {
   type IFullUnit,
   getCanonicalUnitService,
 } from '@/services/units/CanonicalUnitService';
+import {
+  VehicleLocation,
+  VTOLLocation,
+} from '@/types/construction/UnitLocation';
 import { GameSide, LockState } from '@/types/gameplay/GameSessionInterfaces';
 import {
   Facing,
@@ -21,8 +25,10 @@ import {
   type MovementPavementRoadBonusProfile,
   type MovementTerrainProfile,
 } from '@/types/gameplay/HexGridInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { STANDARD_STRUCTURE_TABLE } from '@/utils/gameplay/damage';
 import { UNIT_QUIRK_IDS } from '@/utils/gameplay/quirkModifiers';
+import { getVehicleWeaponArcs } from '@/utils/gameplay/vehicleFiringArc';
 import { logger } from '@/utils/logger';
 
 import type { IAdaptedUnit, IAdaptUnitOptions, IWeaponData } from '../types';
@@ -155,9 +161,17 @@ function extractArmor(
 // Weapon Extraction
 // =============================================================================
 
+type AdaptableEquipmentItem = Readonly<Record<string, unknown>> & {
+  readonly id?: string;
+  readonly equipmentId?: string;
+  readonly name?: string;
+  readonly location?: string;
+};
+
 function extractWeapons(
-  equipment: readonly { id: string; location: string }[],
+  equipment: readonly AdaptableEquipmentItem[],
   unitId: string,
+  unitData: Record<string, unknown>,
 ): IWeapon[] {
   const weapons: IWeapon[] = [];
   const idCounts = new Map<string, number>();
@@ -169,7 +183,16 @@ function extractWeapons(
     // "clan-medium-laser" would silently drop the weapon from the unit's
     // inventory — and later the weaponAttackBuilder would warn about a
     // missing weapon that was actually discarded here.
-    const canonicalId = canonicalizeWeaponId(item.id);
+    const sourceWeaponId = equipmentWeaponId(item);
+    if (!sourceWeaponId) {
+      logger.warn(
+        `[CompendiumAdapter] Equipment mount on unit "${unitId}" has no ` +
+          'weapon id/equipmentId/name field - skipping.',
+      );
+      continue;
+    }
+
+    const canonicalId = canonicalizeWeaponId(sourceWeaponId);
     const data = WEAPON_DATABASE[canonicalId];
     if (!data) {
       // Task 3.3: do not silently skip — surface the miss so data-pipeline
@@ -177,7 +200,7 @@ function extractWeapons(
       // weapon simply isn't added to the unit's inventory, and the bot /
       // player cannot then declare it as a firing weapon.
       logger.warn(
-        `[CompendiumAdapter] Weapon id "${item.id}" on unit "${unitId}" ` +
+        `[CompendiumAdapter] Weapon id "${sourceWeaponId}" on unit "${unitId}" ` +
           `(canonical: "${canonicalId}") has no static catalog entry — ` +
           `skipping. Add it to WEAPON_DATABASE or WEAPON_ID_ALIASES.`,
       );
@@ -190,10 +213,156 @@ function extractWeapons(
     weapons.push({
       ...data,
       id: `${unitId}-${canonicalId}-${count}`,
+      ...weaponMountArcsFromEquipment(item, unitData),
     });
   }
 
   return weapons;
+}
+
+function equipmentWeaponId(item: AdaptableEquipmentItem): string | undefined {
+  const candidates = [
+    stringField(item, 'equipmentId'),
+    stringField(item, 'weaponId'),
+    stringField(item, 'id'),
+    stringField(item, 'name'),
+  ].filter((candidate): candidate is string => candidate !== undefined);
+  return (
+    candidates.find(
+      (candidate) => WEAPON_DATABASE[canonicalizeWeaponId(candidate)],
+    ) ?? candidates[0]
+  );
+}
+
+function weaponMountArcsFromEquipment(
+  item: AdaptableEquipmentItem,
+  unitData: Record<string, unknown>,
+): Pick<IWeapon, 'mountingArc' | 'mountingArcs'> {
+  if (!isVehicleLikeUnitData(unitData)) return {};
+
+  const mountLocation = vehicleMountLocationFromEquipment(item);
+  if (!mountLocation) return {};
+
+  const arcs = getVehicleWeaponArcs({
+    mountLocation,
+    isTurretMounted:
+      equipmentBooleanField(item, 'isTurretMounted') ||
+      locationHas(item, 'turret', 'chin'),
+    isSponsonMounted:
+      equipmentBooleanField(item, 'isSponsonMounted') ||
+      locationHas(item, 'sponson'),
+    turretType: primaryTurretTypeFromUnitData(unitData),
+    turretLocked: false,
+    isSecondary: locationHas(item, 'turret2', 'turret 2', 'secondary turret'),
+    secondaryTurretType: secondaryTurretTypeFromUnitData(unitData),
+    secondaryTurretLocked: false,
+  });
+
+  if (arcs.length === 0) return { mountingArcs: [] };
+  if (arcs.length === 1) return { mountingArc: arcs[0], mountingArcs: arcs };
+  return { mountingArcs: arcs };
+}
+
+function isVehicleLikeUnitData(unitData: Record<string, unknown>): boolean {
+  switch (normalizedKey(stringField(unitData, 'unitType', 'type'))) {
+    case 'vehicle':
+    case 'tank':
+    case 'supportvehicle':
+    case 'supporttank':
+    case 'supportvtol':
+    case 'vtol':
+    case 'naval':
+      return true;
+    default:
+      return false;
+  }
+}
+
+function vehicleMountLocationFromEquipment(
+  item: AdaptableEquipmentItem,
+): VehicleLocation | VTOLLocation | undefined {
+  const normalized = normalizedKey(
+    stringField(item, 'location', 'mountLocation', 'locationKey'),
+  );
+  if (!normalized) return undefined;
+
+  if (normalized.includes('turret2') || normalized.includes('turretsecond')) {
+    return VehicleLocation.TURRET_2;
+  }
+  if (normalized.includes('turret') || normalized.includes('chin')) {
+    return VehicleLocation.TURRET;
+  }
+  if (normalized.includes('front')) return VehicleLocation.FRONT;
+  if (normalized.includes('left')) return VehicleLocation.LEFT;
+  if (normalized.includes('right')) return VehicleLocation.RIGHT;
+  if (normalized.includes('rear')) return VehicleLocation.REAR;
+  if (normalized.includes('rotor')) return VTOLLocation.ROTOR;
+  if (normalized.includes('body')) return VehicleLocation.BODY;
+  return undefined;
+}
+
+function locationHas(
+  item: AdaptableEquipmentItem,
+  ...needles: readonly string[]
+): boolean {
+  const normalized = normalizedKey(
+    stringField(item, 'location', 'mountLocation', 'locationKey'),
+  );
+  return needles.some((needle) => normalized.includes(normalizedKey(needle)));
+}
+
+function equipmentBooleanField(
+  item: AdaptableEquipmentItem,
+  ...fieldNames: readonly string[]
+): boolean {
+  return fieldNames.some((fieldName) => item[fieldName] === true);
+}
+
+function primaryTurretTypeFromUnitData(
+  unitData: Record<string, unknown>,
+): TurretType | undefined {
+  return (
+    turretTypeFromRecord(recordField(unitData.turret)) ??
+    turretTypeFromRecord(recordField(unitData.chinTurret)) ??
+    defaultTurretTypeForUnitData(unitData)
+  );
+}
+
+function secondaryTurretTypeFromUnitData(
+  unitData: Record<string, unknown>,
+): TurretType | undefined {
+  return turretTypeFromRecord(recordField(unitData.secondaryTurret));
+}
+
+function turretTypeFromRecord(
+  record: Record<string, unknown> | undefined,
+): TurretType | undefined {
+  switch (normalizedKey(stringField(record, 'type', 'turretType'))) {
+    case 'single':
+      return TurretType.SINGLE;
+    case 'dual':
+      return TurretType.DUAL;
+    case 'chin':
+      return TurretType.CHIN;
+    case 'sponsonleft':
+      return TurretType.SPONSON_LEFT;
+    case 'sponsonright':
+      return TurretType.SPONSON_RIGHT;
+    case 'none':
+      return TurretType.NONE;
+    default:
+      return undefined;
+  }
+}
+
+function defaultTurretTypeForUnitData(
+  unitData: Record<string, unknown>,
+): TurretType | undefined {
+  return normalizedKey(stringField(unitData, 'unitType', 'type')).includes(
+    'vtol',
+  )
+    ? TurretType.CHIN
+    : TurretType.SINGLE;
 }
 
 // =============================================================================
@@ -1289,9 +1458,8 @@ export function adaptUnitFromData(
 
   // Equipment / Weapons
   const rawEquipment =
-    (unitData.equipment as { id: string; location: string }[] | undefined) ??
-    [];
-  const weapons = extractWeapons(rawEquipment, fullUnit.id);
+    (unitData.equipment as AdaptableEquipmentItem[] | undefined) ?? [];
+  const weapons = extractWeapons(rawEquipment, fullUnit.id, unitData);
 
   // Movement
   const {

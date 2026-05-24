@@ -5,6 +5,7 @@ import {
 } from '@/utils/gameplay/firingArc';
 import { determineArc } from '@/utils/gameplay/firingArcs';
 import { hexDistance } from '@/utils/gameplay/hexMath';
+import { weaponMountCoversTargetArc } from '@/utils/gameplay/weaponMountArcs';
 
 import type { SeededRandom } from '../core/SeededRandom';
 import type { IAIStructureState, IAIUnitState, IWeapon } from './types';
@@ -205,13 +206,7 @@ function targetArcFromAttacker(
  * weapon's MML location so the arc filter actually applies.
  */
 function weaponCanCoverArc(weapon: IWeapon, targetArc: FiringArc): boolean {
-  if (weapon.mountingArc === undefined) return true;
-  const weaponArc = weapon.mountingArc;
-  if (weaponArc === FiringArc.Front) return targetArc === FiringArc.Front;
-  if (weaponArc === FiringArc.Rear) return targetArc === FiringArc.Rear;
-  if (weaponArc === FiringArc.Left) return targetArc === FiringArc.Left;
-  if (weaponArc === FiringArc.Right) return targetArc === FiringArc.Right;
-  return false;
+  return weaponMountCoversTargetArc(weapon, targetArc);
 }
 
 /**

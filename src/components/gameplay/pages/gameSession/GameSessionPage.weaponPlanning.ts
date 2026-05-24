@@ -28,6 +28,7 @@ export function weaponStatusToPlanningWeapon(status: IWeaponStatus): IWeapon {
     ammoPerTon: inferAmmoPerTon(status),
     destroyed: status.destroyed || Boolean(status.jammed),
     mountingArc: status.mountingArc,
+    mountingArcs: status.mountingArcs,
   };
 }
 

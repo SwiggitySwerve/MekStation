@@ -169,6 +169,13 @@ export interface IWeapon {
   readonly mountingArc?: FiringArc;
 
   /**
+   * Represented multi-arc mount coverage. Used for vehicle sponsons,
+   * unlocked turrets, and other mounts that legitimately cover more than one
+   * chassis arc. Missing means legacy omnidirectional/unknown coverage.
+   */
+  readonly mountingArcs?: readonly FiringArc[];
+
+  /**
    * Per `add-ai-resource-planning` (A2) design D4: optional firing-mode
    * metadata for multi-mode weapons — LB-X autocannons (cluster vs. slug),
    * Ultra / Rotary autocannons (rate of fire). When present,

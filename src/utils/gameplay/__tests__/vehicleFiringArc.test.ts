@@ -112,6 +112,14 @@ describe('vehicleFiringArc', () => {
       expect(r).toEqual([FiringArc.Rear]);
     });
 
+    it('BODY mount -> [Front]', () => {
+      const r = getVehicleWeaponArcs({
+        ...base,
+        mountLocation: VehicleLocation.BODY,
+      });
+      expect(r).toEqual([FiringArc.Front]);
+    });
+
     it('TURRET location without isTurretMounted → empty', () => {
       const r = getVehicleWeaponArcs({
         ...base,

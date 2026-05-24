@@ -262,6 +262,42 @@ describe('HexMapDisplay combat projection', () => {
     );
   });
 
+  it('limits firing-arc overlay to represented multi-arc weapon mounts', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
+
+    render(
+      <HexMapDisplay
+        mapId="combat-map"
+        radius={1}
+        tokens={[selected]}
+        selectedHex={null}
+        unitWeapons={{
+          selected: [
+            makeWeapon({
+              id: 'left-sponson-laser',
+              mountingArcs: [FiringArc.Front, FiringArc.Left],
+            }),
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId('firing-arc-hex-0,-1')).toHaveAttribute(
+      'data-arc',
+      'front',
+    );
+    expect(screen.getByTestId('firing-arc-hex--1,1')).toHaveAttribute(
+      'data-arc',
+      'left-side',
+    );
+    expect(screen.queryByTestId('firing-arc-hex-0,1')).toBeNull();
+  });
+
   it('uses selected weapon ids to constrain range, target, and arc projection', () => {
     const selected = makeToken({
       unitId: 'selected',

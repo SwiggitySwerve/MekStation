@@ -853,6 +853,29 @@ function buildMixedArcWeaponsByUnit(): Map<string, readonly IWeapon[]> {
   ]);
 }
 
+function buildMultiArcWeaponsByUnit(): Map<string, readonly IWeapon[]> {
+  return new Map([
+    [
+      'a1',
+      [
+        {
+          id: 'left-sponson-laser',
+          name: 'Left Sponson Laser',
+          shortRange: 3,
+          mediumRange: 5,
+          longRange: 7,
+          damage: 5,
+          heat: 3,
+          minRange: 0,
+          ammoPerTon: -1,
+          destroyed: false,
+          mountingArcs: [FiringArc.Front, FiringArc.Left],
+        },
+      ],
+    ],
+  ]);
+}
+
 function makeAerospaceCombatState(altitude: number) {
   return createAerospaceCombatState({
     maxSI: 10,
@@ -2100,6 +2123,75 @@ describe('interactive attack projection agreement', () => {
       reason: projection!.attackInvalidReason,
       details: projection!.attackInvalidDetails,
     } satisfies Partial<IAttackInvalidPayload>);
+  });
+
+  it('keeps represented multi-arc weapon mounts aligned between preview and committed attacks', () => {
+    const session = setupSessionAtWeaponAttack();
+    session.currentState.units.a1 = {
+      ...session.currentState.units.a1,
+      facing: Facing.North,
+    };
+    session.currentState.units.t1 = {
+      ...session.currentState.units.t1,
+      position: { q: -1, r: 1 },
+    };
+    const grid = makeClearGrid(3);
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: -1, r: 1 },
+      facing: Facing.North,
+    });
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons: [
+        makeWeaponStatus({
+          id: 'left-sponson-laser',
+          ranges: { short: 3, medium: 5, long: 7 },
+          mountingArcs: [FiringArc.Front, FiringArc.Left],
+        }),
+      ],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === -1 && hex.hex.r === 1);
+
+    expect(projection).toBeDefined();
+    expect(projection).toMatchObject({
+      attackable: true,
+      firingArc: 'left-side',
+      weaponIdsInArc: ['left-sponson-laser'],
+      weaponIdsAvailable: ['left-sponson-laser'],
+    });
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildMultiArcWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['left-sponson-laser'],
+      grid,
+    });
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.weapons).toEqual(projection!.weaponIdsAvailable);
+    expect(payload.range).toBe(projection!.rangeBracket);
+    expect(payload.toHitNumber).toBe(projection!.toHitNumber);
   });
 
   it('uses C3 spotter range brackets in preview and committed attacks', () => {
