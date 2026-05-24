@@ -5,7 +5,10 @@
 
 import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
 import type { IAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
-import type { IC3NetworkState } from '@/utils/gameplay/c3Network';
+import type {
+  IC3EquipmentMountState,
+  IC3NetworkState,
+} from '@/utils/gameplay/c3Network';
 import type { IElectronicWarfareState } from '@/utils/gameplay/electronicWarfare';
 import type { IInfantryCombatState } from '@/utils/gameplay/infantry/state';
 import type { IProtoMechCombatState } from '@/utils/gameplay/protomech/state';
@@ -254,6 +257,12 @@ export interface IUnitGameState {
   readonly hasMASC?: boolean;
   /** Supercharger installed; activation is explicit per combat state/intent. */
   readonly hasSupercharger?: boolean;
+  /**
+   * Mounted C3 equipment projected from catalog/full-unit data. This records
+   * source-backed roles for later network assembly without implying the unit
+   * is already connected to an `IGameState.c3Network`.
+   */
+  readonly c3Equipment?: readonly IC3EquipmentMountState[];
   /** MASC active for this movement declaration. */
   readonly activeMASC?: boolean;
   /** Supercharger active for this movement declaration. */

@@ -1382,6 +1382,9 @@ describe('BattleMech combat feature-gap tracking', () => {
     const calledShotRefs =
       RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['called-shot'].sourceRefs ?? [];
     const c3Refs = RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT.c3.sourceRefs ?? [];
+    const c3EquipmentFormationRefs =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['c3-equipment-network-formation']
+        .sourceRefs ?? [];
     const hullDownRefs =
       RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['hull-down'].sourceRefs ?? [];
     const physicalDfaTargetClassRefs =
@@ -1403,6 +1406,15 @@ describe('BattleMech combat feature-gap tracking', () => {
       'MegaMek Compute.getRangeMods asks ComputeC3Spotter for a valid spotter and applies the best C3 range bracket when it improves the attack range.',
       'MegaMek ComputeC3Spotter returns the first ECM-connected C3 spotter without LOS gating under default rules, while PLAYTEST_3 adds spotter LOS gating.',
     ]);
+    expect(c3EquipmentFormationRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek Compute.getRangeMods asks ComputeC3Spotter for a valid spotter and applies the best C3 range bracket when it improves the attack range.',
+      'MegaMek ComputeC3Spotter returns the first ECM-connected C3 spotter without LOS gating under default rules, while PLAYTEST_3 adds spotter LOS gating.',
+      'MegaMek Entity.hasC3M detects C3 master and boosted master weapon flags while Entity.hasC3S detects C3 slave and boosted slave misc flags.',
+      'MegaMek Entity.hasC3i detects non-inoperable misc equipment carrying the C3i flag.',
+      'MegaMek C3 Master weapon defines standard master lookup names and the C3 master flag.',
+      'MegaMek boosted C3 Master weapon defines boosted master lookup names and the boosted C3 master flag.',
+      'MegaMek MiscType creates C3 Slave, C3i, Boosted Slave, and Battle Armor C3 variants with distinct Mek versus BA equipment flags.',
+    ]);
     expect(hullDownRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek ComputeTerrainMods applies WeaponAttackAction.HullDown as a +2 terrain modifier for hull-down Mek targets with LOS cover.',
     ]);
@@ -1420,6 +1432,7 @@ describe('BattleMech combat feature-gap tracking', () => {
         ...secondaryTargetRefs,
         ...calledShotRefs,
         ...c3Refs,
+        ...c3EquipmentFormationRefs,
         ...hullDownRefs,
         ...physicalDfaTargetClassRefs,
         ...physicalDfaPilotingDifferentialRefs,

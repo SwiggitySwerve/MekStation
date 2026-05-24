@@ -508,7 +508,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'special-weapon-families': helperOnly(
     'special-weapon-families',
     'Special weapon family support catalogs UAC, RAC, LB-X, Streak, MML, NARC, AMS, TAG, and Artemis responsibilities',
-    'Several family-specific mechanics are helper-only until remaining iNarc ECM sensor effects, automatic C3 network formation, AMS defender choice/arc rules, or Artemis exact-link/Nova-network/damage-lifecycle edges are wired',
+    'Several family-specific mechanics are helper-only until remaining iNarc ECM sensor effects, automatic C3 network assembly from hydrated equipment, AMS defender choice/arc rules, or Artemis exact-link/Nova-network/damage-lifecycle edges are wired',
     [
       'featureSupport.specialWeaponFamilies.ultra-ac',
       'featureSupport.specialWeaponFamilies.rotary-ac',
@@ -634,8 +634,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'to-hit-advanced-modifiers': helperOnly(
     'to-hit-advanced-modifiers',
-    'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, ECM, C3, and terrain features, with C3 explicit-state consumption separated from automatic formation gaps',
-    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, target hull-down state, secondary-target state, called-shot state, explicit C3 network state, and non-blocking intervening terrain, but ECM inputs and automatic C3 network formation are still helper-only',
+    'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, ECM, C3, and terrain features, with C3 explicit-state consumption separated from automatic battle-wide network assembly gaps',
+    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, target hull-down state, secondary-target state, called-shot state, explicit C3 network state, mounted C3 equipment roles, and non-blocking intervening terrain, but ECM inputs and automatic C3 network assembly from hydrated equipment are still helper-only',
     TO_HIT_ADVANCED_MODIFIER_SUPPORT_REFS,
   ),
   'terrain-movement-los-cover': integrated(

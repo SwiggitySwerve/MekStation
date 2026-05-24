@@ -108,6 +108,44 @@ const MEGAMEK_C3_RANGE_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_C3_EQUIPMENT_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Entity.hasC3M detects C3 master and boosted master weapon flags while Entity.hasC3S detects C3 slave and boosted slave misc flags.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L6120-L6206`,
+    sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Entity.hasC3i detects non-inoperable misc equipment carrying the C3i flag.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L6296-L6305`,
+    sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek C3 Master weapon defines standard master lookup names and the C3 master flag.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/megamek/src/megamek/common/weapons/c3/ISC3M.java#L54-L82`,
+    sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek boosted C3 Master weapon defines boosted master lookup names and the boosted C3 master flag.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/megamek/src/megamek/common/weapons/c3/ISC3MBS.java#L54-L84`,
+    sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MiscType creates C3 Slave, C3i, Boosted Slave, and Battle Armor C3 variants with distinct Mek versus BA equipment flags.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/megamek/src/megamek/common/equipment/MiscType.java#L4308-L4504`,
+    sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_HULL_DOWN_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -345,9 +383,9 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
   ),
   'c3-equipment-network-formation': helperOnly(
     'c3-equipment-network-formation',
-    'c3Network creation helpers validate C3 master/slave and C3i membership, and runAttackPhase consumes prebuilt IGameState.c3Network state',
-    'Runner/session state builders do not yet derive C3 or C3i network membership automatically from mounted equipment',
-    MEGAMEK_C3_RANGE_SOURCE_REFS,
+    'UnitHydration derives BattleMech mounted C3 master/slave/C3i equipment roles from catalog equipment and critical slots, c3Network creation helpers validate explicit C3 master/slave and C3i membership, and runAttackPhase consumes prebuilt IGameState.c3Network state',
+    'Runner/session state builders do not yet assemble battle-wide C3 or C3i network membership automatically from hydrated mounted equipment',
+    [...MEGAMEK_C3_RANGE_SOURCE_REFS, ...MEGAMEK_C3_EQUIPMENT_SOURCE_REFS],
   ),
   'terrain-features': integrated(
     'terrain-features',

@@ -545,7 +545,7 @@ export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
   narc: helperOnly(
     'narc',
     'isNarc + getNarcBonus + runner NARC hits attach narcedBy + runner iNarc selected-ammo hits attach Homing/ECM/Haywire/Nemesis iNarcPods + DesignatorMarkerApplied replay + indirect-fire NARC/iNARC basis helpers consume canonical marker state + runner direct NARC-compatible missile cluster, iNarc Homing to-hit, iNarc Haywire to-hit, iNarc ECM attacker flight-path Artemis suppression, iNarc ECM C3 disruption, explicit runner C3 range-bracket math, and iNarc Nemesis redirect consume marker state',
-    'Remaining iNarc ECM sensor effects and automatic C3 network formation are not wired into runner combat resolution',
+    'Remaining iNarc ECM sensor effects and automatic C3 network assembly from hydrated equipment are not wired into runner combat resolution',
   ),
   ams: helperOnly(
     'ams',

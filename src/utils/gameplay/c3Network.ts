@@ -29,6 +29,7 @@ export { getC3TargetingBenefit, isBetterBracket } from './c3Network/targeting';
 export type {
   C3NetworkType,
   C3UnitRole,
+  IC3EquipmentMountState,
   IC3Network,
   IC3NetworkState,
   IC3NetworkUnit,

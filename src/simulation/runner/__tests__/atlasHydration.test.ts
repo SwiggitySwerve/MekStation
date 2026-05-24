@@ -42,6 +42,7 @@ import {
   hydrateAIWeaponsFromFullUnitWithReport,
   hydrateArmorFromFullUnit,
   hydrateActiveProbesFromFullUnit,
+  hydrateC3EquipmentFromFullUnit,
   hydrateECMSuitesFromFullUnit,
   hydrateHasMASCFromFullUnit,
   hydrateHasStealthArmorFromFullUnit,
@@ -721,6 +722,105 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
         sourceLocation: 'HEAD',
       },
     ]);
+  });
+
+  it('hydrates BattleMech C3 equipment roles from mounted equipment and critical slots', () => {
+    const c3Unit: IFullUnit = {
+      id: 'synthetic-c3-equipment-hydration-test',
+      chassis: 'Synthetic',
+      variant: 'C3',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3050',
+      unitType: 'BattleMech',
+      equipment: [
+        { id: 'c3-master', location: 'HEAD' },
+        { id: '1-c3-slave', location: 'RIGHT_TORSO,_AMMO:10' },
+        { id: 'ISC3BoostedSystemSlaveUnit', location: 'LEFT_TORSO' },
+        { id: 'C3 Boosted System (Master)', location: 'CENTER_TORSO' },
+        { id: 'Improved C3 Computer (C3I)', location: 'RIGHT_ARM' },
+        { id: 'BattleArmorC3', location: 'BODY' },
+        { id: 'ISBC3i', location: 'BODY' },
+      ],
+      criticalSlots: {
+        LEFT_ARM: ['ISC3MasterUnit', 'IS C3i Computer'],
+      },
+    };
+
+    const c3Equipment = hydrateC3EquipmentFromFullUnit(c3Unit);
+
+    expect(c3Equipment).toEqual([
+      {
+        role: 'master',
+        sourceEquipmentId: 'c3-master',
+        sourceLocation: 'HEAD',
+      },
+      {
+        role: 'slave',
+        sourceEquipmentId: '1-c3-slave',
+        sourceLocation: 'RIGHT_TORSO',
+      },
+      {
+        role: 'slave',
+        sourceEquipmentId: 'ISC3BoostedSystemSlaveUnit',
+        sourceLocation: 'LEFT_TORSO',
+        boosted: true,
+      },
+      {
+        role: 'master',
+        sourceEquipmentId: 'C3 Boosted System (Master)',
+        sourceLocation: 'CENTER_TORSO',
+        boosted: true,
+      },
+      {
+        role: 'c3i',
+        sourceEquipmentId: 'Improved C3 Computer (C3I)',
+        sourceLocation: 'RIGHT_ARM',
+      },
+      {
+        role: 'master',
+        sourceEquipmentId: 'ISC3MasterUnit',
+        sourceLocation: 'LEFT_ARM',
+      },
+      {
+        role: 'c3i',
+        sourceEquipmentId: 'IS C3i Computer',
+        sourceLocation: 'LEFT_ARM',
+      },
+    ]);
+
+    const unitState = createHydratedUnitState({
+      runnerUnitId: 'player-1',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      fullUnit: c3Unit,
+      aiWeapons: [],
+      gunnery: 4,
+      piloting: 5,
+    });
+
+    expect(unitState.c3Equipment).toEqual(c3Equipment);
+  });
+
+  it('does not hydrate Battle Armor C3 entries as BattleMech C3 equipment', () => {
+    const battleArmorUnit: IFullUnit = {
+      id: 'synthetic-battle-armor-c3-hydration-test',
+      chassis: 'Synthetic',
+      variant: 'BA C3',
+      tonnage: 1,
+      techBase: 'Inner Sphere',
+      era: '3073',
+      unitType: 'Battle Armor',
+      equipment: [
+        { id: 'BattleArmorC3', location: 'BODY' },
+        { id: 'ISBC3i', location: 'BODY' },
+      ],
+      criticalSlots: {
+        BODY: ['Battle Armor C3 (BC3)', 'Battle Armor Improved C3 (BC3I)'],
+      },
+    };
+
+    expect(hydrateC3EquipmentFromFullUnit(battleArmorUnit)).toEqual([]);
   });
 
   it('produces a fully-hydrated IUnitGameState with armor / structure / weapons all populated', async () => {

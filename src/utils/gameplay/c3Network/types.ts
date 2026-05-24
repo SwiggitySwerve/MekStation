@@ -10,6 +10,18 @@ export type C3NetworkType = 'master-slave' | 'improved';
 /** Role of a unit within a C3 network */
 export type C3UnitRole = 'master' | 'slave' | 'c3i';
 
+/** Source-backed mounted C3 equipment projected into combat state. */
+export interface IC3EquipmentMountState {
+  /** Network role implied by the mounted C3 equipment. */
+  readonly role: C3UnitRole;
+  /** Original catalog/full-unit equipment id or critical-slot label. */
+  readonly sourceEquipmentId: string;
+  /** Mount location when the catalog source provides one. */
+  readonly sourceLocation?: string;
+  /** Boosted C3 variants retain their explicit equipment distinction. */
+  readonly boosted?: boolean;
+}
+
 /** A unit participating in a C3 network */
 export interface IC3NetworkUnit {
   /** Unit entity ID */

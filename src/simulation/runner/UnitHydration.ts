@@ -26,6 +26,7 @@
  */
 
 import type { IFullUnit } from '@/services/units/CanonicalUnitService';
+import type { IC3EquipmentMountState } from '@/utils/gameplay/c3Network';
 import type { ECMType, IActiveProbe } from '@/utils/gameplay/electronicWarfare';
 
 import {
@@ -94,6 +95,8 @@ export interface IHydratedActiveProbeData {
   readonly sourceEquipmentId: string;
   readonly sourceLocation?: string;
 }
+
+export type IHydratedC3EquipmentData = IC3EquipmentMountState;
 
 // =============================================================================
 // Equipment shape (subset of public/data/units/battlemechs/*.json `equipment`)
@@ -646,6 +649,101 @@ const ACTIVE_PROBE_TYPE_BY_EQUIPMENT_ID: Readonly<
   novacombinedelectronicwarfaresystemcews: 'nova-cews',
 };
 
+interface IC3EquipmentClassification {
+  readonly role: IC3EquipmentMountState['role'];
+  readonly boosted?: boolean;
+}
+
+const C3_EQUIPMENT_BY_ID: Readonly<Record<string, IC3EquipmentClassification>> =
+  {
+    c3master: { role: 'master' },
+    c3mastercomputer: { role: 'master' },
+    c3computermaster: { role: 'master' },
+    isc3computer: { role: 'master' },
+    isc3mastercomputer: { role: 'master' },
+    isc3masterunit: { role: 'master' },
+    c3boostedmaster: { role: 'master', boosted: true },
+    c3boostedsystemmaster: { role: 'master', boosted: true },
+    c3boostedsystemc3bsmaster: { role: 'master', boosted: true },
+    c3bsmaster: { role: 'master', boosted: true },
+    isc3masterboostedsystemunit: { role: 'master', boosted: true },
+    isc3mastercomputerboosted: { role: 'master', boosted: true },
+    c3slave: { role: 'slave' },
+    c3slaveunit: { role: 'slave' },
+    c3computerslave: { role: 'slave' },
+    isc3slave: { role: 'slave' },
+    isc3slaveunit: { role: 'slave' },
+    c3boostedslave: { role: 'slave', boosted: true },
+    c3boostedsystemslave: { role: 'slave', boosted: true },
+    c3boostedsystemc3bsslave: { role: 'slave', boosted: true },
+    c3bsslave: { role: 'slave', boosted: true },
+    isc3boostedsystemslaveunit: { role: 'slave', boosted: true },
+    c3i: { role: 'c3i' },
+    c3iunit: { role: 'c3i' },
+    c3icomputer: { role: 'c3i' },
+    isc3iunit: { role: 'c3i' },
+    isc3icomputer: { role: 'c3i' },
+    isimprovedc3cpu: { role: 'c3i' },
+    improvedc3: { role: 'c3i' },
+    improvedc3computer: { role: 'c3i' },
+    improvedc3computerc3i: { role: 'c3i' },
+  };
+
+function isBattleArmorC3Equipment(id: string): boolean {
+  const normalized = normalizeEquipmentId(id);
+  return (
+    normalized === 'bc3' ||
+    normalized === 'bc3i' ||
+    normalized === 'isbc3i' ||
+    normalized.includes('battlearmorc3') ||
+    normalized.includes('battlearmorimprovedc3')
+  );
+}
+
+function isBattleMechC3EquipmentHost(fullUnit: IFullUnit): boolean {
+  const unitType = (fullUnit as { unitType?: unknown }).unitType;
+  if (typeof unitType !== 'string') return true;
+
+  const normalized = normalizeCriticalSlotText(unitType);
+  return (
+    normalized === 'battlemech' ||
+    normalized === 'omnimech' ||
+    normalized === 'industrialmech'
+  );
+}
+
+function classifyC3Equipment(id: string): IC3EquipmentClassification | null {
+  if (isBattleArmorC3Equipment(id)) return null;
+
+  const normalized = normalizeEquipmentId(id);
+  const mapped = C3_EQUIPMENT_BY_ID[normalized];
+  if (mapped) return mapped;
+
+  if (normalized.includes('c3i') || normalized.includes('improvedc3')) {
+    return { role: 'c3i' };
+  }
+  if (normalized.includes('boosted') && normalized.includes('master')) {
+    return { role: 'master', boosted: true };
+  }
+  if (normalized.includes('boosted') && normalized.includes('slave')) {
+    return { role: 'slave', boosted: true };
+  }
+  if (
+    normalized.includes('c3master') ||
+    (normalized.includes('c3computer') && normalized.includes('master'))
+  ) {
+    return { role: 'master' };
+  }
+  if (
+    normalized.includes('c3slave') ||
+    (normalized.includes('c3computer') && normalized.includes('slave'))
+  ) {
+    return { role: 'slave' };
+  }
+
+  return null;
+}
+
 function classifyECMSuiteEquipment(id: string): ECMType | null {
   const normalized = normalizeEquipmentId(id);
   return (
@@ -730,6 +828,35 @@ export function hydrateActiveProbesFromFullUnit(
   }
 
   return probes;
+}
+
+export function hydrateC3EquipmentFromFullUnit(
+  fullUnit: IFullUnit,
+): readonly IHydratedC3EquipmentData[] {
+  if (!isBattleMechC3EquipmentHost(fullUnit)) return [];
+
+  const equipment: IHydratedC3EquipmentData[] = [];
+  const seen = new Set<string>();
+
+  for (const signal of equipmentSignalsFromFullUnit(fullUnit)) {
+    const classification = classifyC3Equipment(signal.id);
+    if (!classification) continue;
+
+    const key = `${classification.role}:${classification.boosted === true}:${normalizeEquipmentId(signal.id)}:${signal.sourceLocation ?? ''}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    equipment.push({
+      role: classification.role,
+      sourceEquipmentId: signal.id,
+      ...(signal.sourceLocation
+        ? { sourceLocation: signal.sourceLocation }
+        : {}),
+      ...(classification.boosted ? { boosted: true } : {}),
+    });
+  }
+
+  return equipment;
 }
 
 function criticalSlotsFromFullUnit(fullUnit: IFullUnit): CriticalSlotMap {
@@ -1090,6 +1217,7 @@ export function createHydratedUnitState(
   const heatSinks = hydrateHeatSinksFromFullUnit(fullUnit);
   const talons = hydrateTalonStateFromFullUnit(fullUnit);
   const claws = hydrateClawStateFromFullUnit(fullUnit);
+  const c3Equipment = hydrateC3EquipmentFromFullUnit(fullUnit);
 
   return {
     id: runnerUnitId,
@@ -1106,6 +1234,7 @@ export function createHydratedUnitState(
     hasTSM: hydrateHasTSMFromFullUnit(fullUnit),
     hasMASC: hydrateHasMASCFromFullUnit(fullUnit),
     hasSupercharger: hydrateHasSuperchargerFromFullUnit(fullUnit),
+    ...(c3Equipment.length > 0 ? { c3Equipment } : {}),
     partialWingJumpBonus: hydratePartialWingJumpBonusFromFullUnit(fullUnit),
     leftLegHasTalons: talons.leftLegHasTalons,
     rightLegHasTalons: talons.rightLegHasTalons,

@@ -65,7 +65,7 @@
 - [x] 3.1.5 Integrate source-backed selected-ammo iNARC pod variant attachment for Homing, ECM, Haywire, and Nemesis while leaving remaining ECM/Nemesis pod effects helper-only.
 - [x] 3.1.6 Integrate source-backed attacker iNARC ECM flight-path suppression for Artemis IV/prototype IV/V cluster guidance as part of incremental iNARC ECM coverage.
 - [x] 3.1.7 Integrate source-backed iNARC Nemesis redirect for direct confusable missile attacks against friendly intervening Nemesis pod carriers while leaving remaining iNARC ECM helper work explicit.
-- [x] 3.1.8 Integrate source-backed helper-level iNARC ECM C3 disruption while leaving automatic C3 network formation and remaining sensor effects explicit.
+- [x] 3.1.8 Integrate source-backed helper-level iNARC ECM C3 disruption while leaving automatic C3 network assembly from hydrated equipment and remaining sensor effects explicit.
 - [x] 3.1.9 Split static weapon database subset, synthetic Medium Laser fallback, and variable missile damage-string hazards into first-class validation-scope rows referenced by their requirement crosswalks.
 - [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
@@ -87,6 +87,7 @@
 - [x] 3.4.8 Integrate source-backed Dodge Maneuver target to-hit gating through canonical SPA ids, explicit target dodging state, and explicit non-Mek target exclusion.
 - [x] 3.4.9 Split automatic C3 equipment/network formation into a helper-only to-hit row so explicit C3 network consumption cannot overclaim full C3 parity.
 - [x] 3.4.10 Cross-check C3 spotter LOS against MegaMek/Total Warfare default behavior and lock the default no-LOS C3 range-sharing behavior with runner validation.
+- [x] 3.4.11 Hydrate source-backed mounted BattleMech C3 master/slave/C3i equipment roles from catalog equipment and critical slots while leaving battle-wide network assembly explicit.
 - [ ] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -114,3 +115,4 @@
 - [x] 4.3.9 Add structured MegaMek source anchors for Partial Wing jump movement and heat behavior.
 - [x] 4.3.10 Add structured MegaMek source anchors for MASC/Supercharger active run MP and movement failure trigger boundaries.
 - [x] 4.3.11 Add structured MegaMek source anchors for standard MASC/Supercharger fixed failure target numbers and prior-use counters.
+- [x] 4.3.12 Add structured MegaMek source anchors for C3 master/slave/C3i mounted-equipment detection and Battle Armor C3 exclusion.
