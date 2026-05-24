@@ -336,7 +336,11 @@ describe('HexMapDisplay combat projection', () => {
         'weapon options medium-laser short range in arc available',
       ),
     );
-    expect(screen.getByTestId('hex-combat-badge-2-0')).toHaveTextContent('S');
+    expect(screen.getByTestId('hex-combat-badge-2-0')).toHaveTextContent('S2');
+    expect(screen.getByTestId('hex-combat-badge-2-0')).toHaveAttribute(
+      'data-combat-badge-label',
+      'S2',
+    );
     expect(screen.getByTestId('hex-combat-badge-2-0')).toHaveAttribute(
       'aria-label',
       'short range at 2 hexes; attack available; weapons available medium-laser',
@@ -756,10 +760,14 @@ describe('HexMapDisplay combat projection', () => {
     expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
     expect(targetHex).toHaveAttribute('data-weapons-in-range', 'extreme-ac');
     expect(targetHex).toHaveAttribute('data-weapons-available', 'extreme-ac');
-    expect(screen.getByTestId('hex-combat-badge-8-0')).toHaveTextContent('X');
+    expect(screen.getByTestId('hex-combat-badge-8-0')).toHaveTextContent('X8');
     expect(screen.getByTestId('hex-combat-badge-8-0')).toHaveAttribute(
       'aria-label',
       'extreme range at 8 hexes; attack available; weapons available extreme-ac',
+    );
+    expect(screen.getByTestId('hex-combat-badge-8-0')).toHaveAttribute(
+      'data-combat-badge-label',
+      'X8',
     );
   });
 
@@ -937,7 +945,7 @@ describe('HexMapDisplay combat projection', () => {
       'short',
     );
     expect(emptyInRangeHex).not.toHaveAttribute('data-combat-valid-target');
-    expect(screen.getByTestId('hex-combat-badge-1-0')).toHaveTextContent('S');
+    expect(screen.getByTestId('hex-combat-badge-1-0')).toHaveTextContent('S1');
     expect(screen.queryByTestId('hex-combat-los-badge-1-0')).toBeNull();
     expect(screen.queryByTestId('hex-combat-arc-badge-1-0')).toBeNull();
 
@@ -1176,7 +1184,7 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-to-hit-modifiers',
       expect.stringContaining('Range (medium):2'),
     );
-    expect(screen.getByTestId('hex-combat-badge-0-3')).toHaveTextContent('M');
+    expect(screen.getByTestId('hex-combat-badge-0-3')).toHaveTextContent('M3');
     expect(screen.getByTestId('hex-to-hit-badge-0-3')).toHaveTextContent('TN6');
   });
 
@@ -2545,7 +2553,13 @@ describe('HexMapDisplay combat projection', () => {
       'data-tactical-projection-status',
       'blocked',
     );
-    expect(screen.getByTestId('hex-combat-badge-3-0')).toHaveTextContent('OUT');
+    expect(screen.getByTestId('hex-combat-badge-3-0')).toHaveTextContent(
+      'OUT3',
+    );
+    expect(screen.getByTestId('hex-combat-badge-3-0')).toHaveAttribute(
+      'data-combat-badge-label',
+      'OUT3',
+    );
     expect(
       screen.getByTestId('hex-combat-invalid-badge-3-0'),
     ).toHaveTextContent('OUT');

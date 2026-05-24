@@ -411,7 +411,7 @@ describe('HexMapDisplay terrain and elevation labels', () => {
       '1',
     );
     expect(screen.getByTestId('hex-heat-badge-1-0')).toHaveTextContent('+1H');
-    expect(screen.getByTestId('hex-combat-badge-2-0')).toHaveTextContent('S');
+    expect(screen.getByTestId('hex-combat-badge-2-0')).toHaveTextContent('S2');
     expect(screen.getByTestId('hex-combat-los-badge-2-0')).toHaveTextContent(
       'LOS',
     );

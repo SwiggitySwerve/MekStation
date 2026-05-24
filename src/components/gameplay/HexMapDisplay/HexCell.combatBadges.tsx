@@ -28,6 +28,13 @@ function formatRangeBracketLabel(bracket: RangeBracket): string {
   }
 }
 
+function formatCombatRangeBadgeLabel(combatInfo: ICombatRangeHex): string {
+  const distance = Number.isFinite(combatInfo.distance)
+    ? combatInfo.distance
+    : '?';
+  return `${formatRangeBracketLabel(combatInfo.rangeBracket)}${distance}`;
+}
+
 function formatCombatLOSBadgeLabel(combatInfo: ICombatRangeHex): string {
   switch (combatInfo.losState) {
     case 'clear':
@@ -386,6 +393,8 @@ export function CombatRangeBadge({
   const hasToHitNumber = combatInfo.toHitNumber !== undefined;
   const weaponAvailability = weaponOptionAvailabilityCount(combatInfo);
   const hasWeaponOptionCount = weaponAvailability.total > 1;
+  const rangeLabel = formatCombatRangeBadgeLabel(combatInfo);
+  const rangeBadgeWidth = Math.max(28, rangeLabel.length * 5.4 + 10);
   const combatSummary = formatCombatBadgeSummary(combatInfo);
   const weaponAvailabilityTitle = formatWeaponAvailabilityTitle(combatInfo);
   const indirectTitle = combatInfo.indirectFireReason ?? 'Indirect fire';
@@ -404,6 +413,7 @@ export function CombatRangeBadge({
       data-testid={`hex-combat-badge-${hex.q}-${hex.r}`}
       aria-label={combatSummary}
       data-combat-badge-range={combatInfo.rangeBracket}
+      data-combat-badge-label={rangeLabel}
       data-combat-badge-distance={combatInfo.distance}
       data-combat-badge-attackable={combatInfo.attackable ? 'true' : 'false'}
       data-combat-badge-weapons-available={combatInfo.weaponIdsAvailable.join(
@@ -503,9 +513,9 @@ export function CombatRangeBadge({
         </g>
       )}
       <rect
-        x={x - 14}
+        x={x - rangeBadgeWidth / 2}
         y={y + 19}
-        width={28}
+        width={rangeBadgeWidth}
         height={12}
         rx={3}
         fill={combatInfo.attackable ? '#991b1b' : '#7f1d1d'}
@@ -519,7 +529,7 @@ export function CombatRangeBadge({
         fontWeight="bold"
         fill="#fef2f2"
       >
-        {formatRangeBracketLabel(combatInfo.rangeBracket)}
+        {rangeLabel}
       </text>
       <CombatGeometryBadges x={x} y={y} hex={hex} combatInfo={combatInfo} />
       <CombatVisibilityBadge x={x} y={y} hex={hex} combatInfo={combatInfo} />
