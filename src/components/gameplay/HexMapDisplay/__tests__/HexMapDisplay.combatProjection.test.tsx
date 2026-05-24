@@ -639,6 +639,29 @@ describe('HexMapDisplay combat projection', () => {
       'Impact: +4 heat; ammo AC/5 -1 (11 left); damage 10 listed',
     );
     expect(
+      screen.getByTestId('hex-combat-tooltip-weapon-impact-detail'),
+    ).toHaveTextContent(
+      'Weapon impact detail: Medium Laser: +3 heat, 5 damage; AC/5: +1 heat, 5 damage, ammo -1 (11 left)',
+    );
+    expect(
+      screen.getByTestId('hex-combat-tooltip-weapon-impact-detail'),
+    ).toHaveAttribute('data-combat-weapon-impact-ids', 'medium-laser|ac-5');
+    expect(
+      screen.getByTestId('hex-combat-tooltip-weapon-impact-detail'),
+    ).toHaveAttribute('data-combat-weapon-impact-names', 'Medium Laser|AC/5');
+    expect(
+      screen.getByTestId('hex-combat-tooltip-weapon-impact-detail'),
+    ).toHaveAttribute('data-combat-weapon-impact-heats', '3|1');
+    expect(
+      screen.getByTestId('hex-combat-tooltip-weapon-impact-detail'),
+    ).toHaveAttribute('data-combat-weapon-impact-damages', '5|5');
+    expect(
+      screen.getByTestId('hex-combat-tooltip-weapon-impact-detail'),
+    ).toHaveAttribute('data-combat-weapon-impact-ammo-consumed', '0|1');
+    expect(
+      screen.getByTestId('hex-combat-tooltip-weapon-impact-detail'),
+    ).toHaveAttribute('data-combat-weapon-impact-ammo-remaining-after', '|11');
+    expect(
       screen.getByTestId('hex-combat-tooltip-weapon-impact'),
     ).toHaveTextContent('expected');
   });
@@ -714,6 +737,29 @@ describe('HexMapDisplay combat projection', () => {
     ).toHaveTextContent(
       'Impact: +1 heat; ammo AC/5 -1 (7 left); damage 5 listed',
     );
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-weapon-impact-detail'),
+    ).toHaveTextContent(
+      'Weapon impact detail: AC/5: +1 heat, 5 damage, ammo -1 (7 left)',
+    );
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-weapon-impact-detail'),
+    ).toHaveAttribute('data-combat-weapon-impact-ids', 'ac-5');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-weapon-impact-detail'),
+    ).toHaveAttribute('data-combat-weapon-impact-names', 'AC/5');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-weapon-impact-detail'),
+    ).toHaveAttribute('data-combat-weapon-impact-heats', '1');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-weapon-impact-detail'),
+    ).toHaveAttribute('data-combat-weapon-impact-damages', '5');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-weapon-impact-detail'),
+    ).toHaveAttribute('data-combat-weapon-impact-ammo-consumed', '1');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-weapon-impact-detail'),
+    ).toHaveAttribute('data-combat-weapon-impact-ammo-remaining-after', '7');
     expect(
       screen.getByTestId('hex-tactical-tooltip-combat-weapon-options'),
     ).toHaveTextContent('Weapon options: ac-5: short range, in arc; available');
