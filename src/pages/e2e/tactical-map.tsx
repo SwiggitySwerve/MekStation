@@ -53,6 +53,18 @@ const tokens: readonly IUnitToken[] = [
     isValidTarget: true,
     unitType: TokenUnitType.Mech,
   },
+  {
+    unitId: 'medium-target',
+    name: 'Wasp WSP-1A',
+    designation: 'WSP',
+    position: { q: 1, r: 2 },
+    facing: Facing.Southwest,
+    side: GameSide.Opponent,
+    isDestroyed: false,
+    isSelected: false,
+    isValidTarget: true,
+    unitType: TokenUnitType.Mech,
+  },
 ];
 
 const hexTerrain: readonly IHexTerrain[] = [

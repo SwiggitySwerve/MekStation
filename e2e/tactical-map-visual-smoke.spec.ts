@@ -176,6 +176,41 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-combat-badge-distance',
       '1',
     );
+    const mediumTargetHex = page.getByTestId('hex-1-2');
+    await expect(mediumTargetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'medium-target',
+    );
+    await expect(mediumTargetHex).toHaveAttribute(
+      'data-combat-range-bracket',
+      'medium',
+    );
+    await expect(mediumTargetHex).toHaveAttribute('data-combat-distance', '4');
+    await expect(mediumTargetHex).toHaveAttribute(
+      'data-combat-valid-target',
+      'true',
+    );
+    const mediumCombatBadge = page.getByTestId('hex-combat-badge-1-2');
+    await expect(mediumCombatBadge).toHaveAttribute(
+      'data-combat-badge-range',
+      'medium',
+    );
+    await expect(mediumCombatBadge).toHaveAttribute(
+      'data-combat-badge-label',
+      'M4',
+    );
+    await expect(mediumCombatBadge).toHaveAttribute(
+      'data-combat-badge-weapons-available',
+      'medium-laser',
+    );
+    await expect(mediumCombatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-ranges',
+      'medium-laser:medium',
+    );
+    await expect(mediumCombatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-availability',
+      'medium-laser:available',
+    );
     const blockedTargetHex = page.getByTestId('hex-2-0');
     await expect(blockedTargetHex).toHaveAttribute(
       'data-combat-target-ids',

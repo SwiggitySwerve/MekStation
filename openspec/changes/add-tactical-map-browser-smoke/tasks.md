@@ -23,6 +23,8 @@
   blocker metadata and an invalid combat badge.
 - [x] 2.8 Add browser coverage proving a reachable movement hex can expose a
   blocked movement-mode option with a separate non-color blocked-options badge.
+- [x] 2.9 Add browser coverage proving a target at medium weapon range exposes
+  distance, range-band, and available weapon option metadata.
 
 ## 3. Validation
 
@@ -39,3 +41,5 @@
   metadata.
 - [x] 3.8 Focused Playwright smoke passes with mixed reachable/blocked movement
   option metadata.
+- [x] 3.9 Focused Playwright smoke passes with medium-range combat target
+  metadata.

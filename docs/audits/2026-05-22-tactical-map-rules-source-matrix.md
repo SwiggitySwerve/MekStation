@@ -68,6 +68,12 @@ and invalid combat badge in the same real SVG surface. Remaining browser combat
 gaps are broader LOS terrain families and special range-mode sweeps beyond the
 smoke harness.
 
+2026-05-24 medium-range combat browser update: the tactical-map browser harness
+now also renders a target at four hexes and verifies that the top-down hex and
+combat badge expose the medium range band, distance, available weapon id, and
+per-weapon range option metadata. Remaining browser combat gaps are special
+range-mode sweeps beyond the smoke harness.
+
 2026-05-24 movement gap update: the movement row's older frogman/swim and
 TacOps infantry pavement-bonus gaps are closed by the current
 `tactical-map-interface` spec and fixtures. Remaining movement oracle gaps are
