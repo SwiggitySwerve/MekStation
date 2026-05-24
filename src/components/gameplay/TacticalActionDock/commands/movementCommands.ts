@@ -69,6 +69,14 @@ const MovementWalkCommand: ITacticalCommand = {
     if (locked) {
       return { available: false, reason: locked.details };
     }
+    const modeUnavailable = movementModeUnavailableReason(
+      ctx,
+      MovementType.Walk,
+      'walk',
+    );
+    if (modeUnavailable) {
+      return { available: false, reason: modeUnavailable };
+    }
     return { available: true };
   },
   commit() {
@@ -93,6 +101,14 @@ const MovementRunCommand: ITacticalCommand = {
     if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
     const locked = movementDeclarationLockInvalidState(ctx.activeUnitLockState);
     if (locked) return { available: false, reason: locked.details };
+    const modeUnavailable = movementModeUnavailableReason(
+      ctx,
+      MovementType.Run,
+      'run',
+    );
+    if (modeUnavailable) {
+      return { available: false, reason: modeUnavailable };
+    }
     return { available: true };
   },
   commit() {
@@ -115,8 +131,13 @@ const MovementJumpCommand: ITacticalCommand = {
     if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
     const locked = movementDeclarationLockInvalidState(ctx.activeUnitLockState);
     if (locked) return { available: false, reason: locked.details };
-    if (ctx.movementCapability && ctx.movementCapability.jumpMP <= 0) {
-      return { available: false, reason: 'No jump capability.' };
+    const modeUnavailable = movementModeUnavailableReason(
+      ctx,
+      MovementType.Jump,
+      'jump',
+    );
+    if (modeUnavailable) {
+      return { available: false, reason: modeUnavailable };
     }
     if (ctx.activeUnitProne === true) {
       return {
@@ -130,6 +151,27 @@ const MovementJumpCommand: ITacticalCommand = {
     return { actionId: 'lock', payload: { mode: 'jump' } };
   },
 };
+
+function movementModeUnavailableReason(
+  ctx: ITacticalCommandContext,
+  movementType: MovementType,
+  label: 'walk' | 'run' | 'jump',
+): string | null {
+  if (!ctx.movementCapability) return null;
+
+  const rawMP = getMaxMP(ctx.movementCapability, movementType);
+  if (rawMP <= 0) return `No ${label} capability.`;
+
+  const heatPenalty = getHeatMovementPenalty(ctx.activeUnitHeat ?? 0);
+  const effectiveMP = getMaxMP(
+    ctx.movementCapability,
+    movementType,
+    heatPenalty,
+  );
+  if (effectiveMP <= 0) return `Heat penalty leaves no ${label} MP.`;
+
+  return null;
+}
 
 const MovementStandCommand: ITacticalCommand = {
   id: 'movement.stand',

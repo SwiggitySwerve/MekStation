@@ -96,6 +96,46 @@ describe('movementCommands', () => {
     }
   });
 
+  it('walk/run/jump are disabled when heat-reduced MP leaves no budget', () => {
+    const ctx = makeCtx({
+      activeUnitProne: false,
+      activeUnitHeat: 30,
+      movementCapability: { walkMP: 4, runMP: 6, jumpMP: 4 },
+    });
+
+    expect(
+      commands.find((c) => c.id === 'movement.walk')!.availability(ctx),
+    ).toEqual({
+      available: false,
+      reason: 'Heat penalty leaves no walk MP.',
+    });
+    expect(
+      commands.find((c) => c.id === 'movement.run')!.availability(ctx),
+    ).toEqual({
+      available: false,
+      reason: 'Heat penalty leaves no run MP.',
+    });
+    expect(
+      commands.find((c) => c.id === 'movement.jump')!.availability(ctx),
+    ).toEqual({
+      available: false,
+      reason: 'Heat penalty leaves no jump MP.',
+    });
+  });
+
+  it('walk/run remain legacy-available when no movement capability is supplied', () => {
+    expect(
+      commands
+        .find((c) => c.id === 'movement.walk')!
+        .availability(makeCtx({ movementCapability: null })),
+    ).toEqual({ available: true });
+    expect(
+      commands
+        .find((c) => c.id === 'movement.run')!
+        .availability(makeCtx({ movementCapability: null })),
+    ).toEqual({ available: true });
+  });
+
   it('cancel still indicates the disabled-reason when there is no unit', () => {
     const cancel = commands.find((c) => c.id === 'movement.cancel')!;
     const result = cancel.availability(makeCtx({ activeUnitId: null }));

@@ -103,6 +103,33 @@ describe('HexContextMenu', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
+  it('does not dispatch heat-blocked movement modes from the hex menu', () => {
+    const onAction = jest.fn();
+    const onClose = jest.fn();
+    render(
+      <HexContextMenu
+        hex={{ q: 3, r: 4 }}
+        ctx={makeCtx({
+          activeUnitHeat: 30,
+          movementCapability: { walkMP: 4, runMP: 6, jumpMP: 4 },
+        })}
+        shellMode="combat"
+        anchor={{ x: 100, y: 100 }}
+        onClose={onClose}
+        onAction={onAction}
+      />,
+    );
+
+    const run = screen.getByTestId('hex-menu-item-movement.run');
+    expect(run).toBeDisabled();
+    expect(
+      screen.getByTestId('hex-menu-item-reason-movement.run'),
+    ).toHaveTextContent('Heat penalty leaves no run MP.');
+    fireEvent.click(run);
+    expect(onAction).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
   it('Escape closes the menu', () => {
     const onClose = jest.fn();
     render(

@@ -244,6 +244,30 @@ describe('TacticalActionDock', () => {
     expect(onAction).not.toHaveBeenCalled();
   });
 
+  it('disables movement modes when heat leaves no effective MP', () => {
+    const onAction = jest.fn();
+    render(
+      <TacticalActionDock
+        ctx={makeCtx({
+          activeUnitProne: false,
+          activeUnitHeat: 30,
+          movementCapability: { walkMP: 4, runMP: 6, jumpMP: 4 },
+        })}
+        shellMode="combat"
+        onAction={onAction}
+      />,
+    );
+
+    const run = screen.getByTestId('command-btn-movement.run');
+    expect(run).toBeDisabled();
+    fireEvent.mouseEnter(run.parentElement!);
+    expect(
+      screen.getByTestId('command-disabled-reason-movement.run'),
+    ).toHaveTextContent('Heat penalty leaves no run MP.');
+    fireEvent.click(run);
+    expect(onAction).not.toHaveBeenCalled();
+  });
+
   it('disabled command exposes aria-describedby for screen readers', () => {
     const onAction = jest.fn();
     render(
