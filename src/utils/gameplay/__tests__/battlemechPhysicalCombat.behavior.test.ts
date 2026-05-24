@@ -983,6 +983,28 @@ describe('BattleMech physical combat behavior validation lane', () => {
         ?.restrictionsFailed,
     ).toEqual(['TargetNotMek']);
 
+    const gunEmplacementTargetOptions = getEligiblePhysicalAttacks(
+      attacker,
+      unitState(
+        'target',
+        GameSide.Opponent,
+        { q: 1, r: 0 },
+        { unitType: 'Gun Emplacement' },
+      ),
+      {
+        attackerTonnage: 80,
+        attackerPilotingSkill: 5,
+        targetTonnage: 75,
+        attackerRanThisTurn: true,
+      },
+    );
+
+    expect(
+      gunEmplacementTargetOptions.find(
+        (option) => option.attackType === 'charge',
+      )?.restrictionsFailed,
+    ).toEqual(['TargetNotMek']);
+
     const proneTargetOptions = getEligiblePhysicalAttacks(
       attacker,
       unitState('target', GameSide.Opponent, { q: 1, r: 0 }, { prone: true }),
@@ -1328,6 +1350,38 @@ describe('BattleMech physical combat behavior validation lane', () => {
       hit: false,
       location: 'TargetNotMek',
     });
+
+    const gunEmplacementTarget = declarePhysicalAttack(
+      withPhysicalPositions(
+        physicalPhaseSession(),
+        {
+          movementThisTurn: MovementType.Run,
+          hexesMovedThisTurn: 5,
+        },
+        { unitType: 'Gun Emplacement' },
+      ),
+      'attacker',
+      'target',
+      'charge',
+      physicalContext({ attackerRanThisTurn: true, hexesMoved: 5 }),
+    );
+    const gunEmplacementTargetPayload = gunEmplacementTarget.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(
+      gunEmplacementTarget.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toHaveLength(0);
+    expect(gunEmplacementTargetPayload).toMatchObject({
+      attackType: 'charge',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetNotMek',
+    });
+    expect(gunEmplacementTargetPayload.automaticHit).toBeUndefined();
   });
 
   it('rejects non-Mek charge declarations against infantry or ProtoMech targets', () => {

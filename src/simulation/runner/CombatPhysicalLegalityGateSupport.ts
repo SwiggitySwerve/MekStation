@@ -382,7 +382,7 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
   'charge.target-mek-standing': integrated(
     'charge.target-mek-standing',
     'charge',
-    'canCharge consumes attackerUnitType, targetUnitType, and targetProne; BattleMech-compatible attackers reject explicit non-Mek targets as TargetNotMek and prone targets as TargetProne through eligibility, event-sourced declaration, and runner resolution inputs',
+    'canCharge consumes attackerUnitType, targetUnitType, targetObjectType, and targetProne; BattleMech-compatible attackers reject explicit non-Mek or gun-emplacement targets as TargetNotMek and prone targets as TargetProne through eligibility, event-sourced declaration, and runner resolution inputs',
     CHARGE_ACTION_LINES,
   ),
   'charge.no-infantry-protomek': integrated(
@@ -413,7 +413,7 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'charge.building-auto-hit',
     'charge',
     'canCharge rejects explicit building and fuel-tank targetObjectType values as InvalidPhysicalTarget because MegaMek ChargeAttackAction returns Invalid Target for non-entity targets before its later adjacent-building branch',
-    'Runtime non-unit physical target declarations remain unsupported; BattleMech charge against gun emplacements remains rejected as a non-Mek target by source order',
+    'Runtime non-unit physical target declarations remain unsupported; gun-emplacement charge rejection is covered by charge.target-mek-standing',
     CHARGE_ACTION_LINES,
   ),
   'dfa.requires-jump': integrated(

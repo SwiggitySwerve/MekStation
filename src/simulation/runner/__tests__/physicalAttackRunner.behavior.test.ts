@@ -960,6 +960,45 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       r: 0,
     });
 
+    const gunEmplacementTarget = runPhase('charge', {
+      attacker: {
+        movementThisTurn: MovementType.Run,
+        hexesMovedThisTurn: 5,
+      },
+      target: { unitType: 'Gun Emplacement' },
+    });
+    const gunEmplacementResolved = resolvedPayload(gunEmplacementTarget.events);
+
+    expect(gunEmplacementResolved).toMatchObject({
+      attackType: 'charge',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'TargetNotMek',
+    });
+    expect(gunEmplacementResolved.automaticHit).toBeUndefined();
+    expect(
+      damageEventsFor(gunEmplacementTarget.events, 'opponent-1'),
+    ).toHaveLength(0);
+    expect(
+      damageEventsFor(gunEmplacementTarget.events, 'player-1'),
+    ).toHaveLength(0);
+    expect(
+      gunEmplacementTarget.result.units['opponent-1'].pendingPSRs,
+    ).toHaveLength(0);
+    expect(
+      gunEmplacementTarget.result.units['player-1'].pendingPSRs,
+    ).toHaveLength(0);
+    expect(gunEmplacementTarget.result.units['opponent-1'].position).toEqual({
+      q: 1,
+      r: 0,
+    });
+    expect(gunEmplacementTarget.result.units['player-1'].position).toEqual({
+      q: 0,
+      r: 0,
+    });
+
     const proneTarget = runPhase('charge', {
       attacker: {
         movementThisTurn: MovementType.Run,

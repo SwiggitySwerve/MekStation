@@ -147,7 +147,13 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **WHEN** the physical to-hit and resolution helpers run
 - **THEN** the attack SHALL resolve as an automatic hit without consuming to-hit dice
 - **AND** the resolved event SHALL carry automatic-hit metadata
-- **AND** BattleMech charge against gun emplacements SHALL remain rejected as a non-Mek target by source order
+
+#### Scenario: Charge rejects gun-emplacement targets by standing-Mek source order
+
+- **GIVEN** a BattleMech-compatible attacker declares a charge against an adjacent gun emplacement
+- **WHEN** the charge legality gate runs through helper, eligibility, event-sourced declaration, or runner resolution inputs
+- **THEN** the charge SHALL be rejected with `TargetNotMek`
+- **AND** no automatic-hit metadata, damage, displacement, or PSR side effects SHALL be emitted
 
 #### Scenario: Charge rejects invalid standing-Mek target gates
 
