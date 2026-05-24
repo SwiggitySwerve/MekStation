@@ -87,14 +87,19 @@ export const BattleArmorToken = React.memo(function BattleArmorToken({
       : 'transparent';
 
   if (mountedBadge) {
-    // Compact badge variant — small rounded rect with trooper count.
+    // Compact badge variant: small host-owned label with trooper count + squad ID.
     return (
-      <g data-testid={`ba-badge-${token.unitId}`}>
+      <g
+        data-testid={`ba-badge-${token.unitId}`}
+        data-ba-passenger-name={token.name}
+        data-ba-passenger-designation={token.designation}
+        data-ba-passenger-troopers={count}
+      >
         <rect
-          x={-12}
-          y={-8}
-          width={24}
-          height={16}
+          x={-16}
+          y={-12}
+          width={32}
+          height={24}
           rx={4}
           fill={isDestroyed ? HEX_COLORS.destroyedToken : dotColor}
           stroke="#1e293b"
@@ -102,12 +107,21 @@ export const BattleArmorToken = React.memo(function BattleArmorToken({
         />
         <text
           textAnchor="middle"
-          fontSize={8}
+          fontSize={7}
           fontWeight="bold"
           fill="white"
-          dy={3}
+          y={-2}
         >
           BA×{count}
+        </text>
+        <text
+          textAnchor="middle"
+          fontSize={6}
+          fontWeight="bold"
+          fill="white"
+          y={7}
+        >
+          {token.designation}
         </text>
       </g>
     );

@@ -245,7 +245,7 @@ describe('UnitTokenForType dispatcher routing', () => {
 describe('BattleArmor mounted-on-mech badge', () => {
   const noop = jest.fn();
 
-  it('renders ba-badge testid when mountedOn is set and host token is present', () => {
+  it('renders a mounted BA badge as a child of the host token', () => {
     const hostToken = makeToken({
       unitId: 'mech-host',
       unitType: TokenUnitType.Mech,
@@ -273,27 +273,70 @@ describe('BattleArmor mounted-on-mech badge', () => {
       </>,
     );
 
-    // Badge variant renders inside unit-token-ba-1 with data-testid="ba-badge-ba-1".
+    const hostWrapper = screen.getByTestId('unit-token-mech-host');
+    const baWrapper = screen.getByTestId('unit-token-ba-1');
+
+    expect(hostWrapper).toContainElement(baWrapper);
     expect(screen.getByTestId('ba-badge-ba-1')).toBeInTheDocument();
-    expect(screen.getByTestId('unit-token-ba-1')).toHaveAttribute(
+    expect(baWrapper).toHaveAttribute(
       'data-unit-type',
       TokenUnitType.BattleArmor,
     );
-    expect(screen.getByTestId('unit-token-ba-1')).toHaveAttribute(
-      'data-mounted-on',
-      'mech-host',
-    );
-    expect(screen.getByTestId('unit-token-ba-1')).toHaveAttribute(
-      'data-token-map-position',
-      '0,0',
-    );
-    expect(screen.getByTestId('unit-token-ba-1')).toHaveAttribute(
-      'data-token-source-position',
-      '2,0',
-    );
-    expect(screen.getByTestId('unit-token-ba-1')).toHaveAttribute(
+    expect(baWrapper).toHaveAttribute('data-mounted-on', 'mech-host');
+    expect(baWrapper).toHaveAttribute('data-passenger-host', 'mech-host');
+    expect(baWrapper).toHaveAttribute('data-passenger-slot', 'shoulder');
+    expect(baWrapper).toHaveAttribute('data-token-map-position', '0,0');
+    expect(baWrapper).toHaveAttribute('data-token-source-position', '2,0');
+    expect(baWrapper.getAttribute('transform')).toContain('translate(18, -18)');
+    expect(baWrapper).toHaveAttribute(
       'aria-label',
       expect.stringContaining('mounted on mech-host'),
+    );
+    expect(baWrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('passenger slot shoulder'),
+    );
+    expect(screen.getByTestId('ba-badge-ba-1')).toHaveAttribute(
+      'data-ba-passenger-name',
+      'Test Unit',
+    );
+  });
+
+  it('uses passengerBadge host and slot metadata when provided', () => {
+    const hostToken = makeToken({
+      unitId: 'mech-host',
+      unitType: TokenUnitType.Mech,
+    });
+    const baToken = makeToken({
+      unitId: 'ba-back',
+      unitType: TokenUnitType.BattleArmor,
+      position: { q: 2, r: 0 },
+      trooperCount: 2,
+      passengerBadge: { hostTokenId: 'mech-host', slot: 'back' },
+    });
+
+    renderInSvg(
+      <UnitTokenForType
+        token={hostToken}
+        onClick={noop}
+        allTokens={[hostToken, baToken]}
+      />,
+    );
+
+    const baWrapper = screen.getByTestId('unit-token-ba-back');
+    expect(screen.getByTestId('unit-token-mech-host')).toContainElement(
+      baWrapper,
+    );
+    expect(baWrapper).toHaveAttribute('data-passenger-host', 'mech-host');
+    expect(baWrapper).toHaveAttribute('data-passenger-slot', 'back');
+    expect(baWrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('passenger slot back'),
+    );
+    expect(baWrapper.getAttribute('transform')).toContain('translate(-18, 18)');
+    expect(screen.getByTestId('ba-badge-ba-back')).toHaveAttribute(
+      'data-ba-passenger-troopers',
+      '2',
     );
   });
 

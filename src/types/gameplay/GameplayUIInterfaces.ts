@@ -209,6 +209,13 @@ export enum InfantryTokenSpecialization {
 
 export type UnitFogStatus = 'visible' | 'hidden' | 'lastKnown';
 
+export type BattleArmorPassengerBadgeSlot = 'shoulder' | 'side' | 'back';
+
+export interface IBattleArmorPassengerBadge {
+  readonly hostTokenId: string;
+  readonly slot: BattleArmorPassengerBadgeSlot;
+}
+
 /**
  * Visual token shared base — fields common to every per-type variant.
  *
@@ -323,9 +330,17 @@ export interface IBattleArmorToken extends IUnitTokenBase {
   /**
    * ID of the unit this BA is mounted on. When set, the BA token renders
    * as a passenger badge on the host mech rather than a standalone token.
-   * TODO: wire from battlearmor combat-behavior proposal.
+   *
+   * @spec openspec/changes/add-battle-armor-combat/specs/battle-armor-combat/spec.md
+   *       Mounted-Trooper Passenger Badge
    */
   readonly mountedOn?: string;
+  /**
+   * Renderer hint for the host token badge slot. `mountedOn` remains the
+   * rules-state relationship; this optional hint lets the map place multiple
+   * BA passengers around the host without changing the underlying rules state.
+   */
+  readonly passengerBadge?: IBattleArmorPassengerBadge;
   /** Number of surviving troopers (1–6), projected from combatState. */
   readonly trooperCount: number;
   /** Is jump / UMU movement active this turn? */

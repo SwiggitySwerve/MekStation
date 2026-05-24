@@ -150,8 +150,8 @@ describe('BattleArmorToken mounted-badge variant', () => {
         mountedBadge
       />,
     );
-    // Badge variant is a single <rect>+<text>; no individual pip circles with
-    // cx attributes.
+    // Badge variant is a compact label; no individual pip circles with cx
+    // attributes.
     expect(countPipCircles(container)).toBe(0);
   });
 });

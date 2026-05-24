@@ -591,6 +591,13 @@ marks attackable therefore receive matching arc shading instead of appearing
 outside the selected weapon's envelope; weapons without represented extreme
 range continue to cap the overlay at long range.
 
+Additional battle-armor passenger map pin: mounted BA tokens now have an
+explicit `passengerBadge` render hint and, when the host token is present,
+render as child badges owned by the host token group instead of standalone
+tokens at their source hex. The rules-state relationship remains
+`mountedOn`; the badge slot is presentation-only and keeps future transport or
+swarm logic from needing a parallel UI-only attachment model.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

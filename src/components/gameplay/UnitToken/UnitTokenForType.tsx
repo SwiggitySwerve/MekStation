@@ -4,7 +4,7 @@
  * Receives a single `IUnitToken` and routes to the correct per-type renderer
  * based on `token.unitType`. Handles:
  *   - Event projection (shared across all renderers)
- *   - BattleArmor "mounted-on-mech" badge positioning
+ *   - BattleArmor passenger badges owned by host token groups
  *   - Pixel-coordinate translation from hex coords
  *   - Click handler delegation
  *
@@ -29,6 +29,13 @@ import { MovementType, TokenUnitType } from '@/types/gameplay';
 import type { IsometricVisibilityRule } from './UnitTokenForType.effects';
 
 import { AerospaceToken } from './AerospaceToken';
+import {
+  BattleArmorPassengerBadges,
+  battleArmorPassengerHostId,
+  battleArmorPassengerSlot,
+  findBattleArmorPassengerHost,
+  isBattleArmorPassengerToken,
+} from './BattleArmorPassengerBadges';
 import { BattleArmorToken } from './BattleArmorToken';
 import { InfantryToken } from './InfantryToken';
 import { MechToken } from './MechToken';
@@ -75,8 +82,9 @@ export interface UnitTokenForTypeProps {
   isometricVisibilityRule?: IsometricVisibilityRule;
   isometricVisibilityRuleReason?: string;
   /**
-   * All tokens on the map — used to locate the host mech when BA is mounted.
-   * Only the token whose `unitId === baToken.mountedOn` is consulted.
+   * All tokens on the map. Host tokens render mounted BA passengers as child
+   * badges, and mounted BA tokens suppress their standalone wrapper when their
+   * host is present.
    */
   allTokens?: readonly IUnitToken[];
 }
@@ -103,10 +111,16 @@ function tokenTypeStateMetadata(token: IUnitToken): TokenWrapperMetadata {
         'data-aerospace-altitude': token.altitude,
         'data-aerospace-velocity': token.velocity,
       };
-    case TokenUnitType.BattleArmor:
+    case TokenUnitType.BattleArmor: {
+      const passengerHostId = battleArmorPassengerHostId(token);
       return {
         'data-mounted-on': token.mountedOn,
+        'data-passenger-host': passengerHostId,
+        'data-passenger-slot': passengerHostId
+          ? battleArmorPassengerSlot(token)
+          : undefined,
       };
+    }
     case TokenUnitType.Vehicle:
       return {
         'data-vehicle-motion-type': token.vehicleMotionType,
@@ -138,8 +152,14 @@ function tokenTypeLabelParts(token: IUnitToken): readonly string[] {
         parts.push(`velocity ${token.velocity}`);
       return parts;
     }
-    case TokenUnitType.BattleArmor:
-      return token.mountedOn ? [`mounted on ${token.mountedOn}`] : [];
+    case TokenUnitType.BattleArmor: {
+      const passengerHostId = battleArmorPassengerHostId(token);
+      if (!passengerHostId) return [];
+      return [
+        `mounted on ${passengerHostId}`,
+        `passenger slot ${battleArmorPassengerSlot(token)}`,
+      ];
+    }
     case TokenUnitType.Vehicle:
       return token.vehicleMotionType
         ? [`motion ${token.vehicleMotionType}`]
@@ -259,43 +279,13 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
   const shellSpotters = useElectedSpotters();
   const isSpotter = shellSpotters.some((s) => s.spotterId === token.unitId);
 
-  // BA mounted on a mech: render as a badge overlaid on the host mech token,
-  // not as a standalone token at its own hex position.
-  if (token.unitType === TokenUnitType.BattleArmor && token.mountedOn) {
-    const hostToken = allTokens?.find((t) => t.unitId === token.mountedOn);
-    if (hostToken) {
-      const { x, y } = hexToPixel(hostToken.position);
-      const mountedTokenAriaLabel = formatTokenAriaLabel({
-        token,
-        displayPosition: hostToken.position,
-        sourcePosition: token.position,
-        isSpotter,
-        isometricVisibilityLabel: '',
-      });
-      // Badge is offset to the top-right of the host mech token.
-      return (
-        <g
-          transform={`translate(${x + 18}, ${y - 18})`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onClick(token.unitId);
-          }}
-          onDoubleClick={handleDoubleClick}
-          style={{ cursor: 'pointer' }}
-          data-testid={`unit-token-${token.unitId}`}
-          aria-label={mountedTokenAriaLabel}
-          {...tokenWrapperMetadata(token, hostToken.position, token.position)}
-        >
-          <title>{mountedTokenAriaLabel}</title>
-          <BattleArmorToken
-            token={token}
-            eventState={eventState}
-            mountedBadge
-          />
-        </g>
-      );
-    }
-    // Host not found yet (loading race) — fall through and render standalone.
+  // BA passengers are rendered by their host token group, so suppress their
+  // standalone wrapper when the host is present.
+  if (
+    isBattleArmorPassengerToken(token) &&
+    findBattleArmorPassengerHost(token, allTokens)
+  ) {
+    return null;
   }
 
   const displayPosition =
@@ -447,6 +437,15 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
               </circle>
             )}
             {children}
+            <BattleArmorPassengerBadges
+              hostToken={renderToken}
+              displayPosition={displayPosition}
+              allTokens={allTokens}
+              events={events}
+              electedSpotters={shellSpotters}
+              onClick={onClick}
+              onDoubleClick={onDoubleClick}
+            />
             {renderFogMarker(token)}
           </>
         </TokenVisualEffects>

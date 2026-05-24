@@ -72,10 +72,19 @@
 
 ## 9. Mounted-trooper passenger badge (resolve TODO)
 
-- [ ] 9.1 Remove the `TODO: wire from battlearmor combat-behavior proposal` from `src/types/gameplay/GameplayUIInterfaces.ts:317`; replace with a JSDoc reference to this change
-- [ ] 9.2 Add `IBattleArmorToken.passengerBadge?: { hostTokenId: string, slot: 'shoulder' | 'side' | 'back' }` for renderer hints
-- [ ] 9.3 In `UnitToken.tsx` (hex-board renderer): when `token.mountedOn` is set, render a small BA badge attached to the host token; do NOT render the BA token at its own hex
-- [ ] 9.4 Unit test (rendering): BA token with `mountedOn` set + host token in scene → only host renders at hex; BA badge is a child of host's render group
+- [x] 9.1 Remove the `TODO: wire from battlearmor combat-behavior proposal`
+  from `src/types/gameplay/GameplayUIInterfaces.ts:317`; replace with a
+  JSDoc reference to this change.
+- [x] 9.2 Add
+  `IBattleArmorToken.passengerBadge?: { hostTokenId: string, slot: 'shoulder' | 'side' | 'back' }`
+  for renderer hints.
+- [x] 9.3 In `UnitTokenForType.tsx` (hex-board renderer), when `mountedOn`
+  or `passengerBadge.hostTokenId` resolves to a host token, render the BA as
+  a small passenger badge attached to the host token and suppress the BA
+  token's standalone hex render.
+- [x] 9.4 Unit test (rendering): BA token with `mountedOn` set + host token
+  in scene -> only the host owns the map render group; the BA badge is a
+  child of the host render group.
 
 ## 10. Combat-resolution dispatch + event-log
 
