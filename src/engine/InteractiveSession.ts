@@ -43,6 +43,7 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
+import { applyBattlefieldWreckTerrainForSessionEvents } from '@/utils/gameplay/battlefieldWreckTerrain';
 import {
   createGameSession,
   startGame,
@@ -137,6 +138,7 @@ export class InteractiveSession {
     gameUnits: readonly IGameUnit[],
     linkage: IInteractiveSessionLinkage = {},
     d6Roller?: D6Roller,
+    optionalRules: readonly string[] = [],
   ) {
     this.random = random;
     this.grid = grid;
@@ -161,6 +163,7 @@ export class InteractiveSession {
       mapRadius,
       turnLimit,
       linkage,
+      optionalRules,
     );
     this.linkage = linkage;
 
@@ -203,6 +206,9 @@ export class InteractiveSession {
       [],
       [],
       session.units,
+      {},
+      undefined,
+      session.config.optionalRules,
     );
     // Replace the fresh Setup-phase session with the replayed one so
     // `currentState` (status / turn / phase / board) matches history.
@@ -248,6 +254,9 @@ export class InteractiveSession {
       playerAdapted,
       opponentAdapted,
       session.units,
+      {},
+      undefined,
+      session.config.optionalRules,
     );
     // Replace the fresh Setup-phase session with the replayed one so
     // `currentState` (status / turn / phase / board) matches history.
@@ -403,6 +412,7 @@ export class InteractiveSession {
     // through the phase-context callbacks and keeps ownership of the
     // trailing finalize/publish step so the once-per-session outcome
     // guard is not split across modules.
+    const sessionBeforePhase = this.session;
     advanceInteractiveSessionPhase({
       getSession: () => this.session,
       setSession: (session) => {
@@ -414,6 +424,7 @@ export class InteractiveSession {
       waterDepthAt: (position) => this.waterDepthAt(position),
       isGameOver: () => this.isGameOver(),
     });
+    this.applyBattlefieldWreckTerrainForNewEvents(sessionBeforePhase);
     // Wave 5: any phase transition can land us in a victory condition
     // (e.g., the final attack resolution destroys the last opponent
     // unit). Try to finalize+publish here so the campaign store is
@@ -441,12 +452,28 @@ export class InteractiveSession {
   }
 
   private appendAndPersistEvent(event: IGameEvent): void {
+    const sessionBeforeEvent = this.session;
     this.session = appendEvent(this.session, event);
+    this.applyBattlefieldWreckTerrainForNewEvents(sessionBeforeEvent);
     void matchLogStorage
       .appendEvent(this.session.matchId ?? this.session.id, event)
       .catch((error: unknown) => {
         reportMatchLogDivergence(error);
       });
+  }
+
+  private applyBattlefieldWreckTerrainForNewEvents(
+    sessionBeforeEvents: IGameSession,
+  ): void {
+    const newEvents = this.session.events.slice(
+      sessionBeforeEvents.events.length,
+    );
+    applyBattlefieldWreckTerrainForSessionEvents(
+      this.grid,
+      sessionBeforeEvents,
+      newEvents,
+      this.tonnageByUnit,
+    );
   }
 
   // Resolver-input shaping lives in `InteractiveSession.resolvers`.

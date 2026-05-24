@@ -47,6 +47,21 @@ Coverage: `InteractiveSession.queries.ts`, `weaponAttackBuilder.ts`,
 `weaponAttackBuilder.test.ts`, and
 `InteractiveSession.attackProjectionAgreement.scenario.test.ts`.
 
+Additional battlefield-wreck terrain pin: MegaMek
+`OptionsConstants.java:364` defines `tacops_battle_wreck`, `GameOptions.java:140`
+defaults it off, and `TWGameManager.java:22276-22291` converts qualifying
+destroyed ground units to rough terrain instead of treating wreck entities as
+LOS blockers. MekStation now keeps wreck markers non-blocking while the
+represented optional rule mutates the live interactive tactical grid: destroyed
+non-infantry/non-battle-armor/non-protomek units at 40+ tons add level-1 rough,
+and represented large support tank profiles can upgrade rough to level 2 while
+preserving stacked terrain. Coverage lives in
+`src/utils/gameplay/battlefieldWreckTerrain.ts`,
+`src/engine/InteractiveSession.ts`,
+`src/engine/GameEngine.ts`, and
+`src/utils/gameplay/__tests__/battlefieldWreckTerrain.test.ts`. Follow-up:
+event-sourced `TerrainChanged` replay/hydration support.
+
 Additional physical-attack target-range pin: MegaMek
 `PhysicalAttackAction.java:97-100` rejects physical attacks when effective
 distance is greater than 1; `PunchAttackAction.java:196-199` and

@@ -19,6 +19,7 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
+import { applyBattlefieldWreckTerrainForSessionEvents } from '@/utils/gameplay/battlefieldWreckTerrain';
 import { type D6Roller, type DiceRoller } from '@/utils/gameplay/diceTypes';
 import {
   createGameSession,
@@ -56,6 +57,7 @@ export class GameEngine {
   private readonly seed: number;
   private readonly random: SeededRandom;
   private readonly grid: IHexGrid;
+  private readonly optionalRules: readonly string[];
 
   constructor(config: IGameEngineConfig = {}) {
     this.mapRadius = config.mapRadius ?? config.grid?.config.radius ?? 7;
@@ -63,6 +65,7 @@ export class GameEngine {
     this.seed = config.seed ?? Date.now();
     this.random = new SeededRandom(this.seed);
     this.grid = config.grid ?? createMinimalGrid(this.mapRadius);
+    this.optionalRules = config.optionalRules ?? [];
   }
 
   /**
@@ -80,10 +83,12 @@ export class GameEngine {
     // Per `wire-bot-ai-helpers-and-capstone`: piloting needed by
     // `runPhysicalAttackPhase` for to-hit calculation.
     const pilotingByUnit = new Map<string, number>();
+    const tonnageByUnit = new Map<string, number>();
 
     for (const u of [...playerUnits, ...opponentUnits]) {
       weaponsByUnit.set(u.id, u.weapons);
       movementByUnit.set(u.id, toMovementCapability(u));
+      tonnageByUnit.set(u.id, 65);
     }
     for (const gu of gameUnits) {
       gunneryByUnit.set(gu.id, gu.gunnery);
@@ -94,7 +99,7 @@ export class GameEngine {
       mapRadius: this.mapRadius,
       turnLimit: this.turnLimit,
       victoryConditions: ['elimination'],
-      optionalRules: [],
+      optionalRules: [...this.optionalRules],
     };
 
     let session = createGameSession(gameConfig, gameUnits);
@@ -142,10 +147,17 @@ export class GameEngine {
         gunneryByUnit,
         this.grid,
       );
+      let sessionBeforeResolution = session;
       session = resolveAllAttacks(session, diceRoller);
+      this.applyBattlefieldWreckTerrainForSessionDelta(
+        sessionBeforeResolution,
+        session,
+        tonnageByUnit,
+      );
       session = advancePhase(session);
       // Per `wire-bot-ai-helpers-and-capstone`: PhysicalAttack phase
       // body — declare melee attacks via the bot, then resolve them.
+      sessionBeforeResolution = session;
       session = runPhysicalAttackPhase(
         session,
         botPlayer,
@@ -155,6 +167,11 @@ export class GameEngine {
         d6Roller,
         this.grid,
       );
+      this.applyBattlefieldWreckTerrainForSessionDelta(
+        sessionBeforeResolution,
+        session,
+        tonnageByUnit,
+      );
       session = advancePhase(session);
       // Per `wire-heat-generation-and-effects` task 5: pass a
       // grid-aware water depth resolver so flooded hexes dissipate
@@ -162,12 +179,18 @@ export class GameEngine {
       // only emits `'clear'` hexes, yielding 0 bonus today — zero
       // behavioural change until water-tagged grids arrive.
       const grid = this.grid;
+      sessionBeforeResolution = session;
       session = resolveHeatPhase(session, diceRoller, {
         getWaterDepth: (unitId, position) => {
           const unit = session.currentState.units[unitId];
           return waterDepthAtPosition(grid, unit?.position ?? position);
         },
       });
+      this.applyBattlefieldWreckTerrainForSessionDelta(
+        sessionBeforeResolution,
+        session,
+        tonnageByUnit,
+      );
       session = advancePhase(session);
 
       if (isGameEnded(session.currentState, gameConfig)) {
@@ -209,6 +232,8 @@ export class GameEngine {
       opponentUnits,
       gameUnits,
       linkage,
+      undefined,
+      this.optionalRules,
     );
   }
 
@@ -233,5 +258,19 @@ export class GameEngine {
     if (pCount > oCount) return GameSide.Player;
     if (oCount > pCount) return GameSide.Opponent;
     return 'draw';
+  }
+
+  private applyBattlefieldWreckTerrainForSessionDelta(
+    previousSession: IGameSession,
+    nextSession: IGameSession,
+    tonnageByUnit: ReadonlyMap<string, number>,
+  ): void {
+    const newEvents = nextSession.events.slice(previousSession.events.length);
+    applyBattlefieldWreckTerrainForSessionEvents(
+      this.grid,
+      previousSession,
+      newEvents,
+      tonnageByUnit,
+    );
   }
 }

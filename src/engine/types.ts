@@ -35,6 +35,8 @@ export interface IGameEngineConfig {
    * AI pathing resolve against this grid instead of a clear placeholder map.
    */
   readonly grid?: IHexGrid;
+  /** Optional rules enabled for the session. */
+  readonly optionalRules?: readonly string[];
 }
 
 // =============================================================================
