@@ -104,6 +104,10 @@ export function MapHtmlOverlays({
               info={hoverIsometricOccluderInfo}
               testIdPrefix="hex-unreachable-tooltip"
             />
+            <ProjectionContextRows
+              projection={hoverProjectionInfo}
+              testIdPrefix="hex-unreachable-tooltip"
+            />
           </div>
         )}
 
@@ -126,6 +130,7 @@ export function MapHtmlOverlays({
         hoverTerrainInfo && (
           <TerrainHoverTooltip
             terrain={hoverTerrainInfo}
+            projection={hoverProjectionInfo}
             isometricOccluderInfo={hoverIsometricOccluderInfo}
           />
         )}

@@ -982,6 +982,35 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('hex-terrain-tooltip-los')).toHaveTextContent(
       'LOS: blocks',
     );
+    const terrainProjectionContext = screen.getByTestId(
+      'hex-terrain-tooltip-projection-context',
+    );
+    expect(terrainProjectionContext).toHaveAttribute(
+      'data-tactical-tooltip-status',
+      'neutral',
+    );
+    expect(terrainProjectionContext).toHaveAttribute(
+      'data-tactical-tooltip-intent',
+      'terrain',
+    );
+    expect(terrainProjectionContext).toHaveAttribute(
+      'data-tactical-tooltip-movement-status',
+      'none',
+    );
+    expect(terrainProjectionContext).toHaveAttribute(
+      'data-tactical-tooltip-combat-status',
+      'none',
+    );
+    expect(terrainProjectionContext).toHaveAttribute(
+      'data-tactical-tooltip-explanation',
+      expect.stringContaining('elevation 1'),
+    );
+    expect(
+      screen.getByTestId('hex-terrain-tooltip-projection-status'),
+    ).toHaveTextContent('Projection: Neutral - terrain');
+    expect(
+      screen.getByTestId('hex-terrain-tooltip-projection-channel-status'),
+    ).toHaveTextContent('Movement channel: none; combat channel: none');
     expect(screen.queryByTestId('hex-movement-tooltip')).toBeNull();
     expect(screen.queryByTestId('hex-combat-tooltip')).toBeNull();
 
@@ -1019,6 +1048,35 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(
       screen.getByTestId('hex-unreachable-tooltip-elevation-context'),
     ).toHaveTextContent('Elevation: +2');
+    const unreachableProjectionContext = screen.getByTestId(
+      'hex-unreachable-tooltip-projection-context',
+    );
+    expect(unreachableProjectionContext).toHaveAttribute(
+      'data-tactical-tooltip-status',
+      'neutral',
+    );
+    expect(unreachableProjectionContext).toHaveAttribute(
+      'data-tactical-tooltip-intent',
+      'terrain',
+    );
+    expect(unreachableProjectionContext).toHaveAttribute(
+      'data-tactical-tooltip-movement-status',
+      'none',
+    );
+    expect(unreachableProjectionContext).toHaveAttribute(
+      'data-tactical-tooltip-combat-status',
+      'none',
+    );
+    expect(unreachableProjectionContext).toHaveAttribute(
+      'data-tactical-tooltip-explanation',
+      expect.stringContaining('elevation 2'),
+    );
+    expect(
+      screen.getByTestId('hex-unreachable-tooltip-projection-status'),
+    ).toHaveTextContent('Projection: Neutral - terrain');
+    expect(
+      screen.getByTestId('hex-unreachable-tooltip-projection-channel-status'),
+    ).toHaveTextContent('Movement channel: none; combat channel: none');
 
     act(() => {
       unmount();

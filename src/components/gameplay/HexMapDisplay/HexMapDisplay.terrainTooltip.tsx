@@ -1,6 +1,7 @@
 import React from 'react';
 
 import type { IHexTerrain } from '@/types/gameplay';
+import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
 import { CoverLevel, TERRAIN_PROPERTIES } from '@/types/gameplay/TerrainTypes';
 
@@ -10,6 +11,7 @@ import {
   formatElevationLabel,
   formatTerrainFeaturesLabel,
 } from './HexCell.labels';
+import { ProjectionContextRows } from './HexMapDisplay.projectionTooltipRows';
 
 function terrainCoverLabel(terrain: IHexTerrain): CoverLevel {
   let bestCover = CoverLevel.None;
@@ -59,9 +61,11 @@ export function IsometricOccluderContextRows({
 
 export function TerrainHoverTooltip({
   terrain,
+  projection,
   isometricOccluderInfo,
 }: {
   readonly terrain: IHexTerrain;
+  readonly projection?: ITacticalMapHexProjection;
   readonly isometricOccluderInfo?: IsometricTerrainOccluderInfo;
 }): React.ReactElement {
   const terrainTypes = terrain.features.map((feature) => feature.type);
@@ -110,6 +114,10 @@ export function TerrainHoverTooltip({
       )}
       <IsometricOccluderContextRows
         info={isometricOccluderInfo}
+        testIdPrefix="hex-terrain-tooltip"
+      />
+      <ProjectionContextRows
+        projection={projection}
         testIdPrefix="hex-terrain-tooltip"
       />
     </div>
