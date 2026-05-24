@@ -84,7 +84,8 @@
 - [x] 3.3.2 Add structured MegaMek source anchors for heat startup, avoidable/automatic shutdown, ammo-explosion risk, and pilot heat damage support rows.
 - [x] 3.3.3 Split heat-driven SPA catalog coverage by source truth: Some Like It Hot is source-backed, Hot Dog is anchored to MegaMek's hotDogMod target-number modifier, and Cool Under Fire remains local until an authority is identified.
 - [x] 3.3.4 Align Hot Dog startup/shutdown heat checks to MegaMek's `hotDogMod = 1` target-number modifier while keeping remaining heat-SPA gaps explicit.
-- [x] 3.3.5 Align Hot Dog heat-induced ammo-explosion checks to MegaMek's `hotDogMod = 1` target-number modifier while keeping pilot heat-damage target-number relief as the remaining Hot Dog heat lifecycle gap.
+- [x] 3.3.5 Align Hot Dog heat-induced ammo-explosion checks to MegaMek's `hotDogMod = 1` target-number modifier while keeping optional MaxTech heat-scale Hot Dog roll routing as the remaining Hot Dog heat lifecycle gap.
+- [x] 3.3.6 Add source-backed optional MaxTech pilot heat-damage avoid-number helper coverage for Hot Dog while locking default life-support heat damage as threshold-based.
 - [ ] 3.4 Expand to-hit validation coverage for range, movement, terrain, pilot skills, special abilities, quirks, sensors, prone state, and indirect fire.
 - [x] 3.4.1 Add support-matrix tests that separate runner-integrated to-hit modifiers from helper-only modifier math.
 - [x] 3.4.2 Cross-link pilot skill, SPA, canonical SPA, quirk, and pilot modifier resolver support rows into pilot/SPAs/quirks requirement checklists.
@@ -158,4 +159,5 @@
 - [x] 4.3.30 Cross-check MegaMek `HeatResolver` startup, shutdown, ammo-explosion risk, and pilot heat damage thresholds against heat lifecycle support rows.
 - [x] 4.3.31 Cross-check MegaMek Hot Dog and Some Like It Hot heat behavior, and record that Cool Under Fire was not found in the MegaMek source search.
 - [x] 4.3.32 Cross-check Hot Dog startup/shutdown implementation against MegaMek's heat target-number modifier and preserve remaining modifier gaps.
-- [x] 4.3.33 Cross-check Hot Dog heat-induced ammo-explosion target-number relief against MegaMek and preserve the remaining pilot heat-damage modifier gap.
+- [x] 4.3.33 Cross-check Hot Dog heat-induced ammo-explosion target-number relief against MegaMek and preserve the remaining optional MaxTech heat-scale routing gap.
+- [x] 4.3.34 Cross-check MegaMek's standard life-support heat damage against optional MaxTech heat-damage avoid-number relief so Hot Dog does not invent a default pilot heat-damage threshold shift.

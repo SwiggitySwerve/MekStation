@@ -228,6 +228,27 @@ export function getPilotHeatDamage(
   return 0;
 }
 
+/**
+ * Get the optional MaxTech heat-scale pilot damage avoidance target number.
+ *
+ * This is separate from default damaged-life-support heat damage: default
+ * heat damage is threshold-based, while the optional MaxTech high-heat rule
+ * rolls to avoid 1 pilot damage at heat 32+.
+ *
+ * @param heat - Current heat level
+ * @param targetNumberModifier - Heat-check target-number modifier (default 0)
+ * @returns TN for 2d6 roll, or 0 for no optional check needed
+ */
+export function getMaxTechPilotHeatDamageAvoidTN(
+  heat: number,
+  targetNumberModifier: number = 0,
+): number {
+  if (heat >= 47) return 12 + targetNumberModifier;
+  if (heat >= 39) return 10 + targetNumberModifier;
+  if (heat >= 32) return 8 + targetNumberModifier;
+  return 0;
+}
+
 // =============================================================================
 // Heat Display Thresholds (UI)
 // =============================================================================

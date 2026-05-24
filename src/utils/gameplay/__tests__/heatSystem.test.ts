@@ -8,6 +8,7 @@ import {
   getHeatMovementPenalty,
   getHeatToHitModifier,
   getPilotHeatDamage,
+  getMaxTechPilotHeatDamageAvoidTN,
 } from '@/constants/heat';
 import {
   GameEventType,
@@ -356,6 +357,23 @@ describe('Heat System Constants', () => {
     it('returns 2 at heat 25+ with damaged life support', () => {
       expect(getPilotHeatDamage(25, 1)).toBe(2);
       expect(getPilotHeatDamage(30, 2)).toBe(2);
+    });
+  });
+
+  describe('getMaxTechPilotHeatDamageAvoidTN', () => {
+    it('tracks optional MaxTech high-heat pilot damage avoidance TNs', () => {
+      expect(getMaxTechPilotHeatDamageAvoidTN(31)).toBe(0);
+      expect(getMaxTechPilotHeatDamageAvoidTN(32)).toBe(8);
+      expect(getMaxTechPilotHeatDamageAvoidTN(39)).toBe(10);
+      expect(getMaxTechPilotHeatDamageAvoidTN(47)).toBe(12);
+    });
+
+    it('applies Hot Dog-style target-number relief without shifting default heat damage thresholds', () => {
+      expect(getMaxTechPilotHeatDamageAvoidTN(32, -1)).toBe(7);
+      expect(getMaxTechPilotHeatDamageAvoidTN(39, -1)).toBe(9);
+      expect(getMaxTechPilotHeatDamageAvoidTN(47, -1)).toBe(11);
+      expect(getPilotHeatDamage(15, 1)).toBe(1);
+      expect(getPilotHeatDamage(25, 1)).toBe(2);
     });
   });
 

@@ -413,7 +413,7 @@ describe('heat environment runner/interactive parity boundaries', () => {
     );
     expect(SPA_COMBAT_SUPPORT['hot-dog']).toMatchObject({
       level: 'helper-only',
-      gap: expect.stringContaining('hotDogMod'),
+      gap: expect.stringContaining('Optional MaxTech heat-scale'),
     });
   });
 

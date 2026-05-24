@@ -77,7 +77,7 @@ const MEGAMEK_HEAT_AMMO_SELECTION_SOURCE_REF = megamekHeatSourceRef(
 );
 
 const MEGAMEK_HEAT_PILOT_DAMAGE_SOURCE_REF = megamekHeatSourceRef(
-  'MegaMek HeatResolver applies life-support heat pilot damage at heat 15/25+ and resolves crew death after heat damage',
+  'MegaMek HeatResolver applies deterministic life-support heat pilot damage at heat 15/25+ and resolves crew death after heat damage',
   'server/totalWarfare/HeatResolver.java',
   'L734-L829',
 );

@@ -43,7 +43,7 @@ export const MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS = [
     'megamek/src/megamek/server/totalWarfare/HeatResolver.java#L500-L636',
   ),
   megamekRef(
-    'MegaMek HeatResolver subtracts hotDogMod from heat ammo-explosion and pilot heat-damage target numbers.',
+    'MegaMek HeatResolver subtracts hotDogMod from heat ammo-explosion target numbers and optional MaxTech heat-scale pilot damage target numbers; default life-support heat damage remains threshold-based.',
     'megamek/src/megamek/server/totalWarfare/HeatResolver.java#L690-L848',
   ),
   megamekRef(
