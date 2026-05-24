@@ -98,8 +98,10 @@ occupies a building hex and the attacker does not. The shared terrain context
 feeds physical option rows, command preview, player commit, and bot/auto
 physical declarations. Encoded terrain can now carry stable `buildingId`
 metadata so same-building and different-building push checks are represented
-when ids exist; simple legacy building terrain still falls back to the coarse
-outside-attacker/target-in-building gate instead of guessing identity.
+when ids exist, and procedural generated building components now receive
+deterministic ids after road carving. Simple legacy building terrain still
+falls back to the coarse outside-attacker/target-in-building gate instead of
+guessing identity.
 
 Additional LOS/cover pin for this slice: MegaMek `LosEffects.java:1461-1483`
 assigns horizontal target cover only for Mek-style targets when the hex
