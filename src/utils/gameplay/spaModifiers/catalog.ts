@@ -174,6 +174,22 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     combatEffect: '-1 physical attack to-hit in depth-2+ water',
     requiresDesignation: false,
   },
+  tm_forest_ranger: {
+    id: 'tm_forest_ranger',
+    name: 'Terrain Master: Forest Ranger',
+    category: 'piloting',
+    pipelines: ['to-hit', 'psr'],
+    combatEffect: '+1 enemy to-hit when walking in woods',
+    requiresDesignation: false,
+  },
+  tm_swamp_beast: {
+    id: 'tm_swamp_beast',
+    name: 'Terrain Master: Swamp Beast',
+    category: 'piloting',
+    pipelines: ['to-hit'],
+    combatEffect: '+1 enemy to-hit when running in mud or swamp',
+    requiresDesignation: false,
+  },
   acrobat: {
     id: 'acrobat',
     name: 'Acrobat',

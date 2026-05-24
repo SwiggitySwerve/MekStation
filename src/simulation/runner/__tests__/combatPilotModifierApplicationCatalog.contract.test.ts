@@ -199,6 +199,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'hopping-jack',
         'jumping-jack',
         'dodge-maneuver',
+        'tm_forest_ranger',
+        'tm_swamp_beast',
         'pain-resistance',
       ]),
     );
@@ -306,6 +308,36 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual(expect.arrayContaining(['melee-specialist', 'tm_frogman']));
   });
 
+  it('pins Terrain Master defender to-hit variants to MegaMek terrain and movement semantics', () => {
+    const forestRefs = SPA_COMBAT_SUPPORT.tm_forest_ranger.sourceRefs ?? [];
+    const swampRefs = SPA_COMBAT_SUPPORT.tm_swamp_beast.sourceRefs ?? [];
+
+    expect(SPA_COMBAT_SUPPORT.tm_forest_ranger).toMatchObject({
+      level: 'integrated',
+    });
+    expect(SPA_COMBAT_SUPPORT.tm_swamp_beast).toMatchObject({
+      level: 'integrated',
+    });
+    expect(SPA_COMBAT_SUPPORT['terrain-master'].gap).toContain(
+      'tm_forest_ranger',
+    );
+    expect(SPA_COMBAT_SUPPORT['terrain-master'].gap).toContain(
+      'tm_swamp_beast',
+    );
+    expect(forestRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek ComputeAbilityMods.processDefenderSPAs applies +1 Forest Ranger for walking targets in vegetation and +1 Swamp Beast for running targets in mud or swamp',
+      'MegaMek OptionsConstants defines Terrain Master Forest Ranger and Swamp Beast SPA ids as tm_forest_ranger and tm_swamp_beast',
+    ]);
+    expect(swampRefs).toEqual(forestRefs);
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['ranged-to-hit-calculation'].spaIds,
+    ).toEqual(expect.arrayContaining(['tm_forest_ranger', 'tm_swamp_beast']));
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['ranged-to-hit-state-hydration']
+        .spaIds,
+    ).toEqual(expect.arrayContaining(['tm_forest_ranger', 'tm_swamp_beast']));
+  });
+
   it('keeps local called-shot helpers out of MegaMek-backed SPA claims', () => {
     expect(SPA_COMBAT_SUPPORT.marksman).toMatchObject({
       level: 'helper-only',
@@ -339,11 +371,18 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(SPA_COMBAT_SUPPORT['hopping-jack'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['jumping-jack'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT.tm_frogman.sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT.tm_forest_ranger.sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT.tm_swamp_beast.sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'multi-target-penalty-application'
       ].sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['called-shot-application']
         .sourceRefs ?? []),
+      ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['ranged-to-hit-calculation']
+        .sourceRefs ?? []),
+      ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'ranged-to-hit-state-hydration'
+      ].sourceRefs ?? []),
     ];
 
     expect(refs.length).toBeGreaterThan(0);

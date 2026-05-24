@@ -7,6 +7,7 @@
  */
 
 import { MovementType, RangeBracket } from '@/types/gameplay';
+import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
 import {
   calculateBloodStalkerModifier,
@@ -15,6 +16,7 @@ import {
   calculateJumpingJackModifier,
   calculateMeleeSpecialistModifier,
   calculateMultiTaskerModifier,
+  calculateTerrainMasterDefensiveToHitModifier,
   getClusterHitterBonus,
   getCoolUnderFireHeatReduction,
   getHotDogShutdownThresholdBonus,
@@ -144,6 +146,40 @@ describe('combat modifiers accept canonical ids', () => {
       'ProtoMech',
     );
     expect(mod?.value).toBe(-1);
+  });
+
+  it('Terrain Master: Forest Ranger fires on canonical and legacy ids', () => {
+    expect(
+      calculateTerrainMasterDefensiveToHitModifier(
+        ['tm_forest_ranger'],
+        MovementType.Walk,
+        [{ type: TerrainType.HeavyWoods, level: 1 }],
+      )?.value,
+    ).toBe(1);
+    expect(
+      calculateTerrainMasterDefensiveToHitModifier(
+        ['terrain-master-forest-ranger'],
+        MovementType.Walk,
+        [{ type: TerrainType.LightWoods, level: 1 }],
+      )?.value,
+    ).toBe(1);
+  });
+
+  it('Terrain Master: Swamp Beast fires on canonical and legacy ids', () => {
+    expect(
+      calculateTerrainMasterDefensiveToHitModifier(
+        ['tm_swamp_beast'],
+        MovementType.Run,
+        [{ type: TerrainType.Mud, level: 1 }],
+      )?.value,
+    ).toBe(1);
+    expect(
+      calculateTerrainMasterDefensiveToHitModifier(
+        ['terrain-master-swamp-beast'],
+        MovementType.Run,
+        [{ type: TerrainType.Swamp, level: 1 }],
+      )?.value,
+    ).toBe(1);
   });
 
   it('getMeleeMasterDamageBonus fires on canonical id', () => {

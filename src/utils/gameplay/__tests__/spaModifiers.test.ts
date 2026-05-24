@@ -1,5 +1,6 @@
 import { MovementType, RangeBracket } from '@/types/gameplay';
 import { IAttackerState, ITargetState } from '@/types/gameplay';
+import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
 import {
   calculateWeaponSpecialistModifier,
@@ -13,6 +14,7 @@ import {
   calculateDodgeManeuverModifier,
   calculateMeleeSpecialistModifier,
   calculateFrogmanPhysicalToHitModifier,
+  calculateTerrainMasterDefensiveToHitModifier,
   getMeleeMasterDamageBonus,
   getTacticalGeniusBonus,
   getEffectiveWounds,
@@ -268,6 +270,64 @@ describe('spaModifiers', () => {
     it('returns null when target is not dodging', () => {
       const result = calculateDodgeManeuverModifier(['dodge-maneuver'], false);
       expect(result).toBeNull();
+    });
+  });
+
+  describe('Terrain Master defensive to-hit variants', () => {
+    it('returns +1 Forest Ranger only when the target walked in woods', () => {
+      const result = calculateTerrainMasterDefensiveToHitModifier(
+        ['terrain-master-forest-ranger'],
+        MovementType.Walk,
+        [{ type: TerrainType.LightWoods, level: 1 }],
+      );
+
+      expect(result).not.toBeNull();
+      expect(result!.name).toBe('Forest Ranger');
+      expect(result!.value).toBe(1);
+      expect(result!.source).toBe('spa');
+
+      expect(
+        calculateTerrainMasterDefensiveToHitModifier(
+          ['tm_forest_ranger'],
+          MovementType.Run,
+          [{ type: TerrainType.LightWoods, level: 1 }],
+        ),
+      ).toBeNull();
+      expect(
+        calculateTerrainMasterDefensiveToHitModifier(
+          ['tm_forest_ranger'],
+          MovementType.Walk,
+          [{ type: TerrainType.Mud, level: 1 }],
+        ),
+      ).toBeNull();
+    });
+
+    it('returns +1 Swamp Beast only when the target ran in mud or swamp', () => {
+      const result = calculateTerrainMasterDefensiveToHitModifier(
+        ['terrain-master-swamp-beast'],
+        MovementType.Run,
+        [{ type: TerrainType.Swamp, level: 1 }],
+      );
+
+      expect(result).not.toBeNull();
+      expect(result!.name).toBe('Swamp Beast');
+      expect(result!.value).toBe(1);
+      expect(result!.source).toBe('spa');
+
+      expect(
+        calculateTerrainMasterDefensiveToHitModifier(
+          ['tm_swamp_beast'],
+          MovementType.Walk,
+          [{ type: TerrainType.Swamp, level: 1 }],
+        ),
+      ).toBeNull();
+      expect(
+        calculateTerrainMasterDefensiveToHitModifier(
+          ['tm_swamp_beast'],
+          MovementType.Run,
+          [{ type: TerrainType.LightWoods, level: 1 }],
+        ),
+      ).toBeNull();
     });
   });
 
@@ -646,6 +706,38 @@ describe('spaModifiers', () => {
       expect(result.some((m) => m.name === 'Dodge Maneuver')).toBe(true);
     });
 
+    it('includes source-backed Terrain Master defender to-hit variants from target abilities and terrain', () => {
+      const forestTarget: ITargetState = {
+        ...baseTarget,
+        abilities: ['tm_forest_ranger'],
+        movementType: MovementType.Walk,
+        terrainFeatures: [{ type: TerrainType.HeavyWoods, level: 1 }],
+      };
+      const swampTarget: ITargetState = {
+        ...baseTarget,
+        abilities: ['tm_swamp_beast'],
+        movementType: MovementType.Run,
+        terrainFeatures: [{ type: TerrainType.Mud, level: 1 }],
+      };
+
+      expect(
+        calculateAttackerSPAModifiers(
+          baseAttacker,
+          forestTarget,
+          RangeBracket.Short,
+          0,
+        ).some((m) => m.name === 'Forest Ranger'),
+      ).toBe(true);
+      expect(
+        calculateAttackerSPAModifiers(
+          baseAttacker,
+          swampTarget,
+          RangeBracket.Short,
+          0,
+        ).some((m) => m.name === 'Swamp Beast'),
+      ).toBe(true);
+    });
+
     it('includes sniper at long range', () => {
       const attacker: IAttackerState = {
         ...baseAttacker,
@@ -821,6 +913,34 @@ describe('spaModifiers', () => {
         rangeBracket: RangeBracket.Short,
         range: 1,
         expectedFinalToHit: 6,
+      },
+      {
+        id: 'tm_forest_ranger',
+        modifierName: 'Forest Ranger',
+        attacker: baseAttacker,
+        target: {
+          ...baseTarget,
+          abilities: ['terrain-master-forest-ranger'],
+          movementType: MovementType.Walk,
+          terrainFeatures: [{ type: TerrainType.LightWoods, level: 1 }],
+        },
+        rangeBracket: RangeBracket.Short,
+        range: 1,
+        expectedFinalToHit: 5,
+      },
+      {
+        id: 'tm_swamp_beast',
+        modifierName: 'Swamp Beast',
+        attacker: baseAttacker,
+        target: {
+          ...baseTarget,
+          abilities: ['terrain-master-swamp-beast'],
+          movementType: MovementType.Run,
+          terrainFeatures: [{ type: TerrainType.Mud, level: 1 }],
+        },
+        rangeBracket: RangeBracket.Short,
+        range: 1,
+        expectedFinalToHit: 5,
       },
       {
         id: 'pain-resistance',

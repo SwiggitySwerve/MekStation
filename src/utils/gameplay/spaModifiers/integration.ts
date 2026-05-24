@@ -43,6 +43,7 @@ import { calculateBloodStalkerModifier } from './abilityModifiers';
 import { calculateMultiTaskerModifier } from './abilityModifiers';
 import { calculateJumpingJackModifier } from './abilityModifiers';
 import { calculateDodgeManeuverModifier } from './abilityModifiers';
+import { calculateTerrainMasterDefensiveToHitModifier } from './abilityModifiers';
 import { calculateWeaponSpecialistModifier } from './weaponSpecialists';
 import { calculateGunnerySpecialistModifier } from './weaponSpecialists';
 import { calculateRangeMasterModifier } from './weaponSpecialists';
@@ -124,6 +125,14 @@ export function calculateAttackerSPAModifiers(
     target.unitType,
   );
   if (dodgeMod) modifiers.push(dodgeMod);
+
+  const terrainMasterDefensiveMod =
+    calculateTerrainMasterDefensiveToHitModifier(
+      targetAbilities,
+      target.movementType,
+      target.terrainFeatures ?? [],
+    );
+  if (terrainMasterDefensiveMod) modifiers.push(terrainMasterDefensiveMod);
 
   return modifiers;
 }

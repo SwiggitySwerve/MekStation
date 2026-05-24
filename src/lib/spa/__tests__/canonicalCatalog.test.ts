@@ -186,9 +186,18 @@ describe('id canonicalization helpers', () => {
         'hopping-jack',
         'iron-man',
         'nonsense',
+        'terrain-master-forest-ranger',
         'terrain-master-frogman',
+        'terrain-master-swamp-beast',
         'weapon_specialist',
       ]),
-    ).toEqual(['hopping_jack', 'iron_man', 'tm_frogman', 'weapon_specialist']);
+    ).toEqual([
+      'hopping_jack',
+      'iron_man',
+      'tm_forest_ranger',
+      'tm_frogman',
+      'tm_swamp_beast',
+      'weapon_specialist',
+    ]);
   });
 });

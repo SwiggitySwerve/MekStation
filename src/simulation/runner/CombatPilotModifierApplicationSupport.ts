@@ -69,6 +69,23 @@ const MEGAMEK_CALLED_SHOT_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek ComputeAbilityMods.processDefenderSPAs applies +1 Forest Ranger for walking targets in vegetation and +1 Swamp Beast for running targets in mud or swamp.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/actions/compute/ComputeAbilityMods.java#L282-L293`,
+    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek OptionsConstants defines Terrain Master Forest Ranger and Swamp Beast as tm_forest_ranger and tm_swamp_beast.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/options/OptionsConstants.java#L183-L187`,
+    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_MANEUVERING_ACE_SKID_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -116,11 +133,13 @@ export interface IPilotModifierResolverAssignment {
 export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   'ranged-to-hit-calculation': integrated(
     'ranged-to-hit-calculation',
-    'calculateToHit calls calculateAttackerSPAModifiers and calculateAttackerQuirkModifiers when attacker/target state includes abilities or unit quirks',
+    'calculateToHit calls calculateAttackerSPAModifiers and calculateAttackerQuirkModifiers when attacker/target state includes abilities, target terrain features, or unit quirks',
+    MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS,
   ),
   'ranged-to-hit-state-hydration': integrated(
     'ranged-to-hit-state-hydration',
-    'runAttackPhase and declareAttack hydrate pilot abilities, SPA designations, unit quirks, weapon quirks, target unit type, target dodge state, wounds, sensor hits, attacker prone state, secondary-target state, and coarse arm-actuator damage into ranged to-hit state',
+    'runAttackPhase and declareAttack hydrate pilot abilities, SPA designations, unit quirks, weapon quirks, target unit type, target dodge state, wounds, sensor hits, attacker prone state, secondary-target state, and coarse arm-actuator damage into ranged to-hit state; runAttackPhase also hydrates target terrain features for source-backed Terrain Master defender to-hit variants',
+    MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS,
   ),
   'weapon-to-hit-quirk-application': integrated(
     'weapon-to-hit-quirk-application',
@@ -226,6 +245,8 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
       'hopping-jack',
       'jumping-jack',
       'dodge-maneuver',
+      'tm_forest_ranger',
+      'tm_swamp_beast',
       'pain-resistance',
     ],
     quirkIds: [
@@ -252,6 +273,8 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
       'hopping-jack',
       'jumping-jack',
       'dodge-maneuver',
+      'tm_forest_ranger',
+      'tm_swamp_beast',
       'pain-resistance',
     ],
     quirkIds: [

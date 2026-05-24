@@ -289,6 +289,38 @@ The Terrain Master: Frogman SPA SHALL grant -1 to physical attack to-hit numbers
 - **WHEN** only the target occupies water
 - **THEN** no Frogman to-hit modifier SHALL apply
 
+### Requirement: Piloting SPA - Terrain Master: Forest Ranger
+
+The Terrain Master: Forest Ranger SPA SHALL grant +1 enemy to-hit only when the target owns `tm_forest_ranger`, moved by walking, and occupies wooded terrain.
+
+#### Scenario: Forest Ranger walking woods defense
+
+- **WHEN** a pilot with Terrain Master: Forest Ranger is targeted after walking in woods
+- **THEN** attacks against that unit SHALL receive a +1 to-hit modifier
+
+#### Scenario: Forest Ranger requires walking and woods
+
+- **WHEN** a pilot with Terrain Master: Forest Ranger is targeted after running in woods
+- **THEN** no Forest Ranger to-hit modifier SHALL apply
+- **WHEN** the same pilot walked outside wooded terrain
+- **THEN** no Forest Ranger to-hit modifier SHALL apply
+
+### Requirement: Piloting SPA - Terrain Master: Swamp Beast
+
+The Terrain Master: Swamp Beast SPA SHALL grant +1 enemy to-hit only when the target owns `tm_swamp_beast`, moved by running, and occupies mud or swamp terrain.
+
+#### Scenario: Swamp Beast running mud or swamp defense
+
+- **WHEN** a pilot with Terrain Master: Swamp Beast is targeted after running in mud or swamp
+- **THEN** attacks against that unit SHALL receive a +1 to-hit modifier
+
+#### Scenario: Swamp Beast requires running and mud or swamp
+
+- **WHEN** a pilot with Terrain Master: Swamp Beast is targeted after walking in swamp
+- **THEN** no Swamp Beast to-hit modifier SHALL apply
+- **WHEN** the same pilot ran outside mud or swamp
+- **THEN** no Swamp Beast to-hit modifier SHALL apply
+
 ### Requirement: Piloting SPA — Acrobat
 
 The Acrobat SPA SHALL grant -1 to DFA piloting rolls.

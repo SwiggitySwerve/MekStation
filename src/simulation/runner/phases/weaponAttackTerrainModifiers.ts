@@ -3,6 +3,7 @@ import type {
   IHexGrid,
   IToHitModifierDetail,
 } from '@/types/gameplay';
+import type { ITerrainFeature } from '@/types/gameplay/TerrainTypes';
 import type { ILOSResult } from '@/utils/gameplay/lineOfSight';
 
 import { coordToKey } from '@/utils/gameplay/hexMath';
@@ -37,10 +38,7 @@ export function calculateTargetTerrainToHitModifier(
 ): IToHitModifierDetail | null {
   if (!grid) return null;
 
-  const targetHex = grid.hexes.get(coordToKey(targetPosition));
-  const targetTerrain = targetHex
-    ? parseTerrainFeatures(targetHex.terrain)
-    : [];
+  const targetTerrain = targetTerrainFeatures(grid, targetPosition);
   const value = getTerrainToHitModifier(targetTerrain, []);
 
   if (value === 0) return null;
@@ -51,4 +49,14 @@ export function calculateTargetTerrainToHitModifier(
     source: 'terrain',
     description: `Target terrain features: ${value > 0 ? '+' : ''}${value}`,
   };
+}
+
+export function targetTerrainFeatures(
+  grid: IHexGrid | undefined,
+  targetPosition: IHexCoordinate,
+): readonly ITerrainFeature[] {
+  if (!grid) return [];
+
+  const targetHex = grid.hexes.get(coordToKey(targetPosition));
+  return targetHex ? parseTerrainFeatures(targetHex.terrain) : [];
 }

@@ -6,6 +6,7 @@ import type {
   ITargetState,
   IUnitGameState,
 } from '@/types/gameplay';
+import type { ITerrainFeature } from '@/types/gameplay/TerrainTypes';
 
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 
@@ -71,6 +72,7 @@ export function buildWeaponAttackAttackerToHitState(
 export function buildWeaponAttackTargetToHitState(
   unit: IUnitGameState,
   partialCover: boolean,
+  terrainFeatures: readonly ITerrainFeature[] = [],
 ): ITargetState {
   return {
     unitType: unit.unitType,
@@ -84,5 +86,6 @@ export function buildWeaponAttackTargetToHitState(
     weaponQuirks: unit.weaponQuirks,
     abilities: unit.abilities,
     isDodging: unit.isDodging,
+    terrainFeatures,
   };
 }

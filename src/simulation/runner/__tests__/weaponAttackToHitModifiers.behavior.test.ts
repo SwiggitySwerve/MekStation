@@ -949,6 +949,76 @@ describe('runAttackPhase to-hit modifier integration', () => {
     ).toBe(false);
   });
 
+  it('hydrates target terrain for source-backed Terrain Master defender to-hit variants', () => {
+    const forestRangerPayload = attackDeclaredPayload(
+      runModifierScenario({
+        state: createWeaponAttackState({
+          target: {
+            abilities: ['tm_forest_ranger'],
+            movementThisTurn: MovementType.Walk,
+          },
+        }),
+        grid: createGrid(TerrainType.LightWoods),
+      }),
+    );
+    const swampBeastPayload = attackDeclaredPayload(
+      runModifierScenario({
+        state: createWeaponAttackState({
+          target: {
+            abilities: ['tm_swamp_beast'],
+            movementThisTurn: MovementType.Run,
+          },
+        }),
+        grid: createGrid(TerrainType.Mud),
+      }),
+    );
+    const wrongMovementPayload = attackDeclaredPayload(
+      runModifierScenario({
+        state: createWeaponAttackState({
+          target: {
+            abilities: ['tm_forest_ranger'],
+            movementThisTurn: MovementType.Run,
+          },
+        }),
+        grid: createGrid(TerrainType.LightWoods),
+      }),
+    );
+
+    expect(forestRangerPayload.toHitNumber).toBe(7);
+    expectModifier(forestRangerPayload, {
+      name: 'Forest Ranger',
+      value: 1,
+      source: 'spa',
+    });
+    expectModifier(forestRangerPayload, {
+      name: 'Target Terrain',
+      value: 1,
+      source: 'terrain',
+    });
+    expect(swampBeastPayload.toHitNumber).toBe(5);
+    expectModifier(swampBeastPayload, {
+      name: 'Swamp Beast',
+      value: 1,
+      source: 'spa',
+    });
+    expect(
+      wrongMovementPayload.modifiers.some(
+        (modifier) => modifier.name === 'Forest Ranger',
+      ),
+    ).toBe(false);
+    expect(SPA_COMBAT_SUPPORT.tm_forest_ranger).toMatchObject({
+      level: 'integrated',
+    });
+    expect(SPA_COMBAT_SUPPORT.tm_swamp_beast).toMatchObject({
+      level: 'integrated',
+    });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['ranged-to-hit-state-hydration'],
+    ).toMatchObject({
+      level: 'integrated',
+    });
+  });
+
   it('threads per-weapon secondary target state and Multi-Tasker into AttackDeclared', () => {
     const secondaryWeaponId = 'medium-laser-secondary';
     const state = createWeaponAttackState({

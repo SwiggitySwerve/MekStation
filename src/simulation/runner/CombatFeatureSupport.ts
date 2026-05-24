@@ -260,6 +260,27 @@ const MEGAMEK_325B_FROGMAN_SOURCE_REFS = [
   MEGAMEK_325B_FROGMAN_OPTION,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_325B_TERRAIN_MASTER_DEFENSIVE_TO_HIT = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek ComputeAbilityMods.processDefenderSPAs applies +1 Forest Ranger for walking targets in vegetation and +1 Swamp Beast for running targets in mud or swamp',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/compute/ComputeAbilityMods.java#L282-L293',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_TERRAIN_MASTER_OPTIONS = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek OptionsConstants defines Terrain Master Forest Ranger and Swamp Beast SPA ids as tm_forest_ranger and tm_swamp_beast',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/options/OptionsConstants.java#L183-L187',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_TERRAIN_MASTER_DEFENSIVE_SOURCE_REFS = [
+  MEGAMEK_325B_TERRAIN_MASTER_DEFENSIVE_TO_HIT,
+  MEGAMEK_325B_TERRAIN_MASTER_OPTIONS,
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_325B_DODGE_MANEUVER_TO_HIT = {
   kind: 'megamek-source',
   citation:
@@ -398,12 +419,22 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'terrain-master': unsupported(
     'terrain-master',
-    'Generic Terrain Master PSR/movement behavior is not wired; source-backed Frogman physical to-hit relief is tracked separately as tm_frogman',
+    'Generic Terrain Master PSR/movement behavior is not wired; source-backed Frogman physical to-hit relief and Forest Ranger/Swamp Beast defensive to-hit variants are tracked separately as tm_frogman, tm_forest_ranger, and tm_swamp_beast',
   ),
   tm_frogman: integrated(
     'tm_frogman',
     'Source-backed calculateFrogmanPhysicalToHitModifier plus physical to-hit helper, runner, and interactive physical resolution apply -1 in depth-2+ attacker water',
     MEGAMEK_325B_FROGMAN_SOURCE_REFS,
+  ),
+  tm_forest_ranger: integrated(
+    'tm_forest_ranger',
+    'Source-backed calculateTerrainMasterDefensiveToHitModifier plus calculateToHit and runner target terrain hydration apply +1 to-hit against walking targets in woods',
+    MEGAMEK_325B_TERRAIN_MASTER_DEFENSIVE_SOURCE_REFS,
+  ),
+  tm_swamp_beast: integrated(
+    'tm_swamp_beast',
+    'Source-backed calculateTerrainMasterDefensiveToHitModifier plus calculateToHit and runner target terrain hydration apply +1 to-hit against running targets in mud or swamp',
+    MEGAMEK_325B_TERRAIN_MASTER_DEFENSIVE_SOURCE_REFS,
   ),
   acrobat: unsupported('acrobat', 'DFA PSR modifier is not wired'),
   'cross-country': unsupported(

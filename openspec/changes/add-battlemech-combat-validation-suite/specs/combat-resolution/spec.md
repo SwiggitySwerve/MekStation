@@ -575,6 +575,34 @@ Physical to-hit validation SHALL apply MegaMek's Terrain Master: Frogman relief 
 - **WHEN** the attacker unit type is explicit and is neither Mek nor ProtoMek
 - **THEN** no `Frogman` modifier SHALL apply
 
+### Requirement: Source-Backed Terrain Master Defender To-Hit Variants
+
+Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit variants from target state and target terrain: Forest Ranger SHALL add a `+1` to-hit modifier only when the target has canonical `tm_forest_ranger` or legacy `terrain-master-forest-ranger`, the target moved by walking, and the target occupies wooded terrain; Swamp Beast SHALL add a `+1` to-hit modifier only when the target has canonical `tm_swamp_beast` or legacy `terrain-master-swamp-beast`, the target moved by running, and the target occupies mud or swamp. Runner ranged attacks SHALL hydrate target terrain features into to-hit state. Generic Terrain Master movement and PSR behavior SHALL remain an explicit gap until separately source-backed.
+
+#### Scenario: Forest Ranger applies to walking wooded targets
+
+- **GIVEN** a ranged weapon attack targets a unit with `tm_forest_ranger`
+- **AND** the target moved by walking this turn
+- **AND** the target occupies woods
+- **WHEN** the ranged to-hit number is computed
+- **THEN** the declared to-hit number SHALL include a `Forest Ranger` SPA modifier of `+1`
+
+#### Scenario: Swamp Beast applies to running mud or swamp targets
+
+- **GIVEN** a ranged weapon attack targets a unit with `tm_swamp_beast`
+- **AND** the target moved by running this turn
+- **AND** the target occupies mud or swamp
+- **WHEN** the ranged to-hit number is computed
+- **THEN** the declared to-hit number SHALL include a `Swamp Beast` SPA modifier of `+1`
+
+#### Scenario: Terrain Master defender variants require matching movement and terrain
+
+- **GIVEN** a ranged weapon attack targets a unit with `tm_forest_ranger` or `tm_swamp_beast`
+- **WHEN** the target movement type does not match that variant's MegaMek gate
+- **THEN** no Terrain Master defender to-hit modifier SHALL apply
+- **WHEN** the target terrain does not match that variant's MegaMek gate
+- **THEN** no Terrain Master defender to-hit modifier SHALL apply
+
 ### Requirement: Source-Backed Maneuvering Ace Skidding PSR Relief
 
 Runner movement and PSR resolution SHALL apply MegaMek's movement-before-skid PSR distance table and subtract 1 for canonical Maneuvering Ace only when resolving skidding PSRs. The skidding distance modifier SHALL be queued as PSR trigger state, while Maneuvering Ace SHALL be applied during PSR resolution from hydrated pilot ability state so runner and interactive paths share the same target-number math. Terrain-specific Maneuvering Ace PSR behavior beyond skidding SHALL remain an explicit catalog gap.

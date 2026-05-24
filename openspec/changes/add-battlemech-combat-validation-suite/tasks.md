@@ -93,6 +93,7 @@
 - [x] 3.4.13 Integrate source-backed Animal Mimicry quad-Mek PSR relief through runner pending PSRs, runner stand-up PSRs, interactive pending PSRs, interactive stand-up PSRs, and catalog/OpenSpec coverage while leaving terrain-designation movement effects explicit.
 - [x] 3.4.14 Integrate source-backed Jumping Jack and Hopping Jack jump-attacker to-hit relief through SPA helper, to-hit aggregation, canonicalization, catalog, and OpenSpec coverage.
 - [x] 3.4.15 Integrate source-backed Terrain Master: Frogman physical to-hit relief through SPA helper, physical to-hit aggregation, runner terrain hydration, interactive attacker-water-depth hydration, canonicalization, catalog, and OpenSpec coverage.
+- [x] 3.4.16 Integrate source-backed Terrain Master: Forest Ranger and Swamp Beast defender to-hit variants through SPA helper, ranged to-hit aggregation, runner target-terrain hydration, canonicalization, catalog, and OpenSpec coverage while leaving generic Terrain Master movement/PSR behavior explicit.
 - [ ] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -126,3 +127,4 @@
 - [x] 4.3.15 Cross-check MegaMek's QuadMek Animal Mimicry piloting-roll modifier and canonical ability id.
 - [x] 4.3.16 Cross-check MegaMek's Jumping Jack and Hopping Jack attacker jump movement penalties and canonical ability ids.
 - [x] 4.3.17 Cross-check MegaMek's Terrain Master: Frogman physical BTH relief and canonical ability id.
+- [x] 4.3.18 Cross-check MegaMek's Terrain Master: Forest Ranger and Swamp Beast defensive to-hit modifiers, movement gates, terrain gates, and canonical ability ids.

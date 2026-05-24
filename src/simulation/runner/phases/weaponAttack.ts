@@ -87,6 +87,7 @@ import { validateDeclaredAttackTarget } from './weaponAttackTargetValidation';
 import {
   calculateInterveningTerrainToHitModifier,
   calculateTargetTerrainToHitModifier,
+  targetTerrainFeatures,
 } from './weaponAttackTerrainModifiers';
 
 function isTargetInAttackerFrontArc(
@@ -662,6 +663,7 @@ export function runAttackPhase(options: {
       const targetState: ITargetState = buildWeaponAttackTargetToHitState(
         targetNow,
         targetPartialCover,
+        targetTerrainFeatures(grid, targetNow.position),
       );
 
       // Wave 8 PR-K7: Quick-Sim indirect-fire dispatch.

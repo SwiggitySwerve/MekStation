@@ -7,6 +7,7 @@
 
 import type { CombatLocation } from './CombatLocationTypes';
 import type { IHexCoordinate } from './HexGridInterfaces';
+import type { ITerrainFeature } from './TerrainTypes';
 
 // Re-export from construction for backwards compatibility
 import { MechLocation } from '../construction/CriticalSlotAllocation';
@@ -685,6 +686,7 @@ export interface ITargetState {
   readonly weaponQuirks?: Readonly<Record<string, readonly string[]>>;
   readonly abilities?: readonly string[];
   readonly isDodging?: boolean;
+  readonly terrainFeatures?: readonly ITerrainFeature[];
 }
 
 /**

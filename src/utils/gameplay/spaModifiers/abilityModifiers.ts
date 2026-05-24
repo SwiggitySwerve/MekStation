@@ -6,6 +6,10 @@
 
 import { MovementType } from '@/types/gameplay';
 import { IToHitModifierDetail } from '@/types/gameplay';
+import {
+  TerrainType,
+  type ITerrainFeature,
+} from '@/types/gameplay/TerrainTypes';
 
 import { hasSPA } from './canonicalize';
 
@@ -131,6 +135,55 @@ export function calculateDodgeManeuverModifier(
     source: 'spa',
     description: 'Dodge Maneuver: target is dodging (+2)',
   };
+}
+
+function hasAnyTerrain(
+  terrainFeatures: readonly ITerrainFeature[],
+  types: readonly TerrainType[],
+): boolean {
+  return terrainFeatures.some((feature) => types.includes(feature.type));
+}
+
+/**
+ * Terrain Master defensive gunnery variants.
+ */
+export function calculateTerrainMasterDefensiveToHitModifier(
+  targetAbilities: readonly string[],
+  targetMovementType: MovementType,
+  targetTerrainFeatures: readonly ITerrainFeature[],
+): IToHitModifierDetail | null {
+  if (
+    hasSPA(targetAbilities, 'tm_forest_ranger') &&
+    targetMovementType === MovementType.Walk &&
+    hasAnyTerrain(targetTerrainFeatures, [
+      TerrainType.LightWoods,
+      TerrainType.HeavyWoods,
+    ])
+  ) {
+    return {
+      name: 'Forest Ranger',
+      value: 1,
+      source: 'spa',
+      description:
+        'Terrain Master: Forest Ranger: walking target in woods (+1)',
+    };
+  }
+
+  if (
+    hasSPA(targetAbilities, 'tm_swamp_beast') &&
+    targetMovementType === MovementType.Run &&
+    hasAnyTerrain(targetTerrainFeatures, [TerrainType.Mud, TerrainType.Swamp])
+  ) {
+    return {
+      name: 'Swamp Beast',
+      value: 1,
+      source: 'spa',
+      description:
+        'Terrain Master: Swamp Beast: running target in mud/swamp (+1)',
+    };
+  }
+
+  return null;
 }
 
 /**
