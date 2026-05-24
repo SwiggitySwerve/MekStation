@@ -78,6 +78,7 @@ import {
   splitPhysicalDamageIntoClusters,
   SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
 } from './physicalAttacks';
+import { waterDepthAtPosition } from './waterDepth';
 
 interface IResolvedPhysicalDisplacementOutcome {
   readonly displacements: readonly IPhysicalDisplacement[];
@@ -433,6 +434,7 @@ export function declarePhysicalAttack(
     heat: attackerState.heat,
     hasTSM: context.hasTSM,
     isUnderwater: context.isUnderwater ?? false,
+    attackerWaterDepth: context.attackerWaterDepth,
     weaponsFiredFromArm: weaponsFiredFromArmForAttack(
       attackerState,
       attackType,
@@ -677,6 +679,9 @@ export function resolveAllPhysicalAttacks(
       isUnderwater:
         (context.isUnderwater ?? false) ||
         (targetContext?.isUnderwater ?? false),
+      attackerWaterDepth:
+        context.attackerWaterDepth ??
+        (grid ? waterDepthAtPosition(grid, attackerState.position) : undefined),
       weaponsFiredFromArm: weaponsFiredFromArmForAttack(
         attackerState,
         payload.attackType,

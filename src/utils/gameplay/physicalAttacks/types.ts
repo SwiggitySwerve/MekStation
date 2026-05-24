@@ -144,6 +144,11 @@ export interface IPhysicalAttackInput {
   readonly heat?: number;
   readonly hasTSM?: boolean;
   readonly isUnderwater?: boolean;
+  /**
+   * Source-backed Terrain Master: Frogman physical to-hit gate. MegaMek
+   * applies Frogman only when the attacker occupies water deeper than level 1.
+   */
+  readonly attackerWaterDepth?: number;
   readonly weaponsFiredFromArm?: readonly string[];
   /**
    * Source-backed push legality: a BattleMech needs both arm locations

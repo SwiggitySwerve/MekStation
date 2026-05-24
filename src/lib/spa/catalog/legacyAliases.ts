@@ -77,6 +77,11 @@ export const SPA_LEGACY_ALIASES: readonly ISPAIdAlias[] = [
     canonicalId: 'maneuvering_ace',
     source: 'systemB',
   },
+  {
+    legacyId: 'terrain-master-frogman',
+    canonicalId: 'tm_frogman',
+    source: 'systemB',
+  },
   { legacyId: 'hopping-jack', canonicalId: 'hopping_jack', source: 'systemB' },
   { legacyId: 'jumping-jack', canonicalId: 'jumping_jack', source: 'systemB' },
   {

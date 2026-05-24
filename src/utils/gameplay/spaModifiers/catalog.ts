@@ -166,6 +166,14 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     combatEffect: 'Ignores +1 piloting modifier for difficult terrain',
     requiresDesignation: false,
   },
+  tm_frogman: {
+    id: 'tm_frogman',
+    name: 'Terrain Master: Frogman',
+    category: 'piloting',
+    pipelines: ['to-hit'],
+    combatEffect: '-1 physical attack to-hit in depth-2+ water',
+    requiresDesignation: false,
+  },
   acrobat: {
     id: 'acrobat',
     name: 'Acrobat',

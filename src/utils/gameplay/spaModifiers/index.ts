@@ -7,6 +7,7 @@ export {
 export {
   calculateBloodStalkerModifier,
   calculateDodgeManeuverModifier,
+  calculateFrogmanPhysicalToHitModifier,
   calculateJumpingJackModifier,
   calculateMeleeSpecialistModifier,
   calculateMultiTaskerModifier,

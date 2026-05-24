@@ -192,6 +192,7 @@ function createPhysicalGrid(
   options: {
     targetElevation?: number;
     displacementElevation?: number;
+    waterAttackerDepth?: number;
     waterTarget?: boolean;
     blockDfaDisplacement?: boolean;
     blockChargeDisplacement?: boolean;
@@ -201,7 +202,10 @@ function createPhysicalGrid(
   hexes.set('0,0', {
     coord: { q: 0, r: 0 },
     occupantId: 'player-1',
-    terrain: TerrainType.Clear,
+    terrain:
+      options.waterAttackerDepth !== undefined
+        ? `water:${options.waterAttackerDepth}`
+        : TerrainType.Clear,
     elevation: 0,
   });
   hexes.set('1,0', {
@@ -1274,6 +1278,46 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       toHitNumber: 2,
       hit: true,
       damage: 14,
+    });
+  });
+
+  it('hydrates source-backed Frogman depth-2 water to runner physical to-hit', () => {
+    const { events } = runPhase('kick', {
+      attacker: {
+        abilities: ['tm_frogman'],
+      },
+      grid: createPhysicalGrid({ waterAttackerDepth: 2 }),
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'kick',
+      roll: 8,
+      toHitNumber: 2,
+      hit: true,
+    });
+  });
+
+  it('does not apply Frogman from shallow or target-only water', () => {
+    const shallow = runPhase('kick', {
+      attacker: {
+        abilities: ['tm_frogman'],
+      },
+      grid: createPhysicalGrid({ waterAttackerDepth: 1 }),
+    });
+    const targetOnly = runPhase('kick', {
+      attacker: {
+        abilities: ['tm_frogman'],
+      },
+      grid: createPhysicalGrid({ waterTarget: true }),
+    });
+
+    expect(resolvedPayload(shallow.events)).toMatchObject({
+      attackType: 'kick',
+      toHitNumber: 3,
+    });
+    expect(resolvedPayload(targetOnly.events)).toMatchObject({
+      attackType: 'kick',
+      toHitNumber: 3,
     });
   });
 

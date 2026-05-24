@@ -3495,6 +3495,31 @@ describe('BattleMech physical combat behavior validation lane', () => {
     });
   });
 
+  it('threads Frogman attacker water depth through session physical resolution', () => {
+    const context = physicalContext({
+      pilotAbilities: ['tm_frogman'],
+      attackerWaterDepth: 2,
+    });
+    const declared = declareAdjacentPhysicalAttack('kick', context);
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6, 6, 3]),
+    );
+    const event = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = event?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload).toMatchObject({
+      attackType: 'kick',
+      roll: 12,
+      toHitNumber: 2,
+      hit: true,
+    });
+  });
+
   it('turns a missed kick PSR into a fall and clears targetability state', () => {
     const declared = declareAdjacentPhysicalAttack('kick', physicalContext());
     const withMissPsr = resolveAllPhysicalAttacks(

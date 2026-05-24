@@ -186,8 +186,9 @@ describe('id canonicalization helpers', () => {
         'hopping-jack',
         'iron-man',
         'nonsense',
+        'terrain-master-frogman',
         'weapon_specialist',
       ]),
-    ).toEqual(['hopping_jack', 'iron_man', 'weapon_specialist']);
+    ).toEqual(['hopping_jack', 'iron_man', 'tm_frogman', 'weapon_specialist']);
   });
 });

@@ -11,6 +11,7 @@ import { MovementType, RangeBracket } from '@/types/gameplay';
 import {
   calculateBloodStalkerModifier,
   calculateDodgeManeuverModifier,
+  calculateFrogmanPhysicalToHitModifier,
   calculateJumpingJackModifier,
   calculateMeleeSpecialistModifier,
   calculateMultiTaskerModifier,
@@ -124,6 +125,24 @@ describe('combat modifiers accept canonical ids', () => {
 
   it('Melee Specialist fires on canonical id', () => {
     const mod = calculateMeleeSpecialistModifier(['melee_specialist']);
+    expect(mod?.value).toBe(-1);
+  });
+
+  it('Terrain Master: Frogman fires on canonical id', () => {
+    const mod = calculateFrogmanPhysicalToHitModifier(
+      ['tm_frogman'],
+      2,
+      'BattleMech',
+    );
+    expect(mod?.value).toBe(-1);
+  });
+
+  it('Terrain Master: Frogman fires on legacy id', () => {
+    const mod = calculateFrogmanPhysicalToHitModifier(
+      ['terrain-master-frogman'],
+      2,
+      'ProtoMech',
+    );
     expect(mod?.value).toBe(-1);
   });
 

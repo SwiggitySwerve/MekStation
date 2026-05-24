@@ -273,6 +273,22 @@ The Terrain Master SPA SHALL ignore +1 piloting modifier for difficult terrain.
 - **WHEN** a pilot with Terrain Master moves through difficult terrain
 - **THEN** the +1 piloting modifier for difficult terrain SHALL be ignored
 
+### Requirement: Piloting SPA - Terrain Master: Frogman
+
+The Terrain Master: Frogman SPA SHALL grant -1 to physical attack to-hit numbers only when a Mek or ProtoMech attacker occupies depth-2 or deeper water.
+
+#### Scenario: Frogman physical attack bonus
+
+- **WHEN** a Mek or ProtoMech pilot with Terrain Master: Frogman makes a physical attack from depth-2 or deeper water
+- **THEN** the physical attack SHALL receive a -1 to-hit modifier
+
+#### Scenario: Frogman shallow-water and target-only boundary
+
+- **WHEN** a pilot with Terrain Master: Frogman makes a physical attack from depth-1 or shallower water
+- **THEN** no Frogman to-hit modifier SHALL apply
+- **WHEN** only the target occupies water
+- **THEN** no Frogman to-hit modifier SHALL apply
+
 ### Requirement: Piloting SPA — Acrobat
 
 The Acrobat SPA SHALL grant -1 to DFA piloting rolls.

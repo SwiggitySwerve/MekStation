@@ -320,6 +320,10 @@ export function runPhysicalAttackPhase(options: {
       physicalGrid !== undefined &&
       (waterDepthAtPosition(physicalGrid, unit.position) > 0 ||
         waterDepthAtPosition(physicalGrid, target.position) > 0);
+    const attackerWaterDepth =
+      physicalGrid !== undefined
+        ? waterDepthAtPosition(physicalGrid, unit.position)
+        : undefined;
     const elevationDifference = elevationDifferenceBetween(
       physicalGrid,
       unit,
@@ -372,6 +376,7 @@ export function runPhysicalAttackPhase(options: {
       leftArmHasClaw: unit.leftArmHasClaw,
       rightArmHasClaw: unit.rightArmHasClaw,
       isUnderwater,
+      attackerWaterDepth,
       targetTonnage: DEFAULT_TONNAGE,
       targetProne: target.prone ?? false,
       targetMovementComplete: true,

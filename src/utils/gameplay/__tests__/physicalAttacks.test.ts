@@ -3129,6 +3129,70 @@ describe('physicalAttacks', () => {
       );
       expect(result.baseToHit).toBe(4);
     });
+
+    it('applies source-backed Frogman to every physical to-hit path in depth-2 water', () => {
+      const attackTypes = [
+        'punch',
+        'kick',
+        'charge',
+        'dfa',
+        'push',
+        'hatchet',
+        'sword',
+        'mace',
+        'lance',
+        'retractable-blade',
+        'flail',
+        'wrecking-ball',
+      ] as const satisfies readonly IPhysicalAttackInput['attackType'][];
+
+      for (const attackType of attackTypes) {
+        const result = calculatePhysicalToHit(
+          makeInput({
+            attackType,
+            pilotingSkill: 5,
+            pilotAbilities: ['tm_frogman'],
+            attackerWaterDepth: 2,
+            attackerUnitType: 'BattleMech',
+          }),
+        );
+
+        expect(result.allowed).toBe(true);
+        expect(result.modifiers).toContainEqual(
+          expect.objectContaining({
+            name: 'Frogman',
+            value: -1,
+            source: 'spa',
+          }),
+        );
+      }
+    });
+
+    it('does not apply Frogman in shallow water or to explicit non-Mek attackers', () => {
+      const shallow = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'kick',
+          pilotAbilities: ['tm_frogman'],
+          attackerWaterDepth: 1,
+          attackerUnitType: 'BattleMech',
+        }),
+      );
+      const nonMek = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'kick',
+          pilotAbilities: ['tm_frogman'],
+          attackerWaterDepth: 2,
+          attackerUnitType: 'Tank',
+        }),
+      );
+
+      expect(shallow.modifiers).not.toContainEqual(
+        expect.objectContaining({ name: 'Frogman' }),
+      );
+      expect(nonMek.modifiers).not.toContainEqual(
+        expect.objectContaining({ name: 'Frogman' }),
+      );
+    });
   });
 
   // =============================================================================

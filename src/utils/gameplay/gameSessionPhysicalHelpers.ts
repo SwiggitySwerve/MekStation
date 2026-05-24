@@ -17,6 +17,8 @@ export interface IPhysicalAttackContext {
   readonly hasTSM?: boolean;
   /** True when the physical attack is occurring in water. */
   readonly isUnderwater?: boolean;
+  /** Attacker water depth for source-backed Frogman physical to-hit relief. */
+  readonly attackerWaterDepth?: number;
   readonly arm?: 'left' | 'right';
   readonly hexesMoved?: number;
   readonly weaponsFiredFromArm?: readonly string[];

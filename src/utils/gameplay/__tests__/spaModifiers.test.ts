@@ -12,6 +12,7 @@ import {
   calculateJumpingJackModifier,
   calculateDodgeManeuverModifier,
   calculateMeleeSpecialistModifier,
+  calculateFrogmanPhysicalToHitModifier,
   getMeleeMasterDamageBonus,
   getTacticalGeniusBonus,
   getEffectiveWounds,
@@ -280,6 +281,32 @@ describe('spaModifiers', () => {
     it('returns null without the ability', () => {
       const result = calculateMeleeSpecialistModifier([]);
       expect(result).toBeNull();
+    });
+  });
+
+  describe('Terrain Master: Frogman', () => {
+    it('returns -1 physical to-hit in depth-2 water for Mek attackers', () => {
+      const result = calculateFrogmanPhysicalToHitModifier(
+        ['terrain-master-frogman'],
+        2,
+        'BattleMech',
+      );
+      expect(result).not.toBeNull();
+      expect(result!.name).toBe('Frogman');
+      expect(result!.value).toBe(-1);
+      expect(result!.source).toBe('spa');
+    });
+
+    it('does not apply outside depth-2+ water or Mek/ProtoMek attackers', () => {
+      expect(
+        calculateFrogmanPhysicalToHitModifier(['tm_frogman'], 1, 'BattleMech'),
+      ).toBeNull();
+      expect(
+        calculateFrogmanPhysicalToHitModifier(['tm_frogman'], 2, 'Tank'),
+      ).toBeNull();
+      expect(
+        calculateFrogmanPhysicalToHitModifier([], 2, 'BattleMech'),
+      ).toBeNull();
     });
   });
 

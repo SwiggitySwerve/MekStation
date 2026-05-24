@@ -290,6 +290,22 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual(expect.arrayContaining(['hopping-jack', 'jumping-jack']));
   });
 
+  it('pins Terrain Master Frogman physical to-hit to MegaMek water-depth semantics', () => {
+    const frogmanRefs = SPA_COMBAT_SUPPORT.tm_frogman.sourceRefs ?? [];
+
+    expect(SPA_COMBAT_SUPPORT.tm_frogman).toMatchObject({
+      level: 'integrated',
+    });
+    expect(SPA_COMBAT_SUPPORT['terrain-master'].gap).toContain('tm_frogman');
+    expect(frogmanRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek Compute.modifyPhysicalBTHForAdvantages applies -1 Frogman for Mek or ProtoMek attackers in water deeper than level 1',
+      'MegaMek OptionsConstants defines the source-backed Terrain Master: Frogman SPA id as tm_frogman',
+    ]);
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['physical-to-hit-application'].spaIds,
+    ).toEqual(expect.arrayContaining(['melee-specialist', 'tm_frogman']));
+  });
+
   it('keeps local called-shot helpers out of MegaMek-backed SPA claims', () => {
     expect(SPA_COMBAT_SUPPORT.marksman).toMatchObject({
       level: 'helper-only',
@@ -322,6 +338,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(SPA_COMBAT_SUPPORT['dodge-maneuver'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['hopping-jack'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['jumping-jack'].sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT.tm_frogman.sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'multi-target-penalty-application'
       ].sourceRefs ?? []),

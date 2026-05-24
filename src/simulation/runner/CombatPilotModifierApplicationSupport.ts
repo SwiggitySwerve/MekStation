@@ -146,7 +146,7 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'physical-to-hit-application': integrated(
     'physical-to-hit-application',
-    'resolvePhysicalAttack, runPhysicalAttackPhase, and interactive declaration contexts pass pilot ability state into physical to-hit helpers so Melee Specialist modifies TNs',
+    'resolvePhysicalAttack, runPhysicalAttackPhase, and interactive declaration contexts pass pilot ability state plus attacker water depth into physical to-hit helpers so Melee Specialist and Terrain Master: Frogman modify TNs',
   ),
   'physical-damage-application': integrated(
     'physical-damage-application',
@@ -288,7 +288,7 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
     quirkIds: [],
   },
   'physical-to-hit-application': {
-    spaIds: ['melee-specialist'],
+    spaIds: ['melee-specialist', 'tm_frogman'],
     quirkIds: [],
   },
   'physical-damage-application': {

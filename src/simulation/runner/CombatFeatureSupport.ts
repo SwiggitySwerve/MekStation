@@ -239,6 +239,27 @@ const MEGAMEK_325B_JUMP_ATTACKER_SOURCE_REFS = [
   MEGAMEK_325B_JUMP_ATTACKER_OPTIONS,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_325B_FROGMAN_PHYSICAL_TO_HIT = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Compute.modifyPhysicalBTHForAdvantages applies -1 Frogman for Mek or ProtoMek attackers in water deeper than level 1',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/compute/Compute.java#L2748-L2751',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_FROGMAN_OPTION = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek OptionsConstants defines the source-backed Terrain Master: Frogman SPA id as tm_frogman',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/options/OptionsConstants.java#L183-L187',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_FROGMAN_SOURCE_REFS = [
+  MEGAMEK_325B_FROGMAN_PHYSICAL_TO_HIT,
+  MEGAMEK_325B_FROGMAN_OPTION,
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_325B_DODGE_MANEUVER_TO_HIT = {
   kind: 'megamek-source',
   citation:
@@ -377,7 +398,12 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'terrain-master': unsupported(
     'terrain-master',
-    'Terrain PSR modifier is not wired',
+    'Generic Terrain Master PSR/movement behavior is not wired; source-backed Frogman physical to-hit relief is tracked separately as tm_frogman',
+  ),
+  tm_frogman: integrated(
+    'tm_frogman',
+    'Source-backed calculateFrogmanPhysicalToHitModifier plus physical to-hit helper, runner, and interactive physical resolution apply -1 in depth-2+ attacker water',
+    MEGAMEK_325B_FROGMAN_SOURCE_REFS,
   ),
   acrobat: unsupported('acrobat', 'DFA PSR modifier is not wired'),
   'cross-country': unsupported(

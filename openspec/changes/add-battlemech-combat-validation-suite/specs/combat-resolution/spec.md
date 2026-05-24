@@ -554,6 +554,27 @@ Ranged to-hit validation SHALL apply MegaMek's jump-attacker SPA relief: Jumping
 - **WHEN** the attacker did not jump this turn
 - **THEN** no jump-attack SPA modifier SHALL apply
 
+### Requirement: Source-Backed Terrain Master Frogman Physical To-Hit
+
+Physical to-hit validation SHALL apply MegaMek's Terrain Master: Frogman relief as a `-1` to-hit modifier only when the attacker has canonical `tm_frogman` or legacy `terrain-master-frogman`, the attacker is a Mek or ProtoMek, and the attacker occupies water deeper than level 1. Runner and event-sourced physical resolution SHALL derive or accept attacker water depth without using target-only water. Generic Terrain Master movement and PSR behavior SHALL remain an explicit gap until separately source-backed.
+
+#### Scenario: Frogman applies in depth-2 attacker water
+
+- **GIVEN** a physical attack is declared by a BattleMech or ProtoMech attacker with `tm_frogman`
+- **AND** the attacker occupies depth-2 or deeper water
+- **WHEN** the physical to-hit number is computed
+- **THEN** the to-hit number SHALL include a `Frogman` SPA modifier of `-1`
+
+#### Scenario: Frogman does not apply from shallow, target-only, or non-Mek state
+
+- **GIVEN** a physical attack is declared by an attacker with `tm_frogman`
+- **WHEN** the attacker occupies depth-1 or shallower water
+- **THEN** no `Frogman` modifier SHALL apply
+- **WHEN** only the target occupies water
+- **THEN** no `Frogman` modifier SHALL apply
+- **WHEN** the attacker unit type is explicit and is neither Mek nor ProtoMek
+- **THEN** no `Frogman` modifier SHALL apply
+
 ### Requirement: Source-Backed Maneuvering Ace Skidding PSR Relief
 
 Runner movement and PSR resolution SHALL apply MegaMek's movement-before-skid PSR distance table and subtract 1 for canonical Maneuvering Ace only when resolving skidding PSRs. The skidding distance modifier SHALL be queued as PSR trigger state, while Maneuvering Ace SHALL be applied during PSR resolution from hydrated pilot ability state so runner and interactive paths share the same target-number math. Terrain-specific Maneuvering Ace PSR behavior beyond skidding SHALL remain an explicit catalog gap.

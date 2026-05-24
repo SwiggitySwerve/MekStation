@@ -20,6 +20,18 @@ function isMekTargetUnitType(unitType?: string): boolean {
   );
 }
 
+function isMekOrProtoMekUnitType(unitType?: string): boolean {
+  if (!unitType) return true;
+
+  const normalized = unitType.replace(/[\s_-]/g, '').toLowerCase();
+  return (
+    normalized === 'battlemech' ||
+    normalized === 'omnimech' ||
+    normalized === 'industrialmech' ||
+    normalized === 'protomech'
+  );
+}
+
 /**
  * Blood Stalker: -1 vs designated target, +2 vs all others.
  */
@@ -134,6 +146,26 @@ export function calculateMeleeSpecialistModifier(
     value: -1,
     source: 'spa',
     description: 'Melee Specialist: -1 physical attack',
+  };
+}
+
+/**
+ * Terrain Master: Frogman: -1 to physical to-hit in depth-2+ water.
+ */
+export function calculateFrogmanPhysicalToHitModifier(
+  abilities: readonly string[],
+  attackerWaterDepth?: number,
+  attackerUnitType?: string,
+): IToHitModifierDetail | null {
+  if (!hasSPA(abilities, 'tm_frogman')) return null;
+  if (!isMekOrProtoMekUnitType(attackerUnitType)) return null;
+  if ((attackerWaterDepth ?? 0) <= 1) return null;
+
+  return {
+    name: 'Frogman',
+    value: -1,
+    source: 'spa',
+    description: 'Frogman: -1 physical attack to-hit in depth-2+ water',
   };
 }
 
