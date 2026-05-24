@@ -637,6 +637,18 @@ Terrain PSR validation SHALL keep MegaMek's BattleMech swamp bog-down rule visib
 - **WHEN** mud terrain support is inspected
 - **THEN** mud SHALL remain integrated for the existing BattleMech movement-cost and terrain-modifier coverage
 
+### Requirement: Source-Backed Cross-Country Scope Split
+
+Pilot modifier validation SHALL keep MegaMek's Cross-Country SPA visible as an explicit non-BattleMech combat-vehicle movement/passability scope split. The BattleMech combat matrix SHALL NOT represent Cross-Country as a terrain PSR modifier unless a future source-backed BattleMech rule is identified.
+
+#### Scenario: Cross-Country is cataloged outside BattleMech PSRs
+
+- **GIVEN** the BattleMech SPA and pilot modifier catalogs are generated
+- **WHEN** Cross-Country support is inspected
+- **THEN** the SPA SHALL be unsupported with MegaMek source references to combat-vehicle terrain movement-cost and passability behavior
+- **AND** the movement resolver family SHALL own the visible gap
+- **AND** the PSR resolver family SHALL NOT assign Cross-Country
+
 ### Requirement: Source-Backed Terrain Master Defender To-Hit Variants
 
 Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit variants from target state and target terrain: Forest Ranger SHALL add a `+1` to-hit modifier only when the target has canonical `tm_forest_ranger` or legacy `terrain-master-forest-ranger`, the target moved by walking, and the target occupies wooded terrain; Swamp Beast SHALL add a `+1` to-hit modifier only when the target has canonical `tm_swamp_beast` or legacy `terrain-master-swamp-beast`, the target moved by running, and the target occupies mud or swamp. Runner ranged attacks SHALL hydrate target terrain features into to-hit state. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry and Mountaineer rubble-entry relief, including Swamp Beast bog-down relief, SHALL remain an explicit gap until separately source-backed.

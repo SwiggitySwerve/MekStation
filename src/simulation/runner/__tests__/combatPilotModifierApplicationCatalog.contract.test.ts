@@ -342,6 +342,43 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'tm_swamp_beast',
       ]),
     );
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['psr-spa-application'].spaIds,
+    ).not.toContain('cross-country');
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application'].gap,
+    ).not.toContain('Cross-Country');
+  });
+
+  it('pins Cross-Country to MegaMek combat-vehicle movement scope', () => {
+    const crossCountryRefs =
+      SPA_COMBAT_SUPPORT['cross-country'].sourceRefs ?? [];
+    const movementRefs =
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application']
+        .sourceRefs ?? [];
+
+    expect(SPA_COMBAT_SUPPORT['cross-country']).toMatchObject({
+      level: 'unsupported',
+      gap: expect.stringContaining('combat-vehicle'),
+    });
+    expect(SPA_COMBAT_SUPPORT['cross-country'].gap).toContain(
+      'BattleMech terrain PSR',
+    );
+    expect(crossCountryRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek Terrain.movementCost applies Cross-Country only inside ground combat-vehicle terrain movement-cost gates.',
+      'MegaMek Tank.isLocationProhibited applies Cross-Country to tracked, wheeled, and hover combat-vehicle passability gates.',
+      'MegaMek OptionsConstants defines PILOT_CROSS_COUNTRY as cross_country.',
+    ]);
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application'],
+    ).toMatchObject({
+      level: 'unsupported',
+      gap: expect.stringContaining('Cross-Country combat-vehicle'),
+    });
+    expect(movementRefs).toEqual(crossCountryRefs);
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['movement-application'].spaIds,
+    ).toEqual(expect.arrayContaining(['cross-country']));
   });
 
   it('pins Terrain Master Mountaineer rubble PSR relief to MegaMek semantics', () => {
@@ -435,9 +472,12 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(SPA_COMBAT_SUPPORT.tm_forest_ranger.sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT.tm_mountaineer.sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT.tm_swamp_beast.sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT['cross-country'].sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'multi-target-penalty-application'
       ].sourceRefs ?? []),
+      ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application']
+        .sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['called-shot-application']
         .sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['ranged-to-hit-calculation']

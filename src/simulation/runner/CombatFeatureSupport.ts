@@ -7,6 +7,8 @@
  * known-limitation filter hide the missing rule.
  */
 
+import { MEGAMEK_CROSS_COUNTRY_SOURCE_REFS } from './CombatPilotModifierSourceRefs';
+
 export type CombatFeatureSupportLevel =
   | 'integrated'
   | 'helper-only'
@@ -489,7 +491,8 @@ export const SPA_COMBAT_SUPPORT = {
   acrobat: unsupported('acrobat', 'DFA PSR modifier is not wired'),
   'cross-country': unsupported(
     'cross-country',
-    'Running terrain PSR modifier is not wired',
+    'MegaMek Cross-Country is a combat-vehicle terrain movement-cost/passability modifier; no source-backed BattleMech terrain PSR modifier is represented in the BattleMech combat matrix',
+    MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   ),
   'dodge-maneuver': integrated(
     'dodge-maneuver',

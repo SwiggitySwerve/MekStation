@@ -5,6 +5,7 @@ import type {
 
 import {
   MEGAMEK_CALLED_SHOT_SOURCE_REFS,
+  MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   MEGAMEK_PSR_SPA_SOURCE_REFS,
   MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS,
   MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS,
@@ -103,7 +104,7 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   'psr-spa-application': helperOnly(
     'psr-spa-application',
     'calculatePSRModifiers, runPSRPhase, resolvePendingPSRs, and stand-up PSR paths apply source-backed Maneuvering Ace skidding relief, Animal Mimicry quad-Mek relief, Terrain Master: Frogman water-entry relief, and Terrain Master: Mountaineer rubble-entry relief to PSR target numbers',
-    'Maneuvering Ace terrain PSRs beyond skidding, Animal Mimicry terrain-designation movement effects, Terrain Master variants beyond Frogman water-entry and Mountaineer rubble-entry, Swamp Beast bog-down relief, Acrobat, Cross-Country, and Natural Grace PSR modifiers are not wired',
+    'Maneuvering Ace terrain PSRs beyond skidding, Animal Mimicry terrain-designation movement effects, Terrain Master variants beyond Frogman water-entry and Mountaineer rubble-entry, Swamp Beast bog-down relief, Acrobat, and Natural Grace PSR modifiers are not wired',
     MEGAMEK_PSR_SPA_SOURCE_REFS,
   ),
   'initiative-application': helperOnly(
@@ -141,7 +142,8 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'movement-application': unsupported(
     'movement-application',
-    'Evasive TMM, Speed Demon run-distance/heat tradeoff, and Heavy Lifter carry/throw movement effects are not wired',
+    'Evasive TMM, Speed Demon run-distance/heat tradeoff, Heavy Lifter carry/throw movement effects, and source-backed Cross-Country combat-vehicle movement/passability behavior are not wired in the BattleMech combat matrix',
+    MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   ),
   'multi-target-penalty-application': unsupported(
     'multi-target-penalty-application',
@@ -265,7 +267,6 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
       'tm_mountaineer',
       'tm_swamp_beast',
       'acrobat',
-      'cross-country',
       'natural-grace',
       'animal-mimicry',
     ],
@@ -296,7 +297,7 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
     quirkIds: ['rugged_1', 'rugged_2'],
   },
   'movement-application': {
-    spaIds: ['evasive', 'speed-demon', 'heavy-lifter'],
+    spaIds: ['evasive', 'speed-demon', 'heavy-lifter', 'cross-country'],
     quirkIds: [],
   },
   'multi-target-penalty-application': {

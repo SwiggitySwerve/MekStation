@@ -364,12 +364,13 @@ The Acrobat SPA SHALL grant -1 to DFA piloting rolls.
 
 ### Requirement: Piloting SPA — Cross-Country
 
-The Cross-Country SPA SHALL grant -1 PSR for terrain while running.
+The Cross-Country SPA SHALL remain an explicit non-BattleMech combat-vehicle movement/passability scope split until a vehicle combat matrix owns the mechanic. The BattleMech PSR resolver SHALL NOT claim Cross-Country as a terrain PSR modifier.
 
-#### Scenario: Cross-Country running bonus
+#### Scenario: Cross-Country remains outside BattleMech PSRs
 
-- **WHEN** a pilot with Cross-Country makes a PSR for terrain while running
-- **THEN** the PSR SHALL receive a -1 modifier
+- **WHEN** the BattleMech combat validation catalog is generated
+- **THEN** Cross-Country SHALL be marked unsupported for the BattleMech matrix with MegaMek source references to combat-vehicle movement/passability behavior
+- **AND** the PSR resolver assignment SHALL NOT include Cross-Country as a terrain PSR modifier
 
 ### Requirement: Defensive SPA — Evasive
 

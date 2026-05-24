@@ -103,6 +103,21 @@ const MEGAMEK_SWAMP_BEAST_BOG_DOWN_PSR_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEGAMEK_CROSS_COUNTRY_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek Terrain.movementCost applies Cross-Country only inside ground combat-vehicle terrain movement-cost gates.',
+    'megamek/src/megamek/common/units/Terrain.java#L404-L584',
+  ),
+  megamekRef(
+    'MegaMek Tank.isLocationProhibited applies Cross-Country to tracked, wheeled, and hover combat-vehicle passability gates.',
+    'megamek/src/megamek/common/units/Tank.java#L749-L822',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines PILOT_CROSS_COUNTRY as cross_country.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L169-L178',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEGAMEK_PSR_SPA_SOURCE_REFS = [
   ...MEGAMEK_MANEUVERING_ACE_SKID_SOURCE_REFS,
   ...MEGAMEK_ANIMAL_MIMICRY_QUAD_PSR_SOURCE_REFS,
