@@ -673,6 +673,7 @@ export interface IAttackerState {
  * Target combat state for to-hit calculation.
  */
 export interface ITargetState {
+  readonly unitType?: string;
   readonly movementType: MovementType;
   readonly hexesMoved: number;
   readonly prone: boolean;

@@ -179,9 +179,9 @@ These are documented gaps in functionality, not defects. They represent future w
 
 ## Special Pilot Abilities (SPAs)
 
-**Status**: Not Implemented (stubs exist)
+**Status**: Partially Implemented
 
-**Why**: Special Pilot Abilities are defined in the type system but not enforced during gameplay. Effects like "Gunnery Specialist", "Dodge", "Melee Specialist" do not modify combat calculations.
+**Why**: The combat validation catalog now tracks which SPAs are integrated, helper-only, or unsupported. Several ranged, heat, toughness, physical, and target-modifier SPAs are enforced during gameplay, including source-backed Dodge Maneuver to-hit behavior for explicit dodging Mek targets. Other SPA families still remain helper-only or unsupported until their owning combat pipeline consumes them.
 
 **When**: Part of advanced pilot mechanics milestone.
 
@@ -189,11 +189,12 @@ These are documented gaps in functionality, not defects. They represent future w
 
 - `src/lib/campaign/progression/spaAcquisition.ts` - Marked `@stub - Not implemented`
 - `src/types/pilot/SpecialAbilities.ts` - Abilities defined but not applied
+- `src/simulation/runner/CombatFeatureSupport.ts` - Source of truth for SPA combat integration state
 
 **Example Violations to Exclude**:
 
-- "SPA effect not applied to to-hit roll"
-- "Dodge ability not reducing incoming damage"
+- "Unsupported SPA effect not applied to combat resolution"
+- "Helper-only SPA visible but not consumed by runner pipeline"
 - "Gunnery Specialist bonus not applied"
 
 ---

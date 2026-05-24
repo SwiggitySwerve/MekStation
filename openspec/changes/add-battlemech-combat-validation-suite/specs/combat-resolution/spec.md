@@ -415,6 +415,25 @@ Runner movement validation SHALL consume explicit BattleMech `hasTSM` state and 
 - **AND** a BattleMech with the same TSM equipment below heat 9 SHALL NOT receive the TSM walk bonus
 - **AND** the movement-enhancement catalog SHALL mark TSM movement as integrated while leaving MASC, Supercharger, and Partial Wing helper-only
 
+### Requirement: Source-Backed Dodge Maneuver To-Hit
+
+Runner ranged to-hit validation SHALL apply Dodge Maneuver as a +2 target modifier only when the target has the source-backed Dodge Maneuver SPA and is explicitly dodging. Both canonical `dodge_maneuver` and legacy `dodge-maneuver` ids SHALL resolve through the SPA canonicalization layer. When target unit type is explicit, non-Mek targets SHALL NOT receive the Dodge Maneuver target modifier.
+
+#### Scenario: Dodging Mek target applies Dodge Maneuver
+
+- **GIVEN** a ranged weapon attack targets a BattleMech with `dodge_maneuver`
+- **AND** the target has `isDodging: true`
+- **WHEN** the runner emits `AttackDeclared`
+- **THEN** the declared to-hit number SHALL include a +2 `Dodge Maneuver` SPA modifier
+
+#### Scenario: Non-dodging or non-Mek targets do not apply Dodge Maneuver
+
+- **GIVEN** a ranged weapon attack targets a unit with `dodge_maneuver`
+- **WHEN** the target is not explicitly dodging
+- **THEN** the declared to-hit number SHALL NOT include a `Dodge Maneuver` modifier
+- **WHEN** the target unit type is explicit and is not a Mek type
+- **THEN** the declared to-hit number SHALL NOT include a `Dodge Maneuver` modifier
+
 ### Requirement: Source-Truth Cross-Check Discipline
 
 Combat feature work SHALL update OpenSpec, the validation catalog, and executable tests together. Before marking a mechanic integrated, the implementation SHALL be cross-checked against official rules or MegaMek / MekHQ behavior notes, with gaps recorded as partial or unsupported rather than inferred as complete.

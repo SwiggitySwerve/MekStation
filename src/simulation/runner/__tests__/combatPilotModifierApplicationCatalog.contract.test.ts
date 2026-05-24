@@ -253,6 +253,18 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ]);
   });
 
+  it('pins Dodge Maneuver to MegaMek target dodging semantics', () => {
+    const dodgeRefs = SPA_COMBAT_SUPPORT['dodge-maneuver'].sourceRefs ?? [];
+
+    expect(SPA_COMBAT_SUPPORT['dodge-maneuver']).toMatchObject({
+      level: 'integrated',
+    });
+    expect(dodgeRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek Compute applies +2 when the target is a Mek with Dodge Maneuver and target.dodging is true',
+      'MegaMek OptionsConstants defines the source-backed Dodge Maneuver SPA id as dodge_maneuver',
+    ]);
+  });
+
   it('keeps local called-shot helpers out of MegaMek-backed SPA claims', () => {
     expect(SPA_COMBAT_SUPPORT.marksman).toMatchObject({
       level: 'helper-only',
@@ -282,6 +294,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     const refs = [
       ...(SPA_COMBAT_SUPPORT['multi-tasker'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['multi-target'].sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT['dodge-maneuver'].sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'multi-target-penalty-application'
       ].sourceRefs ?? []),

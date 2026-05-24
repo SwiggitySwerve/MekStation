@@ -79,6 +79,7 @@
 - [x] 3.4.5 Integrate source-backed DFA attacker-minus-target piloting skill differential through helper, eligibility, event-sourced declaration, and runner resolution.
 - [x] 3.4.6 Integrate explicit runner C3 network state consumption for direct weapon attack to-hit while leaving automatic C3 equipment/network formation and C3 spotter LOS hydration explicit.
 - [x] 3.4.7 Align hull-down to-hit with MegaMek's +2 terrain modifier and thread explicit runner hull-down state into weapon attack declaration and hit-location resolution.
+- [x] 3.4.8 Integrate source-backed Dodge Maneuver target to-hit gating through canonical SPA ids, explicit target dodging state, and explicit non-Mek target exclusion.
 - [ ] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -102,3 +103,4 @@
 - [x] 4.3.5 Add structured MegaMek source anchors for Artemis cluster, indirect-fire, ECM, and stealth suppression rows.
 - [x] 4.3.6 Add structured MegaMek source anchors for secondary-target, Multi-Tasker, local Multi-Target, and called-shot modifier boundaries.
 - [x] 4.3.7 Add structured MegaMek source anchors for active TSM walk/run movement validation.
+- [x] 4.3.8 Add structured MegaMek source anchors for Dodge Maneuver target to-hit modifier gating.

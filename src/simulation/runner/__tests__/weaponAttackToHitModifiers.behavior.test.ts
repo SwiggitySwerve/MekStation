@@ -26,6 +26,7 @@ import {
   type IUnitGameState,
 } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   addC3Network,
   createC3MasterSlaveNetwork,
@@ -822,6 +823,61 @@ describe('runAttackPhase to-hit modifier integration', () => {
     ).toMatchObject({
       level: 'integrated',
     });
+  });
+
+  it('applies source-backed Dodge Maneuver only for explicit dodging Mek targets', () => {
+    const dodgingMekPayload = attackDeclaredPayload(
+      runModifierScenario({
+        state: createWeaponAttackState({
+          target: {
+            unitType: UnitType.BATTLEMECH,
+            abilities: ['dodge_maneuver'],
+            isDodging: true,
+          },
+        }),
+      }),
+    );
+    const notDodgingPayload = attackDeclaredPayload(
+      runModifierScenario({
+        state: createWeaponAttackState({
+          target: {
+            unitType: UnitType.BATTLEMECH,
+            abilities: ['dodge_maneuver'],
+            isDodging: false,
+          },
+        }),
+      }),
+    );
+    const nonMekPayload = attackDeclaredPayload(
+      runModifierScenario({
+        state: createWeaponAttackState({
+          target: {
+            unitType: UnitType.VEHICLE,
+            abilities: ['dodge_maneuver'],
+            isDodging: true,
+          },
+        }),
+      }),
+    );
+
+    expect(dodgingMekPayload.toHitNumber).toBe(6);
+    expectModifier(dodgingMekPayload, {
+      name: 'Dodge Maneuver',
+      value: 2,
+      source: 'spa',
+    });
+    expect(notDodgingPayload.toHitNumber).toBe(4);
+    expect(nonMekPayload.toHitNumber).toBe(4);
+    expect(
+      notDodgingPayload.modifiers.some(
+        (modifier) => modifier.name === 'Dodge Maneuver',
+      ),
+    ).toBe(false);
+    expect(
+      nonMekPayload.modifiers.some(
+        (modifier) => modifier.name === 'Dodge Maneuver',
+      ),
+    ).toBe(false);
   });
 
   it('threads per-weapon secondary target state and Multi-Tasker into AttackDeclared', () => {

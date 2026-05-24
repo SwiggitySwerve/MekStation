@@ -218,6 +218,27 @@ const MEGAMEK_325B_MULTI_TASKER_SOURCE_REFS = [
   MEGAMEK_325B_MULTI_TASKER_OPTION,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_325B_DODGE_MANEUVER_TO_HIT = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Compute applies +2 when the target is a Mek with Dodge Maneuver and target.dodging is true',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/compute/Compute.java#L2755-L2761',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_DODGE_MANEUVER_OPTION = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek OptionsConstants defines the source-backed Dodge Maneuver SPA id as dodge_maneuver',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/options/OptionsConstants.java#L169-L177',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_DODGE_MANEUVER_SOURCE_REFS = [
+  MEGAMEK_325B_DODGE_MANEUVER_TO_HIT,
+  MEGAMEK_325B_DODGE_MANEUVER_OPTION,
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const SPA_COMBAT_SUPPORT = {
   'weapon-specialist': integrated(
     'weapon-specialist',
@@ -294,7 +315,8 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'dodge-maneuver': integrated(
     'dodge-maneuver',
-    'calculateDodgeManeuverModifier + calculateToHit',
+    'Source-backed calculateDodgeManeuverModifier + calculateToHit applies +2 only for explicit dodging Mek targets',
+    MEGAMEK_325B_DODGE_MANEUVER_SOURCE_REFS,
   ),
   evasive: unsupported('evasive', 'TMM bonus is not wired'),
   'natural-grace': unsupported(

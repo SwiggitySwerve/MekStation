@@ -121,6 +121,7 @@ export function calculateAttackerSPAModifiers(
   const dodgeMod = calculateDodgeManeuverModifier(
     targetAbilities,
     target.isDodging,
+    target.unitType,
   );
   if (dodgeMod) modifiers.push(dodgeMod);
 

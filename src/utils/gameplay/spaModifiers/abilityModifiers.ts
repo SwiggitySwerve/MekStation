@@ -9,6 +9,17 @@ import { IToHitModifierDetail } from '@/types/gameplay';
 
 import { hasSPA } from './canonicalize';
 
+function isMekTargetUnitType(unitType?: string): boolean {
+  if (!unitType) return true;
+
+  const normalized = unitType.replace(/[\s_-]/g, '').toLowerCase();
+  return (
+    normalized === 'battlemech' ||
+    normalized === 'omnimech' ||
+    normalized === 'industrialmech'
+  );
+}
+
 /**
  * Blood Stalker: -1 vs designated target, +2 vs all others.
  */
@@ -83,9 +94,11 @@ export function calculateJumpingJackModifier(
 export function calculateDodgeManeuverModifier(
   targetAbilities: readonly string[],
   isDodging?: boolean,
+  targetUnitType?: string,
 ): IToHitModifierDetail | null {
   if (!hasSPA(targetAbilities, 'dodge_maneuver')) return null;
   if (!isDodging) return null;
+  if (!isMekTargetUnitType(targetUnitType)) return null;
 
   return {
     name: 'Dodge Maneuver',

@@ -73,6 +73,7 @@ export function buildWeaponAttackTargetToHitState(
   partialCover: boolean,
 ): ITargetState {
   return {
+    unitType: unit.unitType,
     movementType: unit.movementThisTurn,
     hexesMoved: unit.hexesMovedThisTurn,
     prone: unit.prone ?? false,
