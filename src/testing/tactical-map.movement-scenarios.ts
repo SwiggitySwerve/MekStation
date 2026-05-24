@@ -6,6 +6,7 @@ import type {
   IUnitGameState,
   IUnitToken,
 } from '@/types/gameplay';
+import type { ICommittedMovementValidationInput } from '@/utils/gameplay/movement/commitValidation';
 
 import {
   Facing,
@@ -62,6 +63,8 @@ const tacticalMapVtolCapability: IMovementCapability = {
   movementMode: 'vtol',
 };
 
+const tacticalMapVtolElevationDestination = { q: 1, r: 0 } as const;
+
 const tacticalMapVtolUnit: IUnitGameState = {
   id: 'attacker',
   side: GameSide.Player,
@@ -115,9 +118,21 @@ export const tacticalMapVtolElevationMovementRange: readonly IMovementRangeHex[]
       MovementType.Run,
       tacticalMapVtolGrid(),
       tacticalMapVtolCapability,
-      { q: 1, r: 0 },
+      tacticalMapVtolElevationDestination,
     ),
   );
+
+export function tacticalMapVtolElevationCommitInput(): ICommittedMovementValidationInput {
+  return {
+    grid: tacticalMapVtolGrid(),
+    unit: tacticalMapVtolUnit,
+    to: tacticalMapVtolElevationDestination,
+    facing: Facing.Northeast,
+    movementType: MovementType.Run,
+    capability: tacticalMapVtolCapability,
+    path: tacticalMapVtolElevationMovementRange[0]?.path,
+  };
+}
 
 export const tacticalMapVtolElevationMpLegend: MapMovementPointLegendState = {
   active: 'run',

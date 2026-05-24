@@ -43,6 +43,9 @@
   zero elevation MP cost and unit-type movement metadata.
 - [x] 2.18 Route the VTOL-style browser scenario through the shared movement
   destination projection instead of a hand-authored highlight row.
+- [x] 2.19 Add fixture-level parity coverage proving the VTOL browser
+  projection is accepted by movement commit validation with matching MP, heat,
+  and path.
 
 ## 3. Validation
 
@@ -79,3 +82,5 @@
   movement metadata.
 - [x] 3.18 Focused typecheck and browser smoke prove the VTOL browser fixture is
   still valid after switching to generated movement projection data.
+- [x] 3.19 Focused Jest parity test passes for the VTOL browser projection and
+  commit validator handoff.
