@@ -86,7 +86,13 @@ export function waterMovementCostModifier(
   if (context.waterCapability?.frogmanSpecialist && waterLevel > 1) {
     return 2;
   }
-  return waterLevel === 1 ? 1 : 3;
+  if (waterLevel === 1) return 1;
+  return hasOptionalRule(
+    context.optionalRules ?? [],
+    PLAYTEST_2_OPTIONAL_RULE_KEY,
+  )
+    ? 2
+    : 3;
 }
 
 export const ROAD_LEVEL_DIRT = 3;
@@ -95,6 +101,7 @@ const TAC_OPS_INFANTRY_PAVEMENT_BONUS_OPTION_KEYS = new Set([
   'tacopsinfpavebonus',
   'advancedtacopsinfpavebonus',
 ]);
+const PLAYTEST_2_OPTIONAL_RULE_KEY = 'playtest2';
 
 export function isPavedRoadFeature(feature: ITerrainFeature): boolean {
   return (
@@ -250,7 +257,20 @@ function hasTacOpsInfantryPavementBonus(
 ): boolean {
   return optionalRules.some((rule) =>
     TAC_OPS_INFANTRY_PAVEMENT_BONUS_OPTION_KEYS.has(
-      rule.toLowerCase().replace(/[^a-z0-9]+/g, ''),
+      normalizedOptionalRuleKey(rule),
     ),
   );
+}
+
+function hasOptionalRule(
+  optionalRules: readonly string[],
+  expectedKey: string,
+): boolean {
+  return optionalRules.some(
+    (rule) => normalizedOptionalRuleKey(rule) === expectedKey,
+  );
+}
+
+function normalizedOptionalRuleKey(rule: string): string {
+  return rule.toLowerCase().replace(/[^a-z0-9]+/g, '');
 }

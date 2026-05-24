@@ -758,6 +758,54 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('uses the Playtest2 deep-water movement surcharge when enabled', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
+      0,
+    );
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'walk',
+    };
+
+    const defaultWater = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+    );
+    const playtest2Water = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+      'normal',
+      { optionalRules: ['playtest_2'] },
+    );
+
+    expect(defaultWater).toMatchObject({
+      reachable: false,
+      mpCost: 4,
+      terrainCost: 3,
+      movementInvalidReason: 'InsufficientMP',
+    });
+    expect(playtest2Water).toMatchObject({
+      reachable: true,
+      mpCost: 3,
+      terrainCost: 2,
+      movementMode: 'walk',
+    });
+  });
+
   it('lets UMU movement cross deep water without water-depth MP surcharges', () => {
     let grid = createHexGrid({ radius: 3 });
     grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
