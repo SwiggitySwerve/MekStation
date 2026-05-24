@@ -130,6 +130,7 @@ function resolveArgs(
   events: IGameEvent[],
   partialCover: boolean,
   rollQueue: readonly number[],
+  options: { hullDown?: boolean } = {},
 ) {
   return {
     currentState: makeState(),
@@ -143,6 +144,7 @@ function resolveArgs(
     toHitNumber: 6,
     firingArc: 'front' as const,
     partialCover,
+    ...(options.hullDown !== undefined ? { hullDown: options.hullDown } : {}),
     d6Roller: scriptedRoller(rollQueue),
     getOrSeedManifest: () => buildDefaultCriticalSlotManifest(),
   };
@@ -206,5 +208,25 @@ describe('resolveWeaponHit — partial cover leg-hit conversion', () => {
       true,
     );
     expect(result.units.target.armor.center_torso).toBe(42);
+  });
+
+  it('redirects a front-arc hull-down leg hit to center torso damage', () => {
+    // Roll [2,3] is a front-table right_leg hit before hull-down redirect.
+    const events: IGameEvent[] = [];
+    const result = resolveWeaponHit(
+      resolveArgs(events, false, [2, 3], { hullDown: true }),
+    );
+
+    const resolved = events.filter(
+      (e) => e.type === GameEventType.AttackResolved,
+    );
+
+    expect(resolved).toHaveLength(1);
+    expect((resolved[0].payload as { hit: boolean }).hit).toBe(true);
+    expect((resolved[0].payload as { location?: string }).location).toBe(
+      'center_torso',
+    );
+    expect(result.units.target.armor.center_torso).toBe(42);
+    expect(result.units.target.armor.right_leg).toBe(41);
   });
 });

@@ -299,6 +299,8 @@ export interface IUnitGameState {
   readonly componentDamage?: IComponentDamageState;
   /** Unit is prone (fallen) */
   readonly prone?: boolean;
+  /** Unit is in a hull-down defensive position. */
+  readonly hullDown?: boolean;
   /** Unit is shut down (reactor offline) */
   readonly shutdown?: boolean;
   /** Ammo bin state tracking */

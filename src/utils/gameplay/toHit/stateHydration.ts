@@ -78,6 +78,7 @@ export function buildWeaponAttackTargetToHitState(
     prone: unit.prone ?? false,
     immobile: unit.shutdown ?? false,
     partialCover,
+    hullDown: unit.hullDown ?? false,
     unitQuirks: unit.unitQuirks,
     weaponQuirks: unit.weaponQuirks,
     abilities: unit.abilities,

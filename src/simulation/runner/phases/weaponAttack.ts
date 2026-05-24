@@ -1131,6 +1131,7 @@ export function runAttackPhase(options: {
           toHitNumber: environmentAdjustedToHit,
           firingArc,
           partialCover: targetPartialCover,
+          hullDown: targetBeforeShot.hullDown ?? false,
           d6Roller,
           getOrSeedManifest,
           manifestsByUnit,

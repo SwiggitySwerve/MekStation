@@ -30,13 +30,14 @@ const INTEGRATED_TO_HIT_MODIFIERS = [
   'attacker-prone',
   'c3',
   'called-shot',
+  'hull-down',
   'pilot-wounds',
   'sensor-damage',
   'secondary-target',
   'terrain-features',
 ] as const;
 
-const HELPER_ONLY_TO_HIT_MODIFIERS = ['ecm', 'hull-down'] as const;
+const HELPER_ONLY_TO_HIT_MODIFIERS = ['ecm'] as const;
 
 type HelperOnlyToHitModifierId = (typeof HELPER_ONLY_TO_HIT_MODIFIERS)[number];
 type IntegratedToHitModifierId = (typeof INTEGRATED_TO_HIT_MODIFIERS)[number];
@@ -159,8 +160,8 @@ describe('BattleMech to-hit support matrix modifiers', () => {
     },
     {
       id: 'hull-down',
-      expectedDelta: 1,
-      expectedModifierName: 'Hull-Down (Partial Cover)',
+      expectedDelta: 2,
+      expectedModifierName: 'Hull-Down',
       calculate: () =>
         calculateToHit(
           makeAttacker(),

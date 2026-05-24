@@ -142,9 +142,10 @@ export function createDiceRoll(die1: number, die2: number): IDiceRoll {
 export function determineHitLocation(
   arc: FiringArc,
   diceRoller: D6Roller = defaultD6Roller,
+  options: IHitLocationOptions = {},
 ): IHitLocationResult {
   const roll = roll2d6(diceRoller);
-  return determineHitLocationFromRoll(arc, roll);
+  return determineHitLocationFromRoll(arc, roll, options);
 }
 
 /**

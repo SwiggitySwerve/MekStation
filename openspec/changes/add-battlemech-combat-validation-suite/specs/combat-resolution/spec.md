@@ -391,6 +391,18 @@ Direct runner weapon attack declarations SHALL consume explicit `IGameState.c3Ne
 - **AND** iNARC ECM pod state on a C3 member SHALL deny C3 benefit through the ECM-disrupted C3 path
 - **AND** the attack payload SHALL retain the attacker's actual range band while listing the effective C3 range math in modifiers
 
+### Requirement: Hull-Down Runner To-Hit Integration
+
+Runner weapon attack declarations SHALL consume explicit target `IUnitGameState.hullDown` state. Hull-down targets SHALL receive MegaMek's source-backed +2 terrain to-hit modifier instead of the normal partial-cover +1 modifier, and confirmed front-arc leg hit-location rolls SHALL be redirected through the hull-down hit-location option before damage is applied.
+
+#### Scenario: Explicit hull-down target affects declared and resolved attacks
+
+- **GIVEN** a target BattleMech has explicit `hullDown: true`
+- **WHEN** the runner emits `AttackDeclared`
+- **THEN** the declared to-hit number SHALL include a +2 `Hull-Down` terrain modifier
+- **AND** the normal `Partial Cover` modifier SHALL NOT also be emitted for that attack
+- **AND** a confirmed front-arc leg hit-location roll SHALL resolve against center torso through hull-down hit-location logic
+
 ### Requirement: Source-Truth Cross-Check Discipline
 
 Combat feature work SHALL update OpenSpec, the validation catalog, and executable tests together. Before marking a mechanic integrated, the implementation SHALL be cross-checked against official rules or MegaMek / MekHQ behavior notes, with gaps recorded as partial or unsupported rather than inferred as complete.

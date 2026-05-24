@@ -412,6 +412,31 @@ describe('runAttackPhase to-hit modifier integration', () => {
     });
   });
 
+  it('threads explicit target hull-down state into AttackDeclared', () => {
+    const events = runModifierScenario({
+      state: createWeaponAttackState({
+        target: {
+          hullDown: true,
+        },
+      }),
+    });
+
+    const payload = attackDeclaredPayload(events);
+
+    expect(payload.toHitNumber).toBe(6);
+    expectModifier(payload, {
+      name: 'Hull-Down',
+      value: 2,
+      source: 'terrain',
+    });
+    expect(payload.modifiers).not.toContainEqual(
+      expect.objectContaining({ name: 'Partial Cover' }),
+    );
+    expect(RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['hull-down']).toMatchObject({
+      level: 'integrated',
+    });
+  });
+
   it('threads wounds, sensor hits, actuator damage, and attacker prone into AttackDeclared', () => {
     const events = runModifierScenario({
       state: createWeaponAttackState({

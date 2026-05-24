@@ -107,11 +107,14 @@ export function calculateToHit(
   const immobileMod = calculateImmobileModifier(target.immobile);
   if (immobileMod) modifiers.push(immobileMod);
 
-  const coverMod = calculatePartialCoverModifier(target.partialCover);
+  const targetHullDown = target.hullDown ?? false;
+  const coverMod = calculatePartialCoverModifier(
+    targetHullDown ? false : target.partialCover,
+  );
   if (coverMod) modifiers.push(coverMod);
 
   const hullDownMod = calculateHullDownModifier(
-    target.hullDown ?? false,
+    targetHullDown,
     target.partialCover,
   );
   if (hullDownMod) modifiers.push(hullDownMod);

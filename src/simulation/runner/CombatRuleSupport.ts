@@ -106,6 +106,16 @@ const MEGAMEK_C3_RANGE_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_HULL_DOWN_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek ComputeTerrainMods applies WeaponAttackAction.HullDown as a +2 terrain modifier for hull-down Mek targets with LOS cover.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/megamek/src/megamek/common/actions/compute/ComputeTerrainMods.java#L215-L218`,
+    sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_DFA_TARGET_CLASS_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -220,10 +230,10 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
     'attacker-prone',
     'runAttackPhase passes attacker prone state into calculateToHit',
   ),
-  'hull-down': helperOnly(
+  'hull-down': integrated(
     'hull-down',
-    'calculateHullDownModifier + calculateToHit',
-    'runAttackPhase does not derive target hull-down state',
+    'Source-backed calculateHullDownModifier applies +2, runAttackPhase threads explicit IUnitGameState.hullDown into AttackDeclared to-hit, and resolveWeaponHit redirects front-arc hull-down leg hits through hit-location options',
+    MEGAMEK_HULL_DOWN_SOURCE_REFS,
   ),
   'secondary-target': integrated(
     'secondary-target',

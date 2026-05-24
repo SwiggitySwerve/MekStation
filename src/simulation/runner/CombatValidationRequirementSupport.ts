@@ -628,7 +628,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'to-hit-advanced-modifiers': helperOnly(
     'to-hit-advanced-modifiers',
     'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, ECM, C3, and terrain features',
-    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, secondary-target state, called-shot state, explicit C3 network state, and non-blocking intervening terrain, but ECM and hull-down inputs are still helper-only',
+    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, target hull-down state, secondary-target state, called-shot state, explicit C3 network state, and non-blocking intervening terrain, but ECM inputs are still helper-only',
     TO_HIT_ADVANCED_MODIFIER_SUPPORT_REFS,
   ),
   'terrain-movement-los-cover': integrated(

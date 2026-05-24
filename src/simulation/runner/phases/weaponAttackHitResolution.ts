@@ -78,6 +78,11 @@ export function resolveWeaponHit(options: {
    * p. 53) — the cover absorbs the shot.
    */
   partialCover: boolean;
+  /**
+   * Whether the target is hull-down. Front-arc leg hit-location rolls are
+   * redirected before the partial-cover leg-miss conversion.
+   */
+  hullDown?: boolean;
   d6Roller: () => number;
   getOrSeedManifest: (id: string) => CriticalSlotManifest;
   manifestsByUnit?: Map<string, CriticalSlotManifest>;
@@ -93,6 +98,7 @@ export function resolveWeaponHit(options: {
     getOrSeedManifest,
     manifestsByUnit,
     partialCover,
+    hullDown,
     ammoWeaponType,
     projectileCount,
     targetId,
@@ -140,6 +146,7 @@ export function resolveWeaponHit(options: {
   const hitLocationResult = determineHitLocation(
     toFiringArc(firingArc),
     d6Roller,
+    { hullDown: hullDown ?? false },
   );
   const location = hitLocationResult.location;
 
