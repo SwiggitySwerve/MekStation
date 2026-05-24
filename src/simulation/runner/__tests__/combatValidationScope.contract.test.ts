@@ -3,6 +3,7 @@ import { join } from 'node:path';
 
 import {
   getLimitationCategory,
+  KNOWN_LIMITATION_CATEGORY_IDS,
   getLimitationPatternCategory,
   isKnownLimitation,
   type IViolation,
@@ -94,6 +95,10 @@ describe('BattleMech validation scope support catalog', () => {
   });
 
   it('keeps BattleMech validation traps visible despite broad limitation text matches', () => {
+    expect(
+      KNOWN_LIMITATION_VALIDATION_TRAPS.map((trap) => trap.category).sort(),
+    ).toEqual([...KNOWN_LIMITATION_CATEGORY_IDS].sort());
+
     const violations = KNOWN_LIMITATION_VALIDATION_TRAPS.map((trap) =>
       validationViolation(trap.message),
     );

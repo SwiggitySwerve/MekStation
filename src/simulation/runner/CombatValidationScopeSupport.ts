@@ -1,3 +1,5 @@
+import type { KnownLimitationCategory } from '@/simulation/core/knownLimitations';
+
 import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
 
 function integrated(id: string, evidence: string): ICombatFeatureSupportEntry {
@@ -56,7 +58,26 @@ export const KNOWN_LIMITATION_VALIDATION_TRAPS = [
     category: 'specialAbilities',
     message: 'special pilot ability spa effect not applied',
   },
-] as const;
+  {
+    id: 'vehicle-aerospace-filter-trap',
+    category: 'vehicleAerospace',
+    message: 'vehicle movement vtol altitude wheeled tracked hover movement',
+  },
+  {
+    id: 'campaign-progression-filter-trap',
+    category: 'campaignProgression',
+    message: 'campaign system xp award skill progression unit repair',
+  },
+  {
+    id: 'mtf-parsing-filter-trap',
+    category: 'mtfParsing',
+    message: 'mtf file parsing mtf import mechtech format',
+  },
+] as const satisfies readonly {
+  readonly id: string;
+  readonly category: KnownLimitationCategory;
+  readonly message: string;
+}[];
 
 export const BATTLEMECH_VALIDATION_SCOPE_SUPPORT = {
   'known-limitation-bypass': integrated(
@@ -65,7 +86,7 @@ export const BATTLEMECH_VALIDATION_SCOPE_SUPPORT = {
   ),
   'known-limitation-pattern-audit': integrated(
     'known-limitation-pattern-audit',
-    'getLimitationPatternCategory still reports the broad matching category so validation-trap coverage remains auditable',
+    'every broad known-limitation category has a BattleMech validation trap; getLimitationPatternCategory still reports the broad matching category so validation-trap coverage remains auditable',
   ),
   'catalog-filter-gate-ban': integrated(
     'catalog-filter-gate-ban',

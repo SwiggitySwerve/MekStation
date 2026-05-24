@@ -132,6 +132,12 @@ const KNOWN_LIMITATION_PATTERNS = {
   mtfParsing: [/mtf.*file.*parsing/i, /mtf.*import/i, /mechtech.*format/i],
 } as const;
 
+export type KnownLimitationCategory = keyof typeof KNOWN_LIMITATION_PATTERNS;
+
+export const KNOWN_LIMITATION_CATEGORY_IDS = Object.keys(
+  KNOWN_LIMITATION_PATTERNS,
+) as readonly KnownLimitationCategory[];
+
 /**
  * Flattened list of all known limitation patterns for efficient matching.
  */

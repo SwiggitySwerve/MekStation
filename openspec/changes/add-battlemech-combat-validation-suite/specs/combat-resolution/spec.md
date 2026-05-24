@@ -65,6 +65,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **THEN** the static weapon database subset, synthetic Medium Laser fallback ban, and variable missile damage-string guard SHALL each appear as explicit integrated validation-scope rows
 - **AND** fallback-prevention and damage-string-hazards requirements SHALL reference those specific rows rather than relying only on broad official-catalog coverage
 - **AND** broad known-limitation filters SHALL remain banned from catalog validation gates
+- **AND** every broad known-limitation category SHALL have a BattleMech validation trap proving the validation invariant bypass remains visible instead of filtered
 
 #### Scenario: Catalog critical slots seed runner critical resolution
 

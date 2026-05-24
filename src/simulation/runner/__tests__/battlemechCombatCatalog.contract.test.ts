@@ -15,6 +15,7 @@ import { WEAPON_DATABASE } from '@/engine/adapters/CompendiumWeaponData';
 import { CANONICAL_SPA_CATALOG, getSPADefinition } from '@/lib/spa';
 import {
   getLimitationPatternCategory,
+  KNOWN_LIMITATION_CATEGORY_IDS,
   isKnownLimitation,
   type IViolation,
 } from '@/simulation/core/knownLimitations';
@@ -91,6 +92,10 @@ import {
   TERRAIN_TYPE_MOVEMENT_COVERAGE,
 } from '../CombatRuleSupport';
 import { SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT } from '../CombatSpecialWeaponSupport';
+import {
+  BATTLEMECH_COMBAT_VALIDATION_INVARIANT,
+  KNOWN_LIMITATION_VALIDATION_TRAPS,
+} from '../CombatValidationScopeSupport';
 import {
   resolveSpecialProjectileHit,
   shouldSpendAmmoAndHeatOnMiss,
@@ -1863,49 +1868,25 @@ describe('BattleMech combat feature-gap tracking', () => {
   });
 
   it('audits known-limitation traps without filtering combat validation failures', () => {
-    const validationTraps: readonly {
-      readonly category: string;
-      readonly message: string;
-    }[] = [
-      {
-        category: 'physicalAttacks',
-        message: 'physical attack charge and death from above',
-      },
-      {
-        category: 'terrainMovement',
-        message: 'terrain movement cost water hex cost',
-      },
-      {
-        category: 'heatShutdown',
-        message: 'heat induced shutdown restart after shutdown',
-      },
-      {
-        category: 'lineOfSight',
-        message: 'line of sight blocked by intervening terrain',
-      },
-      {
-        category: 'specialAbilities',
-        message: 'special pilot ability melee specialist',
-      },
-      {
-        category: 'criticalEffects',
-        message: 'critical hit effect engine hit heat',
-      },
-    ];
-    const validationTrapViolations: readonly IViolation[] = validationTraps.map(
-      ({ message }) => ({
-        invariant: 'battlemech-combat-validation',
+    expect(
+      KNOWN_LIMITATION_VALIDATION_TRAPS.map((trap) => trap.category).sort(),
+    ).toEqual([...KNOWN_LIMITATION_CATEGORY_IDS].sort());
+
+    const validationTrapViolations: readonly IViolation[] =
+      KNOWN_LIMITATION_VALIDATION_TRAPS.map(({ message }) => ({
+        invariant: BATTLEMECH_COMBAT_VALIDATION_INVARIANT,
         severity: 'warning',
         message,
         context: {},
-      }),
-    );
+      }));
 
     expect(validationTrapViolations.every(isKnownLimitation)).toBe(false);
     expect(validationTrapViolations.map(getLimitationPatternCategory)).toEqual(
-      validationTraps.map(({ category }) => category),
+      KNOWN_LIMITATION_VALIDATION_TRAPS.map(({ category }) => category),
     );
-    expect(validationTrapViolations).toHaveLength(validationTraps.length);
+    expect(validationTrapViolations).toHaveLength(
+      KNOWN_LIMITATION_VALIDATION_TRAPS.length,
+    );
   });
 
   it('prevents known-limitation filtering from gating the catalog validation lane', () => {
