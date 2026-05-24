@@ -197,6 +197,9 @@ export function GameplayLayout({
   // red ring (distinct from the static validTarget ring painted on
   // every fireable enemy).
   const activeTargetId = useGameplaySelector((s) => s.attackPlan.targetUnitId);
+  const selectedWeaponIds = useGameplaySelector(
+    (s) => s.attackPlan.selectedWeapons,
+  );
   const physicalAttackPlan = usePhysicalAttackPlanStore(
     (s) => s.physicalAttackPlan,
   );
@@ -416,6 +419,7 @@ export function GameplayLayout({
         mapRadius: config.mapRadius,
         grid: combatGrid,
         unitWeapons,
+        selectedWeaponIds,
       }),
     [
       baseTokens,
@@ -423,6 +427,7 @@ export function GameplayLayout({
       config.mapRadius,
       currentState,
       selectedUnitId,
+      selectedWeaponIds,
       unitWeapons,
     ],
   );
@@ -491,6 +496,7 @@ export function GameplayLayout({
         mapRadius: config.mapRadius,
         grid: combatGrid,
         unitWeapons,
+        selectedWeaponIds,
         hitChance,
         physicalAttackTargetId: physicalAttackPlan.targetUnitId,
         physicalAttackType: physicalAttackPlan.attackType,
@@ -516,6 +522,7 @@ export function GameplayLayout({
       physicalAttackPlan.limb,
       physicalAttackPlan.targetUnitId,
       selectedUnitId,
+      selectedWeaponIds,
       tokens,
       units,
       unitWeapons,
@@ -795,6 +802,7 @@ export function GameplayLayout({
                 movementRange={movementRange}
                 targetUnitId={activeTargetId}
                 unitWeapons={unitWeapons}
+                selectedWeaponIds={selectedWeaponIds}
                 combatState={currentState}
                 friendlySide={playerSide}
                 highlightPath={highlightPath}

@@ -181,6 +181,56 @@ describe('buildCommandPreviewInputs', () => {
     expect(inputs.combatInfo?.toHitNumber).toBe(4);
   });
 
+  it('keeps all weapon statuses while projecting only selected weapons', () => {
+    const grid = createMinimalGrid(3);
+    const attacker = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const target = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      isValidTarget: true,
+      position: { q: 2, r: 0 },
+      facing: Facing.North,
+    });
+    const shortWeapon = makeWeapon({
+      id: 'small-laser',
+      ranges: { short: 1, medium: 1, long: 1 },
+    });
+    const longWeapon = makeWeapon({
+      id: 'medium-laser',
+      ranges: { short: 2, medium: 4, long: 6 },
+    });
+
+    const inputs = buildCommandPreviewInputs({
+      currentState: makeState(),
+      selectedUnitId: 'a1',
+      activeTargetId: 't1',
+      tokens: [attacker, target],
+      unitBindings: [],
+      mapRadius: 3,
+      grid,
+      unitWeapons: { a1: [shortWeapon, longWeapon] },
+      selectedWeaponIds: ['small-laser'],
+      hitChance: 72,
+    });
+
+    expect(inputs.weaponStatuses).toEqual([shortWeapon, longWeapon]);
+    expect(inputs.combatInfo).toMatchObject({
+      hex: { q: 2, r: 0 },
+      targetUnitIds: ['t1'],
+      validTargetUnitIds: [],
+      weaponIdsAvailable: [],
+      rangeBracket: RangeBracket.OutOfRange,
+    });
+    expect(
+      inputs.combatInfo?.weaponRangeOptions.map((option) => option.weaponId),
+    ).toEqual(['small-laser']);
+  });
+
   it('uses the active target instead of the first unit stacked on a combat hex', () => {
     const baseGrid = createMinimalGrid(3);
     const hexes = new Map(baseGrid.hexes);

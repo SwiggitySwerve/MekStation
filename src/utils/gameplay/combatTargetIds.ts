@@ -8,6 +8,7 @@ import type {
 import { GamePhase } from '@/types/gameplay';
 
 import { deriveCombatRangeHexes } from './combatProjection';
+import { selectCombatProjectionWeapons } from './combatProjection.weaponSelection';
 import { hexesInRange } from './hexMath';
 
 export interface IDeriveValidWeaponTargetIdsParams {
@@ -17,6 +18,7 @@ export interface IDeriveValidWeaponTargetIdsParams {
   readonly mapRadius: number;
   readonly grid: IHexGrid | null;
   readonly unitWeapons: Record<string, readonly IWeaponStatus[]>;
+  readonly selectedWeaponIds?: readonly string[];
 }
 
 export function deriveValidWeaponTargetIds({
@@ -26,6 +28,7 @@ export function deriveValidWeaponTargetIds({
   mapRadius,
   grid,
   unitWeapons,
+  selectedWeaponIds,
 }: IDeriveValidWeaponTargetIdsParams): readonly string[] {
   if (
     currentState.phase !== GamePhase.WeaponAttack ||
@@ -39,12 +42,16 @@ export function deriveValidWeaponTargetIds({
   if (!attacker) return [];
 
   const targetIds = new Set<string>();
+  const projectedWeapons = selectCombatProjectionWeapons(
+    unitWeapons[selectedUnitId] ?? [],
+    selectedWeaponIds,
+  );
   for (const projection of deriveCombatRangeHexes({
     attacker,
     hexes: hexesInRange({ q: 0, r: 0 }, mapRadius),
     grid,
     tokens,
-    weapons: unitWeapons[selectedUnitId] ?? [],
+    weapons: projectedWeapons,
     combatState: currentState,
   })) {
     for (const targetId of projection.validTargetUnitIds) {

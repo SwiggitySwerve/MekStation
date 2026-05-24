@@ -577,4 +577,48 @@ describe('deriveValidWeaponTargetIds', () => {
 
     expect(result).toEqual(['visible-target']);
   });
+
+  it('filters valid targets by selected weapon ids when provided', () => {
+    const grid = createHexGrid({ radius: 3 });
+    const attacker = makeToken({
+      unitId: 'attacker',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const visibleTarget = makeToken({
+      unitId: 'visible-target',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+    });
+
+    const result = deriveValidWeaponTargetIds({
+      currentState: makeCombatState({
+        attacker: { side: GameSide.Player, position: { q: 0, r: 0 } },
+        'visible-target': {
+          side: GameSide.Opponent,
+          position: { q: 2, r: 0 },
+        },
+      }),
+      selectedUnitId: 'attacker',
+      tokens: [attacker, visibleTarget],
+      mapRadius: 3,
+      grid,
+      unitWeapons: {
+        attacker: [
+          makeWeapon({
+            id: 'small-laser',
+            ranges: { short: 1, medium: 1, long: 1 },
+          }),
+          makeWeapon({
+            id: 'medium-laser',
+            ranges: { short: 2, medium: 4, long: 6 },
+          }),
+        ],
+      },
+      selectedWeaponIds: ['small-laser'],
+    });
+
+    expect(result).toEqual([]);
+  });
 });

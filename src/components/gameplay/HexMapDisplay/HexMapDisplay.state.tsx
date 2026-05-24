@@ -6,6 +6,7 @@ import { useScreenShake } from '@/hooks/useScreenShake';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { GameSide } from '@/types/gameplay';
 import { isOperationalWeaponStatus } from '@/utils/gameplay/combatProjection';
+import { selectCombatProjectionWeapons } from '@/utils/gameplay/combatProjection.weaponSelection';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import { buildTacticalMapHexProjectionLookup } from '@/utils/gameplay/tacticalMapProjection';
 
@@ -47,6 +48,7 @@ export function useHexMapDisplayState({
   attackRange = [],
   targetUnitId = null,
   unitWeapons = {},
+  selectedWeaponIds = [],
   combatState = null,
   friendlySide = GameSide.Player,
   highlightPath = [],
@@ -117,12 +119,16 @@ export function useHexMapDisplayState({
     if (!selectedToken) return [];
     return unitWeapons[selectedToken.unitId] ?? [];
   }, [selectedToken, unitWeapons]);
+  const projectedCombatWeapons = useMemo(
+    () => selectCombatProjectionWeapons(selectedUnitWeapons, selectedWeaponIds),
+    [selectedUnitWeapons, selectedWeaponIds],
+  );
   const hasConfiguredWeaponList =
     selectedToken !== null &&
     Object.prototype.hasOwnProperty.call(unitWeapons, selectedToken.unitId);
   const operationalWeapons = useMemo(
-    () => selectedUnitWeapons.filter(isOperationalWeaponStatus),
-    [selectedUnitWeapons],
+    () => projectedCombatWeapons.filter(isOperationalWeaponStatus),
+    [projectedCombatWeapons],
   );
   const useLegacyAttackRange = !hasConfiguredWeaponList;
   const combatRangeLookup = useCombatRangeLookup({
@@ -132,7 +138,7 @@ export function useHexMapDisplayState({
     hexes,
     hexGrid,
     tokens,
-    weapons: selectedUnitWeapons,
+    weapons: projectedCombatWeapons,
     targetUnitId,
     combatState,
   });

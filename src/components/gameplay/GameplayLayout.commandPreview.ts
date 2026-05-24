@@ -14,6 +14,7 @@ import type {
 
 import { GamePhase, MovementType } from '@/types/gameplay';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
+import { selectCombatProjectionWeapons } from '@/utils/gameplay/combatProjection.weaponSelection';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
 import { getEligiblePhysicalAttacks } from '@/utils/gameplay/physicalAttacks/eligibility';
@@ -32,6 +33,7 @@ export interface IBuildCommandPreviewInputsParams {
   readonly mapRadius: number;
   readonly grid: IHexGrid | null;
   readonly unitWeapons: Record<string, readonly IWeaponStatus[]>;
+  readonly selectedWeaponIds?: readonly string[];
   readonly hitChance: number | null | undefined;
   readonly physicalAttackTargetId?: string | null;
   readonly physicalAttackType?: PhysicalAttackType | null;
@@ -67,6 +69,7 @@ export function buildCommandPreviewInputs({
   mapRadius,
   grid,
   unitWeapons,
+  selectedWeaponIds,
   hitChance,
   physicalAttackTargetId,
   physicalAttackType,
@@ -80,6 +83,10 @@ export function buildCommandPreviewInputs({
   const weaponStatuses = selectedUnitId
     ? (unitWeapons[selectedUnitId] ?? [])
     : undefined;
+  const projectedWeaponStatuses = selectCombatProjectionWeapons(
+    weaponStatuses ?? [],
+    selectedWeaponIds,
+  );
   const baseInputs: ICommandPreviewInputs = {
     weaponStatuses,
     hitChance,
@@ -174,7 +181,7 @@ export function buildCommandPreviewInputs({
     hexes: generateHexesInRadius(mapRadius),
     grid,
     tokens,
-    weapons: weaponStatuses ?? [],
+    weapons: projectedWeaponStatuses,
     combatState: currentState,
   });
   const targetCombatInfo = activeTargetId

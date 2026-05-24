@@ -35,6 +35,7 @@ export interface HexMapDisplayProps {
   attackRange?: readonly IHexCoordinate[];
   targetUnitId?: string | null;
   unitWeapons?: Record<string, readonly IWeaponStatus[]>;
+  selectedWeaponIds?: readonly string[];
   combatState?: IGameState | null;
   friendlySide?: GameSide;
   objectives?: Readonly<Record<string, IObjectiveMarker>>;
