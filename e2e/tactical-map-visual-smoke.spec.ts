@@ -598,6 +598,63 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows VTOL elevation delta with zero elevation MP cost in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=vtol-elevation-cost');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('KAR');
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('VT');
+
+    const vtolHex = page.getByTestId('hex-1-0');
+    await expect(vtolHex).toHaveAttribute('data-reachable', 'true');
+    await expect(vtolHex).toHaveAttribute('data-movement-type', 'run');
+    await expect(vtolHex).toHaveAttribute('data-movement-mode', 'vtol');
+    await expect(vtolHex).toHaveAttribute('data-mp-cost', '2');
+    await expect(vtolHex).toHaveAttribute('data-terrain-cost', '0');
+    await expect(vtolHex).toHaveAttribute('data-elevation-delta', '4');
+    await expect(vtolHex).toHaveAttribute('data-elevation-cost', '0');
+    await expect(vtolHex).toHaveAttribute('data-heat-generated', '0');
+
+    const movementBadge = page.getByTestId('hex-movement-badge-1-0');
+    await expect(movementBadge.locator('text')).toHaveText('R/VTOL 2MP');
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-type',
+      'run',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-mode',
+      'vtol',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-mp-cost',
+      '2',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-heat-generated',
+      '0',
+    );
+
+    const costBadge = page.getByTestId('hex-movement-cost-badge-1-0');
+    await expect(costBadge.locator('text')).toHaveText('E+0 UP4');
+    await expect(costBadge).toHaveAttribute(
+      'data-movement-step-terrain-cost',
+      '0',
+    );
+    await expect(costBadge).toHaveAttribute(
+      'data-movement-step-elevation-cost',
+      '0',
+    );
+    await expect(costBadge).toHaveAttribute(
+      'data-movement-step-elevation-delta',
+      '4',
+    );
+    await expect(costBadge).toHaveAttribute(
+      'aria-label',
+      'Movement step cost: elevation cost +0; elevation delta +4',
+    );
+  });
+
   test('shows all selected weapons out of range as blocked in browser', async ({
     page,
   }) => {

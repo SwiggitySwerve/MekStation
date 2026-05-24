@@ -5,8 +5,6 @@ import {
   tacticalMapCombatState,
   tacticalMapHexTerrain,
   tacticalMapHighlightPath,
-  tacticalMapJumpElevationMovementRange,
-  tacticalMapJumpElevationMpLegend,
   tacticalMapMovementRange,
   tacticalMapMpLegend,
   tacticalMapOutOfRangeSelectedWeaponIds,
@@ -14,6 +12,13 @@ import {
   tacticalMapTokens,
   tacticalMapUnitWeapons,
 } from '@/testing/tactical-map.fixtures';
+import {
+  tacticalMapJumpElevationMovementRange,
+  tacticalMapJumpElevationMpLegend,
+  tacticalMapVtolElevationMovementRange,
+  tacticalMapVtolElevationMpLegend,
+  tacticalMapVtolTokens,
+} from '@/testing/tactical-map.movement-scenarios';
 
 const isTestEnv =
   process.env.NODE_ENV === 'development' ||
@@ -25,16 +30,25 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
   const isOutOfRangeScenario = router.query.scenario === 'out-of-range';
   const isJumpElevationScenario =
     router.query.scenario === 'jump-elevation-cost';
+  const isVtolElevationScenario =
+    router.query.scenario === 'vtol-elevation-cost';
   const selectedWeaponIds = isOutOfRangeScenario
     ? tacticalMapOutOfRangeSelectedWeaponIds
     : tacticalMapSelectedWeaponIds;
   const targetUnitId = isOutOfRangeScenario ? 'medium-target' : 'occluded';
+  const tokens = isVtolElevationScenario
+    ? tacticalMapVtolTokens
+    : tacticalMapTokens;
   const movementRange = isJumpElevationScenario
     ? tacticalMapJumpElevationMovementRange
-    : tacticalMapMovementRange;
+    : isVtolElevationScenario
+      ? tacticalMapVtolElevationMovementRange
+      : tacticalMapMovementRange;
   const mpLegend = isJumpElevationScenario
     ? tacticalMapJumpElevationMpLegend
-    : tacticalMapMpLegend;
+    : isVtolElevationScenario
+      ? tacticalMapVtolElevationMpLegend
+      : tacticalMapMpLegend;
 
   if (!isTestEnv) {
     return (
@@ -56,7 +70,7 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
           <HexMapDisplay
             mapId="tactical-map-e2e"
             radius={3}
-            tokens={tacticalMapTokens}
+            tokens={tokens}
             selectedHex={{ q: -1, r: 0 }}
             targetUnitId={targetUnitId}
             hexTerrain={tacticalMapHexTerrain}

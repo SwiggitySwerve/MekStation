@@ -39,6 +39,8 @@
   targets remain non-attackable while exposing blocked weapon metadata.
 - [x] 2.16 Add browser coverage proving jump elevation changes expose zero
   elevation MP cost instead of hiding the cost breakdown.
+- [x] 2.17 Add browser coverage proving VTOL-style elevation changes expose
+  zero elevation MP cost and unit-type movement metadata.
 
 ## 3. Validation
 
@@ -70,4 +72,6 @@
 - [x] 3.15 Focused Playwright smoke passes with
   all-selected-weapons-out-of-range rejection metadata.
 - [x] 3.16 Focused Playwright smoke passes with jump zero-cost elevation
+  movement metadata.
+- [x] 3.17 Focused Playwright smoke passes with VTOL-style zero-cost elevation
   movement metadata.
