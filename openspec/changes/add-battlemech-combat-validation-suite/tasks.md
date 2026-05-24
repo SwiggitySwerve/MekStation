@@ -54,6 +54,7 @@
 - [x] 2.32.11 Add source-backed BattleMech displacement elevation-cap checks for push/charge/DFA displacement helpers, event-sourced resolution, and runner resolution while leaving domino-chain, friendly-avoidance, and DropShip-radius displacement edges explicit.
 - [x] 2.32.12 Refresh runner physical-phase grid occupancy after displacement payloads so later same-phase displacement legality sees newly occupied hexes, while leaving domino-chain, friendly-avoidance, and DropShip-radius displacement edges explicit.
 - [x] 2.32.13 Add source-backed BattleMech charge gun-emplacement target-class rejection coverage through helper, eligibility, event-sourced declaration, and runner resolution inputs while preserving gun-emplacement automatic-hit coverage for punch, kick, DFA, and melee.
+- [x] 2.32.14 Add source-backed prohibited-terrain displacement rejection for explicit impassable hexes through helper, event-sourced charge resolution, runner charge resolution, catalog, and audit coverage while leaving hidden-unit, track/wheel, jungle/ultra-woods, domino-chain, friendly-avoidance, and DropShip-radius displacement nuances explicit.
 
 ## 3. Full combat validation catalog
 
@@ -183,3 +184,4 @@
 - [x] 4.3.39 Cross-check event-sourced heat cookoff CASE parity against the same MegaMek CASE cap and transfer-suppression anchors before marking interactive heat containment integrated.
 - [x] 4.3.40 Cross-check MegaMek `Entity.locationHasCase` CASE-P detection before marking CASE-P/prototype CASE hydration integrated.
 - [x] 4.3.41 Cross-check MegaMek `applyEntityArmorDamage` ammo-explosion armor skip and `applyPlaytestExplosionReduction` rear-armor blowout before marking internal-only cookoff ordering integrated.
+- [x] 4.3.42 Cross-check MegaMek `Compute.isValidDisplacement` prohibited-destination handling and `Mek.isLocationProhibited` normal BattleMech impassable-terrain rejection before promoting the displacement terrain guard.

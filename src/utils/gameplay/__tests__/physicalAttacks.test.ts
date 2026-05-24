@@ -138,6 +138,16 @@ function makeBlockedChargeDisplacementGrid(): IHexGrid {
   return { ...grid, hexes };
 }
 
+function makeProhibitedChargeDisplacementGrid(): IHexGrid {
+  const grid = makeDisplacementGrid();
+  const hexes = new Map(grid.hexes);
+  const hex = hexes.get('1,1');
+  if (hex) {
+    hexes.set('1,1', { ...hex, terrain: 'impassable' });
+  }
+  return { ...grid, hexes };
+}
+
 // =============================================================================
 // Punch Damage Tests
 // =============================================================================
@@ -180,6 +190,24 @@ describe('physicalAttacks', () => {
       expect(
         computeChargeDisplacementOutcome({
           grid: { ...grid, hexes },
+          attackerId: 'attacker',
+          attackerPosition: { q: 0, r: 0 },
+          attackerFacing: Facing.South,
+          targetId: 'target',
+          targetPosition: { q: 1, r: 0 },
+        }).displacements,
+      ).toEqual([]);
+    });
+
+    it('treats prohibited BattleMech displacement terrain as invalid', () => {
+      const grid = makeProhibitedChargeDisplacementGrid();
+
+      expect(
+        computeValidDisplacement(grid, 'target', { q: 1, r: 0 }, Facing.South),
+      ).toEqual({ q: 0, r: 1 });
+      expect(
+        computeChargeDisplacementOutcome({
+          grid,
           attackerId: 'attacker',
           attackerPosition: { q: 0, r: 0 },
           attackerFacing: Facing.South,

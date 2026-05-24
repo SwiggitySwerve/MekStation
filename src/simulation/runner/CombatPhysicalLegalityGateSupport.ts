@@ -74,6 +74,8 @@ const GUN_EMPLACEMENT_AUTOMATIC_HIT_LINES =
   'MegaMek PunchAttackAction, KickAttackAction, ClubAttackAction, and DfaAttackAction return AUTOMATIC_SUCCESS for adjacent GunEmplacement targets after impossibility checks';
 const DISPLACEMENT_ELEVATION_LINES =
   'MegaMek Compute.isValidDisplacement rejects displacement climbs above Entity.getMaxElevationChange; Mek.getMaxElevationChange returns 2 for normal BattleMechs';
+const DISPLACEMENT_PROHIBITED_TERRAIN_LINES =
+  'MegaMek Compute.isValidDisplacement rejects entity.isLocationProhibited destinations; Mek.isLocationProhibited rejects IMPASSABLE terrain for normal BattleMechs';
 
 const PHYSICAL_ATTACK_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
   'MegaMek PhysicalAttackAction.toHitIsImpossible applies shared physical attack impossibility gates',
@@ -141,10 +143,23 @@ const COMPUTE_DISPLACEMENT_ELEVATION_SOURCE_REF = megamekPhysicalSourceRef(
   'L951-L1017',
 );
 
+const COMPUTE_DISPLACEMENT_PROHIBITED_TERRAIN_SOURCE_REF =
+  megamekPhysicalSourceRef(
+    'MegaMek Compute.isValidDisplacement rejects destinations when entity.isLocationProhibited(dest) is true',
+    'common/compute/Compute.java',
+    'L977-L985',
+  );
+
 const MEK_MAX_ELEVATION_CHANGE_SOURCE_REF = megamekPhysicalSourceRef(
   'MegaMek Mek.getMaxElevationChange returns 2 for normal BattleMechs',
   'common/units/Mek.java',
   'L3416-L3422',
+);
+
+const MEK_PROHIBITED_TERRAIN_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek Mek.isLocationProhibited rejects IMPASSABLE terrain for normal BattleMechs',
+  'common/units/Mek.java',
+  'L4144-L4152',
 );
 
 function sourceRefsForAuthority(
@@ -170,6 +185,11 @@ function sourceRefsForAuthority(
       return [
         COMPUTE_DISPLACEMENT_ELEVATION_SOURCE_REF,
         MEK_MAX_ELEVATION_CHANGE_SOURCE_REF,
+      ];
+    case DISPLACEMENT_PROHIBITED_TERRAIN_LINES:
+      return [
+        COMPUTE_DISPLACEMENT_PROHIBITED_TERRAIN_SOURCE_REF,
+        MEK_PROHIBITED_TERRAIN_SOURCE_REF,
       ];
     case PHYSICAL_ATTACK_ACTION_LINES:
     default:
@@ -274,6 +294,12 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'shared',
     'isValidDisplacement now rejects BattleMech displacement destinations that climb more than two elevation levels from source, and push/charge/DFA session plus runner displacement helpers thread that cap before emitting displacement or PSR side effects',
     DISPLACEMENT_ELEVATION_LINES,
+  ),
+  'shared.displacement-prohibited-terrain': integrated(
+    'shared.displacement-prohibited-terrain',
+    'shared',
+    'isValidDisplacement now rejects explicit impassable terrain destinations before push/charge/DFA position changes; helper, event-sourced, and runner charge coverage keep successful charge damage while suppressing displacement and charge PSRs',
+    DISPLACEMENT_PROHIBITED_TERRAIN_LINES,
   ),
   'push.destination-open': integrated(
     'push.destination-open',

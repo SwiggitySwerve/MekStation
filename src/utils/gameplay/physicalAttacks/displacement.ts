@@ -23,6 +23,7 @@ import { hexNeighbor } from '../hexMath';
 
 const DISPLACEMENT_OFFSETS = [0, 1, 5, 2, 4, 3] as const;
 export const BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE = 2;
+const BATTLEMECH_PROHIBITED_DISPLACEMENT_TERRAINS = new Set(['impassable']);
 
 export interface IDfaDisplacementOutcome {
   readonly displacements: readonly IPhysicalDisplacement[];
@@ -46,6 +47,36 @@ function normalizeDisplacementLegalityOptions(
     return { excludeUnitId: optionsOrExcludeUnitId };
   }
   return optionsOrExcludeUnitId ?? {};
+}
+
+function terrainTokens(terrain: string): readonly string[] {
+  const trimmed = terrain.trim();
+  if (!trimmed) return [];
+
+  if (trimmed.startsWith('[')) {
+    try {
+      const features = JSON.parse(trimmed) as unknown;
+      if (!Array.isArray(features)) return [];
+      return features.flatMap((feature) =>
+        typeof feature === 'object' &&
+        feature !== null &&
+        'type' in feature &&
+        typeof feature.type === 'string'
+          ? [feature.type.toLowerCase()]
+          : [],
+      );
+    } catch {
+      return [];
+    }
+  }
+
+  return [trimmed.split(':')[0]?.toLowerCase() ?? ''];
+}
+
+function isBattleMechDisplacementTerrainProhibited(terrain: string): boolean {
+  return terrainTokens(terrain).some((token) =>
+    BATTLEMECH_PROHIBITED_DISPLACEMENT_TERRAINS.has(token),
+  );
 }
 
 /**
@@ -95,6 +126,10 @@ export function isValidDisplacement(
   const options = normalizeDisplacementLegalityOptions(optionsOrExcludeUnitId);
   if (!isInBounds(grid, coord)) return false;
   const hex = grid.hexes.get(`${coord.q},${coord.r}`);
+  if (hex && isBattleMechDisplacementTerrainProhibited(hex.terrain)) {
+    return false;
+  }
+
   if (
     options.source !== undefined &&
     options.maxElevationChange !== undefined &&
