@@ -1015,6 +1015,197 @@ describe('HexMapDisplay combat projection', () => {
     ).toHaveTextContent('Range: short at 6 hexes');
   });
 
+  it('surfaces represented underwater weapon restrictions in combat hover explanations', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const enemy = makeToken({
+      unitId: 'enemy',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+    });
+
+    render(
+      <HexMapDisplay
+        mapId="combat-map"
+        radius={2}
+        tokens={[selected, enemy]}
+        selectedHex={null}
+        hexTerrain={[
+          {
+            coordinate: { q: 0, r: 0 },
+            elevation: 0,
+            features: [{ type: TerrainType.Water, level: 1 }],
+          },
+          {
+            coordinate: { q: 1, r: 0 },
+            elevation: 0,
+            features: [{ type: TerrainType.Water, level: 1 }],
+          },
+          {
+            coordinate: { q: 2, r: 0 },
+            elevation: 0,
+            features: [{ type: TerrainType.Water, level: 2 }],
+          },
+        ]}
+        unitWeapons={{
+          selected: [
+            makeWeapon({
+              id: 'medium-laser',
+              name: 'Medium Laser',
+            }),
+            makeWeapon({
+              id: 'lrt-15',
+              name: 'LR Torpedo 15',
+              heat: 5,
+              damage: 9,
+              ranges: { short: 7, medium: 14, long: 21 },
+              isTorpedo: true,
+            }),
+          ],
+        }}
+      />,
+    );
+
+    const targetHex = screen.getByTestId('hex-2-0');
+    expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    expect(targetHex).toHaveAttribute('data-weapons-available', 'lrt-15');
+    expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-environment-states',
+      'medium-laser:blocked|lrt-15:legal',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-blocked-reasons',
+      'medium-laser:Target underwater, but not weapon.',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining(
+        'medium-laser short range in arc environment blocked blocked: Target underwater, but not weapon.',
+      ),
+    );
+
+    fireEvent.mouseEnter(targetHex);
+
+    expect(
+      screen.getByTestId('hex-combat-tooltip-weapon-options'),
+    ).toHaveTextContent(
+      'medium-laser: short range, in arc; environment blocked; blocked - Target underwater, but not weapon.',
+    );
+    const environmentContext = screen.getByTestId(
+      'hex-combat-tooltip-environment-context',
+    );
+    expect(environmentContext).toHaveTextContent(
+      'Environment restrictions: medium-laser: Target underwater, but not weapon.',
+    );
+    expect(environmentContext).toHaveAttribute(
+      'data-combat-environment-blocked-weapon-ids',
+      'medium-laser',
+    );
+    expect(environmentContext).toHaveAttribute(
+      'data-combat-environment-blocked-reasons',
+      'Target underwater, but not weapon.',
+    );
+  });
+
+  it('surfaces torpedo path water-line failures in combined tactical hover explanations', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const enemy = makeToken({
+      unitId: 'enemy',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+    });
+
+    render(
+      <HexMapDisplay
+        mapId="combat-map"
+        radius={2}
+        tokens={[selected, enemy]}
+        selectedHex={null}
+        hexTerrain={[
+          {
+            coordinate: { q: 2, r: 0 },
+            elevation: 0,
+            features: [{ type: TerrainType.Water, level: 1 }],
+          },
+        ]}
+        movementRange={[
+          {
+            hex: { q: 2, r: 0 },
+            mpCost: 2,
+            terrainCost: 0,
+            elevationDelta: 0,
+            elevationCost: 0,
+            heatGenerated: 0,
+            movementMode: 'walk',
+            reachable: true,
+            movementType: MovementType.Walk,
+          },
+        ]}
+        unitWeapons={{
+          selected: [
+            makeWeapon({
+              id: 'lrt-15',
+              name: 'LR Torpedo 15',
+              heat: 5,
+              damage: 9,
+              ranges: { short: 7, medium: 14, long: 21 },
+              isTorpedo: true,
+            }),
+          ],
+        }}
+      />,
+    );
+
+    const targetHex = screen.getByTestId('hex-2-0');
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-intent',
+      'movement-combat',
+    );
+    expect(targetHex).toHaveAttribute('data-combat-valid-target', 'false');
+    expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-details',
+      'Torpedo path leaves water.',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-environment-states',
+      'lrt-15:blocked',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-blocked-reasons',
+      'lrt-15:Torpedo path leaves water.',
+    );
+
+    fireEvent.mouseEnter(targetHex);
+
+    expect(screen.getByTestId('hex-tactical-tooltip-combat')).toHaveTextContent(
+      'Combat: Blocked',
+    );
+    const environmentContext = screen.getByTestId(
+      'hex-tactical-tooltip-combat-environment-context',
+    );
+    expect(environmentContext).toHaveTextContent(
+      'Environment restrictions: lrt-15: Torpedo path leaves water.',
+    );
+    expect(environmentContext).toHaveAttribute(
+      'data-combat-environment-blocked-weapon-ids',
+      'lrt-15',
+    );
+    expect(environmentContext).toHaveAttribute(
+      'data-combat-environment-blocked-reasons',
+      'Torpedo path leaves water.',
+    );
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-reason'),
+    ).toHaveTextContent('Torpedo path leaves water.');
+  });
+
   it('preserves rules projection metadata when switching from top-down to isometric', () => {
     const selected = makeToken({
       unitId: 'selected',

@@ -15,6 +15,7 @@ import {
   formatMovementModeLabel,
 } from './HexCell.labels';
 import { CombatC3ContextRows } from './HexMapDisplay.combatC3Context';
+import { CombatEnvironmentContextRows } from './HexMapDisplay.combatEnvironmentContext';
 import { CombatWeaponImpactRows } from './HexMapDisplay.combatWeaponImpacts';
 import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
 import { CombinedTacticalHoverTooltip } from './HexMapDisplay.combinedTooltip';
@@ -334,6 +335,10 @@ function CombatHoverTooltip({
       <CombatWeaponOptionRows
         combatInfo={combatInfo}
         testId="hex-combat-tooltip-weapon-options"
+      />
+      <CombatEnvironmentContextRows
+        combatInfo={combatInfo}
+        testId="hex-combat-tooltip-environment-context"
       />
       {weaponImpactLabel && (
         <div data-testid="hex-combat-tooltip-weapon-impact">
