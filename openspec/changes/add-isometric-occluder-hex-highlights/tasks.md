@@ -10,6 +10,8 @@
 - [x] 2.1 Derive occluder-hex metadata from existing terrain occlusion info
 - [x] 2.2 Pass occluder metadata through map state to each hex cell
 - [x] 2.3 Render isometric-only occluder attributes, outline, badge, and stack emphasis
+- [x] 2.4 Count represented building levels in isometric occluder height and
+      scene depth ordering
 
 ## 3. Verification
 
@@ -20,3 +22,4 @@
 - [x] 3.5 `npm.cmd run lint` passes
 - [x] 3.6 `npm.cmd run format:check` passes
 - [x] 3.7 `npx.cmd openspec validate add-isometric-occluder-hex-highlights --strict` passes
+- [x] 3.8 Focused building-level occluder coverage passes

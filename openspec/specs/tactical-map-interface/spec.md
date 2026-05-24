@@ -2832,6 +2832,7 @@ Isometric mode SHALL make stacked elevation layers readable, support battlefield
 - **WHEN** the player hovers, cycles, slices layers, rotates, or uses another occlusion aid
 - **THEN** the hidden unit SHALL be highlightable and selectable if visibility rules allow it
 - **AND** the map SHALL communicate when fog or visibility rules, rather than terrain occlusion, prevent inspection
+- **AND** represented building levels SHALL contribute to isometric occluder height and scene depth ordering so tall buildings do not disappear as flat ground in 2.5D mode
 
 ## Data Model Requirements
 

@@ -2166,12 +2166,12 @@ describe('HexMapDisplay tactical visual layers', () => {
     ).toHaveAttribute('data-isometric-occluder-hex', '1,0');
     expect(
       screen.getByTestId('isometric-scene-token-occluded'),
-    ).toHaveAttribute('data-isometric-occluder-elevation', '4');
+    ).toHaveAttribute('data-isometric-occluder-elevation', '5');
     expect(
       screen.getByTestId('isometric-scene-token-occluded'),
     ).toHaveAttribute(
       'data-isometric-occlusion-reason',
-      'Elevated terrain +4 at (1, 0) may hide unit at elevation +0',
+      'Elevated terrain +5 at (1, 0) may hide unit at elevation +0',
     );
     expect(screen.getByTestId('unit-token-occluded')).toHaveAttribute(
       'data-visibility-boost',
@@ -2179,12 +2179,12 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(screen.getByTestId('unit-token-occluded')).toHaveAttribute(
       'data-isometric-occlusion-reason',
-      'Elevated terrain +4 at (1, 0) may hide unit at elevation +0',
+      'Elevated terrain +5 at (1, 0) may hide unit at elevation +0',
     );
     expect(screen.getByTestId('unit-token-occluded')).toHaveAttribute(
       'aria-label',
       expect.stringContaining(
-        'Elevated terrain +4 at (1, 0) may hide unit at elevation +0',
+        'Elevated terrain +5 at (1, 0) may hide unit at elevation +0',
       ),
     );
     expect(
@@ -2194,7 +2194,7 @@ describe('HexMapDisplay tactical visual layers', () => {
       screen.getByTestId('isometric-visibility-reason-occluded'),
     ).toHaveAttribute(
       'data-isometric-occlusion-reason',
-      'Elevated terrain +4 at (1, 0) may hide unit at elevation +0',
+      'Elevated terrain +5 at (1, 0) may hide unit at elevation +0',
     );
     expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
       'data-isometric-occludes-units',
@@ -2202,11 +2202,11 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
       'data-isometric-occluder-elevation',
-      '4',
+      '5',
     );
     expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
       'data-isometric-occlusion-reasons',
-      'Elevated terrain +4 at (1, 0) may hide unit at elevation +0',
+      'Elevated terrain +5 at (1, 0) may hide unit at elevation +0',
     );
     expect(
       screen.getByTestId('hex-isometric-occluder-highlight-1-0'),
@@ -2227,7 +2227,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(tooltipOccluder).toHaveAttribute(
       'data-isometric-occluder-elevation',
-      '4',
+      '5',
     );
     expect(tooltipOccluder).toHaveAttribute(
       'data-isometric-occluder-hex',
@@ -2242,11 +2242,11 @@ describe('HexMapDisplay tactical visual layers', () => {
     ).toHaveTextContent('may hide occluded');
     expect(
       screen.getByTestId('hex-terrain-tooltip-isometric-occluder-rotation'),
-    ).toHaveTextContent('Occluder elevation +4; camera 0 deg');
+    ).toHaveTextContent('Occluder elevation +5; camera 0 deg');
     expect(
       screen.getByTestId('hex-terrain-tooltip-isometric-occluder-reasons'),
     ).toHaveTextContent(
-      'Elevated terrain +4 at (1, 0) may hide unit at elevation +0',
+      'Elevated terrain +5 at (1, 0) may hide unit at elevation +0',
     );
 
     fireEvent.click(screen.getByTestId('projection-rotate-right'));
@@ -2320,7 +2320,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     ).toHaveAttribute('data-isometric-occluder-hex', '1,0');
     expect(
       screen.getByTestId('isometric-scene-token-occluded'),
-    ).toHaveAttribute('data-isometric-occluder-elevation', '4');
+    ).toHaveAttribute('data-isometric-occluder-elevation', '5');
     expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
       'data-isometric-occludes-units',
       'occluded',
@@ -2342,7 +2342,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     ).toHaveAttribute('data-isometric-occluder-hex', '-1,0');
     expect(
       screen.getByTestId('isometric-scene-token-occluded'),
-    ).toHaveAttribute('data-isometric-occluder-elevation', '5');
+    ).toHaveAttribute('data-isometric-occluder-elevation', '6');
     expect(screen.getByTestId('hex-1-0')).not.toHaveAttribute(
       'data-isometric-occludes-units',
     );
@@ -2368,7 +2368,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(tooltipOccluder).toHaveAttribute(
       'data-isometric-occluder-elevation',
-      '5',
+      '6',
     );
     expect(tooltipOccluder).toHaveAttribute(
       'data-isometric-rotation-step',
@@ -2376,11 +2376,11 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(
       screen.getByTestId('hex-terrain-tooltip-isometric-occluder-rotation'),
-    ).toHaveTextContent('Occluder elevation +5; camera 180 deg');
+    ).toHaveTextContent('Occluder elevation +6; camera 180 deg');
     expect(
       screen.getByTestId('hex-terrain-tooltip-isometric-occluder-reasons'),
     ).toHaveTextContent(
-      'Elevated terrain +5 at (-1, 0) may hide unit at elevation +0',
+      'Elevated terrain +6 at (-1, 0) may hide unit at elevation +0',
     );
 
     act(() => {

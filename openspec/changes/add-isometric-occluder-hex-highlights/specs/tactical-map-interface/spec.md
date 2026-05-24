@@ -14,6 +14,8 @@ The tactical map interface SHALL identify tall isometric terrain that may obscur
 **WHEN** the map derives terrain occlusion information
 **THEN** the occluding terrain hex SHALL expose the unit ids it may hide
 **AND** the occluding terrain hex SHALL expose the reason for the occlusion
+**AND** represented building levels SHALL contribute to the occluder's vertical
+height for this readability projection
 
 #### Scenario: Occluding terrain is visually highlighted
 

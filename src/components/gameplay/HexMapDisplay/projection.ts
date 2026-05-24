@@ -6,6 +6,7 @@ import type {
   MapProjectionMode,
 } from '@/types/gameplay';
 
+import { TerrainType } from '@/types/gameplay';
 import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
 
 /**
@@ -48,7 +49,8 @@ export function isometricDepthKey(
   rotationStep: number,
 ): number {
   const rotated = rotateAxialCamera(hex, rotationStep);
-  const elevation = terrainLookup.get(coordToKey(hex))?.elevation ?? 0;
+  const terrain = terrainLookup.get(coordToKey(hex));
+  const elevation = terrain ? isometricOccluderElevation(terrain) : 0;
   return (rotated.r * 2 + rotated.q) * 100 + elevation;
 }
 
@@ -78,6 +80,19 @@ function displayPositionForToken(token: IUnitToken): IHexCoordinate {
 
 function formatSignedElevation(elevation: number): string {
   return elevation >= 0 ? `+${elevation}` : `${elevation}`;
+}
+
+function maxBuildingLevel(terrain: IHexTerrain): number {
+  return Math.max(
+    0,
+    ...terrain.features
+      .filter((feature) => feature.type === TerrainType.Building)
+      .map((feature) => feature.level),
+  );
+}
+
+function isometricOccluderElevation(terrain: IHexTerrain): number {
+  return terrain.elevation + maxBuildingLevel(terrain);
 }
 
 function isTerrainInFrontOfUnit(
@@ -132,17 +147,18 @@ export function deriveIsometricTerrainOcclusionInfo({
 
     terrainLookup.forEach((terrain) => {
       if (ids.has(token.unitId)) return;
-      if (terrain.elevation - unitElevation < 2) return;
+      const occluderElevation = isometricOccluderElevation(terrain);
+      if (occluderElevation - unitElevation < 2) return;
       if (hexDistance(position, terrain.coordinate) > 2) return;
       if (isTerrainInFrontOfUnit(position, terrain.coordinate, rotationStep)) {
         ids.add(token.unitId);
         info.push({
           unitId: token.unitId,
           occluderHex: terrain.coordinate,
-          occluderElevation: terrain.elevation,
+          occluderElevation,
           unitElevation,
           rotationStep,
-          reason: `Elevated terrain ${formatSignedElevation(terrain.elevation)} at (${terrain.coordinate.q}, ${terrain.coordinate.r}) may hide unit at elevation ${formatSignedElevation(unitElevation)}`,
+          reason: `Elevated terrain ${formatSignedElevation(occluderElevation)} at (${terrain.coordinate.q}, ${terrain.coordinate.r}) may hide unit at elevation ${formatSignedElevation(unitElevation)}`,
         });
       }
     });

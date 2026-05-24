@@ -168,6 +168,54 @@ describe('HexMapDisplay isometric projection helpers', () => {
     expect(rearCameraInfo).toHaveLength(0);
   });
 
+  it('counts represented building levels as isometric occluder height', () => {
+    const terrainLookup = makeTerrainLookup([
+      {
+        coordinate: { q: 1, r: 0 },
+        elevation: 0,
+        features: [{ type: TerrainType.Building, level: 3 }],
+      },
+    ]);
+    const tokens = [
+      makeToken({ unitId: 'occluded', position: { q: 0, r: 0 } }),
+    ];
+
+    const occlusionInfo = deriveIsometricTerrainOcclusionInfo({
+      tokens,
+      terrainLookup,
+      rotationStep: 0,
+    });
+    const items = buildIsometricSceneItems({
+      isIsometricView: true,
+      renderedHexes: [
+        { q: 1, r: 0 },
+        { q: 0, r: 1 },
+      ],
+      tokens,
+      terrainLookup,
+      rotationStep: 0,
+      foregroundUnitIds: new Set(),
+    });
+    const buildingHex = items.find(
+      (item) => isHexItem(item) && item.hex.q === 1 && item.hex.r === 0,
+    );
+    const clearHex = items.find(
+      (item) => isHexItem(item) && item.hex.q === 0 && item.hex.r === 1,
+    );
+
+    expect(occlusionInfo).toHaveLength(1);
+    expect(occlusionInfo[0]).toMatchObject({
+      unitId: 'occluded',
+      occluderHex: { q: 1, r: 0 },
+      occluderElevation: 3,
+      unitElevation: 0,
+      rotationStep: 0,
+      reason: 'Elevated terrain +3 at (1, 0) may hide unit at elevation +0',
+    });
+    expect(buildingHex?.depthKey).toBe(1030);
+    expect(clearHex?.depthKey).toBe(2000);
+  });
+
   it('groups hidden units by the tall terrain hex that may occlude them', () => {
     const terrainLookup = makeTerrainLookup([
       makeTerrain(1, 0, 4, TerrainType.Building),
