@@ -265,13 +265,18 @@ downhill limit delegated through `Entity.java:8688-8694`; `Tank.java:1421-1433`
 pins ground-vehicle one-level limits. MekStation now uses absolute elevation
 delta for projected ground movement costs, doubles represented infantry and
 vehicle elevation MP, and reports over-limit drops with the same explicit
-terrain-blocked metadata as climbs. Coverage lives in
+terrain-blocked metadata as climbs. Top-down movement badges also render
+downhill steps as a paid positive elevation MP cost (`E+N`) with a separate
+down-direction delta (`DN<N>`), so the visual affordance matches the projected
+ground rule. Coverage lives in
 `src/utils/gameplay/movement/calculations.ts`,
 `src/utils/gameplay/movement/terrainRules.ts`,
 `src/__tests__/unit/utils/gameplay/movement.test.ts`, and
 `src/utils/gameplay/movement/__tests__/reachable.test.ts`; preview-to-commit
 agreement coverage lives in
-`src/engine/__tests__/InteractiveSession.movement.scenario.test.ts`.
+`src/engine/__tests__/InteractiveSession.movement.scenario.test.ts`; rendered
+badge coverage lives in
+`src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.movementAnimation.test.tsx`.
 
 Additional infantry terrain-cost pin: MegaMek `MoveStep.java:2828-2837`
 doubles elevation MP for non-flying infantry, and `MoveStep.java:2892-2899`

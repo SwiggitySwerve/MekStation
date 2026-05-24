@@ -22,5 +22,7 @@ pathfinder.
   terrain-blocked projection reason as over-limit climbs
 - **AND** committed ground movement validation SHALL agree with the previewed
   downhill MP cost or blocked reason for the same supplied path
+- **AND** top-down movement cost badges SHALL show downhill steps as a paid
+  positive elevation MP cost with a distinct down-direction delta label
 - **AND** VTOL, WiGE, jump, naval, and swim movement SHALL keep their existing
   elevation-cost exemptions

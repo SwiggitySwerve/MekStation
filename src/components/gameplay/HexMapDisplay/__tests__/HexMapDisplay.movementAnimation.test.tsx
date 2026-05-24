@@ -1640,6 +1640,70 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('renders downhill elevation step costs as paid cost with down direction', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        hexTerrain={[
+          {
+            coordinate: { q: 0, r: 0 },
+            elevation: 2,
+            features: [{ type: TerrainType.Clear, level: 0 }],
+          },
+          {
+            coordinate: { q: 1, r: 0 },
+            elevation: 0,
+            features: [{ type: TerrainType.Clear, level: 0 }],
+          },
+        ]}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 3,
+            terrainCost: 0,
+            elevationDelta: -2,
+            elevationCost: 2,
+            movementMode: 'tracked',
+            reachable: true,
+            movementType: MovementType.Walk,
+          },
+        ]}
+      />,
+    );
+
+    const movementHex = screen.getByTestId('hex-1-0');
+    expect(screen.getByTestId('hex-elevation-label-0-0')).toHaveTextContent(
+      '+2',
+    );
+    expect(screen.getByTestId('hex-elevation-label-1-0')).toHaveTextContent(
+      'Elevation 0',
+    );
+    expect(movementHex).toHaveAttribute('data-elevation-delta', '-2');
+    expect(movementHex).toHaveAttribute('data-elevation-cost', '2');
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveTextContent(
+      'E+2 DN2',
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
+      'aria-label',
+      'Movement step cost: elevation cost +2; elevation delta -2',
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
+      'data-movement-step-elevation-delta',
+      '-2',
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
+      'data-movement-step-elevation-cost',
+      '2',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('renders movement preview path sequence metadata and visible step badges', () => {
     const { unmount } = render(
       <HexMapDisplay
