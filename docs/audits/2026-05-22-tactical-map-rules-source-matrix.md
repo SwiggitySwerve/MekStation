@@ -41,8 +41,9 @@ the same ordered terrain surface as terrain type. Layered terrain such as
 depth-2 water, level-2 smoke, and level-3 buildings exposes stable
 `data-terrain-feature-levels` metadata on the hex and terrain badge, and
 compact terrain badges show level suffixes for represented feature levels above
-
-1.
+level 1. The shared projection source metadata now preserves the same
+represented levels, water depths, and smoke/fire intensities so hover/source
+summaries do not collapse layered terrain back to type-only labels.
 
 Additional extreme-range pin: MegaMek `RangeType.java:80-84` classifies
 distances through `r_extreme`, `RangeType.java:143-148` gates extreme by the

@@ -478,7 +478,7 @@ describe('HexMapDisplay tactical visual layers', () => {
       '+1',
     );
     expect(screen.getByTestId('hex-terrain-label-1-0')).toHaveTextContent(
-      'BLDG/LWD',
+      'BLDG2/LWD',
     );
     expect(screen.getByTestId('hex-movement-badge-1-0')).toHaveTextContent(
       'W/TRK 3MP',
@@ -524,7 +524,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(reachable).toHaveAttribute(
       'data-tactical-projection-sources',
       expect.stringContaining(
-        'terrain-elevation:mekstation:Rendered map terrain/elevation grid:light_woods,building level 2 id warehouse-a CF 30 elevation 1',
+        'terrain-elevation:mekstation:Rendered map terrain/elevation grid:light_woods level 1,building level 2 id warehouse-a CF 30 elevation 1',
       ),
     );
     expect(reachable).toHaveAttribute(
@@ -571,7 +571,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(reachable).toHaveAttribute('data-stand-up-psr-target', '5');
     expect(reachable).toHaveAttribute(
       'aria-label',
-      expect.stringContaining('terrain light woods, building'),
+      expect.stringContaining('terrain building L2, light woods L1'),
     );
     expect(reachable).toHaveAttribute(
       'aria-label',
@@ -1104,7 +1104,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
       'data-tactical-projection-sources',
       expect.stringContaining(
-        'terrain-elevation:mekstation:Rendered map terrain/elevation grid:light_woods,building level 2 id warehouse-a CF 30 elevation 1',
+        'terrain-elevation:mekstation:Rendered map terrain/elevation grid:light_woods level 1,building level 2 id warehouse-a CF 30 elevation 1',
       ),
     );
     expect(screen.getByTestId('hex-terrain-tooltip-title')).toHaveTextContent(

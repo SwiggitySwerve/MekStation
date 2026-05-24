@@ -133,7 +133,7 @@ describe('tacticalMapProjection', () => {
         channel: 'terrain-elevation',
         kind: 'mekstation',
         label: 'Rendered map terrain/elevation grid',
-        detail: 'rough elevation 2',
+        detail: 'rough level 1 elevation 2',
       },
       {
         channel: 'movement',
@@ -151,7 +151,7 @@ describe('tacticalMapProjection', () => {
     expect(
       formatTacticalProjectionSourceReferences(projection.sourceReferences),
     ).toBe(
-      'terrain-elevation:mekstation:Rendered map terrain/elevation grid:rough elevation 2|movement:megamek:MegaMek movement rules projection:walk projection|combat:megamek:MegaMek combat target projection:target short 1 hexes LOS clear',
+      'terrain-elevation:mekstation:Rendered map terrain/elevation grid:rough level 1 elevation 2|movement:megamek:MegaMek movement rules projection:walk projection|combat:megamek:MegaMek combat target projection:target short 1 hexes LOS clear',
     );
     expect(projection.explanation).toContain(
       'sources terrain/elevation: Rendered map terrain/elevation grid; movement: MegaMek movement rules projection; combat: MegaMek combat target projection',
@@ -187,13 +187,52 @@ describe('tacticalMapProjection', () => {
         channel: 'terrain-elevation',
         kind: 'mekstation',
         label: 'Rendered map terrain/elevation grid',
-        detail: 'light_woods,building level 2 id warehouse-a CF 30 elevation 1',
+        detail:
+          'light_woods level 1,building level 2 id warehouse-a CF 30 elevation 1',
       },
     ]);
     expect(
       formatTacticalProjectionSourceReferences(projection.sourceReferences),
     ).toBe(
-      'terrain-elevation:mekstation:Rendered map terrain/elevation grid:light_woods,building level 2 id warehouse-a CF 30 elevation 1',
+      'terrain-elevation:mekstation:Rendered map terrain/elevation grid:light_woods level 1,building level 2 id warehouse-a CF 30 elevation 1',
+    );
+  });
+
+  it('preserves layered terrain levels in source metadata and explanations', () => {
+    const projection = buildTacticalMapHexProjection({
+      hex: { q: 1, r: 0 },
+      terrain: {
+        coordinate: { q: 1, r: 0 },
+        elevation: 2,
+        features: [
+          { type: TerrainType.Water, level: 2 },
+          { type: TerrainType.Smoke, level: 2 },
+          { type: TerrainType.Building, level: 3 },
+        ],
+      },
+      movement: undefined,
+      combat: undefined,
+      isSelected: false,
+      isHovered: false,
+      pathIndex: undefined,
+      inLegacyAttackRange: false,
+    });
+
+    expect(projection.sourceReferences).toEqual([
+      {
+        channel: 'terrain-elevation',
+        kind: 'mekstation',
+        label: 'Rendered map terrain/elevation grid',
+        detail: 'water depth 2,smoke intensity 2,building level 3 elevation 2',
+      },
+    ]);
+    expect(projection.explanation).toContain(
+      'terrain water depth 2,smoke intensity 2,building level 3',
+    );
+    expect(
+      formatTacticalProjectionSourceReferences(projection.sourceReferences),
+    ).toBe(
+      'terrain-elevation:mekstation:Rendered map terrain/elevation grid:water depth 2,smoke intensity 2,building level 3 elevation 2',
     );
   });
 

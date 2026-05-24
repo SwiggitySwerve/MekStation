@@ -448,11 +448,11 @@ function formatTerrainSourceDetail(terrain: IHexTerrain): string {
 function formatTerrainFeatureSourceDetail(
   feature: IHexTerrain['features'][number],
 ): string {
-  if (!feature.buildingId && feature.constructionFactor === undefined) {
-    return feature.type;
+  const parts: string[] = [feature.type];
+  const levelDetail = formatTerrainFeatureLevelSourceDetail(feature);
+  if (levelDetail) {
+    parts.push(levelDetail);
   }
-
-  const parts = [feature.type, `level ${feature.level}`];
   if (feature.buildingId) {
     parts.push(`id ${feature.buildingId}`);
   }
@@ -460,6 +460,21 @@ function formatTerrainFeatureSourceDetail(
     parts.push(`CF ${feature.constructionFactor}`);
   }
   return parts.join(' ');
+}
+
+function formatTerrainFeatureLevelSourceDetail(
+  feature: IHexTerrain['features'][number],
+): string | null {
+  if (feature.type === TerrainType.Clear && feature.level === 0) {
+    return null;
+  }
+  if (feature.type === TerrainType.Water) {
+    return `depth ${feature.level}`;
+  }
+  if (feature.type === TerrainType.Fire || feature.type === TerrainType.Smoke) {
+    return `intensity ${feature.level}`;
+  }
+  return `level ${feature.level}`;
 }
 
 function formatMovementSourceDetail(movement: IMovementRangeHex): string {
@@ -608,7 +623,7 @@ function formatProjectionExplanation({
   const terrainTypes =
     terrain.features.length === 0
       ? TerrainType.Clear
-      : terrain.features.map((feature) => feature.type).join(',');
+      : terrain.features.map(formatTerrainFeatureSourceDetail).join(',');
   const parts = [
     `Hex ${hex.q},${hex.r}`,
     `intent ${intent}`,

@@ -10,6 +10,8 @@
 - [x] 2.1 Add stable source-reference types and formatting helpers
 - [x] 2.2 Populate terrain/elevation, movement, combat, LOS-blocker, and legacy
       attack-range source references from the shared projection builder
+- [x] 2.3 Preserve terrain feature levels/depths/intensities in
+      terrain/elevation source-reference detail
 
 ## 3. Rendering
 
@@ -26,3 +28,4 @@
 - [x] 4.5 `npm.cmd run lint` passes
 - [x] 4.6 `npm.cmd run format:check` passes
 - [x] 4.7 Focused badge source metadata coverage passes
+- [x] 4.8 Focused layered terrain source metadata coverage passes

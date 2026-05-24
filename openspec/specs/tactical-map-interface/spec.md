@@ -2796,6 +2796,7 @@ Replay and recovery surfaces SHALL render terrain and elevation from the same ev
 - **THEN** the hex reference label SHALL include each terrain feature's level/depth/intensity
 - **AND** the terrain badge SHALL expose stable feature-level metadata for the same ordered terrain features
 - **AND** the compact terrain badge SHALL preserve a visible level/depth/intensity suffix when a represented feature level is greater than 1
+- **AND** shared tactical projection source metadata SHALL preserve the same terrain feature levels, water depths, and smoke/fire intensities instead of collapsing them to type-only labels
 
 #### Scenario: Replay starts with seeded terrain and elevation
 
