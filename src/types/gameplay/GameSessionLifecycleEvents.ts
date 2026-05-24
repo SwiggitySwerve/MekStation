@@ -147,6 +147,15 @@ export interface IInitiativeRolledPayload {
   readonly playerTotal?: number;
   /** Opponent roll plus modifier, when a modifier was applied. */
   readonly opponentTotal?: number;
+  /**
+   * Side whose Tactical Genius SPA replaced its initial initiative roll.
+   * `playerRoll` / `opponentRoll` remain the final raw 2d6 values.
+   */
+  readonly tacticalGeniusRerollSide?: GameSide;
+  /** Initial player raw 2d6 before Tactical Genius replacement, when used. */
+  readonly playerOriginalRoll?: number;
+  /** Initial opponent raw 2d6 before Tactical Genius replacement, when used. */
+  readonly opponentOriginalRoll?: number;
   /** Winner of initiative */
   readonly winner: GameSide;
   /** Did the winner choose to move first? */

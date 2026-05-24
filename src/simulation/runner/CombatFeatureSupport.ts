@@ -529,10 +529,9 @@ export const SPA_COMBAT_SUPPORT = {
     'toughness',
     'getConsciousnessCheckModifier plus applyPilotDamage, runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase lower consciousness TNs',
   ),
-  'tactical-genius': helperOnly(
+  'tactical-genius': integrated(
     'tactical-genius',
-    'MegaMek source identifies Tactical Genius as an initiative reroll gate rather than a flat initiative bonus',
-    'Tactical Genius initiative reroll request and replacement-roll flow is not wired',
+    'rollInitiative accepts a source-backed Tactical Genius reroll request, requires an active conscious unit with tactical_genius, replaces only that side raw 2d6 roll, and records original raw rolls separately',
     MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
   ),
   'speed-demon': unsupported(

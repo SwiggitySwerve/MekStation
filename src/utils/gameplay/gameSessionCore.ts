@@ -69,7 +69,10 @@ import {
 } from './gameEvents';
 import { invalidateInvalidTargetAttack } from './gameSessionAttackResolutionValidation';
 import { allUnitsLocked, deriveState } from './gameState';
-import { calculateSideInitiativeModifier } from './initiativeModifiers';
+import {
+  calculateSideInitiativeModifier,
+  hasSideTacticalGeniusInitiativeReroll,
+} from './initiativeModifiers';
 import {
   buildWeaponAttackAttackerToHitState,
   buildWeaponAttackTargetToHitState,
@@ -281,10 +284,15 @@ export function roll2d6(diceRoller: D6Roller = defaultD6Roller): number {
   return diceRoller() + diceRoller();
 }
 
+export interface IInitiativeRollOptions {
+  readonly tacticalGeniusRerollSide?: GameSide;
+}
+
 export function rollInitiative(
   session: IGameSession,
   movesFirst?: GameSide,
   diceRoller: D6Roller = defaultD6Roller,
+  options: IInitiativeRollOptions = {},
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.Initiative) {
     throw new Error('Not in initiative phase');
@@ -293,8 +301,24 @@ export function rollInitiative(
   // Per `add-quick-resolve-monte-carlo`: accept an injectable D6 roller
   // so the Monte Carlo wrapper can drive initiative deterministically
   // from a SeededRandom. Default preserves prior behavior (Math.random).
-  const playerRoll = roll2d6(diceRoller);
-  const opponentRoll = roll2d6(diceRoller);
+  const initialPlayerRoll = roll2d6(diceRoller);
+  const initialOpponentRoll = roll2d6(diceRoller);
+  let playerRoll = initialPlayerRoll;
+  let opponentRoll = initialOpponentRoll;
+  const tacticalGeniusRerollSide =
+    options.tacticalGeniusRerollSide &&
+    hasSideTacticalGeniusInitiativeReroll(
+      session.currentState,
+      options.tacticalGeniusRerollSide,
+    )
+      ? options.tacticalGeniusRerollSide
+      : undefined;
+
+  if (tacticalGeniusRerollSide === GameSide.Player) {
+    playerRoll = roll2d6(diceRoller);
+  } else if (tacticalGeniusRerollSide === GameSide.Opponent) {
+    opponentRoll = roll2d6(diceRoller);
+  }
   const playerModifier = calculateSideInitiativeModifier(
     session.currentState,
     GameSide.Player,
@@ -330,6 +354,13 @@ export function rollInitiative(
     winner,
     actualMovesFirst,
     { playerModifier, opponentModifier },
+    tacticalGeniusRerollSide
+      ? {
+          side: tacticalGeniusRerollSide,
+          originalPlayerRoll: initialPlayerRoll,
+          originalOpponentRoll: initialOpponentRoll,
+        }
+      : undefined,
   );
 
   return appendEvent(session, event);

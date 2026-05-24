@@ -20,12 +20,24 @@ export function createInitiativeRolledEvent(
     readonly playerModifier: number;
     readonly opponentModifier: number;
   },
+  tacticalGeniusReroll?: {
+    readonly side: GameSide;
+    readonly originalPlayerRoll: number;
+    readonly originalOpponentRoll: number;
+  },
 ): IGameEvent {
   const payload: IInitiativeRolledPayload = {
     playerRoll,
     opponentRoll,
     winner,
     movesFirst,
+    ...(tacticalGeniusReroll
+      ? {
+          tacticalGeniusRerollSide: tacticalGeniusReroll.side,
+          playerOriginalRoll: tacticalGeniusReroll.originalPlayerRoll,
+          opponentOriginalRoll: tacticalGeniusReroll.originalOpponentRoll,
+        }
+      : {}),
     ...(initiativeModifiers &&
     (initiativeModifiers.playerModifier !== 0 ||
       initiativeModifiers.opponentModifier !== 0)

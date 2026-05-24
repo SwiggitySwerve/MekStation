@@ -1,6 +1,7 @@
 import { GameSide, type IGameState } from '@/types/gameplay';
 
 import { calculateInitiativeQuirkModifier } from './quirkModifiers';
+import { hasSPA } from './spaModifiers/canonicalize';
 
 function isActiveInitiativeUnit(
   unit: IGameState['units'][string],
@@ -34,4 +35,15 @@ export function calculateSideInitiativeModifier(
   );
 
   return Math.max(quirkBonus, hqBonus) + commandBonus;
+}
+
+export function hasSideTacticalGeniusInitiativeReroll(
+  state: IGameState,
+  side: GameSide,
+): boolean {
+  return Object.values(state.units).some(
+    (unit) =>
+      isActiveInitiativeUnit(unit, side) &&
+      hasSPA(unit.abilities ?? [], 'tactical_genius'),
+  );
 }

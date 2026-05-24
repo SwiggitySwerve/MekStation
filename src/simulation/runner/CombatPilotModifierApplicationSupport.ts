@@ -116,8 +116,8 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'initiative-application': helperOnly(
     'initiative-application',
-    'rollInitiative consumes source-backed Command Mech/Battle Computer force-level quirk bonuses plus explicit HQ/command equipment initiative bonuses while preserving raw 2d6 payload fields',
-    'Tactical Genius reroll requests, Combat Intuition first-round sequencing, and automatic command-console/HQ initiative equipment hydration are not wired',
+    'rollInitiative consumes source-backed Command Mech/Battle Computer force-level quirk bonuses, explicit HQ/command equipment initiative bonuses, and Tactical Genius reroll requests while preserving raw 2d6 payload fields',
+    'Combat Intuition first-round sequencing and automatic command-console/HQ initiative equipment hydration are not wired',
     [
       ...MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
       ...MEGAMEK_INITIATIVE_EQUIPMENT_SOURCE_REFS,

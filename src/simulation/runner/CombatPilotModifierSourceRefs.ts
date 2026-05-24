@@ -199,6 +199,10 @@ export const MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS = [
     'megamek/src/megamek/common/game/Game.java#L617-L626',
   ),
   megamekRef(
+    'MegaMek InitiativeRoll.replaceRoll replaces the previous initiative roll and records that Tactical Genius was used.',
+    'megamek/src/megamek/common/game/InitiativeRoll.java#L95-L104',
+  ),
+  megamekRef(
     'MegaMek OptionsConstants defines MISC_TACTICAL_GENIUS as tactical_genius.',
     'megamek/src/megamek/common/options/OptionsConstants.java#L209-L214',
   ),

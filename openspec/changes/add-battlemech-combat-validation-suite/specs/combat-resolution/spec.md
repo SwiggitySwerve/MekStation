@@ -693,7 +693,7 @@ Pilot modifier validation SHALL keep MegaMek's Shaky Stick SPA visible as an uns
 
 ### Requirement: Source-Backed Initiative Quirk Bonuses
 
-Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer force initiative bonuses from active conscious units. Battle Computer SHALL provide `+2`, Command Mech SHALL provide `+1`, and the bonuses SHALL NOT stack. Explicit HQ initiative equipment bonuses SHALL be treated as the same best-of force turn bonus as initiative quirks, while explicit command initiative equipment bonuses SHALL stack as a separate command bonus. Raw `2d6` initiative payload fields SHALL remain raw dice values for replay/RNG arbitration, with modifier and total fields carrying adjusted values. Automatic command-console/HQ equipment hydration and Tactical Genius SHALL remain explicit gaps until equipment-derived command state and reroll request/replacement-roll flow are modeled.
+Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer force initiative bonuses from active conscious units. Battle Computer SHALL provide `+2`, Command Mech SHALL provide `+1`, and the bonuses SHALL NOT stack. Explicit HQ initiative equipment bonuses SHALL be treated as the same best-of force turn bonus as initiative quirks, while explicit command initiative equipment bonuses SHALL stack as a separate command bonus. Tactical Genius SHALL be modeled as a reroll request that replaces only the requested side's raw initiative roll when that side has an active conscious Tactical Genius unit, not as a flat modifier. Raw `2d6` initiative payload fields SHALL remain raw dice values for replay/RNG arbitration, with modifier and total fields carrying adjusted values. Automatic command-console/HQ equipment hydration and Combat Intuition first-round sequencing SHALL remain explicit gaps until equipment-derived command state and movement-before-initiative flow are modeled.
 
 #### Scenario: Battle Computer bonus remains non-cumulative with Command Mech
 
@@ -718,6 +718,22 @@ Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer for
 - **AND** the player force has an explicit HQ initiative bonus of `+2`
 - **WHEN** initiative is rolled
 - **THEN** only the best HQ or quirk bonus SHALL apply before command bonuses
+
+#### Scenario: Tactical Genius replaces the requested side roll
+
+- **GIVEN** the player force has an active conscious unit with `tactical_genius`
+- **AND** Tactical Genius is requested for the player side
+- **WHEN** initiative is rolled
+- **THEN** the player raw initiative roll SHALL be replaced with a new raw `2d6` roll
+- **AND** the event payload SHALL retain the initial raw player and opponent rolls separately
+- **AND** no flat Tactical Genius initiative modifier SHALL be applied
+
+#### Scenario: Tactical Genius request requires an eligible active unit
+
+- **GIVEN** no active conscious unit on the requested side has `tactical_genius`
+- **WHEN** Tactical Genius is requested for that side
+- **THEN** no replacement roll SHALL be consumed
+- **AND** no Tactical Genius reroll metadata SHALL be emitted
 
 ### Requirement: Source-Backed Terrain Master Defender To-Hit Variants
 

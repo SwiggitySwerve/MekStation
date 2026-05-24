@@ -979,6 +979,61 @@ describe('rollInitiative', () => {
       winner: GameSide.Opponent,
     });
   });
+
+  it('replaces the requested side roll when active Tactical Genius is present', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({
+        id: 'player-1',
+        side: GameSide.Player,
+        abilities: ['tactical_genius'],
+      }),
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const dice = [1, 1, 6, 1, 6, 6];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1, {
+      tacticalGeniusRerollSide: GameSide.Player,
+    });
+    const event = rolled.events[rolled.events.length - 1];
+
+    expect(rolled.currentState.initiativeWinner).toBe(GameSide.Player);
+    expect(event.payload).toMatchObject({
+      playerOriginalRoll: 2,
+      opponentOriginalRoll: 7,
+      playerRoll: 12,
+      opponentRoll: 7,
+      tacticalGeniusRerollSide: GameSide.Player,
+      winner: GameSide.Player,
+    });
+  });
+
+  it('ignores a Tactical Genius reroll request for a side without the SPA', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({ id: 'player-1', side: GameSide.Player }),
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const dice = [1, 1, 6, 1, 6, 6];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1, {
+      tacticalGeniusRerollSide: GameSide.Player,
+    });
+    const event = rolled.events[rolled.events.length - 1];
+
+    expect(rolled.currentState.initiativeWinner).toBe(GameSide.Opponent);
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 7,
+      winner: GameSide.Opponent,
+    });
+    expect(event.payload).not.toHaveProperty('tacticalGeniusRerollSide');
+    expect(dice).toEqual([6, 6]);
+  });
 });
 
 // =============================================================================

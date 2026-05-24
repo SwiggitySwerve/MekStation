@@ -431,7 +431,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(applicationRefs).toEqual(sandblasterRefs);
   });
 
-  it('pins source-backed initiative quirk bonuses and Tactical Genius reroll gap', () => {
+  it('pins source-backed initiative bonuses and Tactical Genius reroll flow', () => {
     const commandRefs = QUIRK_COMBAT_SUPPORT.command_mech.sourceRefs ?? [];
     const battleComputerRefs =
       QUIRK_COMBAT_SUPPORT.battle_computer.sourceRefs ?? [];
@@ -456,16 +456,15 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       gap: expect.stringContaining('equipment hydration'),
     });
     expect(SPA_COMBAT_SUPPORT['tactical-genius']).toMatchObject({
-      level: 'helper-only',
-      evidence: expect.stringContaining('reroll gate'),
-      gap: expect.stringContaining('replacement-roll flow'),
+      level: 'integrated',
+      evidence: expect.stringContaining('replaces only that side raw 2d6 roll'),
     });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['initiative-application'],
     ).toMatchObject({
       level: 'helper-only',
       evidence: expect.stringContaining('raw 2d6 payload fields'),
-      gap: expect.stringContaining('Tactical Genius reroll'),
+      gap: expect.stringContaining('Combat Intuition'),
     });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['initiative-application'].gap,
@@ -484,6 +483,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ]);
     expect(tacticalGeniusRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek Game.hasTacticalGenius checks for a conscious active unit with MISC_TACTICAL_GENIUS before initiative reroll handling.',
+      'MegaMek InitiativeRoll.replaceRoll replaces the previous initiative roll and records that Tactical Genius was used.',
       'MegaMek OptionsConstants defines MISC_TACTICAL_GENIUS as tactical_genius.',
     ]);
     expect(applicationRefs).toEqual([
