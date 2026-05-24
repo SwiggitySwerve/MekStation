@@ -36,6 +36,7 @@ import {
   IAmmoSlotState,
   IComponentDestroyedPayload,
   ICriticalHitResolvedPayload,
+  IDamageAppliedPayload,
   IGameEvent,
   IGameState,
   IPSRTriggeredPayload,
@@ -711,6 +712,118 @@ describe('runAttackPhase crit event chain (Phase 3, combat-resolution delta)', (
         loadedTarget.next.units['opponent-1'].ammoState?.[
           loadedTarget.loadedBin.binId
         ].remainingRounds,
+      ).toBe(0);
+    });
+
+    it('CASE-contained ammo critical cookoffs do not transfer into the center torso', () => {
+      const loadedBin = createAmmoBin('right-torso-loaded-bin', 5);
+      const scenario = buildPrimedRunnerScenario();
+      const target = scenario.state.units['opponent-1'];
+      const state: IGameState = {
+        ...scenario.state,
+        units: {
+          ...scenario.state.units,
+          'opponent-1': {
+            ...target,
+            caseProtection: { right_torso: 'case' },
+            armor: {
+              ...target.armor,
+              right_torso: 0,
+              center_torso: 0,
+            },
+            structure: {
+              ...target.structure,
+              right_torso: 15,
+              center_torso: 10,
+            },
+            ammoState: {
+              [loadedBin.binId]: loadedBin,
+            },
+          },
+        },
+      };
+      const manifest = buildCriticalSlotManifest({
+        right_torso: [
+          {
+            slotIndex: 0,
+            componentType: 'ammo',
+            componentName: 'IS Ammo AC/20',
+            ammoBinId: loadedBin.binId,
+            destroyed: false,
+          },
+        ],
+      });
+      const manifestsByUnit = new Map<string, CriticalSlotManifest>([
+        ['opponent-1', manifest],
+      ]);
+      const events: IGameEvent[] = [];
+
+      const next = resolveWeaponHit({
+        currentState: state,
+        events,
+        gameId: state.gameId,
+        unitId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'ammo-crit-probe',
+        weapon: createCritProbeWeapon('ammo-crit-probe'),
+        attackRoll: 12,
+        toHitNumber: 2,
+        firingArc: 'front',
+        partialCover: false,
+        // Hit location 3+3 = right_torso, crit trigger 4+4 = one crit.
+        d6Roller: scriptedRoller([3, 3, 4, 4, 1]),
+        getOrSeedManifest: () => manifest,
+        manifestsByUnit,
+        weaponsByUnit: new Map<string, readonly IWeapon[]>([
+          ['player-1', [createCritProbeWeapon('ammo-crit-probe')]],
+          ['opponent-1', [createAC20('ac-20-0')]],
+        ]),
+      });
+
+      const explosion = events.find(
+        (event) => event.type === GameEventType.AmmoExplosion,
+      ) as IGameEvent & { payload: IAmmoExplosionPayload };
+      const explosionIndex = events.findIndex(
+        (event) => event.type === GameEventType.AmmoExplosion,
+      );
+      const postExplosionDamageEvents = events
+        .slice(explosionIndex + 1)
+        .filter((event) => event.type === GameEventType.DamageApplied);
+
+      expect(explosion.payload).toMatchObject({
+        binId: loadedBin.binId,
+        damage: 100,
+        caseProtection: 'case',
+        source: 'CritInduced',
+      });
+      expect(
+        events.some((event) => event.type === GameEventType.TransferDamage),
+      ).toBe(false);
+      expect(
+        events.some((event) => event.type === GameEventType.UnitDestroyed),
+      ).toBe(false);
+      expect(
+        postExplosionDamageEvents.map(
+          (event) => event.payload as IDamageAppliedPayload,
+        ),
+      ).toEqual([
+        expect.objectContaining({
+          location: 'right_torso',
+          damage: 10,
+          structureRemaining: 0,
+          locationDestroyed: true,
+        }),
+      ]);
+      expect(next.units['opponent-1']).toMatchObject({
+        destroyed: false,
+        destroyedLocations: expect.arrayContaining([
+          'right_torso',
+          'right_arm',
+        ]),
+      });
+      expect(next.units['opponent-1'].structure.center_torso).toBe(10);
+      expect(
+        next.units['opponent-1'].ammoState?.[loadedBin.binId].remainingRounds,
       ).toBe(0);
     });
   });

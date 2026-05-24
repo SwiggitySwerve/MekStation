@@ -353,6 +353,12 @@ export interface IUnitGameState {
   readonly shutdown?: boolean;
   /** Ammo bin state tracking */
   readonly ammoState?: Record<string, IAmmoSlotState>;
+  /**
+   * Per-location ammo explosion containment projected from mounted CASE
+   * equipment. `case` and `case_ii` are explicit protection levels; missing
+   * keys mean the location has no CASE protection.
+   */
+  readonly caseProtection?: Readonly<Record<string, 'case' | 'case_ii'>>;
   /** Pending piloting skill rolls to resolve */
   readonly pendingPSRs?: readonly IPendingPSR[];
   readonly weaponsFiredThisTurn?: readonly string[];

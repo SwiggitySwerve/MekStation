@@ -1088,6 +1088,49 @@ function runnerCriticalLocationFromCatalogLocation(
   return CATALOG_TO_RUNNER_LOC[normalized];
 }
 
+type UnitCaseProtection = NonNullable<IUnitGameState['caseProtection']>;
+type UnitCaseProtectionLevel = UnitCaseProtection[string];
+
+function classifyCASEProtection(id: string): UnitCaseProtectionLevel | null {
+  const normalized = normalizeEquipmentId(id);
+  const withoutTechPrefix = normalizedWithoutTechPrefix(normalized);
+  if (
+    withoutTechPrefix.includes('caseii') ||
+    withoutTechPrefix.includes('case2')
+  ) {
+    return 'case_ii';
+  }
+  if (withoutTechPrefix.includes('case')) {
+    return 'case';
+  }
+  return null;
+}
+
+export function hydrateCASEProtectionFromFullUnit(
+  fullUnit: IFullUnit,
+): IUnitGameState['caseProtection'] | undefined {
+  const protectionByLocation: Record<string, UnitCaseProtectionLevel> = {};
+
+  for (const signal of equipmentSignalsFromFullUnit(fullUnit)) {
+    if (signal.sourceLocation === undefined) continue;
+    const runnerLocation = runnerCriticalLocationFromCatalogLocation(
+      signal.sourceLocation,
+    );
+    if (runnerLocation === undefined) continue;
+
+    const protection = classifyCASEProtection(signal.id);
+    if (protection === null) continue;
+
+    const current = protectionByLocation[runnerLocation];
+    if (current === 'case_ii') continue;
+    protectionByLocation[runnerLocation] = protection;
+  }
+
+  return Object.keys(protectionByLocation).length > 0
+    ? protectionByLocation
+    : undefined;
+}
+
 function classifyCriticalSlotComponent(
   slotText: string,
   sourceLocation: string,
@@ -1618,6 +1661,7 @@ export function createHydratedUnitState(
   const claws = hydrateClawStateFromFullUnit(fullUnit);
   const c3Equipment = hydrateC3EquipmentFromFullUnit(fullUnit);
   const ammoState = hydrateAmmoStateFromFullUnit(fullUnit);
+  const caseProtection = hydrateCASEProtectionFromFullUnit(fullUnit);
 
   return {
     id: runnerUnitId,
@@ -1653,6 +1697,7 @@ export function createHydratedUnitState(
     destroyedEquipment: [],
     ammo: {},
     ...(ammoState !== undefined ? { ammoState } : {}),
+    ...(caseProtection !== undefined ? { caseProtection } : {}),
     pilotWounds: 0,
     pilotConscious: true,
     destroyed: false,

@@ -176,20 +176,21 @@ When a unit's heat reaches 19+ on the post-attack heat phase, the engine SHALL r
 
 ### Requirement: CASE Confines Ammo Explosion Damage
 
-When an `AmmoExplosion` fires in a location that has CASE installed, the explosion damage MUST be confined to that location. NO `TransferDamage` event MUST follow. The location MUST be destroyed (`LocationDestroyed`) but cascade to adjacent locations is suppressed by CASE rules.
+When an `AmmoExplosion` fires in a location that has CASE installed, the explosion damage MUST be confined to that location. NO `TransferDamage` event MUST follow. Standard CASE caps protected explosion damage before local runner damage resolution, so the source location is destroyed only when the capped damage exhausts its remaining local armor/structure in MekStation's current damage pipeline.
 
 #### Scenario: AC/20 ammo cookoff in RT with CASE
 
 - **GIVEN** an Atlas with AC/20 ammo bin in RT (5 rounds)
 - **AND** CASE installed in the same RT location
 - **WHEN** the bin takes a critical hit triggering an explosion
-- **THEN** the event chain MUST be: `AmmoExplosion { location: 'RT', damage: 100 }`, `DamageApplied { location: 'RT', damage: 100 }`, `LocationDestroyed { location: 'RT' }`
+- **THEN** `AmmoExplosion { location: 'RT', damage: 100, caseProtection: 'case' }` MUST emit
+- **AND** local runner damage MUST be capped before transfer is considered
 - **AND** NO `TransferDamage { from: 'RT', to: 'CT' }` MUST emit
 - **AND** the unit MUST survive (CT untouched)
 
 ### Requirement: CASE-II Confines Ammo Damage Within Location Without Destroying
 
-When CASE-II is installed (Clan-style), `AmmoExplosion` damage MUST be vented externally — the bin slot is destroyed (`ComponentDestroyed`) but neither the location armor nor structure takes the explosion damage. `LocationDestroyed` MUST NOT emit unless other concurrent damage already destroyed the location.
+When CASE-II is installed, `AmmoExplosion` damage MUST be capped to 1 point before local runner damage resolution. `LocationDestroyed` MUST NOT emit unless the capped damage, or other concurrent damage, destroyed the location.
 
 #### Scenario: AC/20 ammo cookoff in RT with CASE-II
 
@@ -198,7 +199,7 @@ When CASE-II is installed (Clan-style), `AmmoExplosion` damage MUST be vented ex
 - **WHEN** the bin takes a critical hit triggering explosion
 - **THEN** `AmmoExplosion { source: 'critical_hit' }` MUST emit
 - **AND** `ComponentDestroyed { component: 'lbx20-ammo' }` MUST emit
-- **AND** NO damage MUST be applied to RT armor or structure (vented externally per CASE-II rules)
+- **AND** local runner damage MUST be capped to 1 point before transfer is considered
 - **AND** `LocationDestroyed { location: 'RT' }` MUST NOT emit unless the location was already destroyed by other damage
 
 ### Requirement: Ammo Explosion Without CASE Cascades Per Damage Transfer Chain
@@ -213,4 +214,3 @@ When `AmmoExplosion` fires in a location WITHOUT CASE or CASE-II, the explosion 
 - **WHEN** the explosion fires
 - **THEN** events MUST emit in order: `AmmoExplosion { damage: 100 }`, `DamageApplied { location: 'RT', damage: 42 }`, `LocationDestroyed { location: 'RT' }`, `TransferDamage { from: 'RT', to: 'CT', damage: 58 }`, `DamageApplied { location: 'CT', damage: 58 }`
 - **AND** if CT armor + structure < 58, `LocationDestroyed { location: 'CT' }` and `UnitDestroyed { cause: 'ct_destroyed' }` MUST follow
-

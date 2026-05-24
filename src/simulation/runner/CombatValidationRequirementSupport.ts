@@ -612,7 +612,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'heat-lifecycle': integrated(
     'heat-lifecycle',
-    'Heat rules cover threshold effects, shutdown checks, auto-shutdown, startup, heat pilot damage, optional MaxTech heat critical damage, and heat-induced ammo explosion selection plus damage cascade',
+    'Heat rules cover threshold effects, shutdown checks, auto-shutdown, startup, heat pilot damage, optional MaxTech heat critical damage, and heat-induced ammo explosion selection plus CASE-aware damage cascade',
     HEAT_LIFECYCLE_SUPPORT_REFS,
   ),
   'range-validation': integrated(
@@ -768,13 +768,13 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'damage-resolution': integrated(
     'damage-resolution',
-    'Damage support covers armor, internal structure, rear armor, transfer, location destruction, heat ammo explosion cascades, 20+ damage PSRs, and the canonical destruction-cause taxonomy; shutdown remains modeled by lifecycle support rather than UnitDestroyed',
+    'Damage support covers armor, internal structure, rear armor, transfer, location destruction, heat/crit ammo explosion cascades, CASE containment, 20+ damage PSRs, and the canonical destruction-cause taxonomy; shutdown remains modeled by lifecycle support rather than UnitDestroyed',
     [...DAMAGE_RESOLUTION_SUPPORT_REFS, ...DESTRUCTION_CAUSE_SUPPORT_REFS],
   ),
   'critical-effects': helperOnly(
     'critical-effects',
     'Critical component support covers engine, gyro, cockpit, sensors, life support, actuators, ammo, heat sinks, jump jets, equipment, and weapons',
-    'Catalog-mounted ammo and equipment slots are hydrated as critical slots, but their full ammo-cookoff and generic-equipment lifecycle effects remain incomplete',
+    'Catalog-mounted ammo and equipment slots are hydrated as critical slots, but special ammo and generic-equipment lifecycle effects remain incomplete',
     [...CRITICAL_COMPONENT_SUPPORT_REFS, ...CRITICAL_SLOT_EFFECT_SUPPORT_REFS],
   ),
   'pilot-damage-death': integrated(

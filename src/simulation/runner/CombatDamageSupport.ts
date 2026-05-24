@@ -21,6 +21,9 @@ function helperOnly(
   return { id, level: 'helper-only', evidence, gap };
 }
 
+const MEGAMEK_DAMAGE_SOURCE_VERSION =
+  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+
 const MEGAMEK_DFA_IMPOSSIBLE_DISPLACEMENT_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -45,6 +48,30 @@ const MEGAMEK_FALL_PILOT_DAMAGE_SOURCE_REFS = [
       'MegaMek doEntityFall rolls checkPilotAvoidFallDamage after fall damage and applies one crew hit when that piloting check fails.',
     url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L23233-L23357',
     sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEGAMEK_CASE_AMMO_EXPLOSION_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek prevents remaining ammo-explosion damage from transferring when the hit location has CASE.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_DAMAGE_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/TWDamageManagerModular.java#L520-L529`,
+    sourceVersion: MEGAMEK_DAMAGE_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek caps ammo-explosion damage at 10 with CASE and 1 with CASE II before local damage resolution.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_DAMAGE_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/TWDamageManagerModular.java#L2435-L2489`,
+    sourceVersion: MEGAMEK_DAMAGE_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Entity.locationHasCase detects mounted CASE or CASE-P in the same location.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_DAMAGE_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L6867-L6874`,
+    sourceVersion: MEGAMEK_DAMAGE_SOURCE_VERSION,
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -88,6 +115,11 @@ export const DAMAGE_RESOLUTION_COMBAT_SUPPORT = {
   'heat-ammo-explosion-damage-cascade': integrated(
     'heat-ammo-explosion-damage-cascade',
     'runHeatPhase empties the selected heat-cookoff bin, routes explosion damage through resolveDamage, emits damage/transfer/destruction events, and tags fatal cookoffs as ammo_explosion',
+  ),
+  'case-ammo-explosion-containment': integrated(
+    'case-ammo-explosion-containment',
+    'UnitHydration projects mounted CASE/CASE II into per-location combat state, heat and crit ammo cookoffs emit caseProtection, and runner explosion cascades cap protected damage before transfer can occur',
+    MEGAMEK_CASE_AMMO_EXPLOSION_SOURCE_REFS,
   ),
   'destruction-cause-state-persistence': integrated(
     'destruction-cause-state-persistence',

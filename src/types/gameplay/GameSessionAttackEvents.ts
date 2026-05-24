@@ -306,8 +306,10 @@ export interface IAmmoExplosionPayload {
   readonly weaponType?: string;
   /** Rounds destroyed in the blast */
   readonly roundsDestroyed?: number;
-  /** Damage delivered to the internal structure */
+  /** Total explosion damage before CASE caps or local containment */
   readonly damage: number;
+  /** CASE protection that modified downstream damage transfer, when known. */
+  readonly caseProtection?: 'none' | 'case' | 'case_ii';
   /** Why the bin exploded */
   readonly source: 'HeatInduced' | 'CritInduced';
 }

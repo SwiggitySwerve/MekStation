@@ -12,6 +12,7 @@ import {
 import {
   buildWeaponLookupFromCatalogFiles,
   createHydratedUnitState,
+  hydrateCASEProtectionFromFullUnit,
   hydrateCriticalSlotManifestFromFullUnit,
   hydrateAIWeaponsFromFullUnit,
 } from '../UnitHydration';
@@ -157,5 +158,32 @@ describe('catalog critical-slot hydration boundary', () => {
         level: 'helper-only',
       });
     }
+  });
+
+  it('hydrates mounted CASE protection from catalog critical slots', async () => {
+    const service = getNodeCanonicalUnitService();
+    const fullUnit = await service.getById('emperor-emp-6a-nerran');
+    expect(fullUnit).not.toBeNull();
+    if (!fullUnit) return;
+
+    expect(hydrateCASEProtectionFromFullUnit(fullUnit)).toEqual({
+      left_torso: 'case',
+      right_torso: 'case',
+    });
+
+    const unitState = createHydratedUnitState({
+      runnerUnitId: 'player-1',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      fullUnit,
+      aiWeapons: [],
+      gunnery: 4,
+      piloting: 5,
+    });
+
+    expect(unitState.caseProtection).toEqual({
+      left_torso: 'case',
+      right_torso: 'case',
+    });
   });
 });

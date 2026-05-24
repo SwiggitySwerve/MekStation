@@ -18,6 +18,7 @@ import {
   applyDamageResultToState,
   buildDamageState,
 } from '../SimulationRunnerState';
+import { resolveCaseAdjustedAmmoExplosionDamage } from './ammoExplosionCase';
 import { createGameEvent } from './utils';
 import { damagePerRoundForBin } from './weaponAttackHelpers';
 
@@ -111,6 +112,11 @@ export function applyHeatInducedAmmoExplosions(
   if (triggered) {
     const bin = selectHeatExplosionBin(loadedBins, unitWeapons);
     const explosionDamage = explosionDamageForBin(bin, unitWeapons);
+    const caseAdjustedDamage = resolveCaseAdjustedAmmoExplosionDamage(
+      unit,
+      bin.location as CombatLocation,
+      explosionDamage,
+    );
     events.push(
       createGameEvent(
         gameId,
@@ -125,6 +131,7 @@ export function applyHeatInducedAmmoExplosions(
           weaponType: bin.weaponType,
           roundsDestroyed: bin.remainingRounds,
           damage: explosionDamage,
+          caseProtection: caseAdjustedDamage.caseProtection,
           source: 'HeatInduced' as const,
         },
         unitId,
@@ -142,7 +149,7 @@ export function applyHeatInducedAmmoExplosions(
     const cascadeResult = resolveDamage(
       cascadeState,
       bin.location as CombatLocation,
-      explosionDamage,
+      caseAdjustedDamage.damageToApply,
       d6Roller,
     );
 

@@ -76,7 +76,8 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** weapon slots hydrated with runtime weapon ids SHALL resolve through `applyWeaponHit` so later attack planning and stale declaration validation remove destroyed weapon mounts
 - **AND** ammo critical-slot strings SHALL hydrate runtime ammo bins with stable `binId`, `weaponType`, location, remaining/max rounds, and explosive flag data
 - **AND** ammo critical entries SHALL carry `ammoBinId` when the catalog slot resolves to a runtime ammo bin
-- **AND** generic equipment, CASE, and special-ammo lifecycle nuances SHALL remain explicit gaps until their damage paths cascade through the corresponding combat state
+- **AND** mounted CASE/CASE II critical-slot strings SHALL hydrate per-location `caseProtection` combat state
+- **AND** generic equipment and special-ammo lifecycle nuances SHALL remain explicit gaps until their damage paths cascade through the corresponding combat state
 
 #### Scenario: Jump-jet critical damage reduces runner jump movement
 
@@ -99,6 +100,16 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **THEN** `CriticalHitResolved` and `ComponentDestroyed` SHALL carry the resolved `ammoBinId`
 - **AND** any crit-induced `AmmoExplosion` SHALL use that same `binId`
 - **AND** a crit on an empty exact bin SHALL NOT explode another loaded ammo bin in the same location
+
+#### Scenario: CASE-contained ammo cookoffs suppress transfer
+
+- **GIVEN** a BattleMech has mounted CASE or CASE II projected into `caseProtection` for the ammo bin location
+- **WHEN** heat-induced or crit-induced ammo explosion resolution emits `AmmoExplosion`
+- **THEN** `AmmoExplosion.caseProtection` SHALL report the protection level used for the cascade
+- **AND** standard CASE SHALL cap protected explosion damage at 10 before local runner damage resolution
+- **AND** CASE II SHALL cap protected explosion damage at 1 before local runner damage resolution
+- **AND** protected explosion damage SHALL NOT emit `TransferDamage` from the CASE-protected location
+- **AND** MegaMek rear-armor blowout, internal-only application order, CASE-P nuance, and interactive heat-resolution parity SHALL remain explicit gaps until modeled in the corresponding combat state
 
 ### Requirement: Physical Attack Legality Gates
 

@@ -1656,6 +1656,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       supportIdsByLevel(DAMAGE_RESOLUTION_COMBAT_SUPPORT, 'integrated'),
     ).toEqual([
       'armor-damage',
+      'case-ammo-explosion-containment',
       'damage-transfer',
       'destruction-cause-state-persistence',
       'head-damage-cap',

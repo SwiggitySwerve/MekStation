@@ -18,6 +18,7 @@ import {
   applyDamageResultToState,
   buildDamageState,
 } from '../SimulationRunnerState';
+import { resolveCaseAdjustedAmmoExplosionDamage } from './ammoExplosionCase';
 import { createGameEvent } from './utils';
 import {
   damagePerRoundForBin,
@@ -89,6 +90,12 @@ export function applyCritAmmoExplosions(options: {
       }
       const damagePerRound = damagePerRoundForBin(bin, attackerWeapons);
       const explosionDamage = bin.remainingRounds * damagePerRound;
+      const targetForExplosion = currentState.units[targetId];
+      const caseAdjustedDamage = resolveCaseAdjustedAmmoExplosionDamage(
+        targetForExplosion,
+        bin.location as CombatLocation,
+        explosionDamage,
+      );
       events.push(
         createGameEvent(
           gameId,
@@ -103,6 +110,7 @@ export function applyCritAmmoExplosions(options: {
             weaponType: bin.weaponType,
             roundsDestroyed: bin.remainingRounds,
             damage: explosionDamage,
+            caseProtection: caseAdjustedDamage.caseProtection,
             source: 'CritInduced' as const,
           },
           unitId,
@@ -114,13 +122,10 @@ export function applyCritAmmoExplosions(options: {
         ...ammoStateOnTarget,
         [bin.binId]: { ...bin, remainingRounds: 0 },
       };
-      // Apply the explosion damage through the canonical damage
-      // pipeline so LocationDestroyed + TransferDamage emit per
-      // the spec scenario "Side-torso ammo explosion without
-      // CASE destroys CT". When CASE/CASE-II flags eventually
-      // land on IUnitGameState, gate this cascade on the
-      // location's CASE flag. The bin location string ('right_torso',
-      // 'left_torso', etc.) matches CombatLocation.
+      // Apply the explosion damage through the canonical damage pipeline so
+      // LocationDestroyed + TransferDamage emit per the unprotected cookoff
+      // spec. CASE-protected locations feed a capped local damage amount
+      // into the same pipeline so excess explosion damage cannot transfer.
       const targetForCascade = currentState.units[targetId];
       const cascadeState = buildDamageState({
         ...targetForCascade,
@@ -129,7 +134,7 @@ export function applyCritAmmoExplosions(options: {
       const cascadeResult = resolveDamage(
         cascadeState,
         bin.location as CombatLocation,
-        explosionDamage,
+        caseAdjustedDamage.damageToApply,
         d6Roller,
       );
       // Apply the cascade state back to the target unit and
