@@ -72,7 +72,15 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **WHEN** UnitHydration prepares runner combat data for that unit
 - **THEN** occupied critical slots SHALL be mapped into the runner `CriticalSlotManifest` by source location and source slot index
 - **AND** heat sink slots SHALL resolve through `applyHeatSinkHit` so later heat phases reduce dissipation through `heatSinksDestroyed`
-- **AND** ammo, generic equipment, jump-jet, and weapon slot hydration SHALL remain separate from their incomplete full lifecycle effects until those damage paths disable or cascade through the corresponding combat state
+- **AND** jump-jet slots SHALL resolve through `applyJumpJetHit` so later movement phases reduce effective jump MP through `jumpJetsDestroyed`
+- **AND** ammo, generic equipment, and weapon slot hydration SHALL remain separate from their incomplete full lifecycle effects until those damage paths disable or cascade through the corresponding combat state
+
+#### Scenario: Jump-jet critical damage reduces runner jump movement
+
+- **GIVEN** a BattleMech has base jump MP and accumulated `componentDamage.jumpJetsDestroyed`
+- **WHEN** runner movement validation computes the unit's jump capability
+- **THEN** each destroyed jump jet SHALL subtract one base jump MP before jump movement validation
+- **AND** Partial Wing bonuses SHALL NOT recreate jump capability after critical damage has reduced base jump MP to zero
 
 ### Requirement: Physical Attack Legality Gates
 

@@ -10,6 +10,7 @@ import {
 } from '@/types/gameplay';
 import {
   applyActiveMPBoosters,
+  applyJumpJetCriticalDamage,
   applyPartialWingJumpBonus,
   getHeatAdjustedMovementCapability,
 } from '@/utils/gameplay/movement/calculations';
@@ -89,8 +90,12 @@ export function runMovementPhase(options: {
     const aiUnit = toAIUnitState(unit, weaponsByUnit?.get(unitId));
     const baseCapability =
       movementCapabilitiesByUnit?.get(unitId) ?? createMovementCapability();
-    const partialWingCapability = applyPartialWingJumpBonus(
+    const jumpDamageCapability = applyJumpJetCriticalDamage(
       baseCapability,
+      unit.componentDamage?.jumpJetsDestroyed,
+    );
+    const partialWingCapability = applyPartialWingJumpBonus(
+      jumpDamageCapability,
       unit.partialWingJumpBonus,
     );
     const hasSourceBackedMovementState =

@@ -178,10 +178,9 @@ export const CRITICAL_COMPONENT_COMBAT_SUPPORT = {
     'heat_sink',
     'hydrateCriticalSlotManifestFromFullUnit seeds catalog Heat Sink slots, applyHeatSinkHit increments heatSinksDestroyed, and runHeatPhase consumes that damage',
   ),
-  jump_jet: helperOnly(
+  jump_jet: integrated(
     'jump_jet',
-    'applyJumpJetHit increments jumpJetsDestroyed',
-    'default runner critical manifest does not hydrate jump-jet slots from unit equipment',
+    'hydrateCriticalSlotManifestFromFullUnit seeds catalog Jump Jet slots, applyJumpJetHit increments jumpJetsDestroyed, and runMovementPhase reduces jump MP before movement validation',
   ),
   weapon: helperOnly(
     'weapon',

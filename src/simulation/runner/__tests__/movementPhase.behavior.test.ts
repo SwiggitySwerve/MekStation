@@ -619,6 +619,60 @@ describe('runMovementPhase movement validation parity', () => {
     expect(next.units['player-1'].position).toEqual({ q: 0, r: 0 });
   });
 
+  it('applies jump-jet critical damage before runner jump validation', () => {
+    const componentDamage = {
+      ...DEFAULT_COMPONENT_DAMAGE,
+      jumpJetsDestroyed: 1,
+    };
+    const capability = { walkMP: 4, runMP: 6, jumpMP: 4 };
+    const blocked = runScriptedMove(
+      createMinimalGrid(5),
+      { q: 4, r: 0 },
+      { componentDamage },
+      { movementType: MovementType.Jump, capability },
+    );
+    const allowed = runScriptedMove(
+      createMinimalGrid(5),
+      { q: 3, r: 0 },
+      { componentDamage },
+      { movementType: MovementType.Jump, capability },
+    );
+
+    expect(blocked.events).toEqual([]);
+    expect(blocked.next.units['player-1'].position).toEqual({ q: 0, r: 0 });
+    expect(allowed.next.units['player-1'].position).toEqual({ q: 3, r: 0 });
+    expect(
+      allowed.events.find(
+        (event) => event.type === GameEventType.MovementDeclared,
+      )?.payload,
+    ).toMatchObject({
+      unitId: 'player-1',
+      mpUsed: 3,
+      heatGenerated: 3,
+    });
+  });
+
+  it('does not let Partial Wing recreate jump capability after jump-jet crits destroy all base jump MP', () => {
+    const { next, events } = runScriptedMove(
+      createMinimalGrid(3),
+      { q: 1, r: 0 },
+      {
+        partialWingJumpBonus: 2,
+        componentDamage: {
+          ...DEFAULT_COMPONENT_DAMAGE,
+          jumpJetsDestroyed: 3,
+        },
+      },
+      {
+        movementType: MovementType.Jump,
+        capability: { walkMP: 4, runMP: 6, jumpMP: 3 },
+      },
+    );
+
+    expect(events).toEqual([]);
+    expect(next.units['player-1'].position).toEqual({ q: 0, r: 0 });
+  });
+
   it.each([
     {
       name: 'rubble entry',

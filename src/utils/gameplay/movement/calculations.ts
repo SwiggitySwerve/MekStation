@@ -74,6 +74,29 @@ export function applyPartialWingJumpBonus(
 }
 
 /**
+ * Apply destroyed jump jets before optional jump enhancers. A jump-jet critical
+ * removes one point of base jump MP; once all base jump capability is gone,
+ * effects like Partial Wing cannot create a jump move on their own.
+ */
+export function applyJumpJetCriticalDamage(
+  capability: IMovementCapability,
+  jumpJetsDestroyed: number | undefined,
+): IMovementCapability {
+  if (
+    typeof jumpJetsDestroyed !== 'number' ||
+    !Number.isFinite(jumpJetsDestroyed) ||
+    jumpJetsDestroyed <= 0
+  ) {
+    return capability;
+  }
+
+  return {
+    ...capability,
+    jumpMP: Math.max(0, capability.jumpMP - Math.floor(jumpJetsDestroyed)),
+  };
+}
+
+/**
  * Apply explicit active MASC/Supercharger run MP. MegaMek derives boosted run
  * MP from the already-effective walk MP: one active booster doubles walk MP;
  * both active boosters produce ceil(walk MP * 2.5).
