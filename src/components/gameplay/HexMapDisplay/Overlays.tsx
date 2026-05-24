@@ -77,9 +77,11 @@ export interface CoverOverlayProps {
 export const CoverOverlay = React.memo(function CoverOverlay({
   hex,
   terrain,
-}: CoverOverlayProps): React.ReactElement {
+}: CoverOverlayProps): React.ReactElement | null {
   const { x, y } = hexToPixel(hex);
   const coverLevel = getTerrainCoverLevel(terrain);
+  if (coverLevel === CoverLevel.None) return null;
+
   const coverLabel = formatCoverOverlayLabel(coverLevel);
   const terrainTypes = terrain?.features.map((feature) => feature.type) ?? [];
   const terrainLabel = formatTerrainFeaturesLabel(terrainTypes);
@@ -105,9 +107,6 @@ export const CoverOverlay = React.memo(function CoverOverlay({
       fillColor = '#eab308';
       fillOpacity = 0.8;
       break;
-    default:
-      fillColor = '#64748b';
-      fillOpacity = 0.3;
   }
 
   return (

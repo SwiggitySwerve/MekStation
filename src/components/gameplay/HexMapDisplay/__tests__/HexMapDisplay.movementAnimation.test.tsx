@@ -277,13 +277,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('cover-overlay-hex-0-0')).toHaveTextContent(
       'FULL',
     );
-    expect(screen.getByTestId('cover-overlay-hex--1-0')).toHaveAttribute(
-      'data-cover-level',
-      'none',
-    );
-    expect(screen.getByTestId('cover-overlay-hex--1-0')).toHaveTextContent(
-      'NONE',
-    );
+    expect(screen.queryByTestId('cover-overlay-hex--1-0')).toBeNull();
 
     act(() => {
       unmount();
