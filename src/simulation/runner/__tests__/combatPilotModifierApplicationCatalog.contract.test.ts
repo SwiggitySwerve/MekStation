@@ -171,14 +171,18 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       [
         'movement-application',
         'multi-target-penalty-application',
-        'psr-spa-application',
         'sandblaster-application',
         'target-priority-application',
       ].sort(),
     );
     expect(
       supportIdsByLevel(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(expect.arrayContaining(['critical-prevention-application']));
+    ).toEqual(
+      expect.arrayContaining([
+        'critical-prevention-application',
+        'psr-spa-application',
+      ]),
+    );
   });
 
   it('keeps ranged to-hit feature support distinct from ranged attack state hydration', () => {

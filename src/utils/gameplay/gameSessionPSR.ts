@@ -184,6 +184,7 @@ export function resolvePendingPSRs(
       unitState.pilotWounds,
       d6Roller,
       unitState.unitQuirks ?? unit.unitQuirks ?? [],
+      unitState.abilities ?? unit.abilities ?? [],
     );
 
     for (const result of batchResult.results) {

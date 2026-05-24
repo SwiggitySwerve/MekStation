@@ -392,6 +392,18 @@ describe('Piloting Skill Rolls', () => {
       expect(dfaMod!.value).toBe(4);
     });
 
+    it('should include source-backed skidding movement-distance modifier', () => {
+      const psr: IPendingPSR = createSkiddingPSR('unit-1', undefined, 2);
+      const mods = calculatePSRModifiers(psr, DEFAULT_COMP_DAMAGE, 0);
+      const skidMod = mods.find((m) => m.source === PSRTrigger.Skidding);
+
+      expect(skidMod).toEqual({
+        name: 'Skidding modifier',
+        source: PSRTrigger.Skidding,
+        value: 2,
+      });
+    });
+
     it('should not include zero additional modifier', () => {
       const psr: IPendingPSR = createDamagePSR('unit-1');
       const mods = calculatePSRModifiers(psr, DEFAULT_COMP_DAMAGE, 0);
@@ -439,6 +451,32 @@ describe('Piloting Skill Rolls', () => {
           name: 'Piloting quirks',
           source: 'quirk',
           value: expectedValue,
+        },
+      ]);
+      expect(damageMods).toHaveLength(0);
+    });
+
+    it('should apply Maneuvering Ace to skidding PSRs only', () => {
+      const skidMods = calculatePSRModifiers(
+        createSkiddingPSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['maneuvering-ace'],
+      );
+      const damageMods = calculatePSRModifiers(
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['maneuvering_ace'],
+      );
+
+      expect(skidMods).toEqual([
+        {
+          name: 'Maneuvering Ace',
+          source: 'spa',
+          value: -1,
         },
       ]);
       expect(damageMods).toHaveLength(0);

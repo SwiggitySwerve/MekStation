@@ -13,7 +13,7 @@ import type { DiceRoller } from '../diceTypes';
 
 import { createGameSession, startGame } from '../gameSession';
 import { resolvePendingPSRs } from '../gameSessionPSR';
-import { createDamagePSR } from '../pilotingSkillRolls';
+import { createDamagePSR, createSkiddingPSR } from '../pilotingSkillRolls';
 import { UNIT_QUIRK_IDS } from '../quirkModifiers';
 
 function config() {
@@ -51,7 +51,10 @@ function scriptedD6(values: readonly number[]): DiceRoller {
   });
 }
 
-function withPendingPSR(session: IGameSession): IGameSession {
+function withPendingPSR(
+  session: IGameSession,
+  pendingPSRs = [createDamagePSR('player-1')],
+): IGameSession {
   return {
     ...session,
     currentState: {
@@ -61,7 +64,7 @@ function withPendingPSR(session: IGameSession): IGameSession {
         ...session.currentState.units,
         'player-1': {
           ...session.currentState.units['player-1'],
-          pendingPSRs: [createDamagePSR('player-1')],
+          pendingPSRs,
         },
       },
     },
@@ -118,6 +121,36 @@ describe('interactive PSR quirk application', () => {
       prone: true,
       pilotWounds: 1,
       pilotConscious: true,
+    });
+  });
+
+  it('applies Maneuvering Ace while resolving interactive skidding PSRs', () => {
+    const session = withPendingPSR(
+      startGame(
+        createGameSession(
+          config(),
+          units({
+            abilities: ['maneuvering_ace'],
+            unitQuirks: [],
+          }),
+        ),
+        GameSide.Player,
+      ),
+      [createSkiddingPSR('player-1', undefined, 1)],
+    );
+
+    const next = resolvePendingPSRs(session, scriptedD6([2, 3]));
+
+    const resolved = next.events.find(
+      (event) => event.type === GameEventType.PSRResolved,
+    )?.payload as IPSRResolvedPayload | undefined;
+    expect(resolved).toMatchObject({
+      unitId: 'player-1',
+      targetNumber: 5,
+      modifiers: 0,
+      roll: 5,
+      passed: true,
+      reasonCode: PSRTrigger.Skidding,
     });
   });
 });

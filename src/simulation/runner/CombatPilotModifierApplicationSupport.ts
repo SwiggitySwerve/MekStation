@@ -69,6 +69,23 @@ const MEGAMEK_CALLED_SHOT_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_MANEUVERING_ACE_SKID_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Entity.getMovementBeforeSkidPSRModifier reduces the skidding PSR movement-distance modifier by 1 for PILOT_MANEUVERING_ACE.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L8638-L8660`,
+    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek OptionsConstants defines PILOT_MANEUVERING_ACE as maneuvering_ace.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/options/OptionsConstants.java#L173-L180`,
+    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export interface IPilotModifierResolverAssignment {
   readonly spaIds: readonly string[];
   readonly quirkIds: readonly string[];
@@ -121,9 +138,11 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
     'psr-application',
     'calculatePSRModifiers consumes unit quirks through calculatePilotingQuirkPSRModifier; runPSRPhase, resolvePendingPSRs, and attemptStandUp pass unit quirk state into PSR target-number calculation',
   ),
-  'psr-spa-application': unsupported(
+  'psr-spa-application': helperOnly(
     'psr-spa-application',
-    'Maneuvering Ace, Terrain Master, Acrobat, Cross-Country, Natural Grace, and Animal Mimicry PSR modifiers are not wired into calculatePSRModifiers or runner PSR resolution',
+    'calculatePSRModifiers, runPSRPhase, and resolvePendingPSRs apply source-backed Maneuvering Ace relief to skidding PSR target numbers',
+    'Maneuvering Ace terrain PSRs beyond skidding, Terrain Master, Acrobat, Cross-Country, Natural Grace, and Animal Mimicry PSR modifiers are not wired',
+    MEGAMEK_MANEUVERING_ACE_SKID_SOURCE_REFS,
   ),
   'initiative-application': helperOnly(
     'initiative-application',

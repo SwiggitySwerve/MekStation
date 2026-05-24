@@ -239,6 +239,27 @@ const MEGAMEK_325B_DODGE_MANEUVER_SOURCE_REFS = [
   MEGAMEK_325B_DODGE_MANEUVER_OPTION,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_325B_MANEUVERING_ACE_SKID = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Entity.getMovementBeforeSkidPSRModifier reduces the skidding PSR movement-distance modifier by 1 for PILOT_MANEUVERING_ACE.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L8638-L8660',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_MANEUVERING_ACE_OPTION = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek OptionsConstants defines the source-backed Maneuvering Ace SPA id as maneuvering_ace.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/options/OptionsConstants.java#L173-L180',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_MANEUVERING_ACE_SOURCE_REFS = [
+  MEGAMEK_325B_MANEUVERING_ACE_SKID,
+  MEGAMEK_325B_MANEUVERING_ACE_OPTION,
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const SPA_COMBAT_SUPPORT = {
   'weapon-specialist': integrated(
     'weapon-specialist',
@@ -300,9 +321,11 @@ export const SPA_COMBAT_SUPPORT = {
     'melee-master',
     'getMeleeMasterDamageBonus plus physical attack input pilotAbilities increases helper and runner physical target damage',
   ),
-  'maneuvering-ace': unsupported(
+  'maneuvering-ace': helperOnly(
     'maneuvering-ace',
-    'Terrain and skid PSR modifier is not wired',
+    'getManeuveringAceSkidModifier plus resolveAllPSRs apply source-backed Maneuvering Ace -1 to Skidding PSRs',
+    'Terrain-specific Maneuvering Ace PSR modifiers beyond skidding are not wired',
+    MEGAMEK_325B_MANEUVERING_ACE_SOURCE_REFS,
   ),
   'terrain-master': unsupported(
     'terrain-master',

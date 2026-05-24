@@ -166,13 +166,14 @@ export function createExitingWaterPSR(
 export function createSkiddingPSR(
   entityId: string,
   stepIndex?: number,
+  movementBeforeSkidModifier = 0,
 ): IPendingPSR {
   const movementStepSource = movementStepTriggerSource(stepIndex);
   return {
     entityId,
     reason: 'Skidding',
     reasonCode: PSRTrigger.Skidding,
-    additionalModifier: 0,
+    additionalModifier: movementBeforeSkidModifier,
     triggerSource: movementStepSource ?? PSRTrigger.Skidding,
   };
 }

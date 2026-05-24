@@ -528,6 +528,19 @@ Runner ranged to-hit validation SHALL apply Dodge Maneuver as a +2 target modifi
 - **WHEN** the target unit type is explicit and is not a Mek type
 - **THEN** the declared to-hit number SHALL NOT include a `Dodge Maneuver` modifier
 
+### Requirement: Source-Backed Maneuvering Ace Skidding PSR Relief
+
+Runner movement and PSR resolution SHALL apply MegaMek's movement-before-skid PSR distance table and subtract 1 for canonical Maneuvering Ace only when resolving skidding PSRs. The skidding distance modifier SHALL be queued as PSR trigger state, while Maneuvering Ace SHALL be applied during PSR resolution from hydrated pilot ability state so runner and interactive paths share the same target-number math. Terrain-specific Maneuvering Ace PSR behavior beyond skidding SHALL remain an explicit catalog gap.
+
+#### Scenario: Skidding PSRs consume distance and Maneuvering Ace modifiers
+
+- **GIVEN** a running BattleMech turns on pavement or ice
+- **WHEN** the movement phase queues a skidding PSR
+- **THEN** the queued PSR SHALL carry the source-backed movement-before-skid distance modifier
+- **WHEN** that PSR resolves for a pilot with `maneuvering_ace`
+- **THEN** the target number SHALL include an additional `Maneuvering Ace` SPA modifier of `-1`
+- **AND** non-skidding PSRs SHALL NOT receive the Maneuvering Ace skidding modifier
+
 ### Requirement: Source-Truth Cross-Check Discipline
 
 Combat feature work SHALL update OpenSpec, the validation catalog, and executable tests together. Before marking a mechanic integrated, the implementation SHALL be cross-checked against official rules or MegaMek / MekHQ behavior notes, with gaps recorded as partial or unsupported rather than inferred as complete.

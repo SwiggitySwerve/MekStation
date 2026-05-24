@@ -89,6 +89,7 @@
 - [x] 3.4.9 Split automatic C3 equipment/network formation into a helper-only to-hit row so explicit C3 network consumption cannot overclaim full C3 parity.
 - [x] 3.4.10 Cross-check C3 spotter LOS against MegaMek/Total Warfare default behavior and lock the default no-LOS C3 range-sharing behavior with runner validation.
 - [x] 3.4.11 Hydrate source-backed mounted BattleMech C3 master/slave/C3i equipment roles from catalog equipment and critical slots while leaving battle-wide network assembly explicit.
+- [x] 3.4.12 Integrate source-backed Maneuvering Ace skidding PSR relief through runner terrain PSR queueing, runner PSR resolution, interactive PSR resolution, and catalog/OpenSpec coverage while leaving terrain-specific Maneuvering Ace PSRs beyond skidding explicit.
 - [ ] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -118,3 +119,4 @@
 - [x] 4.3.11 Add structured MegaMek source anchors for standard MASC/Supercharger fixed failure target numbers and prior-use counters.
 - [x] 4.3.12 Add structured MegaMek source anchors for C3 master/slave/C3i mounted-equipment detection and Battle Armor C3 exclusion.
 - [x] 4.3.13 Cross-check MegaMek's MASC/Supercharger active-use flag clearing and prior-use counter decay lifecycle.
+- [x] 4.3.14 Cross-check MegaMek's movement-before-skid PSR distance table and Maneuvering Ace skidding relief.

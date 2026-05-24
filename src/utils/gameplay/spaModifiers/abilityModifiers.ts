@@ -135,6 +135,15 @@ export function getMeleeMasterDamageBonus(
 }
 
 /**
+ * Maneuvering Ace: -1 to the movement-before-skid PSR modifier.
+ */
+export function getManeuveringAceSkidModifier(
+  abilities: readonly string[],
+): number {
+  return hasSPA(abilities, 'maneuvering_ace') ? -1 : 0;
+}
+
+/**
  * Tactical Genius: +1 initiative.
  */
 export function getTacticalGeniusBonus(abilities: readonly string[]): number {

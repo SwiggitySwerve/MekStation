@@ -70,6 +70,7 @@ export function runPSRPhase(options: {
       unit.pilotWounds,
       d6Roller,
       unit.unitQuirks ?? [],
+      unit.abilities ?? [],
     );
 
     for (const psrResult of batchResult.results) {

@@ -9,6 +9,7 @@ import { IComponentDamageState, IPendingPSR } from '@/types/gameplay';
 import { defaultD6Roller } from '../diceTypes';
 import { D6Roller, roll2d6 } from '../hitLocation';
 import { calculatePilotingQuirkPSRModifier } from '../quirkModifiers';
+import { getManeuveringAceSkidModifier } from '../spaModifiers';
 import { IPSRResult, IPSRBatchResult, IPSRModifier, PSRTrigger } from './types';
 
 function isTerrainPSR(psr: IPendingPSR): boolean {
@@ -44,6 +45,7 @@ export function resolvePSR(
   pilotWounds: number,
   diceRoller: D6Roller = defaultD6Roller,
   unitQuirks: readonly string[] = [],
+  pilotAbilities: readonly string[] = [],
 ): IPSRResult {
   const usesFixedTargetNumber = psr.fixedTargetNumber !== undefined;
   const modifiers = calculatePSRModifiers(
@@ -51,6 +53,7 @@ export function resolvePSR(
     componentDamage,
     pilotWounds,
     unitQuirks,
+    pilotAbilities,
   );
 
   const totalModifier = modifiers.reduce((sum, m) => sum + m.value, 0);
@@ -95,6 +98,7 @@ export function resolveAllPSRs(
   pilotWounds: number,
   diceRoller: D6Roller = defaultD6Roller,
   unitQuirks: readonly string[] = [],
+  pilotAbilities: readonly string[] = [],
 ): IPSRBatchResult {
   if (pendingPSRs.length === 0) {
     return {
@@ -116,6 +120,7 @@ export function resolveAllPSRs(
       pilotWounds,
       diceRoller,
       unitQuirks,
+      pilotAbilities,
     );
     results.push(result);
 
@@ -152,6 +157,7 @@ export function calculatePSRModifiers(
   componentDamage: IComponentDamageState,
   pilotWounds: number,
   unitQuirks: readonly string[] = [],
+  pilotAbilities: readonly string[] = [],
 ): readonly IPSRModifier[] {
   if (psr.fixedTargetNumber !== undefined) {
     return psr.additionalModifier !== 0
@@ -235,6 +241,18 @@ export function calculatePSRModifiers(
       value: quirkModifier,
       source: 'quirk',
     });
+  }
+
+  if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.Skidding) {
+    const maneuveringAceModifier =
+      getManeuveringAceSkidModifier(pilotAbilities);
+    if (maneuveringAceModifier !== 0) {
+      modifiers.push({
+        name: 'Maneuvering Ace',
+        value: maneuveringAceModifier,
+        source: 'spa',
+      });
+    }
   }
 
   return modifiers;

@@ -55,6 +55,7 @@ export function queueMovementTerrainPSRs(options: {
       grid,
       movementType,
       step,
+      steps,
       unitId,
     });
 
@@ -84,9 +85,10 @@ function terrainPSRsForStep(options: {
   readonly grid: IHexGrid;
   readonly movementType: MovementType;
   readonly step: TerrainBearingMovementStep;
+  readonly steps: readonly TerrainBearingMovementStep[];
   readonly unitId: string;
 }): readonly IPendingPSR[] {
-  const { grid, movementType, step, unitId } = options;
+  const { grid, movementType, step, steps, unitId } = options;
   const enteredTerrain = terrainTypeFromTag(
     step.terrainEntered ?? terrainAt(grid, step.to),
   );
@@ -127,10 +129,51 @@ function terrainPSRsForStep(options: {
     movementType === MovementType.Run &&
     isSkidTerrain(terrainTypeFromTag(terrainAt(grid, step.at)))
   ) {
-    psrs.push(createSkiddingPSR(unitId, step.index));
+    psrs.push(
+      createSkiddingPSR(
+        unitId,
+        step.index,
+        calculateMovementBeforeSkidModifier(
+          countHexesMovedBeforeStep(steps, step.index),
+        ),
+      ),
+    );
   }
 
   return psrs;
+}
+
+function countHexesMovedBeforeStep(
+  steps: readonly TerrainBearingMovementStep[],
+  stepIndex: number,
+): number {
+  return steps.filter(
+    (candidate) =>
+      candidate.index < stepIndex &&
+      (candidate.kind === 'forward' || candidate.kind === 'jump'),
+  ).length;
+}
+
+function calculateMovementBeforeSkidModifier(distance: number): number {
+  let modifier: number;
+
+  if (distance > 24) {
+    modifier = 6;
+  } else if (distance > 17) {
+    modifier = 5;
+  } else if (distance > 10) {
+    modifier = 4;
+  } else if (distance > 7) {
+    modifier = 2;
+  } else if (distance > 4) {
+    modifier = 1;
+  } else if (distance > 2) {
+    modifier = 0;
+  } else {
+    modifier = -1;
+  }
+
+  return modifier;
 }
 
 function terrainAt(

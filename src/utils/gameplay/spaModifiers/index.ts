@@ -14,6 +14,7 @@ export {
   getEffectiveWounds,
   getHotDogShutdownThresholdBonus,
   getIronManModifier,
+  getManeuveringAceSkidModifier,
   getMeleeMasterDamageBonus,
   getSomeLikeItHotHeatPenaltyReduction,
   getTacticalGeniusBonus,

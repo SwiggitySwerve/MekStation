@@ -16,11 +16,15 @@ import {
 import {
   createDamagePSR,
   createRubblePSR,
+  createSkiddingPSR,
 } from '@/utils/gameplay/pilotingSkillRolls';
 import { UNIT_QUIRK_IDS } from '@/utils/gameplay/quirkModifiers';
 
 import { SeededRandom } from '../../core/SeededRandom';
-import { QUIRK_COMBAT_SUPPORT } from '../CombatFeatureSupport';
+import {
+  QUIRK_COMBAT_SUPPORT,
+  SPA_COMBAT_SUPPORT,
+} from '../CombatFeatureSupport';
 import { PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT } from '../CombatPilotModifierApplicationSupport';
 import { runPSRPhase } from '../phases/postCombat';
 import { DEFAULT_COMPONENT_DAMAGE } from '../SimulationRunnerConstants';
@@ -192,6 +196,36 @@ describe('runPSRPhase behavior', () => {
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-application'],
     ).toMatchObject({ level: 'integrated' });
+  });
+
+  it('applies Maneuvering Ace to source-backed skidding PSR target numbers', () => {
+    const unit = makeUnit({
+      abilities: ['maneuvering-ace'],
+      pendingPSRs: [createSkiddingPSR('player-1', undefined, 1)],
+    });
+    const state = makeState(unit);
+    const events: IGameEvent[] = [];
+
+    runPSRPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: fixedRandom(0.5),
+    });
+
+    const resolved = events.find((e) => e.type === GameEventType.PSRResolved)
+      ?.payload as IPSRResolvedPayload | undefined;
+    expect(resolved).toMatchObject({
+      unitId: 'player-1',
+      targetNumber: 5,
+      modifiers: 0,
+      passed: true,
+      reasonCode: PSRTrigger.Skidding,
+    });
+    expect(SPA_COMBAT_SUPPORT['maneuvering-ace']).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('Maneuvering Ace'),
+    });
   });
 
   it('turns a failed pending PSR into a fall, pilot wound, and pilot-death destruction', () => {

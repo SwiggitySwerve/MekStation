@@ -709,6 +709,7 @@ describe('runMovementPhase movement validation parity', () => {
     );
     expect(payloads).toContainEqual(
       expect.objectContaining({
+        additionalModifier: -1,
         unitId: 'player-1',
         reasonCode: PSRTrigger.Skidding,
         triggerSource: expect.stringMatching(/^movement-step:/),
