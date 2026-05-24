@@ -117,12 +117,22 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   'initiative-application': helperOnly(
     'initiative-application',
     'rollInitiative consumes source-backed Command Mech/Battle Computer force-level quirk bonuses, explicit HQ/command equipment initiative bonuses, and Tactical Genius reroll requests while preserving raw 2d6 payload fields',
-    'Combat Intuition first-round sequencing and automatic command-console/HQ initiative equipment hydration are not wired',
+    'Combat Intuition first-round sequencing and automatic command-console/HQ initiative equipment hydration are not wired; equipment-derived initiative remains unsupported unless source-kind/rules-profile, working/default-mode communications tonnage, command-console crew, weight-class, IndustrialMek, and advanced-fire-control eligibility context exists',
     [
       ...MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
       ...MEGAMEK_INITIATIVE_EQUIPMENT_SOURCE_REFS,
       ...MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
     ],
+  ),
+  'initiative-hq-equipment-hydration': unsupported(
+    'initiative-hq-equipment-hydration',
+    'Automatic HQ initiative hydration is unsupported until source-kind/rules-profile, working communications equipment, Default communications mode, and total working communications tonnage are represented; explicit initiativeHQBonus is the supported closed-world path',
+    MEGAMEK_INITIATIVE_EQUIPMENT_SOURCE_REFS,
+  ),
+  'initiative-command-console-hydration': unsupported(
+    'initiative-command-console-hydration',
+    'Automatic command-console initiative hydration is unsupported until command-console cockpit type, active command-console crew, heavy-or-larger weight, IndustrialMek, and advanced-fire-control gates are represented; explicit initiativeCommandBonus is the supported closed-world path',
+    MEGAMEK_INITIATIVE_EQUIPMENT_SOURCE_REFS,
   ),
   'heat-application': integrated(
     'heat-application',
@@ -287,6 +297,14 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
   'initiative-application': {
     spaIds: ['tactical-genius', 'combat-intuition'],
     quirkIds: ['command_mech', 'battle_computer'],
+  },
+  'initiative-hq-equipment-hydration': {
+    spaIds: [],
+    quirkIds: [],
+  },
+  'initiative-command-console-hydration': {
+    spaIds: [],
+    quirkIds: [],
   },
   'heat-application': {
     spaIds: ['hot-dog', 'cool-under-fire', 'some-like-it-hot'],

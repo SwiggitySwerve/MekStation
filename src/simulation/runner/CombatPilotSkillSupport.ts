@@ -40,7 +40,7 @@ export const PILOT_SKILL_COMBAT_SUPPORT = {
   'initiative-skill-modifiers': helperOnly(
     'initiative-skill-modifiers',
     'rollInitiative applies source-backed Command Mech/Battle Computer force initiative bonuses, explicit HQ/command equipment initiative bonuses, and Tactical Genius reroll requests from active conscious units',
-    'Combat Intuition first-round sequencing and automatic command-console/HQ initiative equipment hydration are not wired',
+    'Combat Intuition first-round sequencing and automatic command-console/HQ initiative equipment hydration are not wired; name-only command-console or communications-equipment metadata intentionally fails closed without explicit initiative fields',
   ),
   'pilot-wound-ranged-penalty': integrated(
     'pilot-wound-ranged-penalty',

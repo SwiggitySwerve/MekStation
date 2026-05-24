@@ -104,6 +104,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'heat-application',
         'indirect-fire-spa-application',
         'initiative-application',
+        'initiative-command-console-hydration',
+        'initiative-hq-equipment-hydration',
         'movement-application',
         'multi-target-penalty-application',
         'physical-damage-application',
@@ -169,6 +171,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       supportIdsByLevel(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT, 'unsupported'),
     ).toEqual(
       [
+        'initiative-command-console-hydration',
+        'initiative-hq-equipment-hydration',
         'movement-application',
         'multi-target-penalty-application',
         'target-priority-application',
@@ -491,6 +495,54 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...equipmentRefs,
       ...tacticalGeniusRefs,
     ]);
+  });
+
+  it('pins initiative equipment hydration as unsupported until eligibility context exists', () => {
+    const hqHydration =
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'initiative-hq-equipment-hydration'
+      ];
+    const commandConsoleHydration =
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'initiative-command-console-hydration'
+      ];
+    const equipmentCitations = [
+      'MegaMek Team.getTotalInitBonus adds the best dynamic turn bonus and best command bonus for team initiative.',
+      'MegaMek Player.getTurnInitBonus takes the best HQ or quirk initiative bonus across the player force.',
+      'MegaMek Player.getIndividualCommandBonus adds +2 for qualifying command-console or active tech-officer units.',
+      'MegaMek Entity.getHQIniBonus grants +1 at 3+ tons and +2 at 7+ tons of working communications gear in default mode.',
+      'MegaMek Mek.hasCommandConsoleBonus requires command-console cockpit, active command console crew, heavy-or-larger chassis, and non-IndustrialMek or advanced fire control.',
+    ];
+
+    expect(hqHydration).toMatchObject({
+      level: 'unsupported',
+      evidence: 'No combat resolver consumes this modifier family',
+      gap: expect.stringContaining('working communications equipment'),
+    });
+    expect(hqHydration.gap).toContain('Default communications mode');
+    expect(hqHydration.gap).toContain('initiativeHQBonus');
+    expect(commandConsoleHydration).toMatchObject({
+      level: 'unsupported',
+      evidence: 'No combat resolver consumes this modifier family',
+      gap: expect.stringContaining('active command-console crew'),
+    });
+    expect(commandConsoleHydration.gap).toContain('heavy-or-larger');
+    expect(commandConsoleHydration.gap).toContain('advanced-fire-control');
+    expect(commandConsoleHydration.gap).toContain('initiativeCommandBonus');
+    expect(hqHydration.sourceRefs?.map(({ citation }) => citation)).toEqual(
+      equipmentCitations,
+    );
+    expect(
+      commandConsoleHydration.sourceRefs?.map(({ citation }) => citation),
+    ).toEqual(equipmentCitations);
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['initiative-hq-equipment-hydration'],
+    ).toEqual({ spaIds: [], quirkIds: [] });
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS[
+        'initiative-command-console-hydration'
+      ],
+    ).toEqual({ spaIds: [], quirkIds: [] });
   });
 
   it('pins Terrain Master Mountaineer rubble PSR relief to MegaMek semantics', () => {

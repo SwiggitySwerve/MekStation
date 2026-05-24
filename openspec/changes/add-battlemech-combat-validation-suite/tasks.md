@@ -105,6 +105,7 @@
 - [x] 3.4.21 Integrate source-backed Command Mech/Battle Computer initiative quirk bonuses into `rollInitiative` while leaving Tactical Genius reroll, Combat Intuition, and command-console/HQ equipment bonuses explicit.
 - [x] 3.4.22 Integrate source-backed explicit HQ/command initiative equipment bonuses into `rollInitiative` while leaving automatic equipment hydration explicit.
 - [x] 3.4.23 Integrate source-backed Tactical Genius initiative reroll requests into `rollInitiative` while leaving Combat Intuition sequencing and automatic equipment hydration explicit.
+- [x] 3.4.24 Guard source-backed initiative equipment hydration as unsupported unless complete HQ communications or command-console eligibility context exists; command-looking metadata without explicit initiative fields fails closed.
 - [ ] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -149,3 +150,4 @@
 - [x] 4.3.26 Cross-check MegaMek's Command Mech/Battle Computer non-cumulative initiative quirk bonus and Tactical Genius reroll gate.
 - [x] 4.3.27 Cross-check MegaMek's team initiative bonus composition for HQ, quirks, command console, and tech-officer command bonuses.
 - [x] 4.3.28 Cross-check MegaMek's Tactical Genius initiative replacement-roll handling and active-unit eligibility gate.
+- [x] 4.3.29 Cross-check MegaMek's gated HQ communications and command-console initiative equipment eligibility; keep automatic hydration explicit-only until working/default-mode communications tonnage, active command-console crew, weight-class, IndustrialMek, and advanced-fire-control state exist.

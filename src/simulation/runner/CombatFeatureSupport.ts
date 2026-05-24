@@ -652,13 +652,13 @@ export const QUIRK_COMBAT_SUPPORT = {
   command_mech: helperOnly(
     'command_mech',
     'calculateInitiativeQuirkModifier plus rollInitiative apply the source-backed +1 force initiative bonus from active conscious units alongside explicit HQ/command equipment initiative fields',
-    'Automatic command-console/HQ initiative equipment hydration is not wired',
+    'Automatic command-console/HQ initiative equipment hydration is not wired; equipment-derived initiative bonuses require complete eligibility state and remain explicit-only',
     MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   ),
   battle_computer: helperOnly(
     'battle_computer',
     'calculateInitiativeQuirkModifier plus rollInitiative apply the source-backed +2 force initiative bonus from active conscious units, keep it non-cumulative with Command Mech/HQ, and stack explicit command equipment bonus separately',
-    'Automatic command-console/HQ initiative equipment hydration is not wired',
+    'Automatic command-console/HQ initiative equipment hydration is not wired; equipment-derived initiative bonuses require complete eligibility state and remain explicit-only',
     MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   ),
   sensor_ghosts: integrated(

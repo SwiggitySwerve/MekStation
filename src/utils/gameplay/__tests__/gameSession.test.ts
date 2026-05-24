@@ -980,6 +980,54 @@ describe('rollInitiative', () => {
     });
   });
 
+  it('does not infer initiative equipment bonuses from command-looking metadata', () => {
+    const config = createTestConfig();
+    const commandLookingUnit = {
+      ...createTestUnit({
+        id: 'player-1',
+        name: 'Command Console HQ',
+        side: GameSide.Player,
+        unitRef: 'command-console-hq',
+      }),
+      cockpitType: 'Command Console',
+      equipment: [
+        {
+          id: 'Communications Equipment',
+          location: 'HEAD',
+          tons: 7,
+        },
+      ],
+    } as IGameUnit & {
+      readonly cockpitType: string;
+      readonly equipment: readonly {
+        readonly id: string;
+        readonly location: string;
+        readonly tons: number;
+      }[];
+    };
+    const units = [
+      commandLookingUnit,
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const dice = [1, 1, 2, 3];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
+    const event = rolled.events[rolled.events.length - 1];
+
+    expect(rolled.currentState.initiativeWinner).toBe(GameSide.Opponent);
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 5,
+      winner: GameSide.Opponent,
+    });
+    expect(event.payload).not.toHaveProperty('playerModifier');
+    expect(event.payload).not.toHaveProperty('opponentModifier');
+    expect(event.payload).not.toHaveProperty('playerTotal');
+    expect(event.payload).not.toHaveProperty('opponentTotal');
+  });
+
   it('replaces the requested side roll when active Tactical Genius is present', () => {
     const config = createTestConfig();
     const units = [
