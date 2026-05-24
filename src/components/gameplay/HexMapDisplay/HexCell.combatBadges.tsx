@@ -146,6 +146,35 @@ function formatCombatBadgeSummary(combatInfo: ICombatRangeHex): string {
   return `${formatRangeBracketName(combatInfo.rangeBracket)} range at ${combatInfo.distance} hexes; ${status}; weapons available ${formatWeaponList(combatInfo.weaponIdsAvailable)}${optionSummary}`;
 }
 
+function weaponOptionAvailabilityCount(combatInfo: ICombatRangeHex): {
+  readonly available: number;
+  readonly total: number;
+  readonly blocked: number;
+} {
+  const total = combatInfo.weaponRangeOptions.length;
+  const available = combatInfo.weaponRangeOptions.filter(
+    (option) => option.available,
+  ).length;
+  return {
+    available,
+    total,
+    blocked: total - available,
+  };
+}
+
+function formatWeaponAvailabilityTitle(combatInfo: ICombatRangeHex): string {
+  const { available, total, blocked } =
+    weaponOptionAvailabilityCount(combatInfo);
+  const blockedOptions = combatInfo.weaponRangeOptions
+    .filter((option) => !option.available)
+    .map(
+      (option) => `${option.weaponId}: ${option.blockedReason ?? 'blocked'}`,
+    );
+  const blockedSummary =
+    blockedOptions.length > 0 ? `; blocked ${blockedOptions.join(', ')}` : '';
+  return `Weapons available ${available} of ${total}; blocked ${blocked}${blockedSummary}`;
+}
+
 export function CombatLineOfSightBlockerBadge({
   x,
   y,
@@ -355,7 +384,10 @@ export function CombatRangeBadge({
   const hasIndirectFire = combatInfo.indirectFireAvailable === true;
   const hasMinimumRangePenalty = (combatInfo.minimumRangePenalty ?? 0) > 0;
   const hasToHitNumber = combatInfo.toHitNumber !== undefined;
+  const weaponAvailability = weaponOptionAvailabilityCount(combatInfo);
+  const hasWeaponOptionCount = weaponAvailability.total > 1;
   const combatSummary = formatCombatBadgeSummary(combatInfo);
+  const weaponAvailabilityTitle = formatWeaponAvailabilityTitle(combatInfo);
   const indirectTitle = combatInfo.indirectFireReason ?? 'Indirect fire';
   const coverTitle =
     combatInfo.targetCoverReason ??
@@ -394,6 +426,44 @@ export function CombatRangeBadge({
       )}
     >
       <title>{combatSummary}</title>
+      {hasWeaponOptionCount && (
+        <g
+          data-testid={`hex-combat-weapon-count-badge-${hex.q}-${hex.r}`}
+          aria-label={weaponAvailabilityTitle}
+          data-combat-weapon-count-badge-available={
+            weaponAvailability.available
+          }
+          data-combat-weapon-count-badge-total={weaponAvailability.total}
+          data-combat-weapon-count-badge-blocked={weaponAvailability.blocked}
+          data-combat-weapon-count-badge-weapons-available={combatInfo.weaponIdsAvailable.join(
+            ',',
+          )}
+          data-combat-weapon-count-badge-blocked-reasons={combatWeaponOptionBlockedReasonsAttribute(
+            combatInfo.weaponRangeOptions,
+          )}
+        >
+          <title>{weaponAvailabilityTitle}</title>
+          <rect
+            x={x - 69}
+            y={y + 6}
+            width={56}
+            height={12}
+            rx={3}
+            fill={weaponAvailability.available > 0 ? '#334155' : '#7f1d1d'}
+            opacity={0.92}
+          />
+          <text
+            x={x - 41}
+            y={y + 15}
+            textAnchor="middle"
+            fontSize={8}
+            fontWeight="bold"
+            fill="#f8fafc"
+          >
+            {weaponAvailability.available}/{weaponAvailability.total} WPN
+          </text>
+        </g>
+      )}
       {hasIndirectFire && (
         <g
           data-testid={`hex-indirect-fire-badge-${hex.q}-${hex.r}`}

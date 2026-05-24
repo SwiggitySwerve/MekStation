@@ -353,6 +353,9 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-badge-weapon-option-availability',
       'medium-laser:available',
     );
+    expect(
+      screen.queryByTestId('hex-combat-weapon-count-badge-2-0'),
+    ).toBeNull();
     expect(screen.getByTestId('hex-combat-los-badge-2-0')).toHaveTextContent(
       'LOS',
     );
@@ -441,6 +444,34 @@ describe('HexMapDisplay combat projection', () => {
     );
     expect(combatBadge).toHaveAttribute(
       'data-combat-badge-weapon-option-blocked-reasons',
+      'rear-laser:out of front arc|small-laser:out of range',
+    );
+    const weaponCountBadge = screen.getByTestId(
+      'hex-combat-weapon-count-badge-0--2',
+    );
+    expect(weaponCountBadge).toHaveTextContent('1/3 WPN');
+    expect(weaponCountBadge).toHaveAttribute(
+      'aria-label',
+      'Weapons available 1 of 3; blocked 2; blocked rear-laser: out of front arc, small-laser: out of range',
+    );
+    expect(weaponCountBadge).toHaveAttribute(
+      'data-combat-weapon-count-badge-available',
+      '1',
+    );
+    expect(weaponCountBadge).toHaveAttribute(
+      'data-combat-weapon-count-badge-total',
+      '3',
+    );
+    expect(weaponCountBadge).toHaveAttribute(
+      'data-combat-weapon-count-badge-blocked',
+      '2',
+    );
+    expect(weaponCountBadge).toHaveAttribute(
+      'data-combat-weapon-count-badge-weapons-available',
+      'front-laser',
+    );
+    expect(weaponCountBadge).toHaveAttribute(
+      'data-combat-weapon-count-badge-blocked-reasons',
       'rear-laser:out of front arc|small-laser:out of range',
     );
 
