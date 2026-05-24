@@ -1995,6 +1995,80 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       expect(SPA_COMBAT_SUPPORT['cluster-hitter'].level).toBe('integrated');
     });
 
+    it('Sandblaster shifts designated cluster-table weapons by source-backed range bands', () => {
+      const lbx = createLBX10();
+      const clusterMode = lbx.firingModes?.modes.find(
+        (mode) => mode.id === 'cluster',
+      );
+      const baseCluster = resolveSpecialProjectileHit({
+        baseWeapon: lbx,
+        shotWeapon: lbx,
+        selectedMode: clusterMode,
+        d6Roller: sequenceD6Roller(4, 4),
+      });
+      const sandblasterCluster = resolveSpecialProjectileHit({
+        baseWeapon: lbx,
+        shotWeapon: lbx,
+        selectedMode: clusterMode,
+        d6Roller: sequenceD6Roller(4, 4),
+        clusterContext: {
+          sandblasterSPA: true,
+          designatedWeaponType: 'LB 10-X AC',
+          attackRange: 6,
+        },
+      });
+      const baseScenario = buildScenario({
+        attackerWeapons: [lbx],
+        attackerStateOverride: { gunnery: 0 },
+        targetPosition: { q: 6, r: 0 },
+      });
+      const sandblasterScenario = buildScenario({
+        attackerWeapons: [lbx],
+        attackerStateOverride: {
+          abilities: ['sandblaster'],
+          designatedWeaponType: 'LB 10-X AC',
+          gunnery: 0,
+        },
+        targetPosition: { q: 6, r: 0 },
+      });
+      const baseResult = runPhaseWithResult({
+        ...baseScenario,
+        botPlayer: new ScriptedAttackAI(lbx.id, 'cluster'),
+        random: new SequenceRandom([6, 6, 4, 4, 1, 1]),
+      });
+      const sandblasterResult = runPhaseWithResult({
+        ...sandblasterScenario,
+        botPlayer: new ScriptedAttackAI(lbx.id, 'cluster'),
+        random: new SequenceRandom([6, 6, 4, 4, 1, 1]),
+      });
+
+      const baseResolved = baseResult.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+      const sandblasterResolved = sandblasterResult.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+
+      expect(baseCluster).toMatchObject({
+        projectileCount: 6,
+        weapon: { damage: 6 },
+      });
+      expect(sandblasterCluster).toMatchObject({
+        projectileCount: 10,
+        weapon: { damage: 10 },
+      });
+      expect(baseResolved.payload.projectileCount).toBe(6);
+      expect(sandblasterResolved.payload.projectileCount).toBe(10);
+      expect(SPA_COMBAT_SUPPORT.sandblaster).toMatchObject({
+        level: 'helper-only',
+        gap: expect.stringContaining('UAC/RAC'),
+      });
+    });
+
     it('target-mounted AMS reduces incoming missile projectile count', () => {
       const lrm = createLRM10();
       const ams = createAMS();

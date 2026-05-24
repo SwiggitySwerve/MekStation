@@ -1,8 +1,4 @@
-import type {
-  IAmmoSlotState,
-  IGameState,
-  IToHitModifier,
-} from '@/types/gameplay';
+import type { IGameState, IToHitModifier } from '@/types/gameplay';
 
 import {
   findAvailableAmmoBin,
@@ -14,7 +10,6 @@ import {
   lookupClusterHits,
 } from '@/utils/gameplay/clusterWeapons';
 import {
-  calculateClusterModifiers,
   isMissileWeapon,
   isSemiGuidedLRM,
 } from '@/utils/gameplay/specialWeaponMechanics';
@@ -26,30 +21,17 @@ import {
   resolveSingleMissileAMSWeaponHit,
   type IResolvedAMSInterception,
 } from './weaponAttackAMS';
+import {
+  missileClusterModifier,
+  sandblasterClusterModifier,
+  type IMissileClusterModifierContext,
+} from './weaponAttackClusterModifiers';
 import { weaponTypeFromMountId } from './weaponAttackHelpers';
 
 export interface IResolvedShotWeapon {
   readonly weapon: IWeapon;
   readonly projectileCount?: number;
   readonly amsInterception?: IResolvedAMSInterception;
-}
-
-export interface IMissileClusterModifierContext {
-  readonly attackerTeamId?: string;
-  readonly targetNarcedBy?: readonly string[];
-  readonly targetINarcedBy?: readonly string[];
-  readonly targetTagDesignated?: boolean;
-  readonly targetEcmProtected?: boolean;
-  readonly flightPathEcmAffected?: boolean;
-  readonly hasArtemisIV?: boolean;
-  readonly hasPrototypeArtemisIV?: boolean;
-  readonly hasArtemisV?: boolean;
-  readonly isIndirectFire?: boolean;
-  readonly attackerStealthActive?: boolean;
-  readonly isSemiGuided?: boolean;
-  readonly clusterHitterSPA?: boolean;
-  readonly targetWeapons?: readonly IWeapon[];
-  readonly targetAmmoState?: Record<string, IAmmoSlotState>;
 }
 
 export function getSelectedFiringMode(
@@ -240,14 +222,20 @@ export function resolveClusterModeHit(options: {
   shotWeapon: IWeapon;
   selectedMode: IWeaponFiringMode | undefined;
   d6Roller: () => number;
+  clusterContext?: IMissileClusterModifierContext;
 }): IResolvedShotWeapon {
-  const { baseWeapon, d6Roller, selectedMode, shotWeapon } = options;
+  const { baseWeapon, clusterContext, d6Roller, selectedMode, shotWeapon } =
+    options;
   if (!isClusterSlugMode(baseWeapon, selectedMode))
     return { weapon: shotWeapon };
 
   const clusterRoll = d6Roller() + d6Roller();
+  const clusterModifier = sandblasterClusterModifier(
+    baseWeapon,
+    clusterContext,
+  );
   const projectileCount = lookupClusterHits(
-    clusterRoll,
+    clusterRoll + clusterModifier,
     clusterSizeForLBX(baseWeapon),
   );
 
@@ -281,51 +269,6 @@ function isMissileClusterWeaponMount(weapon: IWeapon): boolean {
     isMissileWeapon(weapon.name) ||
     /\bmml[\s-]?\d+/i.test(`${baseId} ${weapon.name}`)
   );
-}
-
-function semiGuidedActive(
-  weapon: IWeapon,
-  context: IMissileClusterModifierContext | undefined,
-): boolean {
-  if (context?.isSemiGuided === true) return true;
-  return (
-    isSemiGuidedLRM(weaponTypeFromMountId(weapon.id)) ||
-    isSemiGuidedLRM(weapon.name)
-  );
-}
-
-function missileClusterModifier(options: {
-  weapon: IWeapon;
-  context?: IMissileClusterModifierContext;
-}): number {
-  const { context, weapon } = options;
-  const targetNarcedBy = context?.targetNarcedBy ?? [];
-  const targetINarcedBy = context?.targetINarcedBy ?? [];
-  const attackerTeamId = context?.attackerTeamId;
-  const narcedTarget =
-    attackerTeamId !== undefined &&
-    (targetNarcedBy.includes(attackerTeamId) ||
-      targetINarcedBy.includes(attackerTeamId));
-
-  return calculateClusterModifiers(
-    weaponTypeFromMountId(weapon.id),
-    {
-      hasArtemisIV: context?.hasArtemisIV ?? weapon.hasArtemisIV,
-      hasPrototypeArtemisIV:
-        context?.hasPrototypeArtemisIV ?? weapon.hasPrototypeArtemisIV,
-      hasArtemisV: context?.hasArtemisV ?? weapon.hasArtemisV,
-      isSemiGuided: semiGuidedActive(weapon, context),
-    },
-    {
-      narcedTarget,
-      tagDesignated: context?.targetTagDesignated,
-      ecmProtected: context?.targetEcmProtected,
-      flightPathEcmAffected: context?.flightPathEcmAffected,
-      isIndirectFire: context?.isIndirectFire,
-      attackerStealthActive: context?.attackerStealthActive,
-    },
-    context?.clusterHitterSPA ?? false,
-  ).total;
 }
 
 function resolveMissileClusterHit(options: {

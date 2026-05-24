@@ -148,12 +148,13 @@ The Marksman SPA SHALL grant -1 to-hit for aimed/called shots.
 
 ### Requirement: Gunnery SPA — Sandblaster
 
-The Sandblaster SPA SHALL grant +1 cluster hits with ultra/rotary autocannons.
+The Sandblaster SPA SHALL grant source-backed range-based cluster-table modifiers for the pilot's designated weapon type: `+4` at short range, `+3` beyond short through medium, and `+2` beyond medium. It SHALL take precedence over Cluster Hitter when both could apply. MekStation SHALL currently apply this only to represented LB-X and missile cluster-table resolution, while UAC/RAC and TacOps rapid-fire AC rate-of-fire Sandblaster behavior remains an explicit gap.
 
-#### Scenario: Sandblaster ultra AC bonus
+#### Scenario: Sandblaster designated cluster-table bonus
 
-- **WHEN** a pilot with Sandblaster fires an ultra or rotary autocannon
-- **THEN** the cluster hit roll SHALL receive a +1 bonus
+- **WHEN** a pilot with Sandblaster fires the designated LB-X or missile cluster-table weapon
+- **THEN** the cluster hit roll SHALL receive the source-backed range bonus
+- **AND** UAC/RAC rate-of-fire behavior SHALL remain helper-only until modeled
 
 ### Requirement: Gunnery SPA — Oblique Attacker
 

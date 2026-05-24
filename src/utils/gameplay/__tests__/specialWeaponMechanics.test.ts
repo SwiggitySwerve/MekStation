@@ -16,6 +16,7 @@ import {
   isTargetTAGDesignated,
   getSemiGuidedLRMBonus,
   getMRMClusterModifier,
+  getSandblasterClusterModifier,
   calculateClusterModifiers,
   verifyStreakBehavior,
   resolveModifiedClusterHits,
@@ -638,6 +639,54 @@ describe('Special Weapon Mechanics', () => {
       expect(mods.clusterHitterBonus).toBe(1);
       expect(mods.mrmPenalty).toBe(0);
       expect(mods.total).toBe(5);
+    });
+
+    it('should apply source-backed Sandblaster range bonuses and override Cluster Hitter', () => {
+      const shortBonus = getSandblasterClusterModifier({
+        hasSandblaster: true,
+        weaponId: 'lb-10-x-ac',
+        weaponName: 'LB 10-X AC',
+        designatedWeaponType: 'LB 10-X AC',
+        range: 6,
+        shortRange: 6,
+        mediumRange: 12,
+      });
+      const mediumBonus = getSandblasterClusterModifier({
+        hasSandblaster: true,
+        weaponId: 'lb-10-x-ac',
+        weaponName: 'LB 10-X AC',
+        designatedWeaponType: 'LB 10-X AC',
+        range: 7,
+        shortRange: 6,
+        mediumRange: 12,
+      });
+      const longBonus = getSandblasterClusterModifier({
+        hasSandblaster: true,
+        weaponId: 'lb-10-x-ac',
+        weaponName: 'LB 10-X AC',
+        designatedWeaponType: 'LB 10-X AC',
+        range: 13,
+        shortRange: 6,
+        mediumRange: 12,
+      });
+      const mismatchBonus = getSandblasterClusterModifier({
+        hasSandblaster: true,
+        weaponId: 'lb-10-x-ac',
+        weaponName: 'LB 10-X AC',
+        designatedWeaponType: 'LRM 10',
+        range: 6,
+        shortRange: 6,
+        mediumRange: 12,
+      });
+      const mods = calculateClusterModifiers('lb-10-x-ac', {}, {}, true, 4);
+
+      expect(shortBonus).toBe(4);
+      expect(mediumBonus).toBe(3);
+      expect(longBonus).toBe(2);
+      expect(mismatchBonus).toBe(0);
+      expect(mods.sandblasterBonus).toBe(4);
+      expect(mods.clusterHitterBonus).toBe(0);
+      expect(mods.total).toBe(4);
     });
 
     it('should apply MRM penalty in combined calculation', () => {

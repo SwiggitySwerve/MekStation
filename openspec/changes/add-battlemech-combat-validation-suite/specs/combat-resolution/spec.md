@@ -393,6 +393,18 @@ Designator marker events SHALL replay into the same target marker state consumed
 - **AND** direct confusable missile attacks SHALL redirect to friendly intervening units carrying source-backed iNARC Nemesis pod state
 - **AND** the catalog SHALL continue to list remaining iNARC ECM sensor effects and automatic C3 network assembly from hydrated equipment as explicit gaps until those effects are implemented
 
+### Requirement: Source-Backed Sandblaster Cluster-Table Modifier
+
+Cluster-table validation SHALL apply MegaMek's Sandblaster SPA modifier when the attacker has Sandblaster, the firing weapon matches the designated weapon type, and attack range is known. Sandblaster SHALL add `+4` at short range, `+3` beyond short through medium, and `+2` beyond medium to the cluster-table roll, and SHALL take precedence over Cluster Hitter for that attack. MekStation SHALL apply this only to represented LB-X and missile cluster-table resolution until UAC/RAC and TacOps rapid-fire AC rate-of-fire Sandblaster semantics are modeled.
+
+#### Scenario: Sandblaster applies to designated LB-X cluster fire
+
+- **GIVEN** a pilot with Sandblaster has designated an LB-X autocannon
+- **AND** the LB-X autocannon fires in cluster mode at short range
+- **WHEN** cluster-table damage is resolved
+- **THEN** the cluster-table roll SHALL include the source-backed `+4` Sandblaster modifier
+- **AND** the validation catalog SHALL keep UAC/RAC and rapid-fire AC Sandblaster support as a visible remaining gap
+
 ### Requirement: C3 Range Modifier Integration
 
 Direct runner weapon attack declarations SHALL consume explicit `IGameState.c3Network` state when scenario/session builders provide it. The runner SHALL refresh C3 member positions and ECM/iNARC ECM disruption from current unit state before calculating the declared to-hit number, SHALL suppress C3 range sharing for indirect fire, SHALL use default MegaMek C3 behavior where the network range-sharing unit does not need line of sight to the target, and SHALL keep automatic C3 network assembly from hydrated equipment explicit until those state builders exist.

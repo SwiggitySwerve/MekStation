@@ -144,6 +144,21 @@ export const MEGAMEK_SHAKY_STICK_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEGAMEK_SANDBLASTER_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek WeaponHandler.getClusterModifiers applies Sandblaster as +4 short, +3 medium, or +2 long cluster-table modifiers for the designated weapon, taking precedence over Cluster Hitter.',
+    'megamek/src/megamek/common/weapons/handlers/WeaponHandler.java#L2126-L2180',
+  ),
+  megamekRef(
+    'MegaMek PilotSPAHelper limits Sandblaster designations to UAC, LB-X AC, TacOps rapid-fire AC, and damage-by-cluster-table weapons.',
+    'megamek/src/megamek/common/units/PilotSPAHelper.java#L110-L162',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines GUNNERY_SANDBLASTER as sandblaster.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L197-L203',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEGAMEK_PSR_SPA_SOURCE_REFS = [
   ...MEGAMEK_MANEUVERING_ACE_SKID_SOURCE_REFS,
   ...MEGAMEK_ANIMAL_MIMICRY_QUAD_PSR_SOURCE_REFS,

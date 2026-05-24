@@ -222,6 +222,54 @@ export function getMRMClusterModifier(weaponId: string): number {
   return 0;
 }
 
+function normalizeWeaponDesignation(value: string): string {
+  return value.replace(/[^a-z0-9]/gi, '').toLowerCase();
+}
+
+function designationMatchesWeapon(
+  designatedWeaponType: string,
+  weaponId: string,
+  weaponName?: string,
+): boolean {
+  const normalizedDesignation =
+    normalizeWeaponDesignation(designatedWeaponType);
+  return [weaponId, weaponName]
+    .filter((value): value is string => typeof value === 'string')
+    .some(
+      (value) => normalizeWeaponDesignation(value) === normalizedDesignation,
+    );
+}
+
+export function getSandblasterClusterModifier(options: {
+  readonly hasSandblaster?: boolean;
+  readonly weaponId: string;
+  readonly weaponName?: string;
+  readonly designatedWeaponType?: string;
+  readonly range?: number;
+  readonly shortRange?: number;
+  readonly mediumRange?: number;
+}): number {
+  const {
+    designatedWeaponType,
+    hasSandblaster,
+    mediumRange,
+    range,
+    shortRange,
+    weaponId,
+    weaponName,
+  } = options;
+
+  if (hasSandblaster !== true || !designatedWeaponType) return 0;
+  if (range === undefined || shortRange === undefined) return 0;
+  if (!designationMatchesWeapon(designatedWeaponType, weaponId, weaponName)) {
+    return 0;
+  }
+
+  if (mediumRange !== undefined && range > mediumRange) return 2;
+  if (range > shortRange) return 3;
+  return 4;
+}
+
 // =============================================================================
 // 13.9: Streak SRM Verification
 // =============================================================================
@@ -254,6 +302,7 @@ export function calculateClusterModifiers(
   equipment: IWeaponEquipmentFlags,
   targetStatus: ITargetStatusFlags,
   clusterHitterSPA: boolean = false,
+  sandblasterBonus: number = 0,
 ): IClusterModifiers {
   const artemisBonus = isArtemisCompatibleMissileWeapon(weaponId)
     ? equipment.hasArtemisV
@@ -265,18 +314,21 @@ export function calculateClusterModifiers(
   const narcBonus = isNarcCompatibleMissileWeapon(weaponId)
     ? getNarcBonus(targetStatus)
     : 0;
-  const clusterHitterBonus = clusterHitterSPA ? 1 : 0;
+  const clusterHitterBonus =
+    sandblasterBonus > 0 ? 0 : clusterHitterSPA ? 1 : 0;
   const mrmPenalty = getMRMClusterModifier(weaponId);
   const semiGuidedBonus = getSemiGuidedLRMBonus(equipment, targetStatus);
 
   return {
     artemisBonus,
     narcBonus,
+    sandblasterBonus,
     clusterHitterBonus,
     mrmPenalty,
     total:
       artemisBonus +
       narcBonus +
+      sandblasterBonus +
       clusterHitterBonus +
       mrmPenalty +
       semiGuidedBonus,

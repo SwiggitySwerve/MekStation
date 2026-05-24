@@ -10,6 +10,7 @@
 import {
   MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
+  MEGAMEK_SANDBLASTER_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
 
 export type CombatFeatureSupportLevel =
@@ -425,9 +426,11 @@ export const SPA_COMBAT_SUPPORT = {
     'range-master',
     'calculateRangeMasterModifier + calculateAttackerSPAModifiers',
   ),
-  sandblaster: unsupported(
+  sandblaster: helperOnly(
     'sandblaster',
-    'Ultra/RAC cluster-hit damage modifier is not wired',
+    'Source-backed getSandblasterClusterModifier plus resolveSpecialProjectileHit apply +4/+3/+2 range-based cluster-table modifiers for designated LB-X and missile cluster-table paths',
+    'Rate-of-fire UAC/RAC/rapid-fire AC Sandblaster resolution and full MegaMek eligible-weapon hydration are not wired',
+    MEGAMEK_SANDBLASTER_SOURCE_REFS,
   ),
   'oblique-attacker': integrated(
     'oblique-attacker',

@@ -104,6 +104,8 @@ export interface IClusterModifiers {
   readonly artemisBonus: number;
   /** Narc beacon bonus (+2) */
   readonly narcBonus: number;
+  /** Sandblaster SPA bonus (+4/+3/+2 by range on designated weapons) */
+  readonly sandblasterBonus: number;
   /** Cluster Hitter SPA bonus (+1) */
   readonly clusterHitterBonus: number;
   /** MRM penalty (-1) */

@@ -171,7 +171,6 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       [
         'movement-application',
         'multi-target-penalty-application',
-        'sandblaster-application',
         'target-priority-application',
       ].sort(),
     );
@@ -181,6 +180,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       expect.arrayContaining([
         'critical-prevention-application',
         'psr-spa-application',
+        'sandblaster-application',
       ]),
     );
   });
@@ -403,6 +403,32 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['movement-application'].spaIds,
     ).toEqual(expect.arrayContaining(['heavy-lifter']));
+  });
+
+  it('pins Sandblaster to MegaMek cluster-table range bonuses and remaining rate-of-fire gap', () => {
+    const sandblasterRefs = SPA_COMBAT_SUPPORT.sandblaster.sourceRefs ?? [];
+    const applicationRefs =
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['sandblaster-application']
+        .sourceRefs ?? [];
+
+    expect(SPA_COMBAT_SUPPORT.sandblaster).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('+4/+3/+2'),
+      gap: expect.stringContaining('UAC/RAC'),
+    });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['sandblaster-application'],
+    ).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('designated weapon type'),
+      gap: expect.stringContaining('rate-of-fire'),
+    });
+    expect(sandblasterRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek WeaponHandler.getClusterModifiers applies Sandblaster as +4 short, +3 medium, or +2 long cluster-table modifiers for the designated weapon, taking precedence over Cluster Hitter.',
+      'MegaMek PilotSPAHelper limits Sandblaster designations to UAC, LB-X AC, TacOps rapid-fire AC, and damage-by-cluster-table weapons.',
+      'MegaMek OptionsConstants defines GUNNERY_SANDBLASTER as sandblaster.',
+    ]);
+    expect(applicationRefs).toEqual(sandblasterRefs);
   });
 
   it('pins Terrain Master Mountaineer rubble PSR relief to MegaMek semantics', () => {

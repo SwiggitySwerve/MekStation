@@ -1257,6 +1257,10 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_headhit.level).toBe(
       'helper-only',
     );
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.sandblaster).toMatchObject({
+      level: 'helper-only',
+      gap: expect.stringContaining('UAC/RAC'),
+    });
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.cluster_master.level).toBe(
       'unsupported',
     );

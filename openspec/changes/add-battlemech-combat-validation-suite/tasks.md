@@ -67,6 +67,7 @@
 - [x] 3.1.7 Integrate source-backed iNARC Nemesis redirect for direct confusable missile attacks against friendly intervening Nemesis pod carriers while leaving remaining iNARC ECM helper work explicit.
 - [x] 3.1.8 Integrate source-backed helper-level iNARC ECM C3 disruption while leaving automatic C3 network assembly from hydrated equipment and remaining sensor effects explicit.
 - [x] 3.1.9 Split static weapon database subset, synthetic Medium Laser fallback, and variable missile damage-string hazards into first-class validation-scope rows referenced by their requirement crosswalks.
+- [x] 3.1.10 Integrate source-backed Sandblaster cluster-table range bonuses for designated LB-X and missile cluster-table paths while leaving UAC/RAC and TacOps rapid-fire AC rate-of-fire behavior explicit.
 - [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
 - [x] 3.2.2 Integrate source-backed active TSM movement speed into runner movement validation while leaving MASC, supercharger, and then-unsupported partial-wing movement behavior explicit.
@@ -140,3 +141,4 @@
 - [x] 4.3.22 Cross-check MegaMek's Cross-Country combat-vehicle movement-cost/passability gates and canonical ability id.
 - [x] 4.3.23 Cross-check MegaMek's Heavy Lifter BattleMech/ProtoMek ground-object lift-capacity multiplier and canonical ability id.
 - [x] 4.3.24 Cross-check MegaMek's Shaky Stick ground-to-air defender to-hit modifier, airborne target gate, non-airborne attacker gate, and canonical ability id.
+- [x] 4.3.25 Cross-check MegaMek's Sandblaster cluster-table range modifiers, designated-weapon matching, Cluster Hitter precedence, eligible-weapon helper, and canonical ability id.

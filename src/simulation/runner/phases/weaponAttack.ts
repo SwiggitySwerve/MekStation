@@ -30,7 +30,7 @@ import {
 import { calculateEnvironmentalModifiers } from '@/utils/gameplay/environmentalModifiers';
 import { calculateFiringArc } from '@/utils/gameplay/firingArc';
 import { hexDistance } from '@/utils/gameplay/hexMath';
-import { getClusterHitterBonus } from '@/utils/gameplay/spaModifiers';
+import { getClusterHitterBonus, hasSPA } from '@/utils/gameplay/spaModifiers';
 import {
   isMissileWeapon,
   isNarcCompatibleMissileWeapon,
@@ -1102,6 +1102,12 @@ export function runAttackPhase(options: {
             ),
             clusterHitterSPA:
               getClusterHitterBonus(attackerBeforeShot.abilities ?? []) > 0,
+            sandblasterSPA: hasSPA(
+              attackerBeforeShot.abilities ?? [],
+              'sandblaster',
+            ),
+            designatedWeaponType: attackerBeforeShot.designatedWeaponType,
+            attackRange: distance,
             targetWeapons: weaponsByUnit?.get(targetId),
             targetAmmoState: targetBeforeShot.ammoState,
           },

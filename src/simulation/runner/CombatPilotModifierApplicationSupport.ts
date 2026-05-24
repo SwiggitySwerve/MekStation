@@ -8,6 +8,7 @@ import {
   MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
   MEGAMEK_PSR_SPA_SOURCE_REFS,
+  MEGAMEK_SANDBLASTER_SOURCE_REFS,
   MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS,
   MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
@@ -82,9 +83,11 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
     'cluster-hitter-application',
     'runAttackPhase hydrates attacker abilities into missile clusterContext, and resolveSpecialProjectileHit applies Cluster Hitter as a +1 cluster table shift',
   ),
-  'sandblaster-application': unsupported(
+  'sandblaster-application': helperOnly(
     'sandblaster-application',
-    'Sandblaster Ultra/RAC cluster-hit damage modification is not represented in rate-of-fire resolution',
+    'Source-backed resolveSpecialProjectileHit consumes Sandblaster state, designated weapon type, and attack range for representable LB-X and missile cluster-table resolution',
+    'UAC/RAC and TacOps rapid-fire AC Sandblaster paths are still not represented in rate-of-fire resolution',
+    MEGAMEK_SANDBLASTER_SOURCE_REFS,
   ),
   'physical-to-hit-application': integrated(
     'physical-to-hit-application',
