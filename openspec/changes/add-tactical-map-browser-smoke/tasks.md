@@ -52,6 +52,9 @@
 - [x] 2.21 Add fixture-level parity coverage proving the legal mixed-weapon
   browser projection is accepted by attack commit validation with matching
   usable weapons, range bracket, and to-hit number.
+- [x] 2.22 Add fixture-level parity coverage proving the minimum-range browser
+  projection is accepted by attack commit validation with a matching minimum
+  range to-hit modifier.
 
 ## 3. Validation
 
@@ -93,4 +96,6 @@
 - [x] 3.20 Focused Jest parity test passes for the all-selected-weapons
   out-of-range browser projection and attack commit validator handoff.
 - [x] 3.21 Focused Jest parity test passes for the legal mixed-weapon browser
+  projection and attack commit validator handoff.
+- [x] 3.22 Focused Jest parity test passes for the minimum-range browser
   projection and attack commit validator handoff.

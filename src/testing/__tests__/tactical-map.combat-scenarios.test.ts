@@ -8,6 +8,8 @@ import {
 import {
   tacticalMapMediumRangeCombatProjection,
   tacticalMapMediumRangeCommitInput,
+  tacticalMapMinimumRangeCombatProjection,
+  tacticalMapMinimumRangeCommitInput,
   tacticalMapOutOfRangeCombatProjection,
   tacticalMapOutOfRangeCommitInput,
 } from '../tactical-map.combat-scenarios';
@@ -70,6 +72,50 @@ describe('tactical map combat scenarios', () => {
     );
     expect(payload.toHitNumber).toBe(
       tacticalMapMediumRangeCombatProjection.toHitNumber,
+    );
+  });
+
+  it('keeps the minimum-range browser projection aligned with committed to-hit modifiers', () => {
+    expect(tacticalMapMinimumRangeCombatProjection).toMatchObject({
+      hex: { q: 0, r: 0 },
+      distance: 1,
+      rangeBracket: 'short',
+      attackable: true,
+      minimumRangePenalty: 2,
+      minimumRangeWeaponIds: ['minimum-lrm'],
+      minimumRangeReason: 'Minimum range penalty +2 (minimum-lrm)',
+    });
+    expect(tacticalMapMinimumRangeCombatProjection.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Minimum Range',
+          value: 2,
+          source: 'range',
+        }),
+      ]),
+    );
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapMinimumRangeCommitInput(),
+    );
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    const minimumRangeModifier = payload.modifiers.find(
+      (modifier) => modifier.name === 'Minimum Range',
+    );
+    expect(minimumRangeModifier).toMatchObject({
+      value: tacticalMapMinimumRangeCombatProjection.minimumRangePenalty,
+      source: 'range',
+    });
+    expect(payload.toHitNumber).toBe(
+      tacticalMapMinimumRangeCombatProjection.toHitNumber,
     );
   });
 

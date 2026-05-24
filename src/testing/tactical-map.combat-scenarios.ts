@@ -30,6 +30,8 @@ import {
 
 const tacticalMapMediumRangeTargetId = 'medium-target';
 const tacticalMapMediumRangeTargetHex = { q: 1, r: 2 } as const;
+const tacticalMapMinimumRangeTargetId = 'occluded';
+const tacticalMapMinimumRangeTargetHex = { q: 0, r: 0 } as const;
 const tacticalMapOutOfRangeTargetId = 'medium-target';
 const tacticalMapOutOfRangeTargetHex = { q: 1, r: 2 } as const;
 
@@ -170,6 +172,25 @@ export const tacticalMapMediumRangeCombatProjection = requireCombatProjection(
   ),
 );
 
+export const tacticalMapMinimumRangeCombatProjection = requireCombatProjection(
+  deriveCombatRangeHexes({
+    attacker: tacticalMapOutOfRangeAttacker,
+    targetUnitId: tacticalMapMinimumRangeTargetId,
+    hexes: Array.from(
+      tacticalMapOutOfRangeGrid.hexes.values(),
+      (hex) => hex.coord,
+    ),
+    grid: tacticalMapOutOfRangeGrid,
+    tokens: tacticalMapTokens,
+    weapons: tacticalMapSelectedWeapons(tacticalMapSelectedWeaponIds),
+    combatState: tacticalMapCombatState,
+  }).find(
+    (projection) =>
+      projection.hex.q === tacticalMapMinimumRangeTargetHex.q &&
+      projection.hex.r === tacticalMapMinimumRangeTargetHex.r,
+  ),
+);
+
 export const tacticalMapOutOfRangeCombatProjection = requireCombatProjection(
   deriveCombatRangeHexes({
     attacker: tacticalMapOutOfRangeAttacker,
@@ -195,6 +216,17 @@ export function tacticalMapMediumRangeCommitInput(): IApplyAttackInput {
     weaponsByUnit: tacticalMapWeaponsByUnit(),
     attackerId: 'attacker',
     targetId: tacticalMapMediumRangeTargetId,
+    weaponIds: tacticalMapSelectedWeaponIds,
+    grid: tacticalMapOutOfRangeGrid,
+  };
+}
+
+export function tacticalMapMinimumRangeCommitInput(): IApplyAttackInput {
+  return {
+    session: tacticalMapCombatSession(),
+    weaponsByUnit: tacticalMapWeaponsByUnit(),
+    attackerId: 'attacker',
+    targetId: tacticalMapMinimumRangeTargetId,
     weaponIds: tacticalMapSelectedWeaponIds,
     grid: tacticalMapOutOfRangeGrid,
   };

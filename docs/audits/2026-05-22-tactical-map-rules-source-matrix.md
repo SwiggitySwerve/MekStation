@@ -88,9 +88,11 @@ harness.
 2026-05-24 minimum-range browser update: the tactical-map browser harness now
 also selects a represented minimum-range weapon and verifies that a one-hex
 target exposes the minimum-range penalty, affected weapon id, reason, to-hit
-modifier metadata, and a non-color `MIN+` badge. Remaining browser range gaps
-are extreme range and all-selected-weapons-out-of-range sweeps beyond the smoke
-harness.
+modifier metadata, and a non-color `MIN+` badge. A fixture-level Jest parity
+test now proves the same browser projection reaches `applyInteractiveSessionAttack`
+with a matching committed minimum-range to-hit modifier. Remaining browser
+range gaps are extreme range and all-selected-weapons-out-of-range sweeps
+beyond the smoke harness.
 
 2026-05-24 extreme-range browser update: the tactical-map browser harness now
 also selects a represented extreme-range weapon with long range 3 and extreme
