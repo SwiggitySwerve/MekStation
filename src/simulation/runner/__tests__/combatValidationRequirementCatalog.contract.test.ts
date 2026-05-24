@@ -762,7 +762,15 @@ describe('BattleMech combat validation requirement crosswalk', () => {
   it('backs validation-scope requirements with every scope support row', () => {
     expect(
       missingRefsAcrossRequirements(
-        ['known-limitation-audit', 'non-battlemech-scope'],
+        [
+          'official-ranged-weapons',
+          'official-physical-weapons',
+          'official-ammo',
+          'fallback-prevention',
+          'damage-string-hazards',
+          'known-limitation-audit',
+          'non-battlemech-scope',
+        ],
         'validationScope',
         'knownLimitationsAndScope',
         BATTLEMECH_VALIDATION_SCOPE_SUPPORT,

@@ -85,6 +85,9 @@ describe('BattleMech validation scope support catalog', () => {
         'known-limitation-pattern-audit',
         'non-battlemech-ammo-scope',
         'non-battlemech-combat-system-split',
+        'static-weapon-database-subset',
+        'synthetic-medium-laser-fallback-ban',
+        'variable-damage-string-guard',
       ].sort(),
     );
     expect(supportGaps(BATTLEMECH_VALIDATION_SCOPE_SUPPORT)).toEqual([]);
@@ -113,6 +116,9 @@ describe('BattleMech validation scope support catalog', () => {
         'catalog-filter-gate-ban',
         'known-limitation-bypass',
         'known-limitation-pattern-audit',
+        'static-weapon-database-subset',
+        'synthetic-medium-laser-fallback-ban',
+        'variable-damage-string-guard',
       ].sort(),
     );
     expect(

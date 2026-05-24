@@ -548,13 +548,15 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
     'fallback-prevention',
     'Catalog contracts reject static weapon database drift and synthetic Medium Laser fallback hiding hydration failures',
     [
-      'validationScope.knownLimitationsAndScope.battlemech-official-catalog-scope',
+      'validationScope.knownLimitationsAndScope.static-weapon-database-subset',
+      'validationScope.knownLimitationsAndScope.synthetic-medium-laser-fallback-ban',
     ],
   ),
   'damage-string-hazards': integrated(
     'damage-string-hazards',
     'Catalog contracts pin variable damage strings such as MML 1-2/missile so they do not collapse to zero damage; MML firing modes split SRM/LRM damage and consume distinct SRM/LRM ammo-bin families',
     [
+      'validationScope.knownLimitationsAndScope.variable-damage-string-guard',
       'featureSupport.specialWeaponFamilies.mml',
       'featureSupport.specialWeaponMechanics.mml-variable-damage',
       'featureSupport.specialWeaponMechanics.mml-srm-lrm-mode-damage',

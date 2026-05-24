@@ -28,6 +28,14 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **THEN** sprint movement, voluntary go-prone, MASC activation, and Supercharger activation SHALL appear as unsupported absent-action rows
 - **AND** those rows SHALL NOT be inferred from helper prose or omitted because no UI command currently emits them
 
+#### Scenario: Weapon catalog hygiene traps stay explicit
+
+- **GIVEN** official ranged weapon validation relies on catalog hydration rather than legacy defaults
+- **WHEN** the validation scope and requirement crosswalks are contract-tested
+- **THEN** the static weapon database subset, synthetic Medium Laser fallback ban, and variable missile damage-string guard SHALL each appear as explicit integrated validation-scope rows
+- **AND** fallback-prevention and damage-string-hazards requirements SHALL reference those specific rows rather than relying only on broad official-catalog coverage
+- **AND** broad known-limitation filters SHALL remain banned from catalog validation gates
+
 ### Requirement: Physical Attack Legality Gates
 
 Physical attack declaration and resolution SHALL validate action-specific legality gates before scheduling a combat action. Push, charge, death from above, melee weapon, punch, kick, and club logic SHALL share the same legality helpers across eligibility display, event-sourced declaration, and simulation runner resolution so UI options, game events, and automated combat cannot diverge.

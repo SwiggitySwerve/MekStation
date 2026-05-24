@@ -66,6 +66,7 @@
 - [x] 3.1.6 Integrate source-backed attacker iNARC ECM flight-path suppression for Artemis IV/prototype IV/V cluster guidance as part of incremental iNARC ECM coverage.
 - [x] 3.1.7 Integrate source-backed iNARC Nemesis redirect for direct confusable missile attacks against friendly intervening Nemesis pod carriers while leaving remaining iNARC ECM helper work explicit.
 - [x] 3.1.8 Integrate source-backed helper-level iNARC ECM C3 disruption while leaving automatic C3 network formation and remaining sensor effects explicit.
+- [x] 3.1.9 Split static weapon database subset, synthetic Medium Laser fallback, and variable missile damage-string hazards into first-class validation-scope rows referenced by their requirement crosswalks.
 - [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
 - [x] 3.2.2 Integrate source-backed active TSM movement speed into runner movement validation while leaving MASC, supercharger, and then-unsupported partial-wing movement behavior explicit.

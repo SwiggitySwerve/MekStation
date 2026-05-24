@@ -75,6 +75,18 @@ export const BATTLEMECH_VALIDATION_SCOPE_SUPPORT = {
     'battlemech-official-catalog-scope',
     'battlemechCombatCatalog.contract.test.ts covers every official ranged weapon, physical weapon, and ammo entry visible to the construction catalog',
   ),
+  'static-weapon-database-subset': integrated(
+    'static-weapon-database-subset',
+    'battlemechCombatCatalog.contract.test.ts requires WEAPON_DATABASE to stay a legacy subset of the official ranged catalog and proves official-only weapons resolve through catalog lookup',
+  ),
+  'synthetic-medium-laser-fallback-ban': integrated(
+    'synthetic-medium-laser-fallback-ban',
+    'battlemechCombatCatalog.contract.test.ts proves catalog AI unit conversion refuses the legacy synthetic Medium Laser fallback when hydration is missing',
+  ),
+  'variable-damage-string-guard': integrated(
+    'variable-damage-string-guard',
+    'battlemechCombatCatalog.contract.test.ts pins variable missile damage strings such as 1-2/missile so official weapons cannot collapse to zero damage',
+  ),
   'non-battlemech-ammo-scope': helperOnly(
     'non-battlemech-ammo-scope',
     'ammo compatibility audit classifies aerospace/capital, battle-armor, and protomech ammo separately from BattleMech weapon compatibility',
