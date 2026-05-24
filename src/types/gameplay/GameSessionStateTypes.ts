@@ -373,6 +373,10 @@ export interface IUnitGameState {
   /** Unit and weapon quirk ids available to attack/to-hit resolvers. */
   readonly unitQuirks?: readonly string[];
   readonly weaponQuirks?: Readonly<Record<string, readonly string[]>>;
+  /** Explicit source-backed HQ initiative bonus for force-level initiative. */
+  readonly initiativeHQBonus?: number;
+  /** Explicit source-backed command initiative bonus for force-level initiative. */
+  readonly initiativeCommandBonus?: number;
   readonly isDodging?: boolean;
   /** Weapons that are jammed (UAC/RAC jam mechanic) */
   readonly jammedWeapons?: readonly string[];

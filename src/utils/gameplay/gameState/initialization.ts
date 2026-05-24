@@ -274,6 +274,8 @@ export function createInitialUnitState(
     designatedRangeBracket: unit.designatedRangeBracket,
     unitQuirks: unit.unitQuirks,
     weaponQuirks: unit.weaponQuirks,
+    initiativeHQBonus: unit.initiativeHQBonus,
+    initiativeCommandBonus: unit.initiativeCommandBonus,
     weaponLocationById: unit.weaponLocationById,
     armor: {},
     structure: {},

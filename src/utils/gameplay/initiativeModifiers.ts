@@ -19,9 +19,19 @@ export function calculateSideInitiativeModifier(
   state: IGameState,
   side: GameSide,
 ): number {
-  const forceQuirks = Object.values(state.units)
-    .filter((unit) => isActiveInitiativeUnit(unit, side))
-    .map((unit) => unit.unitQuirks ?? []);
+  const activeUnits = Object.values(state.units).filter((unit) =>
+    isActiveInitiativeUnit(unit, side),
+  );
+  const forceQuirks = activeUnits.map((unit) => unit.unitQuirks ?? []);
+  const quirkBonus = calculateInitiativeQuirkModifier(forceQuirks);
+  const hqBonus = Math.max(
+    0,
+    ...activeUnits.map((unit) => unit.initiativeHQBonus ?? 0),
+  );
+  const commandBonus = Math.max(
+    0,
+    ...activeUnits.map((unit) => unit.initiativeCommandBonus ?? 0),
+  );
 
-  return calculateInitiativeQuirkModifier(forceQuirks);
+  return Math.max(quirkBonus, hqBonus) + commandBonus;
 }

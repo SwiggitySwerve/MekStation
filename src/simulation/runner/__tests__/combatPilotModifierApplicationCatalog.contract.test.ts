@@ -440,16 +440,20 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     const applicationRefs =
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['initiative-application']
         .sourceRefs ?? [];
+    const equipmentRefs = applicationRefs.slice(
+      commandRefs.length,
+      applicationRefs.length - tacticalGeniusRefs.length,
+    );
 
     expect(QUIRK_COMBAT_SUPPORT.command_mech).toMatchObject({
       level: 'helper-only',
       evidence: expect.stringContaining('rollInitiative'),
-      gap: expect.stringContaining('command-console/HQ'),
+      gap: expect.stringContaining('equipment hydration'),
     });
     expect(QUIRK_COMBAT_SUPPORT.battle_computer).toMatchObject({
       level: 'helper-only',
       evidence: expect.stringContaining('non-cumulative'),
-      gap: expect.stringContaining('command-console/HQ'),
+      gap: expect.stringContaining('equipment hydration'),
     });
     expect(SPA_COMBAT_SUPPORT['tactical-genius']).toMatchObject({
       level: 'helper-only',
@@ -463,16 +467,30 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       evidence: expect.stringContaining('raw 2d6 payload fields'),
       gap: expect.stringContaining('Tactical Genius reroll'),
     });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['initiative-application'].gap,
+    ).toContain('equipment hydration');
     expect(commandRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek Entity.getQuirkIniBonus returns +2 for Battle Computer or +1 for Command Mech, and does not stack them.',
       'MegaMek OptionsConstants defines QUIRK_POS_BATTLE_COMP as battle_computer and QUIRK_POS_COMMAND_MEK as command_mech.',
     ]);
     expect(battleComputerRefs).toEqual(commandRefs);
+    expect(equipmentRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek Team.getTotalInitBonus adds the best dynamic turn bonus and best command bonus for team initiative.',
+      'MegaMek Player.getTurnInitBonus takes the best HQ or quirk initiative bonus across the player force.',
+      'MegaMek Player.getIndividualCommandBonus adds +2 for qualifying command-console or active tech-officer units.',
+      'MegaMek Entity.getHQIniBonus grants +1 at 3+ tons and +2 at 7+ tons of working communications gear in default mode.',
+      'MegaMek Mek.hasCommandConsoleBonus requires command-console cockpit, active command console crew, heavy-or-larger chassis, and non-IndustrialMek or advanced fire control.',
+    ]);
     expect(tacticalGeniusRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek Game.hasTacticalGenius checks for a conscious active unit with MISC_TACTICAL_GENIUS before initiative reroll handling.',
       'MegaMek OptionsConstants defines MISC_TACTICAL_GENIUS as tactical_genius.',
     ]);
-    expect(applicationRefs).toEqual([...commandRefs, ...tacticalGeniusRefs]);
+    expect(applicationRefs).toEqual([
+      ...commandRefs,
+      ...equipmentRefs,
+      ...tacticalGeniusRefs,
+    ]);
   });
 
   it('pins Terrain Master Mountaineer rubble PSR relief to MegaMek semantics', () => {

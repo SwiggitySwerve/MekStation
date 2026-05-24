@@ -120,6 +120,17 @@ export interface IGameUnit {
   readonly unitQuirks?: readonly string[];
   readonly weaponQuirks?: Readonly<Record<string, readonly string[]>>;
   /**
+   * Explicit source-backed per-unit HQ initiative bonus. MegaMek takes the
+   * best HQ/quirk bonus across the force rather than stacking them.
+   */
+  readonly initiativeHQBonus?: number;
+  /**
+   * Explicit source-backed command initiative bonus, such as a qualifying
+   * cockpit command console or active tech officer. This stacks with the
+   * best HQ/quirk force bonus.
+   */
+  readonly initiativeCommandBonus?: number;
+  /**
    * Mounted weapon location by runtime weapon id. Optional so legacy setup
    * paths keep working; hydrated runners and adapters populate it for physical
    * arm-fired legality checks.

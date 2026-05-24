@@ -923,6 +923,62 @@ describe('rollInitiative', () => {
       winner: GameSide.Opponent,
     });
   });
+
+  it('applies explicit command initiative bonus with the best HQ or quirk bonus', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({
+        id: 'player-1',
+        side: GameSide.Player,
+        initiativeCommandBonus: 2,
+        unitQuirks: ['battle_computer'],
+      }),
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const dice = [1, 1, 2, 3];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
+    const event = rolled.events[rolled.events.length - 1];
+
+    expect(rolled.currentState.initiativeWinner).toBe(GameSide.Player);
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 5,
+      playerModifier: 4,
+      playerTotal: 6,
+      winner: GameSide.Player,
+    });
+  });
+
+  it('does not stack HQ and quirk force initiative bonuses', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({
+        id: 'player-1',
+        side: GameSide.Player,
+        initiativeHQBonus: 2,
+        unitQuirks: ['battle_computer'],
+      }),
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const dice = [1, 1, 2, 3];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
+    const event = rolled.events[rolled.events.length - 1];
+
+    expect(rolled.currentState.initiativeWinner).toBe(GameSide.Opponent);
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 5,
+      playerModifier: 2,
+      playerTotal: 4,
+      winner: GameSide.Opponent,
+    });
+  });
 });
 
 // =============================================================================

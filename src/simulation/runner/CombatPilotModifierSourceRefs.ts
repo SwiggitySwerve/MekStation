@@ -170,6 +170,29 @@ export const MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEGAMEK_INITIATIVE_EQUIPMENT_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek Team.getTotalInitBonus adds the best dynamic turn bonus and best command bonus for team initiative.',
+    'megamek/src/megamek/common/Team.java#L234-L247',
+  ),
+  megamekRef(
+    'MegaMek Player.getTurnInitBonus takes the best HQ or quirk initiative bonus across the player force.',
+    'megamek/src/megamek/common/Player.java#L637-L650',
+  ),
+  megamekRef(
+    'MegaMek Player.getIndividualCommandBonus adds +2 for qualifying command-console or active tech-officer units.',
+    'megamek/src/megamek/common/Player.java#L688-L706',
+  ),
+  megamekRef(
+    'MegaMek Entity.getHQIniBonus grants +1 at 3+ tons and +2 at 7+ tons of working communications gear in default mode.',
+    'megamek/src/megamek/common/units/Entity.java#L12840-L12855',
+  ),
+  megamekRef(
+    'MegaMek Mek.hasCommandConsoleBonus requires command-console cockpit, active command console crew, heavy-or-larger chassis, and non-IndustrialMek or advanced fire control.',
+    'megamek/src/megamek/common/units/Mek.java#L4919-L4927',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS = [
   megamekRef(
     'MegaMek Game.hasTacticalGenius checks for a conscious active unit with MISC_TACTICAL_GENIUS before initiative reroll handling.',

@@ -693,7 +693,7 @@ Pilot modifier validation SHALL keep MegaMek's Shaky Stick SPA visible as an uns
 
 ### Requirement: Source-Backed Initiative Quirk Bonuses
 
-Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer force initiative bonuses from active conscious units. Battle Computer SHALL provide `+2`, Command Mech SHALL provide `+1`, and the bonuses SHALL NOT stack. Raw `2d6` initiative payload fields SHALL remain raw dice values for replay/RNG arbitration, with modifier and total fields carrying adjusted values. Tactical Genius SHALL remain an explicit reroll gap until reroll request and replacement-roll flow is modeled.
+Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer force initiative bonuses from active conscious units. Battle Computer SHALL provide `+2`, Command Mech SHALL provide `+1`, and the bonuses SHALL NOT stack. Explicit HQ initiative equipment bonuses SHALL be treated as the same best-of force turn bonus as initiative quirks, while explicit command initiative equipment bonuses SHALL stack as a separate command bonus. Raw `2d6` initiative payload fields SHALL remain raw dice values for replay/RNG arbitration, with modifier and total fields carrying adjusted values. Automatic command-console/HQ equipment hydration and Tactical Genius SHALL remain explicit gaps until equipment-derived command state and reroll request/replacement-roll flow are modeled.
 
 #### Scenario: Battle Computer bonus remains non-cumulative with Command Mech
 
@@ -703,6 +703,21 @@ Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer for
 - **THEN** the player receives only the source-backed `+2` bonus
 - **AND** the opponent still wins
 - **AND** the event payload retains raw `2d6` values plus modifier and total fields
+
+#### Scenario: Explicit command bonus stacks with the best HQ or quirk bonus
+
+- **GIVEN** the player force has an active conscious unit with `battle_computer`
+- **AND** that force has an explicit command initiative equipment bonus of `+2`
+- **WHEN** initiative is rolled
+- **THEN** the player modifier SHALL be the best HQ/quirk bonus plus the command bonus
+- **AND** raw `2d6` payload values SHALL remain unchanged
+
+#### Scenario: Explicit HQ and quirk bonuses do not stack
+
+- **GIVEN** the player force has source-backed `battle_computer`
+- **AND** the player force has an explicit HQ initiative bonus of `+2`
+- **WHEN** initiative is rolled
+- **THEN** only the best HQ or quirk bonus SHALL apply before command bonuses
 
 ### Requirement: Source-Backed Terrain Master Defender To-Hit Variants
 

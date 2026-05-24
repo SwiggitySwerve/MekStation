@@ -7,6 +7,7 @@ import {
   MEGAMEK_CALLED_SHOT_SOURCE_REFS,
   MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
+  MEGAMEK_INITIATIVE_EQUIPMENT_SOURCE_REFS,
   MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   MEGAMEK_PSR_SPA_SOURCE_REFS,
   MEGAMEK_SANDBLASTER_SOURCE_REFS,
@@ -115,10 +116,11 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'initiative-application': helperOnly(
     'initiative-application',
-    'rollInitiative consumes source-backed Command Mech and Battle Computer force-level quirk bonuses while preserving raw 2d6 payload fields',
-    'Tactical Genius reroll requests, Combat Intuition first-round sequencing, and command-console/HQ initiative equipment bonuses are not wired',
+    'rollInitiative consumes source-backed Command Mech/Battle Computer force-level quirk bonuses plus explicit HQ/command equipment initiative bonuses while preserving raw 2d6 payload fields',
+    'Tactical Genius reroll requests, Combat Intuition first-round sequencing, and automatic command-console/HQ initiative equipment hydration are not wired',
     [
       ...MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
+      ...MEGAMEK_INITIATIVE_EQUIPMENT_SOURCE_REFS,
       ...MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
     ],
   ),
