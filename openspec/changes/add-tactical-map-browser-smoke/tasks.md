@@ -21,6 +21,8 @@
   engine-style rejection metadata and an invalid badge.
 - [x] 2.7 Add browser coverage proving a LOS-blocked combat target exposes
   blocker metadata and an invalid combat badge.
+- [x] 2.8 Add browser coverage proving a reachable movement hex can expose a
+  blocked movement-mode option with a separate non-color blocked-options badge.
 
 ## 3. Validation
 
@@ -35,3 +37,5 @@
   metadata.
 - [x] 3.7 Focused Playwright smoke passes with LOS-blocked combat target
   metadata.
+- [x] 3.8 Focused Playwright smoke passes with mixed reachable/blocked movement
+  option metadata.

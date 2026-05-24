@@ -1,11 +1,25 @@
-import { expect, test, type Locator } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import sharp from 'sharp';
 
-async function expectNonBlankRender(
-  locator: Locator,
-  label: string,
-): Promise<void> {
-  const screenshot = await locator.screenshot({ animations: 'disabled' });
+async function expectNonBlankRender(page: Page, label: string): Promise<void> {
+  let screenshot: Buffer | undefined;
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const locator = page.getByTestId('hex-map-container');
+
+    try {
+      await expect(locator).toBeVisible();
+      screenshot = await locator.screenshot({ animations: 'disabled' });
+      break;
+    } catch (error) {
+      lastError = error;
+      await page.waitForTimeout(100);
+    }
+  }
+
+  if (!screenshot) throw lastError;
+
   const { data } = await sharp(screenshot)
     .ensureAlpha()
     .raw()
@@ -45,7 +59,6 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await page.goto('/e2e/tactical-map');
 
     const harness = page.getByTestId('tactical-map-e2e-harness');
-    const map = page.getByTestId('hex-map-container');
     const projectionLayer = page.getByTestId('map-projection-layer');
 
     await expect(harness).toBeVisible();
@@ -85,6 +98,58 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(movementBadge).toHaveAttribute(
       'data-movement-badge-option-heats',
       'walk:0|run:2|jump:3',
+    );
+    const mixedMovementHex = page.getByTestId('hex-2-1');
+    await expect(mixedMovementHex).toHaveAttribute('data-reachable', 'true');
+    await expect(mixedMovementHex).toHaveAttribute(
+      'data-movement-option-count',
+      '3',
+    );
+    await expect(mixedMovementHex).toHaveAttribute(
+      'data-movement-option-types',
+      'walk,run,jump',
+    );
+    await expect(mixedMovementHex).toHaveAttribute(
+      'data-movement-option-states',
+      'walk:reachable|run:reachable|jump:blocked',
+    );
+    await expect(mixedMovementHex).toHaveAttribute(
+      'data-movement-option-blocked-reasons',
+      'jump:Jump path length 4 exceeds jump MP 3',
+    );
+    await expect(mixedMovementHex).toHaveAttribute(
+      'data-movement-option-invalid-reasons',
+      'jump:InsufficientMP',
+    );
+    await expect(mixedMovementHex).toHaveAttribute(
+      'data-movement-option-invalid-details',
+      'jump:Jump path length 4 exceeds jump MP 3',
+    );
+    const mixedMovementBadge = page.getByTestId('hex-movement-badge-2-1');
+    await expect(mixedMovementBadge).toContainText('W5/R6 MP');
+    await expect(mixedMovementBadge).toHaveAttribute(
+      'data-movement-badge-option-costs',
+      'walk:5|run:6|jump:4',
+    );
+    await expect(mixedMovementBadge).toHaveAttribute(
+      'data-movement-badge-option-blocked-reasons',
+      'jump:Jump path length 4 exceeds jump MP 3',
+    );
+    const mixedBlockedOptionsBadge = page.getByTestId(
+      'hex-movement-blocked-options-badge-2-1',
+    );
+    await expect(mixedBlockedOptionsBadge.locator('text')).toHaveText('J BLK');
+    await expect(mixedBlockedOptionsBadge).toHaveAttribute(
+      'data-movement-blocked-options-badge-count',
+      '1',
+    );
+    await expect(mixedBlockedOptionsBadge).toHaveAttribute(
+      'data-movement-blocked-options-badge-types',
+      'jump',
+    );
+    await expect(mixedBlockedOptionsBadge).toHaveAttribute(
+      'data-movement-blocked-options-badge-invalid-reasons',
+      'jump:InsufficientMP',
     );
     await expect(page.getByTestId('hex-1-0')).toHaveAttribute(
       'data-reachable',
@@ -131,7 +196,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(
       page.getByTestId('hex-combat-invalid-badge-2-0'),
     ).toHaveAttribute('data-invalid-badge-code', 'NoLineOfSight');
-    await expectNonBlankRender(map, 'top-down tactical map');
+    await expectNonBlankRender(page, 'top-down tactical map');
 
     await page.getByTestId('projection-toggle').click();
 
@@ -166,7 +231,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-isometric-depth-key',
     );
 
-    await expectNonBlankRender(map, 'isometric tactical map');
+    await expectNonBlankRender(page, 'isometric tactical map');
     await page.getByTestId('projection-rotate-right').click();
 
     await expect(

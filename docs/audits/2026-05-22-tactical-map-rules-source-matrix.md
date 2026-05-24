@@ -54,6 +54,13 @@ also renders an unreachable jump destination with an engine-style
 detail metadata. Remaining browser movement gaps are broader blocked-reason
 families and complete path-shape sweeps beyond the smoke harness.
 
+2026-05-24 mixed movement-options browser update: the tactical-map browser
+harness now also renders a reachable destination with walk/run legal options and
+a blocked jump option, then verifies the top-down option states, blocked jump
+reason metadata, and separate non-color blocked-options badge. Remaining browser
+movement gaps are broader blocked-reason families and complete path-shape sweeps
+beyond the smoke harness.
+
 2026-05-24 blocked combat browser update: the tactical-map browser harness now
 also renders an enemy behind the tall elevation/building blocker and verifies
 the top-down combat target id, `NoLineOfSight` rejection, blocker hex metadata,

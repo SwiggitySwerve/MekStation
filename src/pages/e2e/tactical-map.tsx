@@ -129,7 +129,7 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
         <div className="h-[680px] overflow-hidden rounded border border-slate-700 bg-slate-900">
           <HexMapDisplay
             mapId="tactical-map-e2e"
-            radius={2}
+            radius={3}
             tokens={tokens}
             selectedHex={{ q: -1, r: 0 }}
             targetUnitId="occluded"
@@ -202,6 +202,60 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
                 path: [
                   { q: -1, r: 0 },
                   { q: 1, r: 0 },
+                ],
+              },
+              {
+                hex: { q: 2, r: 1 },
+                mpCost: 5,
+                terrainCost: 0,
+                elevationDelta: 0,
+                elevationCost: 0,
+                heatGenerated: 0,
+                movementMode: 'biped',
+                reachable: true,
+                movementType: MovementType.Walk,
+                path: [
+                  { q: -1, r: 0 },
+                  { q: 0, r: 0 },
+                  { q: 1, r: 0 },
+                  { q: 2, r: 0 },
+                  { q: 2, r: 1 },
+                ],
+              },
+              {
+                hex: { q: 2, r: 1 },
+                mpCost: 6,
+                terrainCost: 0,
+                elevationDelta: 0,
+                elevationCost: 0,
+                heatGenerated: 2,
+                movementMode: 'biped',
+                reachable: true,
+                movementType: MovementType.Run,
+                path: [
+                  { q: -1, r: 0 },
+                  { q: 0, r: 0 },
+                  { q: 1, r: 0 },
+                  { q: 2, r: 0 },
+                  { q: 2, r: 1 },
+                ],
+              },
+              {
+                hex: { q: 2, r: 1 },
+                mpCost: 4,
+                terrainCost: 0,
+                elevationDelta: 0,
+                elevationCost: 0,
+                heatGenerated: 3,
+                movementMode: 'jump',
+                reachable: false,
+                movementType: MovementType.Jump,
+                blockedReason: 'Jump path length 4 exceeds jump MP 3',
+                movementInvalidReason: 'InsufficientMP',
+                movementInvalidDetails: 'Jump path length 4 exceeds jump MP 3',
+                path: [
+                  { q: -1, r: 0 },
+                  { q: 2, r: 1 },
                 ],
               },
             ]}
