@@ -1014,6 +1014,63 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
     });
   });
 
+  it('routes optional MaxTech pilot heat damage through Hot Dog target-number relief', () => {
+    const baseUnit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heat: 32,
+        heatSinks: 0,
+      },
+    );
+    const hotDogUnit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heat: 32,
+        heatSinks: 0,
+        abilities: ['hot_dog'],
+      },
+    );
+    const baseEvents: IGameEvent[] = [];
+    const hotDogEvents: IGameEvent[] = [];
+
+    const baseState = runHeatPhase({
+      state: makeMinimalState({ 'player-1': baseUnit }),
+      events: baseEvents,
+      gameId: 'maxtech-heat-pilot-damage-test',
+      random: new SeededRandom(2),
+      maxTechHeatScale: true,
+    });
+    const hotDogState = runHeatPhase({
+      state: makeMinimalState({ 'player-1': hotDogUnit }),
+      events: hotDogEvents,
+      gameId: 'maxtech-heat-pilot-damage-test',
+      random: new SeededRandom(2),
+      maxTechHeatScale: true,
+    });
+
+    const basePilotHits = baseEvents.filter(
+      (event) => event.type === GameEventType.PilotHit,
+    );
+    const hotDogPilotHits = hotDogEvents.filter(
+      (event) => event.type === GameEventType.PilotHit,
+    );
+
+    expect(basePilotHits).toHaveLength(1);
+    expect(basePilotHits[0].payload as IPilotHitPayload).toMatchObject({
+      unitId: 'player-1',
+      wounds: 1,
+      totalWounds: 1,
+      source: 'heat',
+    });
+    expect(baseState.units['player-1'].pilotWounds).toBe(1);
+    expect(hotDogPilotHits).toHaveLength(0);
+    expect(hotDogState.units['player-1'].pilotWounds).toBe(0);
+  });
+
   it('applies consciousness SPAs to heat-sourced pilot damage', () => {
     const unit = createUnit(
       'player-1',

@@ -86,6 +86,7 @@
 - [x] 3.3.4 Align Hot Dog startup/shutdown heat checks to MegaMek's `hotDogMod = 1` target-number modifier while keeping remaining heat-SPA gaps explicit.
 - [x] 3.3.5 Align Hot Dog heat-induced ammo-explosion checks to MegaMek's `hotDogMod = 1` target-number modifier while keeping optional MaxTech heat-scale Hot Dog roll routing as the remaining Hot Dog heat lifecycle gap.
 - [x] 3.3.6 Add source-backed optional MaxTech pilot heat-damage avoid-number helper coverage for Hot Dog while locking default life-support heat damage as threshold-based.
+- [x] 3.3.7 Route opt-in MaxTech pilot heat-damage checks through runner and interactive heat resolution, including Hot Dog avoid-number relief, while leaving optional MaxTech critical-damage rolls explicit.
 - [ ] 3.4 Expand to-hit validation coverage for range, movement, terrain, pilot skills, special abilities, quirks, sensors, prone state, and indirect fire.
 - [x] 3.4.1 Add support-matrix tests that separate runner-integrated to-hit modifiers from helper-only modifier math.
 - [x] 3.4.2 Cross-link pilot skill, SPA, canonical SPA, quirk, and pilot modifier resolver support rows into pilot/SPAs/quirks requirement checklists.
@@ -161,3 +162,4 @@
 - [x] 4.3.32 Cross-check Hot Dog startup/shutdown implementation against MegaMek's heat target-number modifier and preserve remaining modifier gaps.
 - [x] 4.3.33 Cross-check Hot Dog heat-induced ammo-explosion target-number relief against MegaMek and preserve the remaining optional MaxTech heat-scale routing gap.
 - [x] 4.3.34 Cross-check MegaMek's standard life-support heat damage against optional MaxTech heat-damage avoid-number relief so Hot Dog does not invent a default pilot heat-damage threshold shift.
+- [x] 4.3.35 Cross-check opt-in MaxTech pilot heat-damage runtime routing against MegaMek `HeatResolver` and preserve optional MaxTech critical-damage rolls as the remaining heat-scale gap.

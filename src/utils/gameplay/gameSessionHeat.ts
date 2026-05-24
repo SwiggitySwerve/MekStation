@@ -1,6 +1,7 @@
 import {
   ENGINE_HIT_HEAT,
   getAmmoExplosionTN,
+  getMaxTechPilotHeatDamageAvoidTN,
   getPilotHeatDamage,
   getShutdownTN,
 } from '@/constants/heat';
@@ -40,6 +41,7 @@ import {
 import {
   getCoolUnderFireHeatReduction,
   getHotDogHeatTargetNumberModifier,
+  hasSPA,
 } from './spaModifiers';
 
 /**
@@ -57,6 +59,18 @@ export interface IResolveHeatPhaseOptions {
     position: IHexCoordinate,
   ) => number;
   readonly environmentalConditions?: IEnvironmentalConditions;
+  readonly maxTechHeatScale?: boolean;
+}
+
+function hasMaxTechHeatScaleRule(optionalRules: readonly string[]): boolean {
+  return optionalRules.some((rule) =>
+    [
+      'maxtech-heat-scale',
+      'maxtech_heat_scale',
+      'maxtech-heat',
+      'tacops-heat-scale',
+    ].includes(rule.toLowerCase()),
+  );
 }
 
 export function resolveHeatPhase(
@@ -70,6 +84,9 @@ export function resolveHeatPhase(
 
   const { turn } = session.currentState;
   let currentSession = session;
+  const maxTechHeatScale =
+    options?.maxTechHeatScale ??
+    hasMaxTechHeatScaleRule(session.config.optionalRules);
 
   const turnEvents = session.events.filter((event) => event.turn === turn);
   const unitIds = Object.keys(session.currentState.units);
@@ -544,7 +561,27 @@ export function resolveHeatPhase(
     // so consumers (UI, replay, AI threat models) must distinguish it
     // from head-location hits.
     const lifeSupportHits = componentDamage?.lifeSupport ?? 0;
-    const pilotDamage = getPilotHeatDamage(finalHeat, lifeSupportHits);
+    const defaultPilotDamage = getPilotHeatDamage(finalHeat, lifeSupportHits);
+    let pilotDamage = defaultPilotDamage;
+    if (
+      pilotDamage <= 0 &&
+      maxTechHeatScale &&
+      !hasSPA(
+        currentSession.currentState.units[unitId].abilities ??
+          unit.abilities ??
+          [],
+        'artificial_pain_shunt',
+      )
+    ) {
+      const maxTechAvoidTN = getMaxTechPilotHeatDamageAvoidTN(
+        finalHeat,
+        hotDogTargetNumberModifier,
+      );
+      if (maxTechAvoidTN > 0) {
+        const maxTechRoll = diceRoller();
+        pilotDamage = maxTechRoll.total < maxTechAvoidTN ? 1 : 0;
+      }
+    }
     if (pilotDamage > 0) {
       const currentUnitState = currentSession.currentState.units[unitId];
       const totalWounds = currentUnitState.pilotWounds + pilotDamage;

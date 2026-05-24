@@ -639,7 +639,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       gap: expect.stringContaining('Optional MaxTech heat-scale'),
     });
     expect(SPA_COMBAT_SUPPORT['hot-dog'].evidence).toContain(
-      'getMaxTechPilotHeatDamageAvoidTN',
+      'opt-in MaxTech pilot heat-damage',
     );
     expect(hotDogRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek HeatResolver sets PILOT_HOT_DOG to hotDogMod = 1 before resolving heat effects.',

@@ -55,7 +55,7 @@ export const RUNNER_INTERACTIVE_PARITY_SUPPORT = {
   ),
   'heat-pilot-damage': integrated(
     'heat-pilot-damage',
-    'quick-sim runHeatPhase and session resolveHeatPhase both emit heat-sourced PilotHit events and persist pilot wounds',
+    'quick-sim runHeatPhase and session resolveHeatPhase both emit heat-sourced PilotHit events and persist pilot wounds for default life-support heat damage plus opt-in MaxTech heat-scale pilot damage',
   ),
   'psr-resolution': integrated(
     'psr-resolution',

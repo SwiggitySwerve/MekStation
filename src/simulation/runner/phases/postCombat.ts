@@ -229,9 +229,11 @@ export function runHeatPhase(options: {
   weaponsByUnit?: ReadonlyMap<string, readonly IWeapon[]>;
   grid?: IHexGrid;
   environmentalConditions?: IEnvironmentalConditions;
+  maxTechHeatScale?: boolean;
 }): IGameState {
   const { state, events, gameId, random } = options;
-  const { weaponsByUnit, grid, environmentalConditions } = options;
+  const { weaponsByUnit, grid, environmentalConditions, maxTechHeatScale } =
+    options;
   let currentState = { ...state };
 
   const canEmit =
@@ -431,6 +433,8 @@ export function runHeatPhase(options: {
       events: canEmit ? events : undefined,
       gameId: canEmit ? gameId : undefined,
       d6Roller: canEmit ? d6Roller : undefined,
+      hotDogTargetNumberModifier,
+      maxTechHeatScale,
     });
 
     currentState = {

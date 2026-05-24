@@ -292,6 +292,7 @@ const HEAT_LIFECYCLE_SUPPORT_REFS = [
   'ammo-explosion-risk',
   'heat-induced-ammo-explosion',
   'pilot-heat-damage',
+  'maxtech-pilot-heat-damage',
 ].map((id) => `ruleSupport.heatRules.${id}`);
 
 const RANGE_BRACKET_SUPPORT_REFS = supportRefs(

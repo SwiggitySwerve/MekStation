@@ -1570,6 +1570,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       'heat-induced-ammo-explosion',
       'heat-sink-damage',
       'jump-distance-heat',
+      'maxtech-pilot-heat-damage',
       'movement-heat',
       'pilot-heat-damage',
       'shutdown-check',
@@ -1593,6 +1594,8 @@ describe('BattleMech combat feature-gap tracking', () => {
       HEAT_RULE_COMBAT_SUPPORT['ammo-explosion-risk'].sourceRefs ?? [];
     const pilotHeatRefs =
       HEAT_RULE_COMBAT_SUPPORT['pilot-heat-damage'].sourceRefs ?? [];
+    const maxTechPilotHeatRefs =
+      HEAT_RULE_COMBAT_SUPPORT['maxtech-pilot-heat-damage'].sourceRefs ?? [];
 
     expect(
       heatAmmoExplosionRefs.map((sourceRef) => sourceRef.citation),
@@ -1615,6 +1618,9 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(pilotHeatRefs.map((sourceRef) => sourceRef.citation)).toEqual([
       expect.stringContaining('pilot damage at heat 15/25+'),
     ]);
+    expect(maxTechPilotHeatRefs.map((sourceRef) => sourceRef.citation)).toEqual(
+      [expect.stringContaining('optional MaxTech heat-scale')],
+    );
     expect(
       [
         ...heatAmmoExplosionRefs,
@@ -1623,6 +1629,7 @@ describe('BattleMech combat feature-gap tracking', () => {
         ...autoShutdownRefs,
         ...heatRiskRefs,
         ...pilotHeatRefs,
+        ...maxTechPilotHeatRefs,
       ].every(
         (sourceRef) =>
           sourceRef.kind === 'megamek-source' &&
@@ -1666,6 +1673,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       'head-hit-pilot-event',
       'head-hit-wound',
       'heat-pilot-damage',
+      'maxtech-heat-pilot-damage',
       'pilot-death',
       'unconsciousness',
     ]);

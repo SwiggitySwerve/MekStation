@@ -82,6 +82,12 @@ const MEGAMEK_HEAT_PILOT_DAMAGE_SOURCE_REF = megamekHeatSourceRef(
   'L734-L829',
 );
 
+const MEGAMEK_HEAT_MAXTECH_PILOT_DAMAGE_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek HeatResolver applies optional MaxTech heat-scale pilot damage avoid rolls at heat 32/39/47+ and subtracts hotDogMod from the avoid number',
+  'server/totalWarfare/HeatResolver.java',
+  'L795-L817',
+);
+
 const MEGAMEK_SECONDARY_TARGET_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -663,6 +669,11 @@ export const HEAT_RULE_COMBAT_SUPPORT = {
     'pilot-heat-damage',
     'runHeatPhase and resolveHeatPhase emit PilotHit source heat from getPilotHeatDamage and persist wound totals',
     [MEGAMEK_HEAT_PILOT_DAMAGE_SOURCE_REF],
+  ),
+  'maxtech-pilot-heat-damage': integrated(
+    'maxtech-pilot-heat-damage',
+    'runHeatPhase and resolveHeatPhase consume opt-in MaxTech heat-scale pilot damage checks at heat 32+ and apply Hot Dog avoid-number relief',
+    [MEGAMEK_HEAT_MAXTECH_PILOT_DAMAGE_SOURCE_REF],
   ),
   'water-cooling': integrated(
     'water-cooling',

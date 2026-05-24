@@ -70,6 +70,12 @@ const fixedRoller: DiceRoller = () => ({
   isSnakeEyes: false,
   isBoxcars: true,
 });
+const rollSeven: DiceRoller = () => ({
+  dice: [3, 4],
+  total: 7,
+  isSnakeEyes: false,
+  isBoxcars: false,
+});
 
 function createConfig(): IGameConfig {
   return {
@@ -651,5 +657,101 @@ describe('heat environment runner/interactive parity boundaries', () => {
     expect(PILOT_DAMAGE_COMBAT_SUPPORT['heat-pilot-damage']).toMatchObject({
       level: 'integrated',
     });
+  });
+
+  it('applies optional MaxTech heat pilot wounds and Hot Dog relief in both heat resolvers', () => {
+    const interactiveBase = resolveHeatPhase(
+      withInteractiveUnit(createInteractiveHeatSession(), 'player-1', {
+        heat: 42,
+      }),
+      rollSeven,
+      { maxTechHeatScale: true },
+    );
+    const interactiveHotDog = resolveHeatPhase(
+      withInteractiveUnit(createInteractiveHeatSession(), 'player-1', {
+        heat: 42,
+        abilities: ['hot_dog'],
+      }),
+      rollSeven,
+      { maxTechHeatScale: true },
+    );
+    const interactiveBasePilotHits = interactiveBase.events.filter(
+      (event) =>
+        event.type === GameEventType.PilotHit &&
+        event.actorId === 'player-1' &&
+        event.phase === GamePhase.Heat,
+    );
+    const interactiveHotDogPilotHits = interactiveHotDog.events.filter(
+      (event) =>
+        event.type === GameEventType.PilotHit &&
+        event.actorId === 'player-1' &&
+        event.phase === GamePhase.Heat,
+    );
+
+    const runnerBaseEvents: IGameEvent[] = [];
+    const runnerHotDogEvents: IGameEvent[] = [];
+    const runnerBase = runHeatPhase({
+      state: createRunnerHeatState(
+        createRunnerUnit({
+          heat: 32,
+          heatSinks: 0,
+        }),
+      ),
+      events: runnerBaseEvents,
+      gameId: 'heat-environment-parity-test',
+      random: new SeededRandom(2),
+      maxTechHeatScale: true,
+    });
+    const runnerHotDog = runHeatPhase({
+      state: createRunnerHeatState(
+        createRunnerUnit({
+          heat: 32,
+          heatSinks: 0,
+          abilities: ['hot_dog'],
+        }),
+      ),
+      events: runnerHotDogEvents,
+      gameId: 'heat-environment-parity-test',
+      random: new SeededRandom(2),
+      maxTechHeatScale: true,
+    });
+    const runnerBasePilotHits = runnerBaseEvents.filter(
+      (event) =>
+        event.type === GameEventType.PilotHit &&
+        event.actorId === 'player-1' &&
+        event.phase === GamePhase.Heat,
+    );
+    const runnerHotDogPilotHits = runnerHotDogEvents.filter(
+      (event) =>
+        event.type === GameEventType.PilotHit &&
+        event.actorId === 'player-1' &&
+        event.phase === GamePhase.Heat,
+    );
+
+    expect(interactiveBasePilotHits).toHaveLength(1);
+    expect(
+      interactiveBasePilotHits[0].payload as IPilotHitPayload,
+    ).toMatchObject({
+      unitId: 'player-1',
+      wounds: 1,
+      totalWounds: 1,
+      source: 'heat',
+    });
+    expect(interactiveBase.currentState.units['player-1'].pilotWounds).toBe(1);
+    expect(interactiveHotDogPilotHits).toHaveLength(0);
+    expect(interactiveHotDog.currentState.units['player-1'].pilotWounds).toBe(
+      0,
+    );
+
+    expect(runnerBasePilotHits).toHaveLength(1);
+    expect(runnerBasePilotHits[0].payload as IPilotHitPayload).toMatchObject({
+      unitId: 'player-1',
+      wounds: 1,
+      totalWounds: 1,
+      source: 'heat',
+    });
+    expect(runnerBase.units['player-1'].pilotWounds).toBe(1);
+    expect(runnerHotDogPilotHits).toHaveLength(0);
+    expect(runnerHotDog.units['player-1'].pilotWounds).toBe(0);
   });
 });

@@ -138,8 +138,8 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'heat-application': helperOnly(
     'heat-application',
-    'runHeatPhase and resolveHeatPhase consume source-backed Hot Dog startup/shutdown plus heat-induced ammo-explosion target-number relief, getMaxTechPilotHeatDamageAvoidTN captures optional MaxTech pilot heat-damage avoid-number relief, local Cool Under Fire generated-heat relief, and weapon cooling quirks; calculateToHit consumes source-backed Some Like It Hot heat to-hit relief',
-    'Optional MaxTech heat-scale pilot damage and critical-damage rolls are not routed through runtime heat resolution, and Cool Under Fire source authority is unresolved',
+    'runHeatPhase and resolveHeatPhase consume source-backed Hot Dog startup/shutdown plus heat-induced ammo-explosion and opt-in MaxTech pilot heat-damage avoid-number relief, local Cool Under Fire generated-heat relief, and weapon cooling quirks; calculateToHit consumes source-backed Some Like It Hot heat to-hit relief',
+    'Optional MaxTech heat-scale critical-damage rolls are not routed through runtime heat resolution, and Cool Under Fire source authority is unresolved',
     [
       ...MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
       ...MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,

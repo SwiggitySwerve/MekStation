@@ -546,8 +546,8 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'hot-dog': helperOnly(
     'hot-dog',
-    'getHotDogHeatTargetNumberModifier plus runHeatPhase and resolveHeatPhase apply source-backed -1 startup/shutdown and heat-induced ammo-explosion target-number relief, and getMaxTechPilotHeatDamageAvoidTN captures optional MaxTech pilot heat-damage avoid-number relief while preserving default life-support heat damage thresholds',
-    'Optional MaxTech heat-scale pilot damage and critical-damage rolls are not routed through runtime heat resolution, and non-BattleMech/aero Hot Dog heat effects are outside the BattleMech matrix',
+    'getHotDogHeatTargetNumberModifier plus runHeatPhase and resolveHeatPhase apply source-backed -1 startup/shutdown, heat-induced ammo-explosion, and opt-in MaxTech pilot heat-damage avoid-number relief while preserving default life-support heat damage thresholds',
+    'Optional MaxTech heat-scale critical-damage rolls are not routed through runtime heat resolution, and non-BattleMech/aero Hot Dog heat effects are outside the BattleMech matrix',
     MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
   ),
   'cool-under-fire': helperOnly(

@@ -1,4 +1,7 @@
-import { getPilotHeatDamage } from '@/constants/heat';
+import {
+  getMaxTechPilotHeatDamageAvoidTN,
+  getPilotHeatDamage,
+} from '@/constants/heat';
 import {
   GameEventType,
   GamePhase,
@@ -7,6 +10,7 @@ import {
 } from '@/types/gameplay';
 import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
 import { D6Roller } from '@/utils/gameplay/hitLocation';
+import { hasSPA } from '@/utils/gameplay/spaModifiers/canonicalize';
 
 import { LETHAL_PILOT_WOUNDS } from '../SimulationRunnerConstants';
 import { createGameEvent } from './utils';
@@ -20,6 +24,8 @@ interface IApplyRunnerHeatPilotDamageOptions {
   readonly events?: IGameEvent[];
   readonly gameId?: string;
   readonly d6Roller?: D6Roller;
+  readonly hotDogTargetNumberModifier?: number;
+  readonly maxTechHeatScale?: boolean;
 }
 
 export function applyRunnerHeatPilotDamage(
@@ -30,12 +36,30 @@ export function applyRunnerHeatPilotDamage(
     events,
     gameId,
     heat,
+    hotDogTargetNumberModifier = 0,
     lifeSupportHits,
+    maxTechHeatScale = false,
     turn,
     unit,
     unitId,
   } = options;
-  const pilotHeatDamage = getPilotHeatDamage(heat, lifeSupportHits);
+  const defaultPilotHeatDamage = getPilotHeatDamage(heat, lifeSupportHits);
+  let pilotHeatDamage = defaultPilotHeatDamage;
+  if (
+    pilotHeatDamage <= 0 &&
+    maxTechHeatScale &&
+    d6Roller !== undefined &&
+    !hasSPA(unit.abilities ?? [], 'artificial_pain_shunt')
+  ) {
+    const avoidTN = getMaxTechPilotHeatDamageAvoidTN(
+      heat,
+      hotDogTargetNumberModifier,
+    );
+    if (avoidTN > 0) {
+      const roll = d6Roller() + d6Roller();
+      pilotHeatDamage = roll < avoidTN ? 1 : 0;
+    }
+  }
   if (pilotHeatDamage <= 0) {
     return unit;
   }
