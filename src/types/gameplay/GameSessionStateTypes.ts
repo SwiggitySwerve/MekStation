@@ -109,6 +109,8 @@ export interface IPendingPSR {
   readonly fixedTargetNumber?: number;
   /** Additional modifier to the piloting skill roll */
   readonly additionalModifier: number;
+  /** Optional terrain level/depth associated with terrain-triggered PSRs */
+  readonly terrainLevel?: number;
   /** What triggered this PSR */
   readonly triggerSource: string;
   /**

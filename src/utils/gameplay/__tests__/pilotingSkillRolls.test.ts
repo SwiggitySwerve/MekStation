@@ -509,6 +509,53 @@ describe('Piloting Skill Rolls', () => {
       ]);
       expect(bipedMods).toHaveLength(0);
     });
+
+    it('should apply Frogman only to depth-2+ entering-water PSRs for Meks', () => {
+      const depthTwoMods = calculatePSRModifiers(
+        createEnteringWaterPSR('unit-1', undefined, { waterDepth: 2 }),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['terrain-master-frogman'],
+        false,
+        'BattleMech',
+      );
+      const shallowWaterMods = calculatePSRModifiers(
+        createEnteringWaterPSR('unit-1', undefined, { waterDepth: 1 }),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['tm_frogman'],
+        false,
+        'BattleMech',
+      );
+      const vehicleMods = calculatePSRModifiers(
+        createEnteringWaterPSR('unit-1', undefined, { waterDepth: 2 }),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['tm_frogman'],
+        false,
+        'Vehicle',
+      );
+
+      expect(depthTwoMods).toEqual([
+        {
+          name: 'Frogman',
+          source: 'spa',
+          value: -1,
+        },
+      ]);
+      expect(shallowWaterMods).toContainEqual({
+        name: 'Entering water modifier',
+        source: PSRTrigger.EnteringWater,
+        value: -1,
+      });
+      expect(shallowWaterMods).not.toContainEqual(
+        expect.objectContaining({ name: 'Frogman' }),
+      );
+      expect(vehicleMods).toHaveLength(0);
+    });
   });
 
   describe('PSR Trigger Generators — all 27 triggers', () => {
@@ -669,6 +716,22 @@ describe('Piloting Skill Rolls', () => {
     it('should have exactly 28 trigger types (27 catalog entries + standing up)', () => {
       expect(triggerTests).toHaveLength(28);
     });
+
+    it.each([
+      [1, -1],
+      [2, 0],
+      [3, 1],
+    ])(
+      'stamps source-backed Depth %s water-entry modifier',
+      (waterDepth, mod) => {
+        const psr = createEnteringWaterPSR('test-unit', undefined, {
+          waterDepth,
+        });
+
+        expect(psr.additionalModifier).toBe(mod);
+        expect(psr.terrainLevel).toBe(waterDepth);
+      },
+    );
   });
 
   describe('checkPhaseDamagePSR', () => {

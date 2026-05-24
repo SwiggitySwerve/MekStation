@@ -301,11 +301,36 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(SPA_COMBAT_SUPPORT['terrain-master'].gap).toContain('tm_frogman');
     expect(frogmanRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek Compute.modifyPhysicalBTHForAdvantages applies -1 Frogman for Mek or ProtoMek attackers in water deeper than level 1',
+      'MegaMek Entity.checkWaterMove applies water-depth PSR modifiers and -1 Frogman for Mek or ProtoMek units entering depth-2+ water',
       'MegaMek OptionsConstants defines the source-backed Terrain Master: Frogman SPA id as tm_frogman',
     ]);
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['physical-to-hit-application'].spaIds,
     ).toEqual(expect.arrayContaining(['melee-specialist', 'tm_frogman']));
+  });
+
+  it('pins PSR SPA application to MegaMek skidding, quad, and Frogman water-entry semantics', () => {
+    const psrSpaRefs =
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application']
+        .sourceRefs ?? [];
+
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application'],
+    ).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('Frogman water-entry relief'),
+    });
+    expect(psrSpaRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek Entity.getMovementBeforeSkidPSRModifier reduces the skidding PSR movement-distance modifier by 1 for PILOT_MANEUVERING_ACE.',
+      'MegaMek OptionsConstants defines PILOT_MANEUVERING_ACE as maneuvering_ace.',
+      'MegaMek QuadMek.addEntityBonuses applies -1 Animal Mimicry to quad Mek piloting rolls.',
+      'MegaMek OptionsConstants defines PILOT_ANIMAL_MIMIC as animal_mimic.',
+      'MegaMek Entity.checkWaterMove applies water-depth PSR modifiers and -1 Frogman for Mek or ProtoMek units entering depth-2+ water.',
+      'MegaMek OptionsConstants defines PILOT_TM_FROGMAN as tm_frogman.',
+    ]);
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['psr-spa-application'].spaIds,
+    ).toEqual(expect.arrayContaining(['tm_frogman']));
   });
 
   it('pins Terrain Master defender to-hit variants to MegaMek terrain and movement semantics', () => {
@@ -383,6 +408,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'ranged-to-hit-state-hydration'
       ].sourceRefs ?? []),
+      ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application']
+        .sourceRefs ?? []),
     ];
 
     expect(refs.length).toBeGreaterThan(0);

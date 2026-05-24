@@ -187,6 +187,7 @@ export function resolvePendingPSRs(
       unitState.unitQuirks ?? unit.unitQuirks ?? [],
       unitState.abilities ?? unit.abilities ?? [],
       unitState.isQuad ?? unit.isQuad ?? false,
+      unitState.unitType ?? unit.unitType,
     );
 
     for (const result of batchResult.results) {

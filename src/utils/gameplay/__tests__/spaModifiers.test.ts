@@ -15,6 +15,7 @@ import {
   calculateMeleeSpecialistModifier,
   calculateFrogmanPhysicalToHitModifier,
   calculateTerrainMasterDefensiveToHitModifier,
+  getFrogmanWaterPSRModifier,
   getMeleeMasterDamageBonus,
   getTacticalGeniusBonus,
   getEffectiveWounds,
@@ -367,6 +368,17 @@ describe('spaModifiers', () => {
       expect(
         calculateFrogmanPhysicalToHitModifier([], 2, 'BattleMech'),
       ).toBeNull();
+    });
+
+    it('returns -1 water-entry PSR relief only in depth-2+ water for Mek attackers', () => {
+      expect(
+        getFrogmanWaterPSRModifier(['terrain-master-frogman'], 2, 'BattleMech'),
+      ).toBe(-1);
+      expect(getFrogmanWaterPSRModifier(['tm_frogman'], 1, 'BattleMech')).toBe(
+        0,
+      );
+      expect(getFrogmanWaterPSRModifier(['tm_frogman'], 2, 'Vehicle')).toBe(0);
+      expect(getFrogmanWaterPSRModifier([], 2, 'BattleMech')).toBe(0);
     });
   });
 

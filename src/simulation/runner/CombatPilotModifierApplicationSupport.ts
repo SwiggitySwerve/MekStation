@@ -120,9 +120,27 @@ const MEGAMEK_ANIMAL_MIMICRY_QUAD_PSR_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_FROGMAN_WATER_PSR_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Entity.checkWaterMove applies water-depth PSR modifiers and -1 Frogman for Mek or ProtoMek units entering depth-2+ water.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L8324-L8352`,
+    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek OptionsConstants defines PILOT_TM_FROGMAN as tm_frogman.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/options/OptionsConstants.java#L183-L187`,
+    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_PSR_SPA_SOURCE_REFS = [
   ...MEGAMEK_MANEUVERING_ACE_SKID_SOURCE_REFS,
   ...MEGAMEK_ANIMAL_MIMICRY_QUAD_PSR_SOURCE_REFS,
+  ...MEGAMEK_FROGMAN_WATER_PSR_SOURCE_REFS,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 export interface IPilotModifierResolverAssignment {
@@ -181,8 +199,8 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'psr-spa-application': helperOnly(
     'psr-spa-application',
-    'calculatePSRModifiers, runPSRPhase, resolvePendingPSRs, and stand-up PSR paths apply source-backed Maneuvering Ace skidding relief and Animal Mimicry quad-Mek relief to PSR target numbers',
-    'Maneuvering Ace terrain PSRs beyond skidding, Animal Mimicry terrain-designation movement effects, Terrain Master, Acrobat, Cross-Country, and Natural Grace PSR modifiers are not wired',
+    'calculatePSRModifiers, runPSRPhase, resolvePendingPSRs, and stand-up PSR paths apply source-backed Maneuvering Ace skidding relief, Animal Mimicry quad-Mek relief, and Terrain Master: Frogman water-entry relief to PSR target numbers',
+    'Maneuvering Ace terrain PSRs beyond skidding, Animal Mimicry terrain-designation movement effects, Terrain Master variants beyond Frogman water-entry, Acrobat, Cross-Country, and Natural Grace PSR modifiers are not wired',
     MEGAMEK_PSR_SPA_SOURCE_REFS,
   ),
   'initiative-application': helperOnly(
@@ -340,6 +358,7 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
     spaIds: [
       'maneuvering-ace',
       'terrain-master',
+      'tm_frogman',
       'acrobat',
       'cross-country',
       'natural-grace',

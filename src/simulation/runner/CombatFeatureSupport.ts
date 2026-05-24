@@ -247,6 +247,14 @@ const MEGAMEK_325B_FROGMAN_PHYSICAL_TO_HIT = {
   sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
 
+const MEGAMEK_325B_FROGMAN_WATER_PSR = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Entity.checkWaterMove applies water-depth PSR modifiers and -1 Frogman for Mek or ProtoMek units entering depth-2+ water',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L8324-L8352',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
 const MEGAMEK_325B_FROGMAN_OPTION = {
   kind: 'megamek-source',
   citation:
@@ -257,6 +265,7 @@ const MEGAMEK_325B_FROGMAN_OPTION = {
 
 const MEGAMEK_325B_FROGMAN_SOURCE_REFS = [
   MEGAMEK_325B_FROGMAN_PHYSICAL_TO_HIT,
+  MEGAMEK_325B_FROGMAN_WATER_PSR,
   MEGAMEK_325B_FROGMAN_OPTION,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -419,11 +428,11 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'terrain-master': unsupported(
     'terrain-master',
-    'Generic Terrain Master PSR/movement behavior is not wired; source-backed Frogman physical to-hit relief and Forest Ranger/Swamp Beast defensive to-hit variants are tracked separately as tm_frogman, tm_forest_ranger, and tm_swamp_beast',
+    'Generic Terrain Master movement behavior and variants beyond Frogman/Forest Ranger/Swamp Beast are not wired; source-backed Frogman physical to-hit relief, Frogman water-entry PSR relief, and Forest Ranger/Swamp Beast defensive to-hit variants are tracked separately as tm_frogman, tm_forest_ranger, and tm_swamp_beast',
   ),
   tm_frogman: integrated(
     'tm_frogman',
-    'Source-backed calculateFrogmanPhysicalToHitModifier plus physical to-hit helper, runner, and interactive physical resolution apply -1 in depth-2+ attacker water',
+    'Source-backed calculateFrogmanPhysicalToHitModifier plus physical to-hit helper, runner, and interactive physical resolution apply -1 in depth-2+ attacker water; calculatePSRModifiers applies water-entry PSR relief for depth-2+ Mek/ProtoMek movement PSRs',
     MEGAMEK_325B_FROGMAN_SOURCE_REFS,
   ),
   tm_forest_ranger: integrated(

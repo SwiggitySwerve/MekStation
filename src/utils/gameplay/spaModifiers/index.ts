@@ -16,6 +16,7 @@ export {
   getClusterHitterBonus,
   getCoolUnderFireHeatReduction,
   getEffectiveWounds,
+  getFrogmanWaterPSRModifier,
   getHotDogShutdownThresholdBonus,
   getIronManModifier,
   getManeuveringAceSkidModifier,

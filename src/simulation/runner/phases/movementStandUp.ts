@@ -53,6 +53,7 @@ export function resolveRunnerStandUpAttempt(options: {
     unit.unitQuirks ?? [],
     unit.abilities ?? [],
     unit.isQuad ?? false,
+    unit.unitType,
   );
   const modifiers = result.modifiers.reduce(
     (total, modifier) => total + modifier.value,

@@ -11,6 +11,7 @@ import { D6Roller, roll2d6 } from '../hitLocation';
 import { calculatePilotingQuirkPSRModifier } from '../quirkModifiers';
 import {
   getAnimalMimicryPSRModifier,
+  getFrogmanWaterPSRModifier,
   getManeuveringAceSkidModifier,
 } from '../spaModifiers';
 import { IPSRResult, IPSRBatchResult, IPSRModifier, PSRTrigger } from './types';
@@ -50,6 +51,7 @@ export function resolvePSR(
   unitQuirks: readonly string[] = [],
   pilotAbilities: readonly string[] = [],
   isQuadMek = false,
+  unitType?: string,
 ): IPSRResult {
   const usesFixedTargetNumber = psr.fixedTargetNumber !== undefined;
   const modifiers = calculatePSRModifiers(
@@ -59,6 +61,7 @@ export function resolvePSR(
     unitQuirks,
     pilotAbilities,
     isQuadMek,
+    unitType,
   );
 
   const totalModifier = modifiers.reduce((sum, m) => sum + m.value, 0);
@@ -105,6 +108,7 @@ export function resolveAllPSRs(
   unitQuirks: readonly string[] = [],
   pilotAbilities: readonly string[] = [],
   isQuadMek = false,
+  unitType?: string,
 ): IPSRBatchResult {
   if (pendingPSRs.length === 0) {
     return {
@@ -128,6 +132,7 @@ export function resolveAllPSRs(
       unitQuirks,
       pilotAbilities,
       isQuadMek,
+      unitType,
     );
     results.push(result);
 
@@ -166,6 +171,7 @@ export function calculatePSRModifiers(
   unitQuirks: readonly string[] = [],
   pilotAbilities: readonly string[] = [],
   isQuadMek = false,
+  unitType?: string,
 ): readonly IPSRModifier[] {
   if (psr.fixedTargetNumber !== undefined) {
     return psr.additionalModifier !== 0
@@ -258,6 +264,21 @@ export function calculatePSRModifiers(
       modifiers.push({
         name: 'Maneuvering Ace',
         value: maneuveringAceModifier,
+        source: 'spa',
+      });
+    }
+  }
+
+  if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.EnteringWater) {
+    const frogmanModifier = getFrogmanWaterPSRModifier(
+      pilotAbilities,
+      psr.terrainLevel,
+      unitType,
+    );
+    if (frogmanModifier !== 0) {
+      modifiers.push({
+        name: 'Frogman',
+        value: frogmanModifier,
         source: 'spa',
       });
     }

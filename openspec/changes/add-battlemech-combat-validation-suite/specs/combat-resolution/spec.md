@@ -556,7 +556,7 @@ Ranged to-hit validation SHALL apply MegaMek's jump-attacker SPA relief: Jumping
 
 ### Requirement: Source-Backed Terrain Master Frogman Physical To-Hit
 
-Physical to-hit validation SHALL apply MegaMek's Terrain Master: Frogman relief as a `-1` to-hit modifier only when the attacker has canonical `tm_frogman` or legacy `terrain-master-frogman`, the attacker is a Mek or ProtoMek, and the attacker occupies water deeper than level 1. Runner and event-sourced physical resolution SHALL derive or accept attacker water depth without using target-only water. Generic Terrain Master movement and PSR behavior SHALL remain an explicit gap until separately source-backed.
+Physical to-hit validation SHALL apply MegaMek's Terrain Master: Frogman relief as a `-1` to-hit modifier only when the attacker has canonical `tm_frogman` or legacy `terrain-master-frogman`, the attacker is a Mek or ProtoMek, and the attacker occupies water deeper than level 1. Runner and event-sourced physical resolution SHALL derive or accept attacker water depth without using target-only water. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry relief SHALL remain an explicit gap until separately source-backed.
 
 #### Scenario: Frogman applies in depth-2 attacker water
 
@@ -575,9 +575,37 @@ Physical to-hit validation SHALL apply MegaMek's Terrain Master: Frogman relief 
 - **WHEN** the attacker unit type is explicit and is neither Mek nor ProtoMek
 - **THEN** no `Frogman` modifier SHALL apply
 
+### Requirement: Source-Backed Terrain Master Frogman Water-Entry PSR
+
+Movement PSR validation SHALL apply MegaMek's water-entry depth modifier when a runner movement step enters water with a known level: depth 1 SHALL apply `-1`, depth 2 SHALL apply `0`, and depth 3 or deeper SHALL apply `+1`. The PSR resolver SHALL also apply Terrain Master: Frogman as a named `-1` SPA modifier only when the pending PSR is an entering-water PSR, the water depth is greater than 1, the acting unit has canonical `tm_frogman` or legacy `terrain-master-frogman`, and the acting unit is a Mek or ProtoMek. Frogman SHALL NOT apply to exiting-water PSRs, shallow water, non-water terrain PSRs, or explicit non-Mek/non-ProtoMek units.
+
+#### Scenario: Frogman applies to depth-2 water-entry PSR
+
+- **GIVEN** a BattleMech or ProtoMech with `tm_frogman`
+- **AND** a movement step enters depth-2 or deeper water
+- **WHEN** the pending entering-water PSR is resolved
+- **THEN** the PSR target number SHALL include a `Frogman` SPA modifier of `-1`
+
+#### Scenario: Water-depth modifier is queued from complex terrain
+
+- **GIVEN** a runner movement step enters a water terrain feature with a known level
+- **WHEN** the terrain movement PSR is queued
+- **THEN** the pending entering-water PSR SHALL retain the water depth
+- **AND** the PSR trigger modifier SHALL match MegaMek's depth 1 `-1`, depth 2 `0`, and depth 3+ `+1` table
+
+#### Scenario: Frogman water-entry boundaries
+
+- **GIVEN** a pending entering-water PSR for a unit with `tm_frogman`
+- **WHEN** the water depth is 1 or lower
+- **THEN** no `Frogman` PSR modifier SHALL apply
+- **WHEN** the unit type is explicit and is neither Mek nor ProtoMek
+- **THEN** no `Frogman` PSR modifier SHALL apply
+- **WHEN** the PSR reason is not entering water
+- **THEN** no `Frogman` PSR modifier SHALL apply
+
 ### Requirement: Source-Backed Terrain Master Defender To-Hit Variants
 
-Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit variants from target state and target terrain: Forest Ranger SHALL add a `+1` to-hit modifier only when the target has canonical `tm_forest_ranger` or legacy `terrain-master-forest-ranger`, the target moved by walking, and the target occupies wooded terrain; Swamp Beast SHALL add a `+1` to-hit modifier only when the target has canonical `tm_swamp_beast` or legacy `terrain-master-swamp-beast`, the target moved by running, and the target occupies mud or swamp. Runner ranged attacks SHALL hydrate target terrain features into to-hit state. Generic Terrain Master movement and PSR behavior SHALL remain an explicit gap until separately source-backed.
+Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit variants from target state and target terrain: Forest Ranger SHALL add a `+1` to-hit modifier only when the target has canonical `tm_forest_ranger` or legacy `terrain-master-forest-ranger`, the target moved by walking, and the target occupies wooded terrain; Swamp Beast SHALL add a `+1` to-hit modifier only when the target has canonical `tm_swamp_beast` or legacy `terrain-master-swamp-beast`, the target moved by running, and the target occupies mud or swamp. Runner ranged attacks SHALL hydrate target terrain features into to-hit state. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry relief SHALL remain an explicit gap until separately source-backed.
 
 #### Scenario: Forest Ranger applies to walking wooded targets
 

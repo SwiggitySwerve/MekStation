@@ -275,7 +275,7 @@ The Terrain Master SPA SHALL ignore +1 piloting modifier for difficult terrain.
 
 ### Requirement: Piloting SPA - Terrain Master: Frogman
 
-The Terrain Master: Frogman SPA SHALL grant -1 to physical attack to-hit numbers only when a Mek or ProtoMech attacker occupies depth-2 or deeper water.
+The Terrain Master: Frogman SPA SHALL grant -1 to physical attack to-hit numbers only when a Mek or ProtoMech attacker occupies depth-2 or deeper water. It SHALL also grant -1 to entering-water PSRs only when a Mek or ProtoMech unit enters depth-2 or deeper water.
 
 #### Scenario: Frogman physical attack bonus
 
@@ -288,6 +288,18 @@ The Terrain Master: Frogman SPA SHALL grant -1 to physical attack to-hit numbers
 - **THEN** no Frogman to-hit modifier SHALL apply
 - **WHEN** only the target occupies water
 - **THEN** no Frogman to-hit modifier SHALL apply
+
+#### Scenario: Frogman water-entry PSR bonus
+
+- **WHEN** a Mek or ProtoMech pilot with Terrain Master: Frogman enters depth-2 or deeper water
+- **THEN** the entering-water PSR SHALL receive a -1 Frogman modifier
+
+#### Scenario: Frogman water-entry PSR boundaries
+
+- **WHEN** a pilot with Terrain Master: Frogman enters depth-1 or shallower water
+- **THEN** no Frogman PSR modifier SHALL apply
+- **WHEN** an explicit non-Mek/non-ProtoMek unit with Terrain Master: Frogman enters depth-2 or deeper water
+- **THEN** no Frogman PSR modifier SHALL apply
 
 ### Requirement: Piloting SPA - Terrain Master: Forest Ranger
 

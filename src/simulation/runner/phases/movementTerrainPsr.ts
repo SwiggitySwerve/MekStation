@@ -7,9 +7,13 @@ import {
   type IPendingPSR,
   MovementType,
 } from '@/types/gameplay';
-import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import {
+  TerrainType,
+  type ITerrainFeature,
+} from '@/types/gameplay/TerrainTypes';
 import { createPSRTriggeredEvent } from '@/utils/gameplay/gameEvents/statusChecks';
 import { coordToKey } from '@/utils/gameplay/hexMath';
+import { parseTerrainFeatures } from '@/utils/gameplay/lineOfSight';
 import {
   createEnteringWaterPSR,
   createExitingWaterPSR,
@@ -89,45 +93,49 @@ function terrainPSRsForStep(options: {
   readonly unitId: string;
 }): readonly IPendingPSR[] {
   const { grid, movementType, step, steps, unitId } = options;
-  const enteredTerrain = terrainTypeFromTag(
+  const enteredFeatures = terrainFeaturesFromTag(
     step.terrainEntered ?? terrainAt(grid, step.to),
   );
-  const fromTerrain = terrainTypeFromTag(terrainAt(grid, step.from));
+  const fromFeatures = terrainFeaturesFromTag(terrainAt(grid, step.from));
   const psrs: IPendingPSR[] = [];
 
   if (
-    fromTerrain === TerrainType.Water &&
-    enteredTerrain !== TerrainType.Water
+    hasTerrainFeature(fromFeatures, TerrainType.Water) &&
+    !hasTerrainFeature(enteredFeatures, TerrainType.Water)
   ) {
     psrs.push(createExitingWaterPSR(unitId, step.index));
   }
 
   if (
-    enteredTerrain === TerrainType.Water &&
-    fromTerrain !== TerrainType.Water
+    hasTerrainFeature(enteredFeatures, TerrainType.Water) &&
+    !hasTerrainFeature(fromFeatures, TerrainType.Water)
   ) {
-    psrs.push(createEnteringWaterPSR(unitId, step.index));
+    psrs.push(
+      createEnteringWaterPSR(unitId, step.index, {
+        waterDepth: waterDepthFromFeatures(enteredFeatures),
+      }),
+    );
   }
 
-  if (enteredTerrain === TerrainType.Rubble) {
+  if (hasTerrainFeature(enteredFeatures, TerrainType.Rubble)) {
     psrs.push(createRubblePSR(unitId, step.index));
   }
 
   if (
-    enteredTerrain === TerrainType.Rough &&
+    hasTerrainFeature(enteredFeatures, TerrainType.Rough) &&
     movementType === MovementType.Run
   ) {
     psrs.push(createRunningRoughTerrainPSR(unitId, step.index));
   }
 
-  if (enteredTerrain === TerrainType.Ice) {
+  if (hasTerrainFeature(enteredFeatures, TerrainType.Ice)) {
     psrs.push(createIcePSR(unitId, step.index));
   }
 
   if (
     step.kind === 'turn' &&
     movementType === MovementType.Run &&
-    isSkidTerrain(terrainTypeFromTag(terrainAt(grid, step.at)))
+    isSkidTerrain(terrainFeaturesFromTag(terrainAt(grid, step.at)))
   ) {
     psrs.push(
       createSkiddingPSR(
@@ -184,13 +192,35 @@ function terrainAt(
   return grid.hexes.get(coordToKey(coord))?.terrain;
 }
 
-function terrainTypeFromTag(tag: string | undefined): TerrainType | null {
-  if (!tag) return null;
-  return Object.values(TerrainType).includes(tag as TerrainType)
-    ? (tag as TerrainType)
-    : null;
+function terrainFeaturesFromTag(
+  tag: string | undefined,
+): readonly ITerrainFeature[] {
+  if (!tag) return [];
+  return parseTerrainFeatures(tag);
 }
 
-function isSkidTerrain(terrain: TerrainType | null): boolean {
-  return terrain === TerrainType.Pavement || terrain === TerrainType.Ice;
+function hasTerrainFeature(
+  terrainFeatures: readonly ITerrainFeature[],
+  terrainType: TerrainType,
+): boolean {
+  return terrainFeatures.some(
+    (feature) => feature.type === terrainType && feature.level > 0,
+  );
+}
+
+function waterDepthFromFeatures(
+  terrainFeatures: readonly ITerrainFeature[],
+): number | undefined {
+  const water = terrainFeatures.find(
+    (feature) => feature.type === TerrainType.Water,
+  );
+  if (!water) return undefined;
+  return Math.max(1, water.level);
+}
+
+function isSkidTerrain(terrainFeatures: readonly ITerrainFeature[]): boolean {
+  return (
+    hasTerrainFeature(terrainFeatures, TerrainType.Pavement) ||
+    hasTerrainFeature(terrainFeatures, TerrainType.Ice)
+  );
 }

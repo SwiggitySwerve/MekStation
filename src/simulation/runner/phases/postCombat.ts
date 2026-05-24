@@ -72,6 +72,7 @@ export function runPSRPhase(options: {
       unit.unitQuirks ?? [],
       unit.abilities ?? [],
       unit.isQuad ?? false,
+      unit.unitType,
     );
 
     for (const psrResult of batchResult.results) {

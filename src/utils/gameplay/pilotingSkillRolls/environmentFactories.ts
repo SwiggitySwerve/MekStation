@@ -7,6 +7,10 @@ import type { IPendingPSR } from '@/types/gameplay';
 
 import { PSRTrigger } from './types';
 
+interface IEnteringWaterPSROptions {
+  readonly waterDepth?: number;
+}
+
 /**
  * Per `enrich-movement-declared-with-chain-and-displacement` (piloting-skill-rolls
  * delta — Movement-Step PSR Trigger-Source Stamping): when a PSR fires
@@ -22,6 +26,21 @@ function movementStepTriggerSource(
 ): string | null {
   if (stepIndex === undefined) return null;
   return `movement-step:${stepIndex}`;
+}
+
+function normalizeTerrainLevel(level: number | undefined): number | undefined {
+  if (level === undefined) return undefined;
+  if (!Number.isFinite(level)) return undefined;
+  return Math.max(0, Math.trunc(level));
+}
+
+function calculateEnteringWaterModifier(
+  waterDepth: number | undefined,
+): number {
+  if (waterDepth === undefined || waterDepth <= 0) return 0;
+  if (waterDepth === 1) return -1;
+  if (waterDepth === 2) return 0;
+  return 1;
 }
 
 /**
@@ -126,13 +145,16 @@ export function createIcePSR(
 export function createEnteringWaterPSR(
   entityId: string,
   stepIndex?: number,
+  options: IEnteringWaterPSROptions = {},
 ): IPendingPSR {
   const movementStepSource = movementStepTriggerSource(stepIndex);
+  const waterDepth = normalizeTerrainLevel(options.waterDepth);
   return {
     entityId,
     reason: 'Entering water',
     reasonCode: PSRTrigger.EnteringWater,
-    additionalModifier: 0,
+    additionalModifier: calculateEnteringWaterModifier(waterDepth),
+    ...(waterDepth !== undefined ? { terrainLevel: waterDepth } : {}),
     triggerSource: movementStepSource ?? PSRTrigger.EnteringWater,
   };
 }

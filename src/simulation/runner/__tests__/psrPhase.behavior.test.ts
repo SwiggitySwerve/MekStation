@@ -13,7 +13,9 @@ import {
   type IUnitGameState,
   PSRTrigger,
 } from '@/types/gameplay';
+import { UnitType } from '@/types/unit';
 import {
+  createEnteringWaterPSR,
   createDamagePSR,
   createRubblePSR,
   createSkiddingPSR,
@@ -256,6 +258,39 @@ describe('runPSRPhase behavior', () => {
     expect(SPA_COMBAT_SUPPORT['animal-mimicry']).toMatchObject({
       level: 'helper-only',
       evidence: expect.stringContaining('Animal Mimicry'),
+    });
+  });
+
+  it('applies Frogman to source-backed depth-2 entering-water PSRs', () => {
+    const unit = makeUnit({
+      abilities: ['tm_frogman'],
+      unitType: UnitType.BATTLEMECH,
+      pendingPSRs: [
+        createEnteringWaterPSR('player-1', undefined, { waterDepth: 2 }),
+      ],
+    });
+    const state = makeState(unit);
+    const events: IGameEvent[] = [];
+
+    runPSRPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: fixedRandom(0.5),
+    });
+
+    const resolved = events.find((e) => e.type === GameEventType.PSRResolved)
+      ?.payload as IPSRResolvedPayload | undefined;
+    expect(resolved).toMatchObject({
+      unitId: 'player-1',
+      targetNumber: 4,
+      modifiers: -1,
+      passed: true,
+      reasonCode: PSRTrigger.EnteringWater,
+    });
+    expect(SPA_COMBAT_SUPPORT.tm_frogman).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('water-entry PSR'),
     });
   });
 

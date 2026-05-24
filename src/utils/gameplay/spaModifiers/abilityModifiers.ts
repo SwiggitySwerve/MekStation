@@ -223,6 +223,21 @@ export function calculateFrogmanPhysicalToHitModifier(
 }
 
 /**
+ * Terrain Master: Frogman: -1 to entering depth-2+ water PSRs.
+ */
+export function getFrogmanWaterPSRModifier(
+  abilities: readonly string[],
+  waterDepth?: number,
+  unitType?: string,
+): number {
+  if (!hasSPA(abilities, 'tm_frogman')) return 0;
+  if (!isMekOrProtoMekUnitType(unitType)) return 0;
+  if ((waterDepth ?? 0) <= 1) return 0;
+
+  return -1;
+}
+
+/**
  * Melee Master: +1 physical attack damage bonus.
  * Not a to-hit modifier — returns a damage bonus.
  */

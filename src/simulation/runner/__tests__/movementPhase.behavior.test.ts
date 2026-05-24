@@ -27,7 +27,11 @@ import {
   type IPSRTriggeredPayload,
   type IUnitStoodPayload,
 } from '@/types/gameplay';
-import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import {
+  TerrainType,
+  type ITerrainFeature,
+} from '@/types/gameplay/TerrainTypes';
+import { UnitType } from '@/types/unit';
 import { createEnvironmentalConditions } from '@/utils/gameplay/environmentalModifiers';
 
 import { SeededRandom } from '../../core/SeededRandom';
@@ -101,6 +105,20 @@ function setTerrain(
 
   const hexes = new Map(grid.hexes);
   hexes.set(key, { ...existing, terrain });
+  return { ...grid, hexes };
+}
+
+function setTerrainFeatures(
+  grid: IHexGrid,
+  coord: IHexCoordinate,
+  terrainFeatures: readonly ITerrainFeature[],
+): IHexGrid {
+  const key = `${coord.q},${coord.r}`;
+  const existing = grid.hexes.get(key);
+  if (!existing) throw new Error(`Missing hex ${key}`);
+
+  const hexes = new Map(grid.hexes);
+  hexes.set(key, { ...existing, terrain: JSON.stringify(terrainFeatures) });
   return { ...grid, hexes };
 }
 
@@ -658,6 +676,45 @@ describe('runMovementPhase movement validation parity', () => {
     });
     expect(TERRAIN_TYPE_PSR_COMBAT_SUPPORT[scenario.terrain]).toMatchObject({
       level: 'integrated',
+    });
+  });
+
+  it('queues depth-aware entering-water PSRs from complex terrain features', () => {
+    const target = { q: 1, r: 0 };
+    const grid = setTerrainFeatures(createMinimalGrid(3), target, [
+      { type: TerrainType.Water, level: 2 },
+    ]);
+
+    const { next, events } = runScriptedMove(
+      grid,
+      target,
+      {
+        abilities: ['tm_frogman'],
+        unitType: UnitType.BATTLEMECH,
+      },
+      { movementType: MovementType.Walk },
+    );
+    const payloads = psrPayloads(events);
+
+    expect(next.units['player-1'].position).toEqual(target);
+    expect(next.units['player-1'].pendingPSRs).toContainEqual(
+      expect.objectContaining({
+        reasonCode: PSRTrigger.EnteringWater,
+        terrainLevel: 2,
+        additionalModifier: 0,
+      }),
+    );
+    expect(payloads).toContainEqual(
+      expect.objectContaining({
+        unitId: 'player-1',
+        reasonCode: PSRTrigger.EnteringWater,
+        additionalModifier: 0,
+        triggerSource: expect.stringMatching(/^movement-step:/),
+      }),
+    );
+    expect(SPA_COMBAT_SUPPORT.tm_frogman).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('water-entry PSR'),
     });
   });
 
