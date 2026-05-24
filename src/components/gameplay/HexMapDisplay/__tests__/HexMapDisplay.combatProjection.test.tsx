@@ -1287,7 +1287,9 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-to-hit-modifiers',
       expect.stringContaining('Partial Cover:1'),
     );
-    expect(screen.getByTestId('hex-cover-badge-2-0')).toHaveTextContent('C+1');
+    const coverBadge = screen.getByTestId('hex-cover-badge-2-0');
+    expect(coverBadge).toHaveTextContent('P+1');
+    expect(coverBadge).toHaveAttribute('data-combat-cover-badge-label', 'P+1');
 
     fireEvent.mouseEnter(targetHex);
     expect(screen.getByTestId('hex-combat-tooltip-cover')).toHaveTextContent(

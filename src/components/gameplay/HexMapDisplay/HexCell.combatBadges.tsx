@@ -3,7 +3,7 @@ import React from 'react';
 import type { ICombatRangeHex, IHexCoordinate } from '@/types/gameplay';
 import type { ITacticalMapCombatLosBlockerReference } from '@/utils/gameplay/tacticalMapProjection';
 
-import { RangeBracket, TerrainType } from '@/types/gameplay';
+import { CoverLevel, RangeBracket, TerrainType } from '@/types/gameplay';
 
 import {
   combatWeaponOptionArcStatesAttribute,
@@ -75,6 +75,21 @@ function formatCombatVisibilityBadgeLabel(
     case 'none':
       return null;
   }
+}
+
+function formatCombatCoverBadgeLevelLabel(level: CoverLevel): string {
+  switch (level) {
+    case CoverLevel.Partial:
+      return 'P';
+    case CoverLevel.Full:
+      return 'F';
+    case CoverLevel.None:
+      return 'C';
+  }
+}
+
+function formatCombatCoverBadgeLabel(combatInfo: ICombatRangeHex): string {
+  return `${formatCombatCoverBadgeLevelLabel(combatInfo.targetCoverLevel)}+${combatInfo.targetCoverModifier}`;
 }
 
 function formatRangeBracketName(bracket: RangeBracket): string {
@@ -401,6 +416,7 @@ export function CombatRangeBadge({
   const coverTitle =
     combatInfo.targetCoverReason ??
     `Cover modifier +${combatInfo.targetCoverModifier}`;
+  const coverLabel = formatCombatCoverBadgeLabel(combatInfo);
   const minimumRangeTitle =
     combatInfo.minimumRangeReason ??
     `Minimum range penalty +${combatInfo.minimumRangePenalty ?? 0}`;
@@ -538,6 +554,7 @@ export function CombatRangeBadge({
           data-testid={`hex-cover-badge-${hex.q}-${hex.r}`}
           aria-label={coverTitle}
           data-combat-cover-badge-level={combatInfo.targetCoverLevel}
+          data-combat-cover-badge-label={coverLabel}
           data-combat-cover-badge-modifier={combatInfo.targetCoverModifier}
           data-combat-cover-badge-reason={coverTitle}
         >
@@ -559,7 +576,7 @@ export function CombatRangeBadge({
             fontWeight="bold"
             fill="#fffbeb"
           >
-            C+{combatInfo.targetCoverModifier}
+            {coverLabel}
           </text>
         </g>
       )}
