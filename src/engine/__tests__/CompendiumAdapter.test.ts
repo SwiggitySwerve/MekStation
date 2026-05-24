@@ -437,6 +437,109 @@ describe('CompendiumAdapter', () => {
       });
     });
 
+    it('should derive represented super-heavy VTOL entity height', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'VEHICLE',
+        motionType: 'VTOL',
+        tonnage: 35,
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(1);
+      expect(toMovementCapability(result)).toMatchObject({
+        movementMode: 'vtol',
+        unitHeight: 1,
+      });
+    });
+
+    it('should derive represented non-super-heavy VTOL entity height', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'VTOL',
+        motionType: 'VTOL',
+        tonnage: 25,
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(0);
+      expect(toMovementCapability(result)).toMatchObject({
+        movementMode: 'vtol',
+        unitHeight: 0,
+      });
+    });
+
+    it('should derive represented support VTOL entity height from unit identity', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'SupportVTOL',
+        tonnage: 31,
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(1);
+      expect(toMovementCapability(result).unitHeight).toBe(1);
+    });
+
+    it.each([
+      ['SuperHeavyTank', 1],
+      ['LargeSupportTank', 1],
+    ] as const)(
+      'should derive represented %s entity height',
+      (unitType, height) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          unitType,
+          motionType: 'Tracked',
+        } as unknown as IFullUnit);
+
+        expect(result.unitHeight).toBe(height);
+        expect(toMovementCapability(result).unitHeight).toBe(height);
+      },
+    );
+
+    it('should derive represented super-heavy vehicle entity height', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'VEHICLE',
+        motionType: 'Tracked',
+        isSuperheavy: true,
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(1);
+      expect(toMovementCapability(result).unitHeight).toBe(1);
+    });
+
+    it.each([
+      ['Small Craft', undefined, 1],
+      ['SmallCraft', { altitude: 2 }, 0],
+      ['DropShip', { motionType: 'Spheroid' }, 9],
+      ['DropShip', { motionType: 'Aerodyne' }, 4],
+      ['DropShip', { configuration: 'Spheroid', motionType: 'Tracked' }, 9],
+      ['DropShip', { motionType: 'Spheroid', altitude: 1 }, 0],
+    ] as const)(
+      'should derive represented %s aerospace entity height',
+      (unitType, overrides, height) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          unitType,
+          motionType: 'Tracked',
+          ...(overrides ?? {}),
+        } as unknown as IFullUnit);
+
+        expect(result.unitHeight).toBe(height);
+        expect(toMovementCapability(result).unitHeight).toBe(height);
+      },
+    );
+
+    it('should leave state-dependent infantry mount height to explicit source data', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'INFANTRY',
+        motionType: 'Foot',
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBeUndefined();
+      expect(toMovementCapability(result).unitHeight).toBeUndefined();
+    });
+
     it('should map vehicle motion type into movement pathing mode', () => {
       const result = adaptUnitFromData({
         ...createAtlasData(),

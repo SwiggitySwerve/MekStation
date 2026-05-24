@@ -314,6 +314,15 @@ const UNIT_HEIGHT_FIELDS = [
   'heightAboveElevation',
 ] as const;
 
+const UNIT_TYPE_IDENTITY_FIELDS = [
+  'unitType',
+  'blkUnitType',
+  'rawUnitType',
+  'sourceUnitType',
+  'megamekUnitType',
+  'entityType',
+] as const;
+
 function unitHeightFromUnitData(
   unitData: Record<string, unknown>,
 ): number | undefined {
@@ -325,9 +334,14 @@ function unitHeightFromUnitData(
     return normalizedUnitHeight(explicitHeight);
   }
 
-  const unitType = normalizedKey(unitData.unitType);
-  if (isMekUnitType(unitType)) {
+  const unitTypeKeys = normalizedUnitTypeKeys(unitData);
+  if (unitTypeKeys.some(isMekUnitType)) {
     return isSuperHeavyRepresentedUnit(unitData) ? 2 : 1;
+  }
+
+  const nonMekHeight = nonMekUnitHeightFromUnitData(unitData, unitTypeKeys);
+  if (nonMekHeight !== undefined) {
+    return nonMekHeight;
   }
 
   return undefined;
@@ -335,6 +349,32 @@ function unitHeightFromUnitData(
 
 function normalizedUnitHeight(height: number): number {
   return Math.max(0, Math.floor(height));
+}
+
+function normalizedUnitTypeKeys(
+  unitData: Record<string, unknown>,
+): readonly string[] {
+  const movement = recordField(unitData.movement);
+  return Array.from(
+    new Set([
+      ...normalizedStringFields(unitData, ...UNIT_TYPE_IDENTITY_FIELDS),
+      ...normalizedStringFields(movement, ...UNIT_TYPE_IDENTITY_FIELDS),
+    ]),
+  );
+}
+
+function normalizedStringFields(
+  source: Record<string, unknown> | undefined,
+  ...fieldNames: readonly string[]
+): readonly string[] {
+  const values: string[] = [];
+  for (const fieldName of fieldNames) {
+    const normalized = normalizedKey(source?.[fieldName]);
+    if (normalized && !values.includes(normalized)) {
+      values.push(normalized);
+    }
+  }
+  return values;
 }
 
 function isMekUnitType(unitType: string): boolean {
@@ -353,6 +393,79 @@ function isMekUnitType(unitType: string): boolean {
   }
 }
 
+function nonMekUnitHeightFromUnitData(
+  unitData: Record<string, unknown>,
+  unitTypeKeys: readonly string[],
+): number | undefined {
+  const movementMode = movementModeFromUnitData(unitData);
+  if (movementMode === 'vtol' || unitTypeKeys.some(isVtolUnitType)) {
+    return isSuperHeavyVtolRepresentedUnit(unitData) ? 1 : 0;
+  }
+
+  if (isSuperHeavyTankUnit(unitData, unitTypeKeys)) {
+    return 1;
+  }
+
+  if (unitTypeKeys.some(isSmallCraftUnitType)) {
+    return isAirborneRepresentedUnit(unitData) ? 0 : 1;
+  }
+
+  if (unitTypeKeys.some(isDropshipUnitType)) {
+    if (isAirborneRepresentedUnit(unitData)) {
+      return 0;
+    }
+    const dropshipShape = aerospaceShapeFromUnitData(unitData);
+    if (dropshipShape === 'spheroid') {
+      return 9;
+    }
+    if (dropshipShape === 'aerodyne') {
+      return 4;
+    }
+  }
+
+  return undefined;
+}
+
+function isVtolUnitType(unitType: string): boolean {
+  return unitType === 'vtol' || unitType === 'supportvtol';
+}
+
+function isSuperHeavyTankUnit(
+  unitData: Record<string, unknown>,
+  unitTypeKeys: readonly string[],
+): boolean {
+  if (
+    unitTypeKeys.includes('superheavytank') ||
+    unitTypeKeys.includes('largesupporttank')
+  ) {
+    return true;
+  }
+
+  if (
+    unitTypeKeys.some((key) =>
+      [
+        'vehicle',
+        'combatvehicle',
+        'tank',
+        'supportvehicle',
+        'supporttank',
+      ].includes(key),
+    )
+  ) {
+    return isSuperHeavyRepresentedUnit(unitData);
+  }
+
+  return false;
+}
+
+function isSmallCraftUnitType(unitType: string): boolean {
+  return unitType === 'smallcraft' || unitType === 'smallcrafts';
+}
+
+function isDropshipUnitType(unitType: string): boolean {
+  return unitType === 'dropship' || unitType === 'dropships';
+}
+
 function isSuperHeavyRepresentedUnit(
   unitData: Record<string, unknown>,
 ): boolean {
@@ -361,8 +474,74 @@ function isSuperHeavyRepresentedUnit(
     stringField(unitData, 'weightClass', 'weight_class'),
   );
   return (
-    weightClass === 'superheavy' || (tonnage !== undefined && tonnage > 100)
+    booleanField(unitData, 'isSuperheavy', 'isSuperHeavy', 'superheavy') ||
+    weightClass === 'superheavy' ||
+    (tonnage !== undefined && tonnage > 100)
   );
+}
+
+function isSuperHeavyVtolRepresentedUnit(
+  unitData: Record<string, unknown>,
+): boolean {
+  const tonnage = numberField(unitData, 'tonnage', 'mass');
+  const weightClass = normalizedKey(
+    stringField(unitData, 'weightClass', 'weight_class'),
+  );
+  return (
+    booleanField(unitData, 'isSuperheavy', 'isSuperHeavy', 'superheavy') ||
+    weightClass === 'superheavy' ||
+    (tonnage !== undefined && tonnage > 30)
+  );
+}
+
+function isAirborneRepresentedUnit(unitData: Record<string, unknown>): boolean {
+  const movement = recordField(unitData.movement);
+  const combatState = recordField(unitData.combatState);
+  const aerospaceState = recordField(unitData.aerospaceState);
+  const altitude =
+    numberField(unitData, 'altitude') ??
+    numberField(movement, 'altitude') ??
+    numberField(combatState, 'altitude') ??
+    numberField(aerospaceState, 'altitude');
+
+  return (
+    booleanField(unitData, 'isAirborne', 'airborne') ||
+    booleanField(movement, 'isAirborne', 'airborne') ||
+    booleanField(combatState, 'isAirborne', 'airborne') ||
+    booleanField(aerospaceState, 'isAirborne', 'airborne') ||
+    (altitude !== undefined && altitude > 0)
+  );
+}
+
+function aerospaceShapeFromUnitData(
+  unitData: Record<string, unknown>,
+): 'aerodyne' | 'spheroid' | undefined {
+  const movement = recordField(unitData.movement);
+  const shapeKeys = [
+    ...normalizedStringFields(
+      unitData,
+      'motionType',
+      'configuration',
+      'aerospaceMotionType',
+      'shape',
+      'aeroShape',
+    ),
+    ...normalizedStringFields(
+      movement,
+      'motionType',
+      'configuration',
+      'aerospaceMotionType',
+      'shape',
+      'aeroShape',
+    ),
+  ];
+  if (shapeKeys.some((key) => key.includes('spheroid'))) {
+    return 'spheroid';
+  }
+  if (shapeKeys.some((key) => key.includes('aerodyne'))) {
+    return 'aerodyne';
+  }
+  return undefined;
 }
 
 function movementHeatProfileFromUnitData(
