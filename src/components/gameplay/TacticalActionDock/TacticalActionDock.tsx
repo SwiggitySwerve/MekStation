@@ -253,16 +253,32 @@ export function TacticalActionDock({
   previewInputs,
   className = '',
 }: TacticalActionDockProps): React.ReactElement {
-  const effectiveCtx = useMemo<ITacticalCommandContext>(
-    () =>
-      previewInputs?.movementInfo
-        ? {
-            ...ctx,
-            targetMovementProjection: previewInputs.movementInfo,
-          }
-        : ctx,
-    [ctx, previewInputs?.movementInfo],
-  );
+  const effectiveCtx = useMemo<ITacticalCommandContext>(() => {
+    if (
+      !previewInputs?.movementInfo &&
+      !previewInputs?.physicalAttackOption &&
+      !previewInputs?.physicalTargetUnitId
+    ) {
+      return ctx;
+    }
+    return {
+      ...ctx,
+      ...(previewInputs.movementInfo
+        ? { targetMovementProjection: previewInputs.movementInfo }
+        : {}),
+      ...(previewInputs.physicalTargetUnitId
+        ? { targetUnitId: previewInputs.physicalTargetUnitId }
+        : {}),
+      ...(previewInputs.physicalAttackOption
+        ? { targetPhysicalAttackOption: previewInputs.physicalAttackOption }
+        : {}),
+    };
+  }, [
+    ctx,
+    previewInputs?.movementInfo,
+    previewInputs?.physicalAttackOption,
+    previewInputs?.physicalTargetUnitId,
+  ]);
   const commands = useCommandRegistry(effectiveCtx, shellMode);
   const groups = groupCommandsByCategory(commands);
   const previewCommand = previewCommandForContext({

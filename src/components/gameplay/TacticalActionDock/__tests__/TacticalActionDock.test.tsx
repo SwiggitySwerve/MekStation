@@ -752,5 +752,14 @@ describe('TacticalActionDock', () => {
     expect(screen.getByTestId('command-preview-reason')).toHaveTextContent(
       'Charge requires running this turn',
     );
+
+    const charge = screen.getByTestId('command-btn-physical.charge');
+    expect(charge).toBeDisabled();
+    fireEvent.mouseEnter(charge.parentElement!);
+    expect(
+      screen.getByTestId('command-disabled-reason-physical.charge'),
+    ).toHaveTextContent('Charge requires running this turn');
+    fireEvent.click(charge);
+    expect(onAction).not.toHaveBeenCalled();
   });
 });

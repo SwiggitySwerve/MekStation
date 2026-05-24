@@ -41,6 +41,7 @@
  */
 
 import type {
+  IPhysicalAttackOption,
   PhysicalAttackInvalidReason,
   PhysicalAttackLimb,
   PhysicalAttackType,
@@ -142,6 +143,13 @@ export interface ITacticalCommandContext {
   readonly movementProjectionByHex?: Readonly<
     Record<string, IMovementRangeHex>
   >;
+  /**
+   * Shared physical-attack projection for the currently planned target row.
+   * Physical commands use this to reject blocked punch/kick/charge/DFA/club
+   * commits before dispatch with the same rules-backed reason shown in the
+   * physical preview surface.
+   */
+  readonly targetPhysicalAttackOption?: IPhysicalAttackOption | null;
   /** Hex the cursor is hovering, if any. */
   readonly hoveredHex: IHexCoordinate | null;
   /** Current game phase. Drives phase-filter at the registry level. */
