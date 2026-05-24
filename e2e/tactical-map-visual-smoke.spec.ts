@@ -190,6 +190,22 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-combat-valid-target',
       'true',
     );
+    await expect(mediumTargetHex).toHaveAttribute(
+      'data-weapons-available',
+      'medium-laser',
+    );
+    await expect(mediumTargetHex).toHaveAttribute(
+      'data-combat-weapon-option-ranges',
+      'medium-laser:medium|small-laser:out_of_range',
+    );
+    await expect(mediumTargetHex).toHaveAttribute(
+      'data-combat-weapon-option-availability',
+      'medium-laser:available|small-laser:blocked',
+    );
+    await expect(mediumTargetHex).toHaveAttribute(
+      'data-combat-weapon-option-blocked-reasons',
+      'small-laser:out of range',
+    );
     const mediumCombatBadge = page.getByTestId('hex-combat-badge-1-2');
     await expect(mediumCombatBadge).toHaveAttribute(
       'data-combat-badge-range',
@@ -205,11 +221,39 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
     await expect(mediumCombatBadge).toHaveAttribute(
       'data-combat-badge-weapon-option-ranges',
-      'medium-laser:medium',
+      'medium-laser:medium|small-laser:out_of_range',
     );
     await expect(mediumCombatBadge).toHaveAttribute(
       'data-combat-badge-weapon-option-availability',
-      'medium-laser:available',
+      'medium-laser:available|small-laser:blocked',
+    );
+    await expect(mediumCombatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-blocked-reasons',
+      'small-laser:out of range',
+    );
+    const mediumWeaponCountBadge = page.getByTestId(
+      'hex-combat-weapon-count-badge-1-2',
+    );
+    await expect(mediumWeaponCountBadge.locator('text')).toHaveText('1/2 WPN');
+    await expect(mediumWeaponCountBadge).toHaveAttribute(
+      'data-combat-weapon-count-badge-available',
+      '1',
+    );
+    await expect(mediumWeaponCountBadge).toHaveAttribute(
+      'data-combat-weapon-count-badge-total',
+      '2',
+    );
+    await expect(mediumWeaponCountBadge).toHaveAttribute(
+      'data-combat-weapon-count-badge-blocked',
+      '1',
+    );
+    await expect(mediumWeaponCountBadge).toHaveAttribute(
+      'data-combat-weapon-count-badge-weapons-available',
+      'medium-laser',
+    );
+    await expect(mediumWeaponCountBadge).toHaveAttribute(
+      'data-combat-weapon-count-badge-blocked-reasons',
+      'small-laser:out of range',
     );
     const coverTargetHex = page.getByTestId('hex-0-2');
     await expect(coverTargetHex).toHaveAttribute(

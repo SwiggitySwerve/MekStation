@@ -74,6 +74,14 @@ combat badge expose the medium range band, distance, available weapon id, and
 per-weapon range option metadata. Remaining browser combat gaps are special
 range-mode sweeps beyond the smoke harness.
 
+2026-05-24 mixed selected-weapon range browser update: the tactical-map browser
+harness now selects a medium laser plus a shorter-ranged small laser against
+the four-hex target and verifies that the target remains legal through the
+available medium laser while the small laser exposes `out_of_range`,
+`blocked`, and `out of range` per-weapon metadata plus a non-color weapon count
+badge. Remaining browser range gaps are minimum/extreme range and all-weapons
+out-of-range sweeps beyond the smoke harness.
+
 2026-05-24 partial-cover browser update: the tactical-map browser harness now
 also renders a Mech-style target in depth-1 water and verifies that the top-down
 hex and cover badge expose partial cover, cover modifier, cover reason, and the

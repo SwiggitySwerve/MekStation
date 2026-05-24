@@ -29,6 +29,8 @@
   exposes cover modifier, to-hit modifier, reason, and cover badge metadata.
 - [x] 2.11 Add browser coverage proving hidden-only and last-known fog contacts
   expose non-attackable visibility metadata plus isometric fog-rule markers.
+- [x] 2.12 Add browser coverage proving mixed selected-weapon range
+  availability keeps the target legal while exposing blocked weapon metadata.
 
 ## 3. Validation
 
@@ -51,3 +53,5 @@
   metadata.
 - [x] 3.11 Focused Playwright smoke passes with hidden and last-known fog
   contact visibility metadata.
+- [x] 3.12 Focused Playwright smoke passes with mixed selected-weapon range
+  availability metadata.

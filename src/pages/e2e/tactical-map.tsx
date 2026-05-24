@@ -169,6 +169,27 @@ const unitWeapons: Record<string, readonly IWeaponStatus[]> = {
         long: 9,
       },
     },
+    {
+      id: 'small-laser',
+      name: 'Small Laser',
+      location: 'left_arm',
+      mountingArc: FiringArc.Front,
+      mountingArcs: [
+        FiringArc.Front,
+        FiringArc.Left,
+        FiringArc.Right,
+        FiringArc.Rear,
+      ],
+      destroyed: false,
+      firedThisTurn: false,
+      heat: 1,
+      damage: 3,
+      ranges: {
+        short: 1,
+        medium: 2,
+        long: 3,
+      },
+    },
   ],
 };
 
@@ -227,7 +248,7 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
             hexTerrain={hexTerrain}
             unitWeapons={unitWeapons}
             combatState={combatState}
-            selectedWeaponIds={['medium-laser']}
+            selectedWeaponIds={['medium-laser', 'small-laser']}
             showCoordinates
             movementRange={[
               {
