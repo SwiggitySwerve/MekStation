@@ -2667,6 +2667,12 @@ describe('HexMapDisplay combat projection', () => {
       targetHex.getAttribute('data-tactical-projection-blocked-reasons'),
     ).toContain("Target at 3 hexes is outside the selected weapons' range");
     expect(
+      targetHex.getAttribute('data-tactical-projection-sources'),
+    ).toContain('movement:megamek:MegaMek movement rules projection');
+    expect(
+      targetHex.getAttribute('data-tactical-projection-sources'),
+    ).toContain('combat:megamek:MegaMek combat target projection');
+    expect(
       targetHex.getAttribute('data-tactical-projection-explanation'),
     ).toContain('status mixed');
     expect(
@@ -2731,6 +2737,12 @@ describe('HexMapDisplay combat projection', () => {
       'data-tactical-tooltip-combat-status',
       'blocked',
     );
+    expect(tacticalTooltip).toHaveAttribute(
+      'data-tactical-tooltip-sources',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
     expect(screen.getByTestId('hex-tactical-tooltip-status')).toHaveTextContent(
       'Mixed - movement-combat',
     );
@@ -2794,6 +2806,9 @@ describe('HexMapDisplay combat projection', () => {
     ).toHaveTextContent(
       "Target at 3 hexes is outside the selected weapons' range",
     );
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-projection-sources'),
+    ).toHaveTextContent('combat: MegaMek combat target projection');
     expect(screen.queryByTestId('hex-movement-tooltip')).toBeNull();
     expect(screen.queryByTestId('hex-combat-tooltip')).toBeNull();
   });

@@ -13,6 +13,7 @@ import {
 import {
   buildTacticalMapHexProjection,
   buildTacticalMapHexProjectionLookup,
+  formatTacticalProjectionSourceReferences,
 } from '@/utils/gameplay/tacticalMapProjection';
 
 function terrain(elevation = 0, type = TerrainType.Clear): IHexTerrain {
@@ -127,6 +128,34 @@ describe('tacticalMapProjection', () => {
     expect(projection.explanation).toContain('weapon heat +3');
     expect(projection.explanation).toContain('damage 5 listed');
     expect(projection.explanation).toContain('expected damage 2.1');
+    expect(projection.sourceReferences).toEqual([
+      {
+        channel: 'terrain-elevation',
+        kind: 'mekstation',
+        label: 'Rendered map terrain/elevation grid',
+        detail: 'rough elevation 2',
+      },
+      {
+        channel: 'movement',
+        kind: 'megamek',
+        label: 'MegaMek movement rules projection',
+        detail: 'walk projection',
+      },
+      {
+        channel: 'combat',
+        kind: 'megamek',
+        label: 'MegaMek combat target projection',
+        detail: 'target short 1 hexes LOS clear',
+      },
+    ]);
+    expect(
+      formatTacticalProjectionSourceReferences(projection.sourceReferences),
+    ).toBe(
+      'terrain-elevation:mekstation:Rendered map terrain/elevation grid:rough elevation 2|movement:megamek:MegaMek movement rules projection:walk projection|combat:megamek:MegaMek combat target projection:target short 1 hexes LOS clear',
+    );
+    expect(projection.explanation).toContain(
+      'sources terrain/elevation: Rendered map terrain/elevation grid; movement: MegaMek movement rules projection; combat: MegaMek combat target projection',
+    );
   });
 
   it('preserves movement and combat blocked reasons as a mixed projection', () => {
@@ -550,6 +579,14 @@ describe('tacticalMapProjection', () => {
       isHovered: true,
       pathIndex: 1,
       inAttackRange: true,
+      sourceReferences: expect.arrayContaining([
+        {
+          channel: 'legacy-attack-range',
+          kind: 'mekstation',
+          label: 'Legacy attackRange fallback',
+          detail: 'caller-provided range envelope',
+        },
+      ]),
     });
   });
 
@@ -600,5 +637,19 @@ describe('tacticalMapProjection', () => {
     expect(blocker?.explanation).toContain(
       'LOS blocker for 2,0: Blocked by elevation +2 at (1, 0)',
     );
+    expect(blocker?.sourceReferences).toEqual([
+      {
+        channel: 'terrain-elevation',
+        kind: 'mekstation',
+        label: 'Rendered map terrain/elevation grid',
+        detail: 'clear elevation 2',
+      },
+      {
+        channel: 'los-blocker',
+        kind: 'megamek',
+        label: 'MegaMek LOS blocker projection',
+        detail: 'elevation for 2,0',
+      },
+    ]);
   });
 });

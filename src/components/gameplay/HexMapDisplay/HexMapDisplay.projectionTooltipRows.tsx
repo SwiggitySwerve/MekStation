@@ -2,6 +2,11 @@ import React from 'react';
 
 import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
+import {
+  formatTacticalProjectionSourceLabels,
+  formatTacticalProjectionSourceReferences,
+} from '@/utils/gameplay/tacticalMapProjection';
+
 function formatProjectionStatusLabel(
   status: ITacticalMapHexProjection['status'],
 ): string {
@@ -37,6 +42,9 @@ export function ProjectionContextRows({
       data-tactical-tooltip-blocked-reasons={projection.blockedReasons.join(
         '|',
       )}
+      data-tactical-tooltip-sources={formatTacticalProjectionSourceReferences(
+        projection.sourceReferences,
+      )}
       data-tactical-tooltip-explanation={projection.explanation}
     >
       <div data-testid={`${testIdPrefix}-projection-status`}>
@@ -50,6 +58,12 @@ export function ProjectionContextRows({
       {projection.blockedReasons.length > 0 && (
         <div data-testid={`${testIdPrefix}-projection-reasons`}>
           Projection reasons: {projection.blockedReasons.join('; ')}
+        </div>
+      )}
+      {projection.sourceReferences.length > 0 && (
+        <div data-testid={`${testIdPrefix}-projection-sources`}>
+          Sources:{' '}
+          {formatTacticalProjectionSourceLabels(projection.sourceReferences)}
         </div>
       )}
     </div>

@@ -8,6 +8,7 @@ import type {
   MapProjectionMode,
 } from '@/types/gameplay';
 import type {
+  ITacticalMapProjectionSourceReference,
   ITacticalMapCombatLosBlockerReference,
   TacticalMapCombatProjectionStatus,
   TacticalMapHexProjectionIntent,
@@ -18,6 +19,7 @@ import type {
 import { TerrainArtLayer } from '@/components/gameplay/terrain/TerrainArtLayer';
 import { HEX_COLORS } from '@/constants/hexMap';
 import { MovementType } from '@/types/gameplay';
+import { formatTacticalProjectionSourceReferences } from '@/utils/gameplay/tacticalMapProjection';
 
 import {
   CombatLineOfSightBlockerBadge,
@@ -139,6 +141,7 @@ export interface HexCellProps {
   tacticalProjectionMovementStatus?: TacticalMapMovementProjectionStatus;
   tacticalProjectionCombatStatus?: TacticalMapCombatProjectionStatus;
   tacticalProjectionBlockedReasons?: readonly string[];
+  tacticalProjectionSourceReferences?: readonly ITacticalMapProjectionSourceReference[];
   tacticalProjectionExplanation?: string;
   isometricOccluderInfo?: IsometricTerrainOccluderInfo;
   showCoordinate: boolean;
@@ -183,6 +186,7 @@ export const HexCell = React.memo(function HexCell({
   tacticalProjectionMovementStatus,
   tacticalProjectionCombatStatus,
   tacticalProjectionBlockedReasons,
+  tacticalProjectionSourceReferences,
   tacticalProjectionExplanation,
   isometricOccluderInfo,
   showCoordinate,
@@ -396,6 +400,14 @@ export const HexCell = React.memo(function HexCell({
         tacticalProjectionBlockedReasons &&
         tacticalProjectionBlockedReasons.length > 0
           ? tacticalProjectionBlockedReasons.join('|')
+          : undefined
+      }
+      data-tactical-projection-sources={
+        tacticalProjectionSourceReferences &&
+        tacticalProjectionSourceReferences.length > 0
+          ? formatTacticalProjectionSourceReferences(
+              tacticalProjectionSourceReferences,
+            )
           : undefined
       }
       data-tactical-projection-explanation={tacticalProjectionExplanation}

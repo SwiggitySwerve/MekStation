@@ -39,6 +39,26 @@ export type TacticalMapCombatProjectionStatus =
   | 'blocked'
   | 'mixed';
 
+export type TacticalMapProjectionSourceKind =
+  | 'official-battletech'
+  | 'megamek'
+  | 'mekhq'
+  | 'mekstation';
+
+export type TacticalMapProjectionSourceChannel =
+  | 'terrain-elevation'
+  | 'movement'
+  | 'combat'
+  | 'los-blocker'
+  | 'legacy-attack-range';
+
+export interface ITacticalMapProjectionSourceReference {
+  readonly channel: TacticalMapProjectionSourceChannel;
+  readonly kind: TacticalMapProjectionSourceKind;
+  readonly label: string;
+  readonly detail?: string;
+}
+
 export interface ITacticalMapCombatLosBlockerReference {
   readonly targetHex: IHexCoordinate;
   readonly targetUnitIds: readonly string[];
@@ -62,6 +82,7 @@ export interface ITacticalMapHexProjection {
   readonly movementStatus: TacticalMapMovementProjectionStatus;
   readonly combatStatus: TacticalMapCombatProjectionStatus;
   readonly blockedReasons: readonly string[];
+  readonly sourceReferences: readonly ITacticalMapProjectionSourceReference[];
   readonly explanation: string;
 }
 
@@ -154,6 +175,13 @@ export function buildTacticalMapHexProjection({
     combat,
     inAttackRange,
   });
+  const sourceReferences = collectProjectionSourceReferences({
+    terrain,
+    movement,
+    combat,
+    combatLosBlockerFor,
+    inLegacyAttackRange,
+  });
 
   return {
     hex,
@@ -171,6 +199,7 @@ export function buildTacticalMapHexProjection({
     movementStatus,
     combatStatus,
     blockedReasons,
+    sourceReferences,
     explanation: formatProjectionExplanation({
       hex,
       terrain,
@@ -182,8 +211,52 @@ export function buildTacticalMapHexProjection({
       movementStatus,
       combatStatus,
       blockedReasons,
+      sourceReferences,
     }),
   };
+}
+
+export function formatTacticalProjectionSourceReferences(
+  sourceReferences: readonly ITacticalMapProjectionSourceReference[],
+): string {
+  return sourceReferences
+    .map(formatTacticalProjectionSourceReference)
+    .join('|');
+}
+
+export function formatTacticalProjectionSourceLabels(
+  sourceReferences: readonly ITacticalMapProjectionSourceReference[],
+): string {
+  return sourceReferences
+    .map(
+      (reference) =>
+        `${formatSourceChannelLabel(reference.channel)}: ${reference.label}`,
+    )
+    .join('; ');
+}
+
+function formatTacticalProjectionSourceReference(
+  reference: ITacticalMapProjectionSourceReference,
+): string {
+  const detail = reference.detail ? `:${reference.detail}` : '';
+  return `${reference.channel}:${reference.kind}:${reference.label}${detail}`;
+}
+
+function formatSourceChannelLabel(
+  channel: TacticalMapProjectionSourceChannel,
+): string {
+  switch (channel) {
+    case 'terrain-elevation':
+      return 'terrain/elevation';
+    case 'movement':
+      return 'movement';
+    case 'combat':
+      return 'combat';
+    case 'los-blocker':
+      return 'LOS blocker';
+    case 'legacy-attack-range':
+      return 'legacy attack range';
+  }
 }
 
 function defaultHexTerrain(hex: IHexCoordinate): IHexTerrain {
@@ -292,6 +365,118 @@ function movementOptionsForProjection(
   ];
 }
 
+function collectProjectionSourceReferences({
+  terrain,
+  movement,
+  combat,
+  combatLosBlockerFor,
+  inLegacyAttackRange,
+}: {
+  readonly terrain: IHexTerrain;
+  readonly movement?: IMovementRangeHex;
+  readonly combat?: ICombatRangeHex;
+  readonly combatLosBlockerFor: readonly ITacticalMapCombatLosBlockerReference[];
+  readonly inLegacyAttackRange: boolean;
+}): readonly ITacticalMapProjectionSourceReference[] {
+  const references: ITacticalMapProjectionSourceReference[] = [
+    {
+      channel: 'terrain-elevation',
+      kind: 'mekstation',
+      label: 'Rendered map terrain/elevation grid',
+      detail: formatTerrainSourceDetail(terrain),
+    },
+  ];
+
+  if (movement) {
+    references.push({
+      channel: 'movement',
+      kind: 'megamek',
+      label: 'MegaMek movement rules projection',
+      detail: formatMovementSourceDetail(movement),
+    });
+  }
+
+  if (combat) {
+    references.push({
+      channel: 'combat',
+      kind: 'megamek',
+      label: combat.hasTarget
+        ? 'MegaMek combat target projection'
+        : 'MegaMek weapon range projection',
+      detail: formatCombatSourceDetail(combat),
+    });
+  }
+
+  if (combatLosBlockerFor.length > 0) {
+    references.push({
+      channel: 'los-blocker',
+      kind: 'megamek',
+      label: 'MegaMek LOS blocker projection',
+      detail: formatLosBlockerSourceDetail(combatLosBlockerFor),
+    });
+  }
+
+  if (inLegacyAttackRange) {
+    references.push({
+      channel: 'legacy-attack-range',
+      kind: 'mekstation',
+      label: 'Legacy attackRange fallback',
+      detail: 'caller-provided range envelope',
+    });
+  }
+
+  return dedupeProjectionSourceReferences(references);
+}
+
+function dedupeProjectionSourceReferences(
+  references: readonly ITacticalMapProjectionSourceReference[],
+): readonly ITacticalMapProjectionSourceReference[] {
+  const seen = new Set<string>();
+  return references.filter((reference) => {
+    const key = formatTacticalProjectionSourceReference(reference);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function formatTerrainSourceDetail(terrain: IHexTerrain): string {
+  const terrainTypes =
+    terrain.features.length === 0
+      ? TerrainType.Clear
+      : terrain.features.map((feature) => feature.type).join(',');
+  return `${terrainTypes} elevation ${terrain.elevation}`;
+}
+
+function formatMovementSourceDetail(movement: IMovementRangeHex): string {
+  const options = movementOptionsForProjection(movement);
+  const modes = Array.from(
+    new Set(
+      options.map((option) =>
+        option.movementMode && option.movementMode !== option.movementType
+          ? `${option.movementType}/${option.movementMode}`
+          : option.movementType,
+      ),
+    ),
+  );
+  return `${modes.join(',')} projection`;
+}
+
+function formatCombatSourceDetail(combat: ICombatRangeHex): string {
+  const targetState = combat.hasTarget ? 'target' : 'range envelope';
+  return `${targetState} ${combat.rangeBracket} ${combat.distance} hexes LOS ${combat.losState}`;
+}
+
+function formatLosBlockerSourceDetail(
+  refs: readonly ITacticalMapCombatLosBlockerReference[],
+): string {
+  const blockerKinds = Array.from(new Set(refs.map((ref) => ref.blocker.kind)));
+  const targetHexes = refs.map(
+    (ref) => `${ref.targetHex.q},${ref.targetHex.r}`,
+  );
+  return `${blockerKinds.join(',')} for ${targetHexes.join(',')}`;
+}
+
 function movementHasReachableOption(
   movement: IMovementRangeHex | undefined,
 ): boolean {
@@ -392,6 +577,7 @@ function formatProjectionExplanation({
   movementStatus,
   combatStatus,
   blockedReasons,
+  sourceReferences,
 }: {
   readonly hex: IHexCoordinate;
   readonly terrain: IHexTerrain;
@@ -403,6 +589,7 @@ function formatProjectionExplanation({
   readonly combatStatus: TacticalMapCombatProjectionStatus;
   readonly blockedReasons: readonly string[];
   readonly combatLosBlockerFor: readonly ITacticalMapCombatLosBlockerReference[];
+  readonly sourceReferences: readonly ITacticalMapProjectionSourceReference[];
 }): string {
   const terrainTypes =
     terrain.features.length === 0
@@ -582,6 +769,11 @@ function formatProjectionExplanation({
   }
   if (blockedReasons.length > 0) {
     parts.push(`blocked ${blockedReasons.join('; ')}`);
+  }
+  if (sourceReferences.length > 0) {
+    parts.push(
+      `sources ${formatTacticalProjectionSourceLabels(sourceReferences)}`,
+    );
   }
 
   return parts.join('; ');

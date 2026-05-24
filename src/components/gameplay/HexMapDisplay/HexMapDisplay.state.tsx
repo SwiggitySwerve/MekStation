@@ -289,6 +289,7 @@ export function useHexMapDisplayState({
           tacticalProjectionMovementStatus={projection?.movementStatus}
           tacticalProjectionCombatStatus={projection?.combatStatus}
           tacticalProjectionBlockedReasons={projection?.blockedReasons}
+          tacticalProjectionSourceReferences={projection?.sourceReferences}
           tacticalProjectionExplanation={projection?.explanation}
           isometricOccluderInfo={isometricOccluderInfo || undefined}
           showCoordinate={showCoordinates}

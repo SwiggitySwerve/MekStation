@@ -508,6 +508,18 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(reachable).toHaveAttribute('data-elevation-cost', '1');
     expect(reachable).toHaveAttribute('data-movement-mode', 'tracked');
     expect(reachable).toHaveAttribute(
+      'data-tactical-projection-sources',
+      expect.stringContaining(
+        'terrain-elevation:mekstation:Rendered map terrain/elevation grid:light_woods,building elevation 1',
+      ),
+    );
+    expect(reachable).toHaveAttribute(
+      'data-tactical-projection-sources',
+      expect.stringContaining(
+        'movement:megamek:MegaMek movement rules projection:walk/tracked projection',
+      ),
+    );
+    expect(reachable).toHaveAttribute(
       'data-tactical-projection-explanation',
       expect.stringContaining('Walk reachable 3 MP'),
     );
@@ -589,6 +601,12 @@ describe('HexMapDisplay tactical visual layers', () => {
       'none',
     );
     expect(projectionContext).toHaveAttribute(
+      'data-tactical-tooltip-sources',
+      expect.stringContaining(
+        'movement:megamek:MegaMek movement rules projection:walk/tracked projection',
+      ),
+    );
+    expect(projectionContext).toHaveAttribute(
       'data-tactical-tooltip-explanation',
       expect.stringContaining('Walk reachable 3 MP'),
     );
@@ -598,6 +616,9 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(
       screen.getByTestId('hex-movement-tooltip-projection-channel-status'),
     ).toHaveTextContent('Movement channel: legal; combat channel: none');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-projection-sources'),
+    ).toHaveTextContent('movement: MegaMek movement rules projection');
     expect(
       screen.getByTestId('hex-movement-tooltip-terrain'),
     ).toHaveTextContent('Terrain cost: +1');

@@ -3,6 +3,11 @@ import React from 'react';
 import type { ICombatRangeHex, IMovementRangeHex } from '@/types/gameplay';
 import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
+import {
+  formatTacticalProjectionSourceLabels,
+  formatTacticalProjectionSourceReferences,
+} from '@/utils/gameplay/tacticalMapProjection';
+
 import type { IsometricTerrainOccluderInfo } from './projection';
 
 import {
@@ -146,6 +151,9 @@ export function CombinedTacticalHoverTooltip({
       data-tactical-tooltip-combat-status={projection.combatStatus}
       data-tactical-tooltip-blocked-reasons={projection.blockedReasons.join(
         '|',
+      )}
+      data-tactical-tooltip-sources={formatTacticalProjectionSourceReferences(
+        projection.sourceReferences,
       )}
       role="tooltip"
     >
@@ -297,6 +305,15 @@ export function CombinedTacticalHoverTooltip({
           data-testid="hex-tactical-tooltip-projection-reasons"
         >
           Projection: {projection.blockedReasons.join('; ')}
+        </div>
+      )}
+      {projection.sourceReferences.length > 0 && (
+        <div
+          className="mt-1 border-t border-slate-700/70 pt-1 text-[11px] text-slate-200"
+          data-testid="hex-tactical-tooltip-projection-sources"
+        >
+          Sources:{' '}
+          {formatTacticalProjectionSourceLabels(projection.sourceReferences)}
         </div>
       )}
     </div>
