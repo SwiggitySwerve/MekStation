@@ -558,6 +558,14 @@ reachable: true}`
 - **AND** infantry-profile, vehicle, naval, hover, VTOL, WiGE, UMU, swim, amphibious, bridge, and ice water movement rules SHALL keep their existing legality behavior
 - **AND** committed movement validation SHALL agree with the previewed Playtest2 run-water legality and MP cost for the same supplied path
 
+#### Scenario: Imported unit height feeds bridge clearance
+
+- **GIVEN** a represented unit has an explicit imported entity height or a source-derived Mek entity height
+- **AND** the unit's movement capability is used for movement projection
+- **WHEN** naval, hydrofoil, or submarine bridge-clearance movement is projected across represented water and bridge terrain
+- **THEN** the projection SHALL use the imported entity height for the bridge-clearance decision
+- **AND** the committed movement validation SHALL reject or accept the same supplied path with the same bridge-clearance result
+
 ### Requirement: Movement Commit Event Emission
 
 The movement system SHALL, on player-confirmed movement commit, append a

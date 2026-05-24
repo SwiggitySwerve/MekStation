@@ -208,6 +208,7 @@ function calculateMovement(unitData: Record<string, unknown>): {
   movementHeatProfile?: MovementHeatProfile;
   movementTerrainProfile?: MovementTerrainProfile;
   pavementRoadBonusProfile?: MovementPavementRoadBonusProfile;
+  unitHeight?: number;
   waterCapability?: IMovementWaterCapability;
   standUpCapability?: IMovementStandUpCapability;
 } {
@@ -229,6 +230,7 @@ function calculateMovement(unitData: Record<string, unknown>): {
   const movementTerrainProfile = movementTerrainProfileFromUnitData(unitData);
   const pavementRoadBonusProfile =
     pavementRoadBonusProfileFromUnitData(unitData);
+  const unitHeight = unitHeightFromUnitData(unitData);
   const waterCapability = waterCapabilityFromUnitData(unitData);
   const standUpCapability = standUpCapabilityFromUnitData(unitData);
   return {
@@ -239,6 +241,7 @@ function calculateMovement(unitData: Record<string, unknown>): {
     ...(movementHeatProfile ? { movementHeatProfile } : {}),
     ...(movementTerrainProfile ? { movementTerrainProfile } : {}),
     ...(pavementRoadBonusProfile ? { pavementRoadBonusProfile } : {}),
+    ...(unitHeight !== undefined ? { unitHeight } : {}),
     ...(waterCapability ? { waterCapability } : {}),
     ...(standUpCapability ? { standUpCapability } : {}),
   };
@@ -298,6 +301,67 @@ function tacOpsFastInfantryMoveEnabled(
   return (
     booleanField(unitData, ...fieldNames) ||
     (movement !== undefined && booleanField(movement, ...fieldNames))
+  );
+}
+
+const UNIT_HEIGHT_FIELDS = [
+  'unitHeight',
+  'entityHeight',
+  'megamekHeight',
+  'megamekEntityHeight',
+  'movementHeight',
+  'bridgeClearanceHeight',
+  'heightAboveElevation',
+] as const;
+
+function unitHeightFromUnitData(
+  unitData: Record<string, unknown>,
+): number | undefined {
+  const movement = recordField(unitData.movement);
+  const explicitHeight =
+    numberField(unitData, ...UNIT_HEIGHT_FIELDS) ??
+    numberField(movement, ...UNIT_HEIGHT_FIELDS);
+  if (explicitHeight !== undefined) {
+    return normalizedUnitHeight(explicitHeight);
+  }
+
+  const unitType = normalizedKey(unitData.unitType);
+  if (isMekUnitType(unitType)) {
+    return isSuperHeavyRepresentedUnit(unitData) ? 2 : 1;
+  }
+
+  return undefined;
+}
+
+function normalizedUnitHeight(height: number): number {
+  return Math.max(0, Math.floor(height));
+}
+
+function isMekUnitType(unitType: string): boolean {
+  switch (unitType) {
+    case 'battlemech':
+    case 'battlemek':
+    case 'industrialmech':
+    case 'industrialmek':
+    case 'mech':
+    case 'mek':
+    case 'omnimech':
+    case 'omnimek':
+      return true;
+    default:
+      return false;
+  }
+}
+
+function isSuperHeavyRepresentedUnit(
+  unitData: Record<string, unknown>,
+): boolean {
+  const tonnage = numberField(unitData, 'tonnage', 'mass');
+  const weightClass = normalizedKey(
+    stringField(unitData, 'weightClass', 'weight_class'),
+  );
+  return (
+    weightClass === 'superheavy' || (tonnage !== undefined && tonnage > 100)
   );
 }
 
@@ -675,6 +739,7 @@ export function adaptUnitFromData(
     movementHeatProfile,
     movementTerrainProfile,
     pavementRoadBonusProfile,
+    unitHeight,
     waterCapability,
     standUpCapability,
   } = calculateMovement(unitData);
@@ -721,6 +786,7 @@ export function adaptUnitFromData(
     ...(movementHeatProfile ? { movementHeatProfile } : {}),
     ...(movementTerrainProfile ? { movementTerrainProfile } : {}),
     ...(pavementRoadBonusProfile ? { pavementRoadBonusProfile } : {}),
+    ...(unitHeight !== undefined ? { unitHeight } : {}),
     ...(waterCapability ? { waterCapability } : {}),
     ...(standUpCapability ? { standUpCapability } : {}),
   };

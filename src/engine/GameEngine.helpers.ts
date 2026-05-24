@@ -238,6 +238,9 @@ export function toMovementCapability(
     ...(adapted.pavementRoadBonusProfile
       ? { pavementRoadBonusProfile: adapted.pavementRoadBonusProfile }
       : {}),
+    ...(adapted.unitHeight !== undefined
+      ? { unitHeight: adapted.unitHeight }
+      : {}),
     ...(adapted.waterCapability
       ? { waterCapability: adapted.waterCapability }
       : {}),

@@ -284,7 +284,7 @@ export interface IMovementCapability {
   readonly movementTerrainProfile?: MovementTerrainProfile;
   /** Optional profile controlling whether pavement/road +1 MP applies. */
   readonly pavementRoadBonusProfile?: MovementPavementRoadBonusProfile;
-  /** MegaMek-style entity height used for bridge clearance checks; default is 0. */
+  /** MegaMek-style entity height() above elevation for bridge clearance; default is 0. */
   readonly unitHeight?: number;
   /** Optional equipment that modifies water movement legality and MP costs. */
   readonly waterCapability?: IMovementWaterCapability;

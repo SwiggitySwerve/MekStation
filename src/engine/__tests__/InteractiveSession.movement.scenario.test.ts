@@ -1267,6 +1267,79 @@ describe('applyInteractiveSessionMovement', () => {
     });
   });
 
+  it('keeps represented naval unit-height bridge clearance blocked between preview and commit validation', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    grid.hexes.set('0,0', makeHex(0, 0, TerrainType.Water));
+    grid.hexes.set(
+      '1,0',
+      makeHex(
+        1,
+        0,
+        terrainStringFromFeatures([
+          { type: TerrainType.Water, level: 2 },
+          { type: TerrainType.Bridge, level: 1 },
+        ]),
+      ),
+    );
+    const movementByUnit = capability({
+      walkMP: 3,
+      runMP: 5,
+      movementMode: 'naval',
+      unitHeight: 1,
+    });
+
+    const preview = deriveReachableHexes(
+      session.currentState.units.m1,
+      MovementType.Walk,
+      grid,
+      movementByUnit.get('m1')!,
+    ).find((entry) => entry.hex.q === 1 && entry.hex.r === 0);
+
+    expect(preview).toMatchObject({
+      reachable: false,
+      movementMode: 'naval',
+      blockedReason: 'Naval movement lacks bridge clearance',
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails: 'Naval movement lacks bridge clearance',
+    });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      facing: Facing.Southeast,
+      movementType: MovementType.Walk,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.MovementDeclared,
+      ),
+    ).toBe(false);
+
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.MovementInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IMovementInvalidPayload).toMatchObject({
+      unitId: 'm1',
+      reason: 'TerrainBlocked',
+      details: 'Naval movement lacks bridge clearance',
+      heatGenerated: preview!.heatGenerated,
+    });
+  });
+
   it('keeps flotation-hull tracked water movement aligned between preview and commit validation', () => {
     const session = setupSessionAtMovement();
     session.currentState.units.blocker = {

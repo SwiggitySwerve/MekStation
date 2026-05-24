@@ -399,6 +399,44 @@ describe('CompendiumAdapter', () => {
       });
     });
 
+    it('should derive represented Mek entity height for movement capability', () => {
+      const result = adaptUnitFromData(createAtlasData());
+
+      expect(result.unitHeight).toBe(1);
+      expect(toMovementCapability(result).unitHeight).toBe(1);
+    });
+
+    it('should derive represented super-heavy Mek entity height', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        tonnage: 135,
+        weightClass: 'Super Heavy',
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(2);
+      expect(toMovementCapability(result).unitHeight).toBe(2);
+    });
+
+    it('should preserve explicit represented unit height over derived defaults', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'VEHICLE',
+        motionType: 'Naval',
+        movement: {
+          cruiseMP: 3,
+          flankMP: 5,
+          jumpMP: 0,
+          entityHeight: 1.9,
+        },
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(1);
+      expect(toMovementCapability(result)).toMatchObject({
+        movementMode: 'naval',
+        unitHeight: 1,
+      });
+    });
+
     it('should map vehicle motion type into movement pathing mode', () => {
       const result = adaptUnitFromData({
         ...createAtlasData(),
