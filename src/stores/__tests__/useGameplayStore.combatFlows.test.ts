@@ -104,6 +104,26 @@ function buildFakeSession(): {
         type,
         ...(path !== undefined ? { path } : {}),
       });
+      (sessionSnapshot.events as IGameEvent[]).push({
+        id: `movement-${sessionSnapshot.events.length}`,
+        gameId: sessionSnapshot.id,
+        sequence: sessionSnapshot.events.length,
+        turn: 1,
+        phase: GamePhase.Movement,
+        type: GameEventType.MovementDeclared,
+        actorId: unitId,
+        timestamp: '',
+        payload: {
+          unitId,
+          from: { q: 0, r: 0 },
+          to,
+          facing,
+          movementType: type,
+          mpUsed: path?.length ?? 0,
+          heatGenerated: type === MovementType.Run ? 2 : 1,
+          path,
+        },
+      } as IGameEvent);
     },
     applyAttack: (
       attackerId: string,
@@ -131,6 +151,108 @@ function buildFakeSession(): {
   return {
     session: fake as unknown as InteractiveSession,
     calls,
+  };
+}
+
+function buildRejectedMovementSession(): {
+  session: InteractiveSession;
+  calls: FakeSessionCalls;
+  snapshot: IGameSession;
+} {
+  const calls: FakeSessionCalls = { movement: [], attacks: [] };
+  const snapshot: IGameSession = {
+    id: 'rejected-movement-session',
+    createdAt: '',
+    updatedAt: '',
+    config: {
+      mapRadius: 5,
+      turnLimit: 0,
+      victoryConditions: [],
+      optionalRules: [],
+    },
+    units: [],
+    events: [],
+    currentState: {
+      gameId: 'rejected-movement-session',
+      status: GameStatus.Active,
+      turn: 1,
+      phase: GamePhase.Movement,
+      activationIndex: 0,
+      units: {
+        'unit-a': {
+          id: 'unit-a',
+          side: GameSide.Player,
+          position: { q: 0, r: 0 },
+          facing: Facing.North,
+          heat: 0,
+          movementThisTurn: MovementType.Stationary,
+          hexesMovedThisTurn: 0,
+          armor: {},
+          structure: {},
+          destroyedLocations: [],
+          destroyedEquipment: [],
+          ammo: {},
+          pilotWounds: 0,
+          pilotConscious: true,
+          destroyed: false,
+          lockState: LockState.Planning,
+        },
+      },
+      turnEvents: [],
+    },
+  };
+
+  const fake = {
+    applyMovement: (
+      unitId: string,
+      to: { q: number; r: number },
+      facing: Facing,
+      type: MovementType,
+      path?: readonly { q: number; r: number }[],
+    ) => {
+      calls.movement.push({
+        unitId,
+        to,
+        facing,
+        type,
+        ...(path !== undefined ? { path } : {}),
+      });
+      (snapshot.events as IGameEvent[]).push({
+        id: 'movement-invalid',
+        gameId: snapshot.id,
+        sequence: 0,
+        turn: 1,
+        phase: GamePhase.Movement,
+        type: GameEventType.MovementInvalid,
+        actorId: unitId,
+        timestamp: '',
+        payload: {
+          unitId,
+          from: { q: 0, r: 0 },
+          to,
+          facing,
+          movementType: type,
+          reason: 'DestinationOccupied',
+          details: 'Destination hex is occupied',
+          mpCost: 3,
+          heatGenerated: 2,
+        },
+      } as IGameEvent);
+    },
+    getSession: () => snapshot,
+    getState: () => snapshot.currentState,
+    isGameOver: () => false,
+    getResult: () => null,
+    advancePhase: () => undefined,
+    runAITurn: () => undefined,
+    getAvailableActions: () => ({ validMoves: [], validTargets: [] }),
+    concede: () => undefined,
+  };
+
+  return {
+    session: fake as unknown as InteractiveSession,
+    calls,
+    snapshot,
   };
 }
 
@@ -457,6 +579,42 @@ describe('useGameplayStore — combat-phase planning actions', () => {
       });
       expect(useGameplayStore.getState().plannedMovement).toBeNull();
       expect(useGameplayStore.getState().ui.selectedUnitId).toBeNull();
+    });
+
+    it('commitPlannedMovement preserves plan and selection when the engine rejects the move', () => {
+      const { session, calls, snapshot } = buildRejectedMovementSession();
+      const plan = {
+        unitId: 'unit-a',
+        destination: { q: 3, r: -1 },
+        facing: Facing.Southeast,
+        movementType: MovementType.Run,
+        path: [
+          { q: 0, r: 0 },
+          { q: 3, r: -1 },
+        ],
+      };
+      useGameplayStore.setState({
+        interactiveSession: session,
+        session: snapshot,
+        plannedMovement: plan,
+        interactivePhase: InteractivePhase.SelectMovement,
+        ui: {
+          ...useGameplayStore.getState().ui,
+          selectedUnitId: 'unit-a',
+        },
+      });
+
+      useGameplayStore.getState().commitPlannedMovement();
+
+      expect(calls.movement).toHaveLength(1);
+      expect(snapshot.events.at(-1)?.type).toBe(GameEventType.MovementInvalid);
+      expect(useGameplayStore.getState().session).toBe(snapshot);
+      expect(useGameplayStore.getState().plannedMovement).toBe(plan);
+      expect(useGameplayStore.getState().ui.selectedUnitId).toBe('unit-a');
+      expect(useGameplayStore.getState().interactivePhase).toBe(
+        InteractivePhase.SelectMovement,
+      );
+      expect(useAnimationQueue.getState().active).toHaveLength(0);
     });
 
     it('commitPlannedMovement enqueues a 4-hex walk animation that holds phase advancement', () => {

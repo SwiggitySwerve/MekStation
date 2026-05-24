@@ -148,6 +148,7 @@ export function commitPlannedMovementLogic(get: GetFn, set: SetFn): void {
   }
   const unitId = ui.selectedUnitId;
   const beforeSession = interactiveSession.getSession();
+  const beforeEventCount = beforeSession.events.length;
   const initialFacing =
     beforeSession.currentState.units[unitId]?.facing ?? plannedMovement.facing;
 
@@ -159,6 +160,11 @@ export function commitPlannedMovementLogic(get: GetFn, set: SetFn): void {
     plannedMovement.path,
   );
   const nextSession = interactiveSession.getSession();
+  if (!hasNewMovementDeclaredEvent(nextSession, unitId, beforeEventCount)) {
+    set({ session: nextSession });
+    return;
+  }
+
   enqueueCommittedMovementAnimation({
     session: nextSession,
     unitId,
@@ -173,6 +179,18 @@ export function commitPlannedMovementLogic(get: GetFn, set: SetFn): void {
     plannedMovement: null,
     validMovementHexes: [],
     ui: { ...get().ui, selectedUnitId: null },
+  });
+}
+
+function hasNewMovementDeclaredEvent(
+  session: IGameSession,
+  unitId: string,
+  startIndex: number,
+): boolean {
+  return session.events.slice(startIndex).some((event) => {
+    if (event.type !== GameEventType.MovementDeclared) return false;
+    const payload = event.payload as IMovementDeclaredPayload;
+    return payload.unitId === unitId;
   });
 }
 
