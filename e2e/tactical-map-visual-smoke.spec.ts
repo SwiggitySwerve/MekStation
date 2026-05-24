@@ -60,8 +60,31 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-terrain-features',
       'building',
     );
-    await expect(page.getByTestId('hex-movement-badge-0-1')).toContainText(
-      'R/TRK 4MP',
+    const movementBadge = page.getByTestId('hex-movement-badge-0-1');
+    await expect(movementBadge).toContainText('W3/R4/J3 MP');
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-option-count',
+      '3',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-option-types',
+      'walk,run,jump',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-option-costs',
+      'walk:3|run:4|jump:3',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-option-terrain-costs',
+      'walk:2|run:2|jump:0',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-option-elevation-costs',
+      'walk:1|run:1|jump:0',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-option-heats',
+      'walk:0|run:2|jump:3',
     );
     await expect(page.getByTestId('hex-combat-badge-0-0')).toHaveAttribute(
       'data-combat-badge-distance',

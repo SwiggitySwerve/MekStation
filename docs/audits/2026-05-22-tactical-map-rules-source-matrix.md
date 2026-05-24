@@ -42,6 +42,12 @@ actually in front for that view. Remaining isometric browser gaps are broader
 interaction sweeps beyond the smoke harness, such as repeated rotation cycles
 and mobile/pointer gesture coverage.
 
+2026-05-24 top-down movement browser update: the tactical-map browser harness
+now renders a single highlighted destination with walk, run, and jump options
+and verifies the combined badge metadata for option costs, terrain costs,
+elevation costs, and heat. Remaining browser movement gaps are broad path-shape
+and invalid-destination sweeps beyond the smoke harness.
+
 2026-05-24 movement gap update: the movement row's older frogman/swim and
 TacOps infantry pavement-bonus gaps are closed by the current
 `tactical-map-interface` spec and fixtures. Remaining movement oracle gaps are

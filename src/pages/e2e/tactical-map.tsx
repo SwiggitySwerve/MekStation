@@ -122,6 +122,22 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
             movementRange={[
               {
                 hex: { q: 0, r: 1 },
+                mpCost: 3,
+                terrainCost: 2,
+                elevationDelta: 1,
+                elevationCost: 1,
+                heatGenerated: 0,
+                movementMode: 'tracked',
+                reachable: true,
+                movementType: MovementType.Walk,
+                path: [
+                  { q: -1, r: 0 },
+                  { q: 0, r: 0 },
+                  { q: 0, r: 1 },
+                ],
+              },
+              {
+                hex: { q: 0, r: 1 },
                 mpCost: 4,
                 terrainCost: 2,
                 elevationDelta: 1,
@@ -133,6 +149,21 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
                 path: [
                   { q: -1, r: 0 },
                   { q: 0, r: 0 },
+                  { q: 0, r: 1 },
+                ],
+              },
+              {
+                hex: { q: 0, r: 1 },
+                mpCost: 3,
+                terrainCost: 0,
+                elevationDelta: 1,
+                elevationCost: 0,
+                heatGenerated: 3,
+                movementMode: 'jump',
+                reachable: true,
+                movementType: MovementType.Jump,
+                path: [
+                  { q: -1, r: 0 },
                   { q: 0, r: 1 },
                 ],
               },

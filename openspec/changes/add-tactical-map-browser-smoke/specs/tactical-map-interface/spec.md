@@ -17,6 +17,9 @@ the top-down map.
 - **WHEN** browser automation inspects the top-down map
 - **THEN** terrain labels, elevation labels, movement badges, and combat badges
   SHALL expose the expected projection metadata
+- **AND** a movement-highlighted hex with multiple legal movement modes SHALL
+  expose the walk, run, and jump option costs, terrain costs, elevation costs,
+  and heat metadata together
 - **WHEN** browser automation switches to isometric mode and rotates the camera
 - **THEN** isometric stack, occluder, visibility, rotation, and depth metadata
   SHALL update in the rendered DOM

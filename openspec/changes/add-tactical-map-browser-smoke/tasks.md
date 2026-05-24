@@ -15,6 +15,8 @@
   output.
 - [x] 2.4 Add browser coverage proving camera rotation moves the active
   occluder highlight between opposing tall elevation stacks.
+- [x] 2.5 Add browser coverage proving a highlighted movement hex exposes
+  walk, run, and jump option metadata together.
 
 ## 3. Validation
 
@@ -23,3 +25,5 @@
 - [x] 3.3 Standard format/lint/type/build gates pass.
 - [x] 3.4 Focused Playwright smoke passes with the rotated occluder handoff
   case.
+- [x] 3.5 Focused Playwright smoke passes with same-hex walk/run/jump movement
+  option metadata.
