@@ -326,6 +326,51 @@ describe('HexMapDisplay combat projection', () => {
     ).not.toContain('front-long');
   });
 
+  it('extends firing-arc shading through represented selected weapon extreme range', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
+    const enemy = makeToken({
+      unitId: 'enemy',
+      side: GameSide.Opponent,
+      position: { q: 0, r: -7 },
+    });
+
+    render(
+      <HexMapDisplay
+        mapId="combat-map"
+        radius={7}
+        tokens={[selected, enemy]}
+        selectedHex={null}
+        selectedWeaponIds={['extreme-lrm']}
+        unitWeapons={{
+          selected: [
+            makeWeapon({
+              id: 'extreme-lrm',
+              mountingArc: FiringArc.Front,
+              ranges: { short: 2, medium: 4, long: 6, extreme: 8 },
+            }),
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId('firing-arc-hex-0,-7')).toHaveAttribute(
+      'data-arc',
+      'front',
+    );
+
+    const targetHex = screen.getByTestId('hex-0--7');
+    expect(targetHex).toHaveAttribute('data-combat-range-bracket', 'extreme');
+    expect(targetHex).toHaveAttribute('data-combat-distance', '7');
+    expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    expect(targetHex).toHaveAttribute('data-weapons-in-range', 'extreme-lrm');
+    expect(targetHex).toHaveAttribute('data-weapons-available', 'extreme-lrm');
+  });
+
   it('keeps all firing arcs visible when any selected weapon is omni-mounted', () => {
     const selected = makeToken({
       unitId: 'selected',

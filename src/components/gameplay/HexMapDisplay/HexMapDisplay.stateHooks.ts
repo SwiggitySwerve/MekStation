@@ -323,7 +323,9 @@ export function useSelectedWeaponMaxRange({
       if (operationalWeapons.length === 0) return radius;
       return Math.max(
         0,
-        ...operationalWeapons.map((weapon) => weapon.ranges.long),
+        ...operationalWeapons.map((weapon) =>
+          Math.max(weapon.ranges.long, weapon.ranges.extreme ?? 0),
+        ),
       );
     }
     if (!selectedUnitPosition || attackRange.length === 0) return radius;

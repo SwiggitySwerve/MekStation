@@ -2699,6 +2699,20 @@ When the attack plan has one or more selected weapon IDs, combat projection surf
 - **THEN** firing-arc shading SHALL render only arcs compatible with those operational mounted weapons
 - **AND** rear-mounted weapons SHALL not shade front arcs as if they were front-mounted
 
+#### Scenario: Selected weapon extreme range shades firing arc envelope
+
+- **GIVEN** a selected unit has an operational selected weapon with represented long range 6 and extreme range 8
+- **AND** a visible enemy target is in the selected weapon's mounted arc at distance 7
+- **WHEN** the combat map renders selected-weapon range, target, and firing-arc projection
+- **THEN** the target hex SHALL report the `extreme` combat range bracket
+- **AND** the firing-arc overlay SHALL shade that distance-7 hex as part of the selected weapon's compatible arc
+
+#### Scenario: Weapons without extreme range keep long-range arc envelope
+
+- **GIVEN** a selected unit has an operational selected weapon with no represented extreme range
+- **WHEN** the firing-arc overlay renders for the selected weapon
+- **THEN** the overlay SHALL use the weapon's represented long range as its maximum shaded envelope
+
 #### Scenario: Selected weapon ids constrain map combat projection
 
 - **GIVEN** a selected unit has multiple configured weapons

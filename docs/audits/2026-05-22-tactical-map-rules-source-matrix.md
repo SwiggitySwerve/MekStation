@@ -326,6 +326,13 @@ front-mounted selected weapons no longer shade unrelated arcs as tactically
 available; weapons without a represented mount keep the legacy all-arc display,
 and destroyed-only weapon lists produce no arc shading.
 
+Additional selected-weapon extreme-range overlay pin: the firing-arc overlay
+now uses represented `ranges.extreme` when present while deriving selected
+operational weapon reach. Extreme-range target hexes that combat projection
+marks attackable therefore receive matching arc shading instead of appearing
+outside the selected weapon's envelope; weapons without represented extreme
+range continue to cap the overlay at long range.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:
