@@ -19,6 +19,7 @@ import {
 import {
   GameSide,
   GAME_INTENT_TYPES,
+  MovementType,
   type IGameIntent,
   type ITacticalCommand,
 } from '@/types/gameplay';
@@ -27,6 +28,7 @@ import { SUPPORTED_PHYSICAL_ATTACK_TYPES } from '@/utils/gameplay/physicalAttack
 import type { ICombatFeatureSupportEntry } from '../CombatFeatureSupport';
 
 import {
+  BATTLEMECH_ABSENT_ACTION_SUPPORT,
   COMBAT_COMMAND_ACTION_SUPPORT,
   COMBAT_DIRECT_UI_ACTION_SUPPORT,
   ENGINE_WIRE_COMBAT_INTENT_KINDS,
@@ -135,6 +137,48 @@ describe('BattleMech combat action support catalog', () => {
     expect(
       supportIdsByLevel(COMBAT_COMMAND_ACTION_SUPPORT, 'unsupported'),
     ).toEqual(['movement.stabilize']);
+  });
+
+  it('tracks official BattleMech action surfaces that have no authoritative command or wire path', () => {
+    const playerCommandIds = commandIds([
+      ...buildMovementCommands(),
+      ...buildFacingCommands(),
+      ...buildWeaponAttackCommands(),
+      ...buildPhysicalAttackCommands(),
+      ...buildHeatEndCommands(),
+      ...buildUtilityCommands(),
+    ]);
+
+    expect(sortedKeys(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([
+      'movement.activate-masc',
+      'movement.activate-supercharger',
+      'movement.go-prone',
+      'movement.sprint',
+    ]);
+    expect(supportGaps(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([]);
+    expect(
+      supportIdsByLevel(BATTLEMECH_ABSENT_ACTION_SUPPORT, 'unsupported'),
+    ).toEqual([
+      'movement.activate-masc',
+      'movement.activate-supercharger',
+      'movement.go-prone',
+      'movement.sprint',
+    ]);
+    expect(
+      sortedKeys(BATTLEMECH_ABSENT_ACTION_SUPPORT).filter((id) =>
+        playerCommandIds.includes(id),
+      ),
+    ).toEqual([]);
+    expect(Object.values(MovementType)).not.toContain('sprint');
+    expect(BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.sprint']).toMatchObject({
+      layer: 'absent-action-surface',
+      gap: expect.stringContaining('no authoritative sprint action path'),
+    });
+    expect(
+      BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.activate-masc'],
+    ).toMatchObject({
+      gap: expect.stringContaining('no tactical command'),
+    });
   });
 
   it('keeps game intent support mapped to authoritative server wire kinds', () => {

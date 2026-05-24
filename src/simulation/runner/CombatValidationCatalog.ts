@@ -1,6 +1,7 @@
 import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
 
 import {
+  BATTLEMECH_ABSENT_ACTION_SUPPORT,
   COMBAT_COMMAND_ACTION_SUPPORT,
   COMBAT_DIRECT_UI_ACTION_SUPPORT,
   GAME_INTENT_ACTION_SUPPORT,
@@ -76,6 +77,7 @@ export type CombatValidationCatalogSection = Readonly<
 export const BATTLEMECH_COMBAT_VALIDATION_CATALOG = {
   actions: {
     tacticalCommands: COMBAT_COMMAND_ACTION_SUPPORT,
+    absentActionSurfaces: BATTLEMECH_ABSENT_ACTION_SUPPORT,
     directUiActions: COMBAT_DIRECT_UI_ACTION_SUPPORT,
     gmCommandExclusions: GM_COMMAND_EXCLUSION_SUPPORT,
     gameIntents: GAME_INTENT_ACTION_SUPPORT,

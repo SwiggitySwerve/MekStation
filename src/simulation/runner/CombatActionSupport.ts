@@ -6,6 +6,7 @@ import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
 export { P2P_INTENT_TRANSLATION_SUPPORT } from './CombatP2PIntentSupport';
 
 export type CombatActionLayer =
+  | 'absent-action-surface'
   | 'tactical-command'
   | 'direct-ui-control'
   | 'game-intent'
@@ -227,6 +228,29 @@ export const GM_COMMAND_EXCLUSION_SUPPORT = {
     'gm.grant-resource',
     'tactical-command',
     'GM referee commands are shell-mode tools, not player BattleMech combat actions',
+  ),
+} satisfies Record<string, ICombatActionSupportEntry>;
+
+export const BATTLEMECH_ABSENT_ACTION_SUPPORT = {
+  'movement.sprint': unsupported(
+    'movement.sprint',
+    'absent-action-surface',
+    'Sprint has source-backed MASC/Supercharger movement formulas in rule support, but MovementType, tactical commands, game intents, wire payloads, P2P translation, and runner movement phases have no authoritative sprint action path',
+  ),
+  'movement.go-prone': unsupported(
+    'movement.go-prone',
+    'absent-action-surface',
+    'Prone state and fall/stand-up PSR behavior exist, but there is no voluntary go-prone tactical command, game intent, wire payload, P2P translation, or runner action path',
+  ),
+  'movement.activate-masc': unsupported(
+    'movement.activate-masc',
+    'absent-action-surface',
+    'Runner movement can consume explicit activeMASC state, but no tactical command, game intent, wire payload, P2P translation, or reducer path can activate MASC during combat',
+  ),
+  'movement.activate-supercharger': unsupported(
+    'movement.activate-supercharger',
+    'absent-action-surface',
+    'Runner movement can consume explicit activeSupercharger state, but no tactical command, game intent, wire payload, P2P translation, or reducer path can activate the Supercharger during combat',
   ),
 } satisfies Record<string, ICombatActionSupportEntry>;
 

@@ -21,6 +21,13 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **THEN** the row SHALL reference executable tests or source support
 - **AND** the referenced tests SHALL validate behavior through the narrowest helper and at least one higher-level combat path when that path exists
 
+#### Scenario: Missing action surfaces stay visible
+
+- **GIVEN** a BattleMech action surface has source-backed or product-visible relevance but no authoritative command, game intent, wire payload, P2P translation, or runner action path
+- **WHEN** the action support catalog is contract-tested
+- **THEN** sprint movement, voluntary go-prone, MASC activation, and Supercharger activation SHALL appear as unsupported absent-action rows
+- **AND** those rows SHALL NOT be inferred from helper prose or omitted because no UI command currently emits them
+
 ### Requirement: Physical Attack Legality Gates
 
 Physical attack declaration and resolution SHALL validate action-specific legality gates before scheduling a combat action. Push, charge, death from above, melee weapon, punch, kick, and club logic SHALL share the same legality helpers across eligibility display, event-sourced declaration, and simulation runner resolution so UI options, game events, and automated combat cannot diverge.

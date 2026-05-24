@@ -83,6 +83,10 @@ describe('BattleMech combat validation catalog index', () => {
     expect(Array.from(allIds).sort()).toEqual(
       expect.arrayContaining([
         'movement.walk',
+        'movement.sprint',
+        'movement.activate-masc',
+        'movement.activate-supercharger',
+        'movement.go-prone',
         'weapon.fire-volley',
         'attack_declared',
         'attack_invalid',
