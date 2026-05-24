@@ -1,6 +1,7 @@
 import type {
   IHexCoordinate,
   IHexTerrain,
+  ITerrainFeature,
   IUnitToken,
   MapIsometricRotationStep,
   MapProjectionMode,
@@ -50,7 +51,12 @@ export function isometricDepthKey(
 ): number {
   const rotated = rotateAxialCamera(hex, rotationStep);
   const terrain = terrainLookup.get(coordToKey(hex));
-  const elevation = terrain ? isometricOccluderElevation(terrain) : 0;
+  const elevation = terrain
+    ? getIsometricTerrainEffectiveHeight({
+        elevation: terrain.elevation,
+        terrainFeatures: terrain.features,
+      })
+    : 0;
   return (rotated.r * 2 + rotated.q) * 100 + elevation;
 }
 
@@ -82,17 +88,23 @@ function formatSignedElevation(elevation: number): string {
   return elevation >= 0 ? `+${elevation}` : `${elevation}`;
 }
 
-function maxBuildingLevel(terrain: IHexTerrain): number {
+function maxBuildingLevel(terrainFeatures: readonly ITerrainFeature[]): number {
   return Math.max(
     0,
-    ...terrain.features
+    ...terrainFeatures
       .filter((feature) => feature.type === TerrainType.Building)
       .map((feature) => feature.level),
   );
 }
 
-function isometricOccluderElevation(terrain: IHexTerrain): number {
-  return terrain.elevation + maxBuildingLevel(terrain);
+export function getIsometricTerrainEffectiveHeight({
+  elevation,
+  terrainFeatures,
+}: {
+  readonly elevation: number;
+  readonly terrainFeatures: readonly ITerrainFeature[];
+}): number {
+  return elevation + maxBuildingLevel(terrainFeatures);
 }
 
 function isTerrainInFrontOfUnit(
@@ -147,7 +159,10 @@ export function deriveIsometricTerrainOcclusionInfo({
 
     terrainLookup.forEach((terrain) => {
       if (ids.has(token.unitId)) return;
-      const occluderElevation = isometricOccluderElevation(terrain);
+      const occluderElevation = getIsometricTerrainEffectiveHeight({
+        elevation: terrain.elevation,
+        terrainFeatures: terrain.features,
+      });
       if (occluderElevation - unitElevation < 2) return;
       if (hexDistance(position, terrain.coordinate) > 2) return;
       if (isTerrainInFrontOfUnit(position, terrain.coordinate, rotationStep)) {

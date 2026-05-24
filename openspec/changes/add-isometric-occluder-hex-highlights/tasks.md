@@ -13,6 +13,7 @@
 - [x] 2.4 Count represented building levels in isometric occluder height and
       scene depth ordering
 - [x] 2.5 Report effective occluder height in the visible highlight label
+- [x] 2.6 Render represented building levels as visible isometric stack layers
 
 ## 3. Verification
 
@@ -25,3 +26,4 @@
 - [x] 3.7 `npx.cmd openspec validate add-isometric-occluder-hex-highlights --strict` passes
 - [x] 3.8 Focused building-level occluder coverage passes
 - [x] 3.9 Focused occluder highlight label coverage passes
+- [x] 3.10 Focused building-stack render coverage passes

@@ -1,10 +1,12 @@
 import React from 'react';
 
-import type { IHexCoordinate } from '@/types/gameplay';
-
-import type { IsometricTerrainOccluderInfo } from './projection';
+import type { IHexCoordinate, ITerrainFeature } from '@/types/gameplay';
 
 import { formatElevationLabel } from './HexCell.labels';
+import {
+  getIsometricTerrainEffectiveHeight,
+  type IsometricTerrainOccluderInfo,
+} from './projection';
 import { hexPath } from './renderHelpers';
 
 const ISOMETRIC_ELEVATION_LAYER_OFFSET = 6;
@@ -13,12 +15,19 @@ const MAX_RENDERED_ELEVATION_LAYERS = 8;
 export function getIsometricElevationLayerCount({
   isIsometricTile,
   elevation,
+  terrainFeatures = [],
 }: {
   readonly isIsometricTile: boolean;
   readonly elevation: number;
+  readonly terrainFeatures?: readonly ITerrainFeature[];
 }): number {
-  if (!isIsometricTile || elevation <= 0) return 0;
-  return Math.min(elevation, MAX_RENDERED_ELEVATION_LAYERS);
+  if (!isIsometricTile) return 0;
+  const effectiveHeight = getIsometricTerrainEffectiveHeight({
+    elevation,
+    terrainFeatures,
+  });
+  if (effectiveHeight <= 0) return 0;
+  return Math.min(effectiveHeight, MAX_RENDERED_ELEVATION_LAYERS);
 }
 
 export function IsometricElevationStack({

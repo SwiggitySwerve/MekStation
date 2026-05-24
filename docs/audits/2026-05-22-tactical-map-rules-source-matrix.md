@@ -38,9 +38,10 @@ claim full rules trust.
 Additional isometric building-height pin: `lineOfSight.ts` already treats
 represented building feature levels as vertical LOS height. The isometric
 readability projection now mirrors that vertical fact for presentation-only
-occluder detection and scene depth ordering, so a level-3 building on flat
-ground can highlight/foreground a unit hidden behind it instead of acting like
-flat elevation-0 terrain.
+occluder detection, scene depth ordering, and visible isometric stack layers,
+so a level-3 building on flat ground can highlight/foreground a unit hidden
+behind it and render as a three-layer 2.5D stack instead of acting like flat
+elevation-0 terrain.
 
 Additional terrain feature-level pin: top-down and isometric hex reference
 labels now preserve represented terrain feature levels/depths/intensities in

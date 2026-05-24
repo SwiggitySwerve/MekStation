@@ -25,6 +25,8 @@ height for this readability projection
 **AND** its elevation stack SHALL indicate that it is the source of occlusion
 **AND** the highlight's accessible label SHALL report the effective occluder
 height, including represented building levels
+**AND** represented building levels SHALL contribute to visible isometric stack
+layers even when the base terrain elevation is flat
 
 #### Scenario: Camera rotation clears stale occluder highlights
 

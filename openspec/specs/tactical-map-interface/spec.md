@@ -2834,6 +2834,7 @@ Isometric mode SHALL make stacked elevation layers readable, support battlefield
 - **AND** the map SHALL communicate when fog or visibility rules, rather than terrain occlusion, prevent inspection
 - **AND** represented building levels SHALL contribute to isometric occluder height and scene depth ordering so tall buildings do not disappear as flat ground in 2.5D mode
 - **AND** isometric occluder highlight labels SHALL report the effective occluder height, including represented building levels
+- **AND** represented building levels SHALL render as visible isometric stack layers even when the base terrain elevation is flat
 
 ## Data Model Requirements
 

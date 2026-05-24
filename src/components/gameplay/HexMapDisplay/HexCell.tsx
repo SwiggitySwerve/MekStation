@@ -221,6 +221,7 @@ export const HexCell = React.memo(function HexCell({
   const elevationLayerCount = getIsometricElevationLayerCount({
     isIsometricTile,
     elevation,
+    terrainFeatures,
   });
 
   const hasOverlay =

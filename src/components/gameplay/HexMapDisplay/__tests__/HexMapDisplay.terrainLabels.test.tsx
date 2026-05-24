@@ -343,6 +343,54 @@ describe('HexMapDisplay terrain and elevation labels', () => {
     });
   });
 
+  it('renders represented building levels as isometric stack layers on flat terrain', () => {
+    const flatBuilding: IHexTerrain = {
+      coordinate: { q: 1, r: 0 },
+      elevation: 0,
+      features: [{ type: TerrainType.Building, level: 3 }],
+    };
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="building-stack-labels"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        hexTerrain={[flatBuilding]}
+      />,
+    );
+
+    expect(screen.queryByTestId('hex-elevation-stack-1-0')).toBeNull();
+    expect(screen.getByTestId('hex-terrain-label-1-0')).toHaveTextContent(
+      'BLDG3',
+    );
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+
+    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-elevation',
+      '0',
+    );
+    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-elevation-layers',
+      '3',
+    );
+    expect(screen.getByTestId('hex-elevation-stack-1-0')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('hex-elevation-stack-layer-1-0-3'),
+    ).toHaveAttribute('aria-label', 'Elevation layer +3 of hex 1,0');
+    expect(
+      screen.getByTestId('hex-elevation-stack-layer-1-0-3'),
+    ).toHaveTextContent('+3');
+    expect(
+      screen.getByTestId('hex-elevation-stack-layer-1-0-1'),
+    ).toBeInTheDocument();
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('keeps top-down terrain and elevation badges exposed across playable zoom levels', () => {
     const roughRise: IHexTerrain = {
       coordinate: { q: 1, r: 0 },
