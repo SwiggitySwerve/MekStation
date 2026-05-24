@@ -336,20 +336,25 @@ export function HeatBadge({
   y,
   hex,
   heatGenerated,
+  movementOptionHeats,
 }: {
   readonly x: number;
   readonly y: number;
   readonly hex: IHexCoordinate;
   readonly heatGenerated?: number;
+  readonly movementOptionHeats?: string;
 }): React.ReactElement | null {
   if (!heatGenerated) return null;
-  const title = `Heat generated +${heatGenerated}`;
+  const title = movementOptionHeats
+    ? `Max movement heat +${heatGenerated}; options ${movementOptionHeats}`
+    : `Heat generated +${heatGenerated}`;
   return (
     <g
       pointerEvents="none"
       data-testid={`hex-heat-badge-${hex.q}-${hex.r}`}
       aria-label={title}
       data-heat-generated={heatGenerated}
+      data-movement-option-heats={movementOptionHeats}
     >
       <title>{title}</title>
       <rect

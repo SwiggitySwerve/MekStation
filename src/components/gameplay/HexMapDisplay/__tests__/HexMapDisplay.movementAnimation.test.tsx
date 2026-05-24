@@ -689,6 +689,10 @@ describe('HexMapDisplay tactical visual layers', () => {
       'walk:1|run:1|jump:0',
     );
     expect(hex).toHaveAttribute(
+      'data-movement-option-heats',
+      'walk:0|run:2|jump:1',
+    );
+    expect(hex).toHaveAttribute(
       'data-tactical-projection-explanation',
       expect.stringContaining(
         'movement options walk via tracked reachable 3 MP terrain +1 elevation delta +1 cost +1 heat +0, run via tracked reachable 3 MP terrain +2 elevation delta +1 cost +1 heat +2, jump reachable 1 MP terrain +0 elevation delta +2 cost +0 heat +1',
@@ -724,6 +728,15 @@ describe('HexMapDisplay tactical visual layers', () => {
       'data-movement-badge-option-elevation-costs',
       'walk:1|run:1|jump:0',
     );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-option-heats',
+      'walk:0|run:2|jump:1',
+    );
+    expect(screen.getByTestId('hex-heat-badge-1-0')).toHaveTextContent('+2H');
+    expect(screen.getByTestId('hex-heat-badge-1-0')).toHaveAttribute(
+      'data-movement-option-heats',
+      'walk:0|run:2|jump:1',
+    );
 
     fireEvent.mouseEnter(hex);
 
@@ -740,6 +753,10 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(optionRows).toHaveAttribute(
       'data-movement-option-states',
       'walk:reachable|run:reachable|jump:reachable',
+    );
+    expect(optionRows).toHaveAttribute(
+      'data-movement-option-heats',
+      'walk:0|run:2|jump:1',
     );
     expect(
       screen.getByTestId(

@@ -243,6 +243,27 @@ export function movementOptionElevationCostsAttribute(
   return costOptions.length > 0 ? costOptions.join('|') : undefined;
 }
 
+export function movementOptionHeatGeneratedAttribute(
+  options: readonly IMovementRangeModeOption[],
+): string | undefined {
+  const heatOptions = options
+    .filter((option) => option.heatGenerated !== undefined)
+    .map((option) => `${option.movementType}:${option.heatGenerated}`);
+  return heatOptions.length > 0 ? heatOptions.join('|') : undefined;
+}
+
+export function movementOptionMaxReachableHeatGenerated(
+  movementInfo?: IMovementRangeHex,
+): number | undefined {
+  if (!movementInfo) return undefined;
+  const reachableHeatValues = movementOptionsForBadge(movementInfo)
+    .filter((option) => option.reachable)
+    .map((option) => option.heatGenerated)
+    .filter((heat): heat is number => heat !== undefined);
+  if (reachableHeatValues.length === 0) return movementInfo.heatGenerated;
+  return Math.max(...reachableHeatValues);
+}
+
 function formatSignedCost(value: number): string {
   return value >= 0 ? `+${value}` : `${value}`;
 }

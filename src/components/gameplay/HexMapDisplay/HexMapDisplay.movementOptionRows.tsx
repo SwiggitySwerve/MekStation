@@ -12,6 +12,7 @@ import {
   movementOptionCostsAttribute,
   movementOptionElevationCostsAttribute,
   movementOptionElevationDeltasAttribute,
+  movementOptionHeatGeneratedAttribute,
   movementOptionInvalidDetailsAttribute,
   movementOptionInvalidReasonsAttribute,
   movementOptionsForBadge,
@@ -55,6 +56,7 @@ export function MovementModeOptionRows({
       data-movement-option-elevation-costs={movementOptionElevationCostsAttribute(
         options,
       )}
+      data-movement-option-heats={movementOptionHeatGeneratedAttribute(options)}
       data-movement-option-blocked-reasons={movementOptionBlockedReasonsAttribute(
         options,
       )}

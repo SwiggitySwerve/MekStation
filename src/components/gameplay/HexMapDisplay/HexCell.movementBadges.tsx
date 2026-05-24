@@ -11,6 +11,7 @@ import {
   movementOptionBlockedReasonsAttribute,
   movementOptionElevationCostsAttribute,
   movementOptionElevationDeltasAttribute,
+  movementOptionHeatGeneratedAttribute,
   movementOptionInvalidDetailsAttribute,
   movementOptionInvalidReasonsAttribute,
   movementOptionTerrainCostsAttribute,
@@ -221,6 +222,9 @@ export function MovementReachBadge({
           ? movementOptionElevationCostsAttribute(movementOptions)
           : undefined
       }
+      data-movement-badge-option-heats={movementOptionHeatGeneratedAttribute(
+        movementOptions,
+      )}
     >
       <title>{title}</title>
       <rect

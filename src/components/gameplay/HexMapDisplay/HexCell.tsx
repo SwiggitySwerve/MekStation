@@ -62,8 +62,10 @@ import {
   movementOptionBlockedReasonsAttribute,
   movementOptionElevationCostsAttribute,
   movementOptionElevationDeltasAttribute,
+  movementOptionHeatGeneratedAttribute,
   movementOptionInvalidDetailsAttribute,
   movementOptionInvalidReasonsAttribute,
+  movementOptionMaxReachableHeatGenerated,
   movementOptionStatesAttribute,
   movementOptionTerrainCostsAttribute,
   movementOptionTypesAttribute,
@@ -341,6 +343,9 @@ export const HexCell = React.memo(function HexCell({
         movementOptions ?? [],
       )}
       data-movement-option-elevation-costs={movementOptionElevationCostsAttribute(
+        movementOptions ?? [],
+      )}
+      data-movement-option-heats={movementOptionHeatGeneratedAttribute(
         movementOptions ?? [],
       )}
       data-mp-cost={movementInfo?.mpCost}
@@ -626,7 +631,10 @@ export const HexCell = React.memo(function HexCell({
         x={x}
         y={y}
         hex={hex}
-        heatGenerated={movementInfo?.heatGenerated}
+        heatGenerated={movementOptionMaxReachableHeatGenerated(movementInfo)}
+        movementOptionHeats={movementOptionHeatGeneratedAttribute(
+          movementOptions ?? [],
+        )}
       />
       <MovementInvalidBadge x={x} y={y} hex={hex} movementInfo={movementInfo} />
       <MovementHoverCostBadge
