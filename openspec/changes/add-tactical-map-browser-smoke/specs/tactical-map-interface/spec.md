@@ -1,0 +1,24 @@
+# Spec Delta: Tactical Map Interface
+
+## MODIFIED Requirements
+
+### Requirement: Top-Down and Isometric Tactical Map Rendering
+
+Each rendered hex SHALL expose terrain type and elevation. Elevation SHALL be visible as a readable number on or near the hex at playable zoom levels, while terrain visuals and overlays remain distinguishable.
+
+Isometric mode SHALL render terrain/elevation stacks, unit tokens, occluder
+highlights, and camera rotation metadata from the same projection data used by
+the top-down map.
+
+#### Scenario: Browser smoke covers top-down and isometric tactical context
+
+- **GIVEN** the development/test tactical map browser harness renders a map
+  with terrain, elevation, movement, combat, and an isometric occluder case
+- **WHEN** browser automation inspects the top-down map
+- **THEN** terrain labels, elevation labels, movement badges, and combat badges
+  SHALL expose the expected projection metadata
+- **WHEN** browser automation switches to isometric mode and rotates the camera
+- **THEN** isometric stack, occluder, visibility, rotation, and depth metadata
+  SHALL update in the rendered DOM
+- **AND** the rendered map output SHALL contain nonblank top-down and isometric
+  pixels

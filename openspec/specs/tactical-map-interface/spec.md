@@ -2839,6 +2839,19 @@ Replay and recovery surfaces SHALL render terrain and elevation from the same ev
 - **THEN** top-down mode SHALL show the seeded terrain type and elevation number for those hexes
 - **AND** the map SHALL retain the same terrain/elevation data when switching to isometric presentation mode
 
+#### Scenario: Browser smoke covers top-down and isometric tactical context
+
+- **GIVEN** the development/test tactical map browser harness renders a map
+  with terrain, elevation, movement, combat, and an isometric occluder case
+- **WHEN** browser automation inspects the top-down map
+- **THEN** terrain labels, elevation labels, movement badges, and combat badges
+  SHALL expose the expected projection metadata
+- **WHEN** browser automation switches to isometric mode and rotates the camera
+- **THEN** isometric stack, occluder, visibility, rotation, and depth metadata
+  SHALL update in the rendered DOM
+- **AND** the rendered map output SHALL contain nonblank top-down and isometric
+  pixels
+
 ### Requirement: Isometric Projection Parity And Occlusion Tools
 
 Isometric mode SHALL be presentation state only and SHALL consume the same terrain, elevation, movement, combat, LOS, fog, cover, and firing-arc projection data as top-down mode.

@@ -1,0 +1,106 @@
+import { expect, test, type Locator } from '@playwright/test';
+import sharp from 'sharp';
+
+async function expectNonBlankRender(
+  locator: Locator,
+  label: string,
+): Promise<void> {
+  const screenshot = await locator.screenshot({ animations: 'disabled' });
+  const { data } = await sharp(screenshot)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const quantizedColors = new Set<string>();
+  let contrastedPixels = 0;
+
+  for (let offset = 0; offset < data.length; offset += 4 * 8) {
+    const alpha = data[offset + 3];
+    if (alpha < 16) continue;
+
+    const red = data[offset];
+    const green = data[offset + 1];
+    const blue = data[offset + 2];
+    quantizedColors.add(`${red >> 4},${green >> 4},${blue >> 4}`);
+
+    if (Math.max(red, green, blue) - Math.min(red, green, blue) > 32) {
+      contrastedPixels += 1;
+    }
+  }
+
+  expect(
+    quantizedColors.size,
+    `${label} should render more than a flat color`,
+  ).toBeGreaterThan(8);
+  expect(
+    contrastedPixels,
+    `${label} should contain visible terrain/token/overlay contrast`,
+  ).toBeGreaterThan(150);
+}
+
+test.describe('Tactical map visual smoke @smoke @game', () => {
+  test('renders top-down labels and rotatable isometric occlusion in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map');
+
+    const harness = page.getByTestId('tactical-map-e2e-harness');
+    const map = page.getByTestId('hex-map-container');
+    const projectionLayer = page.getByTestId('map-projection-layer');
+
+    await expect(harness).toBeVisible();
+    await expect(projectionLayer).toHaveAttribute(
+      'data-projection-mode',
+      'topDown',
+    );
+    await expect(page.getByTestId('hex-elevation-label-1-0')).toContainText(
+      '+4',
+    );
+    await expect(page.getByTestId('hex-terrain-label-1-0')).toHaveAttribute(
+      'data-terrain-features',
+      'building',
+    );
+    await expect(page.getByTestId('hex-movement-badge-0-1')).toContainText(
+      'R/TRK 4MP',
+    );
+    await expect(page.getByTestId('hex-combat-badge-0-0')).toHaveAttribute(
+      'data-combat-badge-distance',
+      '1',
+    );
+    await expectNonBlankRender(map, 'top-down tactical map');
+
+    await page.getByTestId('projection-toggle').click();
+
+    await expect(projectionLayer).toHaveAttribute(
+      'data-projection-mode',
+      'isometric2d',
+    );
+    await expect(page.getByTestId('isometric-scene-layer')).toBeVisible();
+    await expect(page.getByTestId('hex-elevation-stack-1-0')).toBeVisible();
+    await expect(
+      page.getByTestId('isometric-visibility-halo-occluded'),
+    ).toBeVisible();
+    await expect(
+      page.getByTestId('isometric-scene-token-occluded'),
+    ).toHaveAttribute('data-isometric-foreground-boost', 'true');
+    await expect(
+      page.getByTestId('isometric-scene-token-occluded'),
+    ).toHaveAttribute('data-isometric-occluder-hex', '1,0');
+
+    const eastHex = page.getByTestId('isometric-scene-hex-1-0');
+    const eastDepthBefore = await eastHex.getAttribute(
+      'data-isometric-depth-key',
+    );
+
+    await expectNonBlankRender(map, 'isometric tactical map');
+    await page.getByTestId('projection-rotate-right').click();
+
+    await expect(
+      page.getByTestId('isometric-rotation-heading'),
+    ).toHaveAttribute('data-isometric-rotation-step', '1');
+    await expect(eastHex).not.toHaveAttribute(
+      'data-isometric-depth-key',
+      eastDepthBefore ?? '',
+    );
+  });
+});
