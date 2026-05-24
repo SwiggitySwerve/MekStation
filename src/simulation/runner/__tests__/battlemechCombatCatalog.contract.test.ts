@@ -1223,6 +1223,15 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(getSPADefinition('forward_observer')).not.toBeNull();
     expect(SPA_CATALOG.forward_observer).toBeDefined();
     expect(SPA_COMBAT_SUPPORT.forward_observer.level).toBe('integrated');
+    expect(SPA_CATALOG.sandblaster).toMatchObject({
+      combatEffect: expect.stringContaining('+4/+3/+2'),
+      requiresDesignation: true,
+      designationType: 'weapon_type',
+    });
+    expect(getSPADefinition('sandblaster')).toMatchObject({
+      requiresDesignation: true,
+      designationType: 'weapon_type',
+    });
 
     expect(
       Object.values(SPA_COMBAT_SUPPORT).filter(

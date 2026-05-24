@@ -589,6 +589,15 @@ describe('spaModifiers', () => {
       expect(gunnerySPAs.length).toBeGreaterThan(3);
     });
 
+    it('declares Sandblaster as a designated cluster-table damage SPA', () => {
+      expect(SPA_CATALOG.sandblaster).toMatchObject({
+        pipelines: ['damage'],
+        combatEffect: expect.stringContaining('+4/+3/+2'),
+        requiresDesignation: true,
+        designationType: 'weapon_type',
+      });
+    });
+
     it('hasSPA correctly checks ability list', () => {
       expect(hasSPA(['weapon-specialist', 'sniper'], 'sniper')).toBe(true);
       expect(hasSPA(['weapon-specialist'], 'sniper')).toBe(false);

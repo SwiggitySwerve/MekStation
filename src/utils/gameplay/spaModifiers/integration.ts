@@ -18,7 +18,8 @@
  *   - Range Master       (range_bracket)
  *
  * TODO (next wave):
- *   - Sandblaster        (weapon_type damage modifier)
+ *   - Sandblaster        (weapon_type damage modifier; cluster path consumes
+ *                         `designatedWeaponType` outside to-hit aggregation)
  *   - Human TRO          (weapon_type critical hit shift)
  *   - Environmental Specialist / Terrain Master (terrain)
  *   - Oblique Attacker terrain refinement (currently unconditional)

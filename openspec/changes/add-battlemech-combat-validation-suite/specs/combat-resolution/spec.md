@@ -405,6 +405,13 @@ Cluster-table validation SHALL apply MegaMek's Sandblaster SPA modifier when the
 - **THEN** the cluster-table roll SHALL include the source-backed `+4` Sandblaster modifier
 - **AND** the validation catalog SHALL keep UAC/RAC and rapid-fire AC Sandblaster support as a visible remaining gap
 
+#### Scenario: Sandblaster SPA catalogs require weapon designation
+
+- **GIVEN** the canonical SPA catalog and legacy gameplay SPA catalog both expose Sandblaster
+- **WHEN** the BattleMech combat catalog contract validates SPA metadata
+- **THEN** both Sandblaster entries SHALL require a `weapon_type` designation
+- **AND** the legacy gameplay SPA catalog SHALL describe the source-backed range-based cluster-table bonus instead of the obsolete flat UAC/RAC bonus
+
 ### Requirement: C3 Range Modifier Integration
 
 Direct runner weapon attack declarations SHALL consume explicit `IGameState.c3Network` state when scenario/session builders provide it. The runner SHALL refresh C3 member positions and ECM/iNARC ECM disruption from current unit state before calculating the declared to-hit number, SHALL suppress C3 range sharing for indirect fire, SHALL use default MegaMek C3 behavior where the network range-sharing unit does not need line of sight to the target, and SHALL keep automatic C3 network assembly from hydrated equipment explicit until those state builders exist.

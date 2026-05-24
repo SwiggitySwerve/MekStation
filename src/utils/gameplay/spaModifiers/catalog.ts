@@ -87,8 +87,10 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     name: 'Sandblaster',
     category: 'gunnery',
     pipelines: ['damage'],
-    combatEffect: '+1 cluster hits with ultra/rotary ACs',
-    requiresDesignation: false,
+    combatEffect:
+      '+4/+3/+2 cluster-table columns by range with designated weapon type',
+    requiresDesignation: true,
+    designationType: 'weapon_type',
   },
   'oblique-attacker': {
     id: 'oblique-attacker',
