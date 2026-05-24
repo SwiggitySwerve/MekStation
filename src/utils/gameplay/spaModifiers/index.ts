@@ -17,7 +17,7 @@ export {
   getCoolUnderFireHeatReduction,
   getEffectiveWounds,
   getFrogmanWaterPSRModifier,
-  getHotDogShutdownThresholdBonus,
+  getHotDogHeatTargetNumberModifier,
   getIronManModifier,
   getManeuveringAceSkidModifier,
   getMeleeMasterDamageBonus,

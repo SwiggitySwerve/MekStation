@@ -89,28 +89,42 @@ export const HEAT_TO_HIT_TABLE: readonly {
  * At heat 30+, shutdown is automatic (returns Infinity).
  *
  * @param heat - Current heat level
- * @param hotDogBonus - Hot Dog SPA bonus (shifts threshold by +3, default 0)
+ * @param targetNumberModifier - Heat-check target-number modifier (default 0)
  * @returns Target number for 2d6 roll, or Infinity for auto-shutdown
  */
-export function getShutdownTN(heat: number, hotDogBonus: number = 0): number {
-  const effectiveThreshold = HEAT_THRESHOLDS.SHUTDOWN_CHECK + hotDogBonus;
+export function getShutdownTN(
+  heat: number,
+  targetNumberModifier: number = 0,
+): number {
   if (heat >= HEAT_THRESHOLDS.AUTO_SHUTDOWN) return Infinity;
-  if (heat < effectiveThreshold) return 0; // No check needed
-  return 4 + Math.floor((heat - effectiveThreshold) / 4) * 2;
+  if (heat < HEAT_THRESHOLDS.SHUTDOWN_CHECK) return 0; // No check needed
+  return (
+    4 +
+    Math.floor((heat - HEAT_THRESHOLDS.SHUTDOWN_CHECK) / 4) * 2 +
+    targetNumberModifier
+  );
 }
 
 /**
  * Calculate startup target number (same formula as shutdown).
  *
  * @param heat - Current heat level
- * @param hotDogBonus - Hot Dog SPA bonus (default 0)
+ * @param targetNumberModifier - Heat-check target-number modifier (default 0)
  * @returns Target number for 2d6 roll
  */
-export function getStartupTN(heat: number, hotDogBonus: number = 0): number {
+export function getStartupTN(
+  heat: number,
+  targetNumberModifier: number = 0,
+): number {
   // Startup uses same formula but can always be attempted (even at 30+)
-  const effectiveThreshold = HEAT_THRESHOLDS.SHUTDOWN_CHECK + hotDogBonus;
-  if (heat < effectiveThreshold) return 4; // Base TN if somehow below threshold
-  return 4 + Math.floor((heat - effectiveThreshold) / 4) * 2;
+  if (heat < HEAT_THRESHOLDS.SHUTDOWN_CHECK) {
+    return 4 + targetNumberModifier; // Base TN if somehow below threshold
+  }
+  return (
+    4 +
+    Math.floor((heat - HEAT_THRESHOLDS.SHUTDOWN_CHECK) / 4) * 2 +
+    targetNumberModifier
+  );
 }
 
 // =============================================================================

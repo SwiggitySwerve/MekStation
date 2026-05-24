@@ -318,7 +318,7 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     name: 'Hot Dog',
     category: 'miscellaneous',
     pipelines: ['heat'],
-    combatEffect: '+3 heat threshold before shutdown checks',
+    combatEffect: '-1 heat check target number',
     requiresDesignation: false,
   },
   'cool-under-fire': {

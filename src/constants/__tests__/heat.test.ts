@@ -208,10 +208,11 @@ describe('getShutdownTN', () => {
     expect(getShutdownTN(35)).toBe(Infinity);
   });
 
-  it('should apply Hot Dog SPA bonus (+3 threshold shift)', () => {
-    expect(getShutdownTN(14, 3)).toBe(0);
-    expect(getShutdownTN(17, 3)).toBe(4);
-    expect(getShutdownTN(21, 3)).toBe(6);
+  it('should apply Hot Dog SPA target-number modifier', () => {
+    expect(getShutdownTN(13, -1)).toBe(0);
+    expect(getShutdownTN(14, -1)).toBe(3);
+    expect(getShutdownTN(17, -1)).toBe(3);
+    expect(getShutdownTN(18, -1)).toBe(5);
   });
 });
 
@@ -235,6 +236,11 @@ describe('getStartupTN', () => {
 
   it('should still allow startup at heat 30+', () => {
     expect(getStartupTN(30)).toBe(12);
+  });
+
+  it('should apply Hot Dog SPA target-number modifier', () => {
+    expect(getStartupTN(14, -1)).toBe(3);
+    expect(getStartupTN(18, -1)).toBe(5);
   });
 });
 

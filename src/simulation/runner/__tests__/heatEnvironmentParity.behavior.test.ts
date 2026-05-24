@@ -327,17 +327,17 @@ describe('heat environment runner/interactive parity boundaries', () => {
     });
   });
 
-  it('applies Hot Dog shutdown-threshold relief in the interactive resolver and quick-sim runHeatPhase', () => {
+  it('applies Hot Dog shutdown target-number relief in the interactive resolver and quick-sim runHeatPhase', () => {
     const hotDogInteractiveBelow = resolveHeatPhase(
       withInteractiveUnit(createInteractiveHeatSession(), 'player-1', {
-        heat: 26,
+        heat: 23,
         abilities: ['hot-dog'],
       }),
       fixedRoller,
     );
     const hotDogInteractiveAtThreshold = resolveHeatPhase(
       withInteractiveUnit(createInteractiveHeatSession(), 'player-1', {
-        heat: 27,
+        heat: 24,
         abilities: ['hot-dog'],
       }),
       fixedRoller,
@@ -346,7 +346,7 @@ describe('heat environment runner/interactive parity boundaries', () => {
     const runnerBelowEvents: IGameEvent[] = [];
     runHeatPhase({
       state: createRunnerHeatState(
-        createRunnerUnit({ heat: 26, abilities: ['hot-dog'] }),
+        createRunnerUnit({ heat: 23, abilities: ['hot-dog'] }),
       ),
       events: runnerBelowEvents,
       gameId: 'heat-environment-parity-test',
@@ -356,7 +356,7 @@ describe('heat environment runner/interactive parity boundaries', () => {
     const runnerAtEvents: IGameEvent[] = [];
     runHeatPhase({
       state: createRunnerHeatState(
-        createRunnerUnit({ heat: 27, abilities: ['hot-dog'] }),
+        createRunnerUnit({ heat: 24, abilities: ['hot-dog'] }),
       ),
       events: runnerAtEvents,
       gameId: 'heat-environment-parity-test',
@@ -390,14 +390,14 @@ describe('heat environment runner/interactive parity boundaries', () => {
     expect(interactiveShutdown?.payload as IShutdownCheckPayload).toMatchObject(
       {
         unitId: 'player-1',
-        heatLevel: 17,
-        targetNumber: 4,
+        heatLevel: 14,
+        targetNumber: 3,
       },
     );
     expect(runnerShutdown?.payload as IShutdownCheckPayload).toMatchObject({
       unitId: 'player-1',
-      heatLevel: 17,
-      targetNumber: 4,
+      heatLevel: 14,
+      targetNumber: 3,
     });
     expect(
       runnerAtEvents
@@ -406,7 +406,7 @@ describe('heat environment runner/interactive parity boundaries', () => {
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          threshold: 17,
+          threshold: 14,
           effect: 'shutdown_check',
         }),
       ]),

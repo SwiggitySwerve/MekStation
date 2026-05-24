@@ -359,7 +359,7 @@ All defined SPAs SHALL be wired into the appropriate combat pipeline via the spa
 #### Scenario: SPA modifiers included in heat checks
 
 - **WHEN** performing shutdown checks
-- **THEN** applicable SPAs (Hot Dog) SHALL modify the shutdown threshold
+- **THEN** applicable SPAs (Hot Dog) SHALL modify heat check target numbers
 
 #### Scenario: SPA modifiers included in initiative
 

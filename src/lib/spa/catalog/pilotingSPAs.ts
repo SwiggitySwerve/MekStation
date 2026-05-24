@@ -47,7 +47,7 @@ export const PILOTING_SPAS: readonly ISPADefinition[] = [
   piloting({
     id: 'hot_dog',
     displayName: 'Hot Dog',
-    description: '-1 to shutdown and ammo-explosion avoidance rolls from heat.',
+    description: '-1 to source-backed heat check target numbers.',
     pipelines: ['heat'],
     category: 'miscellaneous',
   }),

@@ -431,12 +431,13 @@ The Iron Man SPA SHALL grant -2 to consciousness check target numbers.
 
 ### Requirement: Misc SPA — Hot Dog
 
-The Hot Dog SPA SHALL increase the heat threshold for shutdown checks by +3.
+The Hot Dog SPA SHALL reduce heat startup and shutdown target numbers by 1 without changing the heat 14 shutdown-check threshold.
 
-#### Scenario: Hot Dog delays shutdown
+#### Scenario: Hot Dog modifies shutdown
 
-- **WHEN** a pilot with Hot Dog SPA has heat level 16
-- **THEN** no shutdown check SHALL be required (effective threshold 17 instead of 14)
+- **WHEN** a pilot with Hot Dog SPA has heat level 14
+- **THEN** a shutdown check SHALL be required
+- **AND** the shutdown target number SHALL be 3 instead of 4
 
 ### Requirement: Misc SPA — Edge
 

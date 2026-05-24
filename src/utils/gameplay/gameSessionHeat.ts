@@ -39,7 +39,7 @@ import {
 } from './quirkModifiers';
 import {
   getCoolUnderFireHeatReduction,
-  getHotDogShutdownThresholdBonus,
+  getHotDogHeatTargetNumberModifier,
 } from './spaModifiers';
 
 /**
@@ -81,7 +81,7 @@ export function resolveHeatPhase(
     if (!unit || unitState.destroyed) {
       continue;
     }
-    const hotDogBonus = getHotDogShutdownThresholdBonus(
+    const hotDogTargetNumberModifier = getHotDogHeatTargetNumberModifier(
       unitState.abilities ?? unit.abilities ?? [],
     );
 
@@ -309,7 +309,7 @@ export function resolveHeatPhase(
     // (30) to be eligible — automatic at heat 0 (TN 0).
     const stateAfterDissipation = currentSession.currentState.units[unitId];
     if (stateAfterDissipation.shutdown && finalHeat <= 29) {
-      const startupTN = getShutdownTN(finalHeat, hotDogBonus);
+      const startupTN = getShutdownTN(finalHeat, hotDogTargetNumberModifier);
       const autoRestart = startupTN === 0;
       const startupRoll = autoRestart ? null : diceRoller();
       const startupSuccess = autoRestart
@@ -376,7 +376,7 @@ export function resolveHeatPhase(
         ),
       );
     } else {
-      const shutdownTN = getShutdownTN(finalHeat, hotDogBonus);
+      const shutdownTN = getShutdownTN(finalHeat, hotDogTargetNumberModifier);
       if (shutdownTN > 0) {
         const shutdownRoll = diceRoller();
         const shutdownAvoided = shutdownRoll.total >= shutdownTN;

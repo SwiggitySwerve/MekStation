@@ -138,8 +138,8 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'heat-application': helperOnly(
     'heat-application',
-    'runHeatPhase and resolveHeatPhase consume local Hot Dog shutdown-threshold relief, local Cool Under Fire generated-heat relief, and weapon cooling quirks; calculateToHit consumes source-backed Some Like It Hot heat to-hit relief',
-    'Hot Dog is implemented as a +3 threshold shift while MegaMek applies hotDogMod as a -1 heat target-number modifier, and Cool Under Fire source authority is unresolved',
+    'runHeatPhase and resolveHeatPhase consume source-backed Hot Dog startup/shutdown target-number relief, local Cool Under Fire generated-heat relief, and weapon cooling quirks; calculateToHit consumes source-backed Some Like It Hot heat to-hit relief',
+    'Hot Dog target-number relief is not yet applied to local heat ammo-explosion or pilot heat-damage paths, and Cool Under Fire source authority is unresolved',
     [
       ...MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
       ...MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,

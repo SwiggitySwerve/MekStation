@@ -304,13 +304,12 @@ export function getIronManModifier(abilities: readonly string[]): number {
 }
 
 /**
- * Hot Dog: +3 to shutdown heat threshold.
- * Increases the heat level at which shutdown checks begin.
+ * Hot Dog: -1 to heat check target numbers.
  */
-export function getHotDogShutdownThresholdBonus(
+export function getHotDogHeatTargetNumberModifier(
   abilities: readonly string[],
 ): number {
-  return hasSPA(abilities, 'hot_dog') ? 3 : 0;
+  return hasSPA(abilities, 'hot_dog') ? -1 : 0;
 }
 
 /**

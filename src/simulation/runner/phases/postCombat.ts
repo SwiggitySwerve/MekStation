@@ -16,7 +16,7 @@ import {
 } from '@/utils/gameplay/pilotingSkillRolls';
 import {
   getCoolUnderFireHeatReduction,
-  getHotDogShutdownThresholdBonus,
+  getHotDogHeatTargetNumberModifier,
 } from '@/utils/gameplay/spaModifiers';
 
 import type { IWeapon } from '../../ai/types';
@@ -267,7 +267,9 @@ export function runHeatPhase(options: {
       getCoolUnderFireHeatReduction(unit.abilities ?? []),
       weaponHeat + movementHeat + engineHeat + environmentHeat,
     );
-    const hotDogBonus = getHotDogShutdownThresholdBonus(unit.abilities ?? []);
+    const hotDogTargetNumberModifier = getHotDogHeatTargetNumberModifier(
+      unit.abilities ?? [],
+    );
 
     const heatSinkCount = unit.heatSinks ?? BASE_HEAT_SINKS;
     const heatSinkRating = unit.heatSinkType === 'double' ? 2 : 1;
@@ -345,7 +347,6 @@ export function runHeatPhase(options: {
         turn: currentState.turn,
         events,
         gameId,
-        shutdownCheckThreshold: 14 + hotDogBonus,
       });
     }
 
@@ -357,12 +358,15 @@ export function runHeatPhase(options: {
       events: canEmit ? events : undefined,
       gameId: canEmit ? gameId : undefined,
       d6Roller: canEmit ? d6Roller : undefined,
-      hotDogBonus,
+      hotDogTargetNumberModifier,
     });
 
     let shutdownNow = startupUnit.shutdown ?? false;
     let heatPhaseUnit = startupUnit;
-    const shutdownTargetNumber = getShutdownTN(newHeat, hotDogBonus);
+    const shutdownTargetNumber = getShutdownTN(
+      newHeat,
+      hotDogTargetNumberModifier,
+    );
     if (canEmit && d6Roller && (shutdownTargetNumber > 0 || newHeat >= 30)) {
       const automatic = newHeat >= 30;
       let roll = 0;

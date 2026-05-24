@@ -21,7 +21,7 @@ import {
   getTacticalGeniusBonus,
   getEffectiveWounds,
   getIronManModifier,
-  getHotDogShutdownThresholdBonus,
+  getHotDogHeatTargetNumberModifier,
   getCoolUnderFireHeatReduction,
   getSomeLikeItHotHeatPenaltyReduction,
   createEdgeState,
@@ -442,12 +442,12 @@ describe('spaModifiers', () => {
   });
 
   describe('Hot Dog', () => {
-    it('returns +3 shutdown threshold bonus', () => {
-      expect(getHotDogShutdownThresholdBonus(['hot-dog'])).toBe(3);
+    it('returns -1 heat target-number modifier', () => {
+      expect(getHotDogHeatTargetNumberModifier(['hot-dog'])).toBe(-1);
     });
 
     it('returns 0 without the ability', () => {
-      expect(getHotDogShutdownThresholdBonus([])).toBe(0);
+      expect(getHotDogHeatTargetNumberModifier([])).toBe(0);
     });
   });
 

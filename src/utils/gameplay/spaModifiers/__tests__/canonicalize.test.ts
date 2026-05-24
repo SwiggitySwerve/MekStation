@@ -19,7 +19,7 @@ import {
   calculateTerrainMasterDefensiveToHitModifier,
   getClusterHitterBonus,
   getCoolUnderFireHeatReduction,
-  getHotDogShutdownThresholdBonus,
+  getHotDogHeatTargetNumberModifier,
   getIronManModifier,
   getMeleeMasterDamageBonus,
   getMountaineerRubblePSRModifier,
@@ -206,8 +206,8 @@ describe('combat modifiers accept canonical ids', () => {
     expect(getClusterHitterBonus(['cluster_hitter'])).toBe(1);
   });
 
-  it('getHotDogShutdownThresholdBonus fires on canonical id', () => {
-    expect(getHotDogShutdownThresholdBonus(['hot_dog'])).toBe(3);
+  it('getHotDogHeatTargetNumberModifier fires on canonical id', () => {
+    expect(getHotDogHeatTargetNumberModifier(['hot_dog'])).toBe(-1);
   });
 
   it('heat SPA helpers fire on canonical ids', () => {

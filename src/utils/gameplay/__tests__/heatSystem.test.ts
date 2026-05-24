@@ -237,11 +237,11 @@ describe('Heat System Constants', () => {
       expect(getShutdownTN(50)).toBe(Infinity);
     });
 
-    it('applies Hot Dog SPA +3 threshold shift', () => {
-      expect(getShutdownTN(14, 3)).toBe(0);
-      expect(getShutdownTN(16, 3)).toBe(0);
-      expect(getShutdownTN(17, 3)).toBe(4);
-      expect(getShutdownTN(21, 3)).toBe(6);
+    it('applies Hot Dog SPA target-number modifier', () => {
+      expect(getShutdownTN(13, -1)).toBe(0);
+      expect(getShutdownTN(14, -1)).toBe(3);
+      expect(getShutdownTN(17, -1)).toBe(3);
+      expect(getShutdownTN(18, -1)).toBe(5);
     });
   });
 
@@ -261,6 +261,11 @@ describe('Heat System Constants', () => {
       const tn = getStartupTN(30);
       expect(tn).toBe(12);
       expect(isFinite(tn)).toBe(true);
+    });
+
+    it('applies Hot Dog SPA target-number modifier', () => {
+      expect(getStartupTN(14, -1)).toBe(3);
+      expect(getStartupTN(18, -1)).toBe(5);
     });
   });
 

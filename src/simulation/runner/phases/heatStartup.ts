@@ -18,7 +18,7 @@ interface IApplyRunnerStartupAttemptOptions {
   readonly events?: IGameEvent[];
   readonly gameId?: string;
   readonly d6Roller?: D6Roller;
-  readonly hotDogBonus?: number;
+  readonly hotDogTargetNumberModifier?: number;
 }
 
 export function applyRunnerStartupAttempt(
@@ -29,7 +29,7 @@ export function applyRunnerStartupAttempt(
     events,
     gameId,
     heat,
-    hotDogBonus = 0,
+    hotDogTargetNumberModifier = 0,
     turn,
     unit,
     unitId,
@@ -38,7 +38,7 @@ export function applyRunnerStartupAttempt(
     return unit;
   }
 
-  const targetNumber = getShutdownTN(heat, hotDogBonus);
+  const targetNumber = getShutdownTN(heat, hotDogTargetNumberModifier);
   if (targetNumber > 0 && !d6Roller) {
     return unit;
   }
