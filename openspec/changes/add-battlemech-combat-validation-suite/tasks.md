@@ -82,6 +82,7 @@
 - [ ] 3.3 Expand heat validation coverage for buildup, dissipation, shutdown, ammo explosions, pilot damage, and heat-driven modifiers.
 - [x] 3.3.1 Cross-link every heat rule support row into heat generation, dissipation, and lifecycle requirement checklists.
 - [x] 3.3.2 Add structured MegaMek source anchors for heat startup, avoidable/automatic shutdown, ammo-explosion risk, and pilot heat damage support rows.
+- [x] 3.3.3 Split heat-driven SPA catalog coverage by source truth: Some Like It Hot is source-backed, Hot Dog is a local threshold-shift mismatch against MegaMek's hotDogMod target-number modifier, and Cool Under Fire remains local until an authority is identified.
 - [ ] 3.4 Expand to-hit validation coverage for range, movement, terrain, pilot skills, special abilities, quirks, sensors, prone state, and indirect fire.
 - [x] 3.4.1 Add support-matrix tests that separate runner-integrated to-hit modifiers from helper-only modifier math.
 - [x] 3.4.2 Cross-link pilot skill, SPA, canonical SPA, quirk, and pilot modifier resolver support rows into pilot/SPAs/quirks requirement checklists.
@@ -153,3 +154,4 @@
 - [x] 4.3.28 Cross-check MegaMek's Tactical Genius initiative replacement-roll handling and active-unit eligibility gate.
 - [x] 4.3.29 Cross-check MegaMek's gated HQ communications and command-console initiative equipment eligibility; keep automatic hydration explicit-only until working/default-mode communications tonnage, active command-console crew, weight-class, IndustrialMek, and advanced-fire-control state exist.
 - [x] 4.3.30 Cross-check MegaMek `HeatResolver` startup, shutdown, ammo-explosion risk, and pilot heat damage thresholds against heat lifecycle support rows.
+- [x] 4.3.31 Cross-check MegaMek Hot Dog and Some Like It Hot heat behavior, and record that Cool Under Fire was not found in the MegaMek source search.

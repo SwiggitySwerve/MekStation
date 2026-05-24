@@ -158,7 +158,6 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'ranged-to-hit-state-hydration',
         'cluster-hitter-application',
         'consciousness-application',
-        'heat-application',
         'indirect-fire-spa-application',
         'physical-damage-application',
         'physical-restriction-application',
@@ -183,6 +182,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual(
       expect.arrayContaining([
         'critical-prevention-application',
+        'heat-application',
         'psr-spa-application',
         'sandblaster-application',
       ]),
@@ -625,6 +625,52 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ]);
   });
 
+  it('pins heat-driven SPA support to source-backed and local-only boundaries', () => {
+    const hotDogRefs = SPA_COMBAT_SUPPORT['hot-dog'].sourceRefs ?? [];
+    const someLikeItHotRefs =
+      SPA_COMBAT_SUPPORT['some-like-it-hot'].sourceRefs ?? [];
+    const heatApplicationRefs =
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application'].sourceRefs ??
+      [];
+
+    expect(SPA_COMBAT_SUPPORT['hot-dog']).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('shift avoidable shutdown/startup'),
+      gap: expect.stringContaining('hotDogMod = 1'),
+    });
+    expect(hotDogRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek HeatResolver sets PILOT_HOT_DOG to hotDogMod = 1 before resolving heat effects.',
+      'MegaMek HeatResolver subtracts hotDogMod from startup and shutdown target numbers instead of shifting the shutdown heat threshold.',
+      'MegaMek HeatResolver subtracts hotDogMod from heat ammo-explosion and pilot heat-damage target numbers.',
+      'MegaMek OptionsConstants defines PILOT_HOT_DOG as hot_dog.',
+    ]);
+
+    expect(SPA_COMBAT_SUPPORT['cool-under-fire']).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('getCoolUnderFireHeatReduction'),
+      gap: expect.stringContaining('No MegaMek source-backed'),
+    });
+    expect(SPA_COMBAT_SUPPORT['cool-under-fire'].sourceRefs).toBeUndefined();
+
+    expect(SPA_COMBAT_SUPPORT['some-like-it-hot']).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('AttackDeclared heat modifiers'),
+    });
+    expect(someLikeItHotRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek Entity.getHeatFiringModifier reduces positive heat firing modifiers by 1 for UNOFFICIAL_SOME_LIKE_IT_HOT.',
+      'MegaMek OptionsConstants defines UNOFFICIAL_SOME_LIKE_IT_HOT as some_like_it_hot.',
+    ]);
+
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application'],
+    ).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('source-backed Some Like It Hot'),
+      gap: expect.stringContaining('Cool Under Fire source authority'),
+    });
+    expect(heatApplicationRefs).toEqual([...hotDogRefs, ...someLikeItHotRefs]);
+  });
+
   it('keeps source-backed pilot modifier refs commit-pinned', () => {
     const refs = [
       ...(SPA_COMBAT_SUPPORT['multi-tasker'].sourceRefs ?? []),
@@ -638,6 +684,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(SPA_COMBAT_SUPPORT.tm_swamp_beast.sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['cross-country'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['heavy-lifter'].sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT['hot-dog'].sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT['some-like-it-hot'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['tactical-genius'].sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.command_mech.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.battle_computer.sourceRefs ?? []),
@@ -656,6 +704,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application']
         .sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['initiative-application']
+        .sourceRefs ?? []),
+      ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application']
         .sourceRefs ?? []),
     ];
 

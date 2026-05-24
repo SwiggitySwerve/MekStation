@@ -359,7 +359,7 @@ describe('runAttackPhase to-hit modifier integration', () => {
     });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application'],
-    ).toMatchObject({ level: 'integrated' });
+    ).toMatchObject({ level: 'helper-only' });
   });
 
   it('threads target movement, prone, shutdown, partial cover, and target terrain into AttackDeclared', () => {

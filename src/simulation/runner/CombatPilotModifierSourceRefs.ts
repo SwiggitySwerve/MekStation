@@ -33,6 +33,36 @@ export const MEGAMEK_CALLED_SHOT_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek HeatResolver sets PILOT_HOT_DOG to hotDogMod = 1 before resolving heat effects.',
+    'megamek/src/megamek/server/totalWarfare/HeatResolver.java#L84-L88',
+  ),
+  megamekRef(
+    'MegaMek HeatResolver subtracts hotDogMod from startup and shutdown target numbers instead of shifting the shutdown heat threshold.',
+    'megamek/src/megamek/server/totalWarfare/HeatResolver.java#L500-L636',
+  ),
+  megamekRef(
+    'MegaMek HeatResolver subtracts hotDogMod from heat ammo-explosion and pilot heat-damage target numbers.',
+    'megamek/src/megamek/server/totalWarfare/HeatResolver.java#L690-L848',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines PILOT_HOT_DOG as hot_dog.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L169-L178',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek Entity.getHeatFiringModifier reduces positive heat firing modifiers by 1 for UNOFFICIAL_SOME_LIKE_IT_HOT.',
+    'megamek/src/megamek/common/units/Entity.java#L4190-L4216',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines UNOFFICIAL_SOME_LIKE_IT_HOT as some_like_it_hot.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L220-L230',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS = [
   megamekRef(
     'MegaMek ComputeAbilityMods.processDefenderSPAs applies +1 Forest Ranger for walking targets in vegetation and +1 Swamp Beast for running targets in mud or swamp.',

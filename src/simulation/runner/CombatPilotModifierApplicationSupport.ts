@@ -7,11 +7,13 @@ import {
   MEGAMEK_CALLED_SHOT_SOURCE_REFS,
   MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
+  MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
   MEGAMEK_INITIATIVE_EQUIPMENT_SOURCE_REFS,
   MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   MEGAMEK_PSR_SPA_SOURCE_REFS,
   MEGAMEK_SANDBLASTER_SOURCE_REFS,
   MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS,
+  MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,
   MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
   MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
@@ -134,9 +136,14 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
     'Automatic command-console initiative hydration is unsupported until command-console cockpit type, active command-console crew, heavy-or-larger weight, IndustrialMek, and advanced-fire-control gates are represented; explicit initiativeCommandBonus is the supported closed-world path',
     MEGAMEK_INITIATIVE_EQUIPMENT_SOURCE_REFS,
   ),
-  'heat-application': integrated(
+  'heat-application': helperOnly(
     'heat-application',
-    'runHeatPhase and resolveHeatPhase consume Hot Dog shutdown-threshold relief, Cool Under Fire generated-heat relief, and weapon cooling quirks; calculateToHit consumes Some Like It Hot heat to-hit relief',
+    'runHeatPhase and resolveHeatPhase consume local Hot Dog shutdown-threshold relief, local Cool Under Fire generated-heat relief, and weapon cooling quirks; calculateToHit consumes source-backed Some Like It Hot heat to-hit relief',
+    'Hot Dog is implemented as a +3 threshold shift while MegaMek applies hotDogMod as a -1 heat target-number modifier, and Cool Under Fire source authority is unresolved',
+    [
+      ...MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
+      ...MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,
+    ],
   ),
   'consciousness-application': integrated(
     'consciousness-application',

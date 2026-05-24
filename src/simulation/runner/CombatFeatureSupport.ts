@@ -10,8 +10,10 @@
 import {
   MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
+  MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
   MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   MEGAMEK_SANDBLASTER_SOURCE_REFS,
+  MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,
   MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
 
@@ -542,17 +544,21 @@ export const SPA_COMBAT_SUPPORT = {
     'combat-intuition',
     'Round-one initiative override is not wired',
   ),
-  'hot-dog': integrated(
+  'hot-dog': helperOnly(
     'hot-dog',
-    'getHotDogShutdownThresholdBonus plus runHeatPhase and resolveHeatPhase shift avoidable shutdown/startup TN thresholds from heat 14 to heat 17',
+    'Local getHotDogShutdownThresholdBonus plus runHeatPhase and resolveHeatPhase shift avoidable shutdown/startup checks from heat 14 to heat 17',
+    'MegaMek source uses PILOT_HOT_DOG as hotDogMod = 1 subtracted from heat target numbers instead of a +3 heat-threshold shift, so exact heat parity remains open',
+    MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
   ),
-  'cool-under-fire': integrated(
+  'cool-under-fire': helperOnly(
     'cool-under-fire',
     'runHeatPhase and resolveHeatPhase apply getCoolUnderFireHeatReduction as capped generated-heat relief in the HeatDissipated breakdown',
+    'No MegaMek source-backed Cool Under Fire ability id or generated-heat reduction path was found in commit 325b2504; keep this as local helper behavior until an authority is identified',
   ),
   'some-like-it-hot': integrated(
     'some-like-it-hot',
     'calculateToHit consumes getSomeLikeItHotHeatPenaltyReduction so runner AttackDeclared heat modifiers are reduced by 1',
+    MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,
   ),
   'multi-target': unsupported(
     'multi-target',

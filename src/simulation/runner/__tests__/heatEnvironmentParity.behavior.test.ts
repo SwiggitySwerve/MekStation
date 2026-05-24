@@ -412,7 +412,8 @@ describe('heat environment runner/interactive parity boundaries', () => {
       ]),
     );
     expect(SPA_COMBAT_SUPPORT['hot-dog']).toMatchObject({
-      level: 'integrated',
+      level: 'helper-only',
+      gap: expect.stringContaining('hotDogMod'),
     });
   });
 
@@ -481,14 +482,15 @@ describe('heat environment runner/interactive parity boundaries', () => {
     });
     expect(runnerState.units['player-1'].heat).toBe(18);
     expect(SPA_COMBAT_SUPPORT['cool-under-fire']).toMatchObject({
-      level: 'integrated',
+      level: 'helper-only',
+      gap: expect.stringContaining('No MegaMek source'),
     });
     expect(QUIRK_COMBAT_SUPPORT.improved_cooling).toMatchObject({
       level: 'integrated',
     });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application'],
-    ).toMatchObject({ level: 'integrated' });
+    ).toMatchObject({ level: 'helper-only' });
   });
 
   it('applies atmosphere and temperature heat modifiers in the interactive resolver and quick-sim runHeatPhase', () => {
