@@ -86,6 +86,16 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(
       page.getByTestId('isometric-scene-token-occluded'),
     ).toHaveAttribute('data-isometric-occluder-hex', '1,0');
+    await expect(
+      page.getByTestId('isometric-scene-token-occluded'),
+    ).toHaveAttribute('data-isometric-occluder-elevation', '5');
+    await expect(page.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-isometric-occludes-units',
+      'occluded',
+    );
+    await expect(page.getByTestId('hex--1-0')).not.toHaveAttribute(
+      'data-isometric-occludes-units',
+    );
 
     const eastHex = page.getByTestId('isometric-scene-hex-1-0');
     const eastDepthBefore = await eastHex.getAttribute(
@@ -102,5 +112,29 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-isometric-depth-key',
       eastDepthBefore ?? '',
     );
+
+    await page.getByTestId('projection-rotate-right').click();
+    await page.getByTestId('projection-rotate-right').click();
+
+    await expect(projectionLayer).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '3',
+    );
+    await expect(
+      page.getByTestId('isometric-scene-token-occluded'),
+    ).toHaveAttribute('data-isometric-occluder-hex', '-1,0');
+    await expect(
+      page.getByTestId('isometric-scene-token-occluded'),
+    ).toHaveAttribute('data-isometric-occluder-elevation', '6');
+    await expect(page.getByTestId('hex-1-0')).not.toHaveAttribute(
+      'data-isometric-occludes-units',
+    );
+    await expect(page.getByTestId('hex--1-0')).toHaveAttribute(
+      'data-isometric-occludes-units',
+      'occluded',
+    );
+    await expect(
+      page.getByTestId('hex-isometric-occluder-highlight--1-0'),
+    ).toHaveAttribute('data-isometric-occludes-units', 'occluded');
   });
 });

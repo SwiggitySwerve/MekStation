@@ -50,6 +50,11 @@ const hexTerrain: readonly IHexTerrain[] = [
     features: [{ type: TerrainType.Building, level: 1 }],
   },
   {
+    coordinate: { q: -1, r: 0 },
+    elevation: 5,
+    features: [{ type: TerrainType.Building, level: 1 }],
+  },
+  {
     coordinate: { q: 0, r: 1 },
     elevation: 1,
     features: [{ type: TerrainType.LightWoods, level: 1 }],

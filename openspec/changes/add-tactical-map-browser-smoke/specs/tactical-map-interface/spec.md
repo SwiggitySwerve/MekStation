@@ -20,5 +20,8 @@ the top-down map.
 - **WHEN** browser automation switches to isometric mode and rotates the camera
 - **THEN** isometric stack, occluder, visibility, rotation, and depth metadata
   SHALL update in the rendered DOM
+- **AND** rotating the camera SHALL move the active occluder metadata and
+  highlight to the tall elevation stack that is actually in front for that
+  camera angle
 - **AND** the rendered map output SHALL contain nonblank top-down and isometric
   pixels

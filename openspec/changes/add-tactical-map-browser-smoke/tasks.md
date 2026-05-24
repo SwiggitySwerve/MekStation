@@ -13,9 +13,13 @@
   camera rotation metadata.
 - [x] 2.3 Add a nonblank rendered-pixel check for top-down and isometric map
   output.
+- [x] 2.4 Add browser coverage proving camera rotation moves the active
+  occluder highlight between opposing tall elevation stacks.
 
 ## 3. Validation
 
 - [x] 3.1 Focused Playwright smoke passes.
 - [x] 3.2 OpenSpec strict validation passes.
 - [x] 3.3 Standard format/lint/type/build gates pass.
+- [x] 3.4 Focused Playwright smoke passes with the rotated occluder handoff
+  case.
