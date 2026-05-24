@@ -12,6 +12,7 @@ import {
   declarePhysicalIntent,
   ejectIntent,
   endPhaseIntent,
+  goProneIntent,
   standIntent,
   toServerIntent,
   withdrawIntent,
@@ -104,6 +105,7 @@ describe('BattleMech combat action support catalog', () => {
       'heat-end.end-phase',
       'heat-end.next-turn',
       'heat.continue',
+      'movement.go-prone',
       'movement.jump',
       'movement.run',
       'movement.stand',
@@ -152,7 +154,6 @@ describe('BattleMech combat action support catalog', () => {
     expect(sortedKeys(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([
       'movement.activate-masc',
       'movement.activate-supercharger',
-      'movement.go-prone',
       'movement.sprint',
     ]);
     expect(supportGaps(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([]);
@@ -161,7 +162,6 @@ describe('BattleMech combat action support catalog', () => {
     ).toEqual([
       'movement.activate-masc',
       'movement.activate-supercharger',
-      'movement.go-prone',
       'movement.sprint',
     ]);
     expect(
@@ -198,6 +198,8 @@ describe('BattleMech combat action support catalog', () => {
         }),
       )?.kind,
       stand: toServerIntent(standIntent(peer, { unitId: 'player-1' }))?.kind,
+      goProne: toServerIntent(goProneIntent(peer, { unitId: 'player-1' }))
+        ?.kind,
       declareAttack: toServerIntent(
         declareAttackIntent(peer, {
           attackerId: 'player-1',
@@ -272,6 +274,7 @@ describe('BattleMech combat action support catalog', () => {
       'declarePhysical',
       'eject',
       'endPhase',
+      'goProne',
       'stand',
       'withdraw',
     ]);

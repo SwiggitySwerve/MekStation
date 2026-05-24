@@ -23,6 +23,7 @@ import {
   buildDeclarePhysicalIntent,
   buildEjectIntent,
   buildEndPhaseIntent,
+  buildGoProneIntent,
   buildStandIntent,
   buildWithdrawIntent,
   translateIntentToEvents,
@@ -179,6 +180,45 @@ describe('translateIntentToEvents', () => {
   it('rejects stand for a unit the guest does not own', () => {
     const session = withPhase(fixtureSession(), GamePhase.Movement);
     const intent = buildStandIntent(GUEST_PEER, { unitId: 'host-0' });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe('unowned-unit');
+  });
+
+  it('translates a guest-owned go-prone intent into an authoritative host command', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const intent = buildGoProneIntent(GUEST_PEER, { unitId: 'guest-0' });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.events).toEqual([]);
+    expect('command' in result).toBe(true);
+    if (!('command' in result)) return;
+    expect(result.command).toEqual({
+      kind: 'goProne',
+      unitId: 'guest-0',
+    });
+  });
+
+  it('rejects go-prone outside the Movement phase', () => {
+    const session = withPhase(fixtureSession(), GamePhase.WeaponAttack);
+    const intent = buildGoProneIntent(GUEST_PEER, { unitId: 'guest-0' });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe('wrong-phase');
+  });
+
+  it('rejects go-prone for a unit the guest does not own', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const intent = buildGoProneIntent(GUEST_PEER, { unitId: 'host-0' });
 
     const result = translateIntentToEvents(intent, session);
 

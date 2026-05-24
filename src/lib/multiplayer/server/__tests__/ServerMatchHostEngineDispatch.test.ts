@@ -51,6 +51,19 @@ describe('dispatchToEngine', () => {
     expect(stoodUnitIds).toEqual(['player-1']);
   });
 
+  it('routes GoProne wire intents to InteractiveSession.goProne', () => {
+    const proneUnitIds: string[] = [];
+    const session = {
+      goProne: (unitId: string) => {
+        proneUnitIds.push(unitId);
+      },
+    } as unknown as InteractiveSession;
+
+    dispatchToEngine(session, { kind: 'GoProne', unitId: 'player-1' });
+
+    expect(proneUnitIds).toEqual(['player-1']);
+  });
+
   it('routes Withdraw wire intents to InteractiveSession.declareWithdrawal', () => {
     const withdrawals: Array<readonly [string, string]> = [];
     const session = {

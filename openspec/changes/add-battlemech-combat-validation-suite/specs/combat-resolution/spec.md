@@ -55,8 +55,16 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 
 - **GIVEN** a BattleMech action surface has source-backed or product-visible relevance but no authoritative command, game intent, wire payload, P2P translation, or runner action path
 - **WHEN** the action support catalog is contract-tested
-- **THEN** sprint movement, voluntary go-prone, MASC activation, and Supercharger activation SHALL appear as unsupported absent-action rows
+- **THEN** sprint movement, MASC activation, and Supercharger activation SHALL appear as unsupported absent-action rows
 - **AND** those rows SHALL NOT be inferred from helper prose or omitted because no UI command currently emits them
+
+#### Scenario: Voluntary go-prone emits source-backed movement step
+
+- **GIVEN** MegaMek defines voluntary go-prone as `MoveStepType.GO_PRONE` for standing Meks
+- **WHEN** a unit commits the go-prone movement command through local, wire, or P2P command routing
+- **THEN** the action SHALL emit a same-hex `MovementDeclared` payload with a `goProne` step, `mpUsed: 1`, `heatGenerated: 0`, and `hexesMoved: 0`
+- **AND** the reducer SHALL mark the unit prone and lock its movement activation
+- **AND** hull-down, swarmer dislodge, inferno wash-off, and runner AI/planning choice SHALL remain explicit follow-up gaps
 
 #### Scenario: Weapon catalog hygiene traps stay explicit
 

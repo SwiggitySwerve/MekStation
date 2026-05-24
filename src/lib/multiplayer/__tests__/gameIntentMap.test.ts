@@ -18,6 +18,7 @@ import {
   declarePhysicalIntent,
   ejectIntent,
   endPhaseIntent,
+  goProneIntent,
   standIntent,
   toServerIntent,
   withdrawIntent,
@@ -93,6 +94,18 @@ describe('toServerIntent stand', () => {
 
   it('returns null for stand without a unit id', () => {
     expect(toServerIntent(standIntent(PEER, { unitId: '' }))).toBeNull();
+  });
+});
+
+describe('toServerIntent go-prone', () => {
+  it('maps a go-prone intent to a GoProne wire payload', () => {
+    const wire = toServerIntent(goProneIntent(PEER, { unitId: 'player-1' }));
+    expect(wire).toEqual({ kind: 'GoProne', unitId: 'player-1' });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('returns null for go-prone without a unit id', () => {
+    expect(toServerIntent(goProneIntent(PEER, { unitId: '' }))).toBeNull();
   });
 });
 

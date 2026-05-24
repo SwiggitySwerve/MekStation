@@ -48,6 +48,7 @@ import {
   appendEvent,
   declarePhysicalAttack,
   endGame,
+  goProne as goProneAction,
   attemptStandUp as attemptStandUpAction,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
@@ -359,6 +360,11 @@ export class InteractiveSession {
       unitId,
       this.diceRollerForResolvers(),
     );
+    this.tryFinalizeAndPublish();
+  }
+
+  goProne(unitId: string): void {
+    this.session = goProneAction(this.session, unitId);
     this.tryFinalizeAndPublish();
   }
 

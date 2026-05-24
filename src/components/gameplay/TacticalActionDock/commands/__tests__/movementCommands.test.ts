@@ -30,13 +30,14 @@ function makeCtx(
 describe('movementCommands', () => {
   const commands = buildMovementCommands();
 
-  it('exposes walk / run / jump / stand / stabilize / cancel', () => {
+  it('exposes walk / run / jump / stand / go-prone / stabilize / cancel', () => {
     const ids = commands.map((c) => c.id);
     expect(ids).toEqual([
       'movement.walk',
       'movement.run',
       'movement.jump',
       'movement.stand',
+      'movement.go-prone',
       'movement.stabilize',
       'movement.cancel',
     ]);
@@ -96,5 +97,10 @@ describe('movementCommands', () => {
   it('stand commit produces a stand actionId', () => {
     const stand = commands.find((c) => c.id === 'movement.stand')!;
     expect(stand.commit(makeCtx()).actionId).toBe('stand');
+  });
+
+  it('go-prone commit produces a go-prone actionId', () => {
+    const goProne = commands.find((c) => c.id === 'movement.go-prone')!;
+    expect(goProne.commit(makeCtx()).actionId).toBe('go-prone');
   });
 });

@@ -24,6 +24,7 @@ import {
   createGameEndedEvent,
   createPhaseChangedEvent,
   createInitiativeRolledEvent,
+  createGoProneMovementDeclaredEvent,
   createMovementDeclaredEvent,
   createMovementLockedEvent,
   createAttackDeclaredEvent,
@@ -530,6 +531,40 @@ describe('Movement Event Factories', () => {
       expect(payload.to).toEqual(position);
       expect(payload.mpUsed).toBe(0);
       expect(payload.heatGenerated).toBe(0);
+    });
+  });
+
+  describe('createGoProneMovementDeclaredEvent', () => {
+    it('should create a same-hex movement declared event with a goProne step', () => {
+      const position = { q: 3, r: -1 };
+      const event = createGoProneMovementDeclaredEvent(
+        'game-1',
+        10,
+        1,
+        'unit-1',
+        position,
+        Facing.North,
+      );
+      const payload = event.payload as {
+        from: { q: number; r: number };
+        to: { q: number; r: number };
+        movementType: MovementType;
+        mpUsed: number;
+        heatGenerated: number;
+        hexesMoved?: number;
+        steps?: readonly unknown[];
+      };
+
+      expect(event.type).toBe(GameEventType.MovementDeclared);
+      expect(payload.from).toEqual(position);
+      expect(payload.to).toEqual(position);
+      expect(payload.movementType).toBe(MovementType.Stationary);
+      expect(payload.mpUsed).toBe(1);
+      expect(payload.heatGenerated).toBe(0);
+      expect(payload.hexesMoved).toBe(0);
+      expect(payload.steps).toEqual([
+        { kind: 'goProne', index: 0, at: position, mpCost: 1 },
+      ]);
     });
   });
 

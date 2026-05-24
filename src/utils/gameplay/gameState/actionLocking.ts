@@ -15,14 +15,17 @@ export function applyMovementDeclared(
   if (!unit) {
     return state;
   }
+  const wentProne =
+    payload.steps?.some((step) => step.kind === 'goProne') ?? false;
 
   const updatedUnit: IUnitGameState = {
     ...unit,
     position: payload.to,
     facing: payload.facing,
     movementThisTurn: payload.movementType,
-    hexesMovedThisTurn: payload.mpUsed,
+    hexesMovedThisTurn: payload.hexesMoved ?? payload.mpUsed,
     heat: unit.heat + payload.heatGenerated,
+    prone: wentProne ? true : unit.prone,
     lockState: LockState.Planning,
   };
 

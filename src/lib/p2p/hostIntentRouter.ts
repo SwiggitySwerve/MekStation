@@ -66,6 +66,8 @@ export interface IHostIntentRouterAdapter {
   readonly concede: (side: GameSide) => void;
   /** Apply a host-owned stand-up attempt so the host owns the PSR roll. */
   readonly stand: (unitId: string) => void;
+  /** Apply a host-owned voluntary prone action. */
+  readonly goProne: (unitId: string) => void;
   /**
    * Broadcast a structured rejection back to the guest. Called when
    * the translator returns `{ ok: false }` or when the host is
@@ -149,6 +151,13 @@ export function createHostIntentRouter(
           };
         case 'stand':
           adapter.stand(translation.command.unitId);
+          return {
+            outcome: 'applied',
+            events: [],
+            command: translation.command,
+          };
+        case 'goProne':
+          adapter.goProne(translation.command.unitId);
           return {
             outcome: 'applied',
             events: [],

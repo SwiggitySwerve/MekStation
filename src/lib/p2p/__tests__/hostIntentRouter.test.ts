@@ -27,6 +27,7 @@ import {
 import {
   buildConcedeIntent,
   buildDeclareMovementIntent,
+  buildGoProneIntent,
   buildStandIntent,
 } from '../intentTranslation';
 
@@ -93,6 +94,7 @@ function makeAdapter(initial: IGameSession): {
   appended: IGameEvent[];
   concededSides: GameSide[];
   standAttempts: string[];
+  proneAttempts: string[];
   rejections: { reason: string; detail?: string }[];
   setSession: (session: IGameSession) => void;
   setGuestPending: (pending: boolean) => void;
@@ -102,6 +104,7 @@ function makeAdapter(initial: IGameSession): {
   const appended: IGameEvent[] = [];
   const concededSides: GameSide[] = [];
   const standAttempts: string[] = [];
+  const proneAttempts: string[] = [];
   const rejections: { reason: string; detail?: string }[] = [];
 
   const adapter: IHostIntentRouterAdapter = {
@@ -115,6 +118,9 @@ function makeAdapter(initial: IGameSession): {
     },
     stand: (unitId) => {
       standAttempts.push(unitId);
+    },
+    goProne: (unitId) => {
+      proneAttempts.push(unitId);
     },
     broadcastRejection: (rejection) => {
       rejections.push({
@@ -130,6 +136,7 @@ function makeAdapter(initial: IGameSession): {
     appended,
     concededSides,
     standAttempts,
+    proneAttempts,
     rejections,
     setSession: (next) => {
       session = next;
@@ -166,6 +173,26 @@ describe('hostIntentRouter', () => {
       'movement_declared',
       'movement_locked',
     ]);
+    expect(harness.rejections).toEqual([]);
+  });
+
+  it('routes a guest-owned go-prone intent through the authoritative host command path', () => {
+    const harness = makeAdapter(fixtureSession());
+    const router = createHostIntentRouter(harness.adapter);
+
+    const result = router.handleIntent(
+      buildGoProneIntent(GUEST_PEER, { unitId: 'guest-0' }),
+    );
+
+    expect(result.outcome).toBe('applied');
+    if (result.outcome !== 'applied') return;
+    expect(result.events).toEqual([]);
+    expect(result.command).toEqual({
+      kind: 'goProne',
+      unitId: 'guest-0',
+    });
+    expect(harness.proneAttempts).toEqual(['guest-0']);
+    expect(harness.appended).toEqual([]);
     expect(harness.rejections).toEqual([]);
   });
 

@@ -51,6 +51,7 @@ import {
   asConcedePayload,
   asEjectPayload,
   asEndPhasePayload,
+  asGoPronePayload,
   asMovementPayload,
   asPhysicalPayload,
   asStandPayload,
@@ -64,6 +65,7 @@ export {
   buildDeclarePhysicalIntent,
   buildEjectIntent,
   buildEndPhaseIntent,
+  buildGoProneIntent,
   buildStandIntent,
   buildWithdrawIntent,
   type IConcedeIntentPayload,
@@ -72,6 +74,7 @@ export {
   type IDeclarePhysicalIntentPayload,
   type IEjectIntentPayload,
   type IEndPhaseIntentPayload,
+  type IGoProneIntentPayload,
   type IStandIntentPayload,
   type IWithdrawIntentPayload,
 } from './intentTranslationPayloads';
@@ -110,6 +113,10 @@ export type IntentTranslationCommand =
     }
   | {
       readonly kind: 'stand';
+      readonly unitId: string;
+    }
+  | {
+      readonly kind: 'goProne';
       readonly unitId: string;
     };
 
@@ -155,6 +162,8 @@ export function translateIntentToEvents(
       return translateDeclareMovement(intent, session);
     case 'stand':
       return translateStand(intent, session);
+    case 'goProne':
+      return translateGoProne(intent, session);
     case 'declareAttack':
       return translateDeclareAttack(intent, session);
     case 'declarePhysical':
@@ -238,6 +247,30 @@ function translateStand(
     ok: true,
     events: [],
     command: { kind: 'stand', unitId: payload.unitId },
+  };
+}
+
+function translateGoProne(
+  intent: IGameIntent,
+  session: IGameSession,
+): IntentTranslationResult {
+  const payload = asGoPronePayload(intent.payload);
+  if (!payload) {
+    return { ok: false, reason: 'malformed-payload' };
+  }
+
+  if (session.currentState.phase !== GamePhase.Movement) {
+    return { ok: false, reason: 'wrong-phase' };
+  }
+
+  if (!canLocalPeerControlUnit(session, intent.authorPeerId, payload.unitId)) {
+    return { ok: false, reason: 'unowned-unit' };
+  }
+
+  return {
+    ok: true,
+    events: [],
+    command: { kind: 'goProne', unitId: payload.unitId },
   };
 }
 

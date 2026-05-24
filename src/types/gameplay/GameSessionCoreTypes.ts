@@ -371,6 +371,7 @@ export enum ReplaySource {
 export const GAME_INTENT_TYPES = [
   'declareMovement',
   'stand',
+  'goProne',
   'declareAttack',
   'declarePhysical',
   'confirmHeat',

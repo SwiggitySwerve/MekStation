@@ -116,6 +116,17 @@ describe('Protocol envelope schemas', () => {
       expect(IntentSchema.safeParse(env).success).toBe(true);
     });
 
+    it('parses a GoProne intent', () => {
+      const env = {
+        kind: 'Intent' as const,
+        matchId: 'm',
+        ts: nowIso(),
+        playerId: 'p',
+        intent: { kind: 'GoProne' as const, unitId: 'u1' },
+      };
+      expect(IntentSchema.safeParse(env).success).toBe(true);
+    });
+
     it('parses a Physical intent', () => {
       const env = {
         kind: 'Intent' as const,
@@ -233,6 +244,17 @@ describe('Protocol envelope schemas', () => {
         ts: nowIso(),
         playerId: 'p',
         intent: { kind: 'Stand', unitId: '' },
+      };
+      expect(IntentSchema.safeParse(env).success).toBe(false);
+    });
+
+    it('rejects GoProne with empty unitId', () => {
+      const env = {
+        kind: 'Intent',
+        matchId: 'm',
+        ts: nowIso(),
+        playerId: 'p',
+        intent: { kind: 'GoProne', unitId: '' },
       };
       expect(IntentSchema.safeParse(env).success).toBe(false);
     });

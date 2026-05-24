@@ -308,6 +308,97 @@ describe('useGameplayStore utility actions', () => {
     expect(useGameplayStore.getState().ui.queuedWeaponIds).toEqual([]);
   });
 
+  it('turns go-prone into same-hex movement and locks the local unit', () => {
+    const session = forceMovementState(makeSession());
+    const start = session.currentState.units['player-a'].position;
+    useGameplayStore.setState({
+      session,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+        targetUnitId: 'opponent-a',
+        queuedWeaponIds: ['medium-laser'],
+      },
+    });
+
+    useGameplayStore.getState().handleAction('go-prone');
+
+    const updated = useGameplayStore.getState().session!;
+    const movement = updated.events.find(
+      (entry) => entry.type === GameEventType.MovementDeclared,
+    );
+    expect(movement?.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'player-a',
+      from: start,
+      to: start,
+      facing: Facing.North,
+      movementType: MovementType.Stationary,
+      mpUsed: 1,
+      heatGenerated: 0,
+      hexesMoved: 0,
+      steps: [{ kind: 'goProne', index: 0, at: start, mpCost: 1 }],
+    });
+    expect(
+      updated.events.some(
+        (entry) => entry.type === GameEventType.MovementLocked,
+      ),
+    ).toBe(true);
+    expect(updated.currentState.units['player-a'].prone).toBe(true);
+    expect(updated.currentState.units['player-a'].hexesMovedThisTurn).toBe(0);
+    expect(updated.currentState.units['player-a'].lockState).toBe(
+      LockState.Locked,
+    );
+    expect(useGameplayStore.getState().ui.selectedUnitId).toBeNull();
+    expect(useGameplayStore.getState().ui.targetUnitId).toBeNull();
+    expect(useGameplayStore.getState().ui.queuedWeaponIds).toEqual([]);
+  });
+
+  it('delegates go-prone to InteractiveSession when one is active', () => {
+    let snapshot = forceMovementState(makeSession());
+    const proneUnitIds: string[] = [];
+    const fake = {
+      goProne: (unitId: string) => {
+        proneUnitIds.push(unitId);
+        snapshot = {
+          ...snapshot,
+          currentState: {
+            ...snapshot.currentState,
+            units: {
+              ...snapshot.currentState.units,
+              [unitId]: {
+                ...snapshot.currentState.units[unitId],
+                prone: true,
+                lockState: LockState.Locked,
+              },
+            },
+          },
+        };
+      },
+      getSession: () => snapshot,
+    } as unknown as InteractiveSession;
+
+    useGameplayStore.setState({
+      session: snapshot,
+      interactiveSession: fake,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+        targetUnitId: 'opponent-a',
+        queuedWeaponIds: ['medium-laser'],
+      },
+    });
+
+    useGameplayStore.getState().handleAction('go-prone');
+
+    expect(proneUnitIds).toEqual(['player-a']);
+    expect(
+      useGameplayStore.getState().session!.currentState.units['player-a'].prone,
+    ).toBe(true);
+    expect(useGameplayStore.getState().ui.selectedUnitId).toBeNull();
+    expect(useGameplayStore.getState().ui.targetUnitId).toBeNull();
+    expect(useGameplayStore.getState().ui.queuedWeaponIds).toEqual([]);
+  });
+
   it('turns facing-right into a same-hex movement declaration for local sessions', () => {
     const session = forceMovementState(makeSession());
     const start = session.currentState.units['player-a'].position;

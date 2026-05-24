@@ -1,5 +1,5 @@
 /**
- * Movement command family — walk, run, jump, stand-up, stabilize, cancel.
+ * Movement command family — walk, run, jump, stand-up, go prone, stabilize, cancel.
  *
  * Wave 7.2 PR-D: command adapters bind to `activeUnitId` (whose turn it is)
  * from the tactical shell. Availability predicates are PURE — same input,
@@ -36,6 +36,7 @@ export function buildMovementCommands(): readonly ITacticalCommand[] {
     MovementRunCommand,
     MovementJumpCommand,
     MovementStandCommand,
+    MovementGoProneCommand,
     MovementStabilizeCommand,
     MovementCancelCommand,
   ];
@@ -129,6 +130,25 @@ const MovementStandCommand: ITacticalCommand = {
   },
   commit() {
     return { actionId: 'stand', payload: {} };
+  },
+};
+
+const MovementGoProneCommand: ITacticalCommand = {
+  id: 'movement.go-prone',
+  category: 'movement',
+  label: 'Go Prone',
+  hotkey: 'P',
+  phaseConstraints: [GamePhase.Movement],
+  requiresConfirmation: false,
+  undoable: true,
+  availability(ctx) {
+    if (!ctx.activeUnitId)
+      return { available: false, reason: 'No unit is active.' };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    return { available: true };
+  },
+  commit() {
+    return { actionId: 'go-prone', payload: {} };
   },
 };
 

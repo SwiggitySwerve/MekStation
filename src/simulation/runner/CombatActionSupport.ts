@@ -1,7 +1,10 @@
 import type { GameIntentType } from '@/types/gameplay';
 import type { IIntentPayload } from '@/types/multiplayer/Protocol';
 
-import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
+import type {
+  ICombatFeatureSourceReference,
+  ICombatFeatureSupportEntry,
+} from './CombatFeatureSupport';
 
 export { P2P_INTENT_TRANSLATION_SUPPORT } from './CombatP2PIntentSupport';
 
@@ -22,8 +25,11 @@ function integrated(
   id: string,
   layer: CombatActionLayer,
   evidence: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatActionSupportEntry {
-  return { id, layer, level: 'integrated', evidence };
+  return sourceRefs
+    ? { id, layer, level: 'integrated', evidence, sourceRefs }
+    : { id, layer, level: 'integrated', evidence };
 }
 
 function helperOnly(
@@ -49,6 +55,37 @@ function unsupported(
   };
 }
 
+const MEGAMEK_GO_PRONE_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MoveStepType defines GO_PRONE as the Prone movement step.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/enums/MoveStepType.java#L46',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek GoProneStep.preCompilation assigns 1 MP when the entity is not hull-down.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/moves/GoProneStep.java#L50-L63',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MoveStep marks GO_PRONE illegal for already-prone units, non-Meks, or stuck entities.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/moves/MoveStep.java#L2379-L2381',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MovePathHandler resolves GO_PRONE by using step MP and setting entity prone.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L3572-L3592',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const COMBAT_COMMAND_ACTION_SUPPORT = {
   'movement.walk': integrated(
     'movement.walk',
@@ -69,6 +106,12 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'movement.stand',
     'tactical-command',
     'buildMovementCommands commits stand; useGameplayStore, stand game intent, Stand wire payload, server dispatch, and P2P host command route through InteractiveSession.attemptStandUp',
+  ),
+  'movement.go-prone': integrated(
+    'movement.go-prone',
+    'tactical-command',
+    'buildMovementCommands commits go-prone; useGameplayStore, goProne game intent, GoProne wire payload, server dispatch, P2P host command, and InteractiveSession.goProne emit a source-backed same-hex MovementDeclared goProne step with 1 MP and no heat',
+    MEGAMEK_GO_PRONE_SOURCE_REFS,
   ),
   'movement.stabilize': unsupported(
     'movement.stabilize',
@@ -237,11 +280,6 @@ export const BATTLEMECH_ABSENT_ACTION_SUPPORT = {
     'absent-action-surface',
     'Sprint has source-backed MASC/Supercharger movement formulas in rule support, but MovementType, tactical commands, game intents, wire payloads, P2P translation, and runner movement phases have no authoritative sprint action path',
   ),
-  'movement.go-prone': unsupported(
-    'movement.go-prone',
-    'absent-action-surface',
-    'Prone state and fall/stand-up PSR behavior exist, but there is no voluntary go-prone tactical command, game intent, wire payload, P2P translation, or runner action path',
-  ),
   'movement.activate-masc': unsupported(
     'movement.activate-masc',
     'absent-action-surface',
@@ -265,6 +303,7 @@ export const COMBAT_DIRECT_UI_ACTION_SUPPORT = {
 export const GAME_INTENT_TO_WIRE_KIND = {
   declareMovement: 'Move',
   stand: 'Stand',
+  goProne: 'GoProne',
   declareAttack: 'Attack',
   declarePhysical: 'Physical',
   confirmHeat: 'AdvancePhase',
@@ -284,6 +323,12 @@ export const GAME_INTENT_ACTION_SUPPORT = {
     'stand',
     'game-intent',
     'toServerIntent maps stand to Stand',
+  ),
+  goProne: integrated(
+    'goProne',
+    'game-intent',
+    'toServerIntent maps goProne to GoProne',
+    MEGAMEK_GO_PRONE_SOURCE_REFS,
   ),
   declareAttack: integrated(
     'declareAttack',
@@ -329,6 +374,7 @@ export const ENGINE_WIRE_COMBAT_INTENT_KINDS = [
   'Eject',
   'Move',
   'Physical',
+  'GoProne',
   'Stand',
   'Withdraw',
 ] as const satisfies readonly IIntentPayload['kind'][];
@@ -370,6 +416,12 @@ export const WIRE_INTENT_KIND_ACTION_SUPPORT = {
     'Move',
     'wire-intent',
     'dispatchToEngine routes Move to InteractiveSession.applyMovement',
+  ),
+  GoProne: integrated(
+    'GoProne',
+    'wire-intent',
+    'dispatchToEngine routes GoProne to InteractiveSession.goProne',
+    MEGAMEK_GO_PRONE_SOURCE_REFS,
   ),
   Stand: integrated(
     'Stand',

@@ -495,8 +495,8 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
   ),
   prone: helperOnly(
     'prone',
-    'unit prone state + fall/standing helpers',
-    'Voluntary go-prone movement action is not wired through runner/interactive turn resolution',
+    'unit prone state, fall/standing helpers, and voluntary go-prone game-session/interactive action path',
+    'Runner movement AI/planning cannot choose voluntary go-prone, and hull-down, swarmer dislodge, and inferno wash-off nuances are not modeled',
   ),
   facing: integrated(
     'facing',

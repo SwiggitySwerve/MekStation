@@ -3,6 +3,7 @@ import {
   GameEventType,
   GamePhase,
   IGameEvent,
+  IGoProneStep,
   IHexCoordinate,
   IMovementDeclaredPayload,
   IMovementLockedPayload,
@@ -39,6 +40,49 @@ export function createMovementDeclaredEvent(
     path: normalizeMovementEventPath(from, to, path),
     mpUsed,
     heatGenerated,
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.MovementDeclared,
+      turn,
+      GamePhase.Movement,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+export function createGoProneMovementDeclaredEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  unitId: string,
+  at: IHexCoordinate,
+  facing: Facing,
+): IGameEvent {
+  const step: IGoProneStep = {
+    kind: 'goProne',
+    index: 0,
+    at: { q: at.q, r: at.r },
+    mpCost: 1,
+  };
+  const payload: IMovementDeclaredPayload = {
+    unitId,
+    from: { q: at.q, r: at.r },
+    to: { q: at.q, r: at.r },
+    facing,
+    movementType: MovementType.Stationary,
+    path: [{ q: at.q, r: at.r }],
+    mpUsed: 1,
+    heatGenerated: 0,
+    hexesMoved: 0,
+    straightHexes: 0,
+    turningMpCost: 1,
+    netDisplacement: 0,
+    steps: [step],
   };
 
   return {

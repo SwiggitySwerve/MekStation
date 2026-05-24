@@ -630,6 +630,7 @@ describe('game session role and intent contracts', () => {
     expect(GAME_INTENT_TYPES).toEqual([
       'declareMovement',
       'stand',
+      'goProne',
       'declareAttack',
       'declarePhysical',
       'confirmHeat',

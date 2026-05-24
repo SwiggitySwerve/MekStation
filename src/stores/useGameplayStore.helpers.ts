@@ -12,6 +12,7 @@ import { createUnitEjectedEvent } from '@/utils/gameplay/gameEvents';
 import {
   lockMovement,
   declareMovement,
+  goProne,
   attemptStandUp,
   advancePhase,
   appendEvent,
@@ -137,6 +138,36 @@ export function handleActionLogic(
 
       set({
         session: attemptStandUp(session, unitId),
+        ui: clearCombatSelection(ui),
+      });
+      break;
+    }
+    case 'go-prone': {
+      const unitId = ui.selectedUnitId;
+      if (!unitId || phase !== GamePhase.Movement) return;
+
+      const unit = session.currentState.units[unitId];
+      if (
+        !unit ||
+        unit.destroyed ||
+        unit.hasRetreated ||
+        unit.hasEjected ||
+        unit.prone
+      ) {
+        return;
+      }
+
+      if (interactiveSession) {
+        interactiveSession.goProne(unitId);
+        set({
+          session: interactiveSession.getSession(),
+          ui: clearCombatSelection(ui),
+        });
+        break;
+      }
+
+      set({
+        session: goProne(session, unitId),
         ui: clearCombatSelection(ui),
       });
       break;

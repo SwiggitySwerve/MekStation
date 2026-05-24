@@ -31,6 +31,8 @@ export {
   resolvePendingPSRs,
 } from './gameSessionPSR';
 
+export { goProne } from './gameSessionProne';
+
 export { resolveHeatPhase } from './gameSessionHeat';
 
 export {

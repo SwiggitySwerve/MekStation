@@ -35,6 +35,10 @@ export interface IStandIntentPayload {
   readonly unitId: string;
 }
 
+export interface IGoProneIntentPayload {
+  readonly unitId: string;
+}
+
 /**
  * Payload for a `declareAttack` intent. The host re-derives the actual
  * to-hit modifiers + range bracket from authoritative state at resolve
@@ -105,6 +109,16 @@ export function asStandPayload(payload: unknown): IStandIntentPayload | null {
     return null;
   }
   return payload as unknown as IStandIntentPayload;
+}
+
+export function asGoPronePayload(
+  payload: unknown,
+): IGoProneIntentPayload | null {
+  if (!isRecord(payload)) return null;
+  if (typeof payload.unitId !== 'string' || payload.unitId.length === 0) {
+    return null;
+  }
+  return payload as unknown as IGoProneIntentPayload;
 }
 
 export function asAttackPayload(
@@ -221,6 +235,17 @@ export function buildStandIntent(
 ): IGameIntent {
   return {
     type: 'stand',
+    payload,
+    authorPeerId,
+  };
+}
+
+export function buildGoProneIntent(
+  authorPeerId: string,
+  payload: IGoProneIntentPayload,
+): IGameIntent {
+  return {
+    type: 'goProne',
     payload,
     authorPeerId,
   };

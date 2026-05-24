@@ -27,6 +27,10 @@ export function dispatchToEngine(
       session.attemptStandUp(intent.unitId);
       return;
     }
+    case 'GoProne': {
+      session.goProne(intent.unitId);
+      return;
+    }
     case 'Attack': {
       session.applyAttack(intent.attackerId, intent.targetId, intent.weaponIds);
       return;

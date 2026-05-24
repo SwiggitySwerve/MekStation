@@ -53,6 +53,10 @@ export interface IStandPayload {
   readonly unitId: string;
 }
 
+export interface IGoPronePayload {
+  readonly unitId: string;
+}
+
 /**
  * Attack-declaration payload carried by a `declareAttack` `IGameIntent`.
  */
@@ -115,6 +119,13 @@ export function standIntent(
   payload: IStandPayload,
 ): IGameIntent {
   return { type: 'stand', payload, authorPeerId };
+}
+
+export function goProneIntent(
+  authorPeerId: string,
+  payload: IGoPronePayload,
+): IGameIntent {
+  return { type: 'goProne', payload, authorPeerId };
 }
 
 export function declareAttackIntent(
@@ -185,6 +196,8 @@ export function toServerIntent(intent: IGameIntent): IIntentPayload | null {
       return toMoveIntent(intent.payload);
     case 'stand':
       return toStandIntent(intent.payload);
+    case 'goProne':
+      return toGoProneIntent(intent.payload);
     case 'declareAttack':
       return toAttackIntent(intent.payload);
     case 'declarePhysical':
@@ -233,6 +246,13 @@ function toStandIntent(payload: unknown): IIntentPayload | null {
   const { unitId } = payload;
   if (typeof unitId !== 'string' || unitId.length === 0) return null;
   return { kind: 'Stand', unitId };
+}
+
+function toGoProneIntent(payload: unknown): IIntentPayload | null {
+  if (!isRecord(payload)) return null;
+  const { unitId } = payload;
+  if (typeof unitId !== 'string' || unitId.length === 0) return null;
+  return { kind: 'GoProne', unitId };
 }
 
 function toAttackIntent(payload: unknown): IIntentPayload | null {
