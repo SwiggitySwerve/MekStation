@@ -272,6 +272,17 @@ export interface IUnitGameState {
   /** Consecutive previous turns of Supercharger use, for source-backed failure TNs. */
   readonly superchargerTurnsUsed?: number;
   /**
+   * MegaMek-style MASC failure-level decay marker. After a turn where the
+   * level increased, the next idle turn drops an extra level before clearing
+   * this marker.
+   */
+  readonly mascFailureLevelIncreasedLastTurn?: boolean;
+  /**
+   * MegaMek-style Supercharger failure-level decay marker. Mirrors the MASC
+   * counter lifecycle for the separate Supercharger failure target.
+   */
+  readonly superchargerFailureLevelIncreasedLastTurn?: boolean;
+  /**
    * Explicit BattleMech Partial Wing jump bonus after source-backed equipment
    * hydration. Undefined means no supported Partial Wing combat state.
    */

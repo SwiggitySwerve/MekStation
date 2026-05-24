@@ -457,7 +457,7 @@ Runner movement validation SHALL consume explicit BattleMech `hasTSM` state and 
 
 ### Requirement: Source-Backed Active MASC/Supercharger Run Movement Boundary
 
-Runner movement validation SHALL consume explicit active `activeMASC` and `activeSupercharger` BattleMech combat state when calculating running movement capability. A single active MASC or Supercharger SHALL double the effective walk MP for run validation, and active MASC plus active Supercharger SHALL validate run movement against `ceil(effectiveWalkMP * 2.5)`. Runner movement SHALL queue the corresponding MASC and/or Supercharger failure PSR triggers when an explicit active booster is used for running movement. Those pending PSRs SHALL carry source-backed standard fixed target numbers from explicit `mascTurnsUsed` and `superchargerTurnsUsed` prior-use state, defaulting first use to 3 and mapping prior-use counts through `[3, 5, 7, 11, 13, 13, 13]`. Alternate MASC option tables, IndustrialMek/support-unit supercharger adjustment, `MovementType.Sprint`, activation command/wire payloads, automatic prior-use counter increment/decrement lifecycle, Edge rerolls, and failure critical-slot damage SHALL remain explicit gaps.
+Runner movement validation SHALL consume explicit active `activeMASC` and `activeSupercharger` BattleMech combat state when calculating running movement capability. A single active MASC or Supercharger SHALL double the effective walk MP for run validation, and active MASC plus active Supercharger SHALL validate run movement against `ceil(effectiveWalkMP * 2.5)`. Runner movement SHALL queue the corresponding MASC and/or Supercharger failure PSR triggers when an explicit active booster is used for running movement. Those pending PSRs SHALL carry source-backed standard fixed target numbers from explicit `mascTurnsUsed` and `superchargerTurnsUsed` prior-use state, defaulting first use to 3 and mapping prior-use counts through `[3, 5, 7, 11, 13, 13, 13]`. At turn reset, runner state SHALL advance the used booster's prior-use counter, clear active booster use, and decay idle prior-use counters. Alternate MASC option tables, IndustrialMek/support-unit supercharger adjustment, `MovementType.Sprint`, activation command/wire payloads, Edge rerolls, and failure critical-slot damage SHALL remain explicit gaps.
 
 #### Scenario: Active MASC expands run validation and queues a failure PSR
 
@@ -482,6 +482,14 @@ Runner movement validation SHALL consume explicit active `activeMASC` and `activ
 - **THEN** the movement SHALL be accepted with 10 MP used
 - **AND** the unit SHALL receive a pending `MASCFailure` PSR with fixed target number 7
 - **AND** the unit SHALL receive a pending `SuperchargerFailure` PSR with fixed target number 11
+
+#### Scenario: Turn reset advances and decays booster prior-use counters
+
+- **GIVEN** a BattleMech ended the previous movement phase with explicit active MASC and Supercharger use
+- **WHEN** the runner resets state for the next turn
+- **THEN** MASC and Supercharger prior-use counters SHALL advance
+- **AND** active MASC and Supercharger use SHALL clear before the next movement phase
+- **AND** a later idle reset SHALL decay those counters using the source-backed MegaMek idle-decay marker
 
 ### Requirement: Source-Backed Partial Wing Jump Movement
 

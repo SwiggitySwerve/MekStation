@@ -272,16 +272,101 @@ export function synthesizeGameUnits(
   return result;
 }
 
+const MAX_STANDARD_BOOSTER_FAILURE_LEVEL = 6;
+
+function normalizeBoosterTurnsUsed(value: number | undefined): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return 0;
+  return Math.max(
+    0,
+    Math.min(MAX_STANDARD_BOOSTER_FAILURE_LEVEL, Math.trunc(value)),
+  );
+}
+
+function advanceBoosterTurnCounter(options: {
+  readonly active: boolean | undefined;
+  readonly turnsUsed: number | undefined;
+  readonly failureLevelIncreasedLastTurn: boolean | undefined;
+}): {
+  readonly turnsUsed: number;
+  readonly failureLevelIncreasedLastTurn: boolean;
+} {
+  const turnsUsed = normalizeBoosterTurnsUsed(options.turnsUsed);
+
+  if (options.active === true) {
+    return {
+      turnsUsed: Math.min(turnsUsed + 1, MAX_STANDARD_BOOSTER_FAILURE_LEVEL),
+      failureLevelIncreasedLastTurn: true,
+    };
+  }
+
+  const idleDecay = options.failureLevelIncreasedLastTurn === true ? 2 : 1;
+  return {
+    turnsUsed: Math.max(0, turnsUsed - idleDecay),
+    failureLevelIncreasedLastTurn: false,
+  };
+}
+
+function shouldTrackMASC(unit: IUnitGameState): boolean {
+  return (
+    unit.hasMASC === true ||
+    unit.activeMASC === true ||
+    unit.mascTurnsUsed !== undefined ||
+    unit.mascFailureLevelIncreasedLastTurn !== undefined
+  );
+}
+
+function shouldTrackSupercharger(unit: IUnitGameState): boolean {
+  return (
+    unit.hasSupercharger === true ||
+    unit.activeSupercharger === true ||
+    unit.superchargerTurnsUsed !== undefined ||
+    unit.superchargerFailureLevelIncreasedLastTurn !== undefined
+  );
+}
+
 export function resetTurnState(state: IGameState): IGameState {
   const updatedUnits: Record<string, IUnitGameState> = {};
   for (const [id, unit] of Object.entries(state.units)) {
-    updatedUnits[id] = {
+    const mascCounter = advanceBoosterTurnCounter({
+      active: unit.activeMASC,
+      turnsUsed: unit.mascTurnsUsed,
+      failureLevelIncreasedLastTurn: unit.mascFailureLevelIncreasedLastTurn,
+    });
+    const superchargerCounter = advanceBoosterTurnCounter({
+      active: unit.activeSupercharger,
+      turnsUsed: unit.superchargerTurnsUsed,
+      failureLevelIncreasedLastTurn:
+        unit.superchargerFailureLevelIncreasedLastTurn,
+    });
+
+    let updatedUnit: IUnitGameState = {
       ...unit,
       damageThisPhase: 0,
       weaponsFiredThisTurn: [],
       pendingPSRs: [],
       tagDesignated: false,
     };
+
+    if (shouldTrackMASC(unit)) {
+      updatedUnit = {
+        ...updatedUnit,
+        activeMASC: false,
+        mascTurnsUsed: mascCounter.turnsUsed,
+        mascFailureLevelIncreasedLastTurn:
+          mascCounter.failureLevelIncreasedLastTurn,
+      };
+    }
+    if (shouldTrackSupercharger(unit)) {
+      updatedUnit = {
+        ...updatedUnit,
+        activeSupercharger: false,
+        superchargerTurnsUsed: superchargerCounter.turnsUsed,
+        superchargerFailureLevelIncreasedLastTurn:
+          superchargerCounter.failureLevelIncreasedLastTurn,
+      };
+    }
+
+    updatedUnits[id] = updatedUnit;
   }
 
   return { ...state, units: updatedUnits };

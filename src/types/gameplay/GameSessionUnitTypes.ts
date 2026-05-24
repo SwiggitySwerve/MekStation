@@ -105,6 +105,10 @@ export interface IGameUnit {
   readonly mascTurnsUsed?: number;
   /** Consecutive previous turns of Supercharger use, for source-backed failure TNs. */
   readonly superchargerTurnsUsed?: number;
+  /** Source-backed MASC failure-level decay marker copied into combat state. */
+  readonly mascFailureLevelIncreasedLastTurn?: boolean;
+  /** Source-backed Supercharger failure-level decay marker copied into combat state. */
+  readonly superchargerFailureLevelIncreasedLastTurn?: boolean;
   /** Pilot SPA ids copied into combat state for modifier resolution. */
   readonly abilities?: readonly string[];
   /** SPA designation fields copied into combat state for to-hit resolution. */

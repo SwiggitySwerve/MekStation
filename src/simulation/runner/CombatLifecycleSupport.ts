@@ -71,7 +71,7 @@ const MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS = [
   {
     kind: 'megamek-source',
     citation:
-      'MegaMek Entity derives current MASC/Supercharger failure targets from previous consecutive-use counters.',
+      'MegaMek Entity derives current MASC/Supercharger failure targets from previous consecutive-use counters, then increments used boosters, clears active-use flags, and applies the idle decay marker.',
     url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L13660-L13770',
     sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
   },
@@ -266,14 +266,14 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
   ),
   [PSRTrigger.MASCFailure]: helperOnly(
     PSRTrigger.MASCFailure,
-    'movementEnhancementPsr queues createMASCFailurePSR for explicit active MASC run movement with source-backed standard fixed target numbers from explicit prior-use state',
-    'Alternate MASC option tables, automatic prior-use turn-counter lifecycle, Edge reroll, and failure critical-slot damage are not wired',
+    'movementEnhancementPsr queues createMASCFailurePSR for explicit active MASC run movement with source-backed standard fixed target numbers, and resetTurnState advances/decays prior-use counters before clearing active use',
+    'Alternate MASC option tables, Edge reroll, and failure critical-slot damage are not wired',
     MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS,
   ),
   [PSRTrigger.SuperchargerFailure]: helperOnly(
     PSRTrigger.SuperchargerFailure,
-    'movementEnhancementPsr queues createSuperchargerFailurePSR for explicit active Supercharger run movement with source-backed standard fixed target numbers from explicit prior-use state',
-    'IndustrialMek/support-unit supercharger roll adjustment, automatic prior-use turn-counter lifecycle, Edge reroll, and failure critical-slot damage are not wired',
+    'movementEnhancementPsr queues createSuperchargerFailurePSR for explicit active Supercharger run movement with source-backed standard fixed target numbers, and resetTurnState advances/decays prior-use counters before clearing active use',
+    'IndustrialMek/support-unit supercharger roll adjustment, Edge reroll, and failure critical-slot damage are not wired',
     MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS,
   ),
 } satisfies Record<PSRTrigger, ICombatFeatureSupportEntry>;

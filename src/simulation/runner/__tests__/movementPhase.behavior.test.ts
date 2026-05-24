@@ -42,6 +42,7 @@ import {
 import { TERRAIN_TYPE_PSR_COMBAT_SUPPORT } from '../CombatTerrainEnvironmentSupport';
 import { runMovementPhase } from '../phases/movement';
 import { DEFAULT_COMPONENT_DAMAGE } from '../SimulationRunnerConstants';
+import { resetTurnState } from '../SimulationRunnerState';
 import {
   createMinimalGrid,
   createMinimalUnitState,
@@ -509,6 +510,46 @@ describe('runMovementPhase movement validation parity', () => {
         }),
       ]),
     );
+  });
+
+  it('advances and decays MASC/Supercharger prior-use counters at turn reset', () => {
+    const target = { q: 10, r: 0 };
+    const { next } = runScriptedMove(
+      createMinimalGrid(11),
+      target,
+      {
+        hasMASC: true,
+        hasSupercharger: true,
+        activeMASC: true,
+        activeSupercharger: true,
+        mascTurnsUsed: 1,
+        superchargerTurnsUsed: 2,
+      },
+      {
+        movementType: MovementType.Run,
+        capability: { walkMP: 4, runMP: 6, jumpMP: 0 },
+      },
+    );
+
+    const afterUsedTurn = resetTurnState({ ...next, turn: 2 });
+
+    expect(afterUsedTurn.units['player-1']).toMatchObject({
+      activeMASC: false,
+      activeSupercharger: false,
+      mascTurnsUsed: 2,
+      superchargerTurnsUsed: 3,
+      mascFailureLevelIncreasedLastTurn: true,
+      superchargerFailureLevelIncreasedLastTurn: true,
+    });
+
+    const afterIdleTurn = resetTurnState({ ...afterUsedTurn, turn: 3 });
+
+    expect(afterIdleTurn.units['player-1']).toMatchObject({
+      mascTurnsUsed: 0,
+      superchargerTurnsUsed: 1,
+      mascFailureLevelIncreasedLastTurn: false,
+      superchargerFailureLevelIncreasedLastTurn: false,
+    });
   });
 
   it('applies explicit Partial Wing jump MP and jump heat support', () => {

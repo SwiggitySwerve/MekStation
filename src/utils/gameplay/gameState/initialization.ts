@@ -264,6 +264,9 @@ export function createInitialUnitState(
     activeSupercharger: unit.activeSupercharger ?? false,
     mascTurnsUsed: unit.mascTurnsUsed,
     superchargerTurnsUsed: unit.superchargerTurnsUsed,
+    mascFailureLevelIncreasedLastTurn: unit.mascFailureLevelIncreasedLastTurn,
+    superchargerFailureLevelIncreasedLastTurn:
+      unit.superchargerFailureLevelIncreasedLastTurn,
     abilities: unit.abilities,
     designatedWeaponType: unit.designatedWeaponType,
     designatedWeaponCategory: unit.designatedWeaponCategory,

@@ -212,7 +212,7 @@ const MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS = [
   {
     kind: 'megamek-source',
     citation:
-      'MegaMek Entity derives MASC and Supercharger failure targets from previous consecutive-use turn counters.',
+      'MegaMek Entity derives MASC and Supercharger failure targets from previous consecutive-use turn counters, then increments used boosters, clears active-use flags, and applies the idle decay marker.',
     url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L13660-L13770`,
     sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
   },
@@ -494,14 +494,14 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
 export const MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT = {
   [MovementEnhancementType.MASC]: helperOnly(
     MovementEnhancementType.MASC,
-    'UnitHydration detects installed MASC, runMovementPhase consumes explicit active MASC run MP, movementEnhancementPsr queues createMASCFailurePSR with source-backed standard fixed failure target numbers from explicit prior-use state, and construction helpers still expose sprint_masc formula support',
-    'No combat MovementType.Sprint, activation game intent, wire payload, alternate MASC option tables, automatic prior-use turn-counter lifecycle, Edge reroll, or failure critical-slot damage is wired',
+    'UnitHydration detects installed MASC, runMovementPhase consumes explicit active MASC run MP, movementEnhancementPsr queues createMASCFailurePSR with source-backed standard fixed failure target numbers, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers still expose sprint_masc formula support',
+    'No combat MovementType.Sprint, activation game intent, wire payload, alternate MASC option tables, Edge reroll, or failure critical-slot damage is wired',
     MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
   ),
   [MovementEnhancementType.SUPERCHARGER]: helperOnly(
     MovementEnhancementType.SUPERCHARGER,
-    'UnitHydration detects installed Supercharger, runMovementPhase consumes explicit active Supercharger run MP, movementEnhancementPsr queues createSuperchargerFailurePSR with source-backed standard fixed failure target numbers from explicit prior-use state, and construction helpers still expose sprint_combined formula support',
-    'No combat MovementType.Sprint, activation game intent, wire payload, IndustrialMek/support-unit supercharger roll adjustment, automatic prior-use turn-counter lifecycle, Edge reroll, or failure critical-slot damage is wired',
+    'UnitHydration detects installed Supercharger, runMovementPhase consumes explicit active Supercharger run MP, movementEnhancementPsr queues createSuperchargerFailurePSR with source-backed standard fixed failure target numbers, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers still expose sprint_combined formula support',
+    'No combat MovementType.Sprint, activation game intent, wire payload, IndustrialMek/support-unit supercharger roll adjustment, Edge reroll, or failure critical-slot damage is wired',
     MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
   ),
   [MovementEnhancementType.TSM]: integrated(
