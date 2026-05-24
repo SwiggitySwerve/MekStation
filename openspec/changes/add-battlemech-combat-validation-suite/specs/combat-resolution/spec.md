@@ -307,12 +307,12 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 
 #### Scenario: Physical displacement rejects prohibited BattleMech terrain
 
-- **GIVEN** a push, charge, or death-from-above displacement would move a BattleMech target into an explicit impassable terrain hex
+- **GIVEN** a push, charge, or death-from-above displacement would move a BattleMech target into an explicit impassable terrain hex or a represented woods/jungle terrain feature above level two
 - **WHEN** the shared displacement helper evaluates the destination
 - **THEN** the displacement SHALL be treated as invalid before position changes or displacement PSRs are emitted
 - **AND** successful charge damage SHALL still apply while both units remain in their original hexes
-- **AND** helper, event-sourced resolution, runner resolution, catalog, and source-truth audit evidence SHALL cite MegaMek `Compute.isValidDisplacement` prohibited-destination handling and `Mek.isLocationProhibited` impassable-terrain handling
-- **AND** hidden-unit deployment restrictions, track/wheel motive restrictions, jungle/ultra-woods levels, domino-chain displacement, friendly-unit avoidance, and DropShip-radius displacement SHALL remain explicit gaps
+- **AND** helper, event-sourced resolution, runner resolution, catalog, and source-truth audit evidence SHALL cite MegaMek `Compute.isValidDisplacement` prohibited-destination handling plus `Mek.isLocationProhibited` impassable and woods/jungle terrain-level handling
+- **AND** hidden-unit deployment restrictions, track/wheel motive restrictions, domino-chain displacement, friendly-unit avoidance, and DropShip-radius displacement SHALL remain explicit gaps
 
 #### Scenario: Runner physical displacement refreshes same-phase occupancy
 

@@ -76,6 +76,8 @@ const DISPLACEMENT_ELEVATION_LINES =
   'MegaMek Compute.isValidDisplacement rejects displacement climbs above Entity.getMaxElevationChange; Mek.getMaxElevationChange returns 2 for normal BattleMechs';
 const DISPLACEMENT_PROHIBITED_TERRAIN_LINES =
   'MegaMek Compute.isValidDisplacement rejects entity.isLocationProhibited destinations; Mek.isLocationProhibited rejects IMPASSABLE terrain for normal BattleMechs';
+const DISPLACEMENT_OVERGROWN_TERRAIN_LINES =
+  'MegaMek Compute.isValidDisplacement rejects entity.isLocationProhibited destinations; Mek.isLocationProhibited rejects WOODS and JUNGLE terrain levels above 2 for normal BattleMechs';
 
 const PHYSICAL_ATTACK_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
   'MegaMek PhysicalAttackAction.toHitIsImpossible applies shared physical attack impossibility gates',
@@ -162,6 +164,12 @@ const MEK_PROHIBITED_TERRAIN_SOURCE_REF = megamekPhysicalSourceRef(
   'L4144-L4152',
 );
 
+const MEK_OVERGROWN_TERRAIN_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek Mek.isLocationProhibited rejects WOODS and JUNGLE terrain levels above 2 for normal BattleMechs',
+  'common/units/Mek.java',
+  'L4220-L4221',
+);
+
 function sourceRefsForAuthority(
   authority: string,
 ): readonly ICombatFeatureSourceReference[] {
@@ -190,6 +198,11 @@ function sourceRefsForAuthority(
       return [
         COMPUTE_DISPLACEMENT_PROHIBITED_TERRAIN_SOURCE_REF,
         MEK_PROHIBITED_TERRAIN_SOURCE_REF,
+      ];
+    case DISPLACEMENT_OVERGROWN_TERRAIN_LINES:
+      return [
+        COMPUTE_DISPLACEMENT_PROHIBITED_TERRAIN_SOURCE_REF,
+        MEK_OVERGROWN_TERRAIN_SOURCE_REF,
       ];
     case PHYSICAL_ATTACK_ACTION_LINES:
     default:
@@ -300,6 +313,12 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'shared',
     'isValidDisplacement now rejects explicit impassable terrain destinations before push/charge/DFA position changes; helper, event-sourced, and runner charge coverage keep successful charge damage while suppressing displacement and charge PSRs',
     DISPLACEMENT_PROHIBITED_TERRAIN_LINES,
+  ),
+  'shared.displacement-overgrown-terrain': integrated(
+    'shared.displacement-overgrown-terrain',
+    'shared',
+    'isValidDisplacement now rejects represented woods/jungle terrain levels above two before push/charge/DFA position changes; helper, event-sourced, and runner charge coverage keep successful charge damage while suppressing displacement and charge PSRs',
+    DISPLACEMENT_OVERGROWN_TERRAIN_LINES,
   ),
   'push.destination-open': integrated(
     'push.destination-open',

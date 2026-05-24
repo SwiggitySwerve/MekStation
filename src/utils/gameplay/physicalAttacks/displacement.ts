@@ -24,6 +24,18 @@ import { hexNeighbor } from '../hexMath';
 const DISPLACEMENT_OFFSETS = [0, 1, 5, 2, 4, 3] as const;
 export const BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE = 2;
 const BATTLEMECH_PROHIBITED_DISPLACEMENT_TERRAINS = new Set(['impassable']);
+const BATTLEMECH_DISPLACEMENT_WOODS_TERRAINS = new Set([
+  'woods',
+  'light_woods',
+  'heavy_woods',
+  'ultra_woods',
+]);
+const BATTLEMECH_OVERGROWN_DISPLACEMENT_LIMIT = 2;
+
+interface IDisplacementTerrainFeature {
+  readonly type: string;
+  readonly level: number;
+}
 
 export interface IDfaDisplacementOutcome {
   readonly displacements: readonly IPhysicalDisplacement[];
@@ -49,7 +61,41 @@ function normalizeDisplacementLegalityOptions(
   return optionsOrExcludeUnitId ?? {};
 }
 
-function terrainTokens(terrain: string): readonly string[] {
+function normalizeTerrainToken(type: string): string {
+  return type.trim().toLowerCase().replaceAll('-', '_');
+}
+
+function defaultTerrainLevel(type: string): number {
+  switch (type) {
+    case 'light_woods':
+      return 1;
+    case 'heavy_woods':
+      return 2;
+    case 'ultra_woods':
+      return 3;
+    default:
+      return 1;
+  }
+}
+
+function terrainFeature(
+  type: string,
+  level?: unknown,
+): IDisplacementTerrainFeature {
+  const normalized = normalizeTerrainToken(type);
+  const parsedLevel =
+    typeof level === 'number' && Number.isFinite(level)
+      ? Math.floor(level)
+      : Number.NaN;
+  return {
+    type: normalized,
+    level: parsedLevel > 0 ? parsedLevel : defaultTerrainLevel(normalized),
+  };
+}
+
+function terrainFeatures(
+  terrain: string,
+): readonly IDisplacementTerrainFeature[] {
   const trimmed = terrain.trim();
   if (!trimmed) return [];
 
@@ -62,7 +108,12 @@ function terrainTokens(terrain: string): readonly string[] {
         feature !== null &&
         'type' in feature &&
         typeof feature.type === 'string'
-          ? [feature.type.toLowerCase()]
+          ? [
+              terrainFeature(
+                feature.type,
+                'level' in feature ? feature.level : undefined,
+              ),
+            ]
           : [],
       );
     } catch {
@@ -70,13 +121,26 @@ function terrainTokens(terrain: string): readonly string[] {
     }
   }
 
-  return [trimmed.split(':')[0]?.toLowerCase() ?? ''];
+  const [type = '', level] = trimmed.split(':');
+  return [terrainFeature(type, Number(level))];
 }
 
 function isBattleMechDisplacementTerrainProhibited(terrain: string): boolean {
-  return terrainTokens(terrain).some((token) =>
-    BATTLEMECH_PROHIBITED_DISPLACEMENT_TERRAINS.has(token),
-  );
+  return terrainFeatures(terrain).some((feature) => {
+    if (BATTLEMECH_PROHIBITED_DISPLACEMENT_TERRAINS.has(feature.type)) {
+      return true;
+    }
+    if (
+      BATTLEMECH_DISPLACEMENT_WOODS_TERRAINS.has(feature.type) &&
+      feature.level > BATTLEMECH_OVERGROWN_DISPLACEMENT_LIMIT
+    ) {
+      return true;
+    }
+    return (
+      feature.type === 'jungle' &&
+      feature.level > BATTLEMECH_OVERGROWN_DISPLACEMENT_LIMIT
+    );
+  });
 }
 
 /**

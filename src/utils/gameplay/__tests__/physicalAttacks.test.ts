@@ -138,14 +138,20 @@ function makeBlockedChargeDisplacementGrid(): IHexGrid {
   return { ...grid, hexes };
 }
 
-function makeProhibitedChargeDisplacementGrid(): IHexGrid {
+function makeProhibitedChargeDisplacementGrid(
+  terrain: string = 'impassable',
+): IHexGrid {
   const grid = makeDisplacementGrid();
   const hexes = new Map(grid.hexes);
   const hex = hexes.get('1,1');
   if (hex) {
-    hexes.set('1,1', { ...hex, terrain: 'impassable' });
+    hexes.set('1,1', { ...hex, terrain });
   }
   return { ...grid, hexes };
+}
+
+function terrainFeature(type: string, level: number): string {
+  return JSON.stringify([{ type, level }]);
 }
 
 // =============================================================================
@@ -199,7 +205,7 @@ describe('physicalAttacks', () => {
       ).toEqual([]);
     });
 
-    it('treats prohibited BattleMech displacement terrain as invalid', () => {
+    it('treats explicit impassable BattleMech displacement terrain as invalid', () => {
       const grid = makeProhibitedChargeDisplacementGrid();
 
       expect(
@@ -215,6 +221,62 @@ describe('physicalAttacks', () => {
           targetPosition: { q: 1, r: 0 },
         }).displacements,
       ).toEqual([]);
+    });
+
+    it('treats overgrown BattleMech displacement terrain above level two as invalid', () => {
+      for (const terrain of [
+        terrainFeature('heavy_woods', 3),
+        terrainFeature('jungle', 3),
+        'woods:3',
+        'ultra_woods',
+      ]) {
+        const grid = makeProhibitedChargeDisplacementGrid(terrain);
+
+        expect(
+          computeValidDisplacement(
+            grid,
+            'target',
+            { q: 1, r: 0 },
+            Facing.South,
+          ),
+        ).toEqual({ q: 0, r: 1 });
+        expect(
+          computeChargeDisplacementOutcome({
+            grid,
+            attackerId: 'attacker',
+            attackerPosition: { q: 0, r: 0 },
+            attackerFacing: Facing.South,
+            targetId: 'target',
+            targetPosition: { q: 1, r: 0 },
+          }).displacements,
+        ).toEqual([]);
+      }
+
+      expect(
+        computeChargeDisplacementOutcome({
+          grid: makeProhibitedChargeDisplacementGrid(
+            terrainFeature('heavy_woods', 2),
+          ),
+          attackerId: 'attacker',
+          attackerPosition: { q: 0, r: 0 },
+          attackerFacing: Facing.South,
+          targetId: 'target',
+          targetPosition: { q: 1, r: 0 },
+        }).displacements,
+      ).toEqual([
+        {
+          unitId: 'target',
+          from: { q: 1, r: 0 },
+          to: { q: 1, r: 1 },
+          reason: 'charge',
+        },
+        {
+          unitId: 'attacker',
+          from: { q: 0, r: 0 },
+          to: { q: 1, r: 0 },
+          reason: 'charge',
+        },
+      ]);
     });
 
     it('checks push target feet-facing instead of adjacency alone', () => {

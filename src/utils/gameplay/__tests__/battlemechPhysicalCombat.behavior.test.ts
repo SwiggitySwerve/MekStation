@@ -225,12 +225,12 @@ function elevatedChargeDisplacementGrid() {
   return { ...grid, hexes };
 }
 
-function prohibitedChargeDisplacementGrid() {
+function prohibitedChargeDisplacementGrid(terrain: string = 'impassable') {
   const grid = adjacentPhysicalGrid();
   const hexes = new Map(grid.hexes);
   const destination = hexes.get('1,1');
   if (destination) {
-    hexes.set('1,1', { ...destination, terrain: 'impassable' });
+    hexes.set('1,1', { ...destination, terrain });
   }
   return { ...grid, hexes };
 }
@@ -3152,54 +3152,63 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(destroyed).toBeUndefined();
   });
 
-  it('emits event-sourced charge damage without displacement into prohibited terrain', () => {
-    const context = physicalContext({
-      attackerTonnage: 20,
-      hexesMoved: 5,
-      attackerRanThisTurn: true,
-    });
-    const declared = declareAdjacentPhysicalAttack(
-      'charge',
-      context,
-      {
-        facing: Facing.South,
-      },
-      {
-        armor: STANDARD_ARMOR,
-        structure: STANDARD_STRUCTURE,
-      },
-    );
+  it.each([
+    ['impassable terrain', 'impassable'],
+    [
+      'overgrown woods terrain',
+      JSON.stringify([{ type: 'heavy_woods', level: 3 }]),
+    ],
+  ])(
+    'emits event-sourced charge damage without displacement into %s',
+    (_label, terrain) => {
+      const context = physicalContext({
+        attackerTonnage: 20,
+        hexesMoved: 5,
+        attackerRanThisTurn: true,
+      });
+      const declared = declareAdjacentPhysicalAttack(
+        'charge',
+        context,
+        {
+          facing: Facing.South,
+        },
+        {
+          armor: STANDARD_ARMOR,
+          structure: STANDARD_STRUCTURE,
+        },
+      );
 
-    const resolved = resolveAllPhysicalAttacks(
-      declared,
-      new Map([['attacker', context]]),
-      scriptedDice([6, 6, 3, 3, 3, 3, 3, 3]),
-      prohibitedChargeDisplacementGrid(),
-    );
-    const event = resolved.events.find(
-      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
-    );
-    const payload = event?.payload as IPhysicalAttackResolvedPayload;
-    const chargedPsrs = resolved.events
-      .filter((entry) => entry.type === GameEventType.PSRTriggered)
-      .map((entry) => entry.payload as IPSRTriggeredPayload)
-      .filter((entry) => entry.reasonCode === PSRTrigger.Charged);
-    const destroyed = resolved.events.find(
-      (entry) =>
-        entry.type === GameEventType.UnitDestroyed &&
-        (entry.payload as IUnitDestroyedPayload).cause ===
-          'impossible_displacement',
-    );
+      const resolved = resolveAllPhysicalAttacks(
+        declared,
+        new Map([['attacker', context]]),
+        scriptedDice([6, 6, 3, 3, 3, 3, 3, 3]),
+        prohibitedChargeDisplacementGrid(terrain),
+      );
+      const event = resolved.events.find(
+        (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+      );
+      const payload = event?.payload as IPhysicalAttackResolvedPayload;
+      const chargedPsrs = resolved.events
+        .filter((entry) => entry.type === GameEventType.PSRTriggered)
+        .map((entry) => entry.payload as IPSRTriggeredPayload)
+        .filter((entry) => entry.reasonCode === PSRTrigger.Charged);
+      const destroyed = resolved.events.find(
+        (entry) =>
+          entry.type === GameEventType.UnitDestroyed &&
+          (entry.payload as IUnitDestroyedPayload).cause ===
+            'impossible_displacement',
+      );
 
-    expect(payload).toMatchObject({
-      attackType: 'charge',
-      hit: true,
-    });
-    expect(payload.damage).toBeGreaterThan(0);
-    expect(payload.displacements).toBeUndefined();
-    expect(chargedPsrs).toHaveLength(0);
-    expect(destroyed).toBeUndefined();
-  });
+      expect(payload).toMatchObject({
+        attackType: 'charge',
+        hit: true,
+      });
+      expect(payload.damage).toBeGreaterThan(0);
+      expect(payload.displacements).toBeUndefined();
+      expect(chargedPsrs).toHaveLength(0);
+      expect(destroyed).toBeUndefined();
+    },
+  );
 
   it('emits event-sourced charge-miss displacement for the attacker only', () => {
     const context = physicalContext({

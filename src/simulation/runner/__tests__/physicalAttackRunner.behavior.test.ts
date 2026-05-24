@@ -197,6 +197,7 @@ function createPhysicalGrid(
     blockDfaDisplacement?: boolean;
     blockChargeDisplacement?: boolean;
     prohibitChargeDisplacement?: boolean;
+    chargeDisplacementTerrain?: string;
   } = {},
 ): IHexGrid {
   const hexes = new Map();
@@ -221,9 +222,9 @@ function createPhysicalGrid(
       options.blockDfaDisplacement || options.blockChargeDisplacement
         ? 'blocker-1'
         : null,
-    terrain: options.prohibitChargeDisplacement
-      ? 'impassable'
-      : TerrainType.Clear,
+    terrain:
+      options.chargeDisplacementTerrain ??
+      (options.prohibitChargeDisplacement ? 'impassable' : TerrainType.Clear),
     elevation: options.displacementElevation ?? 0,
   });
   hexes.set('2,0', {
@@ -1690,30 +1691,39 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     );
   });
 
-  it('keeps a successful charge in place when displacement terrain is prohibited', () => {
-    const { events, result } = runPhase('charge', {
-      attacker: {
-        movementThisTurn: MovementType.Run,
-        hexesMovedThisTurn: 5,
-      },
-      grid: createPhysicalGrid({ prohibitChargeDisplacement: true }),
-    });
+  it.each([
+    ['impassable terrain', 'impassable'],
+    [
+      'overgrown woods terrain',
+      JSON.stringify([{ type: TerrainType.HeavyWoods, level: 3 }]),
+    ],
+  ])(
+    'keeps a successful charge in place when displacement destination is %s',
+    (_label, chargeDisplacementTerrain) => {
+      const { events, result } = runPhase('charge', {
+        attacker: {
+          movementThisTurn: MovementType.Run,
+          hexesMovedThisTurn: 5,
+        },
+        grid: createPhysicalGrid({ chargeDisplacementTerrain }),
+      });
 
-    expect(resolvedPayload(events)).toMatchObject({
-      attackType: 'charge',
-      hit: true,
-      damage: 28,
-    });
-    expect(resolvedPayload(events).displacements).toBeUndefined();
-    expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 0 });
-    expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
-    expect(result.units['opponent-1'].pendingPSRs).not.toContainEqual(
-      expect.objectContaining({ reasonCode: PSRTrigger.Charged }),
-    );
-    expect(result.units['player-1'].pendingPSRs).not.toContainEqual(
-      expect.objectContaining({ reasonCode: PSRTrigger.Charged }),
-    );
-  });
+      expect(resolvedPayload(events)).toMatchObject({
+        attackType: 'charge',
+        hit: true,
+        damage: 28,
+      });
+      expect(resolvedPayload(events).displacements).toBeUndefined();
+      expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 0 });
+      expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
+      expect(result.units['opponent-1'].pendingPSRs).not.toContainEqual(
+        expect.objectContaining({ reasonCode: PSRTrigger.Charged }),
+      );
+      expect(result.units['player-1'].pendingPSRs).not.toContainEqual(
+        expect.objectContaining({ reasonCode: PSRTrigger.Charged }),
+      );
+    },
+  );
 
   it('refreshes runner grid occupancy after displacement before later same-phase attacks', () => {
     const events: IGameEvent[] = [];

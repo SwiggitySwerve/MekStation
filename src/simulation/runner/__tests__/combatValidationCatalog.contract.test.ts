@@ -97,6 +97,7 @@ describe('BattleMech combat validation catalog index', () => {
         'physical.push',
         'shared.displacement-elevation-cap',
         'shared.displacement-prohibited-terrain',
+        'shared.displacement-overgrown-terrain',
         'push.destination-open',
         'push.attacker-is-mek',
         'push.target-is-mek',
