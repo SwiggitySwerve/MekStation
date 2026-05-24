@@ -38,11 +38,16 @@ import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import {
   Facing,
   GameSide,
+  IAmmoSlotState,
   IUnitGameState,
   IHexCoordinate,
   LockState,
   MovementType,
 } from '@/types/gameplay';
+import {
+  AMMUNITION_CATALOG_FILES,
+  NAME_MAPPINGS_DATA,
+} from '@/utils/construction/equipmentBVCatalogData';
 import { buildCriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
 import { STANDARD_STRUCTURE_TABLE } from '@/utils/gameplay/damage/constants';
 
@@ -84,6 +89,16 @@ export interface ICatalogWeaponStats {
  * `buildWeaponLookupFromCatalogFiles` below.
  */
 export type WeaponLookup = (id: string) => ICatalogWeaponStats | null;
+
+export interface ICatalogAmmoStats {
+  readonly id: string;
+  readonly name: string;
+  readonly shotsPerTon: number;
+  readonly isExplosive: boolean;
+  readonly compatibleWeaponIds: readonly string[];
+}
+
+export type AmmoLookup = (idOrName: string) => ICatalogAmmoStats | null;
 
 export interface IHydratedAIWeaponsReport {
   readonly weapons: readonly IWeapon[];
@@ -578,6 +593,100 @@ function normalizeEquipmentId(id: string): string {
     .replace(/[^a-z0-9]/g, '');
 }
 
+function normalizeAmmoLookupKey(idOrName: string): string {
+  return normalizeCriticalSlotText(idOrName);
+}
+
+function ammoLookupCandidates(slotText: string): readonly string[] {
+  const cleaned = stripCriticalSlotRearMarker(slotText)
+    .replace(/\([^)]*\)/g, ' ')
+    .replace(/\b(?:artemis|narc)-capable\b/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const candidates = new Set<string>([cleaned]);
+
+  const addAmmoNameCandidates = (
+    techLabel: string | undefined,
+    rest: string,
+  ) => {
+    const restWithSpaces = rest.replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
+    const restVariants = new Set<string>([rest.trim(), restWithSpaces]);
+    for (const variant of Array.from(restVariants)) {
+      if (!variant) continue;
+      candidates.add(`${variant} Ammo`);
+      if (techLabel) {
+        candidates.add(`${techLabel} ${variant} Ammo`);
+      }
+    }
+  };
+
+  const techMatch = cleaned.match(/^(IS|CL|Clan)\s+Ammo\s+(.+)$/i);
+  if (techMatch) {
+    const tech = techMatch[1];
+    const rest = techMatch[2];
+    if (tech === undefined || rest === undefined) return Array.from(candidates);
+    const techLabel = tech.toUpperCase() === 'CL' ? 'Clan' : tech;
+    addAmmoNameCandidates(techLabel, rest);
+  }
+
+  const ammoFirstMatch = cleaned.match(/^Ammo\s+(.+)$/i);
+  const ammoFirstRest = ammoFirstMatch?.[1];
+  if (ammoFirstRest !== undefined) {
+    addAmmoNameCandidates(undefined, ammoFirstRest);
+  }
+
+  return Array.from(candidates);
+}
+
+function weaponTypeFromAmmoId(ammoId: string): string {
+  if (ammoId.startsWith('ammo-')) {
+    return ammoId.slice('ammo-'.length);
+  }
+  if (ammoId.endsWith('-ammo')) {
+    return ammoId.slice(0, -'-ammo'.length);
+  }
+  return ammoId;
+}
+
+function weaponTypeFromAmmoStats(ammo: ICatalogAmmoStats): string {
+  if (ammo.compatibleWeaponIds.length === 1) {
+    return ammo.compatibleWeaponIds[0];
+  }
+  return weaponTypeFromAmmoId(ammo.id);
+}
+
+function ammoBinIdForCriticalSlot(
+  sourceLocation: string,
+  slotIndex: number,
+  ammoId: string,
+): string | undefined {
+  const runnerLocation =
+    runnerCriticalLocationFromCatalogLocation(sourceLocation);
+  return runnerLocation !== undefined
+    ? `${runnerLocation}-${slotIndex}-${ammoId}`
+    : undefined;
+}
+
+function ammoStatsForCriticalSlot(
+  slotText: string,
+  ammoLookup: AmmoLookup,
+): ICatalogAmmoStats | null {
+  for (const candidate of ammoLookupCandidates(slotText)) {
+    const stats = ammoLookup(candidate);
+    if (stats) return stats;
+  }
+  return null;
+}
+
+let cachedCatalogAmmoLookup: AmmoLookup | undefined;
+
+function defaultCatalogAmmoLookup(): AmmoLookup {
+  cachedCatalogAmmoLookup ??= buildAmmoLookupFromCatalogFiles(
+    AMMUNITION_CATALOG_FILES as readonly { items?: readonly unknown[] }[],
+  );
+  return cachedCatalogAmmoLookup;
+}
+
 function equipmentSignalsFromFullUnit(
   fullUnit: IFullUnit,
 ): readonly IHydratableEquipmentSignal[] {
@@ -1033,12 +1142,21 @@ function criticalSlotEntryFromText(
   slotIndex: number,
   sourceLocation: string,
   aiWeapons: readonly IWeapon[],
+  ammoLookup: AmmoLookup,
 ): ICriticalSlotEntry {
   const classification = classifyCriticalSlotComponent(
     slotText,
     sourceLocation,
     aiWeapons,
   );
+  const ammo =
+    classification.componentType === 'ammo'
+      ? ammoStatsForCriticalSlot(slotText, ammoLookup)
+      : null;
+  const ammoBinId =
+    ammo !== null
+      ? ammoBinIdForCriticalSlot(sourceLocation, slotIndex, ammo.id)
+      : undefined;
 
   return {
     slotIndex,
@@ -1051,6 +1169,7 @@ function criticalSlotEntryFromText(
     ...(classification.weaponId !== undefined
       ? { weaponId: classification.weaponId }
       : {}),
+    ...(ammoBinId !== undefined ? { ammoBinId } : {}),
   };
 }
 
@@ -1073,6 +1192,7 @@ function mergeCriticalSlotEntries(
 export function hydrateCriticalSlotManifestFromFullUnit(
   fullUnit: IFullUnit,
   aiWeapons: readonly IWeapon[] = [],
+  ammoLookup: AmmoLookup = defaultCatalogAmmoLookup(),
 ): CriticalSlotManifest | undefined {
   const criticalSlots = criticalSlotsFromFullUnit(fullUnit);
   const baseManifest = buildCriticalSlotManifest();
@@ -1091,6 +1211,7 @@ export function hydrateCriticalSlotManifestFromFullUnit(
               slotIndex,
               sourceLocation,
               aiWeapons,
+              ammoLookup,
             )
           : null,
       )
@@ -1296,6 +1417,44 @@ export function hydrateAIWeaponsFromFullUnit(
   return hydrateAIWeaponsFromFullUnitWithReport(fullUnit, weaponLookup).weapons;
 }
 
+export function hydrateAmmoStateFromFullUnit(
+  fullUnit: IFullUnit,
+  ammoLookup: AmmoLookup = defaultCatalogAmmoLookup(),
+): Record<string, IAmmoSlotState> | undefined {
+  const criticalSlots = criticalSlotsFromFullUnit(fullUnit);
+  const ammoState: Record<string, IAmmoSlotState> = {};
+
+  for (const [sourceLocation, sourceSlots] of Object.entries(criticalSlots)) {
+    const runnerLocation =
+      runnerCriticalLocationFromCatalogLocation(sourceLocation);
+    if (runnerLocation === undefined) continue;
+
+    for (let slotIndex = 0; slotIndex < sourceSlots.length; slotIndex++) {
+      const slotText = sourceSlots[slotIndex];
+      if (typeof slotText !== 'string') continue;
+      const ammo = ammoStatsForCriticalSlot(slotText, ammoLookup);
+      if (!ammo) continue;
+      const binId = ammoBinIdForCriticalSlot(
+        sourceLocation,
+        slotIndex,
+        ammo.id,
+      );
+      if (binId === undefined) continue;
+
+      ammoState[binId] = {
+        binId,
+        weaponType: weaponTypeFromAmmoStats(ammo),
+        location: runnerLocation,
+        remainingRounds: ammo.shotsPerTon,
+        maxRounds: ammo.shotsPerTon,
+        isExplosive: ammo.isExplosive,
+      };
+    }
+  }
+
+  return Object.keys(ammoState).length > 0 ? ammoState : undefined;
+}
+
 // =============================================================================
 // Per-location armor / structure mapping
 // =============================================================================
@@ -1458,6 +1617,7 @@ export function createHydratedUnitState(
   const talons = hydrateTalonStateFromFullUnit(fullUnit);
   const claws = hydrateClawStateFromFullUnit(fullUnit);
   const c3Equipment = hydrateC3EquipmentFromFullUnit(fullUnit);
+  const ammoState = hydrateAmmoStateFromFullUnit(fullUnit);
 
   return {
     id: runnerUnitId,
@@ -1492,6 +1652,7 @@ export function createHydratedUnitState(
     destroyedLocations: [],
     destroyedEquipment: [],
     ammo: {},
+    ...(ammoState !== undefined ? { ammoState } : {}),
     pilotWounds: 0,
     pilotConscious: true,
     destroyed: false,
@@ -1584,4 +1745,67 @@ export function buildWeaponLookupFromCatalogFiles(
     }
   }
   return (id: string) => map.get(id) ?? null;
+}
+
+export function buildAmmoLookupFromCatalogFiles(
+  files: readonly { items?: readonly unknown[] }[],
+): AmmoLookup {
+  const byId = new Map<string, ICatalogAmmoStats>();
+  const byAlias = new Map<string, ICatalogAmmoStats>();
+
+  const addAlias = (alias: string, ammo: ICatalogAmmoStats): void => {
+    if (alias.length === 0) return;
+    byAlias.set(alias, ammo);
+    byAlias.set(normalizeAmmoLookupKey(alias), ammo);
+  };
+
+  for (const file of files) {
+    const items = file.items ?? [];
+    for (const raw of items) {
+      if (!raw || typeof raw !== 'object') continue;
+      const item = raw as Record<string, unknown>;
+      const id = item.id;
+      const name = item.name;
+      const shotsPerTon = item.shotsPerTon;
+      const isExplosive = item.isExplosive;
+      if (
+        typeof id !== 'string' ||
+        typeof name !== 'string' ||
+        typeof shotsPerTon !== 'number' ||
+        typeof isExplosive !== 'boolean'
+      ) {
+        continue;
+      }
+
+      const compatibleWeaponIds = Array.isArray(item.compatibleWeaponIds)
+        ? item.compatibleWeaponIds.filter(
+            (weaponId): weaponId is string => typeof weaponId === 'string',
+          )
+        : [];
+      const ammo: ICatalogAmmoStats = {
+        id,
+        name,
+        shotsPerTon,
+        isExplosive,
+        compatibleWeaponIds,
+      };
+      byId.set(id, ammo);
+      addAlias(id, ammo);
+      addAlias(name, ammo);
+    }
+  }
+
+  for (const [alias, mappedId] of Object.entries(NAME_MAPPINGS_DATA)) {
+    if (typeof mappedId !== 'string') continue;
+    const ammo = byId.get(mappedId);
+    if (ammo) {
+      addAlias(alias, ammo);
+      addAlias(mappedId, ammo);
+    }
+  }
+
+  return (idOrName: string) =>
+    byAlias.get(idOrName) ??
+    byAlias.get(normalizeAmmoLookupKey(idOrName)) ??
+    null;
 }

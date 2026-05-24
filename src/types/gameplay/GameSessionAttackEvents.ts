@@ -379,6 +379,7 @@ export interface ICriticalHitResolvedPayload {
   readonly slotIndex: number;
   readonly componentType: string;
   readonly componentName: string;
+  readonly ammoBinId?: string;
   readonly effect: string;
   readonly destroyed: boolean;
   /**

@@ -164,10 +164,9 @@ export const CRITICAL_COMPONENT_COMBAT_SUPPORT = {
     'sensor',
     'default critical manifest includes sensors and applySensorHit persists sensor hits',
   ),
-  ammo: helperOnly(
+  ammo: integrated(
     'ammo',
-    'applyAmmoHit returns AmmoExplosion and weaponAttackAmmoExplosions can cascade ammo-bin damage',
-    'default runner critical manifest does not hydrate ammo slots from unit equipment',
+    'hydrateCriticalSlotManifestFromFullUnit maps catalog ammo slots to ammoBinId, createHydratedUnitState seeds ammoState from catalog ammo critical slots, and weaponAttackAmmoExplosions targets crit-induced cookoffs at the resolved bin',
   ),
   equipment: helperOnly(
     'equipment',

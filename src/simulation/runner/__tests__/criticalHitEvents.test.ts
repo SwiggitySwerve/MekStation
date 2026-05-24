@@ -32,6 +32,8 @@ import {
   GamePhase,
   GameSide,
   GameStatus,
+  IAmmoExplosionPayload,
+  IAmmoSlotState,
   IComponentDestroyedPayload,
   ICriticalHitResolvedPayload,
   IGameEvent,
@@ -43,7 +45,10 @@ import {
   MovementType,
   PSRTrigger,
 } from '@/types/gameplay';
-import { buildDefaultCriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
+import {
+  buildCriticalSlotManifest,
+  buildDefaultCriticalSlotManifest,
+} from '@/utils/gameplay/criticalHitResolution';
 import { resolveDamage } from '@/utils/gameplay/damage';
 
 import type { IWeapon } from '../../ai/types';
@@ -301,6 +306,17 @@ function createAC20(id = 'ac-20'): IWeapon {
     minRange: 0,
     ammoPerTon: 5,
     destroyed: false,
+  };
+}
+
+function createAmmoBin(binId: string, remainingRounds: number): IAmmoSlotState {
+  return {
+    binId,
+    weaponType: 'ac-20',
+    location: 'right_torso',
+    remainingRounds,
+    maxRounds: 5,
+    isExplosive: true,
   };
 }
 
@@ -587,6 +603,115 @@ describe('runAttackPhase crit event chain (Phase 3, combat-resolution delta)', (
       expect(typeof p.componentName).toBe('string');
       expect(typeof p.effect).toBe('string');
       expect(p.destroyed).toBe(true);
+    });
+
+    it('ammo criticals target the exact hydrated bin before same-location fallback', () => {
+      const runAmmoCrit = (slotSelectionRoll: number) => {
+        const emptyBin = createAmmoBin('right-torso-empty-bin', 0);
+        const loadedBin = createAmmoBin('right-torso-loaded-bin', 5);
+        const scenario = buildPrimedRunnerScenario();
+        const target = scenario.state.units['opponent-1'];
+        const state: IGameState = {
+          ...scenario.state,
+          units: {
+            ...scenario.state.units,
+            'opponent-1': {
+              ...target,
+              ammoState: {
+                [emptyBin.binId]: emptyBin,
+                [loadedBin.binId]: loadedBin,
+              },
+            },
+          },
+        };
+        const manifest = buildCriticalSlotManifest({
+          right_torso: [
+            {
+              slotIndex: 0,
+              componentType: 'ammo',
+              componentName: 'IS Ammo AC/20',
+              ammoBinId: emptyBin.binId,
+              destroyed: false,
+            },
+            {
+              slotIndex: 1,
+              componentType: 'ammo',
+              componentName: 'IS Ammo AC/20',
+              ammoBinId: loadedBin.binId,
+              destroyed: false,
+            },
+          ],
+        });
+        const manifestsByUnit = new Map<string, CriticalSlotManifest>([
+          ['opponent-1', manifest],
+        ]);
+        const events: IGameEvent[] = [];
+        const next = resolveWeaponHit({
+          currentState: state,
+          events,
+          gameId: state.gameId,
+          unitId: 'player-1',
+          targetId: 'opponent-1',
+          weaponId: 'ammo-crit-probe',
+          weapon: createCritProbeWeapon('ammo-crit-probe'),
+          attackRoll: 12,
+          toHitNumber: 2,
+          firingArc: 'front',
+          partialCover: false,
+          // Hit location 3+3 = right_torso, crit trigger 4+4 = one crit.
+          d6Roller: scriptedRoller([3, 3, 4, 4, slotSelectionRoll]),
+          getOrSeedManifest: () => manifest,
+          manifestsByUnit,
+          weaponsByUnit: new Map<string, readonly IWeapon[]>([
+            ['player-1', [createCritProbeWeapon('ammo-crit-probe')]],
+            ['opponent-1', [createAC20()]],
+          ]),
+        });
+
+        return { events, next, emptyBin, loadedBin };
+      };
+
+      const emptyTarget = runAmmoCrit(1);
+      const emptyResolved = emptyTarget.events.find(
+        (event) => event.type === GameEventType.CriticalHitResolved,
+      ) as IGameEvent & { payload: ICriticalHitResolvedPayload };
+      const emptyDestroyed = emptyTarget.events.find(
+        (event) => event.type === GameEventType.ComponentDestroyed,
+      ) as IGameEvent & { payload: IComponentDestroyedPayload };
+      expect(emptyResolved.payload).toMatchObject({
+        componentType: 'ammo',
+        ammoBinId: emptyTarget.emptyBin.binId,
+      });
+      expect(emptyDestroyed.payload).toMatchObject({
+        componentType: 'ammo',
+        ammoBinId: emptyTarget.emptyBin.binId,
+      });
+      expect(
+        emptyTarget.events.some(
+          (event) => event.type === GameEventType.AmmoExplosion,
+        ),
+      ).toBe(false);
+      expect(
+        emptyTarget.next.units['opponent-1'].ammoState?.[
+          emptyTarget.loadedBin.binId
+        ].remainingRounds,
+      ).toBe(5);
+
+      const loadedTarget = runAmmoCrit(2);
+      const explosion = loadedTarget.events.find(
+        (event) => event.type === GameEventType.AmmoExplosion,
+      ) as IGameEvent & { payload: IAmmoExplosionPayload };
+      expect(explosion.payload).toMatchObject({
+        binId: loadedTarget.loadedBin.binId,
+        weaponType: 'ac-20',
+        roundsDestroyed: 5,
+        source: 'CritInduced',
+      });
+      expect(
+        loadedTarget.next.units['opponent-1'].ammoState?.[
+          loadedTarget.loadedBin.binId
+        ].remainingRounds,
+      ).toBe(0);
     });
   });
 

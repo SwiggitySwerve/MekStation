@@ -66,6 +66,7 @@ export function emitCriticalEvents(
           payload.componentName,
           payload.effect,
           payload.destroyed,
+          payload.ammoBinId,
         ),
       );
       // Per `integrate-damage-pipeline` task 8 + 0.5.4: when a
@@ -86,6 +87,8 @@ export function emitCriticalEvents(
             payload.componentType,
             payload.slotIndex,
             payload.componentName,
+            GamePhase.WeaponAttack,
+            payload.ammoBinId,
           ),
         );
       }

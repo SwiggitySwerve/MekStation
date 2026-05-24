@@ -52,7 +52,44 @@ describe('catalog critical-slot hydration boundary', () => {
     });
 
     expect(unitState.heatSinks).toBe(20);
-    expect(unitState.ammoState).toBeUndefined();
+    expect(Object.keys(unitState.ammoState ?? {})).toHaveLength(5);
+    expect(unitState.ammoState).toMatchObject({
+      'left_torso-8-ammo-lrm-20': {
+        weaponType: 'lrm-20',
+        location: 'left_torso',
+        remainingRounds: 6,
+        maxRounds: 6,
+        isExplosive: true,
+      },
+      'left_torso-9-ammo-lrm-20': {
+        weaponType: 'lrm-20',
+        location: 'left_torso',
+        remainingRounds: 6,
+        maxRounds: 6,
+        isExplosive: true,
+      },
+      'left_torso-10-ammo-srm-6': {
+        weaponType: 'srm-6',
+        location: 'left_torso',
+        remainingRounds: 15,
+        maxRounds: 15,
+        isExplosive: true,
+      },
+      'right_torso-10-ac-20-ammo': {
+        weaponType: 'ac-20',
+        location: 'right_torso',
+        remainingRounds: 5,
+        maxRounds: 5,
+        isExplosive: true,
+      },
+      'right_torso-11-ac-20-ammo': {
+        weaponType: 'ac-20',
+        location: 'right_torso',
+        remainingRounds: 5,
+        maxRounds: 5,
+        isExplosive: true,
+      },
+    });
     expect(
       (unitState as unknown as Record<string, unknown>).criticalSlotManifest,
     ).toBeUndefined();
@@ -82,6 +119,27 @@ describe('catalog critical-slot hydration boundary', () => {
     expect(
       manifest.right_torso.filter((slot) => slot.componentType === 'ammo'),
     ).toHaveLength(2);
+    expect(
+      manifest.right_torso.filter((slot) => slot.componentType === 'ammo'),
+    ).toEqual([
+      expect.objectContaining({
+        slotIndex: 10,
+        ammoBinId: 'right_torso-10-ac-20-ammo',
+      }),
+      expect.objectContaining({
+        slotIndex: 11,
+        ammoBinId: 'right_torso-11-ac-20-ammo',
+      }),
+    ]);
+    expect(
+      manifest.left_torso
+        .filter((slot) => slot.componentType === 'ammo')
+        .map((slot) => slot.ammoBinId),
+    ).toEqual([
+      'left_torso-8-ammo-lrm-20',
+      'left_torso-9-ammo-lrm-20',
+      'left_torso-10-ammo-srm-6',
+    ]);
     expect(manifestComponentTypes()).toEqual(
       expect.not.arrayContaining(['heat_sink', 'weapon', 'ammo']),
     );

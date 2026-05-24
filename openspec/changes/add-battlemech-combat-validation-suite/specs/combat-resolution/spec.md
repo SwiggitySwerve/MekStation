@@ -74,7 +74,9 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** heat sink slots SHALL resolve through `applyHeatSinkHit` so later heat phases reduce dissipation through `heatSinksDestroyed`
 - **AND** jump-jet slots SHALL resolve through `applyJumpJetHit` so later movement phases reduce effective jump MP through `jumpJetsDestroyed`
 - **AND** weapon slots hydrated with runtime weapon ids SHALL resolve through `applyWeaponHit` so later attack planning and stale declaration validation remove destroyed weapon mounts
-- **AND** ammo and generic equipment slot hydration SHALL remain separate from their incomplete full lifecycle effects until those damage paths cascade through the corresponding combat state
+- **AND** ammo critical-slot strings SHALL hydrate runtime ammo bins with stable `binId`, `weaponType`, location, remaining/max rounds, and explosive flag data
+- **AND** ammo critical entries SHALL carry `ammoBinId` when the catalog slot resolves to a runtime ammo bin
+- **AND** generic equipment, CASE, and special-ammo lifecycle nuances SHALL remain explicit gaps until their damage paths cascade through the corresponding combat state
 
 #### Scenario: Jump-jet critical damage reduces runner jump movement
 
@@ -89,6 +91,14 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **WHEN** critical resolution records that weapon id in `componentDamage.weaponsDestroyed`
 - **THEN** AI attack planning SHALL see that hydrated mount as destroyed and SHALL NOT declare it
 - **AND** runner attack resolution SHALL reject any stale declaration for that destroyed weapon with `AttackInvalid` before heat, ammo, fired-weapon, or damage side effects
+
+#### Scenario: Ammo critical damage targets hydrated bin
+
+- **GIVEN** a catalog-hydrated BattleMech has ammo critical slots and matching runtime ammo bins
+- **WHEN** critical resolution destroys one of those ammo slots
+- **THEN** `CriticalHitResolved` and `ComponentDestroyed` SHALL carry the resolved `ammoBinId`
+- **AND** any crit-induced `AmmoExplosion` SHALL use that same `binId`
+- **AND** a crit on an empty exact bin SHALL NOT explode another loaded ammo bin in the same location
 
 ### Requirement: Physical Attack Legality Gates
 

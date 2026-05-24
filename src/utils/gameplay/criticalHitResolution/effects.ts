@@ -132,6 +132,7 @@ export function applyCriticalHitEffect(
       slotIndex: slot.slotIndex,
       componentType: slot.componentType,
       componentName: slot.componentName,
+      ...(slot.ammoBinId !== undefined ? { ammoBinId: slot.ammoBinId } : {}),
       effect: describeEffect(effect),
       destroyed: true,
     },

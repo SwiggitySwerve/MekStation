@@ -75,7 +75,11 @@ export function applyCritAmmoExplosions(options: {
       const targetNow = currentState.units[targetId];
       if (targetNow.destroyed) break;
       const ammoStateOnTarget = targetNow.ammoState ?? {};
-      const bin = findExplodingAmmoBin(ammoStateOnTarget, evt.payload.location);
+      const bin = findExplodingAmmoBin(
+        ammoStateOnTarget,
+        evt.payload.location,
+        evt.payload.ammoBinId,
+      );
       if (!bin) {
         // Empty ammo bin (or no bin tracked at this location) —
         // per spec scenario "Empty ammo bin crit produces no

@@ -1693,6 +1693,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       supportIdsByLevel(CRITICAL_COMPONENT_COMBAT_SUPPORT, 'integrated'),
     ).toEqual([
       'actuator',
+      'ammo',
       'cockpit',
       'engine',
       'gyro',
@@ -1704,7 +1705,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(CRITICAL_COMPONENT_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['ammo', 'equipment']);
+    ).toEqual(['equipment']);
 
     expect(
       supportIdsByLevel(DESTRUCTION_CAUSE_COMBAT_SUPPORT, 'integrated'),

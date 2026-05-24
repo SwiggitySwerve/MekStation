@@ -274,6 +274,7 @@ export function createComponentDestroyedEvent(
   slotIndex: number,
   componentName?: string,
   phase: GamePhase = GamePhase.WeaponAttack,
+  ammoBinId?: string,
 ): IGameEvent {
   const payload: IComponentDestroyedPayload = {
     unitId,
@@ -281,6 +282,7 @@ export function createComponentDestroyedEvent(
     componentType,
     slotIndex,
     componentName,
+    ...(ammoBinId !== undefined ? { ammoBinId } : {}),
   };
 
   return {

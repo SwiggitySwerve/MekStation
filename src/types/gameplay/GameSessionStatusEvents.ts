@@ -234,6 +234,7 @@ export interface IComponentDestroyedPayload {
   readonly componentType: string;
   readonly slotIndex: number;
   readonly componentName?: string;
+  readonly ammoBinId?: string;
 }
 
 /**

@@ -190,6 +190,7 @@ export function createCriticalHitResolvedEvent(
   componentName: string,
   effect: string,
   destroyed: boolean,
+  ammoBinId?: string,
 ): IGameEvent {
   const payload: ICriticalHitResolvedPayload = {
     unitId,
@@ -197,6 +198,7 @@ export function createCriticalHitResolvedEvent(
     slotIndex,
     componentType,
     componentName,
+    ...(ammoBinId !== undefined ? { ammoBinId } : {}),
     effect,
     destroyed,
   };
