@@ -30,6 +30,7 @@ interface IApplyHeatInducedAmmoExplosionsOptions {
   readonly gameId: string;
   readonly d6Roller: D6Roller;
   readonly unitWeapons?: readonly IWeapon[];
+  readonly targetNumberModifier?: number;
 }
 
 function explosionDamageForBin(
@@ -66,7 +67,16 @@ function selectHeatExplosionBin(
 export function applyHeatInducedAmmoExplosions(
   options: IApplyHeatInducedAmmoExplosionsOptions,
 ): IGameState {
-  const { d6Roller, events, gameId, heat, unit, unitId, unitWeapons } = options;
+  const {
+    d6Roller,
+    events,
+    gameId,
+    heat,
+    targetNumberModifier = 0,
+    unit,
+    unitId,
+    unitWeapons,
+  } = options;
   let currentState = {
     ...options.currentState,
     units: {
@@ -86,7 +96,7 @@ export function applyHeatInducedAmmoExplosions(
     return currentState;
   }
 
-  const ammoTN = getAmmoExplosionTN(heat);
+  const ammoTN = getAmmoExplosionTN(heat, targetNumberModifier);
   if (ammoTN <= 0) {
     return currentState;
   }

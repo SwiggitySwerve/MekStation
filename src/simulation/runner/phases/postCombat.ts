@@ -417,6 +417,7 @@ export function runHeatPhase(options: {
         gameId,
         d6Roller,
         unitWeapons: weaponsByUnit?.get(unitId),
+        targetNumberModifier: hotDogTargetNumberModifier,
       });
       heatPhaseUnit = currentState.units[unitId];
     }

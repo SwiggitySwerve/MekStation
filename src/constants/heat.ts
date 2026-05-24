@@ -154,12 +154,18 @@ export const AMMO_EXPLOSION_TN_TABLE: readonly {
  * Get ammo explosion avoidance TN for a given heat level.
  *
  * @param heat - Current heat level
+ * @param targetNumberModifier - Heat-check target-number modifier (default 0)
  * @returns TN for 2d6 roll, Infinity for auto-explosion, or 0 for no check needed
  */
-export function getAmmoExplosionTN(heat: number): number {
+export function getAmmoExplosionTN(
+  heat: number,
+  targetNumberModifier: number = 0,
+): number {
   if (heat >= HEAT_THRESHOLDS.AUTO_SHUTDOWN) return Infinity; // Auto explode
   for (const entry of AMMO_EXPLOSION_TN_TABLE) {
-    if (heat >= entry.minHeat && heat <= entry.maxHeat) return entry.tn;
+    if (heat >= entry.minHeat && heat <= entry.maxHeat) {
+      return entry.tn + targetNumberModifier;
+    }
   }
   return 0; // No check needed
 }

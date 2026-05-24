@@ -429,7 +429,10 @@ export function resolveHeatPhase(
     // trigger to preserve legacy behavior while the new event is
     // emitted to consumers. CASE / CASE II protection routing stays
     // out of scope per decisions.md (deferred to damage pipeline).
-    const ammoExplosionTN = getAmmoExplosionTN(finalHeat);
+    const ammoExplosionTN = getAmmoExplosionTN(
+      finalHeat,
+      hotDogTargetNumberModifier,
+    );
     if (ammoExplosionTN > 0) {
       const unitAmmoState =
         currentSession.currentState.units[unitId].ammoState ?? {};

@@ -528,6 +528,12 @@ describe('getHeatAmmoExplosionTN', () => {
     expect(getHeatAmmoExplosionTN(22)).toBe(4);
   });
 
+  it('applies heat target-number modifiers', () => {
+    expect(getHeatAmmoExplosionTN(19, -1)).toBe(3);
+    expect(getHeatAmmoExplosionTN(23, -1)).toBe(5);
+    expect(getHeatAmmoExplosionTN(28, -1)).toBe(7);
+  });
+
   it('returns TN 6 at heat 23-27', () => {
     expect(getHeatAmmoExplosionTN(23)).toBe(6);
     expect(getHeatAmmoExplosionTN(27)).toBe(6);
@@ -561,6 +567,13 @@ describe('checkHeatAmmoExplosion', () => {
   it('returns false when roll meets TN at heat 19', () => {
     // TN 4, roll 3+3=6, ≥4 → no explosion
     expect(checkHeatAmmoExplosion(19, fixedDiceRoller(3))).toBe(false);
+  });
+  it('applies heat target-number modifiers to the explosion check', () => {
+    // Base TN 4, Hot Dog-style -1 modifier, roll 1+2=3 meets TN 3.
+    let next = 0;
+    const dice = [1, 2];
+
+    expect(checkHeatAmmoExplosion(19, () => dice[next++] ?? 1, -1)).toBe(false);
   });
 });
 

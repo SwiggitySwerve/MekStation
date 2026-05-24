@@ -281,6 +281,12 @@ describe('Heat System Constants', () => {
       expect(getAmmoExplosionTN(22)).toBe(4);
     });
 
+    it('applies Hot Dog SPA target-number modifier', () => {
+      expect(getAmmoExplosionTN(19, -1)).toBe(3);
+      expect(getAmmoExplosionTN(23, -1)).toBe(5);
+      expect(getAmmoExplosionTN(28, -1)).toBe(7);
+    });
+
     it('returns TN 6 at heat 23-27', () => {
       expect(getAmmoExplosionTN(23)).toBe(6);
       expect(getAmmoExplosionTN(25)).toBe(6);

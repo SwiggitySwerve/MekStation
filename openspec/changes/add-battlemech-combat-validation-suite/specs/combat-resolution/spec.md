@@ -810,15 +810,15 @@ Heat lifecycle support rows SHALL carry MegaMek source references before they ar
 
 ### Requirement: Source-Backed Heat SPA Boundary
 
-Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior from local helper behavior before claiming parity. Some Like It Hot SHALL carry MegaMek source references for reducing positive heat firing modifiers by 1. Hot Dog startup and shutdown checks SHALL apply MegaMek's `hotDogMod = 1` target-number relief without shifting the heat 14 check threshold. Hot Dog SHALL remain helper-only until the same target-number relief is applied to heat ammo-explosion and pilot heat-damage paths or those paths are explicitly scoped out. Cool Under Fire SHALL remain helper-only until a source authority for generated-heat relief is identified.
+Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior from local helper behavior before claiming parity. Some Like It Hot SHALL carry MegaMek source references for reducing positive heat firing modifiers by 1. Hot Dog startup, shutdown, and heat-induced ammo-explosion checks SHALL apply MegaMek's `hotDogMod = 1` target-number relief without shifting heat thresholds. Hot Dog SHALL remain helper-only until the same target-number relief is applied to pilot heat-damage paths or those paths are explicitly scoped out. Cool Under Fire SHALL remain helper-only until a source authority for generated-heat relief is identified.
 
 #### Scenario: Heat SPA support rows expose source truth
 
 - **GIVEN** the BattleMech SPA and pilot modifier catalogs are generated
 - **WHEN** Hot Dog, Cool Under Fire, Some Like It Hot, and the heat-application resolver row are inspected
 - **THEN** Some Like It Hot SHALL be integrated with structured MegaMek source references
-- **AND** Hot Dog SHALL be helper-only with structured MegaMek source references and executable startup/shutdown target-number coverage
-- **AND** Hot Dog SHALL record remaining ammo-explosion and pilot heat-damage target-number relief as explicit gaps
+- **AND** Hot Dog SHALL be helper-only with structured MegaMek source references and executable startup, shutdown, and ammo-explosion target-number coverage
+- **AND** Hot Dog SHALL record remaining pilot heat-damage target-number relief as an explicit gap
 - **AND** Cool Under Fire SHALL be helper-only with the unresolved source authority recorded as a gap
 - **AND** the heat-application resolver SHALL be helper-only until those heat-SPA gaps are resolved
 

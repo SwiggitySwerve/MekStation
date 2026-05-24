@@ -57,6 +57,7 @@ import { BotPlayer } from '../../ai/BotPlayer';
 import { SeededRandom } from '../../core/SeededRandom';
 import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { IViolation } from '../../invariants/types';
+import { applyHeatInducedAmmoExplosions } from '../phases/heatAmmoExplosions';
 import { runHeatPhase } from '../phases/postCombat';
 import { runAttackPhase } from '../phases/weaponAttack';
 import { DEFAULT_COMPONENT_DAMAGE } from '../SimulationRunnerConstants';
@@ -820,6 +821,61 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
     expect(
       events.find((e) => e.type === GameEventType.AmmoExplosion),
     ).toBeUndefined();
+  });
+
+  it('applies Hot Dog-style target-number relief to heat-induced ammo cookoff rolls', () => {
+    const ammoState: Record<string, IAmmoSlotState> = {
+      'ac-20-bin-0': {
+        binId: 'ac-20-bin-0',
+        weaponType: 'ac-20',
+        location: 'right_torso',
+        remainingRounds: 5,
+        maxRounds: 5,
+        isExplosive: true,
+      },
+    };
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      { ammoState },
+    );
+    const state = makeMinimalState({ 'player-1': unit });
+    const eventsWithoutRelief: IGameEvent[] = [];
+    const eventsWithRelief: IGameEvent[] = [];
+    let rawDie = 0;
+    const rollThree = (): number => [1, 2][rawDie++ % 2] ?? 1;
+    let reliefDie = 0;
+    const reliefRollThree = (): number => [1, 2][reliefDie++ % 2] ?? 1;
+
+    applyHeatInducedAmmoExplosions({
+      currentState: state,
+      unit,
+      unitId: 'player-1',
+      heat: 19,
+      events: eventsWithoutRelief,
+      gameId: state.gameId,
+      d6Roller: rollThree,
+      unitWeapons: createAtlasWeapons(),
+    });
+    applyHeatInducedAmmoExplosions({
+      currentState: state,
+      unit,
+      unitId: 'player-1',
+      heat: 19,
+      events: eventsWithRelief,
+      gameId: state.gameId,
+      d6Roller: reliefRollThree,
+      unitWeapons: createAtlasWeapons(),
+      targetNumberModifier: -1,
+    });
+
+    expect(
+      eventsWithoutRelief.some((e) => e.type === GameEventType.AmmoExplosion),
+    ).toBe(true);
+    expect(
+      eventsWithRelief.some((e) => e.type === GameEventType.AmmoExplosion),
+    ).toBe(false);
   });
 
   it('skips heat events when called with state-only options (legacy path)', () => {

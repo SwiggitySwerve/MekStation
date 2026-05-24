@@ -255,6 +255,12 @@ describe('getAmmoExplosionTN', () => {
     expect(getAmmoExplosionTN(22)).toBe(4);
   });
 
+  it('should apply Hot Dog SPA target-number modifier', () => {
+    expect(getAmmoExplosionTN(19, -1)).toBe(3);
+    expect(getAmmoExplosionTN(23, -1)).toBe(5);
+    expect(getAmmoExplosionTN(28, -1)).toBe(7);
+  });
+
   it('should return TN 6 at heat 23-27', () => {
     expect(getAmmoExplosionTN(23)).toBe(6);
     expect(getAmmoExplosionTN(27)).toBe(6);

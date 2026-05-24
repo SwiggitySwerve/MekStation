@@ -635,8 +635,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
 
     expect(SPA_COMBAT_SUPPORT['hot-dog']).toMatchObject({
       level: 'helper-only',
-      evidence: expect.stringContaining('startup/shutdown heat target-number'),
-      gap: expect.stringContaining('ammo-explosion and pilot heat-damage'),
+      evidence: expect.stringContaining('heat-induced ammo-explosion'),
+      gap: expect.stringContaining('pilot heat-damage'),
     });
     expect(hotDogRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek HeatResolver sets PILOT_HOT_DOG to hotDogMod = 1 before resolving heat effects.',

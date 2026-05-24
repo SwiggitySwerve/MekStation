@@ -546,8 +546,8 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'hot-dog': helperOnly(
     'hot-dog',
-    'getHotDogHeatTargetNumberModifier plus runHeatPhase and resolveHeatPhase apply source-backed -1 startup/shutdown heat target-number relief while preserving the normal heat 14 check threshold',
-    'MegaMek also subtracts hotDogMod from heat ammo-explosion and pilot heat-damage target numbers; those local heat paths do not model Hot Dog target-number relief yet',
+    'getHotDogHeatTargetNumberModifier plus runHeatPhase and resolveHeatPhase apply source-backed -1 startup/shutdown and heat-induced ammo-explosion target-number relief while preserving normal heat thresholds',
+    'MegaMek also subtracts hotDogMod from pilot heat-damage target numbers; local pilot heat damage does not model Hot Dog target-number relief yet',
     MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
   ),
   'cool-under-fire': helperOnly(

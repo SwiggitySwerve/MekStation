@@ -162,12 +162,17 @@ export function resolveGaussExplosion(
  * Heat 28-29: TN 8
  * Heat 30+: Auto-explosion (TN = Infinity)
  */
-export function getHeatAmmoExplosionTN(heatLevel: number): number | null {
+export function getHeatAmmoExplosionTN(
+  heatLevel: number,
+  targetNumberModifier: number = 0,
+): number | null {
   if (heatLevel >= HEAT_AUTO_EXPLOSION_THRESHOLD) return Infinity;
-  if (heatLevel >= HEAT_EXPLOSION_TN8_THRESHOLD) return HEAT_EXPLOSION_TN_HIGH;
+  if (heatLevel >= HEAT_EXPLOSION_TN8_THRESHOLD)
+    return HEAT_EXPLOSION_TN_HIGH + targetNumberModifier;
   if (heatLevel >= HEAT_EXPLOSION_TN6_THRESHOLD)
-    return HEAT_EXPLOSION_TN_MEDIUM;
-  if (heatLevel >= HEAT_EXPLOSION_TN4_THRESHOLD) return HEAT_EXPLOSION_TN_LOW;
+    return HEAT_EXPLOSION_TN_MEDIUM + targetNumberModifier;
+  if (heatLevel >= HEAT_EXPLOSION_TN4_THRESHOLD)
+    return HEAT_EXPLOSION_TN_LOW + targetNumberModifier;
   return null;
 }
 
@@ -177,8 +182,9 @@ export function getHeatAmmoExplosionTN(heatLevel: number): number | null {
 export function checkHeatAmmoExplosion(
   heatLevel: number,
   diceRoller: () => number,
+  targetNumberModifier: number = 0,
 ): boolean {
-  const tn = getHeatAmmoExplosionTN(heatLevel);
+  const tn = getHeatAmmoExplosionTN(heatLevel, targetNumberModifier);
   if (tn === null) return false;
   if (tn === Infinity) return true;
 
