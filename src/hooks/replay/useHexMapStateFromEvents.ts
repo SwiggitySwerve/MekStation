@@ -182,6 +182,9 @@ export function deriveHexMapStateFromEvents(
         mapRadius = payload.config.mapRadius;
         accumulators.clear();
         terrainByHex.clear();
+        for (const terrain of payload.hexTerrain ?? []) {
+          terrainByHex.set(coordToKey(terrain.coordinate), terrain);
+        }
         for (const unit of payload.units) {
           accumulators.set(unit.id, seedAccumulator(unit));
         }

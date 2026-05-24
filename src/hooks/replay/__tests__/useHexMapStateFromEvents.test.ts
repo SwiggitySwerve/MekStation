@@ -19,6 +19,7 @@ import {
   IGameCreatedPayload,
   IGameEvent,
   IGameUnit,
+  IHexTerrain,
   ILocationDestroyedPayload,
   IMovementDeclaredPayload,
   ITerrainChangedPayload,
@@ -127,6 +128,28 @@ describe('deriveHexMapStateFromEvents', () => {
       const state = deriveHexMapStateFromEvents(events, 0);
       expect(state.tokens[0].position).toEqual({ q: 0, r: 0 });
       expect(state.tokens[0].facing).toBe(Facing.North);
+    });
+
+    it('seeds initial terrain and elevation from payload.hexTerrain', () => {
+      const hexTerrain: readonly IHexTerrain[] = [
+        {
+          coordinate: { q: 1, r: 0 },
+          elevation: 2,
+          features: [{ type: TerrainType.HeavyWoods, level: 1 }],
+        },
+      ];
+      const gameCreated = makeStandardGameCreatedEvent();
+      const payload = gameCreated.payload as IGameCreatedPayload;
+      const events: IGameEvent[] = [
+        {
+          ...gameCreated,
+          payload: { ...payload, hexTerrain },
+        },
+      ];
+
+      const state = deriveHexMapStateFromEvents(events, 0);
+
+      expect(state.hexTerrain).toEqual(hexTerrain);
     });
   });
 

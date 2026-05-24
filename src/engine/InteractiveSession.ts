@@ -27,8 +27,10 @@ import {
   type ICombatOutcome,
 } from '@/types/combat/CombatOutcome';
 import {
+  GameEventType,
   GameSide,
   GameStatus,
+  type IGameCreatedPayload,
   type IGameSession,
   type IGameConfig,
   type IGameUnit,
@@ -62,7 +64,10 @@ import type { IInteractiveSessionLinkage } from './InteractiveSession.types';
 import type { IAdaptedUnit, IAvailableActions } from './types';
 
 import { adaptUnit } from './adapters/CompendiumAdapter';
-import { createMinimalGrid } from './GameEngine.helpers';
+import {
+  createGridFromHexTerrain,
+  seedHexTerrainFromGrid,
+} from './GameEngine.helpers';
 import {
   applyInteractiveSessionAttack,
   applyInteractiveSessionMovement,
@@ -99,8 +104,14 @@ import {
 export type { IInteractiveSessionLinkage } from './InteractiveSession.types';
 
 function createRecoveredGridFromSession(session: IGameSession): IHexGrid {
+  const created = session.events.find(
+    (event) => event.type === GameEventType.GameCreated,
+  );
+  const initialTerrain =
+    (created?.payload as IGameCreatedPayload | undefined)?.hexTerrain ?? [];
+
   return applyTerrainOverridesToGrid(
-    createMinimalGrid(session.config.mapRadius),
+    createGridFromHexTerrain(session.config.mapRadius, initialTerrain),
     session.currentState.terrainOverrides,
   );
 }
@@ -181,6 +192,7 @@ export class InteractiveSession {
 
     this.session = createGameSession(this.gameConfig, gameUnits, {
       encounterMeta: linkage.encounterMeta,
+      hexTerrain: seedHexTerrainFromGrid(this.grid),
     });
     this.session = startGame(this.session, GameSide.Player);
   }

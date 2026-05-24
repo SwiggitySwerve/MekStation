@@ -784,7 +784,7 @@ The covered event families and their mutations:
 
 | Event type | Mutation |
 |---|---|
-| `GameCreated` | Seeds the initial `tokens` array from `payload.units` (one `IUnitToken` per unit, with the variant chosen by `unit.unitType`). Sets `mapRadius = payload.config.mapRadius`. |
+| `GameCreated` | Seeds the initial `tokens` array from `payload.units` (one `IUnitToken` per unit, with the variant chosen by `unit.unitType`). Sets `mapRadius = payload.config.mapRadius`. When `payload.hexTerrain` is present, seeds the initial `hexTerrain` array before later terrain mutations apply. |
 | `MovementDeclared` | Updates the actor token's `position` to `payload.to` and `facing` to `payload.facing`. |
 | `TerrainChanged` | Upserts the changed hex into `hexTerrain` using `payload.hex`, `payload.terrain`, and `payload.elevation`. The mutation applies only when `event.sequence <= currentSequence`; earlier cursors SHALL NOT include the terrain change. |
 | `DamageApplied` | Tracks accumulated location-level damage on the affected unit (per-unit per-location bookkeeping). When `payload.locationDestroyed === true` AND `payload.location === 'CT'`, sets the unit's `isDestroyed = true`. |
@@ -803,6 +803,13 @@ The reducer SHALL be idempotent: for any input `(events, currentSequence)`, repe
 The reducer SHALL NOT assume monotonic forward progression of `currentSequence` between calls. Stepping the cursor backward SHALL produce the correct state for the new cursor value (re-walking from the beginning of `events` is acceptable; a forward-only optimization is out of scope for this PR).
 
 The reducer SHALL be `useMemo`-d on `[events, currentSequence]` so re-renders that do not change the cursor reuse the prior projection.
+
+#### Scenario: GameCreated seeds initial replay terrain
+
+- **GIVEN** an event log containing `GameCreated` with `payload.hexTerrain` for a heavy-woods elevation-2 hex
+- **WHEN** the replay reducer walks to sequence 0
+- **THEN** `hexTerrain` SHALL include that heavy-woods elevation-2 hex
+- **AND** later `TerrainChanged` events for the same coordinate SHALL override the seeded terrain at or after their sequence
 
 #### Scenario: TerrainChanged projects replay hex terrain
 

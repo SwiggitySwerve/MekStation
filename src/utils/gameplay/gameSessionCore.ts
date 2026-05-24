@@ -13,6 +13,7 @@ import {
   IGameSession,
   IGameUnit,
   IHexCoordinate,
+  IHexTerrain,
   IToHitModifier,
   IToHitModifierDetail,
   IWeaponAttack,
@@ -91,6 +92,11 @@ export interface ICreateGameSessionOptions {
    * manifest from disk. Null/omitted for non-encounter callers.
    */
   readonly encounterMeta?: IEncounterMeta;
+  /**
+   * Non-default initial terrain/elevation seed captured from the grid
+   * used to start the session.
+   */
+  readonly hexTerrain?: readonly IHexTerrain[];
 }
 
 export function createGameSession(
@@ -106,6 +112,8 @@ export function createGameSession(
     config,
     units,
     options.encounterMeta,
+    undefined,
+    options.hexTerrain,
   );
   const events: IGameEvent[] = [createdEvent];
   const currentState = deriveState(id, events);

@@ -2713,6 +2713,8 @@ Top-down tactical map mode SHALL present a clear board-game hex view where terra
 
 Each rendered hex SHALL expose terrain type and elevation. Elevation SHALL be visible as a readable number on or near the hex at playable zoom levels, while terrain visuals and overlays remain distinguishable.
 
+Replay and recovery surfaces SHALL render terrain and elevation from the same event-log terrain seed used by the game session, so saved matches start with the same battlefield information as live play.
+
 #### Scenario: Terrain and elevation visible in top-down mode
 
 - **GIVEN** a top-down tactical map with mixed terrain and elevations
@@ -2720,6 +2722,13 @@ Each rendered hex SHALL expose terrain type and elevation. Elevation SHALL be vi
 - **THEN** each visible hex SHALL communicate its terrain type
 - **AND** each visible hex SHALL show or expose its elevation number
 - **AND** movement/combat overlays SHALL NOT obscure all elevation information needed for tactical decisions
+
+#### Scenario: Replay starts with seeded terrain and elevation
+
+- **GIVEN** a replay event log whose `GameCreated` event carries `payload.hexTerrain`
+- **WHEN** the replay map renders at sequence 0
+- **THEN** top-down mode SHALL show the seeded terrain type and elevation number for those hexes
+- **AND** the map SHALL retain the same terrain/elevation data when switching to isometric presentation mode
 
 ### Requirement: Isometric Projection Parity And Occlusion Tools
 

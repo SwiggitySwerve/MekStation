@@ -11,6 +11,7 @@ import {
   IGameEvent,
   IGameStartedPayload,
   IGameUnit,
+  IHexTerrain,
 } from '@/types/gameplay';
 
 import { createEventBase } from './base';
@@ -28,6 +29,10 @@ import { createEventBase } from './base';
  * the placed objective markers so `deriveState` can reconstruct the
  * objective map from the event log. Omitted for destruction-only
  * scenarios.
+ *
+ * Optional `hexTerrain` carries non-default starting map terrain so
+ * replay projection and recovery can reconstruct initial elevation and
+ * terrain without depending on a live engine grid.
  */
 export function createGameCreatedEvent(
   gameId: string,
@@ -35,11 +40,15 @@ export function createGameCreatedEvent(
   units: readonly IGameUnit[],
   encounterMeta?: IEncounterMeta,
   objectives?: Record<string, IObjectiveMarker>,
+  hexTerrain?: readonly IHexTerrain[],
 ): IGameEvent {
   const payload: IGameCreatedPayload = {
     config,
     units,
     ...(encounterMeta !== undefined ? { encounterMeta } : {}),
+    ...(hexTerrain !== undefined && hexTerrain.length > 0
+      ? { hexTerrain }
+      : {}),
     ...(objectives !== undefined && Object.keys(objectives).length > 0
       ? { objectives }
       : {}),

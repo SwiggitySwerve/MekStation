@@ -39,7 +39,11 @@ import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 
 import type { IGameEngineConfig, IAdaptedUnit } from './types';
 
-import { createMinimalGrid, toMovementCapability } from './GameEngine.helpers';
+import {
+  createMinimalGrid,
+  seedHexTerrainFromGrid,
+  toMovementCapability,
+} from './GameEngine.helpers';
 import {
   runMovementPhase,
   runAttackPhase,
@@ -107,7 +111,9 @@ export class GameEngine {
       optionalRules: [...this.optionalRules],
     };
 
-    let session = createGameSession(gameConfig, gameUnits);
+    let session = createGameSession(gameConfig, gameUnits, {
+      hexTerrain: seedHexTerrainFromGrid(this.grid),
+    });
     session = startGame(session, GameSide.Player);
 
     const botPlayer = new BotPlayer(this.random);

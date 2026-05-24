@@ -1,6 +1,7 @@
 import type { IWeapon } from '@/simulation/ai/types';
 import type { IAttackDeclaredPayload } from '@/types/gameplay/GameSessionAttackEvents';
 import type {
+  IGameCreatedPayload,
   IGameSession,
   IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
@@ -35,6 +36,7 @@ import {
   createGridFromHexTerrain,
   createGridFromTerrainPreset,
   hexTerrainFromGrid,
+  seedHexTerrainFromGrid,
 } from '../GameEngine.helpers';
 import { runAttackPhase, runMovementPhase } from '../GameEngine.phases';
 
@@ -475,9 +477,25 @@ describe('GameEngine', () => {
       const configured = engine.createInteractiveSession([p1], [o1], gameUnits);
 
       const center = configured.getGrid().hexes.get('0,0');
+      const created = configured
+        .getSession()
+        .events.find((event) => event.type === GameEventType.GameCreated);
+      const payload = created?.payload as IGameCreatedPayload | undefined;
+      const recovered = InteractiveSession.fromSession(configured.getSession());
       expect(configured.getSession().config.mapRadius).toBe(5);
       expect(center?.terrain).toBe(TerrainType.HeavyWoods);
       expect(center?.elevation).toBe(2);
+      expect(payload?.hexTerrain).toEqual([
+        {
+          coordinate: { q: 0, r: 0 },
+          elevation: 2,
+          features: [{ type: TerrainType.HeavyWoods, level: 1 }],
+        },
+      ]);
+      expect(recovered.getGrid().hexes.get('0,0')).toMatchObject({
+        terrain: TerrainType.HeavyWoods,
+        elevation: 2,
+      });
     });
 
     it('creates deterministic preset terrain grids for encounter launches', () => {
@@ -516,6 +534,34 @@ describe('GameEngine', () => {
       expect(roundTripped?.features).toEqual([
         { type: TerrainType.LightWoods, level: 1 },
         { type: TerrainType.Building, level: 2 },
+      ]);
+    });
+
+    it('seeds only non-default terrain and elevation for GameCreated payloads', () => {
+      const grid = createGridFromHexTerrain(2, [
+        {
+          coordinate: { q: 1, r: 0 },
+          elevation: 0,
+          features: [{ type: TerrainType.Rough, level: 1 }],
+        },
+        {
+          coordinate: { q: 0, r: 1 },
+          elevation: 2,
+          features: [{ type: TerrainType.Clear, level: 0 }],
+        },
+      ]);
+
+      expect(seedHexTerrainFromGrid(grid)).toEqual([
+        {
+          coordinate: { q: 0, r: 1 },
+          elevation: 2,
+          features: [{ type: TerrainType.Clear, level: 0 }],
+        },
+        {
+          coordinate: { q: 1, r: 0 },
+          elevation: 0,
+          features: [{ type: TerrainType.Rough, level: 1 }],
+        },
       ]);
     });
   });

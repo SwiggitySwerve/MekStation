@@ -11,6 +11,7 @@ import {
   TerrainType as GameplayTerrainType,
   type IGeneratedMap,
   type IHexTerrain,
+  type ITerrainFeature,
 } from '@/types/gameplay/TerrainTypes';
 import {
   terrainFeaturesFromString,
@@ -158,6 +159,31 @@ export function hexTerrainFromGrid(grid: IHexGrid): readonly IHexTerrain[] {
             ],
     };
   });
+}
+
+function hasTerrainFeatureMetadata(feature: ITerrainFeature): boolean {
+  return (
+    feature.constructionFactor !== undefined ||
+    feature.buildingId !== undefined ||
+    feature.isOnFire !== undefined ||
+    feature.isFrozen !== undefined
+  );
+}
+
+function isDefaultClearFeature(feature: ITerrainFeature): boolean {
+  return (
+    feature.type === GameplayTerrainType.Clear &&
+    feature.level === 0 &&
+    !hasTerrainFeatureMetadata(feature)
+  );
+}
+
+export function seedHexTerrainFromGrid(grid: IHexGrid): readonly IHexTerrain[] {
+  return hexTerrainFromGrid(grid).filter(
+    (tile) =>
+      tile.elevation !== 0 ||
+      tile.features.some((feature) => !isDefaultClearFeature(feature)),
+  );
 }
 
 export function toAIUnitState(
