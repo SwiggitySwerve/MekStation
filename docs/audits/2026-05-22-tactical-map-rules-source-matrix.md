@@ -245,6 +245,17 @@ in `src/types/gameplay/HexGridInterfaces.ts`,
 `src/utils/gameplay/movement/__tests__/reachable.test.ts`, and
 `src/engine/__tests__/InteractiveSession.movement.scenario.test.ts`.
 
+Additional zero-cost elevation badge pin: MegaMek
+`MoveStep.java:2727-2734` returns from step-cost accumulation for VTOL and
+jumping movement after the base 1 MP step, before terrain/elevation adders.
+MekStation already projects those legal vertical changes with
+`elevationDelta` and `elevationCost: 0`; the map now renders that as an
+explicit `E+0` movement-cost badge alongside the vertical delta instead of
+only showing `UP`/`DN`, so players can distinguish "free vertical change for
+this motive" from missing cost data. Coverage lives in
+`src/components/gameplay/HexMapDisplay/HexCell.movementBadges.tsx` and
+`src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.movementAnimation.test.tsx`.
+
 Additional infantry terrain-cost pin: MegaMek `MoveStep.java:2828-2837`
 doubles elevation MP for non-flying infantry, and `MoveStep.java:2892-2899`
 reduces non-mechanized infantry woods-entry cost by 1 MP while preserving a

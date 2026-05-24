@@ -2533,6 +2533,13 @@ When live movement overlays combine multiple projections for the same destinatio
 - **AND** each reachable hex SHALL expose the movement mode by which it is reachable
 - **AND** each reachable hex SHALL expose terrain and elevation contributors to that cost
 
+#### Scenario: Zero-cost elevation changes remain explicit
+
+- **GIVEN** a projected movement step changes elevation but rules charge zero elevation MP for that motive, such as represented VTOL movement or jumping
+- **WHEN** the movement cost badge renders
+- **THEN** the visible badge and accessible title SHALL expose the elevation cost as `+0`
+- **AND** the badge SHALL still expose the elevation delta separately
+
 #### Scenario: Live run overlay preserves walk and run options
 
 - **GIVEN** a selected unit can evaluate the same destination by both walking and running

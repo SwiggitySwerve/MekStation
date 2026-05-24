@@ -21,3 +21,12 @@ blocked.
   components separately from the primary option
 - **AND** the rendered hex and movement badge metadata SHALL expose those
   per-option cost components without relying on color alone
+
+#### Scenario: Zero-cost elevation changes remain explicit
+
+- **GIVEN** a projected movement step changes elevation but rules charge zero
+  elevation MP for that motive, such as represented VTOL movement or jumping
+- **WHEN** the movement cost badge renders
+- **THEN** the visible badge and accessible title SHALL expose the elevation
+  cost as `+0`
+- **AND** the badge SHALL still expose the elevation delta separately

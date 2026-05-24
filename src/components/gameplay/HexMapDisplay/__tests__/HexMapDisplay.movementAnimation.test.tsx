@@ -1776,11 +1776,11 @@ describe('HexMapDisplay tactical visual layers', () => {
       'W/VTOL 1MP',
     );
     expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveTextContent(
-      'UP4',
+      'E+0 UP4',
     );
     expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
       'aria-label',
-      'Movement step cost: elevation delta +4',
+      'Movement step cost: elevation cost +0; elevation delta +4',
     );
     expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
       'data-movement-step-elevation-cost',

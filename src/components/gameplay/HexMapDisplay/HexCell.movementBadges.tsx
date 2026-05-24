@@ -59,44 +59,34 @@ export function formatMovementReachBadgeTitle(
   return `${primary}; options ${options.map(formatMovementOptionTitle).join('; ')}`;
 }
 
-function formatElevationDeltaLabel(elevationDelta: number): string {
-  if (elevationDelta > 0) return `UP${elevationDelta}`;
-  return `DN${Math.abs(elevationDelta)}`;
-}
+const formatElevationDeltaLabel = (elevationDelta: number): string =>
+  elevationDelta > 0 ? `UP${elevationDelta}` : `DN${Math.abs(elevationDelta)}`;
 
 function formatMovementStepCostLabel(
   movementInfo: IMovementRangeHex,
 ): string | null {
   const labels: string[] = [];
-  if (movementInfo.terrainCost && movementInfo.terrainCost > 0) {
-    labels.push(`T+${movementInfo.terrainCost}`);
+  const { elevationCost, elevationDelta = 0, terrainCost } = movementInfo;
+  const hasElevationDelta = elevationDelta !== 0;
+  if (terrainCost && terrainCost > 0) labels.push(`T+${terrainCost}`);
+  if (elevationCost !== undefined && (elevationCost > 0 || hasElevationDelta)) {
+    labels.push(`E+${elevationCost}`);
   }
-  if (movementInfo.elevationCost && movementInfo.elevationCost > 0) {
-    labels.push(`E+${movementInfo.elevationCost}`);
-  }
-  if (
-    movementInfo.elevationDelta !== undefined &&
-    movementInfo.elevationDelta !== 0
-  ) {
-    labels.push(formatElevationDeltaLabel(movementInfo.elevationDelta));
-  }
+  if (hasElevationDelta) labels.push(formatElevationDeltaLabel(elevationDelta));
   return labels.length > 0 ? labels.join(' ') : null;
 }
 
 function formatMovementStepCostTitle(movementInfo: IMovementRangeHex): string {
   const labels: string[] = [];
-  if (movementInfo.terrainCost && movementInfo.terrainCost > 0) {
-    labels.push(`terrain +${movementInfo.terrainCost}`);
+  const { elevationCost, elevationDelta = 0, terrainCost } = movementInfo;
+  const hasElevationDelta = elevationDelta !== 0;
+  if (terrainCost && terrainCost > 0) labels.push(`terrain +${terrainCost}`);
+  if (elevationCost !== undefined && (elevationCost > 0 || hasElevationDelta)) {
+    labels.push(`elevation cost +${elevationCost}`);
   }
-  if (movementInfo.elevationCost && movementInfo.elevationCost > 0) {
-    labels.push(`elevation cost +${movementInfo.elevationCost}`);
-  }
-  if (
-    movementInfo.elevationDelta !== undefined &&
-    movementInfo.elevationDelta !== 0
-  ) {
+  if (hasElevationDelta) {
     labels.push(
-      `elevation delta ${movementInfo.elevationDelta > 0 ? '+' : ''}${movementInfo.elevationDelta}`,
+      `elevation delta ${elevationDelta > 0 ? '+' : ''}${elevationDelta}`,
     );
   }
   return `Movement step cost: ${labels.join('; ')}`;
