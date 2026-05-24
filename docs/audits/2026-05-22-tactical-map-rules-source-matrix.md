@@ -251,17 +251,22 @@ sets LAM height to standing Mek height only in Mek conversion mode and 0 in
 AirMek/Fighter modes, while `LandAirMek.java:517-531` maps movement modes to
 conversion modes. MegaMek `QuadVee.java:435-440` sets QuadVee vehicle-mode
 height to 0 and otherwise delegates to Mek height, while `QuadVee.java:370-384`
-maps vehicle/Mek conversion modes. MegaMek `Infantry.java:629-631` keeps
-infantry mount height state-dependent. MekStation now imports explicit
-represented unit-height fields, derives Mek/super-heavy Mek height from unit
-type and tonnage when no explicit field exists, derives the above source-pinned
-non-Mek heights when the represented unit identity/state is available, derives
-LAM/QuadVee conversion-mode-sensitive heights from represented conversion or
-movement mode, propagates that value through shared movement capability, and
-keeps naval bridge-clearance preview/commit validation aligned when imported
-height changes the result. Remaining unit-height gaps are infantry mount height
-beyond explicit source fields and fully dynamic runtime conversion-state updates
-after unit import.
+maps vehicle/Mek conversion modes. MegaMek `Infantry.java:629-631` returns
+unmounted infantry height 0 and mounted infantry height as
+`mount.size().height`; `InfantryMount.java:48-50` maps Large beasts to height
+0 and Very Large/Monstrous beasts to height 1, with custom/sample mount
+identity parsing in `InfantryMount.java:211-257` and sample identities in
+`:261-305`. MekStation now imports explicit represented unit-height fields,
+derives Mek/super-heavy Mek height from unit type and tonnage when no explicit
+field exists, derives the above source-pinned non-Mek heights when the
+represented unit identity/state is available, derives LAM/QuadVee
+conversion-mode-sensitive heights from represented conversion or movement mode,
+derives conventional infantry mount height from represented mount height,
+beast size, MegaMek custom mount strings, or MegaMek sample mount identity,
+propagates that value through shared movement capability, and keeps naval
+bridge-clearance preview/commit validation aligned when imported height changes
+the result. Remaining unit-height gaps are fully dynamic runtime
+conversion-state and infantry mount/dismount updates after unit import.
 
 Additional small-unit movement data pin: MegaMek `Infantry.java:560-568` and
 `BattleArmor.java:520-523` return walk MP as base run MP unless optional TacOps

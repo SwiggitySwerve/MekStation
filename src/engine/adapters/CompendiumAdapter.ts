@@ -337,6 +337,65 @@ const CONVERSION_MODE_FIELDS = [
   'mode',
 ] as const;
 
+const INFANTRY_MOUNT_HEIGHT_FIELDS = [
+  'infantryMountHeight',
+  'mountHeight',
+  'beastMountHeight',
+  'infantryMountSizeHeight',
+  'mountSizeHeight',
+  'beastSizeHeight',
+] as const;
+
+const INFANTRY_MOUNT_RECORD_FIELDS = [
+  'infantryMount',
+  'beastMount',
+  'mount',
+  'beast',
+] as const;
+
+const INFANTRY_MOUNT_SIZE_FIELDS = [
+  'infantryMountSize',
+  'mountSize',
+  'beastSize',
+] as const;
+
+const INFANTRY_MOUNT_RECORD_SIZE_FIELDS = [
+  ...INFANTRY_MOUNT_SIZE_FIELDS,
+  'size',
+] as const;
+
+const INFANTRY_MOUNT_NAME_FIELDS = [
+  'infantryMountName',
+  'mountName',
+  'beastMountName',
+  'beastName',
+] as const;
+
+const INFANTRY_MOUNT_RECORD_NAME_FIELDS = [
+  ...INFANTRY_MOUNT_NAME_FIELDS,
+  'name',
+] as const;
+
+const MEGAMEK_INFANTRY_BEAST_SIZE_HEIGHT: Readonly<Record<string, number>> = {
+  large: 0,
+  verylarge: 1,
+  monstrous: 1,
+};
+
+const MEGAMEK_SAMPLE_INFANTRY_MOUNT_SIZE: Readonly<Record<string, string>> = {
+  donkey: 'large',
+  coventrykangaroo: 'large',
+  horse: 'large',
+  camel: 'large',
+  branth: 'large',
+  odessanraxx: 'large',
+  tabiranth: 'large',
+  tariq: 'large',
+  elephant: 'verylarge',
+  orca: 'verylarge',
+  hipposaur: 'monstrous',
+};
+
 function unitHeightFromUnitData(
   unitData: Record<string, unknown>,
 ): number | undefined {
@@ -359,6 +418,14 @@ function unitHeightFromUnitData(
 
   if (unitTypeKeys.some(isMekUnitType)) {
     return isSuperHeavyRepresentedUnit(unitData) ? 2 : 1;
+  }
+
+  const infantryMountHeight = infantryMountHeightFromUnitData(
+    unitData,
+    unitTypeKeys,
+  );
+  if (infantryMountHeight !== undefined) {
+    return infantryMountHeight;
   }
 
   const nonMekHeight = nonMekUnitHeightFromUnitData(unitData, unitTypeKeys);
@@ -446,6 +513,139 @@ function isLamUnitType(unitType: string): boolean {
 
 function isQuadVeeUnitType(unitType: string): boolean {
   return unitType === 'quadvee';
+}
+
+function isConventionalInfantryUnitType(unitType: string): boolean {
+  return unitType === 'infantry' || unitType === 'conventionalinfantry';
+}
+
+function infantryMountHeightFromUnitData(
+  unitData: Record<string, unknown>,
+  unitTypeKeys: readonly string[],
+): number | undefined {
+  if (!unitTypeKeys.some(isConventionalInfantryUnitType)) {
+    return undefined;
+  }
+
+  const movement = recordField(unitData.movement);
+  const directHeight =
+    numberField(unitData, ...INFANTRY_MOUNT_HEIGHT_FIELDS) ??
+    numberField(movement, ...INFANTRY_MOUNT_HEIGHT_FIELDS);
+  if (directHeight !== undefined) {
+    return normalizedUnitHeight(directHeight);
+  }
+
+  for (const source of [unitData, movement]) {
+    const heightFromSize =
+      infantryMountHeightFromSizeFields(source) ??
+      infantryMountHeightFromNameFields(source) ??
+      infantryMountHeightFromRecordFields(source);
+    if (heightFromSize !== undefined) {
+      return heightFromSize;
+    }
+  }
+
+  return undefined;
+}
+
+function infantryMountHeightFromRecordFields(
+  source: Record<string, unknown> | undefined,
+): number | undefined {
+  for (const fieldName of INFANTRY_MOUNT_RECORD_FIELDS) {
+    const value = source?.[fieldName];
+    const record = recordField(value);
+    if (record) {
+      const directHeight = numberField(
+        record,
+        'height',
+        ...INFANTRY_MOUNT_HEIGHT_FIELDS,
+      );
+      if (directHeight !== undefined) {
+        return normalizedUnitHeight(directHeight);
+      }
+
+      const derivedHeight =
+        infantryMountHeightFromSizeFields(
+          record,
+          INFANTRY_MOUNT_RECORD_SIZE_FIELDS,
+        ) ??
+        infantryMountHeightFromNameFields(
+          record,
+          INFANTRY_MOUNT_RECORD_NAME_FIELDS,
+        );
+      if (derivedHeight !== undefined) {
+        return derivedHeight;
+      }
+    }
+
+    const stringHeight = infantryMountHeightFromString(value);
+    if (stringHeight !== undefined) {
+      return stringHeight;
+    }
+  }
+
+  return undefined;
+}
+
+function infantryMountHeightFromSizeFields(
+  source: Record<string, unknown> | undefined,
+  fieldNames: readonly string[] = INFANTRY_MOUNT_SIZE_FIELDS,
+): number | undefined {
+  for (const fieldName of fieldNames) {
+    const value = source?.[fieldName];
+    const record = recordField(value);
+    if (record) {
+      const nestedHeight = numberField(record, 'height');
+      if (nestedHeight !== undefined) {
+        return normalizedUnitHeight(nestedHeight);
+      }
+    }
+
+    const height = infantryMountHeightFromSizeValue(value);
+    if (height !== undefined) {
+      return height;
+    }
+  }
+
+  return undefined;
+}
+
+function infantryMountHeightFromNameFields(
+  source: Record<string, unknown> | undefined,
+  fieldNames: readonly string[] = INFANTRY_MOUNT_NAME_FIELDS,
+): number | undefined {
+  for (const fieldName of fieldNames) {
+    const height = infantryMountHeightFromString(source?.[fieldName]);
+    if (height !== undefined) {
+      return height;
+    }
+  }
+  return undefined;
+}
+
+function infantryMountHeightFromString(value: unknown): number | undefined {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+
+  const customSize = value.match(/^Beast:Custom:[^,]*,([^,]+)/i)?.[1];
+  if (customSize) {
+    return infantryMountHeightFromSizeValue(customSize);
+  }
+
+  const withoutPrefix = value.trim().replace(/^Beast:/i, '');
+  const sampleSize =
+    MEGAMEK_SAMPLE_INFANTRY_MOUNT_SIZE[normalizedKey(withoutPrefix)];
+  if (sampleSize) {
+    return infantryMountHeightFromSizeValue(sampleSize);
+  }
+
+  return infantryMountHeightFromSizeValue(value);
+}
+
+function infantryMountHeightFromSizeValue(value: unknown): number | undefined {
+  const key = normalizedKey(value);
+  return key ? MEGAMEK_INFANTRY_BEAST_SIZE_HEIGHT[key] : undefined;
 }
 
 function lamConversionModeFromUnitData(

@@ -12,10 +12,12 @@ pathfinder.
 #### Scenario: Imported unit height feeds bridge clearance
 
 - **GIVEN** a represented unit has an explicit imported entity height or a
-  source-derived entity height for a supported Mek, VTOL, tank, small craft, or
-  dropship class
+  source-derived entity height for a supported Mek, VTOL, tank, small craft,
+  dropship, or conventional infantry mount class
 - **AND** LAM and QuadVee conversion-mode data, when represented, can change the
   source-derived entity height
+- **AND** represented conventional infantry mount height, beast-size, or
+  MegaMek mount identity data can source-derive the infantry entity height
 - **AND** the unit's movement capability is used for movement projection
 - **WHEN** naval, hydrofoil, or submarine bridge-clearance movement is projected
   across represented water and bridge terrain

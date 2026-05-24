@@ -594,12 +594,74 @@ describe('CompendiumAdapter', () => {
     it('should leave state-dependent infantry mount height to explicit source data', () => {
       const result = adaptUnitFromData({
         ...createAtlasData(),
+        name: 'Elephant',
         unitType: 'INFANTRY',
         motionType: 'Foot',
       } as unknown as IFullUnit);
 
       expect(result.unitHeight).toBeUndefined();
       expect(toMovementCapability(result).unitHeight).toBeUndefined();
+    });
+
+    it('should derive represented infantry mount height from nested mount size height', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'INFANTRY',
+        motionType: 'Beast',
+        infantryMount: {
+          size: { height: 1.9 },
+        },
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(1);
+      expect(toMovementCapability(result).unitHeight).toBe(1);
+    });
+
+    it.each([
+      ['LARGE', 0],
+      ['VERY_LARGE', 1],
+      ['MONSTROUS', 1],
+    ] as const)(
+      'should derive represented infantry mount height from MegaMek %s beast size',
+      (beastSize, height) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          unitType: 'Conventional Infantry',
+          motionType: 'Beast',
+          movement: {
+            walk: 3,
+            mountSize: beastSize,
+          },
+        } as unknown as IFullUnit);
+
+        expect(result.unitHeight).toBe(height);
+        expect(toMovementCapability(result).unitHeight).toBe(height);
+      },
+    );
+
+    it('should derive represented infantry mount height from MegaMek mount strings', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'INFANTRY',
+        motionType: 'Beast',
+        mount:
+          'Beast:Custom:Riding Beast,VERY_LARGE,7.2,5,SUBMARINE,2,1,2.0,2147483647,0,180',
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(1);
+      expect(toMovementCapability(result).unitHeight).toBe(1);
+    });
+
+    it('should derive represented infantry mount height from MegaMek sample mount names', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'INFANTRY',
+        motionType: 'Beast',
+        infantryMountName: 'Elephant',
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(1);
+      expect(toMovementCapability(result).unitHeight).toBe(1);
     });
 
     it('should map vehicle motion type into movement pathing mode', () => {

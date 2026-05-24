@@ -8,3 +8,4 @@
 - [x] 1.6 Update movement spec/source matrix and validate the OpenSpec change.
 - [x] 1.7 Derive source-pinned non-Mek represented heights for VTOLs, super-heavy tanks, large support tanks, small craft, and dropships.
 - [x] 1.8 Derive conversion-mode-sensitive represented heights for LAM and QuadVee units when source mode data is represented.
+- [x] 1.9 Derive represented conventional infantry mount height from source-backed mount height, beast size, or MegaMek mount identity data.
