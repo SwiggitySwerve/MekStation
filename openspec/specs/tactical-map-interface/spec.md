@@ -2861,6 +2861,9 @@ Replay and recovery surfaces SHALL render terrain and elevation from the same ev
 - **AND** when only some selected weapons can reach a legal target, the target
   SHALL remain attackable while blocked selected weapons expose per-weapon
   range-blocked metadata and a non-color weapon count badge
+- **AND** a target inside a represented weapon minimum range SHALL expose the
+  minimum-range penalty, affected weapon ids, to-hit modifier, reason, and a
+  badge that does not rely on color alone
 - **AND** a combat target in represented partial cover SHALL expose the cover
   level, modifier, to-hit modifier, reason, and a cover badge that does not rely
   on color alone

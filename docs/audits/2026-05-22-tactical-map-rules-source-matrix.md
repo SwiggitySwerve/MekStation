@@ -82,6 +82,13 @@ available medium laser while the small laser exposes `out_of_range`,
 badge. Remaining browser range gaps are minimum/extreme range and all-weapons
 out-of-range sweeps beyond the smoke harness.
 
+2026-05-24 minimum-range browser update: the tactical-map browser harness now
+also selects a represented minimum-range weapon and verifies that a one-hex
+target exposes the minimum-range penalty, affected weapon id, reason, to-hit
+modifier metadata, and a non-color `MIN+` badge. Remaining browser range gaps
+are extreme range and all-selected-weapons-out-of-range sweeps beyond the smoke
+harness.
+
 2026-05-24 partial-cover browser update: the tactical-map browser harness now
 also renders a Mech-style target in depth-1 water and verifies that the top-down
 hex and cover badge expose partial cover, cover modifier, cover reason, and the

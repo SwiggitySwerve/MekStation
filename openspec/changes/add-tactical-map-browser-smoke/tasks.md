@@ -31,6 +31,8 @@
   expose non-attackable visibility metadata plus isometric fog-rule markers.
 - [x] 2.12 Add browser coverage proving mixed selected-weapon range
   availability keeps the target legal while exposing blocked weapon metadata.
+- [x] 2.13 Add browser coverage proving represented minimum-range penalties
+  expose affected weapon ids, to-hit modifier metadata, and a non-color badge.
 
 ## 3. Validation
 
@@ -55,3 +57,5 @@
   contact visibility metadata.
 - [x] 3.12 Focused Playwright smoke passes with mixed selected-weapon range
   availability metadata.
+- [x] 3.13 Focused Playwright smoke passes with represented minimum-range
+  penalty metadata.

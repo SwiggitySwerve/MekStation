@@ -22,6 +22,13 @@ const isTestEnv =
   process.env.NODE_ENV === 'test' ||
   process.env.NEXT_PUBLIC_E2E_MODE === 'true';
 
+const ALL_WEAPON_ARCS: readonly FiringArc[] = [
+  FiringArc.Front,
+  FiringArc.Left,
+  FiringArc.Right,
+  FiringArc.Rear,
+];
+
 const tokens: readonly IUnitToken[] = [
   {
     unitId: 'attacker',
@@ -153,12 +160,7 @@ const unitWeapons: Record<string, readonly IWeaponStatus[]> = {
       name: 'Medium Laser',
       location: 'right_arm',
       mountingArc: FiringArc.Front,
-      mountingArcs: [
-        FiringArc.Front,
-        FiringArc.Left,
-        FiringArc.Right,
-        FiringArc.Rear,
-      ],
+      mountingArcs: ALL_WEAPON_ARCS,
       destroyed: false,
       firedThisTurn: false,
       heat: 3,
@@ -174,12 +176,7 @@ const unitWeapons: Record<string, readonly IWeaponStatus[]> = {
       name: 'Small Laser',
       location: 'left_arm',
       mountingArc: FiringArc.Front,
-      mountingArcs: [
-        FiringArc.Front,
-        FiringArc.Left,
-        FiringArc.Right,
-        FiringArc.Rear,
-      ],
+      mountingArcs: ALL_WEAPON_ARCS,
       destroyed: false,
       firedThisTurn: false,
       heat: 1,
@@ -187,6 +184,23 @@ const unitWeapons: Record<string, readonly IWeaponStatus[]> = {
       ranges: {
         short: 1,
         medium: 2,
+        long: 3,
+      },
+    },
+    {
+      id: 'minimum-lrm',
+      name: 'LRM Minimum Range Fixture',
+      location: 'left_torso',
+      mountingArc: FiringArc.Front,
+      mountingArcs: ALL_WEAPON_ARCS,
+      destroyed: false,
+      firedThisTurn: false,
+      heat: 2,
+      damage: 5,
+      ranges: {
+        minimum: 2,
+        short: 2,
+        medium: 3,
         long: 3,
       },
     },
@@ -248,7 +262,7 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
             hexTerrain={hexTerrain}
             unitWeapons={unitWeapons}
             combatState={combatState}
-            selectedWeaponIds={['medium-laser', 'small-laser']}
+            selectedWeaponIds={['medium-laser', 'small-laser', 'minimum-lrm']}
             showCoordinates
             movementRange={[
               {
