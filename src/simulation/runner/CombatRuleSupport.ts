@@ -58,10 +58,28 @@ const MEGAMEK_HEAT_AMMO_EXPLOSION_ROLL_SOURCE_REF = megamekHeatSourceRef(
   'L1182-L1217',
 );
 
+const MEGAMEK_HEAT_STARTUP_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek HeatResolver automatically restarts shutdown Meks below heat 14 and rolls startup at heat 14+ when they are not manually shut down',
+  'server/totalWarfare/HeatResolver.java',
+  'L500-L547',
+);
+
+const MEGAMEK_HEAT_SHUTDOWN_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek HeatResolver applies avoidable shutdown checks at heat 14+ and automatic shutdown at the default heat 30 threshold',
+  'server/totalWarfare/HeatResolver.java',
+  'L561-L637',
+);
+
 const MEGAMEK_HEAT_AMMO_SELECTION_SOURCE_REF = megamekHeatSourceRef(
   'MegaMek TWGameManager.explodeAmmoFromHeat selects the most destructive hittable explosive ammo bin before explosion resolution',
   'server/totalWarfare/TWGameManager.java',
   'L22855-L22923',
+);
+
+const MEGAMEK_HEAT_PILOT_DAMAGE_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek HeatResolver applies life-support heat pilot damage at heat 15/25+ and resolves crew death after heat damage',
+  'server/totalWarfare/HeatResolver.java',
+  'L734-L829',
 );
 
 const MEGAMEK_SECONDARY_TARGET_SOURCE_REFS = [
@@ -616,18 +634,22 @@ export const HEAT_RULE_COMBAT_SUPPORT = {
   'shutdown-check': integrated(
     'shutdown-check',
     'runHeatPhase emits avoidable ShutdownCheck events at heat 14-29',
+    [MEGAMEK_HEAT_SHUTDOWN_SOURCE_REF],
   ),
   'auto-shutdown': integrated(
     'auto-shutdown',
     'runHeatPhase emits automatic ShutdownCheck and persists shutdown at heat 30+',
+    [MEGAMEK_HEAT_SHUTDOWN_SOURCE_REF],
   ),
   startup: integrated(
     'startup',
     'runHeatPhase and resolveHeatPhase emit StartupAttempt and update shutdown state for shutdown units after dissipation',
+    [MEGAMEK_HEAT_STARTUP_SOURCE_REF],
   ),
   'ammo-explosion-risk': integrated(
     'ammo-explosion-risk',
     'runHeatPhase marks ammoExplosionRisk and emits heat threshold events at risk bands',
+    [MEGAMEK_HEAT_AMMO_EXPLOSION_ROLL_SOURCE_REF],
   ),
   'heat-induced-ammo-explosion': integrated(
     'heat-induced-ammo-explosion',
@@ -640,6 +662,7 @@ export const HEAT_RULE_COMBAT_SUPPORT = {
   'pilot-heat-damage': integrated(
     'pilot-heat-damage',
     'runHeatPhase and resolveHeatPhase emit PilotHit source heat from getPilotHeatDamage and persist wound totals',
+    [MEGAMEK_HEAT_PILOT_DAMAGE_SOURCE_REF],
   ),
   'water-cooling': integrated(
     'water-cooling',

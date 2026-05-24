@@ -81,6 +81,7 @@
 - [x] 3.2.9 Catalog MegaMek-backed Cross-Country as a non-BattleMech combat-vehicle movement/passability scope split instead of a BattleMech terrain PSR modifier.
 - [ ] 3.3 Expand heat validation coverage for buildup, dissipation, shutdown, ammo explosions, pilot damage, and heat-driven modifiers.
 - [x] 3.3.1 Cross-link every heat rule support row into heat generation, dissipation, and lifecycle requirement checklists.
+- [x] 3.3.2 Add structured MegaMek source anchors for heat startup, avoidable/automatic shutdown, ammo-explosion risk, and pilot heat damage support rows.
 - [ ] 3.4 Expand to-hit validation coverage for range, movement, terrain, pilot skills, special abilities, quirks, sensors, prone state, and indirect fire.
 - [x] 3.4.1 Add support-matrix tests that separate runner-integrated to-hit modifiers from helper-only modifier math.
 - [x] 3.4.2 Cross-link pilot skill, SPA, canonical SPA, quirk, and pilot modifier resolver support rows into pilot/SPAs/quirks requirement checklists.
@@ -151,3 +152,4 @@
 - [x] 4.3.27 Cross-check MegaMek's team initiative bonus composition for HQ, quirks, command console, and tech-officer command bonuses.
 - [x] 4.3.28 Cross-check MegaMek's Tactical Genius initiative replacement-roll handling and active-unit eligibility gate.
 - [x] 4.3.29 Cross-check MegaMek's gated HQ communications and command-console initiative equipment eligibility; keep automatic hydration explicit-only until working/default-mode communications tonnage, active command-console crew, weight-class, IndustrialMek, and advanced-fire-control state exist.
+- [x] 4.3.30 Cross-check MegaMek `HeatResolver` startup, shutdown, ammo-explosion risk, and pilot heat damage thresholds against heat lifecycle support rows.

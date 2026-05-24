@@ -797,6 +797,17 @@ Runner and interactive PSR resolution SHALL apply MegaMek's source-backed Animal
 - **THEN** the same `Animal Mimicry` SPA modifier SHALL apply
 - **AND** non-quad units SHALL NOT receive the Animal Mimicry PSR modifier
 
+### Requirement: Source-Backed Heat Lifecycle Catalog Anchors
+
+Heat lifecycle support rows SHALL carry MegaMek source references before they are treated as integrated validation coverage. Startup SHALL be pinned to `HeatResolver` automatic restart below heat 14 and startup rolls at heat 14+ for non-manual shutdown. Shutdown SHALL be pinned to avoidable heat 14+ shutdown checks and automatic default heat 30 shutdown. Ammo-explosion risk SHALL be pinned to the heat 19+ roll path, and pilot heat damage SHALL be pinned to life-support heat 15/25+ damage resolution. Any future heat profile, optional TacOps heat, equipment-mode, or crew modifier expansion SHALL update those source references or add explicit gap rows instead of relying on prose.
+
+#### Scenario: Heat lifecycle support rows expose source truth
+
+- **GIVEN** the BattleMech heat rule support catalog is generated
+- **WHEN** startup, shutdown, ammo-explosion risk, heat-induced ammo explosion, and pilot heat damage rows are inspected
+- **THEN** each row SHALL expose structured MegaMek source references with commit-pinned URLs and line anchors
+- **AND** the active OpenSpec task list SHALL record the cross-check as a completed heat-validation slice
+
 ### Requirement: Source-Truth Cross-Check Discipline
 
 Combat feature work SHALL update OpenSpec, the validation catalog, and executable tests together. Before marking a mechanic integrated, the implementation SHALL be cross-checked against official rules or MegaMek / MekHQ behavior notes, with gaps recorded as partial or unsupported rather than inferred as complete.

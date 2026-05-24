@@ -1584,14 +1584,46 @@ describe('BattleMech combat feature-gap tracking', () => {
 
     const heatAmmoExplosionRefs =
       HEAT_RULE_COMBAT_SUPPORT['heat-induced-ammo-explosion'].sourceRefs ?? [];
+    const heatStartupRefs = HEAT_RULE_COMBAT_SUPPORT.startup.sourceRefs ?? [];
+    const heatShutdownRefs =
+      HEAT_RULE_COMBAT_SUPPORT['shutdown-check'].sourceRefs ?? [];
+    const autoShutdownRefs =
+      HEAT_RULE_COMBAT_SUPPORT['auto-shutdown'].sourceRefs ?? [];
+    const heatRiskRefs =
+      HEAT_RULE_COMBAT_SUPPORT['ammo-explosion-risk'].sourceRefs ?? [];
+    const pilotHeatRefs =
+      HEAT_RULE_COMBAT_SUPPORT['pilot-heat-damage'].sourceRefs ?? [];
+
     expect(
       heatAmmoExplosionRefs.map((sourceRef) => sourceRef.citation),
     ).toEqual([
       expect.stringContaining('HeatResolver checks heat >= 19'),
       expect.stringContaining('explodeAmmoFromHeat selects'),
     ]);
+    expect(heatStartupRefs.map((sourceRef) => sourceRef.citation)).toEqual([
+      expect.stringContaining('automatically restarts'),
+    ]);
+    expect(heatShutdownRefs.map((sourceRef) => sourceRef.citation)).toEqual([
+      expect.stringContaining('avoidable shutdown checks'),
+    ]);
+    expect(autoShutdownRefs.map((sourceRef) => sourceRef.citation)).toEqual([
+      expect.stringContaining('automatic shutdown'),
+    ]);
+    expect(heatRiskRefs.map((sourceRef) => sourceRef.citation)).toEqual([
+      expect.stringContaining('heat >= 19'),
+    ]);
+    expect(pilotHeatRefs.map((sourceRef) => sourceRef.citation)).toEqual([
+      expect.stringContaining('pilot damage at heat 15/25+'),
+    ]);
     expect(
-      heatAmmoExplosionRefs.every(
+      [
+        ...heatAmmoExplosionRefs,
+        ...heatStartupRefs,
+        ...heatShutdownRefs,
+        ...autoShutdownRefs,
+        ...heatRiskRefs,
+        ...pilotHeatRefs,
+      ].every(
         (sourceRef) =>
           sourceRef.kind === 'megamek-source' &&
           sourceRef.url.includes('github.com/MegaMek/megamek/blob/') &&
