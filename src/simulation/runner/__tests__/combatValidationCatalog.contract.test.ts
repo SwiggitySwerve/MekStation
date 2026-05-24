@@ -145,6 +145,8 @@ describe('BattleMech combat validation catalog index', () => {
         'ranged-gunnery-to-hit',
         'ranged-to-hit-calculation',
         'ranged-to-hit-state-hydration',
+        'c3-equipment-network-formation',
+        'c3-spotter-los-hydration',
         'psr-spa-application',
         'edge_when_tac',
         'rugged_1',

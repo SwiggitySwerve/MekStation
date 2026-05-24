@@ -37,7 +37,11 @@ const INTEGRATED_TO_HIT_MODIFIERS = [
   'terrain-features',
 ] as const;
 
-const HELPER_ONLY_TO_HIT_MODIFIERS = ['ecm'] as const;
+const HELPER_ONLY_TO_HIT_MODIFIERS = [
+  'c3-equipment-network-formation',
+  'c3-spotter-los-hydration',
+  'ecm',
+] as const;
 
 type HelperOnlyToHitModifierId = (typeof HELPER_ONLY_TO_HIT_MODIFIERS)[number];
 type IntegratedToHitModifierId = (typeof INTEGRATED_TO_HIT_MODIFIERS)[number];
@@ -268,6 +272,16 @@ describe('BattleMech to-hit support matrix modifiers', () => {
     expect(result.c3Result.bestBracket).toBe(RangeBracket.Short);
     expect(result.finalToHit).toBe(baseline.finalToHit - 4);
     expect(modifierNames(result)).toContain('C3 Network');
+  });
+
+  it('keeps automatic C3 formation and spotter LOS hydration as explicit gaps', () => {
+    expect(
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['c3-equipment-network-formation']
+        .gap,
+    ).toContain('derive C3 or C3i network membership automatically');
+    expect(
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['c3-spotter-los-hydration'].gap,
+    ).toContain('hydrate per-spotter LOS eligibility');
   });
 
   it('keeps terrain feature to-hit helper math covered by runner integration', () => {

@@ -1372,7 +1372,11 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['ecm']);
+    ).toEqual([
+      'c3-equipment-network-formation',
+      'c3-spotter-los-hydration',
+      'ecm',
+    ]);
   });
 
   it('pins source-backed to-hit modifiers to MegaMek refs', () => {

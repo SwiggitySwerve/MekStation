@@ -406,6 +406,14 @@ Direct runner weapon attack declarations SHALL consume explicit `IGameState.c3Ne
 - **AND** iNARC ECM pod state on a C3 member SHALL deny C3 benefit through the ECM-disrupted C3 path
 - **AND** the attack payload SHALL retain the attacker's actual range band while listing the effective C3 range math in modifiers
 
+#### Scenario: C3 remaining gaps stay separate from explicit-state support
+
+- **GIVEN** the runner consumes explicit C3 network state for direct weapon attack to-hit math
+- **WHEN** the to-hit support catalog and requirement crosswalk are contract-tested
+- **THEN** automatic C3 equipment/network formation SHALL remain a helper-only to-hit row
+- **AND** C3 spotter LOS hydration SHALL remain a helper-only to-hit row
+- **AND** the integrated `c3` row SHALL describe only explicit network-state consumption, position refresh, and ECM/iNARC ECM disruption
+
 ### Requirement: Hull-Down Runner To-Hit Integration
 
 Runner weapon attack declarations SHALL consume explicit target `IUnitGameState.hullDown` state. Hull-down targets SHALL receive MegaMek's source-backed +2 terrain to-hit modifier instead of the normal partial-cover +1 modifier, and confirmed front-arc leg hit-location rolls SHALL be redirected through the hull-down hit-location option before damage is applied.

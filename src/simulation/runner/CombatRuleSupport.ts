@@ -343,6 +343,18 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
     'runAttackPhase consumes explicit IGameState.c3Network state, refreshes C3 member positions and ECM/iNARC ECM disruption from current unit state, and calls calculateToHitWithC3 for direct weapon attacks',
     MEGAMEK_C3_RANGE_SOURCE_REFS,
   ),
+  'c3-equipment-network-formation': helperOnly(
+    'c3-equipment-network-formation',
+    'c3Network creation helpers validate C3 master/slave and C3i membership, and runAttackPhase consumes prebuilt IGameState.c3Network state',
+    'Runner/session state builders do not yet derive C3 or C3i network membership automatically from mounted equipment',
+    MEGAMEK_C3_RANGE_SOURCE_REFS,
+  ),
+  'c3-spotter-los-hydration': helperOnly(
+    'c3-spotter-los-hydration',
+    'getC3TargetingBenefit selects the best network range bracket from explicit member positions and ECM flags',
+    'Runner C3 targeting does not yet hydrate per-spotter LOS eligibility before sharing the best network range bracket',
+    MEGAMEK_C3_RANGE_SOURCE_REFS,
+  ),
   'terrain-features': integrated(
     'terrain-features',
     'runAttackPhase applies getTerrainToHitModifier for target-in and non-blocking intervening terrain features',
