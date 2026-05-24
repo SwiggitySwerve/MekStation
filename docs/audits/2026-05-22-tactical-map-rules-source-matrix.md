@@ -79,8 +79,11 @@ harness now selects a medium laser plus a shorter-ranged small laser against
 the four-hex target and verifies that the target remains legal through the
 available medium laser while the small laser exposes `out_of_range`,
 `blocked`, and `out of range` per-weapon metadata plus a non-color weapon count
-badge. Remaining browser range gaps are minimum/extreme range and all-weapons
-out-of-range sweeps beyond the smoke harness.
+badge. A fixture-level Jest parity test now proves the same browser projection
+is accepted by `applyInteractiveSessionAttack` with the projected usable
+weapons, range bracket, and to-hit number. Remaining browser range gaps are
+minimum/extreme range and all-weapons out-of-range sweeps beyond the smoke
+harness.
 
 2026-05-24 minimum-range browser update: the tactical-map browser harness now
 also selects a represented minimum-range weapon and verifies that a one-hex

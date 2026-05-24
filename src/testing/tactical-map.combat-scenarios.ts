@@ -23,10 +23,13 @@ import {
   tacticalMapCombatState,
   tacticalMapHexTerrain,
   tacticalMapOutOfRangeSelectedWeaponIds,
+  tacticalMapSelectedWeaponIds,
   tacticalMapTokens,
   tacticalMapUnitWeapons,
 } from './tactical-map.fixtures';
 
+const tacticalMapMediumRangeTargetId = 'medium-target';
+const tacticalMapMediumRangeTargetHex = { q: 1, r: 2 } as const;
 const tacticalMapOutOfRangeTargetId = 'medium-target';
 const tacticalMapOutOfRangeTargetHex = { q: 1, r: 2 } as const;
 
@@ -136,6 +139,37 @@ function requireCombatProjection(
   return projection;
 }
 
+function tacticalMapSelectedWeapons(
+  weaponIds: readonly string[],
+): readonly IWeaponStatus[] {
+  return weaponIds.map((weaponId) => {
+    const weapon = tacticalMapUnitWeapons.attacker.find(
+      (candidate) => candidate.id === weaponId,
+    );
+    if (!weapon) throw new Error(`Missing tactical-map weapon ${weaponId}`);
+    return weapon;
+  });
+}
+
+export const tacticalMapMediumRangeCombatProjection = requireCombatProjection(
+  deriveCombatRangeHexes({
+    attacker: tacticalMapOutOfRangeAttacker,
+    targetUnitId: tacticalMapMediumRangeTargetId,
+    hexes: Array.from(
+      tacticalMapOutOfRangeGrid.hexes.values(),
+      (hex) => hex.coord,
+    ),
+    grid: tacticalMapOutOfRangeGrid,
+    tokens: tacticalMapTokens,
+    weapons: tacticalMapSelectedWeapons(tacticalMapSelectedWeaponIds),
+    combatState: tacticalMapCombatState,
+  }).find(
+    (projection) =>
+      projection.hex.q === tacticalMapMediumRangeTargetHex.q &&
+      projection.hex.r === tacticalMapMediumRangeTargetHex.r,
+  ),
+);
+
 export const tacticalMapOutOfRangeCombatProjection = requireCombatProjection(
   deriveCombatRangeHexes({
     attacker: tacticalMapOutOfRangeAttacker,
@@ -146,13 +180,7 @@ export const tacticalMapOutOfRangeCombatProjection = requireCombatProjection(
     ),
     grid: tacticalMapOutOfRangeGrid,
     tokens: tacticalMapTokens,
-    weapons: tacticalMapOutOfRangeSelectedWeaponIds.map((weaponId) => {
-      const weapon = tacticalMapUnitWeapons.attacker.find(
-        (candidate) => candidate.id === weaponId,
-      );
-      if (!weapon) throw new Error(`Missing tactical-map weapon ${weaponId}`);
-      return weapon;
-    }),
+    weapons: tacticalMapSelectedWeapons(tacticalMapOutOfRangeSelectedWeaponIds),
     combatState: tacticalMapCombatState,
   }).find(
     (projection) =>
@@ -160,6 +188,17 @@ export const tacticalMapOutOfRangeCombatProjection = requireCombatProjection(
       projection.hex.r === tacticalMapOutOfRangeTargetHex.r,
   ),
 );
+
+export function tacticalMapMediumRangeCommitInput(): IApplyAttackInput {
+  return {
+    session: tacticalMapCombatSession(),
+    weaponsByUnit: tacticalMapWeaponsByUnit(),
+    attackerId: 'attacker',
+    targetId: tacticalMapMediumRangeTargetId,
+    weaponIds: tacticalMapSelectedWeaponIds,
+    grid: tacticalMapOutOfRangeGrid,
+  };
+}
 
 export function tacticalMapOutOfRangeCommitInput(): IApplyAttackInput {
   return {
