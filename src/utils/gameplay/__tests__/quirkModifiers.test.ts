@@ -203,18 +203,45 @@ describe('Piloting Quirks', () => {
     expect(mod).toBe(1);
   });
 
-  it('Easy to Pilot: -1 for terrain PSR only', () => {
+  it('Easy to Pilot: -1 for terrain and 20+ damage PSRs only when piloting is worse than 3', () => {
     const terrainMod = calculatePilotingQuirkPSRModifier(
       [UNIT_QUIRK_IDS.EASY_TO_PILOT],
       true,
+      PSRTrigger.EnteringRubble,
+      4,
     );
     expect(terrainMod).toBe(-1);
 
-    const nonTerrainMod = calculatePilotingQuirkPSRModifier(
+    const damageMod = calculatePilotingQuirkPSRModifier(
       [UNIT_QUIRK_IDS.EASY_TO_PILOT],
       false,
+      PSRTrigger.PhaseDamage20Plus,
+      5,
     );
-    expect(nonTerrainMod).toBe(0);
+    expect(damageMod).toBe(-1);
+
+    const skilledPilotMod = calculatePilotingQuirkPSRModifier(
+      [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+      true,
+      PSRTrigger.EnteringRubble,
+      3,
+    );
+    expect(skilledPilotMod).toBe(0);
+
+    const legDamageMod = calculatePilotingQuirkPSRModifier(
+      [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+      false,
+      PSRTrigger.LegDamage,
+      5,
+    );
+    expect(legDamageMod).toBe(0);
+
+    const missingSkillMod = calculatePilotingQuirkPSRModifier(
+      [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+      true,
+      PSRTrigger.EnteringRubble,
+    );
+    expect(missingSkillMod).toBe(0);
   });
 
   it('Unbalanced: +1 for terrain PSR only', () => {

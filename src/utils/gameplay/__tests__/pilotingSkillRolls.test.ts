@@ -290,6 +290,55 @@ describe('Piloting Skill Rolls', () => {
         { name: 'Piloting quirks', source: 'quirk', value: -1 },
       ]);
     });
+
+    it('applies source-backed Easy Pilot relief only to eligible PSRs for pilots worse than 3', () => {
+      const roller = makeDiceSequence([2, 2, 2, 2, 2, 2, 2, 2]);
+      const terrain = resolvePSR(
+        5,
+        createRubblePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        roller,
+        [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+      );
+      const damage = resolvePSR(
+        5,
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        roller,
+        [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+      );
+      const skilledPilot = resolvePSR(
+        3,
+        createRubblePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        roller,
+        [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+      );
+      const legDamage = resolvePSR(
+        5,
+        createLegDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        roller,
+        [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+      );
+
+      expect(terrain).toMatchObject({ targetNumber: 4, passed: true });
+      expect(damage).toMatchObject({ targetNumber: 4, passed: true });
+      expect(skilledPilot).toMatchObject({ targetNumber: 3, passed: true });
+      expect(legDamage).toMatchObject({ targetNumber: 5, passed: false });
+      expect(terrain.modifiers).toEqual([
+        { name: 'Piloting quirks', source: 'quirk', value: -1 },
+      ]);
+      expect(damage.modifiers).toEqual([
+        { name: 'Piloting quirks', source: 'quirk', value: -1 },
+      ]);
+      expect(skilledPilot.modifiers).toEqual([]);
+      expect(legDamage.modifiers).toEqual([]);
+    });
   });
 
   describe('resolveAllPSRs — first-failure-clears-remaining', () => {
@@ -478,28 +527,85 @@ describe('Piloting Skill Rolls', () => {
       expect(damageMods).toHaveLength(0);
     });
 
-    it.each([
-      [UNIT_QUIRK_IDS.EASY_TO_PILOT, -1],
-      [UNIT_QUIRK_IDS.UNBALANCED, 1],
-    ])('should apply %s only to terrain PSRs', (quirkId, expectedValue) => {
+    it('should apply Easy Pilot to source-backed PSRs only when piloting is worse than 3', () => {
       const terrainMods = calculatePSRModifiers(
         createRubblePSR('unit-1'),
         DEFAULT_COMP_DAMAGE,
         0,
-        [quirkId],
+        [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+        [],
+        false,
+        undefined,
+        5,
       );
       const damageMods = calculatePSRModifiers(
         createDamagePSR('unit-1'),
         DEFAULT_COMP_DAMAGE,
         0,
-        [quirkId],
+        [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+        [],
+        false,
+        undefined,
+        5,
+      );
+      const skilledPilotMods = calculatePSRModifiers(
+        createRubblePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+        [],
+        false,
+        undefined,
+        3,
+      );
+      const legDamageMods = calculatePSRModifiers(
+        createLegDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+        [],
+        false,
+        undefined,
+        5,
       );
 
       expect(terrainMods).toEqual([
         {
           name: 'Piloting quirks',
           source: 'quirk',
-          value: expectedValue,
+          value: -1,
+        },
+      ]);
+      expect(damageMods).toEqual([
+        {
+          name: 'Piloting quirks',
+          source: 'quirk',
+          value: -1,
+        },
+      ]);
+      expect(skilledPilotMods).toHaveLength(0);
+      expect(legDamageMods).toHaveLength(0);
+    });
+
+    it('should apply Unbalanced only to terrain PSRs', () => {
+      const terrainMods = calculatePSRModifiers(
+        createRubblePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.UNBALANCED],
+      );
+      const damageMods = calculatePSRModifiers(
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.UNBALANCED],
+      );
+
+      expect(terrainMods).toEqual([
+        {
+          name: 'Piloting quirks',
+          source: 'quirk',
+          value: 1,
         },
       ]);
       expect(damageMods).toHaveLength(0);

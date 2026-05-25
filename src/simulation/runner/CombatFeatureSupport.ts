@@ -768,10 +768,9 @@ export const QUIRK_COMBAT_SUPPORT = {
       ...MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS,
     ],
   ),
-  easy_to_pilot: helperOnly(
+  easy_to_pilot: integrated(
     'easy_to_pilot',
-    'calculatePilotingQuirkPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs apply terrain-only PSR target-number relief',
-    'MegaMek applies Easy Pilot to difficult-terrain and selected damage/control PSRs only when base piloting is worse than 3; MekStation currently applies a terrain-only helper without the piloting-skill gate',
+    'calculatePilotingQuirkPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs apply piloting-skill-gated Easy Pilot relief to difficult-terrain PSRs and the source-backed 20+ phase-damage BattleMech PSR',
     MEGAMEK_EASY_TO_PILOT_SOURCE_REFS,
   ),
   stable: integrated(

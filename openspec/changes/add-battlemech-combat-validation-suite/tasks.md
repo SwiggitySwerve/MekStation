@@ -356,3 +356,4 @@
 - [x] 4.3.115 Promote runner DFA VTOL reach by hydrating catalog movement capability into runner physical resolution and automatic selection while keeping WIGE motion-state hydration visible.
 - [x] 4.3.116 Promote WIGE DFA reach by carrying vehicle motion type into combat state and using it across helper, eligibility, event-sourced resolution, runner resolution, automatic selection, catalog, spec, and audit coverage.
 - [x] 4.3.117 Align Stable PSR quirk behavior with MegaMek source truth by scoping Stable relief to kick/push PSRs across shared helper, runner PSR resolution, interactive stand-up resolution boundaries, catalog, spec, and audit coverage.
+- [x] 4.3.118 Align Easy Pilot PSR quirk behavior with MegaMek source truth by applying the base-piloting gate to BattleMech terrain and 20+ phase-damage PSRs across shared helper, runner/session PSR resolution, catalog, spec, and audit coverage.

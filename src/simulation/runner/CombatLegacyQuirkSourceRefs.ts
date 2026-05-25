@@ -46,8 +46,8 @@ const MEGAMEK_PSR_QUIRK_REGISTRY_SOURCE_REF = megamekRef(
 );
 
 const MEKSTATION_PSR_QUIRK_HELPER_SOURCE_REF = mekstationDeviationRef(
-  'MekStation calculatePilotingQuirkPSRModifier scopes Stable to kick/push PSRs while applying local Hard to Pilot, Cramped Cockpit, Easy to Pilot, and Unbalanced target-number modifiers.',
-  'src/utils/gameplay/quirkModifiers/pilotingQuirks.ts#L22-L55',
+  'MekStation calculatePilotingQuirkPSRModifier scopes Stable to kick/push PSRs and Easy Pilot to piloting-skill-gated terrain/20+ damage PSRs while applying local Hard to Pilot, Cramped Cockpit, and Unbalanced target-number modifiers.',
+  'src/utils/gameplay/quirkModifiers/pilotingQuirks.ts#L30-L69',
 );
 
 export const MEGAMEK_EASY_TO_PILOT_SOURCE_REFS = [

@@ -347,6 +347,7 @@ export function attemptStandUp(
     unitState.unitQuirks ?? unit.unitQuirks ?? [],
     false,
     psr.reasonCode ?? psr.triggerSource,
+    unit.piloting,
   );
   const spaModifier = getAnimalMimicryPSRModifier(
     unitState.abilities ?? unit.abilities ?? [],

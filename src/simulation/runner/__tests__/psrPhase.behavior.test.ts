@@ -203,7 +203,7 @@ describe('runPSRPhase behavior', () => {
     });
   });
 
-  it('applies terrain-only piloting quirks only to terrain PSRs', () => {
+  it('applies Easy Pilot to source-backed terrain and phase-damage PSRs when piloting is worse than 3', () => {
     const unit = makeUnit({
       unitQuirks: [UNIT_QUIRK_IDS.EASY_TO_PILOT],
       pendingPSRs: [createRubblePSR('player-1'), createDamagePSR('player-1')],
@@ -231,19 +231,56 @@ describe('runPSRPhase behavior', () => {
       },
       {
         unitId: 'player-1',
-        targetNumber: 5,
-        modifiers: 0,
+        targetNumber: 4,
+        modifiers: -1,
         passed: true,
         reasonCode: PSRTrigger.PhaseDamage20Plus,
       },
     ]);
     expect(QUIRK_COMBAT_SUPPORT.easy_to_pilot).toMatchObject({
-      level: 'helper-only',
-      gap: expect.stringContaining('piloting-skill gate'),
+      level: 'integrated',
+      evidence: expect.stringContaining('piloting-skill-gated'),
     });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-application'],
     ).toMatchObject({ level: 'helper-only' });
+  });
+
+  it('does not apply Easy Pilot when base piloting is 3 or better', () => {
+    const unit = makeUnit({
+      piloting: 3,
+      unitQuirks: [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+      pendingPSRs: [createRubblePSR('player-1'), createDamagePSR('player-1')],
+    });
+    const state = makeState(unit);
+    const events: IGameEvent[] = [];
+
+    runPSRPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: fixedRandom(0.99),
+    });
+
+    const resolved = events
+      .filter((e) => e.type === GameEventType.PSRResolved)
+      .map((e) => e.payload as IPSRResolvedPayload);
+    expect(resolved).toMatchObject([
+      {
+        unitId: 'player-1',
+        targetNumber: 3,
+        modifiers: 0,
+        passed: true,
+        reasonCode: PSRTrigger.EnteringRubble,
+      },
+      {
+        unitId: 'player-1',
+        targetNumber: 3,
+        modifiers: 0,
+        passed: true,
+        reasonCode: PSRTrigger.PhaseDamage20Plus,
+      },
+    ]);
   });
 
   it('applies Maneuvering Ace to source-backed skidding PSR target numbers', () => {

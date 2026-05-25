@@ -63,6 +63,7 @@ export function resolvePSR(
     pilotAbilities,
     isQuadMek,
     unitType,
+    pilotingSkill,
   );
 
   const totalModifier = modifiers.reduce((sum, m) => sum + m.value, 0);
@@ -173,6 +174,7 @@ export function calculatePSRModifiers(
   pilotAbilities: readonly string[] = [],
   isQuadMek = false,
   unitType?: string,
+  pilotingSkill?: number,
 ): readonly IPSRModifier[] {
   if (psr.fixedTargetNumber !== undefined) {
     return psr.additionalModifier !== 0
@@ -250,6 +252,7 @@ export function calculatePSRModifiers(
     unitQuirks,
     isTerrainPSR(psr),
     psr.reasonCode ?? psr.triggerSource,
+    pilotingSkill,
   );
   if (quirkModifier !== 0) {
     modifiers.push({

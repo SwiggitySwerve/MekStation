@@ -189,8 +189,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(missingRefs).toEqual([]);
     expect(unanchoredRefs).toEqual([]);
     expect(QUIRK_COMBAT_SUPPORT.easy_to_pilot).toMatchObject({
-      level: 'helper-only',
-      gap: expect.stringContaining('piloting-skill gate'),
+      level: 'integrated',
+      evidence: expect.stringContaining('piloting-skill-gated'),
     });
     expect(QUIRK_COMBAT_SUPPORT.stable).toMatchObject({
       level: 'integrated',

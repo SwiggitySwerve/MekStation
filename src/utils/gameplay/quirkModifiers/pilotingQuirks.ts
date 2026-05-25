@@ -12,17 +12,26 @@ function isStablePSR(reasonCode: PilotingQuirkPSRReason): boolean {
   return reasonCode === PSRTrigger.Kicked || reasonCode === PSRTrigger.Pushed;
 }
 
+function isEasyToPilotPSR(
+  isTerrainPSR: boolean,
+  reasonCode: PilotingQuirkPSRReason,
+): boolean {
+  return isTerrainPSR || reasonCode === PSRTrigger.PhaseDamage20Plus;
+}
+
 /**
  * PSR modifier from piloting quirks.
  * @param unitQuirks - Unit's quirk identifiers
  * @param isTerrainPSR - Whether this PSR was triggered by terrain
  * @param reasonCode - Canonical PSR reason/trigger for source-scoped quirks
+ * @param basePilotingSkill - Unmodified piloting skill before PSR modifiers
  * @returns Modifier to add to PSR target number
  */
 export function calculatePilotingQuirkPSRModifier(
   unitQuirks: readonly string[],
   isTerrainPSR: boolean,
   reasonCode?: PilotingQuirkPSRReason,
+  basePilotingSkill?: number,
 ): number {
   let modifier = 0;
 
@@ -41,8 +50,13 @@ export function calculatePilotingQuirkPSRModifier(
     modifier += 1;
   }
 
-  // Easy to Pilot: -1 to terrain PSRs only
-  if (isTerrainPSR && unitQuirks.includes(UNIT_QUIRK_IDS.EASY_TO_PILOT)) {
+  // Easy to Pilot: MegaMek gates relief to pilots worse than 3.
+  if (
+    unitQuirks.includes(UNIT_QUIRK_IDS.EASY_TO_PILOT) &&
+    basePilotingSkill !== undefined &&
+    basePilotingSkill > 3 &&
+    isEasyToPilotPSR(isTerrainPSR, reasonCode)
+  ) {
     modifier -= 1;
   }
 
