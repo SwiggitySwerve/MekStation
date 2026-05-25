@@ -385,6 +385,7 @@ function CombatHoverTooltip({
       />
       <CombatLosContextRows
         combatInfo={combatInfo}
+        projection={projection}
         testId="hex-combat-tooltip-los-context"
       />
       {modifierLabel && (

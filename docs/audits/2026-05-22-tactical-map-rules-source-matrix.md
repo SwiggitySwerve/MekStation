@@ -1468,6 +1468,14 @@ expected damage, attack validation, or attack resolution; it makes each
 heat/damage/ammo row inspectable without relying on aggregate combat hex
 metadata.
 
+2026-05-25 combat LOS context rule-reference pin: Combat LOS context rows in
+combat and combined tactical hovers now expose source references and MegaMek
+rule references from the shared per-hex tactical projection while identifying
+the row as a line-of-sight rules surface. This does not change LOS state,
+blocker selection, terrain/elevation blocker reasoning, target legality,
+attack validation, or attack resolution; it makes the visible blocker
+explanation inspectable without relying on aggregate combat hex metadata.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

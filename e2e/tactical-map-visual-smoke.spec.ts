@@ -584,6 +584,29 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-combat-los-blocker-reason',
       'Blocked by building at (1, 0)',
     );
+    await blockedTargetHex.dispatchEvent('mouseover', {
+      bubbles: true,
+      cancelable: true,
+    });
+    const blockedLosContext = page.getByTestId(
+      'hex-combat-tooltip-los-context',
+    );
+    await expect(blockedLosContext).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    await expect(blockedLosContext).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    await expect(blockedLosContext).toHaveAttribute(
+      'data-tactical-rules-surface',
+      'line-of-sight',
+    );
+    await expect(blockedLosContext).toHaveAttribute(
+      'data-combat-los-context-rule-refs',
+      /combat:megamek:MegaMek LosEffects\.java:797-911 LOS blocking and terrain modifiers/,
+    );
     const hiddenContactHex = page.getByTestId('hex--2-1');
     await expect(hiddenContactHex).toHaveAttribute(
       'data-combat-target-visibility',

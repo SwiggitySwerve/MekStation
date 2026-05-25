@@ -2758,6 +2758,28 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-los-blocker-reason',
       'Blocked by building at (1, 0)',
     );
+    expect(losContext).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(losContext).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    expect(losContext).toHaveAttribute(
+      'data-tactical-rules-surface',
+      'line-of-sight',
+    );
+    expect(losContext).toHaveAttribute(
+      'data-combat-los-context-source-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(losContext).toHaveAttribute(
+      'data-combat-los-context-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
+    );
     expect(screen.getByTestId('hex-combat-tooltip-reason')).toHaveTextContent(
       'Blocked by building',
     );
@@ -2835,6 +2857,28 @@ describe('HexMapDisplay combat projection', () => {
     expect(losContext).toHaveAttribute(
       'data-combat-los-blocker-reason',
       'Blocked by building at (1, 0)',
+    );
+    expect(losContext).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(losContext).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    expect(losContext).toHaveAttribute(
+      'data-tactical-rules-surface',
+      'line-of-sight',
+    );
+    expect(losContext).toHaveAttribute(
+      'data-combat-los-context-source-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(losContext).toHaveAttribute(
+      'data-combat-los-context-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
     );
     expect(
       screen.getByTestId('hex-tactical-tooltip-combat-reason'),

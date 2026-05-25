@@ -308,6 +308,7 @@ export function CombinedTacticalHoverTooltip({
       />
       <CombatLosContextRows
         combatInfo={combatInfo}
+        projection={projection}
         testId="hex-tactical-tooltip-combat-los-context"
       />
       {modifierLabel && (
