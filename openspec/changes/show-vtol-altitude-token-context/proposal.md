@@ -17,6 +17,8 @@ and elevation context is inspectable without opening a side panel.
 - Expose VTOL altitude through token wrapper metadata and accessible labels.
 - Pin the existing VTOL elevation browser harness to verify that altitude
   metadata and visible token chrome survive the full tactical-map SVG render.
+- Preserve VTOL altitude metadata on the isometric scene token wrapper so the
+  depth-sorted 2.5D view remains inspectable without drilling into child SVG.
 
 ## Out of Scope
 

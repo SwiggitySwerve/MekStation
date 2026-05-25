@@ -1354,6 +1354,36 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'aria-label',
       'Movement step cost: elevation cost +0; elevation delta +4',
     );
+
+    const projectionLayer = page.getByTestId('map-projection-layer');
+    await switchToIsometric(page, projectionLayer);
+
+    const isometricSceneToken = page.getByTestId(
+      'isometric-scene-token-attacker',
+    );
+    await expect(isometricSceneToken).toHaveAttribute(
+      'data-isometric-token-unit-type',
+      'vehicle',
+    );
+    await expect(isometricSceneToken).toHaveAttribute(
+      'data-isometric-vehicle-motion-type',
+      'vtol',
+    );
+    await expect(isometricSceneToken).toHaveAttribute(
+      'data-isometric-vehicle-altitude',
+      '3',
+    );
+
+    const isometricVtolToken = isometricSceneToken.getByTestId(
+      'unit-token-attacker',
+    );
+    await expect(isometricVtolToken).toHaveAttribute(
+      'data-vehicle-altitude',
+      '3',
+    );
+    await expect(
+      isometricVtolToken.getByTestId('vehicle-altitude-badge'),
+    ).toHaveText('ALT3');
   });
 
   test('shows hover water crossing as legal zero-terrain movement in browser', async ({

@@ -28,6 +28,17 @@ scenario
 **AND** the rendered token accessible label SHALL include altitude 3
 **AND** the rendered vehicle token SHALL show the visible altitude badge
 
+#### Scenario: Isometric scene preserves VTOL altitude context
+
+**GIVEN** the tactical-map browser harness renders a VTOL elevation movement
+scenario
+**AND** the player switches the map to isometric mode
+**WHEN** the isometric scene depth-sorts the VTOL token
+**THEN** the isometric scene token wrapper SHALL expose the unit type as vehicle
+**AND** the isometric scene token wrapper SHALL expose the VTOL motion type
+**AND** the isometric scene token wrapper SHALL expose altitude 3
+**AND** the nested vehicle token SHALL keep the visible altitude badge
+
 #### Scenario: Non-VTOL vehicle token does not expose altitude chrome
 
 **GIVEN** a vehicle unit does not use VTOL motion

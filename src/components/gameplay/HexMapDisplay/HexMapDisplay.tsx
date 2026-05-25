@@ -5,7 +5,7 @@ import { PersistentEffectsLayer } from '@/components/gameplay/effects/Persistent
 import { FiringArcOverlay } from '@/components/gameplay/overlays/FiringArcOverlay';
 import { LineOfSightOverlay } from '@/components/gameplay/overlays/LineOfSightOverlay';
 import { TerrainSymbolDefs } from '@/components/gameplay/terrain/TerrainSymbolDefs';
-import { GameSide } from '@/types/gameplay';
+import { GameSide, TokenUnitType } from '@/types/gameplay';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 
 import type { HexMapDisplayProps } from './HexMapDisplay.types';
@@ -276,6 +276,17 @@ function IsometricSceneLayer({
               occlusionInfo ? coordToKey(occlusionInfo.occluderHex) : undefined
             }
             data-isometric-occluder-elevation={occlusionInfo?.occluderElevation}
+            data-isometric-token-unit-type={item.token.unitType}
+            data-isometric-vehicle-motion-type={
+              item.token.unitType === TokenUnitType.Vehicle
+                ? item.token.vehicleMotionType
+                : undefined
+            }
+            data-isometric-vehicle-altitude={
+              item.token.unitType === TokenUnitType.Vehicle
+                ? item.token.altitude
+                : undefined
+            }
           >
             <UnitTokensLayer
               orderedTokens={[item.token]}
