@@ -24,7 +24,11 @@ import { useMovementTween } from '@/components/gameplay/animation/useMovementTwe
 import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
 import { useElectedSpotters } from '@/components/gameplay/TacticalCommandShell';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
-import { MovementType, TokenUnitType } from '@/types/gameplay';
+import {
+  MovementType,
+  TokenUnitType,
+  VehicleMotionType,
+} from '@/types/gameplay';
 
 import type { IsometricVisibilityRule } from './UnitTokenForType.effects';
 
@@ -129,9 +133,31 @@ function tokenTypeStateMetadata(token: IUnitToken): TokenWrapperMetadata {
     case TokenUnitType.Vehicle:
       return {
         'data-vehicle-motion-type': token.vehicleMotionType,
+        'data-vehicle-altitude': token.altitude,
       };
     default:
       return {};
+  }
+}
+
+function formatVehicleMotionTypeLabel(
+  motionType: VehicleMotionType | undefined,
+): string | null {
+  switch (motionType) {
+    case VehicleMotionType.Tracked:
+      return 'Tracked';
+    case VehicleMotionType.Wheeled:
+      return 'Wheeled';
+    case VehicleMotionType.Hover:
+      return 'Hover';
+    case VehicleMotionType.VTOL:
+      return 'VTOL';
+    case VehicleMotionType.Naval:
+      return 'Naval';
+    case VehicleMotionType.WiGE:
+      return 'WiGE';
+    default:
+      return null;
   }
 }
 
@@ -165,10 +191,13 @@ function tokenTypeLabelParts(token: IUnitToken): readonly string[] {
         `passenger slot ${battleArmorPassengerSlot(token)}`,
       ];
     }
-    case TokenUnitType.Vehicle:
-      return token.vehicleMotionType
-        ? [`motion ${token.vehicleMotionType}`]
-        : [];
+    case TokenUnitType.Vehicle: {
+      const motionLabel = formatVehicleMotionTypeLabel(token.vehicleMotionType);
+      return [
+        motionLabel ? `motion ${motionLabel}` : null,
+        token.altitude !== undefined ? `altitude ${token.altitude}` : null,
+      ].filter((part): part is string => Boolean(part));
+    }
     default:
       return [];
   }

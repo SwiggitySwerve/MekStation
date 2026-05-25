@@ -94,6 +94,58 @@ describe('VehicleToken motion-type label', () => {
 });
 
 // -----------------------------------------------------------------------------
+// VTOL altitude badge
+// -----------------------------------------------------------------------------
+
+describe('VehicleToken VTOL altitude badge', () => {
+  it('renders VTOL altitude as a visible non-color badge', () => {
+    const token = makeVehicleToken({
+      vehicleMotionType: VehicleMotionType.VTOL,
+      altitude: 3,
+    });
+    renderInSvg(<VehicleToken token={token} eventState={EMPTY_EVENT_STATE} />);
+
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveTextContent(
+      'ALT3',
+    );
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveAttribute(
+      'data-vehicle-altitude-badge-motion',
+      VehicleMotionType.VTOL,
+    );
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveAttribute(
+      'data-vehicle-altitude-badge-altitude',
+      '3',
+    );
+  });
+
+  it('renders hover altitude zero distinctly', () => {
+    const token = makeVehicleToken({
+      vehicleMotionType: VehicleMotionType.VTOL,
+      altitude: 0,
+    });
+    renderInSvg(<VehicleToken token={token} eventState={EMPTY_EVENT_STATE} />);
+
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveTextContent(
+      'HOV',
+    );
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveAttribute(
+      'data-vehicle-altitude-badge-altitude',
+      '0',
+    );
+  });
+
+  it('omits altitude badge for non-VTOL vehicles', () => {
+    const token = makeVehicleToken({
+      vehicleMotionType: VehicleMotionType.Hover,
+      altitude: 3,
+    });
+    renderInSvg(<VehicleToken token={token} eventState={EMPTY_EVENT_STATE} />);
+
+    expect(screen.queryByTestId('vehicle-altitude-badge')).toBeNull();
+  });
+});
+
+// -----------------------------------------------------------------------------
 // Turret indicator (spec §Per-Type Token Rendering — turret separate)
 // -----------------------------------------------------------------------------
 

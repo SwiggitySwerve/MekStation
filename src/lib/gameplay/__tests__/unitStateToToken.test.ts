@@ -144,6 +144,54 @@ describe('unitStateToToken — vehicle projection', () => {
     expect(token.unitType).toBe(TokenUnitType.Vehicle);
     expect(widen(token).vehicleMotionType).toBe(VehicleMotionType.Hover);
   });
+
+  it('projects VTOL altitude from vehicle combat state', () => {
+    const token = unitStateToToken(
+      'u1',
+      baseState({
+        combatState: {
+          kind: 'vehicle',
+          state: createVehicleCombatState({
+            unitId: 'u1',
+            motionType: GroundMotionType.VTOL,
+            originalCruiseMP: 10,
+            armor: {},
+            structure: {},
+            altitude: 3,
+          }),
+        },
+      }),
+      UNIT_INFO,
+    );
+
+    expect(token.unitType).toBe(TokenUnitType.Vehicle);
+    expect(widen(token).vehicleMotionType).toBe(VehicleMotionType.VTOL);
+    expect(widen(token).altitude).toBe(3);
+  });
+
+  it('does not project altitude for non-VTOL vehicles', () => {
+    const token = unitStateToToken(
+      'u1',
+      baseState({
+        combatState: {
+          kind: 'vehicle',
+          state: createVehicleCombatState({
+            unitId: 'u1',
+            motionType: GroundMotionType.HOVER,
+            originalCruiseMP: 8,
+            armor: {},
+            structure: {},
+            altitude: 2,
+          }),
+        },
+      }),
+      UNIT_INFO,
+    );
+
+    expect(token.unitType).toBe(TokenUnitType.Vehicle);
+    expect(widen(token).vehicleMotionType).toBe(VehicleMotionType.Hover);
+    expect(widen(token).altitude).toBeUndefined();
+  });
 });
 
 // =============================================================================

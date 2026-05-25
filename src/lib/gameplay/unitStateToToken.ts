@@ -155,6 +155,10 @@ export function unitStateToToken(
         vehicleMotionType: vehicleMotionTypeFromGroundMotion(
           cs.state.motionType,
         ),
+        altitude:
+          cs.state.motionType === GroundMotionType.VTOL
+            ? cs.state.altitude
+            : undefined,
       };
     case 'platoon':
       return {

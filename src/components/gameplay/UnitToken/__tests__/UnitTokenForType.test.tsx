@@ -26,6 +26,7 @@ import {
   MovementType,
   GameEventType,
   GamePhase,
+  VehicleMotionType,
 } from '@/types/gameplay';
 
 import { UnitTokenForType } from '../UnitTokenForType';
@@ -165,6 +166,31 @@ describe('UnitTokenForType dispatcher routing', () => {
     const wrapper = screen.getByTestId('unit-token-unit-1');
     // VehicleToken uses a <rect> for its body shape.
     expect(wrapper.querySelectorAll('rect').length).toBeGreaterThan(0);
+  });
+
+  it('Vehicle VTOL → exposes altitude metadata and aria context', () => {
+    const token = makeToken({
+      unitType: TokenUnitType.Vehicle,
+      vehicleMotionType: VehicleMotionType.VTOL,
+      altitude: 4,
+    });
+    renderInSvg(<UnitTokenForType token={token} onClick={noop} />);
+    const wrapper = screen.getByTestId('unit-token-unit-1');
+
+    expect(wrapper).toHaveAttribute('data-unit-type', TokenUnitType.Vehicle);
+    expect(wrapper).toHaveAttribute(
+      'data-vehicle-motion-type',
+      VehicleMotionType.VTOL,
+    );
+    expect(wrapper).toHaveAttribute('data-vehicle-altitude', '4');
+    expect(wrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('motion VTOL'),
+    );
+    expect(wrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('altitude 4'),
+    );
   });
 
   it('Aerospace → renders altitude badge text element', () => {

@@ -725,6 +725,12 @@ that same projection path through `validateCommittedMovement`, proving the
 browser-visible VTOL climb is accepted by the commit gate with matching MP,
 movement heat, and path.
 
+2026-05-25 VTOL altitude token pin: represented vehicle combat state now
+projects VTOL altitude into vehicle map tokens. The token wrapper exposes
+`data-vehicle-altitude`, the accessible label includes the altitude, and the
+vehicle renderer shows a visible `ALTn`/`HOV` badge only for VTOL motion so
+airborne/hover state is inspectable from the map without side-panel context.
+
 Tracked-vehicle browser update: the tactical-map browser harness now pairs the
 VTOL proof with a tracked ground-vehicle abrupt-climb scenario. The top-down map
 renders the destination elevation label, exposes `movementMode: tracked`,

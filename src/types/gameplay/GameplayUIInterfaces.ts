@@ -302,6 +302,11 @@ export interface IVehicleToken extends IUnitTokenBase {
   readonly vehicleMotionType?: VehicleMotionType;
   /** Turret facing in 8-directions (0=N, 1=NE, …, 7=NW). Absent if no turret. */
   readonly turretFacing?: number;
+  /**
+   * Current VTOL altitude level. Undefined for non-VTOL vehicles or callers
+   * that have not projected vehicle combat state yet. 0 = hover.
+   */
+  readonly altitude?: number;
 }
 
 /**
