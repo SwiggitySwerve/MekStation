@@ -1295,6 +1295,12 @@ itself, not only on aggregate hex and badge metadata. This does not change
 movement legality; it keeps Walk/Run/Jump rows individually inspectable when
 shared-destination movement projections mix reachable and rejected modes.
 
+2026-05-25 combined tooltip projection explanation pin: Combined movement and
+combat hovers now expose the shared projection explanation as both stable
+metadata and readable tooltip text. This does not add legality logic; it brings
+the multi-surface hover in line with movement-only, combat-only, and terrain
+projection context so mixed hovers carry the same rules-backed why string.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

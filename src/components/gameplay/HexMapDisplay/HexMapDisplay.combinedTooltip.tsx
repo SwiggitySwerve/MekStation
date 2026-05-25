@@ -159,6 +159,7 @@ export function CombinedTacticalHoverTooltip({
       data-tactical-tooltip-sources={formatTacticalProjectionSourceReferences(
         projection.sourceReferences,
       )}
+      data-tactical-tooltip-explanation={projection.explanation}
       role="tooltip"
     >
       <div className="font-semibold" data-testid="hex-tactical-tooltip-status">
@@ -325,6 +326,14 @@ export function CombinedTacticalHoverTooltip({
           data-testid="hex-tactical-tooltip-projection-reasons"
         >
           Projection: {projection.blockedReasons.join('; ')}
+        </div>
+      )}
+      {projection.explanation && (
+        <div
+          className="mt-1 border-t border-slate-700/70 pt-1 text-[11px] text-slate-200"
+          data-testid="hex-tactical-tooltip-projection-explanation"
+        >
+          Projection detail: {projection.explanation}
         </div>
       )}
       {projection.sourceReferences.length > 0 && (

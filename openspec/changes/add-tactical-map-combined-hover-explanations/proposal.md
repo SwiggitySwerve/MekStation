@@ -11,6 +11,7 @@ The map should explain the whole tactical projection for the hovered hex when mu
 - Pass the hovered `ITacticalMapHexProjection` into the HTML tooltip layer.
 - Render a combined tactical tooltip when the hovered projection has both movement and combat data.
 - Show projection status, intent, blocked reasons, movement cost/legality, combat range/LOS/targetability, and terrain/elevation context in one hover surface.
+- Expose the shared projection explanation in the combined tooltip so mixed hovers have the same explanation surface as movement-only, combat-only, and terrain hovers.
 - Preserve the existing movement-only, combat-only, terrain-only, and unreachable tooltip behavior.
 
 ## Out of Scope
@@ -23,4 +24,4 @@ The map should explain the whole tactical projection for the hovered hex when mu
 
 - Affected spec: `tactical-map-interface`
 - Affected code: `src/components/gameplay/HexMapDisplay/*`
-- Tests: focused mixed movement/combat hover coverage
+- Tests: focused mixed movement/combat hover coverage for combined projection explanation metadata

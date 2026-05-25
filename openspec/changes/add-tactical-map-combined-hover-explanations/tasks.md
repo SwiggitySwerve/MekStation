@@ -10,6 +10,7 @@
 - [x] 2.1 Expose the hovered tactical projection from `useHexMapDisplayState`
 - [x] 2.2 Render a combined hover tooltip for projections containing both movement and combat data
 - [x] 2.3 Preserve existing single-surface tooltip behavior
+- [x] 2.4 Expose the shared projection explanation on the combined tooltip
 
 ## 3. Verification
 
@@ -19,3 +20,4 @@
 - [x] 3.4 `npm.cmd run lint` passes
 - [x] 3.5 `npm.cmd run format:check` passes
 - [x] 3.6 `npx.cmd openspec validate add-tactical-map-combined-hover-explanations --strict` passes
+- [x] 3.7 Focused render coverage asserts combined tooltip projection explanation metadata

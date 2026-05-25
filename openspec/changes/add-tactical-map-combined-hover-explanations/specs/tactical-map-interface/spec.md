@@ -17,6 +17,7 @@ The tactical map interface SHALL show a combined hover explanation when the hove
 **AND** it SHALL show the combat legality, target, range, LOS, and blocked reason
 **AND** it SHALL show terrain and elevation context for the same hex
 **AND** it SHALL preserve projection blocked reasons without recalculating movement or combat legality
+**AND** it SHALL expose the shared projection explanation as stable metadata and readable text
 
 #### Scenario: Single-surface hovers keep existing tooltip behavior
 
