@@ -507,8 +507,9 @@ export interface IGameState {
   readonly electronicWarfare?: IElectronicWarfareState;
   /**
    * Optional battle-wide C3 network state. Combat phases consume explicit
-   * C3/C3i networks when scenario/session builders provide them; automatic
-   * network formation from mounted equipment remains a separate hydration gap.
+   * C3/C3i networks when scenario/session builders provide them. Runner
+   * initial state can seed conservative unambiguous networks from hydrated
+   * mounted C3 equipment; ambiguous multi-network formation remains explicit.
    */
   readonly c3Network?: IC3NetworkState;
 }

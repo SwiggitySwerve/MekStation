@@ -273,13 +273,11 @@ describe('BattleMech to-hit support matrix modifiers', () => {
     expect(modifierNames(result)).toContain('C3 Network');
   });
 
-  it('keeps automatic C3 network assembly as an explicit gap', () => {
+  it('keeps ambiguous C3 network assignment edges as explicit gaps', () => {
     expect(
       RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['c3-equipment-network-formation']
         .gap,
-    ).toContain(
-      'assemble battle-wide C3 or C3i network membership automatically from hydrated mounted equipment',
-    );
+    ).toContain('multiple same-side C3 networks');
     expect(Object.keys(RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT)).not.toContain(
       'c3-spotter-los-hydration',
     );

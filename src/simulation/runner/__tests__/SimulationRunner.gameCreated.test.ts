@@ -32,6 +32,32 @@ function makeConfig(
   };
 }
 
+function hydratedC3Unit(
+  id: string,
+  chassis: string,
+  equipment: IHydratedUnitData['fullUnit']['equipment'],
+): IHydratedUnitData {
+  return {
+    runnerUnitId: id,
+    side: id.startsWith('opponent') ? GameSide.Opponent : GameSide.Player,
+    position: { q: 0, r: 0 },
+    fullUnit: {
+      id: `${id}-catalog-unit`,
+      chassis,
+      variant: 'C3',
+      model: 'C3',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3050',
+      unitType: 'BattleMech',
+      equipment,
+    },
+    aiWeapons: [],
+    gunnery: 3,
+    piloting: 4,
+  };
+}
+
 describe('SimulationRunner GameCreated seed event', () => {
   describe('spec scenario: First event in a swarm run is GameCreated', () => {
     it('emits GameCreated as events[0] with sequence 0', () => {
@@ -251,6 +277,115 @@ describe('SimulationRunner GameCreated seed event', () => {
           position: { q: -1, r: -8 },
         },
       ]);
+    });
+
+    it('seeds unambiguous C3 and C3i networks from hydrated BattleMech equipment', () => {
+      const state = createInitialState(
+        makeConfig({ unitCount: { player: 2, opponent: 2 } }),
+        new Map([
+          [
+            'player-1',
+            hydratedC3Unit('player-1', 'Master', [
+              { id: 'c3-master', location: 'HEAD' },
+            ]),
+          ],
+          [
+            'player-2',
+            hydratedC3Unit('player-2', 'Slave', [
+              { id: '1-c3-slave', location: 'RIGHT_TORSO' },
+            ]),
+          ],
+          [
+            'opponent-1',
+            hydratedC3Unit('opponent-1', 'C3i A', [
+              { id: 'Improved C3 Computer (C3I)', location: 'HEAD' },
+            ]),
+          ],
+          [
+            'opponent-2',
+            hydratedC3Unit('opponent-2', 'C3i B', [
+              { id: 'IS C3i Computer', location: 'CENTER_TORSO' },
+            ]),
+          ],
+        ]),
+      );
+
+      expect(state.c3Network?.networks).toEqual([
+        {
+          networkId: 'player-c3-master-slave-1',
+          type: 'master-slave',
+          teamId: GameSide.Player,
+          members: [
+            {
+              entityId: 'player-1',
+              teamId: GameSide.Player,
+              role: 'master',
+              position: { q: -1, r: -8 },
+              operational: true,
+              ecmDisrupted: false,
+            },
+            {
+              entityId: 'player-2',
+              teamId: GameSide.Player,
+              role: 'slave',
+              position: { q: 0, r: -8 },
+              operational: true,
+              ecmDisrupted: false,
+            },
+          ],
+        },
+        {
+          networkId: 'opponent-c3i-1',
+          type: 'improved',
+          teamId: GameSide.Opponent,
+          members: [
+            {
+              entityId: 'opponent-1',
+              teamId: GameSide.Opponent,
+              role: 'c3i',
+              position: { q: -1, r: 8 },
+              operational: true,
+              ecmDisrupted: false,
+            },
+            {
+              entityId: 'opponent-2',
+              teamId: GameSide.Opponent,
+              role: 'c3i',
+              position: { q: 0, r: 8 },
+              operational: true,
+              ecmDisrupted: false,
+            },
+          ],
+        },
+      ]);
+    });
+
+    it('leaves ambiguous C3 equipment unassembled instead of guessing networks', () => {
+      const state = createInitialState(
+        makeConfig({ unitCount: { player: 3, opponent: 0 } }),
+        new Map([
+          [
+            'player-1',
+            hydratedC3Unit('player-1', 'Master A', [
+              { id: 'c3-master', location: 'HEAD' },
+            ]),
+          ],
+          [
+            'player-2',
+            hydratedC3Unit('player-2', 'Master B', [
+              { id: 'C3 Boosted System (Master)', location: 'CENTER_TORSO' },
+            ]),
+          ],
+          [
+            'player-3',
+            hydratedC3Unit('player-3', 'Slave', [
+              { id: '1-c3-slave', location: 'RIGHT_TORSO' },
+            ]),
+          ],
+        ]),
+      );
+
+      expect(state.c3Network).toBeUndefined();
     });
   });
 

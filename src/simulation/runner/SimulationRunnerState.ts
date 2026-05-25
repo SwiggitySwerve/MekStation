@@ -10,6 +10,18 @@ import { GamePhase, GameSide, GameStatus } from '@/types/gameplay';
 import { CombatLocation, IGameState, IUnitGameState } from '@/types/gameplay';
 import { ScenarioObjectiveType } from '@/types/scenario/ScenarioInterfaces';
 import {
+  addC3Network,
+  C3I_MAX_UNITS,
+  C3_MASTER_SLAVE_MAX_UNITS,
+  createC3iNetwork,
+  createC3MasterSlaveNetwork,
+  createC3Unit,
+  createEmptyC3State,
+  type C3UnitRole,
+  type IC3NetworkState,
+  type IC3NetworkUnit,
+} from '@/utils/gameplay/c3Network';
+import {
   deriveObjectivePlacementConfig,
   placeObjectives,
 } from '@/utils/gameplay/objectives';
@@ -118,6 +130,84 @@ function buildElectronicWarfareState(
     : undefined;
 }
 
+function hasC3Role(unit: IUnitGameState, role: C3UnitRole): boolean {
+  return (
+    unit.c3Equipment?.some((equipment) => equipment.role === role) ?? false
+  );
+}
+
+function buildC3Member(
+  unitId: string,
+  unit: IUnitGameState,
+  role: C3UnitRole,
+): IC3NetworkUnit {
+  return createC3Unit({
+    entityId: unitId,
+    teamId: unit.side,
+    role,
+    position: { ...unit.position },
+    operational:
+      !unit.destroyed &&
+      !unit.hasEjected &&
+      !unit.hasRetreated &&
+      !unit.isWithdrawing,
+  });
+}
+
+function buildAutomaticC3NetworkState(
+  units: Readonly<Record<string, IUnitGameState>>,
+): IC3NetworkState | undefined {
+  let state = createEmptyC3State();
+
+  for (const side of [GameSide.Player, GameSide.Opponent]) {
+    const sideUnits = Object.entries(units).filter(
+      ([, unit]) => unit.side === side,
+    );
+    const c3iMembers = sideUnits
+      .filter(([, unit]) => hasC3Role(unit, 'c3i'))
+      .map(([unitId, unit]) => buildC3Member(unitId, unit, 'c3i'));
+
+    if (c3iMembers.length >= 2 && c3iMembers.length <= C3I_MAX_UNITS) {
+      const network = createC3iNetwork(`${side}-c3i-1`, c3iMembers);
+      if (network) {
+        state = addC3Network(state, network);
+      }
+    }
+
+    const standardMembers = sideUnits.flatMap(([unitId, unit]) => {
+      const hasMaster = hasC3Role(unit, 'master');
+      const hasSlave = hasC3Role(unit, 'slave');
+      if (hasMaster === hasSlave || hasC3Role(unit, 'c3i')) {
+        return [];
+      }
+
+      return [buildC3Member(unitId, unit, hasMaster ? 'master' : 'slave')];
+    });
+    const masterCount = standardMembers.filter(
+      (member) => member.role === 'master',
+    ).length;
+    const slaveCount = standardMembers.filter(
+      (member) => member.role === 'slave',
+    ).length;
+
+    if (
+      masterCount === 1 &&
+      slaveCount > 0 &&
+      standardMembers.length <= C3_MASTER_SLAVE_MAX_UNITS
+    ) {
+      const network = createC3MasterSlaveNetwork(
+        `${side}-c3-master-slave-1`,
+        standardMembers,
+      );
+      if (network) {
+        state = addC3Network(state, network);
+      }
+    }
+  }
+
+  return state.networks.length > 0 ? state : undefined;
+}
+
 export function createInitialState(
   config: ISimulationConfig,
   hydration?: UnitHydrationMap,
@@ -146,6 +236,7 @@ export function createInitialState(
   // `objectives` undefined and behave exactly as before.
   const objectives = buildObjectivesForConfig(config);
   const electronicWarfare = buildElectronicWarfareState(units, hydration);
+  const c3Network = buildAutomaticC3NetworkState(units);
 
   return {
     gameId: `sim-${config.seed}`,
@@ -157,6 +248,7 @@ export function createInitialState(
     turnEvents: [],
     ...(Object.keys(objectives).length > 0 ? { objectives } : {}),
     ...(electronicWarfare ? { electronicWarfare } : {}),
+    ...(c3Network ? { c3Network } : {}),
   };
 }
 

@@ -69,7 +69,7 @@
 - [x] 3.1.5 Integrate source-backed selected-ammo iNARC pod variant attachment for Homing, ECM, Haywire, and Nemesis while leaving remaining ECM/Nemesis pod effects helper-only.
 - [x] 3.1.6 Integrate source-backed attacker iNARC ECM flight-path suppression for Artemis IV/prototype IV/V cluster guidance as part of incremental iNARC ECM coverage.
 - [x] 3.1.7 Integrate source-backed iNARC Nemesis redirect for direct confusable missile attacks against friendly intervening Nemesis pod carriers while leaving remaining iNARC ECM helper work explicit.
-- [x] 3.1.8 Integrate source-backed helper-level iNARC ECM C3 disruption while leaving automatic C3 network assembly from hydrated equipment and remaining sensor effects explicit.
+- [x] 3.1.8 Integrate source-backed helper-level iNARC ECM C3 disruption while keeping remaining iNARC ECM sensor effects and non-authoritative C3 assignment/lifecycle gaps explicit.
 - [x] 3.1.9 Split static weapon database subset, synthetic Medium Laser fallback, and variable missile damage-string hazards into first-class validation-scope rows referenced by their requirement crosswalks.
 - [x] 3.1.10 Integrate source-backed Sandblaster cluster-table range bonuses for designated LB-X and missile cluster-table paths while leaving UAC/RAC and TacOps rapid-fire AC rate-of-fire behavior explicit.
 - [x] 3.1.11 Align the legacy gameplay SPA catalog Sandblaster metadata with canonical source truth: weapon-type designation required, range-based cluster-table bonus, and remaining UAC/RAC rate-of-fire gap preserved.
@@ -104,10 +104,10 @@
 - [x] 3.4.3 Cross-link range bracket, attack invalidation, invalid target state, invalid side-effect, and to-hit modifier support rows into range/invalidation/to-hit requirement checklists.
 - [x] 3.4.4 Integrate source-backed DFA Infantry/Battle Armor target-class to-hit modifiers through helper, eligibility, event-sourced declaration, and runner resolution.
 - [x] 3.4.5 Integrate source-backed DFA attacker-minus-target piloting skill differential through helper, eligibility, event-sourced declaration, and runner resolution.
-- [x] 3.4.6 Integrate explicit runner C3 network state consumption for direct weapon attack to-hit while leaving automatic C3 equipment/network formation explicit.
+- [x] 3.4.6 Integrate explicit runner C3 network state consumption for direct weapon attack to-hit while leaving network formation as separately tracked work.
 - [x] 3.4.7 Align hull-down to-hit with MegaMek's +2 terrain modifier and thread explicit runner hull-down state into weapon attack declaration and hit-location resolution.
 - [x] 3.4.8 Integrate source-backed Dodge Maneuver target to-hit gating through canonical SPA ids, explicit target dodging state, and explicit non-Mek target exclusion.
-- [x] 3.4.9 Split automatic C3 equipment/network formation into a helper-only to-hit row so explicit C3 network consumption cannot overclaim full C3 parity.
+- [x] 3.4.9 Split ambiguous C3 equipment/network assignment edges into a helper-only to-hit row so explicit C3 network consumption cannot overclaim full C3 parity.
 - [x] 3.4.10 Cross-check C3 spotter LOS against MegaMek/Total Warfare default behavior and lock the default no-LOS C3 range-sharing behavior with runner validation.
 - [x] 3.4.11 Hydrate source-backed mounted BattleMech C3 master/slave/C3i equipment roles from catalog equipment and critical slots while leaving battle-wide network assembly explicit.
 - [x] 3.4.12 Integrate source-backed Maneuvering Ace skidding PSR relief through runner terrain PSR queueing, runner PSR resolution, interactive PSR resolution, and catalog/OpenSpec coverage while leaving terrain-specific Maneuvering Ace PSRs beyond skidding explicit.
@@ -126,6 +126,7 @@
 - [x] 3.4.24 Guard source-backed initiative equipment hydration as unsupported unless complete HQ communications or command-console eligibility context exists; command-looking metadata without explicit initiative fields fails closed.
 - [x] 3.4.25 Source-back legacy Evasive SPA support as an unsupported optional TacOps Evade movement/action gap, including target to-hit and attacker firing restrictions, until an authoritative evade action path exists.
 - [x] 3.4.26 Source-back torso-twist secondary-facing arc consumption and extended/no-twist quirk boundaries while preserving attack arc consumption as a helper-only gap until torso twist is authoritative.
+- [x] 3.4.27 Seed conservative runner initial C3/C3i networks from hydrated mounted BattleMech equipment while leaving session/player-authored, ambiguous multi-network, oversize, and damage-lifecycle gaps explicit.
 - [x] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -202,3 +203,4 @@
 - [x] 4.3.46 Cross-check MegaMek `TorsoTwistAction`, secondary-facing state gates, BattleMech normal/extended/no-twist legality, and `ComputeArc` secondary-facing use before leaving torso twist helper-only.
 - [x] 4.3.47 Cross-check MegaMek BattleMech-applicable brush-off, thrash, trip, grapple, break-grapple, and jump-jet attack source classes before leaving them unsupported.
 - [x] 4.3.48 Cross-check MegaMek AMS projectile reduction, Streak/all-shots-hit cluster parity, single-missile interception, ammo/heat/fired handling, defender assignment, arc enforcement, and multi-use gates before leaving AMS helper-only.
+- [x] 4.3.49 Cross-check conservative runner C3/C3i initial network assembly against MegaMek C3 range/equipment anchors before narrowing automatic network-assembly gaps.

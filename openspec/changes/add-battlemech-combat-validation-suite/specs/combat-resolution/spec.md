@@ -504,7 +504,7 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 
 ### Requirement: Designator Marker Replay State
 
-Designator marker events SHALL replay into the same target marker state consumed by combat resolution. TAG markers SHALL set transient `tagDesignated` state that clears at turn start. Standard NARC markers SHALL append the marking team to `narcedBy` without duplicate entries and SHALL persist across turn starts. iNARC launcher hits SHALL derive the attached `iNarcPods` `podType` from the selected ammo weapon type so Homing, ECM, Haywire, and Nemesis ammo can each attach distinct marker state without falling back to `narcedBy`. Direct NARC-compatible missile cluster resolution and runner to-hit declaration SHALL consume Homing pod state. Runner to-hit declaration SHALL consume Haywire pod state on the attacker as a source-backed +1 attacker to-hit modifier. Runner missile cluster resolution SHALL consume attacker iNARC ECM pod state as flight-path ECM for Artemis IV/prototype IV/V suppression without treating it as target ECM for NARC guidance. C3 ECM disruption SHALL consume iNARC ECM pod state and deny C3 targeting benefit through the same ECM-disrupted C3 helper path. Runner weapon attack resolution SHALL consume friendly intervening iNARC Nemesis pod state to redirect source-backed direct confusable missile attacks. Remaining iNARC ECM sensor effects and automatic C3 network assembly from hydrated equipment SHALL remain explicit gaps until their variant-specific runner effects are represented.
+Designator marker events SHALL replay into the same target marker state consumed by combat resolution. TAG markers SHALL set transient `tagDesignated` state that clears at turn start. Standard NARC markers SHALL append the marking team to `narcedBy` without duplicate entries and SHALL persist across turn starts. iNARC launcher hits SHALL derive the attached `iNarcPods` `podType` from the selected ammo weapon type so Homing, ECM, Haywire, and Nemesis ammo can each attach distinct marker state without falling back to `narcedBy`. Direct NARC-compatible missile cluster resolution and runner to-hit declaration SHALL consume Homing pod state. Runner to-hit declaration SHALL consume Haywire pod state on the attacker as a source-backed +1 attacker to-hit modifier. Runner missile cluster resolution SHALL consume attacker iNARC ECM pod state as flight-path ECM for Artemis IV/prototype IV/V suppression without treating it as target ECM for NARC guidance. C3 ECM disruption SHALL consume iNARC ECM pod state and deny C3 targeting benefit through the same ECM-disrupted C3 helper path. Runner weapon attack resolution SHALL consume friendly intervening iNARC Nemesis pod state to redirect source-backed direct confusable missile attacks. Remaining iNARC ECM sensor effects, ambiguous/player-authored C3 network assignment, and C3 equipment damage lifecycle SHALL remain explicit gaps until their variant-specific runner effects are represented.
 
 #### Scenario: Replay applies TAG, standard NARC, and iNARC variant marker state
 
@@ -518,7 +518,7 @@ Designator marker events SHALL replay into the same target marker state consumed
 - **AND** missile cluster resolution SHALL consume source-backed attacker iNARC ECM state to suppress Artemis flight-path guidance while preserving target-only NARC guidance
 - **AND** C3 ECM disruption helpers SHALL consume source-backed iNARC ECM pod state to deny C3 targeting benefit
 - **AND** direct confusable missile attacks SHALL redirect to friendly intervening units carrying source-backed iNARC Nemesis pod state
-- **AND** the catalog SHALL continue to list remaining iNARC ECM sensor effects and automatic C3 network assembly from hydrated equipment as explicit gaps until those effects are implemented
+- **AND** the catalog SHALL continue to list remaining iNARC ECM sensor effects, ambiguous/player-authored C3 network assignment, and C3 equipment damage lifecycle as explicit gaps until those effects are implemented
 
 ### Requirement: Source-Backed Sandblaster Cluster-Table Modifier
 
@@ -541,7 +541,7 @@ Cluster-table validation SHALL apply MegaMek's Sandblaster SPA modifier when the
 
 ### Requirement: C3 Range Modifier Integration
 
-Direct runner weapon attack declarations SHALL consume explicit `IGameState.c3Network` state when scenario/session builders provide it. The runner SHALL refresh C3 member positions and ECM/iNARC ECM disruption from current unit state before calculating the declared to-hit number, SHALL suppress C3 range sharing for indirect fire, SHALL use default MegaMek C3 behavior where the network range-sharing unit does not need line of sight to the target, and SHALL keep automatic C3 network assembly from hydrated equipment explicit until those state builders exist.
+Direct runner weapon attack declarations SHALL consume explicit `IGameState.c3Network` state when scenario/session builders provide it. The runner SHALL seed conservative unambiguous per-side C3 master/slave and C3i networks from hydrated BattleMech C3 equipment during initial state creation, SHALL refresh C3 member positions and ECM/iNARC ECM disruption from current unit state before calculating the declared to-hit number, SHALL suppress C3 range sharing for indirect fire, SHALL use default MegaMek C3 behavior where the network range-sharing unit does not need line of sight to the target, and SHALL keep ambiguous/player-authored C3 network assignment explicit until those session state builders exist.
 
 #### Scenario: Direct weapon attack uses explicit C3 state
 
@@ -559,7 +559,9 @@ Direct runner weapon attack declarations SHALL consume explicit `IGameState.c3Ne
 - **THEN** the unit state SHALL record mounted C3 equipment roles as `master`, `slave`, or `c3i` with source equipment id and mount location
 - **AND** boosted C3 master/slave entries SHALL retain a boosted marker in the hydrated equipment state
 - **AND** Battle Armor C3 and Battle Armor Improved C3 entries SHALL NOT hydrate as BattleMech C3 equipment
-- **AND** the catalog SHALL continue to list battle-wide C3/C3i network assembly from hydrated equipment as an explicit gap until session builders create `IGameState.c3Network`
+- **AND** runner initial state SHALL seed one same-side C3 master/slave network when there is exactly one C3 master, at least one C3 slave, and no more than four standard C3 members
+- **AND** runner initial state SHALL seed one same-side C3i network when there are at least two and no more than six C3i members
+- **AND** the catalog SHALL continue to list session/player-authored C3 assignment, multiple same-side C3 networks, ambiguous multi-master equipment, oversize network splitting, and C3 equipment damage lifecycle as explicit gaps
 
 #### Scenario: Default C3 range sharing does not require spotter LOS
 
@@ -574,7 +576,7 @@ Direct runner weapon attack declarations SHALL consume explicit `IGameState.c3Ne
 
 - **GIVEN** the runner consumes explicit C3 network state for direct weapon attack to-hit math
 - **WHEN** the to-hit support catalog and requirement crosswalk are contract-tested
-- **THEN** automatic C3 equipment/network formation SHALL remain a helper-only to-hit row
+- **THEN** ambiguous C3 equipment/network assignment edges SHALL remain a helper-only to-hit row
 - **AND** the integrated `c3` row SHALL describe explicit network-state consumption, position refresh, ECM/iNARC ECM disruption, indirect-fire suppression, and default no-LOS-required C3 range sharing
 
 ### Requirement: Hull-Down Runner To-Hit Integration

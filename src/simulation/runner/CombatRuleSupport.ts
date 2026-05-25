@@ -415,8 +415,8 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
   ),
   'c3-equipment-network-formation': helperOnly(
     'c3-equipment-network-formation',
-    'UnitHydration derives BattleMech mounted C3 master/slave/C3i equipment roles from catalog equipment and critical slots, c3Network creation helpers validate explicit C3 master/slave and C3i membership, and runAttackPhase consumes prebuilt IGameState.c3Network state',
-    'Runner/session state builders do not yet assemble battle-wide C3 or C3i network membership automatically from hydrated mounted equipment',
+    'UnitHydration derives BattleMech mounted C3 master/slave/C3i equipment roles from catalog equipment and critical slots; createInitialState now seeds unambiguous per-side runner C3 master/slave and C3i networks from hydrated equipment; c3Network creation helpers validate explicit C3 master/slave and C3i membership; and runAttackPhase consumes IGameState.c3Network state',
+    'Session builders, player-authored network assignment, multiple same-side C3 networks, ambiguous multi-master equipment, oversize network splitting, and C3 equipment damage lifecycle are not yet authoritative from hydrated mounted equipment',
     [...MEGAMEK_C3_RANGE_SOURCE_REFS, ...MEGAMEK_C3_EQUIPMENT_SOURCE_REFS],
   ),
   'terrain-features': integrated(
