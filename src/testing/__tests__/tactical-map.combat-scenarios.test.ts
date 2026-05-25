@@ -28,6 +28,9 @@ import {
   tacticalMapElevationLosCombatProjection,
   tacticalMapElevationLosCommitInput,
   tacticalMapElevationLosTargetId,
+  tacticalMapWoodsLosCombatProjection,
+  tacticalMapWoodsLosCommitInput,
+  tacticalMapWoodsLosTargetId,
 } from '../tactical-map.elevation-los-scenario';
 import {
   tacticalMapHeatCombatCommitInput,
@@ -653,6 +656,56 @@ describe('tactical map combat scenarios', () => {
       weaponId: 'medium-laser',
       reason: tacticalMapElevationLosCombatProjection.attackInvalidReason,
       details: tacticalMapElevationLosCombatProjection.attackInvalidDetails,
+    });
+  });
+
+  it('keeps cumulative woods LOS browser projection aligned with attack commit validation', () => {
+    expect(tacticalMapWoodsLosCombatProjection).toMatchObject({
+      hex: { q: 3, r: 0 },
+      distance: 3,
+      rangeBracket: 'short',
+      inRange: true,
+      inArc: true,
+      losState: 'blocked',
+      attackable: false,
+      targetUnitIds: [tacticalMapWoodsLosTargetId],
+      validTargetUnitIds: [],
+      weaponIdsAvailable: ['medium-laser'],
+      attackInvalidReason: 'NoLineOfSight',
+      attackInvalidDetails: 'Blocked by heavy woods at (2, 0)',
+      blockedReason: 'Blocked by heavy woods at (2, 0)',
+      lineOfSightBlockerReason: 'Blocked by heavy woods at (2, 0)',
+      lineOfSightBlocker: {
+        hex: { q: 2, r: 0 },
+        kind: 'terrain',
+        terrain: 'heavy_woods',
+        reason: 'Blocked by heavy woods at (2, 0)',
+      },
+    });
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapWoodsLosCommitInput(),
+    );
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackLocked),
+    ).toBe(false);
+
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: tacticalMapWoodsLosTargetId,
+      weaponId: 'medium-laser',
+      reason: tacticalMapWoodsLosCombatProjection.attackInvalidReason,
+      details: tacticalMapWoodsLosCombatProjection.attackInvalidDetails,
     });
   });
 

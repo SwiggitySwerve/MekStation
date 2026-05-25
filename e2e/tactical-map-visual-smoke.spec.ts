@@ -805,6 +805,116 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows cumulative woods LOS blockers as attack rejection evidence in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=woods-los-blocked');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('SHD');
+    await expect(
+      page.getByTestId('unit-token-woods-blocked-target'),
+    ).toContainText('LCT');
+
+    const firstWoodsHex = page.getByTestId('hex-1-0');
+    await expect(firstWoodsHex).toHaveAttribute(
+      'data-terrain-features',
+      'heavy_woods',
+    );
+    await expect(firstWoodsHex).toHaveAttribute(
+      'data-terrain-feature-levels',
+      'heavy_woods:2',
+    );
+    const blockerHex = page.getByTestId('hex-2-0');
+    await expect(blockerHex).toHaveAttribute(
+      'data-terrain-features',
+      'heavy_woods',
+    );
+    await expect(blockerHex).toHaveAttribute(
+      'data-terrain-feature-levels',
+      'heavy_woods:2',
+    );
+
+    const targetHex = page.getByTestId('hex-3-0');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'woods-blocked-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-distance', '3');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-range-bracket',
+      'short',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-valid-target',
+      'false',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-los-state', 'blocked');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-reason',
+      'NoLineOfSight',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-details',
+      'Blocked by heavy woods at (2, 0)',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-los-blocker-hex',
+      '2,0',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-los-blocker-kind',
+      'terrain',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-los-blocker-terrain',
+      'heavy_woods',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-los-blocker-reason',
+      'Blocked by heavy woods at (2, 0)',
+    );
+
+    const invalidBadge = page.getByTestId('hex-combat-invalid-badge-3-0');
+    await expect(invalidBadge.locator('text')).toHaveText('WOOD');
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'NoLineOfSight',
+    );
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-reason',
+      'Blocked by heavy woods at (2, 0)',
+    );
+
+    const losBlockerBadge = page.getByTestId(
+      'hex-combat-los-blocker-badge-2-0',
+    );
+    await expect(losBlockerBadge.locator('text')).toHaveText('LOS WDS');
+    await expect(losBlockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-target-hexes',
+      '3,0',
+    );
+    await expect(losBlockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-target-ids',
+      'woods-blocked-target',
+    );
+    await expect(losBlockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-state',
+      'blocked',
+    );
+    await expect(losBlockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-kind',
+      'terrain',
+    );
+    await expect(losBlockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-terrain',
+      'heavy_woods',
+    );
+    await expect(losBlockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-reason',
+      'Blocked by heavy woods at (2, 0)',
+    );
+  });
+
   test('shows jump elevation delta with zero elevation MP cost in browser', async ({
     page,
   }) => {

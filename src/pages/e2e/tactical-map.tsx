@@ -1,10 +1,7 @@
 import { useRouter } from 'next/router';
 
 import { HexMapDisplay } from '@/components/gameplay/HexMapDisplay/HexMapDisplay';
-import {
-  tacticalMapAerospaceCombatState,
-  tacticalMapAerospaceTokens,
-} from '@/testing/tactical-map.aerospace-scenarios';
+import * as aerospace from '@/testing/tactical-map.aerospace-scenarios';
 import {
   tacticalMapOutOfArcCombatState,
   tacticalMapOutOfArcSelectedWeaponIds,
@@ -16,12 +13,7 @@ import {
   tacticalMapMountedBattleArmorCombatState,
   tacticalMapMountedBattleArmorTokens,
 } from '@/testing/tactical-map.battle-armor-scenarios';
-import {
-  tacticalMapAirborneAerospaceMinimumRangeCombatState,
-  tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds,
-  tacticalMapAirborneAerospaceMinimumRangeTargetId,
-  tacticalMapAirborneAerospaceMinimumRangeTokens,
-} from '@/testing/tactical-map.combat-scenarios';
+import * as combatScenarios from '@/testing/tactical-map.combat-scenarios';
 import * as elevationLos from '@/testing/tactical-map.elevation-los-scenario';
 import {
   tacticalMapCombatState,
@@ -118,6 +110,7 @@ const combatOnlyScenarios = new Set([
   'selected-weapon-out-of-arc',
   'same-hex-weapon-blocked',
   'elevation-los-blocked',
+  'woods-los-blocked',
   'prone-combat-modifiers',
   'immobile-combat-modifier',
   'heat-combat-modifier',
@@ -141,7 +134,7 @@ const movementFixtureScenarios = new Set([
 const selectedWeaponIdsByScenario = {
   'aerospace-velocity-projection': [],
   'airborne-aerospace-minimum-range':
-    tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds,
+    combatScenarios.tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierSelectedWeaponIds,
   'mixed-visibility-targets': tacticalMapMixedVisibilitySelectedWeaponIds,
@@ -149,6 +142,7 @@ const selectedWeaponIdsByScenario = {
   'same-hex-weapon-blocked': sameHex.tacticalMapSameHexSelectedWeaponIds,
   'elevation-los-blocked':
     elevationLos.tacticalMapElevationLosSelectedWeaponIds,
+  'woods-los-blocked': elevationLos.tacticalMapWoodsLosSelectedWeaponIds,
   'prone-combat-modifiers': proneCombat.tacticalMapProneCombatSelectedWeaponIds,
   'immobile-combat-modifier':
     immobileCombat.tacticalMapImmobileCombatSelectedWeaponIds,
@@ -163,13 +157,14 @@ const selectedWeaponIdsByScenario = {
 const targetUnitIdByScenario = {
   'aerospace-velocity-projection': null,
   'airborne-aerospace-minimum-range':
-    tacticalMapAirborneAerospaceMinimumRangeTargetId,
+    combatScenarios.tacticalMapAirborneAerospaceMinimumRangeTargetId,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierTargetId,
   'mixed-visibility-targets': null,
   'selected-weapon-out-of-arc': tacticalMapOutOfArcTargetId,
   'same-hex-weapon-blocked': sameHex.tacticalMapSameHexTargetId,
   'elevation-los-blocked': elevationLos.tacticalMapElevationLosTargetId,
+  'woods-los-blocked': elevationLos.tacticalMapWoodsLosTargetId,
   'prone-combat-modifiers': proneCombat.tacticalMapProneCombatTargetId,
   'immobile-combat-modifier': immobileCombat.tacticalMapImmobileCombatTargetId,
   'heat-combat-modifier': heatCombat.tacticalMapHeatCombatTargetId,
@@ -183,15 +178,16 @@ const tokensByScenario = {
   'vtol-elevation-cost': tacticalMapVtolTokens,
   'biped-option-projection': tacticalMapBipedOptionTokens,
   'mounted-ba-passenger': tacticalMapMountedBattleArmorTokens,
-  'aerospace-velocity-projection': tacticalMapAerospaceTokens,
+  'aerospace-velocity-projection': aerospace.tacticalMapAerospaceTokens,
   'airborne-aerospace-minimum-range':
-    tacticalMapAirborneAerospaceMinimumRangeTokens,
+    combatScenarios.tacticalMapAirborneAerospaceMinimumRangeTokens,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierTokens,
   'mixed-visibility-targets': tacticalMapMixedVisibilityTokens,
   'selected-weapon-out-of-arc': tacticalMapOutOfArcTokens,
   'same-hex-weapon-blocked': sameHex.tacticalMapSameHexTokens,
   'elevation-los-blocked': elevationLos.tacticalMapElevationLosTokens,
+  'woods-los-blocked': elevationLos.tacticalMapWoodsLosTokens,
   'prone-combat-modifiers': proneCombat.tacticalMapProneCombatTokens,
   'immobile-combat-modifier': immobileCombat.tacticalMapImmobileCombatTokens,
   'heat-combat-modifier': heatCombat.tacticalMapHeatCombatTokens,
@@ -211,15 +207,16 @@ const tokensByScenario = {
 
 const combatStateByScenario = {
   'mounted-ba-passenger': tacticalMapMountedBattleArmorCombatState,
-  'aerospace-velocity-projection': tacticalMapAerospaceCombatState,
+  'aerospace-velocity-projection': aerospace.tacticalMapAerospaceCombatState,
   'airborne-aerospace-minimum-range':
-    tacticalMapAirborneAerospaceMinimumRangeCombatState,
+    combatScenarios.tacticalMapAirborneAerospaceMinimumRangeCombatState,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierCombatState,
   'mixed-visibility-targets': tacticalMapMixedVisibilityCombatState,
   'selected-weapon-out-of-arc': tacticalMapOutOfArcCombatState,
   'same-hex-weapon-blocked': sameHex.tacticalMapSameHexCombatState,
   'elevation-los-blocked': elevationLos.tacticalMapElevationLosCombatState,
+  'woods-los-blocked': elevationLos.tacticalMapWoodsLosCombatState,
   'prone-combat-modifiers': proneCombat.tacticalMapProneCombatState,
   'immobile-combat-modifier': immobileCombat.tacticalMapImmobileCombatState,
   'heat-combat-modifier': heatCombat.tacticalMapHeatCombatState,
@@ -272,6 +269,7 @@ const selectedHexByScenario = {
   'selected-weapon-out-of-arc': { q: 0, r: 0 },
   'same-hex-weapon-blocked': { q: 0, r: 0 },
   'elevation-los-blocked': { q: 0, r: 0 },
+  'woods-los-blocked': { q: 0, r: 0 },
   'prone-combat-modifiers': { q: 0, r: 0 },
   'immobile-combat-modifier': { q: 0, r: 0 },
   'heat-combat-modifier': { q: 0, r: 0 },
@@ -289,6 +287,7 @@ const hexTerrainByScenario = {
   'hover-water-crossing': tacticalMapHoverWaterHexTerrain,
   'naval-landfall-blocked': tacticalMapNavalLandfallHexTerrain,
   'elevation-los-blocked': elevationLos.tacticalMapElevationLosHexTerrain,
+  'woods-los-blocked': elevationLos.tacticalMapWoodsLosHexTerrain,
   'prone-combat-modifiers': proneCombat.tacticalMapProneCombatHexTerrain,
   'immobile-combat-modifier':
     immobileCombat.tacticalMapImmobileCombatHexTerrain,

@@ -115,6 +115,9 @@
 - [x] 2.45 Add browser coverage proving represented walk movement renders the
   attacker walk penalty, target walk TMM, target number, badge, and tooltip
   rows.
+- [x] 2.46 Add browser coverage proving cumulative intervening heavy woods
+  renders the shared `NoLineOfSight` blocker reason, woods terrain metadata,
+  and non-color invalid/blocker badges.
 
 ## 3. Validation
 
@@ -209,3 +212,5 @@
   movement and jumped target TMM bonus metadata and badge labeling.
 - [x] 3.45 Focused Jest parity and Playwright smoke pass for walked attacker
   movement and walked target TMM metadata and badge labeling.
+- [x] 3.46 Focused Jest parity and Playwright smoke pass for cumulative woods
+  LOS blocking, woods terrain metadata, and blocker badge labeling.

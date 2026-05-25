@@ -840,6 +840,14 @@ the medium laser, and tooltip rows. Jest parity feeds the same projection into
 `applyInteractiveSessionAttack` and proves the committed target number and
 modifiers match.
 
+2026-05-25 cumulative woods LOS browser pin: MegaMek `LosEffects.java:797-799`
+and `:842-863` source-pin cumulative woods/smoke density blocking once the
+total exceeds 2. The tactical map harness now uses two intervening heavy-woods
+hexes, renders the second woods hex as the shared `NoLineOfSight` blocker,
+exposes woods terrain metadata plus non-color invalid/blocker badges, and Jest
+parity proves `deriveCombatRangeHexes` and `applyInteractiveSessionAttack`
+agree on `Blocked by heavy woods at (2, 0)`.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:
