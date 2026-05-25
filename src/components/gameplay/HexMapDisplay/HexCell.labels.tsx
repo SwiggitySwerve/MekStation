@@ -7,10 +7,25 @@ import type {
   IMovementRangeHex,
   MapProjectionMode,
 } from '@/types/gameplay';
+import type {
+  ITacticalMapProjectionSourceReference,
+  TacticalMapHexProjectionIntent,
+  TacticalMapHexProjectionStatus,
+} from '@/utils/gameplay/tacticalMapProjection';
 
 import { TERRAIN_LAYER_ORDER } from '@/constants/terrain';
+import { formatTacticalProjectionSourceReferences } from '@/utils/gameplay/tacticalMapProjection';
 
 import { formatCombatC3Label } from './HexMapDisplay.combatC3Context';
+
+const TERRAIN_ELEVATION_PROJECTION_CHANNEL = 'terrain-elevation';
+const SHARED_TACTICAL_PROJECTION_SOURCE = 'shared-tactical-map-projection';
+
+interface TerrainElevationProjectionMetadata {
+  readonly projectionIntent?: TacticalMapHexProjectionIntent;
+  readonly projectionStatus?: TacticalMapHexProjectionStatus;
+  readonly sourceReferences?: readonly ITacticalMapProjectionSourceReference[];
+}
 
 export function formatElevationLabel(elevation: number): string {
   if (elevation > 0) return `+${elevation}`;
@@ -256,6 +271,39 @@ function formatTerrainBadgeLabel(
   return `${visibleBadges.join('/')}${hiddenCount > 0 ? `+${hiddenCount}` : ''}`;
 }
 
+function terrainElevationSourceReferencesAttribute(
+  sourceReferences:
+    | readonly ITacticalMapProjectionSourceReference[]
+    | undefined,
+): string | undefined {
+  const terrainElevationReferences =
+    sourceReferences?.filter(
+      (reference) => reference.channel === TERRAIN_ELEVATION_PROJECTION_CHANNEL,
+    ) ?? [];
+  return terrainElevationReferences.length > 0
+    ? formatTacticalProjectionSourceReferences(terrainElevationReferences)
+    : undefined;
+}
+
+function formatTerrainElevationProjectionContext({
+  projectionIntent,
+  projectionStatus,
+  sourceReferences,
+}: TerrainElevationProjectionMetadata): string {
+  const terrainSources =
+    sourceReferences?.filter(
+      (reference) => reference.channel === TERRAIN_ELEVATION_PROJECTION_CHANNEL,
+    ) ?? [];
+  const parts = [
+    `projection channel ${TERRAIN_ELEVATION_PROJECTION_CHANNEL}`,
+    `rules surface ${TERRAIN_ELEVATION_PROJECTION_CHANNEL}`,
+    projectionIntent ? `intent ${projectionIntent}` : '',
+    projectionStatus ? `status ${projectionStatus}` : '',
+    ...terrainSources.map((reference) => reference.detail ?? reference.label),
+  ].filter(Boolean);
+  return parts.join('; ');
+}
+
 export function ElevationBadge({
   x,
   y,
@@ -263,6 +311,9 @@ export function ElevationBadge({
   elevation,
   label,
   projectionMode,
+  projectionIntent,
+  projectionStatus,
+  sourceReferences,
 }: {
   readonly x: number;
   readonly y: number;
@@ -270,10 +321,17 @@ export function ElevationBadge({
   readonly elevation: number;
   readonly label: string;
   readonly projectionMode: MapProjectionMode;
-}): React.ReactElement {
+} & TerrainElevationProjectionMetadata): React.ReactElement {
+  const sourceReferencesAttribute =
+    terrainElevationSourceReferencesAttribute(sourceReferences);
+  const projectionContext = formatTerrainElevationProjectionContext({
+    projectionIntent,
+    projectionStatus,
+    sourceReferences,
+  });
+  const title = `Elevation ${label} (level ${elevation}); ${projectionContext}`;
   const elevationSign =
     elevation > 0 ? 'positive' : elevation < 0 ? 'negative' : 'zero';
-  const title = `Elevation ${label} (level ${elevation})`;
   return (
     <g
       pointerEvents="none"
@@ -284,6 +342,12 @@ export function ElevationBadge({
       data-elevation-value={elevation}
       data-elevation-sign={elevationSign}
       data-projection-mode={projectionMode}
+      data-tactical-projection-source={SHARED_TACTICAL_PROJECTION_SOURCE}
+      data-tactical-projection-channel={TERRAIN_ELEVATION_PROJECTION_CHANNEL}
+      data-tactical-rules-surface={TERRAIN_ELEVATION_PROJECTION_CHANNEL}
+      data-tactical-projection-intent={projectionIntent}
+      data-tactical-projection-status={projectionStatus}
+      data-tactical-projection-sources={sourceReferencesAttribute}
     >
       <title>{title}</title>
       <rect
@@ -318,17 +382,29 @@ export function TerrainBadge({
   hex,
   terrainFeatures,
   projectionMode,
+  projectionIntent,
+  projectionStatus,
+  sourceReferences,
 }: {
   readonly x: number;
   readonly y: number;
   readonly hex: IHexCoordinate;
   readonly terrainFeatures: readonly ITerrainFeature[];
   readonly projectionMode: MapProjectionMode;
-}): React.ReactElement {
+} & TerrainElevationProjectionMetadata): React.ReactElement {
   const displayFeatures = sortTerrainFeaturesForDisplay(terrainFeatures);
   const displayTypes = displayFeatures.map((feature) => feature.type);
   const label = formatTerrainBadgeLabel(displayFeatures);
-  const title = `Terrain ${formatTerrainFeatureReferenceLabel(displayFeatures)}`;
+  const sourceReferencesAttribute =
+    terrainElevationSourceReferencesAttribute(sourceReferences);
+  const projectionContext = formatTerrainElevationProjectionContext({
+    projectionIntent,
+    projectionStatus,
+    sourceReferences,
+  });
+  const title = `Terrain ${formatTerrainFeatureReferenceLabel(
+    displayFeatures,
+  )}; ${projectionContext}`;
   const width = Math.max(30, label.length * 6 + 8);
 
   return (
@@ -346,6 +422,12 @@ export function TerrainBadge({
       )}
       data-terrain-feature-count={displayTypes.length}
       data-projection-mode={projectionMode}
+      data-tactical-projection-source={SHARED_TACTICAL_PROJECTION_SOURCE}
+      data-tactical-projection-channel={TERRAIN_ELEVATION_PROJECTION_CHANNEL}
+      data-tactical-rules-surface={TERRAIN_ELEVATION_PROJECTION_CHANNEL}
+      data-tactical-projection-intent={projectionIntent}
+      data-tactical-projection-status={projectionStatus}
+      data-tactical-projection-sources={sourceReferencesAttribute}
     >
       <title>{title}</title>
       <rect

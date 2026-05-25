@@ -116,6 +116,36 @@ function makeWeapon(overrides: Partial<IWeaponStatus> = {}): IWeaponStatus {
   };
 }
 
+function assertTerrainElevationProjectionMetadata(
+  badge: HTMLElement,
+  terrain: IHexTerrain,
+): void {
+  expect(badge).toHaveAttribute(
+    'data-tactical-projection-source',
+    'shared-tactical-map-projection',
+  );
+  expect(badge).toHaveAttribute(
+    'data-tactical-projection-channel',
+    'terrain-elevation',
+  );
+  expect(badge).toHaveAttribute(
+    'data-tactical-rules-surface',
+    'terrain-elevation',
+  );
+  expect(badge).toHaveAttribute('data-tactical-projection-intent');
+  expect(badge).toHaveAttribute('data-tactical-projection-status');
+  expect(badge).toHaveAttribute(
+    'data-tactical-projection-sources',
+    expect.stringContaining(
+      'terrain-elevation:mekstation:Rendered map terrain/elevation grid:',
+    ),
+  );
+  expect(badge).toHaveAttribute(
+    'data-tactical-projection-sources',
+    expect.stringContaining(`elevation ${terrain.elevation}`),
+  );
+}
+
 function assertTerrainAndElevationBadges(
   terrainMatrix: readonly IHexTerrain[],
   projectionMode: MapProjectionMode = 'topDown',
@@ -162,7 +192,7 @@ function assertTerrainAndElevationBadges(
     );
     expect(screen.getByTestId(`hex-terrain-label-${q}-${r}`)).toHaveAttribute(
       'aria-label',
-      `Terrain ${terrainReferenceLabel}`,
+      expect.stringContaining(`Terrain ${terrainReferenceLabel}`),
     );
     expect(screen.getByTestId(`hex-terrain-label-${q}-${r}`)).toHaveAttribute(
       'data-terrain-badge',
@@ -180,6 +210,10 @@ function assertTerrainAndElevationBadges(
       'data-projection-mode',
       projectionMode,
     );
+    assertTerrainElevationProjectionMetadata(
+      screen.getByTestId(`hex-terrain-label-${q}-${r}`),
+      terrain,
+    );
     expect(
       screen.getByTestId(`hex-terrain-label-${q}-${r}`).querySelector('rect'),
     ).toHaveAttribute('height', '11');
@@ -192,7 +226,9 @@ function assertTerrainAndElevationBadges(
     ).toHaveTextContent(elevationLabel);
     expect(screen.getByTestId(`hex-elevation-label-${q}-${r}`)).toHaveAttribute(
       'aria-label',
-      `Elevation ${elevationLabel} (level ${terrain.elevation})`,
+      expect.stringContaining(
+        `Elevation ${elevationLabel} (level ${terrain.elevation})`,
+      ),
     );
     expect(screen.getByTestId(`hex-elevation-label-${q}-${r}`)).toHaveAttribute(
       'data-elevation-value',
@@ -205,6 +241,10 @@ function assertTerrainAndElevationBadges(
     expect(screen.getByTestId(`hex-elevation-label-${q}-${r}`)).toHaveAttribute(
       'data-projection-mode',
       projectionMode,
+    );
+    assertTerrainElevationProjectionMetadata(
+      screen.getByTestId(`hex-elevation-label-${q}-${r}`),
+      terrain,
     );
     expect(
       screen.getByTestId(`hex-elevation-label-${q}-${r}`).querySelector('rect'),
@@ -293,6 +333,7 @@ describe('HexMapDisplay terrain and elevation labels', () => {
     ): void => {
       const hex = screen.getByTestId('hex-1-0');
       const terrainBadge = screen.getByTestId('hex-terrain-label-1-0');
+      const elevationBadge = screen.getByTestId('hex-elevation-label-1-0');
 
       expect(hex).toHaveAttribute(
         'aria-label',
@@ -307,7 +348,7 @@ describe('HexMapDisplay terrain and elevation labels', () => {
       expect(terrainBadge).toHaveTextContent('SMK2/BLDG3+1');
       expect(terrainBadge).toHaveAttribute(
         'aria-label',
-        'Terrain smoke L2, building L3, water L2',
+        expect.stringContaining('Terrain smoke L2, building L3, water L2'),
       );
       expect(terrainBadge).toHaveAttribute(
         'data-terrain-badge',
@@ -326,6 +367,21 @@ describe('HexMapDisplay terrain and elevation labels', () => {
         'data-projection-mode',
         projectionMode,
       );
+      for (const badge of [terrainBadge, elevationBadge]) {
+        assertTerrainElevationProjectionMetadata(badge, layeredTerrain);
+        expect(badge).toHaveAttribute(
+          'data-tactical-projection-sources',
+          expect.stringContaining('water depth 2'),
+        );
+        expect(badge).toHaveAttribute(
+          'data-tactical-projection-sources',
+          expect.stringContaining('smoke intensity 2'),
+        );
+        expect(badge).toHaveAttribute(
+          'data-tactical-projection-sources',
+          expect.stringContaining('building level 3'),
+        );
+      }
     };
 
     assertLayeredReference('topDown');

@@ -108,13 +108,31 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-projection-mode',
       'topDown',
     );
-    await expect(page.getByTestId('hex-elevation-label-1-0')).toContainText(
-      '+4',
-    );
-    await expect(page.getByTestId('hex-terrain-label-1-0')).toHaveAttribute(
+    const topDownElevationLabel = page.getByTestId('hex-elevation-label-1-0');
+    const topDownTerrainLabel = page.getByTestId('hex-terrain-label-1-0');
+    await expect(topDownElevationLabel).toContainText('+4');
+    await expect(topDownTerrainLabel).toHaveAttribute(
       'data-terrain-features',
       'building',
     );
+    for (const label of [topDownElevationLabel, topDownTerrainLabel]) {
+      await expect(label).toHaveAttribute(
+        'data-tactical-projection-source',
+        'shared-tactical-map-projection',
+      );
+      await expect(label).toHaveAttribute(
+        'data-tactical-projection-channel',
+        'terrain-elevation',
+      );
+      await expect(label).toHaveAttribute(
+        'data-tactical-rules-surface',
+        'terrain-elevation',
+      );
+      await expect(label).toHaveAttribute(
+        'data-tactical-projection-sources',
+        /terrain-elevation:mekstation:Rendered map terrain\/elevation grid:.*building.*elevation 4/,
+      );
+    }
     const movementBadge = page.getByTestId('hex-movement-badge-0-1');
     await expect(movementBadge).toContainText('W3/R4/J3 MP');
     await expect(movementBadge).toHaveAttribute(
@@ -214,7 +232,10 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-movement-blocked-options-badge-invalid-reasons',
       'jump:InsufficientMP',
     );
-    await mixedMovementHex.locator('text').first().hover();
+    await mixedMovementHex.dispatchEvent('mouseover', {
+      bubbles: true,
+      cancelable: true,
+    });
     const mixedTooltipBlockedOption = page.getByTestId(
       'hex-tactical-tooltip-movement-options-option-jump-jump-2',
     );
@@ -565,12 +586,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     ).toHaveAttribute('data-invalid-badge-code', 'TargetNotVisible');
     await expectNonBlankRender(page, 'top-down tactical map');
 
-    await page.getByTestId('projection-toggle').click();
-
-    await expect(projectionLayer).toHaveAttribute(
-      'data-projection-mode',
-      'isometric2d',
-    );
+    await switchToIsometric(page, projectionLayer);
     await expect(page.getByTestId('isometric-scene-layer')).toBeVisible();
     await expect(page.getByTestId('hex-elevation-stack-1-0')).toBeVisible();
     await expect(

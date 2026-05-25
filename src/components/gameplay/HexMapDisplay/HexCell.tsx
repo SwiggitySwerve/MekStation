@@ -836,6 +836,9 @@ export const HexCell = React.memo(function HexCell({
         elevation={elevation}
         label={elevationLabel}
         projectionMode={projectionMode}
+        projectionIntent={tacticalProjectionIntent}
+        projectionStatus={tacticalProjectionStatus}
+        sourceReferences={tacticalProjectionSourceReferences}
       />
       <ProjectionStatusBadge
         x={x}
@@ -855,6 +858,9 @@ export const HexCell = React.memo(function HexCell({
         hex={hex}
         terrainFeatures={terrainFeatures}
         projectionMode={projectionMode}
+        projectionIntent={tacticalProjectionIntent}
+        projectionStatus={tacticalProjectionStatus}
+        sourceReferences={tacticalProjectionSourceReferences}
       />
       {hoverMpCost === undefined && (
         <MovementReachBadge x={x} y={y} hex={hex} movementInfo={movementInfo} />

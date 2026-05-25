@@ -1414,6 +1414,14 @@ a blocked ammo reason. This keeps range inspection intact for the selected AC/5
 while preserving `OutOfAmmo` as the aggregate target rejection and leaving
 attack resolution unchanged.
 
+2026-05-25 terrain/elevation label projection pin: Top-down and isometric
+terrain/elevation labels now expose the shared tactical projection source, the
+`terrain-elevation` channel, the `terrain-elevation` rules surface, per-hex
+projection intent/status, and the filtered terrain/elevation source reference.
+Focused component and browser smoke coverage prove readable labels preserve
+represented feature levels, water depths, smoke/fire intensities, and elevation
+instead of becoming type-only decoration.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:
