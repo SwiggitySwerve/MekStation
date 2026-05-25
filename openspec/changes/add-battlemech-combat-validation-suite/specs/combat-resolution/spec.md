@@ -108,6 +108,14 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **THEN** the AMS family row and AMS mechanic rows SHALL cite MegaMek source anchors for assignment, defender choice, arc checks, cluster-table reduction, single-missile interception, ammo/heat usage, and optional multi-use lifecycle
 - **AND** AMS SHALL remain helper-only until defender choice, firing-arc assignment/enforcement, and optional multi-use/PLAYTEST_3 rules are authoritative in runner/session combat
 
+#### Scenario: Special weapon family rows stay source-backed
+
+- **GIVEN** the special weapon family catalog covers UAC, RAC, LB-X, Streak SRM, MML, NARC/iNARC, AMS, TAG, and Artemis family behavior
+- **WHEN** the special weapon family support map is contract-tested
+- **THEN** every integrated or helper-only special weapon family row SHALL carry structured MegaMek source references with commit-pinned URLs and line anchors
+- **AND** the aggregate catalog triad for `specialWeaponFamilies` SHALL require row-level source references rather than inherited requirement authority
+- **AND** helper-only family rows SHALL keep their remaining runtime/session gaps explicit instead of treating source-backed family evidence as complete parity
+
 #### Scenario: Catalog critical slots seed runner critical resolution
 
 - **GIVEN** a catalog-hydrated BattleMech unit carries location-keyed `criticalSlots`

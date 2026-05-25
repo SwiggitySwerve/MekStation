@@ -212,3 +212,4 @@
 - [x] 4.3.52 Cross-examine the validation-catalog direction with OMO Lean++ and add a map-level triad contract so source authority boundaries and executable test surfaces are enforced before PR approval.
 - [x] 4.3.53 Cross-check MegaMek critical-slot system/equipment hydration and equipment-critical lifecycle branches; source-pin critical-slot rows and keep generic equipment effects helper-only until equipment-specific cascades are modeled.
 - [x] 4.3.54 Align aggregate critical-component support with the same MegaMek source-pinned critical-slot boundary so stale default-manifest-only generic equipment rationale cannot mask hydrated equipment gaps.
+- [x] 4.3.55 Source-pin special weapon family rows for UAC, RAC, LB-X, Streak SRM, MML, NARC/iNARC, AMS, TAG, and Artemis; promote their triad boundary to row-level MegaMek source references.

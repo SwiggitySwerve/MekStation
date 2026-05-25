@@ -18,7 +18,16 @@ import {
   MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
   MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
-import { MEGAMEK_AMS_SOURCE_REFS } from './CombatSpecialWeaponSourceRefs';
+import {
+  MEGAMEK_AMS_SOURCE_REFS,
+  MEGAMEK_LBX_SOURCE_REFS,
+  MEGAMEK_MML_SOURCE_REFS,
+  MEGAMEK_NARC_FAMILY_SOURCE_REFS,
+  MEGAMEK_RAC_SOURCE_REFS,
+  MEGAMEK_STREAK_SRM_SOURCE_REFS,
+  MEGAMEK_TAG_FAMILY_SOURCE_REFS,
+  MEGAMEK_UAC_SOURCE_REFS,
+} from './CombatSpecialWeaponSourceRefs';
 
 export type CombatFeatureSupportLevel =
   | 'integrated'
@@ -736,27 +745,33 @@ export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
   'ultra-ac': integrated(
     'ultra-ac',
     'UnitHydration.buildCatalogFiringModes + expandSelectedModeIntoShots + shouldJamOnNaturalTwo + markWeaponJammed + AIWeaponModeSelector',
+    MEGAMEK_UAC_SOURCE_REFS,
   ),
   'rotary-ac': integrated(
     'rotary-ac',
     'UnitHydration.buildCatalogFiringModes + expandSelectedModeIntoShots + shouldJamOnNaturalTwo + markWeaponJammed + AIWeaponModeSelector',
+    MEGAMEK_RAC_SOURCE_REFS,
   ),
   'lb-x-ac': integrated(
     'lb-x-ac',
     'UnitHydration.buildCatalogFiringModes + selectedModeToHitModifier + resolveClusterModeHit + weaponAttackEvents LB-X cluster coverage',
+    MEGAMEK_LBX_SOURCE_REFS,
   ),
   'streak-srm': integrated(
     'streak-srm',
     'shouldSpendAmmoAndHeatOnMiss + resolveSpecialProjectileHit rack-size derivation',
+    MEGAMEK_STREAK_SRM_SOURCE_REFS,
   ),
   mml: integrated(
     'mml',
     'resolveCatalogDamage handles variable 1-2/missile descriptors, UnitHydration exposes SRM/LRM modes, and selected modes consume distinct SRM/LRM ammo bins',
+    MEGAMEK_MML_SOURCE_REFS,
   ),
   narc: helperOnly(
     'narc',
     'isNarc + getNarcBonus + runner NARC hits attach narcedBy + runner iNarc selected-ammo hits attach Homing/ECM/Haywire/Nemesis iNarcPods + DesignatorMarkerApplied replay + indirect-fire NARC/iNARC basis helpers consume canonical marker state + runner direct NARC-compatible missile cluster, iNarc Homing to-hit, iNarc Haywire to-hit, iNarc ECM attacker flight-path Artemis suppression, iNarc ECM C3 disruption, explicit runner C3 range-bracket math, and iNarc Nemesis redirect consume marker state',
     'Remaining iNarc ECM sensor effects and ambiguous/player-authored C3 network assignment are not wired into runner combat resolution',
+    MEGAMEK_NARC_FAMILY_SOURCE_REFS,
   ),
   ams: helperOnly(
     'ams',
@@ -767,6 +782,7 @@ export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
   tag: integrated(
     'tag',
     'isTAG + generic Attack game/wire intent support + runner TAG hits attach tagDesignated and emit DesignatorMarkerApplied + replay reducer reapplies tagDesignated + turn lifecycle clears tagDesignated + runner semi-guided LRM cluster modifiers consume tagged targets + isTargetTAGDesignated + semi-guided LRM indirect-fire helpers',
+    MEGAMEK_TAG_FAMILY_SOURCE_REFS,
   ),
   artemis: helperOnly(
     'artemis',

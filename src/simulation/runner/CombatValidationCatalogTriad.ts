@@ -304,7 +304,11 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
     ),
     mechQuirks: FEATURE_TRIAD,
     ammunitionCompatibility: FEATURE_TRIAD,
-    specialWeaponFamilies: FEATURE_TRIAD,
+    specialWeaponFamilies: triad(
+      'entry-source-refs',
+      'Special weapon family rows are MegaMek-source checked for UAC, RAC, LB-X, Streak SRM, MML, NARC, AMS, TAG, and Artemis family boundaries and must carry row-level sourceRefs.',
+      FEATURE_REFS,
+    ),
     specialWeaponMechanics: FEATURE_TRIAD,
     physicalWeapons: triad(
       'entry-source-refs',

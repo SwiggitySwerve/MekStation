@@ -73,6 +73,7 @@ import {
   QUIRK_COMBAT_SUPPORT,
   SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT,
   SPA_COMBAT_SUPPORT,
+  type ICombatFeatureSourceReference,
   type ICombatFeatureSupportEntry,
 } from '../CombatFeatureSupport';
 import {
@@ -296,6 +297,23 @@ function supportIdsByLevel(
     .filter((entry) => entry.level === level)
     .map((entry) => entry.id)
     .sort();
+}
+
+function expectPinnedMegaMekRefs(
+  refs: readonly ICombatFeatureSourceReference[],
+): void {
+  expect(refs.length).toBeGreaterThan(0);
+  expect(
+    refs.every(
+      (sourceRef) =>
+        sourceRef.kind === 'megamek-source' &&
+        sourceRef.sourceVersion ===
+          '325b2504c7b7750ecdcb85468621fb2de2ad8e60' &&
+        sourceRef.url.includes('github.com/MegaMek/megamek/blob/') &&
+        sourceRef.url.includes(sourceRef.sourceVersion) &&
+        sourceRef.url.includes('#L'),
+    ),
+  ).toBe(true);
 }
 
 function zeroDamageClassification(
@@ -1018,6 +1036,67 @@ describe('BattleMech combat catalog validation lane', () => {
       'artemisivproto',
       'artemisv',
     ]);
+  });
+
+  it('pins special weapon family rows to MegaMek source refs', () => {
+    const sourceRefsFor = (
+      id: keyof typeof SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT,
+    ) => SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT[id].sourceRefs ?? [];
+
+    expect(
+      Object.values(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT).flatMap((entry) =>
+        entry.level !== 'unsupported' && (entry.sourceRefs?.length ?? 0) === 0
+          ? [entry.id]
+          : [],
+      ),
+    ).toEqual([]);
+
+    expect(sourceRefsFor('ultra-ac').map(({ citation }) => citation)).toEqual([
+      'UACWeapon declares Ultra AC ammo, Single/Ultra firing modes, and the UltraWeaponHandler path.',
+      'UltraWeaponHandler derives one or two shots from firing mode, resolves cluster hits, and jams two-shot Ultra fire on a natural 2.',
+    ]);
+    expect(sourceRefsFor('rotary-ac').map(({ citation }) => citation)).toEqual([
+      'RACWeapon declares Rotary AC ammo, Single/2-6 shot modes, explosive-on-jam behavior, and RACHandler versus UltraWeaponHandler routing.',
+      'RACHandler maps selected RAC mode to shot count and applies rate-dependent jam thresholds before reducing ammo.',
+    ]);
+    expect(sourceRefsFor('lb-x-ac').map(({ citation }) => citation)).toEqual([
+      'LBXACWeapon routes cluster ammunition to LBXHandler, routes slug fire to ACWeaponHandler, and declares AC_LBX ammo/class metadata.',
+      'LBXHandler resolves cluster pellet damage, cluster-table hit counts, and cluster-ammo table usage.',
+    ]);
+    expect(sourceRefsFor('streak-srm').map(({ citation }) => citation)).toEqual(
+      [
+        'StreakSRMWeapon declares Streak SRM ammo, removes Artemis compatibility, and routes attacks to StreakHandler.',
+        'StreakHandler suppresses hits/AMS on missed locks, resolves rack-size all-hit behavior, and spends ammo/heat only after a successful lock.',
+      ],
+    );
+    expect(sourceRefsFor('mml').map(({ citation }) => citation)).toEqual([
+      'MMLWeapon declares MML ammo/class metadata and routes linked LRM-mode ammo to LRM handlers and other MML ammo to SRM handlers.',
+      'MMLWeapon exposes indirect-fire modes when the base indirect-fire option is enabled.',
+      'AmmoType creates paired MML LRM and SRM ammo entries with MML ammo type and distinct LRM/SRM flags.',
+    ]);
+    expect(sourceRefsFor('narc').map(({ citation }) => citation)).toEqual(
+      expect.arrayContaining([
+        'NarcHandler creates a standard NarcPod and attaches it to the hit target location.',
+        'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
+        'MissileWeaponHandler redirects iNarc Nemesis-confusable missiles to friendly intervening Nemesis pod carriers before returning to the original target on misses.',
+      ]),
+    );
+    expect(sourceRefsFor('tag').map(({ citation }) => citation)).toEqual([
+      'TAGHandler creates TagInfo, tags the target entity, and marks the attacker as spotting for indirect fire.',
+      'TWPhasePreparationManager clears previous-round TAG info during initiative preparation.',
+      'Game.resetTagInfo clears the tagInfoForTurn collection.',
+    ]);
+    expect(sourceRefsFor('artemis').map(({ citation }) => citation)).toEqual([
+      'MegaMek MissileWeaponHandler applies Artemis IV +2, prototype Artemis IV +1, and Artemis V +3 cluster modifiers while suppressing ECM and stealth',
+      'MegaMek LRMHandler skips Artemis cluster modifiers when the weapon mode is Indirect and includes prototype Artemis IV in the same modifier chain',
+      'MegaMek MiscType.createISProtoArtemis defines Prototype Artemis IV FCS with F_ARTEMIS_PROTO',
+    ]);
+
+    for (const entry of Object.values(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT)) {
+      if (entry.level !== 'unsupported') {
+        expectPinnedMegaMekRefs(entry.sourceRefs ?? []);
+      }
+    }
   });
 
   it('pins TAG and NARC marker mechanics to MegaMek handler refs', () => {
