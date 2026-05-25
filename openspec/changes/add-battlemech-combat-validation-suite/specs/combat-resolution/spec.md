@@ -27,6 +27,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **WHEN** the aggregate catalog contract tests run
 - **THEN** the support map SHALL declare whether its source authority boundary is row-level source references, requirement-primary-authority inheritance, or a MekStation deviation boundary
 - **AND** every map with integrated rows SHALL cite executable test files and the assertion surface those tests protect
+- **AND** every indexed support row SHALL carry row-level source references, including MekStation product-boundary rows and unsupported gap rows
 - **AND** maps that claim row-level source-reference authority SHALL fail contract validation if any row lacks structured `sourceRefs`
 - **AND** MegaMek and MekHQ row references SHALL be commit-pinned and line-anchored
 - **AND** MekStation deviation row references SHALL be line-anchored

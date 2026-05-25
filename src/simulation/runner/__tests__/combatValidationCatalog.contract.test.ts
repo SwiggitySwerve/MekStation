@@ -93,6 +93,17 @@ describe('BattleMech combat validation catalog index', () => {
     expect(missingEvidenceOrGap).toEqual([]);
   });
 
+  it('requires every indexed support entry to carry row-level source references', () => {
+    const missingSourceRefs = catalogMaps().flatMap(
+      ({ sectionId, mapId, support }) =>
+        Object.values(support)
+          .filter((entry) => (entry.sourceRefs ?? []).length === 0)
+          .map((entry) => `${sectionId}.${mapId}.${entry.id}`),
+    );
+
+    expect(missingSourceRefs).toEqual([]);
+  });
+
   it('requires every catalog map to declare source-boundary and executable test evidence', () => {
     const triadMaps = triadEvidenceMaps();
 
