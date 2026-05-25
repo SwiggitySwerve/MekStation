@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 
+import type { ICombatRangeHex } from '@/types/gameplay';
 import type {
   IHexCoordinate,
   IHexGrid,
@@ -15,6 +16,11 @@ import { usePrefersReducedMotion } from '@/hooks/useReducedMotion';
 import { hexEquals } from '@/utils/gameplay/hexMath';
 import { classifyLOS } from '@/utils/overlays/losClassifier';
 
+import {
+  combatProjectionDataAttributes,
+  combatProjectionSummary,
+} from './LineOfSightOverlay.combatProjection';
+
 const LOS_FADE_DURATION_MS = 180;
 
 export interface LineOfSightOverlayProps {
@@ -24,6 +30,7 @@ export interface LineOfSightOverlayProps {
   readonly enabled?: boolean;
   readonly fromElevation?: number;
   readonly toElevation?: number;
+  readonly combatProjection?: ICombatRangeHex;
   readonly testId?: string;
 }
 
@@ -57,6 +64,7 @@ export function areLineOfSightOverlayPropsEqual(
     previous.enabled === next.enabled &&
     previous.fromElevation === next.fromElevation &&
     previous.toElevation === next.toElevation &&
+    previous.combatProjection === next.combatProjection &&
     previous.testId === next.testId
   );
 }
@@ -174,22 +182,27 @@ function LOSStateBadge({
   start,
   end,
   announcement,
+  combatProjection,
 }: {
   readonly classification: LOSClassification;
   readonly start: { readonly x: number; readonly y: number };
   readonly end: { readonly x: number; readonly y: number };
   readonly announcement: string;
+  readonly combatProjection?: ICombatRangeHex;
 }): React.ReactElement {
   const label = losStateLabel(classification.state);
   const x = (start.x + end.x) / 2;
   const y = (start.y + end.y) / 2 - 12;
   const width = label.length * 6 + 12;
+  const combatProjectionAttributes =
+    combatProjectionDataAttributes(combatProjection);
 
   return (
     <g
       data-testid="los-state-badge"
       data-state={classification.state}
       aria-label={announcement}
+      {...combatProjectionAttributes}
     >
       <title>{announcement}</title>
       <rect
@@ -224,6 +237,7 @@ function LineOfSightOverlayComponent({
   enabled = true,
   fromElevation,
   toElevation,
+  combatProjection,
   testId = 'line-of-sight-overlay',
 }: LineOfSightOverlayProps): React.ReactElement {
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -249,7 +263,12 @@ function LineOfSightOverlayComponent({
   const style = LOS_STYLES[classification.state];
   const start = hexToPixel(origin);
   const end = hexToPixel(classification.lineEnd);
-  const announcement = announcementFor(classification);
+  const projectionSummary = combatProjectionSummary(combatProjection);
+  const announcement = projectionSummary
+    ? `${announcementFor(classification)}; ${projectionSummary}`
+    : announcementFor(classification);
+  const combatProjectionAttributes =
+    combatProjectionDataAttributes(combatProjection);
   // Fade in line + annotations together on mount/target change. Reduced
   // motion users get the overlay rendered fully opaque without animation.
   // @spec openspec/changes/add-los-and-firing-arc-overlays/tasks.md §7.4
@@ -267,6 +286,7 @@ function LineOfSightOverlayComponent({
       aria-label={announcement}
       aria-live="polite"
       style={fadeStyle}
+      {...combatProjectionAttributes}
     >
       <title>{announcement}</title>
       <style>{`@keyframes mks-los-fade-in { from { opacity: 0; } to { opacity: 1; } }`}</style>
@@ -281,12 +301,14 @@ function LineOfSightOverlayComponent({
         strokeWidth={2}
         strokeLinecap="round"
         strokeDasharray={style.dash}
+        {...combatProjectionAttributes}
       />
       <LOSStateBadge
         classification={classification}
         start={start}
         end={end}
         announcement={announcement}
+        combatProjection={combatProjection}
       />
       {classification.blockerAnnotations.map((annotation) => (
         <BlockerAnnotation

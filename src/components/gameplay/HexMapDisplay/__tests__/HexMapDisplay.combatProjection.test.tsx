@@ -2477,7 +2477,47 @@ describe('HexMapDisplay combat projection', () => {
       'Blocked by building at (1, 0)',
     );
 
+    fireEvent.click(screen.getByTestId('overlay-toggle-los'));
     fireEvent.mouseEnter(targetHex);
+    const losOverlay = screen.getByTestId('los-overlay');
+    expect(losOverlay).toHaveAttribute(
+      'data-combat-projection-los-state',
+      'blocked',
+    );
+    expect(losOverlay).toHaveAttribute(
+      'data-combat-projection-range-bracket',
+      'short',
+    );
+    expect(losOverlay).toHaveAttribute('data-combat-projection-distance', '2');
+    expect(losOverlay).toHaveAttribute(
+      'data-combat-projection-target-ids',
+      'enemy',
+    );
+    expect(losOverlay).toHaveAttribute(
+      'data-combat-projection-los-blocker-hex',
+      '1,0',
+    );
+    expect(losOverlay).toHaveAttribute(
+      'data-combat-projection-los-blocker-kind',
+      'terrain',
+    );
+    expect(losOverlay).toHaveAttribute(
+      'data-combat-projection-los-blocker-terrain',
+      TerrainType.Building,
+    );
+    expect(losOverlay).toHaveAttribute(
+      'data-combat-projection-los-blocker-reason',
+      'Blocked by building at (1, 0)',
+    );
+    expect(losOverlay).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('Combat projection LOS blocked'),
+    );
+    expect(screen.getByTestId('los-line')).toHaveAttribute(
+      'data-combat-projection-los-blocker-reason',
+      'Blocked by building at (1, 0)',
+    );
+
     expect(screen.getByTestId('hex-combat-tooltip-status')).toHaveTextContent(
       'Blocked',
     );

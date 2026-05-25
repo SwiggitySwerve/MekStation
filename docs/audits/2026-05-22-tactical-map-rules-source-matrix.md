@@ -1327,6 +1327,13 @@ combat-projection target state, and terrain-occlusion foreground boost/reason.
 This does not add or change tactical legality; it keeps the depth-sorted 2.5D
 wrapper inspectable from existing projection, visibility, and unit-state data.
 
+2026-05-25 LOS overlay combat projection context pin: The hover LOS overlay now
+receives the hovered `ICombatRangeHex` and exposes projection LOS state, range,
+distance, target ids, blocker hex, blocker kind, terrain, and blocker reason on
+the overlay group, LOS line, and LOS state badge. This does not change LOS
+geometry or attack legality; it ties the visible LOS overlay to the same
+rules-backed combat projection evidence used by hex badges and hovers.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

@@ -155,6 +155,7 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
                 origin={selectedUnitPosition}
                 target={hoveredHex}
                 grid={hexGrid}
+                combatProjection={hoverCombatInfo}
                 testId="los-overlay"
               />
             )}

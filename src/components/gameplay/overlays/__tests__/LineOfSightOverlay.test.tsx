@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useState, type ReactElement } from 'react';
 
+import type { ICombatRangeHex } from '@/types/gameplay';
 import type {
   IHex,
   IHexCoordinate,
@@ -9,7 +10,8 @@ import type {
 } from '@/types/gameplay/HexGridInterfaces';
 
 import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
-import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import { RangeBracket } from '@/types/gameplay/HexGridInterfaces';
+import { CoverLevel, TerrainType } from '@/types/gameplay/TerrainTypes';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 
 import {
@@ -44,6 +46,48 @@ function createGrid(hexes: readonly IHex[]): IHexGrid {
   return {
     config: { radius: 10 },
     hexes: map,
+  };
+}
+
+function createCombatProjection(
+  overrides: Partial<ICombatRangeHex> = {},
+): ICombatRangeHex {
+  return {
+    hex: target,
+    distance: 2,
+    rangeBracket: RangeBracket.Short,
+    inRange: true,
+    inArc: true,
+    losState: 'blocked',
+    lineOfSightBlockerReason: 'Blocked by building at (1, 0)',
+    lineOfSightBlocker: {
+      hex: { q: 1, r: 0 },
+      kind: 'terrain',
+      terrain: TerrainType.Building,
+      reason: 'Blocked by building at (1, 0)',
+    },
+    targetCoverLevel: CoverLevel.None,
+    targetPartialCover: false,
+    targetCoverModifier: 0,
+    firingArc: 'front',
+    hasTarget: true,
+    targetVisibilityState: 'visible',
+    visibleTargetUnitIds: ['enemy'],
+    obscuredTargetUnitIds: [],
+    attackable: false,
+    weaponIdsInRange: ['medium-laser'],
+    weaponIdsInArc: ['medium-laser'],
+    weaponIdsAvailable: [],
+    weaponRangeOptions: [],
+    availableWeaponImpacts: [],
+    availableWeaponHeat: 0,
+    availableWeaponDamage: 0,
+    targetUnitIds: ['enemy'],
+    validTargetUnitIds: [],
+    attackInvalidReason: 'NoLineOfSight',
+    attackInvalidDetails: 'Blocked by building at (1, 0)',
+    blockedReason: 'Blocked by building at (1, 0)',
+    ...overrides,
   };
 }
 
@@ -192,6 +236,72 @@ describe('LineOfSightOverlay', () => {
     expect(screen.getByTestId('los-annotation-wall-1,0')).toBeInTheDocument();
   });
 
+  it('exposes combat projection LOS evidence on the overlay, line, and badge', () => {
+    const grid = createGrid([
+      createHex(0, 0),
+      createHex(1, 0, TerrainType.Building, 1),
+      createHex(2, 0),
+    ]);
+    const combatProjection = createCombatProjection();
+
+    renderOverlay(grid, { combatProjection });
+
+    const overlay = screen.getByTestId('line-of-sight-overlay');
+    expect(overlay).toHaveAttribute(
+      'data-combat-projection-los-state',
+      'blocked',
+    );
+    expect(overlay).toHaveAttribute(
+      'data-combat-projection-range-bracket',
+      RangeBracket.Short,
+    );
+    expect(overlay).toHaveAttribute('data-combat-projection-distance', '2');
+    expect(overlay).toHaveAttribute(
+      'data-combat-projection-target-ids',
+      'enemy',
+    );
+    expect(overlay).toHaveAttribute(
+      'data-combat-projection-los-blocker-hex',
+      '1,0',
+    );
+    expect(overlay).toHaveAttribute(
+      'data-combat-projection-los-blocker-kind',
+      'terrain',
+    );
+    expect(overlay).toHaveAttribute(
+      'data-combat-projection-los-blocker-terrain',
+      TerrainType.Building,
+    );
+    expect(overlay).toHaveAttribute(
+      'data-combat-projection-los-blocker-reason',
+      'Blocked by building at (1, 0)',
+    );
+    expect(overlay).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('Combat projection LOS blocked'),
+    );
+    expect(overlay).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('targets enemy'),
+    );
+
+    const line = screen.getByTestId('los-line');
+    expect(line).toHaveAttribute('data-combat-projection-los-state', 'blocked');
+    expect(line).toHaveAttribute(
+      'data-combat-projection-los-blocker-reason',
+      'Blocked by building at (1, 0)',
+    );
+
+    const badge = screen.getByTestId('los-state-badge');
+    expect(badge).toHaveAttribute(
+      'data-combat-projection-los-blocker-hex',
+      '1,0',
+    );
+    expect(badge.querySelector('title')?.textContent).toContain(
+      'Combat projection LOS blocked',
+    );
+  });
+
   it('renders an empty labelled group when origin, target, or grid is unavailable', () => {
     render(
       <svg>
@@ -242,12 +352,14 @@ describe('LineOfSightOverlay', () => {
       target,
       grid,
       enabled: true,
+      combatProjection: createCombatProjection(),
     };
     const next: LineOfSightOverlayProps = {
       origin: { ...origin },
       target: { ...target },
       grid,
       enabled: true,
+      combatProjection: previous.combatProjection,
     };
 
     expect(areLineOfSightOverlayPropsEqual(previous, next)).toBe(true);
@@ -255,6 +367,14 @@ describe('LineOfSightOverlay', () => {
       areLineOfSightOverlayPropsEqual(previous, {
         ...next,
         target: { q: 3, r: 0 },
+      }),
+    ).toBe(false);
+    expect(
+      areLineOfSightOverlayPropsEqual(previous, {
+        ...next,
+        combatProjection: createCombatProjection({
+          lineOfSightBlockerReason: 'Blocked by elevation +2 at (1, 0)',
+        }),
       }),
     ).toBe(false);
   });
