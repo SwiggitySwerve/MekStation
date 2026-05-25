@@ -18,10 +18,13 @@ pathfinder.
   source-derived entity height
 - **AND** represented conventional infantry mount height, beast-size, or
   MegaMek mount identity data can source-derive the infantry entity height
+- **AND** later runtime state may override the imported height directly, switch
+  a LAM/QuadVee conversion mode, or mount/dismount conventional infantry
 - **AND** the unit's movement capability is used for movement projection
 - **WHEN** naval, hydrofoil, or submarine bridge-clearance movement is projected
   across represented water and bridge terrain
-- **THEN** the projection SHALL use the imported entity height for the
-  bridge-clearance decision
+- **THEN** the projection SHALL use the runtime-resolved entity height, falling
+  back to the imported entity height when no runtime override is present, for
+  the bridge-clearance decision
 - **AND** the committed movement validation SHALL reject or accept the same
   supplied path with the same bridge-clearance result

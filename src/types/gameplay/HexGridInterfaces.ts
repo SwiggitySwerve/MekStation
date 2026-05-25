@@ -91,6 +91,29 @@ export type MovementTerrainProfile = 'infantry';
 export type MovementPavementRoadBonusProfile = 'tacops_infantry';
 
 /**
+ * Mutable conversion state for units whose rules height changes after import.
+ * Numeric values preserve MegaMek-style conversion constants where callers
+ * already carry them.
+ */
+export type MovementConversionMode =
+  | 'mek'
+  | 'mech'
+  | 'airmek'
+  | 'airmech'
+  | 'fighter'
+  | 'vehicle'
+  | 'tracked'
+  | 'wheeled';
+
+/**
+ * Import-time hint for deriving unit height from later runtime state changes.
+ */
+export type MovementUnitHeightProfile =
+  | { readonly kind: 'lam'; readonly standingHeight: number }
+  | { readonly kind: 'quadvee'; readonly standingHeight: number }
+  | { readonly kind: 'infantry_mount'; readonly mountedHeight?: number };
+
+/**
  * Water-capable equipment represented by the tactical movement layer.
  */
 export interface IMovementWaterCapability {
@@ -286,6 +309,8 @@ export interface IMovementCapability {
   readonly pavementRoadBonusProfile?: MovementPavementRoadBonusProfile;
   /** MegaMek-style entity height() above elevation for bridge clearance; default is 0. */
   readonly unitHeight?: number;
+  /** Source-backed dynamic height profile for conversion or mounted infantry state. */
+  readonly unitHeightProfile?: MovementUnitHeightProfile;
   /** Optional equipment that modifies water movement legality and MP costs. */
   readonly waterCapability?: IMovementWaterCapability;
   /** Optional stand-up rules that affect prone movement projection. */

@@ -22,7 +22,12 @@ import {
   LockState,
   type MoraleLevel,
 } from './GameSessionCoreTypes';
-import { Facing, IHexCoordinate, MovementType } from './HexGridInterfaces';
+import {
+  Facing,
+  IHexCoordinate,
+  MovementType,
+  type MovementConversionMode,
+} from './HexGridInterfaces';
 import { PSRTrigger } from './PSRTriggerCodes';
 
 // Component Damage & Combat State Types
@@ -228,6 +233,25 @@ export interface IUnitGameState {
    * latch); the player cannot cancel a declared withdrawal.
    */
   readonly isWithdrawing?: boolean;
+  /**
+   * Runtime override for MegaMek-style entity height() above elevation.
+   * Movement projection/commit reads this before import-time movement
+   * capability height so conversion or mount-state events can affect bridge
+   * clearance without rebuilding the whole session cache.
+   */
+  readonly unitHeight?: number;
+  /**
+   * Runtime conversion state for represented LAM / QuadVee style units.
+   * Movement capability profiles translate this into the active unit height.
+   */
+  readonly conversionMode?: MovementConversionMode | number;
+  /**
+   * Runtime mounted-infantry state. `false` forces conventional infantry
+   * height to 0; `true` uses the runtime or imported mount height when known.
+   */
+  readonly infantryMounted?: boolean;
+  /** Runtime mount height for conventional infantry mount/dismount updates. */
+  readonly infantryMountHeight?: number;
   /**
    * Per-type combat-behavior envelope.
    *

@@ -62,6 +62,7 @@ import {
   occupiedRangeHex,
   outOfBoundsRangeHex,
 } from './rangeHexProjection';
+import { resolveRuntimeMovementCapability } from './runtimeCapability';
 import {
   deriveStandUpProjection,
   withStandUpProjection,
@@ -91,6 +92,10 @@ export function deriveReachableHexes(
   standUpMode: StandUpMode = 'normal',
   ruleOptions: IStandUpRuleOptions = {},
 ): readonly IMovementRangeHex[] {
+  const resolvedCapability =
+    resolveRuntimeMovementCapability(unit, capability) ?? capability;
+  capability = resolvedCapability;
+
   if (mpType === MovementType.Stationary) {
     return [];
   }
@@ -161,6 +166,10 @@ export function deriveMovementRangeHexForDestination(
   standUpMode: StandUpMode = 'normal',
   ruleOptions: IStandUpRuleOptions = {},
 ): IMovementRangeHex | null {
+  const resolvedCapability =
+    resolveRuntimeMovementCapability(unit, capability) ?? capability;
+  capability = resolvedCapability;
+
   if (mpType === MovementType.Stationary) {
     return null;
   }

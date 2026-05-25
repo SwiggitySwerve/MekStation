@@ -24,6 +24,7 @@ import {
   type MovementMotiveMode,
   type MovementPavementRoadBonusProfile,
   type MovementTerrainProfile,
+  type MovementUnitHeightProfile,
 } from '@/types/gameplay/HexGridInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { STANDARD_STRUCTURE_TABLE } from '@/utils/gameplay/damage';
@@ -378,6 +379,7 @@ function calculateMovement(unitData: Record<string, unknown>): {
   movementTerrainProfile?: MovementTerrainProfile;
   pavementRoadBonusProfile?: MovementPavementRoadBonusProfile;
   unitHeight?: number;
+  unitHeightProfile?: MovementUnitHeightProfile;
   waterCapability?: IMovementWaterCapability;
   standUpCapability?: IMovementStandUpCapability;
 } {
@@ -400,6 +402,7 @@ function calculateMovement(unitData: Record<string, unknown>): {
   const pavementRoadBonusProfile =
     pavementRoadBonusProfileFromUnitData(unitData);
   const unitHeight = unitHeightFromUnitData(unitData);
+  const unitHeightProfile = movementUnitHeightProfileFromUnitData(unitData);
   const waterCapability = waterCapabilityFromUnitData(unitData);
   const standUpCapability = standUpCapabilityFromUnitData(unitData);
   return {
@@ -411,6 +414,7 @@ function calculateMovement(unitData: Record<string, unknown>): {
     ...(movementTerrainProfile ? { movementTerrainProfile } : {}),
     ...(pavementRoadBonusProfile ? { pavementRoadBonusProfile } : {}),
     ...(unitHeight !== undefined ? { unitHeight } : {}),
+    ...(unitHeightProfile ? { unitHeightProfile } : {}),
     ...(waterCapability ? { waterCapability } : {}),
     ...(standUpCapability ? { standUpCapability } : {}),
   };
@@ -600,6 +604,29 @@ function unitHeightFromUnitData(
   const nonMekHeight = nonMekUnitHeightFromUnitData(unitData, unitTypeKeys);
   if (nonMekHeight !== undefined) {
     return nonMekHeight;
+  }
+
+  return undefined;
+}
+
+function movementUnitHeightProfileFromUnitData(
+  unitData: Record<string, unknown>,
+): MovementUnitHeightProfile | undefined {
+  const unitTypeKeys = normalizedUnitTypeKeys(unitData);
+  if (unitTypeKeys.some(isLamUnitType)) {
+    return { kind: 'lam', standingHeight: standingMekHeight(unitData) };
+  }
+
+  if (unitTypeKeys.some(isQuadVeeUnitType)) {
+    return { kind: 'quadvee', standingHeight: standingMekHeight(unitData) };
+  }
+
+  const mountedHeight = infantryMountHeightFromUnitData(unitData, unitTypeKeys);
+  if (
+    unitTypeKeys.some(isConventionalInfantryUnitType) &&
+    mountedHeight !== undefined
+  ) {
+    return { kind: 'infantry_mount', mountedHeight };
   }
 
   return undefined;
@@ -1471,6 +1498,7 @@ export function adaptUnitFromData(
     movementTerrainProfile,
     pavementRoadBonusProfile,
     unitHeight,
+    unitHeightProfile,
     waterCapability,
     standUpCapability,
   } = calculateMovement(unitData);
@@ -1518,6 +1546,7 @@ export function adaptUnitFromData(
     ...(movementTerrainProfile ? { movementTerrainProfile } : {}),
     ...(pavementRoadBonusProfile ? { pavementRoadBonusProfile } : {}),
     ...(unitHeight !== undefined ? { unitHeight } : {}),
+    ...(unitHeightProfile ? { unitHeightProfile } : {}),
     ...(waterCapability ? { waterCapability } : {}),
     ...(standUpCapability ? { standUpCapability } : {}),
   };

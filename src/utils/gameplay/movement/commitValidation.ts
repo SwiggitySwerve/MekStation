@@ -26,6 +26,7 @@ import { buildMovementEventPath } from './eventPath';
 import { movementModeForPath } from './mode';
 import { hexHasPavementRoadBonusSurface } from './pathfinding';
 import { deriveMovementRangeHexForDestination } from './reachable';
+import { resolveRuntimeMovementCapability } from './runtimeCapability';
 import { getStandingCost, validateMovement } from './validation';
 
 export interface ICommittedMovementValidationInput {
@@ -95,15 +96,18 @@ export function validateCommittedMovement(
       details: `No movement capability found for unit ${input.unit.id}`,
     };
   }
+  const capability =
+    resolveRuntimeMovementCapability(input.unit, input.capability) ??
+    input.capability;
 
   const maxCost = getMaxMP(
-    input.capability,
+    capability,
     input.movementType,
     getHeatMovementPenalty(input.unit.heat),
   );
   const standUpMode = input.standUpMode ?? 'normal';
   const standingCost = input.unit.prone
-    ? getStandingCost(input.capability, standUpMode)
+    ? getStandingCost(capability, standUpMode)
     : 0;
   if (
     input.unit.prone &&
@@ -122,7 +126,7 @@ export function validateCommittedMovement(
     input.unit,
     input.movementType,
     input.grid,
-    input.capability,
+    capability,
     input.to,
     standUpMode,
     { optionalRules: input.optionalRules },
@@ -159,7 +163,7 @@ export function validateCommittedMovement(
     input.to,
     input.facing,
     input.movementType,
-    input.capability,
+    capability,
     input.unit.heat,
   );
 
@@ -171,7 +175,7 @@ export function validateCommittedMovement(
         to: input.to,
         path: input.path,
         movementType: input.movementType,
-        capability: input.capability,
+        capability,
         maxCost,
         standingCost,
         optionalRules: input.optionalRules,
@@ -207,7 +211,7 @@ export function validateCommittedMovement(
       from,
       to: input.to,
       movementType: input.movementType,
-      capability: input.capability,
+      capability,
       standingCost,
       optionalRules: input.optionalRules,
     });
@@ -251,7 +255,7 @@ export function validateCommittedMovement(
       to: input.to,
       path: input.path,
       movementType: input.movementType,
-      capability: input.capability,
+      capability,
       maxCost,
       standingCost,
       optionalRules: input.optionalRules,
@@ -280,7 +284,7 @@ export function validateCommittedMovement(
         from,
         to: input.to,
         movementType: input.movementType,
-        capability: input.capability,
+        capability,
         maxCost: mpCost,
         optionalRules: input.optionalRules,
       }),

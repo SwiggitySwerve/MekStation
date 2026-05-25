@@ -58,6 +58,7 @@ import {
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
 import { declarePlayerWithdrawal } from '@/utils/gameplay/morale';
+import { resolveRuntimeMovementCapability } from '@/utils/gameplay/movement';
 import { applyTerrainOverridesToGrid } from '@/utils/gameplay/terrainState';
 
 import type { IInteractiveSessionLinkage } from './InteractiveSession.types';
@@ -308,7 +309,12 @@ export class InteractiveSession {
    * unknown (callers treat missing capability as "no movement").
    */
   getMovementCapability(unitId: string): IMovementCapability | null {
-    return this.movementByUnit.get(unitId) ?? null;
+    const capability = this.movementByUnit.get(unitId);
+    if (!capability) return null;
+    const unit = this.session.currentState.units[unitId];
+    return unit
+      ? (resolveRuntimeMovementCapability(unit, capability) ?? capability)
+      : capability;
   }
 
   /**

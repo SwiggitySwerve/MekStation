@@ -566,6 +566,10 @@ describe('CompendiumAdapter', () => {
 
         expect(result.unitHeight).toBe(height);
         expect(toMovementCapability(result).unitHeight).toBe(height);
+        expect(toMovementCapability(result).unitHeightProfile).toEqual({
+          kind: 'lam',
+          standingHeight: 1,
+        });
       },
     );
 
@@ -593,6 +597,10 @@ describe('CompendiumAdapter', () => {
 
         expect(result.unitHeight).toBe(height);
         expect(toMovementCapability(result).unitHeight).toBe(height);
+        expect(toMovementCapability(result).unitHeightProfile).toEqual({
+          kind: 'quadvee',
+          standingHeight: 1,
+        });
       },
     );
 
@@ -748,6 +756,10 @@ describe('CompendiumAdapter', () => {
 
       expect(result.unitHeight).toBe(1);
       expect(toMovementCapability(result).unitHeight).toBe(1);
+      expect(toMovementCapability(result).unitHeightProfile).toEqual({
+        kind: 'infantry_mount',
+        mountedHeight: 1,
+      });
     });
 
     it.each([

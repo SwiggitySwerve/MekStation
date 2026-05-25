@@ -12,6 +12,10 @@ export {
 export type { IMovementStepCostBreakdown } from './calculations';
 export { movementModeForPath, movementModeForRange } from './mode';
 export {
+  resolveRuntimeMovementCapability,
+  runtimeUnitHeightForMovement,
+} from './runtimeCapability';
+export {
   validateMovement,
   canStand,
   getStandingCost,

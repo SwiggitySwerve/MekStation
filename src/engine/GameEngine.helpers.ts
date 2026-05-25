@@ -241,6 +241,9 @@ export function toMovementCapability(
     ...(adapted.unitHeight !== undefined
       ? { unitHeight: adapted.unitHeight }
       : {}),
+    ...(adapted.unitHeightProfile
+      ? { unitHeightProfile: adapted.unitHeightProfile }
+      : {}),
     ...(adapted.waterCapability
       ? { waterCapability: adapted.waterCapability }
       : {}),

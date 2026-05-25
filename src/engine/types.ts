@@ -13,6 +13,7 @@ import type {
   MovementTerrainProfile,
   IMovementStandUpCapability,
   IMovementWaterCapability,
+  MovementUnitHeightProfile,
   MovementMotiveMode,
 } from '@/types/gameplay/HexGridInterfaces';
 
@@ -66,6 +67,8 @@ export interface IAdaptedUnit extends IUnitGameState {
   readonly pavementRoadBonusProfile?: MovementPavementRoadBonusProfile;
   /** MegaMek-style entity height used by bridge-clearance movement checks. */
   readonly unitHeight?: number;
+  /** Source-backed dynamic height profile for conversion or mount-state changes. */
+  readonly unitHeightProfile?: MovementUnitHeightProfile;
   /** Optional equipment that modifies water movement legality and MP costs. */
   readonly waterCapability?: IMovementWaterCapability;
   /** Optional stand-up rules that affect prone movement projection. */

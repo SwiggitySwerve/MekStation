@@ -409,8 +409,18 @@ derives conventional infantry mount height from represented mount height,
 beast size, MegaMek custom mount strings, or MegaMek sample mount identity,
 propagates that value through shared movement capability, and keeps naval
 bridge-clearance preview/commit validation aligned when imported height changes
-the result. Remaining unit-height gaps are fully dynamic runtime
-conversion-state and infantry mount/dismount updates after unit import.
+the result. At that point, remaining unit-height gaps were fully dynamic
+runtime conversion-state and infantry mount/dismount updates after unit import.
+
+2026-05-24 runtime unit-height update: movement capability now preserves
+source-backed height profiles for LAM, QuadVee, and conventional infantry
+mounts, while live unit state can override height directly or supply runtime
+conversion / mount-state fields. Movement projection and committed movement
+validation both resolve that runtime height before checking naval, hydrofoil, or
+submarine bridge clearance, so a post-import conversion or mount/dismount state
+change can alter map legality without rebuilding the session's imported
+capability cache. Remaining unit-height gaps are the actual gameplay events/UI
+that mutate those runtime conversion and mount-state fields.
 
 Additional small-unit movement data pin: MegaMek `Infantry.java:560-568` and
 `BattleArmor.java:520-523` return walk MP as base run MP unless optional TacOps

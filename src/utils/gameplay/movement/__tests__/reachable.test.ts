@@ -1313,6 +1313,53 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('uses runtime unit height override for bridge-clearance movement projection', () => {
+    let grid = createHexGrid({ radius: 2 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Water, 0);
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([
+        { type: TerrainType.Water, level: 1 },
+        { type: TerrainType.Bridge, level: 1 },
+      ]),
+      0,
+    );
+    const capability: IMovementCapability = {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'naval',
+    };
+
+    const lowProfile = deriveMovementRangeHexForDestination(
+      makeUnitAtOrigin(),
+      MovementType.Walk,
+      grid,
+      capability,
+      { q: 1, r: 0 },
+    );
+    const tallRuntimeState = deriveMovementRangeHexForDestination(
+      { ...makeUnitAtOrigin(), unitHeight: 1 },
+      MovementType.Walk,
+      grid,
+      capability,
+      { q: 1, r: 0 },
+    );
+
+    expect(lowProfile).toMatchObject({
+      reachable: true,
+      movementMode: 'naval',
+    });
+    expect(tallRuntimeState).toMatchObject({
+      reachable: false,
+      movementMode: 'naval',
+      blockedReason: 'Naval movement lacks bridge clearance',
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails: 'Naval movement lacks bridge clearance',
+    });
+  });
+
   it('lets flotation-hull tracked vehicles enter water with water MP costs', () => {
     let grid = createHexGrid({ radius: 3 });
     grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
