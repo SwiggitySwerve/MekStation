@@ -173,4 +173,62 @@ describe('BattleMech validation scope support catalog', () => {
 
     expect(offenders).toEqual([]);
   });
+
+  it('source-pins every validation-scope row to anchored MekStation evidence', () => {
+    const entries = Object.values(BATTLEMECH_VALIDATION_SCOPE_SUPPORT);
+    const urlsFor = (id: keyof typeof BATTLEMECH_VALIDATION_SCOPE_SUPPORT) =>
+      [...(BATTLEMECH_VALIDATION_SCOPE_SUPPORT[id].sourceRefs ?? [])]
+        .map((sourceRef) => sourceRef.url)
+        .sort();
+
+    expect(
+      entries
+        .filter((entry) => (entry.sourceRefs?.length ?? 0) === 0)
+        .map((entry) => entry.id)
+        .sort(),
+    ).toEqual([]);
+    expect(
+      entries
+        .flatMap((entry) => entry.sourceRefs ?? [])
+        .filter((sourceRef) => !sourceRef.url.includes('#L'))
+        .map((sourceRef) => sourceRef.url)
+        .sort(),
+    ).toEqual([]);
+    expect(
+      entries
+        .filter(
+          (entry) =>
+            !(entry.sourceRefs ?? []).some(
+              (sourceRef) => sourceRef.kind === 'mekstation-deviation',
+            ),
+        )
+        .map((entry) => entry.id)
+        .sort(),
+    ).toEqual([]);
+
+    expect(urlsFor('known-limitation-bypass')).toEqual(
+      expect.arrayContaining([
+        'src/simulation/core/knownLimitations.ts#L148-L210',
+        'src/simulation/core/knownLimitations.ts#L230-L243',
+      ]),
+    );
+    expect(urlsFor('catalog-filter-gate-ban')).toEqual(
+      expect.arrayContaining([
+        'src/simulation/runner/__tests__/combatValidationScope.contract.test.ts#L161-L175',
+        'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts#L3554-L3574',
+      ]),
+    );
+    expect(urlsFor('static-weapon-database-subset')).toEqual(
+      expect.arrayContaining([
+        'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts#L915-L984',
+        'src/engine/adapters/CompendiumAdapter.ts#L55-L95',
+      ]),
+    );
+    expect(urlsFor('non-battlemech-combat-system-split')).toEqual(
+      expect.arrayContaining([
+        'src/simulation/runner/CombatEventSupport.ts#L248-L324',
+        'src/simulation/runner/__tests__/combatEventCatalog.contract.test.ts#L56-L82',
+      ]),
+    );
+  });
 });

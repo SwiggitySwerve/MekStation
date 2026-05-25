@@ -124,6 +124,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** broad known-limitation filters SHALL remain banned from catalog validation gates
 - **AND** every broad known-limitation category SHALL have a BattleMech validation trap proving the validation invariant bypass remains visible instead of filtered
 - **AND** known-limitation filtering and partitioning helpers SHALL preserve BattleMech validation traps as potential bugs even when their text matches broad known-limitation patterns
+- **AND** every validation-scope row for known-limitation bypasses, catalog filter gates, fallback guards, variable-damage parsing, and non-BattleMech scope splits SHALL carry anchored MekStation source references
 
 #### Scenario: Ammo catalog compatibility traps stay explicit
 

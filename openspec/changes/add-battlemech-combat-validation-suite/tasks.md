@@ -8,6 +8,7 @@
 - [x] 1.4 Add OpenSpec validation to routine combat feature verification.
 - [x] 1.5 Require every broad `knownLimitations` category to have a BattleMech validation trap so combat-validation failures cannot be silently filtered by limitation patterns.
 - [x] 1.5.1 Prove the known-limitation filter and partition helpers preserve every BattleMech validation trap as a potential bug instead of only checking raw category lookup.
+- [x] 1.5.2 Source-pin validation-scope rows for known-limitation bypasses, catalog filter gates, official catalog boundaries, fallback guards, variable-damage parsing, and non-BattleMech scope splits.
 - [x] 1.6 Add catalog triad evidence metadata so every support map declares its source-boundary kind and executable test surface, with row-source-ref enforcement for maps that claim row-level source authority.
 - [x] 1.7 Pin helper-only product command rows to MekStation command-factory source refs so local UI/draft surfaces do not rely on prose-only catalog evidence.
 - [x] 1.8 Pin P2P intent translation rows to MekStation translator and host-router source refs so network action coverage does not rely on prose-only catalog evidence.
@@ -317,3 +318,4 @@
 - [x] 4.3.87 Re-cross-check MegaMek ammunition-explosion pilot damage, Pain Resistance, Iron Man, and pain-shunt handling before promoting ammo-explosion PilotHit coverage to integrated validation support.
 - [x] 4.3.88 Re-cross-check MegaMek `ComputeTargetToHitMods` and `ComputeToHit` semi-guided TAG branches before promoting TAG target-movement cancellation and indirect-fire relief to integrated to-hit coverage.
 - [x] 4.3.89 Cross-check runner-vs-interactive parity claims against current MekStation runner phases, InteractiveSession actions/phases, shared resolvers, and focused behavior tests before promoting the parity triad to row-level source references.
+- [x] 4.3.90 Cross-check validation-scope rows against knownLimitations bypass logic, catalog contracts, fallback guards, variable-damage parsing, ammo-scope splits, and non-BattleMech event-scope anchors before promoting the scope triad to row-level source references.

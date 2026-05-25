@@ -413,8 +413,8 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
       REQUIREMENT_REFS,
     ),
     knownLimitationsAndScope: triad(
-      'mekstation-deviation',
-      'Validation scope rows are MekStation approval boundaries that keep known limitations visible instead of hiding missing combat coverage.',
+      'entry-source-refs',
+      'Validation scope rows carry row-level refs for known-limitation bypasses, official catalog boundaries, fallback guards, variable-damage hazards, and non-BattleMech scope splits.',
       SCOPE_REFS,
     ),
   },
