@@ -368,6 +368,37 @@ describe('BattleMech combat action support catalog', () => {
     expect(
       supportIdsByLevel(P2P_INTENT_TRANSLATION_SUPPORT, 'helper-only'),
     ).toEqual([]);
+    const p2pCommandRows = [
+      'activateMovementEnhancement',
+      'concede',
+      'goProne',
+      'stand',
+    ];
+    for (const intentType of GAME_INTENT_TYPES) {
+      const entry = P2P_INTENT_TRANSLATION_SUPPORT[intentType];
+      expect(entry.sourceRefs).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            url: expect.stringContaining('intentTranslation.ts#L'),
+            sourceVersion: 'MekStation working-tree',
+          }),
+        ]),
+      );
+      expect(
+        entry.sourceRefs?.every((sourceRef) => sourceRef.url.includes('#L')),
+      ).toBe(true);
+      if (p2pCommandRows.includes(intentType)) {
+        expect(entry.sourceRefs).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              kind: 'mekstation-deviation',
+              url: expect.stringContaining('hostIntentRouter.ts#L'),
+            }),
+          ]),
+        );
+      }
+    }
   });
 
   it('tracks supported physical attack types that have no tactical command', () => {

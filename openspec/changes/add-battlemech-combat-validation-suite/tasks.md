@@ -10,6 +10,7 @@
 - [x] 1.5.1 Prove the known-limitation filter and partition helpers preserve every BattleMech validation trap as a potential bug instead of only checking raw category lookup.
 - [x] 1.6 Add catalog triad evidence metadata so every support map declares its source-boundary kind and executable test surface, with row-source-ref enforcement for maps that claim row-level source authority.
 - [x] 1.7 Pin helper-only product command rows to MekStation command-factory source refs so local UI/draft surfaces do not rely on prose-only catalog evidence.
+- [x] 1.8 Pin P2P intent translation rows to MekStation translator and host-router source refs so network action coverage does not rely on prose-only catalog evidence.
 
 ## 2. Physical attack legality gates
 
