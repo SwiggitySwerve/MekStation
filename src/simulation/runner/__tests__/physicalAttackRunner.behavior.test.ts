@@ -26,6 +26,7 @@ import {
   PSRTrigger,
 } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
@@ -681,6 +682,33 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(damageEventsFor(unreachable.events, 'player-1')).toHaveLength(0);
     expect(unreachable.result.units['opponent-1'].pendingPSRs).toHaveLength(0);
     expect(unreachable.result.units['player-1'].pendingPSRs).toHaveLength(0);
+  });
+
+  it('uses target motion type for runner DFA reach against airborne WIGE vehicles', () => {
+    const unreachable = runPhase('dfa', {
+      attacker: {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 4,
+      },
+      target: {
+        isAirborne: true,
+        unitType: UnitType.VEHICLE,
+        motionType: GroundMotionType.WIGE,
+      },
+      grid: createPhysicalGrid({ targetElevation: 5 }),
+      movementCapabilitiesByUnit: new Map([
+        ['player-1', { walkMP: 4, runMP: 6, jumpMP: 3 }],
+      ]),
+    });
+
+    expect(resolvedPayload(unreachable.events)).toMatchObject({
+      attackType: 'dfa',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'ElevationMismatch',
+    });
   });
 
   it('rejects injected physical declarations by evading attackers before side effects', () => {

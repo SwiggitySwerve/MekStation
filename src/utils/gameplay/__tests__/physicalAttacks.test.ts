@@ -1,5 +1,6 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { Facing, IComponentDamageState, IHexGrid } from '@/types/gameplay';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import {
@@ -47,6 +48,7 @@ import {
   KICK_HIT_TABLE,
   TSM_ACTIVATION_HEAT,
   IPhysicalAttackInput,
+  isPhysicalAirborneVtolOrWigeTarget,
 } from '../physicalAttacks';
 
 const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
@@ -3004,6 +3006,23 @@ describe('physicalAttacks', () => {
       ).toMatchObject({
         allowed: true,
       });
+    });
+
+    it('recognizes airborne WIGE targets from vehicle motion type', () => {
+      expect(
+        isPhysicalAirborneVtolOrWigeTarget(
+          UnitType.VEHICLE,
+          GroundMotionType.WIGE,
+          true,
+        ),
+      ).toBe(true);
+      expect(
+        isPhysicalAirborneVtolOrWigeTarget(
+          UnitType.VEHICLE,
+          GroundMotionType.WIGE,
+          false,
+        ),
+      ).toBe(false);
     });
 
     it('disallows DFA when airborne VTOL/WIGE elevation is beyond jump MP', () => {

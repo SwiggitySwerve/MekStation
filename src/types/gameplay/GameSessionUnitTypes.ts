@@ -166,6 +166,12 @@ export interface IGameUnit {
    */
   readonly unitType?: import('@/types/unit/BattleMechInterfaces').UnitType;
   /**
+   * Optional construction movement/motion mode copied into combat state for
+   * targetability branches that need VTOL/WIGE-like airborne behavior without
+   * widening top-level UnitType.
+   */
+  readonly motionType?: string;
+  /**
    * Optional BattleMech chassis posture copied into combat state for physical
    * legality gates. Undefined preserves legacy synthetic biped fixtures.
    */

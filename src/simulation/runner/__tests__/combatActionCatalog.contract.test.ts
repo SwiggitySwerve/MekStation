@@ -967,14 +967,13 @@ describe('BattleMech combat action support catalog', () => {
     });
   });
 
-  it('catalogs DFA VTOL reach with runner jump-MP hydration and a WIGE gap', () => {
+  it('catalogs DFA VTOL/WIGE reach with runner jump-MP and motion-type hydration', () => {
     expect(
       PHYSICAL_LEGALITY_GATE_SUPPORT['dfa.vtol-elevation-reachable'],
     ).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       attackFamily: 'dfa',
       evidence: expect.stringContaining('automatic runner selection'),
-      gap: expect.stringContaining('WIGE motion type'),
       sourceRefs: [
         expect.objectContaining({
           citation: expect.stringContaining('DfaAttackAction'),

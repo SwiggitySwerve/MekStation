@@ -144,6 +144,12 @@ export interface IUnitGameState {
    */
   readonly unitType?: string;
   /**
+   * Construction-side movement/motion mode copied into combat state for
+   * source-backed rules that distinguish VTOL/WIGE-like airborne targets
+   * from generic vehicles. Undefined preserves legacy BattleMech fixtures.
+   */
+  readonly motionType?: string;
+  /**
    * BattleMech chassis posture used by source-backed physical legality gates.
    * Undefined preserves legacy synthetic biped BattleMech fixtures.
    */

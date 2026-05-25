@@ -623,11 +623,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'canDFA consumes attackerUnitType and rejects explicit Infantry/Battle Armor attackers as AttackerInfantry; eligibility, event-sourced declaration, and runner resolution thread the same attacker unit-type gate',
     DFA_ACTION_LINES,
   ),
-  'dfa.vtol-elevation-reachable': helperOnly(
+  'dfa.vtol-elevation-reachable': integrated(
     'dfa.vtol-elevation-reachable',
     'dfa',
-    'canDFA distinguishes targetIsAirborneVTOLorWIGE from generic airborne targets and rejects unreachable VTOL/WIGE targets when target elevation above attacker height exceeds attackerJumpMP; eligibility, event-sourced declaration/resolution, runner resolution, and automatic runner selection hydrate explicit airborne VTOL targets when attacker jump MP and elevation context are present',
-    'WIGE motion type is not carried in unit combat state, so WIGE-specific DFA reach remains helper-only until represented',
+    'canDFA distinguishes targetIsAirborneVTOLorWIGE from generic airborne targets and rejects unreachable VTOL/WIGE targets when target elevation above attacker height exceeds attackerJumpMP; eligibility, event-sourced declaration/resolution, runner resolution, and automatic runner selection hydrate explicit airborne VTOL targets from unit type and WIGE targets from combat motion type when attacker jump MP and elevation context are present',
     DFA_ACTION_LINES,
   ),
   'dfa.target-moved-or-immobile': integrated(

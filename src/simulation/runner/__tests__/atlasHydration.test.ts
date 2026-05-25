@@ -28,6 +28,7 @@ import type { IFullUnit } from '@/services/units/CanonicalUnitService';
 
 import { getNodeCanonicalUnitService } from '@/services/units/NodeCanonicalUnitService';
 import { GameSide } from '@/types/gameplay';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { WEAPON_CATALOG_FILES } from '@/utils/construction/equipmentBVCatalogData';
 
 import {
@@ -886,6 +887,18 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     // startingInternalStructure is seeded for the retreat-trigger ratio.
     expect(unitState.startingInternalStructure).toBeDefined();
     expect(unitState.startingInternalStructure?.center_torso).toBe(31);
+
+    const wigeState = createHydratedUnitState({
+      ...hydrated,
+      fullUnit: {
+        ...fullUnit,
+        id: 'wige-motion-state-test',
+        unitType: 'Vehicle',
+        motionType: GroundMotionType.WIGE,
+      },
+    });
+    expect(wigeState.unitType).toBe('Vehicle');
+    expect(wigeState.motionType).toBe(GroundMotionType.WIGE);
   });
 });
 

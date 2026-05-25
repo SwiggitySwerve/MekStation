@@ -19,6 +19,7 @@ import {
   MovementType,
   PSRTrigger,
 } from '@/types/gameplay';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import type { DiceRoller } from '../diceTypes';
@@ -3049,6 +3050,58 @@ describe('BattleMech physical combat behavior validation lane', () => {
       ?.payload as IPhysicalAttackResolvedPayload;
 
     expect(resolvedEvents).toHaveLength(1);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'dfa',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'ElevationMismatch',
+    });
+    expect(
+      resolved.events.some(
+        (event) => event.type === GameEventType.DamageApplied,
+      ),
+    ).toBe(false);
+  });
+
+  it('resolves stale DFA declarations against unreachable airborne WIGE targets from motion type', () => {
+    const declared = declareAdjacentPhysicalAttack(
+      'dfa',
+      physicalContext({
+        attackerJumpedThisTurn: true,
+        attackerJumpMP: 3,
+        elevationDifference: 3,
+      }),
+      {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 4,
+      },
+    );
+    const resolved = resolveAllPhysicalAttacks(
+      withUnitState(declared, 'target', {
+        isAirborne: true,
+        unitType: UnitType.VEHICLE,
+        motionType: GroundMotionType.WIGE,
+      }),
+      new Map([
+        [
+          'attacker',
+          physicalContext({
+            attackerJumpedThisTurn: true,
+            attackerJumpMP: 3,
+            elevationDifference: 5,
+          }),
+        ],
+      ]),
+      scriptedDice([6, 6, 3]),
+    );
+
+    const payload = resolved.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
     expect(payload).toMatchObject({
       attackerId: 'attacker',
       targetId: 'target',

@@ -320,6 +320,15 @@ export function hydrateMovementCapabilityFromFullUnit(
   };
 }
 
+function hydrateMotionTypeFromFullUnit(
+  fullUnit: IFullUnit,
+): string | undefined {
+  const motionType = (fullUnit as { motionType?: unknown }).motionType;
+  return typeof motionType === 'string' && motionType.trim().length > 0
+    ? motionType
+    : undefined;
+}
+
 function isBattleMechPartialWingHost(fullUnit: IFullUnit): boolean {
   const unitType = (fullUnit as { unitType?: unknown }).unitType;
   if (typeof unitType !== 'string') return false;
@@ -1723,6 +1732,8 @@ export function createHydratedUnitState(
 
   return {
     id: runnerUnitId,
+    unitType: fullUnit.unitType,
+    motionType: hydrateMotionTypeFromFullUnit(fullUnit),
     side,
     position,
     facing: side === GameSide.Player ? Facing.South : Facing.North,

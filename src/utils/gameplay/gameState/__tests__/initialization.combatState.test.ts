@@ -19,7 +19,10 @@ import {
   type IGameUnit,
   type IUnitGameState,
 } from '@/types/gameplay';
-import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
+import {
+  GroundMotionType,
+  SquadMotionType,
+} from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   InfantryArmorKit,
@@ -263,6 +266,15 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     const unit = baseGameUnit({ unitType: UnitType.VEHICLE });
     const state = createInitialUnitState(unit, POSITION, Facing.North);
     expect(state.combatState).toBeUndefined();
+  });
+
+  it('copies vehicle motion type into combat state for physical targetability', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.VEHICLE,
+      motionType: GroundMotionType.WIGE,
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.motionType).toBe(GroundMotionType.WIGE);
   });
 });
 

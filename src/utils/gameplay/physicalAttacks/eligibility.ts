@@ -295,7 +295,11 @@ export function getEligiblePhysicalAttacks(
     targetIsAirborneVTOLorWIGE:
       context.attackerJumpMP !== undefined &&
       context.elevationDifference !== undefined &&
-      isPhysicalAirborneVtolOrWigeTarget(target.unitType, target.isAirborne),
+      isPhysicalAirborneVtolOrWigeTarget(
+        target.unitType,
+        target.motionType,
+        target.isAirborne,
+      ),
     attackerJumpMP: context.attackerJumpMP,
     attackerOccupiedBuildingId: attacker.occupiedBuildingId,
     targetOccupiedBuildingId: target.occupiedBuildingId,

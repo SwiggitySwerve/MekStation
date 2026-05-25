@@ -296,6 +296,7 @@ export function runPhysicalAttackPhase(options: {
       );
       const targetIsAirborneVTOLorWIGE = isPhysicalAirborneVtolOrWigeTarget(
         target.unitType,
+        target.motionType,
         target.isAirborne,
       );
       bestAttack = chooseBestPhysicalAttack(
@@ -365,6 +366,7 @@ export function runPhysicalAttackPhase(options: {
     );
     const targetIsAirborneVTOLorWIGE = isPhysicalAirborneVtolOrWigeTarget(
       target.unitType,
+      target.motionType,
       target.isAirborne,
     );
     const pushDestinationValid =

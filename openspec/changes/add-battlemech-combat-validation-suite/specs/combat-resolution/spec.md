@@ -625,8 +625,7 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **WHEN** the target elevation above the attacker's height exceeds attacker jump MP
 - **THEN** death from above SHALL be rejected with `ElevationMismatch`
 - **AND** no damage, displacement, or PSR side effect SHALL be emitted
-- **AND** eligibility UI, event-sourced declaration/resolution, runner resolution, and automatic runner selection SHALL use the same reach gate for explicit airborne VTOL targets
-- **AND** WIGE motion-state hydration SHALL remain an explicit gap until represented in combat state
+- **AND** eligibility UI, event-sourced declaration/resolution, runner resolution, and automatic runner selection SHALL use the same reach gate for explicit airborne VTOL targets and airborne WIGE targets represented by combat motion type
 
 #### Scenario: Death from above rejects infantry-family attackers
 
@@ -661,8 +660,8 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** the generic airborne-target gate SHALL NOT reject the target
 - **WHEN** the target elevation above the attacker's height exceeds the attacker's jump MP
 - **THEN** death from above SHALL be rejected with `ElevationMismatch`
-- **AND** eligibility, event-sourced declarations, runner resolution, and automatic runner selection SHALL hydrate explicit airborne VTOL targets when attacker jump MP and elevation context are present
-- **AND** the validation catalog SHALL keep WIGE motion-state hydration as a visible gap
+- **AND** eligibility, event-sourced declarations, runner resolution, and automatic runner selection SHALL hydrate explicit airborne VTOL targets from unit type and airborne WIGE targets from combat motion type when attacker jump MP and elevation context are present
+- **AND** the validation catalog SHALL mark the VTOL/WIGE reach gate integrated only when helper, event-sourced, runner, and automatic-selection evidence are present
 
 #### Scenario: Death from above applies Infantry and Battle Armor target-class modifiers
 

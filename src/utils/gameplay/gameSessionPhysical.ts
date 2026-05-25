@@ -482,6 +482,7 @@ export function declarePhysicalAttack(
       context.elevationDifference !== undefined &&
       isPhysicalAirborneVtolOrWigeTarget(
         targetState?.unitType,
+        targetState?.motionType,
         targetState?.isAirborne,
       ),
     attackerJumpMP: context.attackerJumpMP,
@@ -746,6 +747,7 @@ export function resolveAllPhysicalAttacks(
         context.elevationDifference !== undefined &&
         isPhysicalAirborneVtolOrWigeTarget(
           targetState.unitType,
+          targetState.motionType,
           targetState.isAirborne,
         ),
       attackerJumpMP: context.attackerJumpMP,

@@ -229,6 +229,7 @@ export function createInitialUnitState(
   return {
     id: unit.id,
     unitType: unit.unitType,
+    motionType: unit.motionType,
     isQuad: unit.isQuad,
     armsFlipped: unit.armsFlipped,
     isPassenger: unit.isPassenger,

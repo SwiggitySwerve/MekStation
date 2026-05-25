@@ -54,12 +54,19 @@ export function physicalTargetObjectTypeForUnitType(
 
 export function isPhysicalAirborneVtolOrWigeTarget(
   unitType: string | undefined,
+  motionType: string | undefined,
   isAirborne: boolean | undefined,
 ): boolean {
   if (!isAirborne) return false;
 
   const canonical = unitType?.toLowerCase().replace(/[^a-z0-9]/g, '');
-  return canonical === 'vtol' || canonical === 'wige';
+  const canonicalMotion = motionType?.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return (
+    canonical === 'vtol' ||
+    canonical === 'wige' ||
+    canonicalMotion === 'vtol' ||
+    canonicalMotion === 'wige'
+  );
 }
 
 /**
