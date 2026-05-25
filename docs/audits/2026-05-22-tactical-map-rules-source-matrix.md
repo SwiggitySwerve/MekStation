@@ -104,6 +104,11 @@ heading. This closes the repeated-rotation smoke gap for deterministic
 click-button rotation; broader pointer/gesture coverage remains outside the
 current browser harness.
 
+2026-05-25 isometric reset-heading pin: the reset-view control now restores
+pan, zoom, and the isometric camera heading together, and focused component
+coverage asserts projection-layer rotation metadata, visible heading metadata,
+the canonical transform, and unchanged axial clicks after reset.
+
 2026-05-24 top-down movement browser update: the tactical-map browser harness
 now renders a single highlighted destination with walk, run, and jump options
 and verifies the combined badge metadata for option costs, terrain costs,

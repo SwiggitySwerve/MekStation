@@ -308,6 +308,7 @@ export function MapControls({
           onClick={() => {
             interaction.setZoom(1);
             interaction.setPan({ x: 0, y: 0 });
+            interaction.setIsometricRotationStep(0);
           }}
           className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded bg-white p-2 shadow hover:bg-gray-100"
           title="Reset view"

@@ -2254,6 +2254,25 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(projectionLayer.getAttribute('transform')).toContain('rotate(300)');
 
+    fireEvent.click(screen.getByTestId('reset-view-btn'));
+
+    expect(projectionLayer).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '0',
+    );
+    expect(screen.getByTestId('isometric-rotation-heading')).toHaveTextContent(
+      'View 0 deg',
+    );
+    expect(screen.getByTestId('isometric-rotation-heading')).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '0',
+    );
+    expect(screen.getByTestId('isometric-rotation-heading')).toHaveAttribute(
+      'data-isometric-rotation-degrees',
+      '0',
+    );
+    expect(projectionLayer.getAttribute('transform')).toContain('rotate(0)');
+
     fireEvent.click(screen.getByTestId('hex-1-0'));
     expect(onHexClick).toHaveBeenCalledWith({ q: 1, r: 0 });
 
