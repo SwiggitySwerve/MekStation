@@ -637,6 +637,12 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'canDFA consumes targetMovementComplete and targetImmobile to reject targets that have not completed movement unless they are immobile; eligibility and event-sourced declaration/resolution thread the same post-movement gate, while runner physical resolution is already post-movement complete',
     DFA_ACTION_LINES,
   ),
+  'dfa.target-not-dropship': integrated(
+    'dfa.target-not-dropship',
+    'dfa',
+    'canDFA consumes targetUnitType and rejects explicit DropShip targets as TargetDropShip; eligibility, event-sourced declaration/resolution, and runner resolution thread target unit type into DFA validation',
+    DFA_ACTION_LINES,
+  ),
   'dfa.attacker-not-prone': integrated(
     'dfa.attacker-not-prone',
     'dfa',

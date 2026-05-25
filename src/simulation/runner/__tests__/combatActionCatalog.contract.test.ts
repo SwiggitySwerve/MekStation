@@ -937,6 +937,21 @@ describe('BattleMech combat action support catalog', () => {
     });
   });
 
+  it('catalogs DFA DropShip target legality as an integrated source-backed gate', () => {
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['dfa.target-not-dropship'],
+    ).toMatchObject({
+      level: 'integrated',
+      attackFamily: 'dfa',
+      evidence: expect.stringContaining('targetUnitType'),
+      sourceRefs: [
+        expect.objectContaining({
+          citation: expect.stringContaining('DfaAttackAction'),
+        }),
+      ],
+    });
+  });
+
   it('keeps unresolved physical displacement chain edges visible and source-backed', () => {
     expect(
       PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-domino-chain'],

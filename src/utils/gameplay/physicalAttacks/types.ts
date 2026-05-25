@@ -109,6 +109,7 @@ export type PhysicalAttackInvalidReason =
   | 'AttackerProne'
   | 'TargetProne'
   | 'TargetMovementIncomplete'
+  | 'TargetDropShip'
   | 'ElevationMismatch'
   | 'TargetMissing'
   | 'TargetDestroyed'

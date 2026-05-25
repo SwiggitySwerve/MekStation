@@ -45,6 +45,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   AttackerProne: 'Attacker is prone',
   TargetProne: 'Target is prone',
   TargetMovementIncomplete: 'Charge target has not completed movement',
+  TargetDropShip: 'DFA cannot target DropShips',
   ElevationMismatch: 'Target must be at the same elevation',
   TargetMissing: 'Target no longer exists',
   TargetDestroyed: 'Target is destroyed',

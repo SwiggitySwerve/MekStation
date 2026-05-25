@@ -1317,6 +1317,27 @@ describe('BattleMech physical combat behavior validation lane', () => {
     ).toEqual(['AttackerInfantry']);
   });
 
+  it('surfaces DropShip target gates in DFA eligibility projection', () => {
+    const attacker = unitState('attacker', GameSide.Player, { q: 0, r: 0 });
+    const target = unitState(
+      'target',
+      GameSide.Opponent,
+      { q: 1, r: 0 },
+      { unitType: UnitType.DROPSHIP },
+    );
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      attackerJumpedThisTurn: true,
+    });
+
+    expect(
+      options.find((option) => option.attackType === 'dfa')?.restrictionsFailed,
+    ).toEqual(['TargetDropShip']);
+  });
+
   it('lets AI choose a lance when leg attacks are blocked', () => {
     const componentDamage = {
       ...DEFAULT_COMPONENT_DAMAGE,
@@ -1782,6 +1803,45 @@ describe('BattleMech physical combat behavior validation lane', () => {
       toHitNumber: Infinity,
       hit: false,
       location: 'AttackerInfantry',
+    });
+  });
+
+  it('rejects DFA declarations against DropShip targets before scheduling resolution', () => {
+    const rejected = declarePhysicalAttack(
+      withPhysicalPositions(
+        physicalPhaseSession(),
+        {
+          movementThisTurn: MovementType.Jump,
+          hexesMovedThisTurn: 4,
+        },
+        { unitType: UnitType.DROPSHIP },
+      ),
+      'attacker',
+      'target',
+      'dfa',
+      physicalContext({
+        attackerJumpedThisTurn: true,
+        hexesMoved: 4,
+      }),
+    );
+    const rejection = rejected.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(
+      rejected.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'dfa',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetDropShip',
     });
   });
 
@@ -2581,6 +2641,42 @@ describe('BattleMech physical combat behavior validation lane', () => {
       toHitNumber: Infinity,
       hit: false,
       location: 'TargetOfDisplacementAttack',
+    });
+    expect(
+      resolved.events.some(
+        (event) => event.type === GameEventType.DamageApplied,
+      ),
+    ).toBe(false);
+  });
+
+  it('resolves stale DFA declarations against DropShip targets as invalid events', () => {
+    const declared = declareAdjacentPhysicalAttack(
+      'dfa',
+      physicalContext({ attackerJumpedThisTurn: true }),
+    );
+    const resolved = resolveAllPhysicalAttacks(
+      withUnitState(declared, 'target', { unitType: UnitType.DROPSHIP }),
+      new Map([
+        ['attacker', physicalContext({ attackerJumpedThisTurn: true })],
+      ]),
+      scriptedDice([6, 6, 3]),
+    );
+
+    const resolvedEvents = resolved.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = resolvedEvents.at(-1)
+      ?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(resolvedEvents).toHaveLength(1);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'dfa',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetDropShip',
     });
     expect(
       resolved.events.some(

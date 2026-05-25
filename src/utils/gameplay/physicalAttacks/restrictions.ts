@@ -220,6 +220,7 @@ const MEK_UNIT_TYPES = new Set([
   'industrialmech',
 ]);
 const INFANTRY_UNIT_TYPES = new Set(['infantry', 'battlearmor']);
+const DROPSHIP_UNIT_TYPES = new Set(['dropship']);
 const DEFAULT_STANDING_MEK_HEIGHT = 1;
 
 function canonicalUnitType(value: string | undefined): string | undefined {
@@ -239,6 +240,11 @@ function legacyOrMekUnitType(value: string | undefined): boolean {
 function infantryUnitType(value: string | undefined): boolean {
   const canonical = canonicalUnitType(value);
   return canonical !== undefined && INFANTRY_UNIT_TYPES.has(canonical);
+}
+
+function dropshipUnitType(value: string | undefined): boolean {
+  const canonical = canonicalUnitType(value);
+  return canonical !== undefined && DROPSHIP_UNIT_TYPES.has(canonical);
 }
 
 function verticalBandsOverlap(input: IPhysicalAttackInput): boolean {
@@ -575,6 +581,9 @@ export function canDFA(
         'ElevationMismatch',
       );
     }
+  }
+  if (dropshipUnitType(input.targetUnitType)) {
+    return blocked('Cannot DFA a DropShip target', 'TargetDropShip');
   }
   if (input.targetMovementComplete === false && input.targetImmobile !== true) {
     return blocked(

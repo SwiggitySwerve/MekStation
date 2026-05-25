@@ -1274,6 +1274,41 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     });
   });
 
+  it('rejects injected DFA declarations against DropShip targets before side effects', () => {
+    const dropshipTarget = runPhase('dfa', {
+      attacker: {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 4,
+      },
+      target: { unitType: UnitType.DROPSHIP },
+    });
+
+    expect(resolvedPayload(dropshipTarget.events)).toMatchObject({
+      attackType: 'dfa',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'TargetDropShip',
+    });
+    expect(damageEventsFor(dropshipTarget.events, 'opponent-1')).toHaveLength(
+      0,
+    );
+    expect(damageEventsFor(dropshipTarget.events, 'player-1')).toHaveLength(0);
+    expect(dropshipTarget.result.units['opponent-1'].pendingPSRs).toHaveLength(
+      0,
+    );
+    expect(dropshipTarget.result.units['player-1'].pendingPSRs).toHaveLength(0);
+    expect(dropshipTarget.result.units['opponent-1'].position).toEqual({
+      q: 1,
+      r: 0,
+    });
+    expect(dropshipTarget.result.units['player-1'].position).toEqual({
+      q: 0,
+      r: 0,
+    });
+  });
+
   it('rejects side-adjacent push targets that are not directly ahead', () => {
     const { events, result } = runPhase('push');
 

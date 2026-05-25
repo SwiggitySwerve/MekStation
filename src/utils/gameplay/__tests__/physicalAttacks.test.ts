@@ -2971,6 +2971,22 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows DFA against DropShip targets', () => {
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetUnitType: UnitType.DROPSHIP,
+            targetMovementComplete: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetDropShip',
+      });
+    });
+
     it('allows DFA against reachable airborne VTOL/WIGE targets', () => {
       expect(
         canDFA(

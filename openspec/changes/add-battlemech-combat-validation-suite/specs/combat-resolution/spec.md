@@ -626,6 +626,14 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **AND** no damage, displacement, or PSR side effect SHALL be emitted
 - **AND** eligibility UI, event-sourced declaration, and runner resolution SHALL report the same gate outcome
 
+#### Scenario: Death from above rejects DropShip targets
+
+- **GIVEN** a BattleMech declares death from above against a DropShip target after jumping this turn
+- **WHEN** the DFA legality gate runs
+- **THEN** death from above SHALL be rejected with `TargetDropShip`
+- **AND** no damage, displacement, or PSR side effect SHALL be emitted
+- **AND** eligibility UI, event-sourced declaration/resolution, and runner resolution SHALL report the same gate outcome
+
 #### Scenario: Death from above rejects targets that have not completed movement unless immobile
 
 - **GIVEN** a DFA declaration is evaluated after the attacker jumped this turn
