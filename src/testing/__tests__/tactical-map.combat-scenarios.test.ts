@@ -22,6 +22,10 @@ import {
   tacticalMapOutOfRangeCommitInput,
 } from '../tactical-map.combat-scenarios';
 import {
+  tacticalMapSameHexCombatProjection,
+  tacticalMapSameHexCommitInput,
+} from '../tactical-map.same-hex-scenarios';
+import {
   tacticalMapTargetTerrainModifierCombatProjection,
   tacticalMapTargetTerrainModifierCommitInput,
 } from '../tactical-map.target-terrain-scenarios';
@@ -400,6 +404,53 @@ describe('tactical map combat scenarios', () => {
       weaponId: 'front-arc-laser',
       reason: tacticalMapOutOfArcCombatProjection.attackInvalidReason,
       details: tacticalMapOutOfArcCombatProjection.attackInvalidDetails,
+    });
+  });
+
+  it('keeps same-hex weapon-attack browser projection aligned with attack commit validation', () => {
+    expect(tacticalMapSameHexCombatProjection).toMatchObject({
+      hex: { q: 0, r: 0 },
+      distance: 0,
+      rangeBracket: 'short',
+      attackable: false,
+      targetUnitIds: ['same-hex-target'],
+      validTargetUnitIds: [],
+      weaponIdsAvailable: [],
+      attackInvalidReason: 'SameHex',
+      attackInvalidDetails: 'Attacker and target occupy the same hex',
+      blockedReason: 'Attacker and target occupy the same hex',
+      weaponRangeOptions: [
+        {
+          weaponId: 'medium-laser',
+          rangeBracket: 'short',
+          available: false,
+        },
+      ],
+    });
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapSameHexCommitInput(),
+    );
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackLocked),
+    ).toBe(false);
+
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'same-hex-target',
+      weaponId: 'medium-laser',
+      reason: tacticalMapSameHexCombatProjection.attackInvalidReason,
+      details: tacticalMapSameHexCombatProjection.attackInvalidDetails,
     });
   });
 

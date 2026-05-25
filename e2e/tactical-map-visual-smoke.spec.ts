@@ -1131,6 +1131,73 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows same-hex normal weapon attacks as blocked in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=same-hex-weapon-blocked');
+
+    const targetHex = page.getByTestId('hex-0-0');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'same-hex-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-distance', '0');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-range-bracket',
+      'short',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-valid-target',
+      'false',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-reason',
+      'SameHex',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-details',
+      'Attacker and target occupy the same hex',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-blocked-reason',
+      'Attacker and target occupy the same hex',
+    );
+    await expect(targetHex).toHaveAttribute('data-weapons-available', '');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-ranges',
+      'medium-laser:short',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-availability',
+      'medium-laser:blocked',
+    );
+
+    const combatBadge = page.getByTestId('hex-combat-badge-0-0');
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-attackable',
+      'false',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-distance',
+      '0',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapons-available',
+      '',
+    );
+
+    const invalidBadge = page.getByTestId('hex-combat-invalid-badge-0-0');
+    await expect(invalidBadge.locator('text')).toHaveText('SAME');
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'SameHex',
+    );
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-reason',
+      'Attacker and target occupy the same hex',
+    );
+  });
+
   test('shows selected weapon out of arc as blocked in browser', async ({
     page,
   }) => {

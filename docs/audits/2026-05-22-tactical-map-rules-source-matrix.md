@@ -244,6 +244,14 @@ feeds the same projection into `applyInteractiveSessionAttack` and proves the
 commit path rejects the attack with matching reason/details before declaration
 or attack locking.
 
+2026-05-25 same-hex combat browser update: the tactical-map browser harness now
+has a dedicated normal-weapon same-hex target scenario. The rendered target
+exposes distance 0, `SameHex`, `Attacker and target occupy the same hex`, an
+otherwise in-range selected weapon, and a `SAME` combat invalid badge. The
+companion fixture feeds the same projection into `applyInteractiveSessionAttack`
+and proves the commit path rejects the attack with matching reason/details
+before declaration or attack locking.
+
 Additional battlefield-wreck terrain pin: MegaMek
 `OptionsConstants.java:364` defines `tacops_battle_wreck`, `GameOptions.java:140`
 defaults it off, and `TWGameManager.java:22276-22291` converts qualifying

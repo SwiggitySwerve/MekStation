@@ -75,6 +75,9 @@
 - [x] 2.30 Add browser coverage proving selected weapons that cannot cover a
   target's firing arc expose `OutOfArc` rejection metadata, per-weapon arc
   blocker details, and a non-color arc invalid badge.
+- [x] 2.31 Add browser coverage proving normal weapon attacks against same-hex
+  targets expose `SameHex` rejection metadata and a non-color invalid badge
+  even when the selected weapon is otherwise in range.
 
 ## 3. Validation
 
@@ -137,3 +140,5 @@
   bridge-clearance movement invalid badge labeling.
 - [x] 3.30 Focused Jest parity and Playwright smoke pass for selected-weapon
   firing-arc rejection metadata and invalid badge labeling.
+- [x] 3.31 Focused Jest parity and Playwright smoke pass for same-hex
+  weapon-attack rejection metadata and invalid badge labeling.

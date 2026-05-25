@@ -32,6 +32,9 @@ the top-down map.
 - **AND** a combat target outside the selected weapon's firing arc SHALL expose
   `OutOfArc` rejection metadata, per-weapon arc blocker details, and a combat
   invalid badge that does not rely on color alone
+- **AND** a same-hex combat target SHALL expose `SameHex` rejection metadata
+  and a combat invalid badge that does not rely on color alone, even when the
+  selected weapon is otherwise in range
 - **AND** a combat target in represented partial cover SHALL expose the cover
   level, modifier, to-hit modifier, reason, and a cover badge that does not rely
   on color alone
