@@ -140,7 +140,11 @@ export const MEGAMEK_NO_ARMS_SOURCE_REFS = [
     'megamek/src/megamek/common/actions/ClubAttackAction.java#L453-L455',
   ),
   megamekRef(
-    'MegaMek MekWithArms adds a stand-up PSR penalty for No/Minimal Arms.',
+    'MegaMek PushAttackAction rejects push attacks for No/Minimal Arms.',
+    'megamek/src/megamek/common/actions/PushAttackAction.java#L198-L200',
+  ),
+  megamekRef(
+    'MegaMek MekWithArms adds a +2 stand-up PSR penalty for No/Minimal Arms.',
     'megamek/src/megamek/common/units/MekWithArms.java#L418-L426',
   ),
   megamekRef(
@@ -152,8 +156,20 @@ export const MEGAMEK_NO_ARMS_SOURCE_REFS = [
     'src/utils/gameplay/quirkModifiers/defensiveQuirks.ts#L26-L30',
   ),
   mekstationDeviationRef(
-    'MekStation physical attack restrictions consume No Arms for punch, arm-mounted melee, and push helpers.',
-    'src/utils/gameplay/physicalAttacks/restrictions.ts#L279-L289',
+    'MekStation physical attack restrictions consume No Arms for punch helpers.',
+    'src/utils/gameplay/physicalAttacks/restrictions.ts#L331-L339',
+  ),
+  mekstationDeviationRef(
+    'MekStation physical attack restrictions consume No Arms for arm-mounted melee helpers.',
+    'src/utils/gameplay/physicalAttacks/restrictions.ts#L491-L499',
+  ),
+  mekstationDeviationRef(
+    'MekStation physical attack restrictions consume No Arms for push helpers.',
+    'src/utils/gameplay/physicalAttacks/restrictions.ts#L783-L791',
+  ),
+  mekstationDeviationRef(
+    'MekStation piloting quirk PSR modifier applies the No Arms +2 stand-up PSR modifier.',
+    'src/utils/gameplay/quirkModifiers/pilotingQuirks.ts#L74-L81',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

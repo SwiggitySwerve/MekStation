@@ -280,6 +280,22 @@ describe('Piloting Quirks', () => {
     const mod = calculatePilotingQuirkPSRModifier([], false);
     expect(mod).toBe(0);
   });
+
+  it('No Arms: +2 only to stand-up PSRs', () => {
+    const standUpMod = calculatePilotingQuirkPSRModifier(
+      [UNIT_QUIRK_IDS.NO_ARMS],
+      false,
+      PSRTrigger.StandingUp,
+    );
+    const damageMod = calculatePilotingQuirkPSRModifier(
+      [UNIT_QUIRK_IDS.NO_ARMS],
+      false,
+      PSRTrigger.PhaseDamage20Plus,
+    );
+
+    expect(standUpMod).toBe(2);
+    expect(damageMod).toBe(0);
+  });
 });
 
 // =============================================================================

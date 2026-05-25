@@ -358,3 +358,4 @@
 - [x] 4.3.117 Align Stable PSR quirk behavior with MegaMek source truth by scoping Stable relief to kick/push PSRs across shared helper, runner PSR resolution, interactive stand-up resolution boundaries, catalog, spec, and audit coverage.
 - [x] 4.3.118 Align Easy Pilot PSR quirk behavior with MegaMek source truth by applying the base-piloting gate to BattleMech terrain and 20+ phase-damage PSRs across shared helper, runner/session PSR resolution, catalog, spec, and audit coverage.
 - [x] 4.3.119 Align Cramped Cockpit PSR quirk behavior with MegaMek source truth by suppressing the all-PSR penalty for Small Pilot across shared helper, runner/session PSR resolution, catalog, spec, and audit coverage.
+- [x] 4.3.120 Align No Arms PSR quirk behavior with MegaMek source truth by applying the +2 stand-up PSR penalty across shared helper, runner/session stand-up resolution, catalog, spec, and audit coverage while keeping Low Arms helper-only.

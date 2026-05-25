@@ -21,6 +21,10 @@ function isEasyToPilotPSR(
   return isTerrainPSR || reasonCode === PSRTrigger.PhaseDamage20Plus;
 }
 
+function isStandingUpPSR(reasonCode: PilotingQuirkPSRReason): boolean {
+  return reasonCode === PSRTrigger.StandingUp;
+}
+
 /**
  * PSR modifier from piloting quirks.
  * @param unitQuirks - Unit's quirk identifiers
@@ -65,6 +69,14 @@ export function calculatePilotingQuirkPSRModifier(
     isEasyToPilotPSR(isTerrainPSR, reasonCode)
   ) {
     modifier -= 1;
+  }
+
+  // No/Minimal Arms: MegaMek applies +2 only to stand-up PSRs.
+  if (
+    unitQuirks.includes(UNIT_QUIRK_IDS.NO_ARMS) &&
+    isStandingUpPSR(reasonCode)
+  ) {
+    modifier += 2;
   }
 
   // Unbalanced: +1 to terrain PSRs only

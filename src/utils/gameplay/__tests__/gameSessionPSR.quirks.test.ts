@@ -240,4 +240,38 @@ describe('interactive PSR quirk application', () => {
       reasonCode: PSRTrigger.StandingUp,
     });
   });
+
+  it('applies No Arms to interactive stand-up PSRs', () => {
+    const session = withUnitState(
+      startGame(
+        createGameSession(
+          config(),
+          units({ unitQuirks: [UNIT_QUIRK_IDS.NO_ARMS] }),
+        ),
+        GameSide.Player,
+      ),
+      {
+        prone: true,
+      },
+    );
+
+    const next = attemptStandUp(session, 'player-1', () => ({
+      dice: [3, 4],
+      total: 7,
+      isSnakeEyes: false,
+      isBoxcars: false,
+    }));
+
+    const resolved = next.events.find(
+      (event) => event.type === GameEventType.PSRResolved,
+    )?.payload as IPSRResolvedPayload | undefined;
+    expect(resolved).toMatchObject({
+      unitId: 'player-1',
+      targetNumber: 7,
+      modifiers: 2,
+      roll: 7,
+      passed: true,
+      reasonCode: PSRTrigger.StandingUp,
+    });
+  });
 });

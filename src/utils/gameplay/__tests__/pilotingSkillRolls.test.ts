@@ -668,6 +668,30 @@ describe('Piloting Skill Rolls', () => {
       expect(damageMods).toHaveLength(0);
     });
 
+    it('should apply No Arms only to stand-up PSRs', () => {
+      const standUpMods = calculatePSRModifiers(
+        createStandingUpPSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.NO_ARMS],
+      );
+      const damageMods = calculatePSRModifiers(
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.NO_ARMS],
+      );
+
+      expect(standUpMods).toEqual([
+        {
+          name: 'Piloting quirks',
+          source: 'quirk',
+          value: 2,
+        },
+      ]);
+      expect(damageMods).toHaveLength(0);
+    });
+
     it('should apply Maneuvering Ace to skidding PSRs only', () => {
       const skidMods = calculatePSRModifiers(
         createSkiddingPSR('unit-1'),

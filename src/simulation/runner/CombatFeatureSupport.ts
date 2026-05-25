@@ -803,10 +803,9 @@ export const QUIRK_COMBAT_SUPPORT = {
     'getBattleFistPunchToHitModifier plus physical attack input unitQuirks applies the source-backed matching-arm punch to-hit relief when the hand actuator is working in helper and runner resolution',
     MEGAMEK_BATTLE_FISTS_SOURCE_REFS,
   ),
-  no_arms: helperOnly(
+  no_arms: integrated(
     'no_arms',
-    'hasNoArms plus physical attack input unitQuirks rejects punch and arm-mounted melee attacks',
-    'MegaMek No/Minimal Arms also affects stand-up PSRs and additional physical action surfaces; MekStation currently covers only local physical attack helpers',
+    'hasNoArms plus physical attack input unitQuirks rejects punch, push, and arm-mounted melee attacks, and calculatePilotingQuirkPSRModifier plus runner/session stand-up paths apply the source-backed +2 stand-up PSR penalty',
     MEGAMEK_NO_ARMS_SOURCE_REFS,
   ),
   low_arms: helperOnly(

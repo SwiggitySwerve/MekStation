@@ -212,19 +212,20 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'physical-restriction-application': helperOnly(
     'physical-restriction-application',
-    'canPunch, canMeleeWeapon, runPhysicalAttackPhase, and interactive declarations consume unit quirks plus elevation difference for No Arms and Low Arms restrictions',
-    'No/Minimal Arms source behavior also includes stand-up PSR and wider physical action gates, and Low Arms is registered without a source-backed resolver for the local elevation helper',
+    'canPunch, canPush, canMeleeWeapon, runPhysicalAttackPhase, and interactive declarations consume unit quirks for source-backed No Arms restrictions plus local Low Arms elevation checks',
+    'Low Arms is registered without a source-backed resolver for the local elevation helper, so the shared physical restriction resolver remains helper-only while that quirk is assigned here',
     [...MEGAMEK_NO_ARMS_SOURCE_REFS, ...MEGAMEK_LOW_ARMS_GAP_SOURCE_REFS],
   ),
   'psr-application': integrated(
     'psr-application',
-    'calculatePSRModifiers consumes unit quirks through calculatePilotingQuirkPSRModifier; runPSRPhase, resolvePendingPSRs, and attemptStandUp pass unit quirk and pilot ability state into PSR target-number calculation, with Stable scoped to Kick/Push PSRs, Easy Pilot scoped to the MegaMek piloting-skill gate plus BattleMech terrain/20+ damage PSRs, and Cramped Cockpit suppressed for Small Pilot',
+    'calculatePSRModifiers consumes unit quirks through calculatePilotingQuirkPSRModifier; runPSRPhase, resolvePendingPSRs, and attemptStandUp pass unit quirk and pilot ability state into PSR target-number calculation, with Stable scoped to Kick/Push PSRs, Easy Pilot scoped to the MegaMek piloting-skill gate plus BattleMech terrain/20+ damage PSRs, Cramped Cockpit suppressed for Small Pilot, and No Arms scoped to stand-up PSRs',
     [
       ...MEGAMEK_EASY_TO_PILOT_SOURCE_REFS,
       ...MEGAMEK_STABLE_PSR_SOURCE_REFS,
       ...MEGAMEK_HARD_TO_PILOT_SOURCE_REFS,
       ...MEGAMEK_UNBALANCED_SOURCE_REFS,
       ...MEGAMEK_CRAMPED_COCKPIT_SOURCE_REFS,
+      ...MEGAMEK_NO_ARMS_SOURCE_REFS,
     ],
   ),
   'psr-spa-application': helperOnly(
@@ -388,6 +389,7 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
       'hard_to_pilot',
       'unbalanced',
       'cramped_cockpit',
+      'no_arms',
     ],
   },
   'psr-spa-application': {

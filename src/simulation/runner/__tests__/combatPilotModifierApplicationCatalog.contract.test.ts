@@ -208,6 +208,10 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       level: 'integrated',
       evidence: expect.stringContaining('punch to-hit'),
     });
+    expect(QUIRK_COMBAT_SUPPORT.no_arms).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('stand-up PSR'),
+    });
     expect(QUIRK_COMBAT_SUPPORT.low_arms).toMatchObject({
       level: 'helper-only',
       gap: expect.stringContaining('does not expose a combat resolver'),

@@ -37,7 +37,10 @@ import { createEnvironmentalConditions } from '@/utils/gameplay/environmentalMod
 import { SeededRandom } from '../../core/SeededRandom';
 import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { COMBAT_COMMAND_ACTION_SUPPORT } from '../CombatActionSupport';
-import { SPA_COMBAT_SUPPORT } from '../CombatFeatureSupport';
+import {
+  QUIRK_COMBAT_SUPPORT,
+  SPA_COMBAT_SUPPORT,
+} from '../CombatFeatureSupport';
 import { RUNNER_PSR_TRIGGER_COMBAT_SUPPORT } from '../CombatLifecycleSupport';
 import {
   MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT,
@@ -963,6 +966,35 @@ describe('runMovementPhase movement validation parity', () => {
     expect(SPA_COMBAT_SUPPORT['animal-mimicry']).toMatchObject({
       level: 'helper-only',
       evidence: expect.stringContaining('Animal Mimicry'),
+    });
+  });
+
+  it('applies No Arms to runner stand-up PSRs', () => {
+    const { events } = runScriptedMove(
+      createMinimalGrid(3),
+      { q: 1, r: 0 },
+      {
+        piloting: 5,
+        prone: true,
+        unitQuirks: ['no_arms'],
+      },
+      { random: fixedRandom(0.99) },
+    );
+    const resolved = events.find(
+      (event) => event.type === GameEventType.PSRResolved,
+    )?.payload as IPSRResolvedPayload | undefined;
+
+    expect(resolved).toMatchObject({
+      unitId: 'player-1',
+      reasonCode: PSRTrigger.StandingUp,
+      targetNumber: 7,
+      modifiers: 2,
+      roll: 12,
+      passed: true,
+    });
+    expect(QUIRK_COMBAT_SUPPORT.no_arms).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('stand-up paths'),
     });
   });
 
