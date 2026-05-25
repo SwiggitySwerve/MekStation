@@ -15,6 +15,7 @@ import type { UiFiringArc } from '@/utils/overlays/arcClassifier';
 import type { buildIsometricSceneItems } from './HexMapDisplay.isometric';
 import type {
   useHexGrid,
+  useCombatProjectionValidTargetUnitIds,
   useIsometricOcclusionIds,
   useIsometricOcclusionInfo,
   useMovementAnimationsByUnit,
@@ -48,6 +49,9 @@ export interface HexMapDisplayState {
   >;
   readonly isometricOcclusionUnitIds: ReturnType<
     typeof useIsometricOcclusionIds
+  >;
+  readonly combatProjectionValidTargetUnitIds: ReturnType<
+    typeof useCombatProjectionValidTargetUnitIds
   >;
   readonly isometricSceneItems: ReturnType<typeof buildIsometricSceneItems>;
   readonly selectedWeaponMaxRange: number;

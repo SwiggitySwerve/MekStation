@@ -198,6 +198,7 @@ interface UnitTokensLayerProps {
   readonly onTokenDoubleClick: (unitId: string) => void;
   readonly isIsometricView: boolean;
   readonly isometricOcclusionUnitIds: ReadonlySet<string>;
+  readonly combatProjectionValidTargetUnitIds?: ReadonlySet<string>;
   readonly isometricOcclusionInfoByUnit?: ReadonlyMap<
     string,
     { readonly reason: string }
@@ -227,6 +228,7 @@ export function UnitTokensLayer({
   onTokenDoubleClick,
   isIsometricView,
   isometricOcclusionUnitIds,
+  combatProjectionValidTargetUnitIds,
   isometricOcclusionInfoByUnit,
 }: UnitTokensLayerProps): React.ReactElement {
   return (
@@ -245,6 +247,9 @@ export function UnitTokensLayer({
             onDoubleClick={onTokenDoubleClick}
             events={events}
             allTokens={tokens}
+            combatProjectionValidTarget={combatProjectionValidTargetUnitIds?.has(
+              token.unitId,
+            )}
             isOcclusionHighlighted={
               isIsometricView &&
               (token.isSelected || isometricOcclusionUnitIds.has(token.unitId))

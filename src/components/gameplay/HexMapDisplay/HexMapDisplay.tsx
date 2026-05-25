@@ -52,6 +52,7 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
     hasActiveMovementAnimation,
     isometricTerrainOcclusionInfoByUnit,
     isometricOcclusionUnitIds,
+    combatProjectionValidTargetUnitIds,
     isometricSceneItems,
     selectedWeaponMaxRange,
     visibleFiringArcs,
@@ -110,6 +111,9 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
               onTokenClick={handleTokenClick}
               onTokenDoubleClick={handleTokenDoubleClick}
               isometricOcclusionUnitIds={isometricOcclusionUnitIds}
+              combatProjectionValidTargetUnitIds={
+                combatProjectionValidTargetUnitIds
+              }
             />
           ) : (
             <g>{renderedHexes.map(renderHexCell)}</g>
@@ -167,6 +171,9 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
               onTokenDoubleClick={handleTokenDoubleClick}
               isIsometricView={isIsometricView}
               isometricOcclusionUnitIds={isometricOcclusionUnitIds}
+              combatProjectionValidTargetUnitIds={
+                combatProjectionValidTargetUnitIds
+              }
               isometricOcclusionInfoByUnit={isometricTerrainOcclusionInfoByUnit}
             />
           )}
@@ -211,6 +218,7 @@ function IsometricSceneLayer({
   onTokenClick,
   onTokenDoubleClick,
   isometricOcclusionUnitIds,
+  combatProjectionValidTargetUnitIds,
 }: {
   readonly items: ReturnType<
     typeof useHexMapDisplayState
@@ -235,6 +243,9 @@ function IsometricSceneLayer({
   readonly isometricOcclusionUnitIds: ReturnType<
     typeof useHexMapDisplayState
   >['isometricOcclusionUnitIds'];
+  readonly combatProjectionValidTargetUnitIds: ReturnType<
+    typeof useHexMapDisplayState
+  >['combatProjectionValidTargetUnitIds'];
 }): React.ReactElement {
   return (
     <g data-testid="isometric-scene-layer">
@@ -275,6 +286,9 @@ function IsometricSceneLayer({
               onTokenDoubleClick={onTokenDoubleClick}
               isIsometricView
               isometricOcclusionUnitIds={isometricOcclusionUnitIds}
+              combatProjectionValidTargetUnitIds={
+                combatProjectionValidTargetUnitIds
+              }
               isometricOcclusionInfoByUnit={occlusionInfoByUnit}
             />
           </g>

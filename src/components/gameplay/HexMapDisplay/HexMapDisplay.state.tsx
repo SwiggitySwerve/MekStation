@@ -17,6 +17,7 @@ import { HexCell } from './HexCell';
 import { buildIsometricSceneItems } from './HexMapDisplay.isometric';
 import {
   useCombatRangeLookup,
+  useCombatProjectionValidTargetUnitIds,
   useHexGrid,
   useHighlightPathLookup,
   useIsometricOccluderInfo,
@@ -142,6 +143,11 @@ export function useHexMapDisplayState({
     targetUnitId,
     combatState,
   });
+  const combatProjectionValidTargetUnitIds =
+    useCombatProjectionValidTargetUnitIds({
+      combatRangeLookup,
+      enabled: hasConfiguredWeaponList,
+    });
   const legacyAttackRangeLookup = useMemo(
     () =>
       useLegacyAttackRange
@@ -355,6 +361,7 @@ export function useHexMapDisplayState({
     hasActiveMovementAnimation,
     isometricTerrainOcclusionInfoByUnit,
     isometricOcclusionUnitIds,
+    combatProjectionValidTargetUnitIds,
     isometricSceneItems,
     selectedWeaponMaxRange,
     visibleFiringArcs,

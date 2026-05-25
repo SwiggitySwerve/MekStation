@@ -1201,6 +1201,14 @@ airborne". MekStation now reuses represented runtime airborne VTOL/WiGE state to
 block airborne AirMek push rows and declarations with `AttackerAirborne`, while
 grounded AirMek push legality stays on the normal Mek push path.
 
+2026-05-25 combat target-ring projection pin: Token valid-target rings now
+consume the same `ICombatRangeHex.validTargetUnitIds` projection that drives
+weapon-backed combat hex overlays. This does not add a new tactical rule; it
+removes the separate UI-only legality signal by routing token chrome through
+the existing source-pinned combat projection contract. Legacy
+`IUnitToken.isValidTarget` rings remain only as fallback when no configured
+weapon projection data exists for the selected unit.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

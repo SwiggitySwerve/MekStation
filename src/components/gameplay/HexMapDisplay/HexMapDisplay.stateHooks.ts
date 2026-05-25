@@ -228,6 +228,23 @@ export function useCombatRangeLookup({
   ]);
 }
 
+export function useCombatProjectionValidTargetUnitIds({
+  combatRangeLookup,
+  enabled,
+}: {
+  readonly combatRangeLookup: ReadonlyMap<string, ICombatRangeHex>;
+  readonly enabled: boolean;
+}): ReadonlySet<string> | undefined {
+  return useMemo(() => {
+    if (!enabled) return undefined;
+    const ids = new Set<string>();
+    combatRangeLookup.forEach((combatInfo) => {
+      for (const unitId of combatInfo.validTargetUnitIds) ids.add(unitId);
+    });
+    return ids;
+  }, [combatRangeLookup, enabled]);
+}
+
 export function useIsometricOcclusionInfo({
   isIsometricView,
   tokens,

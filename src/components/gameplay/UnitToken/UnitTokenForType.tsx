@@ -82,6 +82,11 @@ export interface UnitTokenForTypeProps {
   isometricVisibilityRule?: IsometricVisibilityRule;
   isometricVisibilityRuleReason?: string;
   /**
+   * Combat projection override for valid-target chrome. Undefined keeps the
+   * legacy token flag path for callers without weapon-backed projection.
+   */
+  combatProjectionValidTarget?: boolean;
+  /**
    * All tokens on the map. Host tokens render mounted BA passengers as child
    * badges, and mounted BA tokens suppress their standalone wrapper when their
    * host is present.
@@ -213,6 +218,7 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
   isometricOcclusionReason,
   isometricVisibilityRule,
   isometricVisibilityRuleReason,
+  combatProjectionValidTarget,
 }: UnitTokenForTypeProps): React.ReactElement | null {
   const eventState = useMemo(
     () => projectEvents(token.unitId, events),
@@ -299,15 +305,23 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     token.fogStatus === 'hidden'
       ? { designation: '?', name: 'Hidden contact' }
       : {};
+  const projectedIsValidTarget =
+    combatProjectionValidTarget ?? token.isValidTarget;
   // Build the render-time token. The spread preserves `unitType`, but TS
   // can't infer that, so we re-narrow via a generic helper that re-tags the
   // discriminant. The result is the same `IUnitToken` discriminated union;
   // each switch branch below narrows it to its variant per `unitType`.
   const renderToken: IUnitToken = movementAnimation
-    ? ({ ...token, ...fogDisplayFields, facing: tween.facing } as IUnitToken)
+    ? ({
+        ...token,
+        ...fogDisplayFields,
+        isValidTarget: projectedIsValidTarget,
+        facing: tween.facing,
+      } as IUnitToken)
     : ({
         ...token,
         ...fogDisplayFields,
+        isValidTarget: projectedIsValidTarget,
         position: displayPosition,
       } as IUnitToken);
   const fogOpacity =
@@ -351,6 +365,14 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     'data-isometric-occlusion-reason': isometricOcclusionReason,
     'data-isometric-visibility-rule': isometricVisibilityRule,
     'data-isometric-visibility-rule-reason': isometricVisibilityRuleReason,
+    'data-token-valid-target-source':
+      combatProjectionValidTarget === undefined ? 'token' : 'combat-projection',
+    'data-token-combat-projection-valid-target':
+      combatProjectionValidTarget === undefined
+        ? undefined
+        : combatProjectionValidTarget
+          ? 'true'
+          : 'false',
     'aria-label': tokenAriaLabel,
     ...tokenWrapperMetadata(renderToken, displayPosition, token.position),
   };

@@ -230,6 +230,122 @@ describe('HexMapDisplay combat projection', () => {
     expect(screen.queryByTestId('hex-projection-status-badge-2-0')).toBeNull();
   });
 
+  it('projects token target rings from weapon-backed combat legality', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
+    const enemy = makeToken({
+      unitId: 'enemy',
+      side: GameSide.Opponent,
+      position: { q: 0, r: -2 },
+      isValidTarget: false,
+    });
+
+    render(
+      <HexMapDisplay
+        mapId="combat-token-ring-map"
+        radius={2}
+        tokens={[selected, enemy]}
+        selectedHex={null}
+        unitWeapons={{ selected: [makeWeapon()] }}
+      />,
+    );
+
+    expect(screen.getByTestId('hex-0--2')).toHaveAttribute(
+      'data-combat-valid-target',
+      'true',
+    );
+    const enemyToken = screen.getByTestId('unit-token-enemy');
+    expect(enemyToken).toHaveAttribute(
+      'data-token-valid-target-source',
+      'combat-projection',
+    );
+    expect(enemyToken).toHaveAttribute(
+      'data-token-combat-projection-valid-target',
+      'true',
+    );
+    expect(
+      enemyToken.querySelector('[data-testid="unit-valid-target-ring"]'),
+    ).not.toBeNull();
+  });
+
+  it('suppresses stale token target rings when combat projection rejects the target', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
+    const enemy = makeToken({
+      unitId: 'enemy',
+      side: GameSide.Opponent,
+      position: { q: 0, r: -2 },
+      isValidTarget: true,
+    });
+
+    render(
+      <HexMapDisplay
+        mapId="combat-token-ring-rejected-map"
+        radius={2}
+        tokens={[selected, enemy]}
+        selectedHex={null}
+        unitWeapons={{
+          selected: [makeWeapon({ ranges: { short: 1, medium: 1, long: 1 } })],
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId('hex-0--2')).toHaveAttribute(
+      'data-combat-valid-target',
+      'false',
+    );
+    const enemyToken = screen.getByTestId('unit-token-enemy');
+    expect(enemyToken).toHaveAttribute(
+      'data-token-valid-target-source',
+      'combat-projection',
+    );
+    expect(enemyToken).toHaveAttribute(
+      'data-token-combat-projection-valid-target',
+      'false',
+    );
+    expect(
+      enemyToken.querySelector('[data-testid="unit-valid-target-ring"]'),
+    ).toBeNull();
+  });
+
+  it('keeps legacy token target rings for callers without weapon projection', () => {
+    const enemy = makeToken({
+      unitId: 'enemy',
+      side: GameSide.Opponent,
+      position: { q: 0, r: -1 },
+      isValidTarget: true,
+    });
+
+    render(
+      <HexMapDisplay
+        mapId="legacy-token-ring-map"
+        radius={1}
+        tokens={[enemy]}
+        selectedHex={null}
+      />,
+    );
+
+    const enemyToken = screen.getByTestId('unit-token-enemy');
+    expect(enemyToken).toHaveAttribute(
+      'data-token-valid-target-source',
+      'token',
+    );
+    expect(enemyToken).not.toHaveAttribute(
+      'data-token-combat-projection-valid-target',
+    );
+    expect(
+      enemyToken.querySelector('[data-testid="unit-valid-target-ring"]'),
+    ).not.toBeNull();
+  });
+
   it('limits firing-arc overlay to operational selected weapon mounting arcs', () => {
     const selected = makeToken({
       unitId: 'selected',
