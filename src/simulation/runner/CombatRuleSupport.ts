@@ -88,6 +88,19 @@ function megamekHeatSourceRef(
   };
 }
 
+function megamekPhysicalSourceRef(
+  citation: string,
+  path: string,
+  lineRange: string,
+): ICombatFeatureSourceReference {
+  return {
+    kind: 'megamek-source',
+    citation,
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PHYSICAL_SOURCE_VERSION}/megamek/src/megamek/${path}#${lineRange}`,
+    sourceVersion: MEGAMEK_PHYSICAL_SOURCE_VERSION,
+  };
+}
+
 const MEGAMEK_HEAT_AMMO_EXPLOSION_ROLL_SOURCE_REF = megamekHeatSourceRef(
   'MegaMek HeatResolver checks heat >= 19 and routes failed ammo-explosion checks through explodeAmmoFromHeat',
   'server/totalWarfare/HeatResolver.java',
@@ -258,6 +271,42 @@ const MEGAMEK_TSM_MOVEMENT_SOURCE_REFS = [
     url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/units/Mek.java#L993-L1007`,
     sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
   },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEGAMEK_TSM_PHYSICAL_DAMAGE_SOURCE_REFS = [
+  megamekPhysicalSourceRef(
+    'MegaMek KickAttackAction.getDamageFor doubles kick damage with active TSM before talon, melee-specialist, underwater, and infantry adjustments.',
+    'common/actions/KickAttackAction.java',
+    'L123-L138',
+  ),
+  megamekPhysicalSourceRef(
+    'MegaMek PunchAttackAction.getDamageFor doubles punch damage with active TSM before melee-specialist, underwater, and infantry adjustments.',
+    'common/actions/PunchAttackAction.java',
+    'L452-L460',
+  ),
+  megamekPhysicalSourceRef(
+    'MegaMek ClubAttackAction.getDamageFor doubles active-TSM club damage while explicitly excluding saws, pile drivers, shields, wrecking balls, flails, active vibroblades, and other fixed-damage tools.',
+    'common/actions/ClubAttackAction.java',
+    'L187-L202',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEGAMEK_UNDERWATER_PHYSICAL_DAMAGE_SOURCE_REFS = [
+  megamekPhysicalSourceRef(
+    'MegaMek KickAttackAction.getDamageFor halves wet-location kick damage and rounds up.',
+    'common/actions/KickAttackAction.java',
+    'L135-L138',
+  ),
+  megamekPhysicalSourceRef(
+    'MegaMek PunchAttackAction.getDamageFor halves wet-location punch damage and rounds up.',
+    'common/actions/PunchAttackAction.java',
+    'L457-L460',
+  ),
+  megamekPhysicalSourceRef(
+    'MegaMek ClubAttackAction.getDamageFor halves wet-location club damage after resolving the mounted club location.',
+    'common/actions/ClubAttackAction.java',
+    'L203-L211',
+  ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS = [
@@ -502,6 +551,7 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
   tsm: integrated(
     'tsm',
     'UnitHydration, game/session physical contexts, and runPhysicalAttackPhase thread hasTSM into resolvePhysicalAttack so active TSM doubles physical damage at heat 9+',
+    MEGAMEK_TSM_PHYSICAL_DAMAGE_SOURCE_REFS,
   ),
   claws: helperOnly(
     'claws',
@@ -543,11 +593,19 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
         url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/DfaAttackAction.java#L95-L104',
         sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
       },
+      {
+        kind: 'megamek-source',
+        citation:
+          'MegaMek DfaAttackAction.hasTalons checks working talons and working foot actuators on qualifying biped and non-biped leg locations.',
+        url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/DfaAttackAction.java#L427-L445',
+        sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+      },
     ],
   ),
   underwater: integrated(
     'underwater',
     'runPhysicalAttackPhase and session physical contexts derive isUnderwater from water-tagged hexes before calculatePhysicalDamage/applyUnderwaterModifier halves physical damage',
+    MEGAMEK_UNDERWATER_PHYSICAL_DAMAGE_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 

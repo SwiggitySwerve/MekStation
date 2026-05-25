@@ -137,6 +137,7 @@
 - [x] 3.4.32 Source-pin invalid ranged target-state rows for missing, destroyed, same-side, retreated, and ejected targetability boundaries; promote invalid-target-state triad enforcement to row-level source refs.
 - [x] 3.4.33 Source-pin AttackInvalid reason rows for out-of-ammo, out-of-range, no-LOS/no-spotter, invalid target, unknown weapon, destroyed weapon, and jammed weapon, while marking same-hex as an explicit MekStation deviation row.
 - [x] 3.4.34 Source-pin invalid ranged attack no-side-effect guards for event suppression, heat, ammo, damage, and fired-weapon state as MekStation row-level contracts.
+- [x] 3.4.35 Source-pin physical damage modifier rows for active TSM, claw punch, talon kick/DFA, and underwater physical damage while preserving claw/talon damaged-equipment and option-rule gaps.
 - [x] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -227,3 +228,4 @@
 - [x] 4.3.60 Promote invalid target-state rows to row-level MegaMek source references so inherited invalidation authority cannot mask unsourced missing, destroyed, same-side, retreated, or ejected targetability claims.
 - [x] 4.3.61 Promote AttackInvalid reason rows to row-level source references so inherited invalidation authority cannot mask unsourced ammo, range, LOS/spotter, targetability, missing-weapon, destroyed-weapon, jammed-weapon, or same-hex deviation claims.
 - [x] 4.3.62 Promote invalid ranged attack side-effect guards to row-level MekStation source references so inherited invalidation authority cannot mask unsourced no-event, no-heat, no-ammo, no-damage, or no-fired-state claims.
+- [x] 4.3.63 Promote physical damage modifier rows to row-level MegaMek source references so inherited rule authority cannot mask unsourced active-TSM, claw, talon, or underwater damage claims.

@@ -1798,6 +1798,51 @@ describe('BattleMech combat feature-gap tracking', () => {
     ).toEqual(['claws', 'talons']);
   });
 
+  it('pins physical damage modifier rows to MegaMek source refs', () => {
+    Object.values(PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT).forEach((entry) => {
+      expectPinnedMegaMekRefs(entry.sourceRefs ?? []);
+    });
+
+    expect(
+      PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT.tsm.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek KickAttackAction.getDamageFor doubles kick damage with active TSM before talon, melee-specialist, underwater, and infantry adjustments.',
+      'MegaMek PunchAttackAction.getDamageFor doubles punch damage with active TSM before melee-specialist, underwater, and infantry adjustments.',
+      'MegaMek ClubAttackAction.getDamageFor doubles active-TSM club damage while explicitly excluding saws, pile drivers, shields, wrecking balls, flails, active vibroblades, and other fixed-damage tools.',
+    ]);
+
+    expect(
+      PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT.claws.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek PunchAttackAction.getDamageFor uses ceil(weight / 7) when the punching arm has working claws',
+      'MegaMek PunchAttackAction.toHit adds the claw punch modifier and suppresses hand actuator missing/destroyed penalties when claws replace the hand',
+    ]);
+
+    expect(
+      PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT.talons.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek KickAttackAction.getDamageFor applies a 1.5 talon multiplier when the kicking leg has working talons and a working foot actuator',
+      'MegaMek DfaAttackAction.getDamageFor and hasTalons apply 1.5 DFA damage when a qualifying talon leg has a working foot actuator',
+      'MegaMek DfaAttackAction.hasTalons checks working talons and working foot actuators on qualifying biped and non-biped leg locations.',
+    ]);
+
+    expect(
+      PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT.underwater.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek KickAttackAction.getDamageFor halves wet-location kick damage and rounds up.',
+      'MegaMek PunchAttackAction.getDamageFor halves wet-location punch damage and rounds up.',
+      'MegaMek ClubAttackAction.getDamageFor halves wet-location club damage after resolving the mounted club location.',
+    ]);
+  });
+
   it('tracks movement action rules and terrain/environment rule gaps', () => {
     expect(supportGaps(MOVEMENT_RULE_COMBAT_SUPPORT)).toEqual([]);
     expect(

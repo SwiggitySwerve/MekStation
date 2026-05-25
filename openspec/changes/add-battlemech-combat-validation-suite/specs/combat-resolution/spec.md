@@ -151,6 +151,14 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** the source references SHALL point to the invalidation gates and the event/state mutation boundaries they must not reach
 - **AND** the aggregate catalog triad for `invalidAttackSideEffects` SHALL require row-level source references rather than inherited requirement authority
 
+#### Scenario: Physical damage modifier rows stay source-backed
+
+- **GIVEN** the physical damage modifier catalog covers active TSM, claws, talons, and underwater physical damage
+- **WHEN** the aggregate catalog triad and BattleMech combat catalog contract tests run
+- **THEN** every integrated or helper-only physical damage modifier row SHALL carry structured MegaMek source references with commit-pinned URLs and line anchors
+- **AND** helper-only claw and talon rows SHALL keep damaged-equipment and option-rule lifecycle gaps explicit instead of treating source-backed damage formulas as full parity
+- **AND** the aggregate catalog triad for `physicalDamageModifiers` SHALL require row-level source references rather than inherited requirement authority
+
 #### Scenario: AMS helper boundary stays source-backed
 
 - **GIVEN** AMS behavior is partially represented by projectile reduction, Streak/all-shots-hit cluster parity, single-missile interception, ammo/heat/fired lifecycle, and interception-event rows

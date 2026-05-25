@@ -207,11 +207,6 @@ const FEATURE_TRIAD = triad(
   REQUIREMENT_AUTHORITY_BOUNDARY,
   FEATURE_REFS,
 );
-const RULE_TRIAD = triad(
-  'requirement-primary-authority',
-  REQUIREMENT_AUTHORITY_BOUNDARY,
-  RULE_REFS,
-);
 const TERRAIN_TRIAD = triad(
   'requirement-primary-authority',
   REQUIREMENT_AUTHORITY_BOUNDARY,
@@ -252,6 +247,11 @@ const PHYSICAL_LEGALITY_TRIAD = triad(
       'Physical legality gates are checked for pinned MegaMek source refs.',
     ),
   ],
+);
+const PHYSICAL_DAMAGE_TRIAD = triad(
+  'entry-source-refs',
+  'Physical damage modifier rows are MegaMek-source checked and must carry row-level sourceRefs for active TSM, claw punch, talon kick/DFA, and underwater physical damage boundaries.',
+  RULE_REFS,
 );
 const HEAT_TRIAD = triad(
   'requirement-primary-authority',
@@ -342,7 +342,7 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
       RULE_REFS,
     ),
     physicalLegalityGates: PHYSICAL_LEGALITY_TRIAD,
-    physicalDamageModifiers: RULE_TRIAD,
+    physicalDamageModifiers: PHYSICAL_DAMAGE_TRIAD,
     movementRules: triad(
       'entry-source-refs',
       'Core BattleMech movement rule rows are MegaMek-source checked and must carry row-level sourceRefs for walk, run, jump, stand, go-prone, facing, occupancy, elevation, heat movement penalties, and torso twist boundaries.',
