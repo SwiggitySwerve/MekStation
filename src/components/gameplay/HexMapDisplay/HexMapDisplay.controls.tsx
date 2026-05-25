@@ -1,5 +1,7 @@
 import React from 'react';
 
+import type { MapLayerId } from '@/types/gameplay';
+
 import type { MapInteractionState } from './useMapInteraction';
 
 import { isIsometricProjection } from './projection';
@@ -144,6 +146,58 @@ function formatIsometricRotationDegrees(rotationStep: number): number {
   return rotationStep * 60;
 }
 
+type OverlayToggleProjectionChannel =
+  | 'movement'
+  | 'cover'
+  | 'firing-arc'
+  | 'line-of-sight';
+
+type OverlayToggleRulesSurface =
+  | 'movement-cost'
+  | 'cover-level'
+  | 'firing-arc'
+  | 'line-of-sight';
+
+function layerToggleProjectionAttributes(
+  interaction: MapInteractionState,
+  id: MapLayerId,
+  projectionChannel: OverlayToggleProjectionChannel,
+  rulesSurface: OverlayToggleRulesSurface,
+): {
+  readonly 'data-map-layer-id': MapLayerId;
+  readonly 'data-map-layer-visible': 'true' | 'false';
+  readonly 'data-map-layer-locked': 'true' | 'false';
+  readonly 'data-map-layer-intensity': number;
+  readonly 'data-map-layer-projection-source': 'shared-tactical-map-projection';
+  readonly 'data-map-layer-projection-channel': OverlayToggleProjectionChannel;
+  readonly 'data-map-layer-rules-surface': OverlayToggleRulesSurface;
+} {
+  const layer = interaction.layerState[id];
+  return {
+    'data-map-layer-id': layer.id,
+    'data-map-layer-visible': layer.visible ? 'true' : 'false',
+    'data-map-layer-locked': layer.locked ? 'true' : 'false',
+    'data-map-layer-intensity': layer.intensity,
+    'data-map-layer-projection-source': 'shared-tactical-map-projection',
+    'data-map-layer-projection-channel': projectionChannel,
+    'data-map-layer-rules-surface': rulesSurface,
+  };
+}
+
+function formatLayerToggleLabel(
+  actionLabel: string,
+  visible: boolean,
+  projectionChannel: OverlayToggleProjectionChannel,
+  rulesSurface: OverlayToggleRulesSurface,
+): string {
+  return [
+    actionLabel,
+    visible ? 'visible' : 'hidden',
+    `projection channel ${projectionChannel}`,
+    `rules surface ${rulesSurface}`,
+  ].join('; ');
+}
+
 export function MapControls({
   interaction,
 }: MapControlsProps): React.ReactElement {
@@ -230,9 +284,20 @@ export function MapControls({
               : 'bg-white text-slate-700 hover:bg-gray-100'
           }`}
           title="Toggle movement cost overlay"
-          aria-label="Toggle movement cost overlay"
+          aria-label={formatLayerToggleLabel(
+            'Toggle movement cost overlay',
+            interaction.showMovementOverlay,
+            'movement',
+            'movement-cost',
+          )}
           aria-pressed={interaction.showMovementOverlay}
           data-testid="overlay-toggle-movement"
+          {...layerToggleProjectionAttributes(
+            interaction,
+            'movement',
+            'movement',
+            'movement-cost',
+          )}
         >
           <MovementIcon />
         </button>
@@ -245,9 +310,20 @@ export function MapControls({
               : 'bg-white text-slate-700 hover:bg-gray-100'
           }`}
           title="Toggle cover level overlay"
-          aria-label="Toggle cover level overlay"
+          aria-label={formatLayerToggleLabel(
+            'Toggle cover level overlay',
+            interaction.showCoverOverlay,
+            'cover',
+            'cover-level',
+          )}
           aria-pressed={interaction.showCoverOverlay}
           data-testid="overlay-toggle-cover"
+          {...layerToggleProjectionAttributes(
+            interaction,
+            'cover',
+            'cover',
+            'cover-level',
+          )}
         >
           <CoverIcon />
         </button>
@@ -260,9 +336,20 @@ export function MapControls({
               : 'bg-white text-slate-700 hover:bg-gray-100'
           }`}
           title="Toggle firing arc overlay"
-          aria-label="Toggle firing arc overlay"
+          aria-label={formatLayerToggleLabel(
+            'Toggle firing arc overlay',
+            interaction.showFiringArcOverlay,
+            'firing-arc',
+            'firing-arc',
+          )}
           aria-pressed={interaction.showFiringArcOverlay}
           data-testid="overlay-toggle-arcs"
+          {...layerToggleProjectionAttributes(
+            interaction,
+            'firingArcs',
+            'firing-arc',
+            'firing-arc',
+          )}
         >
           <FiringArcIcon />
         </button>
@@ -275,9 +362,20 @@ export function MapControls({
               : 'bg-white text-slate-700 hover:bg-gray-100'
           }`}
           title="Toggle LOS overlay"
-          aria-label="Toggle line-of-sight overlay"
+          aria-label={formatLayerToggleLabel(
+            'Toggle line-of-sight overlay',
+            interaction.showLOSOverlay,
+            'line-of-sight',
+            'line-of-sight',
+          )}
           aria-pressed={interaction.showLOSOverlay}
           data-testid="overlay-toggle-los"
+          {...layerToggleProjectionAttributes(
+            interaction,
+            'los',
+            'line-of-sight',
+            'line-of-sight',
+          )}
         >
           <LosIcon />
         </button>

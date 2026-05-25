@@ -148,7 +148,33 @@ describe('HexMapDisplay tactical visual layers', () => {
       />,
     );
 
+    const losToggle = screen.getByTestId('overlay-toggle-los');
+    expect(losToggle).toHaveAttribute('data-map-layer-id', 'los');
+    expect(losToggle).toHaveAttribute('data-map-layer-visible', 'false');
+    expect(losToggle).toHaveAttribute('data-map-layer-locked', 'false');
+    expect(losToggle).toHaveAttribute('data-map-layer-intensity', '1');
+    expect(losToggle).toHaveAttribute(
+      'data-map-layer-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(losToggle).toHaveAttribute(
+      'data-map-layer-projection-channel',
+      'line-of-sight',
+    );
+    expect(losToggle).toHaveAttribute(
+      'data-map-layer-rules-surface',
+      'line-of-sight',
+    );
+    expect(losToggle).toHaveAttribute(
+      'aria-label',
+      'Toggle line-of-sight overlay; hidden; projection channel line-of-sight; rules surface line-of-sight',
+    );
     fireEvent.click(screen.getByTestId('overlay-toggle-los'));
+    expect(losToggle).toHaveAttribute('data-map-layer-visible', 'true');
+    expect(losToggle).toHaveAttribute(
+      'aria-label',
+      'Toggle line-of-sight overlay; visible; projection channel line-of-sight; rules surface line-of-sight',
+    );
     fireEvent.mouseEnter(screen.getByTestId('hex-1-0'));
 
     expect(screen.getByTestId('firing-arc-overlay')).toBeInTheDocument();
@@ -206,12 +232,39 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
 
     expect(screen.getByTestId('firing-arc-overlay')).toBeInTheDocument();
+    const firingArcToggle = screen.getByTestId('overlay-toggle-arcs');
+    expect(firingArcToggle).toHaveAttribute('data-map-layer-id', 'firingArcs');
+    expect(firingArcToggle).toHaveAttribute('data-map-layer-visible', 'true');
+    expect(firingArcToggle).toHaveAttribute('data-map-layer-locked', 'false');
+    expect(firingArcToggle).toHaveAttribute('data-map-layer-intensity', '1');
+    expect(firingArcToggle).toHaveAttribute(
+      'data-map-layer-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(firingArcToggle).toHaveAttribute(
+      'data-map-layer-projection-channel',
+      'firing-arc',
+    );
+    expect(firingArcToggle).toHaveAttribute(
+      'data-map-layer-rules-surface',
+      'firing-arc',
+    );
+    expect(firingArcToggle).toHaveAttribute(
+      'aria-label',
+      'Toggle firing arc overlay; visible; projection channel firing-arc; rules surface firing-arc',
+    );
 
     fireEvent.click(screen.getByTestId('overlay-toggle-arcs'));
     expect(screen.queryByTestId('firing-arc-overlay')).toBeNull();
+    expect(firingArcToggle).toHaveAttribute('data-map-layer-visible', 'false');
+    expect(firingArcToggle).toHaveAttribute(
+      'aria-label',
+      'Toggle firing arc overlay; hidden; projection channel firing-arc; rules surface firing-arc',
+    );
 
     fireEvent.click(screen.getByTestId('overlay-toggle-arcs'));
     expect(screen.getByTestId('firing-arc-overlay')).toBeInTheDocument();
+    expect(firingArcToggle).toHaveAttribute('data-map-layer-visible', 'true');
 
     act(() => {
       unmount();
@@ -242,12 +295,64 @@ describe('HexMapDisplay tactical visual layers', () => {
 
     expect(screen.queryByTestId('movement-overlay')).toBeNull();
     expect(screen.queryByTestId('cover-overlay')).toBeNull();
+    const movementToggle = screen.getByTestId('overlay-toggle-movement');
+    const coverToggle = screen.getByTestId('overlay-toggle-cover');
+    expect(movementToggle).toHaveAttribute('data-map-layer-id', 'movement');
+    expect(movementToggle).toHaveAttribute('data-map-layer-visible', 'false');
+    expect(movementToggle).toHaveAttribute('data-map-layer-locked', 'false');
+    expect(movementToggle).toHaveAttribute('data-map-layer-intensity', '1');
+    expect(movementToggle).toHaveAttribute(
+      'data-map-layer-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(movementToggle).toHaveAttribute(
+      'data-map-layer-projection-channel',
+      'movement',
+    );
+    expect(movementToggle).toHaveAttribute(
+      'data-map-layer-rules-surface',
+      'movement-cost',
+    );
+    expect(movementToggle).toHaveAttribute(
+      'aria-label',
+      'Toggle movement cost overlay; hidden; projection channel movement; rules surface movement-cost',
+    );
+    expect(coverToggle).toHaveAttribute('data-map-layer-id', 'cover');
+    expect(coverToggle).toHaveAttribute('data-map-layer-visible', 'false');
+    expect(coverToggle).toHaveAttribute('data-map-layer-locked', 'false');
+    expect(coverToggle).toHaveAttribute('data-map-layer-intensity', '1');
+    expect(coverToggle).toHaveAttribute(
+      'data-map-layer-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(coverToggle).toHaveAttribute(
+      'data-map-layer-projection-channel',
+      'cover',
+    );
+    expect(coverToggle).toHaveAttribute(
+      'data-map-layer-rules-surface',
+      'cover-level',
+    );
+    expect(coverToggle).toHaveAttribute(
+      'aria-label',
+      'Toggle cover level overlay; hidden; projection channel cover; rules surface cover-level',
+    );
 
-    fireEvent.click(screen.getByTestId('overlay-toggle-movement'));
-    fireEvent.click(screen.getByTestId('overlay-toggle-cover'));
+    fireEvent.click(movementToggle);
+    fireEvent.click(coverToggle);
 
     expect(screen.getByTestId('movement-overlay')).toBeInTheDocument();
     expect(screen.getByTestId('cover-overlay')).toBeInTheDocument();
+    expect(movementToggle).toHaveAttribute('data-map-layer-visible', 'true');
+    expect(movementToggle).toHaveAttribute(
+      'aria-label',
+      'Toggle movement cost overlay; visible; projection channel movement; rules surface movement-cost',
+    );
+    expect(coverToggle).toHaveAttribute('data-map-layer-visible', 'true');
+    expect(coverToggle).toHaveAttribute(
+      'aria-label',
+      'Toggle cover level overlay; visible; projection channel cover; rules surface cover-level',
+    );
     expect(screen.getByTestId('movement-cost-overlay-hex-1-0')).toHaveAttribute(
       'data-terrain-movement-cost',
       '2',

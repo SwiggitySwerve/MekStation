@@ -1382,6 +1382,14 @@ legality; it makes the visible highlight itself inspectable instead of requiring
 tests or assistive tooling to climb to the parent hex group for the rules-backed
 evidence.
 
+2026-05-25 overlay toggle projection context pin: Movement, cover, firing arc,
+and LOS overlay toggles now expose their typed map-layer id, visibility state,
+shared tactical projection source, projection channel, and rules surface in
+their control metadata and accessible labels. This does not change any
+movement/combat legality or layer defaults; it makes the control that reveals a
+highlight inspectable from the same projection vocabulary as the rendered hex
+overlay.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:
