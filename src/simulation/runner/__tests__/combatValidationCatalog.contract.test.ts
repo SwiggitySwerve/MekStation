@@ -21,6 +21,21 @@ const VALID_SOURCE_KINDS = new Set([
   'mekstation-deviation',
 ]);
 
+const CLOSED_EJECTION_COVERAGE_REFS = [
+  'actions.tacticalCommands.utility.eject',
+  'actions.gameIntents.eject',
+  'actions.wireIntents.Eject',
+  'actions.p2pIntents.eject',
+  'invalidation.invalidTargetStates.ejected-target',
+  'eventStream.battleMechCombatEvents.unit_ejected',
+  'lifecycleAndPsr.actionEligibility.ejected',
+  'lifecycleAndPsr.actionEligibility.ejected-targetability',
+  'lifecycleAndPsr.actionEligibility.ejection-damage-preservation',
+  'parityAndIntegration.representativeScenarios.ejection-damage-preservation',
+  'parityAndIntegration.representativeScenarios.ejection-command-intent-outcome',
+  'validationScope.objectiveRequirements.ejection-lifecycle',
+] as const;
+
 function catalogMaps(): readonly {
   readonly sectionId: string;
   readonly mapId: string;
@@ -133,6 +148,26 @@ describe('BattleMech combat validation catalog index', () => {
         'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
         'validationScope.objectiveRequirements.non-battlemech-scope',
       ]),
+    );
+  });
+
+  it('keeps ejection lifecycle coverage closed in the aggregate gap inventory', () => {
+    const entryLevels = new Map(
+      catalogMaps().flatMap(({ sectionId, mapId, support }) =>
+        Object.values(support).map((entry) => [
+          `${sectionId}.${mapId}.${entry.id}`,
+          entry.level,
+        ]),
+      ),
+    );
+
+    expect(
+      CLOSED_EJECTION_COVERAGE_REFS.filter(
+        (ref) => entryLevels.get(ref) !== 'integrated',
+      ),
+    ).toEqual([]);
+    expect(unresolvedCatalogRefs().filter((ref) => /eject/i.test(ref))).toEqual(
+      [],
     );
   });
 

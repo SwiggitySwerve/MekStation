@@ -1384,6 +1384,13 @@ Every representative integration scenario support row SHALL expose structured so
 - **AND** every row SHALL include a MekStation source reference for the executable integration path it claims
 - **AND** ejection, PSR-queue, objective-outcome, and runner-terminal rows SHALL cite their focused behavior or integration tests where those tests are the executable scenario boundary
 
+#### Scenario: Closed ejection lifecycle coverage stays out of unresolved inventory
+
+- **GIVEN** the aggregate BattleMech combat-validation gap inventory is generated
+- **WHEN** ejection lifecycle coverage rows are inspected across tactical commands, game intents, wire intents, P2P intents, invalid target states, event stream, action eligibility, representative scenarios, and objective requirements
+- **THEN** those ejection coverage rows SHALL remain integrated
+- **AND** no ejection or ejected row SHALL appear as helper-only or unsupported without reopening the ejection-lifecycle requirement as an explicit gap
+
 ### Requirement: Source-Backed Runner-Interactive Parity Anchors
 
 Every runner-vs-interactive parity support row SHALL expose structured MekStation source references before the row is treated as validation coverage. Movement parity rows SHALL cite runner and interactive movement validation/event-path paths. Weapon parity rows SHALL cite target validation, to-hit calculation, indirect-fire context, and damage/critical resolution paths. Physical parity rows SHALL cite runner, interactive, shared physical resolution, and grid-occupancy refresh paths. Heat and PSR parity rows SHALL cite both quick-sim runner phases and event-sourced interactive/session resolvers. Objective and terminal parity rows SHALL cite the same representative objective and GameEnded source anchors used by integration coverage.
