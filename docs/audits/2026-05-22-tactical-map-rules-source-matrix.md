@@ -42,6 +42,13 @@ actually in front for that view. Remaining isometric browser gaps are broader
 interaction sweeps beyond the smoke harness, such as repeated rotation cycles
 and mobile/pointer gesture coverage.
 
+2026-05-25 isometric rotation-cycle pin: helper, component, and browser coverage
+now verify that six discrete camera rotations return the projection layer,
+scene depth metadata, and active occluder highlight back to the original
+heading. This closes the repeated-rotation smoke gap for deterministic
+click-button rotation; broader pointer/gesture coverage remains outside the
+current browser harness.
+
 2026-05-24 top-down movement browser update: the tactical-map browser harness
 now renders a single highlighted destination with walk, run, and jump options
 and verifies the combined badge metadata for option costs, terrain costs,

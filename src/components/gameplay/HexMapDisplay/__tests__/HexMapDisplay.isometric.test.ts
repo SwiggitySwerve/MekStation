@@ -87,6 +87,14 @@ describe('HexMapDisplay isometric projection helpers', () => {
       rotationStep: 1,
       foregroundUnitIds: new Set(),
     });
+    const fullCycle = buildIsometricSceneItems({
+      isIsometricView: true,
+      renderedHexes,
+      tokens: [],
+      terrainLookup,
+      rotationStep: 6,
+      foregroundUnitIds: new Set(),
+    });
 
     expect(
       unrotated.filter(isHexItem).map((item) => `${item.hex.q},${item.hex.r}`),
@@ -94,6 +102,12 @@ describe('HexMapDisplay isometric projection helpers', () => {
     expect(
       rotated.filter(isHexItem).map((item) => `${item.hex.q},${item.hex.r}`),
     ).toEqual(['0,1', '1,0']);
+    expect(
+      fullCycle.filter(isHexItem).map((item) => `${item.hex.q},${item.hex.r}`),
+    ).toEqual(['1,0', '0,1']);
+    expect(fullCycle.map((item) => item.depthKey)).toEqual(
+      unrotated.map((item) => item.depthKey),
+    );
   });
 
   it('boosts highlighted units above tall terrain in the isometric scene', () => {

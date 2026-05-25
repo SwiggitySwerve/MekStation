@@ -2575,6 +2575,34 @@ describe('HexMapDisplay tactical visual layers', () => {
       'Elevated terrain +6 at (-1, 0) may hide unit at elevation +0',
     );
 
+    fireEvent.click(screen.getByTestId('projection-rotate-right'));
+    fireEvent.click(screen.getByTestId('projection-rotate-right'));
+    fireEvent.click(screen.getByTestId('projection-rotate-right'));
+
+    expect(screen.getByTestId('map-projection-layer')).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '0',
+    );
+    expect(
+      screen.getByTestId('isometric-scene-token-occluded'),
+    ).toHaveAttribute('data-isometric-occluder-hex', '1,0');
+    expect(
+      screen.getByTestId('isometric-scene-token-occluded'),
+    ).toHaveAttribute('data-isometric-occluder-elevation', '5');
+    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-isometric-occludes-units',
+      'occluded',
+    );
+    expect(screen.getByTestId('hex--1-0')).not.toHaveAttribute(
+      'data-isometric-occludes-units',
+    );
+    expect(
+      screen.getByTestId('hex-isometric-occluder-highlight-1-0'),
+    ).toHaveAttribute('data-isometric-occludes-units', 'occluded');
+    expect(
+      screen.queryByTestId('hex-isometric-occluder-highlight--1-0'),
+    ).toBeNull();
+
     act(() => {
       unmount();
     });

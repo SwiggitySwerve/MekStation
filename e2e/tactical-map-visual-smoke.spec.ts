@@ -599,6 +599,35 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(
       page.getByTestId('hex-isometric-occluder-highlight--1-0'),
     ).toHaveAttribute('data-isometric-occludes-units', 'occluded');
+
+    await page.getByTestId('projection-rotate-right').click();
+    await page.getByTestId('projection-rotate-right').click();
+    await page.getByTestId('projection-rotate-right').click();
+
+    await expect(projectionLayer).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '0',
+    );
+    await expect(eastHex).toHaveAttribute(
+      'data-isometric-depth-key',
+      eastDepthBefore ?? '',
+    );
+    await expect(
+      page.getByTestId('isometric-scene-token-occluded'),
+    ).toHaveAttribute('data-isometric-occluder-hex', '1,0');
+    await expect(
+      page.getByTestId('isometric-scene-token-occluded'),
+    ).toHaveAttribute('data-isometric-occluder-elevation', '5');
+    await expect(page.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-isometric-occludes-units',
+      'occluded',
+    );
+    await expect(page.getByTestId('hex--1-0')).not.toHaveAttribute(
+      'data-isometric-occludes-units',
+    );
+    await expect(
+      page.getByTestId('hex-isometric-occluder-highlight-1-0'),
+    ).toHaveAttribute('data-isometric-occludes-units', 'occluded');
   });
 
   test('shows elevation LOS blockers as attack rejection evidence in browser', async ({
