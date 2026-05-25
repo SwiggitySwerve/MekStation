@@ -867,6 +867,54 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('should allow grounded AirMek charge while blocking fighter mode and airborne AirMek', () => {
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerUnitType: UnitType.BATTLEMECH,
+            attackerMovementMode: 'wige',
+            attackerConversionMode: 'airmek',
+            attackerIsAirborneVTOLOrWiGE: false,
+            attackerRanThisTurn: true,
+          }),
+        ),
+      ).toEqual({ allowed: true });
+
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerUnitType: UnitType.BATTLEMECH,
+            attackerMovementMode: 'wige',
+            attackerConversionMode: 'fighter',
+            attackerRanThisTurn: true,
+          }),
+        ),
+      ).toEqual({
+        allowed: false,
+        reason: "This movement mode can't charge",
+        reasonCode: 'AttackerCannotCharge',
+      });
+
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerUnitType: UnitType.BATTLEMECH,
+            attackerMovementMode: 'wige',
+            attackerConversionMode: 'airmek',
+            attackerIsAirborneVTOLOrWiGE: true,
+            attackerRanThisTurn: true,
+          }),
+        ),
+      ).toEqual({
+        allowed: false,
+        reason: "This movement mode can't charge",
+        reasonCode: 'AttackerCannotCharge',
+      });
+    });
+
     it('should allow hover charge unless the optional no-hover-charge rule is enabled', () => {
       expect(
         canCharge(
@@ -949,6 +997,56 @@ describe('physicalAttacks', () => {
         attackerPilotingSkill: 4,
         targetTonnage: 55,
         attackerUnitType: UnitType.VEHICLE,
+        attackerMovementMode: 'wige',
+        targetUnitType: UnitType.BATTLEMECH,
+        attackerRanThisTurn: true,
+      });
+
+      const charge = options.find((option) => option.attackType === 'charge');
+      expect(charge).toBeDefined();
+      expect(charge!.toHit.allowed).toBe(false);
+      expect(charge!.restrictionsFailed).toEqual(['AttackerCannotCharge']);
+    });
+
+    it('derives represented LAM AirMek charge eligibility from runtime conversion state', () => {
+      const attacker = {
+        ...unitAt('airmek-1', 0, 0),
+        conversionMode: 'airmek',
+      } as IUnitGameState;
+      const target = unitAt('mech-1', 1, 0);
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 45,
+        attackerPilotingSkill: 4,
+        targetTonnage: 55,
+        attackerUnitType: UnitType.BATTLEMECH,
+        attackerMovementMode: 'wige',
+        targetUnitType: UnitType.BATTLEMECH,
+        attackerRanThisTurn: true,
+      });
+
+      const charge = options.find((option) => option.attackType === 'charge');
+      expect(charge).toBeDefined();
+      expect(charge!.toHit.allowed).toBe(true);
+      expect(charge!.restrictionsFailed).toEqual([]);
+    });
+
+    it('blocks represented airborne AirMek charge rows from runtime state', () => {
+      const attacker = {
+        ...unitAt('airborne-airmek-1', 0, 0),
+        conversionMode: 'airmek',
+        combatState: {
+          kind: 'aero',
+          state: { altitude: 1 },
+        },
+      } as IUnitGameState;
+      const target = unitAt('mech-1', 1, 0);
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 45,
+        attackerPilotingSkill: 4,
+        targetTonnage: 55,
+        attackerUnitType: UnitType.BATTLEMECH,
         attackerMovementMode: 'wige',
         targetUnitType: UnitType.BATTLEMECH,
         attackerRanThisTurn: true,

@@ -43,7 +43,10 @@ import {
   PhysicalAttackLimb,
   PhysicalAttackType,
 } from './types';
-import { isVehicleCrewStunned } from './unitState';
+import {
+  isAirborneVTOLOrWiGEForPhysicalAttack,
+  isVehicleCrewStunned,
+} from './unitState';
 
 /**
  * Per `add-physical-attack-phase-ui` task 3.2: caller-supplied context
@@ -72,6 +75,8 @@ export interface IEligibilityContext {
   readonly attackerMovementModifier?: number;
   readonly attackerUnitType?: IPhysicalAttackInput['attackerUnitType'];
   readonly attackerMovementMode?: IPhysicalAttackInput['attackerMovementMode'];
+  readonly attackerConversionMode?: IPhysicalAttackInput['attackerConversionMode'];
+  readonly attackerIsAirborneVTOLOrWiGE?: IPhysicalAttackInput['attackerIsAirborneVTOLOrWiGE'];
   readonly optionalRules?: IPhysicalAttackInput['optionalRules'];
   readonly targetUnitType?: IPhysicalAttackInput['targetUnitType'];
   /** Per-attacker presence flags for arm actuators (punches). */
@@ -226,6 +231,14 @@ export function getEligiblePhysicalAttacks(
     attackerRanThisTurn: context.attackerRanThisTurn,
     attackerJumpedThisTurn: context.attackerJumpedThisTurn,
     attackerMovementMode: context.attackerMovementMode,
+    attackerConversionMode:
+      context.attackerConversionMode ?? attacker.conversionMode,
+    attackerIsAirborneVTOLOrWiGE:
+      context.attackerIsAirborneVTOLOrWiGE ??
+      isAirborneVTOLOrWiGEForPhysicalAttack(
+        attacker,
+        context.attackerMovementMode,
+      ),
     attackerVehicleCrewStunned: isVehicleCrewStunned(attacker),
     optionalRules: context.optionalRules,
     limbsUsedThisTurn: context.limbsUsedThisTurn,

@@ -8,6 +8,7 @@ import {
   IPhysicalAttackRestriction,
   PhysicalAttackLimb,
 } from './types';
+import { normalizedLamConversionMode } from './unitState';
 
 /**
  * Per `implement-physical-attack-phase` task 3.5: same limb (arm or leg)
@@ -43,6 +44,10 @@ function isRepresentedChargeCapableUnit(
   );
 }
 
+function isKnownRepresentedMek(unitType: UnitType | undefined): boolean {
+  return unitType !== undefined && isRepresentedMek(unitType);
+}
+
 const NO_HOVER_CHARGE_OPTION_KEYS = new Set([
   'nohovercharge',
   'advancedgroundmovementnohovercharge',
@@ -61,10 +66,26 @@ function hasNoHoverChargeOptionalRule(
 }
 
 function isChargeBlockedByMovementMode(input: IPhysicalAttackInput): boolean {
+  const conversionMode = normalizedLamConversionMode(
+    input.attackerConversionMode,
+  );
+
+  if (conversionMode === 'fighter') {
+    return true;
+  }
+
+  if (conversionMode === 'airmek' && input.attackerIsAirborneVTOLOrWiGE) {
+    return true;
+  }
+
   switch (input.attackerMovementMode) {
     case 'vtol':
-    case 'wige':
       return true;
+    case 'wige':
+      return !(
+        conversionMode === 'airmek' &&
+        isKnownRepresentedMek(input.attackerUnitType)
+      );
     case 'hover':
       return hasNoHoverChargeOptionalRule(input.optionalRules);
     default:

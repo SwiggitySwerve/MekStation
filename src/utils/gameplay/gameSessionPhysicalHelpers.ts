@@ -63,6 +63,8 @@ export interface IPhysicalAttackContext {
   readonly attackerRanThisTurn?: boolean;
   readonly attackerUnitType?: IPhysicalAttackInput['attackerUnitType'];
   readonly attackerMovementMode?: IPhysicalAttackInput['attackerMovementMode'];
+  readonly attackerConversionMode?: IPhysicalAttackInput['attackerConversionMode'];
+  readonly attackerIsAirborneVTOLOrWiGE?: IPhysicalAttackInput['attackerIsAirborneVTOLOrWiGE'];
   readonly optionalRules?: IPhysicalAttackInput['optionalRules'];
   readonly targetUnitType?: IPhysicalAttackInput['targetUnitType'];
   readonly targetProne?: boolean;

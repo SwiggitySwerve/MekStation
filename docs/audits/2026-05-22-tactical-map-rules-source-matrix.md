@@ -1174,6 +1174,18 @@ vehicle that ran this turn but still has stunned crew phases exposes a blocked
 charge row and rejects the committed charge with the same
 `AttackerCannotCharge` reason.
 
+2026-05-25 LAM charge conversion pin: MegaMek `LandAirMek.java:919-935`
+states fighter-mode LAMs cannot make physical attacks except movement-phase
+ramming, and `canCharge()` blocks fighter mode plus airborne AirMek mode while
+falling back to normal Mek charge rules otherwise. MegaMek
+`Entity.java:12004-12022` defines airborne VTOL/WiGE state from VTOL/WiGE
+movement mode and elevation above ground/building/bridge level. MekStation now
+threads represented runtime `conversionMode` and represented airborne
+VTOL/WiGE state into physical charge projection, declaration validation, and
+resolution, so grounded AirMek charge remains legal behind the normal run gate
+while fighter-mode and airborne AirMek charge rows reject with
+`AttackerCannotCharge`.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

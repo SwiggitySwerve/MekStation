@@ -49,6 +49,7 @@ import { hexDistance } from '@/utils/gameplay/hexMath';
 import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
 import { getEligiblePhysicalAttacks } from '@/utils/gameplay/physicalAttacks/eligibility';
 import { buildPhysicalTerrainContext } from '@/utils/gameplay/physicalAttacks/terrain';
+import { isAirborneVTOLOrWiGEForPhysicalAttack } from '@/utils/gameplay/physicalAttacks/unitState';
 
 import type { PhysicalAttackIntentVariant } from './overlays/PhysicalAttackIntentArrow';
 
@@ -248,6 +249,11 @@ export function PhysicalAttackPanel({
       attackerProne: selected.state.prone,
       attackerUnitType: selected.unit.unitType,
       attackerMovementMode: selected.unit.movementMode,
+      attackerConversionMode: selected.state.conversionMode,
+      attackerIsAirborneVTOLOrWiGE: isAirborneVTOLOrWiGEForPhysicalAttack(
+        selected.state,
+        selected.unit.movementMode,
+      ),
       optionalRules,
       attackerDestroyedLocations: selected.state.destroyedLocations,
       targetUnitType: targetUnit?.unitType,

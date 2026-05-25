@@ -45,6 +45,7 @@ import { roll2d6 as rollDice } from './hitLocation';
 import {
   determinePhysicalHitLocation,
   IPhysicalAttackInput,
+  isAirborneVTOLOrWiGEForPhysicalAttack,
   isVehicleCrewStunned,
   PhysicalAttackType,
   resolvePhysicalAttack,
@@ -79,6 +80,8 @@ export function declarePhysicalAttack(
     attackerState.componentDamage ?? buildDefaultComponentDamageState();
   const attackerUnit = session.units.find((unit) => unit.id === attackerId);
   const targetUnit = session.units.find((unit) => unit.id === targetId);
+  const attackerMovementMode =
+    context.attackerMovementMode ?? attackerUnit?.movementMode;
 
   const targetRangeRestriction = physicalTargetRangeRestriction(
     attackerState,
@@ -111,8 +114,15 @@ export function declarePhysicalAttack(
     attackerJumpedThisTurn: context.attackerJumpedThisTurn,
     attackerRanThisTurn: context.attackerRanThisTurn,
     attackerUnitType: context.attackerUnitType ?? attackerUnit?.unitType,
-    attackerMovementMode:
-      context.attackerMovementMode ?? attackerUnit?.movementMode,
+    attackerMovementMode,
+    attackerConversionMode:
+      context.attackerConversionMode ?? attackerState.conversionMode,
+    attackerIsAirborneVTOLOrWiGE:
+      context.attackerIsAirborneVTOLOrWiGE ??
+      isAirborneVTOLOrWiGEForPhysicalAttack(
+        attackerState,
+        attackerMovementMode,
+      ),
     attackerVehicleCrewStunned: isVehicleCrewStunned(attackerState),
     optionalRules: context.optionalRules ?? session.config.optionalRules,
     attackerDestroyedLocations: attackerState.destroyedLocations,
@@ -212,6 +222,11 @@ export function resolveAllPhysicalAttacks(
 
     const componentDamage =
       attackerState.componentDamage ?? buildDefaultComponentDamageState();
+    const attackerUnit = currentSession.units.find(
+      (unit) => unit.id === payload.attackerId,
+    );
+    const attackerMovementMode =
+      context.attackerMovementMode ?? attackerUnit?.movementMode;
 
     const input: IPhysicalAttackInput = {
       attackerTonnage: context.attackerTonnage,
@@ -228,7 +243,15 @@ export function resolveAllPhysicalAttacks(
       attackerJumpedThisTurn: context.attackerJumpedThisTurn,
       attackerRanThisTurn: context.attackerRanThisTurn,
       attackerUnitType: context.attackerUnitType,
-      attackerMovementMode: context.attackerMovementMode,
+      attackerMovementMode,
+      attackerConversionMode:
+        context.attackerConversionMode ?? attackerState.conversionMode,
+      attackerIsAirborneVTOLOrWiGE:
+        context.attackerIsAirborneVTOLOrWiGE ??
+        isAirborneVTOLOrWiGEForPhysicalAttack(
+          attackerState,
+          attackerMovementMode,
+        ),
       attackerVehicleCrewStunned: isVehicleCrewStunned(attackerState),
       optionalRules: context.optionalRules ?? session.config.optionalRules,
       targetUnitType: context.targetUnitType,
