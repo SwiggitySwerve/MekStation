@@ -314,6 +314,13 @@ describe('HexMapDisplay tactical visual layers', () => {
 
     expect(screen.getByTestId('mp-legend')).toHaveClass('pointer-events-none');
     expect(screen.getByTestId('mp-legend-walk')).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+    expect(screen.getByTestId('mp-legend-walk')).not.toHaveAttribute(
+      'data-selectable',
+    );
+    expect(screen.getByTestId('mp-legend-walk')).toHaveAttribute(
       'aria-label',
       'Walk movement range; inactive',
     );
@@ -322,6 +329,10 @@ describe('HexMapDisplay tactical visual layers', () => {
     ).toHaveClass('bg-cyan-400');
     expect(screen.getByTestId('mp-legend-run')).toHaveAttribute(
       'data-active',
+      'true',
+    );
+    expect(screen.getByTestId('mp-legend-run')).toHaveAttribute(
+      'aria-pressed',
       'true',
     );
     expect(
@@ -353,6 +364,48 @@ describe('HexMapDisplay tactical visual layers', () => {
       'aria-label',
       'Jump movement range; inactive; disabled: No jump capability',
     );
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('lets selectable map legend movement modes seed movement projection', () => {
+    const onMovementModeSelect = jest.fn();
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        mpLegend={{ active: 'run', jumpAvailable: false }}
+        onMovementModeSelect={onMovementModeSelect}
+      />,
+    );
+
+    expect(screen.getByTestId('mp-legend-walk')).toHaveAttribute(
+      'data-selectable',
+      'true',
+    );
+    expect(screen.getByTestId('mp-legend-walk')).toHaveAttribute(
+      'aria-disabled',
+      'false',
+    );
+    expect(screen.getByTestId('mp-legend-run')).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+    expect(screen.getByTestId('mp-legend-jump')).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+
+    fireEvent.click(screen.getByTestId('mp-legend-walk'));
+    fireEvent.click(screen.getByTestId('mp-legend-run'));
+    fireEvent.click(screen.getByTestId('mp-legend-jump'));
+
+    expect(onMovementModeSelect).toHaveBeenCalledTimes(1);
+    expect(onMovementModeSelect).toHaveBeenCalledWith('walk');
 
     act(() => {
       unmount();

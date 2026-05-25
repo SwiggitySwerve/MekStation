@@ -183,6 +183,7 @@ export function GameplayLayout({
   hoverMpCost,
   hoverUnreachable = false,
   mpLegend,
+  onMovementModeSelect,
   interactiveSession,
   physicalAttackIntent,
   playerSide = GameSide.Player,
@@ -809,6 +810,7 @@ export function GameplayLayout({
                 hoverMpCost={hoverMpCost}
                 hoverUnreachable={hoverUnreachable}
                 mpLegend={mpLegend}
+                onMovementModeSelect={onMovementModeSelect}
                 onHexClick={handleHexClick}
                 onHexHover={onHexHover}
                 onTokenClick={handleTokenClick}

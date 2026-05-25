@@ -1,4 +1,7 @@
-import type { MapMovementPointLegendState } from '@/components/gameplay/HexMapDisplay/HexMapDisplay.types';
+import type {
+  MapMovementKind,
+  MapMovementPointLegendState,
+} from '@/components/gameplay/HexMapDisplay/HexMapDisplay.types';
 import type { IPlannedMovement } from '@/stores/useGameplayStore';
 import type {
   IGameSession,
@@ -125,6 +128,19 @@ export function movementTypeFromCommandPayload(
       return MovementType.Jump;
     default:
       return null;
+  }
+}
+
+export function movementTypeFromLegendSelection(
+  mode: MapMovementKind,
+): MovementType {
+  switch (mode) {
+    case 'walk':
+      return MovementType.Walk;
+    case 'run':
+      return MovementType.Run;
+    case 'jump':
+      return MovementType.Jump;
   }
 }
 

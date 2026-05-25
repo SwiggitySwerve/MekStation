@@ -7,7 +7,10 @@ import type {
 } from '@/types/gameplay';
 import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
-import type { MapMovementPointLegendState } from './HexMapDisplay.types';
+import type {
+  MapMovementKind,
+  MapMovementPointLegendState,
+} from './HexMapDisplay.types';
 import type { IsometricTerrainOccluderInfo } from './projection';
 
 import {
@@ -47,6 +50,7 @@ interface MapHtmlOverlaysProps {
   readonly hoverProjectionInfo?: ITacticalMapHexProjection;
   readonly hoverIsometricOccluderInfo?: IsometricTerrainOccluderInfo;
   readonly mpLegend?: MapMovementPointLegendState;
+  readonly onMovementModeSelect?: (mode: MapMovementKind) => void;
 }
 
 export function MapHtmlOverlays({
@@ -58,6 +62,7 @@ export function MapHtmlOverlays({
   hoverProjectionInfo,
   hoverIsometricOccluderInfo,
   mpLegend,
+  onMovementModeSelect,
 }: MapHtmlOverlaysProps): React.ReactElement {
   const showCombinedTacticalTooltip = Boolean(
     hoverProjectionInfo?.movement && hoverProjectionInfo.combat,
@@ -139,7 +144,12 @@ export function MapHtmlOverlays({
           />
         )}
 
-      {mpLegend && <MapMovementPointLegend {...mpLegend} />}
+      {mpLegend && (
+        <MapMovementPointLegend
+          {...mpLegend}
+          onMovementModeSelect={onMovementModeSelect}
+        />
+      )}
     </>
   );
 }

@@ -22,6 +22,7 @@ import {
   mergeJumpMovementRangeHexes,
   mergeRunMovementRangeHexes,
   movementTypeFromCommandPayload,
+  movementTypeFromLegendSelection,
   movementPathFromRangeHex,
 } from './GameSessionPage.movementPlanning';
 
@@ -138,6 +139,12 @@ describe('movement command payload planning', () => {
     );
     expect(movementTypeFromCommandPayload({ mode: 'careful' })).toBeNull();
     expect(movementTypeFromCommandPayload({ volley: true })).toBeNull();
+  });
+
+  it('maps map legend selections to movement types used by projection', () => {
+    expect(movementTypeFromLegendSelection('walk')).toBe(MovementType.Walk);
+    expect(movementTypeFromLegendSelection('run')).toBe(MovementType.Run);
+    expect(movementTypeFromLegendSelection('jump')).toBe(MovementType.Jump);
   });
 
   it('seeds an empty selected-unit movement plan for command mode switches', () => {

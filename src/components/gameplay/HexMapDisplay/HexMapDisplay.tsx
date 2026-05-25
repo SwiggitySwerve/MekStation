@@ -28,6 +28,7 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
     className = '',
     friendlySide = GameSide.Player,
     mpLegend,
+    onMovementModeSelect,
     objectives,
     overlayChildren,
     svgOverlayChildren,
@@ -192,6 +193,7 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
         hoverProjectionInfo={hoverProjectionInfo}
         hoverIsometricOccluderInfo={hoverIsometricOccluderInfo}
         mpLegend={mpLegend}
+        onMovementModeSelect={onMovementModeSelect}
       />
       <MapControls interaction={interaction} />
       {overlayChildren}

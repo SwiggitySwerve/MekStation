@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import type { MapMovementPointLegendState } from '@/components/gameplay/HexMapDisplay/HexMapDisplay.types';
+import type {
+  MapMovementKind,
+  MapMovementPointLegendState,
+} from '@/components/gameplay/HexMapDisplay/HexMapDisplay.types';
 import type { InteractiveSession } from '@/engine/GameEngine';
 
 import { useGameplaySelector } from '@/stores/useGameplayStore';
@@ -22,6 +25,7 @@ import { logger } from '@/utils/logger';
 
 import {
   appendHoveredMovementProjection,
+  buildMovementModeSeedPlan,
   buildMovementPlan,
   buildMovementLegendState,
   canProjectMovementForSelectedUnit,
@@ -30,6 +34,7 @@ import {
   mergeJumpMovementRangeHexes,
   mergeRunMovementRangeHexes,
   movementPathFromRangeHex,
+  movementTypeFromLegendSelection,
   type IEffectiveMovementMps,
 } from './GameSessionPage.movementPlanning';
 
@@ -58,6 +63,7 @@ interface MovementPlanningResult {
   readonly mpLegend: MapMovementPointLegendState | undefined;
   readonly setHoveredHex: (hex: IHexCoordinate | null) => void;
   readonly handleHexClick: (hex: IHexCoordinate) => void;
+  readonly handleMovementModeSelect: (mode: MapMovementKind) => void;
 }
 
 export function useGameMovementPlanning({
@@ -323,6 +329,31 @@ export function useGameMovementPlanning({
     ],
   );
 
+  const handleMovementModeSelect = useCallback(
+    (mode: MapMovementKind) => {
+      if (!canProjectMovement || !selectedUnitState) return;
+      const selectedMovementType = movementTypeFromLegendSelection(mode);
+      if (
+        selectedMovementType === MovementType.Jump &&
+        !effectiveMovementMps?.jumpMP
+      ) {
+        return;
+      }
+      setPlannedMovement(
+        buildMovementModeSeedPlan({
+          selectedUnitState,
+          movementType: selectedMovementType,
+        }),
+      );
+    },
+    [
+      canProjectMovement,
+      selectedUnitState,
+      effectiveMovementMps?.jumpMP,
+      setPlannedMovement,
+    ],
+  );
+
   useEffect(() => {
     if (plannedMovement && !plannedMovementForSelected) {
       clearPlannedMovement();
@@ -356,5 +387,6 @@ export function useGameMovementPlanning({
     mpLegend,
     setHoveredHex,
     handleHexClick,
+    handleMovementModeSelect,
   };
 }

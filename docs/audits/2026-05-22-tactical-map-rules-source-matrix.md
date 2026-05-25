@@ -1019,6 +1019,13 @@ browser harness now includes `scenario=capped-isometric-stack` to prove the
 top-down elevation/building label, isometric true-height metadata, capped stack
 badge, and nonblank rendered pixels together.
 
+2026-05-25 movement legend selection pin: the on-map MP legend now reuses the
+same selected-unit planned-movement seed path as tactical movement command
+payloads when Walk, Run, or Jump is selected. This is a control-surface change
+only: movement costs, heat, terrain/elevation legality, jump capability, and
+committed movement validation continue to come from the existing source-pinned
+movement projection and validation helpers.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

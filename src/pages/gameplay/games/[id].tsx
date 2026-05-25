@@ -306,6 +306,7 @@ export default function GameSessionPage(): React.ReactElement {
             hoverMpCost={movement.hoverMpCost}
             hoverUnreachable={movement.hoverUnreachable}
             mpLegend={movement.mpLegend}
+            onMovementModeSelect={movement.handleMovementModeSelect}
             interactiveSession={interactiveSession ?? undefined}
             physicalAttackIntent={physicalAttackIntent}
             playerSide={GameSide.Player}
