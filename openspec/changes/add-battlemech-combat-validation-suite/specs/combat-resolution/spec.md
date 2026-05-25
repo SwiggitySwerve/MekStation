@@ -448,6 +448,15 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **AND** runner behavior, parity catalog, task list, and source-truth audit evidence SHALL report the same stale-occupancy closure
 - **AND** domino-chain displacement, friendly-unit avoidance, and DropShip-radius displacement SHALL remain explicit gaps
 
+#### Scenario: Displacement chain edge gaps stay source-backed
+
+- **GIVEN** the physical legality support catalog tracks BattleMech displacement behavior
+- **WHEN** the catalog is contract-tested
+- **THEN** domino-chain displacement SHALL remain an explicit unsupported row until occupied-hex displacement recursively moves blockers, emits domino PSRs, and cascades position updates
+- **AND** friendly-unit displacement avoidance SHALL remain an explicit unsupported row until preferred DFA displacement receives side-aware occupant context
+- **AND** grounded DropShip-radius displacement SHALL remain an explicit unsupported row until the displacement search can expand to radius two around a grounded DropShip footprint
+- **AND** each unsupported row SHALL cite the corresponding MegaMek `Compute` or `TWGameManager` source anchor with commit-pinned line references
+
 #### Scenario: Push rejects arm-mounted weapons fired this turn
 
 - **GIVEN** a push declaration is evaluated with evidence that either attacker arm fired a weapon this turn

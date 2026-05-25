@@ -44,6 +44,24 @@ function helperOnly(
   };
 }
 
+function unsupported(
+  id: string,
+  attackFamily: PhysicalLegalityAttackFamily,
+  gap: string,
+  authority: string,
+): IPhysicalLegalityGateSupportEntry {
+  return {
+    id,
+    attackFamily,
+    authority,
+    level: 'unsupported',
+    evidence:
+      'No physical displacement helper or runner branch implements this source-backed displacement edge',
+    gap,
+    sourceRefs: sourceRefsForAuthority(authority),
+  };
+}
+
 const MEGAMEK_PHYSICAL_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
 
@@ -78,6 +96,12 @@ const DISPLACEMENT_PROHIBITED_TERRAIN_LINES =
   'MegaMek Compute.isValidDisplacement rejects entity.isLocationProhibited destinations; Mek.isLocationProhibited rejects IMPASSABLE terrain for normal BattleMechs';
 const DISPLACEMENT_OVERGROWN_TERRAIN_LINES =
   'MegaMek Compute.isValidDisplacement rejects entity.isLocationProhibited destinations; Mek.isLocationProhibited rejects WOODS and JUNGLE terrain levels above 2 for normal BattleMechs';
+const DISPLACEMENT_DOMINO_CHAIN_LINES =
+  'MegaMek Compute.isValidDisplacement recursively validates stacking-violation displacement chains, and TWGameManager.doEntityDisplacement applies domino-effect displacement plus PSRs';
+const DISPLACEMENT_FRIENDLY_AVOIDANCE_LINES =
+  'MegaMek Compute.getPreferredDisplacement first searches valid displacement destinations that do not contain friendly units before falling back to occupied/friendly hexes';
+const DISPLACEMENT_DROPSHIP_RADIUS_LINES =
+  'MegaMek Compute.getValidDisplacement expands displacement search to radius two when the source hex contains a grounded DropShip';
 
 const PHYSICAL_ATTACK_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
   'MegaMek PhysicalAttackAction.toHitIsImpossible applies shared physical attack impossibility gates',
@@ -170,6 +194,33 @@ const MEK_OVERGROWN_TERRAIN_SOURCE_REF = megamekPhysicalSourceRef(
   'L4220-L4221',
 );
 
+const COMPUTE_DISPLACEMENT_DOMINO_VALIDITY_SOURCE_REF =
+  megamekPhysicalSourceRef(
+    'MegaMek Compute.isValidDisplacement recursively validates the unit already in the destination hex instead of treating all occupied destinations as blocked',
+    'common/compute/Compute.java',
+    'L993-L1000',
+  );
+
+const TWGAME_DISPLACEMENT_DOMINO_EFFECT_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek TWGameManager.doEntityDisplacement resolves stacking violations as domino-effect displacement with an attached PilotingRollData',
+  'server/totalWarfare/TWGameManager.java',
+  'L9013-L9294',
+);
+
+const COMPUTE_DISPLACEMENT_FRIENDLY_AVOIDANCE_SOURCE_REF =
+  megamekPhysicalSourceRef(
+    'MegaMek Compute.getPreferredDisplacement first skips destinations containing friendly units before falling back to any valid destination',
+    'common/compute/Compute.java',
+    'L1056-L1114',
+  );
+
+const COMPUTE_DISPLACEMENT_DROPSHIP_RADIUS_SOURCE_REF =
+  megamekPhysicalSourceRef(
+    'MegaMek Compute.getValidDisplacement searches at radius two when the source hex contains a grounded DropShip',
+    'common/compute/Compute.java',
+    'L1019-L1046',
+  );
+
 function sourceRefsForAuthority(
   authority: string,
 ): readonly ICombatFeatureSourceReference[] {
@@ -204,6 +255,15 @@ function sourceRefsForAuthority(
         COMPUTE_DISPLACEMENT_PROHIBITED_TERRAIN_SOURCE_REF,
         MEK_OVERGROWN_TERRAIN_SOURCE_REF,
       ];
+    case DISPLACEMENT_DOMINO_CHAIN_LINES:
+      return [
+        COMPUTE_DISPLACEMENT_DOMINO_VALIDITY_SOURCE_REF,
+        TWGAME_DISPLACEMENT_DOMINO_EFFECT_SOURCE_REF,
+      ];
+    case DISPLACEMENT_FRIENDLY_AVOIDANCE_LINES:
+      return [COMPUTE_DISPLACEMENT_FRIENDLY_AVOIDANCE_SOURCE_REF];
+    case DISPLACEMENT_DROPSHIP_RADIUS_LINES:
+      return [COMPUTE_DISPLACEMENT_DROPSHIP_RADIUS_SOURCE_REF];
     case PHYSICAL_ATTACK_ACTION_LINES:
     default:
       return [PHYSICAL_ATTACK_ACTION_SOURCE_REF];
@@ -319,6 +379,24 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'shared',
     'isValidDisplacement now rejects represented woods/jungle terrain levels above two before push/charge/DFA position changes; helper, event-sourced, and runner charge coverage keep successful charge damage while suppressing displacement and charge PSRs',
     DISPLACEMENT_OVERGROWN_TERRAIN_LINES,
+  ),
+  'shared.displacement-domino-chain': unsupported(
+    'shared.displacement-domino-chain',
+    'shared',
+    'MekStation displacement helpers treat occupied destination hexes as blocked and do not recursively displace blocking units, emit domino PSRs, or cascade position updates through a chain',
+    DISPLACEMENT_DOMINO_CHAIN_LINES,
+  ),
+  'shared.displacement-friendly-avoidance': unsupported(
+    'shared.displacement-friendly-avoidance',
+    'shared',
+    'MekStation displacement helpers do not pass side-aware occupant context into preferred-DFA displacement, so they cannot model MegaMek first-pass avoidance of friendly occupied destinations',
+    DISPLACEMENT_FRIENDLY_AVOIDANCE_LINES,
+  ),
+  'shared.displacement-dropship-radius': unsupported(
+    'shared.displacement-dropship-radius',
+    'shared',
+    'MekStation displacement helpers always search adjacent radius-one destinations and do not model grounded DropShip footprint expansion to a two-hex displacement radius',
+    DISPLACEMENT_DROPSHIP_RADIUS_LINES,
   ),
   'push.destination-open': integrated(
     'push.destination-open',

@@ -528,4 +528,49 @@ describe('BattleMech combat action support catalog', () => {
         .every((gap) => typeof gap === 'string' && gap.length > 0),
     ).toBe(true);
   });
+
+  it('keeps unresolved physical displacement chain edges visible and source-backed', () => {
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-domino-chain'],
+    ).toMatchObject({
+      level: 'unsupported',
+      gap: expect.stringContaining('recursively displace blocking units'),
+      sourceRefs: [
+        expect.objectContaining({
+          citation: expect.stringContaining(
+            'Compute.isValidDisplacement recursively validates',
+          ),
+        }),
+        expect.objectContaining({
+          citation: expect.stringContaining('domino-effect displacement'),
+        }),
+      ],
+    });
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-friendly-avoidance'],
+    ).toMatchObject({
+      level: 'unsupported',
+      gap: expect.stringContaining('side-aware occupant context'),
+      sourceRefs: [
+        expect.objectContaining({
+          citation: expect.stringContaining(
+            'getPreferredDisplacement first skips',
+          ),
+        }),
+      ],
+    });
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-dropship-radius'],
+    ).toMatchObject({
+      level: 'unsupported',
+      gap: expect.stringContaining('two-hex displacement radius'),
+      sourceRefs: [
+        expect.objectContaining({
+          citation: expect.stringContaining(
+            'getValidDisplacement searches at radius two',
+          ),
+        }),
+      ],
+    });
+  });
 });

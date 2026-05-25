@@ -59,6 +59,7 @@
 - [x] 2.32.14 Add source-backed prohibited-terrain displacement rejection for explicit impassable hexes through helper, event-sourced charge resolution, runner charge resolution, catalog, and audit coverage while leaving hidden-unit, track/wheel, domino-chain, friendly-avoidance, and DropShip-radius displacement nuances explicit.
 - [x] 2.32.15 Add source-backed BattleMech overgrown woods/jungle displacement rejection for represented terrain levels above two through helper, event-sourced charge resolution, runner charge resolution, catalog, and audit coverage while leaving hidden-unit deployment and motive-mode terrain restrictions explicit.
 - [x] 2.32.16 Source-back unsupported BattleMech physical action class gaps for brush-off, thrash, trip, grapple, break-grapple, and jump-jet attacks with commit-pinned MegaMek anchors while leaving runtime action paths explicit.
+- [x] 2.32.17 Source-back remaining physical displacement-chain edge gaps for domino displacement, friendly-unit avoidance, and grounded DropShip radius expansion so the catalog cannot claim these consequences until runtime support exists.
 
 ## 3. Full combat validation catalog
 
@@ -233,3 +234,4 @@
 - [x] 4.3.63 Promote physical damage modifier rows to row-level MegaMek source references so inherited rule authority cannot mask unsourced active-TSM, claw, talon, or underwater damage claims.
 - [x] 4.3.64 Promote heat rule rows to row-level source references so inherited heat authority cannot mask unsourced accumulation, dissipation, threshold, environment, lifecycle, ammo-explosion, or pilot heat-damage claims.
 - [x] 4.3.65 Promote critical-slot hydration and effect rows to row-level MegaMek source references so inherited damage authority cannot mask unsourced system critical, equipment critical, ammo cookoff, or generic-equipment gap claims.
+- [x] 4.3.66 Cross-check MegaMek `Compute.getValidDisplacement`, `Compute.getPreferredDisplacement`, recursive `Compute.isValidDisplacement`, and `TWGameManager.doEntityDisplacement` before pinning domino, friendly-avoidance, and DropShip-radius displacement edges as explicit unsupported gaps.
