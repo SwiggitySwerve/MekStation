@@ -4,6 +4,10 @@ import type {
 } from './CombatFeatureSupport';
 
 import {
+  MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
+  MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
+} from './CombatConsciousnessSourceRefs';
+import {
   MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
   MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
 } from './CombatEdgeSourceRefs';
@@ -74,6 +78,32 @@ export interface IPilotModifierResolverAssignment {
   readonly quirkIds: readonly string[];
 }
 
+const RANGED_TO_HIT_SPA_IDS = [
+  'weapon-specialist',
+  'gunnery-specialist',
+  'sniper',
+  'blood-stalker',
+  'multi-tasker',
+  'range-master',
+  'hopping-jack',
+  'jumping-jack',
+  'dodge-maneuver',
+  'shaky_stick',
+  'tm_forest_ranger',
+  'tm_swamp_beast',
+] as const;
+
+const RANGED_TO_HIT_QUIRK_IDS = [
+  'improved_targeting_short',
+  'improved_targeting_medium',
+  'improved_targeting_long',
+  'poor_targeting_short',
+  'poor_targeting_medium',
+  'poor_targeting_long',
+  'sensor_ghosts',
+  'multi_trac',
+] as const;
+
 export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   'ranged-to-hit-calculation': integrated(
     'ranged-to-hit-calculation',
@@ -107,6 +137,15 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
       ...MEGAMEK_DISTRACTING_QUIRK_SOURCE_REFS,
       ...MEGAMEK_LOW_PROFILE_GLANCING_SOURCE_REFS,
       ...MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS,
+    ],
+  ),
+  'legacy-pain-resistance-to-hit-application': helperOnly(
+    'legacy-pain-resistance-to-hit-application',
+    'calculateAttackerSPAModifiers calls getEffectiveWounds so local Pain Resistance reduces the pilot wound to-hit penalty',
+    'MegaMek source uses Pain Resistance for consciousness/wake-up rolls and ammunition-explosion pilot-damage reduction, not ranged to-hit wound-penalty relief',
+    [
+      ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
+      ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
     ],
   ),
   'called-shot-application': helperOnly(
@@ -181,9 +220,14 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
       ...MEGAMEK_WEAPON_COOLING_QUIRK_SOURCE_REFS,
     ],
   ),
-  'consciousness-application': integrated(
+  'consciousness-application': helperOnly(
     'consciousness-application',
     'applyPilotDamage consumes pilotAbilities for head-hit consciousness checks; runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase consume unit abilities for fall and heat pilot-damage consciousness checks',
+    'MegaMek separates RPG Toughness numeric crew target relief, Pain Resistance +1 consciousness/wake-up rolls and ammo-explosion reduction, and Iron Man ammo-explosion reduction; local aliases and target-number reductions remain helper-only until those source-specific paths are represented',
+    [
+      ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
+      ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
+    ],
   ),
   'edge-application': helperOnly(
     'edge-application',
@@ -236,58 +280,12 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
 
 export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
   'ranged-to-hit-calculation': {
-    spaIds: [
-      'weapon-specialist',
-      'gunnery-specialist',
-      'sniper',
-      'blood-stalker',
-      'multi-tasker',
-      'range-master',
-      'hopping-jack',
-      'jumping-jack',
-      'dodge-maneuver',
-      'shaky_stick',
-      'tm_forest_ranger',
-      'tm_swamp_beast',
-      'pain-resistance',
-    ],
-    quirkIds: [
-      'improved_targeting_short',
-      'improved_targeting_medium',
-      'improved_targeting_long',
-      'poor_targeting_short',
-      'poor_targeting_medium',
-      'poor_targeting_long',
-      'sensor_ghosts',
-      'multi_trac',
-    ],
+    spaIds: RANGED_TO_HIT_SPA_IDS,
+    quirkIds: RANGED_TO_HIT_QUIRK_IDS,
   },
   'ranged-to-hit-state-hydration': {
-    spaIds: [
-      'weapon-specialist',
-      'gunnery-specialist',
-      'sniper',
-      'blood-stalker',
-      'multi-tasker',
-      'range-master',
-      'hopping-jack',
-      'jumping-jack',
-      'dodge-maneuver',
-      'shaky_stick',
-      'tm_forest_ranger',
-      'tm_swamp_beast',
-      'pain-resistance',
-    ],
-    quirkIds: [
-      'improved_targeting_short',
-      'improved_targeting_medium',
-      'improved_targeting_long',
-      'poor_targeting_short',
-      'poor_targeting_medium',
-      'poor_targeting_long',
-      'sensor_ghosts',
-      'multi_trac',
-    ],
+    spaIds: RANGED_TO_HIT_SPA_IDS,
+    quirkIds: RANGED_TO_HIT_QUIRK_IDS,
   },
   'weapon-to-hit-quirk-application': {
     spaIds: [],
@@ -296,6 +294,10 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
   'legacy-defensive-quirk-to-hit-application': {
     spaIds: [],
     quirkIds: ['distracting', 'low_profile'],
+  },
+  'legacy-pain-resistance-to-hit-application': {
+    spaIds: ['pain-resistance'],
+    quirkIds: [],
   },
   'called-shot-application': {
     spaIds: ['marksman', 'sharpshooter'],
@@ -356,14 +358,8 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
     spaIds: ['tactical-genius', 'combat-intuition'],
     quirkIds: ['command_mech', 'battle_computer'],
   },
-  'initiative-hq-equipment-hydration': {
-    spaIds: [],
-    quirkIds: [],
-  },
-  'initiative-command-console-hydration': {
-    spaIds: [],
-    quirkIds: [],
-  },
+  'initiative-hq-equipment-hydration': { spaIds: [], quirkIds: [] },
+  'initiative-command-console-hydration': { spaIds: [], quirkIds: [] },
   'heat-application': {
     spaIds: ['hot-dog', 'cool-under-fire', 'some-like-it-hot'],
     quirkIds: ['improved_cooling', 'poor_cooling', 'no_cooling'],
@@ -372,14 +368,8 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
     spaIds: ['iron-man', 'pain-resistance', 'toughness', 'iron-will'],
     quirkIds: [],
   },
-  'edge-application': {
-    spaIds: ['edge'],
-    quirkIds: [],
-  },
-  'critical-prevention-application': {
-    spaIds: ['edge'],
-    quirkIds: [],
-  },
+  'edge-application': { spaIds: ['edge'], quirkIds: [] },
+  'critical-prevention-application': { spaIds: ['edge'], quirkIds: [] },
   'campaign-maintenance-application': {
     spaIds: [],
     quirkIds: ['rugged_1', 'rugged_2'],

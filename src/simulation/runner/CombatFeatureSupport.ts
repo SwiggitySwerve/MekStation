@@ -8,6 +8,10 @@
  */
 
 import {
+  MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
+  MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
+} from './CombatConsciousnessSourceRefs';
+import {
   MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
   MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
 } from './CombatEdgeSourceRefs';
@@ -554,13 +558,23 @@ export const SPA_COMBAT_SUPPORT = {
     'Local Natural Grace fall PSR modifier is not wired, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
-  'iron-man': integrated(
+  'iron-man': helperOnly(
     'iron-man',
-    'getConsciousnessCheckModifier plus applyPilotDamage, runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase lower consciousness TNs',
+    'getConsciousnessCheckModifier plus applyPilotDamage, runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase lower consciousness TNs through a local helper path',
+    'MegaMek source uses Iron Man for ammunition-explosion pilot-hit reduction, not generic consciousness target-number relief; MekStation has not wired Iron Man ammunition-explosion pilot-damage reduction',
+    [
+      ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
+      ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
+    ],
   ),
-  'pain-resistance': integrated(
+  'pain-resistance': helperOnly(
     'pain-resistance',
-    'getEffectiveWounds plus calculateToHit; getConsciousnessCheckModifier plus pilot damage, fall, and heat consciousness checks',
+    'getEffectiveWounds plus calculateToHit apply local wound-penalty relief; getConsciousnessCheckModifier plus pilot damage, fall, and heat consciousness checks apply local target-number relief',
+    'MegaMek source uses Pain Resistance for +1 consciousness and wake-up rolls plus ammunition-explosion pilot-damage reduction, while MekStation has local to-hit wound relief and does not wire wake-up or ammunition-explosion reduction',
+    [
+      ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
+      ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
+    ],
   ),
   edge: helperOnly(
     'edge',
@@ -571,9 +585,14 @@ export const SPA_COMBAT_SUPPORT = {
       ...MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
     ],
   ),
-  toughness: integrated(
+  toughness: helperOnly(
     'toughness',
-    'getConsciousnessCheckModifier plus applyPilotDamage, runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase lower consciousness TNs',
+    'getConsciousnessCheckModifier plus applyPilotDamage, runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase lower consciousness TNs through the local toughness-to-pain-resistance alias',
+    'MegaMek RPG Toughness is a separate game option and numeric crew toughness value, not the Pain Resistance SPA alias currently used by MekStation',
+    [
+      ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
+      ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
+    ],
   ),
   'tactical-genius': integrated(
     'tactical-genius',
@@ -611,9 +630,14 @@ export const SPA_COMBAT_SUPPORT = {
     'Local Multi-Target is not the MegaMek source-backed SPA; source-backed secondary-target penalty reduction is Multi-Tasker/multi_tasker',
     MEGAMEK_325B_MULTI_TASKER_SOURCE_REFS,
   ),
-  'iron-will': integrated(
+  'iron-will': helperOnly(
     'iron-will',
-    'getConsciousnessCheckModifier plus applyPilotDamage, runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase lower consciousness TNs through the Iron Man alias',
+    'getConsciousnessCheckModifier plus applyPilotDamage, runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase lower consciousness TNs through the local Iron Man alias',
+    'No source-backed MegaMek Iron Will id or generic consciousness target-number relief path was identified; MekStation aliases Iron Will to Iron Man',
+    [
+      ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
+      ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
+    ],
   ),
   'heavy-lifter': unsupported(
     'heavy-lifter',

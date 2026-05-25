@@ -1273,6 +1273,18 @@ Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior 
 - **AND** Cool Under Fire SHALL be helper-only with the unresolved source authority recorded as a gap
 - **AND** the heat-application resolver SHALL remain helper-only while Cool Under Fire source authority is unresolved
 
+### Requirement: Source-Backed Consciousness Toughness Boundary
+
+Consciousness-related pilot ability rows SHALL distinguish MegaMek RPG Toughness, Pain Resistance, and Iron Man semantics from MekStation legacy aliases before claiming parity. RPG Toughness SHALL be treated as a game-option-gated numeric crew toughness target-number reduction, not as the Pain Resistance SPA. Pain Resistance SHALL be source-backed as +1 consciousness and wake-up rolls plus ammunition-explosion pilot-damage reduction, not ranged to-hit wound-penalty relief. Iron Man SHALL be source-backed as ammunition-explosion pilot-hit reduction, not generic consciousness target-number relief. MekStation local Iron Will and Toughness aliases SHALL remain helper-only until source-backed ids or explicit migration behavior are represented.
+
+#### Scenario: Consciousness toughness rows expose source truth
+
+- **GIVEN** the BattleMech SPA and pilot modifier resolver catalogs are generated
+- **WHEN** Iron Man, Pain Resistance, Toughness, Iron Will, consciousness application, or local Pain Resistance to-hit application rows are inspected
+- **THEN** each row SHALL expose structured MegaMek and MekStation deviation source references
+- **AND** those rows SHALL remain helper-only while local aliases and target-number helpers differ from MegaMek's separated roll, wake-up, ammo-explosion, and numeric crew toughness paths
+- **AND** integrated ranged to-hit resolver rows SHALL NOT list Pain Resistance as source-backed ranged to-hit support
+
 ### Requirement: Source-Backed Weapon Cooling Quirk Heat
 
 Weapon cooling quirk validation SHALL use MegaMek weapon heat semantics before counting cooling quirk rows as integrated. Improved Cooling SHALL reduce final weapon heat by 1 but never below 1. Poor Cooling SHALL add 1 heat. No Cooling SHALL add 2 heat, not double the base weapon heat. The support catalog and heat resolver row SHALL expose commit-pinned MegaMek source references for the heat calculation and quirk eligibility boundary.

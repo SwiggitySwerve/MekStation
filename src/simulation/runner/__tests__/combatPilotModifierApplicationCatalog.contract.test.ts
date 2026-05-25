@@ -107,6 +107,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'initiative-command-console-hydration',
         'initiative-hq-equipment-hydration',
         'legacy-defensive-quirk-to-hit-application',
+        'legacy-pain-resistance-to-hit-application',
         'movement-application',
         'multi-target-penalty-application',
         'physical-damage-application',
@@ -158,7 +159,6 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'ranged-to-hit-calculation',
         'ranged-to-hit-state-hydration',
         'cluster-hitter-application',
-        'consciousness-application',
         'indirect-fire-spa-application',
         'physical-damage-application',
         'physical-restriction-application',
@@ -183,7 +183,9 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual(
       expect.arrayContaining([
         'critical-prevention-application',
+        'consciousness-application',
         'legacy-defensive-quirk-to-hit-application',
+        'legacy-pain-resistance-to-hit-application',
         'heat-application',
         'psr-spa-application',
         'sandblaster-application',
@@ -208,7 +210,6 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'shaky_stick',
         'tm_forest_ranger',
         'tm_swamp_beast',
-        'pain-resistance',
       ]),
     );
     expect(
@@ -225,6 +226,16 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['ranged-to-hit-state-hydration']
         .level,
     ).toBe('integrated');
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS[
+        'legacy-pain-resistance-to-hit-application'
+      ],
+    ).toEqual({ spaIds: ['pain-resistance'], quirkIds: [] });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'legacy-pain-resistance-to-hit-application'
+      ],
+    ).toMatchObject({ level: 'helper-only' });
   });
 
   it('keeps source-backed Multi-Tasker distinct from local Multi-Target', () => {
@@ -981,10 +992,106 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     });
   });
 
+  it('keeps toughness and consciousness SPA boundaries source-backed but helper-only', () => {
+    const painResistanceRefs =
+      SPA_COMBAT_SUPPORT['pain-resistance'].sourceRefs ?? [];
+    const consciousnessRefs =
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['consciousness-application']
+        .sourceRefs ?? [];
+    const painResistanceToHitRefs =
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'legacy-pain-resistance-to-hit-application'
+      ].sourceRefs ?? [];
+
+    expect(SPA_COMBAT_SUPPORT['iron-man']).toMatchObject({
+      level: 'helper-only',
+      gap: expect.stringContaining('ammunition'),
+    });
+    expect(SPA_COMBAT_SUPPORT['pain-resistance']).toMatchObject({
+      level: 'helper-only',
+      gap: expect.stringContaining('wake-up'),
+    });
+    expect(SPA_COMBAT_SUPPORT.toughness).toMatchObject({
+      level: 'helper-only',
+      gap: expect.stringContaining('numeric crew toughness'),
+    });
+    expect(SPA_COMBAT_SUPPORT['iron-will']).toMatchObject({
+      level: 'helper-only',
+      gap: expect.stringContaining('No source-backed MegaMek Iron Will'),
+    });
+    expect(painResistanceRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek TWGameManager lowers consciousness target numbers by numeric crew toughness only when the RPG Toughness game option is enabled, then adds +1 to Pain Resistance consciousness rolls.',
+      'MegaMek TWGameManager adds +1 to Pain Resistance wake-up rolls.',
+      'MegaMek TWGameManager reduces ammunition-explosion pilot damage by 1 for Pain Resistance or Iron Man.',
+      'MegaMek PilotOptions registers Iron Man and Pain Resistance as distinct misc abilities.',
+      'MegaMek OptionsConstants defines MISC_IRON_MAN and MISC_PAIN_RESISTANCE as separate ability ids.',
+      'MegaMek OptionsConstants defines RPG_TOUGHNESS as a separate game-option id.',
+      'MegaMek GameOptions registers RPG Toughness as a game option rather than a pilot SPA.',
+      'MegaMek Crew stores numeric toughness per crew slot for KO checks.',
+      'MegaMek Crew exposes numeric toughness accessors per crew slot.',
+      'MegaMek MULParser imports crew toughness only when RPG Toughness is enabled.',
+      'MegaMek option text defines Pain Resistance as +1 consciousness rolls plus ammunition-explosion damage reduction.',
+      'MegaMek option text defines Iron Man as ammunition-explosion pilot-hit reduction only.',
+      'MegaMek option text defines RPG Toughness as a numeric pilot toughness bonus for consciousness check targets.',
+      'MekStation getEffectiveWounds treats Pain Resistance as local to-hit wound-penalty relief.',
+      'MekStation getConsciousnessCheckModifier applies Iron Man, Pain Resistance, and Toughness aliases as target-number reductions.',
+      'MekStation legacy aliases collapse toughness into pain_resistance and iron-will into iron_man.',
+    ]);
+    expect(painResistanceRefs.map(({ kind }) => kind)).toEqual([
+      'megamek-source',
+      'megamek-source',
+      'megamek-source',
+      'megamek-source',
+      'megamek-source',
+      'megamek-source',
+      'megamek-source',
+      'megamek-source',
+      'megamek-source',
+      'megamek-source',
+      'megamek-source',
+      'megamek-source',
+      'megamek-source',
+      'mekstation-deviation',
+      'mekstation-deviation',
+      'mekstation-deviation',
+    ]);
+    expect(SPA_COMBAT_SUPPORT['iron-man'].sourceRefs).toEqual(
+      painResistanceRefs,
+    );
+    expect(SPA_COMBAT_SUPPORT.toughness.sourceRefs).toEqual(painResistanceRefs);
+    expect(SPA_COMBAT_SUPPORT['iron-will'].sourceRefs).toEqual(
+      painResistanceRefs,
+    );
+    expect(consciousnessRefs).toEqual(painResistanceRefs);
+    expect(painResistanceToHitRefs).toEqual(painResistanceRefs);
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['consciousness-application'],
+    ).toEqual({
+      spaIds: ['iron-man', 'pain-resistance', 'toughness', 'iron-will'],
+      quirkIds: [],
+    });
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS[
+        'legacy-pain-resistance-to-hit-application'
+      ],
+    ).toEqual({ spaIds: ['pain-resistance'], quirkIds: [] });
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['ranged-to-hit-calculation'].spaIds,
+    ).not.toContain('pain-resistance');
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['ranged-to-hit-state-hydration']
+        .spaIds,
+    ).not.toContain('pain-resistance');
+  });
+
   it('keeps source-backed pilot modifier refs commit-pinned', () => {
     const refs = [
       ...(SPA_COMBAT_SUPPORT['multi-tasker'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['multi-target'].sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT['iron-man'].sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT['pain-resistance'].sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT.toughness.sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT['iron-will'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['dodge-maneuver'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT.shaky_stick.sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['hopping-jack'].sourceRefs ?? []),
@@ -1022,6 +1129,9 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'legacy-defensive-quirk-to-hit-application'
       ].sourceRefs ?? []),
+      ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'legacy-pain-resistance-to-hit-application'
+      ].sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['called-shot-application']
         .sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['ranged-to-hit-calculation']
@@ -1034,6 +1144,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['initiative-application']
         .sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application']
+        .sourceRefs ?? []),
+      ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['consciousness-application']
         .sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['edge-application']
         .sourceRefs ?? []),
