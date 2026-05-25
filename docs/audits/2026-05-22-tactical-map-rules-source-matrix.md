@@ -1044,6 +1044,18 @@ unavailable in legend state. This is still a control-surface proof: terrain,
 elevation, heat, and commit legality remain delegated to the existing
 source-pinned movement projection and validation helpers.
 
+2026-05-25 occupied destination movement pin: MegaMek
+`Compute.stackingViolation` (`Compute.java:436-705`) checks whether entering a
+hex creates a stacking violation, and `MoveStep.java:778-787` applies that
+ordinary movement check before allowing the step. MekStation's represented
+case is intentionally narrower: one selected ground unit attempts to walk into
+an adjacent occupied clear hex. The tactical-map browser harness now renders
+the destination as non-reachable with `DestinationOccupied`, the details
+`Destination hex is occupied`, zero heat, 1 MP, and a non-color `OCC` invalid
+badge; focused Jest parity proves `validateCommittedMovement` rejects the same
+fixture with matching reason, details, MP cost, and heat. Full MegaMek stacking
+exceptions, charge, and DFA remain outside this fixture.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

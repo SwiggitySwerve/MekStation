@@ -32,6 +32,7 @@ import * as mixedVehicle from '@/testing/tactical-map.mixed-vehicle-volley-scena
 import * as movementCombat from '@/testing/tactical-map.movement-combat-scenario';
 import * as movement from '@/testing/tactical-map.movement-scenarios';
 import * as naval from '@/testing/tactical-map.naval-landfall-scenario';
+import * as occupiedDestination from '@/testing/tactical-map.occupied-destination-scenario';
 import * as proneCombat from '@/testing/tactical-map.prone-combat-scenario';
 import * as runWater from '@/testing/tactical-map.run-water-fallback-scenario';
 import * as sameHex from '@/testing/tactical-map.same-hex-scenarios';
@@ -77,6 +78,7 @@ const combatOnlyScenarios = new Set([
 const movementFixtureScenarios = new Set([
   'battlefield-wreck-rough-terrain',
   'legend-mode-selection',
+  'occupied-destination-blocked',
   'runtime-height-bridge-clearance',
   'run-water-walk-fallback',
   'tracked-elevation-blocked',
@@ -190,6 +192,8 @@ const tokensByScenario = {
   'movement-combat-modifier': movementCombat.tacticalMapMovementCombatTokens,
   'jump-combat-modifier': movementCombat.tacticalMapJumpCombatTokens,
   'runtime-height-bridge-clearance': movement.tacticalMapRuntimeHeightTokens,
+  'occupied-destination-blocked':
+    occupiedDestination.tacticalMapOccupiedDestinationTokens,
   'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackTokens,
   'tracked-elevation-blocked':
     trackedElevation.tacticalMapTrackedElevationTokens,
@@ -242,6 +246,8 @@ const movementRangeByScenario = {
   'biped-option-projection': movement.tacticalMapBipedOptionMovementRange,
   'runtime-height-bridge-clearance':
     movement.tacticalMapRuntimeHeightMovementRange,
+  'occupied-destination-blocked':
+    occupiedDestination.tacticalMapOccupiedDestinationMovementRange,
   'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackMovementRange,
   'tracked-elevation-blocked':
     trackedElevation.tacticalMapTrackedElevationMovementRange,
@@ -259,6 +265,8 @@ const mpLegendByScenario = {
   'vtol-elevation-cost': movement.tacticalMapVtolElevationMpLegend,
   'biped-option-projection': movement.tacticalMapBipedOptionMpLegend,
   'runtime-height-bridge-clearance': movement.tacticalMapRuntimeHeightMpLegend,
+  'occupied-destination-blocked':
+    occupiedDestination.tacticalMapOccupiedDestinationMpLegend,
   'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackMpLegend,
   'tracked-elevation-blocked':
     trackedElevation.tacticalMapTrackedElevationMpLegend,
@@ -277,6 +285,8 @@ const selectedHexByScenario = {
   'legend-mode-selection': movement.tacticalMapLegendSelectionSelectedHex,
   'runtime-height-bridge-clearance':
     movement.tacticalMapRuntimeHeightSelectedHex,
+  'occupied-destination-blocked':
+    occupiedDestination.tacticalMapOccupiedDestinationSelectedHex,
   'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackSelectedHex,
   'tracked-elevation-blocked':
     trackedElevation.tacticalMapTrackedElevationSelectedHex,
@@ -293,6 +303,8 @@ const hexTerrainByScenario = {
     wreck.tacticalMapBattlefieldWreckHexTerrain,
   'runtime-height-bridge-clearance':
     movement.tacticalMapRuntimeHeightBridgeHexTerrain,
+  'occupied-destination-blocked':
+    occupiedDestination.tacticalMapOccupiedDestinationHexTerrain,
   'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackHexTerrain,
   'tracked-elevation-blocked':
     trackedElevation.tacticalMapTrackedElevationHexTerrain,

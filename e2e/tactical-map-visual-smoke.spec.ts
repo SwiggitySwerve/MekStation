@@ -1875,6 +1875,54 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows occupied destination as blocked movement in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=occupied-destination-blocked');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('SHD');
+    await expect(page.getByTestId('unit-token-blocker')).toContainText('BLK');
+
+    const occupiedHex = page.getByTestId('hex-1-0');
+    await expect(occupiedHex).toHaveAttribute('data-reachable', 'false');
+    await expect(occupiedHex).toHaveAttribute('data-movement-type', 'walk');
+    await expect(occupiedHex).toHaveAttribute('data-movement-mode', 'walk');
+    await expect(occupiedHex).toHaveAttribute('data-mp-cost', '1');
+    await expect(occupiedHex).toHaveAttribute('data-terrain-cost', '0');
+    await expect(occupiedHex).toHaveAttribute('data-elevation-delta', '0');
+    await expect(occupiedHex).toHaveAttribute('data-elevation-cost', '0');
+    await expect(occupiedHex).toHaveAttribute('data-heat-generated', '0');
+    await expect(occupiedHex).toHaveAttribute('data-terrain-features', 'clear');
+    await expect(occupiedHex).toHaveAttribute(
+      'data-terrain-feature-levels',
+      'clear:0',
+    );
+    await expect(occupiedHex).toHaveAttribute(
+      'data-movement-blocked-reason',
+      'Destination hex is occupied',
+    );
+    await expect(occupiedHex).toHaveAttribute(
+      'data-movement-invalid-reason',
+      'DestinationOccupied',
+    );
+    await expect(occupiedHex).toHaveAttribute(
+      'data-movement-invalid-details',
+      'Destination hex is occupied',
+    );
+    await expect(page.getByTestId('hex-movement-badge-1-0')).toHaveCount(0);
+
+    const invalidBadge = page.getByTestId('hex-movement-invalid-badge-1-0');
+    await expect(invalidBadge.locator('text')).toHaveText('OCC');
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-reason',
+      'Destination hex is occupied',
+    );
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'DestinationOccupied',
+    );
+  });
+
   test('shows run-selected water fallback as walking with blocked run metadata', async ({
     page,
   }) => {

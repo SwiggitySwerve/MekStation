@@ -30,6 +30,10 @@ import {
   tacticalMapNavalLandfallMovementRange,
 } from '../tactical-map.naval-landfall-scenario';
 import {
+  tacticalMapOccupiedDestinationCommitInput,
+  tacticalMapOccupiedDestinationMovementRange,
+} from '../tactical-map.occupied-destination-scenario';
+import {
   tacticalMapRunWaterFallbackCommitInput,
   tacticalMapRunWaterFallbackMovementRange,
 } from '../tactical-map.run-water-fallback-scenario';
@@ -206,6 +210,39 @@ describe('tactical map movement scenarios', () => {
     expect(result.valid).toBe(false);
     if (result.valid) {
       throw new Error('Expected runtime-height bridge clearance to be blocked');
+    }
+
+    expect(result.reason).toBe(projection.movementInvalidReason);
+    expect(result.details).toBe(projection.movementInvalidDetails);
+    expect(result.mpCost).toBe(projection.mpCost);
+    expect(result.heatGenerated).toBe(projection.heatGenerated);
+  });
+
+  it('keeps occupied destination blocking aligned between browser projection and commit validation', () => {
+    const projection = tacticalMapOccupiedDestinationMovementRange[0];
+
+    expect(projection).toMatchObject({
+      hex: { q: 1, r: 0 },
+      reachable: false,
+      mpCost: 1,
+      terrainCost: 0,
+      elevationDelta: 0,
+      elevationCost: 0,
+      heatGenerated: 0,
+      movementMode: 'walk',
+      movementType: 'walk',
+      blockedReason: 'Destination hex is occupied',
+      movementInvalidReason: 'DestinationOccupied',
+      movementInvalidDetails: 'Destination hex is occupied',
+    });
+
+    const result = validateCommittedMovement(
+      tacticalMapOccupiedDestinationCommitInput(),
+    );
+
+    expect(result.valid).toBe(false);
+    if (result.valid) {
+      throw new Error('Expected occupied destination movement to be blocked');
     }
 
     expect(result.reason).toBe(projection.movementInvalidReason);
