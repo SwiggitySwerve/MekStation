@@ -1026,6 +1026,14 @@ only: movement costs, heat, terrain/elevation legality, jump capability, and
 committed movement validation continue to come from the existing source-pinned
 movement projection and validation helpers.
 
+2026-05-25 movement legend browser pin: the tactical-map browser harness now
+has a stateful `scenario=legend-mode-selection` surface that starts with Run
+active, then clicks Jump and Walk directly in the on-map MP legend. The rendered
+destination hex updates its movement type, MP cost, terrain/elevation cost, and
+heat metadata from the existing derived biped walk/run/jump projection fixtures,
+proving the legend control changes the real map overlay rather than only firing
+a component callback.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

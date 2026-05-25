@@ -1221,6 +1221,61 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('switches movement projection from the map MP legend in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=legend-mode-selection');
+
+    const optionHex = page.getByTestId('hex-0-1');
+    const movementBadge = page.getByTestId('hex-movement-badge-0-1');
+    await expect(page.getByTestId('mp-legend-run')).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await expect(optionHex).toHaveAttribute('data-movement-type', 'run');
+    await expect(optionHex).toHaveAttribute('data-mp-cost', '3');
+    await expect(optionHex).toHaveAttribute('data-heat-generated', '2');
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-type',
+      'run',
+    );
+    await expect(movementBadge.locator('text')).toHaveText('R 3MP');
+
+    await page.getByTestId('mp-legend-jump').click();
+    await expect(page.getByTestId('mp-legend-jump')).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await expect(optionHex).toHaveAttribute('data-movement-type', 'jump');
+    await expect(optionHex).toHaveAttribute('data-movement-mode', 'jump');
+    await expect(optionHex).toHaveAttribute('data-mp-cost', '1');
+    await expect(optionHex).toHaveAttribute('data-terrain-cost', '0');
+    await expect(optionHex).toHaveAttribute('data-elevation-cost', '0');
+    await expect(optionHex).toHaveAttribute('data-heat-generated', '3');
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-type',
+      'jump',
+    );
+    await expect(movementBadge.locator('text')).toHaveText('J 1MP');
+
+    await page.getByTestId('mp-legend-walk').click();
+    await expect(page.getByTestId('mp-legend-walk')).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await expect(optionHex).toHaveAttribute('data-movement-type', 'walk');
+    await expect(optionHex).toHaveAttribute('data-movement-mode', 'walk');
+    await expect(optionHex).toHaveAttribute('data-mp-cost', '3');
+    await expect(optionHex).toHaveAttribute('data-terrain-cost', '1');
+    await expect(optionHex).toHaveAttribute('data-elevation-cost', '1');
+    await expect(optionHex).toHaveAttribute('data-heat-generated', '1');
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-type',
+      'walk',
+    );
+    await expect(movementBadge.locator('text')).toHaveText('W 3MP');
+  });
+
   test('shows VTOL elevation delta with zero elevation MP cost in browser', async ({
     page,
   }) => {

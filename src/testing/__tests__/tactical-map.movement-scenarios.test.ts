@@ -18,6 +18,8 @@ import {
   tacticalMapBipedOptionMovementRange,
   tacticalMapJumpElevationCommitInput,
   tacticalMapJumpElevationMovementRange,
+  tacticalMapLegendSelectionMovementRangeByMode,
+  tacticalMapLegendSelectionMpLegend,
   tacticalMapRuntimeHeightCommitInput,
   tacticalMapRuntimeHeightMovementRange,
   tacticalMapVtolElevationCommitInput,
@@ -100,6 +102,25 @@ describe('tactical map movement scenarios', () => {
       expect(result.mpCost).toBe(projection.mpCost);
       expect(result.heatGenerated).toBe(projection.heatGenerated);
       expect(result.path).toEqual(projection.path);
+    });
+  });
+
+  it('keeps selectable legend projections aligned with the biped option source projections', () => {
+    expect(tacticalMapLegendSelectionMovementRangeByMode.walk).toEqual([
+      tacticalMapBipedOptionMovementRange[0],
+    ]);
+    expect(tacticalMapLegendSelectionMovementRangeByMode.run).toEqual([
+      tacticalMapBipedOptionMovementRange[1],
+    ]);
+    expect(tacticalMapLegendSelectionMovementRangeByMode.jump).toEqual([
+      tacticalMapBipedOptionMovementRange[2],
+    ]);
+    expect(tacticalMapLegendSelectionMpLegend('jump')).toMatchObject({
+      active: 'jump',
+      jumpAvailable: true,
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 3,
     });
   });
 

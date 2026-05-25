@@ -1,4 +1,7 @@
-import type { MapMovementPointLegendState } from '@/components/gameplay/HexMapDisplay/HexMapDisplay.types';
+import type {
+  MapMovementKind,
+  MapMovementPointLegendState,
+} from '@/components/gameplay/HexMapDisplay/HexMapDisplay.types';
 import type {
   IHexGrid,
   IHexTerrain,
@@ -199,6 +202,27 @@ export const tacticalMapBipedOptionMpLegend: MapMovementPointLegendState = {
   jumpMP: tacticalMapBipedCapability.jumpMP,
   jumpAvailable: true,
 };
+
+export const tacticalMapLegendSelectionSelectedHex =
+  tacticalMapBipedOptionSelectedHex;
+export const tacticalMapLegendSelectionTokens = tacticalMapBipedOptionTokens;
+
+export const tacticalMapLegendSelectionMovementRangeByMode: Readonly<
+  Record<MapMovementKind, readonly IMovementRangeHex[]>
+> = {
+  walk: [tacticalMapBipedOptionMovementRange[0]],
+  run: [tacticalMapBipedOptionMovementRange[1]],
+  jump: [tacticalMapBipedOptionMovementRange[2]],
+};
+
+export function tacticalMapLegendSelectionMpLegend(
+  active: MapMovementKind,
+): MapMovementPointLegendState {
+  return {
+    ...tacticalMapBipedOptionMpLegend,
+    active,
+  };
+}
 
 export const tacticalMapJumpElevationMovementRange: readonly IMovementRangeHex[] =
   requireMovementProjection(

@@ -1,4 +1,7 @@
 import { useRouter } from 'next/router';
+import { useState } from 'react';
+
+import type { MapMovementKind } from '@/components/gameplay/HexMapDisplay/HexMapDisplay.types';
 
 import { HexMapDisplay } from '@/components/gameplay/HexMapDisplay/HexMapDisplay';
 import * as aerospace from '@/testing/tactical-map.aerospace-scenarios';
@@ -73,6 +76,7 @@ const combatOnlyScenarios = new Set([
 
 const movementFixtureScenarios = new Set([
   'battlefield-wreck-rough-terrain',
+  'legend-mode-selection',
   'runtime-height-bridge-clearance',
   'run-water-walk-fallback',
   'tracked-elevation-blocked',
@@ -157,6 +161,7 @@ const tokensByScenario = {
   'battlefield-wreck-rough-terrain': wreck.tacticalMapBattlefieldWreckTokens,
   'vtol-elevation-cost': movement.tacticalMapVtolTokens,
   'biped-option-projection': movement.tacticalMapBipedOptionTokens,
+  'legend-mode-selection': movement.tacticalMapLegendSelectionTokens,
   'mounted-ba-passenger': battleArmor.tacticalMapMountedBattleArmorTokens,
   'aerospace-velocity-projection': aerospace.tacticalMapAerospaceTokens,
   'airborne-aerospace-minimum-range':
@@ -269,6 +274,7 @@ const selectedHexByScenario = {
   'battlefield-wreck-rough-terrain':
     wreck.tacticalMapBattlefieldWreckSelectedHex,
   'biped-option-projection': movement.tacticalMapBipedOptionSelectedHex,
+  'legend-mode-selection': movement.tacticalMapLegendSelectionSelectedHex,
   'runtime-height-bridge-clearance':
     movement.tacticalMapRuntimeHeightSelectedHex,
   'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackSelectedHex,
@@ -324,6 +330,7 @@ function scenarioValue<T>(
 
 export default function TacticalMapE2EHarness(): React.JSX.Element {
   const router = useRouter();
+  const [legendMode, setLegendMode] = useState<MapMovementKind>('run');
   const scenario =
     typeof router.query.scenario === 'string' ? router.query.scenario : '';
   const harnessScenario =
@@ -361,16 +368,22 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
     scenarioValue(scenario, combatStateByScenario, tacticalMapCombatState);
   const unitWeapons =
     harnessUnitWeapons ?? tacticalMapUnitWeaponsForE2EScenario(scenario);
-  const movementRange = isCombatOnlyScenario
-    ? undefined
-    : scenarioValue(
-        scenario,
-        movementRangeByScenario,
-        tacticalMapMovementRange,
-      );
-  const mpLegend = isCombatOnlyScenario
-    ? undefined
-    : scenarioValue(scenario, mpLegendByScenario, tacticalMapMpLegend);
+  const movementRange =
+    isCombatOnlyScenario || scenario === 'legend-mode-selection'
+      ? scenario === 'legend-mode-selection'
+        ? movement.tacticalMapLegendSelectionMovementRangeByMode[legendMode]
+        : undefined
+      : scenarioValue(
+          scenario,
+          movementRangeByScenario,
+          tacticalMapMovementRange,
+        );
+  const mpLegend =
+    isCombatOnlyScenario || scenario === 'legend-mode-selection'
+      ? scenario === 'legend-mode-selection'
+        ? movement.tacticalMapLegendSelectionMpLegend(legendMode)
+        : undefined
+      : scenarioValue(scenario, mpLegendByScenario, tacticalMapMpLegend);
   const selectedHex =
     harnessScenario?.selectedHex ??
     scenarioValue(
@@ -412,6 +425,9 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
             movementRange={movementRange}
             highlightPath={highlightPath}
             mpLegend={mpLegend}
+            onMovementModeSelect={
+              scenario === 'legend-mode-selection' ? setLegendMode : undefined
+            }
           />
         </div>
       </section>
