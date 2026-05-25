@@ -187,6 +187,30 @@ const MEKSTATION_CONCEDE_COMMAND_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEKSTATION_HEAT_CONTINUE_COMMAND_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation buildHeatEndCommands exposes heat.continue as the Heat-phase continue command that commits the local continue action id.',
+    'src/components/gameplay/TacticalActionDock/commands/heatEndCommands.ts',
+    'L22-L36',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEKSTATION_END_PHASE_COMMAND_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation buildHeatEndCommands exposes heat-end.end-phase as the confirmed phase-advance command for movement, weapon, and physical phases.',
+    'src/components/gameplay/TacticalActionDock/commands/heatEndCommands.ts',
+    'L39-L60',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEKSTATION_NEXT_TURN_COMMAND_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation buildHeatEndCommands exposes heat-end.next-turn as the End-phase next-turn command that commits the local next-turn action id.',
+    'src/components/gameplay/TacticalActionDock/commands/heatEndCommands.ts',
+    'L63-L77',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEKSTATION_WITHDRAW_CONTROL_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation WithdrawControl exposes the direct UI contract for declaring withdrawal with a selected map edge.',
@@ -675,16 +699,19 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'heat.continue',
     'tactical-command',
     'buildHeatEndCommands commits continue; useGameplayStore.handleAction advances Heat through InteractiveSession.advancePhase, while confirmHeat maps to AdvancePhase on server and a Heat-phase advance marker on P2P',
+    MEKSTATION_HEAT_CONTINUE_COMMAND_SOURCE_REFS,
   ),
   'heat-end.end-phase': integrated(
     'heat-end.end-phase',
     'tactical-command',
     'buildHeatEndCommands commits phase advance; endPhase maps to AdvancePhase and dispatchToEngine.advancePhase',
+    MEKSTATION_END_PHASE_COMMAND_SOURCE_REFS,
   ),
   'heat-end.next-turn': integrated(
     'heat-end.next-turn',
     'tactical-command',
     'buildHeatEndCommands exposes end-phase next-turn and local gameplay reducers advance initiative/turn state',
+    MEKSTATION_NEXT_TURN_COMMAND_SOURCE_REFS,
   ),
   'utility.eject': integrated(
     'utility.eject',

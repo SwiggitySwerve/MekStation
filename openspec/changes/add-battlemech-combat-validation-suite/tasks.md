@@ -15,6 +15,7 @@
 - [x] 1.10 Pin wire-intent action rows to MekStation server-dispatch source refs so engine routing and non-combat scope splits do not rely on prose-only catalog evidence.
 - [x] 1.11 Pin direct UI action rows to MekStation component source refs so withdrawal edge selection does not rely on prose-only catalog evidence.
 - [x] 1.12 Pin utility tactical command rows to MekStation command-factory source refs so eject/concede and helper-only utility surfaces do not rely on prose-only catalog evidence.
+- [x] 1.13 Pin heat/end tactical command rows to MekStation command-factory source refs so phase-advance and heat-continue command surfaces do not rely on prose-only catalog evidence.
 
 ## 2. Physical attack legality gates
 

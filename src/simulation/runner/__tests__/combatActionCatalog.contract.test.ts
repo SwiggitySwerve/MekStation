@@ -188,6 +188,31 @@ describe('BattleMech combat action support catalog', () => {
         entry.sourceRefs?.every((sourceRef) => sourceRef.url.includes('#L')),
       ).toBe(true);
     }
+    const heatEndCommandSourceRows = [
+      'heat.continue',
+      'heat-end.end-phase',
+      'heat-end.next-turn',
+    ];
+    for (const id of heatEndCommandSourceRows) {
+      const entry =
+        COMBAT_COMMAND_ACTION_SUPPORT[
+          id as keyof typeof COMBAT_COMMAND_ACTION_SUPPORT
+        ];
+
+      expect(entry.sourceRefs).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            citation: expect.stringContaining(id),
+            url: expect.stringContaining('heatEndCommands.ts#L'),
+            sourceVersion: 'MekStation working-tree',
+          }),
+        ]),
+      );
+      expect(
+        entry.sourceRefs?.every((sourceRef) => sourceRef.url.includes('#L')),
+      ).toBe(true);
+    }
     expect(
       supportIdsByLevel(COMBAT_COMMAND_ACTION_SUPPORT, 'unsupported'),
     ).toEqual(['movement.stabilize']);
