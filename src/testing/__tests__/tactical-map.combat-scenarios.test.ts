@@ -48,6 +48,8 @@ import {
 import {
   tacticalMapForwardObserverIndirectFireCombatProjection,
   tacticalMapForwardObserverIndirectFireCommitInput,
+  tacticalMapINarcBeaconIndirectFireCombatProjection,
+  tacticalMapINarcBeaconIndirectFireCommitInput,
   tacticalMapIndirectFireCombatProjection,
   tacticalMapIndirectFireCommitInput,
   tacticalMapNarcBeaconIndirectFireCombatProjection,
@@ -414,6 +416,67 @@ describe('tactical map combat scenarios', () => {
         basis: 'narc',
         toHitPenalty:
           tacticalMapNarcBeaconIndirectFireCombatProjection.indirectFireToHitPenalty,
+      },
+    );
+  });
+
+  it('keeps iNarc beacon indirect fire aligned between browser projection and committed attack', () => {
+    expect(tacticalMapINarcBeaconIndirectFireCombatProjection).toMatchObject({
+      hex: { q: 3, r: 0 },
+      distance: 3,
+      losState: 'blocked',
+      rangeBracket: 'medium',
+      attackable: true,
+      weaponIdsAvailable: ['minimum-lrm'],
+      indirectFireAvailable: true,
+      indirectFireSpotterId: null,
+      indirectFireBasis: 'inarc',
+      indirectFireToHitPenalty: 1,
+      indirectFireReason: 'Indirect fire via INARC beacon (+1)',
+    });
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapINarcBeaconIndirectFireCommitInput(),
+    );
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.toHitNumber).toBe(
+      tacticalMapINarcBeaconIndirectFireCombatProjection.toHitNumber,
+    );
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Indirect fire',
+          value: 1,
+          source: 'other',
+        }),
+      ]),
+    );
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.IndirectFireSpotterSelected,
+      ),
+    ).toBe(false);
+    const override = result.events.find(
+      (event) => event.type === GameEventType.IndirectFireNarcOverride,
+    );
+    expect(override).toBeDefined();
+    expect(override!.payload as IIndirectFireNarcOverridePayload).toMatchObject(
+      {
+        attackerId: 'attacker',
+        targetHex: { q: 3, r: 0 },
+        weaponId: 'minimum-lrm',
+        spotterId: null,
+        basis: 'inarc',
+        toHitPenalty:
+          tacticalMapINarcBeaconIndirectFireCombatProjection.indirectFireToHitPenalty,
       },
     );
   });

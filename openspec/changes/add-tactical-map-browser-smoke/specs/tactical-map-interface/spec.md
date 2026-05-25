@@ -78,6 +78,9 @@ the top-down map.
 - **AND** a LOS-blocked NARC-marked LRM target with no represented spotter SHALL
   remain attackable and expose beacon basis, no-spotter metadata, penalty,
   to-hit metadata, and non-color indirect-fire badge context
+- **AND** a LOS-blocked iNarc-marked LRM target with no represented spotter
+  SHALL remain attackable and expose beacon basis, no-spotter metadata,
+  penalty, to-hit metadata, and non-color indirect-fire badge context
 - **AND** a combat target outside the selected weapon's firing arc SHALL expose
   `OutOfArc` rejection metadata, per-weapon arc blocker details, and a combat
   invalid badge that does not rely on color alone

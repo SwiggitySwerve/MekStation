@@ -44,6 +44,10 @@ export const tacticalMapNarcBeaconIndirectFireTargetId =
   tacticalMapIndirectFireTargetId;
 export const tacticalMapNarcBeaconIndirectFireSelectedWeaponIds =
   tacticalMapIndirectFireSelectedWeaponIds;
+export const tacticalMapINarcBeaconIndirectFireTargetId =
+  tacticalMapIndirectFireTargetId;
+export const tacticalMapINarcBeaconIndirectFireSelectedWeaponIds =
+  tacticalMapIndirectFireSelectedWeaponIds;
 
 export const tacticalMapIndirectFireHexTerrain: readonly IHexTerrain[] = [
   {
@@ -101,6 +105,8 @@ export const tacticalMapNarcBeaconIndirectFireTokens: readonly IUnitToken[] = [
   tacticalMapIndirectFireAttackerToken,
   tacticalMapIndirectFireTargetToken,
 ];
+export const tacticalMapINarcBeaconIndirectFireTokens =
+  tacticalMapNarcBeaconIndirectFireTokens;
 
 export const tacticalMapIndirectFireCombatState: IGameState = {
   ...tacticalMapCombatState,
@@ -161,6 +167,22 @@ export const tacticalMapNarcBeaconIndirectFireCombatState: IGameState = {
       narcMarkedByTeams: [GameSide.Player],
     } as IGameState['units'][string] & {
       readonly narcMarkedByTeams: readonly string[];
+    },
+  },
+};
+export const tacticalMapINarcBeaconIndirectFireHexTerrain =
+  tacticalMapIndirectFireHexTerrain;
+export const tacticalMapINarcBeaconIndirectFireCombatState: IGameState = {
+  ...tacticalMapIndirectFireCombatState,
+  units: {
+    attacker: tacticalMapIndirectFireCombatState.units.attacker,
+    [tacticalMapIndirectFireTargetId]: {
+      ...tacticalMapIndirectFireCombatState.units[
+        tacticalMapIndirectFireTargetId
+      ],
+      iNarcMarkedByTeams: [GameSide.Player],
+    } as IGameState['units'][string] & {
+      readonly iNarcMarkedByTeams: readonly string[];
     },
   },
 };
@@ -249,6 +271,28 @@ export const tacticalMapNarcBeaconIndirectFireCombatProjection: ICombatRangeHex 
     ),
   );
 
+export const tacticalMapINarcBeaconIndirectFireCombatProjection: ICombatRangeHex =
+  requireCombatProjection(
+    deriveCombatRangeHexes({
+      attacker: tacticalMapIndirectFireAttackerToken,
+      targetUnitId: tacticalMapINarcBeaconIndirectFireTargetId,
+      hexes: Array.from(
+        tacticalMapIndirectFireGrid().hexes.values(),
+        (hex) => hex.coord,
+      ),
+      grid: tacticalMapIndirectFireGrid(),
+      tokens: tacticalMapINarcBeaconIndirectFireTokens,
+      weapons: tacticalMapSelectedWeapons(
+        tacticalMapINarcBeaconIndirectFireSelectedWeaponIds,
+      ),
+      combatState: tacticalMapINarcBeaconIndirectFireCombatState,
+    }).find(
+      (projection) =>
+        projection.hex.q === tacticalMapIndirectFireTargetHex.q &&
+        projection.hex.r === tacticalMapIndirectFireTargetHex.r,
+    ),
+  );
+
 export function tacticalMapIndirectFireCommitInput(): IApplyAttackInput {
   return {
     session: tacticalMapCombatSession({
@@ -287,6 +331,20 @@ export function tacticalMapNarcBeaconIndirectFireCommitInput(): IApplyAttackInpu
     attackerId: 'attacker',
     targetId: tacticalMapNarcBeaconIndirectFireTargetId,
     weaponIds: tacticalMapNarcBeaconIndirectFireSelectedWeaponIds,
+    grid: tacticalMapIndirectFireGrid(),
+  };
+}
+
+export function tacticalMapINarcBeaconIndirectFireCommitInput(): IApplyAttackInput {
+  return {
+    session: tacticalMapCombatSession({
+      tokens: tacticalMapINarcBeaconIndirectFireTokens,
+      combatState: tacticalMapINarcBeaconIndirectFireCombatState,
+    }),
+    weaponsByUnit: tacticalMapWeaponsByUnit(),
+    attackerId: 'attacker',
+    targetId: tacticalMapINarcBeaconIndirectFireTargetId,
+    weaponIds: tacticalMapINarcBeaconIndirectFireSelectedWeaponIds,
     grid: tacticalMapIndirectFireGrid(),
   };
 }

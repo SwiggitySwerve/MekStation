@@ -137,6 +137,9 @@
 - [x] 2.53 Add browser coverage proving NARC beacon indirect fire keeps a
   blocked LRM target attackable without a represented spotter while exposing
   beacon basis and penalty metadata.
+- [x] 2.54 Add browser coverage proving iNarc beacon indirect fire keeps a
+  blocked LRM target attackable without a represented spotter while exposing
+  beacon basis and penalty metadata.
 
 ## 3. Validation
 
@@ -249,5 +252,8 @@
   indirect-fire cancellation projection, committed attack event, and browser
   badge metadata.
 - [x] 3.53 Focused Jest parity and Playwright smoke pass for NARC beacon
+  indirect-fire projection, committed override event, and browser badge
+  metadata.
+- [x] 3.54 Focused Jest parity and Playwright smoke pass for iNarc beacon
   indirect-fire projection, committed override event, and browser badge
   metadata.

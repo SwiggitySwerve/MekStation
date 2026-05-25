@@ -2284,6 +2284,72 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(combatBadge).toHaveAttribute('data-combat-badge-label', 'M3');
   });
 
+  test('shows iNarc beacon indirect fire in browser', async ({ page }) => {
+    await page.goto('/e2e/tactical-map?scenario=inarc-beacon-indirect-fire');
+
+    await expect(page.getByTestId('unit-token-indirect-target')).toContainText(
+      'LCT',
+    );
+    await expect(page.getByTestId('unit-token-indirect-spotter')).toHaveCount(
+      0,
+    );
+
+    const targetHex = page.getByTestId('hex-3-0');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'indirect-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-los-state', 'blocked');
+    await expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-available',
+      'minimum-lrm',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-indirect-fire',
+      'true',
+    );
+    await expect(targetHex).not.toHaveAttribute('data-combat-indirect-spotter');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-indirect-basis',
+      'inarc',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-indirect-penalty',
+      '1',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-indirect-reason',
+      'Indirect fire via INARC beacon (+1)',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '7');
+    await expect(targetHex).toHaveAttribute(
+      'aria-label',
+      /Indirect fire via INARC beacon \(\+1\)/,
+    );
+
+    const indirectBadge = page.getByTestId('hex-indirect-fire-badge-3-0');
+    await expect(indirectBadge).toContainText('IND');
+    await expect(indirectBadge).toHaveAttribute(
+      'data-combat-indirect-badge-basis',
+      'inarc',
+    );
+    await expect(indirectBadge).not.toHaveAttribute(
+      'data-combat-indirect-badge-spotter',
+    );
+    await expect(indirectBadge).toHaveAttribute(
+      'data-combat-indirect-badge-penalty',
+      '1',
+    );
+
+    const combatBadge = page.getByTestId('hex-combat-badge-3-0');
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-range',
+      'medium',
+    );
+    await expect(combatBadge).toHaveAttribute('data-combat-badge-label', 'M3');
+  });
+
   test('shows target terrain to-hit modifiers without cover badges in browser', async ({
     page,
   }) => {
