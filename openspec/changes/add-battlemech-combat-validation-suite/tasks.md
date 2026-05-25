@@ -7,6 +7,7 @@
 - [x] 1.3 Keep `docs/audits/2026-05-22-combat-validation-source-truth.md` updated as source-truth audit evidence.
 - [x] 1.4 Add OpenSpec validation to routine combat feature verification.
 - [x] 1.5 Require every broad `knownLimitations` category to have a BattleMech validation trap so combat-validation failures cannot be silently filtered by limitation patterns.
+- [x] 1.5.1 Prove the known-limitation filter and partition helpers preserve every BattleMech validation trap as a potential bug instead of only checking raw category lookup.
 - [x] 1.6 Add catalog triad evidence metadata so every support map declares its source-boundary kind and executable test surface, with row-source-ref enforcement for maps that claim row-level source authority.
 
 ## 2. Physical attack legality gates

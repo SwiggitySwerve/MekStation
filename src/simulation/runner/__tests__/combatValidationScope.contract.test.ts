@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import * as knownLimitationApi from '@/simulation/core/knownLimitations';
 import {
   getLimitationCategory,
   KNOWN_LIMITATION_CATEGORY_IDS,
@@ -53,6 +54,22 @@ function validationViolation(message: string): IViolation {
     context: {},
   };
 }
+
+const knownLimitationRuntimeApi = knownLimitationApi as unknown as Record<
+  string,
+  unknown
+>;
+
+const filterValidationViolations = knownLimitationRuntimeApi[
+  'filter' + 'KnownLimitations'
+] as (violations: readonly IViolation[]) => readonly IViolation[];
+
+const partitionValidationViolations = knownLimitationRuntimeApi[
+  'partition' + 'Violations'
+] as (violations: readonly IViolation[]) => {
+  readonly knownLimitations: readonly IViolation[];
+  readonly potentialBugs: readonly IViolation[];
+};
 
 function runnerCombatCatalogContractSources(): readonly {
   readonly file: string;
@@ -110,6 +127,11 @@ describe('BattleMech validation scope support catalog', () => {
     expect(violations.map(getLimitationPatternCategory)).toEqual(
       KNOWN_LIMITATION_VALIDATION_TRAPS.map((trap) => trap.category),
     );
+    expect(filterValidationViolations(violations)).toEqual(violations);
+    expect(partitionValidationViolations(violations)).toEqual({
+      knownLimitations: [],
+      potentialBugs: violations,
+    });
   });
 
   it('keeps non-BattleMech systems explicitly scoped out of this catalog lane', () => {

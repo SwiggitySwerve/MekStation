@@ -82,7 +82,7 @@ export const KNOWN_LIMITATION_VALIDATION_TRAPS = [
 export const BATTLEMECH_VALIDATION_SCOPE_SUPPORT = {
   'known-limitation-bypass': integrated(
     'known-limitation-bypass',
-    'knownLimitations.ts bypasses the battlemech-combat-validation invariant before broad limitation filtering',
+    'knownLimitations.ts bypasses the battlemech-combat-validation invariant before broad limitation detection, filtering, and partitioning',
   ),
   'known-limitation-pattern-audit': integrated(
     'known-limitation-pattern-audit',
