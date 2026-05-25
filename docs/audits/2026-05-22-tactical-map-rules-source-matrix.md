@@ -527,6 +527,15 @@ that same projection path through `validateCommittedMovement`, proving the
 browser-visible VTOL climb is accepted by the commit gate with matching MP,
 movement heat, and path.
 
+Tracked-vehicle browser update: the tactical-map browser harness now pairs the
+VTOL proof with a tracked ground-vehicle abrupt-climb scenario. The top-down map
+renders the destination elevation label, exposes `movementMode: tracked`,
+`TerrainBlocked`, `Elevation change of 2 exceeds Tracked movement limit`,
+`elevationDelta: 2`, and `elevationCost: 4`, and shows a non-color `ELEV`
+invalid badge. A fixture-level Jest parity test sends the same one-step path
+through `validateCommittedMovement`, proving the browser-visible blocked reason
+matches the commit gate for the ground-vehicle elevation limit.
+
 Additional absolute elevation-cost pin: MegaMek `MoveStep.java:2816-2841`
 prices non-WiGE elevation changes using `Math.abs` of the elevation delta, then
 doubles that elevation MP for non-flying infantry and tracked/wheeled/hover

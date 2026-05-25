@@ -81,6 +81,9 @@
 - [x] 2.32 Add browser coverage proving a Run-selected water destination can
   render the reachable Walk fallback as the primary movement projection while
   preserving the blocked Run option reason and non-color blocked-options badge.
+- [x] 2.33 Add browser coverage proving a tracked vehicle abrupt elevation
+  climb renders as blocked with the same terrain-blocked elevation reason the
+  movement commit validator uses.
 
 ## 3. Validation
 
@@ -147,3 +150,6 @@
   weapon-attack rejection metadata and invalid badge labeling.
 - [x] 3.32 Focused Jest parity and Playwright smoke pass for Run-selected
   water fallback movement projection and blocked Run option labeling.
+- [x] 3.33 Focused Jest parity and Playwright smoke pass for tracked vehicle
+  abrupt elevation blocking, top-down elevation label, and invalid badge
+  labeling.

@@ -759,6 +759,56 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows tracked vehicle abrupt elevation as blocked in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=tracked-elevation-blocked');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('SCN');
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('TK');
+
+    const elevatedHex = page.getByTestId('hex-1-0');
+    await expect(elevatedHex).toHaveAttribute('data-reachable', 'false');
+    await expect(elevatedHex).toHaveAttribute('data-movement-type', 'walk');
+    await expect(elevatedHex).toHaveAttribute('data-movement-mode', 'tracked');
+    await expect(elevatedHex).toHaveAttribute('data-mp-cost', 'Infinity');
+    await expect(elevatedHex).toHaveAttribute('data-terrain-features', 'clear');
+    await expect(elevatedHex).toHaveAttribute(
+      'data-terrain-feature-levels',
+      'clear:0',
+    );
+    await expect(elevatedHex).toHaveAttribute('data-elevation', '2');
+    await expect(elevatedHex).toHaveAttribute('data-elevation-delta', '2');
+    await expect(elevatedHex).toHaveAttribute('data-elevation-cost', '4');
+    await expect(elevatedHex).toHaveAttribute('data-heat-generated', '0');
+    await expect(elevatedHex).toHaveAttribute(
+      'data-movement-blocked-reason',
+      'Elevation change of 2 exceeds Tracked movement limit',
+    );
+    await expect(elevatedHex).toHaveAttribute(
+      'data-movement-invalid-reason',
+      'TerrainBlocked',
+    );
+    await expect(elevatedHex).toHaveAttribute(
+      'data-movement-invalid-details',
+      'Elevation change of 2 exceeds Tracked movement limit',
+    );
+    await expect(page.getByTestId('hex-elevation-label-1-0')).toContainText(
+      '+2',
+    );
+
+    const invalidBadge = page.getByTestId('hex-movement-invalid-badge-1-0');
+    await expect(invalidBadge.locator('text')).toHaveText('ELEV');
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-reason',
+      'Elevation change of 2 exceeds Tracked movement limit',
+    );
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'TerrainBlocked',
+    );
+  });
+
   test('shows runtime unit-height bridge clearance as blocked in browser', async ({
     page,
   }) => {

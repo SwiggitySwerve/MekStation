@@ -14,6 +14,10 @@ import {
   tacticalMapRunWaterFallbackCommitInput,
   tacticalMapRunWaterFallbackMovementRange,
 } from '../tactical-map.run-water-fallback-scenario';
+import {
+  tacticalMapTrackedElevationCommitInput,
+  tacticalMapTrackedElevationMovementRange,
+} from '../tactical-map.tracked-elevation-scenario';
 
 describe('tactical map movement scenarios', () => {
   it('keeps biped walk run and jump browser options aligned with commit validation', () => {
@@ -211,5 +215,39 @@ describe('tactical map movement scenarios', () => {
     expect(result.mpCost).toBe(projection.mpCost);
     expect(result.heatGenerated).toBe(projection.heatGenerated);
     expect(result.path).toEqual(projection.path);
+  });
+
+  it('keeps tracked vehicle abrupt elevation blocked between browser projection and commit validation', () => {
+    const projection = tacticalMapTrackedElevationMovementRange[0];
+
+    expect(projection).toMatchObject({
+      hex: { q: 1, r: 0 },
+      reachable: false,
+      movementMode: 'tracked',
+      movementType: 'walk',
+      terrainCost: 0,
+      elevationDelta: 2,
+      elevationCost: 4,
+      heatGenerated: 0,
+      blockedReason: 'Elevation change of 2 exceeds Tracked movement limit',
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails:
+        'Elevation change of 2 exceeds Tracked movement limit',
+    });
+    expect(Number.isFinite(projection.mpCost)).toBe(false);
+
+    const result = validateCommittedMovement(
+      tacticalMapTrackedElevationCommitInput(),
+    );
+
+    expect(result.valid).toBe(false);
+    if (result.valid) {
+      throw new Error('Expected tracked elevation movement to be blocked');
+    }
+
+    expect(result.reason).toBe(projection.movementInvalidReason);
+    expect(result.details).toBe(projection.movementInvalidDetails);
+    expect(result.mpCost).toBe(projection.mpCost);
+    expect(result.heatGenerated).toBe(projection.heatGenerated);
   });
 });

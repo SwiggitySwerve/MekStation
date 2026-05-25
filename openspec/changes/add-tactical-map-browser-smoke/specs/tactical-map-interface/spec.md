@@ -26,6 +26,9 @@ the top-down map.
 - **AND** when the Run overlay contains a destination whose Run path is blocked
   but a Walk path is legal, the map SHALL render the reachable Walk projection
   as primary while retaining the blocked Run option metadata
+- **AND** a tracked vehicle destination with an over-limit elevation change
+  SHALL expose the terrain-blocked elevation reason, elevation delta/cost, and
+  a non-color invalid badge
 - **AND** a movement-blocked hex SHALL expose the engine-aligned rejection
   reason and render an invalid badge that does not rely on color alone
 - **AND** a LOS-blocked combat target SHALL expose the blocked target id,
