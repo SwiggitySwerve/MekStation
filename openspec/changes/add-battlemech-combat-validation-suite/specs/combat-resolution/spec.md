@@ -70,6 +70,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** product-visible MekStation command surfaces without identified BattleMech rule authority, including `movement.stabilize`, SHALL stay in `COMBAT_COMMAND_ACTION_SUPPORT` as unsupported `mekstation-deviation` rows rather than absent official action rows
 - **AND** helper-only product command rows, including local movement cancel, weapon draft declaration/clear, withdraw, and request-spot commands, SHALL cite the MekStation command factory that exposes the local surface
 - **AND** every game-intent action row SHALL cite the MekStation game-intent mapper that constructs or maps the local intent to its server wire payload
+- **AND** every wire-intent action row SHALL cite the MekStation server dispatcher, with lobby and reconnect wire intents remaining source-visible non-combat scope splits
 - **AND** every P2P intent translation row SHALL cite the MekStation intent translator, plus host-router source anchors for host-owned command translations
 - **AND** those rows SHALL NOT be inferred from helper prose or omitted because no UI command currently emits them
 

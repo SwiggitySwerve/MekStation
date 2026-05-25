@@ -371,6 +371,49 @@ describe('BattleMech combat action support catalog', () => {
         NON_COMBAT_WIRE_INTENT_KINDS.includes(kind as never),
       ),
     ).toEqual([]);
+    for (const kind of [
+      ...ENGINE_WIRE_COMBAT_INTENT_KINDS,
+      ...NON_COMBAT_WIRE_INTENT_KINDS,
+    ]) {
+      const entry = WIRE_INTENT_KIND_ACTION_SUPPORT[kind];
+      expect(entry.sourceRefs).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            url: expect.stringContaining('ServerMatchHostEngineDispatch.ts#L'),
+            sourceVersion: 'MekStation working-tree',
+          }),
+        ]),
+      );
+      expect(
+        entry.sourceRefs?.every((sourceRef) => sourceRef.url.includes('#L')),
+      ).toBe(true);
+    }
+    for (const kind of NON_COMBAT_WIRE_INTENT_KINDS) {
+      const entry = WIRE_INTENT_KIND_ACTION_SUPPORT[kind];
+      expect(entry.sourceRefs).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            url: expect.stringContaining('Protocol.ts#L'),
+          }),
+        ]),
+      );
+    }
+    const megamekBackedWireIntentRows = {
+      GoProne: 'MoveStepType defines GO_PRONE',
+      ActivateMovementEnhancement: 'MovePath derives active MASC/Supercharger',
+      TorsoTwist: 'TorsoTwistAction',
+    } as const;
+    for (const [kind, citation] of Object.entries(
+      megamekBackedWireIntentRows,
+    )) {
+      expect(
+        WIRE_INTENT_KIND_ACTION_SUPPORT[
+          kind as keyof typeof megamekBackedWireIntentRows
+        ].sourceRefs?.map((sourceRef) => sourceRef.citation),
+      ).toEqual(expect.arrayContaining([expect.stringContaining(citation)]));
+    }
   });
 
   it('keeps legacy P2P intent support aligned with game intent coverage', () => {

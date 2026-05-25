@@ -321,6 +321,135 @@ const MEKSTATION_GAME_INTENT_SOURCE_REFS = {
   ],
 } satisfies Record<GameIntentType, readonly ICombatFeatureSourceReference[]>;
 
+function wireDispatchSourceRef(
+  citation: string,
+  lineRange: string,
+): ICombatFeatureSourceReference {
+  return mekstationDeviationSourceRef(
+    citation,
+    'src/lib/multiplayer/server/ServerMatchHostEngineDispatch.ts',
+    lineRange,
+  );
+}
+
+function wireProtocolSourceRef(
+  citation: string,
+  lineRange: string,
+): ICombatFeatureSourceReference {
+  return mekstationDeviationSourceRef(
+    citation,
+    'src/types/multiplayer/Protocol.ts',
+    lineRange,
+  );
+}
+
+const MEKSTATION_LOBBY_WIRE_INTENT_SOURCE_REFS = [
+  wireProtocolSourceRef(
+    'MekStation Protocol defines OccupySeat, LeaveSeat, ReassignSeat, SetAiSlot, SetHumanSlot, SetReady, and LaunchMatch as lobby intents for seat occupancy, readiness, and launch flow.',
+    'L158-L213',
+  ),
+  wireDispatchSourceRef(
+    'MekStation dispatchToEngine rejects lobby wire intents as non-engine intents instead of treating them as BattleMech combat actions.',
+    'L72-L83',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEKSTATION_RECONNECT_WIRE_INTENT_SOURCE_REFS = [
+  wireProtocolSourceRef(
+    'MekStation Protocol defines MarkSeatAi and ForfeitMatch as reconnection/lobby timeout intents rather than BattleMech combat actions.',
+    'L219-L245',
+  ),
+  wireDispatchSourceRef(
+    'MekStation dispatchToEngine rejects reconnect and lobby timeout wire intents as non-engine intents instead of treating them as BattleMech combat actions.',
+    'L72-L83',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEKSTATION_WIRE_INTENT_SOURCE_REFS = {
+  AdvancePhase: [
+    wireDispatchSourceRef(
+      'MekStation dispatchToEngine routes AdvancePhase wire intents to InteractiveSession.advancePhase.',
+      'L54-L56',
+    ),
+  ],
+  Attack: [
+    wireDispatchSourceRef(
+      'MekStation dispatchToEngine routes Attack wire intents to InteractiveSession.applyAttack.',
+      'L42-L44',
+    ),
+  ],
+  Concede: [
+    wireDispatchSourceRef(
+      'MekStation dispatchToEngine routes Concede wire intents to InteractiveSession.concede after normalizing the side payload.',
+      'L66-L70',
+    ),
+  ],
+  Eject: [
+    wireDispatchSourceRef(
+      'MekStation dispatchToEngine routes Eject wire intents to InteractiveSession.ejectUnit.',
+      'L58-L60',
+    ),
+  ],
+  Move: [
+    wireDispatchSourceRef(
+      'MekStation dispatchToEngine routes Move wire intents to InteractiveSession.applyMovement.',
+      'L15-L24',
+    ),
+    wireDispatchSourceRef(
+      'MekStation parseMovementType normalizes Move wire movement strings before engine dispatch.',
+      'L94-L111',
+    ),
+  ],
+  Physical: [
+    wireDispatchSourceRef(
+      'MekStation dispatchToEngine routes Physical wire intents to InteractiveSession.applyPhysicalAttack.',
+      'L46-L52',
+    ),
+  ],
+  GoProne: [
+    wireDispatchSourceRef(
+      'MekStation dispatchToEngine routes GoProne wire intents to InteractiveSession.goProne.',
+      'L30-L32',
+    ),
+  ],
+  ActivateMovementEnhancement: [
+    wireDispatchSourceRef(
+      'MekStation dispatchToEngine routes ActivateMovementEnhancement wire intents to InteractiveSession.activateMovementEnhancement.',
+      'L34-L36',
+    ),
+  ],
+  TorsoTwist: [
+    wireDispatchSourceRef(
+      'MekStation dispatchToEngine routes TorsoTwist wire intents to InteractiveSession.torsoTwist.',
+      'L38-L40',
+    ),
+  ],
+  Stand: [
+    wireDispatchSourceRef(
+      'MekStation dispatchToEngine routes Stand wire intents to InteractiveSession.attemptStandUp.',
+      'L26-L28',
+    ),
+  ],
+  Withdraw: [
+    wireDispatchSourceRef(
+      'MekStation dispatchToEngine routes Withdraw wire intents to InteractiveSession.declareWithdrawal.',
+      'L62-L64',
+    ),
+  ],
+  ForfeitMatch: MEKSTATION_RECONNECT_WIRE_INTENT_SOURCE_REFS,
+  LaunchMatch: MEKSTATION_LOBBY_WIRE_INTENT_SOURCE_REFS,
+  LeaveSeat: MEKSTATION_LOBBY_WIRE_INTENT_SOURCE_REFS,
+  MarkSeatAi: MEKSTATION_RECONNECT_WIRE_INTENT_SOURCE_REFS,
+  OccupySeat: MEKSTATION_LOBBY_WIRE_INTENT_SOURCE_REFS,
+  ReassignSeat: MEKSTATION_LOBBY_WIRE_INTENT_SOURCE_REFS,
+  SetAiSlot: MEKSTATION_LOBBY_WIRE_INTENT_SOURCE_REFS,
+  SetHumanSlot: MEKSTATION_LOBBY_WIRE_INTENT_SOURCE_REFS,
+  SetReady: MEKSTATION_LOBBY_WIRE_INTENT_SOURCE_REFS,
+} satisfies Record<
+  IIntentPayload['kind'],
+  readonly ICombatFeatureSourceReference[]
+>;
+
 const MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -725,103 +854,129 @@ export const WIRE_INTENT_KIND_ACTION_SUPPORT = {
     'AdvancePhase',
     'wire-intent',
     'dispatchToEngine routes AdvancePhase to InteractiveSession.advancePhase',
+    MEKSTATION_WIRE_INTENT_SOURCE_REFS.AdvancePhase,
   ),
   Attack: integrated(
     'Attack',
     'wire-intent',
     'dispatchToEngine routes Attack to InteractiveSession.applyAttack',
+    MEKSTATION_WIRE_INTENT_SOURCE_REFS.Attack,
   ),
   Concede: integrated(
     'Concede',
     'wire-intent',
     'dispatchToEngine routes Concede to InteractiveSession.concede',
+    MEKSTATION_WIRE_INTENT_SOURCE_REFS.Concede,
   ),
   Eject: integrated(
     'Eject',
     'wire-intent',
     'dispatchToEngine routes Eject to InteractiveSession.ejectUnit',
+    MEKSTATION_WIRE_INTENT_SOURCE_REFS.Eject,
   ),
   Move: integrated(
     'Move',
     'wire-intent',
     'dispatchToEngine routes Move to InteractiveSession.applyMovement',
+    MEKSTATION_WIRE_INTENT_SOURCE_REFS.Move,
   ),
   GoProne: integrated(
     'GoProne',
     'wire-intent',
     'dispatchToEngine routes GoProne to InteractiveSession.goProne',
-    MEGAMEK_GO_PRONE_SOURCE_REFS,
+    [
+      ...MEKSTATION_WIRE_INTENT_SOURCE_REFS.GoProne,
+      ...MEGAMEK_GO_PRONE_SOURCE_REFS,
+    ],
   ),
   ActivateMovementEnhancement: integrated(
     'ActivateMovementEnhancement',
     'wire-intent',
     'dispatchToEngine routes ActivateMovementEnhancement to InteractiveSession.activateMovementEnhancement',
-    MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS,
+    [
+      ...MEKSTATION_WIRE_INTENT_SOURCE_REFS.ActivateMovementEnhancement,
+      ...MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS,
+    ],
   ),
   TorsoTwist: integrated(
     'TorsoTwist',
     'wire-intent',
     'dispatchToEngine routes TorsoTwist to InteractiveSession.torsoTwist',
-    MEGAMEK_TORSO_TWIST_SOURCE_REFS,
+    [
+      ...MEKSTATION_WIRE_INTENT_SOURCE_REFS.TorsoTwist,
+      ...MEGAMEK_TORSO_TWIST_SOURCE_REFS,
+    ],
   ),
   Stand: integrated(
     'Stand',
     'wire-intent',
     'dispatchToEngine routes Stand to InteractiveSession.attemptStandUp',
+    MEKSTATION_WIRE_INTENT_SOURCE_REFS.Stand,
   ),
   Physical: integrated(
     'Physical',
     'wire-intent',
     'dispatchToEngine routes Physical to InteractiveSession.applyPhysicalAttack',
+    MEKSTATION_WIRE_INTENT_SOURCE_REFS.Physical,
   ),
   Withdraw: integrated(
     'Withdraw',
     'wire-intent',
     'dispatchToEngine routes Withdraw to InteractiveSession.declareWithdrawal',
+    MEKSTATION_WIRE_INTENT_SOURCE_REFS.Withdraw,
   ),
   ForfeitMatch: unsupported(
     'ForfeitMatch',
     'wire-intent',
     'Reconnect/lobby timeout intent; not a BattleMech combat action',
+    MEKSTATION_WIRE_INTENT_SOURCE_REFS.ForfeitMatch,
   ),
   LaunchMatch: unsupported(
     'LaunchMatch',
     'wire-intent',
     'Lobby setup intent; not a BattleMech combat action',
+    MEKSTATION_WIRE_INTENT_SOURCE_REFS.LaunchMatch,
   ),
   LeaveSeat: unsupported(
     'LeaveSeat',
     'wire-intent',
     'Lobby seat intent; not a BattleMech combat action',
+    MEKSTATION_WIRE_INTENT_SOURCE_REFS.LeaveSeat,
   ),
   MarkSeatAi: unsupported(
     'MarkSeatAi',
     'wire-intent',
     'Reconnect/lobby seat intent; not a BattleMech combat action',
+    MEKSTATION_WIRE_INTENT_SOURCE_REFS.MarkSeatAi,
   ),
   OccupySeat: unsupported(
     'OccupySeat',
     'wire-intent',
     'Lobby seat intent; not a BattleMech combat action',
+    MEKSTATION_WIRE_INTENT_SOURCE_REFS.OccupySeat,
   ),
   ReassignSeat: unsupported(
     'ReassignSeat',
     'wire-intent',
     'Lobby host intent; not a BattleMech combat action',
+    MEKSTATION_WIRE_INTENT_SOURCE_REFS.ReassignSeat,
   ),
   SetAiSlot: unsupported(
     'SetAiSlot',
     'wire-intent',
     'Lobby slot intent; not a BattleMech combat action',
+    MEKSTATION_WIRE_INTENT_SOURCE_REFS.SetAiSlot,
   ),
   SetHumanSlot: unsupported(
     'SetHumanSlot',
     'wire-intent',
     'Lobby slot intent; not a BattleMech combat action',
+    MEKSTATION_WIRE_INTENT_SOURCE_REFS.SetHumanSlot,
   ),
   SetReady: unsupported(
     'SetReady',
     'wire-intent',
     'Lobby readiness intent; not a BattleMech combat action',
+    MEKSTATION_WIRE_INTENT_SOURCE_REFS.SetReady,
   ),
 } satisfies Record<IIntentPayload['kind'], ICombatActionSupportEntry>;
