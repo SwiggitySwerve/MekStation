@@ -513,6 +513,36 @@ describe('implement-physical-attack-phase — smoke test', () => {
     expect(payload.location).toBe('AttackerCannotUsePhysical');
   });
 
+  it('push restriction: airborne AirMek cannot declare push', () => {
+    let session = setupPhysicalPhase();
+    const ctx: IPhysicalAttackContext = {
+      attackerTonnage: 50,
+      targetTonnage: 75,
+      pilotingSkill: 4,
+      attackerUnitType: UnitType.BATTLEMECH,
+      attackerMovementMode: 'wige',
+      attackerConversionMode: 'airmek',
+      attackerIsAirborneVTOLOrWiGE: true,
+      targetUnitType: UnitType.BATTLEMECH,
+    };
+
+    session = declarePhysicalAttack(session, 'attacker', 'target', 'push', ctx);
+
+    const declared = session.events.filter(
+      (e: IGameEvent) => e.type === GameEventType.PhysicalAttackDeclared,
+    );
+    expect(declared).toHaveLength(0);
+
+    const resolved = session.events.find(
+      (e: IGameEvent) => e.type === GameEventType.PhysicalAttackResolved,
+    );
+    expect(resolved).toBeDefined();
+    const payload = resolved!.payload as IPhysicalAttackResolvedPayload;
+    expect(payload.hit).toBe(false);
+    expect(payload.toHitNumber).toBe(Infinity);
+    expect(payload.location).toBe('AttackerAirborne');
+  });
+
   it('charge restriction: stunned vehicle cannot charge even after a run', () => {
     let session = withStunnedVehicleAttacker(setupPhysicalPhase());
     const ctx: IPhysicalAttackContext = {

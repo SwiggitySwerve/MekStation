@@ -463,9 +463,9 @@ Additional push target-legality pin: MegaMek
 targets, blocks airborne attackers, flipped arms, missing arms, and arm weapon
 fire; `PushAttackAction.java:212-260` also requires same base elevation,
 front-hex facing, non-airborne targets, and neither unit prone. MekStation now
-models the represented subset: non-Mek attackers/targets, prone attacker/target,
-airborne target, not-directly-ahead target, arm weapon fire, and same-base
-elevation all produce typed push restrictions. MegaMek
+models the represented subset: non-Mek attackers/targets, airborne attacker,
+prone attacker/target, airborne target, not-directly-ahead target, arm weapon
+fire, and same-base elevation all produce typed push restrictions. MegaMek
 `PushAttackAction.java:184-186` also requires both arms to be present, so
 MekStation now treats represented `left_arm` / `right_arm` destroyed locations
 as a `LimbMissing` push restriction in the same projection/commit path. The
@@ -1193,6 +1193,13 @@ MekStation now uses runtime `conversionMode` to block represented fighter-mode
 LAM punch, kick, push, DFA, and melee-weapon rows with
 `AttackerCannotUsePhysical` while leaving charge on its existing
 `AttackerCannotCharge` path and movement-phase ramming out of scope.
+
+2026-05-25 airborne AirMek push pin: MegaMek
+`PushAttackAction.java:168-170` documents that LAM AirMeks can only push while
+grounded and rejects airborne VTOL/WiGE attackers with "Cannot push while
+airborne". MekStation now reuses represented runtime airborne VTOL/WiGE state to
+block airborne AirMek push rows and declarations with `AttackerAirborne`, while
+grounded AirMek push legality stays on the normal Mek push path.
 
 ## Acceptance Gate
 

@@ -566,6 +566,24 @@ describe('physicalAttacks', () => {
   });
 
   describe('canPush', () => {
+    it('should disallow airborne AirMek pushes', () => {
+      const result = canPush(
+        makeInput({
+          attackType: 'push',
+          attackerUnitType: UnitType.BATTLEMECH,
+          attackerConversionMode: 'airmek',
+          attackerIsAirborneVTOLOrWiGE: true,
+          targetUnitType: UnitType.BATTLEMECH,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Cannot push while airborne',
+        reasonCode: 'AttackerAirborne',
+      });
+    });
+
     it('should disallow non-Mek push targets', () => {
       const result = canPush(
         makeInput({
@@ -1082,6 +1100,33 @@ describe('physicalAttacks', () => {
       expect(charge).toBeDefined();
       expect(charge!.toHit.allowed).toBe(false);
       expect(charge!.restrictionsFailed).toEqual(['AttackerCannotCharge']);
+    });
+
+    it('blocks represented airborne AirMek push rows from runtime state', () => {
+      const attacker = {
+        ...unitAt('airborne-airmek-1', 0, 0),
+        conversionMode: 'airmek',
+        combatState: {
+          kind: 'aero',
+          state: { altitude: 1 },
+        },
+      } as IUnitGameState;
+      const target = unitAt('mech-1', 1, 0);
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 45,
+        attackerPilotingSkill: 4,
+        targetTonnage: 55,
+        attackerUnitType: UnitType.BATTLEMECH,
+        attackerMovementMode: 'wige',
+        targetUnitType: UnitType.BATTLEMECH,
+        attackerRanThisTurn: true,
+      });
+
+      const push = options.find((option) => option.attackType === 'push');
+      expect(push).toBeDefined();
+      expect(push!.toHit.allowed).toBe(false);
+      expect(push!.restrictionsFailed).toEqual(['AttackerAirborne']);
     });
 
     it('blocks represented LAM fighter physical rows from runtime state', () => {

@@ -65,6 +65,7 @@ export type PhysicalAttackInvalidReason =
   | 'AttackerNotMek'
   | 'AttackerCannotUsePhysical'
   | 'AttackerCannotCharge'
+  | 'AttackerAirborne'
   | 'TargetNotMek'
   | 'TargetNotDirectlyAhead'
   | 'TargetProne'

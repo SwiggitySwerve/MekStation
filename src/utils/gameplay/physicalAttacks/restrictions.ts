@@ -323,6 +323,14 @@ export function canPush(
   const lamRestriction = lamFighterPhysicalRestriction(input);
   if (lamRestriction) return lamRestriction;
 
+  if (input.attackerIsAirborneVTOLOrWiGE) {
+    return {
+      allowed: false,
+      reason: 'Cannot push while airborne',
+      reasonCode: 'AttackerAirborne',
+    };
+  }
+
   if (!isRepresentedMek(input.targetUnitType)) {
     return {
       allowed: false,
