@@ -1243,6 +1243,13 @@ legality; it exposes the existing MegaMek-pinned combat projection blocker
 reason through top-level projection intent/status metadata, with blocked LOS
 surfaced as blocked and partial-cover LOS surfaced as mixed.
 
+2026-05-25 legacy range fallback badge pin: Legacy raw `attackRange` fallback
+hexes now render a compact `RNG` projection badge while keeping neutral
+top-level status and `range-only` combat-channel status. This preserves
+compatibility for callers without weapon-backed projection but gives the player
+a non-color-only marker that the tinted envelope is only a range fallback, not a
+rules-backed attack option.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

@@ -230,7 +230,26 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       legacyAttackHex.getAttribute('data-tactical-projection-explanation'),
     ).toContain('legacy attackRange fallback only; not weapon-backed');
-    expect(screen.queryByTestId('hex-projection-status-badge-2-0')).toBeNull();
+    const legacyRangeBadge = screen.getByTestId(
+      'hex-projection-status-badge-2-0',
+    );
+    expect(legacyRangeBadge).toHaveTextContent('RNG');
+    expect(legacyRangeBadge).toHaveAttribute(
+      'data-projection-status-badge-status',
+      'neutral',
+    );
+    expect(legacyRangeBadge).toHaveAttribute(
+      'data-projection-status-badge-combat-status',
+      'range-only',
+    );
+    expect(legacyRangeBadge).toHaveAttribute(
+      'data-projection-status-badge-sources',
+      expect.stringContaining('legacy-attack-range'),
+    );
+    expect(legacyRangeBadge).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('Range-only tactical projection'),
+    );
   });
 
   it('projects token target rings from weapon-backed combat legality', () => {

@@ -16,15 +16,36 @@ import {
 
 function formatProjectionStatusLabel(
   status: TacticalMapHexProjectionStatus | undefined,
+  combatStatus: TacticalMapCombatProjectionStatus | undefined,
+  sourceReferences:
+    | readonly ITacticalMapProjectionSourceReference[]
+    | undefined,
 ): string | null {
   switch (status) {
     case 'mixed':
       return 'MIX';
     case 'blocked':
       return 'BLK';
+    case 'neutral':
+      return combatStatus === 'range-only' &&
+        hasLegacyAttackRangeSource(sourceReferences)
+        ? 'RNG'
+        : null;
     default:
       return null;
   }
+}
+
+function hasLegacyAttackRangeSource(
+  sourceReferences:
+    | readonly ITacticalMapProjectionSourceReference[]
+    | undefined,
+): boolean {
+  return (
+    sourceReferences?.some(
+      (reference) => reference.channel === 'legacy-attack-range',
+    ) ?? false
+  );
 }
 
 function formatProjectionStatusTitle({
@@ -49,7 +70,9 @@ function formatProjectionStatusTitle({
   const statusLabel =
     status === 'mixed'
       ? 'Mixed tactical projection'
-      : 'Blocked tactical projection';
+      : status === 'blocked'
+        ? 'Blocked tactical projection'
+        : 'Range-only tactical projection';
   const parts = [statusLabel];
   if (intent) parts.push(`intent ${intent}`);
   if (movementStatus) parts.push(`movement ${movementStatus}`);
@@ -87,7 +110,11 @@ export function ProjectionStatusBadge({
   readonly sourceReferences?: readonly ITacticalMapProjectionSourceReference[];
   readonly explanation?: string;
 }): React.ReactElement | null {
-  const label = formatProjectionStatusLabel(status);
+  const label = formatProjectionStatusLabel(
+    status,
+    combatStatus,
+    sourceReferences,
+  );
   if (!label || !status) return null;
 
   const title = formatProjectionStatusTitle({
@@ -100,7 +127,12 @@ export function ProjectionStatusBadge({
     explanation,
   });
   const width = Math.max(28, label.length * 6 + 10);
-  const fill = status === 'mixed' ? '#92400e' : '#7f1d1d';
+  const fill =
+    status === 'mixed'
+      ? '#92400e'
+      : status === 'blocked'
+        ? '#7f1d1d'
+        : '#334155';
 
   return (
     <g
