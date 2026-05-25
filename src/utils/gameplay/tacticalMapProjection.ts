@@ -18,7 +18,8 @@ export type TacticalMapHexProjectionIntent =
   | 'path'
   | 'movement'
   | 'combat'
-  | 'movement-combat';
+  | 'movement-combat'
+  | 'los-blocker';
 
 export type TacticalMapHexProjectionStatus =
   | 'neutral'
@@ -157,11 +158,16 @@ export function buildTacticalMapHexProjection({
   readonly inLegacyAttackRange: boolean;
 }): ITacticalMapHexProjection {
   const inAttackRange = inLegacyAttackRange || Boolean(combat?.inRange);
-  const blockedReasons = collectBlockedReasons(movement, combat);
+  const blockedReasons = collectBlockedReasons({
+    movement,
+    combat,
+    combatLosBlockerFor,
+  });
   const movementStatus = deriveMovementProjectionStatus(movement);
   const combatStatus = deriveCombatProjectionStatus({
     combat,
     inAttackRange,
+    combatLosBlockerFor,
   });
   const intent = deriveProjectionIntent({
     isSelected,
@@ -169,10 +175,12 @@ export function buildTacticalMapHexProjection({
     movement,
     combat,
     inAttackRange,
+    combatLosBlockerFor,
   });
   const status = deriveProjectionStatus({
     movement,
     combat,
+    combatLosBlockerFor,
   });
   const sourceReferences = collectProjectionSourceReferences({
     terrain,
@@ -301,12 +309,14 @@ function deriveProjectionIntent({
   movement,
   combat,
   inAttackRange,
+  combatLosBlockerFor,
 }: {
   readonly isSelected: boolean;
   readonly pathIndex?: number;
   readonly movement?: IMovementRangeHex;
   readonly combat?: ICombatRangeHex;
   readonly inAttackRange: boolean;
+  readonly combatLosBlockerFor: readonly ITacticalMapCombatLosBlockerReference[];
 }): TacticalMapHexProjectionIntent {
   if (isSelected) return 'selected';
   if (pathIndex !== undefined) return 'path';
@@ -314,29 +324,41 @@ function deriveProjectionIntent({
     return 'movement-combat';
   }
   if (movement) return 'movement';
-  if (combat?.hasTarget || inAttackRange) return 'combat';
+  if (combat?.hasTarget) return 'combat';
+  if (combatLosBlockerFor.length > 0) return 'los-blocker';
+  if (inAttackRange) return 'combat';
   return 'terrain';
 }
 
 function deriveProjectionStatus({
   movement,
   combat,
+  combatLosBlockerFor,
 }: {
   readonly movement?: IMovementRangeHex;
   readonly combat?: ICombatRangeHex;
+  readonly combatLosBlockerFor: readonly ITacticalMapCombatLosBlockerReference[];
 }): TacticalMapHexProjectionStatus {
   const movementLegal = movementHasReachableOption(movement);
   const movementBlocked = movementHasBlockedOption(movement);
+  const losBlocked = losBlockerHasBlockedRef(combatLosBlockerFor);
+  const losPartial =
+    combatLosBlockerFor.length > 0 &&
+    combatLosBlockerFor.some((ref) => ref.losState === 'partial');
   const legal =
     movementLegal ||
     Boolean(combat?.attackable) ||
-    Boolean(combat?.inRange && !combat.hasTarget);
+    Boolean(
+      combat?.inRange && !combat.hasTarget && combatLosBlockerFor.length === 0,
+    );
   const blocked =
     movementBlocked ||
-    (combat ? combat.hasTarget && !combat.attackable : false);
+    (combat ? combat.hasTarget && !combat.attackable : false) ||
+    losBlocked;
 
-  if (legal && blocked) return 'mixed';
+  if ((legal || losPartial) && blocked) return 'mixed';
   if (blocked) return 'blocked';
+  if (losPartial) return 'mixed';
   if (legal) return 'legal';
   return 'neutral';
 }
@@ -539,17 +561,29 @@ function deriveMovementProjectionStatus(
 function deriveCombatProjectionStatus({
   combat,
   inAttackRange,
+  combatLosBlockerFor,
 }: {
   readonly combat?: ICombatRangeHex;
   readonly inAttackRange: boolean;
+  readonly combatLosBlockerFor: readonly ITacticalMapCombatLosBlockerReference[];
 }): TacticalMapCombatProjectionStatus {
-  if (!combat) return inAttackRange ? 'range-only' : 'none';
+  if (!combat) {
+    if (inAttackRange) return 'range-only';
+    if (combatLosBlockerFor.length > 0) {
+      return losBlockerHasBlockedRef(combatLosBlockerFor) ? 'blocked' : 'mixed';
+    }
+    return 'none';
+  }
 
   if (combat.hasTarget) {
     if (combat.attackable) {
       return combatHasBlockedTargets(combat) ? 'mixed' : 'attackable';
     }
     return 'blocked';
+  }
+
+  if (combatLosBlockerFor.length > 0) {
+    return losBlockerHasBlockedRef(combatLosBlockerFor) ? 'blocked' : 'mixed';
   }
 
   if (combat.inRange || inAttackRange) return 'range-only';
@@ -564,10 +598,21 @@ function combatHasBlockedTargets(combat: ICombatRangeHex): boolean {
   return combat.obscuredTargetUnitIds.length > 0;
 }
 
-function collectBlockedReasons(
-  movement: IMovementRangeHex | undefined,
-  combat: ICombatRangeHex | undefined,
-): readonly string[] {
+function losBlockerHasBlockedRef(
+  refs: readonly ITacticalMapCombatLosBlockerReference[],
+): boolean {
+  return refs.some((ref) => ref.losState === 'blocked');
+}
+
+function collectBlockedReasons({
+  movement,
+  combat,
+  combatLosBlockerFor,
+}: {
+  readonly movement: IMovementRangeHex | undefined;
+  readonly combat: ICombatRangeHex | undefined;
+  readonly combatLosBlockerFor: readonly ITacticalMapCombatLosBlockerReference[];
+}): readonly string[] {
   const reasons = [
     movement?.movementInvalidDetails,
     movement?.blockedReason,
@@ -578,6 +623,7 @@ function collectBlockedReasons(
     combat?.visibilityBlockedReason,
     combat?.lineOfSightBlockerReason,
     combat?.attackInvalidReason,
+    ...combatLosBlockerFor.map((ref) => ref.blocker.reason),
   ].filter((reason): reason is string => Boolean(reason));
 
   return Array.from(new Set(reasons));

@@ -1236,6 +1236,13 @@ projection. Their shared projection explanation now says the highlight is a
 legacy fallback only and not weapon-backed, so compatibility range envelopes are
 explicitly separated from rules-backed weapon, LOS, cover, and to-hit legality.
 
+2026-05-25 LOS blocker projection status pin: LOS blocker hexes now classify as
+standalone `los-blocker` tactical projections when they are not otherwise a
+selected, path, movement, or combat-target hex. This does not change LOS
+legality; it exposes the existing MegaMek-pinned combat projection blocker
+reason through top-level projection intent/status metadata, with blocked LOS
+surfaced as blocked and partial-cover LOS surfaced as mixed.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

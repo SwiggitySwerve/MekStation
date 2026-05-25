@@ -2295,6 +2295,32 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-los-blocker-for-reasons',
       'Blocked by building at (1, 0)',
     );
+    expect(blockerHex).toHaveAttribute(
+      'data-tactical-projection-intent',
+      'los-blocker',
+    );
+    expect(blockerHex).toHaveAttribute(
+      'data-tactical-projection-status',
+      'blocked',
+    );
+    expect(blockerHex).toHaveAttribute(
+      'data-tactical-projection-combat-status',
+      'blocked',
+    );
+    expect(
+      blockerHex.getAttribute('data-tactical-projection-blocked-reasons'),
+    ).toContain('Blocked by building at (1, 0)');
+    expect(
+      blockerHex.getAttribute('data-tactical-projection-explanation'),
+    ).toContain('LOS blocker for 2,0: Blocked by building at (1, 0)');
+    const blockerProjectionBadge = screen.getByTestId(
+      'hex-projection-status-badge-1-0',
+    );
+    expect(blockerProjectionBadge).toHaveTextContent('BLK');
+    expect(blockerProjectionBadge).toHaveAttribute(
+      'data-projection-status-badge-intent',
+      'los-blocker',
+    );
     const blockerBadge = screen.getByTestId('hex-combat-los-blocker-badge-1-0');
     expect(blockerBadge).toHaveTextContent('LOS BLDG');
     expect(blockerBadge).toHaveAttribute(
@@ -2656,6 +2682,25 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-los-blocker-reason',
       'Partial cover through smoke at (1, 0)',
     );
+    const blockerHex = screen.getByTestId('hex-1-0');
+    expect(blockerHex).toHaveAttribute(
+      'data-tactical-projection-intent',
+      'los-blocker',
+    );
+    expect(blockerHex).toHaveAttribute(
+      'data-tactical-projection-status',
+      'mixed',
+    );
+    expect(blockerHex).toHaveAttribute(
+      'data-tactical-projection-combat-status',
+      'mixed',
+    );
+    expect(
+      blockerHex.getAttribute('data-tactical-projection-blocked-reasons'),
+    ).toContain('Partial cover through smoke at (1, 0)');
+    expect(
+      screen.getByTestId('hex-projection-status-badge-1-0'),
+    ).toHaveTextContent('MIX');
 
     fireEvent.mouseEnter(targetHex);
     expect(screen.getByTestId('hex-combat-tooltip-geometry')).toHaveTextContent(
