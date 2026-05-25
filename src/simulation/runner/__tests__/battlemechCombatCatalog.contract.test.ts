@@ -1227,6 +1227,41 @@ describe('BattleMech combat catalog validation lane', () => {
         'unsupported-artillery-ammo',
       ].sort(),
     );
+    for (const entry of Object.values(ammoCompatibilitySupport)) {
+      const sourceRefs = entry.sourceRefs ?? [];
+
+      expect(sourceRefs).not.toHaveLength(0);
+      expect(
+        sourceRefs.every(
+          (sourceRef) =>
+            sourceRef.kind === 'mekstation-deviation' &&
+            sourceRef.sourceVersion === 'MekStation working-tree' &&
+            sourceRef.url.includes('#L'),
+        ),
+      ).toBe(true);
+    }
+    expect(
+      ammoCompatibilitySupport['battlemech-compatible-ammo'].sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('official ammunition category JSON file'),
+        expect.stringContaining('buildAmmoLookupFromCatalogFiles'),
+        expect.stringContaining('ammoTracking initializes ammo bin state'),
+        expect.stringContaining('pins exact compatible BattleMech ammo ids'),
+      ]),
+    );
+    expect(
+      ammoCompatibilitySupport[
+        'battlemech-ammo-missing-compatible-weapon-refs'
+      ].sourceRefs?.map(({ citation }) => citation),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('pins exact BattleMech ammo gap ids'),
+        expect.stringContaining('classifies every official ammo row'),
+      ]),
+    );
   });
 
   it('classifies every official special combat family in the catalog', () => {

@@ -100,6 +100,7 @@
 - [x] 3.1.21 Pin exact official UAC, RAC, LB-X, and MML family ids before claiming special firing-mode coverage.
 - [x] 3.1.22 Split damage-capable official Streak SRM ids from zero-damage Streak LRM/OS/prototype catalog rows so Streak runner support cannot hide data gaps.
 - [x] 3.1.23 Source-pin the official zero-damage Clan Plasma Cannon as a helper-only target-heat weapon gap instead of treating zero damage as generic coverage.
+- [x] 3.1.24 Source-pin ammunition compatibility support rows to MekStation official ammo import, ammo hydration/tracking, and exact-id classification contract refs so official ammo coverage does not rely on prose-only catalog evidence.
 - [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
 - [x] 3.2.2 Integrate source-backed active TSM movement speed into runner movement validation while leaving MASC, supercharger, and then-unsupported partial-wing movement behavior explicit.

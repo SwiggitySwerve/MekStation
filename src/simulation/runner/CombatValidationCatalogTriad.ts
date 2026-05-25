@@ -3,38 +3,32 @@ export type CombatCatalogTriadAuthorityBoundaryKind =
   | 'requirement-primary-authority'
   | 'mekstation-deviation';
 
-export interface ICombatCatalogTriadAuthorityBoundary {
-  readonly kind: CombatCatalogTriadAuthorityBoundaryKind;
-  readonly rationale: string;
-}
-
 export interface ICombatCatalogTriadTestReference {
   readonly file: string;
   readonly assertion: string;
 }
 
 export interface ICombatCatalogTriadEvidence {
-  readonly authorityBoundary: ICombatCatalogTriadAuthorityBoundary;
+  readonly authorityBoundary: {
+    readonly kind: CombatCatalogTriadAuthorityBoundaryKind;
+    readonly rationale: string;
+  };
   readonly testRefs: readonly ICombatCatalogTriadTestReference[];
 }
 
-function testRef(
+const testRef = (
   file: string,
   assertion: string,
-): ICombatCatalogTriadTestReference {
-  return { file, assertion };
-}
+): ICombatCatalogTriadTestReference => ({ file, assertion });
 
-function triad(
+const triad = (
   kind: CombatCatalogTriadAuthorityBoundaryKind,
   rationale: string,
   testRefs: readonly ICombatCatalogTriadTestReference[],
-): ICombatCatalogTriadEvidence {
-  return {
-    authorityBoundary: { kind, rationale },
-    testRefs,
-  };
-}
+): ICombatCatalogTriadEvidence => ({
+  authorityBoundary: { kind, rationale },
+  testRefs,
+});
 
 const ACTION_CONTRACT_REFS = [
   testRef(
@@ -339,7 +333,11 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
       FEATURE_REFS,
     ),
     mechQuirks: FEATURE_TRIAD,
-    ammunitionCompatibility: FEATURE_TRIAD,
+    ammunitionCompatibility: triad(
+      'entry-source-refs',
+      'Ammunition compatibility rows must carry row-level sourceRefs for official ammo catalog imports, ammo lookup/hydration, consumable ammo tracking, and exact-id gap partitions before BattleMech ammo coverage can claim source-backed catalog parity.',
+      FEATURE_REFS,
+    ),
     specialWeaponFamilies: triad(
       'entry-source-refs',
       'Special weapon family rows are MegaMek-source checked for UAC, RAC, LB-X, Streak SRM, MML, NARC, AMS, TAG, Artemis, and plasma-cannon family boundaries and must carry row-level sourceRefs.',

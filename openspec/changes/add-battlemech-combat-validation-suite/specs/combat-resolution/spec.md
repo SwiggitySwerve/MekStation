@@ -135,6 +135,8 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** standard or advanced official ammo rows with no compatible weapon references SHALL be pinned by exact id as helper-only BattleMech ammo gaps
 - **AND** aerospace/capital, battle armor, ProtoMech, aquatic torpedo, and artillery ammo rows SHALL be pinned by exact id as separate validation-matrix scope splits
 - **AND** experimental or nonstandard official ammo rows with no compatible weapon references SHALL be pinned by exact id as catalog-visible scope gaps
+- **AND** every ammunition compatibility support row SHALL carry structured row-level source references to the official ammo catalog import list, ammo hydration or tracking path, and exact-id classification contract
+- **AND** the ammunition compatibility catalog triad SHALL enforce row-level source references before PR approval
 - **AND** these rows SHALL NOT be counted as consumable BattleMech ammunition until catalog data supplies unambiguous compatible weapon references
 
 #### Scenario: Range bracket rows stay source-backed
