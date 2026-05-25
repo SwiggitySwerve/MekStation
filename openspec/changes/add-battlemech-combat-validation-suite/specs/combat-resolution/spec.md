@@ -151,7 +151,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **WHEN** that unit attempts a ranged weapon attack through runner attack resolution or event-sourced `declareAttack`
 - **THEN** the attack SHALL emit `AttackInvalid` with reason `AttackerEvading`
 - **AND** no `AttackDeclared`, `AttackResolved`, heat, ammo, damage, or fired-weapon state side effects SHALL follow
-- **AND** optional TacOps Evade movement-step declaration SHALL remain an unsupported absent-action row until movement command, state, heat, wire, P2P, Skilled Evasion scaling, and physical target-evasion paths are implemented
+- **AND** optional TacOps Evade movement-step declaration SHALL remain an unsupported absent-action row until movement command, state, heat, wire, P2P, and Skilled Evasion scaling paths are implemented
 
 #### Scenario: Evading targets modify ranged to-hit
 
@@ -159,7 +159,15 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **WHEN** helper to-hit calculation, event-sourced `declareAttack`, or runner attack resolution builds the `AttackDeclared` to-hit payload
 - **THEN** the attack SHALL include a `Target Evasion` to-hit modifier of `+1`
 - **AND** prone evading targets SHALL not receive the target-evasion modifier
-- **AND** optional TacOps Evade movement-step declaration, Skilled Evasion scaling, and physical target-evasion modifiers SHALL remain visible gaps until their source-backed paths exist
+- **AND** optional TacOps Evade movement-step declaration and Skilled Evasion scaling SHALL remain visible gaps until their source-backed paths exist
+
+#### Scenario: Evading targets modify physical to-hit
+
+- **GIVEN** a physical attack targets a unit with explicit `isEvading: true`
+- **WHEN** helper physical to-hit calculation, event-sourced `declarePhysicalAttack` or physical resolution, or runner physical resolution builds the physical attack to-hit number
+- **THEN** the physical attack SHALL apply a `Target Evasion` to-hit modifier of `+1`
+- **AND** prone evading physical targets SHALL not receive the target-evasion modifier
+- **AND** optional TacOps Evade movement-step declaration and Skilled Evasion scaling SHALL remain visible gaps until their source-backed paths exist
 
 #### Scenario: Invalid ranged attack side-effect guards stay source-backed as MekStation contracts
 

@@ -319,6 +319,12 @@ export interface IPhysicalAttackInput {
    */
   readonly targetMovementModifier?: number;
   /**
+   * Source-backed target evasion to-hit modifier. MegaMek's
+   * `Entity.getEvasionBonus` suppresses the bonus for prone targets, so
+   * callers should also hydrate `targetProne` when this is true.
+   */
+  readonly targetEvading?: boolean;
+  /**
    * Per task 6.1: charge to-hit uses piloting + attacker-movement
    * modifier. Callers derive this from the attacker's movementType.
    */

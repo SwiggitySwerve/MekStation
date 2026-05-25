@@ -931,5 +931,17 @@ describe('BattleMech combat validation requirement crosswalk', () => {
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
         .supportMapRefs,
     ).toContain('actions.absentActionSurfaces.movement.evade');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
+        .evidence,
+    ).toContain('ranged and physical to-hit');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
+        .gap,
+    ).not.toContain('physical target evasion');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-core-actions']
+        .evidence,
+    ).toContain('target-evasion physical to-hit');
   });
 });

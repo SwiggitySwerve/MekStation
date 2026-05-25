@@ -293,6 +293,7 @@ export function getEligiblePhysicalAttacks(
     hexesMoved: attacker.hexesMovedThisTurn,
     targetTonnage: context.targetTonnage,
     targetMovementModifier: context.targetMovementModifier,
+    targetEvading: target.isEvading,
     attackerMovementModifier: context.attackerMovementModifier,
     hasTSM: context.hasTSM,
     attackerRanThisTurn: context.attackerRanThisTurn,

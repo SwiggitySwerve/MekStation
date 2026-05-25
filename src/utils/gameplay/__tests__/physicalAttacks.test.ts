@@ -3258,6 +3258,65 @@ describe('physicalAttacks', () => {
       }
     });
 
+    it('applies source-backed target evasion to every physical to-hit path', () => {
+      const attackTypes = [
+        'punch',
+        'kick',
+        'charge',
+        'dfa',
+        'push',
+        'hatchet',
+        'sword',
+        'mace',
+        'lance',
+        'retractable-blade',
+        'flail',
+        'wrecking-ball',
+      ] as const satisfies readonly IPhysicalAttackInput['attackType'][];
+
+      for (const attackType of attackTypes) {
+        const baseline = calculatePhysicalToHit(
+          makeInput({
+            attackType,
+            pilotingSkill: 5,
+          }),
+        );
+        const evadingTarget = calculatePhysicalToHit(
+          makeInput({
+            attackType,
+            pilotingSkill: 5,
+            targetEvading: true,
+          }),
+        );
+
+        expect(evadingTarget.allowed).toBe(true);
+        expect(evadingTarget.finalToHit).toBe(baseline.finalToHit + 1);
+        expect(evadingTarget.modifiers).toContainEqual({
+          name: 'Target Evasion',
+          value: 1,
+          source: 'movement',
+        });
+      }
+    });
+
+    it('suppresses source-backed target evasion against prone physical targets', () => {
+      const result = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'kick',
+          pilotingSkill: 5,
+          targetEvading: true,
+          targetProne: true,
+        }),
+      );
+
+      expect(result.finalToHit).toBe(3);
+      expect(result.modifiers).not.toContainEqual(
+        expect.objectContaining({
+          name: 'Target Evasion',
+        }),
+      );
+    });
+
     it('does not apply Frogman in shallow water or to explicit non-Mek attackers', () => {
       const shallow = calculatePhysicalToHit(
         makeInput({

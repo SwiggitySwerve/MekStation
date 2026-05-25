@@ -2921,6 +2921,44 @@ describe('BattleMech physical combat behavior validation lane', () => {
     ).toBe(false);
   });
 
+  it('hydrates target evasion into event-sourced physical declaration and resolution', () => {
+    const declared = declareAdjacentPhysicalAttack(
+      'kick',
+      physicalContext(),
+      {},
+      { isEvading: true },
+    );
+
+    const declaration = declared.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const declaredPayload =
+      declaration?.payload as IPhysicalAttackDeclaredPayload;
+
+    expect(declaredPayload).toMatchObject({
+      attackType: 'kick',
+      toHitNumber: 4,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', physicalContext()]]),
+      scriptedDice([3]),
+    );
+    const resolution = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    );
+    const resolvedPayload =
+      resolution?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(resolvedPayload).toMatchObject({
+      attackType: 'kick',
+      roll: 6,
+      toHitNumber: 4,
+      hit: true,
+    });
+  });
+
   it('preserves DFA Battle Armor target-class to-hit modifiers during resolution', () => {
     const declared = declareAdjacentPhysicalAttack(
       'dfa',

@@ -1740,6 +1740,9 @@ describe('BattleMech combat feature-gap tracking', () => {
         expect.stringContaining('target evasion bonus'),
       ]),
     );
+    expect(
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['target-evasion'].evidence,
+    ).toContain('calculatePhysicalToHit');
     expect(heatRefs.map(({ citation }) => citation)).toEqual([
       expect.stringContaining("attacker's heat firing modifier"),
       expect.stringContaining('standard heat firing thresholds'),

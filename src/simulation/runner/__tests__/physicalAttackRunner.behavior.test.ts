@@ -1270,6 +1270,19 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     });
   });
 
+  it('threads explicit target evasion into physical to-hit resolution', () => {
+    const { events } = runPhase('kick', {
+      target: { isEvading: true },
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'kick',
+      roll: 8,
+      toHitNumber: 4,
+      hit: true,
+    });
+  });
+
   it('applies pilot physical SPAs to runner to-hit and damage math', () => {
     const { events } = runPhase('kick', {
       attacker: {

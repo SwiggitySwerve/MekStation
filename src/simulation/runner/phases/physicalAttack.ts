@@ -379,6 +379,7 @@ export function runPhysicalAttackPhase(options: {
       attackerWaterDepth,
       targetTonnage: DEFAULT_TONNAGE,
       targetProne: target.prone ?? false,
+      targetEvading: target.isEvading,
       targetMovementComplete: true,
       targetImmobile: target.shutdown ?? false,
       targetExists: true,
