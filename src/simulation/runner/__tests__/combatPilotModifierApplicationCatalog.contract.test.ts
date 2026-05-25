@@ -939,6 +939,48 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     });
   });
 
+  it('keeps Edge trigger support source-backed but helper-only', () => {
+    const edgeRefs = SPA_COMBAT_SUPPORT.edge.sourceRefs ?? [];
+    const edgeCitations = edgeRefs.map(({ citation }) => citation);
+
+    expect(SPA_COMBAT_SUPPORT.edge).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('Source-backed Edge trigger ids'),
+      gap: expect.stringContaining('trigger-specific Edge state'),
+    });
+    expect(edgeCitations).toEqual([
+      'MegaMek PilotOptions registers Edge as a point pool plus trigger-specific Mek and aerospace Edge options.',
+      'MegaMek OptionsConstants defines Edge and the Mek trigger option ids for head hits, TACs, KO checks, explosions, and MASC failures.',
+      'MegaMek Crew.hasEdgeRemaining and decreaseEdge consume the Edge point pool through OptionsConstants.EDGE.',
+      'MegaMek Mek hit-location resolution consumes Edge for TAC and head-hit rerolls when the corresponding trigger option is enabled.',
+      'MekStation EDGE_TRIGGERS mirrors the known Edge trigger ids and createEdgeState/canUseEdge/useEdge model generic trigger consumption without combat resolver side effects.',
+    ]);
+    expect(edgeRefs.map(({ kind }) => kind)).toEqual([
+      'megamek-source',
+      'megamek-source',
+      'megamek-source',
+      'megamek-source',
+      'mekstation-deviation',
+    ]);
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['edge-application'].sourceRefs,
+    ).toEqual(edgeRefs);
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['critical-prevention-application']
+        .sourceRefs,
+    ).toEqual(edgeRefs);
+    expect(PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['edge-application']).toEqual({
+      spaIds: ['edge'],
+      quirkIds: [],
+    });
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['critical-prevention-application'],
+    ).toEqual({
+      spaIds: ['edge'],
+      quirkIds: [],
+    });
+  });
+
   it('keeps source-backed pilot modifier refs commit-pinned', () => {
     const refs = [
       ...(SPA_COMBAT_SUPPORT['multi-tasker'].sourceRefs ?? []),
@@ -956,6 +998,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(SPA_COMBAT_SUPPORT['hot-dog'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['some-like-it-hot'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['tactical-genius'].sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT.edge.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.command_mech.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.battle_computer.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.distracting.sourceRefs ?? []),
@@ -992,6 +1035,11 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         .sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application']
         .sourceRefs ?? []),
+      ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['edge-application']
+        .sourceRefs ?? []),
+      ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'critical-prevention-application'
+      ].sourceRefs ?? []),
     ];
     const megamekRefs = refs.filter(
       (sourceRef) => sourceRef.kind === 'megamek-source',

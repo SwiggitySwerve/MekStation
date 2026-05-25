@@ -4,6 +4,10 @@ import type {
 } from './CombatFeatureSupport';
 
 import {
+  MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
+  MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
+} from './CombatEdgeSourceRefs';
+import {
   MEGAMEK_CALLED_SHOT_SOURCE_REFS,
   MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   MEGAMEK_DISTRACTING_QUIRK_SOURCE_REFS,
@@ -183,13 +187,21 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'edge-application': helperOnly(
     'edge-application',
-    'createEdgeState, canUseEdge, and useEdge model Edge trigger consumption',
-    'Attack, PSR, consciousness, and trigger-specific TAC/head-hit/explosion resolvers do not consume Edge state',
+    'createEdgeState, canUseEdge, and useEdge model source-backed Edge point and trigger-id consumption as generic helper state',
+    'No attack, PSR, consciousness, MASC/supercharger, TAC, head-hit, or explosion resolver consumes trigger-specific Edge state',
+    [
+      ...MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
+      ...MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
+    ],
   ),
   'critical-prevention-application': helperOnly(
     'critical-prevention-application',
-    'MegaMek exposes Edge TAC/head-hit/explosion triggers, but no local critical-hit resolver consumes those trigger-specific Edge gates',
-    'Generic critical-hit negation is not source-backed; Edge still needs TAC/head-hit/explosion mapping before wiring',
+    'MegaMek exposes Edge TAC/head-hit/explosion triggers and consumes TAC/head-hit Edge during Mek hit-location rerolls, but no local critical-hit resolver consumes those trigger-specific Edge gates',
+    'Generic critical-hit negation is not source-backed; Edge still needs TAC, head-hit, and explosion mapping before wiring',
+    [
+      ...MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
+      ...MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
+    ],
   ),
   'anti-mek-actuator-application': helperOnly(
     'anti-mek-actuator-application',

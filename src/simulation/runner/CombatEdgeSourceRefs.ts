@@ -1,0 +1,53 @@
+import type { ICombatFeatureSourceReference } from './CombatFeatureSupport';
+
+const MEGAMEK_EDGE_SOURCE_VERSION = '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+
+function megamekRef(
+  citation: string,
+  pathWithLines: string,
+): ICombatFeatureSourceReference {
+  return {
+    kind: 'megamek-source',
+    citation,
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_EDGE_SOURCE_VERSION}/${pathWithLines}`,
+    sourceVersion: MEGAMEK_EDGE_SOURCE_VERSION,
+  };
+}
+
+function mekstationDeviationRef(
+  citation: string,
+  pathWithLines: string,
+): ICombatFeatureSourceReference {
+  return {
+    kind: 'mekstation-deviation',
+    citation,
+    url: pathWithLines,
+    sourceVersion: 'MekStation working-tree',
+  };
+}
+
+export const MEGAMEK_EDGE_TRIGGER_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek PilotOptions registers Edge as a point pool plus trigger-specific Mek and aerospace Edge options.',
+    'megamek/src/megamek/common/options/PilotOptions.java#L123-L154',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines Edge and the Mek trigger option ids for head hits, TACs, KO checks, explosions, and MASC failures.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L236-L243',
+  ),
+  megamekRef(
+    'MegaMek Crew.hasEdgeRemaining and decreaseEdge consume the Edge point pool through OptionsConstants.EDGE.',
+    'megamek/src/megamek/common/units/Crew.java#L986-L993',
+  ),
+  megamekRef(
+    'MegaMek Mek hit-location resolution consumes Edge for TAC and head-hit rerolls when the corresponding trigger option is enabled.',
+    'megamek/src/megamek/common/units/Mek.java#L1945-L1963',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS = [
+  mekstationDeviationRef(
+    'MekStation EDGE_TRIGGERS mirrors the known Edge trigger ids and createEdgeState/canUseEdge/useEdge model generic trigger consumption without combat resolver side effects.',
+    'src/utils/gameplay/spaModifiers/edgeTriggers.ts#L11-L93',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];

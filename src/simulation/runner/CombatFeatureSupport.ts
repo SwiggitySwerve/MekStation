@@ -8,6 +8,10 @@
  */
 
 import {
+  MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
+  MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
+} from './CombatEdgeSourceRefs';
+import {
   MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   MEGAMEK_DISTRACTING_QUIRK_SOURCE_REFS,
   MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
@@ -560,8 +564,12 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   edge: helperOnly(
     'edge',
-    'createEdgeState/canUseEdge/useEdge',
-    'No attack/PSR/crit resolver consumes Edge state',
+    'Source-backed Edge trigger ids are represented by createEdgeState/canUseEdge/useEdge generic helper state',
+    'Attack, PSR, consciousness, MASC/supercharger, TAC, head-hit, and explosion resolvers do not consume trigger-specific Edge state',
+    [
+      ...MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
+      ...MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
+    ],
   ),
   toughness: integrated(
     'toughness',

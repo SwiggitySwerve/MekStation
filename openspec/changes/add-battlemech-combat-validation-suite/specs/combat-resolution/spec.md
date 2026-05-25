@@ -1040,6 +1040,18 @@ Pilot modifier validation SHALL keep local-only SPA rows visible as MekStation d
 - **AND** the row SHALL cite the MekStation SPA catalog as a `mekstation-deviation`
 - **AND** no row SHALL be promoted to integrated until an implementation and source-backed combat authority exist
 
+### Requirement: Source-Backed Edge Trigger Boundary
+
+Pilot modifier validation SHALL keep Edge as helper-only trigger-state coverage until combat resolvers consume trigger-specific Edge behavior. Edge rows SHALL cite MegaMek's point-pool and trigger-option source anchors plus MekStation's local generic trigger helper. TAC, head-hit, KO, explosion, MASC/supercharger, attack, PSR, and consciousness resolvers SHALL NOT be treated as Edge-integrated until those trigger-specific reroll or prevention paths are wired.
+
+#### Scenario: Edge helper rows cite source truth without claiming resolver parity
+
+- **GIVEN** the BattleMech SPA and pilot modifier resolver catalogs are generated
+- **WHEN** Edge, Edge application, or critical-prevention support is inspected
+- **THEN** each row SHALL remain helper-only with structured source references to MegaMek Edge trigger registration and point consumption
+- **AND** each row SHALL cite the MekStation generic Edge helper as a local deviation boundary
+- **AND** no attack, PSR, consciousness, TAC, head-hit, explosion, or MASC/supercharger resolver SHALL be counted as Edge-integrated until trigger-specific combat behavior exists
+
 ### Requirement: Source-Backed Terrain Master Defender To-Hit Variants
 
 Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit variants from target state and target terrain: Forest Ranger SHALL add a `+1` to-hit modifier only when the target has canonical `tm_forest_ranger` or legacy `terrain-master-forest-ranger`, the target moved by walking, and the target occupies wooded terrain; Swamp Beast SHALL add a `+1` to-hit modifier only when the target has canonical `tm_swamp_beast` or legacy `terrain-master-swamp-beast`, the target moved by running, and the target occupies mud or swamp. Runner ranged attacks SHALL hydrate target terrain features into to-hit state. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry and Mountaineer rubble-entry relief, including Swamp Beast bog-down relief, SHALL remain an explicit gap until separately source-backed.
