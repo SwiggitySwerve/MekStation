@@ -277,6 +277,40 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ]);
   });
 
+  it('pins Sensor Ghosts and weapon to-hit quirks to MegaMek attacker quirk semantics', () => {
+    const sensorGhostRefs = QUIRK_COMBAT_SUPPORT.sensor_ghosts.sourceRefs ?? [];
+    const weaponQuirkRefs = QUIRK_COMBAT_SUPPORT.accurate.sourceRefs ?? [];
+
+    expect(QUIRK_COMBAT_SUPPORT.sensor_ghosts).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('+1 attacker to-hit penalty'),
+    });
+    expect(sensorGhostRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek ComputeAbilityMods.processAttackerQuirks applies +1 Sensor Ghosts to the attacker to-hit number.',
+      'MegaMek OptionsConstants defines QUIRK_NEG_SENSOR_GHOSTS as sensor_ghosts.',
+    ]);
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'ranged-to-hit-calculation'
+      ].sourceRefs?.map(({ citation }) => citation),
+    ).toEqual(
+      expect.arrayContaining(sensorGhostRefs.map(({ citation }) => citation)),
+    );
+
+    expect(weaponQuirkRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek ComputeAbilityMods.processAttackerQuirks applies Accurate -1, Inaccurate +1, and Stable Weapon -1 when the attacker ran.',
+      'MegaMek OptionsConstants defines Accurate, Stable Weapon, and Inaccurate weapon quirk ids.',
+    ]);
+    expect(QUIRK_COMBAT_SUPPORT.inaccurate.sourceRefs).toEqual(weaponQuirkRefs);
+    expect(QUIRK_COMBAT_SUPPORT.stable_weapon.sourceRefs).toEqual(
+      weaponQuirkRefs,
+    );
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['weapon-to-hit-quirk-application']
+        .sourceRefs,
+    ).toEqual(weaponQuirkRefs);
+  });
+
   it('pins Jumping Jack and Hopping Jack to MegaMek jump attacker penalties', () => {
     const jumpingRefs = SPA_COMBAT_SUPPORT['jumping-jack'].sourceRefs ?? [];
     const hoppingRefs = SPA_COMBAT_SUPPORT['hopping-jack'].sourceRefs ?? [];
@@ -792,8 +826,15 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(SPA_COMBAT_SUPPORT['tactical-genius'].sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.command_mech.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.battle_computer.sourceRefs ?? []),
+      ...(QUIRK_COMBAT_SUPPORT.sensor_ghosts.sourceRefs ?? []),
+      ...(QUIRK_COMBAT_SUPPORT.accurate.sourceRefs ?? []),
+      ...(QUIRK_COMBAT_SUPPORT.inaccurate.sourceRefs ?? []),
+      ...(QUIRK_COMBAT_SUPPORT.stable_weapon.sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'multi-target-penalty-application'
+      ].sourceRefs ?? []),
+      ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'weapon-to-hit-quirk-application'
       ].sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application']
         .sourceRefs ?? []),

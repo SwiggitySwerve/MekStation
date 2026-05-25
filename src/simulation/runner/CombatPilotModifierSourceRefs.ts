@@ -60,6 +60,28 @@ export const MEGAMEK_CALLED_SHOT_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEGAMEK_SENSOR_GHOSTS_TO_HIT_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek ComputeAbilityMods.processAttackerQuirks applies +1 Sensor Ghosts to the attacker to-hit number.',
+    'megamek/src/megamek/common/actions/compute/ComputeAbilityMods.java#L71-L74',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines QUIRK_NEG_SENSOR_GHOSTS as sensor_ghosts.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L144-L144',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_WEAPON_TO_HIT_QUIRK_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek ComputeAbilityMods.processAttackerQuirks applies Accurate -1, Inaccurate +1, and Stable Weapon -1 when the attacker ran.',
+    'megamek/src/megamek/common/actions/compute/ComputeAbilityMods.java#L78-L90',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines Accurate, Stable Weapon, and Inaccurate weapon quirk ids.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L106-L159',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS = [
   megamekRef(
     'MegaMek HeatResolver sets PILOT_HOT_DOG to hotDogMod = 1 before resolving heat effects.',

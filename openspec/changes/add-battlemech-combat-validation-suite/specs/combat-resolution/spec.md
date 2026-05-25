@@ -928,6 +928,18 @@ Pilot modifier validation SHALL integrate MegaMek's Shaky Stick SPA as a ground-
 - **AND** the SPA support row and pilot modifier resolver rows SHALL be integrated
 - **AND** Shaky Stick SHALL NOT be represented as a generic BattleMech target movement, terrain, or PSR modifier
 
+### Requirement: Source-Backed Weapon Quirk To-Hit Modifiers
+
+Ranged to-hit validation SHALL keep combat-active quirk to-hit rows tied to MegaMek attacker quirk processing before treating them as integrated coverage. Sensor Ghosts SHALL apply as a `+1` attacker to-hit penalty. Accurate, Inaccurate, and Stable Weapon SHALL apply as weapon-specific to-hit modifiers where Stable Weapon applies only when the attacker ran. The support catalog and pilot modifier resolver rows SHALL expose commit-pinned MegaMek source references for those rows.
+
+#### Scenario: Attacker quirk rows cite MegaMek to-hit source truth
+
+- **GIVEN** the BattleMech quirk and pilot modifier resolver catalogs are generated
+- **WHEN** Sensor Ghosts or weapon to-hit quirk support is inspected
+- **THEN** `sensor_ghosts`, `accurate`, `inaccurate`, and `stable_weapon` SHALL be integrated with structured MegaMek source references
+- **AND** the ranged to-hit and weapon-to-hit-quirk resolver rows SHALL cite the same relevant MegaMek attacker quirk anchors
+- **AND** those source references SHALL be commit-pinned URLs with line anchors
+
 ### Requirement: Source-Backed Initiative Quirk Bonuses
 
 Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer force initiative bonuses from active conscious units. Battle Computer SHALL provide `+2`, Command Mech SHALL provide `+1`, and the bonuses SHALL NOT stack. Explicit HQ initiative equipment bonuses SHALL be treated as the same best-of force turn bonus as initiative quirks, while explicit command initiative equipment bonuses SHALL stack as a separate command bonus. Tactical Genius SHALL be modeled as a reroll request that replaces only the requested side's raw initiative roll when that side has an active conscious Tactical Genius unit, not as a flat modifier. Raw `2d6` initiative payload fields SHALL remain raw dice values for replay/RNG arbitration, with modifier and total fields carrying adjusted values. Automatic command-console/HQ equipment hydration and Combat Intuition first-round sequencing SHALL remain explicit gaps until equipment-derived command state and movement-before-initiative flow are modeled. Automatic initiative equipment hydration SHALL fail closed unless source-kind/rules-profile, working/default-mode communications tonnage, active command-console crew, heavy-or-larger weight class, IndustrialMek, and advanced-fire-control eligibility context are represented.

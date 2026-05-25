@@ -14,10 +14,12 @@ import {
   MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   MEGAMEK_SANDBLASTER_SOURCE_REFS,
+  MEGAMEK_SENSOR_GHOSTS_TO_HIT_SOURCE_REFS,
   MEGAMEK_SHAKY_STICK_SOURCE_REFS,
   MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,
   MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
   MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
+  MEGAMEK_WEAPON_TO_HIT_QUIRK_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
 import {
   MEGAMEK_AMS_SOURCE_REFS,
@@ -699,7 +701,8 @@ export const QUIRK_COMBAT_SUPPORT = {
   ),
   sensor_ghosts: integrated(
     'sensor_ghosts',
-    'calculateSensorGhostsModifier + calculateToHit',
+    'calculateSensorGhostsModifier plus calculateToHit apply the source-backed +1 attacker to-hit penalty',
+    MEGAMEK_SENSOR_GHOSTS_TO_HIT_SOURCE_REFS,
   ),
   multi_trac: integrated(
     'multi_trac',
@@ -728,14 +731,17 @@ export const QUIRK_COMBAT_SUPPORT = {
   accurate: integrated(
     'accurate',
     'buildWeaponAttackAttackerToHitState hydrates weaponQuirks, runAttackPhase passes the firing weapon id into calculateToHit, and calculateAttackerQuirkModifiers applies calculateAccurateWeaponModifier',
+    MEGAMEK_WEAPON_TO_HIT_QUIRK_SOURCE_REFS,
   ),
   inaccurate: integrated(
     'inaccurate',
     'buildWeaponAttackAttackerToHitState hydrates weaponQuirks, runAttackPhase passes the firing weapon id into calculateToHit, and calculateAttackerQuirkModifiers applies calculateInaccurateWeaponModifier',
+    MEGAMEK_WEAPON_TO_HIT_QUIRK_SOURCE_REFS,
   ),
   stable_weapon: integrated(
     'stable_weapon',
     'buildWeaponAttackAttackerToHitState hydrates weaponQuirks, runAttackPhase passes the firing weapon id into calculateToHit, and calculateAttackerQuirkModifiers applies calculateStableWeaponModifier',
+    MEGAMEK_WEAPON_TO_HIT_QUIRK_SOURCE_REFS,
   ),
   improved_cooling: integrated(
     'improved_cooling',

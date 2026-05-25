@@ -14,11 +14,13 @@ import {
   MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   MEGAMEK_SANDBLASTER_SOURCE_REFS,
   MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS,
+  MEGAMEK_SENSOR_GHOSTS_TO_HIT_SOURCE_REFS,
   MEGAMEK_SHAKY_STICK_SOURCE_REFS,
   MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,
   MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
   MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
   MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS,
+  MEGAMEK_WEAPON_TO_HIT_QUIRK_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
 
 function integrated(
@@ -69,6 +71,7 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
     [
       ...MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS,
       ...MEGAMEK_SHAKY_STICK_SOURCE_REFS,
+      ...MEGAMEK_SENSOR_GHOSTS_TO_HIT_SOURCE_REFS,
     ],
   ),
   'ranged-to-hit-state-hydration': integrated(
@@ -82,6 +85,7 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   'weapon-to-hit-quirk-application': integrated(
     'weapon-to-hit-quirk-application',
     'runAttackPhase passes the firing weapon id into calculateToHit so calculateAttackerQuirkModifiers applies Accurate, Inaccurate, and Stable Weapon when unit state carries weaponQuirks',
+    MEGAMEK_WEAPON_TO_HIT_QUIRK_SOURCE_REFS,
   ),
   'called-shot-application': helperOnly(
     'called-shot-application',
