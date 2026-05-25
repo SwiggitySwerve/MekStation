@@ -109,6 +109,15 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** broad known-limitation filters SHALL remain banned from catalog validation gates
 - **AND** every broad known-limitation category SHALL have a BattleMech validation trap proving the validation invariant bypass remains visible instead of filtered
 
+#### Scenario: Range bracket rows stay source-backed
+
+- **GIVEN** the range bracket catalog covers short, medium, long, extreme, and out-of-range attack boundaries
+- **WHEN** the aggregate catalog triad and BattleMech combat catalog contract tests run
+- **THEN** every integrated range bracket row SHALL carry structured MegaMek source references with commit-pinned URLs and line anchors
+- **AND** the minimum-range to-hit modifier row SHALL carry structured MegaMek source references for its close-range penalty formula
+- **AND** the aggregate catalog triad for `rangeBrackets` SHALL require row-level source references rather than inherited requirement authority
+- **AND** out-of-range attacks SHALL remain invalidation coverage instead of being treated as a normal declared attack range
+
 #### Scenario: AMS helper boundary stays source-backed
 
 - **GIVEN** AMS behavior is partially represented by projectile reduction, Streak/all-shots-hit cluster parity, single-missile interception, ammo/heat/fired lifecycle, and interception-event rows

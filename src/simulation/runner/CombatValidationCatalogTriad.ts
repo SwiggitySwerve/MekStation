@@ -321,7 +321,11 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
     ),
   },
   ruleSupport: {
-    rangeBrackets: RULE_TRIAD,
+    rangeBrackets: triad(
+      'entry-source-refs',
+      'Range bracket rows are MegaMek-source checked and must carry row-level sourceRefs for short, medium, long, extreme, and out-of-range boundaries.',
+      RULE_REFS,
+    ),
     toHitModifiers: RULE_TRIAD,
     physicalLegalityGates: PHYSICAL_LEGALITY_TRIAD,
     physicalDamageModifiers: RULE_TRIAD,

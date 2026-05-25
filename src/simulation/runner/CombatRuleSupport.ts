@@ -22,6 +22,12 @@ import {
   MEGAMEK_TORSO_TWIST_SOURCE_REFS,
   MEGAMEK_WALK_MOVEMENT_SOURCE_REFS,
 } from './CombatMovementSourceRefs';
+import {
+  MEGAMEK_EXTREME_RANGE_BRACKET_SOURCE_REFS,
+  MEGAMEK_MINIMUM_RANGE_SOURCE_REFS,
+  MEGAMEK_OUT_OF_RANGE_SOURCE_REFS,
+  MEGAMEK_STANDARD_RANGE_BRACKET_SOURCE_REFS,
+} from './CombatRangeSourceRefs';
 
 function integrated(
   id: string,
@@ -323,22 +329,27 @@ export const RUNNER_RANGE_BRACKET_COMBAT_SUPPORT = {
   [RangeBracket.Short]: integrated(
     RangeBracket.Short,
     'runAttackPhase emits AttackDeclared.range="short" with range modifier 0',
+    MEGAMEK_STANDARD_RANGE_BRACKET_SOURCE_REFS,
   ),
   [RangeBracket.Medium]: integrated(
     RangeBracket.Medium,
     'runAttackPhase emits AttackDeclared.range="medium" with range modifier 2',
+    MEGAMEK_STANDARD_RANGE_BRACKET_SOURCE_REFS,
   ),
   [RangeBracket.Long]: integrated(
     RangeBracket.Long,
     'runAttackPhase emits AttackDeclared.range="long" with range modifier 4',
+    MEGAMEK_STANDARD_RANGE_BRACKET_SOURCE_REFS,
   ),
   [RangeBracket.Extreme]: integrated(
     RangeBracket.Extreme,
     'IWeapon.extremeRange hydrates from catalog/adapter data and runAttackPhase emits AttackDeclared.range="extreme" with range modifier 6',
+    MEGAMEK_EXTREME_RANGE_BRACKET_SOURCE_REFS,
   ),
   [RangeBracket.OutOfRange]: integrated(
     RangeBracket.OutOfRange,
     'runAttackPhase emits AttackInvalid before heat, ammo, or damage side effects',
+    MEGAMEK_OUT_OF_RANGE_SOURCE_REFS,
   ),
 } satisfies Record<RangeBracket, ICombatFeatureSupportEntry>;
 
@@ -354,6 +365,7 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
   'minimum-range': integrated(
     'minimum-range',
     'runAttackPhase passes baseWeapon.minRange into calculateToHit',
+    MEGAMEK_MINIMUM_RANGE_SOURCE_REFS,
   ),
   'attacker-movement': integrated(
     'attacker-movement',

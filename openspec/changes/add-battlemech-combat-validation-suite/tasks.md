@@ -132,6 +132,7 @@
 - [x] 3.4.27 Seed conservative runner initial C3/C3i networks from hydrated mounted BattleMech equipment while leaving session/player-authored, ambiguous multi-network, and oversize gaps explicit.
 - [x] 3.4.28 Refresh explicit C3 network member lifecycle state during runner attack declaration so stale destroyed/ejected/retreated/withdrawing/shutdown/transported members cannot provide range sharing.
 - [x] 3.4.29 Suppress explicit C3 range sharing when hydrated mounted C3 equipment has a matching destroyed critical slot in the runner critical-slot manifest.
+- [x] 3.4.30 Source-pin range bracket rows for short, medium, long, extreme, and out-of-range plus the minimum-range modifier row; promote range-bracket triad enforcement to row-level source refs.
 - [x] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -217,3 +218,4 @@
 - [x] 4.3.55 Source-pin special weapon family rows for UAC, RAC, LB-X, Streak SRM, MML, NARC/iNARC, AMS, TAG, and Artemis; promote their triad boundary to row-level MegaMek source references.
 - [x] 4.3.56 Promote special weapon mechanic rows to row-level MegaMek source references and mark the semi-guided TAG cluster helper as a source-checked non-parity gap.
 - [x] 4.3.57 Promote core movement rule rows to row-level MegaMek source references so inherited movement authority cannot mask unsourced walk/run/jump/stand/prone/facing/occupancy/elevation/heat-MP claims.
+- [x] 4.3.58 Promote range bracket rows to row-level MegaMek source references so inherited range authority cannot mask unsourced short/medium/long/extreme/out-of-range and minimum-range claims.

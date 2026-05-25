@@ -1604,6 +1604,34 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(
       supportIdsByLevel(RUNNER_RANGE_BRACKET_COMBAT_SUPPORT, 'helper-only'),
     ).toEqual([]);
+    Object.values(RUNNER_RANGE_BRACKET_COMBAT_SUPPORT).forEach((entry) => {
+      expectPinnedMegaMekRefs(entry.sourceRefs ?? []);
+    });
+    expect(
+      RUNNER_RANGE_BRACKET_COMBAT_SUPPORT.short.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek RangeType.calculateRangeBracket classifies distance as minimum, short, medium, long, extreme, LOS, or out of range from the weapon range array and active optional range rules.',
+      'MegaMek Compute.getRangeMods applies attacker short, medium, long, and extreme range modifiers after resolving the active range bracket.',
+    ]);
+    expect(
+      RUNNER_RANGE_BRACKET_COMBAT_SUPPORT.extreme.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek RangeType.calculateRangeBracket classifies distance as minimum, short, medium, long, extreme, LOS, or out of range from the weapon range array and active optional range rules.',
+      'MegaMek Compute.getRangeMods reads the TacOps extreme-range option before classifying attack range.',
+      'MegaMek Compute.getRangeMods applies attacker short, medium, long, and extreme range modifiers after resolving the active range bracket.',
+    ]);
+    expect(
+      RUNNER_RANGE_BRACKET_COMBAT_SUPPORT.out_of_range.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek RangeType.calculateRangeBracket classifies distance as minimum, short, medium, long, extreme, LOS, or out of range from the weapon range array and active optional range rules.',
+      'MegaMek Compute.getRangeMods converts out-of-range attacks into automatic failure before normal attack resolution.',
+    ]);
   });
 
   it('tracks runner to-hit modifiers separately from helper-only modifier math', () => {
@@ -1658,6 +1686,8 @@ describe('BattleMech combat feature-gap tracking', () => {
       RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT[
         'physical-dfa-piloting-differential'
       ].sourceRefs ?? [];
+    const minimumRangeRefs =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['minimum-range'].sourceRefs ?? [];
 
     expect(secondaryTargetRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek Compute.getSecondaryTargetMod applies the secondary-target modifier and reduces it for Multi-Tasker.',
@@ -1694,6 +1724,10 @@ describe('BattleMech combat feature-gap tracking', () => {
     ).toEqual([
       'MegaMek DfaAttackAction.toHit applies attacker piloting minus target piloting as the piloting skill differential.',
     ]);
+    expect(minimumRangeRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek RangeType.calculateRangeBracket classifies distance as minimum, short, medium, long, extreme, LOS, or out of range from the weapon range array and active optional range rules.',
+      'MegaMek Compute.getRangeMods adds the ground-to-ground minimum range penalty as minRange - distance + 1.',
+    ]);
 
     expect(
       [
@@ -1704,6 +1738,7 @@ describe('BattleMech combat feature-gap tracking', () => {
         ...hullDownRefs,
         ...physicalDfaTargetClassRefs,
         ...physicalDfaPilotingDifferentialRefs,
+        ...minimumRangeRefs,
       ].every(
         (sourceRef) =>
           sourceRef.kind === 'megamek-source' &&
