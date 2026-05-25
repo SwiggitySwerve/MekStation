@@ -1,6 +1,18 @@
 import type { IAttackInvalidPayload } from '@/types/gameplay/GameSessionAttackEvents';
 
-import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
+import type {
+  ICombatFeatureSourceReference,
+  ICombatFeatureSupportEntry,
+} from './CombatFeatureSupport';
+
+import {
+  MEGAMEK_ACTIVE_TARGET_FILTER_SOURCE_REFS,
+  MEGAMEK_DESTROYED_TARGETABILITY_SOURCE_REFS,
+  MEGAMEK_EJECTION_TARGET_REMOVAL_SOURCE_REFS,
+  MEGAMEK_FRIENDLY_TARGET_INVALIDATION_SOURCE_REFS,
+  MEGAMEK_MISSING_TARGET_INVALIDATION_SOURCE_REFS,
+  MEGAMEK_RETREAT_TARGET_REMOVAL_SOURCE_REFS,
+} from './CombatAttackInvalidationSourceRefs';
 
 export type InvalidTargetState =
   | 'missing-target'
@@ -17,8 +29,14 @@ export type AttackInvalidationSideEffectGuard =
   | 'no-damage-applied'
   | 'no-fired-weapon-state';
 
-function integrated(id: string, evidence: string): ICombatFeatureSupportEntry {
-  return { id, level: 'integrated', evidence };
+function integrated(
+  id: string,
+  evidence: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'integrated', evidence, sourceRefs }
+    : { id, level: 'integrated', evidence };
 }
 
 export const ATTACK_INVALIDATION_REASON_SUPPORT = {
@@ -60,22 +78,36 @@ export const INVALID_TARGET_STATE_SUPPORT = {
   'missing-target': integrated(
     'missing-target',
     'validateDeclaredAttackTarget and declareAttack report a target id that does not exist',
+    MEGAMEK_MISSING_TARGET_INVALIDATION_SOURCE_REFS,
   ),
   'destroyed-target': integrated(
     'destroyed-target',
     'validateDeclaredAttackTarget and declareAttack reject target.destroyed',
+    [
+      ...MEGAMEK_ACTIVE_TARGET_FILTER_SOURCE_REFS,
+      ...MEGAMEK_DESTROYED_TARGETABILITY_SOURCE_REFS,
+    ],
   ),
   'same-side-target': integrated(
     'same-side-target',
     'validateDeclaredAttackTarget and declareAttack reject targets on the attacker side',
+    MEGAMEK_FRIENDLY_TARGET_INVALIDATION_SOURCE_REFS,
   ),
   'retreated-target': integrated(
     'retreated-target',
     'validateDeclaredAttackTarget and declareAttack reject target.hasRetreated',
+    [
+      ...MEGAMEK_ACTIVE_TARGET_FILTER_SOURCE_REFS,
+      ...MEGAMEK_RETREAT_TARGET_REMOVAL_SOURCE_REFS,
+    ],
   ),
   'ejected-target': integrated(
     'ejected-target',
     'validateDeclaredAttackTarget and declareAttack reject target.hasEjected and preserve ejection targetability removal',
+    [
+      ...MEGAMEK_ACTIVE_TARGET_FILTER_SOURCE_REFS,
+      ...MEGAMEK_EJECTION_TARGET_REMOVAL_SOURCE_REFS,
+    ],
   ),
 } satisfies Record<InvalidTargetState, ICombatFeatureSupportEntry>;
 

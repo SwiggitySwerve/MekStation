@@ -187,6 +187,11 @@ const INVALIDATION_TRIAD = triad(
   REQUIREMENT_AUTHORITY_BOUNDARY,
   INVALIDATION_REFS,
 );
+const INVALID_TARGET_STATE_TRIAD = triad(
+  'entry-source-refs',
+  'Ranged invalid target-state rows are MegaMek-source checked and must carry row-level sourceRefs for missing, destroyed, friendly, retreated, and ejected targetability boundaries.',
+  INVALIDATION_REFS,
+);
 const EVENT_TRIAD = triad(
   'mekstation-deviation',
   MEKSTATION_EVENT_BOUNDARY,
@@ -284,7 +289,7 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
   },
   invalidation: {
     attackReasons: INVALIDATION_TRIAD,
-    invalidTargetStates: INVALIDATION_TRIAD,
+    invalidTargetStates: INVALID_TARGET_STATE_TRIAD,
     invalidAttackSideEffects: INVALIDATION_TRIAD,
   },
   eventStream: {

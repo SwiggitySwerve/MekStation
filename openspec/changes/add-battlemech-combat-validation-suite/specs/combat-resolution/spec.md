@@ -126,6 +126,14 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** the aggregate catalog triad for `toHitModifiers` SHALL require row-level source references rather than inherited requirement authority
 - **AND** helper-only modifier rows such as ECM coverage derivation and C3 equipment network formation SHALL keep their runtime gaps explicit instead of treating source-backed row evidence as complete parity
 
+#### Scenario: Ranged invalid target-state rows stay source-backed
+
+- **GIVEN** the ranged invalidation catalog covers missing, destroyed, same-side, retreated, and ejected target states
+- **WHEN** the aggregate catalog triad and attack-invalidation catalog contract tests run
+- **THEN** every invalid target-state row SHALL carry structured MegaMek source references with commit-pinned URLs and line anchors
+- **AND** the aggregate catalog triad for `invalidTargetStates` SHALL require row-level source references rather than inherited requirement authority
+- **AND** MekStation lifecycle targetability removal SHALL stay visible as executable product evidence layered over the MegaMek targetability/removal source boundary
+
 #### Scenario: AMS helper boundary stays source-backed
 
 - **GIVEN** AMS behavior is partially represented by projectile reduction, Streak/all-shots-hit cluster parity, single-missile interception, ammo/heat/fired lifecycle, and interception-event rows
