@@ -531,6 +531,92 @@ const EXPECTED_MULTI_MODE_SPECIAL_WEAPON_FAMILY_IDS = {
   ],
 } satisfies Record<string, readonly string[]>;
 
+const EXPECTED_STREAK_WEAPON_FAMILY_IDS = {
+  'damage-capable': [
+    'clan-streak-srm-2',
+    'clan-streak-srm-4',
+    'clan-streak-srm-6',
+    'streak-srm-2',
+    'streak-srm-4',
+    'streak-srm-6',
+  ],
+  'zero-damage-data-gap': [
+    'iosstreaklrm10',
+    'iosstreaklrm15',
+    'iosstreaklrm20',
+    'iosstreaklrm5',
+    'osstreaklrm10',
+    'osstreaklrm15',
+    'osstreaklrm20',
+    'osstreaklrm5',
+    'streaklrm1',
+    'streaklrm10',
+    'streaklrm11',
+    'streaklrm11os',
+    'streaklrm12',
+    'streaklrm12-os',
+    'streaklrm13',
+    'streaklrm13os',
+    'streaklrm14',
+    'streaklrm14os',
+    'streaklrm15',
+    'streaklrm16',
+    'streaklrm16os',
+    'streaklrm17',
+    'streaklrm17os',
+    'streaklrm18',
+    'streaklrm18os',
+    'streaklrm19',
+    'streaklrm19os',
+    'streaklrm1os',
+    'streaklrm2',
+    'streaklrm20',
+    'streaklrm2os',
+    'streaklrm3',
+    'streaklrm3os',
+    'streaklrm4',
+    'streaklrm4os',
+    'streaklrm5',
+    'streaklrm6',
+    'streaklrm6os',
+    'streaklrm7',
+    'streaklrm7os',
+    'streaklrm8',
+    'streaklrm8os',
+    'streaklrm9',
+    'streaklrm9os',
+    'streaksrm1',
+    'streaksrm2-ios',
+    'streaksrm2-os',
+    'streaksrm3',
+    'streaksrm4-ios',
+    'streaksrm4-os',
+    'streaksrm4prototype',
+    'streaksrm5',
+    'streaksrm6-ios',
+    'streaksrm6-os',
+    'streaksrm6prototype',
+  ],
+} satisfies Record<string, readonly string[]>;
+
+const EXPECTED_DESIGNATOR_DEFENSIVE_SPECIAL_FAMILY_IDS = {
+  ams: ['ams', 'clan-ams', 'clan-laser-ams', 'laser-ams'],
+  artemis: ['artemisiv', 'artemisivproto', 'artemisv'],
+  narc: [
+    'bacompactnarc',
+    'clan-narc',
+    'improvednarc',
+    'improvednarc-os',
+    'inarc',
+    'narc',
+    'narcbeacon',
+    'narcbeacon-i-os',
+    'narcbeacon-os',
+    'narcbeaconprototype',
+  ],
+  tag: ['clan-light-tag', 'clan-tag', 'light-tag', 'tag'],
+} satisfies Record<string, readonly string[]>;
+
 function flattenItems(
   files: readonly ICatalogFile[],
 ): readonly Record<string, unknown>[] {
@@ -1152,12 +1238,32 @@ describe('BattleMech combat catalog validation lane', () => {
       'rotary-ac': ids(rotaryACs),
       'ultra-ac': ids(ultraACs),
     }).toEqual(EXPECTED_MULTI_MODE_SPECIAL_WEAPON_FAMILY_IDS);
+    expect({
+      'damage-capable': ids(
+        streakLaunchers.filter((item) => item.damage !== 0),
+      ),
+      'zero-damage-data-gap': ids(
+        streakLaunchers.filter((item) => item.damage === 0),
+      ),
+    }).toEqual(EXPECTED_STREAK_WEAPON_FAMILY_IDS);
+    expect({
+      ams: ids(amsSystems),
+      artemis: ids(artemisFcs),
+      narc: ids(narcLaunchers),
+      tag: ids(tagDesignators),
+    }).toEqual(EXPECTED_DESIGNATOR_DEFENSIVE_SPECIAL_FAMILY_IDS);
 
     expect(ids(ultraACs).every(isUltraAC)).toBe(true);
     expect(ids(rotaryACs).every(isRotaryAC)).toBe(true);
     expect(ids(lbxACs).every(isLBXAC)).toBe(true);
-    expect(ids(streakLaunchers).every(isStreakSRM)).toBe(true);
-    expect(ids(streakLaunchers).every(verifyStreakBehavior)).toBe(true);
+    expect(
+      EXPECTED_STREAK_WEAPON_FAMILY_IDS['damage-capable'].every(isStreakSRM),
+    ).toBe(true);
+    expect(
+      EXPECTED_STREAK_WEAPON_FAMILY_IDS['damage-capable'].every(
+        verifyStreakBehavior,
+      ),
+    ).toBe(true);
     expect(ids(narcLaunchers).every(isNarc)).toBe(true);
     expect(ids(amsSystems).every(isAMS)).toBe(true);
     expect(ids(tagDesignators).every(isTAG)).toBe(true);
@@ -1239,12 +1345,12 @@ describe('BattleMech combat catalog validation lane', () => {
     ).toEqual([]);
   });
 
-  it('maps every official Streak launcher to runner all-or-none semantics', () => {
-    const streakLaunchers = familyItems(/\bStreak\b/i);
+  it('maps every damage-capable official Streak SRM launcher to runner all-or-none semantics', () => {
     const failures: string[] = [];
 
-    for (const item of streakLaunchers) {
-      const weaponId = item.id as string;
+    for (const weaponId of EXPECTED_STREAK_WEAPON_FAMILY_IDS[
+      'damage-capable'
+    ]) {
       const catalogWeapon = weaponLookup(weaponId);
       if (!catalogWeapon) {
         failures.push(`${weaponId}: missing from combat weapon lookup`);
@@ -1262,6 +1368,9 @@ describe('BattleMech combat catalog validation lane', () => {
       if (shouldSpendAmmoAndHeatOnMiss(aiWeapon)) {
         failures.push(`${weaponId}: failed lock would spend ammo or heat`);
       }
+      if (aiWeapon.damage <= 0) {
+        failures.push(`${weaponId}: damage-capable Streak mapped to zero`);
+      }
       if (
         resolved.projectileCount === undefined ||
         resolved.projectileCount <= 0
@@ -1271,6 +1380,27 @@ describe('BattleMech combat catalog validation lane', () => {
     }
 
     expect(failures).toEqual([]);
+  });
+
+  it('keeps zero-damage Streak variants as catalog-visible data gaps', () => {
+    const zeroDamageStreakLaunchers = familyItems(/\bStreak\b/i).filter(
+      (item) => item.damage === 0,
+    );
+
+    expect(ids(zeroDamageStreakLaunchers)).toEqual(
+      EXPECTED_STREAK_WEAPON_FAMILY_IDS['zero-damage-data-gap'],
+    );
+    expect(
+      zeroDamageStreakLaunchers.map((item) => zeroDamageClassification(item)),
+    ).toEqual(
+      Array.from(
+        {
+          length:
+            EXPECTED_STREAK_WEAPON_FAMILY_IDS['zero-damage-data-gap'].length,
+        },
+        () => 'nonstandard-data-gap',
+      ),
+    );
   });
 
   it('maps official UAC, RAC, LB-X, and MML catalog weapons into AI firing modes', () => {

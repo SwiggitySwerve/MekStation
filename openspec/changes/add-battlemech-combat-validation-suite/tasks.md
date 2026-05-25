@@ -87,6 +87,7 @@
 - [x] 3.1.19 Pin exact experimental/nonstandard official ammo rows with no compatible weapon references as catalog-visible scope gaps.
 - [x] 3.1.20 Pin every official string-damage missile weapon row to its resolved nonzero volley damage so MML-style descriptors cannot collapse to zero.
 - [x] 3.1.21 Pin exact official UAC, RAC, LB-X, and MML family ids before claiming special firing-mode coverage.
+- [x] 3.1.22 Split damage-capable official Streak SRM ids from zero-damage Streak LRM/OS/prototype catalog rows so Streak runner support cannot hide data gaps.
 - [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
 - [x] 3.2.2 Integrate source-backed active TSM movement speed into runner movement validation while leaving MASC, supercharger, and then-unsupported partial-wing movement behavior explicit.

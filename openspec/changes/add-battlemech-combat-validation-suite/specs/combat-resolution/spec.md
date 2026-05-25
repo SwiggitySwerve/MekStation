@@ -212,6 +212,8 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **WHEN** the special weapon family support map is contract-tested
 - **THEN** every integrated or helper-only special weapon family row SHALL carry structured MegaMek source references with commit-pinned URLs and line anchors
 - **AND** official UAC, RAC, LB-X, and MML family ids SHALL be pinned exactly before their firing-mode support rows are treated as integrated
+- **AND** damage-capable official Streak SRM ids SHALL be pinned separately from zero-damage Streak LRM/OS/prototype catalog rows before Streak support is treated as integrated
+- **AND** zero-damage Streak LRM/OS/prototype rows SHALL remain catalog-visible data gaps instead of inheriting Streak SRM damage behavior by name match
 - **AND** the aggregate catalog triad for `specialWeaponFamilies` SHALL require row-level source references rather than inherited requirement authority
 - **AND** helper-only family rows SHALL keep their remaining runtime/session gaps explicit instead of treating source-backed family evidence as complete parity
 

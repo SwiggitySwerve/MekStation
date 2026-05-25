@@ -84,12 +84,12 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   ),
   'streak-lock-no-spend-on-miss': integrated(
     'streak-lock-no-spend-on-miss',
-    'shouldSpendAmmoAndHeatOnMiss prevents Streak SRM ammo and heat spending when lock fails',
+    'shouldSpendAmmoAndHeatOnMiss prevents damage-capable Streak SRM ammo and heat spending when lock fails',
     MEGAMEK_STREAK_SRM_SOURCE_REFS,
   ),
   'streak-rack-projectiles': integrated(
     'streak-rack-projectiles',
-    'resolveSpecialProjectileHit derives the Streak rack size as projectile count on successful lock',
+    'resolveSpecialProjectileHit derives damage-capable Streak SRM rack size as projectile count on successful lock',
     MEGAMEK_STREAK_SRM_SOURCE_REFS,
   ),
   'mml-variable-damage': integrated(
