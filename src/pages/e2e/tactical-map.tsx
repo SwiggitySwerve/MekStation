@@ -37,6 +37,12 @@ import {
   tacticalMapVtolElevationMpLegend,
   tacticalMapVtolTokens,
 } from '@/testing/tactical-map.movement-scenarios';
+import {
+  tacticalMapTargetTerrainModifierCombatState,
+  tacticalMapTargetTerrainModifierSelectedWeaponIds,
+  tacticalMapTargetTerrainModifierTargetId,
+  tacticalMapTargetTerrainModifierTokens,
+} from '@/testing/tactical-map.target-terrain-scenarios';
 
 const isTestEnv =
   process.env.NODE_ENV === 'development' ||
@@ -58,20 +64,26 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
     router.query.scenario === 'aerospace-velocity-projection';
   const isAirborneAerospaceMinimumRangeScenario =
     router.query.scenario === 'airborne-aerospace-minimum-range';
+  const isTargetTerrainModifierScenario =
+    router.query.scenario === 'target-terrain-modifier';
   const selectedWeaponIds = isAerospaceVelocityScenario
     ? []
     : isAirborneAerospaceMinimumRangeScenario
       ? tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds
-      : isOutOfRangeScenario
-        ? tacticalMapOutOfRangeSelectedWeaponIds
-        : tacticalMapSelectedWeaponIds;
+      : isTargetTerrainModifierScenario
+        ? tacticalMapTargetTerrainModifierSelectedWeaponIds
+        : isOutOfRangeScenario
+          ? tacticalMapOutOfRangeSelectedWeaponIds
+          : tacticalMapSelectedWeaponIds;
   const targetUnitId = isAerospaceVelocityScenario
     ? null
     : isAirborneAerospaceMinimumRangeScenario
       ? tacticalMapAirborneAerospaceMinimumRangeTargetId
-      : isOutOfRangeScenario
-        ? 'medium-target'
-        : 'occluded';
+      : isTargetTerrainModifierScenario
+        ? tacticalMapTargetTerrainModifierTargetId
+        : isOutOfRangeScenario
+          ? 'medium-target'
+          : 'occluded';
   const tokens = isVtolElevationScenario
     ? tacticalMapVtolTokens
     : isBipedOptionScenario
@@ -82,16 +94,22 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
           ? tacticalMapAerospaceTokens
           : isAirborneAerospaceMinimumRangeScenario
             ? tacticalMapAirborneAerospaceMinimumRangeTokens
-            : tacticalMapTokens;
+            : isTargetTerrainModifierScenario
+              ? tacticalMapTargetTerrainModifierTokens
+              : tacticalMapTokens;
   const combatState = isMountedBattleArmorScenario
     ? tacticalMapMountedBattleArmorCombatState
     : isAerospaceVelocityScenario
       ? tacticalMapAerospaceCombatState
       : isAirborneAerospaceMinimumRangeScenario
         ? tacticalMapAirborneAerospaceMinimumRangeCombatState
-        : tacticalMapCombatState;
+        : isTargetTerrainModifierScenario
+          ? tacticalMapTargetTerrainModifierCombatState
+          : tacticalMapCombatState;
   const movementRange =
-    isAerospaceVelocityScenario || isAirborneAerospaceMinimumRangeScenario
+    isAerospaceVelocityScenario ||
+    isAirborneAerospaceMinimumRangeScenario ||
+    isTargetTerrainModifierScenario
       ? undefined
       : isJumpElevationScenario
         ? tacticalMapJumpElevationMovementRange
@@ -101,7 +119,9 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
             ? tacticalMapBipedOptionMovementRange
             : tacticalMapMovementRange;
   const mpLegend =
-    isAerospaceVelocityScenario || isAirborneAerospaceMinimumRangeScenario
+    isAerospaceVelocityScenario ||
+    isAirborneAerospaceMinimumRangeScenario ||
+    isTargetTerrainModifierScenario
       ? undefined
       : isJumpElevationScenario
         ? tacticalMapJumpElevationMpLegend
@@ -116,7 +136,9 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
       ? { q: 0, r: 0 }
       : { q: -1, r: 0 };
   const highlightPath =
-    isAerospaceVelocityScenario || isAirborneAerospaceMinimumRangeScenario
+    isAerospaceVelocityScenario ||
+    isAirborneAerospaceMinimumRangeScenario ||
+    isTargetTerrainModifierScenario
       ? undefined
       : tacticalMapHighlightPath;
 

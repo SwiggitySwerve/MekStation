@@ -15,6 +15,10 @@ import {
   tacticalMapOutOfRangeCombatProjection,
   tacticalMapOutOfRangeCommitInput,
 } from '../tactical-map.combat-scenarios';
+import {
+  tacticalMapTargetTerrainModifierCombatProjection,
+  tacticalMapTargetTerrainModifierCommitInput,
+} from '../tactical-map.target-terrain-scenarios';
 
 describe('tactical map combat scenarios', () => {
   it('keeps the mixed legal browser projection aligned with committed attack declaration', () => {
@@ -118,6 +122,60 @@ describe('tactical map combat scenarios', () => {
     });
     expect(payload.toHitNumber).toBe(
       tacticalMapMinimumRangeCombatProjection.toHitNumber,
+    );
+  });
+
+  it('keeps target-hex terrain modifiers aligned between browser projection and commit', () => {
+    expect(tacticalMapTargetTerrainModifierCombatProjection).toMatchObject({
+      hex: { q: 0, r: 1 },
+      distance: 2,
+      rangeBracket: 'short',
+      attackable: true,
+      targetCoverModifier: 0,
+      targetPartialCover: false,
+      weaponIdsAvailable: ['medium-laser'],
+      toHitNumber: 5,
+    });
+    expect(
+      tacticalMapTargetTerrainModifierCombatProjection.toHitModifiers,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Target Terrain',
+          value: 1,
+          source: 'terrain',
+          description: 'Target in light woods: +1',
+        }),
+      ]),
+    );
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapTargetTerrainModifierCommitInput(),
+    );
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.weapons).toEqual(
+      tacticalMapTargetTerrainModifierCombatProjection.weaponIdsAvailable,
+    );
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Target Terrain',
+          value: 1,
+          source: 'terrain',
+          description: 'Target in light woods: +1',
+        }),
+      ]),
+    );
+    expect(payload.toHitNumber).toBe(
+      tacticalMapTargetTerrainModifierCombatProjection.toHitNumber,
     );
   });
 

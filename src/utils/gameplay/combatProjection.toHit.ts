@@ -200,6 +200,7 @@ export function deriveToHitProjection({
     name: modifier.name,
     value: modifier.value,
     source: modifier.source,
+    description: modifier.description,
   }));
   let toHitNumber = toHitCalc.finalToHit;
 

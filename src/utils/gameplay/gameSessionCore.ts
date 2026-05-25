@@ -535,6 +535,7 @@ export function declareAttack(
     name: modifier.name,
     value: modifier.value,
     source: modifier.source,
+    description: modifier.description,
   }));
 
   // Wave 8 PR-K4: append indirect-fire penalty to the modifier list so

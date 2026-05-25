@@ -127,6 +127,15 @@ to-hit partial-cover modifier from the shared combat projection. Remaining
 browser combat gaps are broader cover/elevation families and special range-mode
 sweeps beyond the smoke harness.
 
+2026-05-24 target-terrain browser update: the tactical-map browser harness now
+also renders a target standing in light woods and verifies that the top-down hex
+and combat tooltip expose `Target Terrain +1` plus the `Target in light woods:
++1` modifier description, and that the committed `AttackDeclared` modifier
+preserves the same description from the shared projection. The same browser
+proof verifies that target-hex woods do not render the partial-cover badge,
+matching the MegaMek distinction between target terrain modifiers and true
+partial cover.
+
 2026-05-24 fog-contact browser update: the tactical-map browser harness now
 also renders hidden-only and last-known opponent contacts and verifies that the
 top-down combat projection marks them non-attackable with obscured target ids,

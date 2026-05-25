@@ -907,6 +907,72 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     ).toHaveAttribute('data-aerospace-altitude', '3');
   });
 
+  test('shows target terrain to-hit modifiers without cover badges in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=target-terrain-modifier');
+
+    const targetHex = page.getByTestId('hex-0-1');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'woods-target',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-terrain-features',
+      'light_woods',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-range-bracket',
+      'short',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-distance', '2');
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-available',
+      'medium-laser',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '5');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-modifiers',
+      /Target Terrain:1/,
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-reason',
+      /Target Terrain \+1/,
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-partial-cover',
+      'false',
+    );
+    await expect(page.getByTestId('hex-cover-badge-0-1')).toHaveCount(0);
+
+    const terrainBadge = page.getByTestId('hex-terrain-label-0-1');
+    await expect(terrainBadge).toHaveAttribute(
+      'data-terrain-features',
+      'light_woods',
+    );
+    await expect(terrainBadge).toContainText('LW');
+
+    await targetHex.hover();
+    const toHitRows = page.getByTestId('hex-combat-tooltip-to-hit-modifiers');
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-names',
+      /Target Terrain/,
+    );
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-values',
+      /1/,
+    );
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-descriptions',
+      /Target in light woods: \+1/,
+    );
+    await expect(
+      page.getByTestId('hex-combat-tooltip-modifiers'),
+    ).toContainText('Target Terrain +1');
+    await expect(page.getByTestId('hex-combat-tooltip-cover')).toHaveCount(0);
+  });
+
   test('shows all selected weapons out of range as blocked in browser', async ({
     page,
   }) => {

@@ -30,6 +30,15 @@ function modifierSourcesAttribute(
     : undefined;
 }
 
+function modifierDescriptionsAttribute(
+  modifiers: readonly IToHitModifier[],
+): string | undefined {
+  const descriptions = modifiers.map((modifier) => modifier.description ?? '');
+  return descriptions.some((description) => description.length > 0)
+    ? descriptions.join('|')
+    : undefined;
+}
+
 export function CombatToHitModifierRows({
   combatInfo,
   testId,
@@ -49,6 +58,9 @@ export function CombatToHitModifierRows({
       data-combat-to-hit-modifier-names={modifierNamesAttribute(modifiers)}
       data-combat-to-hit-modifier-values={modifierValuesAttribute(modifiers)}
       data-combat-to-hit-modifier-sources={modifierSourcesAttribute(modifiers)}
+      data-combat-to-hit-modifier-descriptions={modifierDescriptionsAttribute(
+        modifiers,
+      )}
     >
       <div data-testid={`${testId}-title`}>
         To-hit modifiers
@@ -64,6 +76,7 @@ export function CombatToHitModifierRows({
           data-combat-to-hit-modifier-name={modifier.name}
           data-combat-to-hit-modifier-value={modifier.value}
           data-combat-to-hit-modifier-source={modifier.source}
+          data-combat-to-hit-modifier-description={modifier.description}
         >
           {modifier.name} {formatSignedModifier(modifier.value)}
         </div>

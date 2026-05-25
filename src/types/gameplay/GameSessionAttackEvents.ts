@@ -352,6 +352,8 @@ export interface IToHitModifier {
   readonly value: number;
   /** Modifier source */
   readonly source: string;
+  /** Optional player-facing rule detail behind the modifier */
+  readonly description?: string;
 }
 
 // =============================================================================

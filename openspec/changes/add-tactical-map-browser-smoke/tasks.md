@@ -60,6 +60,8 @@
   matching MP, heat, elevation delta, and path.
 - [x] 2.24 Add a coherent biped walk/run/jump browser scenario backed by shared
   movement destination projections and commit-validation parity.
+- [x] 2.25 Add browser coverage proving target-hex light woods applies a
+  `Target Terrain +1` to-hit modifier without rendering a partial-cover badge.
 
 ## 3. Validation
 
@@ -108,3 +110,5 @@
   projection and movement commit validator handoff.
 - [x] 3.24 Focused Jest parity and Playwright smoke pass for the biped
   walk/run/jump projection-backed browser scenario.
+- [x] 3.25 Focused Jest parity and Playwright smoke pass for target-hex terrain
+  modifier projection, committed attack modifiers, and browser tooltip rows.
