@@ -926,7 +926,7 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     ).toContain('actions.tacticalCommands.facing.torso-twist');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions'].gap,
-    ).toContain('secondary-facing torso-twist');
+    ).toContain('torso-twist intent/wire/server actions');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
         .supportMapRefs,

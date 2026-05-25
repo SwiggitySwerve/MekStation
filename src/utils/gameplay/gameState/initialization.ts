@@ -246,6 +246,7 @@ export function createInitialUnitState(
     side: unit.side,
     position: startPosition,
     facing: startFacing,
+    secondaryFacing: startFacing,
     heat: 0,
     movementThisTurn: MovementType.Stationary,
     hexesMovedThisTurn: 0,

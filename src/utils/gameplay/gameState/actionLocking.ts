@@ -1,5 +1,6 @@
 import {
   IAttackDeclaredPayload,
+  IFacingChangedPayload,
   IGameEvent,
   IGameState,
   IMovementEnhancementActivatedPayload,
@@ -23,11 +24,45 @@ export function applyMovementDeclared(
     ...unit,
     position: payload.to,
     facing: payload.facing,
+    secondaryFacing: payload.facing,
+    torsoTwist: undefined,
     movementThisTurn: payload.movementType,
     hexesMovedThisTurn: payload.hexesMoved ?? payload.mpUsed,
     heat: unit.heat + payload.heatGenerated,
     prone: wentProne ? true : unit.prone,
     lockState: LockState.Planning,
+  };
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: updatedUnit,
+    },
+  };
+}
+
+export function applyFacingChanged(
+  state: IGameState,
+  payload: IFacingChangedPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) {
+    return state;
+  }
+
+  const facing = payload.facing ?? unit.facing;
+  const secondaryFacing =
+    payload.secondaryFacing ??
+    (payload.facing !== undefined ? facing : unit.secondaryFacing);
+
+  const updatedUnit: IUnitGameState = {
+    ...unit,
+    facing,
+    ...(secondaryFacing !== undefined ? { secondaryFacing } : {}),
+    ...(payload.torsoTwist !== undefined
+      ? { torsoTwist: payload.torsoTwist }
+      : { torsoTwist: undefined }),
   };
 
   return {

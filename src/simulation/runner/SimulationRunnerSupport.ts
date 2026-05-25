@@ -10,6 +10,7 @@ import {
   MovementType,
   RangeBracket,
 } from '@/types/gameplay';
+import { getTorsoTwistFromSecondaryFacing } from '@/utils/gameplay/firingArc';
 
 import type { IAIUnitState, IWeapon } from '../ai/types';
 
@@ -90,6 +91,7 @@ export function createMinimalUnitState(
     side,
     position,
     facing: side === GameSide.Player ? Facing.South : Facing.North,
+    secondaryFacing: side === GameSide.Player ? Facing.South : Facing.North,
     heat: 0,
     movementThisTurn: MovementType.Stationary,
     hexesMovedThisTurn: 0,
@@ -171,11 +173,15 @@ export function toAIUnitState(
     hydratedWeapons && hydratedWeapons.length > 0
       ? hydratedWeapons
       : [createMinimalWeapon(`${unit.id}-weapon-1`)];
+  const torsoTwist =
+    unit.torsoTwist ??
+    getTorsoTwistFromSecondaryFacing(unit.facing, unit.secondaryFacing);
 
   return {
     unitId: unit.id,
     position: unit.position,
     facing: unit.facing,
+    ...(torsoTwist !== undefined ? { torsoTwist } : {}),
     heat: unit.heat,
     weapons: applyDestroyedWeaponCriticalsToWeapons(unit, weapons),
     ammo: {},

@@ -12,6 +12,7 @@ import {
   IGameEndedPayload,
   IGameEvent,
   IGameState,
+  IFacingChangedPayload,
   IHeatPayload,
   IInitiativeRolledPayload,
   IMoraleShiftedPayload,
@@ -44,6 +45,7 @@ import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveE
 import {
   applyAttackDeclared,
   applyAttackLocked,
+  applyFacingChanged,
   applyMovementEnhancementActivated,
   applyMovementDeclared,
   applyMovementLocked,
@@ -133,6 +135,9 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
         state,
         event.payload as IMovementEnhancementActivatedPayload,
       );
+
+    case GameEventType.FacingChanged:
+      return applyFacingChanged(state, event.payload as IFacingChangedPayload);
 
     case GameEventType.AttackDeclared:
       return applyAttackDeclared(
@@ -246,7 +251,6 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
     case GameEventType.AttackResolved:
     case GameEventType.HeatEffectApplied:
     case GameEventType.CriticalHit:
-    case GameEventType.FacingChanged:
     case GameEventType.AmmoExplosion:
     // `ForcedWithdrawalTriggered` is informational only — the paired
     // `WithdrawalDeclared` event performs the actual state change.

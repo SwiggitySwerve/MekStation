@@ -155,7 +155,7 @@ describe('BattleMech combat action support catalog', () => {
       ]),
     );
     expect(COMBAT_COMMAND_ACTION_SUPPORT['facing.torso-twist'].gap).toContain(
-      'secondary-facing',
+      'wire protocol',
     );
   });
 

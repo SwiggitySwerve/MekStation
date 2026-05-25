@@ -27,6 +27,8 @@ import { IHexCoordinate, Facing, FiringArc } from '@/types/gameplay';
 
 import { determineArc } from './firingArcs';
 
+export type TorsoTwistDirection = 'left' | 'right';
+
 // =============================================================================
 // Core Firing Arc Calculation
 // =============================================================================
@@ -39,7 +41,7 @@ export function calculateFiringArc(
   attackerPos: IHexCoordinate,
   targetPos: IHexCoordinate,
   targetFacing: Facing,
-  torsoTwist?: 'left' | 'right',
+  torsoTwist?: TorsoTwistDirection,
 ): FiringArc {
   const targetAsUnit = {
     unitId: '_target',
@@ -63,10 +65,29 @@ export function calculateFiringArc(
  */
 export function getTwistedFacing(
   facing: Facing,
-  twist: 'left' | 'right',
+  twist: TorsoTwistDirection,
 ): Facing {
   // Left: +1 (clockwise), Right: -1 (counter-clockwise) mod 6
   return twist === 'left'
     ? (((facing + 1) % 6) as Facing)
     : (((facing - 1 + 6) % 6) as Facing);
+}
+
+export function getTorsoTwistFromSecondaryFacing(
+  facing: Facing,
+  secondaryFacing: Facing | undefined,
+): TorsoTwistDirection | undefined {
+  if (secondaryFacing === undefined || secondaryFacing === facing) {
+    return undefined;
+  }
+
+  if (secondaryFacing === getTwistedFacing(facing, 'left')) {
+    return 'left';
+  }
+
+  if (secondaryFacing === getTwistedFacing(facing, 'right')) {
+    return 'right';
+  }
+
+  return undefined;
 }

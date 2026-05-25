@@ -69,12 +69,13 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** the evade row SHALL cite MegaMek source anchors for optional TacOps evade availability, evasion state, evasion heat, attacker-evading firing restrictions, and target-evading to-hit modifiers
 - **AND** those rows SHALL NOT be inferred from helper prose or omitted because no UI command currently emits them
 
-#### Scenario: Torso twist stays source-backed helper-only until secondary-facing state is authoritative
+#### Scenario: Torso twist stays helper-only until command and wire paths are authoritative
 
-- **GIVEN** the tactical command and firing-arc helpers expose torso twist without authoritative secondary-facing state
+- **GIVEN** the tactical command, event replay, and firing-arc helpers expose torso twist with explicit secondary-facing combat state
 - **WHEN** the action and movement rule catalogs are contract-tested
 - **THEN** `facing.torso-twist` SHALL cite MegaMek source anchors for `TorsoTwistAction`, secondary-facing persistence, BattleMech twist legality, extended/no-twist quirk boundaries, and secondary-facing arc consumption
-- **AND** torso twist SHALL remain helper-only until game intent, wire payload, P2P translation, server dispatch, persisted secondary-facing state, legality gates, quirk handling, and attack arc consumption are authoritative
+- **AND** event-sourced secondary facing SHALL feed AI weapon-arc filtering and runner secondary-target front-arc math
+- **AND** torso twist SHALL remain helper-only until game intent, tactical command payload, wire payload, P2P translation, server dispatch, legality gates, extended/no-twist quirk handling, and UI emission are authoritative
 
 #### Scenario: Core movement rule rows stay source-backed
 

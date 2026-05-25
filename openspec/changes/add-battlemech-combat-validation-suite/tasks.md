@@ -144,6 +144,7 @@
 - [x] 3.4.24 Guard source-backed initiative equipment hydration as unsupported unless complete HQ communications or command-console eligibility context exists; command-looking metadata without explicit initiative fields fails closed.
 - [x] 3.4.25 Source-back legacy Evasive SPA support as an unsupported optional TacOps Evade movement/action gap, including target to-hit and attacker firing restrictions, until an authoritative evade action path exists.
 - [x] 3.4.26 Source-back torso-twist secondary-facing arc consumption and extended/no-twist quirk boundaries while preserving attack arc consumption as a helper-only gap until torso twist is authoritative.
+- [x] 3.4.27 Promote explicit secondary-facing torso-twist state into event replay, AI weapon-arc filtering, and runner secondary-target front-arc math while preserving UI/game-intent/wire/P2P/server legality gaps.
 - [x] 3.4.27 Seed conservative runner initial C3/C3i networks from hydrated mounted BattleMech equipment while leaving session/player-authored, ambiguous multi-network, and oversize gaps explicit.
 - [x] 3.4.28 Refresh explicit C3 network member lifecycle state during runner attack declaration so stale destroyed/ejected/retreated/withdrawing/shutdown/transported members cannot provide range sharing.
 - [x] 3.4.29 Suppress explicit C3 range sharing when hydrated mounted C3 equipment has a matching destroyed critical slot in the runner critical-slot manifest.

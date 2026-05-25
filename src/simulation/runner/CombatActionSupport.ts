@@ -226,8 +226,8 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
   'facing.torso-twist': helperOnly(
     'facing.torso-twist',
     'tactical-command',
-    'buildFacingCommands exposes source-backed torso-twist during WeaponAttack and firing-arc helpers model twist context',
-    'No authoritative secondary-facing torso-twist state, game intent, wire protocol, P2P translation, or server dispatch path exists',
+    'buildFacingCommands exposes source-backed torso-twist during WeaponAttack; FacingChanged replay persists secondaryFacing; runner secondary-target and AI weapon-arc helpers consume explicit torso twist state',
+    'No tactical command payload, game intent, wire protocol, P2P translation, server dispatch path, legality gate, or quirk handling emits authoritative torso-twist actions yet',
     MEGAMEK_TORSO_TWIST_SOURCE_REFS,
   ),
   'weapon.declare-attack': helperOnly(

@@ -1874,7 +1874,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       ]),
     );
     expect(MOVEMENT_RULE_COMBAT_SUPPORT['torso-twist'].gap).toContain(
-      'secondary-facing',
+      'wire/P2P/server dispatch',
     );
     expect(
       Object.values(MOVEMENT_RULE_COMBAT_SUPPORT)

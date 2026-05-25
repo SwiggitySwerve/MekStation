@@ -30,7 +30,10 @@ import {
   resolveC3ECMDisruption,
 } from '@/utils/gameplay/electronicWarfare';
 import { calculateEnvironmentalModifiers } from '@/utils/gameplay/environmentalModifiers';
-import { calculateFiringArc } from '@/utils/gameplay/firingArc';
+import {
+  calculateFiringArc,
+  getTorsoTwistFromSecondaryFacing,
+} from '@/utils/gameplay/firingArc';
 import { hexDistance } from '@/utils/gameplay/hexMath';
 import { getClusterHitterBonus, hasSPA } from '@/utils/gameplay/spaModifiers';
 import {
@@ -103,8 +106,16 @@ function isTargetInAttackerFrontArc(
   if (!attacker || !target) return false;
 
   return (
-    calculateFiringArc(target.position, attacker.position, attacker.facing) ===
-    FiringArc.Front
+    calculateFiringArc(
+      target.position,
+      attacker.position,
+      attacker.facing,
+      attacker.torsoTwist ??
+        getTorsoTwistFromSecondaryFacing(
+          attacker.facing,
+          attacker.secondaryFacing,
+        ),
+    ) === FiringArc.Front
   );
 }
 

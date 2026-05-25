@@ -156,6 +156,19 @@ export interface IMovementEnhancementActivatedPayload {
   readonly enhancement: MovementEnhancementActivationKind;
 }
 
+export interface IFacingChangedPayload {
+  readonly unitId: string;
+  /** Chassis facing after a same-hex turn or fall rotation. */
+  readonly facing?: Facing;
+  /** Upper-body secondary facing after a torso-twist action. */
+  readonly secondaryFacing?: Facing;
+  /**
+   * Backward-compatible relative twist used by pre-secondary-facing helpers.
+   * Prefer `secondaryFacing` for new replayable torso-twist events.
+   */
+  readonly torsoTwist?: 'left' | 'right';
+}
+
 export interface IChargeDeclaredStep {
   readonly kind: 'chargeDeclared';
   readonly index: number;

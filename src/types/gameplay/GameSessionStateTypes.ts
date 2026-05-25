@@ -228,6 +228,18 @@ export interface IUnitGameState {
   readonly position: IHexCoordinate;
   /** Current facing */
   readonly facing: Facing;
+  /**
+   * Optional MegaMek-style secondary facing for BattleMech torso twist.
+   * When absent, combat consumers treat the upper body as aligned with
+   * chassis `facing`.
+   */
+  readonly secondaryFacing?: Facing;
+  /**
+   * Legacy relative torso-twist helper consumed by the AI firing-arc filter.
+   * New authoritative state should prefer `secondaryFacing`; this remains so
+   * older explicit fixtures can keep describing a one-hexside twist directly.
+   */
+  readonly torsoTwist?: 'left' | 'right';
   /** Current heat */
   readonly heat: number;
   /** Movement this turn */

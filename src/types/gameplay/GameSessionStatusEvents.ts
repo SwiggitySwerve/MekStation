@@ -56,6 +56,7 @@ import type {
   ITurnStartedPayload,
 } from './GameSessionLifecycleEvents';
 import type {
+  IFacingChangedPayload,
   IAttackLockedPayload,
   IMovementDeclaredPayload,
   IMovementLockedPayload,
@@ -446,6 +447,7 @@ export type GameEventPayload =
   | IInitiativeRolledPayload
   | IMovementDeclaredPayload
   | IMovementLockedPayload
+  | IFacingChangedPayload
   | IAttackDeclaredPayload
   | IAttackLockedPayload
   | IAttackResolvedPayload

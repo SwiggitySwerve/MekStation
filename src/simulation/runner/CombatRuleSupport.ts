@@ -802,8 +802,8 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
   ),
   'torso-twist': helperOnly(
     'torso-twist',
-    'Source-backed firingArc helpers, AttackAI arc filtering, and TacticalActionDock command surface model torso-twist context',
-    'No authoritative secondary-facing state/intent, legality gate, quirk handling, or attack arc consumption is persisted through combat resolution',
+    'Source-backed firingArc helpers, applyFacingChanged secondaryFacing replay, toAIUnitState arc projection, AttackAI arc filtering, runner secondary-target math, and TacticalActionDock command surface model torso-twist context',
+    'No authoritative game intent, wire/P2P/server dispatch, legality gate, extended/no-twist quirk handling, or UI command payload persists torso-twist actions end to end',
     MEGAMEK_TORSO_TWIST_SOURCE_REFS,
   ),
   occupancy: integrated(

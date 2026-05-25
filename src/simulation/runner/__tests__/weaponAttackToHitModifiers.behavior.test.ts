@@ -1313,6 +1313,78 @@ describe('runAttackPhase to-hit modifier integration', () => {
     });
   });
 
+  it('threads secondary-facing torso twist into secondary target front-arc math', () => {
+    const secondaryWeaponId = 'medium-laser-secondary';
+    const state = createWeaponAttackState({
+      attacker: {
+        facing: Facing.North,
+        secondaryFacing: Facing.Northeast,
+      },
+      target: {
+        position: { q: 0, r: -2 },
+      },
+    });
+    const multiTargetState: IGameState = {
+      ...state,
+      units: {
+        ...state.units,
+        'opponent-2': createUnit({
+          id: 'opponent-2',
+          side: GameSide.Opponent,
+          position: { q: 2, r: -1 },
+        }),
+      },
+    };
+    const events: IGameEvent[] = [];
+    const violations: IViolation[] = [];
+
+    runAttackPhase({
+      state: multiTargetState,
+      botPlayer: new DeclaresWeaponAttackAI(
+        MEDIUM_LASER_ID,
+        'opponent-1',
+        [MEDIUM_LASER_ID, secondaryWeaponId],
+        {
+          [MEDIUM_LASER_ID]: 'opponent-1',
+          [secondaryWeaponId]: 'opponent-2',
+        },
+      ),
+      grid: createGrid(),
+      invariantRunner: new InvariantRunner(),
+      violations,
+      events,
+      gameId: multiTargetState.gameId,
+      random: new SeededRandom(12345),
+      weaponsByUnit: new Map([
+        [
+          'player-1',
+          [
+            createMediumLaser(MEDIUM_LASER_ID),
+            createMediumLaser(secondaryWeaponId),
+          ],
+        ],
+        ['opponent-1', []],
+        ['opponent-2', []],
+      ]),
+    });
+
+    const secondaryPayload = attackDeclaredPayloads(events).find(
+      (payload) => payload.targetId === 'opponent-2',
+    );
+
+    expect(secondaryPayload).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-2',
+      weapons: [secondaryWeaponId],
+      toHitNumber: 5,
+    });
+    expectModifier(secondaryPayload!, {
+      name: 'Secondary Target',
+      value: 1,
+      source: 'other',
+    });
+  });
+
   it('threads per-weapon called-shot intent into AttackDeclared to-hit math', () => {
     const events: IGameEvent[] = [];
     const violations: IViolation[] = [];

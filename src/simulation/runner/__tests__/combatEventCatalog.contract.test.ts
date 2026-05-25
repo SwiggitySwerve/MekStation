@@ -85,15 +85,11 @@ describe('BattleMech combat event support catalog', () => {
     expect(
       supportIdsByLevel(BATTLEMECH_COMBAT_EVENT_SUPPORT, 'unsupported'),
     ).toEqual(
-      [
-        GameEventType.AttacksRevealed,
-        GameEventType.FacingChanged,
-        GameEventType.InitiativeOrderSet,
-      ].sort(),
+      [GameEventType.AttacksRevealed, GameEventType.InitiativeOrderSet].sort(),
     );
     expect(
       supportIdsByLevel(BATTLEMECH_COMBAT_EVENT_SUPPORT, 'helper-only'),
-    ).toEqual([]);
+    ).toEqual([GameEventType.FacingChanged]);
   });
 
   it('keeps the combat audit trail discoverable for core must-cover mechanics', () => {
