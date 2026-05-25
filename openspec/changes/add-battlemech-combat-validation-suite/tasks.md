@@ -219,6 +219,7 @@
 - [x] 3.5.28 Source-pin ammo-explosion pilot-damage as a helper-only damage/death gap until heat, crit, and interactive cookoff paths emit PilotHit, persist wounds, and apply Pain Resistance / Iron Man reduction.
 - [x] 3.5.29 Wire source-backed ammo-explosion PilotHit emission, wound persistence, pilot-death state, and Pain Resistance / Iron Man reduction across runner heat, runner crit, and event-sourced heat cookoff paths.
 - [x] 3.5.30 Source-pin representative integration scenario rows to lifecycle, ejection, objective, PSR-queue, and terminal GameEnded executable anchors so parity and terminal-state claims do not inherit prose-only evidence.
+- [x] 3.5.31 Source-pin runner-vs-interactive parity rows to movement, weapon, physical, heat, PSR, objective, and terminal executable anchors so cross-stack parity claims do not inherit prose-only evidence.
 
 ## 4. Source-truth cross-checks
 
@@ -315,3 +316,4 @@
 - [x] 4.3.86 Cross-check MegaMek ammunition-explosion pilot-damage reduction, Pain Resistance, and Iron Man source rows against MekStation heat/crit/interactive cookoff paths before keeping ammo-explosion PilotHit coverage helper-only.
 - [x] 4.3.87 Re-cross-check MegaMek ammunition-explosion pilot damage, Pain Resistance, Iron Man, and pain-shunt handling before promoting ammo-explosion PilotHit coverage to integrated validation support.
 - [x] 4.3.88 Re-cross-check MegaMek `ComputeTargetToHitMods` and `ComputeToHit` semi-guided TAG branches before promoting TAG target-movement cancellation and indirect-fire relief to integrated to-hit coverage.
+- [x] 4.3.89 Cross-check runner-vs-interactive parity claims against current MekStation runner phases, InteractiveSession actions/phases, shared resolvers, and focused behavior tests before promoting the parity triad to row-level source references.

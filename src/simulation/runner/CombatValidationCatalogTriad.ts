@@ -164,7 +164,7 @@ const REQUIREMENT_AUTHORITY_BOUNDARY =
   'Rows inherit their source-truth boundary from the requirement crosswalk primary authority unless a row carries narrower sourceRefs.';
 
 const MEKSTATION_EVENT_BOUNDARY =
-  'Event and parity rows describe MekStation executable event contracts; source-backed mechanics are anchored by the rule or requirement rows that emit those events.';
+  'Event rows describe MekStation executable event contracts; source-backed mechanics are anchored by the rule or requirement rows that emit those events.';
 
 function requirementTriad(
   testRefs: readonly ICombatCatalogTriadTestReference[],
@@ -251,8 +251,8 @@ const PSR_RESOLUTION_TRIAD = triad(
   LIFECYCLE_REFS,
 );
 const PARITY_TRIAD = triad(
-  'mekstation-deviation',
-  MEKSTATION_EVENT_BOUNDARY,
+  'entry-source-refs',
+  'Runner/interactive parity and representative integration rows require row sourceRefs for the executable MekStation paths they claim.',
   PARITY_REFS,
 );
 const PILOT_TRIAD = requirementTriad(PILOT_REFS);

@@ -2983,6 +2983,91 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(
       supportIdsByLevel(RUNNER_INTERACTIVE_PARITY_SUPPORT, 'helper-only'),
     ).toEqual([]);
+
+    const parityEntries = Object.values(RUNNER_INTERACTIVE_PARITY_SUPPORT);
+    expect(
+      parityEntries
+        .filter((entry) => (entry.sourceRefs?.length ?? 0) === 0)
+        .map((entry) => entry.id),
+    ).toEqual([]);
+    expect(
+      parityEntries.flatMap((entry) =>
+        (entry.sourceRefs ?? []).filter(({ url }) => !url.includes('#L')),
+      ),
+    ).toEqual([]);
+    expect(
+      parityEntries.flatMap((entry) =>
+        (entry.sourceRefs ?? []).filter(
+          ({ sourceVersion }) => sourceVersion.trim().length === 0,
+        ),
+      ),
+    ).toEqual([]);
+    expect(
+      parityEntries
+        .filter(
+          (entry) =>
+            !(entry.sourceRefs ?? []).some(
+              ({ kind }) => kind === 'mekstation-deviation',
+            ),
+        )
+        .map((entry) => entry.id),
+    ).toEqual([]);
+
+    const sourceRefsFor = (
+      id: keyof typeof RUNNER_INTERACTIVE_PARITY_SUPPORT,
+    ) => RUNNER_INTERACTIVE_PARITY_SUPPORT[id].sourceRefs ?? [];
+    expect(
+      sourceRefsFor('movement-validation').map(({ citation }) => citation),
+    ).toEqual(
+      expect.arrayContaining([
+        'MekStation GameEngine.runMovementPhase validates bot movement through validateMovement before MovementDeclared emission.',
+        'MekStation InteractiveSession movement actions use the same validateMovement, event-path, declareMovement, and lockMovement flow.',
+      ]),
+    );
+    expect(
+      sourceRefsFor('weapon-range-and-to-hit').map(({ citation }) => citation),
+    ).toEqual(
+      expect.arrayContaining([
+        'MekStation runner weapon phase routes ranged attacks through calculateToHit or calculateToHitWithC3 with range and modifier context.',
+        'MekStation event-sourced attack declaration computes AttackDeclared to-hit values through calculateToHit.',
+      ]),
+    );
+    expect(
+      sourceRefsFor('physical-displacement-grid-occupancy').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        'MekStation runner physical phase computes displacement outcomes and mirrors resulting unit movement back into the local grid occupancy view.',
+        'MekStation physical runner behavior test proves same-phase displacement refreshes grid occupancy before later physical attacks resolve.',
+      ]),
+    );
+    expect(
+      sourceRefsFor('heat-core-resolution').map(({ citation }) => citation),
+    ).toEqual(
+      expect.arrayContaining([
+        'MekStation runner heat phase processes weapon, movement, engine, terrain/environment heat, heat-sink dissipation, shutdown/startup, ammo explosion, pilot heat damage, and MaxTech heat criticals.',
+        'MekStation event-sourced resolveHeatPhase processes heat from movement, AttackDeclared weapon payloads, engine hits, environment, dissipation, startup, shutdown, ammo explosion, and heat effects.',
+      ]),
+    );
+    expect(
+      sourceRefsFor('psr-resolution').map(({ citation }) => citation),
+    ).toEqual(
+      expect.arrayContaining([
+        'MekStation runner PSR phase resolves queued PSRs with per-unit piloting, emits PSRResolved, and applies first-failure fallout.',
+        'MekStation event-sourced End phase resolves pending PSRs with per-unit piloting, component damage, wounds, quirks, abilities, and unit type.',
+      ]),
+    );
+    expect(
+      sourceRefsFor('terminal-game-ended-event').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        'MekStation endGame appends a GameEnded event through the event-sourced session reducer path.',
+        'MekStation appendRunnerGameEndedEvent maps runner winner/reason/turns into a terminal GameEnded replay event.',
+      ]),
+    );
   });
 
   it('tracks lifecycle action eligibility and PSR resolution support', () => {
