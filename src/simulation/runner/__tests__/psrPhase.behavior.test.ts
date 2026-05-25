@@ -18,6 +18,7 @@ import { UnitType } from '@/types/unit';
 import { buildCriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
 import {
   createEnteringWaterPSR,
+  createKickedPSR,
   createDamagePSR,
   createMASCFailurePSR,
   createRubblePSR,
@@ -146,7 +147,7 @@ describe('runPSRPhase behavior', () => {
     });
   });
 
-  it('applies all-scope piloting quirks to runner PSR target numbers', () => {
+  it('does not apply Stable to non-kick/push runner PSR target numbers', () => {
     const unit = makeUnit({
       unitQuirks: [UNIT_QUIRK_IDS.STABLE],
       pendingPSRs: [createDamagePSR('player-1')],
@@ -165,14 +166,40 @@ describe('runPSRPhase behavior', () => {
       ?.payload as IPSRResolvedPayload | undefined;
     expect(resolved).toMatchObject({
       unitId: 'player-1',
-      targetNumber: 4,
-      modifiers: -1,
+      targetNumber: 5,
+      modifiers: 0,
       passed: true,
       reasonCode: PSRTrigger.PhaseDamage20Plus,
     });
     expect(QUIRK_COMBAT_SUPPORT.stable).toMatchObject({
-      level: 'helper-only',
-      gap: expect.stringContaining('Kick/Push PSRs'),
+      level: 'integrated',
+      evidence: expect.stringContaining('Kick/Push PSRs'),
+    });
+  });
+
+  it('applies source-backed Stable relief to runner kick PSR target numbers', () => {
+    const unit = makeUnit({
+      unitQuirks: [UNIT_QUIRK_IDS.STABLE],
+      pendingPSRs: [createKickedPSR('player-1')],
+    });
+    const state = makeState(unit);
+    const events: IGameEvent[] = [];
+
+    runPSRPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: fixedRandom(0.99),
+    });
+
+    const resolved = events.find((e) => e.type === GameEventType.PSRResolved)
+      ?.payload as IPSRResolvedPayload | undefined;
+    expect(resolved).toMatchObject({
+      unitId: 'player-1',
+      targetNumber: 4,
+      modifiers: -1,
+      passed: true,
+      reasonCode: PSRTrigger.Kicked,
     });
   });
 

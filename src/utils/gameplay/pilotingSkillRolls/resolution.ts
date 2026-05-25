@@ -249,6 +249,7 @@ export function calculatePSRModifiers(
   const quirkModifier = calculatePilotingQuirkPSRModifier(
     unitQuirks,
     isTerrainPSR(psr),
+    psr.reasonCode ?? psr.triggerSource,
   );
   if (quirkModifier !== 0) {
     modifiers.push({

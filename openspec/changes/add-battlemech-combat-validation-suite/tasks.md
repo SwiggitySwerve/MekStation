@@ -176,7 +176,7 @@
 - [x] 3.4.23.6 Source-pin Edge trigger helper boundaries to MegaMek point-pool/trigger-option source anchors while keeping trigger-specific combat resolver consumption helper-only.
 - [x] 3.4.23.7 Integrate source-backed edge_when_masc_fails consumption for runner MASC/Supercharger failure rerolls while leaving the other Edge triggers helper-only.
 - [x] 3.4.23.7 Source-pin Toughness, Pain Resistance, Iron Man, and Iron Will consciousness boundaries to MegaMek RPG Toughness / Pain Resistance / Iron Man semantics while keeping MekStation legacy aliases helper-only.
-- [x] 3.4.23.8 Source-pin remaining PSR, physical, actuator, and Rugged quirk rows while downgrading Easy Pilot, Stable, Cramped Cockpit, Battle Fists, No Arms, and Low Arms where local helper semantics differ from MegaMek/MekHQ source truth.
+- [x] 3.4.23.8 Source-pin remaining PSR, physical, actuator, and Rugged quirk rows while recording then-current Easy Pilot, Stable, Cramped Cockpit, Battle Fists, No Arms, and Low Arms gaps where local helper semantics differed from MegaMek/MekHQ source truth.
 - [x] 3.4.24 Guard source-backed initiative equipment hydration as unsupported unless complete HQ communications or command-console eligibility context exists; command-looking metadata without explicit initiative fields fails closed.
 - [x] 3.4.25 Source-back legacy Evasive SPA support as an unsupported optional TacOps Evade movement/action gap, including target to-hit and attacker firing restrictions, until an authoritative evade action path exists.
 - [x] 3.4.26 Source-back torso-twist secondary-facing arc consumption and extended/no-twist quirk boundaries before routing authoritative torso twist commands through runtime action paths.
@@ -355,3 +355,4 @@
 - [x] 4.3.114 Align DFA mechanical jump booster legality with MegaMek source truth by hydrating MovementDeclared jump-step booster state into eligibility, event-sourced declaration/resolution, runner resolution, automatic runner selection, catalog, spec, and audit coverage.
 - [x] 4.3.115 Promote runner DFA VTOL reach by hydrating catalog movement capability into runner physical resolution and automatic selection while keeping WIGE motion-state hydration visible.
 - [x] 4.3.116 Promote WIGE DFA reach by carrying vehicle motion type into combat state and using it across helper, eligibility, event-sourced resolution, runner resolution, automatic selection, catalog, spec, and audit coverage.
+- [x] 4.3.117 Align Stable PSR quirk behavior with MegaMek source truth by scoping Stable relief to kick/push PSRs across shared helper, runner PSR resolution, interactive stand-up resolution boundaries, catalog, spec, and audit coverage.

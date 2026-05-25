@@ -1557,7 +1557,7 @@ Legacy `pilotAbilities` support rows SHALL expose structured row-level source re
 
 ### Requirement: Source-Backed Legacy Mech Quirk Support Rows
 
-Legacy `mechQuirks` support rows SHALL expose structured row-level source references before the map is treated as validation coverage. PSR quirks SHALL cite MegaMek PSR behavior and preserve helper-only gaps where MekStation local semantics differ: Easy Pilot lacks MegaMek's base-piloting gate and broader damage/control branches, Stable applies to all local PSRs instead of MegaMek's Kick/Push PSR branch, and Cramped Cockpit lacks MegaMek's Small Pilot exception. Physical quirk rows SHALL cite MegaMek punch/arm/stand-up or local resolver anchors. Battle Fists SHALL apply source-backed matching-arm punch to-hit relief when the hand actuator is working and SHALL NOT be treated as flat punch damage. No Arms and Low Arms SHALL remain helper-only when local behavior does not match source truth. Rugged SHALL cite MekHQ maintenance behavior and remain outside combat runner parity.
+Legacy `mechQuirks` support rows SHALL expose structured row-level source references before the map is treated as validation coverage. PSR quirks SHALL cite MegaMek PSR behavior and preserve helper-only gaps where MekStation local semantics differ: Easy Pilot lacks MegaMek's base-piloting gate and broader damage/control branches, Cramped Cockpit lacks MegaMek's Small Pilot exception, and Stable SHALL apply only to source-backed Kick/Push PSRs before being treated as integrated. Physical quirk rows SHALL cite MegaMek punch/arm/stand-up or local resolver anchors. Battle Fists SHALL apply source-backed matching-arm punch to-hit relief when the hand actuator is working and SHALL NOT be treated as flat punch damage. No Arms and Low Arms SHALL remain helper-only when local behavior does not match source truth. Rugged SHALL cite MekHQ maintenance behavior and remain outside combat runner parity.
 
 #### Scenario: Legacy quirk rows expose source truth
 
@@ -1565,7 +1565,8 @@ Legacy `mechQuirks` support rows SHALL expose structured row-level source refere
 - **WHEN** any `mechQuirks` support row is inspected
 - **THEN** the row SHALL carry at least one structured source reference with a line anchor
 - **AND** Battle Fists SHALL be integrated only when helper, runner, and catalog coverage apply matching-arm punch to-hit relief without punch damage side effects
-- **AND** Easy Pilot, Stable, and Low Arms SHALL stay helper-only until local behavior matches the pinned MegaMek or MekHQ authority
+- **AND** Stable SHALL be integrated only when damage/terrain/recovery PSRs no longer receive Stable relief and kick/push PSRs still do
+- **AND** Easy Pilot, Cramped Cockpit, and Low Arms SHALL stay helper-only until local behavior matches the pinned MegaMek or MekHQ authority
 - **AND** the PSR and physical-restriction resolver rows SHALL remain helper-only while any assigned quirk has source-backed branches that are not represented locally
 
 ### Requirement: Source-Backed Consciousness Toughness Boundary

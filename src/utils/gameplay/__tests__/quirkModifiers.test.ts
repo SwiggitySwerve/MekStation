@@ -1,4 +1,4 @@
-import { RangeBracket, MovementType } from '@/types/gameplay';
+import { RangeBracket, MovementType, PSRTrigger } from '@/types/gameplay';
 import { IAttackerState, ITargetState } from '@/types/gameplay';
 
 import {
@@ -160,12 +160,31 @@ describe('Defensive Quirks', () => {
 // =============================================================================
 
 describe('Piloting Quirks', () => {
-  it('Stable: -1 to all PSRs', () => {
-    const mod = calculatePilotingQuirkPSRModifier(
+  it('Stable: -1 to kick and push PSRs only', () => {
+    const kickMod = calculatePilotingQuirkPSRModifier(
+      [UNIT_QUIRK_IDS.STABLE],
+      false,
+      PSRTrigger.Kicked,
+    );
+    const pushMod = calculatePilotingQuirkPSRModifier(
+      [UNIT_QUIRK_IDS.STABLE],
+      false,
+      PSRTrigger.Pushed,
+    );
+    const damageMod = calculatePilotingQuirkPSRModifier(
+      [UNIT_QUIRK_IDS.STABLE],
+      false,
+      PSRTrigger.PhaseDamage20Plus,
+    );
+    const unspecifiedMod = calculatePilotingQuirkPSRModifier(
       [UNIT_QUIRK_IDS.STABLE],
       false,
     );
-    expect(mod).toBe(-1);
+
+    expect(kickMod).toBe(-1);
+    expect(pushMod).toBe(-1);
+    expect(damageMod).toBe(0);
+    expect(unspecifiedMod).toBe(0);
   });
 
   it('Hard to Pilot: +1 to all PSRs', () => {
@@ -216,6 +235,7 @@ describe('Piloting Quirks', () => {
     const mod = calculatePilotingQuirkPSRModifier(
       [UNIT_QUIRK_IDS.STABLE, UNIT_QUIRK_IDS.CRAMPED_COCKPIT],
       false,
+      PSRTrigger.Kicked,
     );
     expect(mod).toBe(0);
   });

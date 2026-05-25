@@ -774,10 +774,9 @@ export const QUIRK_COMBAT_SUPPORT = {
     'MegaMek applies Easy Pilot to difficult-terrain and selected damage/control PSRs only when base piloting is worse than 3; MekStation currently applies a terrain-only helper without the piloting-skill gate',
     MEGAMEK_EASY_TO_PILOT_SOURCE_REFS,
   ),
-  stable: helperOnly(
+  stable: integrated(
     'stable',
-    'calculatePilotingQuirkPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs apply all-PSR target-number relief',
-    'MegaMek source-backed Stable relief is limited to Kick/Push PSRs in this snapshot; MekStation currently applies it to all PSRs',
+    'calculatePilotingQuirkPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs apply source-backed Stable target-number relief only to Kick/Push PSRs',
     MEGAMEK_STABLE_PSR_SOURCE_REFS,
   ),
   hard_to_pilot: integrated(

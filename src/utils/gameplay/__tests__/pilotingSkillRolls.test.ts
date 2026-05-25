@@ -249,25 +249,46 @@ describe('Piloting Skill Rolls', () => {
       expect(result.targetNumber).toBe(13); // 5 + 3 + 1 + 4
     });
 
-    it('should apply all-scope piloting quirks to the PSR target number', () => {
+    it('does not apply Stable to non-kick/push PSR target numbers', () => {
       const psr: IPendingPSR = createDamagePSR('unit-1');
       const roller = makeDiceSequence([2, 2]); // total = 4
       const result = resolvePSR(5, psr, DEFAULT_COMP_DAMAGE, 0, roller, [
         UNIT_QUIRK_IDS.STABLE,
       ]);
 
-      expect(result.targetNumber).toBe(4);
+      expect(result.targetNumber).toBe(5);
       expect(result.roll).toBe(4);
-      expect(result.passed).toBe(true);
-      expect(result.modifiers).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            name: 'Piloting quirks',
-            source: 'quirk',
-            value: -1,
-          }),
-        ]),
+      expect(result.passed).toBe(false);
+      expect(result.modifiers).toEqual([]);
+    });
+
+    it('applies source-backed Stable relief to kick and push PSRs', () => {
+      const roller = makeDiceSequence([2, 2, 2, 2]); // total = 4 twice
+      const kicked = resolvePSR(
+        5,
+        createKickedPSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        roller,
+        [UNIT_QUIRK_IDS.STABLE],
       );
+      const pushed = resolvePSR(
+        5,
+        createPushedPSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        roller,
+        [UNIT_QUIRK_IDS.STABLE],
+      );
+
+      expect(kicked).toMatchObject({ targetNumber: 4, passed: true });
+      expect(pushed).toMatchObject({ targetNumber: 4, passed: true });
+      expect(kicked.modifiers).toEqual([
+        { name: 'Piloting quirks', source: 'quirk', value: -1 },
+      ]);
+      expect(pushed.modifiers).toEqual([
+        { name: 'Piloting quirks', source: 'quirk', value: -1 },
+      ]);
     });
   });
 
@@ -411,7 +432,6 @@ describe('Piloting Skill Rolls', () => {
     });
 
     it.each([
-      [UNIT_QUIRK_IDS.STABLE, -1],
       [UNIT_QUIRK_IDS.HARD_TO_PILOT, 1],
       [UNIT_QUIRK_IDS.CRAMPED_COCKPIT, 1],
     ])('should apply %s to non-terrain PSRs', (quirkId, expectedValue) => {
@@ -427,6 +447,35 @@ describe('Piloting Skill Rolls', () => {
           value: expectedValue,
         },
       ]);
+    });
+
+    it('should apply Stable only to source-backed kick/push PSRs', () => {
+      const kickedMods = calculatePSRModifiers(
+        createKickedPSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.STABLE],
+      );
+      const pushedMods = calculatePSRModifiers(
+        createPushedPSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.STABLE],
+      );
+      const damageMods = calculatePSRModifiers(
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.STABLE],
+      );
+
+      expect(kickedMods).toEqual([
+        { name: 'Piloting quirks', source: 'quirk', value: -1 },
+      ]);
+      expect(pushedMods).toEqual([
+        { name: 'Piloting quirks', source: 'quirk', value: -1 },
+      ]);
+      expect(damageMods).toHaveLength(0);
     });
 
     it.each([
