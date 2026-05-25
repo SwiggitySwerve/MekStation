@@ -200,6 +200,83 @@ const MEKSTATION_WEAPON_CLEAR_ATTACKS_COMMAND_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+function mekstationPhysicalCommandSourceRefs(
+  id: string,
+  attackType: string,
+  lineRange: string,
+) {
+  return [
+    mekstationDeviationSourceRef(
+      `MekStation buildPhysicalAttackCommands exposes ${id} as a confirmed PhysicalAttack command that commits physical-attack with ${attackType} attackType.`,
+      'src/components/gameplay/TacticalActionDock/commands/physicalAttackCommands.ts',
+      lineRange,
+    ),
+  ] satisfies readonly ICombatFeatureSourceReference[];
+}
+
+const MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS = {
+  'physical.punch': mekstationPhysicalCommandSourceRefs(
+    'physical.punch',
+    'punch',
+    'L45-L55',
+  ),
+  'physical.kick': mekstationPhysicalCommandSourceRefs(
+    'physical.kick',
+    'kick',
+    'L59-L69',
+  ),
+  'physical.push': mekstationPhysicalCommandSourceRefs(
+    'physical.push',
+    'push',
+    'L73-L83',
+  ),
+  'physical.charge': mekstationPhysicalCommandSourceRefs(
+    'physical.charge',
+    'charge',
+    'L87-L97',
+  ),
+  'physical.dfa': mekstationPhysicalCommandSourceRefs(
+    'physical.dfa',
+    'dfa',
+    'L101-L118',
+  ),
+  'physical.club': mekstationPhysicalCommandSourceRefs(
+    'physical.club',
+    'hatchet',
+    'L122-L138',
+  ),
+  'physical.sword': mekstationPhysicalCommandSourceRefs(
+    'physical.sword',
+    'sword',
+    'L142-L152',
+  ),
+  'physical.mace': mekstationPhysicalCommandSourceRefs(
+    'physical.mace',
+    'mace',
+    'L156-L166',
+  ),
+  'physical.lance': mekstationPhysicalCommandSourceRefs(
+    'physical.lance',
+    'lance',
+    'L170-L180',
+  ),
+  'physical.retractable-blade': mekstationPhysicalCommandSourceRefs(
+    'physical.retractable-blade',
+    'retractable-blade',
+    'L184-L197',
+  ),
+  'physical.flail': mekstationPhysicalCommandSourceRefs(
+    'physical.flail',
+    'flail',
+    'L201-L211',
+  ),
+  'physical.wrecking-ball': mekstationPhysicalCommandSourceRefs(
+    'physical.wrecking-ball',
+    'wrecking-ball',
+    'L215-L227',
+  ),
+} satisfies Record<string, readonly ICombatFeatureSourceReference[]>;
+
 const MEKSTATION_WITHDRAW_COMMAND_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation buildUtilityCommands exposes utility.withdraw as a product-visible command that commits the local withdraw action id without an edge-selection payload.',
@@ -679,61 +756,73 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'physical.punch',
     'tactical-command',
     'buildPhysicalAttackCommands commits physical-attack punch; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.punch'],
   ),
   'physical.kick': integrated(
     'physical.kick',
     'tactical-command',
     'buildPhysicalAttackCommands commits physical-attack kick; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.kick'],
   ),
   'physical.push': integrated(
     'physical.push',
     'tactical-command',
     'buildPhysicalAttackCommands commits physical-attack push; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.push'],
   ),
   'physical.charge': integrated(
     'physical.charge',
     'tactical-command',
     'buildPhysicalAttackCommands commits physical-attack charge; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.charge'],
   ),
   'physical.dfa': integrated(
     'physical.dfa',
     'tactical-command',
     'buildPhysicalAttackCommands commits physical-attack dfa; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.dfa'],
   ),
   'physical.club': integrated(
     'physical.club',
     'tactical-command',
     'buildPhysicalAttackCommands commits physical-attack hatchet as the current club/melee command',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.club'],
   ),
   'physical.sword': integrated(
     'physical.sword',
     'tactical-command',
     'buildPhysicalAttackCommands commits physical-attack sword; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.sword'],
   ),
   'physical.mace': integrated(
     'physical.mace',
     'tactical-command',
     'buildPhysicalAttackCommands commits physical-attack mace; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.mace'],
   ),
   'physical.lance': integrated(
     'physical.lance',
     'tactical-command',
     'buildPhysicalAttackCommands commits physical-attack lance; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.lance'],
   ),
   'physical.retractable-blade': integrated(
     'physical.retractable-blade',
     'tactical-command',
     'buildPhysicalAttackCommands commits physical-attack retractable-blade; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.retractable-blade'],
   ),
   'physical.flail': integrated(
     'physical.flail',
     'tactical-command',
     'buildPhysicalAttackCommands commits physical-attack flail; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.flail'],
   ),
   'physical.wrecking-ball': integrated(
     'physical.wrecking-ball',
     'tactical-command',
     'buildPhysicalAttackCommands commits physical-attack wrecking-ball; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.wrecking-ball'],
   ),
   'heat.continue': integrated(
     'heat.continue',

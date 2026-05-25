@@ -255,6 +255,40 @@ describe('BattleMech combat action support catalog', () => {
         entry.sourceRefs?.every((sourceRef) => sourceRef.url.includes('#L')),
       ).toBe(true);
     }
+    const physicalCommandSourceRows = [
+      'physical.charge',
+      'physical.club',
+      'physical.dfa',
+      'physical.flail',
+      'physical.kick',
+      'physical.lance',
+      'physical.mace',
+      'physical.punch',
+      'physical.push',
+      'physical.retractable-blade',
+      'physical.sword',
+      'physical.wrecking-ball',
+    ];
+    for (const id of physicalCommandSourceRows) {
+      const entry =
+        COMBAT_COMMAND_ACTION_SUPPORT[
+          id as keyof typeof COMBAT_COMMAND_ACTION_SUPPORT
+        ];
+
+      expect(entry.sourceRefs).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            citation: expect.stringContaining(id),
+            url: expect.stringContaining('physicalAttackCommands.ts#L'),
+            sourceVersion: 'MekStation working-tree',
+          }),
+        ]),
+      );
+      expect(
+        entry.sourceRefs?.every((sourceRef) => sourceRef.url.includes('#L')),
+      ).toBe(true);
+    }
     expect(
       supportIdsByLevel(COMBAT_COMMAND_ACTION_SUPPORT, 'unsupported'),
     ).toEqual(['movement.stabilize']);
