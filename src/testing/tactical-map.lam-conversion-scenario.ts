@@ -30,12 +30,23 @@ const tacticalMapLamConversionStepOne = { q: 1, r: 0 } as const;
 const tacticalMapLamConversionStepTwo = { q: 2, r: 0 } as const;
 const tacticalMapLamConversionClimb = { q: 3, r: 0 } as const;
 const tacticalMapLamFighterConversionClimb = { q: 1, r: 0 } as const;
+const tacticalMapLamAirMekLongCruiseDestination = { q: 6, r: 0 } as const;
 
 const tacticalMapLamConversionPath = [
   tacticalMapLamConversionOrigin,
   tacticalMapLamConversionStepOne,
   tacticalMapLamConversionStepTwo,
   tacticalMapLamConversionClimb,
+] as const;
+
+const tacticalMapLamAirMekLongCruisePath = [
+  tacticalMapLamConversionOrigin,
+  tacticalMapLamConversionStepOne,
+  tacticalMapLamConversionStepTwo,
+  tacticalMapLamConversionClimb,
+  { q: 4, r: 0 },
+  { q: 5, r: 0 },
+  tacticalMapLamAirMekLongCruiseDestination,
 ] as const;
 
 const tacticalMapLamCapability: IMovementCapability = {
@@ -138,11 +149,46 @@ export const tacticalMapLamFighterConversionHexTerrain: readonly IHexTerrain[] =
     },
   ];
 
+export const tacticalMapLamAirMekLongCruiseHexTerrain: readonly IHexTerrain[] =
+  [
+    ...tacticalMapHexTerrain.filter(
+      (terrain) =>
+        !tacticalMapLamAirMekLongCruisePath.some(
+          (coord) =>
+            coord.q === terrain.coordinate.q &&
+            coord.r === terrain.coordinate.r,
+        ),
+    ),
+    ...tacticalMapLamAirMekLongCruisePath.map((coordinate) => ({
+      coordinate,
+      elevation: 0,
+      features: [{ type: TerrainType.Clear, level: 0 }],
+    })),
+  ];
+
 function tacticalMapLamConversionGrid(): IHexGrid {
   const grid = createHexGrid({ radius: 3 });
   const hexes = new Map(grid.hexes);
 
   for (const terrain of tacticalMapLamConversionHexTerrain) {
+    const key = coordToKey(terrain.coordinate);
+    const hex = hexes.get(key);
+    if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
+    hexes.set(key, {
+      ...hex,
+      terrain: terrainStringFromFeatures(terrain.features),
+      elevation: terrain.elevation,
+    });
+  }
+
+  return { ...grid, hexes };
+}
+
+function tacticalMapLamAirMekLongCruiseGrid(): IHexGrid {
+  const grid = createHexGrid({ radius: 6 });
+  const hexes = new Map(grid.hexes);
+
+  for (const terrain of tacticalMapLamAirMekLongCruiseHexTerrain) {
     const key = coordToKey(terrain.coordinate);
     const hex = hexes.get(key);
     if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
@@ -230,6 +276,10 @@ export const tacticalMapLamAirMekTokens = lamConversionTokens(
   'LMA',
   'LAM AirMek Mode',
 );
+export const tacticalMapLamAirMekLongCruiseTokens = lamConversionTokens(
+  'LAH',
+  'LAM AirMek Long Cruise',
+);
 export const tacticalMapLamFighterTokens = lamConversionTokens(
   'LMF',
   'LAM Fighter Mode',
@@ -258,6 +308,19 @@ export const tacticalMapLamAirMekMovementRange: readonly IMovementRangeHex[] = [
     ),
   ),
 ];
+
+export const tacticalMapLamAirMekLongCruiseMovementRange: readonly IMovementRangeHex[] =
+  [
+    requireSingleMovementProjection(
+      deriveMovementRangeHexForDestination(
+        tacticalMapLamAirMekUnit,
+        MovementType.Walk,
+        tacticalMapLamAirMekLongCruiseGrid(),
+        tacticalMapLamCapability,
+        tacticalMapLamAirMekLongCruiseDestination,
+      ),
+    ),
+  ];
 
 export const tacticalMapLamFighterMovementRange: readonly IMovementRangeHex[] =
   [
@@ -320,6 +383,18 @@ export function tacticalMapLamAirMekCommitInput(): ICommittedMovementValidationI
     movementType: MovementType.Walk,
     capability: tacticalMapLamCapability,
     path: tacticalMapLamConversionPath,
+  };
+}
+
+export function tacticalMapLamAirMekLongCruiseCommitInput(): ICommittedMovementValidationInput {
+  return {
+    grid: tacticalMapLamAirMekLongCruiseGrid(),
+    unit: tacticalMapLamAirMekUnit,
+    to: tacticalMapLamAirMekLongCruiseDestination,
+    facing: Facing.Northeast,
+    movementType: MovementType.Walk,
+    capability: tacticalMapLamCapability,
+    path: tacticalMapLamAirMekLongCruisePath,
   };
 }
 

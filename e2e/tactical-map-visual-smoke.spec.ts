@@ -2090,6 +2090,37 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     ).toHaveCount(0);
   });
 
+  test('shows LAM AirMek long cruise heat from used movement points in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=lam-airmek-long-cruise-heat');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('LAH');
+    await expect(page.getByTestId('mp-legend')).toHaveAttribute(
+      'data-movement-mode',
+      'wige',
+    );
+    await expect(page.getByTestId('mp-legend')).toHaveAttribute(
+      'data-walk-mp',
+      '6',
+    );
+
+    const airMekCruise = page.getByTestId('hex-6-0');
+    await expect(airMekCruise).toHaveAttribute('data-reachable', 'true');
+    await expect(airMekCruise).toHaveAttribute('data-movement-type', 'walk');
+    await expect(airMekCruise).toHaveAttribute('data-movement-mode', 'wige');
+    await expect(airMekCruise).toHaveAttribute('data-mp-cost', '6');
+    await expect(airMekCruise).toHaveAttribute('data-terrain-cost', '0');
+    await expect(airMekCruise).toHaveAttribute('data-elevation', '0');
+    await expect(airMekCruise).toHaveAttribute('data-elevation-delta', '0');
+    await expect(airMekCruise).toHaveAttribute('data-elevation-cost', '0');
+    await expect(airMekCruise).toHaveAttribute('data-heat-generated', '2');
+    await expect(page.getByTestId('hex-movement-badge-6-0')).toBeVisible();
+    await expect(
+      page.getByTestId('hex-movement-invalid-badge-6-0'),
+    ).toHaveCount(0);
+  });
+
   test('shows grounded LAM Fighter conversion mode as wheeled elevation-blocked in browser', async ({
     page,
   }) => {

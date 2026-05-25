@@ -1121,6 +1121,19 @@ rejected step, disabled Jump legend, and matching commit-validation details.
 Airborne aerodyne turn/velocity pathing, takeoff/landing sequencing, control
 rolls, and conversion action timing remain outside this fixture.
 
+2026-05-25 LAM AirMek movement heat pin: MegaMek `LandAirMek.java:464-481`
+routes AirMek VTOL walk/run heat through `getAirMekHeat()`, which adds damaged
+coolant heat and rounds `getJumpHeat(mpUsed) / 3.0`; `Mek.java:1281-1302` and
+`Engine.java:717-721` show represented standard jump heat uses at least 3 heat
+or moved MP, whichever is greater. MekStation now resolves represented AirMek
+conversion to an AirMek heat profile so map previews and committed movement
+derive walk/run heat from used AirMek movement points rather than generic Mek
+walk/run constants. The tactical-map browser harness proves a six-MP AirMek
+cruise generates 2 heat and committed validation accepts the same path with
+matching MP, path, and heat. Damaged coolant systems, special jump-jet heat
+variants, partial-wing heat reduction, and conversion timing remain outside
+this fixture.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

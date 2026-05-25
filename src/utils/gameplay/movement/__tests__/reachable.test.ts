@@ -2049,6 +2049,48 @@ describe('deriveMovementRangeHexForDestination', () => {
     });
   });
 
+  it('projects AirMek walk and run heat from used movement points', () => {
+    const grid = createHexGrid({ radius: 6 });
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = {
+      walkMP: 6,
+      runMP: 9,
+      jumpMP: 2,
+      movementMode: 'wige',
+      movementHeatProfile: 'airmek',
+    };
+
+    const walkProjection = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 6, r: 0 },
+    );
+    const runProjection = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Run,
+      grid,
+      cap,
+      { q: 6, r: 0 },
+    );
+
+    expect(walkProjection).toMatchObject({
+      movementType: MovementType.Walk,
+      movementMode: 'wige',
+      reachable: true,
+      mpCost: 6,
+      heatGenerated: 2,
+    });
+    expect(runProjection).toMatchObject({
+      movementType: MovementType.Run,
+      movementMode: 'wige',
+      reachable: true,
+      mpCost: 6,
+      heatGenerated: 2,
+    });
+  });
+
   it('uses infantry terrain profile for woods and elevation costs', () => {
     let grid = createHexGrid({ radius: 5 });
     grid = setHex(grid, { q: 1, r: 0 }, TerrainType.LightWoods, 0);

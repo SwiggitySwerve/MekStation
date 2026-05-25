@@ -15,6 +15,8 @@ import {
 } from '../tactical-map.hover-water-scenario';
 import {
   tacticalMapLamAirMekCommitInput,
+  tacticalMapLamAirMekLongCruiseCommitInput,
+  tacticalMapLamAirMekLongCruiseMovementRange,
   tacticalMapLamAirMekMovementRange,
   tacticalMapLamAirMekMpLegend,
   tacticalMapLamFighterCommitInput,
@@ -397,6 +399,34 @@ describe('tactical map movement scenarios', () => {
 
     const airMekResult = validateCommittedMovement(
       tacticalMapLamAirMekCommitInput(),
+    );
+
+    expect(airMekResult.valid).toBe(true);
+    if (!airMekResult.valid) {
+      throw new Error(airMekResult.details);
+    }
+    expect(airMekResult.mpCost).toBe(airMekProjection.mpCost);
+    expect(airMekResult.heatGenerated).toBe(airMekProjection.heatGenerated);
+    expect(airMekResult.path).toEqual(airMekProjection.path);
+  });
+
+  it('keeps LAM AirMek long cruise heat aligned between browser projection and commit validation', () => {
+    const airMekProjection = tacticalMapLamAirMekLongCruiseMovementRange[0];
+
+    expect(airMekProjection).toMatchObject({
+      hex: { q: 6, r: 0 },
+      reachable: true,
+      mpCost: 6,
+      terrainCost: 0,
+      elevationDelta: 0,
+      elevationCost: 0,
+      heatGenerated: 2,
+      movementMode: 'wige',
+      movementType: 'walk',
+    });
+
+    const airMekResult = validateCommittedMovement(
+      tacticalMapLamAirMekLongCruiseCommitInput(),
     );
 
     expect(airMekResult.valid).toBe(true);

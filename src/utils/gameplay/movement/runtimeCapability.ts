@@ -134,6 +134,14 @@ function conversionModeJumpMP(
   return profile.kind === 'quadvee' && mode === 'vehicle' ? 0 : undefined;
 }
 
+function conversionModeMovementHeatProfile(
+  unit: IUnitGameState,
+  profile: MovementUnitHeightProfile,
+): IMovementCapability['movementHeatProfile'] | undefined {
+  const mode = normalizedConversionMode(unit.conversionMode, profile);
+  return profile.kind === 'lam' && mode === 'airmek' ? 'airmek' : undefined;
+}
+
 function infantryMountHeight(
   unit: IUnitGameState,
   profile: MovementUnitHeightProfile | undefined,
@@ -194,6 +202,9 @@ export function resolveRuntimeMovementCapability(
   const runtimeJumpMP = profile
     ? conversionModeJumpMP(unit, profile)
     : undefined;
+  const runtimeMovementHeatProfile = profile
+    ? conversionModeMovementHeatProfile(unit, profile)
+    : undefined;
 
   if (
     (runtimeHeight === undefined || runtimeHeight === capability.unitHeight) &&
@@ -202,7 +213,9 @@ export function resolveRuntimeMovementCapability(
     (runtimeMovementPoints === undefined ||
       (runtimeMovementPoints.walkMP === capability.walkMP &&
         runtimeMovementPoints.runMP === capability.runMP)) &&
-    (runtimeJumpMP === undefined || runtimeJumpMP === capability.jumpMP)
+    (runtimeJumpMP === undefined || runtimeJumpMP === capability.jumpMP) &&
+    (runtimeMovementHeatProfile === undefined ||
+      runtimeMovementHeatProfile === capability.movementHeatProfile)
   ) {
     return capability;
   }
@@ -215,6 +228,9 @@ export function resolveRuntimeMovementCapability(
       : {}),
     ...(runtimeMovementPoints !== undefined ? runtimeMovementPoints : {}),
     ...(runtimeJumpMP !== undefined ? { jumpMP: runtimeJumpMP } : {}),
+    ...(runtimeMovementHeatProfile !== undefined
+      ? { movementHeatProfile: runtimeMovementHeatProfile }
+      : {}),
     ...(profile?.kind === 'lam'
       ? {
           conversionThrustMP:

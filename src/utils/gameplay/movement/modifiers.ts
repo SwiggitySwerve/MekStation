@@ -31,6 +31,19 @@ function isMekSwimMovementMode(
   return movementMode === 'biped_swim' || movementMode === 'quad_swim';
 }
 
+function calculateAirMekMovementHeat(
+  movementType: MovementType,
+  hexesMoved: number,
+): number | null {
+  if (movementType === MovementType.Stationary) {
+    return 0;
+  }
+  if (movementType === MovementType.Walk || movementType === MovementType.Run) {
+    return Math.round(Math.max(hexesMoved, 3) / 3);
+  }
+  return null;
+}
+
 /**
  * Calculate heat generated from movement.
  *
@@ -44,6 +57,11 @@ export function calculateMovementHeat(
   movementMode?: MovementMotiveMode,
   movementHeatProfile?: MovementHeatProfile,
 ): number {
+  if (movementHeatProfile === 'airmek') {
+    const airMekHeat = calculateAirMekMovementHeat(movementType, hexesMoved);
+    if (airMekHeat !== null) return airMekHeat;
+  }
+
   if (
     isMekSwimMovementMode(movementMode) &&
     movementHeatProfile !== 'none' &&

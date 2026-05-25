@@ -76,7 +76,7 @@ export type MovementMotiveMode = Exclude<MovementTravelMode, 'run' | 'jump'>;
  * Rules-level movement heat source. Most entities inherit MegaMek's base
  * zero movement heat; Meks override it with engine walk/run/jump heat.
  */
-export type MovementHeatProfile = 'mek' | 'none';
+export type MovementHeatProfile = 'mek' | 'airmek' | 'none';
 
 /**
  * Unit-type movement terrain adjustments that cannot be inferred from motive

@@ -55,6 +55,7 @@ describe('runtime movement capability', () => {
       walkMP: 6,
       runMP: 9,
       movementMode: 'wige',
+      movementHeatProfile: 'airmek',
       unitHeight: 0,
     });
     expect(
@@ -66,6 +67,7 @@ describe('runtime movement capability', () => {
       walkMP: 6,
       runMP: 9,
       movementMode: 'wige',
+      movementHeatProfile: 'airmek',
       unitHeight: 0,
     });
     expect(

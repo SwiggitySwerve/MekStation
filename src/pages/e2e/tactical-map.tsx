@@ -81,6 +81,7 @@ const movementFixtureScenarios = new Set([
   'battlefield-wreck-rough-terrain',
   'legend-mode-selection',
   'lam-airmek-elevation-crossing',
+  'lam-airmek-long-cruise-heat',
   'lam-fighter-grounded-elevation-blocked',
   'lam-mek-elevation-blocked',
   'occupied-destination-blocked',
@@ -203,6 +204,8 @@ const tokensByScenario = {
     occupiedDestination.tacticalMapOccupiedDestinationTokens,
   'lam-mek-elevation-blocked': lamConversion.tacticalMapLamMekTokens,
   'lam-airmek-elevation-crossing': lamConversion.tacticalMapLamAirMekTokens,
+  'lam-airmek-long-cruise-heat':
+    lamConversion.tacticalMapLamAirMekLongCruiseTokens,
   'lam-fighter-grounded-elevation-blocked':
     lamConversion.tacticalMapLamFighterTokens,
   'quadvee-mek-elevation-climb': quadveeConversion.tacticalMapQuadveeMekTokens,
@@ -265,6 +268,8 @@ const movementRangeByScenario = {
   'lam-mek-elevation-blocked': lamConversion.tacticalMapLamMekMovementRange,
   'lam-airmek-elevation-crossing':
     lamConversion.tacticalMapLamAirMekMovementRange,
+  'lam-airmek-long-cruise-heat':
+    lamConversion.tacticalMapLamAirMekLongCruiseMovementRange,
   'lam-fighter-grounded-elevation-blocked':
     lamConversion.tacticalMapLamFighterMovementRange,
   'quadvee-mek-elevation-climb':
@@ -292,6 +297,7 @@ const mpLegendByScenario = {
     occupiedDestination.tacticalMapOccupiedDestinationMpLegend,
   'lam-mek-elevation-blocked': lamConversion.tacticalMapLamMekMpLegend,
   'lam-airmek-elevation-crossing': lamConversion.tacticalMapLamAirMekMpLegend,
+  'lam-airmek-long-cruise-heat': lamConversion.tacticalMapLamAirMekMpLegend,
   'lam-fighter-grounded-elevation-blocked':
     lamConversion.tacticalMapLamFighterMpLegend,
   'quadvee-mek-elevation-climb':
@@ -322,6 +328,8 @@ const selectedHexByScenario = {
     lamConversion.tacticalMapLamConversionSelectedHex,
   'lam-airmek-elevation-crossing':
     lamConversion.tacticalMapLamConversionSelectedHex,
+  'lam-airmek-long-cruise-heat':
+    lamConversion.tacticalMapLamConversionSelectedHex,
   'lam-fighter-grounded-elevation-blocked':
     lamConversion.tacticalMapLamConversionSelectedHex,
   'quadvee-mek-elevation-climb':
@@ -349,6 +357,8 @@ const hexTerrainByScenario = {
   'lam-mek-elevation-blocked': lamConversion.tacticalMapLamConversionHexTerrain,
   'lam-airmek-elevation-crossing':
     lamConversion.tacticalMapLamConversionHexTerrain,
+  'lam-airmek-long-cruise-heat':
+    lamConversion.tacticalMapLamAirMekLongCruiseHexTerrain,
   'lam-fighter-grounded-elevation-blocked':
     lamConversion.tacticalMapLamFighterConversionHexTerrain,
   'quadvee-mek-elevation-climb':
@@ -379,6 +389,10 @@ const hexTerrainByScenario = {
   'capped-isometric-stack':
     cappedStack.tacticalMapCappedIsometricStackHexTerrain,
 } satisfies Record<string, typeof tacticalMapHexTerrain>;
+
+const mapRadiusByScenario = {
+  'lam-airmek-long-cruise-heat': 6,
+} satisfies Record<string, number>;
 
 function scenarioValue<T>(
   scenario: string,
@@ -460,6 +474,7 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
   const hexTerrain =
     harnessScenario?.hexTerrain ??
     scenarioValue(scenario, hexTerrainByScenario, tacticalMapHexTerrain);
+  const mapRadius = scenarioValue(scenario, mapRadiusByScenario, 3);
 
   if (!isTestEnv) {
     return <main style={{ padding: 40 }}>Not Available</main>;
@@ -475,7 +490,7 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
         <div className="h-[680px] overflow-hidden rounded border border-slate-700 bg-slate-900">
           <HexMapDisplay
             mapId="tactical-map-e2e"
-            radius={3}
+            radius={mapRadius}
             tokens={tokens}
             selectedHex={selectedHex}
             targetUnitId={targetUnitId}
