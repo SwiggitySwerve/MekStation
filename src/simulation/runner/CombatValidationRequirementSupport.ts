@@ -466,7 +466,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'official-physical-weapons': helperOnly(
     'official-physical-weapons',
-    'Catalog contracts enumerate official physical weapons, all standalone runtime physical weapon families are integrated, and claws/talons are classified as modifiers rather than selectable attack types',
+    'Catalog contracts enumerate official physical weapons, require construction definitions to match the official physical catalog, partition every row into either standalone runtime attacks or modifier-only helper equipment, and keep claws/talons out of selectable attack types',
     'Claw/talon destroyed/missing/breached equipment lifecycle is not wired from mounted equipment, and full mounted physical-weapon mode/location lifecycle remains partial',
     [
       'validationScope.knownLimitationsAndScope.battlemech-official-catalog-scope',

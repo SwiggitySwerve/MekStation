@@ -80,6 +80,7 @@
 - [x] 3.1.12 Source-back AMS helper/integrated special weapon rows with MegaMek cluster, single-missile, ammo/heat, counter-selection, and arc anchors while leaving defender choice/arc/multi-use gaps explicit.
 - [x] 3.1.13 Source-pin special weapon mechanic rows for UAC, RAC, LB-X, Streak SRM, MML, NARC/iNARC, AMS, TAG, Artemis, ECM/probe, and stealth; quarantine local semi-guided TAG cluster behavior outside source-backed TAG to-hit parity.
 - [x] 3.1.14 Remove the non-parity semi-guided TAG cluster helper from official missile cluster resolution and correct the base weapon-resolution spec so TAG cluster bonuses cannot be claimed as BattleMech parity.
+- [x] 3.1.15 Lock the official physical weapon catalog partition so `weapons/physical.json`, construction definitions, combat support rows, runtime attack types, and modifier-only claws/talons cannot drift independently.
 - [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
 - [x] 3.2.2 Integrate source-backed active TSM movement speed into runner movement validation while leaving MASC, supercharger, and then-unsupported partial-wing movement behavior explicit.

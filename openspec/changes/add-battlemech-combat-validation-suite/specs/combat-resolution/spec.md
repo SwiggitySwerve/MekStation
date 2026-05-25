@@ -598,6 +598,16 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 
 BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `ClubAttackAction` damage, to-hit, and legality behavior before a cataloged physical weapon is marked integrated. Physical equipment that modifies existing physical actions, such as talons, SHALL be source-checked against the relevant MegaMek action resolvers before it is marked helper-only or integrated.
 
+#### Scenario: Official physical weapon catalog partitions into runtime attacks and modifier equipment
+
+- **GIVEN** the official physical weapon construction catalog includes standalone melee weapons and modifier equipment
+- **WHEN** the physical weapon runtime-boundary contract runs
+- **THEN** every official physical weapon id SHALL have a combat support row
+- **AND** local construction physical weapon definitions SHALL expose the same id set as `weapons/physical.json`
+- **AND** standalone physical weapon rows SHALL exactly match `SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES`
+- **AND** claws and talons SHALL remain modifier-only helper rows that do not pass intent, wire, or physical option validation as selectable attack types
+- **AND** no official physical weapon row SHALL be left unsupported without an explicit support-map entry
+
 #### Scenario: Retractable blade uses source-backed damage, to-hit, and extension gate
 
 - **GIVEN** a BattleMech declares a retractable blade attack against an adjacent valid target

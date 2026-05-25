@@ -3,6 +3,7 @@ import {
   toServerIntent,
 } from '@/lib/multiplayer/gameIntentMap';
 import { asPhysicalPayload } from '@/lib/p2p/intentTranslationPayloads';
+import { PHYSICAL_WEAPON_DEFINITIONS } from '@/types/equipment/PhysicalWeaponTypes';
 import {
   Facing,
   GameSide,
@@ -19,9 +20,28 @@ import {
   type PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks';
 
+import officialPhysicalWeaponCatalog from '../../../../public/data/equipment/official/weapons/physical.json';
 import { PHYSICAL_WEAPON_COMBAT_SUPPORT } from '../CombatFeatureSupport';
 
 type PhysicalWeaponSupportId = keyof typeof PHYSICAL_WEAPON_COMBAT_SUPPORT;
+
+const MODIFIER_ONLY_PHYSICAL_WEAPON_IDS = ['claws', 'talons'] as const;
+
+function sorted(values: readonly string[]): readonly string[] {
+  return [...values].sort();
+}
+
+function officialPhysicalWeaponIds(): readonly string[] {
+  return sorted(officialPhysicalWeaponCatalog.items.map((item) => item.id));
+}
+
+function constructionPhysicalWeaponIds(): readonly string[] {
+  return sorted(
+    PHYSICAL_WEAPON_DEFINITIONS.map((definition) =>
+      definition.type.toLowerCase().replace(/\s+/g, '-'),
+    ),
+  );
+}
 
 function unsupportedPhysicalWeaponIds(): readonly string[] {
   return Object.values(PHYSICAL_WEAPON_COMBAT_SUPPORT)
@@ -66,6 +86,28 @@ function makeUnit(
 }
 
 describe('physical weapon catalog runtime boundary', () => {
+  it('partitions every official physical weapon into a runtime attack or modifier helper', () => {
+    const officialIds = officialPhysicalWeaponIds();
+    const modifierOnlyIds = sorted([...MODIFIER_ONLY_PHYSICAL_WEAPON_IDS]);
+    const modifierOnlyIdSet = new Set<string>(modifierOnlyIds);
+    const standaloneAttackIds = officialIds.filter(
+      (id) => !modifierOnlyIdSet.has(id),
+    );
+
+    expect(officialPhysicalWeaponCatalog.count).toBe(
+      officialPhysicalWeaponCatalog.items.length,
+    );
+    expect(constructionPhysicalWeaponIds()).toEqual(officialIds);
+    expect(Object.keys(PHYSICAL_WEAPON_COMBAT_SUPPORT).sort()).toEqual(
+      officialIds,
+    );
+    expect(sorted([...SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES])).toEqual(
+      standaloneAttackIds,
+    );
+    expect(helperOnlyPhysicalWeaponIds()).toEqual(modifierOnlyIds);
+    expect(unsupportedPhysicalWeaponIds()).toEqual([]);
+  });
+
   it('projects all standalone official physical weapons but not modifier-only equipment', () => {
     const unsupportedPhysicalWeapons = unsupportedPhysicalWeaponIds();
     const helperOnlyPhysicalWeapons = helperOnlyPhysicalWeaponIds();
