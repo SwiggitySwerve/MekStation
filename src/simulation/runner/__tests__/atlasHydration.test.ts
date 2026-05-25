@@ -27,7 +27,8 @@
 import type { IFullUnit } from '@/services/units/CanonicalUnitService';
 
 import { getNodeCanonicalUnitService } from '@/services/units/NodeCanonicalUnitService';
-import { FiringArc, GameSide } from '@/types/gameplay';
+import { AttackAI } from '@/simulation/ai/AttackAI';
+import { Facing, FiringArc, GameSide } from '@/types/gameplay';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { WEAPON_CATALOG_FILES } from '@/utils/construction/equipmentBVCatalogData';
 
@@ -196,6 +197,45 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
       'medium-laser-0': 'LEFT_ARM',
       'ac-20-1': 'RIGHT_TORSO',
     });
+  });
+
+  it('feeds hydrated mounting arcs into AI weapon selection', () => {
+    const fullUnit: IFullUnit = {
+      id: 'synthetic-arc-selection-hydration',
+      chassis: 'Synthetic',
+      variant: 'Arc Selection Hydration',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3025',
+      unitType: 'BattleMech',
+      equipment: [
+        { id: 'medium-laser', location: 'LEFT_ARM' },
+        { id: 'ac-20', location: 'RIGHT_TORSO', isRearMounted: true },
+      ],
+    };
+    const weapons = hydrateAIWeaponsFromFullUnit(fullUnit, weaponLookup);
+    const attackerState = {
+      ...createHydratedUnitState({
+        runnerUnitId: 'attacker-1',
+        side: GameSide.Player,
+        position: { q: 0, r: 0 },
+        fullUnit,
+        aiWeapons: weapons,
+      }),
+      facing: Facing.North,
+      secondaryFacing: Facing.North,
+    };
+    const targetState = createMinimalUnitState('target-1', GameSide.Opponent, {
+      q: 0,
+      r: 2,
+    });
+
+    const chosen = new AttackAI().selectWeapons(
+      toCatalogAIUnitState(attackerState, weapons),
+      toCatalogAIUnitState(targetState, [weapons[0]]),
+    );
+
+    expect(chosen.map((weapon) => weapon.id)).toEqual(['ac-20-1']);
   });
 
   it('hydrates Artemis IV guidance only when a compatible launcher has linked FCS and Artemis-capable ammo', async () => {
