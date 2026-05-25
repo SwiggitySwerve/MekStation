@@ -57,6 +57,11 @@ import {
   tacticalMapSameHexCommitInput,
 } from '../tactical-map.same-hex-scenarios';
 import {
+  tacticalMapStackedLosCombatProjection,
+  tacticalMapStackedLosCommitInput,
+  tacticalMapStackedLosTargetId,
+} from '../tactical-map.stacked-los-scenario';
+import {
   tacticalMapTargetTerrainModifierCombatProjection,
   tacticalMapTargetTerrainModifierCommitInput,
 } from '../tactical-map.target-terrain-scenarios';
@@ -706,6 +711,56 @@ describe('tactical map combat scenarios', () => {
       weaponId: 'medium-laser',
       reason: tacticalMapWoodsLosCombatProjection.attackInvalidReason,
       details: tacticalMapWoodsLosCombatProjection.attackInvalidDetails,
+    });
+  });
+
+  it('keeps stacked smoke and woods LOS projection aligned with attack commit validation', () => {
+    expect(tacticalMapStackedLosCombatProjection).toMatchObject({
+      hex: { q: 2, r: 0 },
+      distance: 2,
+      rangeBracket: 'short',
+      inRange: true,
+      inArc: true,
+      losState: 'blocked',
+      attackable: false,
+      targetUnitIds: [tacticalMapStackedLosTargetId],
+      validTargetUnitIds: [],
+      weaponIdsAvailable: ['medium-laser'],
+      attackInvalidReason: 'NoLineOfSight',
+      attackInvalidDetails: 'Blocked by heavy woods and smoke at (1, 0)',
+      blockedReason: 'Blocked by heavy woods and smoke at (1, 0)',
+      lineOfSightBlockerReason: 'Blocked by heavy woods and smoke at (1, 0)',
+      lineOfSightBlocker: {
+        hex: { q: 1, r: 0 },
+        kind: 'terrain',
+        terrain: 'smoke',
+        reason: 'Blocked by heavy woods and smoke at (1, 0)',
+      },
+    });
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapStackedLosCommitInput(),
+    );
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackLocked),
+    ).toBe(false);
+
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: tacticalMapStackedLosTargetId,
+      weaponId: 'medium-laser',
+      reason: tacticalMapStackedLosCombatProjection.attackInvalidReason,
+      details: tacticalMapStackedLosCombatProjection.attackInvalidDetails,
     });
   });
 

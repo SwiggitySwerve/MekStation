@@ -53,6 +53,9 @@ the top-down map.
 - **AND** a combat target blocked by cumulative intervening heavy woods SHALL
   expose the shared `NoLineOfSight` rejection, woods blocker reason, woods
   terrain metadata, and non-color invalid and blocker badges
+- **AND** a combat target blocked by stacked intervening smoke and woods SHALL
+  expose the shared combined `NoLineOfSight` blocker reason, terrain-layer
+  metadata for both effects, and non-color invalid and blocker badges
 - **AND** a medium-range combat target SHALL expose the target id, distance,
   range band, available weapon ids, and per-weapon range option metadata
 - **AND** a combat target outside the selected weapon's firing arc SHALL expose

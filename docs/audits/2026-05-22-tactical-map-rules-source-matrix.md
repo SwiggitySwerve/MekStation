@@ -848,6 +848,15 @@ exposes woods terrain metadata plus non-color invalid/blocker badges, and Jest
 parity proves `deriveCombatRangeHexes` and `applyInteractiveSessionAttack`
 agree on `Blocked by heavy woods at (2, 0)`.
 
+2026-05-25 stacked smoke+woods LOS browser pin: MegaMek `LosEffects.java:1423`
+explicitly checks smoke and woods together for LOS, and `:842-863` rejects the
+combined smoke+woods density when it exceeds 2. The tactical map harness now
+uses a single intervening hex containing heavy woods plus light smoke, renders
+both terrain layers on the blocker hex, exposes the shared combined
+`NoLineOfSight` reason and non-color badges, and Jest parity proves projection
+and attack commit validation agree on `Blocked by heavy woods and smoke at (1,
+0)`.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

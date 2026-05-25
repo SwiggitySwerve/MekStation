@@ -118,6 +118,9 @@
 - [x] 2.46 Add browser coverage proving cumulative intervening heavy woods
   renders the shared `NoLineOfSight` blocker reason, woods terrain metadata,
   and non-color invalid/blocker badges.
+- [x] 2.47 Add browser coverage proving smoke and woods stacked in one
+  intervening hex render the shared combined blocker reason, terrain layers,
+  and non-color invalid/blocker badges.
 
 ## 3. Validation
 
@@ -214,3 +217,5 @@
   movement and walked target TMM metadata and badge labeling.
 - [x] 3.46 Focused Jest parity and Playwright smoke pass for cumulative woods
   LOS blocking, woods terrain metadata, and blocker badge labeling.
+- [x] 3.47 Focused Jest parity and Playwright smoke pass for stacked smoke plus
+  woods LOS blocking, terrain-layer metadata, and blocker badge labeling.
