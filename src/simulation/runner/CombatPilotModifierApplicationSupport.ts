@@ -216,10 +216,9 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
     'No/Minimal Arms source behavior also includes stand-up PSR and wider physical action gates, and Low Arms is registered without a source-backed resolver for the local elevation helper',
     [...MEGAMEK_NO_ARMS_SOURCE_REFS, ...MEGAMEK_LOW_ARMS_GAP_SOURCE_REFS],
   ),
-  'psr-application': helperOnly(
+  'psr-application': integrated(
     'psr-application',
-    'calculatePSRModifiers consumes unit quirks through calculatePilotingQuirkPSRModifier; runPSRPhase, resolvePendingPSRs, and attemptStandUp pass unit quirk state into PSR target-number calculation, with Stable scoped to source-backed Kick/Push PSRs and Easy Pilot scoped to the MegaMek piloting-skill gate plus BattleMech terrain/20+ damage PSRs',
-    'Cramped Cockpit local helper semantics still differ from the pinned MegaMek Small Pilot exception; keep this resolver helper-only until that quirk-specific branch is source-aligned',
+    'calculatePSRModifiers consumes unit quirks through calculatePilotingQuirkPSRModifier; runPSRPhase, resolvePendingPSRs, and attemptStandUp pass unit quirk and pilot ability state into PSR target-number calculation, with Stable scoped to Kick/Push PSRs, Easy Pilot scoped to the MegaMek piloting-skill gate plus BattleMech terrain/20+ damage PSRs, and Cramped Cockpit suppressed for Small Pilot',
     [
       ...MEGAMEK_EASY_TO_PILOT_SOURCE_REFS,
       ...MEGAMEK_STABLE_PSR_SOURCE_REFS,

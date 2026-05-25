@@ -196,6 +196,10 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       level: 'integrated',
       evidence: expect.stringContaining('Kick/Push PSRs'),
     });
+    expect(QUIRK_COMBAT_SUPPORT.cramped_cockpit).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('Small Pilot'),
+    });
     expect(QUIRK_COMBAT_SUPPORT.battle_fists_la).toMatchObject({
       level: 'integrated',
       evidence: expect.stringContaining('punch to-hit'),
@@ -227,6 +231,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'indirect-fire-spa-application',
         'physical-damage-application',
         'physical-to-hit-application',
+        'psr-application',
         'weapon-to-hit-quirk-application',
       ].sort(),
     );
@@ -252,7 +257,6 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'legacy-pain-resistance-to-hit-application',
         'heat-application',
         'physical-restriction-application',
-        'psr-application',
         'psr-spa-application',
         'sandblaster-application',
       ]),

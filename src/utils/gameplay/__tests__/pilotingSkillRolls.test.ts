@@ -339,6 +339,34 @@ describe('Piloting Skill Rolls', () => {
       expect(skilledPilot.modifiers).toEqual([]);
       expect(legDamage.modifiers).toEqual([]);
     });
+
+    it('suppresses Cramped Cockpit PSR penalties when pilot has Small Pilot', () => {
+      const roller = makeDiceSequence([2, 2, 2, 2]);
+      const cramped = resolvePSR(
+        5,
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        roller,
+        [UNIT_QUIRK_IDS.CRAMPED_COCKPIT],
+      );
+      const smallPilot = resolvePSR(
+        5,
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        roller,
+        [UNIT_QUIRK_IDS.CRAMPED_COCKPIT],
+        ['small_pilot'],
+      );
+
+      expect(cramped).toMatchObject({ targetNumber: 6, passed: false });
+      expect(smallPilot).toMatchObject({ targetNumber: 5, passed: false });
+      expect(cramped.modifiers).toEqual([
+        { name: 'Piloting quirks', source: 'quirk', value: 1 },
+      ]);
+      expect(smallPilot.modifiers).toEqual([]);
+    });
   });
 
   describe('resolveAllPSRs — first-failure-clears-remaining', () => {
@@ -496,6 +524,35 @@ describe('Piloting Skill Rolls', () => {
           value: expectedValue,
         },
       ]);
+    });
+
+    it('suppresses source-backed Cramped Cockpit PSR penalties for Small Pilot', () => {
+      const psr: IPendingPSR = createDamagePSR('unit-1');
+      const crampedMods = calculatePSRModifiers(
+        psr,
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.CRAMPED_COCKPIT],
+        [],
+        false,
+        undefined,
+        5,
+      );
+      const smallPilotMods = calculatePSRModifiers(
+        psr,
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.CRAMPED_COCKPIT],
+        ['small_pilot'],
+        false,
+        undefined,
+        5,
+      );
+
+      expect(crampedMods).toEqual([
+        { name: 'Piloting quirks', source: 'quirk', value: 1 },
+      ]);
+      expect(smallPilotMods).toHaveLength(0);
     });
 
     it('should apply Stable only to source-backed kick/push PSRs', () => {

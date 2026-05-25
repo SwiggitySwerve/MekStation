@@ -788,10 +788,9 @@ export const QUIRK_COMBAT_SUPPORT = {
     'calculatePilotingQuirkPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs apply terrain-only PSR target-number penalties',
     MEGAMEK_UNBALANCED_SOURCE_REFS,
   ),
-  cramped_cockpit: helperOnly(
+  cramped_cockpit: integrated(
     'cramped_cockpit',
-    'calculatePilotingQuirkPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs apply all-PSR target-number penalties',
-    'MegaMek Cramped Cockpit is a Mek entity bonus with a Small Pilot exception; MekStation currently applies a generic all-PSR helper without that pilot ability gate',
+    'calculatePilotingQuirkPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs apply the all-PSR Cramped Cockpit target-number penalty and suppress it for pilots with Small Pilot',
     MEGAMEK_CRAMPED_COCKPIT_SOURCE_REFS,
   ),
   battle_fists_la: integrated(

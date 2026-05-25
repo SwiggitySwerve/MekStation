@@ -46,8 +46,8 @@ const MEGAMEK_PSR_QUIRK_REGISTRY_SOURCE_REF = megamekRef(
 );
 
 const MEKSTATION_PSR_QUIRK_HELPER_SOURCE_REF = mekstationDeviationRef(
-  'MekStation calculatePilotingQuirkPSRModifier scopes Stable to kick/push PSRs and Easy Pilot to piloting-skill-gated terrain/20+ damage PSRs while applying local Hard to Pilot, Cramped Cockpit, and Unbalanced target-number modifiers.',
-  'src/utils/gameplay/quirkModifiers/pilotingQuirks.ts#L30-L69',
+  'MekStation calculatePilotingQuirkPSRModifier scopes Stable to kick/push PSRs, Easy Pilot to piloting-skill-gated terrain/20+ damage PSRs, and Cramped Cockpit to non-Small-Pilot crews while applying local Hard to Pilot and Unbalanced target-number modifiers.',
+  'src/utils/gameplay/quirkModifiers/pilotingQuirks.ts#L32-L76',
 );
 
 export const MEGAMEK_EASY_TO_PILOT_SOURCE_REFS = [
@@ -94,6 +94,14 @@ export const MEGAMEK_CRAMPED_COCKPIT_SOURCE_REFS = [
   megamekRef(
     'MegaMek Mek.addEntityBonuses applies Cramped Cockpit +1 unless the pilot has Small Pilot.',
     'megamek/src/megamek/common/units/Mek.java#L3396-L3399',
+  ),
+  megamekRef(
+    'MegaMek PilotOptions registers the unofficial Small Pilot ability.',
+    'megamek/src/megamek/common/options/PilotOptions.java#L121-L121',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines UNOFFICIAL_SMALL_PILOT as small_pilot.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L232-L232',
   ),
   MEGAMEK_PSR_QUIRK_REGISTRY_SOURCE_REF,
   MEKSTATION_PSR_QUIRK_HELPER_SOURCE_REF,

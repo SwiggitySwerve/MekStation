@@ -6,6 +6,8 @@ import { PSRTrigger } from '@/types/gameplay/PSRTriggerCodes';
 
 import { UNIT_QUIRK_IDS } from './catalog';
 
+const SMALL_PILOT_ABILITY_ID = 'small_pilot';
+
 type PilotingQuirkPSRReason = PSRTrigger | string | undefined;
 
 function isStablePSR(reasonCode: PilotingQuirkPSRReason): boolean {
@@ -25,6 +27,7 @@ function isEasyToPilotPSR(
  * @param isTerrainPSR - Whether this PSR was triggered by terrain
  * @param reasonCode - Canonical PSR reason/trigger for source-scoped quirks
  * @param basePilotingSkill - Unmodified piloting skill before PSR modifiers
+ * @param pilotAbilities - Pilot ability identifiers that can gate quirk behavior
  * @returns Modifier to add to PSR target number
  */
 export function calculatePilotingQuirkPSRModifier(
@@ -32,6 +35,7 @@ export function calculatePilotingQuirkPSRModifier(
   isTerrainPSR: boolean,
   reasonCode?: PilotingQuirkPSRReason,
   basePilotingSkill?: number,
+  pilotAbilities: readonly string[] = [],
 ): number {
   let modifier = 0;
 
@@ -45,8 +49,11 @@ export function calculatePilotingQuirkPSRModifier(
     modifier += 1;
   }
 
-  // Cramped Cockpit: +1 to all piloting rolls
-  if (unitQuirks.includes(UNIT_QUIRK_IDS.CRAMPED_COCKPIT)) {
+  // Cramped Cockpit: MegaMek suppresses this penalty for Small Pilot.
+  if (
+    unitQuirks.includes(UNIT_QUIRK_IDS.CRAMPED_COCKPIT) &&
+    !pilotAbilities.includes(SMALL_PILOT_ABILITY_ID)
+  ) {
     modifier += 1;
   }
 

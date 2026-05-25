@@ -195,12 +195,21 @@ describe('Piloting Quirks', () => {
     expect(mod).toBe(1);
   });
 
-  it('Cramped Cockpit: +1 to all piloting rolls', () => {
+  it('Cramped Cockpit: +1 to all piloting rolls unless pilot has Small Pilot', () => {
     const mod = calculatePilotingQuirkPSRModifier(
       [UNIT_QUIRK_IDS.CRAMPED_COCKPIT],
       false,
     );
     expect(mod).toBe(1);
+
+    const smallPilotMod = calculatePilotingQuirkPSRModifier(
+      [UNIT_QUIRK_IDS.CRAMPED_COCKPIT],
+      false,
+      PSRTrigger.PhaseDamage20Plus,
+      5,
+      ['small_pilot'],
+    );
+    expect(smallPilotMod).toBe(0);
   });
 
   it('Easy to Pilot: -1 for terrain and 20+ damage PSRs only when piloting is worse than 3', () => {

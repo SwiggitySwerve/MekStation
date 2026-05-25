@@ -243,7 +243,7 @@ describe('runPSRPhase behavior', () => {
     });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-application'],
-    ).toMatchObject({ level: 'helper-only' });
+    ).toMatchObject({ level: 'integrated' });
   });
 
   it('does not apply Easy Pilot when base piloting is 3 or better', () => {
@@ -281,6 +281,65 @@ describe('runPSRPhase behavior', () => {
         reasonCode: PSRTrigger.PhaseDamage20Plus,
       },
     ]);
+  });
+
+  it('suppresses Cramped Cockpit PSR penalties for Small Pilot in runner resolution', () => {
+    const state = makeState(
+      makeUnit({
+        unitQuirks: [UNIT_QUIRK_IDS.CRAMPED_COCKPIT],
+        pendingPSRs: [createDamagePSR('player-1')],
+      }),
+    );
+    const smallPilotState = makeState(
+      makeUnit({
+        abilities: ['small_pilot'],
+        unitQuirks: [UNIT_QUIRK_IDS.CRAMPED_COCKPIT],
+        pendingPSRs: [createDamagePSR('player-1')],
+      }),
+    );
+    const events: IGameEvent[] = [];
+    const smallPilotEvents: IGameEvent[] = [];
+
+    runPSRPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: fixedRandom(0.99),
+    });
+    runPSRPhase({
+      state: smallPilotState,
+      events: smallPilotEvents,
+      gameId: smallPilotState.gameId,
+      random: fixedRandom(0.99),
+    });
+
+    const resolved = events.find((e) => e.type === GameEventType.PSRResolved)
+      ?.payload as IPSRResolvedPayload | undefined;
+    const smallPilotResolved = smallPilotEvents.find(
+      (e) => e.type === GameEventType.PSRResolved,
+    )?.payload as IPSRResolvedPayload | undefined;
+
+    expect(resolved).toMatchObject({
+      unitId: 'player-1',
+      targetNumber: 6,
+      modifiers: 1,
+      passed: true,
+      reasonCode: PSRTrigger.PhaseDamage20Plus,
+    });
+    expect(smallPilotResolved).toMatchObject({
+      unitId: 'player-1',
+      targetNumber: 5,
+      modifiers: 0,
+      passed: true,
+      reasonCode: PSRTrigger.PhaseDamage20Plus,
+    });
+    expect(QUIRK_COMBAT_SUPPORT.cramped_cockpit).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('Small Pilot'),
+    });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-application'],
+    ).toMatchObject({ level: 'integrated' });
   });
 
   it('applies Maneuvering Ace to source-backed skidding PSR target numbers', () => {

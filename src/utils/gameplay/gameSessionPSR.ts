@@ -348,6 +348,7 @@ export function attemptStandUp(
     false,
     psr.reasonCode ?? psr.triggerSource,
     unit.piloting,
+    unitState.abilities ?? unit.abilities ?? [],
   );
   const spaModifier = getAnimalMimicryPSRModifier(
     unitState.abilities ?? unit.abilities ?? [],

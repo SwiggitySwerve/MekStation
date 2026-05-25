@@ -253,6 +253,7 @@ export function calculatePSRModifiers(
     isTerrainPSR(psr),
     psr.reasonCode ?? psr.triggerSource,
     pilotingSkill,
+    pilotAbilities,
   );
   if (quirkModifier !== 0) {
     modifiers.push({
