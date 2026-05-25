@@ -227,6 +227,11 @@ const TERRAIN_TYPE_HEAT_TRIAD = triad(
   'Per-TerrainType heat rows are source checked and must carry row-level sourceRefs, distinguishing MegaMek fire/water heat anchors from MekStation-local no-heat terrain rows.',
   TERRAIN_REFS,
 );
+const TERRAIN_TYPE_ATTACK_MODIFIER_TRIAD = triad(
+  'entry-source-refs',
+  'Per-TerrainType attack modifier rows are source checked and must carry row-level sourceRefs, distinguishing MegaMek woods/smoke/building to-hit anchors from MekStation-local water, swamp, and no-modifier rows.',
+  TERRAIN_REFS,
+);
 const DAMAGE_TRIAD = triad(
   'requirement-primary-authority',
   REQUIREMENT_AUTHORITY_BOUNDARY,
@@ -372,7 +377,7 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
     terrainEnvironment: TERRAIN_ENVIRONMENT_TRIAD,
     terrainTypeMovement: TERRAIN_TYPE_MOVEMENT_TRIAD,
     terrainTypeLos: TERRAIN_TRIAD,
-    terrainTypeAttackModifiers: TERRAIN_TRIAD,
+    terrainTypeAttackModifiers: TERRAIN_TYPE_ATTACK_MODIFIER_TRIAD,
     terrainTypeHeat: TERRAIN_TYPE_HEAT_TRIAD,
     terrainTypePsr: TERRAIN_TRIAD,
     heatRules: HEAT_TRIAD,

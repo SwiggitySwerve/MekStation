@@ -1074,6 +1074,19 @@ Every TerrainType movement support row SHALL expose structured source references
 - **AND** local-only water and building movement rows SHALL use MekStation deviation source references
 - **AND** the terrainTypeMovement catalog triad SHALL enforce row-level source references before PR approval
 
+### Requirement: Source-Backed TerrainType Attack Modifier Catalog Anchors
+
+Every TerrainType attack modifier support row SHALL expose structured source references before the map is treated as source-backed validation coverage. Woods, smoke, and building rows SHALL cite commit-pinned MegaMek terrain/LOS to-hit source URLs with line anchors, plus the local `TERRAIN_PROPERTIES`, to-hit utility, terrain helper, and runner attack-phase paths. MekStation-only water and swamp target-in modifiers, plus terrain rows with no attack modifier, SHALL be marked with local source references instead of inheriting generic terrain authority. Any future terrain attack modifier expansion SHALL either add a MegaMek/MekHQ source reference or explicitly mark the row as a local deviation/gap.
+
+#### Scenario: TerrainType attack modifier rows expose source truth
+
+- **GIVEN** the BattleMech terrain type attack modifier support catalog is generated
+- **WHEN** any TerrainType attack modifier row is inspected
+- **THEN** the row SHALL expose structured source references with line anchors
+- **AND** woods, smoke, and building modifier rows SHALL use commit-pinned MegaMek source references
+- **AND** local-only water, swamp, and no-modifier rows SHALL use MekStation deviation source references for the local mapping
+- **AND** the terrainTypeAttackModifiers catalog triad SHALL enforce row-level source references before PR approval
+
 ### Requirement: Source-Backed TerrainType Heat Catalog Anchors
 
 Every TerrainType heat support row SHALL expose structured source references before the map is treated as source-backed validation coverage. Water and fire rows SHALL cite commit-pinned MegaMek source URLs with line anchors for water cooling, heat dissipation, fire heat, and external heat/cooling caps, plus the local `TERRAIN_PROPERTIES`, heat utility, and runner heat-phase paths. Terrain rows with no heat effect SHALL remain source-checked through local no-op source references instead of inheriting a generic terrain authority. Any future terrain heat expansion SHALL either add a MegaMek/MekHQ source reference or explicitly mark the row as a local deviation/gap.

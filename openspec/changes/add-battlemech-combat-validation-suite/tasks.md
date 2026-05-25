@@ -96,6 +96,7 @@
 - [x] 3.2.16 Source-pin terrain/environment rows for terrain movement costs, LOS blocking, partial cover, terrain to-hit, water/fire heat, fog/night/wind/extreme temperature, local atmosphere, and dust/mines gaps; promote terrain/environment triad enforcement to row-level source refs.
 - [x] 3.2.17 Source-pin every per-TerrainType movement support row with MegaMek terrain movement anchors where comparable and MekStation deviation anchors for local water/building simplifications; promote terrainTypeMovement triad enforcement to row-level source refs.
 - [x] 3.2.18 Source-pin every per-TerrainType heat support row with MegaMek water/fire heat anchors and MekStation no-heat anchors; promote terrainTypeHeat triad enforcement to row-level source refs.
+- [x] 3.2.19 Source-pin every per-TerrainType attack modifier support row with MegaMek woods/smoke/building to-hit anchors and MekStation water/swamp/no-modifier anchors; promote terrainTypeAttackModifiers triad enforcement to row-level source refs.
 - [ ] 3.3 Expand heat validation coverage for buildup, dissipation, shutdown, ammo explosions, pilot damage, and heat-driven modifiers.
 - [x] 3.3.1 Cross-link every heat rule support row into heat generation, dissipation, and lifecycle requirement checklists.
 - [x] 3.3.2 Add structured MegaMek source anchors for heat startup, avoidable/automatic shutdown, ammo-explosion risk, and pilot heat damage support rows.
@@ -243,3 +244,4 @@
 - [x] 4.3.68 Cross-check MegaMek terrain ids, terrain movement-cost routing, LOS/cover terrain effects, environmental to-hit, water/fire heat, extreme-temperature heat, and minefield movement handling before promoting terrain/environment rows to row-level source references.
 - [x] 4.3.69 Cross-check MegaMek `Terrain.movementCost`, pavement/road/bridge movement handling, and MekStation `getHexMovementCost`/`TERRAIN_PROPERTIES` before promoting per-TerrainType movement rows to row-level source references.
 - [x] 4.3.70 Cross-check MegaMek `HeatResolver` fire heat, `Mek.getHeatCapacityWithWater`, and MekStation `getGridTerrainHeatEffect`/runner heat resolution before promoting per-TerrainType heat rows to row-level source references.
+- [x] 4.3.71 Cross-check MegaMek `ComputeTerrainMods`, `Compute.getTargetTerrainModifier`, `LosEffects.losModifiers`, and MekStation terrain to-hit utility/runner attack routing before promoting per-TerrainType attack modifier rows to row-level source references.

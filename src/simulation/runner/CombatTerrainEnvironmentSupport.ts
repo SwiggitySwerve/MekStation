@@ -5,6 +5,8 @@ import type {
   ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 
+import { terrainAttackModifierSourceRefs } from './CombatTerrainEnvironmentSourceRefs';
+
 const MEGAMEK_TERRAIN_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
 const MEGAMEK_HEAT_SOURCE_VERSION = '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
@@ -282,16 +284,34 @@ function makeTerrainAttackModifierEntry(
     properties.toHitInterveningModifier !== 0 ||
     properties.toHitTargetInModifier !== 0;
 
+  if (terrain === TerrainType.Water) {
+    return integrated(
+      terrain,
+      'MekStation applies a local target-in water to-hit modifier through TERRAIN_PROPERTIES and runAttackPhase terrain modifier details',
+      terrainAttackModifierSourceRefs(terrain),
+    );
+  }
+
+  if (terrain === TerrainType.Swamp) {
+    return integrated(
+      terrain,
+      'MekStation applies a local target-in swamp to-hit modifier through TERRAIN_PROPERTIES and runAttackPhase terrain modifier details',
+      terrainAttackModifierSourceRefs(terrain),
+    );
+  }
+
   if (!hasAttackModifier) {
     return integrated(
       terrain,
       'TERRAIN_PROPERTIES records no target-in or intervening to-hit modifier for this terrain type',
+      terrainAttackModifierSourceRefs(terrain),
     );
   }
 
   return integrated(
     terrain,
     'runAttackPhase consumes TERRAIN_PROPERTIES target-in and intervening to-hit modifiers from target and LOS hexes',
+    terrainAttackModifierSourceRefs(terrain),
   );
 }
 

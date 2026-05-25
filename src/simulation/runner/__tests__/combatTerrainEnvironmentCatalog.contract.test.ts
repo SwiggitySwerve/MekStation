@@ -177,6 +177,73 @@ describe('BattleMech terrain and environment combat support catalog', () => {
     ).toEqual(Object.values(TerrainType).sort());
   });
 
+  it('source-pins every TerrainType attack modifier row', () => {
+    const megaMekBackedModifierTerrains = [
+      TerrainType.Building,
+      TerrainType.HeavyWoods,
+      TerrainType.LightWoods,
+      TerrainType.Smoke,
+    ];
+    const localOnlyModifierTerrains = [TerrainType.Swamp, TerrainType.Water];
+
+    Object.values(TERRAIN_TYPE_ATTACK_MODIFIER_COMBAT_SUPPORT).forEach(
+      (entry) => {
+        const sourceRefs = entry.sourceRefs ?? [];
+
+        expect(sourceRefs).not.toHaveLength(0);
+        sourceRefs.forEach(expectLineAnchoredSourceRef);
+        expect(sourceRefs).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              kind: 'mekstation-deviation',
+              url: 'src/types/gameplay/TerrainTypes.ts#L146-L488',
+            }),
+            expect.objectContaining({
+              kind: 'mekstation-deviation',
+              url: 'src/utils/gameplay/toHit/environmentModifiers.ts#L65-L88',
+            }),
+            expect.objectContaining({
+              kind: 'mekstation-deviation',
+              url: 'src/simulation/runner/phases/weaponAttackTerrainModifiers.ts#L13-L64',
+            }),
+            expect.objectContaining({
+              kind: 'mekstation-deviation',
+              url: 'src/simulation/runner/phases/weaponAttack.ts#L969-L1004',
+            }),
+          ]),
+        );
+      },
+    );
+
+    expect(
+      megaMekBackedModifierTerrains.filter(
+        (terrain) =>
+          !TERRAIN_TYPE_ATTACK_MODIFIER_COMBAT_SUPPORT[
+            terrain
+          ].sourceRefs?.some((ref) => ref.kind === 'megamek-source'),
+      ),
+    ).toEqual([]);
+    expect(
+      Object.values(TerrainType)
+        .filter((terrain) => !megaMekBackedModifierTerrains.includes(terrain))
+        .flatMap(
+          (terrain) =>
+            TERRAIN_TYPE_ATTACK_MODIFIER_COMBAT_SUPPORT[
+              terrain
+            ].sourceRefs?.filter((ref) => ref.kind === 'megamek-source') ?? [],
+        ),
+    ).toEqual([]);
+    expect(
+      localOnlyModifierTerrains.map(
+        (terrain) =>
+          TERRAIN_TYPE_ATTACK_MODIFIER_COMBAT_SUPPORT[terrain].evidence,
+      ),
+    ).toEqual([
+      expect.stringContaining('MekStation applies a local target-in'),
+      expect.stringContaining('MekStation applies a local target-in'),
+    ]);
+  });
+
   it('tracks terrain heat effects as integrated runner occupied-terrain heat behavior', () => {
     expect(terrainTypesWithHeatEffects()).toEqual(
       [TerrainType.Fire, TerrainType.Water].sort(),
