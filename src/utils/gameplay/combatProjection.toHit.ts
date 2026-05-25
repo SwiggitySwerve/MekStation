@@ -28,6 +28,7 @@ import {
 import { calculateToHitWithC3, selectC3RangeBracket } from './toHit/c3';
 import { calculateToHit } from './toHit/calculate';
 import { calculateInterveningTerrainModifier } from './toHit/environmentModifiers';
+import { deriveVehicleToHitContext } from './vehicleToHitContext';
 
 type AirborneAeroSpottingUnitState = IGameState['units'][string] & {
   readonly airborneAeroSpottingEquipment?: IAirborneAeroSpottingEquipment;
@@ -142,6 +143,7 @@ export function deriveToHitProjection({
     heat: attackerUnit.heat ?? 0,
     damageModifiers: terrainModifiers,
     prone: attackerUnit.prone ?? false,
+    ...deriveVehicleToHitContext(attackerUnit, weapons),
   };
   const targetState = {
     movementType: targetUnit.movementThisTurn ?? MovementType.Stationary,

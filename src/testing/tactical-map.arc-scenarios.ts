@@ -1,9 +1,11 @@
 import type { IApplyAttackInput } from '@/engine/InteractiveSession.actions';
-import type { IUnitToken } from '@/types/gameplay';
+import type { IGameState, IUnitToken } from '@/types/gameplay';
 
 import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { FiringArc, TokenUnitType, VehicleMotionType } from '@/types/gameplay';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { createVehicleCombatState } from '@/utils/gameplay/vehicleDamage';
 import { getVehicleWeaponArcs } from '@/utils/gameplay/vehicleFiringArc';
 
 import {
@@ -31,6 +33,11 @@ export const tacticalMapRightSponsonArcSelectedWeaponIds = [
 export const tacticalMapLockedTurretTargetId = 'locked-turret-side-target';
 export const tacticalMapLockedTurretTargetHex = { q: -2, r: 2 } as const;
 export const tacticalMapLockedTurretSelectedWeaponIds = ['locked-turret-ppc'];
+export const tacticalMapChinTurretPivotTargetId = 'chin-turret-target';
+export const tacticalMapChinTurretPivotTargetHex = { q: -2, r: 2 } as const;
+export const tacticalMapChinTurretPivotSelectedWeaponIds = [
+  'chin-turret-laser',
+];
 
 const tacticalMapLeftSponsonArcs = getVehicleWeaponArcs({
   mountLocation: VehicleLocation.LEFT,
@@ -52,6 +59,14 @@ const tacticalMapLockedTurretArcs = getVehicleWeaponArcs({
   isSponsonMounted: false,
   turretType: TurretType.SINGLE,
   turretLocked: true,
+});
+
+const tacticalMapChinTurretArcs = getVehicleWeaponArcs({
+  mountLocation: VehicleLocation.TURRET,
+  isTurretMounted: true,
+  isSponsonMounted: false,
+  turretType: TurretType.CHIN,
+  turretLocked: false,
 });
 
 export const tacticalMapOutOfArcTokens: readonly IUnitToken[] = [
@@ -113,6 +128,21 @@ export const tacticalMapLockedTurretTokens: readonly IUnitToken[] = [
   }),
 ];
 
+export const tacticalMapChinTurretPivotTokens: readonly IUnitToken[] = [
+  tacticalMapAttackerToken({
+    name: 'Chin Turret Carrier',
+    designation: 'CTC',
+    unitType: TokenUnitType.Vehicle,
+    vehicleMotionType: VehicleMotionType.Tracked,
+  }),
+  tacticalMapTargetToken({
+    unitId: tacticalMapChinTurretPivotTargetId,
+    name: 'Chin Turret Target',
+    designation: 'CTT',
+    position: tacticalMapChinTurretPivotTargetHex,
+  }),
+];
+
 export const tacticalMapOutOfArcCombatState = tacticalMapCombatStateForTokens(
   tacticalMapOutOfArcTokens,
 );
@@ -123,6 +153,32 @@ export const tacticalMapRightSponsonArcCombatState =
   tacticalMapCombatStateForTokens(tacticalMapRightSponsonArcTokens);
 export const tacticalMapLockedTurretCombatState =
   tacticalMapCombatStateForTokens(tacticalMapLockedTurretTokens);
+const tacticalMapChinTurretPivotBaseCombatState =
+  tacticalMapCombatStateForTokens(tacticalMapChinTurretPivotTokens);
+const tacticalMapChinTurretPivotVehicleState = {
+  ...createVehicleCombatState({
+    unitId: 'attacker',
+    motionType: GroundMotionType.TRACKED,
+    turretType: TurretType.CHIN,
+    originalCruiseMP: 4,
+    armor: {},
+    structure: {},
+  }),
+  turretPivotedThisTurn: true,
+};
+export const tacticalMapChinTurretPivotCombatState: IGameState = {
+  ...tacticalMapChinTurretPivotBaseCombatState,
+  units: {
+    ...tacticalMapChinTurretPivotBaseCombatState.units,
+    attacker: {
+      ...tacticalMapChinTurretPivotBaseCombatState.units.attacker,
+      combatState: {
+        kind: 'vehicle',
+        state: tacticalMapChinTurretPivotVehicleState,
+      },
+    },
+  },
+};
 
 export const tacticalMapOutOfArcUnitWeapons = tacticalMapUnitWeapons(
   tacticalMapWeapon({
@@ -161,6 +217,17 @@ export const tacticalMapLockedTurretUnitWeapons = tacticalMapUnitWeapons(
     heat: 10,
     damage: 10,
     ranges: { short: 6, medium: 12, long: 18 },
+  }),
+);
+
+export const tacticalMapChinTurretPivotUnitWeapons = tacticalMapUnitWeapons(
+  tacticalMapWeapon({
+    id: 'chin-turret-laser',
+    name: 'Chin Turret Laser',
+    location: 'chin_turret',
+    mountingArcs: tacticalMapChinTurretArcs,
+    vehicleMountLocation: VehicleLocation.TURRET,
+    vehicleIsTurretMounted: true,
   }),
 );
 
@@ -215,6 +282,19 @@ export const tacticalMapLockedTurretCombatProjection =
     combatState: tacticalMapLockedTurretCombatState,
   });
 
+const tacticalMapChinTurretPivotGrid = tacticalMapCombatGrid();
+
+export const tacticalMapChinTurretPivotCombatProjection =
+  tacticalMapCombatProjection({
+    attacker: tacticalMapChinTurretPivotTokens[0],
+    targetUnitId: tacticalMapChinTurretPivotTargetId,
+    targetHex: tacticalMapChinTurretPivotTargetHex,
+    grid: tacticalMapChinTurretPivotGrid,
+    tokens: tacticalMapChinTurretPivotTokens,
+    weapons: tacticalMapChinTurretPivotUnitWeapons.attacker,
+    combatState: tacticalMapChinTurretPivotCombatState,
+  });
+
 export function tacticalMapOutOfArcCommitInput(): IApplyAttackInput {
   return tacticalMapCommitInput({
     tokens: tacticalMapOutOfArcTokens,
@@ -256,5 +336,16 @@ export function tacticalMapRightSponsonArcCommitInput(): IApplyAttackInput {
     targetId: tacticalMapRightSponsonArcTargetId,
     weaponIds: tacticalMapRightSponsonArcSelectedWeaponIds,
     grid: tacticalMapRightSponsonArcGrid,
+  });
+}
+
+export function tacticalMapChinTurretPivotCommitInput(): IApplyAttackInput {
+  return tacticalMapCommitInput({
+    tokens: tacticalMapChinTurretPivotTokens,
+    combatState: tacticalMapChinTurretPivotCombatState,
+    unitWeapons: tacticalMapChinTurretPivotUnitWeapons,
+    targetId: tacticalMapChinTurretPivotTargetId,
+    weaponIds: tacticalMapChinTurretPivotSelectedWeaponIds,
+    grid: tacticalMapChinTurretPivotGrid,
   });
 }

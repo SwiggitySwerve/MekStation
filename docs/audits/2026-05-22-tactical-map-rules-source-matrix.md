@@ -887,8 +887,17 @@ whose `mountingArcs` are derived from `getVehicleWeaponArcs` as
 `[front, right]`. The focused Jest fixture aligns the projected right-side
 firing arc with committed `AttackDeclared` range, selected weapon ids, and
 to-hit number, while Playwright checks the same in-arc weapon availability
-metadata on the right-side hex, combat badge, and arc badge. Chin pivot
-penalties remain the separate special-arc coverage slice.
+metadata on the right-side hex, combat badge, and arc badge.
+
+2026-05-25 chin-turret pivot browser pin: the existing MegaMek-source-backed
+chin turret pivot rule is now carried from represented vehicle combat state and
+selected weapon mount metadata into both tactical-map projection and committed
+attack declaration. A vehicle with `TurretType.CHIN`, a pivoted turret state,
+and a chin-turret weapon now exposes TN5 plus `Chin Turret Pivot +1` on the
+left-side target hex, and the focused Jest fixture proves the committed
+`AttackDeclared` target number and modifier stack match the projection.
+Playwright checks the rendered to-hit metadata, arc badge, and available weapon
+state in the browser harness.
 
 Additional selected-weapon extreme-range overlay pin: the firing-arc overlay
 now uses represented `ranges.extreme` when present while deriving selected

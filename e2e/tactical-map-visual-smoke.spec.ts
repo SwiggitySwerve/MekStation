@@ -3485,6 +3485,48 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows chin turret pivot to-hit penalty in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=vehicle-chin-turret-pivot');
+
+    const targetHex = page.getByTestId('hex--2-2');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'chin-turret-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-distance', '2');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-firing-arc',
+      'left-side',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-in-arc', 'true');
+    await expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-available',
+      'chin-turret-laser',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '5');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-modifiers',
+      /Chin Turret Pivot:1/,
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-reason',
+      /Chin Turret Pivot \+1/,
+    );
+
+    const toHitBadge = page.getByTestId('hex-to-hit-badge--2-2');
+    await expect(toHitBadge).toContainText('TN5');
+
+    const arcBadge = page.getByTestId('hex-combat-arc-badge--2-2');
+    await expect(arcBadge.locator('text')).toHaveText('L ARC');
+    await expect(arcBadge).toHaveAttribute(
+      'data-combat-arc-badge-in-arc',
+      'true',
+    );
+  });
+
   test('shows locked vehicle turret side target as out of arc in browser', async ({
     page,
   }) => {

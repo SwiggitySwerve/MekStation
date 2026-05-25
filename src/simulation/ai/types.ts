@@ -3,6 +3,11 @@
  * Interfaces for bot behavior, movement, and weapon handling.
  */
 
+import type {
+  VehicleLocation,
+  VTOLLocation,
+} from '@/types/construction/UnitLocation';
+
 import {
   IHexCoordinate,
   Facing,
@@ -174,6 +179,12 @@ export interface IWeapon {
    * chassis arc. Missing means legacy omnidirectional/unknown coverage.
    */
   readonly mountingArcs?: readonly FiringArc[];
+
+  /** Vehicle mount location, when this weapon belongs to a vehicle. */
+  readonly vehicleMountLocation?: VehicleLocation | VTOLLocation;
+
+  /** True when the weapon is mounted in the vehicle primary turret. */
+  readonly vehicleIsTurretMounted?: boolean;
 
   /**
    * Per `add-ai-resource-planning` (A2) design D4: optional firing-mode

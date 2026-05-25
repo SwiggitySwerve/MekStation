@@ -5,6 +5,11 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
+import type {
+  VehicleLocation,
+  VTOLLocation,
+} from '@/types/construction/UnitLocation';
+
 import { WeightClass } from '@/types/enums/WeightClass';
 
 import type { WeaponFireMode } from './CombatInterfaces';
@@ -607,6 +612,10 @@ export interface IWeaponStatus {
    * arcs. Missing means legacy omnidirectional/unknown coverage.
    */
   readonly mountingArcs?: readonly FiringArc[];
+  /** Vehicle mount location, when this weapon belongs to a vehicle. */
+  readonly vehicleMountLocation?: VehicleLocation | VTOLLocation;
+  /** True when the weapon is mounted in the vehicle primary turret. */
+  readonly vehicleIsTurretMounted?: boolean;
   /** Is weapon destroyed? */
   readonly destroyed: boolean;
   /** Was weapon fired this turn? */

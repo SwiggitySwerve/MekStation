@@ -238,20 +238,28 @@ function equipmentWeaponId(item: AdaptableEquipmentItem): string | undefined {
 function weaponMountArcsFromEquipment(
   item: AdaptableEquipmentItem,
   unitData: Record<string, unknown>,
-): Pick<IWeapon, 'mountingArc' | 'mountingArcs'> {
+): Pick<
+  IWeapon,
+  | 'mountingArc'
+  | 'mountingArcs'
+  | 'vehicleMountLocation'
+  | 'vehicleIsTurretMounted'
+> {
   if (!isVehicleLikeUnitData(unitData)) return {};
 
   const mountLocation = vehicleMountLocationFromEquipment(item);
   if (!mountLocation) return {};
+  const isTurretMounted =
+    equipmentBooleanField(item, 'isTurretMounted') ||
+    locationHas(item, 'turret', 'chin');
+  const isSponsonMounted =
+    equipmentBooleanField(item, 'isSponsonMounted') ||
+    locationHas(item, 'sponson');
 
   const arcs = getVehicleWeaponArcs({
     mountLocation,
-    isTurretMounted:
-      equipmentBooleanField(item, 'isTurretMounted') ||
-      locationHas(item, 'turret', 'chin'),
-    isSponsonMounted:
-      equipmentBooleanField(item, 'isSponsonMounted') ||
-      locationHas(item, 'sponson'),
+    isTurretMounted,
+    isSponsonMounted,
     turretType: primaryTurretTypeFromUnitData(unitData),
     turretLocked: false,
     isSecondary: locationHas(item, 'turret2', 'turret 2', 'secondary turret'),
@@ -259,9 +267,21 @@ function weaponMountArcsFromEquipment(
     secondaryTurretLocked: false,
   });
 
-  if (arcs.length === 0) return { mountingArcs: [] };
-  if (arcs.length === 1) return { mountingArc: arcs[0], mountingArcs: arcs };
-  return { mountingArcs: arcs };
+  const vehicleMountMetadata = {
+    vehicleMountLocation: mountLocation,
+    vehicleIsTurretMounted: isTurretMounted,
+  };
+  if (arcs.length === 0) {
+    return { ...vehicleMountMetadata, mountingArcs: [] };
+  }
+  if (arcs.length === 1) {
+    return {
+      ...vehicleMountMetadata,
+      mountingArc: arcs[0],
+      mountingArcs: arcs,
+    };
+  }
+  return { ...vehicleMountMetadata, mountingArcs: arcs };
 }
 
 function isVehicleLikeUnitData(unitData: Record<string, unknown>): boolean {

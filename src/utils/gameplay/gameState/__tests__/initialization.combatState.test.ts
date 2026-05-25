@@ -142,7 +142,7 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     expect(state.combatState).toBeUndefined();
   });
 
-  it('leaves combatState undefined for VEHICLE (kind: vehicle is a future variant)', () => {
+  it('leaves combatState undefined for VEHICLE until vehicle init is wired', () => {
     const unit = baseGameUnit({ unitType: UnitType.VEHICLE });
     const state = createInitialUnitState(unit, POSITION, Facing.North);
     expect(state.combatState).toBeUndefined();

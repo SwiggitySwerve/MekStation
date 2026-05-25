@@ -7,6 +7,8 @@
   mounts from represented metadata.
 - [x] 1.3 Carry multi-arc mount coverage through weapon status and attack
   declaration types.
+- [x] 1.4 Carry represented vehicle weapon mount metadata into the shared
+  to-hit context for vehicle-scoped modifiers.
 
 ## 2. Projection and Commit Agreement
 
@@ -15,6 +17,8 @@
   weapon filtering, and attack-planning conversion.
 - [x] 2.3 Keep firing-arc overlay shading narrowed to represented multi-arc
   selected weapon mounts.
+- [x] 2.4 Apply chin turret pivot to-hit metadata to both tactical-map
+  projection and committed attack declarations.
 
 ## 3. Verification
 
@@ -23,3 +27,5 @@
 - [x] 3.2 Focused Jest coverage passes.
 - [x] 3.3 OpenSpec strict validation passes.
 - [x] 3.4 Standard lint/type/build gates pass.
+- [x] 3.5 Add focused Jest and browser coverage for chin turret pivot
+  projection-to-commit parity.

@@ -77,6 +77,7 @@ import { allUnitsLocked, deriveState } from './gameState';
 import { isGroundToGroundGameAttack } from './groundToGround';
 import { calculateInterveningTerrainModifier, calculateToHit } from './toHit';
 import { calculateToHitWithC3, selectC3RangeBracket } from './toHit/c3';
+import { deriveVehicleToHitContext } from './vehicleToHitContext';
 
 export interface ICreateGameSessionOptions {
   readonly id?: string;
@@ -463,6 +464,7 @@ export function declareAttack(
     heat: attackerUnit.heat,
     damageModifiers: terrainModifiers,
     prone: attackerUnit.prone ?? false,
+    ...deriveVehicleToHitContext(attackerUnit, weapons),
   };
   const targetState = {
     movementType: targetUnit.movementThisTurn,

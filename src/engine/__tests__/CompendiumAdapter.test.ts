@@ -380,6 +380,8 @@ describe('CompendiumAdapter', () => {
         name: 'AC/5',
         mountingArc: FiringArc.Rear,
         mountingArcs: [FiringArc.Rear],
+        vehicleMountLocation: VehicleLocation.REAR,
+        vehicleIsTurretMounted: false,
       });
     });
 
@@ -402,6 +404,8 @@ describe('CompendiumAdapter', () => {
       expect(result.weapons[0]).toMatchObject({
         name: 'Medium Laser',
         mountingArc: FiringArc.Front,
+        vehicleMountLocation: VehicleLocation.FRONT,
+        vehicleIsTurretMounted: false,
       });
     });
 
@@ -427,6 +431,10 @@ describe('CompendiumAdapter', () => {
         FiringArc.Front,
         FiringArc.Left,
       ]);
+      expect(result.weapons[0]).toMatchObject({
+        vehicleMountLocation: VehicleLocation.LEFT,
+        vehicleIsTurretMounted: false,
+      });
     });
 
     it('preserves represented vehicle turret mounts as all chassis arcs', () => {
@@ -459,6 +467,10 @@ describe('CompendiumAdapter', () => {
         FiringArc.Right,
         FiringArc.Rear,
       ]);
+      expect(result.weapons[0]).toMatchObject({
+        vehicleMountLocation: VehicleLocation.TURRET,
+        vehicleIsTurretMounted: true,
+      });
     });
   });
 

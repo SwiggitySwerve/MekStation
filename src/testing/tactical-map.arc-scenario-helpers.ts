@@ -109,6 +109,8 @@ export function tacticalMapWeapon(params: {
   readonly location: string;
   readonly mountingArc?: FiringArc;
   readonly mountingArcs: readonly FiringArc[];
+  readonly vehicleMountLocation?: IWeaponStatus['vehicleMountLocation'];
+  readonly vehicleIsTurretMounted?: boolean;
   readonly heat?: number;
   readonly damage?: number;
   readonly ranges?: IWeaponStatus['ranges'];
@@ -119,6 +121,8 @@ export function tacticalMapWeapon(params: {
     location: params.location,
     mountingArc: params.mountingArc,
     mountingArcs: params.mountingArcs,
+    vehicleMountLocation: params.vehicleMountLocation,
+    vehicleIsTurretMounted: params.vehicleIsTurretMounted,
     destroyed: false,
     firedThisTurn: false,
     heat: params.heat ?? 3,
@@ -151,6 +155,8 @@ function weaponStatusToCommitWeapon(status: IWeaponStatus): IWeapon {
     destroyed: status.destroyed,
     mountingArc: status.mountingArc,
     mountingArcs: status.mountingArcs,
+    vehicleMountLocation: status.vehicleMountLocation,
+    vehicleIsTurretMounted: status.vehicleIsTurretMounted,
     isTorpedo: status.isTorpedo,
   };
 }

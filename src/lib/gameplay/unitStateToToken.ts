@@ -24,9 +24,34 @@ import type {
   IUnitTokenBase,
 } from '@/types/gameplay';
 
-import { TokenUnitType } from '@/types/gameplay';
+import { TokenUnitType, VehicleMotionType } from '@/types/gameplay';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import { getSurvivingTroopers as baSurvivingTroopers } from '@/utils/gameplay/battlearmor/state';
+
+function vehicleMotionTypeFromGroundMotion(
+  motionType: GroundMotionType,
+): VehicleMotionType {
+  switch (motionType) {
+    case GroundMotionType.WHEELED:
+      return VehicleMotionType.Wheeled;
+    case GroundMotionType.HOVER:
+      return VehicleMotionType.Hover;
+    case GroundMotionType.VTOL:
+      return VehicleMotionType.VTOL;
+    case GroundMotionType.NAVAL:
+    case GroundMotionType.HYDROFOIL:
+    case GroundMotionType.SUBMARINE:
+      return VehicleMotionType.Naval;
+    case GroundMotionType.WIGE:
+      return VehicleMotionType.WiGE;
+    case GroundMotionType.TRACKED:
+    case GroundMotionType.RAIL:
+    case GroundMotionType.MAGLEV:
+    default:
+      return VehicleMotionType.Tracked;
+  }
+}
 
 /**
  * Subset of `IUnitTokenBase` fog-projection fields that callers may layer onto
@@ -122,6 +147,14 @@ export function unitStateToToken(
         unitType: TokenUnitType.Aerospace,
         altitude: cs.state.altitude,
         velocity: cs.state.currentVelocity,
+      };
+    case 'vehicle':
+      return {
+        ...base,
+        unitType: TokenUnitType.Vehicle,
+        vehicleMotionType: vehicleMotionTypeFromGroundMotion(
+          cs.state.motionType,
+        ),
       };
     case 'platoon':
       return {

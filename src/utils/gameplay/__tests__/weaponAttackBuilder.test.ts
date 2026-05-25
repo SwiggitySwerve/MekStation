@@ -8,6 +8,7 @@
 
 import type { IWeapon } from '@/simulation/ai/types';
 
+import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
 import { FiringArc } from '@/types/gameplay';
 import {
@@ -109,6 +110,19 @@ describe('buildWeaponAttack', () => {
       },
     ]);
     expect(result?.mountingArcs).toEqual([FiringArc.Front, FiringArc.Left]);
+  });
+
+  it('preserves vehicle mount metadata for vehicle to-hit modifiers', () => {
+    const result = buildWeaponAttack('chin-ml-1', [
+      {
+        ...mediumLaser,
+        id: 'chin-ml-1',
+        vehicleMountLocation: VehicleLocation.TURRET,
+        vehicleIsTurretMounted: true,
+      },
+    ]);
+    expect(result?.vehicleMountLocation).toBe(VehicleLocation.TURRET);
+    expect(result?.vehicleIsTurretMounted).toBe(true);
   });
 
   it('returns null + warns when the weapon id is not on the unit', () => {

@@ -18,14 +18,17 @@ import {
   LockState,
   MovementType,
   TokenUnitType,
+  VehicleMotionType,
   type IUnitGameState,
 } from '@/types/gameplay';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
 import { ProtoChassis, ProtoLocation } from '@/types/unit/ProtoMechInterfaces';
 import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
 import { createBattleArmorCombatState } from '@/utils/gameplay/battlearmor/state';
 import { createInfantryCombatState } from '@/utils/gameplay/infantry/state';
 import { createProtoMechCombatState } from '@/utils/gameplay/protomech/state';
+import { createVehicleCombatState } from '@/utils/gameplay/vehicleDamage';
 
 import { unitStateToToken, type IFogProjection } from '../unitStateToToken';
 
@@ -112,6 +115,34 @@ describe('unitStateToToken — mech / no-envelope path', () => {
     expect(token.fogStatus).toBe('lastKnown');
     expect(token.lastKnownPosition).toEqual({ q: 9, r: 9 });
     expect(token.sensorRange).toBe(5);
+  });
+});
+
+// =============================================================================
+// Vehicle projection
+// =============================================================================
+
+describe('unitStateToToken — vehicle projection', () => {
+  it('returns the Vehicle variant when vehicle combat state is represented', () => {
+    const token = unitStateToToken(
+      'u1',
+      baseState({
+        combatState: {
+          kind: 'vehicle',
+          state: createVehicleCombatState({
+            unitId: 'u1',
+            motionType: GroundMotionType.HOVER,
+            originalCruiseMP: 8,
+            armor: {},
+            structure: {},
+          }),
+        },
+      }),
+      UNIT_INFO,
+    );
+
+    expect(token.unitType).toBe(TokenUnitType.Vehicle);
+    expect(widen(token).vehicleMotionType).toBe(VehicleMotionType.Hover);
   });
 });
 

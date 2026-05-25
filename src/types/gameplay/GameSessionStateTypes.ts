@@ -14,6 +14,7 @@ import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import type { IBattleArmorCombatState } from './BattleArmorCombatInterfaces';
 import type { IGameEvent } from './GameSessionStatusEvents';
 import type { IGameConfig, IGameUnit } from './GameSessionUnitTypes';
+import type { IVehicleCombatState } from './VehicleCombatInterfaces';
 
 import {
   GamePhase,
@@ -259,8 +260,8 @@ export interface IUnitGameState {
    * behavior-wiring.md`) and openspec change `wire-combat-behavior-dispatch`,
    * aerospace / protomech / infantry / BA units carry their per-type combat
    * struct here so renderers and fog redaction read a single channel. Mech
-   * and vehicle units leave this `undefined` until the `kind: 'vehicle'`
-   * variant lands in PR9+.
+   * and vehicle units may carry `kind: 'vehicle'` once vehicle combat state
+   * has been initialized for the session.
    *
    * Producers: `createInitialUnitState` (initial seed); per-type reducers
    * (combat events update the inner `state` and replace the envelope).
@@ -269,6 +270,7 @@ export interface IUnitGameState {
    */
   readonly combatState?:
     | { readonly kind: 'aero'; readonly state: IAerospaceCombatState }
+    | { readonly kind: 'vehicle'; readonly state: IVehicleCombatState }
     | { readonly kind: 'proto'; readonly state: IProtoMechCombatState }
     | { readonly kind: 'platoon'; readonly state: IInfantryCombatState }
     | { readonly kind: 'squad'; readonly state: IBattleArmorCombatState };

@@ -7,6 +7,8 @@ import {
 } from '@/types/gameplay';
 
 import {
+  tacticalMapChinTurretPivotCombatProjection,
+  tacticalMapChinTurretPivotCommitInput,
   tacticalMapLockedTurretCombatProjection,
   tacticalMapLockedTurretCommitInput,
   tacticalMapOutOfArcCombatProjection,
@@ -1695,6 +1697,72 @@ describe('tactical map combat scenarios', () => {
     );
     expect(payload.toHitNumber).toBe(
       tacticalMapRightSponsonArcCombatProjection.toHitNumber,
+    );
+  });
+
+  it('keeps chin turret pivot projection aligned with attack commit to-hit', () => {
+    expect(tacticalMapChinTurretPivotCombatProjection).toMatchObject({
+      hex: { q: -2, r: 2 },
+      distance: 2,
+      rangeBracket: 'short',
+      firingArc: 'left-side',
+      inRange: true,
+      inArc: true,
+      attackable: true,
+      targetUnitIds: ['chin-turret-target'],
+      validTargetUnitIds: ['chin-turret-target'],
+      weaponIdsInRange: ['chin-turret-laser'],
+      weaponIdsInArc: ['chin-turret-laser'],
+      weaponIdsAvailable: ['chin-turret-laser'],
+      toHitNumber: 5,
+      weaponRangeOptions: [
+        {
+          weaponId: 'chin-turret-laser',
+          rangeBracket: 'short',
+          inRange: true,
+          inArc: true,
+          available: true,
+        },
+      ],
+    });
+    expect(tacticalMapChinTurretPivotCombatProjection.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Chin Turret Pivot',
+          value: 1,
+        }),
+      ]),
+    );
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapChinTurretPivotCommitInput(),
+    );
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackLocked),
+    ).toBe(true);
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.weapons).toEqual(
+      tacticalMapChinTurretPivotCombatProjection.weaponIdsAvailable,
+    );
+    expect(payload.toHitNumber).toBe(
+      tacticalMapChinTurretPivotCombatProjection.toHitNumber,
+    );
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Chin Turret Pivot',
+          value: 1,
+        }),
+      ]),
     );
   });
 

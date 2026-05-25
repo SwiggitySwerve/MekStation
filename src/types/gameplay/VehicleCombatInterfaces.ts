@@ -13,6 +13,7 @@ import {
   VTOLLocation,
 } from '@/types/construction/UnitLocation';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
 
 // =============================================================================
 // Hit Location (Vehicle)
@@ -157,6 +158,8 @@ export interface IMotiveDamageState {
 export interface IVehicleCombatState {
   readonly unitId: string;
   readonly motionType: GroundMotionType;
+  /** Vehicle primary turret configuration used by vehicle-specific combat modifiers. */
+  readonly turretType?: TurretType;
   /** Armor remaining per vehicle location. */
   readonly armor: Readonly<
     Partial<Record<VehicleLocation | VTOLLocation, number>>
