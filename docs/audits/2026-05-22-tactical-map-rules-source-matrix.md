@@ -977,6 +977,14 @@ both terrain layers on the blocker hex, exposes the shared combined
 and attack commit validation agree on `Blocked by heavy woods and smoke at (1,
 0)`.
 
+2026-05-25 mixed range expected-damage pin: MegaMek range handling remains
+per-weapon (`Compute.getRangeMods` / `RangeType`), so MekStation's projection
+now computes per-weapon expected damage from each weapon option's own target
+number before summing the volley. The tactical-map medium/extreme volley
+fixture proves the map exposes Medium Laser TN6 / expected 3.6 damage and
+Extreme LRM TN10 / expected 0.85 damage, while the aggregate expected damage is
+4.45 instead of incorrectly applying TN6 to the whole 10 listed-damage volley.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

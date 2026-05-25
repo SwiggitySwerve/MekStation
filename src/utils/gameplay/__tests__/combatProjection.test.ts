@@ -208,6 +208,66 @@ describe('deriveCombatRangeHexes', () => {
     );
   });
 
+  it('sums expected damage from each available weapon target number', () => {
+    const grid = createHexGrid({ radius: 3 });
+    const attacker = makeToken({
+      unitId: 'attacker',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const target = makeToken({
+      unitId: 'target',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+    });
+
+    const targetHex = deriveCombatRangeHexes({
+      attacker,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attacker, target],
+      weapons: [
+        makeWeapon({
+          id: 'short-laser',
+          ranges: { short: 2, medium: 4, long: 6 },
+        }),
+        makeWeapon({
+          id: 'long-bracket-laser',
+          ranges: { short: 1, medium: 1, long: 2 },
+        }),
+      ],
+      combatState: makeCombatState({
+        attacker: { side: GameSide.Player, position: { q: 0, r: 0 } },
+        target: { side: GameSide.Opponent, position: { q: 2, r: 0 } },
+      }),
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(targetHex).toMatchObject({
+      attackable: true,
+      toHitNumber: 4,
+      availableWeaponDamage: 10,
+      weaponRangeOptions: [
+        expect.objectContaining({
+          weaponId: 'short-laser',
+          rangeBracket: 'short',
+          toHitNumber: 4,
+          expectedDamage: 4.6,
+        }),
+        expect.objectContaining({
+          weaponId: 'long-bracket-laser',
+          rangeBracket: 'long',
+          toHitNumber: 8,
+          expectedDamage: 2.1,
+        }),
+      ],
+    });
+    expect(targetHex?.expectedDamage).toBeCloseTo(
+      5 * (getTwoD6HitProbability(4) / 100) +
+        5 * (getTwoD6HitProbability(8) / 100),
+      4,
+    );
+  });
+
   it('keeps out-of-range targets explainable instead of making them disappear', () => {
     const grid = createHexGrid({ radius: 3 });
     const attacker = makeToken({

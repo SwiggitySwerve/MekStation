@@ -11,7 +11,16 @@ The tactical map interface SHALL expose projected weapon damage envelope metadat
 **WHEN** the combat range hex is derived
 **THEN** it SHALL include each available weapon's listed damage
 **AND** it SHALL include aggregate listed damage for the available volley
-**AND** it SHALL include expected damage computed from aggregate listed damage and the 2d6 hit probability for the projected to-hit number.
+**AND** it SHALL include per-weapon expected damage computed from that weapon's own target number and the 2d6 hit probability
+**AND** it SHALL include aggregate expected damage as the sum of those per-weapon expected damage values.
+
+#### Scenario: Mixed target-number volley expected damage
+
+**GIVEN** a selected volley has one weapon at medium range and another weapon at extreme range against the same target hex
+**AND** both weapons are available to fire
+**WHEN** the combat range hex is derived
+**THEN** each weapon option SHALL carry its own target number and expected damage
+**AND** the target hex expected damage SHALL NOT multiply aggregate listed damage by the best aggregate target number.
 
 #### Scenario: Combat hover shows projected damage
 

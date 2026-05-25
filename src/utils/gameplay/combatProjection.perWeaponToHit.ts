@@ -8,9 +8,15 @@ import type { ILOSInterveningTerrainEffect } from '@/utils/gameplay/lineOfSight'
 
 import { weaponBracketAtDistance } from './combatProjection.targeting';
 import { deriveToHitProjection } from './combatProjection.toHit';
+import { getTwoD6HitProbability } from './toHit/forecast';
 
 type ToHitProjectionInput = Parameters<typeof deriveToHitProjection>[0];
 type ToHitProjection = NonNullable<ReturnType<typeof deriveToHitProjection>>;
+
+function expectedDamageForWeapon(damage: number, toHitNumber: number): number {
+  const expectedDamage = damage * (getTwoD6HitProbability(toHitNumber) / 100);
+  return Math.round(expectedDamage * 100) / 100;
+}
 
 export function withPerWeaponToHitProjections({
   enabled,
@@ -64,6 +70,10 @@ export function withPerWeaponToHitProjections({
           toHitNumber: projection.toHitNumber,
           toHitModifiers: projection.toHitModifiers,
           toHitReason: projection.toHitReason,
+          expectedDamage: expectedDamageForWeapon(
+            option.damage,
+            projection.toHitNumber,
+          ),
         }
       : option;
   });

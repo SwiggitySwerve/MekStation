@@ -31,6 +31,7 @@ import {
   combatWeaponOptionAvailabilityAttribute,
   combatWeaponOptionBlockedReasonsAttribute,
   combatWeaponOptionEnvironmentStatesAttribute,
+  combatWeaponOptionExpectedDamagesAttribute,
   combatWeaponOptionRangesAttribute,
   combatWeaponOptionToHitModifiersAttribute,
   combatWeaponOptionToHitNumbersAttribute,
@@ -551,6 +552,9 @@ export const HexCell = React.memo(function HexCell({
         combatInfo?.weaponRangeOptions ?? [],
       )}
       data-combat-weapon-option-to-hit-modifiers={combatWeaponOptionToHitModifiersAttribute(
+        combatInfo?.weaponRangeOptions ?? [],
+      )}
+      data-combat-weapon-option-expected-damages={combatWeaponOptionExpectedDamagesAttribute(
         combatInfo?.weaponRangeOptions ?? [],
       )}
       data-combat-target-ids={combatInfo?.targetUnitIds.join(',')}

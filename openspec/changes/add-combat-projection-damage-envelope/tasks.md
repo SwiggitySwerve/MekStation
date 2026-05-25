@@ -12,6 +12,7 @@
 - [x] 2.3 Show damage envelope in combat hover/explanation/aria text
 - [x] 2.4 Refactor weapon command preview expected damage to use combat projection
 - [x] 2.5 Preserve blocked-attack zero damage behavior
+- [x] 2.6 Sum mixed-volley expected damage from per-weapon target numbers instead of the aggregate target number
 
 ## 3. Verification
 
@@ -23,3 +24,4 @@
 - [x] 3.6 `npm.cmd run lint` passes
 - [x] 3.7 `npm.cmd run format:check` passes
 - [x] 3.8 `npx.cmd openspec validate add-combat-projection-damage-envelope --strict` passes
+- [x] 3.9 Mixed medium/extreme volley fixture proves per-weapon expected damage and committed per-weapon target numbers

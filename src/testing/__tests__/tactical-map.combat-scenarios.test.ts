@@ -127,6 +127,8 @@ describe('tactical map combat scenarios', () => {
           weaponId: 'medium-laser',
           rangeBracket: 'medium',
           available: true,
+          toHitNumber: 6,
+          expectedDamage: 3.6,
         },
         {
           weaponId: 'small-laser',
@@ -144,9 +146,16 @@ describe('tactical map combat scenarios', () => {
           weaponId: 'extreme-lrm',
           rangeBracket: 'extreme',
           available: true,
+          toHitNumber: 10,
+          expectedDamage: 0.85,
         },
       ],
     });
+    expect(tacticalMapMediumRangeCombatProjection.toHitNumber).toBe(6);
+    expect(tacticalMapMediumRangeCombatProjection.expectedDamage).toBeCloseTo(
+      4.45,
+      4,
+    );
 
     const result = applyInteractiveSessionAttack(
       tacticalMapMediumRangeCommitInput(),
@@ -172,6 +181,30 @@ describe('tactical map combat scenarios', () => {
     );
     expect(payload.toHitNumber).toBe(
       tacticalMapMediumRangeCombatProjection.toHitNumber,
+    );
+    expect(payload.weaponAttacks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          weaponId: 'medium-laser',
+          toHitNumber: 6,
+          modifiers: expect.arrayContaining([
+            expect.objectContaining({
+              name: 'Range (medium)',
+              value: 2,
+            }),
+          ]),
+        }),
+        expect.objectContaining({
+          weaponId: 'extreme-lrm',
+          toHitNumber: 10,
+          modifiers: expect.arrayContaining([
+            expect.objectContaining({
+              name: 'Range (extreme)',
+              value: 6,
+            }),
+          ]),
+        }),
+      ]),
     );
   });
 

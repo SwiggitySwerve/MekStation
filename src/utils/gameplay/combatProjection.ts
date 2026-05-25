@@ -342,7 +342,8 @@ export function deriveCombatRangeHexes({
     );
     const expectedDamage = attackable
       ? expectedDamageForProjection(
-          availableWeaponDamage,
+          availableWeaponImpacts,
+          weaponRangeOptions,
           toHitProjection?.toHitNumber,
         )
       : undefined;

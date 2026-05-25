@@ -32,6 +32,16 @@ function formatToHitLabel(option: ICombatWeaponRangeOption): string {
   return option.toHitNumber === undefined ? '' : `; TN ${option.toHitNumber}`;
 }
 
+function formatDamageValue(value: number): string {
+  return Number.isInteger(value) ? `${value}` : value.toFixed(1);
+}
+
+function formatExpectedDamageLabel(option: ICombatWeaponRangeOption): string {
+  return option.expectedDamage === undefined
+    ? ''
+    : `; expected ${formatDamageValue(option.expectedDamage)} damage`;
+}
+
 function formatAvailabilityLabel(option: ICombatWeaponRangeOption): string {
   const status = option.available ? 'available' : 'blocked';
   const reason = option.blockedReason ? ` - ${option.blockedReason}` : '';
@@ -43,7 +53,9 @@ function formatWeaponOption(option: ICombatWeaponRangeOption): string {
     option,
   )}${formatEnvironmentLabel(option)}${formatMinimumRangeLabel(
     option,
-  )}${formatToHitLabel(option)}; ${formatAvailabilityLabel(option)}`;
+  )}${formatToHitLabel(option)}${formatExpectedDamageLabel(
+    option,
+  )}; ${formatAvailabilityLabel(option)}`;
 }
 
 export function CombatWeaponOptionRows({

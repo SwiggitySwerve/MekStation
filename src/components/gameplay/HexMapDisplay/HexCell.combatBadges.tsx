@@ -10,6 +10,7 @@ import {
   combatWeaponOptionAvailabilityAttribute,
   combatWeaponOptionBlockedReasonsAttribute,
   combatWeaponOptionEnvironmentStatesAttribute,
+  combatWeaponOptionExpectedDamagesAttribute,
   combatWeaponOptionRangesAttribute,
 } from './HexCell.combatOptionSummaries';
 
@@ -445,6 +446,9 @@ export function CombatRangeBadge({
         combatInfo.weaponRangeOptions,
       )}
       data-combat-badge-weapon-option-blocked-reasons={combatWeaponOptionBlockedReasonsAttribute(
+        combatInfo.weaponRangeOptions,
+      )}
+      data-combat-badge-weapon-option-expected-damages={combatWeaponOptionExpectedDamagesAttribute(
         combatInfo.weaponRangeOptions,
       )}
     >

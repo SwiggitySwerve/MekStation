@@ -945,7 +945,7 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       screen.getByTestId('hex-tactical-tooltip-combat-weapon-options'),
     ).toHaveTextContent(
-      'Weapon options: ac-5: short range, in arc; TN 5; available',
+      'Weapon options: ac-5: short range, in arc; TN 5; expected 4.2 damage; available',
     );
     expect(
       screen.getByTestId('hex-tactical-tooltip-combat-weapon-impact'),

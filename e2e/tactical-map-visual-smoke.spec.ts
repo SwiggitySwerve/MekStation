@@ -280,6 +280,14 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'medium-laser:available|small-laser:blocked|minimum-lrm:blocked|extreme-lrm:available',
     );
     await expect(mediumTargetHex).toHaveAttribute(
+      'data-combat-weapon-option-to-hit-numbers',
+      'medium-laser:6|extreme-lrm:10',
+    );
+    await expect(mediumTargetHex).toHaveAttribute(
+      'data-combat-weapon-option-expected-damages',
+      'medium-laser:3.6|extreme-lrm:0.85',
+    );
+    await expect(mediumTargetHex).toHaveAttribute(
       'data-combat-weapon-option-blocked-reasons',
       'small-laser:out of range|minimum-lrm:out of range',
     );
@@ -305,8 +313,18 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'medium-laser:available|small-laser:blocked|minimum-lrm:blocked|extreme-lrm:available',
     );
     await expect(mediumCombatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-expected-damages',
+      'medium-laser:3.6|extreme-lrm:0.85',
+    );
+    await expect(mediumCombatBadge).toHaveAttribute(
       'data-combat-badge-weapon-option-blocked-reasons',
       'small-laser:out of range|minimum-lrm:out of range',
+    );
+    const mediumImpactBadge = page.getByTestId('hex-combat-impact-badge-1-2');
+    await expect(mediumImpactBadge).toContainText('E4.5');
+    await expect(mediumImpactBadge).toHaveAttribute(
+      'data-combat-impact-badge-expected-damage',
+      '4.45',
     );
     const mediumWeaponCountBadge = page.getByTestId(
       'hex-combat-weapon-count-badge-1-2',
@@ -3547,6 +3565,10 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-combat-weapon-option-to-hit-numbers',
       'mixed-chin-turret-laser:5|left-body-laser:4',
     );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-expected-damages',
+      'mixed-chin-turret-laser:4.15|left-body-laser:4.6',
+    );
 
     const aggregateModifiers = await targetHex.getAttribute(
       'data-combat-to-hit-modifiers',
@@ -3566,10 +3588,10 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await targetHex.hover();
     const weaponOptions = page.getByTestId('hex-combat-tooltip-weapon-options');
     await expect(weaponOptions).toContainText(
-      'mixed-chin-turret-laser: short range, in arc; TN 5; available',
+      'mixed-chin-turret-laser: short range, in arc; TN 5; expected 4.2 damage; available',
     );
     await expect(weaponOptions).toContainText(
-      'left-body-laser: short range, in arc; TN 4; available',
+      'left-body-laser: short range, in arc; TN 4; expected 4.6 damage; available',
     );
   });
 

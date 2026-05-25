@@ -73,6 +73,8 @@ export interface ICombatWeaponRangeOption extends ICombatWeaponImpact {
   readonly toHitModifiers?: readonly IToHitModifier[];
   /** Player-facing to-hit summary for this weapon. */
   readonly toHitReason?: string;
+  /** Hit-probability-weighted damage for this weapon when available. */
+  readonly expectedDamage?: number;
   /** Player-facing reason this weapon is unavailable, when blocked. */
   readonly blockedReason?: string;
 }
@@ -153,7 +155,7 @@ export interface ICombatRangeHex {
   readonly availableWeaponHeat: number;
   /** Aggregate listed damage for available weapons if fired together */
   readonly availableWeaponDamage: number;
-  /** Hit-probability-weighted damage for the projected attack, when known */
+  /** Sum of per-weapon hit-probability-weighted damage for the projected attack, when known */
   readonly expectedDamage?: number;
   /** Enemy unit ids occupying this hex */
   readonly targetUnitIds: readonly string[];

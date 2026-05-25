@@ -10,6 +10,12 @@ function optionEntries(
     .join('|');
 }
 
+function formatNumericAttribute(value: number): string {
+  return Number.isInteger(value)
+    ? `${value}`
+    : value.toFixed(2).replace(/\.?0+$/, '');
+}
+
 export function combatWeaponOptionRangesAttribute(
   options: readonly ICombatWeaponRangeOption[],
 ): string | undefined {
@@ -71,4 +77,17 @@ export function combatWeaponOptionToHitModifiersAttribute(
     ];
   });
   return toHitOptions.length > 0 ? toHitOptions.join('|') : undefined;
+}
+
+export function combatWeaponOptionExpectedDamagesAttribute(
+  options: readonly ICombatWeaponRangeOption[],
+): string | undefined {
+  const expectedDamageOptions = options.flatMap((option) =>
+    option.expectedDamage === undefined
+      ? []
+      : [`${option.weaponId}:${formatNumericAttribute(option.expectedDamage)}`],
+  );
+  return expectedDamageOptions.length > 0
+    ? expectedDamageOptions.join('|')
+    : undefined;
 }
