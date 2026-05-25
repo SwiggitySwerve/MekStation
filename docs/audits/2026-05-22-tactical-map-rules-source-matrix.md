@@ -1439,6 +1439,13 @@ beside the existing source metadata. This does not change legality; it keeps
 tests and accessibility inspection tied to the MegaMek-or-MekStation source
 surface that justifies each highlight.
 
+2026-05-25 movement option rule-reference context pin: Per-mode Walk/Run/Jump
+movement option rows in movement and combined tactical hovers now expose the
+movement-channel source references and MegaMek rule references from the shared
+per-hex tactical projection. This does not change movement legality, MP costs,
+heat, terrain, elevation, or blocked reasons; it makes each individual option
+row inspectable without relying on aggregate hex metadata.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

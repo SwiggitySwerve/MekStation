@@ -1169,6 +1169,18 @@ describe('HexMapDisplay tactical visual layers', () => {
     fireEvent.mouseEnter(hex);
 
     const optionRows = screen.getByTestId('hex-movement-tooltip-mode-options');
+    expect(optionRows).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(optionRows).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'movement',
+    );
+    expect(optionRows).toHaveAttribute(
+      'data-movement-option-rule-refs',
+      expect.stringContaining('movement:megamek:MegaMek MoveStep.java'),
+    );
     expect(optionRows).toHaveAttribute('data-movement-option-count', '3');
     expect(optionRows).toHaveAttribute(
       'data-movement-option-types',
@@ -1185,6 +1197,14 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(optionRows).toHaveAttribute(
       'data-movement-option-heats',
       'walk:0|run:2|jump:1',
+    );
+    expect(
+      screen.getByTestId(
+        'hex-movement-tooltip-mode-options-option-walk-tracked-0',
+      ),
+    ).toHaveAttribute(
+      'data-movement-option-rule-refs',
+      expect.stringContaining('movement:megamek:MegaMek MovePath.java'),
     );
     expect(
       screen.getByTestId(

@@ -192,6 +192,7 @@ export function CombinedTacticalHoverTooltip({
       </div>
       <MovementModeOptionRows
         movementInfo={movementInfo}
+        projection={projection}
         testId="hex-tactical-tooltip-movement-options"
       />
       {movementInfo.terrainCost !== undefined && (

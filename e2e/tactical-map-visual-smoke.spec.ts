@@ -264,9 +264,19 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     const mixedTooltipBlockedOption = page.getByTestId(
       'hex-tactical-tooltip-movement-options-option-jump-jump-2',
     );
+    await expect(
+      page.getByTestId('hex-tactical-tooltip-movement-options'),
+    ).toHaveAttribute(
+      'data-movement-option-rule-refs',
+      /movement:megamek:MegaMek MoveStep\.java:2727-2841 movement MP costs/,
+    );
     await expect(mixedTooltipBlockedOption).toHaveAttribute(
       'data-movement-option-invalid-reason',
       'InsufficientMP',
+    );
+    await expect(mixedTooltipBlockedOption).toHaveAttribute(
+      'data-movement-option-rule-refs',
+      /movement:megamek:MegaMek MovePath\.java:1214-1218 MP-used accounting/,
     );
     await expect(mixedTooltipBlockedOption).toHaveAttribute(
       'data-movement-option-invalid-details',

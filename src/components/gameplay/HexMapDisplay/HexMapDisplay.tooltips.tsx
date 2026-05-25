@@ -206,6 +206,7 @@ function MovementHoverTooltip({
       />
       <MovementModeOptionRows
         movementInfo={movementInfo}
+        projection={projection}
         testId="hex-movement-tooltip-mode-options"
       />
       {movementInfo.terrainCost !== undefined && (
