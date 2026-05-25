@@ -146,6 +146,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **WHEN** event-stream support is contract-tested
 - **THEN** each BattleMech event-stream row SHALL carry anchored MekStation source references to the event factory, runner phase, session helper, reducer, test, or explicit unsupported enum boundary that owns that event contract
 - **AND** broad event-stream triad prose SHALL NOT satisfy event coverage without row-level source references
+- **AND** replayable `FacingChanged` secondary-facing events SHALL be integrated when torso twist is covered through tactical command, game intent, wire intent, P2P translation, server dispatch, session emission, replay, and runner arc-consumption evidence
 
 #### Scenario: Ammo catalog compatibility traps stay explicit
 

@@ -205,7 +205,7 @@ describe('BattleMech combat event support catalog', () => {
     );
   });
 
-  it('documents BattleMech event-stream gaps instead of treating enum visibility as coverage', () => {
+  it('documents remaining BattleMech event-stream gaps instead of treating enum visibility as coverage', () => {
     expect(
       supportIdsByLevel(BATTLEMECH_COMBAT_EVENT_SUPPORT, 'unsupported'),
     ).toEqual(
@@ -213,7 +213,7 @@ describe('BattleMech combat event support catalog', () => {
     );
     expect(
       supportIdsByLevel(BATTLEMECH_COMBAT_EVENT_SUPPORT, 'helper-only'),
-    ).toEqual([GameEventType.FacingChanged]);
+    ).toEqual([]);
   });
 
   it('keeps the combat audit trail discoverable for core must-cover mechanics', () => {
@@ -223,6 +223,7 @@ describe('BattleMech combat event support catalog', () => {
       expect.arrayContaining([
         GameEventType.MovementDeclared,
         GameEventType.MovementEnhancementActivated,
+        GameEventType.FacingChanged,
         GameEventType.AttackDeclared,
         GameEventType.AttackInvalid,
         GameEventType.AttackResolved,

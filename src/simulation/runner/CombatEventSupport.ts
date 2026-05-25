@@ -100,10 +100,9 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
     GameEventType.MovementEnhancementActivated,
     'activateMovementEnhancement emits MovementEnhancementActivated and applyMovementEnhancementActivated records replayable active MASC/Supercharger state before movement is locked',
   ),
-  [GameEventType.FacingChanged]: helperOnly(
+  [GameEventType.FacingChanged]: integrated(
     GameEventType.FacingChanged,
-    'applyFacingChanged replays chassis facing and BattleMech secondary-facing torso twist into combat state',
-    'No tactical command, game intent, wire payload, P2P translation, or server dispatch emits FacingChanged for torso twist yet',
+    'torsoTwist emits replayable FacingChanged secondary-facing events through session, interactive, game intent, wire intent, P2P, and server dispatch paths while replay and runner arc math consume the same state',
   ),
   [GameEventType.AttackDeclared]: integrated(
     GameEventType.AttackDeclared,

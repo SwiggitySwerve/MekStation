@@ -342,3 +342,4 @@
 - [x] 4.3.101 Cross-check requirement crosswalk support-map references before promoting `objectiveRequirements` to derived row-level source references.
 - [x] 4.3.102 Enforce row-level source references for every indexed combat-validation support row, including product-boundary and unsupported-gap rows.
 - [x] 4.3.103 Add aggregate unresolved-row inventory checks so helper-only and unsupported rows stay visible as completion blockers.
+- [x] 4.3.104 Promote `FacingChanged` event-stream support after cross-checking torso-twist command, game-intent, wire, P2P, server dispatch, session emission, replay, and runner arc-consumption coverage.
