@@ -4,6 +4,7 @@ import {
   GameEventType,
   GamePhase,
   IGameEvent,
+  IMovementCapability,
   ReplaySource,
 } from '@/types/gameplay';
 import { GameSide } from '@/types/gameplay';
@@ -50,7 +51,10 @@ import {
 import { createMinimalGrid } from './SimulationRunnerSupport';
 import { appendRunnerGameEndedEvent } from './SimulationRunnerTerminalEvent';
 import { IDetectorConfig, ISimulationRunResult } from './types';
-import { hydrateCriticalSlotManifestFromFullUnit } from './UnitHydration';
+import {
+  hydrateCriticalSlotManifestFromFullUnit,
+  hydrateMovementCapabilityFromFullUnit,
+} from './UnitHydration';
 
 /**
  * Default AI player factory — constructs a `BotPlayer` with the supplied
@@ -70,6 +74,10 @@ export class SimulationRunner {
   private readonly criticalSlotManifestSeedsByUnit: ReadonlyMap<
     string,
     CriticalSlotManifest
+  >;
+  private readonly movementCapabilitiesByUnit: ReadonlyMap<
+    string,
+    IMovementCapability
   >;
   private readonly keyMomentDetector = createKeyMomentDetector();
   private readonly anomalyDetectors: IAnomalyDetectors =
@@ -133,6 +141,7 @@ export class SimulationRunner {
     this.hydration = hydration;
     const weaponsMap = new Map<string, readonly IWeapon[]>();
     const manifestSeedMap = new Map<string, CriticalSlotManifest>();
+    const movementCapabilityMap = new Map<string, IMovementCapability>();
     if (hydration) {
       // forEach avoids relying on Map iterator protocol — tsconfig target
       // is ES5 and downlevelIteration is off, so `for..of` over a Map
@@ -146,10 +155,17 @@ export class SimulationRunner {
         if (manifest !== undefined) {
           manifestSeedMap.set(unitId, manifest);
         }
+        const movementCapability = hydrateMovementCapabilityFromFullUnit(
+          data.fullUnit,
+        );
+        if (movementCapability !== undefined) {
+          movementCapabilityMap.set(unitId, movementCapability);
+        }
       });
     }
     this.weaponsByUnit = weaponsMap;
     this.criticalSlotManifestSeedsByUnit = manifestSeedMap;
+    this.movementCapabilitiesByUnit = movementCapabilityMap;
   }
 
   private createCriticalSlotManifestRunMap():
@@ -290,6 +306,7 @@ export class SimulationRunner {
         gameId,
         grid,
         random: this.random,
+        movementCapabilitiesByUnit: this.movementCapabilitiesByUnit,
       });
 
       currentState = runPSRPhase({

@@ -49,6 +49,7 @@ import {
   hydrateHasSuperchargerFromFullUnit,
   hydrateHasTSMFromFullUnit,
   hydrateHeatSinksFromFullUnit,
+  hydrateMovementCapabilityFromFullUnit,
   hydratePartialWingJumpBonusFromFullUnit,
   hydrateClawStateFromFullUnit,
   hydrateStructureFromFullUnit,
@@ -87,6 +88,31 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     // assertion as long as the variant value is "AS7-D".
     expect(fullUnit.model ?? fullUnit.variant).toBe('AS7-D');
     expect(fullUnit.tonnage).toBe(ATLAS_TONNAGE);
+  });
+
+  it('hydrates BattleMech movement capability from canonical walk and jump MP', async () => {
+    const service = getNodeCanonicalUnitService();
+    const fullUnit = await service.getById('atlas-as7-d');
+    expect(fullUnit).not.toBeNull();
+    if (!fullUnit) return;
+
+    expect(hydrateMovementCapabilityFromFullUnit(fullUnit)).toEqual({
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+    });
+
+    expect(
+      hydrateMovementCapabilityFromFullUnit({
+        ...fullUnit,
+        id: 'jump-capability-test',
+        movement: { walk: 5, jump: 3 },
+      }),
+    ).toEqual({
+      walkMP: 5,
+      runMP: 8,
+      jumpMP: 3,
+    });
   });
 
   it('hydrates Atlas weapons: 4× ML + AC/20 + LRM-20 + SRM-6 (7 mounts total)', async () => {

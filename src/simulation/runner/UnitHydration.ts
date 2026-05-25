@@ -39,6 +39,7 @@ import {
   Facing,
   GameSide,
   IAmmoSlotState,
+  IMovementCapability,
   IUnitGameState,
   IHexCoordinate,
   LockState,
@@ -267,6 +268,56 @@ export function hydrateHasSuperchargerFromFullUnit(
       isSuperchargerSignal(signal.id),
     )
   );
+}
+
+function normalizeMovementMP(value: unknown): number | undefined {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return undefined;
+  }
+
+  return Math.max(0, Math.floor(value));
+}
+
+/**
+ * Hydrate the runner's movement capability from canonical BattleMech catalog
+ * movement data. The bundled unit JSON uses `movement.walk` / `movement.jump`;
+ * the extra aliases keep custom-unit payloads and older adapters on the same
+ * source-backed path when they already expose normalized MP fields.
+ */
+export function hydrateMovementCapabilityFromFullUnit(
+  fullUnit: IFullUnit,
+): IMovementCapability | undefined {
+  const movement = (
+    fullUnit as {
+      movement?: {
+        walk?: unknown;
+        walkMP?: unknown;
+        cruiseMP?: unknown;
+        run?: unknown;
+        runMP?: unknown;
+        flankMP?: unknown;
+        jump?: unknown;
+        jumpMP?: unknown;
+      };
+    }
+  ).movement;
+  if (!movement) return undefined;
+
+  const walkMP = normalizeMovementMP(
+    movement.walk ?? movement.walkMP ?? movement.cruiseMP,
+  );
+  if (walkMP === undefined) return undefined;
+
+  const jumpMP = normalizeMovementMP(movement.jump ?? movement.jumpMP) ?? 0;
+  const explicitRunMP = normalizeMovementMP(
+    movement.run ?? movement.runMP ?? movement.flankMP,
+  );
+
+  return {
+    walkMP,
+    runMP: explicitRunMP ?? Math.ceil(walkMP * 1.5),
+    jumpMP,
+  };
 }
 
 function isBattleMechPartialWingHost(fullUnit: IFullUnit): boolean {

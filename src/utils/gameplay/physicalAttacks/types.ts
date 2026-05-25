@@ -530,6 +530,9 @@ export interface IChooseBestPhysicalAttackOptions {
   attackerBoardId?: string;
   targetBoardId?: string;
   elevationDifference?: number;
+  targetIsAirborne?: boolean;
+  targetIsAirborneVTOLorWIGE?: boolean;
+  attackerJumpMP?: number;
   targetIsMakingDisplacementAttack?: boolean;
   targetIsPushing?: boolean;
   targetDisplacementAttackTargetId?: string;

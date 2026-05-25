@@ -308,6 +308,7 @@ function runPhase(
     attacker?: Partial<IUnitGameState>;
     target?: Partial<IUnitGameState>;
     grid?: IHexGrid;
+    movementCapabilitiesByUnit?: ReadonlyMap<string, IMovementCapability>;
   } = {},
 ): {
   initialState: IGameState;
@@ -340,6 +341,7 @@ function runPhase(
     events,
     gameId: state.gameId,
     grid: options.grid,
+    movementCapabilitiesByUnit: options.movementCapabilitiesByUnit,
     random: new SeededRandom(11),
   });
 
@@ -350,6 +352,8 @@ function runAutomaticPhase(
   options: {
     attacker?: Partial<IUnitGameState>;
     target?: Partial<IUnitGameState>;
+    grid?: IHexGrid;
+    movementCapabilitiesByUnit?: ReadonlyMap<string, IMovementCapability>;
   } = {},
 ): {
   initialState: IGameState;
@@ -380,6 +384,8 @@ function runAutomaticPhase(
     violations,
     events,
     gameId: state.gameId,
+    grid: options.grid,
+    movementCapabilitiesByUnit: options.movementCapabilitiesByUnit,
     random: new SeededRandom(11),
   });
 
@@ -629,6 +635,52 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
     expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 0 });
     expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
+  });
+
+  it('hydrates runner jump MP for DFA reach against airborne VTOL targets', () => {
+    const reachable = runPhase('dfa', {
+      attacker: {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 4,
+        piloting: 0,
+      },
+      target: { isAirborne: true, unitType: UnitType.VTOL },
+      grid: createPhysicalGrid({ targetElevation: 5 }),
+      movementCapabilitiesByUnit: new Map([
+        ['player-1', { walkMP: 4, runMP: 6, jumpMP: 4 }],
+      ]),
+    });
+    const reachablePayload = resolvedPayload(reachable.events);
+
+    expect(reachablePayload.attackType).toBe('dfa');
+    expect(Number.isFinite(reachablePayload.toHitNumber)).toBe(true);
+    expect(reachablePayload.location).not.toBe('TargetAirborne');
+    expect(reachablePayload.location).not.toBe('ElevationMismatch');
+
+    const unreachable = runPhase('dfa', {
+      attacker: {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 4,
+      },
+      target: { isAirborne: true, unitType: UnitType.VTOL },
+      grid: createPhysicalGrid({ targetElevation: 5 }),
+      movementCapabilitiesByUnit: new Map([
+        ['player-1', { walkMP: 4, runMP: 6, jumpMP: 3 }],
+      ]),
+    });
+
+    expect(resolvedPayload(unreachable.events)).toMatchObject({
+      attackType: 'dfa',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'ElevationMismatch',
+    });
+    expect(damageEventsFor(unreachable.events, 'opponent-1')).toHaveLength(0);
+    expect(damageEventsFor(unreachable.events, 'player-1')).toHaveLength(0);
+    expect(unreachable.result.units['opponent-1'].pendingPSRs).toHaveLength(0);
+    expect(unreachable.result.units['player-1'].pendingPSRs).toHaveLength(0);
   });
 
   it('rejects injected physical declarations by evading attackers before side effects', () => {
@@ -1682,6 +1734,29 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       targetId: 'opponent-1',
       attackType: 'dfa',
     });
+  });
+
+  it('does not automatically select DFA when hydrated jump MP cannot reach an airborne VTOL target', () => {
+    const { events } = runAutomaticPhase({
+      attacker: {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 4,
+      },
+      target: { isAirborne: true, unitType: UnitType.VTOL },
+      grid: createPhysicalGrid({ targetElevation: 5 }),
+      movementCapabilitiesByUnit: new Map([
+        ['player-1', { walkMP: 4, runMP: 6, jumpMP: 3 }],
+      ]),
+    });
+
+    expect(
+      events.filter(
+        (event) =>
+          event.actorId === 'player-1' &&
+          (event.type === GameEventType.PhysicalAttackDeclared ||
+            event.type === GameEventType.PhysicalAttackResolved),
+      ),
+    ).toEqual([]);
   });
 
   it('does not automatically select death from above after mechanical jump booster movement', () => {

@@ -4,6 +4,7 @@ import {
   IGameEvent,
   IGameState,
   IHexGrid,
+  IMovementCapability,
   MovementType,
   PSRTrigger,
 } from '@/types/gameplay';
@@ -11,10 +12,15 @@ import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
 import { firedWeaponIdsFromMountedArm } from '@/utils/gameplay/gameSessionPhysicalHelpers';
 import { hexDistance } from '@/utils/gameplay/hexMath';
 import {
+  applyJumpJetCriticalDamage,
+  applyPartialWingJumpBonus,
+} from '@/utils/gameplay/movement/calculations';
+import {
   chooseBestPhysicalAttack,
   computePushDisplacement,
   BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
   IPhysicalAttackInput,
+  isPhysicalAirborneVtolOrWigeTarget,
   isTargetDirectlyAhead,
   isValidDisplacement,
   physicalTargetObjectTypeForUnitType,
@@ -192,6 +198,7 @@ export function runPhysicalAttackPhase(options: {
   gameId: string;
   random: SeededRandom;
   grid?: IHexGrid;
+  movementCapabilitiesByUnit?: ReadonlyMap<string, IMovementCapability>;
 }): IGameState {
   const {
     botPlayer,
@@ -199,6 +206,7 @@ export function runPhysicalAttackPhase(options: {
     gameId,
     grid,
     invariantRunner,
+    movementCapabilitiesByUnit,
     random,
     state,
     violations,
@@ -244,6 +252,22 @@ export function runPhysicalAttackPhase(options: {
     const hexesMoved = unit.hexesMovedThisTurn ?? 0;
     const attackerRanThisTurn = unit.movementThisTurn === MovementType.Run;
     const attackerJumpedThisTurn = unit.movementThisTurn === MovementType.Jump;
+    const baseMovementCapability = movementCapabilitiesByUnit?.get(unit.id);
+    const jumpDamageCapability =
+      baseMovementCapability === undefined
+        ? undefined
+        : applyJumpJetCriticalDamage(
+            baseMovementCapability,
+            unit.componentDamage?.jumpJetsDestroyed,
+          );
+    const physicalMovementCapability =
+      jumpDamageCapability === undefined
+        ? undefined
+        : applyPartialWingJumpBonus(
+            jumpDamageCapability,
+            unit.partialWingJumpBonus,
+          );
+    const attackerJumpMP = physicalMovementCapability?.jumpMP;
     let bestAttack: PhysicalAttackType | null = null;
     let target = enemies[0];
 
@@ -269,6 +293,10 @@ export function runPhysicalAttackPhase(options: {
         physicalGrid,
         unit,
         target,
+      );
+      const targetIsAirborneVTOLorWIGE = isPhysicalAirborneVtolOrWigeTarget(
+        target.unitType,
+        target.isAirborne,
       );
       bestAttack = chooseBestPhysicalAttack(
         DEFAULT_TONNAGE,
@@ -306,6 +334,9 @@ export function runPhysicalAttackPhase(options: {
           targetedByDisplacementAttackerId:
             target.targetedByDisplacementAttackerId,
           elevationDifference,
+          targetIsAirborne: target.isAirborne,
+          targetIsAirborneVTOLorWIGE,
+          attackerJumpMP,
         },
       );
     }
@@ -331,6 +362,10 @@ export function runPhysicalAttackPhase(options: {
       physicalGrid,
       unit,
       target,
+    );
+    const targetIsAirborneVTOLorWIGE = isPhysicalAirborneVtolOrWigeTarget(
+      target.unitType,
+      target.isAirborne,
     );
     const pushDestinationValid =
       bestAttack !== 'push' || !physicalGrid
@@ -400,6 +435,8 @@ export function runPhysicalAttackPhase(options: {
       targetDisplacementAttackTargetId: target.displacementAttackTargetId,
       targetedByDisplacementAttackerId: target.targetedByDisplacementAttackerId,
       targetIsAirborne: target.isAirborne,
+      targetIsAirborneVTOLorWIGE,
+      attackerJumpMP,
       attackerOccupiedBuildingId: unit.occupiedBuildingId,
       targetOccupiedBuildingId: target.occupiedBuildingId,
       targetIsSelf: unit.id === target.id,

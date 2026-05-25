@@ -626,8 +626,8 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
   'dfa.vtol-elevation-reachable': helperOnly(
     'dfa.vtol-elevation-reachable',
     'dfa',
-    'canDFA distinguishes targetIsAirborneVTOLorWIGE from generic airborne targets and rejects unreachable VTOL/WIGE targets when target elevation above attacker height exceeds attackerJumpMP; eligibility and event-sourced declaration/resolution hydrate explicit airborne VTOL targets when attacker jump MP and elevation context are present',
-    'Runner physical resolution still lacks attacker jump-MP capability hydration, and WIGE motion type is not carried in unit combat state',
+    'canDFA distinguishes targetIsAirborneVTOLorWIGE from generic airborne targets and rejects unreachable VTOL/WIGE targets when target elevation above attacker height exceeds attackerJumpMP; eligibility, event-sourced declaration/resolution, runner resolution, and automatic runner selection hydrate explicit airborne VTOL targets when attacker jump MP and elevation context are present',
+    'WIGE motion type is not carried in unit combat state, so WIGE-specific DFA reach remains helper-only until represented',
     DFA_ACTION_LINES,
   ),
   'dfa.target-moved-or-immobile': integrated(
