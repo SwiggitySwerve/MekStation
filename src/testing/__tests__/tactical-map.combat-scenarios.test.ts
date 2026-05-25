@@ -45,6 +45,10 @@ import {
   tacticalMapImmobileCombatProjection,
 } from '../tactical-map.immobile-combat-scenario';
 import {
+  tacticalMapIndirectFireCombatProjection,
+  tacticalMapIndirectFireCommitInput,
+} from '../tactical-map.indirect-fire-scenario';
+import {
   tacticalMapJumpCombatCommitInput,
   tacticalMapJumpCombatProjection,
   tacticalMapMovementCombatCommitInput,
@@ -188,6 +192,77 @@ describe('tactical map combat scenarios', () => {
           name: 'C3 Network',
           value: 0,
           source: 'equipment',
+        }),
+      ]),
+    );
+  });
+
+  it('keeps LOS-spotter indirect fire aligned between browser projection and committed attack', () => {
+    expect(tacticalMapIndirectFireCombatProjection).toMatchObject({
+      hex: { q: 3, r: 0 },
+      distance: 3,
+      losState: 'blocked',
+      rangeBracket: 'medium',
+      attackable: true,
+      weaponIdsAvailable: ['minimum-lrm'],
+      indirectFireAvailable: true,
+      indirectFireSpotterId: 'indirect-spotter',
+      indirectFireBasis: 'los',
+      indirectFireToHitPenalty: 1,
+      indirectFireReason: 'Indirect fire via spotter indirect-spotter (+1)',
+    });
+    expect(tacticalMapIndirectFireCombatProjection.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Indirect fire',
+          value: 1,
+          source: 'other',
+        }),
+      ]),
+    );
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapIndirectFireCommitInput(),
+    );
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.weapons).toEqual(
+      tacticalMapIndirectFireCombatProjection.weaponIdsAvailable,
+    );
+    expect(payload.range).toBe(
+      tacticalMapIndirectFireCombatProjection.rangeBracket,
+    );
+    expect(payload.toHitNumber).toBe(
+      tacticalMapIndirectFireCombatProjection.toHitNumber,
+    );
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Indirect fire',
+          value: 1,
+          source: 'other',
+        }),
+      ]),
+    );
+    expect(result.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: GameEventType.IndirectFireSpotterSelected,
+          payload: expect.objectContaining({
+            attackerId: 'attacker',
+            targetHex: { q: 3, r: 0 },
+            weaponId: 'minimum-lrm',
+            spotterId: 'indirect-spotter',
+            basis: 'los',
+            toHitPenalty: 1,
+          }),
         }),
       ]),
     );

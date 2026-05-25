@@ -68,6 +68,9 @@ the top-down map.
 - **AND** a combat target whose represented C3 spotter improves the effective
   range SHALL expose the improved range band, spotter id, spotter range,
   to-hit metadata, and C3 accessible context
+- **AND** a LOS-blocked LRM target with a represented friendly spotter SHALL
+  remain attackable and expose indirect-fire basis, spotter id, penalty,
+  to-hit metadata, and non-color indirect-fire badge context
 - **AND** a combat target outside the selected weapon's firing arc SHALL expose
   `OutOfArc` rejection metadata, per-weapon arc blocker details, and a combat
   invalid badge that does not rely on color alone

@@ -128,6 +128,9 @@
   renders as rough terrain with the shared movement terrain surcharge.
 - [x] 2.50 Add browser coverage proving C3 spotter range benefit renders the
   improved effective range and C3 context metadata.
+- [x] 2.51 Add browser coverage proving LOS-spotter indirect fire keeps a
+  blocked LRM target attackable with indirect basis, spotter, and penalty
+  metadata.
 
 ## 3. Validation
 
@@ -234,3 +237,5 @@
   movement-cost badge labeling.
 - [x] 3.50 Focused Jest parity and Playwright smoke pass for C3 range-benefit
   projection, committed attack range, and browser accessible metadata.
+- [x] 3.51 Focused Jest parity and Playwright smoke pass for LOS-spotter
+  indirect-fire projection, committed attack event, and browser badge metadata.

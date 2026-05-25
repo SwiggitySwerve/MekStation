@@ -42,6 +42,13 @@ browser metadata, accessible context, and committed `AttackDeclared` event all
 agree on the C3-improved short bracket, spotter id, spotter range, to-hit
 number, and zero-value C3 equipment modifier.
 
+2026-05-25 indirect-fire browser pin: the tactical-map harness now has a
+represented LRM target whose direct attacker LOS is blocked by cumulative woods
+while a friendly spotter has clean LOS. The shared projection, browser metadata,
+indirect-fire badge, accessible context, and committed indirect-fire events all
+agree that the target remains attackable through LOS-spotter indirect fire with
+basis `los`, spotter id, +1 indirect penalty, and matching to-hit metadata.
+
 2026-05-24 isometric browser update: the tactical-map browser harness now places
 opposing tall elevation stacks around an active target and verifies that camera
 rotation moves the active occluder metadata and highlight to the stack that is

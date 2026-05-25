@@ -35,23 +35,9 @@ import {
   tacticalMapHoverWaterTokens,
 } from '@/testing/tactical-map.hover-water-scenario';
 import * as immobileCombat from '@/testing/tactical-map.immobile-combat-scenario';
+import * as indirectFire from '@/testing/tactical-map.indirect-fire-scenario';
 import * as movementCombat from '@/testing/tactical-map.movement-combat-scenario';
-import {
-  tacticalMapBipedOptionMovementRange,
-  tacticalMapBipedOptionMpLegend,
-  tacticalMapBipedOptionSelectedHex,
-  tacticalMapBipedOptionTokens,
-  tacticalMapJumpElevationMovementRange,
-  tacticalMapJumpElevationMpLegend,
-  tacticalMapRuntimeHeightBridgeHexTerrain,
-  tacticalMapRuntimeHeightMovementRange,
-  tacticalMapRuntimeHeightMpLegend,
-  tacticalMapRuntimeHeightSelectedHex,
-  tacticalMapRuntimeHeightTokens,
-  tacticalMapVtolElevationMovementRange,
-  tacticalMapVtolElevationMpLegend,
-  tacticalMapVtolTokens,
-} from '@/testing/tactical-map.movement-scenarios';
+import * as movement from '@/testing/tactical-map.movement-scenarios';
 import {
   tacticalMapNavalLandfallHexTerrain,
   tacticalMapNavalLandfallMovementRange,
@@ -96,6 +82,7 @@ const combatOnlyScenarios = new Set([
   'aerospace-velocity-projection',
   'airborne-aerospace-minimum-range',
   'c3-range-benefit',
+  'indirect-fire-spotter',
   'target-terrain-modifier',
   'mixed-visibility-targets',
   'fog-los-terrain-blocked',
@@ -130,6 +117,8 @@ const selectedWeaponIdsByScenario = {
   'airborne-aerospace-minimum-range':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitSelectedWeaponIds,
+  'indirect-fire-spotter':
+    indirectFire.tacticalMapIndirectFireSelectedWeaponIds,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierSelectedWeaponIds,
   'mixed-visibility-targets':
@@ -159,6 +148,7 @@ const targetUnitIdByScenario = {
   'airborne-aerospace-minimum-range':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeTargetId,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitTargetId,
+  'indirect-fire-spotter': indirectFire.tacticalMapIndirectFireTargetId,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierTargetId,
   'mixed-visibility-targets': null,
@@ -179,13 +169,14 @@ const targetUnitIdByScenario = {
 
 const tokensByScenario = {
   'battlefield-wreck-rough-terrain': wreck.tacticalMapBattlefieldWreckTokens,
-  'vtol-elevation-cost': tacticalMapVtolTokens,
-  'biped-option-projection': tacticalMapBipedOptionTokens,
+  'vtol-elevation-cost': movement.tacticalMapVtolTokens,
+  'biped-option-projection': movement.tacticalMapBipedOptionTokens,
   'mounted-ba-passenger': battleArmor.tacticalMapMountedBattleArmorTokens,
   'aerospace-velocity-projection': aerospace.tacticalMapAerospaceTokens,
   'airborne-aerospace-minimum-range':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeTokens,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitTokens,
+  'indirect-fire-spotter': indirectFire.tacticalMapIndirectFireTokens,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierTokens,
   'mixed-visibility-targets': visibility.tacticalMapMixedVisibilityTokens,
@@ -201,7 +192,7 @@ const tokensByScenario = {
   'walk-combat-modifier': movementCombat.tacticalMapWalkCombatTokens,
   'movement-combat-modifier': movementCombat.tacticalMapMovementCombatTokens,
   'jump-combat-modifier': movementCombat.tacticalMapJumpCombatTokens,
-  'runtime-height-bridge-clearance': tacticalMapRuntimeHeightTokens,
+  'runtime-height-bridge-clearance': movement.tacticalMapRuntimeHeightTokens,
   'run-water-walk-fallback': tacticalMapRunWaterFallbackTokens,
   'tracked-elevation-blocked': tacticalMapTrackedElevationTokens,
   'hover-water-crossing': tacticalMapHoverWaterTokens,
@@ -218,6 +209,7 @@ const combatStateByScenario = {
   'airborne-aerospace-minimum-range':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeCombatState,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitCombatState,
+  'indirect-fire-spotter': indirectFire.tacticalMapIndirectFireCombatState,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierCombatState,
   'mixed-visibility-targets': visibility.tacticalMapMixedVisibilityCombatState,
@@ -239,10 +231,11 @@ const combatStateByScenario = {
 const movementRangeByScenario = {
   'battlefield-wreck-rough-terrain':
     wreck.tacticalMapBattlefieldWreckMovementRange,
-  'jump-elevation-cost': tacticalMapJumpElevationMovementRange,
-  'vtol-elevation-cost': tacticalMapVtolElevationMovementRange,
-  'biped-option-projection': tacticalMapBipedOptionMovementRange,
-  'runtime-height-bridge-clearance': tacticalMapRuntimeHeightMovementRange,
+  'jump-elevation-cost': movement.tacticalMapJumpElevationMovementRange,
+  'vtol-elevation-cost': movement.tacticalMapVtolElevationMovementRange,
+  'biped-option-projection': movement.tacticalMapBipedOptionMovementRange,
+  'runtime-height-bridge-clearance':
+    movement.tacticalMapRuntimeHeightMovementRange,
   'run-water-walk-fallback': tacticalMapRunWaterFallbackMovementRange,
   'tracked-elevation-blocked': tacticalMapTrackedElevationMovementRange,
   'hover-water-crossing': tacticalMapHoverWaterMovementRange,
@@ -255,10 +248,10 @@ const movementRangeByScenario = {
 
 const mpLegendByScenario = {
   'battlefield-wreck-rough-terrain': wreck.tacticalMapBattlefieldWreckMpLegend,
-  'jump-elevation-cost': tacticalMapJumpElevationMpLegend,
-  'vtol-elevation-cost': tacticalMapVtolElevationMpLegend,
-  'biped-option-projection': tacticalMapBipedOptionMpLegend,
-  'runtime-height-bridge-clearance': tacticalMapRuntimeHeightMpLegend,
+  'jump-elevation-cost': movement.tacticalMapJumpElevationMpLegend,
+  'vtol-elevation-cost': movement.tacticalMapVtolElevationMpLegend,
+  'biped-option-projection': movement.tacticalMapBipedOptionMpLegend,
+  'runtime-height-bridge-clearance': movement.tacticalMapRuntimeHeightMpLegend,
   'run-water-walk-fallback': tacticalMapRunWaterFallbackMpLegend,
   'tracked-elevation-blocked': tacticalMapTrackedElevationMpLegend,
   'hover-water-crossing': tacticalMapHoverWaterMpLegend,
@@ -272,8 +265,10 @@ const mpLegendByScenario = {
 const selectedHexByScenario = {
   'battlefield-wreck-rough-terrain':
     wreck.tacticalMapBattlefieldWreckSelectedHex,
-  'biped-option-projection': tacticalMapBipedOptionSelectedHex,
-  'runtime-height-bridge-clearance': tacticalMapRuntimeHeightSelectedHex,
+  'biped-option-projection': movement.tacticalMapBipedOptionSelectedHex,
+  'runtime-height-bridge-clearance':
+    movement.tacticalMapRuntimeHeightSelectedHex,
+  'indirect-fire-spotter': { q: 0, r: 0 },
   'run-water-walk-fallback': tacticalMapRunWaterFallbackSelectedHex,
   'tracked-elevation-blocked': tacticalMapTrackedElevationSelectedHex,
   'hover-water-crossing': tacticalMapHoverWaterSelectedHex,
@@ -301,7 +296,9 @@ const selectedHexByScenario = {
 const hexTerrainByScenario = {
   'battlefield-wreck-rough-terrain':
     wreck.tacticalMapBattlefieldWreckHexTerrain,
-  'runtime-height-bridge-clearance': tacticalMapRuntimeHeightBridgeHexTerrain,
+  'runtime-height-bridge-clearance':
+    movement.tacticalMapRuntimeHeightBridgeHexTerrain,
+  'indirect-fire-spotter': indirectFire.tacticalMapIndirectFireHexTerrain,
   'run-water-walk-fallback': tacticalMapRunWaterFallbackHexTerrain,
   'tracked-elevation-blocked': tacticalMapTrackedElevationHexTerrain,
   'hover-water-crossing': tacticalMapHoverWaterHexTerrain,
