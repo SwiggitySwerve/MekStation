@@ -6,6 +6,7 @@ import * as arcScenarios from '@/testing/tactical-map.arc-scenarios';
 import * as battleArmor from '@/testing/tactical-map.battle-armor-scenarios';
 import * as wreck from '@/testing/tactical-map.battlefield-wreck-scenario';
 import * as c3 from '@/testing/tactical-map.c3-scenario';
+import * as cappedStack from '@/testing/tactical-map.capped-isometric-stack-scenario';
 import * as combatScenarios from '@/testing/tactical-map.combat-scenarios';
 import { tacticalMapUnitWeaponsForE2EScenario } from '@/testing/tactical-map.e2e-unit-weapons';
 import * as elevationLos from '@/testing/tactical-map.elevation-los-scenario';
@@ -307,6 +308,8 @@ const hexTerrainByScenario = {
   'frogman-deep-water': frogman.tacticalMapFrogmanHexTerrain,
   'prone-stand-up': standUp.tacticalMapStandUpHexTerrain,
   'impossible-stand-up': standUp.tacticalMapStandUpHexTerrain,
+  'capped-isometric-stack':
+    cappedStack.tacticalMapCappedIsometricStackHexTerrain,
 } satisfies Record<string, typeof tacticalMapHexTerrain>;
 
 function scenarioValue<T>(

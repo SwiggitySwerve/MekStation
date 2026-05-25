@@ -1,5 +1,26 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 import sharp from 'sharp';
+
+async function switchToIsometric(
+  page: Page,
+  projectionLayer: Locator,
+): Promise<void> {
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    if (
+      (await projectionLayer.getAttribute('data-projection-mode')) ===
+      'isometric2d'
+    ) {
+      return;
+    }
+    await page.getByTestId('projection-toggle').click();
+    await page.waitForTimeout(100);
+  }
+
+  await expect(projectionLayer).toHaveAttribute(
+    'data-projection-mode',
+    'isometric2d',
+  );
+}
 
 async function expectNonBlankRender(page: Page, label: string): Promise<void> {
   let lastMetrics:
@@ -682,6 +703,63 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(
       page.getByTestId('hex-isometric-occluder-highlight-1-0'),
     ).toHaveAttribute('data-isometric-occludes-units', 'occluded');
+  });
+
+  test('shows true height for capped isometric elevation stacks in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=capped-isometric-stack');
+
+    const projectionLayer = page.getByTestId('map-projection-layer');
+    await expect(projectionLayer).toHaveAttribute(
+      'data-projection-mode',
+      'topDown',
+    );
+    await expect(page.getByTestId('hex-elevation-label-1-0')).toContainText(
+      '+4',
+    );
+    await expect(page.getByTestId('hex-terrain-label-1-0')).toHaveAttribute(
+      'data-terrain-feature-levels',
+      'building:8',
+    );
+    await expect(page.getByTestId('hex-elevation-stack-1-0')).toHaveCount(0);
+
+    await switchToIsometric(page, projectionLayer);
+
+    const hex = page.getByTestId('hex-1-0');
+    const stack = page.getByTestId('hex-elevation-stack-1-0');
+    const cap = page.getByTestId('hex-elevation-stack-cap-1-0');
+
+    await expect(projectionLayer).toHaveAttribute(
+      'data-projection-mode',
+      'isometric2d',
+    );
+    await expect(hex).toHaveAttribute('data-elevation-effective-height', '12');
+    await expect(hex).toHaveAttribute('data-elevation-rendered-layers', '8');
+    await expect(hex).toHaveAttribute('data-elevation-stack-capped', 'true');
+    await expect(hex).toHaveAttribute('data-elevation-stack-overflow', '4');
+
+    await expect(stack).toBeVisible();
+    await expect(stack).toHaveAttribute(
+      'data-elevation-effective-height',
+      '12',
+    );
+    await expect(stack).toHaveAttribute('data-elevation-rendered-layers', '8');
+    await expect(stack).toHaveAttribute('data-elevation-stack-overflow', '4');
+    await expect(
+      page.getByTestId('hex-elevation-stack-layer-1-0-8'),
+    ).toBeVisible();
+    await expect(
+      page.getByTestId('hex-elevation-stack-layer-1-0-9'),
+    ).toHaveCount(0);
+
+    await expect(cap).toBeVisible();
+    await expect(cap).toHaveAttribute('data-elevation-effective-height', '12');
+    await expect(cap).toHaveAttribute('data-elevation-rendered-layers', '8');
+    await expect(cap).toHaveAttribute('data-elevation-stack-overflow', '4');
+    await expect(cap).toContainText('+12');
+
+    await expectNonBlankRender(page, 'capped isometric elevation stack');
   });
 
   test('shows elevation LOS blockers as attack rejection evidence in browser', async ({

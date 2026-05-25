@@ -1014,7 +1014,10 @@ keeps the readable 8-layer render cap while exposing true effective height,
 rendered layer count, cap state, overflow level count, and a visible cap badge
 so a level-4 hex with an 8-level building is understandable as effective height
 +12 rather than only the eight drawn layers. No movement, combat, LOS,
-occlusion, or depth legality is derived from the rendered layer count.
+occlusion, or depth legality is derived from the rendered layer count. The
+browser harness now includes `scenario=capped-isometric-stack` to prove the
+top-down elevation/building label, isometric true-height metadata, capped stack
+badge, and nonblank rendered pixels together.
 
 ## Acceptance Gate
 
