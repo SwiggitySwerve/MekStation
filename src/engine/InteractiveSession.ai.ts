@@ -209,6 +209,8 @@ export function runInteractiveSessionAITurn(
               pilotingSkill: context.pilotingByUnit.get(unitId) ?? 5,
               hexesMoved: unit.hexesMovedThisTurn,
               attackerUnitType: attackerBinding?.unitType,
+              attackerMovementMode: attackerBinding?.movementMode,
+              optionalRules: session.config.optionalRules,
               targetUnitType: targetBinding?.unitType,
               elevationContext: targetState
                 ? buildPhysicalElevationContext(unit, targetState, context.grid)

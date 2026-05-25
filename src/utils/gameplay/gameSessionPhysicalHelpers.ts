@@ -62,6 +62,8 @@ export interface IPhysicalAttackContext {
   readonly attackerJumpedThisTurn?: boolean;
   readonly attackerRanThisTurn?: boolean;
   readonly attackerUnitType?: IPhysicalAttackInput['attackerUnitType'];
+  readonly attackerMovementMode?: IPhysicalAttackInput['attackerMovementMode'];
+  readonly optionalRules?: IPhysicalAttackInput['optionalRules'];
   readonly targetUnitType?: IPhysicalAttackInput['targetUnitType'];
   readonly targetProne?: boolean;
   readonly targetIsAirborne?: boolean;

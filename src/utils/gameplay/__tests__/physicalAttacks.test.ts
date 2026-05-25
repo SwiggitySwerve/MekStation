@@ -849,9 +849,75 @@ describe('physicalAttacks', () => {
 
       expect(result).toEqual({ allowed: true });
     });
+
+    it('should disallow WiGE vehicle charge even after a run', () => {
+      const result = canCharge(
+        makeInput({
+          attackType: 'charge',
+          attackerUnitType: UnitType.VEHICLE,
+          attackerMovementMode: 'wige',
+          attackerRanThisTurn: true,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: "This movement mode can't charge",
+        reasonCode: 'AttackerCannotCharge',
+      });
+    });
+
+    it('should allow hover charge unless the optional no-hover-charge rule is enabled', () => {
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerUnitType: UnitType.VEHICLE,
+            attackerMovementMode: 'hover',
+            attackerRanThisTurn: true,
+          }),
+        ),
+      ).toEqual({ allowed: true });
+
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerUnitType: UnitType.VEHICLE,
+            attackerMovementMode: 'hover',
+            attackerRanThisTurn: true,
+            optionalRules: ['no_hover_charge'],
+          }),
+        ),
+      ).toEqual({
+        allowed: false,
+        reason: "This movement mode can't charge",
+        reasonCode: 'AttackerCannotCharge',
+      });
+    });
   });
 
   describe('getEligiblePhysicalAttacks', () => {
+    it('blocks WiGE vehicle charge rows from generic physical highlights', () => {
+      const attacker = unitAt('wige-1', 0, 0);
+      const target = unitAt('mech-1', 1, 0);
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 45,
+        attackerPilotingSkill: 4,
+        targetTonnage: 55,
+        attackerUnitType: UnitType.VEHICLE,
+        attackerMovementMode: 'wige',
+        targetUnitType: UnitType.BATTLEMECH,
+        attackerRanThisTurn: true,
+      });
+
+      const charge = options.find((option) => option.attackType === 'charge');
+      expect(charge).toBeDefined();
+      expect(charge!.toHit.allowed).toBe(false);
+      expect(charge!.restrictionsFailed).toEqual(['AttackerCannotCharge']);
+    });
+
     it('keeps battle armor from producing generic physical target highlights', () => {
       const attacker = unitAt('ba-1', 0, 0);
       const target = unitAt('mech-1', 1, 0);

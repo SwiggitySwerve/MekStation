@@ -92,6 +92,7 @@ import {
 import {
   buildInteractiveSessionGameConfig,
   buildInteractiveSessionUnitMaps,
+  gameUnitsWithAdaptedMovementModes,
 } from './InteractiveSession.setup';
 
 /**
@@ -191,10 +192,20 @@ export class InteractiveSession {
     );
     this.linkage = linkage;
 
-    this.session = createGameSession(this.gameConfig, gameUnits, {
-      encounterMeta: linkage.encounterMeta,
-      hexTerrain: seedHexTerrainFromGrid(this.grid),
-    });
+    const gameUnitsWithMovementModes = gameUnitsWithAdaptedMovementModes(
+      gameUnits,
+      playerUnits,
+      opponentUnits,
+    );
+
+    this.session = createGameSession(
+      this.gameConfig,
+      gameUnitsWithMovementModes,
+      {
+        encounterMeta: linkage.encounterMeta,
+        hexTerrain: seedHexTerrainFromGrid(this.grid),
+      },
+    );
     this.session = startGame(this.session, GameSide.Player);
   }
 

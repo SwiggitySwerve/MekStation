@@ -30,7 +30,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   LimbMissing: 'Limb is missing',
   AttackerProne: 'Attacker is prone',
   AttackerNotMek: 'Only Meks can use this physical attack',
-  AttackerCannotCharge: 'This unit type cannot charge',
+  AttackerCannotCharge: 'This unit cannot charge',
   TargetNotMek: 'Push target must be a Mek',
   TargetNotDirectlyAhead: 'Push target must be directly ahead',
   TargetProne: 'Target is prone',

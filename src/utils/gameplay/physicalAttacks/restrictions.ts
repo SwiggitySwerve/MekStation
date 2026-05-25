@@ -43,6 +43,35 @@ function isRepresentedChargeCapableUnit(
   );
 }
 
+const NO_HOVER_CHARGE_OPTION_KEYS = new Set([
+  'nohovercharge',
+  'advancedgroundmovementnohovercharge',
+]);
+
+function normalizedOptionalRuleKey(rule: string): string {
+  return rule.toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+function hasNoHoverChargeOptionalRule(
+  optionalRules: readonly string[] | undefined,
+): boolean {
+  return (optionalRules ?? []).some((rule) =>
+    NO_HOVER_CHARGE_OPTION_KEYS.has(normalizedOptionalRuleKey(rule)),
+  );
+}
+
+function isChargeBlockedByMovementMode(input: IPhysicalAttackInput): boolean {
+  switch (input.attackerMovementMode) {
+    case 'vtol':
+    case 'wige':
+      return true;
+    case 'hover':
+      return hasNoHoverChargeOptionalRule(input.optionalRules);
+    default:
+      return false;
+  }
+}
+
 export function canPunch(
   input: IPhysicalAttackInput,
 ): IPhysicalAttackRestriction {
@@ -382,6 +411,14 @@ export function canCharge(
     return {
       allowed: false,
       reason: "This unit type can't charge",
+      reasonCode: 'AttackerCannotCharge',
+    };
+  }
+
+  if (isChargeBlockedByMovementMode(input)) {
+    return {
+      allowed: false,
+      reason: "This movement mode can't charge",
       reasonCode: 'AttackerCannotCharge',
     };
   }

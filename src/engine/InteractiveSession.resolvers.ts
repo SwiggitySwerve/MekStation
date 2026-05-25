@@ -75,6 +75,9 @@ export function physicalContextByUnit(
       attackerTonnage: tonnageByUnit.get(unitId) ?? 65,
       pilotingSkill: pilotingByUnit.get(unitId) ?? 5,
       hexesMoved: unit.hexesMovedThisTurn,
+      attackerMovementMode: session.units.find((entry) => entry.id === unitId)
+        ?.movementMode,
+      optionalRules: session.config.optionalRules,
     });
   }
   return map;

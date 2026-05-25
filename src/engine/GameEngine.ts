@@ -53,6 +53,7 @@ import {
   InteractiveSession,
   type IInteractiveSessionLinkage,
 } from './InteractiveSession';
+import { gameUnitsWithAdaptedMovementModes } from './InteractiveSession.setup';
 
 export { InteractiveSession };
 
@@ -111,7 +112,13 @@ export class GameEngine {
       optionalRules: [...this.optionalRules],
     };
 
-    let session = createGameSession(gameConfig, gameUnits, {
+    const gameUnitsWithMovementModes = gameUnitsWithAdaptedMovementModes(
+      gameUnits,
+      playerUnits,
+      opponentUnits,
+    );
+
+    let session = createGameSession(gameConfig, gameUnitsWithMovementModes, {
       hexTerrain: seedHexTerrainFromGrid(this.grid),
     });
     session = startGame(session, GameSide.Player);

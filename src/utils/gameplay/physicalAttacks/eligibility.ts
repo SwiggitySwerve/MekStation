@@ -70,6 +70,8 @@ export interface IEligibilityContext {
   /** Attacker movement modifier (used by charge to-hit). */
   readonly attackerMovementModifier?: number;
   readonly attackerUnitType?: IPhysicalAttackInput['attackerUnitType'];
+  readonly attackerMovementMode?: IPhysicalAttackInput['attackerMovementMode'];
+  readonly optionalRules?: IPhysicalAttackInput['optionalRules'];
   readonly targetUnitType?: IPhysicalAttackInput['targetUnitType'];
   /** Per-attacker presence flags for arm actuators (punches). */
   readonly lowerArmActuatorPresent?: boolean;
@@ -222,6 +224,8 @@ export function getEligiblePhysicalAttacks(
     attackerMovementModifier: context.attackerMovementModifier,
     attackerRanThisTurn: context.attackerRanThisTurn,
     attackerJumpedThisTurn: context.attackerJumpedThisTurn,
+    attackerMovementMode: context.attackerMovementMode,
+    optionalRules: context.optionalRules,
     limbsUsedThisTurn: context.limbsUsedThisTurn,
     attackerDestroyedLocations: attacker.destroyedLocations,
     lowerArmActuatorPresent: context.lowerArmActuatorPresent,

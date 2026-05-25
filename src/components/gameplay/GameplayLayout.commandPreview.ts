@@ -35,6 +35,7 @@ export interface IBuildCommandPreviewInputsParams {
   readonly unitWeapons: Record<string, readonly IWeaponStatus[]>;
   readonly selectedWeaponIds?: readonly string[];
   readonly hitChance: number | null | undefined;
+  readonly optionalRules?: readonly string[];
   readonly physicalAttackTargetId?: string | null;
   readonly physicalAttackType?: PhysicalAttackType | null;
   readonly physicalAttackLimb?: PhysicalAttackLimb | null;
@@ -71,6 +72,7 @@ export function buildCommandPreviewInputs({
   unitWeapons,
   selectedWeaponIds,
   hitChance,
+  optionalRules,
   physicalAttackTargetId,
   physicalAttackType,
   physicalAttackLimb,
@@ -118,6 +120,8 @@ export function buildCommandPreviewInputs({
           attackerState?.piloting ?? attackerBinding?.piloting ?? 5,
         targetTonnage: 65,
         attackerUnitType: attackerBinding?.unitType,
+        attackerMovementMode: attackerBinding?.movementMode,
+        optionalRules,
         targetUnitType: targetBinding?.unitType,
         weaponsFiredFromLeftArm: attackerState?.weaponsFiredThisTurn,
         weaponsFiredFromRightArm: attackerState?.weaponsFiredThisTurn,

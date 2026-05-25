@@ -173,6 +173,7 @@ export function PhysicalAttackPanel({
     if (!physicalAttackPlan.targetUnitId || !session) return null;
     return session.currentState.units[physicalAttackPlan.targetUnitId] ?? null;
   }, [physicalAttackPlan.targetUnitId, session]);
+  const optionalRules = session?.config.optionalRules;
 
   /**
    * Per task 3.1-3.3: project the engine's `getEligiblePhysicalAttacks`
@@ -190,6 +191,8 @@ export function PhysicalAttackPanel({
       attackerPilotingSkill: selected.unit.piloting,
       targetTonnage: attackerTonnage,
       attackerUnitType: selected.unit.unitType,
+      attackerMovementMode: selected.unit.movementMode,
+      optionalRules,
       targetUnitType: targetUnit?.unitType,
       weaponsFiredFromLeftArm: selected.state.weaponsFiredThisTurn,
       weaponsFiredFromRightArm: selected.state.weaponsFiredThisTurn,
@@ -220,6 +223,7 @@ export function PhysicalAttackPanel({
     attackerTonnage,
     meleeWeaponsEquipped,
     physicalGrid,
+    optionalRules,
   ]);
 
   /**
@@ -243,6 +247,8 @@ export function PhysicalAttackPanel({
       heat: selected.state.heat,
       attackerProne: selected.state.prone,
       attackerUnitType: selected.unit.unitType,
+      attackerMovementMode: selected.unit.movementMode,
+      optionalRules,
       attackerDestroyedLocations: selected.state.destroyedLocations,
       targetUnitType: targetUnit?.unitType,
       attackerPosition: selected.state.position,
@@ -283,6 +289,7 @@ export function PhysicalAttackPanel({
     physicalAttackPlan.targetUnitId,
     physicalAttackPlan.attackType,
     physicalAttackPlan.limb,
+    optionalRules,
   ]);
 
   // ---------------------------------------------------------------------------
@@ -349,6 +356,8 @@ export function PhysicalAttackPanel({
       attackerPiloting: selected.unit.piloting,
       attackerTonnage,
       attackerUnitType: selected.unit.unitType,
+      attackerMovementMode: selected.unit.movementMode,
+      optionalRules,
       targetUnitType: targetUnit?.unitType,
       hexesMoved: selected.state.hexesMovedThisTurn,
       weaponsFiredFromLeftArm: selected.state.weaponsFiredThisTurn,
@@ -402,6 +411,7 @@ export function PhysicalAttackPanel({
     targetState,
     physicalGrid,
     onIntentChange,
+    optionalRules,
   ]);
 
   /**

@@ -29,6 +29,7 @@ import {
   MovementType,
 } from '@/types/gameplay';
 import { Facing } from '@/types/gameplay';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   advancePhase,
   createGameSession,
@@ -355,6 +356,41 @@ describe('implement-physical-attack-phase — smoke test', () => {
     const payload = resolved!.payload as IPhysicalAttackResolvedPayload;
     expect(payload.hit).toBe(false);
     expect(payload.toHitNumber).toBe(Infinity);
+  });
+
+  it('charge restriction: WiGE vehicle cannot charge even after a run', () => {
+    let session = setupPhysicalPhase();
+    const ctx: IPhysicalAttackContext = {
+      attackerTonnage: 50,
+      targetTonnage: 75,
+      pilotingSkill: 4,
+      hexesMoved: 4,
+      attackerRanThisTurn: true,
+      attackerUnitType: UnitType.VEHICLE,
+      attackerMovementMode: 'wige',
+    };
+
+    session = declarePhysicalAttack(
+      session,
+      'attacker',
+      'target',
+      'charge',
+      ctx,
+    );
+
+    const declared = session.events.filter(
+      (e: IGameEvent) => e.type === GameEventType.PhysicalAttackDeclared,
+    );
+    expect(declared).toHaveLength(0);
+
+    const resolved = session.events.find(
+      (e: IGameEvent) => e.type === GameEventType.PhysicalAttackResolved,
+    );
+    expect(resolved).toBeDefined();
+    const payload = resolved!.payload as IPhysicalAttackResolvedPayload;
+    expect(payload.hit).toBe(false);
+    expect(payload.toHitNumber).toBe(Infinity);
+    expect(payload.location).toBe('AttackerCannotCharge');
   });
 
   it('GamePhase.PhysicalAttack is accessible and PhysicalAttack-prefixed enum values exist', () => {

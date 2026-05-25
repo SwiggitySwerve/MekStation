@@ -75,6 +75,25 @@ export function buildInteractiveSessionUnitMaps(
   };
 }
 
+export function gameUnitsWithAdaptedMovementModes(
+  gameUnits: readonly IGameUnit[],
+  playerUnits: readonly IAdaptedUnit[],
+  opponentUnits: readonly IAdaptedUnit[],
+): readonly IGameUnit[] {
+  const movementModeByUnit = new Map(
+    [...playerUnits, ...opponentUnits].map((unit) => [
+      unit.id,
+      unit.movementMode,
+    ]),
+  );
+
+  return gameUnits.map((unit) => {
+    const movementMode = movementModeByUnit.get(unit.id);
+    if (!movementMode || unit.movementMode === movementMode) return unit;
+    return { ...unit, movementMode };
+  });
+}
+
 /**
  * Assemble the `IGameConfig` from the raw constructor arguments and the
  * campaign linkage. The Wave 5 round-trip identifiers are stamped onto

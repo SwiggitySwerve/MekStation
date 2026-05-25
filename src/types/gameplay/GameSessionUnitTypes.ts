@@ -6,6 +6,7 @@
 import type { IAmmoConstructionInit } from './AmmoTypes';
 import type { IEnvironmentalConditions } from './EnvironmentalConditions';
 import type { GameSide } from './GameSessionCoreTypes';
+import type { MovementMotiveMode } from './HexGridInterfaces';
 
 // Game Configuration
 // =============================================================================
@@ -78,6 +79,13 @@ export interface IGameUnit {
   readonly piloting: number;
   /** Canonical Special Piloting Ability ids carried by this unit's pilot. */
   readonly pilotSpas?: readonly string[];
+  /**
+   * Rules-level chassis/squad motive mode copied from the adapted unit.
+   * Physical projections use this to mirror MegaMek movement-mode gates
+   * such as WiGE/hover charge eligibility instead of treating every
+   * represented vehicle alike.
+   */
+  readonly movementMode?: MovementMotiveMode;
   /** Total heat sinks on unit (default: 10 if not provided) */
   readonly heatSinks?: number;
   /**

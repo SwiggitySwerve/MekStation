@@ -332,6 +332,8 @@ export function GameplayLayout({
                 attackerState.piloting ?? attackerBinding?.piloting ?? 5,
               targetTonnage: 65,
               attackerUnitType: attackerBinding?.unitType,
+              attackerMovementMode: attackerBinding?.movementMode,
+              optionalRules: config.optionalRules,
               targetUnitType: targetBinding?.unitType,
               weaponsFiredFromLeftArm: attackerState.weaponsFiredThisTurn,
               weaponsFiredFromRightArm: attackerState.weaponsFiredThisTurn,
@@ -363,7 +365,7 @@ export function GameplayLayout({
         },
         {},
       );
-  }, [combatGrid, currentState, selectedUnitId, units]);
+  }, [combatGrid, config.optionalRules, currentState, selectedUnitId, units]);
 
   const validPhysicalTargetIds = useMemo(
     () =>
@@ -502,6 +504,7 @@ export function GameplayLayout({
         physicalAttackTargetId: physicalAttackPlan.targetUnitId,
         physicalAttackType: physicalAttackPlan.attackType,
         physicalAttackLimb: physicalAttackPlan.limb,
+        optionalRules: config.optionalRules,
         hoveredHex,
         movementInfo: hoverMovementInfo,
         highlightPath,
@@ -511,6 +514,7 @@ export function GameplayLayout({
     [
       activeTargetId,
       config.mapRadius,
+      config.optionalRules,
       currentState,
       highlightPath,
       hitChance,

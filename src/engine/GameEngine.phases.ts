@@ -541,6 +541,8 @@ export function runPhysicalAttackPhase(
           pilotingSkill: piloting,
           hexesMoved: unit.hexesMovedThisTurn,
           attackerUnitType: attackerBinding?.unitType,
+          attackerMovementMode: attackerBinding?.movementMode,
+          optionalRules: updatedSession.config.optionalRules,
           targetUnitType: targetBinding?.unitType,
           elevationContext:
             grid && targetState
@@ -562,6 +564,9 @@ export function runPhysicalAttackPhase(
       attackerTonnage: DEFAULT_ATTACKER_TONNAGE,
       pilotingSkill: pilotingByUnit.get(uid) ?? DEFAULT_PILOTING_SKILL,
       hexesMoved: u.hexesMovedThisTurn,
+      attackerMovementMode: updatedSession.units.find((unit) => unit.id === uid)
+        ?.movementMode,
+      optionalRules: updatedSession.config.optionalRules,
     });
   }
   // Per `add-quick-resolve-monte-carlo`: thread the seeded roller into

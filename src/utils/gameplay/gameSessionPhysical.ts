@@ -110,6 +110,9 @@ export function declarePhysicalAttack(
     attackerJumpedThisTurn: context.attackerJumpedThisTurn,
     attackerRanThisTurn: context.attackerRanThisTurn,
     attackerUnitType: context.attackerUnitType ?? attackerUnit?.unitType,
+    attackerMovementMode:
+      context.attackerMovementMode ?? attackerUnit?.movementMode,
+    optionalRules: context.optionalRules ?? session.config.optionalRules,
     attackerDestroyedLocations: attackerState.destroyedLocations,
     targetUnitType: context.targetUnitType ?? targetUnit?.unitType,
     attackerPosition: attackerState.position,
@@ -220,6 +223,12 @@ export function resolveAllPhysicalAttacks(
       weaponsFiredFromArm: context.weaponsFiredFromArm,
       attackerProne: attackerState.prone,
       targetTonnage: context.targetTonnage,
+      attackerJumpedThisTurn: context.attackerJumpedThisTurn,
+      attackerRanThisTurn: context.attackerRanThisTurn,
+      attackerUnitType: context.attackerUnitType,
+      attackerMovementMode: context.attackerMovementMode,
+      optionalRules: context.optionalRules ?? session.config.optionalRules,
+      targetUnitType: context.targetUnitType,
     };
 
     // The standalone module uses a d6 roller; wrap our 2d6 roller's

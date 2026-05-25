@@ -1154,8 +1154,18 @@ vehicle charge eligibility subject to movement-mode options. MekStation now
 whitelists represented charge projection to Mek and vehicle categories, leaves
 legacy unknown unit types unchanged, and returns `AttackerCannotCharge` for
 Battle Armor so a unit that ran this turn cannot create a generic charge
-highlight. Hover/WiGE vehicle-specific charge restrictions remain pending until
-the physical projection input carries movement-mode context.
+highlight.
+
+2026-05-25 vehicle charge movement-mode pin: MegaMek `Tank.java:1459-1468`
+states tanks can charge except hover vehicles when
+`ADVANCED_GROUND_MOVEMENT_NO_HOVER_CHARGE` is enabled, WiGE vehicles, and
+stunned tanks; `GameOptions.java:261` shows `no_hover_charge` defaults false.
+MekStation now threads attacker motive mode and optional rule keys through the
+shared physical projection, command preview, and declaration validation so WiGE
+and VTOL charge rows are blocked with `AttackerCannotCharge`, hover charge
+remains legal by default, and hover charge is blocked when `no_hover_charge` is
+enabled. Stunned vehicle state remains outside the projection until vehicle
+stun state is represented on `IUnitGameState`.
 
 ## Acceptance Gate
 

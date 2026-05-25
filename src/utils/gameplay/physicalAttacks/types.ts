@@ -5,6 +5,7 @@ import {
   IComponentDamageState,
   IHexCoordinate,
   IUnitGameState,
+  MovementMotiveMode,
 } from '@/types/gameplay';
 import { CombatLocation } from '@/types/gameplay';
 
@@ -114,6 +115,8 @@ export interface IPhysicalAttackInput {
   readonly weaponsFiredFromArm?: readonly string[];
   readonly attackerProne?: boolean;
   readonly attackerUnitType?: UnitType;
+  readonly attackerMovementMode?: MovementMotiveMode;
+  readonly optionalRules?: readonly string[];
   readonly attackerDestroyedLocations?: readonly string[];
   readonly targetUnitType?: UnitType;
   readonly attackerPosition?: IHexCoordinate;

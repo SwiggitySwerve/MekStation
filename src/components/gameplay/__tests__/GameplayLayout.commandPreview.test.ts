@@ -461,6 +461,52 @@ describe('buildCommandPreviewInputs', () => {
     expect(inputs.physicalAttackOption?.toHit.allowed).toBe(false);
   });
 
+  it('threads attacker movement mode into charge command previews', () => {
+    const currentState = makeState({
+      phase: GamePhase.PhysicalAttack,
+      units: {
+        a1: {
+          ...makeUnitState({
+            id: 'a1',
+            side: GameSide.Player,
+            position: { q: 0, r: 0 },
+          }),
+          movementThisTurn: MovementType.Run,
+        },
+        t1: makeUnitState({
+          id: 't1',
+          side: GameSide.Opponent,
+          position: { q: 1, r: 0 },
+        }),
+      },
+    });
+
+    const inputs = buildCommandPreviewInputs({
+      currentState,
+      selectedUnitId: 'a1',
+      activeTargetId: null,
+      tokens: [],
+      unitBindings: [
+        makeUnitBinding({
+          unitType: UnitType.VEHICLE,
+          movementMode: 'wige',
+        }),
+      ],
+      mapRadius: 3,
+      grid: createMinimalGrid(3),
+      unitWeapons: {},
+      hitChance: null,
+      physicalAttackTargetId: 't1',
+      physicalAttackType: 'charge',
+    });
+
+    expect(inputs.physicalAttackOption).toMatchObject({
+      attackType: 'charge',
+      restrictionsFailed: ['AttackerCannotCharge'],
+    });
+    expect(inputs.physicalAttackOption?.toHit.allowed).toBe(false);
+  });
+
   it('preserves physical elevation restrictions from the shared map grid', () => {
     const baseGrid = createMinimalGrid(3);
     const hexes = new Map(baseGrid.hexes);
