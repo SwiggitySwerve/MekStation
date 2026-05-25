@@ -172,6 +172,76 @@ export const MEGAMEK_TAG_CLEAR_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_AMS_SOURCE_VERSION = '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+
+export const MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'TWGameManager.assignAMS scopes AMS assignment to missile attacks that hit, then routes target AMS through auto assignment or manual defender choice.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L9868-L9934',
+    sourceVersion: MEGAMEK_AMS_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'Entity.assignAMS filters active AMS by firing arc, lets AMS bays or multi-use AMS engage all in-arc attacks, and otherwise assigns one AMS to the highest expected damage salvo.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L7248-L7297',
+    sourceVersion: MEGAMEK_AMS_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_AMS_CLUSTER_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MissileWeaponHandler applies assigned AMS counter equipment through getAMSHitsMod, rechecks firing arc and readiness, spends heat/ammo, and applies the standard -4 missile cluster modifier when AMS engages.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/MissileWeaponHandler.java#L500-L663',
+    sourceVersion: MEGAMEK_AMS_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MissileWeaponHandler adds AMS modifiers before missile cluster-table resolution and treats all-shots-hit/Streak attacks as cluster roll 11 so AMS can reduce them.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/MissileWeaponHandler.java#L262-L286',
+    sourceVersion: MEGAMEK_AMS_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_AMS_SINGLE_MISSILE_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'NarcHandler rolls one d6 for AMS/APDS interception and destroys the incoming pod on 1-3.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/NarcHandler.java#L77-L131',
+    sourceVersion: MEGAMEK_AMS_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'ThunderBoltWeaponHandler rolls one d6 for AMS/APDS interception and destroys the incoming missile on 1-3.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/ThunderBoltWeaponHandler.java#L162-L215',
+    sourceVersion: MEGAMEK_AMS_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_AMS_AMMO_LIFECYCLE_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MissileWeaponHandler decrements AMS ammo, adds AMS heat, marks AMS as used, and branches optional multi-use and PLAYTEST_3 AMS lifecycle rules.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/MissileWeaponHandler.java#L553-L623',
+    sourceVersion: MEGAMEK_AMS_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_AMS_SOURCE_REFS = [
+  ...MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS,
+  ...MEGAMEK_AMS_CLUSTER_SOURCE_REFS,
+  ...MEGAMEK_AMS_SINGLE_MISSILE_SOURCE_REFS,
+  ...MEGAMEK_AMS_AMMO_LIFECYCLE_SOURCE_REFS,
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
 

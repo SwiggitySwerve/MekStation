@@ -5,6 +5,9 @@ import type {
 
 import {
   MEGAMEK_ACTIVE_PROBE_SOURCE_REFS,
+  MEGAMEK_AMS_AMMO_LIFECYCLE_SOURCE_REFS,
+  MEGAMEK_AMS_CLUSTER_SOURCE_REFS,
+  MEGAMEK_AMS_SINGLE_MISSILE_SOURCE_REFS,
   MEGAMEK_ARTEMIS_CLUSTER_SOURCE_REFS,
   MEGAMEK_ECM_SUITE_SOURCE_REFS,
   MEGAMEK_INARC_ECM_C3_SOURCE_REFS,
@@ -148,22 +151,30 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   'ams-projectile-reduction': integrated(
     'ams-projectile-reduction',
     'resolveSpecialProjectileHit passes target-mounted AMS weapons through resolveAMSInterception, which applies the Total Warfare/MegaMek -4 cluster-table modifier',
+    MEGAMEK_AMS_CLUSTER_SOURCE_REFS,
   ),
   'ams-streak-cluster-parity': integrated(
     'ams-streak-cluster-parity',
     'resolveSpecialProjectileHit treats Streak hits as cluster-roll 11 when target AMS engages, then applies the AMS -4 cluster-table modifier',
+    MEGAMEK_AMS_CLUSTER_SOURCE_REFS,
   ),
   'ams-single-missile-parity': integrated(
     'ams-single-missile-parity',
     'resolveSingleMissileAMSInterception mirrors MegaMek NARC/Thunderbolt handlers by rolling 1d6 and destroying the single incoming pod or missile on 1-3',
+    MEGAMEK_AMS_SINGLE_MISSILE_SOURCE_REFS,
   ),
   'ams-ammo-consumption': integrated(
     'ams-ammo-consumption',
     'runAttackPhase passes defender ammo state into missile resolution and consumes the target-mounted AMS ammo bin during cluster or single-missile interception',
+    MEGAMEK_AMS_AMMO_LIFECYCLE_SOURCE_REFS,
   ),
   'ams-interception-events': integrated(
     'ams-interception-events',
     'runAttackPhase emits AMSInterception payloads with incoming, intercepted, and remaining projectile counts before damage resolution',
+    [
+      ...MEGAMEK_AMS_CLUSTER_SOURCE_REFS,
+      ...MEGAMEK_AMS_SINGLE_MISSILE_SOURCE_REFS,
+    ],
   ),
   'tag-designation-hit': integrated(
     'tag-designation-hit',

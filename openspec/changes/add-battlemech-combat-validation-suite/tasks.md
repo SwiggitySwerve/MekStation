@@ -73,6 +73,7 @@
 - [x] 3.1.9 Split static weapon database subset, synthetic Medium Laser fallback, and variable missile damage-string hazards into first-class validation-scope rows referenced by their requirement crosswalks.
 - [x] 3.1.10 Integrate source-backed Sandblaster cluster-table range bonuses for designated LB-X and missile cluster-table paths while leaving UAC/RAC and TacOps rapid-fire AC rate-of-fire behavior explicit.
 - [x] 3.1.11 Align the legacy gameplay SPA catalog Sandblaster metadata with canonical source truth: weapon-type designation required, range-based cluster-table bonus, and remaining UAC/RAC rate-of-fire gap preserved.
+- [x] 3.1.12 Source-back AMS helper/integrated special weapon rows with MegaMek cluster, single-missile, ammo/heat, counter-selection, and arc anchors while leaving defender choice/arc/multi-use gaps explicit.
 - [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
 - [x] 3.2.2 Integrate source-backed active TSM movement speed into runner movement validation while leaving MASC, supercharger, and then-unsupported partial-wing movement behavior explicit.
@@ -200,3 +201,4 @@
 - [x] 4.3.45 Cross-check MegaMek optional TacOps Evade movement, evasion heat, evasion target modifiers, evading attacker ranged-fire rejection, and physical evasion gates before leaving evade as an explicit absent action.
 - [x] 4.3.46 Cross-check MegaMek `TorsoTwistAction`, secondary-facing state gates, BattleMech normal/extended/no-twist legality, and `ComputeArc` secondary-facing use before leaving torso twist helper-only.
 - [x] 4.3.47 Cross-check MegaMek BattleMech-applicable brush-off, thrash, trip, grapple, break-grapple, and jump-jet attack source classes before leaving them unsupported.
+- [x] 4.3.48 Cross-check MegaMek AMS projectile reduction, Streak/all-shots-hit cluster parity, single-missile interception, ammo/heat/fired handling, defender assignment, arc enforcement, and multi-use gates before leaving AMS helper-only.

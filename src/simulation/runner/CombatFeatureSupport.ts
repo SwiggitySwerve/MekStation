@@ -18,6 +18,7 @@ import {
   MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
   MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
+import { MEGAMEK_AMS_SOURCE_REFS } from './CombatSpecialWeaponSourceRefs';
 
 export type CombatFeatureSupportLevel =
   | 'integrated'
@@ -760,7 +761,8 @@ export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
   ams: helperOnly(
     'ams',
     'isAMS + resolveAMSInterception applies the MegaMek/TW -4 cluster-table modifier, resolveSingleMissileAMSInterception handles NARC/Thunderbolt-style single missiles, consumes defender AMS ammo, emits AMSInterception events, marks ammo-fed or Laser AMS as fired for heat accounting, and handles Streak as cluster-roll 11',
-    'AMS defender choice, arc enforcement, and optional multi-use rules remain unverified',
+    'AMS defender choice, firing-arc assignment/enforcement, and optional multi-use/PLAYTEST_3 lifecycle remain helper-only gaps outside runner/session combat',
+    MEGAMEK_AMS_SOURCE_REFS,
   ),
   tag: integrated(
     'tag',

@@ -1130,6 +1130,76 @@ describe('BattleMech combat catalog validation lane', () => {
     ).toBe(true);
   });
 
+  it('pins AMS helper boundaries and implemented mechanics to MegaMek refs', () => {
+    const sourceRefsFor = (
+      id: keyof typeof SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT,
+    ) => SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[id].sourceRefs ?? [];
+
+    const amsFamilyRefs =
+      SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.sourceRefs ?? [];
+    const clusterCitations = [
+      'MissileWeaponHandler applies assigned AMS counter equipment through getAMSHitsMod, rechecks firing arc and readiness, spends heat/ammo, and applies the standard -4 missile cluster modifier when AMS engages.',
+      'MissileWeaponHandler adds AMS modifiers before missile cluster-table resolution and treats all-shots-hit/Streak attacks as cluster roll 11 so AMS can reduce them.',
+    ];
+    const singleMissileCitations = [
+      'NarcHandler rolls one d6 for AMS/APDS interception and destroys the incoming pod on 1-3.',
+      'ThunderBoltWeaponHandler rolls one d6 for AMS/APDS interception and destroys the incoming missile on 1-3.',
+    ];
+
+    expect(amsFamilyRefs.map(({ citation }) => citation)).toEqual([
+      'TWGameManager.assignAMS scopes AMS assignment to missile attacks that hit, then routes target AMS through auto assignment or manual defender choice.',
+      'Entity.assignAMS filters active AMS by firing arc, lets AMS bays or multi-use AMS engage all in-arc attacks, and otherwise assigns one AMS to the highest expected damage salvo.',
+      ...clusterCitations,
+      ...singleMissileCitations,
+      'MissileWeaponHandler decrements AMS ammo, adds AMS heat, marks AMS as used, and branches optional multi-use and PLAYTEST_3 AMS lifecycle rules.',
+    ]);
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap).toContain(
+      'firing-arc assignment/enforcement',
+    );
+    expect(
+      sourceRefsFor('ams-projectile-reduction').map(({ citation }) => citation),
+    ).toEqual(clusterCitations);
+    expect(
+      sourceRefsFor('ams-streak-cluster-parity').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(clusterCitations);
+    expect(
+      sourceRefsFor('ams-single-missile-parity').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(singleMissileCitations);
+    expect(
+      sourceRefsFor('ams-ammo-consumption').map(({ citation }) => citation),
+    ).toEqual([
+      'MissileWeaponHandler decrements AMS ammo, adds AMS heat, marks AMS as used, and branches optional multi-use and PLAYTEST_3 AMS lifecycle rules.',
+    ]);
+    expect(
+      sourceRefsFor('ams-interception-events').map(({ citation }) => citation),
+    ).toEqual([...clusterCitations, ...singleMissileCitations]);
+
+    const refs = [
+      ...amsFamilyRefs,
+      ...sourceRefsFor('ams-projectile-reduction'),
+      ...sourceRefsFor('ams-streak-cluster-parity'),
+      ...sourceRefsFor('ams-single-missile-parity'),
+      ...sourceRefsFor('ams-ammo-consumption'),
+      ...sourceRefsFor('ams-interception-events'),
+    ];
+
+    expect(
+      refs.every(
+        (sourceRef) =>
+          sourceRef.kind === 'megamek-source' &&
+          sourceRef.sourceVersion ===
+            '325b2504c7b7750ecdcb85468621fb2de2ad8e60' &&
+          sourceRef.url.includes('github.com/MegaMek/megamek/blob/') &&
+          sourceRef.url.includes(sourceRef.sourceVersion) &&
+          sourceRef.url.includes('#L'),
+      ),
+    ).toBe(true);
+  });
+
   it('pins ECM and active-probe hydration to MegaMek equipment refs', () => {
     const sourceRefsFor = (
       id: keyof typeof SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT,

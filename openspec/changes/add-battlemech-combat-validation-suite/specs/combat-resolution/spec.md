@@ -92,6 +92,13 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** broad known-limitation filters SHALL remain banned from catalog validation gates
 - **AND** every broad known-limitation category SHALL have a BattleMech validation trap proving the validation invariant bypass remains visible instead of filtered
 
+#### Scenario: AMS helper boundary stays source-backed
+
+- **GIVEN** AMS behavior is partially represented by projectile reduction, Streak/all-shots-hit cluster parity, single-missile interception, ammo/heat/fired lifecycle, and interception-event rows
+- **WHEN** the special weapon catalog rows are contract-tested
+- **THEN** the AMS family row and AMS mechanic rows SHALL cite MegaMek source anchors for assignment, defender choice, arc checks, cluster-table reduction, single-missile interception, ammo/heat usage, and optional multi-use lifecycle
+- **AND** AMS SHALL remain helper-only until defender choice, firing-arc assignment/enforcement, and optional multi-use/PLAYTEST_3 rules are authoritative in runner/session combat
+
 #### Scenario: Catalog critical slots seed runner critical resolution
 
 - **GIVEN** a catalog-hydrated BattleMech unit carries location-keyed `criticalSlots`
