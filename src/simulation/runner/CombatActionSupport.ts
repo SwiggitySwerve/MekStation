@@ -118,6 +118,16 @@ const MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEKSTATION_STABILIZE_COMMAND_SOURCE_REFS = [
+  {
+    kind: 'mekstation-deviation',
+    citation:
+      'MekStation buildMovementCommands exposes movement.stabilize as a product-visible tactical command that commits the local stabilize action id.',
+    url: 'src/components/gameplay/TacticalActionDock/commands/movementCommands.ts#L194-L207',
+    sourceVersion: 'MekStation working-tree',
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -205,7 +215,8 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
   'movement.stabilize': unsupported(
     'movement.stabilize',
     'tactical-command',
-    'Stabilize is exposed as a command id but has no authoritative combat-state mutation path',
+    'Stabilize is exposed as a MekStation-local command id but has no authoritative combat-state mutation path, no game intent, no wire payload, no P2P translation, and no identified BattleMech rule source',
+    MEKSTATION_STABILIZE_COMMAND_SOURCE_REFS,
   ),
   'movement.cancel': helperOnly(
     'movement.cancel',

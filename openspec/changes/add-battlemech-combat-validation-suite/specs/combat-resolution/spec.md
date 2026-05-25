@@ -67,6 +67,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **THEN** optional TacOps sprint and evade movement SHALL appear as unsupported absent-action rows
 - **AND** the sprint row SHALL cite MegaMek source anchors for optional TacOps sprint availability, BattleMech sprint MP, sprint heat, attacker-sprinted firing failure, and target-sprinted to-hit relief
 - **AND** the evade row SHALL cite MegaMek source anchors for optional TacOps evade availability, evasion state, evasion heat, attacker-evading firing restrictions, and target-evading to-hit modifiers
+- **AND** product-visible MekStation command surfaces without identified BattleMech rule authority, including `movement.stabilize`, SHALL stay in `COMBAT_COMMAND_ACTION_SUPPORT` as unsupported `mekstation-deviation` rows rather than absent official action rows
 - **AND** those rows SHALL NOT be inferred from helper prose or omitted because no UI command currently emits them
 
 #### Scenario: Torso twist emits source-backed secondary facing through command and wire paths

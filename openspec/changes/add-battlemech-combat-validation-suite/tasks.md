@@ -112,6 +112,7 @@
 - [x] 3.2.20 Source-pin every per-TerrainType LOS support row with local calculateLOS anchors, MegaMek LOS comparison anchors for woods/smoke/building/water, and explicit helper-only rows for cumulative woods/smoke and underwater/divided-LOS gaps; promote terrainTypeLos triad enforcement to row-level source refs.
 - [x] 3.2.21 Source-pin every per-TerrainType PSR support row with MegaMek rubble, water, skidding, swamp bog-down, and building-collapse anchors plus MekStation local PSR runner/factory/resolution anchors; promote terrainTypePsr triad enforcement to row-level source refs.
 - [x] 3.2.22 Integrate source-backed torso twist through tactical command payloads, game intent, wire intent, P2P translation, server dispatch, session reducer, legality gates, no_twist/ext_twist quirk handling, and replayable `FacingChanged` secondary-facing state.
+- [x] 3.2.23 Pin product-visible `movement.stabilize` as a MekStation-local unsupported command row with no identified BattleMech rule authority, game intent, wire payload, P2P translation, or runner mutation.
 - [ ] 3.3 Expand heat validation coverage for buildup, dissipation, shutdown, ammo explosions, pilot damage, and heat-driven modifiers.
 - [x] 3.3.1 Cross-link every heat rule support row into heat generation, dissipation, and lifecycle requirement checklists.
 - [x] 3.3.2 Add structured MegaMek source anchors for heat startup, avoidable/automatic shutdown, ammo-explosion risk, and pilot heat damage support rows.

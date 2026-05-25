@@ -143,6 +143,16 @@ describe('BattleMech combat action support catalog', () => {
     expect(
       supportIdsByLevel(COMBAT_COMMAND_ACTION_SUPPORT, 'unsupported'),
     ).toEqual(['movement.stabilize']);
+    expect(COMBAT_COMMAND_ACTION_SUPPORT['movement.stabilize']).toMatchObject({
+      layer: 'tactical-command',
+      gap: expect.stringContaining('MekStation-local command id'),
+      sourceRefs: [
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('movement.stabilize'),
+        }),
+      ],
+    });
     expect(
       COMBAT_COMMAND_ACTION_SUPPORT['facing.torso-twist'].sourceRefs?.map(
         (sourceRef) => sourceRef.citation,
