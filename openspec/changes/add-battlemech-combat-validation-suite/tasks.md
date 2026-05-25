@@ -135,6 +135,7 @@
 - [x] 3.4.30 Source-pin range bracket rows for short, medium, long, extreme, and out-of-range plus the minimum-range modifier row; promote range-bracket triad enforcement to row-level source refs.
 - [x] 3.4.31 Source-pin ranged to-hit modifier rows for gunnery, range, movement, heat, terrain/cover, target state, damage, indirect fire, ECM/C3, and physical-DFA boundaries; promote to-hit modifier triad enforcement to row-level source refs.
 - [x] 3.4.32 Source-pin invalid ranged target-state rows for missing, destroyed, same-side, retreated, and ejected targetability boundaries; promote invalid-target-state triad enforcement to row-level source refs.
+- [x] 3.4.33 Source-pin AttackInvalid reason rows for out-of-ammo, out-of-range, no-LOS/no-spotter, invalid target, unknown weapon, destroyed weapon, and jammed weapon, while marking same-hex as an explicit MekStation deviation row.
 - [x] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -223,3 +224,4 @@
 - [x] 4.3.58 Promote range bracket rows to row-level MegaMek source references so inherited range authority cannot mask unsourced short/medium/long/extreme/out-of-range and minimum-range claims.
 - [x] 4.3.59 Promote ranged to-hit modifier rows to row-level MegaMek source references so inherited modifier authority cannot mask unsourced gunnery, movement, heat, terrain, target-state, damage, indirect-fire, ECM/C3, or physical-DFA claims.
 - [x] 4.3.60 Promote invalid target-state rows to row-level MegaMek source references so inherited invalidation authority cannot mask unsourced missing, destroyed, same-side, retreated, or ejected targetability claims.
+- [x] 4.3.61 Promote AttackInvalid reason rows to row-level source references so inherited invalidation authority cannot mask unsourced ammo, range, LOS/spotter, targetability, missing-weapon, destroyed-weapon, jammed-weapon, or same-hex deviation claims.

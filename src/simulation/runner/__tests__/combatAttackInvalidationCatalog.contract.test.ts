@@ -43,6 +43,10 @@ const NO_SIDE_EFFECT_GUARDS = [
 
 const MEGAMEK_COMBAT_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+const VALID_SOURCE_KINDS = new Set<string>([
+  'megamek-source',
+  'mekstation-deviation',
+]);
 
 function sortedKeys(record: Record<string, unknown>): readonly string[] {
   return Object.keys(record).sort();
@@ -76,6 +80,24 @@ function expectPinnedMegaMekRefs(
   });
 }
 
+function expectStructuredRefs(
+  sourceRefs: readonly ICombatFeatureSourceReference[],
+): void {
+  expect(sourceRefs.length).toBeGreaterThan(0);
+  sourceRefs.forEach((sourceRef) => {
+    expect(VALID_SOURCE_KINDS.has(sourceRef.kind)).toBe(true);
+    expect(sourceRef.citation.trim().length).toBeGreaterThan(0);
+    expect(sourceRef.url.trim().length).toBeGreaterThan(0);
+    expect(sourceRef.sourceVersion.trim().length).toBeGreaterThan(0);
+    if (sourceRef.kind === 'megamek-source') {
+      expect(sourceRef.sourceVersion).toBe(MEGAMEK_COMBAT_SOURCE_VERSION);
+      expect(sourceRef.url).toContain('github.com/MegaMek/megamek/blob/');
+      expect(sourceRef.url).toContain(MEGAMEK_COMBAT_SOURCE_VERSION);
+      expect(sourceRef.url).toMatch(/#L\d+(?:-L\d+)?$/);
+    }
+  });
+}
+
 describe('BattleMech attack invalidation support catalog', () => {
   it('catalogs every AttackInvalid reason emitted by runner weapon attacks', () => {
     expect(sortedKeys(ATTACK_INVALIDATION_REASON_SUPPORT)).toEqual([
@@ -87,6 +109,50 @@ describe('BattleMech attack invalidation support catalog', () => {
         (entry) => entry.level === 'integrated',
       ),
     ).toBe(true);
+  });
+
+  it('pins AttackInvalid reason rows to source or explicit deviation refs', () => {
+    Object.values(ATTACK_INVALIDATION_REASON_SUPPORT).forEach((entry) => {
+      expectStructuredRefs(entry.sourceRefs ?? []);
+    });
+
+    const sameHexRefs = ATTACK_INVALIDATION_REASON_SUPPORT.SameHex.sourceRefs;
+    expect(sameHexRefs).toEqual([
+      expect.objectContaining({
+        kind: 'mekstation-deviation',
+        url: 'src/simulation/runner/phases/weaponAttack.ts#L754-L769',
+      }),
+    ]);
+
+    expect(
+      ATTACK_INVALIDATION_REASON_SUPPORT.OutOfAmmo.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        'MegaMek ComputeToHitIsImpossible returns OutOfAmmo before ranged to-hit resolution when an ammo-fed weapon has no usable linked shots.',
+      ]),
+    );
+
+    expect(
+      ATTACK_INVALIDATION_REASON_SUPPORT.NoLineOfSight.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        'MegaMek ComputeToHitIsImpossible rejects indirect fire without a spotter unless source-backed exceptions such as Oblique Attacker or mortar/artillery-cannon behavior apply.',
+      ]),
+    );
+
+    expect(
+      ATTACK_INVALIDATION_REASON_SUPPORT.WeaponJammed.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        'MegaMek Mounted.isReady requires mounted equipment to be not destroyed, not missing, not jammed, not useless, and not already fired before it can fire.',
+      ]),
+    );
   });
 
   it('catalogs targetability-removal states that invalidate ranged attacks', () => {

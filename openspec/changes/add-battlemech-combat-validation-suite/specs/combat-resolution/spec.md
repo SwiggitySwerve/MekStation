@@ -134,6 +134,15 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** the aggregate catalog triad for `invalidTargetStates` SHALL require row-level source references rather than inherited requirement authority
 - **AND** MekStation lifecycle targetability removal SHALL stay visible as executable product evidence layered over the MegaMek targetability/removal source boundary
 
+#### Scenario: Ranged invalidation reason rows stay source-backed or explicitly deviated
+
+- **GIVEN** the attack invalidation catalog covers out-of-ammo, same-hex, out-of-range, no-LOS, invalid target, unknown weapon, destroyed weapon, and jammed weapon reasons
+- **WHEN** the aggregate catalog triad and attack-invalidation catalog contract tests run
+- **THEN** every AttackInvalid reason row SHALL carry structured source references with line anchors
+- **AND** MegaMek-backed rows SHALL use commit-pinned MegaMek source references
+- **AND** local event-shape rows such as `SameHex` SHALL identify their MekStation-deviation boundary instead of inheriting generic invalidation authority
+- **AND** the aggregate catalog triad for `attackReasons` SHALL require row-level source references rather than inherited requirement authority
+
 #### Scenario: AMS helper boundary stays source-backed
 
 - **GIVEN** AMS behavior is partially represented by projectile reduction, Streak/all-shots-hit cluster parity, single-missile interception, ammo/heat/fired lifecycle, and interception-event rows

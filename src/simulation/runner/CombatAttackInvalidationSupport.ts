@@ -11,7 +11,13 @@ import {
   MEGAMEK_EJECTION_TARGET_REMOVAL_SOURCE_REFS,
   MEGAMEK_FRIENDLY_TARGET_INVALIDATION_SOURCE_REFS,
   MEGAMEK_MISSING_TARGET_INVALIDATION_SOURCE_REFS,
+  MEGAMEK_NO_LINE_OF_SIGHT_INVALIDATION_SOURCE_REFS,
+  MEGAMEK_OUT_OF_AMMO_INVALIDATION_SOURCE_REFS,
+  MEGAMEK_OUT_OF_RANGE_INVALIDATION_SOURCE_REFS,
   MEGAMEK_RETREAT_TARGET_REMOVAL_SOURCE_REFS,
+  MEGAMEK_UNKNOWN_WEAPON_INVALIDATION_SOURCE_REFS,
+  MEGAMEK_WEAPON_READY_INVALIDATION_SOURCE_REFS,
+  MEKSTATION_SAME_HEX_INVALIDATION_SOURCE_REFS,
 } from './CombatAttackInvalidationSourceRefs';
 
 export type InvalidTargetState =
@@ -43,34 +49,49 @@ export const ATTACK_INVALIDATION_REASON_SUPPORT = {
   OutOfAmmo: integrated(
     'OutOfAmmo',
     'runAttackPhase emits AttackInvalid before heat, ammo, or damage side effects when ammo bins are empty',
+    MEGAMEK_OUT_OF_AMMO_INVALIDATION_SOURCE_REFS,
   ),
   SameHex: integrated(
     'SameHex',
     'runAttackPhase emits AttackInvalid before firing-arc/to-hit resolution when attacker and target share a hex',
+    MEKSTATION_SAME_HEX_INVALIDATION_SOURCE_REFS,
   ),
   OutOfRange: integrated(
     'OutOfRange',
     'runAttackPhase emits AttackInvalid when getWeaponRangeBracket returns out_of_range',
+    MEGAMEK_OUT_OF_RANGE_INVALIDATION_SOURCE_REFS,
   ),
   NoLineOfSight: integrated(
     'NoLineOfSight',
     'validateLineOfSightForAttack emits AttackInvalid for blocked direct fire and indirect fire without a spotter',
+    MEGAMEK_NO_LINE_OF_SIGHT_INVALIDATION_SOURCE_REFS,
   ),
   InvalidTarget: integrated(
     'InvalidTarget',
     'validateDeclaredAttackTarget and declareAttack emit AttackInvalid for missing, destroyed, same-side, retreated, or ejected targets',
+    [
+      ...MEGAMEK_MISSING_TARGET_INVALIDATION_SOURCE_REFS,
+      ...MEGAMEK_ACTIVE_TARGET_FILTER_SOURCE_REFS,
+      ...MEGAMEK_DESTROYED_TARGETABILITY_SOURCE_REFS,
+      ...MEGAMEK_FRIENDLY_TARGET_INVALIDATION_SOURCE_REFS,
+      ...MEGAMEK_RETREAT_TARGET_REMOVAL_SOURCE_REFS,
+      ...MEGAMEK_EJECTION_TARGET_REMOVAL_SOURCE_REFS,
+    ],
   ),
   UnknownWeapon: integrated(
     'UnknownWeapon',
     'runAttackPhase emits AttackInvalid when a hydrated declaration names no weapon in the unit weapon map',
+    MEGAMEK_UNKNOWN_WEAPON_INVALIDATION_SOURCE_REFS,
   ),
   WeaponDestroyed: integrated(
     'WeaponDestroyed',
     'toAIUnitState marks critical-destroyed weapon mounts unavailable and runAttackPhase rejects stale declarations before heat, ammo, fired-weapon, or damage side effects',
+    MEGAMEK_WEAPON_READY_INVALIDATION_SOURCE_REFS,
   ),
   WeaponJammed: integrated(
     'WeaponJammed',
     'runAttackPhase emits AttackInvalid before heat, ammo, fired-weapon, or damage side effects when a persisted UAC/RAC jam blocks the declared mount',
+    MEGAMEK_WEAPON_READY_INVALIDATION_SOURCE_REFS,
   ),
 } satisfies Record<IAttackInvalidPayload['reason'], ICombatFeatureSupportEntry>;
 
