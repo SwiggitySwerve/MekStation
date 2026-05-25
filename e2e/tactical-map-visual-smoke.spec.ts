@@ -3920,6 +3920,34 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(tooltipVisibility).toContainText(
       'obscured same-hex-hidden-contact, same-hex-last-known-contact',
     );
+    await expect(tooltipVisibility).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    await expect(tooltipVisibility).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    await expect(tooltipVisibility).toHaveAttribute(
+      'data-combat-visibility-state',
+      'mixed',
+    );
+    await expect(tooltipVisibility).toHaveAttribute(
+      'data-combat-visibility-visible-target-ids',
+      'medium-target',
+    );
+    await expect(tooltipVisibility).toHaveAttribute(
+      'data-combat-visibility-obscured-target-ids',
+      'same-hex-hidden-contact|same-hex-last-known-contact',
+    );
+    await expect(tooltipVisibility).toHaveAttribute(
+      'data-combat-visibility-source-refs',
+      /combat:megamek:MegaMek combat target projection/,
+    );
+    await expect(tooltipVisibility).toHaveAttribute(
+      'data-combat-visibility-rule-refs',
+      /combat:megamek:MegaMek LosEffects\.java:797-911 LOS blocking and terrain modifiers/,
+    );
     await expect(page.getByTestId('hex-combat-tooltip-status')).toContainText(
       'Attack available',
     );

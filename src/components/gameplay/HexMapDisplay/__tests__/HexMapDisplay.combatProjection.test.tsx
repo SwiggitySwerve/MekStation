@@ -3623,9 +3623,44 @@ describe('HexMapDisplay combat projection', () => {
     expect(screen.getByTestId('hex-combat-tooltip-weapons')).toHaveTextContent(
       'Weapons: medium-laser',
     );
-    expect(
-      screen.getByTestId('hex-combat-tooltip-visibility'),
-    ).toHaveTextContent('Visibility: visible (visible enemy)');
+    const visibilityRows = screen.getByTestId('hex-combat-tooltip-visibility');
+    expect(visibilityRows).toHaveTextContent(
+      'Visibility: visible (visible enemy)',
+    );
+    expect(visibilityRows).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(visibilityRows).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    expect(visibilityRows).toHaveAttribute(
+      'data-tactical-rules-surface',
+      'combat',
+    );
+    expect(visibilityRows).toHaveAttribute(
+      'data-combat-visibility-state',
+      'visible',
+    );
+    expect(visibilityRows).toHaveAttribute(
+      'data-combat-visibility-visible-target-ids',
+      'enemy',
+    );
+    expect(visibilityRows).toHaveAttribute(
+      'data-combat-visibility-obscured-target-ids',
+      '',
+    );
+    expect(visibilityRows).toHaveAttribute(
+      'data-combat-visibility-source-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(visibilityRows).toHaveAttribute(
+      'data-combat-visibility-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
+    );
     expect(
       screen.queryByTestId('hex-combat-tooltip-cover'),
     ).not.toBeInTheDocument();
@@ -4242,6 +4277,32 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       screen.getByTestId('hex-tactical-tooltip-combat-geometry'),
     ).toHaveTextContent('LOS clear; front arc');
+    const tacticalVisibilityRows = screen.getByTestId(
+      'hex-tactical-tooltip-combat-visibility',
+    );
+    expect(tacticalVisibilityRows).toHaveTextContent(
+      'Visibility: visible (visible enemy)',
+    );
+    expect(tacticalVisibilityRows).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(tacticalVisibilityRows).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    expect(tacticalVisibilityRows).toHaveAttribute(
+      'data-combat-visibility-state',
+      'visible',
+    );
+    expect(tacticalVisibilityRows).toHaveAttribute(
+      'data-combat-visibility-visible-target-ids',
+      'enemy',
+    );
+    expect(tacticalVisibilityRows).toHaveAttribute(
+      'data-combat-visibility-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
+    );
     expect(
       screen.getByTestId('hex-tactical-tooltip-combat-reason'),
     ).toHaveTextContent('Out of weapon range');
@@ -4413,9 +4474,40 @@ describe('HexMapDisplay combat projection', () => {
     );
 
     fireEvent.mouseEnter(lastKnownHex);
-    expect(
-      screen.getByTestId('hex-combat-tooltip-visibility'),
-    ).toHaveTextContent('Visibility: last known (obscured enemy-last-known)');
+    const visibilityRows = screen.getByTestId('hex-combat-tooltip-visibility');
+    expect(visibilityRows).toHaveTextContent(
+      'Visibility: last known (obscured enemy-last-known)',
+    );
+    expect(visibilityRows).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(visibilityRows).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    expect(visibilityRows).toHaveAttribute(
+      'data-combat-visibility-state',
+      'lastKnown',
+    );
+    expect(visibilityRows).toHaveAttribute(
+      'data-combat-visibility-visible-target-ids',
+      '',
+    );
+    expect(visibilityRows).toHaveAttribute(
+      'data-combat-visibility-obscured-target-ids',
+      'enemy-last-known',
+    );
+    expect(visibilityRows).toHaveAttribute(
+      'data-combat-visibility-source-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(visibilityRows).toHaveAttribute(
+      'data-combat-visibility-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
+    );
     expect(screen.getByTestId('hex-combat-tooltip-reason')).toHaveTextContent(
       'Last known contact is not currently visible',
     );

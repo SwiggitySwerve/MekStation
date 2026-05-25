@@ -1494,6 +1494,16 @@ attack validation, or attack resolution; it makes the visible environment
 restriction explanation inspectable without relying on aggregate combat hex
 metadata.
 
+2026-05-25 combat visibility context rule-reference pin: Combat visibility
+context rows in combat and combined tactical hovers now expose combat-channel
+source references and MegaMek rule references from the shared per-hex tactical
+projection while also pinning the projected visibility state plus visible and
+obscured target IDs. Browser coverage now asserts the same source-backed row for
+mixed visible/hidden/last-known contacts. This does not change fog visibility,
+target legality, LOS classification, attack validation, or attack resolution;
+it makes the visible target-visibility explanation inspectable without relying
+on aggregate combat hex metadata.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:
