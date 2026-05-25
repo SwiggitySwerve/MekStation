@@ -52,6 +52,7 @@ const combatOnlyScenarios = new Set([
   'fog-los-terrain-blocked',
   'selected-weapon-out-of-arc',
   'vehicle-sponson-in-arc',
+  'vehicle-locked-turret-out-of-arc',
   'same-hex-weapon-blocked',
   'elevation-los-blocked',
   'woods-los-blocked',
@@ -90,6 +91,8 @@ const selectedWeaponIdsByScenario = {
   'selected-weapon-out-of-arc':
     arcScenarios.tacticalMapOutOfArcSelectedWeaponIds,
   'vehicle-sponson-in-arc': arcScenarios.tacticalMapSponsonArcSelectedWeaponIds,
+  'vehicle-locked-turret-out-of-arc':
+    arcScenarios.tacticalMapLockedTurretSelectedWeaponIds,
   'same-hex-weapon-blocked': sameHex.tacticalMapSameHexSelectedWeaponIds,
   'elevation-los-blocked':
     elevationLos.tacticalMapElevationLosSelectedWeaponIds,
@@ -118,6 +121,8 @@ const targetUnitIdByScenario = {
   'fog-los-terrain-blocked': visibility.tacticalMapFogLosTargetId,
   'selected-weapon-out-of-arc': arcScenarios.tacticalMapOutOfArcTargetId,
   'vehicle-sponson-in-arc': arcScenarios.tacticalMapSponsonArcTargetId,
+  'vehicle-locked-turret-out-of-arc':
+    arcScenarios.tacticalMapLockedTurretTargetId,
   'same-hex-weapon-blocked': sameHex.tacticalMapSameHexTargetId,
   'elevation-los-blocked': elevationLos.tacticalMapElevationLosTargetId,
   'woods-los-blocked': elevationLos.tacticalMapWoodsLosTargetId,
@@ -146,6 +151,8 @@ const tokensByScenario = {
   'fog-los-terrain-blocked': visibility.tacticalMapFogLosTokens,
   'selected-weapon-out-of-arc': arcScenarios.tacticalMapOutOfArcTokens,
   'vehicle-sponson-in-arc': arcScenarios.tacticalMapSponsonArcTokens,
+  'vehicle-locked-turret-out-of-arc':
+    arcScenarios.tacticalMapLockedTurretTokens,
   'same-hex-weapon-blocked': sameHex.tacticalMapSameHexTokens,
   'elevation-los-blocked': elevationLos.tacticalMapElevationLosTokens,
   'woods-los-blocked': elevationLos.tacticalMapWoodsLosTokens,
@@ -180,6 +187,8 @@ const combatStateByScenario = {
   'fog-los-terrain-blocked': visibility.tacticalMapFogLosCombatState,
   'selected-weapon-out-of-arc': arcScenarios.tacticalMapOutOfArcCombatState,
   'vehicle-sponson-in-arc': arcScenarios.tacticalMapSponsonArcCombatState,
+  'vehicle-locked-turret-out-of-arc':
+    arcScenarios.tacticalMapLockedTurretCombatState,
   'same-hex-weapon-blocked': sameHex.tacticalMapSameHexCombatState,
   'elevation-los-blocked': elevationLos.tacticalMapElevationLosCombatState,
   'woods-los-blocked': elevationLos.tacticalMapWoodsLosCombatState,
@@ -246,6 +255,7 @@ const selectedHexByScenario = {
   'impossible-stand-up': standUp.tacticalMapStandUpSelectedHex,
   'selected-weapon-out-of-arc': { q: 0, r: 0 },
   'vehicle-sponson-in-arc': { q: 0, r: 0 },
+  'vehicle-locked-turret-out-of-arc': { q: 0, r: 0 },
   'same-hex-weapon-blocked': { q: 0, r: 0 },
   'elevation-los-blocked': { q: 0, r: 0 },
   'woods-los-blocked': { q: 0, r: 0 },
@@ -333,6 +343,8 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
     {
       'selected-weapon-out-of-arc': arcScenarios.tacticalMapOutOfArcUnitWeapons,
       'vehicle-sponson-in-arc': arcScenarios.tacticalMapSponsonArcUnitWeapons,
+      'vehicle-locked-turret-out-of-arc':
+        arcScenarios.tacticalMapLockedTurretUnitWeapons,
     },
     tacticalMapUnitWeapons,
   );

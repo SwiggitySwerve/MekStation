@@ -7,6 +7,8 @@ import {
 } from '@/types/gameplay';
 
 import {
+  tacticalMapLockedTurretCombatProjection,
+  tacticalMapLockedTurretCommitInput,
   tacticalMapOutOfArcCombatProjection,
   tacticalMapOutOfArcCommitInput,
   tacticalMapSponsonArcCombatProjection,
@@ -1640,6 +1642,62 @@ describe('tactical map combat scenarios', () => {
     expect(payload.toHitNumber).toBe(
       tacticalMapSponsonArcCombatProjection.toHitNumber,
     );
+  });
+
+  it('keeps locked vehicle turret side targets blocked between projection and commit validation', () => {
+    expect(tacticalMapLockedTurretCombatProjection).toMatchObject({
+      hex: { q: -2, r: 2 },
+      distance: 2,
+      rangeBracket: 'short',
+      firingArc: 'left-side',
+      inRange: true,
+      inArc: false,
+      attackable: false,
+      targetUnitIds: ['locked-turret-side-target'],
+      validTargetUnitIds: [],
+      weaponIdsInRange: ['locked-turret-ppc'],
+      weaponIdsInArc: [],
+      weaponIdsAvailable: [],
+      attackInvalidReason: 'OutOfArc',
+      attackInvalidDetails:
+        'No selected weapons can fire into the left-side arc',
+      blockedReason: 'No weapons cover left-side arc',
+      weaponRangeOptions: [
+        {
+          weaponId: 'locked-turret-ppc',
+          rangeBracket: 'short',
+          inRange: true,
+          inArc: false,
+          available: false,
+          blockedReason: 'out of left-side arc',
+        },
+      ],
+    });
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapLockedTurretCommitInput(),
+    );
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackLocked),
+    ).toBe(false);
+
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'locked-turret-side-target',
+      weaponId: 'locked-turret-ppc',
+      reason: tacticalMapLockedTurretCombatProjection.attackInvalidReason,
+      details: tacticalMapLockedTurretCombatProjection.attackInvalidDetails,
+    });
   });
 
   it('keeps same-hex weapon-attack browser projection aligned with attack commit validation', () => {

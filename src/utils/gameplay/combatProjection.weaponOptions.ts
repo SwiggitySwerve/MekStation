@@ -13,7 +13,7 @@ import {
   weaponBracketAtDistance,
   weaponCanCoverTargetArc,
 } from './combatProjection.targeting';
-import { determineArc } from './firingArcs';
+import { determineArc, firingArcProjectionLabel } from './firingArcs';
 import { representedWaterAttackInvalidStateForWeapon } from './underwaterAttacks';
 
 export function weaponImpactForStatus(
@@ -132,6 +132,9 @@ function weaponOptionBlockedReason({
   readonly targetArc: ReturnType<typeof determineArc>['arc'] | null;
 }): string | undefined {
   if (!inRange) return 'out of range';
-  if (!inArc) return targetArc ? `out of ${targetArc} arc` : 'no firing arc';
+  if (!inArc)
+    return targetArc
+      ? `out of ${firingArcProjectionLabel(targetArc)} arc`
+      : 'no firing arc';
   return environmentInvalidDetails;
 }

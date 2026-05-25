@@ -870,9 +870,17 @@ The focused Jest fixture aligns `deriveCombatRangeHexes` with committed
 projection proves the left-side firing arc, while Playwright checks the same
 in-arc weapon availability metadata on the hex, combat badge, and arc badge.
 This keeps the MegaMek `Tank.getWeaponArc` and `Mounted` source pin visible at
-the browser layer instead of only in adapter/projection unit tests. Locked
-turrets, chin pivot penalties, and right-sponson mirror fixtures remain
-separate coverage slices.
+the browser layer instead of only in adapter/projection unit tests.
+
+2026-05-25 locked-turret browser pin: the tactical-map browser harness now
+derives a represented single vehicle turret's locked coverage from
+`getVehicleWeaponArcs(... turretLocked: true)`, proving that the same turret
+that would otherwise cover all chassis arcs collapses to front-only coverage
+when locked. The focused Jest fixture aligns the projected `OutOfArc` rejection
+with committed `AttackInvalid` details for a clear left-side target, while
+Playwright checks the hex, combat badge, invalid badge, arc badge, and
+per-weapon blocked reason metadata. Chin pivot penalties and right-sponson
+mirror fixtures remain separate coverage slices.
 
 Additional selected-weapon extreme-range overlay pin: the firing-arc overlay
 now uses represented `ranges.extreme` when present while deriving selected

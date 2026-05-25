@@ -99,6 +99,22 @@ export function determineArc(
   };
 }
 
+export function firingArcProjectionLabel(
+  arc: FiringArc,
+): 'front' | 'left-side' | 'right-side' | 'rear' {
+  switch (arc) {
+    case FiringArc.Left:
+      return 'left-side';
+    case FiringArc.Right:
+      return 'right-side';
+    case FiringArc.Rear:
+      return 'rear';
+    case FiringArc.Front:
+    default:
+      return 'front';
+  }
+}
+
 /**
  * Get all hexes in a specific arc at a given range.
  * Note: This is approximate and useful for visualization, not exact arc checking.

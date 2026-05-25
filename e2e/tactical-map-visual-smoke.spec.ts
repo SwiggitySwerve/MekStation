@@ -3413,6 +3413,104 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows locked vehicle turret side target as out of arc in browser', async ({
+    page,
+  }) => {
+    await page.goto(
+      '/e2e/tactical-map?scenario=vehicle-locked-turret-out-of-arc',
+    );
+
+    const targetHex = page.getByTestId('hex--2-2');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'locked-turret-side-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-distance', '2');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-range-bracket',
+      'short',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-firing-arc',
+      'left-side',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-in-arc', 'false');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-valid-target',
+      'false',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-reason',
+      'OutOfArc',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-details',
+      'No selected weapons can fire into the left-side arc',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-blocked-reason',
+      'No weapons cover left-side arc',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-in-range',
+      'locked-turret-ppc',
+    );
+    await expect(targetHex).toHaveAttribute('data-weapons-in-arc', '');
+    await expect(targetHex).toHaveAttribute('data-weapons-available', '');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-ranges',
+      'locked-turret-ppc:short',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-arc-states',
+      'locked-turret-ppc:out-of-arc',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-availability',
+      'locked-turret-ppc:blocked',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-blocked-reasons',
+      'locked-turret-ppc:out of left-side arc',
+    );
+
+    const combatBadge = page.getByTestId('hex-combat-badge--2-2');
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-attackable',
+      'false',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-arc-states',
+      'locked-turret-ppc:out-of-arc',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-blocked-reasons',
+      'locked-turret-ppc:out of left-side arc',
+    );
+
+    const invalidBadge = page.getByTestId('hex-combat-invalid-badge--2-2');
+    await expect(invalidBadge.locator('text')).toHaveText('ARC');
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'OutOfArc',
+    );
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-reason',
+      'No selected weapons can fire into the left-side arc',
+    );
+
+    const arcBadge = page.getByTestId('hex-combat-arc-badge--2-2');
+    await expect(arcBadge.locator('text')).toHaveText('L ARC');
+    await expect(arcBadge).toHaveAttribute(
+      'data-combat-arc-badge-arc',
+      'left-side',
+    );
+    await expect(arcBadge).toHaveAttribute(
+      'data-combat-arc-badge-in-arc',
+      'false',
+    );
+  });
+
   test('shows all selected weapons out of range as blocked in browser', async ({
     page,
   }) => {

@@ -40,7 +40,10 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
-import { determineArc } from '@/utils/gameplay/firingArcs';
+import {
+  determineArc,
+  firingArcProjectionLabel,
+} from '@/utils/gameplay/firingArcs';
 import {
   createAttackInvalidEvent,
   createMovementInvalidEvent,
@@ -555,7 +558,7 @@ export function applyInteractiveSessionAttack(
       input.attackerId,
       input.targetId,
       'OutOfArc',
-      `No selected weapons can fire into the ${targetArc} arc`,
+      `No selected weapons can fire into the ${firingArcProjectionLabel(targetArc)} arc`,
       input.weaponIds[0],
     );
   }
