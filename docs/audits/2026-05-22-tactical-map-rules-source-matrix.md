@@ -1504,6 +1504,15 @@ target legality, LOS classification, attack validation, or attack resolution;
 it makes the visible target-visibility explanation inspectable without relying
 on aggregate combat hex metadata.
 
+2026-05-25 combat cover context rule-reference pin: Combat cover context rows in
+combat and combined tactical hovers now expose combat-channel source references
+and MegaMek rule references from the shared per-hex tactical projection while
+pinning the projected cover level, cover modifier, partial-cover flag, and cover
+reason. This does not change cover classification, target numbers, LOS
+classification, target legality, attack validation, or attack resolution; it
+makes the visible cover explanation inspectable without relying on aggregate
+combat hex metadata.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

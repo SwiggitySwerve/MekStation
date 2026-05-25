@@ -17,6 +17,7 @@ import {
   formatTerrainFeaturesLabel,
 } from './HexCell.labels';
 import { CombatC3ContextRows } from './HexMapDisplay.combatC3Context';
+import { CombatCoverContextRows } from './HexMapDisplay.combatCoverContext';
 import { CombatEnvironmentContextRows } from './HexMapDisplay.combatEnvironmentContext';
 import { CombatLosContextRows } from './HexMapDisplay.combatLosContext';
 import { CombatVisibilityContextRows } from './HexMapDisplay.combatVisibilityContext';
@@ -26,7 +27,6 @@ import { MovementModeOptionRows } from './HexMapDisplay.movementOptionRows';
 import { IsometricOccluderContextRows } from './HexMapDisplay.terrainTooltip';
 import { CombatToHitModifierRows } from './HexMapDisplay.toHitModifierRows';
 import {
-  formatCombatCoverLabel,
   formatCombatWeaponImpactLabel,
   formatCombatWeaponLabel,
   formatMovementPathSummaryLabel,
@@ -139,7 +139,6 @@ export function CombinedTacticalHoverTooltip({
       : 'No target';
   const weaponLabel = formatCombatWeaponLabel(combatInfo);
   const weaponImpactLabel = formatCombatWeaponImpactLabel(combatInfo);
-  const coverLabel = formatCombatCoverLabel(combatInfo);
   const modifierLabel = formatToHitModifierLabel(combatInfo);
   const movementReason = movementReasonText(movementInfo);
   const combatReason = combatReasonText(combatInfo);
@@ -289,9 +288,11 @@ export function CombinedTacticalHoverTooltip({
         projection={projection}
         testId="hex-tactical-tooltip-combat-visibility"
       />
-      {coverLabel && (
-        <div data-testid="hex-tactical-tooltip-combat-cover">{coverLabel}</div>
-      )}
+      <CombatCoverContextRows
+        combatInfo={combatInfo}
+        projection={projection}
+        testId="hex-tactical-tooltip-combat-cover"
+      />
       {combatInfo.minimumRangeReason && (
         <div data-testid="hex-tactical-tooltip-combat-minimum-range">
           {combatInfo.minimumRangeReason}

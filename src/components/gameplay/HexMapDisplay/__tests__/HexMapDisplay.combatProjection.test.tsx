@@ -2401,8 +2401,35 @@ describe('HexMapDisplay combat projection', () => {
     );
 
     fireEvent.mouseEnter(targetHex);
-    expect(screen.getByTestId('hex-combat-tooltip-cover')).toHaveTextContent(
+    const coverRows = screen.getByTestId('hex-combat-tooltip-cover');
+    expect(coverRows).toHaveTextContent(
       'Cover: partial +1 - Target behind building partial cover at (1, 0) (+1)',
+    );
+    expect(coverRows).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(coverRows).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    expect(coverRows).toHaveAttribute('data-tactical-rules-surface', 'combat');
+    expect(coverRows).toHaveAttribute('data-combat-cover-level', 'partial');
+    expect(coverRows).toHaveAttribute('data-combat-cover-modifier', '1');
+    expect(coverRows).toHaveAttribute('data-combat-cover-partial', 'true');
+    expect(coverRows).toHaveAttribute(
+      'data-combat-cover-reason',
+      'Target behind building partial cover at (1, 0) (+1)',
+    );
+    expect(coverRows).toHaveAttribute(
+      'data-combat-cover-source-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(coverRows).toHaveAttribute(
+      'data-combat-cover-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
     );
   });
 
