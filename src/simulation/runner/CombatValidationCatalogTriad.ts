@@ -325,8 +325,8 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
   featureSupport: {
     pilotAbilities: FEATURE_TRIAD,
     canonicalPilotAbilityScope: triad(
-      'requirement-primary-authority',
-      'Canonical SPA rows inherit the SPA/quirk catalog authority boundary and carry row sourceRefs where a MegaMek option or rule was identified.',
+      'entry-source-refs',
+      'Canonical SPA rows must carry row-level sourceRefs that bind each canonical id to the MekStation SPA catalog plus the pinned MegaMek pilot option registry, including explicit helper-only and unsupported scope partitions.',
       FEATURE_REFS,
     ),
     mechQuirks: FEATURE_TRIAD,

@@ -23,6 +23,7 @@
 - [x] 1.17 Pin integrated movement tactical command rows to MekStation command-factory source refs so walk, run, jump, stand, go-prone, MASC, and Supercharger command surfaces do not rely on prose-only catalog evidence.
 - [x] 1.18 Pin non-BattleMech event-scope rows to MekStation vehicle, battle-armor, swarm, leg-attack, and stealth event sources so event-family splits do not rely on prose-only catalog evidence.
 - [x] 1.19 Pin BattleMech event-stream rows to MekStation lifecycle, phase, movement, ranged attack, damage, heat, PSR, physical, objective, morale, retreat, ejection, and unsupported enum-boundary sources so event coverage cannot rely on broad event prose.
+- [x] 1.20 Promote canonical pilot ability scope to row-level source refs so every canonical SPA id cites MekStation catalog anchors plus pinned MegaMek pilot option registry evidence instead of inheriting broad SPA/quirk authority.
 
 ## 2. Physical attack legality gates
 
@@ -191,6 +192,7 @@
 - [x] 3.4.39 Integrate source-backed target evasion physical to-hit modifiers through helper calculation, event-sourced `declarePhysicalAttack` and resolution, runner physical resolution, OpenSpec coverage, and focused behavior tests while leaving Evade movement-step creation and Skilled Evasion scaling gaps explicit.
 - [x] 3.4.40 Integrate source-backed semi-guided TAG to-hit parity through helper calculation, event-sourced `declareAttack`, runner `AttackDeclared`, catalog support, OpenSpec coverage, and focused behavior tests while keeping semi-guided TAG out of cluster-table behavior.
 - [x] 3.4.41 Remove the legacy semi-guided TAG cluster helper export from official helper surfaces, catalog rows, tests, and runner missile resolution.
+- [x] 3.4.42 Source-pin every canonical SPA scope row across integrated, helper-only, unsupported, infantry, ATOW, bioware, unofficial, and Edge partitions so canonical catalog coverage cannot rely on prose-only authority.
 - [x] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -323,3 +325,4 @@
 - [x] 4.3.90 Cross-check validation-scope rows against knownLimitations bypass logic, catalog contracts, fallback guards, variable-damage parsing, ammo-scope splits, and non-BattleMech event-scope anchors before promoting the scope triad to row-level source references.
 - [x] 4.3.91 Cross-check non-BattleMech event-scope rows against MekStation vehicle event factories/tests, battle-armor event factories, swarm-fire scenarios, leg-attack action/scenario paths, and stealth helper tests before promoting the non-BattleMech event triad to row-level source references.
 - [x] 4.3.92 Cross-check BattleMech event-stream rows against MekStation event factories, runner phases, session helpers, reducers, representative tests, and unsupported planning enum boundaries before promoting the BattleMech event triad to row-level source references.
+- [x] 4.3.93 Cross-check MegaMek `PilotOptions`/`OptionsConstants` and MekStation canonical SPA category files before promoting `canonicalPilotAbilityScope` to row-level source references.

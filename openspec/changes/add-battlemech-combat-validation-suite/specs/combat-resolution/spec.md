@@ -1168,6 +1168,18 @@ Pilot modifier validation SHALL keep local-only SPA rows visible as MekStation d
 - **AND** the row SHALL cite the MekStation SPA catalog as a `mekstation-deviation`
 - **AND** no row SHALL be promoted to integrated until an implementation and source-backed combat authority exist
 
+### Requirement: Canonical SPA Scope Source References
+
+Pilot modifier validation SHALL treat every canonical SPA catalog row as source-checkable evidence. Each `canonicalPilotAbilityScope` row SHALL carry structured source references to the MekStation canonical SPA catalog plus the pinned MegaMek pilot option registry or category-specific source boundary that justifies the row's integrated, helper-only, unsupported, or out-of-BattleMech-matrix classification.
+
+#### Scenario: Canonical SPA rows cannot inherit prose-only authority
+
+- **GIVEN** the canonical SPA combat scope catalog is generated
+- **WHEN** any canonical SPA row is inspected
+- **THEN** the row SHALL carry at least one anchored `mekstation-deviation` reference to the canonical SPA catalog or category file
+- **AND** the row SHALL carry anchored source references for MegaMek `PilotOptions` or `OptionsConstants` when the id is mirrored from the MegaMek pilot option registry
+- **AND** helper-only or unsupported rows for infantry, ATOW, bioware, unofficial, and Edge partitions SHALL cite the specific partition authority that keeps the row out of integrated BattleMech combat coverage
+
 ### Requirement: Source-Backed Edge Trigger Boundary
 
 Pilot modifier validation SHALL keep Edge as helper-only trigger-state coverage until combat resolvers consume each trigger-specific Edge behavior. Edge rows SHALL cite MegaMek's point-pool and trigger-option source anchors plus MekStation's local generic trigger helper. The `edge_when_masc_fails` trigger SHALL be counted as consumed by runner `MASCFailure` and `SuperchargerFailure` PSR rerolls only; TAC, head-hit, KO, explosion, attack, non-booster PSR, and consciousness resolvers SHALL NOT be treated as Edge-integrated until those trigger-specific reroll or prevention paths are wired.

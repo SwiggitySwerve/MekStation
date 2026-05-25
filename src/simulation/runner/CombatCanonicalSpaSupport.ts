@@ -2,6 +2,7 @@ import type { ISPADefinition } from '@/types/spa/SPADefinition';
 
 import { CANONICAL_SPA_LIST, resolveSPAId } from '@/lib/spa';
 
+import { canonicalSpaScopeSourceRefs } from './CombatCanonicalSpaSourceRefs';
 import {
   SPA_COMBAT_SUPPORT,
   type ICombatFeatureSourceReference,
@@ -46,11 +47,29 @@ function cloneForCanonicalSpa(
   spa: ISPADefinition,
   support: ICombatFeatureSupportEntry,
 ): ICombatFeatureSupportEntry {
+  const sourceRefs = mergeSourceRefs(
+    support.sourceRefs ?? [],
+    canonicalSpaScopeSourceRefs(spa),
+  );
+
   return {
     ...support,
     id: spa.id,
     evidence: `${support.evidence}; canonical SPA catalog id ${spa.id} is covered through the combat SPA support map`,
+    sourceRefs,
   };
+}
+
+function mergeSourceRefs(
+  ...sourceRefGroups: readonly (readonly ICombatFeatureSourceReference[])[]
+): readonly ICombatFeatureSourceReference[] {
+  return Array.from(
+    new Map(
+      sourceRefGroups
+        .flatMap((sourceRefs) => [...sourceRefs])
+        .map((sourceRef) => [`${sourceRef.kind}:${sourceRef.url}`, sourceRef]),
+    ).values(),
+  );
 }
 
 function canonicalSpaFallback(spa: ISPADefinition): ICombatFeatureSupportEntry {
@@ -61,6 +80,7 @@ function canonicalSpaFallback(spa: ISPADefinition): ICombatFeatureSupportEntry {
     return unsupported(
       spa.id,
       `${evidence}; unofficial SPAs are excluded from the official BattleMech validation matrix until explicitly enabled`,
+      canonicalSpaScopeSourceRefs(spa),
     );
   }
 
@@ -69,6 +89,7 @@ function canonicalSpaFallback(spa: ISPADefinition): ICombatFeatureSupportEntry {
       spa.id,
       evidence,
       'Infantry-scoped SPAs belong in the separate infantry or battle-armor validation matrix',
+      canonicalSpaScopeSourceRefs(spa),
     );
   }
 
@@ -77,6 +98,7 @@ function canonicalSpaFallback(spa: ISPADefinition): ICombatFeatureSupportEntry {
       spa.id,
       evidence,
       'Manei Domini/bioware SPA effects are catalog-visible but not hydrated into BattleMech combat resolvers',
+      canonicalSpaScopeSourceRefs(spa),
     );
   }
 
@@ -85,6 +107,7 @@ function canonicalSpaFallback(spa: ISPADefinition): ICombatFeatureSupportEntry {
       spa.id,
       evidence,
       'Trigger-specific Edge SPAs are catalog-visible; edge_when_masc_fails is consumed by runner MASC/Supercharger failure rerolls, while attack, other PSR, consciousness, and critical resolvers still do not consume Edge trigger state',
+      canonicalSpaScopeSourceRefs(spa),
     );
   }
 
@@ -93,6 +116,7 @@ function canonicalSpaFallback(spa: ISPADefinition): ICombatFeatureSupportEntry {
       spa.id,
       evidence,
       'ATOW/origin-level SPA effects are catalog-visible but not hydrated into BattleMech combat resolvers',
+      canonicalSpaScopeSourceRefs(spa),
     );
   }
 
@@ -100,6 +124,7 @@ function canonicalSpaFallback(spa: ISPADefinition): ICombatFeatureSupportEntry {
     spa.id,
     evidence,
     'No combat support entry or resolver consumes this canonical SPA id yet',
+    canonicalSpaScopeSourceRefs(spa),
   );
 }
 

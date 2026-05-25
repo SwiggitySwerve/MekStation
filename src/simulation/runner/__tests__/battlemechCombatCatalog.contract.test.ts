@@ -2165,16 +2165,18 @@ describe('BattleMech combat feature-gap tracking', () => {
       level: 'integrated',
       evidence: expect.stringContaining('ground-to-air'),
     });
+    const shakyStickRefs =
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.shaky_stick.sourceRefs ?? [];
+    const shakyStickCitations = shakyStickRefs.map(({ citation }) => citation);
+    expect(shakyStickCitations).toEqual(
+      expect.arrayContaining([
+        'MegaMek ComputeAbilityMods.processDefenderSPAs applies +1 Shaky Stick when an airborne or airborne VTOL/WIGE target is attacked by a non-airborne attacker.',
+        'MegaMek OptionsConstants defines PILOT_SHAKY_STICK as shaky_stick.',
+        'MekStation CANONICAL_SPA_LIST aggregates piloting, gunnery, miscellaneous, infantry, ATOW, bioware, unofficial, and Edge SPA tables into the row universe validated by canonicalPilotAbilityScope.',
+      ]),
+    );
     expect(
-      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.shaky_stick.sourceRefs?.map(
-        ({ citation }) => citation,
-      ),
-    ).toEqual([
-      'MegaMek ComputeAbilityMods.processDefenderSPAs applies +1 Shaky Stick when an airborne or airborne VTOL/WIGE target is attacked by a non-airborne attacker.',
-      'MegaMek OptionsConstants defines PILOT_SHAKY_STICK as shaky_stick.',
-    ]);
-    expect(
-      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.shaky_stick.sourceRefs?.every(
+      shakyStickRefs.some(
         (sourceRef) =>
           sourceRef.kind === 'megamek-source' &&
           sourceRef.sourceVersion ===
@@ -2184,6 +2186,62 @@ describe('BattleMech combat feature-gap tracking', () => {
           sourceRef.url.includes('#L'),
       ),
     ).toBe(true);
+  });
+
+  it('pins every canonical SPA scope row to anchored source refs', () => {
+    const invalidRefs = Object.entries(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT)
+      .flatMap(([id, entry]) => {
+        const sourceRefs = entry.sourceRefs ?? [];
+        if (sourceRefs.length === 0) return [`${id}: missing sourceRefs`];
+
+        return sourceRefs.flatMap((sourceRef, index) => {
+          const refId = `${id}.sourceRefs[${index}]`;
+          const failures: string[] = [];
+
+          if (sourceRef.citation.trim().length === 0) {
+            failures.push(`${refId}: missing citation`);
+          }
+          if (!sourceRef.url.includes('#L')) {
+            failures.push(`${refId}: missing line anchor`);
+          }
+          if (sourceRef.sourceVersion.trim().length === 0) {
+            failures.push(`${refId}: missing sourceVersion`);
+          }
+          if (
+            sourceRef.kind === 'megamek-source' &&
+            (!sourceRef.url.includes('github.com/MegaMek/megamek/blob/') ||
+              !sourceRef.url.includes(sourceRef.sourceVersion))
+          ) {
+            failures.push(`${refId}: MegaMek ref is not commit-pinned`);
+          }
+
+          return failures;
+        });
+      })
+      .sort();
+
+    expect(invalidRefs).toEqual([]);
+    expect(
+      Object.entries(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT)
+        .filter(
+          ([, entry]) =>
+            !(entry.sourceRefs ?? []).some(
+              (sourceRef) => sourceRef.kind === 'mekstation-deviation',
+            ),
+        )
+        .map(([id]) => id),
+    ).toEqual([]);
+    expect(
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_masc_fails.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        'MegaMek TWGameManager consumes EDGE_WHEN_MASC_FAILS to reroll failed MASC checks, spends Edge, and suppresses failure processing when the reroll passes.',
+        'MekStation psrEdgeRerolls consumes edge_when_masc_fails to reroll failed MASCFailure and SuperchargerFailure PSRs before applying fall or booster-failure aftermath.',
+        'MekStation Edge SPA table defines the trigger-specific canonical Edge rows that canonicalPilotAbilityScope keeps helper-only except for MASC/Supercharger reroll consumption.',
+      ]),
+    );
   });
 
   it('tracks ejection as UI-visible with lifecycle event and network intent support', () => {
