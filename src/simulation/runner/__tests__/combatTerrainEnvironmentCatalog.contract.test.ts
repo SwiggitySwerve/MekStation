@@ -355,7 +355,7 @@ describe('BattleMech terrain and environment combat support catalog', () => {
           }),
           expect.objectContaining({
             kind: 'mekstation-deviation',
-            url: 'src/simulation/runner/phases/postCombat.ts#L282-L314',
+            url: 'src/simulation/runner/phases/postCombat.ts#L340-L376',
           }),
         ]),
       );

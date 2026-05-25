@@ -222,9 +222,10 @@ describe('runMovementPhase movement validation parity', () => {
       to: target,
       mpUsed: 2,
       heatGenerated: 1,
+      hexesMoved: 1,
     });
     expect(next.units['player-1'].position).toEqual(target);
-    expect(next.units['player-1'].hexesMovedThisTurn).toBe(2);
+    expect(next.units['player-1'].hexesMovedThisTurn).toBe(1);
     expect(next.units['player-1'].heat).toBe(0);
   });
 
