@@ -147,6 +147,7 @@ export const COMBAT_REQUIREMENT_PRIMARY_AUTHORITIES = {
   'heat-generation': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
   'heat-dissipation': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
   'heat-lifecycle': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'heat-driven-modifiers': MEGAMEK_TACTICAL_SOURCE_AUTHORITY,
   'range-validation': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
   'attack-invalidation': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
   'to-hit-core-modifiers': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
@@ -295,6 +296,16 @@ const HEAT_LIFECYCLE_SUPPORT_REFS = [
   'maxtech-pilot-heat-damage',
   'maxtech-heat-critical-damage',
 ].map((id) => `ruleSupport.heatRules.${id}`);
+
+const HEAT_DRIVEN_MODIFIER_SUPPORT_REFS = [
+  'featureSupport.pilotAbilities.hot-dog',
+  'featureSupport.pilotAbilities.some-like-it-hot',
+  'featureSupport.pilotAbilities.cool-under-fire',
+  'featureSupport.mechQuirks.improved_cooling',
+  'featureSupport.mechQuirks.poor_cooling',
+  'featureSupport.mechQuirks.no_cooling',
+  'pilotSkills.pilotModifierResolvers.heat-application',
+];
 
 const RANGE_BRACKET_SUPPORT_REFS = supportRefs(
   'ruleSupport',
@@ -623,6 +634,12 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
     'heat-lifecycle',
     'Heat rules cover threshold effects, shutdown checks, auto-shutdown, startup, heat pilot damage, optional MaxTech heat critical damage, and runner/event-sourced heat-induced ammo explosion selection plus CASE-aware damage cascade',
     HEAT_LIFECYCLE_SUPPORT_REFS,
+  ),
+  'heat-driven-modifiers': helperOnly(
+    'heat-driven-modifiers',
+    'Heat-driven modifier support separates source-backed Hot Dog heat roll relief, Some Like It Hot heat to-hit relief, and weapon cooling quirk heat changes from local-only Cool Under Fire generated-heat relief',
+    'Cool Under Fire source authority is unresolved, so generated-heat relief remains helper-only and cannot be counted as complete heat-modifier parity',
+    HEAT_DRIVEN_MODIFIER_SUPPORT_REFS,
   ),
   'range-validation': integrated(
     'range-validation',

@@ -114,6 +114,7 @@
 - [x] 3.3.7 Route opt-in MaxTech pilot heat-damage checks through runner and interactive heat resolution, including Hot Dog avoid-number relief.
 - [x] 3.3.8 Route opt-in MaxTech heat-scale critical-damage checks through runner and interactive heat resolution, including Hot Dog avoid-number relief and random BattleMech critical-location routing.
 - [x] 3.3.9 Source-pin every heat rule row for weapon heat, movement/jump heat, engine crit heat, dissipation, heat-sink damage, threshold effects, water/fire/environment heat, shutdown/startup, ammo explosion, pilot heat damage, and optional MaxTech heat-damage boundaries; promote heat rule triad enforcement to row-level source refs while marking atmosphere heat as a MekStation deviation.
+- [x] 3.3.10 Add a first-class heat-driven-modifiers requirement so Hot Dog, Some Like It Hot, weapon cooling quirks, and local-only Cool Under Fire cannot be hidden inside integrated core heat lifecycle coverage.
 - [ ] 3.4 Expand to-hit validation coverage for range, movement, terrain, pilot skills, special abilities, quirks, sensors, prone state, and indirect fire.
 - [x] 3.4.1 Add support-matrix tests that separate runner-integrated to-hit modifiers from helper-only modifier math.
 - [x] 3.4.2 Cross-link pilot skill, SPA, canonical SPA, quirk, and pilot modifier resolver support rows into pilot/SPAs/quirks requirement checklists.

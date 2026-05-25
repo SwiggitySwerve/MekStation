@@ -71,6 +71,7 @@ const EXPECTED_REQUIREMENT_IDS = [
   'event-stream',
   'fallback-prevention',
   'heat-dissipation',
+  'heat-driven-modifiers',
   'heat-generation',
   'heat-lifecycle',
   'known-limitation-audit',
@@ -430,6 +431,37 @@ describe('BattleMech combat validation requirement crosswalk', () => {
       'ruleSupport.heatRules.maxtech-pilot-heat-damage',
       'ruleSupport.heatRules.maxtech-heat-critical-damage',
     ]);
+  });
+
+  it('keeps heat-driven modifiers separate from core heat lifecycle coverage', () => {
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['heat-driven-modifiers'],
+    ).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('Some Like It Hot'),
+      gap: expect.stringContaining('Cool Under Fire'),
+    });
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['heat-driven-modifiers']
+        .supportMapRefs,
+    ).toEqual([
+      'featureSupport.pilotAbilities.hot-dog',
+      'featureSupport.pilotAbilities.some-like-it-hot',
+      'featureSupport.pilotAbilities.cool-under-fire',
+      'featureSupport.mechQuirks.improved_cooling',
+      'featureSupport.mechQuirks.poor_cooling',
+      'featureSupport.mechQuirks.no_cooling',
+      'pilotSkills.pilotModifierResolvers.heat-application',
+    ]);
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT[
+        'heat-driven-modifiers'
+      ].supportMapRefs.filter((ref) => resolveSupportRef(ref) === undefined),
+    ).toEqual([]);
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['heat-lifecycle']
+        .supportMapRefs,
+    ).not.toContain('pilotSkills.pilotModifierResolvers.heat-application');
   });
 
   it('backs range requirements with every range bracket support row', () => {
@@ -831,6 +863,9 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['heat-lifecycle'].level,
     ).toBe('integrated');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['heat-driven-modifiers'].level,
+    ).toBe('helper-only');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-enhancements'].level,
     ).toBe('helper-only');

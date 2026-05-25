@@ -1355,6 +1355,15 @@ Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior 
 - **AND** Cool Under Fire SHALL be helper-only with the unresolved source authority recorded as a gap
 - **AND** the heat-application resolver SHALL remain helper-only while Cool Under Fire source authority is unresolved
 
+#### Scenario: Heat-driven modifiers remain separate from core heat lifecycle completeness
+
+- **GIVEN** core heat generation, dissipation, and lifecycle rows are integrated
+- **WHEN** the BattleMech validation requirement crosswalk is inspected
+- **THEN** heat-driven pilot ability and quirk modifiers SHALL have their own `heat-driven-modifiers` requirement
+- **AND** that requirement SHALL reference Hot Dog, Some Like It Hot, Cool Under Fire, Improved Cooling, Poor Cooling, No Cooling, and the heat-application resolver row
+- **AND** the requirement SHALL remain helper-only while Cool Under Fire source authority is unresolved
+- **AND** the integrated `heat-lifecycle` requirement SHALL NOT imply complete heat-driven modifier parity
+
 ### Requirement: Source-Backed Consciousness Toughness Boundary
 
 Consciousness-related pilot ability rows SHALL distinguish MegaMek RPG Toughness, Pain Resistance, and Iron Man semantics from MekStation legacy aliases before claiming parity. RPG Toughness SHALL be treated as a game-option-gated numeric crew toughness target-number reduction, not as the Pain Resistance SPA. Pain Resistance SHALL be source-backed as +1 consciousness and wake-up rolls plus ammunition-explosion pilot-damage reduction, not ranged to-hit wound-penalty relief. Iron Man SHALL be source-backed as ammunition-explosion pilot-hit reduction, not generic consciousness target-number relief. MekStation local Iron Will and Toughness aliases SHALL remain helper-only until source-backed ids or explicit migration behavior are represented.
