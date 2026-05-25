@@ -29,6 +29,9 @@ the top-down map.
 - **AND** a tracked vehicle destination with an over-limit elevation change
   SHALL expose the terrain-blocked elevation reason, elevation delta/cost, and
   a non-color invalid badge
+- **AND** a hover vehicle destination over represented deep water SHALL expose
+  reachable movement, zero terrain/elevation surcharge, motive metadata, and
+  the water/smoke terrain layers
 - **AND** a movement-blocked hex SHALL expose the engine-aligned rejection
   reason and render an invalid badge that does not rely on color alone
 - **AND** a LOS-blocked combat target SHALL expose the blocked target id,

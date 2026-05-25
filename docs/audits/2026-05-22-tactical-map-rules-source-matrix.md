@@ -372,6 +372,15 @@ metadata, preserves `run:TerrainBlocked` / `Water blocks ground movement` in
 the movement option attributes, shows a non-color `R BLK` badge, and feeds the
 same projected path into committed movement validation as `Walk`.
 
+Hover water browser pin: the tactical-map browser harness now includes a hover
+vehicle crossing a deep-water hex with smoke layered above it. The map renders
+the destination as legal `walk` via `hover`, exposes `mpCost: 1`,
+`terrainCost: 0`, `elevationCost: 0`, `heatGenerated: 0`, and preserves
+`water:2` plus `smoke:1` terrain metadata. A fixture-level Jest parity test
+sends that same one-step path through `validateCommittedMovement`, proving the
+browser-visible hover exemption is accepted by the commit gate with matching MP,
+heat, and path.
+
 Additional UMU/swim water-movement pin: MegaMek
 `EntityMovementMode.java:47-67` defines `BIPED_SWIM`, `QUAD_SWIM`, and
 `INF_UMU`, with helper predicates at `EntityMovementMode.java:140-154`.

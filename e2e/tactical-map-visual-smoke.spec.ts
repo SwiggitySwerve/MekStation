@@ -759,6 +759,55 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows hover water crossing as legal zero-terrain movement in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=hover-water-crossing');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('SM1');
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('HV');
+
+    const waterHex = page.getByTestId('hex-1-0');
+    await expect(waterHex).toHaveAttribute('data-reachable', 'true');
+    await expect(waterHex).toHaveAttribute('data-movement-type', 'walk');
+    await expect(waterHex).toHaveAttribute('data-movement-mode', 'hover');
+    await expect(waterHex).toHaveAttribute('data-mp-cost', '1');
+    await expect(waterHex).toHaveAttribute('data-terrain-cost', '0');
+    await expect(waterHex).toHaveAttribute('data-elevation-delta', '0');
+    await expect(waterHex).toHaveAttribute('data-elevation-cost', '0');
+    await expect(waterHex).toHaveAttribute('data-heat-generated', '0');
+    await expect(waterHex).toHaveAttribute(
+      'data-terrain-features',
+      'water,smoke',
+    );
+    await expect(waterHex).toHaveAttribute(
+      'data-terrain-feature-levels',
+      'smoke:1|water:2',
+    );
+
+    const movementBadge = page.getByTestId('hex-movement-badge-1-0');
+    await expect(movementBadge.locator('text')).toHaveText('W/HOV 1MP');
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-type',
+      'walk',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-mode',
+      'hover',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-mp-cost',
+      '1',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-heat-generated',
+      '0',
+    );
+    await expect(page.getByTestId('hex-movement-cost-badge-1-0')).toHaveCount(
+      0,
+    );
+  });
+
   test('shows tracked vehicle abrupt elevation as blocked in browser', async ({
     page,
   }) => {

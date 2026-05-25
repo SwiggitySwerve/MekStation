@@ -1,6 +1,10 @@
 import { validateCommittedMovement } from '@/utils/gameplay/movement/commitValidation';
 
 import {
+  tacticalMapHoverWaterCommitInput,
+  tacticalMapHoverWaterMovementRange,
+} from '../tactical-map.hover-water-scenario';
+import {
   tacticalMapBipedOptionCommitInputs,
   tacticalMapBipedOptionMovementRange,
   tacticalMapJumpElevationCommitInput,
@@ -249,5 +253,34 @@ describe('tactical map movement scenarios', () => {
     expect(result.details).toBe(projection.movementInvalidDetails);
     expect(result.mpCost).toBe(projection.mpCost);
     expect(result.heatGenerated).toBe(projection.heatGenerated);
+  });
+
+  it('keeps hover water crossing legal between browser projection and commit validation', () => {
+    const projection = tacticalMapHoverWaterMovementRange[0];
+
+    expect(projection).toMatchObject({
+      hex: { q: 1, r: 0 },
+      reachable: true,
+      movementMode: 'hover',
+      movementType: 'walk',
+      mpCost: 1,
+      terrainCost: 0,
+      elevationDelta: 0,
+      elevationCost: 0,
+      heatGenerated: 0,
+    });
+
+    const result = validateCommittedMovement(
+      tacticalMapHoverWaterCommitInput(),
+    );
+
+    expect(result.valid).toBe(true);
+    if (!result.valid) {
+      throw new Error(result.details);
+    }
+
+    expect(result.mpCost).toBe(projection.mpCost);
+    expect(result.heatGenerated).toBe(projection.heatGenerated);
+    expect(result.path).toEqual(projection.path);
   });
 });

@@ -84,6 +84,9 @@
 - [x] 2.33 Add browser coverage proving a tracked vehicle abrupt elevation
   climb renders as blocked with the same terrain-blocked elevation reason the
   movement commit validator uses.
+- [x] 2.34 Add browser coverage proving a hover vehicle can cross deep water
+  with zero terrain/elevation surcharge while preserving water/smoke terrain
+  metadata.
 
 ## 3. Validation
 
@@ -153,3 +156,5 @@
 - [x] 3.33 Focused Jest parity and Playwright smoke pass for tracked vehicle
   abrupt elevation blocking, top-down elevation label, and invalid badge
   labeling.
+- [x] 3.34 Focused Jest parity and Playwright smoke pass for hover deep-water
+  crossing legality, cost metadata, and terrain layer labeling.
