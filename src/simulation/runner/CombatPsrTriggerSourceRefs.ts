@@ -96,14 +96,19 @@ export const MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS = [
     'L6022-L6048',
   ),
   mekstationDeviationRef(
-    'MekStation runPSRPhase routes failed MASCFailure resolution through applyMASCFailureCriticalDamage, which applies one critical hit to each leg from the current manifest.',
+    'MekStation runPSRPhase routes failed MASCFailure and SuperchargerFailure resolution through movement-enhancement failure critical-damage helpers.',
     'src/simulation/runner/phases/postCombat.ts',
-    'L131-L149',
+    'L134-L169',
   ),
   mekstationDeviationRef(
-    'MekStation applyMASCFailureCriticalDamage uses the critical-slot manifest/effect pipeline and emits CriticalHit/CriticalHitResolved/ComponentDestroyed events for the MASC failure leg hits.',
+    'MekStation movement-enhancement failure critical-damage helpers use the critical-slot manifest/effect pipeline for failed MASC and Supercharger checks.',
     'src/simulation/runner/phases/movementEnhancementFailureDamage.ts',
-    'L150-L215',
+    'L157-L326',
+  ),
+  mekstationDeviationRef(
+    'MekStation movement-enhancement failure event translation emits CriticalHit/CriticalHitResolved/ComponentDestroyed events for failed MASC and Supercharger checks.',
+    'src/simulation/runner/phases/movementEnhancementFailureEvents.ts',
+    'L11-L138',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

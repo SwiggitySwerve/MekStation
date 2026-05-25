@@ -846,8 +846,8 @@ export const MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT = {
   ),
   [MovementEnhancementType.SUPERCHARGER]: helperOnly(
     MovementEnhancementType.SUPERCHARGER,
-    'UnitHydration detects installed Supercharger, runMovementPhase consumes explicit active Supercharger run MP, movementEnhancementPsr queues createSuperchargerFailurePSR with source-backed standard fixed failure target numbers, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers still expose sprint_combined formula support',
-    'No combat MovementType.Sprint, IndustrialMek/support-unit supercharger roll adjustment, Edge reroll, or failure critical-slot damage is wired',
+    'UnitHydration detects installed Supercharger, runMovementPhase consumes explicit active Supercharger run MP, movementEnhancementPsr queues createSuperchargerFailurePSR with source-backed standard fixed failure target numbers, runPSRPhase destroys the Supercharger slot and applies the source-backed engine critical table when that check fails, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers still expose sprint_combined formula support',
+    'No combat MovementType.Sprint, IndustrialMek/support-unit supercharger roll adjustment, Edge reroll, separate first-step equipment-check timing, or non-BattleMech motive-damage branch is wired',
     MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
   ),
   [MovementEnhancementType.TSM]: integrated(

@@ -1,7 +1,4 @@
-import type { D6Roller } from '@/utils/gameplay/hitLocation';
-
 import {
-  GameEventType,
   type GamePhase,
   type IComponentDamageState,
   type IGameEvent,
@@ -14,15 +11,26 @@ import {
   type CriticalHitEvent,
   type CriticalSlotManifest,
 } from '@/utils/gameplay/criticalHitResolution';
+import { roll2d6, type D6Roller } from '@/utils/gameplay/hitLocation';
 
-import { createGameEvent } from './utils';
+import { emitMovementEnhancementFailureCriticalEvents } from './movementEnhancementFailureEvents';
 
 const MASC_FAILURE_LEG_CRITICAL_LOCATIONS = ['left_leg', 'right_leg'] as const;
+const SUPERCHARGER_ENGINE_CRITICAL_LOCATION = 'center_torso';
+const SUPERCHARGER_DESTROYED_LABEL = 'Supercharger';
 
 export interface IMASCFailureCriticalDamageResult {
   readonly unit: IUnitGameState;
   readonly manifest: CriticalSlotManifest;
   readonly criticalEvents: readonly CriticalHitEvent[];
+}
+
+export interface ISuperchargerFailureCriticalDamageResult {
+  readonly unit: IUnitGameState;
+  readonly manifest: CriticalSlotManifest;
+  readonly criticalEvents: readonly CriticalHitEvent[];
+  readonly engineCriticalRoll: number;
+  readonly engineHits: number;
 }
 
 function markCriticalSlotDestroyed(
@@ -39,112 +47,111 @@ function markCriticalSlotDestroyed(
   };
 }
 
-function emitMASCFailureCriticalEvents(options: {
-  readonly events: IGameEvent[];
-  readonly gameId: string;
-  readonly turn: number;
-  readonly phase: GamePhase;
-  readonly unitId: string;
-  readonly criticalEvents: readonly CriticalHitEvent[];
-  readonly pilotingSkill?: number;
-}): void {
-  const { criticalEvents, events, gameId, phase, pilotingSkill, turn, unitId } =
-    options;
+function isSuperchargerSlotName(componentName: string): boolean {
+  return componentName
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+    .includes('supercharger');
+}
 
-  for (const event of criticalEvents) {
-    if (event.type === 'critical_hit_resolved') {
-      const payload = event.payload;
-      events.push(
-        createGameEvent(
-          gameId,
-          events.length,
-          GameEventType.CriticalHit,
-          turn,
-          phase,
-          {
-            unitId,
-            location: payload.location,
-            sourceUnitId: unitId,
-            component: payload.componentType,
-            count: 1,
-          },
-          unitId,
-        ),
-      );
-      events.push(
-        createGameEvent(
-          gameId,
-          events.length,
-          GameEventType.CriticalHitResolved,
-          turn,
-          phase,
-          {
-            unitId,
-            location: payload.location,
-            slotIndex: payload.slotIndex,
-            componentType: payload.componentType,
-            componentName: payload.componentName,
-            ...(payload.ammoBinId !== undefined
-              ? { ammoBinId: payload.ammoBinId }
-              : {}),
-            effect: payload.effect,
-            destroyed: payload.destroyed,
-          },
-          unitId,
-        ),
-      );
-
-      if (payload.destroyed) {
-        events.push(
-          createGameEvent(
-            gameId,
-            events.length,
-            GameEventType.ComponentDestroyed,
-            turn,
-            phase,
-            {
-              unitId,
-              location: payload.location,
-              componentType: payload.componentType,
-              slotIndex: payload.slotIndex,
-              componentName: payload.componentName,
-              ...(payload.ammoBinId !== undefined
-                ? { ammoBinId: payload.ammoBinId }
-                : {}),
-            },
-            unitId,
-          ),
-        );
-      }
-      continue;
+function findSuperchargerSlot(manifest: CriticalSlotManifest):
+  | {
+      readonly location: string;
+      readonly slotIndex: number;
     }
-
-    if (event.type === 'psr_triggered') {
-      const payload = event.payload;
-      events.push(
-        createGameEvent(
-          gameId,
-          events.length,
-          GameEventType.PSRTriggered,
-          turn,
-          phase,
-          {
-            unitId,
-            reason: payload.reason,
-            additionalModifier: payload.additionalModifier,
-            triggerSource: payload.triggerSource,
-            ...(pilotingSkill !== undefined
-              ? { basePilotingSkill: pilotingSkill }
-              : {}),
-            ...(payload.reasonCode !== undefined
-              ? { reasonCode: payload.reasonCode }
-              : {}),
-          },
-          unitId,
-        ),
-      );
+  | undefined {
+  for (const [location, slots] of Object.entries(manifest)) {
+    const slot = slots.find(
+      (entry) =>
+        !entry.destroyed &&
+        entry.componentType === 'equipment' &&
+        isSuperchargerSlotName(entry.componentName),
+    );
+    if (slot) {
+      return { location, slotIndex: slot.slotIndex };
     }
   }
+  return undefined;
+}
+
+function selectEngineCriticalSlots(
+  manifest: CriticalSlotManifest,
+  engineHits: number,
+): readonly { readonly location: string; readonly slotIndex: number }[] {
+  if (engineHits <= 0) return [];
+  const slots = manifest[SUPERCHARGER_ENGINE_CRITICAL_LOCATION] ?? [];
+  return slots
+    .filter((slot) => !slot.destroyed && slot.componentType === 'engine')
+    .slice(0, engineHits)
+    .map((slot) => ({
+      location: SUPERCHARGER_ENGINE_CRITICAL_LOCATION,
+      slotIndex: slot.slotIndex,
+    }));
+}
+
+function criticalSlotAt(
+  manifest: CriticalSlotManifest,
+  location: string,
+  slotIndex: number,
+) {
+  return manifest[location]?.find((slot) => slot.slotIndex === slotIndex);
+}
+
+function applyManifestCriticalSlot(options: {
+  readonly manifest: CriticalSlotManifest;
+  readonly componentDamage: IComponentDamageState;
+  readonly unitId: string;
+  readonly location: string;
+  readonly slotIndex: number;
+}): {
+  readonly manifest: CriticalSlotManifest;
+  readonly componentDamage: IComponentDamageState;
+  readonly events: readonly CriticalHitEvent[];
+} {
+  const { componentDamage, location, manifest, slotIndex, unitId } = options;
+  const slot = criticalSlotAt(manifest, location, slotIndex);
+  if (!slot || slot.destroyed) {
+    return { manifest, componentDamage, events: [] };
+  }
+
+  const updatedManifest = markCriticalSlotDestroyed(
+    manifest,
+    location,
+    slotIndex,
+  );
+  const applied = applyCriticalHitEffect(
+    slot,
+    unitId,
+    location,
+    componentDamage,
+  );
+  return {
+    manifest: updatedManifest,
+    componentDamage: applied.updatedComponentDamage,
+    events: applied.events,
+  };
+}
+
+function superchargerEngineHitsFromRoll(roll: number): number {
+  if (roll <= 7) return 0;
+  if (roll <= 9) return 1;
+  if (roll <= 11) return 2;
+  return 3;
+}
+
+function appendDestroyedEquipment(
+  unit: IUnitGameState,
+  equipmentName: string,
+): readonly string[] {
+  return unit.destroyedEquipment.includes(equipmentName)
+    ? unit.destroyedEquipment
+    : [...unit.destroyedEquipment, equipmentName];
+}
+
+function destroyedByCriticalEvents(
+  criticalEvents: readonly CriticalHitEvent[],
+): boolean {
+  return criticalEvents.some((event) => event.type === 'unit_destroyed');
 }
 
 export function applyMASCFailureCriticalDamage(options: {
@@ -198,7 +205,7 @@ export function applyMASCFailureCriticalDamage(options: {
     turn !== undefined &&
     phase !== undefined
   ) {
-    emitMASCFailureCriticalEvents({
+    emitMovementEnhancementFailureCriticalEvents({
       events,
       gameId,
       turn,
@@ -216,5 +223,104 @@ export function applyMASCFailureCriticalDamage(options: {
     },
     manifest: currentManifest,
     criticalEvents,
+  };
+}
+
+export function applySuperchargerFailureCriticalDamage(options: {
+  readonly unit: IUnitGameState;
+  readonly unitId: string;
+  readonly manifest?: CriticalSlotManifest;
+  readonly componentDamage: IComponentDamageState;
+  readonly d6Roller: D6Roller;
+  readonly events?: IGameEvent[];
+  readonly gameId?: string;
+  readonly turn?: number;
+  readonly phase?: GamePhase;
+}): ISuperchargerFailureCriticalDamageResult {
+  const {
+    componentDamage,
+    d6Roller,
+    events,
+    gameId,
+    phase,
+    turn,
+    unit,
+    unitId,
+  } = options;
+  let currentManifest = options.manifest ?? buildDefaultCriticalSlotManifest();
+  let currentDamage = componentDamage;
+  const criticalEvents: CriticalHitEvent[] = [];
+
+  const superchargerSlot = findSuperchargerSlot(currentManifest);
+  if (superchargerSlot) {
+    const applied = applyManifestCriticalSlot({
+      manifest: currentManifest,
+      componentDamage: currentDamage,
+      unitId,
+      location: superchargerSlot.location,
+      slotIndex: superchargerSlot.slotIndex,
+    });
+    currentManifest = applied.manifest;
+    currentDamage = applied.componentDamage;
+    criticalEvents.push(...applied.events);
+  }
+
+  const engineCriticalRoll = roll2d6(d6Roller).total;
+  const engineHits = superchargerEngineHitsFromRoll(engineCriticalRoll);
+  for (const engineSlot of selectEngineCriticalSlots(
+    currentManifest,
+    engineHits,
+  )) {
+    const applied = applyManifestCriticalSlot({
+      manifest: currentManifest,
+      componentDamage: currentDamage,
+      unitId,
+      location: engineSlot.location,
+      slotIndex: engineSlot.slotIndex,
+    });
+    currentManifest = applied.manifest;
+    currentDamage = applied.componentDamage;
+    criticalEvents.push(...applied.events);
+  }
+
+  if (
+    criticalEvents.length > 0 &&
+    events !== undefined &&
+    gameId !== undefined &&
+    turn !== undefined &&
+    phase !== undefined
+  ) {
+    emitMovementEnhancementFailureCriticalEvents({
+      events,
+      gameId,
+      turn,
+      phase,
+      unitId,
+      criticalEvents,
+      pilotingSkill: unit.piloting,
+    });
+  }
+
+  return {
+    unit: {
+      ...unit,
+      hasSupercharger: false,
+      activeSupercharger: false,
+      destroyedEquipment: appendDestroyedEquipment(
+        unit,
+        SUPERCHARGER_DESTROYED_LABEL,
+      ),
+      componentDamage: currentDamage,
+      destroyed: destroyedByCriticalEvents(criticalEvents)
+        ? true
+        : unit.destroyed,
+      destructionCause: destroyedByCriticalEvents(criticalEvents)
+        ? 'engine_destroyed'
+        : unit.destructionCause,
+    },
+    manifest: currentManifest,
+    criticalEvents,
+    engineCriticalRoll,
+    engineHits,
   };
 }

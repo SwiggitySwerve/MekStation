@@ -22,6 +22,7 @@ import {
   createMASCFailurePSR,
   createRubblePSR,
   createSkiddingPSR,
+  createSuperchargerFailurePSR,
 } from '@/utils/gameplay/pilotingSkillRolls';
 import { UNIT_QUIRK_IDS } from '@/utils/gameplay/quirkModifiers';
 
@@ -472,6 +473,115 @@ describe('runPSRPhase behavior', () => {
     expect(manifestsByUnit.get('player-1')?.right_leg?.[0]?.destroyed).toBe(
       true,
     );
+  });
+
+  it('applies source-backed Supercharger failure engine-table damage', () => {
+    const unit = makeUnit({
+      hasSupercharger: true,
+      activeSupercharger: true,
+      pendingPSRs: [createSuperchargerFailurePSR('player-1')],
+    });
+    const state = makeState(unit);
+    const events: IGameEvent[] = [];
+    const manifest = buildCriticalSlotManifest({
+      center_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'Supercharger',
+          destroyed: false,
+        },
+        {
+          slotIndex: 1,
+          componentType: 'engine',
+          componentName: 'Engine',
+          destroyed: false,
+        },
+        {
+          slotIndex: 2,
+          componentType: 'engine',
+          componentName: 'Engine',
+          destroyed: false,
+        },
+        {
+          slotIndex: 3,
+          componentType: 'engine',
+          componentName: 'Engine',
+          destroyed: false,
+        },
+      ],
+    });
+    const manifestsByUnit = new Map([['player-1', manifest]]);
+
+    const next = runPSRPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: sequenceRandom([0, 0, 0.99, 0.99, 0.99, 0.99]),
+      manifestsByUnit,
+    });
+
+    const resolved = events.find((e) => e.type === GameEventType.PSRResolved);
+    const criticals = events
+      .filter((e) => e.type === GameEventType.CriticalHitResolved)
+      .map((e) => e.payload);
+    const destroyed = events.find(
+      (e) => e.type === GameEventType.UnitDestroyed,
+    );
+
+    expect(resolved?.payload).toMatchObject({
+      unitId: 'player-1',
+      passed: false,
+      reasonCode: PSRTrigger.SuperchargerFailure,
+    });
+    expect(criticals).toMatchObject([
+      {
+        unitId: 'player-1',
+        location: 'center_torso',
+        componentType: 'equipment',
+        componentName: 'Supercharger',
+      },
+      {
+        unitId: 'player-1',
+        location: 'center_torso',
+        componentType: 'engine',
+      },
+      {
+        unitId: 'player-1',
+        location: 'center_torso',
+        componentType: 'engine',
+      },
+      {
+        unitId: 'player-1',
+        location: 'center_torso',
+        componentType: 'engine',
+      },
+    ]);
+    expect(destroyed?.payload).toMatchObject({
+      unitId: 'player-1',
+      cause: 'engine_destroyed',
+    });
+    expect(next.units['player-1']).toMatchObject({
+      hasSupercharger: false,
+      activeSupercharger: false,
+      destroyed: true,
+      destructionCause: 'engine_destroyed',
+      componentDamage: {
+        engineHits: 3,
+      },
+    });
+    expect(next.units['player-1'].destroyedEquipment).toContain('Supercharger');
+    expect(
+      manifestsByUnit.get('player-1')?.center_torso?.map((slot) => ({
+        slotIndex: slot.slotIndex,
+        destroyed: slot.destroyed,
+      })),
+    ).toEqual([
+      { slotIndex: 0, destroyed: true },
+      { slotIndex: 1, destroyed: true },
+      { slotIndex: 2, destroyed: true },
+      { slotIndex: 3, destroyed: true },
+    ]);
   });
 
   it('applies consciousness SPAs after PSR fall pilot damage', () => {

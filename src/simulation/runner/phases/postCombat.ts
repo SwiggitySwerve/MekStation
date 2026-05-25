@@ -45,7 +45,10 @@ import { applyRunnerHeatPilotDamage } from './heatPilotDamage';
 import { queueRunnerShutdownPSR } from './heatShutdownPsr';
 import { applyRunnerStartupAttempt } from './heatStartup';
 import { emitHeatThresholdEvents } from './heatThresholdEvents';
-import { applyMASCFailureCriticalDamage } from './movementEnhancementFailureDamage';
+import {
+  applyMASCFailureCriticalDamage,
+  applySuperchargerFailureCriticalDamage,
+} from './movementEnhancementFailureDamage';
 import { createD6Roller, createGameEvent } from './utils';
 import { applyCriticalPSRTriggers } from './weaponAttackPsrTriggers';
 
@@ -128,7 +131,8 @@ export function runPSRPhase(options: {
     if (batchResult.unitFell) {
       let currentUnit = currentState.units[unitId];
       const failedPsr = batchResult.results.find((r) => !r.passed);
-      if (failedPsr?.psr.reasonCode === PSRTrigger.MASCFailure) {
+      const failureReason = failedPsr?.psr.reasonCode;
+      if (failureReason === PSRTrigger.MASCFailure) {
         const mascDamage = applyMASCFailureCriticalDamage({
           unit: currentUnit,
           unitId,
@@ -144,6 +148,23 @@ export function runPSRPhase(options: {
         currentUnit = mascDamage.unit;
         if (manifestsByUnit) {
           manifestsByUnit.set(unitId, mascDamage.manifest);
+        }
+      } else if (failureReason === PSRTrigger.SuperchargerFailure) {
+        const superchargerDamage = applySuperchargerFailureCriticalDamage({
+          unit: currentUnit,
+          unitId,
+          manifest: getOrSeedManifest(unitId),
+          componentDamage:
+            currentUnit.componentDamage ?? DEFAULT_COMPONENT_DAMAGE,
+          d6Roller,
+          events,
+          gameId,
+          turn: currentState.turn,
+          phase: currentState.phase,
+        });
+        currentUnit = superchargerDamage.unit;
+        if (manifestsByUnit) {
+          manifestsByUnit.set(unitId, superchargerDamage.manifest);
         }
       }
 

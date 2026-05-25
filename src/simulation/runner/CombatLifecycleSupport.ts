@@ -404,8 +404,8 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
   ),
   [PSRTrigger.SuperchargerFailure]: helperOnly(
     PSRTrigger.SuperchargerFailure,
-    'movementEnhancementPsr queues createSuperchargerFailurePSR for explicit active Supercharger run movement with source-backed standard fixed target numbers, and resetTurnState advances/decays prior-use counters before clearing active use',
-    'IndustrialMek/support-unit supercharger roll adjustment, Edge reroll, and failure critical-slot damage are not wired',
+    'movementEnhancementPsr queues createSuperchargerFailurePSR for explicit active Supercharger run movement with source-backed standard fixed target numbers, runPSRPhase destroys the Supercharger slot and applies the source-backed engine critical table when that check fails, and resetTurnState advances/decays prior-use counters before clearing active use',
+    'IndustrialMek/support-unit supercharger roll adjustment, Edge reroll, separate first-step equipment-check timing, and non-BattleMech motive-damage branches are not wired',
     MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS,
   ),
 } satisfies Record<PSRTrigger, ICombatFeatureSupportEntry>;
