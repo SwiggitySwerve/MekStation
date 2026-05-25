@@ -504,6 +504,20 @@ const MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS = [
     url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L13660-L13770`,
     sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
   },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MASC failure applies one random hittable critical slot in each leg and explicitly does not destroy the MASC system.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L13966-L13976`,
+    sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Supercharger failure rolls a separate engine-damage table, damages the Supercharger slot, and then applies the resulting critical slots.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L6022-L6048`,
+    sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
+  },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const MEGAMEK_PARTIAL_WING_MOVEMENT_SOURCE_REFS = [
@@ -826,8 +840,8 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
 export const MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT = {
   [MovementEnhancementType.MASC]: helperOnly(
     MovementEnhancementType.MASC,
-    'UnitHydration detects installed MASC, runMovementPhase consumes explicit active MASC run MP, movementEnhancementPsr queues createMASCFailurePSR with source-backed standard fixed failure target numbers, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers still expose sprint_masc formula support',
-    'No combat MovementType.Sprint, alternate MASC option tables, Edge reroll, or failure critical-slot damage is wired',
+    'UnitHydration detects installed MASC, runMovementPhase consumes explicit active MASC run MP, movementEnhancementPsr queues createMASCFailurePSR with source-backed standard fixed failure target numbers, runPSRPhase applies one critical hit to each leg when that check fails, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers still expose sprint_masc formula support',
+    'No combat MovementType.Sprint, alternate MASC option tables, Edge reroll, or separate first-step equipment-check timing is wired',
     MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
   ),
   [MovementEnhancementType.SUPERCHARGER]: helperOnly(

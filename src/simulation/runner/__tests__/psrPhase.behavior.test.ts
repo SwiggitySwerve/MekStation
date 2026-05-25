@@ -1,3 +1,4 @@
+import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import {
   Facing,
   GameEventType,
@@ -14,9 +15,11 @@ import {
   PSRTrigger,
 } from '@/types/gameplay';
 import { UnitType } from '@/types/unit';
+import { buildCriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
 import {
   createEnteringWaterPSR,
   createDamagePSR,
+  createMASCFailurePSR,
   createRubblePSR,
   createSkiddingPSR,
 } from '@/utils/gameplay/pilotingSkillRolls';
@@ -33,6 +36,13 @@ import { DEFAULT_COMPONENT_DAMAGE } from '../SimulationRunnerConstants';
 
 function fixedRandom(nextValue: number): SeededRandom {
   return { next: () => nextValue } as unknown as SeededRandom;
+}
+
+function sequenceRandom(values: readonly number[]): SeededRandom {
+  let index = 0;
+  return {
+    next: () => values[Math.min(index++, values.length - 1)] ?? 0,
+  } as unknown as SeededRandom;
 }
 
 function makeUnit(overrides: Partial<IUnitGameState> = {}): IUnitGameState {
@@ -375,6 +385,93 @@ describe('runPSRPhase behavior', () => {
       destroyed: true,
       pendingPSRs: [],
     });
+  });
+
+  it('applies source-backed MASC failure critical hits to one slot in each leg', () => {
+    const unit = makeUnit({
+      hasMASC: true,
+      activeMASC: true,
+      pendingPSRs: [createMASCFailurePSR('player-1')],
+    });
+    const state = makeState(unit);
+    const events: IGameEvent[] = [];
+    const manifest = buildCriticalSlotManifest({
+      left_leg: [
+        {
+          slotIndex: 0,
+          componentType: 'actuator',
+          componentName: ActuatorType.UPPER_LEG,
+          actuatorType: ActuatorType.UPPER_LEG,
+          destroyed: false,
+        },
+      ],
+      right_leg: [
+        {
+          slotIndex: 0,
+          componentType: 'jump_jet',
+          componentName: 'Jump Jet',
+          destroyed: false,
+        },
+      ],
+    });
+    const manifestsByUnit = new Map([['player-1', manifest]]);
+
+    const next = runPSRPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: sequenceRandom([0, 0, 0, 0, 0.99, 0.99]),
+      manifestsByUnit,
+    });
+
+    const resolved = events.find((e) => e.type === GameEventType.PSRResolved);
+    const criticals = events
+      .filter((e) => e.type === GameEventType.CriticalHitResolved)
+      .map((e) => e.payload);
+    const actuatorPsr = events.find(
+      (e) => e.type === GameEventType.PSRTriggered,
+    );
+
+    expect(resolved?.payload).toMatchObject({
+      unitId: 'player-1',
+      passed: false,
+      reasonCode: PSRTrigger.MASCFailure,
+    });
+    expect(criticals).toMatchObject([
+      {
+        unitId: 'player-1',
+        location: 'left_leg',
+        componentType: 'actuator',
+        componentName: ActuatorType.UPPER_LEG,
+      },
+      {
+        unitId: 'player-1',
+        location: 'right_leg',
+        componentType: 'jump_jet',
+        componentName: 'Jump Jet',
+      },
+    ]);
+    expect(actuatorPsr?.payload).toMatchObject({
+      unitId: 'player-1',
+      reasonCode: PSRTrigger.UpperLegActuatorHit,
+    });
+    expect(next.units['player-1']).toMatchObject({
+      prone: true,
+      pilotConscious: true,
+      hasMASC: true,
+      componentDamage: {
+        jumpJetsDestroyed: 1,
+        actuators: {
+          [ActuatorType.UPPER_LEG]: true,
+        },
+      },
+    });
+    expect(manifestsByUnit.get('player-1')?.left_leg?.[0]?.destroyed).toBe(
+      true,
+    );
+    expect(manifestsByUnit.get('player-1')?.right_leg?.[0]?.destroyed).toBe(
+      true,
+    );
   });
 
   it('applies consciousness SPAs after PSR fall pilot damage', () => {

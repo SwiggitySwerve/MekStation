@@ -274,6 +274,7 @@ export class SimulationRunner {
         events,
         gameId,
         random: this.random,
+        manifestsByUnit,
       });
 
       if (isGameOver(currentState, config.turnLimit)) {
@@ -296,6 +297,7 @@ export class SimulationRunner {
         events,
         gameId,
         random: this.random,
+        manifestsByUnit,
       });
 
       if (isGameOver(currentState, config.turnLimit)) {

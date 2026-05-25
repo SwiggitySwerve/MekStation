@@ -6,6 +6,7 @@ import {
   IGameEvent,
   IGameState,
   IHexGrid,
+  PSRTrigger,
 } from '@/types/gameplay';
 import {
   buildDefaultCriticalSlotManifest,
@@ -44,6 +45,7 @@ import { applyRunnerHeatPilotDamage } from './heatPilotDamage';
 import { queueRunnerShutdownPSR } from './heatShutdownPsr';
 import { applyRunnerStartupAttempt } from './heatStartup';
 import { emitHeatThresholdEvents } from './heatThresholdEvents';
+import { applyMASCFailureCriticalDamage } from './movementEnhancementFailureDamage';
 import { createD6Roller, createGameEvent } from './utils';
 import { applyCriticalPSRTriggers } from './weaponAttackPsrTriggers';
 
@@ -52,10 +54,21 @@ export function runPSRPhase(options: {
   events: IGameEvent[];
   gameId: string;
   random: SeededRandom;
+  manifestsByUnit?: Map<string, CriticalSlotManifest>;
 }): IGameState {
-  const { events, gameId, random, state } = options;
+  const { events, gameId, manifestsByUnit, random, state } = options;
   let currentState = state;
   const d6Roller = createD6Roller(random);
+  const getOrSeedManifest = (id: string): CriticalSlotManifest => {
+    if (manifestsByUnit) {
+      const existing = manifestsByUnit.get(id);
+      if (existing) return existing;
+      const seeded = buildDefaultCriticalSlotManifest();
+      manifestsByUnit.set(id, seeded);
+      return seeded;
+    }
+    return buildDefaultCriticalSlotManifest();
+  };
 
   for (const unitId of Object.keys(currentState.units)) {
     const unit = currentState.units[unitId];
@@ -113,7 +126,27 @@ export function runPSRPhase(options: {
     }
 
     if (batchResult.unitFell) {
-      const currentUnit = currentState.units[unitId];
+      let currentUnit = currentState.units[unitId];
+      const failedPsr = batchResult.results.find((r) => !r.passed);
+      if (failedPsr?.psr.reasonCode === PSRTrigger.MASCFailure) {
+        const mascDamage = applyMASCFailureCriticalDamage({
+          unit: currentUnit,
+          unitId,
+          manifest: getOrSeedManifest(unitId),
+          componentDamage:
+            currentUnit.componentDamage ?? DEFAULT_COMPONENT_DAMAGE,
+          slotRoller: d6Roller,
+          events,
+          gameId,
+          turn: currentState.turn,
+          phase: currentState.phase,
+        });
+        currentUnit = mascDamage.unit;
+        if (manifestsByUnit) {
+          manifestsByUnit.set(unitId, mascDamage.manifest);
+        }
+      }
+
       const newPilotWounds = currentUnit.pilotWounds + 1;
       const consciousnessCheck = resolvePilotConsciousnessCheck(
         newPilotWounds,
@@ -147,7 +180,6 @@ export function runPSRPhase(options: {
       // `'center_torso'` (canonical fall-damage location for damage-induced
       // PSR failures — PR E tightens this to a per-trigger discriminated
       // location once `PSRReasonCode` lands).
-      const failedPsr = batchResult.results.find((r) => !r.passed);
       events.push(
         createGameEvent(
           gameId,

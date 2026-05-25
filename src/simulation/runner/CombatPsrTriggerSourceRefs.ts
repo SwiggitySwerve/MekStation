@@ -85,6 +85,26 @@ export const MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS = [
     'megamek/src/megamek/common/units/Entity.java',
     'L13660-L13770',
   ),
+  megaMekSourceRef(
+    'MegaMek MASC failure applies one random hittable critical slot in each leg and explicitly does not destroy the MASC system.',
+    'megamek/src/megamek/common/units/Entity.java',
+    'L13966-L13976',
+  ),
+  megaMekSourceRef(
+    'MegaMek Supercharger failure rolls a separate engine-damage table, damages the Supercharger slot, and then applies the resulting critical slots.',
+    'megamek/src/megamek/server/totalWarfare/TWGameManager.java',
+    'L6022-L6048',
+  ),
+  mekstationDeviationRef(
+    'MekStation runPSRPhase routes failed MASCFailure resolution through applyMASCFailureCriticalDamage, which applies one critical hit to each leg from the current manifest.',
+    'src/simulation/runner/phases/postCombat.ts',
+    'L131-L149',
+  ),
+  mekstationDeviationRef(
+    'MekStation applyMASCFailureCriticalDamage uses the critical-slot manifest/effect pipeline and emits CriticalHit/CriticalHitResolved/ComponentDestroyed events for the MASC failure leg hits.',
+    'src/simulation/runner/phases/movementEnhancementFailureDamage.ts',
+    'L150-L215',
+  ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 export const HEAT_SHUTDOWN_PSR_SOURCE_REFS = [

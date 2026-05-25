@@ -398,8 +398,8 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
   ),
   [PSRTrigger.MASCFailure]: helperOnly(
     PSRTrigger.MASCFailure,
-    'movementEnhancementPsr queues createMASCFailurePSR for explicit active MASC run movement with source-backed standard fixed target numbers, and resetTurnState advances/decays prior-use counters before clearing active use',
-    'Alternate MASC option tables, Edge reroll, and failure critical-slot damage are not wired',
+    'movementEnhancementPsr queues createMASCFailurePSR for explicit active MASC run movement with source-backed standard fixed target numbers, runPSRPhase applies one critical hit to each leg when that check fails, and resetTurnState advances/decays prior-use counters before clearing active use',
+    'Alternate MASC option tables, Edge reroll, and separate first-step equipment-check timing are not wired',
     MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS,
   ),
   [PSRTrigger.SuperchargerFailure]: helperOnly(
