@@ -250,6 +250,14 @@ altitude tiers (`1-3=low +1`, `4-6=medium +2`, `7-10=high +3`) until full
 browser/fixture tests prove the visible TN and committed TN both include the
 same `Ground-to-air altitude` modifier.
 
+2026-05-25 ground-to-air agreement correction: the focused
+`InteractiveSession.attackProjectionAgreement` minimum-range aerospace case now
+asserts both sides of the active OpenSpec rule: no `Minimum Range` modifier is
+projected or committed against an airborne aerospace target, and the low-tier
+`Ground-to-air altitude` modifier is projected and committed. This keeps the
+agreement suite aligned with the existing browser/fixture altitude proof instead
+of expecting a ground-only base TN.
+
 2026-05-24 extreme-range browser update: the tactical-map browser harness now
 also selects a represented extreme-range weapon with long range 3 and extreme
 range 4 against the four-hex target, verifying that the weapon stays available

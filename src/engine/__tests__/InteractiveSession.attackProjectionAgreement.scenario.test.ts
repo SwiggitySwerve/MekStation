@@ -2643,7 +2643,7 @@ describe('interactive attack projection agreement', () => {
     expect(projection).toMatchObject({
       attackable: true,
       rangeBracket: RangeBracket.Short,
-      toHitNumber: 4,
+      toHitNumber: 5,
     });
     expect(projection?.minimumRangePenalty).toBeUndefined();
     expect(projection?.minimumRangeReason).toBeUndefined();
@@ -2651,6 +2651,15 @@ describe('interactive attack projection agreement', () => {
       expect.arrayContaining([
         expect.objectContaining({
           name: 'Minimum Range',
+        }),
+      ]),
+    );
+    expect(projection?.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Ground-to-air altitude',
+          value: 1,
+          source: 'other',
         }),
       ]),
     );
@@ -2673,6 +2682,15 @@ describe('interactive attack projection agreement', () => {
       expect.arrayContaining([
         expect.objectContaining({
           name: 'Minimum Range',
+        }),
+      ]),
+    );
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Ground-to-air altitude',
+          value: 1,
+          source: 'other',
         }),
       ]),
     );

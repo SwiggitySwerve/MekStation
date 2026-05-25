@@ -47,6 +47,7 @@ When the attacker is a ground unit and the target is an airborne aerospace unit,
 - **AND** T is an airborne aerospace unit at altitude 3 within that weapon's nominal minimum range
 - **WHEN** the tactical map projects the target and A declares the attack
 - **THEN** the preview and committed to-hit modifiers SHALL NOT include `Minimum Range`
+- **AND** the preview and committed to-hit modifiers SHALL include the ground-to-air altitude-tier penalty
 - **AND** the tactical map SHALL NOT render a minimum-range badge for T's hex
 - **AND** T's altitude and velocity metadata SHALL remain visible in top-down and isometric map projections
 
