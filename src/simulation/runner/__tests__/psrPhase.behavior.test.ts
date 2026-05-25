@@ -171,7 +171,8 @@ describe('runPSRPhase behavior', () => {
       reasonCode: PSRTrigger.PhaseDamage20Plus,
     });
     expect(QUIRK_COMBAT_SUPPORT.stable).toMatchObject({
-      level: 'integrated',
+      level: 'helper-only',
+      gap: expect.stringContaining('Kick/Push PSRs'),
     });
   });
 
@@ -210,11 +211,12 @@ describe('runPSRPhase behavior', () => {
       },
     ]);
     expect(QUIRK_COMBAT_SUPPORT.easy_to_pilot).toMatchObject({
-      level: 'integrated',
+      level: 'helper-only',
+      gap: expect.stringContaining('piloting-skill gate'),
     });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-application'],
-    ).toMatchObject({ level: 'integrated' });
+    ).toMatchObject({ level: 'helper-only' });
   });
 
   it('applies Maneuvering Ace to source-backed skidding PSR target numbers', () => {

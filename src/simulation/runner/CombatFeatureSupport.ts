@@ -31,6 +31,18 @@ import {
   MEKSTATION_SHARPSHOOTER_CALLED_SHOT_SOURCE_REFS,
 } from './CombatLegacyPilotAbilitySourceRefs';
 import {
+  MEGAMEK_ANTI_MEK_ACTUATOR_SOURCE_REFS,
+  MEGAMEK_BATTLE_FISTS_SOURCE_REFS,
+  MEGAMEK_CRAMPED_COCKPIT_SOURCE_REFS,
+  MEGAMEK_EASY_TO_PILOT_SOURCE_REFS,
+  MEGAMEK_HARD_TO_PILOT_SOURCE_REFS,
+  MEGAMEK_LOW_ARMS_GAP_SOURCE_REFS,
+  MEGAMEK_NO_ARMS_SOURCE_REFS,
+  MEGAMEK_STABLE_PSR_SOURCE_REFS,
+  MEGAMEK_UNBALANCED_SOURCE_REFS,
+  MEKHQ_RUGGED_SOURCE_REFS,
+} from './CombatLegacyQuirkSourceRefs';
+import {
   MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   MEGAMEK_DISTRACTING_QUIRK_SOURCE_REFS,
   MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
@@ -758,41 +770,57 @@ export const QUIRK_COMBAT_SUPPORT = {
       ...MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS,
     ],
   ),
-  easy_to_pilot: integrated(
+  easy_to_pilot: helperOnly(
     'easy_to_pilot',
     'calculatePilotingQuirkPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs apply terrain-only PSR target-number relief',
+    'MegaMek applies Easy Pilot to difficult-terrain and selected damage/control PSRs only when base piloting is worse than 3; MekStation currently applies a terrain-only helper without the piloting-skill gate',
+    MEGAMEK_EASY_TO_PILOT_SOURCE_REFS,
   ),
-  stable: integrated(
+  stable: helperOnly(
     'stable',
     'calculatePilotingQuirkPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs apply all-PSR target-number relief',
+    'MegaMek source-backed Stable relief is limited to Kick/Push PSRs in this snapshot; MekStation currently applies it to all PSRs',
+    MEGAMEK_STABLE_PSR_SOURCE_REFS,
   ),
   hard_to_pilot: integrated(
     'hard_to_pilot',
     'calculatePilotingQuirkPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs apply all-PSR target-number penalties',
+    MEGAMEK_HARD_TO_PILOT_SOURCE_REFS,
   ),
   unbalanced: integrated(
     'unbalanced',
     'calculatePilotingQuirkPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs apply terrain-only PSR target-number penalties',
+    MEGAMEK_UNBALANCED_SOURCE_REFS,
   ),
-  cramped_cockpit: integrated(
+  cramped_cockpit: helperOnly(
     'cramped_cockpit',
     'calculatePilotingQuirkPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs apply all-PSR target-number penalties',
+    'MegaMek Cramped Cockpit is a Mek entity bonus with a Small Pilot exception; MekStation currently applies a generic all-PSR helper without that pilot ability gate',
+    MEGAMEK_CRAMPED_COCKPIT_SOURCE_REFS,
   ),
-  battle_fists_la: integrated(
+  battle_fists_la: helperOnly(
     'battle_fists_la',
     'getBattleFistDamageBonus plus physical attack input unitQuirks increases matching-arm punch damage',
+    'MegaMek source-backed Battle Fists modify punch to-hit, not punch damage; MekStation currently exposes a legacy damage helper',
+    MEGAMEK_BATTLE_FISTS_SOURCE_REFS,
   ),
-  battle_fists_ra: integrated(
+  battle_fists_ra: helperOnly(
     'battle_fists_ra',
     'getBattleFistDamageBonus plus physical attack input unitQuirks increases matching-arm punch damage in runner resolution',
+    'MegaMek source-backed Battle Fists modify punch to-hit, not punch damage; MekStation currently exposes a legacy damage helper',
+    MEGAMEK_BATTLE_FISTS_SOURCE_REFS,
   ),
-  no_arms: integrated(
+  no_arms: helperOnly(
     'no_arms',
     'hasNoArms plus physical attack input unitQuirks rejects punch and arm-mounted melee attacks',
+    'MegaMek No/Minimal Arms also affects stand-up PSRs and additional physical action surfaces; MekStation currently covers only local physical attack helpers',
+    MEGAMEK_NO_ARMS_SOURCE_REFS,
   ),
-  low_arms: integrated(
+  low_arms: helperOnly(
     'low_arms',
     'isLowArmsRestricted plus physical attack elevationDifference rejects elevated punch and arm-mounted melee attacks',
+    'MegaMek source snapshot registers Low Arms but does not expose a combat resolver for MekStation elevation-gate behavior',
+    MEGAMEK_LOW_ARMS_GAP_SOURCE_REFS,
   ),
   command_mech: helperOnly(
     'command_mech',
@@ -820,21 +848,25 @@ export const QUIRK_COMBAT_SUPPORT = {
     'rugged_1',
     'getRuggedMaintenanceMultiplier models the MekHQ maintenance-cycle multiplier',
     'Rugged is a campaign maintenance quirk, not a combat critical-hit prevention rule',
+    MEKHQ_RUGGED_SOURCE_REFS,
   ),
   rugged_2: helperOnly(
     'rugged_2',
     'getRuggedMaintenanceMultiplier models the MekHQ maintenance-cycle multiplier',
     'Rugged is a campaign maintenance quirk, not a combat critical-hit prevention rule',
+    MEKHQ_RUGGED_SOURCE_REFS,
   ),
   protected_actuators: helperOnly(
     'protected_actuators',
     'getAntiMekActuatorTargetModifier exposes the anti-Mek Leg/Swarm target-number modifier',
     'Infantry and battle-armor anti-Mek Leg/Swarm attack paths do not consume actuator quirks',
+    MEGAMEK_ANTI_MEK_ACTUATOR_SOURCE_REFS,
   ),
   exposed_actuators: helperOnly(
     'exposed_actuators',
     'getAntiMekActuatorTargetModifier exposes the anti-Mek Leg/Swarm target-number modifier',
     'Infantry and battle-armor anti-Mek Leg/Swarm attack paths do not consume actuator quirks',
+    MEGAMEK_ANTI_MEK_ACTUATOR_SOURCE_REFS,
   ),
   accurate: integrated(
     'accurate',

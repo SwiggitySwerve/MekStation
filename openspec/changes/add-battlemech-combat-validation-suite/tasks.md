@@ -25,6 +25,7 @@
 - [x] 1.19 Pin BattleMech event-stream rows to MekStation lifecycle, phase, movement, ranged attack, damage, heat, PSR, physical, objective, morale, retreat, ejection, and unsupported enum-boundary sources so event coverage cannot rely on broad event prose.
 - [x] 1.20 Promote canonical pilot ability scope to row-level source refs so every canonical SPA id cites MekStation catalog anchors plus pinned MegaMek pilot option registry evidence instead of inheriting broad SPA/quirk authority.
 - [x] 1.21 Promote legacy pilot ability support rows to row-level source refs so gunnery, indirect-fire, cluster, physical, called-shot, and Terrain Master SPA claims cannot inherit broad SPA/quirk authority.
+- [x] 1.22 Promote legacy mech quirk support rows to row-level source refs so PSR, physical, actuator, and Rugged maintenance helpers cannot inherit broad SPA/quirk authority.
 
 ## 2. Physical attack legality gates
 
@@ -174,6 +175,7 @@
 - [x] 3.4.23.6 Source-pin Edge trigger helper boundaries to MegaMek point-pool/trigger-option source anchors while keeping trigger-specific combat resolver consumption helper-only.
 - [x] 3.4.23.7 Integrate source-backed edge_when_masc_fails consumption for runner MASC/Supercharger failure rerolls while leaving the other Edge triggers helper-only.
 - [x] 3.4.23.7 Source-pin Toughness, Pain Resistance, Iron Man, and Iron Will consciousness boundaries to MegaMek RPG Toughness / Pain Resistance / Iron Man semantics while keeping MekStation legacy aliases helper-only.
+- [x] 3.4.23.8 Source-pin remaining PSR, physical, actuator, and Rugged quirk rows while downgrading Easy Pilot, Stable, Cramped Cockpit, Battle Fists, No Arms, and Low Arms where local helper semantics differ from MegaMek/MekHQ source truth.
 - [x] 3.4.24 Guard source-backed initiative equipment hydration as unsupported unless complete HQ communications or command-console eligibility context exists; command-looking metadata without explicit initiative fields fails closed.
 - [x] 3.4.25 Source-back legacy Evasive SPA support as an unsupported optional TacOps Evade movement/action gap, including target to-hit and attacker firing restrictions, until an authoritative evade action path exists.
 - [x] 3.4.26 Source-back torso-twist secondary-facing arc consumption and extended/no-twist quirk boundaries before routing authoritative torso twist commands through runtime action paths.
@@ -329,3 +331,4 @@
 - [x] 4.3.92 Cross-check BattleMech event-stream rows against MekStation event factories, runner phases, session helpers, reducers, representative tests, and unsupported planning enum boundaries before promoting the BattleMech event triad to row-level source references.
 - [x] 4.3.93 Cross-check MegaMek `PilotOptions`/`OptionsConstants` and MekStation canonical SPA category files before promoting `canonicalPilotAbilityScope` to row-level source references.
 - [x] 4.3.94 Cross-check MegaMek gunnery, indirect-fire, cluster-table, physical-combat, and Terrain Master SPA behavior before promoting `pilotAbilities` to row-level source references.
+- [x] 4.3.95 Cross-check MegaMek PSR, physical, and anti-Mek actuator quirk behavior plus MekHQ Rugged maintenance behavior before promoting `mechQuirks` to row-level source references.

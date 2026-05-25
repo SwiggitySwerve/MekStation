@@ -19,6 +19,17 @@ import {
   MEKSTATION_MELEE_MASTER_DEVIATION_SOURCE_REFS,
 } from './CombatLegacyPilotAbilitySourceRefs';
 import {
+  MEGAMEK_ANTI_MEK_ACTUATOR_SOURCE_REFS,
+  MEGAMEK_CRAMPED_COCKPIT_SOURCE_REFS,
+  MEGAMEK_EASY_TO_PILOT_SOURCE_REFS,
+  MEGAMEK_HARD_TO_PILOT_SOURCE_REFS,
+  MEGAMEK_LOW_ARMS_GAP_SOURCE_REFS,
+  MEGAMEK_NO_ARMS_SOURCE_REFS,
+  MEGAMEK_STABLE_PSR_SOURCE_REFS,
+  MEGAMEK_UNBALANCED_SOURCE_REFS,
+  MEKHQ_RUGGED_SOURCE_REFS,
+} from './CombatLegacyQuirkSourceRefs';
+import {
   MEGAMEK_CALLED_SHOT_SOURCE_REFS,
   MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   MEGAMEK_DISTRACTING_QUIRK_SOURCE_REFS,
@@ -192,13 +203,23 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
     'MegaMek Melee Master grants two allowed physical attacks and MegaMek Melee Specialist grants +1 physical damage; MekStation currently applies a legacy Melee Master damage bonus instead',
     MEKSTATION_MELEE_MASTER_DEVIATION_SOURCE_REFS,
   ),
-  'physical-restriction-application': integrated(
+  'physical-restriction-application': helperOnly(
     'physical-restriction-application',
     'canPunch, canMeleeWeapon, runPhysicalAttackPhase, and interactive declarations consume unit quirks plus elevation difference for No Arms and Low Arms restrictions',
+    'No/Minimal Arms source behavior also includes stand-up PSR and wider physical action gates, and Low Arms is registered without a source-backed resolver for the local elevation helper',
+    [...MEGAMEK_NO_ARMS_SOURCE_REFS, ...MEGAMEK_LOW_ARMS_GAP_SOURCE_REFS],
   ),
-  'psr-application': integrated(
+  'psr-application': helperOnly(
     'psr-application',
     'calculatePSRModifiers consumes unit quirks through calculatePilotingQuirkPSRModifier; runPSRPhase, resolvePendingPSRs, and attemptStandUp pass unit quirk state into PSR target-number calculation',
+    'Easy Pilot, Stable, and Cramped Cockpit local helper semantics differ from the pinned MegaMek gates; keep this resolver helper-only until those quirk-specific branches are source-aligned',
+    [
+      ...MEGAMEK_EASY_TO_PILOT_SOURCE_REFS,
+      ...MEGAMEK_STABLE_PSR_SOURCE_REFS,
+      ...MEGAMEK_HARD_TO_PILOT_SOURCE_REFS,
+      ...MEGAMEK_UNBALANCED_SOURCE_REFS,
+      ...MEGAMEK_CRAMPED_COCKPIT_SOURCE_REFS,
+    ],
   ),
   'psr-spa-application': helperOnly(
     'psr-spa-application',
@@ -267,11 +288,13 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
     'anti-mek-actuator-application',
     'getAntiMekActuatorTargetModifier exposes Protected/Exposed Actuators as anti-Mek Leg/Swarm attack target-number modifiers',
     'Infantry and battle-armor anti-Mek Leg/Swarm attack paths are not implemented',
+    MEGAMEK_ANTI_MEK_ACTUATOR_SOURCE_REFS,
   ),
   'campaign-maintenance-application': helperOnly(
     'campaign-maintenance-application',
     'getRuggedMaintenanceMultiplier exposes MekHQ-style Rugged maintenance-cycle multipliers',
     'The combat runner has no campaign maintenance cycle subsystem',
+    MEKHQ_RUGGED_SOURCE_REFS,
   ),
   'movement-application': unsupported(
     'movement-application',

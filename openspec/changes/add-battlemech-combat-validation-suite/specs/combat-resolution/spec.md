@@ -1458,6 +1458,18 @@ Legacy `pilotAbilities` support rows SHALL expose structured row-level source re
 - **AND** the `pilotAbilities` catalog triad SHALL enforce row-level source references before PR approval
 - **AND** Melee Specialist and Melee Master rows SHALL identify the MegaMek/MekStation physical-combat mismatch as helper-only gaps
 
+### Requirement: Source-Backed Legacy Mech Quirk Support Rows
+
+Legacy `mechQuirks` support rows SHALL expose structured row-level source references before the map is treated as validation coverage. PSR quirks SHALL cite MegaMek PSR behavior and preserve helper-only gaps where MekStation local semantics differ: Easy Pilot lacks MegaMek's base-piloting gate and broader damage/control branches, Stable applies to all local PSRs instead of MegaMek's Kick/Push PSR branch, and Cramped Cockpit lacks MegaMek's Small Pilot exception. Physical quirk rows SHALL cite MegaMek punch/arm/stand-up or local resolver anchors and remain helper-only when Battle Fists, No Arms, or Low Arms do not match source truth. Rugged SHALL cite MekHQ maintenance behavior and remain outside combat runner parity.
+
+#### Scenario: Legacy quirk rows expose source truth
+
+- **GIVEN** the BattleMech quirk support catalog is generated
+- **WHEN** any `mechQuirks` support row is inspected
+- **THEN** the row SHALL carry at least one structured source reference with a line anchor
+- **AND** Easy Pilot, Stable, Battle Fists, and Low Arms SHALL stay helper-only until local behavior matches the pinned MegaMek or MekHQ authority
+- **AND** the PSR and physical-restriction resolver rows SHALL remain helper-only while any assigned quirk has source-backed branches that are not represented locally
+
 ### Requirement: Source-Backed Consciousness Toughness Boundary
 
 Consciousness-related pilot ability rows SHALL distinguish MegaMek RPG Toughness, Pain Resistance, and Iron Man semantics from MekStation legacy aliases before claiming parity. RPG Toughness SHALL be treated as a game-option-gated numeric crew toughness target-number reduction, not as the Pain Resistance SPA. Pain Resistance SHALL be source-backed as +1 consciousness and wake-up rolls plus ammunition-explosion pilot-damage reduction, not ranged to-hit wound-penalty relief. Iron Man SHALL be source-backed as ammunition-explosion pilot-hit reduction, not generic consciousness target-number relief. MekStation local Iron Will and Toughness aliases SHALL remain helper-only until source-backed ids or explicit migration behavior are represented.
