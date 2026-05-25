@@ -81,6 +81,66 @@ describe('BattleMech combat event support catalog', () => {
     ).toEqual([...NON_BATTLEMECH_EVENT_TYPES].sort());
   });
 
+  it('source-pins non-BattleMech event scope rows to anchored MekStation evidence', () => {
+    const entries = Object.values(NON_BATTLEMECH_EVENT_SCOPE_SUPPORT);
+    const urlsFor = (
+      eventType: keyof typeof NON_BATTLEMECH_EVENT_SCOPE_SUPPORT,
+    ) =>
+      [...(NON_BATTLEMECH_EVENT_SCOPE_SUPPORT[eventType].sourceRefs ?? [])]
+        .map((sourceRef) => sourceRef.url)
+        .sort();
+
+    expect(
+      entries
+        .filter((entry) => (entry.sourceRefs?.length ?? 0) === 0)
+        .map((entry) => entry.id)
+        .sort(),
+    ).toEqual([]);
+    expect(
+      entries
+        .flatMap((entry) => entry.sourceRefs ?? [])
+        .filter((sourceRef) => !sourceRef.url.includes('#L'))
+        .map((sourceRef) => sourceRef.url)
+        .sort(),
+    ).toEqual([]);
+    expect(
+      entries
+        .filter(
+          (entry) =>
+            !(entry.sourceRefs ?? []).some(
+              (sourceRef) => sourceRef.kind === 'mekstation-deviation',
+            ),
+        )
+        .map((entry) => entry.id)
+        .sort(),
+    ).toEqual([]);
+
+    expect(urlsFor(GameEventType.MotiveDamaged)).toEqual(
+      expect.arrayContaining([
+        'src/utils/gameplay/gameEvents/vehicle.ts#L21-L190',
+        'src/utils/gameplay/__tests__/vehicleEvents.test.ts#L18-L110',
+      ]),
+    );
+    expect(urlsFor(GameEventType.SwarmDamage)).toEqual(
+      expect.arrayContaining([
+        'src/utils/gameplay/gameEvents/battleArmor.ts#L84-L179',
+        'src/engine/__tests__/InteractiveSession.swarmFire.scenario.test.ts#L167-L224',
+      ]),
+    );
+    expect(urlsFor(GameEventType.LegAttackResolved)).toEqual(
+      expect.arrayContaining([
+        'src/utils/gameplay/gameEvents/battleArmor.ts#L181-L318',
+        'src/engine/InteractiveSession.actions.ts#L326-L397',
+      ]),
+    );
+    expect(urlsFor(GameEventType.StealthBonus)).toEqual(
+      expect.arrayContaining([
+        'src/utils/gameplay/gameEvents/battleArmor.ts#L217-L273',
+        'src/utils/gameplay/battlearmor/stealth.ts#L1-L58',
+      ]),
+    );
+  });
+
   it('documents BattleMech event-stream gaps instead of treating enum visibility as coverage', () => {
     expect(
       supportIdsByLevel(BATTLEMECH_COMBAT_EVENT_SUPPORT, 'unsupported'),

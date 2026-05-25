@@ -126,6 +126,13 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** known-limitation filtering and partitioning helpers SHALL preserve BattleMech validation traps as potential bugs even when their text matches broad known-limitation patterns
 - **AND** every validation-scope row for known-limitation bypasses, catalog filter gates, fallback guards, variable-damage parsing, and non-BattleMech scope splits SHALL carry anchored MekStation source references
 
+#### Scenario: Non-BattleMech event scope rows stay explicit
+
+- **GIVEN** the BattleMech combat event support catalog partitions every `GameEventType`
+- **WHEN** event-stream support is contract-tested
+- **THEN** vehicle, VTOL, battle armor, swarm, leg-attack, mimetic, and stealth event rows SHALL remain helper-only non-BattleMech scope rows outside the BattleMech combat matrix
+- **AND** each non-BattleMech event-scope row SHALL carry anchored MekStation source references to the event factory, payload, helper, or scenario surface that owns that non-BattleMech event family
+
 #### Scenario: Ammo catalog compatibility traps stay explicit
 
 - **GIVEN** official ammunition validation relies on `compatibleWeaponIds` to hydrate consumable BattleMech ammo bins

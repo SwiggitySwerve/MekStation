@@ -21,6 +21,7 @@
 - [x] 1.15 Pin facing tactical command rows to MekStation command-factory source refs so chassis rotation and torso-twist command surfaces do not rely on prose-only catalog evidence.
 - [x] 1.16 Pin physical tactical command rows to MekStation command-factory source refs so punch, kick, push, charge, DFA, and melee weapon command surfaces do not rely on prose-only catalog evidence.
 - [x] 1.17 Pin integrated movement tactical command rows to MekStation command-factory source refs so walk, run, jump, stand, go-prone, MASC, and Supercharger command surfaces do not rely on prose-only catalog evidence.
+- [x] 1.18 Pin non-BattleMech event-scope rows to MekStation vehicle, battle-armor, swarm, leg-attack, and stealth event sources so event-family splits do not rely on prose-only catalog evidence.
 
 ## 2. Physical attack legality gates
 
@@ -319,3 +320,4 @@
 - [x] 4.3.88 Re-cross-check MegaMek `ComputeTargetToHitMods` and `ComputeToHit` semi-guided TAG branches before promoting TAG target-movement cancellation and indirect-fire relief to integrated to-hit coverage.
 - [x] 4.3.89 Cross-check runner-vs-interactive parity claims against current MekStation runner phases, InteractiveSession actions/phases, shared resolvers, and focused behavior tests before promoting the parity triad to row-level source references.
 - [x] 4.3.90 Cross-check validation-scope rows against knownLimitations bypass logic, catalog contracts, fallback guards, variable-damage parsing, ammo-scope splits, and non-BattleMech event-scope anchors before promoting the scope triad to row-level source references.
+- [x] 4.3.91 Cross-check non-BattleMech event-scope rows against MekStation vehicle event factories/tests, battle-armor event factories, swarm-fire scenarios, leg-attack action/scenario paths, and stealth helper tests before promoting the non-BattleMech event triad to row-level source references.

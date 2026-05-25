@@ -1,20 +1,37 @@
 import { GameEventType } from '@/types/gameplay';
 
-import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
+import type {
+  ICombatFeatureSourceReference,
+  ICombatFeatureSupportEntry,
+} from './CombatFeatureSupport';
+
+import {
+  BATTLE_ARMOR_CASUALTY_EVENT_SOURCE_REFS,
+  BATTLE_ARMOR_LEG_EVENT_SOURCE_REFS,
+  BATTLE_ARMOR_STEALTH_EVENT_SOURCE_REFS,
+  BATTLE_ARMOR_SWARM_EVENT_SOURCE_REFS,
+  VEHICLE_EVENT_SCOPE_SOURCE_REFS,
+} from './CombatEventSourceRefs';
 
 function integrated(
   eventType: GameEventType,
   evidence: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatFeatureSupportEntry {
-  return { id: eventType, level: 'integrated', evidence };
+  return sourceRefs
+    ? { id: eventType, level: 'integrated', evidence, sourceRefs }
+    : { id: eventType, level: 'integrated', evidence };
 }
 
 function helperOnly(
   eventType: GameEventType,
   evidence: string,
   gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatFeatureSupportEntry {
-  return { id: eventType, level: 'helper-only', evidence, gap };
+  return sourceRefs
+    ? { id: eventType, level: 'helper-only', evidence, gap, sourceRefs }
+    : { id: eventType, level: 'helper-only', evidence, gap };
 }
 
 function unsupported(
@@ -250,75 +267,90 @@ export const NON_BATTLEMECH_EVENT_SCOPE_SUPPORT = {
     GameEventType.MotiveDamaged,
     'vehicle motive-damage helpers and vehicle event tests cover this event',
     'vehicle-specific combat belongs in a separate vehicle validation matrix',
+    VEHICLE_EVENT_SCOPE_SOURCE_REFS,
   ),
   [GameEventType.MotivePenaltyApplied]: helperOnly(
     GameEventType.MotivePenaltyApplied,
     'vehicle motive-damage helpers and vehicle event tests cover this event',
     'vehicle-specific combat belongs in a separate vehicle validation matrix',
+    VEHICLE_EVENT_SCOPE_SOURCE_REFS,
   ),
   [GameEventType.VehicleImmobilized]: helperOnly(
     GameEventType.VehicleImmobilized,
     'vehicle motive-damage helpers and vehicle event tests cover this event',
     'vehicle-specific combat belongs in a separate vehicle validation matrix',
+    VEHICLE_EVENT_SCOPE_SOURCE_REFS,
   ),
   [GameEventType.TurretLocked]: helperOnly(
     GameEventType.TurretLocked,
     'vehicle critical-effect helpers and vehicle event tests cover this event',
     'vehicle-specific combat belongs in a separate vehicle validation matrix',
+    VEHICLE_EVENT_SCOPE_SOURCE_REFS,
   ),
   [GameEventType.VehicleCrewStunned]: helperOnly(
     GameEventType.VehicleCrewStunned,
     'vehicle critical-effect helpers and vehicle event tests cover this event',
     'vehicle-specific combat belongs in a separate vehicle validation matrix',
+    VEHICLE_EVENT_SCOPE_SOURCE_REFS,
   ),
   [GameEventType.VTOLCrashCheck]: helperOnly(
     GameEventType.VTOLCrashCheck,
     'VTOL vehicle helpers and vehicle event tests cover this event',
     'vehicle-specific combat belongs in a separate vehicle validation matrix',
+    VEHICLE_EVENT_SCOPE_SOURCE_REFS,
   ),
   [GameEventType.TrooperKilled]: helperOnly(
     GameEventType.TrooperKilled,
     'battle armor combat helpers cover trooper casualty events',
     'battle armor combat belongs in a separate battle-armor validation matrix',
+    BATTLE_ARMOR_CASUALTY_EVENT_SOURCE_REFS,
   ),
   [GameEventType.SquadEliminated]: helperOnly(
     GameEventType.SquadEliminated,
     'battle armor combat helpers cover squad elimination events',
     'battle armor combat belongs in a separate battle-armor validation matrix',
+    BATTLE_ARMOR_CASUALTY_EVENT_SOURCE_REFS,
   ),
   [GameEventType.SwarmAttached]: helperOnly(
     GameEventType.SwarmAttached,
     'battle armor swarm helpers cover swarm attachment events',
     'battle armor combat belongs in a separate battle-armor validation matrix',
+    BATTLE_ARMOR_SWARM_EVENT_SOURCE_REFS,
   ),
   [GameEventType.SwarmDamage]: helperOnly(
     GameEventType.SwarmDamage,
     'battle armor swarm helpers cover swarm damage events',
     'battle armor combat belongs in a separate battle-armor validation matrix',
+    BATTLE_ARMOR_SWARM_EVENT_SOURCE_REFS,
   ),
   [GameEventType.SwarmDismounted]: helperOnly(
     GameEventType.SwarmDismounted,
     'battle armor swarm helpers cover swarm dismount events',
     'battle armor combat belongs in a separate battle-armor validation matrix',
+    BATTLE_ARMOR_SWARM_EVENT_SOURCE_REFS,
   ),
   [GameEventType.LegAttack]: helperOnly(
     GameEventType.LegAttack,
     'legacy battle armor leg-attack helpers cover LegAttack events',
     'battle armor combat belongs in a separate battle-armor validation matrix',
+    BATTLE_ARMOR_LEG_EVENT_SOURCE_REFS,
   ),
   [GameEventType.LegAttackResolved]: helperOnly(
     GameEventType.LegAttackResolved,
     'InteractiveSession battle armor leg-attack scenarios cover LegAttackResolved',
     'battle armor combat belongs in a separate battle-armor validation matrix',
+    BATTLE_ARMOR_LEG_EVENT_SOURCE_REFS,
   ),
   [GameEventType.MimeticBonus]: helperOnly(
     GameEventType.MimeticBonus,
     'battle armor mimetic helpers cover this event',
     'battle armor combat belongs in a separate battle-armor validation matrix',
+    BATTLE_ARMOR_STEALTH_EVENT_SOURCE_REFS,
   ),
   [GameEventType.StealthBonus]: helperOnly(
     GameEventType.StealthBonus,
     'battle armor stealth helpers cover this event',
     'battle armor combat belongs in a separate battle-armor validation matrix',
+    BATTLE_ARMOR_STEALTH_EVENT_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;

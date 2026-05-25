@@ -320,8 +320,8 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
   eventStream: {
     battleMechCombatEvents: EVENT_TRIAD,
     nonBattleMechEventScope: triad(
-      'mekstation-deviation',
-      'Non-BattleMech event rows are MekStation scope boundaries that prevent BattleMech validation from claiming vehicle or aerospace event parity.',
+      'entry-source-refs',
+      'Non-BattleMech event rows are MekStation scope boundaries that must carry row-level refs to the vehicle, battle armor, swarm, leg-attack, and stealth event surfaces they split out of the BattleMech matrix.',
       EVENT_STREAM_REFS,
     ),
   },
