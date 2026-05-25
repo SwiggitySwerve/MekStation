@@ -48,6 +48,11 @@ import {
   getRangeModifierForBracket,
   getRangeBracket,
 } from './rangeModifiers';
+import {
+  calculateSemiGuidedTagIndirectFireModifier,
+  calculateSemiGuidedTagTargetMovementModifier,
+  type ISemiGuidedTagToHitContext,
+} from './semiGuidedTagModifiers';
 import { calculateChinTurretPivotModifier } from './vehicleModifiers';
 
 /**
@@ -72,6 +77,7 @@ export function calculateToHit(
   minRange: number = 0,
   ecmContext?: IEcmContext,
   weaponId?: string,
+  semiGuidedTagContext?: ISemiGuidedTagToHitContext,
 ): IToHitCalculation {
   const modifiers: IToHitModifierDetail[] = [];
 
@@ -94,7 +100,19 @@ export function calculateToHit(
   if (minRangeMod) modifiers.push(minRangeMod);
 
   modifiers.push(calculateAttackerMovementModifier(attacker.movementType));
-  modifiers.push(calculateTMM(target.movementType, target.hexesMoved));
+  const targetMovementModifier = calculateTMM(
+    target.movementType,
+    target.hexesMoved,
+  );
+  modifiers.push(targetMovementModifier);
+  const semiGuidedTargetMovementModifier =
+    calculateSemiGuidedTagTargetMovementModifier(
+      semiGuidedTagContext,
+      targetMovementModifier,
+    );
+  if (semiGuidedTargetMovementModifier) {
+    modifiers.push(semiGuidedTargetMovementModifier);
+  }
   const targetEvasionMod = calculateTargetEvasionModifier(
     target.isEvading,
     target.prone,
@@ -169,6 +187,9 @@ export function calculateToHit(
     const indirectMod = calculateIndirectFireModifier(attacker.indirectFire);
     if (indirectMod) modifiers.push(indirectMod);
   }
+  const semiGuidedIndirectMod =
+    calculateSemiGuidedTagIndirectFireModifier(semiGuidedTagContext);
+  if (semiGuidedIndirectMod) modifiers.push(semiGuidedIndirectMod);
 
   if (attacker.calledShot) {
     const calledMod = calculateCalledShotModifier(

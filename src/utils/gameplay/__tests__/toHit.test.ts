@@ -1006,6 +1006,69 @@ describe('calculateToHit', () => {
     expect(result.finalToHit).toBe(6);
   });
 
+  it('should cancel positive target movement for active semi-guided TAG', () => {
+    const attacker = createTestAttackerState({ gunnery: 4 });
+    const target = createTestTargetState({
+      movementType: MovementType.Walk,
+      hexesMoved: 5,
+    });
+    const result = calculateToHit(
+      attacker,
+      target,
+      RangeBracket.Short,
+      3,
+      0,
+      undefined,
+      undefined,
+      { isSemiGuided: true, targetTagDesignated: true },
+    );
+
+    expect(result.finalToHit).toBe(4);
+    expect(result.modifiers).toContainEqual(
+      expect.objectContaining({
+        name: 'Target Movement (TMM)',
+        value: 2,
+        source: 'target_movement',
+      }),
+    );
+    expect(result.modifiers).toContainEqual(
+      expect.objectContaining({
+        name: 'Semi-guided TAG target movement',
+        value: -2,
+        source: 'equipment',
+      }),
+    );
+  });
+
+  it('should not cancel target movement when ECM suppresses TAG guidance', () => {
+    const attacker = createTestAttackerState({ gunnery: 4 });
+    const target = createTestTargetState({
+      movementType: MovementType.Walk,
+      hexesMoved: 5,
+    });
+    const result = calculateToHit(
+      attacker,
+      target,
+      RangeBracket.Short,
+      3,
+      0,
+      undefined,
+      undefined,
+      {
+        isSemiGuided: true,
+        targetTagDesignated: true,
+        targetEcmProtected: true,
+      },
+    );
+
+    expect(result.finalToHit).toBe(6);
+    expect(
+      result.modifiers.some((modifier) =>
+        modifier.name.includes('Semi-guided TAG'),
+      ),
+    ).toBe(false);
+  });
+
   it('should include target evasion modifier for explicit evading targets', () => {
     const attacker = createTestAttackerState({ gunnery: 4 });
     const target = createTestTargetState({ isEvading: true });
@@ -1043,6 +1106,40 @@ describe('calculateToHit', () => {
 
     // Gunnery 4 + Min range penalty 4 = 8
     expect(result.finalToHit).toBe(8);
+  });
+
+  it('should apply semi-guided TAG indirect-fire relief as a separate modifier', () => {
+    const attacker = createTestAttackerState({
+      gunnery: 4,
+      indirectFire: { isIndirect: true, spotterWalked: false },
+    });
+    const target = createTestTargetState();
+    const result = calculateToHit(
+      attacker,
+      target,
+      RangeBracket.Short,
+      3,
+      0,
+      undefined,
+      undefined,
+      {
+        isSemiGuided: true,
+        targetTagDesignated: true,
+        isIndirectFire: true,
+      },
+    );
+
+    expect(result.finalToHit).toBe(4);
+    expect(result.modifiers).toContainEqual(
+      expect.objectContaining({ name: 'Indirect Fire', value: 1 }),
+    );
+    expect(result.modifiers).toContainEqual(
+      expect.objectContaining({
+        name: 'Semi-guided TAG indirect fire',
+        value: -1,
+        source: 'equipment',
+      }),
+    );
   });
 
   it('should include prone modifier (close range)', () => {

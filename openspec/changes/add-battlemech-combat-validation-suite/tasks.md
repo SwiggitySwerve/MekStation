@@ -76,7 +76,7 @@
 - [x] 3.1.10 Integrate source-backed Sandblaster cluster-table range bonuses for designated LB-X and missile cluster-table paths while leaving UAC/RAC and TacOps rapid-fire AC rate-of-fire behavior explicit.
 - [x] 3.1.11 Align the legacy gameplay SPA catalog Sandblaster metadata with canonical source truth: weapon-type designation required, range-based cluster-table bonus, and remaining UAC/RAC rate-of-fire gap preserved.
 - [x] 3.1.12 Source-back AMS helper/integrated special weapon rows with MegaMek cluster, single-missile, ammo/heat, counter-selection, and arc anchors while leaving defender choice/arc/multi-use gaps explicit.
-- [x] 3.1.13 Source-pin special weapon mechanic rows for UAC, RAC, LB-X, Streak SRM, MML, NARC/iNARC, AMS, TAG, Artemis, ECM/probe, and stealth; quarantine local semi-guided TAG cluster behavior as helper-only until source-backed TAG to-hit parity is wired.
+- [x] 3.1.13 Source-pin special weapon mechanic rows for UAC, RAC, LB-X, Streak SRM, MML, NARC/iNARC, AMS, TAG, Artemis, ECM/probe, and stealth; quarantine local semi-guided TAG cluster behavior as helper-only outside source-backed TAG to-hit parity.
 - [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
 - [x] 3.2.2 Integrate source-backed active TSM movement speed into runner movement validation while leaving MASC, supercharger, and then-unsupported partial-wing movement behavior explicit.
@@ -160,6 +160,7 @@
 - [x] 3.4.37 Integrate source-backed evading-attacker ranged invalidation through runner weapon attack validation, event-sourced `declareAttack`, AttackInvalid reason cataloging, OpenSpec coverage, and no-side-effect behavior tests while leaving optional TacOps Evade movement-step action and target-evasion bonus gaps explicit.
 - [x] 3.4.38 Integrate source-backed target evasion ranged to-hit modifiers through helper calculation, event-sourced `declareAttack`, runner `AttackDeclared`, to-hit modifier cataloging, OpenSpec coverage, and focused behavior tests while leaving Evade movement-step creation, Skilled Evasion scaling, and physical target-evasion gaps explicit.
 - [x] 3.4.39 Integrate source-backed target evasion physical to-hit modifiers through helper calculation, event-sourced `declarePhysicalAttack` and resolution, runner physical resolution, OpenSpec coverage, and focused behavior tests while leaving Evade movement-step creation and Skilled Evasion scaling gaps explicit.
+- [x] 3.4.40 Integrate source-backed semi-guided TAG to-hit parity through helper calculation, event-sourced `declareAttack`, runner `AttackDeclared`, catalog support, OpenSpec coverage, and focused behavior tests while keeping the local semi-guided cluster bonus quarantined as a non-parity helper.
 - [x] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -285,3 +286,4 @@
 - [x] 4.3.85 Cross-check MegaMek `TWGameManager`, `PilotOptions`, `GameOptions`, `Crew`, `MULParser`, and option text before demoting local toughness/consciousness aliases and Pain Resistance to-hit relief to helper-only/deviation coverage.
 - [x] 4.3.86 Cross-check MegaMek ammunition-explosion pilot-damage reduction, Pain Resistance, and Iron Man source rows against MekStation heat/crit/interactive cookoff paths before keeping ammo-explosion PilotHit coverage helper-only.
 - [x] 4.3.87 Re-cross-check MegaMek ammunition-explosion pilot damage, Pain Resistance, Iron Man, and pain-shunt handling before promoting ammo-explosion PilotHit coverage to integrated validation support.
+- [x] 4.3.88 Re-cross-check MegaMek `ComputeTargetToHitMods` and `ComputeToHit` semi-guided TAG branches before promoting TAG target-movement cancellation and indirect-fire relief to integrated to-hit coverage.

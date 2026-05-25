@@ -446,7 +446,7 @@ export function resolveIndirectFire(
  * Resolve semi-guided LRM behavior.
  *
  * Semi-guided LRMs against TAG-designated targets:
- * - Use standard to-hit (no indirect fire penalty when TAG active)
+ * - Apply the source-backed TAG relief to indirect-fire to-hit penalties
  * - TAG must be active on the target (not nullified by ECM)
  *
  * Without TAG designation, semi-guided LRMs fire as standard LRMs.
@@ -473,7 +473,7 @@ export function resolveSemiGuidedLRM(
       tagActive: true,
       useStandardToHit: true,
       description:
-        'Semi-guided LRM with active TAG: standard to-hit (no indirect penalty)',
+        'Semi-guided LRM with active TAG: apply semi-guided TAG to-hit relief',
     };
   }
 
@@ -496,7 +496,8 @@ export function resolveSemiGuidedLRM(
  *
  * Combines spotter validation with semi-guided LRM TAG mechanics.
  * When a semi-guided LRM fires at a TAG-designated target, the
- * indirect fire penalty is removed (standard to-hit applies).
+ * source-backed semi-guided TAG modifier reduces the indirect-fire
+ * penalty by 1 instead of zeroing every indirect-fire add.
  */
 export function resolveIndirectFireWithSemiGuided(
   request: IIndirectFireRequest,
@@ -515,11 +516,9 @@ export function resolveIndirectFireWithSemiGuided(
     const semiGuidedResult = resolveSemiGuidedLRM(semiGuidedContext);
 
     if (semiGuidedResult.isSemiGuided && semiGuidedResult.tagActive) {
-      // TAG active: use standard to-hit (no indirect penalty)
       return {
         ...baseResult,
-        toHitPenalty: 0,
-        spotterWalked: false, // Penalty negated by TAG
+        toHitPenalty: Math.max(0, baseResult.toHitPenalty - 1),
       };
     }
   }

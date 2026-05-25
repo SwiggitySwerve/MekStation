@@ -766,6 +766,7 @@ describe('BattleMech combat catalog validation lane', () => {
       'tag-designation-hit',
       'tag-intent-wire-state-replay',
       'tag-marker-lifecycle-events',
+      'tag-semi-guided-to-hit',
       'tag-turn-lifecycle-clear',
       'uac-jam-on-natural-two',
       'uac-rate-of-fire',
@@ -988,7 +989,7 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.level).toBe('helper-only');
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.level).toBe('helper-only');
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.gap).toContain(
-      'semi-guided TAG target-movement cancellation',
+      'semi-guided cluster bonus',
     );
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['lb-x-ac'].level).toBe(
       'integrated',
@@ -1158,9 +1159,7 @@ describe('BattleMech combat catalog validation lane', () => {
       'MissileWeaponHandler applies the NARC/iNARC Homing cluster modifier to direct NARC-capable LRM/SRM/MML/NLRM fire when target ECM does not suppress it.',
     ]);
     expect(
-      sourceRefsFor('tag-semi-guided-cluster-bonus').map(
-        ({ citation }) => citation,
-      ),
+      sourceRefsFor('tag-semi-guided-to-hit').map(({ citation }) => citation),
     ).toEqual([
       'ComputeTargetToHitMods cancels positive target-movement modifiers for TAG-guided semi-guided LRM/MML/NLRM/mortar ammunition.',
       'ComputeToHit applies a -1 semi-guided indirect-fire modifier when qualifying missile or mortar ammunition attacks a TAG-designated target.',

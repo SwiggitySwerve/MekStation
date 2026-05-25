@@ -877,6 +877,28 @@ export function runAttackPhase(options: {
         isIndirectFire && indirectFireResolution
           ? indirectFireResolution.toHitPenalty
           : 0;
+      const targetEcmProtected = currentState.electronicWarfare
+        ? getECMProtectedFlag(
+            attackerNow.position,
+            attackerNow.side as string,
+            unitId,
+            targetNow.position,
+            targetNow.side as string,
+            targetId,
+            currentState.electronicWarfare,
+          )
+        : undefined;
+      const semiGuidedAmmoSelected = isSemiGuidedAmmoSelectedForWeapon(
+        attackerNow,
+        baseWeapon,
+        selectedMode,
+      );
+      const semiGuidedTagContext = {
+        isSemiGuided: semiGuidedAmmoSelected,
+        targetTagDesignated: targetNow.tagDesignated,
+        targetEcmProtected,
+        isIndirectFire,
+      };
       const c3State = hydrateC3StateForAttack(currentState, manifestsByUnit);
       const toHitCalc =
         c3State !== undefined && !isIndirectFire
@@ -904,6 +926,7 @@ export function runAttackPhase(options: {
               baseWeapon.minRange,
               undefined,
               baseWeapon.id,
+              semiGuidedTagContext,
             )
           : calculateToHit(
               attackerState,
@@ -913,18 +936,8 @@ export function runAttackPhase(options: {
               baseWeapon.minRange,
               undefined,
               baseWeapon.id,
+              semiGuidedTagContext,
             );
-      const targetEcmProtected = currentState.electronicWarfare
-        ? getECMProtectedFlag(
-            attackerNow.position,
-            attackerNow.side as string,
-            unitId,
-            targetNow.position,
-            targetNow.side as string,
-            targetId,
-            currentState.electronicWarfare,
-          )
-        : undefined;
       const iNarcHomingModifier = iNarcHomingToHitModifier({
         attackerTeamId: attackerNow.side as string,
         targetINarcedBy: iNarcHomingTeams(targetNow),
@@ -1276,11 +1289,7 @@ export function runAttackPhase(options: {
             targetINarcedBy: iNarcHomingTeams(targetBeforeShot),
             targetTagDesignated: targetBeforeShot.tagDesignated,
             targetEcmProtected,
-            isSemiGuided: isSemiGuidedAmmoSelectedForWeapon(
-              attackerBeforeShot,
-              baseWeapon,
-              selectedMode,
-            ),
+            isSemiGuided: semiGuidedAmmoSelected,
             clusterHitterSPA:
               getClusterHitterBonus(attackerBeforeShot.abilities ?? []) > 0,
             sandblasterSPA: hasSPA(

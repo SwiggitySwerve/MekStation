@@ -2494,6 +2494,74 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       );
     });
 
+    it('semi-guided TAG cancels runner target movement to-hit while preserving the TMM row', () => {
+      const lrm = createLRM10();
+      const ammoBin = createAmmoBin({
+        weaponType: 'semi-guided-lrm-10',
+        remainingRounds: 3,
+      });
+      const movingTarget = {
+        movementThisTurn: MovementType.Walk,
+        hexesMovedThisTurn: 5,
+      };
+      const baselineScenario = buildScenario({
+        attackerWeapons: [lrm],
+        attackerPosition: { q: 0, r: 0 },
+        targetPosition: { q: 7, r: 0 },
+        attackerStateOverride: {
+          ammoState: { [ammoBin.binId]: ammoBin },
+        },
+        targetStateOverride: movingTarget,
+      });
+      const taggedScenario = buildScenario({
+        attackerWeapons: [lrm],
+        attackerPosition: { q: 0, r: 0 },
+        targetPosition: { q: 7, r: 0 },
+        attackerStateOverride: {
+          ammoState: { [ammoBin.binId]: ammoBin },
+        },
+        targetStateOverride: {
+          ...movingTarget,
+          tagDesignated: true,
+        },
+      });
+      const baselineResult = runPhaseWithResult({
+        ...baselineScenario,
+        botPlayer: new ScriptedAttackAI(lrm.id),
+      });
+      const taggedResult = runPhaseWithResult({
+        ...taggedScenario,
+        botPlayer: new ScriptedAttackAI(lrm.id),
+      });
+      const baselineDeclared = baselineResult.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ) as IGameEvent & { payload: IAttackDeclaredPayload };
+      const taggedDeclared = taggedResult.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ) as IGameEvent & { payload: IAttackDeclaredPayload };
+
+      expect(taggedDeclared.payload.toHitNumber).toBe(
+        baselineDeclared.payload.toHitNumber - 2,
+      );
+      expect(taggedDeclared.payload.modifiers).toContainEqual(
+        expect.objectContaining({
+          name: 'Target Movement (TMM)',
+          value: 2,
+          source: 'target_movement',
+        }),
+      );
+      expect(taggedDeclared.payload.modifiers).toContainEqual(
+        expect.objectContaining({
+          name: 'Semi-guided TAG target movement',
+          value: -2,
+          source: 'equipment',
+        }),
+      );
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['tag-semi-guided-to-hit'].level,
+      ).toBe('integrated');
+    });
+
     it('applies LB-X cluster-mode -1 to-hit adjustment in declared attack math', () => {
       const weapon = createLBX10();
       const { state, weaponsByUnit } = buildScenario({

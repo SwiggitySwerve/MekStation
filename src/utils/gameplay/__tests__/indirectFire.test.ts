@@ -433,7 +433,7 @@ describe('Semi-Guided LRM with TAG', () => {
   });
 
   describe('resolveIndirectFireWithSemiGuided', () => {
-    it('should remove indirect penalty when TAG active on semi-guided LRM', () => {
+    it('should reduce the base indirect penalty when TAG active on semi-guided LRM', () => {
       const semiGuidedContext: ISemiGuidedContext = {
         weaponId: 'semi-guided-lrm-5',
         equipment: { isSemiGuided: true },
@@ -446,6 +446,26 @@ describe('Semi-Guided LRM with TAG', () => {
       expect(result.permitted).toBe(true);
       expect(result.isIndirect).toBe(true);
       expect(result.toHitPenalty).toBe(0);
+    });
+
+    it('should leave walked spotter penalty after semi-guided TAG relief', () => {
+      const semiGuidedContext: ISemiGuidedContext = {
+        weaponId: 'semi-guided-lrm-5',
+        equipment: { isSemiGuided: true },
+        targetStatus: { tagDesignated: true },
+      };
+      const result = resolveIndirectFireWithSemiGuided(
+        makeRequest({
+          weaponId: 'semi-guided-lrm-5',
+          spotterCandidates: [makeSpotter({ movementType: MovementType.Walk })],
+        }),
+        semiGuidedContext,
+      );
+
+      expect(result.permitted).toBe(true);
+      expect(result.isIndirect).toBe(true);
+      expect(result.toHitPenalty).toBe(1);
+      expect(result.spotterWalked).toBe(true);
     });
 
     it('should keep indirect penalty when TAG not active', () => {

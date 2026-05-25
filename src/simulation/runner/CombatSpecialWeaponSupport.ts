@@ -211,10 +211,15 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
     'runner TAG hits emit DesignatorMarkerApplied when they set transient tagDesignated target state',
     MEGAMEK_TAG_DESIGNATION_SOURCE_REFS,
   ),
+  'tag-semi-guided-to-hit': integrated(
+    'tag-semi-guided-to-hit',
+    'calculateToHit appends source-backed semi-guided TAG target-movement cancellation and indirect-fire relief, and runAttackPhase plus declareAttack hydrate semi-guided/TAG state into weapon to-hit resolution',
+    MEGAMEK_TAG_SEMI_GUIDED_SOURCE_REFS,
+  ),
   'tag-semi-guided-cluster-bonus': helperOnly(
     'tag-semi-guided-cluster-bonus',
-    'Local isSemiGuidedAmmoSelectedForWeapon plus targetTagDesignated applies a semi-guided LRM cluster bonus, while MegaMek source backs target-movement cancellation and indirect-fire to-hit relief instead',
-    'Official semi-guided TAG target-movement cancellation and indirect-fire to-hit behavior are not wired through runner/session to-hit resolution; the local cluster bonus is non-parity helper behavior until corrected',
+    'Local isSemiGuidedAmmoSelectedForWeapon plus targetTagDesignated still applies a semi-guided LRM cluster bonus even though MegaMek source backs to-hit behavior instead',
+    'The local semi-guided cluster bonus remains non-parity helper behavior and must be removed or quarantined from official BattleMech combat resolution',
     MEGAMEK_TAG_SEMI_GUIDED_SOURCE_REFS,
   ),
   'tag-intent-wire-state-replay': integrated(

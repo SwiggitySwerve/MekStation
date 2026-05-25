@@ -511,7 +511,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'special-weapon-families': helperOnly(
     'special-weapon-families',
     'Special weapon family support catalogs UAC, RAC, LB-X, Streak, MML, NARC, AMS, TAG, and Artemis responsibilities',
-    'Several family-specific mechanics are helper-only until remaining iNarc ECM sensor effects, ambiguous/player-authored C3 network assignment, AMS defender choice/arc rules, official semi-guided TAG to-hit parity, or Artemis exact-link/Nova-network/damage-lifecycle edges are wired',
+    'Several family-specific mechanics are helper-only until remaining iNarc ECM sensor effects, ambiguous/player-authored C3 network assignment, AMS defender choice/arc rules, the non-parity semi-guided TAG cluster helper is removed, or Artemis exact-link/Nova-network/damage-lifecycle edges are wired',
     [
       'featureSupport.specialWeaponFamilies.ultra-ac',
       'featureSupport.specialWeaponFamilies.rotary-ac',
@@ -540,6 +540,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       'featureSupport.specialWeaponMechanics.ams-interception-events',
       'featureSupport.specialWeaponMechanics.tag-designation-hit',
       'featureSupport.specialWeaponMechanics.tag-marker-lifecycle-events',
+      'featureSupport.specialWeaponMechanics.tag-semi-guided-to-hit',
       'featureSupport.specialWeaponMechanics.tag-semi-guided-cluster-bonus',
       'featureSupport.specialWeaponMechanics.tag-intent-wire-state-replay',
       'featureSupport.specialWeaponMechanics.active-probe-counter-hydration',

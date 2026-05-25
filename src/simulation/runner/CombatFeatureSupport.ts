@@ -874,8 +874,8 @@ export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
   ),
   tag: helperOnly(
     'tag',
-    'isTAG + generic Attack game/wire intent support + runner TAG hits attach tagDesignated and emit DesignatorMarkerApplied + replay reducer reapplies tagDesignated + turn lifecycle clears tagDesignated; source-backed semi-guided TAG behavior is tracked as a helper-only mechanic row until to-hit parity replaces the local cluster helper',
-    'Official semi-guided TAG target-movement cancellation and indirect-fire to-hit behavior are not wired through runner/session to-hit resolution; the existing local semi-guided cluster bonus remains non-parity helper behavior',
+    'isTAG + generic Attack game/wire intent support + runner TAG hits attach tagDesignated and emit DesignatorMarkerApplied + replay reducer reapplies tagDesignated + turn lifecycle clears tagDesignated + source-backed semi-guided TAG target-movement cancellation and indirect-fire to-hit relief are wired through runner/session to-hit resolution',
+    'The existing local semi-guided cluster bonus remains non-parity helper behavior and is still quarantined outside official TAG to-hit parity',
     MEGAMEK_TAG_FAMILY_SOURCE_REFS,
   ),
   artemis: helperOnly(

@@ -46,6 +46,11 @@ export {
   type IEcmContext,
 } from './calculate';
 export {
+  calculateSemiGuidedTagIndirectFireModifier,
+  calculateSemiGuidedTagTargetMovementModifier,
+  type ISemiGuidedTagToHitContext,
+} from './semiGuidedTagModifiers';
+export {
   buildWeaponAttackActuatorDamage,
   buildWeaponAttackAttackerToHitState,
   buildWeaponAttackTargetToHitState,

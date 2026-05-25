@@ -76,6 +76,7 @@ import {
   calculateSideInitiativeModifier,
   hasSideTacticalGeniusInitiativeReroll,
 } from './initiativeModifiers';
+import { isSemiGuidedLRM } from './specialWeaponMechanics';
 import {
   buildWeaponAttackAttackerToHitState,
   buildWeaponAttackTargetToHitState,
@@ -486,15 +487,29 @@ export function declareAttack(
     throw new Error(`Attacker ${attackerId} not found in units`);
   }
 
+  const primaryWeapon = weapons[0];
+  const semiGuidedTagContext = primaryWeapon
+    ? {
+        isSemiGuided:
+          isSemiGuidedLRM(primaryWeapon.ammoType ?? '') ||
+          isSemiGuidedLRM(primaryWeapon.weaponId) ||
+          isSemiGuidedLRM(primaryWeapon.weaponName),
+        targetTagDesignated: targetUnit.tagDesignated,
+        isIndirectFire:
+          indirectFireResolution?.permitted === true &&
+          indirectFireResolution.isIndirect,
+      }
+    : undefined;
+
   const toHitCalc = calculateToHit(
     buildWeaponAttackAttackerToHitState(
       attackerUnit,
       attacker.gunnery,
-      weapons[0]
+      primaryWeapon
         ? {
-            id: weapons[0].weaponId,
-            name: weapons[0].weaponName,
-            category: weapons[0].category,
+            id: primaryWeapon.weaponId,
+            name: primaryWeapon.weaponName,
+            category: primaryWeapon.category,
           }
         : undefined,
       targetId,
@@ -505,9 +520,10 @@ export function declareAttack(
     buildWeaponAttackTargetToHitState(targetUnit, false),
     rangeBracket,
     range,
-    weapons[0]?.minRange,
+    primaryWeapon?.minRange,
     undefined,
-    weapons[0]?.weaponId,
+    primaryWeapon?.weaponId,
+    semiGuidedTagContext,
   );
 
   const modifiers: IToHitModifier[] = toHitCalc.modifiers.map((modifier) => ({

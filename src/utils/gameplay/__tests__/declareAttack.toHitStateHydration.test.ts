@@ -7,6 +7,7 @@ import {
   type IGameSession,
   type IGameUnit,
   type IWeaponAttack,
+  MovementType,
   RangeBracket,
 } from '@/types/gameplay';
 
@@ -62,6 +63,22 @@ function buildMediumLaserAttack(): readonly IWeaponAttack[] {
       shortRange: 3,
       mediumRange: 6,
       longRange: 9,
+    } as unknown as IWeaponAttack,
+  ];
+}
+
+function buildSemiGuidedLRMAttack(): readonly IWeaponAttack[] {
+  return [
+    {
+      weaponId: 'lrm-10-1',
+      weaponName: 'LRM 10',
+      ammoType: 'semi-guided-lrm-10',
+      damage: 10,
+      heat: 4,
+      minRange: 6,
+      shortRange: 7,
+      mediumRange: 14,
+      longRange: 21,
     } as unknown as IWeaponAttack,
   ];
 }
@@ -270,6 +287,101 @@ describe('declareAttack to-hit state hydration', () => {
           name: 'Target Evasion',
           value: 1,
           source: 'target_movement',
+        }),
+      ]),
+    );
+  });
+
+  it('threads semi-guided TAG target movement cancellation into declared to-hit modifiers', () => {
+    const session = setupWeaponAttackSession();
+    const hydratedSession: IGameSession = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        units: {
+          ...session.currentState.units,
+          target: {
+            ...session.currentState.units.target,
+            movementThisTurn: MovementType.Walk,
+            hexesMovedThisTurn: 5,
+            tagDesignated: true,
+          },
+        },
+      },
+    };
+
+    const result = declareAttack(
+      hydratedSession,
+      'attacker',
+      'target',
+      buildSemiGuidedLRMAttack(),
+      7,
+      RangeBracket.Short,
+    );
+
+    const payload = latestAttackDeclaredPayload(result);
+    expect(payload.toHitNumber).toBe(4);
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Target Movement (TMM)',
+          value: 2,
+          source: 'target_movement',
+        }),
+        expect.objectContaining({
+          name: 'Semi-guided TAG target movement',
+          value: -2,
+          source: 'equipment',
+        }),
+      ]),
+    );
+  });
+
+  it('threads semi-guided TAG indirect-fire relief into declared to-hit modifiers', () => {
+    const session = setupWeaponAttackSession();
+    const hydratedSession: IGameSession = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        units: {
+          ...session.currentState.units,
+          target: {
+            ...session.currentState.units.target,
+            tagDesignated: true,
+          },
+        },
+      },
+    };
+
+    const result = declareAttack(
+      hydratedSession,
+      'attacker',
+      'target',
+      buildSemiGuidedLRMAttack(),
+      7,
+      RangeBracket.Short,
+      {
+        permitted: true,
+        isIndirect: true,
+        basis: 'los',
+        spotterId: 'spotter-1',
+        toHitPenalty: 1,
+      },
+    );
+
+    const payload = latestAttackDeclaredPayload(result);
+    expect(payload.toHitNumber).toBe(4);
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Semi-guided TAG indirect fire',
+          value: -1,
+          source: 'equipment',
+        }),
+        expect.objectContaining({
+          name: 'Indirect fire',
+          value: 1,
+          source: 'other',
         }),
       ]),
     );

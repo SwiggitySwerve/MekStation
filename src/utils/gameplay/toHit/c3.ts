@@ -6,6 +6,8 @@ import {
   IToHitModifierDetail,
 } from '@/types/gameplay';
 
+import type { ISemiGuidedTagToHitContext } from './semiGuidedTagModifiers';
+
 import {
   getC3TargetingBenefit,
   IC3NetworkState,
@@ -31,6 +33,7 @@ export function calculateToHitWithC3(
   minRange: number = 0,
   ecmContext?: IEcmContext,
   weaponId?: string,
+  semiGuidedTagContext?: ISemiGuidedTagToHitContext,
 ): IToHitCalculation & { readonly c3Result: IC3TargetingResult } {
   const c3Result = getC3TargetingBenefit(
     c3Input.attackerEntityId,
@@ -52,6 +55,7 @@ export function calculateToHitWithC3(
     minRange,
     ecmContext,
     weaponId,
+    semiGuidedTagContext,
   );
 
   if (!c3Result.benefitApplied) {
