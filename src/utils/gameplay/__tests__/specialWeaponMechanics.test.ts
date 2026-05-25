@@ -14,7 +14,6 @@ import {
   getArtemisVBonus,
   getNarcBonus,
   isTargetTAGDesignated,
-  getSemiGuidedLRMBonus,
   getMRMClusterModifier,
   getSandblasterClusterModifier,
   calculateClusterModifiers,
@@ -584,25 +583,13 @@ describe('Special Weapon Mechanics', () => {
       expect(isTargetTAGDesignated(target)).toBe(false);
     });
 
-    it('legacy semi-guided LRM helper still exposes the quarantined +2 TAG bonus', () => {
+    it('does not expose TAG as a semi-guided cluster-table helper', () => {
       const equipment: IWeaponEquipmentFlags = { isSemiGuided: true };
       const target: ITargetStatusFlags = { tagDesignated: true };
 
-      expect(getSemiGuidedLRMBonus(equipment, target)).toBe(2);
-    });
+      const mods = calculateClusterModifiers('lrm-10', equipment, target);
 
-    it('semi-guided LRM should get 0 without TAG', () => {
-      const equipment: IWeaponEquipmentFlags = { isSemiGuided: true };
-      const target: ITargetStatusFlags = {};
-
-      expect(getSemiGuidedLRMBonus(equipment, target)).toBe(0);
-    });
-
-    it('non-semi-guided should get 0 even with TAG', () => {
-      const equipment: IWeaponEquipmentFlags = {};
-      const target: ITargetStatusFlags = { tagDesignated: true };
-
-      expect(getSemiGuidedLRMBonus(equipment, target)).toBe(0);
+      expect(mods.total).toBe(0);
     });
   });
 
@@ -721,14 +708,12 @@ describe('Special Weapon Mechanics', () => {
       expect(mods.total).toBe(-1);
     });
 
-    it('should not include the legacy semi-guided TAG helper in official cluster totals', () => {
+    it('should not include semi-guided TAG behavior in official cluster totals', () => {
       const equipment: IWeaponEquipmentFlags = { isSemiGuided: true };
       const target: ITargetStatusFlags = { tagDesignated: true };
 
-      const legacyBonus = getSemiGuidedLRMBonus(equipment, target);
       const mods = calculateClusterModifiers('lrm-10', equipment, target);
 
-      expect(legacyBonus).toBe(2);
       expect(mods.total).toBe(0);
     });
 

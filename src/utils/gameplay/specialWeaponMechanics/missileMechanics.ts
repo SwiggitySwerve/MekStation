@@ -391,28 +391,6 @@ export function resolveModifiedClusterHits(
 }
 
 // =============================================================================
-// Semi-Guided LRM Helpers
-// =============================================================================
-
-/**
- * Legacy semi-guided LRM cluster helper.
- *
- * MegaMek source backs semi-guided TAG as to-hit target-movement cancellation
- * and indirect-fire relief, not as a cluster-table bonus. Keep this helper
- * exported so old call sites/tests remain visible, but do not feed it into
- * official `calculateClusterModifiers` totals.
- */
-export function getSemiGuidedLRMBonus(
-  equipment: IWeaponEquipmentFlags,
-  targetStatus: ITargetStatusFlags,
-): number {
-  if (!equipment.isSemiGuided) return 0;
-  // TAG check: target must be designated and not ECM-protected
-  if (!targetStatus.tagDesignated || targetStatus.ecmProtected) return 0;
-  return 2;
-}
-
-// =============================================================================
 // Fire Mode Helpers
 // =============================================================================
 

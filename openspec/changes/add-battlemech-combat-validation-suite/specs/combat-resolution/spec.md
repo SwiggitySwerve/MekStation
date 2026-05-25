@@ -206,7 +206,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **WHEN** the special weapon mechanic support map is contract-tested
 - **THEN** every integrated or helper-only special weapon mechanic row SHALL carry structured MegaMek source references with commit-pinned URLs and line anchors
 - **AND** the aggregate catalog triad for `specialWeaponMechanics` SHALL require row-level source references rather than inherited requirement authority
-- **AND** source-checked mechanic mismatches, including local semi-guided TAG cluster helper behavior that does not match MegaMek's TAG to-hit behavior, SHALL remain helper-only gaps instead of integrated parity claims
+- **AND** source-checked mechanic mismatches SHALL remain helper-only gaps or be removed from official combat surfaces instead of integrated parity claims
 
 #### Scenario: Catalog critical slots seed runner critical resolution
 
@@ -643,7 +643,7 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 
 ### Requirement: Designator Marker Replay State
 
-Designator marker events SHALL replay into the same target marker state consumed by combat resolution. TAG markers SHALL set transient `tagDesignated` state that clears at turn start. Standard NARC markers SHALL append the marking team to `narcedBy` without duplicate entries and SHALL persist across turn starts. iNARC launcher hits SHALL derive the attached `iNarcPods` `podType` from the selected ammo weapon type so Homing, ECM, Haywire, and Nemesis ammo can each attach distinct marker state without falling back to `narcedBy`. Direct NARC-compatible missile cluster resolution and runner to-hit declaration SHALL consume Homing pod state. Runner to-hit declaration SHALL consume Haywire pod state on the attacker as a source-backed +1 attacker to-hit modifier. Semi-guided TAG to-hit resolution SHALL cancel positive target-movement modifiers and apply source-backed indirect-fire relief when semi-guided ammunition attacks a TAG-designated target not protected by ECM. Runner missile cluster resolution SHALL consume attacker iNARC ECM pod state as flight-path ECM for Artemis IV/prototype IV/V suppression without treating it as target ECM for NARC guidance. C3 ECM disruption SHALL consume iNARC ECM pod state and deny C3 targeting benefit through the same ECM-disrupted C3 helper path. Runner weapon attack resolution SHALL consume friendly intervening iNARC Nemesis pod state to redirect source-backed direct confusable missile attacks. Remaining iNARC ECM sensor effects, the legacy semi-guided TAG cluster helper removal, and ambiguous/player-authored C3 network assignment SHALL remain explicit gaps until their variant-specific runner effects are represented or obsolete helper surfaces are deleted.
+Designator marker events SHALL replay into the same target marker state consumed by combat resolution. TAG markers SHALL set transient `tagDesignated` state that clears at turn start. Standard NARC markers SHALL append the marking team to `narcedBy` without duplicate entries and SHALL persist across turn starts. iNARC launcher hits SHALL derive the attached `iNarcPods` `podType` from the selected ammo weapon type so Homing, ECM, Haywire, and Nemesis ammo can each attach distinct marker state without falling back to `narcedBy`. Direct NARC-compatible missile cluster resolution and runner to-hit declaration SHALL consume Homing pod state. Runner to-hit declaration SHALL consume Haywire pod state on the attacker as a source-backed +1 attacker to-hit modifier. Semi-guided TAG to-hit resolution SHALL cancel positive target-movement modifiers and apply source-backed indirect-fire relief when semi-guided ammunition attacks a TAG-designated target not protected by ECM. Semi-guided TAG SHALL NOT expose or consume a cluster-table helper in official combat resolution. Runner missile cluster resolution SHALL consume attacker iNARC ECM pod state as flight-path ECM for Artemis IV/prototype IV/V suppression without treating it as target ECM for NARC guidance. C3 ECM disruption SHALL consume iNARC ECM pod state and deny C3 targeting benefit through the same ECM-disrupted C3 helper path. Runner weapon attack resolution SHALL consume friendly intervening iNARC Nemesis pod state to redirect source-backed direct confusable missile attacks. Remaining iNARC ECM sensor effects and ambiguous/player-authored C3 network assignment SHALL remain explicit gaps until their variant-specific runner effects are represented.
 
 #### Scenario: Replay applies TAG, standard NARC, and iNARC variant marker state
 
@@ -669,7 +669,7 @@ Designator marker events SHALL replay into the same target marker state consumed
 - **THEN** the normal indirect-fire penalty SHALL remain visible in the modifier list
 - **AND** a `-1` `Semi-guided TAG indirect fire` modifier SHALL be appended
 - **AND** no semi-guided TAG to-hit modifier SHALL apply when the target lacks TAG designation or ECM suppresses the guidance
-- **AND** the validation catalog SHALL keep the old semi-guided TAG cluster bonus helper-only until it is removed or quarantined from official BattleMech combat resolution
+- **AND** the validation catalog SHALL NOT include a semi-guided TAG cluster-bonus row or helper as BattleMech parity
 
 ### Requirement: Source-Backed Sandblaster Cluster-Table Modifier
 

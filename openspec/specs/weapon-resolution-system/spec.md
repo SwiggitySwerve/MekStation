@@ -472,7 +472,7 @@ The system SHALL combine all applicable cluster modifiers (Artemis, Narc, MRM, C
 
 - **WHEN** a semi-guided LRM with Artemis IV fires at a TAG-designated target without ECM
 - **THEN** the Artemis bonus SHALL be +2
-- **AND** the semi-guided TAG cluster bonus SHALL be +0
+- **AND** no semi-guided TAG cluster-table modifier SHALL be applied
 - **AND** the total cluster modifier SHALL be +2
 
 #### Scenario: Cluster Hitter SPA adds +1

@@ -216,12 +216,6 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
     'calculateToHit appends source-backed semi-guided TAG target-movement cancellation and indirect-fire relief, and runAttackPhase plus declareAttack hydrate semi-guided/TAG state into weapon to-hit resolution',
     MEGAMEK_TAG_SEMI_GUIDED_SOURCE_REFS,
   ),
-  'tag-semi-guided-cluster-bonus': helperOnly(
-    'tag-semi-guided-cluster-bonus',
-    'Legacy getSemiGuidedLRMBonus still exposes the old +2 cluster helper for drift detection, but calculateClusterModifiers and runner missile resolution no longer consume it for official BattleMech combat',
-    'Remove the obsolete helper once downstream callers no longer need the explicit non-parity guard',
-    MEGAMEK_TAG_SEMI_GUIDED_SOURCE_REFS,
-  ),
   'tag-intent-wire-state-replay': integrated(
     'tag-intent-wire-state-replay',
     'Generic Attack game and wire intents carry TAG weapon ids through declareAttack, runner TAG hits emit DesignatorMarkerApplied, the replay reducer reapplies tagDesignated target state, and TurnStarted clears transient TAG state',

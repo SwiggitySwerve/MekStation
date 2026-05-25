@@ -2437,7 +2437,7 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       });
     });
 
-    it('semi-guided LRM ammo does not apply the legacy TAG cluster bonus', () => {
+    it('semi-guided LRM ammo leaves missile cluster counts unchanged by TAG', () => {
       const lrm = createLRM10();
       const ammoBin = createAmmoBin({
         weaponType: 'semi-guided-lrm-10',
@@ -2481,16 +2481,11 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
         'semi-guided',
       );
       expect(
-        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['tag-semi-guided-cluster-bonus']
-          .gap,
-      ).toContain('Remove the obsolete helper');
-      expect(
         SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['tag-semi-guided-to-hit'].level,
       ).toBe('integrated');
-      expect(
-        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['tag-semi-guided-cluster-bonus']
-          .level,
-      ).toBe('helper-only');
+      expect(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT).not.toHaveProperty(
+        'tag-semi-guided-cluster-bonus',
+      );
     });
 
     it('semi-guided TAG cancels runner target movement to-hit while preserving the TMM row', () => {

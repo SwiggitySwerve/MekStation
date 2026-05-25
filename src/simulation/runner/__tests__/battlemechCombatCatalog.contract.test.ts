@@ -781,7 +781,7 @@ describe('BattleMech combat catalog validation lane', () => {
     ).toEqual(expect.stringContaining('indirect-fire state'));
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['inarc-pod-variants', 'tag-semi-guided-cluster-bonus']);
+    ).toEqual(['inarc-pod-variants']);
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT, 'unsupported'),
     ).toEqual([]);
@@ -990,6 +990,9 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.level).toBe('integrated');
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.evidence).toContain(
       'official cluster totals ignore',
+    );
+    expect(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT).not.toHaveProperty(
+      'tag-semi-guided-cluster-bonus',
     );
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['lb-x-ac'].level).toBe(
       'integrated',
