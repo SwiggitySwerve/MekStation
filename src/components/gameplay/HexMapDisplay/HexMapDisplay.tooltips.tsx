@@ -21,6 +21,7 @@ import { CombatC3ContextRows } from './HexMapDisplay.combatC3Context';
 import { CombatCoverContextRows } from './HexMapDisplay.combatCoverContext';
 import { CombatEnvironmentContextRows } from './HexMapDisplay.combatEnvironmentContext';
 import { CombatLosContextRows } from './HexMapDisplay.combatLosContext';
+import { CombatMinimumRangeContextRows } from './HexMapDisplay.combatMinimumRangeContext';
 import { CombatVisibilityContextRows } from './HexMapDisplay.combatVisibilityContext';
 import { CombatWeaponImpactRows } from './HexMapDisplay.combatWeaponImpacts';
 import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
@@ -300,7 +301,6 @@ function CombatHoverTooltip({
       combatInfo.visibilityBlockedReason ??
       combatInfo.lineOfSightBlockerReason);
   const weaponLabel = formatCombatWeaponLabel(combatInfo);
-  const minimumRangeLabel = combatInfo.minimumRangeReason;
   const indirectFireLabel = combatInfo.indirectFireReason;
   const modifierLabel = formatToHitModifierLabel(combatInfo);
   const weaponImpactLabel = formatCombatWeaponImpactLabel(combatInfo);
@@ -372,11 +372,11 @@ function CombatHoverTooltip({
         projection={projection}
         testId="hex-combat-tooltip-cover"
       />
-      {minimumRangeLabel && (
-        <div data-testid="hex-combat-tooltip-minimum-range">
-          {minimumRangeLabel}
-        </div>
-      )}
+      <CombatMinimumRangeContextRows
+        combatInfo={combatInfo}
+        projection={projection}
+        testId="hex-combat-tooltip-minimum-range"
+      />
       {indirectFireLabel && (
         <div data-testid="hex-combat-tooltip-indirect-fire">
           {indirectFireLabel}

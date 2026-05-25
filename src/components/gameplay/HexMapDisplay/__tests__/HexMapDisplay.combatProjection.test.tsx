@@ -3777,9 +3777,46 @@ describe('HexMapDisplay combat projection', () => {
     );
 
     fireEvent.mouseEnter(targetHex);
-    expect(
-      screen.getByTestId('hex-combat-tooltip-minimum-range'),
-    ).toHaveTextContent('Minimum range penalty +4 (lrm-15-1)');
+    const minimumRangeRows = screen.getByTestId(
+      'hex-combat-tooltip-minimum-range',
+    );
+    expect(minimumRangeRows).toHaveTextContent(
+      'Minimum range penalty +4 (lrm-15-1)',
+    );
+    expect(minimumRangeRows).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(minimumRangeRows).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    expect(minimumRangeRows).toHaveAttribute(
+      'data-tactical-rules-surface',
+      'combat',
+    );
+    expect(minimumRangeRows).toHaveAttribute(
+      'data-combat-minimum-range-penalty',
+      '4',
+    );
+    expect(minimumRangeRows).toHaveAttribute(
+      'data-combat-minimum-range-weapon-ids',
+      'lrm-15-1',
+    );
+    expect(minimumRangeRows).toHaveAttribute(
+      'data-combat-minimum-range-reason',
+      'Minimum range penalty +4 (lrm-15-1)',
+    );
+    expect(minimumRangeRows).toHaveAttribute(
+      'data-combat-minimum-range-source-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(minimumRangeRows).toHaveAttribute(
+      'data-combat-minimum-range-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek Compute.java'),
+    );
     expect(screen.getByTestId('hex-combat-tooltip-weapons')).toHaveTextContent(
       'Weapons: lrm-15-1',
     );

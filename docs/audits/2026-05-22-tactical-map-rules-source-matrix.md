@@ -1513,6 +1513,15 @@ classification, target legality, attack validation, or attack resolution; it
 makes the visible cover explanation inspectable without relying on aggregate
 combat hex metadata.
 
+2026-05-25 combat minimum-range context rule-reference pin: Combat
+minimum-range context rows in combat and combined tactical hovers now expose
+combat-channel source references and MegaMek rule references from the shared
+per-hex tactical projection while pinning the projected penalty, affected weapon
+IDs, and reason. This does not change minimum-range penalty calculation, range
+bands, target numbers, target legality, attack validation, or attack
+resolution; it makes the visible minimum-range explanation inspectable without
+relying on aggregate combat hex metadata.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

@@ -20,6 +20,7 @@ import { CombatC3ContextRows } from './HexMapDisplay.combatC3Context';
 import { CombatCoverContextRows } from './HexMapDisplay.combatCoverContext';
 import { CombatEnvironmentContextRows } from './HexMapDisplay.combatEnvironmentContext';
 import { CombatLosContextRows } from './HexMapDisplay.combatLosContext';
+import { CombatMinimumRangeContextRows } from './HexMapDisplay.combatMinimumRangeContext';
 import { CombatVisibilityContextRows } from './HexMapDisplay.combatVisibilityContext';
 import { CombatWeaponImpactRows } from './HexMapDisplay.combatWeaponImpacts';
 import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
@@ -293,11 +294,11 @@ export function CombinedTacticalHoverTooltip({
         projection={projection}
         testId="hex-tactical-tooltip-combat-cover"
       />
-      {combatInfo.minimumRangeReason && (
-        <div data-testid="hex-tactical-tooltip-combat-minimum-range">
-          {combatInfo.minimumRangeReason}
-        </div>
-      )}
+      <CombatMinimumRangeContextRows
+        combatInfo={combatInfo}
+        projection={projection}
+        testId="hex-tactical-tooltip-combat-minimum-range"
+      />
       {combatInfo.indirectFireReason && (
         <div data-testid="hex-tactical-tooltip-combat-indirect-fire">
           {combatInfo.indirectFireReason}
