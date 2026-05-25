@@ -45,6 +45,7 @@ function unsupported(
   id: string,
   layer: CombatActionLayer,
   gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatActionSupportEntry {
   return {
     id,
@@ -52,6 +53,7 @@ function unsupported(
     level: 'unsupported',
     evidence: 'No BattleMech combat action behavior wired',
     gap,
+    ...(sourceRefs ? { sourceRefs } : {}),
   };
 }
 
@@ -106,6 +108,51 @@ const MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS = [
     citation:
       'MegaMek MovePathHandler checks active MASC/Supercharger on the first movement step and invokes the failure checks.',
     url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L1507-L1519',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MoveStep.canUseSprint gates sprinting on the TacOps sprint option and BattleMech unit scope.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/moves/MoveStep.java#L3908-L3922',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Mek.getSprintMP calculates BattleMech sprint MP as 2x walk MP, or boosted through armed MASC/Supercharger sprint formulas.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Mek.java#L1041-L1055',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MPBoosters.calculateSprintMP uses ceil(walk MP * 2.5) for one active booster and 3x walk MP for MASC plus Supercharger.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/enums/MPBoosters.java#L89-L97',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Mek.getSprintHeat delegates sprint heat to the engine sprint heat calculation plus damaged-coolant-system heat.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Mek.java#L1075-L1078',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek ranged to-hit calculation makes attacks by sprinting attackers automatic failures.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/compute/Compute.java#L2678-L2680',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek ranged to-hit calculation applies a -1 modifier when the target sprinted.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/compute/Compute.java#L2847-L2850',
     sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
@@ -314,7 +361,8 @@ export const BATTLEMECH_ABSENT_ACTION_SUPPORT = {
   'movement.sprint': unsupported(
     'movement.sprint',
     'absent-action-surface',
-    'Sprint has source-backed MASC/Supercharger movement formulas in rule support, but MovementType, tactical commands, game intents, wire payloads, P2P translation, and runner movement phases have no authoritative sprint action path',
+    'Sprint is a source-backed optional TacOps BattleMech movement surface with distinct MP, heat, and attack/targeting side effects, but MovementType, tactical commands, game intents, wire payloads, P2P translation, runner movement phases, and sprint attack restrictions have no authoritative sprint action path',
+    MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatActionSupportEntry>;
 

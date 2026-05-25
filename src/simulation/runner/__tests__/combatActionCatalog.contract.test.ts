@@ -171,6 +171,19 @@ describe('BattleMech combat action support catalog', () => {
       layer: 'absent-action-surface',
       gap: expect.stringContaining('no authoritative sprint action path'),
     });
+    expect(
+      BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.sprint'].sourceRefs?.map(
+        (sourceRef) => sourceRef.citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('MoveStep.canUseSprint'),
+        expect.stringContaining('Mek.getSprintMP'),
+        expect.stringContaining('Mek.getSprintHeat'),
+        expect.stringContaining('attacks by sprinting attackers'),
+        expect.stringContaining('target sprinted'),
+      ]),
+    );
   });
 
   it('keeps game intent support mapped to authoritative server wire kinds', () => {

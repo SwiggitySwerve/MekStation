@@ -84,6 +84,7 @@
 - [x] 3.2.9 Catalog MegaMek-backed Cross-Country as a non-BattleMech combat-vehicle movement/passability scope split instead of a BattleMech terrain PSR modifier.
 - [x] 3.2.10 Integrate source-backed voluntary go-prone through tactical command, game intent, wire intent, P2P host command, interactive/session reducer, and same-hex `goProne` movement-step evidence while leaving hull-down, swarmer dislodge, inferno wash-off, and runner AI/planning choice explicit.
 - [x] 3.2.11 Integrate source-backed MASC/Supercharger activation through tactical commands, game intent, wire intent, P2P host command, interactive/session reducer, and explicit active-booster events while leaving sprint movement and full failure-damage lifecycle explicit.
+- [x] 3.2.12 Source-back the remaining optional TacOps sprint absent-action row with MegaMek MP, heat, attacker-firing, and target-modifier anchors so the gap is rule-backed instead of a product-only omission.
 - [ ] 3.3 Expand heat validation coverage for buildup, dissipation, shutdown, ammo explosions, pilot damage, and heat-driven modifiers.
 - [x] 3.3.1 Cross-link every heat rule support row into heat generation, dissipation, and lifecycle requirement checklists.
 - [x] 3.3.2 Add structured MegaMek source anchors for heat startup, avoidable/automatic shutdown, ammo-explosion risk, and pilot heat damage support rows.
@@ -190,3 +191,4 @@
 - [x] 4.3.41 Cross-check MegaMek `applyEntityArmorDamage` ammo-explosion armor skip and `applyPlaytestExplosionReduction` rear-armor blowout before marking internal-only cookoff ordering integrated.
 - [x] 4.3.42 Cross-check MegaMek `Compute.isValidDisplacement` prohibited-destination handling and `Mek.isLocationProhibited` normal BattleMech impassable-terrain rejection before promoting the displacement terrain guard.
 - [x] 4.3.43 Cross-check MegaMek `Mek.isLocationProhibited` normal BattleMech woods/jungle terrain-level cap before promoting represented overgrown-terrain displacement rejection.
+- [x] 4.3.44 Cross-check MegaMek optional TacOps sprint gates, BattleMech sprint MP/heat, MASC/Supercharger sprint formulas, attacker auto-fail, and target-sprinted modifier before leaving sprint as an explicit absent action.

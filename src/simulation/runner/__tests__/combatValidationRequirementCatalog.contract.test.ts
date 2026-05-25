@@ -847,4 +847,25 @@ describe('BattleMech combat validation requirement crosswalk', () => {
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['non-battlemech-scope'].gap,
     ).toContain('Non-BattleMech');
   });
+
+  it('keeps the optional TacOps sprint gap source-backed until an action path exists', () => {
+    const sprintRefs =
+      BATTLEMECH_COMBAT_VALIDATION_CATALOG.actions.absentActionSurfaces[
+        'movement.sprint'
+      ].sourceRefs ?? [];
+
+    expect(sprintRefs.map((sourceRef) => sourceRef.citation)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('MoveStep.canUseSprint'),
+        expect.stringContaining('Mek.getSprintMP'),
+        expect.stringContaining('Mek.getSprintHeat'),
+        expect.stringContaining('attacks by sprinting attackers'),
+        expect.stringContaining('target sprinted'),
+      ]),
+    );
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
+        .supportMapRefs,
+    ).toContain('actions.absentActionSurfaces.movement.sprint');
+  });
 });
