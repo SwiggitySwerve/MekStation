@@ -101,6 +101,7 @@
 - [x] 3.3.6 Add source-backed optional MaxTech pilot heat-damage avoid-number helper coverage for Hot Dog while locking default life-support heat damage as threshold-based.
 - [x] 3.3.7 Route opt-in MaxTech pilot heat-damage checks through runner and interactive heat resolution, including Hot Dog avoid-number relief.
 - [x] 3.3.8 Route opt-in MaxTech heat-scale critical-damage checks through runner and interactive heat resolution, including Hot Dog avoid-number relief and random BattleMech critical-location routing.
+- [x] 3.3.9 Source-pin every heat rule row for weapon heat, movement/jump heat, engine crit heat, dissipation, heat-sink damage, threshold effects, water/fire/environment heat, shutdown/startup, ammo explosion, pilot heat damage, and optional MaxTech heat-damage boundaries; promote heat rule triad enforcement to row-level source refs while marking atmosphere heat as a MekStation deviation.
 - [ ] 3.4 Expand to-hit validation coverage for range, movement, terrain, pilot skills, special abilities, quirks, sensors, prone state, and indirect fire.
 - [x] 3.4.1 Add support-matrix tests that separate runner-integrated to-hit modifiers from helper-only modifier math.
 - [x] 3.4.2 Cross-link pilot skill, SPA, canonical SPA, quirk, and pilot modifier resolver support rows into pilot/SPAs/quirks requirement checklists.
@@ -229,3 +230,4 @@
 - [x] 4.3.61 Promote AttackInvalid reason rows to row-level source references so inherited invalidation authority cannot mask unsourced ammo, range, LOS/spotter, targetability, missing-weapon, destroyed-weapon, jammed-weapon, or same-hex deviation claims.
 - [x] 4.3.62 Promote invalid ranged attack side-effect guards to row-level MekStation source references so inherited invalidation authority cannot mask unsourced no-event, no-heat, no-ammo, no-damage, or no-fired-state claims.
 - [x] 4.3.63 Promote physical damage modifier rows to row-level MegaMek source references so inherited rule authority cannot mask unsourced active-TSM, claw, talon, or underwater damage claims.
+- [x] 4.3.64 Promote heat rule rows to row-level source references so inherited heat authority cannot mask unsourced accumulation, dissipation, threshold, environment, lifecycle, ammo-explosion, or pilot heat-damage claims.

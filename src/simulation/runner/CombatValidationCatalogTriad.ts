@@ -254,9 +254,10 @@ const PHYSICAL_DAMAGE_TRIAD = triad(
   RULE_REFS,
 );
 const HEAT_TRIAD = triad(
-  'requirement-primary-authority',
-  REQUIREMENT_AUTHORITY_BOUNDARY,
+  'entry-source-refs',
+  'Heat rule rows are source checked and must carry row-level sourceRefs for weapon heat, movement/jump heat, engine crit heat, dissipation, damaged heat sinks, threshold effects, water/fire/environmental heat, shutdown/startup, ammo explosion, pilot heat damage, and optional MaxTech heat damage boundaries. Local atmosphere heat adjustment is marked as a MekStation deviation source.',
   [
+    ...RULE_REFS,
     testRef(
       'src/simulation/runner/__tests__/heatEvents.test.ts',
       'Heat behavior proves generated heat, dissipation, shutdown, startup, ammo explosion, and heat-damage event paths.',

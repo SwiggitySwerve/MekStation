@@ -1983,6 +1983,37 @@ describe('BattleMech combat feature-gap tracking', () => {
       [],
     );
 
+    Object.values(HEAT_RULE_COMBAT_SUPPORT).forEach((entry) => {
+      const sourceRefs = entry.sourceRefs ?? [];
+      if (entry.id === 'environmental-heat') {
+        expectPinnedMegaMekRefs(
+          sourceRefs.filter((sourceRef) => sourceRef.kind === 'megamek-source'),
+        );
+        expect(
+          sourceRefs.some(
+            (sourceRef) => sourceRef.kind === 'mekstation-deviation',
+          ),
+        ).toBe(true);
+        return;
+      }
+
+      expectPinnedMegaMekRefs(sourceRefs);
+    });
+
+    const weaponHeatRefs =
+      HEAT_RULE_COMBAT_SUPPORT['weapon-heat'].sourceRefs ?? [];
+    const movementHeatRefs =
+      HEAT_RULE_COMBAT_SUPPORT['movement-heat'].sourceRefs ?? [];
+    const jumpHeatRefs =
+      HEAT_RULE_COMBAT_SUPPORT['jump-distance-heat'].sourceRefs ?? [];
+    const engineHeatRefs =
+      HEAT_RULE_COMBAT_SUPPORT['engine-heat'].sourceRefs ?? [];
+    const dissipationRefs =
+      HEAT_RULE_COMBAT_SUPPORT.dissipation.sourceRefs ?? [];
+    const heatSinkDamageRefs =
+      HEAT_RULE_COMBAT_SUPPORT['heat-sink-damage'].sourceRefs ?? [];
+    const thresholdEffectRefs =
+      HEAT_RULE_COMBAT_SUPPORT['threshold-effects'].sourceRefs ?? [];
     const heatAmmoExplosionRefs =
       HEAT_RULE_COMBAT_SUPPORT['heat-induced-ammo-explosion'].sourceRefs ?? [];
     const heatStartupRefs = HEAT_RULE_COMBAT_SUPPORT.startup.sourceRefs ?? [];
@@ -1998,7 +2029,43 @@ describe('BattleMech combat feature-gap tracking', () => {
       HEAT_RULE_COMBAT_SUPPORT['maxtech-pilot-heat-damage'].sourceRefs ?? [];
     const maxTechCriticalHeatRefs =
       HEAT_RULE_COMBAT_SUPPORT['maxtech-heat-critical-damage'].sourceRefs ?? [];
+    const waterCoolingRefs =
+      HEAT_RULE_COMBAT_SUPPORT['water-cooling'].sourceRefs ?? [];
+    const fireHeatRefs = HEAT_RULE_COMBAT_SUPPORT['fire-heat'].sourceRefs ?? [];
+    const environmentalHeatRefs =
+      HEAT_RULE_COMBAT_SUPPORT['environmental-heat'].sourceRefs ?? [];
 
+    expect(weaponHeatRefs.map((sourceRef) => sourceRef.citation)).toEqual([
+      expect.stringContaining('WeaponHandler.addHeat'),
+    ]);
+    expect(movementHeatRefs.map((sourceRef) => sourceRef.citation)).toEqual([
+      expect.stringContaining('addMovementHeat adds heat'),
+      expect.stringContaining('getStandingHeat and getWalkHeat'),
+      expect.stringContaining('getRunHeat and getSprintHeat'),
+    ]);
+    expect(jumpHeatRefs.map((sourceRef) => sourceRef.citation)).toEqual([
+      expect.stringContaining('addMovementHeat adds heat'),
+      expect.stringContaining('Mek.getJumpHeat'),
+    ]);
+    expect(engineHeatRefs.map((sourceRef) => sourceRef.citation)).toEqual([
+      expect.stringContaining('getEngineCritHeat adds 5 heat'),
+    ]);
+    expect(dissipationRefs.map((sourceRef) => sourceRef.citation)).toEqual([
+      expect.stringContaining('sinks heat with getHeatCapacityWithWater'),
+      expect.stringContaining('getHeatCapacity counts active heat sinks'),
+    ]);
+    expect(heatSinkDamageRefs.map((sourceRef) => sourceRef.citation)).toEqual([
+      expect.stringContaining('getHeatCapacity counts active heat sinks'),
+    ]);
+    expect(thresholdEffectRefs.map((sourceRef) => sourceRef.citation)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('getHeatFiringModifier applies heat'),
+        expect.stringContaining('getHeatMPReduction implements'),
+        expect.stringContaining('avoidable shutdown checks'),
+        expect.stringContaining('heat >= 19'),
+        expect.stringContaining('pilot damage at heat 15/25+'),
+      ]),
+    );
     expect(
       heatAmmoExplosionRefs.map((sourceRef) => sourceRef.citation),
     ).toEqual([
@@ -2026,24 +2093,21 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(
       maxTechCriticalHeatRefs.map((sourceRef) => sourceRef.citation),
     ).toEqual([expect.stringContaining('critical damage avoid rolls')]);
+    expect(waterCoolingRefs.map((sourceRef) => sourceRef.citation)).toEqual([
+      expect.stringContaining('sinks heat with getHeatCapacityWithWater'),
+      expect.stringContaining('getHeatCapacityWithWater adds'),
+    ]);
+    expect(fireHeatRefs.map((sourceRef) => sourceRef.citation)).toEqual([
+      expect.stringContaining('spending a full round in fire terrain'),
+      expect.stringContaining('caps external heat'),
+    ]);
     expect(
-      [
-        ...heatAmmoExplosionRefs,
-        ...heatStartupRefs,
-        ...heatShutdownRefs,
-        ...autoShutdownRefs,
-        ...heatRiskRefs,
-        ...pilotHeatRefs,
-        ...maxTechPilotHeatRefs,
-        ...maxTechCriticalHeatRefs,
-      ].every(
-        (sourceRef) =>
-          sourceRef.kind === 'megamek-source' &&
-          sourceRef.url.includes('github.com/MegaMek/megamek/blob/') &&
-          sourceRef.url.includes(sourceRef.sourceVersion) &&
-          sourceRef.url.includes('#L'),
-      ),
-    ).toBe(true);
+      environmentalHeatRefs.map((sourceRef) => sourceRef.citation),
+    ).toEqual([
+      expect.stringContaining('adjustHeatExtremeTemp'),
+      expect.stringContaining('caps external heat'),
+      expect.stringContaining('local atmosphere heat-dissipation'),
+    ]);
   });
 
   it('tracks damage, pilot injury, critical components, and destruction causes', () => {

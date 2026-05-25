@@ -101,6 +101,103 @@ function megamekPhysicalSourceRef(
   };
 }
 
+function mekstationDeviationSourceRef(
+  citation: string,
+  path: string,
+  lineRange: string,
+): ICombatFeatureSourceReference {
+  return {
+    kind: 'mekstation-deviation',
+    citation,
+    url: `${path}#${lineRange}`,
+    sourceVersion: 'MekStation working-tree',
+  };
+}
+
+const MEGAMEK_WEAPON_HEAT_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek WeaponHandler.addHeat adds weapon heat to heatBuildup for possible attacks and skips impossible to-hit attacks.',
+  'common/weapons/handlers/WeaponHandler.java',
+  'L1924-L1942',
+);
+
+const MEGAMEK_MOVEMENT_HEAT_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek TWGameManager.addMovementHeat adds heat for standing, walking, running, jumping, sprinting, swimming, and damaged radical heat sinks.',
+  'server/totalWarfare/TWGameManager.java',
+  'L8200-L8231',
+);
+
+const MEGAMEK_MEK_STANDING_WALK_HEAT_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek Mek.getStandingHeat and getWalkHeat delegate BattleMech standing/walking heat to the engine and damaged coolant system state.',
+  'common/units/Mek.java',
+  'L943-L989',
+);
+
+const MEGAMEK_MEK_RUN_SPRINT_HEAT_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek Mek.getRunHeat and getSprintHeat delegate running/sprinting heat to the engine and add damaged coolant or evasion heat where applicable.',
+  'common/units/Mek.java',
+  'L1034-L1077',
+);
+
+const MEGAMEK_MEK_JUMP_HEAT_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek Mek.getJumpHeat computes BattleMech jump heat from moved MP, damaged coolant state, partial-wing reduction, and jump-jet type.',
+  'common/units/Mek.java',
+  'L1281-L1302',
+);
+
+const MEGAMEK_ENGINE_CRIT_HEAT_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek Mek.getEngineCritHeat adds 5 heat per fusion-engine critical while the Mek is not shutdown and includes partial-repair heat.',
+  'common/units/Mek.java',
+  'L1444-L1468',
+);
+
+const MEGAMEK_MEK_HEAT_CAPACITY_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek Mek.getHeatCapacity counts active heat sinks, double/prototype sinks, partial-wing bonus, radical heat sinks, and damaged/coolant-failure reductions.',
+  'common/units/Mek.java',
+  'L1552-L1612',
+);
+
+const MEGAMEK_WATER_COOLING_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek Mek.getHeatCapacityWithWater adds up to six underwater heat sinks after checking water depth, prone state, and destroyed or breached sink mounts.',
+  'common/units/Mek.java',
+  'L1616-L1654',
+);
+
+const MEGAMEK_HEAT_DISSIPATION_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek HeatResolver adds heat buildup, sinks heat with getHeatCapacityWithWater plus coolant-pod/radical heat-sink bonuses, reports the sink amount, and clears heatBuildup.',
+  'server/totalWarfare/HeatResolver.java',
+  'L383-L445',
+);
+
+const MEGAMEK_FIRE_HEAT_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek HeatResolver adds 5 external heat for units spending a full round in fire terrain, halved by intact heat-dissipating armor.',
+  'server/totalWarfare/HeatResolver.java',
+  'L157-L177',
+);
+
+const MEGAMEK_EXTERNAL_HEAT_CAP_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek HeatResolver caps external heat at the configured/default 15 points and external cooling at 9 points before adding heat buildup.',
+  'server/totalWarfare/HeatResolver.java',
+  'L347-L357',
+);
+
+const MEGAMEK_EXTREME_TEMPERATURE_HEAT_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek HeatResolver.adjustHeatExtremeTemp adds or subtracts external heat for planetary temperature outside the 50/-30 thresholds.',
+  'server/totalWarfare/HeatResolver.java',
+  'L1253-L1285',
+);
+
+const MEGAMEK_HEAT_TO_HIT_THRESHOLD_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek Entity.getHeatFiringModifier applies heat firing modifiers at heat 8/13/17/24 and optional TacOps thresholds 33/41/48, with Some Like It Hot relief.',
+  'common/units/Entity.java',
+  'L4188-L4216',
+);
+
+const MEKSTATION_ATMOSPHERE_HEAT_SOURCE_REF = mekstationDeviationSourceRef(
+  'MekStation calculateEnvironmentalHeatModifier applies local atmosphere heat-dissipation adjustments alongside temperature modifiers.',
+  'src/utils/gameplay/environmentalModifiers.ts',
+  'L257-L360',
+);
+
 const MEGAMEK_HEAT_AMMO_EXPLOSION_ROLL_SOURCE_REF = megamekHeatSourceRef(
   'MegaMek HeatResolver checks heat >= 19 and routes failed ammo-explosion checks through explodeAmmoFromHeat',
   'server/totalWarfare/HeatResolver.java',
@@ -142,6 +239,14 @@ const MEGAMEK_HEAT_MAXTECH_CRITICAL_DAMAGE_SOURCE_REF = megamekHeatSourceRef(
   'server/totalWarfare/HeatResolver.java',
   'L847-L862',
 );
+
+const MEGAMEK_HEAT_THRESHOLD_SOURCE_REFS = [
+  MEGAMEK_HEAT_TO_HIT_THRESHOLD_SOURCE_REF,
+  ...MEGAMEK_HEAT_MOVEMENT_PENALTY_SOURCE_REFS,
+  MEGAMEK_HEAT_SHUTDOWN_SOURCE_REF,
+  MEGAMEK_HEAT_AMMO_EXPLOSION_ROLL_SOURCE_REF,
+  MEGAMEK_HEAT_PILOT_DAMAGE_SOURCE_REF,
+] satisfies readonly ICombatFeatureSourceReference[];
 
 const MEGAMEK_SECONDARY_TARGET_SOURCE_REFS = [
   {
@@ -761,30 +866,41 @@ export const HEAT_RULE_COMBAT_SUPPORT = {
   'weapon-heat': integrated(
     'weapon-heat',
     'runHeatPhase sums weaponsFiredThisTurn against weaponsByUnit catalog heat',
+    [MEGAMEK_WEAPON_HEAT_SOURCE_REF],
   ),
   'movement-heat': integrated(
     'movement-heat',
     'runHeatPhase emits movement-sourced HeatGenerated for walk/run/jump movement types',
+    [
+      MEGAMEK_MOVEMENT_HEAT_SOURCE_REF,
+      MEGAMEK_MEK_STANDING_WALK_HEAT_SOURCE_REF,
+      MEGAMEK_MEK_RUN_SPRINT_HEAT_SOURCE_REF,
+    ],
   ),
   'jump-distance-heat': integrated(
     'jump-distance-heat',
     'runHeatPhase applies max(JUMP_HEAT, unit.hexesMovedThisTurn) for jump movement heat',
+    [MEGAMEK_MOVEMENT_HEAT_SOURCE_REF, MEGAMEK_MEK_JUMP_HEAT_SOURCE_REF],
   ),
   'engine-heat': integrated(
     'engine-heat',
     'runHeatPhase adds componentDamage.engineHits * ENGINE_HEAT_PER_CRITICAL',
+    [MEGAMEK_ENGINE_CRIT_HEAT_SOURCE_REF],
   ),
   dissipation: integrated(
     'dissipation',
     'runHeatPhase subtracts unit heatSinks * heatSinkType rating, defaulting legacy fixtures to 10 single sinks',
+    [MEGAMEK_HEAT_DISSIPATION_SOURCE_REF, MEGAMEK_MEK_HEAT_CAPACITY_SOURCE_REF],
   ),
   'heat-sink-damage': integrated(
     'heat-sink-damage',
     'runHeatPhase reduces dissipation by componentDamage.heatSinksDestroyed at the unit heat-sink rating',
+    [MEGAMEK_MEK_HEAT_CAPACITY_SOURCE_REF],
   ),
   'threshold-effects': integrated(
     'threshold-effects',
     'runHeatPhase emits HeatEffectApplied for each met Total Warfare heat threshold',
+    MEGAMEK_HEAT_THRESHOLD_SOURCE_REFS,
   ),
   'shutdown-check': integrated(
     'shutdown-check',
@@ -832,14 +948,21 @@ export const HEAT_RULE_COMBAT_SUPPORT = {
   'water-cooling': integrated(
     'water-cooling',
     'runHeatPhase consumes occupied water terrain via getGridTerrainHeatEffect and emits waterBonus in the HeatDissipated breakdown',
+    [MEGAMEK_HEAT_DISSIPATION_SOURCE_REF, MEGAMEK_WATER_COOLING_SOURCE_REF],
   ),
   'fire-heat': integrated(
     'fire-heat',
     'runHeatPhase consumes occupied fire terrain via getGridTerrainHeatEffect and emits environment-sourced HeatGenerated',
+    [MEGAMEK_FIRE_HEAT_SOURCE_REF, MEGAMEK_EXTERNAL_HEAT_CAP_SOURCE_REF],
   ),
   'environmental-heat': integrated(
     'environmental-heat',
-    'runHeatPhase and resolveHeatPhase consume calculateEnvironmentalHeatModifier for atmosphere/temperature dissipation adjustments',
+    'runHeatPhase and resolveHeatPhase consume calculateEnvironmentalHeatModifier for source-backed temperature and local atmosphere dissipation adjustments',
+    [
+      MEGAMEK_EXTREME_TEMPERATURE_HEAT_SOURCE_REF,
+      MEGAMEK_EXTERNAL_HEAT_CAP_SOURCE_REF,
+      MEKSTATION_ATMOSPHERE_HEAT_SOURCE_REF,
+    ],
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 

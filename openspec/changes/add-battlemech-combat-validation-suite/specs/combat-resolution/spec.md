@@ -1013,16 +1013,18 @@ Runner and interactive PSR resolution SHALL apply MegaMek's source-backed Animal
 - **THEN** the same `Animal Mimicry` SPA modifier SHALL apply
 - **AND** non-quad units SHALL NOT receive the Animal Mimicry PSR modifier
 
-### Requirement: Source-Backed Heat Lifecycle Catalog Anchors
+### Requirement: Source-Backed Heat Rule Catalog Anchors
 
-Heat lifecycle support rows SHALL carry MegaMek source references before they are treated as integrated validation coverage. Startup SHALL be pinned to `HeatResolver` automatic restart below heat 14 and startup rolls at heat 14+ for non-manual shutdown. Shutdown SHALL be pinned to avoidable heat 14+ shutdown checks and automatic default heat 30 shutdown. Ammo-explosion risk SHALL be pinned to the heat 19+ roll path, pilot heat damage SHALL be pinned to life-support heat 15/25+ damage resolution, and optional MaxTech critical damage SHALL be pinned to the heat 36/44+ avoid-roll path. Any future heat profile, optional TacOps heat, equipment-mode, or crew modifier expansion SHALL update those source references or add explicit gap rows instead of relying on prose.
+Heat rule support rows SHALL carry source references before they are treated as integrated validation coverage. Weapon heat, movement/jump heat, engine critical heat, dissipation, heat-sink damage, threshold effects, water cooling, fire heat, external-temperature heat, startup, shutdown, ammo-explosion risk, heat-induced ammo explosion, pilot heat damage, and optional MaxTech heat damage SHALL be pinned to MegaMek source references with commit-pinned URLs and line anchors. MekStation-only atmosphere heat adjustment SHALL be marked as a MekStation deviation source instead of being attributed to MegaMek. Any future heat profile, optional TacOps heat, equipment-mode, crew modifier, atmosphere, terrain, or environmental expansion SHALL update those source references or add explicit gap/deviation rows instead of relying on prose.
 
-#### Scenario: Heat lifecycle support rows expose source truth
+#### Scenario: Heat rule support rows expose source truth
 
 - **GIVEN** the BattleMech heat rule support catalog is generated
-- **WHEN** startup, shutdown, ammo-explosion risk, heat-induced ammo explosion, pilot heat damage, and optional MaxTech heat critical damage rows are inspected
-- **THEN** each row SHALL expose structured MegaMek source references with commit-pinned URLs and line anchors
-- **AND** the active OpenSpec task list SHALL record the cross-check as a completed heat-validation slice
+- **WHEN** any heat rule support row is inspected
+- **THEN** each row SHALL expose structured source references
+- **AND** MegaMek-backed heat rows SHALL use commit-pinned MegaMek URLs with line anchors
+- **AND** local atmosphere heat adjustment SHALL use a MekStation deviation source reference
+- **AND** the heat rule catalog triad SHALL enforce row-level source references before PR approval
 
 ### Requirement: Source-Backed Heat SPA Boundary
 
