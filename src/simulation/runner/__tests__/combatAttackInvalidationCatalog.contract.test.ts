@@ -221,4 +221,77 @@ describe('BattleMech attack invalidation support catalog', () => {
     ]);
     expect(supportGaps(ATTACK_INVALIDATION_SIDE_EFFECT_SUPPORT)).toEqual([]);
   });
+
+  it('pins invalid ranged attack side-effect guards to MekStation source refs', () => {
+    Object.values(ATTACK_INVALIDATION_SIDE_EFFECT_SUPPORT).forEach((entry) => {
+      expectStructuredRefs(entry.sourceRefs ?? []);
+      expect(
+        entry.sourceRefs?.every(
+          (sourceRef) => sourceRef.kind === 'mekstation-deviation',
+        ),
+      ).toBe(true);
+    });
+
+    expect(
+      ATTACK_INVALIDATION_SIDE_EFFECT_SUPPORT[
+        'no-attack-declared'
+      ].sourceRefs?.map(({ url }) => url),
+    ).toEqual(
+      expect.arrayContaining([
+        'src/simulation/runner/phases/weaponAttack.ts#L643-L803',
+        'src/simulation/runner/phases/weaponAttack.ts#L1006-L1208',
+      ]),
+    );
+
+    expect(
+      ATTACK_INVALIDATION_SIDE_EFFECT_SUPPORT[
+        'no-attack-resolved'
+      ].sourceRefs?.map(({ url }) => url),
+    ).toEqual(
+      expect.arrayContaining([
+        'src/simulation/runner/phases/weaponAttack.ts#L1006-L1208',
+      ]),
+    );
+
+    expect(
+      ATTACK_INVALIDATION_SIDE_EFFECT_SUPPORT['no-heat-spent'].sourceRefs?.map(
+        ({ url }) => url,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        'src/simulation/runner/phases/weaponAttack.ts#L1178-L1229',
+        'src/simulation/runner/phases/weaponAttackFiringModes.ts#L121-L137',
+      ]),
+    );
+
+    expect(
+      ATTACK_INVALIDATION_SIDE_EFFECT_SUPPORT[
+        'no-ammo-consumed'
+      ].sourceRefs?.map(({ citation }) => citation),
+    ).toEqual(
+      expect.arrayContaining([
+        'MekStation consumeWeaponAmmo mutates ammoState and emits AmmoConsumed, so invalid attacks must not reach this helper.',
+      ]),
+    );
+
+    expect(
+      ATTACK_INVALIDATION_SIDE_EFFECT_SUPPORT[
+        'no-damage-applied'
+      ].sourceRefs?.map(({ url }) => url),
+    ).toEqual(
+      expect.arrayContaining([
+        'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts#L182-L303',
+      ]),
+    );
+
+    expect(
+      ATTACK_INVALIDATION_SIDE_EFFECT_SUPPORT[
+        'no-fired-weapon-state'
+      ].sourceRefs?.map(({ citation }) => citation),
+    ).toEqual(
+      expect.arrayContaining([
+        'MekStation markWeaponFiredForHeat appends the weapon id to weaponsFiredThisTurn, so invalid attacks must exit before this helper.',
+      ]),
+    );
+  });
 });

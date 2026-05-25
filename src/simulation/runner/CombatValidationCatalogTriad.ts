@@ -182,11 +182,6 @@ const ACTION_REQUIREMENT_TRIAD = triad(
   REQUIREMENT_AUTHORITY_BOUNDARY,
   ACTION_CONTRACT_REFS,
 );
-const INVALIDATION_TRIAD = triad(
-  'requirement-primary-authority',
-  REQUIREMENT_AUTHORITY_BOUNDARY,
-  INVALIDATION_REFS,
-);
 const ATTACK_REASON_TRIAD = triad(
   'entry-source-refs',
   'Ranged attack invalidation reason rows must carry row-level sourceRefs for ammo, same-hex, range, LOS/spotter, targetability, missing weapon, and weapon readiness boundaries; SameHex is an explicit MekStation deviation row.',
@@ -195,6 +190,11 @@ const ATTACK_REASON_TRIAD = triad(
 const INVALID_TARGET_STATE_TRIAD = triad(
   'entry-source-refs',
   'Ranged invalid target-state rows are MegaMek-source checked and must carry row-level sourceRefs for missing, destroyed, friendly, retreated, and ejected targetability boundaries.',
+  INVALIDATION_REFS,
+);
+const ATTACK_SIDE_EFFECT_TRIAD = triad(
+  'entry-source-refs',
+  'Ranged invalid attack side-effect guard rows must carry row-level MekStation sourceRefs for event suppression, heat, ammo, damage, and fired-weapon state boundaries.',
   INVALIDATION_REFS,
 );
 const EVENT_TRIAD = triad(
@@ -295,7 +295,7 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
   invalidation: {
     attackReasons: ATTACK_REASON_TRIAD,
     invalidTargetStates: INVALID_TARGET_STATE_TRIAD,
-    invalidAttackSideEffects: INVALIDATION_TRIAD,
+    invalidAttackSideEffects: ATTACK_SIDE_EFFECT_TRIAD,
   },
   eventStream: {
     battleMechCombatEvents: EVENT_TRIAD,

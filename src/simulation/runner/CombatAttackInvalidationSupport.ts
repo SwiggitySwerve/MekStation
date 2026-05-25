@@ -17,6 +17,11 @@ import {
   MEGAMEK_RETREAT_TARGET_REMOVAL_SOURCE_REFS,
   MEGAMEK_UNKNOWN_WEAPON_INVALIDATION_SOURCE_REFS,
   MEGAMEK_WEAPON_READY_INVALIDATION_SOURCE_REFS,
+  MEKSTATION_ATTACK_INVALID_AMMO_SUPPRESSION_SOURCE_REFS,
+  MEKSTATION_ATTACK_INVALID_DAMAGE_SUPPRESSION_SOURCE_REFS,
+  MEKSTATION_ATTACK_INVALID_EVENT_SUPPRESSION_SOURCE_REFS,
+  MEKSTATION_ATTACK_INVALID_FIRED_WEAPON_SUPPRESSION_SOURCE_REFS,
+  MEKSTATION_ATTACK_INVALID_HEAT_SUPPRESSION_SOURCE_REFS,
   MEKSTATION_SAME_HEX_INVALIDATION_SOURCE_REFS,
 } from './CombatAttackInvalidationSourceRefs';
 
@@ -136,26 +141,32 @@ export const ATTACK_INVALIDATION_SIDE_EFFECT_SUPPORT = {
   'no-attack-declared': integrated(
     'no-attack-declared',
     'invalid ranged attacks emit only AttackInvalid and skip AttackDeclared',
+    MEKSTATION_ATTACK_INVALID_EVENT_SUPPRESSION_SOURCE_REFS,
   ),
   'no-attack-resolved': integrated(
     'no-attack-resolved',
     'invalid ranged attacks emit only AttackInvalid and skip AttackResolved',
+    MEKSTATION_ATTACK_INVALID_EVENT_SUPPRESSION_SOURCE_REFS,
   ),
   'no-heat-spent': integrated(
     'no-heat-spent',
     'invalid ranged attacks leave attacker heat unchanged',
+    MEKSTATION_ATTACK_INVALID_HEAT_SUPPRESSION_SOURCE_REFS,
   ),
   'no-ammo-consumed': integrated(
     'no-ammo-consumed',
     'invalid ranged attacks leave attacker ammoState unchanged',
+    MEKSTATION_ATTACK_INVALID_AMMO_SUPPRESSION_SOURCE_REFS,
   ),
   'no-damage-applied': integrated(
     'no-damage-applied',
     'invalid ranged attacks leave target armor, structure, and damageThisPhase unchanged',
+    MEKSTATION_ATTACK_INVALID_DAMAGE_SUPPRESSION_SOURCE_REFS,
   ),
   'no-fired-weapon-state': integrated(
     'no-fired-weapon-state',
     'invalid ranged attacks do not append to weaponsFiredThisTurn',
+    MEKSTATION_ATTACK_INVALID_FIRED_WEAPON_SUPPRESSION_SOURCE_REFS,
   ),
 } satisfies Record<
   AttackInvalidationSideEffectGuard,

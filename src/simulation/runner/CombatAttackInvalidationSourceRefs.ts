@@ -174,3 +174,78 @@ export const MEGAMEK_WEAPON_READY_INVALIDATION_SOURCE_REFS = [
     'L1904-L1909',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEKSTATION_ATTACK_INVALID_EVENT_SUPPRESSION_SOURCE_REFS = [
+  mekstationDeviationRef(
+    'MekStation runAttackPhase emits AttackInvalid and continues for invalid target, missing hydrated weapon, destroyed weapon, same-hex, and out-of-range declarations before AttackDeclared can be emitted.',
+    'src/simulation/runner/phases/weaponAttack.ts',
+    'L643-L803',
+  ),
+  mekstationDeviationRef(
+    'MekStation runAttackPhase emits AttackInvalid and stops stale jammed or out-of-ammo declarations before entering the valid-shot AttackDeclared and AttackResolved sequence.',
+    'src/simulation/runner/phases/weaponAttack.ts',
+    'L1006-L1208',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEKSTATION_ATTACK_INVALID_HEAT_SUPPRESSION_SOURCE_REFS = [
+  mekstationDeviationRef(
+    'MekStation runAttackPhase only records fired weapon heat after invalidation gates and the valid-shot declaration path have passed.',
+    'src/simulation/runner/phases/weaponAttack.ts',
+    'L1178-L1229',
+  ),
+  mekstationDeviationRef(
+    'MekStation markWeaponFiredForHeat is the runner weapon-fire heat-accounting boundary because heat phase later derives weapon heat from weaponsFiredThisTurn.',
+    'src/simulation/runner/phases/weaponAttackFiringModes.ts',
+    'L121-L137',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEKSTATION_ATTACK_INVALID_AMMO_SUPPRESSION_SOURCE_REFS = [
+  mekstationDeviationRef(
+    'MekStation runAttackPhase calls consumeWeaponAmmo only after invalidation gates and valid-shot miss or hit resolution have passed.',
+    'src/simulation/runner/phases/weaponAttack.ts',
+    'L1212-L1221',
+  ),
+  mekstationDeviationRef(
+    'MekStation consumeWeaponAmmo mutates ammoState and emits AmmoConsumed, so invalid attacks must not reach this helper.',
+    'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts',
+    'L110-L162',
+  ),
+  mekstationDeviationRef(
+    'MekStation resolveWeaponHit emits AttackResolved and then consumes ammo only for valid hit-resolution paths.',
+    'src/simulation/runner/phases/weaponAttackHitResolution.ts',
+    'L401-L430',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEKSTATION_ATTACK_INVALID_DAMAGE_SUPPRESSION_SOURCE_REFS = [
+  mekstationDeviationRef(
+    'MekStation runAttackPhase calls resolveWeaponHit only after invalidation gates, valid declaration, and valid projectile resolution have passed.',
+    'src/simulation/runner/phases/weaponAttack.ts',
+    'L1225-L1317',
+  ),
+  mekstationDeviationRef(
+    'MekStation resolveWeaponHit increments damageThisPhase and emits AttackResolved only on valid hit-resolution paths.',
+    'src/simulation/runner/phases/weaponAttackHitResolution.ts',
+    'L389-L430',
+  ),
+  mekstationDeviationRef(
+    'MekStation emitDamageChainEvents is the runner DamageApplied and transfer side-effect boundary, so invalid attacks must not reach it.',
+    'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts',
+    'L182-L303',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEKSTATION_ATTACK_INVALID_FIRED_WEAPON_SUPPRESSION_SOURCE_REFS = [
+  mekstationDeviationRef(
+    'MekStation runAttackPhase calls markWeaponFiredForHeat only after invalidation gates and valid attack resolution are in progress.',
+    'src/simulation/runner/phases/weaponAttack.ts',
+    'L1178-L1229',
+  ),
+  mekstationDeviationRef(
+    'MekStation markWeaponFiredForHeat appends the weapon id to weaponsFiredThisTurn, so invalid attacks must exit before this helper.',
+    'src/simulation/runner/phases/weaponAttackFiringModes.ts',
+    'L121-L137',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];

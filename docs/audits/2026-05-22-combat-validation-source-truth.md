@@ -121,6 +121,7 @@ The three-lane validation direction is still right: catalog contracts, behavior-
 - Helper-only or unsupported combat classes must have a named authority row, an expected simulation scenario, and an explicit reason for exclusion from the BattleMech matrix.
 - Physical legality rows must carry commit-pinned MegaMek `sourceRefs`; unsupported rows may stay unsupported, but they cannot stay source-ambiguous.
 - Static `WEAPON_DATABASE` subset coverage, synthetic Medium Laser fallback rejection, and variable missile damage-string parsing are first-class validation-scope rows; future weapon PRs should reference those rows instead of hiding behind broad official-catalog scope.
+- Invalid ranged attack no-side-effect guard rows now carry row-level MekStation source references for the exact invalidation exits and event/state mutation boundaries they must not reach: `AttackDeclared`, `AttackResolved`, heat/fired-state accounting, ammo consumption, and damage application. This keeps the guard catalog source-checkable without over-claiming MegaMek parity where MekStation intentionally owns the event-suppression contract.
 
 ## Source References
 

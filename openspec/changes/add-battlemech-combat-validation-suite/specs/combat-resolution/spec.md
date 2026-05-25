@@ -143,6 +143,14 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** local event-shape rows such as `SameHex` SHALL identify their MekStation-deviation boundary instead of inheriting generic invalidation authority
 - **AND** the aggregate catalog triad for `attackReasons` SHALL require row-level source references rather than inherited requirement authority
 
+#### Scenario: Invalid ranged attack side-effect guards stay source-backed as MekStation contracts
+
+- **GIVEN** the attack invalidation catalog covers no `AttackDeclared`, no `AttackResolved`, no heat, no ammo, no damage, and no fired-weapon state side effects
+- **WHEN** the aggregate catalog triad and attack-invalidation catalog contract tests run
+- **THEN** every invalid attack side-effect row SHALL carry structured MekStation source references with line anchors
+- **AND** the source references SHALL point to the invalidation gates and the event/state mutation boundaries they must not reach
+- **AND** the aggregate catalog triad for `invalidAttackSideEffects` SHALL require row-level source references rather than inherited requirement authority
+
 #### Scenario: AMS helper boundary stays source-backed
 
 - **GIVEN** AMS behavior is partially represented by projectile reduction, Streak/all-shots-hit cluster parity, single-missile interception, ammo/heat/fired lifecycle, and interception-event rows
