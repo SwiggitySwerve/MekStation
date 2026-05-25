@@ -1357,6 +1357,67 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows TacOps battlefield wreck rough terrain as movement cost in browser', async ({
+    page,
+  }) => {
+    await page.goto(
+      '/e2e/tactical-map?scenario=battlefield-wreck-rough-terrain',
+    );
+
+    const wreckHex = page.getByTestId('hex-1-0');
+    await expect(wreckHex).toHaveAttribute('data-terrain-features', 'rough');
+    await expect(wreckHex).toHaveAttribute(
+      'data-terrain-feature-levels',
+      'rough:1',
+    );
+    await expect(wreckHex).toHaveAttribute('data-reachable', 'true');
+    await expect(wreckHex).toHaveAttribute('data-movement-type', 'walk');
+    await expect(wreckHex).toHaveAttribute('data-movement-mode', 'walk');
+    await expect(wreckHex).toHaveAttribute('data-mp-cost', '2');
+    await expect(wreckHex).toHaveAttribute('data-terrain-cost', '1');
+    await expect(wreckHex).toHaveAttribute('data-elevation-delta', '0');
+    await expect(wreckHex).toHaveAttribute('data-elevation-cost', '0');
+    await expect(wreckHex).toHaveAttribute('data-heat-generated', '1');
+
+    const movementBadge = page.getByTestId('hex-movement-badge-1-0');
+    await expect(movementBadge.locator('text')).toHaveText('W 2MP');
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-type',
+      'walk',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-mode',
+      'walk',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-mp-cost',
+      '2',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-heat-generated',
+      '1',
+    );
+
+    const costBadge = page.getByTestId('hex-movement-cost-badge-1-0');
+    await expect(costBadge.locator('text')).toHaveText('T+1');
+    await expect(costBadge).toHaveAttribute(
+      'data-movement-step-terrain-cost',
+      '1',
+    );
+    await expect(costBadge).toHaveAttribute(
+      'data-movement-step-elevation-cost',
+      '0',
+    );
+    await expect(costBadge).toHaveAttribute(
+      'data-movement-step-elevation-delta',
+      '0',
+    );
+    await expect(costBadge).toHaveAttribute(
+      'aria-label',
+      'Movement step cost: terrain +1',
+    );
+  });
+
   test('shows prone stand-up movement cost and PSR metadata in browser', async ({
     page,
   }) => {

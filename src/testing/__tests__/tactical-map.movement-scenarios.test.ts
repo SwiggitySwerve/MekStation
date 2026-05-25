@@ -1,6 +1,11 @@
 import { validateCommittedMovement } from '@/utils/gameplay/movement/commitValidation';
 
 import {
+  tacticalMapBattlefieldWreckCommitInput,
+  tacticalMapBattlefieldWreckHexTerrain,
+  tacticalMapBattlefieldWreckMovementRange,
+} from '../tactical-map.battlefield-wreck-scenario';
+import {
   tacticalMapFrogmanCommitInput,
   tacticalMapFrogmanMovementRange,
 } from '../tactical-map.frogman-scenario';
@@ -344,6 +349,43 @@ describe('tactical map movement scenarios', () => {
     });
 
     const result = validateCommittedMovement(tacticalMapFrogmanCommitInput());
+
+    expect(result.valid).toBe(true);
+    if (!result.valid) {
+      throw new Error(result.details);
+    }
+
+    expect(result.mpCost).toBe(projection.mpCost);
+    expect(result.heatGenerated).toBe(projection.heatGenerated);
+    expect(result.path).toEqual(projection.path);
+  });
+
+  it('keeps TacOps battlefield wreck rough terrain aligned with commit validation', () => {
+    expect(tacticalMapBattlefieldWreckHexTerrain).toMatchObject([
+      {
+        coordinate: { q: 1, r: 0 },
+        elevation: 0,
+        features: [{ type: 'rough', level: 1 }],
+      },
+    ]);
+
+    const projection = tacticalMapBattlefieldWreckMovementRange[0];
+
+    expect(projection).toMatchObject({
+      hex: { q: 1, r: 0 },
+      reachable: true,
+      movementMode: 'walk',
+      movementType: 'walk',
+      mpCost: 2,
+      terrainCost: 1,
+      elevationDelta: 0,
+      elevationCost: 0,
+      heatGenerated: 1,
+    });
+
+    const result = validateCommittedMovement(
+      tacticalMapBattlefieldWreckCommitInput(),
+    );
 
     expect(result.valid).toBe(true);
     if (!result.valid) {

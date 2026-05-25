@@ -4,6 +4,7 @@ import { HexMapDisplay } from '@/components/gameplay/HexMapDisplay/HexMapDisplay
 import * as aerospace from '@/testing/tactical-map.aerospace-scenarios';
 import * as arcScenarios from '@/testing/tactical-map.arc-scenarios';
 import * as battleArmor from '@/testing/tactical-map.battle-armor-scenarios';
+import * as wreck from '@/testing/tactical-map.battlefield-wreck-scenario';
 import * as combatScenarios from '@/testing/tactical-map.combat-scenarios';
 import * as elevationLos from '@/testing/tactical-map.elevation-los-scenario';
 import {
@@ -110,6 +111,7 @@ const combatOnlyScenarios = new Set([
 ]);
 
 const movementFixtureScenarios = new Set([
+  'battlefield-wreck-rough-terrain',
   'runtime-height-bridge-clearance',
   'run-water-walk-fallback',
   'tracked-elevation-blocked',
@@ -172,6 +174,7 @@ const targetUnitIdByScenario = {
 } satisfies Record<string, string | null>;
 
 const tokensByScenario = {
+  'battlefield-wreck-rough-terrain': wreck.tacticalMapBattlefieldWreckTokens,
   'vtol-elevation-cost': tacticalMapVtolTokens,
   'biped-option-projection': tacticalMapBipedOptionTokens,
   'mounted-ba-passenger': battleArmor.tacticalMapMountedBattleArmorTokens,
@@ -228,6 +231,8 @@ const combatStateByScenario = {
 } satisfies Record<string, typeof tacticalMapCombatState>;
 
 const movementRangeByScenario = {
+  'battlefield-wreck-rough-terrain':
+    wreck.tacticalMapBattlefieldWreckMovementRange,
   'jump-elevation-cost': tacticalMapJumpElevationMovementRange,
   'vtol-elevation-cost': tacticalMapVtolElevationMovementRange,
   'biped-option-projection': tacticalMapBipedOptionMovementRange,
@@ -243,6 +248,7 @@ const movementRangeByScenario = {
 } satisfies Record<string, typeof tacticalMapMovementRange>;
 
 const mpLegendByScenario = {
+  'battlefield-wreck-rough-terrain': wreck.tacticalMapBattlefieldWreckMpLegend,
   'jump-elevation-cost': tacticalMapJumpElevationMpLegend,
   'vtol-elevation-cost': tacticalMapVtolElevationMpLegend,
   'biped-option-projection': tacticalMapBipedOptionMpLegend,
@@ -258,6 +264,8 @@ const mpLegendByScenario = {
 } satisfies Record<string, typeof tacticalMapMpLegend>;
 
 const selectedHexByScenario = {
+  'battlefield-wreck-rough-terrain':
+    wreck.tacticalMapBattlefieldWreckSelectedHex,
   'biped-option-projection': tacticalMapBipedOptionSelectedHex,
   'runtime-height-bridge-clearance': tacticalMapRuntimeHeightSelectedHex,
   'run-water-walk-fallback': tacticalMapRunWaterFallbackSelectedHex,
@@ -285,6 +293,8 @@ const selectedHexByScenario = {
 } satisfies Record<string, { readonly q: number; readonly r: number }>;
 
 const hexTerrainByScenario = {
+  'battlefield-wreck-rough-terrain':
+    wreck.tacticalMapBattlefieldWreckHexTerrain,
   'runtime-height-bridge-clearance': tacticalMapRuntimeHeightBridgeHexTerrain,
   'run-water-walk-fallback': tacticalMapRunWaterFallbackHexTerrain,
   'tracked-elevation-blocked': tacticalMapTrackedElevationHexTerrain,

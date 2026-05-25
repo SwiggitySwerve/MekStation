@@ -360,6 +360,14 @@ interactive sessions hydrate the rough terrain from derived terrain state and
 the replay projection exposes the mutation through `hexTerrain` at the correct
 timeline cursor.
 
+2026-05-25 browser pin: the tactical-map harness now consumes a TacOps
+battlefield-wreck converted grid, renders the resulting level-1 rough terrain
+on the destination hex, and exposes the shared Walk projection's terrain
+surcharge, heat, and cost-badge metadata. The companion fixture feeds the same
+converted grid into movement commit validation so map preview and commit
+acceptance stay aligned without treating the destroyed unit marker as a LOS or
+occupancy blocker.
+
 Additional physical-attack target-range pin: MegaMek
 `PhysicalAttackAction.java:97-100` rejects physical attacks when effective
 distance is greater than 1; `PunchAttackAction.java:196-199` and

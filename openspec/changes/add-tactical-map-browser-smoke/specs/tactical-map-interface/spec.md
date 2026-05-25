@@ -41,6 +41,9 @@ the top-down map.
 - **AND** a Frogman destination into represented deep water SHALL expose
   reachable movement, the reduced terrain surcharge, heat, and water terrain
   metadata
+- **AND** a TacOps battlefield-wreck destination converted into represented
+  rough terrain SHALL expose reachable movement, rough terrain metadata, the
+  shared terrain surcharge, heat, and non-color cost badge metadata
 - **AND** a prone unit's represented stand-up movement destination SHALL expose
   the stand-up MP cost, PSR target metadata, heat, and stand-up badge metadata
 - **AND** a movement-blocked hex SHALL expose the engine-aligned rejection

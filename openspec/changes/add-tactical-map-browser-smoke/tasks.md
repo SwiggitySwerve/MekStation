@@ -124,6 +124,8 @@
 - [x] 2.48 Add browser coverage proving grid-derived fog visibility
   recalculates through LOS terrain blockers, renders a last-known target as
   non-attackable, and exposes the matching visibility/invalid metadata.
+- [x] 2.49 Add browser coverage proving TacOps battlefield-wreck conversion
+  renders as rough terrain with the shared movement terrain surcharge.
 
 ## 3. Validation
 
@@ -225,3 +227,6 @@
 - [x] 3.48 Focused Jest parity and Playwright smoke pass for grid-derived fog
   LOS blocking, last-known target metadata, and `TargetNotVisible` attack
   rejection.
+- [x] 3.49 Focused Jest parity and Playwright smoke pass for TacOps
+  battlefield-wreck rough terrain conversion, map terrain metadata, and
+  movement-cost badge labeling.
