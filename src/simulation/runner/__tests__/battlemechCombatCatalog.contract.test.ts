@@ -147,6 +147,13 @@ type PinnedBattleMechAmmoGapClass =
   | 'battlemech-ammo-missing-compatible-weapon-refs'
   | 'duplicate-runtime-id';
 
+type PinnedScopeSplitAmmoGapClass =
+  | 'non-battlemech-aerospace-capital-ammo'
+  | 'non-battlemech-battle-armor'
+  | 'non-battlemech-protomech'
+  | 'unsupported-aquatic-torpedo-ammo'
+  | 'unsupported-artillery-ammo';
+
 const EXPECTED_BATTLEMECH_AMMO_GAP_IDS = {
   'battlemech-ammo-missing-compatible-weapon-refs': [
     'clan-lb-2-x-cluster',
@@ -172,6 +179,99 @@ const EXPECTED_BATTLEMECH_AMMO_GAP_IDS = {
     'mrm-40',
   ],
 } satisfies Record<PinnedBattleMechAmmoGapClass, readonly string[]>;
+
+const EXPECTED_SCOPE_SPLIT_AMMO_GAP_IDS = {
+  'non-battlemech-aerospace-capital-ammo': [
+    'ammo-barracuda',
+    'ammo-barracuda-t',
+    'ammo-nac-10',
+    'ammo-nac-20',
+    'ammo-nac-25',
+    'ammo-nac-30',
+    'ammo-nac-35',
+    'ammo-nac-40',
+  ],
+  'non-battlemech-battle-armor': [
+    'ba-advanced-srm-1',
+    'ba-advanced-srm-2',
+    'ba-advanced-srm-3',
+    'ba-advanced-srm-4',
+    'ba-advanced-srm-5',
+    'ba-advanced-srm-6',
+    'ba-ammo-lrm-1',
+    'ba-ammo-lrm-2',
+    'ba-ammo-lrm-3',
+    'ba-ammo-lrm-4',
+    'ba-ammo-lrm-5',
+    'ba-srm1',
+    'ba-srm2',
+    'ba-srm3',
+    'ba-srm4',
+    'ba-srm5',
+    'ba-srm6',
+  ],
+  'non-battlemech-protomech': [
+    'clan-ammo-protomech-lrm-1',
+    'clan-ammo-protomech-lrm-11',
+    'clan-ammo-protomech-lrm-12',
+    'clan-ammo-protomech-lrm-13',
+    'clan-ammo-protomech-lrm-14',
+    'clan-ammo-protomech-lrm-16',
+    'clan-ammo-protomech-lrm-17',
+    'clan-ammo-protomech-lrm-18',
+    'clan-ammo-protomech-lrm-19',
+    'clan-ammo-protomech-lrm-2',
+    'clan-ammo-protomech-lrm-3',
+    'clan-ammo-protomech-lrm-4',
+    'clan-ammo-protomech-lrm-6',
+    'clan-ammo-protomech-lrm-7',
+    'clan-ammo-protomech-lrm-8',
+    'clan-ammo-protomech-lrm-9',
+    'clan-ammo-protomech-lrtorpedo-1',
+    'clan-ammo-protomech-lrtorpedo-11',
+    'clan-ammo-protomech-lrtorpedo-12',
+    'clan-ammo-protomech-lrtorpedo-13',
+    'clan-ammo-protomech-lrtorpedo-14',
+    'clan-ammo-protomech-lrtorpedo-16',
+    'clan-ammo-protomech-lrtorpedo-17',
+    'clan-ammo-protomech-lrtorpedo-18',
+    'clan-ammo-protomech-lrtorpedo-19',
+    'clan-ammo-protomech-lrtorpedo-2',
+    'clan-ammo-protomech-lrtorpedo-3',
+    'clan-ammo-protomech-lrtorpedo-4',
+    'clan-ammo-protomech-lrtorpedo-6',
+    'clan-ammo-protomech-lrtorpedo-7',
+    'clan-ammo-protomech-lrtorpedo-8',
+    'clan-ammo-protomech-lrtorpedo-9',
+    'clan-protomech-ac-2',
+    'clan-protomech-ac-4',
+    'clan-protomech-ac-8',
+  ],
+  'unsupported-aquatic-torpedo-ammo': [
+    'ammo-lrtorpedo-10',
+    'ammo-lrtorpedo-15',
+    'ammo-lrtorpedo-20',
+    'ammo-lrtorpedo-5',
+    'ammo-srtorpedo-2',
+    'ammo-srtorpedo-4',
+    'ammo-srtorpedo-6',
+    'clan-ammo-srtorpedo-1',
+    'clan-ammo-srtorpedo-3',
+    'clan-ammo-srtorpedo-5',
+    'clan-torpedo-lrm5',
+  ],
+  'unsupported-artillery-ammo': [
+    'arrowivammo',
+    'longtomammo',
+    'longtomcannonammo',
+    'primitivelongtomammo',
+    'prototypearrowivammo',
+    'sniperammo',
+    'snipercannonammo',
+    'thumperammo',
+    'thumpercannonammo',
+  ],
+} satisfies Record<PinnedScopeSplitAmmoGapClass, readonly string[]>;
 
 const EXPECTED_BATTLEMECH_COMPATIBLE_AMMO_IDS = [
   'ac-10-ammo',
@@ -352,6 +452,15 @@ function ammoCompatibilityGapClass(
     return 'battlemech-ammo-missing-compatible-weapon-refs';
   }
   return 'nonstandard-empty-compatible-row';
+}
+
+function ammoIdsByGapClass(
+  classification: AmmoCompatibilityGapClass,
+): readonly string[] {
+  return ammoItems
+    .filter((ammo) => ammoCompatibilityGapClass(ammo) === classification)
+    .map((ammo) => ammo.id)
+    .sort();
 }
 
 function supportGaps(
@@ -714,13 +823,6 @@ describe('BattleMech combat catalog validation lane', () => {
     const ammoClasses: AmmoCompatibilitySupportId[] = ammoItems.map(
       (ammo) => ammoCompatibilityGapClass(ammo) ?? 'battlemech-compatible-ammo',
     );
-    const pinnedBattleMechGapIds: Record<
-      PinnedBattleMechAmmoGapClass,
-      string[]
-    > = {
-      'battlemech-ammo-missing-compatible-weapon-refs': [],
-      'duplicate-runtime-id': [],
-    };
     const gapClasses = ammoClasses.filter(
       (classification): classification is AmmoCompatibilityGapClass =>
         classification !== 'battlemech-compatible-ammo',
@@ -744,20 +846,27 @@ describe('BattleMech combat catalog validation lane', () => {
       ammoCompatibilitySupport['battlemech-ammo-missing-compatible-weapon-refs']
         .level,
     ).toBe('helper-only');
-    for (const ammo of ammoItems) {
-      const classification = ammoCompatibilityGapClass(ammo);
-      if (
-        classification === 'battlemech-ammo-missing-compatible-weapon-refs' ||
-        classification === 'duplicate-runtime-id'
-      ) {
-        pinnedBattleMechGapIds[classification].push(ammo.id);
-      }
-    }
-    for (const pinnedIds of Object.values(pinnedBattleMechGapIds)) {
-      pinnedIds.sort();
-    }
-
-    expect(pinnedBattleMechGapIds).toEqual(EXPECTED_BATTLEMECH_AMMO_GAP_IDS);
+    expect({
+      'battlemech-ammo-missing-compatible-weapon-refs': ammoIdsByGapClass(
+        'battlemech-ammo-missing-compatible-weapon-refs',
+      ),
+      'duplicate-runtime-id': ammoIdsByGapClass('duplicate-runtime-id'),
+    }).toEqual(EXPECTED_BATTLEMECH_AMMO_GAP_IDS);
+    expect({
+      'non-battlemech-aerospace-capital-ammo': ammoIdsByGapClass(
+        'non-battlemech-aerospace-capital-ammo',
+      ),
+      'non-battlemech-battle-armor': ammoIdsByGapClass(
+        'non-battlemech-battle-armor',
+      ),
+      'non-battlemech-protomech': ammoIdsByGapClass('non-battlemech-protomech'),
+      'unsupported-aquatic-torpedo-ammo': ammoIdsByGapClass(
+        'unsupported-aquatic-torpedo-ammo',
+      ),
+      'unsupported-artillery-ammo': ammoIdsByGapClass(
+        'unsupported-artillery-ammo',
+      ),
+    }).toEqual(EXPECTED_SCOPE_SPLIT_AMMO_GAP_IDS);
     expect(countBy(gapClasses)).toEqual({
       'battlemech-ammo-missing-compatible-weapon-refs': 7,
       'duplicate-runtime-id': 12,

@@ -28,17 +28,17 @@ export const AMMUNITION_COMPATIBILITY_SUPPORT = {
   ),
   'non-battlemech-aerospace-capital-ammo': helperOnly(
     'non-battlemech-aerospace-capital-ammo',
-    'Aerospace and capital ammo rows are classified outside the BattleMech weapon compatibility lane',
+    'Aerospace and capital ammo rows are pinned by exact id outside the BattleMech weapon compatibility lane',
     'Aerospace and capital weapon systems need a separate validation matrix',
   ),
   'non-battlemech-battle-armor': helperOnly(
     'non-battlemech-battle-armor',
-    'Battle armor ammo rows are classified outside the BattleMech weapon compatibility lane',
+    'Battle armor ammo rows are pinned by exact id outside the BattleMech weapon compatibility lane',
     'Battle armor weapon systems need a separate validation matrix',
   ),
   'non-battlemech-protomech': helperOnly(
     'non-battlemech-protomech',
-    'ProtoMech ammo rows are classified outside the BattleMech weapon compatibility lane',
+    'ProtoMech ammo rows are pinned by exact id outside the BattleMech weapon compatibility lane',
     'ProtoMech weapon systems need a separate validation matrix',
   ),
   'nonstandard-empty-compatible-row': helperOnly(
@@ -48,12 +48,12 @@ export const AMMUNITION_COMPATIBILITY_SUPPORT = {
   ),
   'unsupported-aquatic-torpedo-ammo': helperOnly(
     'unsupported-aquatic-torpedo-ammo',
-    'Aquatic torpedo ammo rows are separated from normal BattleMech launcher compatibility',
+    'Aquatic torpedo ammo rows are pinned by exact id outside normal BattleMech launcher compatibility',
     'Aquatic combat and torpedo launcher behavior need a separate validation matrix',
   ),
   'unsupported-artillery-ammo': helperOnly(
     'unsupported-artillery-ammo',
-    'Artillery ammo rows are separated from direct BattleMech weapon compatibility',
+    'Artillery ammo rows are pinned by exact id outside direct BattleMech weapon compatibility',
     'Artillery attack flow and ammunition behavior need a separate validation matrix',
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;

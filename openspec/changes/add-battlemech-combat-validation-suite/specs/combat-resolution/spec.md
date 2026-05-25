@@ -120,6 +120,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** every compatible ammo row SHALL initialize an ammo bin, report total rounds, and consume through combat ammo tracking for each referenced official weapon id
 - **AND** official ammo rows that duplicate weapon runtime ids SHALL be pinned by exact id and classified before compatibility checks
 - **AND** standard or advanced official ammo rows with no compatible weapon references SHALL be pinned by exact id as helper-only BattleMech ammo gaps
+- **AND** aerospace/capital, battle armor, ProtoMech, aquatic torpedo, and artillery ammo rows SHALL be pinned by exact id as separate validation-matrix scope splits
 - **AND** these rows SHALL NOT be counted as consumable BattleMech ammunition until catalog data supplies unambiguous compatible weapon references
 
 #### Scenario: Range bracket rows stay source-backed
