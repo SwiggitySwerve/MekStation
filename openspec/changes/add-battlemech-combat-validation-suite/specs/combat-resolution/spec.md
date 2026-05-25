@@ -315,6 +315,15 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** Iron Man or Pain Resistance SHALL reduce the ammo-explosion pilot damage by one, while artificial pain shunt SHALL suppress the pilot damage
 - **AND** `PilotHit` event support SHALL include ammo-explosion coverage only after runner heat, runner critical, and event-sourced heat cookoff paths share that behavior end to end
 
+#### Scenario: Damage and death catalog rows expose row-level source truth
+
+- **GIVEN** the BattleMech damage/death support catalog covers damage resolution, pilot damage, and destruction causes
+- **WHEN** the catalog triad marks `damageResolution`, `pilotDamage`, or `destructionCauses` as row-source-backed
+- **THEN** every row in those maps SHALL carry structured source references
+- **AND** core damage rows SHALL include source-backed rule or MegaMek anchors plus MekStation resolver/state anchors
+- **AND** event, heat-cascade, pilot-wound, and destruction-cause rows SHALL cite the executable MekStation event/state paths they claim
+- **AND** the `damageResolution`, `pilotDamage`, and `destructionCauses` catalog triads SHALL enforce row-level source references before PR approval
+
 ### Requirement: Physical Attack Legality Gates
 
 Physical attack declaration and resolution SHALL validate action-specific legality gates before scheduling a combat action. Push, charge, death from above, melee weapon, punch, kick, and club logic SHALL share the same legality helpers across eligibility display, event-sourced declaration, and simulation runner resolution so UI options, game events, and automated combat cannot diverge.

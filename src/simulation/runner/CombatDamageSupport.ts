@@ -11,6 +11,19 @@ import {
   MEGAMEK_MTF_SYSTEM_CRITICAL_SOURCE_REFS,
   MEGAMEK_SYSTEM_CRITICAL_EFFECT_SOURCE_REFS,
 } from './CombatCriticalSlotSourceRefs';
+import {
+  BATTLEMECH_MANUAL_DAMAGE_SOURCE_REFS,
+  MEGAMEK_BATTLEMECH_DAMAGE_SOURCE_REFS,
+  MEKSTATION_COCKPIT_CRIT_PILOT_DEATH_SOURCE_REFS,
+  MEKSTATION_DAMAGE_EVENT_SOURCE_REFS,
+  MEKSTATION_DAMAGE_RESOLUTION_SOURCE_REFS,
+  MEKSTATION_DESTRUCTION_CAUSE_SOURCE_REFS,
+  MEKSTATION_HEAT_AMMO_EXPLOSION_DAMAGE_SOURCE_REFS,
+  MEKSTATION_HEAT_PILOT_DAMAGE_SOURCE_REFS,
+  MEKSTATION_MAXTECH_HEAT_CRITICAL_SOURCE_REFS,
+  MEKSTATION_PILOT_DAMAGE_SOURCE_REFS,
+} from './CombatDamageSourceRefs';
+import { DAMAGE_THRESHOLD_PSR_SOURCE_REFS } from './CombatPsrTriggerSourceRefs';
 
 function integrated(
   id: string,
@@ -94,46 +107,84 @@ const MEGAMEK_CASE_AMMO_EXPLOSION_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const CORE_DAMAGE_RESOLUTION_SOURCE_REFS = [
+  ...BATTLEMECH_MANUAL_DAMAGE_SOURCE_REFS,
+  ...MEGAMEK_BATTLEMECH_DAMAGE_SOURCE_REFS,
+  ...MEKSTATION_DAMAGE_RESOLUTION_SOURCE_REFS,
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const DAMAGE_EVENT_SOURCE_REFS = [
+  ...MEGAMEK_BATTLEMECH_DAMAGE_SOURCE_REFS,
+  ...MEKSTATION_DAMAGE_EVENT_SOURCE_REFS,
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const HEAT_AMMO_EXPLOSION_DAMAGE_CASCADE_SOURCE_REFS = [
+  ...MEGAMEK_CASE_AMMO_EXPLOSION_SOURCE_REFS,
+  ...MEKSTATION_HEAT_AMMO_EXPLOSION_DAMAGE_SOURCE_REFS,
+  ...MEKSTATION_DESTRUCTION_CAUSE_SOURCE_REFS,
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const DAMAGE_DESTRUCTION_CAUSE_SOURCE_REFS = [
+  ...BATTLEMECH_MANUAL_DAMAGE_SOURCE_REFS,
+  ...MEGAMEK_BATTLEMECH_DAMAGE_SOURCE_REFS,
+  ...MEKSTATION_DESTRUCTION_CAUSE_SOURCE_REFS,
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const ENGINE_DESTRUCTION_CAUSE_SOURCE_REFS = [
+  ...DAMAGE_DESTRUCTION_CAUSE_SOURCE_REFS,
+  ...MEGAMEK_SYSTEM_CRITICAL_EFFECT_SOURCE_REFS,
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const DAMAGE_RESOLUTION_COMBAT_SUPPORT = {
   'armor-damage': integrated(
     'armor-damage',
     'resolveDamage + runAttackPhase emit DamageApplied and persist armor totals',
+    CORE_DAMAGE_RESOLUTION_SOURCE_REFS,
   ),
   'internal-structure-damage': integrated(
     'internal-structure-damage',
     'resolveDamage applies structure damage and applyDamageResultToState persists structure totals',
+    CORE_DAMAGE_RESOLUTION_SOURCE_REFS,
   ),
   'rear-armor-damage': integrated(
     'rear-armor-damage',
     'applyDamageToLocation maps rear hit locations through rearArmor before structure',
+    CORE_DAMAGE_RESOLUTION_SOURCE_REFS,
   ),
   'head-damage-cap': integrated(
     'head-damage-cap',
     'resolveDamage caps each head hit at HEAD_DAMAGE_CAP_PER_HIT before transfer',
+    CORE_DAMAGE_RESOLUTION_SOURCE_REFS,
   ),
   'damage-transfer': integrated(
     'damage-transfer',
     'applyDamageWithTransfer follows getTransferCombatLocation until overflow ends',
+    CORE_DAMAGE_RESOLUTION_SOURCE_REFS,
   ),
   'side-torso-arm-cascade': integrated(
     'side-torso-arm-cascade',
     'applyDamageToLocation and runner LocationDestroyed events cascade side torso destruction to the same-side arm',
+    CORE_DAMAGE_RESOLUTION_SOURCE_REFS,
   ),
   'location-destroyed-events': integrated(
     'location-destroyed-events',
     'weaponAttackHitResolution emits LocationDestroyed for each destroyed location in the damage chain',
+    DAMAGE_EVENT_SOURCE_REFS,
   ),
   'transfer-damage-events': integrated(
     'transfer-damage-events',
     'weaponAttackHitResolution emits TransferDamage when overflow transfers to another location',
+    DAMAGE_EVENT_SOURCE_REFS,
   ),
   'twenty-plus-damage-psr': integrated(
     'twenty-plus-damage-psr',
     'weaponAttackHitResolution queues createDamagePSR after 20+ damage in one phase',
+    DAMAGE_THRESHOLD_PSR_SOURCE_REFS,
   ),
   'heat-ammo-explosion-damage-cascade': integrated(
     'heat-ammo-explosion-damage-cascade',
     'runHeatPhase and resolveHeatPhase empty the selected heat-cookoff bin, route explosion damage through resolveDamage, emit damage/transfer/destruction events, and tag fatal cookoffs as ammo_explosion',
+    HEAT_AMMO_EXPLOSION_DAMAGE_CASCADE_SOURCE_REFS,
   ),
   'case-ammo-explosion-containment': integrated(
     'case-ammo-explosion-containment',
@@ -143,6 +194,7 @@ export const DAMAGE_RESOLUTION_COMBAT_SUPPORT = {
   'destruction-cause-state-persistence': integrated(
     'destruction-cause-state-persistence',
     'resolveDamage returns destructionCause, applyDamageResultToState persists it on IUnitGameState, ammo explosion cascades can override generic damage, and UnitDestroyed replay stores the event cause',
+    DAMAGE_DESTRUCTION_CAUSE_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 
@@ -150,38 +202,50 @@ export const PILOT_DAMAGE_COMBAT_SUPPORT = {
   'head-hit-wound': integrated(
     'head-hit-wound',
     'resolveDamage applies one pilot wound for damaging head hits',
+    MEKSTATION_PILOT_DAMAGE_SOURCE_REFS,
   ),
   'head-hit-pilot-event': integrated(
     'head-hit-pilot-event',
     'weaponAttackHitResolution emits PilotHit source=head_hit unless a cockpit crit already emitted the wound',
+    MEKSTATION_PILOT_DAMAGE_SOURCE_REFS,
   ),
   'consciousness-check': integrated(
     'consciousness-check',
     'applyPilotDamage rolls consciousness checks at 3 + total wounds',
+    MEKSTATION_PILOT_DAMAGE_SOURCE_REFS,
   ),
   unconsciousness: integrated(
     'unconsciousness',
     'applyPilotDamage sets pilotConscious=false and action eligibility removes unconscious actors',
+    MEKSTATION_PILOT_DAMAGE_SOURCE_REFS,
   ),
   'pilot-death': integrated(
     'pilot-death',
     'applyPilotDamage and checkUnitDestruction destroy units at lethal wound threshold',
+    [
+      ...MEKSTATION_PILOT_DAMAGE_SOURCE_REFS,
+      ...MEKSTATION_DESTRUCTION_CAUSE_SOURCE_REFS,
+    ],
   ),
   'cockpit-crit-pilot-death': integrated(
     'cockpit-crit-pilot-death',
     'applyCockpitHit emits PilotHit plus UnitDestroyed cause=pilot_death',
+    MEKSTATION_COCKPIT_CRIT_PILOT_DEATH_SOURCE_REFS,
   ),
   'heat-pilot-damage': integrated(
     'heat-pilot-damage',
     'runHeatPhase and resolveHeatPhase emit PilotHit source=heat, persist wound totals, and destroy pilots at lethal heat wounds',
+    MEKSTATION_HEAT_PILOT_DAMAGE_SOURCE_REFS,
   ),
   'maxtech-heat-pilot-damage': integrated(
     'maxtech-heat-pilot-damage',
     'runHeatPhase and resolveHeatPhase emit opt-in MaxTech heat-scale PilotHit source=heat at heat 32+ when the avoid roll fails, including Hot Dog avoid-number relief',
+    MEKSTATION_HEAT_PILOT_DAMAGE_SOURCE_REFS,
   ),
   'maxtech-heat-critical-damage': integrated(
     'maxtech-heat-critical-damage',
     'runHeatPhase and resolveHeatPhase emit opt-in MaxTech heat-scale CriticalHit, CriticalHitResolved, ComponentDestroyed, PSRTriggered, PilotHit, and UnitDestroyed chains from failed heat 36+ critical damage avoid rolls',
+    MEKSTATION_MAXTECH_HEAT_CRITICAL_SOURCE_REFS,
   ),
   'fall-pilot-damage': integrated(
     'fall-pilot-damage',
@@ -291,14 +355,17 @@ export const DESTRUCTION_CAUSE_COMBAT_SUPPORT = {
   damage: integrated(
     'damage',
     'checkUnitDestruction and UnitDestroyed events report generic damage kills',
+    DAMAGE_DESTRUCTION_CAUSE_SOURCE_REFS,
   ),
   ammo_explosion: integrated(
     'ammo_explosion',
     'weaponAttackAmmoExplosions and heat-induced ammo cookoffs emit ammo_explosion destruction when the cascade destroys the unit',
+    HEAT_AMMO_EXPLOSION_DAMAGE_CASCADE_SOURCE_REFS,
   ),
   engine_destroyed: integrated(
     'engine_destroyed',
     'resolveDamage and runner critical-event translation map third engine crits to engine_destroyed',
+    ENGINE_DESTRUCTION_CAUSE_SOURCE_REFS,
   ),
   impossible_displacement: integrated(
     'impossible_displacement',
@@ -308,13 +375,21 @@ export const DESTRUCTION_CAUSE_COMBAT_SUPPORT = {
   pilot_death: integrated(
     'pilot_death',
     'applyPilotDamage, cockpit crits, and PSR fall wounds emit pilot_death destruction',
+    [
+      ...MEKSTATION_PILOT_DAMAGE_SOURCE_REFS,
+      ...MEKSTATION_COCKPIT_CRIT_PILOT_DEATH_SOURCE_REFS,
+      ...MEGAMEK_FALL_PILOT_DAMAGE_SOURCE_REFS,
+      ...MEKSTATION_DESTRUCTION_CAUSE_SOURCE_REFS,
+    ],
   ),
   ct_destroyed: integrated(
     'ct_destroyed',
     'checkUnitDestruction, resolveDamage, runner state snapshots, and UnitDestroyed emissions preserve ct_destroyed for fatal center-torso destruction',
+    DAMAGE_DESTRUCTION_CAUSE_SOURCE_REFS,
   ),
   head_destroyed: integrated(
     'head_destroyed',
     'checkUnitDestruction, resolveDamage, runner state snapshots, and UnitDestroyed emissions preserve head_destroyed for fatal head destruction while pilot_death keeps priority at lethal wounds',
+    DAMAGE_DESTRUCTION_CAUSE_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;

@@ -232,6 +232,10 @@ const TERRAIN_TYPE_PSR_TRIAD = entryTriad(
   TERRAIN_REFS,
 );
 const DAMAGE_TRIAD = requirementTriad(DAMAGE_REFS);
+const damageTriad = (rationale: string) => entryTriad(rationale, DAMAGE_REFS);
+const DAMAGE_RESOLUTION_TRIAD = damageTriad('Damage rows require refs.');
+const PILOT_DAMAGE_TRIAD = damageTriad('Pilot damage rows require refs.');
+const DESTRUCTION_CAUSE_TRIAD = damageTriad('Death-cause rows require refs.');
 const CRITICAL_SLOT_TRIAD = entryTriad(
   'Critical-slot hydration and effect rows are MegaMek-source checked and must carry row-level sourceRefs for system critical slots, mounted equipment critical slots, ammo cookoff selection, and equipment-specific lifecycle gap boundaries.',
   CRITICAL_SLOT_REFS,
@@ -384,12 +388,12 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
     heatRules: HEAT_TRIAD,
   },
   damageAndDeath: {
-    damageResolution: DAMAGE_TRIAD,
-    pilotDamage: DAMAGE_TRIAD,
+    damageResolution: DAMAGE_RESOLUTION_TRIAD,
+    pilotDamage: PILOT_DAMAGE_TRIAD,
     criticalComponents: DAMAGE_TRIAD,
     criticalSlotEffects: CRITICAL_SLOT_TRIAD,
     criticalSlotHydration: CRITICAL_SLOT_TRIAD,
-    destructionCauses: DAMAGE_TRIAD,
+    destructionCauses: DESTRUCTION_CAUSE_TRIAD,
   },
   lifecycleAndPsr: {
     actionEligibility: ACTION_ELIGIBILITY_TRIAD,

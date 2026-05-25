@@ -230,6 +230,7 @@
 - [x] 3.5.30 Source-pin representative integration scenario rows to lifecycle, ejection, objective, PSR-queue, and terminal GameEnded executable anchors so parity and terminal-state claims do not inherit prose-only evidence.
 - [x] 3.5.31 Source-pin runner-vs-interactive parity rows to movement, weapon, physical, heat, PSR, objective, and terminal executable anchors so cross-stack parity claims do not inherit prose-only evidence.
 - [x] 3.5.32 Source-pin every legacy pilot ability support row and expose Melee Specialist / Melee Master source mismatches as helper-only validation gaps instead of integrated parity claims.
+- [x] 3.5.33 Promote damage resolution, pilot damage, and destruction-cause support maps to row-level source references so damage/death lifecycle rows cannot inherit broad damage authority.
 
 ## 4. Source-truth cross-checks
 
@@ -334,3 +335,4 @@
 - [x] 4.3.94 Cross-check MegaMek gunnery, indirect-fire, cluster-table, physical-combat, and Terrain Master SPA behavior before promoting `pilotAbilities` to row-level source references.
 - [x] 4.3.95 Cross-check MegaMek PSR, physical, and anti-Mek actuator quirk behavior plus MekHQ Rugged maintenance behavior before promoting `mechQuirks` to row-level source references.
 - [x] 4.3.96 Cross-check catalog triad boundaries against the now source-pinned quirk, PSR trigger, and pilot-modifier-resolver rows so broad requirement inheritance cannot mask missing row refs.
+- [x] 4.3.97 Cross-check BattleMech damage, pilot-damage, heat/ammo cascade, and destruction-cause rows against rulebook/MegaMek anchors plus MekStation executable state/event paths before promoting those maps to row-level source references.
