@@ -773,6 +773,17 @@ manual token-only hint. The browser map harness proves state-derived altitude
 and velocity metadata, altitude badge, and velocity vector in top-down and
 isometric projections.
 
+2026-05-25 combat movement modifier browser pin: MegaMek
+`ComputeAttackerToHitMods.java:102-103` appends attacker movement via
+`Compute.getAttackerMovementModifier`; `Compute.java:2625-2692` source-pins
+run +2. MegaMek `ComputeTargetToHitMods.java:198-200` appends target movement
+via `Compute.getTargetMovementModifier`; `Compute.java:2766-2904` source-pins
+5-6 hexes as +2 TMM. The tactical map harness uses a running attacker and a
+target that moved 5 hexes, then renders TN8, Attacker Movement +2, Target
+Movement (TMM) +2, the medium laser, and tooltip rows. Jest parity feeds the
+same projection into `applyInteractiveSessionAttack` and proves the committed
+target number and modifiers match.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

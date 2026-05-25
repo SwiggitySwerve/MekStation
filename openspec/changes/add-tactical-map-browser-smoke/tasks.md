@@ -106,6 +106,9 @@
   rows.
 - [x] 2.42 Add browser coverage proving a hot attacker renders the shared heat
   to-hit modifier metadata, target number, badge, and tooltip rows.
+- [x] 2.43 Add browser coverage proving represented attacker movement and target
+  movement render separate shared to-hit modifier metadata, target number,
+  badge, and tooltip rows.
 
 ## 3. Validation
 
@@ -194,3 +197,5 @@
   immobile to-hit modifier metadata and badge labeling.
 - [x] 3.42 Focused Jest parity and Playwright smoke pass for hot-attacker heat
   to-hit modifier metadata and badge labeling.
+- [x] 3.43 Focused Jest parity and Playwright smoke pass for attacker movement
+  and target TMM to-hit modifier metadata and badge labeling.

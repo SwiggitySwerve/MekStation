@@ -68,6 +68,9 @@ the top-down map.
   target-immobile to-hit modifier, final target number, badge, and tooltip rows
 - **AND** a combat target fired by a represented hot attacker SHALL expose the
   heat to-hit modifier, final target number, badge, and tooltip rows
+- **AND** a combat target involving represented attacker movement and target
+  movement SHALL expose the attacker movement and target TMM to-hit modifiers,
+  final target number, badge, and tooltip rows
 - **WHEN** browser automation switches to isometric mode and rotates the camera
 - **THEN** isometric stack, occluder, visibility, rotation, and depth metadata
   SHALL update in the rendered DOM

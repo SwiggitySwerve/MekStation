@@ -55,13 +55,8 @@ import {
   tacticalMapHoverWaterSelectedHex,
   tacticalMapHoverWaterTokens,
 } from '@/testing/tactical-map.hover-water-scenario';
-import {
-  tacticalMapImmobileCombatHexTerrain,
-  tacticalMapImmobileCombatSelectedWeaponIds,
-  tacticalMapImmobileCombatState,
-  tacticalMapImmobileCombatTargetId,
-  tacticalMapImmobileCombatTokens,
-} from '@/testing/tactical-map.immobile-combat-scenario';
+import * as immobileCombat from '@/testing/tactical-map.immobile-combat-scenario';
+import * as movementCombat from '@/testing/tactical-map.movement-combat-scenario';
 import {
   tacticalMapBipedOptionMovementRange,
   tacticalMapBipedOptionMpLegend,
@@ -85,13 +80,7 @@ import {
   tacticalMapNavalLandfallSelectedHex,
   tacticalMapNavalLandfallTokens,
 } from '@/testing/tactical-map.naval-landfall-scenario';
-import {
-  tacticalMapProneCombatHexTerrain,
-  tacticalMapProneCombatSelectedWeaponIds,
-  tacticalMapProneCombatState,
-  tacticalMapProneCombatTargetId,
-  tacticalMapProneCombatTokens,
-} from '@/testing/tactical-map.prone-combat-scenario';
+import * as proneCombat from '@/testing/tactical-map.prone-combat-scenario';
 import {
   tacticalMapRunWaterFallbackHexTerrain,
   tacticalMapRunWaterFallbackMovementRange,
@@ -154,6 +143,7 @@ const combatOnlyScenarios = new Set([
   'prone-combat-modifiers',
   'immobile-combat-modifier',
   'heat-combat-modifier',
+  'movement-combat-modifier',
 ]);
 
 const movementFixtureScenarios = new Set([
@@ -176,9 +166,12 @@ const selectedWeaponIdsByScenario = {
   'selected-weapon-out-of-arc': tacticalMapOutOfArcSelectedWeaponIds,
   'same-hex-weapon-blocked': tacticalMapSameHexSelectedWeaponIds,
   'elevation-los-blocked': tacticalMapElevationLosSelectedWeaponIds,
-  'prone-combat-modifiers': tacticalMapProneCombatSelectedWeaponIds,
-  'immobile-combat-modifier': tacticalMapImmobileCombatSelectedWeaponIds,
+  'prone-combat-modifiers': proneCombat.tacticalMapProneCombatSelectedWeaponIds,
+  'immobile-combat-modifier':
+    immobileCombat.tacticalMapImmobileCombatSelectedWeaponIds,
   'heat-combat-modifier': heatCombat.tacticalMapHeatCombatSelectedWeaponIds,
+  'movement-combat-modifier':
+    movementCombat.tacticalMapMovementCombatSelectedWeaponIds,
   'out-of-range': tacticalMapOutOfRangeSelectedWeaponIds,
 } satisfies Record<string, readonly string[]>;
 
@@ -191,9 +184,10 @@ const targetUnitIdByScenario = {
   'selected-weapon-out-of-arc': tacticalMapOutOfArcTargetId,
   'same-hex-weapon-blocked': tacticalMapSameHexTargetId,
   'elevation-los-blocked': tacticalMapElevationLosTargetId,
-  'prone-combat-modifiers': tacticalMapProneCombatTargetId,
-  'immobile-combat-modifier': tacticalMapImmobileCombatTargetId,
+  'prone-combat-modifiers': proneCombat.tacticalMapProneCombatTargetId,
+  'immobile-combat-modifier': immobileCombat.tacticalMapImmobileCombatTargetId,
   'heat-combat-modifier': heatCombat.tacticalMapHeatCombatTargetId,
+  'movement-combat-modifier': movementCombat.tacticalMapMovementCombatTargetId,
   'out-of-range': 'medium-target',
 } satisfies Record<string, string | null>;
 
@@ -209,9 +203,10 @@ const tokensByScenario = {
   'selected-weapon-out-of-arc': tacticalMapOutOfArcTokens,
   'same-hex-weapon-blocked': tacticalMapSameHexTokens,
   'elevation-los-blocked': tacticalMapElevationLosTokens,
-  'prone-combat-modifiers': tacticalMapProneCombatTokens,
-  'immobile-combat-modifier': tacticalMapImmobileCombatTokens,
+  'prone-combat-modifiers': proneCombat.tacticalMapProneCombatTokens,
+  'immobile-combat-modifier': immobileCombat.tacticalMapImmobileCombatTokens,
   'heat-combat-modifier': heatCombat.tacticalMapHeatCombatTokens,
+  'movement-combat-modifier': movementCombat.tacticalMapMovementCombatTokens,
   'runtime-height-bridge-clearance': tacticalMapRuntimeHeightTokens,
   'run-water-walk-fallback': tacticalMapRunWaterFallbackTokens,
   'tracked-elevation-blocked': tacticalMapTrackedElevationTokens,
@@ -232,9 +227,10 @@ const combatStateByScenario = {
   'selected-weapon-out-of-arc': tacticalMapOutOfArcCombatState,
   'same-hex-weapon-blocked': tacticalMapSameHexCombatState,
   'elevation-los-blocked': tacticalMapElevationLosCombatState,
-  'prone-combat-modifiers': tacticalMapProneCombatState,
-  'immobile-combat-modifier': tacticalMapImmobileCombatState,
+  'prone-combat-modifiers': proneCombat.tacticalMapProneCombatState,
+  'immobile-combat-modifier': immobileCombat.tacticalMapImmobileCombatState,
   'heat-combat-modifier': heatCombat.tacticalMapHeatCombatState,
+  'movement-combat-modifier': movementCombat.tacticalMapMovementCombatState,
 } satisfies Record<string, typeof tacticalMapCombatState>;
 
 const movementRangeByScenario = {
@@ -281,6 +277,7 @@ const selectedHexByScenario = {
   'prone-combat-modifiers': { q: 0, r: 0 },
   'immobile-combat-modifier': { q: 0, r: 0 },
   'heat-combat-modifier': { q: 0, r: 0 },
+  'movement-combat-modifier': { q: 0, r: 0 },
   'mounted-ba-passenger': { q: 0, r: 0 },
   'aerospace-velocity-projection': { q: 0, r: 0 },
 } satisfies Record<string, { readonly q: number; readonly r: number }>;
@@ -292,9 +289,12 @@ const hexTerrainByScenario = {
   'hover-water-crossing': tacticalMapHoverWaterHexTerrain,
   'naval-landfall-blocked': tacticalMapNavalLandfallHexTerrain,
   'elevation-los-blocked': tacticalMapElevationLosHexTerrain,
-  'prone-combat-modifiers': tacticalMapProneCombatHexTerrain,
-  'immobile-combat-modifier': tacticalMapImmobileCombatHexTerrain,
+  'prone-combat-modifiers': proneCombat.tacticalMapProneCombatHexTerrain,
+  'immobile-combat-modifier':
+    immobileCombat.tacticalMapImmobileCombatHexTerrain,
   'heat-combat-modifier': heatCombat.tacticalMapHeatCombatHexTerrain,
+  'movement-combat-modifier':
+    movementCombat.tacticalMapMovementCombatHexTerrain,
   'biped-swim-elevation': tacticalMapSwimHexTerrain,
   'frogman-deep-water': tacticalMapFrogmanHexTerrain,
   'prone-stand-up': tacticalMapStandUpHexTerrain,
