@@ -270,6 +270,27 @@ function meleeWeaponNeedsHand(
   );
 }
 
+function attackerLocationDestroyed(
+  input: IPhysicalAttackInput,
+  location: string,
+): boolean {
+  return input.attackerDestroyedLocations?.includes(location) ?? false;
+}
+
+function selectedPunchArmDestroyed(input: IPhysicalAttackInput): boolean {
+  if (input.limb === 'leftArm' || input.arm === 'left') {
+    return attackerLocationDestroyed(input, 'left_arm');
+  }
+  return attackerLocationDestroyed(input, 'right_arm');
+}
+
+function anyKickLegDestroyed(input: IPhysicalAttackInput): boolean {
+  return (
+    attackerLocationDestroyed(input, 'left_leg') ||
+    attackerLocationDestroyed(input, 'right_leg')
+  );
+}
+
 export function canPunch(
   input: IPhysicalAttackInput,
 ): IPhysicalAttackRestriction {
@@ -295,6 +316,14 @@ export function canPunch(
   }
 
   const actuators = input.componentDamage.actuators;
+
+  if (selectedPunchArmDestroyed(input)) {
+    return {
+      allowed: false,
+      reason: 'Punching arm missing',
+      reasonCode: 'LimbMissing',
+    };
+  }
 
   // Per task 3.1: shoulder destroyed disqualifies the arm entirely.
   if (actuators[ActuatorType.SHOULDER]) {
@@ -356,6 +385,14 @@ export function canKick(
   }
 
   const actuators = input.componentDamage.actuators;
+  if (anyKickLegDestroyed(input)) {
+    return {
+      allowed: false,
+      reason: 'Leg missing',
+      reasonCode: 'LimbMissing',
+    };
+  }
+
   // Per task 3.2: hip crit disqualifies the leg entirely.
   if (actuators[ActuatorType.HIP]) {
     return {

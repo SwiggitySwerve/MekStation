@@ -865,6 +865,33 @@ describe('BattleMech combat action support catalog', () => {
     ).toBe(true);
   });
 
+  it('catalogs punch and kick missing-limb legality as integrated source-backed gates', () => {
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['punch.selected-arm-present'],
+    ).toMatchObject({
+      level: 'integrated',
+      attackFamily: 'punch',
+      evidence: expect.stringContaining('attackerDestroyedLocations'),
+      sourceRefs: [
+        expect.objectContaining({
+          citation: expect.stringContaining('PunchAttackAction'),
+        }),
+      ],
+    });
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['kick.both-legs-present'],
+    ).toMatchObject({
+      level: 'integrated',
+      attackFamily: 'kick',
+      evidence: expect.stringContaining('left or right BattleMech legs'),
+      sourceRefs: [
+        expect.objectContaining({
+          citation: expect.stringContaining('KickAttackAction'),
+        }),
+      ],
+    });
+  });
+
   it('keeps unresolved physical displacement chain edges visible and source-backed', () => {
     expect(
       PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-domino-chain'],

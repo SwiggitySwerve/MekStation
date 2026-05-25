@@ -1067,6 +1067,32 @@ describe('physicalAttacks', () => {
       expect(result.reason).toContain('fired');
     });
 
+    it('disallows punch with the selected arm missing', () => {
+      expect(
+        canPunch(
+          makeInput({
+            limb: 'leftArm',
+            attackerDestroyedLocations: ['left_arm'],
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'LimbMissing',
+      });
+
+      expect(
+        canPunch(
+          makeInput({
+            arm: 'right',
+            attackerDestroyedLocations: ['right_arm'],
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'LimbMissing',
+      });
+    });
+
     it('disallows punch when No Arms quirk is present', () => {
       const result = canPunch(makeInput({ unitQuirks: ['no_arms'] }));
 
@@ -1113,6 +1139,34 @@ describe('physicalAttacks', () => {
       );
       expect(result.allowed).toBe(false);
       expect(result.reason).toContain('Hip');
+    });
+
+    it('disallows kick when either leg is missing', () => {
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            limb: 'leftLeg',
+            attackerDestroyedLocations: ['left_leg'],
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'LimbMissing',
+      });
+
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            limb: 'rightLeg',
+            attackerDestroyedLocations: ['left_leg'],
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'LimbMissing',
+      });
     });
   });
 

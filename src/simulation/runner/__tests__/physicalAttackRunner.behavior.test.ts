@@ -804,6 +804,45 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
   });
 
+  it('rejects injected punch and kick declarations when source-required limbs are missing', () => {
+    const missingPunchArm = runPhase('punch', {
+      attacker: {
+        destroyedLocations: ['right_arm'],
+      },
+    });
+
+    expect(resolvedPayload(missingPunchArm.events)).toMatchObject({
+      attackType: 'punch',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'LimbMissing',
+    });
+    expect(damageEventsFor(missingPunchArm.events, 'opponent-1')).toHaveLength(
+      0,
+    );
+
+    const missingKickLeg = runPhase('kick', {
+      attacker: {
+        destroyedLocations: ['left_leg'],
+      },
+    });
+
+    expect(resolvedPayload(missingKickLeg.events)).toMatchObject({
+      attackType: 'kick',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'LimbMissing',
+    });
+    expect(damageEventsFor(missingKickLeg.events, 'opponent-1')).toHaveLength(
+      0,
+    );
+    expect(missingKickLeg.result.units['player-1'].pendingPSRs).toHaveLength(0);
+  });
+
   it('rejects injected push declarations for explicit non-Mek attackers or targets', () => {
     const nonMekAttacker = runPhase('push', {
       attacker: {

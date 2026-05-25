@@ -438,6 +438,17 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** the push SHALL be rejected with the matching restriction code
 - **AND** eligibility UI, event-sourced declaration, and runner resolution SHALL report the same gate outcome
 
+#### Scenario: Punch and kick reject missing attacker limbs
+
+- **GIVEN** a BattleMech punch uses a selected arm location that has been destroyed or blown off
+- **WHEN** the punch legality gate runs
+- **THEN** the punch SHALL be rejected with `LimbMissing`
+- **AND** no physical declaration, damage, PSR, or displacement side effect SHALL be emitted
+- **GIVEN** a BattleMech kick has either leg location destroyed or blown off
+- **WHEN** the kick legality gate runs
+- **THEN** the kick SHALL be rejected with `LimbMissing`
+- **AND** eligibility UI, event-sourced declaration, and runner resolution SHALL report the same gate outcome from the shared helper
+
 #### Scenario: Physical helpers reject invalid hex target objects
 
 - **GIVEN** a physical helper evaluates a woods-clearing, building-ignition, or hex-ignition target object

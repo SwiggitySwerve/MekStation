@@ -445,6 +445,45 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(rightPunch?.toHit.finalToHit).toBe(5);
   });
 
+  it('projects missing-limb restrictions on punch and kick rows', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        facing: Facing.Southeast,
+        destroyedLocations: ['right_arm', 'left_leg'],
+      },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      pushDestinationValid: true,
+    });
+    const optionByKey = new Map(
+      options.map((option) => [
+        `${option.attackType}:${option.limb ?? '-'}`,
+        option,
+      ]),
+    );
+
+    expect(optionByKey.get('punch:leftArm')?.restrictionsFailed).not.toContain(
+      'LimbMissing',
+    );
+    expect(optionByKey.get('punch:rightArm')?.restrictionsFailed).toContain(
+      'LimbMissing',
+    );
+    expect(optionByKey.get('kick:leftLeg')?.restrictionsFailed).toContain(
+      'LimbMissing',
+    );
+    expect(optionByKey.get('kick:rightLeg')?.restrictionsFailed).toContain(
+      'LimbMissing',
+    );
+  });
+
   it('projects passenger physical targets as restricted options', () => {
     const attacker = unitState(
       'attacker',
@@ -1720,6 +1759,68 @@ describe('BattleMech physical combat behavior validation lane', () => {
       attackerId: 'attacker',
       targetId: 'target',
       attackType: 'push',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'LimbMissing',
+    });
+  });
+
+  it('rejects punch and kick declarations when source-required limbs are missing', () => {
+    const missingArm = declarePhysicalAttack(
+      withPhysicalPositions(
+        physicalPhaseSession(),
+        { destroyedLocations: ['right_arm'] },
+        {},
+      ),
+      'attacker',
+      'target',
+      'punch',
+      physicalContext({ limb: 'rightArm' }),
+    );
+    const missingArmPayload = missingArm.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(
+      missingArm.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toHaveLength(0);
+    expect(missingArmPayload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'punch',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'LimbMissing',
+    });
+
+    const missingLeg = declarePhysicalAttack(
+      withPhysicalPositions(
+        physicalPhaseSession(),
+        { destroyedLocations: ['left_leg'] },
+        {},
+      ),
+      'attacker',
+      'target',
+      'kick',
+      physicalContext({ limb: 'rightLeg' }),
+    );
+    const missingLegPayload = missingLeg.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(
+      missingLeg.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toHaveLength(0);
+    expect(missingLegPayload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'kick',
       roll: 0,
       toHitNumber: Infinity,
       hit: false,

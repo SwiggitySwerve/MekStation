@@ -3,7 +3,13 @@ import type {
   ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 
-export type PhysicalLegalityAttackFamily = 'shared' | 'push' | 'charge' | 'dfa';
+export type PhysicalLegalityAttackFamily =
+  | 'shared'
+  | 'punch'
+  | 'kick'
+  | 'push'
+  | 'charge'
+  | 'dfa';
 
 export interface IPhysicalLegalityGateSupportEntry extends ICombatFeatureSupportEntry {
   readonly attackFamily: PhysicalLegalityAttackFamily;
@@ -80,6 +86,10 @@ function megamekPhysicalSourceRef(
 
 const PHYSICAL_ATTACK_ACTION_LINES =
   'MegaMek PhysicalAttackAction.toHitIsImpossible, PhysicalAttackAction.java:76-167';
+const PUNCH_ACTION_LINES =
+  'MegaMek PunchAttackAction.toHitIsImpossible rejects a bad punching arm as Arm missing, PunchAttackAction.java:151-178';
+const KICK_ACTION_LINES =
+  'MegaMek KickAttackAction.toHit rejects missing left/right leg locations as Leg missing, KickAttackAction.java:197-216';
 const TARGETABILITY_LIFECYCLE_LINES =
   'MegaMek Game.getValidTargets filters Entity.isTargetable, Game.java:701-718; Entity.isTargetable excludes destroyed units, Entity.java:1967-1976';
 const PUSH_ACTION_LINES =
@@ -107,6 +117,18 @@ const PHYSICAL_ATTACK_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
   'MegaMek PhysicalAttackAction.toHitIsImpossible applies shared physical attack impossibility gates',
   'common/actions/PhysicalAttackAction.java',
   'L76-L167',
+);
+
+const PUNCH_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek PunchAttackAction.toHitIsImpossible rejects the selected arm when ae.isLocationBad(armLoc)',
+  'common/actions/PunchAttackAction.java',
+  'L151-L178',
+);
+
+const KICK_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek KickAttackAction.toHit rejects kicks when left or right leg locations are bad',
+  'common/actions/KickAttackAction.java',
+  'L197-L216',
 );
 
 const TARGETABILITY_GAME_SOURCE_REF = megamekPhysicalSourceRef(
@@ -225,6 +247,10 @@ function sourceRefsForAuthority(
   authority: string,
 ): readonly ICombatFeatureSourceReference[] {
   switch (authority) {
+    case PUNCH_ACTION_LINES:
+      return [PUNCH_ACTION_SOURCE_REF];
+    case KICK_ACTION_LINES:
+      return [KICK_ACTION_SOURCE_REF];
     case TARGETABILITY_LIFECYCLE_LINES:
       return [TARGETABILITY_GAME_SOURCE_REF, TARGETABILITY_ENTITY_SOURCE_REF];
     case PUSH_ACTION_LINES:
@@ -397,6 +423,18 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'shared',
     'MekStation displacement helpers always search adjacent radius-one destinations and do not model grounded DropShip footprint expansion to a two-hex displacement radius',
     DISPLACEMENT_DROPSHIP_RADIUS_LINES,
+  ),
+  'punch.selected-arm-present': integrated(
+    'punch.selected-arm-present',
+    'punch',
+    'canPunch consumes attackerDestroyedLocations and rejects the selected punching arm as LimbMissing; eligibility, event-sourced declaration, and runner resolution thread unit destroyedLocations into the same helper',
+    PUNCH_ACTION_LINES,
+  ),
+  'kick.both-legs-present': integrated(
+    'kick.both-legs-present',
+    'kick',
+    'canKick consumes attackerDestroyedLocations and rejects missing left or right BattleMech legs as LimbMissing; eligibility, event-sourced declaration, and runner resolution thread unit destroyedLocations into the same helper',
+    KICK_ACTION_LINES,
   ),
   'push.destination-open': integrated(
     'push.destination-open',
