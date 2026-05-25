@@ -217,6 +217,11 @@ const TERRAIN_ENVIRONMENT_TRIAD = triad(
   'Terrain/environment rows are source checked and must carry row-level sourceRefs for terrain costs, LOS/cover/to-hit features, water/fire heat, fog/night/wind/extreme temperature, local atmosphere, and explicit dust/mines gaps.',
   TERRAIN_REFS,
 );
+const TERRAIN_TYPE_MOVEMENT_TRIAD = triad(
+  'entry-source-refs',
+  'Per-TerrainType movement rows are source checked and must carry row-level sourceRefs, distinguishing MegaMek terrain movement anchors from MekStation-local water and building movement simplifications.',
+  TERRAIN_REFS,
+);
 const DAMAGE_TRIAD = triad(
   'requirement-primary-authority',
   REQUIREMENT_AUTHORITY_BOUNDARY,
@@ -360,7 +365,7 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
       RULE_REFS,
     ),
     terrainEnvironment: TERRAIN_ENVIRONMENT_TRIAD,
-    terrainTypeMovement: TERRAIN_TRIAD,
+    terrainTypeMovement: TERRAIN_TYPE_MOVEMENT_TRIAD,
     terrainTypeLos: TERRAIN_TRIAD,
     terrainTypeAttackModifiers: TERRAIN_TRIAD,
     terrainTypeHeat: TERRAIN_TRIAD,

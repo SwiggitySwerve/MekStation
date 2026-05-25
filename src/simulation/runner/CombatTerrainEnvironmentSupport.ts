@@ -5,6 +5,55 @@ import type {
   ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 
+const MEGAMEK_TERRAIN_SOURCE_VERSION =
+  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+
+const MEGAMEK_TERRAIN_MOVEMENT_COST_SOURCE_REF = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Terrain.movementCost maps additional movement costs for rubble, woods, snow, mud, swamp, ice, rough, sand, industrial terrain, and default zero-cost terrain.',
+  url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/common/units/Terrain.java#L402-L604`,
+  sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_PAVEMENT_ROAD_BRIDGE_MOVEMENT_SOURCE_REF = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Compute.canMoveOnPavement treats pavement, paved roads, and bridges as movement surfaces that may change costs or override prohibited terrain.',
+  url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/common/compute/Compute.java#L5955-L6004`,
+  sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
+} satisfies ICombatFeatureSourceReference;
+
+const MEKSTATION_TERRAIN_MOVEMENT_PROPERTIES_SOURCE_REF = {
+  kind: 'mekstation-deviation',
+  citation:
+    'MekStation TERRAIN_PROPERTIES defines the simplified movementCostModifier table consumed by getHexMovementCost for every local TerrainType row.',
+  url: 'src/types/gameplay/TerrainTypes.ts#L146-L488',
+  sourceVersion: 'MekStation working-tree',
+} satisfies ICombatFeatureSourceReference;
+
+const MEKSTATION_WATER_GROUND_DISALLOW_SOURCE_REF = {
+  kind: 'mekstation-deviation',
+  citation:
+    'MekStation getHexMovementCost treats walk and run entry into TerrainType.Water as impassable before movement side effects.',
+  url: 'src/utils/gameplay/movement/calculations.ts#L170-L195',
+  sourceVersion: 'MekStation working-tree',
+} satisfies ICombatFeatureSourceReference;
+
+const MEKSTATION_BUILDING_MOVEMENT_COST_SOURCE_REF = {
+  kind: 'mekstation-deviation',
+  citation:
+    'MekStation currently models Building as a flat local movementCostModifier row without claiming MegaMek building-collapse movement parity.',
+  url: 'src/types/gameplay/TerrainTypes.ts#L409-L428',
+  sourceVersion: 'MekStation working-tree',
+} satisfies ICombatFeatureSourceReference;
+
+const pavementMovementTerrains = new Set<TerrainType>([
+  TerrainType.Pavement,
+  TerrainType.Road,
+  TerrainType.Bridge,
+]);
+
 const MEGAMEK_SWAMP_BOG_DOWN_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -54,19 +103,59 @@ const terrainTypesWithPsrGaps = new Set<TerrainType>(
   TERRAIN_TYPES_WITH_PSR_GAPS,
 );
 
+function terrainMovementSourceRefs(
+  terrain: TerrainType,
+): readonly ICombatFeatureSourceReference[] {
+  if (terrain === TerrainType.Water) {
+    return [
+      MEKSTATION_TERRAIN_MOVEMENT_PROPERTIES_SOURCE_REF,
+      MEKSTATION_WATER_GROUND_DISALLOW_SOURCE_REF,
+    ];
+  }
+
+  if (terrain === TerrainType.Building) {
+    return [
+      MEKSTATION_TERRAIN_MOVEMENT_PROPERTIES_SOURCE_REF,
+      MEKSTATION_BUILDING_MOVEMENT_COST_SOURCE_REF,
+    ];
+  }
+
+  if (pavementMovementTerrains.has(terrain)) {
+    return [
+      MEGAMEK_PAVEMENT_ROAD_BRIDGE_MOVEMENT_SOURCE_REF,
+      MEKSTATION_TERRAIN_MOVEMENT_PROPERTIES_SOURCE_REF,
+    ];
+  }
+
+  return [
+    MEGAMEK_TERRAIN_MOVEMENT_COST_SOURCE_REF,
+    MEKSTATION_TERRAIN_MOVEMENT_PROPERTIES_SOURCE_REF,
+  ];
+}
+
 function makeTerrainMovementEntry(
   terrain: TerrainType,
 ): ICombatFeatureSupportEntry {
   if (terrain === TerrainType.Water) {
     return integrated(
       terrain,
-      'getHexMovementCost rejects walk/run water entry and validateMovement reports impassable terrain before side effects',
+      'MekStation getHexMovementCost rejects walk/run water entry and validateMovement reports impassable terrain before side effects',
+      terrainMovementSourceRefs(terrain),
+    );
+  }
+
+  if (terrain === TerrainType.Building) {
+    return integrated(
+      terrain,
+      'MekStation getHexMovementCost consumes the local flat Building movementCostModifier before validateMovement/pathfinding apply the resulting MP cost',
+      terrainMovementSourceRefs(terrain),
     );
   }
 
   return integrated(
     terrain,
     'getHexMovementCost consumes TERRAIN_PROPERTIES movementCostModifier and validateMovement/pathfinding apply the resulting MP cost',
+    terrainMovementSourceRefs(terrain),
   );
 }
 

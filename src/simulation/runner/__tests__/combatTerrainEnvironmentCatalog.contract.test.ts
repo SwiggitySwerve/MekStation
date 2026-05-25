@@ -1,6 +1,9 @@
 import { TERRAIN_PROPERTIES, TerrainType } from '@/types/gameplay/TerrainTypes';
 
-import type { ICombatFeatureSupportEntry } from '../CombatFeatureSupport';
+import type {
+  ICombatFeatureSourceReference,
+  ICombatFeatureSupportEntry,
+} from '../CombatFeatureSupport';
 
 import { TERRAIN_ENVIRONMENT_COMBAT_SUPPORT } from '../CombatRuleSupport';
 import {
@@ -39,6 +42,12 @@ function supportIdsByLevel(
     .filter((entry) => entry.level === level)
     .map((entry) => entry.id)
     .sort();
+}
+
+function expectLineAnchoredSourceRef(ref: ICombatFeatureSourceReference): void {
+  expect(ref.citation.length).toBeGreaterThan(0);
+  expect(ref.url).toContain('#L');
+  expect(ref.sourceVersion.length).toBeGreaterThan(0);
 }
 
 function terrainTypesWithAttackModifiers(): readonly string[] {
@@ -82,6 +91,65 @@ describe('BattleMech terrain and environment combat support catalog', () => {
     );
     expect(supportGaps(TERRAIN_TYPE_HEAT_COMBAT_SUPPORT)).toEqual([]);
     expect(supportGaps(TERRAIN_TYPE_PSR_COMBAT_SUPPORT)).toEqual([]);
+  });
+
+  it('source-pins every TerrainType movement row', () => {
+    const localOnlyMovementTerrains = [TerrainType.Building, TerrainType.Water];
+    const megaMekBackedTerrains = Object.values(TerrainType).filter(
+      (terrain) => !localOnlyMovementTerrains.includes(terrain),
+    );
+
+    Object.values(TERRAIN_TYPE_MOVEMENT_COMBAT_SUPPORT).forEach((entry) => {
+      const sourceRefs = entry.sourceRefs ?? [];
+
+      expect(sourceRefs).not.toHaveLength(0);
+      sourceRefs.forEach(expectLineAnchoredSourceRef);
+      expect(sourceRefs).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            url: 'src/types/gameplay/TerrainTypes.ts#L146-L488',
+          }),
+        ]),
+      );
+    });
+
+    expect(
+      megaMekBackedTerrains.filter(
+        (terrain) =>
+          !TERRAIN_TYPE_MOVEMENT_COMBAT_SUPPORT[terrain].sourceRefs?.some(
+            (ref) => ref.kind === 'megamek-source',
+          ),
+      ),
+    ).toEqual([]);
+    expect(
+      localOnlyMovementTerrains.flatMap(
+        (terrain) =>
+          TERRAIN_TYPE_MOVEMENT_COMBAT_SUPPORT[terrain].sourceRefs?.filter(
+            (ref) => ref.kind === 'megamek-source',
+          ) ?? [],
+      ),
+    ).toEqual([]);
+    expect(
+      TERRAIN_TYPE_MOVEMENT_COMBAT_SUPPORT[TerrainType.Water].sourceRefs,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('walk and run entry'),
+        }),
+      ]),
+    );
+    expect(
+      TERRAIN_TYPE_MOVEMENT_COMBAT_SUPPORT[TerrainType.Building].sourceRefs,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('flat local'),
+        }),
+      ]),
+    );
   });
 
   it('treats non-zero terrain attack modifiers as integrated runner to-hit behavior', () => {
