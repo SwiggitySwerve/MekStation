@@ -704,6 +704,9 @@ describe('HexMapDisplay tactical visual layers', () => {
       screen.getByTestId('hex-movement-tooltip-projection-channel-status'),
     ).toHaveTextContent('Movement channel: legal; combat channel: none');
     expect(
+      screen.getByTestId('hex-movement-tooltip-projection-explanation'),
+    ).toHaveTextContent('Walk reachable 3 MP');
+    expect(
       screen.getByTestId('hex-movement-tooltip-projection-sources'),
     ).toHaveTextContent('movement: MegaMek movement rules projection');
     expect(
@@ -1301,6 +1304,9 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(
       screen.getByTestId('hex-terrain-tooltip-projection-channel-status'),
     ).toHaveTextContent('Movement channel: none; combat channel: none');
+    expect(
+      screen.getByTestId('hex-terrain-tooltip-projection-explanation'),
+    ).toHaveTextContent('elevation 1');
     expect(screen.queryByTestId('hex-movement-tooltip')).toBeNull();
     expect(screen.queryByTestId('hex-combat-tooltip')).toBeNull();
 
@@ -1367,6 +1373,9 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(
       screen.getByTestId('hex-unreachable-tooltip-projection-channel-status'),
     ).toHaveTextContent('Movement channel: none; combat channel: none');
+    expect(
+      screen.getByTestId('hex-unreachable-tooltip-projection-explanation'),
+    ).toHaveTextContent('elevation 2');
 
     act(() => {
       unmount();

@@ -60,6 +60,11 @@ export function ProjectionContextRows({
           Projection reasons: {projection.blockedReasons.join('; ')}
         </div>
       )}
+      {projection.explanation && (
+        <div data-testid={`${testIdPrefix}-projection-explanation`}>
+          Projection detail: {projection.explanation}
+        </div>
+      )}
       {projection.sourceReferences.length > 0 && (
         <div data-testid={`${testIdPrefix}-projection-sources`}>
           Sources:{' '}

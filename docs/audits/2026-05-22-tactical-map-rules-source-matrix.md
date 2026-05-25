@@ -1301,6 +1301,12 @@ metadata and readable tooltip text. This does not add legality logic; it brings
 the multi-surface hover in line with movement-only, combat-only, and terrain
 projection context so mixed hovers carry the same rules-backed why string.
 
+2026-05-25 single-surface projection detail pin: Reusable projection context
+rows now render the shared projection explanation as visible tooltip text, not
+only `data-*` metadata. This keeps movement-only, combat-only, terrain-only,
+and unreachable hovers aligned with combined hovers so every projection channel
+can show the player the same rules-backed why string without recalculating.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

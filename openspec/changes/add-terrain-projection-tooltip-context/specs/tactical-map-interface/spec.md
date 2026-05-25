@@ -14,4 +14,5 @@ The tactical map interface SHALL compose terrain, elevation, movement, combat, p
 **AND** the tooltip SHALL expose movement-channel and combat-channel statuses from the shared projection
 **AND** the tooltip SHALL expose shared projection blocked reasons when present
 **AND** the tooltip SHALL expose stable metadata for status, intent, channel statuses, blocked reasons, and projection explanation
+**AND** the tooltip SHALL render the shared projection explanation as readable text when present
 **AND** the tooltip SHALL preserve the existing terrain/elevation, cover, LOS, heat-effect, and isometric occluder explanations

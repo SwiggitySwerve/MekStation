@@ -950,6 +950,9 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       screen.getByTestId('hex-combat-tooltip-projection-channel-status'),
     ).toHaveTextContent('Movement channel: none; combat channel: attackable');
+    expect(
+      screen.getByTestId('hex-combat-tooltip-projection-explanation'),
+    ).toHaveTextContent('weapon heat +4');
     expect(screen.getByTestId('hex-combat-tooltip-weapons')).toHaveTextContent(
       'Weapons: medium-laser, ac-5',
     );

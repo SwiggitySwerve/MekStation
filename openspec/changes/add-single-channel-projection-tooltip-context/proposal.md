@@ -8,7 +8,7 @@ The tactical map already builds one shared per-hex projection, but only the comb
 
 - Surface shared projection status context inside movement-only hover tooltips.
 - Surface shared projection status context inside combat-only hover tooltips.
-- Expose the projection context through stable text and `data-*` metadata so tests and assistive tooling can verify map/engine agreement.
+- Expose the projection context and shared projection explanation through stable text and `data-*` metadata so tests and assistive tooling can verify map/engine agreement.
 - Preserve the existing movement, combat, terrain, LOS, cover, and isometric occluder calculations.
 
 ## Out of Scope
@@ -21,4 +21,4 @@ The tactical map already builds one shared per-hex projection, but only the comb
 
 - Affected spec: `tactical-map-interface`
 - Affected code: `src/components/gameplay/HexMapDisplay/HexMapDisplay.tooltips.tsx`
-- Tests: focused movement and combat hover coverage
+- Tests: focused movement and combat hover coverage for projection context and readable projection explanation

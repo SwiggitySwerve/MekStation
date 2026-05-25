@@ -11,6 +11,7 @@
 - [x] 2.2 Render projection context inside movement-only hover tooltips
 - [x] 2.3 Render projection context inside combat-only hover tooltips
 - [x] 2.4 Preserve combined tooltip behavior and existing movement/combat explanations
+- [x] 2.5 Render the shared projection explanation as readable text in the reusable projection context rows
 
 ## 3. Verification
 
@@ -21,3 +22,4 @@
 - [x] 3.5 `npm.cmd run lint` passes
 - [x] 3.6 `npm.cmd run format:check` passes
 - [x] 3.7 `npx.cmd openspec validate add-single-channel-projection-tooltip-context --strict` passes
+- [x] 3.8 Focused movement and combat hover coverage asserts readable projection explanation text

@@ -10,6 +10,7 @@
 - [x] 2.1 Render projection context inside terrain-only hover tooltips
 - [x] 2.2 Render projection context inside unreachable hover tooltips
 - [x] 2.3 Preserve existing terrain, elevation, cover, LOS, heat-effect, and isometric occluder rows
+- [x] 2.4 Render the shared projection explanation as readable text in terrain and unreachable projection context rows
 
 ## 3. Verification
 
@@ -20,3 +21,4 @@
 - [x] 3.5 `npm.cmd run lint` passes
 - [x] 3.6 `npm.cmd run format:check` passes
 - [x] 3.7 `npx.cmd openspec validate add-terrain-projection-tooltip-context --strict` passes
+- [x] 3.8 Focused terrain and unreachable hover coverage asserts readable projection explanation text

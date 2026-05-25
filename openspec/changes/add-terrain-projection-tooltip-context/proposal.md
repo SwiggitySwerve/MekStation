@@ -8,6 +8,7 @@ Terrain and unreachable hover tooltips explain terrain/elevation details, but th
 
 - Surface shared projection status context inside terrain-only hover tooltips.
 - Surface shared projection status context inside unreachable hover tooltips.
+- Render the shared projection explanation as readable tooltip text alongside projection metadata.
 - Preserve terrain, elevation, cover, LOS, heat-effect, and isometric occluder rows.
 - Reuse the shared projection tooltip row component so hover explanations stay consistent.
 
@@ -21,4 +22,4 @@ Terrain and unreachable hover tooltips explain terrain/elevation details, but th
 
 - Affected spec: `tactical-map-interface`
 - Affected code: `src/components/gameplay/HexMapDisplay/*`
-- Tests: focused terrain and unreachable hover coverage
+- Tests: focused terrain and unreachable hover coverage for projection context and readable projection explanation
