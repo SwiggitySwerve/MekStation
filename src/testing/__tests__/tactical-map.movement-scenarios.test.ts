@@ -15,6 +15,10 @@ import {
   tacticalMapVtolElevationMovementRange,
 } from '../tactical-map.movement-scenarios';
 import {
+  tacticalMapNavalLandfallCommitInput,
+  tacticalMapNavalLandfallMovementRange,
+} from '../tactical-map.naval-landfall-scenario';
+import {
   tacticalMapRunWaterFallbackCommitInput,
   tacticalMapRunWaterFallbackMovementRange,
 } from '../tactical-map.run-water-fallback-scenario';
@@ -282,5 +286,38 @@ describe('tactical map movement scenarios', () => {
     expect(result.mpCost).toBe(projection.mpCost);
     expect(result.heatGenerated).toBe(projection.heatGenerated);
     expect(result.path).toEqual(projection.path);
+  });
+
+  it('keeps naval landfall blocked between browser projection and commit validation', () => {
+    const projection = tacticalMapNavalLandfallMovementRange[0];
+
+    expect(projection).toMatchObject({
+      hex: { q: 1, r: 0 },
+      reachable: false,
+      movementMode: 'naval',
+      movementType: 'walk',
+      terrainCost: 0,
+      elevationDelta: 0,
+      elevationCost: 0,
+      heatGenerated: 0,
+      blockedReason: 'Naval movement requires water terrain',
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails: 'Naval movement requires water terrain',
+    });
+    expect(Number.isFinite(projection.mpCost)).toBe(false);
+
+    const result = validateCommittedMovement(
+      tacticalMapNavalLandfallCommitInput(),
+    );
+
+    expect(result.valid).toBe(false);
+    if (result.valid) {
+      throw new Error('Expected naval landfall movement to be blocked');
+    }
+
+    expect(result.reason).toBe(projection.movementInvalidReason);
+    expect(result.details).toBe(projection.movementInvalidDetails);
+    expect(result.mpCost).toBe(projection.mpCost);
+    expect(result.heatGenerated).toBe(projection.heatGenerated);
   });
 });

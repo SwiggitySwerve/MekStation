@@ -87,6 +87,9 @@
 - [x] 2.34 Add browser coverage proving a hover vehicle can cross deep water
   with zero terrain/elevation surcharge while preserving water/smoke terrain
   metadata.
+- [x] 2.35 Add browser coverage proving a naval vehicle cannot leave water for
+  a clear land hex and renders the same water-required blocker used by commit
+  validation.
 
 ## 3. Validation
 
@@ -158,3 +161,5 @@
   labeling.
 - [x] 3.34 Focused Jest parity and Playwright smoke pass for hover deep-water
   crossing legality, cost metadata, and terrain layer labeling.
+- [x] 3.35 Focused Jest parity and Playwright smoke pass for naval landfall
+  movement blocking, water/clear terrain metadata, and invalid badge labeling.

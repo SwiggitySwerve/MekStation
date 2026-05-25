@@ -381,6 +381,15 @@ sends that same one-step path through `validateCommittedMovement`, proving the
 browser-visible hover exemption is accepted by the commit gate with matching MP,
 heat, and path.
 
+Naval landfall browser pin: the tactical-map browser harness now also includes
+a naval vehicle starting on water and attempting to move onto a clear land hex.
+The map renders the destination as blocked `walk` via `naval`, exposes
+`TerrainBlocked`, `Naval movement requires water terrain`, zero heat, water
+origin metadata, clear destination metadata, and a non-color `WTR` invalid
+badge. A fixture-level Jest parity test sends the same path through
+`validateCommittedMovement`, proving the browser-visible blocked reason matches
+the commit gate for naval water-only movement.
+
 Additional UMU/swim water-movement pin: MegaMek
 `EntityMovementMode.java:47-67` defines `BIPED_SWIM`, `QUAD_SWIM`, and
 `INF_UMU`, with helper predicates at `EntityMovementMode.java:140-154`.

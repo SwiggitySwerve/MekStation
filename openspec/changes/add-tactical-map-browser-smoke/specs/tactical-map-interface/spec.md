@@ -32,6 +32,9 @@ the top-down map.
 - **AND** a hover vehicle destination over represented deep water SHALL expose
   reachable movement, zero terrain/elevation surcharge, motive metadata, and
   the water/smoke terrain layers
+- **AND** a naval vehicle destination on represented clear land SHALL expose
+  the water-required terrain blocker, zero heat, motive metadata, and a
+  non-color invalid badge
 - **AND** a movement-blocked hex SHALL expose the engine-aligned rejection
   reason and render an invalid badge that does not rely on color alone
 - **AND** a LOS-blocked combat target SHALL expose the blocked target id,

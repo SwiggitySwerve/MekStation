@@ -808,6 +808,63 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows naval landfall as water-required blocked movement in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=naval-landfall-blocked');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('RVM');
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('NV');
+
+    await expect(page.getByTestId('hex-0-0')).toHaveAttribute(
+      'data-terrain-features',
+      'water',
+    );
+    await expect(page.getByTestId('hex-0-0')).toHaveAttribute(
+      'data-terrain-feature-levels',
+      'water:1',
+    );
+
+    const landHex = page.getByTestId('hex-1-0');
+    await expect(landHex).toHaveAttribute('data-reachable', 'false');
+    await expect(landHex).toHaveAttribute('data-movement-type', 'walk');
+    await expect(landHex).toHaveAttribute('data-movement-mode', 'naval');
+    await expect(landHex).toHaveAttribute('data-mp-cost', 'Infinity');
+    await expect(landHex).toHaveAttribute('data-terrain-cost', '0');
+    await expect(landHex).toHaveAttribute('data-elevation-delta', '0');
+    await expect(landHex).toHaveAttribute('data-elevation-cost', '0');
+    await expect(landHex).toHaveAttribute('data-heat-generated', '0');
+    await expect(landHex).toHaveAttribute('data-terrain-features', 'clear');
+    await expect(landHex).toHaveAttribute(
+      'data-terrain-feature-levels',
+      'clear:0',
+    );
+    await expect(landHex).toHaveAttribute(
+      'data-movement-blocked-reason',
+      'Naval movement requires water terrain',
+    );
+    await expect(landHex).toHaveAttribute(
+      'data-movement-invalid-reason',
+      'TerrainBlocked',
+    );
+    await expect(landHex).toHaveAttribute(
+      'data-movement-invalid-details',
+      'Naval movement requires water terrain',
+    );
+    await expect(page.getByTestId('hex-movement-badge-1-0')).toHaveCount(0);
+
+    const invalidBadge = page.getByTestId('hex-movement-invalid-badge-1-0');
+    await expect(invalidBadge.locator('text')).toHaveText('WTR');
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-reason',
+      'Naval movement requires water terrain',
+    );
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'TerrainBlocked',
+    );
+  });
+
   test('shows tracked vehicle abrupt elevation as blocked in browser', async ({
     page,
   }) => {
