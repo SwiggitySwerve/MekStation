@@ -467,6 +467,45 @@ const EXPECTED_BATTLEMECH_COMPATIBLE_AMMO_IDS = [
   'uac-5-ammo',
 ] satisfies readonly string[];
 
+const EXPECTED_STRING_DAMAGE_RESOLUTIONS = {
+  'atm-12': 24,
+  'atm-3': 6,
+  'atm-6': 12,
+  'atm-9': 18,
+  'clan-lrm-10': 10,
+  'clan-lrm-15': 15,
+  'clan-lrm-20': 20,
+  'clan-lrm-5': 5,
+  'clan-srm-2': 4,
+  'clan-srm-4': 8,
+  'clan-srm-6': 12,
+  'clan-streak-srm-2': 4,
+  'clan-streak-srm-4': 8,
+  'clan-streak-srm-6': 12,
+  'iatm-12': 24,
+  'iatm-3': 6,
+  'iatm-6': 12,
+  'iatm-9': 18,
+  'lrm-10': 10,
+  'lrm-15': 15,
+  'lrm-20': 20,
+  'lrm-5': 5,
+  'mml-3': 6,
+  'mml-5': 10,
+  'mml-7': 14,
+  'mml-9': 18,
+  'mrm-10': 10,
+  'mrm-20': 20,
+  'mrm-30': 30,
+  'mrm-40': 40,
+  'srm-2': 4,
+  'srm-4': 8,
+  'srm-6': 12,
+  'streak-srm-2': 4,
+  'streak-srm-4': 8,
+  'streak-srm-6': 12,
+} satisfies Record<string, number>;
+
 function flattenItems(
   files: readonly ICatalogFile[],
 ): readonly Record<string, unknown>[] {
@@ -494,6 +533,12 @@ function isPhysicalWeapon(item: Record<string, unknown>): boolean {
     typeof item.damageFormula === 'string' &&
     !('ranges' in item)
   );
+}
+
+function isStringDamageWeapon(
+  item: Record<string, unknown> & ICatalogWeaponStats,
+): item is Record<string, unknown> & ICatalogWeaponStats & { damage: string } {
+  return typeof item.damage === 'string';
 }
 
 function isAmmoEntry(
@@ -841,6 +886,19 @@ describe('BattleMech combat catalog validation lane', () => {
   });
 
   it('keeps variable missile damage from mapping to zero', () => {
+    const stringDamageEntries: Array<[string, number]> = rangedWeaponItems
+      .filter(isStringDamageWeapon)
+      .map((item) => [item.id, resolveCatalogDamage(item.damage, item.id)]);
+    const stringDamageResolutions: Record<string, number> = Object.fromEntries(
+      stringDamageEntries.sort(([leftId], [rightId]) =>
+        leftId.localeCompare(rightId),
+      ),
+    );
+
+    expect(stringDamageResolutions).toEqual(EXPECTED_STRING_DAMAGE_RESOLUTIONS);
+    expect(
+      Object.values(stringDamageResolutions).every((damage) => damage > 0),
+    ).toBe(true);
     expect(resolveCatalogDamage('1/missile', 'lrm-20')).toBe(20);
     expect(resolveCatalogDamage('2/missile', 'srm-6')).toBe(12);
     expect(resolveCatalogDamage('1-2/missile', 'mml-9')).toBe(18);

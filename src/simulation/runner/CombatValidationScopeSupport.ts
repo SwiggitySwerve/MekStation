@@ -106,7 +106,7 @@ export const BATTLEMECH_VALIDATION_SCOPE_SUPPORT = {
   ),
   'variable-damage-string-guard': integrated(
     'variable-damage-string-guard',
-    'battlemechCombatCatalog.contract.test.ts pins variable missile damage strings such as 1-2/missile so official weapons cannot collapse to zero damage',
+    'battlemechCombatCatalog.contract.test.ts pins every official string-damage missile weapon resolution, including 1-2/missile MML rows, so official weapons cannot collapse to zero damage',
   ),
   'non-battlemech-ammo-scope': helperOnly(
     'non-battlemech-ammo-scope',
