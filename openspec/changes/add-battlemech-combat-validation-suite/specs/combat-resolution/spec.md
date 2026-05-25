@@ -1446,6 +1446,18 @@ Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior 
 - **AND** the requirement SHALL remain helper-only while Cool Under Fire source authority is unresolved
 - **AND** the integrated `heat-lifecycle` requirement SHALL NOT imply complete heat-driven modifier parity
 
+### Requirement: Source-Backed Legacy Pilot Ability Support Rows
+
+Legacy `pilotAbilities` support rows SHALL expose structured row-level source references before the map is treated as validation coverage. Weapon Specialist, Gunnery Specialist, Blood Stalker, Cluster Hitter, Range Master, Sniper, Oblique Attacker, and Forward Observer rows SHALL cite pinned MegaMek behavior plus MekStation helper or runner paths. Marksman and Sharpshooter SHALL remain helper-only local called-shot helpers because MegaMek source backs TacOps called-shot penalties but does not validate those reductions. Melee Specialist and Melee Master SHALL remain helper-only until the physical-combat ability split matches source truth: MegaMek Melee Specialist applies physical to-hit relief plus +1 damage, while MegaMek Melee Master grants two allowed physical attacks instead of MekStation's legacy flat damage bonus. Generic Terrain Master SHALL remain an unsupported variant-split row while source-backed Terrain Master variants are tracked separately.
+
+#### Scenario: Legacy pilot ability rows expose source truth
+
+- **GIVEN** the BattleMech SPA support catalog is generated
+- **WHEN** any `pilotAbilities` support row is inspected
+- **THEN** the row SHALL carry at least one structured source reference with a line anchor
+- **AND** the `pilotAbilities` catalog triad SHALL enforce row-level source references before PR approval
+- **AND** Melee Specialist and Melee Master rows SHALL identify the MegaMek/MekStation physical-combat mismatch as helper-only gaps
+
 ### Requirement: Source-Backed Consciousness Toughness Boundary
 
 Consciousness-related pilot ability rows SHALL distinguish MegaMek RPG Toughness, Pain Resistance, and Iron Man semantics from MekStation legacy aliases before claiming parity. RPG Toughness SHALL be treated as a game-option-gated numeric crew toughness target-number reduction, not as the Pain Resistance SPA. Pain Resistance SHALL be source-backed as +1 consciousness and wake-up rolls plus ammunition-explosion pilot-damage reduction, not ranged to-hit wound-penalty relief. Iron Man SHALL be source-backed as ammunition-explosion pilot-hit reduction, not generic consciousness target-number relief. MekStation local Iron Will and Toughness aliases SHALL remain helper-only until source-backed ids or explicit migration behavior are represented.

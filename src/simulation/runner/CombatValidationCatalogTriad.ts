@@ -1,3 +1,5 @@
+import { PILOT_ABILITY_FEATURE_TRIAD } from './CombatValidationPilotAbilityTriad';
+
 export type CombatCatalogTriadAuthorityBoundaryKind =
   | 'entry-source-refs'
   | 'requirement-primary-authority'
@@ -323,7 +325,7 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
     ),
   },
   featureSupport: {
-    pilotAbilities: FEATURE_TRIAD,
+    pilotAbilities: PILOT_ABILITY_FEATURE_TRIAD,
     canonicalPilotAbilityScope: triad(
       'entry-source-refs',
       'Canonical SPA rows must carry row-level sourceRefs that bind each canonical id to the MekStation SPA catalog plus the pinned MegaMek pilot option registry, including explicit helper-only and unsupported scope partitions.',

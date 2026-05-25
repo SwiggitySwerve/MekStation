@@ -12,6 +12,13 @@ import {
   MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
 } from './CombatEdgeSourceRefs';
 import {
+  MEGAMEK_CLUSTER_HITTER_SOURCE_REFS,
+  MEGAMEK_FORWARD_OBSERVER_SOURCE_REFS,
+  MEGAMEK_MELEE_SPECIALIST_SOURCE_REFS,
+  MEGAMEK_OBLIQUE_ATTACKER_SOURCE_REFS,
+  MEKSTATION_MELEE_MASTER_DEVIATION_SOURCE_REFS,
+} from './CombatLegacyPilotAbilitySourceRefs';
+import {
   MEGAMEK_CALLED_SHOT_SOURCE_REFS,
   MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   MEGAMEK_DISTRACTING_QUIRK_SOURCE_REFS,
@@ -157,10 +164,15 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   'indirect-fire-spa-application': integrated(
     'indirect-fire-spa-application',
     'computeIndirectFireContext hydrates spotter abilities for Forward Observer and attacker abilities for Oblique Attacker into resolveIndirectFire penalty math',
+    [
+      ...MEGAMEK_OBLIQUE_ATTACKER_SOURCE_REFS,
+      ...MEGAMEK_FORWARD_OBSERVER_SOURCE_REFS,
+    ],
   ),
   'cluster-hitter-application': integrated(
     'cluster-hitter-application',
     'runAttackPhase hydrates attacker abilities into missile clusterContext, and resolveSpecialProjectileHit applies Cluster Hitter as a +1 cluster table shift',
+    MEGAMEK_CLUSTER_HITTER_SOURCE_REFS,
   ),
   'sandblaster-application': helperOnly(
     'sandblaster-application',
@@ -168,13 +180,17 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
     'UAC/RAC and TacOps rapid-fire AC Sandblaster paths are still not represented in rate-of-fire resolution',
     MEGAMEK_SANDBLASTER_SOURCE_REFS,
   ),
-  'physical-to-hit-application': integrated(
+  'physical-to-hit-application': helperOnly(
     'physical-to-hit-application',
     'resolvePhysicalAttack, runPhysicalAttackPhase, and interactive declaration contexts pass pilot ability state plus attacker water depth into physical to-hit helpers so Melee Specialist and Terrain Master: Frogman modify TNs',
+    'Melee Specialist source also includes a +1 physical damage bonus, so the resolver family stays helper-only until the damage portion is mapped to Melee Specialist rather than legacy Melee Master behavior',
+    MEGAMEK_MELEE_SPECIALIST_SOURCE_REFS,
   ),
-  'physical-damage-application': integrated(
+  'physical-damage-application': helperOnly(
     'physical-damage-application',
     'calculatePhysicalDamage and runPhysicalAttackPhase consume pilot abilities and unit quirks for Melee Master and Battle Fists physical damage bonuses',
+    'MegaMek Melee Master grants two allowed physical attacks and MegaMek Melee Specialist grants +1 physical damage; MekStation currently applies a legacy Melee Master damage bonus instead',
+    MEKSTATION_MELEE_MASTER_DEVIATION_SOURCE_REFS,
   ),
   'physical-restriction-application': integrated(
     'physical-restriction-application',

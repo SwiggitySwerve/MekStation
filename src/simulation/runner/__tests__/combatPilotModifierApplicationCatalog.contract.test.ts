@@ -151,6 +151,29 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(nonIntegratedIdsAssignedToIntegratedResolvers()).toEqual([]);
   });
 
+  it('pins every legacy pilot ability support row to anchored source refs', () => {
+    const pilotAbilityRows = Object.values(SPA_COMBAT_SUPPORT);
+    const missingRefs = pilotAbilityRows.flatMap((entry) =>
+      (entry.sourceRefs?.length ?? 0) === 0 ? [entry.id] : [],
+    );
+    const unanchoredRefs = pilotAbilityRows.flatMap((entry) =>
+      (entry.sourceRefs ?? []).flatMap((sourceRef) =>
+        sourceRef.url.includes('#L') ? [] : [`${entry.id}: ${sourceRef.url}`],
+      ),
+    );
+
+    expect(missingRefs).toEqual([]);
+    expect(unanchoredRefs).toEqual([]);
+    expect(SPA_COMBAT_SUPPORT['melee-specialist']).toMatchObject({
+      level: 'helper-only',
+      gap: expect.stringContaining('+1 physical damage'),
+    });
+    expect(SPA_COMBAT_SUPPORT['melee-master']).toMatchObject({
+      level: 'helper-only',
+      gap: expect.stringContaining('two allowed physical attacks'),
+    });
+  });
+
   it('separates pure helper support from missing runner/application plumbing', () => {
     expect(
       supportIdsByLevel(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT, 'integrated'),
@@ -160,9 +183,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'ranged-to-hit-state-hydration',
         'cluster-hitter-application',
         'indirect-fire-spa-application',
-        'physical-damage-application',
         'physical-restriction-application',
-        'physical-to-hit-application',
         'psr-application',
         'weapon-to-hit-quirk-application',
       ].sort(),
@@ -187,6 +208,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'legacy-defensive-quirk-to-hit-application',
         'legacy-pain-resistance-to-hit-application',
         'heat-application',
+        'physical-damage-application',
+        'physical-to-hit-application',
         'psr-spa-application',
         'sandblaster-application',
       ]),

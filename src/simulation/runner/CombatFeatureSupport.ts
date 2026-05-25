@@ -16,6 +16,21 @@ import {
   MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
 } from './CombatEdgeSourceRefs';
 import {
+  MEGAMEK_BLOOD_STALKER_SOURCE_REFS,
+  MEGAMEK_CLUSTER_HITTER_SOURCE_REFS,
+  MEGAMEK_FORWARD_OBSERVER_SOURCE_REFS,
+  MEGAMEK_GUNNERY_SPECIALIST_SOURCE_REFS,
+  MEGAMEK_MELEE_SPECIALIST_SOURCE_REFS,
+  MEGAMEK_OBLIQUE_ATTACKER_SOURCE_REFS,
+  MEGAMEK_RANGE_MASTER_SOURCE_REFS,
+  MEGAMEK_SNIPER_SOURCE_REFS,
+  MEGAMEK_TERRAIN_MASTER_GAP_SOURCE_REFS,
+  MEGAMEK_WEAPON_SPECIALIST_SOURCE_REFS,
+  MEKSTATION_MARKSMAN_CALLED_SHOT_SOURCE_REFS,
+  MEKSTATION_MELEE_MASTER_DEVIATION_SOURCE_REFS,
+  MEKSTATION_SHARPSHOOTER_CALLED_SHOT_SOURCE_REFS,
+} from './CombatLegacyPilotAbilitySourceRefs';
+import {
   MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   MEGAMEK_DISTRACTING_QUIRK_SOURCE_REFS,
   MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
@@ -433,24 +448,33 @@ export const SPA_COMBAT_SUPPORT = {
   'weapon-specialist': integrated(
     'weapon-specialist',
     'calculateWeaponSpecialistModifier + calculateAttackerSPAModifiers',
+    MEGAMEK_WEAPON_SPECIALIST_SOURCE_REFS,
   ),
   'gunnery-specialist': integrated(
     'gunnery-specialist',
     'calculateGunnerySpecialistModifier + calculateAttackerSPAModifiers',
+    MEGAMEK_GUNNERY_SPECIALIST_SOURCE_REFS,
   ),
   marksman: helperOnly(
     'marksman',
     'getSharpshooterBonus plus calculateCalledShotModifier reduce called-shot penalties for the local Marksman helper',
     'MegaMek source cross-check found TacOps called shots but not Marksman as a called-shot SPA',
+    MEKSTATION_MARKSMAN_CALLED_SHOT_SOURCE_REFS,
   ),
-  sniper: integrated('sniper', 'calculateSniperModifier + calculateToHit'),
+  sniper: integrated(
+    'sniper',
+    'calculateSniperModifier + calculateToHit',
+    MEGAMEK_SNIPER_SOURCE_REFS,
+  ),
   'blood-stalker': integrated(
     'blood-stalker',
     'calculateBloodStalkerModifier + calculateAttackerSPAModifiers',
+    MEGAMEK_BLOOD_STALKER_SOURCE_REFS,
   ),
   'cluster-hitter': integrated(
     'cluster-hitter',
     'getClusterHitterBonus plus runAttackPhase clusterContext and resolveSpecialProjectileHit missile cluster table shift',
+    MEGAMEK_CLUSTER_HITTER_SOURCE_REFS,
   ),
   'multi-tasker': integrated(
     'multi-tasker',
@@ -460,6 +484,7 @@ export const SPA_COMBAT_SUPPORT = {
   'range-master': integrated(
     'range-master',
     'calculateRangeMasterModifier + calculateAttackerSPAModifiers',
+    MEGAMEK_RANGE_MASTER_SOURCE_REFS,
   ),
   sandblaster: helperOnly(
     'sandblaster',
@@ -470,15 +495,18 @@ export const SPA_COMBAT_SUPPORT = {
   'oblique-attacker': integrated(
     'oblique-attacker',
     'getObliqueAttackerBonus plus resolveIndirectFire attackerPilotSpas reduces runner and interactive indirect-fire penalties',
+    MEGAMEK_OBLIQUE_ATTACKER_SOURCE_REFS,
   ),
   forward_observer: integrated(
     'forward_observer',
     'computeIndirectFireContext hydrates spotter abilities into resolveIndirectFire, cancels walked-spotter penalties, and emits IndirectFireForwardObserver audit events',
+    MEGAMEK_FORWARD_OBSERVER_SOURCE_REFS,
   ),
   sharpshooter: helperOnly(
     'sharpshooter',
     'getSharpshooterBonus plus calculateCalledShotModifier preserve the local legacy Sharpshooter alias for called-shot penalty reduction',
     'Sharpshooter is not a canonical SPA id, and MegaMek keeps the Sharpshooter constant commented out',
+    MEKSTATION_SHARPSHOOTER_CALLED_SHOT_SOURCE_REFS,
   ),
   'jumping-jack': integrated(
     'jumping-jack',
@@ -490,13 +518,17 @@ export const SPA_COMBAT_SUPPORT = {
     'Source-backed calculateJumpingJackModifier + calculateToHit reduce the attacker jump movement penalty from +3 to +2',
     MEGAMEK_325B_JUMP_ATTACKER_SOURCE_REFS,
   ),
-  'melee-specialist': integrated(
+  'melee-specialist': helperOnly(
     'melee-specialist',
     'calculateMeleeSpecialistModifier plus physical attack input pilotAbilities reduces helper, runner, and interactive physical to-hit TNs',
+    'MegaMek also applies +1 physical damage for Melee Specialist; MekStation currently wires only the to-hit relief and maps the damage bonus to legacy Melee Master behavior',
+    MEGAMEK_MELEE_SPECIALIST_SOURCE_REFS,
   ),
-  'melee-master': integrated(
+  'melee-master': helperOnly(
     'melee-master',
     'getMeleeMasterDamageBonus plus physical attack input pilotAbilities increases helper and runner physical target damage',
+    'MegaMek Melee Master grants two allowed physical attacks instead of a flat damage bonus; MekStation keeps legacy damage-bonus behavior until the action-count rule is modeled',
+    MEKSTATION_MELEE_MASTER_DEVIATION_SOURCE_REFS,
   ),
   'maneuvering-ace': helperOnly(
     'maneuvering-ace',
@@ -507,6 +539,7 @@ export const SPA_COMBAT_SUPPORT = {
   'terrain-master': unsupported(
     'terrain-master',
     'Generic Terrain Master movement behavior and variants beyond Frogman/Mountaineer/Forest Ranger/Swamp Beast are not wired; source-backed Frogman physical to-hit relief, Frogman water-entry PSR relief, Mountaineer rubble-entry PSR relief, and Forest Ranger/Swamp Beast defensive to-hit variants are tracked separately as tm_frogman, tm_mountaineer, tm_forest_ranger, and tm_swamp_beast, while Swamp Beast bog-down relief remains a source-backed stuck-state gap',
+    MEGAMEK_TERRAIN_MASTER_GAP_SOURCE_REFS,
   ),
   tm_frogman: integrated(
     'tm_frogman',

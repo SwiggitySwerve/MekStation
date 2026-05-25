@@ -24,6 +24,7 @@
 - [x] 1.18 Pin non-BattleMech event-scope rows to MekStation vehicle, battle-armor, swarm, leg-attack, and stealth event sources so event-family splits do not rely on prose-only catalog evidence.
 - [x] 1.19 Pin BattleMech event-stream rows to MekStation lifecycle, phase, movement, ranged attack, damage, heat, PSR, physical, objective, morale, retreat, ejection, and unsupported enum-boundary sources so event coverage cannot rely on broad event prose.
 - [x] 1.20 Promote canonical pilot ability scope to row-level source refs so every canonical SPA id cites MekStation catalog anchors plus pinned MegaMek pilot option registry evidence instead of inheriting broad SPA/quirk authority.
+- [x] 1.21 Promote legacy pilot ability support rows to row-level source refs so gunnery, indirect-fire, cluster, physical, called-shot, and Terrain Master SPA claims cannot inherit broad SPA/quirk authority.
 
 ## 2. Physical attack legality gates
 
@@ -225,6 +226,7 @@
 - [x] 3.5.29 Wire source-backed ammo-explosion PilotHit emission, wound persistence, pilot-death state, and Pain Resistance / Iron Man reduction across runner heat, runner crit, and event-sourced heat cookoff paths.
 - [x] 3.5.30 Source-pin representative integration scenario rows to lifecycle, ejection, objective, PSR-queue, and terminal GameEnded executable anchors so parity and terminal-state claims do not inherit prose-only evidence.
 - [x] 3.5.31 Source-pin runner-vs-interactive parity rows to movement, weapon, physical, heat, PSR, objective, and terminal executable anchors so cross-stack parity claims do not inherit prose-only evidence.
+- [x] 3.5.32 Source-pin every legacy pilot ability support row and expose Melee Specialist / Melee Master source mismatches as helper-only validation gaps instead of integrated parity claims.
 
 ## 4. Source-truth cross-checks
 
@@ -326,3 +328,4 @@
 - [x] 4.3.91 Cross-check non-BattleMech event-scope rows against MekStation vehicle event factories/tests, battle-armor event factories, swarm-fire scenarios, leg-attack action/scenario paths, and stealth helper tests before promoting the non-BattleMech event triad to row-level source references.
 - [x] 4.3.92 Cross-check BattleMech event-stream rows against MekStation event factories, runner phases, session helpers, reducers, representative tests, and unsupported planning enum boundaries before promoting the BattleMech event triad to row-level source references.
 - [x] 4.3.93 Cross-check MegaMek `PilotOptions`/`OptionsConstants` and MekStation canonical SPA category files before promoting `canonicalPilotAbilityScope` to row-level source references.
+- [x] 4.3.94 Cross-check MegaMek gunnery, indirect-fire, cluster-table, physical-combat, and Terrain Master SPA behavior before promoting `pilotAbilities` to row-level source references.
