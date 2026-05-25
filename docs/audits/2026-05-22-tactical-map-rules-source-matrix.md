@@ -1230,6 +1230,12 @@ the existing rules-backed `IMovementRangeHex.elevationCost` value through the
 same top-down/isometric cell label that players and tests use for terrain and
 elevation inspection.
 
+2026-05-25 legacy attackRange explanation pin: Legacy raw `attackRange`
+fallback hexes already stay neutral/range-only instead of becoming legal combat
+projection. Their shared projection explanation now says the highlight is a
+legacy fallback only and not weapon-backed, so compatibility range envelopes are
+explicitly separated from rules-backed weapon, LOS, cover, and to-hit legality.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

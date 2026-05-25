@@ -227,6 +227,9 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       legacyAttackHex.getAttribute('data-tactical-projection-sources'),
     ).toContain('legacy-attack-range:mekstation:Legacy attackRange fallback');
+    expect(
+      legacyAttackHex.getAttribute('data-tactical-projection-explanation'),
+    ).toContain('legacy attackRange fallback only; not weapon-backed');
     expect(screen.queryByTestId('hex-projection-status-badge-2-0')).toBeNull();
   });
 

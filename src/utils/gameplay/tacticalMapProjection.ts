@@ -211,6 +211,7 @@ export function buildTacticalMapHexProjection({
       combatStatus,
       blockedReasons,
       sourceReferences,
+      legacyAttackRangeOnly: inLegacyAttackRange && !combat,
     }),
   };
 }
@@ -607,6 +608,7 @@ function formatProjectionExplanation({
   combatStatus,
   blockedReasons,
   sourceReferences,
+  legacyAttackRangeOnly,
 }: {
   readonly hex: IHexCoordinate;
   readonly terrain: IHexTerrain;
@@ -619,6 +621,7 @@ function formatProjectionExplanation({
   readonly blockedReasons: readonly string[];
   readonly combatLosBlockerFor: readonly ITacticalMapCombatLosBlockerReference[];
   readonly sourceReferences: readonly ITacticalMapProjectionSourceReference[];
+  readonly legacyAttackRangeOnly: boolean;
 }): string {
   const terrainTypes =
     terrain.features.length === 0
@@ -805,6 +808,9 @@ function formatProjectionExplanation({
       new Set(combatLosBlockerFor.map((ref) => ref.blocker.reason)),
     );
     parts.push(`LOS blocker for ${targets.join(',')}: ${reasons.join('; ')}`);
+  }
+  if (legacyAttackRangeOnly) {
+    parts.push('legacy attackRange fallback only; not weapon-backed');
   }
   if (blockedReasons.length > 0) {
     parts.push(`blocked ${blockedReasons.join('; ')}`);
