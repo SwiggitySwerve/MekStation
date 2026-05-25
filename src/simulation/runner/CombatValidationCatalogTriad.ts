@@ -295,9 +295,8 @@ const HEAT_TRIAD = entryTriad(
 export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
   actions: {
     tacticalCommands: ACTION_TRIAD,
-    absentActionSurfaces: triad(
-      'requirement-primary-authority',
-      'Absent official BattleMech action surfaces carry row sourceRefs when the missing action is rule-backed and use the movement requirement gap as their approval boundary.',
+    absentActionSurfaces: entryTriad(
+      'Absent official BattleMech action surfaces must carry row-level sourceRefs so optional TacOps sprint/evade gaps remain explicit action blockers instead of inheriting broad movement authority.',
       ACTION_CONTRACT_REFS,
     ),
     directUiActions: ACTION_TRIAD,

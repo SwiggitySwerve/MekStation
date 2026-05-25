@@ -299,9 +299,12 @@ describe('BattleMech combat validation catalog index', () => {
     expect([...sectionKeyFailures, ...evidenceFailures]).toEqual([]);
   });
 
-  it('keeps source-pinned quirk, PSR trigger, pilot, resolver, and damage catalogs on row-level authority', () => {
+  it('keeps source-pinned action, quirk, PSR trigger, pilot, resolver, and damage catalogs on row-level authority', () => {
     const triadMaps = triadEvidenceMaps();
 
+    expect(triadMaps.actions.absentActionSurfaces.authorityBoundary.kind).toBe(
+      'entry-source-refs',
+    );
     expect(triadMaps.actions.gmCommandExclusions.authorityBoundary.kind).toBe(
       'entry-source-refs',
     );

@@ -363,3 +363,4 @@
 - [x] 4.3.119 Align Cramped Cockpit PSR quirk behavior with MegaMek source truth by suppressing the all-PSR penalty for Small Pilot across shared helper, runner/session PSR resolution, catalog, spec, and audit coverage.
 - [x] 4.3.120 Align No Arms PSR quirk behavior with MegaMek source truth by applying the +2 stand-up PSR penalty across shared helper, runner/session stand-up resolution, catalog, spec, and audit coverage while keeping then-current Low Arms helper-only status explicit.
 - [x] 4.3.121 Source-check Low Arms against the pinned MegaMek source tree, remove the local elevation-gate combat effect, and classify Low Arms as unsupported registry-only behavior until a source-backed combat resolver exists.
+- [x] 4.3.122 Promote optional TacOps sprint/evade absent-action rows to row-source authority so missing movement action surfaces remain explicit completion blockers instead of inheriting broad movement requirement authority.
