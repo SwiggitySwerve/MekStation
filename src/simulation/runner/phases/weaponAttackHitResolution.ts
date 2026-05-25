@@ -13,6 +13,7 @@ import {
   isHeadHit,
   isLegLocation,
 } from '@/utils/gameplay/hitLocation';
+import { applyPhysicalEquipmentCriticalEvents } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 
 import type { IWeapon } from '../../ai/types';
 
@@ -384,6 +385,19 @@ export function resolveWeaponHit(options: {
     damageResult.result,
     damageResult.componentDamage,
   );
+  const targetAfterCriticals = applyPhysicalEquipmentCriticalEvents(
+    currentState.units[targetId],
+    damageResult.criticalEvents,
+  );
+  if (targetAfterCriticals !== currentState.units[targetId]) {
+    currentState = {
+      ...currentState,
+      units: {
+        ...currentState.units,
+        [targetId]: targetAfterCriticals,
+      },
+    };
+  }
   const targetAfter = currentState.units[targetId];
 
   const prevDamage = targetAfter.damageThisPhase ?? 0;

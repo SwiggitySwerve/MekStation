@@ -233,7 +233,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **GIVEN** the physical damage modifier catalog covers active TSM, claws, talons, and underwater physical damage
 - **WHEN** the aggregate catalog triad and BattleMech combat catalog contract tests run
 - **THEN** every integrated or helper-only physical damage modifier row SHALL carry structured MegaMek source references with commit-pinned URLs and line anchors
-- **AND** helper-only claw and talon rows SHALL keep damaged-equipment and option-rule lifecycle gaps explicit instead of treating source-backed damage formulas as full parity
+- **AND** helper-only claw and talon rows SHALL keep remaining missing/breached damaged-equipment and option-rule lifecycle gaps explicit instead of treating source-backed damage formulas as full parity
 - **AND** the aggregate catalog triad for `physicalDamageModifiers` SHALL require row-level source references rather than inherited requirement authority
 
 #### Scenario: AMS helper boundary stays source-backed
@@ -762,7 +762,8 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 - **THEN** DFA target damage SHALL apply MegaMek's source-backed truncating `baseDfaDamage * 1.5` talon modifier before physical damage bonuses
 - **AND** talons SHALL remain non-selectable in runtime physical attack option lists because they modify existing kick/DFA actions rather than declaring a distinct physical attack
 - **AND** catalog UnitHydration SHALL derive biped leg talon state from `LEFT_LEG` and `RIGHT_LEG` critical slots containing Talons entries
-- **AND** the validation catalog SHALL keep destroyed/missing/breached talon equipment lifecycle and non-biped talon arm-location behavior visible as remaining gaps
+- **AND** `CriticalHitResolved` events that destroy Talons equipment SHALL remove the matching leg talon modifier from event replay and runner combat state
+- **AND** the validation catalog SHALL keep missing/breached talon equipment lifecycle and non-biped talon arm-location behavior visible as remaining gaps
 
 #### Scenario: Claws modify punch damage and to-hit without becoming a selectable attack type
 
@@ -772,7 +773,8 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 - **AND** punch to-hit SHALL include MegaMek's source-backed `+1` claw modifier while suppressing the hand-actuator destroyed modifier for that claw arm
 - **AND** claws SHALL remain non-selectable in runtime physical attack option lists because they modify punch rather than declaring a distinct physical attack
 - **AND** catalog UnitHydration SHALL derive arm claw state from `LEFT_ARM` and `RIGHT_ARM` critical slots containing `ISClaw` entries
-- **AND** the validation catalog SHALL keep destroyed/missing/breached claw equipment lifecycle, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions visible as remaining gaps
+- **AND** `CriticalHitResolved` events that destroy Claw equipment SHALL remove the matching arm claw modifier from event replay and runner combat state
+- **AND** the validation catalog SHALL keep missing/breached claw equipment lifecycle, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions visible as remaining gaps
 
 ### Requirement: Designator Marker Replay State
 

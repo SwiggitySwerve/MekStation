@@ -1026,6 +1026,126 @@ describe('runAttackPhase crit event chain (Phase 3, combat-resolution delta)', (
       ]);
     });
 
+    it('runner removes claw punch modifiers when a claw equipment critical resolves', () => {
+      const scenario = buildPrimedRunnerScenario();
+      const events: IGameEvent[] = [];
+      const target = scenario.state.units['opponent-1'];
+      const state: IGameState = {
+        ...scenario.state,
+        units: {
+          ...scenario.state.units,
+          'opponent-1': {
+            ...target,
+            leftArmHasClaw: true,
+            rightArmHasClaw: true,
+          },
+        },
+      };
+      const manifest = buildCriticalSlotManifest({
+        right_arm: [
+          {
+            slotIndex: 0,
+            componentType: 'equipment',
+            componentName: 'Claw',
+            destroyed: false,
+          },
+        ],
+      });
+
+      const next = resolveWeaponHit({
+        currentState: state,
+        events,
+        gameId: state.gameId,
+        unitId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'claw-crit-probe',
+        weapon: createCritProbeWeapon('claw-crit-probe'),
+        attackRoll: 12,
+        toHitNumber: 2,
+        firingArc: 'front',
+        partialCover: false,
+        // hit location 1+2 = right arm, crit trigger 4+4 = one crit,
+        // slot-selection 1 = the claw equipment slot.
+        d6Roller: scriptedRoller([1, 2, 4, 4, 1]),
+        getOrSeedManifest: () => manifest,
+      });
+
+      expect(events).toContainEqual(
+        expect.objectContaining({
+          type: GameEventType.CriticalHitResolved,
+          payload: expect.objectContaining({
+            unitId: 'opponent-1',
+            location: 'right_arm',
+            componentType: 'equipment',
+            componentName: 'Claw',
+            destroyed: true,
+          }),
+        }),
+      );
+      expect(next.units['opponent-1'].leftArmHasClaw).toBe(true);
+      expect(next.units['opponent-1'].rightArmHasClaw).toBe(false);
+    });
+
+    it('runner removes talon kick modifiers when a talons equipment critical resolves', () => {
+      const scenario = buildPrimedRunnerScenario();
+      const events: IGameEvent[] = [];
+      const target = scenario.state.units['opponent-1'];
+      const state: IGameState = {
+        ...scenario.state,
+        units: {
+          ...scenario.state.units,
+          'opponent-1': {
+            ...target,
+            leftLegHasTalons: true,
+            rightLegHasTalons: true,
+          },
+        },
+      };
+      const manifest = buildCriticalSlotManifest({
+        right_leg: [
+          {
+            slotIndex: 0,
+            componentType: 'equipment',
+            componentName: 'Talons',
+            destroyed: false,
+          },
+        ],
+      });
+
+      const next = resolveWeaponHit({
+        currentState: state,
+        events,
+        gameId: state.gameId,
+        unitId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'talons-crit-probe',
+        weapon: createCritProbeWeapon('talons-crit-probe'),
+        attackRoll: 12,
+        toHitNumber: 2,
+        firingArc: 'front',
+        partialCover: false,
+        // hit location 2+3 = right leg, crit trigger 4+4 = one crit,
+        // slot-selection 1 = the talons equipment slot.
+        d6Roller: scriptedRoller([2, 3, 4, 4, 1]),
+        getOrSeedManifest: () => manifest,
+      });
+
+      expect(events).toContainEqual(
+        expect.objectContaining({
+          type: GameEventType.CriticalHitResolved,
+          payload: expect.objectContaining({
+            unitId: 'opponent-1',
+            location: 'right_leg',
+            componentType: 'equipment',
+            componentName: 'Talons',
+            destroyed: true,
+          }),
+        }),
+      );
+      expect(next.units['opponent-1'].leftLegHasTalons).toBe(true);
+      expect(next.units['opponent-1'].rightLegHasTalons).toBe(false);
+    });
+
     it('PSRTriggered fires after a gyro CriticalHitResolved (gyro PSR cascade)', () => {
       // Hard to deterministically force gyro slot in the runner — we
       // assert structurally: when ANY gyro CriticalHitResolved fires

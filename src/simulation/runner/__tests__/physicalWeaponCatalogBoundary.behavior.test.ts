@@ -123,11 +123,13 @@ describe('physical weapon catalog runtime boundary', () => {
     expect(helperOnlyPhysicalWeapons).toEqual(['claws', 'talons']);
     expect(PHYSICAL_WEAPON_COMBAT_SUPPORT.claws).toMatchObject({
       level: 'helper-only',
-      gap: expect.stringContaining('claw equipment lifecycle'),
+      gap: expect.stringContaining('Missing/breached claw equipment lifecycle'),
     });
     expect(PHYSICAL_WEAPON_COMBAT_SUPPORT.talons).toMatchObject({
       level: 'helper-only',
-      gap: expect.stringContaining('talon equipment lifecycle'),
+      gap: expect.stringContaining(
+        'Missing/breached talon equipment lifecycle',
+      ),
     });
 
     const options = getEligiblePhysicalAttacks(

@@ -12,6 +12,7 @@ import {
   type CriticalSlotManifest,
 } from '@/utils/gameplay/criticalHitResolution';
 import { roll2d6, type D6Roller } from '@/utils/gameplay/hitLocation';
+import { applyPhysicalEquipmentCriticalEvents } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 
 import { emitMovementEnhancementFailureCriticalEvents } from './movementEnhancementFailureEvents';
 
@@ -216,9 +217,12 @@ export function applyMASCFailureCriticalDamage(options: {
     });
   }
 
+  const unitAfterPhysicalEquipmentCriticals =
+    applyPhysicalEquipmentCriticalEvents(unit, criticalEvents);
+
   return {
     unit: {
-      ...unit,
+      ...unitAfterPhysicalEquipmentCriticals,
       componentDamage: currentDamage,
     },
     manifest: currentManifest,
@@ -301,9 +305,12 @@ export function applySuperchargerFailureCriticalDamage(options: {
     });
   }
 
+  const unitAfterPhysicalEquipmentCriticals =
+    applyPhysicalEquipmentCriticalEvents(unit, criticalEvents);
+
   return {
     unit: {
-      ...unit,
+      ...unitAfterPhysicalEquipmentCriticals,
       hasSupercharger: false,
       activeSupercharger: false,
       destroyedEquipment: appendDestroyedEquipment(

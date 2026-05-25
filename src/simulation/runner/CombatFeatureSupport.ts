@@ -997,8 +997,8 @@ export const PHYSICAL_WEAPON_COMBAT_SUPPORT = {
   ),
   talons: helperOnly(
     'talons',
-    'source-backed kick and DFA damage helpers apply the +50% talon modifier from explicit state or UnitHydration leg critical-slot state',
-    'Destroyed/missing/breached talon equipment lifecycle and non-biped talon arm-location behavior are not modeled',
+    'source-backed kick and DFA damage helpers apply the +50% talon modifier from explicit state, UnitHydration leg critical-slot state, or destroyed-equipment critical events',
+    'Missing/breached talon equipment lifecycle and non-biped talon arm-location behavior are not modeled',
     [
       MEGAMEK_325B_TALON_KICK_DAMAGE,
       MEGAMEK_325B_TALON_DFA_DAMAGE,
@@ -1007,8 +1007,8 @@ export const PHYSICAL_WEAPON_COMBAT_SUPPORT = {
   ),
   claws: helperOnly(
     'claws',
-    'source-backed punch damage/to-hit helpers apply claw modifiers from explicit state or UnitHydration arm critical-slot state without exposing claws as a selectable attack type',
-    'Destroyed/missing/breached claw equipment lifecycle, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions are not modeled',
+    'source-backed punch damage/to-hit helpers apply claw modifiers from explicit state, UnitHydration arm critical-slot state, or destroyed-equipment critical events without exposing claws as a selectable attack type',
+    'Missing/breached claw equipment lifecycle, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions are not modeled',
     [
       MEGAMEK_325B_CLAW_PUNCH_DAMAGE,
       MEGAMEK_325B_CLAW_PUNCH_TO_HIT,

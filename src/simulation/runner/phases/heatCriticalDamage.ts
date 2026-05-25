@@ -15,6 +15,7 @@ import {
   resolveMaxTechHeatCriticalDamage,
   type IMaxTechHeatCriticalDamageResult,
 } from '@/utils/gameplay/heatCriticalDamage';
+import { applyPhysicalEquipmentCriticalEvents } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 
 import { createGameEvent } from './utils';
 
@@ -67,7 +68,7 @@ function applyCriticalEventsToRunnerUnit(
     }
   }
 
-  return nextUnit;
+  return applyPhysicalEquipmentCriticalEvents(nextUnit, criticalEvents);
 }
 
 function emitRunnerHeatCriticalEvents(options: {

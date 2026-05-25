@@ -326,6 +326,66 @@ describe('Phase 4: IUnitGameState Extension', () => {
       expect(result.units['unit-1'].componentDamage?.lifeSupport).toBe(1);
     });
 
+    it('removes claw punch modifiers when a claw critical slot is destroyed', () => {
+      const state = createStateWithUnit({
+        leftArmHasClaw: true,
+        rightArmHasClaw: true,
+      });
+      const event = makeEvent(GameEventType.CriticalHitResolved, {
+        unitId: 'unit-1',
+        location: 'left_arm',
+        slotIndex: 4,
+        componentType: 'equipment',
+        componentName: 'Claw',
+        effect: 'Equipment destroyed: Claw',
+        destroyed: true,
+      } satisfies ICriticalHitResolvedPayload);
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-1'].leftArmHasClaw).toBe(false);
+      expect(result.units['unit-1'].rightArmHasClaw).toBe(true);
+    });
+
+    it('removes talon kick modifiers when a talons critical slot is destroyed', () => {
+      const state = createStateWithUnit({
+        leftLegHasTalons: true,
+        rightLegHasTalons: true,
+      });
+      const event = makeEvent(GameEventType.CriticalHitResolved, {
+        unitId: 'unit-1',
+        location: 'right_leg',
+        slotIndex: 4,
+        componentType: 'equipment',
+        componentName: 'Talons',
+        effect: 'Equipment destroyed: Talons',
+        destroyed: true,
+      } satisfies ICriticalHitResolvedPayload);
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-1'].leftLegHasTalons).toBe(true);
+      expect(result.units['unit-1'].rightLegHasTalons).toBe(false);
+    });
+
+    it('does not remove physical modifiers for unrelated equipment criticals', () => {
+      const state = createStateWithUnit({
+        leftArmHasClaw: true,
+        rightLegHasTalons: true,
+      });
+      const event = makeEvent(GameEventType.CriticalHitResolved, {
+        unitId: 'unit-1',
+        location: 'right_torso',
+        slotIndex: 4,
+        componentType: 'equipment',
+        componentName: 'CASE',
+        effect: 'Equipment destroyed: CASE',
+        destroyed: true,
+      } satisfies ICriticalHitResolvedPayload);
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-1'].leftArmHasClaw).toBe(true);
+      expect(result.units['unit-1'].rightLegHasTalons).toBe(true);
+    });
+
     it('ignores events for non-existent units', () => {
       const state = createStateWithUnit();
       const event = makeEvent(GameEventType.CriticalHitResolved, {

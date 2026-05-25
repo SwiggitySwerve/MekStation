@@ -604,7 +604,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'official-physical-weapons': helperOnly(
     'official-physical-weapons',
     'Catalog contracts enumerate official physical weapons, require construction definitions to match the official physical catalog, partition every row into either standalone runtime attacks or modifier-only helper equipment, and keep claws/talons out of selectable attack types',
-    'Claw/talon destroyed/missing/breached equipment lifecycle is not wired from mounted equipment, and full mounted physical-weapon mode/location lifecycle remains partial',
+    'Claw/talon missing/breached equipment lifecycle is not wired from mounted equipment, and full mounted physical-weapon mode/location lifecycle remains partial',
     [
       'validationScope.knownLimitationsAndScope.battlemech-official-catalog-scope',
       'featureSupport.physicalWeapons.hatchet',
@@ -855,8 +855,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'physical-weapon-actions': helperOnly(
     'physical-weapon-actions',
-    'Runtime physical weapon actions cover player commands, wire intents, runner resolution, active TSM damage context, source-backed melee damage/to-hit modifiers for hatchet, sword, mace, lance, retractable blade, flail, and wrecking ball, plus source-backed claw punch and talon kick/DFA damage modifiers',
-    'Claw/talon destroyed/missing/breached equipment lifecycle, full physical weapon mount location/mode state, and non-BattleMech physical weapon families remain out of scope',
+    'Runtime physical weapon actions cover player commands, wire intents, runner resolution, active TSM damage context, source-backed melee damage/to-hit modifiers for hatchet, sword, mace, lance, retractable blade, flail, and wrecking ball, plus source-backed claw punch and talon kick/DFA damage modifiers including destroyed-equipment critical events',
+    'Claw/talon missing/breached equipment lifecycle, full physical weapon mount location/mode state, and non-BattleMech physical weapon families remain out of scope',
     [
       'actions.physicalAttackCommands.hatchet',
       'actions.physicalAttackCommands.sword',

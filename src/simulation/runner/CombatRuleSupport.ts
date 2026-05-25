@@ -748,8 +748,8 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
   ),
   claws: helperOnly(
     'claws',
-    'calculatePunchDamage, calculatePunchToHit, eligibility projection, session physical contexts, UnitHydration, and runPhysicalAttackPhase consume claw arm state for source-backed punch damage/to-hit modifiers',
-    'Destroyed/missing/breached claw equipment lifecycle, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions are not modeled',
+    'calculatePunchDamage, calculatePunchToHit, eligibility projection, session physical contexts, UnitHydration, critical-event replay, and runPhysicalAttackPhase consume claw arm state for source-backed punch damage/to-hit modifiers',
+    'Missing/breached claw equipment lifecycle, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions are not modeled',
     [
       {
         kind: 'megamek-source',
@@ -769,8 +769,8 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
   ),
   talons: helperOnly(
     'talons',
-    'calculateKickDamage, calculateDFADamageToTarget, eligibility projection, session physical contexts, UnitHydration, and runPhysicalAttackPhase consume talon leg state for source-backed +50% kick/DFA damage',
-    'Destroyed/missing/breached talon equipment lifecycle and non-biped talon arm-location behavior are not modeled',
+    'calculateKickDamage, calculateDFADamageToTarget, eligibility projection, session physical contexts, UnitHydration, critical-event replay, and runPhysicalAttackPhase consume talon leg state for source-backed +50% kick/DFA damage',
+    'Missing/breached talon equipment lifecycle and non-biped talon arm-location behavior are not modeled',
     [
       {
         kind: 'megamek-source',
