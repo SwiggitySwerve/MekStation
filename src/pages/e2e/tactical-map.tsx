@@ -50,6 +50,13 @@ import {
   tacticalMapVtolTokens,
 } from '@/testing/tactical-map.movement-scenarios';
 import {
+  tacticalMapRunWaterFallbackHexTerrain,
+  tacticalMapRunWaterFallbackMovementRange,
+  tacticalMapRunWaterFallbackMpLegend,
+  tacticalMapRunWaterFallbackSelectedHex,
+  tacticalMapRunWaterFallbackTokens,
+} from '@/testing/tactical-map.run-water-fallback-scenario';
+import {
   tacticalMapSameHexCombatState,
   tacticalMapSameHexSelectedWeaponIds,
   tacticalMapSameHexTargetId,
@@ -97,6 +104,8 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
     router.query.scenario === 'same-hex-weapon-blocked';
   const isRuntimeHeightScenario =
     router.query.scenario === 'runtime-height-bridge-clearance';
+  const isRunWaterFallbackScenario =
+    router.query.scenario === 'run-water-walk-fallback';
   const selectedWeaponIds = isAerospaceVelocityScenario
     ? []
     : isAirborneAerospaceMinimumRangeScenario
@@ -122,13 +131,15 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
           ? null
           : isRuntimeHeightScenario
             ? null
-            : isSelectedWeaponOutOfArcScenario
-              ? tacticalMapOutOfArcTargetId
-              : isSameHexWeaponScenario
-                ? tacticalMapSameHexTargetId
-                : isOutOfRangeScenario
-                  ? 'medium-target'
-                  : 'occluded';
+            : isRunWaterFallbackScenario
+              ? null
+              : isSelectedWeaponOutOfArcScenario
+                ? tacticalMapOutOfArcTargetId
+                : isSameHexWeaponScenario
+                  ? tacticalMapSameHexTargetId
+                  : isOutOfRangeScenario
+                    ? 'medium-target'
+                    : 'occluded';
   const tokens = isVtolElevationScenario
     ? tacticalMapVtolTokens
     : isBipedOptionScenario
@@ -149,7 +160,9 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
                     ? tacticalMapSameHexTokens
                     : isRuntimeHeightScenario
                       ? tacticalMapRuntimeHeightTokens
-                      : tacticalMapTokens;
+                      : isRunWaterFallbackScenario
+                        ? tacticalMapRunWaterFallbackTokens
+                        : tacticalMapTokens;
   const combatState = isMountedBattleArmorScenario
     ? tacticalMapMountedBattleArmorCombatState
     : isAerospaceVelocityScenario
@@ -184,7 +197,9 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
             ? tacticalMapBipedOptionMovementRange
             : isRuntimeHeightScenario
               ? tacticalMapRuntimeHeightMovementRange
-              : tacticalMapMovementRange;
+              : isRunWaterFallbackScenario
+                ? tacticalMapRunWaterFallbackMovementRange
+                : tacticalMapMovementRange;
   const mpLegend =
     isAerospaceVelocityScenario ||
     isAirborneAerospaceMinimumRangeScenario ||
@@ -201,17 +216,21 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
             ? tacticalMapBipedOptionMpLegend
             : isRuntimeHeightScenario
               ? tacticalMapRuntimeHeightMpLegend
-              : tacticalMapMpLegend;
+              : isRunWaterFallbackScenario
+                ? tacticalMapRunWaterFallbackMpLegend
+                : tacticalMapMpLegend;
   const selectedHex = isBipedOptionScenario
     ? tacticalMapBipedOptionSelectedHex
     : isRuntimeHeightScenario
       ? tacticalMapRuntimeHeightSelectedHex
-      : isSelectedWeaponOutOfArcScenario ||
-          isSameHexWeaponScenario ||
-          isMountedBattleArmorScenario ||
-          isAerospaceVelocityScenario
-        ? { q: 0, r: 0 }
-        : { q: -1, r: 0 };
+      : isRunWaterFallbackScenario
+        ? tacticalMapRunWaterFallbackSelectedHex
+        : isSelectedWeaponOutOfArcScenario ||
+            isSameHexWeaponScenario ||
+            isMountedBattleArmorScenario ||
+            isAerospaceVelocityScenario
+          ? { q: 0, r: 0 }
+          : { q: -1, r: 0 };
   const highlightPath =
     isAerospaceVelocityScenario ||
     isAirborneAerospaceMinimumRangeScenario ||
@@ -219,12 +238,15 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
     isMixedVisibilityScenario ||
     isSelectedWeaponOutOfArcScenario ||
     isSameHexWeaponScenario ||
-    isRuntimeHeightScenario
+    isRuntimeHeightScenario ||
+    isRunWaterFallbackScenario
       ? undefined
       : tacticalMapHighlightPath;
   const hexTerrain = isRuntimeHeightScenario
     ? tacticalMapRuntimeHeightBridgeHexTerrain
-    : tacticalMapHexTerrain;
+    : isRunWaterFallbackScenario
+      ? tacticalMapRunWaterFallbackHexTerrain
+      : tacticalMapHexTerrain;
 
   if (!isTestEnv) {
     return (

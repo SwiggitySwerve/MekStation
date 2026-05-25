@@ -78,6 +78,9 @@
 - [x] 2.31 Add browser coverage proving normal weapon attacks against same-hex
   targets expose `SameHex` rejection metadata and a non-color invalid badge
   even when the selected weapon is otherwise in range.
+- [x] 2.32 Add browser coverage proving a Run-selected water destination can
+  render the reachable Walk fallback as the primary movement projection while
+  preserving the blocked Run option reason and non-color blocked-options badge.
 
 ## 3. Validation
 
@@ -142,3 +145,5 @@
   firing-arc rejection metadata and invalid badge labeling.
 - [x] 3.31 Focused Jest parity and Playwright smoke pass for same-hex
   weapon-attack rejection metadata and invalid badge labeling.
+- [x] 3.32 Focused Jest parity and Playwright smoke pass for Run-selected
+  water fallback movement projection and blocked Run option labeling.

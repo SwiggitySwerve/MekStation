@@ -366,6 +366,11 @@ MekStation's run overlay can still show a walk-legal destination in green when
 the run path is blocked by that rule; the movement plan now commits that
 projection as `Walk`, so preview MP/heat/path data and committed engine
 resolution agree instead of turning a walk-only green hex into a rejected run.
+The tactical-map browser harness now proves that same Run-selected water case:
+the deep-water destination renders as primary Walk with MP/terrain/heat
+metadata, preserves `run:TerrainBlocked` / `Water blocks ground movement` in
+the movement option attributes, shows a non-color `R BLK` badge, and feeds the
+same projected path into committed movement validation as `Walk`.
 
 Additional UMU/swim water-movement pin: MegaMek
 `EntityMovementMode.java:47-67` defines `BIPED_SWIM`, `QUAD_SWIM`, and

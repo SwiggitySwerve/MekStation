@@ -807,6 +807,94 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows run-selected water fallback as walking with blocked run metadata', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=run-water-walk-fallback');
+
+    const waterHex = page.getByTestId('hex-2-0');
+    await expect(waterHex).toHaveAttribute('data-terrain-features', 'water');
+    await expect(waterHex).toHaveAttribute(
+      'data-terrain-feature-levels',
+      'water:2',
+    );
+    await expect(waterHex).toHaveAttribute('data-reachable', 'true');
+    await expect(waterHex).toHaveAttribute('data-movement-type', 'walk');
+    await expect(waterHex).toHaveAttribute('data-movement-mode', 'walk');
+    await expect(waterHex).toHaveAttribute('data-movement-option-count', '2');
+    await expect(waterHex).toHaveAttribute(
+      'data-movement-option-types',
+      'walk,run',
+    );
+    await expect(waterHex).toHaveAttribute(
+      'data-movement-option-states',
+      'walk:reachable|run:blocked',
+    );
+    await expect(waterHex).toHaveAttribute(
+      'data-movement-option-costs',
+      'walk:5|run:Infinity',
+    );
+    await expect(waterHex).toHaveAttribute(
+      'data-movement-option-terrain-costs',
+      'walk:3|run:0',
+    );
+    await expect(waterHex).toHaveAttribute(
+      'data-movement-option-heats',
+      'walk:1|run:0',
+    );
+    await expect(waterHex).toHaveAttribute(
+      'data-movement-option-blocked-reasons',
+      'run:Water blocks ground movement',
+    );
+    await expect(waterHex).toHaveAttribute(
+      'data-movement-option-invalid-reasons',
+      'run:TerrainBlocked',
+    );
+    await expect(waterHex).toHaveAttribute(
+      'data-movement-option-invalid-details',
+      'run:Water blocks ground movement',
+    );
+
+    const movementBadge = page.getByTestId('hex-movement-badge-2-0');
+    await expect(movementBadge).toContainText('W5 MP');
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-type',
+      'walk',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-option-costs',
+      'walk:5|run:Infinity',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-option-blocked-reasons',
+      'run:Water blocks ground movement',
+    );
+
+    const blockedOptionsBadge = page.getByTestId(
+      'hex-movement-blocked-options-badge-2-0',
+    );
+    await expect(blockedOptionsBadge.locator('text')).toHaveText('R BLK');
+    await expect(blockedOptionsBadge).toHaveAttribute(
+      'data-movement-blocked-options-badge-types',
+      'run',
+    );
+    await expect(blockedOptionsBadge).toHaveAttribute(
+      'data-movement-blocked-options-badge-invalid-reasons',
+      'run:TerrainBlocked',
+    );
+    await expect(blockedOptionsBadge).toHaveAttribute(
+      'data-movement-blocked-options-badge-invalid-details',
+      'run:Water blocks ground movement',
+    );
+
+    const costBadge = page.getByTestId('hex-movement-cost-badge-2-0');
+    await expect(costBadge).toHaveAttribute(
+      'data-movement-step-terrain-cost',
+      '3',
+    );
+    await expect(costBadge.locator('text')).toHaveText('T+3');
+  });
+
   test('renders mounted battle armor as a host passenger badge in browser', async ({
     page,
   }) => {

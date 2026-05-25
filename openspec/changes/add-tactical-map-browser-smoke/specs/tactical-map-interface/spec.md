@@ -23,6 +23,9 @@ the top-down map.
 - **AND** a reachable movement-highlighted hex with a blocked movement mode
   SHALL expose legal option states, blocked option reason metadata, and a
   separate blocked-options badge that does not rely on color alone
+- **AND** when the Run overlay contains a destination whose Run path is blocked
+  but a Walk path is legal, the map SHALL render the reachable Walk projection
+  as primary while retaining the blocked Run option metadata
 - **AND** a movement-blocked hex SHALL expose the engine-aligned rejection
   reason and render an invalid badge that does not rely on color alone
 - **AND** a LOS-blocked combat target SHALL expose the blocked target id,

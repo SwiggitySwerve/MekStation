@@ -10,6 +10,10 @@ import {
   tacticalMapVtolElevationCommitInput,
   tacticalMapVtolElevationMovementRange,
 } from '../tactical-map.movement-scenarios';
+import {
+  tacticalMapRunWaterFallbackCommitInput,
+  tacticalMapRunWaterFallbackMovementRange,
+} from '../tactical-map.run-water-fallback-scenario';
 
 describe('tactical map movement scenarios', () => {
   it('keeps biped walk run and jump browser options aligned with commit validation', () => {
@@ -157,5 +161,55 @@ describe('tactical map movement scenarios', () => {
     expect(result.details).toBe(projection.movementInvalidDetails);
     expect(result.mpCost).toBe(projection.mpCost);
     expect(result.heatGenerated).toBe(projection.heatGenerated);
+  });
+
+  it('keeps run-selected water fallback committed as walking when running is blocked', () => {
+    const projection = tacticalMapRunWaterFallbackMovementRange[0];
+
+    expect(projection).toMatchObject({
+      hex: { q: 2, r: 0 },
+      reachable: true,
+      movementMode: 'walk',
+      movementType: 'walk',
+      mpCost: 5,
+      terrainCost: 3,
+      elevationDelta: 0,
+      elevationCost: 0,
+      heatGenerated: 1,
+      movementModeOptions: [
+        {
+          movementType: 'walk',
+          movementMode: 'walk',
+          reachable: true,
+          mpCost: 5,
+          terrainCost: 3,
+          heatGenerated: 1,
+        },
+        {
+          movementType: 'run',
+          movementMode: 'run',
+          reachable: false,
+          mpCost: Infinity,
+          blockedReason: 'Water blocks ground movement',
+          movementInvalidReason: 'TerrainBlocked',
+          movementInvalidDetails: 'Water blocks ground movement',
+        },
+      ],
+    });
+
+    const commitInput = tacticalMapRunWaterFallbackCommitInput();
+    expect(commitInput.movementType).toBe(projection.movementType);
+    expect(commitInput.path).toEqual(projection.path);
+
+    const result = validateCommittedMovement(commitInput);
+
+    expect(result.valid).toBe(true);
+    if (!result.valid) {
+      throw new Error(result.details);
+    }
+
+    expect(result.mpCost).toBe(projection.mpCost);
+    expect(result.heatGenerated).toBe(projection.heatGenerated);
+    expect(result.path).toEqual(projection.path);
   });
 });
