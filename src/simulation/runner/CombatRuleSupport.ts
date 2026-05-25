@@ -718,8 +718,8 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
   ),
   ecm: helperOnly(
     'ecm',
-    'calculateEcmModifier + calculateToHit optional ecmContext',
-    'runAttackPhase does not derive ECM coverage or weapon guidance context',
+    'calculateEcmModifier + calculateToHit optional ecmContext; runAttackPhase derives source-backed Artemis/NARC missile ECM context from IGameState.electronicWarfare, target NARC/iNARC markers, and mounted Artemis flags',
+    'runner ECM to-hit remains helper-classified until C3/targeting-computer guidance, multi-guidance stacking, and explicit per-weapon guidance hydration are source-authoritative',
     MEGAMEK_ECM_GUIDANCE_TO_HIT_SOURCE_REFS,
   ),
   c3: integrated(

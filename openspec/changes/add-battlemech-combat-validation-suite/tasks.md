@@ -200,6 +200,7 @@
 - [x] 3.4.40 Integrate source-backed semi-guided TAG to-hit parity through helper calculation, event-sourced `declareAttack`, runner `AttackDeclared`, catalog support, OpenSpec coverage, and focused behavior tests while keeping semi-guided TAG out of cluster-table behavior.
 - [x] 3.4.41 Remove the legacy semi-guided TAG cluster helper export from official helper surfaces, catalog rows, tests, and runner missile resolution.
 - [x] 3.4.42 Source-pin every canonical SPA scope row across integrated, helper-only, unsupported, infantry, ATOW, bioware, unofficial, and Edge partitions so canonical catalog coverage cannot rely on prose-only authority.
+- [x] 3.4.43 Thread source-backed Artemis/NARC missile ECM to-hit context from runner electronic-warfare state into `AttackDeclared` while keeping C3, targeting-computer, multi-guidance, and per-weapon guidance hydration gaps explicit.
 - [x] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.

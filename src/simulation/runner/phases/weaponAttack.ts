@@ -27,6 +27,7 @@ import {
   ECM_RADIUS,
   createEmptyEWState,
   getECMProtectedFlag,
+  resolveECMStatus,
   resolveC3ECMDisruption,
 } from '@/utils/gameplay/electronicWarfare';
 import { calculateEnvironmentalModifiers } from '@/utils/gameplay/environmentalModifiers';
@@ -37,6 +38,7 @@ import {
 import { hexDistance } from '@/utils/gameplay/hexMath';
 import { getClusterHitterBonus, hasSPA } from '@/utils/gameplay/spaModifiers';
 import {
+  isArtemisCompatibleMissileWeapon,
   isMissileWeapon,
   isNarcCompatibleMissileWeapon,
 } from '@/utils/gameplay/specialWeaponMechanics';
@@ -46,6 +48,8 @@ import {
   buildWeaponAttackTargetToHitState,
   calculateToHit,
   calculateToHitWithC3,
+  type IEcmContext,
+  type WeaponGuidanceType,
 } from '@/utils/gameplay/toHit';
 
 import type { IAIPlayer } from '../../ai/IAIPlayer';
@@ -183,6 +187,85 @@ function isFlightPathAffectedByINarcECM(
   attacker: IGameState['units'][string] | undefined,
 ): boolean {
   return hasINarcPodType(attacker, 'ecm');
+}
+
+function isArtemisGuidedMissileWeapon(weapon: IWeapon): boolean {
+  if (
+    weapon.hasArtemisIV !== true &&
+    weapon.hasPrototypeArtemisIV !== true &&
+    weapon.hasArtemisV !== true
+  ) {
+    return false;
+  }
+
+  return (
+    isArtemisCompatibleMissileWeapon(weapon.id) ||
+    isArtemisCompatibleMissileWeapon(weapon.name)
+  );
+}
+
+function isNarcGuidedMissileAttack(options: {
+  readonly attackerTeamId?: string;
+  readonly target: IGameState['units'][string];
+  readonly weapon: IWeapon;
+}): boolean {
+  const { attackerTeamId, target, weapon } = options;
+  if (attackerTeamId === undefined) return false;
+  if (
+    !isNarcCompatibleMissileWeapon(weapon.id) &&
+    !isNarcCompatibleMissileWeapon(weapon.name)
+  ) {
+    return false;
+  }
+
+  return (
+    target.narcedBy?.includes(attackerTeamId) === true ||
+    iNarcHomingTeams(target).includes(attackerTeamId)
+  );
+}
+
+function resolveUnambiguousMissileEcmGuidance(options: {
+  readonly attackerTeamId?: string;
+  readonly target: IGameState['units'][string];
+  readonly weapon: IWeapon;
+}): WeaponGuidanceType | undefined {
+  const guidance: WeaponGuidanceType[] = [];
+  if (isArtemisGuidedMissileWeapon(options.weapon)) guidance.push('artemis');
+  if (isNarcGuidedMissileAttack(options)) guidance.push('narc');
+
+  return guidance.length === 1 ? guidance[0] : undefined;
+}
+
+function buildRunnerEcmToHitContext(options: {
+  readonly state: IGameState;
+  readonly attacker: IGameState['units'][string];
+  readonly target: IGameState['units'][string];
+  readonly weapon: IWeapon;
+  readonly targetEcmProtected?: boolean;
+}): IEcmContext | undefined {
+  const { attacker, state, target, targetEcmProtected, weapon } = options;
+  const ewState = state.electronicWarfare;
+  if (!ewState) return undefined;
+
+  const guidance = resolveUnambiguousMissileEcmGuidance({
+    attackerTeamId: attacker.side as string,
+    target,
+    weapon,
+  });
+  if (guidance === undefined) return undefined;
+
+  return {
+    guidance,
+    coverage: {
+      attackerInBubble: resolveECMStatus(
+        attacker.position,
+        attacker.side as string,
+        attacker.id,
+        ewState,
+      ).ecmDisrupted,
+      targetInBubble: targetEcmProtected === true,
+    },
+  };
 }
 
 const C3_CRITICAL_LOCATION_BY_CATALOG_LOCATION: Readonly<
@@ -899,6 +982,13 @@ export function runAttackPhase(options: {
         targetEcmProtected,
         isIndirectFire,
       };
+      const ecmToHitContext = buildRunnerEcmToHitContext({
+        state: currentState,
+        attacker: attackerNow,
+        target: targetNow,
+        weapon: baseWeapon,
+        targetEcmProtected,
+      });
       const c3State = hydrateC3StateForAttack(currentState, manifestsByUnit);
       const toHitCalc =
         c3State !== undefined && !isIndirectFire
@@ -924,7 +1014,7 @@ export function runAttackPhase(options: {
                 c3State,
               },
               baseWeapon.minRange,
-              undefined,
+              ecmToHitContext,
               baseWeapon.id,
               semiGuidedTagContext,
             )
@@ -934,7 +1024,7 @@ export function runAttackPhase(options: {
               rangeBracket,
               distance,
               baseWeapon.minRange,
-              undefined,
+              ecmToHitContext,
               baseWeapon.id,
               semiGuidedTagContext,
             );

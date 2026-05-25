@@ -752,6 +752,100 @@ describe('runAttackPhase to-hit modifier integration', () => {
     );
   });
 
+  it('threads Artemis ECM to-hit context from electronic-warfare state into AttackDeclared', () => {
+    const baseState = createWeaponAttackState();
+    const state: IGameState = {
+      ...baseState,
+      electronicWarfare: {
+        ecmSuites: [
+          {
+            type: 'guardian',
+            mode: 'ecm',
+            operational: true,
+            entityId: 'opponent-ecm-suite',
+            teamId: GameSide.Opponent,
+            position: baseState.units['opponent-1'].position,
+          },
+        ],
+        activeProbes: [],
+      },
+    };
+
+    const payload = attackDeclaredPayload(
+      runModifierScenario({
+        state,
+        weapon: { ...createLrm(), hasArtemisIV: true },
+      }),
+    );
+
+    expect(payload.toHitNumber).toBe(5);
+    expectModifier(payload, {
+      name: 'ECM (artemis-degraded)',
+      value: 1,
+      source: 'equipment',
+    });
+  });
+
+  it('threads NARC ECM to-hit context from target marker state into AttackDeclared', () => {
+    const baseState = createWeaponAttackState({
+      target: { narcedBy: [GameSide.Player] },
+    });
+    const state: IGameState = {
+      ...baseState,
+      electronicWarfare: {
+        ecmSuites: [
+          {
+            type: 'guardian',
+            mode: 'ecm',
+            operational: true,
+            entityId: 'opponent-ecm-suite',
+            teamId: GameSide.Opponent,
+            position: baseState.units['opponent-1'].position,
+          },
+        ],
+        activeProbes: [],
+      },
+    };
+
+    const payload = attackDeclaredPayload(
+      runModifierScenario({ state, weapon: createLrm() }),
+    );
+
+    expect(payload.toHitNumber).toBe(5);
+    expectModifier(payload, {
+      name: 'ECM (narc-degraded)',
+      value: 1,
+      source: 'equipment',
+    });
+  });
+
+  it('does not add runner ECM to-hit modifiers for unguided weapon attacks', () => {
+    const baseState = createWeaponAttackState();
+    const state: IGameState = {
+      ...baseState,
+      electronicWarfare: {
+        ecmSuites: [
+          {
+            type: 'guardian',
+            mode: 'ecm',
+            operational: true,
+            entityId: 'opponent-ecm-suite',
+            teamId: GameSide.Opponent,
+            position: baseState.units['opponent-1'].position,
+          },
+        ],
+        activeProbes: [],
+      },
+    };
+
+    const payload = attackDeclaredPayload(runModifierScenario({ state }));
+
+    expect(payload.toHitNumber).toBe(4);
+    expect(payload.modifiers).not.toContainEqual(
+      expect.objectContaining({ name: expect.stringContaining('ECM') }),
+    );
+  });
+
   it('refreshes C3 member lifecycle state before runner range math', () => {
     const network = createC3MasterSlaveNetwork('runner-c3-lifecycle', [
       createC3Unit({
