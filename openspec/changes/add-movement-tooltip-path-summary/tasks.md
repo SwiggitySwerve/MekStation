@@ -11,6 +11,7 @@
 - [x] 2.2 Render path step summary in movement-only tooltip
 - [x] 2.3 Render path step summary in combined movement+combat tooltip
 - [x] 2.4 Preserve existing tooltip rows and map path badges
+- [x] 2.5 Add browser coverage for top-down and isometric path sequence badges
 
 ## 3. Verification
 
@@ -21,3 +22,4 @@
 - [x] 3.5 `npm.cmd run lint` passes
 - [x] 3.6 `npm.cmd run format:check` passes
 - [x] 3.7 `npx.cmd openspec validate add-movement-tooltip-path-summary --strict` passes
+- [x] 3.8 Focused tactical-map browser smoke covers rendered path sequence metadata

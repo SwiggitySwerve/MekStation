@@ -55,6 +55,12 @@ and verifies the combined badge metadata for option costs, terrain costs,
 elevation costs, and heat. Remaining browser movement gaps are broad path-shape
 and invalid-destination sweeps beyond the smoke harness.
 
+2026-05-25 movement path-shape browser pin: the tactical-map browser harness
+now verifies the rendered projection path sequence itself, not just destination
+costs. The top-down map exposes start/step metadata and visible `S`, `#1`,
+and `#2` badges for the shared movement path, and the same path metadata
+survives after switching to isometric mode.
+
 2026-05-24 blocked movement browser update: the tactical-map browser harness now
 also renders an unreachable jump destination with an engine-style
 `TerrainBlocked` reason and verifies the top-down invalid badge plus rejection

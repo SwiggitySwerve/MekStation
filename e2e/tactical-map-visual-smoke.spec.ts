@@ -120,6 +120,27 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-movement-badge-option-heats',
       'walk:0|run:2|jump:3',
     );
+    await expect(page.getByTestId('hex--1-0')).toHaveAttribute(
+      'data-path-step',
+      'start',
+    );
+    await expect(page.getByTestId('hex-0-0')).toHaveAttribute(
+      'data-path-step',
+      '1',
+    );
+    await expect(page.getByTestId('hex-0-1')).toHaveAttribute(
+      'data-path-step',
+      '2',
+    );
+    await expect(
+      page.getByTestId('hex-path-step-badge--1-0').locator('text'),
+    ).toHaveText('S');
+    await expect(
+      page.getByTestId('hex-path-step-badge-0-0').locator('text'),
+    ).toHaveText('#1');
+    await expect(
+      page.getByTestId('hex-path-step-badge-0-1').locator('text'),
+    ).toHaveText('#2');
     const mixedMovementHex = page.getByTestId('hex-2-1');
     await expect(mixedMovementHex).toHaveAttribute('data-reachable', 'true');
     await expect(mixedMovementHex).toHaveAttribute(
@@ -557,6 +578,21 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(
       page.getByTestId('isometric-scene-token-last-known-contact'),
     ).toHaveAttribute('data-isometric-foreground-boost', 'true');
+    await expect(page.getByTestId('hex--1-0')).toHaveAttribute(
+      'data-path-step',
+      'start',
+    );
+    await expect(page.getByTestId('hex-0-0')).toHaveAttribute(
+      'data-path-step',
+      '1',
+    );
+    await expect(page.getByTestId('hex-0-1')).toHaveAttribute(
+      'data-path-step',
+      '2',
+    );
+    await expect(
+      page.getByTestId('hex-path-step-badge-0-1').locator('text'),
+    ).toHaveText('#2');
 
     const eastHex = page.getByTestId('isometric-scene-hex-1-0');
     const eastDepthBefore = await eastHex.getAttribute(
