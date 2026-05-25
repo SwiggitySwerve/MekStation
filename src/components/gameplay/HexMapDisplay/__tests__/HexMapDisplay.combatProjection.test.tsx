@@ -1360,6 +1360,24 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-c3-effective-range',
       'short',
     );
+    expect(c3Context).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(c3Context).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    expect(c3Context).toHaveAttribute(
+      'data-combat-c3-source-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(c3Context).toHaveAttribute(
+      'data-combat-c3-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek Compute.java'),
+    );
 
     const toHitRows = screen.getByTestId('hex-combat-tooltip-to-hit-modifiers');
     expect(toHitRows).toHaveAttribute(
@@ -1450,6 +1468,24 @@ describe('HexMapDisplay combat projection', () => {
     expect(c3Context).toHaveAttribute(
       'data-combat-c3-effective-range',
       'short',
+    );
+    expect(c3Context).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(c3Context).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    expect(c3Context).toHaveAttribute(
+      'data-combat-c3-source-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(c3Context).toHaveAttribute(
+      'data-combat-c3-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek Compute.java'),
     );
     expect(
       screen.getByTestId('hex-tactical-tooltip-combat-range'),

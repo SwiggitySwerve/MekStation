@@ -381,6 +381,7 @@ function CombatHoverTooltip({
       )}
       <CombatC3ContextRows
         combatInfo={combatInfo}
+        projection={projection}
         testId="hex-combat-tooltip-c3-context"
       />
       <CombatLosContextRows

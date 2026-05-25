@@ -2820,6 +2820,23 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'aria-label',
       /C3: spotter c3-spotter at 1 hex improves to short range/,
     );
+    await targetHex.dispatchEvent('mouseover', {
+      bubbles: true,
+      cancelable: true,
+    });
+    const c3Context = page.getByTestId('hex-combat-tooltip-c3-context');
+    await expect(c3Context).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    await expect(c3Context).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    await expect(c3Context).toHaveAttribute(
+      'data-combat-c3-rule-refs',
+      /combat:megamek:MegaMek Compute\.java:1313-1517 weapon range\/to-hit modifiers/,
+    );
 
     const combatBadge = page.getByTestId('hex-combat-badge-1-2');
     await expect(combatBadge).toHaveAttribute(

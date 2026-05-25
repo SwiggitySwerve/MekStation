@@ -304,6 +304,7 @@ export function CombinedTacticalHoverTooltip({
       )}
       <CombatC3ContextRows
         combatInfo={combatInfo}
+        projection={projection}
         testId="hex-tactical-tooltip-combat-c3-context"
       />
       <CombatLosContextRows
