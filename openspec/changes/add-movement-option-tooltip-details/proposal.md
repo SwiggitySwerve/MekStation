@@ -8,6 +8,7 @@ The shared tactical projection preserves same-hex Walk, Run, Jump, and motive-mo
 
 - Render per-mode movement option rows in movement hover tooltips.
 - Render the same rows in combined movement/combat tactical hover tooltips.
+- Expose blocked option invalid reason/detail metadata on each option row.
 - Source rows from `IMovementRangeHex.movementModeOptions` and existing movement projection fields rather than recalculating reachability.
 
 ## Out of Scope
@@ -20,4 +21,4 @@ The shared tactical projection preserves same-hex Walk, Run, Jump, and motive-mo
 
 - Affected spec: `tactical-map-interface`
 - Affected code: `src/components/gameplay/HexMapDisplay/*`
-- Tests: focused tooltip coverage for reachable and blocked same-hex movement options
+- Tests: focused tooltip coverage for reachable and blocked same-hex movement options, including per-row invalid reason/detail metadata

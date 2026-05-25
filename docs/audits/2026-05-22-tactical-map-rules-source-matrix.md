@@ -1289,6 +1289,12 @@ compatibility for callers without weapon-backed projection but gives the player
 a non-color-only marker that the tinted envelope is only a range fallback, not a
 rules-backed attack option.
 
+2026-05-25 movement option row invalid metadata pin: Same-hex movement tooltip
+rows now expose the engine invalid reason and detail on the blocked option row
+itself, not only on aggregate hex and badge metadata. This does not change
+movement legality; it keeps Walk/Run/Jump rows individually inspectable when
+shared-destination movement projections mix reachable and rejected modes.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

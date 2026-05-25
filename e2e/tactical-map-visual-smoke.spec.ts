@@ -214,6 +214,18 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-movement-blocked-options-badge-invalid-reasons',
       'jump:InsufficientMP',
     );
+    await mixedMovementHex.locator('text').first().hover();
+    const mixedTooltipBlockedOption = page.getByTestId(
+      'hex-tactical-tooltip-movement-options-option-jump-jump-2',
+    );
+    await expect(mixedTooltipBlockedOption).toHaveAttribute(
+      'data-movement-option-invalid-reason',
+      'InsufficientMP',
+    );
+    await expect(mixedTooltipBlockedOption).toHaveAttribute(
+      'data-movement-option-invalid-details',
+      'Jump path length 4 exceeds jump MP 3',
+    );
     await expect(page.getByTestId('hex-1-0')).toHaveAttribute(
       'data-reachable',
       'false',

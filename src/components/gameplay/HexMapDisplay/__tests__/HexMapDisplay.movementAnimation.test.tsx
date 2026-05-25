@@ -1045,6 +1045,16 @@ describe('HexMapDisplay tactical visual layers', () => {
         'hex-movement-tooltip-mode-options-option-jump-jump-2',
       ),
     ).toHaveAttribute('data-movement-option-blocked-reason', blockedReason);
+    expect(
+      screen.getByTestId(
+        'hex-movement-tooltip-mode-options-option-jump-jump-2',
+      ),
+    ).toHaveAttribute('data-movement-option-invalid-reason', 'TerrainBlocked');
+    expect(
+      screen.getByTestId(
+        'hex-movement-tooltip-mode-options-option-jump-jump-2',
+      ),
+    ).toHaveAttribute('data-movement-option-invalid-details', blockedReason);
 
     act(() => {
       unmount();

@@ -85,6 +85,8 @@ export function MovementModeOptionRows({
             data-movement-option-elevation-cost={option.elevationCost}
             data-movement-option-heat={option.heatGenerated}
             data-movement-option-blocked-reason={blockedDetail}
+            data-movement-option-invalid-reason={option.movementInvalidReason}
+            data-movement-option-invalid-details={option.movementInvalidDetails}
           >
             {formatMovementOptionTitle(option)}
           </div>

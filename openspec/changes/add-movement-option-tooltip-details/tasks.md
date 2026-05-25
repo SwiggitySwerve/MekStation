@@ -11,6 +11,7 @@
 - [x] 2.2 Render option rows in movement-only hover tooltips
 - [x] 2.3 Render option rows in combined movement/combat hover tooltips
 - [x] 2.4 Reuse existing movement option metadata formatting helpers
+- [x] 2.5 Expose blocked option invalid reason/detail metadata on individual tooltip rows
 
 ## 3. Verification
 
@@ -22,3 +23,4 @@
 - [x] 3.6 `npm.cmd run lint` passes
 - [x] 3.7 `npm.cmd run format:check` passes
 - [x] 3.8 `npx.cmd openspec validate add-movement-option-tooltip-details --strict` passes
+- [x] 3.9 Focused browser smoke coverage asserts blocked option row invalid reason/detail metadata
