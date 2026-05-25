@@ -63,6 +63,19 @@ function unsupported(
   };
 }
 
+function mekstationDeviationSourceRef(
+  citation: string,
+  path: string,
+  lineRange: string,
+): ICombatFeatureSourceReference {
+  return {
+    kind: 'mekstation-deviation',
+    citation,
+    url: `${path}#${lineRange}`,
+    sourceVersion: 'MekStation working-tree',
+  };
+}
+
 const MEGAMEK_GO_PRONE_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -119,13 +132,51 @@ const MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS = [
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const MEKSTATION_STABILIZE_COMMAND_SOURCE_REFS = [
-  {
-    kind: 'mekstation-deviation',
-    citation:
-      'MekStation buildMovementCommands exposes movement.stabilize as a product-visible tactical command that commits the local stabilize action id.',
-    url: 'src/components/gameplay/TacticalActionDock/commands/movementCommands.ts#L194-L207',
-    sourceVersion: 'MekStation working-tree',
-  },
+  mekstationDeviationSourceRef(
+    'MekStation buildMovementCommands exposes movement.stabilize as a product-visible tactical command that commits the local stabilize action id.',
+    'src/components/gameplay/TacticalActionDock/commands/movementCommands.ts',
+    'L193-L207',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEKSTATION_MOVEMENT_CANCEL_COMMAND_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation buildMovementCommands exposes movement.cancel as a local movement-preview reset command that commits the undo action id.',
+    'src/components/gameplay/TacticalActionDock/commands/movementCommands.ts',
+    'L211-L227',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEKSTATION_WEAPON_DECLARE_ATTACK_COMMAND_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation buildWeaponAttackCommands exposes weapon.declare-attack as a target-selection command that commits the local declare-attack action id.',
+    'src/components/gameplay/TacticalActionDock/commands/weaponAttackCommands.ts',
+    'L24-L46',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEKSTATION_WEAPON_CLEAR_ATTACKS_COMMAND_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation buildWeaponAttackCommands exposes weapon.clear-attacks as a local draft attack reset command that commits the clear action id.',
+    'src/components/gameplay/TacticalActionDock/commands/weaponAttackCommands.ts',
+    'L76-L90',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEKSTATION_WITHDRAW_COMMAND_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation buildUtilityCommands exposes utility.withdraw as a product-visible command that commits the local withdraw action id without an edge-selection payload.',
+    'src/components/gameplay/TacticalActionDock/commands/utilityCommands.ts',
+    'L50-L64',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEKSTATION_REQUEST_SPOT_COMMAND_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation buildUtilityCommands exposes utility.request-spot as a target-aware local spotting command that commits the request-spot action id.',
+    'src/components/gameplay/TacticalActionDock/commands/utilityCommands.ts',
+    'L85-L103',
+  ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS = [
@@ -223,6 +274,7 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'tactical-command',
     'buildMovementCommands commits undo for local preview cancellation',
     'Local preview cancel is not an authoritative combat action and has no game intent or wire path',
+    MEKSTATION_MOVEMENT_CANCEL_COMMAND_SOURCE_REFS,
   ),
   'facing.rotate-left': integrated(
     'facing.rotate-left',
@@ -245,6 +297,7 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'tactical-command',
     'buildWeaponAttackCommands exposes a target-selection declaration command',
     'The command id is not the authoritative attack commit; declareAttack game intents and Attack wire payloads carry committed attacks',
+    MEKSTATION_WEAPON_DECLARE_ATTACK_COMMAND_SOURCE_REFS,
   ),
   'weapon.fire-volley': integrated(
     'weapon.fire-volley',
@@ -256,6 +309,7 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'tactical-command',
     'buildWeaponAttackCommands clears queued local attack selections',
     'Clearing a draft attack list is local UI state and has no game intent or wire path',
+    MEKSTATION_WEAPON_CLEAR_ATTACKS_COMMAND_SOURCE_REFS,
   ),
   'physical.punch': integrated(
     'physical.punch',
@@ -342,6 +396,7 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'tactical-command',
     'InteractiveSession.declareWithdrawal, withdraw game intent, Withdraw wire payload, server dispatch, and P2P translation model player withdrawal',
     'The tactical command still has no edge-selection payload, so the UI command cannot directly produce the authoritative withdraw intent',
+    MEKSTATION_WITHDRAW_COMMAND_SOURCE_REFS,
   ),
   'utility.concede': integrated(
     'utility.concede',
@@ -353,6 +408,7 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'tactical-command',
     'buildUtilityCommands exposes target spotting during WeaponAttack',
     'No spotting lifecycle, TAG/NARC marker intent, wire payload, or dispatch path is wired',
+    MEKSTATION_REQUEST_SPOT_COMMAND_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatActionSupportEntry>;
 

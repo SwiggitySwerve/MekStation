@@ -9,6 +9,7 @@
 - [x] 1.5 Require every broad `knownLimitations` category to have a BattleMech validation trap so combat-validation failures cannot be silently filtered by limitation patterns.
 - [x] 1.5.1 Prove the known-limitation filter and partition helpers preserve every BattleMech validation trap as a potential bug instead of only checking raw category lookup.
 - [x] 1.6 Add catalog triad evidence metadata so every support map declares its source-boundary kind and executable test surface, with row-source-ref enforcement for maps that claim row-level source authority.
+- [x] 1.7 Pin helper-only product command rows to MekStation command-factory source refs so local UI/draft surfaces do not rely on prose-only catalog evidence.
 
 ## 2. Physical attack legality gates
 

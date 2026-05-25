@@ -140,6 +140,28 @@ describe('BattleMech combat action support catalog', () => {
       'weapon.clear-attacks',
       'weapon.declare-attack',
     ]);
+    const helperCommandSourceFiles = {
+      'movement.cancel': 'movementCommands.ts',
+      'utility.request-spot': 'utilityCommands.ts',
+      'utility.withdraw': 'utilityCommands.ts',
+      'weapon.clear-attacks': 'weaponAttackCommands.ts',
+      'weapon.declare-attack': 'weaponAttackCommands.ts',
+    } as const;
+    for (const [id, file] of Object.entries(helperCommandSourceFiles)) {
+      const entry =
+        COMBAT_COMMAND_ACTION_SUPPORT[
+          id as keyof typeof COMBAT_COMMAND_ACTION_SUPPORT
+        ];
+
+      expect(entry.sourceRefs).toEqual([
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining(id),
+          url: expect.stringContaining(file),
+          sourceVersion: 'MekStation working-tree',
+        }),
+      ]);
+    }
     expect(
       supportIdsByLevel(COMBAT_COMMAND_ACTION_SUPPORT, 'unsupported'),
     ).toEqual(['movement.stabilize']);
