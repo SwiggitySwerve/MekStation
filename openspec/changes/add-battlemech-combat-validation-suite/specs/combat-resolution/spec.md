@@ -1114,6 +1114,20 @@ Every TerrainType heat support row SHALL expose structured source references bef
 - **AND** no-heat terrain rows SHALL use MekStation deviation source references for the local no-op mapping
 - **AND** the terrainTypeHeat catalog triad SHALL enforce row-level source references before PR approval
 
+### Requirement: Source-Backed TerrainType PSR Catalog Anchors
+
+Every TerrainType PSR support row SHALL expose structured source references before the map is treated as source-backed validation coverage. Rubble, water, pavement, ice, swamp, and building rows SHALL cite commit-pinned MegaMek source URLs with line anchors for rubble-entry PSRs, water-entry PSRs, skidding PSRs, swamp bog-down, or building-collapse handling, plus local movement-runner, PSR factory, and PSR-resolution paths. Swamp SHALL remain helper-only until MekStation has a bogged/stuck lifecycle state. Building SHALL remain helper-only until building collapse is wired through runner movement or damage resolution. Terrain rows with no terrain-entry PSR SHALL remain source-checked through local no-PSR references instead of inheriting a generic terrain authority. Any future TerrainType PSR expansion SHALL either add a MegaMek/MekHQ source reference or explicitly mark the row as a local deviation/gap.
+
+#### Scenario: TerrainType PSR rows expose source truth
+
+- **GIVEN** the BattleMech terrain type PSR support catalog is generated
+- **WHEN** any TerrainType PSR row is inspected
+- **THEN** the row SHALL expose structured source references with line anchors
+- **AND** rubble, water, pavement, ice, swamp, and building rows SHALL include commit-pinned MegaMek comparison references
+- **AND** swamp and building rows SHALL remain helper-only until bogged/stuck lifecycle and building-collapse runtime wiring exist
+- **AND** local no-PSR terrain rows SHALL use MekStation deviation source references for the local no-op mapping
+- **AND** the terrainTypePsr catalog triad SHALL enforce row-level source references before PR approval
+
 ### Requirement: Source-Backed Heat SPA Boundary
 
 Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior from local helper behavior before claiming parity. Some Like It Hot SHALL carry MegaMek source references for reducing positive heat firing modifiers by 1. Hot Dog startup, shutdown, heat-induced ammo-explosion, opt-in MaxTech pilot heat-damage, and opt-in MaxTech critical-damage checks SHALL apply MegaMek's `hotDogMod = 1` target-number relief without shifting heat thresholds. Default life-support heat damage SHALL remain threshold-based at heat 15/25+ because MegaMek does not apply `hotDogMod` to that path. Hot Dog SHALL be integrated for BattleMech heat lifecycle resolution once those source-backed paths are executable in runner and interactive heat resolution. Cool Under Fire SHALL remain helper-only until a source authority for generated-heat relief is identified.

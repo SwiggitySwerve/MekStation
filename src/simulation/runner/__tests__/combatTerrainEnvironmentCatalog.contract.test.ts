@@ -422,6 +422,84 @@ describe('BattleMech terrain and environment combat support catalog', () => {
     ).toEqual(['integrated', 'integrated', 'integrated']);
   });
 
+  it('source-pins every TerrainType PSR row', () => {
+    const megaMekComparedTerrains = [
+      TerrainType.Building,
+      TerrainType.Ice,
+      TerrainType.Pavement,
+      TerrainType.Rubble,
+      TerrainType.Swamp,
+      TerrainType.Water,
+    ];
+
+    Object.values(TERRAIN_TYPE_PSR_COMBAT_SUPPORT).forEach((entry) => {
+      const sourceRefs = entry.sourceRefs ?? [];
+
+      expect(sourceRefs).not.toHaveLength(0);
+      sourceRefs.forEach(expectLineAnchoredSourceRef);
+      expect(sourceRefs).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            url: 'src/simulation/runner/phases/movementTerrainPsr.ts#L37-L151',
+          }),
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            url: 'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts#L94-L214',
+          }),
+        ]),
+      );
+    });
+
+    expect(
+      megaMekComparedTerrains.filter(
+        (terrain) =>
+          !TERRAIN_TYPE_PSR_COMBAT_SUPPORT[terrain].sourceRefs?.some(
+            (ref) => ref.kind === 'megamek-source',
+          ),
+      ),
+    ).toEqual([]);
+    expect(
+      Object.values(TerrainType)
+        .filter((terrain) => !megaMekComparedTerrains.includes(terrain))
+        .flatMap(
+          (terrain) =>
+            TERRAIN_TYPE_PSR_COMBAT_SUPPORT[terrain].sourceRefs?.filter(
+              (ref) => ref.kind === 'megamek-source',
+            ) ?? [],
+        ),
+    ).toEqual([]);
+    expect(TERRAIN_TYPE_PSR_COMBAT_SUPPORT[TerrainType.Rubble]).toMatchObject({
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('checkRubbleMove'),
+        }),
+      ]),
+    });
+    expect(TERRAIN_TYPE_PSR_COMBAT_SUPPORT[TerrainType.Water]).toMatchObject({
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('checkWaterMove'),
+        }),
+      ]),
+    });
+    expect(TERRAIN_TYPE_PSR_COMBAT_SUPPORT[TerrainType.Pavement]).toMatchObject(
+      {
+        sourceRefs: expect.arrayContaining([
+          expect.objectContaining({
+            kind: 'megamek-source',
+            citation: expect.stringContaining('checkSkid'),
+          }),
+        ]),
+      },
+    );
+    expect(TERRAIN_TYPE_PSR_COMBAT_SUPPORT[TerrainType.Rough]).toMatchObject({
+      evidence: expect.stringContaining('local running-through-rough-terrain'),
+    });
+  });
+
   it('keeps environment requirements without TerrainType enum values explicitly cataloged', () => {
     expect(supportGaps(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT)).toEqual([]);
     expect(

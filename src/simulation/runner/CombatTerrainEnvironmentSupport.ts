@@ -8,6 +8,7 @@ import type {
 import {
   terrainAttackModifierSourceRefs,
   terrainLosSourceRefs,
+  terrainPsrSourceRefs,
 } from './CombatTerrainEnvironmentSourceRefs';
 
 const MEGAMEK_TERRAIN_SOURCE_VERSION =
@@ -129,23 +130,6 @@ const pavementMovementTerrains = new Set<TerrainType>([
   TerrainType.Road,
   TerrainType.Bridge,
 ]);
-
-const MEGAMEK_SWAMP_BOG_DOWN_SOURCE_REFS = [
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek Entity.checkBogDown queues an avoid-bogging-down piloting roll when a unit enters bog-down terrain and applies -1 Swamp Beast relief.',
-    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L8263-L8288',
-    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-  },
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek Terrain.getBogDownModifier makes swamp a BattleMech bog-down terrain while mud does not bog down biped or quad movement modes.',
-    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Terrain.java#L616-L637',
-    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-  },
-] satisfies readonly ICombatFeatureSourceReference[];
 
 function integrated(
   id: string,
@@ -384,20 +368,54 @@ function makeTerrainPsrEntry(terrain: TerrainType): ICombatFeatureSupportEntry {
         terrain,
         'MegaMek source shows BattleMechs entering swamp can make a bog-down piloting roll with Terrain Master: Swamp Beast relief',
         'MekStation has no bogged/stuck lifecycle state, so swamp bog-down must not be modeled as a normal failed-PSR fall',
-        MEGAMEK_SWAMP_BOG_DOWN_SOURCE_REFS,
+        terrainPsrSourceRefs(terrain),
       );
     }
 
     return helperOnly(
       terrain,
-      'PSRTrigger terrain factories and resolveAllPSRs can represent terrain-entry/skid checks',
+      'MekStation exposes a local BuildingCollapse PSR factory, while MegaMek resolves building collapse through building load/damage state rather than a generic terrain-entry PSR',
       'building-collapse PSRs are not wired into runner movement or damage resolution',
+      terrainPsrSourceRefs(terrain),
+    );
+  }
+
+  if (terrain === TerrainType.Rubble) {
+    return integrated(
+      terrain,
+      'runMovementPhase queues entering-rubble PSRs from movement terrain and resolvePSR applies Mountaineer relief when present',
+      terrainPsrSourceRefs(terrain),
+    );
+  }
+
+  if (terrain === TerrainType.Water) {
+    return integrated(
+      terrain,
+      'runMovementPhase queues depth-aware water entry and exit PSRs from movement terrain and resolvePSR applies Frogman relief when present',
+      terrainPsrSourceRefs(terrain),
+    );
+  }
+
+  if (terrain === TerrainType.Pavement || terrain === TerrainType.Ice) {
+    return integrated(
+      terrain,
+      'runMovementPhase queues local skidding PSRs for running turn steps on pavement or ice, with source-backed movement-before-skid distance modifiers',
+      terrainPsrSourceRefs(terrain),
+    );
+  }
+
+  if (terrain === TerrainType.Rough) {
+    return integrated(
+      terrain,
+      'runMovementPhase queues a local running-through-rough-terrain PSR when a running movement step enters rough terrain',
+      terrainPsrSourceRefs(terrain),
     );
   }
 
   return integrated(
     terrain,
-    'runMovementPhase queues applicable movement terrain PSRs, or no terrain-entry PSR is represented for this TerrainType',
+    'runMovementPhase does not queue a terrain-entry PSR for this TerrainType in the current local BattleMech movement model',
+    terrainPsrSourceRefs(terrain),
   );
 }
 

@@ -207,11 +207,6 @@ const FEATURE_TRIAD = triad(
   REQUIREMENT_AUTHORITY_BOUNDARY,
   FEATURE_REFS,
 );
-const TERRAIN_TRIAD = triad(
-  'requirement-primary-authority',
-  REQUIREMENT_AUTHORITY_BOUNDARY,
-  TERRAIN_REFS,
-);
 const TERRAIN_ENVIRONMENT_TRIAD = triad(
   'entry-source-refs',
   'Terrain/environment rows are source checked and must carry row-level sourceRefs for terrain costs, LOS/cover/to-hit features, water/fire heat, fog/night/wind/extreme temperature, local atmosphere, and explicit dust/mines gaps.',
@@ -235,6 +230,11 @@ const TERRAIN_TYPE_ATTACK_MODIFIER_TRIAD = triad(
 const TERRAIN_TYPE_LOS_TRIAD = triad(
   'entry-source-refs',
   'Per-TerrainType LOS rows are source checked and must carry row-level sourceRefs, distinguishing MekStation simplified blocksLOS behavior from MegaMek cumulative woods/smoke, building, water, and divided-LOS parity gaps.',
+  TERRAIN_REFS,
+);
+const TERRAIN_TYPE_PSR_TRIAD = triad(
+  'entry-source-refs',
+  'Per-TerrainType PSR rows are source checked and must carry row-level sourceRefs, distinguishing MegaMek rubble, water, skidding, swamp bog-down, and building-collapse anchors from MekStation-local rough/no-PSR terrain rows.',
   TERRAIN_REFS,
 );
 const DAMAGE_TRIAD = triad(
@@ -384,7 +384,7 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
     terrainTypeLos: TERRAIN_TYPE_LOS_TRIAD,
     terrainTypeAttackModifiers: TERRAIN_TYPE_ATTACK_MODIFIER_TRIAD,
     terrainTypeHeat: TERRAIN_TYPE_HEAT_TRIAD,
-    terrainTypePsr: TERRAIN_TRIAD,
+    terrainTypePsr: TERRAIN_TYPE_PSR_TRIAD,
     heatRules: HEAT_TRIAD,
   },
   damageAndDeath: {

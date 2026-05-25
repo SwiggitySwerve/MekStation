@@ -44,6 +44,62 @@ const MEGAMEK_INTERVENING_LOS_FEATURE_SOURCE_REF = {
   sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
 } satisfies ICombatFeatureSourceReference;
 
+const MEGAMEK_RUBBLE_PSR_SOURCE_REF = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Entity.checkRubbleMove queues the entering-rubble piloting roll, applies terrain and difficult-terrain modifiers, and applies -1 Mountaineer relief.',
+  url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L8237-L8256`,
+  sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_WATER_PSR_SOURCE_REF = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Entity.checkWaterMove gates depth-1+ water entry, applies depth-based PSR modifiers, and applies -1 Frogman relief for Mek or ProtoMek units in depth-2+ water.',
+  url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L8299-L8358`,
+  sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_SKID_PSR_SOURCE_REF = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Entity.checkSkid queues skidding PSRs for turning on ice, black ice, or pavement while running or sprinting, then applies difficult-terrain modifiers.',
+  url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L8169-L8231`,
+  sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_SKID_DISTANCE_SOURCE_REF = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Entity.getMovementBeforeSkidPSRModifier maps distance moved to the skidding PSR modifier and subtracts one for Maneuvering Ace.',
+  url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L8638-L8661`,
+  sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_SWAMP_BOG_DOWN_SOURCE_REF = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Entity.checkBogDown queues an avoid-bogging-down piloting roll when a unit enters bog-down terrain and applies -1 Swamp Beast relief.',
+  url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L8263-L8288`,
+  sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_SWAMP_BOG_DOWN_TERRAIN_SOURCE_REF = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Terrain.getBogDownModifier makes swamp a BattleMech bog-down terrain while mud does not bog down biped or quad movement modes.',
+  url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/common/units/Terrain.java#L616-L637`,
+  sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_BUILDING_COLLAPSE_SOURCE_REF = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek BuildingCollapseHandler.checkForCollapse resolves overloaded or damaged building collapse, basement collapse, and top-floor collapse before applying collapseBuilding.',
+  url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/BuildingCollapseHandler.java#L104-L275`,
+  sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
+} satisfies ICombatFeatureSourceReference;
+
 const MEKSTATION_TERRAIN_TO_HIT_PROPERTIES_SOURCE_REF =
   mekstationDeviationSourceRef(
     'MekStation TERRAIN_PROPERTIES defines target-in and intervening to-hit modifiers for every local TerrainType row.',
@@ -57,6 +113,38 @@ const MEKSTATION_TERRAIN_LOS_PROPERTIES_SOURCE_REF =
     'src/types/gameplay/TerrainTypes.ts',
     'L146-L488',
   );
+
+const MEKSTATION_TERRAIN_PSR_PROPERTIES_SOURCE_REF =
+  mekstationDeviationSourceRef(
+    'MekStation TERRAIN_PROPERTIES defines local TerrainType metadata for every row, while terrain PSRs are queued by the movement runner rather than this static table.',
+    'src/types/gameplay/TerrainTypes.ts',
+    'L146-L488',
+  );
+
+const MEKSTATION_TERRAIN_PSR_RUNNER_SOURCE_REF = mekstationDeviationSourceRef(
+  'MekStation queueMovementTerrainPSRs queues water entry/exit, rubble, running rough terrain, ice, and pavement-or-ice skidding PSRs from movement-step terrain features.',
+  'src/simulation/runner/phases/movementTerrainPsr.ts',
+  'L37-L151',
+);
+
+const MEKSTATION_TERRAIN_PSR_FACTORY_SOURCE_REF = mekstationDeviationSourceRef(
+  'MekStation terrain PSR factories define rubble, running-rough, ice, water, skidding, and building-collapse pending PSRs plus local water-depth modifiers.',
+  'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts',
+  'L94-L214',
+);
+
+const MEKSTATION_TERRAIN_PSR_CLASSIFICATION_SOURCE_REF =
+  mekstationDeviationSourceRef(
+    'MekStation PSR resolution classifies terrain PSRs for quirk handling before resolving terrain and pilot-ability modifiers.',
+    'src/utils/gameplay/pilotingSkillRolls/resolution.ts',
+    'L20-L33',
+  );
+
+const MEKSTATION_TERRAIN_PSR_SPA_SOURCE_REF = mekstationDeviationSourceRef(
+  'MekStation PSR resolution applies Maneuvering Ace to skidding, Frogman to entering-water, and Mountaineer to entering-rubble pending PSRs.',
+  'src/utils/gameplay/pilotingSkillRolls/resolution.ts',
+  'L261-L297',
+);
 
 const MEKSTATION_LOS_FEATURE_PARSE_SOURCE_REF = mekstationDeviationSourceRef(
   'MekStation parseTerrainFeatures turns a terrain string into local TerrainType feature rows before LOS checks.',
@@ -112,6 +200,14 @@ const megaMekComparedLosTerrains = new Set<TerrainType>([
   TerrainType.Water,
 ]);
 
+const localTerrainPsrSourceRefs = [
+  MEKSTATION_TERRAIN_PSR_PROPERTIES_SOURCE_REF,
+  MEKSTATION_TERRAIN_PSR_RUNNER_SOURCE_REF,
+  MEKSTATION_TERRAIN_PSR_FACTORY_SOURCE_REF,
+  MEKSTATION_TERRAIN_PSR_CLASSIFICATION_SOURCE_REF,
+  MEKSTATION_TERRAIN_PSR_SPA_SOURCE_REF,
+];
+
 export function terrainLosSourceRefs(
   terrain: TerrainType,
 ): readonly ICombatFeatureSourceReference[] {
@@ -152,4 +248,38 @@ export function terrainAttackModifierSourceRefs(
   }
 
   return localToHitRefs;
+}
+
+export function terrainPsrSourceRefs(
+  terrain: TerrainType,
+): readonly ICombatFeatureSourceReference[] {
+  if (terrain === TerrainType.Rubble) {
+    return [MEGAMEK_RUBBLE_PSR_SOURCE_REF, ...localTerrainPsrSourceRefs];
+  }
+
+  if (terrain === TerrainType.Water) {
+    return [MEGAMEK_WATER_PSR_SOURCE_REF, ...localTerrainPsrSourceRefs];
+  }
+
+  if (terrain === TerrainType.Pavement || terrain === TerrainType.Ice) {
+    return [
+      MEGAMEK_SKID_PSR_SOURCE_REF,
+      MEGAMEK_SKID_DISTANCE_SOURCE_REF,
+      ...localTerrainPsrSourceRefs,
+    ];
+  }
+
+  if (terrain === TerrainType.Swamp) {
+    return [
+      MEGAMEK_SWAMP_BOG_DOWN_SOURCE_REF,
+      MEGAMEK_SWAMP_BOG_DOWN_TERRAIN_SOURCE_REF,
+      ...localTerrainPsrSourceRefs,
+    ];
+  }
+
+  if (terrain === TerrainType.Building) {
+    return [MEGAMEK_BUILDING_COLLAPSE_SOURCE_REF, ...localTerrainPsrSourceRefs];
+  }
+
+  return localTerrainPsrSourceRefs;
 }
