@@ -862,6 +862,18 @@ cover rear chassis mounts, left sponson front+left coverage, all-arc turret
 coverage, top-down firing-arc overlay narrowing, and preview-to-commit
 agreement for represented multi-arc mounts.
 
+2026-05-25 vehicle sponson browser pin: the tactical-map browser harness now
+loads a represented vehicle left-sponson weapon with `mountingArcs: [front,
+left]` and proves a left-arc target remains attackable in the rendered DOM.
+The focused Jest fixture aligns `deriveCombatRangeHexes` with committed
+`AttackDeclared` range, selected weapon ids, and to-hit number after the
+projection proves the left-side firing arc, while Playwright checks the same
+in-arc weapon availability metadata on the hex, combat badge, and arc badge.
+This keeps the MegaMek `Tank.getWeaponArc` and `Mounted` source pin visible at
+the browser layer instead of only in adapter/projection unit tests. Locked
+turrets, chin pivot penalties, and right-sponson mirror fixtures remain
+separate coverage slices.
+
 Additional selected-weapon extreme-range overlay pin: the firing-arc overlay
 now uses represented `ranges.extreme` when present while deriving selected
 operational weapon reach. Extreme-range target hexes that combat projection

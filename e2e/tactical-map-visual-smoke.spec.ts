@@ -3341,6 +3341,78 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows vehicle sponson multi-arc weapon as available in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=vehicle-sponson-in-arc');
+
+    const targetHex = page.getByTestId('hex--2-2');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'left-arc-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-distance', '2');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-range-bracket',
+      'short',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-firing-arc',
+      'left-side',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-in-arc', 'true');
+    await expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-in-range',
+      'left-sponson-laser',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-in-arc',
+      'left-sponson-laser',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-available',
+      'left-sponson-laser',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-ranges',
+      'left-sponson-laser:short',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-arc-states',
+      'left-sponson-laser:in-arc',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-availability',
+      'left-sponson-laser:available',
+    );
+
+    const combatBadge = page.getByTestId('hex-combat-badge--2-2');
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-attackable',
+      'true',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-arc-states',
+      'left-sponson-laser:in-arc',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-availability',
+      'left-sponson-laser:available',
+    );
+
+    const arcBadge = page.getByTestId('hex-combat-arc-badge--2-2');
+    await expect(arcBadge.locator('text')).toHaveText('L ARC');
+    await expect(arcBadge).toHaveAttribute(
+      'data-combat-arc-badge-arc',
+      'left-side',
+    );
+    await expect(arcBadge).toHaveAttribute(
+      'data-combat-arc-badge-in-arc',
+      'true',
+    );
+  });
+
   test('shows all selected weapons out of range as blocked in browser', async ({
     page,
   }) => {

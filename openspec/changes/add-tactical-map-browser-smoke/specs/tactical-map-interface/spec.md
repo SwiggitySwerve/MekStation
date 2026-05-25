@@ -93,6 +93,9 @@ the top-down map.
 - **AND** a combat target outside the selected weapon's firing arc SHALL expose
   `OutOfArc` rejection metadata, per-weapon arc blocker details, and a combat
   invalid badge that does not rely on color alone
+- **AND** a combat target inside a represented vehicle sponson weapon's
+  front-plus-side coverage SHALL remain attackable and expose in-arc
+  per-weapon availability metadata
 - **AND** a same-hex combat target SHALL expose `SameHex` rejection metadata
   and a combat invalid badge that does not rely on color alone, even when the
   selected weapon is otherwise in range

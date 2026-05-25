@@ -147,6 +147,8 @@
   semi-guided LRM target rejected without indirect-fire basis or badge metadata.
 - [x] 2.57 Add browser coverage proving represented spotter gunnery changes the
   indirect-fire penalty and exposes gunnery/skill-modifier metadata.
+- [x] 2.58 Add browser coverage proving represented vehicle sponson multi-arc
+  coverage keeps a left-arc target attackable with in-arc weapon metadata.
 
 ## 3. Validation
 
@@ -270,3 +272,5 @@
   projection, committed rejection event, and browser invalid-badge metadata.
 - [x] 3.57 Focused Jest parity and Playwright smoke pass for spotter-gunnery
   indirect-fire projection, committed event, and browser badge metadata.
+- [x] 3.58 Focused Jest parity and Playwright smoke pass for vehicle sponson
+  multi-arc projection, committed attack, and browser badge metadata.

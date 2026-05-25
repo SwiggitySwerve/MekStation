@@ -9,6 +9,8 @@ import {
 import {
   tacticalMapOutOfArcCombatProjection,
   tacticalMapOutOfArcCommitInput,
+  tacticalMapSponsonArcCombatProjection,
+  tacticalMapSponsonArcCommitInput,
 } from '../tactical-map.arc-scenarios';
 import {
   tacticalMapC3RangeBenefitCombatProjection,
@@ -1586,6 +1588,58 @@ describe('tactical map combat scenarios', () => {
       reason: tacticalMapOutOfArcCombatProjection.attackInvalidReason,
       details: tacticalMapOutOfArcCombatProjection.attackInvalidDetails,
     });
+  });
+
+  it('keeps vehicle sponson multi-arc projection aligned with attack commit validation', () => {
+    expect(tacticalMapSponsonArcCombatProjection).toMatchObject({
+      hex: { q: -2, r: 2 },
+      distance: 2,
+      rangeBracket: 'short',
+      firingArc: 'left-side',
+      inRange: true,
+      inArc: true,
+      attackable: true,
+      targetUnitIds: ['left-arc-target'],
+      validTargetUnitIds: ['left-arc-target'],
+      weaponIdsInRange: ['left-sponson-laser'],
+      weaponIdsInArc: ['left-sponson-laser'],
+      weaponIdsAvailable: ['left-sponson-laser'],
+      weaponRangeOptions: [
+        {
+          weaponId: 'left-sponson-laser',
+          rangeBracket: 'short',
+          inRange: true,
+          inArc: true,
+          available: true,
+        },
+      ],
+    });
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapSponsonArcCommitInput(),
+    );
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackLocked),
+    ).toBe(true);
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.weapons).toEqual(
+      tacticalMapSponsonArcCombatProjection.weaponIdsAvailable,
+    );
+    expect(payload.range).toBe(
+      tacticalMapSponsonArcCombatProjection.rangeBracket,
+    );
+    expect(payload.toHitNumber).toBe(
+      tacticalMapSponsonArcCombatProjection.toHitNumber,
+    );
   });
 
   it('keeps same-hex weapon-attack browser projection aligned with attack commit validation', () => {
