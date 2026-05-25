@@ -19,7 +19,9 @@ import {
   MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,
   MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
   MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
+  MEGAMEK_TARGETING_QUIRK_TO_HIT_SOURCE_REFS,
   MEGAMEK_WEAPON_TO_HIT_QUIRK_SOURCE_REFS,
+  MEKSTATION_TARGETING_QUIRK_ALIAS_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
 import {
   MEGAMEK_AMS_SOURCE_REFS,
@@ -621,27 +623,51 @@ export const SPA_COMBAT_SUPPORT = {
 export const QUIRK_COMBAT_SUPPORT = {
   improved_targeting_short: integrated(
     'improved_targeting_short',
-    'calculateTargetingQuirkModifier + calculateToHit',
+    'calculateTargetingQuirkModifier plus calculateToHit apply MekStation local improved_targeting_short as the source-backed short-range Improved Targeting quirk family',
+    [
+      ...MEGAMEK_TARGETING_QUIRK_TO_HIT_SOURCE_REFS,
+      ...MEKSTATION_TARGETING_QUIRK_ALIAS_SOURCE_REFS,
+    ],
   ),
   improved_targeting_medium: integrated(
     'improved_targeting_medium',
-    'calculateTargetingQuirkModifier + calculateToHit',
+    'calculateTargetingQuirkModifier plus calculateToHit apply MekStation local improved_targeting_medium as the source-backed medium-range Improved Targeting quirk family',
+    [
+      ...MEGAMEK_TARGETING_QUIRK_TO_HIT_SOURCE_REFS,
+      ...MEKSTATION_TARGETING_QUIRK_ALIAS_SOURCE_REFS,
+    ],
   ),
   improved_targeting_long: integrated(
     'improved_targeting_long',
-    'calculateTargetingQuirkModifier + calculateToHit',
+    'calculateTargetingQuirkModifier plus calculateToHit apply MekStation local improved_targeting_long as the source-backed long-range Improved Targeting quirk family',
+    [
+      ...MEGAMEK_TARGETING_QUIRK_TO_HIT_SOURCE_REFS,
+      ...MEKSTATION_TARGETING_QUIRK_ALIAS_SOURCE_REFS,
+    ],
   ),
   poor_targeting_short: integrated(
     'poor_targeting_short',
-    'calculateTargetingQuirkModifier + calculateToHit',
+    'calculateTargetingQuirkModifier plus calculateToHit apply MekStation local poor_targeting_short as the source-backed short-range Poor Targeting quirk family',
+    [
+      ...MEGAMEK_TARGETING_QUIRK_TO_HIT_SOURCE_REFS,
+      ...MEKSTATION_TARGETING_QUIRK_ALIAS_SOURCE_REFS,
+    ],
   ),
   poor_targeting_medium: integrated(
     'poor_targeting_medium',
-    'calculateTargetingQuirkModifier + calculateToHit',
+    'calculateTargetingQuirkModifier plus calculateToHit apply MekStation local poor_targeting_medium as the source-backed medium-range Poor Targeting quirk family',
+    [
+      ...MEGAMEK_TARGETING_QUIRK_TO_HIT_SOURCE_REFS,
+      ...MEKSTATION_TARGETING_QUIRK_ALIAS_SOURCE_REFS,
+    ],
   ),
   poor_targeting_long: integrated(
     'poor_targeting_long',
-    'calculateTargetingQuirkModifier + calculateToHit',
+    'calculateTargetingQuirkModifier plus calculateToHit apply MekStation local poor_targeting_long as the source-backed long-range Poor Targeting quirk family',
+    [
+      ...MEGAMEK_TARGETING_QUIRK_TO_HIT_SOURCE_REFS,
+      ...MEKSTATION_TARGETING_QUIRK_ALIAS_SOURCE_REFS,
+    ],
   ),
   distracting: integrated(
     'distracting',

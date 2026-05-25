@@ -311,6 +311,49 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual(weaponQuirkRefs);
   });
 
+  it('pins range targeting quirk rows to MegaMek behavior while preserving MekStation aliases', () => {
+    const targetingRefs =
+      QUIRK_COMBAT_SUPPORT.improved_targeting_short.sourceRefs ?? [];
+    const targetingCitations = targetingRefs.map(({ citation }) => citation);
+
+    expect(QUIRK_COMBAT_SUPPORT.improved_targeting_short).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('short-range Improved Targeting'),
+    });
+    expect(targetingCitations).toEqual([
+      'MegaMek Entity range modifier helpers apply Improved Targeting -1 and Poor Targeting +1 at short, medium, and long range.',
+      'MegaMek OptionsConstants defines source-backed targeting quirk ids as imp_target_short/med/long and poor_target_short/med/long.',
+      'MekStation QUIRK_CATALOG keeps local improved_targeting_* and poor_targeting_* aliases for the same range-targeting quirk family.',
+      'MekStation calculateTargetingQuirkModifier applies local aliases as +/-1 at the matching range bracket.',
+    ]);
+    expect(targetingRefs.map(({ kind }) => kind)).toEqual([
+      'megamek-source',
+      'megamek-source',
+      'mekstation-deviation',
+      'mekstation-deviation',
+    ]);
+    expect(QUIRK_COMBAT_SUPPORT.improved_targeting_medium.sourceRefs).toEqual(
+      targetingRefs,
+    );
+    expect(QUIRK_COMBAT_SUPPORT.improved_targeting_long.sourceRefs).toEqual(
+      targetingRefs,
+    );
+    expect(QUIRK_COMBAT_SUPPORT.poor_targeting_short.sourceRefs).toEqual(
+      targetingRefs,
+    );
+    expect(QUIRK_COMBAT_SUPPORT.poor_targeting_medium.sourceRefs).toEqual(
+      targetingRefs,
+    );
+    expect(QUIRK_COMBAT_SUPPORT.poor_targeting_long.sourceRefs).toEqual(
+      targetingRefs,
+    );
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'ranged-to-hit-calculation'
+      ].sourceRefs?.map(({ citation }) => citation),
+    ).toEqual(expect.arrayContaining(targetingCitations.slice(0, 2)));
+  });
+
   it('pins Jumping Jack and Hopping Jack to MegaMek jump attacker penalties', () => {
     const jumpingRefs = SPA_COMBAT_SUPPORT['jumping-jack'].sourceRefs ?? [];
     const hoppingRefs = SPA_COMBAT_SUPPORT['hopping-jack'].sourceRefs ?? [];

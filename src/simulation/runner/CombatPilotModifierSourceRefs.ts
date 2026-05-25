@@ -82,6 +82,28 @@ export const MEGAMEK_WEAPON_TO_HIT_QUIRK_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEGAMEK_TARGETING_QUIRK_TO_HIT_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek Entity range modifier helpers apply Improved Targeting -1 and Poor Targeting +1 at short, medium, and long range.',
+    'megamek/src/megamek/common/units/Entity.java#L10975-L11033',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines source-backed targeting quirk ids as imp_target_short/med/long and poor_target_short/med/long.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L70-L140',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEKSTATION_TARGETING_QUIRK_ALIAS_SOURCE_REFS = [
+  mekstationDeviationRef(
+    'MekStation QUIRK_CATALOG keeps local improved_targeting_* and poor_targeting_* aliases for the same range-targeting quirk family.',
+    'src/utils/gameplay/quirkModifiers/catalog.ts#L13-L18',
+  ),
+  mekstationDeviationRef(
+    'MekStation calculateTargetingQuirkModifier applies local aliases as +/-1 at the matching range bracket.',
+    'src/utils/gameplay/quirkModifiers/targetingQuirks.ts#L14-L58',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS = [
   megamekRef(
     'MegaMek HeatResolver sets PILOT_HOT_DOG to hotDogMod = 1 before resolving heat effects.',

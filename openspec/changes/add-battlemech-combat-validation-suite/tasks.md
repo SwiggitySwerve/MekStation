@@ -135,6 +135,7 @@
 - [x] 3.4.22 Integrate source-backed explicit HQ/command initiative equipment bonuses into `rollInitiative` while leaving automatic equipment hydration explicit.
 - [x] 3.4.23 Integrate source-backed Tactical Genius initiative reroll requests into `rollInitiative` while leaving Combat Intuition sequencing and automatic equipment hydration explicit.
 - [x] 3.4.23.1 Source-pin Sensor Ghosts and weapon to-hit quirk rows to MegaMek attacker quirk processing while leaving targeting, cooling, PSR, and physical quirk families for separate validation slices.
+- [x] 3.4.23.2 Source-pin Improved/Poor Targeting quirk rows to MegaMek range modifier helpers while preserving MekStation local alias ids as explicit deviation refs.
 - [x] 3.4.24 Guard source-backed initiative equipment hydration as unsupported unless complete HQ communications or command-console eligibility context exists; command-looking metadata without explicit initiative fields fails closed.
 - [x] 3.4.25 Source-back legacy Evasive SPA support as an unsupported optional TacOps Evade movement/action gap, including target to-hit and attacker firing restrictions, until an authoritative evade action path exists.
 - [x] 3.4.26 Source-back torso-twist secondary-facing arc consumption and extended/no-twist quirk boundaries while preserving attack arc consumption as a helper-only gap until torso twist is authoritative.
@@ -263,3 +264,4 @@
 - [x] 4.3.77 Cross-check existing terrain PSR source refs before reusing them for runner PSR trigger rows; record running-rough, moving-on-ice, and exiting-water triggers as local source-visible rows rather than MegaMek parity claims.
 - [x] 4.3.78 Cross-check MegaMek heat shutdown PSR queueing, stand-up skill checks, and running-with-damage PSRs before pinning runner trigger rows; record MekStation queued timing and split/local branches as source-visible deviations.
 - [x] 4.3.79 Cross-check MegaMek `ComputeAbilityMods.processAttackerQuirks` and quirk option ids before pinning Sensor Ghosts plus Accurate/Inaccurate/Stable Weapon to-hit rows.
+- [x] 4.3.80 Cross-check MegaMek `Entity.getShortRangeModifier`, `getMediumRangeModifier`, `getLongRangeModifier`, and targeting quirk option ids before pinning Improved/Poor Targeting rows and MekStation alias boundaries.
