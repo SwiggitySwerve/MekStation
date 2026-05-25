@@ -259,7 +259,6 @@ const PARITY_TRIAD = entryTriad(
   'Runner/interactive parity and representative integration rows require row sourceRefs for the executable MekStation paths they claim.',
   PARITY_REFS,
 );
-const PILOT_TRIAD = requirementTriad(PILOT_REFS);
 const PILOT_MODIFIER_RESOLVER_TRIAD = entryTriad(
   'Pilot modifier resolver rows require row sourceRefs.',
   PILOT_REFS,
@@ -404,7 +403,7 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
     representativeScenarios: PARITY_TRIAD,
   },
   pilotSkills: {
-    pilotSkillUse: PILOT_TRIAD,
+    pilotSkillUse: entryTriad('Pilot skill rows need refs.', PILOT_REFS),
     pilotModifierResolvers: PILOT_MODIFIER_RESOLVER_TRIAD,
   },
   validationScope: {

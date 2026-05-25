@@ -1461,6 +1461,19 @@ Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior 
 - **AND** the requirement SHALL remain helper-only while Cool Under Fire source authority is unresolved
 - **AND** the integrated `heat-lifecycle` requirement SHALL NOT imply complete heat-driven modifier parity
 
+### Requirement: Source-Backed Pilot Skill Use Rows
+
+Pilot skill use support rows SHALL expose structured row-level source references before the map is treated as validation coverage. Ranged gunnery rows SHALL cite MegaMek ranged attack gunnery anchors plus MekStation runner/session to-hit hydration. Physical piloting rows SHALL cite MegaMek physical attack piloting baselines plus MekStation runner/session physical to-hit paths. PSR and stand-up rows SHALL cite MegaMek base piloting roll, PSR resolution, and stand-up anchors plus MekStation runner/session resolution paths. Initiative rows SHALL cite source-backed Command Mech, Battle Computer, HQ/command equipment, and Tactical Genius anchors while preserving helper-only gaps for Combat Intuition and automatic equipment hydration. MekStation-local pilot wound penalties and PSR event skill stamping SHALL be marked as explicit MekStation deviation refs rather than inferred MegaMek parity.
+
+#### Scenario: Pilot skill use rows expose source truth
+
+- **GIVEN** the BattleMech pilot skill support catalog is generated
+- **WHEN** any `pilotSkillUse` row is inspected
+- **THEN** the row SHALL carry at least one structured source reference with a line anchor
+- **AND** MegaMek references SHALL be commit-pinned to the local source snapshot
+- **AND** MekStation-local wound and event-stamp rows SHALL identify their executable local anchors
+- **AND** the `pilotSkillUse` catalog triad SHALL enforce row-level source references before PR approval
+
 ### Requirement: Source-Backed Legacy Pilot Ability Support Rows
 
 Legacy `pilotAbilities` support rows SHALL expose structured row-level source references before the map is treated as validation coverage. Weapon Specialist, Gunnery Specialist, Blood Stalker, Cluster Hitter, Range Master, Sniper, Oblique Attacker, and Forward Observer rows SHALL cite pinned MegaMek behavior plus MekStation helper or runner paths. Marksman and Sharpshooter SHALL remain helper-only local called-shot helpers because MegaMek source backs TacOps called-shot penalties but does not validate those reductions. Melee Specialist and Melee Master SHALL remain helper-only until the physical-combat ability split matches source truth: MegaMek Melee Specialist applies physical to-hit relief plus +1 damage, while MegaMek Melee Master grants two allowed physical attacks instead of MekStation's legacy flat damage bonus. Generic Terrain Master SHALL remain an unsupported variant-split row while source-backed Terrain Master variants are tracked separately.

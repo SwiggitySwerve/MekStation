@@ -221,7 +221,7 @@ describe('BattleMech combat validation catalog index', () => {
     expect([...sectionKeyFailures, ...evidenceFailures]).toEqual([]);
   });
 
-  it('keeps source-pinned quirk, PSR trigger, resolver, and damage catalogs on row-level authority', () => {
+  it('keeps source-pinned quirk, PSR trigger, pilot, resolver, and damage catalogs on row-level authority', () => {
     const triadMaps = triadEvidenceMaps();
 
     expect(triadMaps.featureSupport.mechQuirks.authorityBoundary.kind).toBe(
@@ -233,6 +233,9 @@ describe('BattleMech combat validation catalog index', () => {
     expect(
       triadMaps.pilotSkills.pilotModifierResolvers.authorityBoundary.kind,
     ).toBe('entry-source-refs');
+    expect(triadMaps.pilotSkills.pilotSkillUse.authorityBoundary.kind).toBe(
+      'entry-source-refs',
+    );
     expect(
       triadMaps.damageAndDeath.damageResolution.authorityBoundary.kind,
     ).toBe('entry-source-refs');
