@@ -1,6 +1,10 @@
 import React from 'react';
 
-import type { IHexCoordinate, IHexTerrain } from '@/types/gameplay';
+import type {
+  IHexCoordinate,
+  IHexTerrain,
+  IMovementRangeHex,
+} from '@/types/gameplay';
 
 import { TERRAIN_COLORS } from '@/constants/terrain';
 import { TerrainType } from '@/types/gameplay';
@@ -11,43 +15,30 @@ import {
   formatTerrainFeaturesLabel,
 } from './HexCell.labels';
 import {
+  movementCostBandFill,
+  movementCostBandFor,
+  movementProjectionOverlayAttributes,
+  movementProjectionOverlayTitleParts,
+} from './MovementCostOverlay.projection';
+import {
   hexToPixel,
   getPrimaryTerrainFeature,
   getTerrainMovementCost,
   getTerrainCoverLevel,
 } from './renderHelpers';
 
-// =============================================================================
-// MovementCostOverlay
-// =============================================================================
-
 export interface MovementCostOverlayProps {
   hex: IHexCoordinate;
   terrain: IHexTerrain | undefined;
-}
-
-type MovementCostBand = 'low' | 'medium' | 'high';
-
-function movementCostBandFor(cost: number): MovementCostBand {
-  if (cost <= 1) return 'low';
-  if (cost <= 3) return 'medium';
-  return 'high';
-}
-
-function movementCostBandFill(band: MovementCostBand): string {
-  switch (band) {
-    case 'low':
-      return '#22c55e';
-    case 'medium':
-      return '#eab308';
-    case 'high':
-      return '#ef4444';
-  }
+  movementInfo?: IMovementRangeHex;
+  projectionExplanation?: string;
 }
 
 export const MovementCostOverlay = React.memo(function MovementCostOverlay({
   hex,
   terrain,
+  movementInfo,
+  projectionExplanation,
 }: MovementCostOverlayProps): React.ReactElement {
   const { x, y } = hexToPixel(hex);
   const cost = getTerrainMovementCost(terrain);
@@ -57,7 +48,21 @@ export const MovementCostOverlay = React.memo(function MovementCostOverlay({
   const terrainLabel = formatTerrainFeaturesLabel(terrainTypes);
   const elevation = terrain?.elevation ?? 0;
   const elevationLabel = formatElevationLabel(elevation);
-  const title = `Terrain movement cost ${cost}; terrain ${terrainLabel}; elevation ${elevationLabel}`;
+  const title = [
+    `Terrain movement cost ${cost}`,
+    `terrain ${terrainLabel}`,
+    `elevation ${elevationLabel}`,
+    ...movementProjectionOverlayTitleParts({
+      movementInfo,
+      projectionExplanation,
+    }),
+  ]
+    .filter(Boolean)
+    .join('; ');
+  const movementProjectionAttributes = movementProjectionOverlayAttributes(
+    movementInfo,
+    projectionExplanation,
+  );
 
   return (
     <g
@@ -71,6 +76,7 @@ export const MovementCostOverlay = React.memo(function MovementCostOverlay({
       data-terrain-movement-cost-fill={costBandFill}
       data-elevation={elevation}
       aria-label={title}
+      {...movementProjectionAttributes}
     >
       <title>{title}</title>
       <circle

@@ -583,9 +583,54 @@ describe('HexMapDisplay terrain and elevation labels', () => {
 
     assertTerrainAndElevationBadges(terrainMatrix);
     expect(screen.getByTestId('movement-overlay')).toBeInTheDocument();
-    expect(screen.getByTestId('movement-cost-overlay-hex-1-0')).toHaveAttribute(
+    const movementCostOverlay = screen.getByTestId(
+      'movement-cost-overlay-hex-1-0',
+    );
+    expect(movementCostOverlay).toHaveAttribute(
       'aria-label',
       expect.stringContaining('Terrain movement cost'),
+    );
+    expect(movementCostOverlay).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining(
+        'Projected movement: walk reachable; 3 MP; terrain +1; elevation delta 1; elevation cost +1; heat +1',
+      ),
+    );
+    expect(movementCostOverlay).toHaveAttribute(
+      'data-movement-projection-type',
+      MovementType.Walk,
+    );
+    expect(movementCostOverlay).toHaveAttribute(
+      'data-movement-projection-mode',
+      'walk',
+    );
+    expect(movementCostOverlay).toHaveAttribute(
+      'data-movement-projection-reachable',
+      'true',
+    );
+    expect(movementCostOverlay).toHaveAttribute(
+      'data-movement-projection-mp-cost',
+      '3',
+    );
+    expect(movementCostOverlay).toHaveAttribute(
+      'data-movement-projection-terrain-cost',
+      '1',
+    );
+    expect(movementCostOverlay).toHaveAttribute(
+      'data-movement-projection-elevation-delta',
+      '1',
+    );
+    expect(movementCostOverlay).toHaveAttribute(
+      'data-movement-projection-elevation-cost',
+      '1',
+    );
+    expect(movementCostOverlay).toHaveAttribute(
+      'data-movement-projection-heat-generated',
+      '1',
+    );
+    expect(movementCostOverlay).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('Walk reachable 3 MP'),
     );
     expect(screen.getByTestId('cover-overlay')).toBeInTheDocument();
     expect(screen.getByTestId('cover-overlay-hex-2-0')).toHaveAttribute(

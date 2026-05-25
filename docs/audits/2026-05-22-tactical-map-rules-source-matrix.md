@@ -1334,6 +1334,14 @@ the overlay group, LOS line, and LOS state badge. This does not change LOS
 geometry or attack legality; it ties the visible LOS overlay to the same
 rules-backed combat projection evidence used by hex badges and hovers.
 
+2026-05-25 movement cost overlay projection context pin: Movement cost overlay
+markers now preserve generic terrain movement cost context while also exposing
+the selected unit's shared movement projection when available: movement type,
+movement mode, reachability, MP, terrain cost, elevation delta/cost, heat, and
+blocked/invalid reasons. This does not change movement legality; it makes the
+terrain-cost overlay another rules-backed inspection surface instead of a
+terrain-only island.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

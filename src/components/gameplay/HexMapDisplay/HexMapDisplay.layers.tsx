@@ -8,6 +8,7 @@ import type {
   IUnitToken,
 } from '@/types/gameplay';
 import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
+import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
 import { UnitTokenForType } from '@/components/gameplay/UnitToken/UnitTokenForType';
 import { HEX_SIZE } from '@/constants/hexMap';
@@ -276,12 +277,17 @@ interface TerrainOverlayLayersProps {
   readonly interaction: MapInteractionState;
   readonly hexes: readonly IHexCoordinate[];
   readonly terrainLookup: ReadonlyMap<string, IHexTerrain>;
+  readonly tacticalMapProjectionLookup?: ReadonlyMap<
+    string,
+    ITacticalMapHexProjection
+  >;
 }
 
 export function TerrainOverlayLayers({
   interaction,
   hexes,
   terrainLookup,
+  tacticalMapProjectionLookup,
 }: TerrainOverlayLayersProps): React.ReactElement {
   return (
     <>
@@ -290,11 +296,14 @@ export function TerrainOverlayLayers({
           {hexes.map((hex) => {
             const key = coordToKey(hex);
             const terrain = terrainLookup.get(key);
+            const projection = tacticalMapProjectionLookup?.get(key);
             return (
               <MovementCostOverlay
                 key={`move-${key}`}
                 hex={hex}
                 terrain={terrain}
+                movementInfo={projection?.movement}
+                projectionExplanation={projection?.explanation}
               />
             );
           })}

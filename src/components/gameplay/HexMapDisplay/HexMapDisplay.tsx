@@ -195,6 +195,7 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
             interaction={interaction}
             hexes={hexes}
             terrainLookup={terrainLookup}
+            tacticalMapProjectionLookup={tacticalMapProjectionLookup}
           />
         </g>
       </svg>
