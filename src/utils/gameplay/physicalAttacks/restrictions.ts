@@ -9,6 +9,8 @@ import {
   IPhysicalAttackRestriction,
   PhysicalAttackInvalidReason,
   PhysicalAttackLimb,
+  PhysicalAttackType,
+  PhysicalTargetObjectType,
 } from './types';
 
 function blocked(
@@ -30,6 +32,29 @@ const CHARGE_DFA_NON_ENTITY_TARGET_OBJECT_TYPES = new Set([
 ]);
 
 const PUSH_BLOCKED_TARGET_OBJECT_TYPES = new Set(['building', 'fuelTank']);
+
+export function physicalTargetObjectInvalidReason(
+  attackType: PhysicalAttackType,
+  targetObjectType: PhysicalTargetObjectType | undefined,
+): PhysicalAttackInvalidReason | undefined {
+  if (targetObjectType === undefined) return undefined;
+  if (INVALID_PHYSICAL_TARGET_OBJECT_TYPES.has(targetObjectType)) {
+    return 'InvalidPhysicalTarget';
+  }
+  if (
+    (attackType === 'charge' || attackType === 'dfa') &&
+    CHARGE_DFA_NON_ENTITY_TARGET_OBJECT_TYPES.has(targetObjectType)
+  ) {
+    return 'InvalidPhysicalTarget';
+  }
+  if (
+    attackType === 'push' &&
+    PUSH_BLOCKED_TARGET_OBJECT_TYPES.has(targetObjectType)
+  ) {
+    return 'TargetBuilding';
+  }
+  return undefined;
+}
 
 /**
  * Per `implement-physical-attack-phase` task 3.5: same limb (arm or leg)

@@ -350,6 +350,7 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **WHEN** the shared physical legality gate runs
 - **THEN** the attack SHALL be rejected with `TargetMissing`
 - **AND** no physical attack declaration SHALL be scheduled
+- **AND** explicit non-unit target-object declarations SHALL use their source-backed object rejection code instead of falling back to `TargetMissing`
 
 #### Scenario: Stale physical declarations resolve missing targets as invalid
 
@@ -357,6 +358,7 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **WHEN** the physical attack resolver runs
 - **THEN** the resolver SHALL emit `PhysicalAttackResolved` with `TargetMissing`
 - **AND** no damage, displacement, or PSR side effect SHALL be emitted
+- **AND** explicit non-unit target-object context SHALL resolve with the source-backed object rejection code instead of `TargetMissing`
 
 #### Scenario: Physical attacks cannot target destroyed units
 
@@ -449,27 +451,27 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** the kick SHALL be rejected with `LimbMissing`
 - **AND** eligibility UI, event-sourced declaration, and runner resolution SHALL report the same gate outcome from the shared helper
 
-#### Scenario: Physical helpers reject invalid hex target objects
+#### Scenario: Physical declarations reject invalid hex target objects
 
-- **GIVEN** a physical helper evaluates a woods-clearing, building-ignition, or hex-ignition target object
+- **GIVEN** a physical helper or event-sourced declaration evaluates a woods-clearing, building-ignition, or hex-ignition target object
 - **WHEN** the shared physical legality gate runs
 - **THEN** the attack SHALL be rejected with `InvalidPhysicalTarget`
-- **AND** the validation catalog SHALL mark this as helper-only until runtime physical declarations can target non-unit objects
+- **AND** stale declared resolution with explicit non-unit target context SHALL preserve `InvalidPhysicalTarget` without damage, displacement, or PSR side effects
 
-#### Scenario: Push helpers reject building and fuel-tank target objects
+#### Scenario: Push declarations reject building and fuel-tank target objects
 
-- **GIVEN** a push helper evaluates a building or fuel-tank target object
+- **GIVEN** a push helper or event-sourced declaration evaluates a building or fuel-tank target object
 - **WHEN** the push legality gate runs
 - **THEN** the push SHALL be rejected with `TargetBuilding`
-- **AND** the validation catalog SHALL mark this as helper-only until runtime physical declarations can target non-unit objects
+- **AND** stale declared resolution with explicit non-unit target context SHALL preserve `TargetBuilding` without damage, displacement, or PSR side effects
 
-#### Scenario: Charge and death from above helpers reject non-entity building targets
+#### Scenario: Charge and death from above declarations reject non-entity building targets
 
-- **GIVEN** a charge or death from above helper evaluates a building or fuel-tank target object
+- **GIVEN** a charge or death from above helper or event-sourced declaration evaluates a building or fuel-tank target object
 - **WHEN** the action-specific legality gate runs
 - **THEN** the attack SHALL be rejected with `InvalidPhysicalTarget`
 - **AND** the catalog SHALL record that MegaMek source order returns `Invalid Target` for non-entity targets before the later adjacent-building branch
-- **AND** non-unit building and fuel-tank physical target resolution SHALL remain an explicit gap
+- **AND** non-unit building and fuel-tank physical damage resolution SHALL remain an explicit gap
 
 #### Scenario: Gun-emplacement physical targets resolve as automatic hits
 

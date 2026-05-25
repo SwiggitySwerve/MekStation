@@ -62,10 +62,10 @@
 - [x] 2.30 Integrate push displacement-state and counter-push rejection for helper, eligibility, event-sourced declaration/resolution, and runner resolution through optional combat displacement lifecycle ownership state.
 - [x] 2.31 Integrate DFA target movement-complete/immobile gate for helper, eligibility, and event-sourced declaration/resolution while preserving runner physical resolution as post-movement complete.
 - [ ] 2.32 Implement remaining physical unsupported gaps: remaining target class restrictions, full displacement-chain consequences, forbidden terrain displacement, and pilot skill roll fallout.
-- [x] 2.32.1 Add helper-level target object gates for invalid physical hex targets and push building/fuel-tank rejection while leaving runtime non-unit target commands explicit out of scope.
+- [x] 2.32.1 Add explicit target-object gates for invalid physical hex targets and push building/fuel-tank rejection across helper, event-sourced declaration, stale declared resolution, catalog, spec, and audit coverage while leaving non-unit damage resolution explicit out of scope.
 - [x] 2.32.2 Add helper-level DFA VTOL/WIGE elevation-reach gate while leaving runtime VTOL/WIGE motion-state hydration explicit out of scope.
 - [x] 2.32.3 Add the initial DFA mechanical jump booster rejection as an intermediate source-backed gate.
-- [x] 2.32.4 Add helper-level charge/DFA building and fuel-tank target rejection while leaving gun-emplacement automatic-success semantics explicit out of scope.
+- [x] 2.32.4 Add charge/DFA building and fuel-tank target rejection across helper, event-sourced declaration, stale declared resolution, catalog, spec, and audit coverage while keeping MegaMek source-order invalid-target semantics separate from gun-emplacement automatic success.
 - [x] 2.32.5 Integrate source-backed retractable blade damage, to-hit, optional extended-mode legality, runtime intent/wire validation, and runner resolution while leaving physical weapon mode hydration explicit out of scope.
 - [x] 2.32.6 Add source-backed talon kick/DFA damage modifiers through explicit combat state/context while leaving mounted-equipment hydration and non-biped talon locations explicit out of scope.
 - [x] 2.32.7 Hydrate biped BattleMech talon leg state from catalog critical slots so source-backed talon kick/DFA modifiers apply to real unit data, while leaving destroyed/missing/breached talon lifecycle and non-biped talon behavior explicit out of scope.

@@ -32,24 +32,6 @@ function integrated(
   };
 }
 
-function helperOnly(
-  id: string,
-  attackFamily: PhysicalLegalityAttackFamily,
-  evidence: string,
-  gap: string,
-  authority: string,
-): IPhysicalLegalityGateSupportEntry {
-  return {
-    id,
-    attackFamily,
-    authority,
-    level: 'helper-only',
-    evidence,
-    gap,
-    sourceRefs: sourceRefsForAuthority(authority),
-  };
-}
-
 function unsupported(
   id: string,
   attackFamily: PhysicalLegalityAttackFamily,
@@ -385,11 +367,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'shared restriction helpers reject targetIsMakingDFA, IUnitGameState exposes optional isMakingDFA, and eligibility/session/runner inputs thread DFA-making target state into physical validation',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
-  'shared.invalid-hex-target': helperOnly(
+  'shared.invalid-hex-target': integrated(
     'shared.invalid-hex-target',
     'shared',
-    'shared restriction helpers consume targetObjectType and reject woods-clearing, building-ignition, and hex-ignition physical targets as InvalidPhysicalTarget',
-    'Runtime physical declarations and runner selection still target unit ids only, so non-unit hex target commands remain out of scope',
+    'shared restriction helpers consume targetObjectType and reject woods-clearing, building-ignition, and hex-ignition physical targets as InvalidPhysicalTarget; event-sourced declarations and stale declared resolution consume explicit non-unit targetObjectType context before falling back to TargetMissing',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
   'shared.gun-emplacement-automatic-hit': integrated(
@@ -530,11 +511,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'canPush consumes targetProne and rejects push declarations against prone targets',
     PUSH_ACTION_LINES,
   ),
-  'push.not-building-target': helperOnly(
+  'push.not-building-target': integrated(
     'push.not-building-target',
     'push',
-    'canPush consumes targetObjectType and rejects building or fuel-tank targets as TargetBuilding',
-    'Runtime physical declarations and runner selection still target unit ids only, so building/fuel-tank push commands remain out of scope',
+    'canPush consumes targetObjectType and rejects building or fuel-tank targets as TargetBuilding; event-sourced declarations and stale declared resolution consume explicit non-unit targetObjectType context before falling back to TargetMissing',
     PUSH_ACTION_LINES,
   ),
   'charge.requires-run': integrated(
@@ -561,11 +541,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'canCharge rejects attackerProne after the source-backed run gate passes; event-sourced declarations emit AttackerProne before scheduling and runner physical phase skips prone attackers before bot/automatic charge declarations',
     CHARGE_MOVEMENT_PATH_LINES,
   ),
-  'charge.target-entity': helperOnly(
+  'charge.target-entity': integrated(
     'charge.target-entity',
     'charge',
-    'canCharge consumes targetObjectType and rejects explicit building or fuel-tank charge targets as InvalidPhysicalTarget, matching MegaMek source order where non-entity targets return Invalid Target before later physical target branches',
-    'Runtime physical declarations and runner selection still target unit ids only; gun-emplacement automatic-success semantics need a separate automatic physical outcome model',
+    'canCharge consumes targetObjectType and rejects explicit building or fuel-tank charge targets as InvalidPhysicalTarget, matching MegaMek source order where non-entity targets return Invalid Target before later physical target branches; event-sourced declarations and stale declared resolution consume explicit non-unit targetObjectType context',
     CHARGE_ACTION_LINES,
   ),
   'charge.target-mek-standing': integrated(
@@ -598,11 +577,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'canCharge consumes targetIsMakingDisplacementAttack and targetedByDisplacementAttackerId to reject targets already making a charge/DFA or already owned by another displacement attacker; eligibility, event-sourced declaration/resolution, runner resolution, and automatic selection thread the same optional displacement state',
     CHARGE_ACTION_LINES,
   ),
-  'charge.building-auto-hit': helperOnly(
+  'charge.building-auto-hit': integrated(
     'charge.building-auto-hit',
     'charge',
-    'canCharge rejects explicit building and fuel-tank targetObjectType values as InvalidPhysicalTarget because MegaMek ChargeAttackAction returns Invalid Target for non-entity targets before its later adjacent-building branch',
-    'Runtime non-unit physical target declarations remain unsupported; gun-emplacement charge rejection is covered by charge.target-mek-standing',
+    'canCharge rejects explicit building and fuel-tank targetObjectType values as InvalidPhysicalTarget because MegaMek ChargeAttackAction returns Invalid Target for non-entity targets before its later adjacent-building branch; event-sourced declarations and stale declared resolution now preserve that rejection instead of reporting TargetMissing',
     CHARGE_ACTION_LINES,
   ),
   'dfa.requires-jump': integrated(
@@ -659,11 +637,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'canDFA consumes the shared targetOccupiedBuildingId gate and rejects entity targets inside another building as TargetInsideBuilding through eligibility, event-sourced declaration/resolution, and runner resolution inputs',
     DFA_ACTION_LINES,
   ),
-  'dfa.building-auto-hit': helperOnly(
+  'dfa.building-auto-hit': integrated(
     'dfa.building-auto-hit',
     'dfa',
-    'canDFA rejects explicit building and fuel-tank targetObjectType values as InvalidPhysicalTarget because MegaMek DfaAttackAction returns Invalid Target for non-entity targets before its later adjacent-building branch',
-    'Runtime non-unit building/fuel-tank physical target declarations remain unsupported; gun-emplacement automatic success is covered by shared.gun-emplacement-automatic-hit',
+    'canDFA rejects explicit building and fuel-tank targetObjectType values as InvalidPhysicalTarget because MegaMek DfaAttackAction returns Invalid Target for non-entity targets before its later adjacent-building branch; event-sourced declarations now preserve that rejection instead of reporting TargetMissing',
     DFA_ACTION_LINES,
   ),
 } satisfies Record<string, IPhysicalLegalityGateSupportEntry>;

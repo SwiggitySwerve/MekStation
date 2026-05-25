@@ -74,6 +74,7 @@ import {
   isTargetDirectlyAhead,
   isValidDisplacement,
   physicalTargetObjectTypeForUnitType,
+  physicalTargetObjectInvalidReason,
   PhysicalAttackType,
   isSupportedPhysicalAttackType,
   resolveDfaMissFallDamage,
@@ -425,6 +426,9 @@ export function declarePhysicalAttack(
 
   const componentDamage =
     attackerState.componentDamage ?? buildDefaultComponentDamageState();
+  const targetObjectType =
+    context.targetObjectType ??
+    physicalTargetObjectTypeForUnitType(targetState?.unitType);
 
   const input: IPhysicalAttackInput = {
     attackerId,
@@ -459,10 +463,8 @@ export function declarePhysicalAttack(
     targetProne: targetState?.prone,
     targetMovementComplete: context.targetMovementComplete,
     targetImmobile: targetState?.shutdown,
-    targetExists: targetState !== undefined,
-    targetObjectType: physicalTargetObjectTypeForUnitType(
-      targetState?.unitType,
-    ),
+    targetExists: targetState !== undefined || targetObjectType !== undefined,
+    targetObjectType,
     targetDestroyed: targetState?.destroyed,
     targetRetreated: targetState?.hasRetreated,
     targetEjected: targetState?.hasEjected,
@@ -647,11 +649,15 @@ export function resolveAllPhysicalAttacks(
       continue;
     }
     if (!targetState) {
+      const targetObjectReason = physicalTargetObjectInvalidReason(
+        payload.attackType,
+        context.targetObjectType,
+      );
       currentSession = appendInvalidPhysicalResolution(
         currentSession,
         turn,
         payload,
-        'TargetMissing',
+        targetObjectReason ?? 'TargetMissing',
       );
       continue;
     }
@@ -686,6 +692,9 @@ export function resolveAllPhysicalAttacks(
 
     const componentDamage =
       attackerState.componentDamage ?? buildDefaultComponentDamageState();
+    const targetObjectType =
+      context.targetObjectType ??
+      physicalTargetObjectTypeForUnitType(targetState.unitType);
 
     const input: IPhysicalAttackInput = {
       attackerId: payload.attackerId,
@@ -725,9 +734,7 @@ export function resolveAllPhysicalAttacks(
       targetMovementComplete: context.targetMovementComplete,
       targetImmobile: targetState.shutdown,
       targetExists: true,
-      targetObjectType: physicalTargetObjectTypeForUnitType(
-        targetState.unitType,
-      ),
+      targetObjectType,
       targetDestroyed: targetState.destroyed,
       targetRetreated: targetState.hasRetreated,
       targetEjected: targetState.hasEjected,

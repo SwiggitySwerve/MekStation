@@ -3,6 +3,7 @@ import type { IUnitGameState } from '@/types/gameplay';
 import type {
   IPhysicalAttackRestriction,
   PhysicalAttackLimb,
+  PhysicalTargetObjectType,
 } from './physicalAttacks';
 
 /**
@@ -27,6 +28,13 @@ export interface IPhysicalAttackContext {
    * modifier (TMM). Threaded into punch / kick / melee / DFA to-hit.
    */
   readonly targetMovementModifier?: number;
+  /**
+   * Explicit non-unit physical target kind. Runtime declarations normally
+   * carry unit ids; this lets event-sourced command validation model
+   * source-backed building, fuel-tank, gun-emplacement, and hex-target
+   * rejection semantics without pretending those are combat units.
+   */
+  readonly targetObjectType?: PhysicalTargetObjectType;
   /**
    * Per task 6.1: attacker-movement modifier for charge to-hit.
    */
