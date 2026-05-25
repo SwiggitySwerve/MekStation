@@ -635,10 +635,16 @@ describe('HexMapDisplay terrain and elevation labels', () => {
     expect(screen.getByTestId('cover-overlay')).toBeInTheDocument();
     expect(screen.getByTestId('cover-overlay-hex-2-0')).toHaveAttribute(
       'aria-label',
-      'Partial cover; terrain light woods; elevation +2',
+      expect.stringContaining(
+        'Partial cover; terrain light woods; elevation +2',
+      ),
     );
     expect(screen.getByTestId('cover-overlay-hex-2-0')).toHaveAttribute(
       'data-cover-level',
+      'partial',
+    );
+    expect(screen.getByTestId('cover-overlay-hex-2-0')).toHaveAttribute(
+      'data-terrain-cover-level',
       'partial',
     );
     expect(screen.getByTestId('cover-overlay-hex-2-0')).toHaveAttribute(
@@ -652,6 +658,26 @@ describe('HexMapDisplay terrain and elevation labels', () => {
     expect(screen.getByTestId('cover-overlay-hex-2-0')).toHaveAttribute(
       'data-elevation',
       '2',
+    );
+    expect(screen.getByTestId('cover-overlay-hex-2-0')).toHaveAttribute(
+      'data-cover-projection-level',
+      'none',
+    );
+    expect(screen.getByTestId('cover-overlay-hex-2-0')).toHaveAttribute(
+      'data-cover-projection-modifier',
+      '0',
+    );
+    expect(screen.getByTestId('cover-overlay-hex-2-0')).toHaveAttribute(
+      'data-cover-projection-partial-cover',
+      'false',
+    );
+    expect(screen.getByTestId('cover-overlay-hex-2-0')).toHaveAttribute(
+      'data-cover-projection-target-ids',
+      'target',
+    );
+    expect(screen.getByTestId('cover-overlay-hex-2-0')).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('combat short 2 hexes LOS clear'),
     );
     expect(screen.getByTestId('firing-arc-overlay')).toBeInTheDocument();
     expect(screen.getByTestId('los-overlay')).toBeInTheDocument();

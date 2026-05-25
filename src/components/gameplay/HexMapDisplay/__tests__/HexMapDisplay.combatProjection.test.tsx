@@ -2110,6 +2110,8 @@ describe('HexMapDisplay combat projection', () => {
       />,
     );
 
+    fireEvent.click(screen.getByTestId('overlay-toggle-cover'));
+
     const targetHex = screen.getByTestId('hex-2-0');
     expect(targetHex).toHaveAttribute('data-combat-los-state', 'clear');
     expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
@@ -2134,6 +2136,32 @@ describe('HexMapDisplay combat projection', () => {
     const coverBadge = screen.getByTestId('hex-cover-badge-2-0');
     expect(coverBadge).toHaveTextContent('P+1');
     expect(coverBadge).toHaveAttribute('data-combat-cover-badge-label', 'P+1');
+    const coverOverlay = screen.getByTestId('cover-overlay-hex-2-0');
+    expect(coverOverlay).toHaveAttribute('data-cover-level', 'partial');
+    expect(coverOverlay).toHaveAttribute('data-terrain-cover-level', 'none');
+    expect(coverOverlay).toHaveAttribute(
+      'data-cover-projection-level',
+      'partial',
+    );
+    expect(coverOverlay).toHaveAttribute(
+      'data-cover-projection-partial-cover',
+      'true',
+    );
+    expect(coverOverlay).toHaveAttribute('data-cover-projection-modifier', '1');
+    expect(coverOverlay).toHaveAttribute(
+      'data-cover-projection-reason',
+      'Target behind building partial cover at (1, 0) (+1)',
+    );
+    expect(coverOverlay).toHaveAttribute(
+      'data-cover-projection-target-ids',
+      'enemy',
+    );
+    expect(coverOverlay).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining(
+        'Projected combat cover: partial +1; target partial cover true',
+      ),
+    );
 
     fireEvent.mouseEnter(targetHex);
     expect(screen.getByTestId('hex-combat-tooltip-cover')).toHaveTextContent(

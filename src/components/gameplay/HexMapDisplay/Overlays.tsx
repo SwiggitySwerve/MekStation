@@ -3,6 +3,7 @@ import React from 'react';
 import type {
   IHexCoordinate,
   IHexTerrain,
+  ICombatRangeHex,
   IMovementRangeHex,
 } from '@/types/gameplay';
 
@@ -10,6 +11,11 @@ import { TERRAIN_COLORS } from '@/constants/terrain';
 import { TerrainType } from '@/types/gameplay';
 import { CoverLevel } from '@/types/gameplay/TerrainTypes';
 
+import {
+  coverProjectionOverlayAttributes,
+  coverProjectionOverlayLevel,
+  coverProjectionOverlayTitleParts,
+} from './CoverOverlay.projection';
 import {
   formatElevationLabel,
   formatTerrainFeaturesLabel,
@@ -109,14 +115,20 @@ export const MovementCostOverlay = React.memo(function MovementCostOverlay({
 export interface CoverOverlayProps {
   hex: IHexCoordinate;
   terrain: IHexTerrain | undefined;
+  combatInfo?: ICombatRangeHex;
+  projectionExplanation?: string;
 }
 
 export const CoverOverlay = React.memo(function CoverOverlay({
   hex,
   terrain,
+  combatInfo,
+  projectionExplanation,
 }: CoverOverlayProps): React.ReactElement | null {
   const { x, y } = hexToPixel(hex);
-  const coverLevel = getTerrainCoverLevel(terrain);
+  const terrainCoverLevel = getTerrainCoverLevel(terrain);
+  const coverLevel =
+    coverProjectionOverlayLevel(combatInfo) ?? terrainCoverLevel;
   if (coverLevel === CoverLevel.None) return null;
 
   const coverLabel = formatCoverOverlayLabel(coverLevel);
@@ -129,7 +141,15 @@ export const CoverOverlay = React.memo(function CoverOverlay({
     coverLevel,
     terrainLabel,
     elevationLabel,
+    coverProjectionOverlayTitleParts({
+      combatInfo,
+      projectionExplanation,
+    }),
   );
+  const coverProjectionAttributes = coverProjectionOverlayAttributes({
+    combatInfo,
+    projectionExplanation,
+  });
 
   const shieldPath = `M${x},${y - 14} L${x - 10},${y - 6} L${x - 10},${y + 4} Q${x},${y + 14} ${x + 10},${y + 4} L${x + 10},${y - 6} Z`;
 
@@ -151,12 +171,14 @@ export const CoverOverlay = React.memo(function CoverOverlay({
       pointerEvents="none"
       data-testid={`cover-overlay-hex-${hex.q}-${hex.r}`}
       data-cover-level={coverLevel}
+      data-terrain-cover-level={terrainCoverLevel}
       data-cover-source-terrain={primaryTerrain}
       data-terrain-features={
         terrainTypes.length > 0 ? terrainTypes.join(',') : 'clear'
       }
       data-elevation={elevation}
       aria-label={coverTitle}
+      {...coverProjectionAttributes}
     >
       <title>{coverTitle}</title>
       <path
@@ -225,8 +247,16 @@ function formatCoverOverlayTitle(
   coverLevel: CoverLevel,
   terrainLabel: string,
   elevationLabel: string,
+  projectionTitleParts: readonly string[] = [],
 ): string {
-  return `${formatCoverOverlayBaseTitle(coverLevel)}; terrain ${terrainLabel}; elevation ${elevationLabel}`;
+  return [
+    formatCoverOverlayBaseTitle(coverLevel),
+    `terrain ${terrainLabel}`,
+    `elevation ${elevationLabel}`,
+    ...projectionTitleParts,
+  ]
+    .filter(Boolean)
+    .join('; ');
 }
 
 // =============================================================================

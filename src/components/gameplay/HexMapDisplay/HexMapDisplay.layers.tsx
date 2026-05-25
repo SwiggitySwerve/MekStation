@@ -315,8 +315,15 @@ export function TerrainOverlayLayers({
           {hexes.map((hex) => {
             const key = coordToKey(hex);
             const terrain = terrainLookup.get(key);
+            const projection = tacticalMapProjectionLookup?.get(key);
             return (
-              <CoverOverlay key={`cover-${key}`} hex={hex} terrain={terrain} />
+              <CoverOverlay
+                key={`cover-${key}`}
+                hex={hex}
+                terrain={terrain}
+                combatInfo={projection?.combat}
+                projectionExplanation={projection?.explanation}
+              />
             );
           })}
         </g>

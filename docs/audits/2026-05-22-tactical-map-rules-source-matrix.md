@@ -1350,6 +1350,16 @@ This does not change arc geometry or attack legality; it keeps arc shading tied
 to the same MegaMek-source-pinned range/arc projection evidence already used by
 hex combat badges and attack commands.
 
+2026-05-25 cover overlay combat projection context pin: Cover overlay markers
+now carry the selected unit's shared combat target-cover projection when
+available: projected cover level, target partial-cover state, cover modifier,
+reason, target ids, and valid target ids. Projection-derived horizontal
+building/elevation cover can now render a cover marker even when the target hex
+terrain alone has no cover marker. This does not change target-cover rules or
+attack resolution; it makes the visible cover overlay inspect the same
+MegaMek-source-pinned `getTargetCoverInfo` path used by combat projection and
+commit previews.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:
