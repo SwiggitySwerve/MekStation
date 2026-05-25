@@ -21,6 +21,7 @@ import {
   endPhaseIntent,
   goProneIntent,
   standIntent,
+  torsoTwistIntent,
   toServerIntent,
   withdrawIntent,
 } from '../gameIntentMap';
@@ -133,6 +134,44 @@ describe('toServerIntent movement enhancement activation', () => {
           unitId: '',
           enhancement: 'Supercharger',
         }),
+      ),
+    ).toBeNull();
+  });
+});
+
+describe('toServerIntent torso twist', () => {
+  it('maps a torso twist intent to a TorsoTwist wire payload', () => {
+    const wire = toServerIntent(
+      torsoTwistIntent(PEER, {
+        unitId: 'player-1',
+        secondaryFacing: 1,
+      }),
+    );
+    expect(wire).toEqual({
+      kind: 'TorsoTwist',
+      unitId: 'player-1',
+      secondaryFacing: 1,
+    });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('normalizes torso twist secondary facing into 0-5', () => {
+    const wire = toServerIntent(
+      torsoTwistIntent(PEER, {
+        unitId: 'player-1',
+        secondaryFacing: -1,
+      }),
+    );
+    expect(wire).toMatchObject({
+      kind: 'TorsoTwist',
+      secondaryFacing: 5,
+    });
+  });
+
+  it('returns null for torso twist without a unit id', () => {
+    expect(
+      toServerIntent(
+        torsoTwistIntent(PEER, { unitId: '', secondaryFacing: 1 }),
       ),
     ).toBeNull();
   });

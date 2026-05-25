@@ -77,6 +77,6 @@ const FacingTorsoTwistCommand: ITacticalCommand = {
     return { available: true };
   },
   commit() {
-    return { actionId: 'torso-twist', payload: {} };
+    return { actionId: 'torso-twist', payload: { direction: 'left' } };
   },
 };

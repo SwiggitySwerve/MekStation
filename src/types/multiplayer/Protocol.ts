@@ -69,7 +69,8 @@ export type ISessionJoin = z.infer<typeof SessionJoinSchema>;
  * broadcasts the resulting events or replies with an `Error` envelope.
  *
  * Wave 1 supports `Move`, `Stand`, `GoProne`, `ActivateMovementEnhancement`,
- * `Attack`, `Physical`, `AdvancePhase`, `Eject`, `Withdraw`, `Concede`.
+ * `TorsoTwist`, `Attack`, `Physical`, `AdvancePhase`, `Eject`, `Withdraw`,
+ * `Concede`.
  * Lobby intents (`OccupySeat`, `LeaveSeat`, `Ready`, `LaunchMatch`) land in Wave 3b and slot in here as additional
  * discriminants.
  */
@@ -102,6 +103,13 @@ export const ActivateMovementEnhancementIntentSchema = z.object({
 export type IActivateMovementEnhancementIntent = z.infer<
   typeof ActivateMovementEnhancementIntentSchema
 >;
+
+export const TorsoTwistIntentSchema = z.object({
+  kind: z.literal('TorsoTwist'),
+  unitId: z.string().min(1),
+  secondaryFacing: z.number().int().min(0).max(5),
+});
+export type ITorsoTwistIntent = z.infer<typeof TorsoTwistIntentSchema>;
 
 export const AttackIntentSchema = z.object({
   kind: z.literal('Attack'),
@@ -241,6 +249,7 @@ export const IntentPayloadSchema = z.discriminatedUnion('kind', [
   StandIntentSchema,
   GoProneIntentSchema,
   ActivateMovementEnhancementIntentSchema,
+  TorsoTwistIntentSchema,
   AttackIntentSchema,
   PhysicalIntentSchema,
   AdvancePhaseIntentSchema,

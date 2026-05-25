@@ -16,6 +16,7 @@ import {
   goProneIntent,
   standIntent,
   toServerIntent,
+  torsoTwistIntent,
   withdrawIntent,
 } from '@/lib/multiplayer/gameIntentMap';
 import {
@@ -103,6 +104,7 @@ describe('BattleMech combat action support catalog', () => {
     ).toEqual([
       'facing.rotate-left',
       'facing.rotate-right',
+      'facing.torso-twist',
       'heat-end.end-phase',
       'heat-end.next-turn',
       'heat.continue',
@@ -132,7 +134,6 @@ describe('BattleMech combat action support catalog', () => {
     expect(
       supportIdsByLevel(COMBAT_COMMAND_ACTION_SUPPORT, 'helper-only'),
     ).toEqual([
-      'facing.torso-twist',
       'movement.cancel',
       'utility.request-spot',
       'utility.withdraw',
@@ -154,9 +155,9 @@ describe('BattleMech combat action support catalog', () => {
         expect.stringContaining('ComputeArc'),
       ]),
     );
-    expect(COMBAT_COMMAND_ACTION_SUPPORT['facing.torso-twist'].gap).toContain(
-      'wire protocol',
-    );
+    expect(
+      COMBAT_COMMAND_ACTION_SUPPORT['facing.torso-twist'].gap,
+    ).toBeUndefined();
   });
 
   it('tracks official BattleMech action surfaces that have no authoritative command or wire path', () => {
@@ -246,6 +247,12 @@ describe('BattleMech combat action support catalog', () => {
           enhancement: 'MASC',
         }),
       )?.kind,
+      torsoTwist: toServerIntent(
+        torsoTwistIntent(peer, {
+          unitId: 'player-1',
+          secondaryFacing: 5,
+        }),
+      )?.kind,
       declareAttack: toServerIntent(
         declareAttackIntent(peer, {
           attackerId: 'player-1',
@@ -323,6 +330,7 @@ describe('BattleMech combat action support catalog', () => {
       'endPhase',
       'goProne',
       'stand',
+      'torsoTwist',
       'withdraw',
     ]);
     expect(

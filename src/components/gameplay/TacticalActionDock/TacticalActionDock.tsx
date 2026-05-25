@@ -3,7 +3,7 @@
  * `bottom-dock` ShellSlot.
  *
  * Replaces ActionBar's flat action list with a category-grouped view
- * over the unified command registry. Same `onAction(actionId)`
+ * over the unified command registry. Same `onAction(actionId, payload?)`
  * dispatch contract, same data-testid for the bar, so existing
  * GameplayLayout plumbing and the e2e gate test (`gameplay-layout-
  * slots.spec.ts`) keep working.
@@ -43,11 +43,14 @@ export interface TacticalActionDockProps {
   /** Shell mode — gates GM commands. */
   readonly shellMode: ShellMode;
   /**
-   * Dispatch callback — same `onAction(actionId)` channel the legacy
+   * Dispatch callback — same `onAction(actionId, payload?)` channel the legacy
    * ActionBar uses. The dock calls this with the command's
    * `commit(ctx).actionId`.
    */
-  readonly onAction: (actionId: string) => void;
+  readonly onAction: (
+    actionId: string,
+    payload?: Readonly<Record<string, unknown>>,
+  ) => void;
   /** Optional content rendered in the trailing region (Concede, etc). */
   readonly trailingActions?: React.ReactNode;
   /** Optional informational text shown in the trailing region. */
@@ -202,7 +205,7 @@ export function TacticalActionDock({
         if (!ok) return;
       }
       const result = command.commit(ctx);
-      onAction(result.actionId);
+      onAction(result.actionId, result.payload);
     },
     [ctx, onAction],
   );

@@ -107,7 +107,7 @@ describe('TokenContextMenu', () => {
     );
     fireEvent.click(screen.getByTestId('token-menu-item-weapon.fire-volley'));
     expect(onTargetEnemy).toHaveBeenCalledWith('enemy-x');
-    expect(onAction).toHaveBeenCalledWith('lock');
+    expect(onAction).toHaveBeenCalledWith('lock', { volley: true });
     expect(onClose).toHaveBeenCalled();
     confirmSpy.mockRestore();
   });

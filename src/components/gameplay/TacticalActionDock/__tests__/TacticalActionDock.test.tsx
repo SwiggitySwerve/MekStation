@@ -66,7 +66,7 @@ describe('TacticalActionDock', () => {
       />,
     );
     fireEvent.click(screen.getByTestId('command-btn-movement.walk'));
-    expect(onAction).toHaveBeenCalledWith('lock');
+    expect(onAction).toHaveBeenCalledWith('lock', { mode: 'walk' });
   });
 
   it('does not dispatch when canAct is false (disabled-with-reason)', () => {
@@ -135,7 +135,7 @@ describe('TacticalActionDock', () => {
       />,
     );
     fireEvent.click(screen.getByTestId('command-btn-weapon.fire-volley'));
-    expect(onAction).toHaveBeenCalledWith('lock');
+    expect(onAction).toHaveBeenCalledWith('lock', { volley: true });
     confirmSpy.mockRestore();
   });
 

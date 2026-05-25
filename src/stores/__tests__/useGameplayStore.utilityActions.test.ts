@@ -10,6 +10,7 @@ import {
   GameStatus,
   LockState,
   MovementType,
+  type IFacingChangedPayload,
   type IGameSession,
   type IGameUnit,
   type IMovementEnhancementActivatedPayload,
@@ -585,6 +586,83 @@ describe('useGameplayStore utility actions', () => {
     expect(
       useGameplayStore.getState().session!.currentState.units['player-a']
         .facing,
+    ).toBe(Facing.Northwest);
+  });
+
+  it('turns torso-twist into a local secondary-facing event', () => {
+    const session = forceWeaponAttackState(makeSession());
+    useGameplayStore.setState({
+      session,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+      },
+    });
+
+    useGameplayStore
+      .getState()
+      .handleAction('torso-twist', { direction: 'left' });
+
+    const updated = useGameplayStore.getState().session!;
+    const event = updated.events.find(
+      (entry) => entry.type === GameEventType.FacingChanged,
+    );
+    expect(event?.payload as IFacingChangedPayload).toMatchObject({
+      unitId: 'player-a',
+      secondaryFacing: Facing.Northeast,
+      torsoTwist: 'left',
+    });
+    expect(updated.currentState.units['player-a'].facing).toBe(Facing.North);
+    expect(updated.currentState.units['player-a'].secondaryFacing).toBe(
+      Facing.Northeast,
+    );
+  });
+
+  it('delegates torso-twist to InteractiveSession when one is active', () => {
+    let snapshot = forceWeaponAttackState(makeSession());
+    const twists: Array<{
+      readonly unitId: string;
+      readonly secondaryFacing: Facing;
+    }> = [];
+    const fake = {
+      torsoTwist: (unitId: string, secondaryFacing: Facing) => {
+        twists.push({ unitId, secondaryFacing });
+        snapshot = {
+          ...snapshot,
+          currentState: {
+            ...snapshot.currentState,
+            units: {
+              ...snapshot.currentState.units,
+              [unitId]: {
+                ...snapshot.currentState.units[unitId],
+                secondaryFacing,
+              },
+            },
+          },
+        };
+      },
+      getSession: () => snapshot,
+    } as unknown as InteractiveSession;
+
+    useGameplayStore.setState({
+      session: snapshot,
+      interactiveSession: fake,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+      },
+    });
+
+    useGameplayStore
+      .getState()
+      .handleAction('torso-twist', { secondaryFacing: Facing.Northwest });
+
+    expect(twists).toEqual([
+      { unitId: 'player-a', secondaryFacing: Facing.Northwest },
+    ]);
+    expect(
+      useGameplayStore.getState().session!.currentState.units['player-a']
+        .secondaryFacing,
     ).toBe(Facing.Northwest);
   });
 

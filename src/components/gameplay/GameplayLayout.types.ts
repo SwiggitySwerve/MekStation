@@ -18,7 +18,10 @@ export interface GameplayLayoutProps {
   /** Callback when unit is selected */
   onUnitSelect: (unitId: string | null) => void;
   /** Callback when action is triggered */
-  onAction: (actionId: string) => void;
+  onAction: (
+    actionId: string,
+    payload?: Readonly<Record<string, unknown>>,
+  ) => void;
   /** Callback when hex is clicked */
   onHexClick?: (hex: { q: number; r: number }) => void;
   /** Can the player undo? */

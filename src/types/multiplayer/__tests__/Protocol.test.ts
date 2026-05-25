@@ -142,6 +142,21 @@ describe('Protocol envelope schemas', () => {
       expect(IntentSchema.safeParse(env).success).toBe(true);
     });
 
+    it('parses a TorsoTwist intent', () => {
+      const env = {
+        kind: 'Intent' as const,
+        matchId: 'm',
+        ts: nowIso(),
+        playerId: 'p',
+        intent: {
+          kind: 'TorsoTwist' as const,
+          unitId: 'u1',
+          secondaryFacing: 1,
+        },
+      };
+      expect(IntentSchema.safeParse(env).success).toBe(true);
+    });
+
     it('parses a Physical intent', () => {
       const env = {
         kind: 'Intent' as const,
@@ -284,6 +299,21 @@ describe('Protocol envelope schemas', () => {
           kind: 'ActivateMovementEnhancement',
           unitId: 'u1',
           enhancement: 'TSM',
+        },
+      };
+      expect(IntentSchema.safeParse(env).success).toBe(false);
+    });
+
+    it('rejects TorsoTwist with out-of-range secondary facing', () => {
+      const env = {
+        kind: 'Intent',
+        matchId: 'm',
+        ts: nowIso(),
+        playerId: 'p',
+        intent: {
+          kind: 'TorsoTwist',
+          unitId: 'u1',
+          secondaryFacing: 6,
         },
       };
       expect(IntentSchema.safeParse(env).success).toBe(false);

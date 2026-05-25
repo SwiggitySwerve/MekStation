@@ -26,6 +26,7 @@ import {
   buildEndPhaseIntent,
   buildGoProneIntent,
   buildStandIntent,
+  buildTorsoTwistIntent,
   buildWithdrawIntent,
   translateIntentToEvents,
 } from '../intentTranslation';
@@ -254,6 +255,54 @@ describe('translateIntentToEvents', () => {
     const intent = buildActivateMovementEnhancementIntent(GUEST_PEER, {
       unitId: 'guest-0',
       enhancement: 'MASC',
+    });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe('wrong-phase');
+  });
+
+  it('translates a guest-owned torso twist into FacingChanged', () => {
+    const base = withPhase(fixtureSession(), GamePhase.WeaponAttack);
+    const session = {
+      ...base,
+      currentState: {
+        ...base.currentState,
+        units: {
+          ...base.currentState.units,
+          'guest-0': {
+            ...base.currentState.units['guest-0'],
+            facing: Facing.North,
+            secondaryFacing: Facing.North,
+          },
+        },
+      },
+    };
+    const intent = buildTorsoTwistIntent(GUEST_PEER, {
+      unitId: 'guest-0',
+      secondaryFacing: Facing.Northeast,
+    });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.events).toHaveLength(1);
+    expect(result.events[0].type).toBe('facing_changed');
+    expect(result.events[0].sequence).toBe(session.events.length);
+    expect(result.events[0].payload).toMatchObject({
+      unitId: 'guest-0',
+      secondaryFacing: Facing.Northeast,
+    });
+  });
+
+  it('rejects torso twist outside the WeaponAttack phase', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const intent = buildTorsoTwistIntent(GUEST_PEER, {
+      unitId: 'guest-0',
+      secondaryFacing: Facing.Northeast,
     });
 
     const result = translateIntentToEvents(intent, session);

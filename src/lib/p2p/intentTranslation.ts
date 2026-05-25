@@ -31,6 +31,7 @@ import {
   canLocalPeerControlSide,
   canLocalPeerControlUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
+import { getTorsoTwistFromSecondaryFacing } from '@/utils/gameplay/firingArc';
 import {
   createAttackDeclaredEvent,
   createAttackLockedEvent,
@@ -38,6 +39,7 @@ import {
 import { createWithdrawalDeclaredEvent } from '@/utils/gameplay/gameEvents/morale';
 import {
   createMovementDeclaredEvent,
+  createFacingChangedEvent,
   createMovementLockedEvent,
 } from '@/utils/gameplay/gameEvents/movement';
 import {
@@ -45,6 +47,7 @@ import {
   createUnitEjectedEvent,
 } from '@/utils/gameplay/gameEvents/statusPhysical';
 import { createPhaseChangedEvent } from '@/utils/gameplay/gameEvents/turnPhase';
+import { validateTorsoTwist } from '@/utils/gameplay/gameSession';
 
 import {
   asActivateMovementEnhancementPayload,
@@ -56,6 +59,7 @@ import {
   asMovementPayload,
   asPhysicalPayload,
   asStandPayload,
+  asTorsoTwistPayload,
   asWithdrawPayload,
 } from './intentTranslationPayloads';
 
@@ -69,6 +73,7 @@ export {
   buildEndPhaseIntent,
   buildGoProneIntent,
   buildStandIntent,
+  buildTorsoTwistIntent,
   buildWithdrawIntent,
   type IActivateMovementEnhancementIntentPayload,
   type IConcedeIntentPayload,
@@ -79,6 +84,7 @@ export {
   type IEndPhaseIntentPayload,
   type IGoProneIntentPayload,
   type IStandIntentPayload,
+  type ITorsoTwistIntentPayload,
   type IWithdrawIntentPayload,
 } from './intentTranslationPayloads';
 
@@ -174,6 +180,8 @@ export function translateIntentToEvents(
       return translateGoProne(intent, session);
     case 'activateMovementEnhancement':
       return translateActivateMovementEnhancement(intent, session);
+    case 'torsoTwist':
+      return translateTorsoTwist(intent, session);
     case 'declareAttack':
       return translateDeclareAttack(intent, session);
     case 'declarePhysical':
@@ -310,6 +318,56 @@ function translateActivateMovementEnhancement(
       enhancement: payload.enhancement,
     },
   };
+}
+
+function translateTorsoTwist(
+  intent: IGameIntent,
+  session: IGameSession,
+): IntentTranslationResult {
+  const payload = asTorsoTwistPayload(intent.payload);
+  if (!payload) {
+    return { ok: false, reason: 'malformed-payload' };
+  }
+
+  if (session.currentState.phase !== GamePhase.WeaponAttack) {
+    return { ok: false, reason: 'wrong-phase' };
+  }
+
+  if (!canLocalPeerControlUnit(session, intent.authorPeerId, payload.unitId)) {
+    return { ok: false, reason: 'unowned-unit' };
+  }
+
+  const legality = validateTorsoTwist(
+    session,
+    payload.unitId,
+    payload.secondaryFacing,
+  );
+  if (!legality.ok) {
+    return {
+      ok: false,
+      reason: 'unsupported-intent',
+      detail: legality.reason,
+    };
+  }
+
+  const unit = session.currentState.units[payload.unitId];
+  const twist = getTorsoTwistFromSecondaryFacing(
+    unit.facing,
+    legality.secondaryFacing,
+  );
+  const event = createFacingChangedEvent(
+    session.id,
+    session.events.length,
+    session.currentState.turn,
+    GamePhase.WeaponAttack,
+    payload.unitId,
+    {
+      secondaryFacing: legality.secondaryFacing,
+      ...(twist ? { torsoTwist: twist } : {}),
+    },
+  );
+
+  return { ok: true, events: [event] };
 }
 
 function translateDeclareAttack(

@@ -81,6 +81,23 @@ describe('dispatchToEngine', () => {
     expect(activations).toEqual([['player-1', 'MASC']]);
   });
 
+  it('routes TorsoTwist wire intents to InteractiveSession.torsoTwist', () => {
+    const twists: Array<readonly [string, number]> = [];
+    const session = {
+      torsoTwist: (unitId: string, secondaryFacing: number) => {
+        twists.push([unitId, secondaryFacing]);
+      },
+    } as unknown as InteractiveSession;
+
+    dispatchToEngine(session, {
+      kind: 'TorsoTwist',
+      unitId: 'player-1',
+      secondaryFacing: 1,
+    });
+
+    expect(twists).toEqual([['player-1', 1]]);
+  });
+
   it('routes Withdraw wire intents to InteractiveSession.declareWithdrawal', () => {
     const withdrawals: Array<readonly [string, string]> = [];
     const session = {

@@ -52,6 +52,7 @@ import {
   activateMovementEnhancement as activateMovementEnhancementAction,
   goProne as goProneAction,
   attemptStandUp as attemptStandUpAction,
+  torsoTwist as torsoTwistAction,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
 import { declarePlayerWithdrawal } from '@/utils/gameplay/morale';
@@ -379,6 +380,11 @@ export class InteractiveSession {
       unitId,
       enhancement,
     );
+    this.tryFinalizeAndPublish();
+  }
+
+  torsoTwist(unitId: string, secondaryFacing: Facing): void {
+    this.session = torsoTwistAction(this.session, unitId, secondaryFacing);
     this.tryFinalizeAndPublish();
   }
 

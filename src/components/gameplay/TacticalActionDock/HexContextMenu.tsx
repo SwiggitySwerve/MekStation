@@ -10,7 +10,7 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §2.2
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import type {
   CommandAvailability,
@@ -38,7 +38,10 @@ export interface HexContextMenuProps {
   /** Close callback. */
   readonly onClose: () => void;
   /** Same dispatch contract as the dock. */
-  readonly onAction: (actionId: string) => void;
+  readonly onAction: (
+    actionId: string,
+    payload?: Readonly<Record<string, unknown>>,
+  ) => void;
 }
 
 interface MenuItemProps {
@@ -94,7 +97,10 @@ export function HexContextMenu({
   onClose,
   onAction,
 }: HexContextMenuProps): React.ReactElement {
-  const effectiveCtx: ITacticalCommandContext = { ...ctx, hoveredHex: hex };
+  const effectiveCtx: ITacticalCommandContext = useMemo(
+    () => ({ ...ctx, hoveredHex: hex }),
+    [ctx, hex],
+  );
   const commands = useCommandRegistry(effectiveCtx, shellMode);
   const visible = filterCommandsForHex(commands);
 
@@ -110,7 +116,7 @@ export function HexContextMenu({
         if (!ok) return;
       }
       const result = command.commit(effectiveCtx);
-      onAction(result.actionId);
+      onAction(result.actionId, result.payload);
       onClose();
     },
     [effectiveCtx, onAction, onClose],

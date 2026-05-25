@@ -18,7 +18,7 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §2.2
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import type {
   CommandAvailability,
@@ -56,7 +56,10 @@ export interface TokenContextMenuProps {
   /** Close callback fired on Escape, outside-click, or after dispatch. */
   readonly onClose: () => void;
   /** Same dispatch contract as the dock — actionId routes to engine. */
-  readonly onAction: (actionId: string) => void;
+  readonly onAction: (
+    actionId: string,
+    payload?: Readonly<Record<string, unknown>>,
+  ) => void;
   /**
    * Optional callback fired when an enemy-target command is selected
    * — the host updates `targetUnitId` in shell state so the dock and
@@ -126,9 +129,10 @@ export function TokenContextMenu({
 }: TokenContextMenuProps): React.ReactElement {
   // For enemy tokens, override the target field per the spec's
   // `Enemy token context menu targets enemy` scenario.
-  const effectiveCtx: ITacticalCommandContext = isFriendly
-    ? ctx
-    : { ...ctx, targetUnitId: tokenUnitId };
+  const effectiveCtx: ITacticalCommandContext = useMemo(
+    () => (isFriendly ? ctx : { ...ctx, targetUnitId: tokenUnitId }),
+    [ctx, isFriendly, tokenUnitId],
+  );
 
   // Same registry as the dock — single source of truth.
   const commands = useCommandRegistry(effectiveCtx, shellMode);
@@ -154,7 +158,7 @@ export function TokenContextMenu({
         onTargetEnemy(tokenUnitId);
       }
       const result = command.commit(effectiveCtx);
-      onAction(result.actionId);
+      onAction(result.actionId, result.payload);
       onClose();
     },
     [effectiveCtx, isFriendly, onAction, onClose, onTargetEnemy, tokenUnitId],

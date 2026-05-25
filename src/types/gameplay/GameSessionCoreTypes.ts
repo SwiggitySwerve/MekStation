@@ -374,6 +374,7 @@ export const GAME_INTENT_TYPES = [
   'stand',
   'goProne',
   'activateMovementEnhancement',
+  'torsoTwist',
   'declareAttack',
   'declarePhysical',
   'confirmHeat',

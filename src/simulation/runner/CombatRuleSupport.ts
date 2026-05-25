@@ -828,10 +828,9 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
     'movement declarations commit final facing and eventPath reports turning MP',
     MEGAMEK_FACING_MOVEMENT_SOURCE_REFS,
   ),
-  'torso-twist': helperOnly(
+  'torso-twist': integrated(
     'torso-twist',
-    'Source-backed firingArc helpers, applyFacingChanged secondaryFacing replay, toAIUnitState arc projection, AttackAI arc filtering, runner secondary-target math, and TacticalActionDock command surface model torso-twist context',
-    'No authoritative game intent, wire/P2P/server dispatch, legality gate, extended/no-twist quirk handling, or UI command payload persists torso-twist actions end to end',
+    'Source-backed torsoTwist validates BattleMech WeaponAttack legality, no_twist/ext_twist quirks, prone/bracing/already-twisted gates, and emits FacingChanged secondaryFacing state through local UI, game intent, wire, P2P, server dispatch, replay, AI arc projection, and runner secondary-target math',
     MEGAMEK_TORSO_TWIST_SOURCE_REFS,
   ),
   occupancy: integrated(

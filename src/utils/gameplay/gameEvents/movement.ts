@@ -3,6 +3,7 @@ import {
   GameEventType,
   GamePhase,
   IGameEvent,
+  IFacingChangedPayload,
   IGoProneStep,
   IHexCoordinate,
   IMovementEnhancementActivatedPayload,
@@ -142,5 +143,31 @@ export function createMovementEnhancementActivatedEvent(
       unitId,
     ),
     payload,
+  };
+}
+
+export function createFacingChangedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  payload: Omit<IFacingChangedPayload, 'unitId'>,
+): IGameEvent {
+  const facingPayload: IFacingChangedPayload = {
+    unitId,
+    ...payload,
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.FacingChanged,
+      turn,
+      phase,
+      unitId,
+    ),
+    payload: facingPayload,
   };
 }

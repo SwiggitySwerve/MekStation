@@ -99,7 +99,7 @@ describe('HexContextMenu', () => {
       />,
     );
     fireEvent.click(screen.getByTestId('hex-menu-item-movement.walk'));
-    expect(onAction).toHaveBeenCalledWith('lock');
+    expect(onAction).toHaveBeenCalledWith('lock', { mode: 'walk' });
     expect(onClose).toHaveBeenCalled();
   });
 

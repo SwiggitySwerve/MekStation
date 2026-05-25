@@ -35,6 +35,10 @@ export function dispatchToEngine(
       session.activateMovementEnhancement(intent.unitId, intent.enhancement);
       return;
     }
+    case 'TorsoTwist': {
+      session.torsoTwist(intent.unitId, intent.secondaryFacing as Facing);
+      return;
+    }
     case 'Attack': {
       session.applyAttack(intent.attackerId, intent.targetId, intent.weaponIds);
       return;

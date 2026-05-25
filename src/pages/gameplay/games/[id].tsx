@@ -123,9 +123,9 @@ export default function GameSessionPage(): React.ReactElement {
   );
 
   const handleInteractiveAction = useCallback(
-    (actionId: string) => {
+    (actionId: string, payload?: Readonly<Record<string, unknown>>) => {
       if (!isInteractive) {
-        handleAction(actionId);
+        handleAction(actionId, payload);
         return;
       }
 
@@ -144,10 +144,10 @@ export default function GameSessionPage(): React.ReactElement {
           advanceInteractivePhase();
           break;
         case 'concede':
-          handleAction(actionId);
+          handleAction(actionId, payload);
           break;
         default:
-          handleAction(actionId);
+          handleAction(actionId, payload);
       }
 
       checkGameOver();

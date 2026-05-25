@@ -361,6 +361,8 @@ export interface IUnitGameState {
   readonly prone?: boolean;
   /** Unit is in a hull-down defensive position. */
   readonly hullDown?: boolean;
+  /** Unit is bracing and cannot change secondary facing. */
+  readonly isBracing?: boolean;
   /** Unit is shut down (reactor offline) */
   readonly shutdown?: boolean;
   /** Ammo bin state tracking */

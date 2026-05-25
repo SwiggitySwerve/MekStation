@@ -1855,11 +1855,12 @@ describe('BattleMech combat feature-gap tracking', () => {
       'occupancy',
       'run',
       'stand',
+      'torso-twist',
       'walk',
     ]);
     expect(
       supportIdsByLevel(MOVEMENT_RULE_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['prone', 'torso-twist']);
+    ).toEqual(['prone']);
     expect(
       MOVEMENT_RULE_COMBAT_SUPPORT['torso-twist'].sourceRefs?.map(
         (sourceRef) => sourceRef.citation,
@@ -1873,9 +1874,7 @@ describe('BattleMech combat feature-gap tracking', () => {
         expect.stringContaining('ComputeArc'),
       ]),
     );
-    expect(MOVEMENT_RULE_COMBAT_SUPPORT['torso-twist'].gap).toContain(
-      'wire/P2P/server dispatch',
-    );
+    expect(MOVEMENT_RULE_COMBAT_SUPPORT['torso-twist'].gap).toBeUndefined();
     expect(
       Object.values(MOVEMENT_RULE_COMBAT_SUPPORT)
         .filter((entry) => entry.level !== 'unsupported')

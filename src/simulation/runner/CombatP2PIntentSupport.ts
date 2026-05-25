@@ -30,6 +30,10 @@ export const P2P_INTENT_TRANSLATION_SUPPORT = {
     'activateMovementEnhancement',
     'translateIntentToEvents returns an activateMovementEnhancement host command and hostIntentRouter routes it to InteractiveSession.activateMovementEnhancement',
   ),
+  torsoTwist: integrated(
+    'torsoTwist',
+    'translateIntentToEvents validates torso-twist ownership/phase/legality and emits FacingChanged with secondaryFacing',
+  ),
   declareAttack: integrated(
     'declareAttack',
     'translateIntentToEvents emits AttackDeclared and AttackLocked',

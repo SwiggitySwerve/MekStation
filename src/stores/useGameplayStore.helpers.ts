@@ -4,17 +4,23 @@ import { getPrefersReducedMotion } from '@/hooks/useReducedMotion';
 import {
   GamePhase,
   GameSide,
+  Facing,
   LockState,
   MovementType,
   type IGameSession,
   type IGameplayUIState,
   type MovementEnhancementActivationKind,
 } from '@/types/gameplay';
+import {
+  getTwistedFacing,
+  type TorsoTwistDirection,
+} from '@/utils/gameplay/firingArc';
 import { createUnitEjectedEvent } from '@/utils/gameplay/gameEvents';
 import {
   lockMovement,
   activateMovementEnhancement,
   declareMovement,
+  torsoTwist,
   goProne,
   attemptStandUp,
   advancePhase,
@@ -68,11 +74,13 @@ type SetFn = {
  * Zustand get function type for gameplay helpers.
  */
 type GetFn = () => GameplayHelperState;
+type ActionPayload = Readonly<Record<string, unknown>> | undefined;
 
 let pendingPhaseAdvance = false;
 
 export function handleActionLogic(
   actionId: string,
+  payload: ActionPayload,
   session: IGameSession | null,
   ui: IGameplayUIState,
   set: SetFn,
@@ -244,6 +252,35 @@ export function handleActionLogic(
       );
       updatedSession = lockMovement(updatedSession, unitId);
       set({ session: updatedSession });
+      break;
+    }
+    case 'torso-twist': {
+      const unitId = ui.selectedUnitId;
+      if (!unitId || phase !== GamePhase.WeaponAttack) return;
+
+      const unit = session.currentState.units[unitId];
+      if (
+        !unit ||
+        unit.destroyed ||
+        unit.hasRetreated ||
+        unit.hasEjected ||
+        !unit.pilotConscious
+      ) {
+        return;
+      }
+
+      const secondaryFacing = resolveTorsoTwistSecondaryFacing(
+        unit.facing,
+        payload,
+      );
+
+      if (interactiveSession) {
+        interactiveSession.torsoTwist(unitId, secondaryFacing);
+        set({ session: interactiveSession.getSession() });
+        break;
+      }
+
+      set({ session: torsoTwist(session, unitId, secondaryFacing) });
       break;
     }
     case 'clear':
@@ -496,6 +533,19 @@ function clearCombatSelection(ui: IGameplayUIState): IGameplayUIState {
     targetUnitId: null,
     queuedWeaponIds: [],
   };
+}
+
+function resolveTorsoTwistSecondaryFacing(
+  facing: Facing,
+  payload: ActionPayload,
+): Facing {
+  if (typeof payload?.secondaryFacing === 'number') {
+    return (((Math.trunc(payload.secondaryFacing) % 6) + 6) % 6) as Facing;
+  }
+
+  const direction: TorsoTwistDirection =
+    payload?.direction === 'right' ? 'right' : 'left';
+  return getTwistedFacing(facing, direction);
 }
 
 function shouldWaitForAnimations(): boolean {

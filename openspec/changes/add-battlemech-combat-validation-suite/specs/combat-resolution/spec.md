@@ -69,13 +69,14 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** the evade row SHALL cite MegaMek source anchors for optional TacOps evade availability, evasion state, evasion heat, attacker-evading firing restrictions, and target-evading to-hit modifiers
 - **AND** those rows SHALL NOT be inferred from helper prose or omitted because no UI command currently emits them
 
-#### Scenario: Torso twist stays helper-only until command and wire paths are authoritative
+#### Scenario: Torso twist emits source-backed secondary facing through command and wire paths
 
-- **GIVEN** the tactical command, event replay, and firing-arc helpers expose torso twist with explicit secondary-facing combat state
+- **GIVEN** a BattleMech commits torso twist during the weapon-attack phase through local tactical commands, game intent, wire intent, P2P host command translation, or server dispatch
 - **WHEN** the action and movement rule catalogs are contract-tested
-- **THEN** `facing.torso-twist` SHALL cite MegaMek source anchors for `TorsoTwistAction`, secondary-facing persistence, BattleMech twist legality, extended/no-twist quirk boundaries, and secondary-facing arc consumption
-- **AND** event-sourced secondary facing SHALL feed AI weapon-arc filtering and runner secondary-target front-arc math
-- **AND** torso twist SHALL remain helper-only until game intent, tactical command payload, wire payload, P2P translation, server dispatch, legality gates, extended/no-twist quirk handling, and UI emission are authoritative
+- **THEN** `facing.torso-twist`, `torsoTwist`, and `TorsoTwist` rows SHALL cite MegaMek source anchors for `TorsoTwistAction`, secondary-facing persistence, BattleMech twist legality, extended/no-twist quirk boundaries, and secondary-facing arc consumption
+- **AND** the action SHALL reject non-weapon-attack phases, inactive or terminal units, non-BattleMech units, prone units, bracing units, already-twisted units, `no_twist` units, and twist distances beyond one hexside unless `ext_twist` allows two
+- **AND** successful torso twist SHALL emit replayable `FacingChanged` secondary-facing state
+- **AND** event-sourced secondary facing SHALL feed replay, AI weapon-arc filtering, runner secondary-target front-arc math, game intent, wire intent, P2P translation, and server dispatch paths
 
 #### Scenario: Core movement rule rows stay source-backed
 

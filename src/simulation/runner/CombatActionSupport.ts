@@ -223,11 +223,10 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'tactical-command',
     'buildFacingCommands commits facing-right; useGameplayStore turns it into a same-hex MovementDeclared path and declareMovement/Move carries final facing over the existing movement wire protocol',
   ),
-  'facing.torso-twist': helperOnly(
+  'facing.torso-twist': integrated(
     'facing.torso-twist',
     'tactical-command',
-    'buildFacingCommands exposes source-backed torso-twist during WeaponAttack; FacingChanged replay persists secondaryFacing; runner secondary-target and AI weapon-arc helpers consume explicit torso twist state',
-    'No tactical command payload, game intent, wire protocol, P2P translation, server dispatch path, legality gate, or quirk handling emits authoritative torso-twist actions yet',
+    'buildFacingCommands exposes source-backed torso-twist during WeaponAttack with a direction payload; useGameplayStore routes it to torsoTwist, which validates BattleMech legality and emits FacingChanged secondaryFacing state consumed by replay, AI weapon arcs, runner secondary-target math, game intent, wire, P2P, and server dispatch paths',
     MEGAMEK_TORSO_TWIST_SOURCE_REFS,
   ),
   'weapon.declare-attack': helperOnly(
@@ -392,6 +391,7 @@ export const GAME_INTENT_TO_WIRE_KIND = {
   stand: 'Stand',
   goProne: 'GoProne',
   activateMovementEnhancement: 'ActivateMovementEnhancement',
+  torsoTwist: 'TorsoTwist',
   declareAttack: 'Attack',
   declarePhysical: 'Physical',
   confirmHeat: 'AdvancePhase',
@@ -423,6 +423,12 @@ export const GAME_INTENT_ACTION_SUPPORT = {
     'game-intent',
     'toServerIntent maps activateMovementEnhancement to ActivateMovementEnhancement',
     MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS,
+  ),
+  torsoTwist: integrated(
+    'torsoTwist',
+    'game-intent',
+    'toServerIntent maps torsoTwist to TorsoTwist with normalized secondaryFacing',
+    MEGAMEK_TORSO_TWIST_SOURCE_REFS,
   ),
   declareAttack: integrated(
     'declareAttack',
@@ -470,6 +476,7 @@ export const ENGINE_WIRE_COMBAT_INTENT_KINDS = [
   'Physical',
   'GoProne',
   'ActivateMovementEnhancement',
+  'TorsoTwist',
   'Stand',
   'Withdraw',
 ] as const satisfies readonly IIntentPayload['kind'][];
@@ -523,6 +530,12 @@ export const WIRE_INTENT_KIND_ACTION_SUPPORT = {
     'wire-intent',
     'dispatchToEngine routes ActivateMovementEnhancement to InteractiveSession.activateMovementEnhancement',
     MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS,
+  ),
+  TorsoTwist: integrated(
+    'TorsoTwist',
+    'wire-intent',
+    'dispatchToEngine routes TorsoTwist to InteractiveSession.torsoTwist',
+    MEGAMEK_TORSO_TWIST_SOURCE_REFS,
   ),
   Stand: integrated(
     'Stand',

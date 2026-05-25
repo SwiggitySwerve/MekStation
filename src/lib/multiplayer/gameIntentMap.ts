@@ -63,6 +63,11 @@ export interface IActivateMovementEnhancementPayload {
   readonly enhancement: MovementEnhancementActivationKind;
 }
 
+export interface ITorsoTwistPayload {
+  readonly unitId: string;
+  readonly secondaryFacing: number;
+}
+
 /**
  * Attack-declaration payload carried by a `declareAttack` `IGameIntent`.
  */
@@ -141,6 +146,13 @@ export function activateMovementEnhancementIntent(
   return { type: 'activateMovementEnhancement', payload, authorPeerId };
 }
 
+export function torsoTwistIntent(
+  authorPeerId: string,
+  payload: ITorsoTwistPayload,
+): IGameIntent {
+  return { type: 'torsoTwist', payload, authorPeerId };
+}
+
 export function declareAttackIntent(
   authorPeerId: string,
   payload: IDeclareAttackPayload,
@@ -213,6 +225,8 @@ export function toServerIntent(intent: IGameIntent): IIntentPayload | null {
       return toGoProneIntent(intent.payload);
     case 'activateMovementEnhancement':
       return toActivateMovementEnhancementIntent(intent.payload);
+    case 'torsoTwist':
+      return toTorsoTwistIntent(intent.payload);
     case 'declareAttack':
       return toAttackIntent(intent.payload);
     case 'declarePhysical':
@@ -278,6 +292,18 @@ function toActivateMovementEnhancementIntent(
   if (typeof unitId !== 'string' || unitId.length === 0) return null;
   if (enhancement !== 'MASC' && enhancement !== 'Supercharger') return null;
   return { kind: 'ActivateMovementEnhancement', unitId, enhancement };
+}
+
+function toTorsoTwistIntent(payload: unknown): IIntentPayload | null {
+  if (!isRecord(payload)) return null;
+  const { unitId, secondaryFacing } = payload;
+  if (typeof unitId !== 'string' || unitId.length === 0) return null;
+  if (typeof secondaryFacing !== 'number') return null;
+  return {
+    kind: 'TorsoTwist',
+    unitId,
+    secondaryFacing: ((Math.trunc(secondaryFacing) % 6) + 6) % 6,
+  };
 }
 
 function toAttackIntent(payload: unknown): IIntentPayload | null {

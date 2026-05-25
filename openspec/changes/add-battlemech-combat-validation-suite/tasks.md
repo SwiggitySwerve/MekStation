@@ -91,7 +91,7 @@
 - [x] 3.2.11 Integrate source-backed MASC/Supercharger activation through tactical commands, game intent, wire intent, P2P host command, interactive/session reducer, and explicit active-booster events while leaving sprint movement and full failure-damage lifecycle explicit.
 - [x] 3.2.12 Source-back the remaining optional TacOps sprint absent-action row with MegaMek MP, heat, attacker-firing, and target-modifier anchors so the gap is rule-backed instead of a product-only omission.
 - [x] 3.2.13 Source-back optional TacOps evade as a first-class absent-action row with MegaMek movement, heat, firing-restriction, and target-modifier anchors instead of leaving it as an unexamined Evasive SPA TMM gap.
-- [x] 3.2.14 Source-back torso twist helper-only action/rule rows with MegaMek secondary-facing action, legality, quirk, and arc-consumption anchors while leaving authoritative state/intent/wire/P2P/server paths explicit.
+- [x] 3.2.14 Source-back torso twist action/rule rows with MegaMek secondary-facing action, legality, quirk, and arc-consumption anchors before promoting authoritative state/intent/wire/P2P/server paths.
 - [x] 3.2.15 Source-pin core movement rule rows for walk, run, jump, stand, voluntary go-prone, facing, occupancy, elevation, heat MP penalties, and torso twist; promote movement rule triad enforcement to row-level source refs.
 - [x] 3.2.16 Source-pin terrain/environment rows for terrain movement costs, LOS blocking, partial cover, terrain to-hit, water/fire heat, fog/night/wind/extreme temperature, local atmosphere, and dust/mines gaps; promote terrain/environment triad enforcement to row-level source refs.
 - [x] 3.2.17 Source-pin every per-TerrainType movement support row with MegaMek terrain movement anchors where comparable and MekStation deviation anchors for local water/building simplifications; promote terrainTypeMovement triad enforcement to row-level source refs.
@@ -99,6 +99,7 @@
 - [x] 3.2.19 Source-pin every per-TerrainType attack modifier support row with MegaMek woods/smoke/building to-hit anchors and MekStation water/swamp/no-modifier anchors; promote terrainTypeAttackModifiers triad enforcement to row-level source refs.
 - [x] 3.2.20 Source-pin every per-TerrainType LOS support row with local calculateLOS anchors, MegaMek LOS comparison anchors for woods/smoke/building/water, and explicit helper-only rows for cumulative woods/smoke and underwater/divided-LOS gaps; promote terrainTypeLos triad enforcement to row-level source refs.
 - [x] 3.2.21 Source-pin every per-TerrainType PSR support row with MegaMek rubble, water, skidding, swamp bog-down, and building-collapse anchors plus MekStation local PSR runner/factory/resolution anchors; promote terrainTypePsr triad enforcement to row-level source refs.
+- [x] 3.2.22 Integrate source-backed torso twist through tactical command payloads, game intent, wire intent, P2P translation, server dispatch, session reducer, legality gates, no_twist/ext_twist quirk handling, and replayable `FacingChanged` secondary-facing state.
 - [ ] 3.3 Expand heat validation coverage for buildup, dissipation, shutdown, ammo explosions, pilot damage, and heat-driven modifiers.
 - [x] 3.3.1 Cross-link every heat rule support row into heat generation, dissipation, and lifecycle requirement checklists.
 - [x] 3.3.2 Add structured MegaMek source anchors for heat startup, avoidable/automatic shutdown, ammo-explosion risk, and pilot heat damage support rows.
@@ -144,8 +145,8 @@
 - [x] 3.4.23.7 Source-pin Toughness, Pain Resistance, Iron Man, and Iron Will consciousness boundaries to MegaMek RPG Toughness / Pain Resistance / Iron Man semantics while keeping MekStation legacy aliases helper-only.
 - [x] 3.4.24 Guard source-backed initiative equipment hydration as unsupported unless complete HQ communications or command-console eligibility context exists; command-looking metadata without explicit initiative fields fails closed.
 - [x] 3.4.25 Source-back legacy Evasive SPA support as an unsupported optional TacOps Evade movement/action gap, including target to-hit and attacker firing restrictions, until an authoritative evade action path exists.
-- [x] 3.4.26 Source-back torso-twist secondary-facing arc consumption and extended/no-twist quirk boundaries while preserving attack arc consumption as a helper-only gap until torso twist is authoritative.
-- [x] 3.4.27 Promote explicit secondary-facing torso-twist state into event replay, AI weapon-arc filtering, and runner secondary-target front-arc math while preserving UI/game-intent/wire/P2P/server legality gaps.
+- [x] 3.4.26 Source-back torso-twist secondary-facing arc consumption and extended/no-twist quirk boundaries before routing authoritative torso twist commands through runtime action paths.
+- [x] 3.4.27 Promote explicit secondary-facing torso-twist state into event replay, AI weapon-arc filtering, runner secondary-target front-arc math, UI command payloads, game intent, wire intent, P2P translation, server dispatch, and legality gates.
 - [x] 3.4.27 Seed conservative runner initial C3/C3i networks from hydrated mounted BattleMech equipment while leaving session/player-authored, ambiguous multi-network, and oversize gaps explicit.
 - [x] 3.4.28 Refresh explicit C3 network member lifecycle state during runner attack declaration so stale destroyed/ejected/retreated/withdrawing/shutdown/transported members cannot provide range sharing.
 - [x] 3.4.29 Suppress explicit C3 range sharing when hydrated mounted C3 equipment has a matching destroyed critical slot in the runner critical-slot manifest.
@@ -239,7 +240,7 @@
 - [x] 4.3.43 Cross-check MegaMek `Mek.isLocationProhibited` normal BattleMech woods/jungle terrain-level cap before promoting represented overgrown-terrain displacement rejection.
 - [x] 4.3.44 Cross-check MegaMek optional TacOps sprint gates, BattleMech sprint MP/heat, MASC/Supercharger sprint formulas, attacker auto-fail, and target-sprinted modifier before leaving sprint as an explicit absent action.
 - [x] 4.3.45 Cross-check MegaMek optional TacOps Evade movement, evasion heat, evasion target modifiers, evading attacker ranged-fire rejection, and physical evasion gates before leaving evade as an explicit absent action.
-- [x] 4.3.46 Cross-check MegaMek `TorsoTwistAction`, secondary-facing state gates, BattleMech normal/extended/no-twist legality, and `ComputeArc` secondary-facing use before leaving torso twist helper-only.
+- [x] 4.3.46 Cross-check MegaMek `TorsoTwistAction`, secondary-facing state gates, BattleMech normal/extended/no-twist legality, and `ComputeArc` secondary-facing use before integrating torso twist as an authoritative action path.
 - [x] 4.3.47 Cross-check MegaMek BattleMech-applicable brush-off, thrash, trip, grapple, break-grapple, and jump-jet attack source classes before leaving them unsupported.
 - [x] 4.3.48 Cross-check MegaMek AMS projectile reduction, Streak/all-shots-hit cluster parity, single-missile interception, ammo/heat/fired handling, defender assignment, arc enforcement, and multi-use gates before leaving AMS helper-only.
 - [x] 4.3.49 Cross-check conservative runner C3/C3i initial network assembly against MegaMek C3 range/equipment anchors before narrowing automatic network-assembly gaps.

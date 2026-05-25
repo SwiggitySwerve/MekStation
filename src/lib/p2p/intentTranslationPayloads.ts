@@ -45,6 +45,11 @@ export interface IActivateMovementEnhancementIntentPayload {
   readonly enhancement: MovementEnhancementActivationKind;
 }
 
+export interface ITorsoTwistIntentPayload {
+  readonly unitId: string;
+  readonly secondaryFacing: Facing;
+}
+
 /**
  * Payload for a `declareAttack` intent. The host re-derives the actual
  * to-hit modifiers + range bracket from authoritative state at resolve
@@ -141,6 +146,24 @@ export function asActivateMovementEnhancementPayload(
     return null;
   }
   return payload as unknown as IActivateMovementEnhancementIntentPayload;
+}
+
+export function asTorsoTwistPayload(
+  payload: unknown,
+): ITorsoTwistIntentPayload | null {
+  if (!isRecord(payload)) return null;
+  if (typeof payload.unitId !== 'string' || payload.unitId.length === 0) {
+    return null;
+  }
+  if (
+    typeof payload.secondaryFacing !== 'number' ||
+    !Number.isInteger(payload.secondaryFacing) ||
+    payload.secondaryFacing < 0 ||
+    payload.secondaryFacing > 5
+  ) {
+    return null;
+  }
+  return payload as unknown as ITorsoTwistIntentPayload;
 }
 
 export function asAttackPayload(
@@ -279,6 +302,17 @@ export function buildActivateMovementEnhancementIntent(
 ): IGameIntent {
   return {
     type: 'activateMovementEnhancement',
+    payload,
+    authorPeerId,
+  };
+}
+
+export function buildTorsoTwistIntent(
+  authorPeerId: string,
+  payload: ITorsoTwistIntentPayload,
+): IGameIntent {
+  return {
+    type: 'torsoTwist',
     payload,
     authorPeerId,
   };

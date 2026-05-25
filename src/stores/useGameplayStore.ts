@@ -176,7 +176,10 @@ interface GameplayActions {
   ) => void;
   selectUnit: (unitId: string | null) => void;
   setTarget: (unitId: string | null) => void;
-  handleAction: (actionId: string) => void;
+  handleAction: (
+    actionId: string,
+    payload?: Readonly<Record<string, unknown>>,
+  ) => void;
   toggleWeapon: (weaponId: string) => void;
   clearError: () => void;
   reset: () => void;
@@ -368,9 +371,9 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   // -------------------------------------------------------------------------
   // Phase / AI / engine handshake (delegated to useGameplayStore.helpers)
   // -------------------------------------------------------------------------
-  handleAction: (actionId) => {
+  handleAction: (actionId, payload) => {
     const { session, ui, interactiveSession } = get();
-    handleActionLogic(actionId, session, ui, set, interactiveSession);
+    handleActionLogic(actionId, payload, session, ui, set, interactiveSession);
   },
   runAITurn: () => {
     const { interactiveSession } = get();
