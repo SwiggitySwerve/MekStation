@@ -116,6 +116,14 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** the aggregate catalog triad for `specialWeaponFamilies` SHALL require row-level source references rather than inherited requirement authority
 - **AND** helper-only family rows SHALL keep their remaining runtime/session gaps explicit instead of treating source-backed family evidence as complete parity
 
+#### Scenario: Special weapon mechanic rows stay source-backed
+
+- **GIVEN** the special weapon mechanic catalog covers UAC, RAC, LB-X, Streak SRM, MML, NARC/iNARC, AMS, TAG, Artemis, ECM, active-probe, and stealth mechanics
+- **WHEN** the special weapon mechanic support map is contract-tested
+- **THEN** every integrated or helper-only special weapon mechanic row SHALL carry structured MegaMek source references with commit-pinned URLs and line anchors
+- **AND** the aggregate catalog triad for `specialWeaponMechanics` SHALL require row-level source references rather than inherited requirement authority
+- **AND** source-checked mechanic mismatches, including local semi-guided TAG cluster helper behavior that does not match MegaMek's TAG to-hit behavior, SHALL remain helper-only gaps instead of integrated parity claims
+
 #### Scenario: Catalog critical slots seed runner critical resolution
 
 - **GIVEN** a catalog-hydrated BattleMech unit carries location-keyed `criticalSlots`

@@ -75,6 +75,7 @@
 - [x] 3.1.10 Integrate source-backed Sandblaster cluster-table range bonuses for designated LB-X and missile cluster-table paths while leaving UAC/RAC and TacOps rapid-fire AC rate-of-fire behavior explicit.
 - [x] 3.1.11 Align the legacy gameplay SPA catalog Sandblaster metadata with canonical source truth: weapon-type designation required, range-based cluster-table bonus, and remaining UAC/RAC rate-of-fire gap preserved.
 - [x] 3.1.12 Source-back AMS helper/integrated special weapon rows with MegaMek cluster, single-missile, ammo/heat, counter-selection, and arc anchors while leaving defender choice/arc/multi-use gaps explicit.
+- [x] 3.1.13 Source-pin special weapon mechanic rows for UAC, RAC, LB-X, Streak SRM, MML, NARC/iNARC, AMS, TAG, Artemis, ECM/probe, and stealth; quarantine local semi-guided TAG cluster behavior as helper-only until source-backed TAG to-hit parity is wired.
 - [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
 - [x] 3.2.2 Integrate source-backed active TSM movement speed into runner movement validation while leaving MASC, supercharger, and then-unsupported partial-wing movement behavior explicit.
@@ -213,3 +214,4 @@
 - [x] 4.3.53 Cross-check MegaMek critical-slot system/equipment hydration and equipment-critical lifecycle branches; source-pin critical-slot rows and keep generic equipment effects helper-only until equipment-specific cascades are modeled.
 - [x] 4.3.54 Align aggregate critical-component support with the same MegaMek source-pinned critical-slot boundary so stale default-manifest-only generic equipment rationale cannot mask hydrated equipment gaps.
 - [x] 4.3.55 Source-pin special weapon family rows for UAC, RAC, LB-X, Streak SRM, MML, NARC/iNARC, AMS, TAG, and Artemis; promote their triad boundary to row-level MegaMek source references.
+- [x] 4.3.56 Promote special weapon mechanic rows to row-level MegaMek source references and mark the semi-guided TAG cluster helper as a source-checked non-parity gap.

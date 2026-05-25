@@ -16,10 +16,18 @@ import {
   MEGAMEK_INARC_HOMING_SOURCE_REFS,
   MEGAMEK_INARC_NEMESIS_SOURCE_REFS,
   MEGAMEK_INARC_POD_TYPE_SOURCE_REFS,
+  MEGAMEK_LBX_SOURCE_REFS,
+  MEGAMEK_MML_SOURCE_REFS,
+  MEGAMEK_NARC_CLUSTER_SOURCE_REFS,
   MEGAMEK_NARC_MARKER_SOURCE_REFS,
+  MEGAMEK_RAC_SOURCE_REFS,
   MEGAMEK_STEALTH_ACTIVE_SOURCE_REFS,
+  MEGAMEK_STREAK_SRM_SOURCE_REFS,
   MEGAMEK_TAG_CLEAR_SOURCE_REFS,
   MEGAMEK_TAG_DESIGNATION_SOURCE_REFS,
+  MEGAMEK_TAG_FAMILY_SOURCE_REFS,
+  MEGAMEK_TAG_SEMI_GUIDED_SOURCE_REFS,
+  MEGAMEK_UAC_SOURCE_REFS,
 } from './CombatSpecialWeaponSourceRefs';
 
 function integrated(
@@ -47,46 +55,57 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   'uac-rate-of-fire': integrated(
     'uac-rate-of-fire',
     'UnitHydration.buildCatalogFiringModes exposes single/double Ultra AC modes and runAttackPhase expands selected modes into shots',
+    MEGAMEK_UAC_SOURCE_REFS,
   ),
   'uac-jam-on-natural-two': integrated(
     'uac-jam-on-natural-two',
     'shouldJamOnNaturalTwo plus markWeaponJammed handles Ultra AC jam state on natural 2',
+    MEGAMEK_UAC_SOURCE_REFS,
   ),
   'rac-rate-of-fire': integrated(
     'rac-rate-of-fire',
     'UnitHydration.buildCatalogFiringModes exposes Rotary AC rate-of-fire modes and AIWeaponModeSelector can select them',
+    MEGAMEK_RAC_SOURCE_REFS,
   ),
   'rac-jam-on-natural-two': integrated(
     'rac-jam-on-natural-two',
     'shouldJamOnNaturalTwo plus markWeaponJammed handles Rotary AC jam state on natural 2',
+    MEGAMEK_RAC_SOURCE_REFS,
   ),
   'lbx-slug-cluster-modes': integrated(
     'lbx-slug-cluster-modes',
     'UnitHydration.buildCatalogFiringModes exposes LB-X slug/cluster modes and resolveClusterModeHit resolves cluster projectiles',
+    MEGAMEK_LBX_SOURCE_REFS,
   ),
   'lbx-cluster-to-hit': integrated(
     'lbx-cluster-to-hit',
     'selectedModeToHitModifier applies the LB-X cluster to-hit adjustment during AttackDeclared math',
+    MEGAMEK_LBX_SOURCE_REFS,
   ),
   'streak-lock-no-spend-on-miss': integrated(
     'streak-lock-no-spend-on-miss',
     'shouldSpendAmmoAndHeatOnMiss prevents Streak SRM ammo and heat spending when lock fails',
+    MEGAMEK_STREAK_SRM_SOURCE_REFS,
   ),
   'streak-rack-projectiles': integrated(
     'streak-rack-projectiles',
     'resolveSpecialProjectileHit derives the Streak rack size as projectile count on successful lock',
+    MEGAMEK_STREAK_SRM_SOURCE_REFS,
   ),
   'mml-variable-damage': integrated(
     'mml-variable-damage',
     'resolveCatalogDamage parses variable MML descriptors such as 1-2/missile into nonzero rack damage',
+    MEGAMEK_MML_SOURCE_REFS,
   ),
   'mml-srm-lrm-mode-damage': integrated(
     'mml-srm-lrm-mode-damage',
     'UnitHydration.buildCatalogFiringModes exposes MML SRM/LRM modes and runner selected modes change resolved damage',
+    MEGAMEK_MML_SOURCE_REFS,
   ),
   'mml-srm-lrm-ammo-compatibility': integrated(
     'mml-srm-lrm-ammo-compatibility',
     'MML firing-mode metadata maps selected SRM/LRM modes to distinct srm-N/lrm-N ammo-bin families for runner ammo checks and consumption',
+    MEGAMEK_MML_SOURCE_REFS,
   ),
   'narc-marker-attachment': integrated(
     'narc-marker-attachment',
@@ -96,6 +115,7 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   'narc-cluster-modifier': integrated(
     'narc-cluster-modifier',
     'missileClusterModifier consumes targetNarcedBy and resolveSpecialProjectileHit applies the NARC cluster bonus to NARC-compatible missiles',
+    MEGAMEK_NARC_CLUSTER_SOURCE_REFS,
   ),
   'inarc-pod-variants': helperOnly(
     'inarc-pod-variants',
@@ -191,13 +211,16 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
     'runner TAG hits emit DesignatorMarkerApplied when they set transient tagDesignated target state',
     MEGAMEK_TAG_DESIGNATION_SOURCE_REFS,
   ),
-  'tag-semi-guided-cluster-bonus': integrated(
+  'tag-semi-guided-cluster-bonus': helperOnly(
     'tag-semi-guided-cluster-bonus',
-    'isSemiGuidedAmmoSelectedForWeapon plus targetTagDesignated applies semi-guided LRM cluster bonuses',
+    'Local isSemiGuidedAmmoSelectedForWeapon plus targetTagDesignated applies a semi-guided LRM cluster bonus, while MegaMek source backs target-movement cancellation and indirect-fire to-hit relief instead',
+    'Official semi-guided TAG target-movement cancellation and indirect-fire to-hit behavior are not wired through runner/session to-hit resolution; the local cluster bonus is non-parity helper behavior until corrected',
+    MEGAMEK_TAG_SEMI_GUIDED_SOURCE_REFS,
   ),
   'tag-intent-wire-state-replay': integrated(
     'tag-intent-wire-state-replay',
     'Generic Attack game and wire intents carry TAG weapon ids through declareAttack, runner TAG hits emit DesignatorMarkerApplied, the replay reducer reapplies tagDesignated target state, and TurnStarted clears transient TAG state',
+    MEGAMEK_TAG_FAMILY_SOURCE_REFS,
   ),
   'artemis-cluster-modifier': integrated(
     'artemis-cluster-modifier',

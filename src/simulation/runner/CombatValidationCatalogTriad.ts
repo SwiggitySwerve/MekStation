@@ -309,7 +309,11 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
       'Special weapon family rows are MegaMek-source checked for UAC, RAC, LB-X, Streak SRM, MML, NARC, AMS, TAG, and Artemis family boundaries and must carry row-level sourceRefs.',
       FEATURE_REFS,
     ),
-    specialWeaponMechanics: FEATURE_TRIAD,
+    specialWeaponMechanics: triad(
+      'entry-source-refs',
+      'Special weapon mechanic rows are MegaMek-source checked for UAC, RAC, LB-X, Streak SRM, MML, NARC/iNARC, AMS, TAG, Artemis, ECM, active-probe, and stealth behavior and must carry row-level sourceRefs.',
+      FEATURE_REFS,
+    ),
     physicalWeapons: triad(
       'entry-source-refs',
       'Physical weapon rows must carry row-level sourceRefs before they can claim source-backed BattleMech weapon damage, to-hit, or legality behavior.',

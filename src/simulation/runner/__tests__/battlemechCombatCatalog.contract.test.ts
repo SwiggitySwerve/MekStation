@@ -724,10 +724,10 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(supportGaps(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT, 'integrated'),
-    ).toEqual(['lb-x-ac', 'mml', 'rotary-ac', 'streak-srm', 'tag', 'ultra-ac']);
+    ).toEqual(['lb-x-ac', 'mml', 'rotary-ac', 'streak-srm', 'ultra-ac']);
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['ams', 'artemis', 'narc']);
+    ).toEqual(['ams', 'artemis', 'narc', 'tag']);
 
     expect(supportGaps(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT)).toEqual([]);
     expect(
@@ -766,7 +766,6 @@ describe('BattleMech combat catalog validation lane', () => {
       'tag-designation-hit',
       'tag-intent-wire-state-replay',
       'tag-marker-lifecycle-events',
-      'tag-semi-guided-cluster-bonus',
       'tag-turn-lifecycle-clear',
       'uac-jam-on-natural-two',
       'uac-rate-of-fire',
@@ -781,7 +780,7 @@ describe('BattleMech combat catalog validation lane', () => {
     ).toEqual(expect.stringContaining('indirect-fire state'));
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['inarc-pod-variants']);
+    ).toEqual(['inarc-pod-variants', 'tag-semi-guided-cluster-bonus']);
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT, 'unsupported'),
     ).toEqual([]);
@@ -987,7 +986,10 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.mml.level).toBe('integrated');
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.level).toBe('helper-only');
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.level).toBe('helper-only');
-    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.level).toBe('integrated');
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.level).toBe('helper-only');
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.gap).toContain(
+      'semi-guided TAG target-movement cancellation',
+    );
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['lb-x-ac'].level).toBe(
       'integrated',
     );
@@ -1085,6 +1087,8 @@ describe('BattleMech combat catalog validation lane', () => {
       'TAGHandler creates TagInfo, tags the target entity, and marks the attacker as spotting for indirect fire.',
       'TWPhasePreparationManager clears previous-round TAG info during initiative preparation.',
       'Game.resetTagInfo clears the tagInfoForTurn collection.',
+      'ComputeTargetToHitMods cancels positive target-movement modifiers for TAG-guided semi-guided LRM/MML/NLRM/mortar ammunition.',
+      'ComputeToHit applies a -1 semi-guided indirect-fire modifier when qualifying missile or mortar ammunition attacks a TAG-designated target.',
     ]);
     expect(sourceRefsFor('artemis').map(({ citation }) => citation)).toEqual([
       'MegaMek MissileWeaponHandler applies Artemis IV +2, prototype Artemis IV +1, and Artemis V +3 cluster modifiers while suppressing ECM and stealth',
@@ -1093,6 +1097,76 @@ describe('BattleMech combat catalog validation lane', () => {
     ]);
 
     for (const entry of Object.values(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT)) {
+      if (entry.level !== 'unsupported') {
+        expectPinnedMegaMekRefs(entry.sourceRefs ?? []);
+      }
+    }
+  });
+
+  it('pins special weapon mechanic rows to row-level MegaMek refs', () => {
+    const sourceRefsFor = (
+      id: keyof typeof SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT,
+    ) => SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[id].sourceRefs ?? [];
+
+    expect(
+      Object.values(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT).flatMap((entry) =>
+        entry.level !== 'unsupported' && (entry.sourceRefs?.length ?? 0) === 0
+          ? [entry.id]
+          : [],
+      ),
+    ).toEqual([]);
+
+    expect(
+      sourceRefsFor('uac-rate-of-fire').map(({ citation }) => citation),
+    ).toEqual([
+      'UACWeapon declares Ultra AC ammo, Single/Ultra firing modes, and the UltraWeaponHandler path.',
+      'UltraWeaponHandler derives one or two shots from firing mode, resolves cluster hits, and jams two-shot Ultra fire on a natural 2.',
+    ]);
+    expect(
+      sourceRefsFor('rac-rate-of-fire').map(({ citation }) => citation),
+    ).toEqual([
+      'RACWeapon declares Rotary AC ammo, Single/2-6 shot modes, explosive-on-jam behavior, and RACHandler versus UltraWeaponHandler routing.',
+      'RACHandler maps selected RAC mode to shot count and applies rate-dependent jam thresholds before reducing ammo.',
+    ]);
+    expect(
+      sourceRefsFor('lbx-slug-cluster-modes').map(({ citation }) => citation),
+    ).toEqual([
+      'LBXACWeapon routes cluster ammunition to LBXHandler, routes slug fire to ACWeaponHandler, and declares AC_LBX ammo/class metadata.',
+      'LBXHandler resolves cluster pellet damage, cluster-table hit counts, and cluster-ammo table usage.',
+    ]);
+    expect(
+      sourceRefsFor('streak-lock-no-spend-on-miss').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'StreakSRMWeapon declares Streak SRM ammo, removes Artemis compatibility, and routes attacks to StreakHandler.',
+      'StreakHandler suppresses hits/AMS on missed locks, resolves rack-size all-hit behavior, and spends ammo/heat only after a successful lock.',
+    ]);
+    expect(
+      sourceRefsFor('mml-srm-lrm-ammo-compatibility').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MMLWeapon declares MML ammo/class metadata and routes linked LRM-mode ammo to LRM handlers and other MML ammo to SRM handlers.',
+      'MMLWeapon exposes indirect-fire modes when the base indirect-fire option is enabled.',
+      'AmmoType creates paired MML LRM and SRM ammo entries with MML ammo type and distinct LRM/SRM flags.',
+    ]);
+    expect(
+      sourceRefsFor('narc-cluster-modifier').map(({ citation }) => citation),
+    ).toEqual([
+      'Entity.isNarcedBy detects attached standard NARC pods from the firing team.',
+      'MissileWeaponHandler applies the NARC/iNARC Homing cluster modifier to direct NARC-capable LRM/SRM/MML/NLRM fire when target ECM does not suppress it.',
+    ]);
+    expect(
+      sourceRefsFor('tag-semi-guided-cluster-bonus').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'ComputeTargetToHitMods cancels positive target-movement modifiers for TAG-guided semi-guided LRM/MML/NLRM/mortar ammunition.',
+      'ComputeToHit applies a -1 semi-guided indirect-fire modifier when qualifying missile or mortar ammunition attacks a TAG-designated target.',
+    ]);
+
+    for (const entry of Object.values(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT)) {
       if (entry.level !== 'unsupported') {
         expectPinnedMegaMekRefs(entry.sourceRefs ?? []);
       }
