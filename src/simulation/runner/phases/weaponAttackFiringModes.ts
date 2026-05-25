@@ -297,6 +297,7 @@ function resolveMissileClusterHit(options: {
     clusterRoll,
     clusterModifier,
     clusterDice,
+    incomingAttackArc: clusterContext?.incomingAttackArc,
     targetWeapons: clusterContext?.targetWeapons,
     targetAmmoState: clusterContext?.targetAmmoState,
   });
@@ -332,6 +333,7 @@ function resolveStreakModeHit(options: {
     clusterRoll: 11,
     clusterModifier: 0,
     clusterDice: [11],
+    incomingAttackArc: clusterContext?.incomingAttackArc,
     targetWeapons: clusterContext?.targetWeapons,
     targetAmmoState: clusterContext?.targetAmmoState,
   });
@@ -364,6 +366,7 @@ export function resolveSpecialProjectileHit(options: {
     baseWeapon: options.baseWeapon,
     shotWeapon: options.shotWeapon,
     d6Roller: options.d6Roller,
+    incomingAttackArc: options.clusterContext?.incomingAttackArc,
     targetWeapons: options.clusterContext?.targetWeapons,
     targetAmmoState: options.clusterContext?.targetAmmoState,
   });

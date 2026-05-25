@@ -1296,6 +1296,7 @@ export function runAttackPhase(options: {
             ),
             designatedWeaponType: attackerBeforeShot.designatedWeaponType,
             attackRange: distance,
+            incomingAttackArc: firingArc,
             targetWeapons: weaponsByUnit?.get(targetId),
             targetAmmoState: targetBeforeShot.ammoState,
           },

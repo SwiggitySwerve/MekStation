@@ -6,6 +6,7 @@ import type {
 import {
   MEGAMEK_ACTIVE_PROBE_SOURCE_REFS,
   MEGAMEK_AMS_AMMO_LIFECYCLE_SOURCE_REFS,
+  MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS,
   MEGAMEK_AMS_CLUSTER_SOURCE_REFS,
   MEGAMEK_AMS_SINGLE_MISSILE_SOURCE_REFS,
   MEGAMEK_ARTEMIS_CLUSTER_SOURCE_REFS,
@@ -172,6 +173,11 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
     'ams-projectile-reduction',
     'resolveSpecialProjectileHit passes target-mounted AMS weapons through resolveAMSInterception, which applies the Total Warfare/MegaMek -4 cluster-table modifier',
     MEGAMEK_AMS_CLUSTER_SOURCE_REFS,
+  ),
+  'ams-mounted-arc-enforcement': integrated(
+    'ams-mounted-arc-enforcement',
+    'resolveAMSInterception and resolveSingleMissileAMSInterception filter target-mounted AMS by incoming attack arc when mountingArc state is available',
+    MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS,
   ),
   'ams-streak-cluster-parity': integrated(
     'ams-streak-cluster-parity',

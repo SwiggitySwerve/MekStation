@@ -1,10 +1,12 @@
 import type { IAmmoSlotState } from '@/types/gameplay';
+import type { FiringArc } from '@/types/gameplay';
 
 import {
   findAvailableAmmoBin,
   isEnergyWeapon,
 } from '@/utils/gameplay/ammoTracking';
 import { lookupClusterHits } from '@/utils/gameplay/clusterWeapons';
+import { canFireFromArc } from '@/utils/gameplay/firingArcs';
 import { isNarc } from '@/utils/gameplay/specialWeaponMechanics';
 import { isAMS } from '@/utils/gameplay/specialWeaponMechanics/defensiveSystems';
 
@@ -56,13 +58,27 @@ function hasAmmoForAMS(
   );
 }
 
+function canAMSInterceptFromArc(
+  weapon: IWeapon,
+  incomingAttackArc: FiringArc | undefined,
+): boolean {
+  if (weapon.mountingArc === undefined || incomingAttackArc === undefined) {
+    return true;
+  }
+
+  return canFireFromArc(weapon.mountingArc, incomingAttackArc);
+}
+
 function findOperationalAMS(
   weapons: readonly IWeapon[] | undefined,
   targetAmmoState: Record<string, IAmmoSlotState> | undefined,
+  incomingAttackArc: FiringArc | undefined,
 ): IWeapon | undefined {
   return weapons?.find(
     (weapon) =>
-      isOperationalAMS(weapon) && hasAmmoForAMS(weapon, targetAmmoState),
+      isOperationalAMS(weapon) &&
+      hasAmmoForAMS(weapon, targetAmmoState) &&
+      canAMSInterceptFromArc(weapon, incomingAttackArc),
   );
 }
 
@@ -72,6 +88,7 @@ export function resolveAMSInterception(options: {
   readonly clusterRoll: number;
   readonly clusterModifier: number;
   readonly clusterDice: readonly number[];
+  readonly incomingAttackArc?: FiringArc;
   readonly targetWeapons?: readonly IWeapon[];
   readonly targetAmmoState?: Record<string, IAmmoSlotState>;
 }): IResolvedAMSInterception | undefined {
@@ -80,11 +97,16 @@ export function resolveAMSInterception(options: {
     clusterModifier,
     clusterRoll,
     incomingProjectiles,
+    incomingAttackArc,
     rackSize,
     targetAmmoState,
     targetWeapons,
   } = options;
-  const amsWeapon = findOperationalAMS(targetWeapons, targetAmmoState);
+  const amsWeapon = findOperationalAMS(
+    targetWeapons,
+    targetAmmoState,
+    incomingAttackArc,
+  );
   if (amsWeapon === undefined) {
     return undefined;
   }
@@ -115,12 +137,14 @@ export function resolveAMSInterception(options: {
 
 export function resolveSingleMissileAMSInterception(options: {
   readonly d6Roller: () => number;
+  readonly incomingAttackArc?: FiringArc;
   readonly targetWeapons?: readonly IWeapon[];
   readonly targetAmmoState?: Record<string, IAmmoSlotState>;
 }): IResolvedAMSInterception | undefined {
   const amsWeapon = findOperationalAMS(
     options.targetWeapons,
     options.targetAmmoState,
+    options.incomingAttackArc,
   );
   if (amsWeapon === undefined) {
     return undefined;
@@ -144,6 +168,7 @@ export function resolveSingleMissileAMSWeaponHit(options: {
   readonly baseWeapon: IWeapon;
   readonly shotWeapon: IWeapon;
   readonly d6Roller: () => number;
+  readonly incomingAttackArc?: FiringArc;
   readonly targetWeapons?: readonly IWeapon[];
   readonly targetAmmoState?: Record<string, IAmmoSlotState>;
 }): {
@@ -159,6 +184,7 @@ export function resolveSingleMissileAMSWeaponHit(options: {
 
   const amsInterception = resolveSingleMissileAMSInterception({
     d6Roller,
+    incomingAttackArc: options.incomingAttackArc,
     targetWeapons,
     targetAmmoState,
   });

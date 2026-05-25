@@ -1357,6 +1357,7 @@ describe('BattleMech combat catalog validation lane', () => {
       'active-probe-counter-hydration',
       'ams-ammo-consumption',
       'ams-interception-events',
+      'ams-mounted-arc-enforcement',
       'ams-projectile-reduction',
       'ams-single-missile-parity',
       'ams-streak-cluster-parity',
@@ -1967,8 +1968,23 @@ describe('BattleMech combat catalog validation lane', () => {
       'MissileWeaponHandler decrements AMS ammo, adds AMS heat, marks AMS as used, and branches optional multi-use and PLAYTEST_3 AMS lifecycle rules.',
     ]);
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap).toContain(
-      'firing-arc assignment/enforcement',
+      'automatic firing-arc assignment',
     );
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap).not.toContain(
+      'assignment/enforcement',
+    );
+    expect(
+      sourceRefsFor('ams-mounted-arc-enforcement').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'TWGameManager.assignAMS scopes AMS assignment to missile attacks that hit, then routes target AMS through auto assignment or manual defender choice.',
+      'Entity.assignAMS filters active AMS by firing arc, lets AMS bays or multi-use AMS engage all in-arc attacks, and otherwise assigns one AMS to the highest expected damage salvo.',
+    ]);
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-mounted-arc-enforcement']
+        .evidence,
+    ).toContain('mountingArc');
     expect(
       sourceRefsFor('ams-projectile-reduction').map(({ citation }) => citation),
     ).toEqual(clusterCitations);
@@ -1993,6 +2009,7 @@ describe('BattleMech combat catalog validation lane', () => {
 
     const refs = [
       ...amsFamilyRefs,
+      ...sourceRefsFor('ams-mounted-arc-enforcement'),
       ...sourceRefsFor('ams-projectile-reduction'),
       ...sourceRefsFor('ams-streak-cluster-parity'),
       ...sourceRefsFor('ams-single-missile-parity'),

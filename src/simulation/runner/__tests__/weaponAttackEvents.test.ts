@@ -23,6 +23,7 @@ import type { IAmmoSlotState } from '@/types/gameplay/GameSessionInterfaces';
 
 import {
   Facing,
+  FiringArc,
   GamePhase,
   GameSide,
   GameStatus,
@@ -2167,6 +2168,44 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       );
     });
 
+    it('only lets target AMS intercept from its mounted firing arc when arc state is available', () => {
+      const lrm = createLRM10();
+      const ams = createAMS();
+      const amsBin = createAmmoBin({
+        binId: 'ams-bin',
+        weaponType: 'ams',
+        remainingRounds: 2,
+      });
+
+      const frontArcAMS = resolveSpecialProjectileHit({
+        baseWeapon: lrm,
+        shotWeapon: lrm,
+        selectedMode: undefined,
+        d6Roller: sequenceD6Roller(3, 4),
+        clusterContext: {
+          incomingAttackArc: FiringArc.Front,
+          targetWeapons: [{ ...ams, mountingArc: FiringArc.Front }],
+          targetAmmoState: { [amsBin.binId]: amsBin },
+        },
+      });
+      const rearArcAMS = resolveSpecialProjectileHit({
+        baseWeapon: lrm,
+        shotWeapon: lrm,
+        selectedMode: undefined,
+        d6Roller: sequenceD6Roller(3, 4),
+        clusterContext: {
+          incomingAttackArc: FiringArc.Front,
+          targetWeapons: [{ ...ams, mountingArc: FiringArc.Rear }],
+          targetAmmoState: { [amsBin.binId]: amsBin },
+        },
+      });
+
+      expect(frontArcAMS.amsInterception?.amsWeaponId).toBe(ams.id);
+      expect(frontArcAMS.projectileCount).toBe(3);
+      expect(rearArcAMS.amsInterception).toBeUndefined();
+      expect(rearArcAMS.projectileCount).toBe(6);
+    });
+
     it('runner attack resolution passes target AMS mounts into missile interception', () => {
       const lrm = createLRM10();
       const ams = createAMS();
@@ -2314,6 +2353,73 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
         SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-interception-events'].level,
       ).toBe('integrated');
       expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap).toContain('arc');
+    });
+
+    it('runner attack resolution respects target AMS mounted arc when resolving interception', () => {
+      const lrm = createLRM10();
+      const ams = createAMS();
+      const amsAmmoBin = createAmmoBin({
+        binId: 'ams-bin',
+        weaponType: 'ams',
+        remainingRounds: 2,
+      });
+      const frontArcScenario = buildScenario({
+        attackerWeapons: [lrm],
+        attackerPosition: { q: 0, r: -7 },
+        attackerStateOverride: { gunnery: 0 },
+        targetPosition: { q: 0, r: 0 },
+        targetStateOverride: {
+          facing: Facing.North,
+          ammoState: { [amsAmmoBin.binId]: amsAmmoBin },
+        },
+        targetWeapons: [{ ...ams, mountingArc: FiringArc.Front }],
+      });
+      const rearArcScenario = buildScenario({
+        attackerWeapons: [lrm],
+        attackerPosition: { q: 0, r: -7 },
+        attackerStateOverride: { gunnery: 0 },
+        targetPosition: { q: 0, r: 0 },
+        targetStateOverride: {
+          facing: Facing.North,
+          ammoState: { [amsAmmoBin.binId]: amsAmmoBin },
+        },
+        targetWeapons: [{ ...ams, mountingArc: FiringArc.Rear }],
+      });
+
+      const frontArcResult = runPhaseWithResult({
+        ...frontArcScenario,
+        botPlayer: new ScriptedAttackAI(lrm.id),
+        random: new SequenceRandom([6, 6, 3, 4, 1, 1]),
+      });
+      const rearArcResult = runPhaseWithResult({
+        ...rearArcScenario,
+        botPlayer: new ScriptedAttackAI(lrm.id),
+        random: new SequenceRandom([6, 6, 3, 4, 1, 1]),
+      });
+
+      const frontArcInterception = frontArcResult.events.find(
+        (event) => event.type === GameEventType.AMSInterception,
+      );
+      const rearArcInterception = rearArcResult.events.find(
+        (event) => event.type === GameEventType.AMSInterception,
+      );
+      const frontArcResolved = frontArcResult.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+      const rearArcResolved = rearArcResult.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+
+      expect(frontArcInterception).toBeDefined();
+      expect(rearArcInterception).toBeUndefined();
+      expect(frontArcResolved.payload.attackerArc).toBe(FiringArc.Front);
+      expect(frontArcResolved.payload.projectileCount).toBe(3);
+      expect(rearArcResolved.payload.attackerArc).toBe(FiringArc.Front);
+      expect(rearArcResolved.payload.projectileCount).toBe(6);
     });
 
     it('laser AMS intercepts without ammo consumption and still enters heat accounting', () => {

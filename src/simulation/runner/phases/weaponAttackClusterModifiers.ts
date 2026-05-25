@@ -1,4 +1,5 @@
 import type { IAmmoSlotState } from '@/types/gameplay';
+import type { FiringArc } from '@/types/gameplay';
 
 import {
   calculateClusterModifiers,
@@ -24,6 +25,7 @@ export interface IMissileClusterModifierContext {
   readonly sandblasterSPA?: boolean;
   readonly designatedWeaponType?: string;
   readonly attackRange?: number;
+  readonly incomingAttackArc?: FiringArc;
   readonly targetWeapons?: readonly IWeapon[];
   readonly targetAmmoState?: Record<string, IAmmoSlotState>;
 }
