@@ -103,6 +103,16 @@ import {
  */
 const JUMP_PATTERN_URL = 'url(#pattern-jump-range)';
 
+type HexOverlayKind =
+  | 'selected'
+  | 'path'
+  | 'movement-legal'
+  | 'movement-blocked'
+  | 'combat-attackable'
+  | 'combat-blocked'
+  | 'legacy-range'
+  | 'hover';
+
 function formatProjectionStatusForLabel(
   status?: TacticalMapHexProjectionStatus,
 ): string | null {
@@ -137,6 +147,18 @@ function colorForMovementType(type: MovementType): string {
     default:
       return HEX_COLORS.movementRange;
   }
+}
+
+function hasLegacyAttackRangeSource(
+  sourceReferences:
+    | readonly ITacticalMapProjectionSourceReference[]
+    | undefined,
+): boolean {
+  return (
+    sourceReferences?.some(
+      (reference) => reference.channel === 'legacy-attack-range',
+    ) ?? false
+  );
 }
 
 export interface HexCellProps {
@@ -255,6 +277,12 @@ export const HexCell = React.memo(function HexCell({
     isHovered;
   let overlayFill: string | null = null;
   let overlayOpacity = 0.5;
+  let overlayKind: HexOverlayKind | null = null;
+  const isLegacyAttackRangeFallback =
+    isInAttackRange &&
+    !combatInfo &&
+    tacticalProjectionCombatStatus === 'range-only' &&
+    hasLegacyAttackRangeSource(tacticalProjectionSourceReferences);
 
   // Reasoning: path-preview wins over the type-tint so the player can
   // always see where the planned path lands, even when the hex is
@@ -263,25 +291,39 @@ export const HexCell = React.memo(function HexCell({
   if (isSelected) {
     overlayFill = HEX_COLORS.hexSelected;
     overlayOpacity = 0.7;
+    overlayKind = 'selected';
   } else if (isInPath) {
     overlayFill = HEX_COLORS.pathHighlight;
     overlayOpacity = 0.6;
+    overlayKind = 'path';
   } else if (movementInfo) {
     overlayFill = movementInfo.reachable
       ? colorForMovementType(movementInfo.movementType)
       : HEX_COLORS.movementRangeUnreachable;
     overlayOpacity = 0.5;
+    overlayKind = movementInfo.reachable
+      ? 'movement-legal'
+      : 'movement-blocked';
   } else if (combatInfo?.inRange || combatInfo?.hasTarget) {
     overlayFill = combatInfo.attackable
       ? HEX_COLORS.attackRange
       : HEX_COLORS.movementRangeUnreachable;
     overlayOpacity = combatInfo.attackable ? 0.5 : 0.45;
+    overlayKind = combatInfo.attackable
+      ? 'combat-attackable'
+      : 'combat-blocked';
+  } else if (isLegacyAttackRangeFallback) {
+    overlayFill = HEX_COLORS.attackRangeFallback;
+    overlayOpacity = 0.24;
+    overlayKind = 'legacy-range';
   } else if (isInAttackRange) {
     overlayFill = HEX_COLORS.attackRange;
     overlayOpacity = 0.5;
+    overlayKind = 'combat-attackable';
   } else if (isHovered) {
     overlayFill = HEX_COLORS.hexHover;
     overlayOpacity = 0.4;
+    overlayKind = 'hover';
   }
 
   const isJumpTile =
@@ -603,6 +645,7 @@ export const HexCell = React.memo(function HexCell({
       data-combat-valid-target-ids={combatInfo?.validTargetUnitIds.join(',')}
       data-combat-los-blocker-for-target-hexes={combatLosBlockerTargetHexes}
       data-combat-los-blocker-for-reasons={combatLosBlockerReasons}
+      data-hex-overlay-kind={overlayKind ?? undefined}
       aria-label={hexLabel}
       data-elevation-layers={elevationLayerCount || undefined}
       data-elevation-effective-height={
@@ -648,6 +691,24 @@ export const HexCell = React.memo(function HexCell({
           fill={overlayFill}
           opacity={overlayOpacity}
           pointerEvents="none"
+          data-testid={`hex-overlay-${hex.q}-${hex.r}`}
+          data-hex-overlay-kind={overlayKind ?? undefined}
+          data-hex-overlay-legacy-fallback={
+            isLegacyAttackRangeFallback ? 'true' : undefined
+          }
+        />
+      )}
+      {isLegacyAttackRangeFallback && (
+        <path
+          d={pathD}
+          fill="none"
+          stroke="#334155"
+          strokeWidth={1.5}
+          strokeDasharray="4 3"
+          opacity={0.9}
+          pointerEvents="none"
+          data-testid={`hex-legacy-range-outline-${hex.q}-${hex.r}`}
+          aria-label={`Legacy range envelope for hex ${hex.q},${hex.r}; not weapon-backed`}
         />
       )}
       {isJumpTile && !isInPath && (

@@ -57,6 +57,8 @@ export const HEX_COLORS: Record<string, string> = {
   movementRangeUnreachable: '#64748b',
   /** Attack range highlight */
   attackRange: '#fecaca',
+  /** Legacy caller-provided range envelope that is not weapon-backed */
+  attackRangeFallback: '#64748b',
   /** Path visualization */
   pathHighlight: '#60a5fa',
   /** Player unit token */

@@ -1367,6 +1367,13 @@ This does not change fog, sensor, LOS, or attack legality; it makes the
 visibility affordance inspectable so last-known contacts can be understood as
 stale display-position rings with a separate represented source position.
 
+2026-05-25 legacy range visual demotion pin: Legacy raw `attackRange` fallback
+hexes now use a neutral fill, dashed outline, and explicit `legacy-range`
+overlay metadata instead of the same attack-range fill used by weapon-backed
+combat projection. This does not change attack legality; it keeps compatibility
+range envelopes visible while preventing them from visually claiming the same
+status as rules-backed valid attacks.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

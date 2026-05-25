@@ -213,12 +213,33 @@ describe('HexMapDisplay combat projection', () => {
     );
 
     const legacyAttackHex = screen.getByTestId('hex-2-0');
+    const legacyOverlay = screen.getByTestId('hex-overlay-2-0');
     expect(
       legacyAttackHex.querySelector(`path[fill="${HEX_COLORS.attackRange}"]`),
-    ).not.toBeNull();
+    ).toBeNull();
+    expect(legacyOverlay).toHaveAttribute(
+      'fill',
+      HEX_COLORS.attackRangeFallback,
+    );
+    expect(legacyOverlay).toHaveAttribute(
+      'data-hex-overlay-kind',
+      'legacy-range',
+    );
+    expect(legacyOverlay).toHaveAttribute(
+      'data-hex-overlay-legacy-fallback',
+      'true',
+    );
+    expect(screen.getByTestId('hex-legacy-range-outline-2-0')).toHaveAttribute(
+      'stroke-dasharray',
+      '4 3',
+    );
     expect(legacyAttackHex).toHaveAttribute(
       'data-tactical-projection-status',
       'neutral',
+    );
+    expect(legacyAttackHex).toHaveAttribute(
+      'data-hex-overlay-kind',
+      'legacy-range',
     );
     expect(legacyAttackHex).toHaveAttribute(
       'data-tactical-projection-combat-status',
@@ -276,9 +297,15 @@ describe('HexMapDisplay combat projection', () => {
       />,
     );
 
-    expect(screen.getByTestId('hex-0--2')).toHaveAttribute(
-      'data-combat-valid-target',
-      'true',
+    const attackableHex = screen.getByTestId('hex-0--2');
+    expect(attackableHex).toHaveAttribute('data-combat-valid-target', 'true');
+    expect(attackableHex).toHaveAttribute(
+      'data-hex-overlay-kind',
+      'combat-attackable',
+    );
+    expect(screen.getByTestId('hex-overlay-0--2')).toHaveAttribute(
+      'fill',
+      HEX_COLORS.attackRange,
     );
     const enemyToken = screen.getByTestId('unit-token-enemy');
     expect(enemyToken).toHaveAttribute(
