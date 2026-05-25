@@ -170,6 +170,7 @@
 - [x] 3.5.20 Promote source-backed ammo cookoff internal-only damage order and protected torso rear-armor blowout through shared heat/crit/event-sourced heat cascades.
 - [x] 3.5.21 Promote critical-slot hydration and critical-slot effect triads to row-level source references so system/equipment critical-slot claims cannot inherit broad damage authority.
 - [x] 3.5.22 Promote PSR resolution rows to row-level source references for queued PSR resolution, reasonCode preservation, failed-fall outcomes, fall pilot wounds/death/events, and pending-queue clearing.
+- [x] 3.5.23 Promote action eligibility rows to row-level source references for turn rotation removal, shutdown targetability, retreated/ejected target removal, ejection damage preservation, and survivor/objective counts.
 
 ## 4. Source-truth cross-checks
 
@@ -251,3 +252,4 @@
 - [x] 4.3.72 Cross-check MegaMek `LosEffects.calculateLos`, `LosEffects.losModifiers`, `LosEffects.losForCoords`, and MekStation `calculateLOS`/runner no-LOS invalidation before promoting per-TerrainType LOS rows to row-level source references and downgrading simplified LOS parity to helper-only where needed.
 - [x] 4.3.73 Cross-check MegaMek `Entity.checkRubbleMove`, `Entity.checkWaterMove`, `Entity.checkSkid`, `Entity.checkBogDown`, `Terrain.getBogDownModifier`, `BuildingCollapseHandler.checkForCollapse`, and MekStation terrain PSR runner/factory/resolution paths before promoting per-TerrainType PSR rows to row-level source references and preserving swamp/building helper-only gaps.
 - [x] 4.3.74 Cross-check MegaMek `Game.addPSR`, `TWGameManager.resolvePilotingRolls`, `doSkillCheckWhileMoving`, and `doEntityFall` plus MekStation runner/session PSR resolution before promoting PSR resolution rows to row-level source references.
+- [x] 4.3.75 Cross-check MegaMek retreat/ejection original-unit removal and MekStation turn rotation, action queries, target filters, ejection reducer, and survivor/objective predicates before promoting action eligibility rows to row-level source references.

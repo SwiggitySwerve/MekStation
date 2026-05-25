@@ -2323,6 +2323,46 @@ describe('BattleMech combat feature-gap tracking', () => {
         'unconscious',
       ].sort(),
     );
+    const actionEligibilityEntries = Object.values(
+      ACTION_ELIGIBILITY_COMBAT_SUPPORT,
+    );
+    expect(
+      actionEligibilityEntries.filter((entry) => !entry.sourceRefs?.length),
+    ).toEqual([]);
+    expect(
+      actionEligibilityEntries.flatMap((entry) =>
+        (entry.sourceRefs ?? []).filter(({ url }) => !url.includes('#L')),
+      ),
+    ).toEqual([]);
+    expect(
+      ACTION_ELIGIBILITY_COMBAT_SUPPORT[
+        'shutdown-targetability'
+      ].sourceRefs?.map(({ citation }) => citation),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('leaving shutdown enemies targetable'),
+      ]),
+    );
+    expect(
+      ACTION_ELIGIBILITY_COMBAT_SUPPORT[
+        'ejection-damage-preservation'
+      ].sourceRefs?.map(({ citation }) => citation),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('InteractiveSession.ejectUnit'),
+        expect.stringContaining('applyUnitEjected'),
+      ]),
+    );
+    const ejectedTargetMegaMekRefs =
+      ACTION_ELIGIBILITY_COMBAT_SUPPORT[
+        'ejected-targetability'
+      ].sourceRefs?.filter(({ kind }) => kind === 'megamek-source') ?? [];
+    expectPinnedMegaMekRefs(ejectedTargetMegaMekRefs);
+    expect(ejectedTargetMegaMekRefs.map(({ citation }) => citation)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('TWGameManager.ejectEntity'),
+      ]),
+    );
     expect(
       supportIdsByLevel(PSR_RESOLUTION_COMBAT_SUPPORT, 'integrated'),
     ).toEqual(

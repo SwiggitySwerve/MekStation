@@ -1128,6 +1128,19 @@ Every TerrainType PSR support row SHALL expose structured source references befo
 - **AND** local no-PSR terrain rows SHALL use MekStation deviation source references for the local no-op mapping
 - **AND** the terrainTypePsr catalog triad SHALL enforce row-level source references before PR approval
 
+### Requirement: Source-Backed Action Eligibility Catalog Anchors
+
+Every action eligibility support row SHALL expose structured source references before lifecycle action removal is treated as validation coverage. Turn-rotation rows SHALL cite MekStation active-unit/action-queue predicates, interactive action queries, and runner movement/weapon/physical phase actor gates. Targetability rows SHALL cite interactive and ranged/physical target filters, keeping shutdown targetability distinct from retreated/ejected target removal. Ejection damage-preservation rows SHALL cite the local ejection command/reducer path that preserves existing mech damage, and ejected/retreated target-removal rows SHALL also cite the MegaMek original-unit removal boundary where applicable. Survivor-count rows SHALL cite victory, objective, runner terminal, and terminal-event predicates.
+
+#### Scenario: Action eligibility rows expose source truth
+
+- **GIVEN** the BattleMech action eligibility support catalog is generated
+- **WHEN** any integrated action eligibility row is inspected
+- **THEN** the row SHALL include structured source references with line-anchored source URLs
+- **AND** shutdown-targetability rows SHALL cite the local target filter that leaves shutdown enemies targetable
+- **AND** ejected target-removal rows SHALL include MegaMek source anchors for original-unit ejection removal
+- **AND** the actionEligibility catalog triad SHALL enforce row-level source references before PR approval
+
 ### Requirement: Source-Backed PSR Resolution Catalog Anchors
 
 Every PSR resolution support row SHALL expose structured source references before the map is treated as source-backed validation coverage. Queued PSR resolution rows SHALL cite MegaMek pending-PSR storage/resolution anchors plus MekStation runner, interactive/session, and core resolver paths. Failed-fall rows SHALL cite MegaMek failed-piloting-roll fall and pilot fall-damage handling plus MekStation `UnitFell`, fall-sourced `PilotHit`, pilot wound/death, and pending-queue clearing paths. Reason-code rows SHALL cite the local reducer and shutdown-PSR queueing paths that preserve canonical reason codes.

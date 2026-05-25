@@ -246,6 +246,11 @@ const CRITICAL_SLOT_TRIAD = triad(
   CRITICAL_SLOT_REFS,
 );
 const LIFECYCLE_TRIAD = requirementTriad(LIFECYCLE_REFS);
+const ACTION_ELIGIBILITY_TRIAD = triad(
+  'entry-source-refs',
+  'Action eligibility rows require row sourceRefs.',
+  LIFECYCLE_REFS,
+);
 const PSR_RESOLUTION_TRIAD = triad(
   'entry-source-refs',
   'PSR resolution rows require row sourceRefs.',
@@ -391,7 +396,7 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
     destructionCauses: DAMAGE_TRIAD,
   },
   lifecycleAndPsr: {
-    actionEligibility: LIFECYCLE_TRIAD,
+    actionEligibility: ACTION_ELIGIBILITY_TRIAD,
     psrResolution: PSR_RESOLUTION_TRIAD,
     psrTriggers: LIFECYCLE_TRIAD,
   },
