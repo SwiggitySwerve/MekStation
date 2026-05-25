@@ -13,6 +13,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **THEN** the mechanic SHALL appear as `unsupported`
 - **AND** the catalog SHALL include a concise reason or follow-up label
 - **AND** the mechanic SHALL NOT be omitted from the suite
+- **AND** helper-only and unsupported rows SHALL remain queryable as a machine-readable unresolved completion-blocker inventory
 
 #### Scenario: Integrated mechanics require executable evidence
 

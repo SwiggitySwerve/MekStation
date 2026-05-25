@@ -49,6 +49,16 @@ function supportIds(support: CombatValidationSupportMap): readonly string[] {
     .sort();
 }
 
+function unresolvedCatalogRefs(): readonly string[] {
+  return catalogMaps()
+    .flatMap(({ sectionId, mapId, support }) =>
+      Object.values(support)
+        .filter((entry) => entry.level !== 'integrated')
+        .map((entry) => `${sectionId}.${mapId}.${entry.id}`),
+    )
+    .sort();
+}
+
 function triadEvidenceMaps(): Readonly<
   Record<string, Record<string, ICombatCatalogTriadEvidence>>
 > {
@@ -102,6 +112,28 @@ describe('BattleMech combat validation catalog index', () => {
     );
 
     expect(missingSourceRefs).toEqual([]);
+  });
+
+  it('keeps unresolved helper and unsupported rows visible as completion blockers', () => {
+    const unresolvedRefs = unresolvedCatalogRefs();
+
+    expect(unresolvedRefs.length).toBeGreaterThan(0);
+    expect(unresolvedRefs).toEqual(Array.from(new Set(unresolvedRefs)));
+    expect(unresolvedRefs).toEqual(
+      expect.arrayContaining([
+        'actions.absentActionSurfaces.movement.evade',
+        'actions.absentActionSurfaces.movement.sprint',
+        'eventStream.nonBattleMechEventScope.motive_damaged',
+        'featureSupport.ammunitionCompatibility.non-battlemech-aerospace-capital-ammo',
+        'featureSupport.ammunitionCompatibility.non-battlemech-battle-armor',
+        'featureSupport.ammunitionCompatibility.non-battlemech-protomech',
+        'featureSupport.ammunitionCompatibility.unsupported-artillery-ammo',
+        'featureSupport.physicalWeapons.claws',
+        'featureSupport.physicalWeapons.talons',
+        'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
+        'validationScope.objectiveRequirements.non-battlemech-scope',
+      ]),
+    );
   });
 
   it('requires every catalog map to declare source-boundary and executable test evidence', () => {
