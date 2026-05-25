@@ -780,8 +780,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'critical-effects': helperOnly(
     'critical-effects',
-    'Critical component support covers engine, gyro, cockpit, sensors, life support, actuators, ammo, heat sinks, jump jets, equipment, and weapons',
-    'Catalog-mounted ammo and equipment slots are hydrated as critical slots, but special ammo and generic-equipment lifecycle effects remain incomplete',
+    'Critical component support covers engine, gyro, cockpit, sensors, life support, actuators, ammo, heat sinks, jump jets, and weapons, with a generic equipment-destroyed helper boundary',
+    'Special ammo and generic equipment lifecycle effects remain incomplete because not every MegaMek equipment-specific critical branch cascades through combat state',
     [...CRITICAL_COMPONENT_SUPPORT_REFS, ...CRITICAL_SLOT_EFFECT_SUPPORT_REFS],
   ),
   'pilot-damage-death': integrated(
@@ -883,10 +883,9 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       ...NON_BATTLEMECH_EVENT_SCOPE_SUPPORT_REFS,
     ],
   ),
-  'critical-slot-hydration': helperOnly(
+  'critical-slot-hydration': integrated(
     'critical-slot-hydration',
-    'Critical-slot hydration support catalogs every component type the resolver can represent',
-    'UnitHydration does not yet build catalog-mounted equipment, heat sink, jump jet, weapon, or ammo slots into runner manifests',
+    'Critical-slot hydration support maps catalog BattleMech system, ammo, weapon, heat sink, jump jet, and generic equipment slots into runner manifests with MegaMek source refs',
     CRITICAL_SLOT_HYDRATION_SUPPORT_REFS,
   ),
   'known-limitation-audit': integrated(

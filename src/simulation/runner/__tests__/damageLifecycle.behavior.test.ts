@@ -141,7 +141,7 @@ describe('BattleMech damage lifecycle validation anchors', () => {
     expect(updated.units.target.destructionCause).toBe('ammo_explosion');
   });
 
-  it('documents that default runner critical slots cover core components while equipment crits remain helper-only', () => {
+  it('documents default critical slots and mounted critical-effect boundaries', () => {
     const defaultComponentTypes = Array.from(
       new Set(
         Object.values(buildDefaultCriticalSlotManifest())

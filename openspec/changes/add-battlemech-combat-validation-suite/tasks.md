@@ -210,3 +210,4 @@
 - [x] 4.3.50 Cross-check MegaMek C3 attacker shutdown/off-board and spotter shutdown/off-board/transported eligibility before refreshing runner C3 operational state at attack time.
 - [x] 4.3.51 Cross-check MegaMek non-inoperable mounted C3 equipment requirements before suppressing runner C3 range sharing from destroyed matching critical slots.
 - [x] 4.3.52 Cross-examine the validation-catalog direction with OMO Lean++ and add a map-level triad contract so source authority boundaries and executable test surfaces are enforced before PR approval.
+- [x] 4.3.53 Cross-check MegaMek critical-slot system/equipment hydration and equipment-critical lifecycle branches; source-pin critical-slot rows and keep generic equipment effects helper-only until equipment-specific cascades are modeled.

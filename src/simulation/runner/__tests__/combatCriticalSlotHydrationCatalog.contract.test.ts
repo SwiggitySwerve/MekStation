@@ -43,6 +43,15 @@ function supportIdsByLevel(
     .sort();
 }
 
+function supportIdsMissingSourceRefs(
+  support: Record<string, ICombatFeatureSupportEntry>,
+): readonly string[] {
+  return Object.values(support)
+    .filter((entry) => (entry.sourceRefs?.length ?? 0) === 0)
+    .map((entry) => entry.id)
+    .sort();
+}
+
 function manifestComponentTypes(
   manifest: CriticalSlotManifest,
 ): readonly CriticalSlotComponentType[] {
@@ -68,13 +77,33 @@ describe('BattleMech critical-slot hydration support catalog', () => {
   });
 
   it('separates proven critical effects from catalog slot hydration gaps', () => {
+    const integratedEffectTypes = CRITICAL_SLOT_COMPONENT_TYPES.filter(
+      (componentType) => componentType !== 'equipment',
+    );
+
     expect(
       supportIdsByLevel(CRITICAL_SLOT_EFFECT_COMBAT_SUPPORT, 'integrated'),
-    ).toEqual([...CRITICAL_SLOT_COMPONENT_TYPES].sort());
+    ).toEqual([...integratedEffectTypes].sort());
+    expect(
+      supportIdsByLevel(CRITICAL_SLOT_EFFECT_COMBAT_SUPPORT, 'helper-only'),
+    ).toEqual(['equipment']);
     expect(
       supportIdsByLevel(CRITICAL_SLOT_HYDRATION_COMBAT_SUPPORT, 'helper-only'),
     ).toEqual([...CATALOG_CRITICAL_SLOT_HYDRATION_GAPS].sort());
     expect(CATALOG_CRITICAL_SLOT_HYDRATION_GAPS).toEqual([]);
+  });
+
+  it('source-pins critical slot rows and preserves generic equipment lifecycle gaps', () => {
+    expect(
+      supportIdsMissingSourceRefs(CRITICAL_SLOT_EFFECT_COMBAT_SUPPORT),
+    ).toEqual([]);
+    expect(
+      supportIdsMissingSourceRefs(CRITICAL_SLOT_HYDRATION_COMBAT_SUPPORT),
+    ).toEqual([]);
+    expect(CRITICAL_SLOT_EFFECT_COMBAT_SUPPORT.equipment).toMatchObject({
+      level: 'helper-only',
+      gap: expect.stringContaining('equipment-specific'),
+    });
   });
 
   it('keeps the default manifest scoped to core slots while catalog hydration covers mounted slots', () => {
