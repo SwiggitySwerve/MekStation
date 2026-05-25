@@ -402,8 +402,8 @@ export interface IPhysicalAttackInput {
   /**
    * Pilot abilities and unit quirks that modify physical attacks. Kept on
    * the shared input so helper, runner, and interactive paths consume the
-   * same Melee Specialist / Melee Master / Battle Fists / arm restriction
-   * behavior.
+   * same Melee Specialist damage and to-hit, Battle Fists, and arm
+   * restriction behavior.
    */
   readonly pilotAbilities?: readonly string[];
   readonly unitQuirks?: readonly string[];

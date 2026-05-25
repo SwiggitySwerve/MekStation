@@ -7,7 +7,7 @@ import {
   type D6Roller,
 } from '@/utils/gameplay/hitLocation';
 import { getBattleFistDamageBonus } from '@/utils/gameplay/quirkModifiers';
-import { getMeleeMasterDamageBonus } from '@/utils/gameplay/spaModifiers';
+import { getMeleeSpecialistDamageBonus } from '@/utils/gameplay/spaModifiers';
 
 import {
   CHARGE_DAMAGE_DIVISOR,
@@ -83,7 +83,7 @@ export function applyUnderwaterModifier(
 }
 
 function physicalDamageBonus(input: IPhysicalAttackInput): number {
-  return getMeleeMasterDamageBonus(input.pilotAbilities ?? []);
+  return getMeleeSpecialistDamageBonus(input.pilotAbilities ?? []);
 }
 
 function punchDamageBonus(input: IPhysicalAttackInput): number {

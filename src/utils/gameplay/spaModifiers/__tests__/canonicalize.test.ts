@@ -22,6 +22,7 @@ import {
   getHotDogHeatTargetNumberModifier,
   getIronManModifier,
   getMeleeMasterDamageBonus,
+  getMeleeSpecialistDamageBonus,
   getMountaineerRubblePSRModifier,
   getSomeLikeItHotHeatPenaltyReduction,
   getTacticalGeniusBonus,
@@ -190,8 +191,12 @@ describe('combat modifiers accept canonical ids', () => {
     ).toBe(-1);
   });
 
-  it('getMeleeMasterDamageBonus fires on canonical id', () => {
-    expect(getMeleeMasterDamageBonus(['melee_master'])).toBe(1);
+  it('getMeleeSpecialistDamageBonus fires on canonical id', () => {
+    expect(getMeleeSpecialistDamageBonus(['melee_specialist'])).toBe(1);
+  });
+
+  it('getMeleeMasterDamageBonus does not expose a canonical flat damage bonus', () => {
+    expect(getMeleeMasterDamageBonus(['melee_master'])).toBe(0);
   });
 
   it('getTacticalGeniusBonus does not expose a flat canonical bonus', () => {

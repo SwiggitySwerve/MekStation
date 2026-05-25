@@ -224,8 +224,16 @@ export const MEGAMEK_MELEE_SPECIALIST_SOURCE_REFS = [
     'src/utils/gameplay/spaModifiers/abilityModifiers.ts#L212-L223',
   ),
   mekstationDeviationRef(
+    'MekStation getMeleeSpecialistDamageBonus applies Melee Specialist as a +1 physical attack damage helper.',
+    'src/utils/gameplay/spaModifiers/abilityModifiers.ts#L273-L277',
+  ),
+  mekstationDeviationRef(
     'MekStation physical to-hit helpers append Melee Specialist to physical attack modifiers.',
     'src/utils/gameplay/physicalAttacks/toHit.ts#L103-L114',
+  ),
+  mekstationDeviationRef(
+    'MekStation physical damage helpers consume Melee Specialist as the source-backed flat physical damage bonus.',
+    'src/utils/gameplay/physicalAttacks/damage.ts#L85-L87',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -243,12 +251,8 @@ export const MEKSTATION_MELEE_MASTER_DEVIATION_SOURCE_REFS = [
     'megamek/src/megamek/common/options/PilotOptions.java#L60-L69',
   ),
   mekstationDeviationRef(
-    'MekStation getMeleeMasterDamageBonus currently maps Melee Master to +1 physical damage.',
-    'src/utils/gameplay/spaModifiers/abilityModifiers.ts#L273-L277',
-  ),
-  mekstationDeviationRef(
-    'MekStation physical damage helpers currently consume Melee Master as a flat physical damage bonus.',
-    'src/utils/gameplay/physicalAttacks/damage.ts#L85-L87',
+    'MekStation getMeleeMasterDamageBonus now returns no flat damage because Melee Master is an action-count rule, not a damage modifier.',
+    'src/utils/gameplay/spaModifiers/abilityModifiers.ts#L280-L287',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

@@ -530,16 +530,14 @@ export const SPA_COMBAT_SUPPORT = {
     'Source-backed calculateJumpingJackModifier + calculateToHit reduce the attacker jump movement penalty from +3 to +2',
     MEGAMEK_325B_JUMP_ATTACKER_SOURCE_REFS,
   ),
-  'melee-specialist': helperOnly(
+  'melee-specialist': integrated(
     'melee-specialist',
-    'calculateMeleeSpecialistModifier plus physical attack input pilotAbilities reduces helper, runner, and interactive physical to-hit TNs',
-    'MegaMek also applies +1 physical damage for Melee Specialist; MekStation currently wires only the to-hit relief and maps the damage bonus to legacy Melee Master behavior',
+    'calculateMeleeSpecialistModifier and getMeleeSpecialistDamageBonus plus physical attack input pilotAbilities reduce helper, runner, and interactive physical to-hit TNs and add source-backed physical damage',
     MEGAMEK_MELEE_SPECIALIST_SOURCE_REFS,
   ),
-  'melee-master': helperOnly(
+  'melee-master': unsupported(
     'melee-master',
-    'getMeleeMasterDamageBonus plus physical attack input pilotAbilities increases helper and runner physical target damage',
-    'MegaMek Melee Master grants two allowed physical attacks instead of a flat damage bonus; MekStation keeps legacy damage-bonus behavior until the action-count rule is modeled',
+    'MegaMek Melee Master grants two allowed physical attacks instead of a flat damage bonus; MekStation no longer applies a legacy damage bonus, but the second-physical-attack action-count rule is not modeled',
     MEKSTATION_MELEE_MASTER_DEVIATION_SOURCE_REFS,
   ),
   'maneuvering-ace': helperOnly(

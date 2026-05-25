@@ -1286,7 +1286,7 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
   it('applies pilot physical SPAs to runner to-hit and damage math', () => {
     const { events } = runPhase('kick', {
       attacker: {
-        abilities: ['melee-specialist', 'melee-master'],
+        abilities: ['melee-specialist'],
       },
     });
 
@@ -1296,6 +1296,22 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       toHitNumber: 2,
       hit: true,
       damage: 14,
+    });
+  });
+
+  it('does not apply Melee Master as a flat runner physical damage bonus', () => {
+    const { events } = runPhase('kick', {
+      attacker: {
+        abilities: ['melee-master'],
+      },
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'kick',
+      roll: 8,
+      toHitNumber: 3,
+      hit: true,
+      damage: 13,
     });
   });
 

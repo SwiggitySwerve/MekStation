@@ -20,6 +20,7 @@ import {
 } from './CombatLegacyPilotAbilitySourceRefs';
 import {
   MEGAMEK_ANTI_MEK_ACTUATOR_SOURCE_REFS,
+  MEGAMEK_BATTLE_FISTS_SOURCE_REFS,
   MEGAMEK_CRAMPED_COCKPIT_SOURCE_REFS,
   MEGAMEK_EASY_TO_PILOT_SOURCE_REFS,
   MEGAMEK_HARD_TO_PILOT_SOURCE_REFS,
@@ -191,16 +192,23 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
     'UAC/RAC and TacOps rapid-fire AC Sandblaster paths are still not represented in rate-of-fire resolution',
     MEGAMEK_SANDBLASTER_SOURCE_REFS,
   ),
-  'physical-to-hit-application': helperOnly(
+  'physical-to-hit-application': integrated(
     'physical-to-hit-application',
     'resolvePhysicalAttack, runPhysicalAttackPhase, and interactive declaration contexts pass pilot ability state plus attacker water depth into physical to-hit helpers so Melee Specialist and Terrain Master: Frogman modify TNs',
-    'Melee Specialist source also includes a +1 physical damage bonus, so the resolver family stays helper-only until the damage portion is mapped to Melee Specialist rather than legacy Melee Master behavior',
     MEGAMEK_MELEE_SPECIALIST_SOURCE_REFS,
   ),
   'physical-damage-application': helperOnly(
     'physical-damage-application',
-    'calculatePhysicalDamage and runPhysicalAttackPhase consume pilot abilities and unit quirks for Melee Master and Battle Fists physical damage bonuses',
-    'MegaMek Melee Master grants two allowed physical attacks and MegaMek Melee Specialist grants +1 physical damage; MekStation currently applies a legacy Melee Master damage bonus instead',
+    'calculatePhysicalDamage and runPhysicalAttackPhase consume pilot abilities for source-backed Melee Specialist physical damage and unit quirks for legacy Battle Fists physical damage',
+    'MegaMek Battle Fists modify punch to-hit rather than damage, so this mixed resolver stays helper-only until Battle Fists damage is removed or split from source-backed Melee Specialist damage',
+    [
+      ...MEGAMEK_MELEE_SPECIALIST_SOURCE_REFS,
+      ...MEGAMEK_BATTLE_FISTS_SOURCE_REFS,
+    ],
+  ),
+  'physical-action-count-application': unsupported(
+    'physical-action-count-application',
+    'MegaMek Melee Master grants two allowed physical attacks, but MekStation has no per-turn physical attack count allowance resolver yet',
     MEKSTATION_MELEE_MASTER_DEVIATION_SOURCE_REFS,
   ),
   'physical-restriction-application': helperOnly(
@@ -359,8 +367,12 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
     quirkIds: [],
   },
   'physical-damage-application': {
-    spaIds: ['melee-master'],
+    spaIds: ['melee-specialist'],
     quirkIds: ['battle_fists_la', 'battle_fists_ra'],
+  },
+  'physical-action-count-application': {
+    spaIds: ['melee-master'],
+    quirkIds: [],
   },
   'physical-restriction-application': {
     spaIds: [],

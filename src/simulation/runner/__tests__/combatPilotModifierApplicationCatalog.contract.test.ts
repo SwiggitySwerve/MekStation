@@ -110,6 +110,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'legacy-pain-resistance-to-hit-application',
         'movement-application',
         'multi-target-penalty-application',
+        'physical-action-count-application',
         'physical-damage-application',
         'physical-restriction-application',
         'physical-to-hit-application',
@@ -165,11 +166,11 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(missingRefs).toEqual([]);
     expect(unanchoredRefs).toEqual([]);
     expect(SPA_COMBAT_SUPPORT['melee-specialist']).toMatchObject({
-      level: 'helper-only',
-      gap: expect.stringContaining('+1 physical damage'),
+      level: 'integrated',
+      evidence: expect.stringContaining('physical damage'),
     });
     expect(SPA_COMBAT_SUPPORT['melee-master']).toMatchObject({
-      level: 'helper-only',
+      level: 'unsupported',
       gap: expect.stringContaining('two allowed physical attacks'),
     });
   });
@@ -220,6 +221,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'ranged-to-hit-state-hydration',
         'cluster-hitter-application',
         'indirect-fire-spa-application',
+        'physical-to-hit-application',
         'weapon-to-hit-quirk-application',
       ].sort(),
     );
@@ -231,6 +233,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'initiative-hq-equipment-hydration',
         'movement-application',
         'multi-target-penalty-application',
+        'physical-action-count-application',
         'target-priority-application',
       ].sort(),
     );
@@ -245,7 +248,6 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'heat-application',
         'physical-damage-application',
         'physical-restriction-application',
-        'physical-to-hit-application',
         'psr-application',
         'psr-spa-application',
         'sandblaster-application',

@@ -485,17 +485,29 @@ describe('physicalAttacks', () => {
       expect(damage).toBe(2);
     });
 
-    it('applies Melee Master and matching Battle Fists to punch damage', () => {
+    it('applies Melee Specialist and matching Battle Fists to punch damage', () => {
       const damage = calculatePunchDamage(
         makeInput({
           attackerTonnage: 80,
           arm: 'right',
-          pilotAbilities: ['melee-master'],
+          pilotAbilities: ['melee-specialist'],
           unitQuirks: ['battle_fists_ra'],
         }),
       );
 
       expect(damage).toBe(10);
+    });
+
+    it('does not apply Melee Master as a flat punch damage bonus', () => {
+      const damage = calculatePunchDamage(
+        makeInput({
+          attackerTonnage: 80,
+          arm: 'right',
+          pilotAbilities: ['melee-master'],
+        }),
+      );
+
+      expect(damage).toBe(8);
     });
   });
 
@@ -814,12 +826,12 @@ describe('physicalAttacks', () => {
       ).toBe(8);
     });
 
-    it('applies Melee Master and underwater modifiers to constant weapons', () => {
+    it('applies Melee Specialist and underwater modifiers to constant weapons', () => {
       expect(
         calculateFlailDamage(
           makeInput({
             attackType: 'flail',
-            pilotAbilities: ['melee-master'],
+            pilotAbilities: ['melee-specialist'],
             isUnderwater: true,
           }),
         ),
@@ -828,6 +840,18 @@ describe('physicalAttacks', () => {
         calculateWreckingBallDamage(
           makeInput({
             attackType: 'wrecking-ball',
+            pilotAbilities: ['melee-specialist'],
+            isUnderwater: true,
+          }),
+        ),
+      ).toBe(4);
+    });
+
+    it('does not apply Melee Master as flat constant weapon damage', () => {
+      expect(
+        calculateFlailDamage(
+          makeInput({
+            attackType: 'flail',
             pilotAbilities: ['melee-master'],
             isUnderwater: true,
           }),

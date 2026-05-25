@@ -267,13 +267,22 @@ export function getMountaineerRubblePSRModifier(
 }
 
 /**
- * Melee Master: +1 physical attack damage bonus.
- * Not a to-hit modifier — returns a damage bonus.
+ * Melee Specialist: +1 physical attack damage bonus.
+ * Not a to-hit modifier -- returns a damage bonus.
  */
-export function getMeleeMasterDamageBonus(
+export function getMeleeSpecialistDamageBonus(
   abilities: readonly string[],
 ): number {
-  return hasSPA(abilities, 'melee_master') ? 1 : 0;
+  return hasSPA(abilities, 'melee_specialist') ? 1 : 0;
+}
+
+/**
+ * Melee Master grants an additional physical attack, not flat damage.
+ */
+export function getMeleeMasterDamageBonus(
+  _abilities: readonly string[],
+): number {
+  return 0;
 }
 
 /**

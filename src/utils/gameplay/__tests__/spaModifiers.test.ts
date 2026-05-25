@@ -18,6 +18,7 @@ import {
   calculateShakyStickModifier,
   getFrogmanWaterPSRModifier,
   getMeleeMasterDamageBonus,
+  getMeleeSpecialistDamageBonus,
   getMountaineerRubblePSRModifier,
   getTacticalGeniusBonus,
   getEffectiveWounds,
@@ -413,13 +414,19 @@ describe('spaModifiers', () => {
     });
   });
 
-  describe('Melee Master', () => {
+  describe('Melee Specialist damage', () => {
     it('returns +1 damage bonus', () => {
-      expect(getMeleeMasterDamageBonus(['melee-master'])).toBe(1);
+      expect(getMeleeSpecialistDamageBonus(['melee-specialist'])).toBe(1);
     });
 
     it('returns 0 without the ability', () => {
-      expect(getMeleeMasterDamageBonus([])).toBe(0);
+      expect(getMeleeSpecialistDamageBonus([])).toBe(0);
+    });
+  });
+
+  describe('Melee Master', () => {
+    it('does not expose a flat damage bonus', () => {
+      expect(getMeleeMasterDamageBonus(['melee-master'])).toBe(0);
     });
   });
 
