@@ -173,6 +173,54 @@ const EXPECTED_BATTLEMECH_AMMO_GAP_IDS = {
   ],
 } satisfies Record<PinnedBattleMechAmmoGapClass, readonly string[]>;
 
+const EXPECTED_BATTLEMECH_COMPATIBLE_AMMO_IDS = [
+  'ac-10-ammo',
+  'ac-2-ammo',
+  'ac-2-ap-ammo',
+  'ac-2-precision-ammo',
+  'ac-20-ammo',
+  'ac-5-ammo',
+  'ac-5-ap-ammo',
+  'ams-ammo',
+  'ap-gauss-ammo',
+  'atm-er-ammo',
+  'atm-he-ammo',
+  'atm-standard-ammo',
+  'clan-ams-ammo',
+  'clan-large-chemical-laser-ammo',
+  'clan-medium-chemical-laser-ammo',
+  'clan-small-chemical-laser-ammo',
+  'gauss-ammo',
+  'heavy-gauss-ammo',
+  'heavy-mg-ammo',
+  'inarc-ammo',
+  'lb-10-x-ammo',
+  'lb-10-x-cluster-ammo',
+  'lb-2-x-ammo',
+  'lb-20-x-ammo',
+  'lb-20-x-cluster-ammo',
+  'lb-5-x-ammo',
+  'light-gauss-ammo',
+  'light-mg-ammo',
+  'lrm-ammo',
+  'lrm-fragmentation-ammo',
+  'lrm-swarm-ammo',
+  'lrm-thunder-ammo',
+  'mg-ammo',
+  'mg-ammo-half',
+  'mrm-ammo',
+  'narc-ammo',
+  'srm-ammo',
+  'srm-fragmentation-ammo',
+  'srm-inferno-ammo',
+  'srm-tandem-charge-ammo',
+  'streak-srm-ammo',
+  'uac-10-ammo',
+  'uac-2-ammo',
+  'uac-20-ammo',
+  'uac-5-ammo',
+] satisfies readonly string[];
+
 function flattenItems(
   files: readonly ICatalogFile[],
 ): readonly Record<string, unknown>[] {
@@ -617,6 +665,12 @@ describe('BattleMech combat catalog validation lane', () => {
 
   it('turns every compatible official ammo row into a consumable combat ammo bin', () => {
     const failures: string[] = [];
+    const compatibleAmmoIds = ammoItems
+      .filter((ammo) => ammoCompatibilityGapClass(ammo) === null)
+      .map((ammo) => ammo.id)
+      .sort();
+
+    expect(compatibleAmmoIds).toEqual(EXPECTED_BATTLEMECH_COMPATIBLE_AMMO_IDS);
 
     for (const ammo of ammoItems) {
       for (const weaponId of ammo.compatibleWeaponIds) {

@@ -82,6 +82,7 @@
 - [x] 3.1.14 Remove the non-parity semi-guided TAG cluster helper from official missile cluster resolution and correct the base weapon-resolution spec so TAG cluster bonuses cannot be claimed as BattleMech parity.
 - [x] 3.1.15 Lock the official physical weapon catalog partition so `weapons/physical.json`, construction definitions, combat support rows, runtime attack types, and modifier-only claws/talons cannot drift independently.
 - [x] 3.1.16 Pin exact official ammo rows that cannot become consumable BattleMech bins because they either duplicate weapon runtime ids or lack compatible weapon references.
+- [x] 3.1.17 Pin exact official ammo rows that hydrate consumable BattleMech ammo bins and prove each referenced official weapon id consumes through combat ammo tracking.
 - [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
 - [x] 3.2.2 Integrate source-backed active TSM movement speed into runner movement validation while leaving MASC, supercharger, and then-unsupported partial-wing movement behavior explicit.

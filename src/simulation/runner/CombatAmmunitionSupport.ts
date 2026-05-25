@@ -15,7 +15,7 @@ function helperOnly(
 export const AMMUNITION_COMPATIBILITY_SUPPORT = {
   'battlemech-compatible-ammo': integrated(
     'battlemech-compatible-ammo',
-    'Compatible official ammo rows initialize ammo bins, report total rounds, and consume through combat ammo tracking for every referenced official weapon id',
+    'Compatible official ammo rows are pinned by exact id, initialize ammo bins, report total rounds, and consume through combat ammo tracking for every referenced official weapon id',
   ),
   'duplicate-runtime-id': integrated(
     'duplicate-runtime-id',
