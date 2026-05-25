@@ -3305,7 +3305,10 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
     await expect(terrainBadge).toContainText('LW');
 
-    await targetHex.hover();
+    await targetHex.dispatchEvent('mouseover', {
+      bubbles: true,
+      cancelable: true,
+    });
     const toHitRows = page.getByTestId('hex-combat-tooltip-to-hit-modifiers');
     await expect(toHitRows).toHaveAttribute(
       'data-combat-to-hit-modifier-names',
@@ -3318,6 +3321,21 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(toHitRows).toHaveAttribute(
       'data-combat-to-hit-modifier-descriptions',
       /Target in light woods: \+1/,
+    );
+    await expect(toHitRows).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-rule-refs',
+      /combat:megamek:MegaMek Compute\.java:1313-1517 weapon range\/to-hit modifiers/,
+    );
+    const targetTerrainModifier = page.locator(
+      '[data-testid="hex-combat-tooltip-to-hit-modifiers"] [data-combat-to-hit-modifier-name="Target Terrain"]',
+    );
+    await expect(targetTerrainModifier).toHaveAttribute(
+      'data-combat-to-hit-modifier-rule-refs',
+      /combat:megamek:MegaMek LosEffects\.java:797-911 LOS blocking and terrain modifiers/,
     );
     await expect(
       page.getByTestId('hex-combat-tooltip-modifiers'),

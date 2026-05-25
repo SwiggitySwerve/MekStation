@@ -1197,9 +1197,23 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-to-hit-modifier-values',
       expect.stringContaining('1'),
     );
-    expect(getToHitModifierRow(toHitRows, 'Target Terrain')).toHaveTextContent(
-      'Target Terrain +1',
+    expect(toHitRows).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
     );
+    expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek Compute.java'),
+    );
+    const targetTerrainModifier = getToHitModifierRow(
+      toHitRows,
+      'Target Terrain',
+    );
+    expect(targetTerrainModifier).toHaveAttribute(
+      'data-combat-to-hit-modifier-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
+    );
+    expect(targetTerrainModifier).toHaveTextContent('Target Terrain +1');
     expect(screen.queryByTestId('hex-combat-tooltip')).toBeNull();
   });
 
@@ -1319,9 +1333,20 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-to-hit-modifier-names',
       expect.stringContaining('C3 Network'),
     );
-    expect(getToHitModifierRow(toHitRows, 'C3 Network')).toHaveTextContent(
-      'C3 Network +0',
+    expect(toHitRows).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
     );
+    expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek Compute.java'),
+    );
+    const c3Modifier = getToHitModifierRow(toHitRows, 'C3 Network');
+    expect(c3Modifier).toHaveAttribute(
+      'data-combat-to-hit-modifier-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek Compute.java'),
+    );
+    expect(c3Modifier).toHaveTextContent('C3 Network +0');
   });
 
   it('surfaces C3 range benefit context in combined tactical hover explanations', () => {

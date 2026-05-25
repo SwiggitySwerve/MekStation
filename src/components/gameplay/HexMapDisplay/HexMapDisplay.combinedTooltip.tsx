@@ -316,6 +316,7 @@ export function CombinedTacticalHoverTooltip({
       )}
       <CombatToHitModifierRows
         combatInfo={combatInfo}
+        projection={projection}
         testId="hex-tactical-tooltip-combat-to-hit-modifiers"
       />
       {combatReason && (

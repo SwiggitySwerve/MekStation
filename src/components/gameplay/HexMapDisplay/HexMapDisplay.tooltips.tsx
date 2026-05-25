@@ -391,6 +391,7 @@ function CombatHoverTooltip({
       )}
       <CombatToHitModifierRows
         combatInfo={combatInfo}
+        projection={projection}
         testId="hex-combat-tooltip-to-hit-modifiers"
       />
       {reason && (
