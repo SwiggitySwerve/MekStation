@@ -171,6 +171,22 @@ const MEKSTATION_WITHDRAW_COMMAND_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEKSTATION_EJECT_COMMAND_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation buildUtilityCommands exposes utility.eject as a confirmed product-visible command that commits the local eject action id.',
+    'src/components/gameplay/TacticalActionDock/commands/utilityCommands.ts',
+    'L32-L47',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEKSTATION_CONCEDE_COMMAND_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation buildUtilityCommands exposes utility.concede as a confirmed product-visible command that commits the local concede action id without requiring an active unit.',
+    'src/components/gameplay/TacticalActionDock/commands/utilityCommands.ts',
+    'L68-L82',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEKSTATION_WITHDRAW_CONTROL_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation WithdrawControl exposes the direct UI contract for declaring withdrawal with a selected map edge.',
@@ -674,6 +690,7 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'utility.eject',
     'tactical-command',
     'buildUtilityCommands commits eject; eject game intent, Eject wire payload, and InteractiveSession.ejectUnit are wired',
+    MEKSTATION_EJECT_COMMAND_SOURCE_REFS,
   ),
   'utility.withdraw': helperOnly(
     'utility.withdraw',
@@ -686,6 +703,7 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'utility.concede',
     'tactical-command',
     'buildUtilityCommands commits concede; concede game intent maps to Concede wire payload and server dispatch',
+    MEKSTATION_CONCEDE_COMMAND_SOURCE_REFS,
   ),
   'utility.request-spot': helperOnly(
     'utility.request-spot',

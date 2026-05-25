@@ -162,6 +162,32 @@ describe('BattleMech combat action support catalog', () => {
         }),
       ]);
     }
+    const utilityCommandSourceRows = [
+      'utility.concede',
+      'utility.eject',
+      'utility.request-spot',
+      'utility.withdraw',
+    ];
+    for (const id of utilityCommandSourceRows) {
+      const entry =
+        COMBAT_COMMAND_ACTION_SUPPORT[
+          id as keyof typeof COMBAT_COMMAND_ACTION_SUPPORT
+        ];
+
+      expect(entry.sourceRefs).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            citation: expect.stringContaining(id),
+            url: expect.stringContaining('utilityCommands.ts#L'),
+            sourceVersion: 'MekStation working-tree',
+          }),
+        ]),
+      );
+      expect(
+        entry.sourceRefs?.every((sourceRef) => sourceRef.url.includes('#L')),
+      ).toBe(true);
+    }
     expect(
       supportIdsByLevel(COMBAT_COMMAND_ACTION_SUPPORT, 'unsupported'),
     ).toEqual(['movement.stabilize']);
