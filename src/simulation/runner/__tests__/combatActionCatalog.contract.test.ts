@@ -317,6 +317,35 @@ describe('BattleMech combat action support catalog', () => {
     expect(supportIdsByLevel(GAME_INTENT_ACTION_SUPPORT, 'integrated')).toEqual(
       [...GAME_INTENT_TYPES].sort(),
     );
+    for (const intentType of GAME_INTENT_TYPES) {
+      const entry = GAME_INTENT_ACTION_SUPPORT[intentType];
+      expect(entry.sourceRefs).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            url: expect.stringContaining('gameIntentMap.ts#L'),
+            sourceVersion: 'MekStation working-tree',
+          }),
+        ]),
+      );
+      expect(
+        entry.sourceRefs?.every((sourceRef) => sourceRef.url.includes('#L')),
+      ).toBe(true);
+    }
+    const megamekBackedGameIntentRows = {
+      goProne: 'MoveStepType defines GO_PRONE',
+      activateMovementEnhancement: 'MovePath derives active MASC/Supercharger',
+      torsoTwist: 'TorsoTwistAction',
+    } as const;
+    for (const [intentType, citation] of Object.entries(
+      megamekBackedGameIntentRows,
+    )) {
+      expect(
+        GAME_INTENT_ACTION_SUPPORT[
+          intentType as keyof typeof megamekBackedGameIntentRows
+        ].sourceRefs?.map((sourceRef) => sourceRef.citation),
+      ).toEqual(expect.arrayContaining([expect.stringContaining(citation)]));
+    }
   });
 
   it('tracks direct UI action surfaces that bypass the generic command payload shape', () => {
