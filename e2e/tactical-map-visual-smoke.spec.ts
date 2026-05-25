@@ -108,6 +108,23 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-projection-mode',
       'topDown',
     );
+    const projectionToggle = page.getByTestId('projection-toggle');
+    await expect(projectionToggle).toHaveAttribute(
+      'data-map-projection-source',
+      'shared-tactical-map-projection',
+    );
+    await expect(projectionToggle).toHaveAttribute(
+      'data-map-projection-channel',
+      'view-mode',
+    );
+    await expect(projectionToggle).toHaveAttribute(
+      'data-map-projection-current-mode',
+      'topDown',
+    );
+    await expect(projectionToggle).toHaveAttribute(
+      'data-map-projection-target-mode',
+      'isometric2d',
+    );
     const topDownElevationLabel = page.getByTestId('hex-elevation-label-1-0');
     const topDownTerrainLabel = page.getByTestId('hex-terrain-label-1-0');
     await expect(topDownElevationLabel).toContainText('+4');
@@ -587,6 +604,14 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expectNonBlankRender(page, 'top-down tactical map');
 
     await switchToIsometric(page, projectionLayer);
+    await expect(projectionToggle).toHaveAttribute(
+      'data-map-projection-current-mode',
+      'isometric2d',
+    );
+    await expect(projectionToggle).toHaveAttribute(
+      'data-map-projection-target-mode',
+      'topDown',
+    );
     await expect(page.getByTestId('isometric-scene-layer')).toBeVisible();
     await expect(page.getByTestId('hex-elevation-stack-1-0')).toBeVisible();
     await expect(
@@ -680,11 +705,36 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
 
     await expectNonBlankRender(page, 'isometric tactical map');
-    await page.getByTestId('projection-rotate-right').click();
+    const rotateRight = page.getByTestId('projection-rotate-right');
+    await expect(rotateRight).toHaveAttribute(
+      'data-isometric-camera-source',
+      'shared-tactical-map-projection',
+    );
+    await expect(rotateRight).toHaveAttribute(
+      'data-isometric-camera-channel',
+      'isometric-camera',
+    );
+    await expect(rotateRight).toHaveAttribute(
+      'data-isometric-camera-current-step',
+      '0',
+    );
+    await expect(rotateRight).toHaveAttribute(
+      'data-isometric-camera-next-step',
+      '1',
+    );
+    await rotateRight.click();
 
     await expect(
       page.getByTestId('isometric-rotation-heading'),
     ).toHaveAttribute('data-isometric-rotation-step', '1');
+    await expect(rotateRight).toHaveAttribute(
+      'data-isometric-camera-current-step',
+      '1',
+    );
+    await expect(rotateRight).toHaveAttribute(
+      'data-isometric-camera-next-step',
+      '2',
+    );
     await expect(eastHex).not.toHaveAttribute(
       'data-isometric-depth-key',
       eastDepthBefore ?? '',

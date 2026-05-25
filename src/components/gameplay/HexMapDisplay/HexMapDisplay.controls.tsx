@@ -1,149 +1,33 @@
 import React from 'react';
 
-import type { MapLayerId } from '@/types/gameplay';
+import type { MapLayerId, MapProjectionMode } from '@/types/gameplay';
 
 import type { MapInteractionState } from './useMapInteraction';
 
+import {
+  CoverIcon,
+  FiringArcIcon,
+  IsometricIcon,
+  LosIcon,
+  MovementIcon,
+  ResetViewIcon,
+  RotateLeftIcon,
+  RotateRightIcon,
+  TopDownIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
+} from './HexMapDisplay.controlIcons';
+import {
+  formatIsometricCameraControlLabel,
+  formatIsometricRotationDegrees,
+  formatProjectionModeControlLabel,
+  isometricCameraControlAttributes,
+  projectionModeControlAttributes,
+} from './HexMapDisplay.projectionControls';
 import { isIsometricProjection } from './projection';
 
 interface MapControlsProps {
   readonly interaction: MapInteractionState;
-}
-
-interface ControlIconProps {
-  readonly children: React.ReactNode;
-}
-
-function ControlIcon({ children }: ControlIconProps): React.ReactElement {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      {children}
-    </svg>
-  );
-}
-
-function IsometricIcon(): React.ReactElement {
-  return (
-    <ControlIcon>
-      <path d="M12 3 21 8 12 13 3 8 12 3Z" />
-      <path d="M21 8v7l-9 6-9-6V8" />
-      <path d="M12 13v8" />
-    </ControlIcon>
-  );
-}
-
-function TopDownIcon(): React.ReactElement {
-  return (
-    <ControlIcon>
-      <path d="M12 3 20 7.5v9L12 21 4 16.5v-9L12 3Z" />
-      <path d="M8 8.5h8" />
-      <path d="M8 12h8" />
-      <path d="M8 15.5h8" />
-    </ControlIcon>
-  );
-}
-
-function RotateLeftIcon(): React.ReactElement {
-  return (
-    <ControlIcon>
-      <path d="M9 7H4V2" />
-      <path d="M4.6 7.8A8 8 0 1 1 6 18.5" />
-    </ControlIcon>
-  );
-}
-
-function RotateRightIcon(): React.ReactElement {
-  return (
-    <ControlIcon>
-      <path d="M15 7h5V2" />
-      <path d="M19.4 7.8A8 8 0 1 0 18 18.5" />
-    </ControlIcon>
-  );
-}
-
-function MovementIcon(): React.ReactElement {
-  return (
-    <ControlIcon>
-      <path d="M5 17 9 7l4 10 2-5 4 5" />
-      <circle cx={9} cy={7} r={2} />
-      <circle cx={19} cy={17} r={2} />
-    </ControlIcon>
-  );
-}
-
-function CoverIcon(): React.ReactElement {
-  return (
-    <ControlIcon>
-      <path d="M12 3 19 6v5c0 5-3.2 8-7 10-3.8-2-7-5-7-10V6l7-3Z" />
-      <path d="M9 12h6" />
-    </ControlIcon>
-  );
-}
-
-function FiringArcIcon(): React.ReactElement {
-  return (
-    <ControlIcon>
-      <path d="M12 18V6" />
-      <path d="M6 18a6 6 0 0 1 12 0" />
-      <path d="M8 10 12 6l4 4" />
-    </ControlIcon>
-  );
-}
-
-function LosIcon(): React.ReactElement {
-  return (
-    <ControlIcon>
-      <path d="M4 12h16" />
-      <path d="M7 9 4 12l3 3" />
-      <path d="M17 9l3 3-3 3" />
-      <circle cx={12} cy={12} r={2} />
-    </ControlIcon>
-  );
-}
-
-function ZoomInIcon(): React.ReactElement {
-  return (
-    <ControlIcon>
-      <circle cx={10.5} cy={10.5} r={5.5} />
-      <path d="M10.5 8v5" />
-      <path d="M8 10.5h5" />
-      <path d="M15 15l5 5" />
-    </ControlIcon>
-  );
-}
-
-function ZoomOutIcon(): React.ReactElement {
-  return (
-    <ControlIcon>
-      <circle cx={10.5} cy={10.5} r={5.5} />
-      <path d="M8 10.5h5" />
-      <path d="M15 15l5 5" />
-    </ControlIcon>
-  );
-}
-
-function ResetViewIcon(): React.ReactElement {
-  return (
-    <ControlIcon>
-      <path d="M4 12a8 8 0 1 0 2.4-5.7" />
-      <path d="M4 4v6h6" />
-      <path d="M12 9v6" />
-      <path d="M9 12h6" />
-    </ControlIcon>
-  );
-}
-
-function formatIsometricRotationDegrees(rotationStep: number): number {
-  return rotationStep * 60;
 }
 
 type OverlayToggleProjectionChannel =
@@ -205,6 +89,9 @@ export function MapControls({
   const isometricRotationDegrees = formatIsometricRotationDegrees(
     interaction.isometricRotationStep,
   );
+  const targetProjectionMode: MapProjectionMode = isIsometric
+    ? 'topDown'
+    : 'isometric2d';
 
   return (
     <div
@@ -225,13 +112,17 @@ export function MapControls({
               : 'bg-white text-slate-700 hover:bg-gray-100'
           }`}
           title="Toggle isometric 2.5D view"
-          aria-label={
-            interaction.projectionMode === 'topDown'
-              ? 'Switch to isometric view'
-              : 'Switch to top-down view'
-          }
+          aria-label={formatProjectionModeControlLabel(
+            interaction.projectionMode,
+            targetProjectionMode,
+          )}
           aria-pressed={isIsometric}
           data-testid="projection-toggle"
+          {...projectionModeControlAttributes({
+            currentMode: interaction.projectionMode,
+            targetMode: targetProjectionMode,
+            rotationStep: interaction.isometricRotationStep,
+          })}
         >
           {interaction.projectionMode === 'topDown' ? (
             <IsometricIcon />
@@ -258,8 +149,15 @@ export function MapControls({
               onClick={interaction.rotateIsometricLeft}
               className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded bg-white p-2 text-xs font-medium text-slate-700 shadow hover:bg-gray-100"
               title="Rotate isometric camera left"
-              aria-label="Rotate isometric camera left"
+              aria-label={formatIsometricCameraControlLabel(
+                'left',
+                interaction.isometricRotationStep,
+              )}
               data-testid="projection-rotate-left"
+              {...isometricCameraControlAttributes(
+                interaction.isometricRotationStep,
+                'left',
+              )}
             >
               <RotateLeftIcon />
             </button>
@@ -268,8 +166,15 @@ export function MapControls({
               onClick={interaction.rotateIsometricRight}
               className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded bg-white p-2 text-xs font-medium text-slate-700 shadow hover:bg-gray-100"
               title="Rotate isometric camera right"
-              aria-label="Rotate isometric camera right"
+              aria-label={formatIsometricCameraControlLabel(
+                'right',
+                interaction.isometricRotationStep,
+              )}
               data-testid="projection-rotate-right"
+              {...isometricCameraControlAttributes(
+                interaction.isometricRotationStep,
+                'right',
+              )}
             >
               <RotateRightIcon />
             </button>

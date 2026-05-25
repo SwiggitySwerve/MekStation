@@ -1422,6 +1422,14 @@ Focused component and browser smoke coverage prove readable labels preserve
 represented feature levels, water depths, smoke/fire intensities, and elevation
 instead of becoming type-only decoration.
 
+2026-05-25 projection camera control context pin: The top-down/isometric
+projection toggle now exposes the shared tactical projection source, view-mode
+channel, presentation rules surface, current/target projection modes, and
+current isometric heading. Isometric rotate controls expose the same projection
+source plus the isometric-camera channel, current heading, and next heading, so
+browser and accessibility checks can connect camera actions to the presentation
+state that reveals stacked terrain and occluded units.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

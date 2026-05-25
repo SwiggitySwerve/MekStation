@@ -130,6 +130,165 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('exposes projection mode and isometric camera controls as presentation context', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="projection-controls"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+      />,
+    );
+
+    const projectionLayer = screen.getByTestId('map-projection-layer');
+    const projectionToggle = screen.getByTestId('projection-toggle');
+
+    expect(projectionLayer).toHaveAttribute('data-projection-mode', 'topDown');
+    expect(projectionToggle).toHaveAttribute(
+      'data-map-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(projectionToggle).toHaveAttribute(
+      'data-map-projection-channel',
+      'view-mode',
+    );
+    expect(projectionToggle).toHaveAttribute(
+      'data-map-projection-rules-surface',
+      'presentation',
+    );
+    expect(projectionToggle).toHaveAttribute(
+      'data-map-projection-current-mode',
+      'topDown',
+    );
+    expect(projectionToggle).toHaveAttribute(
+      'data-map-projection-target-mode',
+      'isometric2d',
+    );
+    expect(projectionToggle).toHaveAttribute(
+      'data-map-projection-isometric-rotation-step',
+      '0',
+    );
+    expect(projectionToggle).toHaveAttribute(
+      'data-map-projection-isometric-rotation-degrees',
+      '0',
+    );
+    expect(projectionToggle).toHaveAttribute(
+      'aria-label',
+      'Switch to isometric 2.5D view; current top-down; target isometric 2.5D; projection channel view-mode; rules surface presentation',
+    );
+
+    fireEvent.click(projectionToggle);
+
+    expect(projectionLayer).toHaveAttribute(
+      'data-projection-mode',
+      'isometric2d',
+    );
+    expect(projectionToggle).toHaveAttribute(
+      'data-map-projection-current-mode',
+      'isometric2d',
+    );
+    expect(projectionToggle).toHaveAttribute(
+      'data-map-projection-target-mode',
+      'topDown',
+    );
+    expect(projectionToggle).toHaveAttribute(
+      'aria-label',
+      'Switch to top-down view; current isometric 2.5D; target top-down; projection channel view-mode; rules surface presentation',
+    );
+
+    const rotationHeading = screen.getByTestId('isometric-rotation-heading');
+    const rotateLeft = screen.getByTestId('projection-rotate-left');
+    const rotateRight = screen.getByTestId('projection-rotate-right');
+
+    expect(rotationHeading).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '0',
+    );
+    expect(rotationHeading).toHaveAttribute(
+      'data-isometric-rotation-degrees',
+      '0',
+    );
+    expect(rotateLeft).toHaveAttribute(
+      'data-isometric-camera-source',
+      'shared-tactical-map-projection',
+    );
+    expect(rotateLeft).toHaveAttribute(
+      'data-isometric-camera-channel',
+      'isometric-camera',
+    );
+    expect(rotateLeft).toHaveAttribute(
+      'data-isometric-camera-rules-surface',
+      'presentation',
+    );
+    expect(rotateLeft).toHaveAttribute(
+      'data-isometric-camera-action',
+      'rotate-left',
+    );
+    expect(rotateLeft).toHaveAttribute(
+      'data-isometric-camera-current-step',
+      '0',
+    );
+    expect(rotateLeft).toHaveAttribute('data-isometric-camera-next-step', '5');
+    expect(rotateLeft).toHaveAttribute(
+      'data-isometric-camera-current-degrees',
+      '0',
+    );
+    expect(rotateLeft).toHaveAttribute(
+      'data-isometric-camera-next-degrees',
+      '300',
+    );
+    expect(rotateRight).toHaveAttribute(
+      'data-isometric-camera-action',
+      'rotate-right',
+    );
+    expect(rotateRight).toHaveAttribute('data-isometric-camera-next-step', '1');
+    expect(rotateRight).toHaveAttribute(
+      'data-isometric-camera-next-degrees',
+      '60',
+    );
+    expect(rotateRight).toHaveAttribute(
+      'aria-label',
+      'Rotate isometric camera right; current heading 0 degrees; next heading 60 degrees; projection channel isometric-camera; rules surface presentation',
+    );
+
+    fireEvent.click(rotateRight);
+
+    expect(projectionLayer).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '1',
+    );
+    expect(rotationHeading).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '1',
+    );
+    expect(rotationHeading).toHaveAttribute(
+      'data-isometric-rotation-degrees',
+      '60',
+    );
+    expect(projectionToggle).toHaveAttribute(
+      'data-map-projection-isometric-rotation-step',
+      '1',
+    );
+    expect(projectionToggle).toHaveAttribute(
+      'data-map-projection-isometric-rotation-degrees',
+      '60',
+    );
+    expect(rotateLeft).toHaveAttribute(
+      'data-isometric-camera-current-step',
+      '1',
+    );
+    expect(rotateLeft).toHaveAttribute('data-isometric-camera-next-step', '0');
+    expect(rotateRight).toHaveAttribute(
+      'data-isometric-camera-current-step',
+      '1',
+    );
+    expect(rotateRight).toHaveAttribute('data-isometric-camera-next-step', '2');
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('renders hover line-of-sight and firing arc overlays from the LOS toggle', () => {
     const selected = makeToken({
       unitId: 'selected',
