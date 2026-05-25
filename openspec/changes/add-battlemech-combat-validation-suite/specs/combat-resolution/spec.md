@@ -1048,6 +1048,19 @@ Heat rule support rows SHALL carry source references before they are treated as 
 - **AND** local atmosphere heat adjustment SHALL use a MekStation deviation source reference
 - **AND** the heat rule catalog triad SHALL enforce row-level source references before PR approval
 
+### Requirement: Source-Backed Terrain Environment Catalog Anchors
+
+Terrain/environment support rows SHALL carry source references before they are treated as integrated validation coverage. Terrain movement costs, LOS blocking, partial cover, terrain to-hit features, water cooling, fire heat, smoke, fog, night, wind, and extreme-temperature rows SHALL be pinned to MegaMek source references with commit-pinned URLs and line anchors. MekStation-only water walk/run rejection and atmosphere heat adjustment SHALL be marked as MekStation deviation sources instead of being attributed to MegaMek. Dust and mines SHALL remain helper-only until first-class battlefield condition and minefield movement-damage resolution exist, and those gap rows SHALL carry both source-truth and local absence references.
+
+#### Scenario: Terrain environment rows expose source truth
+
+- **GIVEN** the BattleMech terrain/environment support catalog is generated
+- **WHEN** any terrain/environment support row is inspected
+- **THEN** each integrated or helper-only row SHALL expose structured source references
+- **AND** MegaMek-backed terrain/environment rows SHALL use commit-pinned MegaMek URLs with line anchors
+- **AND** MekStation-only water ground-disallow, atmosphere, dust, and mines boundaries SHALL use MekStation deviation source references where the behavior or absence is local
+- **AND** the terrain/environment catalog triad SHALL enforce row-level source references before PR approval
+
 ### Requirement: Source-Backed Heat SPA Boundary
 
 Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior from local helper behavior before claiming parity. Some Like It Hot SHALL carry MegaMek source references for reducing positive heat firing modifiers by 1. Hot Dog startup, shutdown, heat-induced ammo-explosion, opt-in MaxTech pilot heat-damage, and opt-in MaxTech critical-damage checks SHALL apply MegaMek's `hotDogMod = 1` target-number relief without shifting heat thresholds. Default life-support heat damage SHALL remain threshold-based at heat 15/25+ because MegaMek does not apply `hotDogMod` to that path. Hot Dog SHALL be integrated for BattleMech heat lifecycle resolution once those source-backed paths are executable in runner and interactive heat resolution. Cool Under Fire SHALL remain helper-only until a source authority for generated-heat relief is identified.

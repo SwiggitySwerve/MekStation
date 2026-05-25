@@ -1955,6 +1955,76 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(
       supportIdsByLevel(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT, 'helper-only'),
     ).toEqual(['dust', 'mines']);
+    expect(
+      Object.values(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT)
+        .filter((entry) => entry.level !== 'unsupported')
+        .flatMap((entry) =>
+          (entry.sourceRefs?.length ?? 0) === 0 ? [entry.id] : [],
+        ),
+    ).toEqual([]);
+    Object.values(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT).forEach((entry) => {
+      if (entry.level === 'unsupported') return;
+
+      const sourceRefs = entry.sourceRefs ?? [];
+      const megaMekRefs = sourceRefs.filter(
+        (sourceRef) => sourceRef.kind === 'megamek-source',
+      );
+      if (megaMekRefs.length > 0) {
+        expectPinnedMegaMekRefs(megaMekRefs);
+      }
+      expect(
+        sourceRefs.every(
+          (sourceRef) =>
+            sourceRef.kind === 'megamek-source' ||
+            (sourceRef.kind === 'mekstation-deviation' &&
+              sourceRef.sourceVersion === 'MekStation working-tree' &&
+              sourceRef.url.includes('#L')),
+        ),
+      ).toBe(true);
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-movement-costs'
+      ].sourceRefs?.map(({ citation }) => citation),
+    ).toEqual([
+      expect.stringContaining('Terrains enumerates core terrain ids'),
+      expect.stringContaining('Terrain.movementCost maps additional movement'),
+    ]);
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'water-ground-disallow'
+      ].sourceRefs?.map(({ kind, citation }) => `${kind}:${citation}`),
+    ).toEqual([
+      expect.stringContaining(
+        'mekstation-deviation:MekStation getHexMovementCost',
+      ),
+    ]);
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.atmosphere.sourceRefs?.map(
+        ({ kind }) => kind,
+      ),
+    ).toEqual(['mekstation-deviation']);
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.dust.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('blowing sand'),
+        expect.stringContaining('no Dust or Mines entry'),
+      ]),
+    );
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.mines.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('Minefield represents minefield state'),
+        expect.stringContaining('enterMinefield resolves minefield'),
+        expect.stringContaining('no Dust or Mines entry'),
+      ]),
+    );
   });
 
   it('tracks runner heat rules and separates session/helper-only heat mechanics', () => {

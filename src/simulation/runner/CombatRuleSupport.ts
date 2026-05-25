@@ -74,6 +74,8 @@ const MEGAMEK_PHYSICAL_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
 const MEGAMEK_MOVEMENT_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+const MEGAMEK_TERRAIN_SOURCE_VERSION =
+  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
 
 function megamekHeatSourceRef(
   citation: string,
@@ -98,6 +100,19 @@ function megamekPhysicalSourceRef(
     citation,
     url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PHYSICAL_SOURCE_VERSION}/megamek/src/megamek/${path}#${lineRange}`,
     sourceVersion: MEGAMEK_PHYSICAL_SOURCE_VERSION,
+  };
+}
+
+function megamekTerrainSourceRef(
+  citation: string,
+  path: string,
+  lineRange: string,
+): ICombatFeatureSourceReference {
+  return {
+    kind: 'megamek-source',
+    citation,
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/${path}#${lineRange}`,
+    sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
   };
 }
 
@@ -197,6 +212,50 @@ const MEKSTATION_ATMOSPHERE_HEAT_SOURCE_REF = mekstationDeviationSourceRef(
   'src/utils/gameplay/environmentalModifiers.ts',
   'L257-L360',
 );
+
+const MEGAMEK_TERRAIN_TYPE_SOURCE_REF = megamekTerrainSourceRef(
+  'MegaMek Terrains enumerates core terrain ids for woods, water, rough, rubble, swamp, ice, fire, and smoke with level semantics.',
+  'common/units/Terrains.java',
+  'L53-L86',
+);
+
+const MEGAMEK_TERRAIN_MOVEMENT_COST_SOURCE_REF = megamekTerrainSourceRef(
+  'MegaMek Terrain.movementCost maps additional movement cost for rubble, woods, snow, mud, swamp, ice, rough, sand, and industrial terrain by movement mode and pilot abilities.',
+  'common/units/Terrain.java',
+  'L402-L604',
+);
+
+const MEGAMEK_TERRAIN_LOS_BLOCKING_SOURCE_REF = megamekTerrainSourceRef(
+  'MegaMek LosEffects evaluates woods, water, smoke, and cover terrain while deriving intervening LOS effects and target cover state.',
+  'common/LosEffects.java',
+  'L1345-L1490',
+);
+
+const MEGAMEK_MINEFIELD_MOVEMENT_SOURCE_REFS = [
+  megamekTerrainSourceRef(
+    'MegaMek Minefield represents minefield state separately from terrain ids, including type, density, sea mine, and depth fields.',
+    'common/equipment/Minefield.java',
+    'L47-L125',
+  ),
+  megamekTerrainSourceRef(
+    'MegaMek TWGameManager.enterMinefield resolves minefield detonations when an entity enters a mined coordinate.',
+    'server/totalWarfare/TWGameManager.java',
+    'L7348-L7434',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEKSTATION_TERRAIN_TYPE_ENUM_SOURCE_REF = mekstationDeviationSourceRef(
+  'MekStation TerrainType enum currently has no Dust or Mines entry; dust storms and minefields are not first-class battlefield terrain conditions.',
+  'src/types/gameplay/TerrainTypes.ts',
+  'L15-L33',
+);
+
+const MEKSTATION_WATER_GROUND_DISALLOW_SOURCE_REF =
+  mekstationDeviationSourceRef(
+    'MekStation getHexMovementCost currently treats walk/run entry into TerrainType.Water as impassable before path side effects.',
+    'src/utils/gameplay/movement/calculations.ts',
+    'L170-L195',
+  );
 
 const MEGAMEK_HEAT_AMMO_EXPLOSION_ROLL_SOURCE_REF = megamekHeatSourceRef(
   'MegaMek HeatResolver checks heat >= 19 and routes failed ammo-explosion checks through explodeAmmoFromHeat',
@@ -801,64 +860,88 @@ export const TERRAIN_ENVIRONMENT_COMBAT_SUPPORT = {
   'terrain-movement-costs': integrated(
     'terrain-movement-costs',
     'validateMovement consumes TERRAIN_PROPERTIES movementCostModifier for every TerrainType',
+    [MEGAMEK_TERRAIN_TYPE_SOURCE_REF, MEGAMEK_TERRAIN_MOVEMENT_COST_SOURCE_REF],
   ),
   'terrain-los-blocking': integrated(
     'terrain-los-blocking',
     'lineOfSight consumes TerrainType blocksLOS for woods/buildings',
+    [MEGAMEK_TERRAIN_LOS_BLOCKING_SOURCE_REF],
   ),
   'terrain-partial-cover': integrated(
     'terrain-partial-cover',
     'runAttackPhase derives partial cover from target hex terrain',
+    MEGAMEK_PARTIAL_COVER_TO_HIT_SOURCE_REFS,
   ),
   'terrain-to-hit-features': integrated(
     'terrain-to-hit-features',
     'runAttackPhase applies target-in terrain modifiers from the target hex and non-blocking intervening terrain feature modifiers from LOS hexes',
+    MEGAMEK_TERRAIN_FEATURE_TO_HIT_SOURCE_REFS,
   ),
   'water-ground-disallow': integrated(
     'water-ground-disallow',
-    'validateMovement rejects walk/run entry into TerrainType.Water',
+    'MekStation-local movement validation rejects walk/run entry into TerrainType.Water before path side effects',
+    [MEKSTATION_WATER_GROUND_DISALLOW_SOURCE_REF],
   ),
   'water-cooling': integrated(
     'water-cooling',
     'runHeatPhase consumes occupied water terrain via getGridTerrainHeatEffect and emits waterBonus in the HeatDissipated breakdown',
+    [MEGAMEK_HEAT_DISSIPATION_SOURCE_REF, MEGAMEK_WATER_COOLING_SOURCE_REF],
   ),
   'fire-heat': integrated(
     'fire-heat',
     'runHeatPhase consumes occupied fire terrain via getGridTerrainHeatEffect and emits environment-sourced HeatGenerated',
+    [MEGAMEK_FIRE_HEAT_SOURCE_REF, MEGAMEK_EXTERNAL_HEAT_CAP_SOURCE_REF],
   ),
   'smoke-to-hit': integrated(
     'smoke-to-hit',
     'runAttackPhase applies smoke as both a target-in terrain modifier and non-blocking intervening terrain modifier',
+    MEGAMEK_TERRAIN_FEATURE_TO_HIT_SOURCE_REFS,
   ),
   fog: integrated(
     'fog',
     'runAttackPhase consumes calculateEnvironmentalModifiers fog output in AttackDeclared to-hit modifiers',
+    MEGAMEK_ENVIRONMENTAL_TO_HIT_SOURCE_REFS,
   ),
   night: integrated(
     'night',
     'runAttackPhase consumes calculateEnvironmentalModifiers light output in AttackDeclared to-hit modifiers',
+    MEGAMEK_ENVIRONMENTAL_TO_HIT_SOURCE_REFS,
   ),
   wind: integrated(
     'wind',
     'runAttackPhase consumes missile wind to-hit modifiers and runMovementPhase passes environmental wind into validateMovement jump-distance reduction',
+    MEGAMEK_ENVIRONMENTAL_TO_HIT_SOURCE_REFS,
   ),
   'extreme-temperature': integrated(
     'extreme-temperature',
     'runHeatPhase and resolveHeatPhase consume getTemperatureHeatModifier through calculateEnvironmentalHeatModifier',
+    [
+      MEGAMEK_EXTREME_TEMPERATURE_HEAT_SOURCE_REF,
+      MEGAMEK_EXTERNAL_HEAT_CAP_SOURCE_REF,
+    ],
   ),
   atmosphere: integrated(
     'atmosphere',
     'runHeatPhase and resolveHeatPhase consume getAtmosphereHeatModifier through calculateEnvironmentalHeatModifier',
+    [MEKSTATION_ATMOSPHERE_HEAT_SOURCE_REF],
   ),
   dust: helperOnly(
     'dust',
     'No Dust enum; closest modeled weather modifiers are fog/precipitation helpers',
     'dust storms are not represented as a first-class battlefield condition',
+    [
+      ...MEGAMEK_ENVIRONMENTAL_TO_HIT_SOURCE_REFS,
+      MEKSTATION_TERRAIN_TYPE_ENUM_SOURCE_REF,
+    ],
   ),
   mines: helperOnly(
     'mines',
     'No TerrainType.Mines entry in the BattleMech movement validator',
     'minefields do not trigger movement damage or PSR resolution',
+    [
+      ...MEGAMEK_MINEFIELD_MOVEMENT_SOURCE_REFS,
+      MEKSTATION_TERRAIN_TYPE_ENUM_SOURCE_REF,
+    ],
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 

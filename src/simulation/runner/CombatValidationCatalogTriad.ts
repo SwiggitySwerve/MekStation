@@ -212,6 +212,11 @@ const TERRAIN_TRIAD = triad(
   REQUIREMENT_AUTHORITY_BOUNDARY,
   TERRAIN_REFS,
 );
+const TERRAIN_ENVIRONMENT_TRIAD = triad(
+  'entry-source-refs',
+  'Terrain/environment rows are source checked and must carry row-level sourceRefs for terrain costs, LOS/cover/to-hit features, water/fire heat, fog/night/wind/extreme temperature, local atmosphere, and explicit dust/mines gaps.',
+  TERRAIN_REFS,
+);
 const DAMAGE_TRIAD = triad(
   'requirement-primary-authority',
   REQUIREMENT_AUTHORITY_BOUNDARY,
@@ -354,7 +359,7 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
       'Movement enhancement rows are source-backed MASC, Supercharger, TSM, and Partial Wing boundaries and must carry row-level sourceRefs.',
       RULE_REFS,
     ),
-    terrainEnvironment: TERRAIN_TRIAD,
+    terrainEnvironment: TERRAIN_ENVIRONMENT_TRIAD,
     terrainTypeMovement: TERRAIN_TRIAD,
     terrainTypeLos: TERRAIN_TRIAD,
     terrainTypeAttackModifiers: TERRAIN_TRIAD,
