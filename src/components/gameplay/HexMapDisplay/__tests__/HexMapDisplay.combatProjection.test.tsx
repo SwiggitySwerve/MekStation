@@ -1585,6 +1585,24 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-environment-blocked-reasons',
       'Target underwater, but not weapon.',
     );
+    expect(environmentContext).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(environmentContext).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    expect(environmentContext).toHaveAttribute(
+      'data-combat-environment-source-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(environmentContext).toHaveAttribute(
+      'data-combat-environment-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek Compute.java'),
+    );
   });
 
   it('surfaces torpedo path water-line failures in combined tactical hover explanations', () => {
@@ -1677,6 +1695,24 @@ describe('HexMapDisplay combat projection', () => {
     expect(environmentContext).toHaveAttribute(
       'data-combat-environment-blocked-reasons',
       'Torpedo path leaves water.',
+    );
+    expect(environmentContext).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(environmentContext).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    expect(environmentContext).toHaveAttribute(
+      'data-combat-environment-source-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(environmentContext).toHaveAttribute(
+      'data-combat-environment-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek Compute.java'),
     );
     expect(
       screen.getByTestId('hex-tactical-tooltip-combat-reason'),

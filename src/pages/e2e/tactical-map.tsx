@@ -56,6 +56,7 @@ const combatOnlyScenarios = new Set([
   'aerospace-velocity-projection',
   'airborne-aerospace-minimum-range',
   'airborne-aerospace-indirect-rejected',
+  'underwater-environment-restrictions',
   'c3-range-benefit',
   'target-terrain-modifier',
   'mixed-visibility-targets',
@@ -105,6 +106,8 @@ const selectedWeaponIdsByScenario = {
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds,
   'airborne-aerospace-indirect-rejected':
     combatScenarios.tacticalMapAirborneAerospaceIndirectSelectedWeaponIds,
+  'underwater-environment-restrictions':
+    combatScenarios.tacticalMapUnderwaterEnvironmentSelectedWeaponIds,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitSelectedWeaponIds,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierSelectedWeaponIds,
@@ -144,6 +147,8 @@ const targetUnitIdByScenario = {
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeTargetId,
   'airborne-aerospace-indirect-rejected':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeTargetId,
+  'underwater-environment-restrictions':
+    combatScenarios.tacticalMapUnderwaterEnvironmentTargetId,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitTargetId,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierTargetId,
@@ -181,6 +186,8 @@ const tokensByScenario = {
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeTokens,
   'airborne-aerospace-indirect-rejected':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeTokens,
+  'underwater-environment-restrictions':
+    combatScenarios.tacticalMapUnderwaterEnvironmentTokens,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitTokens,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierTokens,
@@ -232,6 +239,8 @@ const combatStateByScenario = {
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeCombatState,
   'airborne-aerospace-indirect-rejected':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeCombatState,
+  'underwater-environment-restrictions':
+    combatScenarios.tacticalMapUnderwaterEnvironmentCombatState,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitCombatState,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierCombatState,
@@ -377,6 +386,8 @@ const hexTerrainByScenario = {
   'woods-los-blocked': elevationLos.tacticalMapWoodsLosHexTerrain,
   'stacked-smoke-woods-los-blocked': stackedLos.tacticalMapStackedLosHexTerrain,
   'fog-los-terrain-blocked': visibility.tacticalMapFogLosHexTerrain,
+  'underwater-environment-restrictions':
+    combatScenarios.tacticalMapUnderwaterEnvironmentHexTerrain,
   'prone-combat-modifiers': proneCombat.tacticalMapProneCombatHexTerrain,
   'immobile-combat-modifier':
     immobileCombat.tacticalMapImmobileCombatHexTerrain,

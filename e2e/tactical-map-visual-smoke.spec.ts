@@ -2846,6 +2846,58 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(combatBadge).toHaveAttribute('data-combat-badge-label', 'S4');
   });
 
+  test('shows underwater weapon environment restrictions in browser', async ({
+    page,
+  }) => {
+    await page.goto(
+      '/e2e/tactical-map?scenario=underwater-environment-restrictions',
+    );
+
+    const targetHex = page.getByTestId('hex-2-0');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'underwater-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    await expect(targetHex).toHaveAttribute('data-weapons-available', 'lrt-15');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-environment-states',
+      'medium-laser:blocked|lrt-15:legal',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-blocked-reasons',
+      'medium-laser:Target underwater, but not weapon.',
+    );
+
+    await targetHex.dispatchEvent('mouseover', {
+      bubbles: true,
+      cancelable: true,
+    });
+    const environmentContext = page.getByTestId(
+      'hex-combat-tooltip-environment-context',
+    );
+    await expect(environmentContext).toHaveAttribute(
+      'data-combat-environment-blocked-weapon-ids',
+      'medium-laser',
+    );
+    await expect(environmentContext).toHaveAttribute(
+      'data-combat-environment-blocked-reasons',
+      'Target underwater, but not weapon.',
+    );
+    await expect(environmentContext).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    await expect(environmentContext).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    await expect(environmentContext).toHaveAttribute(
+      'data-combat-environment-rule-refs',
+      /combat:megamek:MegaMek Compute\.java:1313-1517 weapon range\/to-hit modifiers/,
+    );
+  });
+
   test('shows LOS-spotter indirect fire in browser', async ({ page }) => {
     await page.goto('/e2e/tactical-map?scenario=indirect-fire-spotter');
 

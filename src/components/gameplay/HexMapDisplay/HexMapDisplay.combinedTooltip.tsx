@@ -272,6 +272,7 @@ export function CombinedTacticalHoverTooltip({
       />
       <CombatEnvironmentContextRows
         combatInfo={combatInfo}
+        projection={projection}
         testId="hex-tactical-tooltip-combat-environment-context"
       />
       {weaponImpactLabel && (

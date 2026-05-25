@@ -8,6 +8,8 @@ export function tacticalMapUnitWeaponsForE2EScenario(
   switch (scenario) {
     case 'airborne-aerospace-indirect-rejected':
       return combatScenarios.tacticalMapAirborneAerospaceIndirectUnitWeapons;
+    case 'underwater-environment-restrictions':
+      return combatScenarios.tacticalMapUnderwaterEnvironmentUnitWeapons;
     case 'out-of-ammo':
       return combatScenarios.tacticalMapOutOfAmmoUnitWeapons;
     case 'selected-weapon-out-of-arc':

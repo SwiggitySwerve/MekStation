@@ -1484,6 +1484,16 @@ numbers, modifier values, attack validation, or attack resolution; it makes the
 visible C3 range-benefit explanation inspectable without relying on aggregate
 combat hex metadata.
 
+2026-05-25 combat environment context rule-reference pin: Combat environment
+context rows in combat and combined tactical hovers now expose combat-channel
+source references and MegaMek rule references from the shared per-hex tactical
+projection. A browser harness scenario now covers underwater environment
+restrictions with a non-torpedo weapon blocked and a torpedo weapon legal. This
+does not change underwater legality, torpedo path legality, target legality,
+attack validation, or attack resolution; it makes the visible environment
+restriction explanation inspectable without relying on aggregate combat hex
+metadata.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:
