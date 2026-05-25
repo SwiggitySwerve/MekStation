@@ -32,6 +32,7 @@ import {
   SPA_COMBAT_SUPPORT,
 } from '../CombatFeatureSupport';
 import { PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT } from '../CombatPilotModifierApplicationSupport';
+import { applySuperchargerFailureCriticalDamage } from '../phases/movementEnhancementFailureDamage';
 import { runPSRPhase } from '../phases/postCombat';
 import { DEFAULT_COMPONENT_DAMAGE } from '../SimulationRunnerConstants';
 
@@ -44,6 +45,11 @@ function sequenceRandom(values: readonly number[]): SeededRandom {
   return {
     next: () => values[Math.min(index++, values.length - 1)] ?? 0,
   } as unknown as SeededRandom;
+}
+
+function sequenceD6(values: readonly number[]): () => number {
+  let index = 0;
+  return () => values[Math.min(index++, values.length - 1)] ?? 1;
 }
 
 function makeUnit(overrides: Partial<IUnitGameState> = {}): IUnitGameState {
@@ -583,6 +589,80 @@ describe('runPSRPhase behavior', () => {
       { slotIndex: 3, destroyed: true },
     ]);
   });
+
+  it.each([
+    { dice: [3, 4], roll: 7, engineHits: 0, destroyed: false },
+    { dice: [4, 4], roll: 8, engineHits: 1, destroyed: false },
+    { dice: [5, 5], roll: 10, engineHits: 2, destroyed: false },
+    { dice: [6, 6], roll: 12, engineHits: 3, destroyed: true },
+  ])(
+    'applies Supercharger failure engine table roll $roll',
+    ({ dice, engineHits, destroyed, roll }) => {
+      const unit = makeUnit({
+        hasSupercharger: true,
+        activeSupercharger: true,
+      });
+      const manifest = buildCriticalSlotManifest({
+        center_torso: [
+          {
+            slotIndex: 0,
+            componentType: 'equipment',
+            componentName: 'Supercharger',
+            destroyed: false,
+          },
+          {
+            slotIndex: 1,
+            componentType: 'engine',
+            componentName: 'Engine',
+            destroyed: false,
+          },
+          {
+            slotIndex: 2,
+            componentType: 'engine',
+            componentName: 'Engine',
+            destroyed: false,
+          },
+          {
+            slotIndex: 3,
+            componentType: 'engine',
+            componentName: 'Engine',
+            destroyed: false,
+          },
+        ],
+      });
+
+      const result = applySuperchargerFailureCriticalDamage({
+        unit,
+        unitId: 'player-1',
+        manifest,
+        componentDamage: DEFAULT_COMPONENT_DAMAGE,
+        d6Roller: sequenceD6(dice),
+      });
+
+      const criticals = result.criticalEvents.filter(
+        (event) => event.type === 'critical_hit_resolved',
+      );
+
+      expect(result.engineCriticalRoll).toBe(roll);
+      expect(result.engineHits).toBe(engineHits);
+      expect(result.unit).toMatchObject({
+        hasSupercharger: false,
+        activeSupercharger: false,
+        destroyed,
+        componentDamage: {
+          engineHits,
+        },
+      });
+      expect(result.unit.destroyedEquipment).toContain('Supercharger');
+      expect(criticals.map((event) => event.payload.componentType)).toEqual([
+        'equipment',
+        ...Array.from({ length: engineHits }, () => 'engine'),
+      ]);
+      expect(
+        result.manifest.center_torso?.filter((slot) => slot.destroyed),
+      ).toHaveLength(engineHits + 1);
+    },
+  );
 
   it('applies consciousness SPAs after PSR fall pilot damage', () => {
     const unit = makeUnit({
