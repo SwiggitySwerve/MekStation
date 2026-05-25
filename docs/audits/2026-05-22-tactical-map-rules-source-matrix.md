@@ -1223,6 +1223,13 @@ BattleTech rule; it removes a stale UI-only token path that read
 `IUnitToken.isValidTarget` directly and keeps token feedback coverage on the
 production dispatcher used by top-down and isometric map rendering.
 
+2026-05-25 movement elevation-cost label pin: Hex-level movement explanations
+now include the projected elevation MP cost alongside MP cost, terrain cost,
+elevation delta, and heat. This does not change movement legality; it exposes
+the existing rules-backed `IMovementRangeHex.elevationCost` value through the
+same top-down/isometric cell label that players and tests use for terrain and
+elevation inspection.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

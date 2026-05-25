@@ -142,6 +142,12 @@ function formatDamageValue(value: number): string {
 }
 
 export function formatMovementLabel(movementInfo: IMovementRangeHex): string {
+  const elevationParts = [
+    movementInfo.elevationDelta !== undefined &&
+      `delta ${formatElevationLabel(movementInfo.elevationDelta)}`,
+    movementInfo.elevationCost !== undefined &&
+      `cost +${movementInfo.elevationCost}`,
+  ].filter(Boolean);
   const standPsrLabel = movementInfo.standUpPsrRequired
     ? `, stand PSR${
         movementInfo.standUpPsrImpossibleReason
@@ -174,11 +180,7 @@ export function formatMovementLabel(movementInfo: IMovementRangeHex): string {
     movementInfo.terrainCost !== undefined
       ? `, terrain +${movementInfo.terrainCost}`
       : ''
-  }${
-    movementInfo.elevationDelta !== undefined
-      ? `, elevation ${formatElevationLabel(movementInfo.elevationDelta)}`
-      : ''
-  }${
+  }${elevationParts.length > 0 ? `, elevation ${elevationParts.join(' ')}` : ''}${
     movementInfo.heatGenerated !== undefined
       ? `, heat +${movementInfo.heatGenerated}`
       : ''

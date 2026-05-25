@@ -616,6 +616,12 @@ describe('HexMapDisplay terrain and elevation labels', () => {
       '1',
     );
     expect(screen.getByTestId('hex-heat-badge-1-0')).toHaveTextContent('+1H');
+    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining(
+        'walk reachable: 3 MP, terrain +1, elevation delta +1 cost +1, heat +1',
+      ),
+    );
     expect(screen.getByTestId('hex-combat-badge-2-0')).toHaveTextContent('S2');
     expect(screen.getByTestId('hex-combat-los-badge-2-0')).toHaveTextContent(
       'LOS',
