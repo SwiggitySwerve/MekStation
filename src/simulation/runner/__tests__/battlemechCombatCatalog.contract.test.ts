@@ -2221,7 +2221,18 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(PILOT_DAMAGE_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual([]);
+    ).toEqual(['ammo-explosion-pilot-damage']);
+    expect(
+      PILOT_DAMAGE_COMBAT_SUPPORT[
+        'ammo-explosion-pilot-damage'
+      ].sourceRefs?.map(({ citation }) => citation),
+    ).toEqual([
+      'MegaMek TWGameManager reduces ammunition-explosion pilot damage by 1 for Pain Resistance or Iron Man.',
+      'MegaMek PilotOptions registers Iron Man and Pain Resistance as distinct misc abilities.',
+      'MegaMek OptionsConstants defines MISC_IRON_MAN and MISC_PAIN_RESISTANCE as separate ability ids.',
+      'MegaMek option text defines Pain Resistance as +1 consciousness rolls plus ammunition-explosion damage reduction.',
+      'MegaMek option text defines Iron Man as ammunition-explosion pilot-hit reduction only.',
+    ]);
 
     expect(
       supportIdsByLevel(CRITICAL_COMPONENT_COMBAT_SUPPORT, 'integrated'),

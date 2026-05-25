@@ -232,6 +232,13 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** event-sourced heat cookoffs SHALL empty the exploded bin before applying the CASE-adjusted damage cascade
 - **AND** broad non-CASE equipment names that merely contain the substring "case" SHALL NOT hydrate phantom CASE protection
 
+#### Scenario: Ammo-explosion pilot damage remains source-pinned until wired
+
+- **GIVEN** MegaMek reduces ammunition-explosion pilot damage for Pain Resistance or Iron Man
+- **WHEN** MekStation catalogs pilot damage and event-stream support
+- **THEN** ammo-explosion pilot damage SHALL remain a visible non-integrated damage/death row until runner heat, runner critical, and event-sourced heat cookoff paths emit `PilotHit`, persist pilot wounds, and apply the source-backed reduction
+- **AND** `PilotHit` event support SHALL NOT claim ammo-explosion coverage before that behavior exists end to end
+
 ### Requirement: Physical Attack Legality Gates
 
 Physical attack declaration and resolution SHALL validate action-specific legality gates before scheduling a combat action. Push, charge, death from above, melee weapon, punch, kick, and club logic SHALL share the same legality helpers across eligibility display, event-sourced declaration, and simulation runner resolution so UI options, game events, and automated combat cannot diverge.

@@ -82,6 +82,16 @@ export const MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEGAMEK_AMMO_EXPLOSION_PILOT_DAMAGE_SOURCE_REFS =
+  MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS.filter(
+    ({ citation }) =>
+      citation.includes('ammunition-explosion pilot damage') ||
+      citation.includes('ammunition-explosion damage reduction') ||
+      citation.includes('ammunition-explosion pilot-hit reduction') ||
+      citation.includes('Iron Man and Pain Resistance') ||
+      citation.includes('MISC_IRON_MAN and MISC_PAIN_RESISTANCE'),
+  ) satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation getEffectiveWounds treats Pain Resistance as local to-hit wound-penalty relief.',

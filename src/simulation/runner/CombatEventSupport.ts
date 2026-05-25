@@ -128,7 +128,7 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
   ),
   [GameEventType.PilotHit]: integrated(
     GameEventType.PilotHit,
-    'damage, fall, ammo explosion, runner heat, and session heat resolution emit PilotHit with wound totals',
+    'head damage, cockpit crits, fall, runner heat, and session heat resolution emit PilotHit with wound totals; ammo-explosion pilot wounds are tracked by pilot-damage gap coverage',
   ),
   [GameEventType.UnitDestroyed]: integrated(
     GameEventType.UnitDestroyed,

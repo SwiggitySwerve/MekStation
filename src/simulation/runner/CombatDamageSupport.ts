@@ -3,6 +3,7 @@ import type {
   ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 
+import { MEGAMEK_AMMO_EXPLOSION_PILOT_DAMAGE_SOURCE_REFS } from './CombatConsciousnessSourceRefs';
 import {
   MEGAMEK_AMMO_CRITICAL_EFFECT_SOURCE_REFS,
   MEGAMEK_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
@@ -186,6 +187,12 @@ export const PILOT_DAMAGE_COMBAT_SUPPORT = {
     'fall-pilot-damage',
     'runPSRPhase, resolvePendingPSRs, and source-backed missed-DFA fall resolution emit PilotHit source=fall, persist wound totals, and destroy pilots at lethal fall wounds',
     MEGAMEK_FALL_PILOT_DAMAGE_SOURCE_REFS,
+  ),
+  'ammo-explosion-pilot-damage': helperOnly(
+    'ammo-explosion-pilot-damage',
+    'resolveAmmoExplosion returns pilotDamage for unprotected bins, but runner heat, runner critical, and event-sourced heat cookoff paths currently emit only AmmoExplosion plus structural cascade events',
+    'Needs end-to-end ammo-explosion PilotHit emission, wound persistence, and source-backed Pain Resistance / Iron Man pilot-damage reduction across heat, crit, and interactive heat paths',
+    MEGAMEK_AMMO_EXPLOSION_PILOT_DAMAGE_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 
