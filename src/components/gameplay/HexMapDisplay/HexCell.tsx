@@ -43,7 +43,7 @@ import {
 } from './HexCell.invalidBadges';
 import {
   IsometricElevationStack,
-  getIsometricElevationLayerCount,
+  getIsometricElevationStackMetrics,
 } from './HexCell.isometricStack';
 import {
   ElevationBadge,
@@ -221,11 +221,12 @@ export const HexCell = React.memo(function HexCell({
   const elevation = terrain?.elevation ?? 0;
   const elevationLabel = formatElevationLabel(elevation);
   const isIsometricTile = isIsometricProjection(projectionMode);
-  const elevationLayerCount = getIsometricElevationLayerCount({
+  const elevationStackMetrics = getIsometricElevationStackMetrics({
     isIsometricTile,
     elevation,
     terrainFeatures,
   });
+  const elevationLayerCount = elevationStackMetrics.renderedLayerCount;
 
   const hasOverlay =
     isSelected ||
@@ -563,13 +564,25 @@ export const HexCell = React.memo(function HexCell({
       data-combat-los-blocker-for-reasons={combatLosBlockerReasons}
       aria-label={hexLabel}
       data-elevation-layers={elevationLayerCount || undefined}
+      data-elevation-effective-height={
+        elevationStackMetrics.effectiveHeight || undefined
+      }
+      data-elevation-rendered-layers={elevationLayerCount || undefined}
+      data-elevation-stack-capped={
+        elevationStackMetrics.capped ? 'true' : undefined
+      }
+      data-elevation-stack-overflow={
+        elevationStackMetrics.capped
+          ? elevationStackMetrics.overflowLayerCount
+          : undefined
+      }
     >
       <title>{hexLabel}</title>
       <IsometricElevationStack
         x={x}
         y={y}
         hex={hex}
-        elevationLayerCount={elevationLayerCount}
+        stackMetrics={elevationStackMetrics}
         isometricOccluderInfo={
           isIsometricOccluder ? isometricOccluderInfo : undefined
         }

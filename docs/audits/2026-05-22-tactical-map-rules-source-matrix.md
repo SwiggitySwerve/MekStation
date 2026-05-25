@@ -1007,6 +1007,15 @@ projection marks the target as `InvalidTarget`, and
 `applyInteractiveSessionAttack` emits the matching `AttackInvalid` rejection
 instead of allowing a map-only false-positive shot.
 
+2026-05-25 capped isometric stack metadata pin: tall isometric stacks remain a
+presentation concern, but they now expose the same effective height produced by
+`getIsometricTerrainEffectiveHeight` for occlusion and depth sorting. The map
+keeps the readable 8-layer render cap while exposing true effective height,
+rendered layer count, cap state, overflow level count, and a visible cap badge
+so a level-4 hex with an 8-level building is understandable as effective height
++12 rather than only the eight drawn layers. No movement, combat, LOS,
+occlusion, or depth legality is derived from the rendered layer count.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:
