@@ -1216,6 +1216,13 @@ combat-target readability boosts stay intact, but a stale legacy target flag can
 no longer pull an unrelated unit forward when weapon-backed combat projection is
 active.
 
+2026-05-25 legacy token renderer removal pin: The remaining damage-feedback
+smoke coverage now exercises `UnitTokenForType`, allowing the superseded
+`HexMapDisplay/UnitToken.tsx` renderer to be removed. This is not a new
+BattleTech rule; it removes a stale UI-only token path that read
+`IUnitToken.isValidTarget` directly and keeps token feedback coverage on the
+production dispatcher used by top-down and isometric map rendering.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

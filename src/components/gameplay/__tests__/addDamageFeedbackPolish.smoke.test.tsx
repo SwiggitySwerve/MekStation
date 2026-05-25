@@ -11,7 +11,7 @@
  *  - PilotWoundFlash renders the "PILOT KILLED" banner when `killed`
  *  - DamageFloater renders an entry per id, with armor / structure
  *    color variants
- *  - UnitTokenComponent wires DamageApplied / CriticalHitResolved /
+ *  - UnitTokenForType wires DamageApplied / CriticalHitResolved /
  *    PilotHit / UnitDestroyed events from its `events` prop into the
  *    overlay state (subscription smoke test)
  *  - Every damage-related overlay reinforces color with a shape /
@@ -45,8 +45,8 @@ import {
   DamageFloater,
   type DamageFloaterEntry,
 } from '@/components/gameplay/DamageFloater';
-import { UnitTokenComponent } from '@/components/gameplay/HexMapDisplay/UnitToken';
 import { PilotWoundFlash } from '@/components/gameplay/PilotWoundFlash';
+import { UnitTokenForType } from '@/components/gameplay/UnitToken/UnitTokenForType';
 import {
   Facing,
   GameEventType,
@@ -287,10 +287,10 @@ describe('DamageFloater', () => {
 });
 
 // =============================================================================
-// UnitTokenComponent — event subscription smoke test
+// UnitTokenForType event subscription smoke test
 // =============================================================================
 
-describe('UnitTokenComponent — events prop wires overlays', () => {
+describe('UnitTokenForType events prop wires overlays', () => {
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => jest.useRealTimers());
 
@@ -320,7 +320,7 @@ describe('UnitTokenComponent — events prop wires overlays', () => {
       buildEvent('e-d1', GameEventType.DamageApplied, damagePayload, 1),
     ];
     svgRender(
-      <UnitTokenComponent
+      <UnitTokenForType
         token={baseToken}
         onClick={jest.fn()}
         events={events}
@@ -353,7 +353,7 @@ describe('UnitTokenComponent — events prop wires overlays', () => {
       ),
     ];
     svgRender(
-      <UnitTokenComponent
+      <UnitTokenForType
         token={baseToken}
         onClick={jest.fn()}
         events={events}
@@ -378,7 +378,7 @@ describe('UnitTokenComponent — events prop wires overlays', () => {
       buildEvent('e-p1', GameEventType.PilotHit, payload, 1),
     ];
     svgRender(
-      <UnitTokenComponent
+      <UnitTokenForType
         token={baseToken}
         onClick={jest.fn()}
         events={events}
@@ -399,7 +399,7 @@ describe('UnitTokenComponent — events prop wires overlays', () => {
       buildEvent('e-p2', GameEventType.PilotHit, payload, 1),
     ];
     svgRender(
-      <UnitTokenComponent
+      <UnitTokenForType
         token={baseToken}
         onClick={jest.fn()}
         events={events}
@@ -418,7 +418,7 @@ describe('UnitTokenComponent — events prop wires overlays', () => {
       ),
     ];
     svgRender(
-      <UnitTokenComponent
+      <UnitTokenForType
         token={baseToken}
         onClick={jest.fn()}
         events={events}
@@ -445,7 +445,7 @@ describe('UnitTokenComponent — events prop wires overlays', () => {
       ),
     ];
     svgRender(
-      <UnitTokenComponent
+      <UnitTokenForType
         token={baseToken}
         onClick={jest.fn()}
         events={events}
@@ -459,7 +459,7 @@ describe('UnitTokenComponent — events prop wires overlays', () => {
 
   it('still renders the legacy ✕ overlay when token.isDestroyed is true (no events)', () => {
     svgRender(
-      <UnitTokenComponent
+      <UnitTokenForType
         token={{ ...baseToken, isDestroyed: true }}
         onClick={jest.fn()}
       />,
