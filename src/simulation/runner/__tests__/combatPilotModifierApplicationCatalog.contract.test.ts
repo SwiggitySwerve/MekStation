@@ -265,6 +265,26 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ]);
   });
 
+  it('pins Multi-Trac to MegaMek secondary-target suppression semantics', () => {
+    const multiTracRefs = QUIRK_COMBAT_SUPPORT.multi_trac.sourceRefs ?? [];
+
+    expect(QUIRK_COMBAT_SUPPORT.multi_trac).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('secondary-target penalty'),
+    });
+    expect(multiTracRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek Compute.getSecondaryTargetMod suppresses the secondary-target modifier for Multi-Trac attackers when the current target is not in the rear arc.',
+      'MegaMek OptionsConstants defines QUIRK_POS_MULTI_TRAC as multi_trac.',
+    ]);
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'ranged-to-hit-calculation'
+      ].sourceRefs?.map(({ citation }) => citation),
+    ).toEqual(
+      expect.arrayContaining(multiTracRefs.map(({ citation }) => citation)),
+    );
+  });
+
   it('pins Dodge Maneuver to MegaMek target dodging semantics', () => {
     const dodgeRefs = SPA_COMBAT_SUPPORT['dodge-maneuver'].sourceRefs ?? [];
 
@@ -870,6 +890,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(QUIRK_COMBAT_SUPPORT.command_mech.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.battle_computer.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.sensor_ghosts.sourceRefs ?? []),
+      ...(QUIRK_COMBAT_SUPPORT.multi_trac.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.accurate.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.inaccurate.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.stable_weapon.sourceRefs ?? []),

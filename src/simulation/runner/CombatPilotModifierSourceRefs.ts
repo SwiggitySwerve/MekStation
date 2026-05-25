@@ -38,6 +38,17 @@ export const MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEGAMEK_MULTI_TRAC_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek Compute.getSecondaryTargetMod suppresses the secondary-target modifier for Multi-Trac attackers when the current target is not in the rear arc.',
+    'megamek/src/megamek/common/compute/Compute.java#L2500-L2519',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines QUIRK_POS_MULTI_TRAC as multi_trac.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L75-L78',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS = [
   megamekRef(
     'MegaMek PilotOptions registers the source-backed pilot advantage ids in this combat source snapshot; MekStation local-only SPA ids are not part of that registry.',

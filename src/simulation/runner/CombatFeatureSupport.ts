@@ -12,6 +12,7 @@ import {
   MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
   MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
   MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
+  MEGAMEK_MULTI_TRAC_SOURCE_REFS,
   MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   MEGAMEK_SANDBLASTER_SOURCE_REFS,
   MEGAMEK_SENSOR_GHOSTS_TO_HIT_SOURCE_REFS,
@@ -732,7 +733,8 @@ export const QUIRK_COMBAT_SUPPORT = {
   ),
   multi_trac: integrated(
     'multi_trac',
-    'calculateMultiTracModifier + calculateToHit',
+    'calculateMultiTracModifier plus calculateToHit suppress the source-backed secondary-target penalty for Multi-Trac front-arc attacks',
+    MEGAMEK_MULTI_TRAC_SOURCE_REFS,
   ),
   rugged_1: helperOnly(
     'rugged_1',
