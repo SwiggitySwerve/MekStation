@@ -837,17 +837,17 @@ export const QUIRK_COMBAT_SUPPORT = {
 export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
   'ultra-ac': integrated(
     'ultra-ac',
-    'UnitHydration.buildCatalogFiringModes + expandSelectedModeIntoShots + shouldJamOnNaturalTwo + markWeaponJammed + AIWeaponModeSelector',
+    'Exact official UAC ids feed UnitHydration.buildCatalogFiringModes + expandSelectedModeIntoShots + shouldJamOnNaturalTwo + markWeaponJammed + AIWeaponModeSelector',
     MEGAMEK_UAC_SOURCE_REFS,
   ),
   'rotary-ac': integrated(
     'rotary-ac',
-    'UnitHydration.buildCatalogFiringModes + expandSelectedModeIntoShots + shouldJamOnNaturalTwo + markWeaponJammed + AIWeaponModeSelector',
+    'Exact official RAC ids feed UnitHydration.buildCatalogFiringModes + expandSelectedModeIntoShots + shouldJamOnNaturalTwo + markWeaponJammed + AIWeaponModeSelector',
     MEGAMEK_RAC_SOURCE_REFS,
   ),
   'lb-x-ac': integrated(
     'lb-x-ac',
-    'UnitHydration.buildCatalogFiringModes + selectedModeToHitModifier + resolveClusterModeHit + weaponAttackEvents LB-X cluster coverage',
+    'Exact official LB-X ids feed UnitHydration.buildCatalogFiringModes + selectedModeToHitModifier + resolveClusterModeHit + weaponAttackEvents LB-X cluster coverage',
     MEGAMEK_LBX_SOURCE_REFS,
   ),
   'streak-srm': integrated(
@@ -857,7 +857,7 @@ export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
   ),
   mml: integrated(
     'mml',
-    'resolveCatalogDamage handles variable 1-2/missile descriptors, UnitHydration exposes SRM/LRM modes, and selected modes consume distinct SRM/LRM ammo bins',
+    'Exact official MML ids feed resolveCatalogDamage variable 1-2/missile descriptors, UnitHydration SRM/LRM modes, and selected-mode SRM/LRM ammo-bin consumption',
     MEGAMEK_MML_SOURCE_REFS,
   ),
   narc: helperOnly(

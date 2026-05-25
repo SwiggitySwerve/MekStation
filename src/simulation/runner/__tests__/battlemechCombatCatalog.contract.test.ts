@@ -506,6 +506,31 @@ const EXPECTED_STRING_DAMAGE_RESOLUTIONS = {
   'streak-srm-6': 12,
 } satisfies Record<string, number>;
 
+const EXPECTED_MULTI_MODE_SPECIAL_WEAPON_FAMILY_IDS = {
+  'lb-x-ac': [
+    'clan-lb-10-x-ac',
+    'clan-lb-2-x-ac',
+    'clan-lb-20-x-ac',
+    'clan-lb-5-x-ac',
+    'lb-10-x-ac',
+    'lb-2-x-ac',
+    'lb-20-x-ac',
+    'lb-5-x-ac',
+  ],
+  mml: ['mml-3', 'mml-5', 'mml-7', 'mml-9'],
+  'rotary-ac': ['clan-rac-2', 'clan-rac-5', 'rac-2', 'rac-5'],
+  'ultra-ac': [
+    'clan-uac-10',
+    'clan-uac-2',
+    'clan-uac-20',
+    'clan-uac-5',
+    'uac-10',
+    'uac-2',
+    'uac-20',
+    'uac-5',
+  ],
+} satisfies Record<string, readonly string[]>;
+
 function flattenItems(
   files: readonly ICatalogFile[],
 ): readonly Record<string, unknown>[] {
@@ -1121,6 +1146,12 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(amsSystems).toHaveLength(4);
     expect(tagDesignators).toHaveLength(4);
     expect(artemisFcs).toHaveLength(3);
+    expect({
+      'lb-x-ac': ids(lbxACs),
+      mml: ids(mmlLaunchers),
+      'rotary-ac': ids(rotaryACs),
+      'ultra-ac': ids(ultraACs),
+    }).toEqual(EXPECTED_MULTI_MODE_SPECIAL_WEAPON_FAMILY_IDS);
 
     expect(ids(ultraACs).every(isUltraAC)).toBe(true);
     expect(ids(rotaryACs).every(isRotaryAC)).toBe(true);
@@ -1245,25 +1276,25 @@ describe('BattleMech combat catalog validation lane', () => {
   it('maps official UAC, RAC, LB-X, and MML catalog weapons into AI firing modes', () => {
     const multiModeFamilies = [
       {
-        ids: ids(familyItems(/\bUltra AC\b/i)),
+        ids: EXPECTED_MULTI_MODE_SPECIAL_WEAPON_FAMILY_IDS['ultra-ac'],
         kind: 'rate-of-fire',
         defaultModeId: 'single',
         modeIds: ['single', 'double'],
       },
       {
-        ids: ids(familyItems(/\bRotary AC\b/i)),
+        ids: EXPECTED_MULTI_MODE_SPECIAL_WEAPON_FAMILY_IDS['rotary-ac'],
         kind: 'rate-of-fire',
         defaultModeId: 'rof-1',
         modeIds: ['rof-1', 'rof-2', 'rof-3', 'rof-4', 'rof-5', 'rof-6'],
       },
       {
-        ids: ids(familyItems(/\bLB-X AC\b|\bLB \d+-X AC\b/i)),
+        ids: EXPECTED_MULTI_MODE_SPECIAL_WEAPON_FAMILY_IDS['lb-x-ac'],
         kind: 'cluster-slug',
         defaultModeId: 'slug',
         modeIds: ['slug', 'cluster'],
       },
       {
-        ids: ids(familyItems(/\bMML\b/i)),
+        ids: EXPECTED_MULTI_MODE_SPECIAL_WEAPON_FAMILY_IDS.mml,
         kind: 'ammo-mode',
         defaultModeId: 'srm',
         modeIds: ['srm', 'lrm'],
