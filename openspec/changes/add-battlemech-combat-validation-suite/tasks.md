@@ -84,6 +84,7 @@
 - [x] 3.1.16 Pin exact official ammo rows that cannot become consumable BattleMech bins because they either duplicate weapon runtime ids or lack compatible weapon references.
 - [x] 3.1.17 Pin exact official ammo rows that hydrate consumable BattleMech ammo bins and prove each referenced official weapon id consumes through combat ammo tracking.
 - [x] 3.1.18 Pin exact official ammo rows split out of the BattleMech ammo matrix for aerospace/capital, battle armor, ProtoMech, aquatic torpedo, and artillery validation lanes.
+- [x] 3.1.19 Pin exact experimental/nonstandard official ammo rows with no compatible weapon references as catalog-visible scope gaps.
 - [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
 - [x] 3.2.2 Integrate source-backed active TSM movement speed into runner movement validation while leaving MASC, supercharger, and then-unsupported partial-wing movement behavior explicit.

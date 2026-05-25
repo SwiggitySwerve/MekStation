@@ -43,7 +43,7 @@ export const AMMUNITION_COMPATIBILITY_SUPPORT = {
   ),
   'nonstandard-empty-compatible-row': helperOnly(
     'nonstandard-empty-compatible-row',
-    'Experimental or nonstandard ammo rows with no compatible weapon ids are retained as catalog-visible scope gaps',
+    'Experimental or nonstandard ammo rows with no compatible weapon ids are pinned by exact id as catalog-visible scope gaps',
     'Rules-level-specific validation must decide whether these rows belong in BattleMech combat',
   ),
   'unsupported-aquatic-torpedo-ammo': helperOnly(
