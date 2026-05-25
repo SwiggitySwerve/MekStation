@@ -57,6 +57,7 @@ export function isTurnLimitDraw(
   return delta <= TURN_LIMIT_DRAW_TOLERANCE;
 }
 
+import { calculateGroundToAirAltitudeModifier } from './aerospace/groundToAir';
 import { isRepresentedTargetImmobile } from './combatImmobility';
 import { type D6Roller, defaultD6Roller } from './diceTypes';
 import {
@@ -451,9 +452,14 @@ export function declareAttack(
   const interveningTerrainModifier = calculateInterveningTerrainModifier(
     interveningTerrainEffects,
   );
-  const terrainModifiers = [
+  const groundToAirAltitudeModifier = calculateGroundToAirAltitudeModifier(
+    attackerUnit,
+    targetUnit,
+  );
+  const attackContextModifiers = [
     interveningTerrainModifier,
     targetTerrainModifier,
+    groundToAirAltitudeModifier,
   ].filter(
     (modifier): modifier is IToHitModifierDetail =>
       modifier !== null && modifier !== undefined,
@@ -486,7 +492,7 @@ export function declareAttack(
       gunnery: attacker.gunnery,
       movementType: attackerUnit.movementThisTurn,
       heat: attackerUnit.heat,
-      damageModifiers: terrainModifiers,
+      damageModifiers: attackContextModifiers,
       prone: attackerUnit.prone ?? false,
       ...deriveVehicleToHitContext(attackerUnit, attackWeapons),
     };

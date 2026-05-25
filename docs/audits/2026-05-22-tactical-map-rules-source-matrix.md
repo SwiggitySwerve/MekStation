@@ -228,6 +228,16 @@ ground-to-ground-only rule captured in `src/utils/gameplay/groundToGround.ts`.
 The browser proof keeps the target's state-derived altitude and velocity
 metadata visible in both top-down and isometric projections.
 
+2026-05-25 ground-to-air altitude modifier pin: MegaMek
+`ComputeTargetToHitMods.java:233-250` applies NOE and optional StratOps
+velocity anti-air modifiers for ground-to-air targets. MekStation's active
+`add-aerospace-deployment` design intentionally simplifies that surface to
+altitude tiers (`1-3=low +1`, `4-6=medium +2`, `7-10=high +3`) until full
+`aerospaceCombat.ts` dispatch lands. The tactical-map projection and committed
+`AttackDeclared` path now share one helper for that OpenSpec rule, and the
+browser/fixture tests prove the visible TN and committed TN both include the
+same `Ground-to-air altitude` modifier.
+
 2026-05-24 extreme-range browser update: the tactical-map browser harness now
 also selects a represented extreme-range weapon with long range 3 and extreme
 range 4 against the four-hex target, verifying that the weapon stays available

@@ -1442,6 +1442,17 @@ describe('tactical map combat scenarios', () => {
         }),
       ]),
     );
+    expect(
+      tacticalMapAirborneAerospaceMinimumRangeCombatProjection.toHitModifiers,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Ground-to-air altitude',
+          value: 1,
+          source: 'other',
+        }),
+      ]),
+    );
 
     const result = applyInteractiveSessionAttack(
       tacticalMapAirborneAerospaceMinimumRangeCommitInput(),
@@ -1462,6 +1473,15 @@ describe('tactical map combat scenarios', () => {
       expect.arrayContaining([
         expect.objectContaining({
           name: 'Minimum Range',
+        }),
+      ]),
+    );
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Ground-to-air altitude',
+          value: 1,
+          source: 'other',
         }),
       ]),
     );

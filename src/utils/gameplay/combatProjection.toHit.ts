@@ -13,6 +13,7 @@ import type { ILOSInterveningTerrainEffect } from '@/utils/gameplay/lineOfSight'
 import { DEFAULT_GUNNERY } from '@/constants/PilotConstants';
 import { MovementType, RangeBracket } from '@/types/gameplay';
 
+import { calculateGroundToAirAltitudeModifier } from './aerospace/groundToAir';
 import { isRepresentedTargetImmobile } from './combatImmobility';
 import { minimumRangeForWeapons } from './combatProjection.targeting';
 import {
@@ -129,9 +130,14 @@ export function deriveToHitProjection({
   const interveningTerrainModifier = calculateInterveningTerrainModifier(
     interveningTerrainEffects,
   );
-  const terrainModifiers = [
+  const groundToAirAltitudeModifier = calculateGroundToAirAltitudeModifier(
+    attackerUnit,
+    targetUnit,
+  );
+  const attackContextModifiers = [
     interveningTerrainModifier,
     targetTerrainModifier,
+    groundToAirAltitudeModifier,
   ].filter(
     (modifier): modifier is IToHitModifierDetail =>
       modifier !== null && modifier !== undefined,
@@ -141,7 +147,7 @@ export function deriveToHitProjection({
     gunnery: attackerUnit.gunnery ?? DEFAULT_GUNNERY,
     movementType: attackerUnit.movementThisTurn ?? MovementType.Stationary,
     heat: attackerUnit.heat ?? 0,
-    damageModifiers: terrainModifiers,
+    damageModifiers: attackContextModifiers,
     prone: attackerUnit.prone ?? false,
     ...deriveVehicleToHitContext(attackerUnit, weapons),
   };

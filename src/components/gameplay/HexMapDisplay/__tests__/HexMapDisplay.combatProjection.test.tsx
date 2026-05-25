@@ -3240,7 +3240,11 @@ describe('HexMapDisplay combat projection', () => {
     expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
     expect(targetHex).not.toHaveAttribute('data-combat-minimum-range-penalty');
     expect(targetHex).not.toHaveAttribute('data-combat-minimum-range-reason');
-    expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '4');
+    expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '5');
+    expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-modifiers',
+      expect.stringContaining('Ground-to-air altitude:1'),
+    );
     expect(targetHex.getAttribute('aria-label')).not.toContain('Minimum range');
     expect(
       screen.queryByTestId('hex-minimum-range-badge-3-0'),
@@ -3253,6 +3257,9 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       screen.getByTestId('hex-combat-tooltip-reason'),
     ).not.toHaveTextContent('Minimum Range');
+    expect(screen.getByTestId('hex-combat-tooltip-reason')).toHaveTextContent(
+      'Ground-to-air altitude +1',
+    );
   });
 
   it('keeps out-of-range targets visibly explainable instead of silently omitting them', () => {

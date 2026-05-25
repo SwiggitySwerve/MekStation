@@ -64,11 +64,12 @@
 ## 9. Ground-to-air combat
 
 - [ ] 9.1 Implement ground-to-air in `aerospaceCombat.ts` (dispatched from `combat-resolution`): eligible when attacker is ground unit, target is airborne aero
-- [ ] 9.2 To-hit modifier: altitude tier (low +1, med +2, high +3); legal weapons: any direct-fire weapon within range
+- [x] 9.2 To-hit modifier: altitude tier (low +1, med +2, high +3); legal weapons: any direct-fire weapon within range. Current slice wires this through the shared tactical-map to-hit projection and `declareAttack` path until the full `aerospaceCombat.ts` dispatch lands.
 - [ ] 9.3 Reject indirect-fire weapons (LRM in Indirect mode) attempting to engage airborne targets — emit warning event
 - [ ] 9.4 Emit `AerospaceGroundToAirAttack { attackerId, targetId, altitudeTier, toHitFinal, outcome }`
 - [ ] 9.5 Unit-test: AC/20 mech firing at airborne aero at altitude 7 → +3 to-hit; LRM in Indirect mode → rejected
 - [x] 9.6 Browser map proof: ground attacker targeting airborne aero suppresses ground-only minimum-range penalties and badges while keeping state-derived target altitude/velocity metadata visible in top-down and isometric projections.
+- [x] 9.7 Browser/commit parity proof: the same airborne target scenario now exposes the ground-to-air altitude to-hit modifier in top-down combat metadata and the committed `AttackDeclared` event carries the same modifier and target number.
 
 ## 10. Dogfight resolution
 

@@ -1991,7 +1991,11 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-weapons-available',
       'minimum-lrm',
     );
-    await expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '4');
+    await expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '5');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-modifiers',
+      /Ground-to-air altitude:1/,
+    );
     expect(
       (await targetHex.getAttribute('data-combat-to-hit-modifiers')) ?? '',
     ).not.toContain('Minimum Range');
