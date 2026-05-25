@@ -1261,6 +1261,18 @@ Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior 
 - **AND** Cool Under Fire SHALL be helper-only with the unresolved source authority recorded as a gap
 - **AND** the heat-application resolver SHALL remain helper-only while Cool Under Fire source authority is unresolved
 
+### Requirement: Source-Backed Weapon Cooling Quirk Heat
+
+Weapon cooling quirk validation SHALL use MegaMek weapon heat semantics before counting cooling quirk rows as integrated. Improved Cooling SHALL reduce final weapon heat by 1 but never below 1. Poor Cooling SHALL add 1 heat. No Cooling SHALL add 2 heat, not double the base weapon heat. The support catalog and heat resolver row SHALL expose commit-pinned MegaMek source references for the heat calculation and quirk eligibility boundary.
+
+#### Scenario: Weapon cooling quirks use source-backed heat values
+
+- **GIVEN** the BattleMech quirk and heat resolver catalogs are generated
+- **WHEN** Improved Cooling, Poor Cooling, or No Cooling support is inspected
+- **THEN** each row SHALL be integrated with structured MegaMek source references for weapon heat calculation and quirk registration
+- **AND** focused helper and heat-phase tests SHALL prove Improved Cooling flooring, Poor Cooling `+1`, and No Cooling `+2`
+- **AND** the heat-application resolver SHALL cite the same weapon cooling source references while remaining helper-only for unrelated Cool Under Fire authority
+
 ### Requirement: Source-Truth Cross-Check Discipline
 
 Combat feature work SHALL update OpenSpec, the validation catalog, and executable tests together. Before marking a mechanic integrated, the implementation SHALL be cross-checked against official rules or MegaMek / MekHQ behavior notes, with gaps recorded as partial or unsupported rather than inferred as complete.

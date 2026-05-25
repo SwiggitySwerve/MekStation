@@ -332,7 +332,7 @@ export const QUIRK_CATALOG: Record<string, IQuirkCatalogEntry> = {
     name: 'No Cooling',
     category: 'weapon',
     pipelines: ['heat'],
-    combatEffect: 'Double heat for this weapon',
+    combatEffect: '+2 heat for this weapon',
     isPositive: false,
   },
 };

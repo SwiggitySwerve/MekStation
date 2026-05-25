@@ -138,6 +138,7 @@
 - [x] 3.4.23.2 Source-pin Improved/Poor Targeting quirk rows to MegaMek range modifier helpers while preserving MekStation local alias ids as explicit deviation refs.
 - [x] 3.4.23.3 Source-pin Multi-Trac secondary-target relief to MegaMek secondary-target modifier suppression.
 - [x] 3.4.23.4 Source-pin Distracting and Low Profile defensive quirk boundaries as helper-only/deviation coverage when MegaMek source does not match MekStation's local `+1` to-hit helper behavior.
+- [x] 3.4.23.5 Source-pin and correct weapon cooling quirk heat semantics to MegaMek `WeaponMounted.getCurrentHeat`: Improved Cooling floors at 1, Poor Cooling adds 1, and No Cooling adds 2 instead of doubling heat.
 - [x] 3.4.24 Guard source-backed initiative equipment hydration as unsupported unless complete HQ communications or command-console eligibility context exists; command-looking metadata without explicit initiative fields fails closed.
 - [x] 3.4.25 Source-back legacy Evasive SPA support as an unsupported optional TacOps Evade movement/action gap, including target to-hit and attacker firing restrictions, until an authoritative evade action path exists.
 - [x] 3.4.26 Source-back torso-twist secondary-facing arc consumption and extended/no-twist quirk boundaries while preserving attack arc consumption as a helper-only gap until torso twist is authoritative.
@@ -269,3 +270,4 @@
 - [x] 4.3.80 Cross-check MegaMek `Entity.getShortRangeModifier`, `getMediumRangeModifier`, `getLongRangeModifier`, and targeting quirk option ids before pinning Improved/Poor Targeting rows and MekStation alias boundaries.
 - [x] 4.3.81 Cross-check MegaMek `Compute.getSecondaryTargetMod` and `QUIRK_POS_MULTI_TRAC` before pinning Multi-Trac secondary-target relief.
 - [x] 4.3.82 Cross-check MegaMek `WeaponHandler.isLowProfileGlancingBlow`, `OptionsConstants`, and `Quirks` before classifying Distracting/Low Profile local to-hit helpers as non-integrated defensive quirk coverage.
+- [x] 4.3.83 Cross-check MegaMek `WeaponMounted.getCurrentHeat`, `WeaponQuirks`, and weapon cooling option ids before correcting Improved/Poor/No Cooling heat modifiers.

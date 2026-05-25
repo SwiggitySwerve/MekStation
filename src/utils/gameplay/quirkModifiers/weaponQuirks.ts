@@ -60,15 +60,17 @@ export function calculateStableWeaponModifier(
 
 /**
  * Weapon cooling quirk heat modifier.
- * @returns Heat modifier: -1 for Improved, +1 for Poor, or baseHeat for No Cooling (doubling)
+ * @returns Heat modifier: Improved Cooling floors final heat at 1, Poor Cooling adds 1, No Cooling adds 2.
  */
 export function getWeaponCoolingHeatModifier(
   weaponQuirks: readonly string[],
   baseHeat: number,
 ): number {
-  if (weaponQuirks.includes(WEAPON_QUIRK_IDS.IMPROVED_COOLING)) return -1;
+  if (weaponQuirks.includes(WEAPON_QUIRK_IDS.IMPROVED_COOLING)) {
+    return Math.max(1, baseHeat - 1) - baseHeat;
+  }
   if (weaponQuirks.includes(WEAPON_QUIRK_IDS.POOR_COOLING)) return 1;
-  if (weaponQuirks.includes(WEAPON_QUIRK_IDS.NO_COOLING)) return baseHeat; // Double heat
+  if (weaponQuirks.includes(WEAPON_QUIRK_IDS.NO_COOLING)) return 2;
   return 0;
 }
 

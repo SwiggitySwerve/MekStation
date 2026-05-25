@@ -24,6 +24,7 @@ import {
   MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
   MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
   MEGAMEK_TARGETING_QUIRK_TO_HIT_SOURCE_REFS,
+  MEGAMEK_WEAPON_COOLING_QUIRK_SOURCE_REFS,
   MEGAMEK_WEAPON_TO_HIT_QUIRK_SOURCE_REFS,
   MEKSTATION_TARGETING_QUIRK_ALIAS_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
@@ -786,15 +787,18 @@ export const QUIRK_COMBAT_SUPPORT = {
   ),
   improved_cooling: integrated(
     'improved_cooling',
-    'runHeatPhase and resolveHeatPhase consume getWeaponCoolingHeatModifier while summing fired weapon heat',
+    'runHeatPhase and resolveHeatPhase consume getWeaponCoolingHeatModifier while summing fired weapon heat, applying source-backed Improved Cooling max(1, heat - 1) semantics',
+    MEGAMEK_WEAPON_COOLING_QUIRK_SOURCE_REFS,
   ),
   poor_cooling: integrated(
     'poor_cooling',
-    'runHeatPhase and resolveHeatPhase consume getWeaponCoolingHeatModifier while summing fired weapon heat',
+    'runHeatPhase and resolveHeatPhase consume getWeaponCoolingHeatModifier while summing fired weapon heat, applying source-backed Poor Cooling +1 heat semantics',
+    MEGAMEK_WEAPON_COOLING_QUIRK_SOURCE_REFS,
   ),
   no_cooling: integrated(
     'no_cooling',
-    'runHeatPhase and resolveHeatPhase consume getWeaponCoolingHeatModifier while summing fired weapon heat',
+    'runHeatPhase and resolveHeatPhase consume getWeaponCoolingHeatModifier while summing fired weapon heat, applying source-backed No Cooling +2 heat semantics',
+    MEGAMEK_WEAPON_COOLING_QUIRK_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 

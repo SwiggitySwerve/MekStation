@@ -93,6 +93,25 @@ export const MEGAMEK_WEAPON_TO_HIT_QUIRK_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEGAMEK_WEAPON_COOLING_QUIRK_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek WeaponMounted.getCurrentHeat applies weapon cooling quirks after shot/weapon multiplication: Improved Cooling floors heat at max(1, heat - 1), Poor Cooling adds 1, and No Cooling adds 2.',
+    'megamek/src/megamek/common/equipment/WeaponMounted.java#L128-L142',
+  ),
+  megamekRef(
+    'MegaMek WeaponQuirks registers Improved Cooling, Poor Cooling, and No Cooling as weapon quirk options.',
+    'megamek/src/megamek/common/options/WeaponQuirks.java#L76-L80',
+  ),
+  megamekRef(
+    'MegaMek WeaponQuirks disallows weapon cooling quirks for club weapons, non-heat weapons, conventional infantry, tanks, battle armor, and ProtoMeks.',
+    'megamek/src/megamek/common/options/WeaponQuirks.java#L126-L177',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines weapon cooling quirk ids as imp_cooling, poor_cooling, and no_cooling.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L106-L162',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEGAMEK_TARGETING_QUIRK_TO_HIT_SOURCE_REFS = [
   megamekRef(
     'MegaMek Entity range modifier helpers apply Improved Targeting -1 and Poor Targeting +1 at short, medium, and long range.',

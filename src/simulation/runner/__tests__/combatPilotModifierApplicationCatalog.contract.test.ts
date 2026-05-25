@@ -822,6 +822,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     const hotDogRefs = SPA_COMBAT_SUPPORT['hot-dog'].sourceRefs ?? [];
     const someLikeItHotRefs =
       SPA_COMBAT_SUPPORT['some-like-it-hot'].sourceRefs ?? [];
+    const weaponCoolingRefs =
+      QUIRK_COMBAT_SUPPORT.improved_cooling.sourceRefs ?? [];
     const heatApplicationRefs =
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application'].sourceRefs ??
       [];
@@ -863,6 +865,23 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'MegaMek OptionsConstants defines UNOFFICIAL_SOME_LIKE_IT_HOT as some_like_it_hot.',
     ]);
 
+    expect(QUIRK_COMBAT_SUPPORT.improved_cooling).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('max(1, heat - 1)'),
+    });
+    expect(weaponCoolingRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek WeaponMounted.getCurrentHeat applies weapon cooling quirks after shot/weapon multiplication: Improved Cooling floors heat at max(1, heat - 1), Poor Cooling adds 1, and No Cooling adds 2.',
+      'MegaMek WeaponQuirks registers Improved Cooling, Poor Cooling, and No Cooling as weapon quirk options.',
+      'MegaMek WeaponQuirks disallows weapon cooling quirks for club weapons, non-heat weapons, conventional infantry, tanks, battle armor, and ProtoMeks.',
+      'MegaMek OptionsConstants defines weapon cooling quirk ids as imp_cooling, poor_cooling, and no_cooling.',
+    ]);
+    expect(QUIRK_COMBAT_SUPPORT.poor_cooling.sourceRefs).toEqual(
+      weaponCoolingRefs,
+    );
+    expect(QUIRK_COMBAT_SUPPORT.no_cooling.sourceRefs).toEqual(
+      weaponCoolingRefs,
+    );
+
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application'],
     ).toMatchObject({
@@ -870,7 +889,11 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       evidence: expect.stringContaining('source-backed Some Like It Hot'),
       gap: expect.stringContaining('Cool Under Fire'),
     });
-    expect(heatApplicationRefs).toEqual([...hotDogRefs, ...someLikeItHotRefs]);
+    expect(heatApplicationRefs).toEqual([
+      ...hotDogRefs,
+      ...someLikeItHotRefs,
+      ...weaponCoolingRefs,
+    ]);
   });
 
   it('pins local-only SPA gaps to MegaMek registry and MekStation deviation refs', () => {
@@ -937,6 +960,9 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(QUIRK_COMBAT_SUPPORT.battle_computer.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.distracting.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.low_profile.sourceRefs ?? []),
+      ...(QUIRK_COMBAT_SUPPORT.improved_cooling.sourceRefs ?? []),
+      ...(QUIRK_COMBAT_SUPPORT.poor_cooling.sourceRefs ?? []),
+      ...(QUIRK_COMBAT_SUPPORT.no_cooling.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.sensor_ghosts.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.multi_trac.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.accurate.sourceRefs ?? []),

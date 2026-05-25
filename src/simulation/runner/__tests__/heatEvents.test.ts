@@ -273,7 +273,7 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
   it.each([
     ['Improved Cooling', 'improved_cooling', 9],
     ['Poor Cooling', 'poor_cooling', 11],
-    ['No Cooling', 'no_cooling', 20],
+    ['No Cooling', 'no_cooling', 12],
   ])(
     'applies %s weapon quirk while summing fired weapon heat',
     (_label, quirkId, expectedHeat) => {

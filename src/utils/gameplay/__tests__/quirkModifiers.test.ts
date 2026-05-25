@@ -437,19 +437,25 @@ describe('Weapon Quirks', () => {
     ).toBe(-1);
   });
 
+  it('Improved Cooling: final heat floors at 1', () => {
+    expect(
+      getWeaponCoolingHeatModifier([WEAPON_QUIRK_IDS.IMPROVED_COOLING], 1),
+    ).toBe(0);
+  });
+
   it('Poor Cooling: +1 heat', () => {
     expect(
       getWeaponCoolingHeatModifier([WEAPON_QUIRK_IDS.POOR_COOLING], 5),
     ).toBe(1);
   });
 
-  it('No Cooling: doubles heat', () => {
+  it('No Cooling: +2 heat', () => {
     expect(getWeaponCoolingHeatModifier([WEAPON_QUIRK_IDS.NO_COOLING], 5)).toBe(
-      5,
+      2,
     );
     expect(
       getWeaponCoolingHeatModifier([WEAPON_QUIRK_IDS.NO_COOLING], 12),
-    ).toBe(12);
+    ).toBe(2);
   });
 
   it('no cooling quirk: 0', () => {
