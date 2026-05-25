@@ -1390,6 +1390,16 @@ movement/combat legality or layer defaults; it makes the control that reveals a
 highlight inspectable from the same projection vocabulary as the rendered hex
 overlay.
 
+2026-05-25 out-of-ammo browser projection pin: MegaMek
+`ComputeToHitIsImpossible` rejects ammo-using attacks when the linked ammo is
+absent or has zero usable shots, and `Mounted.isCrippled` treats ammo weapons
+without remaining linked ammo as crippled. The tactical-map browser harness now
+renders `scenario=out-of-ammo` with a dry AC/5 selected and proves the target
+hex is blocked with `OutOfAmmo`, no available weapons, an `AMMO` invalid badge,
+and a hover reason matching attack-resolution details. This does not change
+ammo accounting or resolution; it pins the rendered map evidence to the same
+projection/engine rejection already covered by focused agreement tests.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

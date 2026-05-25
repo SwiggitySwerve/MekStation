@@ -12,7 +12,13 @@ import type {
 } from '@/types/gameplay';
 
 import { unitStateToToken } from '@/lib/gameplay/unitStateToToken';
-import { Facing, GameSide, LockState, MovementType } from '@/types/gameplay';
+import {
+  Facing,
+  FiringArc,
+  GameSide,
+  LockState,
+  MovementType,
+} from '@/types/gameplay';
 import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
 import {
@@ -40,6 +46,33 @@ const tacticalMapMinimumRangeTargetId = 'occluded';
 const tacticalMapMinimumRangeTargetHex = { q: 0, r: 0 } as const;
 const tacticalMapOutOfRangeTargetId = 'medium-target';
 const tacticalMapOutOfRangeTargetHex = { q: 1, r: 2 } as const;
+export const tacticalMapOutOfAmmoTargetId = tacticalMapOutOfRangeTargetId;
+export const tacticalMapOutOfAmmoSelectedWeaponIds = ['dry-ac-5'];
+export const tacticalMapOutOfAmmoUnitWeapons: Record<
+  string,
+  readonly IWeaponStatus[]
+> = {
+  attacker: [
+    {
+      id: 'dry-ac-5',
+      name: 'AC/5',
+      location: 'right_torso',
+      mountingArc: FiringArc.Front,
+      mountingArcs: [
+        FiringArc.Front,
+        FiringArc.Left,
+        FiringArc.Right,
+        FiringArc.Rear,
+      ],
+      destroyed: false,
+      firedThisTurn: false,
+      heat: 1,
+      damage: 5,
+      ranges: { short: 3, medium: 6, long: 9 },
+      ammoRemaining: 0,
+    },
+  ],
+};
 const tacticalMapBlockedLosTargetId = 'blocked-target';
 const tacticalMapBlockedLosTargetHex = { q: 2, r: 0 } as const;
 export const tacticalMapAirborneAerospaceMinimumRangeTargetId =

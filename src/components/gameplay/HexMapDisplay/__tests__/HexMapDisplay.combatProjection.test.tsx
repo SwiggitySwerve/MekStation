@@ -4067,6 +4067,11 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-blocked-reason',
       'No matching non-empty ammo bin for "AC/5"',
     );
+    expect(targetHex).toHaveAttribute('data-weapons-available', '');
+    expect(targetHex).not.toHaveAttribute('data-combat-weapon-option-ranges');
+    expect(targetHex).not.toHaveAttribute(
+      'data-combat-weapon-option-availability',
+    );
     expect(
       screen.getByTestId('hex-combat-invalid-badge-2-0'),
     ).toHaveTextContent('AMMO');

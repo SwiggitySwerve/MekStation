@@ -75,6 +75,7 @@ const combatOnlyScenarios = new Set([
   'walk-combat-modifier',
   'movement-combat-modifier',
   'jump-combat-modifier',
+  'out-of-ammo',
 ]);
 
 const movementFixtureScenarios = new Set([
@@ -133,6 +134,7 @@ const selectedWeaponIdsByScenario = {
   'movement-combat-modifier':
     movementCombat.tacticalMapMovementCombatSelectedWeaponIds,
   'jump-combat-modifier': movementCombat.tacticalMapJumpCombatSelectedWeaponIds,
+  'out-of-ammo': combatScenarios.tacticalMapOutOfAmmoSelectedWeaponIds,
   'out-of-range': tacticalMapOutOfRangeSelectedWeaponIds,
 } satisfies Record<string, readonly string[]>;
 
@@ -164,6 +166,7 @@ const targetUnitIdByScenario = {
   'walk-combat-modifier': movementCombat.tacticalMapWalkCombatTargetId,
   'movement-combat-modifier': movementCombat.tacticalMapMovementCombatTargetId,
   'jump-combat-modifier': movementCombat.tacticalMapJumpCombatTargetId,
+  'out-of-ammo': combatScenarios.tacticalMapOutOfAmmoTargetId,
   'out-of-range': 'medium-target',
 } satisfies Record<string, string | null>;
 

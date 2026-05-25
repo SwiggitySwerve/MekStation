@@ -4406,4 +4406,96 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       page.getByTestId('hex-projection-status-badge-1-2'),
     ).toHaveAttribute('data-projection-status-badge-status', 'blocked');
   });
+
+  test('shows out-of-ammo attack rejection evidence in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=out-of-ammo');
+
+    const targetHex = page.getByTestId('hex-1-2');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'medium-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-distance', '4');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-range-bracket',
+      'out_of_range',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-valid-target',
+      'false',
+    );
+    await expect(targetHex).toHaveAttribute('data-weapons-in-range', '');
+    await expect(targetHex).toHaveAttribute('data-weapons-available', '');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-reason',
+      'OutOfAmmo',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-details',
+      'No matching non-empty ammo bin for "AC/5"',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-blocked-reason',
+      'No matching non-empty ammo bin for "AC/5"',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-status',
+      'blocked',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-combat-status',
+      'blocked',
+    );
+    await expect(targetHex).not.toHaveAttribute(
+      'data-combat-weapon-option-ranges',
+      /.+/,
+    );
+    await expect(targetHex).not.toHaveAttribute(
+      'data-combat-weapon-option-availability',
+      /.+/,
+    );
+
+    const combatBadge = page.getByTestId('hex-combat-badge-1-2');
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-range',
+      'out_of_range',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-label',
+      'OUT4',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-attackable',
+      'false',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapons-available',
+      '',
+    );
+
+    const invalidBadge = page.getByTestId('hex-combat-invalid-badge-1-2');
+    await expect(invalidBadge.locator('text')).toHaveText('AMMO');
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'OutOfAmmo',
+    );
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-reason',
+      'No matching non-empty ammo bin for "AC/5"',
+    );
+    await expect(
+      page.getByTestId('hex-projection-status-badge-1-2'),
+    ).toHaveAttribute('data-projection-status-badge-status', 'blocked');
+
+    await targetHex.dispatchEvent('mouseover');
+    await targetHex.dispatchEvent('mouseenter');
+    await expect(page.getByTestId('hex-combat-tooltip-weapons')).toContainText(
+      'Weapons: no ammunition',
+    );
+    await expect(page.getByTestId('hex-combat-tooltip-reason')).toContainText(
+      'No matching non-empty ammo bin for "AC/5"',
+    );
+  });
 });
