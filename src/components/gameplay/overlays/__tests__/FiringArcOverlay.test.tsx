@@ -1,8 +1,12 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 
-import { Facing, type IHexCoordinate } from '@/types/gameplay';
-import { hexNeighbor } from '@/utils/gameplay/hexMath';
+import type { ICombatRangeHex, IHexCoordinate } from '@/types/gameplay';
+
+import { Facing } from '@/types/gameplay';
+import { RangeBracket } from '@/types/gameplay/HexGridInterfaces';
+import { CoverLevel } from '@/types/gameplay/TerrainTypes';
+import { coordToKey, hexNeighbor } from '@/utils/gameplay/hexMath';
 
 import {
   FiringArcOverlay,
@@ -27,6 +31,47 @@ const radiusOneHexes: readonly IHexCoordinate[] = [
   hexNeighbor(origin, Facing.Southwest),
   hexNeighbor(origin, Facing.Northwest),
 ];
+
+function createCombatProjection(
+  hex: IHexCoordinate,
+  overrides: Partial<ICombatRangeHex> = {},
+): ICombatRangeHex {
+  return {
+    hex,
+    distance: 1,
+    rangeBracket: RangeBracket.Short,
+    inRange: true,
+    inArc: true,
+    losState: 'clear',
+    targetCoverLevel: CoverLevel.None,
+    targetPartialCover: false,
+    targetCoverModifier: 0,
+    firingArc: 'front',
+    hasTarget: true,
+    targetVisibilityState: 'visible',
+    visibleTargetUnitIds: ['enemy'],
+    obscuredTargetUnitIds: [],
+    attackable: true,
+    weaponIdsInRange: ['front-laser'],
+    weaponIdsInArc: ['front-laser'],
+    weaponIdsAvailable: ['front-laser'],
+    weaponRangeOptions: [],
+    availableWeaponImpacts: [],
+    availableWeaponHeat: 3,
+    availableWeaponDamage: 5,
+    targetUnitIds: ['enemy'],
+    validTargetUnitIds: ['enemy'],
+    ...overrides,
+  };
+}
+
+function projectionLookup(
+  projections: readonly ICombatRangeHex[],
+): ReadonlyMap<string, ICombatRangeHex> {
+  return new Map(
+    projections.map((projection) => [coordToKey(projection.hex), projection]),
+  );
+}
 
 function renderOverlay(props: Partial<FiringArcOverlayProps> = {}) {
   return render(
@@ -68,6 +113,55 @@ describe('FiringArcOverlay', () => {
     );
 
     expect(container.querySelectorAll('title').length).toBeGreaterThan(0);
+  });
+
+  it('exposes shared combat projection context on shaded arc hexes', () => {
+    const frontHex = hexNeighbor(origin, Facing.North);
+    renderOverlay({
+      combatProjectionLookup: projectionLookup([
+        createCombatProjection(frontHex),
+      ]),
+    });
+
+    const frontArcHex = screen.getByTestId('firing-arc-hex-0,-1');
+    expect(frontArcHex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining(
+        'Combat projection front arc; attackable; range short at 1 hex',
+      ),
+    );
+    expect(frontArcHex).toHaveAttribute(
+      'data-combat-projection-firing-arc',
+      'front',
+    );
+    expect(frontArcHex).toHaveAttribute(
+      'data-combat-projection-range-bracket',
+      'short',
+    );
+    expect(frontArcHex).toHaveAttribute(
+      'data-combat-projection-in-range',
+      'true',
+    );
+    expect(frontArcHex).toHaveAttribute(
+      'data-combat-projection-in-arc',
+      'true',
+    );
+    expect(frontArcHex).toHaveAttribute(
+      'data-combat-projection-attackable',
+      'true',
+    );
+    expect(frontArcHex).toHaveAttribute(
+      'data-combat-projection-target-ids',
+      'enemy',
+    );
+    expect(frontArcHex).toHaveAttribute(
+      'data-combat-projection-weapons-available',
+      'front-laser',
+    );
+    expect(screen.getByTestId('firing-arc-fill-0,-1')).toHaveAttribute(
+      'data-combat-projection-weapons-in-arc',
+      'front-laser',
+    );
   });
 
   it('renders side and rear style distinctions without shading the unit origin', () => {
@@ -151,6 +245,22 @@ describe('FiringArcOverlay', () => {
         ...next,
         unit: { ...unit, facing: Facing.South },
       }),
+    ).toBe(false);
+
+    const lookup = projectionLookup([
+      createCombatProjection(hexNeighbor(origin, Facing.North)),
+    ]);
+    expect(
+      areFiringArcOverlayPropsEqual(
+        { ...previous, combatProjectionLookup: lookup },
+        { ...next, combatProjectionLookup: lookup },
+      ),
+    ).toBe(true);
+    expect(
+      areFiringArcOverlayPropsEqual(
+        { ...previous, combatProjectionLookup: lookup },
+        { ...next, combatProjectionLookup: new Map(lookup) },
+      ),
     ).toBe(false);
   });
 });

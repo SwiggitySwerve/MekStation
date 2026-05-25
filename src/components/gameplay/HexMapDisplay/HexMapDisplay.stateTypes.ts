@@ -53,6 +53,7 @@ export interface HexMapDisplayState {
   readonly combatProjectionValidTargetUnitIds: ReturnType<
     typeof useCombatProjectionValidTargetUnitIds
   >;
+  readonly combatRangeLookup: ReadonlyMap<string, ICombatRangeHex>;
   readonly isometricSceneItems: ReturnType<typeof buildIsometricSceneItems>;
   readonly selectedWeaponMaxRange: number;
   readonly visibleFiringArcs: readonly UiFiringArc[] | undefined;

@@ -61,6 +61,7 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
     isometricTerrainOcclusionInfoByUnit,
     isometricOcclusionUnitIds,
     combatProjectionValidTargetUnitIds,
+    combatRangeLookup,
     isometricSceneItems,
     selectedWeaponMaxRange,
     visibleFiringArcs,
@@ -142,6 +143,7 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
                 hexes={hexes}
                 maxRange={selectedWeaponMaxRange}
                 visibleArcs={visibleFiringArcs}
+                combatProjectionLookup={combatRangeLookup}
                 enabled
                 testId="firing-arc-overlay"
               />

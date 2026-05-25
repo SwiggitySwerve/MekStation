@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import type { IHexCoordinate } from '@/types/gameplay';
+import type { ICombatRangeHex, IHexCoordinate } from '@/types/gameplay';
 import type {
   ArcClassifierUnit,
   ArcMapBounds,
@@ -14,6 +14,11 @@ import {
 import { coordToKey, hexEquals } from '@/utils/gameplay/hexMath';
 import { classifyFiringArcHexes } from '@/utils/overlays/arcClassifier';
 
+import {
+  firingArcCombatProjectionAttributes,
+  firingArcCombatProjectionSummary,
+} from './FiringArcOverlay.combatProjection';
+
 export interface FiringArcOverlayProps {
   readonly unit: ArcClassifierUnit | null;
   readonly hexes: readonly IHexCoordinate[];
@@ -21,6 +26,7 @@ export interface FiringArcOverlayProps {
   readonly mapHexes?: ArcMapBounds;
   readonly enabled?: boolean;
   readonly visibleArcs?: readonly UiFiringArc[];
+  readonly combatProjectionLookup?: ReadonlyMap<string, ICombatRangeHex>;
   readonly testId?: string;
 }
 
@@ -140,6 +146,7 @@ export function areFiringArcOverlayPropsEqual(
     previous.maxRange === next.maxRange &&
     previous.enabled === next.enabled &&
     previous.testId === next.testId &&
+    previous.combatProjectionLookup === next.combatProjectionLookup &&
     mapBoundsEqual(previous.mapHexes, next.mapHexes) &&
     arcListEqual(previous.visibleArcs, next.visibleArcs)
   );
@@ -246,6 +253,7 @@ function FiringArcOverlayComponent({
   mapHexes,
   enabled = true,
   visibleArcs,
+  combatProjectionLookup,
   testId = 'firing-arc-overlay',
 }: FiringArcOverlayProps): React.ReactElement {
   const arcHexes = useMemo(() => {
@@ -269,7 +277,14 @@ function FiringArcOverlayComponent({
         const typedArc = arc as Exclude<UiFiringArc, 'out-of-arc'>;
         const style = ARC_STYLES[typedArc];
         const key = coordToKey(hex);
-        const title = `${style.label} at (${hex.q}, ${hex.r})`;
+        const combatProjection = combatProjectionLookup?.get(key);
+        const combatSummary =
+          firingArcCombatProjectionSummary(combatProjection);
+        const projectionAttributes =
+          firingArcCombatProjectionAttributes(combatProjection);
+        const title = combatSummary
+          ? `${style.label} at (${hex.q}, ${hex.r}); ${combatSummary}`
+          : `${style.label} at (${hex.q}, ${hex.r})`;
         const { x, y } = hexToPixel(hex);
 
         return (
@@ -278,6 +293,7 @@ function FiringArcOverlayComponent({
             data-testid={`firing-arc-hex-${key}`}
             data-arc={typedArc}
             aria-label={title}
+            {...projectionAttributes}
           >
             <title>{title}</title>
             <path
@@ -288,6 +304,7 @@ function FiringArcOverlayComponent({
               strokeOpacity={0.35}
               strokeWidth={1}
               data-testid={`firing-arc-fill-${key}`}
+              {...projectionAttributes}
             />
             <ArcShape
               arc={typedArc}

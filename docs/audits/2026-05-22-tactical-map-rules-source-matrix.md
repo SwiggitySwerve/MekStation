@@ -1342,6 +1342,14 @@ blocked/invalid reasons. This does not change movement legality; it makes the
 terrain-cost overlay another rules-backed inspection surface instead of a
 terrain-only island.
 
+2026-05-25 firing arc overlay combat projection context pin: Shaded firing-arc
+overlay hexes now carry the selected unit's shared combat projection context
+when available: projection firing arc, range bracket, distance, in-range/in-arc
+state, attackability, target ids, valid target ids, and weapon availability.
+This does not change arc geometry or attack legality; it keeps arc shading tied
+to the same MegaMek-source-pinned range/arc projection evidence already used by
+hex combat badges and attack commands.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

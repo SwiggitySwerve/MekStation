@@ -363,6 +363,7 @@ export function useHexMapDisplayState({
     isometricTerrainOcclusionInfoByUnit,
     isometricOcclusionUnitIds,
     combatProjectionValidTargetUnitIds,
+    combatRangeLookup,
     isometricSceneItems,
     selectedWeaponMaxRange,
     visibleFiringArcs,

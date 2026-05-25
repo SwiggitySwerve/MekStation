@@ -532,9 +532,26 @@ describe('HexMapDisplay combat projection', () => {
       />,
     );
 
-    expect(screen.getByTestId('firing-arc-hex-0,-7')).toHaveAttribute(
-      'data-arc',
+    const arcHex = screen.getByTestId('firing-arc-hex-0,-7');
+    expect(arcHex).toHaveAttribute('data-arc', 'front');
+    expect(arcHex).toHaveAttribute(
+      'data-combat-projection-firing-arc',
       'front',
+    );
+    expect(arcHex).toHaveAttribute(
+      'data-combat-projection-range-bracket',
+      'extreme',
+    );
+    expect(arcHex).toHaveAttribute('data-combat-projection-in-range', 'true');
+    expect(arcHex).toHaveAttribute('data-combat-projection-in-arc', 'true');
+    expect(arcHex).toHaveAttribute('data-combat-projection-attackable', 'true');
+    expect(arcHex).toHaveAttribute(
+      'data-combat-projection-target-ids',
+      'enemy',
+    );
+    expect(arcHex).toHaveAttribute(
+      'data-combat-projection-weapons-available',
+      'extreme-lrm',
     );
 
     const targetHex = screen.getByTestId('hex-0--7');
