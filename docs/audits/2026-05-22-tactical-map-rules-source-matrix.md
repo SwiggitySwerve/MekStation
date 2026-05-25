@@ -1134,6 +1134,17 @@ matching MP, path, and heat. Damaged coolant systems, special jump-jet heat
 variants, partial-wing heat reduction, and conversion timing remain outside
 this fixture.
 
+2026-05-25 non-Mek physical projection pin: MegaMek
+`PunchAttackAction.java:138-165` rejects non-Mek punch attempts,
+`KickAttackAction.java:161-165` rejects non-Mek kicks,
+`ClubAttackAction.java:305-313` rejects non-Mek standard club/melee attacks,
+and `DfaAttackAction.java:275-278` rejects infantry-style attackers such as
+Battle Armor from DFA. MekStation's shared physical projection now blocks
+generic punch, kick, DFA, and mech-melee rows for represented non-Mek attackers
+with `AttackerNotMek`, so Battle Armor no longer produces ordinary Mek physical
+target highlights while its dedicated LegAttack, SwarmAttack, and Vibroclaw
+work remains tracked under `add-battle-armor-combat`.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

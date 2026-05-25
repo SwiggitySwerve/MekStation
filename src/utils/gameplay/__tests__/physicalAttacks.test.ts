@@ -32,7 +32,9 @@ import {
   canPunch,
   canKick,
   canPush,
+  canDFA,
   canMeleeWeapon,
+  getEligiblePhysicalAttacks,
   buildPhysicalTerrainContext,
   getEffectiveWeight,
   applyUnderwaterModifier,
@@ -448,6 +450,18 @@ describe('physicalAttacks', () => {
       expect(canPunch(makeInput()).allowed).toBe(true);
     });
 
+    it('should disallow punch for battle armor attackers', () => {
+      const result = canPunch(
+        makeInput({ attackerUnitType: UnitType.BATTLE_ARMOR }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: "Non-meks can't punch",
+        reasonCode: 'AttackerNotMek',
+      });
+    });
+
     it('should disallow punch with shoulder destroyed', () => {
       const result = canPunch(
         makeInput({
@@ -490,6 +504,21 @@ describe('physicalAttacks', () => {
   describe('canKick', () => {
     it('should allow kick when standing', () => {
       expect(canKick(makeInput({ attackType: 'kick' })).allowed).toBe(true);
+    });
+
+    it('should disallow kick for battle armor attackers', () => {
+      const result = canKick(
+        makeInput({
+          attackType: 'kick',
+          attackerUnitType: UnitType.BATTLE_ARMOR,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: "Non-meks can't kick",
+        reasonCode: 'AttackerNotMek',
+      });
     });
 
     it('should disallow kick when prone', () => {
@@ -718,6 +747,21 @@ describe('physicalAttacks', () => {
       );
     });
 
+    it('should disallow mech melee weapons for battle armor attackers', () => {
+      const result = canMeleeWeapon(
+        makeInput({
+          attackType: 'hatchet',
+          attackerUnitType: UnitType.BATTLE_ARMOR,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: "Non-meks can't use mech melee weapons",
+        reasonCode: 'AttackerNotMek',
+      });
+    });
+
     it('should disallow if lower arm destroyed', () => {
       const result = canMeleeWeapon(
         makeInput({
@@ -749,6 +793,64 @@ describe('physicalAttacks', () => {
         makeInput({ attackType: 'hatchet', weaponsFiredFromArm: ['ppc-1'] }),
       );
       expect(result.allowed).toBe(false);
+    });
+  });
+
+  describe('canDFA', () => {
+    it('should disallow DFA for battle armor attackers', () => {
+      const result = canDFA(
+        makeInput({
+          attackType: 'dfa',
+          attackerUnitType: UnitType.BATTLE_ARMOR,
+          attackerJumpedThisTurn: true,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: "Non-meks can't DFA",
+        reasonCode: 'AttackerNotMek',
+      });
+    });
+  });
+
+  describe('getEligiblePhysicalAttacks', () => {
+    it('keeps battle armor from producing generic physical target highlights', () => {
+      const attacker = unitAt('ba-1', 0, 0);
+      const target = unitAt('mech-1', 1, 0);
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 1,
+        attackerPilotingSkill: 4,
+        targetTonnage: 55,
+        attackerUnitType: UnitType.BATTLE_ARMOR,
+        targetUnitType: UnitType.BATTLEMECH,
+        attackerRanThisTurn: false,
+        attackerJumpedThisTurn: true,
+      });
+
+      expect(
+        options.filter(
+          (option) =>
+            option.toHit.allowed && option.restrictionsFailed.length === 0,
+        ),
+      ).toHaveLength(0);
+      expect(options.map((option) => option.attackType)).toEqual(
+        expect.arrayContaining(['punch', 'kick', 'dfa']),
+      );
+      expect(
+        options
+          .filter((option) =>
+            ['punch', 'kick', 'dfa'].includes(option.attackType),
+          )
+          .flatMap((option) => option.restrictionsFailed),
+      ).toEqual(
+        expect.arrayContaining([
+          'AttackerNotMek',
+          'AttackerNotMek',
+          'AttackerNotMek',
+        ]),
+      );
     });
   });
 

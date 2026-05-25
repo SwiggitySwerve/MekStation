@@ -35,6 +35,14 @@ function isRepresentedMek(unitType: UnitType | undefined): boolean {
 export function canPunch(
   input: IPhysicalAttackInput,
 ): IPhysicalAttackRestriction {
+  if (!isRepresentedMek(input.attackerUnitType)) {
+    return {
+      allowed: false,
+      reason: "Non-meks can't punch",
+      reasonCode: 'AttackerNotMek',
+    };
+  }
+
   const actuators = input.componentDamage.actuators;
 
   // Per task 3.1: shoulder destroyed disqualifies the arm entirely.
@@ -97,6 +105,14 @@ export function canPunch(
 export function canKick(
   input: IPhysicalAttackInput,
 ): IPhysicalAttackRestriction {
+  if (!isRepresentedMek(input.attackerUnitType)) {
+    return {
+      allowed: false,
+      reason: "Non-meks can't kick",
+      reasonCode: 'AttackerNotMek',
+    };
+  }
+
   if (input.attackerProne) {
     return {
       allowed: false,
@@ -158,6 +174,14 @@ export function canKick(
 export function canMeleeWeapon(
   input: IPhysicalAttackInput,
 ): IPhysicalAttackRestriction {
+  if (!isRepresentedMek(input.attackerUnitType)) {
+    return {
+      allowed: false,
+      reason: "Non-meks can't use mech melee weapons",
+      reasonCode: 'AttackerNotMek',
+    };
+  }
+
   const actuators = input.componentDamage.actuators;
 
   if (input.weaponsFiredFromArm && input.weaponsFiredFromArm.length > 0) {
@@ -318,6 +342,14 @@ export function canPush(
 export function canDFA(
   input: IPhysicalAttackInput,
 ): IPhysicalAttackRestriction {
+  if (!isRepresentedMek(input.attackerUnitType)) {
+    return {
+      allowed: false,
+      reason: "Non-meks can't DFA",
+      reasonCode: 'AttackerNotMek',
+    };
+  }
+
   if (input.attackerJumpedThisTurn === false) {
     return {
       allowed: false,
