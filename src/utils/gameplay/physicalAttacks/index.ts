@@ -9,3 +9,4 @@ export * from './restrictions';
 export * from './terrain';
 export * from './toHit';
 export * from './types';
+export * from './unitState';

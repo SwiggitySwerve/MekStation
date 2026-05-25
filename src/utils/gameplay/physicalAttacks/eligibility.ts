@@ -43,6 +43,7 @@ import {
   PhysicalAttackLimb,
   PhysicalAttackType,
 } from './types';
+import { isVehicleCrewStunned } from './unitState';
 
 /**
  * Per `add-physical-attack-phase-ui` task 3.2: caller-supplied context
@@ -225,6 +226,7 @@ export function getEligiblePhysicalAttacks(
     attackerRanThisTurn: context.attackerRanThisTurn,
     attackerJumpedThisTurn: context.attackerJumpedThisTurn,
     attackerMovementMode: context.attackerMovementMode,
+    attackerVehicleCrewStunned: isVehicleCrewStunned(attacker),
     optionalRules: context.optionalRules,
     limbsUsedThisTurn: context.limbsUsedThisTurn,
     attackerDestroyedLocations: attacker.destroyedLocations,

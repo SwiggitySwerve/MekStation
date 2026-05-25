@@ -45,6 +45,7 @@ import { roll2d6 as rollDice } from './hitLocation';
 import {
   determinePhysicalHitLocation,
   IPhysicalAttackInput,
+  isVehicleCrewStunned,
   PhysicalAttackType,
   resolvePhysicalAttack,
   splitPhysicalDamageIntoClusters,
@@ -112,6 +113,7 @@ export function declarePhysicalAttack(
     attackerUnitType: context.attackerUnitType ?? attackerUnit?.unitType,
     attackerMovementMode:
       context.attackerMovementMode ?? attackerUnit?.movementMode,
+    attackerVehicleCrewStunned: isVehicleCrewStunned(attackerState),
     optionalRules: context.optionalRules ?? session.config.optionalRules,
     attackerDestroyedLocations: attackerState.destroyedLocations,
     targetUnitType: context.targetUnitType ?? targetUnit?.unitType,
@@ -227,6 +229,7 @@ export function resolveAllPhysicalAttacks(
       attackerRanThisTurn: context.attackerRanThisTurn,
       attackerUnitType: context.attackerUnitType,
       attackerMovementMode: context.attackerMovementMode,
+      attackerVehicleCrewStunned: isVehicleCrewStunned(attackerState),
       optionalRules: context.optionalRules ?? session.config.optionalRules,
       targetUnitType: context.targetUnitType,
     };

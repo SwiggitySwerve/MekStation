@@ -72,6 +72,12 @@ function isChargeBlockedByMovementMode(input: IPhysicalAttackInput): boolean {
   }
 }
 
+function isChargeBlockedByVehicleCrewStun(
+  input: IPhysicalAttackInput,
+): boolean {
+  return input.attackerVehicleCrewStunned === true;
+}
+
 export function canPunch(
   input: IPhysicalAttackInput,
 ): IPhysicalAttackRestriction {
@@ -419,6 +425,14 @@ export function canCharge(
     return {
       allowed: false,
       reason: "This movement mode can't charge",
+      reasonCode: 'AttackerCannotCharge',
+    };
+  }
+
+  if (isChargeBlockedByVehicleCrewStun(input)) {
+    return {
+      allowed: false,
+      reason: "Stunned vehicle crew can't charge",
       reasonCode: 'AttackerCannotCharge',
     };
   }

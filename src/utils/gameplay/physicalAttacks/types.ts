@@ -116,6 +116,7 @@ export interface IPhysicalAttackInput {
   readonly attackerProne?: boolean;
   readonly attackerUnitType?: UnitType;
   readonly attackerMovementMode?: MovementMotiveMode;
+  readonly attackerVehicleCrewStunned?: boolean;
   readonly optionalRules?: readonly string[];
   readonly attackerDestroyedLocations?: readonly string[];
   readonly targetUnitType?: UnitType;

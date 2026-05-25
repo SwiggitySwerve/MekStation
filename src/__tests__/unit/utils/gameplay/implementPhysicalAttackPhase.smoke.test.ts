@@ -22,6 +22,7 @@ import {
   IGameEvent,
   IGameSession,
   IGameUnit,
+  IUnitGameState,
   IPhysicalAttackDeclaredPayload,
   IPhysicalAttackResolvedPayload,
   IPSRTriggeredPayload,
@@ -159,6 +160,26 @@ function setupPhysicalPhase(): IGameSession {
   session = advancePhase(session); // weapon
   session = advancePhase(session); // physical
   return session;
+}
+
+function withStunnedVehicleAttacker(session: IGameSession): IGameSession {
+  const attacker = session.currentState.units.attacker;
+  return {
+    ...session,
+    currentState: {
+      ...session.currentState,
+      units: {
+        ...session.currentState.units,
+        attacker: {
+          ...attacker,
+          combatState: {
+            kind: 'vehicle',
+            state: { motive: { crewStunnedPhases: 2 } },
+          },
+        } as IUnitGameState,
+      },
+    },
+  };
 }
 
 const heavyArmor = {
@@ -368,6 +389,41 @@ describe('implement-physical-attack-phase — smoke test', () => {
       attackerRanThisTurn: true,
       attackerUnitType: UnitType.VEHICLE,
       attackerMovementMode: 'wige',
+    };
+
+    session = declarePhysicalAttack(
+      session,
+      'attacker',
+      'target',
+      'charge',
+      ctx,
+    );
+
+    const declared = session.events.filter(
+      (e: IGameEvent) => e.type === GameEventType.PhysicalAttackDeclared,
+    );
+    expect(declared).toHaveLength(0);
+
+    const resolved = session.events.find(
+      (e: IGameEvent) => e.type === GameEventType.PhysicalAttackResolved,
+    );
+    expect(resolved).toBeDefined();
+    const payload = resolved!.payload as IPhysicalAttackResolvedPayload;
+    expect(payload.hit).toBe(false);
+    expect(payload.toHitNumber).toBe(Infinity);
+    expect(payload.location).toBe('AttackerCannotCharge');
+  });
+
+  it('charge restriction: stunned vehicle cannot charge even after a run', () => {
+    let session = withStunnedVehicleAttacker(setupPhysicalPhase());
+    const ctx: IPhysicalAttackContext = {
+      attackerTonnage: 50,
+      targetTonnage: 75,
+      pilotingSkill: 4,
+      hexesMoved: 4,
+      attackerRanThisTurn: true,
+      attackerUnitType: UnitType.VEHICLE,
+      attackerMovementMode: 'tracked',
     };
 
     session = declarePhysicalAttack(

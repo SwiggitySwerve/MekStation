@@ -1164,8 +1164,15 @@ MekStation now threads attacker motive mode and optional rule keys through the
 shared physical projection, command preview, and declaration validation so WiGE
 and VTOL charge rows are blocked with `AttackerCannotCharge`, hover charge
 remains legal by default, and hover charge is blocked when `no_hover_charge` is
-enabled. Stunned vehicle state remains outside the projection until vehicle
-stun state is represented on `IUnitGameState`.
+enabled.
+
+2026-05-25 stunned vehicle charge pin: The remaining `Tank.canCharge()` stun
+exception is now represented because MekStation vehicle combat state carries
+`motive.crewStunnedPhases`. The shared physical projection and declaration
+validation derive a vehicle crew-stun flag from live `IUnitGameState`, so a
+vehicle that ran this turn but still has stunned crew phases exposes a blocked
+charge row and rejects the committed charge with the same
+`AttackerCannotCharge` reason.
 
 ## Acceptance Gate
 

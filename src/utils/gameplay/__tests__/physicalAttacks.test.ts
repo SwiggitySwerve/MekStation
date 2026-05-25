@@ -895,9 +895,51 @@ describe('physicalAttacks', () => {
         reasonCode: 'AttackerCannotCharge',
       });
     });
+
+    it('should disallow stunned vehicle charge even after a run', () => {
+      const result = canCharge(
+        makeInput({
+          attackType: 'charge',
+          attackerUnitType: UnitType.VEHICLE,
+          attackerRanThisTurn: true,
+          attackerVehicleCrewStunned: true,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: "Stunned vehicle crew can't charge",
+        reasonCode: 'AttackerCannotCharge',
+      });
+    });
   });
 
   describe('getEligiblePhysicalAttacks', () => {
+    it('blocks stunned vehicle charge rows from generic physical highlights', () => {
+      const attacker = {
+        ...unitAt('stunned-vehicle-1', 0, 0),
+        combatState: {
+          kind: 'vehicle',
+          state: { motive: { crewStunnedPhases: 1 } },
+        },
+      } as IUnitGameState;
+      const target = unitAt('mech-1', 1, 0);
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 45,
+        attackerPilotingSkill: 4,
+        targetTonnage: 55,
+        attackerUnitType: UnitType.VEHICLE,
+        targetUnitType: UnitType.BATTLEMECH,
+        attackerRanThisTurn: true,
+      });
+
+      const charge = options.find((option) => option.attackType === 'charge');
+      expect(charge).toBeDefined();
+      expect(charge!.toHit.allowed).toBe(false);
+      expect(charge!.restrictionsFailed).toEqual(['AttackerCannotCharge']);
+    });
+
     it('blocks WiGE vehicle charge rows from generic physical highlights', () => {
       const attacker = unitAt('wige-1', 0, 0);
       const target = unitAt('mech-1', 1, 0);
