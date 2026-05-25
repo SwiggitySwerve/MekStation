@@ -39,6 +39,8 @@ import {
   tacticalMapJumpCombatProjection,
   tacticalMapMovementCombatCommitInput,
   tacticalMapMovementCombatProjection,
+  tacticalMapWalkCombatCommitInput,
+  tacticalMapWalkCombatProjection,
 } from '../tactical-map.movement-combat-scenario';
 import {
   tacticalMapProneCombatCommitInput,
@@ -434,6 +436,61 @@ describe('tactical map combat scenarios', () => {
     );
     expect(payload.toHitNumber).toBe(
       tacticalMapMovementCombatProjection.toHitNumber,
+    );
+  });
+
+  it('keeps walked attacker and target movement to-hit modifiers aligned between browser projection and commit', () => {
+    expect(tacticalMapWalkCombatProjection).toMatchObject({
+      hex: { q: 2, r: 0 },
+      distance: 2,
+      rangeBracket: 'short',
+      attackable: true,
+      weaponIdsAvailable: ['medium-laser'],
+      toHitNumber: 6,
+    });
+    expect(tacticalMapWalkCombatProjection.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Attacker Movement',
+          value: 1,
+          source: 'attacker_movement',
+          description: 'Attacker walk: +1',
+        }),
+        expect.objectContaining({
+          name: 'Target Movement (TMM)',
+          value: 1,
+          source: 'target_movement',
+          description: 'Target moved 3 hexes: +1',
+        }),
+      ]),
+    );
+    expect(tacticalMapWalkCombatProjection.toHitReason).toContain(
+      'Attacker Movement +1',
+    );
+    expect(tacticalMapWalkCombatProjection.toHitReason).toContain(
+      'Target Movement (TMM) +1',
+    );
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapWalkCombatCommitInput(),
+    );
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.weapons).toEqual(
+      tacticalMapWalkCombatProjection.weaponIdsAvailable,
+    );
+    expect(payload.modifiers).toEqual(
+      tacticalMapWalkCombatProjection.toHitModifiers,
+    );
+    expect(payload.toHitNumber).toBe(
+      tacticalMapWalkCombatProjection.toHitNumber,
     );
   });
 

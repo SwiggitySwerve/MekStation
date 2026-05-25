@@ -112,6 +112,9 @@
 - [x] 2.44 Add browser coverage proving represented jump movement renders the
   attacker jump penalty, target jump TMM bonus, target number, badge, and
   tooltip rows.
+- [x] 2.45 Add browser coverage proving represented walk movement renders the
+  attacker walk penalty, target walk TMM, target number, badge, and tooltip
+  rows.
 
 ## 3. Validation
 
@@ -204,3 +207,5 @@
   and target TMM to-hit modifier metadata and badge labeling.
 - [x] 3.44 Focused Jest parity and Playwright smoke pass for jumped attacker
   movement and jumped target TMM bonus metadata and badge labeling.
+- [x] 3.45 Focused Jest parity and Playwright smoke pass for walked attacker
+  movement and walked target TMM metadata and badge labeling.

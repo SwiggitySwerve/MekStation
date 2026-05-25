@@ -82,12 +82,7 @@ import {
   tacticalMapRunWaterFallbackSelectedHex,
   tacticalMapRunWaterFallbackTokens,
 } from '@/testing/tactical-map.run-water-fallback-scenario';
-import {
-  tacticalMapSameHexCombatState,
-  tacticalMapSameHexSelectedWeaponIds,
-  tacticalMapSameHexTargetId,
-  tacticalMapSameHexTokens,
-} from '@/testing/tactical-map.same-hex-scenarios';
+import * as sameHex from '@/testing/tactical-map.same-hex-scenarios';
 import {
   tacticalMapStandUpHexTerrain,
   tacticalMapStandUpMovementRange,
@@ -132,6 +127,7 @@ const combatOnlyScenarios = new Set([
   'prone-combat-modifiers',
   'immobile-combat-modifier',
   'heat-combat-modifier',
+  'walk-combat-modifier',
   'movement-combat-modifier',
   'jump-combat-modifier',
 ]);
@@ -155,13 +151,14 @@ const selectedWeaponIdsByScenario = {
     targetTerrain.tacticalMapTargetTerrainModifierSelectedWeaponIds,
   'mixed-visibility-targets': tacticalMapMixedVisibilitySelectedWeaponIds,
   'selected-weapon-out-of-arc': tacticalMapOutOfArcSelectedWeaponIds,
-  'same-hex-weapon-blocked': tacticalMapSameHexSelectedWeaponIds,
+  'same-hex-weapon-blocked': sameHex.tacticalMapSameHexSelectedWeaponIds,
   'elevation-los-blocked':
     elevationLos.tacticalMapElevationLosSelectedWeaponIds,
   'prone-combat-modifiers': proneCombat.tacticalMapProneCombatSelectedWeaponIds,
   'immobile-combat-modifier':
     immobileCombat.tacticalMapImmobileCombatSelectedWeaponIds,
   'heat-combat-modifier': heatCombat.tacticalMapHeatCombatSelectedWeaponIds,
+  'walk-combat-modifier': movementCombat.tacticalMapWalkCombatSelectedWeaponIds,
   'movement-combat-modifier':
     movementCombat.tacticalMapMovementCombatSelectedWeaponIds,
   'jump-combat-modifier': movementCombat.tacticalMapJumpCombatSelectedWeaponIds,
@@ -176,11 +173,12 @@ const targetUnitIdByScenario = {
     targetTerrain.tacticalMapTargetTerrainModifierTargetId,
   'mixed-visibility-targets': null,
   'selected-weapon-out-of-arc': tacticalMapOutOfArcTargetId,
-  'same-hex-weapon-blocked': tacticalMapSameHexTargetId,
+  'same-hex-weapon-blocked': sameHex.tacticalMapSameHexTargetId,
   'elevation-los-blocked': elevationLos.tacticalMapElevationLosTargetId,
   'prone-combat-modifiers': proneCombat.tacticalMapProneCombatTargetId,
   'immobile-combat-modifier': immobileCombat.tacticalMapImmobileCombatTargetId,
   'heat-combat-modifier': heatCombat.tacticalMapHeatCombatTargetId,
+  'walk-combat-modifier': movementCombat.tacticalMapWalkCombatTargetId,
   'movement-combat-modifier': movementCombat.tacticalMapMovementCombatTargetId,
   'jump-combat-modifier': movementCombat.tacticalMapJumpCombatTargetId,
   'out-of-range': 'medium-target',
@@ -197,11 +195,12 @@ const tokensByScenario = {
     targetTerrain.tacticalMapTargetTerrainModifierTokens,
   'mixed-visibility-targets': tacticalMapMixedVisibilityTokens,
   'selected-weapon-out-of-arc': tacticalMapOutOfArcTokens,
-  'same-hex-weapon-blocked': tacticalMapSameHexTokens,
+  'same-hex-weapon-blocked': sameHex.tacticalMapSameHexTokens,
   'elevation-los-blocked': elevationLos.tacticalMapElevationLosTokens,
   'prone-combat-modifiers': proneCombat.tacticalMapProneCombatTokens,
   'immobile-combat-modifier': immobileCombat.tacticalMapImmobileCombatTokens,
   'heat-combat-modifier': heatCombat.tacticalMapHeatCombatTokens,
+  'walk-combat-modifier': movementCombat.tacticalMapWalkCombatTokens,
   'movement-combat-modifier': movementCombat.tacticalMapMovementCombatTokens,
   'jump-combat-modifier': movementCombat.tacticalMapJumpCombatTokens,
   'runtime-height-bridge-clearance': tacticalMapRuntimeHeightTokens,
@@ -223,11 +222,12 @@ const combatStateByScenario = {
     targetTerrain.tacticalMapTargetTerrainModifierCombatState,
   'mixed-visibility-targets': tacticalMapMixedVisibilityCombatState,
   'selected-weapon-out-of-arc': tacticalMapOutOfArcCombatState,
-  'same-hex-weapon-blocked': tacticalMapSameHexCombatState,
+  'same-hex-weapon-blocked': sameHex.tacticalMapSameHexCombatState,
   'elevation-los-blocked': elevationLos.tacticalMapElevationLosCombatState,
   'prone-combat-modifiers': proneCombat.tacticalMapProneCombatState,
   'immobile-combat-modifier': immobileCombat.tacticalMapImmobileCombatState,
   'heat-combat-modifier': heatCombat.tacticalMapHeatCombatState,
+  'walk-combat-modifier': movementCombat.tacticalMapWalkCombatState,
   'movement-combat-modifier': movementCombat.tacticalMapMovementCombatState,
   'jump-combat-modifier': movementCombat.tacticalMapJumpCombatState,
 } satisfies Record<string, typeof tacticalMapCombatState>;
@@ -276,6 +276,7 @@ const selectedHexByScenario = {
   'prone-combat-modifiers': { q: 0, r: 0 },
   'immobile-combat-modifier': { q: 0, r: 0 },
   'heat-combat-modifier': { q: 0, r: 0 },
+  'walk-combat-modifier': { q: 0, r: 0 },
   'movement-combat-modifier': { q: 0, r: 0 },
   'jump-combat-modifier': { q: 0, r: 0 },
   'mounted-ba-passenger': { q: 0, r: 0 },
@@ -293,6 +294,7 @@ const hexTerrainByScenario = {
   'immobile-combat-modifier':
     immobileCombat.tacticalMapImmobileCombatHexTerrain,
   'heat-combat-modifier': heatCombat.tacticalMapHeatCombatHexTerrain,
+  'walk-combat-modifier': movementCombat.tacticalMapMovementCombatHexTerrain,
   'movement-combat-modifier':
     movementCombat.tacticalMapMovementCombatHexTerrain,
   'jump-combat-modifier': movementCombat.tacticalMapMovementCombatHexTerrain,

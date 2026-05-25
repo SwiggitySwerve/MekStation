@@ -74,6 +74,9 @@ the top-down map.
 - **AND** a combat target involving represented jump movement SHALL expose the
   attacker jump penalty, the jumped target TMM bonus, final target number,
   badge, and tooltip rows
+- **AND** a combat target involving represented walk movement SHALL expose the
+  attacker walk penalty, target walk TMM, final target number, badge, and
+  tooltip rows
 - **WHEN** browser automation switches to isometric mode and rotates the camera
 - **THEN** isometric stack, occluder, visibility, rotation, and depth metadata
   SHALL update in the rendered DOM

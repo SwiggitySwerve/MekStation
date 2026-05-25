@@ -34,6 +34,9 @@ import {
 
 export const tacticalMapMovementCombatTargetId = 'moving-target';
 export const tacticalMapMovementCombatSelectedWeaponIds = ['medium-laser'];
+export const tacticalMapWalkCombatTargetId = 'walking-target';
+export const tacticalMapWalkCombatSelectedWeaponIds =
+  tacticalMapMovementCombatSelectedWeaponIds;
 export const tacticalMapJumpCombatTargetId = 'jumping-target';
 export const tacticalMapJumpCombatSelectedWeaponIds =
   tacticalMapMovementCombatSelectedWeaponIds;
@@ -140,6 +143,19 @@ const tacticalMapMovementTargetState: IUnitGameState = {
   lockState: LockState.Pending,
 };
 
+const tacticalMapWalkAttackerState: IUnitGameState = {
+  ...tacticalMapMovementAttackerState,
+  movementThisTurn: MovementType.Walk,
+  hexesMovedThisTurn: 3,
+};
+
+const tacticalMapWalkTargetState: IUnitGameState = {
+  ...tacticalMapMovementTargetState,
+  id: tacticalMapWalkCombatTargetId,
+  movementThisTurn: MovementType.Walk,
+  hexesMovedThisTurn: 3,
+};
+
 const tacticalMapJumpAttackerState: IUnitGameState = {
   ...tacticalMapMovementAttackerState,
   movementThisTurn: MovementType.Jump,
@@ -170,6 +186,38 @@ export const tacticalMapMovementCombatTokens: readonly IUnitToken[] =
         unitId: tacticalMapMovementCombatTargetId,
         name: 'Moving Locust LCT-1V',
         designation: 'TMM',
+        position: tacticalMapMovementTargetHex,
+        isActiveTarget: true,
+      };
+    }
+    if (token.unitId === 'occluded') {
+      return {
+        ...token,
+        position: { q: -3, r: 3 },
+        isActiveTarget: false,
+        isValidTarget: false,
+      };
+    }
+    return token;
+  });
+
+export const tacticalMapWalkCombatTokens: readonly IUnitToken[] =
+  tacticalMapTokens.map((token) => {
+    if (token.unitId === 'attacker') {
+      return {
+        ...token,
+        name: 'Walking Shadow Hawk SHD-2H',
+        designation: 'WLK',
+        position: tacticalMapMovementAttackerHex,
+        facing: Facing.Southeast,
+      };
+    }
+    if (token.unitId === 'blocked-target') {
+      return {
+        ...token,
+        unitId: tacticalMapWalkCombatTargetId,
+        name: 'Walking Locust LCT-1V',
+        designation: 'W-TMM',
         position: tacticalMapMovementTargetHex,
         isActiveTarget: true,
       };
@@ -226,6 +274,15 @@ export const tacticalMapMovementCombatState: IGameState = {
   },
 };
 
+export const tacticalMapWalkCombatState: IGameState = {
+  ...tacticalMapCombatState,
+  units: {
+    ...tacticalMapCombatState.units,
+    attacker: tacticalMapWalkAttackerState,
+    [tacticalMapWalkCombatTargetId]: tacticalMapWalkTargetState,
+  },
+};
+
 export const tacticalMapJumpCombatState: IGameState = {
   ...tacticalMapCombatState,
   units: {
@@ -276,6 +333,14 @@ export const tacticalMapMovementCombatProjection: ICombatRangeHex =
     combatState: tacticalMapMovementCombatState,
   });
 
+export const tacticalMapWalkCombatProjection: ICombatRangeHex =
+  tacticalMapMovementProjection({
+    tokens: tacticalMapWalkCombatTokens,
+    targetUnitId: tacticalMapWalkCombatTargetId,
+    selectedWeaponIds: tacticalMapWalkCombatSelectedWeaponIds,
+    combatState: tacticalMapWalkCombatState,
+  });
+
 export const tacticalMapJumpCombatProjection: ICombatRangeHex =
   tacticalMapMovementProjection({
     tokens: tacticalMapJumpCombatTokens,
@@ -294,6 +359,20 @@ export function tacticalMapMovementCombatCommitInput(): IApplyAttackInput {
     attackerId: 'attacker',
     targetId: tacticalMapMovementCombatTargetId,
     weaponIds: tacticalMapMovementCombatSelectedWeaponIds,
+    grid: tacticalMapMovementCombatGridFixture,
+  };
+}
+
+export function tacticalMapWalkCombatCommitInput(): IApplyAttackInput {
+  return {
+    session: tacticalMapCombatSession({
+      tokens: tacticalMapWalkCombatTokens,
+      combatState: tacticalMapWalkCombatState,
+    }),
+    weaponsByUnit: tacticalMapWeaponsByUnit(),
+    attackerId: 'attacker',
+    targetId: tacticalMapWalkCombatTargetId,
+    weaponIds: tacticalMapWalkCombatSelectedWeaponIds,
     grid: tacticalMapMovementCombatGridFixture,
   };
 }
