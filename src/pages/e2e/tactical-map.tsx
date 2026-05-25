@@ -83,13 +83,7 @@ import {
   tacticalMapRunWaterFallbackTokens,
 } from '@/testing/tactical-map.run-water-fallback-scenario';
 import * as sameHex from '@/testing/tactical-map.same-hex-scenarios';
-import {
-  tacticalMapStandUpHexTerrain,
-  tacticalMapStandUpMovementRange,
-  tacticalMapStandUpMpLegend,
-  tacticalMapStandUpSelectedHex,
-  tacticalMapStandUpTokens,
-} from '@/testing/tactical-map.standup-scenario';
+import * as standUp from '@/testing/tactical-map.standup-scenario';
 import {
   tacticalMapSwimHexTerrain,
   tacticalMapSwimMovementRange,
@@ -141,6 +135,7 @@ const movementFixtureScenarios = new Set([
   'biped-swim-elevation',
   'frogman-deep-water',
   'prone-stand-up',
+  'impossible-stand-up',
 ]);
 
 const selectedWeaponIdsByScenario = {
@@ -210,7 +205,8 @@ const tokensByScenario = {
   'naval-landfall-blocked': tacticalMapNavalLandfallTokens,
   'biped-swim-elevation': tacticalMapSwimTokens,
   'frogman-deep-water': tacticalMapFrogmanTokens,
-  'prone-stand-up': tacticalMapStandUpTokens,
+  'prone-stand-up': standUp.tacticalMapStandUpTokens,
+  'impossible-stand-up': standUp.tacticalMapImpossibleStandUpTokens,
 } satisfies Record<string, typeof tacticalMapTokens>;
 
 const combatStateByScenario = {
@@ -243,7 +239,8 @@ const movementRangeByScenario = {
   'naval-landfall-blocked': tacticalMapNavalLandfallMovementRange,
   'biped-swim-elevation': tacticalMapSwimMovementRange,
   'frogman-deep-water': tacticalMapFrogmanMovementRange,
-  'prone-stand-up': tacticalMapStandUpMovementRange,
+  'prone-stand-up': standUp.tacticalMapStandUpMovementRange,
+  'impossible-stand-up': standUp.tacticalMapImpossibleStandUpMovementRange,
 } satisfies Record<string, typeof tacticalMapMovementRange>;
 
 const mpLegendByScenario = {
@@ -257,7 +254,8 @@ const mpLegendByScenario = {
   'naval-landfall-blocked': tacticalMapNavalLandfallMpLegend,
   'biped-swim-elevation': tacticalMapSwimMpLegend,
   'frogman-deep-water': tacticalMapFrogmanMpLegend,
-  'prone-stand-up': tacticalMapStandUpMpLegend,
+  'prone-stand-up': standUp.tacticalMapStandUpMpLegend,
+  'impossible-stand-up': standUp.tacticalMapStandUpMpLegend,
 } satisfies Record<string, typeof tacticalMapMpLegend>;
 
 const selectedHexByScenario = {
@@ -269,7 +267,8 @@ const selectedHexByScenario = {
   'naval-landfall-blocked': tacticalMapNavalLandfallSelectedHex,
   'biped-swim-elevation': tacticalMapSwimSelectedHex,
   'frogman-deep-water': tacticalMapFrogmanSelectedHex,
-  'prone-stand-up': tacticalMapStandUpSelectedHex,
+  'prone-stand-up': standUp.tacticalMapStandUpSelectedHex,
+  'impossible-stand-up': standUp.tacticalMapStandUpSelectedHex,
   'selected-weapon-out-of-arc': { q: 0, r: 0 },
   'same-hex-weapon-blocked': { q: 0, r: 0 },
   'elevation-los-blocked': { q: 0, r: 0 },
@@ -300,7 +299,8 @@ const hexTerrainByScenario = {
   'jump-combat-modifier': movementCombat.tacticalMapMovementCombatHexTerrain,
   'biped-swim-elevation': tacticalMapSwimHexTerrain,
   'frogman-deep-water': tacticalMapFrogmanHexTerrain,
-  'prone-stand-up': tacticalMapStandUpHexTerrain,
+  'prone-stand-up': standUp.tacticalMapStandUpHexTerrain,
+  'impossible-stand-up': standUp.tacticalMapStandUpHexTerrain,
 } satisfies Record<string, typeof tacticalMapHexTerrain>;
 
 function scenarioValue<T>(

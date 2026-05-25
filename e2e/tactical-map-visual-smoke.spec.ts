@@ -1218,6 +1218,83 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows impossible stand-up reasons in browser', async ({ page }) => {
+    const reason = 'Cannot stand with a destroyed leg and both arms destroyed';
+    await page.goto('/e2e/tactical-map?scenario=impossible-stand-up');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('IMP');
+
+    const blockedDestination = page.getByTestId('hex-1-0');
+    await expect(blockedDestination).toHaveAttribute('data-reachable', 'false');
+    await expect(blockedDestination).toHaveAttribute(
+      'data-movement-type',
+      'walk',
+    );
+    await expect(blockedDestination).toHaveAttribute(
+      'data-movement-mode',
+      'walk',
+    );
+    await expect(blockedDestination).toHaveAttribute('data-mp-cost', '2');
+    await expect(blockedDestination).toHaveAttribute(
+      'data-stand-up-required',
+      'true',
+    );
+    await expect(blockedDestination).toHaveAttribute(
+      'data-stand-up-mode',
+      'normal',
+    );
+    await expect(blockedDestination).toHaveAttribute('data-stand-up-cost', '2');
+    await expect(blockedDestination).toHaveAttribute(
+      'data-stand-up-psr-required',
+      'true',
+    );
+    await expect(blockedDestination).toHaveAttribute(
+      'data-stand-up-psr-impossible-reason',
+      reason,
+    );
+    await expect(blockedDestination).toHaveAttribute(
+      'data-movement-invalid-reason',
+      'InvalidDestination',
+    );
+    await expect(blockedDestination).toHaveAttribute(
+      'data-movement-invalid-details',
+      reason,
+    );
+
+    const standBadge = page.getByTestId('hex-stand-up-badge-1-0');
+    await expect(standBadge.locator('text')).toHaveText('STAND IMP');
+    await expect(standBadge).toHaveAttribute(
+      'data-stand-up-psr-impossible-reason',
+      reason,
+    );
+    await expect(standBadge).toHaveAttribute(
+      'aria-label',
+      /Cannot stand before moving: Cannot stand with a destroyed leg and both arms destroyed; stand-up cost 2 MP; PSR impossible/,
+    );
+
+    const invalidBadge = page.getByTestId('hex-movement-invalid-badge-1-0');
+    await expect(invalidBadge.locator('text')).toHaveText('STAND');
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'InvalidDestination',
+    );
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-reason',
+      reason,
+    );
+
+    await blockedDestination.dispatchEvent('mouseover', {
+      bubbles: true,
+      cancelable: true,
+    });
+    await expect(
+      page.getByTestId('hex-tactical-tooltip-movement-stand-up-psr'),
+    ).toContainText(`Standing up impossible - ${reason}`);
+    await expect(
+      page.getByTestId('hex-tactical-tooltip-movement-reason'),
+    ).toContainText(reason);
+  });
+
   test('shows naval landfall as water-required blocked movement in browser', async ({
     page,
   }) => {

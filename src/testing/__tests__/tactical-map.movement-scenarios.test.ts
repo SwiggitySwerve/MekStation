@@ -27,6 +27,7 @@ import {
   tacticalMapRunWaterFallbackMovementRange,
 } from '../tactical-map.run-water-fallback-scenario';
 import {
+  tacticalMapImpossibleStandUpMovementRange,
   tacticalMapStandUpCommitInput,
   tacticalMapStandUpMovementRange,
 } from '../tactical-map.standup-scenario';
@@ -386,6 +387,29 @@ describe('tactical map movement scenarios', () => {
     expect(result.mpCost).toBe(projection.mpCost);
     expect(result.heatGenerated).toBe(projection.heatGenerated);
     expect(result.path).toEqual(projection.path);
+  });
+
+  it('projects impossible stand-up reasons for the browser harness', () => {
+    const reason = 'Cannot stand with a destroyed leg and both arms destroyed';
+    const projection = tacticalMapImpossibleStandUpMovementRange[0];
+
+    expect(projection).toMatchObject({
+      hex: { q: 1, r: 0 },
+      reachable: false,
+      movementMode: 'walk',
+      movementType: 'walk',
+      mpCost: 2,
+      heatGenerated: 0,
+      blockedReason: reason,
+      movementInvalidReason: 'InvalidDestination',
+      movementInvalidDetails: reason,
+      standUpRequired: true,
+      standUpMode: 'normal',
+      standUpCost: 2,
+      standUpPsrRequired: true,
+      standUpPsrReason: 'Standing up',
+      standUpPsrImpossibleReason: reason,
+    });
   });
 
   it('keeps naval landfall blocked between browser projection and commit validation', () => {

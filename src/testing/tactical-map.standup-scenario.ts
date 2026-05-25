@@ -51,6 +51,11 @@ const tacticalMapStandUpUnit: IUnitGameState = {
   lockState: LockState.Pending,
 };
 
+const tacticalMapImpossibleStandUpUnit: IUnitGameState = {
+  ...tacticalMapStandUpUnit,
+  destroyedLocations: ['left_leg', 'left_arm', 'right_arm'],
+};
+
 const tacticalMapStandUpCapability: IMovementCapability = {
   walkMP: 4,
   runMP: 6,
@@ -139,6 +144,17 @@ export const tacticalMapStandUpTokens: readonly IUnitToken[] =
     return token;
   });
 
+export const tacticalMapImpossibleStandUpTokens: readonly IUnitToken[] =
+  tacticalMapStandUpTokens.map((token) =>
+    token.unitId === 'attacker'
+      ? {
+          ...token,
+          name: 'Crippled Shadow Hawk SHD-2H',
+          designation: 'IMP',
+        }
+      : token,
+  );
+
 export const tacticalMapStandUpMovementRange: readonly IMovementRangeHex[] = [
   requireSingleMovementProjection(
     deriveMovementRangeHexForDestination(
@@ -150,6 +166,19 @@ export const tacticalMapStandUpMovementRange: readonly IMovementRangeHex[] = [
     ),
   ),
 ];
+
+export const tacticalMapImpossibleStandUpMovementRange: readonly IMovementRangeHex[] =
+  [
+    requireSingleMovementProjection(
+      deriveMovementRangeHexForDestination(
+        tacticalMapImpossibleStandUpUnit,
+        MovementType.Walk,
+        tacticalMapStandUpGrid(),
+        tacticalMapStandUpCapability,
+        tacticalMapStandUpStep,
+      ),
+    ),
+  ];
 
 export const tacticalMapStandUpMpLegend: MapMovementPointLegendState = {
   active: 'walk',

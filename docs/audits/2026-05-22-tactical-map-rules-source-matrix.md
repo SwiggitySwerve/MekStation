@@ -732,6 +732,14 @@ A fixture-level Jest parity test feeds the same projected path into
 `validateCommittedMovement` and proves the commit gate accepts it with matching
 MP, heat, and path.
 
+2026-05-25 impossible stand-up browser pin: the tactical-map browser harness
+now also uses a prone Mek with one leg and both arms destroyed, matching the
+MegaMek-sourced impossible stand case already represented in movement
+projection and engine resolution. The rendered destination is non-reachable,
+exposes `InvalidDestination`, preserves the impossible stand-up reason on the
+hex and stand-up badge, shows a non-color `STAND` invalid badge, and surfaces
+the same reason in the hover explanation before the player commits.
+
 Additional TacOps stand-up modifier pin: MegaMek
 `MekWithArms.java:410-430` remains the source anchor for optional arm/quirk
 stand-up modifiers. MekStation now preserves represented destroyed-arm,
