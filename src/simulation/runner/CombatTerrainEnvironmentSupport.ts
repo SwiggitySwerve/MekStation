@@ -7,6 +7,33 @@ import type {
 
 const MEGAMEK_TERRAIN_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+const MEGAMEK_HEAT_SOURCE_VERSION = '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+
+function megamekHeatSourceRef(
+  citation: string,
+  path: string,
+  lineRange: string,
+): ICombatFeatureSourceReference {
+  return {
+    kind: 'megamek-source',
+    citation,
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_HEAT_SOURCE_VERSION}/megamek/src/megamek/${path}#${lineRange}`,
+    sourceVersion: MEGAMEK_HEAT_SOURCE_VERSION,
+  };
+}
+
+function mekstationDeviationSourceRef(
+  citation: string,
+  path: string,
+  lineRange: string,
+): ICombatFeatureSourceReference {
+  return {
+    kind: 'mekstation-deviation',
+    citation,
+    url: `${path}#${lineRange}`,
+    sourceVersion: 'MekStation working-tree',
+  };
+}
 
 const MEGAMEK_TERRAIN_MOVEMENT_COST_SOURCE_REF = {
   kind: 'megamek-source',
@@ -47,6 +74,50 @@ const MEKSTATION_BUILDING_MOVEMENT_COST_SOURCE_REF = {
   url: 'src/types/gameplay/TerrainTypes.ts#L409-L428',
   sourceVersion: 'MekStation working-tree',
 } satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_WATER_COOLING_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek Mek.getHeatCapacityWithWater adds up to six underwater heat sinks after checking water depth, prone state, and destroyed or breached sink mounts.',
+  'common/units/Mek.java',
+  'L1616-L1654',
+);
+
+const MEGAMEK_HEAT_DISSIPATION_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek HeatResolver adds heat buildup, sinks heat with getHeatCapacityWithWater plus coolant-pod/radical heat-sink bonuses, reports the sink amount, and clears heatBuildup.',
+  'server/totalWarfare/HeatResolver.java',
+  'L383-L445',
+);
+
+const MEGAMEK_FIRE_HEAT_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek HeatResolver adds 5 external heat for units spending a full round in fire terrain, halved by intact heat-dissipating armor.',
+  'server/totalWarfare/HeatResolver.java',
+  'L157-L177',
+);
+
+const MEGAMEK_EXTERNAL_HEAT_CAP_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek HeatResolver caps external heat at the configured/default 15 points and external cooling at 9 points before adding heat buildup.',
+  'server/totalWarfare/HeatResolver.java',
+  'L347-L357',
+);
+
+const MEKSTATION_TERRAIN_HEAT_PROPERTIES_SOURCE_REF =
+  mekstationDeviationSourceRef(
+    'MekStation TERRAIN_PROPERTIES defines heatEffect values for every local TerrainType row consumed by getTerrainHeatEffect.',
+    'src/types/gameplay/TerrainTypes.ts',
+    'L146-L488',
+  );
+
+const MEKSTATION_TERRAIN_HEAT_EFFECT_SOURCE_REF = mekstationDeviationSourceRef(
+  'MekStation getTerrainHeatEffect and getGridTerrainHeatEffect translate occupied TerrainType rows into fire heat, water cooling, or no terrain heat effect.',
+  'src/utils/gameplay/heat.ts',
+  'L23-L68',
+);
+
+const MEKSTATION_RUNNER_TERRAIN_HEAT_PHASE_SOURCE_REF =
+  mekstationDeviationSourceRef(
+    'MekStation post-combat heat resolution consumes terrainHeatEffect as environmentHeat or waterBonus before computing generated heat and dissipation.',
+    'src/simulation/runner/phases/postCombat.ts',
+    'L282-L314',
+  );
 
 const pavementMovementTerrains = new Set<TerrainType>([
   TerrainType.Pavement,
@@ -133,6 +204,34 @@ function terrainMovementSourceRefs(
   ];
 }
 
+function terrainHeatSourceRefs(
+  terrain: TerrainType,
+): readonly ICombatFeatureSourceReference[] {
+  const localHeatRefs = [
+    MEKSTATION_TERRAIN_HEAT_PROPERTIES_SOURCE_REF,
+    MEKSTATION_TERRAIN_HEAT_EFFECT_SOURCE_REF,
+    MEKSTATION_RUNNER_TERRAIN_HEAT_PHASE_SOURCE_REF,
+  ];
+
+  if (terrain === TerrainType.Water) {
+    return [
+      MEGAMEK_WATER_COOLING_SOURCE_REF,
+      MEGAMEK_HEAT_DISSIPATION_SOURCE_REF,
+      ...localHeatRefs,
+    ];
+  }
+
+  if (terrain === TerrainType.Fire) {
+    return [
+      MEGAMEK_FIRE_HEAT_SOURCE_REF,
+      MEGAMEK_EXTERNAL_HEAT_CAP_SOURCE_REF,
+      ...localHeatRefs,
+    ];
+  }
+
+  return localHeatRefs;
+}
+
 function makeTerrainMovementEntry(
   terrain: TerrainType,
 ): ICombatFeatureSupportEntry {
@@ -201,16 +300,34 @@ function makeTerrainHeatEntry(
 ): ICombatFeatureSupportEntry {
   const properties = TERRAIN_PROPERTIES[terrain];
 
+  if (terrain === TerrainType.Water) {
+    return integrated(
+      terrain,
+      'runHeatPhase consumes occupied water terrain via getGridTerrainHeatEffect and applies the resulting waterBonus to dissipation',
+      terrainHeatSourceRefs(terrain),
+    );
+  }
+
+  if (terrain === TerrainType.Fire) {
+    return integrated(
+      terrain,
+      'runHeatPhase consumes occupied fire terrain via getGridTerrainHeatEffect and emits environment-sourced HeatGenerated',
+      terrainHeatSourceRefs(terrain),
+    );
+  }
+
   if (properties.heatEffect === 0) {
     return integrated(
       terrain,
       'TERRAIN_PROPERTIES records no heat effect for this terrain type',
+      terrainHeatSourceRefs(terrain),
     );
   }
 
   return integrated(
     terrain,
     'runHeatPhase consumes occupied terrain heat/cooling via getGridTerrainHeatEffect',
+    terrainHeatSourceRefs(terrain),
   );
 }
 

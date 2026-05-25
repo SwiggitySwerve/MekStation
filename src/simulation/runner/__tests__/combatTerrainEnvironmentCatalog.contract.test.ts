@@ -189,6 +189,70 @@ describe('BattleMech terrain and environment combat support catalog', () => {
     ).toEqual(Object.values(TerrainType).sort());
   });
 
+  it('source-pins every TerrainType heat row', () => {
+    const heatEffectTerrains = [TerrainType.Fire, TerrainType.Water];
+
+    Object.values(TERRAIN_TYPE_HEAT_COMBAT_SUPPORT).forEach((entry) => {
+      const sourceRefs = entry.sourceRefs ?? [];
+
+      expect(sourceRefs).not.toHaveLength(0);
+      sourceRefs.forEach(expectLineAnchoredSourceRef);
+      expect(sourceRefs).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            url: 'src/types/gameplay/TerrainTypes.ts#L146-L488',
+          }),
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            url: 'src/utils/gameplay/heat.ts#L23-L68',
+          }),
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            url: 'src/simulation/runner/phases/postCombat.ts#L282-L314',
+          }),
+        ]),
+      );
+    });
+
+    expect(
+      heatEffectTerrains.filter(
+        (terrain) =>
+          !TERRAIN_TYPE_HEAT_COMBAT_SUPPORT[terrain].sourceRefs?.some(
+            (ref) => ref.kind === 'megamek-source',
+          ),
+      ),
+    ).toEqual([]);
+    expect(
+      Object.values(TerrainType)
+        .filter((terrain) => !heatEffectTerrains.includes(terrain))
+        .flatMap(
+          (terrain) =>
+            TERRAIN_TYPE_HEAT_COMBAT_SUPPORT[terrain].sourceRefs?.filter(
+              (ref) => ref.kind === 'megamek-source',
+            ) ?? [],
+        ),
+    ).toEqual([]);
+    expect(TERRAIN_TYPE_HEAT_COMBAT_SUPPORT[TerrainType.Water]).toMatchObject({
+      evidence: expect.stringContaining('waterBonus'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('getHeatCapacityWithWater'),
+        }),
+      ]),
+    });
+    expect(TERRAIN_TYPE_HEAT_COMBAT_SUPPORT[TerrainType.Fire]).toMatchObject({
+      evidence: expect.stringContaining('HeatGenerated'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('5 external heat'),
+        }),
+      ]),
+    });
+  });
+
   it('keeps source-backed terrain PSR gaps visible without inventing non-BattleMech gaps', () => {
     expect([...TERRAIN_TYPES_WITH_PSR_GAPS].sort()).toEqual([
       TerrainType.Building,

@@ -222,6 +222,11 @@ const TERRAIN_TYPE_MOVEMENT_TRIAD = triad(
   'Per-TerrainType movement rows are source checked and must carry row-level sourceRefs, distinguishing MegaMek terrain movement anchors from MekStation-local water and building movement simplifications.',
   TERRAIN_REFS,
 );
+const TERRAIN_TYPE_HEAT_TRIAD = triad(
+  'entry-source-refs',
+  'Per-TerrainType heat rows are source checked and must carry row-level sourceRefs, distinguishing MegaMek fire/water heat anchors from MekStation-local no-heat terrain rows.',
+  TERRAIN_REFS,
+);
 const DAMAGE_TRIAD = triad(
   'requirement-primary-authority',
   REQUIREMENT_AUTHORITY_BOUNDARY,
@@ -368,7 +373,7 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
     terrainTypeMovement: TERRAIN_TYPE_MOVEMENT_TRIAD,
     terrainTypeLos: TERRAIN_TRIAD,
     terrainTypeAttackModifiers: TERRAIN_TRIAD,
-    terrainTypeHeat: TERRAIN_TRIAD,
+    terrainTypeHeat: TERRAIN_TYPE_HEAT_TRIAD,
     terrainTypePsr: TERRAIN_TRIAD,
     heatRules: HEAT_TRIAD,
   },
