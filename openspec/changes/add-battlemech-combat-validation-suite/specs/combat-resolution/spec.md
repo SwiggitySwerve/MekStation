@@ -125,6 +125,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **THEN** the static weapon database subset, synthetic Medium Laser fallback ban, and variable missile damage-string guard SHALL each appear as explicit integrated validation-scope rows
 - **AND** every official string-damage missile weapon row SHALL be pinned to its resolved nonzero volley damage, including MML-style `1-2/missile` descriptors
 - **AND** fallback-prevention and damage-string-hazards requirements SHALL reference those specific rows rather than relying only on broad official-catalog coverage
+- **AND** every requirement crosswalk row SHALL carry row-level source references derived from its support-map refs, while preserving its explicit primary authority classification
 - **AND** broad known-limitation filters SHALL remain banned from catalog validation gates
 - **AND** every broad known-limitation category SHALL have a BattleMech validation trap proving the validation invariant bypass remains visible instead of filtered
 - **AND** known-limitation filtering and partitioning helpers SHALL preserve BattleMech validation traps as potential bugs even when their text matches broad known-limitation patterns

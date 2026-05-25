@@ -271,6 +271,17 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     expect(invalidAuthorities).toEqual([]);
   });
 
+  it('requires every requirement row to carry row-level source references', () => {
+    const missingSourceRefs = Object.values(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT,
+    )
+      .filter((entry) => (entry.sourceRefs ?? []).length === 0)
+      .map((entry) => entry.id)
+      .sort();
+
+    expect(missingSourceRefs).toEqual([]);
+  });
+
   it('requires source-backed feature rows to carry pinned authority refs', () => {
     const sourceBackedRows = sourceBackedFeatureRows();
 

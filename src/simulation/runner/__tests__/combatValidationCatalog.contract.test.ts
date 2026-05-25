@@ -227,6 +227,9 @@ describe('BattleMech combat validation catalog index', () => {
     expect(triadMaps.actions.gmCommandExclusions.authorityBoundary.kind).toBe(
       'entry-source-refs',
     );
+    expect(
+      triadMaps.validationScope.objectiveRequirements.authorityBoundary.kind,
+    ).toBe('entry-source-refs');
     expect(triadMaps.featureSupport.mechQuirks.authorityBoundary.kind).toBe(
       'entry-source-refs',
     );

@@ -406,9 +406,8 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
     pilotModifierResolvers: PILOT_MODIFIER_RESOLVER_TRIAD,
   },
   validationScope: {
-    objectiveRequirements: triad(
-      'requirement-primary-authority',
-      'Requirement rows carry their own primaryAuthority and supportMapRefs and are contract-tested as the source-to-catalog crosswalk.',
+    objectiveRequirements: entryTriad(
+      'Requirement rows derive row-level sourceRefs from their support-map refs, while explicit primaryAuthority remains the source-to-catalog crosswalk.',
       REQUIREMENT_REFS,
     ),
     knownLimitationsAndScope: triad(
