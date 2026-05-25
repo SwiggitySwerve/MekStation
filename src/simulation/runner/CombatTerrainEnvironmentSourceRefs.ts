@@ -200,7 +200,7 @@ const megaMekComparedLosTerrains = new Set<TerrainType>([
   TerrainType.Water,
 ]);
 
-const localTerrainPsrSourceRefs = [
+export const LOCAL_TERRAIN_PSR_SOURCE_REFS = [
   MEKSTATION_TERRAIN_PSR_PROPERTIES_SOURCE_REF,
   MEKSTATION_TERRAIN_PSR_RUNNER_SOURCE_REF,
   MEKSTATION_TERRAIN_PSR_FACTORY_SOURCE_REF,
@@ -254,18 +254,18 @@ export function terrainPsrSourceRefs(
   terrain: TerrainType,
 ): readonly ICombatFeatureSourceReference[] {
   if (terrain === TerrainType.Rubble) {
-    return [MEGAMEK_RUBBLE_PSR_SOURCE_REF, ...localTerrainPsrSourceRefs];
+    return [MEGAMEK_RUBBLE_PSR_SOURCE_REF, ...LOCAL_TERRAIN_PSR_SOURCE_REFS];
   }
 
   if (terrain === TerrainType.Water) {
-    return [MEGAMEK_WATER_PSR_SOURCE_REF, ...localTerrainPsrSourceRefs];
+    return [MEGAMEK_WATER_PSR_SOURCE_REF, ...LOCAL_TERRAIN_PSR_SOURCE_REFS];
   }
 
   if (terrain === TerrainType.Pavement || terrain === TerrainType.Ice) {
     return [
       MEGAMEK_SKID_PSR_SOURCE_REF,
       MEGAMEK_SKID_DISTANCE_SOURCE_REF,
-      ...localTerrainPsrSourceRefs,
+      ...LOCAL_TERRAIN_PSR_SOURCE_REFS,
     ];
   }
 
@@ -273,13 +273,16 @@ export function terrainPsrSourceRefs(
     return [
       MEGAMEK_SWAMP_BOG_DOWN_SOURCE_REF,
       MEGAMEK_SWAMP_BOG_DOWN_TERRAIN_SOURCE_REF,
-      ...localTerrainPsrSourceRefs,
+      ...LOCAL_TERRAIN_PSR_SOURCE_REFS,
     ];
   }
 
   if (terrain === TerrainType.Building) {
-    return [MEGAMEK_BUILDING_COLLAPSE_SOURCE_REF, ...localTerrainPsrSourceRefs];
+    return [
+      MEGAMEK_BUILDING_COLLAPSE_SOURCE_REF,
+      ...LOCAL_TERRAIN_PSR_SOURCE_REFS,
+    ];
   }
 
-  return localTerrainPsrSourceRefs;
+  return LOCAL_TERRAIN_PSR_SOURCE_REFS;
 }

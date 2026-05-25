@@ -2534,6 +2534,70 @@ describe('BattleMech combat feature-gap tracking', () => {
         ({ kind }) => kind === 'mekstation-deviation',
       ),
     ).toBe(true);
+    const terrainPsrTriggers = [
+      PSRTrigger.EnteringRubble,
+      PSRTrigger.RunningRoughTerrain,
+      PSRTrigger.MovingOnIce,
+      PSRTrigger.EnteringWater,
+      PSRTrigger.ExitingWater,
+      PSRTrigger.Skidding,
+      PSRTrigger.BuildingCollapse,
+    ];
+    const terrainPsrSourceRefs = terrainPsrTriggers.map((trigger) => ({
+      trigger,
+      sourceRefs: RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[trigger].sourceRefs ?? [],
+    }));
+    expect(
+      terrainPsrSourceRefs
+        .filter(({ sourceRefs }) => sourceRefs.length === 0)
+        .map(({ trigger }) => trigger),
+    ).toEqual([]);
+    expect(
+      terrainPsrSourceRefs.flatMap(({ sourceRefs }) =>
+        sourceRefs.filter(({ url }) => !url.includes('#L')),
+      ),
+    ).toEqual([]);
+    expectPinnedMegaMekRefs(
+      terrainPsrSourceRefs.flatMap(({ sourceRefs }) =>
+        sourceRefs.filter(({ kind }) => kind === 'megamek-source'),
+      ),
+    );
+    expect(psrTriggerCitations(PSRTrigger.EnteringRubble)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('Entity.checkRubbleMove'),
+        expect.stringContaining('queueMovementTerrainPSRs'),
+      ]),
+    );
+    expect(psrTriggerCitations(PSRTrigger.EnteringWater)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('Entity.checkWaterMove'),
+        expect.stringContaining('terrain PSR factories'),
+      ]),
+    );
+    expect(psrTriggerCitations(PSRTrigger.Skidding)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('Entity.checkSkid'),
+        expect.stringContaining('getMovementBeforeSkidPSRModifier'),
+      ]),
+    );
+    expect(psrTriggerCitations(PSRTrigger.BuildingCollapse)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('BuildingCollapseHandler.checkForCollapse'),
+        expect.stringContaining('building-collapse pending PSRs'),
+      ]),
+    );
+    expect(
+      [
+        PSRTrigger.RunningRoughTerrain,
+        PSRTrigger.MovingOnIce,
+        PSRTrigger.ExitingWater,
+      ].flatMap(
+        (trigger) =>
+          RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[trigger].sourceRefs?.filter(
+            ({ kind }) => kind !== 'mekstation-deviation',
+          ) ?? [],
+      ),
+    ).toEqual([]);
     expect(
       RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.DFATarget].sourceRefs?.map(
         (sourceRef) => sourceRef.citation,

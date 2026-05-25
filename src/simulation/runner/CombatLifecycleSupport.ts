@@ -1,4 +1,5 @@
 import { PSRTrigger } from '@/types/gameplay';
+import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
 import type {
   ICombatFeatureSourceReference,
@@ -26,6 +27,10 @@ import {
   MEGAMEK_DFA_MISS_FALL_SOURCE_REFS,
   MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS,
 } from './CombatPsrTriggerSourceRefs';
+import {
+  LOCAL_TERRAIN_PSR_SOURCE_REFS,
+  terrainPsrSourceRefs,
+} from './CombatTerrainEnvironmentSourceRefs';
 
 const MEGAMEK_COMBAT_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
@@ -327,26 +332,32 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
   [PSRTrigger.EnteringRubble]: integrated(
     PSRTrigger.EnteringRubble,
     'movementTerrainPsr queues createRubblePSR from MovementDeclared step terrain',
+    terrainPsrSourceRefs(TerrainType.Rubble),
   ),
   [PSRTrigger.RunningRoughTerrain]: integrated(
     PSRTrigger.RunningRoughTerrain,
-    'movementTerrainPsr queues createRunningRoughTerrainPSR when running through rough terrain',
+    'local movementTerrainPsr queues createRunningRoughTerrainPSR when running through rough terrain',
+    LOCAL_TERRAIN_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.MovingOnIce]: integrated(
     PSRTrigger.MovingOnIce,
-    'movementTerrainPsr queues createIcePSR from MovementDeclared step terrain',
+    'local movementTerrainPsr queues createIcePSR from MovementDeclared step terrain',
+    LOCAL_TERRAIN_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.EnteringWater]: integrated(
     PSRTrigger.EnteringWater,
     'movementTerrainPsr queues createEnteringWaterPSR for valid water entry such as jump landings',
+    terrainPsrSourceRefs(TerrainType.Water),
   ),
   [PSRTrigger.ExitingWater]: integrated(
     PSRTrigger.ExitingWater,
-    'movementTerrainPsr queues createExitingWaterPSR when movement leaves water terrain',
+    'local movementTerrainPsr queues createExitingWaterPSR when movement leaves water terrain',
+    LOCAL_TERRAIN_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.Skidding]: integrated(
     PSRTrigger.Skidding,
     'movementTerrainPsr queues createSkiddingPSR for running turn steps on pavement or ice',
+    terrainPsrSourceRefs(TerrainType.Pavement),
   ),
   [PSRTrigger.RunningDamagedHip]: integrated(
     PSRTrigger.RunningDamagedHip,
@@ -360,6 +371,7 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
     PSRTrigger.BuildingCollapse,
     'createBuildingCollapsePSR factory + resolveAllPSRs modifier math',
     'building collapse movement/damage triggers are not wired into runner combat',
+    terrainPsrSourceRefs(TerrainType.Building),
   ),
   [PSRTrigger.MASCFailure]: helperOnly(
     PSRTrigger.MASCFailure,
