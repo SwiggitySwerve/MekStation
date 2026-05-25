@@ -1460,6 +1460,14 @@ projection. This does not change target-number calculation, modifier values,
 modifier sources, attack validation, or attack resolution; it makes each
 modifier row inspectable without relying on aggregate combat hex metadata.
 
+2026-05-25 combat weapon impact rule-reference context pin: Per-weapon combat
+impact rows in combat and combined tactical hovers now expose combat-channel
+source references and MegaMek rule references from the shared per-hex tactical
+projection. This does not change weapon heat, listed damage, ammo consumption,
+expected damage, attack validation, or attack resolution; it makes each
+heat/damage/ammo row inspectable without relying on aggregate combat hex
+metadata.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

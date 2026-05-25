@@ -459,6 +459,21 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-combat-weapon-option-rule-refs',
       /combat:megamek:MegaMek Compute\.java:1313-1517 weapon range\/to-hit modifiers/,
     );
+    const mediumImpactDetail = page.getByTestId(
+      'hex-combat-tooltip-weapon-impact-detail',
+    );
+    await expect(mediumImpactDetail).toHaveAttribute(
+      'data-combat-weapon-impact-rule-refs',
+      /combat:megamek:MegaMek RangeType\.java:95-151 range bracket classification/,
+    );
+    await expect(
+      page.getByTestId(
+        'hex-combat-tooltip-weapon-impact-detail-impact-medium-laser-0',
+      ),
+    ).toHaveAttribute(
+      'data-combat-weapon-impact-rule-refs',
+      /combat:megamek:MegaMek Compute\.java:1313-1517 weapon range\/to-hit modifiers/,
+    );
     const coverTargetHex = page.getByTestId('hex-0-2');
     await expect(coverTargetHex).toHaveAttribute(
       'data-combat-target-ids',

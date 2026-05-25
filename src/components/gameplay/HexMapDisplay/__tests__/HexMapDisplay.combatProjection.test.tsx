@@ -1066,6 +1066,25 @@ describe('HexMapDisplay combat projection', () => {
       screen.getByTestId('hex-combat-tooltip-weapon-impact-detail'),
     ).toHaveAttribute('data-combat-weapon-impact-ammo-remaining-after', '|11');
     expect(
+      screen.getByTestId('hex-combat-tooltip-weapon-impact-detail'),
+    ).toHaveAttribute(
+      'data-combat-weapon-impact-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek Compute.java'),
+    );
+    expect(
+      screen.getByTestId(
+        'hex-combat-tooltip-weapon-impact-detail-impact-medium-laser-0',
+      ),
+    ).toHaveAttribute(
+      'data-combat-weapon-impact-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek RangeType.java'),
+    );
+    expect(
+      screen.getByTestId(
+        'hex-combat-tooltip-weapon-impact-detail-impact-ac-5-1',
+      ),
+    ).toHaveAttribute('data-combat-weapon-impact-ammo-remaining-after', '11');
+    expect(
       screen.getByTestId('hex-combat-tooltip-weapon-impact'),
     ).toHaveTextContent('expected');
   });
@@ -1164,6 +1183,20 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       screen.getByTestId('hex-tactical-tooltip-combat-weapon-impact-detail'),
     ).toHaveAttribute('data-combat-weapon-impact-ammo-remaining-after', '7');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-weapon-impact-detail'),
+    ).toHaveAttribute(
+      'data-combat-weapon-impact-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek Compute.java'),
+    );
+    expect(
+      screen.getByTestId(
+        'hex-tactical-tooltip-combat-weapon-impact-detail-impact-ac-5-0',
+      ),
+    ).toHaveAttribute(
+      'data-combat-weapon-impact-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek RangeType.java'),
+    );
     expect(
       screen.getByTestId('hex-tactical-tooltip-combat-weapon-options'),
     ).toHaveAttribute(

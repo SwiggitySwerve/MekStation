@@ -281,6 +281,7 @@ export function CombinedTacticalHoverTooltip({
       )}
       <CombatWeaponImpactRows
         combatInfo={combatInfo}
+        projection={projection}
         testId="hex-tactical-tooltip-combat-weapon-impact-detail"
       />
       {visibilityLabel && (

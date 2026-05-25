@@ -360,6 +360,7 @@ function CombatHoverTooltip({
       )}
       <CombatWeaponImpactRows
         combatInfo={combatInfo}
+        projection={projection}
         testId="hex-combat-tooltip-weapon-impact-detail"
       />
       {visibilityLabel && (
