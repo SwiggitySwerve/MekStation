@@ -218,6 +218,7 @@
 - [x] 3.5.27 Source-pin heat shutdown, standing-up, and running-with-damage runner PSR trigger rows while keeping MekStation's queued shutdown timing, failed stand-up behavior, and split hip/gyro reason codes source-visible.
 - [x] 3.5.28 Source-pin ammo-explosion pilot-damage as a helper-only damage/death gap until heat, crit, and interactive cookoff paths emit PilotHit, persist wounds, and apply Pain Resistance / Iron Man reduction.
 - [x] 3.5.29 Wire source-backed ammo-explosion PilotHit emission, wound persistence, pilot-death state, and Pain Resistance / Iron Man reduction across runner heat, runner crit, and event-sourced heat cookoff paths.
+- [x] 3.5.30 Source-pin representative integration scenario rows to lifecycle, ejection, objective, PSR-queue, and terminal GameEnded executable anchors so parity and terminal-state claims do not inherit prose-only evidence.
 
 ## 4. Source-truth cross-checks
 

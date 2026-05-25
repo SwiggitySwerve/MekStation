@@ -1325,6 +1325,18 @@ Every action eligibility support row SHALL expose structured source references b
 - **AND** ejected target-removal rows SHALL include MegaMek source anchors for original-unit ejection removal
 - **AND** the actionEligibility catalog triad SHALL enforce row-level source references before PR approval
 
+### Requirement: Source-Backed Representative Integration Scenario Anchors
+
+Every representative integration scenario support row SHALL expose structured source references before lifecycle, objective, PSR-queue, ejection, terminal-state, or runner/interactive parity claims treat it as validation coverage. Turn-rotation and actor-removal rows SHALL cite active-unit/action-query predicates and runner phase gates. Targetability rows SHALL cite shutdown, retreated, and ejected target filters. Ejection rows SHALL cite the command/intent/wire integration test plus local ejection reducer behavior. Objective rows SHALL cite objective-control occupancy, objective-outcome precedence, runner state, and game-outcome calculator paths. PSR-queue lifecycle rows SHALL cite phase-management state transitions and regression tests. Terminal rows SHALL cite `endGame`, interactive finalization, runner terminal summary, and runner `GameEnded` emission.
+
+#### Scenario: Representative integration rows expose source truth
+
+- **GIVEN** the BattleMech representative integration support catalog is generated
+- **WHEN** any integrated representative integration row is inspected
+- **THEN** the row SHALL expose at least one structured source reference with a line anchor
+- **AND** every row SHALL include a MekStation source reference for the executable integration path it claims
+- **AND** ejection, PSR-queue, objective-outcome, and runner-terminal rows SHALL cite their focused behavior or integration tests where those tests are the executable scenario boundary
+
 ### Requirement: Source-Backed PSR Resolution Catalog Anchors
 
 Every PSR resolution support row SHALL expose structured source references before the map is treated as source-backed validation coverage. Queued PSR resolution rows SHALL cite MegaMek pending-PSR storage/resolution anchors plus MekStation runner, interactive/session, and core resolver paths. Failed-fall rows SHALL cite MegaMek failed-piloting-roll fall and pilot fall-damage handling plus MekStation `UnitFell`, fall-sourced `PilotHit`, pilot wound/death, and pending-queue clearing paths. Reason-code rows SHALL cite the local reducer and shutdown-PSR queueing paths that preserve canonical reason codes.

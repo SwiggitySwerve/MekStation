@@ -30,6 +30,18 @@ function supportIdsByLevel(
     .sort();
 }
 
+function sourceRefsFor(id: string) {
+  return (
+    COMBAT_INTEGRATION_SCENARIO_SUPPORT[
+      id as keyof typeof COMBAT_INTEGRATION_SCENARIO_SUPPORT
+    ]?.sourceRefs ?? []
+  );
+}
+
+function sourceCitationsFor(id: string): readonly string[] {
+  return sourceRefsFor(id).map(({ citation }) => citation);
+}
+
 describe('BattleMech combat integration support catalog', () => {
   it('catalogs the representative cross-stack combat scenarios', () => {
     expect(sortedKeys(COMBAT_INTEGRATION_SCENARIO_SUPPORT)).toEqual(
@@ -73,5 +85,50 @@ describe('BattleMech combat integration support catalog', () => {
     expect(
       supportIdsByLevel(COMBAT_INTEGRATION_SCENARIO_SUPPORT, 'helper-only'),
     ).toEqual([]);
+  });
+
+  it('source-pins each representative integration row to executable anchors', () => {
+    for (const entry of Object.values(COMBAT_INTEGRATION_SCENARIO_SUPPORT)) {
+      const sourceRefs = entry.sourceRefs ?? [];
+
+      expect(sourceRefs).not.toHaveLength(0);
+      expect(
+        sourceRefs.some(({ kind }) => kind === 'mekstation-deviation'),
+      ).toBe(true);
+      expect(
+        sourceRefs.every(
+          ({ sourceVersion, url }) =>
+            sourceVersion.length > 0 && url.includes('#L'),
+        ),
+      ).toBe(true);
+    }
+    expect(sourceCitationsFor('ejection-command-intent-outcome')).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('ejection lifecycle integration test'),
+        expect.stringContaining('InteractiveSession.ejectUnit'),
+        expect.stringContaining('applyUnitEjected'),
+      ]),
+    );
+    expect(sourceCitationsFor('phase-psr-queue-lifecycle')).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('applyPhaseChanged'),
+        expect.stringContaining('applyTurnStarted'),
+        expect.stringContaining('phaseManagement regression tests'),
+      ]),
+    );
+    expect(sourceCitationsFor('runner-terminal-game-ended-event')).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('SimulationRunner derives matchTerminalState'),
+        expect.stringContaining('appendRunnerGameEndedEvent'),
+        expect.stringContaining('terminal parity behavior test'),
+      ]),
+    );
+    expect(sourceCitationsFor('objective-outcome-precedence')).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('checkVictoryConditions'),
+        expect.stringContaining('evaluateObjectiveOutcome'),
+        expect.stringContaining('GameOutcomeCalculator'),
+      ]),
+    );
   });
 });
