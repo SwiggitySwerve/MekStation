@@ -883,6 +883,22 @@ describe('HexMapDisplay combat projection', () => {
         'weapon heat +4, ammo AC/5 -1 11 left, damage 10',
       ),
     );
+    expect(targetHex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('projection legal combat'),
+    );
+    expect(targetHex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('projection detail Hex 2,0; intent combat'),
+    );
+    expect(targetHex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('combat short 2 hexes LOS clear'),
+    );
+    expect(targetHex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('weapon heat +4'),
+    );
     expect(screen.getByTestId('hex-combat-impact-badge-2-0')).toHaveTextContent(
       'H+4 D10',
     );

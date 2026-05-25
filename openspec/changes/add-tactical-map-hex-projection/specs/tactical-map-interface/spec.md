@@ -40,3 +40,13 @@ The tactical map interface SHALL compose terrain, elevation, movement, combat, p
 **AND** it SHALL expose the terrain elevation and primary terrain type from the shared projection
 **AND** it SHALL expose the projection intent, overall status, movement status, and combat status
 **AND** it SHALL expose any blocked reasons and source references from the same per-hex projection used by the nested rendered hex
+
+#### Scenario: Rendered hex labels carry projection context
+
+**GIVEN** a rendered hex has a shared tactical projection
+**WHEN** the hex cell renders in top-down or isometric mode
+**THEN** the rendered hex title and accessible label SHALL include the projection status and intent
+**AND** the label SHALL include movement-channel and combat-channel status from the shared projection
+**AND** the label SHALL include shared projection blocked reasons when present
+**AND** the label SHALL include the shared projection explanation when present
+**AND** the label SHALL NOT recalculate movement, combat, LOS, terrain, elevation, or path legality

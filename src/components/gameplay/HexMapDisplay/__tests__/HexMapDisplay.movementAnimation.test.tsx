@@ -642,6 +642,18 @@ describe('HexMapDisplay tactical visual layers', () => {
       'aria-label',
       expect.stringContaining('walk via tracked reachable'),
     );
+    expect(reachable).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('projection legal movement'),
+    );
+    expect(reachable).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('projection detail Hex 1,0; intent movement'),
+    );
+    expect(reachable).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('Walk reachable 3 MP'),
+    );
 
     fireEvent.mouseEnter(reachable);
     expect(screen.getByTestId('hex-movement-tooltip-status')).toHaveTextContent(
@@ -963,6 +975,22 @@ describe('HexMapDisplay tactical visual layers', () => {
       'data-tactical-projection-explanation',
       expect.stringContaining(`jump blocked 1 MP heat +1: ${blockedReason}`),
     );
+    expect(hex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('projection mixed movement'),
+    );
+    expect(hex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining(`projection blocked ${blockedReason}`),
+    );
+    expect(hex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('projection detail Hex 1,0; intent movement'),
+    );
+    expect(hex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('movement options walk via tracked reachable'),
+    );
 
     expect(
       screen.getByTestId('hex-projection-status-badge-1-0'),
@@ -1231,21 +1259,19 @@ describe('HexMapDisplay tactical visual layers', () => {
       />,
     );
 
-    fireEvent.mouseEnter(screen.getByTestId('hex-1-0'));
+    const inspected = screen.getByTestId('hex-1-0');
+    fireEvent.mouseEnter(inspected);
 
-    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+    expect(inspected).toHaveAttribute(
       'data-terrain-building-ids',
       'warehouse-a',
     );
-    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
-      'data-terrain-building-levels',
-      '2',
-    );
-    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+    expect(inspected).toHaveAttribute('data-terrain-building-levels', '2');
+    expect(inspected).toHaveAttribute(
       'data-terrain-construction-factors',
       '30',
     );
-    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+    expect(inspected).toHaveAttribute(
       'data-tactical-projection-sources',
       expect.stringContaining(
         'terrain-elevation:mekstation:Rendered map terrain/elevation grid:light_woods level 1,building level 2 id warehouse-a CF 30 elevation 1',
@@ -1307,6 +1333,18 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(
       screen.getByTestId('hex-terrain-tooltip-projection-explanation'),
     ).toHaveTextContent('elevation 1');
+    expect(inspected).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('projection neutral terrain'),
+    );
+    expect(inspected).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('projection detail Hex 1,0; intent terrain'),
+    );
+    expect(inspected).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('elevation 1'),
+    );
     expect(screen.queryByTestId('hex-movement-tooltip')).toBeNull();
     expect(screen.queryByTestId('hex-combat-tooltip')).toBeNull();
 
@@ -1333,7 +1371,8 @@ describe('HexMapDisplay tactical visual layers', () => {
       />,
     );
 
-    fireEvent.mouseEnter(screen.getByTestId('hex-1-0'));
+    const unreachable = screen.getByTestId('hex-1-0');
+    fireEvent.mouseEnter(unreachable);
 
     expect(screen.getByTestId('hex-unreachable-tooltip')).toHaveTextContent(
       'Unreachable',
@@ -1376,6 +1415,18 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(
       screen.getByTestId('hex-unreachable-tooltip-projection-explanation'),
     ).toHaveTextContent('elevation 2');
+    expect(unreachable).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('projection neutral terrain'),
+    );
+    expect(unreachable).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('projection detail Hex 1,0; intent terrain'),
+    );
+    expect(unreachable).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('elevation 2'),
+    );
 
     act(() => {
       unmount();

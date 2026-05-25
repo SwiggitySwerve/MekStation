@@ -103,6 +103,23 @@ import {
  */
 const JUMP_PATTERN_URL = 'url(#pattern-jump-range)';
 
+function formatProjectionStatusForLabel(
+  status?: TacticalMapHexProjectionStatus,
+): string | null {
+  switch (status) {
+    case 'mixed':
+      return 'mixed';
+    case 'blocked':
+      return 'blocked';
+    case 'legal':
+      return 'legal';
+    case 'neutral':
+      return 'neutral';
+    case undefined:
+      return null;
+  }
+}
+
 /**
  * Per `add-movement-phase-ui` task 3.2-3.4: pick the per-type tile
  * color (MegaMek-style cyan = walk, yellow = run, red = jump). Falls
@@ -330,6 +347,26 @@ export const HexCell = React.memo(function HexCell({
     movementInfo.movementModeOptions.length > 1
       ? movementInfo.movementModeOptions
       : undefined;
+  const projectionStatusLabel = formatProjectionStatusForLabel(
+    tacticalProjectionStatus,
+  );
+  const projectionLabelParts = [
+    projectionStatusLabel && tacticalProjectionIntent
+      ? `projection ${projectionStatusLabel} ${tacticalProjectionIntent}`
+      : '',
+    tacticalProjectionMovementStatus || tacticalProjectionCombatStatus
+      ? `projection channels movement ${
+          tacticalProjectionMovementStatus ?? 'none'
+        } combat ${tacticalProjectionCombatStatus ?? 'none'}`
+      : '',
+    tacticalProjectionBlockedReasons &&
+    tacticalProjectionBlockedReasons.length > 0
+      ? `projection blocked ${tacticalProjectionBlockedReasons.join(', ')}`
+      : '',
+    tacticalProjectionExplanation
+      ? `projection detail ${tacticalProjectionExplanation}`
+      : '',
+  ].filter(Boolean);
   const hexLabel = `Hex ${hex.q},${hex.r}; terrain ${formatTerrainFeatureReferenceLabel(
     terrainFeatures,
   )}; primary ${formatTerrainLabel(terrainType)}; elevation ${elevationLabel}${
@@ -338,6 +375,10 @@ export const HexCell = React.memo(function HexCell({
     movementLabel ? `; ${movementLabel}` : ''
   }${combatLabel ? `; ${combatLabel}` : ''}${
     pathLabel ? `; ${pathLabel}` : ''
+  }${
+    projectionLabelParts.length > 0
+      ? `; ${projectionLabelParts.join('; ')}`
+      : ''
   }${occluderLabel}`;
 
   return (

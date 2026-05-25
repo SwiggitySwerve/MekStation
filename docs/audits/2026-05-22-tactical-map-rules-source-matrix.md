@@ -1307,6 +1307,12 @@ only `data-*` metadata. This keeps movement-only, combat-only, terrain-only,
 and unreachable hovers aligned with combined hovers so every projection channel
 can show the player the same rules-backed why string without recalculating.
 
+2026-05-25 hex label projection context pin: Rendered hex titles and
+accessible labels now carry projection status, channel status, blocked reasons,
+and the shared projection explanation from the same per-hex projection used by
+badges and tooltips. This does not add legality logic; it makes the hex itself
+inspectable as a rules-backed tactical explanation surface.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:
