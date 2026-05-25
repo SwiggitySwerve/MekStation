@@ -1609,6 +1609,76 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(page.getByTestId('hex-combat-tooltip-cover')).toHaveCount(0);
   });
 
+  test('shows prone attacker and target to-hit modifiers in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=prone-combat-modifiers');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('PRN');
+    await expect(page.getByTestId('unit-token-prone-target')).toContainText(
+      'P-LCT',
+    );
+
+    const targetHex = page.getByTestId('hex-2-0');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'prone-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-range-bracket',
+      'short',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-distance', '2');
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-available',
+      'medium-laser',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '7');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-modifiers',
+      /Attacker Prone:2/,
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-modifiers',
+      /Target Prone:1/,
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-reason',
+      /Attacker Prone \+2/,
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-reason',
+      /Target Prone \+1/,
+    );
+
+    const toHitBadge = page.getByTestId('hex-to-hit-badge-2-0');
+    await expect(toHitBadge).toContainText('TN7');
+    await expect(toHitBadge).toHaveAttribute(
+      'data-combat-to-hit-badge-number',
+      '7',
+    );
+
+    await targetHex.hover({ force: true });
+    const toHitRows = page.getByTestId('hex-combat-tooltip-to-hit-modifiers');
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-names',
+      /Attacker Prone/,
+    );
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-names',
+      /Target Prone/,
+    );
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-values',
+      /2/,
+    );
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-values',
+      /1/,
+    );
+  });
+
   test('keeps visible targets attackable on mixed same-hex fog contacts in browser', async ({
     page,
   }) => {

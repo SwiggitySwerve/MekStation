@@ -78,6 +78,13 @@ import {
   tacticalMapNavalLandfallTokens,
 } from '@/testing/tactical-map.naval-landfall-scenario';
 import {
+  tacticalMapProneCombatHexTerrain,
+  tacticalMapProneCombatSelectedWeaponIds,
+  tacticalMapProneCombatState,
+  tacticalMapProneCombatTargetId,
+  tacticalMapProneCombatTokens,
+} from '@/testing/tactical-map.prone-combat-scenario';
+import {
   tacticalMapRunWaterFallbackHexTerrain,
   tacticalMapRunWaterFallbackMovementRange,
   tacticalMapRunWaterFallbackMpLegend,
@@ -128,242 +135,206 @@ const isTestEnv =
   process.env.NODE_ENV === 'test' ||
   process.env.NEXT_PUBLIC_E2E_MODE === 'true';
 
+const combatOnlyScenarios = new Set([
+  'aerospace-velocity-projection',
+  'airborne-aerospace-minimum-range',
+  'target-terrain-modifier',
+  'mixed-visibility-targets',
+  'selected-weapon-out-of-arc',
+  'same-hex-weapon-blocked',
+  'elevation-los-blocked',
+  'prone-combat-modifiers',
+]);
+
+const movementFixtureScenarios = new Set([
+  'runtime-height-bridge-clearance',
+  'run-water-walk-fallback',
+  'tracked-elevation-blocked',
+  'hover-water-crossing',
+  'naval-landfall-blocked',
+  'biped-swim-elevation',
+  'frogman-deep-water',
+  'prone-stand-up',
+]);
+
+const selectedWeaponIdsByScenario = {
+  'aerospace-velocity-projection': [],
+  'airborne-aerospace-minimum-range':
+    tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds,
+  'target-terrain-modifier': tacticalMapTargetTerrainModifierSelectedWeaponIds,
+  'mixed-visibility-targets': tacticalMapMixedVisibilitySelectedWeaponIds,
+  'selected-weapon-out-of-arc': tacticalMapOutOfArcSelectedWeaponIds,
+  'same-hex-weapon-blocked': tacticalMapSameHexSelectedWeaponIds,
+  'elevation-los-blocked': tacticalMapElevationLosSelectedWeaponIds,
+  'prone-combat-modifiers': tacticalMapProneCombatSelectedWeaponIds,
+  'out-of-range': tacticalMapOutOfRangeSelectedWeaponIds,
+} satisfies Record<string, readonly string[]>;
+
+const targetUnitIdByScenario = {
+  'aerospace-velocity-projection': null,
+  'airborne-aerospace-minimum-range':
+    tacticalMapAirborneAerospaceMinimumRangeTargetId,
+  'target-terrain-modifier': tacticalMapTargetTerrainModifierTargetId,
+  'mixed-visibility-targets': null,
+  'selected-weapon-out-of-arc': tacticalMapOutOfArcTargetId,
+  'same-hex-weapon-blocked': tacticalMapSameHexTargetId,
+  'elevation-los-blocked': tacticalMapElevationLosTargetId,
+  'prone-combat-modifiers': tacticalMapProneCombatTargetId,
+  'out-of-range': 'medium-target',
+} satisfies Record<string, string | null>;
+
+const tokensByScenario = {
+  'vtol-elevation-cost': tacticalMapVtolTokens,
+  'biped-option-projection': tacticalMapBipedOptionTokens,
+  'mounted-ba-passenger': tacticalMapMountedBattleArmorTokens,
+  'aerospace-velocity-projection': tacticalMapAerospaceTokens,
+  'airborne-aerospace-minimum-range':
+    tacticalMapAirborneAerospaceMinimumRangeTokens,
+  'target-terrain-modifier': tacticalMapTargetTerrainModifierTokens,
+  'mixed-visibility-targets': tacticalMapMixedVisibilityTokens,
+  'selected-weapon-out-of-arc': tacticalMapOutOfArcTokens,
+  'same-hex-weapon-blocked': tacticalMapSameHexTokens,
+  'elevation-los-blocked': tacticalMapElevationLosTokens,
+  'prone-combat-modifiers': tacticalMapProneCombatTokens,
+  'runtime-height-bridge-clearance': tacticalMapRuntimeHeightTokens,
+  'run-water-walk-fallback': tacticalMapRunWaterFallbackTokens,
+  'tracked-elevation-blocked': tacticalMapTrackedElevationTokens,
+  'hover-water-crossing': tacticalMapHoverWaterTokens,
+  'naval-landfall-blocked': tacticalMapNavalLandfallTokens,
+  'biped-swim-elevation': tacticalMapSwimTokens,
+  'frogman-deep-water': tacticalMapFrogmanTokens,
+  'prone-stand-up': tacticalMapStandUpTokens,
+} satisfies Record<string, typeof tacticalMapTokens>;
+
+const combatStateByScenario = {
+  'mounted-ba-passenger': tacticalMapMountedBattleArmorCombatState,
+  'aerospace-velocity-projection': tacticalMapAerospaceCombatState,
+  'airborne-aerospace-minimum-range':
+    tacticalMapAirborneAerospaceMinimumRangeCombatState,
+  'target-terrain-modifier': tacticalMapTargetTerrainModifierCombatState,
+  'mixed-visibility-targets': tacticalMapMixedVisibilityCombatState,
+  'selected-weapon-out-of-arc': tacticalMapOutOfArcCombatState,
+  'same-hex-weapon-blocked': tacticalMapSameHexCombatState,
+  'elevation-los-blocked': tacticalMapElevationLosCombatState,
+  'prone-combat-modifiers': tacticalMapProneCombatState,
+} satisfies Record<string, typeof tacticalMapCombatState>;
+
+const movementRangeByScenario = {
+  'jump-elevation-cost': tacticalMapJumpElevationMovementRange,
+  'vtol-elevation-cost': tacticalMapVtolElevationMovementRange,
+  'biped-option-projection': tacticalMapBipedOptionMovementRange,
+  'runtime-height-bridge-clearance': tacticalMapRuntimeHeightMovementRange,
+  'run-water-walk-fallback': tacticalMapRunWaterFallbackMovementRange,
+  'tracked-elevation-blocked': tacticalMapTrackedElevationMovementRange,
+  'hover-water-crossing': tacticalMapHoverWaterMovementRange,
+  'naval-landfall-blocked': tacticalMapNavalLandfallMovementRange,
+  'biped-swim-elevation': tacticalMapSwimMovementRange,
+  'frogman-deep-water': tacticalMapFrogmanMovementRange,
+  'prone-stand-up': tacticalMapStandUpMovementRange,
+} satisfies Record<string, typeof tacticalMapMovementRange>;
+
+const mpLegendByScenario = {
+  'jump-elevation-cost': tacticalMapJumpElevationMpLegend,
+  'vtol-elevation-cost': tacticalMapVtolElevationMpLegend,
+  'biped-option-projection': tacticalMapBipedOptionMpLegend,
+  'runtime-height-bridge-clearance': tacticalMapRuntimeHeightMpLegend,
+  'run-water-walk-fallback': tacticalMapRunWaterFallbackMpLegend,
+  'tracked-elevation-blocked': tacticalMapTrackedElevationMpLegend,
+  'hover-water-crossing': tacticalMapHoverWaterMpLegend,
+  'naval-landfall-blocked': tacticalMapNavalLandfallMpLegend,
+  'biped-swim-elevation': tacticalMapSwimMpLegend,
+  'frogman-deep-water': tacticalMapFrogmanMpLegend,
+  'prone-stand-up': tacticalMapStandUpMpLegend,
+} satisfies Record<string, typeof tacticalMapMpLegend>;
+
+const selectedHexByScenario = {
+  'biped-option-projection': tacticalMapBipedOptionSelectedHex,
+  'runtime-height-bridge-clearance': tacticalMapRuntimeHeightSelectedHex,
+  'run-water-walk-fallback': tacticalMapRunWaterFallbackSelectedHex,
+  'tracked-elevation-blocked': tacticalMapTrackedElevationSelectedHex,
+  'hover-water-crossing': tacticalMapHoverWaterSelectedHex,
+  'naval-landfall-blocked': tacticalMapNavalLandfallSelectedHex,
+  'biped-swim-elevation': tacticalMapSwimSelectedHex,
+  'frogman-deep-water': tacticalMapFrogmanSelectedHex,
+  'prone-stand-up': tacticalMapStandUpSelectedHex,
+  'selected-weapon-out-of-arc': { q: 0, r: 0 },
+  'same-hex-weapon-blocked': { q: 0, r: 0 },
+  'elevation-los-blocked': { q: 0, r: 0 },
+  'prone-combat-modifiers': { q: 0, r: 0 },
+  'mounted-ba-passenger': { q: 0, r: 0 },
+  'aerospace-velocity-projection': { q: 0, r: 0 },
+} satisfies Record<string, { readonly q: number; readonly r: number }>;
+
+const hexTerrainByScenario = {
+  'runtime-height-bridge-clearance': tacticalMapRuntimeHeightBridgeHexTerrain,
+  'run-water-walk-fallback': tacticalMapRunWaterFallbackHexTerrain,
+  'tracked-elevation-blocked': tacticalMapTrackedElevationHexTerrain,
+  'hover-water-crossing': tacticalMapHoverWaterHexTerrain,
+  'naval-landfall-blocked': tacticalMapNavalLandfallHexTerrain,
+  'elevation-los-blocked': tacticalMapElevationLosHexTerrain,
+  'prone-combat-modifiers': tacticalMapProneCombatHexTerrain,
+  'biped-swim-elevation': tacticalMapSwimHexTerrain,
+  'frogman-deep-water': tacticalMapFrogmanHexTerrain,
+  'prone-stand-up': tacticalMapStandUpHexTerrain,
+} satisfies Record<string, typeof tacticalMapHexTerrain>;
+
+function scenarioValue<T>(
+  scenario: string,
+  values: Partial<Record<string, T>>,
+  fallback: T,
+): T {
+  return Object.prototype.hasOwnProperty.call(values, scenario)
+    ? values[scenario]!
+    : fallback;
+}
+
 export default function TacticalMapE2EHarness(): React.JSX.Element {
   const router = useRouter();
-  const scenario = router.query.scenario;
-  const isOutOfRangeScenario = scenario === 'out-of-range';
-  const isJumpElevationScenario = scenario === 'jump-elevation-cost';
-  const isVtolElevationScenario = scenario === 'vtol-elevation-cost';
-  const isBipedOptionScenario = scenario === 'biped-option-projection';
-  const isMountedBattleArmorScenario = scenario === 'mounted-ba-passenger';
-  const isAerospaceVelocityScenario =
-    scenario === 'aerospace-velocity-projection';
-  const isAirborneAerospaceMinimumRangeScenario =
-    scenario === 'airborne-aerospace-minimum-range';
-  const isTargetTerrainModifierScenario =
-    scenario === 'target-terrain-modifier';
-  const isMixedVisibilityScenario = scenario === 'mixed-visibility-targets';
-  const isSelectedWeaponOutOfArcScenario =
-    scenario === 'selected-weapon-out-of-arc';
-  const isSameHexWeaponScenario = scenario === 'same-hex-weapon-blocked';
-  const isElevationLosScenario = scenario === 'elevation-los-blocked';
-  const isRuntimeHeightScenario =
-    scenario === 'runtime-height-bridge-clearance';
-  const isRunWaterFallbackScenario = scenario === 'run-water-walk-fallback';
-  const isTrackedElevationScenario = scenario === 'tracked-elevation-blocked';
-  const isHoverWaterScenario = scenario === 'hover-water-crossing';
-  const isNavalLandfallScenario = scenario === 'naval-landfall-blocked';
-  const isSwimScenario = scenario === 'biped-swim-elevation';
-  const isFrogmanScenario = scenario === 'frogman-deep-water';
-  const isStandUpScenario = scenario === 'prone-stand-up';
-  const isCombatOnlyScenario =
-    isAerospaceVelocityScenario ||
-    isAirborneAerospaceMinimumRangeScenario ||
-    isTargetTerrainModifierScenario ||
-    isMixedVisibilityScenario ||
-    isSelectedWeaponOutOfArcScenario ||
-    isSameHexWeaponScenario ||
-    isElevationLosScenario;
-  const isMovementFixtureScenario =
-    isRuntimeHeightScenario ||
-    isRunWaterFallbackScenario ||
-    isTrackedElevationScenario ||
-    isHoverWaterScenario ||
-    isNavalLandfallScenario ||
-    isSwimScenario ||
-    isFrogmanScenario ||
-    isStandUpScenario;
-  const selectedWeaponIds = isAerospaceVelocityScenario
-    ? []
-    : isAirborneAerospaceMinimumRangeScenario
-      ? tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds
-      : isTargetTerrainModifierScenario
-        ? tacticalMapTargetTerrainModifierSelectedWeaponIds
-        : isMixedVisibilityScenario
-          ? tacticalMapMixedVisibilitySelectedWeaponIds
-          : isSelectedWeaponOutOfArcScenario
-            ? tacticalMapOutOfArcSelectedWeaponIds
-            : isSameHexWeaponScenario
-              ? tacticalMapSameHexSelectedWeaponIds
-              : isElevationLosScenario
-                ? tacticalMapElevationLosSelectedWeaponIds
-                : isOutOfRangeScenario
-                  ? tacticalMapOutOfRangeSelectedWeaponIds
-                  : tacticalMapSelectedWeaponIds;
-  const targetUnitId = isAerospaceVelocityScenario
+  const scenario =
+    typeof router.query.scenario === 'string' ? router.query.scenario : '';
+  const isCombatOnlyScenario = combatOnlyScenarios.has(scenario);
+  const isMovementFixtureScenario = movementFixtureScenarios.has(scenario);
+  const selectedWeaponIds = scenarioValue(
+    scenario,
+    selectedWeaponIdsByScenario,
+    tacticalMapSelectedWeaponIds,
+  );
+  const targetUnitId = isMovementFixtureScenario
     ? null
-    : isAirborneAerospaceMinimumRangeScenario
-      ? tacticalMapAirborneAerospaceMinimumRangeTargetId
-      : isTargetTerrainModifierScenario
-        ? tacticalMapTargetTerrainModifierTargetId
-        : isMixedVisibilityScenario
-          ? null
-          : isMovementFixtureScenario
-            ? null
-            : isSelectedWeaponOutOfArcScenario
-              ? tacticalMapOutOfArcTargetId
-              : isSameHexWeaponScenario
-                ? tacticalMapSameHexTargetId
-                : isElevationLosScenario
-                  ? tacticalMapElevationLosTargetId
-                  : isOutOfRangeScenario
-                    ? 'medium-target'
-                    : 'occluded';
-  const tokens = isVtolElevationScenario
-    ? tacticalMapVtolTokens
-    : isBipedOptionScenario
-      ? tacticalMapBipedOptionTokens
-      : isMountedBattleArmorScenario
-        ? tacticalMapMountedBattleArmorTokens
-        : isAerospaceVelocityScenario
-          ? tacticalMapAerospaceTokens
-          : isAirborneAerospaceMinimumRangeScenario
-            ? tacticalMapAirborneAerospaceMinimumRangeTokens
-            : isTargetTerrainModifierScenario
-              ? tacticalMapTargetTerrainModifierTokens
-              : isMixedVisibilityScenario
-                ? tacticalMapMixedVisibilityTokens
-                : isSelectedWeaponOutOfArcScenario
-                  ? tacticalMapOutOfArcTokens
-                  : isSameHexWeaponScenario
-                    ? tacticalMapSameHexTokens
-                    : isElevationLosScenario
-                      ? tacticalMapElevationLosTokens
-                      : isRuntimeHeightScenario
-                        ? tacticalMapRuntimeHeightTokens
-                        : isRunWaterFallbackScenario
-                          ? tacticalMapRunWaterFallbackTokens
-                          : isTrackedElevationScenario
-                            ? tacticalMapTrackedElevationTokens
-                            : isHoverWaterScenario
-                              ? tacticalMapHoverWaterTokens
-                              : isNavalLandfallScenario
-                                ? tacticalMapNavalLandfallTokens
-                                : isSwimScenario
-                                  ? tacticalMapSwimTokens
-                                  : isFrogmanScenario
-                                    ? tacticalMapFrogmanTokens
-                                    : isStandUpScenario
-                                      ? tacticalMapStandUpTokens
-                                      : tacticalMapTokens;
-  const combatState = isMountedBattleArmorScenario
-    ? tacticalMapMountedBattleArmorCombatState
-    : isAerospaceVelocityScenario
-      ? tacticalMapAerospaceCombatState
-      : isAirborneAerospaceMinimumRangeScenario
-        ? tacticalMapAirborneAerospaceMinimumRangeCombatState
-        : isTargetTerrainModifierScenario
-          ? tacticalMapTargetTerrainModifierCombatState
-          : isMixedVisibilityScenario
-            ? tacticalMapMixedVisibilityCombatState
-            : isSelectedWeaponOutOfArcScenario
-              ? tacticalMapOutOfArcCombatState
-              : isSameHexWeaponScenario
-                ? tacticalMapSameHexCombatState
-                : isElevationLosScenario
-                  ? tacticalMapElevationLosCombatState
-                  : tacticalMapCombatState;
-  const unitWeapons = isSelectedWeaponOutOfArcScenario
-    ? tacticalMapOutOfArcUnitWeapons
-    : tacticalMapUnitWeapons;
+    : scenarioValue(scenario, targetUnitIdByScenario, 'occluded');
+  const tokens = scenarioValue(scenario, tokensByScenario, tacticalMapTokens);
+  const combatState = scenarioValue(
+    scenario,
+    combatStateByScenario,
+    tacticalMapCombatState,
+  );
+  const unitWeapons =
+    scenario === 'selected-weapon-out-of-arc'
+      ? tacticalMapOutOfArcUnitWeapons
+      : tacticalMapUnitWeapons;
   const movementRange = isCombatOnlyScenario
     ? undefined
-    : isJumpElevationScenario
-      ? tacticalMapJumpElevationMovementRange
-      : isVtolElevationScenario
-        ? tacticalMapVtolElevationMovementRange
-        : isBipedOptionScenario
-          ? tacticalMapBipedOptionMovementRange
-          : isRuntimeHeightScenario
-            ? tacticalMapRuntimeHeightMovementRange
-            : isRunWaterFallbackScenario
-              ? tacticalMapRunWaterFallbackMovementRange
-              : isTrackedElevationScenario
-                ? tacticalMapTrackedElevationMovementRange
-                : isHoverWaterScenario
-                  ? tacticalMapHoverWaterMovementRange
-                  : isNavalLandfallScenario
-                    ? tacticalMapNavalLandfallMovementRange
-                    : isSwimScenario
-                      ? tacticalMapSwimMovementRange
-                      : isFrogmanScenario
-                        ? tacticalMapFrogmanMovementRange
-                        : isStandUpScenario
-                          ? tacticalMapStandUpMovementRange
-                          : tacticalMapMovementRange;
+    : scenarioValue(
+        scenario,
+        movementRangeByScenario,
+        tacticalMapMovementRange,
+      );
   const mpLegend = isCombatOnlyScenario
     ? undefined
-    : isJumpElevationScenario
-      ? tacticalMapJumpElevationMpLegend
-      : isVtolElevationScenario
-        ? tacticalMapVtolElevationMpLegend
-        : isBipedOptionScenario
-          ? tacticalMapBipedOptionMpLegend
-          : isRuntimeHeightScenario
-            ? tacticalMapRuntimeHeightMpLegend
-            : isRunWaterFallbackScenario
-              ? tacticalMapRunWaterFallbackMpLegend
-              : isTrackedElevationScenario
-                ? tacticalMapTrackedElevationMpLegend
-                : isHoverWaterScenario
-                  ? tacticalMapHoverWaterMpLegend
-                  : isNavalLandfallScenario
-                    ? tacticalMapNavalLandfallMpLegend
-                    : isSwimScenario
-                      ? tacticalMapSwimMpLegend
-                      : isFrogmanScenario
-                        ? tacticalMapFrogmanMpLegend
-                        : isStandUpScenario
-                          ? tacticalMapStandUpMpLegend
-                          : tacticalMapMpLegend;
-  const selectedHex = isBipedOptionScenario
-    ? tacticalMapBipedOptionSelectedHex
-    : isRuntimeHeightScenario
-      ? tacticalMapRuntimeHeightSelectedHex
-      : isRunWaterFallbackScenario
-        ? tacticalMapRunWaterFallbackSelectedHex
-        : isTrackedElevationScenario
-          ? tacticalMapTrackedElevationSelectedHex
-          : isHoverWaterScenario
-            ? tacticalMapHoverWaterSelectedHex
-            : isNavalLandfallScenario
-              ? tacticalMapNavalLandfallSelectedHex
-              : isSwimScenario
-                ? tacticalMapSwimSelectedHex
-                : isFrogmanScenario
-                  ? tacticalMapFrogmanSelectedHex
-                  : isStandUpScenario
-                    ? tacticalMapStandUpSelectedHex
-                    : isSelectedWeaponOutOfArcScenario ||
-                        isSameHexWeaponScenario ||
-                        isElevationLosScenario ||
-                        isMountedBattleArmorScenario ||
-                        isAerospaceVelocityScenario
-                      ? { q: 0, r: 0 }
-                      : { q: -1, r: 0 };
+    : scenarioValue(scenario, mpLegendByScenario, tacticalMapMpLegend);
+  const selectedHex = scenarioValue(scenario, selectedHexByScenario, {
+    q: -1,
+    r: 0,
+  });
   const highlightPath =
     isCombatOnlyScenario || isMovementFixtureScenario
       ? undefined
       : tacticalMapHighlightPath;
-  const hexTerrain = isRuntimeHeightScenario
-    ? tacticalMapRuntimeHeightBridgeHexTerrain
-    : isRunWaterFallbackScenario
-      ? tacticalMapRunWaterFallbackHexTerrain
-      : isTrackedElevationScenario
-        ? tacticalMapTrackedElevationHexTerrain
-        : isHoverWaterScenario
-          ? tacticalMapHoverWaterHexTerrain
-          : isNavalLandfallScenario
-            ? tacticalMapNavalLandfallHexTerrain
-            : isElevationLosScenario
-              ? tacticalMapElevationLosHexTerrain
-              : isSwimScenario
-                ? tacticalMapSwimHexTerrain
-                : isFrogmanScenario
-                  ? tacticalMapFrogmanHexTerrain
-                  : isStandUpScenario
-                    ? tacticalMapStandUpHexTerrain
-                    : tacticalMapHexTerrain;
+  const hexTerrain = scenarioValue(
+    scenario,
+    hexTerrainByScenario,
+    tacticalMapHexTerrain,
+  );
 
   if (!isTestEnv) {
     return (

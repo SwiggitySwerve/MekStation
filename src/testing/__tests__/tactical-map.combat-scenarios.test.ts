@@ -27,6 +27,10 @@ import {
   tacticalMapElevationLosTargetId,
 } from '../tactical-map.elevation-los-scenario';
 import {
+  tacticalMapProneCombatCommitInput,
+  tacticalMapProneCombatProjection,
+} from '../tactical-map.prone-combat-scenario';
+import {
   tacticalMapSameHexCombatProjection,
   tacticalMapSameHexCommitInput,
 } from '../tactical-map.same-hex-scenarios';
@@ -195,6 +199,70 @@ describe('tactical map combat scenarios', () => {
     );
     expect(payload.toHitNumber).toBe(
       tacticalMapTargetTerrainModifierCombatProjection.toHitNumber,
+    );
+  });
+
+  it('keeps prone attacker and target modifiers aligned between browser projection and commit', () => {
+    expect(tacticalMapProneCombatProjection).toMatchObject({
+      hex: { q: 2, r: 0 },
+      distance: 2,
+      rangeBracket: 'short',
+      attackable: true,
+      weaponIdsAvailable: ['medium-laser'],
+      toHitNumber: 7,
+    });
+    expect(tacticalMapProneCombatProjection.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Attacker Prone',
+          value: 2,
+          source: 'other',
+        }),
+        expect.objectContaining({
+          name: 'Target Prone',
+          value: 1,
+          source: 'other',
+        }),
+      ]),
+    );
+    expect(tacticalMapProneCombatProjection.toHitReason).toContain(
+      'Attacker Prone +2',
+    );
+    expect(tacticalMapProneCombatProjection.toHitReason).toContain(
+      'Target Prone +1',
+    );
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapProneCombatCommitInput(),
+    );
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.weapons).toEqual(
+      tacticalMapProneCombatProjection.weaponIdsAvailable,
+    );
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Attacker Prone',
+          value: 2,
+          source: 'other',
+        }),
+        expect.objectContaining({
+          name: 'Target Prone',
+          value: 1,
+          source: 'other',
+        }),
+      ]),
+    );
+    expect(payload.toHitNumber).toBe(
+      tacticalMapProneCombatProjection.toHitNumber,
     );
   });
 

@@ -100,6 +100,14 @@ metadata, and a non-color cost badge. A fixture-level Jest parity test feeds
 the same movement projection into `validateCommittedMovement` and proves the
 commit gate accepts it with matching MP, heat, and path.
 
+2026-05-25 prone combat browser pin: the tactical-map browser harness now also
+uses a prone attacker firing at a prone target at range 2, proving the rendered
+target exposes TN7, `Attacker Prone +2`, `Target Prone +1`, the available
+medium laser, and tooltip rows for both modifiers. A fixture-level Jest parity
+test feeds the same projection into `applyInteractiveSessionAttack` and proves
+the committed attack declaration carries the matching target number and
+modifiers.
+
 2026-05-24 medium-range combat browser update: the tactical-map browser harness
 now also renders a target at four hexes and verifies that the top-down hex and
 combat badge expose the medium range band, distance, available weapon id, and

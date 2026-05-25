@@ -61,6 +61,9 @@ the top-down map.
 - **AND** a combat target in represented partial cover SHALL expose the cover
   level, modifier, to-hit modifier, reason, and a cover badge that does not rely
   on color alone
+- **AND** a combat target involving represented prone attacker and target state
+  SHALL expose the attacker-prone and target-prone to-hit modifiers, final
+  target number, badge, and tooltip rows
 - **WHEN** browser automation switches to isometric mode and rotates the camera
 - **THEN** isometric stack, occluder, visibility, rotation, and depth metadata
   SHALL update in the rendered DOM

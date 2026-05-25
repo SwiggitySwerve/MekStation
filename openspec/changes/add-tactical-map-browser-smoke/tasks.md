@@ -99,6 +99,8 @@
   shared reduced terrain cost, heat, and water terrain metadata.
 - [x] 2.39 Add browser coverage proving prone stand-up movement renders the
   shared stand-up MP cost, PSR target, heat, and movement metadata.
+- [x] 2.40 Add browser coverage proving prone attacker/target combat renders
+  the shared to-hit modifier metadata, target number, badge, and tooltip rows.
 
 ## 3. Validation
 
@@ -181,3 +183,5 @@
   movement reduced terrain cost and top-down cost badge labeling.
 - [x] 3.39 Focused Jest parity and Playwright smoke pass for prone stand-up
   movement cost, PSR metadata, and top-down stand-up badge labeling.
+- [x] 3.40 Focused Jest parity and Playwright smoke pass for prone combat
+  to-hit modifier metadata and badge labeling.
