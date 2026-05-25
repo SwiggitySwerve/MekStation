@@ -1319,6 +1319,14 @@ title/accessible label before rendering the nested hex cell. This does not
 change depth sorting or legality; it keeps the rotatable 2.5D scene wrapper
 inspectable from the same per-hex projection as top-down cells and tooltips.
 
+2026-05-25 isometric scene token context pin: Isometric scene token wrappers
+now carry a readable title/accessible label summarizing the represented token
+state used by the nested renderer: displayed map hex, source hex, facing, unit
+type, aerospace altitude/velocity, VTOL altitude, fog/last-known state,
+combat-projection target state, and terrain-occlusion foreground boost/reason.
+This does not add or change tactical legality; it keeps the depth-sorted 2.5D
+wrapper inspectable from existing projection, visibility, and unit-state data.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

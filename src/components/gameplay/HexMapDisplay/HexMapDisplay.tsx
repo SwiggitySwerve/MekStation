@@ -1,8 +1,5 @@
 import React from 'react';
 
-import type { IHexCoordinate, IUnitToken } from '@/types/gameplay';
-import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
-
 import { AttackEffectsLayer } from '@/components/gameplay/effects/AttackEffectsLayer';
 import { PersistentEffectsLayer } from '@/components/gameplay/effects/PersistentEffectsLayer';
 import { FiringArcOverlay } from '@/components/gameplay/overlays/FiringArcOverlay';
@@ -15,6 +12,12 @@ import { formatTacticalProjectionSourceReferences } from '@/utils/gameplay/tacti
 import type { HexMapDisplayProps } from './HexMapDisplay.types';
 
 import { MapControls } from './HexMapDisplay.controls';
+import {
+  displayPositionForSceneToken,
+  formatIsometricSceneHexLabel,
+  formatIsometricSceneTokenLabel,
+  joinNonEmpty,
+} from './HexMapDisplay.isometricSceneLabels';
 import {
   ObjectiveMarkersLayer,
   SensorRingsLayer,
@@ -304,6 +307,17 @@ function IsometricSceneLayer({
 
         const occlusionInfo = occlusionInfoByUnit.get(item.token.unitId);
         const displayPosition = displayPositionForSceneToken(item.token);
+        const projectedTargetState =
+          combatProjectionValidTargetUnitIds === undefined
+            ? undefined
+            : combatProjectionValidTargetUnitIds.has(item.token.unitId);
+        const sceneTokenLabel = formatIsometricSceneTokenLabel({
+          token: item.token,
+          displayPosition,
+          occlusionInfo,
+          foregroundBoost: item.foregroundBoost,
+          combatProjectionValidTarget: projectedTargetState,
+        });
         return (
           <g
             key={item.key}
@@ -343,7 +357,9 @@ function IsometricSceneLayer({
                 ? item.token.velocity
                 : undefined
             }
+            aria-label={sceneTokenLabel}
           >
+            <title>{sceneTokenLabel}</title>
             <UnitTokensLayer
               orderedTokens={[item.token]}
               movementAnimationsByUnit={movementAnimationsByUnit}
@@ -363,36 +379,6 @@ function IsometricSceneLayer({
       })}
     </g>
   );
-}
-
-function displayPositionForSceneToken(token: IUnitToken): IHexCoordinate {
-  if (token.fogStatus === 'lastKnown' && token.lastKnownPosition) {
-    return token.lastKnownPosition;
-  }
-  return token.position;
-}
-
-function joinNonEmpty(
-  values: readonly string[] | undefined,
-): string | undefined {
-  return values && values.length > 0 ? values.join('|') : undefined;
-}
-
-function formatIsometricSceneHexLabel(
-  hex: IHexCoordinate,
-  projection: ITacticalMapHexProjection | undefined,
-): string | undefined {
-  if (!projection) return undefined;
-
-  const blocked =
-    projection.blockedReasons.length > 0
-      ? `; blocked ${projection.blockedReasons.join(', ')}`
-      : '';
-  const explanation = projection.explanation
-    ? `; ${projection.explanation}`
-    : '';
-
-  return `Isometric hex ${hex.q},${hex.r}; projection ${projection.status} ${projection.intent}; movement ${projection.movementStatus}; combat ${projection.combatStatus}${blocked}${explanation}`;
 }
 
 export default HexMapDisplay;

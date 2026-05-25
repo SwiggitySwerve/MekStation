@@ -2483,6 +2483,20 @@ describe('HexMapDisplay tactical visual layers', () => {
       'data-isometric-aerospace-velocity',
       '7',
     );
+    expect(sceneToken).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('Isometric token Unit'),
+    );
+    expect(sceneToken).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('altitude 4'),
+    );
+    expect(sceneToken).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('velocity 7'),
+    );
+    expect(sceneToken.querySelector('title')).toHaveTextContent('altitude 4');
+    expect(sceneToken.querySelector('title')).toHaveTextContent('velocity 7');
 
     const nestedToken = screen.getByTestId('unit-token-aero');
     expect(nestedToken).toHaveAttribute('data-aerospace-altitude', '4');
@@ -2524,20 +2538,40 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(
       screen.getByTestId('isometric-visibility-halo-occluded'),
     ).toBeInTheDocument();
-    expect(
-      screen.getByTestId('isometric-scene-token-occluded'),
-    ).toHaveAttribute('data-isometric-foreground-boost', 'true');
-    expect(
-      screen.getByTestId('isometric-scene-token-occluded'),
-    ).toHaveAttribute('data-isometric-occluder-hex', '1,0');
-    expect(
-      screen.getByTestId('isometric-scene-token-occluded'),
-    ).toHaveAttribute('data-isometric-occluder-elevation', '5');
-    expect(
-      screen.getByTestId('isometric-scene-token-occluded'),
-    ).toHaveAttribute(
+    const occludedSceneToken = screen.getByTestId(
+      'isometric-scene-token-occluded',
+    );
+    expect(occludedSceneToken).toHaveAttribute(
+      'data-isometric-foreground-boost',
+      'true',
+    );
+    expect(occludedSceneToken).toHaveAttribute(
+      'data-isometric-occluder-hex',
+      '1,0',
+    );
+    expect(occludedSceneToken).toHaveAttribute(
+      'data-isometric-occluder-elevation',
+      '5',
+    );
+    expect(occludedSceneToken).toHaveAttribute(
       'data-isometric-occlusion-reason',
       'Elevated terrain +5 at (1, 0) may hide unit at elevation +0',
+    );
+    expect(occludedSceneToken).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('foreground readability boost'),
+    );
+    expect(occludedSceneToken).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining(
+        'terrain occlusion Elevated terrain +5 at (1, 0) may hide unit at elevation +0',
+      ),
+    );
+    expect(occludedSceneToken.querySelector('title')).toHaveTextContent(
+      'foreground readability boost',
+    );
+    expect(occludedSceneToken.querySelector('title')).toHaveTextContent(
+      'terrain occlusion Elevated terrain +5 at (1, 0) may hide unit at elevation +0',
     );
     expect(screen.getByTestId('unit-token-occluded')).toHaveAttribute(
       'data-visibility-boost',
@@ -2850,15 +2884,32 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(hiddenToken).not.toHaveAttribute('data-visibility-boost', 'true');
     expect(hiddenToken).not.toHaveAttribute('data-isometric-occlusion-reason');
-    expect(
-      screen.getByTestId('isometric-scene-token-hidden-contact'),
-    ).not.toHaveAttribute('data-isometric-foreground-boost', 'true');
-    expect(
-      screen.getByTestId('isometric-scene-token-hidden-contact'),
-    ).toHaveAttribute('data-isometric-token-map-position', '0,0');
-    expect(
-      screen.getByTestId('isometric-scene-token-hidden-contact'),
-    ).toHaveAttribute('data-isometric-token-source-position', '0,0');
+    const hiddenSceneToken = screen.getByTestId(
+      'isometric-scene-token-hidden-contact',
+    );
+    expect(hiddenSceneToken).not.toHaveAttribute(
+      'data-isometric-foreground-boost',
+      'true',
+    );
+    expect(hiddenSceneToken).toHaveAttribute(
+      'data-isometric-token-map-position',
+      '0,0',
+    );
+    expect(hiddenSceneToken).toHaveAttribute(
+      'data-isometric-token-source-position',
+      '0,0',
+    );
+    expect(hiddenSceneToken).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('Isometric token Hidden contact'),
+    );
+    expect(hiddenSceneToken).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('visibility hidden'),
+    );
+    expect(hiddenSceneToken.querySelector('title')).toHaveTextContent(
+      'visibility hidden',
+    );
     expect(
       screen.queryByTestId('isometric-visibility-halo-hidden-contact'),
     ).toBeNull();
@@ -2889,6 +2940,25 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(lastKnownSceneToken).toHaveAttribute(
       'data-isometric-token-facing',
       `${Facing.North}`,
+    );
+    expect(lastKnownSceneToken).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('Isometric token Last known scout'),
+    );
+    expect(lastKnownSceneToken).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('map position -1,0'),
+    );
+    expect(lastKnownSceneToken).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('source position 2,0'),
+    );
+    expect(lastKnownSceneToken).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('visibility lastKnown'),
+    );
+    expect(lastKnownSceneToken.querySelector('title')).toHaveTextContent(
+      'visibility lastKnown',
     );
     expect(lastKnownToken).toHaveAttribute(
       'data-isometric-visibility-rule',
@@ -2987,6 +3057,14 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(
       screen.getByTestId('isometric-visibility-halo-target'),
     ).toBeInTheDocument();
+    expect(screen.getByTestId('isometric-scene-token-target')).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('combat projection target blocked'),
+    );
+    expect(screen.getByTestId('isometric-scene-token-target')).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('foreground readability boost'),
+    );
     expect(screen.getByTestId('unit-token-target')).toHaveAttribute(
       'data-visibility-boost',
       'true',
@@ -3025,6 +3103,12 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(
       screen.getByTestId('isometric-scene-token-stale-friendly-target'),
     ).not.toHaveAttribute('data-isometric-foreground-boost', 'true');
+    expect(
+      screen.getByTestId('isometric-scene-token-stale-friendly-target'),
+    ).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('combat projection target blocked'),
+    );
     expect(
       screen.getByTestId('unit-token-stale-friendly-target'),
     ).toHaveAttribute('data-token-valid-target-source', 'combat-projection');
