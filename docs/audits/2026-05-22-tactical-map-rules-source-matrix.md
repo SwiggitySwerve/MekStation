@@ -92,6 +92,14 @@ terrain metadata, and the top-down +3 elevation label. A fixture-level Jest
 parity test feeds the same movement projection into `validateCommittedMovement`
 and proves the commit gate accepts it with matching MP, heat, and path.
 
+2026-05-25 Frogman movement browser pin: the tactical-map browser harness now
+also uses represented Frogman water capability entering depth-2 water, proving
+the rendered destination exposes the reduced +2 deep-water terrain surcharge
+instead of the ordinary +3, 3 MP total, heat +1, water level 2 terrain
+metadata, and a non-color cost badge. A fixture-level Jest parity test feeds
+the same movement projection into `validateCommittedMovement` and proves the
+commit gate accepts it with matching MP, heat, and path.
+
 2026-05-24 medium-range combat browser update: the tactical-map browser harness
 now also renders a target at four hexes and verifies that the top-down hex and
 combat badge expose the medium range band, distance, available weapon id, and

@@ -966,6 +966,67 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows Frogman deep-water movement at reduced terrain cost in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=frogman-deep-water');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('FGM');
+
+    const waterHex = page.getByTestId('hex-1-0');
+    await expect(waterHex).toHaveAttribute('data-reachable', 'true');
+    await expect(waterHex).toHaveAttribute('data-movement-type', 'walk');
+    await expect(waterHex).toHaveAttribute('data-movement-mode', 'walk');
+    await expect(waterHex).toHaveAttribute('data-mp-cost', '3');
+    await expect(waterHex).toHaveAttribute('data-terrain-cost', '2');
+    await expect(waterHex).toHaveAttribute('data-elevation-delta', '0');
+    await expect(waterHex).toHaveAttribute('data-elevation-cost', '0');
+    await expect(waterHex).toHaveAttribute('data-heat-generated', '1');
+    await expect(waterHex).toHaveAttribute('data-terrain-features', 'water');
+    await expect(waterHex).toHaveAttribute(
+      'data-terrain-feature-levels',
+      'water:2',
+    );
+
+    const movementBadge = page.getByTestId('hex-movement-badge-1-0');
+    await expect(movementBadge.locator('text')).toHaveText('W 3MP');
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-type',
+      'walk',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-mode',
+      'walk',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-mp-cost',
+      '3',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-heat-generated',
+      '1',
+    );
+
+    const costBadge = page.getByTestId('hex-movement-cost-badge-1-0');
+    await expect(costBadge.locator('text')).toHaveText('T+2');
+    await expect(costBadge).toHaveAttribute(
+      'data-movement-step-terrain-cost',
+      '2',
+    );
+    await expect(costBadge).toHaveAttribute(
+      'data-movement-step-elevation-cost',
+      '0',
+    );
+    await expect(costBadge).toHaveAttribute(
+      'data-movement-step-elevation-delta',
+      '0',
+    );
+    await expect(costBadge).toHaveAttribute(
+      'aria-label',
+      'Movement step cost: terrain +2',
+    );
+  });
+
   test('shows naval landfall as water-required blocked movement in browser', async ({
     page,
   }) => {

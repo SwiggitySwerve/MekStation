@@ -95,6 +95,8 @@
 - [x] 2.37 Add browser coverage proving biped swim movement through deep water
   renders the shared projection cost, elevation delta, heat, and terrain
   metadata.
+- [x] 2.38 Add browser coverage proving Frogman deep-water movement renders the
+  shared reduced terrain cost, heat, and water terrain metadata.
 
 ## 3. Validation
 
@@ -173,3 +175,5 @@
 - [x] 3.37 Focused Jest parity and Playwright smoke pass for biped swim water
   elevation movement, top-down elevation label metadata, and cost badge
   labeling.
+- [x] 3.38 Focused Jest parity and Playwright smoke pass for Frogman deep-water
+  movement reduced terrain cost and top-down cost badge labeling.

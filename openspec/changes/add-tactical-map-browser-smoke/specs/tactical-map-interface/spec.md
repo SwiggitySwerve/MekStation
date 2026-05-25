@@ -38,6 +38,9 @@ the top-down map.
 - **AND** a biped swim destination through represented deep water SHALL expose
   reachable movement, zero water/elevation surcharge, swim heat, elevation
   delta, and water terrain metadata
+- **AND** a Frogman destination into represented deep water SHALL expose
+  reachable movement, the reduced terrain surcharge, heat, and water terrain
+  metadata
 - **AND** a movement-blocked hex SHALL expose the engine-aligned rejection
   reason and render an invalid badge that does not rely on color alone
 - **AND** a LOS-blocked combat target SHALL expose the blocked target id,

@@ -1,6 +1,10 @@
 import { validateCommittedMovement } from '@/utils/gameplay/movement/commitValidation';
 
 import {
+  tacticalMapFrogmanCommitInput,
+  tacticalMapFrogmanMovementRange,
+} from '../tactical-map.frogman-scenario';
+import {
   tacticalMapHoverWaterCommitInput,
   tacticalMapHoverWaterMovementRange,
 } from '../tactical-map.hover-water-scenario';
@@ -308,6 +312,33 @@ describe('tactical map movement scenarios', () => {
     });
 
     const result = validateCommittedMovement(tacticalMapSwimCommitInput());
+
+    expect(result.valid).toBe(true);
+    if (!result.valid) {
+      throw new Error(result.details);
+    }
+
+    expect(result.mpCost).toBe(projection.mpCost);
+    expect(result.heatGenerated).toBe(projection.heatGenerated);
+    expect(result.path).toEqual(projection.path);
+  });
+
+  it('keeps Frogman deep-water movement legal between browser projection and commit validation', () => {
+    const projection = tacticalMapFrogmanMovementRange[0];
+
+    expect(projection).toMatchObject({
+      hex: { q: 1, r: 0 },
+      reachable: true,
+      movementMode: 'walk',
+      movementType: 'walk',
+      mpCost: 3,
+      terrainCost: 2,
+      elevationDelta: 0,
+      elevationCost: 0,
+      heatGenerated: 1,
+    });
+
+    const result = validateCommittedMovement(tacticalMapFrogmanCommitInput());
 
     expect(result.valid).toBe(true);
     if (!result.valid) {
