@@ -1923,6 +1923,88 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows QuadVee Mek conversion mode as elevation-legal in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=quadvee-mek-elevation-climb');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('QVM');
+    await expect(page.getByTestId('mp-legend')).toHaveAttribute(
+      'data-movement-mode',
+      'walk',
+    );
+    await expect(page.getByTestId('mp-legend-jump')).not.toHaveAttribute(
+      'data-disabled',
+      'true',
+    );
+
+    const mekClimb = page.getByTestId('hex-1-0');
+    await expect(mekClimb).toHaveAttribute('data-reachable', 'true');
+    await expect(mekClimb).toHaveAttribute('data-movement-type', 'walk');
+    await expect(mekClimb).toHaveAttribute('data-movement-mode', 'walk');
+    await expect(mekClimb).toHaveAttribute('data-mp-cost', '3');
+    await expect(mekClimb).toHaveAttribute('data-terrain-cost', '0');
+    await expect(mekClimb).toHaveAttribute('data-elevation', '2');
+    await expect(mekClimb).toHaveAttribute('data-elevation-delta', '2');
+    await expect(mekClimb).toHaveAttribute('data-elevation-cost', '2');
+    await expect(mekClimb).toHaveAttribute('data-heat-generated', '1');
+    await expect(page.getByTestId('hex-movement-badge-1-0')).toBeVisible();
+    await expect(
+      page.getByTestId('hex-movement-invalid-badge-1-0'),
+    ).toHaveCount(0);
+  });
+
+  test('shows QuadVee vehicle conversion mode as tracked elevation-blocked in browser', async ({
+    page,
+  }) => {
+    await page.goto(
+      '/e2e/tactical-map?scenario=quadvee-vehicle-elevation-blocked',
+    );
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('QVT');
+    await expect(page.getByTestId('mp-legend')).toHaveAttribute(
+      'data-movement-mode',
+      'tracked',
+    );
+    await expect(page.getByTestId('mp-legend-jump')).toHaveAttribute(
+      'data-disabled',
+      'true',
+    );
+    await expect(page.getByTestId('mp-legend-jump')).toHaveAttribute(
+      'data-mp',
+      '0',
+    );
+
+    const vehicleClimb = page.getByTestId('hex-1-0');
+    await expect(vehicleClimb).toHaveAttribute('data-reachable', 'false');
+    await expect(vehicleClimb).toHaveAttribute('data-movement-type', 'walk');
+    await expect(vehicleClimb).toHaveAttribute('data-movement-mode', 'tracked');
+    await expect(vehicleClimb).toHaveAttribute('data-mp-cost', 'Infinity');
+    await expect(vehicleClimb).toHaveAttribute('data-elevation', '2');
+    await expect(vehicleClimb).toHaveAttribute('data-elevation-delta', '2');
+    await expect(vehicleClimb).toHaveAttribute('data-elevation-cost', '4');
+    await expect(vehicleClimb).toHaveAttribute('data-heat-generated', '0');
+    await expect(vehicleClimb).toHaveAttribute(
+      'data-movement-blocked-reason',
+      'Elevation change of 2 exceeds Tracked movement limit',
+    );
+    await expect(vehicleClimb).toHaveAttribute(
+      'data-movement-invalid-reason',
+      'TerrainBlocked',
+    );
+    await expect(vehicleClimb).toHaveAttribute(
+      'data-movement-invalid-details',
+      'Elevation change of 2 exceeds Tracked movement limit',
+    );
+
+    const invalidBadge = page.getByTestId('hex-movement-invalid-badge-1-0');
+    await expect(invalidBadge.locator('text')).toHaveText('ELEV');
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'TerrainBlocked',
+    );
+  });
+
   test('shows run-selected water fallback as walking with blocked run metadata', async ({
     page,
   }) => {

@@ -2,6 +2,7 @@ import type {
   IMovementCapability,
   IUnitGameState,
   MovementConversionMode,
+  MovementMotiveMode,
   MovementUnitHeightProfile,
 } from '@/types/gameplay';
 
@@ -59,6 +60,35 @@ function conversionModeHeight(
   return undefined;
 }
 
+function quadVeeVehicleMovementMode(
+  unit: IUnitGameState,
+  capability: IMovementCapability,
+): MovementMotiveMode {
+  if (unit.conversionMode === 'wheeled') return 'wheeled';
+  if (unit.conversionMode === 'tracked') return 'tracked';
+  return capability.movementMode === 'wheeled' ? 'wheeled' : 'tracked';
+}
+
+function conversionModeMovementMode(
+  unit: IUnitGameState,
+  capability: IMovementCapability,
+  profile: MovementUnitHeightProfile,
+): MovementMotiveMode | undefined {
+  const mode = normalizedConversionMode(unit.conversionMode, profile);
+  if (profile.kind === 'quadvee' && mode === 'vehicle') {
+    return quadVeeVehicleMovementMode(unit, capability);
+  }
+  return undefined;
+}
+
+function conversionModeJumpMP(
+  unit: IUnitGameState,
+  profile: MovementUnitHeightProfile,
+): number | undefined {
+  const mode = normalizedConversionMode(unit.conversionMode, profile);
+  return profile.kind === 'quadvee' && mode === 'vehicle' ? 0 : undefined;
+}
+
 function infantryMountHeight(
   unit: IUnitGameState,
   profile: MovementUnitHeightProfile | undefined,
@@ -109,12 +139,29 @@ export function resolveRuntimeMovementCapability(
   if (!capability) return undefined;
 
   const runtimeHeight = runtimeUnitHeightForMovement(unit, capability);
-  if (runtimeHeight === undefined || runtimeHeight === capability.unitHeight) {
+  const profile = capability.unitHeightProfile;
+  const runtimeMovementMode = profile
+    ? conversionModeMovementMode(unit, capability, profile)
+    : undefined;
+  const runtimeJumpMP = profile
+    ? conversionModeJumpMP(unit, profile)
+    : undefined;
+
+  if (
+    (runtimeHeight === undefined || runtimeHeight === capability.unitHeight) &&
+    (runtimeMovementMode === undefined ||
+      runtimeMovementMode === capability.movementMode) &&
+    (runtimeJumpMP === undefined || runtimeJumpMP === capability.jumpMP)
+  ) {
     return capability;
   }
 
   return {
     ...capability,
-    unitHeight: runtimeHeight,
+    ...(runtimeHeight !== undefined ? { unitHeight: runtimeHeight } : {}),
+    ...(runtimeMovementMode !== undefined
+      ? { movementMode: runtimeMovementMode }
+      : {}),
+    ...(runtimeJumpMP !== undefined ? { jumpMP: runtimeJumpMP } : {}),
   };
 }

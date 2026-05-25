@@ -59,11 +59,12 @@ describe('runtime movement capability', () => {
     ).toBe(1);
   });
 
-  it('projects QuadVee vehicle mode as height zero from runtime state', () => {
+  it('projects QuadVee vehicle mode as tracked motive, height zero, and no jumping from runtime state', () => {
     const capability: IMovementCapability = {
       walkMP: 4,
       runMP: 6,
-      jumpMP: 0,
+      jumpMP: 3,
+      movementMode: 'walk',
       unitHeight: 1,
       unitHeightProfile: { kind: 'quadvee', standingHeight: 1 },
     };
@@ -73,7 +74,13 @@ describe('runtime movement capability', () => {
         unitState({ conversionMode: 'tracked' }),
         capability,
       ),
-    ).toMatchObject({ unitHeight: 0 });
+    ).toMatchObject({ jumpMP: 0, movementMode: 'tracked', unitHeight: 0 });
+    expect(
+      resolveRuntimeMovementCapability(
+        unitState({ conversionMode: 'wheeled' }),
+        capability,
+      ),
+    ).toMatchObject({ jumpMP: 0, movementMode: 'wheeled', unitHeight: 0 });
     expect(
       resolveRuntimeMovementCapability(
         unitState({ conversionMode: 0 }),

@@ -34,6 +34,7 @@ import * as movement from '@/testing/tactical-map.movement-scenarios';
 import * as naval from '@/testing/tactical-map.naval-landfall-scenario';
 import * as occupiedDestination from '@/testing/tactical-map.occupied-destination-scenario';
 import * as proneCombat from '@/testing/tactical-map.prone-combat-scenario';
+import * as quadveeConversion from '@/testing/tactical-map.quadvee-conversion-scenario';
 import * as runWater from '@/testing/tactical-map.run-water-fallback-scenario';
 import * as sameHex from '@/testing/tactical-map.same-hex-scenarios';
 import * as stackedLos from '@/testing/tactical-map.stacked-los-scenario';
@@ -79,6 +80,8 @@ const movementFixtureScenarios = new Set([
   'battlefield-wreck-rough-terrain',
   'legend-mode-selection',
   'occupied-destination-blocked',
+  'quadvee-mek-elevation-climb',
+  'quadvee-vehicle-elevation-blocked',
   'runtime-height-bridge-clearance',
   'run-water-walk-fallback',
   'tracked-elevation-blocked',
@@ -194,6 +197,9 @@ const tokensByScenario = {
   'runtime-height-bridge-clearance': movement.tacticalMapRuntimeHeightTokens,
   'occupied-destination-blocked':
     occupiedDestination.tacticalMapOccupiedDestinationTokens,
+  'quadvee-mek-elevation-climb': quadveeConversion.tacticalMapQuadveeMekTokens,
+  'quadvee-vehicle-elevation-blocked':
+    quadveeConversion.tacticalMapQuadveeVehicleTokens,
   'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackTokens,
   'tracked-elevation-blocked':
     trackedElevation.tacticalMapTrackedElevationTokens,
@@ -248,6 +254,10 @@ const movementRangeByScenario = {
     movement.tacticalMapRuntimeHeightMovementRange,
   'occupied-destination-blocked':
     occupiedDestination.tacticalMapOccupiedDestinationMovementRange,
+  'quadvee-mek-elevation-climb':
+    quadveeConversion.tacticalMapQuadveeMekMovementRange,
+  'quadvee-vehicle-elevation-blocked':
+    quadveeConversion.tacticalMapQuadveeVehicleMovementRange,
   'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackMovementRange,
   'tracked-elevation-blocked':
     trackedElevation.tacticalMapTrackedElevationMovementRange,
@@ -267,6 +277,10 @@ const mpLegendByScenario = {
   'runtime-height-bridge-clearance': movement.tacticalMapRuntimeHeightMpLegend,
   'occupied-destination-blocked':
     occupiedDestination.tacticalMapOccupiedDestinationMpLegend,
+  'quadvee-mek-elevation-climb':
+    quadveeConversion.tacticalMapQuadveeMekMpLegend,
+  'quadvee-vehicle-elevation-blocked':
+    quadveeConversion.tacticalMapQuadveeVehicleMpLegend,
   'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackMpLegend,
   'tracked-elevation-blocked':
     trackedElevation.tacticalMapTrackedElevationMpLegend,
@@ -287,6 +301,10 @@ const selectedHexByScenario = {
     movement.tacticalMapRuntimeHeightSelectedHex,
   'occupied-destination-blocked':
     occupiedDestination.tacticalMapOccupiedDestinationSelectedHex,
+  'quadvee-mek-elevation-climb':
+    quadveeConversion.tacticalMapQuadveeConversionSelectedHex,
+  'quadvee-vehicle-elevation-blocked':
+    quadveeConversion.tacticalMapQuadveeConversionSelectedHex,
   'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackSelectedHex,
   'tracked-elevation-blocked':
     trackedElevation.tacticalMapTrackedElevationSelectedHex,
@@ -305,6 +323,10 @@ const hexTerrainByScenario = {
     movement.tacticalMapRuntimeHeightBridgeHexTerrain,
   'occupied-destination-blocked':
     occupiedDestination.tacticalMapOccupiedDestinationHexTerrain,
+  'quadvee-mek-elevation-climb':
+    quadveeConversion.tacticalMapQuadveeConversionHexTerrain,
+  'quadvee-vehicle-elevation-blocked':
+    quadveeConversion.tacticalMapQuadveeConversionHexTerrain,
   'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackHexTerrain,
   'tracked-elevation-blocked':
     trackedElevation.tacticalMapTrackedElevationHexTerrain,

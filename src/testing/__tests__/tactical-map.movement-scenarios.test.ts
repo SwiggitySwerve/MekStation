@@ -34,6 +34,14 @@ import {
   tacticalMapOccupiedDestinationMovementRange,
 } from '../tactical-map.occupied-destination-scenario';
 import {
+  tacticalMapQuadveeMekCommitInput,
+  tacticalMapQuadveeMekMovementRange,
+  tacticalMapQuadveeMekMpLegend,
+  tacticalMapQuadveeVehicleCommitInput,
+  tacticalMapQuadveeVehicleMovementRange,
+  tacticalMapQuadveeVehicleMpLegend,
+} from '../tactical-map.quadvee-conversion-scenario';
+import {
   tacticalMapRunWaterFallbackCommitInput,
   tacticalMapRunWaterFallbackMovementRange,
 } from '../tactical-map.run-water-fallback-scenario';
@@ -249,6 +257,75 @@ describe('tactical map movement scenarios', () => {
     expect(result.details).toBe(projection.movementInvalidDetails);
     expect(result.mpCost).toBe(projection.mpCost);
     expect(result.heatGenerated).toBe(projection.heatGenerated);
+  });
+
+  it('keeps QuadVee runtime conversion mode aligned between browser projection and commit validation', () => {
+    const mekProjection = tacticalMapQuadveeMekMovementRange[0];
+    const vehicleProjection = tacticalMapQuadveeVehicleMovementRange[0];
+
+    expect(mekProjection).toMatchObject({
+      hex: { q: 1, r: 0 },
+      reachable: true,
+      mpCost: 3,
+      terrainCost: 0,
+      elevationDelta: 2,
+      elevationCost: 2,
+      heatGenerated: 1,
+      movementMode: 'walk',
+      movementType: 'walk',
+    });
+    expect(tacticalMapQuadveeMekMpLegend).toMatchObject({
+      movementMode: 'walk',
+      jumpMP: 3,
+      jumpAvailable: true,
+    });
+
+    const mekResult = validateCommittedMovement(
+      tacticalMapQuadveeMekCommitInput(),
+    );
+
+    expect(mekResult.valid).toBe(true);
+    if (!mekResult.valid) {
+      throw new Error(mekResult.details);
+    }
+    expect(mekResult.mpCost).toBe(mekProjection.mpCost);
+    expect(mekResult.heatGenerated).toBe(mekProjection.heatGenerated);
+    expect(mekResult.path).toEqual(mekProjection.path);
+
+    expect(vehicleProjection).toMatchObject({
+      hex: { q: 1, r: 0 },
+      reachable: false,
+      terrainCost: 0,
+      elevationDelta: 2,
+      elevationCost: 4,
+      heatGenerated: 0,
+      movementMode: 'tracked',
+      movementType: 'walk',
+      blockedReason: 'Elevation change of 2 exceeds Tracked movement limit',
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails:
+        'Elevation change of 2 exceeds Tracked movement limit',
+    });
+    expect(tacticalMapQuadveeVehicleMpLegend).toMatchObject({
+      movementMode: 'tracked',
+      jumpMP: 0,
+      jumpAvailable: false,
+    });
+
+    const vehicleResult = validateCommittedMovement(
+      tacticalMapQuadveeVehicleCommitInput(),
+    );
+
+    expect(vehicleResult.valid).toBe(false);
+    if (vehicleResult.valid) {
+      throw new Error('Expected QuadVee vehicle-mode climb to be blocked');
+    }
+    expect(vehicleResult.reason).toBe(vehicleProjection.movementInvalidReason);
+    expect(vehicleResult.details).toBe(
+      vehicleProjection.movementInvalidDetails,
+    );
+    expect(vehicleResult.mpCost).toBe(vehicleProjection.mpCost);
+    expect(vehicleResult.heatGenerated).toBe(vehicleProjection.heatGenerated);
   });
 
   it('keeps run-selected water fallback committed as walking when running is blocked', () => {

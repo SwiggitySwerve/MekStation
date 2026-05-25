@@ -1056,6 +1056,21 @@ badge; focused Jest parity proves `validateCommittedMovement` rejects the same
 fixture with matching reason, details, MP cost, and heat. Full MegaMek stacking
 exceptions, charge, and DFA remain outside this fixture.
 
+2026-05-25 QuadVee conversion movement pin: MegaMek `QuadVee.java:170-177`
+routes vehicle-mode walking MP through cruise MP, `QuadVee.java:263-272`
+returns zero jump MP in vehicle mode, `QuadVee.java:431-439` makes vehicle-mode
+height 0, and `QuadVee.java:443-448` lowers the max elevation change to 1. The
+MekStation runtime movement capability resolver now translates represented
+QuadVee vehicle conversion state into tracked/wheeled motive, height 0, and
+jump MP 0 before both projection and commit validation. The tactical-map
+browser harness proves the same level-2 climb is legal in Mek mode with Walk
+MP/elevation/heat metadata, then blocked in tracked vehicle mode with the
+`TerrainBlocked` elevation reason, a disabled Jump legend row, and a non-color
+`ELEV` invalid badge. Focused Jest parity proves `validateCommittedMovement`
+accepts and rejects the paired fixtures with matching MP, heat, path, reason,
+and details. Full conversion actions, turn mode, hull-down behavior, and LAM
+movement-mode dispatch remain outside this fixture.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:
