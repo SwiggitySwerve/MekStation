@@ -9,6 +9,8 @@ The tactical map increasingly explains terrain, movement, combat, LOS, and proje
 - Add unit type, displayed map position, source position, and facing metadata to rendered unit token wrappers.
 - Add mounted host metadata for battle armor passenger badges.
 - Add aerospace altitude and velocity metadata to aerospace token wrappers when present.
+- Preserve displayed map position, source position, facing, and unit type on
+  isometric scene token wrappers.
 - Preserve aerospace altitude and velocity metadata on isometric scene token
   wrappers so depth-sorted 2.5D projection remains inspectable.
 - Include the same state in token accessible labels.

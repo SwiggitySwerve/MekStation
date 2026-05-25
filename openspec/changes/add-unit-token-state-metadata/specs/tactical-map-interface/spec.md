@@ -33,3 +33,12 @@ Rendered tactical map unit token wrappers SHALL expose inspectable state metadat
 **AND** it SHALL expose the aerospace altitude
 **AND** it SHALL expose the aerospace velocity
 **AND** the nested token wrapper SHALL retain its own altitude and velocity metadata
+
+#### Scenario: Isometric scene wrapper preserves common token state
+
+**GIVEN** a tactical map unit token is rendered in isometric mode
+**WHEN** the isometric scene depth-sorts that token
+**THEN** the isometric scene token wrapper SHALL expose the unit type
+**AND** it SHALL expose the displayed map position used for depth sorting
+**AND** it SHALL expose the source game-state position
+**AND** it SHALL expose the facing used by the rendered token

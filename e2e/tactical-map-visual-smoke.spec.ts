@@ -2434,6 +2434,15 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     ).toHaveAttribute('data-isometric-token-unit-type', 'aerospace');
     await expect(
       page.getByTestId('isometric-scene-token-aero-attacker'),
+    ).toHaveAttribute('data-isometric-token-map-position', '0,0');
+    await expect(
+      page.getByTestId('isometric-scene-token-aero-attacker'),
+    ).toHaveAttribute('data-isometric-token-source-position', '0,0');
+    await expect(
+      page.getByTestId('isometric-scene-token-aero-attacker'),
+    ).toHaveAttribute('data-isometric-token-facing', '1');
+    await expect(
+      page.getByTestId('isometric-scene-token-aero-attacker'),
     ).toHaveAttribute('data-isometric-aerospace-altitude', '4');
     await expect(
       page.getByTestId('isometric-scene-token-aero-attacker'),

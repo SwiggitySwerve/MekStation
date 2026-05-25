@@ -2784,6 +2784,12 @@ describe('HexMapDisplay tactical visual layers', () => {
       screen.getByTestId('isometric-scene-token-hidden-contact'),
     ).not.toHaveAttribute('data-isometric-foreground-boost', 'true');
     expect(
+      screen.getByTestId('isometric-scene-token-hidden-contact'),
+    ).toHaveAttribute('data-isometric-token-map-position', '0,0');
+    expect(
+      screen.getByTestId('isometric-scene-token-hidden-contact'),
+    ).toHaveAttribute('data-isometric-token-source-position', '0,0');
+    expect(
       screen.queryByTestId('isometric-visibility-halo-hidden-contact'),
     ).toBeNull();
     expect(
@@ -2795,6 +2801,25 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('fog-marker-hidden-contact')).toBeInTheDocument();
 
     const lastKnownToken = screen.getByTestId('unit-token-last-known-contact');
+    const lastKnownSceneToken = screen.getByTestId(
+      'isometric-scene-token-last-known-contact',
+    );
+    expect(lastKnownSceneToken).toHaveAttribute(
+      'data-isometric-token-unit-type',
+      TokenUnitType.Mech,
+    );
+    expect(lastKnownSceneToken).toHaveAttribute(
+      'data-isometric-token-map-position',
+      '-1,0',
+    );
+    expect(lastKnownSceneToken).toHaveAttribute(
+      'data-isometric-token-source-position',
+      '2,0',
+    );
+    expect(lastKnownSceneToken).toHaveAttribute(
+      'data-isometric-token-facing',
+      `${Facing.North}`,
+    );
     expect(lastKnownToken).toHaveAttribute(
       'data-isometric-visibility-rule',
       'lastKnown',

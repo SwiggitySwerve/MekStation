@@ -1,5 +1,7 @@
 import React from 'react';
 
+import type { IHexCoordinate, IUnitToken } from '@/types/gameplay';
+
 import { AttackEffectsLayer } from '@/components/gameplay/effects/AttackEffectsLayer';
 import { PersistentEffectsLayer } from '@/components/gameplay/effects/PersistentEffectsLayer';
 import { FiringArcOverlay } from '@/components/gameplay/overlays/FiringArcOverlay';
@@ -263,6 +265,7 @@ function IsometricSceneLayer({
         }
 
         const occlusionInfo = occlusionInfoByUnit.get(item.token.unitId);
+        const displayPosition = displayPositionForSceneToken(item.token);
         return (
           <g
             key={item.key}
@@ -277,6 +280,11 @@ function IsometricSceneLayer({
             }
             data-isometric-occluder-elevation={occlusionInfo?.occluderElevation}
             data-isometric-token-unit-type={item.token.unitType}
+            data-isometric-token-map-position={coordToKey(displayPosition)}
+            data-isometric-token-source-position={coordToKey(
+              item.token.position,
+            )}
+            data-isometric-token-facing={item.token.facing}
             data-isometric-vehicle-motion-type={
               item.token.unitType === TokenUnitType.Vehicle
                 ? item.token.vehicleMotionType
@@ -317,6 +325,13 @@ function IsometricSceneLayer({
       })}
     </g>
   );
+}
+
+function displayPositionForSceneToken(token: IUnitToken): IHexCoordinate {
+  if (token.fogStatus === 'lastKnown' && token.lastKnownPosition) {
+    return token.lastKnownPosition;
+  }
+  return token.position;
 }
 
 export default HexMapDisplay;

@@ -972,7 +972,10 @@ and velocity metadata, altitude badge, and velocity vector in top-down and
 isometric projections. The isometric depth-sorted scene wrapper now also
 exposes aerospace unit type, altitude, and velocity metadata, keeping airborne
 state inspectable at the same wrapper layer that owns depth ordering and
-occlusion/highlight behavior.
+occlusion/highlight behavior. That same scene wrapper now exposes common token
+state as well: displayed map position, source game-state position, facing, and
+unit type. Last-known contacts therefore reveal the stale display hex and true
+source hex separately in the 2.5D ordering layer.
 
 2026-05-25 combat movement modifier browser pin: MegaMek
 `ComputeAttackerToHitMods.java:102-103` appends attacker movement via
