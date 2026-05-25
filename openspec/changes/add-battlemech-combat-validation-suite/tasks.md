@@ -126,8 +126,9 @@
 - [x] 3.4.24 Guard source-backed initiative equipment hydration as unsupported unless complete HQ communications or command-console eligibility context exists; command-looking metadata without explicit initiative fields fails closed.
 - [x] 3.4.25 Source-back legacy Evasive SPA support as an unsupported optional TacOps Evade movement/action gap, including target to-hit and attacker firing restrictions, until an authoritative evade action path exists.
 - [x] 3.4.26 Source-back torso-twist secondary-facing arc consumption and extended/no-twist quirk boundaries while preserving attack arc consumption as a helper-only gap until torso twist is authoritative.
-- [x] 3.4.27 Seed conservative runner initial C3/C3i networks from hydrated mounted BattleMech equipment while leaving session/player-authored, ambiguous multi-network, oversize, and damage-lifecycle gaps explicit.
+- [x] 3.4.27 Seed conservative runner initial C3/C3i networks from hydrated mounted BattleMech equipment while leaving session/player-authored, ambiguous multi-network, and oversize gaps explicit.
 - [x] 3.4.28 Refresh explicit C3 network member lifecycle state during runner attack declaration so stale destroyed/ejected/retreated/withdrawing/shutdown/transported members cannot provide range sharing.
+- [x] 3.4.29 Suppress explicit C3 range sharing when hydrated mounted C3 equipment has a matching destroyed critical slot in the runner critical-slot manifest.
 - [x] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -206,3 +207,4 @@
 - [x] 4.3.48 Cross-check MegaMek AMS projectile reduction, Streak/all-shots-hit cluster parity, single-missile interception, ammo/heat/fired handling, defender assignment, arc enforcement, and multi-use gates before leaving AMS helper-only.
 - [x] 4.3.49 Cross-check conservative runner C3/C3i initial network assembly against MegaMek C3 range/equipment anchors before narrowing automatic network-assembly gaps.
 - [x] 4.3.50 Cross-check MegaMek C3 attacker shutdown/off-board and spotter shutdown/off-board/transported eligibility before refreshing runner C3 operational state at attack time.
+- [x] 4.3.51 Cross-check MegaMek non-inoperable mounted C3 equipment requirements before suppressing runner C3 range sharing from destroyed matching critical slots.

@@ -145,6 +145,13 @@ const MEGAMEK_C3_RANGE_SOURCE_REFS = [
     url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/megamek/src/megamek/common/compute/ComputeC3Spotter.java#L154-L197`,
     sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
   },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Entity.hasC3M, hasC3S, and hasC3i require mounted C3 equipment to be non-inoperable before C3 can be used.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L6122-L6305`,
+    sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
+  },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const MEGAMEK_C3_EQUIPMENT_SOURCE_REFS = [
@@ -417,13 +424,13 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
   ),
   c3: integrated(
     'c3',
-    'runAttackPhase consumes explicit IGameState.c3Network state, refreshes C3 member positions, operational lifecycle state, and ECM/iNARC ECM disruption from current unit state, and calls calculateToHitWithC3 for direct weapon attacks; default C3 range sharing does not require spotter LOS',
+    'runAttackPhase consumes explicit IGameState.c3Network state, refreshes C3 member positions, operational lifecycle state, matching C3 critical-slot damage, and ECM/iNARC ECM disruption from current unit state, and calls calculateToHitWithC3 for direct weapon attacks; default C3 range sharing does not require spotter LOS',
     MEGAMEK_C3_RANGE_SOURCE_REFS,
   ),
   'c3-equipment-network-formation': helperOnly(
     'c3-equipment-network-formation',
-    'UnitHydration derives BattleMech mounted C3 master/slave/C3i equipment roles from catalog equipment and critical slots; createInitialState now seeds unambiguous per-side runner C3 master/slave and C3i networks from hydrated equipment; c3Network creation helpers validate explicit C3 master/slave and C3i membership; and runAttackPhase consumes IGameState.c3Network state',
-    'Session builders, player-authored network assignment, multiple same-side C3 networks, ambiguous multi-master equipment, oversize network splitting, and C3 equipment damage lifecycle are not yet authoritative from hydrated mounted equipment',
+    'UnitHydration derives BattleMech mounted C3 master/slave/C3i equipment roles from catalog equipment and critical slots; createInitialState now seeds unambiguous per-side runner C3 master/slave and C3i networks from hydrated equipment; c3Network creation helpers validate explicit C3 master/slave and C3i membership; and runAttackPhase consumes IGameState.c3Network state while suppressing destroyed matching C3 critical slots',
+    'Session builders, player-authored network assignment, multiple same-side C3 networks, ambiguous multi-master equipment, and oversize network splitting are not yet authoritative from hydrated mounted equipment',
     [...MEGAMEK_C3_RANGE_SOURCE_REFS, ...MEGAMEK_C3_EQUIPMENT_SOURCE_REFS],
   ),
   'terrain-features': integrated(

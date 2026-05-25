@@ -19,6 +19,7 @@ import {
   updateC3UnitOperationalStatus,
   updateC3UnitECMStatus,
   updateC3UnitPosition,
+  type IC3NetworkUnit,
   type IC3NetworkState,
 } from '@/utils/gameplay/c3Network';
 import { buildDefaultCriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
@@ -173,8 +174,104 @@ function isFlightPathAffectedByINarcECM(
   return hasINarcPodType(attacker, 'ecm');
 }
 
+const C3_CRITICAL_LOCATION_BY_CATALOG_LOCATION: Readonly<
+  Record<string, string>
+> = {
+  HEAD: 'head',
+  CENTER_TORSO: 'center_torso',
+  LEFT_TORSO: 'left_torso',
+  RIGHT_TORSO: 'right_torso',
+  LEFT_ARM: 'left_arm',
+  RIGHT_ARM: 'right_arm',
+  LEFT_LEG: 'left_leg',
+  RIGHT_LEG: 'right_leg',
+};
+
+function normalizeC3CriticalText(text: string): string {
+  return text
+    .replace(/^\d+-/, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+    .replace(/^(is|clan|cl)/, '');
+}
+
+function criticalLocationFromC3SourceLocation(
+  sourceLocation: string | undefined,
+): string | undefined {
+  if (!sourceLocation) return undefined;
+  const normalized = sourceLocation
+    .split(',')[0]
+    ?.trim()
+    .toUpperCase()
+    .replace(/[\s-]+/g, '_');
+  return normalized
+    ? C3_CRITICAL_LOCATION_BY_CATALOG_LOCATION[normalized]
+    : undefined;
+}
+
+function criticalSlotTextMatchesC3Role(
+  role: IC3NetworkUnit['role'],
+  componentName: string,
+): boolean {
+  const normalized = normalizeC3CriticalText(componentName);
+  if (role === 'c3i') {
+    return normalized.includes('c3i') || normalized.includes('improvedc3');
+  }
+  return normalized.includes('c3') && normalized.includes(role);
+}
+
+function isC3EquipmentDestroyedByCriticalManifest(
+  equipment: NonNullable<IGameState['units'][string]['c3Equipment']>[number],
+  manifest: CriticalSlotManifest | undefined,
+): boolean {
+  if (!manifest) return false;
+
+  const sourceLocation = criticalLocationFromC3SourceLocation(
+    equipment.sourceLocation,
+  );
+  const slotGroups =
+    sourceLocation !== undefined
+      ? [manifest[sourceLocation] ?? []]
+      : Object.values(manifest);
+  const sourceEquipment = normalizeC3CriticalText(equipment.sourceEquipmentId);
+
+  return slotGroups.some((slots) =>
+    slots.some((slot) => {
+      const component = normalizeC3CriticalText(slot.componentName);
+      const isMatchingMount =
+        component === sourceEquipment ||
+        component.includes(sourceEquipment) ||
+        sourceEquipment.includes(component) ||
+        criticalSlotTextMatchesC3Role(equipment.role, slot.componentName);
+
+      return isMatchingMount && slot.destroyed;
+    }),
+  );
+}
+
+function hasUsableC3EquipmentForRole(
+  unit: IGameState['units'][string],
+  role: IC3NetworkUnit['role'],
+  manifest: CriticalSlotManifest | undefined,
+): boolean {
+  const c3Equipment = unit.c3Equipment;
+  if (!c3Equipment || c3Equipment.length === 0) return true;
+
+  const roleEquipment = c3Equipment.filter(
+    (equipment) => equipment.role === role,
+  );
+  if (roleEquipment.length === 0) return false;
+
+  return roleEquipment.some(
+    (equipment) =>
+      !isC3EquipmentDestroyedByCriticalManifest(equipment, manifest),
+  );
+}
+
 function canUnitParticipateInC3(
   unit: IGameState['units'][string] | undefined,
+  role: IC3NetworkUnit['role'],
+  manifest: CriticalSlotManifest | undefined,
 ): boolean {
   return (
     unit !== undefined &&
@@ -183,7 +280,8 @@ function canUnitParticipateInC3(
     !unit.hasRetreated &&
     !unit.isWithdrawing &&
     unit.shutdown !== true &&
-    unit.isPassenger !== true
+    unit.isPassenger !== true &&
+    hasUsableC3EquipmentForRole(unit, role, manifest)
   );
 }
 
@@ -208,6 +306,7 @@ function pruneInactiveC3Networks(state: IC3NetworkState): IC3NetworkState {
 
 function hydrateC3StateForAttack(
   state: IGameState,
+  manifestsByUnit?: ReadonlyMap<string, CriticalSlotManifest>,
 ): IC3NetworkState | undefined {
   const c3State = state.c3Network;
   if (!c3State) return undefined;
@@ -215,12 +314,13 @@ function hydrateC3StateForAttack(
   const members = c3State.networks.flatMap((network) =>
     network.members.map((member) => {
       const unit = state.units[member.entityId];
+      const manifest = manifestsByUnit?.get(member.entityId);
 
       return {
         entityId: member.entityId,
         teamId: member.teamId,
         position: unit?.position ?? member.position,
-        operational: canUnitParticipateInC3(unit),
+        operational: canUnitParticipateInC3(unit, member.role, manifest),
         iNarcPods: unit?.iNarcPods,
       };
     }),
@@ -766,7 +866,7 @@ export function runAttackPhase(options: {
         isIndirectFire && indirectFireResolution
           ? indirectFireResolution.toHitPenalty
           : 0;
-      const c3State = hydrateC3StateForAttack(currentState);
+      const c3State = hydrateC3StateForAttack(currentState, manifestsByUnit);
       const toHitCalc =
         c3State !== undefined && !isIndirectFire
           ? calculateToHitWithC3(

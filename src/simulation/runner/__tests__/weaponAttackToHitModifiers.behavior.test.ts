@@ -8,6 +8,7 @@
  */
 
 import type { IAttackDeclaredPayload } from '@/types/gameplay/GameSessionAttackEvents';
+import type { CriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
 
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import {
@@ -250,6 +251,7 @@ function runModifierScenario(options?: {
   state?: IGameState;
   grid?: IHexGrid;
   weapon?: IWeapon;
+  manifestsByUnit?: Map<string, CriticalSlotManifest>;
   environmentalConditions?: IEnvironmentalConditions;
 }): IGameEvent[] {
   const state = options?.state ?? createWeaponAttackState();
@@ -271,6 +273,7 @@ function runModifierScenario(options?: {
       ['player-1', [weapon]],
       ['opponent-1', []],
     ]),
+    manifestsByUnit: options?.manifestsByUnit,
   });
 
   return events;
@@ -776,6 +779,83 @@ describe('runAttackPhase to-hit modifier integration', () => {
 
     const payload = attackDeclaredPayload(
       runModifierScenario({ state: c3State }),
+    );
+
+    expect(payload).toMatchObject({
+      range: 'medium',
+      toHitNumber: 6,
+    });
+    expectModifier(payload, {
+      name: 'Range (medium)',
+      value: 2,
+      source: 'range',
+    });
+    expect(payload.modifiers).not.toContainEqual(
+      expect.objectContaining({ name: 'C3 Network' }),
+    );
+  });
+
+  it('suppresses C3 range sharing when mounted C3 equipment is critically destroyed', () => {
+    const network = createC3MasterSlaveNetwork('runner-c3-damaged-equipment', [
+      createC3Unit({
+        entityId: 'player-1',
+        teamId: GameSide.Player,
+        role: 'master',
+        position: { q: 5, r: 0 },
+      }),
+      createC3Unit({
+        entityId: 'spotter-1',
+        teamId: GameSide.Player,
+        role: 'slave',
+        position: { q: 2, r: 0 },
+      }),
+    ]);
+    const state = createWeaponAttackState({
+      attacker: {
+        position: { q: 5, r: 0 },
+        c3Equipment: [
+          {
+            role: 'master',
+            sourceEquipmentId: 'C3 Master Computer',
+            sourceLocation: 'CENTER_TORSO',
+          },
+        ],
+      },
+      target: { position: { q: 0, r: 0 } },
+    });
+
+    expect(network).not.toBeNull();
+
+    const c3State: IGameState = {
+      ...state,
+      c3Network: addC3Network(createEmptyC3State(), network!),
+      units: {
+        ...state.units,
+        'spotter-1': createUnit({
+          id: 'spotter-1',
+          side: GameSide.Player,
+          position: { q: 2, r: 0 },
+        }),
+      },
+    };
+    const manifestsByUnit = new Map<string, CriticalSlotManifest>([
+      [
+        'player-1',
+        {
+          center_torso: [
+            {
+              slotIndex: 0,
+              componentType: 'equipment',
+              componentName: 'C3 Master Computer',
+              destroyed: true,
+            },
+          ],
+        },
+      ],
+    ]);
+
+    const payload = attackDeclaredPayload(
+      runModifierScenario({ state: c3State, manifestsByUnit }),
     );
 
     expect(payload).toMatchObject({
