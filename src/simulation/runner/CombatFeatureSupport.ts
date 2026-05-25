@@ -12,6 +12,7 @@ import {
   MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
   MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
   MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
+  MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   MEGAMEK_SANDBLASTER_SOURCE_REFS,
   MEGAMEK_SHAKY_STICK_SOURCE_REFS,
   MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,
@@ -510,7 +511,11 @@ export const SPA_COMBAT_SUPPORT = {
     'Source-backed calculateTerrainMasterDefensiveToHitModifier plus calculateToHit and runner target terrain hydration apply +1 to-hit against running targets in mud or swamp; source-backed bog-down relief is tracked under the PSR and terrain stuck-state gap rows',
     MEGAMEK_325B_SWAMP_BEAST_SOURCE_REFS,
   ),
-  acrobat: unsupported('acrobat', 'DFA PSR modifier is not wired'),
+  acrobat: unsupported(
+    'acrobat',
+    'Local Acrobat DFA PSR modifier is not wired, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
+    MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
+  ),
   'cross-country': unsupported(
     'cross-country',
     'MegaMek Cross-Country is a combat-vehicle terrain movement-cost/passability modifier; no source-backed BattleMech terrain PSR modifier is represented in the BattleMech combat matrix',
@@ -533,7 +538,8 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'natural-grace': unsupported(
     'natural-grace',
-    'Fall PSR modifier is not wired',
+    'Local Natural Grace fall PSR modifier is not wired, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
+    MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
   'iron-man': integrated(
     'iron-man',
@@ -559,11 +565,13 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'speed-demon': unsupported(
     'speed-demon',
-    'Run-distance and heat tradeoff is not wired',
+    'Local Speed Demon run-distance and heat tradeoff is not wired, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
+    MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
   'combat-intuition': unsupported(
     'combat-intuition',
-    'Round-one initiative override is not wired',
+    'Local Combat Intuition round-one initiative sequencing is not wired, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
+    MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
   'hot-dog': integrated(
     'hot-dog',
@@ -574,6 +582,7 @@ export const SPA_COMBAT_SUPPORT = {
     'cool-under-fire',
     'runHeatPhase and resolveHeatPhase apply getCoolUnderFireHeatReduction as capped generated-heat relief in the HeatDissipated breakdown',
     'No MegaMek source-backed Cool Under Fire ability id or generated-heat reduction path was found in commit 325b2504; keep this as local helper behavior until an authority is identified',
+    MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
   'some-like-it-hot': integrated(
     'some-like-it-hot',
@@ -602,7 +611,8 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   antagonizer: unsupported(
     'antagonizer',
-    'Target-priority enforcement is not wired',
+    'Local Antagonizer target-priority enforcement is not wired, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
+    MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 

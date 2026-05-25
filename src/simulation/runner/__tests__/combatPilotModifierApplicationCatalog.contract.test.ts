@@ -705,7 +705,11 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       evidence: expect.stringContaining('getCoolUnderFireHeatReduction'),
       gap: expect.stringContaining('No MegaMek source-backed'),
     });
-    expect(SPA_COMBAT_SUPPORT['cool-under-fire'].sourceRefs).toBeUndefined();
+    expect(
+      SPA_COMBAT_SUPPORT['cool-under-fire'].sourceRefs?.some(
+        (sourceRef) => sourceRef.kind === 'mekstation-deviation',
+      ),
+    ).toBe(true);
 
     expect(SPA_COMBAT_SUPPORT['some-like-it-hot']).toMatchObject({
       level: 'integrated',
@@ -724,6 +728,49 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       gap: expect.stringContaining('Cool Under Fire'),
     });
     expect(heatApplicationRefs).toEqual([...hotDogRefs, ...someLikeItHotRefs]);
+  });
+
+  it('pins local-only SPA gaps to MegaMek registry and MekStation deviation refs', () => {
+    const localOnlySpaIds = [
+      'acrobat',
+      'natural-grace',
+      'speed-demon',
+      'combat-intuition',
+      'cool-under-fire',
+      'antagonizer',
+    ] as const;
+
+    localOnlySpaIds.forEach((spaId) => {
+      const support = SPA_COMBAT_SUPPORT[spaId];
+      expect(support.sourceRefs?.map(({ citation }) => citation)).toEqual([
+        'MegaMek PilotOptions registers the source-backed pilot advantage ids in this combat source snapshot; MekStation local-only SPA ids are not part of that registry.',
+        'MegaMek OptionsConstants defines the source-backed pilot option constants used by the combat SPA catalog boundary.',
+        'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, and Antagonizer; these must remain unsupported or helper-only until a source-backed combat authority is identified.',
+      ]);
+      expect(
+        support.sourceRefs?.some(
+          (sourceRef) =>
+            sourceRef.kind === 'mekstation-deviation' &&
+            sourceRef.url.includes(
+              'src/utils/gameplay/spaModifiers/catalog.ts#L',
+            ),
+        ),
+      ).toBe(true);
+    });
+
+    expect(SPA_COMBAT_SUPPORT['cool-under-fire'].level).toBe('helper-only');
+    expect(SPA_COMBAT_SUPPORT['cool-under-fire'].gap).toContain(
+      'local helper behavior',
+    );
+    expect(SPA_COMBAT_SUPPORT['combat-intuition'].gap).toContain(
+      'no source-backed MegaMek combat SPA id',
+    );
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['target-priority-application'],
+    ).toMatchObject({
+      level: 'unsupported',
+      sourceRefs: SPA_COMBAT_SUPPORT.antagonizer.sourceRefs,
+    });
   });
 
   it('keeps source-backed pilot modifier refs commit-pinned', () => {

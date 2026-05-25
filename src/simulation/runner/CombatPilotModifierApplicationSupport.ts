@@ -11,6 +11,7 @@ import {
   MEGAMEK_INITIATIVE_EQUIPMENT_SOURCE_REFS,
   MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   MEGAMEK_PSR_SPA_SOURCE_REFS,
+  MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   MEGAMEK_SANDBLASTER_SOURCE_REFS,
   MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS,
   MEGAMEK_SHAKY_STICK_SOURCE_REFS,
@@ -193,7 +194,8 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'target-priority-application': unsupported(
     'target-priority-application',
-    'Antagonizer target-priority enforcement is not implemented in target selection or attack validation',
+    'Local Antagonizer target-priority enforcement is not implemented in target selection or attack validation, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
+    MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 

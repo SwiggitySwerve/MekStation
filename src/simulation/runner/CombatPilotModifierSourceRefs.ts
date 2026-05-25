@@ -15,6 +15,18 @@ function megamekRef(
   };
 }
 
+function mekstationDeviationRef(
+  citation: string,
+  pathWithLines: string,
+): ICombatFeatureSourceReference {
+  return {
+    kind: 'mekstation-deviation',
+    citation,
+    url: pathWithLines,
+    sourceVersion: 'MekStation working-tree',
+  };
+}
+
 export const MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS = [
   megamekRef(
     'MegaMek Compute.getSecondaryTargetMod applies the secondary-target modifier and reduces it for Multi-Tasker.',
@@ -23,6 +35,21 @@ export const MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS = [
   megamekRef(
     'MegaMek OptionsConstants defines GUNNERY_MULTI_TASKER as multi_tasker.',
     'megamek/src/megamek/common/options/OptionsConstants.java#L192-L200',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek PilotOptions registers the source-backed pilot advantage ids in this combat source snapshot; MekStation local-only SPA ids are not part of that registry.',
+    'megamek/src/megamek/common/options/PilotOptions.java#L60-L87',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines the source-backed pilot option constants used by the combat SPA catalog boundary.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L169-L230',
+  ),
+  mekstationDeviationRef(
+    'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, and Antagonizer; these must remain unsupported or helper-only until a source-backed combat authority is identified.',
+    'src/utils/gameplay/spaModifiers/catalog.ts#L204-L386',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

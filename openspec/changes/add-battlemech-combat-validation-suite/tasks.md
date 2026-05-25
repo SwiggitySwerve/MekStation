@@ -140,6 +140,7 @@
 - [x] 3.4.33 Source-pin AttackInvalid reason rows for out-of-ammo, out-of-range, no-LOS/no-spotter, invalid target, unknown weapon, destroyed weapon, and jammed weapon, while marking same-hex as an explicit MekStation deviation row.
 - [x] 3.4.34 Source-pin invalid ranged attack no-side-effect guards for event suppression, heat, ammo, damage, and fired-weapon state as MekStation row-level contracts.
 - [x] 3.4.35 Source-pin physical damage modifier rows for active TSM, claw punch, talon kick/DFA, and underwater physical damage while preserving claw/talon damaged-equipment and option-rule gaps.
+- [x] 3.4.36 Source-pin local-only SPA gaps for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, and Antagonizer so helper-only or unsupported rows cannot be mistaken for MegaMek parity.
 - [x] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -235,3 +236,4 @@
 - [x] 4.3.64 Promote heat rule rows to row-level source references so inherited heat authority cannot mask unsourced accumulation, dissipation, threshold, environment, lifecycle, ammo-explosion, or pilot heat-damage claims.
 - [x] 4.3.65 Promote critical-slot hydration and effect rows to row-level MegaMek source references so inherited damage authority cannot mask unsourced system critical, equipment critical, ammo cookoff, or generic-equipment gap claims.
 - [x] 4.3.66 Cross-check MegaMek `Compute.getValidDisplacement`, `Compute.getPreferredDisplacement`, recursive `Compute.isValidDisplacement`, and `TWGameManager.doEntityDisplacement` before pinning domino, friendly-avoidance, and DropShip-radius displacement edges as explicit unsupported gaps.
+- [x] 4.3.67 Cross-check MegaMek pilot option registries and local SPA catalog rows before pinning local-only SPA gaps as MekStation deviation boundaries rather than source-backed parity claims.

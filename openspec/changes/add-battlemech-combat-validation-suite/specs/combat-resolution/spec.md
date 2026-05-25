@@ -969,6 +969,18 @@ Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer for
 - **THEN** the initiative modifier SHALL remain `0`
 - **AND** the combat validation catalog SHALL continue to mark automatic HQ communications and command-console hydration as unsupported until all MegaMek eligibility gates are modeled
 
+### Requirement: Local-Only SPA Gap Boundaries
+
+Pilot modifier validation SHALL keep local-only SPA rows visible as MekStation deviation boundaries when a MegaMek combat SPA authority has not been identified. Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, and Antagonizer SHALL NOT be treated as MegaMek parity claims unless the catalog row carries source-backed implementation evidence. Unsupported or helper-only rows SHALL cite the current MegaMek pilot option registry plus the MekStation SPA catalog row that introduced the local behavior.
+
+#### Scenario: Local SPA rows stay source-boundary explicit
+
+- **GIVEN** the combat catalog includes Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, or Antagonizer
+- **WHEN** the support row is helper-only or unsupported
+- **THEN** the row SHALL cite the MegaMek pilot option registry used for the source-truth cross-check
+- **AND** the row SHALL cite the MekStation SPA catalog as a `mekstation-deviation`
+- **AND** no row SHALL be promoted to integrated until an implementation and source-backed combat authority exist
+
 ### Requirement: Source-Backed Terrain Master Defender To-Hit Variants
 
 Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit variants from target state and target terrain: Forest Ranger SHALL add a `+1` to-hit modifier only when the target has canonical `tm_forest_ranger` or legacy `terrain-master-forest-ranger`, the target moved by walking, and the target occupies wooded terrain; Swamp Beast SHALL add a `+1` to-hit modifier only when the target has canonical `tm_swamp_beast` or legacy `terrain-master-swamp-beast`, the target moved by running, and the target occupies mud or swamp. Runner ranged attacks SHALL hydrate target terrain features into to-hit state. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry and Mountaineer rubble-entry relief, including Swamp Beast bog-down relief, SHALL remain an explicit gap until separately source-backed.
