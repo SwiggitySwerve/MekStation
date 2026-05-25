@@ -1,6 +1,7 @@
 import React from 'react';
 
 import type { IHexCoordinate, IUnitToken } from '@/types/gameplay';
+import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
 import { AttackEffectsLayer } from '@/components/gameplay/effects/AttackEffectsLayer';
 import { PersistentEffectsLayer } from '@/components/gameplay/effects/PersistentEffectsLayer';
@@ -264,6 +265,10 @@ function IsometricSceneLayer({
           const projectionKey = coordToKey(item.hex);
           const projection = tacticalMapProjectionLookup.get(projectionKey);
           const primaryTerrain = getPrimaryTerrainFeature(projection?.terrain);
+          const sceneHexLabel = formatIsometricSceneHexLabel(
+            item.hex,
+            projection,
+          );
           return (
             <g
               key={item.key}
@@ -286,7 +291,12 @@ function IsometricSceneLayer({
                     )
                   : undefined
               }
+              data-isometric-hex-projection-explanation={
+                projection?.explanation
+              }
+              aria-label={sceneHexLabel}
             >
+              {sceneHexLabel && <title>{sceneHexLabel}</title>}
               {renderHexCell(item.hex)}
             </g>
           );
@@ -366,6 +376,23 @@ function joinNonEmpty(
   values: readonly string[] | undefined,
 ): string | undefined {
   return values && values.length > 0 ? values.join('|') : undefined;
+}
+
+function formatIsometricSceneHexLabel(
+  hex: IHexCoordinate,
+  projection: ITacticalMapHexProjection | undefined,
+): string | undefined {
+  if (!projection) return undefined;
+
+  const blocked =
+    projection.blockedReasons.length > 0
+      ? `; blocked ${projection.blockedReasons.join(', ')}`
+      : '';
+  const explanation = projection.explanation
+    ? `; ${projection.explanation}`
+    : '';
+
+  return `Isometric hex ${hex.q},${hex.r}; projection ${projection.status} ${projection.intent}; movement ${projection.movementStatus}; combat ${projection.combatStatus}${blocked}${explanation}`;
 }
 
 export default HexMapDisplay;

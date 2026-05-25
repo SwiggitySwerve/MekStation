@@ -18,6 +18,7 @@
 - [x] 3.4 Preserve top-down and isometric behavior
 - [x] 3.5 Preserve projection summary metadata on isometric scene hex wrappers
 - [x] 3.6 Preserve projection status and explanation context in rendered hex title/accessible labels
+- [x] 3.7 Preserve projection explanations on isometric scene hex wrappers
 
 ## 4. Verification
 
@@ -28,3 +29,4 @@
 - [x] 4.5 `npx.cmd openspec validate add-tactical-map-hex-projection --strict` passes
 - [x] 4.6 Focused Playwright browser coverage passes
 - [x] 4.7 Focused render coverage proves movement, terrain, unreachable, and combat hex labels carry projection context
+- [x] 4.8 Focused render coverage proves isometric scene hex wrappers carry projection explanations

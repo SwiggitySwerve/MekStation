@@ -1694,6 +1694,21 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       movementSceneHex.getAttribute('data-isometric-hex-sources'),
     ).toContain('combat:megamek');
+    expect(movementSceneHex).toHaveAttribute(
+      'data-isometric-hex-projection-explanation',
+      expect.stringContaining('Walk reachable 3 MP'),
+    );
+    expect(movementSceneHex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('projection legal movement-combat'),
+    );
+    expect(movementSceneHex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('Walk reachable 3 MP'),
+    );
+    expect(movementSceneHex.querySelector('title')).toHaveTextContent(
+      'Walk reachable 3 MP',
+    );
 
     const targetSceneHex = screen.getByTestId('isometric-scene-hex-2-0');
     expect(targetSceneHex).toHaveAttribute(
@@ -1715,6 +1730,21 @@ describe('HexMapDisplay combat projection', () => {
     expect(targetSceneHex).toHaveAttribute(
       'data-isometric-hex-combat-status',
       'attackable',
+    );
+    expect(targetSceneHex).toHaveAttribute(
+      'data-isometric-hex-projection-explanation',
+      expect.stringContaining('combat short 2 hexes LOS clear'),
+    );
+    expect(targetSceneHex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('projection legal combat'),
+    );
+    expect(targetSceneHex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('combat short 2 hexes LOS clear'),
+    );
+    expect(targetSceneHex.querySelector('title')).toHaveTextContent(
+      'combat short 2 hexes LOS clear',
     );
   });
 

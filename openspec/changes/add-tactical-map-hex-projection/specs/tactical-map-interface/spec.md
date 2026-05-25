@@ -39,7 +39,8 @@ The tactical map interface SHALL compose terrain, elevation, movement, combat, p
 **THEN** the scene hex wrapper SHALL expose the hex coordinate used for map lookup
 **AND** it SHALL expose the terrain elevation and primary terrain type from the shared projection
 **AND** it SHALL expose the projection intent, overall status, movement status, and combat status
-**AND** it SHALL expose any blocked reasons and source references from the same per-hex projection used by the nested rendered hex
+**AND** it SHALL expose any blocked reasons, source references, and projection explanation from the same per-hex projection used by the nested rendered hex
+**AND** its title and accessible label SHALL summarize the same projection status, channel state, blocked reasons, and explanation without recalculating rules
 
 #### Scenario: Rendered hex labels carry projection context
 

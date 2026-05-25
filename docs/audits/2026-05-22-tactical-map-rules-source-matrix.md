@@ -1313,6 +1313,12 @@ and the shared projection explanation from the same per-hex projection used by
 badges and tooltips. This does not add legality logic; it makes the hex itself
 inspectable as a rules-backed tactical explanation surface.
 
+2026-05-25 isometric scene explanation pin: Isometric scene hex wrappers now
+carry the shared projection explanation, source references, and a readable
+title/accessible label before rendering the nested hex cell. This does not
+change depth sorting or legality; it keeps the rotatable 2.5D scene wrapper
+inspectable from the same per-hex projection as top-down cells and tooltips.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:
