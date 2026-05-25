@@ -611,11 +611,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'canDFA rejects declarations when attackerJumpedThisTurn is false',
     DFA_ACTION_LINES,
   ),
-  'dfa.no-mechanical-jump-booster': helperOnly(
+  'dfa.no-mechanical-jump-booster': integrated(
     'dfa.no-mechanical-jump-booster',
     'dfa',
-    'canDFA consumes attackerUsedMechanicalJumpBooster and rejects explicit mechanical jump booster DFA attempts as MechanicalJumpBooster',
-    'Runtime movement declarations and physical eligibility do not yet hydrate the MegaMek JUMP_MEK_MECHANICAL_BOOSTER step into DFA helper inputs',
+    'MovementDeclared step chains hydrate usedMechanicalJumpBoosterThisTurn; canDFA consumes attackerUsedMechanicalJumpBooster and rejects MechanicalJumpBooster through helper, eligibility, event-sourced declaration/resolution, runner resolution, and automatic runner selection',
     DFA_ACTION_LINES,
   ),
   'dfa.attacker-not-infantry': integrated(

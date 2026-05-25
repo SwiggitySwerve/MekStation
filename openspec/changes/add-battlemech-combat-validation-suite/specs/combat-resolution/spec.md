@@ -610,13 +610,13 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** death from above SHALL be rejected before hit resolution
 - **AND** the validation catalog SHALL record the gate as integrated only when helper and runner evidence exist
 
-#### Scenario: Death from above helper rejects mechanical jump boosters
+#### Scenario: Death from above rejects mechanical jump booster movement paths
 
-- **GIVEN** a DFA helper evaluates an attacker that jumped using a mechanical jump booster
+- **GIVEN** a BattleMech movement declaration contains a jump step marked as using a mechanical jump booster
 - **WHEN** the DFA legality gate runs
 - **THEN** death from above SHALL be rejected with `MechanicalJumpBooster`
 - **AND** no damage, displacement, or PSR side effect SHALL be emitted
-- **AND** the validation catalog SHALL mark this as helper-only until runtime movement declarations hydrate the mechanical jump booster movement step
+- **AND** eligibility UI, event-sourced declaration/resolution, runner resolution, and automatic runner selection SHALL use the same movement-step-derived gate
 
 #### Scenario: Death from above evaluates airborne VTOL reach with hydrated jump context
 

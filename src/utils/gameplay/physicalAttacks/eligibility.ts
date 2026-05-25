@@ -75,6 +75,8 @@ export interface IEligibilityContext {
   readonly attackerMovedBackwardThisTurn?: boolean;
   /** True when the attacker jumped this turn — gates DFA. */
   readonly attackerJumpedThisTurn?: boolean;
+  /** True when this turn's jump used mechanical jump boosters instead of normal jump movement. */
+  readonly attackerUsedMechanicalJumpBooster?: boolean;
   /** Attacker jump MP for DFA reach against airborne VTOL/WIGE targets. */
   readonly attackerJumpMP?: number;
   /** Target movement modifier (TMM). */
@@ -312,6 +314,9 @@ export function getEligiblePhysicalAttacks(
     attackerJumpedThisTurn:
       context.attackerJumpedThisTurn ??
       attacker.movementThisTurn === MovementType.Jump,
+    attackerUsedMechanicalJumpBooster:
+      context.attackerUsedMechanicalJumpBooster ??
+      attacker.usedMechanicalJumpBoosterThisTurn,
     limbsUsedThisTurn: context.limbsUsedThisTurn,
     lowerArmActuatorPresent: context.lowerArmActuatorPresent,
     handActuatorPresent: context.handActuatorPresent,

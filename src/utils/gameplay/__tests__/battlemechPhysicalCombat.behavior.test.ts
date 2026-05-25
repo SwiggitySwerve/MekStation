@@ -844,6 +844,29 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(kick?.restrictionsFailed).toContain('TargetAirborne');
   });
 
+  it('projects mechanical jump booster DFA attempts as restricted', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        facing: Facing.Southeast,
+        movementThisTurn: MovementType.Jump,
+        usedMechanicalJumpBoosterThisTurn: true,
+      },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+    });
+    const dfa = options.find((option) => option.attackType === 'dfa');
+
+    expect(dfa?.restrictionsFailed).toContain('MechanicalJumpBooster');
+  });
+
   it('projects evading attackers as restricted physical options', () => {
     const attacker = unitState(
       'attacker',
@@ -3034,6 +3057,74 @@ describe('BattleMech physical combat behavior validation lane', () => {
       toHitNumber: Infinity,
       hit: false,
       location: 'ElevationMismatch',
+    });
+    expect(
+      resolved.events.some(
+        (event) => event.type === GameEventType.DamageApplied,
+      ),
+    ).toBe(false);
+  });
+
+  it('rejects mechanical jump booster DFA declarations from hydrated movement state', () => {
+    const rejected = declarePhysicalAttack(
+      withPhysicalPositions(physicalPhaseSession(), {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 4,
+        usedMechanicalJumpBoosterThisTurn: true,
+      }),
+      'attacker',
+      'target',
+      'dfa',
+      physicalContext(),
+    );
+
+    const declarations = rejected.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const payload = rejected.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'dfa',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'MechanicalJumpBooster',
+    });
+  });
+
+  it('resolves stale DFA declarations against mechanical jump booster state as invalid events', () => {
+    const declared = declareAdjacentPhysicalAttack('dfa', physicalContext(), {
+      movementThisTurn: MovementType.Jump,
+      hexesMovedThisTurn: 4,
+    });
+    const resolved = resolveAllPhysicalAttacks(
+      withUnitState(declared, 'attacker', {
+        usedMechanicalJumpBoosterThisTurn: true,
+      }),
+      new Map([['attacker', physicalContext()]]),
+      scriptedDice([6, 6, 3]),
+    );
+
+    const resolvedEvents = resolved.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = resolvedEvents.at(-1)
+      ?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(resolvedEvents).toHaveLength(1);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'dfa',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'MechanicalJumpBooster',
     });
     expect(
       resolved.events.some(

@@ -323,6 +323,7 @@ describe('applyEvent - PhaseChanged', () => {
           movementThisTurn: MovementType.Walk,
           hexesMovedThisTurn: 4,
           movedBackwardThisTurn: true,
+          usedMechanicalJumpBoosterThisTurn: true,
         },
       },
     };
@@ -344,6 +345,9 @@ describe('applyEvent - PhaseChanged', () => {
     );
     expect(newState.units['unit-1'].hexesMovedThisTurn).toBe(0);
     expect(newState.units['unit-1'].movedBackwardThisTurn).toBe(false);
+    expect(newState.units['unit-1'].usedMechanicalJumpBoosterThisTurn).toBe(
+      false,
+    );
   });
 });
 
@@ -482,6 +486,52 @@ describe('applyEvent - MovementDeclared', () => {
 
     expect(newState.units['unit-1'].hexesMovedThisTurn).toBe(1);
     expect(newState.units['unit-1'].movedBackwardThisTurn).toBe(true);
+  });
+
+  it('records mechanical jump booster use from the step chain', () => {
+    let state = createInitialGameState('game-1');
+
+    const createEvent = createTestEvent({
+      type: GameEventType.GameCreated,
+      payload: {
+        config: createTestConfig(),
+        units: [createTestUnit()],
+      } as IGameCreatedPayload,
+    });
+    state = applyEvent(state, createEvent);
+
+    const movementEvent = createTestEvent({
+      sequence: 2,
+      type: GameEventType.MovementDeclared,
+      payload: {
+        unitId: 'unit-1',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        facing: Facing.North,
+        movementType: MovementType.Jump,
+        mpUsed: 1,
+        heatGenerated: 1,
+        hexesMoved: 1,
+        steps: [
+          {
+            kind: 'jump',
+            index: 0,
+            from: { q: 0, r: 0 },
+            to: { q: 1, r: 0 },
+            mpCost: 1,
+            terrainEntered: 'clear',
+            usesMechanicalJumpBooster: true,
+          },
+        ],
+      } as IMovementDeclaredPayload,
+    });
+
+    const newState = applyEvent(state, movementEvent);
+
+    expect(newState.units['unit-1'].movementThisTurn).toBe(MovementType.Jump);
+    expect(newState.units['unit-1'].usedMechanicalJumpBoosterThisTurn).toBe(
+      true,
+    );
   });
 
   it('should accumulate heat', () => {

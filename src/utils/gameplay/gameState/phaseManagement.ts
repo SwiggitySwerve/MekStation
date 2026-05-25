@@ -30,6 +30,7 @@ export function applyPhaseChanged(
         movementThisTurn: MovementType.Stationary,
         hexesMovedThisTurn: 0,
         movedBackwardThisTurn: false,
+        usedMechanicalJumpBoosterThisTurn: false,
       };
     }
   }

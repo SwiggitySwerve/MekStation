@@ -937,6 +937,21 @@ describe('BattleMech combat action support catalog', () => {
     });
   });
 
+  it('catalogs DFA mechanical jump booster legality as an integrated source-backed gate', () => {
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['dfa.no-mechanical-jump-booster'],
+    ).toMatchObject({
+      level: 'integrated',
+      attackFamily: 'dfa',
+      evidence: expect.stringContaining('usedMechanicalJumpBoosterThisTurn'),
+      sourceRefs: [
+        expect.objectContaining({
+          citation: expect.stringContaining('DfaAttackAction'),
+        }),
+      ],
+    });
+  });
+
   it('catalogs DFA DropShip target legality as an integrated source-backed gate', () => {
     expect(
       PHYSICAL_LEGALITY_GATE_SUPPORT['dfa.target-not-dropship'],

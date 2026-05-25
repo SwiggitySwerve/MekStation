@@ -287,6 +287,8 @@ export function runPhysicalAttackPhase(options: {
           canReachForCharge: attackerRanThisTurn && hexesMoved > 1,
           hexesMoved,
           attackerMovedBackwardThisTurn: unit.movedBackwardThisTurn,
+          attackerUsedMechanicalJumpBooster:
+            unit.usedMechanicalJumpBoosterThisTurn,
           isJumping: attackerJumpedThisTurn,
           pilotAbilities: unit.abilities,
           unitQuirks: unit.unitQuirks,
@@ -407,6 +409,7 @@ export function runPhysicalAttackPhase(options: {
       attackerMovementModifier,
       attackerRanThisTurn,
       attackerMovedBackwardThisTurn: unit.movedBackwardThisTurn,
+      attackerUsedMechanicalJumpBooster: unit.usedMechanicalJumpBoosterThisTurn,
       attackerJumpedThisTurn,
       pushDestinationValid,
       pushTargetDirectlyAhead: isTargetDirectlyAhead(

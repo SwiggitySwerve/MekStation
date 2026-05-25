@@ -130,6 +130,11 @@ export interface IJumpStep {
   /** Distance jumped (1 MP per hex of jump distance for ground 'Mechs). */
   readonly mpCost: number;
   readonly terrainEntered: string;
+  /**
+   * Source-backed MegaMek `JUMP_MEK_MECHANICAL_BOOSTER` movement path marker.
+   * DFA rejects jump paths that used mechanical boosters.
+   */
+  readonly usesMechanicalJumpBooster?: boolean;
 }
 
 export interface IStandUpStep {

@@ -253,6 +253,12 @@ export interface IUnitGameState {
    */
   readonly movedBackwardThisTurn?: boolean;
   /**
+   * Source-backed DFA legality state derived from MovementDeclared.steps.
+   * True when this turn's jump movement used MegaMek's
+   * JUMP_MEK_MECHANICAL_BOOSTER path, which cannot be used for DFA.
+   */
+  readonly usedMechanicalJumpBoosterThisTurn?: boolean;
+  /**
    * Per `add-encounter-swarm-harness` Phase 1: pilot gunnery skill copied
    * from the binding `IGameUnit` at session-creation time. Optional for
    * backward compat with synthetic unit fixtures (`createMinimalUnitState`)

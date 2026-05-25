@@ -508,6 +508,7 @@ export interface IChooseBestPhysicalAttackOptions {
   canReachForCharge?: boolean;
   hexesMoved?: number;
   attackerMovedBackwardThisTurn?: boolean;
+  attackerUsedMechanicalJumpBooster?: boolean;
   isJumping?: boolean;
   hasMeleeWeapon?: PhysicalAttackType;
   weaponsFiredFromLeftArm?: readonly string[];

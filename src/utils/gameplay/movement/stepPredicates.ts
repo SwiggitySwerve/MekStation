@@ -17,3 +17,15 @@ export function movementStepsUseBackwardMovement(
 ): boolean {
   return steps?.some(movementStepUsesBackwardMovement) ?? false;
 }
+
+export function movementStepUsesMechanicalJumpBooster(
+  step: IMovementStep,
+): boolean {
+  return step.kind === 'jump' && step.usesMechanicalJumpBooster === true;
+}
+
+export function movementStepsUseMechanicalJumpBooster(
+  steps: readonly IMovementStep[] | undefined,
+): boolean {
+  return steps?.some(movementStepUsesMechanicalJumpBooster) ?? false;
+}

@@ -372,6 +372,7 @@ describe('BattleMech combat validation catalog index', () => {
         'charge.attacker-not-prone',
         'charge.target-mek-standing',
         'dfa.requires-jump',
+        'dfa.no-mechanical-jump-booster',
         'dfa.vtol-elevation-reachable',
         'dfa.target-not-dropship',
         'dfa.target-not-inside-building',

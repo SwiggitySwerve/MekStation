@@ -75,6 +75,8 @@ export interface IPhysicalAttackContext {
    * Per tasks 3.6 / 3.7: DFA requires a jump; charge requires a run.
    */
   readonly attackerJumpedThisTurn?: boolean;
+  /** True when this turn's jump used mechanical jump boosters instead of normal jump movement. */
+  readonly attackerUsedMechanicalJumpBooster?: boolean;
   /** Attacker jump MP for DFA reach against airborne VTOL/WIGE targets. */
   readonly attackerJumpMP?: number;
   readonly attackerRanThisTurn?: boolean;

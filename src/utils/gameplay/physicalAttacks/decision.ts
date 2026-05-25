@@ -59,6 +59,8 @@ export function chooseBestPhysicalAttack(
     attackerBoardId: options.attackerBoardId,
     targetBoardId: options.targetBoardId,
     elevationDifference: options.elevationDifference,
+    attackerUsedMechanicalJumpBooster:
+      options.attackerUsedMechanicalJumpBooster,
     targetIsMakingDisplacementAttack: options.targetIsMakingDisplacementAttack,
     targetIsPushing: options.targetIsPushing,
     targetDisplacementAttackTargetId: options.targetDisplacementAttackTargetId,

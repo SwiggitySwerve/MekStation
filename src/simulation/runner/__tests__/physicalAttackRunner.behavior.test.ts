@@ -1103,6 +1103,37 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     });
   });
 
+  it('rejects injected DFA declarations after mechanical jump booster movement before side effects', () => {
+    const mechanicalJumpDfa = runPhase('dfa', {
+      attacker: {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 4,
+        usedMechanicalJumpBoosterThisTurn: true,
+      },
+    });
+
+    expect(resolvedPayload(mechanicalJumpDfa.events)).toMatchObject({
+      attackType: 'dfa',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'MechanicalJumpBooster',
+    });
+    expect(
+      damageEventsFor(mechanicalJumpDfa.events, 'opponent-1'),
+    ).toHaveLength(0);
+    expect(damageEventsFor(mechanicalJumpDfa.events, 'player-1')).toHaveLength(
+      0,
+    );
+    expect(
+      mechanicalJumpDfa.result.units['opponent-1'].pendingPSRs,
+    ).toHaveLength(0);
+    expect(mechanicalJumpDfa.result.units['player-1'].pendingPSRs).toHaveLength(
+      0,
+    );
+  });
+
   it('rejects injected charge declarations after backward movement before side effects', () => {
     const backwardCharge = runPhase('charge', {
       attacker: {
@@ -1650,6 +1681,29 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       attackerId: 'player-1',
       targetId: 'opponent-1',
       attackType: 'dfa',
+    });
+  });
+
+  it('does not automatically select death from above after mechanical jump booster movement', () => {
+    const { events } = runAutomaticPhase({
+      attacker: {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 4,
+        usedMechanicalJumpBoosterThisTurn: true,
+      },
+    });
+
+    const declared = events.find(
+      (event) =>
+        event.type === GameEventType.PhysicalAttackDeclared &&
+        (event.payload as IPhysicalAttackDeclaredPayload).attackerId ===
+          'player-1',
+    )?.payload as IPhysicalAttackDeclaredPayload | undefined;
+
+    expect(declared).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'kick',
     });
   });
 

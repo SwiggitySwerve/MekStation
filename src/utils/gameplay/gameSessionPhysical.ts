@@ -502,6 +502,9 @@ export function declarePhysicalAttack(
     attackerJumpedThisTurn:
       context.attackerJumpedThisTurn ??
       attackerState.movementThisTurn === MovementType.Jump,
+    attackerUsedMechanicalJumpBooster:
+      context.attackerUsedMechanicalJumpBooster ??
+      attackerState.usedMechanicalJumpBoosterThisTurn,
     attackerRanThisTurn: context.attackerRanThisTurn,
     attackerMovedBackwardThisTurn:
       context.attackerMovedBackwardThisTurn ??
@@ -759,6 +762,9 @@ export function resolveAllPhysicalAttacks(
       attackerJumpedThisTurn:
         context.attackerJumpedThisTurn ??
         attackerState.movementThisTurn === MovementType.Jump,
+      attackerUsedMechanicalJumpBooster:
+        context.attackerUsedMechanicalJumpBooster ??
+        attackerState.usedMechanicalJumpBoosterThisTurn,
       attackerRanThisTurn: context.attackerRanThisTurn,
       attackerMovedBackwardThisTurn:
         context.attackerMovedBackwardThisTurn ??

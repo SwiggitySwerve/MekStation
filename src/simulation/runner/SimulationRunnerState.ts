@@ -28,7 +28,10 @@ import {
   type IC3NetworkState,
   type IC3NetworkUnit,
 } from '@/utils/gameplay/c3Network';
-import { movementStepsUseBackwardMovement } from '@/utils/gameplay/movement/stepPredicates';
+import {
+  movementStepsUseBackwardMovement,
+  movementStepsUseMechanicalJumpBooster,
+} from '@/utils/gameplay/movement/stepPredicates';
 import {
   deriveObjectivePlacementConfig,
   placeObjectives,
@@ -494,6 +497,9 @@ export function applyMovementEvent(
     movementThisTurn: payload.movementType,
     hexesMovedThisTurn: payload.hexesMoved ?? payload.mpUsed,
     movedBackwardThisTurn: movementStepsUseBackwardMovement(payload.steps),
+    usedMechanicalJumpBoosterThisTurn: movementStepsUseMechanicalJumpBooster(
+      payload.steps,
+    ),
   };
 
   return {
