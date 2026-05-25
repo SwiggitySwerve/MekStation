@@ -155,6 +155,14 @@ const MEKSTATION_WEAPON_DECLARE_ATTACK_COMMAND_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEKSTATION_WEAPON_FIRE_VOLLEY_COMMAND_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation buildWeaponAttackCommands exposes weapon.fire-volley as the confirmed weapon attack commit command that commits the local lock volley action payload.',
+    'src/components/gameplay/TacticalActionDock/commands/weaponAttackCommands.ts',
+    'L50-L73',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEKSTATION_WEAPON_CLEAR_ATTACKS_COMMAND_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation buildWeaponAttackCommands exposes weapon.clear-attacks as a local draft attack reset command that commits the clear action id.',
@@ -627,6 +635,7 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'weapon.fire-volley',
     'tactical-command',
     'buildWeaponAttackCommands commits the irreversible volley; declareAttack/Attack/dispatchToEngine.applyAttack carry the authoritative attack path',
+    MEKSTATION_WEAPON_FIRE_VOLLEY_COMMAND_SOURCE_REFS,
   ),
   'weapon.clear-attacks': helperOnly(
     'weapon.clear-attacks',

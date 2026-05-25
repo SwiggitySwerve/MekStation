@@ -188,6 +188,23 @@ describe('BattleMech combat action support catalog', () => {
         entry.sourceRefs?.every((sourceRef) => sourceRef.url.includes('#L')),
       ).toBe(true);
     }
+    expect(
+      COMBAT_COMMAND_ACTION_SUPPORT['weapon.fire-volley'].sourceRefs,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('weapon.fire-volley'),
+          url: expect.stringContaining('weaponAttackCommands.ts#L'),
+          sourceVersion: 'MekStation working-tree',
+        }),
+      ]),
+    );
+    expect(
+      COMBAT_COMMAND_ACTION_SUPPORT['weapon.fire-volley'].sourceRefs?.every(
+        (sourceRef) => sourceRef.url.includes('#L'),
+      ),
+    ).toBe(true);
     const heatEndCommandSourceRows = [
       'heat.continue',
       'heat-end.end-phase',
