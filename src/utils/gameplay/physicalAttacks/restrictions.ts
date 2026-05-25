@@ -99,6 +99,18 @@ function isChargeBlockedByVehicleCrewStun(
   return input.attackerVehicleCrewStunned === true;
 }
 
+function lamFighterPhysicalRestriction(
+  input: IPhysicalAttackInput,
+): IPhysicalAttackRestriction | null {
+  return normalizedLamConversionMode(input.attackerConversionMode) === 'fighter'
+    ? {
+        allowed: false,
+        reason: "LAM fighter mode can't make physical attacks",
+        reasonCode: 'AttackerCannotUsePhysical',
+      }
+    : null;
+}
+
 export function canPunch(
   input: IPhysicalAttackInput,
 ): IPhysicalAttackRestriction {
@@ -109,6 +121,9 @@ export function canPunch(
       reasonCode: 'AttackerNotMek',
     };
   }
+
+  const lamRestriction = lamFighterPhysicalRestriction(input);
+  if (lamRestriction) return lamRestriction;
 
   const actuators = input.componentDamage.actuators;
 
@@ -180,6 +195,9 @@ export function canKick(
     };
   }
 
+  const lamRestriction = lamFighterPhysicalRestriction(input);
+  if (lamRestriction) return lamRestriction;
+
   if (input.attackerProne) {
     return {
       allowed: false,
@@ -249,6 +267,9 @@ export function canMeleeWeapon(
     };
   }
 
+  const lamRestriction = lamFighterPhysicalRestriction(input);
+  if (lamRestriction) return lamRestriction;
+
   const actuators = input.componentDamage.actuators;
 
   if (input.weaponsFiredFromArm && input.weaponsFiredFromArm.length > 0) {
@@ -298,6 +319,9 @@ export function canPush(
       reasonCode: 'AttackerNotMek',
     };
   }
+
+  const lamRestriction = lamFighterPhysicalRestriction(input);
+  if (lamRestriction) return lamRestriction;
 
   if (!isRepresentedMek(input.targetUnitType)) {
     return {
@@ -416,6 +440,9 @@ export function canDFA(
       reasonCode: 'AttackerNotMek',
     };
   }
+
+  const lamRestriction = lamFighterPhysicalRestriction(input);
+  if (lamRestriction) return lamRestriction;
 
   if (input.attackerJumpedThisTurn === false) {
     return {

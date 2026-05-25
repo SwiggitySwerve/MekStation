@@ -1186,6 +1186,14 @@ resolution, so grounded AirMek charge remains legal behind the normal run gate
 while fighter-mode and airborne AirMek charge rows reject with
 `AttackerCannotCharge`.
 
+2026-05-25 LAM fighter physical eligibility pin: MegaMek
+`LandAirMek.java:919-925` marks fighter-mode LAMs ineligible for normal
+Physical Attack phase attacks, with ramming handled in the movement phase.
+MekStation now uses runtime `conversionMode` to block represented fighter-mode
+LAM punch, kick, push, DFA, and melee-weapon rows with
+`AttackerCannotUsePhysical` while leaving charge on its existing
+`AttackerCannotCharge` path and movement-phase ramming out of scope.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

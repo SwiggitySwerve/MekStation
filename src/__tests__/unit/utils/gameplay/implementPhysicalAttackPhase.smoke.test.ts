@@ -479,6 +479,40 @@ describe('implement-physical-attack-phase — smoke test', () => {
     expect(payload.location).toBe('AttackerCannotCharge');
   });
 
+  it('physical restriction: LAM fighter mode cannot declare punch', () => {
+    let session = setupPhysicalPhase();
+    const ctx: IPhysicalAttackContext = {
+      attackerTonnage: 50,
+      targetTonnage: 75,
+      pilotingSkill: 4,
+      arm: 'right',
+      attackerUnitType: UnitType.BATTLEMECH,
+      attackerConversionMode: 'fighter',
+    };
+
+    session = declarePhysicalAttack(
+      session,
+      'attacker',
+      'target',
+      'punch',
+      ctx,
+    );
+
+    const declared = session.events.filter(
+      (e: IGameEvent) => e.type === GameEventType.PhysicalAttackDeclared,
+    );
+    expect(declared).toHaveLength(0);
+
+    const resolved = session.events.find(
+      (e: IGameEvent) => e.type === GameEventType.PhysicalAttackResolved,
+    );
+    expect(resolved).toBeDefined();
+    const payload = resolved!.payload as IPhysicalAttackResolvedPayload;
+    expect(payload.hit).toBe(false);
+    expect(payload.toHitNumber).toBe(Infinity);
+    expect(payload.location).toBe('AttackerCannotUsePhysical');
+  });
+
   it('charge restriction: stunned vehicle cannot charge even after a run', () => {
     let session = withStunnedVehicleAttacker(setupPhysicalPhase());
     const ctx: IPhysicalAttackContext = {

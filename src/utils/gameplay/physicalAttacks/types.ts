@@ -63,6 +63,7 @@ export type PhysicalAttackInvalidReason =
   | 'LimbMissing'
   | 'AttackerProne'
   | 'AttackerNotMek'
+  | 'AttackerCannotUsePhysical'
   | 'AttackerCannotCharge'
   | 'TargetNotMek'
   | 'TargetNotDirectlyAhead'

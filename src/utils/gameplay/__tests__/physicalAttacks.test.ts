@@ -962,6 +962,32 @@ describe('physicalAttacks', () => {
     });
   });
 
+  describe('LAM fighter physical eligibility', () => {
+    it.each([
+      ['punch', canPunch],
+      ['kick', canKick],
+      ['push', canPush],
+      ['dfa', canDFA],
+      ['hatchet', canMeleeWeapon],
+    ] as const)('should block %s in fighter mode', (attackType, validator) => {
+      const result = validator(
+        makeInput({
+          attackType,
+          attackerUnitType: UnitType.BATTLEMECH,
+          attackerConversionMode: 'fighter',
+          attackerRanThisTurn: true,
+          attackerJumpedThisTurn: true,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: "LAM fighter mode can't make physical attacks",
+        reasonCode: 'AttackerCannotUsePhysical',
+      });
+    });
+  });
+
   describe('getEligiblePhysicalAttacks', () => {
     it('blocks stunned vehicle charge rows from generic physical highlights', () => {
       const attacker = {
@@ -1056,6 +1082,37 @@ describe('physicalAttacks', () => {
       expect(charge).toBeDefined();
       expect(charge!.toHit.allowed).toBe(false);
       expect(charge!.restrictionsFailed).toEqual(['AttackerCannotCharge']);
+    });
+
+    it('blocks represented LAM fighter physical rows from runtime state', () => {
+      const attacker = {
+        ...unitAt('fighter-lam-1', 0, 0),
+        conversionMode: 'fighter',
+      } as IUnitGameState;
+      const target = unitAt('mech-1', 1, 0);
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 45,
+        attackerPilotingSkill: 4,
+        targetTonnage: 55,
+        attackerUnitType: UnitType.BATTLEMECH,
+        attackerMovementMode: 'wheeled',
+        targetUnitType: UnitType.BATTLEMECH,
+        attackerRanThisTurn: true,
+        attackerJumpedThisTurn: true,
+      });
+
+      expect(options).not.toHaveLength(0);
+      expect(options.every((option) => option.toHit.allowed === false)).toBe(
+        true,
+      );
+      expect(
+        options
+          .filter((option) => option.attackType !== 'charge')
+          .every((option) =>
+            option.restrictionsFailed.includes('AttackerCannotUsePhysical'),
+          ),
+      ).toBe(true);
     });
 
     it('keeps battle armor from producing generic physical target highlights', () => {
