@@ -442,6 +442,28 @@ describe('runAttackPhase to-hit modifier integration', () => {
     });
   });
 
+  it('threads explicit target evasion state into AttackDeclared', () => {
+    const events = runModifierScenario({
+      state: createWeaponAttackState({
+        target: {
+          isEvading: true,
+        },
+      }),
+    });
+
+    const payload = attackDeclaredPayload(events);
+
+    expect(payload.toHitNumber).toBe(5);
+    expectModifier(payload, {
+      name: 'Target Evasion',
+      value: 1,
+      source: 'target_movement',
+    });
+    expect(
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['target-evasion'],
+    ).toMatchObject({ level: 'integrated' });
+  });
+
   it('threads wounds, sensor hits, actuator damage, and attacker prone into AttackDeclared', () => {
     const events = runModifierScenario({
       state: createWeaponAttackState({

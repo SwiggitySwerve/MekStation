@@ -158,6 +158,7 @@
 - [x] 3.4.35 Source-pin physical damage modifier rows for active TSM, claw punch, talon kick/DFA, and underwater physical damage while preserving claw/talon damaged-equipment and option-rule gaps.
 - [x] 3.4.36 Source-pin local-only SPA gaps for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, and Antagonizer so helper-only or unsupported rows cannot be mistaken for MegaMek parity.
 - [x] 3.4.37 Integrate source-backed evading-attacker ranged invalidation through runner weapon attack validation, event-sourced `declareAttack`, AttackInvalid reason cataloging, OpenSpec coverage, and no-side-effect behavior tests while leaving optional TacOps Evade movement-step action and target-evasion bonus gaps explicit.
+- [x] 3.4.38 Integrate source-backed target evasion ranged to-hit modifiers through helper calculation, event-sourced `declareAttack`, runner `AttackDeclared`, to-hit modifier cataloging, OpenSpec coverage, and focused behavior tests while leaving Evade movement-step creation, Skilled Evasion scaling, and physical target-evasion gaps explicit.
 - [x] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.

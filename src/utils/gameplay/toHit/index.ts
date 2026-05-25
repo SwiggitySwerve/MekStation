@@ -20,6 +20,7 @@ export {
 export {
   calculateAttackerMovementModifier,
   calculateTMM,
+  calculateTargetEvasionModifier,
 } from './movementModifiers';
 export {
   calculateHeatModifier,

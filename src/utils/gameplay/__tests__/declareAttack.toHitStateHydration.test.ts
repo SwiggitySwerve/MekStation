@@ -236,4 +236,42 @@ describe('declareAttack to-hit state hydration', () => {
       ]),
     );
   });
+
+  it('threads explicit target evasion state into declared to-hit modifiers', () => {
+    const session = setupWeaponAttackSession();
+    const hydratedSession: IGameSession = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        units: {
+          ...session.currentState.units,
+          target: {
+            ...session.currentState.units.target,
+            isEvading: true,
+          },
+        },
+      },
+    };
+
+    const result = declareAttack(
+      hydratedSession,
+      'attacker',
+      'target',
+      buildMediumLaserAttack(),
+      3,
+      RangeBracket.Short,
+    );
+
+    const payload = latestAttackDeclaredPayload(result);
+    expect(payload.toHitNumber).toBe(5);
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Target Evasion',
+          value: 1,
+          source: 'target_movement',
+        }),
+      ]),
+    );
+  });
 });

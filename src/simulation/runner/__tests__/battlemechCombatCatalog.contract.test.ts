@@ -1657,6 +1657,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       'range',
       'secondary-target',
       'sensor-damage',
+      'target-evasion',
       'target-immobile',
       'target-movement',
       'target-prone',
@@ -1692,6 +1693,8 @@ describe('BattleMech combat feature-gap tracking', () => {
       [];
     const targetMovementRefs =
       RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['target-movement'].sourceRefs ?? [];
+    const targetEvasionRefs =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['target-evasion'].sourceRefs ?? [];
     const heatRefs =
       RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT.heat.sourceRefs ?? [];
     const partialCoverRefs =
@@ -1731,6 +1734,12 @@ describe('BattleMech combat feature-gap tracking', () => {
       expect.stringContaining('appends target movement modifiers'),
       expect.stringContaining('standard TMM brackets'),
     ]);
+    expect(targetEvasionRefs.map(({ citation }) => citation)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('getEvasionBonus'),
+        expect.stringContaining('target evasion bonus'),
+      ]),
+    );
     expect(heatRefs.map(({ citation }) => citation)).toEqual([
       expect.stringContaining("attacker's heat firing modifier"),
       expect.stringContaining('standard heat firing thresholds'),

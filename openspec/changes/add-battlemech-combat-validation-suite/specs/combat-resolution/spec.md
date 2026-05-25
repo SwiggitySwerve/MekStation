@@ -122,7 +122,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 
 #### Scenario: Ranged to-hit modifier rows stay source-backed
 
-- **GIVEN** the ranged to-hit modifier catalog covers gunnery, range, minimum range, attacker movement, target movement, heat, environmental conditions, partial cover, target prone/immobile state, indirect fire, pilot wounds, sensor damage, actuator damage, attacker prone state, hull-down, secondary targets, called shots, ECM, C3, terrain features, and physical-DFA to-hit boundaries
+- **GIVEN** the ranged to-hit modifier catalog covers gunnery, range, minimum range, attacker movement, target movement, target evasion, heat, environmental conditions, partial cover, target prone/immobile state, indirect fire, pilot wounds, sensor damage, actuator damage, attacker prone state, hull-down, secondary targets, called shots, ECM, C3, terrain features, and physical-DFA to-hit boundaries
 - **WHEN** the aggregate catalog triad and BattleMech combat catalog contract tests run
 - **THEN** every integrated or helper-only to-hit modifier row SHALL carry structured MegaMek source references with commit-pinned URLs and line anchors
 - **AND** the aggregate catalog triad for `toHitModifiers` SHALL require row-level source references rather than inherited requirement authority
@@ -151,7 +151,15 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **WHEN** that unit attempts a ranged weapon attack through runner attack resolution or event-sourced `declareAttack`
 - **THEN** the attack SHALL emit `AttackInvalid` with reason `AttackerEvading`
 - **AND** no `AttackDeclared`, `AttackResolved`, heat, ammo, damage, or fired-weapon state side effects SHALL follow
-- **AND** optional TacOps Evade movement-step declaration SHALL remain an unsupported absent-action row until movement command, state, heat, wire, P2P, and target-evasion bonus paths are implemented
+- **AND** optional TacOps Evade movement-step declaration SHALL remain an unsupported absent-action row until movement command, state, heat, wire, P2P, Skilled Evasion scaling, and physical target-evasion paths are implemented
+
+#### Scenario: Evading targets modify ranged to-hit
+
+- **GIVEN** a ranged attack targets a unit with explicit `isEvading: true`
+- **WHEN** helper to-hit calculation, event-sourced `declareAttack`, or runner attack resolution builds the `AttackDeclared` to-hit payload
+- **THEN** the attack SHALL include a `Target Evasion` to-hit modifier of `+1`
+- **AND** prone evading targets SHALL not receive the target-evasion modifier
+- **AND** optional TacOps Evade movement-step declaration, Skilled Evasion scaling, and physical target-evasion modifiers SHALL remain visible gaps until their source-backed paths exist
 
 #### Scenario: Invalid ranged attack side-effect guards stay source-backed as MekStation contracts
 

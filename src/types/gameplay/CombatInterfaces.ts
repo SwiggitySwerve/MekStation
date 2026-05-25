@@ -690,6 +690,7 @@ export interface ITargetState {
   readonly weaponQuirks?: Readonly<Record<string, readonly string[]>>;
   readonly abilities?: readonly string[];
   readonly isDodging?: boolean;
+  readonly isEvading?: boolean;
   readonly terrainFeatures?: readonly ITerrainFeature[];
 }
 

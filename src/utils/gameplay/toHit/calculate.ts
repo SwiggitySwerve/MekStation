@@ -41,6 +41,7 @@ import { calculateTargetingComputerModifier } from './equipmentModifiers';
 import {
   calculateAttackerMovementModifier,
   calculateTMM,
+  calculateTargetEvasionModifier,
 } from './movementModifiers';
 import {
   calculateMinimumRangeModifier,
@@ -94,6 +95,11 @@ export function calculateToHit(
 
   modifiers.push(calculateAttackerMovementModifier(attacker.movementType));
   modifiers.push(calculateTMM(target.movementType, target.hexesMoved));
+  const targetEvasionMod = calculateTargetEvasionModifier(
+    target.isEvading,
+    target.prone,
+  );
+  if (targetEvasionMod) modifiers.push(targetEvasionMod);
   modifiers.push(
     calculateHeatModifier(
       attacker.heat,

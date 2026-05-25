@@ -34,6 +34,7 @@ const INTEGRATED_TO_HIT_MODIFIERS = [
   'pilot-wounds',
   'sensor-damage',
   'secondary-target',
+  'target-evasion',
   'terrain-features',
 ] as const;
 
@@ -195,6 +196,18 @@ describe('BattleMech to-hit support matrix modifiers', () => {
             secondaryTarget: { isSecondary: true, inFrontArc: false },
           }),
           makeTarget(),
+          RangeBracket.Short,
+          3,
+        ),
+    },
+    {
+      id: 'target-evasion',
+      expectedDelta: 1,
+      expectedModifierName: 'Target Evasion',
+      calculate: () =>
+        calculateToHit(
+          makeAttacker(),
+          makeTarget({ isEvading: true }),
           RangeBracket.Short,
           3,
         ),

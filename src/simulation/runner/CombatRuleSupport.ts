@@ -22,6 +22,7 @@ import {
   MEGAMEK_TORSO_TWIST_SOURCE_REFS,
   MEGAMEK_WALK_MOVEMENT_SOURCE_REFS,
 } from './CombatMovementSourceRefs';
+import { MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS } from './CombatPilotModifierSourceRefs';
 import {
   MEGAMEK_EXTREME_RANGE_BRACKET_SOURCE_REFS,
   MEGAMEK_MINIMUM_RANGE_SOURCE_REFS,
@@ -634,6 +635,11 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
     'target-movement',
     'runAttackPhase emits AttackDeclared modifiers with target movementThisTurn and hexesMovedThisTurn, and runPhysicalAttackPhase feeds target TMM into physical to-hit',
     MEGAMEK_TARGET_MOVEMENT_TO_HIT_SOURCE_REFS,
+  ),
+  'target-evasion': integrated(
+    'target-evasion',
+    'calculateToHit applies the explicit non-prone target isEvading bonus, while declareAttack and runAttackPhase hydrate IUnitGameState.isEvading into ranged AttackDeclared modifiers',
+    MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
   ),
   heat: integrated(
     'heat',

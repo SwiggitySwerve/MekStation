@@ -31,6 +31,7 @@ import {
   getRangeModifierForBracket,
   calculateAttackerMovementModifier,
   calculateTMM,
+  calculateTargetEvasionModifier,
   calculateHeatModifier,
   calculateMinimumRangeModifier,
   calculateProneModifier,
@@ -1003,6 +1004,27 @@ describe('calculateToHit', () => {
 
     // Gunnery 4 + TMM 2 (5 hexes → bracket 5-6 = +2) = 6
     expect(result.finalToHit).toBe(6);
+  });
+
+  it('should include target evasion modifier for explicit evading targets', () => {
+    const attacker = createTestAttackerState({ gunnery: 4 });
+    const target = createTestTargetState({ isEvading: true });
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+
+    expect(result.finalToHit).toBe(5);
+    expect(result.modifiers).toContainEqual(
+      expect.objectContaining({
+        name: 'Target Evasion',
+        value: 1,
+        source: 'target_movement',
+      }),
+    );
+  });
+
+  it('should suppress target evasion while the target is prone', () => {
+    const modifier = calculateTargetEvasionModifier(true, true);
+
+    expect(modifier).toBeNull();
   });
 
   it('should include heat modifier', () => {

@@ -345,6 +345,7 @@ const TO_HIT_ADVANCED_MODIFIER_SUPPORT_REFS = [
   'hull-down',
   'secondary-target',
   'called-shot',
+  'target-evasion',
   'ecm',
   'c3',
   'c3-equipment-network-formation',
@@ -641,8 +642,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'to-hit-advanced-modifiers': helperOnly(
     'to-hit-advanced-modifiers',
-    'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, ECM, C3, terrain features, and a source-backed absent-action row for optional TacOps Evade target modifiers, with C3 explicit-state consumption, attack-time lifecycle and critical-slot damage refresh, attacker-evading ranged invalidation, and conservative runner initial network seeding separated from ambiguous battle-wide assignment gaps',
-    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, target hull-down state, secondary-target state, called-shot state, explicit C3 network state with current positions/lifecycle/ECM disruption and matching C3 critical-slot damage suppression, mounted C3 equipment roles, conservative unambiguous runner C3/C3i initial networks, non-blocking intervening terrain, and evading-attacker ranged invalidation, but ECM inputs, session/player-authored C3 network assignment, multiple or oversized C3 networks, and target evasion state/bonus remain helper-only or absent',
+    'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, explicit target evasion, ECM, C3, terrain features, and a source-backed absent-action row for optional TacOps Evade movement creation and physical target modifiers, with C3 explicit-state consumption, attack-time lifecycle and critical-slot damage refresh, attacker-evading ranged invalidation, and conservative runner initial network seeding separated from ambiguous battle-wide assignment gaps',
+    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, target hull-down state, target evasion state, secondary-target state, called-shot state, explicit C3 network state with current positions/lifecycle/ECM disruption and matching C3 critical-slot damage suppression, mounted C3 equipment roles, conservative unambiguous runner C3/C3i initial networks, non-blocking intervening terrain, and evading-attacker ranged invalidation, but ECM inputs, session/player-authored C3 network assignment, multiple or oversized C3 networks, physical target evasion, Skilled Evasion scaling, and Evade movement-step state creation remain helper-only or absent',
     [
       ...TO_HIT_ADVANCED_MODIFIER_SUPPORT_REFS,
       'actions.absentActionSurfaces.movement.evade',

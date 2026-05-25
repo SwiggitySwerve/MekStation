@@ -44,3 +44,17 @@ export function calculateTMM(
     description: `Target moved ${hexesMoved} hexes${movementType === MovementType.Jump ? ' (jumped)' : ''}: +${tmm}`,
   };
 }
+
+export function calculateTargetEvasionModifier(
+  isEvading: boolean | undefined,
+  isProne: boolean,
+): IToHitModifierDetail | null {
+  if (isEvading !== true || isProne) return null;
+
+  return {
+    name: 'Target Evasion',
+    value: 1,
+    source: 'target_movement',
+    description: 'Target is evading: +1',
+  };
+}
