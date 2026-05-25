@@ -857,9 +857,30 @@ describe('HexMapDisplay combat projection', () => {
 
     fireEvent.mouseEnter(targetHex);
 
+    const weaponOptions = screen.getByTestId(
+      'hex-combat-tooltip-weapon-options',
+    );
+    expect(weaponOptions).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(weaponOptions).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    expect(weaponOptions).toHaveAttribute(
+      'data-combat-weapon-option-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek RangeType.java'),
+    );
     expect(
-      screen.getByTestId('hex-combat-tooltip-weapon-options'),
-    ).toHaveTextContent(
+      screen.getByTestId(
+        'hex-combat-tooltip-weapon-options-option-front-laser-0',
+      ),
+    ).toHaveAttribute(
+      'data-combat-weapon-option-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek Compute.java'),
+    );
+    expect(weaponOptions).toHaveTextContent(
       'Weapon options: front-laser: short range, in arc; available; rear-laser: short range, out of arc; blocked - out of front arc; small-laser: out of range, in arc; blocked - out of range',
     );
   });
@@ -1143,6 +1164,20 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       screen.getByTestId('hex-tactical-tooltip-combat-weapon-impact-detail'),
     ).toHaveAttribute('data-combat-weapon-impact-ammo-remaining-after', '7');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-weapon-options'),
+    ).toHaveAttribute(
+      'data-combat-weapon-option-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek RangeType.java'),
+    );
+    expect(
+      screen.getByTestId(
+        'hex-tactical-tooltip-combat-weapon-options-option-ac-5-0',
+      ),
+    ).toHaveAttribute(
+      'data-combat-weapon-option-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek Compute.java'),
+    );
     expect(
       screen.getByTestId('hex-tactical-tooltip-combat-weapon-options'),
     ).toHaveTextContent(

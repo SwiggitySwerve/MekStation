@@ -4,6 +4,12 @@ import type {
   ICombatRangeHex,
   ICombatWeaponRangeOption,
 } from '@/types/gameplay';
+import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
+
+import {
+  formatTacticalProjectionRuleReferences,
+  formatTacticalProjectionSourceReferences,
+} from '@/utils/gameplay/tacticalMapProjection';
 
 function formatRangeLabel(option: ICombatWeaponRangeOption): string {
   return option.rangeBracket.replace(/_/g, ' ');
@@ -58,19 +64,79 @@ function formatWeaponOption(option: ICombatWeaponRangeOption): string {
   )}; ${formatAvailabilityLabel(option)}`;
 }
 
+function optionTestIdSuffix(
+  option: ICombatWeaponRangeOption,
+  index: number,
+): string {
+  return `${option.weaponId.replace(/[^A-Za-z0-9_-]/g, '-')}-${index}`;
+}
+
 export function CombatWeaponOptionRows({
   combatInfo,
+  projection,
   testId,
 }: {
   readonly combatInfo: ICombatRangeHex;
+  readonly projection?: ITacticalMapHexProjection;
   readonly testId: string;
 }): React.ReactElement | null {
   if (combatInfo.weaponRangeOptions.length === 0) return null;
 
+  const combatSourceReferences =
+    projection?.sourceReferences.filter(
+      (source) => source.channel === 'combat',
+    ) ?? [];
+  const combatSourceRefsAttribute =
+    formatTacticalProjectionSourceReferences(combatSourceReferences) ||
+    undefined;
+  const combatRuleRefsAttribute =
+    formatTacticalProjectionRuleReferences(combatSourceReferences) || undefined;
+  const combatProjectionChannel =
+    combatSourceReferences.length > 0 ? 'combat' : undefined;
+
   return (
-    <div data-testid={testId}>
+    <div
+      data-testid={testId}
+      data-tactical-projection-source={
+        combatProjectionChannel ? 'shared-tactical-map-projection' : undefined
+      }
+      data-tactical-projection-channel={combatProjectionChannel}
+      data-tactical-rules-surface={combatProjectionChannel}
+      data-combat-weapon-option-source-refs={combatSourceRefsAttribute}
+      data-combat-weapon-option-rule-refs={combatRuleRefsAttribute}
+    >
       Weapon options:{' '}
-      {combatInfo.weaponRangeOptions.map(formatWeaponOption).join('; ')}
+      {combatInfo.weaponRangeOptions.map((option, index) => (
+        <React.Fragment key={`${option.weaponId}-${index}`}>
+          {index > 0 ? '; ' : ''}
+          <span
+            data-testid={`${testId}-option-${optionTestIdSuffix(
+              option,
+              index,
+            )}`}
+            data-tactical-projection-source={
+              combatProjectionChannel
+                ? 'shared-tactical-map-projection'
+                : undefined
+            }
+            data-tactical-projection-channel={combatProjectionChannel}
+            data-tactical-rules-surface={combatProjectionChannel}
+            data-combat-weapon-option-source-refs={combatSourceRefsAttribute}
+            data-combat-weapon-option-rule-refs={combatRuleRefsAttribute}
+            data-combat-weapon-option-id={option.weaponId}
+            data-combat-weapon-option-range={option.rangeBracket}
+            data-combat-weapon-option-arc-state={
+              option.inArc ? 'in-arc' : 'out-of-arc'
+            }
+            data-combat-weapon-option-availability={
+              option.available ? 'available' : 'blocked'
+            }
+            data-combat-weapon-option-blocked-reason={option.blockedReason}
+          >
+            {formatWeaponOption(option)}
+          </span>
+        </React.Fragment>
+      ))}
     </div>
   );
 }

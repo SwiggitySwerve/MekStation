@@ -346,6 +346,7 @@ function CombatHoverTooltip({
       )}
       <CombatWeaponOptionRows
         combatInfo={combatInfo}
+        projection={projection}
         testId="hex-combat-tooltip-weapon-options"
       />
       <CombatEnvironmentContextRows

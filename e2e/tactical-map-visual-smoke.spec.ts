@@ -443,6 +443,22 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-combat-weapon-count-badge-blocked-reasons',
       'small-laser:out of range|minimum-lrm:out of range',
     );
+    await mediumTargetHex.hover();
+    const mediumWeaponOptions = page.getByTestId(
+      'hex-combat-tooltip-weapon-options',
+    );
+    await expect(mediumWeaponOptions).toHaveAttribute(
+      'data-combat-weapon-option-rule-refs',
+      /combat:megamek:MegaMek RangeType\.java:95-151 range bracket classification/,
+    );
+    await expect(
+      page.getByTestId(
+        'hex-combat-tooltip-weapon-options-option-medium-laser-0',
+      ),
+    ).toHaveAttribute(
+      'data-combat-weapon-option-rule-refs',
+      /combat:megamek:MegaMek Compute\.java:1313-1517 weapon range\/to-hit modifiers/,
+    );
     const coverTargetHex = page.getByTestId('hex-0-2');
     await expect(coverTargetHex).toHaveAttribute(
       'data-combat-target-ids',

@@ -1446,6 +1446,13 @@ per-hex tactical projection. This does not change movement legality, MP costs,
 heat, terrain, elevation, or blocked reasons; it makes each individual option
 row inspectable without relying on aggregate hex metadata.
 
+2026-05-25 combat weapon option rule-reference context pin: Per-weapon combat
+option rows in combat and combined tactical hovers now expose combat-channel
+source references and MegaMek rule references from the shared per-hex tactical
+projection. This does not change weapon range, arc, environment, availability,
+to-hit, expected damage, or attack validation behavior; it makes each weapon row
+inspectable without relying on aggregate combat hex metadata.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:
