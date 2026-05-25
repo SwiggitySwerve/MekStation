@@ -28,11 +28,6 @@ import {
   calculateCalledShotModifier,
 } from './damageModifiers';
 import {
-  type IEcmCoverageState,
-  type WeaponGuidanceType,
-  calculateEcmModifier,
-} from './ecmModifier';
-import {
   calculateHeatModifier,
   calculatePartialCoverModifier,
   calculateHullDownModifier,
@@ -55,27 +50,12 @@ import {
 } from './semiGuidedTagModifiers';
 import { calculateChinTurretPivotModifier } from './vehicleModifiers';
 
-/**
- * Per `add-ecm-tohit-modifier` (closes playtest gap #1): optional ECM
- * context that, when present, adds a `+1 to-hit` modifier when the
- * weapon's electronic guidance is degraded by an active ECM bubble. The
- * field is OPTIONAL so existing callers (no ECM in the scenario, or
- * weapon has no electronic guidance) are unaffected.
- */
-export interface IEcmContext {
-  /** The weapon's guidance type (`'none'` returns no modifier). */
-  readonly guidance: WeaponGuidanceType;
-  /** Resolved per-attack ECM coverage flags. */
-  readonly coverage: IEcmCoverageState;
-}
-
 export function calculateToHit(
   attacker: IAttackerState,
   target: ITargetState,
   rangeBracket: RangeBracket,
   range: number,
   minRange: number = 0,
-  ecmContext?: IEcmContext,
   weaponId?: string,
   semiGuidedTagContext?: ISemiGuidedTagToHitContext,
 ): IToHitCalculation {
@@ -83,18 +63,6 @@ export function calculateToHit(
 
   modifiers.push(createBaseModifier(attacker.gunnery));
   modifiers.push(getRangeModifierForBracket(rangeBracket));
-
-  // Per `add-ecm-tohit-modifier`: ECM modifier is appended to the
-  // accumulator and stacks additively with every other modifier. The
-  // helper returns null when the guidance is 'none' or the per-guidance
-  // rule does not fire, so no-ECM scenarios are unchanged.
-  if (ecmContext !== undefined) {
-    const ecmMod = calculateEcmModifier(
-      ecmContext.guidance,
-      ecmContext.coverage,
-    );
-    if (ecmMod !== null) modifiers.push(ecmMod);
-  }
 
   const minRangeMod = calculateMinimumRangeModifier(range, minRange);
   if (minRangeMod) modifiers.push(minRangeMod);

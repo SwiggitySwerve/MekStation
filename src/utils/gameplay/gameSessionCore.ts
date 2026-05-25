@@ -521,7 +521,6 @@ export function declareAttack(
     rangeBracket,
     range,
     primaryWeapon?.minRange,
-    undefined,
     primaryWeapon?.weaponId,
     semiGuidedTagContext,
   );

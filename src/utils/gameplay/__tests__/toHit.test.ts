@@ -1019,7 +1019,6 @@ describe('calculateToHit', () => {
       3,
       0,
       undefined,
-      undefined,
       { isSemiGuided: true, targetTagDesignated: true },
     );
 
@@ -1052,7 +1051,6 @@ describe('calculateToHit', () => {
       RangeBracket.Short,
       3,
       0,
-      undefined,
       undefined,
       {
         isSemiGuided: true,
@@ -1120,7 +1118,6 @@ describe('calculateToHit', () => {
       RangeBracket.Short,
       3,
       0,
-      undefined,
       undefined,
       {
         isSemiGuided: true,

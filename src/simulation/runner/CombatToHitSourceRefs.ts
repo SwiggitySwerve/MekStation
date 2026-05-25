@@ -148,7 +148,15 @@ export const MEGAMEK_ECM_GUIDANCE_TO_HIT_SOURCE_REFS = [
     'megamek/src/megamek/common/compute/ComputeECM.java#L60-L79',
   ),
   megamekToHitRef(
-    'MegaMek MissileWeaponHandler uses ECM coverage to suppress Artemis and NARC-capable missile guidance bonuses rather than treating guidance as unconditional.',
+    'MegaMek ComputeToHit gates Artemis V and NARC/iNARC to-hit benefits on ECM status, suppressing guidance bonuses instead of adding a generic ECM penalty.',
+    'megamek/src/megamek/common/actions/compute/ComputeToHit.java#L213-L220,L272-L281,L348-L380,L888-L955,L1572-L1582',
+  ),
+  megamekToHitRef(
+    'MegaMek ComputeAttackerToHitMods applies targeting-computer aiming or direct-fire modifiers without an ECM-gated additive penalty in the attacker modifier block.',
+    'megamek/src/megamek/common/actions/compute/ComputeAttackerToHitMods.java#L263-L289',
+  ),
+  megamekToHitRef(
+    'MegaMek MissileWeaponHandler uses ECM coverage to suppress Artemis and NARC-capable missile cluster bonuses rather than adding a to-hit penalty.',
     'megamek/src/megamek/common/weapons/handlers/MissileWeaponHandler.java#L134-L255',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];

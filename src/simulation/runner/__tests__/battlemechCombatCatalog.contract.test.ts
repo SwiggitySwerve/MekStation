@@ -2512,7 +2512,9 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(ecmRefs.map(({ citation }) => citation)).toEqual([
       expect.stringContaining('isAffectedByECM'),
-      expect.stringContaining('suppress Artemis and NARC'),
+      expect.stringContaining('gates Artemis V and NARC/iNARC'),
+      expect.stringContaining('targeting-computer'),
+      expect.stringContaining('suppress Artemis and NARC-capable'),
     ]);
     expect(secondaryTargetRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek Compute.getSecondaryTargetMod applies the secondary-target modifier and reduces it for Multi-Tasker.',

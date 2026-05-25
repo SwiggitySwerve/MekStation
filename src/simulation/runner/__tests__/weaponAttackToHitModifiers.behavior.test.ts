@@ -752,7 +752,7 @@ describe('runAttackPhase to-hit modifier integration', () => {
     );
   });
 
-  it('threads Artemis ECM to-hit context from electronic-warfare state into AttackDeclared', () => {
+  it('does not add a generic ECM to-hit penalty for Artemis guidance', () => {
     const baseState = createWeaponAttackState();
     const state: IGameState = {
       ...baseState,
@@ -778,15 +778,13 @@ describe('runAttackPhase to-hit modifier integration', () => {
       }),
     );
 
-    expect(payload.toHitNumber).toBe(5);
-    expectModifier(payload, {
-      name: 'ECM (artemis-degraded)',
-      value: 1,
-      source: 'equipment',
-    });
+    expect(payload.toHitNumber).toBe(4);
+    expect(payload.modifiers).not.toContainEqual(
+      expect.objectContaining({ name: expect.stringContaining('ECM') }),
+    );
   });
 
-  it('threads NARC ECM to-hit context from target marker state into AttackDeclared', () => {
+  it('does not add a generic ECM to-hit penalty for NARC guidance', () => {
     const baseState = createWeaponAttackState({
       target: { narcedBy: [GameSide.Player] },
     });
@@ -811,12 +809,10 @@ describe('runAttackPhase to-hit modifier integration', () => {
       runModifierScenario({ state, weapon: createLrm() }),
     );
 
-    expect(payload.toHitNumber).toBe(5);
-    expectModifier(payload, {
-      name: 'ECM (narc-degraded)',
-      value: 1,
-      source: 'equipment',
-    });
+    expect(payload.toHitNumber).toBe(4);
+    expect(payload.modifiers).not.toContainEqual(
+      expect.objectContaining({ name: expect.stringContaining('ECM') }),
+    );
   });
 
   it('does not add runner ECM to-hit modifiers for unguided weapon attacks', () => {

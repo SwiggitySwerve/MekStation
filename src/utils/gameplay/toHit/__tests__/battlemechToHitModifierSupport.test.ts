@@ -102,7 +102,10 @@ describe('BattleMech to-hit support matrix modifiers', () => {
   );
 
   const fullToHitCases: ReadonlyArray<{
-    readonly id: Exclude<AdvancedToHitModifierId, 'c3' | 'terrain-features'>;
+    readonly id: Exclude<
+      AdvancedToHitModifierId,
+      'c3' | 'ecm' | 'terrain-features'
+    >;
     readonly expectedDelta: number;
     readonly expectedModifierName: string;
     readonly calculate: () => IToHitCalculation;
@@ -148,19 +151,6 @@ describe('BattleMech to-hit support matrix modifiers', () => {
           RangeBracket.Short,
           3,
         ),
-    },
-    {
-      id: 'ecm',
-      expectedDelta: 1,
-      expectedModifierName: 'ECM (tc-degraded)',
-      calculate: () =>
-        calculateToHit(makeAttacker(), makeTarget(), RangeBracket.Short, 3, 0, {
-          guidance: 'tc',
-          coverage: {
-            attackerInBubble: true,
-            targetInBubble: false,
-          },
-        }),
     },
     {
       id: 'hull-down',
@@ -236,6 +226,19 @@ describe('BattleMech to-hit support matrix modifiers', () => {
       expect(modifierNames(result)).toContain(expectedModifierName);
     },
   );
+
+  it('keeps ECM as guidance suppression instead of additive calculateToHit math', () => {
+    const result = shortRangeBaseline();
+    const ecmSupport = RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT.ecm;
+
+    expect(result.finalToHit).toBe(4);
+    expect(modifierNames(result)).not.toEqual(
+      expect.arrayContaining([expect.stringContaining('ECM')]),
+    );
+    expect(ecmSupport.level).toBe('helper-only');
+    expect(ecmSupport.evidence).toContain('suppresses');
+    expect(ecmSupport.gap).toContain('generic +1 ECM');
+  });
 
   it('applies C3 by replacing the attacker range bracket with the best network bracket', () => {
     const mediumLaser: IWeaponRangeProfile = {
