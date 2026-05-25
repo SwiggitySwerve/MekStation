@@ -76,6 +76,13 @@ badge, accessible context, and committed attack all agree on basis
 `semi-guided-tag`, no spotter id, zero indirect penalty, no NARC override event,
 and matching to-hit metadata.
 
+2026-05-25 ECM-nullified TAG browser pin: the tactical-map harness now also
+represents the same no-spotter semi-guided LRM shot when ECM protection
+nullifies the target's TAG designation. The shared projection, browser
+metadata, invalid combat badge, and committed `AttackInvalid` event all agree
+that the shot stays blocked by LOS with no indirect-fire basis, no indirect
+badge, no spotter event, and no NARC override event.
+
 2026-05-24 isometric browser update: the tactical-map browser harness now places
 opposing tall elevation stacks around an active target and verifies that camera
 rotation moves the active occluder metadata and highlight to the stack that is

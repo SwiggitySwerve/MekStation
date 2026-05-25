@@ -1,4 +1,11 @@
 import {
+  tacticalMapEcmNullifiedTagIndirectFireCombatState,
+  tacticalMapEcmNullifiedTagIndirectFireHexTerrain,
+  tacticalMapEcmNullifiedTagIndirectFireSelectedWeaponIds,
+  tacticalMapEcmNullifiedTagIndirectFireTargetId,
+  tacticalMapEcmNullifiedTagIndirectFireTokens,
+} from './tactical-map.indirect-fire-ecm-scenario';
+import {
   tacticalMapForwardObserverIndirectFireCombatState,
   tacticalMapForwardObserverIndirectFireHexTerrain,
   tacticalMapForwardObserverIndirectFireSelectedWeaponIds,
@@ -36,6 +43,14 @@ export const tacticalMapIndirectFireHarnessScenarios = {
     combatState: tacticalMapForwardObserverIndirectFireCombatState,
     selectedHex,
     hexTerrain: tacticalMapForwardObserverIndirectFireHexTerrain,
+  },
+  'ecm-nullified-tag-indirect-fire': {
+    selectedWeaponIds: tacticalMapEcmNullifiedTagIndirectFireSelectedWeaponIds,
+    targetUnitId: tacticalMapEcmNullifiedTagIndirectFireTargetId,
+    tokens: tacticalMapEcmNullifiedTagIndirectFireTokens,
+    combatState: tacticalMapEcmNullifiedTagIndirectFireCombatState,
+    selectedHex,
+    hexTerrain: tacticalMapEcmNullifiedTagIndirectFireHexTerrain,
   },
   'inarc-beacon-indirect-fire': {
     selectedWeaponIds: tacticalMapINarcBeaconIndirectFireSelectedWeaponIds,

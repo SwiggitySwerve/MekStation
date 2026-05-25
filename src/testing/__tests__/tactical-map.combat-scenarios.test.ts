@@ -46,6 +46,10 @@ import {
   tacticalMapImmobileCombatProjection,
 } from '../tactical-map.immobile-combat-scenario';
 import {
+  tacticalMapEcmNullifiedTagIndirectFireCombatProjection,
+  tacticalMapEcmNullifiedTagIndirectFireCommitInput,
+} from '../tactical-map.indirect-fire-ecm-scenario';
+import {
   tacticalMapForwardObserverIndirectFireCombatProjection,
   tacticalMapForwardObserverIndirectFireCommitInput,
   tacticalMapINarcBeaconIndirectFireCombatProjection,
@@ -536,6 +540,67 @@ describe('tactical map combat scenarios', () => {
         (event) => event.type === GameEventType.IndirectFireNarcOverride,
       ),
     ).toBe(false);
+  });
+
+  it('keeps ECM-nullified semi-guided TAG aligned between browser projection and committed rejection', () => {
+    expect(
+      tacticalMapEcmNullifiedTagIndirectFireCombatProjection,
+    ).toMatchObject({
+      hex: { q: 3, r: 0 },
+      distance: 3,
+      losState: 'blocked',
+      rangeBracket: 'short',
+      inRange: true,
+      inArc: true,
+      attackable: false,
+      targetUnitIds: ['indirect-target'],
+      validTargetUnitIds: [],
+      weaponIdsAvailable: ['semi-guided-lrm-15'],
+      attackInvalidReason: 'NoLineOfSight',
+    });
+    expect(
+      tacticalMapEcmNullifiedTagIndirectFireCombatProjection.indirectFireAvailable,
+    ).toBeUndefined();
+    expect(
+      tacticalMapEcmNullifiedTagIndirectFireCombatProjection.indirectFireBasis,
+    ).toBeUndefined();
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapEcmNullifiedTagIndirectFireCommitInput(),
+    );
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackLocked),
+    ).toBe(false);
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.IndirectFireSpotterSelected,
+      ),
+    ).toBe(false);
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.IndirectFireNarcOverride,
+      ),
+    ).toBe(false);
+
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'indirect-target',
+      weaponId: 'semi-guided-lrm-15',
+      reason:
+        tacticalMapEcmNullifiedTagIndirectFireCombatProjection.attackInvalidReason,
+      details:
+        tacticalMapEcmNullifiedTagIndirectFireCombatProjection.attackInvalidDetails,
+    });
   });
 
   it('keeps the minimum-range browser projection aligned with committed to-hit modifiers', () => {

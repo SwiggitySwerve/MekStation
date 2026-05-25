@@ -2416,6 +2416,59 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(combatBadge).toHaveAttribute('data-combat-badge-label', 'S3');
   });
 
+  test('shows ECM-nullified TAG indirect fire blocked in browser', async ({
+    page,
+  }) => {
+    await page.goto(
+      '/e2e/tactical-map?scenario=ecm-nullified-tag-indirect-fire',
+    );
+
+    await expect(page.getByTestId('unit-token-indirect-target')).toContainText(
+      'LCT',
+    );
+    await expect(page.getByTestId('unit-token-indirect-spotter')).toHaveCount(
+      0,
+    );
+
+    const targetHex = page.getByTestId('hex-3-0');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'indirect-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-los-state', 'blocked');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-valid-target',
+      'false',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-available',
+      'semi-guided-lrm-15',
+    );
+    await expect(targetHex).not.toHaveAttribute('data-combat-indirect-fire');
+    await expect(targetHex).not.toHaveAttribute('data-combat-indirect-basis');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-reason',
+      'NoLineOfSight',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-details',
+      /Blocked by/,
+    );
+
+    await expect(page.getByTestId('hex-indirect-fire-badge-3-0')).toHaveCount(
+      0,
+    );
+    const invalidBadge = page.getByTestId('hex-combat-invalid-badge-3-0');
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'NoLineOfSight',
+    );
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-reason',
+      /Blocked by/,
+    );
+  });
+
   test('shows target terrain to-hit modifiers without cover badges in browser', async ({
     page,
   }) => {
