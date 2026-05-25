@@ -66,6 +66,11 @@ import {
   tacticalMapTargetTerrainModifierCommitInput,
 } from '../tactical-map.target-terrain-scenarios';
 import {
+  tacticalMapFogLosCombatProjection,
+  tacticalMapFogLosCommitInput,
+  tacticalMapFogLosTargetId,
+  tacticalMapFogLosTokens,
+  tacticalMapFogLosVisibleTokens,
   tacticalMapMixedVisibilityCombatProjection,
   tacticalMapMixedVisibilityCommitInput,
 } from '../tactical-map.visibility-scenarios';
@@ -923,6 +928,65 @@ describe('tactical map combat scenarios', () => {
     );
     expect(payload.toHitNumber).toBe(
       tacticalMapMixedVisibilityCombatProjection.toHitNumber,
+    );
+  });
+
+  it('keeps grid-derived fog LOS visibility aligned with attack commit validation', () => {
+    const visibleTarget = tacticalMapFogLosVisibleTokens.find(
+      (token) => token.unitId === tacticalMapFogLosTargetId,
+    );
+    expect(visibleTarget).toMatchObject({
+      isValidTarget: true,
+      isActiveTarget: true,
+    });
+    expect(visibleTarget?.fogStatus).toBeUndefined();
+
+    const blockedTarget = tacticalMapFogLosTokens.find(
+      (token) => token.unitId === tacticalMapFogLosTargetId,
+    );
+    expect(blockedTarget).toMatchObject({
+      fogStatus: 'lastKnown',
+      isValidTarget: false,
+      isActiveTarget: false,
+      lastKnownPosition: { q: 3, r: 0 },
+    });
+
+    expect(tacticalMapFogLosCombatProjection).toMatchObject({
+      hex: { q: 3, r: 0 },
+      distance: 3,
+      rangeBracket: 'short',
+      losState: 'blocked',
+      attackable: false,
+      targetVisibilityState: 'lastKnown',
+      targetUnitIds: [tacticalMapFogLosTargetId],
+      visibleTargetUnitIds: [],
+      obscuredTargetUnitIds: [tacticalMapFogLosTargetId],
+      validTargetUnitIds: [],
+      attackInvalidReason: 'TargetNotVisible',
+      attackInvalidDetails: 'Last known contact is not currently visible',
+      visibilityBlockedReason: 'Last known contact is not currently visible',
+      lineOfSightBlockerReason: 'Blocked by light woods at (2, 0)',
+      lineOfSightBlocker: {
+        hex: { q: 2, r: 0 },
+        kind: 'terrain',
+        terrain: 'light_woods',
+        reason: 'Blocked by light woods at (2, 0)',
+      },
+    });
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapFogLosCommitInput(),
+    );
+
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    const payload = invalid!.payload as IAttackInvalidPayload;
+    expect(payload.targetId).toBe(tacticalMapFogLosTargetId);
+    expect(payload.reason).toBe('TargetNotVisible');
+    expect(payload.details).toBe(
+      `Target ${tacticalMapFogLosTargetId} is not currently visible to player`,
     );
   });
 

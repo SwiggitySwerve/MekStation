@@ -56,6 +56,10 @@ the top-down map.
 - **AND** a combat target blocked by stacked intervening smoke and woods SHALL
   expose the shared combined `NoLineOfSight` blocker reason, terrain-layer
   metadata for both effects, and non-color invalid and blocker badges
+- **AND** a combat target hidden by fog visibility recalculated through
+  represented LOS terrain blockers SHALL render as a last-known contact,
+  expose obscured target ids, `TargetNotVisible` metadata, terrain blocker
+  context, and non-color visibility/invalid badges
 - **AND** a medium-range combat target SHALL expose the target id, distance,
   range band, available weapon ids, and per-weapon range option metadata
 - **AND** a combat target outside the selected weapon's firing arc SHALL expose

@@ -95,6 +95,7 @@ const combatOnlyScenarios = new Set([
   'airborne-aerospace-minimum-range',
   'target-terrain-modifier',
   'mixed-visibility-targets',
+  'fog-los-terrain-blocked',
   'selected-weapon-out-of-arc',
   'same-hex-weapon-blocked',
   'elevation-los-blocked',
@@ -128,6 +129,7 @@ const selectedWeaponIdsByScenario = {
     targetTerrain.tacticalMapTargetTerrainModifierSelectedWeaponIds,
   'mixed-visibility-targets':
     visibility.tacticalMapMixedVisibilitySelectedWeaponIds,
+  'fog-los-terrain-blocked': visibility.tacticalMapFogLosSelectedWeaponIds,
   'selected-weapon-out-of-arc':
     arcScenarios.tacticalMapOutOfArcSelectedWeaponIds,
   'same-hex-weapon-blocked': sameHex.tacticalMapSameHexSelectedWeaponIds,
@@ -154,6 +156,7 @@ const targetUnitIdByScenario = {
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierTargetId,
   'mixed-visibility-targets': null,
+  'fog-los-terrain-blocked': visibility.tacticalMapFogLosTargetId,
   'selected-weapon-out-of-arc': arcScenarios.tacticalMapOutOfArcTargetId,
   'same-hex-weapon-blocked': sameHex.tacticalMapSameHexTargetId,
   'elevation-los-blocked': elevationLos.tacticalMapElevationLosTargetId,
@@ -178,6 +181,7 @@ const tokensByScenario = {
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierTokens,
   'mixed-visibility-targets': visibility.tacticalMapMixedVisibilityTokens,
+  'fog-los-terrain-blocked': visibility.tacticalMapFogLosTokens,
   'selected-weapon-out-of-arc': arcScenarios.tacticalMapOutOfArcTokens,
   'same-hex-weapon-blocked': sameHex.tacticalMapSameHexTokens,
   'elevation-los-blocked': elevationLos.tacticalMapElevationLosTokens,
@@ -208,6 +212,7 @@ const combatStateByScenario = {
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierCombatState,
   'mixed-visibility-targets': visibility.tacticalMapMixedVisibilityCombatState,
+  'fog-los-terrain-blocked': visibility.tacticalMapFogLosCombatState,
   'selected-weapon-out-of-arc': arcScenarios.tacticalMapOutOfArcCombatState,
   'same-hex-weapon-blocked': sameHex.tacticalMapSameHexCombatState,
   'elevation-los-blocked': elevationLos.tacticalMapElevationLosCombatState,
@@ -268,6 +273,7 @@ const selectedHexByScenario = {
   'elevation-los-blocked': { q: 0, r: 0 },
   'woods-los-blocked': { q: 0, r: 0 },
   'stacked-smoke-woods-los-blocked': { q: 0, r: 0 },
+  'fog-los-terrain-blocked': { q: 0, r: 0 },
   'prone-combat-modifiers': { q: 0, r: 0 },
   'immobile-combat-modifier': { q: 0, r: 0 },
   'heat-combat-modifier': { q: 0, r: 0 },
@@ -287,6 +293,7 @@ const hexTerrainByScenario = {
   'elevation-los-blocked': elevationLos.tacticalMapElevationLosHexTerrain,
   'woods-los-blocked': elevationLos.tacticalMapWoodsLosHexTerrain,
   'stacked-smoke-woods-los-blocked': stackedLos.tacticalMapStackedLosHexTerrain,
+  'fog-los-terrain-blocked': visibility.tacticalMapFogLosHexTerrain,
   'prone-combat-modifiers': proneCombat.tacticalMapProneCombatHexTerrain,
   'immobile-combat-modifier':
     immobileCombat.tacticalMapImmobileCombatHexTerrain,

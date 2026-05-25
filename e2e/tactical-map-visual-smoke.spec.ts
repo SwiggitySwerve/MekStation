@@ -2491,6 +2491,117 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows grid-derived fog LOS blockers as non-attackable last-known contacts', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=fog-los-terrain-blocked');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('SHD');
+    const targetToken = page.getByTestId('unit-token-fog-los-target');
+    await expect(targetToken).toContainText('WSP');
+    await expect(targetToken).toHaveAttribute('data-fog-status', 'lastKnown');
+    await expect(page.getByTestId('fog-marker-fog-los-target')).toBeVisible();
+
+    const heavyWoodsHex = page.getByTestId('hex-1-0');
+    await expect(heavyWoodsHex).toHaveAttribute(
+      'data-terrain-features',
+      'heavy_woods',
+    );
+    await expect(heavyWoodsHex).toHaveAttribute(
+      'data-terrain-feature-levels',
+      'heavy_woods:2',
+    );
+    const lightWoodsHex = page.getByTestId('hex-2-0');
+    await expect(lightWoodsHex).toHaveAttribute(
+      'data-terrain-features',
+      'light_woods',
+    );
+    await expect(lightWoodsHex).toHaveAttribute(
+      'data-terrain-feature-levels',
+      'light_woods:1',
+    );
+
+    const targetHex = page.getByTestId('hex-3-0');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'fog-los-target',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-visible-target-ids',
+      '',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-obscured-target-ids',
+      'fog-los-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-valid-target-ids', '');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-visibility',
+      'lastKnown',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-valid-target',
+      'false',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-reason',
+      'TargetNotVisible',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-los-state', 'blocked');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-los-blocker-hex',
+      '2,0',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-los-blocker-kind',
+      'terrain',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-los-blocker-terrain',
+      'light_woods',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-los-blocker-reason',
+      'Blocked by light woods at (2, 0)',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-details',
+      'Last known contact is not currently visible',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-visibility-blocked-reason',
+      'Last known contact is not currently visible',
+    );
+
+    const visibilityBadge = page.getByTestId('hex-combat-visibility-badge-3-0');
+    await expect(visibilityBadge.locator('text')).toHaveText('LAST');
+    await expect(visibilityBadge).toHaveAttribute(
+      'data-combat-visibility-badge-state',
+      'lastKnown',
+    );
+    await expect(visibilityBadge).toHaveAttribute(
+      'data-combat-visibility-badge-reason',
+      'Last known contact is not currently visible',
+    );
+    const invalidBadge = page.getByTestId('hex-combat-invalid-badge-3-0');
+    await expect(invalidBadge.locator('text')).toHaveText('HIDDEN');
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'TargetNotVisible',
+    );
+
+    await targetHex.hover();
+    await expect(
+      page.getByTestId('hex-combat-tooltip-visibility'),
+    ).toContainText('Visibility: last known');
+    await expect(page.getByTestId('hex-combat-tooltip-status')).toContainText(
+      'Blocked',
+    );
+    await expect(page.getByTestId('hex-combat-tooltip-reason')).toContainText(
+      'Last known contact is not currently visible',
+    );
+  });
+
   test('shows same-hex normal weapon attacks as blocked in browser', async ({
     page,
   }) => {

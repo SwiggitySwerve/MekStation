@@ -121,6 +121,9 @@
 - [x] 2.47 Add browser coverage proving smoke and woods stacked in one
   intervening hex render the shared combined blocker reason, terrain layers,
   and non-color invalid/blocker badges.
+- [x] 2.48 Add browser coverage proving grid-derived fog visibility
+  recalculates through LOS terrain blockers, renders a last-known target as
+  non-attackable, and exposes the matching visibility/invalid metadata.
 
 ## 3. Validation
 
@@ -219,3 +222,6 @@
   LOS blocking, woods terrain metadata, and blocker badge labeling.
 - [x] 3.47 Focused Jest parity and Playwright smoke pass for stacked smoke plus
   woods LOS blocking, terrain-layer metadata, and blocker badge labeling.
+- [x] 3.48 Focused Jest parity and Playwright smoke pass for grid-derived fog
+  LOS blocking, last-known target metadata, and `TargetNotVisible` attack
+  rejection.

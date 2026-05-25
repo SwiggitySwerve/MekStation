@@ -241,6 +241,18 @@ ids, so a mixed-visibility hex identifies the actual attackable commit target
 without relying only on color or aggregate `mixed` status. Remaining fog gaps
 are broader dynamic visibility recalculation sweeps beyond the smoke harness.
 
+2026-05-25 dynamic fog visibility browser pin: the tactical-map browser harness
+now builds tokens through `buildGameplayTokens` using the same combat state with
+two grids: a clear grid that leaves the target visible/targetable and a
+heavy-woods plus light-woods grid that recalculates the target as last-known.
+The rendered map exposes the LOS-blocking terrain layers, `lastKnown`
+visibility, empty visible/valid target ids, obscured target id metadata, and
+`TargetNotVisible` invalid state before commit. A fixture-level Jest parity
+test feeds the same fog-on grid into `applyInteractiveSessionAttack`, proving
+the engine rejects the attack as not currently visible. Remaining fog gaps are
+now broader multiplayer visibility-history/replay sweeps beyond the tactical
+map smoke harness.
+
 2026-05-24 movement gap update: the movement row's older frogman/swim and
 TacOps infantry pavement-bonus gaps are closed by the current
 `tactical-map-interface` spec and fixtures. Remaining movement oracle gaps are
