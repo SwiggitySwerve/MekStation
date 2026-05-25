@@ -118,6 +118,14 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** the aggregate catalog triad for `rangeBrackets` SHALL require row-level source references rather than inherited requirement authority
 - **AND** out-of-range attacks SHALL remain invalidation coverage instead of being treated as a normal declared attack range
 
+#### Scenario: Ranged to-hit modifier rows stay source-backed
+
+- **GIVEN** the ranged to-hit modifier catalog covers gunnery, range, minimum range, attacker movement, target movement, heat, environmental conditions, partial cover, target prone/immobile state, indirect fire, pilot wounds, sensor damage, actuator damage, attacker prone state, hull-down, secondary targets, called shots, ECM, C3, terrain features, and physical-DFA to-hit boundaries
+- **WHEN** the aggregate catalog triad and BattleMech combat catalog contract tests run
+- **THEN** every integrated or helper-only to-hit modifier row SHALL carry structured MegaMek source references with commit-pinned URLs and line anchors
+- **AND** the aggregate catalog triad for `toHitModifiers` SHALL require row-level source references rather than inherited requirement authority
+- **AND** helper-only modifier rows such as ECM coverage derivation and C3 equipment network formation SHALL keep their runtime gaps explicit instead of treating source-backed row evidence as complete parity
+
 #### Scenario: AMS helper boundary stays source-backed
 
 - **GIVEN** AMS behavior is partially represented by projectile reduction, Streak/all-shots-hit cluster parity, single-missile interception, ammo/heat/fired lifecycle, and interception-event rows

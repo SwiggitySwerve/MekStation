@@ -28,6 +28,23 @@ import {
   MEGAMEK_OUT_OF_RANGE_SOURCE_REFS,
   MEGAMEK_STANDARD_RANGE_BRACKET_SOURCE_REFS,
 } from './CombatRangeSourceRefs';
+import {
+  MEGAMEK_ACTUATOR_DAMAGE_TO_HIT_SOURCE_REFS,
+  MEGAMEK_ATTACKER_MOVEMENT_TO_HIT_SOURCE_REFS,
+  MEGAMEK_ATTACKER_PRONE_TO_HIT_SOURCE_REFS,
+  MEGAMEK_ECM_GUIDANCE_TO_HIT_SOURCE_REFS,
+  MEGAMEK_ENVIRONMENTAL_TO_HIT_SOURCE_REFS,
+  MEGAMEK_GUNNERY_TO_HIT_SOURCE_REFS,
+  MEGAMEK_HEAT_TO_HIT_SOURCE_REFS,
+  MEGAMEK_INDIRECT_FIRE_TO_HIT_SOURCE_REFS,
+  MEGAMEK_PARTIAL_COVER_TO_HIT_SOURCE_REFS,
+  MEGAMEK_PILOT_WOUNDS_TO_HIT_SOURCE_REFS,
+  MEGAMEK_SENSOR_DAMAGE_TO_HIT_SOURCE_REFS,
+  MEGAMEK_TARGET_IMMOBILE_TO_HIT_SOURCE_REFS,
+  MEGAMEK_TARGET_MOVEMENT_TO_HIT_SOURCE_REFS,
+  MEGAMEK_TARGET_PRONE_TO_HIT_SOURCE_REFS,
+  MEGAMEK_TERRAIN_FEATURE_TO_HIT_SOURCE_REFS,
+} from './CombatToHitSourceRefs';
 
 function integrated(
   id: string,
@@ -357,10 +374,15 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
   gunnery: integrated(
     'gunnery',
     'runAttackPhase emits AttackDeclared modifiers with IUnitGameState.gunnery',
+    MEGAMEK_GUNNERY_TO_HIT_SOURCE_REFS,
   ),
   range: integrated(
     'range',
     'runAttackPhase derives short/medium/long brackets and emits AttackDeclared.range',
+    [
+      ...MEGAMEK_STANDARD_RANGE_BRACKET_SOURCE_REFS,
+      ...MEGAMEK_EXTREME_RANGE_BRACKET_SOURCE_REFS,
+    ],
   ),
   'minimum-range': integrated(
     'minimum-range',
@@ -370,22 +392,27 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
   'attacker-movement': integrated(
     'attacker-movement',
     'runAttackPhase emits AttackDeclared modifiers with attacker movementThisTurn, and runPhysicalAttackPhase feeds attacker movement into charge to-hit',
+    MEGAMEK_ATTACKER_MOVEMENT_TO_HIT_SOURCE_REFS,
   ),
   'target-movement': integrated(
     'target-movement',
     'runAttackPhase emits AttackDeclared modifiers with target movementThisTurn and hexesMovedThisTurn, and runPhysicalAttackPhase feeds target TMM into physical to-hit',
+    MEGAMEK_TARGET_MOVEMENT_TO_HIT_SOURCE_REFS,
   ),
   heat: integrated(
     'heat',
     'runAttackPhase emits AttackDeclared modifiers with attacker heat',
+    MEGAMEK_HEAT_TO_HIT_SOURCE_REFS,
   ),
   'environmental-conditions': integrated(
     'environmental-conditions',
     'runAttackPhase appends calculateEnvironmentalModifiers for light, precipitation, fog, and missile wind to AttackDeclared modifiers',
+    MEGAMEK_ENVIRONMENTAL_TO_HIT_SOURCE_REFS,
   ),
   'partial-cover': integrated(
     'partial-cover',
     'runAttackPhase emits AttackDeclared partial-cover modifiers from target hex terrain',
+    MEGAMEK_PARTIAL_COVER_TO_HIT_SOURCE_REFS,
   ),
   'physical-dfa-target-class': integrated(
     'physical-dfa-target-class',
@@ -400,30 +427,37 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
   'target-prone': integrated(
     'target-prone',
     'runAttackPhase emits AttackDeclared modifiers with target prone state',
+    MEGAMEK_TARGET_PRONE_TO_HIT_SOURCE_REFS,
   ),
   'target-immobile': integrated(
     'target-immobile',
     'runAttackPhase emits AttackDeclared immobile modifiers from target shutdown state',
+    MEGAMEK_TARGET_IMMOBILE_TO_HIT_SOURCE_REFS,
   ),
   'indirect-fire': integrated(
     'indirect-fire',
     'runAttackPhase applies validateLineOfSightForAttack indirect-fire penalty to declared/resolved TN',
+    MEGAMEK_INDIRECT_FIRE_TO_HIT_SOURCE_REFS,
   ),
   'pilot-wounds': integrated(
     'pilot-wounds',
     'runAttackPhase passes attacker pilotWounds into calculateToHit',
+    MEGAMEK_PILOT_WOUNDS_TO_HIT_SOURCE_REFS,
   ),
   'sensor-damage': integrated(
     'sensor-damage',
     'runAttackPhase passes attacker componentDamage.sensorHits into calculateToHit',
+    MEGAMEK_SENSOR_DAMAGE_TO_HIT_SOURCE_REFS,
   ),
   'actuator-damage': integrated(
     'actuator-damage',
     'runAttackPhase maps coarse arm actuator damage from componentDamage into calculateToHit',
+    MEGAMEK_ACTUATOR_DAMAGE_TO_HIT_SOURCE_REFS,
   ),
   'attacker-prone': integrated(
     'attacker-prone',
     'runAttackPhase passes attacker prone state into calculateToHit',
+    MEGAMEK_ATTACKER_PRONE_TO_HIT_SOURCE_REFS,
   ),
   'hull-down': integrated(
     'hull-down',
@@ -444,6 +478,7 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
     'ecm',
     'calculateEcmModifier + calculateToHit optional ecmContext',
     'runAttackPhase does not derive ECM coverage or weapon guidance context',
+    MEGAMEK_ECM_GUIDANCE_TO_HIT_SOURCE_REFS,
   ),
   c3: integrated(
     'c3',
@@ -459,6 +494,7 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
   'terrain-features': integrated(
     'terrain-features',
     'runAttackPhase applies getTerrainToHitModifier for target-in and non-blocking intervening terrain features',
+    MEGAMEK_TERRAIN_FEATURE_TO_HIT_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 

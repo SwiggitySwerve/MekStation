@@ -326,7 +326,11 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
       'Range bracket rows are MegaMek-source checked and must carry row-level sourceRefs for short, medium, long, extreme, and out-of-range boundaries.',
       RULE_REFS,
     ),
-    toHitModifiers: RULE_TRIAD,
+    toHitModifiers: triad(
+      'entry-source-refs',
+      'Ranged to-hit modifier rows are MegaMek-source checked and must carry row-level sourceRefs for gunnery, range, movement, heat, terrain/cover, target state, damage, indirect fire, ECM/C3, and physical-DFA modifier boundaries.',
+      RULE_REFS,
+    ),
     physicalLegalityGates: PHYSICAL_LEGALITY_TRIAD,
     physicalDamageModifiers: RULE_TRIAD,
     movementRules: triad(

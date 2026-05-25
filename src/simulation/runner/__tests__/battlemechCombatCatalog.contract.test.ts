@@ -1668,6 +1668,37 @@ describe('BattleMech combat feature-gap tracking', () => {
   });
 
   it('pins source-backed to-hit modifiers to MegaMek refs', () => {
+    const missingSourceRefs = Object.values(
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT,
+    )
+      .filter(
+        (entry) =>
+          entry.level !== 'unsupported' &&
+          (entry.sourceRefs?.length ?? 0) === 0,
+      )
+      .map((entry) => entry.id);
+
+    expect(missingSourceRefs).toEqual([]);
+    Object.values(RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT).forEach((entry) => {
+      if (entry.level !== 'unsupported') {
+        expectPinnedMegaMekRefs(entry.sourceRefs ?? []);
+      }
+    });
+
+    const gunneryRefs =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT.gunnery.sourceRefs ?? [];
+    const attackerMovementRefs =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['attacker-movement'].sourceRefs ??
+      [];
+    const targetMovementRefs =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['target-movement'].sourceRefs ?? [];
+    const heatRefs =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT.heat.sourceRefs ?? [];
+    const partialCoverRefs =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['partial-cover'].sourceRefs ?? [];
+    const pilotWoundsRefs =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['pilot-wounds'].sourceRefs ?? [];
+    const ecmRefs = RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT.ecm.sourceRefs ?? [];
     const secondaryTargetRefs =
       RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['secondary-target'].sourceRefs ??
       [];
@@ -1689,6 +1720,33 @@ describe('BattleMech combat feature-gap tracking', () => {
     const minimumRangeRefs =
       RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['minimum-range'].sourceRefs ?? [];
 
+    expect(gunneryRefs.map(({ citation }) => citation)).toEqual([
+      expect.stringContaining('starts normal weapon attacks'),
+    ]);
+    expect(attackerMovementRefs.map(({ citation }) => citation)).toEqual([
+      expect.stringContaining("attacker's movement modifier"),
+      expect.stringContaining('walk +1, run +2, jump +3'),
+    ]);
+    expect(targetMovementRefs.map(({ citation }) => citation)).toEqual([
+      expect.stringContaining('appends target movement modifiers'),
+      expect.stringContaining('standard TMM brackets'),
+    ]);
+    expect(heatRefs.map(({ citation }) => citation)).toEqual([
+      expect.stringContaining("attacker's heat firing modifier"),
+      expect.stringContaining('standard heat firing thresholds'),
+    ]);
+    expect(partialCoverRefs.map(({ citation }) => citation)).toEqual([
+      expect.stringContaining('target partial cover'),
+      expect.stringContaining('partial-cover hit-table'),
+    ]);
+    expect(pilotWoundsRefs.map(({ citation }) => citation)).toEqual([
+      expect.stringContaining('crew gunnery skill'),
+      expect.stringContaining('unit-class scoped'),
+    ]);
+    expect(ecmRefs.map(({ citation }) => citation)).toEqual([
+      expect.stringContaining('isAffectedByECM'),
+      expect.stringContaining('suppress Artemis and NARC'),
+    ]);
     expect(secondaryTargetRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek Compute.getSecondaryTargetMod applies the secondary-target modifier and reduces it for Multi-Tasker.',
       'MegaMek OptionsConstants defines GUNNERY_MULTI_TASKER as multi_tasker.',
@@ -1728,27 +1786,6 @@ describe('BattleMech combat feature-gap tracking', () => {
       'MegaMek RangeType.calculateRangeBracket classifies distance as minimum, short, medium, long, extreme, LOS, or out of range from the weapon range array and active optional range rules.',
       'MegaMek Compute.getRangeMods adds the ground-to-ground minimum range penalty as minRange - distance + 1.',
     ]);
-
-    expect(
-      [
-        ...secondaryTargetRefs,
-        ...calledShotRefs,
-        ...c3Refs,
-        ...c3EquipmentFormationRefs,
-        ...hullDownRefs,
-        ...physicalDfaTargetClassRefs,
-        ...physicalDfaPilotingDifferentialRefs,
-        ...minimumRangeRefs,
-      ].every(
-        (sourceRef) =>
-          sourceRef.kind === 'megamek-source' &&
-          sourceRef.sourceVersion ===
-            '325b2504c7b7750ecdcb85468621fb2de2ad8e60' &&
-          sourceRef.url.includes('github.com/MegaMek/megamek/blob/') &&
-          sourceRef.url.includes(sourceRef.sourceVersion) &&
-          sourceRef.url.includes('#L'),
-      ),
-    ).toBe(true);
   });
 
   it('tracks physical damage modifiers separately from helper-only environment inputs', () => {
