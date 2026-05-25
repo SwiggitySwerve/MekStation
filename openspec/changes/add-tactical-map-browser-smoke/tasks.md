@@ -134,6 +134,9 @@
 - [x] 2.52 Add browser coverage proving Forward Observer cancellation keeps the
   blocked LRM target attackable while exposing the represented cancellation
   flag and cancelled penalty metadata.
+- [x] 2.53 Add browser coverage proving NARC beacon indirect fire keeps a
+  blocked LRM target attackable without a represented spotter while exposing
+  beacon basis and penalty metadata.
 
 ## 3. Validation
 
@@ -245,3 +248,6 @@
 - [x] 3.52 Focused Jest parity and Playwright smoke pass for Forward Observer
   indirect-fire cancellation projection, committed attack event, and browser
   badge metadata.
+- [x] 3.53 Focused Jest parity and Playwright smoke pass for NARC beacon
+  indirect-fire projection, committed override event, and browser badge
+  metadata.

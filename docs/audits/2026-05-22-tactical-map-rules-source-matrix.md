@@ -55,6 +55,13 @@ shared projection, browser metadata, indirect-fire badge, accessible context,
 and committed Forward Observer event all agree on the +1 net indirect penalty,
 the Forward Observer flag, and the single cancelled spotter-walk penalty point.
 
+2026-05-25 NARC beacon browser pin: the tactical-map harness now also represents
+a LOS-blocked LRM target carrying a player-team NARC beacon and no friendly
+spotter token. The shared projection, browser metadata, indirect-fire badge,
+accessible context, and committed `IndirectFireNarcOverride` event all agree
+that the target remains attackable through beacon indirect fire with basis
+`narc`, no spotter id, +1 indirect penalty, and matching to-hit metadata.
+
 2026-05-24 isometric browser update: the tactical-map browser harness now places
 opposing tall elevation stacks around an active target and verifies that camera
 rotation moves the active occluder metadata and highlight to the stack that is

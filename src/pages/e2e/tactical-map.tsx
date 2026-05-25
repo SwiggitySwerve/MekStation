@@ -48,6 +48,7 @@ const combatOnlyScenarios = new Set([
   'c3-range-benefit',
   'forward-observer-indirect-fire',
   'indirect-fire-spotter',
+  'narc-beacon-indirect-fire',
   'target-terrain-modifier',
   'mixed-visibility-targets',
   'fog-los-terrain-blocked',
@@ -86,6 +87,8 @@ const selectedWeaponIdsByScenario = {
     indirectFire.tacticalMapForwardObserverIndirectFireSelectedWeaponIds,
   'indirect-fire-spotter':
     indirectFire.tacticalMapIndirectFireSelectedWeaponIds,
+  'narc-beacon-indirect-fire':
+    indirectFire.tacticalMapNarcBeaconIndirectFireSelectedWeaponIds,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierSelectedWeaponIds,
   'mixed-visibility-targets':
@@ -118,6 +121,8 @@ const targetUnitIdByScenario = {
   'forward-observer-indirect-fire':
     indirectFire.tacticalMapForwardObserverIndirectFireTargetId,
   'indirect-fire-spotter': indirectFire.tacticalMapIndirectFireTargetId,
+  'narc-beacon-indirect-fire':
+    indirectFire.tacticalMapNarcBeaconIndirectFireTargetId,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierTargetId,
   'mixed-visibility-targets': null,
@@ -148,6 +153,8 @@ const tokensByScenario = {
   'forward-observer-indirect-fire':
     indirectFire.tacticalMapForwardObserverIndirectFireTokens,
   'indirect-fire-spotter': indirectFire.tacticalMapIndirectFireTokens,
+  'narc-beacon-indirect-fire':
+    indirectFire.tacticalMapNarcBeaconIndirectFireTokens,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierTokens,
   'mixed-visibility-targets': visibility.tacticalMapMixedVisibilityTokens,
@@ -184,6 +191,8 @@ const combatStateByScenario = {
   'forward-observer-indirect-fire':
     indirectFire.tacticalMapForwardObserverIndirectFireCombatState,
   'indirect-fire-spotter': indirectFire.tacticalMapIndirectFireCombatState,
+  'narc-beacon-indirect-fire':
+    indirectFire.tacticalMapNarcBeaconIndirectFireCombatState,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierCombatState,
   'mixed-visibility-targets': visibility.tacticalMapMixedVisibilityCombatState,
@@ -246,6 +255,7 @@ const selectedHexByScenario = {
     movement.tacticalMapRuntimeHeightSelectedHex,
   'forward-observer-indirect-fire': { q: 0, r: 0 },
   'indirect-fire-spotter': { q: 0, r: 0 },
+  'narc-beacon-indirect-fire': { q: 0, r: 0 },
   'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackSelectedHex,
   'tracked-elevation-blocked':
     trackedElevation.tacticalMapTrackedElevationSelectedHex,
@@ -279,6 +289,8 @@ const hexTerrainByScenario = {
   'forward-observer-indirect-fire':
     indirectFire.tacticalMapForwardObserverIndirectFireHexTerrain,
   'indirect-fire-spotter': indirectFire.tacticalMapIndirectFireHexTerrain,
+  'narc-beacon-indirect-fire':
+    indirectFire.tacticalMapNarcBeaconIndirectFireHexTerrain,
   'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackHexTerrain,
   'tracked-elevation-blocked':
     trackedElevation.tacticalMapTrackedElevationHexTerrain,
