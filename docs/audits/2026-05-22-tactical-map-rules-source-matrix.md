@@ -84,6 +84,14 @@ an `ELEV` combat invalid badge, and a `LOS ELEV` blocker badge. A fixture-level
 Jest parity test feeds the same projection into `applyInteractiveSessionAttack`
 and proves the commit path rejects the attack with the same reason and details.
 
+2026-05-25 swim movement browser pin: the tactical-map browser harness now also
+uses represented biped swim movement through deep water into a higher elevation
+water hex, proving the rendered destination exposes `biped_swim`, 1 MP, zero
+water/elevation surcharge, +3 elevation delta, swim heat +1, water level 2
+terrain metadata, and the top-down +3 elevation label. A fixture-level Jest
+parity test feeds the same movement projection into `validateCommittedMovement`
+and proves the commit gate accepts it with matching MP, heat, and path.
+
 2026-05-24 medium-range combat browser update: the tactical-map browser harness
 now also renders a target at four hexes and verifies that the top-down hex and
 combat badge expose the medium range band, distance, available weapon id, and

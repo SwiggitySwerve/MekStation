@@ -92,6 +92,9 @@
   validation.
 - [x] 2.36 Add browser coverage proving elevation-blocked line of sight renders
   the shared NoLineOfSight reason, blocker metadata, and non-color badges.
+- [x] 2.37 Add browser coverage proving biped swim movement through deep water
+  renders the shared projection cost, elevation delta, heat, and terrain
+  metadata.
 
 ## 3. Validation
 
@@ -167,3 +170,6 @@
   movement blocking, water/clear terrain metadata, and invalid badge labeling.
 - [x] 3.36 Focused Jest parity and Playwright smoke pass for elevation LOS
   blocking, elevation label metadata, and blocker badge labeling.
+- [x] 3.37 Focused Jest parity and Playwright smoke pass for biped swim water
+  elevation movement, top-down elevation label metadata, and cost badge
+  labeling.

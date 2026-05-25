@@ -35,6 +35,9 @@ the top-down map.
 - **AND** a naval vehicle destination on represented clear land SHALL expose
   the water-required terrain blocker, zero heat, motive metadata, and a
   non-color invalid badge
+- **AND** a biped swim destination through represented deep water SHALL expose
+  reachable movement, zero water/elevation surcharge, swim heat, elevation
+  delta, and water terrain metadata
 - **AND** a movement-blocked hex SHALL expose the engine-aligned rejection
   reason and render an invalid badge that does not rely on color alone
 - **AND** a LOS-blocked combat target SHALL expose the blocked target id,

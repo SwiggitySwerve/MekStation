@@ -23,6 +23,10 @@ import {
   tacticalMapRunWaterFallbackMovementRange,
 } from '../tactical-map.run-water-fallback-scenario';
 import {
+  tacticalMapSwimCommitInput,
+  tacticalMapSwimMovementRange,
+} from '../tactical-map.swim-scenario';
+import {
   tacticalMapTrackedElevationCommitInput,
   tacticalMapTrackedElevationMovementRange,
 } from '../tactical-map.tracked-elevation-scenario';
@@ -277,6 +281,33 @@ describe('tactical map movement scenarios', () => {
     const result = validateCommittedMovement(
       tacticalMapHoverWaterCommitInput(),
     );
+
+    expect(result.valid).toBe(true);
+    if (!result.valid) {
+      throw new Error(result.details);
+    }
+
+    expect(result.mpCost).toBe(projection.mpCost);
+    expect(result.heatGenerated).toBe(projection.heatGenerated);
+    expect(result.path).toEqual(projection.path);
+  });
+
+  it('keeps Mek swim elevation movement legal between browser projection and commit validation', () => {
+    const projection = tacticalMapSwimMovementRange[0];
+
+    expect(projection).toMatchObject({
+      hex: { q: 1, r: 0 },
+      reachable: true,
+      movementMode: 'biped_swim',
+      movementType: 'walk',
+      mpCost: 1,
+      terrainCost: 0,
+      elevationDelta: 3,
+      elevationCost: 0,
+      heatGenerated: 1,
+    });
+
+    const result = validateCommittedMovement(tacticalMapSwimCommitInput());
 
     expect(result.valid).toBe(true);
     if (!result.valid) {
