@@ -2208,6 +2208,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(
       supportIdsByLevel(PILOT_DAMAGE_COMBAT_SUPPORT, 'integrated'),
     ).toEqual([
+      'ammo-explosion-pilot-damage',
       'cockpit-crit-pilot-death',
       'consciousness-check',
       'fall-pilot-damage',
@@ -2221,7 +2222,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(PILOT_DAMAGE_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['ammo-explosion-pilot-damage']);
+    ).toEqual([]);
     expect(
       PILOT_DAMAGE_COMBAT_SUPPORT[
         'ammo-explosion-pilot-damage'

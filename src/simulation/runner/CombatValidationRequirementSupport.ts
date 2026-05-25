@@ -786,10 +786,9 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
     'Special ammo and generic equipment lifecycle effects remain incomplete because not every MegaMek equipment-specific critical branch cascades through combat state',
     [...CRITICAL_COMPONENT_SUPPORT_REFS, ...CRITICAL_SLOT_EFFECT_SUPPORT_REFS],
   ),
-  'pilot-damage-death': helperOnly(
+  'pilot-damage-death': integrated(
     'pilot-damage-death',
-    'Pilot damage support covers head hits, cockpit crit death, heat pilot damage, unconsciousness, lethal wound destruction, and a source-pinned ammo-explosion pilot-damage gap',
-    'Ammo-explosion PilotHit emission, wound persistence, and Pain Resistance / Iron Man pilot-damage reduction are not yet wired through heat, critical, and interactive heat cookoff paths',
+    'Pilot damage support covers head hits, cockpit crit death, heat pilot damage, fall pilot damage, ammo-explosion pilot damage, unconsciousness, lethal wound destruction, and source-backed Pain Resistance / Iron Man ammo-explosion damage reduction',
     PILOT_DAMAGE_SUPPORT_REFS,
   ),
   'psr-resolution': integrated(

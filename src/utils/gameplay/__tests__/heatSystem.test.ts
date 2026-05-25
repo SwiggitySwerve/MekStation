@@ -773,11 +773,25 @@ describe('resolveHeatPhase', () => {
           unitId: 'unit-2',
           location: 'right_torso',
           damage: 10,
-          armorRemaining: 0,
-          structureRemaining: 10,
-          locationDestroyed: false,
+          armorRemaining: 10,
+          structureRemaining: 0,
+          locationDestroyed: true,
         }),
       ]);
+
+      const pilotHit = session.events.find(
+        (event) =>
+          event.type === GameEventType.PilotHit &&
+          event.actorId === 'unit-2' &&
+          event.phase === GamePhase.Heat &&
+          (event.payload as IPilotHitPayload).source === 'ammo_explosion',
+      );
+      expect(pilotHit?.payload as IPilotHitPayload).toMatchObject({
+        unitId: 'unit-2',
+        wounds: 2,
+        totalWounds: 2,
+        source: 'ammo_explosion',
+      });
 
       expect(
         session.events.some(

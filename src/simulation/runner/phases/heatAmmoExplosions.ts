@@ -22,6 +22,7 @@ import {
   applyDamageResultToState,
   buildDamageState,
 } from '../SimulationRunnerState';
+import { applyAmmoExplosionPilotDamage } from './ammoExplosionPilotDamage';
 import { createGameEvent } from './utils';
 import { damagePerRoundForBin } from './weaponAttackHelpers';
 
@@ -248,7 +249,24 @@ export function applyHeatInducedAmmoExplosions(
       }
     }
 
-    if (cascadeResult.result.unitDestroyed && !unit.destroyed) {
+    const pilotResult = applyAmmoExplosionPilotDamage({
+      currentState,
+      events,
+      gameId,
+      targetId: unitId,
+      sourceUnitId: unitId,
+      phase: GamePhase.Heat,
+      totalExplosionDamage: explosionDamage,
+      caseProtection: caseAdjustedDamage.caseProtection,
+      d6Roller,
+    });
+    currentState = pilotResult.currentState;
+
+    if (
+      (cascadeResult.result.unitDestroyed || pilotResult.pilotDestroyed) &&
+      !unit.destroyed
+    ) {
+      const finalUnit = currentState.units[unitId];
       events.push(
         createGameEvent(
           gameId,
@@ -258,7 +276,7 @@ export function applyHeatInducedAmmoExplosions(
           GamePhase.Heat,
           {
             unitId,
-            cause: 'ammo_explosion' as const,
+            cause: finalUnit?.destructionCause ?? ('ammo_explosion' as const),
           },
         ),
       );

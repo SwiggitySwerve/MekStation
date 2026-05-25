@@ -29,10 +29,12 @@ import {
   applyAmmoExplosionRearArmorBlowout,
   caseProtectionForLocation,
   resolveAmmoExplosion,
+  resolveBattleMechAmmoExplosionPilotDamage,
   resolveCaseAdjustedAmmoExplosionDamage,
   type CASEProtectionLevel,
 } from './ammoTracking';
 import {
+  PILOT_DEATH_WOUND_THRESHOLD,
   resolveInternalDamage as resolveInternalDamagePipeline,
   resolvePilotConsciousnessCheck,
 } from './damage';
@@ -207,10 +209,10 @@ function appendHeatAmmoExplosionDamageCascade(
   damage: number,
   caseProtection: CASEProtectionLevel,
   diceRoller: DiceRoller,
-): IGameSession {
+): { readonly session: IGameSession; readonly unitDestroyed: boolean } {
   const unit = session.currentState.units[unitId];
   if (!unit || damage <= 0) {
-    return session;
+    return { session, unitDestroyed: false };
   }
 
   const d6Roller = createD6RollerFromDiceRoller(diceRoller);
@@ -301,21 +303,65 @@ function appendHeatAmmoExplosionDamageCascade(
     }
   }
 
-  if (damageResult.result.unitDestroyed && !unit.destroyed) {
-    currentSession = appendEvent(
-      currentSession,
-      createUnitDestroyedEvent(
-        currentSession.id,
-        currentSession.events.length,
-        turn,
-        GamePhase.Heat,
-        unitId,
-        'ammo_explosion',
-      ),
-    );
+  return {
+    session: currentSession,
+    unitDestroyed: damageResult.result.unitDestroyed && !unit.destroyed,
+  };
+}
+
+function appendHeatAmmoExplosionPilotDamage(
+  session: IGameSession,
+  unitId: string,
+  totalExplosionDamage: number,
+  caseProtection: CASEProtectionLevel,
+  diceRoller: DiceRoller,
+): { readonly session: IGameSession; readonly pilotDestroyed: boolean } {
+  const unit = session.currentState.units[unitId];
+  if (!unit) {
+    return { session, pilotDestroyed: false };
   }
 
-  return currentSession;
+  const pilotDamage = resolveBattleMechAmmoExplosionPilotDamage({
+    totalDamage: totalExplosionDamage,
+    caseProtection,
+    pilotAbilities: unit.abilities,
+  });
+  if (pilotDamage <= 0) {
+    return { session, pilotDestroyed: false };
+  }
+
+  const totalWounds = unit.pilotWounds + pilotDamage;
+  const d6Roller = createD6RollerFromDiceRoller(diceRoller);
+  const consciousnessCheck = resolvePilotConsciousnessCheck(
+    totalWounds,
+    pilotDamage,
+    unit.abilities,
+    d6Roller,
+  );
+  const consciousnessPassed =
+    unit.pilotConscious &&
+    (consciousnessCheck.conscious ?? true) &&
+    totalWounds < PILOT_DEATH_WOUND_THRESHOLD;
+  const currentSession = appendEvent(
+    session,
+    createPilotHitEvent(
+      session.id,
+      session.events.length,
+      session.currentState.turn,
+      GamePhase.Heat,
+      unitId,
+      pilotDamage,
+      totalWounds,
+      'ammo_explosion',
+      consciousnessCheck.consciousnessCheckRequired,
+      consciousnessPassed,
+    ),
+  );
+
+  return {
+    session: currentSession,
+    pilotDestroyed: totalWounds >= PILOT_DEATH_WOUND_THRESHOLD,
+  };
 }
 
 function appendHeatAmmoExplosionEvents(
@@ -380,7 +426,7 @@ function appendHeatAmmoExplosionEvents(
     ),
   );
 
-  return appendHeatAmmoExplosionDamageCascade(
+  const cascadeResult = appendHeatAmmoExplosionDamageCascade(
     currentSession,
     unitId,
     explosionResult.location,
@@ -388,6 +434,37 @@ function appendHeatAmmoExplosionEvents(
     caseAdjustedDamage.caseProtection,
     diceRoller,
   );
+  currentSession = cascadeResult.session;
+
+  const pilotResult = appendHeatAmmoExplosionPilotDamage(
+    currentSession,
+    unitId,
+    explosionResult.totalDamage,
+    caseAdjustedDamage.caseProtection,
+    diceRoller,
+  );
+  currentSession = pilotResult.session;
+
+  if (
+    (cascadeResult.unitDestroyed || pilotResult.pilotDestroyed) &&
+    !unit.destroyed
+  ) {
+    const finalUnit = currentSession.currentState.units[unitId];
+    currentSession = appendEvent(
+      currentSession,
+      createUnitDestroyedEvent(
+        currentSession.id,
+        currentSession.events.length,
+        currentSession.currentState.turn,
+        GamePhase.Heat,
+        unitId,
+        finalUnit?.destructionCause ??
+          (pilotResult.pilotDestroyed ? 'pilot_death' : 'ammo_explosion'),
+      ),
+    );
+  }
+
+  return currentSession;
 }
 
 function hasMaxTechHeatScaleRule(optionalRules: readonly string[]): boolean {

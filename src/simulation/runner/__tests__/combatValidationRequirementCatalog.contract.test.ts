@@ -619,8 +619,8 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['pilot-damage-death'],
     ).toMatchObject({
-      level: 'helper-only',
-      gap: expect.stringContaining('Ammo-explosion PilotHit'),
+      level: 'integrated',
+      evidence: expect.stringContaining('ammo-explosion pilot damage'),
     });
     expect(
       missingRefsForRequirement(

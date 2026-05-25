@@ -23,6 +23,7 @@ import {
   applyAmmoExplosionRearArmorBlowout,
   caseProtectionForLocation,
   resolveCaseAdjustedAmmoExplosionDamage,
+  resolveBattleMechAmmoExplosionPilotDamage,
 } from '../ammoTracking';
 
 // =============================================================================
@@ -858,5 +859,56 @@ describe('ammo explosion integration with CASE', () => {
     expect(result!.totalDamage).toBe(100);
     expect(result!.transferDamage).toBe(100);
     expect(result!.pilotDamage).toBe(1);
+  });
+});
+
+describe('resolveBattleMechAmmoExplosionPilotDamage', () => {
+  it('applies the default BattleMech ammo-explosion pilot damage', () => {
+    expect(
+      resolveBattleMechAmmoExplosionPilotDamage({
+        totalDamage: 100,
+        caseProtection: 'none',
+      }),
+    ).toBe(2);
+  });
+
+  it('reduces ammo-explosion pilot damage for Iron Man and Pain Resistance', () => {
+    expect(
+      resolveBattleMechAmmoExplosionPilotDamage({
+        totalDamage: 100,
+        pilotAbilities: ['iron-man'],
+      }),
+    ).toBe(1);
+    expect(
+      resolveBattleMechAmmoExplosionPilotDamage({
+        totalDamage: 100,
+        pilotAbilities: ['pain_resistance'],
+      }),
+    ).toBe(1);
+  });
+
+  it('suppresses ammo-explosion pilot damage with artificial pain shunt', () => {
+    expect(
+      resolveBattleMechAmmoExplosionPilotDamage({
+        totalDamage: 100,
+        pilotAbilities: ['artificial_pain_shunt'],
+      }),
+    ).toBe(0);
+  });
+
+  it('only applies the optional CASE pilot-damage reduction when enabled', () => {
+    expect(
+      resolveBattleMechAmmoExplosionPilotDamage({
+        totalDamage: 100,
+        caseProtection: 'case',
+      }),
+    ).toBe(2);
+    expect(
+      resolveBattleMechAmmoExplosionPilotDamage({
+        totalDamage: 100,
+        caseProtection: 'case',
+        advancedCasePilotDamage: true,
+      }),
+    ).toBe(1);
   });
 });

@@ -7,6 +7,7 @@ import {
   IUnitDestroyedPayload,
   IUnitGameState,
 } from '@/types/gameplay';
+import { PILOT_DEATH_WOUND_THRESHOLD } from '@/utils/gameplay/damage/constants';
 
 import { DEFAULT_COMPONENT_DAMAGE } from './initialization';
 
@@ -146,6 +147,7 @@ export function applyPilotHit(
   const conscious = payload.consciousnessCheckRequired
     ? (payload.consciousnessCheckPassed ?? false)
     : unit.pilotConscious;
+  const pilotDead = payload.totalWounds >= PILOT_DEATH_WOUND_THRESHOLD;
 
   return {
     ...state,
@@ -154,7 +156,13 @@ export function applyPilotHit(
       [payload.unitId]: {
         ...unit,
         pilotWounds: payload.totalWounds,
-        pilotConscious: conscious,
+        pilotConscious: pilotDead ? false : conscious,
+        ...(pilotDead
+          ? {
+              destroyed: true as const,
+              destructionCause: 'pilot_death' as const,
+            }
+          : {}),
       },
     },
   };

@@ -232,12 +232,13 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** event-sourced heat cookoffs SHALL empty the exploded bin before applying the CASE-adjusted damage cascade
 - **AND** broad non-CASE equipment names that merely contain the substring "case" SHALL NOT hydrate phantom CASE protection
 
-#### Scenario: Ammo-explosion pilot damage remains source-pinned until wired
+#### Scenario: Ammo-explosion pilot damage emits pilot-hit state
 
-- **GIVEN** MegaMek reduces ammunition-explosion pilot damage for Pain Resistance or Iron Man
-- **WHEN** MekStation catalogs pilot damage and event-stream support
-- **THEN** ammo-explosion pilot damage SHALL remain a visible non-integrated damage/death row until runner heat, runner critical, and event-sourced heat cookoff paths emit `PilotHit`, persist pilot wounds, and apply the source-backed reduction
-- **AND** `PilotHit` event support SHALL NOT claim ammo-explosion coverage before that behavior exists end to end
+- **GIVEN** MegaMek applies BattleMech ammunition-explosion pilot damage and reduces that damage for Pain Resistance or Iron Man
+- **WHEN** runner heat, runner critical, or event-sourced heat cookoff resolution emits `AmmoExplosion`
+- **THEN** the cookoff path SHALL emit `PilotHit` with `source: 'ammo_explosion'`, persist the pilot wound total, and destroy the unit with `pilot_death` when the lethal wound threshold is reached
+- **AND** Iron Man or Pain Resistance SHALL reduce the ammo-explosion pilot damage by one, while artificial pain shunt SHALL suppress the pilot damage
+- **AND** `PilotHit` event support SHALL include ammo-explosion coverage only after runner heat, runner critical, and event-sourced heat cookoff paths share that behavior end to end
 
 ### Requirement: Physical Attack Legality Gates
 

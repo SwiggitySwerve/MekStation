@@ -24,6 +24,7 @@
  */
 
 import type { CriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution/types';
+import type { IResolveDamageResult } from '@/utils/gameplay/damage';
 
 import {
   Facing,
@@ -60,7 +61,9 @@ import { IViolation } from '../../invariants/types';
 import { applyHeatInducedAmmoExplosions } from '../phases/heatAmmoExplosions';
 import { runHeatPhase } from '../phases/postCombat';
 import { runAttackPhase } from '../phases/weaponAttack';
+import { applyCritAmmoExplosions } from '../phases/weaponAttackAmmoExplosions';
 import { DEFAULT_COMPONENT_DAMAGE } from '../SimulationRunnerConstants';
+import { buildDamageState } from '../SimulationRunnerState';
 
 // =============================================================================
 // Fixture helpers
@@ -637,9 +640,67 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
     expect(payload.binId).toBe('ac-20-bin-0');
     expect(payload.roundsDestroyed).toBe(5);
     expect(payload.damage).toBe(100);
+    const pilotHit = events.find(
+      (e) =>
+        e.type === GameEventType.PilotHit &&
+        (e.payload as IPilotHitPayload).source === 'ammo_explosion',
+    );
+    expect(pilotHit?.payload as IPilotHitPayload).toMatchObject({
+      unitId: 'player-1',
+      wounds: 2,
+      totalWounds: 2,
+      source: 'ammo_explosion',
+    });
     expect(
       newState.units['player-1'].ammoState?.['ac-20-bin-0'].remainingRounds,
     ).toBe(0);
+    expect(newState.units['player-1'].pilotWounds).toBe(2);
+  });
+
+  it('applies Iron Man to HeatInduced AmmoExplosion pilot damage', () => {
+    const ammoState: Record<string, IAmmoSlotState> = {
+      'ac-20-bin-0': {
+        binId: 'ac-20-bin-0',
+        weaponType: 'ac-20',
+        location: 'right_torso',
+        remainingRounds: 5,
+        maxRounds: 5,
+        isExplosive: true,
+      },
+    };
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heat: 40,
+        ammoState,
+        abilities: ['iron-man'],
+      },
+    );
+    const state = makeMinimalState({ 'player-1': unit });
+    const events: IGameEvent[] = [];
+
+    const newState = runHeatPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: new SeededRandom(42),
+      weaponsByUnit: new Map([['player-1', createAtlasWeapons()]]),
+    });
+
+    const pilotHit = events.find(
+      (e) =>
+        e.type === GameEventType.PilotHit &&
+        (e.payload as IPilotHitPayload).source === 'ammo_explosion',
+    );
+    expect(pilotHit?.payload as IPilotHitPayload).toMatchObject({
+      unitId: 'player-1',
+      wounds: 1,
+      totalWounds: 1,
+      source: 'ammo_explosion',
+    });
+    expect(newState.units['player-1'].pilotWounds).toBe(1);
   });
 
   it('routes HeatInduced AmmoExplosion damage through transfer and destruction cascade', () => {
@@ -791,6 +852,17 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
       damage: 100,
       caseProtection: 'case',
       source: 'HeatInduced',
+    });
+    expect(
+      events.find(
+        (e) =>
+          e.type === GameEventType.PilotHit &&
+          (e.payload as IPilotHitPayload).source === 'ammo_explosion',
+      )?.payload as IPilotHitPayload,
+    ).toMatchObject({
+      unitId: 'player-1',
+      wounds: 2,
+      source: 'ammo_explosion',
     });
     expect(events.some((e) => e.type === GameEventType.TransferDamage)).toBe(
       false,
@@ -1749,6 +1821,66 @@ describe('runAttackPhase ammo + pilot events (Phase 4)', () => {
       expect(payload.source).toBe('CritInduced');
       expect(payload.damage).toBeGreaterThan(0);
     }
+  });
+
+  it('emits ammo-explosion PilotHit when a crit destroys a loaded ammo bin', () => {
+    const scenario = buildAmmoCookoffScenario();
+    const events: IGameEvent[] = [];
+    const target = scenario.state.units['opponent-1'];
+    const damageResult: IResolveDamageResult = {
+      state: buildDamageState(target),
+      result: {
+        locationDamages: [],
+        criticalHits: [],
+        unitDestroyed: false,
+      },
+      criticalEvents: [
+        {
+          type: 'critical_hit_resolved',
+          payload: {
+            unitId: 'opponent-1',
+            location: 'right_torso',
+            slotIndex: 0,
+            componentType: 'ammo',
+            componentName: 'AC/20 Ammo',
+            ammoBinId: 'ac-20-bin-0',
+            effect: 'Ammo destroyed',
+            destroyed: true,
+          },
+        },
+      ],
+    };
+
+    const result = applyCritAmmoExplosions({
+      currentState: scenario.state,
+      events,
+      gameId: scenario.state.gameId,
+      unitId: 'player-1',
+      targetId: 'opponent-1',
+      damageResult,
+      d6Roller: () => 6,
+      weaponsByUnit: scenario.weaponsByUnit,
+      critUnitDestroyed: false,
+      critDestructionCause: undefined,
+    });
+
+    const pilotHit = events.find(
+      (e) =>
+        e.type === GameEventType.PilotHit &&
+        (e.payload as IPilotHitPayload).source === 'ammo_explosion',
+    );
+    expect(pilotHit?.payload as IPilotHitPayload).toMatchObject({
+      unitId: 'opponent-1',
+      wounds: 2,
+      totalWounds: 2,
+      source: 'ammo_explosion',
+    });
+    expect(result.currentState.units['opponent-1'].pilotWounds).toBe(2);
+    expect(
+      result.currentState.units['opponent-1'].ammoState?.['ac-20-bin-0']
+        .remainingRounds,
+    ).toBe(0);
+    expect(result.critUnitDestroyed).toBe(true);
   });
 
   it('PilotHit emits when a head-hit damages the pilot (no cockpit crit)', () => {

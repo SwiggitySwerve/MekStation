@@ -560,8 +560,8 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'iron-man': helperOnly(
     'iron-man',
-    'getConsciousnessCheckModifier plus applyPilotDamage, runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase lower consciousness TNs through a local helper path',
-    'MegaMek source uses Iron Man for ammunition-explosion pilot-hit reduction, not generic consciousness target-number relief; MekStation has not wired Iron Man ammunition-explosion pilot-damage reduction',
+    'resolveBattleMechAmmoExplosionPilotDamage reduces ammunition-explosion pilot damage; getConsciousnessCheckModifier plus applyPilotDamage, runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase also lower consciousness TNs through a local helper path',
+    'ammunition-explosion reduction is wired, but MegaMek source uses Iron Man for that reduction rather than generic consciousness target-number relief; split the local consciousness helper before claiming integrated Iron Man SPA parity',
     [
       ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
       ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
@@ -569,8 +569,8 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'pain-resistance': helperOnly(
     'pain-resistance',
-    'getEffectiveWounds plus calculateToHit apply local wound-penalty relief; getConsciousnessCheckModifier plus pilot damage, fall, and heat consciousness checks apply local target-number relief',
-    'MegaMek source uses Pain Resistance for +1 consciousness and wake-up rolls plus ammunition-explosion pilot-damage reduction, while MekStation has local to-hit wound relief and does not wire wake-up or ammunition-explosion reduction',
+    'resolveBattleMechAmmoExplosionPilotDamage reduces ammunition-explosion pilot damage; getEffectiveWounds plus calculateToHit apply local wound-penalty relief, and getConsciousnessCheckModifier plus pilot damage, fall, and heat consciousness checks apply local target-number relief',
+    'MegaMek source also uses Pain Resistance for wake-up rolls; MekStation still has local to-hit wound relief and consciousness target-number behavior that differ from the source-backed SPA boundary',
     [
       ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
       ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,

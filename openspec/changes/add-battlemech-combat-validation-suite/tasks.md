@@ -183,6 +183,7 @@
 - [x] 3.5.26 Source-pin physical-combat runner PSR trigger rows for kick, push, charge, DFA, and physical misses; align successful charge and DFA-target PSRs to +2 and keep normal charge-miss PSR queueing out of integrated parity.
 - [x] 3.5.27 Source-pin heat shutdown, standing-up, and running-with-damage runner PSR trigger rows while keeping MekStation's queued shutdown timing, failed stand-up behavior, and split hip/gyro reason codes source-visible.
 - [x] 3.5.28 Source-pin ammo-explosion pilot-damage as a helper-only damage/death gap until heat, crit, and interactive cookoff paths emit PilotHit, persist wounds, and apply Pain Resistance / Iron Man reduction.
+- [x] 3.5.29 Wire source-backed ammo-explosion PilotHit emission, wound persistence, pilot-death state, and Pain Resistance / Iron Man reduction across runner heat, runner crit, and event-sourced heat cookoff paths.
 
 ## 4. Source-truth cross-checks
 
@@ -277,3 +278,4 @@
 - [x] 4.3.84 Cross-check MegaMek Edge point-pool, trigger option ids, and TAC/head-hit consumption before pinning MekStation Edge as helper-only generic trigger state.
 - [x] 4.3.85 Cross-check MegaMek `TWGameManager`, `PilotOptions`, `GameOptions`, `Crew`, `MULParser`, and option text before demoting local toughness/consciousness aliases and Pain Resistance to-hit relief to helper-only/deviation coverage.
 - [x] 4.3.86 Cross-check MegaMek ammunition-explosion pilot-damage reduction, Pain Resistance, and Iron Man source rows against MekStation heat/crit/interactive cookoff paths before keeping ammo-explosion PilotHit coverage helper-only.
+- [x] 4.3.87 Re-cross-check MegaMek ammunition-explosion pilot damage, Pain Resistance, Iron Man, and pain-shunt handling before promoting ammo-explosion PilotHit coverage to integrated validation support.

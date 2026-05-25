@@ -22,6 +22,7 @@ import {
   applyDamageResultToState,
   buildDamageState,
 } from '../SimulationRunnerState';
+import { applyAmmoExplosionPilotDamage } from './ammoExplosionPilotDamage';
 import { createGameEvent } from './utils';
 import {
   damagePerRoundForBin,
@@ -236,20 +237,32 @@ export function applyCritAmmoExplosions(options: {
         }
       }
 
-      // If the cascade destroyed the unit, surface the
-      // ammo_explosion cause for the consolidated UnitDestroyed
-      // emission below. Override prior crit-cause if present —
-      // ammo cookoff is a more specific cause than engine_destroyed.
-      if (cascadeResult.result.unitDestroyed && !critUnitDestroyed) {
-        critUnitDestroyed = true;
-        critDestructionCause = 'ammo_explosion';
-      } else if (
-        cascadeResult.result.unitDestroyed &&
-        critDestructionCause !== 'pilot_death'
-      ) {
-        // Honour pilot_death precedence; otherwise prefer
-        // ammo_explosion since the cookoff is the proximate cause.
-        critDestructionCause = 'ammo_explosion';
+      const pilotResult = applyAmmoExplosionPilotDamage({
+        currentState,
+        events,
+        gameId,
+        targetId,
+        sourceUnitId: unitId,
+        phase: GamePhase.WeaponAttack,
+        totalExplosionDamage: explosionDamage,
+        caseProtection: caseAdjustedDamage.caseProtection,
+        d6Roller,
+      });
+      currentState = pilotResult.currentState;
+
+      const finalTarget = currentState.units[targetId];
+      if (finalTarget?.destroyed) {
+        const explosionCause =
+          finalTarget.destructionCause ?? ('ammo_explosion' as const);
+        if (!critUnitDestroyed) {
+          critUnitDestroyed = true;
+          critDestructionCause = explosionCause;
+        } else if (
+          explosionCause === 'pilot_death' ||
+          critDestructionCause !== 'pilot_death'
+        ) {
+          critDestructionCause = explosionCause;
+        }
       }
     }
   }
