@@ -287,6 +287,16 @@ function IsometricSceneLayer({
                 ? item.token.altitude
                 : undefined
             }
+            data-isometric-aerospace-altitude={
+              item.token.unitType === TokenUnitType.Aerospace
+                ? item.token.altitude
+                : undefined
+            }
+            data-isometric-aerospace-velocity={
+              item.token.unitType === TokenUnitType.Aerospace
+                ? item.token.velocity
+                : undefined
+            }
           >
             <UnitTokensLayer
               orderedTokens={[item.token]}

@@ -23,3 +23,13 @@ Rendered tactical map unit token wrappers SHALL expose inspectable state metadat
 **THEN** aerospace tokens SHALL expose altitude and velocity when present
 **AND** mounted battle armor tokens SHALL expose the host unit id used for badge placement
 **AND** this metadata SHALL NOT change token visuals, animation behavior, fog behavior, or click handling
+
+#### Scenario: Isometric scene wrapper preserves airborne token state
+
+**GIVEN** an aerospace token carries altitude and velocity state
+**AND** the tactical map is rendered in isometric mode
+**WHEN** the isometric scene depth-sorts that token
+**THEN** the isometric scene token wrapper SHALL expose the unit type as aerospace
+**AND** it SHALL expose the aerospace altitude
+**AND** it SHALL expose the aerospace velocity
+**AND** the nested token wrapper SHALL retain its own altitude and velocity metadata

@@ -2380,6 +2380,49 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('preserves aerospace altitude and velocity on isometric scene tokens', () => {
+    const aerospace = makeToken({
+      unitId: 'aero',
+      position: { q: 0, r: 0 },
+      unitType: TokenUnitType.Aerospace,
+      altitude: 4,
+      velocity: 7,
+    });
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[aerospace]}
+        selectedHex={null}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+
+    const sceneToken = screen.getByTestId('isometric-scene-token-aero');
+    expect(sceneToken).toHaveAttribute(
+      'data-isometric-token-unit-type',
+      TokenUnitType.Aerospace,
+    );
+    expect(sceneToken).toHaveAttribute(
+      'data-isometric-aerospace-altitude',
+      '4',
+    );
+    expect(sceneToken).toHaveAttribute(
+      'data-isometric-aerospace-velocity',
+      '7',
+    );
+
+    const nestedToken = screen.getByTestId('unit-token-aero');
+    expect(nestedToken).toHaveAttribute('data-aerospace-altitude', '4');
+    expect(nestedToken).toHaveAttribute('data-aerospace-velocity', '7');
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('boosts units hidden behind tall terrain from the isometric camera angle', () => {
     const occluded = makeToken({
       unitId: 'occluded',

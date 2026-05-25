@@ -9,6 +9,8 @@ The tactical map increasingly explains terrain, movement, combat, LOS, and proje
 - Add unit type, displayed map position, source position, and facing metadata to rendered unit token wrappers.
 - Add mounted host metadata for battle armor passenger badges.
 - Add aerospace altitude and velocity metadata to aerospace token wrappers when present.
+- Preserve aerospace altitude and velocity metadata on isometric scene token
+  wrappers so depth-sorted 2.5D projection remains inspectable.
 - Include the same state in token accessible labels.
 - Preserve token visuals, movement animation behavior, fog behavior, and click handling.
 
@@ -21,5 +23,7 @@ The tactical map increasingly explains terrain, movement, combat, LOS, and proje
 ## Impact
 
 - Affected spec: `tactical-map-interface`
-- Affected code: `src/components/gameplay/UnitToken/UnitTokenForType.tsx`
-- Tests: focused UnitTokenForType wrapper metadata coverage
+- Affected code: `src/components/gameplay/UnitToken/UnitTokenForType.tsx`,
+  `src/components/gameplay/HexMapDisplay/HexMapDisplay.tsx`
+- Tests: focused UnitTokenForType wrapper metadata coverage plus isometric
+  HexMapDisplay/browser coverage

@@ -969,7 +969,10 @@ The shared `unitStateToToken` adapter projects `currentVelocity` into
 `IAerospaceToken.velocity`, so the tactical-map velocity vector is no longer a
 manual token-only hint. The browser map harness proves state-derived altitude
 and velocity metadata, altitude badge, and velocity vector in top-down and
-isometric projections.
+isometric projections. The isometric depth-sorted scene wrapper now also
+exposes aerospace unit type, altitude, and velocity metadata, keeping airborne
+state inspectable at the same wrapper layer that owns depth ordering and
+occlusion/highlight behavior.
 
 2026-05-25 combat movement modifier browser pin: MegaMek
 `ComputeAttackerToHitMods.java:102-103` appends attacker movement via
