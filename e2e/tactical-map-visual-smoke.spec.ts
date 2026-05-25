@@ -2135,6 +2135,69 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(combatBadge).toHaveAttribute('data-combat-badge-label', 'M3');
   });
 
+  test('shows spotter-gunnery indirect fire in browser', async ({ page }) => {
+    await page.goto('/e2e/tactical-map?scenario=indirect-fire-spotter-skill');
+
+    await expect(page.getByTestId('unit-token-indirect-spotter')).toContainText(
+      'RVN',
+    );
+
+    const targetHex = page.getByTestId('hex-3-0');
+    await expect(targetHex).toHaveAttribute('data-combat-los-state', 'blocked');
+    await expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-indirect-fire',
+      'true',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-indirect-spotter',
+      'indirect-spotter',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-indirect-basis',
+      'los',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-indirect-penalty',
+      '2',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-indirect-spotter-gunnery',
+      '6',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-indirect-spotter-skill-modifier',
+      '1',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-indirect-reason',
+      'Indirect fire via spotter indirect-spotter (+2); spotter gunnery 6 adds +1',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '8');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-modifiers',
+      /Indirect fire:2/,
+    );
+    await expect(targetHex).toHaveAttribute(
+      'aria-label',
+      /spotter gunnery 6 adds \+1/,
+    );
+
+    const indirectBadge = page.getByTestId('hex-indirect-fire-badge-3-0');
+    await expect(indirectBadge).toHaveAttribute(
+      'data-combat-indirect-badge-spotter-gunnery',
+      '6',
+    );
+    await expect(indirectBadge).toHaveAttribute(
+      'data-combat-indirect-badge-spotter-skill-modifier',
+      '1',
+    );
+    await expect(indirectBadge).toHaveAttribute(
+      'aria-label',
+      /spotter gunnery 6 adds \+1/,
+    );
+  });
+
   test('shows Forward Observer indirect-fire cancellation in browser', async ({
     page,
   }) => {

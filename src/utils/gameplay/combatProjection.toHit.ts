@@ -43,18 +43,28 @@ function formatIndirectFireReason({
   basis,
   spotterId,
   toHitPenalty,
+  spotterGunnery,
+  spotterSkillModifier,
   forwardObserverApplied,
 }: {
   readonly basis: IndirectFireBasis;
   readonly spotterId?: string | null;
   readonly toHitPenalty: number;
+  readonly spotterGunnery?: number;
+  readonly spotterSkillModifier?: number;
   readonly forwardObserverApplied?: boolean;
 }): string {
   if (basis === 'los') {
+    const details = [
+      spotterSkillModifier !== undefined && spotterSkillModifier !== 0
+        ? `spotter gunnery ${spotterGunnery ?? 'unknown'} ${spotterSkillModifier > 0 ? 'adds' : 'reduces'} ${spotterSkillModifier > 0 ? '+' : ''}${spotterSkillModifier}`
+        : undefined,
+      forwardObserverApplied
+        ? 'Forward Observer cancels walked spotter penalty'
+        : undefined,
+    ].filter((detail): detail is string => detail !== undefined);
     const reason = `Indirect fire via spotter ${spotterId ?? 'unknown'} (+${toHitPenalty})`;
-    return forwardObserverApplied
-      ? `${reason}; Forward Observer cancels walked spotter penalty`
-      : reason;
+    return details.length > 0 ? `${reason}; ${details.join('; ')}` : reason;
   }
   if (basis === 'semi-guided-tag') {
     return 'Semi-guided indirect fire via TAG (no indirect penalty)';
@@ -299,6 +309,8 @@ export function deriveIndirectFireProjection({
       readonly spotterId: string | null;
       readonly basis: IndirectFireBasis;
       readonly toHitPenalty: number;
+      readonly spotterGunnery?: number;
+      readonly spotterSkillModifier?: number;
       readonly forwardObserverApplied?: boolean;
       readonly penaltyCancelled?: number;
       readonly reason: string;
@@ -351,6 +363,8 @@ export function deriveIndirectFireProjection({
     spotterId,
     basis: result.basis,
     toHitPenalty: result.toHitPenalty,
+    spotterGunnery: result.spotterGunnery,
+    spotterSkillModifier: result.spotterSkillModifier,
     forwardObserverApplied: result.forwardObserverApplied,
     penaltyCancelled: result.spotterMovementPenaltyCancelled,
     interveningTerrainEffects:
@@ -359,6 +373,8 @@ export function deriveIndirectFireProjection({
       basis: result.basis,
       spotterId,
       toHitPenalty: result.toHitPenalty,
+      spotterGunnery: result.spotterGunnery,
+      spotterSkillModifier: result.spotterSkillModifier,
       forwardObserverApplied: result.forwardObserverApplied,
     }),
   };

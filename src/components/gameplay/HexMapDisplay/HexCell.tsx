@@ -514,6 +514,12 @@ export const HexCell = React.memo(function HexCell({
       data-combat-indirect-spotter={combatInfo?.indirectFireSpotterId}
       data-combat-indirect-basis={combatInfo?.indirectFireBasis}
       data-combat-indirect-penalty={combatInfo?.indirectFireToHitPenalty}
+      data-combat-indirect-spotter-gunnery={
+        combatInfo?.indirectFireSpotterGunnery
+      }
+      data-combat-indirect-spotter-skill-modifier={
+        combatInfo?.indirectFireSpotterSkillModifier
+      }
       data-combat-indirect-forward-observer={
         combatInfo?.indirectFireForwardObserver ? 'true' : undefined
       }

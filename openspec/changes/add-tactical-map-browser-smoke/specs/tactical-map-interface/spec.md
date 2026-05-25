@@ -71,6 +71,9 @@ the top-down map.
 - **AND** a LOS-blocked LRM target with a represented friendly spotter SHALL
   remain attackable and expose indirect-fire basis, spotter id, penalty,
   to-hit metadata, and non-color indirect-fire badge context
+- **AND** a LOS-blocked LRM target whose elected spotter has a represented
+  gunnery penalty SHALL expose the net indirect-fire penalty, spotter gunnery,
+  skill modifier, to-hit metadata, and non-color indirect-fire badge context
 - **AND** a LOS-blocked LRM target whose represented walked spotter has Forward
   Observer SHALL expose indirect-fire penalty, cancellation metadata, the
   Forward Observer flag, to-hit metadata, and non-color indirect-fire badge

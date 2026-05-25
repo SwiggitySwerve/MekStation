@@ -145,6 +145,8 @@
   TAG basis and zero-penalty metadata.
 - [x] 2.56 Add browser coverage proving ECM-nullified TAG keeps a blocked
   semi-guided LRM target rejected without indirect-fire basis or badge metadata.
+- [x] 2.57 Add browser coverage proving represented spotter gunnery changes the
+  indirect-fire penalty and exposes gunnery/skill-modifier metadata.
 
 ## 3. Validation
 
@@ -266,3 +268,5 @@
   indirect-fire projection, committed attack event, and browser badge metadata.
 - [x] 3.56 Focused Jest parity and Playwright smoke pass for ECM-nullified TAG
   projection, committed rejection event, and browser invalid-badge metadata.
+- [x] 3.57 Focused Jest parity and Playwright smoke pass for spotter-gunnery
+  indirect-fire projection, committed event, and browser badge metadata.

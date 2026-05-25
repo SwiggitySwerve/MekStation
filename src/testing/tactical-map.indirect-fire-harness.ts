@@ -32,6 +32,13 @@ import {
   tacticalMapSemiGuidedTagIndirectFireTargetId,
   tacticalMapSemiGuidedTagIndirectFireTokens,
 } from './tactical-map.indirect-fire-scenario';
+import {
+  tacticalMapSpotterSkillIndirectFireCombatState,
+  tacticalMapSpotterSkillIndirectFireHexTerrain,
+  tacticalMapSpotterSkillIndirectFireSelectedWeaponIds,
+  tacticalMapSpotterSkillIndirectFireTargetId,
+  tacticalMapSpotterSkillIndirectFireTokens,
+} from './tactical-map.indirect-fire-spotter-skill-scenario';
 
 const selectedHex = { q: 0, r: 0 } as const;
 
@@ -67,6 +74,14 @@ export const tacticalMapIndirectFireHarnessScenarios = {
     combatState: tacticalMapIndirectFireCombatState,
     selectedHex,
     hexTerrain: tacticalMapIndirectFireHexTerrain,
+  },
+  'indirect-fire-spotter-skill': {
+    selectedWeaponIds: tacticalMapSpotterSkillIndirectFireSelectedWeaponIds,
+    targetUnitId: tacticalMapSpotterSkillIndirectFireTargetId,
+    tokens: tacticalMapSpotterSkillIndirectFireTokens,
+    combatState: tacticalMapSpotterSkillIndirectFireCombatState,
+    selectedHex,
+    hexTerrain: tacticalMapSpotterSkillIndirectFireHexTerrain,
   },
   'narc-beacon-indirect-fire': {
     selectedWeaponIds: tacticalMapNarcBeaconIndirectFireSelectedWeaponIds,

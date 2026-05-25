@@ -205,6 +205,8 @@ export function computeIndirectFireContext(
     spotterId: result.spotter?.entityId ?? null,
     basis: result.basis,
     toHitPenalty: result.toHitPenalty,
+    spotterGunnery: result.spotterGunnery,
+    spotterSkillModifier: result.spotterSkillModifier,
     forwardObserverApplied: result.forwardObserverApplied,
     spotterMovementPenaltyCancelled: result.spotterMovementPenaltyCancelled,
   };

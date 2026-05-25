@@ -496,6 +496,12 @@ export function CombatRangeBadge({
           data-combat-indirect-badge-penalty={
             combatInfo.indirectFireToHitPenalty
           }
+          data-combat-indirect-badge-spotter-gunnery={
+            combatInfo.indirectFireSpotterGunnery
+          }
+          data-combat-indirect-badge-spotter-skill-modifier={
+            combatInfo.indirectFireSpotterSkillModifier
+          }
           data-combat-indirect-badge-forward-observer={
             combatInfo.indirectFireForwardObserver ? 'true' : undefined
           }

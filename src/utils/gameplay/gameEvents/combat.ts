@@ -320,6 +320,8 @@ export function createIndirectFireSpotterSelectedEvent(
   targetHex: IHexCoordinate,
   toHitPenalty: number,
   ammoId?: string,
+  spotterGunnery?: number,
+  spotterSkillModifier?: number,
 ): IGameEvent {
   const payload: IIndirectFireSpotterSelectedPayload = {
     attackerId,
@@ -328,6 +330,8 @@ export function createIndirectFireSpotterSelectedEvent(
     ammoId,
     targetHex,
     toHitPenalty,
+    spotterGunnery,
+    spotterSkillModifier,
     basis: 'los',
   };
   return {
@@ -395,6 +399,8 @@ export function createIndirectFireForwardObserverEvent(
   targetHex: IHexCoordinate,
   toHitPenalty: number,
   ammoId?: string,
+  spotterGunnery?: number,
+  spotterSkillModifier?: number,
 ): IGameEvent {
   const payload: IIndirectFireForwardObserverPayload = {
     attackerId,
@@ -403,6 +409,8 @@ export function createIndirectFireForwardObserverEvent(
     ammoId,
     targetHex,
     toHitPenalty,
+    spotterGunnery,
+    spotterSkillModifier,
     basis: 'los',
     penaltyCancelled: 1,
   };

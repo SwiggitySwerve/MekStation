@@ -49,6 +49,13 @@ indirect-fire badge, accessible context, and committed indirect-fire events all
 agree that the target remains attackable through LOS-spotter indirect fire with
 basis `los`, spotter id, +1 indirect penalty, and matching to-hit metadata.
 
+2026-05-25 spotter-gunnery browser pin: the same LOS-spotter harness now also
+represents a poor-gunnery spotter. The shared projection, browser metadata,
+indirect-fire badge, accessible context, and committed
+`IndirectFireSpotterSelected` event all agree that the spotter's gunnery 6 adds
++1 to the net indirect-fire penalty, raising the represented indirect modifier
+to +2 with matching to-hit metadata.
+
 2026-05-25 Forward Observer browser pin: the same indirect-fire harness now
 also represents a walked friendly spotter with the `forward_observer` SPA. The
 shared projection, browser metadata, indirect-fire badge, accessible context,

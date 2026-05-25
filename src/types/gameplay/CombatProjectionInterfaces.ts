@@ -167,6 +167,10 @@ export interface ICombatRangeHex {
   readonly indirectFireBasis?: IndirectFireBasis;
   /** To-hit penalty contributed by indirect fire */
   readonly indirectFireToHitPenalty?: number;
+  /** Gunnery skill of the elected LOS spotter, when represented */
+  readonly indirectFireSpotterGunnery?: number;
+  /** Spotter-skill modifier folded into the indirect-fire penalty */
+  readonly indirectFireSpotterSkillModifier?: number;
   /** Forward Observer SPA cancelled the walked-spotter indirect-fire add */
   readonly indirectFireForwardObserver?: boolean;
   /** Indirect-fire penalty points cancelled by Forward Observer */

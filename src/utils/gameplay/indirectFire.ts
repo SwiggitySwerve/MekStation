@@ -131,6 +131,10 @@ export interface IIndirectFireResult {
   readonly spotterWalked: boolean;
   /** Total indirect fire to-hit penalty (+1 base plus represented movement) */
   readonly toHitPenalty: number;
+  /** Gunnery skill of the elected LOS spotter, when represented. */
+  readonly spotterGunnery?: number;
+  /** Spotter-skill modifier applied to the indirect-fire penalty. */
+  readonly spotterSkillModifier?: number;
   /** Forward Observer SPA cancelled the represented walked-spotter add. */
   readonly forwardObserverApplied?: boolean;
   /** Penalty points cancelled by Forward Observer, when represented. */
@@ -481,6 +485,8 @@ export function resolveIndirectFire(
       spotter,
       spotterWalked,
       toHitPenalty,
+      spotterGunnery: effectiveGunnery,
+      spotterSkillModifier: gunneryMod,
       forwardObserverApplied,
       spotterMovementPenaltyCancelled: forwardObserverApplied ? 1 : 0,
       spotterLOS: losResult,
@@ -598,6 +604,8 @@ export function resolveIndirectFireWithSemiGuided(
       basis: 'semi-guided-tag',
       spotter: undefined,
       toHitPenalty: 0,
+      spotterGunnery: undefined,
+      spotterSkillModifier: undefined,
       spotterWalked: false,
       forwardObserverApplied: false,
       spotterMovementPenaltyCancelled: 0,

@@ -636,6 +636,9 @@ export function declareAttack(
         eventWeaponId,
         resolvedTargetHex,
         indirectFireResolution.toHitPenalty,
+        undefined,
+        indirectFireResolution.spotterGunnery,
+        indirectFireResolution.spotterSkillModifier,
       );
       updatedSession = appendEvent(updatedSession, spotterEvent);
       if (indirectFireResolution.forwardObserverApplied === true) {
@@ -648,6 +651,9 @@ export function declareAttack(
           eventWeaponId,
           resolvedTargetHex,
           indirectFireResolution.toHitPenalty,
+          undefined,
+          indirectFireResolution.spotterGunnery,
+          indirectFireResolution.spotterSkillModifier,
         );
         updatedSession = appendEvent(updatedSession, forwardObserverEvent);
       }

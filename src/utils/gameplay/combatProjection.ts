@@ -388,6 +388,8 @@ export function deriveCombatRangeHexes({
       indirectFireSpotterId: indirectFire?.spotterId,
       indirectFireBasis: indirectFire?.basis,
       indirectFireToHitPenalty: indirectFire?.toHitPenalty,
+      indirectFireSpotterGunnery: indirectFire?.spotterGunnery,
+      indirectFireSpotterSkillModifier: indirectFire?.spotterSkillModifier,
       indirectFireForwardObserver: indirectFire?.forwardObserverApplied,
       indirectFirePenaltyCancelled: indirectFire?.penaltyCancelled,
       indirectFireReason: indirectFire?.reason,
