@@ -60,6 +60,7 @@
 - [x] 2.32.15 Add source-backed BattleMech overgrown woods/jungle displacement rejection for represented terrain levels above two through helper, event-sourced charge resolution, runner charge resolution, catalog, and audit coverage while leaving hidden-unit deployment and motive-mode terrain restrictions explicit.
 - [x] 2.32.16 Source-back unsupported BattleMech physical action class gaps for brush-off, thrash, trip, grapple, break-grapple, and jump-jet attacks with commit-pinned MegaMek anchors while leaving runtime action paths explicit.
 - [x] 2.32.17 Source-back remaining physical displacement-chain edge gaps for domino displacement, friendly-unit avoidance, and grounded DropShip radius expansion so the catalog cannot claim these consequences until runtime support exists.
+- [x] 2.32.18 Align the physical-self-risk aggregate requirement with same-phase runner occupancy refresh evidence while pointing the remaining gap at legacy ChargeMiss/DFAMiss factories and source-backed displacement-chain unsupported rows.
 
 ## 3. Full combat validation catalog
 

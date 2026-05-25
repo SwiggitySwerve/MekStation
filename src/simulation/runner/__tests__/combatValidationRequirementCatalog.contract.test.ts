@@ -849,6 +849,25 @@ describe('BattleMech combat validation requirement crosswalk', () => {
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].level,
     ).toBe('helper-only');
     expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].evidence,
+    ).toContain('same-phase runner occupancy refresh after displacement');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].gap,
+    ).not.toContain('Stale grid occupancy');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].gap,
+    ).toContain('domino-chain displacement');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk']
+        .supportMapRefs,
+    ).toEqual(
+      expect.arrayContaining([
+        'ruleSupport.physicalLegalityGates.shared.displacement-domino-chain',
+        'ruleSupport.physicalLegalityGates.shared.displacement-friendly-avoidance',
+        'ruleSupport.physicalLegalityGates.shared.displacement-dropship-radius',
+      ]),
+    );
+    expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-weapon-actions']
         .level,
     ).toBe('helper-only');

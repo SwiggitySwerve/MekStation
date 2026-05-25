@@ -738,13 +738,16 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'physical-self-risk': helperOnly(
     'physical-self-risk',
-    'Runner and event-sourced physical behavior cover charge/DFA target damage, self-damage, successful push/charge/DFA displacement, blocked successful-charge displacement no-op/no-PSR semantics, charge/DFA miss displacement, source-backed immediate DFA miss fall damage/prone timing and pilot-damage avoidance, DFA impossible-displacement destruction, source-backed successful-DFA attacker PSR +4, miss consequences, and PSR queueing',
-    'Stale grid occupancy after displacement still needs coverage',
+    'Runner and event-sourced physical behavior cover charge/DFA target damage, self-damage, successful push/charge/DFA displacement, same-phase runner occupancy refresh after displacement, blocked successful-charge displacement no-op/no-PSR semantics, charge/DFA miss displacement, source-backed immediate DFA miss fall damage/prone timing and pilot-damage avoidance, DFA impossible-displacement destruction, source-backed successful-DFA attacker PSR +4, miss consequences, and PSR queueing',
+    'Legacy/local ChargeMiss and DFAMiss PSR factories plus domino-chain displacement, friendly-unit displacement avoidance, and grounded DropShip-radius displacement remain visible helper or unsupported boundaries',
     [
       'lifecycleAndPsr.psrTriggers.charged',
       'lifecycleAndPsr.psrTriggers.charge_miss',
       'lifecycleAndPsr.psrTriggers.dfa_target',
       'lifecycleAndPsr.psrTriggers.dfa_miss',
+      'ruleSupport.physicalLegalityGates.shared.displacement-domino-chain',
+      'ruleSupport.physicalLegalityGates.shared.displacement-friendly-avoidance',
+      'ruleSupport.physicalLegalityGates.shared.displacement-dropship-radius',
     ],
   ),
   'pilot-skills': helperOnly(
