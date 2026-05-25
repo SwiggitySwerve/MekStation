@@ -1,15 +1,21 @@
-import { describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it } from '@jest/globals';
+import { act, renderHook } from '@testing-library/react';
 
+import type { InteractiveSession } from '@/engine/GameEngine';
 import type { IGameSession, IMovementRangeHex } from '@/types/gameplay';
 
+import { useGameplayStore } from '@/stores/useGameplayStore';
 import {
   MovementType,
   Facing,
   GamePhase,
   GameSide,
+  GameStatus,
   LockState,
 } from '@/types/gameplay';
+import { createHexGrid } from '@/utils/gameplay/hexGrid';
 
+import { useGameMovementPlanning } from './GameSessionPage.movement';
 import {
   appendHoveredMovementProjection,
   buildMovementModeSeedPlan,
@@ -25,6 +31,141 @@ import {
   movementTypeFromLegendSelection,
   movementPathFromRangeHex,
 } from './GameSessionPage.movementPlanning';
+
+function buildMovementPlanningHookFixture(options?: {
+  readonly jumpMP?: number;
+}): {
+  readonly session: IGameSession;
+  readonly interactiveSession: InteractiveSession;
+} {
+  const selectedUnitState: IGameSession['currentState']['units'][string] = {
+    id: 'unit-a',
+    side: GameSide.Player,
+    position: { q: -1, r: 1 },
+    facing: Facing.Southeast,
+    heat: 0,
+    movementThisTurn: MovementType.Stationary,
+    hexesMovedThisTurn: 0,
+    armor: {},
+    structure: {},
+    destroyedLocations: [],
+    destroyedEquipment: [],
+    ammo: {},
+    pilotWounds: 0,
+    pilotConscious: true,
+    destroyed: false,
+    lockState: LockState.Planning,
+  };
+  const session: IGameSession = {
+    id: 'movement-hook-session',
+    createdAt: '',
+    updatedAt: '',
+    config: {
+      mapRadius: 3,
+      turnLimit: 0,
+      victoryConditions: [],
+      optionalRules: [],
+    },
+    units: [
+      {
+        id: 'unit-a',
+        name: 'Hook Test Unit',
+        side: GameSide.Player,
+        unitRef: 'unit-a-ref',
+        pilotRef: 'pilot-a',
+        gunnery: 4,
+        piloting: 5,
+      },
+    ],
+    events: [],
+    currentState: {
+      gameId: 'movement-hook-session',
+      status: GameStatus.Active,
+      turn: 1,
+      phase: GamePhase.Movement,
+      activationIndex: 0,
+      units: {
+        'unit-a': selectedUnitState,
+      },
+      turnEvents: [],
+    },
+  };
+  const grid = createHexGrid({ radius: 3 });
+  const interactiveSession = {
+    getMovementCapability: () => ({
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: options?.jumpMP ?? 3,
+      movementMode: 'walk',
+      movementHeatProfile: 'mek',
+    }),
+    getGrid: () => grid,
+  } as unknown as InteractiveSession;
+
+  return { session, interactiveSession };
+}
+
+describe('useGameMovementPlanning legend mode selection', () => {
+  beforeEach(() => {
+    useGameplayStore.getState().reset();
+  });
+
+  it('seeds selected-unit movement projection from the map legend callback', () => {
+    const { session, interactiveSession } = buildMovementPlanningHookFixture();
+    const { result } = renderHook(() =>
+      useGameMovementPlanning({
+        session,
+        interactiveSession,
+        selectedUnitId: 'unit-a',
+        phase: GamePhase.Movement,
+        handleInteractiveHexClick: () => undefined,
+      }),
+    );
+
+    act(() => {
+      result.current.handleMovementModeSelect('jump');
+    });
+
+    expect(useGameplayStore.getState().plannedMovement).toEqual({
+      unitId: 'unit-a',
+      destination: { q: -1, r: 1 },
+      facing: Facing.Southeast,
+      movementType: MovementType.Jump,
+      path: [],
+    });
+    expect(result.current.mpLegend).toMatchObject({
+      active: 'jump',
+      jumpAvailable: true,
+      jumpMP: 3,
+    });
+  });
+
+  it('does not seed jump movement when the live capability has no jump MP', () => {
+    const { session, interactiveSession } = buildMovementPlanningHookFixture({
+      jumpMP: 0,
+    });
+    const { result } = renderHook(() =>
+      useGameMovementPlanning({
+        session,
+        interactiveSession,
+        selectedUnitId: 'unit-a',
+        phase: GamePhase.Movement,
+        handleInteractiveHexClick: () => undefined,
+      }),
+    );
+
+    act(() => {
+      result.current.handleMovementModeSelect('jump');
+    });
+
+    expect(useGameplayStore.getState().plannedMovement).toBeNull();
+    expect(result.current.mpLegend).toMatchObject({
+      active: 'walk',
+      jumpAvailable: false,
+      jumpMP: 0,
+    });
+  });
+});
 
 describe('getEffectiveMovementMps', () => {
   it('applies the same heat movement penalty used by movement range projection', () => {

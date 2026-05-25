@@ -1034,6 +1034,16 @@ heat metadata from the existing derived biped walk/run/jump projection fixtures,
 proving the legend control changes the real map overlay rather than only firing
 a component callback.
 
+2026-05-25 live movement hook legend pin: focused hook coverage now renders
+`useGameMovementPlanning` with a real selected player unit and an
+`InteractiveSession` movement capability stub, then invokes the MP legend
+callback directly. The hook seeds the same selected-unit planned movement shape
+used by command payloads, preserving current position, facing, and movement
+type, while a zero-Jump-MP capability leaves Jump inert and marks it
+unavailable in legend state. This is still a control-surface proof: terrain,
+elevation, heat, and commit legality remain delegated to the existing
+source-pinned movement projection and validation helpers.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:
