@@ -1360,6 +1360,13 @@ attack resolution; it makes the visible cover overlay inspect the same
 MegaMek-source-pinned `getTargetCoverInfo` path used by combat projection and
 commit previews.
 
+2026-05-25 sensor ring visibility source context pin: Sensor rings now expose
+their range, rendered radius, displayed map hex, source unit hex, fog status,
+and whether the ring was placed from the current or last-known token position.
+This does not change fog, sensor, LOS, or attack legality; it makes the
+visibility affordance inspectable so last-known contacts can be understood as
+stale display-position rings with a separate represented source position.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

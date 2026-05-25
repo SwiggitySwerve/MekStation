@@ -263,9 +263,14 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(
       screen.getByTestId('movement-cost-overlay-hex-1-0'),
     ).toHaveTextContent('T2');
-    expect(screen.getByTestId('movement-cost-overlay-hex-1-0')).toHaveAttribute(
-      'aria-label',
+    const movementCostOverlay = screen.getByTestId(
+      'movement-cost-overlay-hex-1-0',
+    );
+    expect(movementCostOverlay.getAttribute('aria-label')).toContain(
       'Terrain movement cost 2; terrain light woods; elevation 0',
+    );
+    expect(movementCostOverlay.getAttribute('aria-label')).toContain(
+      'Projection: Hex 1,0; intent terrain; status neutral',
     );
     expect(
       screen.getByTestId('movement-cost-overlay-hex--1-0'),
@@ -283,9 +288,12 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('cover-overlay-hex-1-0')).toHaveTextContent(
       'PART',
     );
-    expect(screen.getByTestId('cover-overlay-hex-1-0')).toHaveAttribute(
-      'aria-label',
+    const coverOverlay = screen.getByTestId('cover-overlay-hex-1-0');
+    expect(coverOverlay.getAttribute('aria-label')).toContain(
       'Partial cover; terrain light woods; elevation 0',
+    );
+    expect(coverOverlay.getAttribute('aria-label')).toContain(
+      'Projection: Hex 1,0; intent terrain; status neutral',
     );
     expect(screen.getByTestId('cover-overlay-hex-0-0')).toHaveAttribute(
       'data-cover-level',
@@ -3447,25 +3455,60 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
     const contact = makeToken({
       unitId: 'contact',
+      name: 'Last Contact',
       side: GameSide.Opponent,
       fogStatus: 'lastKnown',
       sensorRange: 2,
       position: { q: 3, r: 0 },
       lastKnownPosition: { q: 1, r: 0 },
     });
+    const hidden = makeToken({
+      unitId: 'hidden-contact',
+      side: GameSide.Opponent,
+      fogStatus: 'hidden',
+      sensorRange: 4,
+      position: { q: -2, r: 1 },
+    });
 
     render(
       <HexMapDisplay
         mapId="map-1"
         radius={3}
-        tokens={[scout, contact]}
+        tokens={[scout, contact, hidden]}
         selectedHex={null}
       />,
     );
 
     expect(screen.getByTestId('sensor-rings-layer')).toBeInTheDocument();
-    expect(screen.getByTestId('sensor-ring-scout')).toBeInTheDocument();
-    expect(screen.getByTestId('sensor-ring-contact')).toBeInTheDocument();
+    const scoutRing = screen.getByTestId('sensor-ring-scout');
+    const contactRing = screen.getByTestId('sensor-ring-contact');
+    const contactDisplayCenter = hexToPixel({ q: 1, r: 0 });
+
+    expect(scoutRing).toHaveAttribute('data-sensor-range-hexes', '3');
+    expect(scoutRing).toHaveAttribute('data-sensor-radius-px', '180');
+    expect(scoutRing).toHaveAttribute('data-sensor-display-position', '0,0');
+    expect(scoutRing).toHaveAttribute('data-sensor-source-position', '0,0');
+    expect(scoutRing).toHaveAttribute('data-sensor-position-source', 'current');
+    expect(scoutRing).toHaveAttribute('data-sensor-fog-status', 'visible');
+    expect(scoutRing).toHaveAccessibleName(
+      'Unit sensor ring; range 3 hexes; displayed at 0,0; source 0,0; position source current; visibility visible',
+    );
+
+    expect(contactRing).toHaveAttribute('data-sensor-range-hexes', '2');
+    expect(contactRing).toHaveAttribute('data-sensor-radius-px', '120');
+    expect(contactRing).toHaveAttribute('data-sensor-display-position', '1,0');
+    expect(contactRing).toHaveAttribute('data-sensor-source-position', '3,0');
+    expect(contactRing).toHaveAttribute(
+      'data-sensor-position-source',
+      'last-known',
+    );
+    expect(contactRing).toHaveAttribute('data-sensor-fog-status', 'lastKnown');
+    expect(contactRing).toHaveAttribute('cx', `${contactDisplayCenter.x}`);
+    expect(contactRing).toHaveAttribute('cy', `${contactDisplayCenter.y}`);
+    expect(contactRing).toHaveAccessibleName(
+      'Last Contact sensor ring; range 2 hexes; displayed at 1,0; source 3,0; position source last-known; visibility lastKnown',
+    );
+    expect(screen.queryByTestId('sensor-ring-hidden-contact')).toBeNull();
     expect(screen.getByTestId('fog-marker-contact')).toBeInTheDocument();
   });
 });

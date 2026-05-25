@@ -28,6 +28,43 @@ interface SensorRingsLayerProps {
   readonly orderedTokens: readonly IUnitToken[];
 }
 
+interface SensorRingProjection {
+  readonly displayPosition: IHexCoordinate;
+  readonly positionSource: 'current' | 'last-known';
+  readonly fogStatus: 'visible' | NonNullable<IUnitToken['fogStatus']>;
+}
+
+function deriveSensorRingProjection(token: IUnitToken): SensorRingProjection {
+  if (token.fogStatus === 'lastKnown' && token.lastKnownPosition) {
+    return {
+      displayPosition: token.lastKnownPosition,
+      positionSource: 'last-known',
+      fogStatus: 'lastKnown',
+    };
+  }
+
+  return {
+    displayPosition: token.position,
+    positionSource: 'current',
+    fogStatus: token.fogStatus ?? 'visible',
+  };
+}
+
+function describeSensorRing(
+  token: IUnitToken,
+  projection: SensorRingProjection,
+  sensorRange: number,
+): string {
+  return [
+    `${token.name} sensor ring`,
+    `range ${sensorRange} hexes`,
+    `displayed at ${coordToKey(projection.displayPosition)}`,
+    `source ${coordToKey(token.position)}`,
+    `position source ${projection.positionSource}`,
+    `visibility ${projection.fogStatus}`,
+  ].join('; ');
+}
+
 export function SensorRingsLayer({
   orderedTokens,
 }: SensorRingsLayerProps): React.ReactElement {
@@ -42,18 +79,31 @@ export function SensorRingsLayer({
         )
         .map((token) => {
           const sensorRange = token.sensorRange ?? 0;
-          const center = hexToPixel(
-            token.fogStatus === 'lastKnown' && token.lastKnownPosition
-              ? token.lastKnownPosition
-              : token.position,
+          const projection = deriveSensorRingProjection(token);
+          const center = hexToPixel(projection.displayPosition);
+          const radius = sensorRange * HEX_SIZE * 1.5;
+          const description = describeSensorRing(
+            token,
+            projection,
+            sensorRange,
           );
           return (
             <circle
               key={`sensor-${token.unitId}`}
               data-testid={`sensor-ring-${token.unitId}`}
+              role="img"
+              aria-label={description}
+              data-sensor-range-hexes={sensorRange}
+              data-sensor-radius-px={radius}
+              data-sensor-display-position={coordToKey(
+                projection.displayPosition,
+              )}
+              data-sensor-source-position={coordToKey(token.position)}
+              data-sensor-position-source={projection.positionSource}
+              data-sensor-fog-status={projection.fogStatus}
               cx={center.x}
               cy={center.y}
-              r={sensorRange * HEX_SIZE * 1.5}
+              r={radius}
               fill="none"
               stroke="#38bdf8"
               strokeWidth={2}
