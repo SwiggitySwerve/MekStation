@@ -1,0 +1,367 @@
+export type CombatCatalogTriadAuthorityBoundaryKind =
+  | 'entry-source-refs'
+  | 'requirement-primary-authority'
+  | 'mekstation-deviation';
+
+export interface ICombatCatalogTriadAuthorityBoundary {
+  readonly kind: CombatCatalogTriadAuthorityBoundaryKind;
+  readonly rationale: string;
+}
+
+export interface ICombatCatalogTriadTestReference {
+  readonly file: string;
+  readonly assertion: string;
+}
+
+export interface ICombatCatalogTriadEvidence {
+  readonly authorityBoundary: ICombatCatalogTriadAuthorityBoundary;
+  readonly testRefs: readonly ICombatCatalogTriadTestReference[];
+}
+
+function testRef(
+  file: string,
+  assertion: string,
+): ICombatCatalogTriadTestReference {
+  return { file, assertion };
+}
+
+function triad(
+  kind: CombatCatalogTriadAuthorityBoundaryKind,
+  rationale: string,
+  testRefs: readonly ICombatCatalogTriadTestReference[],
+): ICombatCatalogTriadEvidence {
+  return {
+    authorityBoundary: { kind, rationale },
+    testRefs,
+  };
+}
+
+const ACTION_CONTRACT_REFS = [
+  testRef(
+    'src/simulation/runner/__tests__/combatActionCatalog.contract.test.ts',
+    'Action command, game intent, wire intent, P2P, and physical action support maps stay aligned with executable action surfaces.',
+  ),
+] as const;
+
+const INVALIDATION_REFS = [
+  testRef(
+    'src/simulation/runner/__tests__/combatAttackInvalidationCatalog.contract.test.ts',
+    'Attack invalidation rows remain aligned with invalid target states and side-effect suppression expectations.',
+  ),
+  testRef(
+    'src/simulation/runner/__tests__/weaponAttackInvalidation.behavior.test.ts',
+    'Weapon attack invalidation rejects illegal declarations without spending heat, ammo, or damage side effects.',
+  ),
+] as const;
+
+const EVENT_STREAM_REFS = [
+  testRef(
+    'src/simulation/runner/__tests__/combatEventCatalog.contract.test.ts',
+    'BattleMech combat event rows stay partitioned between wired event payloads and explicit non-BattleMech scope rows.',
+  ),
+  testRef(
+    'src/simulation/runner/__tests__/weaponAttackEvents.test.ts',
+    'Weapon attack behavior emits and replays combat event payloads used by representative event rows.',
+  ),
+] as const;
+
+const FEATURE_REFS = [
+  testRef(
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
+    'Feature-support rows stay aligned with official weapons, ammo, SPAs, quirks, and source-backed mechanic rows.',
+  ),
+] as const;
+
+const RULE_REFS = [
+  testRef(
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
+    'Rule-support rows keep range, to-hit, movement, terrain, heat, and physical damage support discoverable.',
+  ),
+  testRef(
+    'src/simulation/runner/__tests__/weaponAttackToHitModifiers.behavior.test.ts',
+    'Runner ranged attack behavior proves executable range and to-hit modifier consumption.',
+  ),
+] as const;
+
+const TERRAIN_REFS = [
+  testRef(
+    'src/simulation/runner/__tests__/combatTerrainEnvironmentCatalog.contract.test.ts',
+    'Terrain type matrices stay aligned with movement, LOS, attack modifier, heat, and PSR catalog rows.',
+  ),
+  testRef(
+    'src/simulation/runner/__tests__/movementPhase.behavior.test.ts',
+    'Runner movement behavior consumes terrain movement and legality data.',
+  ),
+] as const;
+
+const DAMAGE_REFS = [
+  testRef(
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
+    'Damage, critical, pilot damage, and destruction support rows stay discoverable from the catalog.',
+  ),
+  testRef(
+    'src/simulation/runner/__tests__/damageLifecycle.behavior.test.ts',
+    'Runner damage behavior proves armor, structure, transfer, location destruction, and death lifecycle outcomes.',
+  ),
+] as const;
+
+const CRITICAL_SLOT_REFS = [
+  testRef(
+    'src/simulation/runner/__tests__/combatCriticalSlotHydrationCatalog.contract.test.ts',
+    'Critical slot hydration rows stay aligned with critical component and mounted equipment state extraction.',
+  ),
+  testRef(
+    'src/simulation/runner/__tests__/criticalSlotHydrationBoundary.behavior.test.ts',
+    'Critical slot hydration behavior proves the executable boundary for mounted component and equipment state.',
+  ),
+] as const;
+
+const LIFECYCLE_REFS = [
+  testRef(
+    'src/simulation/runner/__tests__/simulationRunnerTerminalParity.behavior.test.ts',
+    'Runner terminal-state behavior proves destroyed, shutdown, unconscious, retreated, and ejected actors leave action queues and target filters as intended.',
+  ),
+  testRef(
+    'src/simulation/runner/__tests__/psrPhase.behavior.test.ts',
+    'PSR behavior proves pending PSR resolution, trigger preservation, fall, pilot wound, and cleanup paths.',
+  ),
+] as const;
+
+const PARITY_REFS = [
+  testRef(
+    'src/simulation/runner/__tests__/combatIntegrationCatalog.contract.test.ts',
+    'Representative integration rows stay aligned with runner and interactive parity scenarios.',
+  ),
+  testRef(
+    'src/simulation/runner/__tests__/simulationRunnerTerminalParity.behavior.test.ts',
+    'Terminal-state representative scenarios prove runner and interactive lifecycle parity.',
+  ),
+] as const;
+
+const PILOT_REFS = [
+  testRef(
+    'src/simulation/runner/__tests__/combatPilotSkillCatalog.contract.test.ts',
+    'Pilot skill catalog rows stay aligned with gunnery, piloting, initiative, wound, and PSR skill usage.',
+  ),
+  testRef(
+    'src/simulation/runner/__tests__/combatPilotModifierApplicationCatalog.contract.test.ts',
+    'Pilot modifier resolver rows stay aligned with executable SPA and quirk resolver paths.',
+  ),
+] as const;
+
+const REQUIREMENT_REFS = [
+  testRef(
+    'src/simulation/runner/__tests__/combatValidationRequirementCatalog.contract.test.ts',
+    'Requirement rows carry primary authority, support-map refs, source boundaries, and gap visibility.',
+  ),
+] as const;
+
+const SCOPE_REFS = [
+  testRef(
+    'src/simulation/runner/__tests__/combatValidationScope.contract.test.ts',
+    'Validation scope rows guard known-limitation handling, official catalog boundaries, and source-truth scope splits.',
+  ),
+] as const;
+
+const MEKSTATION_ACTION_BOUNDARY =
+  'MekStation action, intent, wire, UI, and P2P rows describe executable product surfaces; row sourceRefs are used only when a tabletop or MegaMek rule detail shapes that surface.';
+
+const REQUIREMENT_AUTHORITY_BOUNDARY =
+  'Rows inherit their source-truth boundary from the requirement crosswalk primary authority unless a row carries narrower sourceRefs.';
+
+const MEKSTATION_EVENT_BOUNDARY =
+  'Event and parity rows describe MekStation executable event contracts; source-backed mechanics are anchored by the rule or requirement rows that emit those events.';
+
+const ACTION_TRIAD = triad(
+  'mekstation-deviation',
+  MEKSTATION_ACTION_BOUNDARY,
+  ACTION_CONTRACT_REFS,
+);
+const ACTION_REQUIREMENT_TRIAD = triad(
+  'requirement-primary-authority',
+  REQUIREMENT_AUTHORITY_BOUNDARY,
+  ACTION_CONTRACT_REFS,
+);
+const INVALIDATION_TRIAD = triad(
+  'requirement-primary-authority',
+  REQUIREMENT_AUTHORITY_BOUNDARY,
+  INVALIDATION_REFS,
+);
+const EVENT_TRIAD = triad(
+  'mekstation-deviation',
+  MEKSTATION_EVENT_BOUNDARY,
+  EVENT_STREAM_REFS,
+);
+const FEATURE_TRIAD = triad(
+  'requirement-primary-authority',
+  REQUIREMENT_AUTHORITY_BOUNDARY,
+  FEATURE_REFS,
+);
+const RULE_TRIAD = triad(
+  'requirement-primary-authority',
+  REQUIREMENT_AUTHORITY_BOUNDARY,
+  RULE_REFS,
+);
+const TERRAIN_TRIAD = triad(
+  'requirement-primary-authority',
+  REQUIREMENT_AUTHORITY_BOUNDARY,
+  TERRAIN_REFS,
+);
+const DAMAGE_TRIAD = triad(
+  'requirement-primary-authority',
+  REQUIREMENT_AUTHORITY_BOUNDARY,
+  DAMAGE_REFS,
+);
+const CRITICAL_SLOT_TRIAD = triad(
+  'requirement-primary-authority',
+  REQUIREMENT_AUTHORITY_BOUNDARY,
+  CRITICAL_SLOT_REFS,
+);
+const LIFECYCLE_TRIAD = triad(
+  'requirement-primary-authority',
+  REQUIREMENT_AUTHORITY_BOUNDARY,
+  LIFECYCLE_REFS,
+);
+const PARITY_TRIAD = triad(
+  'mekstation-deviation',
+  MEKSTATION_EVENT_BOUNDARY,
+  PARITY_REFS,
+);
+const PILOT_TRIAD = triad(
+  'requirement-primary-authority',
+  REQUIREMENT_AUTHORITY_BOUNDARY,
+  PILOT_REFS,
+);
+const PHYSICAL_LEGALITY_TRIAD = triad(
+  'entry-source-refs',
+  'Physical legality gate rows are MegaMek-source checked and must carry row-level sourceRefs.',
+  [
+    ...RULE_REFS,
+    testRef(
+      'src/simulation/runner/__tests__/combatActionCatalog.contract.test.ts',
+      'Physical legality gates are checked for pinned MegaMek source refs.',
+    ),
+  ],
+);
+const HEAT_TRIAD = triad(
+  'requirement-primary-authority',
+  REQUIREMENT_AUTHORITY_BOUNDARY,
+  [
+    testRef(
+      'src/simulation/runner/__tests__/heatEvents.test.ts',
+      'Heat behavior proves generated heat, dissipation, shutdown, startup, ammo explosion, and heat-damage event paths.',
+    ),
+    testRef(
+      'src/simulation/runner/__tests__/heatEnvironmentParity.behavior.test.ts',
+      'Environmental heat and water cooling behavior prove terrain/environment heat rows.',
+    ),
+  ],
+);
+
+export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
+  actions: {
+    tacticalCommands: ACTION_TRIAD,
+    absentActionSurfaces: triad(
+      'requirement-primary-authority',
+      'Absent official BattleMech action surfaces carry row sourceRefs when the missing action is rule-backed and use the movement requirement gap as their approval boundary.',
+      ACTION_CONTRACT_REFS,
+    ),
+    directUiActions: ACTION_TRIAD,
+    gmCommandExclusions: triad(
+      'mekstation-deviation',
+      'GM command exclusions are MekStation shell/control-plane boundaries, not tabletop combat actions.',
+      ACTION_CONTRACT_REFS,
+    ),
+    gameIntents: ACTION_TRIAD,
+    wireIntents: ACTION_TRIAD,
+    p2pIntents: ACTION_TRIAD,
+    physicalAttackCommands: ACTION_REQUIREMENT_TRIAD,
+    physicalActionClassScope: triad(
+      'requirement-primary-authority',
+      'Physical action class scope rows partition MegaMek source classes into BattleMech support and explicit scope gaps, with row sourceRefs on source-class boundaries.',
+      ACTION_CONTRACT_REFS,
+    ),
+  },
+  invalidation: {
+    attackReasons: INVALIDATION_TRIAD,
+    invalidTargetStates: INVALIDATION_TRIAD,
+    invalidAttackSideEffects: INVALIDATION_TRIAD,
+  },
+  eventStream: {
+    battleMechCombatEvents: EVENT_TRIAD,
+    nonBattleMechEventScope: triad(
+      'mekstation-deviation',
+      'Non-BattleMech event rows are MekStation scope boundaries that prevent BattleMech validation from claiming vehicle or aerospace event parity.',
+      EVENT_STREAM_REFS,
+    ),
+  },
+  featureSupport: {
+    pilotAbilities: FEATURE_TRIAD,
+    canonicalPilotAbilityScope: triad(
+      'requirement-primary-authority',
+      'Canonical SPA rows inherit the SPA/quirk catalog authority boundary and carry row sourceRefs where a MegaMek option or rule was identified.',
+      FEATURE_REFS,
+    ),
+    mechQuirks: FEATURE_TRIAD,
+    ammunitionCompatibility: FEATURE_TRIAD,
+    specialWeaponFamilies: FEATURE_TRIAD,
+    specialWeaponMechanics: FEATURE_TRIAD,
+    physicalWeapons: triad(
+      'entry-source-refs',
+      'Physical weapon rows must carry row-level sourceRefs before they can claim source-backed BattleMech weapon damage, to-hit, or legality behavior.',
+      FEATURE_REFS,
+    ),
+  },
+  ruleSupport: {
+    rangeBrackets: RULE_TRIAD,
+    toHitModifiers: RULE_TRIAD,
+    physicalLegalityGates: PHYSICAL_LEGALITY_TRIAD,
+    physicalDamageModifiers: RULE_TRIAD,
+    movementRules: RULE_TRIAD,
+    movementEnhancements: triad(
+      'entry-source-refs',
+      'Movement enhancement rows are source-backed MASC, Supercharger, TSM, and Partial Wing boundaries and must carry row-level sourceRefs.',
+      RULE_REFS,
+    ),
+    terrainEnvironment: TERRAIN_TRIAD,
+    terrainTypeMovement: TERRAIN_TRIAD,
+    terrainTypeLos: TERRAIN_TRIAD,
+    terrainTypeAttackModifiers: TERRAIN_TRIAD,
+    terrainTypeHeat: TERRAIN_TRIAD,
+    terrainTypePsr: TERRAIN_TRIAD,
+    heatRules: HEAT_TRIAD,
+  },
+  damageAndDeath: {
+    damageResolution: DAMAGE_TRIAD,
+    pilotDamage: DAMAGE_TRIAD,
+    criticalComponents: DAMAGE_TRIAD,
+    criticalSlotEffects: CRITICAL_SLOT_TRIAD,
+    criticalSlotHydration: CRITICAL_SLOT_TRIAD,
+    destructionCauses: DAMAGE_TRIAD,
+  },
+  lifecycleAndPsr: {
+    actionEligibility: LIFECYCLE_TRIAD,
+    psrResolution: LIFECYCLE_TRIAD,
+    psrTriggers: LIFECYCLE_TRIAD,
+  },
+  parityAndIntegration: {
+    runnerInteractiveParity: PARITY_TRIAD,
+    representativeScenarios: PARITY_TRIAD,
+  },
+  pilotSkills: {
+    pilotSkillUse: PILOT_TRIAD,
+    pilotModifierResolvers: PILOT_TRIAD,
+  },
+  validationScope: {
+    objectiveRequirements: triad(
+      'requirement-primary-authority',
+      'Requirement rows carry their own primaryAuthority and supportMapRefs and are contract-tested as the source-to-catalog crosswalk.',
+      REQUIREMENT_REFS,
+    ),
+    knownLimitationsAndScope: triad(
+      'mekstation-deviation',
+      'Validation scope rows are MekStation approval boundaries that keep known limitations visible instead of hiding missing combat coverage.',
+      SCOPE_REFS,
+    ),
+  },
+} satisfies Record<string, Record<string, ICombatCatalogTriadEvidence>>;

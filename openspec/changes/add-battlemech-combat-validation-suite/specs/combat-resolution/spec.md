@@ -21,6 +21,15 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **THEN** the row SHALL reference executable tests or source support
 - **AND** the referenced tests SHALL validate behavior through the narrowest helper and at least one higher-level combat path when that path exists
 
+#### Scenario: Catalog maps declare source-boundary and executable test evidence
+
+- **GIVEN** a combat validation support map catalogs one or more BattleMech combat mechanics
+- **WHEN** the aggregate catalog contract tests run
+- **THEN** the support map SHALL declare whether its source authority boundary is row-level source references, requirement-primary-authority inheritance, or a MekStation deviation boundary
+- **AND** every map with integrated rows SHALL cite executable test files and the assertion surface those tests protect
+- **AND** maps that claim row-level source-reference authority SHALL fail contract validation if an integrated or helper-only row lacks structured `sourceRefs`
+- **AND** this map-level triad evidence SHALL NOT be treated as full row-level rule parity for mechanics that still rely on requirement inheritance or MekStation deviation boundaries
+
 #### Scenario: Destruction cause persists through combat state and replay
 
 - **GIVEN** a BattleMech damage path reports `unitDestroyed=true` with a canonical destruction cause
@@ -964,3 +973,4 @@ Combat feature work SHALL update OpenSpec, the validation catalog, and executabl
 - **THEN** the active OpenSpec change SHALL be updated in the same slice
 - **AND** the validation catalog SHALL be updated in the same slice
 - **AND** focused tests SHALL prove the updated rule path
+- **AND** the aggregate catalog triad evidence SHALL be updated when the work creates or changes a support map's source authority boundary or executable test surface

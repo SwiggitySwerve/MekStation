@@ -1,9 +1,14 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+
 import type {
   CombatValidationCatalogSection,
   CombatValidationSupportMap,
 } from '../CombatValidationCatalog';
+import type { ICombatCatalogTriadEvidence } from '../CombatValidationCatalogTriad';
 
 import { BATTLEMECH_COMBAT_VALIDATION_CATALOG } from '../CombatValidationCatalog';
+import { COMBAT_CATALOG_TRIAD_EVIDENCE } from '../CombatValidationCatalogTriad';
 
 function sortedKeys(record: Record<string, unknown>): readonly string[] {
   return Object.keys(record).sort();
@@ -35,6 +40,12 @@ function supportIds(support: CombatValidationSupportMap): readonly string[] {
   return Object.values(support)
     .map((entry) => entry.id)
     .sort();
+}
+
+function triadEvidenceMaps(): Readonly<
+  Record<string, Record<string, ICombatCatalogTriadEvidence>>
+> {
+  return COMBAT_CATALOG_TRIAD_EVIDENCE;
 }
 
 describe('BattleMech combat validation catalog index', () => {
@@ -73,6 +84,82 @@ describe('BattleMech combat validation catalog index', () => {
     );
 
     expect(missingEvidenceOrGap).toEqual([]);
+  });
+
+  it('requires every catalog map to declare source-boundary and executable test evidence', () => {
+    const triadMaps = triadEvidenceMaps();
+
+    expect(sortedKeys(triadMaps)).toEqual(
+      sortedKeys(BATTLEMECH_COMBAT_VALIDATION_CATALOG),
+    );
+
+    const catalogSections: Readonly<
+      Record<string, CombatValidationCatalogSection>
+    > = BATTLEMECH_COMBAT_VALIDATION_CATALOG;
+    const sectionKeyFailures = Object.entries(catalogSections).flatMap(
+      ([sectionId, section]) => {
+        const triadSection = triadMaps[sectionId];
+
+        return sortedKeys(triadSection ?? {}).join('|') ===
+          sortedKeys(section).join('|')
+          ? []
+          : [
+              `${sectionId}: expected ${sortedKeys(section).join(', ')}, got ${sortedKeys(triadSection ?? {}).join(', ')}`,
+            ];
+      },
+    );
+
+    const evidenceFailures = catalogMaps().flatMap(
+      ({ sectionId, mapId, support }) => {
+        const triad = triadMaps[sectionId]?.[mapId];
+        if (triad === undefined)
+          return [`${sectionId}.${mapId}: missing triad`];
+
+        const supportEntries = Object.values(support);
+        const hasIntegratedRows = supportEntries.some(
+          (entry) => entry.level === 'integrated',
+        );
+        const refPrefix = `${sectionId}.${mapId}`;
+        const failures: string[] = [];
+
+        if (triad.authorityBoundary.rationale.trim().length === 0) {
+          failures.push(`${refPrefix}: missing authority boundary rationale`);
+        }
+
+        if (hasIntegratedRows && triad.testRefs.length === 0) {
+          failures.push(`${refPrefix}: missing executable test refs`);
+        }
+
+        triad.testRefs.forEach((testRef, testIndex) => {
+          const testRefId = `${refPrefix}.testRefs[${testIndex}]`;
+          if (testRef.file.trim().length === 0) {
+            failures.push(`${testRefId}: missing file`);
+          } else if (!existsSync(join(process.cwd(), testRef.file))) {
+            failures.push(`${testRefId}: file does not exist ${testRef.file}`);
+          }
+          if (testRef.assertion.trim().length === 0) {
+            failures.push(`${testRefId}: missing assertion`);
+          }
+        });
+
+        if (triad.authorityBoundary.kind === 'entry-source-refs') {
+          for (const entry of supportEntries) {
+            if (
+              entry.level !== 'unsupported' &&
+              (entry.sourceRefs?.length ?? 0) === 0
+            ) {
+              failures.push(
+                `${refPrefix}.${entry.id}: entry-source-refs boundary requires row sourceRefs`,
+              );
+            }
+          }
+        }
+
+        return failures;
+      },
+    );
+
+    expect([...sectionKeyFailures, ...evidenceFailures]).toEqual([]);
   });
 
   it('keeps representative must-cover requirements discoverable from the aggregate catalog', () => {

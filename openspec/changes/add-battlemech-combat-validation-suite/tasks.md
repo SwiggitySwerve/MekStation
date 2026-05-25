@@ -7,6 +7,7 @@
 - [x] 1.3 Keep `docs/audits/2026-05-22-combat-validation-source-truth.md` updated as source-truth audit evidence.
 - [x] 1.4 Add OpenSpec validation to routine combat feature verification.
 - [x] 1.5 Require every broad `knownLimitations` category to have a BattleMech validation trap so combat-validation failures cannot be silently filtered by limitation patterns.
+- [x] 1.6 Add catalog triad evidence metadata so every support map declares its source-boundary kind and executable test surface, with row-source-ref enforcement for maps that claim row-level source authority.
 
 ## 2. Physical attack legality gates
 
@@ -208,3 +209,4 @@
 - [x] 4.3.49 Cross-check conservative runner C3/C3i initial network assembly against MegaMek C3 range/equipment anchors before narrowing automatic network-assembly gaps.
 - [x] 4.3.50 Cross-check MegaMek C3 attacker shutdown/off-board and spotter shutdown/off-board/transported eligibility before refreshing runner C3 operational state at attack time.
 - [x] 4.3.51 Cross-check MegaMek non-inoperable mounted C3 equipment requirements before suppressing runner C3 range sharing from destroyed matching critical slots.
+- [x] 4.3.52 Cross-examine the validation-catalog direction with OMO Lean++ and add a map-level triad contract so source authority boundaries and executable test surfaces are enforced before PR approval.
