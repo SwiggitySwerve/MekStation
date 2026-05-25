@@ -925,8 +925,21 @@ describe('BattleMech combat validation requirement crosswalk', () => {
         .supportMapRefs,
     ).toContain('actions.tacticalCommands.facing.torso-twist');
     expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
+        .supportMapRefs,
+    ).toEqual(
+      expect.arrayContaining([
+        'actions.gameIntents.torsoTwist',
+        'actions.wireIntents.TorsoTwist',
+        'actions.p2pIntents.torsoTwist',
+      ]),
+    );
+    expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions'].gap,
-    ).toContain('torso-twist intent/wire/server actions');
+    ).toContain('Sprint and evade action creation');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions'].gap,
+    ).not.toContain('torso-twist intent/wire/server actions');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
         .supportMapRefs,

@@ -571,7 +571,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'movement-actions': helperOnly(
     'movement-actions',
     'Action and movement rule maps cover walk, run, jump, same-hex facing rotation, stand, source-backed voluntary go-prone, source-backed MASC/Supercharger activation, prone state, source-backed torso-twist exposure with replayed secondaryFacing consumption, and source-backed first-class absent-action rows for optional TacOps sprint and evade',
-    'Sprint, evade, and emitted torso-twist intent/wire/server actions are not authoritative end to end',
+    'Sprint and evade action creation remain absent; torso-twist lower-level UI direction/reset refinements remain outside the authoritative action path',
     [
       'actions.tacticalCommands.movement.walk',
       'actions.tacticalCommands.movement.stand',
@@ -586,6 +586,9 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       'actions.tacticalCommands.facing.rotate-left',
       'actions.tacticalCommands.facing.rotate-right',
       'actions.tacticalCommands.facing.torso-twist',
+      'actions.gameIntents.torsoTwist',
+      'actions.wireIntents.TorsoTwist',
+      'actions.p2pIntents.torsoTwist',
       ...MOVEMENT_RULE_SUPPORT_REFS,
     ],
   ),
