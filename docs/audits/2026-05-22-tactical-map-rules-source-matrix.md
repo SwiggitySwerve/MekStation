@@ -422,6 +422,15 @@ change can alter map legality without rebuilding the session's imported
 capability cache. Remaining unit-height gaps are the actual gameplay events/UI
 that mutate those runtime conversion and mount-state fields.
 
+2026-05-24 runtime unit-height browser update: the tactical-map browser harness
+now renders a naval unit whose live unit state has height 1 crossing a
+water/bridge hex whose imported movement capability does not carry height. The
+shared movement projection marks the destination non-reachable with
+`TerrainBlocked`, `Naval movement lacks bridge clearance`, water/bridge level
+metadata, and a non-color invalid badge; the focused parity fixture feeds the
+same path into committed movement validation and confirms the rejection reason,
+details, MP, and heat match the rendered projection.
+
 Additional small-unit movement data pin: MegaMek `Infantry.java:560-568` and
 `BattleArmor.java:520-523` return walk MP as base run MP unless optional TacOps
 fast infantry movement is enabled. MegaMek `ProtoMek.java:602-606` falls back to

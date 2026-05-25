@@ -1,6 +1,7 @@
 import type { MapMovementPointLegendState } from '@/components/gameplay/HexMapDisplay/HexMapDisplay.types';
 import type {
   IHexGrid,
+  IHexTerrain,
   IMovementCapability,
   IMovementRangeHex,
   IUnitGameState,
@@ -13,6 +14,7 @@ import {
   GameSide,
   LockState,
   MovementType,
+  TerrainType,
   TokenUnitType,
   VehicleMotionType,
 } from '@/types/gameplay';
@@ -108,12 +110,16 @@ const tacticalMapVtolCapability: IMovementCapability = {
 };
 
 const tacticalMapVtolElevationDestination = { q: 1, r: 0 } as const;
+const tacticalMapRuntimeHeightOrigin = { q: 0, r: 0 } as const;
+const tacticalMapRuntimeHeightBridgeDestination = { q: 1, r: 0 } as const;
 
-function tacticalMapMovementGrid(): IHexGrid {
+function tacticalMapMovementGrid(
+  hexTerrain: readonly IHexTerrain[] = tacticalMapHexTerrain,
+): IHexGrid {
   const grid = createHexGrid({ radius: 3 });
   const hexes = new Map(grid.hexes);
 
-  for (const terrain of tacticalMapHexTerrain) {
+  for (const terrain of hexTerrain) {
     const key = coordToKey(terrain.coordinate);
     const hex = hexes.get(key);
     if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
@@ -245,5 +251,104 @@ export const tacticalMapVtolElevationMpLegend: MapMovementPointLegendState = {
   movementMode: 'vtol',
   walkMP: 4,
   runMP: 6,
+  jumpAvailable: false,
+};
+
+function isRuntimeHeightTerrainOverride(terrain: IHexTerrain): boolean {
+  const { q, r } = terrain.coordinate;
+  return (
+    (q === tacticalMapRuntimeHeightOrigin.q &&
+      r === tacticalMapRuntimeHeightOrigin.r) ||
+    (q === tacticalMapRuntimeHeightBridgeDestination.q &&
+      r === tacticalMapRuntimeHeightBridgeDestination.r)
+  );
+}
+
+export const tacticalMapRuntimeHeightBridgeHexTerrain: readonly IHexTerrain[] =
+  [
+    ...tacticalMapHexTerrain.filter(
+      (terrain) => !isRuntimeHeightTerrainOverride(terrain),
+    ),
+    {
+      coordinate: tacticalMapRuntimeHeightOrigin,
+      elevation: 0,
+      features: [{ type: TerrainType.Water, level: 1 }],
+    },
+    {
+      coordinate: tacticalMapRuntimeHeightBridgeDestination,
+      elevation: 0,
+      features: [
+        { type: TerrainType.Water, level: 1 },
+        { type: TerrainType.Bridge, level: 1 },
+      ],
+    },
+  ];
+
+export const tacticalMapRuntimeHeightSelectedHex =
+  tacticalMapRuntimeHeightOrigin;
+
+export const tacticalMapRuntimeHeightTokens: readonly IUnitToken[] =
+  tacticalMapTokens.map((token) => {
+    if (token.unitId === 'attacker') {
+      return {
+        ...token,
+        name: 'River Monitor',
+        designation: 'NAV',
+        position: tacticalMapRuntimeHeightOrigin,
+        unitType: TokenUnitType.Vehicle,
+        vehicleMotionType: VehicleMotionType.Naval,
+      };
+    }
+    if (token.unitId === 'occluded') {
+      return {
+        ...token,
+        position: { q: 3, r: -1 },
+        isActiveTarget: false,
+      };
+    }
+    return token;
+  });
+
+const tacticalMapRuntimeHeightUnit: IUnitGameState = {
+  ...tacticalMapMovementUnit,
+  position: tacticalMapRuntimeHeightOrigin,
+  unitHeight: 1,
+};
+
+const tacticalMapRuntimeHeightCapability: IMovementCapability = {
+  walkMP: 3,
+  runMP: 5,
+  jumpMP: 0,
+  movementMode: 'naval',
+};
+
+export const tacticalMapRuntimeHeightMovementRange: readonly IMovementRangeHex[] =
+  requireMovementProjection(
+    deriveMovementRangeHexForDestination(
+      tacticalMapRuntimeHeightUnit,
+      MovementType.Walk,
+      tacticalMapMovementGrid(tacticalMapRuntimeHeightBridgeHexTerrain),
+      tacticalMapRuntimeHeightCapability,
+      tacticalMapRuntimeHeightBridgeDestination,
+    ),
+  );
+
+export function tacticalMapRuntimeHeightCommitInput(): ICommittedMovementValidationInput {
+  return {
+    grid: tacticalMapMovementGrid(tacticalMapRuntimeHeightBridgeHexTerrain),
+    unit: tacticalMapRuntimeHeightUnit,
+    to: tacticalMapRuntimeHeightBridgeDestination,
+    facing: Facing.Northeast,
+    movementType: MovementType.Walk,
+    capability: tacticalMapRuntimeHeightCapability,
+    path: tacticalMapRuntimeHeightMovementRange[0]?.path,
+  };
+}
+
+export const tacticalMapRuntimeHeightMpLegend: MapMovementPointLegendState = {
+  active: 'walk',
+  movementMode: 'naval',
+  walkMP: 3,
+  runMP: 5,
   jumpAvailable: false,
 };

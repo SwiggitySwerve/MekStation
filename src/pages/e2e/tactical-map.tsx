@@ -33,6 +33,11 @@ import {
   tacticalMapBipedOptionTokens,
   tacticalMapJumpElevationMovementRange,
   tacticalMapJumpElevationMpLegend,
+  tacticalMapRuntimeHeightBridgeHexTerrain,
+  tacticalMapRuntimeHeightMovementRange,
+  tacticalMapRuntimeHeightMpLegend,
+  tacticalMapRuntimeHeightSelectedHex,
+  tacticalMapRuntimeHeightTokens,
   tacticalMapVtolElevationMovementRange,
   tacticalMapVtolElevationMpLegend,
   tacticalMapVtolTokens,
@@ -73,6 +78,8 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
     router.query.scenario === 'target-terrain-modifier';
   const isMixedVisibilityScenario =
     router.query.scenario === 'mixed-visibility-targets';
+  const isRuntimeHeightScenario =
+    router.query.scenario === 'runtime-height-bridge-clearance';
   const selectedWeaponIds = isAerospaceVelocityScenario
     ? []
     : isAirborneAerospaceMinimumRangeScenario
@@ -92,9 +99,11 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
         ? tacticalMapTargetTerrainModifierTargetId
         : isMixedVisibilityScenario
           ? null
-          : isOutOfRangeScenario
-            ? 'medium-target'
-            : 'occluded';
+          : isRuntimeHeightScenario
+            ? null
+            : isOutOfRangeScenario
+              ? 'medium-target'
+              : 'occluded';
   const tokens = isVtolElevationScenario
     ? tacticalMapVtolTokens
     : isBipedOptionScenario
@@ -109,7 +118,9 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
               ? tacticalMapTargetTerrainModifierTokens
               : isMixedVisibilityScenario
                 ? tacticalMapMixedVisibilityTokens
-                : tacticalMapTokens;
+                : isRuntimeHeightScenario
+                  ? tacticalMapRuntimeHeightTokens
+                  : tacticalMapTokens;
   const combatState = isMountedBattleArmorScenario
     ? tacticalMapMountedBattleArmorCombatState
     : isAerospaceVelocityScenario
@@ -133,7 +144,9 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
           ? tacticalMapVtolElevationMovementRange
           : isBipedOptionScenario
             ? tacticalMapBipedOptionMovementRange
-            : tacticalMapMovementRange;
+            : isRuntimeHeightScenario
+              ? tacticalMapRuntimeHeightMovementRange
+              : tacticalMapMovementRange;
   const mpLegend =
     isAerospaceVelocityScenario ||
     isAirborneAerospaceMinimumRangeScenario ||
@@ -146,19 +159,27 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
           ? tacticalMapVtolElevationMpLegend
           : isBipedOptionScenario
             ? tacticalMapBipedOptionMpLegend
-            : tacticalMapMpLegend;
+            : isRuntimeHeightScenario
+              ? tacticalMapRuntimeHeightMpLegend
+              : tacticalMapMpLegend;
   const selectedHex = isBipedOptionScenario
     ? tacticalMapBipedOptionSelectedHex
-    : isMountedBattleArmorScenario || isAerospaceVelocityScenario
-      ? { q: 0, r: 0 }
-      : { q: -1, r: 0 };
+    : isRuntimeHeightScenario
+      ? tacticalMapRuntimeHeightSelectedHex
+      : isMountedBattleArmorScenario || isAerospaceVelocityScenario
+        ? { q: 0, r: 0 }
+        : { q: -1, r: 0 };
   const highlightPath =
     isAerospaceVelocityScenario ||
     isAirborneAerospaceMinimumRangeScenario ||
     isTargetTerrainModifierScenario ||
-    isMixedVisibilityScenario
+    isMixedVisibilityScenario ||
+    isRuntimeHeightScenario
       ? undefined
       : tacticalMapHighlightPath;
+  const hexTerrain = isRuntimeHeightScenario
+    ? tacticalMapRuntimeHeightBridgeHexTerrain
+    : tacticalMapHexTerrain;
 
   if (!isTestEnv) {
     return (
@@ -183,7 +204,7 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
             tokens={tokens}
             selectedHex={selectedHex}
             targetUnitId={targetUnitId}
-            hexTerrain={tacticalMapHexTerrain}
+            hexTerrain={hexTerrain}
             unitWeapons={tacticalMapUnitWeapons}
             combatState={combatState}
             selectedWeaponIds={selectedWeaponIds}

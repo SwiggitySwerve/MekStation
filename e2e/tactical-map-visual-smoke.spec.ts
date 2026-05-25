@@ -708,6 +708,54 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows runtime unit-height bridge clearance as blocked in browser', async ({
+    page,
+  }) => {
+    await page.goto(
+      '/e2e/tactical-map?scenario=runtime-height-bridge-clearance',
+    );
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('NAV');
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('NV');
+
+    const bridgeHex = page.getByTestId('hex-1-0');
+    await expect(bridgeHex).toHaveAttribute('data-reachable', 'false');
+    await expect(bridgeHex).toHaveAttribute('data-movement-type', 'walk');
+    await expect(bridgeHex).toHaveAttribute('data-movement-mode', 'naval');
+    await expect(bridgeHex).toHaveAttribute('data-mp-cost', 'Infinity');
+    await expect(bridgeHex).toHaveAttribute(
+      'data-terrain-features',
+      'water,bridge',
+    );
+    await expect(bridgeHex).toHaveAttribute(
+      'data-terrain-feature-levels',
+      'bridge:1|water:1',
+    );
+    await expect(bridgeHex).toHaveAttribute(
+      'data-movement-blocked-reason',
+      'Naval movement lacks bridge clearance',
+    );
+    await expect(bridgeHex).toHaveAttribute(
+      'data-movement-invalid-reason',
+      'TerrainBlocked',
+    );
+    await expect(bridgeHex).toHaveAttribute(
+      'data-movement-invalid-details',
+      'Naval movement lacks bridge clearance',
+    );
+
+    const invalidBadge = page.getByTestId('hex-movement-invalid-badge-1-0');
+    await expect(invalidBadge.locator('text')).toHaveText('TERR');
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-reason',
+      'Naval movement lacks bridge clearance',
+    );
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'TerrainBlocked',
+    );
+  });
+
   test('renders mounted battle armor as a host passenger badge in browser', async ({
     page,
   }) => {

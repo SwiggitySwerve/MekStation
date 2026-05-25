@@ -65,6 +65,8 @@
 - [x] 2.26 Add browser coverage proving mixed visible/hidden/last-known
   same-hex contacts keep the visible target attackable while exposing obscured
   contacts separately.
+- [x] 2.27 Add browser coverage proving runtime unit-height bridge-clearance
+  movement projection renders the same blocked reason commit validation uses.
 
 ## 3. Validation
 
@@ -117,3 +119,6 @@
   modifier projection, committed attack modifiers, and browser tooltip rows.
 - [x] 3.26 Focused Jest parity and Playwright smoke pass for mixed same-hex
   visibility projection, valid-target id metadata, and browser tooltip rows.
+- [x] 3.27 Focused Jest parity and Playwright smoke pass for runtime
+  unit-height bridge-clearance projection, terrain metadata, and invalid badge
+  rows.

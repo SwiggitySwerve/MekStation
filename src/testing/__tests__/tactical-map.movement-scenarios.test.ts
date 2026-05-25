@@ -5,6 +5,8 @@ import {
   tacticalMapBipedOptionMovementRange,
   tacticalMapJumpElevationCommitInput,
   tacticalMapJumpElevationMovementRange,
+  tacticalMapRuntimeHeightCommitInput,
+  tacticalMapRuntimeHeightMovementRange,
   tacticalMapVtolElevationCommitInput,
   tacticalMapVtolElevationMovementRange,
 } from '../tactical-map.movement-scenarios';
@@ -122,5 +124,38 @@ describe('tactical map movement scenarios', () => {
     expect(result.mpCost).toBe(projection.mpCost);
     expect(result.heatGenerated).toBe(projection.heatGenerated);
     expect(result.path).toEqual(projection.path);
+  });
+
+  it('keeps runtime-height bridge clearance blocked between browser projection and commit validation', () => {
+    const projection = tacticalMapRuntimeHeightMovementRange[0];
+
+    expect(projection).toMatchObject({
+      hex: { q: 1, r: 0 },
+      reachable: false,
+      mpCost: Infinity,
+      terrainCost: 0,
+      elevationDelta: 0,
+      elevationCost: 0,
+      heatGenerated: 0,
+      movementMode: 'naval',
+      movementType: 'walk',
+      blockedReason: 'Naval movement lacks bridge clearance',
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails: 'Naval movement lacks bridge clearance',
+    });
+
+    const result = validateCommittedMovement(
+      tacticalMapRuntimeHeightCommitInput(),
+    );
+
+    expect(result.valid).toBe(false);
+    if (result.valid) {
+      throw new Error('Expected runtime-height bridge clearance to be blocked');
+    }
+
+    expect(result.reason).toBe(projection.movementInvalidReason);
+    expect(result.details).toBe(projection.movementInvalidDetails);
+    expect(result.mpCost).toBe(projection.mpCost);
+    expect(result.heatGenerated).toBe(projection.heatGenerated);
   });
 });
