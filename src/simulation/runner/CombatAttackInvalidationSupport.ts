@@ -7,6 +7,7 @@ import type {
 
 import {
   MEGAMEK_ACTIVE_TARGET_FILTER_SOURCE_REFS,
+  MEGAMEK_ATTACKER_EVADING_INVALIDATION_SOURCE_REFS,
   MEGAMEK_DESTROYED_TARGETABILITY_SOURCE_REFS,
   MEGAMEK_EJECTION_TARGET_REMOVAL_SOURCE_REFS,
   MEGAMEK_FRIENDLY_TARGET_INVALIDATION_SOURCE_REFS,
@@ -70,6 +71,11 @@ export const ATTACK_INVALIDATION_REASON_SUPPORT = {
     'NoLineOfSight',
     'validateLineOfSightForAttack emits AttackInvalid for blocked direct fire and indirect fire without a spotter',
     MEGAMEK_NO_LINE_OF_SIGHT_INVALIDATION_SOURCE_REFS,
+  ),
+  AttackerEvading: integrated(
+    'AttackerEvading',
+    'validateDeclaredAttackTarget and declareAttack emit AttackInvalid for evading attackers before ranged AttackDeclared, heat, ammo, fired-weapon, or damage side effects',
+    MEGAMEK_ATTACKER_EVADING_INVALIDATION_SOURCE_REFS,
   ),
   InvalidTarget: integrated(
     'InvalidTarget',

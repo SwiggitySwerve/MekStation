@@ -67,7 +67,10 @@ import {
   createMovementLockedEvent,
   createPhaseChangedEvent,
 } from './gameEvents';
-import { invalidateInvalidTargetAttack } from './gameSessionAttackResolutionValidation';
+import {
+  invalidateEvadingAttackerAttack,
+  invalidateInvalidTargetAttack,
+} from './gameSessionAttackResolutionValidation';
 import { allUnitsLocked, deriveState } from './gameState';
 import {
   calculateSideInitiativeModifier,
@@ -465,6 +468,14 @@ export function declareAttack(
     weapons.map((weapon) => weapon.weaponId),
   );
   if (invalidTargetSession) return invalidTargetSession;
+
+  const evadingAttackerSession = invalidateEvadingAttackerAttack(
+    session,
+    attackerId,
+    targetId,
+    weapons.map((weapon) => weapon.weaponId),
+  );
+  if (evadingAttackerSession) return evadingAttackerSession;
 
   if (!targetUnit) {
     throw new Error(`Target unit ${targetId} not found`);

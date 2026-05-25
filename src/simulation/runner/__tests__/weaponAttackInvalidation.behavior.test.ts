@@ -429,6 +429,38 @@ describe('runAttackPhase invalid attacks', () => {
     );
   });
 
+  it('emits AttackInvalid for evading attackers without combat side effects', () => {
+    const initialState = createWeaponAttackState({ q: 3, r: 0 });
+    const evadingState: IGameState = {
+      ...initialState,
+      units: {
+        ...initialState.units,
+        'player-1': {
+          ...initialState.units['player-1'],
+          isEvading: true,
+        },
+      },
+    };
+
+    const { events, result } = runInvalidationScenario({
+      state: evadingState,
+      weapon: createAC20(),
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.AttackInvalid,
+    ]);
+    expect(events[0].payload).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      weaponId: AC20_WEAPON_ID,
+      reason: 'AttackerEvading',
+      details: "Attacker 'player-1' is evading and cannot fire ranged weapons",
+    });
+
+    assertNoCombatSideEffects(result, evadingState);
+  });
+
   it('emits AttackInvalid for out-of-ammo declarations without combat side effects', () => {
     const ammoBin = createAmmoBin({
       weaponType: AC20_WEAPON_ID,

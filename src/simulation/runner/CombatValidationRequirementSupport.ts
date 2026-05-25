@@ -627,7 +627,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'attack-invalidation': integrated(
     'attack-invalidation',
-    'Invalidation support covers range, LOS, target state, ammo, same-hex, unknown weapon, destroyed weapon, jammed weapon, and no-side-effect guarantees',
+    'Invalidation support covers range, LOS, target state, attacker evasion, ammo, same-hex, unknown weapon, destroyed weapon, jammed weapon, and no-side-effect guarantees',
     [
       ...ATTACK_INVALIDATION_REASON_SUPPORT_REFS,
       ...INVALID_TARGET_STATE_SUPPORT_REFS,
@@ -641,8 +641,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'to-hit-advanced-modifiers': helperOnly(
     'to-hit-advanced-modifiers',
-    'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, ECM, C3, terrain features, and a source-backed absent-action row for optional TacOps Evade target modifiers and attacker firing restrictions, with C3 explicit-state consumption, attack-time lifecycle and critical-slot damage refresh, and conservative runner initial network seeding separated from ambiguous battle-wide assignment gaps',
-    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, target hull-down state, secondary-target state, called-shot state, explicit C3 network state with current positions/lifecycle/ECM disruption and matching C3 critical-slot damage suppression, mounted C3 equipment roles, conservative unambiguous runner C3/C3i initial networks, and non-blocking intervening terrain, but ECM inputs, session/player-authored C3 network assignment, multiple or oversized C3 networks, and evasion state are still helper-only or absent',
+    'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, ECM, C3, terrain features, and a source-backed absent-action row for optional TacOps Evade target modifiers, with C3 explicit-state consumption, attack-time lifecycle and critical-slot damage refresh, attacker-evading ranged invalidation, and conservative runner initial network seeding separated from ambiguous battle-wide assignment gaps',
+    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, target hull-down state, secondary-target state, called-shot state, explicit C3 network state with current positions/lifecycle/ECM disruption and matching C3 critical-slot damage suppression, mounted C3 equipment roles, conservative unambiguous runner C3/C3i initial networks, non-blocking intervening terrain, and evading-attacker ranged invalidation, but ECM inputs, session/player-authored C3 network assignment, multiple or oversized C3 networks, and target evasion state/bonus remain helper-only or absent',
     [
       ...TO_HIT_ADVANCED_MODIFIER_SUPPORT_REFS,
       'actions.absentActionSurfaces.movement.evade',

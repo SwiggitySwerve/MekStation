@@ -162,7 +162,8 @@ export interface IAttackInvalidPayload {
     | 'InvalidTarget'
     | 'UnknownWeapon'
     | 'WeaponDestroyed'
-    | 'WeaponJammed';
+    | 'WeaponJammed'
+    | 'AttackerEvading';
   readonly details?: string;
 }
 

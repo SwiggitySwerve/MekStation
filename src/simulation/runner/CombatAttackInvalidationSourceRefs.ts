@@ -81,6 +81,14 @@ export const MEGAMEK_NO_LINE_OF_SIGHT_INVALIDATION_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEGAMEK_ATTACKER_EVADING_INVALIDATION_SOURCE_REFS = [
+  megamekSourceRef(
+    'MegaMek ComputeToHitIsImpossible prevents non-large-spacecraft evading attackers from firing ranged attacks.',
+    'megamek/src/megamek/common/actions/compute/ComputeToHitIsImpossible.java',
+    'L289-L292',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEGAMEK_MISSING_TARGET_INVALIDATION_SOURCE_REFS = [
   megamekSourceRef(
     'MegaMek ComputeToHitIsImpossible returns NoTarget before ranged to-hit resolution when the target is null.',

@@ -157,6 +157,7 @@
 - [x] 3.4.34 Source-pin invalid ranged attack no-side-effect guards for event suppression, heat, ammo, damage, and fired-weapon state as MekStation row-level contracts.
 - [x] 3.4.35 Source-pin physical damage modifier rows for active TSM, claw punch, talon kick/DFA, and underwater physical damage while preserving claw/talon damaged-equipment and option-rule gaps.
 - [x] 3.4.36 Source-pin local-only SPA gaps for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, and Antagonizer so helper-only or unsupported rows cannot be mistaken for MegaMek parity.
+- [x] 3.4.37 Integrate source-backed evading-attacker ranged invalidation through runner weapon attack validation, event-sourced `declareAttack`, AttackInvalid reason cataloging, OpenSpec coverage, and no-side-effect behavior tests while leaving optional TacOps Evade movement-step action and target-evasion bonus gaps explicit.
 - [x] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -255,7 +256,7 @@
 - [x] 4.3.58 Promote range bracket rows to row-level MegaMek source references so inherited range authority cannot mask unsourced short/medium/long/extreme/out-of-range and minimum-range claims.
 - [x] 4.3.59 Promote ranged to-hit modifier rows to row-level MegaMek source references so inherited modifier authority cannot mask unsourced gunnery, movement, heat, terrain, target-state, damage, indirect-fire, ECM/C3, or physical-DFA claims.
 - [x] 4.3.60 Promote invalid target-state rows to row-level MegaMek source references so inherited invalidation authority cannot mask unsourced missing, destroyed, same-side, retreated, or ejected targetability claims.
-- [x] 4.3.61 Promote AttackInvalid reason rows to row-level source references so inherited invalidation authority cannot mask unsourced ammo, range, LOS/spotter, targetability, missing-weapon, destroyed-weapon, jammed-weapon, or same-hex deviation claims.
+- [x] 4.3.61 Promote AttackInvalid reason rows to row-level source references so inherited invalidation authority cannot mask unsourced ammo, range, LOS/spotter, targetability, evading-attacker, missing-weapon, destroyed-weapon, jammed-weapon, or same-hex deviation claims.
 - [x] 4.3.62 Promote invalid ranged attack side-effect guards to row-level MekStation source references so inherited invalidation authority cannot mask unsourced no-event, no-heat, no-ammo, no-damage, or no-fired-state claims.
 - [x] 4.3.63 Promote physical damage modifier rows to row-level MegaMek source references so inherited rule authority cannot mask unsourced active-TSM, claw, talon, or underwater damage claims.
 - [x] 4.3.64 Promote heat rule rows to row-level source references so inherited heat authority cannot mask unsourced accumulation, dissipation, threshold, environment, lifecycle, ammo-explosion, or pilot heat-damage claims.

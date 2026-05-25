@@ -138,12 +138,20 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 
 #### Scenario: Ranged invalidation reason rows stay source-backed or explicitly deviated
 
-- **GIVEN** the attack invalidation catalog covers out-of-ammo, same-hex, out-of-range, no-LOS, invalid target, unknown weapon, destroyed weapon, and jammed weapon reasons
+- **GIVEN** the attack invalidation catalog covers out-of-ammo, same-hex, out-of-range, no-LOS, invalid target, attacker-evading, unknown weapon, destroyed weapon, and jammed weapon reasons
 - **WHEN** the aggregate catalog triad and attack-invalidation catalog contract tests run
 - **THEN** every AttackInvalid reason row SHALL carry structured source references with line anchors
 - **AND** MegaMek-backed rows SHALL use commit-pinned MegaMek source references
 - **AND** local event-shape rows such as `SameHex` SHALL identify their MekStation-deviation boundary instead of inheriting generic invalidation authority
 - **AND** the aggregate catalog triad for `attackReasons` SHALL require row-level source references rather than inherited requirement authority
+
+#### Scenario: Evading attackers cannot make ranged attacks
+
+- **GIVEN** a unit has explicit `isEvading: true`
+- **WHEN** that unit attempts a ranged weapon attack through runner attack resolution or event-sourced `declareAttack`
+- **THEN** the attack SHALL emit `AttackInvalid` with reason `AttackerEvading`
+- **AND** no `AttackDeclared`, `AttackResolved`, heat, ammo, damage, or fired-weapon state side effects SHALL follow
+- **AND** optional TacOps Evade movement-step declaration SHALL remain an unsupported absent-action row until movement command, state, heat, wire, P2P, and target-evasion bonus paths are implemented
 
 #### Scenario: Invalid ranged attack side-effect guards stay source-backed as MekStation contracts
 

@@ -14,6 +14,7 @@ import {
 } from '../CombatAttackInvalidationSupport';
 
 const ATTACK_INVALID_REASONS = [
+  'AttackerEvading',
   'InvalidTarget',
   'NoLineOfSight',
   'OutOfAmmo',
@@ -143,6 +144,14 @@ describe('BattleMech attack invalidation support catalog', () => {
         'MegaMek ComputeToHitIsImpossible rejects indirect fire without a spotter unless source-backed exceptions such as Oblique Attacker or mortar/artillery-cannon behavior apply.',
       ]),
     );
+
+    expect(
+      ATTACK_INVALIDATION_REASON_SUPPORT.AttackerEvading.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek ComputeToHitIsImpossible prevents non-large-spacecraft evading attackers from firing ranged attacks.',
+    ]);
 
     expect(
       ATTACK_INVALIDATION_REASON_SUPPORT.WeaponJammed.sourceRefs?.map(

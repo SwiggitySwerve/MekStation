@@ -23,6 +23,56 @@ function invalidTargetDetails(
   return null;
 }
 
+function evadingAttackerDetails(
+  attacker: IUnitGameState,
+  attackerId: string,
+): string | null {
+  if (!attacker.isEvading) return null;
+  return `Attacker '${attackerId}' is evading and cannot fire ranged weapons`;
+}
+
+function emitAttackInvalid(options: {
+  currentState: IGameState;
+  declaredWeaponIds: readonly string[];
+  details: string;
+  events: IGameEvent[];
+  gameId: string;
+  reason: 'InvalidTarget' | 'AttackerEvading';
+  targetId: string;
+  unitId: string;
+}): void {
+  const {
+    currentState,
+    declaredWeaponIds,
+    details,
+    events,
+    gameId,
+    reason,
+    targetId,
+    unitId,
+  } = options;
+  const weaponIds = declaredWeaponIds.length > 0 ? declaredWeaponIds : [null];
+  for (const weaponId of weaponIds) {
+    events.push(
+      createGameEvent(
+        gameId,
+        events.length,
+        GameEventType.AttackInvalid,
+        currentState.turn,
+        GamePhase.WeaponAttack,
+        {
+          attackerId: unitId,
+          targetId,
+          ...(weaponId ? { weaponId } : {}),
+          reason,
+          details,
+        },
+        unitId,
+      ),
+    );
+  }
+}
+
 export function validateDeclaredAttackTarget(options: {
   currentState: IGameState;
   events: IGameEvent[];
@@ -37,30 +87,34 @@ export function validateDeclaredAttackTarget(options: {
   const target = currentState.units[targetId];
   const details = invalidTargetDetails(attacker, target, targetId);
 
-  if (!details) {
-    return { permitted: true, target: target as IUnitGameState };
+  if (details) {
+    emitAttackInvalid({
+      currentState,
+      declaredWeaponIds,
+      details,
+      events,
+      gameId,
+      reason: 'InvalidTarget',
+      targetId,
+      unitId,
+    });
+    return { permitted: false };
   }
 
-  const weaponIds = declaredWeaponIds.length > 0 ? declaredWeaponIds : [null];
-  for (const weaponId of weaponIds) {
-    events.push(
-      createGameEvent(
-        gameId,
-        events.length,
-        GameEventType.AttackInvalid,
-        currentState.turn,
-        GamePhase.WeaponAttack,
-        {
-          attackerId: unitId,
-          targetId,
-          ...(weaponId ? { weaponId } : {}),
-          reason: 'InvalidTarget' as const,
-          details,
-        },
-        unitId,
-      ),
-    );
+  const attackerDetails = evadingAttackerDetails(attacker, unitId);
+  if (attackerDetails) {
+    emitAttackInvalid({
+      currentState,
+      declaredWeaponIds,
+      details: attackerDetails,
+      events,
+      gameId,
+      reason: 'AttackerEvading',
+      targetId,
+      unitId,
+    });
+    return { permitted: false };
   }
 
-  return { permitted: false };
+  return { permitted: true, target: target as IUnitGameState };
 }
