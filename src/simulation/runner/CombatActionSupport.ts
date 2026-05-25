@@ -171,6 +171,19 @@ const MEKSTATION_WITHDRAW_COMMAND_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEKSTATION_WITHDRAW_CONTROL_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation WithdrawControl exposes the direct UI contract for declaring withdrawal with a selected map edge.',
+    'src/components/gameplay/WithdrawControl.tsx',
+    'L34-L52',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation WithdrawControl calls onDeclareWithdrawal with unitId and selectedEdge when the player commits the direct UI withdrawal action.',
+    'src/components/gameplay/WithdrawControl.tsx',
+    'L75-L78',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEKSTATION_REQUEST_SPOT_COMMAND_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation buildUtilityCommands exposes utility.request-spot as a target-aware local spotting command that commits the request-spot action id.',
@@ -721,6 +734,7 @@ export const COMBAT_DIRECT_UI_ACTION_SUPPORT = {
     'utility.withdraw-control',
     'direct-ui-control',
     'WithdrawControl collects the withdrawal edge and calls InteractiveSession.declareWithdrawal(unitId, edge), which feeds the same withdrawal state/event lifecycle as the Withdraw wire intent',
+    MEKSTATION_WITHDRAW_CONTROL_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatActionSupportEntry>;
 

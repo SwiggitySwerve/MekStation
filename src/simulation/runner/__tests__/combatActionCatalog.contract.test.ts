@@ -356,6 +356,22 @@ describe('BattleMech combat action support catalog', () => {
     expect(
       supportIdsByLevel(COMBAT_DIRECT_UI_ACTION_SUPPORT, 'integrated'),
     ).toEqual(['utility.withdraw-control']);
+    expect(
+      COMBAT_DIRECT_UI_ACTION_SUPPORT['utility.withdraw-control'].sourceRefs,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: expect.stringContaining('WithdrawControl.tsx#L'),
+          sourceVersion: 'MekStation working-tree',
+        }),
+      ]),
+    );
+    expect(
+      COMBAT_DIRECT_UI_ACTION_SUPPORT[
+        'utility.withdraw-control'
+      ].sourceRefs?.every((sourceRef) => sourceRef.url.includes('#L')),
+    ).toBe(true);
   });
 
   it('splits combat wire intents from lobby and reconnect intents', () => {
