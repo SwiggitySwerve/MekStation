@@ -274,11 +274,13 @@ export function useIsometricOcclusionIds({
   isIsometricView,
   tokens,
   combatRangeLookup,
+  combatProjectionValidTargetUnitIds,
   isometricTerrainOcclusionInfoByUnit,
 }: {
   readonly isIsometricView: boolean;
   readonly tokens: readonly IUnitToken[];
   readonly combatRangeLookup: ReadonlyMap<string, ICombatRangeHex>;
+  readonly combatProjectionValidTargetUnitIds?: ReadonlySet<string>;
   readonly isometricTerrainOcclusionInfoByUnit: ReadonlyMap<
     string,
     IsometricTerrainOcclusionInfo
@@ -289,13 +291,17 @@ export function useIsometricOcclusionIds({
     if (!isIsometricView) return ids;
     isometricTerrainOcclusionInfoByUnit.forEach((info) => ids.add(info.unitId));
     for (const token of tokens) {
-      if (token.isSelected || token.isValidTarget) ids.add(token.unitId);
+      const isValidTarget =
+        combatProjectionValidTargetUnitIds?.has(token.unitId) ??
+        token.isValidTarget;
+      if (token.isSelected || isValidTarget) ids.add(token.unitId);
     }
     combatRangeLookup.forEach((combatInfo) => {
       for (const unitId of combatInfo.targetUnitIds) ids.add(unitId);
     });
     return ids;
   }, [
+    combatProjectionValidTargetUnitIds,
     combatRangeLookup,
     isIsometricView,
     isometricTerrainOcclusionInfoByUnit,

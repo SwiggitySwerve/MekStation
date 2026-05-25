@@ -1209,6 +1209,13 @@ the existing source-pinned combat projection contract. Legacy
 `IUnitToken.isValidTarget` rings remain only as fallback when no configured
 weapon projection data exists for the selected unit.
 
+2026-05-25 isometric target-boost projection pin: Isometric foreground boosts
+now use the same combat-projected valid-target ids before honoring legacy
+`IUnitToken.isValidTarget` flags. Selected-unit, terrain-occlusion, and
+combat-target readability boosts stay intact, but a stale legacy target flag can
+no longer pull an unrelated unit forward when weapon-backed combat projection is
+active.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

@@ -2840,6 +2840,90 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('does not foreground stale legacy target flags when combat projection is active', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const staleFriendlyTarget = makeToken({
+      unitId: 'stale-friendly-target',
+      side: GameSide.Player,
+      isValidTarget: true,
+      position: { q: 0, r: 1 },
+    });
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[selected, staleFriendlyTarget]}
+        selectedHex={null}
+        unitWeapons={{ selected: [makeWeapon()] }}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+
+    expect(
+      screen.getByTestId('isometric-scene-token-stale-friendly-target'),
+    ).not.toHaveAttribute('data-isometric-foreground-boost', 'true');
+    expect(
+      screen.getByTestId('unit-token-stale-friendly-target'),
+    ).toHaveAttribute('data-token-valid-target-source', 'combat-projection');
+    expect(
+      screen.getByTestId('unit-token-stale-friendly-target'),
+    ).toHaveAttribute('data-token-combat-projection-valid-target', 'false');
+    expect(
+      screen.getByTestId('unit-token-stale-friendly-target'),
+    ).not.toHaveAttribute('data-visibility-boost', 'true');
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('keeps legacy target flags as isometric foreground fallback without combat projection', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const legacyTarget = makeToken({
+      unitId: 'legacy-target',
+      side: GameSide.Opponent,
+      isValidTarget: true,
+      position: { q: 0, r: 1 },
+    });
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[selected, legacyTarget]}
+        selectedHex={null}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+
+    expect(
+      screen.getByTestId('isometric-scene-token-legacy-target'),
+    ).toHaveAttribute('data-isometric-foreground-boost', 'true');
+    expect(screen.getByTestId('unit-token-legacy-target')).toHaveAttribute(
+      'data-token-valid-target-source',
+      'token',
+    );
+    expect(screen.getByTestId('unit-token-legacy-target')).toHaveAttribute(
+      'data-visibility-boost',
+      'true',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('hides the LOS line on hex click while leaving the committed click path to the host', () => {
     const onHexClick = jest.fn();
     const onHexHover = jest.fn();

@@ -192,6 +192,7 @@ export function useHexMapDisplayState({
     isIsometricView,
     tokens,
     combatRangeLookup,
+    combatProjectionValidTargetUnitIds,
     isometricTerrainOcclusionInfoByUnit,
   });
   const isometricForegroundUnitIds = useMemo(() => {
