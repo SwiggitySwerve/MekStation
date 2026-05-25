@@ -11,6 +11,8 @@ import {
   tacticalMapLockedTurretCommitInput,
   tacticalMapOutOfArcCombatProjection,
   tacticalMapOutOfArcCommitInput,
+  tacticalMapRightSponsonArcCombatProjection,
+  tacticalMapRightSponsonArcCommitInput,
   tacticalMapSponsonArcCombatProjection,
   tacticalMapSponsonArcCommitInput,
 } from '../tactical-map.arc-scenarios';
@@ -1641,6 +1643,58 @@ describe('tactical map combat scenarios', () => {
     );
     expect(payload.toHitNumber).toBe(
       tacticalMapSponsonArcCombatProjection.toHitNumber,
+    );
+  });
+
+  it('keeps right vehicle sponson projection aligned with attack commit validation', () => {
+    expect(tacticalMapRightSponsonArcCombatProjection).toMatchObject({
+      hex: { q: 2, r: -1 },
+      distance: 2,
+      rangeBracket: 'short',
+      firingArc: 'right-side',
+      inRange: true,
+      inArc: true,
+      attackable: true,
+      targetUnitIds: ['right-arc-target'],
+      validTargetUnitIds: ['right-arc-target'],
+      weaponIdsInRange: ['right-sponson-laser'],
+      weaponIdsInArc: ['right-sponson-laser'],
+      weaponIdsAvailable: ['right-sponson-laser'],
+      weaponRangeOptions: [
+        {
+          weaponId: 'right-sponson-laser',
+          rangeBracket: 'short',
+          inRange: true,
+          inArc: true,
+          available: true,
+        },
+      ],
+    });
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapRightSponsonArcCommitInput(),
+    );
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackLocked),
+    ).toBe(true);
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.weapons).toEqual(
+      tacticalMapRightSponsonArcCombatProjection.weaponIdsAvailable,
+    );
+    expect(payload.range).toBe(
+      tacticalMapRightSponsonArcCombatProjection.rangeBracket,
+    );
+    expect(payload.toHitNumber).toBe(
+      tacticalMapRightSponsonArcCombatProjection.toHitNumber,
     );
   });
 

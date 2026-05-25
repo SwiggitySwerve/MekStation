@@ -879,8 +879,16 @@ that would otherwise cover all chassis arcs collapses to front-only coverage
 when locked. The focused Jest fixture aligns the projected `OutOfArc` rejection
 with committed `AttackInvalid` details for a clear left-side target, while
 Playwright checks the hex, combat badge, invalid badge, arc badge, and
-per-weapon blocked reason metadata. Chin pivot penalties and right-sponson
-mirror fixtures remain separate coverage slices.
+per-weapon blocked reason metadata.
+
+2026-05-25 right-sponson browser pin: the tactical-map browser harness now
+mirrors the left-sponson proof with a represented vehicle right-sponson weapon
+whose `mountingArcs` are derived from `getVehicleWeaponArcs` as
+`[front, right]`. The focused Jest fixture aligns the projected right-side
+firing arc with committed `AttackDeclared` range, selected weapon ids, and
+to-hit number, while Playwright checks the same in-arc weapon availability
+metadata on the right-side hex, combat badge, and arc badge. Chin pivot
+penalties remain the separate special-arc coverage slice.
 
 Additional selected-weapon extreme-range overlay pin: the firing-arc overlay
 now uses represented `ranges.extreme` when present while deriving selected

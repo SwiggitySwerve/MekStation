@@ -93,8 +93,8 @@ the top-down map.
 - **AND** a combat target outside the selected weapon's firing arc SHALL expose
   `OutOfArc` rejection metadata, per-weapon arc blocker details, and a combat
   invalid badge that does not rely on color alone
-- **AND** a combat target inside a represented vehicle sponson weapon's
-  front-plus-side coverage SHALL remain attackable and expose in-arc
+- **AND** combat targets inside represented left- and right-sponson vehicle
+  weapon front-plus-side coverage SHALL remain attackable and expose in-arc
   per-weapon availability metadata
 - **AND** a combat target outside a represented locked vehicle turret's
   front-only coverage SHALL expose `OutOfArc` rejection metadata and per-weapon

@@ -1,27 +1,21 @@
 import type { IApplyAttackInput } from '@/engine/InteractiveSession.actions';
-import type { IWeapon } from '@/simulation/ai/types';
-import type { IGameState, IUnitToken, IWeaponStatus } from '@/types/gameplay';
+import type { IUnitToken } from '@/types/gameplay';
 
 import { VehicleLocation } from '@/types/construction/UnitLocation';
-import {
-  Facing,
-  FiringArc,
-  GamePhase,
-  GameSide,
-  GameStatus,
-  MovementType,
-  TokenUnitType,
-  VehicleMotionType,
-} from '@/types/gameplay';
+import { FiringArc, TokenUnitType, VehicleMotionType } from '@/types/gameplay';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
-import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
 import { getVehicleWeaponArcs } from '@/utils/gameplay/vehicleFiringArc';
 
 import {
-  requireCombatProjection,
-  tacticalMapCombatGrid,
-  tacticalMapCombatSession,
-} from './tactical-map.combat-scenarios';
+  tacticalMapAttackerToken,
+  tacticalMapCombatProjection,
+  tacticalMapCombatStateForTokens,
+  tacticalMapCommitInput,
+  tacticalMapTargetToken,
+  tacticalMapUnitWeapons,
+  tacticalMapWeapon,
+} from './tactical-map.arc-scenario-helpers';
+import { tacticalMapCombatGrid } from './tactical-map.combat-scenarios';
 
 export const tacticalMapOutOfArcTargetId = 'rear-arc-target';
 export const tacticalMapOutOfArcTargetHex = { q: 0, r: 1 } as const;
@@ -29,9 +23,28 @@ export const tacticalMapOutOfArcSelectedWeaponIds = ['front-arc-laser'];
 export const tacticalMapSponsonArcTargetId = 'left-arc-target';
 export const tacticalMapSponsonArcTargetHex = { q: -2, r: 2 } as const;
 export const tacticalMapSponsonArcSelectedWeaponIds = ['left-sponson-laser'];
+export const tacticalMapRightSponsonArcTargetId = 'right-arc-target';
+export const tacticalMapRightSponsonArcTargetHex = { q: 2, r: -1 } as const;
+export const tacticalMapRightSponsonArcSelectedWeaponIds = [
+  'right-sponson-laser',
+];
 export const tacticalMapLockedTurretTargetId = 'locked-turret-side-target';
 export const tacticalMapLockedTurretTargetHex = { q: -2, r: 2 } as const;
 export const tacticalMapLockedTurretSelectedWeaponIds = ['locked-turret-ppc'];
+
+const tacticalMapLeftSponsonArcs = getVehicleWeaponArcs({
+  mountLocation: VehicleLocation.LEFT,
+  isTurretMounted: false,
+  isSponsonMounted: true,
+  turretLocked: false,
+});
+
+const tacticalMapRightSponsonArcs = getVehicleWeaponArcs({
+  mountLocation: VehicleLocation.RIGHT,
+  isTurretMounted: false,
+  isSponsonMounted: true,
+  turretLocked: false,
+});
 
 const tacticalMapLockedTurretArcs = getVehicleWeaponArcs({
   mountLocation: VehicleLocation.TURRET,
@@ -42,367 +55,206 @@ const tacticalMapLockedTurretArcs = getVehicleWeaponArcs({
 });
 
 export const tacticalMapOutOfArcTokens: readonly IUnitToken[] = [
-  {
-    unitId: 'attacker',
+  tacticalMapAttackerToken({
     name: 'Shadow Hawk SHD-2H',
     designation: 'SHD',
-    position: { q: 0, r: 0 },
-    facing: Facing.North,
-    side: GameSide.Player,
-    isDestroyed: false,
-    isSelected: true,
-    isValidTarget: false,
     unitType: TokenUnitType.Mech,
-  },
-  {
+  }),
+  tacticalMapTargetToken({
     unitId: tacticalMapOutOfArcTargetId,
     name: 'Rear Arc Target',
     designation: 'RAT',
     position: tacticalMapOutOfArcTargetHex,
-    facing: Facing.South,
-    side: GameSide.Opponent,
-    isDestroyed: false,
-    isSelected: false,
-    isValidTarget: true,
-    isActiveTarget: true,
-    unitType: TokenUnitType.Mech,
-  },
+  }),
 ];
 
-export const tacticalMapOutOfArcCombatState: IGameState = {
-  gameId: 'tactical-map-e2e',
-  status: GameStatus.Active,
-  turn: 1,
-  phase: GamePhase.WeaponAttack,
-  activationIndex: 0,
-  turnEvents: [],
-  units: Object.fromEntries(
-    tacticalMapOutOfArcTokens.map((token) => [
-      token.unitId,
-      {
-        id: token.unitId,
-        side: token.side,
-        position: token.position,
-        facing: token.facing,
-        heat: 0,
-        movementThisTurn: MovementType.Stationary,
-        hexesMovedThisTurn: 0,
-        prone: false,
-        destroyed: token.isDestroyed,
-        shutdown: false,
-        hasRetreated: false,
-        gunnery: 4,
-      },
-    ]),
-  ) as IGameState['units'],
-};
-
 export const tacticalMapSponsonArcTokens: readonly IUnitToken[] = [
-  {
-    unitId: 'attacker',
+  tacticalMapAttackerToken({
     name: 'Vedette Left Sponson',
     designation: 'VDS',
-    position: { q: 0, r: 0 },
-    facing: Facing.North,
-    side: GameSide.Player,
-    isDestroyed: false,
-    isSelected: true,
-    isValidTarget: false,
     unitType: TokenUnitType.Vehicle,
     vehicleMotionType: VehicleMotionType.Tracked,
-  },
-  {
+  }),
+  tacticalMapTargetToken({
     unitId: tacticalMapSponsonArcTargetId,
     name: 'Left Arc Target',
     designation: 'LAT',
     position: tacticalMapSponsonArcTargetHex,
-    facing: Facing.South,
-    side: GameSide.Opponent,
-    isDestroyed: false,
-    isSelected: false,
-    isValidTarget: true,
-    isActiveTarget: true,
-    unitType: TokenUnitType.Mech,
-  },
+  }),
 ];
 
-export const tacticalMapSponsonArcCombatState: IGameState = {
-  gameId: 'tactical-map-e2e',
-  status: GameStatus.Active,
-  turn: 1,
-  phase: GamePhase.WeaponAttack,
-  activationIndex: 0,
-  turnEvents: [],
-  units: Object.fromEntries(
-    tacticalMapSponsonArcTokens.map((token) => [
-      token.unitId,
-      {
-        id: token.unitId,
-        side: token.side,
-        position: token.position,
-        facing: token.facing,
-        heat: 0,
-        movementThisTurn: MovementType.Stationary,
-        hexesMovedThisTurn: 0,
-        prone: false,
-        destroyed: token.isDestroyed,
-        shutdown: false,
-        hasRetreated: false,
-        gunnery: 4,
-      },
-    ]),
-  ) as IGameState['units'],
-};
-
-export const tacticalMapLockedTurretTokens: readonly IUnitToken[] = [
-  {
-    unitId: 'attacker',
-    name: 'Locked Turret Carrier',
-    designation: 'LTC',
-    position: { q: 0, r: 0 },
-    facing: Facing.North,
-    side: GameSide.Player,
-    isDestroyed: false,
-    isSelected: true,
-    isValidTarget: false,
+export const tacticalMapRightSponsonArcTokens: readonly IUnitToken[] = [
+  tacticalMapAttackerToken({
+    name: 'Vedette Right Sponson',
+    designation: 'VRS',
     unitType: TokenUnitType.Vehicle,
     vehicleMotionType: VehicleMotionType.Tracked,
-  },
-  {
+  }),
+  tacticalMapTargetToken({
+    unitId: tacticalMapRightSponsonArcTargetId,
+    name: 'Right Arc Target',
+    designation: 'RAT',
+    position: tacticalMapRightSponsonArcTargetHex,
+  }),
+];
+
+export const tacticalMapLockedTurretTokens: readonly IUnitToken[] = [
+  tacticalMapAttackerToken({
+    name: 'Locked Turret Carrier',
+    designation: 'LTC',
+    unitType: TokenUnitType.Vehicle,
+    vehicleMotionType: VehicleMotionType.Tracked,
+  }),
+  tacticalMapTargetToken({
     unitId: tacticalMapLockedTurretTargetId,
     name: 'Locked Turret Side Target',
     designation: 'LST',
     position: tacticalMapLockedTurretTargetHex,
-    facing: Facing.South,
-    side: GameSide.Opponent,
-    isDestroyed: false,
-    isSelected: false,
-    isValidTarget: true,
-    isActiveTarget: true,
-    unitType: TokenUnitType.Mech,
-  },
+  }),
 ];
 
-export const tacticalMapLockedTurretCombatState: IGameState = {
-  gameId: 'tactical-map-e2e',
-  status: GameStatus.Active,
-  turn: 1,
-  phase: GamePhase.WeaponAttack,
-  activationIndex: 0,
-  turnEvents: [],
-  units: Object.fromEntries(
-    tacticalMapLockedTurretTokens.map((token) => [
-      token.unitId,
-      {
-        id: token.unitId,
-        side: token.side,
-        position: token.position,
-        facing: token.facing,
-        heat: 0,
-        movementThisTurn: MovementType.Stationary,
-        hexesMovedThisTurn: 0,
-        prone: false,
-        destroyed: token.isDestroyed,
-        shutdown: false,
-        hasRetreated: false,
-        gunnery: 4,
-      },
-    ]),
-  ) as IGameState['units'],
-};
+export const tacticalMapOutOfArcCombatState = tacticalMapCombatStateForTokens(
+  tacticalMapOutOfArcTokens,
+);
+export const tacticalMapSponsonArcCombatState = tacticalMapCombatStateForTokens(
+  tacticalMapSponsonArcTokens,
+);
+export const tacticalMapRightSponsonArcCombatState =
+  tacticalMapCombatStateForTokens(tacticalMapRightSponsonArcTokens);
+export const tacticalMapLockedTurretCombatState =
+  tacticalMapCombatStateForTokens(tacticalMapLockedTurretTokens);
 
-export const tacticalMapOutOfArcUnitWeapons: Record<
-  string,
-  readonly IWeaponStatus[]
-> = {
-  attacker: [
-    {
-      id: 'front-arc-laser',
-      name: 'Front Arc Laser',
-      location: 'right_arm',
-      mountingArc: FiringArc.Front,
-      mountingArcs: [FiringArc.Front],
-      destroyed: false,
-      firedThisTurn: false,
-      heat: 3,
-      damage: 5,
-      ranges: { short: 3, medium: 6, long: 9 },
-    },
-  ],
-};
+export const tacticalMapOutOfArcUnitWeapons = tacticalMapUnitWeapons(
+  tacticalMapWeapon({
+    id: 'front-arc-laser',
+    name: 'Front Arc Laser',
+    location: 'right_arm',
+    mountingArc: FiringArc.Front,
+    mountingArcs: [FiringArc.Front],
+  }),
+);
 
-export const tacticalMapSponsonArcUnitWeapons: Record<
-  string,
-  readonly IWeaponStatus[]
-> = {
-  attacker: [
-    {
-      id: 'left-sponson-laser',
-      name: 'Left Sponson Laser',
-      location: 'left_sponson',
-      mountingArcs: [FiringArc.Front, FiringArc.Left],
-      destroyed: false,
-      firedThisTurn: false,
-      heat: 3,
-      damage: 5,
-      ranges: { short: 3, medium: 6, long: 9 },
-    },
-  ],
-};
+export const tacticalMapSponsonArcUnitWeapons = tacticalMapUnitWeapons(
+  tacticalMapWeapon({
+    id: 'left-sponson-laser',
+    name: 'Left Sponson Laser',
+    location: 'left_sponson',
+    mountingArcs: tacticalMapLeftSponsonArcs,
+  }),
+);
 
-export const tacticalMapLockedTurretUnitWeapons: Record<
-  string,
-  readonly IWeaponStatus[]
-> = {
-  attacker: [
-    {
-      id: 'locked-turret-ppc',
-      name: 'Locked Turret PPC',
-      location: 'turret',
-      mountingArcs: tacticalMapLockedTurretArcs,
-      destroyed: false,
-      firedThisTurn: false,
-      heat: 10,
-      damage: 10,
-      ranges: { short: 6, medium: 12, long: 18 },
-    },
-  ],
-};
+export const tacticalMapRightSponsonArcUnitWeapons = tacticalMapUnitWeapons(
+  tacticalMapWeapon({
+    id: 'right-sponson-laser',
+    name: 'Right Sponson Laser',
+    location: 'right_sponson',
+    mountingArcs: tacticalMapRightSponsonArcs,
+  }),
+);
 
-function weaponStatusToCommitWeapon(status: IWeaponStatus): IWeapon {
-  return {
-    id: status.id,
-    name: status.name,
-    shortRange: status.ranges.short,
-    mediumRange: status.ranges.medium,
-    longRange: status.ranges.long,
-    extremeRange: status.ranges.extreme,
-    damage: typeof status.damage === 'number' ? status.damage : 0,
-    heat: status.heat,
-    minRange: status.ranges.minimum ?? 0,
-    ammoPerTon:
-      status.ammoRemaining === undefined
-        ? -1
-        : Math.max(1, status.ammoMax ?? status.ammoRemaining),
-    destroyed: status.destroyed,
-    mountingArc: status.mountingArc,
-    mountingArcs: status.mountingArcs,
-    isTorpedo: status.isTorpedo,
-  };
-}
-
-function tacticalMapWeaponsByUnit(
-  unitWeapons: Record<string, readonly IWeaponStatus[]>,
-): Map<string, readonly IWeapon[]> {
-  return new Map(
-    Object.entries(unitWeapons).map(([unitId, weapons]) => [
-      unitId,
-      weapons.map(weaponStatusToCommitWeapon),
-    ]),
-  );
-}
+export const tacticalMapLockedTurretUnitWeapons = tacticalMapUnitWeapons(
+  tacticalMapWeapon({
+    id: 'locked-turret-ppc',
+    name: 'Locked Turret PPC',
+    location: 'turret',
+    mountingArcs: tacticalMapLockedTurretArcs,
+    heat: 10,
+    damage: 10,
+    ranges: { short: 6, medium: 12, long: 18 },
+  }),
+);
 
 const tacticalMapOutOfArcGrid = tacticalMapCombatGrid();
 
-export const tacticalMapOutOfArcCombatProjection = requireCombatProjection(
-  deriveCombatRangeHexes({
-    attacker: tacticalMapOutOfArcTokens[0],
-    targetUnitId: tacticalMapOutOfArcTargetId,
-    hexes: Array.from(
-      tacticalMapOutOfArcGrid.hexes.values(),
-      (hex) => hex.coord,
-    ),
-    grid: tacticalMapOutOfArcGrid,
-    tokens: tacticalMapOutOfArcTokens,
-    weapons: tacticalMapOutOfArcUnitWeapons.attacker,
-    combatState: tacticalMapOutOfArcCombatState,
-  }).find(
-    (projection) =>
-      projection.hex.q === tacticalMapOutOfArcTargetHex.q &&
-      projection.hex.r === tacticalMapOutOfArcTargetHex.r,
-  ),
-);
+export const tacticalMapOutOfArcCombatProjection = tacticalMapCombatProjection({
+  attacker: tacticalMapOutOfArcTokens[0],
+  targetUnitId: tacticalMapOutOfArcTargetId,
+  targetHex: tacticalMapOutOfArcTargetHex,
+  grid: tacticalMapOutOfArcGrid,
+  tokens: tacticalMapOutOfArcTokens,
+  weapons: tacticalMapOutOfArcUnitWeapons.attacker,
+  combatState: tacticalMapOutOfArcCombatState,
+});
 
 const tacticalMapSponsonArcGrid = tacticalMapCombatGrid();
 
-export const tacticalMapSponsonArcCombatProjection = requireCombatProjection(
-  deriveCombatRangeHexes({
+export const tacticalMapSponsonArcCombatProjection =
+  tacticalMapCombatProjection({
     attacker: tacticalMapSponsonArcTokens[0],
     targetUnitId: tacticalMapSponsonArcTargetId,
-    hexes: Array.from(
-      tacticalMapSponsonArcGrid.hexes.values(),
-      (hex) => hex.coord,
-    ),
+    targetHex: tacticalMapSponsonArcTargetHex,
     grid: tacticalMapSponsonArcGrid,
     tokens: tacticalMapSponsonArcTokens,
     weapons: tacticalMapSponsonArcUnitWeapons.attacker,
     combatState: tacticalMapSponsonArcCombatState,
-  }).find(
-    (projection) =>
-      projection.hex.q === tacticalMapSponsonArcTargetHex.q &&
-      projection.hex.r === tacticalMapSponsonArcTargetHex.r,
-  ),
-);
+  });
+
+const tacticalMapRightSponsonArcGrid = tacticalMapCombatGrid();
+
+export const tacticalMapRightSponsonArcCombatProjection =
+  tacticalMapCombatProjection({
+    attacker: tacticalMapRightSponsonArcTokens[0],
+    targetUnitId: tacticalMapRightSponsonArcTargetId,
+    targetHex: tacticalMapRightSponsonArcTargetHex,
+    grid: tacticalMapRightSponsonArcGrid,
+    tokens: tacticalMapRightSponsonArcTokens,
+    weapons: tacticalMapRightSponsonArcUnitWeapons.attacker,
+    combatState: tacticalMapRightSponsonArcCombatState,
+  });
 
 const tacticalMapLockedTurretGrid = tacticalMapCombatGrid();
 
-export const tacticalMapLockedTurretCombatProjection = requireCombatProjection(
-  deriveCombatRangeHexes({
+export const tacticalMapLockedTurretCombatProjection =
+  tacticalMapCombatProjection({
     attacker: tacticalMapLockedTurretTokens[0],
     targetUnitId: tacticalMapLockedTurretTargetId,
-    hexes: Array.from(
-      tacticalMapLockedTurretGrid.hexes.values(),
-      (hex) => hex.coord,
-    ),
+    targetHex: tacticalMapLockedTurretTargetHex,
     grid: tacticalMapLockedTurretGrid,
     tokens: tacticalMapLockedTurretTokens,
     weapons: tacticalMapLockedTurretUnitWeapons.attacker,
     combatState: tacticalMapLockedTurretCombatState,
-  }).find(
-    (projection) =>
-      projection.hex.q === tacticalMapLockedTurretTargetHex.q &&
-      projection.hex.r === tacticalMapLockedTurretTargetHex.r,
-  ),
-);
+  });
 
 export function tacticalMapOutOfArcCommitInput(): IApplyAttackInput {
-  return {
-    session: tacticalMapCombatSession({
-      tokens: tacticalMapOutOfArcTokens,
-      combatState: tacticalMapOutOfArcCombatState,
-    }),
-    weaponsByUnit: tacticalMapWeaponsByUnit(tacticalMapOutOfArcUnitWeapons),
-    attackerId: 'attacker',
+  return tacticalMapCommitInput({
+    tokens: tacticalMapOutOfArcTokens,
+    combatState: tacticalMapOutOfArcCombatState,
+    unitWeapons: tacticalMapOutOfArcUnitWeapons,
     targetId: tacticalMapOutOfArcTargetId,
     weaponIds: tacticalMapOutOfArcSelectedWeaponIds,
     grid: tacticalMapOutOfArcGrid,
-  };
+  });
 }
 
 export function tacticalMapLockedTurretCommitInput(): IApplyAttackInput {
-  return {
-    session: tacticalMapCombatSession({
-      tokens: tacticalMapLockedTurretTokens,
-      combatState: tacticalMapLockedTurretCombatState,
-    }),
-    weaponsByUnit: tacticalMapWeaponsByUnit(tacticalMapLockedTurretUnitWeapons),
-    attackerId: 'attacker',
+  return tacticalMapCommitInput({
+    tokens: tacticalMapLockedTurretTokens,
+    combatState: tacticalMapLockedTurretCombatState,
+    unitWeapons: tacticalMapLockedTurretUnitWeapons,
     targetId: tacticalMapLockedTurretTargetId,
     weaponIds: tacticalMapLockedTurretSelectedWeaponIds,
     grid: tacticalMapLockedTurretGrid,
-  };
+  });
 }
 
 export function tacticalMapSponsonArcCommitInput(): IApplyAttackInput {
-  return {
-    session: tacticalMapCombatSession({
-      tokens: tacticalMapSponsonArcTokens,
-      combatState: tacticalMapSponsonArcCombatState,
-    }),
-    weaponsByUnit: tacticalMapWeaponsByUnit(tacticalMapSponsonArcUnitWeapons),
-    attackerId: 'attacker',
+  return tacticalMapCommitInput({
+    tokens: tacticalMapSponsonArcTokens,
+    combatState: tacticalMapSponsonArcCombatState,
+    unitWeapons: tacticalMapSponsonArcUnitWeapons,
     targetId: tacticalMapSponsonArcTargetId,
     weaponIds: tacticalMapSponsonArcSelectedWeaponIds,
     grid: tacticalMapSponsonArcGrid,
-  };
+  });
+}
+
+export function tacticalMapRightSponsonArcCommitInput(): IApplyAttackInput {
+  return tacticalMapCommitInput({
+    tokens: tacticalMapRightSponsonArcTokens,
+    combatState: tacticalMapRightSponsonArcCombatState,
+    unitWeapons: tacticalMapRightSponsonArcUnitWeapons,
+    targetId: tacticalMapRightSponsonArcTargetId,
+    weaponIds: tacticalMapRightSponsonArcSelectedWeaponIds,
+    grid: tacticalMapRightSponsonArcGrid,
+  });
 }

@@ -151,6 +151,8 @@
   coverage keeps a left-arc target attackable with in-arc weapon metadata.
 - [x] 2.59 Add browser coverage proving represented locked vehicle turret
   coverage blocks a side-arc target with out-of-arc weapon metadata.
+- [x] 2.60 Add browser coverage proving represented right-sponson multi-arc
+  coverage mirrors the left-sponson target with in-arc weapon metadata.
 
 ## 3. Validation
 
@@ -278,3 +280,5 @@
   multi-arc projection, committed attack, and browser badge metadata.
 - [x] 3.59 Focused Jest parity and Playwright smoke pass for locked vehicle
   turret projection, committed rejection, and browser invalid-badge metadata.
+- [x] 3.60 Focused Jest parity and Playwright smoke pass for right-sponson
+  multi-arc projection, committed attack, and browser badge metadata.

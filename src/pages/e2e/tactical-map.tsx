@@ -52,6 +52,7 @@ const combatOnlyScenarios = new Set([
   'fog-los-terrain-blocked',
   'selected-weapon-out-of-arc',
   'vehicle-sponson-in-arc',
+  'vehicle-right-sponson-in-arc',
   'vehicle-locked-turret-out-of-arc',
   'same-hex-weapon-blocked',
   'elevation-los-blocked',
@@ -91,6 +92,8 @@ const selectedWeaponIdsByScenario = {
   'selected-weapon-out-of-arc':
     arcScenarios.tacticalMapOutOfArcSelectedWeaponIds,
   'vehicle-sponson-in-arc': arcScenarios.tacticalMapSponsonArcSelectedWeaponIds,
+  'vehicle-right-sponson-in-arc':
+    arcScenarios.tacticalMapRightSponsonArcSelectedWeaponIds,
   'vehicle-locked-turret-out-of-arc':
     arcScenarios.tacticalMapLockedTurretSelectedWeaponIds,
   'same-hex-weapon-blocked': sameHex.tacticalMapSameHexSelectedWeaponIds,
@@ -121,6 +124,8 @@ const targetUnitIdByScenario = {
   'fog-los-terrain-blocked': visibility.tacticalMapFogLosTargetId,
   'selected-weapon-out-of-arc': arcScenarios.tacticalMapOutOfArcTargetId,
   'vehicle-sponson-in-arc': arcScenarios.tacticalMapSponsonArcTargetId,
+  'vehicle-right-sponson-in-arc':
+    arcScenarios.tacticalMapRightSponsonArcTargetId,
   'vehicle-locked-turret-out-of-arc':
     arcScenarios.tacticalMapLockedTurretTargetId,
   'same-hex-weapon-blocked': sameHex.tacticalMapSameHexTargetId,
@@ -151,6 +156,7 @@ const tokensByScenario = {
   'fog-los-terrain-blocked': visibility.tacticalMapFogLosTokens,
   'selected-weapon-out-of-arc': arcScenarios.tacticalMapOutOfArcTokens,
   'vehicle-sponson-in-arc': arcScenarios.tacticalMapSponsonArcTokens,
+  'vehicle-right-sponson-in-arc': arcScenarios.tacticalMapRightSponsonArcTokens,
   'vehicle-locked-turret-out-of-arc':
     arcScenarios.tacticalMapLockedTurretTokens,
   'same-hex-weapon-blocked': sameHex.tacticalMapSameHexTokens,
@@ -187,6 +193,8 @@ const combatStateByScenario = {
   'fog-los-terrain-blocked': visibility.tacticalMapFogLosCombatState,
   'selected-weapon-out-of-arc': arcScenarios.tacticalMapOutOfArcCombatState,
   'vehicle-sponson-in-arc': arcScenarios.tacticalMapSponsonArcCombatState,
+  'vehicle-right-sponson-in-arc':
+    arcScenarios.tacticalMapRightSponsonArcCombatState,
   'vehicle-locked-turret-out-of-arc':
     arcScenarios.tacticalMapLockedTurretCombatState,
   'same-hex-weapon-blocked': sameHex.tacticalMapSameHexCombatState,
@@ -253,22 +261,6 @@ const selectedHexByScenario = {
   'frogman-deep-water': frogman.tacticalMapFrogmanSelectedHex,
   'prone-stand-up': standUp.tacticalMapStandUpSelectedHex,
   'impossible-stand-up': standUp.tacticalMapStandUpSelectedHex,
-  'selected-weapon-out-of-arc': { q: 0, r: 0 },
-  'vehicle-sponson-in-arc': { q: 0, r: 0 },
-  'vehicle-locked-turret-out-of-arc': { q: 0, r: 0 },
-  'same-hex-weapon-blocked': { q: 0, r: 0 },
-  'elevation-los-blocked': { q: 0, r: 0 },
-  'woods-los-blocked': { q: 0, r: 0 },
-  'stacked-smoke-woods-los-blocked': { q: 0, r: 0 },
-  'fog-los-terrain-blocked': { q: 0, r: 0 },
-  'prone-combat-modifiers': { q: 0, r: 0 },
-  'immobile-combat-modifier': { q: 0, r: 0 },
-  'heat-combat-modifier': { q: 0, r: 0 },
-  'walk-combat-modifier': { q: 0, r: 0 },
-  'movement-combat-modifier': { q: 0, r: 0 },
-  'jump-combat-modifier': { q: 0, r: 0 },
-  'mounted-ba-passenger': { q: 0, r: 0 },
-  'aerospace-velocity-projection': { q: 0, r: 0 },
 } satisfies Record<string, { readonly q: number; readonly r: number }>;
 
 const hexTerrainByScenario = {
@@ -343,6 +335,8 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
     {
       'selected-weapon-out-of-arc': arcScenarios.tacticalMapOutOfArcUnitWeapons,
       'vehicle-sponson-in-arc': arcScenarios.tacticalMapSponsonArcUnitWeapons,
+      'vehicle-right-sponson-in-arc':
+        arcScenarios.tacticalMapRightSponsonArcUnitWeapons,
       'vehicle-locked-turret-out-of-arc':
         arcScenarios.tacticalMapLockedTurretUnitWeapons,
     },
@@ -360,10 +354,11 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
     : scenarioValue(scenario, mpLegendByScenario, tacticalMapMpLegend);
   const selectedHex =
     indirectScenario?.selectedHex ??
-    scenarioValue(scenario, selectedHexByScenario, {
-      q: -1,
-      r: 0,
-    });
+    scenarioValue(
+      scenario,
+      selectedHexByScenario,
+      isCombatOnlyScenario ? { q: 0, r: 0 } : { q: -1, r: 0 },
+    );
   const highlightPath =
     isCombatOnlyScenario || isMovementFixtureScenario
       ? undefined

@@ -3413,6 +3413,78 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows right vehicle sponson multi-arc weapon as available in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=vehicle-right-sponson-in-arc');
+
+    const targetHex = page.getByTestId('hex-2--1');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'right-arc-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-distance', '2');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-range-bracket',
+      'short',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-firing-arc',
+      'right-side',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-in-arc', 'true');
+    await expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-in-range',
+      'right-sponson-laser',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-in-arc',
+      'right-sponson-laser',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-available',
+      'right-sponson-laser',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-ranges',
+      'right-sponson-laser:short',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-arc-states',
+      'right-sponson-laser:in-arc',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-availability',
+      'right-sponson-laser:available',
+    );
+
+    const combatBadge = page.getByTestId('hex-combat-badge-2--1');
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-attackable',
+      'true',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-arc-states',
+      'right-sponson-laser:in-arc',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-availability',
+      'right-sponson-laser:available',
+    );
+
+    const arcBadge = page.getByTestId('hex-combat-arc-badge-2--1');
+    await expect(arcBadge.locator('text')).toHaveText('R ARC');
+    await expect(arcBadge).toHaveAttribute(
+      'data-combat-arc-badge-arc',
+      'right-side',
+    );
+    await expect(arcBadge).toHaveAttribute(
+      'data-combat-arc-badge-in-arc',
+      'true',
+    );
+  });
+
   test('shows locked vehicle turret side target as out of arc in browser', async ({
     page,
   }) => {
