@@ -973,6 +973,65 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(page.getByTestId('hex-combat-tooltip-cover')).toHaveCount(0);
   });
 
+  test('keeps visible targets attackable on mixed same-hex fog contacts in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=mixed-visibility-targets');
+
+    const targetHex = page.getByTestId('hex-1-2');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'medium-target,same-hex-hidden-contact,same-hex-last-known-contact',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-visible-target-ids',
+      'medium-target',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-obscured-target-ids',
+      'same-hex-hidden-contact,same-hex-last-known-contact',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-valid-target-ids',
+      'medium-target',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-visibility',
+      'mixed',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    await expect(targetHex).not.toHaveAttribute('data-combat-invalid-reason');
+    await expect(targetHex).not.toHaveAttribute(
+      'data-combat-visibility-blocked-reason',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-available',
+      'medium-laser,extreme-lrm',
+    );
+
+    const visibilityBadge = page.getByTestId('hex-combat-visibility-badge-1-2');
+    await expect(visibilityBadge.locator('text')).toHaveText('MIX');
+    await expect(visibilityBadge).toHaveAttribute(
+      'data-combat-visibility-badge-state',
+      'mixed',
+    );
+    await expect(visibilityBadge).toHaveAttribute(
+      'data-combat-visibility-badge-reason',
+      'Target visibility mixed',
+    );
+
+    await targetHex.hover();
+    const tooltipVisibility = page.getByTestId('hex-combat-tooltip-visibility');
+    await expect(tooltipVisibility).toContainText('Visibility: mixed');
+    await expect(tooltipVisibility).toContainText('visible medium-target');
+    await expect(tooltipVisibility).toContainText(
+      'obscured same-hex-hidden-contact, same-hex-last-known-contact',
+    );
+    await expect(page.getByTestId('hex-combat-tooltip-status')).toContainText(
+      'Attack available',
+    );
+  });
+
   test('shows all selected weapons out of range as blocked in browser', async ({
     page,
   }) => {

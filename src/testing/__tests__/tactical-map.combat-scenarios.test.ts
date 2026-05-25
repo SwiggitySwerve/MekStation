@@ -19,6 +19,10 @@ import {
   tacticalMapTargetTerrainModifierCombatProjection,
   tacticalMapTargetTerrainModifierCommitInput,
 } from '../tactical-map.target-terrain-scenarios';
+import {
+  tacticalMapMixedVisibilityCombatProjection,
+  tacticalMapMixedVisibilityCommitInput,
+} from '../tactical-map.visibility-scenarios';
 
 describe('tactical map combat scenarios', () => {
   it('keeps the mixed legal browser projection aligned with committed attack declaration', () => {
@@ -229,6 +233,57 @@ describe('tactical map combat scenarios', () => {
     );
     expect(payload.toHitNumber).toBe(
       tacticalMapAirborneAerospaceMinimumRangeCombatProjection.toHitNumber,
+    );
+  });
+
+  it('keeps mixed same-hex visibility attackable through the visible target', () => {
+    expect(tacticalMapMixedVisibilityCombatProjection).toMatchObject({
+      hex: { q: 1, r: 2 },
+      distance: 4,
+      rangeBracket: 'medium',
+      attackable: true,
+      targetVisibilityState: 'mixed',
+      targetUnitIds: [
+        'medium-target',
+        'same-hex-hidden-contact',
+        'same-hex-last-known-contact',
+      ],
+      visibleTargetUnitIds: ['medium-target'],
+      obscuredTargetUnitIds: [
+        'same-hex-hidden-contact',
+        'same-hex-last-known-contact',
+      ],
+      validTargetUnitIds: ['medium-target'],
+      weaponIdsAvailable: ['medium-laser', 'extreme-lrm'],
+    });
+    expect(
+      tacticalMapMixedVisibilityCombatProjection.attackInvalidReason,
+    ).toBeUndefined();
+    expect(
+      tacticalMapMixedVisibilityCombatProjection.visibilityBlockedReason,
+    ).toBeUndefined();
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapMixedVisibilityCommitInput(),
+    );
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.targetId).toBe('medium-target');
+    expect(payload.weapons).toEqual(
+      tacticalMapMixedVisibilityCombatProjection.weaponIdsAvailable,
+    );
+    expect(payload.range).toBe(
+      tacticalMapMixedVisibilityCombatProjection.rangeBracket,
+    );
+    expect(payload.toHitNumber).toBe(
+      tacticalMapMixedVisibilityCombatProjection.toHitNumber,
     );
   });
 

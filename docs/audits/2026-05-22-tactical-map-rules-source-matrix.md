@@ -146,6 +146,15 @@ visibility limits from terrain occlusion aids. Remaining browser fog gaps are
 mixed visible/obscured same-hex contacts and broader dynamic visibility
 recalculation sweeps beyond the smoke harness.
 
+2026-05-24 mixed-visibility browser update: the tactical-map browser harness
+now stacks a visible target, hidden contact, and last-known contact on the same
+displayed hex and verifies that the visible target remains attackable while the
+hidden/last-known contacts stay listed as obscured information. The rendered hex
+now exposes `data-combat-valid-target-ids` alongside visible and obscured target
+ids, so a mixed-visibility hex identifies the actual attackable commit target
+without relying only on color or aggregate `mixed` status. Remaining fog gaps
+are broader dynamic visibility recalculation sweeps beyond the smoke harness.
+
 2026-05-24 movement gap update: the movement row's older frogman/swim and
 TacOps infantry pavement-bonus gaps are closed by the current
 `tactical-map-interface` spec and fixtures. Remaining movement oracle gaps are

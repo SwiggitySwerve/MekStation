@@ -116,7 +116,7 @@ export const tacticalMapAirborneAerospaceMinimumRangeCombatState: IGameState = {
   },
 };
 
-function tacticalMapCombatGrid(): IHexGrid {
+export function tacticalMapCombatGrid(): IHexGrid {
   const grid = createHexGrid({ radius: 3 });
   const hexes = new Map(grid.hexes);
 
@@ -148,7 +148,7 @@ function tacticalMapGameUnits(
   }));
 }
 
-function tacticalMapCombatSession({
+export function tacticalMapCombatSession({
   tokens = tacticalMapTokens,
   combatState = tacticalMapCombatState,
 }: {
@@ -201,7 +201,7 @@ function weaponStatusToCommitWeapon(status: IWeaponStatus): IWeapon {
   };
 }
 
-function tacticalMapWeaponsByUnit(): Map<string, readonly IWeapon[]> {
+export function tacticalMapWeaponsByUnit(): Map<string, readonly IWeapon[]> {
   return new Map(
     Object.entries(tacticalMapUnitWeapons).map(([unitId, weapons]) => [
       unitId,
@@ -219,7 +219,7 @@ if (!tacticalMapOutOfRangeAttacker) {
   throw new Error('Missing tactical-map attacker token');
 }
 
-function requireCombatProjection(
+export function requireCombatProjection(
   projection: ICombatRangeHex | undefined,
 ): ICombatRangeHex {
   if (!projection) {
@@ -228,7 +228,7 @@ function requireCombatProjection(
   return projection;
 }
 
-function tacticalMapSelectedWeapons(
+export function tacticalMapSelectedWeapons(
   weaponIds: readonly string[],
 ): readonly IWeaponStatus[] {
   return weaponIds.map((weaponId) => {

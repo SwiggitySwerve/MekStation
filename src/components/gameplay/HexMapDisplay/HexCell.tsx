@@ -537,6 +537,7 @@ export const HexCell = React.memo(function HexCell({
         combatInfo?.weaponRangeOptions ?? [],
       )}
       data-combat-target-ids={combatInfo?.targetUnitIds.join(',')}
+      data-combat-valid-target-ids={combatInfo?.validTargetUnitIds.join(',')}
       data-combat-los-blocker-for-target-hexes={combatLosBlockerTargetHexes}
       data-combat-los-blocker-for-reasons={combatLosBlockerReasons}
       aria-label={hexLabel}
