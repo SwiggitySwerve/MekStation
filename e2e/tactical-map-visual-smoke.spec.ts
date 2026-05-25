@@ -551,6 +551,12 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(
       page.getByTestId('fog-marker-last-known-contact'),
     ).toBeVisible();
+    await expect(
+      page.getByTestId('isometric-scene-token-last-known-contact'),
+    ).toHaveAttribute('data-isometric-depth-key', '1003005');
+    await expect(
+      page.getByTestId('isometric-scene-token-last-known-contact'),
+    ).toHaveAttribute('data-isometric-foreground-boost', 'true');
 
     const eastHex = page.getByTestId('isometric-scene-hex-1-0');
     const eastDepthBefore = await eastHex.getAttribute(

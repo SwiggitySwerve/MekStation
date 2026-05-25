@@ -202,6 +202,14 @@ visibility limits from terrain occlusion aids. Remaining browser fog gaps are
 mixed visible/obscured same-hex contacts and broader dynamic visibility
 recalculation sweeps beyond the smoke harness.
 
+2026-05-25 last-known isometric projection pin: helper coverage now proves
+that last-known fog contacts use the displayed stale hex, not the hidden current
+position, for isometric depth sorting and terrain/elevation occlusion checks.
+The browser smoke also verifies the tactical-map scene depth for the rendered
+last-known marker in isometric mode, including its existing foreground display
+boost, keeping ghost visibility aligned with the map surface the player can
+actually inspect.
+
 2026-05-24 mixed-visibility browser update: the tactical-map browser harness
 now stacks a visible target, hidden contact, and last-known contact on the same
 displayed hex and verifies that the visible target remains attackable while the

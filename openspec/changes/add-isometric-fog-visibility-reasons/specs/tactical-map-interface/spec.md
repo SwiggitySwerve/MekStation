@@ -24,6 +24,13 @@ The tactical map interface SHALL distinguish isometric visibility-rule limits fr
 **AND** the existing last-known fog marker SHALL remain visible
 **AND** terrain/elevation occlusion indicators MAY still appear separately when elevated terrain also occludes the last-known marker
 
+#### Scenario: Last-known contact is projected from stale display hex
+
+**GIVEN** an enemy contact has a hidden current position and a last-known display position
+**WHEN** the map is rendered in isometric mode
+**THEN** scene depth, terrain occlusion, and hover metadata for that contact SHALL be derived from the last-known display position
+**AND** the hidden current position SHALL NOT affect the isometric sort order or occluder chosen for the displayed marker
+
 #### Scenario: Top-down fog rendering remains unchanged
 
 **GIVEN** hidden or last-known contacts are rendered in top-down mode

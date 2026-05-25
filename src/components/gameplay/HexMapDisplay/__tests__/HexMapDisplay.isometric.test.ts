@@ -216,6 +216,49 @@ describe('HexMapDisplay isometric projection helpers', () => {
     expect(clearHex?.depthKey).toBe(2000);
   });
 
+  it('projects last-known contacts from the displayed ghost hex', () => {
+    const terrainLookup = makeTerrainLookup([
+      makeTerrain(1, 0, 4, TerrainType.Building),
+    ]);
+    const tokens = [
+      makeToken({
+        unitId: 'last-known',
+        position: { q: -3, r: -3 },
+        lastKnownPosition: { q: 0, r: 0 },
+        fogStatus: 'lastKnown',
+      }),
+    ];
+
+    const occlusionInfo = deriveIsometricTerrainOcclusionInfo({
+      tokens,
+      terrainLookup,
+      rotationStep: 0,
+    });
+    const items = buildIsometricSceneItems({
+      isIsometricView: true,
+      renderedHexes: [{ q: 1, r: 0 }],
+      tokens,
+      terrainLookup,
+      rotationStep: 0,
+      foregroundUnitIds: new Set(),
+    });
+    const tokenItem = items
+      .filter(isTokenItem)
+      .find((item) => item.token.unitId === 'last-known');
+
+    expect(occlusionInfo).toHaveLength(1);
+    expect(occlusionInfo[0]).toMatchObject({
+      unitId: 'last-known',
+      occluderHex: { q: 1, r: 0 },
+      occluderElevation: 4,
+      unitElevation: 0,
+      rotationStep: 0,
+      reason: 'Elevated terrain +4 at (1, 0) may hide unit at elevation +0',
+    });
+    expect(tokenItem?.depthKey).toBe(5);
+    expect(tokenItem?.foregroundBoost).toBe(false);
+  });
+
   it('groups hidden units by the tall terrain hex that may occlude them', () => {
     const terrainLookup = makeTerrainLookup([
       makeTerrain(1, 0, 4, TerrainType.Building),
