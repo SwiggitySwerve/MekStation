@@ -48,6 +48,7 @@ const combatOnlyScenarios = new Set([
   ...Object.keys(mixedVehicle.tacticalMapMixedVehicleVolleyHarnessScenarios),
   'aerospace-velocity-projection',
   'airborne-aerospace-minimum-range',
+  'airborne-aerospace-indirect-rejected',
   'c3-range-benefit',
   'target-terrain-modifier',
   'mixed-visibility-targets',
@@ -86,6 +87,8 @@ const selectedWeaponIdsByScenario = {
   'aerospace-velocity-projection': [],
   'airborne-aerospace-minimum-range':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds,
+  'airborne-aerospace-indirect-rejected':
+    combatScenarios.tacticalMapAirborneAerospaceIndirectSelectedWeaponIds,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitSelectedWeaponIds,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierSelectedWeaponIds,
@@ -122,6 +125,8 @@ const targetUnitIdByScenario = {
   'aerospace-velocity-projection': null,
   'airborne-aerospace-minimum-range':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeTargetId,
+  'airborne-aerospace-indirect-rejected':
+    combatScenarios.tacticalMapAirborneAerospaceMinimumRangeTargetId,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitTargetId,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierTargetId,
@@ -154,6 +159,8 @@ const tokensByScenario = {
   'mounted-ba-passenger': battleArmor.tacticalMapMountedBattleArmorTokens,
   'aerospace-velocity-projection': aerospace.tacticalMapAerospaceTokens,
   'airborne-aerospace-minimum-range':
+    combatScenarios.tacticalMapAirborneAerospaceMinimumRangeTokens,
+  'airborne-aerospace-indirect-rejected':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeTokens,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitTokens,
   'target-terrain-modifier':
@@ -192,6 +199,8 @@ const combatStateByScenario = {
   'mounted-ba-passenger': battleArmor.tacticalMapMountedBattleArmorCombatState,
   'aerospace-velocity-projection': aerospace.tacticalMapAerospaceCombatState,
   'airborne-aerospace-minimum-range':
+    combatScenarios.tacticalMapAirborneAerospaceMinimumRangeCombatState,
+  'airborne-aerospace-indirect-rejected':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeCombatState,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitCombatState,
   'target-terrain-modifier':

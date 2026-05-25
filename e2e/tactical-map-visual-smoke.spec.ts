@@ -2033,6 +2033,71 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     ).toHaveAttribute('data-aerospace-altitude', '3');
   });
 
+  test('blocks indirect fire against airborne aerospace in browser', async ({
+    page,
+  }) => {
+    await page.goto(
+      '/e2e/tactical-map?scenario=airborne-aerospace-indirect-rejected',
+    );
+
+    const targetToken = page.getByTestId('unit-token-airborne-aero-target');
+    await expect(targetToken).toBeVisible();
+    await expect(targetToken).toHaveAttribute('data-unit-type', 'aerospace');
+    await expect(targetToken).toHaveAttribute('data-aerospace-altitude', '3');
+    await expect(targetToken).toHaveAttribute('data-aerospace-velocity', '5');
+
+    const targetHex = page.getByTestId('hex-0-0');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'airborne-aero-target',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-valid-target',
+      'false',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-reason',
+      'InvalidTarget',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-details',
+      'Indirect-fire weapons cannot engage airborne targets',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-blocked-reason',
+      'Indirect-fire weapons cannot engage airborne targets',
+    );
+    await expect(targetHex).toHaveAttribute('data-weapons-available', '');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-ranges',
+      'minimum-lrm:short',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-availability',
+      'minimum-lrm:blocked',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-blocked-reasons',
+      'minimum-lrm:Indirect-fire weapons cannot engage airborne targets',
+    );
+    expect(
+      await targetHex.getAttribute('data-combat-to-hit-number'),
+    ).toBeNull();
+    await expect(
+      page.getByTestId('hex-combat-invalid-badge-0-0'),
+    ).toHaveAttribute('data-invalid-badge-code', 'InvalidTarget');
+
+    await page.getByTestId('projection-toggle').click();
+
+    await expect(page.getByTestId('map-projection-layer')).toHaveAttribute(
+      'data-projection-mode',
+      'isometric2d',
+    );
+    await expect(
+      page.getByTestId('isometric-scene-token-airborne-aero-target'),
+    ).toBeVisible();
+  });
+
   test('shows C3 spotter range benefit in browser', async ({ page }) => {
     await page.goto('/e2e/tactical-map?scenario=c3-range-benefit');
 

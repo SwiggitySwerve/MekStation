@@ -13,7 +13,10 @@ import type { ILOSInterveningTerrainEffect } from '@/utils/gameplay/lineOfSight'
 import { DEFAULT_GUNNERY } from '@/constants/PilotConstants';
 import { MovementType, RangeBracket } from '@/types/gameplay';
 
-import { calculateGroundToAirAltitudeModifier } from './aerospace/groundToAir';
+import {
+  calculateGroundToAirAltitudeModifier,
+  isGroundToAirAerospaceAttack,
+} from './aerospace/groundToAir';
 import { isRepresentedTargetImmobile } from './combatImmobility';
 import { minimumRangeForWeapons } from './combatProjection.targeting';
 import {
@@ -329,6 +332,10 @@ export function deriveIndirectFireProjection({
 
   const attackerUnit = combatState.units[attacker.unitId];
   if (!attackerUnit) return undefined;
+  const targetUnit = targetUnitId ? combatState.units[targetUnitId] : undefined;
+  if (targetUnit && isGroundToAirAerospaceAttack(attackerUnit, targetUnit)) {
+    return undefined;
+  }
 
   const indirectWeaponId = weaponIdsAvailable.find(isIndirectFireCapable);
   if (!indirectWeaponId) return undefined;

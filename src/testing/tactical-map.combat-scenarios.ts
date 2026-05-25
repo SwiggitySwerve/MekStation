@@ -51,6 +51,9 @@ export const tacticalMapAirborneAerospaceMinimumRangeTargetHex = {
 export const tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds = [
   'minimum-lrm',
 ];
+export const tacticalMapAirborneAerospaceIndirectSelectedWeaponIds = [
+  'minimum-lrm',
+];
 const tacticalMapAirborneAerospaceTargetState: IUnitGameState = {
   id: tacticalMapAirborneAerospaceMinimumRangeTargetId,
   side: GameSide.Opponent,
@@ -329,6 +332,42 @@ export const tacticalMapAirborneAerospaceMinimumRangeCombatProjection =
     ),
   );
 
+const tacticalMapAirborneAerospaceIndirectWeapons = tacticalMapSelectedWeapons(
+  tacticalMapAirborneAerospaceIndirectSelectedWeaponIds,
+).map((weapon) => ({ ...weapon, mode: 'Indirect' as const }));
+
+export const tacticalMapAirborneAerospaceIndirectUnitWeapons: typeof tacticalMapUnitWeapons =
+  {
+    ...tacticalMapUnitWeapons,
+    attacker: tacticalMapUnitWeapons.attacker.map((weapon) =>
+      tacticalMapAirborneAerospaceIndirectSelectedWeaponIds.includes(weapon.id)
+        ? { ...weapon, mode: 'Indirect' as const }
+        : weapon,
+    ),
+  };
+
+export const tacticalMapAirborneAerospaceIndirectCombatProjection =
+  requireCombatProjection(
+    deriveCombatRangeHexes({
+      attacker: tacticalMapOutOfRangeAttacker,
+      targetUnitId: tacticalMapAirborneAerospaceMinimumRangeTargetId,
+      hexes: Array.from(
+        tacticalMapOutOfRangeGrid.hexes.values(),
+        (hex) => hex.coord,
+      ),
+      grid: tacticalMapOutOfRangeGrid,
+      tokens: tacticalMapAirborneAerospaceMinimumRangeTokens,
+      weapons: tacticalMapAirborneAerospaceIndirectWeapons,
+      combatState: tacticalMapAirborneAerospaceMinimumRangeCombatState,
+    }).find(
+      (projection) =>
+        projection.hex.q ===
+          tacticalMapAirborneAerospaceMinimumRangeTargetHex.q &&
+        projection.hex.r ===
+          tacticalMapAirborneAerospaceMinimumRangeTargetHex.r,
+    ),
+  );
+
 export const tacticalMapBlockedLosCombatProjection = requireCombatProjection(
   deriveCombatRangeHexes({
     attacker: tacticalMapOutOfRangeAttacker,
@@ -380,6 +419,21 @@ export function tacticalMapAirborneAerospaceMinimumRangeCommitInput(): IApplyAtt
     attackerId: 'attacker',
     targetId: tacticalMapAirborneAerospaceMinimumRangeTargetId,
     weaponIds: tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds,
+    grid: tacticalMapOutOfRangeGrid,
+  };
+}
+
+export function tacticalMapAirborneAerospaceIndirectCommitInput(): IApplyAttackInput {
+  return {
+    session: tacticalMapCombatSession({
+      tokens: tacticalMapAirborneAerospaceMinimumRangeTokens,
+      combatState: tacticalMapAirborneAerospaceMinimumRangeCombatState,
+    }),
+    weaponsByUnit: tacticalMapWeaponsByUnit(),
+    attackerId: 'attacker',
+    targetId: tacticalMapAirborneAerospaceMinimumRangeTargetId,
+    weaponIds: tacticalMapAirborneAerospaceIndirectSelectedWeaponIds,
+    weaponModesByWeaponId: { 'minimum-lrm': 'Indirect' },
     grid: tacticalMapOutOfRangeGrid,
   };
 }

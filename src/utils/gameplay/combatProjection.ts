@@ -14,6 +14,10 @@ import { RangeBracket } from '@/types/gameplay';
 import { classifyFiringArc } from '@/utils/overlays/arcClassifier';
 import { classifyLOS } from '@/utils/overlays/losClassifier';
 
+import {
+  INDIRECT_FIRE_AIRBORNE_TARGET_REJECTION,
+  groundToAirIndirectWeaponBlockedReason,
+} from './aerospace/groundToAir';
 import { expectedDamageForProjection } from './combatProjection.expectedDamage';
 import { withPerWeaponToHitProjections } from './combatProjection.perWeaponToHit';
 import {
@@ -150,42 +154,7 @@ export function deriveCombatRangeHexes({
         weaponCanCoverTargetArc(weapon, targetArc) &&
         weaponBracketAtDistance(weapon, distance) !== RangeBracket.OutOfRange,
     );
-    const waterAttackInvalidState =
-      targetContacts.length > 0
-        ? representedWaterAttackInvalidState({
-            grid,
-            attackerPosition: attacker.position,
-            targetPosition: hex,
-            weapons: rangeAndArcWeapons,
-          })
-        : undefined;
-    const availableWeapons = rangeAndArcWeapons.filter((weapon) =>
-      weaponPassesRepresentedWaterAttackRules({
-        grid,
-        attackerPosition: attacker.position,
-        targetPosition: hex,
-        weapon,
-      }),
-    );
-    const weaponIdsAvailable = availableWeapons.map((weapon) => weapon.id);
-    const availableWeaponImpacts = availableWeapons.map(weaponImpactForStatus);
-    const availableWeaponHeat = availableWeaponImpacts.reduce(
-      (sum, impact) => sum + impact.heat,
-      0,
-    );
-    const availableWeaponDamage = availableWeaponImpacts.reduce(
-      (sum, impact) => sum + impact.damage,
-      0,
-    );
     const inArc = weaponIdsInArc.length > 0;
-    const usableRangeBracket =
-      availableWeapons.length > 0
-        ? bestRangeBracket(
-            availableWeapons.map((weapon) =>
-              weaponBracketAtDistance(weapon, distance),
-            ),
-          )
-        : rangeBracket;
     const los = classifyLOS(attacker.position, hex, grid);
     const lineOfSightBlocker = lineOfSightBlockerForLOS(los);
     const lineOfSightBlockerReason =
@@ -220,6 +189,62 @@ export function deriveCombatRangeHexes({
     const visibleTargetToken = projectedTargetUnitId
       ? tokens.find((token) => token.unitId === projectedTargetUnitId)
       : undefined;
+    const attackerUnit = combatState?.units[attacker.unitId];
+    const projectedTargetUnit = projectedTargetUnitId
+      ? combatState?.units[projectedTargetUnitId]
+      : undefined;
+    const groundToAirIndirectBlockedReasonForWeapon = (weapon: IWeaponStatus) =>
+      attackerUnit && projectedTargetUnit
+        ? groundToAirIndirectWeaponBlockedReason(
+            attackerUnit,
+            projectedTargetUnit,
+            weapon,
+          )
+        : undefined;
+    const groundToAirIndirectInvalidState = rangeAndArcWeapons.some(
+      groundToAirIndirectBlockedReasonForWeapon,
+    )
+      ? {
+          reason: 'InvalidTarget' as const,
+          details: INDIRECT_FIRE_AIRBORNE_TARGET_REJECTION,
+        }
+      : undefined;
+    const waterAttackInvalidState =
+      targetContacts.length > 0
+        ? representedWaterAttackInvalidState({
+            grid,
+            attackerPosition: attacker.position,
+            targetPosition: hex,
+            weapons: rangeAndArcWeapons,
+          })
+        : undefined;
+    const availableWeapons = rangeAndArcWeapons.filter(
+      (weapon) =>
+        weaponPassesRepresentedWaterAttackRules({
+          grid,
+          attackerPosition: attacker.position,
+          targetPosition: hex,
+          weapon,
+        }) && !groundToAirIndirectBlockedReasonForWeapon(weapon),
+    );
+    const weaponIdsAvailable = availableWeapons.map((weapon) => weapon.id);
+    const availableWeaponImpacts = availableWeapons.map(weaponImpactForStatus);
+    const availableWeaponHeat = availableWeaponImpacts.reduce(
+      (sum, impact) => sum + impact.heat,
+      0,
+    );
+    const availableWeaponDamage = availableWeaponImpacts.reduce(
+      (sum, impact) => sum + impact.damage,
+      0,
+    );
+    const usableRangeBracket =
+      availableWeapons.length > 0
+        ? bestRangeBracket(
+            availableWeapons.map((weapon) =>
+              weaponBracketAtDistance(weapon, distance),
+            ),
+          )
+        : rangeBracket;
     const targetCover = getTargetCoverInfo(grid, attacker.position, hex, {
       horizontalCoverEligible: visibleTargetToken
         ? tokenUsesMekHorizontalCover(visibleTargetToken)
@@ -264,6 +289,7 @@ export function deriveCombatRangeHexes({
       attackerPosition: attacker.position,
       targetPosition: hex,
       minimumRangeApplies,
+      weaponRuleBlockedReason: groundToAirIndirectBlockedReasonForWeapon,
     });
     const targetVisibilityState = shouldProjectSelectedTarget
       ? selectedTargetContact.visibility
@@ -294,7 +320,8 @@ export function deriveCombatRangeHexes({
       operationalWeaponCount: operationalWeapons.length,
       weaponReadinessInvalidState,
       visibilityBlockedReason,
-      weaponEnvironmentInvalidState: waterAttackInvalidState,
+      weaponEnvironmentInvalidState:
+        waterAttackInvalidState ?? groundToAirIndirectInvalidState,
       indirectFirePermitted: indirectFire?.available === true,
     });
     const attackable =

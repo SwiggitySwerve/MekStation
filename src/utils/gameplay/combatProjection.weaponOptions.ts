@@ -44,6 +44,7 @@ export function deriveCombatWeaponRangeOptions({
   attackerPosition,
   targetPosition,
   minimumRangeApplies,
+  weaponRuleBlockedReason,
 }: {
   readonly weapons: readonly IWeaponStatus[];
   readonly distance: number;
@@ -52,6 +53,9 @@ export function deriveCombatWeaponRangeOptions({
   readonly attackerPosition: IHexCoordinate;
   readonly targetPosition: IHexCoordinate;
   readonly minimumRangeApplies: boolean;
+  readonly weaponRuleBlockedReason?: (
+    weapon: IWeaponStatus,
+  ) => string | undefined;
 }): readonly ICombatWeaponRangeOption[] {
   return weapons.map((weapon) =>
     weaponRangeOptionForStatus({
@@ -62,6 +66,7 @@ export function deriveCombatWeaponRangeOptions({
       attackerPosition,
       targetPosition,
       minimumRangeApplies,
+      weaponRuleBlockedReason,
     }),
   );
 }
@@ -74,6 +79,7 @@ function weaponRangeOptionForStatus({
   attackerPosition,
   targetPosition,
   minimumRangeApplies,
+  weaponRuleBlockedReason,
 }: {
   readonly weapon: IWeaponStatus;
   readonly distance: number;
@@ -82,6 +88,9 @@ function weaponRangeOptionForStatus({
   readonly attackerPosition: IHexCoordinate;
   readonly targetPosition: IHexCoordinate;
   readonly minimumRangeApplies: boolean;
+  readonly weaponRuleBlockedReason?: (
+    weapon: IWeaponStatus,
+  ) => string | undefined;
 }): ICombatWeaponRangeOption {
   const rangeBracket = weaponBracketAtDistance(weapon, distance);
   const inRange = rangeBracket !== RangeBracket.OutOfRange;
@@ -96,6 +105,10 @@ function weaponRangeOptionForStatus({
         })
       : undefined;
   const environmentLegal = environmentInvalidState === undefined;
+  const ruleBlockedReason =
+    inRange && inArc && environmentLegal
+      ? weaponRuleBlockedReason?.(weapon)
+      : undefined;
   const minimumRangePenalty = minimumRangePenaltyForWeapon(
     weapon,
     distance,
@@ -108,13 +121,14 @@ function weaponRangeOptionForStatus({
     inRange,
     inArc,
     environmentLegal,
-    available: inRange && inArc && environmentLegal,
+    available: inRange && inArc && environmentLegal && !ruleBlockedReason,
     minimumRangePenalty:
       minimumRangePenalty > 0 ? minimumRangePenalty : undefined,
     blockedReason: weaponOptionBlockedReason({
       inRange,
       inArc,
       environmentInvalidDetails: environmentInvalidState?.details,
+      ruleBlockedReason,
       targetArc,
     }),
   };
@@ -124,11 +138,13 @@ function weaponOptionBlockedReason({
   inRange,
   inArc,
   environmentInvalidDetails,
+  ruleBlockedReason,
   targetArc,
 }: {
   readonly inRange: boolean;
   readonly inArc: boolean;
   readonly environmentInvalidDetails?: string;
+  readonly ruleBlockedReason?: string;
   readonly targetArc: ReturnType<typeof determineArc>['arc'] | null;
 }): string | undefined {
   if (!inRange) return 'out of range';
@@ -136,5 +152,5 @@ function weaponOptionBlockedReason({
     return targetArc
       ? `out of ${firingArcProjectionLabel(targetArc)} arc`
       : 'no firing arc';
-  return environmentInvalidDetails;
+  return environmentInvalidDetails ?? ruleBlockedReason;
 }

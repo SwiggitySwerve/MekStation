@@ -6,6 +6,7 @@ import {
   type IAttackResolvedPayload,
   type IIndirectFireNarcOverridePayload,
 } from '@/types/gameplay';
+import { INDIRECT_FIRE_AIRBORNE_TARGET_REJECTION } from '@/utils/gameplay/aerospace/groundToAir';
 import { resolveAttack } from '@/utils/gameplay/gameSession';
 
 import {
@@ -25,6 +26,8 @@ import {
   tacticalMapC3RangeBenefitCommitInput,
 } from '../tactical-map.c3-scenario';
 import {
+  tacticalMapAirborneAerospaceIndirectCombatProjection,
+  tacticalMapAirborneAerospaceIndirectCommitInput,
   tacticalMapAirborneAerospaceMinimumRangeCombatProjection,
   tacticalMapAirborneAerospaceMinimumRangeCommitInput,
   tacticalMapBlockedLosCombatProjection,
@@ -1488,6 +1491,60 @@ describe('tactical map combat scenarios', () => {
     expect(payload.toHitNumber).toBe(
       tacticalMapAirborneAerospaceMinimumRangeCombatProjection.toHitNumber,
     );
+  });
+
+  it('rejects indirect fire against airborne aerospace targets', () => {
+    expect(tacticalMapAirborneAerospaceIndirectCombatProjection).toMatchObject({
+      hex: { q: 0, r: 0 },
+      distance: 1,
+      rangeBracket: 'short',
+      attackable: false,
+      weaponIdsAvailable: [],
+      attackInvalidReason: 'InvalidTarget',
+      attackInvalidDetails: INDIRECT_FIRE_AIRBORNE_TARGET_REJECTION,
+      blockedReason: INDIRECT_FIRE_AIRBORNE_TARGET_REJECTION,
+      weaponRangeOptions: [
+        expect.objectContaining({
+          weaponId: 'minimum-lrm',
+          rangeBracket: 'short',
+          inRange: true,
+          inArc: true,
+          environmentLegal: true,
+          available: false,
+          blockedReason: INDIRECT_FIRE_AIRBORNE_TARGET_REJECTION,
+        }),
+      ],
+    });
+    expect(
+      tacticalMapAirborneAerospaceIndirectCombatProjection.toHitNumber,
+    ).toBeUndefined();
+    expect(
+      tacticalMapAirborneAerospaceIndirectCombatProjection.indirectFireAvailable,
+    ).toBeUndefined();
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapAirborneAerospaceIndirectCommitInput(),
+    );
+
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'airborne-aero-target',
+      weaponId: 'minimum-lrm',
+      reason: 'InvalidTarget',
+      details: INDIRECT_FIRE_AIRBORNE_TARGET_REJECTION,
+    });
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackLocked),
+    ).toBe(false);
   });
 
   it('keeps mixed same-hex visibility attackable through the visible target', () => {

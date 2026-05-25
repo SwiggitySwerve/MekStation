@@ -41,6 +41,10 @@ import {
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
 import {
+  INDIRECT_FIRE_AIRBORNE_TARGET_REJECTION,
+  groundToAirIndirectWeaponBlockedReason,
+} from '@/utils/gameplay/aerospace/groundToAir';
+import {
   determineArc,
   firingArcProjectionLabel,
 } from '@/utils/gameplay/firingArcs';
@@ -499,15 +503,21 @@ export function applyInteractiveSessionAttack(
           weapons: rangeAndArcWeaponAttacks,
         })
       : undefined;
-  const usableWeaponAttacks = rangeAndArcWeaponAttacks.filter((weapon) =>
-    input.grid && resolvedTargetHex
-      ? weaponPassesRepresentedWaterAttackRules({
-          grid: input.grid,
-          attackerPosition: attackerUnit.position,
-          targetPosition: resolvedTargetHex,
-          weapon,
-        })
-      : true,
+  const groundToAirIndirectInvalidWeapon = rangeAndArcWeaponAttacks.find(
+    (weapon) =>
+      groundToAirIndirectWeaponBlockedReason(attackerUnit, targetUnit, weapon),
+  );
+  const usableWeaponAttacks = rangeAndArcWeaponAttacks.filter(
+    (weapon) =>
+      (input.grid && resolvedTargetHex
+        ? weaponPassesRepresentedWaterAttackRules({
+            grid: input.grid,
+            attackerPosition: attackerUnit.position,
+            targetPosition: resolvedTargetHex,
+            weapon,
+          })
+        : true) &&
+      !groundToAirIndirectWeaponBlockedReason(attackerUnit, targetUnit, weapon),
   );
   // Wave 8 PR-K5: pre-compute indirect-fire resolution when grid available.
   let indirectFireResolution: IIndirectFireResolution | undefined;
@@ -551,6 +561,16 @@ export function applyInteractiveSessionAttack(
         waterAttackInvalidState.reason,
         waterAttackInvalidState.details,
         input.weaponIds[0],
+      );
+    }
+    if (groundToAirIndirectInvalidWeapon) {
+      return appendInteractiveAttackInvalid(
+        input.session,
+        input.attackerId,
+        input.targetId,
+        'InvalidTarget',
+        INDIRECT_FIRE_AIRBORNE_TARGET_REJECTION,
+        groundToAirIndirectInvalidWeapon.weaponId,
       );
     }
     return appendInteractiveAttackInvalid(

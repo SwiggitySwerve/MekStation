@@ -995,6 +995,18 @@ fixture proves the map exposes Medium Laser TN6 / expected 3.6 damage and
 Extreme LRM TN10 / expected 0.85 damage, while the aggregate expected damage is
 4.45 instead of incorrectly applying TN6 to the whole 10 listed-damage volley.
 
+2026-05-25 ground-to-air indirect rejection pin: the aerospace deployment
+OpenSpec deliberately models airborne aerospace targets as direct-fire-only for
+ground attackers. MegaMek's ground-to-air impossibility gates are concentrated
+in `ComputeToHitIsImpossible.java:1588-1630`, with indirect-fire legality
+handled later in the same resolver family, so this slice treats the OpenSpec
+decision as the source-of-truth simplification until the full
+`aerospaceCombat.ts` dispatcher lands. The shared MekStation helper now blocks
+LRM Indirect mode against airborne aerospace targets, the tactical-map
+projection marks the target as `InvalidTarget`, and
+`applyInteractiveSessionAttack` emits the matching `AttackInvalid` rejection
+instead of allowing a map-only false-positive shot.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

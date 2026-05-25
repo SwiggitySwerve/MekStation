@@ -1,8 +1,16 @@
-import type { IToHitModifierDetail, IUnitGameState } from '@/types/gameplay';
+import type {
+  IToHitModifierDetail,
+  IUnitGameState,
+  WeaponFireMode,
+} from '@/types/gameplay';
 
 import { isAirborneGameUnit } from '../groundToGround';
+import { isIndirectFireCapable } from '../indirectFire';
 
 export type AerospaceAltitudeTier = 'low' | 'medium' | 'high';
+
+export const INDIRECT_FIRE_AIRBORNE_TARGET_REJECTION =
+  'Indirect-fire weapons cannot engage airborne targets';
 
 const GROUND_TO_AIR_ALTITUDE_MODIFIERS: Readonly<
   Record<AerospaceAltitudeTier, number>
@@ -27,13 +35,18 @@ export function getAerospaceAltitudeTier(
   return 'high';
 }
 
+export function isGroundToAirAerospaceAttack(
+  attacker: Pick<IUnitGameState, 'combatState'>,
+  target: Pick<IUnitGameState, 'combatState'>,
+): boolean {
+  return !isAirborneGameUnit(attacker) && isAirborneGameUnit(target);
+}
+
 export function calculateGroundToAirAltitudeModifier(
   attacker: Pick<IUnitGameState, 'combatState'>,
   target: Pick<IUnitGameState, 'combatState'>,
 ): IToHitModifierDetail | null {
-  if (isAirborneGameUnit(attacker) || !isAirborneGameUnit(target)) {
-    return null;
-  }
+  if (!isGroundToAirAerospaceAttack(attacker, target)) return null;
   if (target.combatState?.kind !== 'aero') return null;
 
   const altitude = target.combatState.state.altitude;
@@ -47,4 +60,26 @@ export function calculateGroundToAirAltitudeModifier(
     source: 'other',
     description: `Airborne aerospace target at altitude ${altitude} (${tier} tier): +${value}`,
   };
+}
+
+export function groundToAirIndirectWeaponBlockedReason(
+  attacker: Pick<IUnitGameState, 'combatState'>,
+  target: Pick<IUnitGameState, 'combatState'>,
+  weapon: {
+    readonly id?: string;
+    readonly weaponId?: string;
+    readonly mode?: WeaponFireMode;
+  },
+): string | undefined {
+  const weaponId = weapon.id ?? weapon.weaponId;
+  if (
+    !weaponId ||
+    weapon.mode !== 'Indirect' ||
+    !isIndirectFireCapable(weaponId) ||
+    !isGroundToAirAerospaceAttack(attacker, target)
+  ) {
+    return undefined;
+  }
+
+  return INDIRECT_FIRE_AIRBORNE_TARGET_REJECTION;
 }

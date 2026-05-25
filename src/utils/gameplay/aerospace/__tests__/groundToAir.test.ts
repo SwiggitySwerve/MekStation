@@ -1,6 +1,8 @@
 import {
+  INDIRECT_FIRE_AIRBORNE_TARGET_REJECTION,
   calculateGroundToAirAltitudeModifier,
   getAerospaceAltitudeTier,
+  groundToAirIndirectWeaponBlockedReason,
 } from '../groundToAir';
 import { createAerospaceCombatState } from '../state';
 
@@ -57,5 +59,35 @@ describe('ground-to-air aerospace altitude modifier', () => {
     expect(
       calculateGroundToAirAltitudeModifier(aeroUnit(4), aeroUnit(7)),
     ).toBeNull();
+  });
+
+  it('blocks indirect-fire-capable weapons in indirect mode against airborne aerospace targets', () => {
+    expect(
+      groundToAirIndirectWeaponBlockedReason(groundUnit(), aeroUnit(3), {
+        id: 'minimum-lrm',
+        mode: 'Indirect',
+      }),
+    ).toBe(INDIRECT_FIRE_AIRBORNE_TARGET_REJECTION);
+  });
+
+  it('does not block direct shots, airborne attackers, or grounded targets', () => {
+    expect(
+      groundToAirIndirectWeaponBlockedReason(groundUnit(), aeroUnit(3), {
+        id: 'minimum-lrm',
+        mode: 'Direct',
+      }),
+    ).toBeUndefined();
+    expect(
+      groundToAirIndirectWeaponBlockedReason(aeroUnit(4), aeroUnit(3), {
+        id: 'minimum-lrm',
+        mode: 'Indirect',
+      }),
+    ).toBeUndefined();
+    expect(
+      groundToAirIndirectWeaponBlockedReason(groundUnit(), aeroUnit(0), {
+        id: 'minimum-lrm',
+        mode: 'Indirect',
+      }),
+    ).toBeUndefined();
   });
 });
