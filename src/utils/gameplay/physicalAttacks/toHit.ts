@@ -1,4 +1,5 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
+import { getBattleFistPunchToHitModifier } from '@/utils/gameplay/quirkModifiers';
 import {
   calculateFrogmanPhysicalToHitModifier,
   calculateMeleeSpecialistModifier,
@@ -186,6 +187,33 @@ function selectedPunchArmHasClaw(input: IPhysicalAttackInput): boolean {
   return input.rightArmHasClaw === true || input.leftArmHasClaw === true;
 }
 
+function selectedPunchArm(input: IPhysicalAttackInput): 'left' | 'right' {
+  if (input.arm === 'left' || input.limb === 'leftArm') return 'left';
+  return 'right';
+}
+
+function appendBattleFistModifier(
+  modifiers: IPhysicalModifier[],
+  input: IPhysicalAttackInput,
+): void {
+  const actuators = input.componentDamage.actuators;
+  if (input.handActuatorPresent === false || actuators[ActuatorType.HAND]) {
+    return;
+  }
+
+  const modifier = getBattleFistPunchToHitModifier(
+    input.unitQuirks ?? [],
+    selectedPunchArm(input),
+  );
+  if (modifier === 0) return;
+
+  modifiers.push({
+    name: 'Battle Fists',
+    value: modifier,
+    source: 'quirk',
+  });
+}
+
 export function calculatePunchToHit(
   input: IPhysicalAttackInput,
 ): IPhysicalToHitResult {
@@ -244,6 +272,7 @@ export function calculatePunchToHit(
   appendTMM(modifiers, input.targetMovementModifier);
   appendTargetEvasion(modifiers, input);
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
+  appendBattleFistModifier(modifiers, input);
   appendFrogmanPhysicalModifier(modifiers, input);
 
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);

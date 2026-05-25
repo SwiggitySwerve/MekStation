@@ -186,7 +186,7 @@ export const QUIRK_CATALOG: Record<string, IQuirkCatalogEntry> = {
     name: 'Battle Fists (LA)',
     category: 'physical',
     pipelines: ['physical'],
-    combatEffect: '+1 left arm punch damage',
+    combatEffect: '-1 left arm punch to-hit',
     isPositive: true,
   },
   [UNIT_QUIRK_IDS.BATTLE_FISTS_RA]: {
@@ -194,7 +194,7 @@ export const QUIRK_CATALOG: Record<string, IQuirkCatalogEntry> = {
     name: 'Battle Fists (RA)',
     category: 'physical',
     pipelines: ['physical'],
-    combatEffect: '+1 right arm punch damage',
+    combatEffect: '-1 right arm punch to-hit',
     isPositive: true,
   },
   [UNIT_QUIRK_IDS.NO_ARMS]: {

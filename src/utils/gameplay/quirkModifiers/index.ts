@@ -24,7 +24,7 @@ export {
   parseWeaponQuirksFromBLK,
 } from './weaponQuirks';
 export {
-  getBattleFistDamageBonus,
+  getBattleFistPunchToHitModifier,
   hasNoArms,
   isLowArmsRestricted,
   calculateInitiativeQuirkModifier,

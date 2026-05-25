@@ -485,7 +485,7 @@ describe('physicalAttacks', () => {
       expect(damage).toBe(2);
     });
 
-    it('applies Melee Specialist and matching Battle Fists to punch damage', () => {
+    it('applies Melee Specialist but not Battle Fists to punch damage', () => {
       const damage = calculatePunchDamage(
         makeInput({
           attackerTonnage: 80,
@@ -495,7 +495,7 @@ describe('physicalAttacks', () => {
         }),
       );
 
-      expect(damage).toBe(10);
+      expect(damage).toBe(9);
     });
 
     it('does not apply Melee Master as a flat punch damage bonus', () => {
@@ -2931,6 +2931,47 @@ describe('physicalAttacks', () => {
           source: 'spa',
         }),
       );
+    });
+
+    it('applies matching Battle Fists as a punch to-hit modifier', () => {
+      const result = calculatePunchToHit(
+        makeInput({
+          pilotingSkill: 5,
+          arm: 'right',
+          unitQuirks: ['battle_fists_ra'],
+        }),
+      );
+
+      expect(result.finalToHit).toBe(4);
+      expect(result.modifiers).toContainEqual(
+        expect.objectContaining({
+          name: 'Battle Fists',
+          value: -1,
+          source: 'quirk',
+        }),
+      );
+    });
+
+    it('does not apply Battle Fists without a working matching hand actuator', () => {
+      expect(
+        calculatePunchToHit(
+          makeInput({
+            pilotingSkill: 5,
+            arm: 'right',
+            unitQuirks: ['battle_fists_ra'],
+            handActuatorPresent: false,
+          }),
+        ).finalToHit,
+      ).toBe(5);
+      expect(
+        calculatePunchToHit(
+          makeInput({
+            pilotingSkill: 5,
+            arm: 'right',
+            unitQuirks: ['battle_fists_la'],
+          }),
+        ).finalToHit,
+      ).toBe(5);
     });
 
     it('should add +2 for upper arm destroyed', () => {

@@ -113,12 +113,12 @@ export const MEGAMEK_BATTLE_FISTS_SOURCE_REFS = [
     'megamek/src/megamek/common/options/OptionsConstants.java#L48-L50',
   ),
   mekstationDeviationRef(
-    'MekStation getBattleFistDamageBonus currently maps Battle Fists to +1 matching-arm punch damage.',
+    'MekStation getBattleFistPunchToHitModifier maps Battle Fists to -1 matching-arm punch to-hit.',
     'src/utils/gameplay/quirkModifiers/defensiveQuirks.ts#L13-L23',
   ),
   mekstationDeviationRef(
-    'MekStation physical damage helpers consume Battle Fists as a flat punch damage bonus.',
-    'src/utils/gameplay/physicalAttacks/damage.ts#L92-L92',
+    'MekStation physical to-hit helpers consume Battle Fists when the matching arm has a working hand actuator.',
+    'src/utils/gameplay/physicalAttacks/toHit.ts#L194-L218',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

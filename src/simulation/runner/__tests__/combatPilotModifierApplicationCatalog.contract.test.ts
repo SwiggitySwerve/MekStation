@@ -197,8 +197,12 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       gap: expect.stringContaining('Kick/Push PSRs'),
     });
     expect(QUIRK_COMBAT_SUPPORT.battle_fists_la).toMatchObject({
-      level: 'helper-only',
-      gap: expect.stringContaining('punch to-hit'),
+      level: 'integrated',
+      evidence: expect.stringContaining('punch to-hit'),
+    });
+    expect(QUIRK_COMBAT_SUPPORT.battle_fists_ra).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('punch to-hit'),
     });
     expect(QUIRK_COMBAT_SUPPORT.low_arms).toMatchObject({
       level: 'helper-only',
@@ -221,6 +225,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'ranged-to-hit-state-hydration',
         'cluster-hitter-application',
         'indirect-fire-spa-application',
+        'physical-damage-application',
         'physical-to-hit-application',
         'weapon-to-hit-quirk-application',
       ].sort(),
@@ -246,7 +251,6 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'legacy-defensive-quirk-to-hit-application',
         'legacy-pain-resistance-to-hit-application',
         'heat-application',
-        'physical-damage-application',
         'physical-restriction-application',
         'psr-application',
         'psr-spa-application',
@@ -528,6 +532,10 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['physical-to-hit-application'].spaIds,
     ).toEqual(expect.arrayContaining(['melee-specialist', 'tm_frogman']));
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['physical-to-hit-application']
+        .quirkIds,
+    ).toEqual(expect.arrayContaining(['battle_fists_la', 'battle_fists_ra']));
   });
 
   it('pins PSR SPA application to MegaMek skidding, quad, Terrain Master PSR, and visible gap semantics', () => {

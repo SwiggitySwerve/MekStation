@@ -194,17 +194,16 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'physical-to-hit-application': integrated(
     'physical-to-hit-application',
-    'resolvePhysicalAttack, runPhysicalAttackPhase, and interactive declaration contexts pass pilot ability state plus attacker water depth into physical to-hit helpers so Melee Specialist and Terrain Master: Frogman modify TNs',
-    MEGAMEK_MELEE_SPECIALIST_SOURCE_REFS,
-  ),
-  'physical-damage-application': helperOnly(
-    'physical-damage-application',
-    'calculatePhysicalDamage and runPhysicalAttackPhase consume pilot abilities for source-backed Melee Specialist physical damage and unit quirks for legacy Battle Fists physical damage',
-    'MegaMek Battle Fists modify punch to-hit rather than damage, so this mixed resolver stays helper-only until Battle Fists damage is removed or split from source-backed Melee Specialist damage',
+    'resolvePhysicalAttack, runPhysicalAttackPhase, and interactive declaration contexts pass pilot ability, unit quirk, and attacker water depth into physical to-hit helpers so Melee Specialist, Battle Fists, and Terrain Master: Frogman modify TNs',
     [
       ...MEGAMEK_MELEE_SPECIALIST_SOURCE_REFS,
       ...MEGAMEK_BATTLE_FISTS_SOURCE_REFS,
     ],
+  ),
+  'physical-damage-application': integrated(
+    'physical-damage-application',
+    'calculatePhysicalDamage and runPhysicalAttackPhase consume pilot abilities for source-backed Melee Specialist physical damage without applying Battle Fists as legacy flat damage',
+    MEGAMEK_MELEE_SPECIALIST_SOURCE_REFS,
   ),
   'physical-action-count-application': unsupported(
     'physical-action-count-application',
@@ -364,11 +363,11 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
   },
   'physical-to-hit-application': {
     spaIds: ['melee-specialist', 'tm_frogman'],
-    quirkIds: [],
+    quirkIds: ['battle_fists_la', 'battle_fists_ra'],
   },
   'physical-damage-application': {
     spaIds: ['melee-specialist'],
-    quirkIds: ['battle_fists_la', 'battle_fists_ra'],
+    quirkIds: [],
   },
   'physical-action-count-application': {
     spaIds: ['melee-master'],

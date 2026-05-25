@@ -6,7 +6,6 @@ import {
   roll2d6,
   type D6Roller,
 } from '@/utils/gameplay/hitLocation';
-import { getBattleFistDamageBonus } from '@/utils/gameplay/quirkModifiers';
 import { getMeleeSpecialistDamageBonus } from '@/utils/gameplay/spaModifiers';
 
 import {
@@ -87,10 +86,7 @@ function physicalDamageBonus(input: IPhysicalAttackInput): number {
 }
 
 function punchDamageBonus(input: IPhysicalAttackInput): number {
-  return (
-    physicalDamageBonus(input) +
-    getBattleFistDamageBonus(input.unitQuirks ?? [], input.arm ?? 'right')
-  );
+  return physicalDamageBonus(input);
 }
 
 function footActuatorWorksForLeg(

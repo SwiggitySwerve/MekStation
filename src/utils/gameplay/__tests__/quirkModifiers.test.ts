@@ -9,7 +9,7 @@ import {
   hasLowProfile,
   calculateLowProfileModifier,
   calculatePilotingQuirkPSRModifier,
-  getBattleFistDamageBonus,
+  getBattleFistPunchToHitModifier,
   hasNoArms,
   isLowArmsRestricted,
   calculateInitiativeQuirkModifier,
@@ -231,31 +231,37 @@ describe('Piloting Quirks', () => {
 // =============================================================================
 
 describe('Physical Quirks', () => {
-  it('Battle Fists LA: +1 left punch damage', () => {
+  it('Battle Fists LA: -1 left punch to-hit', () => {
     expect(
-      getBattleFistDamageBonus([UNIT_QUIRK_IDS.BATTLE_FISTS_LA], 'left'),
-    ).toBe(1);
+      getBattleFistPunchToHitModifier([UNIT_QUIRK_IDS.BATTLE_FISTS_LA], 'left'),
+    ).toBe(-1);
   });
 
-  it('Battle Fists RA: +1 right punch damage', () => {
+  it('Battle Fists RA: -1 right punch to-hit', () => {
     expect(
-      getBattleFistDamageBonus([UNIT_QUIRK_IDS.BATTLE_FISTS_RA], 'right'),
-    ).toBe(1);
+      getBattleFistPunchToHitModifier(
+        [UNIT_QUIRK_IDS.BATTLE_FISTS_RA],
+        'right',
+      ),
+    ).toBe(-1);
   });
 
   it('Battle Fists LA: no bonus for right arm', () => {
     expect(
-      getBattleFistDamageBonus([UNIT_QUIRK_IDS.BATTLE_FISTS_LA], 'right'),
+      getBattleFistPunchToHitModifier(
+        [UNIT_QUIRK_IDS.BATTLE_FISTS_LA],
+        'right',
+      ),
     ).toBe(0);
   });
 
-  it('Battle Fists both: +1 each arm', () => {
+  it('Battle Fists both: -1 each matching arm', () => {
     const quirks = [
       UNIT_QUIRK_IDS.BATTLE_FISTS_LA,
       UNIT_QUIRK_IDS.BATTLE_FISTS_RA,
     ];
-    expect(getBattleFistDamageBonus(quirks, 'left')).toBe(1);
-    expect(getBattleFistDamageBonus(quirks, 'right')).toBe(1);
+    expect(getBattleFistPunchToHitModifier(quirks, 'left')).toBe(-1);
+    expect(getBattleFistPunchToHitModifier(quirks, 'right')).toBe(-1);
   });
 
   it('No Arms: prevents punching', () => {

@@ -796,16 +796,14 @@ export const QUIRK_COMBAT_SUPPORT = {
     'MegaMek Cramped Cockpit is a Mek entity bonus with a Small Pilot exception; MekStation currently applies a generic all-PSR helper without that pilot ability gate',
     MEGAMEK_CRAMPED_COCKPIT_SOURCE_REFS,
   ),
-  battle_fists_la: helperOnly(
+  battle_fists_la: integrated(
     'battle_fists_la',
-    'getBattleFistDamageBonus plus physical attack input unitQuirks increases matching-arm punch damage',
-    'MegaMek source-backed Battle Fists modify punch to-hit, not punch damage; MekStation currently exposes a legacy damage helper',
+    'getBattleFistPunchToHitModifier plus physical attack input unitQuirks applies the source-backed matching-arm punch to-hit relief when the hand actuator is working',
     MEGAMEK_BATTLE_FISTS_SOURCE_REFS,
   ),
-  battle_fists_ra: helperOnly(
+  battle_fists_ra: integrated(
     'battle_fists_ra',
-    'getBattleFistDamageBonus plus physical attack input unitQuirks increases matching-arm punch damage in runner resolution',
-    'MegaMek source-backed Battle Fists modify punch to-hit, not punch damage; MekStation currently exposes a legacy damage helper',
+    'getBattleFistPunchToHitModifier plus physical attack input unitQuirks applies the source-backed matching-arm punch to-hit relief when the hand actuator is working in helper and runner resolution',
     MEGAMEK_BATTLE_FISTS_SOURCE_REFS,
   ),
   no_arms: helperOnly(

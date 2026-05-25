@@ -5,20 +5,20 @@
 import { UNIT_QUIRK_IDS } from './catalog';
 
 /**
- * Battle Fist: +1 punch damage for equipped arm.
+ * Battle Fist: -1 punch to-hit for equipped arm.
  * @param unitQuirks - Unit's quirk identifiers
  * @param arm - Which arm is punching: 'left' or 'right'
- * @returns Damage bonus (0 or 1)
+ * @returns To-hit modifier (0 or -1)
  */
-export function getBattleFistDamageBonus(
+export function getBattleFistPunchToHitModifier(
   unitQuirks: readonly string[],
   arm: 'left' | 'right',
 ): number {
   if (arm === 'left' && unitQuirks.includes(UNIT_QUIRK_IDS.BATTLE_FISTS_LA)) {
-    return 1;
+    return -1;
   }
   if (arm === 'right' && unitQuirks.includes(UNIT_QUIRK_IDS.BATTLE_FISTS_RA)) {
-    return 1;
+    return -1;
   }
   return 0;
 }

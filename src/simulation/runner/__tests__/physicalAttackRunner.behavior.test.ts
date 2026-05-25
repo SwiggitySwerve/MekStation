@@ -1355,7 +1355,7 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     });
   });
 
-  it('applies physical unit quirks to runner punch restrictions and damage', () => {
+  it('applies physical unit quirks to runner punch restrictions and to-hit', () => {
     const noArms = runPhase('punch', {
       attacker: {
         unitQuirks: ['no_arms'],
@@ -1369,17 +1369,24 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       damage: 0,
     });
 
+    const baselinePunch = resolvedPayload(runPhase('punch').events);
     const battleFist = runPhase('punch', {
       attacker: {
         unitQuirks: ['battle_fists_ra'],
       },
     });
+
+    expect(baselinePunch).toMatchObject({
+      attackType: 'punch',
+      toHitNumber: 5,
+      damage: 7,
+    });
     expect(resolvedPayload(battleFist.events)).toMatchObject({
       attackType: 'punch',
       roll: 8,
-      toHitNumber: 5,
+      toHitNumber: 4,
       hit: true,
-      damage: 8,
+      damage: baselinePunch.damage,
     });
   });
 
