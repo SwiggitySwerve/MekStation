@@ -75,6 +75,8 @@ export interface IPhysicalAttackContext {
    * Per tasks 3.6 / 3.7: DFA requires a jump; charge requires a run.
    */
   readonly attackerJumpedThisTurn?: boolean;
+  /** Attacker jump MP for DFA reach against airborne VTOL/WIGE targets. */
+  readonly attackerJumpMP?: number;
   readonly attackerRanThisTurn?: boolean;
   /** True when the attacker's MovementDeclared step chain used backward movement. */
   readonly attackerMovedBackwardThisTurn?: boolean;

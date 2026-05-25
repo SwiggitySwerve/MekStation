@@ -70,6 +70,7 @@ import {
   determinePhysicalHitLocation,
   IPhysicalAttackInput,
   IPhysicalAttackRestriction,
+  isPhysicalAirborneVtolOrWigeTarget,
   isTargetDirectlyAhead,
   isValidDisplacement,
   physicalTargetObjectTypeForUnitType,
@@ -476,6 +477,14 @@ export function declarePhysicalAttack(
     targetedByDisplacementAttackerId:
       targetState?.targetedByDisplacementAttackerId,
     targetIsAirborne: targetState?.isAirborne,
+    targetIsAirborneVTOLorWIGE:
+      context.attackerJumpMP !== undefined &&
+      context.elevationDifference !== undefined &&
+      isPhysicalAirborneVtolOrWigeTarget(
+        targetState?.unitType,
+        targetState?.isAirborne,
+      ),
+    attackerJumpMP: context.attackerJumpMP,
     attackerOccupiedBuildingId: attackerState.occupiedBuildingId,
     targetOccupiedBuildingId: targetState?.occupiedBuildingId,
     targetIsSelf: attackerId === targetId,
@@ -729,6 +738,14 @@ export function resolveAllPhysicalAttacks(
       targetedByDisplacementAttackerId:
         targetState.targetedByDisplacementAttackerId,
       targetIsAirborne: targetState.isAirborne,
+      targetIsAirborneVTOLorWIGE:
+        context.attackerJumpMP !== undefined &&
+        context.elevationDifference !== undefined &&
+        isPhysicalAirborneVtolOrWigeTarget(
+          targetState.unitType,
+          targetState.isAirborne,
+        ),
+      attackerJumpMP: context.attackerJumpMP,
       attackerOccupiedBuildingId: attackerState.occupiedBuildingId,
       targetOccupiedBuildingId: targetState.occupiedBuildingId,
       targetIsSelf: payload.attackerId === payload.targetId,

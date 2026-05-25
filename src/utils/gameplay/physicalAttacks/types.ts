@@ -52,6 +52,16 @@ export function physicalTargetObjectTypeForUnitType(
   return canonical === 'gunemplacement' ? 'gunEmplacement' : undefined;
 }
 
+export function isPhysicalAirborneVtolOrWigeTarget(
+  unitType: string | undefined,
+  isAirborne: boolean | undefined,
+): boolean {
+  if (!isAirborne) return false;
+
+  const canonical = unitType?.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return canonical === 'vtol' || canonical === 'wige';
+}
+
 /**
  * Per `implement-physical-attack-phase` task 2.1: canonical declaration
  * shape emitted by players (human UI + bot). `limb` is required for

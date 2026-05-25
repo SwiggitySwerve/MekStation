@@ -809,6 +809,41 @@ describe('BattleMech physical combat behavior validation lane', () => {
     ).toBe(true);
   });
 
+  it('projects reachable airborne VTOL targets as DFA candidates', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        facing: Facing.Southeast,
+        movementThisTurn: MovementType.Jump,
+      },
+    );
+    const target = unitState(
+      'target',
+      GameSide.Opponent,
+      { q: 1, r: 0 },
+      {
+        isAirborne: true,
+        unitType: UnitType.VTOL,
+      },
+    );
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      attackerJumpedThisTurn: true,
+      attackerJumpMP: 3,
+      elevationDifference: 4,
+    });
+    const dfa = options.find((option) => option.attackType === 'dfa');
+    const kick = options.find((option) => option.attackType === 'kick');
+
+    expect(dfa?.restrictionsFailed).toEqual([]);
+    expect(kick?.restrictionsFailed).toContain('TargetAirborne');
+  });
+
   it('projects evading attackers as restricted physical options', () => {
     const attacker = unitState(
       'attacker',
@@ -2902,6 +2937,103 @@ describe('BattleMech physical combat behavior validation lane', () => {
       toHitNumber: Infinity,
       hit: false,
       location: 'TargetAirborne',
+    });
+    expect(
+      resolved.events.some(
+        (event) => event.type === GameEventType.DamageApplied,
+      ),
+    ).toBe(false);
+  });
+
+  it('rejects unreachable airborne VTOL DFA declarations before scheduling resolution', () => {
+    const context = physicalContext({
+      attackerJumpedThisTurn: true,
+      attackerJumpMP: 3,
+      elevationDifference: 5,
+    });
+    const rejected = declarePhysicalAttack(
+      withPhysicalPositions(
+        physicalPhaseSession(),
+        {
+          movementThisTurn: MovementType.Jump,
+          hexesMovedThisTurn: 4,
+        },
+        {
+          isAirborne: true,
+          unitType: UnitType.VTOL,
+        },
+      ),
+      'attacker',
+      'target',
+      'dfa',
+      context,
+    );
+
+    const declarations = rejected.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const payload = rejected.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'dfa',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'ElevationMismatch',
+    });
+  });
+
+  it('resolves stale DFA declarations against unreachable airborne VTOL targets as invalid events', () => {
+    const declared = declareAdjacentPhysicalAttack(
+      'dfa',
+      physicalContext({
+        attackerJumpedThisTurn: true,
+        attackerJumpMP: 3,
+        elevationDifference: 3,
+      }),
+      {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 4,
+      },
+    );
+    const resolved = resolveAllPhysicalAttacks(
+      withUnitState(declared, 'target', {
+        isAirborne: true,
+        unitType: UnitType.VTOL,
+      }),
+      new Map([
+        [
+          'attacker',
+          physicalContext({
+            attackerJumpedThisTurn: true,
+            attackerJumpMP: 3,
+            elevationDifference: 5,
+          }),
+        ],
+      ]),
+      scriptedDice([6, 6, 3]),
+    );
+
+    const resolvedEvents = resolved.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = resolvedEvents.at(-1)
+      ?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(resolvedEvents).toHaveLength(1);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'dfa',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'ElevationMismatch',
     });
     expect(
       resolved.events.some(

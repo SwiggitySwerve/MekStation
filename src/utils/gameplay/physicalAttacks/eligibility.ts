@@ -44,6 +44,7 @@ import {
   PhysicalAttackInvalidReason,
   PhysicalAttackLimb,
   PhysicalAttackType,
+  isPhysicalAirborneVtolOrWigeTarget,
   physicalTargetObjectTypeForUnitType,
 } from './types';
 
@@ -74,6 +75,8 @@ export interface IEligibilityContext {
   readonly attackerMovedBackwardThisTurn?: boolean;
   /** True when the attacker jumped this turn — gates DFA. */
   readonly attackerJumpedThisTurn?: boolean;
+  /** Attacker jump MP for DFA reach against airborne VTOL/WIGE targets. */
+  readonly attackerJumpMP?: number;
   /** Target movement modifier (TMM). */
   readonly targetMovementModifier?: number;
   /** Attacker movement modifier (used by charge to-hit). */
@@ -287,6 +290,11 @@ export function getEligiblePhysicalAttacks(
     targetDisplacementAttackTargetId: target.displacementAttackTargetId,
     targetedByDisplacementAttackerId: target.targetedByDisplacementAttackerId,
     targetIsAirborne: target.isAirborne,
+    targetIsAirborneVTOLorWIGE:
+      context.attackerJumpMP !== undefined &&
+      context.elevationDifference !== undefined &&
+      isPhysicalAirborneVtolOrWigeTarget(target.unitType, target.isAirborne),
+    attackerJumpMP: context.attackerJumpMP,
     attackerOccupiedBuildingId: attacker.occupiedBuildingId,
     targetOccupiedBuildingId: target.occupiedBuildingId,
     targetIsSelf: attacker.id === target.id,

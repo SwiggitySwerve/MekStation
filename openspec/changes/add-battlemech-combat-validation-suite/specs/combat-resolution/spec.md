@@ -618,6 +618,16 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **AND** no damage, displacement, or PSR side effect SHALL be emitted
 - **AND** the validation catalog SHALL mark this as helper-only until runtime movement declarations hydrate the mechanical jump booster movement step
 
+#### Scenario: Death from above evaluates airborne VTOL reach with hydrated jump context
+
+- **GIVEN** a BattleMech declares death from above against an airborne VTOL target
+- **AND** the declaration context carries attacker jump MP and target elevation difference
+- **WHEN** the target elevation above the attacker's height exceeds attacker jump MP
+- **THEN** death from above SHALL be rejected with `ElevationMismatch`
+- **AND** no damage, displacement, or PSR side effect SHALL be emitted
+- **AND** eligibility UI and event-sourced declaration/resolution SHALL use the same reach gate
+- **AND** runner jump-MP capability hydration and WIGE motion-state hydration SHALL remain explicit gaps until represented in combat state
+
 #### Scenario: Death from above rejects infantry-family attackers
 
 - **GIVEN** an Infantry or Battle Armor attacker declares death from above after jumping this turn
@@ -651,7 +661,8 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** the generic airborne-target gate SHALL NOT reject the target
 - **WHEN** the target elevation above the attacker's height exceeds the attacker's jump MP
 - **THEN** death from above SHALL be rejected with `ElevationMismatch`
-- **AND** the validation catalog SHALL mark this as helper-only until runtime physical declarations hydrate VTOL/WIGE target motion state and attacker jump MP
+- **AND** eligibility and event-sourced declarations SHALL hydrate explicit airborne VTOL targets when attacker jump MP and elevation context are present
+- **AND** the validation catalog SHALL keep runner jump-MP capability hydration and WIGE motion-state hydration as visible gaps
 
 #### Scenario: Death from above applies Infantry and Battle Armor target-class modifiers
 

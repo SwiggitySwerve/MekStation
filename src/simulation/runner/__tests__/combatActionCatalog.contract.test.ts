@@ -952,6 +952,22 @@ describe('BattleMech combat action support catalog', () => {
     });
   });
 
+  it('catalogs DFA VTOL reach as event-sourced helper coverage with runner gaps', () => {
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['dfa.vtol-elevation-reachable'],
+    ).toMatchObject({
+      level: 'helper-only',
+      attackFamily: 'dfa',
+      evidence: expect.stringContaining('event-sourced declaration/resolution'),
+      gap: expect.stringContaining('attacker jump-MP capability hydration'),
+      sourceRefs: [
+        expect.objectContaining({
+          citation: expect.stringContaining('DfaAttackAction'),
+        }),
+      ],
+    });
+  });
+
   it('keeps unresolved physical displacement chain edges visible and source-backed', () => {
     expect(
       PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-domino-chain'],
