@@ -172,16 +172,22 @@ const REQUIREMENT_AUTHORITY_BOUNDARY =
 const MEKSTATION_EVENT_BOUNDARY =
   'Event and parity rows describe MekStation executable event contracts; source-backed mechanics are anchored by the rule or requirement rows that emit those events.';
 
+function requirementTriad(
+  testRefs: readonly ICombatCatalogTriadTestReference[],
+): ICombatCatalogTriadEvidence {
+  return triad(
+    'requirement-primary-authority',
+    REQUIREMENT_AUTHORITY_BOUNDARY,
+    testRefs,
+  );
+}
+
 const ACTION_TRIAD = triad(
   'mekstation-deviation',
   MEKSTATION_ACTION_BOUNDARY,
   ACTION_CONTRACT_REFS,
 );
-const ACTION_REQUIREMENT_TRIAD = triad(
-  'requirement-primary-authority',
-  REQUIREMENT_AUTHORITY_BOUNDARY,
-  ACTION_CONTRACT_REFS,
-);
+const ACTION_REQUIREMENT_TRIAD = requirementTriad(ACTION_CONTRACT_REFS);
 const ATTACK_REASON_TRIAD = triad(
   'entry-source-refs',
   'Ranged attack invalidation reason rows must carry row-level sourceRefs for ammo, same-hex, range, LOS/spotter, targetability, missing weapon, and weapon readiness boundaries; SameHex is an explicit MekStation deviation row.',
@@ -202,11 +208,7 @@ const EVENT_TRIAD = triad(
   MEKSTATION_EVENT_BOUNDARY,
   EVENT_STREAM_REFS,
 );
-const FEATURE_TRIAD = triad(
-  'requirement-primary-authority',
-  REQUIREMENT_AUTHORITY_BOUNDARY,
-  FEATURE_REFS,
-);
+const FEATURE_TRIAD = requirementTriad(FEATURE_REFS);
 const TERRAIN_ENVIRONMENT_TRIAD = triad(
   'entry-source-refs',
   'Terrain/environment rows are source checked and must carry row-level sourceRefs for terrain costs, LOS/cover/to-hit features, water/fire heat, fog/night/wind/extreme temperature, local atmosphere, and explicit dust/mines gaps.',
@@ -237,19 +239,16 @@ const TERRAIN_TYPE_PSR_TRIAD = triad(
   'Per-TerrainType PSR rows are source checked and must carry row-level sourceRefs, distinguishing MegaMek rubble, water, skidding, swamp bog-down, and building-collapse anchors from MekStation-local rough/no-PSR terrain rows.',
   TERRAIN_REFS,
 );
-const DAMAGE_TRIAD = triad(
-  'requirement-primary-authority',
-  REQUIREMENT_AUTHORITY_BOUNDARY,
-  DAMAGE_REFS,
-);
+const DAMAGE_TRIAD = requirementTriad(DAMAGE_REFS);
 const CRITICAL_SLOT_TRIAD = triad(
   'entry-source-refs',
   'Critical-slot hydration and effect rows are MegaMek-source checked and must carry row-level sourceRefs for system critical slots, mounted equipment critical slots, ammo cookoff selection, and equipment-specific lifecycle gap boundaries.',
   CRITICAL_SLOT_REFS,
 );
-const LIFECYCLE_TRIAD = triad(
-  'requirement-primary-authority',
-  REQUIREMENT_AUTHORITY_BOUNDARY,
+const LIFECYCLE_TRIAD = requirementTriad(LIFECYCLE_REFS);
+const PSR_RESOLUTION_TRIAD = triad(
+  'entry-source-refs',
+  'PSR resolution rows require row sourceRefs.',
   LIFECYCLE_REFS,
 );
 const PARITY_TRIAD = triad(
@@ -257,11 +256,7 @@ const PARITY_TRIAD = triad(
   MEKSTATION_EVENT_BOUNDARY,
   PARITY_REFS,
 );
-const PILOT_TRIAD = triad(
-  'requirement-primary-authority',
-  REQUIREMENT_AUTHORITY_BOUNDARY,
-  PILOT_REFS,
-);
+const PILOT_TRIAD = requirementTriad(PILOT_REFS);
 const PHYSICAL_LEGALITY_TRIAD = triad(
   'entry-source-refs',
   'Physical legality gate rows are MegaMek-source checked and must carry row-level sourceRefs.',
@@ -397,7 +392,7 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
   },
   lifecycleAndPsr: {
     actionEligibility: LIFECYCLE_TRIAD,
-    psrResolution: LIFECYCLE_TRIAD,
+    psrResolution: PSR_RESOLUTION_TRIAD,
     psrTriggers: LIFECYCLE_TRIAD,
   },
   parityAndIntegration: {

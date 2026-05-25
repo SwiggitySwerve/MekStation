@@ -2337,6 +2337,36 @@ describe('BattleMech combat feature-gap tracking', () => {
         'psr-resolved-events',
       ].sort(),
     );
+    const psrResolutionEntries = Object.values(PSR_RESOLUTION_COMBAT_SUPPORT);
+    expect(
+      psrResolutionEntries.filter((entry) => !entry.sourceRefs?.length),
+    ).toEqual([]);
+    expect(
+      psrResolutionEntries.flatMap((entry) =>
+        (entry.sourceRefs ?? []).filter(({ url }) => !url.includes('#L')),
+      ),
+    ).toEqual([]);
+    expect(
+      PSR_RESOLUTION_COMBAT_SUPPORT['pending-psr-resolution'].sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('MegaMek Game.addPSR'),
+        expect.stringContaining('MekStation runPSRPhase'),
+      ]),
+    );
+    const failedFallMegaMekRefs =
+      PSR_RESOLUTION_COMBAT_SUPPORT['failed-psr-fall'].sourceRefs?.filter(
+        ({ kind }) => kind === 'megamek-source',
+      ) ?? [];
+    expectPinnedMegaMekRefs(failedFallMegaMekRefs);
+    expect(failedFallMegaMekRefs.map(({ citation }) => citation)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('doSkillCheckWhileMoving'),
+        expect.stringContaining('doEntityFall'),
+      ]),
+    );
     expect(sortedKeys(RUNNER_PSR_TRIGGER_COMBAT_SUPPORT)).toEqual(
       Object.values(PSRTrigger).sort(),
     );

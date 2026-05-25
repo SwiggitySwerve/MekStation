@@ -5,6 +5,10 @@ import type {
   ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 
+const MEGAMEK_COMBAT_SOURCE_VERSION =
+  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+const MEKSTATION_SOURCE_VERSION = 'MekStation working-tree';
+
 function integrated(
   id: string,
   evidence: string,
@@ -77,6 +81,102 @@ const MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_PSR_QUEUE_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Game.addPSR stores PilotingRollData in the pending phase queue and Game.getPSRs exposes that queue for later resolution.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_COMBAT_SOURCE_VERSION}/megamek/src/megamek/common/game/Game.java#L2505-L2521`,
+    sourceVersion: MEGAMEK_COMBAT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek resolvePilotingRolls consumes game.getPSRs, combines cumulative PSR modifiers, rolls piloting skill, applies fall handling on failure, and resets the PSR queue.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_COMBAT_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L16289-L16636`,
+    sourceVersion: MEGAMEK_COMBAT_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEGAMEK_FAILED_PSR_FALL_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek doSkillCheckWhileMoving rolls piloting skill and routes failed fall PSRs into doEntityFallsInto when the failure should cause a fall.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_COMBAT_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L8666-L8736`,
+    sourceVersion: MEGAMEK_COMBAT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek doEntityFall rolls pilot fall-damage avoidance after fall damage and applies pilot damage when that avoidance roll fails.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_COMBAT_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L23233-L23357`,
+    sourceVersion: MEGAMEK_COMBAT_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const LOCAL_PSR_RESOLUTION_SOURCE_REFS = [
+  {
+    kind: 'mekstation-deviation',
+    citation:
+      'MekStation runPSRPhase resolves unit.pendingPSRs, emits PSRResolved/UnitFell/PilotHit/UnitDestroyed, and clears pendingPSRs after resolution.',
+    url: 'src/simulation/runner/phases/postCombat.ts#L50-L219',
+    sourceVersion: MEKSTATION_SOURCE_VERSION,
+  },
+  {
+    kind: 'mekstation-deviation',
+    citation:
+      'MekStation resolveAllPSRs computes target numbers, rolls each pending PSR, reports first failure as unitFell, and returns clearedPSRs for skipped queue entries.',
+    url: 'src/utils/gameplay/pilotingSkillRolls/resolution.ts#L46-L158',
+    sourceVersion: MEKSTATION_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const LOCAL_INTERACTIVE_PSR_RESOLUTION_SOURCE_REFS = [
+  {
+    kind: 'mekstation-deviation',
+    citation:
+      'MekStation resolvePendingPSRs mirrors interactive/session PSR resolution, fall emission, fall-sourced PilotHit emission, and reasonCode propagation.',
+    url: 'src/utils/gameplay/gameSessionPSR.ts#L63-L292',
+    sourceVersion: MEKSTATION_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const LOCAL_PSR_REASON_CODE_SOURCE_REFS = [
+  {
+    kind: 'mekstation-deviation',
+    citation:
+      'MekStation applyPSRTriggered preserves PSRTriggered.reasonCode into unit.pendingPSRs and applyUnitFell clears pending PSRs after fall resolution.',
+    url: 'src/utils/gameplay/gameState/extendedCombat.ts#L23-L104',
+    sourceVersion: MEKSTATION_SOURCE_VERSION,
+  },
+  {
+    kind: 'mekstation-deviation',
+    citation:
+      'MekStation queueRunnerShutdownPSR stamps heat-shutdown PSR triggers with createShutdownPSR reasonCode and appends the pending PSR.',
+    url: 'src/simulation/runner/phases/heatShutdownPsr.ts#L9-L37',
+    sourceVersion: MEKSTATION_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const PSR_ROLL_RESOLUTION_SOURCE_REFS = [
+  ...MEGAMEK_PSR_QUEUE_SOURCE_REFS,
+  ...LOCAL_PSR_RESOLUTION_SOURCE_REFS,
+  ...LOCAL_INTERACTIVE_PSR_RESOLUTION_SOURCE_REFS,
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const PSR_REASON_CODE_SOURCE_REFS = [
+  ...LOCAL_PSR_RESOLUTION_SOURCE_REFS,
+  ...LOCAL_INTERACTIVE_PSR_RESOLUTION_SOURCE_REFS,
+  ...LOCAL_PSR_REASON_CODE_SOURCE_REFS,
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const PSR_FALL_SOURCE_REFS = [
+  ...MEGAMEK_FAILED_PSR_FALL_SOURCE_REFS,
+  ...LOCAL_PSR_RESOLUTION_SOURCE_REFS,
+  ...LOCAL_INTERACTIVE_PSR_RESOLUTION_SOURCE_REFS,
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const ACTION_ELIGIBILITY_COMBAT_SUPPORT = {
   destroyed: integrated(
     'destroyed',
@@ -124,34 +224,42 @@ export const PSR_RESOLUTION_COMBAT_SUPPORT = {
   'pending-psr-resolution': integrated(
     'pending-psr-resolution',
     'runPSRPhase resolves unit.pendingPSRs through resolveAllPSRs',
+    PSR_ROLL_RESOLUTION_SOURCE_REFS,
   ),
   'psr-resolved-events': integrated(
     'psr-resolved-events',
     'runPSRPhase emits PSRResolved with canonical reasonCode when present',
+    PSR_ROLL_RESOLUTION_SOURCE_REFS,
   ),
   'psr-reason-code-preservation': integrated(
     'psr-reason-code-preservation',
     'PSRTriggered reducers preserve canonical reasonCode into pendingPSRs and heat shutdown triggers stamp PSRTrigger.Shutdown',
+    PSR_REASON_CODE_SOURCE_REFS,
   ),
   'failed-psr-fall': integrated(
     'failed-psr-fall',
     'runPSRPhase marks the unit prone and emits UnitFell when resolveAllPSRs reports unitFell',
+    PSR_FALL_SOURCE_REFS,
   ),
   'fall-pilot-wound': integrated(
     'fall-pilot-wound',
     'runPSRPhase adds one pilot wound on failed PSR fall',
+    PSR_FALL_SOURCE_REFS,
   ),
   'fall-pilot-death': integrated(
     'fall-pilot-death',
     'runPSRPhase emits UnitDestroyed cause pilot_death when fall wounds reach the lethal threshold',
+    PSR_FALL_SOURCE_REFS,
   ),
   'fall-pilot-hit-event': integrated(
     'fall-pilot-hit-event',
     'runPSRPhase and resolvePendingPSRs emit PilotHit source=fall when a failed PSR causes a pilot wound',
+    PSR_FALL_SOURCE_REFS,
   ),
   'pending-psr-clear': integrated(
     'pending-psr-clear',
     'runPSRPhase clears pendingPSRs after pass or fall resolution',
+    PSR_ROLL_RESOLUTION_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 
