@@ -27,6 +27,10 @@ import {
   tacticalMapElevationLosTargetId,
 } from '../tactical-map.elevation-los-scenario';
 import {
+  tacticalMapHeatCombatCommitInput,
+  tacticalMapHeatCombatProjection,
+} from '../tactical-map.heat-combat-scenario';
+import {
   tacticalMapImmobileCombatCommitInput,
   tacticalMapImmobileCombatProjection,
 } from '../tactical-map.immobile-combat-scenario';
@@ -318,6 +322,57 @@ describe('tactical map combat scenarios', () => {
     );
     expect(payload.toHitNumber).toBe(
       tacticalMapImmobileCombatProjection.toHitNumber,
+    );
+  });
+
+  it('keeps hot attacker to-hit modifiers aligned between browser projection and commit', () => {
+    expect(tacticalMapHeatCombatProjection).toMatchObject({
+      hex: { q: 2, r: 0 },
+      distance: 2,
+      rangeBracket: 'short',
+      attackable: true,
+      weaponIdsAvailable: ['medium-laser'],
+      toHitNumber: 6,
+    });
+    expect(tacticalMapHeatCombatProjection.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Heat',
+          value: 2,
+          source: 'heat',
+          description: 'Heat 13: +2',
+        }),
+      ]),
+    );
+    expect(tacticalMapHeatCombatProjection.toHitReason).toContain('Heat +2');
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapHeatCombatCommitInput(),
+    );
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.weapons).toEqual(
+      tacticalMapHeatCombatProjection.weaponIdsAvailable,
+    );
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Heat',
+          value: 2,
+          source: 'heat',
+          description: 'Heat 13: +2',
+        }),
+      ]),
+    );
+    expect(payload.toHitNumber).toBe(
+      tacticalMapHeatCombatProjection.toHitNumber,
     );
   });
 

@@ -115,6 +115,15 @@ for the modifier. A fixture-level Jest parity test feeds the same projection
 into `applyInteractiveSessionAttack` and proves the committed attack
 declaration carries the matching target number and modifier.
 
+2026-05-25 hot-attacker browser pin: MegaMek
+`ComputeAttackerToHitMods.java:192-193` adds the attacker heat firing modifier,
+and `Entity.java:4188-4217` source-pins the base thresholds at heat 8/13/17/24.
+The tactical-map browser harness now uses a represented attacker at heat 13,
+proving the rendered target exposes TN6, `Heat +2`, the available medium laser,
+and tooltip rows with `Heat 13: +2`. A fixture-level Jest parity test feeds the
+same projection into `applyInteractiveSessionAttack` and proves the committed
+attack declaration carries the matching target number and modifier.
+
 2026-05-24 medium-range combat browser update: the tactical-map browser harness
 now also renders a target at four hexes and verifies that the top-down hex and
 combat badge expose the medium range band, distance, available weapon id, and

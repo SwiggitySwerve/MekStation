@@ -47,6 +47,7 @@ import {
   tacticalMapFrogmanSelectedHex,
   tacticalMapFrogmanTokens,
 } from '@/testing/tactical-map.frogman-scenario';
+import * as heatCombat from '@/testing/tactical-map.heat-combat-scenario';
 import {
   tacticalMapHoverWaterHexTerrain,
   tacticalMapHoverWaterMovementRange,
@@ -152,6 +153,7 @@ const combatOnlyScenarios = new Set([
   'elevation-los-blocked',
   'prone-combat-modifiers',
   'immobile-combat-modifier',
+  'heat-combat-modifier',
 ]);
 
 const movementFixtureScenarios = new Set([
@@ -176,6 +178,7 @@ const selectedWeaponIdsByScenario = {
   'elevation-los-blocked': tacticalMapElevationLosSelectedWeaponIds,
   'prone-combat-modifiers': tacticalMapProneCombatSelectedWeaponIds,
   'immobile-combat-modifier': tacticalMapImmobileCombatSelectedWeaponIds,
+  'heat-combat-modifier': heatCombat.tacticalMapHeatCombatSelectedWeaponIds,
   'out-of-range': tacticalMapOutOfRangeSelectedWeaponIds,
 } satisfies Record<string, readonly string[]>;
 
@@ -190,6 +193,7 @@ const targetUnitIdByScenario = {
   'elevation-los-blocked': tacticalMapElevationLosTargetId,
   'prone-combat-modifiers': tacticalMapProneCombatTargetId,
   'immobile-combat-modifier': tacticalMapImmobileCombatTargetId,
+  'heat-combat-modifier': heatCombat.tacticalMapHeatCombatTargetId,
   'out-of-range': 'medium-target',
 } satisfies Record<string, string | null>;
 
@@ -207,6 +211,7 @@ const tokensByScenario = {
   'elevation-los-blocked': tacticalMapElevationLosTokens,
   'prone-combat-modifiers': tacticalMapProneCombatTokens,
   'immobile-combat-modifier': tacticalMapImmobileCombatTokens,
+  'heat-combat-modifier': heatCombat.tacticalMapHeatCombatTokens,
   'runtime-height-bridge-clearance': tacticalMapRuntimeHeightTokens,
   'run-water-walk-fallback': tacticalMapRunWaterFallbackTokens,
   'tracked-elevation-blocked': tacticalMapTrackedElevationTokens,
@@ -229,6 +234,7 @@ const combatStateByScenario = {
   'elevation-los-blocked': tacticalMapElevationLosCombatState,
   'prone-combat-modifiers': tacticalMapProneCombatState,
   'immobile-combat-modifier': tacticalMapImmobileCombatState,
+  'heat-combat-modifier': heatCombat.tacticalMapHeatCombatState,
 } satisfies Record<string, typeof tacticalMapCombatState>;
 
 const movementRangeByScenario = {
@@ -274,6 +280,7 @@ const selectedHexByScenario = {
   'elevation-los-blocked': { q: 0, r: 0 },
   'prone-combat-modifiers': { q: 0, r: 0 },
   'immobile-combat-modifier': { q: 0, r: 0 },
+  'heat-combat-modifier': { q: 0, r: 0 },
   'mounted-ba-passenger': { q: 0, r: 0 },
   'aerospace-velocity-projection': { q: 0, r: 0 },
 } satisfies Record<string, { readonly q: number; readonly r: number }>;
@@ -287,6 +294,7 @@ const hexTerrainByScenario = {
   'elevation-los-blocked': tacticalMapElevationLosHexTerrain,
   'prone-combat-modifiers': tacticalMapProneCombatHexTerrain,
   'immobile-combat-modifier': tacticalMapImmobileCombatHexTerrain,
+  'heat-combat-modifier': heatCombat.tacticalMapHeatCombatHexTerrain,
   'biped-swim-elevation': tacticalMapSwimHexTerrain,
   'frogman-deep-water': tacticalMapFrogmanHexTerrain,
   'prone-stand-up': tacticalMapStandUpHexTerrain,

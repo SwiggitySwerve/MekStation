@@ -104,6 +104,8 @@
 - [x] 2.41 Add browser coverage proving a shutdown target renders the shared
   target-immobile to-hit modifier metadata, target number, badge, and tooltip
   rows.
+- [x] 2.42 Add browser coverage proving a hot attacker renders the shared heat
+  to-hit modifier metadata, target number, badge, and tooltip rows.
 
 ## 3. Validation
 
@@ -190,3 +192,5 @@
   to-hit modifier metadata and badge labeling.
 - [x] 3.41 Focused Jest parity and Playwright smoke pass for shutdown target
   immobile to-hit modifier metadata and badge labeling.
+- [x] 3.42 Focused Jest parity and Playwright smoke pass for hot-attacker heat
+  to-hit modifier metadata and badge labeling.

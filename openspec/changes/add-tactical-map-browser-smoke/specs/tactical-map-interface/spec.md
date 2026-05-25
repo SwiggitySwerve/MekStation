@@ -66,6 +66,8 @@ the top-down map.
   target number, badge, and tooltip rows
 - **AND** a combat target with represented shutdown immobility SHALL expose the
   target-immobile to-hit modifier, final target number, badge, and tooltip rows
+- **AND** a combat target fired by a represented hot attacker SHALL expose the
+  heat to-hit modifier, final target number, badge, and tooltip rows
 - **WHEN** browser automation switches to isometric mode and rotates the camera
 - **THEN** isometric stack, occluder, visibility, rotation, and depth metadata
   SHALL update in the rendered DOM

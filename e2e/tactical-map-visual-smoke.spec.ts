@@ -1735,6 +1735,64 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows hot attacker to-hit modifiers in browser', async ({ page }) => {
+    await page.goto('/e2e/tactical-map?scenario=heat-combat-modifier');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('HOT');
+    await expect(page.getByTestId('unit-token-heat-target')).toContainText(
+      'COOL',
+    );
+
+    const targetHex = page.getByTestId('hex-2-0');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'heat-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-range-bracket',
+      'short',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-distance', '2');
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-available',
+      'medium-laser',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '6');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-modifiers',
+      /Heat:2/,
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-reason',
+      /Heat \+2/,
+    );
+
+    const toHitBadge = page.getByTestId('hex-to-hit-badge-2-0');
+    await expect(toHitBadge).toContainText('TN6');
+    await expect(toHitBadge).toHaveAttribute(
+      'data-combat-to-hit-badge-number',
+      '6',
+    );
+
+    await targetHex.locator('path[data-terrain="clear"]').hover({
+      position: { x: 72, y: 34 },
+    });
+    const toHitRows = page.getByTestId('hex-combat-tooltip-to-hit-modifiers');
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-names',
+      /Heat/,
+    );
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-values',
+      /2/,
+    );
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-descriptions',
+      /Heat 13: \+2/,
+    );
+  });
+
   test('keeps visible targets attackable on mixed same-hex fog contacts in browser', async ({
     page,
   }) => {
