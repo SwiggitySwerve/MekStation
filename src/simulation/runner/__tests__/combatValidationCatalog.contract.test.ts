@@ -224,6 +224,9 @@ describe('BattleMech combat validation catalog index', () => {
   it('keeps source-pinned quirk, PSR trigger, pilot, resolver, and damage catalogs on row-level authority', () => {
     const triadMaps = triadEvidenceMaps();
 
+    expect(triadMaps.actions.gmCommandExclusions.authorityBoundary.kind).toBe(
+      'entry-source-refs',
+    );
     expect(triadMaps.featureSupport.mechQuirks.authorityBoundary.kind).toBe(
       'entry-source-refs',
     );

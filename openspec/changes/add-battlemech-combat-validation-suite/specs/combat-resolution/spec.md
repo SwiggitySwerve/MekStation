@@ -82,6 +82,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** every wire-intent action row SHALL cite the MekStation server dispatcher, with lobby and reconnect wire intents remaining source-visible non-combat scope splits
 - **AND** every P2P intent translation row SHALL cite the MekStation intent translator, plus host-router source anchors for host-owned command translations
 - **AND** `physicalAttackCommands` catalog rows SHALL enforce row-level MekStation command source references before PR approval
+- **AND** GM command exclusion rows SHALL cite the MekStation GM/referee command factory and SHALL remain outside player BattleMech combat action handling
 - **AND** those rows SHALL NOT be inferred from helper prose or omitted because no UI command currently emits them
 
 #### Scenario: Torso twist emits source-backed secondary facing through command and wire paths

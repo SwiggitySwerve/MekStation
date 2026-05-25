@@ -301,9 +301,8 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
       ACTION_CONTRACT_REFS,
     ),
     directUiActions: ACTION_TRIAD,
-    gmCommandExclusions: triad(
-      'mekstation-deviation',
-      'GM command exclusions are MekStation shell/control-plane boundaries, not tabletop combat actions.',
+    gmCommandExclusions: entryTriad(
+      'GM command exclusion rows need local GM/referee command factory refs.',
       ACTION_CONTRACT_REFS,
     ),
     gameIntents: ACTION_TRIAD,

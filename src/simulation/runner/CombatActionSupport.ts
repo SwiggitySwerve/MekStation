@@ -413,6 +413,38 @@ const MEKSTATION_REQUEST_SPOT_COMMAND_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+function mekstationGmCommandSourceRefs(
+  id: string,
+  actionId: string,
+  lineRange: string,
+) {
+  return [
+    mekstationDeviationSourceRef(
+      `MekStation buildGmReferralCommands exposes ${id} as a GM shell-mode command that commits the local ${actionId} action id outside player BattleMech combat action handling.`,
+      'src/components/gameplay/TacticalActionDock/commands/gmReferralCommands.ts',
+      lineRange,
+    ),
+  ] satisfies readonly ICombatFeatureSourceReference[];
+}
+
+const MEKSTATION_GM_COMMAND_SOURCE_REFS = {
+  'gm.advance-phase': mekstationGmCommandSourceRefs(
+    'gm.advance-phase',
+    'gm-advance-phase',
+    'L29-L45',
+  ),
+  'gm.set-damage': mekstationGmCommandSourceRefs(
+    'gm.set-damage',
+    'gm-set-damage',
+    'L49-L68',
+  ),
+  'gm.grant-resource': mekstationGmCommandSourceRefs(
+    'gm.grant-resource',
+    'gm-grant-resource',
+    'L71-L86',
+  ),
+} satisfies Record<string, readonly ICombatFeatureSourceReference[]>;
+
 const MEKSTATION_GAME_INTENT_SOURCE_REFS = {
   declareMovement: [
     mekstationDeviationSourceRef(
@@ -946,16 +978,19 @@ export const GM_COMMAND_EXCLUSION_SUPPORT = {
     'gm.advance-phase',
     'tactical-command',
     'GM referee commands are shell-mode tools, not player BattleMech combat actions',
+    MEKSTATION_GM_COMMAND_SOURCE_REFS['gm.advance-phase'],
   ),
   'gm.set-damage': unsupported(
     'gm.set-damage',
     'tactical-command',
     'GM referee commands are shell-mode tools, not player BattleMech combat actions',
+    MEKSTATION_GM_COMMAND_SOURCE_REFS['gm.set-damage'],
   ),
   'gm.grant-resource': unsupported(
     'gm.grant-resource',
     'tactical-command',
     'GM referee commands are shell-mode tools, not player BattleMech combat actions',
+    MEKSTATION_GM_COMMAND_SOURCE_REFS['gm.grant-resource'],
   ),
 } satisfies Record<string, ICombatActionSupportEntry>;
 

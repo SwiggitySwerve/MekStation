@@ -98,6 +98,20 @@ describe('BattleMech combat action support catalog', () => {
     expect(playerCommandIds.filter((id) => id.startsWith('gm.'))).toEqual([]);
     expect(supportGaps(COMBAT_COMMAND_ACTION_SUPPORT)).toEqual([]);
     expect(supportGaps(GM_COMMAND_EXCLUSION_SUPPORT)).toEqual([]);
+    for (const id of [
+      'gm.advance-phase',
+      'gm.set-damage',
+      'gm.grant-resource',
+    ] as const) {
+      expect(GM_COMMAND_EXCLUSION_SUPPORT[id].sourceRefs).toEqual([
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining(id),
+          url: expect.stringContaining('gmReferralCommands.ts#L'),
+          sourceVersion: 'MekStation working-tree',
+        }),
+      ]);
+    }
 
     expect(
       supportIdsByLevel(COMBAT_COMMAND_ACTION_SUPPORT, 'integrated'),

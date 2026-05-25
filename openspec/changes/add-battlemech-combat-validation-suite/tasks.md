@@ -338,3 +338,4 @@
 - [x] 4.3.97 Cross-check BattleMech damage, pilot-damage, heat/ammo cascade, and destruction-cause rows against rulebook/MegaMek anchors plus MekStation executable state/event paths before promoting those maps to row-level source references.
 - [x] 4.3.98 Cross-check physical attack command and MegaMek physical action class rows before promoting command/class-scope maps to row-level source references.
 - [x] 4.3.99 Cross-check MegaMek gunnery, physical piloting, PSR base piloting, stand-up, and initiative anchors plus MekStation wound/event-stamp paths before promoting `pilotSkillUse` to row-level source references.
+- [x] 4.3.100 Cross-check MekStation GM/referee command factory rows before promoting `gmCommandExclusions` to row-level source references.
