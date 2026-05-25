@@ -649,6 +649,9 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(page.getByTestId('hex-elevation-label-1-0')).toContainText(
       '+2',
     );
+    await expect(page.getByTestId('hex-elevation-label-1--1')).toContainText(
+      '+1',
+    );
 
     const targetHex = page.getByTestId('hex-2-0');
     await expect(targetHex).toHaveAttribute(
@@ -720,6 +723,49 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(losBlockerBadge).toHaveAttribute(
       'data-combat-los-blocker-reason',
       'Blocked by elevation +2 at (1, 0)',
+    );
+
+    const coverTargetHex = page.getByTestId('hex-2--1');
+    await expect(coverTargetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'elevation-cover-target',
+    );
+    await expect(coverTargetHex).toHaveAttribute(
+      'data-combat-valid-target',
+      'true',
+    );
+    await expect(coverTargetHex).toHaveAttribute(
+      'data-combat-los-state',
+      'clear',
+    );
+    await expect(coverTargetHex).not.toHaveAttribute(
+      'data-combat-invalid-reason',
+    );
+    await expect(coverTargetHex).toHaveAttribute(
+      'data-combat-target-cover-level',
+      'partial',
+    );
+    await expect(coverTargetHex).toHaveAttribute(
+      'data-combat-target-partial-cover',
+      'true',
+    );
+    await expect(coverTargetHex).toHaveAttribute(
+      'data-combat-cover-modifier',
+      '1',
+    );
+    await expect(coverTargetHex).toHaveAttribute(
+      'data-combat-cover-reason',
+      'Target behind elevation +1 partial cover at (1, -1) (+1)',
+    );
+    await expect(coverTargetHex).toHaveAttribute(
+      'data-combat-to-hit-modifiers',
+      /Partial Cover:1/,
+    );
+    const elevationCoverBadge = page.getByTestId('hex-cover-badge-2--1');
+    await expect(elevationCoverBadge.locator('text')).toHaveText('P+1');
+    await expect(elevationCoverBadge).toHaveAttribute(
+      'data-combat-cover-badge-reason',
+      'Target behind elevation +1 partial cover at (1, -1) (+1)',
     );
   });
 

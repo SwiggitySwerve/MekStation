@@ -22,6 +22,9 @@ import {
   tacticalMapOutOfRangeCommitInput,
 } from '../tactical-map.combat-scenarios';
 import {
+  tacticalMapElevationCoverCombatProjection,
+  tacticalMapElevationCoverCommitInput,
+  tacticalMapElevationCoverTargetId,
   tacticalMapElevationLosCombatProjection,
   tacticalMapElevationLosCommitInput,
   tacticalMapElevationLosTargetId,
@@ -651,6 +654,64 @@ describe('tactical map combat scenarios', () => {
       reason: tacticalMapElevationLosCombatProjection.attackInvalidReason,
       details: tacticalMapElevationLosCombatProjection.attackInvalidDetails,
     });
+  });
+
+  it('keeps elevation partial-cover browser projection aligned with committed attacks', () => {
+    expect(tacticalMapElevationCoverCombatProjection).toMatchObject({
+      hex: { q: 2, r: -1 },
+      distance: 2,
+      rangeBracket: 'short',
+      inRange: true,
+      inArc: true,
+      losState: 'clear',
+      attackable: true,
+      targetUnitIds: [tacticalMapElevationCoverTargetId],
+      validTargetUnitIds: [tacticalMapElevationCoverTargetId],
+      weaponIdsAvailable: ['medium-laser'],
+      targetPartialCover: true,
+      targetCoverModifier: 1,
+      targetCoverReason:
+        'Target behind elevation +1 partial cover at (1, -1) (+1)',
+    });
+    expect(tacticalMapElevationCoverCombatProjection.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Partial Cover',
+          value: 1,
+          source: 'terrain',
+        }),
+      ]),
+    );
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapElevationCoverCommitInput(),
+    );
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackLocked),
+    ).toBe(true);
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.targetId).toBe(tacticalMapElevationCoverTargetId);
+    expect(payload.toHitNumber).toBe(
+      tacticalMapElevationCoverCombatProjection.toHitNumber,
+    );
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Partial Cover',
+          value: 1,
+          source: 'terrain',
+        }),
+      ]),
+    );
   });
 
   it('keeps airborne aerospace targets exempt from ground-only minimum range', () => {

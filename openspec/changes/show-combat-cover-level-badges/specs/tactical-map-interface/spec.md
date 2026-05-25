@@ -18,3 +18,12 @@ projection.
 - **AND** the badge metadata SHALL expose the rendered cover label, cover level,
   modifier, and reason without recalculating combat legality outside the shared
   combat projection.
+
+#### Scenario: Elevation partial cover remains attackable
+
+- **GIVEN** one target is blocked by an intervening elevation hex and another
+  target is only partially covered by lower adjacent elevation
+- **WHEN** the tactical map renders combat projection metadata
+- **THEN** the blocked target SHALL expose `NoLineOfSight` rejection metadata
+- **AND** the partially covered target SHALL remain attackable while exposing
+  the projected partial-cover level, modifier, reason, and to-hit modifier

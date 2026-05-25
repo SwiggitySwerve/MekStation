@@ -190,6 +190,15 @@ to-hit partial-cover modifier from the shared combat projection. Remaining
 browser combat gaps are broader cover/elevation families and special range-mode
 sweeps beyond the smoke harness.
 
+2026-05-25 elevation partial-cover browser pin: the elevation LOS browser
+scenario now renders a hard-blocked target behind elevation +2 and a separate
+attackable target partially covered by adjacent elevation +1. The browser
+verifies `NoLineOfSight` only on the blocked target, while the covered target
+stays legal with partial-cover level, +1 modifier, projected reason, and
+to-hit modifier metadata. A fixture-level Jest parity test feeds the same
+projection into `applyInteractiveSessionAttack` and proves the committed attack
+declares the matching partial-cover modifier.
+
 2026-05-24 target-terrain browser update: the tactical-map browser harness now
 also renders a target standing in light woods and verifies that the top-down hex
 and combat tooltip expose `Target Terrain +1` plus the `Target in light woods:

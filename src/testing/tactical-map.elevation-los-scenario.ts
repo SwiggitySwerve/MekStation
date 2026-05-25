@@ -32,8 +32,11 @@ import {
 
 const tacticalMapElevationLosAttackerHex = { q: 0, r: 0 } as const;
 const tacticalMapElevationLosBlockerHex = { q: 1, r: 0 } as const;
+const tacticalMapElevationCoverHex = { q: 1, r: -1 } as const;
 export const tacticalMapElevationLosTargetId = 'elevation-blocked-target';
 export const tacticalMapElevationLosTargetHex = { q: 2, r: 0 } as const;
+export const tacticalMapElevationCoverTargetId = 'elevation-cover-target';
+export const tacticalMapElevationCoverTargetHex = { q: 2, r: -1 } as const;
 export const tacticalMapElevationLosSelectedWeaponIds = ['medium-laser'];
 
 export const tacticalMapElevationLosHexTerrain: readonly IHexTerrain[] = [
@@ -42,15 +45,20 @@ export const tacticalMapElevationLosHexTerrain: readonly IHexTerrain[] = [
     elevation: 2,
     features: [{ type: TerrainType.Clear, level: 0 }],
   },
+  {
+    coordinate: tacticalMapElevationCoverHex,
+    elevation: 1,
+    features: [{ type: TerrainType.Clear, level: 0 }],
+  },
 ];
 
-export const tacticalMapElevationLosTokens: readonly IUnitToken[] =
+const tacticalMapElevationLosBaseTokens: readonly IUnitToken[] =
   tacticalMapTokens
     .filter(
       (token) =>
         token.unitId === 'attacker' || token.unitId === 'blocked-target',
     )
-    .map((token) => {
+    .map((token): IUnitToken => {
       if (token.unitId === 'attacker') {
         return {
           ...token,
@@ -74,6 +82,24 @@ export const tacticalMapElevationLosTokens: readonly IUnitToken[] =
       };
     });
 
+const tacticalMapElevationCoverTargetToken: IUnitToken = {
+  unitId: tacticalMapElevationCoverTargetId,
+  name: 'Wasp WSP-1A',
+  designation: 'WSP',
+  position: tacticalMapElevationCoverTargetHex,
+  facing: Facing.North,
+  side: GameSide.Opponent,
+  isDestroyed: false,
+  isSelected: false,
+  isValidTarget: true,
+  unitType: TokenUnitType.Mech,
+};
+
+export const tacticalMapElevationLosTokens: readonly IUnitToken[] = [
+  ...tacticalMapElevationLosBaseTokens,
+  tacticalMapElevationCoverTargetToken,
+];
+
 export const tacticalMapElevationLosCombatState: IGameState = {
   ...tacticalMapCombatState,
   units: {
@@ -88,6 +114,14 @@ export const tacticalMapElevationLosCombatState: IGameState = {
       id: tacticalMapElevationLosTargetId,
       side: GameSide.Opponent,
       position: tacticalMapElevationLosTargetHex,
+      facing: Facing.North,
+      movementThisTurn: MovementType.Stationary,
+    },
+    [tacticalMapElevationCoverTargetId]: {
+      ...tacticalMapCombatState.units['blocked-target'],
+      id: tacticalMapElevationCoverTargetId,
+      side: GameSide.Opponent,
+      position: tacticalMapElevationCoverTargetHex,
       facing: Facing.North,
       movementThisTurn: MovementType.Stationary,
     },
@@ -142,6 +176,28 @@ export const tacticalMapElevationLosCombatProjection: ICombatRangeHex =
     ),
   );
 
+export const tacticalMapElevationCoverCombatProjection: ICombatRangeHex =
+  requireCombatProjection(
+    deriveCombatRangeHexes({
+      attacker: tacticalMapElevationLosAttacker,
+      targetUnitId: tacticalMapElevationCoverTargetId,
+      hexes: Array.from(
+        tacticalMapElevationLosGrid().hexes.values(),
+        (hex) => hex.coord,
+      ),
+      grid: tacticalMapElevationLosGrid(),
+      tokens: tacticalMapElevationLosTokens,
+      weapons: tacticalMapSelectedWeapons(
+        tacticalMapElevationLosSelectedWeaponIds,
+      ),
+      combatState: tacticalMapElevationLosCombatState,
+    }).find(
+      (projection) =>
+        projection.hex.q === tacticalMapElevationCoverTargetHex.q &&
+        projection.hex.r === tacticalMapElevationCoverTargetHex.r,
+    ),
+  );
+
 export function tacticalMapElevationLosCommitInput(): IApplyAttackInput {
   return {
     session: tacticalMapCombatSession({
@@ -151,6 +207,20 @@ export function tacticalMapElevationLosCommitInput(): IApplyAttackInput {
     weaponsByUnit: tacticalMapWeaponsByUnit(),
     attackerId: 'attacker',
     targetId: tacticalMapElevationLosTargetId,
+    weaponIds: tacticalMapElevationLosSelectedWeaponIds,
+    grid: tacticalMapElevationLosGrid(),
+  };
+}
+
+export function tacticalMapElevationCoverCommitInput(): IApplyAttackInput {
+  return {
+    session: tacticalMapCombatSession({
+      tokens: tacticalMapElevationLosTokens,
+      combatState: tacticalMapElevationLosCombatState,
+    }),
+    weaponsByUnit: tacticalMapWeaponsByUnit(),
+    attackerId: 'attacker',
+    targetId: tacticalMapElevationCoverTargetId,
     weaponIds: tacticalMapElevationLosSelectedWeaponIds,
     grid: tacticalMapElevationLosGrid(),
   };
