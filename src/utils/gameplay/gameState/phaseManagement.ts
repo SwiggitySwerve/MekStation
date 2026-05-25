@@ -29,6 +29,7 @@ export function applyPhaseChanged(
         ...units[unitId],
         movementThisTurn: MovementType.Stationary,
         hexesMovedThisTurn: 0,
+        movedBackwardThisTurn: false,
       };
     }
   }

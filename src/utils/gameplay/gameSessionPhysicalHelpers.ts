@@ -76,6 +76,8 @@ export interface IPhysicalAttackContext {
    */
   readonly attackerJumpedThisTurn?: boolean;
   readonly attackerRanThisTurn?: boolean;
+  /** True when the attacker's MovementDeclared step chain used backward movement. */
+  readonly attackerMovedBackwardThisTurn?: boolean;
   /**
    * Source-backed retractable blade gate. False means the blade is still
    * retracted and cannot be used for a club attack.

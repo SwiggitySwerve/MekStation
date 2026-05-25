@@ -1812,6 +1812,23 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows backward charge movement before prone-state validation', () => {
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            attackerMovedBackwardThisTurn: true,
+            attackerProne: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'ChargeBackwardMovement',
+      });
+    });
+
     it('disallows push displacement conflicts except legal counter-pushes', () => {
       expect(
         canPush(

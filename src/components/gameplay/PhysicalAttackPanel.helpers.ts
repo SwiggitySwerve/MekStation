@@ -30,6 +30,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   NoJumpThisTurn: 'DFA requires jumping this turn',
   MechanicalJumpBooster: 'DFA cannot use mechanical jump boosters',
   NoRunThisTurn: 'Charge requires running this turn',
+  ChargeBackwardMovement: 'Charge cannot include backward movement',
   AttackerInfantry: 'Infantry cannot perform DFA',
   AttackerNotMek: 'Attacker must be a Mek',
   AttackerQuad: 'Quad BattleMechs cannot push',

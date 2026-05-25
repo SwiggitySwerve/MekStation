@@ -322,6 +322,7 @@ describe('applyEvent - PhaseChanged', () => {
           ...state.units['unit-1'],
           movementThisTurn: MovementType.Walk,
           hexesMovedThisTurn: 4,
+          movedBackwardThisTurn: true,
         },
       },
     };
@@ -342,6 +343,7 @@ describe('applyEvent - PhaseChanged', () => {
       MovementType.Stationary,
     );
     expect(newState.units['unit-1'].hexesMovedThisTurn).toBe(0);
+    expect(newState.units['unit-1'].movedBackwardThisTurn).toBe(false);
   });
 });
 
@@ -435,6 +437,51 @@ describe('applyEvent - MovementDeclared', () => {
     expect(unit.hexesMovedThisTurn).toBe(8);
     expect(unit.heat).toBe(2);
     expect(unit.lockState).toBe(LockState.Planning);
+  });
+
+  it('records backward movement from the step chain', () => {
+    let state = createInitialGameState('game-1');
+
+    const createEvent = createTestEvent({
+      type: GameEventType.GameCreated,
+      payload: {
+        config: createTestConfig(),
+        units: [createTestUnit()],
+      } as IGameCreatedPayload,
+    });
+    state = applyEvent(state, createEvent);
+
+    const movementEvent = createTestEvent({
+      sequence: 2,
+      type: GameEventType.MovementDeclared,
+      payload: {
+        unitId: 'unit-1',
+        from: { q: 0, r: 0 },
+        to: { q: -1, r: 0 },
+        facing: Facing.North,
+        movementType: MovementType.Run,
+        mpUsed: 2,
+        heatGenerated: 2,
+        hexesMoved: 1,
+        steps: [
+          {
+            kind: 'forward',
+            index: 0,
+            direction: 'backward',
+            from: { q: 0, r: 0 },
+            to: { q: -1, r: 0 },
+            mpCost: 1,
+            terrainEntered: 'clear',
+            elevationDelta: 0,
+          },
+        ],
+      } as IMovementDeclaredPayload,
+    });
+
+    const newState = applyEvent(state, movementEvent);
+
+    expect(newState.units['unit-1'].hexesMovedThisTurn).toBe(1);
+    expect(newState.units['unit-1'].movedBackwardThisTurn).toBe(true);
   });
 
   it('should accumulate heat', () => {

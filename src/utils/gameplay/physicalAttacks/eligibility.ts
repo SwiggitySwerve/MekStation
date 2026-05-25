@@ -70,6 +70,8 @@ export interface IEligibilityContext {
   readonly limbsUsedThisTurn?: readonly PhysicalAttackLimb[];
   /** True when the attacker ran this turn — gates charge. */
   readonly attackerRanThisTurn?: boolean;
+  /** True when the movement step chain included backward movement. */
+  readonly attackerMovedBackwardThisTurn?: boolean;
   /** True when the attacker jumped this turn — gates DFA. */
   readonly attackerJumpedThisTurn?: boolean;
   /** Target movement modifier (TMM). */
@@ -297,6 +299,8 @@ export function getEligiblePhysicalAttacks(
     attackerMovementModifier: context.attackerMovementModifier,
     hasTSM: context.hasTSM,
     attackerRanThisTurn: context.attackerRanThisTurn,
+    attackerMovedBackwardThisTurn:
+      context.attackerMovedBackwardThisTurn ?? attacker.movedBackwardThisTurn,
     attackerJumpedThisTurn: context.attackerJumpedThisTurn,
     limbsUsedThisTurn: context.limbsUsedThisTurn,
     lowerArmActuatorPresent: context.lowerArmActuatorPresent,

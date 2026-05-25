@@ -97,7 +97,7 @@ const PUSH_ACTION_LINES =
 const CHARGE_ACTION_LINES =
   'MegaMek ChargeAttackAction.toHit, ChargeAttackAction.java:116-274';
 const CHARGE_MOVEMENT_PATH_LINES =
-  'MegaMek ChargeAttackAction.toHit movement-path validation rejects prone charge endings, ChargeAttackAction.java:404-439';
+  'MegaMek ChargeAttackAction.toHit movement-path validation rejects backward charge steps and prone charge endings, ChargeAttackAction.java:404-439';
 const DFA_ACTION_LINES =
   'MegaMek DfaAttackAction movement validation and toHit, DfaAttackAction.java:140-329';
 const GUN_EMPLACEMENT_AUTOMATIC_HIT_LINES =
@@ -158,7 +158,7 @@ const CHARGE_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
 );
 
 const CHARGE_MOVEMENT_PATH_SOURCE_REF = megamekPhysicalSourceRef(
-  'MegaMek ChargeAttackAction.toHit rejects charge movement paths that end prone',
+  'MegaMek ChargeAttackAction.toHit rejects charge movement paths that move backward or end prone',
   'common/actions/ChargeAttackAction.java',
   'L404-L439',
 );
@@ -542,6 +542,12 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'charge',
     'canCharge rejects declarations when attackerRanThisTurn is false',
     CHARGE_ACTION_LINES,
+  ),
+  'charge.no-backward-movement': integrated(
+    'charge.no-backward-movement',
+    'charge',
+    'MovementDeclared step chains hydrate movedBackwardThisTurn; canCharge rejects ChargeBackwardMovement through helper, eligibility, event-sourced declaration/resolution, runner resolution, and automatic runner selection before prone-state validation',
+    CHARGE_MOVEMENT_PATH_LINES,
   ),
   'charge.attacker-not-prone': integrated(
     'charge.attacker-not-prone',

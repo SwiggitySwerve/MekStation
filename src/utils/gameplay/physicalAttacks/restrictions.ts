@@ -604,6 +604,12 @@ export function canCharge(
   if (input.attackerRanThisTurn === false) {
     return blocked('Charge requires a run this turn', 'NoRunThisTurn');
   }
+  if (input.attackerMovedBackwardThisTurn) {
+    return blocked(
+      'No backwards movement allowed while charging',
+      'ChargeBackwardMovement',
+    );
+  }
   if (input.attackerProne) {
     return blocked('Cannot charge while prone', 'AttackerProne');
   }

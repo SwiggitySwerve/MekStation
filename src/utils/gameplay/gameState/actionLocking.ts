@@ -8,6 +8,7 @@ import {
   IUnitGameState,
   LockState,
 } from '@/types/gameplay';
+import { movementStepsUseBackwardMovement } from '@/utils/gameplay/movement/stepPredicates';
 
 export function applyMovementDeclared(
   state: IGameState,
@@ -28,6 +29,7 @@ export function applyMovementDeclared(
     torsoTwist: undefined,
     movementThisTurn: payload.movementType,
     hexesMovedThisTurn: payload.hexesMoved ?? payload.mpUsed,
+    movedBackwardThisTurn: movementStepsUseBackwardMovement(payload.steps),
     heat: unit.heat + payload.heatGenerated,
     prone: wentProne ? true : unit.prone,
     lockState: LockState.Planning,

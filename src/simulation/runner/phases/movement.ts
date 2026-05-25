@@ -155,8 +155,6 @@ export function runMovementPhase(options: {
         heatGenerated: validation.heatGenerated,
       };
 
-      currentState = applyMovementEvent(currentState, unitId, committedPayload);
-
       // Per `enrich-movement-declared-with-chain-and-displacement`
       // (movement-system delta): synthesize the per-step chain plus the
       // four decomposition fields (`hexesMoved` / `straightHexes` /
@@ -207,6 +205,12 @@ export function runMovementPhase(options: {
         grid,
       });
       const mode = movementAnimationModeForType(committedPayload.movementType);
+
+      currentState = applyMovementEvent(currentState, unitId, {
+        ...committedPayload,
+        hexesMoved: decomposition.hexesMoved,
+        steps: decomposition.steps,
+      });
 
       events.push(
         createGameEvent(

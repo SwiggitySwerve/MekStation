@@ -491,6 +491,9 @@ export function declarePhysicalAttack(
     retractableBladeExtended: context.retractableBladeExtended,
     attackerJumpedThisTurn: context.attackerJumpedThisTurn,
     attackerRanThisTurn: context.attackerRanThisTurn,
+    attackerMovedBackwardThisTurn:
+      context.attackerMovedBackwardThisTurn ??
+      attackerState.movedBackwardThisTurn,
     limbsUsedThisTurn: context.limbsUsedThisTurn,
     limb: context.limb,
     lowerArmActuatorPresent: context.lowerArmActuatorPresent,
@@ -735,6 +738,9 @@ export function resolveAllPhysicalAttacks(
       retractableBladeExtended: context.retractableBladeExtended,
       attackerJumpedThisTurn: context.attackerJumpedThisTurn,
       attackerRanThisTurn: context.attackerRanThisTurn,
+      attackerMovedBackwardThisTurn:
+        context.attackerMovedBackwardThisTurn ??
+        attackerState.movedBackwardThisTurn,
       limbsUsedThisTurn: context.limbsUsedThisTurn,
       limb: context.limb,
       lowerArmActuatorPresent: context.lowerArmActuatorPresent,

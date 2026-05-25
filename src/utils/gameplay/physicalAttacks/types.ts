@@ -94,6 +94,7 @@ export type PhysicalAttackInvalidReason =
   | 'NoJumpThisTurn'
   | 'MechanicalJumpBooster'
   | 'NoRunThisTurn'
+  | 'ChargeBackwardMovement'
   | 'AttackerInfantry'
   | 'AttackerNotMek'
   | 'AttackerQuad'
@@ -343,6 +344,11 @@ export interface IPhysicalAttackInput {
    */
   readonly attackerRanThisTurn?: boolean;
   /**
+   * Source-backed charge legality: MegaMek rejects charge movement paths that
+   * include BACKWARDS or backward-lateral movement steps.
+   */
+  readonly attackerMovedBackwardThisTurn?: boolean;
+  /**
    * Per task 3.5: the same limb (arm OR leg) cannot both kick + punch
    * in a single turn. Callers track which limbs have already been used
    * for a physical attack this turn.
@@ -489,6 +495,7 @@ export interface IChooseBestPhysicalAttackOptions {
   targetId?: string;
   canReachForCharge?: boolean;
   hexesMoved?: number;
+  attackerMovedBackwardThisTurn?: boolean;
   isJumping?: boolean;
   hasMeleeWeapon?: PhysicalAttackType;
   weaponsFiredFromLeftArm?: readonly string[];

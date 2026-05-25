@@ -247,6 +247,12 @@ export interface IUnitGameState {
   /** Hexes moved this turn */
   readonly hexesMovedThisTurn: number;
   /**
+   * Source-backed charge legality state derived from MovementDeclared.steps.
+   * True when this turn's movement path included BACKWARDS or backward-lateral
+   * steps, which MegaMek rejects for charge movement paths.
+   */
+  readonly movedBackwardThisTurn?: boolean;
+  /**
    * Per `add-encounter-swarm-harness` Phase 1: pilot gunnery skill copied
    * from the binding `IGameUnit` at session-creation time. Optional for
    * backward compat with synthetic unit fixtures (`createMinimalUnitState`)

@@ -6,8 +6,15 @@ import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
 import type { IUnitDamageState } from '@/utils/gameplay/damage';
 import type { IElectronicWarfareState } from '@/utils/gameplay/electronicWarfare';
 
-import { GamePhase, GameSide, GameStatus } from '@/types/gameplay';
-import { CombatLocation, IGameState, IUnitGameState } from '@/types/gameplay';
+import {
+  CombatLocation,
+  GamePhase,
+  GameSide,
+  GameStatus,
+  IGameState,
+  IMovementStep,
+  IUnitGameState,
+} from '@/types/gameplay';
 import { ScenarioObjectiveType } from '@/types/scenario/ScenarioInterfaces';
 import {
   addC3Network,
@@ -21,6 +28,7 @@ import {
   type IC3NetworkState,
   type IC3NetworkUnit,
 } from '@/utils/gameplay/c3Network';
+import { movementStepsUseBackwardMovement } from '@/utils/gameplay/movement/stepPredicates';
 import {
   deriveObjectivePlacementConfig,
   placeObjectives,
@@ -472,6 +480,8 @@ export function applyMovementEvent(
     facing: number;
     movementType: IUnitGameState['movementThisTurn'];
     mpUsed: number;
+    hexesMoved?: number;
+    steps?: readonly IMovementStep[];
   },
 ): IGameState {
   const unit = state.units[unitId];
@@ -482,7 +492,8 @@ export function applyMovementEvent(
     position: payload.to,
     facing: payload.facing,
     movementThisTurn: payload.movementType,
-    hexesMovedThisTurn: payload.mpUsed,
+    hexesMovedThisTurn: payload.hexesMoved ?? payload.mpUsed,
+    movedBackwardThisTurn: movementStepsUseBackwardMovement(payload.steps),
   };
 
   return {

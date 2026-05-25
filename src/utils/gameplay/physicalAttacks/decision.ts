@@ -119,6 +119,7 @@ export function chooseBestPhysicalAttack(
       attackType: 'charge',
       hexesMoved: options.hexesMoved,
       attackerRanThisTurn: true,
+      attackerMovedBackwardThisTurn: options.attackerMovedBackwardThisTurn,
     };
     if (canCharge(chargeInput).allowed) {
       const chargeDamage = calculateChargeDamageToTarget(chargeInput);

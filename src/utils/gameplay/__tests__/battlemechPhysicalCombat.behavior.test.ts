@@ -941,6 +941,33 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(reasonByRow.get('hatchet:-')).toEqual([]);
   });
 
+  it('surfaces backward charge movement as an eligibility restriction', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        facing: Facing.Southeast,
+        movementThisTurn: MovementType.Run,
+        hexesMovedThisTurn: 5,
+        movedBackwardThisTurn: true,
+      },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      attackerRanThisTurn: true,
+    });
+
+    expect(
+      options.find((option) => option.attackType === 'charge')
+        ?.restrictionsFailed,
+    ).toEqual(['ChargeBackwardMovement']);
+  });
+
   it('surfaces side-adjacent push targets as not directly ahead', () => {
     const attacker = unitState('attacker', GameSide.Player);
     const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
@@ -1459,6 +1486,36 @@ describe('BattleMech physical combat behavior validation lane', () => {
       location: 'TargetNotMek',
     });
     expect(gunEmplacementTargetPayload.automaticHit).toBeUndefined();
+  });
+
+  it('rejects charge declarations after backward movement before scheduling resolution', () => {
+    const rejected = declarePhysicalAttack(
+      withPhysicalPositions(physicalPhaseSession(), {
+        movementThisTurn: MovementType.Run,
+        hexesMovedThisTurn: 5,
+        movedBackwardThisTurn: true,
+      }),
+      'attacker',
+      'target',
+      'charge',
+      physicalContext({ attackerRanThisTurn: true, hexesMoved: 5 }),
+    );
+    const payload = rejected.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(
+      rejected.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackType: 'charge',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'ChargeBackwardMovement',
+    });
   });
 
   it('rejects non-Mek charge declarations against infantry or ProtoMech targets', () => {
@@ -2986,6 +3043,39 @@ describe('BattleMech physical combat behavior validation lane', () => {
       hit: false,
       location: 'TargetNotDirectlyAhead',
     });
+  });
+
+  it('resolves stale charge declarations after backward movement as invalid events', () => {
+    const context = physicalContext({
+      hexesMoved: 5,
+      attackerRanThisTurn: true,
+    });
+    const declared = declareAdjacentPhysicalAttack('charge', context, {
+      movementThisTurn: MovementType.Run,
+      hexesMovedThisTurn: 5,
+    });
+    const resolved = resolveAllPhysicalAttacks(
+      withUnitState(declared, 'attacker', { movedBackwardThisTurn: true }),
+      new Map([['attacker', context]]),
+      scriptedDice([6, 6]),
+      adjacentPhysicalGrid(),
+    );
+    const payload = resolved.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload).toMatchObject({
+      attackType: 'charge',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'ChargeBackwardMovement',
+    });
+    expect(
+      resolved.events.some(
+        (event) => event.type === GameEventType.DamageApplied,
+      ),
+    ).toBe(false);
   });
 
   it('ignores helper-only physical weapon modifier ids before declaration', () => {

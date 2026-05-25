@@ -1103,6 +1103,41 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     });
   });
 
+  it('rejects injected charge declarations after backward movement before side effects', () => {
+    const backwardCharge = runPhase('charge', {
+      attacker: {
+        movementThisTurn: MovementType.Run,
+        hexesMovedThisTurn: 5,
+        movedBackwardThisTurn: true,
+      },
+    });
+
+    expect(resolvedPayload(backwardCharge.events)).toMatchObject({
+      attackType: 'charge',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'ChargeBackwardMovement',
+    });
+    expect(damageEventsFor(backwardCharge.events, 'opponent-1')).toHaveLength(
+      0,
+    );
+    expect(damageEventsFor(backwardCharge.events, 'player-1')).toHaveLength(0);
+    expect(backwardCharge.result.units['opponent-1'].pendingPSRs).toHaveLength(
+      0,
+    );
+    expect(backwardCharge.result.units['player-1'].pendingPSRs).toHaveLength(0);
+    expect(backwardCharge.result.units['opponent-1'].position).toEqual({
+      q: 1,
+      r: 0,
+    });
+    expect(backwardCharge.result.units['player-1'].position).toEqual({
+      q: 0,
+      r: 0,
+    });
+  });
+
   it('rejects injected charge declarations when target elevation does not overlap the attacker', () => {
     const elevatedTarget = runPhase('charge', {
       attacker: {
@@ -1505,6 +1540,29 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       attackerId: 'player-1',
       targetId: 'opponent-1',
       attackType: 'charge',
+    });
+  });
+
+  it('does not automatically select charge after a backward running approach', () => {
+    const { events } = runAutomaticPhase({
+      attacker: {
+        movementThisTurn: MovementType.Run,
+        hexesMovedThisTurn: 5,
+        movedBackwardThisTurn: true,
+      },
+    });
+
+    const declared = events.find(
+      (event) =>
+        event.type === GameEventType.PhysicalAttackDeclared &&
+        (event.payload as IPhysicalAttackDeclaredPayload).attackerId ===
+          'player-1',
+    )?.payload as IPhysicalAttackDeclaredPayload | undefined;
+
+    expect(declared).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'kick',
     });
   });
 

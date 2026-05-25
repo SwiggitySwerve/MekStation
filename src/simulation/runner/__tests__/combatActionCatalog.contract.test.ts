@@ -907,6 +907,21 @@ describe('BattleMech combat action support catalog', () => {
     });
   });
 
+  it('catalogs charge backward-movement legality as an integrated source-backed gate', () => {
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['charge.no-backward-movement'],
+    ).toMatchObject({
+      level: 'integrated',
+      attackFamily: 'charge',
+      evidence: expect.stringContaining('movedBackwardThisTurn'),
+      sourceRefs: [
+        expect.objectContaining({
+          citation: expect.stringContaining('move backward'),
+        }),
+      ],
+    });
+  });
+
   it('keeps unresolved physical displacement chain edges visible and source-backed', () => {
     expect(
       PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-domino-chain'],
