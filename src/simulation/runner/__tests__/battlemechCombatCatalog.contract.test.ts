@@ -506,6 +506,24 @@ const EXPECTED_STRING_DAMAGE_RESOLUTIONS = {
   'streak-srm-6': 12,
 } satisfies Record<string, number>;
 
+const EXPECTED_ZERO_DAMAGE_RANGED_WEAPON_IDS = {
+  'defensive-system': ['ams', 'clan-ams', 'clan-laser-ams', 'laser-ams'],
+  'standard-special-effect': [
+    'clan-narc',
+    'clan-plasma-cannon',
+    'inarc',
+    'narc',
+  ],
+  'standard-rows': [
+    'ams',
+    'clan-ams',
+    'clan-narc',
+    'clan-plasma-cannon',
+    'inarc',
+    'narc',
+  ],
+} satisfies Record<string, readonly string[]>;
+
 const EXPECTED_MULTI_MODE_SPECIAL_WEAPON_FAMILY_IDS = {
   'lb-x-ac': [
     'clan-lb-10-x-ac',
@@ -983,17 +1001,20 @@ describe('BattleMech combat catalog validation lane', () => {
           (item) => zeroDamageClassification(item) === 'defensive-system',
         ),
       ),
-    ).toEqual(['ams', 'clan-ams', 'clan-laser-ams', 'laser-ams']);
+    ).toEqual(EXPECTED_ZERO_DAMAGE_RANGED_WEAPON_IDS['defensive-system']);
+    expect(
+      ids(
+        zeroDamageItems.filter(
+          (item) =>
+            zeroDamageClassification(item) === 'standard-special-effect',
+        ),
+      ),
+    ).toEqual(
+      EXPECTED_ZERO_DAMAGE_RANGED_WEAPON_IDS['standard-special-effect'],
+    );
     expect(
       ids(zeroDamageItems.filter((item) => item.rulesLevel === 'STANDARD')),
-    ).toEqual([
-      'ams',
-      'clan-ams',
-      'clan-narc',
-      'clan-plasma-cannon',
-      'inarc',
-      'narc',
-    ]);
+    ).toEqual(EXPECTED_ZERO_DAMAGE_RANGED_WEAPON_IDS['standard-rows']);
   });
 
   it('keeps variable missile damage from mapping to zero', () => {
@@ -1216,6 +1237,7 @@ describe('BattleMech combat catalog validation lane', () => {
     const mmlLaunchers = familyItems(/\bMML\b/i);
     const narcLaunchers = familyItems(/\bNARC\b|\biNARC\b|\bNarc\b/i);
     const amsSystems = familyItems(/\bAnti-Missile System\b|\bAMS\b/i);
+    const plasmaCannons = familyItems(/\bPlasma Cannon\b/i);
     const tagDesignators = electronicsItems.filter((item) =>
       /\bTAG\b/i.test(itemText(item)),
     );
@@ -1230,6 +1252,7 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(mmlLaunchers).toHaveLength(4);
     expect(narcLaunchers).toHaveLength(10);
     expect(amsSystems).toHaveLength(4);
+    expect(plasmaCannons).toHaveLength(1);
     expect(tagDesignators).toHaveLength(4);
     expect(artemisFcs).toHaveLength(3);
     expect({
@@ -1250,8 +1273,12 @@ describe('BattleMech combat catalog validation lane', () => {
       ams: ids(amsSystems),
       artemis: ids(artemisFcs),
       narc: ids(narcLaunchers),
+      'plasma-cannon': ids(plasmaCannons),
       tag: ids(tagDesignators),
-    }).toEqual(EXPECTED_DESIGNATOR_DEFENSIVE_SPECIAL_FAMILY_IDS);
+    }).toEqual({
+      ...EXPECTED_DESIGNATOR_DEFENSIVE_SPECIAL_FAMILY_IDS,
+      'plasma-cannon': ['clan-plasma-cannon'],
+    });
 
     expect(ids(ultraACs).every(isUltraAC)).toBe(true);
     expect(ids(rotaryACs).every(isRotaryAC)).toBe(true);
@@ -1274,6 +1301,7 @@ describe('BattleMech combat catalog validation lane', () => {
       'lb-x-ac',
       'mml',
       'narc',
+      'plasma-cannon',
       'rotary-ac',
       'streak-srm',
       'tag',
@@ -1285,7 +1313,7 @@ describe('BattleMech combat catalog validation lane', () => {
     ).toEqual(['lb-x-ac', 'mml', 'rotary-ac', 'streak-srm', 'tag', 'ultra-ac']);
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['ams', 'artemis', 'narc']);
+    ).toEqual(['ams', 'artemis', 'narc', 'plasma-cannon']);
 
     expect(supportGaps(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT)).toEqual([]);
     expect(
@@ -1542,6 +1570,7 @@ describe('BattleMech combat catalog validation lane', () => {
     const mmlLaunchers = familyItems(/\bMML\b/i);
     const narcLaunchers = familyItems(/\bNARC\b|\biNARC\b|\bNarc\b/i);
     const amsSystems = familyItems(/\bAnti-Missile System\b|\bAMS\b/i);
+    const plasmaCannons = familyItems(/\bPlasma Cannon\b/i);
     const tagDesignators = electronicsItems.filter((item) =>
       /\bTAG\b/i.test(itemText(item)),
     );
@@ -1569,6 +1598,9 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.mml.level).toBe('integrated');
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.level).toBe('helper-only');
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.level).toBe('helper-only');
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].level).toBe(
+      'helper-only',
+    );
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.level).toBe('integrated');
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.evidence).toContain(
       'official cluster totals ignore',
@@ -1613,11 +1645,13 @@ describe('BattleMech combat catalog validation lane', () => {
         SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.gap,
         SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap,
         SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.artemis.gap,
+        SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].gap,
       ].every((gap) => typeof gap === 'string' && gap.length > 0),
     ).toBe(true);
 
     expect(ids(narcLaunchers)).toContain('narc');
     expect(ids(amsSystems)).toContain('ams');
+    expect(ids(plasmaCannons)).toEqual(['clan-plasma-cannon']);
     expect(ids(tagDesignators)).toContain('tag');
     expect(ids(artemisFcs)).toEqual([
       'artemisiv',
@@ -1680,6 +1714,13 @@ describe('BattleMech combat catalog validation lane', () => {
       'MegaMek MissileWeaponHandler applies Artemis IV +2, prototype Artemis IV +1, and Artemis V +3 cluster modifiers while suppressing ECM and stealth',
       'MegaMek LRMHandler skips Artemis cluster modifiers when the weapon mode is Indirect and includes prototype Artemis IV in the same modifier chain',
       'MegaMek MiscType.createISProtoArtemis defines Prototype Artemis IV FCS with F_ARTEMIS_PROTO',
+    ]);
+    expect(
+      sourceRefsFor('plasma-cannon').map(({ citation }) => citation),
+    ).toEqual([
+      'CLPlasmaCannon declares variable damage, heat 7, plasma/energy flags, plasma ammunition, and routes attacks to PlasmaCannonHandler.',
+      'PlasmaCannonHandler applies external target heat on heat-tracking entities, including armor-specific reflective and heat-dissipating adjustments.',
+      'PlasmaCannonHandler keeps plasma-cannon BattleMech damage at zero while applying non-Mek/terrain/building special damage paths.',
     ]);
 
     for (const entry of Object.values(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT)) {

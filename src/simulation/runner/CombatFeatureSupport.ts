@@ -41,6 +41,7 @@ import {
   MEGAMEK_LBX_SOURCE_REFS,
   MEGAMEK_MML_SOURCE_REFS,
   MEGAMEK_NARC_FAMILY_SOURCE_REFS,
+  MEGAMEK_PLASMA_CANNON_SOURCE_REFS,
   MEGAMEK_RAC_SOURCE_REFS,
   MEGAMEK_STREAK_SRM_SOURCE_REFS,
   MEGAMEK_TAG_FAMILY_SOURCE_REFS,
@@ -886,6 +887,12 @@ export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
       MEGAMEK_325B_LRM_ARTEMIS_INDIRECT_GUARD,
       MEGAMEK_325B_PROTOTYPE_ARTEMIS_FCS,
     ],
+  ),
+  'plasma-cannon': helperOnly(
+    'plasma-cannon',
+    'Exact official Clan Plasma Cannon id is pinned as a standard zero-damage plasma weapon with source-backed target-heat semantics rather than direct BattleMech damage',
+    'Runner weapon hit resolution maps the catalog damage to zero but does not yet apply plasma-cannon external target heat, reflective/heat-dissipating armor adjustments, or non-Mek special damage paths',
+    MEGAMEK_PLASMA_CANNON_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 

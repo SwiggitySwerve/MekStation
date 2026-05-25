@@ -521,8 +521,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'special-weapon-families': helperOnly(
     'special-weapon-families',
-    'Special weapon family support catalogs UAC, RAC, LB-X, Streak, MML, NARC, AMS, TAG, and Artemis responsibilities',
-    'Several family-specific mechanics are helper-only until remaining iNarc ECM sensor effects, ambiguous/player-authored C3 network assignment, AMS defender choice/arc rules, or Artemis exact-link/Nova-network/damage-lifecycle edges are wired',
+    'Special weapon family support catalogs UAC, RAC, LB-X, Streak, MML, NARC, AMS, TAG, Artemis, and plasma-cannon responsibilities',
+    'Several family-specific mechanics are helper-only until remaining iNarc ECM sensor effects, ambiguous/player-authored C3 network assignment, AMS defender choice/arc rules, Artemis exact-link/Nova-network/damage-lifecycle edges, or plasma-cannon external target heat are wired',
     [
       'featureSupport.specialWeaponFamilies.ultra-ac',
       'featureSupport.specialWeaponFamilies.rotary-ac',
@@ -532,6 +532,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       'featureSupport.specialWeaponFamilies.ams',
       'featureSupport.specialWeaponFamilies.tag',
       'featureSupport.specialWeaponFamilies.artemis',
+      'featureSupport.specialWeaponFamilies.plasma-cannon',
       'featureSupport.specialWeaponMechanics.mml-variable-damage',
       'featureSupport.specialWeaponMechanics.mml-srm-lrm-ammo-compatibility',
       'featureSupport.specialWeaponMechanics.narc-marker-attachment',

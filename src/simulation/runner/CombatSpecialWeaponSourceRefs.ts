@@ -237,6 +237,30 @@ export const MEGAMEK_TAG_FAMILY_SOURCE_REFS = [
   ...MEGAMEK_TAG_SEMI_GUIDED_SOURCE_REFS,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEGAMEK_PLASMA_CANNON_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'CLPlasmaCannon declares variable damage, heat 7, plasma/energy flags, plasma ammunition, and routes attacks to PlasmaCannonHandler.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/ppc/clan/CLPlasmaCannon.java#L69-L112',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'PlasmaCannonHandler applies external target heat on heat-tracking entities, including armor-specific reflective and heat-dissipating adjustments.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/plasma/PlasmaCannonHandler.java#L213-L271',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'PlasmaCannonHandler keeps plasma-cannon BattleMech damage at zero while applying non-Mek/terrain/building special damage paths.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/plasma/PlasmaCannonHandler.java#L276-L382',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_AMS_SOURCE_VERSION = '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
 
 export const MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS = [
