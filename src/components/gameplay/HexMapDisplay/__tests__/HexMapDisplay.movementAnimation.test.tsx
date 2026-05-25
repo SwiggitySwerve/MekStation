@@ -662,6 +662,39 @@ describe('HexMapDisplay tactical visual layers', () => {
       'aria-label',
       expect.stringContaining('Walk reachable 3 MP'),
     );
+    const reachableOverlay = screen.getByTestId('hex-overlay-1-0');
+    expect(reachableOverlay).toHaveAttribute(
+      'data-hex-overlay-kind',
+      'movement-legal',
+    );
+    expect(reachableOverlay).toHaveAttribute(
+      'data-hex-overlay-status',
+      'legal',
+    );
+    expect(reachableOverlay).toHaveAttribute(
+      'data-hex-overlay-movement-status',
+      'legal',
+    );
+    expect(reachableOverlay).toHaveAttribute(
+      'data-hex-overlay-combat-status',
+      'none',
+    );
+    expect(reachableOverlay).toHaveAttribute(
+      'data-hex-overlay-sources',
+      expect.stringContaining(
+        'movement:megamek:MegaMek movement rules projection',
+      ),
+    );
+    expect(reachableOverlay).toHaveAttribute(
+      'data-hex-overlay-explanation',
+      expect.stringContaining('Walk reachable 3 MP'),
+    );
+    expect(reachableOverlay).toHaveAccessibleName(
+      expect.stringContaining('Hex 1,0 movement-legal highlight'),
+    );
+    expect(reachableOverlay).toHaveAccessibleName(
+      expect.stringContaining('movement legal'),
+    );
 
     fireEvent.mouseEnter(reachable);
     expect(screen.getByTestId('hex-movement-tooltip-status')).toHaveTextContent(
@@ -1003,6 +1036,23 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(
       screen.getByTestId('hex-projection-status-badge-1-0'),
     ).toHaveAttribute('data-projection-status-badge-status', 'mixed');
+    const mixedOverlay = screen.getByTestId('hex-overlay-1-0');
+    expect(mixedOverlay).toHaveAttribute('data-hex-overlay-status', 'mixed');
+    expect(mixedOverlay).toHaveAttribute(
+      'data-hex-overlay-movement-status',
+      'mixed',
+    );
+    expect(mixedOverlay).toHaveAttribute(
+      'data-hex-overlay-blocked-reasons',
+      `${blockedReason}|TerrainBlocked`,
+    );
+    expect(mixedOverlay).toHaveAttribute(
+      'data-hex-overlay-explanation',
+      expect.stringContaining(`jump blocked 1 MP heat +1: ${blockedReason}`),
+    );
+    expect(mixedOverlay).toHaveAccessibleName(
+      expect.stringContaining(`blocked ${blockedReason}; TerrainBlocked`),
+    );
 
     const badge = screen.getByTestId('hex-movement-badge-1-0');
     expect(badge).toHaveTextContent('W3/R4 MP');

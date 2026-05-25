@@ -161,6 +161,37 @@ function hasLegacyAttackRangeSource(
   );
 }
 
+function formatHexOverlayLabel({
+  hex,
+  overlayKind,
+  status,
+  movementStatus,
+  combatStatus,
+  blockedReasons,
+  explanation,
+}: {
+  readonly hex: IHexCoordinate;
+  readonly overlayKind: HexOverlayKind;
+  readonly status?: TacticalMapHexProjectionStatus;
+  readonly movementStatus?: TacticalMapMovementProjectionStatus;
+  readonly combatStatus?: TacticalMapCombatProjectionStatus;
+  readonly blockedReasons?: readonly string[];
+  readonly explanation?: string;
+}): string {
+  const parts = [
+    `Hex ${hex.q},${hex.r} ${overlayKind} highlight`,
+    status ? `projection ${status}` : '',
+    movementStatus ? `movement ${movementStatus}` : '',
+    combatStatus ? `combat ${combatStatus}` : '',
+    blockedReasons && blockedReasons.length > 0
+      ? `blocked ${blockedReasons.join('; ')}`
+      : '',
+    explanation ? `detail ${explanation}` : '',
+  ];
+
+  return parts.filter(Boolean).join('; ');
+}
+
 export interface HexCellProps {
   hex: IHexCoordinate;
   terrain?: IHexTerrain;
@@ -325,6 +356,29 @@ export const HexCell = React.memo(function HexCell({
     overlayOpacity = 0.4;
     overlayKind = 'hover';
   }
+  const overlaySourceReferences =
+    tacticalProjectionSourceReferences &&
+    tacticalProjectionSourceReferences.length > 0
+      ? formatTacticalProjectionSourceReferences(
+          tacticalProjectionSourceReferences,
+        )
+      : undefined;
+  const overlayBlockedReasons =
+    tacticalProjectionBlockedReasons &&
+    tacticalProjectionBlockedReasons.length > 0
+      ? tacticalProjectionBlockedReasons.join('|')
+      : undefined;
+  const overlayLabel = overlayKind
+    ? formatHexOverlayLabel({
+        hex,
+        overlayKind,
+        status: tacticalProjectionStatus,
+        movementStatus: tacticalProjectionMovementStatus,
+        combatStatus: tacticalProjectionCombatStatus,
+        blockedReasons: tacticalProjectionBlockedReasons,
+        explanation: tacticalProjectionExplanation,
+      })
+    : undefined;
 
   const isJumpTile =
     movementInfo?.reachable && movementInfo.movementType === MovementType.Jump;
@@ -691,8 +745,16 @@ export const HexCell = React.memo(function HexCell({
           fill={overlayFill}
           opacity={overlayOpacity}
           pointerEvents="none"
+          role="img"
+          aria-label={overlayLabel}
           data-testid={`hex-overlay-${hex.q}-${hex.r}`}
           data-hex-overlay-kind={overlayKind ?? undefined}
+          data-hex-overlay-status={tacticalProjectionStatus}
+          data-hex-overlay-movement-status={tacticalProjectionMovementStatus}
+          data-hex-overlay-combat-status={tacticalProjectionCombatStatus}
+          data-hex-overlay-blocked-reasons={overlayBlockedReasons}
+          data-hex-overlay-sources={overlaySourceReferences}
+          data-hex-overlay-explanation={tacticalProjectionExplanation}
           data-hex-overlay-legacy-fallback={
             isLegacyAttackRangeFallback ? 'true' : undefined
           }

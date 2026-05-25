@@ -1374,6 +1374,14 @@ combat projection. This does not change attack legality; it keeps compatibility
 range envelopes visible while preventing them from visually claiming the same
 status as rules-backed valid attacks.
 
+2026-05-25 overlay projection context pin: Rendered hex overlay paths now carry
+the shared projection status, movement/combat channel status, blocked reasons,
+source references, explanation, and accessible label that explain why the
+highlight exists. This does not change movement, combat, LOS, or terrain
+legality; it makes the visible highlight itself inspectable instead of requiring
+tests or assistive tooling to climb to the parent hex group for the rules-backed
+evidence.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

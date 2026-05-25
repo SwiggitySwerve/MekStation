@@ -1969,6 +1969,41 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-blocked-reason',
       'No weapons cover rear arc',
     );
+    const blockedOverlay = screen.getByTestId('hex-overlay-0-1');
+    expect(blockedOverlay).toHaveAttribute(
+      'data-hex-overlay-kind',
+      'combat-blocked',
+    );
+    expect(blockedOverlay).toHaveAttribute(
+      'data-hex-overlay-status',
+      'blocked',
+    );
+    expect(blockedOverlay).toHaveAttribute(
+      'data-hex-overlay-combat-status',
+      'blocked',
+    );
+    expect(blockedOverlay).toHaveAttribute(
+      'data-hex-overlay-blocked-reasons',
+      'No selected weapons can fire into the rear arc|No weapons cover rear arc|OutOfArc',
+    );
+    expect(blockedOverlay).toHaveAttribute(
+      'data-hex-overlay-sources',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(blockedOverlay).toHaveAttribute(
+      'data-hex-overlay-explanation',
+      expect.stringContaining('weapons none available'),
+    );
+    expect(blockedOverlay).toHaveAccessibleName(
+      expect.stringContaining('Hex 0,1 combat-blocked highlight'),
+    );
+    expect(blockedOverlay).toHaveAccessibleName(
+      expect.stringContaining(
+        'blocked No selected weapons can fire into the rear arc; No weapons cover rear arc; OutOfArc',
+      ),
+    );
     expect(screen.getByTestId('hex-combat-badge-0-1')).toHaveAttribute(
       'data-combat-badge-weapon-option-blocked-reasons',
       'front-laser:out of rear arc',
