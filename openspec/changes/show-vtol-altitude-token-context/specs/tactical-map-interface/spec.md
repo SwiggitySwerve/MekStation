@@ -18,6 +18,16 @@ legacy caller provides altitude-like data.
 **AND** the token accessible label SHALL include altitude 3
 **AND** the vehicle token SHALL render a visible non-color altitude badge
 
+#### Scenario: Browser harness preserves VTOL altitude context
+
+**GIVEN** the tactical-map browser harness renders a VTOL elevation movement
+scenario
+**AND** the selected VTOL token has altitude 3
+**WHEN** the top-down map SVG renders the token and movement overlay together
+**THEN** the rendered token wrapper SHALL expose altitude 3 metadata
+**AND** the rendered token accessible label SHALL include altitude 3
+**AND** the rendered vehicle token SHALL show the visible altitude badge
+
 #### Scenario: Non-VTOL vehicle token does not expose altitude chrome
 
 **GIVEN** a vehicle unit does not use VTOL motion

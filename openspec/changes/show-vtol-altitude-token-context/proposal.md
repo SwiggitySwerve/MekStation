@@ -15,6 +15,8 @@ and elevation context is inspectable without opening a side panel.
 - Project VTOL altitude from vehicle combat state into the shared vehicle token.
 - Render a compact visible VTOL altitude badge on vehicle tokens.
 - Expose VTOL altitude through token wrapper metadata and accessible labels.
+- Pin the existing VTOL elevation browser harness to verify that altitude
+  metadata and visible token chrome survive the full tactical-map SVG render.
 
 ## Out of Scope
 
@@ -31,4 +33,4 @@ and elevation context is inspectable without opening a side panel.
   `src/components/gameplay/UnitToken/UnitTokenForType.tsx`,
   `src/types/gameplay/GameplayUIInterfaces.ts`
 - Tests: focused vehicle token, token dispatcher, and state-to-token adapter
-  coverage
+  coverage plus the tactical-map browser smoke VTOL scenario

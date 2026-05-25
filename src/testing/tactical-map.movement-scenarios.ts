@@ -101,6 +101,7 @@ export const tacticalMapVtolTokens: readonly IUnitToken[] =
           designation: 'KAR',
           unitType: TokenUnitType.Vehicle,
           vehicleMotionType: VehicleMotionType.VTOL,
+          altitude: 3,
         }
       : token,
   );

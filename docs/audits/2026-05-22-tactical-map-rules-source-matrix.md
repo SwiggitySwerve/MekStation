@@ -730,6 +730,10 @@ projects VTOL altitude into vehicle map tokens. The token wrapper exposes
 `data-vehicle-altitude`, the accessible label includes the altitude, and the
 vehicle renderer shows a visible `ALTn`/`HOV` badge only for VTOL motion so
 airborne/hover state is inspectable from the map without side-panel context.
+The existing `vtol-elevation-cost` browser scenario now carries altitude 3 and
+asserts that the live tactical-map SVG preserves the wrapper metadata, aria
+context, and visible `ALT3` vehicle badge while the movement overlay still
+shows the rules-backed zero elevation MP climb.
 
 Tracked-vehicle browser update: the tactical-map browser harness now pairs the
 VTOL proof with a tracked ground-vehicle abrupt-climb scenario. The top-down map

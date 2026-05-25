@@ -1281,8 +1281,31 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
   }) => {
     await page.goto('/e2e/tactical-map?scenario=vtol-elevation-cost');
 
-    await expect(page.getByTestId('unit-token-attacker')).toContainText('KAR');
-    await expect(page.getByTestId('unit-token-attacker')).toContainText('VT');
+    const vtolToken = page.getByTestId('unit-token-attacker');
+    await expect(vtolToken).toContainText('KAR');
+    await expect(vtolToken).toContainText('VT');
+    await expect(vtolToken).toHaveAttribute('data-unit-type', 'vehicle');
+    await expect(vtolToken).toHaveAttribute('data-vehicle-motion-type', 'vtol');
+    await expect(vtolToken).toHaveAttribute('data-vehicle-altitude', '3');
+    await expect(vtolToken).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('motion VTOL'),
+    );
+    await expect(vtolToken).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('altitude 3'),
+    );
+
+    const altitudeBadge = vtolToken.getByTestId('vehicle-altitude-badge');
+    await expect(altitudeBadge).toHaveText('ALT3');
+    await expect(altitudeBadge).toHaveAttribute(
+      'data-vehicle-altitude-badge-motion',
+      'vtol',
+    );
+    await expect(altitudeBadge).toHaveAttribute(
+      'data-vehicle-altitude-badge-altitude',
+      '3',
+    );
 
     const vtolHex = page.getByTestId('hex-1-0');
     await expect(vtolHex).toHaveAttribute('data-reachable', 'true');

@@ -16,5 +16,6 @@
 - [x] 3.1 Add adapter coverage for VTOL altitude projection and non-VTOL suppression
 - [x] 3.2 Add vehicle token coverage for airborne, hover, and non-VTOL badge behavior
 - [x] 3.3 Add dispatcher coverage for token metadata and aria context
-- [x] 3.4 Focused Jest tests pass
-- [x] 3.5 Typecheck, lint, format, diff, and strict OpenSpec validation pass
+- [x] 3.4 Add browser harness coverage for VTOL altitude metadata and badge rendering
+- [x] 3.5 Focused Jest tests pass
+- [x] 3.6 Typecheck, lint, format, diff, and strict OpenSpec validation pass
