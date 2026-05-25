@@ -604,6 +604,9 @@ export function canCharge(
   if (input.attackerRanThisTurn === false) {
     return blocked('Charge requires a run this turn', 'NoRunThisTurn');
   }
+  if (input.attackerProne) {
+    return blocked('Cannot charge while prone', 'AttackerProne');
+  }
   if (legacyOrMekUnitType(input.attackerUnitType)) {
     if (input.targetObjectType === 'gunEmplacement') {
       return blocked('Charge target must be a Mek', 'TargetNotMek');

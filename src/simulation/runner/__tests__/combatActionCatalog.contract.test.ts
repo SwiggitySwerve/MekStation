@@ -892,6 +892,21 @@ describe('BattleMech combat action support catalog', () => {
     });
   });
 
+  it('catalogs charge prone-attacker legality as an integrated source-backed gate', () => {
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['charge.attacker-not-prone'],
+    ).toMatchObject({
+      level: 'integrated',
+      attackFamily: 'charge',
+      evidence: expect.stringContaining('attackerProne'),
+      sourceRefs: [
+        expect.objectContaining({
+          citation: expect.stringContaining('ChargeAttackAction'),
+        }),
+      ],
+    });
+  });
+
   it('keeps unresolved physical displacement chain edges visible and source-backed', () => {
     expect(
       PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-domino-chain'],

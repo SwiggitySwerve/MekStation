@@ -1796,6 +1796,22 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows prone charge attackers after the run gate passes', () => {
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            attackerProne: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerProne',
+      });
+    });
+
     it('disallows push displacement conflicts except legal counter-pushes', () => {
       expect(
         canPush(

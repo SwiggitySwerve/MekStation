@@ -485,6 +485,15 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** the charge SHALL be rejected with `TargetNotMek`
 - **AND** no automatic-hit metadata, damage, displacement, or PSR side effects SHALL be emitted
 
+#### Scenario: Charge rejects prone attackers
+
+- **GIVEN** a BattleMech-compatible attacker declares a charge after running this turn
+- **AND** the attacker is prone at charge resolution time
+- **WHEN** the charge legality gate runs
+- **THEN** the charge SHALL be rejected with `AttackerProne`
+- **AND** no physical declaration, damage, displacement, or PSR side effect SHALL be emitted
+- **AND** runner physical phase SHALL skip prone attackers before bot or automatic charge declarations
+
 #### Scenario: Charge rejects invalid standing-Mek target gates
 
 - **GIVEN** a BattleMech-compatible attacker declares a charge after running this turn

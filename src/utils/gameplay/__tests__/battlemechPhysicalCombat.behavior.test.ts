@@ -1337,7 +1337,35 @@ describe('BattleMech physical combat behavior validation lane', () => {
     });
   });
 
-  it('rejects charge declarations against prone or explicit non-Mek targets before scheduling resolution', () => {
+  it('rejects charge declarations with prone attackers, prone targets, or explicit non-Mek targets before scheduling resolution', () => {
+    const proneAttacker = declarePhysicalAttack(
+      withPhysicalPositions(physicalPhaseSession(), {
+        movementThisTurn: MovementType.Run,
+        hexesMovedThisTurn: 5,
+        prone: true,
+      }),
+      'attacker',
+      'target',
+      'charge',
+      physicalContext({ attackerRanThisTurn: true, hexesMoved: 5 }),
+    );
+    const proneAttackerPayload = proneAttacker.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(
+      proneAttacker.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toHaveLength(0);
+    expect(proneAttackerPayload).toMatchObject({
+      attackType: 'charge',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'AttackerProne',
+    });
+
     const proneTarget = declarePhysicalAttack(
       withPhysicalPositions(
         physicalPhaseSession(),

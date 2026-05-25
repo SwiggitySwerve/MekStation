@@ -96,6 +96,8 @@ const PUSH_ACTION_LINES =
   'MegaMek PushAttackAction.toHit, PushAttackAction.java:112-286';
 const CHARGE_ACTION_LINES =
   'MegaMek ChargeAttackAction.toHit, ChargeAttackAction.java:116-274';
+const CHARGE_MOVEMENT_PATH_LINES =
+  'MegaMek ChargeAttackAction.toHit movement-path validation rejects prone charge endings, ChargeAttackAction.java:404-439';
 const DFA_ACTION_LINES =
   'MegaMek DfaAttackAction movement validation and toHit, DfaAttackAction.java:140-329';
 const GUN_EMPLACEMENT_AUTOMATIC_HIT_LINES =
@@ -153,6 +155,12 @@ const CHARGE_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
   'MegaMek ChargeAttackAction.toHit applies charge-specific BattleMech legality gates',
   'common/actions/ChargeAttackAction.java',
   'L116-L274',
+);
+
+const CHARGE_MOVEMENT_PATH_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek ChargeAttackAction.toHit rejects charge movement paths that end prone',
+  'common/actions/ChargeAttackAction.java',
+  'L404-L439',
 );
 
 const DFA_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
@@ -257,6 +265,8 @@ function sourceRefsForAuthority(
       return [PUSH_ACTION_SOURCE_REF];
     case CHARGE_ACTION_LINES:
       return [CHARGE_ACTION_SOURCE_REF];
+    case CHARGE_MOVEMENT_PATH_LINES:
+      return [CHARGE_MOVEMENT_PATH_SOURCE_REF];
     case DFA_ACTION_LINES:
       return [DFA_ACTION_SOURCE_REF];
     case GUN_EMPLACEMENT_AUTOMATIC_HIT_LINES:
@@ -532,6 +542,12 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'charge',
     'canCharge rejects declarations when attackerRanThisTurn is false',
     CHARGE_ACTION_LINES,
+  ),
+  'charge.attacker-not-prone': integrated(
+    'charge.attacker-not-prone',
+    'charge',
+    'canCharge rejects attackerProne after the source-backed run gate passes; event-sourced declarations emit AttackerProne before scheduling and runner physical phase skips prone attackers before bot/automatic charge declarations',
+    CHARGE_MOVEMENT_PATH_LINES,
   ),
   'charge.target-entity': helperOnly(
     'charge.target-entity',

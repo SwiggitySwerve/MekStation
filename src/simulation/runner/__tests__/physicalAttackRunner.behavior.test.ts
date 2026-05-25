@@ -1077,6 +1077,32 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     });
   });
 
+  it('skips prone charge attackers before injected physical declarations', () => {
+    const proneAttacker = runPhase('charge', {
+      attacker: {
+        movementThisTurn: MovementType.Run,
+        hexesMovedThisTurn: 5,
+        prone: true,
+      },
+    });
+
+    expect(proneAttacker.events).toEqual([]);
+    expect(damageEventsFor(proneAttacker.events, 'opponent-1')).toHaveLength(0);
+    expect(damageEventsFor(proneAttacker.events, 'player-1')).toHaveLength(0);
+    expect(proneAttacker.result.units['opponent-1'].pendingPSRs).toHaveLength(
+      0,
+    );
+    expect(proneAttacker.result.units['player-1'].pendingPSRs).toHaveLength(0);
+    expect(proneAttacker.result.units['opponent-1'].position).toEqual({
+      q: 1,
+      r: 0,
+    });
+    expect(proneAttacker.result.units['player-1'].position).toEqual({
+      q: 0,
+      r: 0,
+    });
+  });
+
   it('rejects injected charge declarations when target elevation does not overlap the attacker', () => {
     const elevatedTarget = runPhase('charge', {
       attacker: {
