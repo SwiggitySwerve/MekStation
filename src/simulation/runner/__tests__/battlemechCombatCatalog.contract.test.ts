@@ -2671,6 +2671,73 @@ describe('BattleMech combat feature-gap tracking', () => {
           ) ?? [],
       ),
     ).toEqual([]);
+
+    const heatAndMovementPsrTriggers = [
+      PSRTrigger.Shutdown,
+      PSRTrigger.StandingUp,
+      PSRTrigger.RunningDamagedHip,
+      PSRTrigger.RunningDamagedGyro,
+    ];
+    const heatAndMovementPsrSourceRefs = heatAndMovementPsrTriggers.map(
+      (trigger) => ({
+        trigger,
+        sourceRefs: RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[trigger].sourceRefs ?? [],
+      }),
+    );
+    expect(
+      heatAndMovementPsrSourceRefs
+        .filter(({ sourceRefs }) => sourceRefs.length === 0)
+        .map(({ trigger }) => trigger),
+    ).toEqual([]);
+    expect(
+      heatAndMovementPsrSourceRefs.flatMap(({ sourceRefs }) =>
+        sourceRefs.filter(({ url }) => !url.includes('#L')),
+      ),
+    ).toEqual([]);
+    expectPinnedMegaMekRefs(
+      heatAndMovementPsrSourceRefs.flatMap(({ sourceRefs }) =>
+        sourceRefs.filter(({ kind }) => kind === 'megamek-source'),
+      ),
+    );
+    expect(psrTriggerCitations(PSRTrigger.Shutdown)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('HeatResolver queues PilotingRollData +3'),
+        expect.stringContaining('queueRunnerShutdownPSR'),
+        expect.stringContaining('createShutdownPSR'),
+      ]),
+    );
+    expect(psrTriggerCitations(PSRTrigger.StandingUp)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('Entity.checkGetUp'),
+        expect.stringContaining('doSkillCheckInPlace'),
+        expect.stringContaining('resolveRunnerStandUpAttempt'),
+      ]),
+    );
+    expect(
+      [
+        PSRTrigger.StandingUp,
+        PSRTrigger.RunningDamagedHip,
+        PSRTrigger.RunningDamagedGyro,
+      ].flatMap(
+        (trigger) =>
+          RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[trigger].sourceRefs?.filter(
+            ({ kind }) => kind === 'mekstation-deviation',
+          ) ?? [],
+      ).length,
+    ).toBeGreaterThan(0);
+    expect(
+      [PSRTrigger.RunningDamagedHip, PSRTrigger.RunningDamagedGyro].flatMap(
+        (trigger) => psrTriggerCitations(trigger),
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('one combined running-with-damaged'),
+        expect.stringContaining(
+          'separate RunningDamagedHip and RunningDamagedGyro',
+        ),
+        expect.stringContaining('RunningDamagedHip per forward step'),
+      ]),
+    );
     expect(
       RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.DFATarget].sourceRefs?.map(
         (sourceRef) => sourceRef.citation,

@@ -87,6 +87,80 @@ export const MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const HEAT_SHUTDOWN_PSR_SOURCE_REFS = [
+  megaMekSourceRef(
+    'MegaMek HeatResolver queues PilotingRollData +3 for "reactor shutdown" when automatic or failed avoidable heat shutdown occurs.',
+    'megamek/src/megamek/server/totalWarfare/HeatResolver.java',
+    'L561-L637',
+  ),
+  mekstationDeviationRef(
+    'MekStation runHeatPhase routes heat shutdown into queueRunnerShutdownPSR after emitting the ShutdownCheck event and before persisting shutdown state.',
+    'src/simulation/runner/phases/postCombat.ts',
+    'L389-L497',
+  ),
+  mekstationDeviationRef(
+    'MekStation queueRunnerShutdownPSR emits PSRTriggered with PSRTrigger.Shutdown and appends the pending createShutdownPSR entry for later PSR phase resolution.',
+    'src/simulation/runner/phases/heatShutdownPsr.ts',
+    'L11-L36',
+  ),
+  mekstationDeviationRef(
+    'MekStation createShutdownPSR stamps Reactor shutdown with PSRTrigger.Shutdown reasonCode and triggerSource.',
+    'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts',
+    'L45-L58',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const STANDING_UP_PSR_SOURCE_REFS = [
+  megaMekSourceRef(
+    'MegaMek Entity.checkGetUp creates the getting-up piloting roll for GET_UP/CAREFUL_STAND movement steps and applies terrain and damage modifiers.',
+    'megamek/src/megamek/common/units/Entity.java',
+    'L7800-L7849',
+  ),
+  megaMekSourceRef(
+    'MegaMek MovePathHandler resolves checkGetUp through doSkillCheckInPlace during movement and changes prone state around the stand attempt.',
+    'megamek/src/megamek/server/totalWarfare/MovePathHandler.java',
+    'L2026-L2055',
+  ),
+  megaMekSourceRef(
+    'MegaMek doSkillCheckInPlace routes failed in-place stand-up piloting rolls into doEntityFall unless the unit qualifies for hull-down handling.',
+    'megamek/src/megamek/server/totalWarfare/TWGameManager.java',
+    'L8539-L8599',
+  ),
+  mekstationDeviationRef(
+    'MekStation resolveRunnerStandUpAttempt emits PSRTriggered/PSRResolved/UnitStood and currently leaves failed stand-up attempts prone without emitting UnitFell or fall damage.',
+    'src/simulation/runner/phases/movementStandUp.ts',
+    'L19-L99',
+  ),
+  mekstationDeviationRef(
+    'MekStation createStandingUpPSR stamps Standing up with PSRTrigger.StandingUp reasonCode and optional movement-step triggerSource.',
+    'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts',
+    'L72-L84',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const RUNNING_WITH_DAMAGE_PSR_SOURCE_REFS = [
+  megaMekSourceRef(
+    'MegaMek Entity.checkRunningWithDamage queues one combined running-with-damaged-hip-actuator-or-gyro piloting roll for running or sprinting fall-capable units.',
+    'megamek/src/megamek/common/units/Entity.java',
+    'L7868-L7894',
+  ),
+  mekstationDeviationRef(
+    'MekStation queueMovementDamagePSRs emits separate RunningDamagedHip and RunningDamagedGyro PSRTriggered events from runner movement steps.',
+    'src/simulation/runner/phases/movementDamagePsr.ts',
+    'L18-L44',
+  ),
+  mekstationDeviationRef(
+    'MekStation movementDamagePSRsForUnit queues RunningDamagedHip per forward step and RunningDamagedGyro once at the first movement/turn step when the unit runs.',
+    'src/simulation/runner/phases/movementDamagePsr.ts',
+    'L46-L84',
+  ),
+  mekstationDeviationRef(
+    'MekStation running-with-damage PSR factories stamp separate RunningDamagedHip and RunningDamagedGyro reasonCode/triggerSource rows.',
+    'src/utils/gameplay/pilotingSkillRolls/systemFactories.ts',
+    'L36-L62',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const DAMAGE_THRESHOLD_PSR_SOURCE_REFS = [
   megaMekSourceRef(
     'MegaMek TWPhaseEndManager calls checkForPSRFromDamage at the end of movement, firing, physical, and offboard phases before resolving piloting rolls.',

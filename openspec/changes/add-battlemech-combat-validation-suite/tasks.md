@@ -174,6 +174,7 @@
 - [x] 3.5.24 Source-pin damage-threshold and damage/critical-component PSR trigger rows, preserving local EngineHit and leg-structure PSR deviations as explicit source-visible catalog boundaries.
 - [x] 3.5.25 Source-pin terrain/building runner PSR trigger rows for rubble, rough, ice, water entry/exit, skidding, and building collapse while keeping local-only terrain triggers explicit.
 - [x] 3.5.26 Source-pin physical-combat runner PSR trigger rows for kick, push, charge, DFA, and physical misses; align successful charge and DFA-target PSRs to +2 and keep normal charge-miss PSR queueing out of integrated parity.
+- [x] 3.5.27 Source-pin heat shutdown, standing-up, and running-with-damage runner PSR trigger rows while keeping MekStation's queued shutdown timing, failed stand-up behavior, and split hip/gyro reason codes source-visible.
 
 ## 4. Source-truth cross-checks
 
@@ -259,3 +260,4 @@
 - [x] 4.3.75 Cross-check MegaMek retreat/ejection original-unit removal and MekStation turn rotation, action queries, target filters, ejection reducer, and survivor/objective predicates before promoting action eligibility rows to row-level source references.
 - [x] 4.3.76 Cross-check MegaMek phase-damage, leg-destroyed, actuator, gyro, and engine-critical branches against MekStation damage/critical PSR trigger rows before pinning row-level sources; record EngineHit and leg-structure PSRs as local deviations rather than MegaMek parity claims.
 - [x] 4.3.77 Cross-check existing terrain PSR source refs before reusing them for runner PSR trigger rows; record running-rough, moving-on-ice, and exiting-water triggers as local source-visible rows rather than MegaMek parity claims.
+- [x] 4.3.78 Cross-check MegaMek heat shutdown PSR queueing, stand-up skill checks, and running-with-damage PSRs before pinning runner trigger rows; record MekStation queued timing and split/local branches as source-visible deviations.

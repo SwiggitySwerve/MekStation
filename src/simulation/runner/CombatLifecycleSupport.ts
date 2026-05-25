@@ -27,12 +27,15 @@ import {
   DAMAGE_THRESHOLD_PSR_SOURCE_REFS,
   ENGINE_CRITICAL_PSR_SOURCE_REFS,
   GYRO_CRITICAL_PSR_SOURCE_REFS,
+  HEAT_SHUTDOWN_PSR_SOURCE_REFS,
   HIP_ACTUATOR_CRITICAL_PSR_SOURCE_REFS,
   LEG_ACTUATOR_CRITICAL_PSR_SOURCE_REFS,
   LEG_STRUCTURE_DAMAGE_PSR_SOURCE_REFS,
   MEGAMEK_DFA_ATTACKER_PSR_SOURCE_REFS,
   MEGAMEK_DFA_MISS_FALL_SOURCE_REFS,
   MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS,
+  RUNNING_WITH_DAMAGE_PSR_SOURCE_REFS,
+  STANDING_UP_PSR_SOURCE_REFS,
 } from './CombatPsrTriggerSourceRefs';
 import {
   LOCAL_TERRAIN_PSR_SOURCE_REFS,
@@ -339,11 +342,13 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
   ),
   [PSRTrigger.Shutdown]: integrated(
     PSRTrigger.Shutdown,
-    'runHeatPhase emits PSRTriggered and queues createShutdownPSR when heat shutdown occurs',
+    'runHeatPhase emits PSRTriggered and queues createShutdownPSR when heat shutdown occurs; MegaMek resolves the shutdown PSR immediately while MekStation queues it for the PSR phase',
+    HEAT_SHUTDOWN_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.StandingUp]: integrated(
     PSRTrigger.StandingUp,
-    'runMovementPhase resolves createStandingUpPSR attempts for prone units before movement commit',
+    'runMovementPhase resolves createStandingUpPSR attempts for prone units before movement commit; failed stand-up fall damage remains a source-visible local boundary',
+    STANDING_UP_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.EnteringRubble]: integrated(
     PSRTrigger.EnteringRubble,
@@ -377,11 +382,13 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
   ),
   [PSRTrigger.RunningDamagedHip]: integrated(
     PSRTrigger.RunningDamagedHip,
-    'movementDamagePsr queues createRunningDamagedHipPSR when a unit runs with hip actuator damage',
+    'movementDamagePsr queues createRunningDamagedHipPSR when a unit runs with hip actuator damage; MegaMek combines hip and gyro into one running-with-damage PSR while MekStation keeps separate reason codes',
+    RUNNING_WITH_DAMAGE_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.RunningDamagedGyro]: integrated(
     PSRTrigger.RunningDamagedGyro,
-    'movementDamagePsr queues createRunningDamagedGyroPSR when a unit runs with gyro damage',
+    'movementDamagePsr queues createRunningDamagedGyroPSR when a unit runs with gyro damage; MegaMek combines hip and gyro into one running-with-damage PSR while MekStation keeps separate reason codes',
+    RUNNING_WITH_DAMAGE_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.BuildingCollapse]: helperOnly(
     PSRTrigger.BuildingCollapse,
