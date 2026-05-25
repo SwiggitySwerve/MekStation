@@ -34,6 +34,9 @@ import {
 
 export const tacticalMapMovementCombatTargetId = 'moving-target';
 export const tacticalMapMovementCombatSelectedWeaponIds = ['medium-laser'];
+export const tacticalMapJumpCombatTargetId = 'jumping-target';
+export const tacticalMapJumpCombatSelectedWeaponIds =
+  tacticalMapMovementCombatSelectedWeaponIds;
 
 const tacticalMapMovementAttackerHex = { q: 0, r: 0 } as const;
 const tacticalMapMovementInterveningHex = { q: 1, r: 0 } as const;
@@ -137,6 +140,19 @@ const tacticalMapMovementTargetState: IUnitGameState = {
   lockState: LockState.Pending,
 };
 
+const tacticalMapJumpAttackerState: IUnitGameState = {
+  ...tacticalMapMovementAttackerState,
+  movementThisTurn: MovementType.Jump,
+  hexesMovedThisTurn: 4,
+};
+
+const tacticalMapJumpTargetState: IUnitGameState = {
+  ...tacticalMapMovementTargetState,
+  id: tacticalMapJumpCombatTargetId,
+  movementThisTurn: MovementType.Jump,
+  hexesMovedThisTurn: 7,
+};
+
 export const tacticalMapMovementCombatTokens: readonly IUnitToken[] =
   tacticalMapTokens.map((token) => {
     if (token.unitId === 'attacker') {
@@ -169,6 +185,38 @@ export const tacticalMapMovementCombatTokens: readonly IUnitToken[] =
     return token;
   });
 
+export const tacticalMapJumpCombatTokens: readonly IUnitToken[] =
+  tacticalMapTokens.map((token) => {
+    if (token.unitId === 'attacker') {
+      return {
+        ...token,
+        name: 'Jumping Shadow Hawk SHD-2H',
+        designation: 'JMP',
+        position: tacticalMapMovementAttackerHex,
+        facing: Facing.Southeast,
+      };
+    }
+    if (token.unitId === 'blocked-target') {
+      return {
+        ...token,
+        unitId: tacticalMapJumpCombatTargetId,
+        name: 'Jumping Locust LCT-1V',
+        designation: 'J-TMM',
+        position: tacticalMapMovementTargetHex,
+        isActiveTarget: true,
+      };
+    }
+    if (token.unitId === 'occluded') {
+      return {
+        ...token,
+        position: { q: -3, r: 3 },
+        isActiveTarget: false,
+        isValidTarget: false,
+      };
+    }
+    return token;
+  });
+
 export const tacticalMapMovementCombatState: IGameState = {
   ...tacticalMapCombatState,
   units: {
@@ -178,31 +226,63 @@ export const tacticalMapMovementCombatState: IGameState = {
   },
 };
 
+export const tacticalMapJumpCombatState: IGameState = {
+  ...tacticalMapCombatState,
+  units: {
+    ...tacticalMapCombatState.units,
+    attacker: tacticalMapJumpAttackerState,
+    [tacticalMapJumpCombatTargetId]: tacticalMapJumpTargetState,
+  },
+};
+
 const tacticalMapMovementCombatGridFixture = tacticalMapMovementCombatGrid();
 
-export const tacticalMapMovementCombatProjection: ICombatRangeHex =
-  requireCombatProjection(
+function tacticalMapMovementProjection({
+  tokens,
+  targetUnitId,
+  selectedWeaponIds,
+  combatState,
+}: {
+  readonly tokens: readonly IUnitToken[];
+  readonly targetUnitId: string;
+  readonly selectedWeaponIds: readonly string[];
+  readonly combatState: IGameState;
+}): ICombatRangeHex {
+  return requireCombatProjection(
     deriveCombatRangeHexes({
-      attacker: tacticalMapMovementCombatTokens.find(
-        (token) => token.unitId === 'attacker',
-      )!,
-      targetUnitId: tacticalMapMovementCombatTargetId,
+      attacker: tokens.find((token) => token.unitId === 'attacker')!,
+      targetUnitId,
       hexes: Array.from(
         tacticalMapMovementCombatGridFixture.hexes.values(),
         (hex) => hex.coord,
       ),
       grid: tacticalMapMovementCombatGridFixture,
-      tokens: tacticalMapMovementCombatTokens,
-      weapons: tacticalMapSelectedWeapons(
-        tacticalMapMovementCombatSelectedWeaponIds,
-      ),
-      combatState: tacticalMapMovementCombatState,
+      tokens,
+      weapons: tacticalMapSelectedWeapons(selectedWeaponIds),
+      combatState,
     }).find(
       (projection) =>
         projection.hex.q === tacticalMapMovementTargetHex.q &&
         projection.hex.r === tacticalMapMovementTargetHex.r,
     ),
   );
+}
+
+export const tacticalMapMovementCombatProjection: ICombatRangeHex =
+  tacticalMapMovementProjection({
+    tokens: tacticalMapMovementCombatTokens,
+    targetUnitId: tacticalMapMovementCombatTargetId,
+    selectedWeaponIds: tacticalMapMovementCombatSelectedWeaponIds,
+    combatState: tacticalMapMovementCombatState,
+  });
+
+export const tacticalMapJumpCombatProjection: ICombatRangeHex =
+  tacticalMapMovementProjection({
+    tokens: tacticalMapJumpCombatTokens,
+    targetUnitId: tacticalMapJumpCombatTargetId,
+    selectedWeaponIds: tacticalMapJumpCombatSelectedWeaponIds,
+    combatState: tacticalMapJumpCombatState,
+  });
 
 export function tacticalMapMovementCombatCommitInput(): IApplyAttackInput {
   return {
@@ -214,6 +294,20 @@ export function tacticalMapMovementCombatCommitInput(): IApplyAttackInput {
     attackerId: 'attacker',
     targetId: tacticalMapMovementCombatTargetId,
     weaponIds: tacticalMapMovementCombatSelectedWeaponIds,
+    grid: tacticalMapMovementCombatGridFixture,
+  };
+}
+
+export function tacticalMapJumpCombatCommitInput(): IApplyAttackInput {
+  return {
+    session: tacticalMapCombatSession({
+      tokens: tacticalMapJumpCombatTokens,
+      combatState: tacticalMapJumpCombatState,
+    }),
+    weaponsByUnit: tacticalMapWeaponsByUnit(),
+    attackerId: 'attacker',
+    targetId: tacticalMapJumpCombatTargetId,
+    weaponIds: tacticalMapJumpCombatSelectedWeaponIds,
     grid: tacticalMapMovementCombatGridFixture,
   };
 }

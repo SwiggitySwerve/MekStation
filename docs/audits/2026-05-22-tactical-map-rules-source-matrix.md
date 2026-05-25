@@ -784,6 +784,15 @@ Movement (TMM) +2, the medium laser, and tooltip rows. Jest parity feeds the
 same projection into `applyInteractiveSessionAttack` and proves the committed
 target number and modifiers match.
 
+2026-05-25 jump combat movement modifier browser pin: MegaMek
+`Compute.java:2625-2692` source-pins jumped attacker movement as +3, while
+`Compute.java:2766-2904` source-pins jumped target movement as the normal hex
+movement TMM plus an additional +1. The tactical map harness now uses a jumped
+attacker and a target that jumped 7 hexes, then renders TN11 with Attacker
+Movement +3, Target Movement (TMM) +4, the medium laser, and tooltip rows. Jest
+parity feeds the same projection into `applyInteractiveSessionAttack` and
+proves the committed target number and modifiers match.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

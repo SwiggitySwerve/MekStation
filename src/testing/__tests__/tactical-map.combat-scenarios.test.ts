@@ -35,6 +35,8 @@ import {
   tacticalMapImmobileCombatProjection,
 } from '../tactical-map.immobile-combat-scenario';
 import {
+  tacticalMapJumpCombatCommitInput,
+  tacticalMapJumpCombatProjection,
   tacticalMapMovementCombatCommitInput,
   tacticalMapMovementCombatProjection,
 } from '../tactical-map.movement-combat-scenario';
@@ -432,6 +434,61 @@ describe('tactical map combat scenarios', () => {
     );
     expect(payload.toHitNumber).toBe(
       tacticalMapMovementCombatProjection.toHitNumber,
+    );
+  });
+
+  it('keeps jumped attacker and target movement to-hit modifiers aligned between browser projection and commit', () => {
+    expect(tacticalMapJumpCombatProjection).toMatchObject({
+      hex: { q: 2, r: 0 },
+      distance: 2,
+      rangeBracket: 'short',
+      attackable: true,
+      weaponIdsAvailable: ['medium-laser'],
+      toHitNumber: 11,
+    });
+    expect(tacticalMapJumpCombatProjection.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Attacker Movement',
+          value: 3,
+          source: 'attacker_movement',
+          description: 'Attacker jump: +3',
+        }),
+        expect.objectContaining({
+          name: 'Target Movement (TMM)',
+          value: 4,
+          source: 'target_movement',
+          description: 'Target moved 7 hexes (jumped): +4',
+        }),
+      ]),
+    );
+    expect(tacticalMapJumpCombatProjection.toHitReason).toContain(
+      'Attacker Movement +3',
+    );
+    expect(tacticalMapJumpCombatProjection.toHitReason).toContain(
+      'Target Movement (TMM) +4',
+    );
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapJumpCombatCommitInput(),
+    );
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.weapons).toEqual(
+      tacticalMapJumpCombatProjection.weaponIdsAvailable,
+    );
+    expect(payload.modifiers).toEqual(
+      tacticalMapJumpCombatProjection.toHitModifiers,
+    );
+    expect(payload.toHitNumber).toBe(
+      tacticalMapJumpCombatProjection.toHitNumber,
     );
   });
 

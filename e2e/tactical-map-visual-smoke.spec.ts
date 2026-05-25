@@ -1869,6 +1869,86 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows jumped attacker and target movement to-hit modifiers in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=jump-combat-modifier');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('JMP');
+    await expect(page.getByTestId('unit-token-jumping-target')).toContainText(
+      'J-TMM',
+    );
+
+    const targetHex = page.getByTestId('hex-2-0');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'jumping-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-range-bracket',
+      'short',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-distance', '2');
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-available',
+      'medium-laser',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '11');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-modifiers',
+      /Attacker Movement:3/,
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-modifiers',
+      /Target Movement \(TMM\):4/,
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-reason',
+      /Attacker Movement \+3/,
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-reason',
+      /Target Movement \(TMM\) \+4/,
+    );
+
+    const toHitBadge = page.getByTestId('hex-to-hit-badge-2-0');
+    await expect(toHitBadge).toContainText('TN11');
+    await expect(toHitBadge).toHaveAttribute(
+      'data-combat-to-hit-badge-number',
+      '11',
+    );
+
+    await targetHex.locator('path[data-terrain="clear"]').hover({
+      position: { x: 72, y: 34 },
+    });
+    const toHitRows = page.getByTestId('hex-combat-tooltip-to-hit-modifiers');
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-names',
+      /Attacker Movement/,
+    );
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-names',
+      /Target Movement \(TMM\)/,
+    );
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-values',
+      /3/,
+    );
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-values',
+      /4/,
+    );
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-descriptions',
+      /Attacker jump: \+3/,
+    );
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-descriptions',
+      /Target moved 7 hexes \(jumped\): \+4/,
+    );
+  });
+
   test('keeps visible targets attackable on mixed same-hex fog contacts in browser', async ({
     page,
   }) => {
