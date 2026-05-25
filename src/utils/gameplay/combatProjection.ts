@@ -14,6 +14,8 @@ import { RangeBracket } from '@/types/gameplay';
 import { classifyFiringArc } from '@/utils/overlays/arcClassifier';
 import { classifyLOS } from '@/utils/overlays/losClassifier';
 
+import { expectedDamageForProjection } from './combatProjection.expectedDamage';
+import { withPerWeaponToHitProjections } from './combatProjection.perWeaponToHit';
 import {
   bestRangeBracket,
   blockedReasonForHex,
@@ -46,7 +48,6 @@ import {
   tokenUsesMekWaterCover,
 } from './terrainCover';
 import { calculateTargetTerrainModifierFromHex } from './toHit';
-import { getTwoD6HitProbability } from './toHit/forecast';
 import {
   representedWaterAttackInvalidState,
   weaponPassesRepresentedWaterAttackRules,
@@ -61,14 +62,6 @@ export interface ICombatProjectionInput {
   readonly tokens: readonly IUnitToken[];
   readonly weapons: readonly IWeaponStatus[];
   readonly combatState?: IGameState | null;
-}
-
-function expectedDamageForProjection(
-  availableWeaponDamage: number,
-  toHitNumber: number | undefined,
-): number | undefined {
-  if (toHitNumber === undefined) return undefined;
-  return availableWeaponDamage * (getTwoD6HitProbability(toHitNumber) / 100);
 }
 
 function blockerKindForLOS(
@@ -263,7 +256,7 @@ export function deriveCombatRangeHexes({
       minimumRangePenalty,
       minimumRangeWeaponIds,
     );
-    const weaponRangeOptions = deriveCombatWeaponRangeOptions({
+    const baseWeaponRangeOptions = deriveCombatWeaponRangeOptions({
       weapons: operationalWeapons,
       distance,
       targetArc,
@@ -309,6 +302,10 @@ export function deriveCombatRangeHexes({
       hasAvailableWeapon &&
       (los.state !== 'blocked' || indirectFire?.available === true) &&
       !attackInvalidState.reason;
+    const toHitInterveningTerrainEffects =
+      indirectFire?.available === true
+        ? indirectFire.interveningTerrainEffects
+        : los.engineResult.interveningTerrainEffects;
     const toHitProjection = attackable
       ? deriveToHitProjection({
           attacker,
@@ -319,15 +316,25 @@ export function deriveCombatRangeHexes({
           weapons: availableWeapons,
           targetPartialCover: targetCover.partialCover,
           targetTerrainModifier,
-          interveningTerrainEffects:
-            indirectFire?.available === true
-              ? indirectFire.interveningTerrainEffects
-              : los.engineResult.interveningTerrainEffects,
+          interveningTerrainEffects: toHitInterveningTerrainEffects,
           indirectFire,
         })
       : undefined;
     const effectiveRangeBracket =
       toHitProjection?.rangeBracket ?? usableRangeBracket;
+    const weaponRangeOptions = withPerWeaponToHitProjections({
+      enabled: attackable && toHitProjection !== undefined,
+      options: baseWeaponRangeOptions,
+      attacker,
+      targetUnitId: projectedTargetUnitId,
+      combatState,
+      distance,
+      weapons: availableWeapons,
+      targetPartialCover: targetCover.partialCover,
+      targetTerrainModifier,
+      interveningTerrainEffects: toHitInterveningTerrainEffects,
+      indirectFire,
+    });
     const blockedReason = blockedReasonForHex(
       attackInvalidState,
       firingArc,

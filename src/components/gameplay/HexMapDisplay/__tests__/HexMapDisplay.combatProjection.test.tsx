@@ -944,7 +944,9 @@ describe('HexMapDisplay combat projection', () => {
     ).toHaveAttribute('data-combat-weapon-impact-ammo-remaining-after', '7');
     expect(
       screen.getByTestId('hex-tactical-tooltip-combat-weapon-options'),
-    ).toHaveTextContent('Weapon options: ac-5: short range, in arc; available');
+    ).toHaveTextContent(
+      'Weapon options: ac-5: short range, in arc; TN 5; available',
+    );
     expect(
       screen.getByTestId('hex-tactical-tooltip-combat-weapon-impact'),
     ).toHaveTextContent('expected');

@@ -67,6 +67,12 @@ export interface ICombatWeaponRangeOption extends ICombatWeaponImpact {
   readonly available: boolean;
   /** Minimum-range to-hit penalty for this weapon at this hex, when any. */
   readonly minimumRangePenalty?: number;
+  /** Engine-style target number for this weapon when committed alone. */
+  readonly toHitNumber?: number;
+  /** Engine-style modifier stack for this weapon's target number. */
+  readonly toHitModifiers?: readonly IToHitModifier[];
+  /** Player-facing to-hit summary for this weapon. */
+  readonly toHitReason?: string;
   /** Player-facing reason this weapon is unavailable, when blocked. */
   readonly blockedReason?: string;
 }

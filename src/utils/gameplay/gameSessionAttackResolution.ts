@@ -77,6 +77,7 @@ export function resolveAttack(
       continue;
     }
     const weaponName = weaponData.weaponName;
+    const weaponToHitNumber = weaponData.toHitNumber ?? toHitNumber;
 
     let ammoBinIdForResolved: string | null = null;
     const attackerStateForAmmo = currentSession.currentState.units[attackerId];
@@ -121,7 +122,7 @@ export function resolveAttack(
     }
 
     const attackRoll = diceRoller();
-    let hit = attackRoll.total >= toHitNumber;
+    let hit = attackRoll.total >= weaponToHitNumber;
 
     // Wave 8 PR-K6: spotter-liveness mid-resolution re-check.
     // Walk session.events backward to find the IndirectFireSpotterSelected
@@ -204,7 +205,7 @@ export function resolveAttack(
         targetId,
         weaponId,
         attackRoll.total,
-        toHitNumber,
+        weaponToHitNumber,
         true,
         location,
         damage,
@@ -489,7 +490,7 @@ export function resolveAttack(
         targetId,
         weaponId,
         attackRoll.total,
-        toHitNumber,
+        weaponToHitNumber,
         false,
         undefined,
         undefined,

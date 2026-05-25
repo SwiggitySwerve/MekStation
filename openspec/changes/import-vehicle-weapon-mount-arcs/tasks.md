@@ -19,6 +19,8 @@
   selected weapon mounts.
 - [x] 2.4 Apply chin turret pivot to-hit metadata to both tactical-map
   projection and committed attack declarations.
+- [x] 2.5 Carry per-weapon target numbers through mixed vehicle volleys so
+  turret-only modifiers do not over-apply to body weapons.
 
 ## 3. Verification
 
@@ -29,3 +31,5 @@
 - [x] 3.4 Standard lint/type/build gates pass.
 - [x] 3.5 Add focused Jest and browser coverage for chin turret pivot
   projection-to-commit parity.
+- [x] 3.6 Add focused Jest, resolution, and browser coverage for mixed chin
+  turret/body weapon volleys.

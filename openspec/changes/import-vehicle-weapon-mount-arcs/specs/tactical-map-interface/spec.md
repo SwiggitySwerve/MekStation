@@ -21,6 +21,12 @@ In particular, a chin-turret vehicle that pivoted the turret this turn SHALL
 show the +1 chin-turret pivot modifier on the map and commit the same target
 number in `AttackDeclared`.
 
+When a committed vehicle volley contains weapons with different represented
+mount contexts, combat projection and attack declaration SHALL expose
+per-weapon target numbers. Resolution SHALL use those per-weapon values when
+present so turret-only modifiers apply only to the weapons fired from that
+turret.
+
 #### Scenario: Vehicle equipment IDs are imported for combat projection
 
 - **GIVEN** a represented vehicle weapon mount carries `equipmentId`
@@ -46,3 +52,15 @@ number in `AttackDeclared`.
 - **THEN** the target SHALL expose the `Chin Turret Pivot` +1 to-hit modifier
 - **AND** the committed `AttackDeclared` event SHALL carry the same target
   number and modifier stack
+
+#### Scenario: Mixed chin turret and body volley keeps per-weapon target numbers
+
+- **GIVEN** a selected vehicle volley includes a pivoted chin-turret weapon and
+  a body-mounted weapon
+- **WHEN** combat projection renders an in-arc target
+- **THEN** the target SHALL expose one per-weapon target number for the
+  chin-turret weapon with `Chin Turret Pivot` +1
+- **AND** it SHALL expose a separate per-weapon target number for the body
+  weapon without the chin-turret modifier
+- **AND** attack resolution SHALL use the matching per-weapon target numbers
+  when resolving each weapon

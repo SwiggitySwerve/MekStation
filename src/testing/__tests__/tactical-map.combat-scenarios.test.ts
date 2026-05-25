@@ -3,8 +3,10 @@ import {
   GameEventType,
   type IAttackDeclaredPayload,
   type IAttackInvalidPayload,
+  type IAttackResolvedPayload,
   type IIndirectFireNarcOverridePayload,
 } from '@/types/gameplay';
+import { resolveAttack } from '@/utils/gameplay/gameSession';
 
 import {
   tacticalMapChinTurretPivotCombatProjection,
@@ -73,6 +75,10 @@ import {
   tacticalMapSpotterSkillIndirectFireCombatProjection,
   tacticalMapSpotterSkillIndirectFireCommitInput,
 } from '../tactical-map.indirect-fire-spotter-skill-scenario';
+import {
+  tacticalMapMixedChinTurretPivotCombatProjection,
+  tacticalMapMixedChinTurretPivotCommitInput,
+} from '../tactical-map.mixed-vehicle-volley-scenario';
 import {
   tacticalMapJumpCombatCommitInput,
   tacticalMapJumpCombatProjection,
@@ -1761,6 +1767,112 @@ describe('tactical map combat scenarios', () => {
         expect.objectContaining({
           name: 'Chin Turret Pivot',
           value: 1,
+        }),
+      ]),
+    );
+  });
+
+  it('keeps mixed chin turret and body weapon target numbers per weapon', () => {
+    expect(tacticalMapMixedChinTurretPivotCombatProjection).toMatchObject({
+      hex: { q: -2, r: 2 },
+      distance: 2,
+      rangeBracket: 'short',
+      firingArc: 'left-side',
+      inRange: true,
+      inArc: true,
+      attackable: true,
+      targetUnitIds: ['mixed-chin-body-target'],
+      validTargetUnitIds: ['mixed-chin-body-target'],
+      weaponIdsAvailable: ['mixed-chin-turret-laser', 'left-body-laser'],
+      toHitNumber: 4,
+      weaponRangeOptions: [
+        expect.objectContaining({
+          weaponId: 'mixed-chin-turret-laser',
+          toHitNumber: 5,
+        }),
+        expect.objectContaining({
+          weaponId: 'left-body-laser',
+          toHitNumber: 4,
+        }),
+      ],
+    });
+    const chinOption =
+      tacticalMapMixedChinTurretPivotCombatProjection.weaponRangeOptions.find(
+        (option) => option.weaponId === 'mixed-chin-turret-laser',
+      );
+    const bodyOption =
+      tacticalMapMixedChinTurretPivotCombatProjection.weaponRangeOptions.find(
+        (option) => option.weaponId === 'left-body-laser',
+      );
+    expect(chinOption?.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Chin Turret Pivot',
+          value: 1,
+        }),
+      ]),
+    );
+    expect(
+      bodyOption?.toHitModifiers?.some(
+        (modifier) => modifier.name === 'Chin Turret Pivot',
+      ) ?? false,
+    ).toBe(false);
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapMixedChinTurretPivotCommitInput(),
+    );
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.weapons).toEqual(
+      tacticalMapMixedChinTurretPivotCombatProjection.weaponIdsAvailable,
+    );
+    expect(payload.toHitNumber).toBe(
+      tacticalMapMixedChinTurretPivotCombatProjection.toHitNumber,
+    );
+    expect(payload.weaponAttacks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          weaponId: 'mixed-chin-turret-laser',
+          toHitNumber: 5,
+          modifiers: expect.arrayContaining([
+            expect.objectContaining({
+              name: 'Chin Turret Pivot',
+              value: 1,
+            }),
+          ]),
+        }),
+        expect.objectContaining({
+          weaponId: 'left-body-laser',
+          toHitNumber: 4,
+        }),
+      ]),
+    );
+
+    const resolved = resolveAttack(result, declared!, () => ({
+      dice: [2, 2],
+      total: 4,
+      isSnakeEyes: false,
+      isBoxcars: false,
+    }));
+    const resolvedPayloads = resolved.events
+      .filter((event) => event.type === GameEventType.AttackResolved)
+      .map((event) => event.payload as IAttackResolvedPayload);
+    expect(resolvedPayloads).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          weaponId: 'mixed-chin-turret-laser',
+          roll: 4,
+          toHitNumber: 5,
+          hit: false,
+        }),
+        expect.objectContaining({
+          weaponId: 'left-body-laser',
+          roll: 4,
+          toHitNumber: 4,
+          hit: true,
         }),
       ]),
     );

@@ -75,6 +75,7 @@ import {
 } from './gameEvents';
 import { allUnitsLocked, deriveState } from './gameState';
 import { isGroundToGroundGameAttack } from './groundToGround';
+import { getWeaponRangeBracket } from './range';
 import { calculateInterveningTerrainModifier, calculateToHit } from './toHit';
 import { calculateToHitWithC3, selectC3RangeBracket } from './toHit/c3';
 import { deriveVehicleToHitContext } from './vehicleToHitContext';
@@ -458,130 +459,156 @@ export function declareAttack(
       modifier !== null && modifier !== undefined,
   );
 
-  const attackerState = {
-    gunnery: attacker.gunnery,
-    movementType: attackerUnit.movementThisTurn,
-    heat: attackerUnit.heat,
-    damageModifiers: terrainModifiers,
-    prone: attackerUnit.prone ?? false,
-    ...deriveVehicleToHitContext(attackerUnit, weapons),
-  };
-  const targetState = {
-    movementType: targetUnit.movementThisTurn,
-    hexesMoved: targetUnit.hexesMovedThisTurn,
-    prone: targetUnit.prone ?? false,
-    immobile: isRepresentedTargetImmobile(targetUnit),
-    partialCover: targetPartialCover,
-  };
-  const minimumRange = minimumRangeForAttack(
-    weapons,
-    range,
-    isGroundToGroundGameAttack(attackerUnit, targetUnit),
-  );
   const c3State = session.currentState.c3State;
   const indirectAttack =
     indirectFireResolution?.permitted === true &&
     indirectFireResolution.isIndirect;
-  const weaponRangeProfiles = weapons.map((weapon) => ({
-    short: weapon.shortRange,
-    medium: weapon.mediumRange,
-    long: weapon.longRange,
-    extreme: weapon.extremeRange,
-    minimum: weapon.minRange,
-  }));
-  const c3Selection =
-    indirectAttack || !c3State
-      ? undefined
-      : selectC3RangeBracket({
-          attackerEntityId: attackerId,
-          targetPosition: resolvedTargetHex,
-          weaponRangeProfiles,
-          directRangeBracket: rangeBracket,
-          c3State,
-        });
-  const c3WeaponRangeProfile =
-    c3Selection !== undefined
-      ? weaponRangeProfiles[c3Selection.weaponIndex]
-      : undefined;
-  let effectiveRangeBracket = rangeBracket;
-  const toHitCalc =
-    c3Selection !== undefined && c3WeaponRangeProfile !== undefined && c3State
-      ? (() => {
-          const c3ToHit = calculateToHitWithC3(
-            attackerState,
-            targetState,
-            rangeBracket,
-            range,
-            {
-              attackerEntityId: attackerId,
-              targetPosition: resolvedTargetHex,
-              weaponRangeProfile: c3WeaponRangeProfile,
-              c3State,
-            },
-            minimumRange,
-          );
-          if (c3ToHit.c3Result.benefitApplied) {
-            effectiveRangeBracket = c3ToHit.c3Result.bestBracket;
-          }
-          return c3ToHit;
-        })()
-      : calculateToHit(
-          attackerState,
-          targetState,
-          rangeBracket,
-          range,
-          minimumRange,
-        );
-
-  const modifiers: IToHitModifier[] = toHitCalc.modifiers.map((modifier) => ({
-    name: modifier.name,
-    value: modifier.value,
-    source: modifier.source,
-    description: modifier.description,
-  }));
-
-  // Wave 8 PR-K4: append indirect-fire penalty to the modifier list so
-  // the AttackDeclared event's toHitNumber reflects the live indirect
-  // resolution. The penalty math (base +1 plus represented spotter movement
-  // and FO SPA adjustments) happened upstream in `computeIndirectFireContext`.
-  let finalToHit = toHitCalc.finalToHit;
-  if (
-    indirectFireResolution &&
-    indirectFireResolution.permitted &&
-    indirectFireResolution.isIndirect &&
-    indirectFireResolution.toHitPenalty > 0
-  ) {
-    modifiers.push({
-      name: 'Indirect fire',
-      value: indirectFireResolution.toHitPenalty,
-      source: 'other',
-    });
-    finalToHit += indirectFireResolution.toHitPenalty;
-  }
-  if (
+  const spottingPenaltyApplies =
     !indirectAttack &&
     wasElectedIndirectSpotterThisTurn(
       session,
       attackerId,
       session.currentState.turn,
-    )
-  ) {
-    modifiers.push({
-      name: 'Spotting for indirect fire',
-      value: 1,
-      source: 'other',
-    });
-    finalToHit += 1;
-  }
+    );
+  const calculateAttackToHitForWeapons = (
+    attackWeapons: readonly IWeaponAttack[],
+  ): {
+    readonly rangeBracket: RangeBracket;
+    readonly toHitNumber: number;
+    readonly modifiers: readonly IToHitModifier[];
+  } => {
+    const directRangeBracket = bestRangeBracketForAttack(range, attackWeapons);
+    const attackRangeBracket =
+      directRangeBracket === RangeBracket.OutOfRange
+        ? rangeBracket
+        : directRangeBracket;
+    const attackerState = {
+      gunnery: attacker.gunnery,
+      movementType: attackerUnit.movementThisTurn,
+      heat: attackerUnit.heat,
+      damageModifiers: terrainModifiers,
+      prone: attackerUnit.prone ?? false,
+      ...deriveVehicleToHitContext(attackerUnit, attackWeapons),
+    };
+    const targetState = {
+      movementType: targetUnit.movementThisTurn,
+      hexesMoved: targetUnit.hexesMovedThisTurn,
+      prone: targetUnit.prone ?? false,
+      immobile: isRepresentedTargetImmobile(targetUnit),
+      partialCover: targetPartialCover,
+    };
+    const minimumRange = minimumRangeForAttack(
+      attackWeapons,
+      range,
+      isGroundToGroundGameAttack(attackerUnit, targetUnit),
+    );
+    const weaponRangeProfiles = attackWeapons.map((weapon) => ({
+      short: weapon.shortRange,
+      medium: weapon.mediumRange,
+      long: weapon.longRange,
+      extreme: weapon.extremeRange,
+      minimum: weapon.minRange,
+    }));
+    const c3Selection =
+      indirectAttack || !c3State
+        ? undefined
+        : selectC3RangeBracket({
+            attackerEntityId: attackerId,
+            targetPosition: resolvedTargetHex,
+            weaponRangeProfiles,
+            directRangeBracket: attackRangeBracket,
+            c3State,
+          });
+    const c3WeaponRangeProfile =
+      c3Selection !== undefined
+        ? weaponRangeProfiles[c3Selection.weaponIndex]
+        : undefined;
+    let effectiveRangeBracket = attackRangeBracket;
+    const toHitCalc =
+      c3Selection !== undefined && c3WeaponRangeProfile !== undefined && c3State
+        ? (() => {
+            const c3ToHit = calculateToHitWithC3(
+              attackerState,
+              targetState,
+              attackRangeBracket,
+              range,
+              {
+                attackerEntityId: attackerId,
+                targetPosition: resolvedTargetHex,
+                weaponRangeProfile: c3WeaponRangeProfile,
+                c3State,
+              },
+              minimumRange,
+            );
+            if (c3ToHit.c3Result.benefitApplied) {
+              effectiveRangeBracket = c3ToHit.c3Result.bestBracket;
+            }
+            return c3ToHit;
+          })()
+        : calculateToHit(
+            attackerState,
+            targetState,
+            attackRangeBracket,
+            range,
+            minimumRange,
+          );
+
+    const modifiers: IToHitModifier[] = toHitCalc.modifiers.map((modifier) => ({
+      name: modifier.name,
+      value: modifier.value,
+      source: modifier.source,
+      description: modifier.description,
+    }));
+
+    // Wave 8 PR-K4: append indirect-fire and spotting penalties to the
+    // modifier list so target-number metadata stays replayable.
+    let finalToHit = toHitCalc.finalToHit;
+    if (
+      indirectFireResolution &&
+      indirectFireResolution.permitted &&
+      indirectFireResolution.isIndirect &&
+      indirectFireResolution.toHitPenalty > 0
+    ) {
+      modifiers.push({
+        name: 'Indirect fire',
+        value: indirectFireResolution.toHitPenalty,
+        source: 'other',
+      });
+      finalToHit += indirectFireResolution.toHitPenalty;
+    }
+    if (spottingPenaltyApplies) {
+      modifiers.push({
+        name: 'Spotting for indirect fire',
+        value: 1,
+        source: 'other',
+      });
+      finalToHit += 1;
+    }
+
+    return {
+      rangeBracket: effectiveRangeBracket,
+      toHitNumber: finalToHit,
+      modifiers,
+    };
+  };
 
   const weaponIds = weapons.map((weapon) => weapon.weaponId);
-  const weaponAttackData: IWeaponAttackData[] = weapons.map((weapon) => ({
-    weaponId: weapon.weaponId,
-    weaponName: weapon.weaponName,
-    mode: weapon.mode ?? 'Direct',
-    damage: weapon.damage,
-    heat: weapon.heat,
-  }));
+  const aggregateToHit = calculateAttackToHitForWeapons(weapons);
+  const finalToHit = aggregateToHit.toHitNumber;
+  const modifiers = aggregateToHit.modifiers;
+  const effectiveRangeBracket = aggregateToHit.rangeBracket;
+  const weaponAttackData: IWeaponAttackData[] = weapons.map((weapon) => {
+    const weaponToHit = calculateAttackToHitForWeapons([weapon]);
+    return {
+      weaponId: weapon.weaponId,
+      weaponName: weapon.weaponName,
+      mode: weapon.mode ?? 'Direct',
+      damage: weapon.damage,
+      heat: weapon.heat,
+      toHitNumber: weaponToHit.toHitNumber,
+      modifiers: weaponToHit.modifiers,
+    };
+  });
 
   const sequence = session.events.length;
   const { turn } = session.currentState;
@@ -677,6 +704,32 @@ function minimumRangeForAttack(
       ? Math.max(strictestMinimum, minimum)
       : strictestMinimum;
   }, 0);
+}
+
+const ATTACK_RANGE_BRACKET_RANK: Readonly<Record<RangeBracket, number>> = {
+  [RangeBracket.Short]: 0,
+  [RangeBracket.Medium]: 1,
+  [RangeBracket.Long]: 2,
+  [RangeBracket.Extreme]: 3,
+  [RangeBracket.OutOfRange]: 4,
+};
+
+function bestRangeBracketForAttack(
+  range: number,
+  weapons: readonly IWeaponAttack[],
+): RangeBracket {
+  return weapons.reduce<RangeBracket>((best, weapon) => {
+    const bracket = getWeaponRangeBracket(range, {
+      short: weapon.shortRange,
+      medium: weapon.mediumRange,
+      long: weapon.longRange,
+      extreme: weapon.extremeRange,
+      minimum: weapon.minRange,
+    });
+    return ATTACK_RANGE_BRACKET_RANK[bracket] < ATTACK_RANGE_BRACKET_RANK[best]
+      ? bracket
+      : best;
+  }, RangeBracket.OutOfRange);
 }
 
 function wasElectedIndirectSpotterThisTurn(

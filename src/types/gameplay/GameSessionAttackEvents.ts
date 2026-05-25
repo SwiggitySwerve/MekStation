@@ -62,6 +62,10 @@ export interface IWeaponAttackData {
   readonly damage: number;
   /** Heat generated */
   readonly heat: number;
+  /** Per-weapon target number used by resolution when available. */
+  readonly toHitNumber?: number;
+  /** Per-weapon modifier stack used to build toHitNumber. */
+  readonly modifiers?: readonly IToHitModifier[];
 }
 
 /**

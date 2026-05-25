@@ -28,6 +28,10 @@ function formatMinimumRangeLabel(option: ICombatWeaponRangeOption): string {
     : `; minimum +${option.minimumRangePenalty}`;
 }
 
+function formatToHitLabel(option: ICombatWeaponRangeOption): string {
+  return option.toHitNumber === undefined ? '' : `; TN ${option.toHitNumber}`;
+}
+
 function formatAvailabilityLabel(option: ICombatWeaponRangeOption): string {
   const status = option.available ? 'available' : 'blocked';
   const reason = option.blockedReason ? ` - ${option.blockedReason}` : '';
@@ -39,7 +43,7 @@ function formatWeaponOption(option: ICombatWeaponRangeOption): string {
     option,
   )}${formatEnvironmentLabel(option)}${formatMinimumRangeLabel(
     option,
-  )}; ${formatAvailabilityLabel(option)}`;
+  )}${formatToHitLabel(option)}; ${formatAvailabilityLabel(option)}`;
 }
 
 export function CombatWeaponOptionRows({

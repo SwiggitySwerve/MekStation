@@ -32,6 +32,8 @@ import {
   combatWeaponOptionBlockedReasonsAttribute,
   combatWeaponOptionEnvironmentStatesAttribute,
   combatWeaponOptionRangesAttribute,
+  combatWeaponOptionToHitModifiersAttribute,
+  combatWeaponOptionToHitNumbersAttribute,
 } from './HexCell.combatOptionSummaries';
 import { MovementHoverCostBadge } from './HexCell.hoverMovementBadge';
 import {
@@ -543,6 +545,12 @@ export const HexCell = React.memo(function HexCell({
         combatInfo?.weaponRangeOptions ?? [],
       )}
       data-combat-weapon-option-blocked-reasons={combatWeaponOptionBlockedReasonsAttribute(
+        combatInfo?.weaponRangeOptions ?? [],
+      )}
+      data-combat-weapon-option-to-hit-numbers={combatWeaponOptionToHitNumbersAttribute(
+        combatInfo?.weaponRangeOptions ?? [],
+      )}
+      data-combat-weapon-option-to-hit-modifiers={combatWeaponOptionToHitModifiersAttribute(
         combatInfo?.weaponRangeOptions ?? [],
       )}
       data-combat-target-ids={combatInfo?.targetUnitIds.join(',')}

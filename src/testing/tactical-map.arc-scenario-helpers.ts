@@ -132,9 +132,9 @@ export function tacticalMapWeapon(params: {
 }
 
 export function tacticalMapUnitWeapons(
-  weapon: IWeaponStatus,
+  ...weapons: readonly IWeaponStatus[]
 ): Record<string, readonly IWeaponStatus[]> {
-  return { attacker: [weapon] };
+  return { attacker: weapons };
 }
 
 function weaponStatusToCommitWeapon(status: IWeaponStatus): IWeapon {

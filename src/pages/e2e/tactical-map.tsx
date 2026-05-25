@@ -7,6 +7,7 @@ import * as battleArmor from '@/testing/tactical-map.battle-armor-scenarios';
 import * as wreck from '@/testing/tactical-map.battlefield-wreck-scenario';
 import * as c3 from '@/testing/tactical-map.c3-scenario';
 import * as combatScenarios from '@/testing/tactical-map.combat-scenarios';
+import { tacticalMapUnitWeaponsForE2EScenario } from '@/testing/tactical-map.e2e-unit-weapons';
 import * as elevationLos from '@/testing/tactical-map.elevation-los-scenario';
 import {
   tacticalMapCombatState,
@@ -17,13 +18,13 @@ import {
   tacticalMapOutOfRangeSelectedWeaponIds,
   tacticalMapSelectedWeaponIds,
   tacticalMapTokens,
-  tacticalMapUnitWeapons,
 } from '@/testing/tactical-map.fixtures';
 import * as frogman from '@/testing/tactical-map.frogman-scenario';
 import * as heatCombat from '@/testing/tactical-map.heat-combat-scenario';
 import * as hoverWater from '@/testing/tactical-map.hover-water-scenario';
 import * as immobileCombat from '@/testing/tactical-map.immobile-combat-scenario';
 import { tacticalMapIndirectFireHarnessScenarios as indirectFireHarnessScenarios } from '@/testing/tactical-map.indirect-fire-harness';
+import * as mixedVehicle from '@/testing/tactical-map.mixed-vehicle-volley-scenario';
 import * as movementCombat from '@/testing/tactical-map.movement-combat-scenario';
 import * as movement from '@/testing/tactical-map.movement-scenarios';
 import * as naval from '@/testing/tactical-map.naval-landfall-scenario';
@@ -44,6 +45,7 @@ const isTestEnv =
 
 const combatOnlyScenarios = new Set([
   ...Object.keys(indirectFireHarnessScenarios),
+  ...Object.keys(mixedVehicle.tacticalMapMixedVehicleVolleyHarnessScenarios),
   'aerospace-velocity-projection',
   'airborne-aerospace-minimum-range',
   'c3-range-benefit',
@@ -312,16 +314,24 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
   const router = useRouter();
   const scenario =
     typeof router.query.scenario === 'string' ? router.query.scenario : '';
-  const indirectScenario =
+  const harnessScenario =
     scenario in indirectFireHarnessScenarios
       ? indirectFireHarnessScenarios[
           scenario as keyof typeof indirectFireHarnessScenarios
         ]
+      : scenario in mixedVehicle.tacticalMapMixedVehicleVolleyHarnessScenarios
+        ? mixedVehicle.tacticalMapMixedVehicleVolleyHarnessScenarios[
+            scenario as keyof typeof mixedVehicle.tacticalMapMixedVehicleVolleyHarnessScenarios
+          ]
+        : undefined;
+  const harnessUnitWeapons =
+    harnessScenario && 'unitWeapons' in harnessScenario
+      ? harnessScenario.unitWeapons
       : undefined;
   const isCombatOnlyScenario = combatOnlyScenarios.has(scenario);
   const isMovementFixtureScenario = movementFixtureScenarios.has(scenario);
   const selectedWeaponIds =
-    indirectScenario?.selectedWeaponIds ??
+    harnessScenario?.selectedWeaponIds ??
     scenarioValue(
       scenario,
       selectedWeaponIdsByScenario,
@@ -329,28 +339,16 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
     );
   const targetUnitId = isMovementFixtureScenario
     ? null
-    : (indirectScenario?.targetUnitId ??
+    : (harnessScenario?.targetUnitId ??
       scenarioValue(scenario, targetUnitIdByScenario, 'occluded'));
   const tokens =
-    indirectScenario?.tokens ??
+    harnessScenario?.tokens ??
     scenarioValue(scenario, tokensByScenario, tacticalMapTokens);
   const combatState =
-    indirectScenario?.combatState ??
+    harnessScenario?.combatState ??
     scenarioValue(scenario, combatStateByScenario, tacticalMapCombatState);
-  const unitWeapons = scenarioValue(
-    scenario,
-    {
-      'selected-weapon-out-of-arc': arcScenarios.tacticalMapOutOfArcUnitWeapons,
-      'vehicle-sponson-in-arc': arcScenarios.tacticalMapSponsonArcUnitWeapons,
-      'vehicle-right-sponson-in-arc':
-        arcScenarios.tacticalMapRightSponsonArcUnitWeapons,
-      'vehicle-locked-turret-out-of-arc':
-        arcScenarios.tacticalMapLockedTurretUnitWeapons,
-      'vehicle-chin-turret-pivot':
-        arcScenarios.tacticalMapChinTurretPivotUnitWeapons,
-    },
-    tacticalMapUnitWeapons,
-  );
+  const unitWeapons =
+    harnessUnitWeapons ?? tacticalMapUnitWeaponsForE2EScenario(scenario);
   const movementRange = isCombatOnlyScenario
     ? undefined
     : scenarioValue(
@@ -362,7 +360,7 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
     ? undefined
     : scenarioValue(scenario, mpLegendByScenario, tacticalMapMpLegend);
   const selectedHex =
-    indirectScenario?.selectedHex ??
+    harnessScenario?.selectedHex ??
     scenarioValue(
       scenario,
       selectedHexByScenario,
@@ -373,7 +371,7 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
       ? undefined
       : tacticalMapHighlightPath;
   const hexTerrain =
-    indirectScenario?.hexTerrain ??
+    harnessScenario?.hexTerrain ??
     scenarioValue(scenario, hexTerrainByScenario, tacticalMapHexTerrain);
 
   if (!isTestEnv) {

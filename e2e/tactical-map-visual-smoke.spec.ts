@@ -3527,6 +3527,52 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows mixed chin turret and body target numbers per weapon', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=vehicle-mixed-chin-body-pivot');
+
+    const targetHex = page.getByTestId('hex--2-2');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'mixed-chin-body-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-available',
+      'mixed-chin-turret-laser,left-body-laser',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '4');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-to-hit-numbers',
+      'mixed-chin-turret-laser:5|left-body-laser:4',
+    );
+
+    const aggregateModifiers = await targetHex.getAttribute(
+      'data-combat-to-hit-modifiers',
+    );
+    expect(aggregateModifiers ?? '').not.toContain('Chin Turret Pivot:1');
+
+    const weaponModifiers = await targetHex.getAttribute(
+      'data-combat-weapon-option-to-hit-modifiers',
+    );
+    expect(weaponModifiers ?? '').toContain('mixed-chin-turret-laser:');
+    expect(weaponModifiers ?? '').toContain('Chin Turret Pivot:1');
+    const bodyModifiers = (weaponModifiers ?? '')
+      .split('|')
+      .find((entry) => entry.startsWith('left-body-laser:'));
+    expect(bodyModifiers ?? '').not.toContain('Chin Turret Pivot:1');
+
+    await targetHex.hover();
+    const weaponOptions = page.getByTestId('hex-combat-tooltip-weapon-options');
+    await expect(weaponOptions).toContainText(
+      'mixed-chin-turret-laser: short range, in arc; TN 5; available',
+    );
+    await expect(weaponOptions).toContainText(
+      'left-body-laser: short range, in arc; TN 4; available',
+    );
+  });
+
   test('shows locked vehicle turret side target as out of arc in browser', async ({
     page,
   }) => {

@@ -48,3 +48,27 @@ export function combatWeaponOptionBlockedReasonsAttribute(
     .map((option) => `${option.weaponId}:${option.blockedReason}`);
   return blockedOptions.length > 0 ? blockedOptions.join('|') : undefined;
 }
+
+export function combatWeaponOptionToHitNumbersAttribute(
+  options: readonly ICombatWeaponRangeOption[],
+): string | undefined {
+  const toHitOptions = options
+    .filter((option) => option.toHitNumber !== undefined)
+    .map((option) => `${option.weaponId}:${option.toHitNumber}`);
+  return toHitOptions.length > 0 ? toHitOptions.join('|') : undefined;
+}
+
+export function combatWeaponOptionToHitModifiersAttribute(
+  options: readonly ICombatWeaponRangeOption[],
+): string | undefined {
+  const toHitOptions = options.flatMap((option) => {
+    const modifiers = option.toHitModifiers;
+    if (!modifiers || modifiers.length === 0) return [];
+    return [
+      `${option.weaponId}:${modifiers
+        .map((modifier) => `${modifier.name}:${modifier.value}`)
+        .join(',')}`,
+    ];
+  });
+  return toHitOptions.length > 0 ? toHitOptions.join('|') : undefined;
+}

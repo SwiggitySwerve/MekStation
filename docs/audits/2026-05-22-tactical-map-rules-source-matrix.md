@@ -899,6 +899,14 @@ left-side target hex, and the focused Jest fixture proves the committed
 Playwright checks the rendered to-hit metadata, arc badge, and available weapon
 state in the browser harness.
 
+2026-05-25 mixed chin/body volley pin: the chin-turret pivot rule now remains
+weapon-scoped when a represented vehicle fires a mixed volley. The browser
+harness exposes per-weapon target numbers on `weaponRangeOptions`, with the
+pivoted chin-turret weapon at TN5 carrying `Chin Turret Pivot +1` and the
+left-body weapon at TN4 without that modifier. The committed `AttackDeclared`
+event stores those per-weapon target numbers, and `resolveAttack` consumes them
+so a roll of 4 misses the chin turret weapon while hitting the body weapon.
+
 Additional selected-weapon extreme-range overlay pin: the firing-arc overlay
 now uses represented `ranges.extreme` when present while deriving selected
 operational weapon reach. Extreme-range target hexes that combat projection

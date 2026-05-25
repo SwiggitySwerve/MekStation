@@ -886,8 +886,10 @@ function formatCombatWeaponOption(option: ICombatWeaponRangeOption): string {
     option.minimumRangePenalty === undefined
       ? ''
       : ` min +${option.minimumRangePenalty}`;
+  const toHit =
+    option.toHitNumber === undefined ? '' : ` to-hit ${option.toHitNumber}`;
   const blocked = option.available
     ? 'available'
     : `blocked${option.blockedReason ? `: ${option.blockedReason}` : ''}`;
-  return `${option.weaponId} ${option.rangeBracket} range ${arc}${environment}${minimumRange} ${blocked}`;
+  return `${option.weaponId} ${option.rangeBracket} range ${arc}${environment}${minimumRange}${toHit} ${blocked}`;
 }
