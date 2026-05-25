@@ -95,10 +95,25 @@ export const MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS = [
     'megamek/src/megamek/server/totalWarfare/TWGameManager.java',
     'L6022-L6048',
   ),
+  megaMekSourceRef(
+    'MegaMek TWGameManager consumes EDGE_WHEN_MASC_FAILS to reroll failed MASC checks, spends Edge, and suppresses failure processing when the reroll passes.',
+    'megamek/src/megamek/server/totalWarfare/TWGameManager.java',
+    'L5944-L5974',
+  ),
+  megaMekSourceRef(
+    'MegaMek TWGameManager consumes EDGE_WHEN_MASC_FAILS to reroll failed Supercharger checks, spends Edge, and suppresses failure processing when the reroll passes.',
+    'megamek/src/megamek/server/totalWarfare/TWGameManager.java',
+    'L5994-L6024',
+  ),
   mekstationDeviationRef(
     'MekStation runPSRPhase routes failed MASCFailure and SuperchargerFailure resolution through movement-enhancement failure critical-damage helpers.',
     'src/simulation/runner/phases/postCombat.ts',
-    'L134-L169',
+    'L138-L176',
+  ),
+  mekstationDeviationRef(
+    'MekStation psrEdgeRerolls consumes edge_when_masc_fails to reroll failed MASCFailure and SuperchargerFailure PSRs before applying fall or booster-failure aftermath.',
+    'src/simulation/runner/phases/psrEdgeRerolls.ts',
+    'L23-L194',
   ),
   mekstationDeviationRef(
     'MekStation movement-enhancement failure critical-damage helpers use the critical-slot manifest/effect pipeline for failed MASC and Supercharger checks.',

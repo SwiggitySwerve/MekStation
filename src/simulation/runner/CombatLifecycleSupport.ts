@@ -106,7 +106,7 @@ const LOCAL_PSR_RESOLUTION_SOURCE_REFS = [
     kind: 'mekstation-deviation',
     citation:
       'MekStation runPSRPhase resolves unit.pendingPSRs, emits PSRResolved/UnitFell/PilotHit/UnitDestroyed, and clears pendingPSRs after resolution.',
-    url: 'src/simulation/runner/phases/postCombat.ts#L50-L219',
+    url: 'src/simulation/runner/phases/postCombat.ts#L50-L282',
     sourceVersion: MEKSTATION_SOURCE_VERSION,
   },
   {
@@ -398,14 +398,14 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
   ),
   [PSRTrigger.MASCFailure]: helperOnly(
     PSRTrigger.MASCFailure,
-    'movementEnhancementPsr queues createMASCFailurePSR for explicit active MASC run movement with source-backed standard fixed target numbers, runPSRPhase applies one critical hit to each leg when that check fails, and resetTurnState advances/decays prior-use counters before clearing active use',
-    'Alternate MASC option tables, Edge reroll, and separate first-step equipment-check timing are not wired',
+    'movementEnhancementPsr queues createMASCFailurePSR for explicit active MASC run movement with source-backed standard fixed target numbers, runPSRPhase consumes edge_when_masc_fails rerolls and applies one critical hit to each leg when the final check fails, and resetTurnState advances/decays prior-use counters before clearing active use',
+    'Alternate MASC option tables and separate first-step equipment-check timing are not wired',
     MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS,
   ),
   [PSRTrigger.SuperchargerFailure]: helperOnly(
     PSRTrigger.SuperchargerFailure,
-    'movementEnhancementPsr queues createSuperchargerFailurePSR for explicit active Supercharger run movement with source-backed standard fixed target numbers, runPSRPhase destroys the Supercharger slot and applies the source-backed engine critical table when that check fails, and resetTurnState advances/decays prior-use counters before clearing active use',
-    'IndustrialMek/support-unit supercharger roll adjustment, Edge reroll, separate first-step equipment-check timing, and non-BattleMech motive-damage branches are not wired',
+    'movementEnhancementPsr queues createSuperchargerFailurePSR for explicit active Supercharger run movement with source-backed standard fixed target numbers, runPSRPhase consumes edge_when_masc_fails rerolls and destroys the Supercharger slot plus applies the source-backed engine critical table when the final check fails, and resetTurnState advances/decays prior-use counters before clearing active use',
+    'IndustrialMek/support-unit supercharger roll adjustment, separate first-step equipment-check timing, and non-BattleMech motive-damage branches are not wired',
     MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS,
   ),
 } satisfies Record<PSRTrigger, ICombatFeatureSupportEntry>;

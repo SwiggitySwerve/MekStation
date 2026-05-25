@@ -84,7 +84,7 @@ function canonicalSpaFallback(spa: ISPADefinition): ICombatFeatureSupportEntry {
     return helperOnly(
       spa.id,
       evidence,
-      'Trigger-specific Edge SPAs are catalog-visible, but no attack, PSR, consciousness, or critical resolver consumes Edge trigger state',
+      'Trigger-specific Edge SPAs are catalog-visible; edge_when_masc_fails is consumed by runner MASC/Supercharger failure rerolls, while attack, other PSR, consciousness, and critical resolvers still do not consume Edge trigger state',
     );
   }
 

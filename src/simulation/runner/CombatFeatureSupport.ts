@@ -578,8 +578,8 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   edge: helperOnly(
     'edge',
-    'Source-backed Edge trigger ids are represented by createEdgeState/canUseEdge/useEdge generic helper state',
-    'Attack, PSR, consciousness, MASC/supercharger, TAC, head-hit, and explosion resolvers do not consume trigger-specific Edge state',
+    'Source-backed Edge trigger ids are represented by createEdgeState/canUseEdge/useEdge generic helper state, and runPSRPhase consumes edge_when_masc_fails for failed MASC/Supercharger rerolls',
+    'Attack, non-booster PSR, consciousness, TAC, head-hit, and explosion resolvers do not consume trigger-specific Edge state',
     [
       ...MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
       ...MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,

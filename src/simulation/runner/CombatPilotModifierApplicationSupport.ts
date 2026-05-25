@@ -231,8 +231,8 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'edge-application': helperOnly(
     'edge-application',
-    'createEdgeState, canUseEdge, and useEdge model source-backed Edge point and trigger-id consumption as generic helper state',
-    'No attack, PSR, consciousness, MASC/supercharger, TAC, head-hit, or explosion resolver consumes trigger-specific Edge state',
+    'createEdgeState, canUseEdge, and useEdge model source-backed Edge point and trigger-id consumption as generic helper state, and runPSRPhase consumes edge_when_masc_fails for failed MASC/Supercharger rerolls',
+    'No attack, non-booster PSR, consciousness, TAC, head-hit, or explosion resolver consumes trigger-specific Edge state',
     [
       ...MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
       ...MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,

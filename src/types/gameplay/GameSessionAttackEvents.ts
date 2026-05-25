@@ -434,6 +434,15 @@ export interface IPSRResolvedPayload {
   readonly passed: boolean;
   readonly reason: string;
   /**
+   * Optional trigger-specific Edge metadata. `edgeSuperseded` marks an
+   * original failed roll that was replaced by a legal Edge reroll, while
+   * `edgeReroll` marks the replacement roll.
+   */
+  readonly edgeReroll?: boolean;
+  readonly edgeSuperseded?: boolean;
+  readonly edgeTrigger?: string;
+  readonly edgePointsRemaining?: number;
+  /**
    * Per `add-authoritative-roll-arbitration` (Wave 3a): the two d6 that
    * compose `roll`. OPTIONAL — see `IInitiativeRolledPayload.rolls`.
    */

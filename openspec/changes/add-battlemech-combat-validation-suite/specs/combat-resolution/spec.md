@@ -721,7 +721,7 @@ Runner movement validation SHALL consume explicit BattleMech `hasTSM` state and 
 
 ### Requirement: Source-Backed Active MASC/Supercharger Run Movement Boundary
 
-Runner movement validation SHALL consume explicit active `activeMASC` and `activeSupercharger` BattleMech combat state when calculating running movement capability. A single active MASC or Supercharger SHALL double the effective walk MP for run validation, and active MASC plus active Supercharger SHALL validate run movement against `ceil(effectiveWalkMP * 2.5)`. Runner movement SHALL queue the corresponding MASC and/or Supercharger failure PSR triggers when an explicit active booster is used for running movement. Those pending PSRs SHALL carry source-backed standard fixed target numbers from explicit `mascTurnsUsed` and `superchargerTurnsUsed` prior-use state, defaulting first use to 3 and mapping prior-use counts through `[3, 5, 7, 11, 13, 13, 13]`. When a runner `MASCFailure` check fails, runner PSR resolution SHALL apply one critical-slot hit to each leg from the current critical-slot manifest and SHALL NOT destroy the MASC system. When a runner `SuperchargerFailure` check fails, runner PSR resolution SHALL destroy the Supercharger slot when present, roll the source-backed 2d6 engine critical table (`<=7` no engine hits, `8-9` one hit, `10-11` two hits, `12` three hits), and apply resulting engine critical slots in the center torso. At turn reset, runner state SHALL advance the used booster's prior-use counter, clear active booster use, and decay idle prior-use counters. Alternate MASC option tables, IndustrialMek/support-unit supercharger adjustment, `MovementType.Sprint`, Edge rerolls, separate first-step equipment-check timing, and non-BattleMech Supercharger motive-damage branches SHALL remain explicit gaps.
+Runner movement validation SHALL consume explicit active `activeMASC` and `activeSupercharger` BattleMech combat state when calculating running movement capability. A single active MASC or Supercharger SHALL double the effective walk MP for run validation, and active MASC plus active Supercharger SHALL validate run movement against `ceil(effectiveWalkMP * 2.5)`. Runner movement SHALL queue the corresponding MASC and/or Supercharger failure PSR triggers when an explicit active booster is used for running movement. Those pending PSRs SHALL carry source-backed standard fixed target numbers from explicit `mascTurnsUsed` and `superchargerTurnsUsed` prior-use state, defaulting first use to 3 and mapping prior-use counts through `[3, 5, 7, 11, 13, 13, 13]`. When a runner `MASCFailure` or `SuperchargerFailure` check fails and the pilot has `edge_when_masc_fails` plus remaining Edge, runner PSR resolution SHALL spend one Edge point and reroll the failed check before applying fall or movement-enhancement failure aftermath. When the Edge reroll passes, the original failed roll SHALL be marked superseded and no fall or movement-enhancement failure aftermath SHALL occur. When a final runner `MASCFailure` check fails, runner PSR resolution SHALL apply one critical-slot hit to each leg from the current critical-slot manifest and SHALL NOT destroy the MASC system. When a final runner `SuperchargerFailure` check fails, runner PSR resolution SHALL destroy the Supercharger slot when present, roll the source-backed 2d6 engine critical table (`<=7` no engine hits, `8-9` one hit, `10-11` two hits, `12` three hits), and apply resulting engine critical slots in the center torso. At turn reset, runner state SHALL advance the used booster's prior-use counter, clear active booster use, and decay idle prior-use counters. Alternate MASC option tables, IndustrialMek/support-unit supercharger adjustment, `MovementType.Sprint`, separate first-step equipment-check timing, and non-BattleMech Supercharger motive-damage branches SHALL remain explicit gaps.
 
 #### Scenario: Active MASC expands run validation and queues a failure PSR
 
@@ -746,6 +746,15 @@ Runner movement validation SHALL consume explicit active `activeMASC` and `activ
 - **THEN** the Supercharger critical slot SHALL be marked destroyed when present
 - **AND** three center-torso engine critical slots SHALL be marked destroyed
 - **AND** the unit SHALL be marked destroyed from engine destruction
+
+#### Scenario: Edge reroll suppresses movement-enhancement failure aftermath
+
+- **GIVEN** a BattleMech has `edge_when_masc_fails`, one remaining Edge point, and a pending `MASCFailure` or `SuperchargerFailure` PSR
+- **WHEN** the first failure check fails and the Edge reroll passes
+- **THEN** one Edge point SHALL be spent
+- **AND** the original failed PSR result SHALL be marked superseded
+- **AND** the rerolled PSR result SHALL be marked as an Edge reroll
+- **AND** the unit SHALL NOT fall or receive movement-enhancement failure aftermath
 
 #### Scenario: Active MASC and Supercharger combine for boosted run validation
 
@@ -1067,7 +1076,7 @@ Pilot modifier validation SHALL keep local-only SPA rows visible as MekStation d
 
 ### Requirement: Source-Backed Edge Trigger Boundary
 
-Pilot modifier validation SHALL keep Edge as helper-only trigger-state coverage until combat resolvers consume trigger-specific Edge behavior. Edge rows SHALL cite MegaMek's point-pool and trigger-option source anchors plus MekStation's local generic trigger helper. TAC, head-hit, KO, explosion, MASC/supercharger, attack, PSR, and consciousness resolvers SHALL NOT be treated as Edge-integrated until those trigger-specific reroll or prevention paths are wired.
+Pilot modifier validation SHALL keep Edge as helper-only trigger-state coverage until combat resolvers consume each trigger-specific Edge behavior. Edge rows SHALL cite MegaMek's point-pool and trigger-option source anchors plus MekStation's local generic trigger helper. The `edge_when_masc_fails` trigger SHALL be counted as consumed by runner `MASCFailure` and `SuperchargerFailure` PSR rerolls only; TAC, head-hit, KO, explosion, attack, non-booster PSR, and consciousness resolvers SHALL NOT be treated as Edge-integrated until those trigger-specific reroll or prevention paths are wired.
 
 #### Scenario: Edge helper rows cite source truth without claiming resolver parity
 
@@ -1075,7 +1084,7 @@ Pilot modifier validation SHALL keep Edge as helper-only trigger-state coverage 
 - **WHEN** Edge, Edge application, or critical-prevention support is inspected
 - **THEN** each row SHALL remain helper-only with structured source references to MegaMek Edge trigger registration and point consumption
 - **AND** each row SHALL cite the MekStation generic Edge helper as a local deviation boundary
-- **AND** no attack, PSR, consciousness, TAC, head-hit, explosion, or MASC/supercharger resolver SHALL be counted as Edge-integrated until trigger-specific combat behavior exists
+- **AND** no attack, non-booster PSR, consciousness, TAC, head-hit, or explosion resolver SHALL be counted as Edge-integrated until trigger-specific combat behavior exists
 
 ### Requirement: Source-Backed Terrain Master Defender To-Hit Variants
 

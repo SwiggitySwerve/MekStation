@@ -518,6 +518,20 @@ const MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS = [
     url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L6022-L6048`,
     sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
   },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek TWGameManager consumes EDGE_WHEN_MASC_FAILS to reroll failed MASC checks, spends Edge, and suppresses failure processing when the reroll passes.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L5944-L5974`,
+    sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek TWGameManager consumes EDGE_WHEN_MASC_FAILS to reroll failed Supercharger checks, spends Edge, and suppresses failure processing when the reroll passes.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L5994-L6024`,
+    sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
+  },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const MEGAMEK_PARTIAL_WING_MOVEMENT_SOURCE_REFS = [
@@ -840,14 +854,14 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
 export const MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT = {
   [MovementEnhancementType.MASC]: helperOnly(
     MovementEnhancementType.MASC,
-    'UnitHydration detects installed MASC, runMovementPhase consumes explicit active MASC run MP, movementEnhancementPsr queues createMASCFailurePSR with source-backed standard fixed failure target numbers, runPSRPhase applies one critical hit to each leg when that check fails, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers still expose sprint_masc formula support',
-    'No combat MovementType.Sprint, alternate MASC option tables, Edge reroll, or separate first-step equipment-check timing is wired',
+    'UnitHydration detects installed MASC, runMovementPhase consumes explicit active MASC run MP, movementEnhancementPsr queues createMASCFailurePSR with source-backed standard fixed failure target numbers, runPSRPhase consumes edge_when_masc_fails rerolls and applies one critical hit to each leg when the final check fails, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers still expose sprint_masc formula support',
+    'No combat MovementType.Sprint, alternate MASC option tables, or separate first-step equipment-check timing is wired',
     MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
   ),
   [MovementEnhancementType.SUPERCHARGER]: helperOnly(
     MovementEnhancementType.SUPERCHARGER,
-    'UnitHydration detects installed Supercharger, runMovementPhase consumes explicit active Supercharger run MP, movementEnhancementPsr queues createSuperchargerFailurePSR with source-backed standard fixed failure target numbers, runPSRPhase destroys the Supercharger slot and applies the source-backed engine critical table when that check fails, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers still expose sprint_combined formula support',
-    'No combat MovementType.Sprint, IndustrialMek/support-unit supercharger roll adjustment, Edge reroll, separate first-step equipment-check timing, or non-BattleMech motive-damage branch is wired',
+    'UnitHydration detects installed Supercharger, runMovementPhase consumes explicit active Supercharger run MP, movementEnhancementPsr queues createSuperchargerFailurePSR with source-backed standard fixed failure target numbers, runPSRPhase consumes edge_when_masc_fails rerolls and destroys the Supercharger slot plus applies the source-backed engine critical table when the final check fails, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers still expose sprint_combined formula support',
+    'No combat MovementType.Sprint, IndustrialMek/support-unit supercharger roll adjustment, separate first-step equipment-check timing, or non-BattleMech motive-damage branch is wired',
     MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
   ),
   [MovementEnhancementType.TSM]: integrated(

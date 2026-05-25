@@ -17,10 +17,6 @@ import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
 import { calculateEnvironmentalHeatModifier } from '@/utils/gameplay/environmentalModifiers';
 import { getGridTerrainHeatEffect } from '@/utils/gameplay/heat';
 import {
-  IPSRBatchResult,
-  resolveAllPSRs,
-} from '@/utils/gameplay/pilotingSkillRolls';
-import {
   getCoolUnderFireHeatReduction,
   getHotDogHeatTargetNumberModifier,
 } from '@/utils/gameplay/spaModifiers';
@@ -49,6 +45,7 @@ import {
   applyMASCFailureCriticalDamage,
   applySuperchargerFailureCriticalDamage,
 } from './movementEnhancementFailureDamage';
+import { resolveRunnerPSRs } from './psrEdgeRerolls';
 import { createD6Roller, createGameEvent } from './utils';
 import { applyCriticalPSRTriggers } from './weaponAttackPsrTriggers';
 
@@ -86,17 +83,15 @@ export function runPSRPhase(options: {
 
     const componentDamage = unit.componentDamage ?? DEFAULT_COMPONENT_DAMAGE;
     const pilotingSkill = unit.piloting ?? DEFAULT_PILOTING;
-    const batchResult: IPSRBatchResult = resolveAllPSRs(
-      pilotingSkill,
+    const batchResult = resolveRunnerPSRs({
+      unit,
+      unitId,
       pendingPSRs,
       componentDamage,
-      unit.pilotWounds,
+      pilotingSkill,
       d6Roller,
-      unit.unitQuirks ?? [],
-      unit.abilities ?? [],
-      unit.isQuad ?? false,
-      unit.unitType,
-    );
+      turn: currentState.turn,
+    });
 
     for (const psrResult of batchResult.results) {
       events.push(
@@ -116,6 +111,18 @@ export function runPSRPhase(options: {
               0,
             ),
             passed: psrResult.passed,
+            ...(psrResult.edgeReroll !== undefined
+              ? { edgeReroll: psrResult.edgeReroll }
+              : {}),
+            ...(psrResult.edgeSuperseded !== undefined
+              ? { edgeSuperseded: psrResult.edgeSuperseded }
+              : {}),
+            ...(psrResult.edgeTrigger !== undefined
+              ? { edgeTrigger: psrResult.edgeTrigger }
+              : {}),
+            ...(psrResult.edgePointsRemaining !== undefined
+              ? { edgePointsRemaining: psrResult.edgePointsRemaining }
+              : {}),
             // Per `structure-psr-reason-as-discriminated-code` (PR E):
             // forward the canonical reasonCode the factory stamped onto
             // the source IPendingPSR.
@@ -129,8 +136,8 @@ export function runPSRPhase(options: {
     }
 
     if (batchResult.unitFell) {
-      let currentUnit = currentState.units[unitId];
-      const failedPsr = batchResult.results.find((r) => !r.passed);
+      let currentUnit = batchResult.unit;
+      const failedPsr = batchResult.failedResult;
       const failureReason = failedPsr?.psr.reasonCode;
       if (failureReason === PSRTrigger.MASCFailure) {
         const mascDamage = applyMASCFailureCriticalDamage({
@@ -264,7 +271,7 @@ export function runPSRPhase(options: {
         units: {
           ...currentState.units,
           [unitId]: {
-            ...currentState.units[unitId],
+            ...batchResult.unit,
             pendingPSRs: [],
           },
         },

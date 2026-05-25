@@ -122,7 +122,7 @@ const MEKSTATION_RUNNER_TERRAIN_HEAT_PHASE_SOURCE_REF =
   mekstationDeviationSourceRef(
     'MekStation post-combat heat resolution consumes terrainHeatEffect as environmentHeat or waterBonus before computing generated heat and dissipation.',
     'src/simulation/runner/phases/postCombat.ts',
-    'L282-L314',
+    'L340-L376',
   );
 
 const pavementMovementTerrains = new Set<TerrainType>([

@@ -43,11 +43,23 @@ export const MEGAMEK_EDGE_TRIGGER_SOURCE_REFS = [
     'MegaMek Mek hit-location resolution consumes Edge for TAC and head-hit rerolls when the corresponding trigger option is enabled.',
     'megamek/src/megamek/common/units/Mek.java#L1945-L1963',
   ),
+  megamekRef(
+    'MegaMek TWGameManager consumes EDGE_WHEN_MASC_FAILS to reroll failed MASC checks, spends Edge, and suppresses failure processing when the reroll passes.',
+    'megamek/src/megamek/server/totalWarfare/TWGameManager.java#L5944-L5974',
+  ),
+  megamekRef(
+    'MegaMek TWGameManager consumes EDGE_WHEN_MASC_FAILS to reroll failed Supercharger checks, spends Edge, and suppresses failure processing when the reroll passes.',
+    'megamek/src/megamek/server/totalWarfare/TWGameManager.java#L5994-L6024',
+  ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 export const MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS = [
   mekstationDeviationRef(
-    'MekStation EDGE_TRIGGERS mirrors the known Edge trigger ids and createEdgeState/canUseEdge/useEdge model generic trigger consumption without combat resolver side effects.',
+    'MekStation EDGE_TRIGGERS mirrors the known Edge trigger ids and createEdgeState/canUseEdge/useEdge model generic trigger point consumption.',
     'src/utils/gameplay/spaModifiers/edgeTriggers.ts#L11-L93',
+  ),
+  mekstationDeviationRef(
+    'MekStation psrEdgeRerolls consumes edge_when_masc_fails to reroll failed MASCFailure and SuperchargerFailure PSRs before applying fall or booster-failure aftermath.',
+    'src/simulation/runner/phases/psrEdgeRerolls.ts#L23-L194',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
