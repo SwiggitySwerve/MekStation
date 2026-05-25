@@ -90,6 +90,8 @@
 - [x] 2.35 Add browser coverage proving a naval vehicle cannot leave water for
   a clear land hex and renders the same water-required blocker used by commit
   validation.
+- [x] 2.36 Add browser coverage proving elevation-blocked line of sight renders
+  the shared NoLineOfSight reason, blocker metadata, and non-color badges.
 
 ## 3. Validation
 
@@ -163,3 +165,5 @@
   crossing legality, cost metadata, and terrain layer labeling.
 - [x] 3.35 Focused Jest parity and Playwright smoke pass for naval landfall
   movement blocking, water/clear terrain metadata, and invalid badge labeling.
+- [x] 3.36 Focused Jest parity and Playwright smoke pass for elevation LOS
+  blocking, elevation label metadata, and blocker badge labeling.

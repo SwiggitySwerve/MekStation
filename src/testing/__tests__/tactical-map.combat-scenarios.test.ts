@@ -22,6 +22,11 @@ import {
   tacticalMapOutOfRangeCommitInput,
 } from '../tactical-map.combat-scenarios';
 import {
+  tacticalMapElevationLosCombatProjection,
+  tacticalMapElevationLosCommitInput,
+  tacticalMapElevationLosTargetId,
+} from '../tactical-map.elevation-los-scenario';
+import {
   tacticalMapSameHexCombatProjection,
   tacticalMapSameHexCommitInput,
 } from '../tactical-map.same-hex-scenarios';
@@ -245,6 +250,55 @@ describe('tactical map combat scenarios', () => {
       weaponId: 'medium-laser',
       reason: tacticalMapBlockedLosCombatProjection.attackInvalidReason,
       details: tacticalMapBlockedLosCombatProjection.attackInvalidDetails,
+    });
+  });
+
+  it('keeps elevation LOS browser projection aligned with attack commit validation', () => {
+    expect(tacticalMapElevationLosCombatProjection).toMatchObject({
+      hex: { q: 2, r: 0 },
+      distance: 2,
+      rangeBracket: 'short',
+      inRange: true,
+      inArc: true,
+      losState: 'blocked',
+      attackable: false,
+      targetUnitIds: [tacticalMapElevationLosTargetId],
+      validTargetUnitIds: [],
+      weaponIdsAvailable: ['medium-laser'],
+      attackInvalidReason: 'NoLineOfSight',
+      attackInvalidDetails: 'Blocked by elevation +2 at (1, 0)',
+      blockedReason: 'Blocked by elevation +2 at (1, 0)',
+      lineOfSightBlockerReason: 'Blocked by elevation +2 at (1, 0)',
+      lineOfSightBlocker: {
+        hex: { q: 1, r: 0 },
+        kind: 'elevation',
+        reason: 'Blocked by elevation +2 at (1, 0)',
+      },
+    });
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapElevationLosCommitInput(),
+    );
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackLocked),
+    ).toBe(false);
+
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: tacticalMapElevationLosTargetId,
+      weaponId: 'medium-laser',
+      reason: tacticalMapElevationLosCombatProjection.attackInvalidReason,
+      details: tacticalMapElevationLosCombatProjection.attackInvalidDetails,
     });
   });
 

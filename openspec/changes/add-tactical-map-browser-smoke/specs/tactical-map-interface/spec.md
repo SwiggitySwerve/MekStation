@@ -39,6 +39,9 @@ the top-down map.
   reason and render an invalid badge that does not rely on color alone
 - **AND** a LOS-blocked combat target SHALL expose the blocked target id,
   NoLineOfSight rejection, blocker hex metadata, and an invalid combat badge
+- **AND** an elevation-LOS-blocked combat target SHALL expose the elevation
+  blocker reason, blocker hex metadata, elevation label, and non-color invalid
+  and blocker badges
 - **AND** a medium-range combat target SHALL expose the target id, distance,
   range band, available weapon ids, and per-weapon range option metadata
 - **AND** a combat target outside the selected weapon's firing arc SHALL expose

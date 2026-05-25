@@ -76,6 +76,14 @@ A fixture-level Jest parity test feeds that projection into
 with the same `NoLineOfSight` reason and `Blocked by building at (1, 0)`
 details before declaration or attack locking.
 
+2026-05-25 elevation LOS browser pin: the tactical-map browser harness now also
+uses a clear level-2 elevation blocker between attacker and target, proving the
+rendered target exposes `NoLineOfSight`, `Blocked by elevation +2 at (1, 0)`,
+the blocker hex, the blocker kind `elevation`, the top-down +2 elevation label,
+an `ELEV` combat invalid badge, and a `LOS ELEV` blocker badge. A fixture-level
+Jest parity test feeds the same projection into `applyInteractiveSessionAttack`
+and proves the commit path rejects the attack with the same reason and details.
+
 2026-05-24 medium-range combat browser update: the tactical-map browser harness
 now also renders a target at four hexes and verifies that the top-down hex and
 combat badge expose the medium range band, distance, available weapon id, and

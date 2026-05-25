@@ -595,6 +595,99 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     ).toHaveAttribute('data-isometric-occludes-units', 'occluded');
   });
 
+  test('shows elevation LOS blockers as attack rejection evidence in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=elevation-los-blocked');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('SHD');
+    await expect(
+      page.getByTestId('unit-token-elevation-blocked-target'),
+    ).toContainText('LCT');
+
+    const blockerHex = page.getByTestId('hex-1-0');
+    await expect(blockerHex).toHaveAttribute('data-terrain-features', 'clear');
+    await expect(blockerHex).toHaveAttribute(
+      'data-terrain-feature-levels',
+      'clear:0',
+    );
+    await expect(page.getByTestId('hex-elevation-label-1-0')).toContainText(
+      '+2',
+    );
+
+    const targetHex = page.getByTestId('hex-2-0');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'elevation-blocked-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-distance', '2');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-range-bracket',
+      'short',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-valid-target',
+      'false',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-los-state', 'blocked');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-reason',
+      'NoLineOfSight',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-details',
+      'Blocked by elevation +2 at (1, 0)',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-los-blocker-hex',
+      '1,0',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-los-blocker-kind',
+      'elevation',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-los-blocker-reason',
+      'Blocked by elevation +2 at (1, 0)',
+    );
+
+    const invalidBadge = page.getByTestId('hex-combat-invalid-badge-2-0');
+    await expect(invalidBadge.locator('text')).toHaveText('ELEV');
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'NoLineOfSight',
+    );
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-reason',
+      'Blocked by elevation +2 at (1, 0)',
+    );
+
+    const losBlockerBadge = page.getByTestId(
+      'hex-combat-los-blocker-badge-1-0',
+    );
+    await expect(losBlockerBadge.locator('text')).toHaveText('LOS ELEV');
+    await expect(losBlockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-target-hexes',
+      '2,0',
+    );
+    await expect(losBlockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-target-ids',
+      'elevation-blocked-target',
+    );
+    await expect(losBlockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-state',
+      'blocked',
+    );
+    await expect(losBlockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-kind',
+      'elevation',
+    );
+    await expect(losBlockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-reason',
+      'Blocked by elevation +2 at (1, 0)',
+    );
+  });
+
   test('shows jump elevation delta with zero elevation MP cost in browser', async ({
     page,
   }) => {
