@@ -86,6 +86,7 @@
 - [x] 3.2.11 Integrate source-backed MASC/Supercharger activation through tactical commands, game intent, wire intent, P2P host command, interactive/session reducer, and explicit active-booster events while leaving sprint movement and full failure-damage lifecycle explicit.
 - [x] 3.2.12 Source-back the remaining optional TacOps sprint absent-action row with MegaMek MP, heat, attacker-firing, and target-modifier anchors so the gap is rule-backed instead of a product-only omission.
 - [x] 3.2.13 Source-back optional TacOps evade as a first-class absent-action row with MegaMek movement, heat, firing-restriction, and target-modifier anchors instead of leaving it as an unexamined Evasive SPA TMM gap.
+- [x] 3.2.14 Source-back torso twist helper-only action/rule rows with MegaMek secondary-facing action, legality, quirk, and arc-consumption anchors while leaving authoritative state/intent/wire/P2P/server paths explicit.
 - [ ] 3.3 Expand heat validation coverage for buildup, dissipation, shutdown, ammo explosions, pilot damage, and heat-driven modifiers.
 - [x] 3.3.1 Cross-link every heat rule support row into heat generation, dissipation, and lifecycle requirement checklists.
 - [x] 3.3.2 Add structured MegaMek source anchors for heat startup, avoidable/automatic shutdown, ammo-explosion risk, and pilot heat damage support rows.
@@ -122,6 +123,7 @@
 - [x] 3.4.23 Integrate source-backed Tactical Genius initiative reroll requests into `rollInitiative` while leaving Combat Intuition sequencing and automatic equipment hydration explicit.
 - [x] 3.4.24 Guard source-backed initiative equipment hydration as unsupported unless complete HQ communications or command-console eligibility context exists; command-looking metadata without explicit initiative fields fails closed.
 - [x] 3.4.25 Source-back legacy Evasive SPA support as an unsupported optional TacOps Evade movement/action gap, including target to-hit and attacker firing restrictions, until an authoritative evade action path exists.
+- [x] 3.4.26 Source-back torso-twist secondary-facing arc consumption and extended/no-twist quirk boundaries while preserving attack arc consumption as a helper-only gap until torso twist is authoritative.
 - [x] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -195,3 +197,4 @@
 - [x] 4.3.43 Cross-check MegaMek `Mek.isLocationProhibited` normal BattleMech woods/jungle terrain-level cap before promoting represented overgrown-terrain displacement rejection.
 - [x] 4.3.44 Cross-check MegaMek optional TacOps sprint gates, BattleMech sprint MP/heat, MASC/Supercharger sprint formulas, attacker auto-fail, and target-sprinted modifier before leaving sprint as an explicit absent action.
 - [x] 4.3.45 Cross-check MegaMek optional TacOps Evade movement, evasion heat, evasion target modifiers, evading attacker ranged-fire rejection, and physical evasion gates before leaving evade as an explicit absent action.
+- [x] 4.3.46 Cross-check MegaMek `TorsoTwistAction`, secondary-facing state gates, BattleMech normal/extended/no-twist legality, and `ComputeArc` secondary-facing use before leaving torso twist helper-only.

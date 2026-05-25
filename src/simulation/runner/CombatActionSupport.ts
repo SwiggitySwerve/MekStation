@@ -6,6 +6,7 @@ import type {
   ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 
+import { MEGAMEK_TORSO_TWIST_SOURCE_REFS } from './CombatMovementSourceRefs';
 import { MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS } from './CombatPilotModifierSourceRefs';
 
 export { P2P_INTENT_TRANSLATION_SUPPORT } from './CombatP2PIntentSupport';
@@ -39,8 +40,11 @@ function helperOnly(
   layer: CombatActionLayer,
   evidence: string,
   gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatActionSupportEntry {
-  return { id, layer, level: 'helper-only', evidence, gap };
+  return sourceRefs
+    ? { id, layer, level: 'helper-only', evidence, gap, sourceRefs }
+    : { id, layer, level: 'helper-only', evidence, gap };
 }
 
 function unsupported(
@@ -222,8 +226,9 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
   'facing.torso-twist': helperOnly(
     'facing.torso-twist',
     'tactical-command',
-    'buildFacingCommands exposes torso-twist during WeaponAttack and firing-arc helpers model twist context',
-    'No authoritative torso-twist state, game intent, wire protocol, or server dispatch path exists',
+    'buildFacingCommands exposes source-backed torso-twist during WeaponAttack and firing-arc helpers model twist context',
+    'No authoritative secondary-facing torso-twist state, game intent, wire protocol, P2P translation, or server dispatch path exists',
+    MEGAMEK_TORSO_TWIST_SOURCE_REFS,
   ),
   'weapon.declare-attack': helperOnly(
     'weapon.declare-attack',

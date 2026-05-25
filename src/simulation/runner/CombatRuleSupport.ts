@@ -10,6 +10,8 @@ import type {
   ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 
+import { MEGAMEK_TORSO_TWIST_SOURCE_REFS } from './CombatMovementSourceRefs';
+
 function integrated(
   id: string,
   evidence: string,
@@ -504,8 +506,9 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
   ),
   'torso-twist': helperOnly(
     'torso-twist',
-    'firingArc helpers, AttackAI arc filtering, and TacticalActionDock command surface',
-    'No authoritative torso-twist state/intent is persisted through combat resolution',
+    'Source-backed firingArc helpers, AttackAI arc filtering, and TacticalActionDock command surface model torso-twist context',
+    'No authoritative secondary-facing state/intent, legality gate, quirk handling, or attack arc consumption is persisted through combat resolution',
+    MEGAMEK_TORSO_TWIST_SOURCE_REFS,
   ),
   occupancy: integrated(
     'occupancy',

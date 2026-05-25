@@ -848,7 +848,7 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     ).toContain('Non-BattleMech');
   });
 
-  it('keeps optional TacOps sprint and evade gaps source-backed until action paths exist', () => {
+  it('keeps source-backed movement action gaps helper-only until action paths exist', () => {
     const evadeRefs =
       BATTLEMECH_COMBAT_VALIDATION_CATALOG.actions.absentActionSurfaces[
         'movement.evade'
@@ -856,6 +856,14 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     const sprintRefs =
       BATTLEMECH_COMBAT_VALIDATION_CATALOG.actions.absentActionSurfaces[
         'movement.sprint'
+      ].sourceRefs ?? [];
+    const torsoTwistActionRefs =
+      BATTLEMECH_COMBAT_VALIDATION_CATALOG.actions.tacticalCommands[
+        'facing.torso-twist'
+      ].sourceRefs ?? [];
+    const torsoTwistRuleRefs =
+      BATTLEMECH_COMBAT_VALIDATION_CATALOG.ruleSupport.movementRules[
+        'torso-twist'
       ].sourceRefs ?? [];
 
     expect(evadeRefs.map((sourceRef) => sourceRef.citation)).toEqual(
@@ -876,6 +884,20 @@ describe('BattleMech combat validation requirement crosswalk', () => {
         expect.stringContaining('target sprinted'),
       ]),
     );
+    expect(torsoTwistActionRefs.map((sourceRef) => sourceRef.citation)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('TorsoTwistAction'),
+        expect.stringContaining('secondary facing'),
+        expect.stringContaining('ComputeArc'),
+      ]),
+    );
+    expect(torsoTwistRuleRefs.map((sourceRef) => sourceRef.citation)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('Entity.setSecondaryFacing'),
+        expect.stringContaining('Mek.canChangeSecondaryFacing'),
+        expect.stringContaining('Mek.isValidSecondaryFacing'),
+      ]),
+    );
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
         .supportMapRefs,
@@ -884,6 +906,13 @@ describe('BattleMech combat validation requirement crosswalk', () => {
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
         .supportMapRefs,
     ).toContain('actions.absentActionSurfaces.movement.sprint');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
+        .supportMapRefs,
+    ).toContain('actions.tacticalCommands.facing.torso-twist');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions'].gap,
+    ).toContain('secondary-facing torso-twist');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
         .supportMapRefs,

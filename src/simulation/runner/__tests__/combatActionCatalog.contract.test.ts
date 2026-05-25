@@ -142,6 +142,21 @@ describe('BattleMech combat action support catalog', () => {
     expect(
       supportIdsByLevel(COMBAT_COMMAND_ACTION_SUPPORT, 'unsupported'),
     ).toEqual(['movement.stabilize']);
+    expect(
+      COMBAT_COMMAND_ACTION_SUPPORT['facing.torso-twist'].sourceRefs?.map(
+        (sourceRef) => sourceRef.citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('TorsoTwistAction'),
+        expect.stringContaining('secondary facing'),
+        expect.stringContaining('canChangeSecondaryFacing'),
+        expect.stringContaining('ComputeArc'),
+      ]),
+    );
+    expect(COMBAT_COMMAND_ACTION_SUPPORT['facing.torso-twist'].gap).toContain(
+      'secondary-facing',
+    );
   });
 
   it('tracks official BattleMech action surfaces that have no authoritative command or wire path', () => {

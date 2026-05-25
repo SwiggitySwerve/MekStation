@@ -60,6 +60,13 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** the evade row SHALL cite MegaMek source anchors for optional TacOps evade availability, evasion state, evasion heat, attacker-evading firing restrictions, and target-evading to-hit modifiers
 - **AND** those rows SHALL NOT be inferred from helper prose or omitted because no UI command currently emits them
 
+#### Scenario: Torso twist stays source-backed helper-only until secondary-facing state is authoritative
+
+- **GIVEN** the tactical command and firing-arc helpers expose torso twist without authoritative secondary-facing state
+- **WHEN** the action and movement rule catalogs are contract-tested
+- **THEN** `facing.torso-twist` SHALL cite MegaMek source anchors for `TorsoTwistAction`, secondary-facing persistence, BattleMech twist legality, extended/no-twist quirk boundaries, and secondary-facing arc consumption
+- **AND** torso twist SHALL remain helper-only until game intent, wire payload, P2P translation, server dispatch, persisted secondary-facing state, legality gates, quirk handling, and attack arc consumption are authoritative
+
 #### Scenario: Voluntary go-prone emits source-backed movement step
 
 - **GIVEN** MegaMek defines voluntary go-prone as `MoveStepType.GO_PRONE` for standing Meks

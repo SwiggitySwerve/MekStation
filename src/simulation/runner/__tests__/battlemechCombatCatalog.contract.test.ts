@@ -1516,6 +1516,22 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(
       supportIdsByLevel(MOVEMENT_RULE_COMBAT_SUPPORT, 'helper-only'),
     ).toEqual(['prone', 'torso-twist']);
+    expect(
+      MOVEMENT_RULE_COMBAT_SUPPORT['torso-twist'].sourceRefs?.map(
+        (sourceRef) => sourceRef.citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('TorsoTwistAction'),
+        expect.stringContaining('Entity.setSecondaryFacing'),
+        expect.stringContaining('Mek.canChangeSecondaryFacing'),
+        expect.stringContaining('Mek.isValidSecondaryFacing'),
+        expect.stringContaining('ComputeArc'),
+      ]),
+    );
+    expect(MOVEMENT_RULE_COMBAT_SUPPORT['torso-twist'].gap).toContain(
+      'secondary-facing',
+    );
 
     expect(sortedKeys(MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT)).toEqual(
       MOVEMENT_ENHANCEMENT_DEFINITIONS.map(({ type }) => type).sort(),
