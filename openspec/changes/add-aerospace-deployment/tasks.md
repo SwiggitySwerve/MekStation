@@ -68,6 +68,7 @@
 - [ ] 9.3 Reject indirect-fire weapons (LRM in Indirect mode) attempting to engage airborne targets — emit warning event
 - [ ] 9.4 Emit `AerospaceGroundToAirAttack { attackerId, targetId, altitudeTier, toHitFinal, outcome }`
 - [ ] 9.5 Unit-test: AC/20 mech firing at airborne aero at altitude 7 → +3 to-hit; LRM in Indirect mode → rejected
+- [x] 9.6 Browser map proof: ground attacker targeting airborne aero suppresses ground-only minimum-range penalties and badges while keeping state-derived target altitude/velocity metadata visible in top-down and isometric projections.
 
 ## 10. Dogfight resolution
 

@@ -2,12 +2,18 @@ import type { IApplyAttackInput } from '@/engine/InteractiveSession.actions';
 import type { IWeapon } from '@/simulation/ai/types';
 import type {
   ICombatRangeHex,
+  IGameState,
   IGameSession,
   IGameUnit,
   IHexGrid,
+  IUnitGameState,
+  IUnitToken,
   IWeaponStatus,
 } from '@/types/gameplay';
 
+import { unitStateToToken } from '@/lib/gameplay/unitStateToToken';
+import { Facing, GameSide, LockState, MovementType } from '@/types/gameplay';
+import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
 import {
   advancePhase,
@@ -34,6 +40,81 @@ const tacticalMapMinimumRangeTargetId = 'occluded';
 const tacticalMapMinimumRangeTargetHex = { q: 0, r: 0 } as const;
 const tacticalMapOutOfRangeTargetId = 'medium-target';
 const tacticalMapOutOfRangeTargetHex = { q: 1, r: 2 } as const;
+export const tacticalMapAirborneAerospaceMinimumRangeTargetId =
+  'airborne-aero-target';
+export const tacticalMapAirborneAerospaceMinimumRangeTargetHex = {
+  q: 0,
+  r: 0,
+} as const;
+export const tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds = [
+  'minimum-lrm',
+];
+
+const tacticalMapAirborneAerospaceTargetState: IUnitGameState = {
+  id: tacticalMapAirborneAerospaceMinimumRangeTargetId,
+  side: GameSide.Opponent,
+  position: tacticalMapAirborneAerospaceMinimumRangeTargetHex,
+  facing: Facing.Southwest,
+  heat: 0,
+  movementThisTurn: MovementType.Stationary,
+  hexesMovedThisTurn: 0,
+  armor: {},
+  structure: {},
+  destroyedLocations: [],
+  destroyedEquipment: [],
+  ammo: {},
+  pilotWounds: 0,
+  pilotConscious: true,
+  destroyed: false,
+  lockState: LockState.Pending,
+  combatState: {
+    kind: 'aero',
+    state: createAerospaceCombatState({
+      maxSI: 8,
+      armorByArc: { nose: 20, leftWing: 15, rightWing: 15, aft: 10 },
+      heatSinks: 12,
+      fuelPoints: 400,
+      safeThrust: 5,
+      maxThrust: 8,
+      altitude: 3,
+      currentVelocity: 5,
+      nextVelocity: 5,
+      airborneState: 'airborne',
+    }),
+  },
+};
+
+const tacticalMapAirborneAerospaceTargetToken = unitStateToToken(
+  tacticalMapAirborneAerospaceTargetState.id,
+  tacticalMapAirborneAerospaceTargetState,
+  {
+    name: 'Seydlitz SYD-21',
+    side: GameSide.Opponent,
+  },
+  {
+    isValidTarget: true,
+    isActiveTarget: true,
+  },
+);
+
+export const tacticalMapAirborneAerospaceMinimumRangeTokens: readonly IUnitToken[] =
+  [
+    ...tacticalMapTokens.filter((token) => token.unitId !== 'occluded'),
+    tacticalMapAirborneAerospaceTargetToken,
+  ];
+
+export const tacticalMapAirborneAerospaceMinimumRangeCombatState: IGameState = {
+  ...tacticalMapCombatState,
+  units: {
+    ...Object.fromEntries(
+      Object.entries(tacticalMapCombatState.units).filter(
+        ([unitId]) => unitId !== 'occluded',
+      ),
+    ),
+    [tacticalMapAirborneAerospaceMinimumRangeTargetId]:
+      tacticalMapAirborneAerospaceTargetState,
+  },
+};
 
 function tacticalMapCombatGrid(): IHexGrid {
   const grid = createHexGrid({ radius: 3 });
@@ -53,8 +134,10 @@ function tacticalMapCombatGrid(): IHexGrid {
   return { ...grid, hexes };
 }
 
-function tacticalMapGameUnits(): readonly IGameUnit[] {
-  return tacticalMapTokens.map((token) => ({
+function tacticalMapGameUnits(
+  tokens: readonly IUnitToken[] = tacticalMapTokens,
+): readonly IGameUnit[] {
+  return tokens.map((token) => ({
     id: token.unitId,
     name: token.name,
     side: token.side,
@@ -65,7 +148,13 @@ function tacticalMapGameUnits(): readonly IGameUnit[] {
   }));
 }
 
-function tacticalMapCombatSession(): IGameSession {
+function tacticalMapCombatSession({
+  tokens = tacticalMapTokens,
+  combatState = tacticalMapCombatState,
+}: {
+  readonly tokens?: readonly IUnitToken[];
+  readonly combatState?: IGameState;
+} = {}): IGameSession {
   let session = createGameSession(
     {
       mapRadius: 3,
@@ -73,16 +162,14 @@ function tacticalMapCombatSession(): IGameSession {
       victoryConditions: ['elimination'],
       optionalRules: [],
     },
-    tacticalMapGameUnits(),
+    tacticalMapGameUnits(tokens),
   );
   session = startGame(session, tacticalMapTokens[0].side);
   session = rollInitiative(session);
   session = advancePhase(session);
   session = advancePhase(session);
 
-  for (const [unitId, unitState] of Object.entries(
-    tacticalMapCombatState.units,
-  )) {
+  for (const [unitId, unitState] of Object.entries(combatState.units)) {
     session.currentState.units[unitId] = {
       ...session.currentState.units[unitId],
       ...unitState,
@@ -210,6 +297,30 @@ export const tacticalMapOutOfRangeCombatProjection = requireCombatProjection(
   ),
 );
 
+export const tacticalMapAirborneAerospaceMinimumRangeCombatProjection =
+  requireCombatProjection(
+    deriveCombatRangeHexes({
+      attacker: tacticalMapOutOfRangeAttacker,
+      targetUnitId: tacticalMapAirborneAerospaceMinimumRangeTargetId,
+      hexes: Array.from(
+        tacticalMapOutOfRangeGrid.hexes.values(),
+        (hex) => hex.coord,
+      ),
+      grid: tacticalMapOutOfRangeGrid,
+      tokens: tacticalMapAirborneAerospaceMinimumRangeTokens,
+      weapons: tacticalMapSelectedWeapons(
+        tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds,
+      ),
+      combatState: tacticalMapAirborneAerospaceMinimumRangeCombatState,
+    }).find(
+      (projection) =>
+        projection.hex.q ===
+          tacticalMapAirborneAerospaceMinimumRangeTargetHex.q &&
+        projection.hex.r ===
+          tacticalMapAirborneAerospaceMinimumRangeTargetHex.r,
+    ),
+  );
+
 export function tacticalMapMediumRangeCommitInput(): IApplyAttackInput {
   return {
     session: tacticalMapCombatSession(),
@@ -217,6 +328,20 @@ export function tacticalMapMediumRangeCommitInput(): IApplyAttackInput {
     attackerId: 'attacker',
     targetId: tacticalMapMediumRangeTargetId,
     weaponIds: tacticalMapSelectedWeaponIds,
+    grid: tacticalMapOutOfRangeGrid,
+  };
+}
+
+export function tacticalMapAirborneAerospaceMinimumRangeCommitInput(): IApplyAttackInput {
+  return {
+    session: tacticalMapCombatSession({
+      tokens: tacticalMapAirborneAerospaceMinimumRangeTokens,
+      combatState: tacticalMapAirborneAerospaceMinimumRangeCombatState,
+    }),
+    weaponsByUnit: tacticalMapWeaponsByUnit(),
+    attackerId: 'attacker',
+    targetId: tacticalMapAirborneAerospaceMinimumRangeTargetId,
+    weaponIds: tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds,
     grid: tacticalMapOutOfRangeGrid,
   };
 }

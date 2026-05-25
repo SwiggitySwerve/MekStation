@@ -833,6 +833,80 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(page.getByTestId('velocity-vector')).toBeVisible();
   });
 
+  test('suppresses ground-only minimum range against airborne aerospace in browser', async ({
+    page,
+  }) => {
+    await page.goto(
+      '/e2e/tactical-map?scenario=airborne-aerospace-minimum-range',
+    );
+
+    const projectionLayer = page.getByTestId('map-projection-layer');
+    await expect(projectionLayer).toHaveAttribute(
+      'data-projection-mode',
+      'topDown',
+    );
+
+    const targetToken = page.getByTestId('unit-token-airborne-aero-target');
+    await expect(targetToken).toBeVisible();
+    await expect(targetToken).toHaveAttribute('data-unit-type', 'aerospace');
+    await expect(targetToken).toHaveAttribute('data-aerospace-altitude', '3');
+    await expect(targetToken).toHaveAttribute('data-aerospace-velocity', '5');
+    await expect(targetToken).toHaveAttribute('aria-label', /altitude 3/);
+    await expect(targetToken).toHaveAttribute('aria-label', /velocity 5/);
+
+    const targetHex = page.getByTestId('hex-0-0');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'airborne-aero-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    await expect(targetHex).toHaveAttribute('data-combat-distance', '1');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-range-bracket',
+      'short',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-available',
+      'minimum-lrm',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '4');
+    expect(
+      (await targetHex.getAttribute('data-combat-to-hit-modifiers')) ?? '',
+    ).not.toContain('Minimum Range');
+    expect(
+      await targetHex.getAttribute('data-combat-minimum-range-penalty'),
+    ).toBeNull();
+    expect(
+      await targetHex.getAttribute('data-combat-minimum-range-reason'),
+    ).toBeNull();
+    await expect(page.getByTestId('hex-minimum-range-badge-0-0')).toHaveCount(
+      0,
+    );
+
+    const combatBadge = page.getByTestId('hex-combat-badge-0-0');
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-attackable',
+      'true',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapons-available',
+      'minimum-lrm',
+    );
+
+    await page.getByTestId('projection-toggle').click();
+
+    await expect(projectionLayer).toHaveAttribute(
+      'data-projection-mode',
+      'isometric2d',
+    );
+    await expect(
+      page.getByTestId('isometric-scene-token-airborne-aero-target'),
+    ).toBeVisible();
+    await expect(
+      page.getByTestId('unit-token-airborne-aero-target'),
+    ).toHaveAttribute('data-aerospace-altitude', '3');
+  });
+
   test('shows all selected weapons out of range as blocked in browser', async ({
     page,
   }) => {

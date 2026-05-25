@@ -6,6 +6,8 @@ import {
 } from '@/types/gameplay';
 
 import {
+  tacticalMapAirborneAerospaceMinimumRangeCombatProjection,
+  tacticalMapAirborneAerospaceMinimumRangeCommitInput,
   tacticalMapMediumRangeCombatProjection,
   tacticalMapMediumRangeCommitInput,
   tacticalMapMinimumRangeCombatProjection,
@@ -116,6 +118,59 @@ describe('tactical map combat scenarios', () => {
     });
     expect(payload.toHitNumber).toBe(
       tacticalMapMinimumRangeCombatProjection.toHitNumber,
+    );
+  });
+
+  it('keeps airborne aerospace targets exempt from ground-only minimum range', () => {
+    expect(
+      tacticalMapAirborneAerospaceMinimumRangeCombatProjection,
+    ).toMatchObject({
+      hex: { q: 0, r: 0 },
+      distance: 1,
+      rangeBracket: 'short',
+      attackable: true,
+      weaponIdsAvailable: ['minimum-lrm'],
+    });
+    expect(
+      tacticalMapAirborneAerospaceMinimumRangeCombatProjection.minimumRangePenalty,
+    ).toBeUndefined();
+    expect(
+      tacticalMapAirborneAerospaceMinimumRangeCombatProjection.minimumRangeReason,
+    ).toBeUndefined();
+    expect(
+      tacticalMapAirborneAerospaceMinimumRangeCombatProjection.toHitModifiers,
+    ).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Minimum Range',
+        }),
+      ]),
+    );
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapAirborneAerospaceMinimumRangeCommitInput(),
+    );
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.weapons).toEqual(
+      tacticalMapAirborneAerospaceMinimumRangeCombatProjection.weaponIdsAvailable,
+    );
+    expect(payload.modifiers).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Minimum Range',
+        }),
+      ]),
+    );
+    expect(payload.toHitNumber).toBe(
+      tacticalMapAirborneAerospaceMinimumRangeCombatProjection.toHitNumber,
     );
   });
 

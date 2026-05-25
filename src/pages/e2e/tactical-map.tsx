@@ -10,6 +10,12 @@ import {
   tacticalMapMountedBattleArmorTokens,
 } from '@/testing/tactical-map.battle-armor-scenarios';
 import {
+  tacticalMapAirborneAerospaceMinimumRangeCombatState,
+  tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds,
+  tacticalMapAirborneAerospaceMinimumRangeTargetId,
+  tacticalMapAirborneAerospaceMinimumRangeTokens,
+} from '@/testing/tactical-map.combat-scenarios';
+import {
   tacticalMapCombatState,
   tacticalMapHexTerrain,
   tacticalMapHighlightPath,
@@ -50,16 +56,22 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
     router.query.scenario === 'mounted-ba-passenger';
   const isAerospaceVelocityScenario =
     router.query.scenario === 'aerospace-velocity-projection';
+  const isAirborneAerospaceMinimumRangeScenario =
+    router.query.scenario === 'airborne-aerospace-minimum-range';
   const selectedWeaponIds = isAerospaceVelocityScenario
     ? []
-    : isOutOfRangeScenario
-      ? tacticalMapOutOfRangeSelectedWeaponIds
-      : tacticalMapSelectedWeaponIds;
+    : isAirborneAerospaceMinimumRangeScenario
+      ? tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds
+      : isOutOfRangeScenario
+        ? tacticalMapOutOfRangeSelectedWeaponIds
+        : tacticalMapSelectedWeaponIds;
   const targetUnitId = isAerospaceVelocityScenario
     ? null
-    : isOutOfRangeScenario
-      ? 'medium-target'
-      : 'occluded';
+    : isAirborneAerospaceMinimumRangeScenario
+      ? tacticalMapAirborneAerospaceMinimumRangeTargetId
+      : isOutOfRangeScenario
+        ? 'medium-target'
+        : 'occluded';
   const tokens = isVtolElevationScenario
     ? tacticalMapVtolTokens
     : isBipedOptionScenario
@@ -68,38 +80,45 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
         ? tacticalMapMountedBattleArmorTokens
         : isAerospaceVelocityScenario
           ? tacticalMapAerospaceTokens
-          : tacticalMapTokens;
+          : isAirborneAerospaceMinimumRangeScenario
+            ? tacticalMapAirborneAerospaceMinimumRangeTokens
+            : tacticalMapTokens;
   const combatState = isMountedBattleArmorScenario
     ? tacticalMapMountedBattleArmorCombatState
     : isAerospaceVelocityScenario
       ? tacticalMapAerospaceCombatState
-      : tacticalMapCombatState;
-  const movementRange = isAerospaceVelocityScenario
-    ? undefined
-    : isJumpElevationScenario
-      ? tacticalMapJumpElevationMovementRange
-      : isVtolElevationScenario
-        ? tacticalMapVtolElevationMovementRange
-        : isBipedOptionScenario
-          ? tacticalMapBipedOptionMovementRange
-          : tacticalMapMovementRange;
-  const mpLegend = isAerospaceVelocityScenario
-    ? undefined
-    : isJumpElevationScenario
-      ? tacticalMapJumpElevationMpLegend
-      : isVtolElevationScenario
-        ? tacticalMapVtolElevationMpLegend
-        : isBipedOptionScenario
-          ? tacticalMapBipedOptionMpLegend
-          : tacticalMapMpLegend;
+      : isAirborneAerospaceMinimumRangeScenario
+        ? tacticalMapAirborneAerospaceMinimumRangeCombatState
+        : tacticalMapCombatState;
+  const movementRange =
+    isAerospaceVelocityScenario || isAirborneAerospaceMinimumRangeScenario
+      ? undefined
+      : isJumpElevationScenario
+        ? tacticalMapJumpElevationMovementRange
+        : isVtolElevationScenario
+          ? tacticalMapVtolElevationMovementRange
+          : isBipedOptionScenario
+            ? tacticalMapBipedOptionMovementRange
+            : tacticalMapMovementRange;
+  const mpLegend =
+    isAerospaceVelocityScenario || isAirborneAerospaceMinimumRangeScenario
+      ? undefined
+      : isJumpElevationScenario
+        ? tacticalMapJumpElevationMpLegend
+        : isVtolElevationScenario
+          ? tacticalMapVtolElevationMpLegend
+          : isBipedOptionScenario
+            ? tacticalMapBipedOptionMpLegend
+            : tacticalMapMpLegend;
   const selectedHex = isBipedOptionScenario
     ? tacticalMapBipedOptionSelectedHex
     : isMountedBattleArmorScenario || isAerospaceVelocityScenario
       ? { q: 0, r: 0 }
       : { q: -1, r: 0 };
-  const highlightPath = isAerospaceVelocityScenario
-    ? undefined
-    : tacticalMapHighlightPath;
+  const highlightPath =
+    isAerospaceVelocityScenario || isAirborneAerospaceMinimumRangeScenario
+      ? undefined
+      : tacticalMapHighlightPath;
 
   if (!isTestEnv) {
     return (

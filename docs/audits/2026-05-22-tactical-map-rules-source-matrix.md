@@ -94,6 +94,16 @@ with a matching committed minimum-range to-hit modifier. Remaining browser
 range gaps are extreme range and all-selected-weapons-out-of-range sweeps
 beyond the smoke harness.
 
+2026-05-24 ground-to-air minimum-range browser update: the tactical-map browser
+harness now adds an airborne aerospace target at nominal minimum range and
+verifies that the same represented minimum-range weapon stays attackable without
+a `Minimum Range` to-hit modifier, minimum-range hex metadata, or `MIN+` badge.
+The shared fixture also proves `applyInteractiveSessionAttack` commits the
+attack without a minimum-range modifier, matching the MegaMek-sourced
+ground-to-ground-only rule captured in `src/utils/gameplay/groundToGround.ts`.
+The browser proof keeps the target's state-derived altitude and velocity
+metadata visible in both top-down and isometric projections.
+
 2026-05-24 extreme-range browser update: the tactical-map browser harness now
 also selects a represented extreme-range weapon with long range 3 and extreme
 range 4 against the four-hex target, verifying that the weapon stays available
