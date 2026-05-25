@@ -149,6 +149,10 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
         'data-tactical-projection-sources',
         /terrain-elevation:mekstation:Rendered map terrain\/elevation grid:.*building.*elevation 4/,
       );
+      await expect(label).toHaveAttribute(
+        'data-tactical-projection-rule-refs',
+        /terrain-elevation:mekstation:MekStation terrain\/elevation grid state/,
+      );
     }
     const movementBadge = page.getByTestId('hex-movement-badge-0-1');
     await expect(movementBadge).toContainText('W3/R4/J3 MP');
@@ -222,6 +226,10 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(mixedMovementHex).toHaveAttribute(
       'data-movement-option-invalid-details',
       'jump:Jump path length 4 exceeds jump MP 3',
+    );
+    await expect(mixedMovementHex).toHaveAttribute(
+      'data-tactical-projection-rule-refs',
+      /movement:megamek:MegaMek MoveStep\.java:2727-2841 movement MP costs/,
     );
     const mixedMovementBadge = page.getByTestId('hex-movement-badge-2-1');
     await expect(mixedMovementBadge).toContainText('W5/R6 MP');
@@ -361,6 +369,10 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(mediumTargetHex).toHaveAttribute(
       'data-combat-weapon-option-blocked-reasons',
       'small-laser:out of range|minimum-lrm:out of range',
+    );
+    await expect(mediumTargetHex).toHaveAttribute(
+      'data-tactical-projection-rule-refs',
+      /combat:megamek:MegaMek RangeType\.java:95-151 range bracket classification/,
     );
     const mediumCombatBadge = page.getByTestId('hex-combat-badge-1-2');
     await expect(mediumCombatBadge).toHaveAttribute(
@@ -699,6 +711,10 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(eastHex).toHaveAttribute(
       'data-isometric-hex-sources',
       /terrain-elevation:mekstation/,
+    );
+    await expect(eastHex).toHaveAttribute(
+      'data-isometric-hex-rule-refs',
+      /terrain-elevation:mekstation:MekStation terrain\/elevation grid state/,
     );
     const eastDepthBefore = await eastHex.getAttribute(
       'data-isometric-depth-key',

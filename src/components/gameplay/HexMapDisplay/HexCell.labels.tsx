@@ -14,7 +14,10 @@ import type {
 } from '@/utils/gameplay/tacticalMapProjection';
 
 import { TERRAIN_LAYER_ORDER } from '@/constants/terrain';
-import { formatTacticalProjectionSourceReferences } from '@/utils/gameplay/tacticalMapProjection';
+import {
+  formatTacticalProjectionRuleReferences,
+  formatTacticalProjectionSourceReferences,
+} from '@/utils/gameplay/tacticalMapProjection';
 
 import { formatCombatC3Label } from './HexMapDisplay.combatC3Context';
 
@@ -285,6 +288,21 @@ function terrainElevationSourceReferencesAttribute(
     : undefined;
 }
 
+function terrainElevationRuleReferencesAttribute(
+  sourceReferences:
+    | readonly ITacticalMapProjectionSourceReference[]
+    | undefined,
+): string | undefined {
+  const terrainElevationReferences =
+    sourceReferences?.filter(
+      (reference) => reference.channel === TERRAIN_ELEVATION_PROJECTION_CHANNEL,
+    ) ?? [];
+  const formatted = formatTacticalProjectionRuleReferences(
+    terrainElevationReferences,
+  );
+  return formatted || undefined;
+}
+
 function formatTerrainElevationProjectionContext({
   projectionIntent,
   projectionStatus,
@@ -324,6 +342,8 @@ export function ElevationBadge({
 } & TerrainElevationProjectionMetadata): React.ReactElement {
   const sourceReferencesAttribute =
     terrainElevationSourceReferencesAttribute(sourceReferences);
+  const ruleReferencesAttribute =
+    terrainElevationRuleReferencesAttribute(sourceReferences);
   const projectionContext = formatTerrainElevationProjectionContext({
     projectionIntent,
     projectionStatus,
@@ -348,6 +368,7 @@ export function ElevationBadge({
       data-tactical-projection-intent={projectionIntent}
       data-tactical-projection-status={projectionStatus}
       data-tactical-projection-sources={sourceReferencesAttribute}
+      data-tactical-projection-rule-refs={ruleReferencesAttribute}
     >
       <title>{title}</title>
       <rect
@@ -397,6 +418,8 @@ export function TerrainBadge({
   const label = formatTerrainBadgeLabel(displayFeatures);
   const sourceReferencesAttribute =
     terrainElevationSourceReferencesAttribute(sourceReferences);
+  const ruleReferencesAttribute =
+    terrainElevationRuleReferencesAttribute(sourceReferences);
   const projectionContext = formatTerrainElevationProjectionContext({
     projectionIntent,
     projectionStatus,
@@ -428,6 +451,7 @@ export function TerrainBadge({
       data-tactical-projection-intent={projectionIntent}
       data-tactical-projection-status={projectionStatus}
       data-tactical-projection-sources={sourceReferencesAttribute}
+      data-tactical-projection-rule-refs={ruleReferencesAttribute}
     >
       <title>{title}</title>
       <rect

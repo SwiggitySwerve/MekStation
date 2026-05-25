@@ -144,6 +144,12 @@ function assertTerrainElevationProjectionMetadata(
     'data-tactical-projection-sources',
     expect.stringContaining(`elevation ${terrain.elevation}`),
   );
+  expect(badge).toHaveAttribute(
+    'data-tactical-projection-rule-refs',
+    expect.stringContaining(
+      'terrain-elevation:mekstation:MekStation terrain/elevation grid state; movement and combat channels own legality',
+    ),
+  );
 }
 
 function assertTerrainAndElevationBadges(

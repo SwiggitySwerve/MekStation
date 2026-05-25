@@ -1430,6 +1430,15 @@ source plus the isometric-camera channel, current heading, and next heading, so
 browser and accessibility checks can connect camera actions to the presentation
 state that reveals stacked terrain and occluded units.
 
+2026-05-25 tactical projection rule-reference metadata pin: Tactical projection
+source references now also carry rule-reference metadata for terrain/elevation,
+movement, combat, LOS blocker, and legacy attack-range fallback channels.
+Rendered hexes, overlays, projection badges, terrain/elevation labels, tooltip
+containers, and isometric scene wrappers expose those formatted rule references
+beside the existing source metadata. This does not change legality; it keeps
+tests and accessibility inspection tied to the MegaMek-or-MekStation source
+surface that justifies each highlight.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

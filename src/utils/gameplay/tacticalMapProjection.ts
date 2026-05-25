@@ -58,6 +58,7 @@ export interface ITacticalMapProjectionSourceReference {
   readonly kind: TacticalMapProjectionSourceKind;
   readonly label: string;
   readonly detail?: string;
+  readonly ruleReferences?: readonly string[];
 }
 
 export interface ITacticalMapCombatLosBlockerReference {
@@ -97,6 +98,31 @@ export interface BuildTacticalMapHexProjectionLookupInput {
   readonly highlightPathIndexLookup?: ReadonlyMap<string, number>;
   readonly legacyAttackRangeLookup?: ReadonlySet<string>;
 }
+
+const TERRAIN_ELEVATION_RULE_REFERENCES = [
+  'MekStation terrain/elevation grid state; movement and combat channels own legality',
+] as const;
+
+const MOVEMENT_RULE_REFERENCES = [
+  'MegaMek MoveStep.java:2727-2841 movement MP costs',
+  'MegaMek MoveStep.java:3135-3156 elevation change legality',
+  'MegaMek MovePath.java:1214-1218 MP-used accounting',
+] as const;
+
+const COMBAT_RULE_REFERENCES = [
+  'MegaMek Compute.java:1313-1517 weapon range/to-hit modifiers',
+  'MegaMek RangeType.java:95-151 range bracket classification',
+  'MegaMek LosEffects.java:797-911 LOS blocking and terrain modifiers',
+] as const;
+
+const LOS_BLOCKER_RULE_REFERENCES = [
+  'MegaMek LosEffects.java:797-911 LOS blocking and terrain modifiers',
+  'MegaMek LosEffects.java:1322-1483 elevation/building blockers and cover',
+] as const;
+
+const LEGACY_ATTACK_RANGE_RULE_REFERENCES = [
+  'MekStation caller-provided compatibility range; not a rules-backed attack option',
+] as const;
 
 export function buildTacticalMapHexProjectionLookup({
   hexes,
@@ -239,6 +265,32 @@ export function formatTacticalProjectionSourceLabels(
     .map(
       (reference) =>
         `${formatSourceChannelLabel(reference.channel)}: ${reference.label}`,
+    )
+    .join('; ');
+}
+
+export function formatTacticalProjectionRuleReferences(
+  sourceReferences: readonly ITacticalMapProjectionSourceReference[],
+): string {
+  return sourceReferences
+    .flatMap((reference) =>
+      (reference.ruleReferences ?? []).map(
+        (ruleReference) =>
+          `${reference.channel}:${reference.kind}:${ruleReference}`,
+      ),
+    )
+    .join('|');
+}
+
+export function formatTacticalProjectionRuleReferenceLabels(
+  sourceReferences: readonly ITacticalMapProjectionSourceReference[],
+): string {
+  return sourceReferences
+    .flatMap((reference) =>
+      (reference.ruleReferences ?? []).map(
+        (ruleReference) =>
+          `${formatSourceChannelLabel(reference.channel)}: ${ruleReference}`,
+      ),
     )
     .join('; ');
 }
@@ -404,6 +456,7 @@ function collectProjectionSourceReferences({
       kind: 'mekstation',
       label: 'Rendered map terrain/elevation grid',
       detail: formatTerrainSourceDetail(terrain),
+      ruleReferences: TERRAIN_ELEVATION_RULE_REFERENCES,
     },
   ];
 
@@ -413,6 +466,7 @@ function collectProjectionSourceReferences({
       kind: 'megamek',
       label: 'MegaMek movement rules projection',
       detail: formatMovementSourceDetail(movement),
+      ruleReferences: MOVEMENT_RULE_REFERENCES,
     });
   }
 
@@ -424,6 +478,7 @@ function collectProjectionSourceReferences({
         ? 'MegaMek combat target projection'
         : 'MegaMek weapon range projection',
       detail: formatCombatSourceDetail(combat),
+      ruleReferences: COMBAT_RULE_REFERENCES,
     });
   }
 
@@ -433,6 +488,7 @@ function collectProjectionSourceReferences({
       kind: 'megamek',
       label: 'MegaMek LOS blocker projection',
       detail: formatLosBlockerSourceDetail(combatLosBlockerFor),
+      ruleReferences: LOS_BLOCKER_RULE_REFERENCES,
     });
   }
 
@@ -442,6 +498,7 @@ function collectProjectionSourceReferences({
       kind: 'mekstation',
       label: 'Legacy attackRange fallback',
       detail: 'caller-provided range envelope',
+      ruleReferences: LEGACY_ATTACK_RANGE_RULE_REFERENCES,
     });
   }
 

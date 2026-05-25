@@ -3,6 +3,7 @@ import React from 'react';
 import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
 import {
+  formatTacticalProjectionRuleReferences,
   formatTacticalProjectionSourceLabels,
   formatTacticalProjectionSourceReferences,
 } from '@/utils/gameplay/tacticalMapProjection';
@@ -43,6 +44,9 @@ export function ProjectionContextRows({
         '|',
       )}
       data-tactical-tooltip-sources={formatTacticalProjectionSourceReferences(
+        projection.sourceReferences,
+      )}
+      data-tactical-tooltip-rule-refs={formatTacticalProjectionRuleReferences(
         projection.sourceReferences,
       )}
       data-tactical-tooltip-explanation={projection.explanation}

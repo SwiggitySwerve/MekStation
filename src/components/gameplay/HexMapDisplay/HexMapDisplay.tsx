@@ -7,7 +7,10 @@ import { LineOfSightOverlay } from '@/components/gameplay/overlays/LineOfSightOv
 import { TerrainSymbolDefs } from '@/components/gameplay/terrain/TerrainSymbolDefs';
 import { GameSide, TokenUnitType } from '@/types/gameplay';
 import { coordToKey } from '@/utils/gameplay/hexMath';
-import { formatTacticalProjectionSourceReferences } from '@/utils/gameplay/tacticalMapProjection';
+import {
+  formatTacticalProjectionRuleReferences,
+  formatTacticalProjectionSourceReferences,
+} from '@/utils/gameplay/tacticalMapProjection';
 
 import type { HexMapDisplayProps } from './HexMapDisplay.types';
 
@@ -294,6 +297,13 @@ function IsometricSceneLayer({
               data-isometric-hex-sources={
                 projection
                   ? formatTacticalProjectionSourceReferences(
+                      projection.sourceReferences,
+                    )
+                  : undefined
+              }
+              data-isometric-hex-rule-refs={
+                projection
+                  ? formatTacticalProjectionRuleReferences(
                       projection.sourceReferences,
                     )
                   : undefined

@@ -1738,6 +1738,16 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       movementSceneHex.getAttribute('data-isometric-hex-sources'),
     ).toContain('combat:megamek');
+    expect(
+      movementSceneHex.getAttribute('data-isometric-hex-rule-refs'),
+    ).toContain(
+      'movement:megamek:MegaMek MoveStep.java:3135-3156 elevation change legality',
+    );
+    expect(
+      movementSceneHex.getAttribute('data-isometric-hex-rule-refs'),
+    ).toContain(
+      'combat:megamek:MegaMek Compute.java:1313-1517 weapon range/to-hit modifiers',
+    );
     expect(movementSceneHex).toHaveAttribute(
       'data-isometric-hex-projection-explanation',
       expect.stringContaining('Walk reachable 3 MP'),
@@ -3862,6 +3872,16 @@ describe('HexMapDisplay combat projection', () => {
       targetHex.getAttribute('data-tactical-projection-sources'),
     ).toContain('combat:megamek:MegaMek combat target projection');
     expect(
+      targetHex.getAttribute('data-tactical-projection-rule-refs'),
+    ).toContain(
+      'movement:megamek:MegaMek MoveStep.java:2727-2841 movement MP costs',
+    );
+    expect(
+      targetHex.getAttribute('data-tactical-projection-rule-refs'),
+    ).toContain(
+      'combat:megamek:MegaMek RangeType.java:95-151 range bracket classification',
+    );
+    expect(
       targetHex.getAttribute('data-tactical-projection-explanation'),
     ).toContain('status mixed');
     expect(
@@ -3901,6 +3921,11 @@ describe('HexMapDisplay combat projection', () => {
       projectionBadge.getAttribute('data-projection-status-badge-sources'),
     ).toContain('combat:megamek:MegaMek combat target projection');
     expect(
+      projectionBadge.getAttribute('data-projection-status-badge-rule-refs'),
+    ).toContain(
+      'combat:megamek:MegaMek LosEffects.java:797-911 LOS blocking and terrain modifiers',
+    );
+    expect(
       projectionBadge.getAttribute('data-projection-status-badge-explanation'),
     ).toContain('Walk reachable 3 MP');
     expect(projectionBadge).toHaveAttribute(
@@ -3937,6 +3962,12 @@ describe('HexMapDisplay combat projection', () => {
       'data-tactical-tooltip-sources',
       expect.stringContaining(
         'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(tacticalTooltip).toHaveAttribute(
+      'data-tactical-tooltip-rule-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek Compute.java:1313-1517 weapon range/to-hit modifiers',
       ),
     );
     expect(tacticalTooltip).toHaveAttribute(
@@ -4019,6 +4050,12 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       screen.getByTestId('hex-tactical-tooltip-projection-sources'),
     ).toHaveTextContent('combat: MegaMek combat target projection');
+    expect(screen.getByTestId('hex-overlay-3-0')).toHaveAttribute(
+      'data-hex-overlay-rule-refs',
+      expect.stringContaining(
+        'movement:megamek:MegaMek MovePath.java:1214-1218 MP-used accounting',
+      ),
+    );
     expect(screen.queryByTestId('hex-movement-tooltip')).toBeNull();
     expect(screen.queryByTestId('hex-combat-tooltip')).toBeNull();
   });

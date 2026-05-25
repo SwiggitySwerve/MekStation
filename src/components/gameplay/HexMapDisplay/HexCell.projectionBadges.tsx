@@ -10,6 +10,7 @@ import type {
 } from '@/utils/gameplay/tacticalMapProjection';
 
 import {
+  formatTacticalProjectionRuleReferences,
   formatTacticalProjectionSourceLabels,
   formatTacticalProjectionSourceReferences,
 } from '@/utils/gameplay/tacticalMapProjection';
@@ -147,6 +148,11 @@ export function ProjectionStatusBadge({
       data-projection-status-badge-sources={
         sourceReferences && sourceReferences.length > 0
           ? formatTacticalProjectionSourceReferences(sourceReferences)
+          : undefined
+      }
+      data-projection-status-badge-rule-refs={
+        sourceReferences && sourceReferences.length > 0
+          ? formatTacticalProjectionRuleReferences(sourceReferences)
           : undefined
       }
       data-projection-status-badge-explanation={explanation}

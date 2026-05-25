@@ -13,8 +13,30 @@ import {
 import {
   buildTacticalMapHexProjection,
   buildTacticalMapHexProjectionLookup,
+  formatTacticalProjectionRuleReferences,
   formatTacticalProjectionSourceReferences,
 } from '@/utils/gameplay/tacticalMapProjection';
+
+const TERRAIN_RULE_REFERENCES = [
+  'MekStation terrain/elevation grid state; movement and combat channels own legality',
+] as const;
+
+const MOVEMENT_RULE_REFERENCES = [
+  'MegaMek MoveStep.java:2727-2841 movement MP costs',
+  'MegaMek MoveStep.java:3135-3156 elevation change legality',
+  'MegaMek MovePath.java:1214-1218 MP-used accounting',
+] as const;
+
+const COMBAT_RULE_REFERENCES = [
+  'MegaMek Compute.java:1313-1517 weapon range/to-hit modifiers',
+  'MegaMek RangeType.java:95-151 range bracket classification',
+  'MegaMek LosEffects.java:797-911 LOS blocking and terrain modifiers',
+] as const;
+
+const LOS_BLOCKER_RULE_REFERENCES = [
+  'MegaMek LosEffects.java:797-911 LOS blocking and terrain modifiers',
+  'MegaMek LosEffects.java:1322-1483 elevation/building blockers and cover',
+] as const;
 
 function terrain(elevation = 0, type = TerrainType.Clear): IHexTerrain {
   return {
@@ -134,24 +156,37 @@ describe('tacticalMapProjection', () => {
         kind: 'mekstation',
         label: 'Rendered map terrain/elevation grid',
         detail: 'rough level 1 elevation 2',
+        ruleReferences: TERRAIN_RULE_REFERENCES,
       },
       {
         channel: 'movement',
         kind: 'megamek',
         label: 'MegaMek movement rules projection',
         detail: 'walk projection',
+        ruleReferences: MOVEMENT_RULE_REFERENCES,
       },
       {
         channel: 'combat',
         kind: 'megamek',
         label: 'MegaMek combat target projection',
         detail: 'target short 1 hexes LOS clear',
+        ruleReferences: COMBAT_RULE_REFERENCES,
       },
     ]);
     expect(
       formatTacticalProjectionSourceReferences(projection.sourceReferences),
     ).toBe(
       'terrain-elevation:mekstation:Rendered map terrain/elevation grid:rough level 1 elevation 2|movement:megamek:MegaMek movement rules projection:walk projection|combat:megamek:MegaMek combat target projection:target short 1 hexes LOS clear',
+    );
+    expect(
+      formatTacticalProjectionRuleReferences(projection.sourceReferences),
+    ).toContain(
+      'movement:megamek:MegaMek MoveStep.java:2727-2841 movement MP costs',
+    );
+    expect(
+      formatTacticalProjectionRuleReferences(projection.sourceReferences),
+    ).toContain(
+      'combat:megamek:MegaMek RangeType.java:95-151 range bracket classification',
     );
     expect(projection.explanation).toContain(
       'sources terrain/elevation: Rendered map terrain/elevation grid; movement: MegaMek movement rules projection; combat: MegaMek combat target projection',
@@ -189,6 +224,7 @@ describe('tacticalMapProjection', () => {
         label: 'Rendered map terrain/elevation grid',
         detail:
           'light_woods level 1,building level 2 id warehouse-a CF 30 elevation 1',
+        ruleReferences: TERRAIN_RULE_REFERENCES,
       },
     ]);
     expect(
@@ -224,6 +260,7 @@ describe('tacticalMapProjection', () => {
         kind: 'mekstation',
         label: 'Rendered map terrain/elevation grid',
         detail: 'water depth 2,smoke intensity 2,building level 3 elevation 2',
+        ruleReferences: TERRAIN_RULE_REFERENCES,
       },
     ]);
     expect(projection.explanation).toContain(
@@ -659,14 +696,24 @@ describe('tacticalMapProjection', () => {
       pathIndex: 1,
       inAttackRange: true,
       sourceReferences: expect.arrayContaining([
-        {
+        expect.objectContaining({
           channel: 'legacy-attack-range',
           kind: 'mekstation',
           label: 'Legacy attackRange fallback',
           detail: 'caller-provided range envelope',
-        },
+          ruleReferences: [
+            'MekStation caller-provided compatibility range; not a rules-backed attack option',
+          ],
+        }),
       ]),
     });
+    expect(
+      formatTacticalProjectionRuleReferences(
+        projectionLookup.get('1,0')?.sourceReferences ?? [],
+      ),
+    ).toContain(
+      'legacy-attack-range:mekstation:MekStation caller-provided compatibility range; not a rules-backed attack option',
+    );
   });
 
   it('attaches combat LOS blocker references to the intervening blocker hex', () => {
@@ -722,12 +769,14 @@ describe('tacticalMapProjection', () => {
         kind: 'mekstation',
         label: 'Rendered map terrain/elevation grid',
         detail: 'clear elevation 2',
+        ruleReferences: TERRAIN_RULE_REFERENCES,
       },
       {
         channel: 'los-blocker',
         kind: 'megamek',
         label: 'MegaMek LOS blocker projection',
         detail: 'elevation for 2,0',
+        ruleReferences: LOS_BLOCKER_RULE_REFERENCES,
       },
     ]);
   });

@@ -19,7 +19,10 @@ import type {
 import { TerrainArtLayer } from '@/components/gameplay/terrain/TerrainArtLayer';
 import { HEX_COLORS } from '@/constants/hexMap';
 import { MovementType } from '@/types/gameplay';
-import { formatTacticalProjectionSourceReferences } from '@/utils/gameplay/tacticalMapProjection';
+import {
+  formatTacticalProjectionRuleReferences,
+  formatTacticalProjectionSourceReferences,
+} from '@/utils/gameplay/tacticalMapProjection';
 
 import {
   CombatLineOfSightBlockerBadge,
@@ -363,6 +366,13 @@ export const HexCell = React.memo(function HexCell({
           tacticalProjectionSourceReferences,
         )
       : undefined;
+  const overlayRuleReferences =
+    tacticalProjectionSourceReferences &&
+    tacticalProjectionSourceReferences.length > 0
+      ? formatTacticalProjectionRuleReferences(
+          tacticalProjectionSourceReferences,
+        )
+      : undefined;
   const overlayBlockedReasons =
     tacticalProjectionBlockedReasons &&
     tacticalProjectionBlockedReasons.length > 0
@@ -583,6 +593,14 @@ export const HexCell = React.memo(function HexCell({
             )
           : undefined
       }
+      data-tactical-projection-rule-refs={
+        tacticalProjectionSourceReferences &&
+        tacticalProjectionSourceReferences.length > 0
+          ? formatTacticalProjectionRuleReferences(
+              tacticalProjectionSourceReferences,
+            )
+          : undefined
+      }
       data-tactical-projection-explanation={tacticalProjectionExplanation}
       data-isometric-occludes-units={occludedUnitIds}
       data-isometric-occlusion-reasons={occlusionReasons}
@@ -754,6 +772,7 @@ export const HexCell = React.memo(function HexCell({
           data-hex-overlay-combat-status={tacticalProjectionCombatStatus}
           data-hex-overlay-blocked-reasons={overlayBlockedReasons}
           data-hex-overlay-sources={overlaySourceReferences}
+          data-hex-overlay-rule-refs={overlayRuleReferences}
           data-hex-overlay-explanation={tacticalProjectionExplanation}
           data-hex-overlay-legacy-fallback={
             isLegacyAttackRangeFallback ? 'true' : undefined
