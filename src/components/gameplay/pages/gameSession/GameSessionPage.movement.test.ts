@@ -2,7 +2,11 @@ import { beforeEach, describe, expect, it } from '@jest/globals';
 import { act, renderHook } from '@testing-library/react';
 
 import type { InteractiveSession } from '@/engine/GameEngine';
-import type { IGameSession, IMovementRangeHex } from '@/types/gameplay';
+import type {
+  IGameSession,
+  IMovementCapability,
+  IMovementRangeHex,
+} from '@/types/gameplay';
 
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import {
@@ -34,6 +38,10 @@ import {
 
 function buildMovementPlanningHookFixture(options?: {
   readonly jumpMP?: number;
+  readonly capability?: Partial<IMovementCapability>;
+  readonly selectedUnitState?: Partial<
+    IGameSession['currentState']['units'][string]
+  >;
 }): {
   readonly session: IGameSession;
   readonly interactiveSession: InteractiveSession;
@@ -55,6 +63,7 @@ function buildMovementPlanningHookFixture(options?: {
     pilotConscious: true,
     destroyed: false,
     lockState: LockState.Planning,
+    ...options?.selectedUnitState,
   };
   const session: IGameSession = {
     id: 'movement-hook-session',
@@ -98,6 +107,7 @@ function buildMovementPlanningHookFixture(options?: {
       jumpMP: options?.jumpMP ?? 3,
       movementMode: 'walk',
       movementHeatProfile: 'mek',
+      ...options?.capability,
     }),
     getGrid: () => grid,
   } as unknown as InteractiveSession;
@@ -164,6 +174,52 @@ describe('useGameMovementPlanning legend mode selection', () => {
       jumpAvailable: false,
       jumpMP: 0,
     });
+  });
+
+  it('uses runtime LAM fighter conversion capability for legend MP and jump gating', () => {
+    const { session, interactiveSession } = buildMovementPlanningHookFixture({
+      selectedUnitState: { conversionMode: 'fighter' },
+      capability: {
+        jumpMP: 5,
+        movementMode: 'walk',
+        unitHeight: 1,
+        unitHeightProfile: { kind: 'lam', standingHeight: 1 },
+      },
+    });
+    const { result } = renderHook(() =>
+      useGameMovementPlanning({
+        session,
+        interactiveSession,
+        selectedUnitId: 'unit-a',
+        phase: GamePhase.Movement,
+        handleInteractiveHexClick: () => undefined,
+      }),
+    );
+
+    expect(result.current.effectiveMovementMps).toEqual({
+      walkMP: 2,
+      runMP: 2,
+      jumpMP: 0,
+    });
+    expect(result.current.mpLegend).toMatchObject({
+      active: 'walk',
+      jumpAvailable: false,
+      movementMode: 'wheeled',
+      walkMP: 2,
+      runMP: 2,
+      jumpMP: 0,
+    });
+    expect(result.current.capability).toMatchObject({
+      movementMode: 'wheeled',
+      unitHeight: 0,
+      conversionThrustMP: 5,
+    });
+
+    act(() => {
+      result.current.handleMovementModeSelect('jump');
+    });
+
+    expect(useGameplayStore.getState().plannedMovement).toBeNull();
   });
 });
 

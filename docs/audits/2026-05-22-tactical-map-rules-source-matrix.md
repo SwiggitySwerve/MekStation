@@ -329,6 +329,14 @@ full gameplay events/UI that mutate conversion or mount state, LAM fighter
 mode, AirMek ground-clearance submodes, and broader external oracle sweeps
 remain.
 
+2026-05-25 runtime movement UI parity pin: the gameplay movement hook and
+command-capability surface now resolve the same runtime movement capability used
+by movement projection and commit validation before building legend MP, motive,
+jump availability, planning-panel heat profile, and command context. Focused
+coverage pins grounded LAM Fighter conversion so the real gameplay UI exposes
+wheeled cruise/flank MP, disables jump selection, and keeps command surfaces on
+the same resolved state.
+
 2026-05-24 jump browser parity update: the jump elevation browser scenario now
 uses `deriveMovementRangeHexForDestination` instead of a hand-authored movement
 row, so the rendered top-down jump badge exposes the same MP cost, heat, path,

@@ -16,7 +16,10 @@ import {
   type IMovementRangeHex,
   MovementType,
 } from '@/types/gameplay';
-import { gridWithUnitOccupants } from '@/utils/gameplay/movement';
+import {
+  gridWithUnitOccupants,
+  resolveRuntimeMovementCapability,
+} from '@/utils/gameplay/movement';
 import {
   deriveMovementRangeHexForDestination,
   deriveReachableHexes,
@@ -82,7 +85,7 @@ export function useGameMovementPlanning({
   );
   const [hoveredHex, setHoveredHex] = useState<IHexCoordinate | null>(null);
 
-  const capability = useMemo(() => {
+  const rawMovementCapability = useMemo(() => {
     if (!interactiveSession || !selectedUnitId) return null;
     return interactiveSession.getMovementCapability(selectedUnitId);
   }, [interactiveSession, selectedUnitId]);
@@ -91,6 +94,18 @@ export function useGameMovementPlanning({
     if (!session || !selectedUnitId) return null;
     return session.currentState.units[selectedUnitId] ?? null;
   }, [session, selectedUnitId]);
+
+  const capability = useMemo(() => {
+    if (!rawMovementCapability || !selectedUnitState) {
+      return rawMovementCapability;
+    }
+    return (
+      resolveRuntimeMovementCapability(
+        selectedUnitState,
+        rawMovementCapability,
+      ) ?? rawMovementCapability
+    );
+  }, [rawMovementCapability, selectedUnitState]);
 
   const selectedUnitInfo = useMemo(() => {
     if (!session || !selectedUnitId) return null;

@@ -35,6 +35,7 @@ import {
 } from '@/types/gameplay';
 import { deriveValidWeaponTargetIds } from '@/utils/gameplay/combatTargetIds';
 import { coordToKey } from '@/utils/gameplay/hexMath';
+import { resolveRuntimeMovementCapability } from '@/utils/gameplay/movement';
 import { filterEventsForMovementAnimations } from '@/utils/gameplay/movement/eventLogSync';
 import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
 import { getEligiblePhysicalAttacks } from '@/utils/gameplay/physicalAttacks/eligibility';
@@ -546,8 +547,12 @@ export function GameplayLayout({
     : null;
   const selectedMovementCapability = useMemo(() => {
     if (!interactiveSession || !selectedUnitId) return null;
-    return interactiveSession.getMovementCapability(selectedUnitId);
-  }, [interactiveSession, selectedUnitId]);
+    const capability = interactiveSession.getMovementCapability(selectedUnitId);
+    if (!capability || !selectedUnit) return capability;
+    return (
+      resolveRuntimeMovementCapability(selectedUnit, capability) ?? capability
+    );
+  }, [interactiveSession, selectedUnit, selectedUnitId]);
   const selectedStandUpImpossibleReason = selectedUnit?.prone
     ? projectStandUpPsr({
         unitState: selectedUnit,
