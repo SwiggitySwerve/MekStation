@@ -16,6 +16,7 @@
 - [x] 3.2 Render cells from the projection lookup instead of separate movement/combat/terrain lookups
 - [x] 3.3 Add stable rendered metadata for projection status, intent, and blocked reasons
 - [x] 3.4 Preserve top-down and isometric behavior
+- [x] 3.5 Preserve projection summary metadata on isometric scene hex wrappers
 
 ## 4. Verification
 
@@ -24,3 +25,4 @@
 - [x] 4.3 `npm.cmd run lint` passes
 - [x] 4.4 `npm.cmd run format:check` passes
 - [x] 4.5 `npx.cmd openspec validate add-tactical-map-hex-projection --strict` passes
+- [x] 4.6 Focused Playwright browser coverage passes

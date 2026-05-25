@@ -31,3 +31,12 @@ The tactical map interface SHALL compose terrain, elevation, movement, combat, p
 **WHEN** the projection mode changes
 **THEN** the same per-hex projection facts SHALL remain attached to the rendered hex
 **AND** projection mode SHALL NOT recalculate or mutate movement, combat, LOS, terrain, or path legality
+
+#### Scenario: Isometric scene wrapper preserves projection summary
+
+**GIVEN** a tactical map hex is rendered in isometric mode
+**WHEN** the isometric scene depth-sorts that hex
+**THEN** the scene hex wrapper SHALL expose the hex coordinate used for map lookup
+**AND** it SHALL expose the terrain elevation and primary terrain type from the shared projection
+**AND** it SHALL expose the projection intent, overall status, movement status, and combat status
+**AND** it SHALL expose any blocked reasons and source references from the same per-hex projection used by the nested rendered hex

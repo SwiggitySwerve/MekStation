@@ -69,6 +69,13 @@ accessible context, and committed `IndirectFireNarcOverride` event all agree
 that the target remains attackable through beacon indirect fire with basis
 `narc`, no spotter id, +1 indirect penalty, and matching to-hit metadata.
 
+2026-05-25 isometric scene hex projection pin: isometric scene hex wrappers now
+carry the same shared projection summary as the nested rendered hex: map
+coordinate, terrain elevation, primary terrain type, projection intent/status,
+movement status, combat status, blocked reasons, and source references. This
+keeps the depth-sorted 2.5D layer inspectable without adding a separate
+isometric-only movement/combat calculation path.
+
 2026-05-25 iNarc beacon browser pin: the tactical-map harness now also
 represents the same no-spotter blocked LRM target carrying a player-team iNarc
 beacon. The shared projection, browser metadata, indirect-fire badge,

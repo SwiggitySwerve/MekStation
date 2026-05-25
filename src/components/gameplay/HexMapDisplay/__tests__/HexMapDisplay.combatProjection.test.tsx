@@ -1640,6 +1640,63 @@ describe('HexMapDisplay combat projection', () => {
       'data-tactical-projection-status',
       'legal',
     );
+    const movementSceneHex = screen.getByTestId('isometric-scene-hex-1-0');
+    expect(movementSceneHex).toHaveAttribute(
+      'data-isometric-hex-map-position',
+      '1,0',
+    );
+    expect(movementSceneHex).toHaveAttribute(
+      'data-isometric-hex-elevation',
+      '1',
+    );
+    expect(movementSceneHex).toHaveAttribute(
+      'data-isometric-hex-terrain-primary',
+      'rough',
+    );
+    expect(movementSceneHex).toHaveAttribute(
+      'data-isometric-hex-projection-intent',
+      'movement-combat',
+    );
+    expect(movementSceneHex).toHaveAttribute(
+      'data-isometric-hex-projection-status',
+      'legal',
+    );
+    expect(movementSceneHex).toHaveAttribute(
+      'data-isometric-hex-movement-status',
+      'legal',
+    );
+    expect(movementSceneHex).toHaveAttribute(
+      'data-isometric-hex-combat-status',
+      'range-only',
+    );
+    expect(
+      movementSceneHex.getAttribute('data-isometric-hex-sources'),
+    ).toContain('movement:megamek');
+    expect(
+      movementSceneHex.getAttribute('data-isometric-hex-sources'),
+    ).toContain('combat:megamek');
+
+    const targetSceneHex = screen.getByTestId('isometric-scene-hex-2-0');
+    expect(targetSceneHex).toHaveAttribute(
+      'data-isometric-hex-map-position',
+      '2,0',
+    );
+    expect(targetSceneHex).toHaveAttribute(
+      'data-isometric-hex-projection-intent',
+      'combat',
+    );
+    expect(targetSceneHex).toHaveAttribute(
+      'data-isometric-hex-projection-status',
+      'legal',
+    );
+    expect(targetSceneHex).toHaveAttribute(
+      'data-isometric-hex-movement-status',
+      'none',
+    );
+    expect(targetSceneHex).toHaveAttribute(
+      'data-isometric-hex-combat-status',
+      'attackable',
+    );
   });
 
   it('explains empty weapon-range hexes without calling them blocked targets', () => {

@@ -18,6 +18,7 @@ This change introduces a small rules-backed per-hex projection contract. It does
   - legacy attack range fallback for older callers.
 - Wire `HexMapDisplay` state to build and consume this projection lookup before rendering `HexCell`.
 - Add metadata to rendered hexes proving the UI is reading one projection status/intent/reason surface.
+- Preserve the same projection summary on isometric scene hex wrappers so the depth-sorted 2.5D layer remains inspectable.
 - Add focused tests for the pure helper and the rendered map metadata.
 
 ## Capabilities

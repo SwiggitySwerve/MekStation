@@ -9,6 +9,7 @@ import { LineOfSightOverlay } from '@/components/gameplay/overlays/LineOfSightOv
 import { TerrainSymbolDefs } from '@/components/gameplay/terrain/TerrainSymbolDefs';
 import { GameSide, TokenUnitType } from '@/types/gameplay';
 import { coordToKey } from '@/utils/gameplay/hexMath';
+import { formatTacticalProjectionSourceReferences } from '@/utils/gameplay/tacticalMapProjection';
 
 import type { HexMapDisplayProps } from './HexMapDisplay.types';
 
@@ -22,6 +23,7 @@ import {
 import { useHexMapDisplayState } from './HexMapDisplay.state';
 import { MapHtmlOverlays } from './HexMapDisplay.tooltips';
 import { TerrainPatternDefs } from './Overlays';
+import { getPrimaryTerrainFeature } from './renderHelpers';
 
 export type { HexMapDisplayProps } from './HexMapDisplay.types';
 
@@ -65,6 +67,7 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
     hoverTerrainInfo,
     hoverProjectionInfo,
     hoverIsometricOccluderInfo,
+    tacticalMapProjectionLookup,
     renderHexCell,
     handleTokenClick,
     handleTokenDoubleClick,
@@ -113,6 +116,7 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
               onTokenClick={handleTokenClick}
               onTokenDoubleClick={handleTokenDoubleClick}
               isometricOcclusionUnitIds={isometricOcclusionUnitIds}
+              tacticalMapProjectionLookup={tacticalMapProjectionLookup}
               combatProjectionValidTargetUnitIds={
                 combatProjectionValidTargetUnitIds
               }
@@ -220,6 +224,7 @@ function IsometricSceneLayer({
   onTokenClick,
   onTokenDoubleClick,
   isometricOcclusionUnitIds,
+  tacticalMapProjectionLookup,
   combatProjectionValidTargetUnitIds,
 }: {
   readonly items: ReturnType<
@@ -245,6 +250,9 @@ function IsometricSceneLayer({
   readonly isometricOcclusionUnitIds: ReturnType<
     typeof useHexMapDisplayState
   >['isometricOcclusionUnitIds'];
+  readonly tacticalMapProjectionLookup: ReturnType<
+    typeof useHexMapDisplayState
+  >['tacticalMapProjectionLookup'];
   readonly combatProjectionValidTargetUnitIds: ReturnType<
     typeof useHexMapDisplayState
   >['combatProjectionValidTargetUnitIds'];
@@ -253,11 +261,31 @@ function IsometricSceneLayer({
     <g data-testid="isometric-scene-layer">
       {items.map((item) => {
         if (item.kind === 'hex') {
+          const projectionKey = coordToKey(item.hex);
+          const projection = tacticalMapProjectionLookup.get(projectionKey);
+          const primaryTerrain = getPrimaryTerrainFeature(projection?.terrain);
           return (
             <g
               key={item.key}
               data-testid={`isometric-scene-hex-${item.hex.q}-${item.hex.r}`}
               data-isometric-depth-key={item.depthKey}
+              data-isometric-hex-map-position={projectionKey}
+              data-isometric-hex-elevation={projection?.terrain.elevation}
+              data-isometric-hex-terrain-primary={primaryTerrain?.type}
+              data-isometric-hex-projection-intent={projection?.intent}
+              data-isometric-hex-projection-status={projection?.status}
+              data-isometric-hex-movement-status={projection?.movementStatus}
+              data-isometric-hex-combat-status={projection?.combatStatus}
+              data-isometric-hex-blocked-reasons={joinNonEmpty(
+                projection?.blockedReasons,
+              )}
+              data-isometric-hex-sources={
+                projection
+                  ? formatTacticalProjectionSourceReferences(
+                      projection.sourceReferences,
+                    )
+                  : undefined
+              }
             >
               {renderHexCell(item.hex)}
             </g>
@@ -332,6 +360,12 @@ function displayPositionForSceneToken(token: IUnitToken): IHexCoordinate {
     return token.lastKnownPosition;
   }
   return token.position;
+}
+
+function joinNonEmpty(
+  values: readonly string[] | undefined,
+): string | undefined {
+  return values && values.length > 0 ? values.join('|') : undefined;
 }
 
 export default HexMapDisplay;

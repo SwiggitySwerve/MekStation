@@ -634,6 +634,19 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     ).toHaveText('#2');
 
     const eastHex = page.getByTestId('isometric-scene-hex-1-0');
+    await expect(eastHex).toHaveAttribute(
+      'data-isometric-hex-map-position',
+      '1,0',
+    );
+    await expect(eastHex).toHaveAttribute('data-isometric-hex-elevation', '4');
+    await expect(eastHex).toHaveAttribute(
+      'data-isometric-hex-terrain-primary',
+      'building',
+    );
+    await expect(eastHex).toHaveAttribute(
+      'data-isometric-hex-sources',
+      /terrain-elevation:mekstation/,
+    );
     const eastDepthBefore = await eastHex.getAttribute(
       'data-isometric-depth-key',
     );
