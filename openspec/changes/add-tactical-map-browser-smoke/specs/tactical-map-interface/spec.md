@@ -41,6 +41,8 @@ the top-down map.
 - **AND** a Frogman destination into represented deep water SHALL expose
   reachable movement, the reduced terrain surcharge, heat, and water terrain
   metadata
+- **AND** a prone unit's represented stand-up movement destination SHALL expose
+  the stand-up MP cost, PSR target metadata, heat, and stand-up badge metadata
 - **AND** a movement-blocked hex SHALL expose the engine-aligned rejection
   reason and render an invalid badge that does not rely on color alone
 - **AND** a LOS-blocked combat target SHALL expose the blocked target id,

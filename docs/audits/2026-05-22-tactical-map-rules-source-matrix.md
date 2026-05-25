@@ -670,6 +670,14 @@ projection/resolution, rejects paired destination movement, emits
 `src/utils/gameplay/movement/__tests__/reachable.test.ts`, and
 `src/engine/__tests__/InteractiveSession.movement.scenario.test.ts`.
 
+2026-05-25 stand-up movement browser pin: the tactical-map browser harness now
+uses a represented prone Mek with a normal stand-up step before walking two
+clear hexes, proving the rendered destination exposes 4 MP total, the reserved
+2 MP stand-up cost, PSR TN 5 metadata, heat +1, and a non-color stand-up badge.
+A fixture-level Jest parity test feeds the same projected path into
+`validateCommittedMovement` and proves the commit gate accepts it with matching
+MP, heat, and path.
+
 Additional TacOps stand-up modifier pin: MegaMek
 `MekWithArms.java:410-430` remains the source anchor for optional arm/quirk
 stand-up modifiers. MekStation now preserves represented destroyed-arm,

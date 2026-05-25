@@ -1027,6 +1027,80 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows prone stand-up movement cost and PSR metadata in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=prone-stand-up');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('PRN');
+
+    const standDestination = page.getByTestId('hex-2-0');
+    await expect(standDestination).toHaveAttribute('data-reachable', 'true');
+    await expect(standDestination).toHaveAttribute(
+      'data-movement-type',
+      'walk',
+    );
+    await expect(standDestination).toHaveAttribute(
+      'data-movement-mode',
+      'walk',
+    );
+    await expect(standDestination).toHaveAttribute('data-mp-cost', '4');
+    await expect(standDestination).toHaveAttribute('data-terrain-cost', '0');
+    await expect(standDestination).toHaveAttribute('data-elevation-delta', '0');
+    await expect(standDestination).toHaveAttribute('data-elevation-cost', '0');
+    await expect(standDestination).toHaveAttribute('data-heat-generated', '1');
+    await expect(standDestination).toHaveAttribute(
+      'data-stand-up-required',
+      'true',
+    );
+    await expect(standDestination).toHaveAttribute(
+      'data-stand-up-mode',
+      'normal',
+    );
+    await expect(standDestination).toHaveAttribute('data-stand-up-cost', '2');
+    await expect(standDestination).toHaveAttribute(
+      'data-stand-up-psr-required',
+      'true',
+    );
+    await expect(standDestination).toHaveAttribute(
+      'data-stand-up-psr-reason',
+      'Standing up',
+    );
+    await expect(standDestination).toHaveAttribute(
+      'data-stand-up-psr-target',
+      '5',
+    );
+    await expect(standDestination).toHaveAttribute(
+      'data-stand-up-psr-modifier',
+      '0',
+    );
+
+    const movementBadge = page.getByTestId('hex-movement-badge-2-0');
+    await expect(movementBadge.locator('text')).toHaveText('W 4MP');
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-type',
+      'walk',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-heat-generated',
+      '1',
+    );
+
+    const standBadge = page.getByTestId('hex-stand-up-badge-2-0');
+    await expect(standBadge.locator('text')).toHaveText('STAND 2MP PSR5');
+    await expect(standBadge).toHaveAttribute('data-stand-up-mode', 'normal');
+    await expect(standBadge).toHaveAttribute('data-stand-up-cost', '2');
+    await expect(standBadge).toHaveAttribute(
+      'data-stand-up-psr-required',
+      'true',
+    );
+    await expect(standBadge).toHaveAttribute('data-stand-up-psr-target', '5');
+    await expect(standBadge).toHaveAttribute(
+      'aria-label',
+      /Must stand before moving: stand-up cost 2 MP; PSR required TN 5/,
+    );
+  });
+
   test('shows naval landfall as water-required blocked movement in browser', async ({
     page,
   }) => {

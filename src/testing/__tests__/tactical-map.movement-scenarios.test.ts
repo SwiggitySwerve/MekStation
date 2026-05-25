@@ -27,6 +27,10 @@ import {
   tacticalMapRunWaterFallbackMovementRange,
 } from '../tactical-map.run-water-fallback-scenario';
 import {
+  tacticalMapStandUpCommitInput,
+  tacticalMapStandUpMovementRange,
+} from '../tactical-map.standup-scenario';
+import {
   tacticalMapSwimCommitInput,
   tacticalMapSwimMovementRange,
 } from '../tactical-map.swim-scenario';
@@ -339,6 +343,40 @@ describe('tactical map movement scenarios', () => {
     });
 
     const result = validateCommittedMovement(tacticalMapFrogmanCommitInput());
+
+    expect(result.valid).toBe(true);
+    if (!result.valid) {
+      throw new Error(result.details);
+    }
+
+    expect(result.mpCost).toBe(projection.mpCost);
+    expect(result.heatGenerated).toBe(projection.heatGenerated);
+    expect(result.path).toEqual(projection.path);
+  });
+
+  it('keeps prone stand-up movement legal between browser projection and commit validation', () => {
+    const projection = tacticalMapStandUpMovementRange[0];
+
+    expect(projection).toMatchObject({
+      hex: { q: 2, r: 0 },
+      reachable: true,
+      movementMode: 'walk',
+      movementType: 'walk',
+      mpCost: 4,
+      terrainCost: 0,
+      elevationDelta: 0,
+      elevationCost: 0,
+      heatGenerated: 1,
+      standUpRequired: true,
+      standUpMode: 'normal',
+      standUpCost: 2,
+      standUpPsrRequired: true,
+      standUpPsrReason: 'Standing up',
+      standUpPsrTargetNumber: 5,
+      standUpPsrModifier: 0,
+    });
+
+    const result = validateCommittedMovement(tacticalMapStandUpCommitInput());
 
     expect(result.valid).toBe(true);
     if (!result.valid) {

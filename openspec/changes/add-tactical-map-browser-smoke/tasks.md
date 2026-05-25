@@ -97,6 +97,8 @@
   metadata.
 - [x] 2.38 Add browser coverage proving Frogman deep-water movement renders the
   shared reduced terrain cost, heat, and water terrain metadata.
+- [x] 2.39 Add browser coverage proving prone stand-up movement renders the
+  shared stand-up MP cost, PSR target, heat, and movement metadata.
 
 ## 3. Validation
 
@@ -177,3 +179,5 @@
   labeling.
 - [x] 3.38 Focused Jest parity and Playwright smoke pass for Frogman deep-water
   movement reduced terrain cost and top-down cost badge labeling.
+- [x] 3.39 Focused Jest parity and Playwright smoke pass for prone stand-up
+  movement cost, PSR metadata, and top-down stand-up badge labeling.
