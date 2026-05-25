@@ -796,7 +796,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
 
     const invalidBadge = page.getByTestId('hex-movement-invalid-badge-1-0');
-    await expect(invalidBadge.locator('text')).toHaveText('TERR');
+    await expect(invalidBadge.locator('text')).toHaveText('BRDG');
     await expect(invalidBadge).toHaveAttribute(
       'data-invalid-badge-reason',
       'Naval movement lacks bridge clearance',

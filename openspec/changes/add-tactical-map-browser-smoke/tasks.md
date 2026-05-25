@@ -70,6 +70,8 @@
 - [x] 2.28 Add browser coverage proving LOS blocker target hexes and blocker
   hex badges expose the same terrain blocker reason and metadata used by attack
   commit validation.
+- [x] 2.29 Render bridge-clearance movement failures with a specific non-color
+  movement invalid badge instead of the generic terrain badge.
 
 ## 3. Validation
 
@@ -128,3 +130,5 @@
 - [x] 3.28 Focused Jest parity and Playwright smoke pass for terrain LOS blocker
   projection, attack rejection details, invalid badge rows, and blocker badge
   rows.
+- [x] 3.29 Focused HexMapDisplay unit coverage and Playwright smoke pass for
+  bridge-clearance movement invalid badge labeling.

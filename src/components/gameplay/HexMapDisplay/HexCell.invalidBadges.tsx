@@ -35,6 +35,9 @@ function formatMovementInvalidBadgeLabel(
 ): string {
   const reason = movementReasonText(movementInfo);
   if (includesReason(reason, 'water')) return 'WTR';
+  if (includesReason(reason, 'bridge') || includesReason(reason, 'clearance')) {
+    return 'BRDG';
+  }
   if (includesReason(reason, 'elevation')) return 'ELEV';
   if (includesReason(reason, 'occupied')) return 'OCC';
   if (includesReason(reason, 'outside')) return 'OOB';

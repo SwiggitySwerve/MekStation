@@ -439,6 +439,11 @@ metadata, and a non-color invalid badge; the focused parity fixture feeds the
 same path into committed movement validation and confirms the rejection reason,
 details, MP, and heat match the rendered projection.
 
+2026-05-25 bridge-clearance badge update: bridge-clearance movement failures now
+render the specific non-color `BRDG` invalid badge instead of the generic
+terrain badge, while preserving the source-backed `TerrainBlocked` code and
+`Naval movement lacks bridge clearance` detail used by commit validation.
+
 Additional small-unit movement data pin: MegaMek `Infantry.java:560-568` and
 `BattleArmor.java:520-523` return walk MP as base run MP unless optional TacOps
 fast infantry movement is enabled. MegaMek `ProtoMek.java:602-606` falls back to

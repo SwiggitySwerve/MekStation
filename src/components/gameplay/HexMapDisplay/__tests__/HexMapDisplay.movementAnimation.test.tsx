@@ -1672,6 +1672,45 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('renders bridge-clearance movement reasons as visible map badges', () => {
+    const reason = 'Naval movement lacks bridge clearance';
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: Infinity,
+            terrainCost: 0,
+            elevationDelta: 0,
+            elevationCost: 0,
+            reachable: false,
+            movementMode: 'naval',
+            movementType: MovementType.Walk,
+            blockedReason: reason,
+            movementInvalidReason: 'TerrainBlocked',
+            movementInvalidDetails: reason,
+          },
+        ]}
+      />,
+    );
+
+    const invalidBadge = screen.getByTestId('hex-movement-invalid-badge-1-0');
+    expect(invalidBadge).toHaveTextContent('BRDG');
+    expect(invalidBadge).toHaveAttribute('data-invalid-badge-reason', reason);
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'TerrainBlocked',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('renders terrain and elevation step costs directly on reachable movement hexes', () => {
     const { unmount } = render(
       <HexMapDisplay
