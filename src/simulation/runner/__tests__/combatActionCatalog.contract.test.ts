@@ -690,6 +690,16 @@ describe('BattleMech combat action support catalog', () => {
     expect(
       supportIdsByLevel(PHYSICAL_ATTACK_ACTION_SUPPORT, 'helper-only'),
     ).toEqual([]);
+    for (const entry of Object.values(PHYSICAL_ATTACK_ACTION_SUPPORT)) {
+      expect(entry.sourceRefs).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            url: expect.stringContaining('physicalAttackCommands.ts#L'),
+          }),
+        ]),
+      );
+    }
   });
 
   it('partitions every source-checked MegaMek physical action class into BattleMech support or explicit scope gaps', () => {
@@ -740,12 +750,9 @@ describe('BattleMech combat action support catalog', () => {
       'trip',
     ]);
 
-    const invalidUnsupportedRefs = Object.values(
+    const invalidPhysicalClassRefs = Object.values(
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT,
     ).flatMap((entry) => {
-      if (entry.battleMechScope !== 'battlemech') return [];
-      if (entry.level !== 'unsupported') return [];
-
       const sourceRefs = entry.sourceRefs ?? [];
       if (sourceRefs.length === 0) return [`${entry.id}: missing sourceRefs`];
 
@@ -771,7 +778,7 @@ describe('BattleMech combat action support catalog', () => {
         return failures;
       });
     });
-    expect(invalidUnsupportedRefs).toEqual([]);
+    expect(invalidPhysicalClassRefs).toEqual([]);
     expect(
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['brush-off'].sourceRefs?.map(
         ({ citation }) => citation,

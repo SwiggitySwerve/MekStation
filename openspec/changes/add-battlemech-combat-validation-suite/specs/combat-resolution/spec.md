@@ -81,6 +81,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** every game-intent action row SHALL cite the MekStation game-intent mapper that constructs or maps the local intent to its server wire payload
 - **AND** every wire-intent action row SHALL cite the MekStation server dispatcher, with lobby and reconnect wire intents remaining source-visible non-combat scope splits
 - **AND** every P2P intent translation row SHALL cite the MekStation intent translator, plus host-router source anchors for host-owned command translations
+- **AND** `physicalAttackCommands` catalog rows SHALL enforce row-level MekStation command source references before PR approval
 - **AND** those rows SHALL NOT be inferred from helper prose or omitted because no UI command currently emits them
 
 #### Scenario: Torso twist emits source-backed secondary facing through command and wire paths
@@ -332,8 +333,11 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 
 - **GIVEN** MegaMek exposes BattleMech-applicable brush-off, thrash, trip, grapple, break-grapple, and jump-jet physical action classes
 - **WHEN** the physical action class scope catalog is contract-tested
-- **THEN** each unsupported BattleMech-applicable class SHALL cite the matching MegaMek source class with commit-pinned line anchors
+- **THEN** every physical action class scope row SHALL cite the matching MegaMek source class with commit-pinned line anchors
+- **AND** supported punch, kick, push, charge, death-from-above, and club/melee rows SHALL expose row-level MegaMek source references before PR approval
+- **AND** non-BattleMech AirMek, battle armor, infantry explosive, ProtoMek, and aerospace ram rows SHALL remain explicit scope splits with row-level MegaMek source references
 - **AND** each row SHALL remain `unsupported` until MekStation has a runtime `PhysicalAttackType`, tactical command, event-sourced declaration/resolution, and runner resolution path for that class
+- **AND** the `physicalActionClassScope` catalog triad SHALL enforce row-level source references before PR approval
 
 #### Scenario: Physical attacks require existing targets
 

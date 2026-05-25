@@ -186,7 +186,10 @@ const ACTION_TRIAD = triad(
   MEKSTATION_ACTION_BOUNDARY,
   ACTION_CONTRACT_REFS,
 );
-const ACTION_REQUIREMENT_TRIAD = requirementTriad(ACTION_CONTRACT_REFS);
+const ACTION_SOURCE_TRIAD = entryTriad(
+  'Action rows require refs.',
+  ACTION_CONTRACT_REFS,
+);
 const ATTACK_REASON_TRIAD = entryTriad(
   'Ranged attack invalidation reason rows must carry row-level sourceRefs for ammo, same-hex, range, LOS/spotter, targetability, missing weapon, and weapon readiness boundaries; SameHex is an explicit MekStation deviation row.',
   INVALIDATION_REFS,
@@ -307,12 +310,8 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
     gameIntents: ACTION_TRIAD,
     wireIntents: ACTION_TRIAD,
     p2pIntents: ACTION_TRIAD,
-    physicalAttackCommands: ACTION_REQUIREMENT_TRIAD,
-    physicalActionClassScope: triad(
-      'requirement-primary-authority',
-      'Physical action class scope rows partition MegaMek source classes into BattleMech support and explicit scope gaps, with row sourceRefs on source-class boundaries.',
-      ACTION_CONTRACT_REFS,
-    ),
+    physicalAttackCommands: ACTION_SOURCE_TRIAD,
+    physicalActionClassScope: ACTION_SOURCE_TRIAD,
   },
   invalidation: {
     attackReasons: ATTACK_REASON_TRIAD,

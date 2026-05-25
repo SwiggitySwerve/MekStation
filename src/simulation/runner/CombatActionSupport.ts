@@ -281,7 +281,7 @@ function mekstationPhysicalCommandSourceRefs(
   ] satisfies readonly ICombatFeatureSourceReference[];
 }
 
-const MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS = {
+export const MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS = {
   'physical.punch': mekstationPhysicalCommandSourceRefs(
     'physical.punch',
     'punch',
