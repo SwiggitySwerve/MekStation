@@ -5,7 +5,10 @@ import type {
   ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 
-import { terrainAttackModifierSourceRefs } from './CombatTerrainEnvironmentSourceRefs';
+import {
+  terrainAttackModifierSourceRefs,
+  terrainLosSourceRefs,
+} from './CombatTerrainEnvironmentSourceRefs';
 
 const MEGAMEK_TERRAIN_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
@@ -263,16 +266,39 @@ function makeTerrainMovementEntry(
 function makeTerrainLosEntry(terrain: TerrainType): ICombatFeatureSupportEntry {
   const properties = TERRAIN_PROPERTIES[terrain];
 
+  if (terrain === TerrainType.Building || terrain === TerrainType.HeavyWoods) {
+    return integrated(
+      terrain,
+      'MekStation calculateLOS blocks this terrain through simplified blocksLOS and losBlockHeight local rules; MegaMek LOS uses richer building, woods, smoke, water, and diagramming thresholds',
+      terrainLosSourceRefs(terrain),
+    );
+  }
+
+  if (
+    terrain === TerrainType.LightWoods ||
+    terrain === TerrainType.Smoke ||
+    terrain === TerrainType.Water
+  ) {
+    return helperOnly(
+      terrain,
+      'MekStation calculateLOS records this TerrainType as non-blocking and relies on attack modifier rows for local to-hit effects',
+      'MegaMek can make cumulative woods/smoke or land-to-underwater LOS impossible, but MekStation LOS does not model cumulative density, underwater sightline state, or divided/diagram LOS paths',
+      terrainLosSourceRefs(terrain),
+    );
+  }
+
   if (properties.blocksLOS) {
     return integrated(
       terrain,
       'calculateLOS consumes TERRAIN_PROPERTIES blocksLOS and losBlockHeight for blocking terrain',
+      terrainLosSourceRefs(terrain),
     );
   }
 
   return integrated(
     terrain,
     'calculateLOS consumes TERRAIN_PROPERTIES and records this terrain as non-blocking',
+    terrainLosSourceRefs(terrain),
   );
 }
 

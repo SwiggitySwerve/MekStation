@@ -152,6 +152,85 @@ describe('BattleMech terrain and environment combat support catalog', () => {
     );
   });
 
+  it('source-pins every TerrainType LOS row', () => {
+    const megaMekComparedLosTerrains = [
+      TerrainType.Building,
+      TerrainType.HeavyWoods,
+      TerrainType.LightWoods,
+      TerrainType.Smoke,
+      TerrainType.Water,
+    ];
+    const localLosGapTerrains = [
+      TerrainType.LightWoods,
+      TerrainType.Smoke,
+      TerrainType.Water,
+    ];
+
+    Object.values(TERRAIN_TYPE_LOS_COMBAT_SUPPORT).forEach((entry) => {
+      const sourceRefs = entry.sourceRefs ?? [];
+
+      expect(sourceRefs).not.toHaveLength(0);
+      sourceRefs.forEach(expectLineAnchoredSourceRef);
+      expect(sourceRefs).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            url: 'src/types/gameplay/TerrainTypes.ts#L146-L488',
+          }),
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            url: 'src/utils/gameplay/lineOfSight.ts#L50-L70',
+          }),
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            url: 'src/utils/gameplay/lineOfSight.ts#L137-L232',
+          }),
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            url: 'src/simulation/runner/phases/weaponAttackLineOfSight.ts#L48-L88',
+          }),
+        ]),
+      );
+    });
+
+    expect(
+      megaMekComparedLosTerrains.filter(
+        (terrain) =>
+          !TERRAIN_TYPE_LOS_COMBAT_SUPPORT[terrain].sourceRefs?.some(
+            (ref) => ref.kind === 'megamek-source',
+          ),
+      ),
+    ).toEqual([]);
+    expect(
+      Object.values(TerrainType)
+        .filter((terrain) => !megaMekComparedLosTerrains.includes(terrain))
+        .flatMap(
+          (terrain) =>
+            TERRAIN_TYPE_LOS_COMBAT_SUPPORT[terrain].sourceRefs?.filter(
+              (ref) => ref.kind === 'megamek-source',
+            ) ?? [],
+        ),
+    ).toEqual([]);
+    expect(
+      localLosGapTerrains.map(
+        (terrain) => TERRAIN_TYPE_LOS_COMBAT_SUPPORT[terrain],
+      ),
+    ).toEqual([
+      expect.objectContaining({
+        level: 'helper-only',
+        gap: expect.stringContaining('cumulative'),
+      }),
+      expect.objectContaining({
+        level: 'helper-only',
+        gap: expect.stringContaining('cumulative'),
+      }),
+      expect.objectContaining({
+        level: 'helper-only',
+        gap: expect.stringContaining('underwater'),
+      }),
+    ]);
+  });
+
   it('treats non-zero terrain attack modifiers as integrated runner to-hit behavior', () => {
     expect(terrainTypesWithAttackModifiers()).toEqual(
       [
@@ -347,7 +426,9 @@ describe('BattleMech terrain and environment combat support catalog', () => {
     expect(supportGaps(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(expect.arrayContaining(['dust', 'mines']));
+    ).toEqual(
+      expect.arrayContaining(['dust', 'mines', 'terrain-los-blocking']),
+    );
     expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.wind).toMatchObject({
       level: 'integrated',
     });

@@ -1944,7 +1944,6 @@ describe('BattleMech combat feature-gap tracking', () => {
       'fog',
       'night',
       'smoke-to-hit',
-      'terrain-los-blocking',
       'terrain-movement-costs',
       'terrain-partial-cover',
       'terrain-to-hit-features',
@@ -1954,7 +1953,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['dust', 'mines']);
+    ).toEqual(['dust', 'mines', 'terrain-los-blocking']);
     expect(
       Object.values(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT)
         .filter((entry) => entry.level !== 'unsupported')

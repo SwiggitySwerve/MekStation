@@ -28,6 +28,7 @@ import {
   MEGAMEK_OUT_OF_RANGE_SOURCE_REFS,
   MEGAMEK_STANDARD_RANGE_BRACKET_SOURCE_REFS,
 } from './CombatRangeSourceRefs';
+import { terrainLosSourceRefs } from './CombatTerrainEnvironmentSourceRefs';
 import {
   MEGAMEK_ACTUATOR_DAMAGE_TO_HIT_SOURCE_REFS,
   MEGAMEK_ATTACKER_MOVEMENT_TO_HIT_SOURCE_REFS,
@@ -223,12 +224,6 @@ const MEGAMEK_TERRAIN_MOVEMENT_COST_SOURCE_REF = megamekTerrainSourceRef(
   'MegaMek Terrain.movementCost maps additional movement cost for rubble, woods, snow, mud, swamp, ice, rough, sand, and industrial terrain by movement mode and pilot abilities.',
   'common/units/Terrain.java',
   'L402-L604',
-);
-
-const MEGAMEK_TERRAIN_LOS_BLOCKING_SOURCE_REF = megamekTerrainSourceRef(
-  'MegaMek LosEffects evaluates woods, water, smoke, and cover terrain while deriving intervening LOS effects and target cover state.',
-  'common/LosEffects.java',
-  'L1345-L1490',
 );
 
 const MEGAMEK_MINEFIELD_MOVEMENT_SOURCE_REFS = [
@@ -862,10 +857,11 @@ export const TERRAIN_ENVIRONMENT_COMBAT_SUPPORT = {
     'validateMovement consumes TERRAIN_PROPERTIES movementCostModifier for every TerrainType',
     [MEGAMEK_TERRAIN_TYPE_SOURCE_REF, MEGAMEK_TERRAIN_MOVEMENT_COST_SOURCE_REF],
   ),
-  'terrain-los-blocking': integrated(
+  'terrain-los-blocking': helperOnly(
     'terrain-los-blocking',
-    'lineOfSight consumes TerrainType blocksLOS for woods/buildings',
-    [MEGAMEK_TERRAIN_LOS_BLOCKING_SOURCE_REF],
+    'lineOfSight consumes TerrainType blocksLOS for MekStation simplified woods/buildings blocking',
+    'MegaMek cumulative woods/smoke thresholds, land-to-underwater LOS blocking, divided LOS, and richer building-level handling are not fully modeled by the local TerrainType LOS helper',
+    terrainLosSourceRefs(TerrainType.HeavyWoods),
   ),
   'terrain-partial-cover': integrated(
     'terrain-partial-cover',

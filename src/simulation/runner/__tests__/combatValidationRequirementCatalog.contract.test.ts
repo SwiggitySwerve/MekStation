@@ -829,6 +829,14 @@ describe('BattleMech combat validation requirement crosswalk', () => {
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-enhancements'].level,
     ).toBe('helper-only');
     expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['terrain-movement-los-cover']
+        .level,
+    ).toBe('helper-only');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['terrain-movement-los-cover']
+        .gap,
+    ).toContain('LOS parity');
+    expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-core-actions'].level,
     ).toBe('helper-only');
     expect(
