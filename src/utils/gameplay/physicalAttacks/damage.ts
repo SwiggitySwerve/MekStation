@@ -11,6 +11,7 @@ import { getMeleeMasterDamageBonus } from '@/utils/gameplay/spaModifiers';
 
 import {
   CHARGE_DAMAGE_DIVISOR,
+  CHARGE_HIT_PSR_MODIFIER,
   CLAW_PUNCH_DAMAGE_DIVISOR,
   DFA_ATTACKER_DAMAGE_DIVISOR,
   DFA_DAMAGE_MULTIPLIER,
@@ -432,7 +433,7 @@ export function calculatePhysicalDamage(
         attackerLegDamagePerLeg: 0,
         targetPSR: true,
         attackerPSR: true,
-        attackerPSRModifier: 0,
+        attackerPSRModifier: CHARGE_HIT_PSR_MODIFIER,
         hitTable: 'punch',
         targetDisplaced: false,
       };
@@ -560,7 +561,7 @@ export function getPhysicalMissConsequences(attackType: PhysicalAttackType): {
     case 'kick':
       return { attackerPSR: true, attackerPSRModifier: 0 };
     case 'charge':
-      return { attackerPSR: true, attackerPSRModifier: 0 };
+      return { attackerPSR: false, attackerPSRModifier: 0 };
     case 'dfa':
       return { attackerPSR: true, attackerPSRModifier: DFA_MISS_PSR_MODIFIER };
     default:

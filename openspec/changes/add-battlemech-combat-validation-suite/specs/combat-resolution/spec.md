@@ -538,7 +538,18 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **GIVEN** a death-from-above attack hits its target
 - **WHEN** the attacker-side post-DFA piloting skill roll is queued
 - **THEN** the attacker PSR SHALL use the MegaMek-backed +4 "executed death from above" modifier
-- **AND** event-sourced resolution and runner resolution SHALL both surface the same modifier while the target's hit-by-DFA PSR remains unmodified
+- **AND** the target PSR SHALL use the MegaMek-backed +2 "hit by death from above" modifier
+- **AND** event-sourced resolution and runner resolution SHALL both surface the same modifiers
+
+#### Scenario: Physical PSR trigger rows stay source-backed
+
+- **GIVEN** the runner PSR trigger catalog covers kick, charge, push, DFA, and physical-miss fallout
+- **WHEN** the BattleMech combat catalog contract tests run
+- **THEN** kick target, kick miss, push target, charge hit, DFA target, successful-DFA attacker, charge miss, and missed-DFA rows SHALL carry structured MegaMek source references with commit-pinned line anchors
+- **AND** successful charge target and attacker PSRs SHALL use the MegaMek-backed `+2` modifier
+- **AND** successful DFA target PSRs SHALL use the MegaMek-backed `+2` modifier
+- **AND** normal missed charges SHALL displace the attacker without queuing a normal `ChargeMiss` PSR, keeping the legacy/local `ChargeMiss` factory helper-only rather than an integrated parity claim
+- **AND** missed-DFA grid resolution SHALL remain immediate fall handling rather than a queued normal `DFAMiss` PSR
 
 #### Scenario: Death from above miss immediately drops the attacker
 

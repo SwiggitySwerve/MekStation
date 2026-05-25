@@ -408,9 +408,10 @@ function expectPendingPSR(
   state: IGameState,
   unitId: string,
   reasonCode: PSRTrigger,
+  expected?: Record<string, unknown>,
 ): void {
-  expect(state.units[unitId].pendingPSRs).toContainEqual(
-    expect.objectContaining({ reasonCode }),
+  expect(state.units[unitId].pendingPSRs ?? []).toContainEqual(
+    expect.objectContaining({ reasonCode, ...expected }),
   );
 }
 
@@ -1601,8 +1602,12 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     });
     expect(damageEventsFor(events, 'opponent-1')).toHaveLength(6);
     expect(damageEventsFor(events, 'player-1').length).toBeGreaterThan(0);
-    expectPendingPSR(result, 'opponent-1', PSRTrigger.Charged);
-    expectPendingPSR(result, 'player-1', PSRTrigger.Charged);
+    expectPendingPSR(result, 'opponent-1', PSRTrigger.Charged, {
+      additionalModifier: 2,
+    });
+    expectPendingPSR(result, 'player-1', PSRTrigger.Charged, {
+      additionalModifier: 2,
+    });
   });
 
   it('applies source-backed charge displacement after a successful charge', () => {
@@ -1786,7 +1791,7 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     );
   });
 
-  it('queues charge-miss PSR without damaging the target', () => {
+  it('moves a missed charge attacker without queuing a normal charge-miss PSR', () => {
     const { events, result } = runPhase('charge', {
       attacker: {
         movementThisTurn: MovementType.Run,
@@ -1811,7 +1816,9 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       },
     ]);
     expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
-    expectPendingPSR(result, 'player-1', PSRTrigger.ChargeMiss);
+    expect(result.units['player-1'].pendingPSRs ?? []).not.toContainEqual(
+      expect.objectContaining({ reasonCode: PSRTrigger.ChargeMiss }),
+    );
     expect(result.units['player-1'].position).toEqual({ q: -1, r: 1 });
     expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
   });
@@ -1841,7 +1848,9 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(result.units['player-1'].armor.right_leg).toBeLessThan(
       initialState.units['player-1'].armor.right_leg ?? 0,
     );
-    expectPendingPSR(result, 'opponent-1', PSRTrigger.DFATarget);
+    expectPendingPSR(result, 'opponent-1', PSRTrigger.DFATarget, {
+      additionalModifier: 2,
+    });
     expect(result.units['player-1'].pendingPSRs).toContainEqual(
       expect.objectContaining({
         reason: 'Executed DFA',

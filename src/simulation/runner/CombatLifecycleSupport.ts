@@ -17,6 +17,13 @@ import {
   SHUTDOWN_TARGETABILITY_SOURCE_REFS,
 } from './CombatLifecycleSourceRefs';
 import {
+  PHYSICAL_CHARGE_MISS_SOURCE_REFS,
+  PHYSICAL_CHARGE_PSR_SOURCE_REFS,
+  PHYSICAL_DFA_TARGET_PSR_SOURCE_REFS,
+  PHYSICAL_KICK_PSR_SOURCE_REFS,
+  PHYSICAL_PUSH_PSR_SOURCE_REFS,
+} from './CombatPhysicalPsrSourceRefs';
+import {
   DAMAGE_THRESHOLD_PSR_SOURCE_REFS,
   ENGINE_CRITICAL_PSR_SOURCE_REFS,
   GYRO_CRITICAL_PSR_SOURCE_REFS,
@@ -293,27 +300,36 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
   [PSRTrigger.Kicked]: integrated(
     PSRTrigger.Kicked,
     'physicalAttackPsr queues createKickedPSR for kick target falls',
+    PHYSICAL_KICK_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.Charged]: integrated(
     PSRTrigger.Charged,
-    'physicalAttackPsr queues createChargedPSR for charge target falls',
+    'physicalAttackPsr queues source-backed +2 createChargedPSR for charge target and attacker falls after valid displacement',
+    PHYSICAL_CHARGE_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.DFATarget]: integrated(
     PSRTrigger.DFATarget,
     'physicalAttackPsr queues createDFATargetPSR for DFA target falls and createDFAAttackerPSR +4 for successful DFA attackers',
-    MEGAMEK_DFA_ATTACKER_PSR_SOURCE_REFS,
+    [
+      ...PHYSICAL_DFA_TARGET_PSR_SOURCE_REFS,
+      ...MEGAMEK_DFA_ATTACKER_PSR_SOURCE_REFS,
+    ],
   ),
   [PSRTrigger.Pushed]: integrated(
     PSRTrigger.Pushed,
     'physicalAttackPsr queues createPushedPSR for push target falls',
+    PHYSICAL_PUSH_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.KickMiss]: integrated(
     PSRTrigger.KickMiss,
     'physicalAttackPsr queues createKickMissPSR for attacker kick misses',
+    PHYSICAL_KICK_PSR_SOURCE_REFS,
   ),
-  [PSRTrigger.ChargeMiss]: integrated(
+  [PSRTrigger.ChargeMiss]: helperOnly(
     PSRTrigger.ChargeMiss,
-    'physicalAttackPsr queues createChargeMissPSR for attacker charge misses',
+    'createChargeMissPSR remains available as a legacy/local factory, but source-backed charge misses displace without a normal ChargeMiss PSR',
+    'Normal source-backed missed charges no longer queue ChargeMiss; keep the legacy factory visible until callers that still depend on it are removed or reclassified',
+    PHYSICAL_CHARGE_MISS_SOURCE_REFS,
   ),
   [PSRTrigger.DFAMiss]: helperOnly(
     PSRTrigger.DFAMiss,

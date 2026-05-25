@@ -2427,7 +2427,6 @@ describe('BattleMech combat feature-gap tracking', () => {
         PSRTrigger.DFATarget,
         PSRTrigger.Pushed,
         PSRTrigger.KickMiss,
-        PSRTrigger.ChargeMiss,
         PSRTrigger.Shutdown,
         PSRTrigger.StandingUp,
         PSRTrigger.EnteringRubble,
@@ -2444,6 +2443,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       supportIdsByLevel(RUNNER_PSR_TRIGGER_COMBAT_SUPPORT, 'helper-only'),
     ).toEqual(
       [
+        PSRTrigger.ChargeMiss,
         PSRTrigger.DFAMiss,
         PSRTrigger.BuildingCollapse,
         PSRTrigger.MASCFailure,
@@ -2531,6 +2531,79 @@ describe('BattleMech combat feature-gap tracking', () => {
     );
     expect(
       RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.EngineHit].sourceRefs?.some(
+        ({ kind }) => kind === 'mekstation-deviation',
+      ),
+    ).toBe(true);
+    const physicalPsrTriggers = [
+      PSRTrigger.Kicked,
+      PSRTrigger.Charged,
+      PSRTrigger.DFATarget,
+      PSRTrigger.Pushed,
+      PSRTrigger.KickMiss,
+      PSRTrigger.ChargeMiss,
+      PSRTrigger.DFAMiss,
+    ];
+    const physicalPsrSourceRefs = physicalPsrTriggers.map((trigger) => ({
+      trigger,
+      sourceRefs: RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[trigger].sourceRefs ?? [],
+    }));
+    expect(
+      physicalPsrSourceRefs
+        .filter(({ sourceRefs }) => sourceRefs.length === 0)
+        .map(({ trigger }) => trigger),
+    ).toEqual([]);
+    expect(
+      physicalPsrSourceRefs.flatMap(({ sourceRefs }) =>
+        sourceRefs.filter(({ url }) => !url.includes('#L')),
+      ),
+    ).toEqual([]);
+    expectPinnedMegaMekRefs(
+      physicalPsrSourceRefs.flatMap(({ sourceRefs }) =>
+        sourceRefs.filter(({ kind }) => kind === 'megamek-source'),
+      ),
+    );
+    expect(psrTriggerCitations(PSRTrigger.Kicked)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('resolveKickAttack'),
+        expect.stringContaining('was kicked'),
+        expect.stringContaining('createKickedPSR'),
+      ]),
+    );
+    expect(psrTriggerCitations(PSRTrigger.Charged)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('attacker charge PSR at +2'),
+        expect.stringContaining('"was charged" target'),
+        expect.stringContaining('createChargedPSR'),
+      ]),
+    );
+    expect(psrTriggerCitations(PSRTrigger.DFATarget)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('+2 "hit by death from above" target PSR'),
+        expect.stringContaining('createDFATargetPSR'),
+        expect.stringContaining('executed death from above'),
+      ]),
+    );
+    expect(psrTriggerCitations(PSRTrigger.Pushed)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('resolvePushAttack'),
+        expect.stringContaining('getKickPushPSR'),
+        expect.stringContaining('createPushedPSR'),
+      ]),
+    );
+    expect(psrTriggerCitations(PSRTrigger.KickMiss)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('missed ground kick'),
+        expect.stringContaining('createKickMissPSR'),
+      ]),
+    );
+    expect(psrTriggerCitations(PSRTrigger.ChargeMiss)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('normal ChargeMiss PSR is not queued'),
+        expect.stringContaining('createChargeMissPSR remains'),
+      ]),
+    );
+    expect(
+      RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.ChargeMiss].sourceRefs?.some(
         ({ kind }) => kind === 'mekstation-deviation',
       ),
     ).toBe(true);

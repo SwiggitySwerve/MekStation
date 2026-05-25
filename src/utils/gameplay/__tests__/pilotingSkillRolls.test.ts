@@ -634,12 +634,12 @@ describe('Piloting Skill Rolls', () => {
       {
         fn: createChargedPSR,
         expectedSource: PSRTrigger.Charged,
-        expectedMod: 0,
+        expectedMod: 2,
       },
       {
         fn: createDFATargetPSR,
         expectedSource: PSRTrigger.DFATarget,
-        expectedMod: 0,
+        expectedMod: 2,
       },
       {
         fn: createPushedPSR,

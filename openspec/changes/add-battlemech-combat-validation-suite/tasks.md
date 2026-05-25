@@ -173,6 +173,7 @@
 - [x] 3.5.23 Promote action eligibility rows to row-level source references for turn rotation removal, shutdown targetability, retreated/ejected target removal, ejection damage preservation, and survivor/objective counts.
 - [x] 3.5.24 Source-pin damage-threshold and damage/critical-component PSR trigger rows, preserving local EngineHit and leg-structure PSR deviations as explicit source-visible catalog boundaries.
 - [x] 3.5.25 Source-pin terrain/building runner PSR trigger rows for rubble, rough, ice, water entry/exit, skidding, and building collapse while keeping local-only terrain triggers explicit.
+- [x] 3.5.26 Source-pin physical-combat runner PSR trigger rows for kick, push, charge, DFA, and physical misses; align successful charge and DFA-target PSRs to +2 and keep normal charge-miss PSR queueing out of integrated parity.
 
 ## 4. Source-truth cross-checks
 
@@ -218,6 +219,7 @@
 - [x] 4.3.36 Cross-check opt-in MaxTech heat-scale critical-damage runtime routing against MegaMek `HeatResolver` heat 36/44+ avoid rolls and `oneCriticalEntity(... Compute.randomInt(8))` location selection.
 - [x] 4.3.37 Cross-check shutdown lifecycle classification against current MekStation heat support and damage specs so shutdown remains a lifecycle/PSR state rather than a destruction cause.
 - [x] 4.3.38 Cross-check MegaMek's CASE/CASE II ammo-explosion caps, same-location CASE detection, and transfer suppression before marking runner CASE containment integrated.
+- [x] 4.3.39 Cross-check MegaMek physical-combat PSR fallout for kick, push, charge, and DFA so charge-hit +2 PSRs, DFA-target +2 PSRs, and normal charge-miss displacement-without-PSR behavior are source-backed.
 - [x] 4.3.39 Cross-check event-sourced heat cookoff CASE parity against the same MegaMek CASE cap and transfer-suppression anchors before marking interactive heat containment integrated.
 - [x] 4.3.40 Cross-check MegaMek `Entity.locationHasCase` CASE-P detection before marking CASE-P/prototype CASE hydration integrated.
 - [x] 4.3.41 Cross-check MegaMek `applyEntityArmorDamage` ammo-explosion armor skip and `applyPlaytestExplosionReduction` rear-armor blowout before marking internal-only cookoff ordering integrated.

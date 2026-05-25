@@ -3322,6 +3322,7 @@ describe('physicalAttacks', () => {
       expect(result.attackerDamage).toBe(8); // ceil(75/10)
       expect(result.targetPSR).toBe(true);
       expect(result.attackerPSR).toBe(true);
+      expect(result.attackerPSRModifier).toBe(2);
     });
 
     it('should return DFA damage with leg damage', () => {
@@ -3403,9 +3404,9 @@ describe('physicalAttacks', () => {
       expect(getPhysicalMissConsequences('push').attackerPSR).toBe(false);
     });
 
-    it('charge miss triggers attacker PSR', () => {
+    it('charge miss moves the attacker without a normal PSR', () => {
       const result = getPhysicalMissConsequences('charge');
-      expect(result.attackerPSR).toBe(true);
+      expect(result.attackerPSR).toBe(false);
       expect(result.attackerPSRModifier).toBe(0);
     });
   });
@@ -3593,6 +3594,7 @@ describe('physicalAttacks', () => {
       expect(result.attackerDamage).toBe(8);
       expect(result.targetPSR).toBe(true);
       expect(result.attackerPSR).toBe(true);
+      expect(result.attackerPSRModifier).toBe(2);
     });
 
     it('should resolve DFA with leg damage to attacker', () => {

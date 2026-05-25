@@ -64,6 +64,8 @@ import {
   calculatePhysicalToHit,
   computeMissedChargeDisplacement,
   computePushDisplacement,
+  CHARGE_HIT_PSR_MODIFIER,
+  DFA_TARGET_PSR_MODIFIER,
   determinePhysicalHitLocation,
   IPhysicalAttackInput,
   IPhysicalAttackRestriction,
@@ -959,16 +961,41 @@ export function resolveAllPhysicalAttacks(
       // generic `physical_attack_target` trigger source to the canonical
       // `PSRTrigger` matching the originating attack type so consumers
       // can filter target PSRs by attack family.
-      const targetReasonCode =
+      const targetPsr =
         payload.attackType === 'kick'
-          ? PSRTrigger.Kicked
+          ? {
+              reason: 'Kicked',
+              additionalModifier: 0,
+              triggerSource: PSRTrigger.Kicked,
+              reasonCode: PSRTrigger.Kicked,
+            }
           : payload.attackType === 'charge'
-            ? PSRTrigger.Charged
+            ? {
+                reason: 'Charged',
+                additionalModifier: CHARGE_HIT_PSR_MODIFIER,
+                triggerSource: PSRTrigger.Charged,
+                reasonCode: PSRTrigger.Charged,
+              }
             : payload.attackType === 'dfa'
-              ? PSRTrigger.DFATarget
+              ? {
+                  reason: 'Hit by DFA',
+                  additionalModifier: DFA_TARGET_PSR_MODIFIER,
+                  triggerSource: PSRTrigger.DFATarget,
+                  reasonCode: PSRTrigger.DFATarget,
+                }
               : payload.attackType === 'push'
-                ? PSRTrigger.Pushed
-                : undefined;
+                ? {
+                    reason: 'Pushed',
+                    additionalModifier: 0,
+                    triggerSource: PSRTrigger.Pushed,
+                    reasonCode: PSRTrigger.Pushed,
+                  }
+                : {
+                    reason: 'Hit by physical attack',
+                    additionalModifier: 0,
+                    triggerSource: 'physical_attack_target',
+                    reasonCode: undefined,
+                  };
       const psrSeq = currentSession.events.length;
       currentSession = appendEvent(
         currentSession,
@@ -978,11 +1005,11 @@ export function resolveAllPhysicalAttacks(
           turn,
           GamePhase.PhysicalAttack,
           payload.targetId,
-          'Hit by physical attack',
-          0,
-          'physical_attack_target',
+          targetPsr.reason,
+          targetPsr.additionalModifier,
+          targetPsr.triggerSource,
           targetUnit?.piloting,
-          targetReasonCode,
+          targetPsr.reasonCode,
         ),
       );
     }

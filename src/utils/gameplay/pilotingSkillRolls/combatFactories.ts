@@ -5,7 +5,11 @@
 
 import type { IPendingPSR } from '@/types/gameplay';
 
-import { DFA_HIT_ATTACKER_PSR_MODIFIER } from '../physicalAttacks/constants';
+import {
+  CHARGE_HIT_PSR_MODIFIER,
+  DFA_HIT_ATTACKER_PSR_MODIFIER,
+  DFA_TARGET_PSR_MODIFIER,
+} from '../physicalAttacks/constants';
 import { PSRTrigger } from './types';
 
 /**
@@ -29,7 +33,7 @@ export function createChargedPSR(entityId: string): IPendingPSR {
     entityId,
     reason: 'Charged',
     reasonCode: PSRTrigger.Charged,
-    additionalModifier: 0,
+    additionalModifier: CHARGE_HIT_PSR_MODIFIER,
     triggerSource: PSRTrigger.Charged,
   };
 }
@@ -42,7 +46,7 @@ export function createDFATargetPSR(entityId: string): IPendingPSR {
     entityId,
     reason: 'Hit by DFA',
     reasonCode: PSRTrigger.DFATarget,
-    additionalModifier: 0,
+    additionalModifier: DFA_TARGET_PSR_MODIFIER,
     triggerSource: PSRTrigger.DFATarget,
   };
 }
@@ -91,7 +95,10 @@ export function createKickMissPSR(entityId: string): IPendingPSR {
 }
 
 /**
- * Create a pending PSR for attacker charge miss.
+ * Legacy/local factory for attacker charge miss.
+ *
+ * Source-backed charge resolution moves the missed charger without queuing a
+ * normal PSR; terrain displacement can still trigger its own PSRs separately.
  */
 export function createChargeMissPSR(entityId: string): IPendingPSR {
   return {

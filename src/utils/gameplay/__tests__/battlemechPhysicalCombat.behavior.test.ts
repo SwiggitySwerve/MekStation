@@ -3273,8 +3273,16 @@ describe('BattleMech physical combat behavior validation lane', () => {
         entry.type === GameEventType.PSRTriggered &&
         (entry.payload as IPSRTriggeredPayload).unitId === 'attacker',
     );
+    const targetPsr = resolved.events.find(
+      (entry) =>
+        entry.type === GameEventType.PSRTriggered &&
+        (entry.payload as IPSRTriggeredPayload).unitId === 'target',
+    );
     const payload = event?.payload as IPhysicalAttackResolvedPayload;
     const psrPayload = attackerPsr?.payload as IPSRTriggeredPayload | undefined;
+    const targetPsrPayload = targetPsr?.payload as
+      | IPSRTriggeredPayload
+      | undefined;
 
     expect(payload.displacements).toEqual([
       {
@@ -3303,6 +3311,13 @@ describe('BattleMech physical combat behavior validation lane', () => {
       reason: 'Executed DFA',
       additionalModifier: 4,
       triggerSource: 'dfa_attacker_hit',
+      reasonCode: PSRTrigger.DFATarget,
+    });
+    expect(targetPsrPayload).toMatchObject({
+      unitId: 'target',
+      reason: 'Hit by DFA',
+      additionalModifier: 2,
+      triggerSource: PSRTrigger.DFATarget,
       reasonCode: PSRTrigger.DFATarget,
     });
   });
