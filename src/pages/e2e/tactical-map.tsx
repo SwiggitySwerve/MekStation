@@ -28,6 +28,7 @@ import * as heatCombat from '@/testing/tactical-map.heat-combat-scenario';
 import * as hoverWater from '@/testing/tactical-map.hover-water-scenario';
 import * as immobileCombat from '@/testing/tactical-map.immobile-combat-scenario';
 import { tacticalMapIndirectFireHarnessScenarios as indirectFireHarnessScenarios } from '@/testing/tactical-map.indirect-fire-harness';
+import * as lamConversion from '@/testing/tactical-map.lam-conversion-scenario';
 import * as mixedVehicle from '@/testing/tactical-map.mixed-vehicle-volley-scenario';
 import * as movementCombat from '@/testing/tactical-map.movement-combat-scenario';
 import * as movement from '@/testing/tactical-map.movement-scenarios';
@@ -79,6 +80,8 @@ const combatOnlyScenarios = new Set([
 const movementFixtureScenarios = new Set([
   'battlefield-wreck-rough-terrain',
   'legend-mode-selection',
+  'lam-airmek-elevation-crossing',
+  'lam-mek-elevation-blocked',
   'occupied-destination-blocked',
   'quadvee-mek-elevation-climb',
   'quadvee-vehicle-elevation-blocked',
@@ -197,6 +200,8 @@ const tokensByScenario = {
   'runtime-height-bridge-clearance': movement.tacticalMapRuntimeHeightTokens,
   'occupied-destination-blocked':
     occupiedDestination.tacticalMapOccupiedDestinationTokens,
+  'lam-mek-elevation-blocked': lamConversion.tacticalMapLamMekTokens,
+  'lam-airmek-elevation-crossing': lamConversion.tacticalMapLamAirMekTokens,
   'quadvee-mek-elevation-climb': quadveeConversion.tacticalMapQuadveeMekTokens,
   'quadvee-vehicle-elevation-blocked':
     quadveeConversion.tacticalMapQuadveeVehicleTokens,
@@ -254,6 +259,9 @@ const movementRangeByScenario = {
     movement.tacticalMapRuntimeHeightMovementRange,
   'occupied-destination-blocked':
     occupiedDestination.tacticalMapOccupiedDestinationMovementRange,
+  'lam-mek-elevation-blocked': lamConversion.tacticalMapLamMekMovementRange,
+  'lam-airmek-elevation-crossing':
+    lamConversion.tacticalMapLamAirMekMovementRange,
   'quadvee-mek-elevation-climb':
     quadveeConversion.tacticalMapQuadveeMekMovementRange,
   'quadvee-vehicle-elevation-blocked':
@@ -277,6 +285,8 @@ const mpLegendByScenario = {
   'runtime-height-bridge-clearance': movement.tacticalMapRuntimeHeightMpLegend,
   'occupied-destination-blocked':
     occupiedDestination.tacticalMapOccupiedDestinationMpLegend,
+  'lam-mek-elevation-blocked': lamConversion.tacticalMapLamMekMpLegend,
+  'lam-airmek-elevation-crossing': lamConversion.tacticalMapLamAirMekMpLegend,
   'quadvee-mek-elevation-climb':
     quadveeConversion.tacticalMapQuadveeMekMpLegend,
   'quadvee-vehicle-elevation-blocked':
@@ -301,6 +311,10 @@ const selectedHexByScenario = {
     movement.tacticalMapRuntimeHeightSelectedHex,
   'occupied-destination-blocked':
     occupiedDestination.tacticalMapOccupiedDestinationSelectedHex,
+  'lam-mek-elevation-blocked':
+    lamConversion.tacticalMapLamConversionSelectedHex,
+  'lam-airmek-elevation-crossing':
+    lamConversion.tacticalMapLamConversionSelectedHex,
   'quadvee-mek-elevation-climb':
     quadveeConversion.tacticalMapQuadveeConversionSelectedHex,
   'quadvee-vehicle-elevation-blocked':
@@ -323,6 +337,9 @@ const hexTerrainByScenario = {
     movement.tacticalMapRuntimeHeightBridgeHexTerrain,
   'occupied-destination-blocked':
     occupiedDestination.tacticalMapOccupiedDestinationHexTerrain,
+  'lam-mek-elevation-blocked': lamConversion.tacticalMapLamConversionHexTerrain,
+  'lam-airmek-elevation-crossing':
+    lamConversion.tacticalMapLamConversionHexTerrain,
   'quadvee-mek-elevation-climb':
     quadveeConversion.tacticalMapQuadveeConversionHexTerrain,
   'quadvee-vehicle-elevation-blocked':

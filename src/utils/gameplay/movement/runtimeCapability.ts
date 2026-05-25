@@ -75,10 +75,25 @@ function conversionModeMovementMode(
   profile: MovementUnitHeightProfile,
 ): MovementMotiveMode | undefined {
   const mode = normalizedConversionMode(unit.conversionMode, profile);
+  if (profile.kind === 'lam' && mode === 'airmek') {
+    return 'wige';
+  }
   if (profile.kind === 'quadvee' && mode === 'vehicle') {
     return quadVeeVehicleMovementMode(unit, capability);
   }
   return undefined;
+}
+
+function conversionModeMovementPoints(
+  unit: IUnitGameState,
+  capability: IMovementCapability,
+  profile: MovementUnitHeightProfile,
+): Pick<IMovementCapability, 'walkMP' | 'runMP'> | undefined {
+  const mode = normalizedConversionMode(unit.conversionMode, profile);
+  if (profile.kind !== 'lam' || mode !== 'airmek') return undefined;
+
+  const walkMP = Math.max(0, Math.floor(capability.jumpMP)) * 3;
+  return { walkMP, runMP: Math.ceil(walkMP * 1.5) };
 }
 
 function conversionModeJumpMP(
@@ -143,6 +158,9 @@ export function resolveRuntimeMovementCapability(
   const runtimeMovementMode = profile
     ? conversionModeMovementMode(unit, capability, profile)
     : undefined;
+  const runtimeMovementPoints = profile
+    ? conversionModeMovementPoints(unit, capability, profile)
+    : undefined;
   const runtimeJumpMP = profile
     ? conversionModeJumpMP(unit, profile)
     : undefined;
@@ -151,6 +169,9 @@ export function resolveRuntimeMovementCapability(
     (runtimeHeight === undefined || runtimeHeight === capability.unitHeight) &&
     (runtimeMovementMode === undefined ||
       runtimeMovementMode === capability.movementMode) &&
+    (runtimeMovementPoints === undefined ||
+      (runtimeMovementPoints.walkMP === capability.walkMP &&
+        runtimeMovementPoints.runMP === capability.runMP)) &&
     (runtimeJumpMP === undefined || runtimeJumpMP === capability.jumpMP)
   ) {
     return capability;
@@ -162,6 +183,7 @@ export function resolveRuntimeMovementCapability(
     ...(runtimeMovementMode !== undefined
       ? { movementMode: runtimeMovementMode }
       : {}),
+    ...(runtimeMovementPoints !== undefined ? runtimeMovementPoints : {}),
     ...(runtimeJumpMP !== undefined ? { jumpMP: runtimeJumpMP } : {}),
   };
 }

@@ -14,6 +14,14 @@ import {
   tacticalMapHoverWaterMovementRange,
 } from '../tactical-map.hover-water-scenario';
 import {
+  tacticalMapLamAirMekCommitInput,
+  tacticalMapLamAirMekMovementRange,
+  tacticalMapLamAirMekMpLegend,
+  tacticalMapLamMekCommitInput,
+  tacticalMapLamMekMovementRange,
+  tacticalMapLamMekMpLegend,
+} from '../tactical-map.lam-conversion-scenario';
+import {
   tacticalMapBipedOptionCommitInputs,
   tacticalMapBipedOptionMovementRange,
   tacticalMapJumpElevationCommitInput,
@@ -326,6 +334,75 @@ describe('tactical map movement scenarios', () => {
     );
     expect(vehicleResult.mpCost).toBe(vehicleProjection.mpCost);
     expect(vehicleResult.heatGenerated).toBe(vehicleProjection.heatGenerated);
+  });
+
+  it('keeps LAM AirMek runtime conversion mode aligned between browser projection and commit validation', () => {
+    const mekProjection = tacticalMapLamMekMovementRange[0];
+    const airMekProjection = tacticalMapLamAirMekMovementRange[0];
+
+    expect(mekProjection).toMatchObject({
+      hex: { q: 3, r: 0 },
+      reachable: false,
+      mpCost: Infinity,
+      terrainCost: undefined,
+      elevationDelta: undefined,
+      elevationCost: undefined,
+      heatGenerated: 0,
+      movementMode: 'walk',
+      movementType: 'walk',
+      blockedReason: 'No legal walk path within 4 MP',
+      movementInvalidReason: 'NoLegalPath',
+      movementInvalidDetails: 'No legal walk path within 4 MP',
+    });
+    expect(tacticalMapLamMekMpLegend).toMatchObject({
+      movementMode: 'walk',
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 2,
+      jumpAvailable: true,
+    });
+
+    const mekResult = validateCommittedMovement(tacticalMapLamMekCommitInput());
+
+    expect(mekResult.valid).toBe(false);
+    if (mekResult.valid) {
+      throw new Error('Expected LAM Mek-mode climb to exceed walk MP');
+    }
+    expect(mekResult.reason).toBe(mekProjection.movementInvalidReason);
+    expect(mekResult.details).toBe(mekProjection.movementInvalidDetails);
+    expect(mekResult.mpCost).toBe(mekProjection.mpCost);
+    expect(mekResult.heatGenerated).toBe(mekProjection.heatGenerated);
+
+    expect(airMekProjection).toMatchObject({
+      hex: { q: 3, r: 0 },
+      reachable: true,
+      mpCost: 3,
+      terrainCost: 0,
+      elevationDelta: 2,
+      elevationCost: 0,
+      heatGenerated: 1,
+      movementMode: 'wige',
+      movementType: 'walk',
+    });
+    expect(tacticalMapLamAirMekMpLegend).toMatchObject({
+      movementMode: 'wige',
+      walkMP: 6,
+      runMP: 9,
+      jumpMP: 2,
+      jumpAvailable: true,
+    });
+
+    const airMekResult = validateCommittedMovement(
+      tacticalMapLamAirMekCommitInput(),
+    );
+
+    expect(airMekResult.valid).toBe(true);
+    if (!airMekResult.valid) {
+      throw new Error(airMekResult.details);
+    }
+    expect(airMekResult.mpCost).toBe(airMekProjection.mpCost);
+    expect(airMekResult.heatGenerated).toBe(airMekProjection.heatGenerated);
+    expect(airMekResult.path).toEqual(airMekProjection.path);
   });
 
   it('keeps run-selected water fallback committed as walking when running is blocked', () => {

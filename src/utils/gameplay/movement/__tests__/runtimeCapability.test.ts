@@ -36,21 +36,38 @@ function unitState(overrides: Partial<IUnitGameState> = {}): IUnitGameState {
 }
 
 describe('runtime movement capability', () => {
-  it('projects LAM conversion mode height from runtime state', () => {
+  it('projects LAM AirMek conversion as WiGE motive, AirMek MP, and height zero from runtime state', () => {
     const capability: IMovementCapability = {
       walkMP: 4,
       runMP: 6,
-      jumpMP: 0,
+      jumpMP: 2,
+      movementMode: 'walk',
       unitHeight: 1,
       unitHeightProfile: { kind: 'lam', standingHeight: 1 },
     };
 
     expect(
-      runtimeUnitHeightForMovement(
+      resolveRuntimeMovementCapability(
         unitState({ conversionMode: 'airmek' }),
         capability,
       ),
-    ).toBe(0);
+    ).toMatchObject({
+      walkMP: 6,
+      runMP: 9,
+      movementMode: 'wige',
+      unitHeight: 0,
+    });
+    expect(
+      resolveRuntimeMovementCapability(
+        unitState({ conversionMode: 1 }),
+        capability,
+      ),
+    ).toMatchObject({
+      walkMP: 6,
+      runMP: 9,
+      movementMode: 'wige',
+      unitHeight: 0,
+    });
     expect(
       runtimeUnitHeightForMovement(
         unitState({ conversionMode: 'mek' }),

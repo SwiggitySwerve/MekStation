@@ -320,10 +320,14 @@ map smoke harness.
 
 2026-05-24 movement gap update: the movement row's older frogman/swim and
 TacOps infantry pavement-bonus gaps are closed by the current
-`tactical-map-interface` spec and fixtures. Remaining movement oracle gaps are
-now narrower: dynamic runtime conversion-state changes after import,
-infantry mount/dismount updates after import, and a broader external oracle
-differential fixture matrix across movement profiles.
+`tactical-map-interface` spec and fixtures. Remaining movement oracle gaps were
+then narrower: dynamic runtime conversion-state changes after import, infantry
+mount/dismount updates after import, and a broader external oracle differential
+fixture matrix across movement profiles. Later QuadVee and LAM AirMek pins
+close the shared runtime projection/commit side of conversion-state updates;
+full gameplay events/UI that mutate conversion or mount state, LAM fighter
+mode, AirMek ground-clearance submodes, and broader external oracle sweeps
+remain.
 
 2026-05-24 jump browser parity update: the jump elevation browser scenario now
 uses `deriveMovementRangeHexForDestination` instead of a hand-authored movement
@@ -1070,6 +1074,20 @@ MP/elevation/heat metadata, then blocked in tracked vehicle mode with the
 accepts and rejects the paired fixtures with matching MP, heat, path, reason,
 and details. Full conversion actions, turn mode, hull-down behavior, and LAM
 movement-mode dispatch remain outside this fixture.
+
+2026-05-25 LAM AirMek conversion movement pin: MegaMek
+`LandAirMek.java:278-302` routes AirMek walking/running MP through AirMek
+cruise/flank, `LandAirMek.java:325-338` derives that cruise/flank profile from
+Jump MP times 3 and a rounded 1.5 flank multiplier, `LandAirMek.java:524-571`
+maps WiGE movement to AirMek conversion, and `LandAirMek.java:1074-1079` makes
+non-Mek conversion height 0. MekStation now translates represented runtime
+AirMek conversion into WiGE motive, height 0, and AirMek cruise/flank MP before
+both projection and commit validation. The tactical-map browser harness proves
+the same route is blocked in Mek mode with a non-color `NO PATH` invalid badge
+and legal in AirMek mode with WiGE movement, AirMek MP, zero elevation cost, and
+matching commit validation. Fighter/aerodyne mode, AirMek ground-clearance
+submodes, conversion action timing, turn mode, and landing/control-roll
+behavior remain outside this fixture.
 
 ## Acceptance Gate
 

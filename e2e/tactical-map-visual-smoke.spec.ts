@@ -2005,6 +2005,88 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows LAM Mek conversion mode as blocked before AirMek projection applies', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=lam-mek-elevation-blocked');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('LMM');
+    await expect(page.getByTestId('mp-legend')).toHaveAttribute(
+      'data-movement-mode',
+      'walk',
+    );
+    await expect(page.getByTestId('mp-legend')).toHaveAttribute(
+      'data-walk-mp',
+      '4',
+    );
+    await expect(page.getByTestId('mp-legend')).toHaveAttribute(
+      'data-run-mp',
+      '6',
+    );
+
+    const mekClimb = page.getByTestId('hex-3-0');
+    await expect(mekClimb).toHaveAttribute('data-reachable', 'false');
+    await expect(mekClimb).toHaveAttribute('data-movement-type', 'walk');
+    await expect(mekClimb).toHaveAttribute('data-movement-mode', 'walk');
+    await expect(mekClimb).toHaveAttribute('data-mp-cost', 'Infinity');
+    await expect(mekClimb).toHaveAttribute('data-elevation', '2');
+    await expect(mekClimb).toHaveAttribute(
+      'data-movement-blocked-reason',
+      'No legal walk path within 4 MP',
+    );
+    await expect(mekClimb).toHaveAttribute(
+      'data-movement-invalid-reason',
+      'NoLegalPath',
+    );
+    await expect(mekClimb).toHaveAttribute(
+      'data-movement-invalid-details',
+      'No legal walk path within 4 MP',
+    );
+    await expect(page.getByTestId('hex-movement-badge-3-0')).toHaveCount(0);
+
+    const invalidBadge = page.getByTestId('hex-movement-invalid-badge-3-0');
+    await expect(invalidBadge.locator('text')).toHaveText('NO PATH');
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'NoLegalPath',
+    );
+  });
+
+  test('shows LAM AirMek conversion mode as WiGE elevation crossing in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=lam-airmek-elevation-crossing');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('LMA');
+    await expect(page.getByTestId('mp-legend')).toHaveAttribute(
+      'data-movement-mode',
+      'wige',
+    );
+    await expect(page.getByTestId('mp-legend')).toHaveAttribute(
+      'data-walk-mp',
+      '6',
+    );
+    await expect(page.getByTestId('mp-legend')).toHaveAttribute(
+      'data-run-mp',
+      '9',
+    );
+
+    const airMekClimb = page.getByTestId('hex-3-0');
+    await expect(airMekClimb).toHaveAttribute('data-reachable', 'true');
+    await expect(airMekClimb).toHaveAttribute('data-movement-type', 'walk');
+    await expect(airMekClimb).toHaveAttribute('data-movement-mode', 'wige');
+    await expect(airMekClimb).toHaveAttribute('data-mp-cost', '3');
+    await expect(airMekClimb).toHaveAttribute('data-terrain-cost', '0');
+    await expect(airMekClimb).toHaveAttribute('data-elevation', '2');
+    await expect(airMekClimb).toHaveAttribute('data-elevation-delta', '2');
+    await expect(airMekClimb).toHaveAttribute('data-elevation-cost', '0');
+    await expect(airMekClimb).toHaveAttribute('data-heat-generated', '1');
+    await expect(page.getByTestId('hex-movement-badge-3-0')).toBeVisible();
+    await expect(
+      page.getByTestId('hex-movement-invalid-badge-3-0'),
+    ).toHaveCount(0);
+  });
+
   test('shows run-selected water fallback as walking with blocked run metadata', async ({
     page,
   }) => {
