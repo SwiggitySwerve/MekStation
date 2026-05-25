@@ -68,6 +68,14 @@ and invalid combat badge in the same real SVG surface. Remaining browser combat
 gaps are broader LOS terrain families and special range-mode sweeps beyond the
 smoke harness.
 
+2026-05-25 LOS blocker parity update: the same browser harness now verifies the
+player-facing blocker reason, blocker kind, building terrain metadata, combat
+invalid badge label, and intervening blocker-hex badge for the blocked target.
+A fixture-level Jest parity test feeds that projection into
+`applyInteractiveSessionAttack` and proves the commit path rejects the attack
+with the same `NoLineOfSight` reason and `Blocked by building at (1, 0)`
+details before declaration or attack locking.
+
 2026-05-24 medium-range combat browser update: the tactical-map browser harness
 now also renders a target at four hexes and verifies that the top-down hex and
 combat badge expose the medium range band, distance, available weapon id, and

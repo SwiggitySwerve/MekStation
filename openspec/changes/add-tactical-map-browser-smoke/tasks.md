@@ -67,6 +67,9 @@
   contacts separately.
 - [x] 2.27 Add browser coverage proving runtime unit-height bridge-clearance
   movement projection renders the same blocked reason commit validation uses.
+- [x] 2.28 Add browser coverage proving LOS blocker target hexes and blocker
+  hex badges expose the same terrain blocker reason and metadata used by attack
+  commit validation.
 
 ## 3. Validation
 
@@ -121,4 +124,7 @@
   visibility projection, valid-target id metadata, and browser tooltip rows.
 - [x] 3.27 Focused Jest parity and Playwright smoke pass for runtime
   unit-height bridge-clearance projection, terrain metadata, and invalid badge
+  rows.
+- [x] 3.28 Focused Jest parity and Playwright smoke pass for terrain LOS blocker
+  projection, attack rejection details, invalid badge rows, and blocker badge
   rows.

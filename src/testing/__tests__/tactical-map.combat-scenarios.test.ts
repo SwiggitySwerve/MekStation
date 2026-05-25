@@ -8,6 +8,8 @@ import {
 import {
   tacticalMapAirborneAerospaceMinimumRangeCombatProjection,
   tacticalMapAirborneAerospaceMinimumRangeCommitInput,
+  tacticalMapBlockedLosCombatProjection,
+  tacticalMapBlockedLosCommitInput,
   tacticalMapMediumRangeCombatProjection,
   tacticalMapMediumRangeCommitInput,
   tacticalMapMinimumRangeCombatProjection,
@@ -181,6 +183,61 @@ describe('tactical map combat scenarios', () => {
     expect(payload.toHitNumber).toBe(
       tacticalMapTargetTerrainModifierCombatProjection.toHitNumber,
     );
+  });
+
+  it('keeps LOS-blocked browser projection aligned with attack commit validation', () => {
+    expect(tacticalMapBlockedLosCombatProjection).toMatchObject({
+      hex: { q: 2, r: 0 },
+      distance: 3,
+      rangeBracket: 'short',
+      inRange: true,
+      inArc: true,
+      losState: 'blocked',
+      attackable: false,
+      targetUnitIds: ['blocked-target'],
+      validTargetUnitIds: [],
+      weaponIdsAvailable: [
+        'medium-laser',
+        'small-laser',
+        'minimum-lrm',
+        'extreme-lrm',
+      ],
+      attackInvalidReason: 'NoLineOfSight',
+      attackInvalidDetails: 'Blocked by building at (1, 0)',
+      blockedReason: 'Blocked by building at (1, 0)',
+      lineOfSightBlockerReason: 'Blocked by building at (1, 0)',
+      lineOfSightBlocker: {
+        hex: { q: 1, r: 0 },
+        kind: 'terrain',
+        terrain: 'building',
+        reason: 'Blocked by building at (1, 0)',
+      },
+    });
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapBlockedLosCommitInput(),
+    );
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackLocked),
+    ).toBe(false);
+
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'blocked-target',
+      weaponId: 'medium-laser',
+      reason: tacticalMapBlockedLosCombatProjection.attackInvalidReason,
+      details: tacticalMapBlockedLosCombatProjection.attackInvalidDetails,
+    });
   });
 
   it('keeps airborne aerospace targets exempt from ground-only minimum range', () => {

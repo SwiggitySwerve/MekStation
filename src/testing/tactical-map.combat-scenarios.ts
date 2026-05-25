@@ -40,6 +40,8 @@ const tacticalMapMinimumRangeTargetId = 'occluded';
 const tacticalMapMinimumRangeTargetHex = { q: 0, r: 0 } as const;
 const tacticalMapOutOfRangeTargetId = 'medium-target';
 const tacticalMapOutOfRangeTargetHex = { q: 1, r: 2 } as const;
+const tacticalMapBlockedLosTargetId = 'blocked-target';
+const tacticalMapBlockedLosTargetHex = { q: 2, r: 0 } as const;
 export const tacticalMapAirborneAerospaceMinimumRangeTargetId =
   'airborne-aero-target';
 export const tacticalMapAirborneAerospaceMinimumRangeTargetHex = {
@@ -321,12 +323,42 @@ export const tacticalMapAirborneAerospaceMinimumRangeCombatProjection =
     ),
   );
 
+export const tacticalMapBlockedLosCombatProjection = requireCombatProjection(
+  deriveCombatRangeHexes({
+    attacker: tacticalMapOutOfRangeAttacker,
+    targetUnitId: tacticalMapBlockedLosTargetId,
+    hexes: Array.from(
+      tacticalMapOutOfRangeGrid.hexes.values(),
+      (hex) => hex.coord,
+    ),
+    grid: tacticalMapOutOfRangeGrid,
+    tokens: tacticalMapTokens,
+    weapons: tacticalMapSelectedWeapons(tacticalMapSelectedWeaponIds),
+    combatState: tacticalMapCombatState,
+  }).find(
+    (projection) =>
+      projection.hex.q === tacticalMapBlockedLosTargetHex.q &&
+      projection.hex.r === tacticalMapBlockedLosTargetHex.r,
+  ),
+);
+
 export function tacticalMapMediumRangeCommitInput(): IApplyAttackInput {
   return {
     session: tacticalMapCombatSession(),
     weaponsByUnit: tacticalMapWeaponsByUnit(),
     attackerId: 'attacker',
     targetId: tacticalMapMediumRangeTargetId,
+    weaponIds: tacticalMapSelectedWeaponIds,
+    grid: tacticalMapOutOfRangeGrid,
+  };
+}
+
+export function tacticalMapBlockedLosCommitInput(): IApplyAttackInput {
+  return {
+    session: tacticalMapCombatSession(),
+    weaponsByUnit: tacticalMapWeaponsByUnit(),
+    attackerId: 'attacker',
+    targetId: tacticalMapBlockedLosTargetId,
     weaponIds: tacticalMapSelectedWeaponIds,
     grid: tacticalMapOutOfRangeGrid,
   };

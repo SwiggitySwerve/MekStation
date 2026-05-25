@@ -367,9 +367,60 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-combat-los-blocker-hex',
       '1,0',
     );
-    await expect(
-      page.getByTestId('hex-combat-invalid-badge-2-0'),
-    ).toHaveAttribute('data-invalid-badge-code', 'NoLineOfSight');
+    await expect(blockedTargetHex).toHaveAttribute(
+      'data-combat-los-blocker-reason',
+      'Blocked by building at (1, 0)',
+    );
+    await expect(blockedTargetHex).toHaveAttribute(
+      'data-combat-los-blocker-kind',
+      'terrain',
+    );
+    await expect(blockedTargetHex).toHaveAttribute(
+      'data-combat-los-blocker-terrain',
+      'building',
+    );
+    await expect(blockedTargetHex).toHaveAttribute(
+      'data-combat-invalid-details',
+      'Blocked by building at (1, 0)',
+    );
+    const losInvalidBadge = page.getByTestId('hex-combat-invalid-badge-2-0');
+    await expect(losInvalidBadge.locator('text')).toHaveText('BLDG');
+    await expect(losInvalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'NoLineOfSight',
+    );
+    await expect(losInvalidBadge).toHaveAttribute(
+      'data-invalid-badge-reason',
+      'Blocked by building at (1, 0)',
+    );
+    const losBlockerBadge = page.getByTestId(
+      'hex-combat-los-blocker-badge-1-0',
+    );
+    await expect(losBlockerBadge.locator('text')).toHaveText('LOS BLDG');
+    await expect(losBlockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-target-hexes',
+      '2,0',
+    );
+    await expect(losBlockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-target-ids',
+      'blocked-target',
+    );
+    await expect(losBlockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-state',
+      'blocked',
+    );
+    await expect(losBlockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-kind',
+      'terrain',
+    );
+    await expect(losBlockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-terrain',
+      'building',
+    );
+    await expect(losBlockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-reason',
+      'Blocked by building at (1, 0)',
+    );
     const hiddenContactHex = page.getByTestId('hex--2-1');
     await expect(hiddenContactHex).toHaveAttribute(
       'data-combat-target-visibility',
