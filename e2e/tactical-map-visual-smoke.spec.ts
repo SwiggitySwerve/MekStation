@@ -2090,6 +2090,66 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     ).toHaveCount(0);
   });
 
+  test('shows grounded LAM Fighter conversion mode as wheeled elevation-blocked in browser', async ({
+    page,
+  }) => {
+    await page.goto(
+      '/e2e/tactical-map?scenario=lam-fighter-grounded-elevation-blocked',
+    );
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('LMF');
+    await expect(page.getByTestId('mp-legend')).toHaveAttribute(
+      'data-movement-mode',
+      'wheeled',
+    );
+    await expect(page.getByTestId('mp-legend')).toHaveAttribute(
+      'data-walk-mp',
+      '1',
+    );
+    await expect(page.getByTestId('mp-legend')).toHaveAttribute(
+      'data-run-mp',
+      '1',
+    );
+    await expect(page.getByTestId('mp-legend-jump')).toHaveAttribute(
+      'data-disabled',
+      'true',
+    );
+    await expect(page.getByTestId('mp-legend-jump')).toHaveAttribute(
+      'data-mp',
+      '0',
+    );
+
+    const fighterClimb = page.getByTestId('hex-1-0');
+    await expect(fighterClimb).toHaveAttribute('data-reachable', 'false');
+    await expect(fighterClimb).toHaveAttribute('data-movement-type', 'walk');
+    await expect(fighterClimb).toHaveAttribute('data-movement-mode', 'wheeled');
+    await expect(fighterClimb).toHaveAttribute('data-mp-cost', 'Infinity');
+    await expect(fighterClimb).toHaveAttribute('data-terrain-cost', '0');
+    await expect(fighterClimb).toHaveAttribute('data-elevation', '2');
+    await expect(fighterClimb).toHaveAttribute('data-elevation-delta', '2');
+    await expect(fighterClimb).toHaveAttribute('data-elevation-cost', '4');
+    await expect(fighterClimb).toHaveAttribute('data-heat-generated', '0');
+    await expect(fighterClimb).toHaveAttribute(
+      'data-movement-blocked-reason',
+      'Elevation change of 2 exceeds Wheeled movement limit',
+    );
+    await expect(fighterClimb).toHaveAttribute(
+      'data-movement-invalid-reason',
+      'TerrainBlocked',
+    );
+    await expect(fighterClimb).toHaveAttribute(
+      'data-movement-invalid-details',
+      'Elevation change of 2 exceeds Wheeled movement limit',
+    );
+
+    const invalidBadge = page.getByTestId('hex-movement-invalid-badge-1-0');
+    await expect(invalidBadge.locator('text')).toHaveText('ELEV');
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'TerrainBlocked',
+    );
+  });
+
   test('shows run-selected water fallback as walking with blocked run metadata', async ({
     page,
   }) => {

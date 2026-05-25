@@ -81,6 +81,7 @@ const movementFixtureScenarios = new Set([
   'battlefield-wreck-rough-terrain',
   'legend-mode-selection',
   'lam-airmek-elevation-crossing',
+  'lam-fighter-grounded-elevation-blocked',
   'lam-mek-elevation-blocked',
   'occupied-destination-blocked',
   'quadvee-mek-elevation-climb',
@@ -202,6 +203,8 @@ const tokensByScenario = {
     occupiedDestination.tacticalMapOccupiedDestinationTokens,
   'lam-mek-elevation-blocked': lamConversion.tacticalMapLamMekTokens,
   'lam-airmek-elevation-crossing': lamConversion.tacticalMapLamAirMekTokens,
+  'lam-fighter-grounded-elevation-blocked':
+    lamConversion.tacticalMapLamFighterTokens,
   'quadvee-mek-elevation-climb': quadveeConversion.tacticalMapQuadveeMekTokens,
   'quadvee-vehicle-elevation-blocked':
     quadveeConversion.tacticalMapQuadveeVehicleTokens,
@@ -262,6 +265,8 @@ const movementRangeByScenario = {
   'lam-mek-elevation-blocked': lamConversion.tacticalMapLamMekMovementRange,
   'lam-airmek-elevation-crossing':
     lamConversion.tacticalMapLamAirMekMovementRange,
+  'lam-fighter-grounded-elevation-blocked':
+    lamConversion.tacticalMapLamFighterMovementRange,
   'quadvee-mek-elevation-climb':
     quadveeConversion.tacticalMapQuadveeMekMovementRange,
   'quadvee-vehicle-elevation-blocked':
@@ -287,6 +292,8 @@ const mpLegendByScenario = {
     occupiedDestination.tacticalMapOccupiedDestinationMpLegend,
   'lam-mek-elevation-blocked': lamConversion.tacticalMapLamMekMpLegend,
   'lam-airmek-elevation-crossing': lamConversion.tacticalMapLamAirMekMpLegend,
+  'lam-fighter-grounded-elevation-blocked':
+    lamConversion.tacticalMapLamFighterMpLegend,
   'quadvee-mek-elevation-climb':
     quadveeConversion.tacticalMapQuadveeMekMpLegend,
   'quadvee-vehicle-elevation-blocked':
@@ -315,6 +322,8 @@ const selectedHexByScenario = {
     lamConversion.tacticalMapLamConversionSelectedHex,
   'lam-airmek-elevation-crossing':
     lamConversion.tacticalMapLamConversionSelectedHex,
+  'lam-fighter-grounded-elevation-blocked':
+    lamConversion.tacticalMapLamConversionSelectedHex,
   'quadvee-mek-elevation-climb':
     quadveeConversion.tacticalMapQuadveeConversionSelectedHex,
   'quadvee-vehicle-elevation-blocked':
@@ -340,6 +349,8 @@ const hexTerrainByScenario = {
   'lam-mek-elevation-blocked': lamConversion.tacticalMapLamConversionHexTerrain,
   'lam-airmek-elevation-crossing':
     lamConversion.tacticalMapLamConversionHexTerrain,
+  'lam-fighter-grounded-elevation-blocked':
+    lamConversion.tacticalMapLamFighterConversionHexTerrain,
   'quadvee-mek-elevation-climb':
     quadveeConversion.tacticalMapQuadveeConversionHexTerrain,
   'quadvee-vehicle-elevation-blocked':

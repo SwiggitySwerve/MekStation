@@ -299,6 +299,8 @@ export interface IMovementCapability {
   readonly runMP: number;
   /** Jump MP (0 if no jump jets) */
   readonly jumpMP: number;
+  /** Source thrust MP retained when conversion projection disables ordinary jump movement. */
+  readonly conversionThrustMP?: number;
   /** Chassis/squad motive mode for terrain and elevation pathing. */
   readonly movementMode?: MovementMotiveMode;
   /** Whether movement should generate Mek-style engine heat. */

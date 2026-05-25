@@ -76,6 +76,49 @@ describe('runtime movement capability', () => {
     ).toBe(1);
   });
 
+  it('projects grounded LAM Fighter conversion as wheeled aerospace taxi movement from runtime state', () => {
+    const capability: IMovementCapability = {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 5,
+      movementMode: 'walk',
+      unitHeight: 1,
+      unitHeightProfile: { kind: 'lam', standingHeight: 1 },
+    };
+
+    const resolved = resolveRuntimeMovementCapability(
+      unitState({ conversionMode: 'fighter' }),
+      capability,
+    );
+
+    expect(resolved).toMatchObject({
+      walkMP: 2,
+      runMP: 2,
+      jumpMP: 0,
+      conversionThrustMP: 5,
+      movementMode: 'wheeled',
+      unitHeight: 0,
+    });
+    expect(
+      resolveRuntimeMovementCapability(
+        unitState({ conversionMode: 'fighter' }),
+        resolved,
+      ),
+    ).toEqual(resolved);
+    expect(
+      resolveRuntimeMovementCapability(
+        unitState({ conversionMode: 2 }),
+        capability,
+      ),
+    ).toMatchObject({
+      walkMP: 2,
+      runMP: 2,
+      jumpMP: 0,
+      movementMode: 'wheeled',
+      unitHeight: 0,
+    });
+  });
+
   it('projects QuadVee vehicle mode as tracked motive, height zero, and no jumping from runtime state', () => {
     const capability: IMovementCapability = {
       walkMP: 4,

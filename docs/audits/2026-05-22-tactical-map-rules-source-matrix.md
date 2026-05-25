@@ -1104,6 +1104,23 @@ pins the utility behavior and fixture parity; the LAM Mek-mode browser fixture
 now renders the over-budget climb as `NO MP` with matching commit-validation
 reason, details, MP cost, and heat.
 
+2026-05-25 grounded LAM Fighter conversion movement pin: MegaMek
+`LandAirMek.java:365-379` derives Fighter cruise/flank MP from current thrust,
+halves that thrust while grounded, and makes grounded Fighter run/flank equal
+to walk/cruise; `LandAirMek.java:383-420` sources current thrust from Jump MP
+with represented weather/damage gates; `LandAirMek.java:524-571` maps
+Aerodyne/Wheeled movement to Fighter conversion; `LandAirMek.java:585-610`
+keeps airborne Fighter terrain unrestricted but applies grounded aerospace
+prohibitions as wheeled/taxing restrictions; and `LandAirMek.java:1074-1079`
+sets non-Mek conversion height to 0. MekStation now translates represented
+grounded Fighter conversion into wheeled movement, height 0, no jump movement,
+and grounded Fighter MP before projection and commit validation. The
+tactical-map browser harness proves a level-2 adjacent climb is blocked with
+the same `TerrainBlocked` elevation reason, MP metadata, zero heat on the
+rejected step, disabled Jump legend, and matching commit-validation details.
+Airborne aerodyne turn/velocity pathing, takeoff/landing sequencing, control
+rolls, and conversion action timing remain outside this fixture.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

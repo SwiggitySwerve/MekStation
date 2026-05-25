@@ -29,6 +29,7 @@ const tacticalMapLamConversionOrigin = { q: 0, r: 0 } as const;
 const tacticalMapLamConversionStepOne = { q: 1, r: 0 } as const;
 const tacticalMapLamConversionStepTwo = { q: 2, r: 0 } as const;
 const tacticalMapLamConversionClimb = { q: 3, r: 0 } as const;
+const tacticalMapLamFighterConversionClimb = { q: 1, r: 0 } as const;
 
 const tacticalMapLamConversionPath = [
   tacticalMapLamConversionOrigin,
@@ -72,6 +73,11 @@ const tacticalMapLamAirMekUnit: IUnitGameState = {
   conversionMode: 'airmek',
 };
 
+const tacticalMapLamFighterUnit: IUnitGameState = {
+  ...tacticalMapLamMekUnit,
+  conversionMode: 'fighter',
+};
+
 function isLamConversionTerrainOverride(terrain: IHexTerrain): boolean {
   return tacticalMapLamConversionPath.some(
     (coord) =>
@@ -105,11 +111,56 @@ export const tacticalMapLamConversionHexTerrain: readonly IHexTerrain[] = [
   },
 ];
 
+export const tacticalMapLamFighterConversionHexTerrain: readonly IHexTerrain[] =
+  [
+    ...tacticalMapHexTerrain.filter((terrain) => {
+      const { q, r } = terrain.coordinate;
+      return (
+        !(
+          q === tacticalMapLamConversionOrigin.q &&
+          r === tacticalMapLamConversionOrigin.r
+        ) &&
+        !(
+          q === tacticalMapLamFighterConversionClimb.q &&
+          r === tacticalMapLamFighterConversionClimb.r
+        )
+      );
+    }),
+    {
+      coordinate: tacticalMapLamConversionOrigin,
+      elevation: 0,
+      features: [{ type: TerrainType.Clear, level: 0 }],
+    },
+    {
+      coordinate: tacticalMapLamFighterConversionClimb,
+      elevation: 2,
+      features: [{ type: TerrainType.Clear, level: 0 }],
+    },
+  ];
+
 function tacticalMapLamConversionGrid(): IHexGrid {
   const grid = createHexGrid({ radius: 3 });
   const hexes = new Map(grid.hexes);
 
   for (const terrain of tacticalMapLamConversionHexTerrain) {
+    const key = coordToKey(terrain.coordinate);
+    const hex = hexes.get(key);
+    if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
+    hexes.set(key, {
+      ...hex,
+      terrain: terrainStringFromFeatures(terrain.features),
+      elevation: terrain.elevation,
+    });
+  }
+
+  return { ...grid, hexes };
+}
+
+function tacticalMapLamFighterConversionGrid(): IHexGrid {
+  const grid = createHexGrid({ radius: 3 });
+  const hexes = new Map(grid.hexes);
+
+  for (const terrain of tacticalMapLamFighterConversionHexTerrain) {
     const key = coordToKey(terrain.coordinate);
     const hex = hexes.get(key);
     if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
@@ -162,6 +213,11 @@ const tacticalMapLamAirMekResolvedCapability =
     tacticalMapLamAirMekUnit,
     tacticalMapLamCapability,
   ) ?? tacticalMapLamCapability;
+const tacticalMapLamFighterResolvedCapability =
+  resolveRuntimeMovementCapability(
+    tacticalMapLamFighterUnit,
+    tacticalMapLamCapability,
+  ) ?? tacticalMapLamCapability;
 
 export const tacticalMapLamConversionSelectedHex =
   tacticalMapLamConversionOrigin;
@@ -173,6 +229,10 @@ export const tacticalMapLamMekTokens = lamConversionTokens(
 export const tacticalMapLamAirMekTokens = lamConversionTokens(
   'LMA',
   'LAM AirMek Mode',
+);
+export const tacticalMapLamFighterTokens = lamConversionTokens(
+  'LMF',
+  'LAM Fighter Mode',
 );
 
 export const tacticalMapLamMekMovementRange: readonly IMovementRangeHex[] = [
@@ -199,6 +259,19 @@ export const tacticalMapLamAirMekMovementRange: readonly IMovementRangeHex[] = [
   ),
 ];
 
+export const tacticalMapLamFighterMovementRange: readonly IMovementRangeHex[] =
+  [
+    requireSingleMovementProjection(
+      deriveMovementRangeHexForDestination(
+        tacticalMapLamFighterUnit,
+        MovementType.Walk,
+        tacticalMapLamFighterConversionGrid(),
+        tacticalMapLamCapability,
+        tacticalMapLamFighterConversionClimb,
+      ),
+    ),
+  ];
+
 export const tacticalMapLamMekMpLegend: MapMovementPointLegendState = {
   active: 'walk',
   movementMode: tacticalMapLamMekResolvedCapability.movementMode,
@@ -215,6 +288,15 @@ export const tacticalMapLamAirMekMpLegend: MapMovementPointLegendState = {
   runMP: tacticalMapLamAirMekResolvedCapability.runMP,
   jumpMP: tacticalMapLamAirMekResolvedCapability.jumpMP,
   jumpAvailable: tacticalMapLamAirMekResolvedCapability.jumpMP > 0,
+};
+
+export const tacticalMapLamFighterMpLegend: MapMovementPointLegendState = {
+  active: 'walk',
+  movementMode: tacticalMapLamFighterResolvedCapability.movementMode,
+  walkMP: tacticalMapLamFighterResolvedCapability.walkMP,
+  runMP: tacticalMapLamFighterResolvedCapability.runMP,
+  jumpMP: tacticalMapLamFighterResolvedCapability.jumpMP,
+  jumpAvailable: tacticalMapLamFighterResolvedCapability.jumpMP > 0,
 };
 
 export function tacticalMapLamMekCommitInput(): ICommittedMovementValidationInput {
@@ -238,5 +320,20 @@ export function tacticalMapLamAirMekCommitInput(): ICommittedMovementValidationI
     movementType: MovementType.Walk,
     capability: tacticalMapLamCapability,
     path: tacticalMapLamConversionPath,
+  };
+}
+
+export function tacticalMapLamFighterCommitInput(): ICommittedMovementValidationInput {
+  return {
+    grid: tacticalMapLamFighterConversionGrid(),
+    unit: tacticalMapLamFighterUnit,
+    to: tacticalMapLamFighterConversionClimb,
+    facing: Facing.Northeast,
+    movementType: MovementType.Walk,
+    capability: tacticalMapLamCapability,
+    path: [
+      tacticalMapLamConversionOrigin,
+      tacticalMapLamFighterConversionClimb,
+    ],
   };
 }

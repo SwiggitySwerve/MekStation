@@ -17,6 +17,9 @@ import {
   tacticalMapLamAirMekCommitInput,
   tacticalMapLamAirMekMovementRange,
   tacticalMapLamAirMekMpLegend,
+  tacticalMapLamFighterCommitInput,
+  tacticalMapLamFighterMovementRange,
+  tacticalMapLamFighterMpLegend,
   tacticalMapLamMekCommitInput,
   tacticalMapLamMekMovementRange,
   tacticalMapLamMekMpLegend,
@@ -403,6 +406,48 @@ describe('tactical map movement scenarios', () => {
     expect(airMekResult.mpCost).toBe(airMekProjection.mpCost);
     expect(airMekResult.heatGenerated).toBe(airMekProjection.heatGenerated);
     expect(airMekResult.path).toEqual(airMekProjection.path);
+  });
+
+  it('keeps grounded LAM Fighter runtime conversion mode aligned between browser projection and commit validation', () => {
+    const fighterProjection = tacticalMapLamFighterMovementRange[0];
+
+    expect(fighterProjection).toMatchObject({
+      hex: { q: 1, r: 0 },
+      reachable: false,
+      mpCost: Infinity,
+      terrainCost: 0,
+      elevationDelta: 2,
+      elevationCost: 4,
+      heatGenerated: 0,
+      movementMode: 'wheeled',
+      movementType: 'walk',
+      blockedReason: 'Elevation change of 2 exceeds Wheeled movement limit',
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails:
+        'Elevation change of 2 exceeds Wheeled movement limit',
+    });
+    expect(tacticalMapLamFighterMpLegend).toMatchObject({
+      movementMode: 'wheeled',
+      walkMP: 1,
+      runMP: 1,
+      jumpMP: 0,
+      jumpAvailable: false,
+    });
+
+    const fighterResult = validateCommittedMovement(
+      tacticalMapLamFighterCommitInput(),
+    );
+
+    expect(fighterResult.valid).toBe(false);
+    if (fighterResult.valid) {
+      throw new Error('Expected grounded LAM Fighter climb to be blocked');
+    }
+    expect(fighterResult.reason).toBe(fighterProjection.movementInvalidReason);
+    expect(fighterResult.details).toBe(
+      fighterProjection.movementInvalidDetails,
+    );
+    expect(fighterResult.mpCost).toBe(fighterProjection.mpCost);
+    expect(fighterResult.heatGenerated).toBe(fighterProjection.heatGenerated);
   });
 
   it('keeps run-selected water fallback committed as walking when running is blocked', () => {

@@ -69,6 +69,15 @@ function quadVeeVehicleMovementMode(
   return capability.movementMode === 'wheeled' ? 'wheeled' : 'tracked';
 }
 
+function isAirborneLamFighter(unit: IUnitGameState): boolean {
+  if (unit.combatState?.kind !== 'aero') return false;
+  return (
+    unit.combatState.state.altitude > 0 ||
+    unit.combatState.state.airborneState === 'airborne' ||
+    unit.combatState.state.airborneState === 'taking-off'
+  );
+}
+
 function conversionModeMovementMode(
   unit: IUnitGameState,
   capability: IMovementCapability,
@@ -77,6 +86,13 @@ function conversionModeMovementMode(
   const mode = normalizedConversionMode(unit.conversionMode, profile);
   if (profile.kind === 'lam' && mode === 'airmek') {
     return 'wige';
+  }
+  if (
+    profile.kind === 'lam' &&
+    mode === 'fighter' &&
+    !isAirborneLamFighter(unit)
+  ) {
+    return 'wheeled';
   }
   if (profile.kind === 'quadvee' && mode === 'vehicle') {
     return quadVeeVehicleMovementMode(unit, capability);
@@ -90,10 +106,23 @@ function conversionModeMovementPoints(
   profile: MovementUnitHeightProfile,
 ): Pick<IMovementCapability, 'walkMP' | 'runMP'> | undefined {
   const mode = normalizedConversionMode(unit.conversionMode, profile);
-  if (profile.kind !== 'lam' || mode !== 'airmek') return undefined;
+  if (profile.kind !== 'lam') return undefined;
 
-  const walkMP = Math.max(0, Math.floor(capability.jumpMP)) * 3;
-  return { walkMP, runMP: Math.ceil(walkMP * 1.5) };
+  const thrust = Math.max(
+    0,
+    Math.floor(capability.conversionThrustMP ?? capability.jumpMP),
+  );
+  if (mode === 'airmek') {
+    const walkMP = thrust * 3;
+    return { walkMP, runMP: Math.ceil(walkMP * 1.5) };
+  }
+
+  if (mode === 'fighter' && !isAirborneLamFighter(unit)) {
+    const walkMP = Math.floor(thrust / 2);
+    return { walkMP, runMP: walkMP };
+  }
+
+  return undefined;
 }
 
 function conversionModeJumpMP(
@@ -101,6 +130,7 @@ function conversionModeJumpMP(
   profile: MovementUnitHeightProfile,
 ): number | undefined {
   const mode = normalizedConversionMode(unit.conversionMode, profile);
+  if (profile.kind === 'lam' && mode === 'fighter') return 0;
   return profile.kind === 'quadvee' && mode === 'vehicle' ? 0 : undefined;
 }
 
@@ -185,5 +215,11 @@ export function resolveRuntimeMovementCapability(
       : {}),
     ...(runtimeMovementPoints !== undefined ? runtimeMovementPoints : {}),
     ...(runtimeJumpMP !== undefined ? { jumpMP: runtimeJumpMP } : {}),
+    ...(profile?.kind === 'lam'
+      ? {
+          conversionThrustMP:
+            capability.conversionThrustMP ?? capability.jumpMP,
+        }
+      : {}),
   };
 }
