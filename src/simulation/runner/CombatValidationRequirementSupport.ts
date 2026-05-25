@@ -568,14 +568,15 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'movement-actions': helperOnly(
     'movement-actions',
-    'Action and movement rule maps cover walk, run, jump, same-hex facing rotation, stand, source-backed voluntary go-prone, source-backed MASC/Supercharger activation, prone state, torso-twist exposure, and a source-backed first-class absent-action row for optional TacOps sprint',
-    'Sprint and torso-twist state are not authoritative end-to-end actions',
+    'Action and movement rule maps cover walk, run, jump, same-hex facing rotation, stand, source-backed voluntary go-prone, source-backed MASC/Supercharger activation, prone state, torso-twist exposure, and source-backed first-class absent-action rows for optional TacOps sprint and evade',
+    'Sprint, evade, and torso-twist state are not authoritative end-to-end actions',
     [
       'actions.tacticalCommands.movement.walk',
       'actions.tacticalCommands.movement.stand',
       'actions.tacticalCommands.movement.go-prone',
       'actions.tacticalCommands.movement.activate-masc',
       'actions.tacticalCommands.movement.activate-supercharger',
+      'actions.absentActionSurfaces.movement.evade',
       'actions.absentActionSurfaces.movement.sprint',
       'actions.gameIntents.activateMovementEnhancement',
       'actions.wireIntents.ActivateMovementEnhancement',
@@ -639,9 +640,12 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'to-hit-advanced-modifiers': helperOnly(
     'to-hit-advanced-modifiers',
-    'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, ECM, C3, and terrain features, with C3 explicit-state consumption separated from automatic battle-wide network assembly gaps',
-    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, target hull-down state, secondary-target state, called-shot state, explicit C3 network state, mounted C3 equipment roles, and non-blocking intervening terrain, but ECM inputs and automatic C3 network assembly from hydrated equipment are still helper-only',
-    TO_HIT_ADVANCED_MODIFIER_SUPPORT_REFS,
+    'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, ECM, C3, terrain features, and a source-backed absent-action row for optional TacOps Evade target modifiers and attacker firing restrictions, with C3 explicit-state consumption separated from automatic battle-wide network assembly gaps',
+    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, target hull-down state, secondary-target state, called-shot state, explicit C3 network state, mounted C3 equipment roles, and non-blocking intervening terrain, but ECM inputs, automatic C3 network assembly from hydrated equipment, and evasion state are still helper-only or absent',
+    [
+      ...TO_HIT_ADVANCED_MODIFIER_SUPPORT_REFS,
+      'actions.absentActionSurfaces.movement.evade',
+    ],
   ),
   'terrain-movement-los-cover': integrated(
     'terrain-movement-los-cover',

@@ -148,6 +148,53 @@ export const MEGAMEK_CROSS_COUNTRY_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek OptionsConstants defines optional TacOps Evade and Skilled Evasion option ids.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L452-L455',
+  ),
+  megamekRef(
+    'MegaMek GameOptions registers optional TacOps Evade and Skilled Evasion movement rules.',
+    'megamek/src/megamek/common/options/GameOptions.java#L231-L235',
+  ),
+  megamekRef(
+    'MegaMek MoveStepType defines EVADE as a movement step.',
+    'megamek/src/megamek/common/enums/MoveStepType.java#L74-L80',
+  ),
+  megamekRef(
+    'MegaMek MoveStep maps EVADE to running movement and rejects selected illegal evasion states.',
+    'megamek/src/megamek/common/moves/MoveStep.java#L1839-L1848',
+  ),
+  megamekRef(
+    'MegaMek MovePathHandler sets the entity evading flag when resolving an EVADE movement step.',
+    'megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L2282-L2284',
+  ),
+  megamekRef(
+    'MegaMek Mek.getRunHeat adds extra heat for evading BattleMechs without a working supercooling myomer system.',
+    'megamek/src/megamek/common/units/Mek.java#L1033-L1037',
+  ),
+  megamekRef(
+    'MegaMek Entity.getEvasionBonus returns the target evasion modifier, including optional Skilled Evasion piloting-skill scaling.',
+    'megamek/src/megamek/common/units/Entity.java#L12548-L12570',
+  ),
+  megamekRef(
+    'MegaMek ComputeTargetToHitMods applies the target evasion bonus to ranged weapon attacks.',
+    'megamek/src/megamek/common/actions/compute/ComputeTargetToHitMods.java#L101-L106',
+  ),
+  megamekRef(
+    'MegaMek ComputeToHitIsImpossible prevents non-large-spacecraft evading attackers from firing ranged attacks.',
+    'megamek/src/megamek/common/actions/compute/ComputeToHitIsImpossible.java#L289-L292',
+  ),
+  megamekRef(
+    'MegaMek PhysicalAttackAction rejects evading physical attackers.',
+    'megamek/src/megamek/common/actions/PhysicalAttackAction.java#L102-L104',
+  ),
+  megamekRef(
+    'MegaMek PhysicalAttackAction applies target evasion bonuses to physical to-hit.',
+    'megamek/src/megamek/common/actions/PhysicalAttackAction.java#L285-L287',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEGAMEK_HEAVY_LIFTER_SOURCE_REFS = [
   megamekRef(
     'MegaMek MekWithArms.maxGroundObjectTonnage multiplies BattleMech ground-object lift capacity by 1.5 for Heavy Lifter.',

@@ -15,6 +15,7 @@ import {
   MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS,
   MEGAMEK_SHAKY_STICK_SOURCE_REFS,
   MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,
+  MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
   MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
   MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
@@ -178,8 +179,12 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'movement-application': unsupported(
     'movement-application',
-    'Evasive TMM, Speed Demon run-distance/heat tradeoff, Heavy Lifter carry/throw movement effects, and source-backed Cross-Country combat-vehicle movement/passability behavior are not wired in the BattleMech combat matrix',
-    [...MEGAMEK_CROSS_COUNTRY_SOURCE_REFS, ...MEGAMEK_HEAVY_LIFTER_SOURCE_REFS],
+    'Source-backed optional TacOps Evade movement, Speed Demon run-distance/heat tradeoff, Heavy Lifter carry/throw movement effects, and source-backed Cross-Country combat-vehicle movement/passability behavior are not wired in the BattleMech combat matrix',
+    [
+      ...MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
+      ...MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
+      ...MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
+    ],
   ),
   'multi-target-penalty-application': unsupported(
     'multi-target-penalty-application',

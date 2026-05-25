@@ -6,6 +6,8 @@ import type {
   ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 
+import { MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS } from './CombatPilotModifierSourceRefs';
+
 export { P2P_INTENT_TRANSLATION_SUPPORT } from './CombatP2PIntentSupport';
 
 export type CombatActionLayer =
@@ -358,6 +360,12 @@ export const GM_COMMAND_EXCLUSION_SUPPORT = {
 } satisfies Record<string, ICombatActionSupportEntry>;
 
 export const BATTLEMECH_ABSENT_ACTION_SUPPORT = {
+  'movement.evade': unsupported(
+    'movement.evade',
+    'absent-action-surface',
+    'Evade is a source-backed optional TacOps movement surface with running movement, evasion heat, attacker firing restrictions, and target to-hit modifiers, but tactical commands, MovementType, game intents, wire payloads, P2P translation, runner movement phases, evasion state, and evasion attack restrictions have no authoritative evade action path',
+    MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
+  ),
   'movement.sprint': unsupported(
     'movement.sprint',
     'absent-action-surface',

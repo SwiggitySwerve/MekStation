@@ -55,8 +55,9 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 
 - **GIVEN** a BattleMech action surface has source-backed or product-visible relevance but no authoritative command, game intent, wire payload, P2P translation, or runner action path
 - **WHEN** the action support catalog is contract-tested
-- **THEN** sprint movement SHALL appear as an unsupported absent-action row
+- **THEN** optional TacOps sprint and evade movement SHALL appear as unsupported absent-action rows
 - **AND** the sprint row SHALL cite MegaMek source anchors for optional TacOps sprint availability, BattleMech sprint MP, sprint heat, attacker-sprinted firing failure, and target-sprinted to-hit relief
+- **AND** the evade row SHALL cite MegaMek source anchors for optional TacOps evade availability, evasion state, evasion heat, attacker-evading firing restrictions, and target-evading to-hit modifiers
 - **AND** those rows SHALL NOT be inferred from helper prose or omitted because no UI command currently emits them
 
 #### Scenario: Voluntary go-prone emits source-backed movement step

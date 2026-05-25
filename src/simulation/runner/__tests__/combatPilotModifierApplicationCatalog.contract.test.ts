@@ -386,6 +386,35 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual(expect.arrayContaining(['cross-country']));
   });
 
+  it('pins legacy Evasive to the source-backed TacOps Evade action gap', () => {
+    const evasiveRefs = SPA_COMBAT_SUPPORT.evasive.sourceRefs ?? [];
+    const movementRefs =
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application']
+        .sourceRefs ?? [];
+
+    expect(SPA_COMBAT_SUPPORT.evasive).toMatchObject({
+      level: 'unsupported',
+      gap: expect.stringContaining('optional TacOps Evade movement'),
+    });
+    expect(SPA_COMBAT_SUPPORT.evasive.gap).toContain(
+      'attacker firing, and target modifier semantics',
+    );
+    expect(evasiveRefs.map(({ citation }) => citation)).toEqual(
+      expect.arrayContaining([
+        'MegaMek OptionsConstants defines optional TacOps Evade and Skilled Evasion option ids.',
+        'MegaMek GameOptions registers optional TacOps Evade and Skilled Evasion movement rules.',
+        'MegaMek MoveStepType defines EVADE as a movement step.',
+        'MegaMek Entity.getEvasionBonus returns the target evasion modifier, including optional Skilled Evasion piloting-skill scaling.',
+        'MegaMek ComputeTargetToHitMods applies the target evasion bonus to ranged weapon attacks.',
+        'MegaMek ComputeToHitIsImpossible prevents non-large-spacecraft evading attackers from firing ranged attacks.',
+      ]),
+    );
+    expect(movementRefs).toEqual(expect.arrayContaining([...evasiveRefs]));
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['movement-application'].spaIds,
+    ).toEqual(expect.arrayContaining(['evasive']));
+  });
+
   it('pins Heavy Lifter to MegaMek lift-capacity scope', () => {
     const heavyLifterRefs = SPA_COMBAT_SUPPORT['heavy-lifter'].sourceRefs ?? [];
     const movementRefs =

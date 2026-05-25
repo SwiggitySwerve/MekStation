@@ -15,6 +15,7 @@ import {
   MEGAMEK_SANDBLASTER_SOURCE_REFS,
   MEGAMEK_SHAKY_STICK_SOURCE_REFS,
   MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,
+  MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
   MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
 
@@ -515,7 +516,11 @@ export const SPA_COMBAT_SUPPORT = {
     'Source-backed calculateShakyStickModifier + calculateToHit applies +1 only for ground-to-air attacks when an airborne target is attacked by a non-airborne attacker',
     MEGAMEK_SHAKY_STICK_SOURCE_REFS,
   ),
-  evasive: unsupported('evasive', 'TMM bonus is not wired'),
+  evasive: unsupported(
+    'evasive',
+    'The legacy Evasive SPA TMM bonus is not wired as a pilot ability; the MegaMek source-backed behavior is optional TacOps Evade movement with separate action, heat, attacker firing, and target modifier semantics',
+    MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
+  ),
   'natural-grace': unsupported(
     'natural-grace',
     'Fall PSR modifier is not wired',

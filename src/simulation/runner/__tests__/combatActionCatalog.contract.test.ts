@@ -155,18 +155,38 @@ describe('BattleMech combat action support catalog', () => {
     ]);
 
     expect(sortedKeys(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([
+      'movement.evade',
       'movement.sprint',
     ]);
     expect(supportGaps(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(BATTLEMECH_ABSENT_ACTION_SUPPORT, 'unsupported'),
-    ).toEqual(['movement.sprint']);
+    ).toEqual(['movement.evade', 'movement.sprint']);
     expect(
       sortedKeys(BATTLEMECH_ABSENT_ACTION_SUPPORT).filter((id) =>
         playerCommandIds.includes(id),
       ),
     ).toEqual([]);
+    expect(Object.values(MovementType)).not.toContain('evade');
     expect(Object.values(MovementType)).not.toContain('sprint');
+    expect(BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.evade']).toMatchObject({
+      layer: 'absent-action-surface',
+      gap: expect.stringContaining('no authoritative evade action path'),
+    });
+    expect(
+      BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.evade'].sourceRefs?.map(
+        (sourceRef) => sourceRef.citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('TacOps Evade'),
+        expect.stringContaining('MoveStepType defines EVADE'),
+        expect.stringContaining('sets the entity evading flag'),
+        expect.stringContaining('getEvasionBonus'),
+        expect.stringContaining('target evasion bonus'),
+        expect.stringContaining('evading attackers from firing'),
+      ]),
+    );
     expect(BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.sprint']).toMatchObject({
       layer: 'absent-action-surface',
       gap: expect.stringContaining('no authoritative sprint action path'),

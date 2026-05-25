@@ -848,12 +848,25 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     ).toContain('Non-BattleMech');
   });
 
-  it('keeps the optional TacOps sprint gap source-backed until an action path exists', () => {
+  it('keeps optional TacOps sprint and evade gaps source-backed until action paths exist', () => {
+    const evadeRefs =
+      BATTLEMECH_COMBAT_VALIDATION_CATALOG.actions.absentActionSurfaces[
+        'movement.evade'
+      ].sourceRefs ?? [];
     const sprintRefs =
       BATTLEMECH_COMBAT_VALIDATION_CATALOG.actions.absentActionSurfaces[
         'movement.sprint'
       ].sourceRefs ?? [];
 
+    expect(evadeRefs.map((sourceRef) => sourceRef.citation)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('TacOps Evade'),
+        expect.stringContaining('MoveStepType defines EVADE'),
+        expect.stringContaining('getEvasionBonus'),
+        expect.stringContaining('target evasion bonus'),
+        expect.stringContaining('evading attackers from firing'),
+      ]),
+    );
     expect(sprintRefs.map((sourceRef) => sourceRef.citation)).toEqual(
       expect.arrayContaining([
         expect.stringContaining('MoveStep.canUseSprint'),
@@ -866,6 +879,14 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
         .supportMapRefs,
+    ).toContain('actions.absentActionSurfaces.movement.evade');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
+        .supportMapRefs,
     ).toContain('actions.absentActionSurfaces.movement.sprint');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
+        .supportMapRefs,
+    ).toContain('actions.absentActionSurfaces.movement.evade');
   });
 });
