@@ -160,6 +160,7 @@
 - [x] 3.5.18 Promote event-sourced heat cookoff CASE parity by seeding `IGameUnit.caseProtection`, sharing CASE cap resolution with runner paths, emptying the exploded bin, and emitting heat-phase damage/transfer/destruction events from the CASE-adjusted cascade.
 - [x] 3.5.19 Promote CASE-P catalog hydration parity by explicitly classifying CASE-P / prototype CASE as standard CASE protection and preventing broad substring false positives from creating phantom CASE state.
 - [x] 3.5.20 Promote source-backed ammo cookoff internal-only damage order and protected torso rear-armor blowout through shared heat/crit/event-sourced heat cascades.
+- [x] 3.5.21 Promote critical-slot hydration and critical-slot effect triads to row-level source references so system/equipment critical-slot claims cannot inherit broad damage authority.
 
 ## 4. Source-truth cross-checks
 
@@ -231,3 +232,4 @@
 - [x] 4.3.62 Promote invalid ranged attack side-effect guards to row-level MekStation source references so inherited invalidation authority cannot mask unsourced no-event, no-heat, no-ammo, no-damage, or no-fired-state claims.
 - [x] 4.3.63 Promote physical damage modifier rows to row-level MegaMek source references so inherited rule authority cannot mask unsourced active-TSM, claw, talon, or underwater damage claims.
 - [x] 4.3.64 Promote heat rule rows to row-level source references so inherited heat authority cannot mask unsourced accumulation, dissipation, threshold, environment, lifecycle, ammo-explosion, or pilot heat-damage claims.
+- [x] 4.3.65 Promote critical-slot hydration and effect rows to row-level MegaMek source references so inherited damage authority cannot mask unsourced system critical, equipment critical, ammo cookoff, or generic-equipment gap claims.

@@ -194,6 +194,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** ammo critical entries SHALL carry `ammoBinId` when the catalog slot resolves to a runtime ammo bin
 - **AND** mounted CASE, CASE-P/prototype CASE, and CASE II critical-slot strings SHALL hydrate per-location `caseProtection` combat state
 - **AND** critical-slot hydration, effect, and aggregate critical-component catalog rows SHALL carry MegaMek source anchors for the system/equipment slot boundary before any row can be used as validation evidence
+- **AND** the aggregate catalog triads for critical-slot hydration and critical-slot effects SHALL require row-level source references rather than inherited requirement authority
 - **AND** generic equipment and special-ammo lifecycle nuances SHALL remain explicit gaps until their damage paths cascade through the corresponding combat state
 
 #### Scenario: Jump-jet critical damage reduces runner jump movement

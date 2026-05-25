@@ -218,8 +218,8 @@ const DAMAGE_TRIAD = triad(
   DAMAGE_REFS,
 );
 const CRITICAL_SLOT_TRIAD = triad(
-  'requirement-primary-authority',
-  REQUIREMENT_AUTHORITY_BOUNDARY,
+  'entry-source-refs',
+  'Critical-slot hydration and effect rows are MegaMek-source checked and must carry row-level sourceRefs for system critical slots, mounted equipment critical slots, ammo cookoff selection, and equipment-specific lifecycle gap boundaries.',
   CRITICAL_SLOT_REFS,
 );
 const LIFECYCLE_TRIAD = triad(
