@@ -218,8 +218,8 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   ),
   'tag-semi-guided-cluster-bonus': helperOnly(
     'tag-semi-guided-cluster-bonus',
-    'Local isSemiGuidedAmmoSelectedForWeapon plus targetTagDesignated still applies a semi-guided LRM cluster bonus even though MegaMek source backs to-hit behavior instead',
-    'The local semi-guided cluster bonus remains non-parity helper behavior and must be removed or quarantined from official BattleMech combat resolution',
+    'Legacy getSemiGuidedLRMBonus still exposes the old +2 cluster helper for drift detection, but calculateClusterModifiers and runner missile resolution no longer consume it for official BattleMech combat',
+    'Remove the obsolete helper once downstream callers no longer need the explicit non-parity guard',
     MEGAMEK_TAG_SEMI_GUIDED_SOURCE_REFS,
   ),
   'tag-intent-wire-state-replay': integrated(

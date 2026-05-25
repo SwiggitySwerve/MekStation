@@ -1287,9 +1287,7 @@ export function runAttackPhase(options: {
               indirectFireResolution.isIndirect,
             targetNarcedBy: targetBeforeShot.narcedBy,
             targetINarcedBy: iNarcHomingTeams(targetBeforeShot),
-            targetTagDesignated: targetBeforeShot.tagDesignated,
             targetEcmProtected,
-            isSemiGuided: semiGuidedAmmoSelected,
             clusterHitterSPA:
               getClusterHitterBonus(attackerBeforeShot.abilities ?? []) > 0,
             sandblasterSPA: hasSPA(

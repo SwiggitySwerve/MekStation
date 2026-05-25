@@ -77,6 +77,7 @@
 - [x] 3.1.11 Align the legacy gameplay SPA catalog Sandblaster metadata with canonical source truth: weapon-type designation required, range-based cluster-table bonus, and remaining UAC/RAC rate-of-fire gap preserved.
 - [x] 3.1.12 Source-back AMS helper/integrated special weapon rows with MegaMek cluster, single-missile, ammo/heat, counter-selection, and arc anchors while leaving defender choice/arc/multi-use gaps explicit.
 - [x] 3.1.13 Source-pin special weapon mechanic rows for UAC, RAC, LB-X, Streak SRM, MML, NARC/iNARC, AMS, TAG, Artemis, ECM/probe, and stealth; quarantine local semi-guided TAG cluster behavior as helper-only outside source-backed TAG to-hit parity.
+- [x] 3.1.14 Quarantine the non-parity semi-guided TAG cluster helper out of official missile cluster resolution and correct the base weapon-resolution spec so TAG cluster bonuses cannot be claimed as BattleMech parity.
 - [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
 - [x] 3.2.2 Integrate source-backed active TSM movement speed into runner movement validation while leaving MASC, supercharger, and then-unsupported partial-wing movement behavior explicit.
@@ -161,6 +162,7 @@
 - [x] 3.4.38 Integrate source-backed target evasion ranged to-hit modifiers through helper calculation, event-sourced `declareAttack`, runner `AttackDeclared`, to-hit modifier cataloging, OpenSpec coverage, and focused behavior tests while leaving Evade movement-step creation, Skilled Evasion scaling, and physical target-evasion gaps explicit.
 - [x] 3.4.39 Integrate source-backed target evasion physical to-hit modifiers through helper calculation, event-sourced `declarePhysicalAttack` and resolution, runner physical resolution, OpenSpec coverage, and focused behavior tests while leaving Evade movement-step creation and Skilled Evasion scaling gaps explicit.
 - [x] 3.4.40 Integrate source-backed semi-guided TAG to-hit parity through helper calculation, event-sourced `declareAttack`, runner `AttackDeclared`, catalog support, OpenSpec coverage, and focused behavior tests while keeping the local semi-guided cluster bonus quarantined as a non-parity helper.
+- [x] 3.4.41 Remove the legacy semi-guided TAG cluster helper from official cluster totals and runner missile resolution while leaving the exported helper visible as a drift guard.
 - [x] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.

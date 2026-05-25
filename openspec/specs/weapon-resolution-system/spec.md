@@ -375,26 +375,26 @@ Narc and iNarc beacons SHALL add +2 to cluster hit table rolls for missile attac
 - **THEN** the event log SHALL include `DesignatorMarkerApplied`
 - **AND** the marker payload SHALL identify marker `narc`, the attacker, the target, the weapon, the attaching team, and persistent `true`
 
-### Requirement: TAG Designation for Semi-Guided LRM
+### Requirement: TAG Designation for Semi-Guided To-Hit
 
-TAG designation SHALL enable semi-guided LRM bonuses, including +2 to cluster roll, nullified by enemy ECM.
+TAG designation SHALL enable semi-guided ammunition to-hit behavior, nullified by enemy ECM. Semi-guided TAG SHALL cancel positive target-movement to-hit modifiers and apply source-backed indirect-fire relief. It SHALL NOT add a cluster-table bonus.
 
-#### Scenario: Semi-guided LRM with TAG adds +2
+#### Scenario: Semi-guided LRM with TAG cancels target movement
 
 - **WHEN** a semi-guided LRM fires at a TAG-designated target without ECM protection
-- **THEN** the cluster roll SHALL receive a +2 modifier
-- **AND** the modified roll SHALL be used for cluster table lookup
+- **THEN** positive target-movement to-hit modifiers SHALL be cancelled by an equal negative semi-guided TAG modifier
+- **AND** the cluster roll SHALL NOT receive a semi-guided TAG modifier
 
 #### Scenario: Semi-guided LRM without TAG
 
 - **WHEN** a semi-guided LRM fires at a non-TAG-designated target
-- **THEN** the +2 cluster roll bonus SHALL NOT apply
+- **THEN** the semi-guided TAG to-hit modifiers SHALL NOT apply
 - **AND** the cluster roll SHALL be unmodified
 
 #### Scenario: TAG nullified by ECM
 
 - **WHEN** a semi-guided LRM fires at a TAG-designated target with ECM protection
-- **THEN** the +2 cluster roll bonus SHALL NOT apply
+- **THEN** the semi-guided TAG to-hit modifiers SHALL NOT apply
 - **AND** the cluster roll SHALL be unmodified
 
 #### Scenario: TAG designation flag
@@ -402,7 +402,7 @@ TAG designation SHALL enable semi-guided LRM bonuses, including +2 to cluster ro
 - **WHEN** checking for TAG designation
 - **THEN** the target status flags SHALL include tagDesignated
 - **AND** the target status flags SHALL include ecmProtected
-- **AND** the bonus SHALL be 0 if ecmProtected is true or tagDesignated is false
+- **AND** semi-guided TAG to-hit relief SHALL be 0 if ecmProtected is true or tagDesignated is false
 
 #### Scenario: TAG marker event
 
@@ -412,9 +412,9 @@ TAG designation SHALL enable semi-guided LRM bonuses, including +2 to cluster ro
 
 #### Scenario: Semi-guided equipment flag
 
-- **WHEN** checking for semi-guided LRM bonus
+- **WHEN** checking for semi-guided TAG to-hit behavior
 - **THEN** the weapon equipment flags SHALL include isSemiGuided
-- **AND** the bonus SHALL be 0 if isSemiGuided is false
+- **AND** semi-guided TAG to-hit relief SHALL be 0 if isSemiGuided is false
 
 ### Requirement: MRM Cluster Column Modifier
 
@@ -450,7 +450,7 @@ Medium Range Missiles (MRM) SHALL use a -1 cluster column modifier, resulting in
 
 ### Requirement: Combined Cluster Modifiers
 
-The system SHALL combine all applicable cluster modifiers (Artemis, Narc, semi-guided, MRM, Cluster Hitter SPA) into a single total modifier.
+The system SHALL combine all applicable cluster modifiers (Artemis, Narc, MRM, Cluster Hitter SPA) into a single total modifier. Semi-guided TAG behavior SHALL stay in to-hit resolution and SHALL NOT contribute a cluster-table modifier.
 
 #### Scenario: LRM-15 with Artemis IV and Narc
 
@@ -472,14 +472,14 @@ The system SHALL combine all applicable cluster modifiers (Artemis, Narc, semi-g
 
 - **WHEN** a semi-guided LRM with Artemis IV fires at a TAG-designated target without ECM
 - **THEN** the Artemis bonus SHALL be +2
-- **AND** the semi-guided bonus SHALL be +2
-- **AND** the total modifier SHALL be +4
+- **AND** the semi-guided TAG cluster bonus SHALL be +0
+- **AND** the total cluster modifier SHALL be +2
 
 #### Scenario: Cluster Hitter SPA adds +1
 
 - **WHEN** a pilot with Cluster Hitter SPA fires a cluster weapon
 - **THEN** the Cluster Hitter bonus SHALL be +1
-- **AND** this bonus SHALL stack with Artemis, Narc, and semi-guided bonuses
+- **AND** this bonus SHALL stack with Artemis and Narc bonuses
 
 #### Scenario: Cluster modifier structure
 

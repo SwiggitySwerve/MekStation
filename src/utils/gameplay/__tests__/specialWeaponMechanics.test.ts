@@ -584,7 +584,7 @@ describe('Special Weapon Mechanics', () => {
       expect(isTargetTAGDesignated(target)).toBe(false);
     });
 
-    it('semi-guided LRM should get +2 bonus when TAG-designated', () => {
+    it('legacy semi-guided LRM helper still exposes the quarantined +2 TAG bonus', () => {
       const equipment: IWeaponEquipmentFlags = { isSemiGuided: true };
       const target: ITargetStatusFlags = { tagDesignated: true };
 
@@ -719,6 +719,17 @@ describe('Special Weapon Mechanics', () => {
       expect(mods.narcBonus).toBe(0);
       expect(mods.mrmPenalty).toBe(-1);
       expect(mods.total).toBe(-1);
+    });
+
+    it('should not include the legacy semi-guided TAG helper in official cluster totals', () => {
+      const equipment: IWeaponEquipmentFlags = { isSemiGuided: true };
+      const target: ITargetStatusFlags = { tagDesignated: true };
+
+      const legacyBonus = getSemiGuidedLRMBonus(equipment, target);
+      const mods = calculateClusterModifiers('lrm-10', equipment, target);
+
+      expect(legacyBonus).toBe(2);
+      expect(mods.total).toBe(0);
     });
 
     it('should apply prototype Artemis IV as a +1 cluster-table modifier', () => {

@@ -724,10 +724,10 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(supportGaps(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT, 'integrated'),
-    ).toEqual(['lb-x-ac', 'mml', 'rotary-ac', 'streak-srm', 'ultra-ac']);
+    ).toEqual(['lb-x-ac', 'mml', 'rotary-ac', 'streak-srm', 'tag', 'ultra-ac']);
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['ams', 'artemis', 'narc', 'tag']);
+    ).toEqual(['ams', 'artemis', 'narc']);
 
     expect(supportGaps(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT)).toEqual([]);
     expect(
@@ -987,9 +987,9 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.mml.level).toBe('integrated');
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.level).toBe('helper-only');
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.level).toBe('helper-only');
-    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.level).toBe('helper-only');
-    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.gap).toContain(
-      'semi-guided cluster bonus',
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.level).toBe('integrated');
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.evidence).toContain(
+      'official cluster totals ignore',
     );
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['lb-x-ac'].level).toBe(
       'integrated',

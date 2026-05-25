@@ -1441,9 +1441,7 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
           (event) => event.type === GameEventType.DamageApplied,
         ),
       ).toBe(false);
-      expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.level).toBe(
-        'helper-only',
-      );
+      expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.level).toBe('integrated');
       expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.evidence).toContain(
         'tagDesignated',
       );
@@ -2439,7 +2437,7 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       });
     });
 
-    it('semi-guided LRM ammo consumes TAG designation for the missile cluster bonus', () => {
+    it('semi-guided LRM ammo does not apply the legacy TAG cluster bonus', () => {
       const lrm = createLRM10();
       const ammoBin = createAmmoBin({
         weaponType: 'semi-guided-lrm-10',
@@ -2456,42 +2454,43 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
         lrm,
       );
 
-      const untagged = resolveSpecialProjectileHit({
+      const baseline = resolveSpecialProjectileHit({
         baseWeapon: lrm,
         shotWeapon: lrm,
         selectedMode: undefined,
         d6Roller: sequenceD6Roller(3, 4),
-        clusterContext: {
-          targetTagDesignated: false,
-          isSemiGuided,
-        },
       });
-      const tagged = resolveSpecialProjectileHit({
+      const contextOnly = resolveSpecialProjectileHit({
         baseWeapon: lrm,
         shotWeapon: lrm,
         selectedMode: undefined,
         d6Roller: sequenceD6Roller(3, 4),
-        clusterContext: {
-          targetTagDesignated: true,
-          isSemiGuided,
-        },
+        clusterContext: {},
       });
 
       expect(isSemiGuided).toBe(true);
-      expect(untagged).toMatchObject({
+      expect(baseline).toMatchObject({
         projectileCount: 6,
         weapon: { damage: 6 },
       });
-      expect(tagged).toMatchObject({
-        projectileCount: 8,
-        weapon: { damage: 8 },
+      expect(contextOnly).toMatchObject({
+        projectileCount: 6,
+        weapon: { damage: 6 },
       });
       expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.evidence).toContain(
         'semi-guided',
       );
-      expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.evidence).toContain(
-        'replay reducer',
-      );
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['tag-semi-guided-cluster-bonus']
+          .gap,
+      ).toContain('Remove the obsolete helper');
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['tag-semi-guided-to-hit'].level,
+      ).toBe('integrated');
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['tag-semi-guided-cluster-bonus']
+          .level,
+      ).toBe('helper-only');
     });
 
     it('semi-guided TAG cancels runner target movement to-hit while preserving the TMM row', () => {

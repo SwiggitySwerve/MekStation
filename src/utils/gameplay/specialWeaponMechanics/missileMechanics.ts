@@ -294,8 +294,9 @@ export function verifyStreakBehavior(weaponId: string): boolean {
 // =============================================================================
 
 /**
- * Calculate total cluster roll modifier from all sources.
- * Combines Artemis, Narc, Cluster Hitter SPA, MRM penalty, and semi-guided bonus.
+ * Calculate total cluster roll modifier from all source-backed cluster-table
+ * sources. Semi-guided TAG behavior is intentionally excluded here because the
+ * source-backed behavior is to-hit target-movement and indirect-fire relief.
  */
 export function calculateClusterModifiers(
   weaponId: string,
@@ -317,7 +318,6 @@ export function calculateClusterModifiers(
   const clusterHitterBonus =
     sandblasterBonus > 0 ? 0 : clusterHitterSPA ? 1 : 0;
   const mrmPenalty = getMRMClusterModifier(weaponId);
-  const semiGuidedBonus = getSemiGuidedLRMBonus(equipment, targetStatus);
 
   return {
     artemisBonus,
@@ -330,8 +330,7 @@ export function calculateClusterModifiers(
       narcBonus +
       sandblasterBonus +
       clusterHitterBonus +
-      mrmPenalty +
-      semiGuidedBonus,
+      mrmPenalty,
   };
 }
 
@@ -341,7 +340,8 @@ export function calculateClusterModifiers(
 
 /**
  * Resolve cluster weapon hits with all applicable modifiers.
- * Applies Artemis, Narc, MRM, Cluster Hitter, and semi-guided modifiers.
+ * Applies source-backed cluster modifiers such as Artemis, Narc, MRM, and
+ * Cluster Hitter.
  *
  * @param clusterSize Number of missiles/pellets
  * @param damagePerHit Damage per individual hit
@@ -395,9 +395,12 @@ export function resolveModifiedClusterHits(
 // =============================================================================
 
 /**
- * Calculate semi-guided LRM bonus when TAG-designated.
- * Semi-guided LRMs against TAG-designated targets ignore some modifiers.
- * For cluster purposes: +2 to cluster roll.
+ * Legacy semi-guided LRM cluster helper.
+ *
+ * MegaMek source backs semi-guided TAG as to-hit target-movement cancellation
+ * and indirect-fire relief, not as a cluster-table bonus. Keep this helper
+ * exported so old call sites/tests remain visible, but do not feed it into
+ * official `calculateClusterModifiers` totals.
  */
 export function getSemiGuidedLRMBonus(
   equipment: IWeaponEquipmentFlags,
