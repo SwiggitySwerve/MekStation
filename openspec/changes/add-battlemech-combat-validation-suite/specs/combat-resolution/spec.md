@@ -144,6 +144,13 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 
 Physical attack declaration and resolution SHALL validate action-specific legality gates before scheduling a combat action. Push, charge, death from above, melee weapon, punch, kick, and club logic SHALL share the same legality helpers across eligibility display, event-sourced declaration, and simulation runner resolution so UI options, game events, and automated combat cannot diverge.
 
+#### Scenario: Unsupported BattleMech physical classes stay source-backed
+
+- **GIVEN** MegaMek exposes BattleMech-applicable brush-off, thrash, trip, grapple, break-grapple, and jump-jet physical action classes
+- **WHEN** the physical action class scope catalog is contract-tested
+- **THEN** each unsupported BattleMech-applicable class SHALL cite the matching MegaMek source class with commit-pinned line anchors
+- **AND** each row SHALL remain `unsupported` until MekStation has a runtime `PhysicalAttackType`, tactical command, event-sourced declaration/resolution, and runner resolution path for that class
+
 #### Scenario: Physical attacks require existing targets
 
 - **GIVEN** an attacker declares any supported BattleMech physical attack against a target id that is not present in combat state

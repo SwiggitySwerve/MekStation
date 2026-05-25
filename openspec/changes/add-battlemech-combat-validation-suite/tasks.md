@@ -57,6 +57,7 @@
 - [x] 2.32.13 Add source-backed BattleMech charge gun-emplacement target-class rejection coverage through helper, eligibility, event-sourced declaration, and runner resolution inputs while preserving gun-emplacement automatic-hit coverage for punch, kick, DFA, and melee.
 - [x] 2.32.14 Add source-backed prohibited-terrain displacement rejection for explicit impassable hexes through helper, event-sourced charge resolution, runner charge resolution, catalog, and audit coverage while leaving hidden-unit, track/wheel, domino-chain, friendly-avoidance, and DropShip-radius displacement nuances explicit.
 - [x] 2.32.15 Add source-backed BattleMech overgrown woods/jungle displacement rejection for represented terrain levels above two through helper, event-sourced charge resolution, runner charge resolution, catalog, and audit coverage while leaving hidden-unit deployment and motive-mode terrain restrictions explicit.
+- [x] 2.32.16 Source-back unsupported BattleMech physical action class gaps for brush-off, thrash, trip, grapple, break-grapple, and jump-jet attacks with commit-pinned MegaMek anchors while leaving runtime action paths explicit.
 
 ## 3. Full combat validation catalog
 
@@ -198,3 +199,4 @@
 - [x] 4.3.44 Cross-check MegaMek optional TacOps sprint gates, BattleMech sprint MP/heat, MASC/Supercharger sprint formulas, attacker auto-fail, and target-sprinted modifier before leaving sprint as an explicit absent action.
 - [x] 4.3.45 Cross-check MegaMek optional TacOps Evade movement, evasion heat, evasion target modifiers, evading attacker ranged-fire rejection, and physical evasion gates before leaving evade as an explicit absent action.
 - [x] 4.3.46 Cross-check MegaMek `TorsoTwistAction`, secondary-facing state gates, BattleMech normal/extended/no-twist legality, and `ComputeArc` secondary-facing use before leaving torso twist helper-only.
+- [x] 4.3.47 Cross-check MegaMek BattleMech-applicable brush-off, thrash, trip, grapple, break-grapple, and jump-jet attack source classes before leaving them unsupported.

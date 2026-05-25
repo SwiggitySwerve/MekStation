@@ -424,6 +424,69 @@ describe('BattleMech combat action support catalog', () => {
       'thrash',
       'trip',
     ]);
+
+    const invalidUnsupportedRefs = Object.values(
+      PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT,
+    ).flatMap((entry) => {
+      if (entry.battleMechScope !== 'battlemech') return [];
+      if (entry.level !== 'unsupported') return [];
+
+      const sourceRefs = entry.sourceRefs ?? [];
+      if (sourceRefs.length === 0) return [`${entry.id}: missing sourceRefs`];
+
+      return sourceRefs.flatMap((sourceRef, index) => {
+        const sourceRefId = `${entry.id}.sourceRefs[${index}]`;
+        const failures: string[] = [];
+
+        if (sourceRef.kind !== 'megamek-source') {
+          failures.push(`${sourceRefId}: expected megamek-source`);
+        }
+        if (
+          sourceRef.sourceVersion !== '325b2504c7b7750ecdcb85468621fb2de2ad8e60'
+        ) {
+          failures.push(`${sourceRefId}: expected commit-pinned version`);
+        }
+        if (!sourceRef.url.includes(entry.sourceClass)) {
+          failures.push(`${sourceRefId}: expected source class URL`);
+        }
+        if (!sourceRef.url.includes('#L')) {
+          failures.push(`${sourceRefId}: missing line anchor`);
+        }
+
+        return failures;
+      });
+    });
+    expect(invalidUnsupportedRefs).toEqual([]);
+    expect(
+      PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['brush-off'].sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([expect.stringContaining('BrushOffAttackAction')]);
+    expect(
+      PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.thrash.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([expect.stringContaining('ThrashAttackAction')]);
+    expect(
+      PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.trip.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([expect.stringContaining('TripAttackAction')]);
+    expect(
+      PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.grapple.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([expect.stringContaining('GrappleAttackAction')]);
+    expect(
+      PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['break-grapple'].sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([expect.stringContaining('BreakGrappleAttackAction')]);
+    expect(
+      PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['jump-jet-attack'].sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([expect.stringContaining('JumpJetAttackAction')]);
   });
 
   it('anchors every physical legality gate to commit-pinned MegaMek source', () => {
