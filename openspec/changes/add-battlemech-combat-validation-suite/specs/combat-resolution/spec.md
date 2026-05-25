@@ -133,6 +133,13 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **THEN** vehicle, VTOL, battle armor, swarm, leg-attack, mimetic, and stealth event rows SHALL remain helper-only non-BattleMech scope rows outside the BattleMech combat matrix
 - **AND** each non-BattleMech event-scope row SHALL carry anchored MekStation source references to the event factory, payload, helper, or scenario surface that owns that non-BattleMech event family
 
+#### Scenario: BattleMech event stream rows stay source pinned
+
+- **GIVEN** the BattleMech combat event support catalog lists lifecycle, phase, initiative, movement, attack, damage, heat, PSR, physical, objective, morale, retreat, withdrawal, and ejection event rows
+- **WHEN** event-stream support is contract-tested
+- **THEN** each BattleMech event-stream row SHALL carry anchored MekStation source references to the event factory, runner phase, session helper, reducer, test, or explicit unsupported enum boundary that owns that event contract
+- **AND** broad event-stream triad prose SHALL NOT satisfy event coverage without row-level source references
+
 #### Scenario: Ammo catalog compatibility traps stay explicit
 
 - **GIVEN** official ammunition validation relies on `compatibleWeaponIds` to hydrate consumable BattleMech ammo bins

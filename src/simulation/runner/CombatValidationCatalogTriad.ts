@@ -163,9 +163,6 @@ const MEKSTATION_ACTION_BOUNDARY =
 const REQUIREMENT_AUTHORITY_BOUNDARY =
   'Rows inherit their source-truth boundary from the requirement crosswalk primary authority unless a row carries narrower sourceRefs.';
 
-const MEKSTATION_EVENT_BOUNDARY =
-  'Event rows describe MekStation executable event contracts; source-backed mechanics are anchored by the rule or requirement rows that emit those events.';
-
 function requirementTriad(
   testRefs: readonly ICombatCatalogTriadTestReference[],
 ): ICombatCatalogTriadEvidence {
@@ -198,8 +195,8 @@ const ATTACK_SIDE_EFFECT_TRIAD = triad(
   INVALIDATION_REFS,
 );
 const EVENT_TRIAD = triad(
-  'mekstation-deviation',
-  MEKSTATION_EVENT_BOUNDARY,
+  'entry-source-refs',
+  'BattleMech event rows are MekStation executable event contracts and must carry row-level sourceRefs to the local factory, runner, reducer, or scenario paths that emit or intentionally omit each event.',
   EVENT_STREAM_REFS,
 );
 const FEATURE_TRIAD = requirementTriad(FEATURE_REFS);

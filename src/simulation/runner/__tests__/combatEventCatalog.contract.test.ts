@@ -72,6 +72,70 @@ describe('BattleMech combat event support catalog', () => {
     expect(supportGaps(NON_BATTLEMECH_EVENT_SCOPE_SUPPORT)).toEqual([]);
   });
 
+  it('source-pins BattleMech event stream rows to anchored MekStation evidence', () => {
+    const entries = Object.values(BATTLEMECH_COMBAT_EVENT_SUPPORT);
+    const urlsFor = (eventType: keyof typeof BATTLEMECH_COMBAT_EVENT_SUPPORT) =>
+      [...(BATTLEMECH_COMBAT_EVENT_SUPPORT[eventType].sourceRefs ?? [])]
+        .map((sourceRef) => sourceRef.url)
+        .sort();
+
+    expect(
+      entries
+        .filter((entry) => (entry.sourceRefs?.length ?? 0) === 0)
+        .map((entry) => entry.id)
+        .sort(),
+    ).toEqual([]);
+    expect(
+      entries
+        .flatMap((entry) => entry.sourceRefs ?? [])
+        .filter((sourceRef) => !sourceRef.url.includes('#L'))
+        .map((sourceRef) => sourceRef.url)
+        .sort(),
+    ).toEqual([]);
+    expect(
+      entries
+        .filter(
+          (entry) =>
+            !(entry.sourceRefs ?? []).some(
+              (sourceRef) => sourceRef.kind === 'mekstation-deviation',
+            ),
+        )
+        .map((entry) => entry.id)
+        .sort(),
+    ).toEqual([]);
+
+    expect(urlsFor(GameEventType.GameCreated)).toEqual(
+      expect.arrayContaining([
+        'src/utils/gameplay/gameEvents/lifecycle.ts#L32-L91',
+        'src/simulation/runner/SimulationRunner.ts#L181-L405',
+      ]),
+    );
+    expect(urlsFor(GameEventType.AttackResolved)).toEqual(
+      expect.arrayContaining([
+        'src/utils/gameplay/gameEvents/combat.ts#L27-L145',
+        'src/simulation/runner/phases/weaponAttackHitResolution.ts#L114-L430',
+      ]),
+    );
+    expect(urlsFor(GameEventType.UnitEjected)).toEqual(
+      expect.arrayContaining([
+        'src/utils/gameplay/gameEvents/statusPhysical.ts#L105-L171',
+        'src/utils/gameplay/gameState/extendedCombat.ts#L418-L450',
+      ]),
+    );
+    expect(urlsFor(GameEventType.ObjectiveCaptured)).toEqual(
+      expect.arrayContaining([
+        'src/utils/gameplay/objectives/objectiveEvents.ts#L26-L110',
+        'src/simulation/runner/SimulationRunner.ts#L321-L338',
+      ]),
+    );
+    expect(urlsFor(GameEventType.AttacksRevealed)).toEqual(
+      expect.arrayContaining([
+        'src/types/gameplay/GameSessionCoreTypes.ts#L76-L87',
+        'src/utils/gameplay/gameState/gameStateReducer.ts#L248-L253',
+      ]),
+    );
+  });
+
   it('keeps non-BattleMech event families split out of the BattleMech validation lane', () => {
     expect(sortedKeys(NON_BATTLEMECH_EVENT_SCOPE_SUPPORT)).toEqual(
       [...NON_BATTLEMECH_EVENT_TYPES].sort(),

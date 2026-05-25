@@ -5,6 +5,7 @@ import type {
   ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 
+import { BATTLEMECH_EVENT_SOURCE_REFS } from './CombatBattleMechEventSourceRefs';
 import {
   BATTLE_ARMOR_CASUALTY_EVENT_SOURCE_REFS,
   BATTLE_ARMOR_LEG_EVENT_SOURCE_REFS,
@@ -18,8 +19,10 @@ function integrated(
   evidence: string,
   sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatFeatureSupportEntry {
-  return sourceRefs
-    ? { id: eventType, level: 'integrated', evidence, sourceRefs }
+  const refs = sourceRefs ?? BATTLEMECH_EVENT_SOURCE_REFS[eventType];
+
+  return refs
+    ? { id: eventType, level: 'integrated', evidence, sourceRefs: refs }
     : { id: eventType, level: 'integrated', evidence };
 }
 
@@ -29,21 +32,27 @@ function helperOnly(
   gap: string,
   sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatFeatureSupportEntry {
-  return sourceRefs
-    ? { id: eventType, level: 'helper-only', evidence, gap, sourceRefs }
+  const refs = sourceRefs ?? BATTLEMECH_EVENT_SOURCE_REFS[eventType];
+
+  return refs
+    ? { id: eventType, level: 'helper-only', evidence, gap, sourceRefs: refs }
     : { id: eventType, level: 'helper-only', evidence, gap };
 }
 
 function unsupported(
   eventType: GameEventType,
   gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatFeatureSupportEntry {
-  return {
+  const refs = sourceRefs ?? BATTLEMECH_EVENT_SOURCE_REFS[eventType];
+  const entry: ICombatFeatureSupportEntry = {
     id: eventType,
     level: 'unsupported',
     evidence: 'No BattleMech combat event behavior wired',
     gap,
   };
+
+  return refs ? { ...entry, sourceRefs: refs } : entry;
 }
 
 export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
