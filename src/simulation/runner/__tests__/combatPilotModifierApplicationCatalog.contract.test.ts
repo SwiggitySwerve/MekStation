@@ -106,6 +106,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'initiative-application',
         'initiative-command-console-hydration',
         'initiative-hq-equipment-hydration',
+        'legacy-defensive-quirk-to-hit-application',
         'movement-application',
         'multi-target-penalty-application',
         'physical-damage-application',
@@ -182,6 +183,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual(
       expect.arrayContaining([
         'critical-prevention-application',
+        'legacy-defensive-quirk-to-hit-application',
         'heat-application',
         'psr-spa-application',
         'sandblaster-application',
@@ -215,8 +217,6 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       expect.arrayContaining([
         'improved_targeting_short',
         'poor_targeting_long',
-        'distracting',
-        'low_profile',
         'sensor_ghosts',
         'multi_trac',
       ]),
@@ -283,6 +283,52 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual(
       expect.arrayContaining(multiTracRefs.map(({ citation }) => citation)),
     );
+  });
+
+  it('keeps legacy defensive to-hit quirks out of source-backed integrated coverage', () => {
+    const distractingRefs = QUIRK_COMBAT_SUPPORT.distracting.sourceRefs ?? [];
+    const lowProfileRefs = QUIRK_COMBAT_SUPPORT.low_profile.sourceRefs ?? [];
+    const legacyResolver =
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'legacy-defensive-quirk-to-hit-application'
+      ];
+
+    expect(QUIRK_COMBAT_SUPPORT.distracting).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('local +1 target to-hit helper'),
+      gap: expect.stringContaining('does not expose a combat to-hit resolver'),
+    });
+    expect(distractingRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek OptionsConstants defines QUIRK_POS_DISTRACTING as distracting.',
+      'MegaMek Quirks registers Distracting as a positive unit quirk option without a combat to-hit resolver in this source snapshot.',
+      'MekStation calculateDistractingModifier currently applies Distracting as a local +1 target to-hit helper.',
+      'MekStation calculateLowProfileModifier currently applies Low Profile as a local +1 target to-hit helper when partial cover is absent.',
+    ]);
+
+    expect(QUIRK_COMBAT_SUPPORT.low_profile).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('local +1 target to-hit helper'),
+      gap: expect.stringContaining('glancing-blow handling'),
+    });
+    expect(lowProfileRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek WeaponHandler.isLowProfileGlancingBlow applies Low Profile as glancing-blow handling when the attack roll equals the target number or target number plus one.',
+      'MegaMek OptionsConstants defines QUIRK_POS_LOW_PROFILE as low_profile and notes the BMM Low Profile behavior changed.',
+      'MekStation calculateDistractingModifier currently applies Distracting as a local +1 target to-hit helper.',
+      'MekStation calculateLowProfileModifier currently applies Low Profile as a local +1 target to-hit helper when partial cover is absent.',
+    ]);
+
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS[
+        'legacy-defensive-quirk-to-hit-application'
+      ],
+    ).toEqual({ spaIds: [], quirkIds: ['distracting', 'low_profile'] });
+    expect(legacyResolver).toMatchObject({
+      level: 'helper-only',
+      gap: expect.stringContaining('source-backed Low Profile'),
+    });
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['ranged-to-hit-calculation'].quirkIds,
+    ).not.toEqual(expect.arrayContaining(['distracting', 'low_profile']));
   });
 
   it('pins Dodge Maneuver to MegaMek target dodging semantics', () => {
@@ -889,6 +935,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(SPA_COMBAT_SUPPORT['tactical-genius'].sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.command_mech.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.battle_computer.sourceRefs ?? []),
+      ...(QUIRK_COMBAT_SUPPORT.distracting.sourceRefs ?? []),
+      ...(QUIRK_COMBAT_SUPPORT.low_profile.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.sensor_ghosts.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.multi_trac.sourceRefs ?? []),
       ...(QUIRK_COMBAT_SUPPORT.accurate.sourceRefs ?? []),
@@ -902,6 +950,9 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ].sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application']
         .sourceRefs ?? []),
+      ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'legacy-defensive-quirk-to-hit-application'
+      ].sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['called-shot-application']
         .sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['ranged-to-hit-calculation']
@@ -916,17 +967,27 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application']
         .sourceRefs ?? []),
     ];
+    const megamekRefs = refs.filter(
+      (sourceRef) => sourceRef.kind === 'megamek-source',
+    );
+    const mekstationDeviationRefs = refs.filter(
+      (sourceRef) => sourceRef.kind === 'mekstation-deviation',
+    );
 
     expect(refs.length).toBeGreaterThan(0);
     expect(
-      refs.every(
+      megamekRefs.every(
         (sourceRef) =>
-          sourceRef.kind === 'megamek-source' &&
           sourceRef.sourceVersion ===
             '325b2504c7b7750ecdcb85468621fb2de2ad8e60' &&
           sourceRef.url.includes('github.com/MegaMek/megamek/blob/') &&
           sourceRef.url.includes(sourceRef.sourceVersion) &&
           sourceRef.url.includes('#L'),
+      ),
+    ).toBe(true);
+    expect(
+      mekstationDeviationRefs.every(
+        (sourceRef) => sourceRef.sourceVersion === 'MekStation working-tree',
       ),
     ).toBe(true);
   });

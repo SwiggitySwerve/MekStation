@@ -9,10 +9,13 @@
 
 import {
   MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
+  MEGAMEK_DISTRACTING_QUIRK_SOURCE_REFS,
   MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
   MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
   MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
+  MEGAMEK_LOW_PROFILE_GLANCING_SOURCE_REFS,
   MEGAMEK_MULTI_TRAC_SOURCE_REFS,
+  MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS,
   MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   MEGAMEK_SANDBLASTER_SOURCE_REFS,
   MEGAMEK_SENSOR_GHOSTS_TO_HIT_SOURCE_REFS,
@@ -670,13 +673,23 @@ export const QUIRK_COMBAT_SUPPORT = {
       ...MEKSTATION_TARGETING_QUIRK_ALIAS_SOURCE_REFS,
     ],
   ),
-  distracting: integrated(
+  distracting: helperOnly(
     'distracting',
-    'calculateDistractingModifier + calculateToHit',
+    'calculateDistractingModifier plus calculateToHit expose a local +1 target to-hit helper',
+    'MegaMek source snapshot registers Distracting as a quirk option but does not expose a combat to-hit resolver for the local +1 helper; keep it out of source-backed integrated coverage until Demoralizer/panic-rule authority is modeled or the deviation is explicitly accepted',
+    [
+      ...MEGAMEK_DISTRACTING_QUIRK_SOURCE_REFS,
+      ...MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS,
+    ],
   ),
-  low_profile: integrated(
+  low_profile: helperOnly(
     'low_profile',
-    'calculateLowProfileModifier + calculateToHit',
+    'calculateLowProfileModifier plus calculateToHit expose a local +1 target to-hit helper when partial cover is absent',
+    'MegaMek source-backed Low Profile behavior is glancing-blow handling in WeaponHandler, not a to-hit modifier; MekStation needs glancing-blow damage resolution before this quirk can be integrated as source-backed coverage',
+    [
+      ...MEGAMEK_LOW_PROFILE_GLANCING_SOURCE_REFS,
+      ...MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS,
+    ],
   ),
   easy_to_pilot: integrated(
     'easy_to_pilot',

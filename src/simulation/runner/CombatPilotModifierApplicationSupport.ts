@@ -6,12 +6,15 @@ import type {
 import {
   MEGAMEK_CALLED_SHOT_SOURCE_REFS,
   MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
+  MEGAMEK_DISTRACTING_QUIRK_SOURCE_REFS,
   MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
   MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
   MEGAMEK_INITIATIVE_EQUIPMENT_SOURCE_REFS,
   MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
+  MEGAMEK_LOW_PROFILE_GLANCING_SOURCE_REFS,
   MEGAMEK_MULTI_TRAC_SOURCE_REFS,
   MEGAMEK_PSR_SPA_SOURCE_REFS,
+  MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS,
   MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   MEGAMEK_SANDBLASTER_SOURCE_REFS,
   MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS,
@@ -90,6 +93,16 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
     'weapon-to-hit-quirk-application',
     'runAttackPhase passes the firing weapon id into calculateToHit so calculateAttackerQuirkModifiers applies Accurate, Inaccurate, and Stable Weapon when unit state carries weaponQuirks',
     MEGAMEK_WEAPON_TO_HIT_QUIRK_SOURCE_REFS,
+  ),
+  'legacy-defensive-quirk-to-hit-application': helperOnly(
+    'legacy-defensive-quirk-to-hit-application',
+    'calculateAttackerQuirkModifiers currently calls calculateDistractingModifier and calculateLowProfileModifier, and attack state hydration passes target unit quirks into that local to-hit helper path',
+    'Distracting has no MegaMek combat to-hit resolver in the source snapshot, and source-backed Low Profile is glancing-blow handling rather than a to-hit modifier; local +1 target to-hit behavior remains explicit helper/deviation coverage',
+    [
+      ...MEGAMEK_DISTRACTING_QUIRK_SOURCE_REFS,
+      ...MEGAMEK_LOW_PROFILE_GLANCING_SOURCE_REFS,
+      ...MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS,
+    ],
   ),
   'called-shot-application': helperOnly(
     'called-shot-application',
@@ -231,8 +244,6 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
       'poor_targeting_short',
       'poor_targeting_medium',
       'poor_targeting_long',
-      'distracting',
-      'low_profile',
       'sensor_ghosts',
       'multi_trac',
     ],
@@ -260,8 +271,6 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
       'poor_targeting_short',
       'poor_targeting_medium',
       'poor_targeting_long',
-      'distracting',
-      'low_profile',
       'sensor_ghosts',
       'multi_trac',
     ],
@@ -269,6 +278,10 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
   'weapon-to-hit-quirk-application': {
     spaIds: [],
     quirkIds: ['accurate', 'inaccurate', 'stable_weapon'],
+  },
+  'legacy-defensive-quirk-to-hit-application': {
+    spaIds: [],
+    quirkIds: ['distracting', 'low_profile'],
   },
   'called-shot-application': {
     spaIds: ['marksman', 'sharpshooter'],

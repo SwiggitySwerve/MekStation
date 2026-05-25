@@ -115,6 +115,39 @@ export const MEKSTATION_TARGETING_QUIRK_ALIAS_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEGAMEK_DISTRACTING_QUIRK_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek OptionsConstants defines QUIRK_POS_DISTRACTING as distracting.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L55-L58',
+  ),
+  megamekRef(
+    'MegaMek Quirks registers Distracting as a positive unit quirk option without a combat to-hit resolver in this source snapshot.',
+    'megamek/src/megamek/common/options/Quirks.java#L80-L86',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_LOW_PROFILE_GLANCING_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek WeaponHandler.isLowProfileGlancingBlow applies Low Profile as glancing-blow handling when the attack roll equals the target number or target number plus one.',
+    'megamek/src/megamek/common/weapons/handlers/WeaponHandler.java#L2245-L2258',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines QUIRK_POS_LOW_PROFILE as low_profile and notes the BMM Low Profile behavior changed.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L72-L77',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS = [
+  mekstationDeviationRef(
+    'MekStation calculateDistractingModifier currently applies Distracting as a local +1 target to-hit helper.',
+    'src/utils/gameplay/quirkModifiers/targetingQuirks.ts#L63-L77',
+  ),
+  mekstationDeviationRef(
+    'MekStation calculateLowProfileModifier currently applies Low Profile as a local +1 target to-hit helper when partial cover is absent.',
+    'src/utils/gameplay/quirkModifiers/targetingQuirks.ts#L89-L103',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS = [
   megamekRef(
     'MegaMek HeatResolver sets PILOT_HOT_DOG to hotDogMod = 1 before resolving heat effects.',

@@ -964,6 +964,18 @@ Ranged to-hit validation SHALL keep Multi-Trac source-backed as secondary-target
 - **AND** the ranged to-hit resolver row SHALL cite the same Multi-Trac secondary-target anchors
 - **AND** the source references SHALL be commit-pinned URLs with line anchors
 
+### Requirement: Source-Backed Defensive Quirk Boundary
+
+Ranged to-hit validation SHALL NOT count legacy defensive quirk to-hit helpers as source-backed integrated coverage when the source authority does not match the local helper behavior. `Distracting` SHALL remain helper-only until a combat resolver authority is identified. `Low Profile` SHALL remain helper-only until MekStation implements the source-backed glancing-blow behavior rather than treating it as a normal target to-hit modifier.
+
+#### Scenario: Defensive quirk helpers expose source mismatch instead of hiding it
+
+- **GIVEN** the BattleMech quirk and pilot modifier resolver catalogs are generated
+- **WHEN** `distracting` and `low_profile` support is inspected
+- **THEN** both rows SHALL be helper-only with structured MegaMek source references and MekStation deviation references
+- **AND** the helper-only resolver row SHALL own the local `+1` target to-hit helper boundary
+- **AND** the source-backed ranged to-hit resolver row SHALL NOT count those two defensive quirk helpers as integrated quirk to-hit coverage
+
 ### Requirement: Source-Backed Initiative Quirk Bonuses
 
 Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer force initiative bonuses from active conscious units. Battle Computer SHALL provide `+2`, Command Mech SHALL provide `+1`, and the bonuses SHALL NOT stack. Explicit HQ initiative equipment bonuses SHALL be treated as the same best-of force turn bonus as initiative quirks, while explicit command initiative equipment bonuses SHALL stack as a separate command bonus. Tactical Genius SHALL be modeled as a reroll request that replaces only the requested side's raw initiative roll when that side has an active conscious Tactical Genius unit, not as a flat modifier. Raw `2d6` initiative payload fields SHALL remain raw dice values for replay/RNG arbitration, with modifier and total fields carrying adjusted values. Automatic command-console/HQ equipment hydration and Combat Intuition first-round sequencing SHALL remain explicit gaps until equipment-derived command state and movement-before-initiative flow are modeled. Automatic initiative equipment hydration SHALL fail closed unless source-kind/rules-profile, working/default-mode communications tonnage, active command-console crew, heavy-or-larger weight class, IndustrialMek, and advanced-fire-control eligibility context are represented.
