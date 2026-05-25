@@ -85,6 +85,24 @@ export function updateC3UnitECMStatus(
 }
 
 /**
+ * Update a unit's current C3 participation status.
+ */
+export function updateC3UnitOperationalStatus(
+  state: IC3NetworkState,
+  entityId: string,
+  operational: boolean,
+): IC3NetworkState {
+  return {
+    networks: state.networks.map((network) => ({
+      ...network,
+      members: network.members.map((m) =>
+        m.entityId === entityId ? { ...m, operational } : m,
+      ),
+    })),
+  };
+}
+
+/**
  * Handle a unit being destroyed within a C3 network.
  *
  * - C3 Master/Slave: If the master is destroyed, the ENTIRE network dissolves.

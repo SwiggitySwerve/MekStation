@@ -23,6 +23,7 @@ export {
   getUnitNetwork,
   removeC3Network,
   updateC3UnitECMStatus,
+  updateC3UnitOperationalStatus,
   updateC3UnitPosition,
 } from './c3Network/state';
 export { getC3TargetingBenefit, isBetterBracket } from './c3Network/targeting';

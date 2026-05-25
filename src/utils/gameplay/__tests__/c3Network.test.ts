@@ -10,6 +10,7 @@ import {
   getUnitNetwork,
   updateC3UnitPosition,
   updateC3UnitECMStatus,
+  updateC3UnitOperationalStatus,
   destroyC3Unit,
   getC3TargetingBenefit,
   isBetterBracket,
@@ -257,6 +258,21 @@ describe('C3 Network State Management', () => {
       (m) => m.entityId === 'A',
     )!;
     expect(member.ecmDisrupted).toBe(true);
+  });
+
+  it('should update unit operational status', () => {
+    const network = createC3MasterSlaveNetwork('net1', [
+      createC3Unit({ entityId: 'A', teamId: 'team1', role: 'master' }),
+      createC3Unit({ entityId: 'B', teamId: 'team1', role: 'slave' }),
+    ])!;
+
+    let state = addC3Network(createEmptyC3State(), network);
+    state = updateC3UnitOperationalStatus(state, 'A', false);
+
+    const member = getUnitNetwork(state, 'A')!.members.find(
+      (m) => m.entityId === 'A',
+    )!;
+    expect(member.operational).toBe(false);
   });
 });
 

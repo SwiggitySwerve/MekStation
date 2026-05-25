@@ -541,7 +541,7 @@ Cluster-table validation SHALL apply MegaMek's Sandblaster SPA modifier when the
 
 ### Requirement: C3 Range Modifier Integration
 
-Direct runner weapon attack declarations SHALL consume explicit `IGameState.c3Network` state when scenario/session builders provide it. The runner SHALL seed conservative unambiguous per-side C3 master/slave and C3i networks from hydrated BattleMech C3 equipment during initial state creation, SHALL refresh C3 member positions and ECM/iNARC ECM disruption from current unit state before calculating the declared to-hit number, SHALL suppress C3 range sharing for indirect fire, SHALL use default MegaMek C3 behavior where the network range-sharing unit does not need line of sight to the target, and SHALL keep ambiguous/player-authored C3 network assignment explicit until those session state builders exist.
+Direct runner weapon attack declarations SHALL consume explicit `IGameState.c3Network` state when scenario/session builders provide it. The runner SHALL seed conservative unambiguous per-side C3 master/slave and C3i networks from hydrated BattleMech C3 equipment during initial state creation, SHALL refresh C3 member positions, operational lifecycle state, and ECM/iNARC ECM disruption from current unit state before calculating the declared to-hit number, SHALL suppress C3 range sharing for indirect fire, SHALL use default MegaMek C3 behavior where the network range-sharing unit does not need line of sight to the target, and SHALL keep ambiguous/player-authored C3 network assignment explicit until those session state builders exist.
 
 #### Scenario: Direct weapon attack uses explicit C3 state
 
@@ -549,6 +549,7 @@ Direct runner weapon attack declarations SHALL consume explicit `IGameState.c3Ne
 - **WHEN** the runner emits `AttackDeclared`
 - **THEN** the declared to-hit number SHALL use the best C3 network range bracket when it improves the attacker's own bracket
 - **AND** current unit positions SHALL override stale C3 member positions before range math
+- **AND** current destroyed, ejected, retreated, withdrawing, shutdown, or transported C3 member state SHALL suppress stale C3 range sharing before range math
 - **AND** iNARC ECM pod state on a C3 member SHALL deny C3 benefit through the ECM-disrupted C3 path
 - **AND** the attack payload SHALL retain the attacker's actual range band while listing the effective C3 range math in modifiers
 
@@ -577,7 +578,7 @@ Direct runner weapon attack declarations SHALL consume explicit `IGameState.c3Ne
 - **GIVEN** the runner consumes explicit C3 network state for direct weapon attack to-hit math
 - **WHEN** the to-hit support catalog and requirement crosswalk are contract-tested
 - **THEN** ambiguous C3 equipment/network assignment edges SHALL remain a helper-only to-hit row
-- **AND** the integrated `c3` row SHALL describe explicit network-state consumption, position refresh, ECM/iNARC ECM disruption, indirect-fire suppression, and default no-LOS-required C3 range sharing
+- **AND** the integrated `c3` row SHALL describe explicit network-state consumption, position refresh, operational lifecycle refresh, ECM/iNARC ECM disruption, indirect-fire suppression, and default no-LOS-required C3 range sharing
 
 ### Requirement: Hull-Down Runner To-Hit Integration
 

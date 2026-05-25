@@ -727,6 +727,71 @@ describe('runAttackPhase to-hit modifier integration', () => {
     );
   });
 
+  it('refreshes C3 member lifecycle state before runner range math', () => {
+    const network = createC3MasterSlaveNetwork('runner-c3-lifecycle', [
+      createC3Unit({
+        entityId: 'master-1',
+        teamId: GameSide.Player,
+        role: 'master',
+        position: { q: 5, r: 0 },
+      }),
+      createC3Unit({
+        entityId: 'player-1',
+        teamId: GameSide.Player,
+        role: 'slave',
+        position: { q: 5, r: 0 },
+      }),
+      createC3Unit({
+        entityId: 'spotter-1',
+        teamId: GameSide.Player,
+        role: 'slave',
+        position: { q: 2, r: 0 },
+      }),
+    ]);
+    const state = createWeaponAttackState({
+      attacker: { position: { q: 5, r: 0 } },
+      target: { position: { q: 0, r: 0 } },
+    });
+
+    expect(network).not.toBeNull();
+
+    const c3State: IGameState = {
+      ...state,
+      c3Network: addC3Network(createEmptyC3State(), network!),
+      units: {
+        ...state.units,
+        'master-1': createUnit({
+          id: 'master-1',
+          side: GameSide.Player,
+          position: { q: 5, r: 0 },
+          overrides: { destroyed: true },
+        }),
+        'spotter-1': createUnit({
+          id: 'spotter-1',
+          side: GameSide.Player,
+          position: { q: 2, r: 0 },
+        }),
+      },
+    };
+
+    const payload = attackDeclaredPayload(
+      runModifierScenario({ state: c3State }),
+    );
+
+    expect(payload).toMatchObject({
+      range: 'medium',
+      toHitNumber: 6,
+    });
+    expectModifier(payload, {
+      name: 'Range (medium)',
+      value: 2,
+      source: 'range',
+    });
+    expect(payload.modifiers).not.toContainEqual(
+      expect.objectContaining({ name: 'C3 Network' }),
+    );
+  });
+
   it('threads target-hex terrain modifiers into AttackDeclared', () => {
     const clearEvents = runModifierScenario();
     const heavyWoodsEvents = runModifierScenario({

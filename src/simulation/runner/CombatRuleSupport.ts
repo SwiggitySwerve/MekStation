@@ -138,6 +138,13 @@ const MEGAMEK_C3_RANGE_SOURCE_REFS = [
     url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/megamek/src/megamek/common/compute/ComputeC3Spotter.java#L214-L250`,
     sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
   },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek ComputeC3Spotter rejects shutdown/off-board C3 attackers and shutdown/off-board/transported C3 spotters before range sharing.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/megamek/src/megamek/common/compute/ComputeC3Spotter.java#L154-L197`,
+    sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
+  },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const MEGAMEK_C3_EQUIPMENT_SOURCE_REFS = [
@@ -410,7 +417,7 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
   ),
   c3: integrated(
     'c3',
-    'runAttackPhase consumes explicit IGameState.c3Network state, refreshes C3 member positions and ECM/iNARC ECM disruption from current unit state, and calls calculateToHitWithC3 for direct weapon attacks; default C3 range sharing does not require spotter LOS',
+    'runAttackPhase consumes explicit IGameState.c3Network state, refreshes C3 member positions, operational lifecycle state, and ECM/iNARC ECM disruption from current unit state, and calls calculateToHitWithC3 for direct weapon attacks; default C3 range sharing does not require spotter LOS',
     MEGAMEK_C3_RANGE_SOURCE_REFS,
   ),
   'c3-equipment-network-formation': helperOnly(

@@ -10,6 +10,7 @@ export {
   getUnitNetwork,
   removeC3Network,
   updateC3UnitECMStatus,
+  updateC3UnitOperationalStatus,
   updateC3UnitPosition,
 } from './state';
 export { getC3TargetingBenefit, isBetterBracket } from './targeting';

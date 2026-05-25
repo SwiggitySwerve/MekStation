@@ -640,8 +640,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'to-hit-advanced-modifiers': helperOnly(
     'to-hit-advanced-modifiers',
-    'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, ECM, C3, terrain features, and a source-backed absent-action row for optional TacOps Evade target modifiers and attacker firing restrictions, with C3 explicit-state consumption and conservative runner initial network seeding separated from ambiguous battle-wide assignment gaps',
-    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, target hull-down state, secondary-target state, called-shot state, explicit C3 network state, mounted C3 equipment roles, conservative unambiguous runner C3/C3i initial networks, and non-blocking intervening terrain, but ECM inputs, session/player-authored C3 network assignment, multiple or oversized C3 networks, C3 equipment damage lifecycle, and evasion state are still helper-only or absent',
+    'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, ECM, C3, terrain features, and a source-backed absent-action row for optional TacOps Evade target modifiers and attacker firing restrictions, with C3 explicit-state consumption, attack-time lifecycle refresh, and conservative runner initial network seeding separated from ambiguous battle-wide assignment gaps',
+    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, target hull-down state, secondary-target state, called-shot state, explicit C3 network state with current positions/lifecycle/ECM disruption, mounted C3 equipment roles, conservative unambiguous runner C3/C3i initial networks, and non-blocking intervening terrain, but ECM inputs, session/player-authored C3 network assignment, multiple or oversized C3 networks, C3 equipment damage lifecycle, and evasion state are still helper-only or absent',
     [
       ...TO_HIT_ADVANCED_MODIFIER_SUPPORT_REFS,
       'actions.absentActionSurfaces.movement.evade',
