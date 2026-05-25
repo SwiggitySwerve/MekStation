@@ -45,3 +45,98 @@ export const MEGAMEK_TORSO_TWIST_SOURCE_REFS = [
     'megamek/src/megamek/common/options/OptionsConstants.java#L61-L131',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_WALK_MOVEMENT_SOURCE_REFS = [
+  megamekMovementRef(
+    'MegaMek Entity.getWalkMP returns walking MP after heat, cargo, weather, and gravity adjustments.',
+    'megamek/src/megamek/common/units/Entity.java#L3306-L3327',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_RUN_MOVEMENT_SOURCE_REFS = [
+  megamekMovementRef(
+    'MegaMek Entity.getRunMP derives standard run MP as ceil(adjusted walk MP * 1.5).',
+    'megamek/src/megamek/common/units/Entity.java#L3376-L3383',
+  ),
+  megamekMovementRef(
+    'MegaMek Mek.getRunMP delegates to armed MASC/Supercharger boosters when active, otherwise using the standard adjusted run MP.',
+    'megamek/src/megamek/common/units/Mek.java#L993-L1007',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_JUMP_MOVEMENT_SOURCE_REFS = [
+  megamekMovementRef(
+    'MegaMek Mek.getJumpMP counts operable jump jets, applies submerged jump-jet limits, and only applies Partial Wing bonuses when jump MP is positive.',
+    'megamek/src/megamek/common/units/Mek.java#L1081-L1123',
+  ),
+  megamekMovementRef(
+    'MegaMek MovePath marks illegal jump steps when a jumping path exceeds legal straight-line jump movement.',
+    'megamek/src/megamek/common/moves/MovePath.java#L468-L490',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_STAND_MOVEMENT_SOURCE_REFS = [
+  megamekMovementRef(
+    'MegaMek Entity.checkGetUp detects GET_UP/CAREFUL_STAND movement steps and returns the corresponding piloting roll target.',
+    'megamek/src/megamek/common/units/Entity.java#L7803-L7831',
+  ),
+  megamekMovementRef(
+    'MegaMek MovePathHandler resolves get-up piloting checks while processing movement.',
+    'megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L2023-L2032',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_GO_PRONE_MOVEMENT_SOURCE_REFS = [
+  megamekMovementRef(
+    'MegaMek MovePath allows GO_PRONE while restricting follow-up moves after leaving and returning to an enemy-occupied start hex.',
+    'megamek/src/megamek/common/moves/MovePath.java#L663-L704',
+  ),
+  megamekMovementRef(
+    'MegaMek MovePathHandler resolves GO_PRONE by setting the entity prone, with swarmer dislodge and inferno wash-off side paths.',
+    'megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L3572-L3590',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_FACING_MOVEMENT_SOURCE_REFS = [
+  megamekMovementRef(
+    'MegaMek Entity.setFacing persists primary facing and emits an entity-change event.',
+    'megamek/src/megamek/common/units/Entity.java#L2914-L2920',
+  ),
+  megamekMovementRef(
+    'MegaMek MovePathHandler commits the final movement facing after path processing.',
+    'megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L381-L436',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_OCCUPANCY_MOVEMENT_SOURCE_REFS = [
+  megamekMovementRef(
+    'MegaMek MoveStep calls Compute.stackingViolation and marks a movement step as a stacking violation when destination occupancy is illegal.',
+    'megamek/src/megamek/common/moves/MoveStep.java#L776-L787',
+  ),
+  megamekMovementRef(
+    'MegaMek MovePathHandler rechecks stacking violations during movement path resolution before committing occupied destinations.',
+    'megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L1361-L1382',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_ELEVATION_MOVEMENT_SOURCE_REFS = [
+  megamekMovementRef(
+    'MegaMek Mek.getMaxElevationChange limits normal BattleMech level changes to two elevation levels.',
+    'megamek/src/megamek/common/units/Mek.java#L3416-L3428',
+  ),
+  megamekMovementRef(
+    'MegaMek ShortestPathFinder.getElevationDiff computes destination elevation changes for movement path costing.',
+    'megamek/src/megamek/common/pathfinder/ShortestPathFinder.java#L248-L279',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_HEAT_MOVEMENT_PENALTY_SOURCE_REFS = [
+  megamekMovementRef(
+    'MegaMek Entity.getWalkMP subtracts getHeatMPReduction before deriving available movement points.',
+    'megamek/src/megamek/common/units/Entity.java#L3310-L3320',
+  ),
+  megamekMovementRef(
+    'MegaMek Entity.getHeatMPReduction implements the standard and optional TacOps heat movement penalties.',
+    'megamek/src/megamek/common/units/Entity.java#L3332-L3351',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];

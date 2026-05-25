@@ -76,6 +76,14 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **THEN** `facing.torso-twist` SHALL cite MegaMek source anchors for `TorsoTwistAction`, secondary-facing persistence, BattleMech twist legality, extended/no-twist quirk boundaries, and secondary-facing arc consumption
 - **AND** torso twist SHALL remain helper-only until game intent, wire payload, P2P translation, server dispatch, persisted secondary-facing state, legality gates, quirk handling, and attack arc consumption are authoritative
 
+#### Scenario: Core movement rule rows stay source-backed
+
+- **GIVEN** the movement rule catalog covers walk, run, jump, stand, voluntary go-prone, facing, occupancy, elevation, heat MP penalties, and torso twist
+- **WHEN** the aggregate catalog triad and BattleMech combat catalog contract tests run
+- **THEN** every integrated or helper-only movement rule row SHALL carry structured MegaMek source references with commit-pinned URLs and line anchors
+- **AND** the aggregate catalog triad for `movementRules` SHALL require row-level source references rather than inherited requirement authority
+- **AND** helper-only movement rows SHALL keep their remaining runtime gaps explicit instead of treating source-backed row evidence as complete parity
+
 #### Scenario: Voluntary go-prone emits source-backed movement step
 
 - **GIVEN** MegaMek defines voluntary go-prone as `MoveStepType.GO_PRONE` for standing Meks

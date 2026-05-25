@@ -1759,6 +1759,41 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(MOVEMENT_RULE_COMBAT_SUPPORT['torso-twist'].gap).toContain(
       'secondary-facing',
     );
+    expect(
+      Object.values(MOVEMENT_RULE_COMBAT_SUPPORT)
+        .filter((entry) => entry.level !== 'unsupported')
+        .flatMap((entry) =>
+          (entry.sourceRefs?.length ?? 0) === 0 ? [entry.id] : [],
+        ),
+    ).toEqual([]);
+    Object.values(MOVEMENT_RULE_COMBAT_SUPPORT).forEach((entry) => {
+      if (entry.level !== 'unsupported') {
+        expectPinnedMegaMekRefs(entry.sourceRefs ?? []);
+      }
+    });
+    expect(
+      MOVEMENT_RULE_COMBAT_SUPPORT.walk.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek Entity.getWalkMP returns walking MP after heat, cargo, weather, and gravity adjustments.',
+    ]);
+    expect(
+      MOVEMENT_RULE_COMBAT_SUPPORT.run.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek Entity.getRunMP derives standard run MP as ceil(adjusted walk MP * 1.5).',
+      'MegaMek Mek.getRunMP delegates to armed MASC/Supercharger boosters when active, otherwise using the standard adjusted run MP.',
+    ]);
+    expect(
+      MOVEMENT_RULE_COMBAT_SUPPORT.prone.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek MovePath allows GO_PRONE while restricting follow-up moves after leaving and returning to an enemy-occupied start hex.',
+      'MegaMek MovePathHandler resolves GO_PRONE by setting the entity prone, with swarmer dislodge and inferno wash-off side paths.',
+    ]);
 
     expect(sortedKeys(MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT)).toEqual(
       MOVEMENT_ENHANCEMENT_DEFINITIONS.map(({ type }) => type).sort(),

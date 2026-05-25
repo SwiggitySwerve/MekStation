@@ -91,6 +91,7 @@
 - [x] 3.2.12 Source-back the remaining optional TacOps sprint absent-action row with MegaMek MP, heat, attacker-firing, and target-modifier anchors so the gap is rule-backed instead of a product-only omission.
 - [x] 3.2.13 Source-back optional TacOps evade as a first-class absent-action row with MegaMek movement, heat, firing-restriction, and target-modifier anchors instead of leaving it as an unexamined Evasive SPA TMM gap.
 - [x] 3.2.14 Source-back torso twist helper-only action/rule rows with MegaMek secondary-facing action, legality, quirk, and arc-consumption anchors while leaving authoritative state/intent/wire/P2P/server paths explicit.
+- [x] 3.2.15 Source-pin core movement rule rows for walk, run, jump, stand, voluntary go-prone, facing, occupancy, elevation, heat MP penalties, and torso twist; promote movement rule triad enforcement to row-level source refs.
 - [ ] 3.3 Expand heat validation coverage for buildup, dissipation, shutdown, ammo explosions, pilot damage, and heat-driven modifiers.
 - [x] 3.3.1 Cross-link every heat rule support row into heat generation, dissipation, and lifecycle requirement checklists.
 - [x] 3.3.2 Add structured MegaMek source anchors for heat startup, avoidable/automatic shutdown, ammo-explosion risk, and pilot heat damage support rows.
@@ -215,3 +216,4 @@
 - [x] 4.3.54 Align aggregate critical-component support with the same MegaMek source-pinned critical-slot boundary so stale default-manifest-only generic equipment rationale cannot mask hydrated equipment gaps.
 - [x] 4.3.55 Source-pin special weapon family rows for UAC, RAC, LB-X, Streak SRM, MML, NARC/iNARC, AMS, TAG, and Artemis; promote their triad boundary to row-level MegaMek source references.
 - [x] 4.3.56 Promote special weapon mechanic rows to row-level MegaMek source references and mark the semi-guided TAG cluster helper as a source-checked non-parity gap.
+- [x] 4.3.57 Promote core movement rule rows to row-level MegaMek source references so inherited movement authority cannot mask unsourced walk/run/jump/stand/prone/facing/occupancy/elevation/heat-MP claims.

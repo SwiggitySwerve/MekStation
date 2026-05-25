@@ -325,7 +325,11 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
     toHitModifiers: RULE_TRIAD,
     physicalLegalityGates: PHYSICAL_LEGALITY_TRIAD,
     physicalDamageModifiers: RULE_TRIAD,
-    movementRules: RULE_TRIAD,
+    movementRules: triad(
+      'entry-source-refs',
+      'Core BattleMech movement rule rows are MegaMek-source checked and must carry row-level sourceRefs for walk, run, jump, stand, go-prone, facing, occupancy, elevation, heat movement penalties, and torso twist boundaries.',
+      RULE_REFS,
+    ),
     movementEnhancements: triad(
       'entry-source-refs',
       'Movement enhancement rows are source-backed MASC, Supercharger, TSM, and Partial Wing boundaries and must carry row-level sourceRefs.',

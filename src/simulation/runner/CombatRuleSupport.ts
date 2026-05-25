@@ -10,7 +10,18 @@ import type {
   ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 
-import { MEGAMEK_TORSO_TWIST_SOURCE_REFS } from './CombatMovementSourceRefs';
+import {
+  MEGAMEK_ELEVATION_MOVEMENT_SOURCE_REFS,
+  MEGAMEK_FACING_MOVEMENT_SOURCE_REFS,
+  MEGAMEK_GO_PRONE_MOVEMENT_SOURCE_REFS,
+  MEGAMEK_HEAT_MOVEMENT_PENALTY_SOURCE_REFS,
+  MEGAMEK_JUMP_MOVEMENT_SOURCE_REFS,
+  MEGAMEK_OCCUPANCY_MOVEMENT_SOURCE_REFS,
+  MEGAMEK_RUN_MOVEMENT_SOURCE_REFS,
+  MEGAMEK_STAND_MOVEMENT_SOURCE_REFS,
+  MEGAMEK_TORSO_TWIST_SOURCE_REFS,
+  MEGAMEK_WALK_MOVEMENT_SOURCE_REFS,
+} from './CombatMovementSourceRefs';
 
 function integrated(
   id: string,
@@ -496,27 +507,33 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
   walk: integrated(
     'walk',
     'validateMovement + GameEngine/InteractiveSession movement validation consume walking MP',
+    MEGAMEK_WALK_MOVEMENT_SOURCE_REFS,
   ),
   run: integrated(
     'run',
     'validateMovement consumes running MP and movement modifiers expose run heat/to-hit cost',
+    MEGAMEK_RUN_MOVEMENT_SOURCE_REFS,
   ),
   jump: integrated(
     'jump',
     'validateMovement enforces jump MP/no-jump-jets and ignores ground terrain entry modifiers',
+    MEGAMEK_JUMP_MOVEMENT_SOURCE_REFS,
   ),
   stand: integrated(
     'stand',
     'runMovementPhase resolves stand-up PSRs for prone units and emits UnitStood on success',
+    MEGAMEK_STAND_MOVEMENT_SOURCE_REFS,
   ),
   prone: helperOnly(
     'prone',
     'unit prone state, fall/standing helpers, and voluntary go-prone game-session/interactive action path',
     'Runner movement AI/planning cannot choose voluntary go-prone, and hull-down, swarmer dislodge, and inferno wash-off nuances are not modeled',
+    MEGAMEK_GO_PRONE_MOVEMENT_SOURCE_REFS,
   ),
   facing: integrated(
     'facing',
     'movement declarations commit final facing and eventPath reports turning MP',
+    MEGAMEK_FACING_MOVEMENT_SOURCE_REFS,
   ),
   'torso-twist': helperOnly(
     'torso-twist',
@@ -527,14 +544,17 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
   occupancy: integrated(
     'occupancy',
     'validateMovement rejects occupied destination hexes before MP or heat side effects',
+    MEGAMEK_OCCUPANCY_MOVEMENT_SOURCE_REFS,
   ),
   elevation: integrated(
     'elevation',
     'getHexMovementCost and pathfinding reject ground climbs above legal elevation delta',
+    MEGAMEK_ELEVATION_MOVEMENT_SOURCE_REFS,
   ),
   'heat-mp-penalty': integrated(
     'heat-mp-penalty',
     'validateMovement applies getHeatMovementPenalty to effective MP',
+    MEGAMEK_HEAT_MOVEMENT_PENALTY_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 
