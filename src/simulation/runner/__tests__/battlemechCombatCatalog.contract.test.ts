@@ -1802,6 +1802,14 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(
       supportIdsByLevel(CRITICAL_COMPONENT_COMBAT_SUPPORT, 'helper-only'),
     ).toEqual(['equipment']);
+    expect(
+      Object.values(CRITICAL_COMPONENT_COMBAT_SUPPORT)
+        .filter((entry) => (entry.sourceRefs?.length ?? 0) === 0)
+        .map((entry) => entry.id),
+    ).toEqual([]);
+    expect(CRITICAL_COMPONENT_COMBAT_SUPPORT.equipment.gap).toContain(
+      'equipment-specific',
+    );
 
     expect(
       supportIdsByLevel(DESTRUCTION_CAUSE_COMBAT_SUPPORT, 'integrated'),

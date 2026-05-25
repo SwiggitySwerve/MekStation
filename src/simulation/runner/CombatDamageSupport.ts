@@ -3,6 +3,14 @@ import type {
   ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 
+import {
+  MEGAMEK_AMMO_CRITICAL_EFFECT_SOURCE_REFS,
+  MEGAMEK_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEGAMEK_MTF_EQUIPMENT_CRITICAL_SOURCE_REFS,
+  MEGAMEK_MTF_SYSTEM_CRITICAL_SOURCE_REFS,
+  MEGAMEK_SYSTEM_CRITICAL_EFFECT_SOURCE_REFS,
+} from './CombatCriticalSlotSourceRefs';
+
 function integrated(
   id: string,
   evidence: string,
@@ -17,8 +25,11 @@ function helperOnly(
   id: string,
   evidence: string,
   gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatFeatureSupportEntry {
-  return { id, level: 'helper-only', evidence, gap };
+  return sourceRefs
+    ? { id, level: 'helper-only', evidence, gap, sourceRefs }
+    : { id, level: 'helper-only', evidence, gap };
 }
 
 const MEGAMEK_DAMAGE_SOURCE_VERSION =
@@ -182,47 +193,91 @@ export const CRITICAL_COMPONENT_COMBAT_SUPPORT = {
   actuator: integrated(
     'actuator',
     'default critical manifest includes limb actuators and applyActuatorHit persists actuator damage plus leg PSRs',
+    [
+      ...MEGAMEK_MTF_SYSTEM_CRITICAL_SOURCE_REFS,
+      ...MEGAMEK_SYSTEM_CRITICAL_EFFECT_SOURCE_REFS,
+    ],
   ),
   cockpit: integrated(
     'cockpit',
     'default critical manifest includes cockpit and applyCockpitHit emits pilot_death destruction',
+    [
+      ...MEGAMEK_MTF_SYSTEM_CRITICAL_SOURCE_REFS,
+      ...MEGAMEK_SYSTEM_CRITICAL_EFFECT_SOURCE_REFS,
+    ],
   ),
   engine: integrated(
     'engine',
     'default critical manifest includes engine slots and applyEngineHit persists heat/destruction effects',
+    [
+      ...MEGAMEK_MTF_SYSTEM_CRITICAL_SOURCE_REFS,
+      ...MEGAMEK_SYSTEM_CRITICAL_EFFECT_SOURCE_REFS,
+    ],
   ),
   gyro: integrated(
     'gyro',
     'default critical manifest includes gyro slots and applyGyroHit emits gyro PSRs',
+    [
+      ...MEGAMEK_MTF_SYSTEM_CRITICAL_SOURCE_REFS,
+      ...MEGAMEK_SYSTEM_CRITICAL_EFFECT_SOURCE_REFS,
+    ],
   ),
   life_support: integrated(
     'life_support',
     'default critical manifest includes life support slots and applyLifeSupportHit tracks disabled support',
+    [
+      ...MEGAMEK_MTF_SYSTEM_CRITICAL_SOURCE_REFS,
+      ...MEGAMEK_SYSTEM_CRITICAL_EFFECT_SOURCE_REFS,
+    ],
   ),
   sensor: integrated(
     'sensor',
     'default critical manifest includes sensors and applySensorHit persists sensor hits',
+    [
+      ...MEGAMEK_MTF_SYSTEM_CRITICAL_SOURCE_REFS,
+      ...MEGAMEK_SYSTEM_CRITICAL_EFFECT_SOURCE_REFS,
+    ],
   ),
   ammo: integrated(
     'ammo',
     'hydrateCriticalSlotManifestFromFullUnit maps catalog ammo slots to ammoBinId, createHydratedUnitState seeds ammoState from catalog ammo critical slots, and weaponAttackAmmoExplosions targets crit-induced cookoffs at the resolved bin',
+    [
+      ...MEGAMEK_MTF_EQUIPMENT_CRITICAL_SOURCE_REFS,
+      ...MEGAMEK_AMMO_CRITICAL_EFFECT_SOURCE_REFS,
+    ],
   ),
   equipment: helperOnly(
     'equipment',
     'applyCriticalHitEffect returns EquipmentDestroyed for generic equipment slots',
-    'default runner critical manifest has no generic equipment slots',
+    'Generic equipment critical slots can hydrate from catalog data, but MegaMek equipment-specific branches do not all cascade through MekStation combat state yet',
+    [
+      ...MEGAMEK_MTF_EQUIPMENT_CRITICAL_SOURCE_REFS,
+      ...MEGAMEK_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+    ],
   ),
   heat_sink: integrated(
     'heat_sink',
     'hydrateCriticalSlotManifestFromFullUnit seeds catalog Heat Sink slots, applyHeatSinkHit increments heatSinksDestroyed, and runHeatPhase consumes that damage',
+    [
+      ...MEGAMEK_MTF_EQUIPMENT_CRITICAL_SOURCE_REFS,
+      ...MEGAMEK_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+    ],
   ),
   jump_jet: integrated(
     'jump_jet',
     'hydrateCriticalSlotManifestFromFullUnit seeds catalog Jump Jet slots, applyJumpJetHit increments jumpJetsDestroyed, and runMovementPhase reduces jump MP before movement validation',
+    [
+      ...MEGAMEK_MTF_EQUIPMENT_CRITICAL_SOURCE_REFS,
+      ...MEGAMEK_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+    ],
   ),
   weapon: integrated(
     'weapon',
     'hydrateCriticalSlotManifestFromFullUnit seeds catalog Weapon slots with runtime weapon ids, applyWeaponHit records weaponsDestroyed, toAIUnitState removes those mounts from bot planning, and runAttackPhase rejects stale declarations',
+    [
+      ...MEGAMEK_MTF_EQUIPMENT_CRITICAL_SOURCE_REFS,
+      ...MEGAMEK_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+    ],
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 
