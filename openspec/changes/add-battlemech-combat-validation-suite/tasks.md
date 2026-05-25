@@ -26,6 +26,7 @@
 - [x] 1.20 Promote canonical pilot ability scope to row-level source refs so every canonical SPA id cites MekStation catalog anchors plus pinned MegaMek pilot option registry evidence instead of inheriting broad SPA/quirk authority.
 - [x] 1.21 Promote legacy pilot ability support rows to row-level source refs so gunnery, indirect-fire, cluster, physical, called-shot, and Terrain Master SPA claims cannot inherit broad SPA/quirk authority.
 - [x] 1.22 Promote legacy mech quirk support rows to row-level source refs so PSR, physical, actuator, and Rugged maintenance helpers cannot inherit broad SPA/quirk authority.
+- [x] 1.23 Promote source-pinned mech quirk, PSR trigger, and pilot-modifier-resolver maps to row-level triad authority and require every row in an `entry-source-refs` map to carry valid source refs.
 
 ## 2. Physical attack legality gates
 
@@ -332,3 +333,4 @@
 - [x] 4.3.93 Cross-check MegaMek `PilotOptions`/`OptionsConstants` and MekStation canonical SPA category files before promoting `canonicalPilotAbilityScope` to row-level source references.
 - [x] 4.3.94 Cross-check MegaMek gunnery, indirect-fire, cluster-table, physical-combat, and Terrain Master SPA behavior before promoting `pilotAbilities` to row-level source references.
 - [x] 4.3.95 Cross-check MegaMek PSR, physical, and anti-Mek actuator quirk behavior plus MekHQ Rugged maintenance behavior before promoting `mechQuirks` to row-level source references.
+- [x] 4.3.96 Cross-check catalog triad boundaries against the now source-pinned quirk, PSR trigger, and pilot-modifier-resolver rows so broad requirement inheritance cannot mask missing row refs.

@@ -14,6 +14,13 @@ function sortedKeys(record: Record<string, unknown>): readonly string[] {
   return Object.keys(record).sort();
 }
 
+const VALID_SOURCE_KINDS = new Set([
+  'rulebook',
+  'megamek-source',
+  'mekhq-behavior',
+  'mekstation-deviation',
+]);
+
 function catalogMaps(): readonly {
   readonly sectionId: string;
   readonly mapId: string;
@@ -144,14 +151,66 @@ describe('BattleMech combat validation catalog index', () => {
 
         if (triad.authorityBoundary.kind === 'entry-source-refs') {
           for (const entry of supportEntries) {
-            if (
-              entry.level !== 'unsupported' &&
-              (entry.sourceRefs?.length ?? 0) === 0
-            ) {
+            const sourceRefs = entry.sourceRefs ?? [];
+
+            if (sourceRefs.length === 0) {
               failures.push(
                 `${refPrefix}.${entry.id}: entry-source-refs boundary requires row sourceRefs`,
               );
             }
+
+            sourceRefs.forEach((sourceRef, sourceRefIndex) => {
+              const sourceRefId = `${refPrefix}.${entry.id}.sourceRefs[${sourceRefIndex}]`;
+
+              if (!VALID_SOURCE_KINDS.has(sourceRef.kind)) {
+                failures.push(
+                  `${sourceRefId}: invalid source kind ${sourceRef.kind}`,
+                );
+              }
+              if (sourceRef.citation.trim().length === 0) {
+                failures.push(`${sourceRefId}: missing citation`);
+              }
+              if (sourceRef.url.trim().length === 0) {
+                failures.push(`${sourceRefId}: missing url`);
+              }
+              if (sourceRef.sourceVersion.trim().length === 0) {
+                failures.push(`${sourceRefId}: missing sourceVersion`);
+              }
+              if (
+                sourceRef.kind === 'megamek-source' &&
+                (!sourceRef.url.includes('github.com/MegaMek/megamek/blob/') ||
+                  !sourceRef.url.includes(sourceRef.sourceVersion) ||
+                  !sourceRef.url.includes('#L'))
+              ) {
+                failures.push(
+                  `${sourceRefId}: MegaMek ref must be commit-pinned and line-anchored`,
+                );
+              }
+              if (
+                sourceRef.kind === 'mekhq-behavior' &&
+                (!sourceRef.url.includes('github.com/MegaMek/mekhq/blob/') ||
+                  !sourceRef.url.includes(sourceRef.sourceVersion) ||
+                  !sourceRef.url.includes('#L'))
+              ) {
+                failures.push(
+                  `${sourceRefId}: MekHQ ref must be commit-pinned and line-anchored`,
+                );
+              }
+              if (
+                sourceRef.kind === 'mekstation-deviation' &&
+                !sourceRef.url.includes('#L')
+              ) {
+                failures.push(
+                  `${sourceRefId}: MekStation deviation ref must be line-anchored`,
+                );
+              }
+              if (
+                sourceRef.kind === 'rulebook' &&
+                !sourceRef.url.includes('battletech.com/')
+              ) {
+                failures.push(`${sourceRefId}: rulebook ref is not official`);
+              }
+            });
           }
         }
 
@@ -160,6 +219,20 @@ describe('BattleMech combat validation catalog index', () => {
     );
 
     expect([...sectionKeyFailures, ...evidenceFailures]).toEqual([]);
+  });
+
+  it('keeps source-pinned quirk, PSR trigger, and resolver catalogs on row-level authority', () => {
+    const triadMaps = triadEvidenceMaps();
+
+    expect(triadMaps.featureSupport.mechQuirks.authorityBoundary.kind).toBe(
+      'entry-source-refs',
+    );
+    expect(triadMaps.lifecycleAndPsr.psrTriggers.authorityBoundary.kind).toBe(
+      'entry-source-refs',
+    );
+    expect(
+      triadMaps.pilotSkills.pilotModifierResolvers.authorityBoundary.kind,
+    ).toBe('entry-source-refs');
   });
 
   it('keeps representative must-cover requirements discoverable from the aggregate catalog', () => {

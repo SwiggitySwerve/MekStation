@@ -32,6 +32,12 @@ const triad = (
   testRefs,
 });
 
+const entryTriad = (
+  rationale: string,
+  testRefs: readonly ICombatCatalogTriadTestReference[],
+): ICombatCatalogTriadEvidence =>
+  triad('entry-source-refs', rationale, testRefs);
+
 const ACTION_CONTRACT_REFS = [
   testRef(
     'src/simulation/runner/__tests__/combatActionCatalog.contract.test.ts',
@@ -181,82 +187,77 @@ const ACTION_TRIAD = triad(
   ACTION_CONTRACT_REFS,
 );
 const ACTION_REQUIREMENT_TRIAD = requirementTriad(ACTION_CONTRACT_REFS);
-const ATTACK_REASON_TRIAD = triad(
-  'entry-source-refs',
+const ATTACK_REASON_TRIAD = entryTriad(
   'Ranged attack invalidation reason rows must carry row-level sourceRefs for ammo, same-hex, range, LOS/spotter, targetability, missing weapon, and weapon readiness boundaries; SameHex is an explicit MekStation deviation row.',
   INVALIDATION_REFS,
 );
-const INVALID_TARGET_STATE_TRIAD = triad(
-  'entry-source-refs',
+const INVALID_TARGET_STATE_TRIAD = entryTriad(
   'Ranged invalid target-state rows are MegaMek-source checked and must carry row-level sourceRefs for missing, destroyed, friendly, retreated, and ejected targetability boundaries.',
   INVALIDATION_REFS,
 );
-const ATTACK_SIDE_EFFECT_TRIAD = triad(
-  'entry-source-refs',
+const ATTACK_SIDE_EFFECT_TRIAD = entryTriad(
   'Ranged invalid attack side-effect guard rows must carry row-level MekStation sourceRefs for event suppression, heat, ammo, damage, and fired-weapon state boundaries.',
   INVALIDATION_REFS,
 );
-const EVENT_TRIAD = triad(
-  'entry-source-refs',
+const EVENT_TRIAD = entryTriad(
   'BattleMech event rows are MekStation executable event contracts and must carry row-level sourceRefs to the local factory, runner, reducer, or scenario paths that emit or intentionally omit each event.',
   EVENT_STREAM_REFS,
 );
-const FEATURE_TRIAD = requirementTriad(FEATURE_REFS);
-const TERRAIN_ENVIRONMENT_TRIAD = triad(
-  'entry-source-refs',
+const MECH_QUIRK_TRIAD = entryTriad(
+  'Mech quirk rows require row sourceRefs.',
+  FEATURE_REFS,
+);
+const TERRAIN_ENVIRONMENT_TRIAD = entryTriad(
   'Terrain/environment rows are source checked and must carry row-level sourceRefs for terrain costs, LOS/cover/to-hit features, water/fire heat, fog/night/wind/extreme temperature, local atmosphere, and explicit dust/mines gaps.',
   TERRAIN_REFS,
 );
-const TERRAIN_TYPE_MOVEMENT_TRIAD = triad(
-  'entry-source-refs',
+const TERRAIN_TYPE_MOVEMENT_TRIAD = entryTriad(
   'Per-TerrainType movement rows are source checked and must carry row-level sourceRefs, distinguishing MegaMek terrain movement anchors from MekStation-local water and building movement simplifications.',
   TERRAIN_REFS,
 );
-const TERRAIN_TYPE_HEAT_TRIAD = triad(
-  'entry-source-refs',
+const TERRAIN_TYPE_HEAT_TRIAD = entryTriad(
   'Per-TerrainType heat rows are source checked and must carry row-level sourceRefs, distinguishing MegaMek fire/water heat anchors from MekStation-local no-heat terrain rows.',
   TERRAIN_REFS,
 );
-const TERRAIN_TYPE_ATTACK_MODIFIER_TRIAD = triad(
-  'entry-source-refs',
+const TERRAIN_TYPE_ATTACK_MODIFIER_TRIAD = entryTriad(
   'Per-TerrainType attack modifier rows are source checked and must carry row-level sourceRefs, distinguishing MegaMek woods/smoke/building to-hit anchors from MekStation-local water, swamp, and no-modifier rows.',
   TERRAIN_REFS,
 );
-const TERRAIN_TYPE_LOS_TRIAD = triad(
-  'entry-source-refs',
+const TERRAIN_TYPE_LOS_TRIAD = entryTriad(
   'Per-TerrainType LOS rows are source checked and must carry row-level sourceRefs, distinguishing MekStation simplified blocksLOS behavior from MegaMek cumulative woods/smoke, building, water, and divided-LOS parity gaps.',
   TERRAIN_REFS,
 );
-const TERRAIN_TYPE_PSR_TRIAD = triad(
-  'entry-source-refs',
+const TERRAIN_TYPE_PSR_TRIAD = entryTriad(
   'Per-TerrainType PSR rows are source checked and must carry row-level sourceRefs, distinguishing MegaMek rubble, water, skidding, swamp bog-down, and building-collapse anchors from MekStation-local rough/no-PSR terrain rows.',
   TERRAIN_REFS,
 );
 const DAMAGE_TRIAD = requirementTriad(DAMAGE_REFS);
-const CRITICAL_SLOT_TRIAD = triad(
-  'entry-source-refs',
+const CRITICAL_SLOT_TRIAD = entryTriad(
   'Critical-slot hydration and effect rows are MegaMek-source checked and must carry row-level sourceRefs for system critical slots, mounted equipment critical slots, ammo cookoff selection, and equipment-specific lifecycle gap boundaries.',
   CRITICAL_SLOT_REFS,
 );
-const LIFECYCLE_TRIAD = requirementTriad(LIFECYCLE_REFS);
-const ACTION_ELIGIBILITY_TRIAD = triad(
-  'entry-source-refs',
+const ACTION_ELIGIBILITY_TRIAD = entryTriad(
   'Action eligibility rows require row sourceRefs.',
   LIFECYCLE_REFS,
 );
-const PSR_RESOLUTION_TRIAD = triad(
-  'entry-source-refs',
+const PSR_RESOLUTION_TRIAD = entryTriad(
   'PSR resolution rows require row sourceRefs.',
   LIFECYCLE_REFS,
 );
-const PARITY_TRIAD = triad(
-  'entry-source-refs',
+const PSR_TRIGGER_TRIAD = entryTriad(
+  'Runner PSR trigger rows require row sourceRefs.',
+  LIFECYCLE_REFS,
+);
+const PARITY_TRIAD = entryTriad(
   'Runner/interactive parity and representative integration rows require row sourceRefs for the executable MekStation paths they claim.',
   PARITY_REFS,
 );
 const PILOT_TRIAD = requirementTriad(PILOT_REFS);
-const PHYSICAL_LEGALITY_TRIAD = triad(
-  'entry-source-refs',
+const PILOT_MODIFIER_RESOLVER_TRIAD = entryTriad(
+  'Pilot modifier resolver rows require row sourceRefs.',
+  PILOT_REFS,
+);
+const PHYSICAL_LEGALITY_TRIAD = entryTriad(
   'Physical legality gate rows are MegaMek-source checked and must carry row-level sourceRefs.',
   [
     ...RULE_REFS,
@@ -266,13 +267,11 @@ const PHYSICAL_LEGALITY_TRIAD = triad(
     ),
   ],
 );
-const PHYSICAL_DAMAGE_TRIAD = triad(
-  'entry-source-refs',
+const PHYSICAL_DAMAGE_TRIAD = entryTriad(
   'Physical damage modifier rows are MegaMek-source checked and must carry row-level sourceRefs for active TSM, claw punch, talon kick/DFA, and underwater physical damage boundaries.',
   RULE_REFS,
 );
-const HEAT_TRIAD = triad(
-  'entry-source-refs',
+const HEAT_TRIAD = entryTriad(
   'Heat rule rows are source checked and must carry row-level sourceRefs for weapon heat, movement/jump heat, engine crit heat, dissipation, damaged heat sinks, threshold effects, water/fire/environmental heat, shutdown/startup, ammo explosion, pilot heat damage, and optional MaxTech heat damage boundaries. Local atmosphere heat adjustment is marked as a MekStation deviation source.',
   [
     ...RULE_REFS,
@@ -331,7 +330,7 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
       'Canonical SPA rows must carry row-level sourceRefs that bind each canonical id to the MekStation SPA catalog plus the pinned MegaMek pilot option registry, including explicit helper-only and unsupported scope partitions.',
       FEATURE_REFS,
     ),
-    mechQuirks: FEATURE_TRIAD,
+    mechQuirks: MECH_QUIRK_TRIAD,
     ammunitionCompatibility: triad(
       'entry-source-refs',
       'Ammunition compatibility rows must carry row-level sourceRefs for official ammo catalog imports, ammo lookup/hydration, consumable ammo tracking, and exact-id gap partitions before BattleMech ammo coverage can claim source-backed catalog parity.',
@@ -395,7 +394,7 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
   lifecycleAndPsr: {
     actionEligibility: ACTION_ELIGIBILITY_TRIAD,
     psrResolution: PSR_RESOLUTION_TRIAD,
-    psrTriggers: LIFECYCLE_TRIAD,
+    psrTriggers: PSR_TRIGGER_TRIAD,
   },
   parityAndIntegration: {
     runnerInteractiveParity: PARITY_TRIAD,
@@ -403,7 +402,7 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
   },
   pilotSkills: {
     pilotSkillUse: PILOT_TRIAD,
-    pilotModifierResolvers: PILOT_TRIAD,
+    pilotModifierResolvers: PILOT_MODIFIER_RESOLVER_TRIAD,
   },
   validationScope: {
     objectiveRequirements: triad(
