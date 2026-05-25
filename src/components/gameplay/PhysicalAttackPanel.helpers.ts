@@ -29,6 +29,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   AttackerCargoInteraction: 'Attacker is loading or unloading cargo',
   NoJumpThisTurn: 'DFA requires jumping this turn',
   MechanicalJumpBooster: 'DFA cannot use mechanical jump boosters',
+  ChargeJumpMovement: 'Charge cannot include jump movement',
   NoRunThisTurn: 'Charge requires running this turn',
   ChargeBackwardMovement: 'Charge cannot include backward movement',
   AttackerInfantry: 'Infantry cannot perform DFA',

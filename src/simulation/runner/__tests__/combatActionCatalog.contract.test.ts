@@ -922,6 +922,21 @@ describe('BattleMech combat action support catalog', () => {
     });
   });
 
+  it('catalogs charge jump-movement legality as an integrated source-backed gate', () => {
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['charge.no-jump-movement'],
+    ).toMatchObject({
+      level: 'integrated',
+      attackFamily: 'charge',
+      evidence: expect.stringContaining('attackerJumpedThisTurn'),
+      sourceRefs: [
+        expect.objectContaining({
+          citation: expect.stringContaining('that jump'),
+        }),
+      ],
+    });
+  });
+
   it('keeps unresolved physical displacement chain edges visible and source-backed', () => {
     expect(
       PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-domino-chain'],

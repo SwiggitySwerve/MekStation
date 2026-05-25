@@ -494,6 +494,14 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **AND** no physical declaration, damage, displacement, or PSR side effect SHALL be emitted
 - **AND** runner physical phase SHALL skip prone attackers before bot or automatic charge declarations
 
+#### Scenario: Charge rejects jump movement paths
+
+- **GIVEN** a BattleMech-compatible attacker declares a charge after jumping this turn
+- **WHEN** the charge legality gate runs
+- **THEN** the charge SHALL be rejected with `ChargeJumpMovement`
+- **AND** the jump movement rejection SHALL run before the generic no-run, backward-movement, and prone-attacker gates
+- **AND** event-sourced declarations, stale physical resolution, and runner injected declarations SHALL consume the same movement-state-derived jump flag
+
 #### Scenario: Charge rejects backward movement paths
 
 - **GIVEN** a BattleMech-compatible attacker declares a charge after running this turn

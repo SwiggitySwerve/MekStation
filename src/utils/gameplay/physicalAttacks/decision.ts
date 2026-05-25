@@ -118,6 +118,7 @@ export function chooseBestPhysicalAttack(
       ...baseInput,
       attackType: 'charge',
       hexesMoved: options.hexesMoved,
+      attackerJumpedThisTurn: options.isJumping,
       attackerRanThisTurn: true,
       attackerMovedBackwardThisTurn: options.attackerMovedBackwardThisTurn,
     };

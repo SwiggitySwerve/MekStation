@@ -93,6 +93,7 @@ export type PhysicalAttackInvalidReason =
   | 'AttackerCargoInteraction'
   | 'NoJumpThisTurn'
   | 'MechanicalJumpBooster'
+  | 'ChargeJumpMovement'
   | 'NoRunThisTurn'
   | 'ChargeBackwardMovement'
   | 'AttackerInfantry'

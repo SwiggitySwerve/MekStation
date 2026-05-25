@@ -1812,6 +1812,24 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows jumping charge movement before run/backward/prone gates', () => {
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerJumpedThisTurn: true,
+            attackerRanThisTurn: false,
+            attackerMovedBackwardThisTurn: true,
+            attackerProne: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'ChargeJumpMovement',
+      });
+    });
+
     it('disallows backward charge movement before prone-state validation', () => {
       expect(
         canCharge(

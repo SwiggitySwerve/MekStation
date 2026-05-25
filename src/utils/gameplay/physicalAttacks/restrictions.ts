@@ -601,6 +601,9 @@ export function canCharge(
   const targetObjectRestriction = chargeDfaTargetObjectRestriction(input);
   if (!targetObjectRestriction.allowed) return targetObjectRestriction;
 
+  if (input.attackerJumpedThisTurn) {
+    return blocked('No jumping allowed while charging', 'ChargeJumpMovement');
+  }
   if (input.attackerRanThisTurn === false) {
     return blocked('Charge requires a run this turn', 'NoRunThisTurn');
   }

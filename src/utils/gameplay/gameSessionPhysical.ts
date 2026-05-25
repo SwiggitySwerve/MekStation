@@ -20,6 +20,7 @@ import {
   IHexGrid,
   IPhysicalDisplacement,
   IPhysicalAttackDeclaredPayload,
+  MovementType,
   PSRTrigger,
 } from '@/types/gameplay';
 
@@ -489,7 +490,9 @@ export function declarePhysicalAttack(
     targetEvading: targetState?.isEvading,
     attackerMovementModifier: context.attackerMovementModifier,
     retractableBladeExtended: context.retractableBladeExtended,
-    attackerJumpedThisTurn: context.attackerJumpedThisTurn,
+    attackerJumpedThisTurn:
+      context.attackerJumpedThisTurn ??
+      attackerState.movementThisTurn === MovementType.Jump,
     attackerRanThisTurn: context.attackerRanThisTurn,
     attackerMovedBackwardThisTurn:
       context.attackerMovedBackwardThisTurn ??
@@ -736,7 +739,9 @@ export function resolveAllPhysicalAttacks(
       targetEvading: targetState.isEvading,
       attackerMovementModifier: context.attackerMovementModifier,
       retractableBladeExtended: context.retractableBladeExtended,
-      attackerJumpedThisTurn: context.attackerJumpedThisTurn,
+      attackerJumpedThisTurn:
+        context.attackerJumpedThisTurn ??
+        attackerState.movementThisTurn === MovementType.Jump,
       attackerRanThisTurn: context.attackerRanThisTurn,
       attackerMovedBackwardThisTurn:
         context.attackerMovedBackwardThisTurn ??

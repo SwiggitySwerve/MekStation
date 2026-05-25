@@ -1138,6 +1138,36 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     });
   });
 
+  it('rejects injected charge declarations after jump movement before side effects', () => {
+    const jumpCharge = runPhase('charge', {
+      attacker: {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 5,
+      },
+    });
+
+    expect(resolvedPayload(jumpCharge.events)).toMatchObject({
+      attackType: 'charge',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'ChargeJumpMovement',
+    });
+    expect(damageEventsFor(jumpCharge.events, 'opponent-1')).toHaveLength(0);
+    expect(damageEventsFor(jumpCharge.events, 'player-1')).toHaveLength(0);
+    expect(jumpCharge.result.units['opponent-1'].pendingPSRs).toHaveLength(0);
+    expect(jumpCharge.result.units['player-1'].pendingPSRs).toHaveLength(0);
+    expect(jumpCharge.result.units['opponent-1'].position).toEqual({
+      q: 1,
+      r: 0,
+    });
+    expect(jumpCharge.result.units['player-1'].position).toEqual({
+      q: 0,
+      r: 0,
+    });
+  });
+
   it('rejects injected charge declarations when target elevation does not overlap the attacker', () => {
     const elevatedTarget = runPhase('charge', {
       attacker: {

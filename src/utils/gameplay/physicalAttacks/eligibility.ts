@@ -21,7 +21,7 @@
  * @spec openspec/changes/add-physical-attack-phase-ui/specs/physical-attack-system/spec.md
  */
 
-import type { IUnitGameState } from '@/types/gameplay';
+import { type IUnitGameState, MovementType } from '@/types/gameplay';
 
 import { hexDistance } from '../hexMath';
 import { calculatePhysicalDamage } from './damage';
@@ -301,7 +301,9 @@ export function getEligiblePhysicalAttacks(
     attackerRanThisTurn: context.attackerRanThisTurn,
     attackerMovedBackwardThisTurn:
       context.attackerMovedBackwardThisTurn ?? attacker.movedBackwardThisTurn,
-    attackerJumpedThisTurn: context.attackerJumpedThisTurn,
+    attackerJumpedThisTurn:
+      context.attackerJumpedThisTurn ??
+      attacker.movementThisTurn === MovementType.Jump,
     limbsUsedThisTurn: context.limbsUsedThisTurn,
     lowerArmActuatorPresent: context.lowerArmActuatorPresent,
     handActuatorPresent: context.handActuatorPresent,
@@ -379,6 +381,7 @@ export function getEligiblePhysicalAttacks(
   const chargeInput: IPhysicalAttackInput = {
     ...baseInput,
     attackType: 'charge',
+    attackerJumpedThisTurn: attacker.movementThisTurn === MovementType.Jump,
   };
   const chargeRestriction = canCharge(chargeInput);
   options.push(buildOption('charge', chargeInput, chargeRestriction));
