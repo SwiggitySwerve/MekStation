@@ -1649,6 +1649,7 @@ describe('HexMapDisplay combat projection', () => {
 
     const targetHex = screen.getByTestId('hex-0-1');
     expect(targetHex).toHaveAttribute('data-combat-firing-arc', 'rear');
+    expect(targetHex).toHaveAttribute('data-combat-in-arc', 'false');
     expect(targetHex).toHaveAttribute('data-combat-valid-target', 'false');
     expect(targetHex).toHaveAttribute('data-combat-invalid-reason', 'OutOfArc');
     expect(targetHex).toHaveAttribute(

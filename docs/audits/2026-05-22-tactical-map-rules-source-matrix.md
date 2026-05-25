@@ -235,6 +235,15 @@ resolution. Coverage:
 `src/utils/gameplay/__tests__/combatProjection.test.ts`, and
 `src/engine/__tests__/InteractiveSession.attackProjectionAgreement.scenario.test.ts`.
 
+2026-05-25 selected-weapon arc browser update: the tactical-map browser harness
+now has a dedicated selected-front-weapon vs rear-arc target scenario. The
+rendered target exposes `OutOfArc`, `No selected weapons can fire into the rear
+arc`, per-weapon `front-arc-laser:out of rear arc` metadata, an `ARC` combat
+invalid badge, and a rear-arc badge marked not covered. The companion fixture
+feeds the same projection into `applyInteractiveSessionAttack` and proves the
+commit path rejects the attack with matching reason/details before declaration
+or attack locking.
+
 Additional battlefield-wreck terrain pin: MegaMek
 `OptionsConstants.java:364` defines `tacops_battle_wreck`, `GameOptions.java:140`
 defaults it off, and `TWGameManager.java:22276-22291` converts qualifying

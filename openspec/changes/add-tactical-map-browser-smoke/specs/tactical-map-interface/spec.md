@@ -29,6 +29,9 @@ the top-down map.
   NoLineOfSight rejection, blocker hex metadata, and an invalid combat badge
 - **AND** a medium-range combat target SHALL expose the target id, distance,
   range band, available weapon ids, and per-weapon range option metadata
+- **AND** a combat target outside the selected weapon's firing arc SHALL expose
+  `OutOfArc` rejection metadata, per-weapon arc blocker details, and a combat
+  invalid badge that does not rely on color alone
 - **AND** a combat target in represented partial cover SHALL expose the cover
   level, modifier, to-hit modifier, reason, and a cover badge that does not rely
   on color alone

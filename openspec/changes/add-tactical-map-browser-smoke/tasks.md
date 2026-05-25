@@ -72,6 +72,9 @@
   commit validation.
 - [x] 2.29 Render bridge-clearance movement failures with a specific non-color
   movement invalid badge instead of the generic terrain badge.
+- [x] 2.30 Add browser coverage proving selected weapons that cannot cover a
+  target's firing arc expose `OutOfArc` rejection metadata, per-weapon arc
+  blocker details, and a non-color arc invalid badge.
 
 ## 3. Validation
 
@@ -132,3 +135,5 @@
   rows.
 - [x] 3.29 Focused HexMapDisplay unit coverage and Playwright smoke pass for
   bridge-clearance movement invalid badge labeling.
+- [x] 3.30 Focused Jest parity and Playwright smoke pass for selected-weapon
+  firing-arc rejection metadata and invalid badge labeling.

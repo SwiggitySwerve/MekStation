@@ -485,6 +485,9 @@ export const HexCell = React.memo(function HexCell({
       data-combat-c3-spotter={combatInfo?.c3SpotterId ?? undefined}
       data-combat-c3-spotter-range={combatInfo?.c3SpotterRange ?? undefined}
       data-combat-firing-arc={combatInfo?.firingArc}
+      data-combat-in-arc={
+        combatInfo ? (combatInfo.inArc ? 'true' : 'false') : undefined
+      }
       data-combat-target-visibility={combatInfo?.targetVisibilityState}
       data-combat-visible-target-ids={combatInfo?.visibleTargetUnitIds.join(
         ',',

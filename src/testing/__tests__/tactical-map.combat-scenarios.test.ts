@@ -6,6 +6,10 @@ import {
 } from '@/types/gameplay';
 
 import {
+  tacticalMapOutOfArcCombatProjection,
+  tacticalMapOutOfArcCommitInput,
+} from '../tactical-map.arc-scenarios';
+import {
   tacticalMapAirborneAerospaceMinimumRangeCombatProjection,
   tacticalMapAirborneAerospaceMinimumRangeCommitInput,
   tacticalMapBlockedLosCombatProjection,
@@ -342,6 +346,61 @@ describe('tactical map combat scenarios', () => {
     expect(payload.toHitNumber).toBe(
       tacticalMapMixedVisibilityCombatProjection.toHitNumber,
     );
+  });
+
+  it('keeps selected-weapon out-of-arc browser projection aligned with attack commit validation', () => {
+    expect(tacticalMapOutOfArcCombatProjection).toMatchObject({
+      hex: { q: 0, r: 1 },
+      distance: 1,
+      rangeBracket: 'short',
+      firingArc: 'rear',
+      inRange: true,
+      inArc: false,
+      attackable: false,
+      targetUnitIds: ['rear-arc-target'],
+      validTargetUnitIds: [],
+      weaponIdsInRange: ['front-arc-laser'],
+      weaponIdsInArc: [],
+      weaponIdsAvailable: [],
+      attackInvalidReason: 'OutOfArc',
+      attackInvalidDetails: 'No selected weapons can fire into the rear arc',
+      blockedReason: 'No weapons cover rear arc',
+      weaponRangeOptions: [
+        {
+          weaponId: 'front-arc-laser',
+          rangeBracket: 'short',
+          inRange: true,
+          inArc: false,
+          available: false,
+          blockedReason: 'out of rear arc',
+        },
+      ],
+    });
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapOutOfArcCommitInput(),
+    );
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackLocked),
+    ).toBe(false);
+
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'rear-arc-target',
+      weaponId: 'front-arc-laser',
+      reason: tacticalMapOutOfArcCombatProjection.attackInvalidReason,
+      details: tacticalMapOutOfArcCombatProjection.attackInvalidDetails,
+    });
   });
 
   it('keeps the all-selected-weapons-out-of-range browser projection aligned with attack commit validation', () => {

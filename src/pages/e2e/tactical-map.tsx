@@ -6,6 +6,13 @@ import {
   tacticalMapAerospaceTokens,
 } from '@/testing/tactical-map.aerospace-scenarios';
 import {
+  tacticalMapOutOfArcCombatState,
+  tacticalMapOutOfArcSelectedWeaponIds,
+  tacticalMapOutOfArcTargetId,
+  tacticalMapOutOfArcTokens,
+  tacticalMapOutOfArcUnitWeapons,
+} from '@/testing/tactical-map.arc-scenarios';
+import {
   tacticalMapMountedBattleArmorCombatState,
   tacticalMapMountedBattleArmorTokens,
 } from '@/testing/tactical-map.battle-armor-scenarios';
@@ -78,6 +85,8 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
     router.query.scenario === 'target-terrain-modifier';
   const isMixedVisibilityScenario =
     router.query.scenario === 'mixed-visibility-targets';
+  const isSelectedWeaponOutOfArcScenario =
+    router.query.scenario === 'selected-weapon-out-of-arc';
   const isRuntimeHeightScenario =
     router.query.scenario === 'runtime-height-bridge-clearance';
   const selectedWeaponIds = isAerospaceVelocityScenario
@@ -88,9 +97,11 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
         ? tacticalMapTargetTerrainModifierSelectedWeaponIds
         : isMixedVisibilityScenario
           ? tacticalMapMixedVisibilitySelectedWeaponIds
-          : isOutOfRangeScenario
-            ? tacticalMapOutOfRangeSelectedWeaponIds
-            : tacticalMapSelectedWeaponIds;
+          : isSelectedWeaponOutOfArcScenario
+            ? tacticalMapOutOfArcSelectedWeaponIds
+            : isOutOfRangeScenario
+              ? tacticalMapOutOfRangeSelectedWeaponIds
+              : tacticalMapSelectedWeaponIds;
   const targetUnitId = isAerospaceVelocityScenario
     ? null
     : isAirborneAerospaceMinimumRangeScenario
@@ -101,9 +112,11 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
           ? null
           : isRuntimeHeightScenario
             ? null
-            : isOutOfRangeScenario
-              ? 'medium-target'
-              : 'occluded';
+            : isSelectedWeaponOutOfArcScenario
+              ? tacticalMapOutOfArcTargetId
+              : isOutOfRangeScenario
+                ? 'medium-target'
+                : 'occluded';
   const tokens = isVtolElevationScenario
     ? tacticalMapVtolTokens
     : isBipedOptionScenario
@@ -118,9 +131,11 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
               ? tacticalMapTargetTerrainModifierTokens
               : isMixedVisibilityScenario
                 ? tacticalMapMixedVisibilityTokens
-                : isRuntimeHeightScenario
-                  ? tacticalMapRuntimeHeightTokens
-                  : tacticalMapTokens;
+                : isSelectedWeaponOutOfArcScenario
+                  ? tacticalMapOutOfArcTokens
+                  : isRuntimeHeightScenario
+                    ? tacticalMapRuntimeHeightTokens
+                    : tacticalMapTokens;
   const combatState = isMountedBattleArmorScenario
     ? tacticalMapMountedBattleArmorCombatState
     : isAerospaceVelocityScenario
@@ -131,12 +146,18 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
           ? tacticalMapTargetTerrainModifierCombatState
           : isMixedVisibilityScenario
             ? tacticalMapMixedVisibilityCombatState
-            : tacticalMapCombatState;
+            : isSelectedWeaponOutOfArcScenario
+              ? tacticalMapOutOfArcCombatState
+              : tacticalMapCombatState;
+  const unitWeapons = isSelectedWeaponOutOfArcScenario
+    ? tacticalMapOutOfArcUnitWeapons
+    : tacticalMapUnitWeapons;
   const movementRange =
     isAerospaceVelocityScenario ||
     isAirborneAerospaceMinimumRangeScenario ||
     isTargetTerrainModifierScenario ||
-    isMixedVisibilityScenario
+    isMixedVisibilityScenario ||
+    isSelectedWeaponOutOfArcScenario
       ? undefined
       : isJumpElevationScenario
         ? tacticalMapJumpElevationMovementRange
@@ -151,7 +172,8 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
     isAerospaceVelocityScenario ||
     isAirborneAerospaceMinimumRangeScenario ||
     isTargetTerrainModifierScenario ||
-    isMixedVisibilityScenario
+    isMixedVisibilityScenario ||
+    isSelectedWeaponOutOfArcScenario
       ? undefined
       : isJumpElevationScenario
         ? tacticalMapJumpElevationMpLegend
@@ -166,7 +188,9 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
     ? tacticalMapBipedOptionSelectedHex
     : isRuntimeHeightScenario
       ? tacticalMapRuntimeHeightSelectedHex
-      : isMountedBattleArmorScenario || isAerospaceVelocityScenario
+      : isSelectedWeaponOutOfArcScenario ||
+          isMountedBattleArmorScenario ||
+          isAerospaceVelocityScenario
         ? { q: 0, r: 0 }
         : { q: -1, r: 0 };
   const highlightPath =
@@ -174,6 +198,7 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
     isAirborneAerospaceMinimumRangeScenario ||
     isTargetTerrainModifierScenario ||
     isMixedVisibilityScenario ||
+    isSelectedWeaponOutOfArcScenario ||
     isRuntimeHeightScenario
       ? undefined
       : tacticalMapHighlightPath;
@@ -205,7 +230,7 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
             selectedHex={selectedHex}
             targetUnitId={targetUnitId}
             hexTerrain={hexTerrain}
-            unitWeapons={tacticalMapUnitWeapons}
+            unitWeapons={unitWeapons}
             combatState={combatState}
             selectedWeaponIds={selectedWeaponIds}
             showCoordinates

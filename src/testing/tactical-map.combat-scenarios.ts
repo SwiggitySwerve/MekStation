@@ -51,7 +51,6 @@ export const tacticalMapAirborneAerospaceMinimumRangeTargetHex = {
 export const tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds = [
   'minimum-lrm',
 ];
-
 const tacticalMapAirborneAerospaceTargetState: IUnitGameState = {
   id: tacticalMapAirborneAerospaceMinimumRangeTargetId,
   side: GameSide.Opponent,

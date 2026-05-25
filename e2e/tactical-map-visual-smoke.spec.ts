@@ -1131,6 +1131,96 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows selected weapon out of arc as blocked in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=selected-weapon-out-of-arc');
+
+    const targetHex = page.getByTestId('hex-0-1');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'rear-arc-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-distance', '1');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-range-bracket',
+      'short',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-firing-arc', 'rear');
+    await expect(targetHex).toHaveAttribute('data-combat-in-arc', 'false');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-valid-target',
+      'false',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-reason',
+      'OutOfArc',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-details',
+      'No selected weapons can fire into the rear arc',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-blocked-reason',
+      'No weapons cover rear arc',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-in-range',
+      'front-arc-laser',
+    );
+    await expect(targetHex).toHaveAttribute('data-weapons-in-arc', '');
+    await expect(targetHex).toHaveAttribute('data-weapons-available', '');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-ranges',
+      'front-arc-laser:short',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-arc-states',
+      'front-arc-laser:out-of-arc',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-availability',
+      'front-arc-laser:blocked',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-blocked-reasons',
+      'front-arc-laser:out of rear arc',
+    );
+
+    const combatBadge = page.getByTestId('hex-combat-badge-0-1');
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-attackable',
+      'false',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-arc-states',
+      'front-arc-laser:out-of-arc',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-blocked-reasons',
+      'front-arc-laser:out of rear arc',
+    );
+
+    const invalidBadge = page.getByTestId('hex-combat-invalid-badge-0-1');
+    await expect(invalidBadge.locator('text')).toHaveText('ARC');
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'OutOfArc',
+    );
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-reason',
+      'No selected weapons can fire into the rear arc',
+    );
+
+    const arcBadge = page.getByTestId('hex-combat-arc-badge-0-1');
+    await expect(arcBadge.locator('text')).toHaveText('REAR');
+    await expect(arcBadge).toHaveAttribute('data-combat-arc-badge-arc', 'rear');
+    await expect(arcBadge).toHaveAttribute(
+      'data-combat-arc-badge-in-arc',
+      'false',
+    );
+  });
+
   test('shows all selected weapons out of range as blocked in browser', async ({
     page,
   }) => {
