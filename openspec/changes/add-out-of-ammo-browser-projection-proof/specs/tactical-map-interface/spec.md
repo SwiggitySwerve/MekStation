@@ -18,5 +18,7 @@ to explain why a highlight exists.
 **THEN** the hex SHALL expose that it is not a valid combat target
 **AND** the hex SHALL expose `OutOfAmmo` as the combat invalid reason
 **AND** the hex SHALL expose the no-ammunition details used by attack resolution
+**AND** the dry selected weapon SHALL remain visible as a blocked per-weapon
+range option
 **AND** the rendered combat invalid badge SHALL expose a non-color out-of-ammo label
 **AND** the hover explanation SHALL state that no ammunition is available

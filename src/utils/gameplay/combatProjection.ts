@@ -282,7 +282,7 @@ export function deriveCombatRangeHexes({
       minimumRangeWeaponIds,
     );
     const baseWeaponRangeOptions = deriveCombatWeaponRangeOptions({
-      weapons: operationalWeapons,
+      weapons,
       distance,
       targetArc,
       grid,

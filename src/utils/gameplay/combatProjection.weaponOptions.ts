@@ -95,6 +95,7 @@ function weaponRangeOptionForStatus({
   const rangeBracket = weaponBracketAtDistance(weapon, distance);
   const inRange = rangeBracket !== RangeBracket.OutOfRange;
   const inArc = weaponCanCoverTargetArc(weapon, targetArc);
+  const readinessBlockedReason = weaponReadinessBlockedReason(weapon);
   const environmentInvalidState =
     inRange && inArc
       ? representedWaterAttackInvalidStateForWeapon({
@@ -106,7 +107,7 @@ function weaponRangeOptionForStatus({
       : undefined;
   const environmentLegal = environmentInvalidState === undefined;
   const ruleBlockedReason =
-    inRange && inArc && environmentLegal
+    inRange && inArc && environmentLegal && !readinessBlockedReason
       ? weaponRuleBlockedReason?.(weapon)
       : undefined;
   const minimumRangePenalty = minimumRangePenaltyForWeapon(
@@ -121,29 +122,48 @@ function weaponRangeOptionForStatus({
     inRange,
     inArc,
     environmentLegal,
-    available: inRange && inArc && environmentLegal && !ruleBlockedReason,
+    available:
+      inRange &&
+      inArc &&
+      environmentLegal &&
+      !readinessBlockedReason &&
+      !ruleBlockedReason,
     minimumRangePenalty:
       minimumRangePenalty > 0 ? minimumRangePenalty : undefined,
     blockedReason: weaponOptionBlockedReason({
       inRange,
       inArc,
       environmentInvalidDetails: environmentInvalidState?.details,
+      readinessBlockedReason,
       ruleBlockedReason,
       targetArc,
     }),
   };
 }
 
+function weaponReadinessBlockedReason(
+  weapon: IWeaponStatus,
+): string | undefined {
+  if (weapon.destroyed) return `${weapon.name} is destroyed`;
+  if (weapon.jammed) return `${weapon.name} is jammed`;
+  if (weapon.ammoRemaining !== undefined && weapon.ammoRemaining <= 0) {
+    return `No matching non-empty ammo bin for "${weapon.name}"`;
+  }
+  return undefined;
+}
+
 function weaponOptionBlockedReason({
   inRange,
   inArc,
   environmentInvalidDetails,
+  readinessBlockedReason,
   ruleBlockedReason,
   targetArc,
 }: {
   readonly inRange: boolean;
   readonly inArc: boolean;
   readonly environmentInvalidDetails?: string;
+  readonly readinessBlockedReason?: string;
   readonly ruleBlockedReason?: string;
   readonly targetArc: ReturnType<typeof determineArc>['arc'] | null;
 }): string | undefined {
@@ -152,5 +172,7 @@ function weaponOptionBlockedReason({
     return targetArc
       ? `out of ${firingArcProjectionLabel(targetArc)} arc`
       : 'no firing arc';
-  return environmentInvalidDetails ?? ruleBlockedReason;
+  return (
+    environmentInvalidDetails ?? readinessBlockedReason ?? ruleBlockedReason
+  );
 }

@@ -4448,13 +4448,17 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-tactical-projection-combat-status',
       'blocked',
     );
-    await expect(targetHex).not.toHaveAttribute(
+    await expect(targetHex).toHaveAttribute(
       'data-combat-weapon-option-ranges',
-      /.+/,
+      'dry-ac-5:medium',
     );
-    await expect(targetHex).not.toHaveAttribute(
+    await expect(targetHex).toHaveAttribute(
       'data-combat-weapon-option-availability',
-      /.+/,
+      'dry-ac-5:blocked',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-blocked-reasons',
+      'dry-ac-5:No matching non-empty ammo bin for "AC/5"',
     );
 
     const combatBadge = page.getByTestId('hex-combat-badge-1-2');
@@ -4473,6 +4477,18 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(combatBadge).toHaveAttribute(
       'data-combat-badge-weapons-available',
       '',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-ranges',
+      'dry-ac-5:medium',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-availability',
+      'dry-ac-5:blocked',
+    );
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-blocked-reasons',
+      'dry-ac-5:No matching non-empty ammo bin for "AC/5"',
     );
 
     const invalidBadge = page.getByTestId('hex-combat-invalid-badge-1-2');

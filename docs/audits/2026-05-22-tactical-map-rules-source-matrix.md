@@ -1408,6 +1408,12 @@ and a hover reason matching attack-resolution details. This does not change
 ammo accounting or resolution; it pins the rendered map evidence to the same
 projection/engine rejection already covered by focused agreement tests.
 
+2026-05-25 dry-weapon option projection pin: Dry selected weapons now remain in
+the tactical-map per-weapon option metadata with their actual range bracket and
+a blocked ammo reason. This keeps range inspection intact for the selected AC/5
+while preserving `OutOfAmmo` as the aggregate target rejection and leaving
+attack resolution unchanged.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

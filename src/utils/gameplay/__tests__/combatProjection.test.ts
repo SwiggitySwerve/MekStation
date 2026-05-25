@@ -562,7 +562,17 @@ describe('deriveCombatRangeHexes', () => {
     expect(targetHex).toMatchObject({
       attackable: false,
       weaponIdsAvailable: [],
-      weaponRangeOptions: [],
+      weaponRangeOptions: [
+        expect.objectContaining({
+          weaponId: 'dry-ac-5',
+          rangeBracket: 'short',
+          inRange: true,
+          inArc: true,
+          environmentLegal: true,
+          available: false,
+          blockedReason: 'No matching non-empty ammo bin for "AC/5"',
+        }),
+      ],
       attackInvalidReason: 'OutOfAmmo',
       attackInvalidDetails: 'No matching non-empty ammo bin for "AC/5"',
       blockedReason: 'No matching non-empty ammo bin for "AC/5"',

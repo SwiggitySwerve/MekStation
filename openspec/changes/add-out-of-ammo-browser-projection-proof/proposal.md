@@ -17,6 +17,8 @@ metadata and non-color visual evidence.
 
 - Add an e2e tactical-map scenario with a selected AC/5 that has zero ammo.
 - Assert the browser-rendered target hex is blocked with `OutOfAmmo` details.
+- Assert the dry selected weapon remains visible as a blocked per-weapon range
+  option.
 - Assert the combat invalid badge renders the non-color `AMMO` label.
 - Assert the tooltip explains the lack of ammunition.
 - Pin the dry-weapon projection state in focused projection/component tests.

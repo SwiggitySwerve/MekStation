@@ -10,7 +10,8 @@
 - [x] 2.1 Add e2e unit-weapon fixture data for a selected ammo-fed weapon with zero ammo
 - [x] 2.2 Route the tactical-map e2e page to the dry-weapon scenario, selected weapon, and target
 - [x] 2.3 Add browser assertions for blocked target metadata, `AMMO` badge, and tooltip reason
-- [x] 2.4 Pin focused projection/component expectations for empty weapon availability and options
+- [x] 2.4 Pin focused projection/component expectations for empty available weapons and blocked option evidence
+- [x] 2.5 Keep dry selected weapons in per-weapon range options as blocked ammo choices
 
 ## 3. Verification
 
