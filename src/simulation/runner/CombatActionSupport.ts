@@ -160,6 +160,73 @@ const FACING_TORSO_TWIST_ACTION_SOURCE_REFS = [
   ...MEKSTATION_FACING_TORSO_TWIST_COMMAND_SOURCE_REFS,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+function mekstationMovementCommandSourceRefs(
+  id: string,
+  commitDescription: string,
+  lineRange: string,
+) {
+  return [
+    mekstationDeviationSourceRef(
+      `MekStation buildMovementCommands exposes ${id} as a Movement-phase command that commits ${commitDescription}.`,
+      'src/components/gameplay/TacticalActionDock/commands/movementCommands.ts',
+      lineRange,
+    ),
+  ] satisfies readonly ICombatFeatureSourceReference[];
+}
+
+const MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS = {
+  'movement.walk': mekstationMovementCommandSourceRefs(
+    'movement.walk',
+    'the local lock action id with a walk movement mode payload',
+    'L47-L68',
+  ),
+  'movement.run': mekstationMovementCommandSourceRefs(
+    'movement.run',
+    'the local lock action id with a run movement mode payload',
+    'L72-L88',
+  ),
+  'movement.jump': mekstationMovementCommandSourceRefs(
+    'movement.jump',
+    'the local lock action id with a jump movement mode payload',
+    'L92-L113',
+  ),
+  'movement.stand': mekstationMovementCommandSourceRefs(
+    'movement.stand',
+    'the local stand action id',
+    'L117-L134',
+  ),
+  'movement.go-prone': mekstationMovementCommandSourceRefs(
+    'movement.go-prone',
+    'the local go-prone action id',
+    'L138-L153',
+  ),
+  'movement.activate-masc': mekstationMovementCommandSourceRefs(
+    'movement.activate-masc',
+    'the local activate-masc action id',
+    'L157-L171',
+  ),
+  'movement.activate-supercharger': mekstationMovementCommandSourceRefs(
+    'movement.activate-supercharger',
+    'the local activate-supercharger action id',
+    'L175-L189',
+  ),
+} satisfies Record<string, readonly ICombatFeatureSourceReference[]>;
+
+const MOVEMENT_GO_PRONE_ACTION_SOURCE_REFS = [
+  ...MEGAMEK_GO_PRONE_SOURCE_REFS,
+  ...MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.go-prone'],
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MOVEMENT_ACTIVATE_MASC_ACTION_SOURCE_REFS = [
+  ...MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS,
+  ...MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.activate-masc'],
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MOVEMENT_ACTIVATE_SUPERCHARGER_ACTION_SOURCE_REFS = [
+  ...MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS,
+  ...MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.activate-supercharger'],
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEKSTATION_STABILIZE_COMMAND_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation buildMovementCommands exposes movement.stabilize as a product-visible tactical command that commits the local stabilize action id.',
@@ -667,39 +734,43 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'movement.walk',
     'tactical-command',
     'buildMovementCommands commits lock mode walk; declareMovement/Move carries authoritative movement',
+    MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.walk'],
   ),
   'movement.run': integrated(
     'movement.run',
     'tactical-command',
     'buildMovementCommands commits lock mode run; declareMovement/Move carries authoritative movement',
+    MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.run'],
   ),
   'movement.jump': integrated(
     'movement.jump',
     'tactical-command',
     'buildMovementCommands commits lock mode jump; declareMovement/Move carries authoritative movement',
+    MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.jump'],
   ),
   'movement.stand': integrated(
     'movement.stand',
     'tactical-command',
     'buildMovementCommands commits stand; useGameplayStore, stand game intent, Stand wire payload, server dispatch, and P2P host command route through InteractiveSession.attemptStandUp',
+    MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.stand'],
   ),
   'movement.go-prone': integrated(
     'movement.go-prone',
     'tactical-command',
     'buildMovementCommands commits go-prone; useGameplayStore, goProne game intent, GoProne wire payload, server dispatch, P2P host command, and InteractiveSession.goProne emit a source-backed same-hex MovementDeclared goProne step with 1 MP and no heat',
-    MEGAMEK_GO_PRONE_SOURCE_REFS,
+    MOVEMENT_GO_PRONE_ACTION_SOURCE_REFS,
   ),
   'movement.activate-masc': integrated(
     'movement.activate-masc',
     'tactical-command',
     'buildMovementCommands commits activate-masc; useGameplayStore, activateMovementEnhancement game intent, ActivateMovementEnhancement wire payload, server dispatch, P2P host command, and InteractiveSession.activateMovementEnhancement set replayable activeMASC state before the movement declaration consumes boosted MP and PSR checks',
-    MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS,
+    MOVEMENT_ACTIVATE_MASC_ACTION_SOURCE_REFS,
   ),
   'movement.activate-supercharger': integrated(
     'movement.activate-supercharger',
     'tactical-command',
     'buildMovementCommands commits activate-supercharger; useGameplayStore, activateMovementEnhancement game intent, ActivateMovementEnhancement wire payload, server dispatch, P2P host command, and InteractiveSession.activateMovementEnhancement set replayable activeSupercharger state before the movement declaration consumes boosted MP and PSR checks',
-    MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS,
+    MOVEMENT_ACTIVATE_SUPERCHARGER_ACTION_SOURCE_REFS,
   ),
   'movement.stabilize': unsupported(
     'movement.stabilize',

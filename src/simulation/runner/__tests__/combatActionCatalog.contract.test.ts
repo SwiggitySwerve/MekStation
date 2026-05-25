@@ -162,6 +162,35 @@ describe('BattleMech combat action support catalog', () => {
         }),
       ]);
     }
+    const integratedMovementCommandSourceRows = [
+      'movement.activate-masc',
+      'movement.activate-supercharger',
+      'movement.go-prone',
+      'movement.jump',
+      'movement.run',
+      'movement.stand',
+      'movement.walk',
+    ];
+    for (const id of integratedMovementCommandSourceRows) {
+      const entry =
+        COMBAT_COMMAND_ACTION_SUPPORT[
+          id as keyof typeof COMBAT_COMMAND_ACTION_SUPPORT
+        ];
+
+      expect(entry.sourceRefs).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            citation: expect.stringContaining(id),
+            url: expect.stringContaining('movementCommands.ts#L'),
+            sourceVersion: 'MekStation working-tree',
+          }),
+        ]),
+      );
+      expect(
+        entry.sourceRefs?.every((sourceRef) => sourceRef.url.includes('#L')),
+      ).toBe(true);
+    }
     const utilityCommandSourceRows = [
       'utility.concede',
       'utility.eject',
