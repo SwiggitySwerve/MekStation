@@ -1679,6 +1679,62 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows shutdown target immobile to-hit modifiers in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=immobile-combat-modifier');
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('SHD');
+    await expect(page.getByTestId('unit-token-shutdown-target')).toContainText(
+      'SDN',
+    );
+
+    const targetHex = page.getByTestId('hex-2-0');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'shutdown-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-range-bracket',
+      'short',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-distance', '2');
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-available',
+      'medium-laser',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '0');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-modifiers',
+      /Target Immobile:-4/,
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-reason',
+      /Target Immobile -4/,
+    );
+
+    const toHitBadge = page.getByTestId('hex-to-hit-badge-2-0');
+    await expect(toHitBadge).toContainText('TN0');
+    await expect(toHitBadge).toHaveAttribute(
+      'data-combat-to-hit-badge-number',
+      '0',
+    );
+
+    await targetHex.locator('path[data-terrain="clear"]').hover({
+      position: { x: 72, y: 34 },
+    });
+    const toHitRows = page.getByTestId('hex-combat-tooltip-to-hit-modifiers');
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-names',
+      /Target Immobile/,
+    );
+    await expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-values',
+      /-4/,
+    );
+  });
+
   test('keeps visible targets attackable on mixed same-hex fog contacts in browser', async ({
     page,
   }) => {

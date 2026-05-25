@@ -101,6 +101,9 @@
   shared stand-up MP cost, PSR target, heat, and movement metadata.
 - [x] 2.40 Add browser coverage proving prone attacker/target combat renders
   the shared to-hit modifier metadata, target number, badge, and tooltip rows.
+- [x] 2.41 Add browser coverage proving a shutdown target renders the shared
+  target-immobile to-hit modifier metadata, target number, badge, and tooltip
+  rows.
 
 ## 3. Validation
 
@@ -185,3 +188,5 @@
   movement cost, PSR metadata, and top-down stand-up badge labeling.
 - [x] 3.40 Focused Jest parity and Playwright smoke pass for prone combat
   to-hit modifier metadata and badge labeling.
+- [x] 3.41 Focused Jest parity and Playwright smoke pass for shutdown target
+  immobile to-hit modifier metadata and badge labeling.

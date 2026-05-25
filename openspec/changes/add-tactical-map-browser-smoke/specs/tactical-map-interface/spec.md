@@ -64,6 +64,8 @@ the top-down map.
 - **AND** a combat target involving represented prone attacker and target state
   SHALL expose the attacker-prone and target-prone to-hit modifiers, final
   target number, badge, and tooltip rows
+- **AND** a combat target with represented shutdown immobility SHALL expose the
+  target-immobile to-hit modifier, final target number, badge, and tooltip rows
 - **WHEN** browser automation switches to isometric mode and rotates the camera
 - **THEN** isometric stack, occluder, visibility, rotation, and depth metadata
   SHALL update in the rendered DOM

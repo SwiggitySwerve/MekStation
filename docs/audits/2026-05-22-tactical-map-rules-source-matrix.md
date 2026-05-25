@@ -108,6 +108,13 @@ test feeds the same projection into `applyInteractiveSessionAttack` and proves
 the committed attack declaration carries the matching target number and
 modifiers.
 
+2026-05-25 immobile target browser pin: the tactical-map browser harness now
+also uses a represented shutdown target at range 2, proving the rendered target
+exposes TN0, `Target Immobile -4`, the available medium laser, and tooltip rows
+for the modifier. A fixture-level Jest parity test feeds the same projection
+into `applyInteractiveSessionAttack` and proves the committed attack
+declaration carries the matching target number and modifier.
+
 2026-05-24 medium-range combat browser update: the tactical-map browser harness
 now also renders a target at four hexes and verifies that the top-down hex and
 combat badge expose the medium range band, distance, available weapon id, and

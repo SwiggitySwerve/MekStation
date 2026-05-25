@@ -27,6 +27,10 @@ import {
   tacticalMapElevationLosTargetId,
 } from '../tactical-map.elevation-los-scenario';
 import {
+  tacticalMapImmobileCombatCommitInput,
+  tacticalMapImmobileCombatProjection,
+} from '../tactical-map.immobile-combat-scenario';
+import {
   tacticalMapProneCombatCommitInput,
   tacticalMapProneCombatProjection,
 } from '../tactical-map.prone-combat-scenario';
@@ -263,6 +267,57 @@ describe('tactical map combat scenarios', () => {
     );
     expect(payload.toHitNumber).toBe(
       tacticalMapProneCombatProjection.toHitNumber,
+    );
+  });
+
+  it('keeps shutdown target immobile modifiers aligned between browser projection and commit', () => {
+    expect(tacticalMapImmobileCombatProjection).toMatchObject({
+      hex: { q: 2, r: 0 },
+      distance: 2,
+      rangeBracket: 'short',
+      attackable: true,
+      weaponIdsAvailable: ['medium-laser'],
+      toHitNumber: 0,
+    });
+    expect(tacticalMapImmobileCombatProjection.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Target Immobile',
+          value: -4,
+          source: 'other',
+        }),
+      ]),
+    );
+    expect(tacticalMapImmobileCombatProjection.toHitReason).toContain(
+      'Target Immobile -4',
+    );
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapImmobileCombatCommitInput(),
+    );
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.weapons).toEqual(
+      tacticalMapImmobileCombatProjection.weaponIdsAvailable,
+    );
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Target Immobile',
+          value: -4,
+          source: 'other',
+        }),
+      ]),
+    );
+    expect(payload.toHitNumber).toBe(
+      tacticalMapImmobileCombatProjection.toHitNumber,
     );
   });
 
