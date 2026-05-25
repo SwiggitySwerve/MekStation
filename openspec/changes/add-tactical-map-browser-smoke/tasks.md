@@ -140,6 +140,9 @@
 - [x] 2.54 Add browser coverage proving iNarc beacon indirect fire keeps a
   blocked LRM target attackable without a represented spotter while exposing
   beacon basis and penalty metadata.
+- [x] 2.55 Add browser coverage proving semi-guided TAG indirect fire keeps a
+  blocked LRM target attackable without a represented spotter while exposing
+  TAG basis and zero-penalty metadata.
 
 ## 3. Validation
 
@@ -257,3 +260,5 @@
 - [x] 3.54 Focused Jest parity and Playwright smoke pass for iNarc beacon
   indirect-fire projection, committed override event, and browser badge
   metadata.
+- [x] 3.55 Focused Jest parity and Playwright smoke pass for semi-guided TAG
+  indirect-fire projection, committed attack event, and browser badge metadata.

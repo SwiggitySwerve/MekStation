@@ -69,6 +69,13 @@ accessible context, and committed `IndirectFireNarcOverride` event all agree on
 basis `inarc`, no spotter id, +1 indirect penalty, and matching to-hit
 metadata.
 
+2026-05-25 semi-guided TAG browser pin: the tactical-map harness now represents
+a LOS-blocked TAG-designated target attacked by semi-guided LRM fire with no
+friendly spotter token. The shared projection, browser metadata, indirect-fire
+badge, accessible context, and committed attack all agree on basis
+`semi-guided-tag`, no spotter id, zero indirect penalty, no NARC override event,
+and matching to-hit metadata.
+
 2026-05-24 isometric browser update: the tactical-map browser harness now places
 opposing tall elevation stacks around an active target and verifies that camera
 rotation moves the active occluder metadata and highlight to the stack that is

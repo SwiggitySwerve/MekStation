@@ -214,6 +214,14 @@ export const tacticalMapUnitWeapons: Record<string, readonly IWeaponStatus[]> =
         damage: 5,
         ranges: { short: 1, medium: 2, long: 3, extreme: 4 },
       }),
+      weaponFixture({
+        id: 'semi-guided-lrm-15',
+        name: 'Semi-Guided LRM-15',
+        location: 'left_torso',
+        heat: 5,
+        damage: 9,
+        ranges: { short: 7, medium: 14, long: 21 },
+      }),
     ],
   };
 

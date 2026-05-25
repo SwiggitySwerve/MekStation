@@ -54,6 +54,8 @@ import {
   tacticalMapIndirectFireCommitInput,
   tacticalMapNarcBeaconIndirectFireCombatProjection,
   tacticalMapNarcBeaconIndirectFireCommitInput,
+  tacticalMapSemiGuidedTagIndirectFireCombatProjection,
+  tacticalMapSemiGuidedTagIndirectFireCommitInput,
 } from '../tactical-map.indirect-fire-scenario';
 import {
   tacticalMapJumpCombatCommitInput,
@@ -479,6 +481,61 @@ describe('tactical map combat scenarios', () => {
           tacticalMapINarcBeaconIndirectFireCombatProjection.indirectFireToHitPenalty,
       },
     );
+  });
+
+  it('keeps semi-guided TAG indirect fire aligned between browser projection and committed attack', () => {
+    expect(tacticalMapSemiGuidedTagIndirectFireCombatProjection).toMatchObject({
+      hex: { q: 3, r: 0 },
+      distance: 3,
+      losState: 'blocked',
+      rangeBracket: 'short',
+      attackable: true,
+      weaponIdsAvailable: ['semi-guided-lrm-15'],
+      indirectFireAvailable: true,
+      indirectFireSpotterId: null,
+      indirectFireBasis: 'semi-guided-tag',
+      indirectFireToHitPenalty: 0,
+      indirectFireReason:
+        'Semi-guided indirect fire via TAG (no indirect penalty)',
+    });
+    expect(
+      tacticalMapSemiGuidedTagIndirectFireCombatProjection.toHitModifiers,
+    ).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'Indirect fire' }),
+      ]),
+    );
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapSemiGuidedTagIndirectFireCommitInput(),
+    );
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.toHitNumber).toBe(
+      tacticalMapSemiGuidedTagIndirectFireCombatProjection.toHitNumber,
+    );
+    expect(payload.modifiers).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'Indirect fire' }),
+      ]),
+    );
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.IndirectFireSpotterSelected,
+      ),
+    ).toBe(false);
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.IndirectFireNarcOverride,
+      ),
+    ).toBe(false);
   });
 
   it('keeps the minimum-range browser projection aligned with committed to-hit modifiers', () => {

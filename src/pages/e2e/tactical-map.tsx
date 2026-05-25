@@ -23,7 +23,7 @@ import * as frogman from '@/testing/tactical-map.frogman-scenario';
 import * as heatCombat from '@/testing/tactical-map.heat-combat-scenario';
 import * as hoverWater from '@/testing/tactical-map.hover-water-scenario';
 import * as immobileCombat from '@/testing/tactical-map.immobile-combat-scenario';
-import * as indirect from '@/testing/tactical-map.indirect-fire-scenario';
+import { tacticalMapIndirectFireHarnessScenarios as indirectFireHarnessScenarios } from '@/testing/tactical-map.indirect-fire-harness';
 import * as movementCombat from '@/testing/tactical-map.movement-combat-scenario';
 import * as movement from '@/testing/tactical-map.movement-scenarios';
 import * as naval from '@/testing/tactical-map.naval-landfall-scenario';
@@ -43,13 +43,10 @@ const isTestEnv =
   process.env.NEXT_PUBLIC_E2E_MODE === 'true';
 
 const combatOnlyScenarios = new Set([
+  ...Object.keys(indirectFireHarnessScenarios),
   'aerospace-velocity-projection',
   'airborne-aerospace-minimum-range',
   'c3-range-benefit',
-  'forward-observer-indirect-fire',
-  'inarc-beacon-indirect-fire',
-  'indirect-fire-spotter',
-  'narc-beacon-indirect-fire',
   'target-terrain-modifier',
   'mixed-visibility-targets',
   'fog-los-terrain-blocked',
@@ -84,13 +81,6 @@ const selectedWeaponIdsByScenario = {
   'airborne-aerospace-minimum-range':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitSelectedWeaponIds,
-  'forward-observer-indirect-fire':
-    indirect.tacticalMapForwardObserverIndirectFireSelectedWeaponIds,
-  'inarc-beacon-indirect-fire':
-    indirect.tacticalMapINarcBeaconIndirectFireSelectedWeaponIds,
-  'indirect-fire-spotter': indirect.tacticalMapIndirectFireSelectedWeaponIds,
-  'narc-beacon-indirect-fire':
-    indirect.tacticalMapNarcBeaconIndirectFireSelectedWeaponIds,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierSelectedWeaponIds,
   'mixed-visibility-targets':
@@ -120,13 +110,6 @@ const targetUnitIdByScenario = {
   'airborne-aerospace-minimum-range':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeTargetId,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitTargetId,
-  'forward-observer-indirect-fire':
-    indirect.tacticalMapForwardObserverIndirectFireTargetId,
-  'inarc-beacon-indirect-fire':
-    indirect.tacticalMapINarcBeaconIndirectFireTargetId,
-  'indirect-fire-spotter': indirect.tacticalMapIndirectFireTargetId,
-  'narc-beacon-indirect-fire':
-    indirect.tacticalMapNarcBeaconIndirectFireTargetId,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierTargetId,
   'mixed-visibility-targets': null,
@@ -154,12 +137,6 @@ const tokensByScenario = {
   'airborne-aerospace-minimum-range':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeTokens,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitTokens,
-  'forward-observer-indirect-fire':
-    indirect.tacticalMapForwardObserverIndirectFireTokens,
-  'inarc-beacon-indirect-fire':
-    indirect.tacticalMapINarcBeaconIndirectFireTokens,
-  'indirect-fire-spotter': indirect.tacticalMapIndirectFireTokens,
-  'narc-beacon-indirect-fire': indirect.tacticalMapNarcBeaconIndirectFireTokens,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierTokens,
   'mixed-visibility-targets': visibility.tacticalMapMixedVisibilityTokens,
@@ -193,13 +170,6 @@ const combatStateByScenario = {
   'airborne-aerospace-minimum-range':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeCombatState,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitCombatState,
-  'forward-observer-indirect-fire':
-    indirect.tacticalMapForwardObserverIndirectFireCombatState,
-  'inarc-beacon-indirect-fire':
-    indirect.tacticalMapINarcBeaconIndirectFireCombatState,
-  'indirect-fire-spotter': indirect.tacticalMapIndirectFireCombatState,
-  'narc-beacon-indirect-fire':
-    indirect.tacticalMapNarcBeaconIndirectFireCombatState,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierCombatState,
   'mixed-visibility-targets': visibility.tacticalMapMixedVisibilityCombatState,
@@ -260,10 +230,6 @@ const selectedHexByScenario = {
   'biped-option-projection': movement.tacticalMapBipedOptionSelectedHex,
   'runtime-height-bridge-clearance':
     movement.tacticalMapRuntimeHeightSelectedHex,
-  'forward-observer-indirect-fire': { q: 0, r: 0 },
-  'inarc-beacon-indirect-fire': { q: 0, r: 0 },
-  'indirect-fire-spotter': { q: 0, r: 0 },
-  'narc-beacon-indirect-fire': { q: 0, r: 0 },
   'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackSelectedHex,
   'tracked-elevation-blocked':
     trackedElevation.tacticalMapTrackedElevationSelectedHex,
@@ -294,13 +260,6 @@ const hexTerrainByScenario = {
     wreck.tacticalMapBattlefieldWreckHexTerrain,
   'runtime-height-bridge-clearance':
     movement.tacticalMapRuntimeHeightBridgeHexTerrain,
-  'forward-observer-indirect-fire':
-    indirect.tacticalMapForwardObserverIndirectFireHexTerrain,
-  'inarc-beacon-indirect-fire':
-    indirect.tacticalMapINarcBeaconIndirectFireHexTerrain,
-  'indirect-fire-spotter': indirect.tacticalMapIndirectFireHexTerrain,
-  'narc-beacon-indirect-fire':
-    indirect.tacticalMapNarcBeaconIndirectFireHexTerrain,
   'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackHexTerrain,
   'tracked-elevation-blocked':
     trackedElevation.tacticalMapTrackedElevationHexTerrain,
@@ -338,22 +297,31 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
   const router = useRouter();
   const scenario =
     typeof router.query.scenario === 'string' ? router.query.scenario : '';
+  const indirectScenario =
+    scenario in indirectFireHarnessScenarios
+      ? indirectFireHarnessScenarios[
+          scenario as keyof typeof indirectFireHarnessScenarios
+        ]
+      : undefined;
   const isCombatOnlyScenario = combatOnlyScenarios.has(scenario);
   const isMovementFixtureScenario = movementFixtureScenarios.has(scenario);
-  const selectedWeaponIds = scenarioValue(
-    scenario,
-    selectedWeaponIdsByScenario,
-    tacticalMapSelectedWeaponIds,
-  );
+  const selectedWeaponIds =
+    indirectScenario?.selectedWeaponIds ??
+    scenarioValue(
+      scenario,
+      selectedWeaponIdsByScenario,
+      tacticalMapSelectedWeaponIds,
+    );
   const targetUnitId = isMovementFixtureScenario
     ? null
-    : scenarioValue(scenario, targetUnitIdByScenario, 'occluded');
-  const tokens = scenarioValue(scenario, tokensByScenario, tacticalMapTokens);
-  const combatState = scenarioValue(
-    scenario,
-    combatStateByScenario,
-    tacticalMapCombatState,
-  );
+    : (indirectScenario?.targetUnitId ??
+      scenarioValue(scenario, targetUnitIdByScenario, 'occluded'));
+  const tokens =
+    indirectScenario?.tokens ??
+    scenarioValue(scenario, tokensByScenario, tacticalMapTokens);
+  const combatState =
+    indirectScenario?.combatState ??
+    scenarioValue(scenario, combatStateByScenario, tacticalMapCombatState);
   const unitWeapons =
     scenario === 'selected-weapon-out-of-arc'
       ? arcScenarios.tacticalMapOutOfArcUnitWeapons
@@ -368,19 +336,19 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
   const mpLegend = isCombatOnlyScenario
     ? undefined
     : scenarioValue(scenario, mpLegendByScenario, tacticalMapMpLegend);
-  const selectedHex = scenarioValue(scenario, selectedHexByScenario, {
-    q: -1,
-    r: 0,
-  });
+  const selectedHex =
+    indirectScenario?.selectedHex ??
+    scenarioValue(scenario, selectedHexByScenario, {
+      q: -1,
+      r: 0,
+    });
   const highlightPath =
     isCombatOnlyScenario || isMovementFixtureScenario
       ? undefined
       : tacticalMapHighlightPath;
-  const hexTerrain = scenarioValue(
-    scenario,
-    hexTerrainByScenario,
-    tacticalMapHexTerrain,
-  );
+  const hexTerrain =
+    indirectScenario?.hexTerrain ??
+    scenarioValue(scenario, hexTerrainByScenario, tacticalMapHexTerrain);
 
   if (!isTestEnv) {
     return <main style={{ padding: 40 }}>Not Available</main>;
