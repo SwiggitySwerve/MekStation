@@ -179,6 +179,11 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
     'resolveAMSInterception and resolveSingleMissileAMSInterception filter target-mounted AMS by incoming attack arc when mountingArc state is available',
     MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS,
   ),
+  'ams-mounted-arc-hydration': integrated(
+    'ams-mounted-arc-hydration',
+    'UnitHydration maps canonical mounted equipment isRearMounted metadata into explicit Front/Rear mountingArc state for runner and AI combat snapshots',
+    MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS,
+  ),
   'ams-streak-cluster-parity': integrated(
     'ams-streak-cluster-parity',
     'resolveSpecialProjectileHit treats Streak hits as cluster-roll 11 when target AMS engages, then applies the AMS -4 cluster-table modifier',

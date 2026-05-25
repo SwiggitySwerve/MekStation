@@ -27,7 +27,7 @@
 import type { IFullUnit } from '@/services/units/CanonicalUnitService';
 
 import { getNodeCanonicalUnitService } from '@/services/units/NodeCanonicalUnitService';
-import { GameSide } from '@/types/gameplay';
+import { FiringArc, GameSide } from '@/types/gameplay';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { WEAPON_CATALOG_FILES } from '@/utils/construction/equipmentBVCatalogData';
 
@@ -162,7 +162,7 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     expect(srm6?.heat).toBe(4);
   });
 
-  it('hydrates mounted weapon locations into AI weapons and unit state', () => {
+  it('hydrates mounted weapon locations and rear-facing arcs into AI weapons and unit state', () => {
     const fullUnit: IFullUnit = {
       id: 'synthetic-location-hydration',
       chassis: 'Synthetic',
@@ -173,14 +173,16 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
       unitType: 'BattleMech',
       equipment: [
         { id: 'medium-laser', location: 'LEFT_ARM' },
-        { id: 'ac-20', location: 'RIGHT_TORSO' },
+        { id: 'ac-20', location: 'RIGHT_TORSO', isRearMounted: true },
       ],
     };
 
     const weapons = hydrateAIWeaponsFromFullUnit(fullUnit, weaponLookup);
-    expect(weapons.map((weapon) => [weapon.id, weapon.location])).toEqual([
-      ['medium-laser-0', 'LEFT_ARM'],
-      ['ac-20-1', 'RIGHT_TORSO'],
+    expect(
+      weapons.map((weapon) => [weapon.id, weapon.location, weapon.mountingArc]),
+    ).toEqual([
+      ['medium-laser-0', 'LEFT_ARM', FiringArc.Front],
+      ['ac-20-1', 'RIGHT_TORSO', FiringArc.Rear],
     ]);
 
     const state = createHydratedUnitState({

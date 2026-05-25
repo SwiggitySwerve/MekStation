@@ -2352,7 +2352,12 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       expect(
         SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-interception-events'].level,
       ).toBe('integrated');
-      expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap).toContain('arc');
+      expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap).toContain(
+        'defender choice',
+      );
+      expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap).not.toContain(
+        'automatic firing-arc assignment',
+      );
     });
 
     it('runner attack resolution respects target AMS mounted arc when resolving interception', () => {

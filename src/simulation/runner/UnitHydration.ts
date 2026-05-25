@@ -37,6 +37,7 @@ import type { ECMType, IActiveProbe } from '@/utils/gameplay/electronicWarfare';
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import {
   Facing,
+  FiringArc,
   GameSide,
   IAmmoSlotState,
   IMovementCapability,
@@ -135,6 +136,7 @@ export type IHydratedC3EquipmentData = IC3EquipmentMountState;
 interface IUnitEquipmentEntry {
   readonly id: string;
   readonly location: string;
+  readonly isRearMounted?: boolean;
 }
 
 interface IHydratableEquipmentSignal {
@@ -513,6 +515,7 @@ export function toAIWeapon(
   catalogWeapon: ICatalogWeaponStats,
   mountIndex: number,
   location?: string,
+  mountingArc?: FiringArc,
 ): IWeapon {
   const damage = resolveCatalogDamage(catalogWeapon.damage, catalogWeapon.id);
   const firingModes = buildCatalogFiringModes(catalogWeapon, damage);
@@ -530,9 +533,14 @@ export function toAIWeapon(
     minRange: catalogWeapon.ranges.minimum,
     ammoPerTon: catalogWeapon.ammoPerTon ?? -1,
     ...(location ? { location } : {}),
+    ...(mountingArc ? { mountingArc } : {}),
     destroyed: false,
     ...(firingModes ? { firingModes } : {}),
   };
+}
+
+function mountingArcFromEquipment(entry: IUnitEquipmentEntry): FiringArc {
+  return entry.isRearMounted === true ? FiringArc.Rear : FiringArc.Front;
 }
 
 function catalogText(catalogWeapon: ICatalogWeaponStats): string {
@@ -1479,7 +1487,12 @@ export function hydrateAIWeaponsFromFullUnitWithReport(
       typeof entry.location === 'string'
         ? normalizeEquipmentLocation(entry.location)
         : '';
-    const aiWeapon = toAIWeapon(stats, mountIndex, location);
+    const aiWeapon = toAIWeapon(
+      stats,
+      mountIndex,
+      location,
+      mountingArcFromEquipment(entry),
+    );
     out.push(
       applyArtemisGuidanceFlags(
         aiWeapon,

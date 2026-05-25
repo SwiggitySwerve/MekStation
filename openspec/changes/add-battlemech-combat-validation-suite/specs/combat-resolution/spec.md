@@ -238,10 +238,10 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 
 #### Scenario: AMS helper boundary stays source-backed
 
-- **GIVEN** AMS behavior is partially represented by projectile reduction, mounted-arc enforcement when `mountingArc` state is available, Streak/all-shots-hit cluster parity, single-missile interception, ammo/heat/fired lifecycle, and interception-event rows
+- **GIVEN** AMS behavior is partially represented by projectile reduction, mounted-arc enforcement when `mountingArc` state is available, canonical `isRearMounted` equipment hydration into Front/Rear `mountingArc` state, Streak/all-shots-hit cluster parity, single-missile interception, ammo/heat/fired lifecycle, and interception-event rows
 - **WHEN** the special weapon catalog rows are contract-tested
 - **THEN** the AMS family row and AMS mechanic rows SHALL cite MegaMek source anchors for assignment, defender choice, arc checks, cluster-table reduction, single-missile interception, ammo/heat usage, and optional multi-use lifecycle
-- **AND** AMS SHALL remain helper-only until defender choice, automatic firing-arc assignment from hydrated mounted equipment, and optional multi-use/PLAYTEST_3 rules are authoritative in runner/session combat
+- **AND** AMS SHALL remain helper-only until defender choice and optional multi-use/PLAYTEST_3 rules are authoritative in runner/session combat
 
 #### Scenario: Special weapon family rows stay source-backed
 
