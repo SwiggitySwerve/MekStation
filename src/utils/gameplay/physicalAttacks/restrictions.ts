@@ -32,6 +32,17 @@ function isRepresentedMek(unitType: UnitType | undefined): boolean {
   );
 }
 
+function isRepresentedChargeCapableUnit(
+  unitType: UnitType | undefined,
+): boolean {
+  if (unitType === undefined) return true;
+  return (
+    isRepresentedMek(unitType) ||
+    unitType === UnitType.VEHICLE ||
+    unitType === UnitType.SUPPORT_VEHICLE
+  );
+}
+
 export function canPunch(
   input: IPhysicalAttackInput,
 ): IPhysicalAttackRestriction {
@@ -367,6 +378,14 @@ export function canDFA(
 export function canCharge(
   input: IPhysicalAttackInput,
 ): IPhysicalAttackRestriction {
+  if (!isRepresentedChargeCapableUnit(input.attackerUnitType)) {
+    return {
+      allowed: false,
+      reason: "This unit type can't charge",
+      reasonCode: 'AttackerCannotCharge',
+    };
+  }
+
   if (input.attackerRanThisTurn === false) {
     return {
       allowed: false,

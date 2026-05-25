@@ -1145,6 +1145,18 @@ with `AttackerNotMek`, so Battle Armor no longer produces ordinary Mek physical
 target highlights while its dedicated LegAttack, SwarmAttack, and Vibroclaw
 work remains tracked under `add-battle-armor-combat`.
 
+2026-05-25 infantry/BA charge projection pin: MegaMek
+`BattleArmor.java:90` shows Battle Armor extends Infantry, and
+`Infantry.java:1027-1030` overrides `canCharge()` to return false. Additional
+non-charge-capable represented unit classes include `ProtoMek.java:1014-1016`,
+`VTOL.java:138-141`, and `Aero.java:1721-1725`; `Tank.java:1459-1468` preserves
+vehicle charge eligibility subject to movement-mode options. MekStation now
+whitelists represented charge projection to Mek and vehicle categories, leaves
+legacy unknown unit types unchanged, and returns `AttackerCannotCharge` for
+Battle Armor so a unit that ran this turn cannot create a generic charge
+highlight. Hover/WiGE vehicle-specific charge restrictions remain pending until
+the physical projection input carries movement-mode context.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

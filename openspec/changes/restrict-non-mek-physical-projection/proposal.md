@@ -11,12 +11,12 @@ and Vibroclaw actions instead.
 
 ## What Changes
 
-- Block generic punch, kick, DFA, and mech-melee weapon projection rows for
-  represented non-mek attackers.
+- Block generic punch, kick, charge, DFA, and mech-melee weapon projection rows
+  for represented unit types that MegaMek says cannot perform those attacks.
 - Preserve disabled projection rows with `AttackerNotMek` so command surfaces
   can explain why the action is unavailable.
 - Add focused projection coverage proving Battle Armor no longer creates a
-  generic physical target highlight from punch/kick/DFA rows.
+  generic physical target highlight from punch/kick/charge/DFA rows.
 
 ## Impact
 

@@ -31,6 +31,7 @@ import {
   getPhysicalMissConsequences,
   canPunch,
   canKick,
+  canCharge,
   canPush,
   canDFA,
   canMeleeWeapon,
@@ -814,6 +815,42 @@ describe('physicalAttacks', () => {
     });
   });
 
+  describe('canCharge', () => {
+    it.each([
+      UnitType.BATTLE_ARMOR,
+      UnitType.INFANTRY,
+      UnitType.PROTOMECH,
+      UnitType.VTOL,
+      UnitType.AEROSPACE,
+    ])('should disallow charge for %s attackers', (attackerUnitType) => {
+      const result = canCharge(
+        makeInput({
+          attackType: 'charge',
+          attackerUnitType,
+          attackerRanThisTurn: true,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: "This unit type can't charge",
+        reasonCode: 'AttackerCannotCharge',
+      });
+    });
+
+    it('should preserve represented vehicle charge eligibility when run-gated', () => {
+      const result = canCharge(
+        makeInput({
+          attackType: 'charge',
+          attackerUnitType: UnitType.VEHICLE,
+          attackerRanThisTurn: true,
+        }),
+      );
+
+      expect(result).toEqual({ allowed: true });
+    });
+  });
+
   describe('getEligiblePhysicalAttacks', () => {
     it('keeps battle armor from producing generic physical target highlights', () => {
       const attacker = unitAt('ba-1', 0, 0);
@@ -825,7 +862,7 @@ describe('physicalAttacks', () => {
         targetTonnage: 55,
         attackerUnitType: UnitType.BATTLE_ARMOR,
         targetUnitType: UnitType.BATTLEMECH,
-        attackerRanThisTurn: false,
+        attackerRanThisTurn: true,
         attackerJumpedThisTurn: true,
       });
 
@@ -836,12 +873,12 @@ describe('physicalAttacks', () => {
         ),
       ).toHaveLength(0);
       expect(options.map((option) => option.attackType)).toEqual(
-        expect.arrayContaining(['punch', 'kick', 'dfa']),
+        expect.arrayContaining(['punch', 'kick', 'charge', 'dfa']),
       );
       expect(
         options
           .filter((option) =>
-            ['punch', 'kick', 'dfa'].includes(option.attackType),
+            ['punch', 'kick', 'charge', 'dfa'].includes(option.attackType),
           )
           .flatMap((option) => option.restrictionsFailed),
       ).toEqual(
@@ -849,6 +886,7 @@ describe('physicalAttacks', () => {
           'AttackerNotMek',
           'AttackerNotMek',
           'AttackerNotMek',
+          'AttackerCannotCharge',
         ]),
       );
     });
@@ -980,6 +1018,20 @@ describe('physicalAttacks', () => {
       );
       expect(result.baseToHit).toBe(5);
       expect(result.allowed).toBe(true);
+    });
+
+    it('should reject Battle Armor charge to-hit even after a run', () => {
+      const result = calculateChargeToHit(
+        makeInput({
+          pilotingSkill: 5,
+          attackType: 'charge',
+          attackerUnitType: UnitType.BATTLE_ARMOR,
+          attackerRanThisTurn: true,
+        }),
+      );
+
+      expect(result.allowed).toBe(false);
+      expect(result.restrictionReasonCode).toBe('AttackerCannotCharge');
     });
   });
 
