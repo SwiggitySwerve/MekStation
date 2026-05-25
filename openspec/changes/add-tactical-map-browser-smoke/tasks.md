@@ -131,6 +131,9 @@
 - [x] 2.51 Add browser coverage proving LOS-spotter indirect fire keeps a
   blocked LRM target attackable with indirect basis, spotter, and penalty
   metadata.
+- [x] 2.52 Add browser coverage proving Forward Observer cancellation keeps the
+  blocked LRM target attackable while exposing the represented cancellation
+  flag and cancelled penalty metadata.
 
 ## 3. Validation
 
@@ -239,3 +242,6 @@
   projection, committed attack range, and browser accessible metadata.
 - [x] 3.51 Focused Jest parity and Playwright smoke pass for LOS-spotter
   indirect-fire projection, committed attack event, and browser badge metadata.
+- [x] 3.52 Focused Jest parity and Playwright smoke pass for Forward Observer
+  indirect-fire cancellation projection, committed attack event, and browser
+  badge metadata.

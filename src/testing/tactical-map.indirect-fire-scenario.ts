@@ -36,6 +36,10 @@ const tacticalMapIndirectFireSpotterHex = { q: 3, r: -1 } as const;
 export const tacticalMapIndirectFireTargetId = 'indirect-target';
 export const tacticalMapIndirectFireTargetHex = { q: 3, r: 0 } as const;
 export const tacticalMapIndirectFireSelectedWeaponIds = ['minimum-lrm'];
+export const tacticalMapForwardObserverIndirectFireTargetId =
+  tacticalMapIndirectFireTargetId;
+export const tacticalMapForwardObserverIndirectFireSelectedWeaponIds =
+  tacticalMapIndirectFireSelectedWeaponIds;
 
 export const tacticalMapIndirectFireHexTerrain: readonly IHexTerrain[] = [
   {
@@ -117,6 +121,24 @@ export const tacticalMapIndirectFireCombatState: IGameState = {
   },
 };
 
+export const tacticalMapForwardObserverIndirectFireTokens =
+  tacticalMapIndirectFireTokens;
+export const tacticalMapForwardObserverIndirectFireHexTerrain =
+  tacticalMapIndirectFireHexTerrain;
+export const tacticalMapForwardObserverIndirectFireCombatState: IGameState = {
+  ...tacticalMapIndirectFireCombatState,
+  units: {
+    ...tacticalMapIndirectFireCombatState.units,
+    [tacticalMapIndirectFireSpotterId]: {
+      ...tacticalMapIndirectFireCombatState.units[
+        tacticalMapIndirectFireSpotterId
+      ],
+      movementThisTurn: MovementType.Walk,
+      pilotSpas: ['forward_observer'],
+    },
+  },
+};
+
 function tacticalMapIndirectFireGrid(): IHexGrid {
   const grid = createHexGrid({ radius: 3 });
   const hexes = new Map(grid.hexes);
@@ -157,6 +179,28 @@ export const tacticalMapIndirectFireCombatProjection: ICombatRangeHex =
     ),
   );
 
+export const tacticalMapForwardObserverIndirectFireCombatProjection: ICombatRangeHex =
+  requireCombatProjection(
+    deriveCombatRangeHexes({
+      attacker: tacticalMapIndirectFireAttackerToken,
+      targetUnitId: tacticalMapForwardObserverIndirectFireTargetId,
+      hexes: Array.from(
+        tacticalMapIndirectFireGrid().hexes.values(),
+        (hex) => hex.coord,
+      ),
+      grid: tacticalMapIndirectFireGrid(),
+      tokens: tacticalMapForwardObserverIndirectFireTokens,
+      weapons: tacticalMapSelectedWeapons(
+        tacticalMapForwardObserverIndirectFireSelectedWeaponIds,
+      ),
+      combatState: tacticalMapForwardObserverIndirectFireCombatState,
+    }).find(
+      (projection) =>
+        projection.hex.q === tacticalMapIndirectFireTargetHex.q &&
+        projection.hex.r === tacticalMapIndirectFireTargetHex.r,
+    ),
+  );
+
 export function tacticalMapIndirectFireCommitInput(): IApplyAttackInput {
   return {
     session: tacticalMapCombatSession({
@@ -167,6 +211,20 @@ export function tacticalMapIndirectFireCommitInput(): IApplyAttackInput {
     attackerId: 'attacker',
     targetId: tacticalMapIndirectFireTargetId,
     weaponIds: tacticalMapIndirectFireSelectedWeaponIds,
+    grid: tacticalMapIndirectFireGrid(),
+  };
+}
+
+export function tacticalMapForwardObserverIndirectFireCommitInput(): IApplyAttackInput {
+  return {
+    session: tacticalMapCombatSession({
+      tokens: tacticalMapForwardObserverIndirectFireTokens,
+      combatState: tacticalMapForwardObserverIndirectFireCombatState,
+    }),
+    weaponsByUnit: tacticalMapWeaponsByUnit(),
+    attackerId: 'attacker',
+    targetId: tacticalMapForwardObserverIndirectFireTargetId,
+    weaponIds: tacticalMapForwardObserverIndirectFireSelectedWeaponIds,
     grid: tacticalMapIndirectFireGrid(),
   };
 }

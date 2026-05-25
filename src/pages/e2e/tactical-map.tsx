@@ -19,58 +19,22 @@ import {
   tacticalMapTokens,
   tacticalMapUnitWeapons,
 } from '@/testing/tactical-map.fixtures';
-import {
-  tacticalMapFrogmanHexTerrain,
-  tacticalMapFrogmanMovementRange,
-  tacticalMapFrogmanMpLegend,
-  tacticalMapFrogmanSelectedHex,
-  tacticalMapFrogmanTokens,
-} from '@/testing/tactical-map.frogman-scenario';
+import * as frogman from '@/testing/tactical-map.frogman-scenario';
 import * as heatCombat from '@/testing/tactical-map.heat-combat-scenario';
-import {
-  tacticalMapHoverWaterHexTerrain,
-  tacticalMapHoverWaterMovementRange,
-  tacticalMapHoverWaterMpLegend,
-  tacticalMapHoverWaterSelectedHex,
-  tacticalMapHoverWaterTokens,
-} from '@/testing/tactical-map.hover-water-scenario';
+import * as hoverWater from '@/testing/tactical-map.hover-water-scenario';
 import * as immobileCombat from '@/testing/tactical-map.immobile-combat-scenario';
 import * as indirectFire from '@/testing/tactical-map.indirect-fire-scenario';
 import * as movementCombat from '@/testing/tactical-map.movement-combat-scenario';
 import * as movement from '@/testing/tactical-map.movement-scenarios';
-import {
-  tacticalMapNavalLandfallHexTerrain,
-  tacticalMapNavalLandfallMovementRange,
-  tacticalMapNavalLandfallMpLegend,
-  tacticalMapNavalLandfallSelectedHex,
-  tacticalMapNavalLandfallTokens,
-} from '@/testing/tactical-map.naval-landfall-scenario';
+import * as naval from '@/testing/tactical-map.naval-landfall-scenario';
 import * as proneCombat from '@/testing/tactical-map.prone-combat-scenario';
-import {
-  tacticalMapRunWaterFallbackHexTerrain,
-  tacticalMapRunWaterFallbackMovementRange,
-  tacticalMapRunWaterFallbackMpLegend,
-  tacticalMapRunWaterFallbackSelectedHex,
-  tacticalMapRunWaterFallbackTokens,
-} from '@/testing/tactical-map.run-water-fallback-scenario';
+import * as runWater from '@/testing/tactical-map.run-water-fallback-scenario';
 import * as sameHex from '@/testing/tactical-map.same-hex-scenarios';
 import * as stackedLos from '@/testing/tactical-map.stacked-los-scenario';
 import * as standUp from '@/testing/tactical-map.standup-scenario';
-import {
-  tacticalMapSwimHexTerrain,
-  tacticalMapSwimMovementRange,
-  tacticalMapSwimMpLegend,
-  tacticalMapSwimSelectedHex,
-  tacticalMapSwimTokens,
-} from '@/testing/tactical-map.swim-scenario';
+import * as swim from '@/testing/tactical-map.swim-scenario';
 import * as targetTerrain from '@/testing/tactical-map.target-terrain-scenarios';
-import {
-  tacticalMapTrackedElevationHexTerrain,
-  tacticalMapTrackedElevationMovementRange,
-  tacticalMapTrackedElevationMpLegend,
-  tacticalMapTrackedElevationSelectedHex,
-  tacticalMapTrackedElevationTokens,
-} from '@/testing/tactical-map.tracked-elevation-scenario';
+import * as trackedElevation from '@/testing/tactical-map.tracked-elevation-scenario';
 import * as visibility from '@/testing/tactical-map.visibility-scenarios';
 
 const isTestEnv =
@@ -82,6 +46,7 @@ const combatOnlyScenarios = new Set([
   'aerospace-velocity-projection',
   'airborne-aerospace-minimum-range',
   'c3-range-benefit',
+  'forward-observer-indirect-fire',
   'indirect-fire-spotter',
   'target-terrain-modifier',
   'mixed-visibility-targets',
@@ -117,6 +82,8 @@ const selectedWeaponIdsByScenario = {
   'airborne-aerospace-minimum-range':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitSelectedWeaponIds,
+  'forward-observer-indirect-fire':
+    indirectFire.tacticalMapForwardObserverIndirectFireSelectedWeaponIds,
   'indirect-fire-spotter':
     indirectFire.tacticalMapIndirectFireSelectedWeaponIds,
   'target-terrain-modifier':
@@ -148,6 +115,8 @@ const targetUnitIdByScenario = {
   'airborne-aerospace-minimum-range':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeTargetId,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitTargetId,
+  'forward-observer-indirect-fire':
+    indirectFire.tacticalMapForwardObserverIndirectFireTargetId,
   'indirect-fire-spotter': indirectFire.tacticalMapIndirectFireTargetId,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierTargetId,
@@ -176,6 +145,8 @@ const tokensByScenario = {
   'airborne-aerospace-minimum-range':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeTokens,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitTokens,
+  'forward-observer-indirect-fire':
+    indirectFire.tacticalMapForwardObserverIndirectFireTokens,
   'indirect-fire-spotter': indirectFire.tacticalMapIndirectFireTokens,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierTokens,
@@ -193,12 +164,13 @@ const tokensByScenario = {
   'movement-combat-modifier': movementCombat.tacticalMapMovementCombatTokens,
   'jump-combat-modifier': movementCombat.tacticalMapJumpCombatTokens,
   'runtime-height-bridge-clearance': movement.tacticalMapRuntimeHeightTokens,
-  'run-water-walk-fallback': tacticalMapRunWaterFallbackTokens,
-  'tracked-elevation-blocked': tacticalMapTrackedElevationTokens,
-  'hover-water-crossing': tacticalMapHoverWaterTokens,
-  'naval-landfall-blocked': tacticalMapNavalLandfallTokens,
-  'biped-swim-elevation': tacticalMapSwimTokens,
-  'frogman-deep-water': tacticalMapFrogmanTokens,
+  'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackTokens,
+  'tracked-elevation-blocked':
+    trackedElevation.tacticalMapTrackedElevationTokens,
+  'hover-water-crossing': hoverWater.tacticalMapHoverWaterTokens,
+  'naval-landfall-blocked': naval.tacticalMapNavalLandfallTokens,
+  'biped-swim-elevation': swim.tacticalMapSwimTokens,
+  'frogman-deep-water': frogman.tacticalMapFrogmanTokens,
   'prone-stand-up': standUp.tacticalMapStandUpTokens,
   'impossible-stand-up': standUp.tacticalMapImpossibleStandUpTokens,
 } satisfies Record<string, typeof tacticalMapTokens>;
@@ -209,6 +181,8 @@ const combatStateByScenario = {
   'airborne-aerospace-minimum-range':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeCombatState,
   'c3-range-benefit': c3.tacticalMapC3RangeBenefitCombatState,
+  'forward-observer-indirect-fire':
+    indirectFire.tacticalMapForwardObserverIndirectFireCombatState,
   'indirect-fire-spotter': indirectFire.tacticalMapIndirectFireCombatState,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierCombatState,
@@ -236,12 +210,13 @@ const movementRangeByScenario = {
   'biped-option-projection': movement.tacticalMapBipedOptionMovementRange,
   'runtime-height-bridge-clearance':
     movement.tacticalMapRuntimeHeightMovementRange,
-  'run-water-walk-fallback': tacticalMapRunWaterFallbackMovementRange,
-  'tracked-elevation-blocked': tacticalMapTrackedElevationMovementRange,
-  'hover-water-crossing': tacticalMapHoverWaterMovementRange,
-  'naval-landfall-blocked': tacticalMapNavalLandfallMovementRange,
-  'biped-swim-elevation': tacticalMapSwimMovementRange,
-  'frogman-deep-water': tacticalMapFrogmanMovementRange,
+  'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackMovementRange,
+  'tracked-elevation-blocked':
+    trackedElevation.tacticalMapTrackedElevationMovementRange,
+  'hover-water-crossing': hoverWater.tacticalMapHoverWaterMovementRange,
+  'naval-landfall-blocked': naval.tacticalMapNavalLandfallMovementRange,
+  'biped-swim-elevation': swim.tacticalMapSwimMovementRange,
+  'frogman-deep-water': frogman.tacticalMapFrogmanMovementRange,
   'prone-stand-up': standUp.tacticalMapStandUpMovementRange,
   'impossible-stand-up': standUp.tacticalMapImpossibleStandUpMovementRange,
 } satisfies Record<string, typeof tacticalMapMovementRange>;
@@ -252,12 +227,13 @@ const mpLegendByScenario = {
   'vtol-elevation-cost': movement.tacticalMapVtolElevationMpLegend,
   'biped-option-projection': movement.tacticalMapBipedOptionMpLegend,
   'runtime-height-bridge-clearance': movement.tacticalMapRuntimeHeightMpLegend,
-  'run-water-walk-fallback': tacticalMapRunWaterFallbackMpLegend,
-  'tracked-elevation-blocked': tacticalMapTrackedElevationMpLegend,
-  'hover-water-crossing': tacticalMapHoverWaterMpLegend,
-  'naval-landfall-blocked': tacticalMapNavalLandfallMpLegend,
-  'biped-swim-elevation': tacticalMapSwimMpLegend,
-  'frogman-deep-water': tacticalMapFrogmanMpLegend,
+  'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackMpLegend,
+  'tracked-elevation-blocked':
+    trackedElevation.tacticalMapTrackedElevationMpLegend,
+  'hover-water-crossing': hoverWater.tacticalMapHoverWaterMpLegend,
+  'naval-landfall-blocked': naval.tacticalMapNavalLandfallMpLegend,
+  'biped-swim-elevation': swim.tacticalMapSwimMpLegend,
+  'frogman-deep-water': frogman.tacticalMapFrogmanMpLegend,
   'prone-stand-up': standUp.tacticalMapStandUpMpLegend,
   'impossible-stand-up': standUp.tacticalMapStandUpMpLegend,
 } satisfies Record<string, typeof tacticalMapMpLegend>;
@@ -268,13 +244,15 @@ const selectedHexByScenario = {
   'biped-option-projection': movement.tacticalMapBipedOptionSelectedHex,
   'runtime-height-bridge-clearance':
     movement.tacticalMapRuntimeHeightSelectedHex,
+  'forward-observer-indirect-fire': { q: 0, r: 0 },
   'indirect-fire-spotter': { q: 0, r: 0 },
-  'run-water-walk-fallback': tacticalMapRunWaterFallbackSelectedHex,
-  'tracked-elevation-blocked': tacticalMapTrackedElevationSelectedHex,
-  'hover-water-crossing': tacticalMapHoverWaterSelectedHex,
-  'naval-landfall-blocked': tacticalMapNavalLandfallSelectedHex,
-  'biped-swim-elevation': tacticalMapSwimSelectedHex,
-  'frogman-deep-water': tacticalMapFrogmanSelectedHex,
+  'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackSelectedHex,
+  'tracked-elevation-blocked':
+    trackedElevation.tacticalMapTrackedElevationSelectedHex,
+  'hover-water-crossing': hoverWater.tacticalMapHoverWaterSelectedHex,
+  'naval-landfall-blocked': naval.tacticalMapNavalLandfallSelectedHex,
+  'biped-swim-elevation': swim.tacticalMapSwimSelectedHex,
+  'frogman-deep-water': frogman.tacticalMapFrogmanSelectedHex,
   'prone-stand-up': standUp.tacticalMapStandUpSelectedHex,
   'impossible-stand-up': standUp.tacticalMapStandUpSelectedHex,
   'selected-weapon-out-of-arc': { q: 0, r: 0 },
@@ -298,11 +276,14 @@ const hexTerrainByScenario = {
     wreck.tacticalMapBattlefieldWreckHexTerrain,
   'runtime-height-bridge-clearance':
     movement.tacticalMapRuntimeHeightBridgeHexTerrain,
+  'forward-observer-indirect-fire':
+    indirectFire.tacticalMapForwardObserverIndirectFireHexTerrain,
   'indirect-fire-spotter': indirectFire.tacticalMapIndirectFireHexTerrain,
-  'run-water-walk-fallback': tacticalMapRunWaterFallbackHexTerrain,
-  'tracked-elevation-blocked': tacticalMapTrackedElevationHexTerrain,
-  'hover-water-crossing': tacticalMapHoverWaterHexTerrain,
-  'naval-landfall-blocked': tacticalMapNavalLandfallHexTerrain,
+  'run-water-walk-fallback': runWater.tacticalMapRunWaterFallbackHexTerrain,
+  'tracked-elevation-blocked':
+    trackedElevation.tacticalMapTrackedElevationHexTerrain,
+  'hover-water-crossing': hoverWater.tacticalMapHoverWaterHexTerrain,
+  'naval-landfall-blocked': naval.tacticalMapNavalLandfallHexTerrain,
   'elevation-los-blocked': elevationLos.tacticalMapElevationLosHexTerrain,
   'woods-los-blocked': elevationLos.tacticalMapWoodsLosHexTerrain,
   'stacked-smoke-woods-los-blocked': stackedLos.tacticalMapStackedLosHexTerrain,
@@ -315,8 +296,8 @@ const hexTerrainByScenario = {
   'movement-combat-modifier':
     movementCombat.tacticalMapMovementCombatHexTerrain,
   'jump-combat-modifier': movementCombat.tacticalMapMovementCombatHexTerrain,
-  'biped-swim-elevation': tacticalMapSwimHexTerrain,
-  'frogman-deep-water': tacticalMapFrogmanHexTerrain,
+  'biped-swim-elevation': swim.tacticalMapSwimHexTerrain,
+  'frogman-deep-water': frogman.tacticalMapFrogmanHexTerrain,
   'prone-stand-up': standUp.tacticalMapStandUpHexTerrain,
   'impossible-stand-up': standUp.tacticalMapStandUpHexTerrain,
 } satisfies Record<string, typeof tacticalMapHexTerrain>;

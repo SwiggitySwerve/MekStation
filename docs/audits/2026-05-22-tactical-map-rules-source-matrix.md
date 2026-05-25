@@ -49,6 +49,12 @@ indirect-fire badge, accessible context, and committed indirect-fire events all
 agree that the target remains attackable through LOS-spotter indirect fire with
 basis `los`, spotter id, +1 indirect penalty, and matching to-hit metadata.
 
+2026-05-25 Forward Observer browser pin: the same indirect-fire harness now
+also represents a walked friendly spotter with the `forward_observer` SPA. The
+shared projection, browser metadata, indirect-fire badge, accessible context,
+and committed Forward Observer event all agree on the +1 net indirect penalty,
+the Forward Observer flag, and the single cancelled spotter-walk penalty point.
+
 2026-05-24 isometric browser update: the tactical-map browser harness now places
 opposing tall elevation stacks around an active target and verifies that camera
 rotation moves the active occluder metadata and highlight to the stack that is
