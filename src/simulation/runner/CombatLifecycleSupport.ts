@@ -15,6 +15,17 @@ import {
   RETREATED_TARGETABILITY_SOURCE_REFS,
   SHUTDOWN_TARGETABILITY_SOURCE_REFS,
 } from './CombatLifecycleSourceRefs';
+import {
+  DAMAGE_THRESHOLD_PSR_SOURCE_REFS,
+  ENGINE_CRITICAL_PSR_SOURCE_REFS,
+  GYRO_CRITICAL_PSR_SOURCE_REFS,
+  HIP_ACTUATOR_CRITICAL_PSR_SOURCE_REFS,
+  LEG_ACTUATOR_CRITICAL_PSR_SOURCE_REFS,
+  LEG_STRUCTURE_DAMAGE_PSR_SOURCE_REFS,
+  MEGAMEK_DFA_ATTACKER_PSR_SOURCE_REFS,
+  MEGAMEK_DFA_MISS_FALL_SOURCE_REFS,
+  MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS,
+} from './CombatPsrTriggerSourceRefs';
 
 const MEGAMEK_COMBAT_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
@@ -40,57 +51,6 @@ function helperOnly(
     ? { id, level: 'helper-only', evidence, gap, sourceRefs }
     : { id, level: 'helper-only', evidence, gap };
 }
-
-const MEGAMEK_DFA_ATTACKER_PSR_SOURCE_REFS = [
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek resolveDfaAttack queues attacker PilotingRollData +4 for "executed death from above" after a successful DFA.',
-    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L15417-L15422',
-    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-  },
-] satisfies readonly ICombatFeatureSourceReference[];
-
-const MEGAMEK_DFA_MISS_FALL_SOURCE_REFS = [
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek resolveDfaAttack displaces the target on a missed DFA, then immediately calls doEntityFall on the attacker with fall height 2 and facing 3.',
-    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L15225-L15245',
-    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-  },
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek doEntityFall rolls checkPilotAvoidFallDamage after fall damage and adds fallHeight - 1 to the pilot-damage avoidance target.',
-    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L23233-L23357',
-    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-  },
-] satisfies readonly ICombatFeatureSourceReference[];
-
-const MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS = [
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek MovePathHandler invokes MASC and Supercharger failure checks during movement resolution when a path has active boosters.',
-    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L1507-L1519',
-    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-  },
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek Entity stores standard fixed MASC/Supercharger failure target numbers and maps them from prior consecutive-use turns.',
-    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L858-L860',
-    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-  },
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek Entity derives current MASC/Supercharger failure targets from previous consecutive-use counters, then increments used boosters, clears active-use flags, and applies the idle decay marker.',
-    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L13660-L13770',
-    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-  },
-] satisfies readonly ICombatFeatureSourceReference[];
 
 const MEGAMEK_PSR_QUEUE_SOURCE_REFS = [
   {
@@ -288,34 +248,42 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
   [PSRTrigger.PhaseDamage20Plus]: integrated(
     PSRTrigger.PhaseDamage20Plus,
     'weaponAttackHitResolution queues createDamagePSR after 20+ damage in a phase',
+    DAMAGE_THRESHOLD_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.LegDamage]: integrated(
     PSRTrigger.LegDamage,
     'weaponAttackHitResolution emits PSRTriggered and queues createLegDamagePSR when leg structure takes damage',
+    LEG_STRUCTURE_DAMAGE_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.HipActuatorDestroyed]: integrated(
     PSRTrigger.HipActuatorDestroyed,
     'critical hit actuator pipeline emits PSRTriggered reasonCode hip_actuator_destroyed',
+    HIP_ACTUATOR_CRITICAL_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.GyroHit]: integrated(
     PSRTrigger.GyroHit,
     'critical hit gyro pipeline emits PSRTriggered reasonCode gyro_hit',
+    GYRO_CRITICAL_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.EngineHit]: integrated(
     PSRTrigger.EngineHit,
-    'critical hit engine pipeline emits PSRTriggered reasonCode engine_hit and runner queues the pending PSR for resolution',
+    'critical hit engine pipeline emits local PSRTriggered reasonCode engine_hit and runner queues the pending PSR for resolution',
+    ENGINE_CRITICAL_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.UpperLegActuatorHit]: integrated(
     PSRTrigger.UpperLegActuatorHit,
     'critical hit actuator pipeline emits PSRTriggered reasonCode upper_leg_actuator_hit',
+    LEG_ACTUATOR_CRITICAL_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.LowerLegActuatorHit]: integrated(
     PSRTrigger.LowerLegActuatorHit,
     'critical hit actuator pipeline emits PSRTriggered reasonCode lower_leg_actuator_hit',
+    LEG_ACTUATOR_CRITICAL_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.FootActuatorHit]: integrated(
     PSRTrigger.FootActuatorHit,
     'critical hit actuator pipeline emits PSRTriggered reasonCode foot_actuator_hit',
+    LEG_ACTUATOR_CRITICAL_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.Kicked]: integrated(
     PSRTrigger.Kicked,

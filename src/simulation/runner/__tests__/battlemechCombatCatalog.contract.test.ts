@@ -2450,6 +2450,90 @@ describe('BattleMech combat feature-gap tracking', () => {
         PSRTrigger.SuperchargerFailure,
       ].sort(),
     );
+    const damageAndCriticalPsrTriggers = [
+      PSRTrigger.PhaseDamage20Plus,
+      PSRTrigger.LegDamage,
+      PSRTrigger.HipActuatorDestroyed,
+      PSRTrigger.GyroHit,
+      PSRTrigger.EngineHit,
+      PSRTrigger.UpperLegActuatorHit,
+      PSRTrigger.LowerLegActuatorHit,
+      PSRTrigger.FootActuatorHit,
+    ];
+    const psrTriggerSourceRefs = damageAndCriticalPsrTriggers.map(
+      (trigger) => ({
+        trigger,
+        sourceRefs: RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[trigger].sourceRefs ?? [],
+      }),
+    );
+    expect(
+      psrTriggerSourceRefs
+        .filter(({ sourceRefs }) => sourceRefs.length === 0)
+        .map(({ trigger }) => trigger),
+    ).toEqual([]);
+    expect(
+      psrTriggerSourceRefs.flatMap(({ sourceRefs }) =>
+        sourceRefs.filter(({ url }) => !url.includes('#L')),
+      ),
+    ).toEqual([]);
+    expectPinnedMegaMekRefs(
+      psrTriggerSourceRefs.flatMap(({ sourceRefs }) =>
+        sourceRefs.filter(({ kind }) => kind === 'megamek-source'),
+      ),
+    );
+    const psrTriggerCitations = (trigger: PSRTrigger) =>
+      RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[trigger].sourceRefs?.map(
+        ({ citation }) => citation,
+      ) ?? [];
+
+    expect(psrTriggerCitations(PSRTrigger.PhaseDamage20Plus)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('checkForPSRFromDamage'),
+        expect.stringContaining('applyDamageThresholdPSR'),
+        expect.stringContaining('createDamagePSR'),
+      ]),
+    );
+    expect(psrTriggerCitations(PSRTrigger.LegDamage)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('MekStation leg-structure PSRs'),
+        expect.stringContaining('applyLegDamagePSR'),
+        expect.stringContaining('createLegDamagePSR'),
+      ]),
+    );
+    const actuatorPsrCitations = [
+      PSRTrigger.HipActuatorDestroyed,
+      PSRTrigger.UpperLegActuatorHit,
+      PSRTrigger.LowerLegActuatorHit,
+      PSRTrigger.FootActuatorHit,
+    ].flatMap((trigger) => psrTriggerCitations(trigger));
+    expect(actuatorPsrCitations).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('applyMekCritical queues hip actuator PSRs'),
+        expect.stringContaining(
+          'applyMekCritical queues leg/foot actuator PSRs',
+        ),
+        expect.stringContaining('MekStation applyActuatorHit'),
+      ]),
+    );
+    expect(psrTriggerCitations(PSRTrigger.GyroHit)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('handleGyroCriticalHit'),
+        expect.stringContaining('MekStation applyGyroHit'),
+        expect.stringContaining('createGyroPSR'),
+      ]),
+    );
+    expect(psrTriggerCitations(PSRTrigger.EngineHit)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('not queuing a normal fall PSR'),
+        expect.stringContaining('MekStation applyEngineHit'),
+        expect.stringContaining('createEngineHitPSR'),
+      ]),
+    );
+    expect(
+      RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.EngineHit].sourceRefs?.some(
+        ({ kind }) => kind === 'mekstation-deviation',
+      ),
+    ).toBe(true);
     expect(
       RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.DFATarget].sourceRefs?.map(
         (sourceRef) => sourceRef.citation,

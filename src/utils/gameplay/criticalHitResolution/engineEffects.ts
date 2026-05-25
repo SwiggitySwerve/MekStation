@@ -23,10 +23,9 @@ export function applyEngineHit(
   const newHits = componentDamage.engineHits + 1;
   const updatedDamage = { ...componentDamage, engineHits: newHits };
 
-  // Per the PSR trigger catalog, engine criticals produce a canonical
-  // engine-hit PSR signal. The runner/session layers decide whether a
-  // destroyed target keeps the pending roll; this keeps the critical
-  // pipeline as the single source of truth for crit-origin PSR triggers.
+  // MekStation keeps EngineHit as a local PSR trigger even though MegaMek's
+  // engine-critical path handles counters, heat/destruction, and explosion
+  // checks without queuing a normal fall PSR.
   events.push({
     type: 'psr_triggered',
     payload: {

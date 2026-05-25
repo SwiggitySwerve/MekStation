@@ -1153,6 +1153,18 @@ Every PSR resolution support row SHALL expose structured source references befor
 - **AND** failed-fall rows SHALL include MegaMek source anchors for failed piloting checks and fall pilot damage
 - **AND** the psrResolution catalog triad SHALL enforce row-level source references before PR approval
 
+### Requirement: Source-Backed Damage And Critical PSR Trigger Catalog Anchors
+
+Damage and critical-component PSR trigger rows SHALL expose structured source references before they are treated as validation coverage. Phase-damage rows SHALL cite MegaMek phase-end 20+ damage PSR checks plus MekStation damage-threshold queueing and factory paths. Hip, leg/foot actuator, and gyro critical rows SHALL cite MegaMek critical-hit PSR branches plus MekStation critical-event bridge and factory paths. EngineHit and leg-structure PSR rows SHALL remain source-visible MekStation deviations where the local trigger is broader or different than the MegaMek source branch.
+
+#### Scenario: Damage and critical PSR trigger rows expose source truth
+
+- **GIVEN** the BattleMech runner PSR trigger support catalog is generated
+- **WHEN** the phase-damage, leg-structure, actuator-critical, gyro-critical, or engine-critical trigger rows are inspected
+- **THEN** every such row SHALL carry structured source references with line anchors
+- **AND** actuator and gyro critical rows SHALL include MegaMek source anchors for queued critical-hit PSRs
+- **AND** the EngineHit row SHALL identify its MekStation deviation because MegaMek engine critical handling counts engine hits, heat/destruction, and explosion checks without queuing a normal fall PSR
+
 ### Requirement: Source-Backed Heat SPA Boundary
 
 Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior from local helper behavior before claiming parity. Some Like It Hot SHALL carry MegaMek source references for reducing positive heat firing modifiers by 1. Hot Dog startup, shutdown, heat-induced ammo-explosion, opt-in MaxTech pilot heat-damage, and opt-in MaxTech critical-damage checks SHALL apply MegaMek's `hotDogMod = 1` target-number relief without shifting heat thresholds. Default life-support heat damage SHALL remain threshold-based at heat 15/25+ because MegaMek does not apply `hotDogMod` to that path. Hot Dog SHALL be integrated for BattleMech heat lifecycle resolution once those source-backed paths are executable in runner and interactive heat resolution. Cool Under Fire SHALL remain helper-only until a source authority for generated-heat relief is identified.

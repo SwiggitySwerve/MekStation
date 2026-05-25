@@ -171,6 +171,7 @@
 - [x] 3.5.21 Promote critical-slot hydration and critical-slot effect triads to row-level source references so system/equipment critical-slot claims cannot inherit broad damage authority.
 - [x] 3.5.22 Promote PSR resolution rows to row-level source references for queued PSR resolution, reasonCode preservation, failed-fall outcomes, fall pilot wounds/death/events, and pending-queue clearing.
 - [x] 3.5.23 Promote action eligibility rows to row-level source references for turn rotation removal, shutdown targetability, retreated/ejected target removal, ejection damage preservation, and survivor/objective counts.
+- [x] 3.5.24 Source-pin damage-threshold and damage/critical-component PSR trigger rows, preserving local EngineHit and leg-structure PSR deviations as explicit source-visible catalog boundaries.
 
 ## 4. Source-truth cross-checks
 
@@ -253,3 +254,4 @@
 - [x] 4.3.73 Cross-check MegaMek `Entity.checkRubbleMove`, `Entity.checkWaterMove`, `Entity.checkSkid`, `Entity.checkBogDown`, `Terrain.getBogDownModifier`, `BuildingCollapseHandler.checkForCollapse`, and MekStation terrain PSR runner/factory/resolution paths before promoting per-TerrainType PSR rows to row-level source references and preserving swamp/building helper-only gaps.
 - [x] 4.3.74 Cross-check MegaMek `Game.addPSR`, `TWGameManager.resolvePilotingRolls`, `doSkillCheckWhileMoving`, and `doEntityFall` plus MekStation runner/session PSR resolution before promoting PSR resolution rows to row-level source references.
 - [x] 4.3.75 Cross-check MegaMek retreat/ejection original-unit removal and MekStation turn rotation, action queries, target filters, ejection reducer, and survivor/objective predicates before promoting action eligibility rows to row-level source references.
+- [x] 4.3.76 Cross-check MegaMek phase-damage, leg-destroyed, actuator, gyro, and engine-critical branches against MekStation damage/critical PSR trigger rows before pinning row-level sources; record EngineHit and leg-structure PSRs as local deviations rather than MegaMek parity claims.
