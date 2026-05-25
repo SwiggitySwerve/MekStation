@@ -2011,6 +2011,59 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     ).toHaveAttribute('data-aerospace-altitude', '3');
   });
 
+  test('shows C3 spotter range benefit in browser', async ({ page }) => {
+    await page.goto('/e2e/tactical-map?scenario=c3-range-benefit');
+
+    await expect(page.getByTestId('unit-token-c3-spotter')).toContainText(
+      'RVN',
+    );
+
+    const targetHex = page.getByTestId('hex-1-2');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'medium-target',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-distance', '4');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-range-bracket',
+      'short',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    await expect(targetHex).toHaveAttribute(
+      'data-weapons-available',
+      'medium-laser',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-ranges',
+      'medium-laser:medium',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-c3-benefit', 'true');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-c3-spotter',
+      'c3-spotter',
+    );
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-c3-spotter-range',
+      '1',
+    );
+    await expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '4');
+    await expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-modifiers',
+      /C3 Network:0/,
+    );
+    await expect(targetHex).toHaveAttribute(
+      'aria-label',
+      /C3: spotter c3-spotter at 1 hex improves to short range/,
+    );
+
+    const combatBadge = page.getByTestId('hex-combat-badge-1-2');
+    await expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-range',
+      'short',
+    );
+    await expect(combatBadge).toHaveAttribute('data-combat-badge-label', 'S4');
+  });
+
   test('shows target terrain to-hit modifiers without cover badges in browser', async ({
     page,
   }) => {

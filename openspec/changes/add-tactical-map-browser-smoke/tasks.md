@@ -126,6 +126,8 @@
   non-attackable, and exposes the matching visibility/invalid metadata.
 - [x] 2.49 Add browser coverage proving TacOps battlefield-wreck conversion
   renders as rough terrain with the shared movement terrain surcharge.
+- [x] 2.50 Add browser coverage proving C3 spotter range benefit renders the
+  improved effective range and C3 context metadata.
 
 ## 3. Validation
 
@@ -230,3 +232,5 @@
 - [x] 3.49 Focused Jest parity and Playwright smoke pass for TacOps
   battlefield-wreck rough terrain conversion, map terrain metadata, and
   movement-cost badge labeling.
+- [x] 3.50 Focused Jest parity and Playwright smoke pass for C3 range-benefit
+  projection, committed attack range, and browser accessible metadata.

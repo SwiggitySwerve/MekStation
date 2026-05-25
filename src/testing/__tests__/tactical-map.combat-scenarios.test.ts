@@ -10,6 +10,10 @@ import {
   tacticalMapOutOfArcCommitInput,
 } from '../tactical-map.arc-scenarios';
 import {
+  tacticalMapC3RangeBenefitCombatProjection,
+  tacticalMapC3RangeBenefitCommitInput,
+} from '../tactical-map.c3-scenario';
+import {
   tacticalMapAirborneAerospaceMinimumRangeCombatProjection,
   tacticalMapAirborneAerospaceMinimumRangeCommitInput,
   tacticalMapBlockedLosCombatProjection,
@@ -133,6 +137,59 @@ describe('tactical map combat scenarios', () => {
     );
     expect(payload.toHitNumber).toBe(
       tacticalMapMediumRangeCombatProjection.toHitNumber,
+    );
+  });
+
+  it('keeps C3 range benefit aligned between browser projection and committed attack', () => {
+    expect(tacticalMapC3RangeBenefitCombatProjection).toMatchObject({
+      hex: { q: 1, r: 2 },
+      distance: 4,
+      rangeBracket: 'short',
+      attackable: true,
+      weaponIdsAvailable: ['medium-laser'],
+      c3BenefitApplied: true,
+      c3SpotterId: 'c3-spotter',
+      c3SpotterRange: 1,
+    });
+    expect(tacticalMapC3RangeBenefitCombatProjection.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'C3 Network',
+          value: 0,
+          source: 'equipment',
+        }),
+      ]),
+    );
+
+    const result = applyInteractiveSessionAttack(
+      tacticalMapC3RangeBenefitCommitInput(),
+    );
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.weapons).toEqual(
+      tacticalMapC3RangeBenefitCombatProjection.weaponIdsAvailable,
+    );
+    expect(payload.range).toBe(
+      tacticalMapC3RangeBenefitCombatProjection.rangeBracket,
+    );
+    expect(payload.toHitNumber).toBe(
+      tacticalMapC3RangeBenefitCombatProjection.toHitNumber,
+    );
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'C3 Network',
+          value: 0,
+          source: 'equipment',
+        }),
+      ]),
     );
   });
 

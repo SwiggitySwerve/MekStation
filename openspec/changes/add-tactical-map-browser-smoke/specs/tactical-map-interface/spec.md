@@ -65,6 +65,9 @@ the top-down map.
   context, and non-color visibility/invalid badges
 - **AND** a medium-range combat target SHALL expose the target id, distance,
   range band, available weapon ids, and per-weapon range option metadata
+- **AND** a combat target whose represented C3 spotter improves the effective
+  range SHALL expose the improved range band, spotter id, spotter range,
+  to-hit metadata, and C3 accessible context
 - **AND** a combat target outside the selected weapon's firing arc SHALL expose
   `OutOfArc` rejection metadata, per-weapon arc blocker details, and a combat
   invalid badge that does not rely on color alone

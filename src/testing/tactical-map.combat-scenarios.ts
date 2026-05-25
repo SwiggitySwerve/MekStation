@@ -176,6 +176,13 @@ export function tacticalMapCombatSession({
       ...unitState,
     };
   }
+  session = {
+    ...session,
+    currentState: {
+      ...session.currentState,
+      ...(combatState.c3State ? { c3State: combatState.c3State } : {}),
+    },
+  };
 
   return session;
 }

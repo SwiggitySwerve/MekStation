@@ -5,6 +5,7 @@ import * as aerospace from '@/testing/tactical-map.aerospace-scenarios';
 import * as arcScenarios from '@/testing/tactical-map.arc-scenarios';
 import * as battleArmor from '@/testing/tactical-map.battle-armor-scenarios';
 import * as wreck from '@/testing/tactical-map.battlefield-wreck-scenario';
+import * as c3 from '@/testing/tactical-map.c3-scenario';
 import * as combatScenarios from '@/testing/tactical-map.combat-scenarios';
 import * as elevationLos from '@/testing/tactical-map.elevation-los-scenario';
 import {
@@ -94,6 +95,7 @@ const isTestEnv =
 const combatOnlyScenarios = new Set([
   'aerospace-velocity-projection',
   'airborne-aerospace-minimum-range',
+  'c3-range-benefit',
   'target-terrain-modifier',
   'mixed-visibility-targets',
   'fog-los-terrain-blocked',
@@ -127,6 +129,7 @@ const selectedWeaponIdsByScenario = {
   'aerospace-velocity-projection': [],
   'airborne-aerospace-minimum-range':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeSelectedWeaponIds,
+  'c3-range-benefit': c3.tacticalMapC3RangeBenefitSelectedWeaponIds,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierSelectedWeaponIds,
   'mixed-visibility-targets':
@@ -155,6 +158,7 @@ const targetUnitIdByScenario = {
   'aerospace-velocity-projection': null,
   'airborne-aerospace-minimum-range':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeTargetId,
+  'c3-range-benefit': c3.tacticalMapC3RangeBenefitTargetId,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierTargetId,
   'mixed-visibility-targets': null,
@@ -181,6 +185,7 @@ const tokensByScenario = {
   'aerospace-velocity-projection': aerospace.tacticalMapAerospaceTokens,
   'airborne-aerospace-minimum-range':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeTokens,
+  'c3-range-benefit': c3.tacticalMapC3RangeBenefitTokens,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierTokens,
   'mixed-visibility-targets': visibility.tacticalMapMixedVisibilityTokens,
@@ -212,6 +217,7 @@ const combatStateByScenario = {
   'aerospace-velocity-projection': aerospace.tacticalMapAerospaceCombatState,
   'airborne-aerospace-minimum-range':
     combatScenarios.tacticalMapAirborneAerospaceMinimumRangeCombatState,
+  'c3-range-benefit': c3.tacticalMapC3RangeBenefitCombatState,
   'target-terrain-modifier':
     targetTerrain.tacticalMapTargetTerrainModifierCombatState,
   'mixed-visibility-targets': visibility.tacticalMapMixedVisibilityCombatState,
@@ -377,12 +383,7 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
   );
 
   if (!isTestEnv) {
-    return (
-      <div style={{ padding: 40, textAlign: 'center' }}>
-        <h1>Not Available</h1>
-        <p>This page is only available in development/test environments.</p>
-      </div>
-    );
+    return <main style={{ padding: 40 }}>Not Available</main>;
   }
 
   return (
