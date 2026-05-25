@@ -17,6 +17,7 @@
 - [x] 1.12 Pin utility tactical command rows to MekStation command-factory source refs so eject/concede and helper-only utility surfaces do not rely on prose-only catalog evidence.
 - [x] 1.13 Pin heat/end tactical command rows to MekStation command-factory source refs so phase-advance and heat-continue command surfaces do not rely on prose-only catalog evidence.
 - [x] 1.14 Pin weapon fire-volley tactical command row to MekStation command-factory source refs so the weapon attack commit surface does not rely on prose-only catalog evidence.
+- [x] 1.15 Pin facing tactical command rows to MekStation command-factory source refs so chassis rotation and torso-twist command surfaces do not rely on prose-only catalog evidence.
 
 ## 2. Physical attack legality gates
 

@@ -131,6 +131,35 @@ const MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEKSTATION_FACING_ROTATE_LEFT_COMMAND_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation buildFacingCommands exposes facing.rotate-left as a Movement-phase facing command that commits the local facing-left action id.',
+    'src/components/gameplay/TacticalActionDock/commands/facingCommands.ts',
+    'L23-L38',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEKSTATION_FACING_ROTATE_RIGHT_COMMAND_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation buildFacingCommands exposes facing.rotate-right as a Movement-phase facing command that commits the local facing-right action id.',
+    'src/components/gameplay/TacticalActionDock/commands/facingCommands.ts',
+    'L42-L57',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEKSTATION_FACING_TORSO_TWIST_COMMAND_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation buildFacingCommands exposes facing.torso-twist as a WeaponAttack-phase torso twist command that commits the local torso-twist action id with a direction payload.',
+    'src/components/gameplay/TacticalActionDock/commands/facingCommands.ts',
+    'L61-L80',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const FACING_TORSO_TWIST_ACTION_SOURCE_REFS = [
+  ...MEGAMEK_TORSO_TWIST_SOURCE_REFS,
+  ...MEKSTATION_FACING_TORSO_TWIST_COMMAND_SOURCE_REFS,
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEKSTATION_STABILIZE_COMMAND_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation buildMovementCommands exposes movement.stabilize as a product-visible tactical command that commits the local stabilize action id.',
@@ -612,17 +641,19 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'facing.rotate-left',
     'tactical-command',
     'buildFacingCommands commits facing-left; useGameplayStore turns it into a same-hex MovementDeclared path and declareMovement/Move carries final facing over the existing movement wire protocol',
+    MEKSTATION_FACING_ROTATE_LEFT_COMMAND_SOURCE_REFS,
   ),
   'facing.rotate-right': integrated(
     'facing.rotate-right',
     'tactical-command',
     'buildFacingCommands commits facing-right; useGameplayStore turns it into a same-hex MovementDeclared path and declareMovement/Move carries final facing over the existing movement wire protocol',
+    MEKSTATION_FACING_ROTATE_RIGHT_COMMAND_SOURCE_REFS,
   ),
   'facing.torso-twist': integrated(
     'facing.torso-twist',
     'tactical-command',
     'buildFacingCommands exposes source-backed torso-twist during WeaponAttack with a direction payload; useGameplayStore routes it to torsoTwist, which validates BattleMech legality and emits FacingChanged secondaryFacing state consumed by replay, AI weapon arcs, runner secondary-target math, game intent, wire, P2P, and server dispatch paths',
-    MEGAMEK_TORSO_TWIST_SOURCE_REFS,
+    FACING_TORSO_TWIST_ACTION_SOURCE_REFS,
   ),
   'weapon.declare-attack': helperOnly(
     'weapon.declare-attack',

@@ -70,6 +70,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** product-visible MekStation command surfaces without identified BattleMech rule authority, including `movement.stabilize`, SHALL stay in `COMBAT_COMMAND_ACTION_SUPPORT` as unsupported `mekstation-deviation` rows rather than absent official action rows
 - **AND** utility tactical command rows, including eject, concede, withdraw, and request-spot, SHALL cite the MekStation command factory that exposes the utility surface
 - **AND** weapon tactical command rows, including the fire-volley attack commit surface, SHALL cite the MekStation command factory that exposes the weapon surface
+- **AND** facing tactical command rows, including chassis rotation and torso twist surfaces, SHALL cite the MekStation command factory that exposes the facing surface
 - **AND** heat/end tactical command rows, including heat continue, end phase, and next turn, SHALL cite the MekStation command factory that exposes the phase-control surface
 - **AND** helper-only product command rows, including local movement cancel, weapon draft declaration/clear, withdraw, and request-spot commands, SHALL cite the MekStation command factory that exposes the local surface
 - **AND** direct UI action rows, including withdrawal edge selection, SHALL cite the MekStation component that exposes the direct action surface
