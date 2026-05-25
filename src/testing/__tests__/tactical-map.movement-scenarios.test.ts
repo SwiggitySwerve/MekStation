@@ -343,16 +343,16 @@ describe('tactical map movement scenarios', () => {
     expect(mekProjection).toMatchObject({
       hex: { q: 3, r: 0 },
       reachable: false,
-      mpCost: Infinity,
-      terrainCost: undefined,
-      elevationDelta: undefined,
-      elevationCost: undefined,
+      mpCost: 5,
+      terrainCost: 0,
+      elevationDelta: 2,
+      elevationCost: 2,
       heatGenerated: 0,
       movementMode: 'walk',
       movementType: 'walk',
-      blockedReason: 'No legal walk path within 4 MP',
-      movementInvalidReason: 'NoLegalPath',
-      movementInvalidDetails: 'No legal walk path within 4 MP',
+      blockedReason: 'Path costs 5 MP, but only 4 MP is available',
+      movementInvalidReason: 'InsufficientMP',
+      movementInvalidDetails: 'Path costs 5 MP, but only 4 MP is available',
     });
     expect(tacticalMapLamMekMpLegend).toMatchObject({
       movementMode: 'walk',

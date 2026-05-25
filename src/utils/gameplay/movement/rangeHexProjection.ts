@@ -11,11 +11,13 @@ import { hexDistance, hexLine } from '@/utils/gameplay/hexMath';
 import type { UnitMovementType } from './types';
 
 import {
+  calculatePathMovementCost,
   getJumpElevationDelta,
   getMovementStepCostBreakdown,
   type IMovementCostContext,
   movementCostContextForStep,
 } from './calculations';
+import { hexHasPavementRoadBonusSurface } from './pathfinding';
 
 export function finalStepCost(
   grid: IHexGrid,
@@ -147,6 +149,66 @@ export function insufficientMpRangeHex({
       directStep?.elevationDelta ?? getJumpElevationDelta(grid, origin, hex),
     elevationCost: directStep?.elevationCost,
     path: directStep ? [origin, hex] : undefined,
+    heatGenerated: 0,
+    movementMode,
+    reachable: false,
+    movementType: mpType,
+    blockedReason: details,
+    movementInvalidReason: 'InsufficientMP',
+    movementInvalidDetails: details,
+  };
+}
+
+export function overBudgetRangeHex({
+  grid,
+  path,
+  hex,
+  mpType,
+  movementMode,
+  pathBudget,
+  maxPathCost,
+  standingCost,
+  costContext = {},
+}: {
+  readonly grid: IHexGrid;
+  readonly path: readonly IHexCoordinate[];
+  readonly hex: IHexCoordinate;
+  readonly mpType: MovementType;
+  readonly movementMode: UnitMovementType;
+  readonly pathBudget: number;
+  readonly maxPathCost: number;
+  readonly standingCost: number;
+  readonly costContext?: IMovementCostContext;
+}): IMovementRangeHex {
+  const pathCost = calculatePathMovementCost(
+    grid,
+    path,
+    movementMode,
+    costContext,
+  );
+  const pathUsesPavementRoadBonus =
+    maxPathCost > pathBudget &&
+    path
+      .slice(1)
+      .every((step) =>
+        hexHasPavementRoadBonusSurface(grid, step, movementMode),
+      );
+  const allowedPathCost = pathUsesPavementRoadBonus ? maxPathCost : pathBudget;
+  const cost = pathCost + standingCost;
+  const allowedTotalCost = allowedPathCost + standingCost;
+  const finalStep = finalStepCost(grid, path, movementMode, costContext);
+  const details =
+    standingCost > 0
+      ? `Path costs ${cost} MP including stand-up, but only ${allowedTotalCost} MP is available`
+      : `Path costs ${cost} MP, but only ${allowedPathCost} MP is available`;
+
+  return {
+    hex,
+    mpCost: cost,
+    terrainCost: finalStep?.terrainCost,
+    elevationDelta: finalStep?.elevationDelta,
+    elevationCost: finalStep?.elevationCost,
+    path,
     heatGenerated: 0,
     movementMode,
     reachable: false,

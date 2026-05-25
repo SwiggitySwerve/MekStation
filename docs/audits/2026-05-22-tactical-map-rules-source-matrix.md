@@ -1083,11 +1083,26 @@ maps WiGE movement to AirMek conversion, and `LandAirMek.java:1074-1079` makes
 non-Mek conversion height 0. MekStation now translates represented runtime
 AirMek conversion into WiGE motive, height 0, and AirMek cruise/flank MP before
 both projection and commit validation. The tactical-map browser harness proves
-the same route is blocked in Mek mode with a non-color `NO PATH` invalid badge
+the same route is over-budget in Mek mode with a non-color `NO MP` invalid badge
 and legal in AirMek mode with WiGE movement, AirMek MP, zero elevation cost, and
 matching commit validation. Fighter/aerodyne mode, AirMek ground-clearance
 submodes, conversion action timing, turn mode, and landing/control-roll
 behavior remain outside this fixture.
+
+2026-05-25 over-budget movement explanation pin: MegaMek pathfinding exposes
+path MP through `MovePath.getMpUsed()` (`MovePath.java:1214-1218`) and filters
+one-to-all paths by available MP with `MovePathLengthFilter`
+(`ShortestPathFinder.java:96-104`, `MovePathLengthFilter.java:40-49`), while
+`MoveStep.java:2046-2074` classifies movement by whether accumulated MP fits
+walk/run limits. MekStation now mirrors that distinction in the map preview:
+after the normal legal MP-capped path search fails, it runs a diagnostic
+terrain-legal path search so passable destinations that merely exceed the MP
+budget return `InsufficientMP` with actual path MP, terrain cost, elevation
+delta, and elevation cost. Direct terrain blockers, such as tracked/wheeled
+abrupt elevation entry, still remain `TerrainBlocked`. Focused Jest coverage
+pins the utility behavior and fixture parity; the LAM Mek-mode browser fixture
+now renders the over-budget climb as `NO MP` with matching commit-validation
+reason, details, MP cost, and heat.
 
 ## Acceptance Gate
 

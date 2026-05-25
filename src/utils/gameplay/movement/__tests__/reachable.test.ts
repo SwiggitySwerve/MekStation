@@ -1261,12 +1261,16 @@ describe('deriveReachableHexes', () => {
     expect(hoverDirt).toMatchObject({ reachable: true, mpCost: 3 });
     expect(trackedDirt).toMatchObject({
       reachable: false,
-      movementInvalidReason: 'NoLegalPath',
+      mpCost: 3,
+      movementInvalidReason: 'InsufficientMP',
+      movementInvalidDetails: 'Path costs 3 MP, but only 2 MP is available',
     });
     expect(trackedGravel).toMatchObject({ reachable: true, mpCost: 3 });
     expect(wheeledGravel).toMatchObject({
       reachable: false,
-      movementInvalidReason: 'NoLegalPath',
+      mpCost: 3,
+      movementInvalidReason: 'InsufficientMP',
+      movementInvalidDetails: 'Path costs 3 MP, but only 2 MP is available',
     });
   });
 
@@ -1914,6 +1918,37 @@ describe('deriveMovementRangeHexForDestination', () => {
       movementInvalidReason: 'InsufficientMP',
       movementInvalidDetails:
         'Destination is 4 hexes away, but max range for walk is 2',
+    });
+  });
+
+  it('projects a passable path that exceeds MP with terrain and elevation costs', () => {
+    let grid = createHexGrid({ radius: 5 });
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(grid, { q: 2, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(grid, { q: 3, r: 0 }, TerrainType.Clear, 2);
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 0 };
+
+    const projected = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 3, r: 0 },
+    );
+
+    expect(projected).toMatchObject({
+      hex: { q: 3, r: 0 },
+      mpCost: 5,
+      terrainCost: 0,
+      elevationDelta: 2,
+      elevationCost: 2,
+      reachable: false,
+      movementType: MovementType.Walk,
+      movementMode: 'walk',
+      blockedReason: 'Path costs 5 MP, but only 4 MP is available',
+      movementInvalidReason: 'InsufficientMP',
+      movementInvalidDetails: 'Path costs 5 MP, but only 4 MP is available',
     });
   });
 

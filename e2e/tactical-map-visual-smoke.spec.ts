@@ -2028,27 +2028,30 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(mekClimb).toHaveAttribute('data-reachable', 'false');
     await expect(mekClimb).toHaveAttribute('data-movement-type', 'walk');
     await expect(mekClimb).toHaveAttribute('data-movement-mode', 'walk');
-    await expect(mekClimb).toHaveAttribute('data-mp-cost', 'Infinity');
+    await expect(mekClimb).toHaveAttribute('data-mp-cost', '5');
+    await expect(mekClimb).toHaveAttribute('data-terrain-cost', '0');
     await expect(mekClimb).toHaveAttribute('data-elevation', '2');
+    await expect(mekClimb).toHaveAttribute('data-elevation-delta', '2');
+    await expect(mekClimb).toHaveAttribute('data-elevation-cost', '2');
     await expect(mekClimb).toHaveAttribute(
       'data-movement-blocked-reason',
-      'No legal walk path within 4 MP',
+      'Path costs 5 MP, but only 4 MP is available',
     );
     await expect(mekClimb).toHaveAttribute(
       'data-movement-invalid-reason',
-      'NoLegalPath',
+      'InsufficientMP',
     );
     await expect(mekClimb).toHaveAttribute(
       'data-movement-invalid-details',
-      'No legal walk path within 4 MP',
+      'Path costs 5 MP, but only 4 MP is available',
     );
     await expect(page.getByTestId('hex-movement-badge-3-0')).toHaveCount(0);
 
     const invalidBadge = page.getByTestId('hex-movement-invalid-badge-3-0');
-    await expect(invalidBadge.locator('text')).toHaveText('NO PATH');
+    await expect(invalidBadge.locator('text')).toHaveText('NO MP');
     await expect(invalidBadge).toHaveAttribute(
       'data-invalid-badge-code',
-      'NoLegalPath',
+      'InsufficientMP',
     );
   });
 

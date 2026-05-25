@@ -60,6 +60,7 @@ import {
   finalStepCost,
   insufficientMpRangeHex,
   occupiedRangeHex,
+  overBudgetRangeHex,
   outOfBoundsRangeHex,
 } from './rangeHexProjection';
 import { resolveRuntimeMovementCapability } from './runtimeCapability';
@@ -450,19 +451,46 @@ export function deriveMovementRangeHexForDestination(
         })
       : null);
   if (!path || path.length === 0) {
-    return withStandUpProjection(
-      blockedRangeHex({
-        grid,
-        origin,
-        hex,
-        mpType,
-        movementMode,
-        maxCost: maxPathCost,
-        blockedReason: `No legal ${movementMode} path within ${maxPathCost} MP`,
-        costContext,
-      }),
-      standUpProjection,
+    const blockedProjection = blockedRangeHex({
+      grid,
+      origin,
+      hex,
+      mpType,
+      movementMode,
+      maxCost: maxPathCost,
+      blockedReason: `No legal ${movementMode} path within ${maxPathCost} MP`,
+      costContext,
+    });
+    if (blockedProjection.movementInvalidReason === 'TerrainBlocked') {
+      return withStandUpProjection(blockedProjection, standUpProjection);
+    }
+
+    const diagnosticPath = findPath(
+      grid,
+      origin,
+      hex,
+      Number.MAX_SAFE_INTEGER,
+      movementMode,
+      costContext,
     );
+    if (diagnosticPath && diagnosticPath.length > 0) {
+      return withStandUpProjection(
+        overBudgetRangeHex({
+          grid,
+          path: diagnosticPath,
+          hex,
+          mpType,
+          movementMode,
+          pathBudget,
+          maxPathCost,
+          standingCost,
+          costContext,
+        }),
+        standUpProjection,
+      );
+    }
+
+    return withStandUpProjection(blockedProjection, standUpProjection);
   }
 
   const pathCost = calculatePathMovementCost(
