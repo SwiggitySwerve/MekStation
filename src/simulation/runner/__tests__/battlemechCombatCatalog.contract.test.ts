@@ -143,6 +143,36 @@ type AmmoCompatibilitySupportId =
   | AmmoCompatibilityGapClass
   | 'battlemech-compatible-ammo';
 
+type PinnedBattleMechAmmoGapClass =
+  | 'battlemech-ammo-missing-compatible-weapon-refs'
+  | 'duplicate-runtime-id';
+
+const EXPECTED_BATTLEMECH_AMMO_GAP_IDS = {
+  'battlemech-ammo-missing-compatible-weapon-refs': [
+    'clan-lb-2-x-cluster',
+    'impammoac10',
+    'impammoac2',
+    'impammoac20',
+    'impammoac5',
+    'rotaryac10',
+    'rotaryac20',
+  ],
+  'duplicate-runtime-id': [
+    'ams',
+    'clan-lb-10-x-ac',
+    'clan-lb-2-x-ac',
+    'clan-lb-20-x-ac',
+    'clan-lb-5-x-ac',
+    'clan-streak-srm-2',
+    'clan-streak-srm-4',
+    'clan-streak-srm-6',
+    'mrm-10',
+    'mrm-20',
+    'mrm-30',
+    'mrm-40',
+  ],
+} satisfies Record<PinnedBattleMechAmmoGapClass, readonly string[]>;
+
 function flattenItems(
   files: readonly ICatalogFile[],
 ): readonly Record<string, unknown>[] {
@@ -630,6 +660,13 @@ describe('BattleMech combat catalog validation lane', () => {
     const ammoClasses: AmmoCompatibilitySupportId[] = ammoItems.map(
       (ammo) => ammoCompatibilityGapClass(ammo) ?? 'battlemech-compatible-ammo',
     );
+    const pinnedBattleMechGapIds: Record<
+      PinnedBattleMechAmmoGapClass,
+      string[]
+    > = {
+      'battlemech-ammo-missing-compatible-weapon-refs': [],
+      'duplicate-runtime-id': [],
+    };
     const gapClasses = ammoClasses.filter(
       (classification): classification is AmmoCompatibilityGapClass =>
         classification !== 'battlemech-compatible-ammo',
@@ -653,6 +690,20 @@ describe('BattleMech combat catalog validation lane', () => {
       ammoCompatibilitySupport['battlemech-ammo-missing-compatible-weapon-refs']
         .level,
     ).toBe('helper-only');
+    for (const ammo of ammoItems) {
+      const classification = ammoCompatibilityGapClass(ammo);
+      if (
+        classification === 'battlemech-ammo-missing-compatible-weapon-refs' ||
+        classification === 'duplicate-runtime-id'
+      ) {
+        pinnedBattleMechGapIds[classification].push(ammo.id);
+      }
+    }
+    for (const pinnedIds of Object.values(pinnedBattleMechGapIds)) {
+      pinnedIds.sort();
+    }
+
+    expect(pinnedBattleMechGapIds).toEqual(EXPECTED_BATTLEMECH_AMMO_GAP_IDS);
     expect(countBy(gapClasses)).toEqual({
       'battlemech-ammo-missing-compatible-weapon-refs': 7,
       'duplicate-runtime-id': 12,

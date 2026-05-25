@@ -112,6 +112,14 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** every broad known-limitation category SHALL have a BattleMech validation trap proving the validation invariant bypass remains visible instead of filtered
 - **AND** known-limitation filtering and partitioning helpers SHALL preserve BattleMech validation traps as potential bugs even when their text matches broad known-limitation patterns
 
+#### Scenario: Ammo catalog compatibility traps stay explicit
+
+- **GIVEN** official ammunition validation relies on `compatibleWeaponIds` to hydrate consumable BattleMech ammo bins
+- **WHEN** the ammunition compatibility catalog is contract-tested
+- **THEN** official ammo rows that duplicate weapon runtime ids SHALL be pinned by exact id and classified before compatibility checks
+- **AND** standard or advanced official ammo rows with no compatible weapon references SHALL be pinned by exact id as helper-only BattleMech ammo gaps
+- **AND** these rows SHALL NOT be counted as consumable BattleMech ammunition until catalog data supplies unambiguous compatible weapon references
+
 #### Scenario: Range bracket rows stay source-backed
 
 - **GIVEN** the range bracket catalog covers short, medium, long, extreme, and out-of-range attack boundaries

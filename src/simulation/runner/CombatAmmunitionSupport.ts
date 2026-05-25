@@ -19,11 +19,11 @@ export const AMMUNITION_COMPATIBILITY_SUPPORT = {
   ),
   'duplicate-runtime-id': integrated(
     'duplicate-runtime-id',
-    'Ammo rows that duplicate weapon runtime ids are classified before compatibility checks so weapon rows do not masquerade as missing ammo mappings',
+    'Ammo rows that duplicate weapon runtime ids are classified by exact id before compatibility checks so weapon rows do not masquerade as missing ammo mappings',
   ),
   'battlemech-ammo-missing-compatible-weapon-refs': helperOnly(
     'battlemech-ammo-missing-compatible-weapon-refs',
-    'Standard or advanced official ammo rows with no compatible weapon ids stay visible in the BattleMech ammo audit',
+    'Standard or advanced official ammo rows with no compatible weapon ids stay visible by exact id in the BattleMech ammo audit',
     'Catalog data needs compatibleWeaponIds before these rows can become consumable BattleMech ammo bins',
   ),
   'non-battlemech-aerospace-capital-ammo': helperOnly(
