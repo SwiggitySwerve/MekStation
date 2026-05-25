@@ -183,12 +183,8 @@ export const MEGAMEK_LOW_ARMS_GAP_SOURCE_REFS = [
     'megamek/src/megamek/common/options/Quirks.java#L147-L151',
   ),
   mekstationDeviationRef(
-    'MekStation isLowArmsRestricted currently blocks elevated punch and arm-mounted melee helpers.',
-    'src/utils/gameplay/quirkModifiers/defensiveQuirks.ts#L33-L43',
-  ),
-  mekstationDeviationRef(
-    'MekStation physical attack restrictions consume Low Arms as a local elevation gate.',
-    'src/utils/gameplay/physicalAttacks/restrictions.ts#L413-L436',
+    'MekStation isLowArmsRestricted intentionally no-ops until source-backed combat semantics exist.',
+    'src/utils/gameplay/quirkModifiers/defensiveQuirks.ts#L34-L46',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

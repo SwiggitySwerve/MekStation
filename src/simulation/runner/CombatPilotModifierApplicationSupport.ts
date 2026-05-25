@@ -210,11 +210,15 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
     'MegaMek Melee Master grants two allowed physical attacks, but MekStation has no per-turn physical attack count allowance resolver yet',
     MEKSTATION_MELEE_MASTER_DEVIATION_SOURCE_REFS,
   ),
-  'physical-restriction-application': helperOnly(
+  'physical-restriction-application': integrated(
     'physical-restriction-application',
-    'canPunch, canPush, canMeleeWeapon, runPhysicalAttackPhase, and interactive declarations consume unit quirks for source-backed No Arms restrictions plus local Low Arms elevation checks',
-    'Low Arms is registered without a source-backed resolver for the local elevation helper, so the shared physical restriction resolver remains helper-only while that quirk is assigned here',
-    [...MEGAMEK_NO_ARMS_SOURCE_REFS, ...MEGAMEK_LOW_ARMS_GAP_SOURCE_REFS],
+    'canPunch, canPush, canMeleeWeapon, runPhysicalAttackPhase, and interactive declarations consume unit quirks for source-backed No Arms restrictions',
+    MEGAMEK_NO_ARMS_SOURCE_REFS,
+  ),
+  'low-arms-application': unsupported(
+    'low-arms-application',
+    'MegaMek registers Low Arms as a quirk option but the pinned source tree contains no combat resolver, so MekStation must not apply a local elevation gate as covered behavior',
+    MEGAMEK_LOW_ARMS_GAP_SOURCE_REFS,
   ),
   'psr-application': integrated(
     'psr-application',
@@ -375,7 +379,11 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
   },
   'physical-restriction-application': {
     spaIds: [],
-    quirkIds: ['no_arms', 'low_arms'],
+    quirkIds: ['no_arms'],
+  },
+  'low-arms-application': {
+    spaIds: [],
+    quirkIds: ['low_arms'],
   },
   'anti-mek-actuator-application': {
     spaIds: [],

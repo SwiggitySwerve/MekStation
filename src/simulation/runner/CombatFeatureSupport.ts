@@ -808,10 +808,9 @@ export const QUIRK_COMBAT_SUPPORT = {
     'hasNoArms plus physical attack input unitQuirks rejects punch, push, and arm-mounted melee attacks, and calculatePilotingQuirkPSRModifier plus runner/session stand-up paths apply the source-backed +2 stand-up PSR penalty',
     MEGAMEK_NO_ARMS_SOURCE_REFS,
   ),
-  low_arms: helperOnly(
+  low_arms: unsupported(
     'low_arms',
-    'isLowArmsRestricted plus physical attack elevationDifference rejects elevated punch and arm-mounted melee attacks',
-    'MegaMek source snapshot registers Low Arms but does not expose a combat resolver for MekStation elevation-gate behavior',
+    'MegaMek source snapshot registers Low Arms but does not expose a combat resolver; MekStation intentionally leaves the helper no-op instead of enforcing a local elevation rule',
     MEGAMEK_LOW_ARMS_GAP_SOURCE_REFS,
   ),
   command_mech: helperOnly(

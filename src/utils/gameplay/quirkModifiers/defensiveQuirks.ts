@@ -31,16 +31,18 @@ export function hasNoArms(unitQuirks: readonly string[]): boolean {
 }
 
 /**
- * Low Arms: restricts physical attacks based on elevation.
- * Returns true if punching is restricted for the given elevation difference.
+ * Low Arms is registered in the pinned MegaMek quirk catalog, but that source
+ * snapshot does not route it through combat attack legality. Keep the helper
+ * as an explicit no-op so older callers do not invent an unsupported local
+ * elevation rule.
  */
 export function isLowArmsRestricted(
   unitQuirks: readonly string[],
   elevationDifference: number,
 ): boolean {
-  if (!unitQuirks.includes(UNIT_QUIRK_IDS.LOW_ARMS)) return false;
-  // Low Arms prevents punching targets at higher elevation
-  return elevationDifference > 0;
+  void unitQuirks;
+  void elevationDifference;
+  return false;
 }
 
 /**

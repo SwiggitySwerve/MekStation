@@ -109,12 +109,13 @@ The No Arms quirk SHALL prevent the unit from performing punch attacks.
 
 ### Requirement: Physical Quirk — Low Arms
 
-The Low Arms quirk SHALL restrict physical attacks based on elevation difference.
+The Low Arms quirk SHALL remain registry-only until a source-backed combat resolver is identified.
 
-#### Scenario: Low Arms elevation restriction
+#### Scenario: Low Arms unsupported combat behavior
 
-- **WHEN** a unit with Low Arms attempts to punch a target at a higher elevation
-- **THEN** the punch SHALL NOT be permitted if the elevation difference exceeds the restriction
+- **WHEN** a unit with Low Arms attempts a physical attack
+- **THEN** Low Arms SHALL NOT add a local elevation restriction
+- **AND** the combat validation catalog SHALL mark Low Arms as unsupported registry-only behavior
 
 ### Requirement: Initiative Quirk — Command Mech
 
@@ -430,5 +431,4 @@ The system SHALL provide helper functions for quirk-based combat logic.
 #### Scenario: isLowArmsRestricted helper
 
 - **WHEN** `isLowArmsRestricted(unitQuirks, elevationDifference)` is called
-- **THEN** it SHALL return true if the unit has Low Arms quirk AND elevation difference is positive (target higher)
-- **AND** return false otherwise
+- **THEN** it SHALL return false until a source-backed Low Arms combat resolver exists

@@ -108,6 +108,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'initiative-hq-equipment-hydration',
         'legacy-defensive-quirk-to-hit-application',
         'legacy-pain-resistance-to-hit-application',
+        'low-arms-application',
         'movement-application',
         'multi-target-penalty-application',
         'physical-action-count-application',
@@ -213,7 +214,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       evidence: expect.stringContaining('stand-up PSR'),
     });
     expect(QUIRK_COMBAT_SUPPORT.low_arms).toMatchObject({
-      level: 'helper-only',
+      level: 'unsupported',
       gap: expect.stringContaining('does not expose a combat resolver'),
     });
     expect(QUIRK_COMBAT_SUPPORT.rugged_1.sourceRefs).toEqual(
@@ -233,6 +234,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'ranged-to-hit-state-hydration',
         'cluster-hitter-application',
         'indirect-fire-spa-application',
+        'physical-restriction-application',
         'physical-damage-application',
         'physical-to-hit-application',
         'psr-application',
@@ -245,6 +247,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       [
         'initiative-command-console-hydration',
         'initiative-hq-equipment-hydration',
+        'low-arms-application',
         'movement-application',
         'multi-target-penalty-application',
         'physical-action-count-application',
@@ -260,7 +263,6 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'legacy-defensive-quirk-to-hit-application',
         'legacy-pain-resistance-to-hit-application',
         'heat-application',
-        'physical-restriction-application',
         'psr-spa-application',
         'sandblaster-application',
       ]),

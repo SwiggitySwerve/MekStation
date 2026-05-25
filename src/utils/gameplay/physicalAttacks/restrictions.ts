@@ -1,8 +1,5 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
-import {
-  hasNoArms,
-  isLowArmsRestricted,
-} from '@/utils/gameplay/quirkModifiers';
+import { hasNoArms } from '@/utils/gameplay/quirkModifiers';
 
 import {
   IPhysicalAttackInput,
@@ -338,14 +335,6 @@ export function canPunch(
     };
   }
 
-  if (isLowArmsRestricted(unitQuirks, input.elevationDifference ?? 0)) {
-    return {
-      allowed: false,
-      reason: 'Low Arms quirk prevents attacks against higher targets',
-      reasonCode: 'LowArmsQuirk',
-    };
-  }
-
   const actuators = input.componentDamage.actuators;
 
   if (selectedPunchArmDestroyed(input)) {
@@ -495,17 +484,6 @@ export function canMeleeWeapon(
       allowed: false,
       reason: 'No Arms quirk prevents arm-mounted melee attacks',
       reasonCode: 'NoArmsQuirk',
-    };
-  }
-
-  if (
-    armMounted &&
-    isLowArmsRestricted(unitQuirks, input.elevationDifference ?? 0)
-  ) {
-    return {
-      allowed: false,
-      reason: 'Low Arms quirk prevents attacks against higher targets',
-      reasonCode: 'LowArmsQuirk',
     };
   }
 

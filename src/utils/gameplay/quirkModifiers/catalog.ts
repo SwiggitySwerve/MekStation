@@ -210,7 +210,7 @@ export const QUIRK_CATALOG: Record<string, IQuirkCatalogEntry> = {
     name: 'Low Arms',
     category: 'physical',
     pipelines: ['physical'],
-    combatEffect: 'Cannot punch targets at higher elevation',
+    combatEffect: 'Registered quirk; no source-backed combat resolver',
     isPositive: false,
   },
 

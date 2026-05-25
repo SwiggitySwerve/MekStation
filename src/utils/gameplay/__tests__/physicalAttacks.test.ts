@@ -1104,14 +1104,13 @@ describe('physicalAttacks', () => {
       });
     });
 
-    it('disallows punch against higher targets when Low Arms quirk is present', () => {
+    it('does not apply Low Arms without a source-backed combat resolver', () => {
       const result = canPunch(
         makeInput({ unitQuirks: ['low_arms'], elevationDifference: 1 }),
       );
 
       expect(result).toMatchObject({
-        allowed: false,
-        reasonCode: 'LowArmsQuirk',
+        allowed: true,
       });
     });
   });

@@ -434,9 +434,12 @@ export interface IPhysicalAttackInput {
   readonly unitQuirks?: readonly string[];
   /**
    * Target elevation minus attacker elevation. Positive values mean the
-   * target is above the attacker, which triggers Low Arms restrictions.
-   * Charge also uses this to verify the attacker and target vertical bands
-   * overlap. Undefined preserves callers without board elevation context.
+   * target is above the attacker. Charge uses this to verify the attacker
+   * and target vertical bands overlap. Undefined preserves callers without
+   * board elevation context.
+   *
+   * Low Arms is intentionally not applied here until a source-backed combat
+   * resolver exists in the pinned rule authority.
    */
   readonly elevationDifference?: number;
   /**

@@ -341,8 +341,8 @@ describe('Physical Quirks', () => {
     expect(hasNoArms([])).toBe(false);
   });
 
-  it('Low Arms: restricts punch at higher elevation', () => {
-    expect(isLowArmsRestricted([UNIT_QUIRK_IDS.LOW_ARMS], 1)).toBe(true);
+  it('Low Arms: stays no-op until a source-backed combat resolver exists', () => {
+    expect(isLowArmsRestricted([UNIT_QUIRK_IDS.LOW_ARMS], 1)).toBe(false);
     expect(isLowArmsRestricted([UNIT_QUIRK_IDS.LOW_ARMS], 0)).toBe(false);
     expect(isLowArmsRestricted([UNIT_QUIRK_IDS.LOW_ARMS], -1)).toBe(false);
   });

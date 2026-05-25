@@ -41,7 +41,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   TargetInfantryOrProtoMek: 'Cannot charge Infantry or ProtoMech targets',
   LimbMissing: 'Limb is missing',
   NoArmsQuirk: 'No Arms quirk prevents this attack',
-  LowArmsQuirk: 'Low Arms quirk cannot strike higher targets',
+  LowArmsQuirk: 'Low Arms combat restriction is unsupported',
   AttackerProne: 'Attacker is prone',
   TargetProne: 'Target is prone',
   TargetMovementIncomplete: 'Charge target has not completed movement',

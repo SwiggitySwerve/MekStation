@@ -11,7 +11,6 @@ import {
   MovementType,
   type IGameUnit,
   type IPhysicalAttackDeclaredPayload,
-  type IPhysicalAttackResolvedPayload,
 } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
@@ -156,7 +155,7 @@ describe('InteractiveSession.applyPhysicalAttack', () => {
     expect(payload.toHitNumber).toBe(4);
   });
 
-  it('hydrates Low Arms from unit quirks and rejects elevated physical attacks', () => {
+  it('keeps Low Arms registry-only instead of rejecting elevated physical attacks', () => {
     const grid = createMinimalGrid(MAP_RADIUS);
     grid.hexes.set('0,5', {
       coord: { q: 0, r: 5 },
@@ -191,20 +190,17 @@ describe('InteractiveSession.applyPhysicalAttack', () => {
     };
     (attacker as unknown as { unitQuirks: string[] }).unitQuirks = ['low_arms'];
 
-    session.applyPhysicalAttack('unit-player', 'unit-opponent', 'hatchet');
+    session.applyPhysicalAttack('unit-player', 'unit-opponent', 'punch');
 
-    const resolved = session
+    const declared = session
       .getSession()
       .events.find(
-        (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+        (entry) => entry.type === GameEventType.PhysicalAttackDeclared,
       );
-    const payload = resolved!.payload as IPhysicalAttackResolvedPayload;
-    expect(payload).toMatchObject({
-      attackType: 'hatchet',
-      toHitNumber: Infinity,
-      hit: false,
-      location: 'LowArmsQuirk',
-    });
+    const payload = declared!.payload as IPhysicalAttackDeclaredPayload;
+    expect(payload.attackType).toBe('punch');
+    expect(Number.isFinite(payload.toHitNumber)).toBe(true);
+    expect(payload.toHitNumber).not.toBe(Infinity);
   });
 
   it('hydrates physical context underwater state from the encounter grid', () => {
