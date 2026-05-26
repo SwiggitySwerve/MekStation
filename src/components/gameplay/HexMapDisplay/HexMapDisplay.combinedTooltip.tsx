@@ -25,6 +25,7 @@ import { CombatMinimumRangeContextRows } from './HexMapDisplay.combatMinimumRang
 import { CombatVisibilityContextRows } from './HexMapDisplay.combatVisibilityContext';
 import { CombatWeaponImpactRows } from './HexMapDisplay.combatWeaponImpacts';
 import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
+import { MovementCostContextRows } from './HexMapDisplay.movementCostContext';
 import { MovementModeOptionRows } from './HexMapDisplay.movementOptionRows';
 import { MovementReasonContextRows } from './HexMapDisplay.movementReasonContext';
 import { IsometricOccluderContextRows } from './HexMapDisplay.terrainTooltip';
@@ -32,7 +33,6 @@ import { CombatToHitModifierRows } from './HexMapDisplay.toHitModifierRows';
 import {
   formatCombatWeaponImpactLabel,
   formatCombatWeaponLabel,
-  formatMovementPathSummaryLabel,
   formatToHitModifierLabel,
 } from './HexMapDisplay.tooltipFormatters';
 
@@ -134,7 +134,6 @@ export function CombinedTacticalHoverTooltip({
   const weaponImpactLabel = formatCombatWeaponImpactLabel(combatInfo);
   const modifierLabel = formatToHitModifierLabel(combatInfo);
   const combatReason = combatReasonText(combatInfo);
-  const pathSummaryLabel = formatMovementPathSummaryLabel(movementInfo);
 
   return (
     <div
@@ -185,29 +184,11 @@ export function CombinedTacticalHoverTooltip({
         projection={projection}
         testId="hex-tactical-tooltip-movement-options"
       />
-      {movementInfo.terrainCost !== undefined && (
-        <div data-testid="hex-tactical-tooltip-movement-terrain">
-          Terrain cost: +{movementInfo.terrainCost}
-        </div>
-      )}
-      {movementInfo.elevationDelta !== undefined && (
-        <div data-testid="hex-tactical-tooltip-movement-elevation">
-          Elevation: {formatElevationLabel(movementInfo.elevationDelta)}
-          {movementInfo.elevationCost !== undefined
-            ? `, cost +${movementInfo.elevationCost}`
-            : ''}
-        </div>
-      )}
-      {movementInfo.heatGenerated !== undefined && (
-        <div data-testid="hex-tactical-tooltip-movement-heat">
-          Heat: +{movementInfo.heatGenerated}
-        </div>
-      )}
-      {pathSummaryLabel && (
-        <div data-testid="hex-tactical-tooltip-movement-path">
-          {pathSummaryLabel}
-        </div>
-      )}
+      <MovementCostContextRows
+        movementInfo={movementInfo}
+        projection={projection}
+        testIdPrefix="hex-tactical-tooltip-movement"
+      />
       {movementInfo.standUpRequired && (
         <div data-testid="hex-tactical-tooltip-movement-stand-up">
           {formatStandUpLabel(movementInfo)}

@@ -1543,6 +1543,16 @@ heat, pathfinding, commit validation, or movement resolution; it makes the
 visible movement rejection explanation inspectable without relying on aggregate
 movement hex metadata.
 
+2026-05-25 movement cost context rule-reference pin: Movement terrain-cost,
+elevation-cost, heat, and path rows in movement and combined tactical hovers now
+expose movement-channel source references and MegaMek rule references from the
+shared per-hex tactical projection while pinning movement type, movement mode,
+reachability, MP cost, terrain cost, elevation delta/cost, heat generated, and
+path coordinates when represented. This does not change movement reachability,
+MP costs, terrain/elevation costs, heat, pathfinding, commit validation, or
+movement resolution; it makes the visible movement cost explanation inspectable
+without relying on aggregate movement hex metadata.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

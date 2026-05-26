@@ -2420,11 +2420,73 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(
       screen.getByTestId('hex-movement-tooltip-terrain'),
     ).toHaveTextContent('Terrain cost: +1');
+    expect(screen.getByTestId('hex-movement-tooltip-terrain')).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(screen.getByTestId('hex-movement-tooltip-terrain')).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'movement',
+    );
+    expect(screen.getByTestId('hex-movement-tooltip-terrain')).toHaveAttribute(
+      'data-movement-context-kind',
+      'terrain-cost',
+    );
+    expect(screen.getByTestId('hex-movement-tooltip-terrain')).toHaveAttribute(
+      'data-movement-terrain-cost',
+      '1',
+    );
+    expect(screen.getByTestId('hex-movement-tooltip-terrain')).toHaveAttribute(
+      'data-movement-source-refs',
+      expect.stringContaining(
+        'movement:megamek:MegaMek movement rules projection',
+      ),
+    );
+    expect(screen.getByTestId('hex-movement-tooltip-terrain')).toHaveAttribute(
+      'data-movement-rule-refs',
+      expect.stringContaining('movement:megamek:MegaMek MoveStep.java'),
+    );
     expect(
       screen.getByTestId('hex-movement-tooltip-elevation'),
     ).toHaveTextContent('Elevation: +1, cost +1');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-elevation'),
+    ).toHaveAttribute('data-movement-context-kind', 'elevation-cost');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-elevation'),
+    ).toHaveAttribute('data-movement-elevation-delta', '1');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-elevation'),
+    ).toHaveAttribute('data-movement-elevation-cost', '1');
+    expect(screen.getByTestId('hex-movement-tooltip-heat')).toHaveTextContent(
+      'Heat: +0',
+    );
+    expect(screen.getByTestId('hex-movement-tooltip-heat')).toHaveAttribute(
+      'data-movement-context-kind',
+      'heat',
+    );
+    expect(screen.getByTestId('hex-movement-tooltip-heat')).toHaveAttribute(
+      'data-movement-heat-generated',
+      '0',
+    );
     expect(screen.getByTestId('hex-movement-tooltip-path')).toHaveTextContent(
       'Path: 2 steps',
+    );
+    expect(screen.getByTestId('hex-movement-tooltip-path')).toHaveAttribute(
+      'data-movement-context-kind',
+      'path',
+    );
+    expect(screen.getByTestId('hex-movement-tooltip-path')).toHaveAttribute(
+      'data-movement-path-step-count',
+      '2',
+    );
+    expect(screen.getByTestId('hex-movement-tooltip-path')).toHaveAttribute(
+      'data-movement-path-coordinates',
+      '0,0|1,0|1,-1',
+    );
+    expect(screen.getByTestId('hex-movement-tooltip-path')).toHaveAttribute(
+      'data-movement-rule-refs',
+      expect.stringContaining('movement:megamek:MegaMek MovePath.java'),
     );
 
     act(() => {

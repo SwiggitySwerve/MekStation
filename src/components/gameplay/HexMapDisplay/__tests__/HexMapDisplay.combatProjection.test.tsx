@@ -4303,6 +4303,67 @@ describe('HexMapDisplay combat projection', () => {
 
     fireEvent.mouseEnter(targetHex);
 
+    const movementTerrainRow = screen.getByTestId(
+      'hex-tactical-tooltip-movement-terrain',
+    );
+    expect(movementTerrainRow).toHaveTextContent('Terrain cost: +1');
+    expect(movementTerrainRow).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(movementTerrainRow).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'movement',
+    );
+    expect(movementTerrainRow).toHaveAttribute(
+      'data-tactical-rules-surface',
+      'movement',
+    );
+    expect(movementTerrainRow).toHaveAttribute(
+      'data-movement-context-kind',
+      'terrain-cost',
+    );
+    expect(movementTerrainRow).toHaveAttribute(
+      'data-movement-source-refs',
+      expect.stringContaining(
+        'movement:megamek:MegaMek movement rules projection',
+      ),
+    );
+    expect(movementTerrainRow).toHaveAttribute(
+      'data-movement-rule-refs',
+      expect.stringContaining('movement:megamek:MegaMek MoveStep.java'),
+    );
+
+    const movementElevationRow = screen.getByTestId(
+      'hex-tactical-tooltip-movement-elevation',
+    );
+    expect(movementElevationRow).toHaveTextContent('Elevation: 0, cost +0');
+    expect(movementElevationRow).toHaveAttribute(
+      'data-movement-context-kind',
+      'elevation-cost',
+    );
+    expect(movementElevationRow).toHaveAttribute(
+      'data-movement-elevation-delta',
+      '0',
+    );
+    expect(movementElevationRow).toHaveAttribute(
+      'data-movement-elevation-cost',
+      '0',
+    );
+
+    const movementHeatRow = screen.getByTestId(
+      'hex-tactical-tooltip-movement-heat',
+    );
+    expect(movementHeatRow).toHaveTextContent('Heat: +0');
+    expect(movementHeatRow).toHaveAttribute(
+      'data-movement-context-kind',
+      'heat',
+    );
+    expect(movementHeatRow).toHaveAttribute(
+      'data-movement-heat-generated',
+      '0',
+    );
+
     const movementReasonRows = screen.getByTestId(
       'hex-tactical-tooltip-movement-reason',
     );

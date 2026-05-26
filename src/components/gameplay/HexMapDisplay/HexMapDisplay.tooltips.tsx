@@ -13,10 +13,7 @@ import type {
 } from './HexMapDisplay.types';
 import type { IsometricTerrainOccluderInfo } from './projection';
 
-import {
-  formatElevationLabel,
-  formatMovementModeLabel,
-} from './HexCell.labels';
+import { formatMovementModeLabel } from './HexCell.labels';
 import { CombatC3ContextRows } from './HexMapDisplay.combatC3Context';
 import { CombatCoverContextRows } from './HexMapDisplay.combatCoverContext';
 import { CombatEnvironmentContextRows } from './HexMapDisplay.combatEnvironmentContext';
@@ -27,6 +24,7 @@ import { CombatVisibilityContextRows } from './HexMapDisplay.combatVisibilityCon
 import { CombatWeaponImpactRows } from './HexMapDisplay.combatWeaponImpacts';
 import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
 import { CombinedTacticalHoverTooltip } from './HexMapDisplay.combinedTooltip';
+import { MovementCostContextRows } from './HexMapDisplay.movementCostContext';
 import { MovementModeOptionRows } from './HexMapDisplay.movementOptionRows';
 import { MovementReasonContextRows } from './HexMapDisplay.movementReasonContext';
 import { MapMovementPointLegend } from './HexMapDisplay.mpLegend';
@@ -40,7 +38,6 @@ import { CombatToHitModifierRows } from './HexMapDisplay.toHitModifierRows';
 import {
   formatCombatWeaponImpactLabel,
   formatCombatWeaponLabel,
-  formatMovementPathSummaryLabel,
   formatToHitModifierLabel,
 } from './HexMapDisplay.tooltipFormatters';
 
@@ -174,7 +171,6 @@ function MovementHoverTooltip({
       ? ` via ${formatMovementModeLabel(movementInfo.movementMode)}`
       : '';
   const status = movementInfo.reachable ? 'Reachable' : 'Blocked';
-  const pathSummaryLabel = formatMovementPathSummaryLabel(movementInfo);
 
   return (
     <div
@@ -208,27 +204,11 @@ function MovementHoverTooltip({
         projection={projection}
         testId="hex-movement-tooltip-mode-options"
       />
-      {movementInfo.terrainCost !== undefined && (
-        <div data-testid="hex-movement-tooltip-terrain">
-          Terrain cost: +{movementInfo.terrainCost}
-        </div>
-      )}
-      {movementInfo.elevationDelta !== undefined && (
-        <div data-testid="hex-movement-tooltip-elevation">
-          Elevation: {formatElevationLabel(movementInfo.elevationDelta)}
-          {movementInfo.elevationCost !== undefined
-            ? `, cost +${movementInfo.elevationCost}`
-            : ''}
-        </div>
-      )}
-      {movementInfo.heatGenerated !== undefined && (
-        <div data-testid="hex-movement-tooltip-heat">
-          Heat: +{movementInfo.heatGenerated}
-        </div>
-      )}
-      {pathSummaryLabel && (
-        <div data-testid="hex-movement-tooltip-path">{pathSummaryLabel}</div>
-      )}
+      <MovementCostContextRows
+        movementInfo={movementInfo}
+        projection={projection}
+        testIdPrefix="hex-movement-tooltip"
+      />
       {movementInfo.standUpRequired && (
         <div data-testid="hex-movement-tooltip-stand-up">
           {movementInfo.standUpMode === 'careful'
