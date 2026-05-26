@@ -104,14 +104,14 @@ const TERRAIN_ELEVATION_RULE_REFERENCES = [
 ] as const;
 
 const MOVEMENT_RULE_REFERENCES = [
-  'MegaMek MoveStep.java:2727-2841 movement MP costs',
-  'MegaMek MoveStep.java:3135-3156 elevation change legality',
-  'MegaMek MovePath.java:1214-1218 MP-used accounting',
+  'MegaMek common/moves/MoveStep.java:2727-2841 movement MP costs',
+  'MegaMek common/moves/MoveStep.java:3135-3156 elevation change legality',
+  'MegaMek common/moves/MovePath.java:1214-1218 MP-used accounting',
 ] as const;
 
 const STAND_UP_MOVEMENT_RULE_REFERENCES = [
-  'MegaMek GetUpStep.java:62 stand-up MP cost',
-  'MegaMek MovePathHandler.java:2027-2058 stand-up PSR resolution',
+  'MegaMek common/moves/GetUpStep.java:62 stand-up MP cost',
+  'MegaMek server/totalWarfare/MovePathHandler.java:2027-2058 stand-up PSR resolution',
   'MegaMek QuadMek.java:452-453 intact quads do not roll to stand',
   'MegaMek Entity.java:7824-7828 all-four-legs stand-up automatic success',
 ] as const;

@@ -17,6 +17,9 @@ shared per-hex tactical projection explanation.
   references and rule references from the shared per-hex tactical projection
 - **AND** the row SHALL preserve blocked weapon ids and blocked environment
   reasons from `ICombatRangeHex.weaponRangeOptions`
+- **AND** represented MekStation helper provenance SHALL be labeled as
+  represented behavior and SHALL NOT imply a narrower MegaMek or official
+  source pin before that source is explicitly linked
 - **AND** underwater legality, torpedo path legality, target legality,
   attack-command behavior, and committed attack resolution SHALL remain
   unchanged

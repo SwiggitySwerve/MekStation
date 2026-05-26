@@ -1947,7 +1947,7 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       movementSceneHex.getAttribute('data-isometric-hex-rule-refs'),
     ).toContain(
-      'movement:megamek:MegaMek MoveStep.java:3135-3156 elevation change legality',
+      'movement:megamek:MegaMek common/moves/MoveStep.java:3135-3156 elevation change legality',
     );
     expect(
       movementSceneHex.getAttribute('data-isometric-hex-rule-refs'),
@@ -4478,7 +4478,9 @@ describe('HexMapDisplay combat projection', () => {
     );
     expect(movementTerrainRow).toHaveAttribute(
       'data-movement-rule-refs',
-      expect.stringContaining('movement:megamek:MegaMek MoveStep.java'),
+      expect.stringContaining(
+        'movement:megamek:MegaMek common/moves/MoveStep.java',
+      ),
     );
 
     const movementElevationRow = screen.getByTestId(
@@ -4547,7 +4549,9 @@ describe('HexMapDisplay combat projection', () => {
     );
     expect(movementReasonRows).toHaveAttribute(
       'data-movement-reason-rule-refs',
-      expect.stringContaining('movement:megamek:MegaMek MoveStep.java'),
+      expect.stringContaining(
+        'movement:megamek:MegaMek common/moves/MoveStep.java',
+      ),
     );
   });
 
@@ -4648,7 +4652,7 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       targetHex.getAttribute('data-tactical-projection-rule-refs'),
     ).toContain(
-      'movement:megamek:MegaMek MoveStep.java:2727-2841 movement MP costs',
+      'movement:megamek:MegaMek common/moves/MoveStep.java:2727-2841 movement MP costs',
     );
     expect(
       targetHex.getAttribute('data-tactical-projection-rule-refs'),
@@ -4814,7 +4818,9 @@ describe('HexMapDisplay combat projection', () => {
       screen.getByTestId('hex-tactical-tooltip-movement-stand-up'),
     ).toHaveAttribute(
       'data-movement-rule-refs',
-      expect.stringContaining('movement:megamek:MegaMek GetUpStep.java'),
+      expect.stringContaining(
+        'movement:megamek:MegaMek common/moves/GetUpStep.java',
+      ),
     );
     expect(
       screen.getByTestId('hex-tactical-tooltip-movement-stand-up-psr'),
@@ -4850,7 +4856,9 @@ describe('HexMapDisplay combat projection', () => {
       screen.getByTestId('hex-tactical-tooltip-movement-stand-up-modifiers'),
     ).toHaveAttribute(
       'data-movement-rule-refs',
-      expect.stringContaining('movement:megamek:MegaMek MovePathHandler.java'),
+      expect.stringContaining(
+        'movement:megamek:MegaMek server/totalWarfare/MovePathHandler.java',
+      ),
     );
     expect(
       screen.getByTestId('hex-tactical-tooltip-movement-path'),
@@ -4968,7 +4976,7 @@ describe('HexMapDisplay combat projection', () => {
     expect(screen.getByTestId('hex-overlay-3-0')).toHaveAttribute(
       'data-hex-overlay-rule-refs',
       expect.stringContaining(
-        'movement:megamek:MegaMek MovePath.java:1214-1218 MP-used accounting',
+        'movement:megamek:MegaMek common/moves/MovePath.java:1214-1218 MP-used accounting',
       ),
     );
     expect(screen.queryByTestId('hex-movement-tooltip')).toBeNull();

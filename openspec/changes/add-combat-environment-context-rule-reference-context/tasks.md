@@ -10,6 +10,8 @@
 - [x] 2.1 Pass the shared tactical projection into combat environment context rows
 - [x] 2.2 Expose combat-channel source and rule-reference metadata on environment context rows
 - [x] 2.3 Add a browser harness scenario for underwater environment restrictions
+- [x] 2.4 Keep underwater/torpedo helper provenance labeled as MekStation
+      represented behavior until a narrower MegaMek or official source pin lands
 
 ## 3. Verification
 

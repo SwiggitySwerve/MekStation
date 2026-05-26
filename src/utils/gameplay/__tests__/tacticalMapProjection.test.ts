@@ -22,9 +22,9 @@ const TERRAIN_RULE_REFERENCES = [
 ] as const;
 
 const MOVEMENT_RULE_REFERENCES = [
-  'MegaMek MoveStep.java:2727-2841 movement MP costs',
-  'MegaMek MoveStep.java:3135-3156 elevation change legality',
-  'MegaMek MovePath.java:1214-1218 MP-used accounting',
+  'MegaMek common/moves/MoveStep.java:2727-2841 movement MP costs',
+  'MegaMek common/moves/MoveStep.java:3135-3156 elevation change legality',
+  'MegaMek common/moves/MovePath.java:1214-1218 MP-used accounting',
 ] as const;
 
 const COMBAT_RULE_REFERENCES = [
@@ -181,7 +181,7 @@ describe('tacticalMapProjection', () => {
     expect(
       formatTacticalProjectionRuleReferences(projection.sourceReferences),
     ).toContain(
-      'movement:megamek:MegaMek MoveStep.java:2727-2841 movement MP costs',
+      'movement:megamek:MegaMek common/moves/MoveStep.java:2727-2841 movement MP costs',
     );
     expect(
       formatTacticalProjectionRuleReferences(projection.sourceReferences),

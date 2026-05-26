@@ -1314,7 +1314,9 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(optionRows).toHaveAttribute(
       'data-movement-option-rule-refs',
-      expect.stringContaining('movement:megamek:MegaMek MoveStep.java'),
+      expect.stringContaining(
+        'movement:megamek:MegaMek common/moves/MoveStep.java',
+      ),
     );
     expect(optionRows).toHaveAttribute('data-movement-option-count', '3');
     expect(optionRows).toHaveAttribute(
@@ -1339,7 +1341,9 @@ describe('HexMapDisplay tactical visual layers', () => {
       ),
     ).toHaveAttribute(
       'data-movement-option-rule-refs',
-      expect.stringContaining('movement:megamek:MegaMek MovePath.java'),
+      expect.stringContaining(
+        'movement:megamek:MegaMek common/moves/MovePath.java',
+      ),
     );
     expect(
       screen.getByTestId(
@@ -2132,7 +2136,9 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(reasonRows).toHaveAttribute(
       'data-movement-reason-rule-refs',
-      expect.stringContaining('movement:megamek:MegaMek MoveStep.java'),
+      expect.stringContaining(
+        'movement:megamek:MegaMek common/moves/MoveStep.java',
+      ),
     );
     expect(screen.queryByTestId('hex-unreachable-tooltip')).toBeNull();
 
@@ -2226,7 +2232,9 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(standUpRows).toHaveAttribute(
       'data-movement-rule-refs',
-      expect.stringContaining('movement:megamek:MegaMek GetUpStep.java'),
+      expect.stringContaining(
+        'movement:megamek:MegaMek common/moves/GetUpStep.java',
+      ),
     );
     const standUpPsrRows = screen.getByTestId(
       'hex-movement-tooltip-stand-up-psr',
@@ -2255,7 +2263,9 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(standUpPsrRows).toHaveAttribute(
       'data-movement-rule-refs',
-      expect.stringContaining('movement:megamek:MegaMek MovePathHandler.java'),
+      expect.stringContaining(
+        'movement:megamek:MegaMek server/totalWarfare/MovePathHandler.java',
+      ),
     );
     expect(screen.getByTestId('hex-movement-tooltip-reason')).toHaveTextContent(
       reason,
@@ -2686,7 +2696,9 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(screen.getByTestId('hex-movement-tooltip-terrain')).toHaveAttribute(
       'data-movement-rule-refs',
-      expect.stringContaining('movement:megamek:MegaMek MoveStep.java'),
+      expect.stringContaining(
+        'movement:megamek:MegaMek common/moves/MoveStep.java',
+      ),
     );
     expect(
       screen.getByTestId('hex-movement-tooltip-elevation'),
@@ -2728,7 +2740,9 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(screen.getByTestId('hex-movement-tooltip-path')).toHaveAttribute(
       'data-movement-rule-refs',
-      expect.stringContaining('movement:megamek:MegaMek MovePath.java'),
+      expect.stringContaining(
+        'movement:megamek:MegaMek common/moves/MovePath.java',
+      ),
     );
 
     act(() => {
