@@ -4938,7 +4938,9 @@ describe('HexMapDisplay combat projection', () => {
     const tacticalOutOfRangeReason = screen.getByTestId(
       'hex-tactical-tooltip-combat-reason',
     );
-    expect(tacticalOutOfRangeReason).toHaveTextContent('Out of weapon range');
+    expect(tacticalOutOfRangeReason).toHaveTextContent(
+      "Target at 3 hexes is outside the selected weapons' range",
+    );
     expect(tacticalOutOfRangeReason).toHaveAttribute(
       'data-tactical-projection-source',
       'shared-tactical-map-projection',
