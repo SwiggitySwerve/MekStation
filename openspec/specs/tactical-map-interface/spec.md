@@ -1690,9 +1690,9 @@ cloud burst and transition the token to a wreck sprite variant.
 
 ### Requirement: Optional Battlefield Wreckage Terrain
 
-When the represented TacOps battlefield wreckage optional rule is enabled,
-the tactical map SHALL apply source-pinned terrain conversion from destroyed
-unit events to the shared tactical grid used by movement projection.
+The tactical map SHALL apply source-pinned terrain conversion from destroyed
+unit events to the shared tactical grid used by movement projection when the
+represented TacOps battlefield wreckage optional rule is enabled.
 
 #### Scenario: Destroyed heavy ground unit creates rough terrain
 
