@@ -11,11 +11,7 @@ import {
 
 import type { IsometricTerrainOccluderInfo } from './projection';
 
-import {
-  formatElevationLabel,
-  formatMovementModeLabel,
-  formatTerrainFeaturesLabel,
-} from './HexCell.labels';
+import { formatMovementModeLabel } from './HexCell.labels';
 import { CombatC3ContextRows } from './HexMapDisplay.combatC3Context';
 import { CombatCoverContextRows } from './HexMapDisplay.combatCoverContext';
 import { CombatEnvironmentContextRows } from './HexMapDisplay.combatEnvironmentContext';
@@ -29,7 +25,10 @@ import { MovementCostContextRows } from './HexMapDisplay.movementCostContext';
 import { MovementModeOptionRows } from './HexMapDisplay.movementOptionRows';
 import { MovementReasonContextRows } from './HexMapDisplay.movementReasonContext';
 import { MovementStandUpContextRows } from './HexMapDisplay.movementStandUpContext';
-import { IsometricOccluderContextRows } from './HexMapDisplay.terrainTooltip';
+import {
+  IsometricOccluderContextRows,
+  TerrainContextRows,
+} from './HexMapDisplay.terrainTooltip';
 import { CombatToHitModifierRows } from './HexMapDisplay.toHitModifierRows';
 import {
   formatCombatWeaponImpactLabel,
@@ -61,27 +60,6 @@ function combatReasonText(combatInfo: ICombatRangeHex): string | undefined {
         combatInfo.attackInvalidDetails ??
         combatInfo.visibilityBlockedReason ??
         combatInfo.lineOfSightBlockerReason);
-}
-
-function ProjectionTerrainRows({
-  projection,
-}: {
-  readonly projection: ITacticalMapHexProjection;
-}): React.ReactElement {
-  const terrainTypes = projection.terrain.features.map(
-    (feature) => feature.type,
-  );
-
-  return (
-    <div className="mt-1 border-t border-slate-700/70 pt-1 text-[11px] text-slate-200">
-      <div data-testid="hex-tactical-tooltip-terrain-context">
-        Terrain: {formatTerrainFeaturesLabel(terrainTypes)}
-      </div>
-      <div data-testid="hex-tactical-tooltip-elevation-context">
-        Elevation: {formatElevationLabel(projection.terrain.elevation)}
-      </div>
-    </div>
-  );
 }
 
 export function CombinedTacticalHoverTooltip({
@@ -146,7 +124,11 @@ export function CombinedTacticalHoverTooltip({
         Movement channel: {projection.movementStatus}; combat channel:{' '}
         {projection.combatStatus}
       </div>
-      <ProjectionTerrainRows projection={projection} />
+      <TerrainContextRows
+        terrain={projection.terrain}
+        projection={projection}
+        testIdPrefix="hex-tactical-tooltip"
+      />
       <IsometricOccluderContextRows
         info={isometricOccluderInfo}
         testIdPrefix="hex-tactical-tooltip"

@@ -3789,12 +3789,39 @@ describe('HexMapDisplay combat projection', () => {
     expect(screen.getByTestId('hex-combat-tooltip-geometry')).toHaveTextContent(
       'LOS clear; front arc',
     );
-    expect(
-      screen.getByTestId('hex-combat-tooltip-terrain-context'),
-    ).toHaveTextContent('Terrain: light woods');
-    expect(
-      screen.getByTestId('hex-combat-tooltip-elevation-context'),
-    ).toHaveTextContent('Elevation: 0');
+    const combatTerrainContext = screen.getByTestId(
+      'hex-combat-tooltip-terrain-context',
+    );
+    expect(combatTerrainContext).toHaveTextContent('Terrain: light woods');
+    expect(combatTerrainContext).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(combatTerrainContext).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'terrain-elevation',
+    );
+    expect(combatTerrainContext).toHaveAttribute(
+      'data-terrain-primary',
+      'light_woods',
+    );
+    expect(combatTerrainContext).toHaveAttribute(
+      'data-terrain-source-refs',
+      expect.stringContaining(
+        'terrain-elevation:mekstation:Rendered map terrain/elevation grid:light_woods level 1 elevation 0',
+      ),
+    );
+    expect(combatTerrainContext).toHaveAttribute(
+      'data-terrain-rule-refs',
+      expect.stringContaining(
+        'terrain-elevation:mekstation:MekStation terrain/elevation grid state; movement and combat channels own legality',
+      ),
+    );
+    const combatElevationContext = screen.getByTestId(
+      'hex-combat-tooltip-elevation-context',
+    );
+    expect(combatElevationContext).toHaveTextContent('Elevation: 0');
+    expect(combatElevationContext).toHaveAttribute('data-elevation', '0');
     expect(screen.getByTestId('hex-combat-tooltip-reason')).toHaveTextContent(
       'To-hit 5',
     );
@@ -4611,9 +4638,35 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       screen.getByTestId('hex-tactical-tooltip-channel-status'),
     ).toHaveTextContent('Movement channel: legal; combat channel: blocked');
-    expect(
-      screen.getByTestId('hex-tactical-tooltip-elevation-context'),
-    ).toHaveTextContent('Elevation: 0');
+    const tacticalTerrainContext = screen.getByTestId(
+      'hex-tactical-tooltip-terrain-context',
+    );
+    expect(tacticalTerrainContext).toHaveTextContent('Terrain: clear');
+    expect(tacticalTerrainContext).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(tacticalTerrainContext).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'terrain-elevation',
+    );
+    expect(tacticalTerrainContext).toHaveAttribute(
+      'data-terrain-source-refs',
+      expect.stringContaining(
+        'terrain-elevation:mekstation:Rendered map terrain/elevation grid:clear elevation 0',
+      ),
+    );
+    expect(tacticalTerrainContext).toHaveAttribute(
+      'data-terrain-rule-refs',
+      expect.stringContaining(
+        'terrain-elevation:mekstation:MekStation terrain/elevation grid state; movement and combat channels own legality',
+      ),
+    );
+    const tacticalElevationContext = screen.getByTestId(
+      'hex-tactical-tooltip-elevation-context',
+    );
+    expect(tacticalElevationContext).toHaveTextContent('Elevation: 0');
+    expect(tacticalElevationContext).toHaveAttribute('data-elevation', '0');
     expect(
       screen.getByTestId('hex-tactical-tooltip-movement'),
     ).toHaveTextContent('Movement: reachable - walk; 3 MP');

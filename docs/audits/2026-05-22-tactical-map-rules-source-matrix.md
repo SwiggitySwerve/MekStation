@@ -1564,6 +1564,17 @@ movement reachability, commit validation, or movement resolution; it makes the
 visible stand-up movement explanation inspectable without relying on aggregate
 movement hex metadata.
 
+2026-05-25 terrain/elevation hover context rule-reference pin: Terrain and
+elevation rows in terrain-only, unreachable, movement-only, combat-only, and
+combined tactical hovers now expose terrain/elevation-channel source references
+and rule references from the shared per-hex tactical projection while pinning
+primary terrain, feature levels, elevation, projection intent/status, and
+terrain source detail. This does not change terrain generation, terrain labels,
+elevation labels, movement reachability, combat legality, LOS classification,
+attack validation, or movement/attack resolution; it makes the visible
+terrain/elevation explanation inspectable without relying on aggregate
+projection metadata.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

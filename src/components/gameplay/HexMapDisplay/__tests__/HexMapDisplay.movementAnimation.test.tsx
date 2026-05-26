@@ -967,12 +967,53 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('hex-movement-tooltip-cost')).toHaveTextContent(
       'MP: 3',
     );
-    expect(
-      screen.getByTestId('hex-movement-tooltip-terrain-context'),
-    ).toHaveTextContent('Terrain: light woods, building');
-    expect(
-      screen.getByTestId('hex-movement-tooltip-elevation-context'),
-    ).toHaveTextContent('Elevation: +1');
+    const movementTerrainContext = screen.getByTestId(
+      'hex-movement-tooltip-terrain-context',
+    );
+    expect(movementTerrainContext).toHaveTextContent(
+      'Terrain: light woods, building',
+    );
+    expect(movementTerrainContext).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(movementTerrainContext).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'terrain-elevation',
+    );
+    expect(movementTerrainContext).toHaveAttribute(
+      'data-terrain-primary',
+      'building',
+    );
+    expect(movementTerrainContext).toHaveAttribute(
+      'data-terrain-features',
+      'light_woods,building',
+    );
+    expect(movementTerrainContext).toHaveAttribute(
+      'data-terrain-feature-levels',
+      'building:2|light_woods:1',
+    );
+    expect(movementTerrainContext).toHaveAttribute(
+      'data-terrain-source-refs',
+      expect.stringContaining(
+        'terrain-elevation:mekstation:Rendered map terrain/elevation grid:light_woods level 1,building level 2 id warehouse-a CF 30 elevation 1',
+      ),
+    );
+    expect(movementTerrainContext).toHaveAttribute(
+      'data-terrain-rule-refs',
+      expect.stringContaining(
+        'terrain-elevation:mekstation:MekStation terrain/elevation grid state; movement and combat channels own legality',
+      ),
+    );
+    const movementElevationContext = screen.getByTestId(
+      'hex-movement-tooltip-elevation-context',
+    );
+    expect(movementElevationContext).toHaveTextContent('Elevation: +1');
+    expect(movementElevationContext).toHaveAttribute('data-elevation', '1');
+    expect(movementElevationContext).toHaveAttribute(
+      'data-terrain-source-refs',
+      expect.stringContaining('elevation 1'),
+    );
     expect(
       screen.getByTestId('hex-movement-tooltip-building-context'),
     ).toHaveTextContent('Building: warehouse-a (level 2, CF 30)');
@@ -1619,12 +1660,35 @@ describe('HexMapDisplay tactical visual layers', () => {
         'terrain-elevation:mekstation:Rendered map terrain/elevation grid:light_woods level 1,building level 2 id warehouse-a CF 30 elevation 1',
       ),
     );
-    expect(screen.getByTestId('hex-terrain-tooltip-title')).toHaveTextContent(
+    const terrainTooltipTitle = screen.getByTestId('hex-terrain-tooltip-title');
+    expect(terrainTooltipTitle).toHaveTextContent(
       'Terrain: light woods, building',
     );
-    expect(
-      screen.getByTestId('hex-terrain-tooltip-elevation'),
-    ).toHaveTextContent('Elevation: +1');
+    expect(terrainTooltipTitle).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'terrain-elevation',
+    );
+    expect(terrainTooltipTitle).toHaveAttribute(
+      'data-terrain-source-refs',
+      expect.stringContaining(
+        'terrain-elevation:mekstation:Rendered map terrain/elevation grid:light_woods level 1,building level 2 id warehouse-a CF 30 elevation 1',
+      ),
+    );
+    expect(terrainTooltipTitle).toHaveAttribute(
+      'data-terrain-rule-refs',
+      expect.stringContaining(
+        'terrain-elevation:mekstation:MekStation terrain/elevation grid state; movement and combat channels own legality',
+      ),
+    );
+    const terrainTooltipElevation = screen.getByTestId(
+      'hex-terrain-tooltip-elevation',
+    );
+    expect(terrainTooltipElevation).toHaveTextContent('Elevation: +1');
+    expect(terrainTooltipElevation).toHaveAttribute('data-elevation', '1');
+    expect(terrainTooltipElevation).toHaveAttribute(
+      'data-terrain-primary',
+      'building',
+    );
     expect(
       screen.getByTestId('hex-terrain-tooltip-building-id'),
     ).toHaveTextContent('Building: warehouse-a (level 2, CF 30)');
@@ -1719,12 +1783,37 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('hex-unreachable-tooltip')).toHaveTextContent(
       'Unreachable',
     );
-    expect(
-      screen.getByTestId('hex-unreachable-tooltip-terrain-context'),
-    ).toHaveTextContent('Terrain: heavy woods');
-    expect(
-      screen.getByTestId('hex-unreachable-tooltip-elevation-context'),
-    ).toHaveTextContent('Elevation: +2');
+    const unreachableTerrainContext = screen.getByTestId(
+      'hex-unreachable-tooltip-terrain-context',
+    );
+    expect(unreachableTerrainContext).toHaveTextContent('Terrain: heavy woods');
+    expect(unreachableTerrainContext).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(unreachableTerrainContext).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'terrain-elevation',
+    );
+    expect(unreachableTerrainContext).toHaveAttribute(
+      'data-terrain-primary',
+      'heavy_woods',
+    );
+    expect(unreachableTerrainContext).toHaveAttribute(
+      'data-terrain-feature-levels',
+      'heavy_woods:1',
+    );
+    expect(unreachableTerrainContext).toHaveAttribute(
+      'data-terrain-source-refs',
+      expect.stringContaining(
+        'terrain-elevation:mekstation:Rendered map terrain/elevation grid:heavy_woods level 1 elevation 2',
+      ),
+    );
+    const unreachableElevationContext = screen.getByTestId(
+      'hex-unreachable-tooltip-elevation-context',
+    );
+    expect(unreachableElevationContext).toHaveTextContent('Elevation: +2');
+    expect(unreachableElevationContext).toHaveAttribute('data-elevation', '2');
     const unreachableProjectionContext = screen.getByTestId(
       'hex-unreachable-tooltip-projection-context',
     );

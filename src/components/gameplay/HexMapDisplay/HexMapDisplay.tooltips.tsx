@@ -107,6 +107,7 @@ export function MapHtmlOverlays({
             {hoverTerrainInfo && (
               <TerrainContextRows
                 terrain={hoverTerrainInfo}
+                projection={hoverProjectionInfo}
                 testIdPrefix="hex-unreachable-tooltip"
               />
             )}
@@ -189,6 +190,7 @@ function MovementHoverTooltip({
       {terrain && (
         <TerrainContextRows
           terrain={terrain}
+          projection={projection}
           testIdPrefix="hex-movement-tooltip"
         />
       )}
@@ -281,6 +283,7 @@ function CombatHoverTooltip({
       {terrain && (
         <TerrainContextRows
           terrain={terrain}
+          projection={projection}
           testIdPrefix="hex-combat-tooltip"
         />
       )}
