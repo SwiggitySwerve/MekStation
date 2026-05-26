@@ -26,6 +26,7 @@ import { CombatVisibilityContextRows } from './HexMapDisplay.combatVisibilityCon
 import { CombatWeaponImpactRows } from './HexMapDisplay.combatWeaponImpacts';
 import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
 import { MovementModeOptionRows } from './HexMapDisplay.movementOptionRows';
+import { MovementReasonContextRows } from './HexMapDisplay.movementReasonContext';
 import { IsometricOccluderContextRows } from './HexMapDisplay.terrainTooltip';
 import { CombatToHitModifierRows } from './HexMapDisplay.toHitModifierRows';
 import {
@@ -48,16 +49,6 @@ function formatProjectionStatusLabel(
     case 'neutral':
       return 'Neutral';
   }
-}
-
-function movementReasonText(
-  movementInfo: IMovementRangeHex,
-): string | undefined {
-  return (
-    movementInfo.movementInvalidDetails ??
-    movementInfo.blockedReason ??
-    movementInfo.movementInvalidReason
-  );
 }
 
 function combatReasonText(combatInfo: ICombatRangeHex): string | undefined {
@@ -142,7 +133,6 @@ export function CombinedTacticalHoverTooltip({
   const weaponLabel = formatCombatWeaponLabel(combatInfo);
   const weaponImpactLabel = formatCombatWeaponImpactLabel(combatInfo);
   const modifierLabel = formatToHitModifierLabel(combatInfo);
-  const movementReason = movementReasonText(movementInfo);
   const combatReason = combatReasonText(combatInfo);
   const pathSummaryLabel = formatMovementPathSummaryLabel(movementInfo);
 
@@ -233,14 +223,11 @@ export function CombinedTacticalHoverTooltip({
           Modifiers: {movementInfo.standUpPsrModifierDetails.join('; ')}
         </div>
       ) : null}
-      {movementReason && (
-        <div
-          className="text-[11px] text-slate-200"
-          data-testid="hex-tactical-tooltip-movement-reason"
-        >
-          {movementReason}
-        </div>
-      )}
+      <MovementReasonContextRows
+        movementInfo={movementInfo}
+        projection={projection}
+        testId="hex-tactical-tooltip-movement-reason"
+      />
       <div
         className="mt-1 border-t border-slate-700/70 pt-1"
         data-testid="hex-tactical-tooltip-combat"

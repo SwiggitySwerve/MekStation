@@ -1533,6 +1533,16 @@ rules, target legality, attack validation, or attack resolution; it makes the
 visible indirect-fire explanation inspectable without relying on aggregate
 combat hex metadata.
 
+2026-05-25 movement reason context rule-reference pin: Movement blocked-reason
+rows in movement and combined tactical hovers now expose movement-channel source
+references and MegaMek rule references from the shared per-hex tactical
+projection while pinning reachability, movement type, movement mode, blocked
+reason, engine invalid reason, engine invalid details, and displayed reason.
+This does not change movement reachability, MP costs, terrain/elevation costs,
+heat, pathfinding, commit validation, or movement resolution; it makes the
+visible movement rejection explanation inspectable without relying on aggregate
+movement hex metadata.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

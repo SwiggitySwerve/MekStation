@@ -28,6 +28,7 @@ import { CombatWeaponImpactRows } from './HexMapDisplay.combatWeaponImpacts';
 import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
 import { CombinedTacticalHoverTooltip } from './HexMapDisplay.combinedTooltip';
 import { MovementModeOptionRows } from './HexMapDisplay.movementOptionRows';
+import { MovementReasonContextRows } from './HexMapDisplay.movementReasonContext';
 import { MapMovementPointLegend } from './HexMapDisplay.mpLegend';
 import { ProjectionContextRows } from './HexMapDisplay.projectionTooltipRows';
 import {
@@ -173,10 +174,6 @@ function MovementHoverTooltip({
       ? ` via ${formatMovementModeLabel(movementInfo.movementMode)}`
       : '';
   const status = movementInfo.reachable ? 'Reachable' : 'Blocked';
-  const reason =
-    movementInfo.movementInvalidDetails ??
-    movementInfo.blockedReason ??
-    movementInfo.movementInvalidReason;
   const pathSummaryLabel = formatMovementPathSummaryLabel(movementInfo);
 
   return (
@@ -259,14 +256,11 @@ function MovementHoverTooltip({
           Modifiers: {movementInfo.standUpPsrModifierDetails.join('; ')}
         </div>
       ) : null}
-      {reason && (
-        <div
-          className="mt-1 text-[11px] text-slate-200"
-          data-testid="hex-movement-tooltip-reason"
-        >
-          {reason}
-        </div>
-      )}
+      <MovementReasonContextRows
+        movementInfo={movementInfo}
+        projection={projection}
+        testId="hex-movement-tooltip-reason"
+      />
     </div>
   );
 }

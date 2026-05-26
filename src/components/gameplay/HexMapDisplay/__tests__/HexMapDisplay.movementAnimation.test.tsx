@@ -1908,8 +1908,48 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(
       screen.getByTestId('hex-movement-tooltip-terrain'),
     ).toHaveTextContent('Terrain cost: +1');
-    expect(screen.getByTestId('hex-movement-tooltip-reason')).toHaveTextContent(
+    const reasonRows = screen.getByTestId('hex-movement-tooltip-reason');
+    expect(reasonRows).toHaveTextContent('Water blocks ground movement');
+    expect(reasonRows).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(reasonRows).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'movement',
+    );
+    expect(reasonRows).toHaveAttribute(
+      'data-tactical-rules-surface',
+      'movement',
+    );
+    expect(reasonRows).toHaveAttribute('data-movement-reachable', 'false');
+    expect(reasonRows).toHaveAttribute('data-movement-type', 'walk');
+    expect(reasonRows).toHaveAttribute('data-movement-mode', 'tracked');
+    expect(reasonRows).toHaveAttribute(
+      'data-movement-blocked-reason',
       'Water blocks ground movement',
+    );
+    expect(reasonRows).toHaveAttribute(
+      'data-movement-invalid-reason',
+      'TerrainBlocked',
+    );
+    expect(reasonRows).toHaveAttribute(
+      'data-movement-invalid-details',
+      'Water blocks ground movement',
+    );
+    expect(reasonRows).toHaveAttribute(
+      'data-movement-reason',
+      'Water blocks ground movement',
+    );
+    expect(reasonRows).toHaveAttribute(
+      'data-movement-reason-source-refs',
+      expect.stringContaining(
+        'movement:megamek:MegaMek movement rules projection',
+      ),
+    );
+    expect(reasonRows).toHaveAttribute(
+      'data-movement-reason-rule-refs',
+      expect.stringContaining('movement:megamek:MegaMek MoveStep.java'),
     );
     expect(screen.queryByTestId('hex-unreachable-tooltip')).toBeNull();
 
