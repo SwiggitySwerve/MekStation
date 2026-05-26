@@ -84,9 +84,9 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
     GameEventType.InitiativeRolled,
     'rollInitiative emits InitiativeRolled and applyInitiativeRolled records turn order',
   ),
-  [GameEventType.InitiativeOrderSet]: unsupported(
+  [GameEventType.InitiativeOrderSet]: integrated(
     GameEventType.InitiativeOrderSet,
-    'No BattleMech emitter or reducer mutation sets an explicit initiative order event',
+    'rollInitiative emits InitiativeOrderSet after InitiativeRolled and applyInitiativeOrderSet records replayable turn order',
   ),
   [GameEventType.MovementDeclared]: integrated(
     GameEventType.MovementDeclared,
