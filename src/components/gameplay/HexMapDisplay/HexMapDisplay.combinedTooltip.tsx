@@ -1,6 +1,5 @@
 import React from 'react';
 
-import type { ICombatRangeHex } from '@/types/gameplay';
 import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
 import {
@@ -18,6 +17,7 @@ import { CombatEnvironmentContextRows } from './HexMapDisplay.combatEnvironmentC
 import { CombatIndirectFireContextRows } from './HexMapDisplay.combatIndirectFireContext';
 import { CombatLosContextRows } from './HexMapDisplay.combatLosContext';
 import { CombatMinimumRangeContextRows } from './HexMapDisplay.combatMinimumRangeContext';
+import { CombatReasonContextRows } from './HexMapDisplay.combatReasonContext';
 import { CombatVisibilityContextRows } from './HexMapDisplay.combatVisibilityContext';
 import { CombatWeaponImpactRows } from './HexMapDisplay.combatWeaponImpacts';
 import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
@@ -51,17 +51,6 @@ function formatProjectionStatusLabel(
   }
 }
 
-function combatReasonText(combatInfo: ICombatRangeHex): string | undefined {
-  return combatInfo.attackable
-    ? (combatInfo.toHitReason ??
-        combatInfo.indirectFireReason ??
-        combatInfo.targetCoverReason)
-    : (combatInfo.blockedReason ??
-        combatInfo.attackInvalidDetails ??
-        combatInfo.visibilityBlockedReason ??
-        combatInfo.lineOfSightBlockerReason);
-}
-
 export function CombinedTacticalHoverTooltip({
   projection,
   isometricOccluderInfo,
@@ -92,7 +81,6 @@ export function CombinedTacticalHoverTooltip({
   const weaponLabel = formatCombatWeaponLabel(combatInfo);
   const weaponImpactLabel = formatCombatWeaponImpactLabel(combatInfo);
   const modifierLabel = formatToHitModifierLabel(combatInfo);
-  const combatReason = combatReasonText(combatInfo);
 
   return (
     <div
@@ -246,14 +234,11 @@ export function CombinedTacticalHoverTooltip({
         projection={projection}
         testId="hex-tactical-tooltip-combat-to-hit-modifiers"
       />
-      {combatReason && (
-        <div
-          className="text-[11px] text-slate-200"
-          data-testid="hex-tactical-tooltip-combat-reason"
-        >
-          {combatReason}
-        </div>
-      )}
+      <CombatReasonContextRows
+        combatInfo={combatInfo}
+        projection={projection}
+        testId="hex-tactical-tooltip-combat-reason"
+      />
       {projection.blockedReasons.length > 0 && (
         <div
           className="mt-1 border-t border-slate-700/70 pt-1 text-[11px] text-slate-200"

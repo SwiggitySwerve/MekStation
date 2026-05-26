@@ -1714,9 +1714,33 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-environment-rule-refs',
       expect.stringContaining('combat:megamek:MegaMek Compute.java'),
     );
-    expect(
-      screen.getByTestId('hex-tactical-tooltip-combat-reason'),
-    ).toHaveTextContent('Torpedo path leaves water.');
+    const torpedoReason = screen.getByTestId(
+      'hex-tactical-tooltip-combat-reason',
+    );
+    expect(torpedoReason).toHaveTextContent('Torpedo path leaves water.');
+    expect(torpedoReason).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(torpedoReason).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    expect(torpedoReason).toHaveAttribute('data-combat-attackable', 'false');
+    expect(torpedoReason).toHaveAttribute(
+      'data-combat-invalid-details',
+      'Torpedo path leaves water.',
+    );
+    expect(torpedoReason).toHaveAttribute(
+      'data-combat-reason-source-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(torpedoReason).toHaveAttribute(
+      'data-combat-reason-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek Compute.java'),
+    );
   });
 
   it('preserves rules projection metadata when switching from top-down to isometric', () => {
@@ -2879,8 +2903,33 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-los-context-rule-refs',
       expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
     );
-    expect(screen.getByTestId('hex-combat-tooltip-reason')).toHaveTextContent(
-      'Blocked by building',
+    const losBlockedReason = screen.getByTestId('hex-combat-tooltip-reason');
+    expect(losBlockedReason).toHaveTextContent('Blocked by building');
+    expect(losBlockedReason).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(losBlockedReason).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    expect(losBlockedReason).toHaveAttribute(
+      'data-combat-los-state',
+      'blocked',
+    );
+    expect(losBlockedReason).toHaveAttribute(
+      'data-combat-los-blocker-reason',
+      'Blocked by building at (1, 0)',
+    );
+    expect(losBlockedReason).toHaveAttribute(
+      'data-combat-reason-source-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(losBlockedReason).toHaveAttribute(
+      'data-combat-reason-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
     );
   });
 
@@ -2979,9 +3028,26 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-los-context-rule-refs',
       expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
     );
-    expect(
-      screen.getByTestId('hex-tactical-tooltip-combat-reason'),
-    ).toHaveTextContent('Blocked by building');
+    const tacticalLosReason = screen.getByTestId(
+      'hex-tactical-tooltip-combat-reason',
+    );
+    expect(tacticalLosReason).toHaveTextContent('Blocked by building');
+    expect(tacticalLosReason).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(tacticalLosReason).toHaveAttribute(
+      'data-combat-los-blocker-reason',
+      'Blocked by building at (1, 0)',
+    );
+    expect(tacticalLosReason).toHaveAttribute(
+      'data-combat-target-ids',
+      'enemy',
+    );
+    expect(tacticalLosReason).toHaveAttribute(
+      'data-combat-reason-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
+    );
   });
 
   it('keeps destroyed unit markers from creating LOS blocker highlights', () => {
@@ -3822,11 +3888,23 @@ describe('HexMapDisplay combat projection', () => {
     );
     expect(combatElevationContext).toHaveTextContent('Elevation: 0');
     expect(combatElevationContext).toHaveAttribute('data-elevation', '0');
-    expect(screen.getByTestId('hex-combat-tooltip-reason')).toHaveTextContent(
-      'To-hit 5',
+    const combatReason = screen.getByTestId('hex-combat-tooltip-reason');
+    expect(combatReason).toHaveTextContent('To-hit 5');
+    expect(combatReason).toHaveTextContent('Target Terrain +1');
+    expect(combatReason).toHaveAttribute('data-combat-attackable', 'true');
+    expect(combatReason).toHaveAttribute(
+      'data-combat-to-hit-reason',
+      expect.stringContaining('Target Terrain +1'),
     );
-    expect(screen.getByTestId('hex-combat-tooltip-reason')).toHaveTextContent(
-      'Target Terrain +1',
+    expect(combatReason).toHaveAttribute(
+      'data-combat-reason-source-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(combatReason).toHaveAttribute(
+      'data-combat-reason-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek Compute.java'),
     );
     expect(screen.getByTestId('hex-combat-tooltip-weapons')).toHaveTextContent(
       'Weapons: medium-laser',
@@ -4792,9 +4870,30 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-visibility-rule-refs',
       expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
     );
-    expect(
-      screen.getByTestId('hex-tactical-tooltip-combat-reason'),
-    ).toHaveTextContent('Out of weapon range');
+    const tacticalOutOfRangeReason = screen.getByTestId(
+      'hex-tactical-tooltip-combat-reason',
+    );
+    expect(tacticalOutOfRangeReason).toHaveTextContent('Out of weapon range');
+    expect(tacticalOutOfRangeReason).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(tacticalOutOfRangeReason).toHaveAttribute(
+      'data-combat-blocked-reason',
+      'Out of weapon range',
+    );
+    expect(tacticalOutOfRangeReason).toHaveAttribute(
+      'data-combat-range-bracket',
+      'out_of_range',
+    );
+    expect(tacticalOutOfRangeReason).toHaveAttribute(
+      'data-combat-distance',
+      '3',
+    );
+    expect(tacticalOutOfRangeReason).toHaveAttribute(
+      'data-combat-reason-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek RangeType.java'),
+    );
     expect(
       screen.getByTestId('hex-tactical-tooltip-projection-reasons'),
     ).toHaveTextContent(
@@ -4884,8 +4983,19 @@ describe('HexMapDisplay combat projection', () => {
     expect(screen.getByTestId('hex-combat-tooltip-weapons')).toHaveTextContent(
       'Weapons: no ammunition',
     );
-    expect(screen.getByTestId('hex-combat-tooltip-reason')).toHaveTextContent(
+    const ammoReason = screen.getByTestId('hex-combat-tooltip-reason');
+    expect(ammoReason).toHaveTextContent(
       'No matching non-empty ammo bin for "AC/5"',
+    );
+    expect(ammoReason).toHaveAttribute(
+      'data-combat-invalid-details',
+      'No matching non-empty ammo bin for "AC/5"',
+    );
+    expect(ammoReason).toHaveAttribute(
+      'data-combat-reason-source-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
     );
   });
 
@@ -4997,8 +5107,17 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-visibility-rule-refs',
       expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
     );
-    expect(screen.getByTestId('hex-combat-tooltip-reason')).toHaveTextContent(
+    const fogReason = screen.getByTestId('hex-combat-tooltip-reason');
+    expect(fogReason).toHaveTextContent(
       'Last known contact is not currently visible',
+    );
+    expect(fogReason).toHaveAttribute(
+      'data-combat-visibility-blocked-reason',
+      'Last known contact is not currently visible',
+    );
+    expect(fogReason).toHaveAttribute(
+      'data-combat-target-ids',
+      'enemy-last-known',
     );
   });
 

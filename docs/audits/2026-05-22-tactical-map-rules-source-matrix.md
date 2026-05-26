@@ -1575,6 +1575,17 @@ attack validation, or movement/attack resolution; it makes the visible
 terrain/elevation explanation inspectable without relying on aggregate
 projection metadata.
 
+2026-05-25 combat reason context rule-reference pin: Generic combat reason rows
+in combat and combined tactical hovers now expose combat-channel source
+references and MegaMek rule references from the shared per-hex tactical
+projection while pinning attackability, target IDs, range bracket, distance, LOS
+state, firing arc, blocked reason, invalid reason/details, visibility reason,
+LOS blocker reason, to-hit reason, indirect-fire reason, cover reason, and the
+displayed reason. This does not change range classification, target validity,
+LOS classification, to-hit modifiers, weapon option filtering, fog visibility,
+attack validation, or attack resolution; it makes the visible final combat
+reason inspectable without relying on aggregate combat metadata.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

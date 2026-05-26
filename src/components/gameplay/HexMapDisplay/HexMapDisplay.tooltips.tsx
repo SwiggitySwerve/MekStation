@@ -20,6 +20,7 @@ import { CombatEnvironmentContextRows } from './HexMapDisplay.combatEnvironmentC
 import { CombatIndirectFireContextRows } from './HexMapDisplay.combatIndirectFireContext';
 import { CombatLosContextRows } from './HexMapDisplay.combatLosContext';
 import { CombatMinimumRangeContextRows } from './HexMapDisplay.combatMinimumRangeContext';
+import { CombatReasonContextRows } from './HexMapDisplay.combatReasonContext';
 import { CombatVisibilityContextRows } from './HexMapDisplay.combatVisibilityContext';
 import { CombatWeaponImpactRows } from './HexMapDisplay.combatWeaponImpacts';
 import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
@@ -248,14 +249,6 @@ function CombatHoverTooltip({
       : combatInfo.inRange
         ? 'In range'
         : 'Out of range';
-  const reason = combatInfo.attackable
-    ? (combatInfo.toHitReason ??
-      combatInfo.indirectFireReason ??
-      combatInfo.targetCoverReason)
-    : (combatInfo.blockedReason ??
-      combatInfo.attackInvalidDetails ??
-      combatInfo.visibilityBlockedReason ??
-      combatInfo.lineOfSightBlockerReason);
   const weaponLabel = formatCombatWeaponLabel(combatInfo);
   const modifierLabel = formatToHitModifierLabel(combatInfo);
   const weaponImpactLabel = formatCombatWeaponImpactLabel(combatInfo);
@@ -356,14 +349,11 @@ function CombatHoverTooltip({
         projection={projection}
         testId="hex-combat-tooltip-to-hit-modifiers"
       />
-      {reason && (
-        <div
-          className="mt-1 text-[11px] text-slate-200"
-          data-testid="hex-combat-tooltip-reason"
-        >
-          {reason}
-        </div>
-      )}
+      <CombatReasonContextRows
+        combatInfo={combatInfo}
+        projection={projection}
+        testId="hex-combat-tooltip-reason"
+      />
     </div>
   );
 }
