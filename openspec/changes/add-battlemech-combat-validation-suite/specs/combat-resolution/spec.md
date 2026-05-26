@@ -34,6 +34,46 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** MekStation deviation row references SHALL be line-anchored
 - **AND** this map-level triad evidence SHALL NOT be treated as full row-level rule parity for mechanics that still rely on requirement inheritance or MekStation deviation boundaries
 
+### Requirement: Diff-Area Outcome Traceability
+
+Every implementation area touched by the BattleMech combat validation suite SHALL have a high-level expected outcome recorded in the OpenSpec change before that area is presented for review. The outcome text SHALL connect the code area to one of the three validation lanes: catalog contracts, behavior-class tests, or representative runner-vs-interactive integration scenarios.
+
+#### Scenario: OpenSpec and audit files describe review outcomes
+
+- **GIVEN** a combat feature slice changes `openspec/` or `docs/audits/`
+- **WHEN** reviewers inspect the change
+- **THEN** the files SHALL state the intended combat outcome, the source-truth authority boundary, and any unsupported gaps that remain visible
+- **AND** detailed rule rows SHALL not be the only place where the feature's review purpose can be inferred
+
+#### Scenario: Runner and catalog files describe quick-sim outcomes
+
+- **GIVEN** a combat feature slice changes `src/simulation/runner/`
+- **WHEN** the runner catalog and behavior tests execute
+- **THEN** official weapon, ammo, critical-slot, equipment, movement, heat, physical, PSR, lifecycle, and terminal-state data SHALL hydrate from catalog or event state before use
+- **AND** static weapon defaults, synthetic Medium Laser fallbacks, zero-damage string parsing, and broad known-limitation suppression SHALL remain explicit validation traps
+- **AND** every integrated runner outcome SHALL cite executable catalog or behavior evidence
+
+#### Scenario: Gameplay helper and interactive engine files describe shared behavior outcomes
+
+- **GIVEN** a combat feature slice changes `src/utils/gameplay/` or `src/engine/`
+- **WHEN** helper, event-sourced session, and interactive-engine paths are reviewed
+- **THEN** legality checks, invalid attack no-side-effect guarantees, targetability, action locking, heat, PSR, damage, physical resolution, and terminal-state transitions SHALL match the cataloged behavior class
+- **AND** any runner-only or helper-only behavior SHALL remain classified as partial or unsupported until a higher-level path proves the same outcome
+
+#### Scenario: UI, wire, multiplayer, and type files describe action-boundary outcomes
+
+- **GIVEN** a combat feature slice changes `src/components/gameplay/`, `src/lib/p2p/`, `src/lib/multiplayer/`, `src/types/gameplay/`, or `src/types/multiplayer/`
+- **WHEN** action-surface and event-payload coverage is reviewed
+- **THEN** the spec SHALL state which command, game intent, wire payload, P2P host translation, server dispatch, replay event, or type payload is expected to preserve the combat action outcome
+- **AND** product-visible commands without official rule authority SHALL be cataloged as MekStation deviation or unsupported rows instead of implied BattleTech parity
+
+#### Scenario: AI, scenario, and validation tooling files describe evidence outcomes
+
+- **GIVEN** a combat feature slice changes AI selection, representative scenarios, or `scripts/validate-combat-suite.mjs`
+- **WHEN** the validation suite is run
+- **THEN** AI and scenario tests SHALL prove hydrated combat state is consumed for weapon ranges, ammo, arcs, movement state, physical legality, lifecycle status, objectives, and terminal outcomes
+- **AND** validation tooling SHALL continue to execute catalog contracts, behavior-class tests, and representative integration scenarios as separate evidence lanes
+
 #### Scenario: Destruction cause persists through combat state and replay
 
 - **GIVEN** a BattleMech damage path reports `unitDestroyed=true` with a canonical destruction cause

@@ -27,6 +27,7 @@
 - [x] 1.21 Promote legacy pilot ability support rows to row-level source refs so gunnery, indirect-fire, cluster, physical, called-shot, and Terrain Master SPA claims cannot inherit broad SPA/quirk authority.
 - [x] 1.22 Promote legacy mech quirk support rows to row-level source refs so PSR, physical, actuator, and Rugged maintenance helpers cannot inherit broad SPA/quirk authority.
 - [x] 1.23 Promote source-pinned mech quirk, PSR trigger, and pilot-modifier-resolver maps to row-level triad authority and require every row in an `entry-source-refs` map to carry valid source refs.
+- [x] 1.24 Add diff-area outcome traceability so OpenSpec reviewers can see the intended high-level outcome for docs/audits, runner/catalog, gameplay helpers, interactive engine, UI/wire/P2P/types, AI/scenarios, and validation tooling before reviewing code.
 
 ## 2. Physical attack legality gates
 
