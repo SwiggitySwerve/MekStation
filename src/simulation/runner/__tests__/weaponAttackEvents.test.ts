@@ -108,6 +108,21 @@ function createMediumLaser(id = 'medium-laser-test'): IWeapon {
   };
 }
 
+function createPlasmaCannon(id = 'clan-plasma-cannon'): IWeapon {
+  return {
+    id,
+    name: 'Plasma Cannon (Clan)',
+    shortRange: 6,
+    mediumRange: 12,
+    longRange: 18,
+    damage: 0,
+    heat: 7,
+    minRange: 0,
+    ammoPerTon: 10,
+    destroyed: false,
+  };
+}
+
 function createUltraAC5(id = 'uac-5-test'): IWeapon {
   return {
     id,
@@ -1446,6 +1461,68 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.evidence).toContain(
         'tagDesignated',
       );
+    });
+
+    it('plasma cannon hits apply external target heat without BattleMech damage', () => {
+      const weapon = createPlasmaCannon();
+      const { state, weaponsByUnit } = buildScenario({
+        attackerWeapons: [weapon],
+        attackerStateOverride: { gunnery: 0 },
+        targetStateOverride: { heat: 4 },
+        targetPosition: { q: 5, r: 0 },
+      });
+
+      const result = runPhaseWithResult({
+        state,
+        weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(weapon.id),
+        random: new SequenceRandom([6, 6, 3, 4, 2, 5]),
+      });
+
+      const resolved = result.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+      const heatGenerated = result.events.find(
+        (event) =>
+          event.type === GameEventType.HeatGenerated &&
+          (event.payload as { unitId?: string }).unitId === 'opponent-1',
+      ) as
+        | (IGameEvent & {
+            payload: {
+              amount: number;
+              source: string;
+              previousTotal: number;
+              newTotal: number;
+            };
+          })
+        | undefined;
+
+      expect(resolved.payload).toMatchObject({
+        hit: true,
+        damage: 0,
+        heat: 7,
+        location: expect.any(String),
+      });
+      expect(heatGenerated?.payload).toMatchObject({
+        amount: 7,
+        source: 'external',
+        previousTotal: 4,
+        newTotal: 11,
+      });
+      expect(result.state.units['opponent-1'].heat).toBe(11);
+      expect(
+        result.events.some(
+          (event) => event.type === GameEventType.DamageApplied,
+        ),
+      ).toBe(false);
+      expect(
+        SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].evidence,
+      ).toContain('HeatGenerated');
+      expect(
+        SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].gap,
+      ).not.toContain('external target heat');
     });
 
     it('standard missile salvos use the cluster table with NARC and MRM modifiers', () => {

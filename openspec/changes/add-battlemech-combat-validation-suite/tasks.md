@@ -119,7 +119,7 @@
 - [x] 3.1.20 Pin every official string-damage missile weapon row to its resolved nonzero volley damage so MML-style descriptors cannot collapse to zero.
 - [x] 3.1.21 Pin exact official UAC, RAC, LB-X, and MML family ids before claiming special firing-mode coverage.
 - [x] 3.1.22 Split damage-capable official Streak SRM ids from zero-damage Streak LRM/OS/prototype catalog rows so Streak runner support cannot hide data gaps.
-- [x] 3.1.23 Source-pin the official zero-damage Clan Plasma Cannon as a helper-only target-heat weapon gap instead of treating zero damage as generic coverage.
+- [x] 3.1.23 Source-pin the official zero-damage Clan Plasma Cannon as a target-heat weapon family so zero damage cannot be treated as generic coverage.
 - [x] 3.1.24 Source-pin ammunition compatibility support rows to MekStation official ammo import, ammo hydration/tracking, and exact-id classification contract refs so official ammo coverage does not rely on prose-only catalog evidence.
 - [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
@@ -392,3 +392,4 @@
 - [x] 4.3.128 Cross-check MegaMek sprint/evade heat anchors and consume explicit sprint/evade state in runner heat resolution while narrowing the remaining absent-action gap to movement-step creation, authoritative state creation, and engine-variant/coolant refinements.
 - [x] 4.3.129 Cross-check MegaMek `Mek.hasClaw`, `DfaAttackAction.hasTalons`, `Entity.hasWorkingMisc`, and `Mounted.isReady` before promoting explicit missing/breached claw/talon equipment critical-event consumption.
 - [x] 4.3.130 Cross-check MegaMek `Entity.destroyLocation` missing-mount behavior before promoting destroyed-location claw/talon modifier cleanup through event replay and runner damage persistence.
+- [x] 4.3.131 Cross-check MegaMek `PlasmaCannonHandler` target-heat behavior before promoting runner Clan Plasma Cannon hits to zero BattleMech damage plus external target heat while leaving armor-specific reductions, external-heat timing/caps, ammo hydration, and non-Mek special damage visible as helper-only gaps.

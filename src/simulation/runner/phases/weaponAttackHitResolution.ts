@@ -46,6 +46,10 @@ import {
   emitUnitDestroyedEvent,
 } from './weaponAttackHitResolution.helpers';
 import {
+  applyPlasmaCannonTargetHeat,
+  isPlasmaCannonWeapon,
+} from './weaponAttackPlasmaCannon';
+import {
   applyCriticalPSRTriggers,
   applyLegDamagePSR,
 } from './weaponAttackPsrTriggers';
@@ -324,6 +328,33 @@ export function resolveWeaponHit(options: {
         location,
       });
     }
+
+    return consumeWeaponAmmo({
+      currentState,
+      events,
+      gameId,
+      attackerId: unitId,
+      weapon,
+      ammoWeaponType,
+    });
+  }
+
+  if (isPlasmaCannonWeapon(weapon)) {
+    currentState = applyPlasmaCannonTargetHeat({
+      currentState,
+      events,
+      gameId,
+      attackerId: unitId,
+      targetId,
+      weaponId,
+      weapon,
+      projectileCount,
+      attackRoll,
+      toHitNumber,
+      location,
+      firingArc,
+      d6Roller,
+    });
 
     return consumeWeaponAmmo({
       currentState,
