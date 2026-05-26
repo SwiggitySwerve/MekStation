@@ -133,7 +133,7 @@ const KNOWN_LIMITATION_PATTERN_AUDIT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation combatValidationScope.contract requires one BattleMech validation trap per known-limitation category and verifies broad pattern category lookup.',
     'src/simulation/runner/__tests__/combatValidationScope.contract.test.ts',
-    'L114-L135',
+    'L115-L136',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -141,7 +141,7 @@ const CATALOG_FILTER_GATE_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation combatValidationScope.contract scans runner catalog contracts and forbids known-limitation filter or partition helpers as catalog gates.',
     'src/simulation/runner/__tests__/combatValidationScope.contract.test.ts',
-    'L161-L175',
+    'L163-L177',
   ),
   mekstationDeviationSourceRef(
     'MekStation battlemechCombatCatalog.contract self-checks that known-limitation filtering cannot gate the BattleMech catalog validation lane.',
@@ -228,6 +228,19 @@ const NON_BATTLEMECH_COMBAT_SYSTEM_SPLIT_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const UNRESOLVED_COMPLETION_BLOCKER_INVENTORY_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation CombatValidationGapInventory exports helper-only and unsupported catalog rows as sorted machine-readable completion blockers.',
+    'src/simulation/runner/CombatValidationGapInventory.ts',
+    'L27-L60',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation combatValidationCatalog.contract asserts the exported unresolved inventory shape and sentinel blocker rows.',
+    'src/simulation/runner/__tests__/combatValidationCatalog.contract.test.ts',
+    'L126-L156',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const BATTLEMECH_VALIDATION_SCOPE_SUPPORT = {
   'known-limitation-bypass': integrated(
     'known-limitation-bypass',
@@ -263,6 +276,11 @@ export const BATTLEMECH_VALIDATION_SCOPE_SUPPORT = {
     'variable-damage-string-guard',
     'battlemechCombatCatalog.contract.test.ts pins every official string-damage missile weapon resolution, including 1-2/missile MML rows, so official weapons cannot collapse to zero damage',
     VARIABLE_DAMAGE_STRING_SOURCE_REFS,
+  ),
+  'unresolved-completion-blocker-inventory': integrated(
+    'unresolved-completion-blocker-inventory',
+    'CombatValidationGapInventory exports the aggregate helper-only and unsupported support rows as sorted machine-readable completion blockers for review and PR gating',
+    UNRESOLVED_COMPLETION_BLOCKER_INVENTORY_SOURCE_REFS,
   ),
   'non-battlemech-ammo-scope': helperOnly(
     'non-battlemech-ammo-scope',

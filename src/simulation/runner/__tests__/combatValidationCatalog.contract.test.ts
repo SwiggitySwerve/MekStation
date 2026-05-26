@@ -9,6 +9,10 @@ import type { ICombatCatalogTriadEvidence } from '../CombatValidationCatalogTria
 
 import { BATTLEMECH_COMBAT_VALIDATION_CATALOG } from '../CombatValidationCatalog';
 import { COMBAT_CATALOG_TRIAD_EVIDENCE } from '../CombatValidationCatalogTriad';
+import {
+  getCombatValidationUnresolvedRefs,
+  getCombatValidationUnresolvedRows,
+} from '../CombatValidationGapInventory';
 
 function sortedKeys(record: Record<string, unknown>): readonly string[] {
   return Object.keys(record).sort();
@@ -61,16 +65,6 @@ function catalogMaps(): readonly {
 function supportIds(support: CombatValidationSupportMap): readonly string[] {
   return Object.values(support)
     .map((entry) => entry.id)
-    .sort();
-}
-
-function unresolvedCatalogRefs(): readonly string[] {
-  return catalogMaps()
-    .flatMap(({ sectionId, mapId, support }) =>
-      Object.values(support)
-        .filter((entry) => entry.level !== 'integrated')
-        .map((entry) => `${sectionId}.${mapId}.${entry.id}`),
-    )
     .sort();
 }
 
@@ -130,10 +124,20 @@ describe('BattleMech combat validation catalog index', () => {
   });
 
   it('keeps unresolved helper and unsupported rows visible as completion blockers', () => {
-    const unresolvedRefs = unresolvedCatalogRefs();
+    const unresolvedRows = getCombatValidationUnresolvedRows();
+    const unresolvedRefs = getCombatValidationUnresolvedRefs();
 
     expect(unresolvedRefs.length).toBeGreaterThan(0);
     expect(unresolvedRefs).toEqual(Array.from(new Set(unresolvedRefs)));
+    expect(unresolvedRefs).toEqual(unresolvedRows.map((row) => row.ref));
+    expect(
+      unresolvedRows.filter(
+        (row) =>
+          row.gap.length === 0 ||
+          row.evidence.length === 0 ||
+          row.sourceRefs.length === 0,
+      ),
+    ).toEqual([]);
     expect(unresolvedRefs).toEqual(
       expect.arrayContaining([
         'actions.absentActionSurfaces.movement.evade',
@@ -166,9 +170,9 @@ describe('BattleMech combat validation catalog index', () => {
         (ref) => entryLevels.get(ref) !== 'integrated',
       ),
     ).toEqual([]);
-    expect(unresolvedCatalogRefs().filter((ref) => /eject/i.test(ref))).toEqual(
-      [],
-    );
+    expect(
+      getCombatValidationUnresolvedRefs().filter((ref) => /eject/i.test(ref)),
+    ).toEqual([]);
   });
 
   it('requires every catalog map to declare source-boundary and executable test evidence', () => {

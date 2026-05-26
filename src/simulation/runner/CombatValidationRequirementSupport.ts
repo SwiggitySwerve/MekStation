@@ -1044,12 +1044,13 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'known-limitation-audit': integrated(
     'known-limitation-audit',
-    'Validation scope support bypasses broad known-limitation filters, audits which broad pattern would have matched, forbids catalog filter gates, and pins official BattleMech catalog scope',
+    'Validation scope support bypasses broad known-limitation filters, audits which broad pattern would have matched, forbids catalog filter gates, pins official BattleMech catalog scope, and exports unresolved catalog rows as machine-readable completion blockers',
     [
       'validationScope.knownLimitationsAndScope.known-limitation-bypass',
       'validationScope.knownLimitationsAndScope.known-limitation-pattern-audit',
       'validationScope.knownLimitationsAndScope.catalog-filter-gate-ban',
       'validationScope.knownLimitationsAndScope.battlemech-official-catalog-scope',
+      'validationScope.knownLimitationsAndScope.unresolved-completion-blocker-inventory',
     ],
   ),
   'non-battlemech-scope': helperOnly(

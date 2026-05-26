@@ -105,6 +105,7 @@ describe('BattleMech validation scope support catalog', () => {
         'non-battlemech-combat-system-split',
         'static-weapon-database-subset',
         'synthetic-medium-laser-fallback-ban',
+        'unresolved-completion-blocker-inventory',
         'variable-damage-string-guard',
       ].sort(),
     );
@@ -145,6 +146,7 @@ describe('BattleMech validation scope support catalog', () => {
         'known-limitation-pattern-audit',
         'static-weapon-database-subset',
         'synthetic-medium-laser-fallback-ban',
+        'unresolved-completion-blocker-inventory',
         'variable-damage-string-guard',
       ].sort(),
     );
@@ -214,7 +216,7 @@ describe('BattleMech validation scope support catalog', () => {
     );
     expect(urlsFor('catalog-filter-gate-ban')).toEqual(
       expect.arrayContaining([
-        'src/simulation/runner/__tests__/combatValidationScope.contract.test.ts#L161-L175',
+        'src/simulation/runner/__tests__/combatValidationScope.contract.test.ts#L163-L177',
         'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts#L3554-L3574',
       ]),
     );
@@ -228,6 +230,12 @@ describe('BattleMech validation scope support catalog', () => {
       expect.arrayContaining([
         'src/simulation/runner/CombatEventSupport.ts#L248-L324',
         'src/simulation/runner/__tests__/combatEventCatalog.contract.test.ts#L56-L82',
+      ]),
+    );
+    expect(urlsFor('unresolved-completion-blocker-inventory')).toEqual(
+      expect.arrayContaining([
+        'src/simulation/runner/CombatValidationGapInventory.ts#L27-L60',
+        'src/simulation/runner/__tests__/combatValidationCatalog.contract.test.ts#L126-L156',
       ]),
     );
   });
