@@ -246,7 +246,7 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **WHEN** that unit attempts a ranged weapon attack through runner attack resolution or event-sourced `declareAttack`
 - **THEN** the attack SHALL emit `AttackInvalid` with reason `AttackerEvading`
 - **AND** no `AttackDeclared`, `AttackResolved`, heat, ammo, damage, or fired-weapon state side effects SHALL follow
-- **AND** optional TacOps Evade movement-step declaration SHALL remain an unsupported absent-action row until movement command, state, heat, wire, P2P, and authoritative evasion-bonus creation paths are implemented
+- **AND** optional TacOps Evade movement-step declaration SHALL remain an unsupported absent-action row until movement command, state, wire, P2P, and authoritative evasion-bonus creation paths are implemented
 
 #### Scenario: Sprinting attackers cannot make ranged attacks
 
@@ -254,7 +254,7 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **WHEN** that unit attempts a ranged weapon attack through runner attack resolution or event-sourced `declareAttack`
 - **THEN** the attack SHALL emit `AttackInvalid` with reason `AttackerSprinted`
 - **AND** no `AttackDeclared`, `AttackResolved`, heat, ammo, damage, or fired-weapon state side effects SHALL follow
-- **AND** optional TacOps Sprint movement-step declaration, sprint MP/heat generation, and authoritative sprint-state creation SHALL remain visible gaps until their source-backed paths exist
+- **AND** optional TacOps Sprint movement-step declaration, sprint MP generation, authoritative sprint-state creation, and engine-variant/coolant sprint heat SHALL remain visible gaps until their source-backed paths exist
 
 #### Scenario: Sprinting and evading units cannot spot indirect fire
 
@@ -263,6 +263,14 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **WHEN** the runner or interactive indirect-fire context elects a LOS spotter
 - **THEN** those candidates SHALL be rejected before spotter election
 - **AND** the attack SHALL continue through the normal no-spotter `NoLineOfSight` invalidation path without heat, ammo, fired-weapon, or damage side effects
+
+#### Scenario: Explicit sprint and evade state generate movement heat
+
+- **GIVEN** a unit has explicit `sprintedThisTurn: true` or `isEvading: true`
+- **WHEN** runner heat resolution computes movement heat
+- **THEN** explicit sprint state SHALL generate normal-engine sprint heat
+- **AND** explicit evade state SHALL generate run heat plus the source-backed evasion heat surcharge
+- **AND** optional TacOps Sprint/Evade movement-step declaration and authoritative state creation SHALL remain visible absent-action gaps
 
 #### Scenario: Evading targets modify ranged to-hit
 
@@ -279,7 +287,7 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **WHEN** helper to-hit calculation, event-sourced `declareAttack`, or runner attack resolution builds the `AttackDeclared` to-hit payload
 - **THEN** the attack SHALL include a `Target Sprinted` to-hit modifier of `-1`
 - **AND** runner turn reset SHALL clear `sprintedThisTurn` so the target-sprinted modifier is current-turn state
-- **AND** optional TacOps Sprint movement-step declaration, sprint MP/heat generation, and authoritative sprint-state creation SHALL remain visible gaps until their source-backed paths exist
+- **AND** optional TacOps Sprint movement-step declaration, sprint MP generation, authoritative sprint-state creation, and engine-variant/coolant sprint heat SHALL remain visible gaps until their source-backed paths exist
 
 #### Scenario: Evading targets modify physical to-hit
 

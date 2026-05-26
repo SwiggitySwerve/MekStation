@@ -709,7 +709,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'movement-actions': helperOnly(
     'movement-actions',
     'Action and movement rule maps cover walk, run, jump, same-hex facing rotation, stand, source-backed voluntary go-prone, source-backed MASC/Supercharger activation, prone state, source-backed torso-twist exposure with replayed secondaryFacing consumption, and source-backed first-class absent-action rows for optional TacOps sprint and evade',
-    'Sprint and evade action creation remain absent, even though explicit target sprint/evasion state can be consumed by to-hit and explicit sprinting/evading state is rejected for indirect-fire spotters; torso-twist lower-level UI direction/reset refinements remain outside the authoritative action path',
+    'Sprint and evade action creation remain absent, even though explicit sprint/evasion state can be consumed by to-hit, indirect-fire spotter rejection, and runner movement heat; torso-twist lower-level UI direction/reset refinements remain outside the authoritative action path',
     [
       'actions.tacticalCommands.movement.walk',
       'actions.tacticalCommands.movement.stand',
@@ -749,7 +749,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'heat-generation': integrated(
     'heat-generation',
-    'Heat rules cover movement heat, jump-distance heat, weapon heat, engine heat, environmental fire heat, and heat generated event emission',
+    'Heat rules cover movement heat, explicit optional TacOps sprint/evade state heat, jump-distance heat, weapon heat, engine heat, environmental fire heat, and heat generated event emission',
     HEAT_GENERATION_SUPPORT_REFS,
   ),
   'heat-dissipation': integrated(
@@ -790,7 +790,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'to-hit-advanced-modifiers': helperOnly(
     'to-hit-advanced-modifiers',
     'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, explicit target evasion including 0..3 Skilled Evasion bonus state across ranged and physical to-hit, ECM, C3, terrain features, and a source-backed absent-action row for optional TacOps Evade movement creation, with C3 explicit-state consumption, attack-time lifecycle and critical-slot damage refresh, attacker-evading ranged invalidation, and conservative runner initial network seeding separated from ambiguous battle-wide assignment gaps',
-    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, target hull-down state, target evasion/evasionBonus state, secondary-target state, called-shot state, explicit C3 network state with current positions/lifecycle/ECM disruption and matching C3 critical-slot damage suppression, mounted C3 equipment roles, conservative unambiguous runner C3/C3i initial networks, non-blocking intervening terrain, evading-attacker ranged invalidation, explicit sprinting-attacker ranged invalidation, and explicit sprinting/evading spotter rejection for indirect fire, but ECM inputs, session/player-authored C3 network assignment, multiple or oversized C3 networks, and Evade/Sprint movement-step state creation remain helper-only or absent',
+    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, target hull-down state, target evasion/evasionBonus state, secondary-target state, called-shot state, explicit C3 network state with current positions/lifecycle/ECM disruption and matching C3 critical-slot damage suppression, mounted C3 equipment roles, conservative unambiguous runner C3/C3i initial networks, non-blocking intervening terrain, evading-attacker ranged invalidation, explicit sprinting-attacker ranged invalidation, explicit sprinting/evading spotter rejection for indirect fire, and explicit sprint/evade heat consumption, but ECM inputs, session/player-authored C3 network assignment, multiple or oversized C3 networks, and Evade/Sprint movement-step state creation remain helper-only or absent',
     [
       ...TO_HIT_ADVANCED_MODIFIER_SUPPORT_REFS,
       'actions.absentActionSurfaces.movement.evade',

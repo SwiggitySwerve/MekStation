@@ -391,6 +391,9 @@ describe('BattleMech combat action support catalog', () => {
       layer: 'absent-action-surface',
       gap: expect.stringContaining('no authoritative evade action path'),
     });
+    expect(BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.evade'].gap).toContain(
+      'feeds runner heat as run heat plus evasion heat',
+    );
     expect(
       BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.evade'].sourceRefs?.map(
         (sourceRef) => sourceRef.citation,
@@ -400,6 +403,7 @@ describe('BattleMech combat action support catalog', () => {
         expect.stringContaining('TacOps Evade'),
         expect.stringContaining('MoveStepType defines EVADE'),
         expect.stringContaining('sets the entity evading flag'),
+        expect.stringContaining('Engine.getRunHeat'),
         expect.stringContaining('getEvasionBonus'),
         expect.stringContaining('target evasion bonus'),
         expect.stringContaining('evading attackers from firing'),
@@ -409,6 +413,9 @@ describe('BattleMech combat action support catalog', () => {
       layer: 'absent-action-surface',
       gap: expect.stringContaining('no authoritative sprint action path'),
     });
+    expect(BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.sprint'].gap).toContain(
+      'feeds runner heat as normal-engine sprint heat',
+    );
     expect(
       BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.sprint'].sourceRefs?.map(
         (sourceRef) => sourceRef.citation,
@@ -418,6 +425,7 @@ describe('BattleMech combat action support catalog', () => {
         expect.stringContaining('MoveStep.canUseSprint'),
         expect.stringContaining('Mek.getSprintMP'),
         expect.stringContaining('Mek.getSprintHeat'),
+        expect.stringContaining('Engine.getSprintHeat'),
         expect.stringContaining('attacks by sprinting attackers'),
         expect.stringContaining('target sprinted'),
       ]),

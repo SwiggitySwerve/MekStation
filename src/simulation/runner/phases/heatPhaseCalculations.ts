@@ -7,9 +7,11 @@ import {
 import type { IWeapon } from '../../ai/types';
 
 import {
+  EVADE_HEAT_BONUS,
   JUMP_HEAT,
   MEDIUM_LASER_HEAT,
   RUN_HEAT,
+  SPRINT_HEAT,
   WALK_HEAT,
 } from '../SimulationRunnerConstants';
 
@@ -45,9 +47,13 @@ export function computeWeaponHeat(
 
 /**
  * Movement heat per the canonical Total Warfare table: Walk = 1,
- * Run = 2, Jump = max(3, jumped hexes), Stationary = 0.
+ * Run = 2, Jump = max(3, jumped hexes), Stationary = 0. Optional
+ * TacOps sprint/evade state is explicit because MekStation does not yet
+ * model those as MovementType values.
  */
 export function computeMovementHeat(unit: IUnitGameState): number {
+  if (unit.sprintedThisTurn === true) return SPRINT_HEAT;
+  if (unit.isEvading === true) return RUN_HEAT + EVADE_HEAT_BONUS;
   if (unit.movementThisTurn === MovementType.Walk) return WALK_HEAT;
   if (unit.movementThisTurn === MovementType.Run) return RUN_HEAT;
   if (unit.movementThisTurn === MovementType.Jump) {

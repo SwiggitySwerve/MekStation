@@ -62,7 +62,12 @@ import { applyHeatInducedAmmoExplosions } from '../phases/heatAmmoExplosions';
 import { runHeatPhase } from '../phases/postCombat';
 import { runAttackPhase } from '../phases/weaponAttack';
 import { applyCritAmmoExplosions } from '../phases/weaponAttackAmmoExplosions';
-import { DEFAULT_COMPONENT_DAMAGE } from '../SimulationRunnerConstants';
+import {
+  DEFAULT_COMPONENT_DAMAGE,
+  EVADE_HEAT_BONUS,
+  RUN_HEAT,
+  SPRINT_HEAT,
+} from '../SimulationRunnerConstants';
 import { buildDamageState } from '../SimulationRunnerState';
 
 // =============================================================================
@@ -271,6 +276,54 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
     // 10 base heat sinks, no destruction → 10 dissipation.
     expect(disPayload.amount).toBe(-10);
     expect(disPayload.newTotal).toBe(0);
+  });
+
+  it('emits source-backed sprint movement heat from explicit sprint state', () => {
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heatSinks: 0,
+        movementThisTurn: MovementType.Run,
+        sprintedThisTurn: true,
+      },
+    );
+    const state = makeMinimalState({ 'player-1': unit });
+    const events: IGameEvent[] = [];
+    const random = new SeededRandom(42);
+
+    runHeatPhase({ state, events, gameId: state.gameId, random });
+
+    const heatGen = events.find((e) => e.type === GameEventType.HeatGenerated);
+    const payload = heatGen!.payload as IHeatPayload;
+    expect(payload.amount).toBe(SPRINT_HEAT);
+    expect(payload.source).toBe('movement');
+    expect(payload.newTotal).toBe(SPRINT_HEAT);
+  });
+
+  it('emits source-backed evasion movement heat from explicit evade state', () => {
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heatSinks: 0,
+        isEvading: true,
+        movementThisTurn: MovementType.Run,
+      },
+    );
+    const state = makeMinimalState({ 'player-1': unit });
+    const events: IGameEvent[] = [];
+    const random = new SeededRandom(42);
+
+    runHeatPhase({ state, events, gameId: state.gameId, random });
+
+    const heatGen = events.find((e) => e.type === GameEventType.HeatGenerated);
+    const payload = heatGen!.payload as IHeatPayload;
+    expect(payload.amount).toBe(RUN_HEAT + EVADE_HEAT_BONUS);
+    expect(payload.source).toBe('movement');
+    expect(payload.newTotal).toBe(RUN_HEAT + EVADE_HEAT_BONUS);
   });
 
   it.each([

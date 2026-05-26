@@ -308,6 +308,10 @@ export const MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS = [
     'megamek/src/megamek/common/units/Mek.java#L1033-L1037',
   ),
   megamekRef(
+    'MegaMek Engine.getRunHeat returns 2 heat for standard BattleMech engines without working supercooling myomer.',
+    'megamek/src/megamek/common/equipment/Engine.java#L693-L703',
+  ),
+  megamekRef(
     'MegaMek Entity.getEvasionBonus returns the target evasion modifier, including optional Skilled Evasion piloting-skill scaling.',
     'megamek/src/megamek/common/units/Entity.java#L12548-L12570',
   ),

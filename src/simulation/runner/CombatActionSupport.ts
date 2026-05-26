@@ -748,6 +748,13 @@ const MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS = [
   {
     kind: 'megamek-source',
     citation:
+      'MegaMek Engine.getSprintHeat returns 3 heat for standard BattleMech engines without working supercooling myomer.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/Engine.java#L705-L713',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
       'MegaMek ranged to-hit calculation makes attacks by sprinting attackers automatic failures.',
     url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/compute/Compute.java#L2678-L2680',
     sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
@@ -1005,13 +1012,13 @@ export const BATTLEMECH_ABSENT_ACTION_SUPPORT = {
   'movement.evade': unsupported(
     'movement.evade',
     'absent-action-surface',
-    'Evade is a source-backed optional TacOps movement surface with running movement, evasion heat, attacker firing restrictions, and target to-hit modifiers; explicit evading attacker state now blocks ranged and physical attacks, and explicit target evasion/evasionBonus state now modifies ranged and physical to-hit, but tactical commands, MovementType, game intents, wire payloads, P2P translation, runner movement phases, and authoritative evasion-bonus state creation have no authoritative evade action path',
+    'Evade is a source-backed optional TacOps movement surface with running movement, evasion heat, attacker firing restrictions, and target to-hit modifiers; explicit evading state now blocks ranged/physical attacks, modifies target to-hit through evasion/evasionBonus state, rejects LOS spotters, and feeds runner heat as run heat plus evasion heat, but tactical commands, MovementType, game intents, wire payloads, P2P translation, runner movement phases, and authoritative evasion-bonus state creation have no authoritative evade action path',
     MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
   ),
   'movement.sprint': unsupported(
     'movement.sprint',
     'absent-action-surface',
-    'Sprint is a source-backed optional TacOps BattleMech movement surface with distinct MP, heat, and attack/targeting side effects; explicit sprinting attacker state now blocks ranged attacks, explicit target sprint state feeds ranged to-hit relief, and explicit sprinting spotter state is rejected during LOS-spotter election, but MovementType, tactical commands, game intents, wire payloads, P2P translation, runner movement phases, authoritative sprint state creation, and sprint heat have no authoritative sprint action path',
+    'Sprint is a source-backed optional TacOps BattleMech movement surface with distinct MP, heat, and attack/targeting side effects; explicit sprinting state now blocks ranged attacks, feeds ranged target to-hit relief, rejects LOS spotters, and feeds runner heat as normal-engine sprint heat, but MovementType, tactical commands, game intents, wire payloads, P2P translation, runner movement phases, authoritative sprint state creation, and engine-variant/coolant sprint heat have no authoritative sprint action path',
     MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatActionSupportEntry>;

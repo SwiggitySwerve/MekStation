@@ -2879,6 +2879,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       expect.stringContaining('addMovementHeat adds heat'),
       expect.stringContaining('getStandingHeat and getWalkHeat'),
       expect.stringContaining('getRunHeat and getSprintHeat'),
+      expect.stringContaining('Engine.getRunHeat and getSprintHeat'),
     ]);
     expect(jumpHeatRefs.map((sourceRef) => sourceRef.citation)).toEqual([
       expect.stringContaining('addMovementHeat adds heat'),

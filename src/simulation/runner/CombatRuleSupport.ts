@@ -155,6 +155,12 @@ const MEGAMEK_MEK_RUN_SPRINT_HEAT_SOURCE_REF = megamekHeatSourceRef(
   'L1034-L1077',
 );
 
+const MEGAMEK_ENGINE_RUN_SPRINT_HEAT_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek Engine.getRunHeat and getSprintHeat provide the normal-engine 2 run heat and 3 sprint heat values used by BattleMechs without working supercooling myomer.',
+  'common/equipment/Engine.java',
+  'L693-L713',
+);
+
 const MEGAMEK_MEK_JUMP_HEAT_SOURCE_REF = megamekHeatSourceRef(
   'MegaMek Mek.getJumpHeat computes BattleMech jump heat from moved MP, damaged coolant state, partial-wing reduction, and jump-jet type.',
   'common/units/Mek.java',
@@ -982,11 +988,12 @@ export const HEAT_RULE_COMBAT_SUPPORT = {
   ),
   'movement-heat': integrated(
     'movement-heat',
-    'runHeatPhase emits movement-sourced HeatGenerated for walk/run/jump movement types',
+    'runHeatPhase emits movement-sourced HeatGenerated for walk/run/jump movement types plus explicit optional TacOps sprint and evade state',
     [
       MEGAMEK_MOVEMENT_HEAT_SOURCE_REF,
       MEGAMEK_MEK_STANDING_WALK_HEAT_SOURCE_REF,
       MEGAMEK_MEK_RUN_SPRINT_HEAT_SOURCE_REF,
+      MEGAMEK_ENGINE_RUN_SPRINT_HEAT_SOURCE_REF,
     ],
   ),
   'jump-distance-heat': integrated(
