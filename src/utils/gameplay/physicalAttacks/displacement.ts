@@ -60,6 +60,10 @@ export interface IPreferredDisplacementOptions {
   readonly friendlyUnitIds?: readonly string[];
 }
 
+export interface IValidDisplacementSearchOptions {
+  readonly sourceContainsGroundedDropShip?: boolean;
+}
+
 function normalizeDisplacementLegalityOptions(
   optionsOrExcludeUnitId?: string | IDisplacementLegalityOptions,
 ): IDisplacementLegalityOptions {
@@ -201,6 +205,18 @@ export function translateHex(
   facing: Facing,
 ): IHexCoordinate {
   return hexNeighbor(coord, facing);
+}
+
+function translateHexByRange(
+  coord: IHexCoordinate,
+  facing: Facing,
+  range: number,
+): IHexCoordinate {
+  let translated = coord;
+  for (let step = 0; step < range; step++) {
+    translated = translateHex(translated, facing);
+  }
+  return translated;
 }
 
 /**
@@ -595,9 +611,9 @@ export function computeChargeDisplacementOutcome(options: {
 
 /**
  * Mirrors MegaMek `Compute.getValidDisplacement`: choose the first legal
- * adjacent hex nearest to the displacement direction. Dropship two-hex
- * displacement is intentionally outside this helper's current simplified
- * grid model.
+ * destination nearest to the displacement direction. Normal displacement uses
+ * adjacent radius-one hexes; when the source contains a grounded DropShip
+ * central hex, MegaMek searches the radius-two ring instead.
  *
  * Source: MegaMek `Compute.java:1019-1046`.
  */
@@ -606,11 +622,15 @@ export function computeValidDisplacement(
   displacedUnitId: string,
   source: IHexCoordinate,
   direction: Facing,
+  options: IValidDisplacementSearchOptions = {},
 ): IHexCoordinate | null {
+  const range = options.sourceContainsGroundedDropShip ? 2 : 1;
+
   for (const offset of DISPLACEMENT_OFFSETS) {
-    const candidate = translateHex(
+    let candidate = translateHexByRange(
       source,
       ((direction + offset) % 6) as Facing,
+      range,
     );
     if (
       isValidDisplacement(grid, candidate, {
@@ -620,6 +640,24 @@ export function computeValidDisplacement(
       })
     ) {
       return candidate;
+    }
+
+    // MegaMek borrows its radius-ring walk from Compute.coordsAtRange:
+    // after testing the spoke hex, walk along the ring toward the next offset.
+    for (let count = 1; count < range; count++) {
+      candidate = translateHex(
+        candidate,
+        ((direction + offset + 2) % 6) as Facing,
+      );
+      if (
+        isValidDisplacement(grid, candidate, {
+          excludeUnitId: displacedUnitId,
+          source,
+          maxElevationChange: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
+        })
+      ) {
+        return candidate;
+      }
     }
   }
 

@@ -50,24 +50,6 @@ function helperOnly(
   };
 }
 
-function unsupported(
-  id: string,
-  attackFamily: PhysicalLegalityAttackFamily,
-  gap: string,
-  authority: string,
-): IPhysicalLegalityGateSupportEntry {
-  return {
-    id,
-    attackFamily,
-    authority,
-    level: 'unsupported',
-    evidence:
-      'No physical displacement helper or runner branch implements this source-backed displacement edge',
-    gap,
-    sourceRefs: sourceRefsForAuthority(authority),
-  };
-}
-
 const MEGAMEK_PHYSICAL_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
 
@@ -428,10 +410,11 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'computePreferredDisplacement accepts friendly occupant ids and first scans valid DFA-miss displacement destinations while skipping friendly occupied hexes before falling back; event-sourced and runner DFA miss resolution hydrate same-side target friendlies into that source-backed pass',
     DISPLACEMENT_FRIENDLY_AVOIDANCE_LINES,
   ),
-  'shared.displacement-dropship-radius': unsupported(
+  'shared.displacement-dropship-radius': helperOnly(
     'shared.displacement-dropship-radius',
     'shared',
-    'MekStation displacement helpers always search adjacent radius-one destinations and do not model grounded DropShip footprint expansion to a two-hex displacement radius',
+    'computeValidDisplacement now accepts explicit grounded DropShip source context and searches the radius-two ring in the MegaMek getValidDisplacement order; runtime push/charge/DFA paths do not yet hydrate grounded DropShip central-hex sharing or broader DropShip footprint consequences',
+    'Runtime physical displacement still lacks grounded DropShip footprint/source occupancy hydration, so radius-two search remains helper-only instead of integrated through runner or event-sourced physical resolution',
     DISPLACEMENT_DROPSHIP_RADIUS_LINES,
   ),
   'punch.selected-arm-present': integrated(

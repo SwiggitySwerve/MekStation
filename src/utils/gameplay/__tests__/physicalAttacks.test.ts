@@ -118,6 +118,40 @@ function makeDisplacementGrid(): IHexGrid {
   return { config: { radius: 2 }, hexes };
 }
 
+function makeDropShipRadiusDisplacementGrid(
+  primaryRadiusTwoTerrain = 'clear',
+): IHexGrid {
+  const hexes = new Map();
+  const coords = [
+    { q: 0, r: 0 },
+    { q: 0, r: 1 },
+    { q: 0, r: 2 },
+    { q: -1, r: 2 },
+    { q: -2, r: 2 },
+    { q: -2, r: 1 },
+    { q: 2, r: 0 },
+    { q: 1, r: 1 },
+    { q: -2, r: 0 },
+    { q: -1, r: -1 },
+    { q: 2, r: -2 },
+    { q: 2, r: -1 },
+    { q: 0, r: -2 },
+    { q: 1, r: -2 },
+  ];
+
+  for (const coord of coords) {
+    const key = `${coord.q},${coord.r}`;
+    hexes.set(key, {
+      coord,
+      occupantId: coord.q === 0 && coord.r === 0 ? 'target' : null,
+      terrain: key === '0,2' ? primaryRadiusTwoTerrain : 'clear',
+      elevation: 0,
+    });
+  }
+
+  return { config: { radius: 2 }, hexes };
+}
+
 function makeBlockedDfaDisplacementGrid(): IHexGrid {
   const grid = makeDisplacementGrid();
   const hexes = new Map(grid.hexes);
@@ -216,6 +250,31 @@ describe('physicalAttacks', () => {
           Facing.South,
         ),
       ).toEqual({ q: 1, r: 1 });
+    });
+
+    it('searches the radius-two ring when a grounded DropShip occupies the source hex', () => {
+      const grid = makeDropShipRadiusDisplacementGrid();
+
+      expect(
+        computeValidDisplacement(grid, 'target', { q: 0, r: 0 }, Facing.South),
+      ).toEqual({ q: 0, r: 1 });
+      expect(
+        computeValidDisplacement(grid, 'target', { q: 0, r: 0 }, Facing.South, {
+          sourceContainsGroundedDropShip: true,
+        }),
+      ).toEqual({ q: 0, r: 2 });
+    });
+
+    it('walks the grounded DropShip radius-two ring before trying the next displacement offset', () => {
+      expect(
+        computeValidDisplacement(
+          makeDropShipRadiusDisplacementGrid('impassable'),
+          'target',
+          { q: 0, r: 0 },
+          Facing.South,
+          { sourceContainsGroundedDropShip: true },
+        ),
+      ).toEqual({ q: -1, r: 2 });
     });
 
     it('prefers same-elevation displacement before higher side hexes', () => {

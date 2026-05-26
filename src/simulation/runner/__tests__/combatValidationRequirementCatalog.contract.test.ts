@@ -904,6 +904,9 @@ describe('BattleMech combat validation requirement crosswalk', () => {
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].evidence,
     ).toContain('DFA-miss friendly occupied displacement avoidance');
     expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].evidence,
+    ).toContain('grounded DropShip radius-two displacement search');
+    expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].gap,
     ).not.toContain('Stale grid occupancy');
     expect(

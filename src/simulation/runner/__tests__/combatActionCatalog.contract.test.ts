@@ -1023,8 +1023,9 @@ describe('BattleMech combat action support catalog', () => {
     expect(
       PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-dropship-radius'],
     ).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('two-hex displacement radius'),
+      level: 'helper-only',
+      evidence: expect.stringContaining('radius-two ring'),
+      gap: expect.stringContaining('source occupancy hydration'),
       sourceRefs: [
         expect.objectContaining({
           citation: expect.stringContaining(
