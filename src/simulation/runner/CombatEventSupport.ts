@@ -218,7 +218,7 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
   ),
   [GameEventType.AttackInvalid]: integrated(
     GameEventType.AttackInvalid,
-    'runner target, LOS, ammo, range, evading-attacker, destroyed-weapon, and jammed-weapon validation emits AttackInvalid before combat side effects',
+    'runner target, LOS, ammo, range, evading/sprinting-attacker, destroyed-weapon, and jammed-weapon validation emits AttackInvalid before combat side effects',
   ),
   [GameEventType.LocationDestroyed]: integrated(
     GameEventType.LocationDestroyed,

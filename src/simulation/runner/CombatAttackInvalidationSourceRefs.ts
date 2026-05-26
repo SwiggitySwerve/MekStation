@@ -89,6 +89,14 @@ export const MEGAMEK_ATTACKER_EVADING_INVALIDATION_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEGAMEK_ATTACKER_SPRINTED_INVALIDATION_SOURCE_REFS = [
+  megamekSourceRef(
+    'MegaMek ranged to-hit calculation makes attacks by sprinting attackers automatic failures.',
+    'megamek/src/megamek/common/compute/Compute.java',
+    'L2678-L2680',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEGAMEK_MISSING_TARGET_INVALIDATION_SOURCE_REFS = [
   megamekSourceRef(
     'MegaMek ComputeToHitIsImpossible returns NoTarget before ranged to-hit resolution when the target is null.',

@@ -70,6 +70,7 @@ import {
 import {
   invalidateEvadingAttackerAttack,
   invalidateInvalidTargetAttack,
+  invalidateSprintingAttackerAttack,
 } from './gameSessionAttackResolutionValidation';
 import { appendEvent } from './gameSessionEvents';
 import { allUnitsLocked, deriveState } from './gameState';
@@ -473,6 +474,14 @@ export function declareAttack(
     weapons.map((weapon) => weapon.weaponId),
   );
   if (evadingAttackerSession) return evadingAttackerSession;
+
+  const sprintingAttackerSession = invalidateSprintingAttackerAttack(
+    session,
+    attackerId,
+    targetId,
+    weapons.map((weapon) => weapon.weaponId),
+  );
+  if (sprintingAttackerSession) return sprintingAttackerSession;
 
   if (!targetUnit) {
     throw new Error(`Target unit ${targetId} not found`);

@@ -248,6 +248,14 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **AND** no `AttackDeclared`, `AttackResolved`, heat, ammo, damage, or fired-weapon state side effects SHALL follow
 - **AND** optional TacOps Evade movement-step declaration SHALL remain an unsupported absent-action row until movement command, state, heat, wire, P2P, and authoritative evasion-bonus creation paths are implemented
 
+#### Scenario: Sprinting attackers cannot make ranged attacks
+
+- **GIVEN** a unit has explicit `sprintedThisTurn: true`
+- **WHEN** that unit attempts a ranged weapon attack through runner attack resolution or event-sourced `declareAttack`
+- **THEN** the attack SHALL emit `AttackInvalid` with reason `AttackerSprinted`
+- **AND** no `AttackDeclared`, `AttackResolved`, heat, ammo, damage, or fired-weapon state side effects SHALL follow
+- **AND** optional TacOps Sprint movement-step declaration, sprint MP/heat generation, authoritative sprint-state creation, and sprinting spotter restrictions SHALL remain visible gaps until their source-backed paths exist
+
 #### Scenario: Evading targets modify ranged to-hit
 
 - **GIVEN** a ranged attack targets a unit with explicit `isEvading: true`
@@ -263,7 +271,7 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **WHEN** helper to-hit calculation, event-sourced `declareAttack`, or runner attack resolution builds the `AttackDeclared` to-hit payload
 - **THEN** the attack SHALL include a `Target Sprinted` to-hit modifier of `-1`
 - **AND** runner turn reset SHALL clear `sprintedThisTurn` so the target-sprinted modifier is current-turn state
-- **AND** optional TacOps Sprint movement-step declaration, sprint MP/heat generation, authoritative sprint-state creation, attacker-sprinted firing failure, and sprinting spotter restrictions SHALL remain visible gaps until their source-backed paths exist
+- **AND** optional TacOps Sprint movement-step declaration, sprint MP/heat generation, authoritative sprint-state creation, and sprinting spotter restrictions SHALL remain visible gaps until their source-backed paths exist
 
 #### Scenario: Evading targets modify physical to-hit
 

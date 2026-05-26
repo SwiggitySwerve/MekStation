@@ -1004,7 +1004,7 @@ export const BATTLEMECH_ABSENT_ACTION_SUPPORT = {
   'movement.sprint': unsupported(
     'movement.sprint',
     'absent-action-surface',
-    'Sprint is a source-backed optional TacOps BattleMech movement surface with distinct MP, heat, and attack/targeting side effects; explicit target sprint state now feeds ranged to-hit relief, but MovementType, tactical commands, game intents, wire payloads, P2P translation, runner movement phases, authoritative sprint state creation, heat, and attacker/spotter sprint restrictions have no authoritative sprint action path',
+    'Sprint is a source-backed optional TacOps BattleMech movement surface with distinct MP, heat, and attack/targeting side effects; explicit sprinting attacker state now blocks ranged attacks and explicit target sprint state feeds ranged to-hit relief, but MovementType, tactical commands, game intents, wire payloads, P2P translation, runner movement phases, authoritative sprint state creation, sprint heat, and sprinting spotter restrictions have no authoritative sprint action path',
     MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatActionSupportEntry>;

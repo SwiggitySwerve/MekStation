@@ -461,6 +461,38 @@ describe('runAttackPhase invalid attacks', () => {
     assertNoCombatSideEffects(result, evadingState);
   });
 
+  it('emits AttackInvalid for sprinting attackers without combat side effects', () => {
+    const initialState = createWeaponAttackState({ q: 3, r: 0 });
+    const sprintingState: IGameState = {
+      ...initialState,
+      units: {
+        ...initialState.units,
+        'player-1': {
+          ...initialState.units['player-1'],
+          sprintedThisTurn: true,
+        },
+      },
+    };
+
+    const { events, result } = runInvalidationScenario({
+      state: sprintingState,
+      weapon: createAC20(),
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.AttackInvalid,
+    ]);
+    expect(events[0].payload).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      weaponId: AC20_WEAPON_ID,
+      reason: 'AttackerSprinted',
+      details: "Attacker 'player-1' sprinted and cannot fire ranged weapons",
+    });
+
+    assertNoCombatSideEffects(result, sprintingState);
+  });
+
   it('emits AttackInvalid for out-of-ammo declarations without combat side effects', () => {
     const ammoBin = createAmmoBin({
       weaponType: AC20_WEAPON_ID,

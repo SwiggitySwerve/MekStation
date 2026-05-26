@@ -113,3 +113,33 @@ export function invalidateEvadingAttackerAttack(
     session,
   );
 }
+
+export function invalidateSprintingAttackerAttack(
+  session: IGameSession,
+  attackerId: string,
+  targetId: string,
+  weaponIds: readonly string[],
+): IGameSession | null {
+  const attacker = session.currentState.units[attackerId];
+  if (attacker?.sprintedThisTurn !== true) return null;
+
+  const details = `Attacker '${attackerId}' sprinted and cannot fire ranged weapons`;
+  const eventWeaponIds = weaponIds.length > 0 ? weaponIds : [undefined];
+  return eventWeaponIds.reduce(
+    (currentSession, weaponId) =>
+      appendEvent(
+        currentSession,
+        createAttackInvalidEvent(
+          currentSession.id,
+          currentSession.events.length,
+          currentSession.currentState.turn,
+          attackerId,
+          targetId,
+          'AttackerSprinted',
+          weaponId,
+          details,
+        ),
+      ),
+    session,
+  );
+}

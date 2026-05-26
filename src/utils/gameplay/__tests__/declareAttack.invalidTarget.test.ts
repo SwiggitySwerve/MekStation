@@ -248,4 +248,52 @@ describe('declareAttack invalid target handling', () => {
       evadingSession.currentState.units.target.damageThisPhase ?? 0,
     );
   });
+
+  it('emits AttackInvalid before declaration for a sprinting attacker', () => {
+    const session = setupWeaponAttackSession();
+    const sprintingSession: IGameSession = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        units: {
+          ...session.currentState.units,
+          attacker: {
+            ...session.currentState.units.attacker,
+            sprintedThisTurn: true,
+          },
+        },
+      },
+    };
+    const initialEventCount = sprintingSession.events.length;
+
+    const result = declareAttack(
+      sprintingSession,
+      'attacker',
+      'target',
+      buildMediumLaserAttack(),
+      3,
+      RangeBracket.Short,
+    );
+
+    expect(invalidEventsSince(result, initialEventCount)).toEqual([
+      {
+        attackerId: 'attacker',
+        targetId: 'target',
+        weaponId: 'medium-laser-1',
+        reason: 'AttackerSprinted',
+        details: "Attacker 'attacker' sprinted and cannot fire ranged weapons",
+      },
+    ]);
+    expect(
+      result.events
+        .slice(initialEventCount)
+        .some((event) => event.type === GameEventType.AttackDeclared),
+    ).toBe(false);
+    expect(result.currentState.units.attacker.heat).toBe(
+      sprintingSession.currentState.units.attacker.heat,
+    );
+    expect(result.currentState.units.target.damageThisPhase ?? 0).toBe(
+      sprintingSession.currentState.units.target.damageThisPhase ?? 0,
+    );
+  });
 });
