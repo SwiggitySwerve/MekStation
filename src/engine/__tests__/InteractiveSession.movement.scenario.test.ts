@@ -2874,6 +2874,81 @@ describe('applyInteractiveSessionMovement', () => {
     });
   });
 
+  it('keeps runtime conversion careful-stand costs aligned when standing fails', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      prone: true,
+      conversionMode: 'airmek',
+    };
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    const movementByUnit = capability({
+      walkMP: 1,
+      runMP: 2,
+      jumpMP: 2,
+      unitHeight: 1,
+      unitHeightProfile: { kind: 'lam', standingHeight: 1 },
+    });
+
+    const preview = deriveMovementRangeHexForDestination(
+      session.currentState.units.m1,
+      MovementType.Walk,
+      grid,
+      movementByUnit.get('m1')!,
+      { q: 0, r: 1 },
+      'careful',
+    );
+
+    expect(preview).toMatchObject({
+      reachable: false,
+      mpCost: 6,
+      movementMode: 'wige',
+      movementInvalidReason: 'InvalidDestination',
+      movementInvalidDetails:
+        'Careful stand consumes the movement for this turn',
+      standUpRequired: true,
+      standUpCost: 6,
+    });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 0, r: 0 },
+      facing: Facing.North,
+      movementType: MovementType.Walk,
+      path: [{ q: 0, r: 0 }],
+      diceRoller: fixed2d6(2),
+      standUpMode: 'careful',
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared).toBeDefined();
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      from: { q: 0, r: 0 },
+      to: { q: 0, r: 0 },
+      movementType: MovementType.Walk,
+      mpUsed: preview!.standUpCost,
+      heatGenerated: 1,
+      path: [{ q: 0, r: 0 }],
+      standUpAttempt: true,
+      standUpSucceeded: false,
+      standUpMode: 'careful',
+    });
+    expect(result.currentState.units.m1).toMatchObject({
+      position: { q: 0, r: 0 },
+      prone: true,
+    });
+  });
+
   it('keeps destroyed-leg-and-arms stand-up attempts at the origin as impossible', () => {
     const session = setupSessionAtMovement();
     session.currentState.units.m1 = {

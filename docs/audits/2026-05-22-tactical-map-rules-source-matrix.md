@@ -1656,6 +1656,16 @@ runtime conversion changes after import; conversion action timing, remaining
 LAM airborne Fighter/AirMek ground-clearance submodes, infantry mount/dismount
 oracle sweeps, and broader external oracle comparisons remain follow-up work.
 
+2026-05-26 runtime movement commit side-effect pin: Interactive movement
+commit now resolves runtime movement capability before validation, stand-up
+PSR projection, failed stand-up fallback declaration, heat, and emitted movement
+event costs. Focused movement-scenario coverage changes a LAM to AirMek mode
+after import and proves a careful-stand projection's AirMek stand-up MP is the
+same MP recorded when the stand-up PSR fails. This keeps commit side effects on
+the same runtime capability path as movement highlights and available-action
+gating; conversion action timing, airborne Fighter/AirMek submode coverage, and
+broader external oracle sweeps remain follow-up work.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

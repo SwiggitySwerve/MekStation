@@ -74,6 +74,7 @@ import {
   calculateMovementHeat,
   gridWithUnitOccupants,
   getStandingCost,
+  resolveRuntimeMovementCapability,
   validateCommittedMovement,
 } from '@/utils/gameplay/movement';
 import { getWeaponRangeBracket } from '@/utils/gameplay/range';
@@ -131,7 +132,11 @@ export function applyInteractiveSessionMovement(
     input.grid,
     input.session.currentState.units,
   );
-  const movementCapability = input.movementByUnit.get(input.unitId);
+  const rawMovementCapability = input.movementByUnit.get(input.unitId);
+  const movementCapability = rawMovementCapability
+    ? (resolveRuntimeMovementCapability(unit, rawMovementCapability) ??
+      rawMovementCapability)
+    : undefined;
   const validation = validateCommittedMovement({
     grid: gridWithOccupants,
     unit,
