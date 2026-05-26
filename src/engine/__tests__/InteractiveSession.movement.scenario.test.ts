@@ -2934,6 +2934,92 @@ describe('applyInteractiveSessionMovement', () => {
     });
   });
 
+  it('keeps destroyed-gyro stand-up attempts at the origin as impossible', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      prone: true,
+      componentDamage: {
+        engineHits: 0,
+        gyroHits: 2,
+        sensorHits: 0,
+        lifeSupport: 0,
+        cockpitHit: false,
+        actuators: {},
+        weaponsDestroyed: [],
+        heatSinksDestroyed: 0,
+        jumpJetsDestroyed: 0,
+      },
+    };
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    const movementByUnit = capability({ walkMP: 4, runMP: 6, jumpMP: 0 });
+    const preview = deriveMovementRangeHexForDestination(
+      session.currentState.units.m1,
+      MovementType.Walk,
+      grid,
+      movementByUnit.get('m1')!,
+      { q: 1, r: 0 },
+    );
+
+    expect(preview).toMatchObject({
+      reachable: false,
+      movementInvalidReason: 'InvalidDestination',
+      movementInvalidDetails: 'Cannot stand with a destroyed gyro',
+      standUpPsrImpossibleReason: 'Cannot stand with a destroyed gyro',
+    });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+      diceRoller: () => {
+        throw new Error('Destroyed-gyro stand-up should not roll dice');
+      },
+    });
+
+    const resolved = result.events.find(
+      (event) => event.type === GameEventType.PSRResolved,
+    );
+    expect(resolved?.payload).toMatchObject({
+      unitId: 'm1',
+      targetNumber: Infinity,
+      roll: 0,
+      passed: false,
+      reason: 'Cannot stand with a destroyed gyro',
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared).toBeDefined();
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      to: { q: 0, r: 0 },
+      mpUsed: 2,
+      standUpAttempt: true,
+      standUpSucceeded: false,
+    });
+    expect(
+      result.events.some((event) => event.type === GameEventType.UnitStood),
+    ).toBe(false);
+    expect(result.currentState.units.m1).toMatchObject({
+      position: { q: 0, r: 0 },
+      prone: true,
+    });
+  });
+
   it('keeps TacOps destroyed-arm stand-up penalties aligned between preview and commit', () => {
     const session = setupSessionAtMovement();
     session.currentState.units.m1 = {

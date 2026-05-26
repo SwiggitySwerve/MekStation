@@ -344,7 +344,7 @@ export function attemptStandUp(
   );
 
   // 2. Roll the PSR with the same modifier projection the map exposes.
-  //    Destroyed-leg-plus-both-arms is an impossible stand-up target.
+  //    Impossible stand-up targets resolve as automatic failures.
   const tn = standUpPsr.targetNumber ?? unit.piloting;
   const roll = standUpPsr.impossibleReason
     ? { total: 0, dice: [0, 0] as const }

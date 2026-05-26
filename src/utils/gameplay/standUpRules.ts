@@ -93,7 +93,7 @@ export function projectStandUpPsr({
   const modifier =
     allModifiers.reduce((sum, entry) => sum + entry.value, 0) +
     carefulStandModifier;
-  const impossibleReason = destroyedLegAndArmsStandBlock(unitState, unitType);
+  const impossibleReason = standUpImpossibleReason(unitState, unitType);
   const automaticSuccessReason = standUpAutomaticSuccessReason(
     unitState,
     movementCapability,
@@ -225,6 +225,26 @@ export function destroyedLegAndArmsStandBlock(
 
   return hasDestroyedLeg && bothArmsDestroyed
     ? 'Cannot stand with a destroyed leg and both arms destroyed'
+    : undefined;
+}
+
+function standUpImpossibleReason(
+  unitState: IUnitGameState,
+  unitType?: UnitType,
+): string | undefined {
+  return (
+    destroyedGyroStandBlock(unitState, unitType) ??
+    destroyedLegAndArmsStandBlock(unitState, unitType)
+  );
+}
+
+function destroyedGyroStandBlock(
+  unitState: IUnitGameState,
+  unitType?: UnitType,
+): string | undefined {
+  if (!MEK_STAND_UNIT_TYPES.has(unitType)) return undefined;
+  return (unitState.componentDamage ?? DEFAULT_COMPONENT_DAMAGE).gyroHits >= 2
+    ? 'Cannot stand with a destroyed gyro'
     : undefined;
 }
 

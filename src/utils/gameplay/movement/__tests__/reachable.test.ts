@@ -13,6 +13,7 @@ import {
   LockState,
   MovementType,
   TerrainType,
+  type IComponentDamageState,
   type IMovementCapability,
   type IHexCoordinate,
   type IHexGrid,
@@ -45,6 +46,23 @@ function makeUnitAtOrigin(): IUnitGameState {
     pilotConscious: true,
     destroyed: false,
     lockState: LockState.Pending,
+  };
+}
+
+function makeComponentDamage(
+  overrides: Partial<IComponentDamageState> = {},
+): IComponentDamageState {
+  return {
+    engineHits: 0,
+    gyroHits: 0,
+    sensorHits: 0,
+    lifeSupport: 0,
+    cockpitHit: false,
+    actuators: {},
+    weaponsDestroyed: [],
+    heatSinksDestroyed: 0,
+    jumpJetsDestroyed: 0,
+    ...overrides,
   };
 }
 
@@ -329,6 +347,39 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('blocks prone ground projection when a destroyed gyro makes standing impossible', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = {
+      ...makeUnitAtOrigin(),
+      prone: true,
+      componentDamage: makeComponentDamage({ gyroHits: 2 }),
+    };
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 0 };
+
+    const projected = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+    );
+
+    expect(projected).toMatchObject({
+      mpCost: 2,
+      reachable: false,
+      movementType: MovementType.Walk,
+      movementInvalidReason: 'InvalidDestination',
+      movementInvalidDetails: 'Cannot stand with a destroyed gyro',
+      standUpRequired: true,
+      standUpCost: 2,
+      standUpPsrRequired: true,
+      standUpPsrTargetNumber: Infinity,
+      standUpPsrModifier: 6,
+      standUpPsrModifierDetails: ['Gyro damage +6'],
+      standUpPsrImpossibleReason: 'Cannot stand with a destroyed gyro',
+    });
+  });
+
   it('projects stand-up PSR modifier details from represented pilot and gyro state', () => {
     const grid = createHexGrid({ radius: 5 });
     const unit = {
@@ -336,17 +387,7 @@ describe('deriveReachableHexes', () => {
       prone: true,
       piloting: 4,
       pilotWounds: 1,
-      componentDamage: {
-        engineHits: 0,
-        gyroHits: 1,
-        sensorHits: 0,
-        lifeSupport: 0,
-        cockpitHit: false,
-        actuators: {},
-        weaponsDestroyed: [],
-        heatSinksDestroyed: 0,
-        jumpJetsDestroyed: 0,
-      },
+      componentDamage: makeComponentDamage({ gyroHits: 1 }),
     };
     const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 0 };
 

@@ -902,6 +902,21 @@ the normal stand-up PSR path. Focused coverage lives in
 Remaining gaps: QuadVee conversion-mode stand-up exceptions and destroyed-gyro
 stand-up cleanup still need dedicated source-backed passes.
 
+2026-05-26 destroyed-gyro stand-up pin: MegaMek `Mek.java:5637-5644`
+classifies a standard gyro as destroyed after more than one gyro hit, and
+`Entity.java:7599-7612` returns `TargetRoll.AUTOMATIC_FAIL` with reason
+`Gyro destroyed` for fall-capable units with a destroyed gyro. Movement step
+validation is stricter for prone Meks: `MoveStep.java:2186-2194` says a prone
+Mek with a destroyed gyro can only turn one hex side or eject, making ordinary
+`GET_UP` / ground movement illegal before the stand-up attempt can become a
+rollable action. MekStation now treats represented `gyroHits >= 2` as
+`Cannot stand with a destroyed gyro` in the shared stand-up projection, blocks
+reachable ground destinations with that reason before commit, and resolves any
+committed stand-up attempt as an impossible automatic failure at the origin
+without rolling dice or emitting `UnitStood`. Remaining gaps: heavy-duty gyro
+thresholds and special conversion/motive exceptions still need dedicated
+source-backed passes.
+
 Additional fog visibility pin: engine attack visibility already passes the
 active battle grid into `canPlayerSeeUnit` before accepting an attack
 (`src/engine/InteractiveSession.actions.ts:322-326`). Map token construction
