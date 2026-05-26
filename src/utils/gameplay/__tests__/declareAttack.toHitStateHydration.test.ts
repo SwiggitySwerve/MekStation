@@ -292,6 +292,44 @@ describe('declareAttack to-hit state hydration', () => {
     );
   });
 
+  it('threads explicit target sprinted state into declared to-hit modifiers', () => {
+    const session = setupWeaponAttackSession();
+    const hydratedSession: IGameSession = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        units: {
+          ...session.currentState.units,
+          target: {
+            ...session.currentState.units.target,
+            sprintedThisTurn: true,
+          },
+        },
+      },
+    };
+
+    const result = declareAttack(
+      hydratedSession,
+      'attacker',
+      'target',
+      buildMediumLaserAttack(),
+      3,
+      RangeBracket.Short,
+    );
+
+    const payload = latestAttackDeclaredPayload(result);
+    expect(payload.toHitNumber).toBe(3);
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Target Sprinted',
+          value: -1,
+          source: 'target_movement',
+        }),
+      ]),
+    );
+  });
+
   it('threads semi-guided TAG target movement cancellation into declared to-hit modifiers', () => {
     const session = setupWeaponAttackSession();
     const hydratedSession: IGameSession = {

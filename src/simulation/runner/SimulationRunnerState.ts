@@ -448,6 +448,7 @@ export function resetTurnState(state: IGameState): IGameState {
       weaponsFiredThisTurn: [],
       pendingPSRs: [],
       tagDesignated: false,
+      sprintedThisTurn: false,
     };
 
     if (shouldTrackMASC(unit)) {

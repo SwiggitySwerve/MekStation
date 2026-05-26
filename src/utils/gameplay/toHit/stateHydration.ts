@@ -90,6 +90,7 @@ export function buildWeaponAttackTargetToHitState(
     isDodging: unit.isDodging,
     isEvading: unit.isEvading,
     evasionBonus: unit.evasionBonus,
+    sprintedThisTurn: unit.sprintedThisTurn,
     terrainFeatures,
   };
 }

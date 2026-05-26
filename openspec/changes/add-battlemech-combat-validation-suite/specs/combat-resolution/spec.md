@@ -257,6 +257,14 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **AND** prone evading targets SHALL not receive the target-evasion modifier
 - **AND** optional TacOps Evade movement-step declaration and authoritative evasion-bonus state creation SHALL remain visible gaps until their source-backed paths exist
 
+#### Scenario: Sprinting targets modify ranged to-hit
+
+- **GIVEN** a ranged attack targets a unit with explicit `sprintedThisTurn: true`
+- **WHEN** helper to-hit calculation, event-sourced `declareAttack`, or runner attack resolution builds the `AttackDeclared` to-hit payload
+- **THEN** the attack SHALL include a `Target Sprinted` to-hit modifier of `-1`
+- **AND** runner turn reset SHALL clear `sprintedThisTurn` so the target-sprinted modifier is current-turn state
+- **AND** optional TacOps Sprint movement-step declaration, sprint MP/heat generation, authoritative sprint-state creation, attacker-sprinted firing failure, and sprinting spotter restrictions SHALL remain visible gaps until their source-backed paths exist
+
 #### Scenario: Evading targets modify physical to-hit
 
 - **GIVEN** a physical attack targets a unit with explicit `isEvading: true`

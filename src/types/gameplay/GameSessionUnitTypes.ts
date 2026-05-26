@@ -238,6 +238,12 @@ export interface IGameUnit {
    */
   readonly evasionBonus?: number;
   /**
+   * Optional current-turn sprint state copied into combat state. This is an
+   * explicit hydration hook for target-sprinted to-hit relief, not evidence
+   * that the optional TacOps Sprint movement action is implemented.
+   */
+  readonly sprintedThisTurn?: boolean;
+  /**
    * Optional end-of-turn cargo interaction state copied into combat state.
    * Explicit true blocks source-backed physical attack declarations by this
    * unit while it is loading or unloading cargo.

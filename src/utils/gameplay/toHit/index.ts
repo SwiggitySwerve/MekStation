@@ -21,6 +21,7 @@ export {
   calculateAttackerMovementModifier,
   calculateTMM,
   calculateTargetEvasionModifier,
+  calculateTargetSprintedModifier,
 } from './movementModifiers';
 export {
   calculateHeatModifier,

@@ -223,6 +223,12 @@ export interface IUnitGameState {
    */
   readonly evasionBonus?: number;
   /**
+   * Whether this unit sprinted during the current turn. Explicit true feeds
+   * the source-backed target-sprinted ranged to-hit modifier; full sprint
+   * movement declaration remains an absent optional TacOps action surface.
+   */
+  readonly sprintedThisTurn?: boolean;
+  /**
    * Whether this unit is loading or unloading cargo this turn. Explicit true
    * blocks source-backed physical attack declarations by this attacker;
    * undefined preserves legacy fixtures without cargo interaction state.

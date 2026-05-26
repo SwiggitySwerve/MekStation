@@ -633,7 +633,7 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
   ),
   'target-movement': integrated(
     'target-movement',
-    'runAttackPhase emits AttackDeclared modifiers with target movementThisTurn and hexesMovedThisTurn, and runPhysicalAttackPhase feeds target TMM into physical to-hit',
+    'runAttackPhase emits AttackDeclared modifiers with target movementThisTurn, hexesMovedThisTurn, and explicit target sprintedThisTurn relief, and runPhysicalAttackPhase feeds target TMM into physical to-hit',
     MEGAMEK_TARGET_MOVEMENT_TO_HIT_SOURCE_REFS,
   ),
   'target-evasion': integrated(

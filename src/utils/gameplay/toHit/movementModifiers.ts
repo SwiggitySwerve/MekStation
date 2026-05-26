@@ -67,3 +67,16 @@ export function calculateTargetEvasionModifier(
     description: `Target is evading: +${bonus}`,
   };
 }
+
+export function calculateTargetSprintedModifier(
+  sprintedThisTurn: boolean | undefined,
+): IToHitModifierDetail | null {
+  if (sprintedThisTurn !== true) return null;
+
+  return {
+    name: 'Target Sprinted',
+    value: -1,
+    source: 'target_movement',
+    description: 'Target sprinted this turn: -1',
+  };
+}

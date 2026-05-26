@@ -696,6 +696,12 @@ export interface ITargetState {
    * Skilled Evasion cases that create an evading state without a bonus.
    */
   readonly evasionBonus?: number;
+  /**
+   * Explicit target movement state for optional TacOps Sprint. This does not
+   * imply MekStation can declare sprint movement yet; it lets source-backed
+   * to-hit resolution consume replayed or prehydrated sprint state.
+   */
+  readonly sprintedThisTurn?: boolean;
   readonly terrainFeatures?: readonly ITerrainFeature[];
 }
 

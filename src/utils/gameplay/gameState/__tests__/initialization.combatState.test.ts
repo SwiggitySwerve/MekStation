@@ -225,10 +225,12 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
       unitType: UnitType.BATTLEMECH,
       isEvading: true,
       evasionBonus: 3,
+      sprintedThisTurn: true,
     });
     const state = createInitialUnitState(unit, POSITION, Facing.North);
     expect(state.isEvading).toBe(true);
     expect(state.evasionBonus).toBe(3);
+    expect(state.sprintedThisTurn).toBe(true);
   });
 
   it('copies optional cargo interaction state for physical attacker legality gates', () => {

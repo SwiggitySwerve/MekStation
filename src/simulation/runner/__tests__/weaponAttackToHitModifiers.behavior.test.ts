@@ -486,6 +486,28 @@ describe('runAttackPhase to-hit modifier integration', () => {
     });
   });
 
+  it('threads explicit target sprinted state into AttackDeclared', () => {
+    const events = runModifierScenario({
+      state: createWeaponAttackState({
+        target: {
+          sprintedThisTurn: true,
+        },
+      }),
+    });
+
+    const payload = attackDeclaredPayload(events);
+
+    expect(payload.toHitNumber).toBe(3);
+    expectModifier(payload, {
+      name: 'Target Sprinted',
+      value: -1,
+      source: 'target_movement',
+    });
+    expect(
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['target-movement'],
+    ).toMatchObject({ level: 'integrated' });
+  });
+
   it('threads wounds, sensor hits, actuator damage, and attacker prone into AttackDeclared', () => {
     const events = runModifierScenario({
       state: createWeaponAttackState({

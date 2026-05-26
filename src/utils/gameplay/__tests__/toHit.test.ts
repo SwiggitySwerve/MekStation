@@ -32,6 +32,7 @@ import {
   calculateAttackerMovementModifier,
   calculateTMM,
   calculateTargetEvasionModifier,
+  calculateTargetSprintedModifier,
   calculateHeatModifier,
   calculateMinimumRangeModifier,
   calculateProneModifier,
@@ -1108,6 +1109,27 @@ describe('calculateToHit', () => {
 
   it('should suppress target evasion while the target is prone', () => {
     const modifier = calculateTargetEvasionModifier(true, true);
+
+    expect(modifier).toBeNull();
+  });
+
+  it('should include source-backed target sprinted relief', () => {
+    const attacker = createTestAttackerState({ gunnery: 4 });
+    const target = createTestTargetState({ sprintedThisTurn: true });
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+
+    expect(result.finalToHit).toBe(3);
+    expect(result.modifiers).toContainEqual(
+      expect.objectContaining({
+        name: 'Target Sprinted',
+        value: -1,
+        source: 'target_movement',
+      }),
+    );
+  });
+
+  it('should omit target sprinted relief unless explicit sprint state is set', () => {
+    const modifier = calculateTargetSprintedModifier(false);
 
     expect(modifier).toBeNull();
   });

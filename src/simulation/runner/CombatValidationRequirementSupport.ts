@@ -709,7 +709,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'movement-actions': helperOnly(
     'movement-actions',
     'Action and movement rule maps cover walk, run, jump, same-hex facing rotation, stand, source-backed voluntary go-prone, source-backed MASC/Supercharger activation, prone state, source-backed torso-twist exposure with replayed secondaryFacing consumption, and source-backed first-class absent-action rows for optional TacOps sprint and evade',
-    'Sprint and evade action creation remain absent; torso-twist lower-level UI direction/reset refinements remain outside the authoritative action path',
+    'Sprint and evade action creation remain absent, even though explicit target sprint/evasion state can be consumed by to-hit; torso-twist lower-level UI direction/reset refinements remain outside the authoritative action path',
     [
       'actions.tacticalCommands.movement.walk',
       'actions.tacticalCommands.movement.stand',
@@ -784,7 +784,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'to-hit-core-modifiers': integrated(
     'to-hit-core-modifiers',
-    'Runner to-hit support covers gunnery, range, minimum range, movement, heat, environment, target state, DFA target class, DFA piloting differential, partial cover, terrain features, and indirect fire',
+    'Runner to-hit support covers gunnery, range, minimum range, movement including explicit target-sprinted relief, heat, environment, target state, DFA target class, DFA piloting differential, partial cover, terrain features, and indirect fire',
     TO_HIT_CORE_MODIFIER_SUPPORT_REFS,
   ),
   'to-hit-advanced-modifiers': helperOnly(

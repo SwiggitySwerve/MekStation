@@ -37,6 +37,7 @@ import {
   calculateAttackerMovementModifier,
   calculateTMM,
   calculateTargetEvasionModifier,
+  calculateTargetSprintedModifier,
 } from './movementModifiers';
 import {
   calculateMinimumRangeModifier,
@@ -87,6 +88,10 @@ export function calculateToHit(
     target.evasionBonus,
   );
   if (targetEvasionMod) modifiers.push(targetEvasionMod);
+  const targetSprintedMod = calculateTargetSprintedModifier(
+    target.sprintedThisTurn,
+  );
+  if (targetSprintedMod) modifiers.push(targetSprintedMod);
   modifiers.push(
     calculateHeatModifier(
       attacker.heat,
