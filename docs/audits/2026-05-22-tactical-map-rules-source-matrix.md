@@ -118,11 +118,11 @@ the canonical transform, and unchanged axial clicks after reset.
 
 2026-05-26 isometric pointer/mobile smoke pin: the tactical-map browser
 harness now runs the isometric scene in a touch-capable mobile viewport and
-verifies mouse pan, touch pan, and touch-tapped camera rotation keep the same
-`shared-tactical-map-projection` layer, presentation-only camera control
-provenance, and active occluder highlight metadata. Remaining isometric
-interaction gaps are broader mobile gesture/pinch and occlusion interaction
-sweeps beyond this smoke harness.
+verifies mouse pan, touch pan, pinch-zoom, and touch-tapped camera rotation
+keep the same `shared-tactical-map-projection` layer, presentation-only camera
+control provenance, and active occluder highlight metadata. Remaining
+isometric interaction gaps are broader mobile gesture-matrix and occlusion
+interaction sweeps beyond this smoke harness.
 
 2026-05-24 top-down movement browser update: the tactical-map browser harness
 now renders a single highlighted destination with walk, run, and jump options

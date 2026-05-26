@@ -130,8 +130,8 @@ the top-down map.
 - **AND** rotating the camera SHALL move the active occluder metadata and
   highlight to the tall elevation stack that is actually in front for that
   camera angle
-- **AND** pointer and touch camera interactions SHALL pan or rotate the
-  isometric view while preserving the same shared projection-layer mode,
-  occluder metadata, and presentation-only camera control provenance
+- **AND** pointer and touch camera interactions SHALL pan, pinch-zoom, or
+  rotate the isometric view while preserving the same shared projection-layer
+  mode, occluder metadata, and presentation-only camera control provenance
 - **AND** the rendered map output SHALL contain nonblank top-down and isometric
   pixels

@@ -109,6 +109,67 @@ async function dragTouchOnLocator(
   await dispatchTouch('touchend', startX + dx, startY + dy);
 }
 
+async function pinchZoomOnLocator(
+  page: Page,
+  locator: Locator,
+  startDistance: number,
+  endDistance: number,
+): Promise<void> {
+  const box = await locator.boundingBox();
+  expect(box, 'locator should be visible for pinch zoom').not.toBeNull();
+  if (!box) return;
+
+  const centerX = Math.round(box.x + box.width / 2);
+  const centerY = Math.round(box.y + box.height / 2);
+  const touchPair = (distance: number) => [
+    { id: 1, x: centerX - distance / 2, y: centerY },
+    { id: 2, x: centerX + distance / 2, y: centerY },
+  ];
+
+  const dispatchPinch = async (
+    type: 'touchstart' | 'touchmove' | 'touchend',
+    distance: number,
+  ): Promise<void> => {
+    await locator.evaluate(
+      (node, { type, points }) => {
+        const touches = points.map(
+          (point) =>
+            new Touch({
+              identifier: point.id,
+              target: node,
+              clientX: point.x,
+              clientY: point.y,
+              screenX: point.x,
+              screenY: point.y,
+              pageX: point.x,
+              pageY: point.y,
+              radiusX: 4,
+              radiusY: 4,
+              force: 0.5,
+            }),
+        );
+
+        node.dispatchEvent(
+          new TouchEvent(type, {
+            bubbles: true,
+            cancelable: true,
+            touches: type === 'touchend' ? [] : touches,
+            targetTouches: type === 'touchend' ? [] : touches,
+            changedTouches: touches,
+          }),
+        );
+      },
+      { type, points: touchPair(distance) },
+    );
+  };
+
+  await dispatchPinch('touchstart', startDistance);
+  await page.waitForTimeout(25);
+  await dispatchPinch('touchmove', endDistance);
+  await page.waitForTimeout(25);
+  await dispatchPinch('touchend', endDistance);
+}
+
 async function tapLocatorWithTouchscreen(
   page: Page,
   locator: Locator,
@@ -1071,7 +1132,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     }) => {
       test.skip(
         browserName !== 'chromium',
-        'Synthetic touch-drag smoke is Chromium-specific',
+        'Synthetic touch gesture smoke is Chromium-specific',
       );
 
       await page.goto('/e2e/tactical-map?scenario=multi-isometric-occluders');
@@ -1094,7 +1155,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       );
       await expect(hexGrid).toHaveAttribute(
         'data-isometric-pointer-camera-controls',
-        'mouse-pan|touch-pan|touch-rotate-buttons',
+        'mouse-pan|touch-pan|pinch-zoom|touch-rotate-buttons',
       );
 
       const initialViewBox = await hexGrid.getAttribute('viewBox');
@@ -1116,6 +1177,20 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       await expect
         .poll(() => hexGrid.getAttribute('viewBox'))
         .not.toBe(afterMouseViewBox);
+      await expect(projectionLayer).toHaveAttribute(
+        'data-projection-mode',
+        'isometric2d',
+      );
+      await expect(projectionLayer).toHaveAttribute(
+        'data-isometric-rotation-step',
+        '0',
+      );
+
+      const afterTouchPanViewBox = await hexGrid.getAttribute('viewBox');
+      await pinchZoomOnLocator(page, hexGrid, 48, 144);
+      await expect
+        .poll(() => hexGrid.getAttribute('viewBox'))
+        .not.toBe(afterTouchPanViewBox);
       await expect(projectionLayer).toHaveAttribute(
         'data-projection-mode',
         'isometric2d',
