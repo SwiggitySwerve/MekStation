@@ -896,13 +896,13 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     ).toBe('helper-only');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].evidence,
-    ).toContain('same-phase runner occupancy refresh after displacement');
+    ).toContain('occupied-hex domino positional displacement cascades');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].gap,
     ).not.toContain('Stale grid occupancy');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].gap,
-    ).toContain('domino-chain displacement');
+    ).toContain('domino PSR/step-out fallout');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk']
         .supportMapRefs,

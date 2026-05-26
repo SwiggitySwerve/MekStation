@@ -142,7 +142,9 @@ function gameUnits(): readonly IGameUnit[] {
   ];
 }
 
-function physicalPhaseSession() {
+function physicalPhaseSession(
+  extraUnits: readonly IGameUnit[] = [],
+): IGameSession {
   let session = createGameSession(
     {
       mapRadius: 10,
@@ -150,7 +152,7 @@ function physicalPhaseSession() {
       victoryConditions: ['elimination'],
       optionalRules: [],
     },
-    gameUnits(),
+    [...gameUnits(), ...extraUnits],
     { id: 'physical-validation' },
   );
   session = startGame(session, GameSide.Player);
@@ -209,11 +211,29 @@ function blockedDfaDisplacementGrid() {
   ].forEach((coord, index) => {
     grid = placeUnit(grid, coord, `blocker-${index}`);
   });
+  const hexes = new Map(grid.hexes);
+  for (const key of ['1,1', '0,1', '2,0', '0,0', '1,-1', '2,-1']) {
+    const hex = hexes.get(key);
+    if (hex) {
+      hexes.set(key, { ...hex, terrain: 'impassable' });
+    }
+  }
+  grid = { ...grid, hexes };
   return grid;
 }
 
 function blockedChargeDisplacementGrid() {
-  return placeUnit(adjacentPhysicalGrid(), { q: 1, r: 1 }, 'charge-blocker');
+  let grid = placeUnit(
+    adjacentPhysicalGrid(),
+    { q: 1, r: 1 },
+    'charge-blocker',
+  );
+  grid = placeUnit(grid, { q: 1, r: 2 }, 'charge-domino-blocker');
+  return grid;
+}
+
+function dominoChargeDisplacementGrid() {
+  return placeUnit(adjacentPhysicalGrid(), { q: 1, r: 1 }, 'domino-blocker');
 }
 
 function elevatedChargeDisplacementGrid() {
@@ -3847,6 +3867,10 @@ describe('BattleMech physical combat behavior validation lane', () => {
     );
     const payload = event?.payload as IPhysicalAttackResolvedPayload;
 
+    expect(payload).toMatchObject({
+      attackType: 'charge',
+      hit: true,
+    });
     expect(payload.displacements).toEqual([
       {
         unitId: 'target',
@@ -3861,6 +3885,90 @@ describe('BattleMech physical combat behavior validation lane', () => {
         reason: 'charge',
       },
     ]);
+    expect(resolved.currentState.units.target.position).toEqual({
+      q: 1,
+      r: 1,
+    });
+    expect(resolved.currentState.units.attacker.position).toEqual({
+      q: 1,
+      r: 0,
+    });
+  });
+
+  it('emits event-sourced charge domino displacement when the destination is occupied', () => {
+    const context = physicalContext({
+      hexesMoved: 5,
+      attackerRanThisTurn: true,
+    });
+    const positioned = withPhysicalPositions(
+      physicalPhaseSession([
+        {
+          id: 'domino-blocker',
+          name: 'Domino Blocker',
+          side: GameSide.Opponent,
+          unitRef: 'domino-blocker-ref',
+          pilotRef: 'domino-blocker-pilot',
+          gunnery: 4,
+          piloting: 5,
+        },
+      ]),
+      {
+        facing: Facing.South,
+      },
+    );
+    let declared = declarePhysicalAttack(
+      positioned,
+      'attacker',
+      'target',
+      'charge',
+      context,
+    );
+    declared = withUnitState(declared, 'attacker', {
+      position: { q: 0, r: 0 },
+      facing: Facing.South,
+    });
+    declared = withUnitState(declared, 'target', {
+      position: { q: 1, r: 0 },
+    });
+    declared = withUnitState(declared, 'domino-blocker', {
+      position: { q: 1, r: 1 },
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6, 6, 3, 3, 3, 3, 3, 3]),
+      dominoChargeDisplacementGrid(),
+    );
+    const event = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = event?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload.displacements).toEqual([
+      {
+        unitId: 'target',
+        from: { q: 1, r: 0 },
+        to: { q: 1, r: 1 },
+        reason: 'charge',
+      },
+      {
+        unitId: 'domino-blocker',
+        from: { q: 1, r: 1 },
+        to: { q: 1, r: 2 },
+        reason: 'domino',
+      },
+      {
+        unitId: 'attacker',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        reason: 'charge',
+      },
+    ]);
+    expect(resolved.currentState.units['domino-blocker'].position).toEqual({
+      q: 1,
+      r: 2,
+    });
     expect(resolved.currentState.units.target.position).toEqual({
       q: 1,
       r: 1,
@@ -4024,7 +4132,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
     },
   );
 
-  it('emits event-sourced charge-miss displacement for the attacker only', () => {
+  it('emits event-sourced charge-miss domino displacement from an occupied side hex', () => {
     const context = physicalContext({
       hexesMoved: 5,
       attackerRanThisTurn: true,
@@ -4052,13 +4160,23 @@ describe('BattleMech physical combat behavior validation lane', () => {
       {
         unitId: 'attacker',
         from: { q: 0, r: 0 },
-        to: { q: -1, r: 1 },
+        to: { q: 1, r: 0 },
         reason: 'charge_miss',
+      },
+      {
+        unitId: 'target',
+        from: { q: 1, r: 0 },
+        to: { q: 2, r: 0 },
+        reason: 'domino',
       },
     ]);
     expect(resolved.currentState.units.attacker.position).toEqual({
-      q: -1,
-      r: 1,
+      q: 1,
+      r: 0,
+    });
+    expect(resolved.currentState.units.target.position).toEqual({
+      q: 2,
+      r: 0,
     });
   });
 

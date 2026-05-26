@@ -3,10 +3,9 @@ import { coordToKey } from '@/utils/gameplay/hexMath';
 import {
   computeChargeDisplacementOutcome,
   computeDfaDisplacementOutcome,
+  computeDisplacementWithDominoChain,
   computeMissedChargeDisplacement,
-  computePushDisplacement,
-  BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
-  isValidDisplacement,
+  computePushDisplacementOutcome,
   PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks';
 
@@ -111,15 +110,15 @@ export function computePhysicalDisplacementOutcome(options: {
     ) {
       return { displacements: [] };
     }
+    const missedChargeDisplacements = computeDisplacementWithDominoChain({
+      grid,
+      unitId: attacker.id,
+      from: attacker.position,
+      to: destination,
+      reason: 'charge_miss',
+    });
     return {
-      displacements: [
-        {
-          unitId: attacker.id,
-          from: attacker.position,
-          to: destination,
-          reason: 'charge_miss',
-        },
-      ],
+      displacements: missedChargeDisplacements ?? [],
     };
   }
 
@@ -150,34 +149,12 @@ export function computePhysicalDisplacementOutcome(options: {
     return { displacements: [] };
   }
 
-  const targetDestination = computePushDisplacement(
-    target.position,
-    attacker.facing,
-  );
-  if (
-    !isValidDisplacement(grid, targetDestination, {
-      excludeUnitId: target.id,
-      source: target.position,
-      maxElevationChange: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
-    })
-  ) {
-    return { displacements: [] };
-  }
-
-  return {
-    displacements: [
-      {
-        unitId: target.id,
-        from: target.position,
-        to: targetDestination,
-        reason: attackType,
-      },
-      {
-        unitId: attacker.id,
-        from: attacker.position,
-        to: target.position,
-        reason: attackType,
-      },
-    ],
-  };
+  return computePushDisplacementOutcome({
+    grid,
+    attackerId: attacker.id,
+    attackerPosition: attacker.position,
+    attackerFacing: attacker.facing,
+    targetId: target.id,
+    targetPosition: target.position,
+  });
 }

@@ -982,12 +982,13 @@ describe('BattleMech combat action support catalog', () => {
     });
   });
 
-  it('keeps unresolved physical displacement chain edges visible and source-backed', () => {
+  it('keeps physical displacement chain edges visible and source-backed', () => {
     expect(
       PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-domino-chain'],
     ).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('recursively displace blocking units'),
+      level: 'helper-only',
+      evidence: expect.stringContaining('positional domino payload chains'),
+      gap: expect.stringContaining('Domino-effect PSRs'),
       sourceRefs: [
         expect.objectContaining({
           citation: expect.stringContaining(

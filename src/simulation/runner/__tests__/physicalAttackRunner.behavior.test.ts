@@ -303,6 +303,22 @@ function createSamePhaseDisplacementGrid(): IHexGrid {
   return { config: { radius: 3 }, hexes };
 }
 
+function createDominoChargeGrid(): IHexGrid {
+  const grid = createPhysicalGrid();
+  const hexes = new Map(grid.hexes);
+  const destination = hexes.get('1,1');
+  if (destination) {
+    hexes.set('1,1', { ...destination, occupantId: 'domino-blocker' });
+  }
+  hexes.set('1,2', {
+    coord: { q: 1, r: 2 },
+    occupantId: null,
+    terrain: TerrainType.Clear,
+    elevation: 0,
+  });
+  return { ...grid, hexes };
+}
+
 function runPhase(
   attackType: PhysicalAttackType,
   options: {
@@ -347,6 +363,30 @@ function runPhase(
   });
 
   return { initialState: state, result, events };
+}
+
+function runPhaseWithState(
+  attackType: PhysicalAttackType,
+  state: IGameState,
+  grid?: IHexGrid,
+): {
+  result: IGameState;
+  events: IGameEvent[];
+} {
+  const events: IGameEvent[] = [];
+  const violations: IViolation[] = [];
+  const result = runPhysicalAttackPhase({
+    state,
+    botPlayer: new DeclaresPhysicalAttackAI(attackType),
+    invariantRunner: new InvariantRunner(),
+    violations,
+    events,
+    gameId: state.gameId,
+    grid,
+    random: new SeededRandom(11),
+  });
+
+  return { result, events };
 }
 
 function runAutomaticPhase(
@@ -2014,6 +2054,58 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
         reason: 'charge',
       },
     ]);
+    expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 1 });
+    expect(result.units['player-1'].position).toEqual({ q: 1, r: 0 });
+  });
+
+  it('cascades source-backed charge displacement through an occupied destination', () => {
+    const baseState = createState();
+    const state: IGameState = {
+      ...baseState,
+      units: {
+        ...baseState.units,
+        'player-1': {
+          ...baseState.units['player-1'],
+          facing: Facing.South,
+          movementThisTurn: MovementType.Run,
+          hexesMovedThisTurn: 5,
+          piloting: 0,
+        },
+        'domino-blocker': createUnit(
+          'domino-blocker',
+          GameSide.Opponent,
+          { q: 1, r: 1 },
+          { pilotConscious: false },
+        ),
+      },
+    };
+    const { events, result } = runPhaseWithState(
+      'charge',
+      state,
+      createDominoChargeGrid(),
+    );
+
+    expect(resolvedPayload(events).displacements).toEqual([
+      {
+        unitId: 'opponent-1',
+        from: { q: 1, r: 0 },
+        to: { q: 1, r: 1 },
+        reason: 'charge',
+      },
+      {
+        unitId: 'domino-blocker',
+        from: { q: 1, r: 1 },
+        to: { q: 1, r: 2 },
+        reason: 'domino',
+      },
+      {
+        unitId: 'player-1',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        reason: 'charge',
+      },
+    ]);
+    expect(result.units['domino-blocker'].position).toEqual({ q: 1, r: 2 });
     expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 1 });
     expect(result.units['player-1'].position).toEqual({ q: 1, r: 0 });
   });

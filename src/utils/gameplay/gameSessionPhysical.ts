@@ -61,10 +61,10 @@ import {
   canPush,
   computeChargeDisplacementOutcome,
   computeDfaDisplacementOutcome,
-  BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
+  computeDisplacementWithDominoChain,
   calculatePhysicalToHit,
   computeMissedChargeDisplacement,
-  computePushDisplacement,
+  computePushDisplacementOutcome,
   CHARGE_HIT_PSR_MODIFIER,
   DFA_TARGET_PSR_MODIFIER,
   determinePhysicalHitLocation,
@@ -72,7 +72,6 @@ import {
   IPhysicalAttackRestriction,
   isPhysicalAirborneVtolOrWigeTarget,
   isTargetDirectlyAhead,
-  isValidDisplacement,
   physicalTargetObjectTypeForUnitType,
   physicalTargetObjectInvalidReason,
   PhysicalAttackType,
@@ -117,15 +116,15 @@ function computeResolvedPhysicalDisplacementOutcome(options: {
     ) {
       return { displacements: [] };
     }
+    const displacements = computeDisplacementWithDominoChain({
+      grid,
+      unitId: attacker.id,
+      from: attacker.position,
+      to: destination,
+      reason: 'charge_miss',
+    });
     return {
-      displacements: [
-        {
-          unitId: attacker.id,
-          from: attacker.position,
-          to: destination,
-          reason: 'charge_miss',
-        },
-      ],
+      displacements: displacements ?? [],
     };
   }
 
@@ -156,36 +155,14 @@ function computeResolvedPhysicalDisplacementOutcome(options: {
     return { displacements: [] };
   }
 
-  const targetDestination = computePushDisplacement(
-    target.position,
-    attacker.facing,
-  );
-  if (
-    !isValidDisplacement(grid, targetDestination, {
-      excludeUnitId: target.id,
-      source: target.position,
-      maxElevationChange: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
-    })
-  ) {
-    return { displacements: [] };
-  }
-
-  return {
-    displacements: [
-      {
-        unitId: target.id,
-        from: target.position,
-        to: targetDestination,
-        reason: attackType,
-      },
-      {
-        unitId: attacker.id,
-        from: attacker.position,
-        to: target.position,
-        reason: attackType,
-      },
-    ],
-  };
+  return computePushDisplacementOutcome({
+    grid,
+    attackerId: attacker.id,
+    attackerPosition: attacker.position,
+    attackerFacing: attacker.facing,
+    targetId: target.id,
+    targetPosition: target.position,
+  });
 }
 
 function dfaMissDropsAttacker(

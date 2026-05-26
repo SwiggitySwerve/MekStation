@@ -546,7 +546,13 @@ export interface IPhysicalDisplacement {
   readonly unitId: string;
   readonly from: IHexCoordinate;
   readonly to: IHexCoordinate;
-  readonly reason: 'push' | 'charge' | 'charge_miss' | 'dfa' | 'dfa_miss';
+  readonly reason:
+    | 'push'
+    | 'charge'
+    | 'charge_miss'
+    | 'dfa'
+    | 'dfa_miss'
+    | 'domino';
 }
 
 export interface IPhysicalAttackResolvedPayload {

@@ -18,7 +18,7 @@ import {
 } from '@/types/gameplay';
 
 import { D6Roller } from '../diceTypes';
-import { isInBounds, isOccupied } from '../hexGrid';
+import { isInBounds } from '../hexGrid';
 import { hexNeighbor } from '../hexMath';
 
 const DISPLACEMENT_OFFSETS = [0, 1, 5, 2, 4, 3] as const;
@@ -43,6 +43,10 @@ export interface IDfaDisplacementOutcome {
 }
 
 export interface IChargeDisplacementOutcome {
+  readonly displacements: readonly IPhysicalDisplacement[];
+}
+
+export interface IPushDisplacementOutcome {
   readonly displacements: readonly IPhysicalDisplacement[];
 }
 
@@ -143,6 +147,37 @@ function isBattleMechDisplacementTerrainProhibited(terrain: string): boolean {
   });
 }
 
+function coordKey(coord: IHexCoordinate): string {
+  return `${coord.q},${coord.r}`;
+}
+
+function occupantAt(grid: IHexGrid, coord: IHexCoordinate): string | null {
+  return grid.hexes.get(coordKey(coord))?.occupantId ?? null;
+}
+
+function directionFromAdjacent(
+  source: IHexCoordinate,
+  destination: IHexCoordinate,
+): Facing | undefined {
+  for (let facing = 0; facing < 6; facing++) {
+    const translated = translateHex(source, facing as Facing);
+    if (translated.q === destination.q && translated.r === destination.r) {
+      return facing as Facing;
+    }
+  }
+  return undefined;
+}
+
+function withVisitedOccupant(
+  visitedOccupants: ReadonlySet<string>,
+  unitId: string,
+): ReadonlySet<string> {
+  const next = new Set<string>();
+  visitedOccupants.forEach((visitedUnitId) => next.add(visitedUnitId));
+  next.add(unitId);
+  return next;
+}
+
 /**
  * Per Resolved Q3: thin wrapper over `hexNeighbor` to mirror MegaMek's
  * `Coords.translated(facing)` API name. `facing` is the integer 0-5
@@ -172,9 +207,9 @@ export function isTargetDirectlyAhead(
 
 /**
  * Per Resolved Q3: a hex is a valid displacement destination when it's
- * in-bounds, not blocked by another unit, and does not climb beyond the
- * BattleMech elevation-change cap when the caller supplies a source hex.
- * Mirrors `Compute.isValidDisplacement` in MegaMek (off-map, stacking, and
+ * in-bounds, does not climb beyond the BattleMech elevation-change cap, and
+ * any blocking occupant can itself be displaced in the same direction. Mirrors
+ * `Compute.isValidDisplacement` in MegaMek (off-map, recursive stacking, and
  * `getMaxElevationChange` checks).
  *
  * `excludeUnitId` is the entity being displaced — its current hex still
@@ -188,8 +223,17 @@ export function isValidDisplacement(
   optionsOrExcludeUnitId?: string | IDisplacementLegalityOptions,
 ): boolean {
   const options = normalizeDisplacementLegalityOptions(optionsOrExcludeUnitId);
+  return isValidDisplacementInternal(grid, coord, options, new Set());
+}
+
+function isValidDisplacementInternal(
+  grid: IHexGrid,
+  coord: IHexCoordinate,
+  options: IDisplacementLegalityOptions,
+  visitedOccupants: ReadonlySet<string>,
+): boolean {
   if (!isInBounds(grid, coord)) return false;
-  const hex = grid.hexes.get(`${coord.q},${coord.r}`);
+  const hex = grid.hexes.get(coordKey(coord));
   if (hex && isBattleMechDisplacementTerrainProhibited(hex.terrain)) {
     return false;
   }
@@ -204,15 +248,155 @@ export function isValidDisplacement(
     if (elevationChange > options.maxElevationChange) return false;
   }
 
-  if (!isOccupied(grid, coord)) return true;
+  if (!hex?.occupantId) return true;
   // Same-unit-already-here case: allow.
   const occupiedByDisplacedUnit =
-    hex &&
     options.excludeUnitId !== undefined &&
     hex.occupantId === options.excludeUnitId;
-  if (!occupiedByDisplacedUnit) return false;
+  if (occupiedByDisplacedUnit) return true;
 
-  return true;
+  const blockingUnitId = hex.occupantId;
+  if (
+    !blockingUnitId ||
+    options.source === undefined ||
+    visitedOccupants.has(blockingUnitId)
+  ) {
+    return false;
+  }
+
+  const direction = directionFromAdjacent(options.source, coord);
+  if (direction === undefined) return false;
+
+  return isValidDisplacementInternal(
+    grid,
+    translateHex(coord, direction),
+    {
+      excludeUnitId: blockingUnitId,
+      source: coord,
+      maxElevationChange: options.maxElevationChange,
+    },
+    withVisitedOccupant(visitedOccupants, blockingUnitId),
+  );
+}
+
+function computeDominoChainFromDestination(
+  grid: IHexGrid,
+  destination: IHexCoordinate,
+  direction: Facing,
+  displacedUnitId: string,
+  visitedOccupants: ReadonlySet<string> = new Set(),
+): readonly IPhysicalDisplacement[] | null {
+  const blockingUnitId = occupantAt(grid, destination);
+  if (!blockingUnitId || blockingUnitId === displacedUnitId) return [];
+  if (visitedOccupants.has(blockingUnitId)) return null;
+
+  const blockerDestination = translateHex(destination, direction);
+  if (
+    !isValidDisplacementInternal(
+      grid,
+      blockerDestination,
+      {
+        excludeUnitId: blockingUnitId,
+        source: destination,
+        maxElevationChange: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
+      },
+      withVisitedOccupant(visitedOccupants, blockingUnitId),
+    )
+  ) {
+    return null;
+  }
+
+  const downstream = computeDominoChainFromDestination(
+    grid,
+    blockerDestination,
+    direction,
+    blockingUnitId,
+    withVisitedOccupant(visitedOccupants, blockingUnitId),
+  );
+  if (downstream === null) return null;
+
+  return [
+    {
+      unitId: blockingUnitId,
+      from: destination,
+      to: blockerDestination,
+      reason: 'domino',
+    },
+    ...downstream,
+  ];
+}
+
+function dominoChainForDisplacement(
+  grid: IHexGrid,
+  displacedUnitId: string,
+  source: IHexCoordinate,
+  destination: IHexCoordinate,
+): readonly IPhysicalDisplacement[] | null {
+  const direction = directionFromAdjacent(source, destination);
+  if (direction === undefined) return null;
+  return computeDominoChainFromDestination(
+    grid,
+    destination,
+    direction,
+    displacedUnitId,
+  );
+}
+
+export function computeDisplacementWithDominoChain(options: {
+  readonly grid: IHexGrid;
+  readonly unitId: string;
+  readonly from: IHexCoordinate;
+  readonly to: IHexCoordinate;
+  readonly reason: Exclude<IPhysicalDisplacement['reason'], 'domino'>;
+}): readonly IPhysicalDisplacement[] | null {
+  const dominoChain = dominoChainForDisplacement(
+    options.grid,
+    options.unitId,
+    options.from,
+    options.to,
+  );
+  if (dominoChain === null) return null;
+
+  return [
+    {
+      unitId: options.unitId,
+      from: options.from,
+      to: options.to,
+      reason: options.reason,
+    },
+    ...dominoChain,
+  ];
+}
+
+function isLegalBattleMechDisplacement(
+  grid: IHexGrid,
+  unitId: string,
+  source: IHexCoordinate,
+  destination: IHexCoordinate,
+): boolean {
+  return isValidDisplacement(grid, destination, {
+    excludeUnitId: unitId,
+    source,
+    maxElevationChange: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
+  });
+}
+
+function appendAttackerFollowThrough(
+  displacements: readonly IPhysicalDisplacement[],
+  attackerId: string,
+  attackerPosition: IHexCoordinate,
+  targetPosition: IHexCoordinate,
+  reason: 'push' | 'charge' | 'dfa' | 'dfa_miss',
+): readonly IPhysicalDisplacement[] {
+  return [
+    ...displacements,
+    {
+      unitId: attackerId,
+      from: attackerPosition,
+      to: targetPosition,
+      reason,
+    },
+  ];
 }
 
 /**
@@ -283,6 +467,58 @@ export function computePushDisplacement(
   return translateHex(targetPosition, attackerFacing);
 }
 
+export function computePushDisplacementOutcome(options: {
+  readonly grid: IHexGrid;
+  readonly attackerId: string;
+  readonly attackerPosition: IHexCoordinate;
+  readonly attackerFacing: Facing;
+  readonly targetId: string;
+  readonly targetPosition: IHexCoordinate;
+}): IPushDisplacementOutcome {
+  const {
+    attackerFacing,
+    attackerId,
+    attackerPosition,
+    grid,
+    targetId,
+    targetPosition,
+  } = options;
+  const targetDestination = computePushDisplacement(
+    targetPosition,
+    attackerFacing,
+  );
+
+  if (
+    !isLegalBattleMechDisplacement(
+      grid,
+      targetId,
+      targetPosition,
+      targetDestination,
+    )
+  ) {
+    return { displacements: [] };
+  }
+
+  const targetDisplacements = computeDisplacementWithDominoChain({
+    grid,
+    unitId: targetId,
+    from: targetPosition,
+    to: targetDestination,
+    reason: 'push',
+  });
+  if (targetDisplacements === null) return { displacements: [] };
+
+  return {
+    displacements: appendAttackerFollowThrough(
+      targetDisplacements,
+      attackerId,
+      attackerPosition,
+      targetPosition,
+      'push',
+    ),
+  };
+}
+
 /**
  * Source-backed successful charge displacement. MegaMek resolves charge damage
  * before this branch; if the target's forward hex is invalid, neither unit is
@@ -314,38 +550,41 @@ export function computeChargeDisplacementOutcome(options: {
   );
 
   if (
-    !isValidDisplacement(grid, targetDestination, {
-      excludeUnitId: targetId,
-      source: targetPosition,
-      maxElevationChange: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
-    })
+    !isLegalBattleMechDisplacement(
+      grid,
+      targetId,
+      targetPosition,
+      targetDestination,
+    )
   ) {
     return { displacements: [] };
   }
 
+  const targetDisplacements = computeDisplacementWithDominoChain({
+    grid,
+    unitId: targetId,
+    from: targetPosition,
+    to: targetDestination,
+    reason: 'charge',
+  });
+  if (targetDisplacements === null) return { displacements: [] };
+
   return {
-    displacements: [
-      {
-        unitId: targetId,
-        from: targetPosition,
-        to: targetDestination,
-        reason: 'charge',
-      },
-      {
-        unitId: attackerId,
-        from: attackerPosition,
-        to: targetPosition,
-        reason: 'charge',
-      },
-    ],
+    displacements: appendAttackerFollowThrough(
+      targetDisplacements,
+      attackerId,
+      attackerPosition,
+      targetPosition,
+      'charge',
+    ),
   };
 }
 
 /**
  * Mirrors MegaMek `Compute.getValidDisplacement`: choose the first legal
  * adjacent hex nearest to the displacement direction. Dropship two-hex
- * displacement and domino chains are intentionally outside this helper's
- * current simplified grid model.
+ * displacement is intentionally outside this helper's current simplified
+ * grid model.
  *
  * Source: MegaMek `Compute.java:1019-1046`.
  */
@@ -482,21 +721,25 @@ export function computeDfaDisplacementOutcome(options: {
   }
 
   const reason = hit ? 'dfa' : 'dfa_miss';
+  const targetDisplacements = computeDisplacementWithDominoChain({
+    grid,
+    unitId: targetId,
+    from: targetPosition,
+    to: targetDestination,
+    reason,
+  });
+  if (targetDisplacements === null) {
+    return { displacements: [] };
+  }
+
   return {
-    displacements: [
-      {
-        unitId: targetId,
-        from: targetPosition,
-        to: targetDestination,
-        reason,
-      },
-      {
-        unitId: attackerId,
-        from: attackerPosition,
-        to: targetPosition,
-        reason,
-      },
-    ],
+    displacements: appendAttackerFollowThrough(
+      targetDisplacements,
+      attackerId,
+      attackerPosition,
+      targetPosition,
+      reason,
+    ),
   };
 }
 

@@ -140,6 +140,25 @@ function makeBlockedChargeDisplacementGrid(): IHexGrid {
   return { ...grid, hexes };
 }
 
+function makeDominoDisplacementGrid(): IHexGrid {
+  const grid = makeDisplacementGrid();
+  const hexes = new Map(grid.hexes);
+  const blockedDestination = hexes.get('1,1');
+  if (blockedDestination) {
+    hexes.set('1,1', {
+      ...blockedDestination,
+      occupantId: 'domino-blocker',
+    });
+  }
+  hexes.set('1,2', {
+    coord: { q: 1, r: 2 },
+    occupantId: null,
+    terrain: 'clear',
+    elevation: 0,
+  });
+  return { ...grid, hexes };
+}
+
 function makeProhibitedChargeDisplacementGrid(
   terrain: string = 'impassable',
 ): IHexGrid {
@@ -301,6 +320,43 @@ describe('physicalAttacks', () => {
           targetPosition: { q: 1, r: 0 },
         }).displacements,
       ).toEqual([]);
+    });
+
+    it('cascades occupied displacement destinations as source-backed domino chains', () => {
+      const grid = makeDominoDisplacementGrid();
+
+      expect(
+        computeValidDisplacement(grid, 'target', { q: 1, r: 0 }, Facing.South),
+      ).toEqual({ q: 1, r: 1 });
+      expect(
+        computeChargeDisplacementOutcome({
+          grid,
+          attackerId: 'attacker',
+          attackerPosition: { q: 0, r: 0 },
+          attackerFacing: Facing.South,
+          targetId: 'target',
+          targetPosition: { q: 1, r: 0 },
+        }).displacements,
+      ).toEqual([
+        {
+          unitId: 'target',
+          from: { q: 1, r: 0 },
+          to: { q: 1, r: 1 },
+          reason: 'charge',
+        },
+        {
+          unitId: 'domino-blocker',
+          from: { q: 1, r: 1 },
+          to: { q: 1, r: 2 },
+          reason: 'domino',
+        },
+        {
+          unitId: 'attacker',
+          from: { q: 0, r: 0 },
+          to: { q: 1, r: 0 },
+          reason: 'charge',
+        },
+      ]);
     });
 
     it('models source-backed DFA hit and miss displacement order', () => {

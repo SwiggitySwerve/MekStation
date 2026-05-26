@@ -32,6 +32,24 @@ function integrated(
   };
 }
 
+function helperOnly(
+  id: string,
+  attackFamily: PhysicalLegalityAttackFamily,
+  evidence: string,
+  gap: string,
+  authority: string,
+): IPhysicalLegalityGateSupportEntry {
+  return {
+    id,
+    attackFamily,
+    authority,
+    level: 'helper-only',
+    evidence,
+    gap,
+    sourceRefs: sourceRefsForAuthority(authority),
+  };
+}
+
 function unsupported(
   id: string,
   attackFamily: PhysicalLegalityAttackFamily,
@@ -397,10 +415,11 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'isValidDisplacement now rejects represented woods/jungle terrain levels above two before push/charge/DFA position changes; helper, event-sourced, and runner charge coverage keep successful charge damage while suppressing displacement and charge PSRs',
     DISPLACEMENT_OVERGROWN_TERRAIN_LINES,
   ),
-  'shared.displacement-domino-chain': unsupported(
+  'shared.displacement-domino-chain': helperOnly(
     'shared.displacement-domino-chain',
     'shared',
-    'MekStation displacement helpers treat occupied destination hexes as blocked and do not recursively displace blocking units, emit domino PSRs, or cascade position updates through a chain',
+    'isValidDisplacement recursively validates occupied destination blockers, and push/charge/DFA/charge-miss displacement helpers emit positional domino payload chains that event-sourced resolution and runner phases apply to unit positions',
+    'Domino-effect PSRs, step-out fallout, and PilotingRollData-style side effects are still not emitted for stacking-violation displacement chains',
     DISPLACEMENT_DOMINO_CHAIN_LINES,
   ),
   'shared.displacement-friendly-avoidance': unsupported(
