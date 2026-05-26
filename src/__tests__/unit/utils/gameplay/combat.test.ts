@@ -163,7 +163,7 @@ describe('To-Hit Calculation', () => {
     it('should return penalty inside minimum range', () => {
       const modifier = calculateMinimumRangeModifier(3, 6);
       expect(modifier).not.toBeNull();
-      expect(modifier!.value).toBe(3); // 6 - 3 = 3
+      expect(modifier!.value).toBe(4); // BattleTech minimum range penalty is (min - distance) + 1
     });
   });
 

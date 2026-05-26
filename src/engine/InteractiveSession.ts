@@ -7,7 +7,7 @@ import type { IWeapon } from '@/simulation/ai/types';
 import type {
   IIndirectFireResolution,
   WeaponFireMode,
-} from '@/types/gameplay/CombatInterfaces';
+} from '@/types/gameplay/IndirectFireInterfaces';
 import type { D6Roller, DiceRoller } from '@/utils/gameplay/diceTypes';
 
 import {

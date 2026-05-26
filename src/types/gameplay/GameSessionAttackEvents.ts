@@ -3,11 +3,11 @@
  * Extracted from GameSessionInterfaces.ts to keep focused type modules under the lint line cap.
  */
 
-import type { WeaponFireMode } from './CombatInterfaces';
 import type {
   AttackVisualCategory,
   HeatVisualThreshold,
 } from './GameSessionCoreTypes';
+import type { WeaponFireMode } from './IndirectFireInterfaces';
 
 import { Facing } from './HexGridInterfaces';
 import { PSRTrigger } from './PSRTriggerCodes';

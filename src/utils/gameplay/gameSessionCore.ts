@@ -415,8 +415,16 @@ export function declareAttack(
    * fire event (`IndirectFireSpotterSelected` / `IndirectFireNarcOverride`)
    * is emitted immediately after `AttackDeclared`. When undefined, the
    * function behaves identically to its pre-PR-K4 contract.
+   *
+   * Wave 8 PR-K11: also accepts the new `IAttackPreResolution`
+   * discriminated union returned by `prepareAttackContext`. The union
+   * is normalized internally - callers may pass either the bare
+   * `IIndirectFireResolution` (legacy, pre-K11) OR the union (the
+   * post-K11 callers). Back-compat preserved.
    */
-  indirectFireResolution?: import('@/types/gameplay/CombatInterfaces').IIndirectFireResolution,
+  indirectFireResolutionInput?:
+    | import('@/types/gameplay/IndirectFireInterfaces').IIndirectFireResolution
+    | import('@/engine/attackContext').IAttackPreResolution,
   /**
    * Optional target hex carried on the indirect-fire event payloads.
    * Defaults to the live target unit position when omitted.
@@ -447,6 +455,16 @@ export function declareAttack(
   if (!attacker) {
     throw new Error(`Attacker ${attackerId} not found in units`);
   }
+
+  const indirectFireResolution:
+    | import('@/types/gameplay/IndirectFireInterfaces').IIndirectFireResolution
+    | undefined = !indirectFireResolutionInput
+    ? undefined
+    : 'kind' in indirectFireResolutionInput
+      ? indirectFireResolutionInput.kind === 'indirect'
+        ? indirectFireResolutionInput.resolution
+        : undefined
+      : indirectFireResolutionInput;
 
   const resolvedTargetHex = targetHex ?? targetUnit.position;
   const interveningTerrainModifier = calculateInterveningTerrainModifier(

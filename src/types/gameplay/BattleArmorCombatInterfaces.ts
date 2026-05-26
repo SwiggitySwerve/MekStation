@@ -313,6 +313,46 @@ export interface ILegAttackPayload {
 }
 
 /**
+ * Per `add-battle-armor-combat` (Wave 8 PR-L3): leg-attack result against
+ * Mek and Vehicle targets using the new `IBASquadCombatState` shape.
+ *
+ * Emitted by `applyInteractiveSessionLegAttack` for every resolved leg
+ * attack — both hits (`hit: true`, `damage > 0`, `hitLocation` set) and
+ * clean misses against a Mek with both legs destroyed (`hit: false`,
+ * `damage: 0`, `hitLocation` carries the rolled-then-rejected leg). The
+ * squad's attack action is consumed in either case.
+ *
+ * `hitLocation` is the destination location label (a `MechLocation` value
+ * for Mek targets — `'Left Leg'` / `'Right Leg'`; a `VehicleHitLocation`
+ * arc-derived label for Vehicle targets — `'front'` / `'left_side'` /
+ * `'right_side'` / `'rear'`).
+ *
+ * `critModifier` is the net crit modifier applied by the resolver:
+ *   - `-2` when the targeted location's armor is Hardened
+ *   - `+1` when the attacking pilot has the `MISC_HUMAN_TRO_MEK` SPA
+ * The two stack additively; default is `0`.
+ *
+ * @spec openspec/changes/add-battle-armor-combat/specs/battle-armor-combat/spec.md
+ *   (Requirement: Leg Attack)
+ */
+export interface ILegAttackResolvedPayload {
+  /** Attacker (BA squad) unit id. */
+  readonly unitId: string;
+  /** Target Mek or Vehicle unit id. */
+  readonly targetUnitId: string;
+  /** True on a successful hit; false on clean miss. */
+  readonly hit: boolean;
+  /** Total damage applied to the target (0 on miss). */
+  readonly damage: number;
+  /** Resolved hit-location label (Mek leg or Vehicle arc-derived location). */
+  readonly hitLocation: string;
+  /** Net crit modifier (Hardened: -2; HUMAN_TRO_MEK SPA: +1). */
+  readonly critModifier: number;
+  /** Surviving troopers in the attacking squad after the resolution. */
+  readonly survivingTroopers: number;
+}
+
+/**
  * Per `add-battlearmor-combat-behavior`: mimetic to-hit bonus applied to an
  * attacker targeting this squad.
  */

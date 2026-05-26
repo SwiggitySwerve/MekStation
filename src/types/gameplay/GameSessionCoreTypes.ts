@@ -240,6 +240,18 @@ export enum GameEventType {
    */
   LegAttack = 'leg_attack',
   /**
+   * Per `add-battle-armor-combat` (Wave 8 PR-L3): a BA squad leg-attack
+   * resolved against a Mek or Vehicle target using the new
+   * `IBASquadCombatState` shape. Distinct from `LegAttack` so the older
+   * `add-battlearmor-combat-behavior` event stream (success/damageToLeg/
+   * selfDamage/survivingTroopers) stays untouched while the new shape
+   * carries `hit / hitLocation / damage / critModifier`. Emitted by
+   * `applyInteractiveSessionLegAttack` for both hit and clean-miss
+   * outcomes (both-legs-destroyed against a Mek emits a `hit: false`
+   * event; the action still consumes the squad's attack).
+   */
+  LegAttackResolved = 'leg_attack_resolved',
+  /**
    * Per `add-battlearmor-combat-behavior`: mimetic to-hit bonus applied to
    * an attacker targeting this squad (e.g., +1 when the squad stood still).
    */

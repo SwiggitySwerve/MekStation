@@ -1,9 +1,9 @@
-import type { IndirectFireBasis } from './CombatInterfaces';
 import type {
   IAttackInvalidPayload,
   IToHitModifier,
 } from './GameSessionAttackEvents';
 import type { IHexCoordinate, RangeBracket } from './HexGridInterfaces';
+import type { IndirectFireBasis } from './IndirectFireInterfaces';
 import type { CoverLevel, TerrainType } from './TerrainTypes';
 
 export type CombatLOSState = 'clear' | 'partial' | 'blocked';

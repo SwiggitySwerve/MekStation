@@ -18,11 +18,11 @@
  */
 
 import type { IWeapon } from '@/simulation/ai/types';
+import type { IHex, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 import type {
   IIndirectFireForwardObserverPayload,
   IIndirectFireSpotterSelectedPayload,
-} from '@/types/gameplay/CombatInterfaces';
-import type { IHex, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
+} from '@/types/gameplay/IndirectFireInterfaces';
 
 import {
   GameEventType,

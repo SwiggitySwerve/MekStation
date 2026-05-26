@@ -12,8 +12,8 @@ import type {
 
 import { WeightClass } from '@/types/enums/WeightClass';
 
-import type { WeaponFireMode } from './CombatInterfaces';
 import type { IMovementInvalidPayload } from './GameSessionMovementEvents';
+import type { WeaponFireMode } from './IndirectFireInterfaces';
 import type { ArmorPipState, ChassisArchetype } from './UnitSpriteTypes';
 
 import { GamePhase, GameSide, IToHitModifier } from './GameSessionInterfaces';

@@ -13,7 +13,7 @@ import type {
 } from '@/types/gameplay';
 
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
-import { GameSide, TerrainType } from '@/types/gameplay';
+import { GamePhase, GameSide, TerrainType } from '@/types/gameplay';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
 import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
 import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
@@ -199,7 +199,10 @@ export function useCombatRangeLookup({
     if (
       !selectedToken ||
       selectedToken.side !== friendlySide ||
-      !hasConfiguredWeaponList
+      !hasConfiguredWeaponList ||
+      (combatState !== null &&
+        combatState !== undefined &&
+        combatState.phase !== GamePhase.WeaponAttack)
     ) {
       return map;
     }

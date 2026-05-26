@@ -166,7 +166,7 @@ export class GameEngine {
         this.grid,
       );
       let sessionBeforeResolution = session;
-      session = resolveAllAttacks(session, diceRoller);
+      session = resolveAllAttacks(session, diceRoller, d6Roller);
       session = this.applyBattlefieldWreckTerrainForSessionDelta(
         sessionBeforeResolution,
         session,

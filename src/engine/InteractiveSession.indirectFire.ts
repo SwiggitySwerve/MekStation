@@ -14,12 +14,12 @@
  * @spec openspec/changes/add-indirect-fire-and-spotter-network/specs/indirect-fire-system/spec.md
  */
 
-import type { IIndirectFireResolution } from '@/types/gameplay/CombatInterfaces';
 import type { IGameState } from '@/types/gameplay/GameSessionInterfaces';
 import type {
   IHexCoordinate,
   IHexGrid,
 } from '@/types/gameplay/HexGridInterfaces';
+import type { IIndirectFireResolution } from '@/types/gameplay/IndirectFireInterfaces';
 
 import { isAirborneGameUnit } from '@/utils/gameplay/groundToGround';
 import {
@@ -32,6 +32,13 @@ import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 
 type AirborneAeroSpottingUnitState = IGameState['units'][string] & {
   readonly airborneAeroSpottingEquipment?: IAirborneAeroSpottingEquipment;
+};
+
+type NarcMarkedUnitState = IGameState['units'][string] & {
+  readonly narcMarkedByTeams?: readonly string[];
+  readonly iNarcMarkedByTeams?: readonly string[];
+  readonly tagDesignated?: boolean;
+  readonly ecmProtected?: boolean;
 };
 
 function getAirborneAeroSpottingEquipment(
@@ -148,17 +155,15 @@ export function computeIndirectFireContext(
   // Derive NARC/iNarc beacon flags for the target unit (§3).
   // The fields `narcMarkedByTeams` / `iNarcMarkedByTeams` do not exist yet on
   // IUnitGameState — they land when NARC weapon resolution ships in a later PR.
-  // Until then we read them defensively via `any`-cast so this compiles cleanly
-  // against the current type and the forward-compat default (false) applies.
+  // Until then we read them defensively via a narrow forward-compat overlay.
   const targetUnit = targetEntityId
     ? gameState.units[targetEntityId]
     : undefined;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const targetUnitAny = targetUnit as any;
+  const targetUnitWithBeacons = targetUnit as NarcMarkedUnitState | undefined;
   const narcMarkedByTeams: readonly string[] =
-    targetUnitAny?.narcMarkedByTeams ?? [];
+    targetUnitWithBeacons?.narcMarkedByTeams ?? [];
   const inarcMarkedByTeams: readonly string[] =
-    targetUnitAny?.iNarcMarkedByTeams ?? [];
+    targetUnitWithBeacons?.iNarcMarkedByTeams ?? [];
   const targetNarcMarkedByTeam = narcMarkedByTeams.includes(attackerTeamId);
   const targetINarcMarkedByTeam = inarcMarkedByTeams.includes(attackerTeamId);
 
@@ -182,8 +187,8 @@ export function computeIndirectFireContext(
       weaponId,
       equipment: { isSemiGuided: false },
       targetStatus: {
-        tagDesignated: targetUnitAny?.tagDesignated === true,
-        ecmProtected: targetUnitAny?.ecmProtected === true,
+        tagDesignated: targetUnitWithBeacons?.tagDesignated === true,
+        ecmProtected: targetUnitWithBeacons?.ecmProtected === true,
       },
     },
   );

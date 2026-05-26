@@ -4,7 +4,7 @@ import type { IHexCoordinate } from '@/types/gameplay';
 
 import { useScreenShake } from '@/hooks/useScreenShake';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
-import { GameSide } from '@/types/gameplay';
+import { GamePhase, GameSide } from '@/types/gameplay';
 import { isOperationalWeaponStatus } from '@/utils/gameplay/combatProjection';
 import { selectCombatProjectionWeapons } from '@/utils/gameplay/combatProjection.weaponSelection';
 import { coordToKey } from '@/utils/gameplay/hexMath';
@@ -127,6 +127,11 @@ export function useHexMapDisplayState({
   const hasConfiguredWeaponList =
     selectedToken !== null &&
     Object.prototype.hasOwnProperty.call(unitWeapons, selectedToken.unitId);
+  const isWeaponCombatProjectionEnabled =
+    hasConfiguredWeaponList &&
+    (combatState === null ||
+      combatState === undefined ||
+      combatState.phase === GamePhase.WeaponAttack);
   const operationalWeapons = useMemo(
     () => projectedCombatWeapons.filter(isOperationalWeaponStatus),
     [projectedCombatWeapons],
@@ -135,7 +140,7 @@ export function useHexMapDisplayState({
   const combatRangeLookup = useCombatRangeLookup({
     selectedToken,
     friendlySide,
-    hasConfiguredWeaponList,
+    hasConfiguredWeaponList: isWeaponCombatProjectionEnabled,
     hexes,
     hexGrid,
     tokens,
@@ -146,7 +151,7 @@ export function useHexMapDisplayState({
   const combatProjectionValidTargetUnitIds =
     useCombatProjectionValidTargetUnitIds({
       combatRangeLookup,
-      enabled: hasConfiguredWeaponList,
+      enabled: isWeaponCombatProjectionEnabled,
     });
   const legacyAttackRangeLookup = useMemo(
     () =>

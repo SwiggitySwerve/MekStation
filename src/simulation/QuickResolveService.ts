@@ -145,6 +145,13 @@ export class QuickResolveSystemicFailure extends Error {
   }
 }
 
+function cloneForEngine<T>(value: T): T {
+  if (typeof globalThis.structuredClone === 'function') {
+    return globalThis.structuredClone(value);
+  }
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
 // =============================================================================
 // Public API
 // =============================================================================
@@ -191,9 +198,9 @@ export async function runBatch(
       // SeededRandom per engine. Never reuse PRNG state across runs.
       const engine = new GameEngine({ ...baseEngineConfig, seed });
       const session = engine.runToCompletion(
-        battle.playerUnits,
-        battle.opponentUnits,
-        battle.gameUnits,
+        cloneForEngine(battle.playerUnits),
+        cloneForEngine(battle.opponentUnits),
+        cloneForEngine(battle.gameUnits),
       );
       const report = derivePostBattleReport(session);
       outcome = {

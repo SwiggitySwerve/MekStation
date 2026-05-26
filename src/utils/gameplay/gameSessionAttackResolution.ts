@@ -17,7 +17,7 @@ import {
   buildDefaultCriticalSlotManifest,
 } from './criticalHitResolution';
 import { resolveDamage as resolveDamagePipeline } from './damage';
-import { type DiceRoller } from './diceTypes';
+import { type D6Roller, type DiceRoller } from './diceTypes';
 import { calculateFiringArc } from './firingArc';
 import {
   createAmmoConsumedEvent,
@@ -51,6 +51,7 @@ export function resolveAttack(
   session: IGameSession,
   attackEvent: IGameEvent,
   diceRoller: DiceRoller = rollDice,
+  d6Roller: D6Roller = () => diceRoller().dice[0],
 ): IGameSession {
   const payload = attackEvent.payload as IAttackDeclaredPayload;
   const { attackerId, targetId, weapons, weaponAttacks, toHitNumber } = payload;
@@ -226,6 +227,7 @@ export function resolveAttack(
         damageState,
         location as CombatLocation,
         damage,
+        d6Roller,
       );
 
       // Per `integrate-damage-pipeline` tasks 3-5: emit the ordered event
@@ -334,10 +336,6 @@ export function resolveAttack(
         }
       }
 
-      const d6Roller = () => {
-        const roll = diceRoller();
-        return roll.dice[0];
-      };
       const manifest = buildDefaultCriticalSlotManifest();
       const targetComponentDamage =
         targetState.componentDamage ?? buildDefaultComponentDamageState();
@@ -508,12 +506,13 @@ export function resolveAttack(
 export function resolveAllAttacks(
   session: IGameSession,
   diceRoller: DiceRoller = rollDice,
+  d6Roller: D6Roller = () => diceRoller().dice[0],
 ): IGameSession {
   let currentSession = session;
   for (const event of session.events) {
     if (event.type !== GameEventType.AttackDeclared) continue;
     if (event.turn !== session.currentState.turn) continue;
-    currentSession = resolveAttack(currentSession, event, diceRoller);
+    currentSession = resolveAttack(currentSession, event, diceRoller, d6Roller);
   }
   return currentSession;
 }

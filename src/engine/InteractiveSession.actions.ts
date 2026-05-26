@@ -14,21 +14,22 @@
  */
 
 import type { IWeapon } from '@/simulation/ai/types';
-import type {
-  IIndirectFireResolution,
-  IWeaponAttack,
-  WeaponFireMode,
-} from '@/types/gameplay/CombatInterfaces';
+import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
 import type { IAttackInvalidPayload } from '@/types/gameplay/GameSessionAttackEvents';
 import type { IGameSession } from '@/types/gameplay/GameSessionInterfaces';
 import type {
   IMovementInvalidPayload,
   StandUpMode,
 } from '@/types/gameplay/GameSessionMovementEvents';
+import type {
+  IIndirectFireResolution,
+  WeaponFireMode,
+} from '@/types/gameplay/IndirectFireInterfaces';
 import type { DiceRoller } from '@/utils/gameplay/diceTypes';
 
 import {
   calculateSwarmDamage,
+  type IBALegAttackSquadDef,
   type IBASwarmFireSquadDef,
 } from '@/lib/combat/baCombat';
 import { GameEventType } from '@/types/gameplay';
@@ -52,7 +53,10 @@ import {
   createAttackInvalidEvent,
   createMovementInvalidEvent,
 } from '@/utils/gameplay/gameEvents';
-import { createSwarmDamageEvent } from '@/utils/gameplay/gameEvents/battleArmor';
+import {
+  createLegAttackResolvedEvent,
+  createSwarmDamageEvent,
+} from '@/utils/gameplay/gameEvents/battleArmor';
 import {
   declareAttack,
   declareMovement,
@@ -87,7 +91,7 @@ import { canPlayerSeeUnit } from '@/utils/gameplay/visibility';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 import { weaponMountCoversTargetArc } from '@/utils/gameplay/weaponMountArcs';
 
-import { computeIndirectFireContext } from './InteractiveSession.indirectFire';
+import { prepareAttackContext } from './attackContext';
 
 /**
  * Inputs for `applyInteractiveSessionMovement` — the live session, the
@@ -401,11 +405,11 @@ function attackVisibilityBlockedReason(
  * Firing arc is intentionally NOT pre-computed here — `resolveAttack`
  * derives it from live positions + target facing at resolve time.
  *
- * Wave 8 PR-K5: when `input.grid` is supplied, walks weapon ids and
- * picks the first weapon whose `computeIndirectFireContext` returns
- * `permitted && isIndirect` to thread into `declareAttack`. LRM volleys
- * share a single spotter election per declaration (matches MegaMek
- * `Compute.findSpottersForArtillery`).
+ * Wave 8 PR-K5/K11: when `input.grid` is supplied, delegates to
+ * `prepareAttackContext` to derive the indirect-fire pre-resolution
+ * union (direct vs indirect+spotter), then threads it into
+ * `declareAttack`. LRM volleys share a single spotter election per
+ * declaration (matches MegaMek `Compute.findSpottersForArtillery`).
  */
 export function applyInteractiveSessionAttack(
   input: IApplyAttackInput,
@@ -519,29 +523,21 @@ export function applyInteractiveSessionAttack(
         : true) &&
       !groundToAirIndirectWeaponBlockedReason(attackerUnit, targetUnit, weapon),
   );
-  // Wave 8 PR-K5: pre-compute indirect-fire resolution when grid available.
-  let indirectFireResolution: IIndirectFireResolution | undefined;
-  if (input.grid && usableWeaponAttacks.length > 0) {
-    if (resolvedTargetHex && targetUnit) {
-      for (const weaponId of usableWeaponAttacks.map(
-        (weapon) => weapon.weaponId,
-      )) {
-        const result = computeIndirectFireContext(
+  const attackPreResolution =
+    input.grid && usableWeaponAttacks.length > 0
+      ? prepareAttackContext(
           input.attackerId,
-          weaponId,
-          resolvedTargetHex,
+          usableWeaponAttacks.map((weapon) => weapon.weaponId),
+          input.targetId,
           input.session.currentState,
           input.grid,
           input.pilotSpasByUnitId,
-          input.targetId,
-        );
-        if (result.permitted && result.isIndirect) {
-          indirectFireResolution = result;
-          break;
-        }
-      }
-    }
-  }
+        )
+      : undefined;
+  const indirectFireResolution: IIndirectFireResolution | undefined =
+    attackPreResolution?.kind === 'indirect'
+      ? attackPreResolution.resolution
+      : undefined;
   if (weaponsInRange.length === 0) {
     return appendInteractiveAttackInvalid(
       input.session,
@@ -640,7 +636,7 @@ export function applyInteractiveSessionAttack(
     usableWeaponAttacks,
     attackRange,
     attackRangeBracket,
-    indirectFireResolution,
+    attackPreResolution,
     resolvedTargetHex,
     targetPartialCover,
     directLos?.hasLOS
@@ -743,3 +739,86 @@ export function applyInteractiveSessionSwarmFire(
 
   return appendEvent(input.session, event);
 }
+// =============================================================================
+// PR-L3 §3 — BA leg-attack action handler (Mek + Vehicle targets)
+// =============================================================================
+
+/**
+ * Inputs for `applyInteractiveSessionLegAttack`. The action handler is
+ * intentionally thin — it does NOT pick the rolled leg, does NOT compute
+ * the firing arc, and does NOT apply damage to the target's armor. Those
+ * concerns live in `resolveMekLegAttack` / `resolveVehicleLegAttack`
+ * (in `src/utils/gameplay/battlearmor/legAttackResolver.ts`) and the
+ * downstream damage pipeline that consumes the emitted
+ * `LegAttackResolved` event.
+ *
+ * Callers (the dispatch layer) MUST:
+ *   1. confirm the attack is legal (squad in same hex as target, etc.),
+ *   2. build `squadDef` with the squad's vibroclaw / myomer flags,
+ *   3. supply the pre-resolved `ILegAttackResolution` from the resolver
+ *      (carries hit / damage / hitLocation / critModifier).
+ *
+ * Pattern mirror: `applyInteractiveSessionSwarmFire` (PR-L2 §3).
+ *
+ * @spec openspec/changes/add-battle-armor-combat/specs/battle-armor-combat/spec.md
+ *   (Requirement: Leg Attack)
+ */
+export interface IApplyLegAttackInput {
+  readonly session: IGameSession;
+  /** Attacker (BA squad) unit id. */
+  readonly squadId: string;
+  /** Target Mek or Vehicle unit id. */
+  readonly targetUnitId: string;
+  /**
+   * Pre-resolved leg-attack outcome from `resolveMekLegAttack` /
+   * `resolveVehicleLegAttack`. The action handler stamps these fields
+   * onto the emitted `LegAttackResolved` event.
+   */
+  readonly resolution: import('@/utils/gameplay/battlearmor/legAttackResolver').ILegAttackResolution;
+  /** Surviving troopers in the attacking squad after the resolution. */
+  readonly survivingTroopers: number;
+}
+
+/**
+ * Resolve one BA leg attack from `squadId` against `targetUnitId`.
+ *
+ * Appends a single `LegAttackResolved` event carrying the pre-resolved
+ * outcome. Returns the original session unchanged when the attacking
+ * squad or target unit cannot be found.
+ *
+ * The action handler is intentionally side-effect-free beyond appending
+ * the event; damage application to the target's armor pipeline (Mek leg
+ * armor or Vehicle arc armor) lives downstream in the dispatch layer
+ * that consumes this event. The squad's attack action is considered
+ * consumed in BOTH the hit and clean-miss cases.
+ */
+export function applyInteractiveSessionLegAttack(
+  input: IApplyLegAttackInput,
+): IGameSession {
+  const attackerUnit = input.session.currentState.units[input.squadId];
+  const targetUnit = input.session.currentState.units[input.targetUnitId];
+  if (!attackerUnit || !targetUnit) return input.session;
+
+  const sequence = input.session.events.length;
+  const { turn, phase } = input.session.currentState;
+  const event = createLegAttackResolvedEvent(
+    input.session.id,
+    sequence,
+    turn,
+    phase,
+    input.squadId,
+    input.targetUnitId,
+    input.resolution.hit,
+    input.resolution.damage,
+    input.resolution.hitLocation,
+    input.resolution.critModifier,
+    input.survivingTroopers,
+  );
+
+  return appendEvent(input.session, event);
+}
+
+// Re-export the squad-def type so callers can build it without reaching
+// into `@/lib/combat/baCombat` directly. Mirrors the IBASwarmFireSquadDef
+// re-export pattern established by PR-L2.
+export type { IBALegAttackSquadDef };

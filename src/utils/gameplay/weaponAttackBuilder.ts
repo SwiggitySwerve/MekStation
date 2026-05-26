@@ -17,10 +17,8 @@
  */
 
 import type { IWeapon } from '@/simulation/ai/types';
-import type {
-  IWeaponAttack,
-  WeaponFireMode,
-} from '@/types/gameplay/CombatInterfaces';
+import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
+import type { WeaponFireMode } from '@/types/gameplay/IndirectFireInterfaces';
 
 import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
 import { isIndirectFireCapable } from '@/utils/gameplay/indirectFire';

@@ -1,6 +1,6 @@
 import type { CriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution/types';
 
-import { computeIndirectFireContext } from '@/engine/InteractiveSession.indirectFire';
+import { prepareAttackContext } from '@/engine/attackContext';
 import {
   GameEventType,
   GamePhase,
@@ -270,23 +270,17 @@ export function runAttackPhase(options: {
           : 0,
       );
 
-      // Wave 8 PR-K7: Quick-Sim indirect-fire dispatch.
-      // The interactive path (declareAttack) and bot path (runAttackPhase)
-      // pre-compute indirect-fire resolution via computeIndirectFireContext
-      // and thread the +1/+2 penalty + spotter event through the engine. The
-      // Quick-Sim pipeline doesn't go through declareAttack — it hand-rolls
-      // AttackDeclared / AttackResolved. Wire the same dispatch here so
-      // mass-scale BV-balance Monte Carlo runs reflect indirect-fire to-hit
-      // math when LRMs fire against units the attacker has no LOS to.
-      const indirectFireResolution = grid
-        ? computeIndirectFireContext(
-            unitId,
-            weaponId,
-            targetNow.position,
-            currentState,
-            grid,
-          )
+      // Wave 8 PR-K7/K11: Quick-Sim indirect-fire dispatch via the
+      // shared prepareAttackContext seam (single-weapon array — the
+      // surrounding loop iterates weapons externally). Quick-Sim
+      // hand-rolls AttackDeclared/AttackResolved (doesn't go through
+      // declareAttack), so we unwrap the union back to a bare
+      // IIndirectFireResolution for the existing penalty + emission code.
+      const pre = grid
+        ? prepareAttackContext(unitId, [weaponId], targetId, currentState, grid)
         : null;
+      const indirectFireResolution =
+        pre && pre.kind === 'indirect' ? pre.resolution : null;
       const indirectFirePenalty =
         indirectFireResolution &&
         indirectFireResolution.permitted &&

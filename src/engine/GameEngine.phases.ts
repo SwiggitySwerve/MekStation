@@ -1,8 +1,6 @@
 import type { IWeapon } from '@/simulation/ai/types';
-import type {
-  IIndirectFireResolution,
-  IWeaponAttack,
-} from '@/types/gameplay/CombatInterfaces';
+import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
+import type { IIndirectFireResolution } from '@/types/gameplay/IndirectFireInterfaces';
 
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
 import { hasReachedEdge, resolveEdge } from '@/simulation/ai/RetreatAI';
@@ -64,9 +62,9 @@ import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 import { weaponMountCoversTargetArc } from '@/utils/gameplay/weaponMountArcs';
 
+import { prepareAttackContext } from './attackContext';
 import { toAIUnitState } from './GameEngine.helpers';
 import { applyInteractiveSessionMovement } from './InteractiveSession.actions';
-import { computeIndirectFireContext } from './InteractiveSession.indirectFire';
 
 /**
  * Adapt a single-d6 roller into the 2d6 `DiceRoller` shape used by
@@ -357,11 +355,6 @@ export function runAttackPhase(
         unitId,
       );
 
-      // Wave 8 PR-K5: pre-compute indirect-fire resolution when grid
-      // available. Pick the FIRST weapon whose resolution is
-      // permitted+isIndirect (LRM volleys share a single spotter
-      // election per declaration).
-      let indirectFireResolution: IIndirectFireResolution | undefined;
       const targetUnit =
         updatedSession.currentState.units[atkEvt.payload.targetId];
       const targetHex = targetUnit?.position;
@@ -401,23 +394,6 @@ export function runAttackPhase(
         attackRange,
         usableWeaponAttacks,
       );
-      if (grid && targetHex && targetUnit && usableWeaponAttacks.length > 0) {
-        for (const weaponId of usableWeaponAttacks.map(
-          (weapon) => weapon.weaponId,
-        )) {
-          const result = computeIndirectFireContext(
-            unitId,
-            weaponId,
-            targetHex,
-            updatedSession.currentState,
-            grid,
-          );
-          if (result.permitted && result.isIndirect) {
-            indirectFireResolution = result;
-            break;
-          }
-        }
-      }
       if (
         usableWeaponAttacks.length === 0 ||
         attackRangeBracket === RangeBracket.OutOfRange
@@ -425,6 +401,20 @@ export function runAttackPhase(
         updatedSession = lockAttack(updatedSession, unitId);
         continue;
       }
+      const attackPreResolution =
+        grid && targetHex && targetUnit && usableWeaponAttacks.length > 0
+          ? prepareAttackContext(
+              unitId,
+              usableWeaponAttacks.map((weapon) => weapon.weaponId),
+              atkEvt.payload.targetId,
+              updatedSession.currentState,
+              grid,
+            )
+          : undefined;
+      const indirectFireResolution: IIndirectFireResolution | undefined =
+        attackPreResolution?.kind === 'indirect'
+          ? attackPreResolution.resolution
+          : undefined;
       const targetPartialCover =
         grid && targetHex
           ? getTargetCoverInfo(grid, unit.position, targetHex, {
@@ -450,7 +440,6 @@ export function runAttackPhase(
         grid && targetHex
           ? calculateLOS(unit.position, targetHex, grid)
           : undefined;
-
       // Arc is computed inside resolveAttack at resolve time.
       updatedSession = declareAttack(
         updatedSession,
@@ -459,7 +448,7 @@ export function runAttackPhase(
         usableWeaponAttacks,
         attackRange,
         attackRangeBracket,
-        indirectFireResolution,
+        attackPreResolution,
         targetHex,
         targetPartialCover,
         directLos?.hasLOS
