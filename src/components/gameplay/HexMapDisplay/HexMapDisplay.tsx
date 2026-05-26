@@ -27,6 +27,7 @@ import {
   TerrainOverlayLayers,
   UnitTokensLayer,
 } from './HexMapDisplay.layers';
+import { isometricSvgCameraControlAttributes } from './HexMapDisplay.projectionControls';
 import { useHexMapDisplayState } from './HexMapDisplay.state';
 import { MapHtmlOverlays } from './HexMapDisplay.tooltips';
 import { TerrainPatternDefs } from './Overlays';
@@ -104,18 +105,7 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
         onTouchEnd={interaction.handleTouchEnd}
         tabIndex={0}
         aria-label="Tactical map battlefield"
-        data-isometric-keyboard-camera-source={
-          isIsometricView ? 'shared-tactical-map-projection' : undefined
-        }
-        data-isometric-keyboard-camera-channel={
-          isIsometricView ? 'isometric-camera' : undefined
-        }
-        data-isometric-keyboard-camera-rules-surface={
-          isIsometricView ? 'presentation' : undefined
-        }
-        data-isometric-keyboard-camera-controls={
-          isIsometricView ? 'q:rotate-left|e:rotate-right' : undefined
-        }
+        {...isometricSvgCameraControlAttributes(isIsometricView)}
         data-testid="hex-grid"
       >
         <TerrainPatternDefs />

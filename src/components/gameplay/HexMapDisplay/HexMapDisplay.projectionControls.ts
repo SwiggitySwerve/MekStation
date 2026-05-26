@@ -23,6 +23,33 @@ type IsometricCameraControlAttributes = {
   readonly 'data-isometric-camera-next-degrees': number;
 };
 
+type IsometricSvgCameraControlAttributes = {
+  readonly 'data-isometric-keyboard-camera-source'?:
+    | 'shared-tactical-map-projection'
+    | undefined;
+  readonly 'data-isometric-keyboard-camera-channel'?:
+    | 'isometric-camera'
+    | undefined;
+  readonly 'data-isometric-keyboard-camera-rules-surface'?:
+    | 'presentation'
+    | undefined;
+  readonly 'data-isometric-keyboard-camera-controls'?:
+    | 'q:rotate-left|e:rotate-right'
+    | undefined;
+  readonly 'data-isometric-pointer-camera-source'?:
+    | 'shared-tactical-map-projection'
+    | undefined;
+  readonly 'data-isometric-pointer-camera-channel'?:
+    | 'isometric-camera'
+    | undefined;
+  readonly 'data-isometric-pointer-camera-rules-surface'?:
+    | 'presentation'
+    | undefined;
+  readonly 'data-isometric-pointer-camera-controls'?:
+    | 'mouse-pan|touch-pan|touch-rotate-buttons'
+    | undefined;
+};
+
 export function formatIsometricRotationDegrees(rotationStep: number): number {
   return rotationStep * 60;
 }
@@ -94,6 +121,24 @@ export function isometricCameraControlAttributes(
       formatIsometricRotationDegrees(rotationStep),
     'data-isometric-camera-next-degrees':
       formatIsometricRotationDegrees(nextStep),
+  };
+}
+
+export function isometricSvgCameraControlAttributes(
+  isIsometricView: boolean,
+): IsometricSvgCameraControlAttributes {
+  if (!isIsometricView) return {};
+
+  return {
+    'data-isometric-keyboard-camera-source': 'shared-tactical-map-projection',
+    'data-isometric-keyboard-camera-channel': 'isometric-camera',
+    'data-isometric-keyboard-camera-rules-surface': 'presentation',
+    'data-isometric-keyboard-camera-controls': 'q:rotate-left|e:rotate-right',
+    'data-isometric-pointer-camera-source': 'shared-tactical-map-projection',
+    'data-isometric-pointer-camera-channel': 'isometric-camera',
+    'data-isometric-pointer-camera-rules-surface': 'presentation',
+    'data-isometric-pointer-camera-controls':
+      'mouse-pan|touch-pan|touch-rotate-buttons',
   };
 }
 

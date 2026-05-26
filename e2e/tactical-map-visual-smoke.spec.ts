@@ -22,6 +22,104 @@ async function switchToIsometric(
   );
 }
 
+async function dragMouseOnLocator(
+  locator: Locator,
+  dx: number,
+  dy: number,
+): Promise<void> {
+  const box = await locator.boundingBox();
+  expect(box, 'locator should be visible for mouse drag').not.toBeNull();
+  if (!box) return;
+
+  const startX = box.x + box.width / 2;
+  const startY = box.y + box.height / 2;
+  await locator.dispatchEvent('mousedown', {
+    button: 0,
+    buttons: 1,
+    clientX: startX,
+    clientY: startY,
+  });
+  await locator.dispatchEvent('mousemove', {
+    button: 0,
+    buttons: 1,
+    clientX: startX + dx,
+    clientY: startY + dy,
+  });
+  await locator.dispatchEvent('mouseup', {
+    button: 0,
+    buttons: 0,
+    clientX: startX + dx,
+    clientY: startY + dy,
+  });
+}
+
+async function dragTouchOnLocator(
+  page: Page,
+  locator: Locator,
+  dx: number,
+  dy: number,
+): Promise<void> {
+  const box = await locator.boundingBox();
+  expect(box, 'locator should be visible for touch drag').not.toBeNull();
+  if (!box) return;
+
+  const startX = Math.round(box.x + box.width / 2);
+  const startY = Math.round(box.y + box.height / 2);
+  const dispatchTouch = async (
+    type: 'touchstart' | 'touchmove' | 'touchend',
+    x: number,
+    y: number,
+  ): Promise<void> => {
+    await locator.evaluate(
+      (node, { type, x, y }) => {
+        const makeTouch = (x: number, y: number): Touch =>
+          new Touch({
+            identifier: 1,
+            target: node,
+            clientX: x,
+            clientY: y,
+            screenX: x,
+            screenY: y,
+            pageX: x,
+            pageY: y,
+            radiusX: 4,
+            radiusY: 4,
+            force: 0.5,
+          });
+
+        const touch = makeTouch(x, y);
+        node.dispatchEvent(
+          new TouchEvent(type, {
+            bubbles: true,
+            cancelable: true,
+            touches: type === 'touchend' ? [] : [touch],
+            targetTouches: type === 'touchend' ? [] : [touch],
+            changedTouches: [touch],
+          }),
+        );
+      },
+      { type, x, y },
+    );
+  };
+
+  await dispatchTouch('touchstart', startX, startY);
+  await page.waitForTimeout(25);
+  await dispatchTouch('touchmove', startX + dx, startY + dy);
+  await page.waitForTimeout(25);
+  await dispatchTouch('touchend', startX + dx, startY + dy);
+}
+
+async function tapLocatorWithTouchscreen(
+  page: Page,
+  locator: Locator,
+): Promise<void> {
+  const box = await locator.boundingBox();
+  expect(box, 'locator should be visible for touchscreen tap').not.toBeNull();
+  if (!box) return;
+
+  await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+}
+
 async function expectNonBlankRender(page: Page, label: string): Promise<void> {
   let lastMetrics:
     | {
@@ -958,6 +1056,92 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
         .getByTestId('hex-isometric-occluder-highlight-0-1')
         .getAttribute('data-isometric-occludes-units')) ?? '';
     expect(southHighlightAfterRotation.split(',')).not.toContain('occluded');
+  });
+
+  test.describe('isometric pointer and touch camera smoke', () => {
+    test.use({
+      hasTouch: true,
+      isMobile: true,
+      viewport: { width: 390, height: 844 },
+    });
+
+    test('keeps pan and touch rotation on the shared isometric projection surface', async ({
+      browserName,
+      page,
+    }) => {
+      test.skip(
+        browserName !== 'chromium',
+        'Synthetic touch-drag smoke is Chromium-specific',
+      );
+
+      await page.goto('/e2e/tactical-map?scenario=multi-isometric-occluders');
+
+      const projectionLayer = page.getByTestId('map-projection-layer');
+      await switchToIsometric(page, projectionLayer);
+
+      const hexGrid = page.getByTestId('hex-grid');
+      await expect(hexGrid).toHaveAttribute(
+        'data-isometric-pointer-camera-source',
+        'shared-tactical-map-projection',
+      );
+      await expect(hexGrid).toHaveAttribute(
+        'data-isometric-pointer-camera-channel',
+        'isometric-camera',
+      );
+      await expect(hexGrid).toHaveAttribute(
+        'data-isometric-pointer-camera-rules-surface',
+        'presentation',
+      );
+      await expect(hexGrid).toHaveAttribute(
+        'data-isometric-pointer-camera-controls',
+        'mouse-pan|touch-pan|touch-rotate-buttons',
+      );
+
+      const initialViewBox = await hexGrid.getAttribute('viewBox');
+      await dragMouseOnLocator(hexGrid, 72, 44);
+      await expect
+        .poll(() => hexGrid.getAttribute('viewBox'))
+        .not.toBe(initialViewBox);
+      await expect(projectionLayer).toHaveAttribute(
+        'data-projection-mode',
+        'isometric2d',
+      );
+      await expect(projectionLayer).toHaveAttribute(
+        'data-isometric-rotation-step',
+        '0',
+      );
+
+      const afterMouseViewBox = await hexGrid.getAttribute('viewBox');
+      await dragTouchOnLocator(page, hexGrid, -64, 38);
+      await expect
+        .poll(() => hexGrid.getAttribute('viewBox'))
+        .not.toBe(afterMouseViewBox);
+      await expect(projectionLayer).toHaveAttribute(
+        'data-projection-mode',
+        'isometric2d',
+      );
+      await expect(projectionLayer).toHaveAttribute(
+        'data-isometric-rotation-step',
+        '0',
+      );
+
+      const rotateRight = page.getByTestId('projection-rotate-right');
+      for (let tap = 0; tap < 3; tap += 1) {
+        await tapLocatorWithTouchscreen(page, rotateRight);
+      }
+
+      await expect(projectionLayer).toHaveAttribute(
+        'data-isometric-rotation-step',
+        '3',
+      );
+      await expect(
+        page.getByTestId('isometric-scene-token-occluded'),
+      ).toHaveAttribute('data-isometric-occluder-hex', '-1,0');
+      await expect(
+        page.getByTestId('hex-isometric-occluder-highlight--1-0'),
+      ).toHaveAttribute('data-isometric-occludes-units', 'occluded');
+      await expectNonBlankRender(page, 'mobile isometric interaction smoke');
+    });
   });
 
   test('shows true height for capped isometric elevation stacks in browser', async ({

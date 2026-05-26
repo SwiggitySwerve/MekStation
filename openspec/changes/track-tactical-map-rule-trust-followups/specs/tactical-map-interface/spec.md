@@ -33,10 +33,11 @@ source-pinned, oracle-differenced, or interaction-swept.
 #### Scenario: Isometric browser coverage distinguishes smoke from full interaction sweep
 
 - **GIVEN** isometric topography, occluder highlighting, and camera rotation
-  have representative smoke coverage
+  have representative smoke coverage, including button/keyboard rotation,
+  pointer pan, touch pan, and touch rotation
 - **WHEN** the map is evaluated for full battlefield interaction readiness
-- **THEN** broader rotation, pointer, mobile gesture, and occlusion interaction
-  sweeps SHALL remain tracked as follow-up outcomes
+- **THEN** broader mobile gesture, pinch-zoom, and occlusion interaction sweeps
+  SHALL remain tracked as follow-up outcomes
 - **AND** those sweeps SHALL verify that isometric presentation continues to
   consume the same shared projection data as top-down movement, combat,
   terrain, elevation, LOS, and visibility highlights.

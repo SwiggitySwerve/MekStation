@@ -285,3 +285,6 @@
 - [x] 3.61 Clear-terrain base hex shapes remain pointer-targetable, and the
   full tactical-map Playwright smoke file is serialized and passes under the
   default smoke project worker settings across all 57 map scenarios.
+- [x] 3.62 Isometric pointer/mobile smoke proves mouse pan, touch pan, and
+  touch rotation preserve shared projection-layer mode, occluder metadata, and
+  presentation-only camera control provenance.
