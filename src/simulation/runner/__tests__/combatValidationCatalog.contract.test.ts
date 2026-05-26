@@ -10,6 +10,8 @@ import type { ICombatCatalogTriadEvidence } from '../CombatValidationCatalogTria
 import { BATTLEMECH_COMBAT_VALIDATION_CATALOG } from '../CombatValidationCatalog';
 import { COMBAT_CATALOG_TRIAD_EVIDENCE } from '../CombatValidationCatalogTriad';
 import {
+  getCombatValidationOutOfScopeRefs,
+  getCombatValidationOutOfScopeRows,
   getCombatValidationUnresolvedRefs,
   getCombatValidationUnresolvedRows,
 } from '../CombatValidationGapInventory';
@@ -172,15 +174,14 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 226,
+      total: 211,
       byLevel: {
-        'helper-only': 170,
+        'helper-only': 155,
         unsupported: 56,
       },
       bySection: {
         actions: 31,
         damageAndDeath: 2,
-        eventStream: 15,
         featureSupport: 115,
         lifecycleAndPsr: 5,
         pilotSkills: 20,
@@ -192,7 +193,6 @@ describe('BattleMech combat validation catalog index', () => {
       expect.arrayContaining([
         'actions.absentActionSurfaces.movement.evade',
         'actions.absentActionSurfaces.movement.sprint',
-        'eventStream.nonBattleMechEventScope.motive_damaged',
         'featureSupport.ammunitionCompatibility.non-battlemech-aerospace-capital-ammo',
         'featureSupport.ammunitionCompatibility.non-battlemech-battle-armor',
         'featureSupport.ammunitionCompatibility.non-battlemech-protomech',
@@ -203,6 +203,36 @@ describe('BattleMech combat validation catalog index', () => {
         'validationScope.objectiveRequirements.non-battlemech-scope',
       ]),
     );
+    expect(
+      unresolvedRefs.filter((ref) =>
+        ref.startsWith('eventStream.nonBattleMechEventScope.'),
+      ),
+    ).toEqual([]);
+  });
+
+  it('keeps non-BattleMech event scope rows auditable without making them BattleMech blockers', () => {
+    const outOfScopeRows = getCombatValidationOutOfScopeRows();
+    const outOfScopeRefs = getCombatValidationOutOfScopeRefs();
+
+    expect(outOfScopeRefs).toEqual(outOfScopeRows.map((row) => row.ref));
+    expect(outOfScopeRefs).toEqual(
+      expect.arrayContaining([
+        'eventStream.nonBattleMechEventScope.leg_attack',
+        'eventStream.nonBattleMechEventScope.motive_damaged',
+        'eventStream.nonBattleMechEventScope.swarm_damage',
+        'eventStream.nonBattleMechEventScope.vtol_crash_check',
+      ]),
+    );
+    expect(outOfScopeRows).toHaveLength(15);
+    expect(
+      outOfScopeRows.filter(
+        (row) =>
+          row.level !== 'out-of-scope' ||
+          row.gap.length === 0 ||
+          row.evidence.length === 0 ||
+          row.sourceRefs.length === 0,
+      ),
+    ).toEqual([]);
   });
 
   it('exposes the unresolved inventory through combat validation tooling', () => {
@@ -219,6 +249,12 @@ describe('BattleMech combat validation catalog index', () => {
     );
     expect(validateCombatSuite).toContain('print-combat-validation-gaps.ts');
     expect(validateCombatSuite).toContain('--format=summary');
+    expect(
+      readFileSync(
+        join(process.cwd(), 'scripts', 'print-combat-validation-gaps.ts'),
+        'utf8',
+      ),
+    ).toContain('getCombatValidationOutOfScopeRows');
 
     const triadTestFiles = Array.from(
       new Set(
