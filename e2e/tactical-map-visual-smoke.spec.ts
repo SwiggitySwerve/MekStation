@@ -906,6 +906,60 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('renders every isometric occluder layer that may hide one unit in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=multi-isometric-occluders');
+
+    const projectionLayer = page.getByTestId('map-projection-layer');
+    await switchToIsometric(page, projectionLayer);
+
+    await expect(
+      page.getByTestId('isometric-scene-token-occluded'),
+    ).toHaveAttribute('data-isometric-occluder-hex', '1,0');
+    await expect(page.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-isometric-occludes-units',
+      'occluded',
+    );
+    await expect(page.getByTestId('hex-0-1')).toHaveAttribute(
+      'data-isometric-occludes-units',
+      'occluded',
+    );
+    await expect(
+      page.getByTestId('hex-isometric-occluder-highlight-1-0'),
+    ).toHaveAttribute('data-isometric-occludes-units', 'occluded');
+    await expect(
+      page.getByTestId('hex-isometric-occluder-highlight-0-1'),
+    ).toHaveAttribute('data-isometric-occludes-units', 'occluded');
+    await expect(page.getByTestId('hex-elevation-stack-1-0')).toHaveAttribute(
+      'data-isometric-occludes-units',
+      'occluded',
+    );
+    await expect(page.getByTestId('hex-elevation-stack-0-1')).toHaveAttribute(
+      'data-isometric-occludes-units',
+      'occluded',
+    );
+
+    await page.getByTestId('projection-rotate-right').click();
+    await page.getByTestId('projection-rotate-right').click();
+    await page.getByTestId('projection-rotate-right').click();
+
+    await expect(projectionLayer).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '3',
+    );
+    const southOccludesAfterRotation =
+      (await page
+        .getByTestId('hex-0-1')
+        .getAttribute('data-isometric-occludes-units')) ?? '';
+    expect(southOccludesAfterRotation.split(',')).not.toContain('occluded');
+    const southHighlightAfterRotation =
+      (await page
+        .getByTestId('hex-isometric-occluder-highlight-0-1')
+        .getAttribute('data-isometric-occludes-units')) ?? '';
+    expect(southHighlightAfterRotation.split(',')).not.toContain('occluded');
+  });
+
   test('shows true height for capped isometric elevation stacks in browser', async ({
     page,
   }) => {

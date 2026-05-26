@@ -28,6 +28,17 @@ height, including represented building levels
 **AND** represented building levels SHALL contribute to visible isometric stack
 layers even when the base terrain elevation is flat
 
+#### Scenario: Multiple occluding layers remain visible
+
+**GIVEN** more than one elevated terrain hex may hide the same unit from the
+current isometric camera angle
+**WHEN** the map derives and renders isometric terrain occlusion information
+**THEN** every occluding terrain hex SHALL expose the hidden unit id
+**AND** every occluding terrain hex SHALL render its isometric occluder
+highlight and stack metadata
+**AND** the unit token MAY keep one representative occluder reason for compact
+foreground readability labeling
+
 #### Scenario: Camera rotation clears stale occluder highlights
 
 **GIVEN** a tall terrain hex only occludes a unit from some camera angles

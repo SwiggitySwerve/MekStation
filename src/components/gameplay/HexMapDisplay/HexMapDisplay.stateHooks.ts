@@ -267,9 +267,32 @@ export function useIsometricOcclusionInfo({
       terrainLookup,
       rotationStep,
     })) {
-      lookup.set(info.unitId, info);
+      if (!lookup.has(info.unitId)) {
+        lookup.set(info.unitId, info);
+      }
     }
     return lookup;
+  }, [isIsometricView, rotationStep, terrainLookup, tokens]);
+}
+
+export function useIsometricOcclusionInfos({
+  isIsometricView,
+  tokens,
+  terrainLookup,
+  rotationStep,
+}: {
+  readonly isIsometricView: boolean;
+  readonly tokens: readonly IUnitToken[];
+  readonly terrainLookup: ReadonlyMap<string, IHexTerrain>;
+  readonly rotationStep: number;
+}): readonly IsometricTerrainOcclusionInfo[] {
+  return useMemo(() => {
+    if (!isIsometricView) return [];
+    return deriveIsometricTerrainOcclusionInfo({
+      tokens,
+      terrainLookup,
+      rotationStep,
+    });
   }, [isIsometricView, rotationStep, terrainLookup, tokens]);
 }
 
@@ -314,22 +337,17 @@ export function useIsometricOcclusionIds({
 
 export function useIsometricOccluderInfo({
   isIsometricView,
-  isometricTerrainOcclusionInfoByUnit,
+  isometricTerrainOcclusionInfos,
 }: {
   readonly isIsometricView: boolean;
-  readonly isometricTerrainOcclusionInfoByUnit: ReadonlyMap<
-    string,
-    IsometricTerrainOcclusionInfo
-  >;
+  readonly isometricTerrainOcclusionInfos: readonly IsometricTerrainOcclusionInfo[];
 }): ReadonlyMap<string, IsometricTerrainOccluderInfo> {
   return useMemo(() => {
-    if (!isIsometricView || isometricTerrainOcclusionInfoByUnit.size === 0) {
+    if (!isIsometricView || isometricTerrainOcclusionInfos.length === 0) {
       return new Map<string, IsometricTerrainOccluderInfo>();
     }
-    return deriveIsometricTerrainOccluderInfo(
-      Array.from(isometricTerrainOcclusionInfoByUnit.values()),
-    );
-  }, [isIsometricView, isometricTerrainOcclusionInfoByUnit]);
+    return deriveIsometricTerrainOccluderInfo(isometricTerrainOcclusionInfos);
+  }, [isIsometricView, isometricTerrainOcclusionInfos]);
 }
 
 export function useSelectedWeaponMaxRange({

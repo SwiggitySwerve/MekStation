@@ -148,7 +148,6 @@ export function deriveIsometricTerrainOcclusionInfo({
   readonly terrainLookup: ReadonlyMap<string, IHexTerrain>;
   readonly rotationStep: number;
 }): readonly IsometricTerrainOcclusionInfo[] {
-  const ids = new Set<string>();
   const info: IsometricTerrainOcclusionInfo[] = [];
 
   for (const token of tokens) {
@@ -158,7 +157,6 @@ export function deriveIsometricTerrainOcclusionInfo({
       terrainLookup.get(coordToKey(position))?.elevation ?? 0;
 
     terrainLookup.forEach((terrain) => {
-      if (ids.has(token.unitId)) return;
       const occluderElevation = getIsometricTerrainEffectiveHeight({
         elevation: terrain.elevation,
         terrainFeatures: terrain.features,
@@ -166,7 +164,6 @@ export function deriveIsometricTerrainOcclusionInfo({
       if (occluderElevation - unitElevation < 2) return;
       if (hexDistance(position, terrain.coordinate) > 2) return;
       if (isTerrainInFrontOfUnit(position, terrain.coordinate, rotationStep)) {
-        ids.add(token.unitId);
         info.push({
           unitId: token.unitId,
           occluderHex: terrain.coordinate,

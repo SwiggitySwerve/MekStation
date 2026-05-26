@@ -14,6 +14,8 @@
       scene depth ordering
 - [x] 2.5 Report effective occluder height in the visible highlight label
 - [x] 2.6 Render represented building levels as visible isometric stack layers
+- [x] 2.7 Preserve every occluding terrain layer when multiple tall hexes may
+      hide the same unit
 
 ## 3. Verification
 
@@ -27,3 +29,5 @@
 - [x] 3.8 Focused building-level occluder coverage passes
 - [x] 3.9 Focused occluder highlight label coverage passes
 - [x] 3.10 Focused building-stack render coverage passes
+- [x] 3.11 Focused helper, render, and browser coverage proves multiple
+      occluder layers remain highlighted

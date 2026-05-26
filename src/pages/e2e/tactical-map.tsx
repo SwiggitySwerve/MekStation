@@ -32,6 +32,7 @@ import * as lamConversion from '@/testing/tactical-map.lam-conversion-scenario';
 import * as mixedVehicle from '@/testing/tactical-map.mixed-vehicle-volley-scenario';
 import * as movementCombat from '@/testing/tactical-map.movement-combat-scenario';
 import * as movement from '@/testing/tactical-map.movement-scenarios';
+import * as multiOccluders from '@/testing/tactical-map.multi-isometric-occluders-scenario';
 import * as naval from '@/testing/tactical-map.naval-landfall-scenario';
 import * as occupiedDestination from '@/testing/tactical-map.occupied-destination-scenario';
 import * as proneCombat from '@/testing/tactical-map.prone-combat-scenario';
@@ -402,6 +403,8 @@ const hexTerrainByScenario = {
   'impossible-stand-up': standUp.tacticalMapStandUpHexTerrain,
   'capped-isometric-stack':
     cappedStack.tacticalMapCappedIsometricStackHexTerrain,
+  'multi-isometric-occluders':
+    multiOccluders.tacticalMapMultiIsometricOccludersHexTerrain,
 } satisfies Record<string, typeof tacticalMapHexTerrain>;
 
 const mapRadiusByScenario = {

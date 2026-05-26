@@ -182,6 +182,40 @@ describe('HexMapDisplay isometric projection helpers', () => {
     expect(rearCameraInfo).toHaveLength(0);
   });
 
+  it('reports every tall terrain layer that may hide the same unit', () => {
+    const terrainLookup = makeTerrainLookup([
+      makeTerrain(1, 0, 4, TerrainType.Building),
+      makeTerrain(0, 1, 3, TerrainType.Building),
+    ]);
+    const tokens = [
+      makeToken({ unitId: 'occluded', position: { q: 0, r: 0 } }),
+    ];
+
+    const occlusionInfo = deriveIsometricTerrainOcclusionInfo({
+      tokens,
+      terrainLookup,
+      rotationStep: 0,
+    });
+    const occluderInfo = deriveIsometricTerrainOccluderInfo(occlusionInfo);
+
+    expect(occlusionInfo).toHaveLength(2);
+    expect(
+      occlusionInfo.map(
+        (info) => `${info.occluderHex.q},${info.occluderHex.r}`,
+      ),
+    ).toEqual(['1,0', '0,1']);
+    expect(occluderInfo.get('1,0')).toMatchObject({
+      occluderHex: { q: 1, r: 0 },
+      occluderElevation: 4,
+      occludedUnitIds: ['occluded'],
+    });
+    expect(occluderInfo.get('0,1')).toMatchObject({
+      occluderHex: { q: 0, r: 1 },
+      occluderElevation: 3,
+      occludedUnitIds: ['occluded'],
+    });
+  });
+
   it('counts represented building levels as isometric occluder height', () => {
     const terrainLookup = makeTerrainLookup([
       {

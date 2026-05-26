@@ -3513,6 +3513,85 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('highlights multiple tall terrain layers that may hide the same unit', () => {
+    const occluded = makeToken({
+      unitId: 'occluded',
+      position: { q: 0, r: 0 },
+    });
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[occluded]}
+        selectedHex={null}
+        hexTerrain={[
+          {
+            coordinate: { q: 1, r: 0 },
+            elevation: 4,
+            features: [{ type: TerrainType.Building, level: 1 }],
+          },
+          {
+            coordinate: { q: 0, r: 1 },
+            elevation: 2,
+            features: [{ type: TerrainType.Building, level: 1 }],
+          },
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+
+    expect(
+      screen.getByTestId('isometric-scene-token-occluded'),
+    ).toHaveAttribute('data-isometric-occluder-hex', '1,0');
+    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-isometric-occludes-units',
+      'occluded',
+    );
+    expect(screen.getByTestId('hex-0-1')).toHaveAttribute(
+      'data-isometric-occludes-units',
+      'occluded',
+    );
+    expect(
+      screen.getByTestId('hex-isometric-occluder-highlight-1-0'),
+    ).toHaveAttribute('data-isometric-occludes-units', 'occluded');
+    expect(
+      screen.getByTestId('hex-isometric-occluder-highlight-0-1'),
+    ).toHaveAttribute('data-isometric-occludes-units', 'occluded');
+    expect(screen.getByTestId('hex-elevation-stack-1-0')).toHaveAttribute(
+      'data-isometric-occludes-units',
+      'occluded',
+    );
+    expect(screen.getByTestId('hex-elevation-stack-0-1')).toHaveAttribute(
+      'data-isometric-occludes-units',
+      'occluded',
+    );
+
+    fireEvent.mouseEnter(screen.getByTestId('hex-0-1'));
+
+    const tooltipOccluder = screen.getByTestId(
+      'hex-terrain-tooltip-isometric-occluder',
+    );
+    expect(tooltipOccluder).toHaveAttribute(
+      'data-isometric-occluder-hex',
+      '0,1',
+    );
+    expect(tooltipOccluder).toHaveAttribute(
+      'data-isometric-occluder-elevation',
+      '3',
+    );
+    expect(
+      screen.getByTestId('hex-terrain-tooltip-isometric-occluder-reasons'),
+    ).toHaveTextContent(
+      'Elevated terrain +3 at (0, 1) may hide unit at elevation +0',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('distinguishes isometric fog visibility rules from terrain occlusion', () => {
     const hiddenContact = makeToken({
       unitId: 'hidden-contact',
