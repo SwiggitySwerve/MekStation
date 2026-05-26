@@ -1366,6 +1366,7 @@ export function runAttackPhase(options: {
           partialCover: targetPartialCover,
           hullDown: targetBeforeShot.hullDown ?? false,
           d6Roller,
+          optionalRules,
           getOrSeedManifest,
           manifestsByUnit,
           weaponsByUnit,
