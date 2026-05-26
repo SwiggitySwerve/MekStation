@@ -15,14 +15,17 @@ import {
   GameEventType,
   GamePhase,
   GameSide,
+  ArmorPipState,
   IDamageAppliedPayload,
   IGameCreatedPayload,
   IGameEvent,
   IGameUnit,
   IHexTerrain,
   ILocationDestroyedPayload,
+  IMechToken,
   IMovementDeclaredPayload,
   ITerrainChangedPayload,
+  IUnitToken,
   IUnitDestroyedPayload,
   MovementType,
   TerrainType,
@@ -98,6 +101,31 @@ function makeStandardGameCreatedEvent(): IGameEvent {
     type: GameEventType.GameCreated,
     payload,
   });
+}
+
+function requireMechToken(
+  token: IUnitToken | undefined,
+  unitId: string,
+): IMechToken {
+  expect(token?.unitType).toBe(TokenUnitType.Mech);
+
+  if (token?.unitType !== TokenUnitType.Mech) {
+    throw new Error(`Expected ${unitId} to be a Mech token`);
+  }
+
+  return token;
+}
+
+function requireHumanoidArmorPipState(
+  state: ArmorPipState | undefined,
+): Extract<ArmorPipState, { readonly archetype: 'humanoid' }> {
+  expect(state?.archetype).toBe('humanoid');
+
+  if (state?.archetype !== 'humanoid') {
+    throw new Error('Expected humanoid armor pip state');
+  }
+
+  return state;
 }
 
 // =============================================================================
@@ -731,13 +759,12 @@ describe('deriveHexMapStateFromEvents', () => {
         }),
       ];
       const state = deriveHexMapStateFromEvents(events, 1);
-      const mech = state.tokens.find((t) => t.unitId === 'player-1');
-      expect(mech?.unitType).toBe(TokenUnitType.Mech);
+      const mech = requireMechToken(
+        state.tokens.find((t) => t.unitId === 'player-1'),
+        'player-1',
+      );
       // armorPipState should be populated.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const pipState = (mech as any)?.armorPipState;
-      expect(pipState).toBeDefined();
-      expect(pipState.archetype).toBe('humanoid');
+      const pipState = requireHumanoidArmorPipState(mech.armorPipState);
       expect(pipState.locations.leftArm).toBe('structure');
       // All other locations remain 'full'.
       expect(pipState.locations.head).toBe('full');
@@ -762,10 +789,11 @@ describe('deriveHexMapStateFromEvents', () => {
         }),
       ];
       const state = deriveHexMapStateFromEvents(events, 1);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const pipState = (
-        state.tokens.find((t) => t.unitId === 'player-1') as any
-      )?.armorPipState;
+      const mech = requireMechToken(
+        state.tokens.find((t) => t.unitId === 'player-1'),
+        'player-1',
+      );
+      const pipState = requireHumanoidArmorPipState(mech.armorPipState);
       expect(pipState.locations.rightTorso).toBe('partial');
     });
   });
@@ -795,10 +823,11 @@ describe('deriveHexMapStateFromEvents', () => {
         }),
       ];
       const state = deriveHexMapStateFromEvents(events, 10);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const pipState = (
-        state.tokens.find((t) => t.unitId === 'player-1') as any
-      )?.armorPipState;
+      const mech = requireMechToken(
+        state.tokens.find((t) => t.unitId === 'player-1'),
+        'player-1',
+      );
+      const pipState = requireHumanoidArmorPipState(mech.armorPipState);
       expect(pipState.locations.leftLeg).toBe('destroyed');
     });
   });
@@ -848,8 +877,7 @@ describe('deriveHexMapStateFromEvents', () => {
       const tank = state.tokens.find((t) => t.unitId === 'tank-1');
       expect(tank).toBeDefined();
       expect(tank?.unitType).toBe(TokenUnitType.Vehicle);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect((tank as any).armorPipState).toBeUndefined();
+      expect('armorPipState' in (tank ?? {})).toBe(false);
     });
   });
 
@@ -872,10 +900,11 @@ describe('deriveHexMapStateFromEvents', () => {
         }),
       ];
       const state = deriveHexMapStateFromEvents(events, 1);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const pipState = (
-        state.tokens.find((t) => t.unitId === 'player-1') as any
-      )?.armorPipState;
+      const mech = requireMechToken(
+        state.tokens.find((t) => t.unitId === 'player-1'),
+        'player-1',
+      );
+      const pipState = requireHumanoidArmorPipState(mech.armorPipState);
       expect(pipState.locations.centerTorso).toBe('structure');
     });
   });
@@ -896,9 +925,11 @@ describe('deriveHexMapStateFromEvents', () => {
         }),
       ];
       const state = deriveHexMapStateFromEvents(events, 1);
-      const mech = state.tokens.find((t) => t.unitId === 'player-1');
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect((mech as any).armorPipState).toBeUndefined();
+      const mech = requireMechToken(
+        state.tokens.find((t) => t.unitId === 'player-1'),
+        'player-1',
+      );
+      expect(mech.armorPipState).toBeUndefined();
     });
   });
 });

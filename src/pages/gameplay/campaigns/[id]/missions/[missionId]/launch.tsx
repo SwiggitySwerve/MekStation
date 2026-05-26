@@ -157,8 +157,8 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
             data-testid="coop-launch-waiting"
             className="text-sm text-slate-400"
           >
-            Waiting for the other player's pick — the launch button enables once
-            both players choose.
+            Waiting for the other player&apos;s pick — the launch button enables
+            once both players choose.
           </p>
         ) : null}
 
