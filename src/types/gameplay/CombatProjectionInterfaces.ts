@@ -109,6 +109,12 @@ export interface ICombatRangeHex {
   readonly targetCoverModifier: number;
   /** Player-facing explanation for target hex cover, when any */
   readonly targetCoverReason?: string;
+  /** Target unit is represented as hull-down. */
+  readonly targetHullDown?: boolean;
+  /** To-hit modifier contributed by represented hull-down state. */
+  readonly targetHullDownModifier?: number;
+  /** Player-facing explanation for represented hull-down state. */
+  readonly targetHullDownReason?: string;
   /** Highest selected-weapon minimum-range to-hit penalty at this distance */
   readonly minimumRangePenalty?: number;
   /** Weapons contributing the displayed minimum-range penalty */

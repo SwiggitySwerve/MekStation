@@ -161,6 +161,7 @@ export function deriveToHitProjection({
     prone: targetUnit.prone ?? false,
     immobile: isRepresentedTargetImmobile(targetUnit),
     partialCover: targetPartialCover,
+    hullDown: targetUnit.hullDown === true,
   };
   const minimumRange = minimumRangeForWeapons(
     weapons,

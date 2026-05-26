@@ -55,20 +55,15 @@ describe('Scenario: partial cover LOS (P6b — task 6.13)', () => {
     expect(mod).toBeNull();
   });
 
-  it('hull-down modifier suppresses when partial cover is already active (mutex rule)', () => {
-    // Per Total Warfare p. 53, hull-down and partial-cover do not
-    // stack. When a target is in partial cover (e.g., level 1 hill),
-    // hull-down does NOT add a second +1 modifier — the partial-
-    // cover one is the canonical bucket.
+  it('hull-down adds MegaMek +2 when partial cover is already active', () => {
     const mod = calculateHullDownModifier(true, true);
-    expect(mod).toBeNull();
+    expect(mod).not.toBeNull();
+    expect(mod!.value).toBe(2);
   });
 
-  it('hull-down adds +1 when partial cover is NOT active', () => {
-    // Without partial cover, hull-down on its own contributes +1.
+  it('hull-down does not add a modifier without LOS/terrain cover', () => {
     const mod = calculateHullDownModifier(true, false);
-    expect(mod).not.toBeNull();
-    expect(mod!.value).toBe(1);
+    expect(mod).toBeNull();
   });
 
   // =============================================================================

@@ -90,7 +90,8 @@ export function formatCombatCoverLabel(
   if (
     combatInfo.targetCoverLevel === CoverLevel.None &&
     combatInfo.targetCoverModifier <= 0 &&
-    !combatInfo.targetCoverReason
+    !combatInfo.targetCoverReason &&
+    !combatInfo.targetHullDownReason
   ) {
     return null;
   }
@@ -98,8 +99,12 @@ export function formatCombatCoverLabel(
     combatInfo.targetCoverModifier > 0
       ? ` +${combatInfo.targetCoverModifier}`
       : '';
+  const reasons = [
+    combatInfo.targetCoverReason,
+    combatInfo.targetHullDownReason,
+  ].filter(Boolean);
   return `Cover: ${combatInfo.targetCoverLevel}${modifier}${
-    combatInfo.targetCoverReason ? ` - ${combatInfo.targetCoverReason}` : ''
+    reasons.length > 0 ? ` - ${reasons.join('; ')}` : ''
   }`;
 }
 

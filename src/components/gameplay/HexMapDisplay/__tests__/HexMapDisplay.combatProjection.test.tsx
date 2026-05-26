@@ -83,6 +83,7 @@ function makeCombatState(
       readonly hexesMovedThisTurn?: number;
       readonly pilotSpas?: readonly string[];
       readonly prone?: boolean;
+      readonly hullDown?: boolean;
       readonly shutdown?: boolean;
       readonly combatState?: IGameState['units'][string]['combatState'];
     }
@@ -107,6 +108,7 @@ function makeCombatState(
           movementThisTurn: unit.movementThisTurn ?? MovementType.Stationary,
           hexesMovedThisTurn: unit.hexesMovedThisTurn ?? 0,
           prone: unit.prone,
+          hullDown: unit.hullDown,
           destroyed: false,
           shutdown: unit.shutdown ?? false,
           hasRetreated: false,
@@ -2477,6 +2479,79 @@ describe('HexMapDisplay combat projection', () => {
     expect(coverRows).toHaveAttribute(
       'data-combat-cover-rule-refs',
       expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
+    );
+  });
+
+  it('projects hull-down cover metadata and to-hit modifiers from combat state', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const enemy = makeToken({
+      unitId: 'enemy',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+    });
+
+    render(
+      <HexMapDisplay
+        mapId="combat-map"
+        radius={2}
+        tokens={[selected, enemy]}
+        selectedHex={null}
+        unitWeapons={{ selected: [makeWeapon()] }}
+        combatState={makeCombatState({
+          selected: {
+            side: GameSide.Player,
+            position: { q: 0, r: 0 },
+          },
+          enemy: {
+            side: GameSide.Opponent,
+            position: { q: 2, r: 0 },
+            hullDown: true,
+          },
+        })}
+        hexTerrain={[
+          {
+            coordinate: { q: 1, r: 0 },
+            elevation: 0,
+            features: [{ type: TerrainType.Building, level: 1 }],
+          },
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('overlay-toggle-cover'));
+
+    const targetHex = screen.getByTestId('hex-2-0');
+    expect(targetHex).toHaveAttribute('data-combat-target-hull-down', 'true');
+    expect(targetHex).toHaveAttribute('data-combat-hull-down-modifier', '2');
+    expect(targetHex).toHaveAttribute(
+      'data-combat-hull-down-reason',
+      'Target in hull-down position with cover: +2',
+    );
+    expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '7');
+    expect(targetHex).toHaveAttribute(
+      'data-combat-to-hit-modifiers',
+      expect.stringContaining('Hull Down:2'),
+    );
+    const coverOverlay = screen.getByTestId('cover-overlay-hex-2-0');
+    expect(coverOverlay).toHaveAttribute(
+      'data-cover-projection-target-hull-down',
+      'true',
+    );
+    expect(coverOverlay).toHaveAttribute(
+      'data-cover-projection-hull-down-modifier',
+      '2',
+    );
+
+    fireEvent.mouseEnter(targetHex);
+    const coverRows = screen.getByTestId('hex-combat-tooltip-cover');
+    expect(coverRows).toHaveAttribute('data-combat-target-hull-down', 'true');
+    expect(coverRows).toHaveAttribute('data-combat-hull-down-modifier', '2');
+    expect(coverRows).toHaveTextContent(
+      'Target in hull-down position with cover: +2',
     );
   });
 

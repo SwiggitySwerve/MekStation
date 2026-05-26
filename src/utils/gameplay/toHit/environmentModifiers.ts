@@ -48,15 +48,15 @@ export function calculateHullDownModifier(
   hullDown: boolean,
   partialCover: boolean,
 ): IToHitModifierDetail | null {
-  if (!hullDown || partialCover) {
+  if (!hullDown || !partialCover) {
     return null;
   }
 
   return {
-    name: 'Hull-Down (Partial Cover)',
-    value: 1,
+    name: 'Hull Down',
+    value: 2,
     source: 'terrain',
-    description: 'Target in hull-down position: +1',
+    description: 'Target in hull-down position with cover: +2',
   };
 }
 

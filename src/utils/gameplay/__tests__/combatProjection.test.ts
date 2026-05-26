@@ -11,6 +11,7 @@ import {
   TokenUnitType,
 } from '@/types/gameplay';
 import { createHexGrid } from '@/utils/gameplay/hexGrid';
+import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 import { getTwoD6HitProbability } from '@/utils/gameplay/toHit/forecast';
 
 import { deriveCombatRangeHexes } from '../combatProjection';
@@ -57,6 +58,7 @@ function makeCombatState(
       readonly movementThisTurn?: MovementType;
       readonly hexesMovedThisTurn?: number;
       readonly prone?: boolean;
+      readonly hullDown?: boolean;
       readonly shutdown?: boolean;
       readonly destroyed?: boolean;
     }
@@ -81,6 +83,7 @@ function makeCombatState(
           movementThisTurn: unit.movementThisTurn ?? MovementType.Stationary,
           hexesMovedThisTurn: unit.hexesMovedThisTurn ?? 0,
           prone: unit.prone,
+          hullDown: unit.hullDown,
           destroyed: unit.destroyed ?? false,
           shutdown: unit.shutdown ?? false,
           hasRetreated: false,
@@ -144,6 +147,60 @@ describe('deriveCombatRangeHexes', () => {
     });
     expect(targetHex?.toHitNumber).toBeGreaterThan(0);
     expect(targetHex?.attackInvalidReason).toBeUndefined();
+  });
+
+  it('projects source-pinned hull-down cover modifiers from combat state', () => {
+    const grid = createHexGrid({ radius: 3 });
+    const coverHex = grid.hexes.get('1,0');
+    expect(coverHex).toBeDefined();
+    grid.hexes.set('1,0', {
+      ...coverHex!,
+      terrain: terrainStringFromFeatures([
+        { type: TerrainType.Building, level: 1 },
+      ]),
+    });
+    const attacker = makeToken({
+      unitId: 'attacker',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const target = makeToken({
+      unitId: 'target',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+    });
+
+    const targetHex = deriveCombatRangeHexes({
+      attacker,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attacker, target],
+      weapons: [makeWeapon()],
+      combatState: makeCombatState({
+        attacker: { side: GameSide.Player, position: { q: 0, r: 0 } },
+        target: {
+          side: GameSide.Opponent,
+          position: { q: 2, r: 0 },
+          hullDown: true,
+        },
+      }),
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(targetHex).toMatchObject({
+      attackable: true,
+      targetPartialCover: true,
+      targetCoverModifier: 1,
+      targetHullDown: true,
+      targetHullDownModifier: 2,
+      targetHullDownReason: 'Target in hull-down position with cover: +2',
+      toHitNumber: 7,
+    });
+    expect(targetHex?.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'Partial Cover', value: 1 }),
+        expect.objectContaining({ name: 'Hull Down', value: 2 }),
+      ]),
+    );
   });
 
   it('projects available weapon heat and ammo impact from weapon statuses', () => {

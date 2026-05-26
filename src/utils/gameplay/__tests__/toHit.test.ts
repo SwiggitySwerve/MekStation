@@ -2562,44 +2562,45 @@ describe('calculateHullDownModifier', () => {
     expect(calculateHullDownModifier(false, false)).toBeNull();
   });
 
-  it('should return +1 when hull-down and no terrain partial cover', () => {
+  it('should return null when hull-down lacks LOS/terrain partial cover', () => {
     const mod = calculateHullDownModifier(true, false);
-    expect(mod).not.toBeNull();
-    expect(mod?.value).toBe(1);
+    expect(mod).toBeNull();
   });
 
-  it('should return null when hull-down but already has terrain partial cover', () => {
-    // Hull-down does not stack with terrain partial cover
-    expect(calculateHullDownModifier(true, true)).toBeNull();
+  it('should return +2 when hull-down has LOS/terrain partial cover', () => {
+    const mod = calculateHullDownModifier(true, true);
+    expect(mod).not.toBeNull();
+    expect(mod?.value).toBe(2);
   });
 
   it('should set source to terrain', () => {
-    const mod = calculateHullDownModifier(true, false);
+    const mod = calculateHullDownModifier(true, true);
     expect(mod?.source).toBe('terrain');
   });
 
-  it('should set name to Hull-Down (Partial Cover)', () => {
-    const mod = calculateHullDownModifier(true, false);
-    expect(mod?.name).toBe('Hull-Down (Partial Cover)');
+  it('should set name to Hull Down', () => {
+    const mod = calculateHullDownModifier(true, true);
+    expect(mod?.name).toBe('Hull Down');
   });
 
   it('should include hull-down description', () => {
-    const mod = calculateHullDownModifier(true, false);
+    const mod = calculateHullDownModifier(true, true);
     expect(mod?.description).toContain('hull-down');
   });
 });
 
 describe('calculateToHit with hull-down modifier', () => {
-  it('should apply +1 hull-down modifier to attacks against hull-down target', () => {
+  it('should apply +2 hull-down modifier to attacks against covered hull-down target', () => {
     const attacker = createTestAttackerState({ gunnery: 4 });
-    const target = createTestTargetState({ hullDown: true });
+    const target = createTestTargetState({
+      hullDown: true,
+      partialCover: true,
+    });
     const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
 
-    // Gunnery 4 + Hull-down +1 = 5
-    expect(result.finalToHit).toBe(5);
-    expect(
-      result.modifiers.some((m) => m.name === 'Hull-Down (Partial Cover)'),
-    ).toBe(true);
+    // Gunnery 4 + Partial cover 1 + Hull-down 2 = 7
+    expect(result.finalToHit).toBe(7);
+    expect(result.modifiers.some((m) => m.name === 'Hull Down')).toBe(true);
   });
 
   it('should not apply hull-down when hullDown is false', () => {
@@ -2608,9 +2609,7 @@ describe('calculateToHit with hull-down modifier', () => {
     const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
 
     expect(result.finalToHit).toBe(4);
-    expect(
-      result.modifiers.some((m) => m.name === 'Hull-Down (Partial Cover)'),
-    ).toBe(false);
+    expect(result.modifiers.some((m) => m.name === 'Hull Down')).toBe(false);
   });
 
   it('should not apply hull-down when hullDown is undefined', () => {
@@ -2619,12 +2618,10 @@ describe('calculateToHit with hull-down modifier', () => {
     const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
 
     expect(result.finalToHit).toBe(4);
-    expect(
-      result.modifiers.some((m) => m.name === 'Hull-Down (Partial Cover)'),
-    ).toBe(false);
+    expect(result.modifiers.some((m) => m.name === 'Hull Down')).toBe(false);
   });
 
-  it('should not double-stack hull-down with terrain partial cover', () => {
+  it('should stack MegaMek hull-down modifier with terrain partial cover', () => {
     const attacker = createTestAttackerState({ gunnery: 4 });
     const target = createTestTargetState({
       partialCover: true,
@@ -2632,11 +2629,9 @@ describe('calculateToHit with hull-down modifier', () => {
     });
     const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
 
-    // Gunnery 4 + partial cover +1 = 5 (hull-down suppressed because partialCover is true)
-    expect(result.finalToHit).toBe(5);
-    expect(
-      result.modifiers.some((m) => m.name === 'Hull-Down (Partial Cover)'),
-    ).toBe(false);
+    // Gunnery 4 + partial cover +1 + hull-down +2 = 7
+    expect(result.finalToHit).toBe(7);
+    expect(result.modifiers.some((m) => m.name === 'Hull Down')).toBe(true);
     expect(result.modifiers.some((m) => m.name === 'Partial Cover')).toBe(true);
   });
 
@@ -2645,10 +2640,13 @@ describe('calculateToHit with hull-down modifier', () => {
       gunnery: 4,
       movementType: MovementType.Walk,
     });
-    const target = createTestTargetState({ hullDown: true });
+    const target = createTestTargetState({
+      hullDown: true,
+      partialCover: true,
+    });
     const result = calculateToHit(attacker, target, RangeBracket.Medium, 5);
 
-    // Gunnery 4 + Medium 2 + Walk 1 + Hull-down 1 = 8
-    expect(result.finalToHit).toBe(8);
+    // Gunnery 4 + Medium 2 + Walk 1 + Partial cover 1 + Hull-down 2 = 10
+    expect(result.finalToHit).toBe(10);
   });
 });

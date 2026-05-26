@@ -28,6 +28,8 @@ export function combatProjectionHasCover(
     combatInfo.targetCoverLevel !== CoverLevel.None ||
     combatInfo.targetPartialCover ||
     combatInfo.targetCoverModifier > 0 ||
+    combatInfo.targetHullDown === true ||
+    (combatInfo.targetHullDownModifier ?? 0) > 0 ||
     Boolean(combatInfo.targetCoverReason)
   );
 }
@@ -59,6 +61,9 @@ export function coverProjectionOverlayTitleParts({
         : 'target partial cover false',
     );
     if (combatInfo.targetCoverReason) parts.push(combatInfo.targetCoverReason);
+    if (combatInfo.targetHullDownReason) {
+      parts.push(combatInfo.targetHullDownReason);
+    }
   }
 
   if (projectionExplanation) {
@@ -82,6 +87,12 @@ export function coverProjectionOverlayAttributes({
     ),
     'data-cover-projection-modifier': combatInfo?.targetCoverModifier,
     'data-cover-projection-reason': combatInfo?.targetCoverReason,
+    'data-cover-projection-target-hull-down': formatBoolean(
+      combatInfo?.targetHullDown,
+    ),
+    'data-cover-projection-hull-down-modifier':
+      combatInfo?.targetHullDownModifier,
+    'data-cover-projection-hull-down-reason': combatInfo?.targetHullDownReason,
     'data-cover-projection-attackable': formatBoolean(combatInfo?.attackable),
     'data-cover-projection-target-ids': combatInfo
       ? formatIds(combatInfo.targetUnitIds)

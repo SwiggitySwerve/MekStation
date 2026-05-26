@@ -52,7 +52,10 @@ import {
   tokenUsesMekHorizontalCover,
   tokenUsesMekWaterCover,
 } from './terrainCover';
-import { calculateTargetTerrainModifierFromHex } from './toHit';
+import {
+  calculateHullDownModifier,
+  calculateTargetTerrainModifierFromHex,
+} from './toHit';
 import {
   representedWaterAttackInvalidState,
   weaponPassesRepresentedWaterAttackRules,
@@ -254,6 +257,15 @@ export function deriveCombatRangeHexes({
         ? tokenUsesMekWaterCover(visibleTargetToken)
         : true,
     });
+    const targetHullDown = projectedTargetUnit?.hullDown === true;
+    const targetHullDownModifier = calculateHullDownModifier(
+      targetHullDown,
+      targetCover.partialCover,
+    );
+    const targetHullDownReason = targetHullDown
+      ? (targetHullDownModifier?.description ??
+        'Target is hull-down, but MegaMek applies the hull-down modifier only when LOS/terrain cover is present')
+      : undefined;
     const targetTerrainModifier = calculateTargetTerrainModifierFromHex(
       grid.hexes.get(coordToKey(hex)),
     );
@@ -398,6 +410,9 @@ export function deriveCombatRangeHexes({
       targetPartialCover: targetCover.partialCover,
       targetCoverModifier: targetCover.modifier,
       targetCoverReason: targetCover.reason,
+      targetHullDown,
+      targetHullDownModifier: targetHullDownModifier?.value,
+      targetHullDownReason,
       minimumRangePenalty:
         minimumRangePenalty > 0 ? minimumRangePenalty : undefined,
       minimumRangeWeaponIds:

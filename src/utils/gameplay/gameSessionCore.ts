@@ -520,6 +520,7 @@ export function declareAttack(
       prone: targetUnit.prone ?? false,
       immobile: isRepresentedTargetImmobile(targetUnit),
       partialCover: targetPartialCover,
+      hullDown: targetUnit.hullDown === true,
     };
     const minimumRange = minimumRangeForAttack(
       attackWeapons,

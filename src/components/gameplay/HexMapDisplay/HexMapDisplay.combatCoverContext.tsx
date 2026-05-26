@@ -47,6 +47,9 @@ export function CombatCoverContextRows({
       data-combat-cover-modifier={combatInfo.targetCoverModifier}
       data-combat-cover-partial={String(combatInfo.targetPartialCover)}
       data-combat-cover-reason={combatInfo.targetCoverReason}
+      data-combat-target-hull-down={String(combatInfo.targetHullDown ?? false)}
+      data-combat-hull-down-modifier={combatInfo.targetHullDownModifier}
+      data-combat-hull-down-reason={combatInfo.targetHullDownReason}
       data-combat-cover-source-refs={combatSourceRefsAttribute}
       data-combat-cover-rule-refs={combatRuleRefsAttribute}
     >

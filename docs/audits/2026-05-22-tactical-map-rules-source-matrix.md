@@ -978,6 +978,19 @@ committable when terrain and MP allow it. Remaining special conversion gaps are
 in-progress LAM/QuadVee conversion cancellation state and hull-down handling,
 not the basic destroyed-gyro non-tracked movement gate.
 
+2026-05-26 hull-down target projection pin: MegaMek
+`ComputeTerrainMods.java:215-218` adds a +2 hull-down modifier for a
+hull-down Mek target only when LOS/terrain cover is present, and
+`ComputeToHitIsImpossible.java:630-634` keeps leg-mounted weapon restrictions
+as a separate attacker-side gate. MekStation now represents `hullDown` on game
+unit state, threads it through tactical combat projection, committed attack
+declaration, and quick-sim to-hit context, and exposes the hull-down flag,
+modifier, and reason through map hex attributes, cover-overlay metadata, and
+hover cover context. Remaining hull-down gaps are entry/exit movement actions,
+vehicle/QuadVee fortified-hex side-table handling, and attacker-side
+leg-weapon/physical-attack restrictions, not target to-hit preview/commit
+agreement.
+
 Additional fog visibility pin: engine attack visibility already passes the
 active battle grid into `canPlayerSeeUnit` before accepting an attack
 (`src/engine/InteractiveSession.actions.ts:322-326`). Map token construction

@@ -258,6 +258,7 @@ export function runAttackPhase(options: {
         prone: targetNow.prone ?? false,
         immobile: targetNow.shutdown ?? false,
         partialCover: targetPartialCover,
+        hullDown: targetNow.hullDown === true,
       };
 
       const toHitCalc = calculateToHit(

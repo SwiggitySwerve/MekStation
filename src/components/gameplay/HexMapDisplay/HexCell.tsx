@@ -633,6 +633,11 @@ export const HexCell = React.memo(function HexCell({
       }
       data-combat-cover-modifier={combatInfo?.targetCoverModifier}
       data-combat-cover-reason={combatInfo?.targetCoverReason}
+      data-combat-target-hull-down={
+        combatInfo ? (combatInfo.targetHullDown ? 'true' : 'false') : undefined
+      }
+      data-combat-hull-down-modifier={combatInfo?.targetHullDownModifier}
+      data-combat-hull-down-reason={combatInfo?.targetHullDownReason}
       data-combat-minimum-range-penalty={combatInfo?.minimumRangePenalty}
       data-combat-minimum-range-weapons={combatInfo?.minimumRangeWeaponIds?.join(
         ',',
