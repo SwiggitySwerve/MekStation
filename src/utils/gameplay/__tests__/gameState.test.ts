@@ -21,6 +21,7 @@ import {
   IGameStartedPayload,
   IGameEndedPayload,
   IPhaseChangedPayload,
+  IInitiativeOrderSetPayload,
   IInitiativeRolledPayload,
   IMovementDeclaredPayload,
   IDamageAppliedPayload,
@@ -396,6 +397,30 @@ describe('applyEvent - InitiativeRolled', () => {
 
     expect(newState.initiativeWinner).toBe(GameSide.Player);
     expect(newState.firstMover).toBe(GameSide.Opponent);
+  });
+});
+
+describe('applyEvent - InitiativeOrderSet', () => {
+  it('should set replayable initiative order and reset activation index', () => {
+    const initialState = {
+      ...createInitialGameState('game-1'),
+      activationIndex: 3,
+    };
+
+    const event = createTestEvent({
+      type: GameEventType.InitiativeOrderSet,
+      payload: {
+        winner: GameSide.Player,
+        firstMover: GameSide.Opponent,
+        secondMover: GameSide.Player,
+      } as IInitiativeOrderSetPayload,
+    });
+
+    const newState = applyEvent(initialState, event);
+
+    expect(newState.initiativeWinner).toBe(GameSide.Player);
+    expect(newState.firstMover).toBe(GameSide.Opponent);
+    expect(newState.activationIndex).toBe(0);
   });
 });
 

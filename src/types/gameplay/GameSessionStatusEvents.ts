@@ -42,6 +42,7 @@ import type {
   IGameCreatedPayload,
   IGameEndedPayload,
   IGameStartedPayload,
+  IInitiativeOrderSetPayload,
   IInitiativeRolledPayload,
   IPhaseChangedPayload,
   ITurnEndedPayload,
@@ -445,6 +446,7 @@ export type GameEventPayload =
   | ITurnEndedPayload
   | IPhaseChangedPayload
   | IInitiativeRolledPayload
+  | IInitiativeOrderSetPayload
   | IMovementDeclaredPayload
   | IMovementLockedPayload
   | IFacingChangedPayload

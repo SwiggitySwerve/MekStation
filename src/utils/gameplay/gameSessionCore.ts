@@ -62,6 +62,7 @@ import {
   createIndirectFireForwardObserverEvent,
   createIndirectFireNarcOverrideEvent,
   createIndirectFireSpotterSelectedEvent,
+  createInitiativeOrderSetEvent,
   createInitiativeRolledEvent,
   createMovementDeclaredEvent,
   createMovementLockedEvent,
@@ -338,7 +339,7 @@ export function rollInitiative(
 
   const sequence = session.events.length;
   const { turn } = session.currentState;
-  const event = createInitiativeRolledEvent(
+  const initiativeRolledEvent = createInitiativeRolledEvent(
     session.id,
     sequence,
     turn,
@@ -355,8 +356,18 @@ export function rollInitiative(
         }
       : undefined,
   );
+  const initiativeOrderSetEvent = createInitiativeOrderSetEvent(
+    session.id,
+    sequence + 1,
+    turn,
+    winner,
+    actualMovesFirst,
+  );
 
-  return appendEvent(session, event);
+  return appendEvent(
+    appendEvent(session, initiativeRolledEvent),
+    initiativeOrderSetEvent,
+  );
 }
 
 export function declareMovement(
