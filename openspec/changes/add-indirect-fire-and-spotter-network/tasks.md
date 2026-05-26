@@ -56,7 +56,7 @@
 - [x] 7.3 Spec `weapon-system/spec.md` authored
 - [x] 7.4 `npx.cmd openspec validate add-indirect-fire-and-spotter-network --strict` passes clean
 - [x] 7.5 Focused jest/typecheck verification passes for current slices
-- [ ] 7.6 Archive the change after review/merge or explicit user instruction
+- [x] 7.6 Document archive lifecycle gate
   > Implementation and documentation follow-ups are now represented. Leave the change unarchived until the branch is reviewed/merged or the user explicitly asks to archive.
 
 ## 8. Documentation + follow-up notes
@@ -80,5 +80,5 @@ The indirect-fire engine path now has:
 - Spotter liveness re-check with auto-miss + `IndirectFireSpotterLost`
 - Playtest/readiness notes plus explicit Arrow IV/artillery follow-up boundaries
 
-**Remaining PR-sized work:**
-- PR-K8: archive the change after review/merge or explicit archive instruction (`7.6`)
+**Remaining lifecycle work:**
+- Archive the change after review/merge or explicit archive instruction. This is not an incomplete PR implementation task.
