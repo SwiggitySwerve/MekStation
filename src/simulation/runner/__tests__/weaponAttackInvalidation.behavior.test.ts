@@ -6,7 +6,10 @@
  * state changes.
  */
 
-import type { IAttackDeclaredPayload } from '@/types/gameplay/GameSessionAttackEvents';
+import type {
+  IAttackDeclaredPayload,
+  IAttackInvalidPayload,
+} from '@/types/gameplay/GameSessionAttackEvents';
 import type { IAmmoSlotState } from '@/types/gameplay/GameSessionInterfaces';
 
 import {
@@ -728,6 +731,61 @@ describe('runAttackPhase invalid attacks', () => {
       weaponId: LRM15_WEAPON_ID,
       reason: 'NoLineOfSight',
     });
+
+    assertNoCombatSideEffects(result, stateWithAmmo, ammoBin);
+  });
+
+  it('does not elect sprinting or evading spotters for no-LOS indirect declarations', () => {
+    const ammoBin = createAmmoBin({
+      weaponType: 'lrm-15',
+      remainingRounds: 4,
+    });
+    const initialState = createWeaponAttackState({ q: 6, r: 0 });
+    const stateWithAmmo = withAttackerAmmo(
+      {
+        ...initialState,
+        units: {
+          ...initialState.units,
+          'sprinting-spotter': {
+            ...createUnit('sprinting-spotter', GameSide.Player, {
+              q: 5,
+              r: 1,
+            }),
+            sprintedThisTurn: true,
+          },
+          'evading-spotter': {
+            ...createUnit('evading-spotter', GameSide.Player, {
+              q: 5,
+              r: -1,
+            }),
+            isEvading: true,
+          },
+        },
+      },
+      ammoBin,
+    );
+    const grid = createBlockedGrid();
+
+    const { events, result } = runInvalidationScenario({
+      state: stateWithAmmo,
+      weapon: createLRM15(),
+      grid,
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.AttackInvalid,
+    ]);
+    expect(events[0].payload).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      weaponId: LRM15_WEAPON_ID,
+      reason: 'NoLineOfSight',
+    });
+    expect(
+      String((events[0].payload as IAttackInvalidPayload).details),
+    ).toContain(
+      'No friendly unit with line of sight to target is available as spotter',
+    );
 
     assertNoCombatSideEffects(result, stateWithAmmo, ammoBin);
   });

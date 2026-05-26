@@ -759,6 +759,13 @@ const MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS = [
     url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/compute/Compute.java#L2847-L2850',
     sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
   },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Entity.canSpot rejects sprinting entities before they can spot LRM indirect fire.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L9806-L9818',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 export const COMBAT_COMMAND_ACTION_SUPPORT = {
@@ -1004,7 +1011,7 @@ export const BATTLEMECH_ABSENT_ACTION_SUPPORT = {
   'movement.sprint': unsupported(
     'movement.sprint',
     'absent-action-surface',
-    'Sprint is a source-backed optional TacOps BattleMech movement surface with distinct MP, heat, and attack/targeting side effects; explicit sprinting attacker state now blocks ranged attacks and explicit target sprint state feeds ranged to-hit relief, but MovementType, tactical commands, game intents, wire payloads, P2P translation, runner movement phases, authoritative sprint state creation, sprint heat, and sprinting spotter restrictions have no authoritative sprint action path',
+    'Sprint is a source-backed optional TacOps BattleMech movement surface with distinct MP, heat, and attack/targeting side effects; explicit sprinting attacker state now blocks ranged attacks, explicit target sprint state feeds ranged to-hit relief, and explicit sprinting spotter state is rejected during LOS-spotter election, but MovementType, tactical commands, game intents, wire payloads, P2P translation, runner movement phases, authoritative sprint state creation, and sprint heat have no authoritative sprint action path',
     MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatActionSupportEntry>;

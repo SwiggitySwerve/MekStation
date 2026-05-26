@@ -270,6 +270,27 @@ describe('computeIndirectFireContext', () => {
     expect(result.spotterId).toBe('s1');
   });
 
+  it('hydrates sprinted and evading state so those units cannot spot indirect fire', () => {
+    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
+    const sprintedSpotter = makeUnit('s1', GameSide.Player, { q: 5, r: 1 });
+    const evadingSpotter = makeUnit('s2', GameSide.Player, { q: 5, r: -1 });
+    (
+      sprintedSpotter as unknown as { sprintedThisTurn: boolean }
+    ).sprintedThisTurn = true;
+    (evadingSpotter as unknown as { isEvading: boolean }).isEvading = true;
+
+    const result = computeIndirectFireContext(
+      'a1',
+      'lrm-15',
+      { q: 5, r: 0 },
+      makeState([attacker, sprintedSpotter, evadingSpotter]),
+      makeBlockedGrid(),
+    );
+
+    expect(result.permitted).toBe(false);
+    expect(result.spotterId).toBeNull();
+  });
+
   // -------------------------------------------------------------------------
   // §3 NARC/iNarc override wired through collaborator
   // -------------------------------------------------------------------------

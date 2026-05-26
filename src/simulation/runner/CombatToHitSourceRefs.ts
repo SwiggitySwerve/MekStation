@@ -100,6 +100,10 @@ export const MEGAMEK_INDIRECT_FIRE_TO_HIT_SOURCE_REFS = [
     'MegaMek Compute.getSpotterMovementModifier adds spotter walked +1, ran/skidded +2, jumped +3, or sprinted impossible for indirect fire spotting.',
     'megamek/src/megamek/common/compute/Compute.java#L2689-L2725',
   ),
+  megamekToHitRef(
+    'MegaMek Entity.canSpot rejects off-board, sprinting, and evading entities before they can spot LRM indirect fire.',
+    'megamek/src/megamek/common/units/Entity.java#L9806-L9818',
+  ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 export const MEGAMEK_PILOT_WOUNDS_TO_HIT_SOURCE_REFS = [

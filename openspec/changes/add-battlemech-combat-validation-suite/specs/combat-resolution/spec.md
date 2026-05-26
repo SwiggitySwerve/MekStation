@@ -111,7 +111,7 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **GIVEN** a BattleMech action surface has source-backed or product-visible relevance but no authoritative command, game intent, wire payload, P2P translation, or runner action path
 - **WHEN** the action support catalog is contract-tested
 - **THEN** optional TacOps sprint and evade movement SHALL appear as unsupported absent-action rows
-- **AND** the sprint row SHALL cite MegaMek source anchors for optional TacOps sprint availability, BattleMech sprint MP, sprint heat, attacker-sprinted firing failure, and target-sprinted to-hit relief
+- **AND** the sprint row SHALL cite MegaMek source anchors for optional TacOps sprint availability, BattleMech sprint MP, sprint heat, attacker-sprinted firing failure, target-sprinted to-hit relief, and sprinting spotter rejection
 - **AND** the evade row SHALL cite MegaMek source anchors for optional TacOps evade availability, evasion state, evasion heat, attacker-evading firing restrictions, and target-evading to-hit modifiers
 - **AND** product-visible MekStation command surfaces without identified BattleMech rule authority, including `movement.stabilize`, SHALL stay in `COMBAT_COMMAND_ACTION_SUPPORT` as unsupported `mekstation-deviation` rows rather than absent official action rows
 - **AND** integrated movement tactical command rows, including walk, run, jump, stand, go-prone, MASC activation, and Supercharger activation, SHALL cite the MekStation command factory that exposes the movement surface
@@ -254,7 +254,15 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **WHEN** that unit attempts a ranged weapon attack through runner attack resolution or event-sourced `declareAttack`
 - **THEN** the attack SHALL emit `AttackInvalid` with reason `AttackerSprinted`
 - **AND** no `AttackDeclared`, `AttackResolved`, heat, ammo, damage, or fired-weapon state side effects SHALL follow
-- **AND** optional TacOps Sprint movement-step declaration, sprint MP/heat generation, authoritative sprint-state creation, and sprinting spotter restrictions SHALL remain visible gaps until their source-backed paths exist
+- **AND** optional TacOps Sprint movement-step declaration, sprint MP/heat generation, and authoritative sprint-state creation SHALL remain visible gaps until their source-backed paths exist
+
+#### Scenario: Sprinting and evading units cannot spot indirect fire
+
+- **GIVEN** an indirect-capable ranged attack has no attacker-to-target line of sight
+- **AND** the only friendly spotter candidates with target line of sight have explicit `sprintedThisTurn: true` or `isEvading: true`
+- **WHEN** the runner or interactive indirect-fire context elects a LOS spotter
+- **THEN** those candidates SHALL be rejected before spotter election
+- **AND** the attack SHALL continue through the normal no-spotter `NoLineOfSight` invalidation path without heat, ammo, fired-weapon, or damage side effects
 
 #### Scenario: Evading targets modify ranged to-hit
 
@@ -271,7 +279,7 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **WHEN** helper to-hit calculation, event-sourced `declareAttack`, or runner attack resolution builds the `AttackDeclared` to-hit payload
 - **THEN** the attack SHALL include a `Target Sprinted` to-hit modifier of `-1`
 - **AND** runner turn reset SHALL clear `sprintedThisTurn` so the target-sprinted modifier is current-turn state
-- **AND** optional TacOps Sprint movement-step declaration, sprint MP/heat generation, authoritative sprint-state creation, and sprinting spotter restrictions SHALL remain visible gaps until their source-backed paths exist
+- **AND** optional TacOps Sprint movement-step declaration, sprint MP/heat generation, and authoritative sprint-state creation SHALL remain visible gaps until their source-backed paths exist
 
 #### Scenario: Evading targets modify physical to-hit
 

@@ -678,7 +678,7 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
   ),
   'indirect-fire': integrated(
     'indirect-fire',
-    'runAttackPhase applies validateLineOfSightForAttack indirect-fire penalty to declared/resolved TN',
+    'runAttackPhase applies validateLineOfSightForAttack indirect-fire penalty to declared/resolved TN, and explicit sprinting/evading spotter state is rejected before LOS-spotter election',
     MEGAMEK_INDIRECT_FIRE_TO_HIT_SOURCE_REFS,
   ),
   'pilot-wounds': integrated(
