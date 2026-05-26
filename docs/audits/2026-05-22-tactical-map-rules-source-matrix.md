@@ -1645,6 +1645,17 @@ target validity, weapon option filtering, attack validation, or attack
 resolution; it makes range/arc/LOS targeting context inspectable without
 relying on aggregate combat metadata.
 
+2026-05-26 runtime movement action agreement pin: Available movement actions now
+resolve the same runtime movement capability used by map movement projection and
+commit validation before deriving legal destinations. Focused engine coverage
+imports a LAM in Mek mode, changes its runtime state to AirMek after session
+creation, and proves the AirMek-reachable destination appears in
+`getAvailableActions()` before the same path commits with matching MP cost,
+heat, and movement event path. This narrows the movement-oracle gap for
+runtime conversion changes after import; conversion action timing, remaining
+LAM airborne Fighter/AirMek ground-clearance submodes, infantry mount/dismount
+oracle sweeps, and broader external oracle comparisons remain follow-up work.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

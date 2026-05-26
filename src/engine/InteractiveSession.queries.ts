@@ -15,7 +15,10 @@ import { unitStateToToken } from '@/lib/gameplay/unitStateToToken';
 import { MovementType } from '@/types/gameplay/HexGridInterfaces';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
 import { coordToKey } from '@/utils/gameplay/hexMath';
-import { movementDeclarationLockInvalidState } from '@/utils/gameplay/movement';
+import {
+  movementDeclarationLockInvalidState,
+  resolveRuntimeMovementCapability,
+} from '@/utils/gameplay/movement';
 import { gridWithUnitOccupants } from '@/utils/gameplay/movement/occupancy';
 import { deriveReachableHexes } from '@/utils/gameplay/movement/reachable';
 
@@ -37,7 +40,11 @@ export function getAvailableActionsForState(
   }
 
   const weapons = weaponsByUnit.get(unitId) ?? [];
-  const movementCapability = movementByUnit.get(unitId) ?? null;
+  const rawMovementCapability = movementByUnit.get(unitId) ?? null;
+  const movementCapability = rawMovementCapability
+    ? (resolveRuntimeMovementCapability(unit, rawMovementCapability) ??
+      rawMovementCapability)
+    : null;
   if (!options.grid) {
     return {
       validMoves: [],

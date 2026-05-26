@@ -5,7 +5,10 @@ import type {
   IGameSession,
   IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
-import type { IMovementInvalidPayload } from '@/types/gameplay/GameSessionMovementEvents';
+import type {
+  IMovementDeclaredPayload,
+  IMovementInvalidPayload,
+} from '@/types/gameplay/GameSessionMovementEvents';
 
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
 import { TerrainPreset } from '@/types/encounter';
@@ -671,6 +674,116 @@ describe('GameEngine', () => {
       expect(moveKeys).toContain('2,0');
       expect(moveKeys).toContain('3,0');
       expect(moveKeys).not.toContain('4,0');
+    });
+
+    it('uses runtime conversion capability for available moves and committed movement after import', () => {
+      const grid = createGridFromHexTerrain(5, []);
+      const engine = new GameEngine({ seed: 42, turnLimit: 20, grid });
+      const p1: IAdaptedUnit = {
+        ...createTestUnit('player-1', GameSide.Player, { q: 0, r: 0 }),
+        walkMP: 1,
+        runMP: 2,
+        jumpMP: 2,
+        unitHeight: 1,
+        unitHeightProfile: { kind: 'lam', standingHeight: 1 },
+        conversionMode: 'mek',
+      };
+      const o1 = createTestUnit('opponent-1', GameSide.Opponent, {
+        q: -5,
+        r: 0,
+      });
+      const gameUnits = [
+        createGameUnit('player-1', GameSide.Player),
+        createGameUnit('opponent-1', GameSide.Opponent),
+      ];
+      const interactive = engine.createInteractiveSession(
+        [p1],
+        [o1],
+        gameUnits,
+      );
+      interactive.advancePhase();
+      placeInteractiveUnit(
+        interactive,
+        'player-1',
+        { q: 0, r: 0 },
+        Facing.Southeast,
+      );
+      placeInteractiveUnit(
+        interactive,
+        'opponent-1',
+        { q: -5, r: 0 },
+        Facing.North,
+      );
+
+      const mekMoveKeys = new Set(
+        interactive
+          .getAvailableActions('player-1')
+          .validMoves.map((hex) => `${hex.q},${hex.r}`),
+      );
+      expect(mekMoveKeys).not.toContain('3,0');
+
+      const state = interactive.getSession().currentState;
+      state.units['player-1'] = {
+        ...state.units['player-1'],
+        conversionMode: 'airmek',
+      };
+
+      expect(interactive.getMovementCapability('player-1')).toMatchObject({
+        walkMP: 6,
+        runMP: 9,
+        movementMode: 'wige',
+        movementHeatProfile: 'airmek',
+        unitHeight: 0,
+      });
+
+      const airMekMoveKeys = new Set(
+        interactive
+          .getAvailableActions('player-1')
+          .validMoves.map((hex) => `${hex.q},${hex.r}`),
+      );
+      expect(airMekMoveKeys).toContain('3,0');
+
+      interactive.applyMovement(
+        'player-1',
+        { q: 3, r: 0 },
+        Facing.Southeast,
+        MovementType.Walk,
+        [
+          { q: 0, r: 0 },
+          { q: 1, r: 0 },
+          { q: 2, r: 0 },
+          { q: 3, r: 0 },
+        ],
+      );
+
+      const declared = interactive
+        .getSession()
+        .events.find(
+          (event) =>
+            event.type === GameEventType.MovementDeclared &&
+            event.actorId === 'player-1',
+        );
+      expect(declared).toBeDefined();
+      expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+        unitId: 'player-1',
+        to: { q: 3, r: 0 },
+        movementType: MovementType.Walk,
+        mpUsed: 3,
+        heatGenerated: 1,
+        path: [
+          { q: 0, r: 0 },
+          { q: 1, r: 0 },
+          { q: 2, r: 0 },
+          { q: 3, r: 0 },
+        ],
+      });
+      expect(
+        interactive.getSession().currentState.units['player-1'],
+      ).toMatchObject({
+        position: { q: 3, r: 0 },
+        movementThisTurn: MovementType.Walk,
+        hexesMovedThisTurn: 3,
+      });
     });
 
     it('excludes occupied destinations from available movement actions', () => {
