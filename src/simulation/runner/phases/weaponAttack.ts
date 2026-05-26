@@ -17,8 +17,11 @@ import { calculateFiringArc } from '@/utils/gameplay/firingArc';
 import { isGroundToGroundGameAttack } from '@/utils/gameplay/groundToGround';
 import { hexDistance } from '@/utils/gameplay/hexMath';
 import {
+  HULL_DOWN_FRONT_WEAPON_BLOCKED_REASON,
   hullDownLegWeaponBlockedReason,
+  hullDownVehicleFrontWeaponBlockedReason,
   HULL_DOWN_LEG_WEAPON_BLOCKED_REASON,
+  isRepresentedVehicleAttacker,
 } from '@/utils/gameplay/hullDownRestrictions';
 import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 import { getHexCoverInfo } from '@/utils/gameplay/terrainCover';
@@ -204,6 +207,34 @@ export function runAttackPhase(options: {
               weaponId,
               reason: 'InvalidTarget' as const,
               details: HULL_DOWN_LEG_WEAPON_BLOCKED_REASON,
+            },
+            unitId,
+          ),
+        );
+        continue;
+      }
+      if (
+        hullDownVehicleFrontWeaponBlockedReason(
+          attackerNow.hullDown,
+          isRepresentedVehicleAttacker({
+            combatStateKind: attackerNow.combatState?.kind,
+          }),
+          weapon,
+        )
+      ) {
+        events.push(
+          createGameEvent(
+            gameId,
+            events.length,
+            GameEventType.AttackInvalid,
+            currentState.turn,
+            GamePhase.WeaponAttack,
+            {
+              attackerId: unitId,
+              targetId,
+              weaponId,
+              reason: 'InvalidTarget' as const,
+              details: HULL_DOWN_FRONT_WEAPON_BLOCKED_REASON,
             },
             unitId,
           ),

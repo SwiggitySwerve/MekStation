@@ -30,6 +30,8 @@ export function weaponStatusToPlanningWeapon(status: IWeaponStatus): IWeapon {
     destroyed: status.destroyed || Boolean(status.jammed),
     mountingArc: status.mountingArc,
     mountingArcs: status.mountingArcs,
+    vehicleMountLocation: status.vehicleMountLocation,
+    vehicleIsTurretMounted: status.vehicleIsTurretMounted,
   };
 }
 

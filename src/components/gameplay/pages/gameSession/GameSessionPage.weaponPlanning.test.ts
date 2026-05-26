@@ -2,6 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 
 import type { IWeaponStatus } from '@/types/gameplay';
 
+import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { FiringArc } from '@/types/gameplay';
 
 import {
@@ -41,6 +42,8 @@ describe('weaponStatusToPlanningWeapon', () => {
         ammoMax: 20,
         mountingArc: FiringArc.Left,
         mountingArcs: [FiringArc.Front, FiringArc.Left],
+        vehicleMountLocation: VehicleLocation.FRONT,
+        vehicleIsTurretMounted: false,
         ranges: {
           short: 6,
           medium: 12,
@@ -64,6 +67,8 @@ describe('weaponStatusToPlanningWeapon', () => {
       location: 'Right Arm',
       mountingArc: FiringArc.Left,
       mountingArcs: [FiringArc.Front, FiringArc.Left],
+      vehicleMountLocation: VehicleLocation.FRONT,
+      vehicleIsTurretMounted: false,
     });
   });
 

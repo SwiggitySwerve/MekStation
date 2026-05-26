@@ -1,5 +1,6 @@
 import type { IGameState, IUnitToken, IWeaponStatus } from '@/types/gameplay';
 
+import { VehicleLocation } from '@/types/construction/UnitLocation';
 import {
   Facing,
   FiringArc,
@@ -16,7 +17,10 @@ import { getTwoD6HitProbability } from '@/utils/gameplay/toHit/forecast';
 
 import { deriveCombatRangeHexes } from '../combatProjection';
 import { deriveValidWeaponTargetIds } from '../combatTargetIds';
-import { HULL_DOWN_LEG_WEAPON_BLOCKED_REASON } from '../hullDownRestrictions';
+import {
+  HULL_DOWN_FRONT_WEAPON_BLOCKED_REASON,
+  HULL_DOWN_LEG_WEAPON_BLOCKED_REASON,
+} from '../hullDownRestrictions';
 
 function makeToken(overrides: Partial<IUnitToken>): IUnitToken {
   return {
@@ -310,6 +314,121 @@ describe('deriveCombatRangeHexes', () => {
       attackInvalidReason: 'InvalidTarget',
       attackInvalidDetails: HULL_DOWN_LEG_WEAPON_BLOCKED_REASON,
       blockedReason: HULL_DOWN_LEG_WEAPON_BLOCKED_REASON,
+    });
+  });
+
+  it('blocks hull-down vehicle front weapons unless firing indirectly', () => {
+    const grid = createHexGrid({ radius: 3 });
+    const attacker = makeToken({
+      unitId: 'attacker',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      unitType: TokenUnitType.Vehicle,
+    });
+    const target = makeToken({
+      unitId: 'target',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+    });
+
+    const targetHex = deriveCombatRangeHexes({
+      attacker,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attacker, target],
+      weapons: [
+        makeWeapon({
+          id: 'front-ac',
+          name: 'Front AC/5',
+          location: 'Front',
+          vehicleMountLocation: VehicleLocation.FRONT,
+        }),
+        makeWeapon({
+          id: 'front-lrm',
+          name: 'Front LRM-5',
+          location: 'Front',
+          mode: 'Indirect',
+          vehicleMountLocation: VehicleLocation.FRONT,
+        }),
+      ],
+      combatState: makeCombatState({
+        attacker: {
+          side: GameSide.Player,
+          position: { q: 0, r: 0 },
+          hullDown: true,
+        },
+        target: { side: GameSide.Opponent, position: { q: 2, r: 0 } },
+      }),
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(targetHex).toMatchObject({
+      attackable: true,
+      weaponIdsInRange: ['front-ac', 'front-lrm'],
+      weaponIdsInArc: ['front-ac', 'front-lrm'],
+      weaponIdsAvailable: ['front-lrm'],
+      attackInvalidReason: undefined,
+    });
+    expect(targetHex?.weaponRangeOptions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          weaponId: 'front-ac',
+          available: false,
+          blockedReason: HULL_DOWN_FRONT_WEAPON_BLOCKED_REASON,
+        }),
+        expect.objectContaining({
+          weaponId: 'front-lrm',
+          available: true,
+          blockedReason: undefined,
+        }),
+      ]),
+    );
+  });
+
+  it('marks all-front hull-down vehicle direct volleys invalid before commit', () => {
+    const grid = createHexGrid({ radius: 3 });
+    const attacker = makeToken({
+      unitId: 'attacker',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      unitType: TokenUnitType.Vehicle,
+    });
+    const target = makeToken({
+      unitId: 'target',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+    });
+
+    const targetHex = deriveCombatRangeHexes({
+      attacker,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attacker, target],
+      weapons: [
+        makeWeapon({
+          id: 'front-ac',
+          name: 'Front AC/5',
+          location: 'Front',
+          vehicleMountLocation: VehicleLocation.FRONT,
+        }),
+      ],
+      combatState: makeCombatState({
+        attacker: {
+          side: GameSide.Player,
+          position: { q: 0, r: 0 },
+          hullDown: true,
+        },
+        target: { side: GameSide.Opponent, position: { q: 2, r: 0 } },
+      }),
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(targetHex).toMatchObject({
+      inRange: true,
+      inArc: true,
+      attackable: false,
+      weaponIdsAvailable: [],
+      attackInvalidReason: 'InvalidTarget',
+      attackInvalidDetails: HULL_DOWN_FRONT_WEAPON_BLOCKED_REASON,
+      blockedReason: HULL_DOWN_FRONT_WEAPON_BLOCKED_REASON,
     });
   });
 

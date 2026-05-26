@@ -42,7 +42,11 @@ import {
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
 import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
-import { hullDownLegWeaponBlockedReason } from '@/utils/gameplay/hullDownRestrictions';
+import {
+  hullDownLegWeaponBlockedReason,
+  hullDownVehicleFrontWeaponBlockedReason,
+  isRepresentedVehicleAttacker,
+} from '@/utils/gameplay/hullDownRestrictions';
 import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 import {
   applyForcedWithdrawalCheck,
@@ -380,6 +384,13 @@ export function runAttackPhase(
                 isWeaponInRange(weapon, attackRange) &&
                 weaponCoversTargetArc(weapon, targetArc),
             );
+      const attackerGameUnit = updatedSession.units.find(
+        (entry) => entry.id === unitId,
+      );
+      const attackerIsRepresentedVehicle = isRepresentedVehicleAttacker({
+        unitType: attackerGameUnit?.unitType,
+        combatStateKind: unit.combatState?.kind,
+      });
       const usableWeaponAttacks =
         grid && targetHex
           ? rangeAndArcWeaponAttacks.filter(
@@ -389,11 +400,22 @@ export function runAttackPhase(
                   attackerPosition: unit.position,
                   targetPosition: targetHex,
                   weapon,
-                }) && !hullDownLegWeaponBlockedReason(unit.hullDown, weapon),
+                }) &&
+                !hullDownLegWeaponBlockedReason(unit.hullDown, weapon) &&
+                !hullDownVehicleFrontWeaponBlockedReason(
+                  unit.hullDown,
+                  attackerIsRepresentedVehicle,
+                  weapon,
+                ),
             )
           : rangeAndArcWeaponAttacks.filter(
               (weapon) =>
-                !hullDownLegWeaponBlockedReason(unit.hullDown, weapon),
+                !hullDownLegWeaponBlockedReason(unit.hullDown, weapon) &&
+                !hullDownVehicleFrontWeaponBlockedReason(
+                  unit.hullDown,
+                  attackerIsRepresentedVehicle,
+                  weapon,
+                ),
             );
       const attackRangeBracket = bestAttackRangeBracket(
         attackRange,

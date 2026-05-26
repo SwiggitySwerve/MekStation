@@ -1,10 +1,51 @@
+import type {
+  VehicleLocation,
+  VTOLLocation,
+} from '@/types/construction/UnitLocation';
+import type { WeaponFireMode } from '@/types/gameplay/IndirectFireInterfaces';
+
+import { TokenUnitType } from '@/types/gameplay';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+
 export const HULL_DOWN_LEG_WEAPON_BLOCKED_REASON =
   'Hull-down Meks cannot fire leg-mounted weapons';
+
+export const HULL_DOWN_FRONT_WEAPON_BLOCKED_REASON =
+  'Nearby terrain blocks front weapons.';
 
 export const HULL_DOWN_KICK_BLOCKED_REASON = 'Attacker is hull down';
 
 export interface IWeaponWithMountLocation {
   readonly location?: string | null;
+}
+
+export interface IWeaponWithVehicleMountLocation {
+  readonly mode?: WeaponFireMode;
+  readonly vehicleMountLocation?:
+    | VehicleLocation
+    | VTOLLocation
+    | string
+    | null;
+}
+
+export interface IRepresentedVehicleAttackerInput {
+  readonly unitType?: UnitType | null;
+  readonly tokenUnitType?: TokenUnitType | null;
+  readonly combatStateKind?: string | null;
+}
+
+export function isRepresentedVehicleAttacker({
+  unitType,
+  tokenUnitType,
+  combatStateKind,
+}: IRepresentedVehicleAttackerInput): boolean {
+  return (
+    combatStateKind === 'vehicle' ||
+    tokenUnitType === TokenUnitType.Vehicle ||
+    unitType === UnitType.VEHICLE ||
+    unitType === UnitType.VTOL ||
+    unitType === UnitType.SUPPORT_VEHICLE
+  );
 }
 
 export function normalizeWeaponMountLocation(
@@ -70,6 +111,12 @@ export function isLegMountedWeaponLocation(
   return normalized === 'leg' || normalized.endsWith('_leg');
 }
 
+export function isFrontVehicleWeaponLocation(
+  location: VehicleLocation | VTOLLocation | string | null | undefined,
+): boolean {
+  return normalizeWeaponMountLocation(location) === 'front';
+}
+
 export function hullDownLegWeaponBlockedReason(
   attackerHullDown: boolean | undefined,
   weapon: IWeaponWithMountLocation,
@@ -77,5 +124,21 @@ export function hullDownLegWeaponBlockedReason(
   if (attackerHullDown !== true) return undefined;
   return isLegMountedWeaponLocation(weapon.location)
     ? HULL_DOWN_LEG_WEAPON_BLOCKED_REASON
+    : undefined;
+}
+
+export function hullDownVehicleFrontWeaponBlockedReason(
+  attackerHullDown: boolean | undefined,
+  attackerIsVehicle: boolean | undefined,
+  weapon: IWeaponWithVehicleMountLocation,
+): string | undefined {
+  if (attackerHullDown !== true) return undefined;
+  if (weapon.mode === 'Indirect') return undefined;
+  const weaponCarriesVehicleMount = weapon.vehicleMountLocation !== undefined;
+  if (attackerIsVehicle !== true && !weaponCarriesVehicleMount) {
+    return undefined;
+  }
+  return isFrontVehicleWeaponLocation(weapon.vehicleMountLocation)
+    ? HULL_DOWN_FRONT_WEAPON_BLOCKED_REASON
     : undefined;
 }

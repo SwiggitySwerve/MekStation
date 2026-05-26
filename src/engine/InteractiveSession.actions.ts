@@ -66,7 +66,11 @@ import {
 } from '@/utils/gameplay/gameSession';
 import { appendEvent } from '@/utils/gameplay/gameSession';
 import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
-import { hullDownLegWeaponBlockedReason } from '@/utils/gameplay/hullDownRestrictions';
+import {
+  hullDownLegWeaponBlockedReason,
+  hullDownVehicleFrontWeaponBlockedReason,
+  isRepresentedVehicleAttacker,
+} from '@/utils/gameplay/hullDownRestrictions';
 import { semiGuidedTagIndirectFireBlockedReason } from '@/utils/gameplay/indirectFire';
 import {
   calculateLOS,
@@ -464,6 +468,13 @@ export function applyInteractiveSessionAttack(
   const attackerUnit = input.session.currentState.units[input.attackerId];
   const targetUnit = input.session.currentState.units[input.targetId];
   if (!attackerUnit) return input.session;
+  const attackerGameUnit = input.session.units.find(
+    (unit) => unit.id === input.attackerId,
+  );
+  const attackerIsRepresentedVehicle = isRepresentedVehicleAttacker({
+    unitType: attackerGameUnit?.unitType,
+    combatStateKind: attackerUnit.combatState?.kind,
+  });
   if (!targetUnit || targetUnit.destroyed) {
     return appendInteractiveAttackInvalid(
       input.session,
@@ -554,6 +565,14 @@ export function applyInteractiveSessionAttack(
   const hullDownLegWeaponInvalidWeapon = rangeAndArcWeaponAttacks.find(
     (weapon) => hullDownLegWeaponBlockedReason(attackerUnit.hullDown, weapon),
   );
+  const hullDownVehicleFrontWeaponInvalidWeapon = rangeAndArcWeaponAttacks.find(
+    (weapon) =>
+      hullDownVehicleFrontWeaponBlockedReason(
+        attackerUnit.hullDown,
+        attackerIsRepresentedVehicle,
+        weapon,
+      ),
+  );
   const usableWeaponAttacks = rangeAndArcWeaponAttacks.filter(
     (weapon) =>
       (input.grid && resolvedTargetHex
@@ -565,6 +584,11 @@ export function applyInteractiveSessionAttack(
           })
         : true) &&
       !hullDownLegWeaponBlockedReason(attackerUnit.hullDown, weapon) &&
+      !hullDownVehicleFrontWeaponBlockedReason(
+        attackerUnit.hullDown,
+        attackerIsRepresentedVehicle,
+        weapon,
+      ) &&
       !groundToAirIndirectWeaponBlockedReason(attackerUnit, targetUnit, weapon),
   );
   const attackPreResolution =
@@ -614,6 +638,20 @@ export function applyInteractiveSessionAttack(
           hullDownLegWeaponInvalidWeapon,
         )!,
         hullDownLegWeaponInvalidWeapon.weaponId,
+      );
+    }
+    if (hullDownVehicleFrontWeaponInvalidWeapon) {
+      return appendInteractiveAttackInvalid(
+        input.session,
+        input.attackerId,
+        input.targetId,
+        'InvalidTarget',
+        hullDownVehicleFrontWeaponBlockedReason(
+          attackerUnit.hullDown,
+          attackerIsRepresentedVehicle,
+          hullDownVehicleFrontWeaponInvalidWeapon,
+        )!,
+        hullDownVehicleFrontWeaponInvalidWeapon.weaponId,
       );
     }
     if (groundToAirIndirectInvalidWeapon) {

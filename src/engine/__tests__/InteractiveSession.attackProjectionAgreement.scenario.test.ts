@@ -8,6 +8,7 @@ import type {
   IWeaponStatus,
 } from '@/types/gameplay';
 
+import { VehicleLocation } from '@/types/construction/UnitLocation';
 import {
   Facing,
   FiringArc,
@@ -37,7 +38,10 @@ import {
   startGame,
 } from '@/utils/gameplay/gameSession';
 import { resolveAttack } from '@/utils/gameplay/gameSessionAttackResolution';
-import { HULL_DOWN_LEG_WEAPON_BLOCKED_REASON } from '@/utils/gameplay/hullDownRestrictions';
+import {
+  HULL_DOWN_FRONT_WEAPON_BLOCKED_REASON,
+  HULL_DOWN_LEG_WEAPON_BLOCKED_REASON,
+} from '@/utils/gameplay/hullDownRestrictions';
 import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 import { applyInteractiveSessionAttack } from '../InteractiveSession.actions';
@@ -321,6 +325,12 @@ function buildUnitsWithVehicleTarget(): readonly IGameUnit[] {
   );
 }
 
+function buildUnitsWithVehicleAttacker(): readonly IGameUnit[] {
+  return buildUnits().map((unit) =>
+    unit.id === 'a1' ? { ...unit, unitType: UnitType.VEHICLE } : unit,
+  );
+}
+
 function buildUnitsWithStackedVehicleTarget(): readonly IGameUnit[] {
   return [
     ...buildUnits(),
@@ -409,6 +419,35 @@ function setupSessionAtWeaponAttack(): IGameSession {
     movementThisTurn: MovementType.Stationary,
   };
 
+  return session;
+}
+
+function setupVehicleAttackerSessionAtWeaponAttack(): IGameSession {
+  let session = createGameSession(
+    {
+      mapRadius: 3,
+      turnLimit: 0,
+      victoryConditions: ['elimination'],
+      optionalRules: [],
+    } as never,
+    buildUnitsWithVehicleAttacker(),
+  );
+  session = startGame(session, GameSide.Player);
+  session = rollInitiative(session);
+  session = advancePhase(session);
+  session = advancePhase(session);
+  session.currentState.units.a1 = {
+    ...session.currentState.units.a1,
+    position: { q: 0, r: 0 },
+    facing: Facing.Southeast,
+    movementThisTurn: MovementType.Stationary,
+  };
+  session.currentState.units.t1 = {
+    ...session.currentState.units.t1,
+    position: { q: 2, r: 0 },
+    facing: Facing.North,
+    movementThisTurn: MovementType.Stationary,
+  };
   return session;
 }
 
@@ -722,6 +761,44 @@ function buildLegMountedWeaponsByUnit(): Map<string, readonly IWeapon[]> {
           minRange: 0,
           location: 'left_leg',
           ammoPerTon: -1,
+          destroyed: false,
+        },
+      ],
+    ],
+  ]);
+}
+
+function buildFrontVehicleWeaponsByUnit(): Map<string, readonly IWeapon[]> {
+  return new Map([
+    [
+      'a1',
+      [
+        {
+          id: 'front-ac',
+          name: 'Front AC/5',
+          shortRange: 2,
+          mediumRange: 4,
+          longRange: 6,
+          damage: 5,
+          heat: 1,
+          minRange: 0,
+          location: 'Front',
+          vehicleMountLocation: VehicleLocation.FRONT,
+          ammoPerTon: 20,
+          destroyed: false,
+        },
+        {
+          id: 'lrm-5-front',
+          name: 'Front LRM-5',
+          shortRange: 7,
+          mediumRange: 14,
+          longRange: 21,
+          damage: 5,
+          heat: 2,
+          minRange: 0,
+          location: 'Front',
+          vehicleMountLocation: VehicleLocation.FRONT,
+          ammoPerTon: 24,
           destroyed: false,
         },
       ],
@@ -1379,6 +1456,168 @@ describe('interactive attack projection agreement', () => {
       reason: projection!.attackInvalidReason,
       details: projection!.attackInvalidDetails,
     });
+  });
+
+  it('keeps hull-down vehicle front-weapon blocks aligned between preview and committed attacks', () => {
+    const session = setupVehicleAttackerSessionAtWeaponAttack();
+    session.currentState.units.a1 = {
+      ...session.currentState.units.a1,
+      hullDown: true,
+    };
+    const grid = makeClearGrid(3);
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+      unitType: TokenUnitType.Vehicle,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+      facing: Facing.North,
+    });
+    const weapons = [
+      makeWeaponStatus({
+        id: 'front-ac',
+        name: 'Front AC/5',
+        location: 'Front',
+        vehicleMountLocation: VehicleLocation.FRONT,
+      }),
+    ];
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons,
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(projection).toMatchObject({
+      inRange: true,
+      inArc: true,
+      attackable: false,
+      weaponIdsAvailable: [],
+      attackInvalidReason: 'InvalidTarget',
+      attackInvalidDetails: HULL_DOWN_FRONT_WEAPON_BLOCKED_REASON,
+      blockedReason: HULL_DOWN_FRONT_WEAPON_BLOCKED_REASON,
+    });
+    expect(projection?.weaponRangeOptions).toEqual([
+      expect.objectContaining({
+        weaponId: 'front-ac',
+        available: false,
+        blockedReason: HULL_DOWN_FRONT_WEAPON_BLOCKED_REASON,
+      }),
+    ]);
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildFrontVehicleWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['front-ac'],
+      grid,
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponId: 'front-ac',
+      reason: projection!.attackInvalidReason,
+      details: projection!.attackInvalidDetails,
+    });
+  });
+
+  it('keeps hull-down vehicle front-mounted indirect fire available', () => {
+    const session = setupVehicleAttackerSessionAtWeaponAttack();
+    session.currentState.units.a1 = {
+      ...session.currentState.units.a1,
+      hullDown: true,
+    };
+    const grid = makeClearGrid(3);
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+      unitType: TokenUnitType.Vehicle,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+      facing: Facing.North,
+    });
+    const weapons = [
+      makeWeaponStatus({
+        id: 'lrm-5-front',
+        name: 'Front LRM-5',
+        location: 'Front',
+        mode: 'Indirect',
+        vehicleMountLocation: VehicleLocation.FRONT,
+        ranges: { short: 7, medium: 14, long: 21 },
+      }),
+    ];
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons,
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(projection).toMatchObject({
+      attackable: true,
+      weaponIdsAvailable: ['lrm-5-front'],
+      attackInvalidReason: undefined,
+    });
+    expect(projection?.weaponRangeOptions).toEqual([
+      expect.objectContaining({
+        weaponId: 'lrm-5-front',
+        available: true,
+        blockedReason: undefined,
+      }),
+    ]);
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildFrontVehicleWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['lrm-5-front'],
+      weaponModesByWeaponId: { 'lrm-5-front': 'Indirect' },
+      grid,
+    });
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.weapons).toEqual(['lrm-5-front']);
+    expect(payload.weaponAttacks).toEqual([
+      expect.objectContaining({
+        weaponId: 'lrm-5-front',
+        mode: 'Indirect',
+      }),
+    ]);
   });
 
   it('keeps target-adjacent elevation partial cover aligned between preview and committed attacks', () => {

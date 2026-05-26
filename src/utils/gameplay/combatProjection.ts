@@ -47,7 +47,11 @@ import {
 import { determineArc } from './firingArcs';
 import { isGroundToGroundTokenAttack } from './groundToGround';
 import { coordToKey, hexDistance } from './hexMath';
-import { hullDownLegWeaponBlockedReason } from './hullDownRestrictions';
+import {
+  hullDownLegWeaponBlockedReason,
+  hullDownVehicleFrontWeaponBlockedReason,
+  isRepresentedVehicleAttacker,
+} from './hullDownRestrictions';
 import {
   getTargetCoverInfo,
   tokenUsesMekHorizontalCover,
@@ -198,6 +202,10 @@ export function deriveCombatRangeHexes({
     const projectedTargetUnit = projectedTargetUnitId
       ? combatState?.units[projectedTargetUnitId]
       : undefined;
+    const attackerIsRepresentedVehicle = isRepresentedVehicleAttacker({
+      tokenUnitType: attacker.unitType,
+      combatStateKind: attackerUnit?.combatState?.kind,
+    });
     const groundToAirIndirectBlockedReasonForWeapon = (weapon: IWeaponStatus) =>
       attackerUnit && projectedTargetUnit
         ? groundToAirIndirectWeaponBlockedReason(
@@ -208,8 +216,17 @@ export function deriveCombatRangeHexes({
         : undefined;
     const hullDownLegWeaponBlockedReasonForWeapon = (weapon: IWeaponStatus) =>
       hullDownLegWeaponBlockedReason(attackerUnit?.hullDown, weapon);
+    const hullDownVehicleFrontWeaponBlockedReasonForWeapon = (
+      weapon: IWeaponStatus,
+    ) =>
+      hullDownVehicleFrontWeaponBlockedReason(
+        attackerUnit?.hullDown,
+        attackerIsRepresentedVehicle,
+        weapon,
+      );
     const weaponRuleBlockedReasonForWeapon = (weapon: IWeaponStatus) =>
       hullDownLegWeaponBlockedReasonForWeapon(weapon) ??
+      hullDownVehicleFrontWeaponBlockedReasonForWeapon(weapon) ??
       groundToAirIndirectBlockedReasonForWeapon(weapon);
     const groundToAirIndirectInvalidState = rangeAndArcWeapons.some(
       groundToAirIndirectBlockedReasonForWeapon,
@@ -226,6 +243,18 @@ export function deriveCombatRangeHexes({
           reason: 'InvalidTarget' as const,
           details: hullDownLegWeaponBlockedReasonForWeapon(
             rangeAndArcWeapons.find(hullDownLegWeaponBlockedReasonForWeapon)!,
+          )!,
+        }
+      : undefined;
+    const hullDownVehicleFrontWeaponInvalidState = rangeAndArcWeapons.some(
+      hullDownVehicleFrontWeaponBlockedReasonForWeapon,
+    )
+      ? {
+          reason: 'InvalidTarget' as const,
+          details: hullDownVehicleFrontWeaponBlockedReasonForWeapon(
+            rangeAndArcWeapons.find(
+              hullDownVehicleFrontWeaponBlockedReasonForWeapon,
+            )!,
           )!,
         }
       : undefined;
@@ -360,6 +389,7 @@ export function deriveCombatRangeHexes({
       weaponEnvironmentInvalidState:
         waterAttackInvalidState ??
         hullDownLegWeaponInvalidState ??
+        hullDownVehicleFrontWeaponInvalidState ??
         groundToAirIndirectInvalidState,
       indirectFirePermitted: indirectFire?.available === true,
       indirectFireUnavailableReason,

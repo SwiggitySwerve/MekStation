@@ -26,7 +26,11 @@ import {
   lockAttack,
   lockMovement,
 } from '@/utils/gameplay/gameSession';
-import { hullDownLegWeaponBlockedReason } from '@/utils/gameplay/hullDownRestrictions';
+import {
+  hullDownLegWeaponBlockedReason,
+  hullDownVehicleFrontWeaponBlockedReason,
+  isRepresentedVehicleAttacker,
+} from '@/utils/gameplay/hullDownRestrictions';
 import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
 import { buildPhysicalTerrainContext } from '@/utils/gameplay/physicalAttacks/terrain';
@@ -124,6 +128,13 @@ export function runInteractiveSessionAITurn(
         );
         const targetHex =
           session.currentState.units[atkEvt.payload.targetId]?.position;
+        const attackerGameUnit = session.units.find(
+          (entry) => entry.id === unitId,
+        );
+        const attackerIsRepresentedVehicle = isRepresentedVehicleAttacker({
+          unitType: attackerGameUnit?.unitType,
+          combatStateKind: refreshedUnit?.combatState?.kind,
+        });
         const usableWeaponAttacks = targetHex
           ? weaponAttacks.filter(
               (weapon) =>
@@ -136,12 +147,22 @@ export function runInteractiveSessionAITurn(
                 !hullDownLegWeaponBlockedReason(
                   refreshedUnit?.hullDown,
                   weapon,
+                ) &&
+                !hullDownVehicleFrontWeaponBlockedReason(
+                  refreshedUnit?.hullDown,
+                  attackerIsRepresentedVehicle,
+                  weapon,
                 ),
             )
           : weaponAttacks.filter(
               (weapon) =>
                 !hullDownLegWeaponBlockedReason(
                   refreshedUnit?.hullDown,
+                  weapon,
+                ) &&
+                !hullDownVehicleFrontWeaponBlockedReason(
+                  refreshedUnit?.hullDown,
+                  attackerIsRepresentedVehicle,
                   weapon,
                 ),
             );

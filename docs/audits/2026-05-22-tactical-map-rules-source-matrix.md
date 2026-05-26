@@ -1775,6 +1775,19 @@ references instead of the prior pending MekStation-only helper label. This does
 not add new underwater range math, surface naval hit-table expansion, or an
 official rulebook citation beyond the local MegaMek oracle pin.
 
+2026-05-26 hull-down vehicle front-weapon pin: MegaMek
+`ComputeToHitIsImpossible.java:637-643` blocks hull-down `Tank` attackers from
+firing front-mounted weapons unless the attack is indirect and returns the
+`WeaponAttackAction.FrontBlockedByTerrain` message (`Nearby terrain blocks
+front weapons.`). MekStation now preserves vehicle mount metadata from live
+weapon status into attack-planning weapons and uses the shared hull-down
+restriction helper in combat projection, interactive attack commits, bot attack
+commits, and quick-sim weapon loops. Focused projection and interactive
+agreement tests prove direct front-mounted hull-down vehicle weapons are blocked
+before declaration while front-mounted indirect LRM fire remains available.
+Fortified-side-table behavior, QuadVee-specific hull-down vehicle mode details,
+and hull-down entry/exit movement actions remain follow-up work.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:
