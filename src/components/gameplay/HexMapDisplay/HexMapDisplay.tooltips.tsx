@@ -27,6 +27,7 @@ import { CombinedTacticalHoverTooltip } from './HexMapDisplay.combinedTooltip';
 import { MovementCostContextRows } from './HexMapDisplay.movementCostContext';
 import { MovementModeOptionRows } from './HexMapDisplay.movementOptionRows';
 import { MovementReasonContextRows } from './HexMapDisplay.movementReasonContext';
+import { MovementStandUpContextRows } from './HexMapDisplay.movementStandUpContext';
 import { MapMovementPointLegend } from './HexMapDisplay.mpLegend';
 import { ProjectionContextRows } from './HexMapDisplay.projectionTooltipRows';
 import {
@@ -209,33 +210,11 @@ function MovementHoverTooltip({
         projection={projection}
         testIdPrefix="hex-movement-tooltip"
       />
-      {movementInfo.standUpRequired && (
-        <div data-testid="hex-movement-tooltip-stand-up">
-          {movementInfo.standUpMode === 'careful'
-            ? 'Careful stand'
-            : 'Stand up'}
-          : +{movementInfo.standUpCost ?? '?'} MP
-        </div>
-      )}
-      {movementInfo.standUpPsrRequired && (
-        <div data-testid="hex-movement-tooltip-stand-up-psr">
-          {movementInfo.standUpPsrReason ?? 'Stand-up PSR'}
-          {movementInfo.standUpPsrImpossibleReason
-            ? ` impossible - ${movementInfo.standUpPsrImpossibleReason}`
-            : movementInfo.standUpPsrTargetNumber === undefined
-              ? ' PSR required'
-              : ` TN ${movementInfo.standUpPsrTargetNumber}`}
-          {movementInfo.standUpPsrModifier !== undefined &&
-          movementInfo.standUpPsrModifier !== 0
-            ? ` (${movementInfo.standUpPsrModifier >= 0 ? '+' : ''}${movementInfo.standUpPsrModifier})`
-            : ''}
-        </div>
-      )}
-      {movementInfo.standUpPsrModifierDetails?.length ? (
-        <div data-testid="hex-movement-tooltip-stand-up-modifiers">
-          Modifiers: {movementInfo.standUpPsrModifierDetails.join('; ')}
-        </div>
-      ) : null}
+      <MovementStandUpContextRows
+        movementInfo={movementInfo}
+        projection={projection}
+        testIdPrefix="hex-movement-tooltip"
+      />
       <MovementReasonContextRows
         movementInfo={movementInfo}
         projection={projection}

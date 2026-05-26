@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { ICombatRangeHex, IMovementRangeHex } from '@/types/gameplay';
+import type { ICombatRangeHex } from '@/types/gameplay';
 import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
 import {
@@ -28,6 +28,7 @@ import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
 import { MovementCostContextRows } from './HexMapDisplay.movementCostContext';
 import { MovementModeOptionRows } from './HexMapDisplay.movementOptionRows';
 import { MovementReasonContextRows } from './HexMapDisplay.movementReasonContext';
+import { MovementStandUpContextRows } from './HexMapDisplay.movementStandUpContext';
 import { IsometricOccluderContextRows } from './HexMapDisplay.terrainTooltip';
 import { CombatToHitModifierRows } from './HexMapDisplay.toHitModifierRows';
 import {
@@ -60,26 +61,6 @@ function combatReasonText(combatInfo: ICombatRangeHex): string | undefined {
         combatInfo.attackInvalidDetails ??
         combatInfo.visibilityBlockedReason ??
         combatInfo.lineOfSightBlockerReason);
-}
-
-function formatStandUpLabel(movementInfo: IMovementRangeHex): string {
-  return `${movementInfo.standUpMode === 'careful' ? 'Careful stand' : 'Stand up'}: +${movementInfo.standUpCost ?? '?'} MP`;
-}
-
-function formatStandUpPsrLabel(movementInfo: IMovementRangeHex): string {
-  const reason = movementInfo.standUpPsrReason ?? 'Stand-up PSR';
-  if (movementInfo.standUpPsrImpossibleReason) {
-    return `${reason} impossible - ${movementInfo.standUpPsrImpossibleReason}`;
-  }
-  if (movementInfo.standUpPsrTargetNumber === undefined) {
-    return `${reason} PSR required`;
-  }
-  const modifier =
-    movementInfo.standUpPsrModifier !== undefined &&
-    movementInfo.standUpPsrModifier !== 0
-      ? ` (${movementInfo.standUpPsrModifier >= 0 ? '+' : ''}${movementInfo.standUpPsrModifier})`
-      : '';
-  return `${reason} TN ${movementInfo.standUpPsrTargetNumber}${modifier}`;
 }
 
 function ProjectionTerrainRows({
@@ -189,21 +170,11 @@ export function CombinedTacticalHoverTooltip({
         projection={projection}
         testIdPrefix="hex-tactical-tooltip-movement"
       />
-      {movementInfo.standUpRequired && (
-        <div data-testid="hex-tactical-tooltip-movement-stand-up">
-          {formatStandUpLabel(movementInfo)}
-        </div>
-      )}
-      {movementInfo.standUpPsrRequired && (
-        <div data-testid="hex-tactical-tooltip-movement-stand-up-psr">
-          {formatStandUpPsrLabel(movementInfo)}
-        </div>
-      )}
-      {movementInfo.standUpPsrModifierDetails?.length ? (
-        <div data-testid="hex-tactical-tooltip-movement-stand-up-modifiers">
-          Modifiers: {movementInfo.standUpPsrModifierDetails.join('; ')}
-        </div>
-      ) : null}
+      <MovementStandUpContextRows
+        movementInfo={movementInfo}
+        projection={projection}
+        testIdPrefix="hex-tactical-tooltip-movement"
+      />
       <MovementReasonContextRows
         movementInfo={movementInfo}
         projection={projection}

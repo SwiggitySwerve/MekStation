@@ -109,6 +109,11 @@ const MOVEMENT_RULE_REFERENCES = [
   'MegaMek MovePath.java:1214-1218 MP-used accounting',
 ] as const;
 
+const STAND_UP_MOVEMENT_RULE_REFERENCES = [
+  'MegaMek GetUpStep.java:62 stand-up MP cost',
+  'MegaMek MovePathHandler.java:2027-2058 stand-up PSR resolution',
+] as const;
+
 const COMBAT_RULE_REFERENCES = [
   'MegaMek Compute.java:1313-1517 weapon range/to-hit modifiers',
   'MegaMek RangeType.java:95-151 range bracket classification',
@@ -468,6 +473,16 @@ function collectProjectionSourceReferences({
       detail: formatMovementSourceDetail(movement),
       ruleReferences: MOVEMENT_RULE_REFERENCES,
     });
+
+    if (movementHasStandUpContext(movement)) {
+      references.push({
+        channel: 'movement',
+        kind: 'megamek',
+        label: 'MegaMek stand-up movement rules projection',
+        detail: formatStandUpMovementSourceDetail(movement),
+        ruleReferences: STAND_UP_MOVEMENT_RULE_REFERENCES,
+      });
+    }
   }
 
   if (combat) {
@@ -569,6 +584,25 @@ function formatMovementSourceDetail(movement: IMovementRangeHex): string {
     ),
   );
   return `${modes.join(',')} projection`;
+}
+
+function movementHasStandUpContext(movement: IMovementRangeHex): boolean {
+  return Boolean(
+    movement.standUpRequired ||
+    movement.standUpPsrRequired ||
+    movement.standUpPsrModifierDetails?.length,
+  );
+}
+
+function formatStandUpMovementSourceDetail(
+  movement: IMovementRangeHex,
+): string {
+  const mode = movement.standUpMode ?? 'normal';
+  const cost =
+    movement.standUpCost === undefined ? 'unknown' : `${movement.standUpCost}`;
+  const psr = movement.standUpPsrRequired ? 'PSR projected' : 'no PSR';
+  const impossible = movement.standUpPsrImpossibleReason ? ' impossible' : '';
+  return `${mode} stand-up ${cost} MP ${psr}${impossible}`;
 }
 
 function formatCombatSourceDetail(combat: ICombatRangeHex): string {

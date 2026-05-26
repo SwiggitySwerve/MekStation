@@ -4621,11 +4621,64 @@ describe('HexMapDisplay combat projection', () => {
       screen.getByTestId('hex-tactical-tooltip-movement-stand-up'),
     ).toHaveTextContent('Careful stand: +2 MP');
     expect(
+      screen.getByTestId('hex-tactical-tooltip-movement-stand-up'),
+    ).toHaveAttribute('data-movement-context-kind', 'stand-up');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-movement-stand-up'),
+    ).toHaveAttribute('data-movement-stand-up-mode', 'careful');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-movement-stand-up'),
+    ).toHaveAttribute('data-movement-stand-up-cost', '2');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-movement-stand-up'),
+    ).toHaveAttribute(
+      'data-movement-source-refs',
+      expect.stringContaining(
+        'movement:megamek:MegaMek stand-up movement rules projection',
+      ),
+    );
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-movement-stand-up'),
+    ).toHaveAttribute(
+      'data-movement-rule-refs',
+      expect.stringContaining('movement:megamek:MegaMek GetUpStep.java'),
+    );
+    expect(
       screen.getByTestId('hex-tactical-tooltip-movement-stand-up-psr'),
     ).toHaveTextContent('Careful stand TN 4 (-2)');
     expect(
+      screen.getByTestId('hex-tactical-tooltip-movement-stand-up-psr'),
+    ).toHaveAttribute('data-movement-context-kind', 'stand-up-psr');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-movement-stand-up-psr'),
+    ).toHaveAttribute('data-movement-stand-up-psr-required', 'true');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-movement-stand-up-psr'),
+    ).toHaveAttribute('data-movement-stand-up-psr-reason', 'Careful stand');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-movement-stand-up-psr'),
+    ).toHaveAttribute('data-movement-stand-up-psr-target-number', '4');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-movement-stand-up-psr'),
+    ).toHaveAttribute('data-movement-stand-up-psr-modifier', '-2');
+    expect(
       screen.getByTestId('hex-tactical-tooltip-movement-stand-up-modifiers'),
     ).toHaveTextContent('Modifiers: Careful stand -2');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-movement-stand-up-modifiers'),
+    ).toHaveAttribute('data-movement-context-kind', 'stand-up-psr-modifiers');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-movement-stand-up-modifiers'),
+    ).toHaveAttribute(
+      'data-movement-stand-up-psr-modifier-details',
+      'Careful stand -2',
+    );
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-movement-stand-up-modifiers'),
+    ).toHaveAttribute(
+      'data-movement-rule-refs',
+      expect.stringContaining('movement:megamek:MegaMek MovePathHandler.java'),
+    );
     expect(
       screen.getByTestId('hex-tactical-tooltip-movement-path'),
     ).toHaveTextContent('Path: 3 steps');

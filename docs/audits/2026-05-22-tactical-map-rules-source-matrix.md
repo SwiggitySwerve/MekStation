@@ -1553,6 +1553,17 @@ MP costs, terrain/elevation costs, heat, pathfinding, commit validation, or
 movement resolution; it makes the visible movement cost explanation inspectable
 without relying on aggregate movement hex metadata.
 
+2026-05-25 movement stand-up context rule-reference pin: Movement stand-up cost,
+stand-up PSR, and stand-up modifier rows in movement and combined tactical
+hovers now expose movement-channel source references and stand-up-specific
+MegaMek rule references from the shared per-hex tactical projection while
+pinning stand-up mode, cost, PSR requirement, PSR reason, finite target number,
+modifier, impossible reason, and modifier details when represented. This does
+not change stand-up MP cost, PSR target computation, modifier computation,
+movement reachability, commit validation, or movement resolution; it makes the
+visible stand-up movement explanation inspectable without relying on aggregate
+movement hex metadata.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

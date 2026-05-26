@@ -2012,9 +2012,68 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
 
     fireEvent.mouseEnter(blocked);
-    expect(
-      screen.getByTestId('hex-movement-tooltip-stand-up-psr'),
-    ).toHaveTextContent(`Standing up impossible - ${reason}`);
+    const standUpRows = screen.getByTestId('hex-movement-tooltip-stand-up');
+    expect(standUpRows).toHaveTextContent('Stand up: +2 MP');
+    expect(standUpRows).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(standUpRows).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'movement',
+    );
+    expect(standUpRows).toHaveAttribute(
+      'data-tactical-rules-surface',
+      'movement',
+    );
+    expect(standUpRows).toHaveAttribute(
+      'data-movement-context-kind',
+      'stand-up',
+    );
+    expect(standUpRows).toHaveAttribute(
+      'data-movement-stand-up-required',
+      'true',
+    );
+    expect(standUpRows).toHaveAttribute('data-movement-stand-up-cost', '2');
+    expect(standUpRows).toHaveAttribute(
+      'data-movement-source-refs',
+      expect.stringContaining(
+        'movement:megamek:MegaMek stand-up movement rules projection',
+      ),
+    );
+    expect(standUpRows).toHaveAttribute(
+      'data-movement-rule-refs',
+      expect.stringContaining('movement:megamek:MegaMek GetUpStep.java'),
+    );
+    const standUpPsrRows = screen.getByTestId(
+      'hex-movement-tooltip-stand-up-psr',
+    );
+    expect(standUpPsrRows).toHaveTextContent(
+      `Standing up impossible - ${reason}`,
+    );
+    expect(standUpPsrRows).toHaveAttribute(
+      'data-movement-context-kind',
+      'stand-up-psr',
+    );
+    expect(standUpPsrRows).toHaveAttribute(
+      'data-movement-stand-up-psr-required',
+      'true',
+    );
+    expect(standUpPsrRows).toHaveAttribute(
+      'data-movement-stand-up-psr-reason',
+      'Standing up',
+    );
+    expect(standUpPsrRows).not.toHaveAttribute(
+      'data-movement-stand-up-psr-target-number',
+    );
+    expect(standUpPsrRows).toHaveAttribute(
+      'data-movement-stand-up-psr-impossible-reason',
+      reason,
+    );
+    expect(standUpPsrRows).toHaveAttribute(
+      'data-movement-rule-refs',
+      expect.stringContaining('movement:megamek:MegaMek MovePathHandler.java'),
+    );
     expect(screen.getByTestId('hex-movement-tooltip-reason')).toHaveTextContent(
       reason,
     );
