@@ -724,7 +724,7 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
   ),
   c3: integrated(
     'c3',
-    'runAttackPhase consumes explicit IGameState.c3Network state, refreshes C3 member positions, operational lifecycle state, matching C3 critical-slot damage, and ECM/iNARC ECM disruption from current unit state, and calls calculateToHitWithC3 for direct weapon attacks; default C3 range sharing does not require spotter LOS',
+    'runAttackPhase consumes explicit IGameState.c3Network state, refreshes C3 member positions, operational lifecycle state, matching C3 critical-slot damage, and ECM/iNARC ECM disruption from current unit state, and calls calculateToHitWithC3 for direct weapon attacks; default C3 range sharing does not require spotter LOS, while optional PLAYTEST_3 gates C3 spotters on spotter-to-target LOS',
     MEGAMEK_C3_RANGE_SOURCE_REFS,
   ),
   'c3-equipment-network-formation': helperOnly(

@@ -829,7 +829,7 @@ Cluster-table validation SHALL apply MegaMek's Sandblaster SPA modifier when the
 
 ### Requirement: C3 Range Modifier Integration
 
-Direct runner weapon attack declarations SHALL consume explicit `IGameState.c3Network` state when scenario/session builders provide it. The runner SHALL seed conservative unambiguous per-side C3 master/slave and C3i networks from hydrated BattleMech C3 equipment during initial state creation, SHALL refresh C3 member positions, operational lifecycle state, matching C3 equipment critical-slot damage, and ECM/iNARC ECM disruption from current unit state before calculating the declared to-hit number, SHALL suppress C3 range sharing for indirect fire, SHALL use default MegaMek C3 behavior where the network range-sharing unit does not need line of sight to the target, and SHALL keep ambiguous/player-authored C3 network assignment explicit until those session state builders exist.
+Direct runner weapon attack declarations SHALL consume explicit `IGameState.c3Network` state when scenario/session builders provide it. The runner SHALL seed conservative unambiguous per-side C3 master/slave and C3i networks from hydrated BattleMech C3 equipment during initial state creation, SHALL refresh C3 member positions, operational lifecycle state, matching C3 equipment critical-slot damage, and ECM/iNARC ECM disruption from current unit state before calculating the declared to-hit number, SHALL suppress C3 range sharing for indirect fire, SHALL use default MegaMek C3 behavior where the network range-sharing unit does not need line of sight to the target, SHALL require spotter-to-target line of sight for C3 range sharing when the `PLAYTEST_3` optional rule is enabled, and SHALL keep ambiguous/player-authored C3 network assignment explicit until those session state builders exist.
 
 #### Scenario: Direct weapon attack uses explicit C3 state
 
@@ -860,14 +860,23 @@ Direct runner weapon attack declarations SHALL consume explicit `IGameState.c3Ne
 - **WHEN** the runner emits `AttackDeclared`
 - **THEN** the declared to-hit number SHALL still use that member's improved C3 range bracket
 - **AND** the catalog SHALL not list default C3 spotter LOS hydration as a helper-only gap
-- **AND** PLAYTEST_3 C3 spotter LOS gating SHALL remain out of scope until MekStation models rules-profile-specific C3 options
+
+#### Scenario: PLAYTEST_3 C3 range sharing requires spotter LOS
+
+- **GIVEN** a direct weapon attack has legal attacker-to-target LOS
+- **AND** the nearest same-team C3 network member has a better range bracket but blocked LOS to the target
+- **AND** the `PLAYTEST_3` optional rule is enabled
+- **WHEN** the runner emits `AttackDeclared`
+- **THEN** the declared to-hit number SHALL not use that member's improved C3 range bracket
+- **AND** the attack payload SHALL omit the `C3 Network` modifier
+- **AND** a C3 network member with clear target LOS SHALL still provide range sharing under `PLAYTEST_3`
 
 #### Scenario: C3 remaining gaps stay separate from explicit-state support
 
 - **GIVEN** the runner consumes explicit C3 network state for direct weapon attack to-hit math
 - **WHEN** the to-hit support catalog and requirement crosswalk are contract-tested
 - **THEN** ambiguous C3 equipment/network assignment edges SHALL remain a helper-only to-hit row
-- **AND** the integrated `c3` row SHALL describe explicit network-state consumption, position refresh, operational lifecycle refresh, C3 critical-slot damage suppression, ECM/iNARC ECM disruption, indirect-fire suppression, and default no-LOS-required C3 range sharing
+- **AND** the integrated `c3` row SHALL describe explicit network-state consumption, position refresh, operational lifecycle refresh, C3 critical-slot damage suppression, ECM/iNARC ECM disruption, indirect-fire suppression, default no-LOS-required C3 range sharing, and optional PLAYTEST_3 spotter LOS gating
 
 ### Requirement: Hull-Down Runner To-Hit Integration
 

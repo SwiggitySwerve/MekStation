@@ -253,6 +253,7 @@ function runModifierScenario(options?: {
   weapon?: IWeapon;
   manifestsByUnit?: Map<string, CriticalSlotManifest>;
   environmentalConditions?: IEnvironmentalConditions;
+  optionalRules?: readonly string[];
 }): IGameEvent[] {
   const state = options?.state ?? createWeaponAttackState();
   const events: IGameEvent[] = [];
@@ -274,6 +275,7 @@ function runModifierScenario(options?: {
       ['opponent-1', []],
     ]),
     manifestsByUnit: options?.manifestsByUnit,
+    optionalRules: options?.optionalRules,
   });
 
   return events;
@@ -680,6 +682,131 @@ describe('runAttackPhase to-hit modifier integration', () => {
     ).toBe(false);
 
     const payload = attackDeclaredPayload(events);
+    expect(payload).toMatchObject({
+      range: 'medium',
+      toHitNumber: 4,
+    });
+    expectModifier(payload, {
+      name: 'Range (short)',
+      value: 0,
+      source: 'range',
+    });
+    expectModifier(payload, {
+      name: 'C3 Network',
+      value: 0,
+      source: 'equipment',
+    });
+  });
+
+  it('requires C3 spotter line of sight when PLAYTEST_3 is enabled', () => {
+    const network = createC3MasterSlaveNetwork('runner-c3-playtest3-los', [
+      createC3Unit({
+        entityId: 'player-1',
+        teamId: GameSide.Player,
+        role: 'master',
+        position: { q: 5, r: 0 },
+      }),
+      createC3Unit({
+        entityId: 'spotter-1',
+        teamId: GameSide.Player,
+        role: 'slave',
+        position: { q: 2, r: 1 },
+      }),
+    ]);
+    const state = createWeaponAttackState({
+      attacker: { position: { q: 5, r: 0 } },
+      target: { position: { q: 0, r: 0 } },
+    });
+    const grid = createGrid(TerrainType.Clear, [
+      { q: 1, r: 1, terrain: TerrainType.HeavyWoods },
+    ]);
+
+    expect(network).not.toBeNull();
+    expect(
+      calculateLOS(state.units['player-1'].position, { q: 0, r: 0 }, grid)
+        .hasLOS,
+    ).toBe(true);
+    expect(calculateLOS({ q: 2, r: 1 }, { q: 0, r: 0 }, grid).hasLOS).toBe(
+      false,
+    );
+
+    const c3State: IGameState = {
+      ...state,
+      c3Network: addC3Network(createEmptyC3State(), network!),
+      units: {
+        ...state.units,
+        'spotter-1': createUnit({
+          id: 'spotter-1',
+          side: GameSide.Player,
+          position: { q: 2, r: 1 },
+        }),
+      },
+    };
+
+    const payload = attackDeclaredPayload(
+      runModifierScenario({
+        state: c3State,
+        grid,
+        optionalRules: ['PLAYTEST_3'],
+      }),
+    );
+
+    expect(payload).toMatchObject({
+      range: 'medium',
+      toHitNumber: 6,
+    });
+    expectModifier(payload, {
+      name: 'Range (medium)',
+      value: 2,
+      source: 'range',
+    });
+    expect(payload.modifiers).not.toContainEqual(
+      expect.objectContaining({ name: 'C3 Network' }),
+    );
+  });
+
+  it('keeps C3 range sharing under PLAYTEST_3 when the spotter has line of sight', () => {
+    const network = createC3MasterSlaveNetwork('runner-c3-playtest3-clear', [
+      createC3Unit({
+        entityId: 'player-1',
+        teamId: GameSide.Player,
+        role: 'master',
+        position: { q: 5, r: 0 },
+      }),
+      createC3Unit({
+        entityId: 'spotter-1',
+        teamId: GameSide.Player,
+        role: 'slave',
+        position: { q: 2, r: 0 },
+      }),
+    ]);
+    const state = createWeaponAttackState({
+      attacker: { position: { q: 5, r: 0 } },
+      target: { position: { q: 0, r: 0 } },
+    });
+
+    expect(network).not.toBeNull();
+
+    const c3State: IGameState = {
+      ...state,
+      c3Network: addC3Network(createEmptyC3State(), network!),
+      units: {
+        ...state.units,
+        'spotter-1': createUnit({
+          id: 'spotter-1',
+          side: GameSide.Player,
+          position: { q: 2, r: 0 },
+        }),
+      },
+    };
+
+    const payload = attackDeclaredPayload(
+      runModifierScenario({
+        state: c3State,
+        optionalRules: ['PLAYTEST_3'],
+      }),
+    );
+
     expect(payload).toMatchObject({
       range: 'medium',
       toHitNumber: 4,

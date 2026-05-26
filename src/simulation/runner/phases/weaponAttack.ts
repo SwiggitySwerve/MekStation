@@ -35,6 +35,7 @@ import {
   getTorsoTwistFromSecondaryFacing,
 } from '@/utils/gameplay/firingArc';
 import { hexDistance } from '@/utils/gameplay/hexMath';
+import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 import { getClusterHitterBonus, hasSPA } from '@/utils/gameplay/spaModifiers';
 import {
   isMissileWeapon,
@@ -95,6 +96,22 @@ import {
   calculateTargetTerrainToHitModifier,
   targetTerrainFeatures,
 } from './weaponAttackTerrainModifiers';
+
+const PLAYTEST_3_C3_OPTIONAL_RULES = new Set([
+  'playtest_3',
+  'playtest-3',
+  'playtest3',
+]);
+
+function hasPlaytest3C3SpotterLineOfSightRule(
+  optionalRules: readonly string[] | undefined,
+): boolean {
+  return (
+    optionalRules?.some((rule) =>
+      PLAYTEST_3_C3_OPTIONAL_RULES.has(rule.toLowerCase()),
+    ) ?? false
+  );
+}
 
 function isTargetInAttackerFrontArc(
   state: IGameState,
@@ -548,6 +565,7 @@ export function runAttackPhase(options: {
    */
   manifestsByUnit?: Map<string, CriticalSlotManifest>;
   environmentalConditions?: IEnvironmentalConditions;
+  optionalRules?: readonly string[];
 }): IGameState {
   const {
     botPlayer,
@@ -561,6 +579,7 @@ export function runAttackPhase(options: {
     weaponsByUnit,
     manifestsByUnit,
     environmentalConditions,
+    optionalRules,
   } = options;
   let currentState = { ...state, phase: GamePhase.WeaponAttack };
   violations.push(...invariantRunner.runAll(currentState));
@@ -900,6 +919,8 @@ export function runAttackPhase(options: {
         isIndirectFire,
       };
       const c3State = hydrateC3StateForAttack(currentState, manifestsByUnit);
+      const c3RequiresSpotterLineOfSight =
+        hasPlaytest3C3SpotterLineOfSightRule(optionalRules);
       const toHitCalc =
         c3State !== undefined && !isIndirectFire
           ? calculateToHitWithC3(
@@ -922,6 +943,23 @@ export function runAttackPhase(options: {
                     : {}),
                 },
                 c3State,
+                ...(c3RequiresSpotterLineOfSight
+                  ? {
+                      targetingOptions: {
+                        requireSpotterTargetLineOfSight: true,
+                        spotterHasTargetLineOfSight: (
+                          spotter: IC3NetworkUnit,
+                        ) =>
+                          grid
+                            ? calculateLOS(
+                                spotter.position,
+                                targetNow.position,
+                                grid,
+                              ).hasLOS
+                            : false,
+                      },
+                    }
+                  : {}),
               },
               baseWeapon.minRange,
               baseWeapon.id,

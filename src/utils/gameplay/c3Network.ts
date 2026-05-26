@@ -34,6 +34,7 @@ export type {
   IC3Network,
   IC3NetworkState,
   IC3NetworkUnit,
+  IC3TargetingOptions,
   IC3TargetingResult,
 } from './c3Network/types';
 export { C3_MASTER_SLAVE_MAX_UNITS, C3I_MAX_UNITS } from './c3Network/types';

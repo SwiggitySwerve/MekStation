@@ -21,6 +21,9 @@ export interface ISimulationConfig {
   /** Maximum turns before draw (0 = no limit) */
   readonly turnLimit: number;
 
+  /** Optional rules enabled for the simulation run. */
+  readonly optionalRules?: readonly string[];
+
   /** Number of units per side */
   readonly unitCount: {
     readonly player: number;

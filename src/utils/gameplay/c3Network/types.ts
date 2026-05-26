@@ -75,6 +75,17 @@ export interface IC3TargetingResult {
   readonly denialReason: string | null;
 }
 
+/** Optional rule hooks that constrain C3 target data sharing. */
+export interface IC3TargetingOptions {
+  /**
+   * When true, non-attacker C3 spotters must have target line of sight before
+   * their range bracket can improve the attack.
+   */
+  readonly requireSpotterTargetLineOfSight?: boolean;
+  /** Caller-provided LOS predicate for the candidate C3 spotter. */
+  readonly spotterHasTargetLineOfSight?: (spotter: IC3NetworkUnit) => boolean;
+}
+
 // =============================================================================
 // Constants
 // =============================================================================

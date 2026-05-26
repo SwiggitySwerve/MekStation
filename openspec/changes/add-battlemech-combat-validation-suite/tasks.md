@@ -163,6 +163,7 @@
 - [x] 3.4.8 Integrate source-backed Dodge Maneuver target to-hit gating through canonical SPA ids, explicit target dodging state, and explicit non-Mek target exclusion.
 - [x] 3.4.9 Split ambiguous C3 equipment/network assignment edges into a helper-only to-hit row so explicit C3 network consumption cannot overclaim full C3 parity.
 - [x] 3.4.10 Cross-check C3 spotter LOS against MegaMek/Total Warfare default behavior and lock the default no-LOS C3 range-sharing behavior with runner validation.
+- [x] 3.4.10.1 Integrate optional PLAYTEST_3 C3 spotter LOS gating through C3 helper options, runner optional-rule threading, and focused blocked/clear spotter behavior tests.
 - [x] 3.4.11 Hydrate source-backed mounted BattleMech C3 master/slave/C3i equipment roles from catalog equipment and critical slots while leaving battle-wide network assembly explicit.
 - [x] 3.4.12 Integrate source-backed Maneuvering Ace skidding PSR relief through runner terrain PSR queueing, runner PSR resolution, interactive PSR resolution, and catalog/OpenSpec coverage while leaving terrain-specific Maneuvering Ace PSRs beyond skidding explicit.
 - [x] 3.4.13 Integrate source-backed Animal Mimicry quad-Mek PSR relief through runner pending PSRs, runner stand-up PSRs, interactive pending PSRs, interactive stand-up PSRs, and catalog/OpenSpec coverage while leaving terrain-designation movement effects explicit.
@@ -300,6 +301,7 @@
 - [x] 4.3.49 Cross-check conservative runner C3/C3i initial network assembly against MegaMek C3 range/equipment anchors before narrowing automatic network-assembly gaps.
 - [x] 4.3.50 Cross-check MegaMek C3 attacker shutdown/off-board and spotter shutdown/off-board/transported eligibility before refreshing runner C3 operational state at attack time.
 - [x] 4.3.51 Cross-check MegaMek non-inoperable mounted C3 equipment requirements before suppressing runner C3 range sharing from destroyed matching critical slots.
+- [x] 4.3.51.1 Cross-check MegaMek `ComputeC3Spotter` PLAYTEST_3 target-LOS branch before promoting optional C3 spotter LOS gating.
 - [x] 4.3.52 Cross-examine the validation-catalog direction with OMO Lean++ and add a map-level triad contract so source authority boundaries and executable test surfaces are enforced before PR approval.
 - [x] 4.3.53 Cross-check MegaMek critical-slot system/equipment hydration and equipment-critical lifecycle branches; source-pin critical-slot rows and keep generic equipment effects helper-only until equipment-specific cascades are modeled.
 - [x] 4.3.54 Align aggregate critical-component support with the same MegaMek source-pinned critical-slot boundary so stale default-manifest-only generic equipment rationale cannot mask hydrated equipment gaps.

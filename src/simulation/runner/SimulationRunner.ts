@@ -221,10 +221,10 @@ export class SimulationRunner {
             mapRadius: config.mapRadius,
             turnLimit: config.turnLimit,
             // Synthetic — the runner is single-mode today (destruction-
-            // win, no optional rules). When victory conditions become
+            // win). When victory conditions become
             // configurable, this MUST move to the real source.
             victoryConditions: ['destruction'],
-            optionalRules: [],
+            optionalRules: config.optionalRules ?? [],
           },
           units: gameUnits,
           // Per `add-scenario-objective-engine`: stamp the placed
@@ -283,6 +283,7 @@ export class SimulationRunner {
         random: this.random,
         weaponsByUnit: this.weaponsByUnit,
         manifestsByUnit,
+        optionalRules: config.optionalRules,
       });
 
       currentState = runPSRPhase({

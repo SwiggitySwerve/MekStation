@@ -405,6 +405,70 @@ describe('C3 Targeting Benefit', () => {
     expect(result.denialReason).toBeNull();
   });
 
+  it('should deny range sharing when optional spotter LOS gating excludes the only spotter', () => {
+    const network = createC3MasterSlaveNetwork('net1', [
+      createC3Unit({
+        entityId: 'A',
+        teamId: 'team1',
+        role: 'master',
+        position: { q: 15, r: 0 },
+      }),
+      createC3Unit({
+        entityId: 'B',
+        teamId: 'team1',
+        role: 'slave',
+        position: { q: 2, r: 0 },
+      }),
+    ])!;
+
+    const result = getC3TargetingBenefit(
+      'A',
+      { q: 0, r: 0 },
+      MEDIUM_LASER,
+      makeC3State(network),
+      undefined,
+      {
+        requireSpotterTargetLineOfSight: true,
+        spotterHasTargetLineOfSight: (spotter) => spotter.entityId !== 'B',
+      },
+    );
+
+    expect(result.benefitApplied).toBe(false);
+    expect(result.denialReason).toBe('No C3 spotter has target line of sight');
+  });
+
+  it('should still use a C3 spotter when optional LOS gating passes', () => {
+    const network = createC3MasterSlaveNetwork('net1', [
+      createC3Unit({
+        entityId: 'A',
+        teamId: 'team1',
+        role: 'master',
+        position: { q: 15, r: 0 },
+      }),
+      createC3Unit({
+        entityId: 'B',
+        teamId: 'team1',
+        role: 'slave',
+        position: { q: 2, r: 0 },
+      }),
+    ])!;
+
+    const result = getC3TargetingBenefit(
+      'A',
+      { q: 0, r: 0 },
+      MEDIUM_LASER,
+      makeC3State(network),
+      undefined,
+      {
+        requireSpotterTargetLineOfSight: true,
+        spotterHasTargetLineOfSight: (spotter) => spotter.entityId === 'B',
+      },
+    );
+
+    expect(result.benefitApplied).toBe(true);
+    expect(result.spotterId).toBe('B');
+  });
+
   it('should not apply benefit when all units at same bracket', () => {
     const network = createC3MasterSlaveNetwork('net1', [
       createC3Unit({
