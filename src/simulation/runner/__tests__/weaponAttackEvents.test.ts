@@ -631,6 +631,7 @@ function runPhase(options: {
   seed?: number;
   botBehavior?: IBotBehavior;
   botPlayer?: IAIPlayer;
+  optionalRules?: readonly string[];
 }): IGameEvent[] {
   return runPhaseWithResult(options).events;
 }
@@ -642,6 +643,7 @@ function runPhaseWithResult(options: {
   random?: SeededRandom;
   botBehavior?: IBotBehavior;
   botPlayer?: IAIPlayer;
+  optionalRules?: readonly string[];
 }): { events: IGameEvent[]; state: IGameState } {
   const random = options.random ?? new SeededRandom(options.seed ?? 12345);
   const botPlayer =
@@ -659,6 +661,7 @@ function runPhaseWithResult(options: {
     gameId: options.state.gameId,
     random,
     weaponsByUnit: options.weaponsByUnit,
+    optionalRules: options.optionalRules,
   });
 
   return { events, state: result };
@@ -1594,7 +1597,7 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       ['reflective armor', 'Reflective', 3],
       ['heat-dissipating armor', 'Heat-Dissipating', 3],
     ])(
-      'plasma cannon target heat is halved by intact %s',
+      'plasma cannon target heat is halved by intact %s outside PLAYTEST_3',
       (_label, armorType, expectedHeat) => {
         const weapon = createPlasmaCannon();
         const { state, weaponsByUnit } = buildScenario({
@@ -1612,6 +1615,55 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
           weaponsByUnit,
           botPlayer: new ScriptedAttackAI(weapon.id),
           random: new SequenceRandom([6, 6, 3, 4, 2, 5]),
+        });
+        const heatGenerated = result.events.find(
+          (event) =>
+            event.type === GameEventType.HeatGenerated &&
+            (event.payload as { unitId?: string }).unitId === 'opponent-1',
+        ) as
+          | (IGameEvent & {
+              payload: {
+                amount: number;
+                source: string;
+                previousTotal: number;
+                newTotal: number;
+              };
+            })
+          | undefined;
+
+        expect(heatGenerated?.payload).toMatchObject({
+          amount: expectedHeat,
+          source: 'external',
+          previousTotal: 4,
+          newTotal: 4 + expectedHeat,
+        });
+        expect(result.state.units['opponent-1'].heat).toBe(4 + expectedHeat);
+      },
+    );
+
+    it.each([
+      ['reflective armor', 'Reflective', 7],
+      ['heat-dissipating armor', 'Heat-Dissipating', 0],
+    ])(
+      'PLAYTEST_3 plasma cannon target heat applies source-backed %s behavior',
+      (_label, armorType, expectedHeat) => {
+        const weapon = createPlasmaCannon();
+        const { state, weaponsByUnit } = buildScenario({
+          attackerWeapons: [weapon],
+          attackerStateOverride: { gunnery: 0 },
+          targetStateOverride: {
+            heat: 4,
+            armorTypeByLocation: armorTypeByLocation(armorType),
+          },
+          targetPosition: { q: 5, r: 0 },
+        });
+
+        const result = runPhaseWithResult({
+          state,
+          weaponsByUnit,
+          botPlayer: new ScriptedAttackAI(weapon.id),
+          random: new SequenceRandom([6, 6, 3, 4, 2, 5]),
+          optionalRules: ['PLAYTEST_3'],
         });
         const heatGenerated = result.events.find(
           (event) =>

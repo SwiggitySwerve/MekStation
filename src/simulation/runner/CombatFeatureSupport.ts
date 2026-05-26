@@ -957,8 +957,8 @@ export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
   ),
   'plasma-cannon': helperOnly(
     'plasma-cannon',
-    'Exact official Clan Plasma Cannon id is pinned as a standard zero-damage plasma weapon; runner hits emit zero BattleMech damage and HeatGenerated external target heat from the source-backed 2d6 plasma roll, halve heat through hydrated or explicit reflective/heat-dissipating armor state, hydrate source-backed plasma ammo bins, and consume plasma ammunition despite MegaMek energy flags',
-    'PLAYTEST_3 heat-dissipating zero-heat behavior, MegaMek heatFromExternal pending-bucket timing/caps, and non-Mek special damage paths remain helper-only gaps',
+    'Exact official Clan Plasma Cannon id is pinned as a standard zero-damage plasma weapon; runner hits emit zero BattleMech damage and HeatGenerated external target heat from the source-backed 2d6 plasma roll, halve heat through hydrated or explicit reflective/heat-dissipating armor state outside PLAYTEST_3, apply PLAYTEST_3 reflective full-heat and heat-dissipating zero-heat behavior, hydrate source-backed plasma ammo bins, and consume plasma ammunition despite MegaMek energy flags',
+    'MegaMek heatFromExternal pending-bucket timing/caps and non-Mek special damage paths remain helper-only gaps',
     MEGAMEK_PLASMA_CANNON_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
