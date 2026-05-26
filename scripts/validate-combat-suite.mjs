@@ -20,6 +20,7 @@ const COMBAT_VALIDATION_TESTS = [
   'src/simulation/runner/__tests__/criticalSlotHydrationBoundary.behavior.test.ts',
   'src/simulation/runner/__tests__/damageLifecycle.behavior.test.ts',
   'src/simulation/runner/__tests__/ejectionLifecycle.integration.test.ts',
+  'src/simulation/runner/__tests__/heatEvents.test.ts',
   'src/simulation/runner/__tests__/heatEnvironmentParity.behavior.test.ts',
   'src/simulation/runner/__tests__/movementPhase.behavior.test.ts',
   'src/simulation/runner/__tests__/physicalAttackRunner.behavior.test.ts',

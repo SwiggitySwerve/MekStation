@@ -175,7 +175,7 @@ const MEKSTATION_RUNNER_TERRAIN_TO_HIT_HELPER_SOURCE_REF =
   mekstationDeviationSourceRef(
     'MekStation weapon attack terrain helpers convert LOS and target hex terrain into target and intervening to-hit modifier details.',
     'src/simulation/runner/phases/weaponAttackTerrainModifiers.ts',
-    'L13-L64',
+    'L13-L63',
   );
 
 const MEKSTATION_RUNNER_TERRAIN_TO_HIT_PHASE_SOURCE_REF =

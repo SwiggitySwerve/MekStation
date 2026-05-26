@@ -441,7 +441,7 @@ const MEKSTATION_GM_COMMAND_SOURCE_REFS = {
   'gm.grant-resource': mekstationGmCommandSourceRefs(
     'gm.grant-resource',
     'gm-grant-resource',
-    'L71-L86',
+    'L71-L84',
   ),
 } satisfies Record<string, readonly ICombatFeatureSourceReference[]>;
 

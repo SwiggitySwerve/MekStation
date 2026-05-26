@@ -108,7 +108,7 @@ const BATTLEMECH_RANGED_ATTACK_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation session core appends AttackDeclared, indirect-fire marker events, and AttackLocked events.',
     'src/utils/gameplay/gameSessionCore.ts',
-    'L564-L650',
+    'L564-L639',
   ),
   mekstationDeviationSourceRef(
     'MekStation runner weapon attack phase emits AttackInvalid, AttackDeclared, AttackResolved, AmmoConsumed, AMSInterception, and special marker events.',

@@ -28,6 +28,7 @@
 - [x] 1.22 Promote legacy mech quirk support rows to row-level source refs so PSR, physical, actuator, and Rugged maintenance helpers cannot inherit broad SPA/quirk authority.
 - [x] 1.23 Promote source-pinned mech quirk, PSR trigger, and pilot-modifier-resolver maps to row-level triad authority and require every row in an `entry-source-refs` map to carry valid source refs.
 - [x] 1.24 Add diff-area outcome traceability so OpenSpec reviewers can see the intended high-level outcome for docs/audits, runner/catalog, gameplay helpers, interactive engine, UI/wire/P2P/types, AI/scenarios, and validation tooling before reviewing code.
+- [x] 1.25 Harden P2P combat intent validation so phase advance, movement, and weapon attack rows are host-authoritative: phase changes route through host commands, movement is repriced from host grid/capability state, and ranged attacks rebuild weapon stats from host inventory instead of trusting guest payloads.
 
 ## 2. Physical attack legality gates
 
@@ -142,6 +143,8 @@
 - [x] 3.2.21 Source-pin every per-TerrainType PSR support row with MegaMek rubble, water, skidding, swamp bog-down, and building-collapse anchors plus MekStation local PSR runner/factory/resolution anchors; promote terrainTypePsr triad enforcement to row-level source refs.
 - [x] 3.2.22 Integrate source-backed torso twist through tactical command payloads, game intent, wire intent, P2P translation, server dispatch, session reducer, legality gates, no_twist/ext_twist quirk handling, and replayable `FacingChanged` secondary-facing state.
 - [x] 3.2.23 Pin product-visible `movement.stabilize` as a MekStation-local unsupported command row with no identified BattleMech rule authority, game intent, wire payload, P2P translation, or runner mutation.
+- [x] 3.2.24 Charge terminal facing changes as movement MP during ground movement validation so facing changes cannot be hidden by distance-only or terrain-only MP checks.
+- [x] 3.2.25 Charge path-alignment turns as movement MP during ground movement validation so bent paths and final movement event decomposition conserve MP instead of granting free facing changes between path segments.
 - [ ] 3.3 Expand heat validation coverage for buildup, dissipation, shutdown, ammo explosions, pilot damage, and heat-driven modifiers.
 - [x] 3.3.1 Cross-link every heat rule support row into heat generation, dissipation, and lifecycle requirement checklists.
 - [x] 3.3.2 Add structured MegaMek source anchors for heat startup, avoidable/automatic shutdown, ammo-explosion risk, and pilot heat damage support rows.

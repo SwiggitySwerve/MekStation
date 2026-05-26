@@ -283,7 +283,7 @@ describe('BattleMech terrain and environment combat support catalog', () => {
             }),
             expect.objectContaining({
               kind: 'mekstation-deviation',
-              url: 'src/simulation/runner/phases/weaponAttackTerrainModifiers.ts#L13-L64',
+              url: 'src/simulation/runner/phases/weaponAttackTerrainModifiers.ts#L13-L63',
             }),
             expect.objectContaining({
               kind: 'mekstation-deviation',

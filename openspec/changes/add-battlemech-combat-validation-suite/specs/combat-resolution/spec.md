@@ -125,6 +125,7 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **AND** every game-intent action row SHALL cite the MekStation game-intent mapper that constructs or maps the local intent to its server wire payload
 - **AND** every wire-intent action row SHALL cite the MekStation server dispatcher, with lobby and reconnect wire intents remaining source-visible non-combat scope splits
 - **AND** every P2P intent translation row SHALL cite the MekStation intent translator, plus host-router source anchors for host-owned command translations
+- **AND** P2P phase-advance, movement, and weapon-attack rows SHALL prove the host revalidates or rebuilds combat state from authoritative host data instead of trusting guest-supplied phase events, movement MP/heat/path, to-hit numbers, or weapon stats
 - **AND** `physicalAttackCommands` catalog rows SHALL enforce row-level MekStation command source references before PR approval
 - **AND** GM command exclusion rows SHALL cite the MekStation GM/referee command factory and SHALL remain outside player BattleMech combat action handling
 - **AND** those rows SHALL NOT be inferred from helper prose or omitted because no UI command currently emits them
@@ -144,6 +145,7 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **WHEN** the aggregate catalog triad and BattleMech combat catalog contract tests run
 - **THEN** every integrated or helper-only movement rule row SHALL carry structured MegaMek source references with commit-pinned URLs and line anchors
 - **AND** the aggregate catalog triad for `movementRules` SHALL require row-level source references rather than inherited requirement authority
+- **AND** ground movement validation SHALL include path-alignment and terminal facing-change MP in addition to path and terrain costs so same-hex, bent-path, and moved-then-turned facings are all validated as movement spend
 - **AND** helper-only movement rows SHALL keep their remaining runtime gaps explicit instead of treating source-backed row evidence as complete parity
 
 #### Scenario: Voluntary go-prone emits source-backed movement step

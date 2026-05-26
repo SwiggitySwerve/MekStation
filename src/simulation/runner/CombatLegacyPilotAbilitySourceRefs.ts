@@ -81,7 +81,7 @@ export const MEKSTATION_MARKSMAN_CALLED_SHOT_SOURCE_REFS = [
   ),
   mekstationDeviationRef(
     'MekStation getSharpshooterBonus maps canonical Marksman and legacy Sharpshooter to the same local -1 called-shot helper.',
-    'src/utils/gameplay/spaModifiers/catalog.ts#L427-L434',
+    'src/utils/gameplay/spaModifiers/catalog.ts#L427-L433',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -202,7 +202,7 @@ export const MEKSTATION_SHARPSHOOTER_CALLED_SHOT_SOURCE_REFS = [
   ),
   mekstationDeviationRef(
     'MekStation getSharpshooterBonus maps legacy Sharpshooter and canonical Marksman to the same local -1 called-shot helper.',
-    'src/utils/gameplay/spaModifiers/catalog.ts#L427-L434',
+    'src/utils/gameplay/spaModifiers/catalog.ts#L427-L433',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

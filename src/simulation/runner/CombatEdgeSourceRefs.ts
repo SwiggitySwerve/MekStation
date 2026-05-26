@@ -60,6 +60,6 @@ export const MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS = [
   ),
   mekstationDeviationRef(
     'MekStation psrEdgeRerolls consumes edge_when_masc_fails to reroll failed MASCFailure and SuperchargerFailure PSRs before applying fall or booster-failure aftermath.',
-    'src/simulation/runner/phases/psrEdgeRerolls.ts#L23-L194',
+    'src/simulation/runner/phases/psrEdgeRerolls.ts#L23-L193',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];

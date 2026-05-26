@@ -113,7 +113,7 @@ export const MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation psrEdgeRerolls consumes edge_when_masc_fails to reroll failed MASCFailure and SuperchargerFailure PSRs before applying fall or booster-failure aftermath.',
     'src/simulation/runner/phases/psrEdgeRerolls.ts',
-    'L23-L194',
+    'L23-L193',
   ),
   mekstationDeviationRef(
     'MekStation movement-enhancement failure critical-damage helpers use the critical-slot manifest/effect pipeline for failed MASC and Supercharger checks.',
@@ -323,7 +323,7 @@ export const LEG_ACTUATOR_CRITICAL_PSR_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation leg-actuator PSR factories stamp upper-leg, lower-leg, and foot actuator trigger codes as reasonCode and triggerSource values.',
     'src/utils/gameplay/pilotingSkillRolls/damageFactories.ts',
-    'L89-L123',
+    'L89-L122',
   ),
   ...LOCAL_CRITICAL_PSR_BRIDGE_SOURCE_REFS,
 ] satisfies readonly ICombatFeatureSourceReference[];

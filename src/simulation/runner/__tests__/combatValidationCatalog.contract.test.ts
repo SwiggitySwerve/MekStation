@@ -74,6 +74,26 @@ function triadEvidenceMaps(): Readonly<
   return COMBAT_CATALOG_TRIAD_EVIDENCE;
 }
 
+function parseLocalSourceAnchor(url: string): {
+  readonly file: string;
+  readonly startLine: number;
+  readonly endLine: number;
+} | null {
+  const match = /^((?:src|scripts)\/[^#]+)#L(\d+)(?:-L(\d+))?$/.exec(url);
+  if (!match) return null;
+
+  const startLine = Number(match[2]);
+  return {
+    file: match[1],
+    startLine,
+    endLine: Number(match[3] ?? startLine),
+  };
+}
+
+function fileLineCount(file: string): number {
+  return readFileSync(join(process.cwd(), file), 'utf8').split(/\r?\n/).length;
+}
+
 describe('BattleMech combat validation catalog index', () => {
   it('indexes every catalog lane under one authoritative section map', () => {
     expect(sortedKeys(BATTLEMECH_COMBAT_VALIDATION_CATALOG)).toEqual([
@@ -138,6 +158,36 @@ describe('BattleMech combat validation catalog index', () => {
           row.sourceRefs.length === 0,
       ),
     ).toEqual([]);
+    expect({
+      total: unresolvedRows.length,
+      byLevel: unresolvedRows.reduce<Record<string, number>>((counts, row) => {
+        counts[row.level] = (counts[row.level] ?? 0) + 1;
+        return counts;
+      }, {}),
+      bySection: unresolvedRows.reduce<Record<string, number>>(
+        (counts, row) => {
+          counts[row.sectionId] = (counts[row.sectionId] ?? 0) + 1;
+          return counts;
+        },
+        {},
+      ),
+    }).toEqual({
+      total: 228,
+      byLevel: {
+        'helper-only': 170,
+        unsupported: 58,
+      },
+      bySection: {
+        actions: 31,
+        damageAndDeath: 2,
+        eventStream: 17,
+        featureSupport: 115,
+        lifecycleAndPsr: 5,
+        pilotSkills: 20,
+        ruleSupport: 16,
+        validationScope: 22,
+      },
+    });
     expect(unresolvedRefs).toEqual(
       expect.arrayContaining([
         'actions.absentActionSurfaces.movement.evade',
@@ -169,6 +219,21 @@ describe('BattleMech combat validation catalog index', () => {
     );
     expect(validateCombatSuite).toContain('print-combat-validation-gaps.ts');
     expect(validateCombatSuite).toContain('--format=summary');
+
+    const triadTestFiles = Array.from(
+      new Set(
+        Object.values(triadEvidenceMaps()).flatMap((section) =>
+          Object.values(section).flatMap((triad) =>
+            triad.testRefs.map((testRef) => testRef.file),
+          ),
+        ),
+      ),
+    ).sort();
+    expect(
+      triadTestFiles.filter(
+        (testFile) => !validateCombatSuite.includes(`'${testFile}'`),
+      ),
+    ).toEqual([]);
   });
 
   it('keeps ejection lifecycle coverage closed in the aggregate gap inventory', () => {
@@ -301,6 +366,29 @@ describe('BattleMech combat validation catalog index', () => {
                 failures.push(
                   `${sourceRefId}: MekStation deviation ref must be line-anchored`,
                 );
+              }
+              if (sourceRef.kind === 'mekstation-deviation') {
+                const localAnchor = parseLocalSourceAnchor(sourceRef.url);
+                if (!localAnchor) {
+                  failures.push(
+                    `${sourceRefId}: MekStation deviation ref must use a local src/ path with line anchors`,
+                  );
+                } else if (!existsSync(join(process.cwd(), localAnchor.file))) {
+                  failures.push(
+                    `${sourceRefId}: MekStation deviation file does not exist ${localAnchor.file}`,
+                  );
+                } else {
+                  const lineCount = fileLineCount(localAnchor.file);
+                  if (
+                    localAnchor.startLine < 1 ||
+                    localAnchor.endLine < localAnchor.startLine ||
+                    localAnchor.endLine > lineCount
+                  ) {
+                    failures.push(
+                      `${sourceRefId}: MekStation deviation line range ${localAnchor.startLine}-${localAnchor.endLine} exceeds ${localAnchor.file} line count ${lineCount}`,
+                    );
+                  }
+                }
               }
               if (
                 sourceRef.kind === 'rulebook' &&

@@ -212,7 +212,7 @@ const MEGAMEK_HEAT_TO_HIT_THRESHOLD_SOURCE_REF = megamekHeatSourceRef(
 const MEKSTATION_ATMOSPHERE_HEAT_SOURCE_REF = mekstationDeviationSourceRef(
   'MekStation calculateEnvironmentalHeatModifier applies local atmosphere heat-dissipation adjustments alongside temperature modifiers.',
   'src/utils/gameplay/environmentalModifiers.ts',
-  'L257-L360',
+  'L257-L359',
 );
 
 const MEGAMEK_TERRAIN_TYPE_SOURCE_REF = megamekTerrainSourceRef(
@@ -831,7 +831,7 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
   ),
   facing: integrated(
     'facing',
-    'movement declarations commit final facing and eventPath reports turning MP',
+    'validateMovement charges path-alignment and terminal facing turns, movement declarations commit final facing, and eventPath reports turning MP',
     MEGAMEK_FACING_MOVEMENT_SOURCE_REFS,
   ),
   'torso-twist': integrated(
