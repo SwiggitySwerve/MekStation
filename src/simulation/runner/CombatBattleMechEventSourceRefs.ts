@@ -63,16 +63,31 @@ const BATTLEMECH_TURN_PHASE_EVENT_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
-const BATTLEMECH_UNSUPPORTED_PLANNING_EVENT_SOURCE_REFS = [
+const BATTLEMECH_ATTACK_REVEAL_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
-    'MekStation exposes AttacksRevealed as an enum-visible event type without a BattleMech emitter.',
-    'src/types/gameplay/GameSessionCoreTypes.ts',
-    'L76-L87',
+    'MekStation combat event factories create AttacksRevealed with revealed unit ids and the current-turn attack count.',
+    'src/utils/gameplay/gameEvents/attackReveal.ts',
+    'L1-L28',
   ),
   mekstationDeviationSourceRef(
-    'MekStation reducer intentionally leaves AttacksRevealed as a no-op event-log entry.',
+    'MekStation session core appends AttackLocked and routes reveal checks through the attack reveal helper.',
+    'src/utils/gameplay/gameSessionCore.ts',
+    'L667-L679',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation attack reveal helper emits AttacksRevealed after every active weapon-phase unit has locked attacks.',
+    'src/utils/gameplay/gameSessionAttackReveal.ts',
+    'L22-L87',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation reducer applies AttacksRevealed by moving locked weapon-phase units to the replayable Revealed lock state.',
+    'src/utils/gameplay/gameState/actionLocking.ts',
+    'L157-L205',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation reducer routes AttacksRevealed events into the action-locking replay helper.',
     'src/utils/gameplay/gameState/gameStateReducer.ts',
-    'L248-L253',
+    'L161-L165',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -345,8 +360,7 @@ export const BATTLEMECH_EVENT_SOURCE_REFS: Readonly<
   [GameEventType.FacingChanged]: BATTLEMECH_MOVEMENT_EVENT_SOURCE_REFS,
   [GameEventType.AttackDeclared]: BATTLEMECH_RANGED_ATTACK_EVENT_SOURCE_REFS,
   [GameEventType.AttackLocked]: BATTLEMECH_RANGED_ATTACK_EVENT_SOURCE_REFS,
-  [GameEventType.AttacksRevealed]:
-    BATTLEMECH_UNSUPPORTED_PLANNING_EVENT_SOURCE_REFS,
+  [GameEventType.AttacksRevealed]: BATTLEMECH_ATTACK_REVEAL_EVENT_SOURCE_REFS,
   [GameEventType.AttackResolved]: BATTLEMECH_RANGED_ATTACK_EVENT_SOURCE_REFS,
   [GameEventType.AttackInvalid]: BATTLEMECH_RANGED_ATTACK_EVENT_SOURCE_REFS,
   [GameEventType.DamageApplied]: BATTLEMECH_DAMAGE_EVENT_SOURCE_REFS,

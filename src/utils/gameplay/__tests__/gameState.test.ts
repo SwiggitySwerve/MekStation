@@ -23,6 +23,7 @@ import {
   IPhaseChangedPayload,
   IInitiativeOrderSetPayload,
   IInitiativeRolledPayload,
+  IAttacksRevealedPayload,
   IMovementDeclaredPayload,
   IDamageAppliedPayload,
   IDesignatorMarkerAppliedPayload,
@@ -628,6 +629,58 @@ describe('applyEvent - MovementLocked', () => {
 
     expect(newState.units['unit-1'].lockState).toBe(LockState.Locked);
     expect(newState.activationIndex).toBe(1);
+  });
+});
+
+// =============================================================================
+// applyEvent Tests - AttacksRevealed
+// =============================================================================
+
+describe('applyEvent - AttacksRevealed', () => {
+  it('should reveal locked weapon-phase units from the payload', () => {
+    let state = createInitialGameState('game-1');
+
+    const createEvent = createTestEvent({
+      type: GameEventType.GameCreated,
+      payload: {
+        config: createTestConfig(),
+        units: [
+          createTestUnit({ id: 'unit-1' }),
+          createTestUnit({ id: 'unit-2', side: GameSide.Opponent }),
+        ],
+      } as IGameCreatedPayload,
+    });
+    state = applyEvent(state, createEvent);
+    state = {
+      ...state,
+      phase: GamePhase.WeaponAttack,
+      units: {
+        ...state.units,
+        'unit-1': {
+          ...state.units['unit-1'],
+          lockState: LockState.Locked,
+        },
+        'unit-2': {
+          ...state.units['unit-2'],
+          lockState: LockState.Locked,
+        },
+      },
+    };
+
+    const revealEvent = createTestEvent({
+      sequence: 2,
+      type: GameEventType.AttacksRevealed,
+      phase: GamePhase.WeaponAttack,
+      payload: {
+        unitIds: ['unit-1', 'unit-2'],
+        attackCount: 1,
+      } as IAttacksRevealedPayload,
+    });
+
+    const newState = applyEvent(state, revealEvent);
+
+    expect(newState.units['unit-1'].lockState).toBe(LockState.Revealed);
+    expect(newState.units['unit-2'].lockState).toBe(LockState.Revealed);
   });
 });
 
@@ -1284,6 +1337,12 @@ describe('allUnitsLocked', () => {
       {
         id: 'u2',
         lockState: LockState.Resolved,
+        destroyed: false,
+        pilotConscious: true,
+      },
+      {
+        id: 'u2b',
+        lockState: LockState.Revealed,
         destroyed: false,
         pilotConscious: true,
       },
