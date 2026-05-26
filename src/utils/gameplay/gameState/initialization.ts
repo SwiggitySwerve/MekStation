@@ -303,6 +303,9 @@ export function createInitialUnitState(
     prone: false,
     shutdown: false,
     ammoState,
+    ...(unit.armorTypeByLocation !== undefined
+      ? { armorTypeByLocation: unit.armorTypeByLocation }
+      : {}),
     ...(unit.caseProtection !== undefined
       ? { caseProtection: unit.caseProtection }
       : {}),
