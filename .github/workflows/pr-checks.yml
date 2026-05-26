@@ -141,6 +141,14 @@ jobs:
         # run in the same job to preserve the "Test" branch-protection
         # required-check name.
         run: npx jest --selectProjects unit --ci
+        env:
+          JEST_EXCLUDE_PERF_SENSITIVE: 'true'
+
+      - name: Run perf-sensitive simulation tests
+        # These suites contain wall-clock performance assertions. Running them
+        # in-band keeps the guard meaningful instead of measuring contention
+        # from unrelated Jest workers on shared CI hosts.
+        run: npx jest --selectProjects unit --ci --runInBand --runTestsByPath src/simulation/__tests__/integration.test.ts src/simulation/__tests__/swarm-throughput.test.ts
 
       - name: Run a11y tests (axe-core)
         # Gates accessibility regressions for in-scope components. Runs
