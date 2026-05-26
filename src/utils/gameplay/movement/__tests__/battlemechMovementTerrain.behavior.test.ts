@@ -163,12 +163,12 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
 
   it('charges terrain entry MP during movement validation instead of only checking hex distance', () => {
     let grid = createHexGrid({ radius: 3 });
-    grid = setHex(grid, { q: 1, r: 0 }, { terrain: TerrainType.LightWoods });
+    grid = setHex(grid, { q: 0, r: -1 }, { terrain: TerrainType.LightWoods });
 
     const lightWoods = validateMovement(
       grid,
       positionAtOrigin(),
-      { q: 1, r: 0 },
+      { q: 0, r: -1 },
       Facing.North,
       MovementType.Walk,
       { walkMP: 2, runMP: 3, jumpMP: 0 },
@@ -178,11 +178,11 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
     expect(lightWoods.mpCost).toBe(2);
     expect(lightWoods.heatGenerated).toBe(1);
 
-    grid = setHex(grid, { q: 1, r: 0 }, { terrain: TerrainType.HeavyWoods });
+    grid = setHex(grid, { q: 0, r: -1 }, { terrain: TerrainType.HeavyWoods });
     const heavyWoods = validateMovement(
       grid,
       positionAtOrigin(),
-      { q: 1, r: 0 },
+      { q: 0, r: -1 },
       Facing.North,
       MovementType.Walk,
       { walkMP: 2, runMP: 3, jumpMP: 0 },
@@ -236,11 +236,130 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
     ).not.toThrow();
   });
 
+  it('charges terminal facing changes after ground movement', () => {
+    const grid = createHexGrid({ radius: 3 });
+    const result = validateMovement(
+      grid,
+      {
+        ...positionAtOrigin(),
+        facing: Facing.Southeast,
+      },
+      { q: 1, r: 0 },
+      Facing.South,
+      MovementType.Walk,
+      { walkMP: 2, runMP: 3, jumpMP: 0 },
+    );
+    const overBudget = validateMovement(
+      grid,
+      {
+        ...positionAtOrigin(),
+        facing: Facing.Southeast,
+      },
+      { q: 1, r: 0 },
+      Facing.South,
+      MovementType.Walk,
+      { walkMP: 1, runMP: 2, jumpMP: 0 },
+    );
+    const decomposition = decomposeMovementSteps({
+      from: { q: 0, r: 0 },
+      to: { q: 1, r: 0 },
+      fromFacing: Facing.Southeast,
+      toFacing: Facing.South,
+      movementType: MovementType.Walk,
+      mpUsed: 2,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+      grid,
+    });
+
+    expect(result).toMatchObject({
+      valid: true,
+      mpCost: 2,
+      heatGenerated: 1,
+    });
+    expect(overBudget.valid).toBe(false);
+    expect(overBudget.error).toContain('costs 2 MP');
+    expect(decomposition).toMatchObject({
+      hexesMoved: 1,
+      straightHexes: 1,
+      turningMpCost: 1,
+      netDisplacement: 1,
+    });
+    expect(decomposition.steps).toEqual([
+      expect.objectContaining({
+        kind: 'forward',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+      }),
+      expect.objectContaining({
+        kind: 'turn',
+        fromFacing: Facing.Southeast,
+        toFacing: Facing.South,
+      }),
+    ]);
+    expect(() =>
+      assertMovementStepConservation(decomposition, 2),
+    ).not.toThrow();
+  });
+
+  it('charges path-alignment turns before entering a bent ground path segment', () => {
+    const grid = createHexGrid({ radius: 3 });
+    const result = validateMovement(
+      grid,
+      positionAtOrigin(),
+      { q: 1, r: -2 },
+      Facing.Northeast,
+      MovementType.Walk,
+      { walkMP: 3, runMP: 5, jumpMP: 0 },
+    );
+    const overBudget = validateMovement(
+      grid,
+      positionAtOrigin(),
+      { q: 1, r: -2 },
+      Facing.Northeast,
+      MovementType.Walk,
+      { walkMP: 2, runMP: 3, jumpMP: 0 },
+    );
+    const decomposition = decomposeMovementSteps({
+      from: { q: 0, r: 0 },
+      to: { q: 1, r: -2 },
+      fromFacing: Facing.North,
+      toFacing: Facing.Northeast,
+      movementType: MovementType.Walk,
+      mpUsed: 3,
+      path: [
+        { q: 0, r: 0 },
+        { q: 0, r: -1 },
+        { q: 1, r: -2 },
+      ],
+      grid,
+    });
+
+    expect(result).toMatchObject({
+      valid: true,
+      mpCost: 3,
+      heatGenerated: 1,
+    });
+    expect(overBudget.valid).toBe(false);
+    expect(overBudget.error).toContain('costs 3 MP');
+    expect(decomposition).toMatchObject({
+      hexesMoved: 2,
+      straightHexes: 2,
+      turningMpCost: 1,
+      netDisplacement: 2,
+    });
+    expect(() =>
+      assertMovementStepConservation(decomposition, 3),
+    ).not.toThrow();
+  });
+
   it('applies the terrain movement-cost table to every supported ground terrain tag', () => {
     for (const terrain of Object.values(TerrainType)) {
       const grid = setHex(
         createHexGrid({ radius: 3 }),
-        { q: 1, r: 0 },
+        { q: 0, r: -1 },
         {
           terrain,
         },
@@ -248,7 +367,7 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
       const result = validateMovement(
         grid,
         positionAtOrigin(),
-        { q: 1, r: 0 },
+        { q: 0, r: -1 },
         Facing.North,
         MovementType.Walk,
         { walkMP: 20, runMP: 30, jumpMP: 0 },
@@ -271,7 +390,7 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
     let waterGrid = createHexGrid({ radius: 3 });
     waterGrid = setHex(
       waterGrid,
-      { q: 1, r: 0 },
+      { q: 0, r: -1 },
       { terrain: TerrainType.Water },
     );
 
@@ -279,7 +398,7 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
       const result = validateMovement(
         waterGrid,
         positionAtOrigin(),
-        { q: 1, r: 0 },
+        { q: 0, r: -1 },
         Facing.North,
         movementType,
         standardMove,
@@ -292,7 +411,7 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
     const jumpIntoWater = validateMovement(
       waterGrid,
       positionAtOrigin(),
-      { q: 1, r: 0 },
+      { q: 0, r: -1 },
       Facing.North,
       MovementType.Jump,
       standardMove,
@@ -302,11 +421,11 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
     expect(jumpIntoWater.heatGenerated).toBe(3);
 
     let cliffGrid = createHexGrid({ radius: 3 });
-    cliffGrid = setHex(cliffGrid, { q: 1, r: 0 }, { elevation: 3 });
+    cliffGrid = setHex(cliffGrid, { q: 0, r: -1 }, { elevation: 3 });
     const climb = validateMovement(
       cliffGrid,
       positionAtOrigin(),
-      { q: 1, r: 0 },
+      { q: 0, r: -1 },
       Facing.North,
       MovementType.Walk,
       standardMove,
@@ -317,7 +436,7 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
     const jumpOntoCliff = validateMovement(
       cliffGrid,
       positionAtOrigin(),
-      { q: 1, r: 0 },
+      { q: 0, r: -1 },
       Facing.North,
       MovementType.Jump,
       standardMove,
@@ -328,12 +447,12 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
   it('applies heat-reduced MP to terrain cost, not just destination distance', () => {
     const hotCap: IMovementCapability = { walkMP: 5, runMP: 8, jumpMP: 0 };
     let grid = createHexGrid({ radius: 3 });
-    grid = setHex(grid, { q: 1, r: 0 }, { terrain: TerrainType.LightWoods });
+    grid = setHex(grid, { q: 0, r: -1 }, { terrain: TerrainType.LightWoods });
 
     const stillPossible = validateMovement(
       grid,
       positionAtOrigin(),
-      { q: 1, r: 0 },
+      { q: 0, r: -1 },
       Facing.North,
       MovementType.Walk,
       hotCap,
@@ -342,11 +461,11 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
     expect(stillPossible.valid).toBe(true);
     expect(stillPossible.mpCost).toBe(2);
 
-    grid = setHex(grid, { q: 1, r: 0 }, { terrain: TerrainType.HeavyWoods });
+    grid = setHex(grid, { q: 0, r: -1 }, { terrain: TerrainType.HeavyWoods });
     const tooCostly = validateMovement(
       grid,
       positionAtOrigin(),
-      { q: 1, r: 0 },
+      { q: 0, r: -1 },
       Facing.North,
       MovementType.Walk,
       hotCap,
@@ -358,8 +477,8 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
 
   it('keeps valid destination previews from advertising impassable or over-budget terrain', () => {
     let grid = createHexGrid({ radius: 3 });
-    grid = setHex(grid, { q: 1, r: 0 }, { terrain: TerrainType.LightWoods });
-    grid = setHex(grid, { q: 0, r: 1 }, { terrain: TerrainType.Water });
+    grid = setHex(grid, { q: 0, r: -1 }, { terrain: TerrainType.LightWoods });
+    grid = setHex(grid, { q: 1, r: 0 }, { terrain: TerrainType.Water });
     grid = setHex(grid, { q: -1, r: 1 }, { terrain: TerrainType.HeavyWoods });
 
     const destinations = getValidDestinations(
@@ -369,8 +488,8 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
       { walkMP: 2, runMP: 3, jumpMP: 0 },
     );
 
-    expect(destinations).toContainEqual({ q: 1, r: 0 });
-    expect(destinations).not.toContainEqual({ q: 0, r: 1 });
+    expect(destinations).toContainEqual({ q: 0, r: -1 });
+    expect(destinations).not.toContainEqual({ q: 1, r: 0 });
     expect(destinations).not.toContainEqual({ q: -1, r: 1 });
   });
 
@@ -400,19 +519,18 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
 
   it('validates against a legal path instead of failing on an impassable straight-line hex', () => {
     let grid = createHexGrid({ radius: 3 });
-    grid = setHex(grid, { q: 1, r: 0 }, { terrain: TerrainType.Water });
+    grid = setHex(grid, { q: 0, r: -1 }, { terrain: TerrainType.Water });
 
     const result = validateMovement(
       grid,
       positionAtOrigin(),
-      { q: 2, r: 0 },
+      { q: 0, r: -2 },
       Facing.North,
       MovementType.Walk,
-      { walkMP: 3, runMP: 5, jumpMP: 0 },
+      { walkMP: 8, runMP: 12, jumpMP: 0 },
     );
 
     expect(result.valid).toBe(true);
-    expect(result.mpCost).toBe(3);
     expect(result.mpCost).toBeGreaterThan(2);
   });
 

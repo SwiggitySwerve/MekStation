@@ -23,6 +23,7 @@ import type { UnitMovementType } from './types';
 import { isInBounds, isOccupied } from '../hexGrid';
 import { hexDistance, hexEquals } from '../hexMath';
 import { getHexMovementCost, getMaxMP } from './calculations';
+import { calculateGroundPathTurningMpCost } from './eventPath';
 import { calculateMovementHeat } from './modifiers';
 import { findPath } from './pathfinding';
 
@@ -116,7 +117,13 @@ export function validateMovement(
       };
     }
 
-    mpCost = calculatePathMovementCost(grid, path, unitMovementType);
+    mpCost = calculateGroundPathMpCost(
+      grid,
+      path,
+      unitMovementType,
+      position.facing,
+      newFacing,
+    );
   }
 
   if (mpCost > maxMP) {
@@ -154,7 +161,7 @@ function toUnitMovementType(movementType: MovementType): UnitMovementType {
   }
 }
 
-function getFacingChangeCost(from: Facing, to: Facing): number {
+export function getFacingChangeCost(from: Facing, to: Facing): number {
   const diff = Math.abs(from - to);
   return Math.min(diff, 6 - diff);
 }
@@ -202,6 +209,23 @@ function calculatePathMovementCost(
   }
 
   return total;
+}
+
+export function calculateGroundPathMpCost(
+  grid: IHexGrid,
+  path: readonly IHexCoordinate[],
+  movementType: UnitMovementType,
+  fromFacing: Facing,
+  toFacing: Facing,
+): number {
+  return (
+    calculatePathMovementCost(grid, path, movementType) +
+    calculateGroundPathTurningMpCost({
+      path,
+      fromFacing,
+      toFacing,
+    })
+  );
 }
 
 /**

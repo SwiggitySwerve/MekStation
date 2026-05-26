@@ -108,7 +108,7 @@ describe('MoveAI', () => {
       expect(stayInPlace).toBeDefined();
     });
 
-    it('should return stay-in-place moves with all facings when unit has 0 MP', () => {
+    it('should return only the current-facing stay-in-place move when unit has 0 MP', () => {
       const moveAI = new MoveAI(DEFAULT_BEHAVIOR);
       const grid = createMockGrid(5);
       const position = createUnitPosition(0, 0);
@@ -121,13 +121,13 @@ describe('MoveAI', () => {
         capability,
       );
 
-      expect(moves.length).toBe(6);
+      expect(moves.length).toBe(1);
       moves.forEach((m: IMove) => {
         expect(m.destination.q).toBe(0);
         expect(m.destination.r).toBe(0);
       });
       const facings = new Set(moves.map((m: IMove) => m.facing));
-      expect(facings.size).toBe(6);
+      expect(facings).toEqual(new Set([Facing.North]));
     });
 
     it('should respect running MP when movement type is run', () => {
@@ -202,7 +202,7 @@ describe('MoveAI', () => {
       expect(blockedMoves.length).toBe(0);
     });
 
-    it('should include all valid facing directions for each destination', () => {
+    it('should include only facing directions that fit the movement budget', () => {
       const moveAI = new MoveAI(DEFAULT_BEHAVIOR);
       const grid = createMockGrid(5);
       const position = createUnitPosition(0, 0);
@@ -215,12 +215,12 @@ describe('MoveAI', () => {
         capability,
       );
 
-      const destAtOneZero = moves.filter(
-        (m: IMove) => m.destination.q === 1 && m.destination.r === 0,
+      const destForward = moves.filter(
+        (m: IMove) => m.destination.q === 0 && m.destination.r === -1,
       );
-      expect(destAtOneZero.length).toBe(6);
-      const facings = new Set(destAtOneZero.map((m: IMove) => m.facing));
-      expect(facings.size).toBe(6);
+      expect(destForward.length).toBe(1);
+      const facings = new Set(destForward.map((m: IMove) => m.facing));
+      expect(facings).toEqual(new Set([Facing.North]));
     });
 
     it('should set correct movement type in returned moves', () => {

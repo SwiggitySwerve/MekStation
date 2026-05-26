@@ -140,7 +140,7 @@ describe('GameEngine movement phase validation', () => {
   it('skips ejected units instead of letting bot movement re-enter combat', () => {
     let session = createMovementPhaseSession();
     const from = session.currentState.units['unit-player'].position;
-    const target = { q: from.q + 1, r: from.r - 1 };
+    const target = { q: from.q, r: from.r - 1 };
     session = appendEvent(
       session,
       createUnitEjectedEvent(
@@ -193,7 +193,7 @@ describe('GameEngine movement phase validation', () => {
   it('replaces bot-reported MP and heat with authoritative terrain validation', () => {
     const session = createMovementPhaseSession();
     const from = session.currentState.units['unit-player'].position;
-    const target = { q: from.q + 1, r: from.r - 1 };
+    const target = { q: from.q, r: from.r - 1 };
     const grid = setHex(
       createHexGrid({ radius: 5 }),
       target,

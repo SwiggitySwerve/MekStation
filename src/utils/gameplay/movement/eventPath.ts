@@ -189,6 +189,37 @@ function shortestRotation(from: Facing, to: Facing): number {
   return cw - 6; // -1, -2 (counterclockwise)
 }
 
+export function calculateGroundPathTurningMpCost(params: {
+  readonly path: readonly IHexCoordinate[];
+  readonly fromFacing: Facing;
+  readonly toFacing: Facing;
+}): number {
+  const { path, fromFacing, toFacing } = params;
+  if (path.length === 0) return 0;
+
+  let currentFacing: Facing = fromFacing;
+  let currentCoord: IHexCoordinate = path[0];
+  let turningMpCost = 0;
+
+  for (let i = 1; i < path.length; i++) {
+    const next = path[i];
+    if (hexEquals(currentCoord, next)) continue;
+
+    const requiredFacing = facingForHexTransition(currentCoord, next);
+    if (requiredFacing !== null) {
+      turningMpCost += Math.abs(
+        shortestRotation(currentFacing, requiredFacing),
+      );
+      currentFacing = requiredFacing;
+    }
+
+    currentCoord = next;
+  }
+
+  turningMpCost += Math.abs(shortestRotation(currentFacing, toFacing));
+  return turningMpCost;
+}
+
 /**
  * Look up the terrain string + elevation for a hex from the grid.
  * Falls back to the legacy "unknown" / 0 pair when the grid is missing

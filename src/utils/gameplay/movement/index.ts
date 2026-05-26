@@ -9,8 +9,10 @@ export {
   estimateMovementCost,
 } from './calculations';
 export {
+  calculateGroundPathMpCost,
   validateMovement,
   canStand,
+  getFacingChangeCost,
   getStandingCost,
   getValidDestinations,
 } from './validation';

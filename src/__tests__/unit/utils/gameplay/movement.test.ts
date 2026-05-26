@@ -225,7 +225,7 @@ describe('movement', () => {
       const result = validateMovement(
         grid,
         position,
-        { q: 2, r: 0 },
+        { q: 0, r: -2 },
         Facing.North,
         MovementType.Walk,
         capability,
@@ -321,11 +321,11 @@ describe('movement', () => {
       // Error should mention the reduced max, not the raw max
       expect(fail.error).toContain('2');
 
-      // Distance 2 should still succeed
+      // Straight-ahead distance 2 should still succeed.
       const ok = validateMovement(
         hotGrid,
         pos,
-        { q: 2, r: 0 },
+        { q: 0, r: -2 },
         Facing.North,
         MovementType.Walk,
         cap,
@@ -347,7 +347,7 @@ describe('movement', () => {
       const ok = validateMovement(
         cleanGrid,
         pos,
-        { q: 4, r: 0 },
+        { q: 0, r: -4 },
         Facing.North,
         MovementType.Walk,
         cap,
@@ -380,10 +380,10 @@ describe('movement', () => {
       );
 
       expect(destinations.length).toBeGreaterThan(0);
-      // Should include hexes at distance 0, 1, and 2
+      // Should include straight-ahead hexes at movement point costs 0, 1, and 2.
       expect(destinations.some((d) => d.q === 0 && d.r === 0)).toBe(true); // Stay
-      expect(destinations.some((d) => d.q === 1 && d.r === 0)).toBe(true); // Distance 1
-      expect(destinations.some((d) => d.q === 2 && d.r === 0)).toBe(true); // Distance 2
+      expect(destinations.some((d) => d.q === 0 && d.r === -1)).toBe(true); // Cost 1
+      expect(destinations.some((d) => d.q === 0 && d.r === -2)).toBe(true); // Cost 2
     });
 
     it('should return only current position for stationary', () => {

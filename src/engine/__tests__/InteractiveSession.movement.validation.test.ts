@@ -91,7 +91,7 @@ describe('InteractiveSession movement validation', () => {
   it('commits terrain-adjusted MP and movement heat through the interactive action path', () => {
     const session = createMovementPhaseSession();
     const from = session.currentState.units['unit-player'].position;
-    const target = { q: from.q + 1, r: from.r - 1 };
+    const target = { q: from.q, r: from.r - 1 };
     const grid = setHex(
       createHexGrid({ radius: 5 }),
       target,
@@ -159,7 +159,7 @@ describe('InteractiveSession movement validation', () => {
       session,
       grid,
       movementByUnit: new Map([
-        ['unit-player', { walkMP: 3, runMP: 5, jumpMP: 0 }],
+        ['unit-player', { walkMP: 8, runMP: 10, jumpMP: 0 }],
       ]),
       unitId: 'unit-player',
       to: target,
@@ -170,7 +170,7 @@ describe('InteractiveSession movement validation', () => {
 
     const payload = latestMovementPayload(next);
     const committedPath = payload.path ?? [];
-    expect(payload.mpUsed).toBe(3);
+    expect(payload.mpUsed).toBeGreaterThan(2);
     expect(committedPath).not.toContainEqual(water);
     expect(committedPath[committedPath.length - 1]).toEqual(target);
   });

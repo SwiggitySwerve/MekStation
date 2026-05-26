@@ -137,11 +137,14 @@ function runScriptedMove(
     readonly random?: SeededRandom;
   } = {},
 ) {
+  const defaultFacing = facingFromOriginTo(target);
   const unit = {
     ...createMinimalUnitState('player-1', GameSide.Player, {
       q: 0,
       r: 0,
     }),
+    facing: defaultFacing,
+    secondaryFacing: defaultFacing,
     ...unitOverrides,
   };
   const state = {
@@ -164,7 +167,7 @@ function runScriptedMove(
       'player-1',
       target,
       options.movementType,
-      options.facing,
+      options.facing ?? unit.facing,
     ),
     grid,
     environmentalConditions: options.environmentalConditions,
@@ -183,6 +186,27 @@ function runScriptedMove(
   });
 
   return { next, events };
+}
+
+function facingFromOriginTo(target: IHexCoordinate): Facing {
+  const distance = Math.max(
+    Math.abs(target.q),
+    Math.abs(target.r),
+    Math.abs(target.q + target.r),
+  );
+  if (distance === 0) return Facing.North;
+
+  const step = {
+    q: target.q / distance,
+    r: target.r / distance,
+  };
+  if (step.q === 0 && step.r === -1) return Facing.North;
+  if (step.q === 1 && step.r === -1) return Facing.Northeast;
+  if (step.q === 1 && step.r === 0) return Facing.Southeast;
+  if (step.q === 0 && step.r === 1) return Facing.South;
+  if (step.q === -1 && step.r === 1) return Facing.Southwest;
+  if (step.q === -1 && step.r === 0) return Facing.Northwest;
+  return Facing.North;
 }
 
 function psrPayloads(
