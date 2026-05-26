@@ -34,6 +34,7 @@ import {
   rollInitiative,
   declareMovement,
   lockMovement,
+  lockAttack,
   replayToSequence,
   replayToTurn,
   generateGameLog,
@@ -102,6 +103,10 @@ function createMovementPhaseSession(): IGameSession {
   // Advance to movement phase
   session = advancePhase(session);
   return session;
+}
+
+function createWeaponAttackPhaseSession(): IGameSession {
+  return advancePhase(createMovementPhaseSession());
 }
 
 // =============================================================================
@@ -706,6 +711,89 @@ describe('canAdvancePhase', () => {
     session = advancePhase(session); // -> End
 
     expect(canAdvancePhase(session)).toBe(true);
+  });
+});
+
+// =============================================================================
+// lockAttack reveal boundary Tests
+// =============================================================================
+
+describe('lockAttack', () => {
+  it('should not reveal attacks until every active unit has locked', () => {
+    let session = createWeaponAttackPhaseSession();
+
+    session = lockAttack(session, 'player-1');
+
+    expect(
+      session.events.some(
+        (event) => event.type === GameEventType.AttacksRevealed,
+      ),
+    ).toBe(false);
+    expect(session.currentState.units['player-1'].lockState).toBe(
+      LockState.Locked,
+    );
+  });
+
+  it('should emit AttacksRevealed after the last active unit locks', () => {
+    let session = createWeaponAttackPhaseSession();
+
+    session = lockAttack(session, 'player-1');
+    session = lockAttack(session, 'player-2');
+    session = lockAttack(session, 'opponent-1');
+    session = lockAttack(session, 'opponent-2');
+
+    const revealEvent = session.events.findLast(
+      (event) => event.type === GameEventType.AttacksRevealed,
+    );
+    expect(revealEvent).toBeDefined();
+    expect(revealEvent?.sequence).toBe(session.events.length - 1);
+    expect(revealEvent?.visibility).toBe('public');
+    expect(revealEvent?.payload).toEqual({
+      unitIds: ['opponent-1', 'opponent-2', 'player-1', 'player-2'],
+      attackCount: 0,
+    });
+    expect(session.currentState.units['player-1'].lockState).toBe(
+      LockState.Revealed,
+    );
+    expect(session.currentState.units['opponent-2'].lockState).toBe(
+      LockState.Revealed,
+    );
+    expect(canAdvancePhase(session)).toBe(true);
+  });
+
+  it('should include only current-turn AttackDeclared records in reveal count', () => {
+    let session = createWeaponAttackPhaseSession();
+    session = appendEvent(session, {
+      id: 'older-attack',
+      gameId: session.id,
+      sequence: session.events.length,
+      timestamp: '2026-05-26T00:00:00.000Z',
+      type: GameEventType.AttackDeclared,
+      turn: session.currentState.turn - 1,
+      phase: GamePhase.WeaponAttack,
+      actorId: 'player-1',
+      payload: {},
+    } as IGameEvent);
+    session = appendEvent(session, {
+      id: 'current-attack',
+      gameId: session.id,
+      sequence: session.events.length,
+      timestamp: '2026-05-26T00:00:00.000Z',
+      type: GameEventType.AttackDeclared,
+      turn: session.currentState.turn,
+      phase: GamePhase.WeaponAttack,
+      actorId: 'player-1',
+      payload: {},
+    } as IGameEvent);
+
+    for (const unitId of ['player-1', 'player-2', 'opponent-1', 'opponent-2']) {
+      session = lockAttack(session, unitId);
+    }
+
+    const revealEvent = session.events.findLast(
+      (event) => event.type === GameEventType.AttacksRevealed,
+    );
+    expect(revealEvent?.payload).toMatchObject({ attackCount: 1 });
   });
 });
 
@@ -1510,6 +1598,17 @@ describe('generateGameLog', () => {
 
     expect(log).toContain('player-1');
     expect(log).toContain('locked movement');
+  });
+
+  it('should include attacks_revealed event', () => {
+    let session = createWeaponAttackPhaseSession();
+    for (const unitId of ['player-1', 'player-2', 'opponent-1', 'opponent-2']) {
+      session = lockAttack(session, unitId);
+    }
+
+    const log = generateGameLog(session);
+
+    expect(log).toContain('Attacks revealed');
   });
 
   it('should format log lines with turn and phase', () => {
