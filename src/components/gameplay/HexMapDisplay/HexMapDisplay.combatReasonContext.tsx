@@ -15,8 +15,9 @@ export function combatReasonText(
     ? (combatInfo.toHitReason ??
         combatInfo.indirectFireReason ??
         combatInfo.targetCoverReason)
-    : (combatInfo.blockedReason ??
-        combatInfo.attackInvalidDetails ??
+    : (combatInfo.attackInvalidDetails ??
+        combatInfo.indirectFireUnavailableReason ??
+        combatInfo.blockedReason ??
         combatInfo.visibilityBlockedReason ??
         combatInfo.lineOfSightBlockerReason);
 }
@@ -68,6 +69,9 @@ export function CombatReasonContextRows({
       data-combat-los-blocker-reason={combatInfo.lineOfSightBlockerReason}
       data-combat-to-hit-reason={combatInfo.toHitReason}
       data-combat-indirect-fire-reason={combatInfo.indirectFireReason}
+      data-combat-indirect-blocked-reason={
+        combatInfo.indirectFireUnavailableReason
+      }
       data-combat-cover-reason={combatInfo.targetCoverReason}
       data-combat-reason={label}
       data-combat-reason-source-refs={combatSourceRefsAttribute}

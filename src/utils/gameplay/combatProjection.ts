@@ -37,6 +37,7 @@ import {
 } from './combatProjection.targeting';
 import {
   deriveIndirectFireProjection,
+  deriveIndirectFireUnavailableReason,
   deriveToHitProjection,
 } from './combatProjection.toHit';
 import {
@@ -305,6 +306,14 @@ export function deriveCombatRangeHexes({
       directLosBlocked: los.state === 'blocked',
       grid,
     });
+    const indirectFireUnavailableReason =
+      los.state === 'blocked' && indirectFire?.available !== true
+        ? deriveIndirectFireUnavailableReason({
+            combatState,
+            targetUnitId: projectedTargetUnitId,
+            weaponIdsAvailable,
+          })
+        : undefined;
     const visibilityBlockedReason = visibilityBlockedReasonForHex(
       targetVisibilityState,
       visibleTargetUnitIds.length,
@@ -323,6 +332,7 @@ export function deriveCombatRangeHexes({
       weaponEnvironmentInvalidState:
         waterAttackInvalidState ?? groundToAirIndirectInvalidState,
       indirectFirePermitted: indirectFire?.available === true,
+      indirectFireUnavailableReason,
     });
     const attackable =
       projectedTargetUnitId !== undefined &&
@@ -428,6 +438,7 @@ export function deriveCombatRangeHexes({
       indirectFireForwardObserver: indirectFire?.forwardObserverApplied,
       indirectFirePenaltyCancelled: indirectFire?.penaltyCancelled,
       indirectFireReason: indirectFire?.reason,
+      indirectFireUnavailableReason,
     });
   }
 

@@ -26,6 +26,7 @@ import {
 import {
   isIndirectFireCapable,
   resolveIndirectFireWithSemiGuided,
+  semiGuidedTagIndirectFireBlockedReason,
   type IAirborneAeroSpottingEquipment,
   type ISpotterCandidate,
 } from './indirectFire';
@@ -393,4 +394,28 @@ export function deriveIndirectFireProjection({
       forwardObserverApplied: result.forwardObserverApplied,
     }),
   };
+}
+
+export function deriveIndirectFireUnavailableReason({
+  combatState,
+  targetUnitId,
+  weaponIdsAvailable,
+}: {
+  readonly combatState?: IGameState | null;
+  readonly targetUnitId?: string;
+  readonly weaponIdsAvailable: readonly string[];
+}): string | undefined {
+  if (!combatState) return undefined;
+  const indirectWeaponId = weaponIdsAvailable.find(isIndirectFireCapable);
+  if (!indirectWeaponId) return undefined;
+
+  const targetStatus = targetIndirectStatus(combatState, targetUnitId);
+  return semiGuidedTagIndirectFireBlockedReason({
+    weaponId: indirectWeaponId,
+    equipment: { isSemiGuided: false },
+    targetStatus: {
+      tagDesignated: targetStatus.tagDesignated,
+      ecmProtected: targetStatus.ecmProtected,
+    },
+  });
 }

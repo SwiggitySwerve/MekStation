@@ -236,6 +236,7 @@ export function deriveAttackInvalidState({
   visibilityBlockedReason,
   weaponEnvironmentInvalidState,
   indirectFirePermitted,
+  indirectFireUnavailableReason,
 }: {
   readonly hasTarget: boolean;
   readonly distance: number;
@@ -254,6 +255,7 @@ export function deriveAttackInvalidState({
     readonly details: string;
   };
   readonly indirectFirePermitted: boolean;
+  readonly indirectFireUnavailableReason?: string;
 }): {
   readonly reason?: IAttackInvalidPayload['reason'];
   readonly details?: string;
@@ -293,9 +295,12 @@ export function deriveAttackInvalidState({
     };
   }
   if (los.state === 'blocked' && !indirectFirePermitted) {
+    const losDetails = lineOfSightBlockedDetails(los);
     return {
       reason: 'NoLineOfSight',
-      details: lineOfSightBlockedDetails(los),
+      details: indirectFireUnavailableReason
+        ? `${indirectFireUnavailableReason}; ${losDetails}`
+        : losDetails,
     };
   }
   return {};
@@ -317,7 +322,7 @@ export function blockedReasonForHex(
     case 'OutOfArc':
       return `No weapons cover ${firingArc} arc`;
     case 'NoLineOfSight':
-      return los.blockerAnnotations[0]?.title ?? invalidState.details;
+      return invalidState.details ?? los.blockerAnnotations[0]?.title;
     default:
       break;
   }

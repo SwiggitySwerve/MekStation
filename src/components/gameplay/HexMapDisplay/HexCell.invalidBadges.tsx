@@ -23,6 +23,7 @@ function movementReasonText(
 function combatReasonText(combatInfo: ICombatRangeHex): string | undefined {
   return (
     combatInfo.attackInvalidDetails ??
+    combatInfo.indirectFireUnavailableReason ??
     combatInfo.lineOfSightBlockerReason ??
     combatInfo.visibilityBlockedReason ??
     combatInfo.blockedReason ??
@@ -79,6 +80,12 @@ function formatMovementInvalidBadgeLabel(
 function formatCombatInvalidBadgeLabel(combatInfo: ICombatRangeHex): string {
   const blockerReason = combatReasonText(combatInfo);
   if (combatInfo.attackInvalidReason === 'NoLineOfSight') {
+    if (
+      includesReason(blockerReason, 'tag') ||
+      includesReason(blockerReason, 'ecm')
+    ) {
+      return 'TAG';
+    }
     if (includesReason(blockerReason, 'elevation')) return 'ELEV';
     if (includesReason(blockerReason, 'building')) return 'BLDG';
     if (includesReason(blockerReason, 'woods')) return 'WOOD';

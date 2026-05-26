@@ -8,6 +8,7 @@ import {
 } from '@/types/gameplay';
 import { INDIRECT_FIRE_AIRBORNE_TARGET_REJECTION } from '@/utils/gameplay/aerospace/groundToAir';
 import { resolveAttack } from '@/utils/gameplay/gameSession';
+import { ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON } from '@/utils/gameplay/indirectFire';
 
 import {
   tacticalMapChinTurretPivotCombatProjection,
@@ -683,6 +684,8 @@ describe('tactical map combat scenarios', () => {
       validTargetUnitIds: [],
       weaponIdsAvailable: ['semi-guided-lrm-15'],
       attackInvalidReason: 'NoLineOfSight',
+      indirectFireUnavailableReason:
+        ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON,
     });
     expect(
       tacticalMapEcmNullifiedTagIndirectFireCombatProjection.indirectFireAvailable,
@@ -690,6 +693,16 @@ describe('tactical map combat scenarios', () => {
     expect(
       tacticalMapEcmNullifiedTagIndirectFireCombatProjection.indirectFireBasis,
     ).toBeUndefined();
+    expect(
+      tacticalMapEcmNullifiedTagIndirectFireCombatProjection.attackInvalidDetails,
+    ).toEqual(
+      expect.stringContaining(ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON),
+    );
+    expect(
+      tacticalMapEcmNullifiedTagIndirectFireCombatProjection.blockedReason,
+    ).toEqual(
+      expect.stringContaining(ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON),
+    );
 
     const result = applyInteractiveSessionAttack(
       tacticalMapEcmNullifiedTagIndirectFireCommitInput(),

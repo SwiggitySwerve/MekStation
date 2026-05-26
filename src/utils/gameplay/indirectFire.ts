@@ -508,6 +508,28 @@ export function resolveIndirectFire(
 // Semi-Guided LRM with TAG
 // =============================================================================
 
+export const ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON =
+  'TAG designation is nullified by ECM; semi-guided indirect fire is unavailable';
+
+function isSemiGuidedContext(context: ISemiGuidedContext): boolean {
+  return (
+    isSemiGuidedLRM(context.weaponId) || context.equipment.isSemiGuided === true
+  );
+}
+
+export function semiGuidedTagIndirectFireBlockedReason(
+  context: ISemiGuidedContext,
+): string | undefined {
+  if (!isSemiGuidedContext(context)) return undefined;
+  if (
+    context.targetStatus.tagDesignated === true &&
+    context.targetStatus.ecmProtected === true
+  ) {
+    return ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON;
+  }
+  return undefined;
+}
+
 /**
  * Resolve semi-guided LRM behavior.
  *
@@ -521,12 +543,22 @@ export function resolveSemiGuidedLRM(
   context: ISemiGuidedContext,
 ): ISemiGuidedResult {
   // Check if weapon is actually semi-guided
-  if (!isSemiGuidedLRM(context.weaponId) && !context.equipment.isSemiGuided) {
+  if (!isSemiGuidedContext(context)) {
     return {
       isSemiGuided: false,
       tagActive: false,
       useStandardToHit: false,
       description: 'Not a semi-guided LRM',
+    };
+  }
+
+  const blockedReason = semiGuidedTagIndirectFireBlockedReason(context);
+  if (blockedReason) {
+    return {
+      isSemiGuided: true,
+      tagActive: false,
+      useStandardToHit: false,
+      description: blockedReason,
     };
   }
 

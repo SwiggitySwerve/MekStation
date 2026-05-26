@@ -8,9 +8,11 @@ import {
   spotterHasLOS,
   findBestSpotter,
   isIndirectFireCapable,
+  ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON,
   resolveIndirectFire,
   resolveSemiGuidedLRM,
   resolveIndirectFireWithSemiGuided,
+  semiGuidedTagIndirectFireBlockedReason,
   ISpotterCandidate,
   IIndirectFireRequest,
   ISemiGuidedContext,
@@ -467,6 +469,7 @@ describe('Semi-Guided LRM with TAG', () => {
       expect(result.isSemiGuided).toBe(true);
       expect(result.tagActive).toBe(false);
       expect(result.useStandardToHit).toBe(false);
+      expect(semiGuidedTagIndirectFireBlockedReason(context)).toBeUndefined();
     });
 
     it('should not activate semi-guided for non-semi-guided weapons', () => {
@@ -490,6 +493,12 @@ describe('Semi-Guided LRM with TAG', () => {
       expect(result.isSemiGuided).toBe(true);
       expect(result.tagActive).toBe(false);
       expect(result.useStandardToHit).toBe(false);
+      expect(result.description).toBe(
+        ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON,
+      );
+      expect(semiGuidedTagIndirectFireBlockedReason(context)).toBe(
+        ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON,
+      );
     });
 
     it('should recognize isSemiGuided equipment flag even if weapon name differs', () => {

@@ -185,4 +185,6 @@ export interface ICombatRangeHex {
   readonly indirectFirePenaltyCancelled?: number;
   /** Player-facing indirect-fire explanation */
   readonly indirectFireReason?: string;
+  /** Player-facing reason an indirect-fire fallback is unavailable */
+  readonly indirectFireUnavailableReason?: string;
 }

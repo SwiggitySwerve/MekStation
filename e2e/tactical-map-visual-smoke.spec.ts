@@ -1,6 +1,9 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import sharp from 'sharp';
 
+const ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON =
+  'TAG designation is nullified by ECM; semi-guided indirect fire is unavailable';
+
 async function switchToIsometric(
   page: Page,
   projectionLayer: Locator,
@@ -3767,25 +3770,34 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(targetHex).not.toHaveAttribute('data-combat-indirect-fire');
     await expect(targetHex).not.toHaveAttribute('data-combat-indirect-basis');
     await expect(targetHex).toHaveAttribute(
+      'data-combat-indirect-blocked-reason',
+      ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON,
+    );
+    await expect(targetHex).toHaveAttribute(
       'data-combat-invalid-reason',
       'NoLineOfSight',
     );
     await expect(targetHex).toHaveAttribute(
       'data-combat-invalid-details',
-      /Blocked by/,
+      new RegExp(
+        `${ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON}.*Blocked by`,
+      ),
     );
 
     await expect(page.getByTestId('hex-indirect-fire-badge-3-0')).toHaveCount(
       0,
     );
     const invalidBadge = page.getByTestId('hex-combat-invalid-badge-3-0');
+    await expect(invalidBadge).toContainText('TAG');
     await expect(invalidBadge).toHaveAttribute(
       'data-invalid-badge-code',
       'NoLineOfSight',
     );
     await expect(invalidBadge).toHaveAttribute(
       'data-invalid-badge-reason',
-      /Blocked by/,
+      new RegExp(
+        `${ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON}.*Blocked by`,
+      ),
     );
   });
 

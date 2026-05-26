@@ -66,6 +66,7 @@ import {
 } from '@/utils/gameplay/gameSession';
 import { appendEvent } from '@/utils/gameplay/gameSession';
 import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
+import { semiGuidedTagIndirectFireBlockedReason } from '@/utils/gameplay/indirectFire';
 import {
   calculateLOS,
   formatLOSBlockedDetails,
@@ -379,6 +380,39 @@ function appendInteractiveAttackInvalid(
   );
 }
 
+type TargetStatusUnit = IGameSession['currentState']['units'][string] & {
+  readonly tagDesignated?: boolean;
+  readonly ecmProtected?: boolean;
+};
+
+function semiGuidedTagAttackBlockedDetails({
+  targetUnit,
+  weaponAttacks,
+  losDetails,
+}: {
+  readonly targetUnit: IGameSession['currentState']['units'][string];
+  readonly weaponAttacks: readonly IWeaponAttack[];
+  readonly losDetails: string;
+}): string {
+  const targetStatus = targetUnit as TargetStatusUnit;
+  const indirectBlockedReason = weaponAttacks
+    .map((weapon) =>
+      semiGuidedTagIndirectFireBlockedReason({
+        weaponId: weapon.weaponId,
+        equipment: { isSemiGuided: false },
+        targetStatus: {
+          tagDesignated: targetStatus.tagDesignated === true,
+          ecmProtected: targetStatus.ecmProtected === true,
+        },
+      }),
+    )
+    .find((reason): reason is string => reason !== undefined);
+
+  return indirectBlockedReason
+    ? `${indirectBlockedReason}; ${losDetails}`
+    : losDetails;
+}
+
 function attackVisibilityBlockedReason(
   input: IApplyAttackInput,
   attackerUnit: IGameSession['currentState']['units'][string],
@@ -600,12 +634,17 @@ export function applyInteractiveSessionAttack(
       indirectFireResolution?.permitted === true &&
       indirectFireResolution.isIndirect;
     if (!directLos.hasLOS && !indirectAllowed) {
+      const losDetails = formatLOSBlockedDetails(directLos);
       return appendInteractiveAttackInvalid(
         input.session,
         input.attackerId,
         input.targetId,
         'NoLineOfSight',
-        formatLOSBlockedDetails(directLos),
+        semiGuidedTagAttackBlockedDetails({
+          targetUnit,
+          weaponAttacks: usableWeaponAttacks,
+          losDetails,
+        }),
         input.weaponIds[0],
       );
     }

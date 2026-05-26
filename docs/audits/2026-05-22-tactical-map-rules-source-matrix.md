@@ -93,9 +93,16 @@ and matching to-hit metadata.
 2026-05-25 ECM-nullified TAG browser pin: the tactical-map harness now also
 represents the same no-spotter semi-guided LRM shot when ECM protection
 nullifies the target's TAG designation. The shared projection, browser
-metadata, invalid combat badge, and committed `AttackInvalid` event all agree
-that the shot stays blocked by LOS with no indirect-fire basis, no indirect
-badge, no spotter event, and no NARC override event.
+metadata, invalid combat badge, accessible reason context, and committed
+`AttackInvalid` event all agree that the shot stays blocked by LOS with no
+indirect-fire basis, no indirect badge, no spotter event, and no NARC override
+event. The blocked reason now explicitly states that TAG is nullified by ECM
+and semi-guided indirect fire is unavailable. Source cross-check: MegaMek
+`ComputeToHit.java:1524-1535` applies the semi-guided indirect modifier only
+when `Compute.isTargetTagged(target, game)` succeeds, `ComputeTerrainMods.java:134-140`
+uses the same tagged-target gate for ignoring target terrain, and
+`ComputeECM.java:84-89` is the target/flight-path ECM helper MekStation mirrors
+through represented `ecmProtected` target status.
 
 2026-05-24 isometric browser update: the tactical-map browser harness now places
 opposing tall elevation stacks around an active target and verifies that camera

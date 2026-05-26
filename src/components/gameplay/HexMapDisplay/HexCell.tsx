@@ -689,6 +689,9 @@ export const HexCell = React.memo(function HexCell({
         combatInfo?.indirectFirePenaltyCancelled
       }
       data-combat-indirect-reason={combatInfo?.indirectFireReason}
+      data-combat-indirect-blocked-reason={
+        combatInfo?.indirectFireUnavailableReason
+      }
       data-weapons-in-range={combatInfo?.weaponIdsInRange.join(',')}
       data-weapons-in-arc={combatInfo?.weaponIdsInArc.join(',')}
       data-weapons-available={combatInfo?.weaponIdsAvailable.join(',')}
