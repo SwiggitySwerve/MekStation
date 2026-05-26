@@ -1586,6 +1586,17 @@ LOS classification, to-hit modifiers, weapon option filtering, fog visibility,
 attack validation, or attack resolution; it makes the visible final combat
 reason inspectable without relying on aggregate combat metadata.
 
+2026-05-25 combat targeting context rule-reference pin: Combat range and
+geometry rows in combat and combined tactical hovers now expose combat-channel
+source references and MegaMek rule references from the shared per-hex tactical
+projection while pinning target presence, attackability, target IDs, valid target
+IDs, range bracket, distance, in-range state, in-arc state, LOS state, firing
+arc, weapons in range, weapons in arc, and weapons available. This does not
+change range classification, firing arc classification, LOS classification,
+target validity, weapon option filtering, attack validation, or attack
+resolution; it makes range/arc/LOS targeting context inspectable without
+relying on aggregate combat metadata.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:

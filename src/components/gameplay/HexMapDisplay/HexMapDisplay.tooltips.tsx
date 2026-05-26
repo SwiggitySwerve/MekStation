@@ -21,6 +21,7 @@ import { CombatIndirectFireContextRows } from './HexMapDisplay.combatIndirectFir
 import { CombatLosContextRows } from './HexMapDisplay.combatLosContext';
 import { CombatMinimumRangeContextRows } from './HexMapDisplay.combatMinimumRangeContext';
 import { CombatReasonContextRows } from './HexMapDisplay.combatReasonContext';
+import { CombatTargetingContextRows } from './HexMapDisplay.combatTargetingContext';
 import { CombatVisibilityContextRows } from './HexMapDisplay.combatVisibilityContext';
 import { CombatWeaponImpactRows } from './HexMapDisplay.combatWeaponImpacts';
 import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
@@ -266,13 +267,11 @@ function CombatHoverTooltip({
           : ''}
       </div>
       <div data-testid="hex-combat-tooltip-target">Target: {targetLabel}</div>
-      <div data-testid="hex-combat-tooltip-range">
-        Range: {combatInfo.rangeBracket.replace(/_/g, ' ')} at{' '}
-        {combatInfo.distance} hexes
-      </div>
-      <div data-testid="hex-combat-tooltip-geometry">
-        LOS {combatInfo.losState}; {combatInfo.firingArc} arc
-      </div>
+      <CombatTargetingContextRows
+        combatInfo={combatInfo}
+        projection={projection}
+        testIdPrefix="hex-combat-tooltip"
+      />
       {terrain && (
         <TerrainContextRows
           terrain={terrain}

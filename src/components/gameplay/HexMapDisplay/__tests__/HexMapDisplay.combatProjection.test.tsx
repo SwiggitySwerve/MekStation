@@ -1487,9 +1487,22 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-c3-rule-refs',
       expect.stringContaining('combat:megamek:MegaMek Compute.java'),
     );
-    expect(
-      screen.getByTestId('hex-tactical-tooltip-combat-range'),
-    ).toHaveTextContent('Range: short at 6 hexes');
+    const c3Range = screen.getByTestId('hex-tactical-tooltip-combat-range');
+    expect(c3Range).toHaveTextContent('Range: short at 6 hexes');
+    expect(c3Range).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(c3Range).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    expect(c3Range).toHaveAttribute('data-combat-range-bracket', 'short');
+    expect(c3Range).toHaveAttribute('data-combat-distance', '6');
+    expect(c3Range).toHaveAttribute(
+      'data-combat-targeting-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek RangeType.java'),
+    );
   });
 
   it('surfaces represented underwater weapon restrictions in combat hover explanations', () => {
@@ -2026,8 +2039,14 @@ describe('HexMapDisplay combat projection', () => {
     expect(screen.getByTestId('hex-combat-tooltip-target')).toHaveTextContent(
       'No target',
     );
-    expect(screen.getByTestId('hex-combat-tooltip-range')).toHaveTextContent(
-      'short at 1 hexes',
+    const emptyRange = screen.getByTestId('hex-combat-tooltip-range');
+    expect(emptyRange).toHaveTextContent('short at 1 hexes');
+    expect(emptyRange).toHaveAttribute('data-combat-has-target', 'false');
+    expect(emptyRange).toHaveAttribute('data-combat-in-range', 'true');
+    expect(emptyRange).toHaveAttribute('data-combat-target-ids', '');
+    expect(emptyRange).toHaveAttribute(
+      'data-combat-targeting-source-refs',
+      expect.stringContaining('combat:megamek:MegaMek weapon range projection'),
     );
     expect(screen.queryByTestId('hex-combat-tooltip-weapon-impact')).toBeNull();
     expect(screen.queryByTestId('hex-combat-tooltip-reason')).toBeNull();
@@ -2857,11 +2876,21 @@ describe('HexMapDisplay combat projection', () => {
     expect(screen.getByTestId('hex-combat-tooltip-target')).toHaveTextContent(
       'enemy',
     );
-    expect(screen.getByTestId('hex-combat-tooltip-range')).toHaveTextContent(
-      'short at 2 hexes',
+    const blockedRange = screen.getByTestId('hex-combat-tooltip-range');
+    expect(blockedRange).toHaveTextContent('short at 2 hexes');
+    expect(blockedRange).toHaveAttribute('data-combat-target-ids', 'enemy');
+    expect(blockedRange).toHaveAttribute('data-combat-attackable', 'false');
+    expect(blockedRange).toHaveAttribute(
+      'data-combat-weapons-in-range',
+      'medium-laser',
     );
-    expect(screen.getByTestId('hex-combat-tooltip-geometry')).toHaveTextContent(
-      'LOS blocked; front arc',
+    const blockedGeometry = screen.getByTestId('hex-combat-tooltip-geometry');
+    expect(blockedGeometry).toHaveTextContent('LOS blocked; front arc');
+    expect(blockedGeometry).toHaveAttribute('data-combat-los-state', 'blocked');
+    expect(blockedGeometry).toHaveAttribute('data-combat-firing-arc', 'front');
+    expect(blockedGeometry).toHaveAttribute(
+      'data-combat-targeting-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
     );
     const losContext = screen.getByTestId('hex-combat-tooltip-los-context');
     expect(losContext).toHaveTextContent(
@@ -3849,12 +3878,21 @@ describe('HexMapDisplay combat projection', () => {
     expect(screen.getByTestId('hex-combat-tooltip-target')).toHaveTextContent(
       'enemy',
     );
-    expect(screen.getByTestId('hex-combat-tooltip-range')).toHaveTextContent(
-      'short at 2 hexes',
+    const attackRange = screen.getByTestId('hex-combat-tooltip-range');
+    expect(attackRange).toHaveTextContent('short at 2 hexes');
+    expect(attackRange).toHaveAttribute('data-combat-attackable', 'true');
+    expect(attackRange).toHaveAttribute(
+      'data-combat-valid-target-ids',
+      'enemy',
     );
-    expect(screen.getByTestId('hex-combat-tooltip-geometry')).toHaveTextContent(
-      'LOS clear; front arc',
+    expect(attackRange).toHaveAttribute(
+      'data-combat-weapons-available',
+      'medium-laser',
     );
+    const attackGeometry = screen.getByTestId('hex-combat-tooltip-geometry');
+    expect(attackGeometry).toHaveTextContent('LOS clear; front arc');
+    expect(attackGeometry).toHaveAttribute('data-combat-los-state', 'clear');
+    expect(attackGeometry).toHaveAttribute('data-combat-firing-arc', 'front');
     const combatTerrainContext = screen.getByTestId(
       'hex-combat-tooltip-terrain-context',
     );
@@ -4838,12 +4876,27 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       screen.getByTestId('hex-tactical-tooltip-combat-target'),
     ).toHaveTextContent('Target: enemy');
-    expect(
-      screen.getByTestId('hex-tactical-tooltip-combat-range'),
-    ).toHaveTextContent('Range: out of range at 3 hexes');
-    expect(
-      screen.getByTestId('hex-tactical-tooltip-combat-geometry'),
-    ).toHaveTextContent('LOS clear; front arc');
+    const tacticalRange = screen.getByTestId(
+      'hex-tactical-tooltip-combat-range',
+    );
+    expect(tacticalRange).toHaveTextContent('Range: out of range at 3 hexes');
+    expect(tacticalRange).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(tacticalRange).toHaveAttribute(
+      'data-combat-range-bracket',
+      'out_of_range',
+    );
+    expect(tacticalRange).toHaveAttribute('data-combat-distance', '3');
+    expect(tacticalRange).toHaveAttribute('data-combat-in-range', 'false');
+    expect(tacticalRange).toHaveAttribute('data-combat-target-ids', 'enemy');
+    const tacticalGeometry = screen.getByTestId(
+      'hex-tactical-tooltip-combat-geometry',
+    );
+    expect(tacticalGeometry).toHaveTextContent('LOS clear; front arc');
+    expect(tacticalGeometry).toHaveAttribute('data-combat-los-state', 'clear');
+    expect(tacticalGeometry).toHaveAttribute('data-combat-firing-arc', 'front');
     const tacticalVisibilityRows = screen.getByTestId(
       'hex-tactical-tooltip-combat-visibility',
     );

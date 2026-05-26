@@ -18,6 +18,7 @@ import { CombatIndirectFireContextRows } from './HexMapDisplay.combatIndirectFir
 import { CombatLosContextRows } from './HexMapDisplay.combatLosContext';
 import { CombatMinimumRangeContextRows } from './HexMapDisplay.combatMinimumRangeContext';
 import { CombatReasonContextRows } from './HexMapDisplay.combatReasonContext';
+import { CombatTargetingContextRows } from './HexMapDisplay.combatTargetingContext';
 import { CombatVisibilityContextRows } from './HexMapDisplay.combatVisibilityContext';
 import { CombatWeaponImpactRows } from './HexMapDisplay.combatWeaponImpacts';
 import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
@@ -162,13 +163,11 @@ export function CombinedTacticalHoverTooltip({
       <div data-testid="hex-tactical-tooltip-combat-target">
         Target: {targetLabel}
       </div>
-      <div data-testid="hex-tactical-tooltip-combat-range">
-        Range: {combatInfo.rangeBracket.replace(/_/g, ' ')} at{' '}
-        {combatInfo.distance} hexes
-      </div>
-      <div data-testid="hex-tactical-tooltip-combat-geometry">
-        LOS {combatInfo.losState}; {combatInfo.firingArc} arc
-      </div>
+      <CombatTargetingContextRows
+        combatInfo={combatInfo}
+        projection={projection}
+        testIdPrefix="hex-tactical-tooltip-combat"
+      />
       {weaponLabel && (
         <div data-testid="hex-tactical-tooltip-combat-weapons">
           {weaponLabel}
