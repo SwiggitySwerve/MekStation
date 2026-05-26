@@ -62,6 +62,13 @@ run('Jest catalog and behavior coverage', process.execPath, [
 ]);
 
 run(
+  'Unresolved gap inventory export',
+  'npx',
+  ['tsx', 'scripts/print-combat-validation-gaps.ts', '--format=summary'],
+  { shellOnWindows: true },
+);
+
+run(
   'OpenSpec strict validation',
   'npx',
   ['openspec', 'validate', CHANGE_ID, '--strict'],

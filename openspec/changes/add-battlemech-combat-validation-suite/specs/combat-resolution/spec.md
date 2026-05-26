@@ -15,6 +15,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** the mechanic SHALL NOT be omitted from the suite
 - **AND** helper-only and unsupported rows SHALL remain queryable as a machine-readable unresolved completion-blocker inventory
 - **AND** the unresolved inventory SHALL expose stable catalog refs, support levels, evidence, gap text, and row-level source references outside test-local helper code
+- **AND** combat validation tooling SHALL expose the unresolved inventory through a named command suitable for review and PR gates
 
 #### Scenario: Integrated mechanics require executable evidence
 

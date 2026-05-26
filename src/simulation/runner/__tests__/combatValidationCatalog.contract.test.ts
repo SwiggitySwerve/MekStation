@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import type {
@@ -153,6 +153,22 @@ describe('BattleMech combat validation catalog index', () => {
         'validationScope.objectiveRequirements.non-battlemech-scope',
       ]),
     );
+  });
+
+  it('exposes the unresolved inventory through combat validation tooling', () => {
+    const packageJson = JSON.parse(
+      readFileSync(join(process.cwd(), 'package.json'), 'utf8'),
+    ) as { readonly scripts?: Record<string, string> };
+    const validateCombatSuite = readFileSync(
+      join(process.cwd(), 'scripts', 'validate-combat-suite.mjs'),
+      'utf8',
+    );
+
+    expect(packageJson.scripts?.['validate:combat:gaps']).toBe(
+      'npx tsx scripts/print-combat-validation-gaps.ts',
+    );
+    expect(validateCombatSuite).toContain('print-combat-validation-gaps.ts');
+    expect(validateCombatSuite).toContain('--format=summary');
   });
 
   it('keeps ejection lifecycle coverage closed in the aggregate gap inventory', () => {

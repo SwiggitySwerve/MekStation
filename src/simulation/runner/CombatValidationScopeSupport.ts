@@ -239,6 +239,21 @@ const UNRESOLVED_COMPLETION_BLOCKER_INVENTORY_SOURCE_REFS = [
     'src/simulation/runner/__tests__/combatValidationCatalog.contract.test.ts',
     'L126-L156',
   ),
+  mekstationDeviationSourceRef(
+    'MekStation combatValidationCatalog.contract asserts the unresolved inventory is exposed through named validation tooling.',
+    'src/simulation/runner/__tests__/combatValidationCatalog.contract.test.ts',
+    'L158-L172',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation print-combat-validation-gaps emits JSON, refs, and summary views of the unresolved inventory for review gates.',
+    'scripts/print-combat-validation-gaps.ts',
+    'L43-L75',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation validate-combat-suite runs the unresolved gap inventory summary after focused combat catalog and behavior tests.',
+    'scripts/validate-combat-suite.mjs',
+    'L64-L69',
+  ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 export const BATTLEMECH_VALIDATION_SCOPE_SUPPORT = {
