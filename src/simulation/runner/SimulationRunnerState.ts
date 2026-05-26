@@ -37,6 +37,7 @@ import {
   placeObjectives,
 } from '@/utils/gameplay/objectives';
 import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveEngine';
+import { applyDestroyedLocationPhysicalEquipmentState } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 
 import type { ISimulationConfig } from '../core/types';
 
@@ -615,22 +616,26 @@ export function applyDamageResultToState(
     ? (damageResult.destructionCause ?? target.destructionCause ?? 'damage')
     : target.destructionCause;
 
-  const updatedUnit: IUnitGameState = {
-    ...target,
-    armor: newArmor,
-    structure: newStructure,
-    destroyedLocations: newDestroyedLocations,
-    pilotWounds: damageState.pilotWounds,
-    pilotConscious: damageState.pilotConscious,
-    destroyed: damageResult.unitDestroyed,
-    ...(destructionCause !== undefined ? { destructionCause } : {}),
-    // When the runner supplied post-crit component damage, persist it.
-    // Engine/gyro hits drive PSR + heat thresholds + walk-MP penalties
-    // downstream; without persistence the runner re-rolls a fresh
-    // component-damage block every shot and crit-cascade scenarios
-    // (3 engine hits → destruction) can never accumulate.
-    ...(componentDamage !== undefined ? { componentDamage } : {}),
-  };
+  const updatedUnit: IUnitGameState =
+    applyDestroyedLocationPhysicalEquipmentState(
+      {
+        ...target,
+        armor: newArmor,
+        structure: newStructure,
+        destroyedLocations: newDestroyedLocations,
+        pilotWounds: damageState.pilotWounds,
+        pilotConscious: damageState.pilotConscious,
+        destroyed: damageResult.unitDestroyed,
+        ...(destructionCause !== undefined ? { destructionCause } : {}),
+        // When the runner supplied post-crit component damage, persist it.
+        // Engine/gyro hits drive PSR + heat thresholds + walk-MP penalties
+        // downstream; without persistence the runner re-rolls a fresh
+        // component-damage block every shot and crit-cascade scenarios
+        // (3 engine hits → destruction) can never accumulate.
+        ...(componentDamage !== undefined ? { componentDamage } : {}),
+      },
+      newDestroyedLocations,
+    );
 
   return {
     ...state,

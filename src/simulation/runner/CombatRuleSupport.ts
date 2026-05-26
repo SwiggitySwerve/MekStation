@@ -754,8 +754,8 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
   ),
   claws: helperOnly(
     'claws',
-    'calculatePunchDamage, calculatePunchToHit, eligibility projection, session physical contexts, UnitHydration, critical-event replay, and runPhysicalAttackPhase consume claw arm state for source-backed punch damage/to-hit modifiers; critical-event replay removes claw state when the mount is destroyed, missing, or breached',
-    'Automatic missing/breached claw event production from mounted-equipment state, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions are not modeled',
+    'calculatePunchDamage, calculatePunchToHit, eligibility projection, session physical contexts, UnitHydration, critical-event replay, destroyed-location replay, and runPhysicalAttackPhase consume claw arm state for source-backed punch damage/to-hit modifiers; critical-event replay removes claw state when the mount is destroyed, missing, or breached, and destroyed arm state clears the represented modifier',
+    'Automatic missing/breached claw event production from mounted-equipment state beyond represented destroyed-location replay, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions are not modeled',
     [
       {
         kind: 'megamek-source',
@@ -771,12 +771,17 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
         url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PHYSICAL_SOURCE_VERSION}/megamek/src/megamek/common/actions/PunchAttackAction.java#L309-L333`,
         sourceVersion: MEGAMEK_PHYSICAL_SOURCE_VERSION,
       },
+      megamekPhysicalSourceRef(
+        'MegaMek Entity.destroyLocation marks blown-off critical slots, mounted equipment, and dependent locations missing',
+        'common/units/Entity.java',
+        'L11864-L11939',
+      ),
     ],
   ),
   talons: helperOnly(
     'talons',
-    'calculateKickDamage, calculateDFADamageToTarget, eligibility projection, session physical contexts, UnitHydration, critical-event replay, and runPhysicalAttackPhase consume talon leg state for source-backed +50% kick/DFA damage; critical-event replay removes talon state when the mount is destroyed, missing, or breached',
-    'Automatic missing/breached talon event production from mounted-equipment state and non-biped talon arm-location behavior are not modeled',
+    'calculateKickDamage, calculateDFADamageToTarget, eligibility projection, session physical contexts, UnitHydration, critical-event replay, destroyed-location replay, and runPhysicalAttackPhase consume talon leg state for source-backed +50% kick/DFA damage; critical-event replay removes talon state when the mount is destroyed, missing, or breached, and destroyed leg state clears the represented modifier',
+    'Automatic missing/breached talon event production from mounted-equipment state beyond represented destroyed-location replay and non-biped talon arm-location behavior are not modeled',
     [
       {
         kind: 'megamek-source',
@@ -799,6 +804,11 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
         url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/DfaAttackAction.java#L427-L445',
         sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
       },
+      megamekPhysicalSourceRef(
+        'MegaMek Entity.destroyLocation marks blown-off critical slots, mounted equipment, and dependent locations missing',
+        'common/units/Entity.java',
+        'L11864-L11939',
+      ),
     ],
   ),
   underwater: integrated(

@@ -11,6 +11,7 @@ import {
   IUnitGameState,
   IComponentDamageState,
   ICriticalHitResolvedPayload,
+  IDamageAppliedPayload,
   IPSRTriggeredPayload,
   IPSRResolvedPayload,
   IUnitFellPayload,
@@ -442,6 +443,67 @@ describe('Phase 4: IUnitGameState Extension', () => {
 
       const result = applyEvent(state, event);
       expect(result).toBe(state);
+    });
+  });
+
+  describe('DamageApplied physical equipment lifecycle', () => {
+    it('removes claw punch modifiers when an arm location is destroyed', () => {
+      const state = createStateWithUnit({
+        leftArmHasClaw: true,
+        rightArmHasClaw: true,
+      });
+      const event = makeEvent(GameEventType.DamageApplied, {
+        unitId: 'unit-1',
+        location: 'left_arm',
+        damage: 12,
+        armorRemaining: 0,
+        structureRemaining: 0,
+        locationDestroyed: true,
+      } satisfies IDamageAppliedPayload);
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-1'].leftArmHasClaw).toBe(false);
+      expect(result.units['unit-1'].rightArmHasClaw).toBe(true);
+    });
+
+    it('removes cascaded claw modifiers when side torso destruction destroys the arm', () => {
+      const state = createStateWithUnit({
+        leftArmHasClaw: true,
+        rightArmHasClaw: true,
+      });
+      const event = makeEvent(GameEventType.DamageApplied, {
+        unitId: 'unit-1',
+        location: 'left_torso',
+        damage: 30,
+        armorRemaining: 0,
+        structureRemaining: 0,
+        locationDestroyed: true,
+      } satisfies IDamageAppliedPayload);
+
+      const result = applyEvent(state, event);
+      const unit = result.units['unit-1'];
+      expect(unit.destroyedLocations).toEqual(['left_torso', 'left_arm']);
+      expect(unit.leftArmHasClaw).toBe(false);
+      expect(unit.rightArmHasClaw).toBe(true);
+    });
+
+    it('removes talon kick modifiers when a leg location is destroyed', () => {
+      const state = createStateWithUnit({
+        leftLegHasTalons: true,
+        rightLegHasTalons: true,
+      });
+      const event = makeEvent(GameEventType.DamageApplied, {
+        unitId: 'unit-1',
+        location: 'right_leg',
+        damage: 18,
+        armorRemaining: 0,
+        structureRemaining: 0,
+        locationDestroyed: true,
+      } satisfies IDamageAppliedPayload);
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-1'].leftLegHasTalons).toBe(true);
+      expect(result.units['unit-1'].rightLegHasTalons).toBe(false);
     });
   });
 

@@ -223,6 +223,14 @@ const MEGAMEK_325B_MOUNTED_READY_DAMAGED_GATE = {
   sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
 
+const MEGAMEK_325B_DESTROY_LOCATION_MISSING_MOUNT_GATE = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Entity.destroyLocation marks blown-off critical slots, mounted equipment, and dependent locations missing',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L11864-L11939',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
 const MEGAMEK_325B_CLAW_PUNCH_DAMAGE = {
   kind: 'megamek-source',
   citation:
@@ -1000,23 +1008,25 @@ export const PHYSICAL_WEAPON_COMBAT_SUPPORT = {
   ),
   talons: helperOnly(
     'talons',
-    'source-backed kick and DFA damage helpers apply the +50% talon modifier from explicit state, UnitHydration leg critical-slot state, or destroyed/missing/breached equipment critical events',
-    'Automatic missing/breached talon event production from mounted-equipment state and non-biped talon arm-location behavior are not modeled',
+    'source-backed kick and DFA damage helpers apply the +50% talon modifier from explicit state, UnitHydration leg critical-slot state, destroyed/missing/breached equipment critical events, or destroyed leg location state',
+    'Automatic missing/breached talon event production from mounted-equipment state beyond represented destroyed-location replay and non-biped talon arm-location behavior are not modeled',
     [
       MEGAMEK_325B_TALON_KICK_DAMAGE,
       MEGAMEK_325B_TALON_DFA_DAMAGE,
       MEGAMEK_325B_TALON_DFA_LEG_GATE,
       MEGAMEK_325B_MOUNTED_READY_DAMAGED_GATE,
+      MEGAMEK_325B_DESTROY_LOCATION_MISSING_MOUNT_GATE,
     ],
   ),
   claws: helperOnly(
     'claws',
-    'source-backed punch damage/to-hit helpers apply claw modifiers from explicit state, UnitHydration arm critical-slot state, or destroyed/missing/breached equipment critical events without exposing claws as a selectable attack type',
-    'Automatic missing/breached claw event production from mounted-equipment state, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions are not modeled',
+    'source-backed punch damage/to-hit helpers apply claw modifiers from explicit state, UnitHydration arm critical-slot state, destroyed/missing/breached equipment critical events, or destroyed arm location state without exposing claws as a selectable attack type',
+    'Automatic missing/breached claw event production from mounted-equipment state beyond represented destroyed-location replay, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions are not modeled',
     [
       MEGAMEK_325B_CLAW_PUNCH_DAMAGE,
       MEGAMEK_325B_CLAW_PUNCH_TO_HIT,
       MEGAMEK_325B_CLAW_EQUIPMENT_GATE,
+      MEGAMEK_325B_DESTROY_LOCATION_MISSING_MOUNT_GATE,
     ],
   ),
   flail: integrated(
