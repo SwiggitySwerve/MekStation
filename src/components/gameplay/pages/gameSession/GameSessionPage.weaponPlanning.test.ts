@@ -61,6 +61,7 @@ describe('weaponStatusToPlanningWeapon', () => {
       heat: 1,
       ammoPerTon: 20,
       destroyed: false,
+      location: 'Right Arm',
       mountingArc: FiringArc.Left,
       mountingArcs: [FiringArc.Front, FiringArc.Left],
     });

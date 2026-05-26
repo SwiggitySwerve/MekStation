@@ -112,6 +112,18 @@ describe('buildWeaponAttack', () => {
     expect(result?.mountingArcs).toEqual([FiringArc.Front, FiringArc.Left]);
   });
 
+  it('preserves represented mount location for hull-down attacker gates', () => {
+    const result = buildWeaponAttack('leg-ml-1', [
+      {
+        ...mediumLaser,
+        id: 'leg-ml-1',
+        location: 'left_leg',
+      },
+    ]);
+
+    expect(result?.location).toBe('left_leg');
+  });
+
   it('preserves vehicle mount metadata for vehicle to-hit modifiers', () => {
     const result = buildWeaponAttack('chin-ml-1', [
       {

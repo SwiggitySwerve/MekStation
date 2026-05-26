@@ -29,6 +29,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   NoRunThisTurn: 'Charge requires running this turn',
   LimbMissing: 'Limb is missing',
   AttackerProne: 'Attacker is prone',
+  AttackerHullDown: 'Attacker is hull-down',
   AttackerNotMek: 'Only Meks can use this physical attack',
   AttackerCannotUsePhysical: 'This unit cannot make physical attacks',
   AttackerCannotCharge: 'This unit cannot charge',

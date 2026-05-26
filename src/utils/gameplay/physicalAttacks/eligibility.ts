@@ -224,6 +224,7 @@ export function getEligiblePhysicalAttacks(
     componentDamage,
     heat: attacker.heat,
     attackerProne: attacker.prone,
+    attackerHullDown: attacker.hullDown,
     hexesMoved: attacker.hexesMovedThisTurn,
     targetTonnage: context.targetTonnage,
     targetMovementModifier: context.targetMovementModifier,

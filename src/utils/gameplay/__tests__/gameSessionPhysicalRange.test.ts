@@ -166,6 +166,39 @@ describe('declarePhysicalAttack target range', () => {
     ).toBe(false);
   });
 
+  it('rejects hull-down kick commits before declaration', () => {
+    const session = buildPhysicalSession({ q: 1, r: 0 });
+    session.currentState.units.attacker = {
+      ...session.currentState.units.attacker,
+      hullDown: true,
+    };
+
+    const next = declarePhysicalAttack(session, 'attacker', 'target', 'kick', {
+      ...PUNCH_CONTEXT,
+      limb: 'rightLeg',
+      attackerUnitType: UnitType.BATTLEMECH,
+      targetUnitType: UnitType.BATTLEMECH,
+    });
+
+    expect(
+      next.events.some(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toBe(false);
+    const rejection = next.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    expect(rejection?.payload as IPhysicalAttackResolvedPayload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'kick',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'AttackerHullDown',
+    });
+  });
+
   it('rejects adjacent physical targets when elevation blocks the attack', () => {
     const session = buildPhysicalSession({ q: 1, r: 0 });
 

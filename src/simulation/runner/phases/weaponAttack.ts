@@ -16,6 +16,10 @@ import { buildDefaultCriticalSlotManifest } from '@/utils/gameplay/criticalHitRe
 import { calculateFiringArc } from '@/utils/gameplay/firingArc';
 import { isGroundToGroundGameAttack } from '@/utils/gameplay/groundToGround';
 import { hexDistance } from '@/utils/gameplay/hexMath';
+import {
+  hullDownLegWeaponBlockedReason,
+  HULL_DOWN_LEG_WEAPON_BLOCKED_REASON,
+} from '@/utils/gameplay/hullDownRestrictions';
 import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 import { getHexCoverInfo } from '@/utils/gameplay/terrainCover';
 import {
@@ -185,6 +189,27 @@ export function runAttackPhase(options: {
 
       const weapon: IWeapon =
         weaponLookup.get(weaponId) ?? createMinimalWeapon(weaponId);
+
+      if (hullDownLegWeaponBlockedReason(attackerNow.hullDown, weapon)) {
+        events.push(
+          createGameEvent(
+            gameId,
+            events.length,
+            GameEventType.AttackInvalid,
+            currentState.turn,
+            GamePhase.WeaponAttack,
+            {
+              attackerId: unitId,
+              targetId,
+              weaponId,
+              reason: 'InvalidTarget' as const,
+              details: HULL_DOWN_LEG_WEAPON_BLOCKED_REASON,
+            },
+            unitId,
+          ),
+        );
+        continue;
+      }
 
       const distance = hexDistance(attackerNow.position, targetNow.position);
       const rangeBracket = getRangeBracket(

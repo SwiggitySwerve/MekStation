@@ -42,6 +42,7 @@ import {
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
 import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
+import { hullDownLegWeaponBlockedReason } from '@/utils/gameplay/hullDownRestrictions';
 import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 import {
   applyForcedWithdrawalCheck,
@@ -381,15 +382,19 @@ export function runAttackPhase(
             );
       const usableWeaponAttacks =
         grid && targetHex
-          ? rangeAndArcWeaponAttacks.filter((weapon) =>
-              weaponPassesRepresentedWaterAttackRules({
-                grid,
-                attackerPosition: unit.position,
-                targetPosition: targetHex,
-                weapon,
-              }),
+          ? rangeAndArcWeaponAttacks.filter(
+              (weapon) =>
+                weaponPassesRepresentedWaterAttackRules({
+                  grid,
+                  attackerPosition: unit.position,
+                  targetPosition: targetHex,
+                  weapon,
+                }) && !hullDownLegWeaponBlockedReason(unit.hullDown, weapon),
             )
-          : rangeAndArcWeaponAttacks;
+          : rangeAndArcWeaponAttacks.filter(
+              (weapon) =>
+                !hullDownLegWeaponBlockedReason(unit.hullDown, weapon),
+            );
       const attackRangeBracket = bestAttackRangeBracket(
         attackRange,
         usableWeaponAttacks,

@@ -47,6 +47,7 @@ import {
 import { determineArc } from './firingArcs';
 import { isGroundToGroundTokenAttack } from './groundToGround';
 import { coordToKey, hexDistance } from './hexMath';
+import { hullDownLegWeaponBlockedReason } from './hullDownRestrictions';
 import {
   getTargetCoverInfo,
   tokenUsesMekHorizontalCover,
@@ -205,12 +206,27 @@ export function deriveCombatRangeHexes({
             weapon,
           )
         : undefined;
+    const hullDownLegWeaponBlockedReasonForWeapon = (weapon: IWeaponStatus) =>
+      hullDownLegWeaponBlockedReason(attackerUnit?.hullDown, weapon);
+    const weaponRuleBlockedReasonForWeapon = (weapon: IWeaponStatus) =>
+      hullDownLegWeaponBlockedReasonForWeapon(weapon) ??
+      groundToAirIndirectBlockedReasonForWeapon(weapon);
     const groundToAirIndirectInvalidState = rangeAndArcWeapons.some(
       groundToAirIndirectBlockedReasonForWeapon,
     )
       ? {
           reason: 'InvalidTarget' as const,
           details: INDIRECT_FIRE_AIRBORNE_TARGET_REJECTION,
+        }
+      : undefined;
+    const hullDownLegWeaponInvalidState = rangeAndArcWeapons.some(
+      hullDownLegWeaponBlockedReasonForWeapon,
+    )
+      ? {
+          reason: 'InvalidTarget' as const,
+          details: hullDownLegWeaponBlockedReasonForWeapon(
+            rangeAndArcWeapons.find(hullDownLegWeaponBlockedReasonForWeapon)!,
+          )!,
         }
       : undefined;
     const waterAttackInvalidState =
@@ -229,7 +245,7 @@ export function deriveCombatRangeHexes({
           attackerPosition: attacker.position,
           targetPosition: hex,
           weapon,
-        }) && !groundToAirIndirectBlockedReasonForWeapon(weapon),
+        }) && !weaponRuleBlockedReasonForWeapon(weapon),
     );
     const weaponIdsAvailable = availableWeapons.map((weapon) => weapon.id);
     const availableWeaponImpacts = availableWeapons.map(weaponImpactForStatus);
@@ -302,7 +318,7 @@ export function deriveCombatRangeHexes({
       attackerPosition: attacker.position,
       targetPosition: hex,
       minimumRangeApplies,
-      weaponRuleBlockedReason: groundToAirIndirectBlockedReasonForWeapon,
+      weaponRuleBlockedReason: weaponRuleBlockedReasonForWeapon,
     });
     const targetVisibilityState = shouldProjectSelectedTarget
       ? selectedTargetContact.visibility
@@ -342,7 +358,9 @@ export function deriveCombatRangeHexes({
       weaponReadinessInvalidState,
       visibilityBlockedReason,
       weaponEnvironmentInvalidState:
-        waterAttackInvalidState ?? groundToAirIndirectInvalidState,
+        waterAttackInvalidState ??
+        hullDownLegWeaponInvalidState ??
+        groundToAirIndirectInvalidState,
       indirectFirePermitted: indirectFire?.available === true,
       indirectFireUnavailableReason,
     });

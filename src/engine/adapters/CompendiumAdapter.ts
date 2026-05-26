@@ -29,6 +29,7 @@ import {
 } from '@/types/gameplay/HexGridInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { STANDARD_STRUCTURE_TABLE } from '@/utils/gameplay/damage';
+import { normalizeWeaponMountLocation } from '@/utils/gameplay/hullDownRestrictions';
 import { UNIT_QUIRK_IDS } from '@/utils/gameplay/quirkModifiers';
 import { getVehicleWeaponArcs } from '@/utils/gameplay/vehicleFiringArc';
 import { logger } from '@/utils/logger';
@@ -215,6 +216,9 @@ function extractWeapons(
     weapons.push({
       ...data,
       id: `${unitId}-${canonicalId}-${count}`,
+      location: normalizeWeaponMountLocation(
+        stringField(item, 'location', 'mountLocation', 'locationKey'),
+      ),
       ...weaponMountArcsFromEquipment(item, unitData),
     });
   }

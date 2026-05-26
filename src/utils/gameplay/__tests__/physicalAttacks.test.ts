@@ -530,6 +530,18 @@ describe('physicalAttacks', () => {
       expect(result.reason).toContain('prone');
     });
 
+    it('should disallow kick when attacker is hull-down', () => {
+      const result = canKick(
+        makeInput({ attackType: 'kick', attackerHullDown: true }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Attacker is hull down',
+        reasonCode: 'AttackerHullDown',
+      });
+    });
+
     it('should disallow kick with hip destroyed', () => {
       const result = canKick(
         makeInput({
@@ -1158,6 +1170,34 @@ describe('physicalAttacks', () => {
             option.restrictionsFailed.includes('AttackerCannotUsePhysical'),
           ),
       ).toBe(true);
+    });
+
+    it('blocks kick rows when the runtime attacker is hull-down', () => {
+      const attacker = {
+        ...unitAt('hull-down-mek-1', 0, 0),
+        hullDown: true,
+      } as IUnitGameState;
+      const target = unitAt('mech-1', 1, 0);
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 55,
+        attackerPilotingSkill: 4,
+        targetTonnage: 55,
+        attackerUnitType: UnitType.BATTLEMECH,
+        targetUnitType: UnitType.BATTLEMECH,
+        attackerRanThisTurn: true,
+        attackerJumpedThisTurn: true,
+      });
+
+      const kicks = options.filter((option) => option.attackType === 'kick');
+      expect(kicks).toHaveLength(2);
+      expect(kicks.every((option) => option.toHit.allowed === false)).toBe(
+        true,
+      );
+      expect(kicks.map((option) => option.restrictionsFailed)).toEqual([
+        ['AttackerHullDown'],
+        ['AttackerHullDown'],
+      ]);
     });
 
     it('keeps battle armor from producing generic physical target highlights', () => {

@@ -2,6 +2,7 @@ import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import { hexNeighbor } from '../hexMath';
+import { HULL_DOWN_KICK_BLOCKED_REASON } from '../hullDownRestrictions';
 import { physicalElevationRestriction } from './elevation';
 import {
   IPhysicalAttackInput,
@@ -203,6 +204,14 @@ export function canKick(
       allowed: false,
       reason: 'Cannot kick while prone',
       reasonCode: 'AttackerProne',
+    };
+  }
+
+  if (input.attackerHullDown) {
+    return {
+      allowed: false,
+      reason: HULL_DOWN_KICK_BLOCKED_REASON,
+      reasonCode: 'AttackerHullDown',
     };
   }
 

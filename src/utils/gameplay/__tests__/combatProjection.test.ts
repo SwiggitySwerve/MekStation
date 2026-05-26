@@ -16,6 +16,7 @@ import { getTwoD6HitProbability } from '@/utils/gameplay/toHit/forecast';
 
 import { deriveCombatRangeHexes } from '../combatProjection';
 import { deriveValidWeaponTargetIds } from '../combatTargetIds';
+import { HULL_DOWN_LEG_WEAPON_BLOCKED_REASON } from '../hullDownRestrictions';
 
 function makeToken(overrides: Partial<IUnitToken>): IUnitToken {
   return {
@@ -201,6 +202,115 @@ describe('deriveCombatRangeHexes', () => {
         expect.objectContaining({ name: 'Hull Down', value: 2 }),
       ]),
     );
+  });
+
+  it('blocks hull-down attacker leg weapons while keeping upper-body weapons available', () => {
+    const grid = createHexGrid({ radius: 3 });
+    const attacker = makeToken({
+      unitId: 'attacker',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const target = makeToken({
+      unitId: 'target',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+    });
+
+    const targetHex = deriveCombatRangeHexes({
+      attacker,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attacker, target],
+      weapons: [
+        makeWeapon({
+          id: 'leg-laser',
+          name: 'Leg Laser',
+          location: 'left_leg',
+        }),
+        makeWeapon({
+          id: 'arm-laser',
+          name: 'Arm Laser',
+          location: 'right_arm',
+        }),
+      ],
+      combatState: makeCombatState({
+        attacker: {
+          side: GameSide.Player,
+          position: { q: 0, r: 0 },
+          hullDown: true,
+        },
+        target: { side: GameSide.Opponent, position: { q: 2, r: 0 } },
+      }),
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(targetHex).toMatchObject({
+      attackable: true,
+      weaponIdsInRange: ['leg-laser', 'arm-laser'],
+      weaponIdsInArc: ['leg-laser', 'arm-laser'],
+      weaponIdsAvailable: ['arm-laser'],
+      attackInvalidReason: undefined,
+    });
+    expect(targetHex?.weaponRangeOptions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          weaponId: 'leg-laser',
+          available: false,
+          blockedReason: HULL_DOWN_LEG_WEAPON_BLOCKED_REASON,
+        }),
+        expect.objectContaining({
+          weaponId: 'arm-laser',
+          available: true,
+          blockedReason: undefined,
+        }),
+      ]),
+    );
+  });
+
+  it('marks all-leg hull-down attacker volleys invalid before commit', () => {
+    const grid = createHexGrid({ radius: 3 });
+    const attacker = makeToken({
+      unitId: 'attacker',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const target = makeToken({
+      unitId: 'target',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+    });
+
+    const targetHex = deriveCombatRangeHexes({
+      attacker,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attacker, target],
+      weapons: [
+        makeWeapon({
+          id: 'leg-laser',
+          name: 'Leg Laser',
+          location: 'right_leg',
+        }),
+      ],
+      combatState: makeCombatState({
+        attacker: {
+          side: GameSide.Player,
+          position: { q: 0, r: 0 },
+          hullDown: true,
+        },
+        target: { side: GameSide.Opponent, position: { q: 2, r: 0 } },
+      }),
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(targetHex).toMatchObject({
+      inRange: true,
+      inArc: true,
+      attackable: false,
+      weaponIdsAvailable: [],
+      attackInvalidReason: 'InvalidTarget',
+      attackInvalidDetails: HULL_DOWN_LEG_WEAPON_BLOCKED_REASON,
+      blockedReason: HULL_DOWN_LEG_WEAPON_BLOCKED_REASON,
+    });
   });
 
   it('projects available weapon heat and ammo impact from weapon statuses', () => {

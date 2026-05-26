@@ -37,6 +37,7 @@ import {
   startGame,
 } from '@/utils/gameplay/gameSession';
 import { resolveAttack } from '@/utils/gameplay/gameSessionAttackResolution';
+import { HULL_DOWN_LEG_WEAPON_BLOCKED_REASON } from '@/utils/gameplay/hullDownRestrictions';
 import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 import { applyInteractiveSessionAttack } from '../InteractiveSession.actions';
@@ -705,6 +706,29 @@ function buildWeaponsByUnit(): Map<string, readonly IWeapon[]> {
   ]);
 }
 
+function buildLegMountedWeaponsByUnit(): Map<string, readonly IWeapon[]> {
+  return new Map([
+    [
+      'a1',
+      [
+        {
+          id: 'leg-laser',
+          name: 'Leg Laser',
+          shortRange: 2,
+          mediumRange: 4,
+          longRange: 6,
+          damage: 5,
+          heat: 3,
+          minRange: 0,
+          location: 'left_leg',
+          ammoPerTon: -1,
+          destroyed: false,
+        },
+      ],
+    ],
+  ]);
+}
+
 function buildTorpedoWeaponsByUnit(): Map<string, readonly IWeapon[]> {
   return new Map([
     [
@@ -1275,6 +1299,86 @@ describe('interactive attack projection agreement', () => {
         expect.objectContaining({ name: 'Hull Down', value: 2 }),
       ]),
     );
+  });
+
+  it('keeps hull-down attacker leg-weapon blocks aligned between preview and committed attacks', () => {
+    const session = setupSessionAtWeaponAttack();
+    session.currentState.units.a1 = {
+      ...session.currentState.units.a1,
+      hullDown: true,
+    };
+    const grid = makeClearGrid(3);
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+      facing: Facing.North,
+    });
+    const weapons = [
+      makeWeaponStatus({
+        id: 'leg-laser',
+        name: 'Leg Laser',
+        location: 'left_leg',
+      }),
+    ];
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons,
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(projection).toMatchObject({
+      inRange: true,
+      inArc: true,
+      attackable: false,
+      weaponIdsAvailable: [],
+      attackInvalidReason: 'InvalidTarget',
+      attackInvalidDetails: HULL_DOWN_LEG_WEAPON_BLOCKED_REASON,
+      blockedReason: HULL_DOWN_LEG_WEAPON_BLOCKED_REASON,
+    });
+    expect(projection?.weaponRangeOptions).toEqual([
+      expect.objectContaining({
+        weaponId: 'leg-laser',
+        available: false,
+        blockedReason: HULL_DOWN_LEG_WEAPON_BLOCKED_REASON,
+      }),
+    ]);
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildLegMountedWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['leg-laser'],
+      grid,
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponId: 'leg-laser',
+      reason: projection!.attackInvalidReason,
+      details: projection!.attackInvalidDetails,
+    });
   });
 
   it('keeps target-adjacent elevation partial cover aligned between preview and committed attacks', () => {

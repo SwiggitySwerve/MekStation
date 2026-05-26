@@ -148,6 +148,7 @@ function weaponStatusToCommitWeapon(status: IWeaponStatus): IWeapon {
     damage: typeof status.damage === 'number' ? status.damage : 0,
     heat: status.heat,
     minRange: status.ranges.minimum ?? 0,
+    location: status.location,
     ammoPerTon:
       status.ammoRemaining === undefined
         ? -1

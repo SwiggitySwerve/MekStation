@@ -26,6 +26,7 @@ import {
   lockAttack,
   lockMovement,
 } from '@/utils/gameplay/gameSession';
+import { hullDownLegWeaponBlockedReason } from '@/utils/gameplay/hullDownRestrictions';
 import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
 import { buildPhysicalTerrainContext } from '@/utils/gameplay/physicalAttacks/terrain';
@@ -124,15 +125,26 @@ export function runInteractiveSessionAITurn(
         const targetHex =
           session.currentState.units[atkEvt.payload.targetId]?.position;
         const usableWeaponAttacks = targetHex
-          ? weaponAttacks.filter((weapon) =>
-              weaponPassesRepresentedWaterAttackRules({
-                grid: context.grid,
-                attackerPosition: refreshedUnit?.position ?? unit.position,
-                targetPosition: targetHex,
-                weapon,
-              }),
+          ? weaponAttacks.filter(
+              (weapon) =>
+                weaponPassesRepresentedWaterAttackRules({
+                  grid: context.grid,
+                  attackerPosition: refreshedUnit?.position ?? unit.position,
+                  targetPosition: targetHex,
+                  weapon,
+                }) &&
+                !hullDownLegWeaponBlockedReason(
+                  refreshedUnit?.hullDown,
+                  weapon,
+                ),
             )
-          : weaponAttacks;
+          : weaponAttacks.filter(
+              (weapon) =>
+                !hullDownLegWeaponBlockedReason(
+                  refreshedUnit?.hullDown,
+                  weapon,
+                ),
+            );
         if (usableWeaponAttacks.length === 0) continue;
         const targetPartialCover = targetHex
           ? getTargetCoverInfo(

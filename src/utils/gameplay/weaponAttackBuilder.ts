@@ -71,6 +71,7 @@ export function buildWeaponAttack(
     mode: resolveWeaponFireMode(wData.id, weaponModesByWeaponId?.[wData.id]),
     mountingArc: wData.mountingArc,
     mountingArcs: wData.mountingArcs,
+    location: wData.location,
     vehicleMountLocation: wData.vehicleMountLocation,
     vehicleIsTurretMounted: wData.vehicleIsTurretMounted,
     damage: wData.damage,

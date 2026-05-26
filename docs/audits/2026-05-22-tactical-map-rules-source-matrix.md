@@ -986,10 +986,22 @@ as a separate attacker-side gate. MekStation now represents `hullDown` on game
 unit state, threads it through tactical combat projection, committed attack
 declaration, and quick-sim to-hit context, and exposes the hull-down flag,
 modifier, and reason through map hex attributes, cover-overlay metadata, and
-hover cover context. Remaining hull-down gaps are entry/exit movement actions,
-vehicle/QuadVee fortified-hex side-table handling, and attacker-side
-leg-weapon/physical-attack restrictions, not target to-hit preview/commit
-agreement.
+hover cover context. This target-side pin left attacker-side action handling to
+the follow-up pin below; target to-hit preview/commit agreement is no longer a
+known hull-down gap.
+
+2026-05-26 hull-down attacker action pin: MegaMek
+`ComputeToHitIsImpossible.java:629-634` rejects hull-down Mek leg-mounted
+weapon fire, and `KickAttackAction.java:269-270` rejects kicks by a hull-down
+attacker with "Attacker is hull down." MekStation now carries weapon mount
+locations from UI status, fixtures, compendium import, and runner hydration into
+commit weapon shapes; tactical combat projection, interactive commit, bot
+commit, and quick-sim attack loops all exclude hull-down leg-mounted weapons
+with a matching invalid reason. Physical attack projections and physical commit
+validation now block kick rows/commands while hull-down. Remaining hull-down
+gaps are entry/exit movement actions, vehicle/QuadVee fortified-hex side-table
+handling, and punch/club hull-down hit-table nuances, not attacker leg-weapon
+or kick preview/commit agreement.
 
 Additional fog visibility pin: engine attack visibility already passes the
 active battle grid into `canPlayerSeeUnit` before accepting an attack

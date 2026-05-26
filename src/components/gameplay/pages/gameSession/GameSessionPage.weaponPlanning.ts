@@ -25,6 +25,7 @@ export function weaponStatusToPlanningWeapon(status: IWeaponStatus): IWeapon {
     damage: parseWeaponDamage(status.damage),
     heat: status.heat,
     minRange: status.ranges.minimum ?? 0,
+    location: status.location,
     ammoPerTon: inferAmmoPerTon(status),
     destroyed: status.destroyed || Boolean(status.jammed),
     mountingArc: status.mountingArc,

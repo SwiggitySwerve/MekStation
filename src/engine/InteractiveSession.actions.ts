@@ -66,6 +66,7 @@ import {
 } from '@/utils/gameplay/gameSession';
 import { appendEvent } from '@/utils/gameplay/gameSession';
 import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
+import { hullDownLegWeaponBlockedReason } from '@/utils/gameplay/hullDownRestrictions';
 import { semiGuidedTagIndirectFireBlockedReason } from '@/utils/gameplay/indirectFire';
 import {
   calculateLOS,
@@ -550,6 +551,9 @@ export function applyInteractiveSessionAttack(
     (weapon) =>
       groundToAirIndirectWeaponBlockedReason(attackerUnit, targetUnit, weapon),
   );
+  const hullDownLegWeaponInvalidWeapon = rangeAndArcWeaponAttacks.find(
+    (weapon) => hullDownLegWeaponBlockedReason(attackerUnit.hullDown, weapon),
+  );
   const usableWeaponAttacks = rangeAndArcWeaponAttacks.filter(
     (weapon) =>
       (input.grid && resolvedTargetHex
@@ -560,6 +564,7 @@ export function applyInteractiveSessionAttack(
             weapon,
           })
         : true) &&
+      !hullDownLegWeaponBlockedReason(attackerUnit.hullDown, weapon) &&
       !groundToAirIndirectWeaponBlockedReason(attackerUnit, targetUnit, weapon),
   );
   const attackPreResolution =
@@ -596,6 +601,19 @@ export function applyInteractiveSessionAttack(
         waterAttackInvalidState.reason,
         waterAttackInvalidState.details,
         input.weaponIds[0],
+      );
+    }
+    if (hullDownLegWeaponInvalidWeapon) {
+      return appendInteractiveAttackInvalid(
+        input.session,
+        input.attackerId,
+        input.targetId,
+        'InvalidTarget',
+        hullDownLegWeaponBlockedReason(
+          attackerUnit.hullDown,
+          hullDownLegWeaponInvalidWeapon,
+        )!,
+        hullDownLegWeaponInvalidWeapon.weaponId,
       );
     }
     if (groundToAirIndirectInvalidWeapon) {

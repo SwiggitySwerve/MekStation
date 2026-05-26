@@ -94,6 +94,8 @@ export interface IWeaponAttack {
    * arcs. Missing means legacy omnidirectional/unknown coverage.
    */
   readonly mountingArcs?: readonly FiringArc[];
+  /** Mounted chassis location, when known. */
+  readonly location?: string;
   /** Vehicle mount location, when this attack originates from a vehicle. */
   readonly vehicleMountLocation?: VehicleLocation | VTOLLocation;
   /** True when the attack weapon is mounted in the vehicle primary turret. */

@@ -154,6 +154,9 @@ export interface IWeapon {
   /** Minimum range penalty (0 = no minimum) */
   readonly minRange: number;
 
+  /** Mounted chassis location, when known. */
+  readonly location?: string;
+
   /** Ammo per ton (-1 = energy weapon, no ammo needed) */
   readonly ammoPerTon: number;
 

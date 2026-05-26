@@ -62,6 +62,7 @@ export type PhysicalAttackInvalidReason =
   | 'NoRunThisTurn'
   | 'LimbMissing'
   | 'AttackerProne'
+  | 'AttackerHullDown'
   | 'AttackerNotMek'
   | 'AttackerCannotUsePhysical'
   | 'AttackerCannotCharge'
@@ -117,6 +118,7 @@ export interface IPhysicalAttackInput {
   readonly isUnderwater?: boolean;
   readonly weaponsFiredFromArm?: readonly string[];
   readonly attackerProne?: boolean;
+  readonly attackerHullDown?: boolean;
   readonly attackerUnitType?: UnitType;
   readonly attackerMovementMode?: MovementMotiveMode;
   readonly attackerConversionMode?: MovementConversionMode | number;
