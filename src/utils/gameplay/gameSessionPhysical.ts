@@ -79,6 +79,7 @@ import {
   resolveDfaMissFallDamage,
   resolveDfaMissFallPilotDamageAvoidance,
   resolvePhysicalAttack,
+  sourceContainsGroundedDropShip,
   splitPhysicalDamageIntoClusters,
   SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
 } from './physicalAttacks';
@@ -98,6 +99,7 @@ function computeResolvedPhysicalDisplacementOutcome(options: {
   readonly hit: boolean;
   readonly d6Roller: D6Roller;
   readonly friendlyUnitIds?: readonly string[];
+  readonly targetSourceContainsGroundedDropShip?: boolean;
 }): IResolvedPhysicalDisplacementOutcome {
   const { attackType, attacker, d6Roller, friendlyUnitIds, grid, hit, target } =
     options;
@@ -141,6 +143,8 @@ function computeResolvedPhysicalDisplacementOutcome(options: {
       targetPosition: target.position,
       hit,
       targetFriendlyUnitIds: friendlyUnitIds,
+      targetSourceContainsGroundedDropShip:
+        options.targetSourceContainsGroundedDropShip,
     });
   }
 
@@ -821,6 +825,10 @@ export function resolveAllPhysicalAttacks(
       d6Roller,
       friendlyUnitIds: friendlyUnitIdsForDisplacement(
         currentSession.currentState.units,
+        targetState,
+      ),
+      targetSourceContainsGroundedDropShip: sourceContainsGroundedDropShip(
+        Object.values(currentSession.currentState.units),
         targetState,
       ),
     });

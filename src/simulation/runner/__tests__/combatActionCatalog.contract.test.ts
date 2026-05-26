@@ -1023,9 +1023,10 @@ describe('BattleMech combat action support catalog', () => {
     expect(
       PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-dropship-radius'],
     ).toMatchObject({
-      level: 'helper-only',
-      evidence: expect.stringContaining('radius-two ring'),
-      gap: expect.stringContaining('source occupancy hydration'),
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'runner and event-sourced DFA hit displacement',
+      ),
       sourceRefs: [
         expect.objectContaining({
           citation: expect.stringContaining(

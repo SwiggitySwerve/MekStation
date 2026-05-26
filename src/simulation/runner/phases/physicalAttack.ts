@@ -28,6 +28,7 @@ import {
   resolveDfaMissFallDamage,
   resolveDfaMissFallPilotDamageAvoidance,
   resolvePhysicalAttack,
+  sourceContainsGroundedDropShip,
   splitPhysicalDamageIntoClusters,
 } from '@/utils/gameplay/physicalAttacks';
 import {
@@ -499,6 +500,11 @@ export function runPhysicalAttackPhase(options: {
               currentState,
               target,
             ),
+            targetSourceContainsGroundedDropShip:
+              sourceContainsGroundedDropShip(
+                Object.values(currentState.units),
+                target,
+              ),
           })
         : { displacements: [] };
     const displacements = displacementOutcome.displacements;

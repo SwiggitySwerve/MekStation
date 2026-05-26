@@ -16,6 +16,7 @@ import {
   IHexGrid,
   IPhysicalDisplacement,
 } from '@/types/gameplay';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import { D6Roller } from '../diceTypes';
 import { isInBounds } from '../hexGrid';
@@ -62,6 +63,14 @@ export interface IPreferredDisplacementOptions {
 
 export interface IValidDisplacementSearchOptions {
   readonly sourceContainsGroundedDropShip?: boolean;
+}
+
+interface IDisplacementSourceUnit {
+  readonly id: string;
+  readonly unitType?: string;
+  readonly isAirborne?: boolean;
+  readonly boardId?: string;
+  readonly position: IHexCoordinate;
 }
 
 function normalizeDisplacementLegalityOptions(
@@ -157,6 +166,21 @@ function isBattleMechDisplacementTerrainProhibited(terrain: string): boolean {
 
 function coordKey(coord: IHexCoordinate): string {
   return `${coord.q},${coord.r}`;
+}
+
+function sameCoord(a: IHexCoordinate, b: IHexCoordinate): boolean {
+  return a.q === b.q && a.r === b.r;
+}
+
+function sameBoard(
+  a: Pick<IDisplacementSourceUnit, 'boardId'>,
+  b: Pick<IDisplacementSourceUnit, 'boardId'>,
+): boolean {
+  return (
+    a.boardId === undefined ||
+    b.boardId === undefined ||
+    a.boardId === b.boardId
+  );
 }
 
 function occupantAt(grid: IHexGrid, coord: IHexCoordinate): string | null {
@@ -362,7 +386,9 @@ function dominoChainForDisplacement(
   destination: IHexCoordinate,
 ): readonly IPhysicalDisplacement[] | null {
   const direction = directionFromAdjacent(source, destination);
-  if (direction === undefined) return null;
+  if (direction === undefined) {
+    return occupantAt(grid, destination) === null ? [] : null;
+  }
   return computeDominoChainFromDestination(
     grid,
     destination,
@@ -395,6 +421,22 @@ export function computeDisplacementWithDominoChain(options: {
     },
     ...dominoChain,
   ];
+}
+
+export function sourceContainsGroundedDropShip(
+  units: readonly IDisplacementSourceUnit[],
+  displacedUnit: IDisplacementSourceUnit,
+): boolean {
+  for (const unit of units) {
+    if (unit.id === displacedUnit.id) continue;
+    if (unit.unitType !== UnitType.DROPSHIP) continue;
+    if (unit.isAirborne === true) continue;
+    if (!sameBoard(unit, displacedUnit)) continue;
+    if (!sameCoord(unit.position, displacedUnit.position)) continue;
+    return true;
+  }
+
+  return false;
 }
 
 function isLegalBattleMechDisplacement(
@@ -756,6 +798,7 @@ export function computeDfaDisplacementOutcome(options: {
   readonly targetPosition: IHexCoordinate;
   readonly hit: boolean;
   readonly targetFriendlyUnitIds?: readonly string[];
+  readonly targetSourceContainsGroundedDropShip?: boolean;
 }): IDfaDisplacementOutcome {
   const {
     attackerFacing,
@@ -768,7 +811,10 @@ export function computeDfaDisplacementOutcome(options: {
   } = options;
 
   const targetDestination = hit
-    ? computeValidDisplacement(grid, targetId, targetPosition, attackerFacing)
+    ? computeValidDisplacement(grid, targetId, targetPosition, attackerFacing, {
+        sourceContainsGroundedDropShip:
+          options.targetSourceContainsGroundedDropShip,
+      })
     : computePreferredDisplacement(
         grid,
         targetId,

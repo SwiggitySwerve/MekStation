@@ -905,13 +905,16 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     ).toContain('DFA-miss friendly occupied displacement avoidance');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].evidence,
-    ).toContain('grounded DropShip radius-two displacement search');
+    ).toContain('runtime-hydrated grounded DropShip radius-two DFA hit');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].gap,
     ).not.toContain('Stale grid occupancy');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].gap,
     ).toContain('domino step-out');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].gap,
+    ).not.toContain('runtime grounded DropShip');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].gap,
     ).not.toContain('friendly-unit displacement avoidance');

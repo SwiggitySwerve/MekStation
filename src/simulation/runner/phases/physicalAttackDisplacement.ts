@@ -82,6 +82,7 @@ export function computePhysicalDisplacements(options: {
   hit: boolean;
   d6Roller: () => number;
   targetFriendlyUnitIds?: readonly string[];
+  targetSourceContainsGroundedDropShip?: boolean;
 }): readonly IPhysicalDisplacement[] {
   return computePhysicalDisplacementOutcome(options).displacements;
 }
@@ -94,6 +95,7 @@ export function computePhysicalDisplacementOutcome(options: {
   hit: boolean;
   d6Roller: () => number;
   targetFriendlyUnitIds?: readonly string[];
+  targetSourceContainsGroundedDropShip?: boolean;
 }): IPhysicalDisplacementOutcome {
   const {
     attackType,
@@ -142,6 +144,8 @@ export function computePhysicalDisplacementOutcome(options: {
       targetPosition: target.position,
       hit,
       targetFriendlyUnitIds,
+      targetSourceContainsGroundedDropShip:
+        options.targetSourceContainsGroundedDropShip,
     });
   }
 

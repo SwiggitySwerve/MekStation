@@ -4275,6 +4275,89 @@ describe('BattleMech physical combat behavior validation lane', () => {
     });
   });
 
+  it('hydrates grounded DropShip source context for event-sourced DFA hit displacement', () => {
+    const context = physicalContext({
+      hexesMoved: 4,
+      attackerJumpedThisTurn: true,
+    });
+    const positioned = withPhysicalPositions(
+      physicalPhaseSession([
+        {
+          id: 'grounded-dropship',
+          name: 'Grounded DropShip',
+          side: GameSide.Opponent,
+          unitRef: 'grounded-dropship-ref',
+          pilotRef: 'grounded-dropship-pilot',
+          gunnery: 4,
+          piloting: 5,
+        },
+      ]),
+      {
+        facing: Facing.South,
+        armor: STANDARD_ARMOR,
+        structure: STANDARD_STRUCTURE,
+      },
+    );
+    let declared = declarePhysicalAttack(
+      positioned,
+      'attacker',
+      'target',
+      'dfa',
+      context,
+    );
+    declared = withUnitState(declared, 'attacker', {
+      position: { q: 0, r: 0 },
+      facing: Facing.South,
+    });
+    declared = withUnitState(declared, 'target', {
+      position: { q: 1, r: 0 },
+    });
+    declared = withUnitState(declared, 'grounded-dropship', {
+      position: { q: 1, r: 0 },
+      unitType: UnitType.DROPSHIP,
+      isAirborne: false,
+      pilotConscious: false,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6, 6, 3, 3, 3, 3, 3, 3]),
+      adjacentPhysicalGrid(),
+    );
+    const event = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = event?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload).toMatchObject({
+      attackType: 'dfa',
+      hit: true,
+    });
+    expect(payload.displacements).toEqual([
+      {
+        unitId: 'target',
+        from: { q: 1, r: 0 },
+        to: { q: 1, r: 2 },
+        reason: 'dfa',
+      },
+      {
+        unitId: 'attacker',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        reason: 'dfa',
+      },
+    ]);
+    expect(resolved.currentState.units.target.position).toEqual({
+      q: 1,
+      r: 2,
+    });
+    expect(resolved.currentState.units.attacker.position).toEqual({
+      q: 1,
+      r: 0,
+    });
+  });
+
   it('emits event-sourced DFA miss displacement for target and attacker', () => {
     const context = physicalContext({
       hexesMoved: 4,

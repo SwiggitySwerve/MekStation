@@ -243,6 +243,18 @@ function createPhysicalGrid(
   return { config: { radius: 2 }, hexes };
 }
 
+function createGroundedDropShipDfaGrid(): IHexGrid {
+  const grid = createPhysicalGrid();
+  const hexes = new Map(grid.hexes);
+  hexes.set('1,2', {
+    coord: { q: 1, r: 2 },
+    occupantId: null,
+    terrain: TerrainType.Clear,
+    elevation: 0,
+  });
+  return { ...grid, hexes };
+}
+
 function createSamePhaseDisplacementState(): IGameState {
   const state = createState();
   return {
@@ -2423,6 +2435,61 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       },
     ]);
     expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 1 });
+    expect(result.units['player-1'].position).toEqual({ q: 1, r: 0 });
+  });
+
+  it('hydrates grounded DropShip source context for DFA hit displacement', () => {
+    const baseState = createState();
+    const state: IGameState = {
+      ...baseState,
+      units: {
+        ...baseState.units,
+        'player-1': {
+          ...baseState.units['player-1'],
+          movementThisTurn: MovementType.Jump,
+          hexesMovedThisTurn: 4,
+        },
+        'grounded-dropship': createUnit(
+          'grounded-dropship',
+          GameSide.Opponent,
+          { q: 1, r: 0 },
+          {
+            unitType: UnitType.DROPSHIP,
+            isAirborne: false,
+            pilotConscious: false,
+          },
+        ),
+      },
+    };
+    const { events, result } = runPhaseWithState(
+      'dfa',
+      state,
+      createGroundedDropShipDfaGrid(),
+    );
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'dfa',
+      hit: true,
+    });
+    expect(resolvedPayload(events).displacements).toEqual([
+      {
+        unitId: 'opponent-1',
+        from: { q: 1, r: 0 },
+        to: { q: 1, r: 2 },
+        reason: 'dfa',
+      },
+      {
+        unitId: 'player-1',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        reason: 'dfa',
+      },
+    ]);
+    expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 2 });
+    expect(result.units['grounded-dropship'].position).toEqual({
+      q: 1,
+      r: 0,
+    });
     expect(result.units['player-1'].position).toEqual({ q: 1, r: 0 });
   });
 

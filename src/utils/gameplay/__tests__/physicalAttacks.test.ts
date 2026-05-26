@@ -49,6 +49,7 @@ import {
   TSM_ACTIVATION_HEAT,
   IPhysicalAttackInput,
   isPhysicalAirborneVtolOrWigeTarget,
+  sourceContainsGroundedDropShip,
 } from '../physicalAttacks';
 
 const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
@@ -263,6 +264,60 @@ describe('physicalAttacks', () => {
           sourceContainsGroundedDropShip: true,
         }),
       ).toEqual({ q: 0, r: 2 });
+    });
+
+    it('detects same-board grounded DropShip source context for displaced units', () => {
+      const target = {
+        id: 'target',
+        position: { q: 1, r: 0 },
+        boardId: 'ground-map',
+      };
+
+      expect(
+        sourceContainsGroundedDropShip(
+          [
+            target,
+            {
+              id: 'grounded-dropship',
+              unitType: UnitType.DROPSHIP,
+              isAirborne: false,
+              boardId: 'ground-map',
+              position: { q: 1, r: 0 },
+            },
+          ],
+          target,
+        ),
+      ).toBe(true);
+      expect(
+        sourceContainsGroundedDropShip(
+          [
+            target,
+            {
+              id: 'airborne-dropship',
+              unitType: UnitType.DROPSHIP,
+              isAirborne: true,
+              boardId: 'ground-map',
+              position: { q: 1, r: 0 },
+            },
+          ],
+          target,
+        ),
+      ).toBe(false);
+      expect(
+        sourceContainsGroundedDropShip(
+          [
+            target,
+            {
+              id: 'other-board-dropship',
+              unitType: UnitType.DROPSHIP,
+              isAirborne: false,
+              boardId: 'space-map',
+              position: { q: 1, r: 0 },
+            },
+          ],
+          target,
+        ),
+      ).toBe(false);
     });
 
     it('walks the grounded DropShip radius-two ring before trying the next displacement offset', () => {

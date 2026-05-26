@@ -567,7 +567,7 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** the displacement SHALL be treated as invalid before position changes or displacement PSRs are emitted
 - **AND** successful charge damage SHALL still apply while both units remain in their original hexes
 - **AND** helper, event-sourced resolution, runner resolution, catalog, and source-truth audit evidence SHALL cite the MegaMek `Compute.isValidDisplacement` and `Mek.getMaxElevationChange` anchors
-- **AND** domino step-out fallout and runtime grounded DropShip footprint/source occupancy hydration SHALL remain explicit gaps
+- **AND** domino step-out fallout and broader DropShip footprint/secondary-hex consequences SHALL remain explicit gaps
 
 #### Scenario: Physical displacement rejects prohibited BattleMech terrain
 
@@ -576,7 +576,7 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** the displacement SHALL be treated as invalid before position changes or displacement PSRs are emitted
 - **AND** successful charge damage SHALL still apply while both units remain in their original hexes
 - **AND** helper, event-sourced resolution, runner resolution, catalog, and source-truth audit evidence SHALL cite MegaMek `Compute.isValidDisplacement` prohibited-destination handling plus `Mek.isLocationProhibited` impassable and woods/jungle terrain-level handling
-- **AND** hidden-unit deployment restrictions, track/wheel motive restrictions, domino step-out fallout, and runtime grounded DropShip footprint/source occupancy hydration SHALL remain explicit gaps
+- **AND** hidden-unit deployment restrictions, track/wheel motive restrictions, domino step-out fallout, and broader DropShip footprint/secondary-hex consequences SHALL remain explicit gaps
 
 #### Scenario: Runner physical displacement refreshes same-phase occupancy
 
@@ -585,7 +585,7 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** the runner SHALL evaluate displacement legality against the refreshed grid occupancy from the earlier displacement payload
 - **AND** the later attack SHALL NOT emit a displacement payload or charge-specific displacement PSRs when that refreshed destination is occupied
 - **AND** runner behavior, parity catalog, task list, and source-truth audit evidence SHALL report the same stale-occupancy closure
-- **AND** domino step-out fallout and runtime grounded DropShip footprint/source occupancy hydration SHALL remain explicit gaps
+- **AND** domino step-out fallout and broader DropShip footprint/secondary-hex consequences SHALL remain explicit gaps
 
 #### Scenario: Displacement chain edge gaps stay source-backed
 
@@ -594,8 +594,8 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** occupied-hex domino displacement SHALL remain a source-backed helper-only row that recursively moves blockers, cascades position updates, and queues DominoEffect PSRs through helper, event-sourced, and runner physical resolution
 - **AND** domino step-out/CFR handling and broader `TWGameManager.doEntityDisplacement` terrain, building, and environment fallout SHALL remain explicit gaps
 - **AND** DFA-miss friendly occupied displacement avoidance SHALL remain an integrated source-backed row that passes same-side target friendlies into preferred displacement before falling back to occupied friendly destinations
-- **AND** grounded DropShip-radius displacement search SHALL remain a source-backed helper-only row that scans the radius-two ring in MegaMek `Compute.getValidDisplacement` order when explicit grounded DropShip source context is supplied
-- **AND** runtime grounded DropShip footprint/source occupancy hydration SHALL remain an explicit gap until runner and event-sourced physical displacement can detect that source context
+- **AND** grounded DropShip-radius displacement search SHALL be an integrated source-backed row that scans the radius-two ring in MegaMek `Compute.getValidDisplacement` order when same-board grounded DropShip source context is supplied or runtime-hydrated for runner and event-sourced DFA hit displacement
+- **AND** broader DropShip footprint/secondary-hex consequences SHALL remain an explicit gap until large-aero occupancy is modeled beyond same-hex source context
 - **AND** each helper-only, integrated, or unsupported row SHALL cite the corresponding MegaMek `Compute` or `TWGameManager` source anchor with commit-pinned line references
 
 #### Scenario: Push rejects arm-mounted weapons fired this turn

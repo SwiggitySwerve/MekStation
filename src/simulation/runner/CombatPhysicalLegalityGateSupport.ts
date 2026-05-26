@@ -410,11 +410,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'computePreferredDisplacement accepts friendly occupant ids and first scans valid DFA-miss displacement destinations while skipping friendly occupied hexes before falling back; event-sourced and runner DFA miss resolution hydrate same-side target friendlies into that source-backed pass',
     DISPLACEMENT_FRIENDLY_AVOIDANCE_LINES,
   ),
-  'shared.displacement-dropship-radius': helperOnly(
+  'shared.displacement-dropship-radius': integrated(
     'shared.displacement-dropship-radius',
     'shared',
-    'computeValidDisplacement now accepts explicit grounded DropShip source context and searches the radius-two ring in the MegaMek getValidDisplacement order; runtime push/charge/DFA paths do not yet hydrate grounded DropShip central-hex sharing or broader DropShip footprint consequences',
-    'Runtime physical displacement still lacks grounded DropShip footprint/source occupancy hydration, so radius-two search remains helper-only instead of integrated through runner or event-sourced physical resolution',
+    'computeValidDisplacement accepts explicit grounded DropShip source context and searches the radius-two ring in the MegaMek getValidDisplacement order; runner and event-sourced DFA hit displacement hydrate same-board grounded DropShip units sharing the target source hex into that radius-two search while broader DropShip footprint consequences remain outside this row',
     DISPLACEMENT_DROPSHIP_RADIUS_LINES,
   ),
   'punch.selected-arm-present': integrated(
