@@ -1539,8 +1539,7 @@ restrictions with a non-torpedo weapon blocked and a torpedo weapon legal. This
 does not change underwater legality, torpedo path legality, target legality,
 attack validation, or attack resolution; it makes the visible environment
 restriction explanation inspectable without relying on aggregate combat hex
-metadata. The water/torpedo helper remains marked as a MekStation represented
-rule surface until a narrower MegaMek/official source pin is added.
+metadata.
 
 2026-05-25 combat visibility context rule-reference pin: Combat visibility
 context rows in combat and combined tactical hovers now expose combat-channel
@@ -1665,6 +1664,16 @@ same MP recorded when the stand-up PSR fails. This keeps commit side effects on
 the same runtime capability path as movement highlights and available-action
 gating; conversion action timing, airborne Fighter/AirMek submode coverage, and
 broader external oracle sweeps remain follow-up work.
+
+2026-05-26 underwater weapon environment source pin: Combat environment source
+metadata now points underwater/torpedo restriction explanations at MegaMek
+`ComputeToHit.java:340-346`, `ComputeToHitIsImpossible.java:543-555`,
+`ComputeTerrainMods.java:167-188`, and `FiringArcSpriteHandler.java:570-575`.
+Focused combat hover coverage now proves non-torpedo underwater target
+restrictions and torpedo water-line failures expose MegaMek-backed source/rule
+references instead of the prior pending MekStation-only helper label. This does
+not add new underwater range math, surface naval hit-table expansion, or an
+official rulebook citation beyond the local MegaMek oracle pin.
 
 ## Acceptance Gate
 

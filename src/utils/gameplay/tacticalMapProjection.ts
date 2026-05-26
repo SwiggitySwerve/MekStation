@@ -123,7 +123,10 @@ const COMBAT_RULE_REFERENCES = [
 ] as const;
 
 const REPRESENTED_WATER_ENVIRONMENT_RULE_REFERENCES = [
-  'MekStation represented water attack helper: src/utils/gameplay/underwaterAttacks.ts; MegaMek/official source pin pending',
+  'MegaMek common/actions/compute/ComputeToHit.java:340-346 torpedoes/SRT/LRT count as underwater attacks',
+  'MegaMek common/actions/compute/ComputeToHitIsImpossible.java:543-555 torpedo LOS must stay in water',
+  'MegaMek common/actions/compute/ComputeTerrainMods.java:167-188 target water and partial-underwater handling',
+  'MegaMek client/ui/clientGUI/boardview/spriteHandler/FiringArcSpriteHandler.java:570-575 water-only ranges display as underwater weapons',
 ] as const;
 
 const LOS_BLOCKER_RULE_REFERENCES = [
@@ -505,8 +508,8 @@ function collectProjectionSourceReferences({
     if (combatHasEnvironmentRestrictions(combat)) {
       references.push({
         channel: 'combat',
-        kind: 'mekstation',
-        label: 'MekStation represented water weapon environment projection',
+        kind: 'megamek',
+        label: 'MegaMek water weapon environment projection',
         detail: formatCombatEnvironmentSourceDetail(combat),
         ruleReferences: REPRESENTED_WATER_ENVIRONMENT_RULE_REFERENCES,
       });

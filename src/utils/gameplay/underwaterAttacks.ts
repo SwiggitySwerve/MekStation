@@ -7,6 +7,9 @@ import type {
 import { hexLine } from './hexMath';
 import { waterDepthAtPosition } from './waterDepth';
 
+// Source-pinned subset of MegaMek underwater weapon checks:
+// ComputeToHit.java treats torpedoes/SRT/LRT as underwater attacks, while
+// ComputeToHitIsImpossible.java rejects torpedoes whose LOS leaves water.
 export interface IRepresentedWaterWeapon {
   readonly isTorpedo?: boolean;
 }

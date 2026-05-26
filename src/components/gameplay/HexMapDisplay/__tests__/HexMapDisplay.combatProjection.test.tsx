@@ -1609,13 +1609,13 @@ describe('HexMapDisplay combat projection', () => {
     expect(environmentContext).toHaveAttribute(
       'data-combat-environment-source-refs',
       expect.stringContaining(
-        'combat:mekstation:MekStation represented water weapon environment projection',
+        'combat:megamek:MegaMek water weapon environment projection',
       ),
     );
     expect(environmentContext).toHaveAttribute(
       'data-combat-environment-rule-refs',
       expect.stringContaining(
-        'combat:mekstation:MekStation represented water attack helper',
+        'combat:megamek:MegaMek common/actions/compute/ComputeTerrainMods.java:167-188 target water and partial-underwater handling',
       ),
     );
   });
@@ -1722,13 +1722,13 @@ describe('HexMapDisplay combat projection', () => {
     expect(environmentContext).toHaveAttribute(
       'data-combat-environment-source-refs',
       expect.stringContaining(
-        'combat:mekstation:MekStation represented water weapon environment projection',
+        'combat:megamek:MegaMek water weapon environment projection',
       ),
     );
     expect(environmentContext).toHaveAttribute(
       'data-combat-environment-rule-refs',
       expect.stringContaining(
-        'combat:mekstation:MekStation represented water attack helper',
+        'combat:megamek:MegaMek common/actions/compute/ComputeToHitIsImpossible.java:543-555 torpedo LOS must stay in water',
       ),
     );
     const torpedoReason = screen.getByTestId(
