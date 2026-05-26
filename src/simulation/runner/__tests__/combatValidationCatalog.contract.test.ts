@@ -172,15 +172,15 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 227,
+      total: 226,
       byLevel: {
         'helper-only': 170,
-        unsupported: 57,
+        unsupported: 56,
       },
       bySection: {
         actions: 31,
         damageAndDeath: 2,
-        eventStream: 16,
+        eventStream: 15,
         featureSupport: 115,
         lifecycleAndPsr: 5,
         pilotSkills: 20,

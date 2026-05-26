@@ -73,6 +73,7 @@ import {
   invalidateInvalidTargetAttack,
   invalidateSprintingAttackerAttack,
 } from './gameSessionAttackResolutionValidation';
+import { appendAttackRevealIfReady } from './gameSessionAttackReveal';
 import { appendEvent } from './gameSessionEvents';
 import { allUnitsLocked, deriveState } from './gameState';
 import {
@@ -675,5 +676,5 @@ export function lockAttack(
   const { turn } = session.currentState;
   const event = createAttackLockedEvent(session.id, sequence, turn, unitId);
 
-  return appendEvent(session, event);
+  return appendAttackRevealIfReady(appendEvent(session, event), unitId);
 }

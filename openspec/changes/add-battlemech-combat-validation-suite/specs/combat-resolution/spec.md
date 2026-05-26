@@ -191,6 +191,7 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **THEN** each BattleMech event-stream row SHALL carry anchored MekStation source references to the event factory, runner phase, session helper, reducer, test, or explicit unsupported enum boundary that owns that event contract
 - **AND** broad event-stream triad prose SHALL NOT satisfy event coverage without row-level source references
 - **AND** initiative resolution SHALL emit both the dice-bearing `InitiativeRolled` event and a replayable `InitiativeOrderSet` event that records the winning side, first mover, and second mover for turn-rotation replay
+- **AND** weapon attack locking SHALL emit a public `AttacksRevealed` boundary after every active weapon-phase unit has locked attacks, replay that boundary into the `Revealed` lock state, and still allow phase advancement once all active units are locked, revealed, or resolved
 - **AND** replayable `FacingChanged` secondary-facing events SHALL be integrated when torso twist is covered through tactical command, game intent, wire intent, P2P translation, server dispatch, session emission, replay, and runner arc-consumption evidence
 
 #### Scenario: Ammo catalog compatibility traps stay explicit
