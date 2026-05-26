@@ -254,6 +254,10 @@ interface UnitTokensLayerProps {
     string,
     { readonly reason: string }
   >;
+  readonly isometricOcclusionInfosByUnit?: ReadonlyMap<
+    string,
+    readonly { readonly reason: string }[]
+  >;
 }
 
 function deriveIsometricVisibilityRule(
@@ -281,12 +285,21 @@ export function UnitTokensLayer({
   isometricOcclusionUnitIds,
   combatProjectionValidTargetUnitIds,
   isometricOcclusionInfoByUnit,
+  isometricOcclusionInfosByUnit,
 }: UnitTokensLayerProps): React.ReactElement {
   return (
     <g>
       {orderedTokens.map((token) => {
         const visibilityRule = isIsometricView
           ? deriveIsometricVisibilityRule(token)
+          : undefined;
+        const terrainOcclusionReason = isIsometricView
+          ? formatIsometricTokenOcclusionReason(
+              isometricOcclusionInfosByUnit?.get(token.unitId) ??
+                maybeSingleOcclusionInfo(
+                  isometricOcclusionInfoByUnit?.get(token.unitId),
+                ),
+            )
           : undefined;
 
         return (
@@ -305,11 +318,7 @@ export function UnitTokensLayer({
               isIsometricView &&
               (token.isSelected || isometricOcclusionUnitIds.has(token.unitId))
             }
-            isometricOcclusionReason={
-              isIsometricView
-                ? isometricOcclusionInfoByUnit?.get(token.unitId)?.reason
-                : undefined
-            }
+            isometricOcclusionReason={terrainOcclusionReason}
             isometricVisibilityRule={visibilityRule}
             isometricVisibilityRuleReason={
               visibilityRule
@@ -321,6 +330,19 @@ export function UnitTokensLayer({
       })}
     </g>
   );
+}
+
+function formatIsometricTokenOcclusionReason(
+  infos: readonly { readonly reason: string }[],
+): string | undefined {
+  if (infos.length === 0) return undefined;
+  return infos.map((info) => info.reason).join('; ');
+}
+
+function maybeSingleOcclusionInfo(
+  info: { readonly reason: string } | undefined,
+): readonly { readonly reason: string }[] {
+  return info ? [info] : [];
 }
 
 interface TerrainOverlayLayersProps {

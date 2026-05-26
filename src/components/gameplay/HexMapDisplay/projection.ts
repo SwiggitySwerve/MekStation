@@ -227,3 +227,22 @@ export function deriveIsometricTerrainOccluderInfo(
     ]),
   );
 }
+
+export function deriveIsometricTerrainOcclusionInfoByUnit(
+  terrainOcclusionInfo: readonly IsometricTerrainOcclusionInfo[],
+): ReadonlyMap<string, readonly IsometricTerrainOcclusionInfo[]> {
+  const lookup = new Map<string, IsometricTerrainOcclusionInfo[]>();
+
+  for (const info of terrainOcclusionInfo) {
+    const unitInfo = lookup.get(info.unitId) ?? [];
+    unitInfo.push(info);
+    lookup.set(info.unitId, unitInfo);
+  }
+
+  return new Map(
+    Array.from(lookup.entries()).map(([unitId, unitInfo]) => [
+      unitId,
+      unitInfo,
+    ]),
+  );
+}

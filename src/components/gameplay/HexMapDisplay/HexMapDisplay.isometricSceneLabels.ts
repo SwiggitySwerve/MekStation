@@ -41,15 +41,19 @@ export function formatIsometricSceneTokenLabel({
   token,
   displayPosition,
   occlusionInfo,
+  occlusionInfos = occlusionInfo ? [occlusionInfo] : [],
   foregroundBoost,
   combatProjectionValidTarget,
 }: {
   readonly token: IUnitToken;
   readonly displayPosition: IHexCoordinate;
   readonly occlusionInfo: IsometricTerrainOcclusionInfo | undefined;
+  readonly occlusionInfos?: readonly IsometricTerrainOcclusionInfo[];
   readonly foregroundBoost: boolean;
   readonly combatProjectionValidTarget: boolean | undefined;
 }): string {
+  const occlusionLabel =
+    formatIsometricSceneTokenOcclusionLabel(occlusionInfos);
   const sourcePosition = token.position;
   const parts = [
     `Isometric token ${formatSceneTokenName(token)}`,
@@ -64,10 +68,22 @@ export function formatIsometricSceneTokenLabel({
       ? ''
       : `combat projection target ${combatProjectionValidTarget ? 'valid' : 'blocked'}`,
     foregroundBoost ? 'foreground readability boost' : '',
-    occlusionInfo ? `terrain occlusion ${occlusionInfo.reason}` : '',
+    occlusionLabel,
   ].filter(Boolean);
 
   return parts.join('; ');
+}
+
+function formatIsometricSceneTokenOcclusionLabel(
+  occlusionInfos: readonly IsometricTerrainOcclusionInfo[],
+): string {
+  if (occlusionInfos.length === 0) return '';
+  if (occlusionInfos.length === 1) {
+    return `terrain occlusion ${occlusionInfos[0].reason}`;
+  }
+  return `terrain occlusions ${occlusionInfos.length} blockers: ${occlusionInfos
+    .map((info) => info.reason)
+    .join('; ')}`;
 }
 
 function formatSceneTokenName(token: IUnitToken): string {

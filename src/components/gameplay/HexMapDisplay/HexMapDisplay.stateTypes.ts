@@ -18,6 +18,7 @@ import type {
   useCombatProjectionValidTargetUnitIds,
   useIsometricOcclusionIds,
   useIsometricOcclusionInfo,
+  useIsometricOcclusionInfosByUnit,
   useMovementAnimationsByUnit,
   useOrderedTokens,
   useTerrainLookup,
@@ -46,6 +47,9 @@ export interface HexMapDisplayState {
   readonly hasActiveMovementAnimation: boolean;
   readonly isometricTerrainOcclusionInfoByUnit: ReturnType<
     typeof useIsometricOcclusionInfo
+  >;
+  readonly isometricTerrainOcclusionInfosByUnit: ReturnType<
+    typeof useIsometricOcclusionInfosByUnit
   >;
   readonly isometricOcclusionUnitIds: ReturnType<
     typeof useIsometricOcclusionIds

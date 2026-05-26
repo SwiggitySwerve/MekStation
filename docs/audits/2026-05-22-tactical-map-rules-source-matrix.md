@@ -1382,6 +1382,14 @@ combat-projection target state, and terrain-occlusion foreground boost/reason.
 This does not add or change tactical legality; it keeps the depth-sorted 2.5D
 wrapper inspectable from existing projection, visibility, and unit-state data.
 
+2026-05-26 multi-occluder token summary pin: Isometric terrain occlusion still
+comes from the presentation-only terrain/elevation projection, but scene token
+wrappers now preserve every active occluder hex, effective elevation, and
+reason when more than one tall layer may hide the same unit. The previous
+single representative occluder metadata remains for compact compatibility,
+while aggregate metadata and the nested token visibility reason keep the
+secondary blocker visible to tests and player-facing inspection.
+
 2026-05-25 LOS overlay combat projection context pin: The hover LOS overlay now
 receives the hovered `ICombatRangeHex` and exposes projection LOS state, range,
 distance, target ids, blocker hex, blocker kind, terrain, and blocker reason on

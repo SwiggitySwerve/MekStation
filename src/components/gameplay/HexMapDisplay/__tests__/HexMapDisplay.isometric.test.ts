@@ -7,6 +7,7 @@ import {
   type IsometricSceneItem,
 } from '../HexMapDisplay.isometric';
 import {
+  deriveIsometricTerrainOcclusionInfoByUnit,
   deriveIsometricTerrainOccluderInfo,
   deriveIsometricTerrainOcclusionInfo,
 } from '../projection';
@@ -199,6 +200,11 @@ describe('HexMapDisplay isometric projection helpers', () => {
     const occluderInfo = deriveIsometricTerrainOccluderInfo(occlusionInfo);
 
     expect(occlusionInfo).toHaveLength(2);
+    expect(
+      deriveIsometricTerrainOcclusionInfoByUnit(occlusionInfo)
+        .get('occluded')
+        ?.map((info) => `${info.occluderHex.q},${info.occluderHex.r}`),
+    ).toEqual(['1,0', '0,1']);
     expect(
       occlusionInfo.map(
         (info) => `${info.occluderHex.q},${info.occluderHex.r}`,

@@ -24,6 +24,7 @@ import {
   useIsometricOcclusionIds,
   useIsometricOcclusionInfo,
   useIsometricOcclusionInfos,
+  useIsometricOcclusionInfosByUnit,
   useMovementAnimationsByUnit,
   useMovementRangeLookup,
   useOrderedTokens,
@@ -196,6 +197,12 @@ export function useHexMapDisplayState({
     terrainLookup,
     rotationStep: interaction.isometricRotationStep,
   });
+  const isometricTerrainOcclusionInfosByUnit = useIsometricOcclusionInfosByUnit(
+    {
+      isIsometricView,
+      isometricTerrainOcclusionInfos,
+    },
+  );
   const isometricTerrainOccluderInfoByHex = useIsometricOccluderInfo({
     isIsometricView,
     isometricTerrainOcclusionInfos,
@@ -373,6 +380,7 @@ export function useHexMapDisplayState({
     orderedTokens,
     hasActiveMovementAnimation,
     isometricTerrainOcclusionInfoByUnit,
+    isometricTerrainOcclusionInfosByUnit,
     isometricOcclusionUnitIds,
     combatProjectionValidTargetUnitIds,
     combatRangeLookup,

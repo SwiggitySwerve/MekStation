@@ -32,6 +32,7 @@ import { withSameHexMovementOptions } from './HexCell.movementOptionSummaries';
 import {
   deriveIsometricTerrainOccluderInfo,
   deriveIsometricTerrainOcclusionInfo,
+  deriveIsometricTerrainOcclusionInfoByUnit,
   isometricDepthKey,
 } from './projection';
 
@@ -294,6 +295,23 @@ export function useIsometricOcclusionInfos({
       rotationStep,
     });
   }, [isIsometricView, rotationStep, terrainLookup, tokens]);
+}
+
+export function useIsometricOcclusionInfosByUnit({
+  isIsometricView,
+  isometricTerrainOcclusionInfos,
+}: {
+  readonly isIsometricView: boolean;
+  readonly isometricTerrainOcclusionInfos: readonly IsometricTerrainOcclusionInfo[];
+}): ReadonlyMap<string, readonly IsometricTerrainOcclusionInfo[]> {
+  return useMemo(() => {
+    if (!isIsometricView || isometricTerrainOcclusionInfos.length === 0) {
+      return new Map<string, readonly IsometricTerrainOcclusionInfo[]>();
+    }
+    return deriveIsometricTerrainOcclusionInfoByUnit(
+      isometricTerrainOcclusionInfos,
+    );
+  }, [isIsometricView, isometricTerrainOcclusionInfos]);
 }
 
 export function useIsometricOcclusionIds({

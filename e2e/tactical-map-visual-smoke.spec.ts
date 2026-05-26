@@ -1007,9 +1007,10 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       page.getByTestId('hex-isometric-occluder-highlight--1-0'),
     ).toHaveAttribute('data-isometric-occludes-units', 'occluded');
 
-    await page.getByTestId('projection-rotate-right').click();
-    await page.getByTestId('projection-rotate-right').click();
-    await page.getByTestId('projection-rotate-right').click();
+    await page.getByTestId('hex-grid').focus();
+    await page.keyboard.press('KeyE');
+    await page.keyboard.press('KeyE');
+    await page.keyboard.press('KeyE');
 
     await expect(projectionLayer).toHaveAttribute(
       'data-isometric-rotation-step',
@@ -1073,9 +1074,27 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     const projectionLayer = page.getByTestId('map-projection-layer');
     await switchToIsometric(page, projectionLayer);
 
-    await expect(
-      page.getByTestId('isometric-scene-token-occluded'),
-    ).toHaveAttribute('data-isometric-occluder-hex', '1,0');
+    const sceneToken = page.getByTestId('isometric-scene-token-occluded');
+    await expect(sceneToken).toHaveAttribute(
+      'data-isometric-occluder-hex',
+      '1,0',
+    );
+    await expect(sceneToken).toHaveAttribute(
+      'data-isometric-occluder-hexes',
+      '1,0|0,1',
+    );
+    await expect(sceneToken).toHaveAttribute(
+      'data-isometric-occluder-elevations',
+      '5|3',
+    );
+    await expect(sceneToken).toHaveAttribute(
+      'data-isometric-occluder-count',
+      '2',
+    );
+    await expect(sceneToken).toHaveAttribute(
+      'data-isometric-occlusion-reasons',
+      /Elevated terrain \+3 at \(0, 1\) may hide unit at elevation \+0/,
+    );
     await expect(page.getByTestId('hex-1-0')).toHaveAttribute(
       'data-isometric-occludes-units',
       'occluded',

@@ -63,6 +63,7 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
     orderedTokens,
     hasActiveMovementAnimation,
     isometricTerrainOcclusionInfoByUnit,
+    isometricTerrainOcclusionInfosByUnit,
     isometricOcclusionUnitIds,
     combatProjectionValidTargetUnitIds,
     combatRangeLookup,
@@ -123,6 +124,7 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
               items={isometricSceneItems}
               renderHexCell={renderHexCell}
               occlusionInfoByUnit={isometricTerrainOcclusionInfoByUnit}
+              occlusionInfosByUnit={isometricTerrainOcclusionInfosByUnit}
               movementAnimationsByUnit={movementAnimationsByUnit}
               events={events}
               tokens={tokens}
@@ -234,6 +236,7 @@ function IsometricSceneLayer({
   items,
   renderHexCell,
   occlusionInfoByUnit,
+  occlusionInfosByUnit,
   movementAnimationsByUnit,
   events,
   tokens,
@@ -252,6 +255,9 @@ function IsometricSceneLayer({
   readonly occlusionInfoByUnit: ReturnType<
     typeof useHexMapDisplayState
   >['isometricTerrainOcclusionInfoByUnit'];
+  readonly occlusionInfosByUnit: ReturnType<
+    typeof useHexMapDisplayState
+  >['isometricTerrainOcclusionInfosByUnit'];
   readonly movementAnimationsByUnit: ReturnType<
     typeof useHexMapDisplayState
   >['movementAnimationsByUnit'];
@@ -325,6 +331,8 @@ function IsometricSceneLayer({
         }
 
         const occlusionInfo = occlusionInfoByUnit.get(item.token.unitId);
+        const occlusionInfos =
+          occlusionInfosByUnit.get(item.token.unitId) ?? [];
         const displayPosition = displayPositionForSceneToken(item.token);
         const projectedTargetState =
           combatProjectionValidTargetUnitIds === undefined
@@ -334,6 +342,7 @@ function IsometricSceneLayer({
           token: item.token,
           displayPosition,
           occlusionInfo,
+          occlusionInfos,
           foregroundBoost: item.foregroundBoost,
           combatProjectionValidTarget: projectedTargetState,
         });
@@ -346,10 +355,22 @@ function IsometricSceneLayer({
               item.foregroundBoost ? 'true' : undefined
             }
             data-isometric-occlusion-reason={occlusionInfo?.reason}
+            data-isometric-occlusion-reasons={joinNonEmpty(
+              occlusionInfos.map((info) => info.reason),
+            )}
             data-isometric-occluder-hex={
               occlusionInfo ? coordToKey(occlusionInfo.occluderHex) : undefined
             }
+            data-isometric-occluder-hexes={joinNonEmpty(
+              occlusionInfos.map((info) => coordToKey(info.occluderHex)),
+            )}
             data-isometric-occluder-elevation={occlusionInfo?.occluderElevation}
+            data-isometric-occluder-elevations={joinNonEmpty(
+              occlusionInfos.map((info) => `${info.occluderElevation}`),
+            )}
+            data-isometric-occluder-count={
+              occlusionInfos.length > 0 ? occlusionInfos.length : undefined
+            }
             data-isometric-token-unit-type={item.token.unitType}
             data-isometric-token-map-position={coordToKey(displayPosition)}
             data-isometric-token-source-position={coordToKey(
@@ -392,6 +413,7 @@ function IsometricSceneLayer({
                 combatProjectionValidTargetUnitIds
               }
               isometricOcclusionInfoByUnit={occlusionInfoByUnit}
+              isometricOcclusionInfosByUnit={occlusionInfosByUnit}
             />
           </g>
         );
