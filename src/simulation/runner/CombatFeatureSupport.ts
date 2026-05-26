@@ -89,7 +89,8 @@ export type {
 export type CombatFeatureSupportLevel =
   | 'integrated'
   | 'helper-only'
-  | 'unsupported';
+  | 'unsupported'
+  | 'out-of-scope';
 
 export interface ICombatFeatureSupportEntry {
   readonly id: string;

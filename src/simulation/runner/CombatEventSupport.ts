@@ -26,17 +26,13 @@ function integrated(
     : { id: eventType, level: 'integrated', evidence };
 }
 
-function helperOnly(
+function outOfScope(
   eventType: GameEventType,
   evidence: string,
   gap: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
+  sourceRefs: readonly ICombatFeatureSourceReference[],
 ): ICombatFeatureSupportEntry {
-  const refs = sourceRefs ?? BATTLEMECH_EVENT_SOURCE_REFS[eventType];
-
-  return refs
-    ? { id: eventType, level: 'helper-only', evidence, gap, sourceRefs: refs }
-    : { id: eventType, level: 'helper-only', evidence, gap };
+  return { id: eventType, level: 'out-of-scope', evidence, gap, sourceRefs };
 }
 
 export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
@@ -255,91 +251,91 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 
 export const NON_BATTLEMECH_EVENT_SCOPE_SUPPORT = {
-  [GameEventType.MotiveDamaged]: helperOnly(
+  [GameEventType.MotiveDamaged]: outOfScope(
     GameEventType.MotiveDamaged,
     'vehicle motive-damage helpers and vehicle event tests cover this event',
     'vehicle-specific combat belongs in a separate vehicle validation matrix',
     VEHICLE_EVENT_SCOPE_SOURCE_REFS,
   ),
-  [GameEventType.MotivePenaltyApplied]: helperOnly(
+  [GameEventType.MotivePenaltyApplied]: outOfScope(
     GameEventType.MotivePenaltyApplied,
     'vehicle motive-damage helpers and vehicle event tests cover this event',
     'vehicle-specific combat belongs in a separate vehicle validation matrix',
     VEHICLE_EVENT_SCOPE_SOURCE_REFS,
   ),
-  [GameEventType.VehicleImmobilized]: helperOnly(
+  [GameEventType.VehicleImmobilized]: outOfScope(
     GameEventType.VehicleImmobilized,
     'vehicle motive-damage helpers and vehicle event tests cover this event',
     'vehicle-specific combat belongs in a separate vehicle validation matrix',
     VEHICLE_EVENT_SCOPE_SOURCE_REFS,
   ),
-  [GameEventType.TurretLocked]: helperOnly(
+  [GameEventType.TurretLocked]: outOfScope(
     GameEventType.TurretLocked,
     'vehicle critical-effect helpers and vehicle event tests cover this event',
     'vehicle-specific combat belongs in a separate vehicle validation matrix',
     VEHICLE_EVENT_SCOPE_SOURCE_REFS,
   ),
-  [GameEventType.VehicleCrewStunned]: helperOnly(
+  [GameEventType.VehicleCrewStunned]: outOfScope(
     GameEventType.VehicleCrewStunned,
     'vehicle critical-effect helpers and vehicle event tests cover this event',
     'vehicle-specific combat belongs in a separate vehicle validation matrix',
     VEHICLE_EVENT_SCOPE_SOURCE_REFS,
   ),
-  [GameEventType.VTOLCrashCheck]: helperOnly(
+  [GameEventType.VTOLCrashCheck]: outOfScope(
     GameEventType.VTOLCrashCheck,
     'VTOL vehicle helpers and vehicle event tests cover this event',
     'vehicle-specific combat belongs in a separate vehicle validation matrix',
     VEHICLE_EVENT_SCOPE_SOURCE_REFS,
   ),
-  [GameEventType.TrooperKilled]: helperOnly(
+  [GameEventType.TrooperKilled]: outOfScope(
     GameEventType.TrooperKilled,
     'battle armor combat helpers cover trooper casualty events',
     'battle armor combat belongs in a separate battle-armor validation matrix',
     BATTLE_ARMOR_CASUALTY_EVENT_SOURCE_REFS,
   ),
-  [GameEventType.SquadEliminated]: helperOnly(
+  [GameEventType.SquadEliminated]: outOfScope(
     GameEventType.SquadEliminated,
     'battle armor combat helpers cover squad elimination events',
     'battle armor combat belongs in a separate battle-armor validation matrix',
     BATTLE_ARMOR_CASUALTY_EVENT_SOURCE_REFS,
   ),
-  [GameEventType.SwarmAttached]: helperOnly(
+  [GameEventType.SwarmAttached]: outOfScope(
     GameEventType.SwarmAttached,
     'battle armor swarm helpers cover swarm attachment events',
     'battle armor combat belongs in a separate battle-armor validation matrix',
     BATTLE_ARMOR_SWARM_EVENT_SOURCE_REFS,
   ),
-  [GameEventType.SwarmDamage]: helperOnly(
+  [GameEventType.SwarmDamage]: outOfScope(
     GameEventType.SwarmDamage,
     'battle armor swarm helpers cover swarm damage events',
     'battle armor combat belongs in a separate battle-armor validation matrix',
     BATTLE_ARMOR_SWARM_EVENT_SOURCE_REFS,
   ),
-  [GameEventType.SwarmDismounted]: helperOnly(
+  [GameEventType.SwarmDismounted]: outOfScope(
     GameEventType.SwarmDismounted,
     'battle armor swarm helpers cover swarm dismount events',
     'battle armor combat belongs in a separate battle-armor validation matrix',
     BATTLE_ARMOR_SWARM_EVENT_SOURCE_REFS,
   ),
-  [GameEventType.LegAttack]: helperOnly(
+  [GameEventType.LegAttack]: outOfScope(
     GameEventType.LegAttack,
     'legacy battle armor leg-attack helpers cover LegAttack events',
     'battle armor combat belongs in a separate battle-armor validation matrix',
     BATTLE_ARMOR_LEG_EVENT_SOURCE_REFS,
   ),
-  [GameEventType.LegAttackResolved]: helperOnly(
+  [GameEventType.LegAttackResolved]: outOfScope(
     GameEventType.LegAttackResolved,
     'InteractiveSession battle armor leg-attack scenarios cover LegAttackResolved',
     'battle armor combat belongs in a separate battle-armor validation matrix',
     BATTLE_ARMOR_LEG_EVENT_SOURCE_REFS,
   ),
-  [GameEventType.MimeticBonus]: helperOnly(
+  [GameEventType.MimeticBonus]: outOfScope(
     GameEventType.MimeticBonus,
     'battle armor mimetic helpers cover this event',
     'battle armor combat belongs in a separate battle-armor validation matrix',
     BATTLE_ARMOR_STEALTH_EVENT_SOURCE_REFS,
   ),
-  [GameEventType.StealthBonus]: helperOnly(
+  [GameEventType.StealthBonus]: outOfScope(
     GameEventType.StealthBonus,
     'battle armor stealth helpers cover this event',
     'battle armor combat belongs in a separate battle-armor validation matrix',

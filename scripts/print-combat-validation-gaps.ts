@@ -1,4 +1,7 @@
-import { getCombatValidationUnresolvedRows } from '../src/simulation/runner/CombatValidationGapInventory';
+import {
+  getCombatValidationOutOfScopeRows,
+  getCombatValidationUnresolvedRows,
+} from '../src/simulation/runner/CombatValidationGapInventory';
 
 type GapOutputFormat = 'json' | 'refs' | 'summary';
 
@@ -41,7 +44,11 @@ function countBy(rows: readonly string[]): Record<string, number> {
 }
 
 const options = parseOptions(process.argv.slice(2));
-const rows = getCombatValidationUnresolvedRows().filter(
+const inventoryRows =
+  options.level === 'out-of-scope'
+    ? getCombatValidationOutOfScopeRows()
+    : getCombatValidationUnresolvedRows();
+const rows = inventoryRows.filter(
   (row) =>
     (options.level === undefined || row.level === options.level) &&
     (options.section === undefined || row.sectionId === options.section),
