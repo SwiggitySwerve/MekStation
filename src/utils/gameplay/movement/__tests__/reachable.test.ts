@@ -381,6 +381,108 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('blocks standing non-tracked movement when the gyro is destroyed', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = {
+      ...makeUnitAtOrigin(),
+      componentDamage: makeComponentDamage({ gyroHits: 2 }),
+    };
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 3 };
+
+    const walkProjection = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+    );
+    const jumpProjection = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Jump,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+    );
+
+    expect(walkProjection).toMatchObject({
+      mpCost: Infinity,
+      reachable: false,
+      movementType: MovementType.Walk,
+      blockedReason: 'Destroyed gyro only permits tracked or wheeled movement',
+      movementInvalidReason: 'InvalidDestination',
+      movementInvalidDetails:
+        'Destroyed gyro only permits tracked or wheeled movement',
+    });
+    expect(jumpProjection).toMatchObject({
+      mpCost: Infinity,
+      reachable: false,
+      movementType: MovementType.Jump,
+      blockedReason: 'Destroyed gyro only permits tracked or wheeled movement',
+      movementInvalidReason: 'InvalidDestination',
+      movementInvalidDetails:
+        'Destroyed gyro only permits tracked or wheeled movement',
+    });
+  });
+
+  it('preserves tracked and wheeled destroyed-gyro movement exceptions', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = {
+      ...makeUnitAtOrigin(),
+      componentDamage: makeComponentDamage({ gyroHits: 2 }),
+    };
+
+    const trackedProjection = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      { walkMP: 4, runMP: 6, jumpMP: 0, movementMode: 'tracked' },
+      { q: 1, r: 0 },
+    );
+    const wheeledProjection = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      { walkMP: 4, runMP: 6, jumpMP: 0, movementMode: 'wheeled' },
+      { q: 1, r: 0 },
+    );
+
+    expect(trackedProjection).toMatchObject({
+      mpCost: 1,
+      reachable: true,
+      movementMode: 'tracked',
+    });
+    expect(wheeledProjection).toMatchObject({
+      mpCost: 1,
+      reachable: true,
+      movementMode: 'wheeled',
+    });
+  });
+
+  it('keeps Playtest3 three-hit heavy-duty gyro ground movement unblocked', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = {
+      ...makeUnitAtOrigin(),
+      gyroType: GyroType.HEAVY_DUTY,
+      componentDamage: makeComponentDamage({ gyroHits: 3 }),
+    };
+
+    const projection = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      { walkMP: 4, runMP: 6, jumpMP: 0 },
+      { q: 1, r: 0 },
+      'normal',
+      { optionalRules: ['playtest_3'] },
+    );
+
+    expect(projection).toMatchObject({
+      mpCost: 1,
+      reachable: true,
+      movementType: MovementType.Walk,
+    });
+  });
+
   it('keeps a two-hit heavy-duty gyro stand-up rollable instead of destroyed', () => {
     const grid = createHexGrid({ radius: 5 });
     const unit = {

@@ -955,6 +955,21 @@ four-hit Playtest3 heavy-duty gyro stand-up as `Cannot stand with a destroyed
 gyro`. Remaining gaps: special conversion/motive exceptions still need
 dedicated source-backed passes.
 
+2026-05-26 destroyed-gyro non-tracked movement pin: MegaMek
+`MoveStep.java:2186-2206` rejects movement for a non-prone unit with a
+destroyed gyro when it tries to spend non-tracked/non-wheeled MP, while keeping
+tracked/wheeled exceptions for tracked Meks and represented QuadVee vehicle
+mode. `MoveStep.java:2186-2188` still keeps prone destroyed-gyro Meks limited
+to turning/ejection, and `QuadVee.java:401-404` explains that QuadVees do not
+fall from failed PSRs while in vehicle mode. MekStation now applies the same
+destroyed-gyro helper used by stand-up projection to standing movement
+projection, including represented heavy-duty and Playtest3 thresholds, blocks
+ordinary walk/run/jump destinations with `Destroyed gyro only permits tracked
+or wheeled movement`, and preserves tracked/wheeled movement as reachable and
+committable when terrain and MP allow it. Remaining special conversion gaps are
+in-progress LAM/QuadVee conversion cancellation state and hull-down handling,
+not the basic destroyed-gyro non-tracked movement gate.
+
 Additional fog visibility pin: engine attack visibility already passes the
 active battle grid into `canPlayerSeeUnit` before accepting an attack
 (`src/engine/InteractiveSession.actions.ts:322-326`). Map token construction

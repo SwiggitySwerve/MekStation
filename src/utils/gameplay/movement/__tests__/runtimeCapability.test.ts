@@ -11,6 +11,7 @@ import {
 import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
 import {
   AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON,
+  DESTROYED_GYRO_NON_TRACKED_MOVEMENT_BLOCKED_REASON,
   resolveRuntimeMovementCapability,
   runtimeMovementProjectionBlockedReason,
   runtimeUnitHeightForMovement,
@@ -165,12 +166,60 @@ describe('runtime movement capability', () => {
       unitHeight: 0,
     });
     expect(
-      runtimeMovementProjectionBlockedReason(airborneFighter, capability),
+      runtimeMovementProjectionBlockedReason(
+        airborneFighter,
+        capability,
+        'walk',
+      ),
     ).toBe(AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON);
     expect(
       runtimeMovementProjectionBlockedReason(
         unitState({ conversionMode: 'fighter' }),
         capability,
+        'wheeled',
+      ),
+    ).toBeUndefined();
+  });
+
+  it('blocks destroyed-gyro non-tracked movement while preserving tracked and wheeled exceptions', () => {
+    const destroyedGyro = unitState({
+      componentDamage: {
+        engineHits: 0,
+        gyroHits: 2,
+        sensorHits: 0,
+        lifeSupport: 0,
+        cockpitHit: false,
+        actuators: {},
+        weaponsDestroyed: [],
+        heatSinksDestroyed: 0,
+        jumpJetsDestroyed: 0,
+      },
+    });
+    const capability: IMovementCapability = {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 3,
+      movementMode: 'walk',
+    };
+
+    expect(
+      runtimeMovementProjectionBlockedReason(destroyedGyro, capability, 'walk'),
+    ).toBe(DESTROYED_GYRO_NON_TRACKED_MOVEMENT_BLOCKED_REASON);
+    expect(
+      runtimeMovementProjectionBlockedReason(destroyedGyro, capability, 'jump'),
+    ).toBe(DESTROYED_GYRO_NON_TRACKED_MOVEMENT_BLOCKED_REASON);
+    expect(
+      runtimeMovementProjectionBlockedReason(
+        destroyedGyro,
+        { ...capability, movementMode: 'tracked' },
+        'tracked',
+      ),
+    ).toBeUndefined();
+    expect(
+      runtimeMovementProjectionBlockedReason(
+        destroyedGyro,
+        { ...capability, movementMode: 'wheeled' },
+        'wheeled',
       ),
     ).toBeUndefined();
   });

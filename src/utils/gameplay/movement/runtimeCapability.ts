@@ -3,8 +3,11 @@ import type {
   IUnitGameState,
   MovementConversionMode,
   MovementMotiveMode,
+  MovementTravelMode,
   MovementUnitHeightProfile,
 } from '@/types/gameplay';
+
+import { isGyroDestroyedForType } from '@/utils/gameplay/gyroRules';
 
 function normalizedHeight(value: number | undefined): number | undefined {
   return value === undefined ? undefined : Math.max(0, Math.floor(value));
@@ -91,14 +94,37 @@ function isLamFighterMode(
 export const AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON =
   'Airborne LAM Fighter movement uses aerospace flight rules and is not available in the ground movement projection';
 
+export const DESTROYED_GYRO_NON_TRACKED_MOVEMENT_BLOCKED_REASON =
+  'Destroyed gyro only permits tracked or wheeled movement';
+
+interface IRuntimeMovementRuleOptions {
+  readonly optionalRules?: readonly string[];
+}
+
 export function runtimeMovementProjectionBlockedReason(
   unit: IUnitGameState,
   capability: IMovementCapability,
+  movementMode: MovementTravelMode,
+  ruleOptions: IRuntimeMovementRuleOptions = {},
 ): string | undefined {
   const profile = capability.unitHeightProfile;
-  if (!profile) return undefined;
-  if (isLamFighterMode(unit, profile) && isAirborneLamFighter(unit)) {
+  if (
+    profile &&
+    isLamFighterMode(unit, profile) &&
+    isAirborneLamFighter(unit)
+  ) {
     return AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON;
+  }
+  if (
+    !unit.prone &&
+    unit.componentDamage &&
+    isGyroDestroyedForType(unit.componentDamage, unit.gyroType, {
+      optionalRules: ruleOptions.optionalRules,
+    }) &&
+    movementMode !== 'tracked' &&
+    movementMode !== 'wheeled'
+  ) {
+    return DESTROYED_GYRO_NON_TRACKED_MOVEMENT_BLOCKED_REASON;
   }
   return undefined;
 }

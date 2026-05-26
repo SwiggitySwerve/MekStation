@@ -3096,6 +3096,128 @@ describe('applyInteractiveSessionMovement', () => {
     });
   });
 
+  it('rejects standing non-tracked movement when the gyro is destroyed', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      componentDamage: {
+        engineHits: 0,
+        gyroHits: 2,
+        sensorHits: 0,
+        lifeSupport: 0,
+        cockpitHit: false,
+        actuators: {},
+        weaponsDestroyed: [],
+        heatSinksDestroyed: 0,
+        jumpJetsDestroyed: 0,
+      },
+    };
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid: makeGrid(),
+      movementByUnit: capability({ walkMP: 4, runMP: 6, jumpMP: 3 }),
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.MovementInvalid,
+    );
+    expect(invalid?.payload as IMovementInvalidPayload).toMatchObject({
+      unitId: 'm1',
+      reason: 'InvalidDestination',
+      details: 'Destroyed gyro only permits tracked or wheeled movement',
+    });
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.MovementDeclared,
+      ),
+    ).toBe(false);
+  });
+
+  it('allows tracked movement with a destroyed gyro through preview and commit', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      componentDamage: {
+        engineHits: 0,
+        gyroHits: 2,
+        sensorHits: 0,
+        lifeSupport: 0,
+        cockpitHit: false,
+        actuators: {},
+        weaponsDestroyed: [],
+        heatSinksDestroyed: 0,
+        jumpJetsDestroyed: 0,
+      },
+    };
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    const movementByUnit = capability({
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 0,
+      movementMode: 'tracked',
+    });
+
+    const preview = deriveMovementRangeHexForDestination(
+      session.currentState.units.m1,
+      MovementType.Walk,
+      grid,
+      movementByUnit.get('m1')!,
+      { q: 1, r: 0 },
+    );
+    expect(preview).toMatchObject({
+      reachable: true,
+      movementMode: 'tracked',
+      mpCost: 1,
+    });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.MovementInvalid,
+      ),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared?.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      mpUsed: 1,
+      movementType: MovementType.Walk,
+    });
+    expect(result.currentState.units.m1.position).toEqual({ q: 1, r: 0 });
+  });
+
   it('keeps two-hit heavy-duty gyro stand-up projection and commit rollable', () => {
     const session = setupSessionAtMovement();
     session.currentState.units.m1 = {

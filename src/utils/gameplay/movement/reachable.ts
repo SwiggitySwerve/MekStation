@@ -246,6 +246,8 @@ export function deriveMovementRangeHexForDestination(
   const runtimeBlockedReason = runtimeMovementProjectionBlockedReason(
     unit,
     capability,
+    movementMode,
+    ruleOptions,
   );
   if (runtimeBlockedReason) {
     return runtimeBlockedRangeHex({
