@@ -4,7 +4,7 @@
 
 ### Requirement: BattleMech Combat Validation Catalog
 
-Combat resolution SHALL maintain a catalog-driven validation suite that enumerates every BattleMech combat action, modifier, legality gate, source-truth reference, executable test surface, and unsupported gap. Catalog rows SHALL classify support as `integrated`, `partial`, or `unsupported`, and `unsupported` rows SHALL remain visible until an implementation and executable evidence exist.
+Combat resolution SHALL maintain a catalog-driven validation suite that enumerates every BattleMech combat action, modifier, legality gate, source-truth reference, executable test surface, and unsupported gap. Catalog rows SHALL classify support as `integrated`, `helper-only`, `unsupported`, or `out-of-scope`, and unresolved `helper-only` / `unsupported` rows SHALL remain visible until an implementation and executable evidence exist.
 
 #### Scenario: Unsupported mechanics stay explicit
 
@@ -16,6 +16,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** helper-only and unsupported rows SHALL remain queryable as a machine-readable unresolved completion-blocker inventory
 - **AND** the unresolved inventory SHALL expose stable catalog refs, support levels, evidence, gap text, and row-level source references outside test-local helper code
 - **AND** combat validation tooling SHALL expose the unresolved inventory through a named command suitable for review and PR gates
+- **AND** source-pinned non-BattleMech rows SHALL be queryable as `out-of-scope` audit evidence through combat validation tooling without counting as BattleMech unresolved completion blockers
 
 #### Scenario: Integrated mechanics require executable evidence
 
@@ -181,8 +182,9 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 
 - **GIVEN** the BattleMech combat event support catalog partitions every `GameEventType`
 - **WHEN** event-stream support is contract-tested
-- **THEN** vehicle, VTOL, battle armor, swarm, leg-attack, mimetic, and stealth event rows SHALL remain helper-only non-BattleMech scope rows outside the BattleMech combat matrix
+- **THEN** vehicle, VTOL, battle armor, swarm, leg-attack, mimetic, and stealth event rows SHALL remain `out-of-scope` non-BattleMech rows outside the BattleMech combat matrix
 - **AND** each non-BattleMech event-scope row SHALL carry anchored MekStation source references to the event factory, payload, helper, or scenario surface that owns that non-BattleMech event family
+- **AND** non-BattleMech event-scope rows SHALL be excluded from the unresolved BattleMech gap count while remaining available through the catalog's out-of-scope audit inventory
 
 #### Scenario: BattleMech event stream rows stay source pinned
 
