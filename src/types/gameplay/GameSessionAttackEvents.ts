@@ -386,6 +386,8 @@ export interface ICriticalHitResolvedPayload {
   readonly ammoBinId?: string;
   readonly effect: string;
   readonly destroyed: boolean;
+  readonly missing?: boolean;
+  readonly breached?: boolean;
   /**
    * Per `add-authoritative-roll-arbitration` (Wave 3a): the server's
    * consumed d6 sequence for this crit (determination roll + slot

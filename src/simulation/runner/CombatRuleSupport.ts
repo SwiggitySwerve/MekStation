@@ -754,8 +754,8 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
   ),
   claws: helperOnly(
     'claws',
-    'calculatePunchDamage, calculatePunchToHit, eligibility projection, session physical contexts, UnitHydration, critical-event replay, and runPhysicalAttackPhase consume claw arm state for source-backed punch damage/to-hit modifiers',
-    'Missing/breached claw equipment lifecycle, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions are not modeled',
+    'calculatePunchDamage, calculatePunchToHit, eligibility projection, session physical contexts, UnitHydration, critical-event replay, and runPhysicalAttackPhase consume claw arm state for source-backed punch damage/to-hit modifiers; critical-event replay removes claw state when the mount is destroyed, missing, or breached',
+    'Automatic missing/breached claw event production from mounted-equipment state, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions are not modeled',
     [
       {
         kind: 'megamek-source',
@@ -775,8 +775,8 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
   ),
   talons: helperOnly(
     'talons',
-    'calculateKickDamage, calculateDFADamageToTarget, eligibility projection, session physical contexts, UnitHydration, critical-event replay, and runPhysicalAttackPhase consume talon leg state for source-backed +50% kick/DFA damage',
-    'Missing/breached talon equipment lifecycle and non-biped talon arm-location behavior are not modeled',
+    'calculateKickDamage, calculateDFADamageToTarget, eligibility projection, session physical contexts, UnitHydration, critical-event replay, and runPhysicalAttackPhase consume talon leg state for source-backed +50% kick/DFA damage; critical-event replay removes talon state when the mount is destroyed, missing, or breached',
+    'Automatic missing/breached talon event production from mounted-equipment state and non-biped talon arm-location behavior are not modeled',
     [
       {
         kind: 'megamek-source',

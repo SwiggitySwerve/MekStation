@@ -8,7 +8,7 @@ import {
   IUnitGameState,
 } from '@/types/gameplay';
 import { PILOT_DEATH_WOUND_THRESHOLD } from '@/utils/gameplay/damage/constants';
-import { applyDestroyedPhysicalEquipmentCritical } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
+import { applyDamagedPhysicalEquipmentCritical } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 
 import { DEFAULT_COMPONENT_DAMAGE } from './initialization';
 
@@ -265,7 +265,7 @@ export function applyCriticalHitResolved(
       };
       break;
   }
-  const updatedUnit = applyDestroyedPhysicalEquipmentCritical(unit, payload);
+  const updatedUnit = applyDamagedPhysicalEquipmentCritical(unit, payload);
 
   return {
     ...state,

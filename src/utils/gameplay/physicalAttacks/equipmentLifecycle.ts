@@ -22,11 +22,24 @@ function isTalonEquipment(name: string): boolean {
   return normalizeEquipmentName(name) === 'talons';
 }
 
-export function applyDestroyedPhysicalEquipmentCritical(
+function payloadRemovesMountedEquipment(
+  payload: ICriticalHitResolvedPayload,
+): boolean {
+  return (
+    payload.destroyed === true ||
+    payload.missing === true ||
+    payload.breached === true
+  );
+}
+
+export function applyDamagedPhysicalEquipmentCritical(
   unit: IUnitGameState,
   payload: ICriticalHitResolvedPayload,
 ): IUnitGameState {
-  if (payload.componentType !== 'equipment' || payload.destroyed !== true) {
+  if (
+    payload.componentType !== 'equipment' ||
+    !payloadRemovesMountedEquipment(payload)
+  ) {
     return unit;
   }
 
@@ -52,6 +65,9 @@ export function applyDestroyedPhysicalEquipmentCritical(
   return unit;
 }
 
+export const applyDestroyedPhysicalEquipmentCritical =
+  applyDamagedPhysicalEquipmentCritical;
+
 export function applyPhysicalEquipmentCriticalEvents(
   unit: IUnitGameState,
   criticalEvents: readonly CriticalHitEvent[] | undefined,
@@ -65,7 +81,7 @@ export function applyPhysicalEquipmentCriticalEvents(
     if (event.type !== 'critical_hit_resolved') {
       continue;
     }
-    nextUnit = applyDestroyedPhysicalEquipmentCritical(nextUnit, event.payload);
+    nextUnit = applyDamagedPhysicalEquipmentCritical(nextUnit, event.payload);
   }
 
   return nextUnit;

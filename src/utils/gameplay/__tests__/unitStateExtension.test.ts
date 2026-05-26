@@ -346,6 +346,27 @@ describe('Phase 4: IUnitGameState Extension', () => {
       expect(result.units['unit-1'].rightArmHasClaw).toBe(true);
     });
 
+    it('removes claw punch modifiers when a claw critical slot is marked missing', () => {
+      const state = createStateWithUnit({
+        leftArmHasClaw: true,
+        rightArmHasClaw: true,
+      });
+      const event = makeEvent(GameEventType.CriticalHitResolved, {
+        unitId: 'unit-1',
+        location: 'right_arm',
+        slotIndex: 4,
+        componentType: 'equipment',
+        componentName: 'Claw',
+        effect: 'Equipment missing: Claw',
+        destroyed: false,
+        missing: true,
+      } satisfies ICriticalHitResolvedPayload);
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-1'].leftArmHasClaw).toBe(true);
+      expect(result.units['unit-1'].rightArmHasClaw).toBe(false);
+    });
+
     it('removes talon kick modifiers when a talons critical slot is destroyed', () => {
       const state = createStateWithUnit({
         leftLegHasTalons: true,
@@ -364,6 +385,27 @@ describe('Phase 4: IUnitGameState Extension', () => {
       const result = applyEvent(state, event);
       expect(result.units['unit-1'].leftLegHasTalons).toBe(true);
       expect(result.units['unit-1'].rightLegHasTalons).toBe(false);
+    });
+
+    it('removes talon kick modifiers when a talons critical slot is breached', () => {
+      const state = createStateWithUnit({
+        leftLegHasTalons: true,
+        rightLegHasTalons: true,
+      });
+      const event = makeEvent(GameEventType.CriticalHitResolved, {
+        unitId: 'unit-1',
+        location: 'left_leg',
+        slotIndex: 4,
+        componentType: 'equipment',
+        componentName: 'Talons',
+        effect: 'Equipment breached: Talons',
+        destroyed: false,
+        breached: true,
+      } satisfies ICriticalHitResolvedPayload);
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-1'].leftLegHasTalons).toBe(false);
+      expect(result.units['unit-1'].rightLegHasTalons).toBe(true);
     });
 
     it('does not remove physical modifiers for unrelated equipment criticals', () => {
