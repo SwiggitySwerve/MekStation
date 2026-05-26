@@ -98,6 +98,12 @@ describe('BattleMech combat action support catalog', () => {
     expect(playerCommandIds.filter((id) => id.startsWith('gm.'))).toEqual([]);
     expect(supportGaps(COMBAT_COMMAND_ACTION_SUPPORT)).toEqual([]);
     expect(supportGaps(GM_COMMAND_EXCLUSION_SUPPORT)).toEqual([]);
+    expect(
+      supportIdsByLevel(GM_COMMAND_EXCLUSION_SUPPORT, 'out-of-scope'),
+    ).toEqual(['gm.advance-phase', 'gm.grant-resource', 'gm.set-damage']);
+    expect(
+      supportIdsByLevel(GM_COMMAND_EXCLUSION_SUPPORT, 'unsupported'),
+    ).toEqual([]);
     for (const id of [
       'gm.advance-phase',
       'gm.set-damage',
@@ -558,8 +564,11 @@ describe('BattleMech combat action support catalog', () => {
       supportIdsByLevel(WIRE_INTENT_KIND_ACTION_SUPPORT, 'integrated'),
     ).toEqual([...ENGINE_WIRE_COMBAT_INTENT_KINDS].sort());
     expect(
-      supportIdsByLevel(WIRE_INTENT_KIND_ACTION_SUPPORT, 'unsupported'),
+      supportIdsByLevel(WIRE_INTENT_KIND_ACTION_SUPPORT, 'out-of-scope'),
     ).toEqual([...NON_COMBAT_WIRE_INTENT_KINDS].sort());
+    expect(
+      supportIdsByLevel(WIRE_INTENT_KIND_ACTION_SUPPORT, 'unsupported'),
+    ).toEqual([]);
     expect(
       ENGINE_WIRE_COMBAT_INTENT_KINDS.filter((kind) =>
         NON_COMBAT_WIRE_INTENT_KINDS.includes(kind as never),

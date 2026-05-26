@@ -63,6 +63,18 @@ function unsupported(
   };
 }
 
+function outOfScope(
+  id: string,
+  layer: CombatActionLayer,
+  evidence: string,
+  gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatActionSupportEntry {
+  return sourceRefs
+    ? { id, layer, level: 'out-of-scope', evidence, gap, sourceRefs }
+    : { id, layer, level: 'out-of-scope', evidence, gap };
+}
+
 function mekstationDeviationSourceRef(
   citation: string,
   path: string,
@@ -988,21 +1000,24 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
 } satisfies Record<string, ICombatActionSupportEntry>;
 
 export const GM_COMMAND_EXCLUSION_SUPPORT = {
-  'gm.advance-phase': unsupported(
+  'gm.advance-phase': outOfScope(
     'gm.advance-phase',
     'tactical-command',
+    'buildGmReferralCommands exposes gm.advance-phase as a GM shell-mode command outside player BattleMech combat action handling',
     'GM referee commands are shell-mode tools, not player BattleMech combat actions',
     MEKSTATION_GM_COMMAND_SOURCE_REFS['gm.advance-phase'],
   ),
-  'gm.set-damage': unsupported(
+  'gm.set-damage': outOfScope(
     'gm.set-damage',
     'tactical-command',
+    'buildGmReferralCommands exposes gm.set-damage as a GM shell-mode command outside player BattleMech combat action handling',
     'GM referee commands are shell-mode tools, not player BattleMech combat actions',
     MEKSTATION_GM_COMMAND_SOURCE_REFS['gm.set-damage'],
   ),
-  'gm.grant-resource': unsupported(
+  'gm.grant-resource': outOfScope(
     'gm.grant-resource',
     'tactical-command',
+    'buildGmReferralCommands exposes gm.grant-resource as a GM shell-mode command outside player BattleMech combat action handling',
     'GM referee commands are shell-mode tools, not player BattleMech combat actions',
     MEKSTATION_GM_COMMAND_SOURCE_REFS['gm.grant-resource'],
   ),
@@ -1233,57 +1248,66 @@ export const WIRE_INTENT_KIND_ACTION_SUPPORT = {
     'dispatchToEngine routes Withdraw to InteractiveSession.declareWithdrawal',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.Withdraw,
   ),
-  ForfeitMatch: unsupported(
+  ForfeitMatch: outOfScope(
     'ForfeitMatch',
     'wire-intent',
+    'Protocol and dispatch source refs classify ForfeitMatch as a reconnect/lobby timeout intent rejected before BattleMech engine dispatch',
     'Reconnect/lobby timeout intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.ForfeitMatch,
   ),
-  LaunchMatch: unsupported(
+  LaunchMatch: outOfScope(
     'LaunchMatch',
     'wire-intent',
+    'Protocol and dispatch source refs classify LaunchMatch as a lobby setup intent rejected before BattleMech engine dispatch',
     'Lobby setup intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.LaunchMatch,
   ),
-  LeaveSeat: unsupported(
+  LeaveSeat: outOfScope(
     'LeaveSeat',
     'wire-intent',
+    'Protocol and dispatch source refs classify LeaveSeat as a lobby seat intent rejected before BattleMech engine dispatch',
     'Lobby seat intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.LeaveSeat,
   ),
-  MarkSeatAi: unsupported(
+  MarkSeatAi: outOfScope(
     'MarkSeatAi',
     'wire-intent',
+    'Protocol and dispatch source refs classify MarkSeatAi as a reconnect/lobby seat intent rejected before BattleMech engine dispatch',
     'Reconnect/lobby seat intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.MarkSeatAi,
   ),
-  OccupySeat: unsupported(
+  OccupySeat: outOfScope(
     'OccupySeat',
     'wire-intent',
+    'Protocol and dispatch source refs classify OccupySeat as a lobby seat intent rejected before BattleMech engine dispatch',
     'Lobby seat intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.OccupySeat,
   ),
-  ReassignSeat: unsupported(
+  ReassignSeat: outOfScope(
     'ReassignSeat',
     'wire-intent',
+    'Protocol and dispatch source refs classify ReassignSeat as a lobby host intent rejected before BattleMech engine dispatch',
     'Lobby host intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.ReassignSeat,
   ),
-  SetAiSlot: unsupported(
+  SetAiSlot: outOfScope(
     'SetAiSlot',
     'wire-intent',
+    'Protocol and dispatch source refs classify SetAiSlot as a lobby slot intent rejected before BattleMech engine dispatch',
     'Lobby slot intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.SetAiSlot,
   ),
-  SetHumanSlot: unsupported(
+  SetHumanSlot: outOfScope(
     'SetHumanSlot',
     'wire-intent',
+    'Protocol and dispatch source refs classify SetHumanSlot as a lobby slot intent rejected before BattleMech engine dispatch',
     'Lobby slot intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.SetHumanSlot,
   ),
-  SetReady: unsupported(
+  SetReady: outOfScope(
     'SetReady',
     'wire-intent',
+    'Protocol and dispatch source refs classify SetReady as a lobby readiness intent rejected before BattleMech engine dispatch',
     'Lobby readiness intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.SetReady,
   ),
