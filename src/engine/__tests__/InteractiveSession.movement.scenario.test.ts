@@ -3183,6 +3183,90 @@ describe('applyInteractiveSessionMovement', () => {
     });
   });
 
+  it('keeps Playtest3 three-hit heavy-duty gyro stand-up projection and commit rollable', () => {
+    const baseSession = setupSessionAtMovement();
+    const session: IGameSession = {
+      ...baseSession,
+      config: {
+        ...baseSession.config,
+        optionalRules: ['playtest_3'],
+      },
+    };
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      prone: true,
+      gyroType: GyroType.HEAVY_DUTY,
+      componentDamage: {
+        engineHits: 0,
+        gyroHits: 3,
+        sensorHits: 0,
+        lifeSupport: 0,
+        cockpitHit: false,
+        actuators: {},
+        weaponsDestroyed: [],
+        heatSinksDestroyed: 0,
+        jumpJetsDestroyed: 0,
+      },
+    };
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    const movementByUnit = capability({ walkMP: 4, runMP: 6, jumpMP: 0 });
+    const preview = deriveMovementRangeHexForDestination(
+      session.currentState.units.m1,
+      MovementType.Walk,
+      grid,
+      movementByUnit.get('m1')!,
+      { q: 1, r: 0 },
+      'normal',
+      { optionalRules: session.config.optionalRules },
+    );
+
+    expect(preview).toMatchObject({
+      reachable: true,
+      standUpPsrTargetNumber: 8,
+      standUpPsrModifier: 3,
+      standUpPsrModifierDetails: ['Heavy-duty gyro damage +3'],
+    });
+    expect(preview?.standUpPsrImpossibleReason).toBeUndefined();
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+      diceRoller: fixed2d6(8),
+    });
+
+    const resolved = result.events.find(
+      (event) => event.type === GameEventType.PSRResolved,
+    );
+    expect(resolved?.payload).toMatchObject({
+      unitId: 'm1',
+      targetNumber: 8,
+      roll: 8,
+      modifiers: 3,
+      passed: true,
+      reason: 'Standing up',
+    });
+    expect(
+      result.events.some((event) => event.type === GameEventType.UnitStood),
+    ).toBe(true);
+    expect(result.currentState.units.m1).toMatchObject({
+      position: { q: 1, r: 0 },
+      prone: false,
+    });
+  });
+
   it('keeps TacOps destroyed-arm stand-up penalties aligned between preview and commit', () => {
     const session = setupSessionAtMovement();
     session.currentState.units.m1 = {

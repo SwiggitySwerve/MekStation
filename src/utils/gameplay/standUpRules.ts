@@ -74,7 +74,7 @@ export function projectStandUpPsr({
     psr,
     unitState.componentDamage ?? DEFAULT_COMPONENT_DAMAGE,
     unitState.pilotWounds,
-    { gyroType: unitState.gyroType },
+    { gyroType: unitState.gyroType, optionalRules },
   );
   const playtest2Modifiers = playtest2TryingToStandModifiers(optionalRules);
   const representedStandUpModifiers = representedStandUpCapabilityModifiers(
@@ -95,11 +95,16 @@ export function projectStandUpPsr({
   const modifier =
     allModifiers.reduce((sum, entry) => sum + entry.value, 0) +
     carefulStandModifier;
-  const impossibleReason = standUpImpossibleReason(unitState, unitType);
+  const impossibleReason = standUpImpossibleReason(
+    unitState,
+    unitType,
+    optionalRules,
+  );
   const automaticSuccessReason = standUpAutomaticSuccessReason(
     unitState,
     movementCapability,
     impossibleReason,
+    optionalRules,
   );
   const required = automaticSuccessReason === undefined;
 
@@ -233,9 +238,10 @@ export function destroyedLegAndArmsStandBlock(
 function standUpImpossibleReason(
   unitState: IUnitGameState,
   unitType?: UnitType,
+  optionalRules: readonly string[] = [],
 ): string | undefined {
   return (
-    destroyedGyroStandBlock(unitState, unitType) ??
+    destroyedGyroStandBlock(unitState, unitType, optionalRules) ??
     destroyedLegAndArmsStandBlock(unitState, unitType)
   );
 }
@@ -243,11 +249,13 @@ function standUpImpossibleReason(
 function destroyedGyroStandBlock(
   unitState: IUnitGameState,
   unitType?: UnitType,
+  optionalRules: readonly string[] = [],
 ): string | undefined {
   if (!MEK_STAND_UNIT_TYPES.has(unitType)) return undefined;
   return isGyroDestroyedForType(
     unitState.componentDamage ?? DEFAULT_COMPONENT_DAMAGE,
     unitState.gyroType,
+    { optionalRules },
   )
     ? 'Cannot stand with a destroyed gyro'
     : undefined;
@@ -257,6 +265,7 @@ function standUpAutomaticSuccessReason(
   unitState: IUnitGameState,
   movementCapability: IMovementCapability | undefined,
   impossibleReason: string | undefined,
+  optionalRules: readonly string[] = [],
 ): string | undefined {
   if (impossibleReason !== undefined) return undefined;
   if (movementCapability?.standUpCapability?.standUpLegProfile !== 'quad') {
@@ -266,6 +275,7 @@ function standUpAutomaticSuccessReason(
     isGyroDestroyedForType(
       unitState.componentDamage ?? DEFAULT_COMPONENT_DAMAGE,
       unitState.gyroType,
+      { optionalRules },
     )
   ) {
     return undefined;

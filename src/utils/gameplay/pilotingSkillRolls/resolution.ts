@@ -17,6 +17,7 @@ import { IPSRResult, IPSRBatchResult, IPSRModifier, PSRTrigger } from './types';
 
 export interface IPSRResolutionOptions {
   readonly gyroType?: RepresentedGyroType;
+  readonly optionalRules?: readonly string[];
 }
 
 /**
@@ -146,6 +147,7 @@ export function calculatePSRModifiers(
   const gyroModifier = gyroPsrModifierForType(
     componentDamage,
     options.gyroType,
+    { optionalRules: options.optionalRules },
   );
   if (gyroModifier !== 0) {
     modifiers.push({

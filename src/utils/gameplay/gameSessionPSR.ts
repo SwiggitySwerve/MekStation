@@ -93,7 +93,8 @@ export function resolvePendingPSRs(
     };
 
     const gyroType = unitState.gyroType ?? unit.gyroType;
-    if (isGyroDestroyed(componentDamage, gyroType)) {
+    const optionalRules = session.config.optionalRules;
+    if (isGyroDestroyed(componentDamage, gyroType, optionalRules)) {
       const d6Roller = () => {
         const roll = diceRoller();
         return roll.dice[0];
@@ -177,7 +178,7 @@ export function resolvePendingPSRs(
       componentDamage,
       unitState.pilotWounds,
       d6Roller,
-      { gyroType },
+      { gyroType, optionalRules },
     );
 
     for (const result of batchResult.results) {

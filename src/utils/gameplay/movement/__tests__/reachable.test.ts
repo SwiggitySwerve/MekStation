@@ -447,6 +447,76 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('keeps a three-hit heavy-duty gyro rollable under Playtest3 rules', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = {
+      ...makeUnitAtOrigin(),
+      prone: true,
+      gyroType: GyroType.HEAVY_DUTY,
+      componentDamage: makeComponentDamage({ gyroHits: 3 }),
+    };
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 0 };
+
+    const projected = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+      'normal',
+      { optionalRules: ['playtest_3'] },
+    );
+
+    expect(projected).toMatchObject({
+      mpCost: 3,
+      reachable: true,
+      movementType: MovementType.Walk,
+      standUpRequired: true,
+      standUpCost: 2,
+      standUpPsrRequired: true,
+      standUpPsrTargetNumber: 8,
+      standUpPsrModifier: 3,
+      standUpPsrModifierDetails: ['Heavy-duty gyro damage +3'],
+    });
+    expect(projected?.standUpPsrImpossibleReason).toBeUndefined();
+  });
+
+  it('blocks Playtest3 heavy-duty gyro stand-up at four hits', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = {
+      ...makeUnitAtOrigin(),
+      prone: true,
+      gyroType: GyroType.HEAVY_DUTY,
+      componentDamage: makeComponentDamage({ gyroHits: 4 }),
+    };
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 0 };
+
+    const projected = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+      'normal',
+      { optionalRules: ['playtest_3'] },
+    );
+
+    expect(projected).toMatchObject({
+      mpCost: 2,
+      reachable: false,
+      movementType: MovementType.Walk,
+      movementInvalidReason: 'InvalidDestination',
+      movementInvalidDetails: 'Cannot stand with a destroyed gyro',
+      standUpRequired: true,
+      standUpCost: 2,
+      standUpPsrRequired: true,
+      standUpPsrTargetNumber: Infinity,
+      standUpPsrModifier: 3,
+      standUpPsrModifierDetails: ['Heavy-duty gyro damage +3'],
+      standUpPsrImpossibleReason: 'Cannot stand with a destroyed gyro',
+    });
+  });
+
   it('projects stand-up PSR modifier details from represented pilot and gyro state', () => {
     const grid = createHexGrid({ radius: 5 });
     const unit = {

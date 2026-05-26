@@ -279,6 +279,37 @@ describe('Piloting Skill Rolls', () => {
       });
     });
 
+    it('should use Playtest3 heavy-duty gyro PSR modifiers by hit count', () => {
+      const psr: IPendingPSR = createDamagePSR('unit-1');
+      const twoHitMods = calculatePSRModifiers(
+        psr,
+        {
+          ...DEFAULT_COMP_DAMAGE,
+          gyroHits: 2,
+        },
+        0,
+        { gyroType: GyroType.HEAVY_DUTY, optionalRules: ['playtest_3'] },
+      );
+      const threeHitMods = calculatePSRModifiers(
+        psr,
+        {
+          ...DEFAULT_COMP_DAMAGE,
+          gyroHits: 3,
+        },
+        0,
+        { gyroType: GyroType.HEAVY_DUTY, optionalRules: ['playtest_3'] },
+      );
+
+      expect(twoHitMods.find((m) => m.source === 'gyro')).toMatchObject({
+        name: 'Heavy-duty gyro damage',
+        value: 2,
+      });
+      expect(threeHitMods.find((m) => m.source === 'gyro')).toMatchObject({
+        name: 'Heavy-duty gyro damage',
+        value: 3,
+      });
+    });
+
     it('should include pilot wounds +1 per wound', () => {
       const psr: IPendingPSR = createDamagePSR('unit-1');
       const mods = calculatePSRModifiers(psr, DEFAULT_COMP_DAMAGE, 3);
@@ -577,6 +608,23 @@ describe('Piloting Skill Rolls', () => {
         isGyroDestroyed(
           { ...DEFAULT_COMP_DAMAGE, gyroHits: 3 },
           GyroType.HEAVY_DUTY,
+        ),
+      ).toBe(true);
+    });
+
+    it('should keep Playtest3 heavy-duty gyros functional until 4 hits', () => {
+      expect(
+        isGyroDestroyed(
+          { ...DEFAULT_COMP_DAMAGE, gyroHits: 3 },
+          GyroType.HEAVY_DUTY,
+          ['playtest_3'],
+        ),
+      ).toBe(false);
+      expect(
+        isGyroDestroyed(
+          { ...DEFAULT_COMP_DAMAGE, gyroHits: 4 },
+          GyroType.HEAVY_DUTY,
+          ['playtest_3'],
         ),
       ).toBe(true);
     });

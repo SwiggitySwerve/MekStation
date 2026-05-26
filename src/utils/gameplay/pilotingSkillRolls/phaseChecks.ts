@@ -65,6 +65,7 @@ export function createStandUpAttempt(
 export function isGyroDestroyed(
   componentDamage: IComponentDamageState,
   gyroType?: RepresentedGyroType,
+  optionalRules?: readonly string[],
 ): boolean {
-  return isGyroDestroyedForType(componentDamage, gyroType);
+  return isGyroDestroyedForType(componentDamage, gyroType, { optionalRules });
 }

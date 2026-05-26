@@ -45,7 +45,8 @@ export interface IComponentDamageState {
   readonly engineHits: number;
   /**
    * Gyro critical hits. Standard/XL/compact/superheavy gyros are destroyed at
-   * 2 hits; represented heavy-duty gyros are destroyed at 3 hits.
+   * 2 hits; represented heavy-duty gyros are destroyed at 3 hits, or 4 hits
+   * when the represented Playtest3 optional rule is enabled.
    */
   readonly gyroHits: number;
   /** Sensor critical hits: 0-2. Each hit adds +1/+2 to-hit penalty. */

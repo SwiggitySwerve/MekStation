@@ -928,9 +928,8 @@ rollable action. MekStation now treats represented `gyroHits >= 2` as
 `Cannot stand with a destroyed gyro` in the shared stand-up projection, blocks
 reachable ground destinations with that reason before commit, and resolves any
 committed stand-up attempt as an impossible automatic failure at the origin
-without rolling dice or emitting `UnitStood`. Remaining gaps: PLAYTEST3
-heavy-duty gyro thresholds and special conversion/motive exceptions still need
-dedicated source-backed passes.
+without rolling dice or emitting `UnitStood`. Remaining gaps: special
+conversion/motive exceptions still need dedicated source-backed passes.
 
 2026-05-26 heavy-duty gyro stand-up threshold pin: MegaMek
 `Mek.java:5637-5644` keeps heavy-duty gyros alive at two hits by returning
@@ -942,8 +941,19 @@ into runtime unit state, treats a two-hit heavy-duty gyro stand-up as rollable
 with the represented +3 modifier, keeps movement projection and committed PSR
 resolution on the same finite target number, and blocks a three-hit heavy-duty
 gyro stand-up with `Cannot stand with a destroyed gyro`. Remaining gaps:
-PLAYTEST3 heavy-duty gyro thresholds and special conversion/motive exceptions
-still need dedicated source-backed passes.
+special conversion/motive exceptions still need dedicated source-backed passes.
+
+2026-05-26 Playtest3 heavy-duty gyro stand-up pin: MegaMek
+`OptionsConstants.java:543-545` names the `playtest_3` option,
+`Mek.java:5959-5967` raises the heavy-duty gyro destroyed threshold to four hits
+when that option is enabled, and `Mek.java:3327-3338` uses Playtest3
+heavy-duty gyro PSR modifiers of +1, +2, and +3 for one, two, and three hits.
+MekStation now routes represented optional rules into the shared gyro helper,
+keeps three-hit Playtest3 heavy-duty gyro stand-up projection rollable with a
+finite +3 PSR, keeps committed movement on the same finite target, and blocks
+four-hit Playtest3 heavy-duty gyro stand-up as `Cannot stand with a destroyed
+gyro`. Remaining gaps: special conversion/motive exceptions still need
+dedicated source-backed passes.
 
 Additional fog visibility pin: engine attack visibility already passes the
 active battle grid into `canPlayerSeeUnit` before accepting an attack
