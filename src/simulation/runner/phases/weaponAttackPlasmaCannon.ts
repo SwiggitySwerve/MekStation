@@ -16,6 +16,22 @@ export function isPlasmaCannonWeapon(weapon: IWeapon): boolean {
   );
 }
 
+const PLAYTEST_3_OPTIONAL_RULES = new Set([
+  'playtest_3',
+  'playtest-3',
+  'playtest3',
+]);
+
+function hasPlaytest3Rule(
+  optionalRules: readonly string[] | undefined,
+): boolean {
+  return (
+    optionalRules?.some((rule) =>
+      PLAYTEST_3_OPTIONAL_RULES.has(rule.toLowerCase()),
+    ) ?? false
+  );
+}
+
 function targetTracksPlasmaHeat(
   unit: IGameState['units'][string] | undefined,
 ): boolean {
@@ -34,6 +50,7 @@ function adjustPlasmaHeatForArmor(options: {
   readonly rawHeat: number;
   readonly target: IGameState['units'][string];
   readonly location: string;
+  readonly optionalRules?: readonly string[];
 }): number {
   const armorRemaining = options.target.armor[options.location] ?? 0;
   if (armorRemaining <= 0) return options.rawHeat;
@@ -41,10 +58,13 @@ function adjustPlasmaHeatForArmor(options: {
   const armorType = normalizeArmorType(
     options.target.armorTypeByLocation?.[options.location],
   );
+  const playtest3 = hasPlaytest3Rule(options.optionalRules);
   if (armorType === 'reflective') {
+    if (playtest3) return options.rawHeat;
     return Math.max(1, Math.floor(options.rawHeat / 2));
   }
   if (armorType === 'heatdissipating') {
+    if (playtest3) return 0;
     return Math.floor(options.rawHeat / 2);
   }
   return options.rawHeat;
@@ -64,6 +84,7 @@ export function applyPlasmaCannonTargetHeat(options: {
   location: string;
   firingArc: 'front' | 'left' | 'right' | 'rear';
   d6Roller: () => number;
+  optionalRules?: readonly string[];
 }): IGameState {
   const {
     events,
@@ -78,6 +99,7 @@ export function applyPlasmaCannonTargetHeat(options: {
     location,
     firingArc,
     d6Roller,
+    optionalRules,
   } = options;
   let { currentState } = options;
 
@@ -115,6 +137,7 @@ export function applyPlasmaCannonTargetHeat(options: {
     rawHeat,
     target,
     location,
+    optionalRules,
   });
   const previousTotal = target.heat;
   const newTotal = previousTotal + amount;

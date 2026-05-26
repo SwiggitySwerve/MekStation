@@ -89,6 +89,7 @@ export function resolveWeaponHit(options: {
    */
   hullDown?: boolean;
   d6Roller: () => number;
+  optionalRules?: readonly string[];
   getOrSeedManifest: (id: string) => CriticalSlotManifest;
   manifestsByUnit?: Map<string, CriticalSlotManifest>;
   weaponsByUnit?: ReadonlyMap<string, readonly IWeapon[]>;
@@ -104,6 +105,7 @@ export function resolveWeaponHit(options: {
     manifestsByUnit,
     partialCover,
     hullDown,
+    optionalRules,
     ammoWeaponType,
     projectileCount,
     targetId,
@@ -354,6 +356,7 @@ export function resolveWeaponHit(options: {
       location,
       firingArc,
       d6Roller,
+      optionalRules,
     });
 
     return consumeWeaponAmmo({
