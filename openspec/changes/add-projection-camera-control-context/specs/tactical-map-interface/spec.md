@@ -24,3 +24,11 @@ Isometric mode SHALL make stacked elevation layers readable, support battlefield
 - **AND** each control SHALL expose the isometric-camera channel and presentation rules surface
 - **AND** each control SHALL expose the current and next camera heading
 - **AND** each accessible label SHALL summarize the current and next heading
+
+- **GIVEN** isometric mode is active and the tactical map grid has focus
+- **WHEN** the user presses `Q` or `E`
+- **THEN** the map SHALL rotate the isometric camera left or right by one
+  discrete heading step
+- **AND** the focused map surface SHALL expose the shared projection source,
+  isometric-camera channel, presentation rules surface, and the `Q`/`E`
+  rotation key contract

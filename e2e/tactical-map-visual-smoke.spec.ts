@@ -261,9 +261,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-movement-blocked-options-badge-invalid-reasons',
       'jump:InsufficientMP',
     );
-    await mixedMovementHex.locator('path[data-terrain="clear"]').hover({
-      position: { x: 72, y: 34 },
-    });
+    await mixedMovementHex.hover({ force: true });
     await expect(page.getByTestId('hex-tactical-tooltip')).toBeVisible();
     const mixedTooltipBlockedOption = page.getByTestId(
       'hex-tactical-tooltip-movement-options-option-jump-jump-2',
@@ -878,6 +876,34 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(
       page.getByTestId('hex-isometric-occluder-highlight-1-0'),
     ).toHaveAttribute('data-isometric-occludes-units', 'occluded');
+    const hexGrid = page.getByTestId('hex-grid');
+    await expect(hexGrid).toHaveAttribute(
+      'data-isometric-keyboard-camera-source',
+      'shared-tactical-map-projection',
+    );
+    await expect(hexGrid).toHaveAttribute(
+      'data-isometric-keyboard-camera-channel',
+      'isometric-camera',
+    );
+    await expect(hexGrid).toHaveAttribute(
+      'data-isometric-keyboard-camera-rules-surface',
+      'presentation',
+    );
+    await expect(hexGrid).toHaveAttribute(
+      'data-isometric-keyboard-camera-controls',
+      'q:rotate-left|e:rotate-right',
+    );
+    await hexGrid.focus();
+    await page.keyboard.press('KeyQ');
+    await expect(projectionLayer).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '5',
+    );
+    await page.keyboard.press('KeyE');
+    await expect(projectionLayer).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '0',
+    );
   });
 
   test('shows true height for capped isometric elevation stacks in browser', async ({

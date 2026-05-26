@@ -148,6 +148,7 @@ export interface MapInteractionState extends IMapLayerInteractionState {
   handleMouseDown: (e: React.MouseEvent) => void;
   handleMouseMove: (e: React.MouseEvent) => void;
   handleMouseUp: () => void;
+  handleKeyDown: (e: React.KeyboardEvent) => void;
   handleTouchStart: (e: React.TouchEvent) => void;
   handleTouchMove: (e: React.TouchEvent) => void;
   handleTouchEnd: () => void;
@@ -421,6 +422,23 @@ export function useMapInteraction(
     setIsPanning(false);
   }, []);
 
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (layerInteraction.projectionMode !== 'isometric2d') return;
+
+      if (e.key === 'q' || e.key === 'Q') {
+        e.preventDefault();
+        e.stopPropagation();
+        layerInteraction.rotateIsometricLeft();
+      } else if (e.key === 'e' || e.key === 'E') {
+        e.preventDefault();
+        e.stopPropagation();
+        layerInteraction.rotateIsometricRight();
+      }
+    },
+    [layerInteraction],
+  );
+
   const getTouchDistance = useCallback(
     (t1: React.Touch, t2: React.Touch): number => {
       const dx = t2.clientX - t1.clientX;
@@ -515,6 +533,7 @@ export function useMapInteraction(
       handleMouseDown,
       handleMouseMove,
       handleMouseUp,
+      handleKeyDown,
       handleTouchStart,
       handleTouchMove,
       handleTouchEnd,
@@ -532,6 +551,7 @@ export function useMapInteraction(
       handleMouseDown,
       handleMouseMove,
       handleMouseUp,
+      handleKeyDown,
       handleTouchStart,
       handleTouchMove,
       handleTouchEnd,

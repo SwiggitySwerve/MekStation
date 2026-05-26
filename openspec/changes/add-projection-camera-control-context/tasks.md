@@ -11,6 +11,7 @@
 - [x] 2.2 Expose current/target projection mode and current camera heading on the projection mode toggle
 - [x] 2.3 Expose current/next isometric camera heading metadata on rotation controls
 - [x] 2.4 Expand control accessible labels with projection/camera context
+- [x] 2.5 Support focused-map `Q`/`E` keyboard rotation in isometric mode
 
 ## 3. Verification
 
@@ -23,3 +24,5 @@
 - [x] 3.7 `npm.cmd run typecheck` passes
 - [x] 3.8 `npm.cmd run lint` passes
 - [x] 3.9 `git diff --check` passes
+- [x] 3.10 Focused render and browser smoke coverage prove `Q`/`E` rotate
+  the isometric camera through the focused map surface

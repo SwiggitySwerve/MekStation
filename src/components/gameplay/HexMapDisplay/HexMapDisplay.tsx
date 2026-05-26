@@ -98,9 +98,24 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
         onMouseMove={interaction.handleMouseMove}
         onMouseUp={interaction.handleMouseUp}
         onMouseLeave={interaction.handleMouseUp}
+        onKeyDown={interaction.handleKeyDown}
         onTouchStart={interaction.handleTouchStart}
         onTouchMove={interaction.handleTouchMove}
         onTouchEnd={interaction.handleTouchEnd}
+        tabIndex={0}
+        aria-label="Tactical map battlefield"
+        data-isometric-keyboard-camera-source={
+          isIsometricView ? 'shared-tactical-map-projection' : undefined
+        }
+        data-isometric-keyboard-camera-channel={
+          isIsometricView ? 'isometric-camera' : undefined
+        }
+        data-isometric-keyboard-camera-rules-surface={
+          isIsometricView ? 'presentation' : undefined
+        }
+        data-isometric-keyboard-camera-controls={
+          isIsometricView ? 'q:rotate-left|e:rotate-right' : undefined
+        }
         data-testid="hex-grid"
       >
         <TerrainPatternDefs />

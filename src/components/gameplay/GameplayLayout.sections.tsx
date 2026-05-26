@@ -49,6 +49,7 @@ export const noopInteraction: MapInteractionState = {
   handleMouseDown: () => {},
   handleMouseMove: () => {},
   handleMouseUp: () => {},
+  handleKeyDown: () => {},
   handleTouchStart: () => {},
   handleTouchMove: () => {},
   handleTouchEnd: () => {},

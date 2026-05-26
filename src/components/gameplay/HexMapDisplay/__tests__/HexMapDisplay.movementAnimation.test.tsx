@@ -250,6 +250,23 @@ describe('HexMapDisplay tactical visual layers', () => {
       'aria-label',
       'Rotate isometric camera right; current heading 0 degrees; next heading 60 degrees; projection channel isometric-camera; rules surface presentation',
     );
+    const hexGrid = screen.getByTestId('hex-grid');
+    expect(hexGrid).toHaveAttribute(
+      'data-isometric-keyboard-camera-source',
+      'shared-tactical-map-projection',
+    );
+    expect(hexGrid).toHaveAttribute(
+      'data-isometric-keyboard-camera-channel',
+      'isometric-camera',
+    );
+    expect(hexGrid).toHaveAttribute(
+      'data-isometric-keyboard-camera-rules-surface',
+      'presentation',
+    );
+    expect(hexGrid).toHaveAttribute(
+      'data-isometric-keyboard-camera-controls',
+      'q:rotate-left|e:rotate-right',
+    );
 
     fireEvent.click(rotateRight);
 
@@ -283,6 +300,16 @@ describe('HexMapDisplay tactical visual layers', () => {
       '1',
     );
     expect(rotateRight).toHaveAttribute('data-isometric-camera-next-step', '2');
+    fireEvent.keyDown(hexGrid, { key: 'q' });
+    expect(projectionLayer).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '0',
+    );
+    fireEvent.keyDown(hexGrid, { key: 'e' });
+    expect(projectionLayer).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '1',
+    );
 
     act(() => {
       unmount();
