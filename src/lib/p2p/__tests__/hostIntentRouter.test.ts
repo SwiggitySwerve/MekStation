@@ -19,6 +19,7 @@ import {
   createGameSession,
   startGame,
 } from '@/utils/gameplay/gameSessionCore';
+import { createHexGrid } from '@/utils/gameplay/hexGrid';
 
 import {
   createHostIntentRouter,
@@ -28,8 +29,10 @@ import {
   buildActivateMovementEnhancementIntent,
   buildConcedeIntent,
   buildDeclareMovementIntent,
+  buildEndPhaseIntent,
   buildGoProneIntent,
   buildStandIntent,
+  type IIntentTranslationAuthorityContext,
 } from '../intentTranslation';
 
 const FIXED_TIMESTAMP = '2026-04-30T00:00:00.000Z';
@@ -100,6 +103,7 @@ function makeAdapter(initial: IGameSession): {
     unitId: string;
     enhancement: 'MASC' | 'Supercharger';
   }>;
+  advancedPhases: GamePhase[];
   rejections: { reason: string; detail?: string }[];
   setSession: (session: IGameSession) => void;
   setGuestPending: (pending: boolean) => void;
@@ -114,10 +118,16 @@ function makeAdapter(initial: IGameSession): {
     unitId: string;
     enhancement: 'MASC' | 'Supercharger';
   }> = [];
+  const advancedPhases: GamePhase[] = [];
   const rejections: { reason: string; detail?: string }[] = [];
+  const authority: IIntentTranslationAuthorityContext = {
+    movementGrid: createHexGrid({ radius: 8 }),
+    movementByUnit: new Map([['guest-0', { walkMP: 4, runMP: 6, jumpMP: 0 }]]),
+  };
 
   const adapter: IHostIntentRouterAdapter = {
     getSession: () => session,
+    getTranslationAuthority: () => authority,
     appendEvent: (event) => {
       appended.push(event);
       session = appendEvent(session, event);
@@ -133,6 +143,9 @@ function makeAdapter(initial: IGameSession): {
     },
     activateMovementEnhancement: (unitId, enhancement) => {
       enhancementActivations.push({ unitId, enhancement });
+    },
+    advancePhase: (phase) => {
+      advancedPhases.push(phase);
     },
     broadcastRejection: (rejection) => {
       rejections.push({
@@ -150,6 +163,7 @@ function makeAdapter(initial: IGameSession): {
     standAttempts,
     proneAttempts,
     enhancementActivations,
+    advancedPhases,
     rejections,
     setSession: (next) => {
       session = next;
@@ -160,16 +174,31 @@ function makeAdapter(initial: IGameSession): {
   };
 }
 
+function guestForwardMove(session: IGameSession): {
+  readonly from: { readonly q: number; readonly r: number };
+  readonly to: { readonly q: number; readonly r: number };
+  readonly facing: Facing;
+} {
+  const guest = session.currentState.units['guest-0'];
+  return {
+    from: guest.position,
+    to: { q: guest.position.q, r: guest.position.r + 1 },
+    facing: guest.facing,
+  };
+}
+
 describe('hostIntentRouter', () => {
   it('§5.3: applies translated events on a valid intent', () => {
-    const harness = makeAdapter(fixtureSession());
+    const session = fixtureSession();
+    const harness = makeAdapter(session);
     const router = createHostIntentRouter(harness.adapter);
+    const move = guestForwardMove(session);
 
     const intent = buildDeclareMovementIntent(GUEST_PEER, {
       unitId: 'guest-0',
-      from: { q: 0, r: 0 },
-      to: { q: 1, r: 0 },
-      facing: Facing.Northeast,
+      from: move.from,
+      to: move.to,
+      facing: move.facing,
       movementType: MovementType.Walk,
       mpUsed: 1,
       heatGenerated: 0,
@@ -255,6 +284,26 @@ describe('hostIntentRouter', () => {
     expect(harness.rejections).toEqual([]);
   });
 
+  it('routes a guest-owned end-phase intent through the authoritative host command path', () => {
+    const harness = makeAdapter(fixtureSession());
+    const router = createHostIntentRouter(harness.adapter);
+
+    const result = router.handleIntent(
+      buildEndPhaseIntent(GUEST_PEER, { phase: GamePhase.Movement }),
+    );
+
+    expect(result.outcome).toBe('applied');
+    if (result.outcome !== 'applied') return;
+    expect(result.events).toEqual([]);
+    expect(result.command).toEqual({
+      kind: 'advancePhase',
+      phase: GamePhase.Movement,
+    });
+    expect(harness.advancedPhases).toEqual([GamePhase.Movement]);
+    expect(harness.appended).toEqual([]);
+    expect(harness.rejections).toEqual([]);
+  });
+
   it('routes a guest-owned stand intent through the authoritative host command path', () => {
     const harness = makeAdapter(fixtureSession());
     const router = createHostIntentRouter(harness.adapter);
@@ -299,15 +348,17 @@ describe('hostIntentRouter', () => {
   });
 
   it('§7.2: buffers intents while the guest is PeerPending and drains them on flush', () => {
-    const harness = makeAdapter(fixtureSession());
+    const session = fixtureSession();
+    const harness = makeAdapter(session);
     const router = createHostIntentRouter(harness.adapter);
+    const move = guestForwardMove(session);
 
     harness.setGuestPending(true);
     const intent = buildDeclareMovementIntent(GUEST_PEER, {
       unitId: 'guest-0',
-      from: { q: 0, r: 0 },
-      to: { q: 1, r: 0 },
-      facing: Facing.Northeast,
+      from: move.from,
+      to: move.to,
+      facing: move.facing,
       movementType: MovementType.Walk,
       mpUsed: 1,
       heatGenerated: 0,

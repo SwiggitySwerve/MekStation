@@ -27,6 +27,7 @@
  */
 
 import type {
+  GamePhase,
   GameSide,
   IGameEvent,
   IGameIntent,
@@ -35,6 +36,7 @@ import type {
 
 import {
   translateIntentToEvents,
+  type IIntentTranslationAuthorityContext,
   type IntentTranslationCommand,
   type IntentRejectionReason,
   type IntentTranslationResult,
@@ -50,6 +52,12 @@ import {
 export interface IHostIntentRouterAdapter {
   /** Returns the host's current session snapshot, or null if no match is live. */
   readonly getSession: () => IGameSession | null;
+  /**
+   * Returns host-owned combat authority used to validate guest intents
+   * before turning them into replay events. Movement needs the host grid
+   * and MP map; weapon attacks need the host inventory map.
+   */
+  readonly getTranslationAuthority?: () => IIntentTranslationAuthorityContext;
   /**
    * Append a host-translated event. The router calls this in order
    * for every event the translator produced. The adapter is
@@ -73,6 +81,8 @@ export interface IHostIntentRouterAdapter {
     unitId: string,
     enhancement: 'MASC' | 'Supercharger',
   ) => void;
+  /** Apply host-owned phase advancement so reducer side effects run. */
+  readonly advancePhase: (phase: GamePhase) => void;
   /**
    * Broadcast a structured rejection back to the guest. Called when
    * the translator returns `{ ok: false }` or when the host is
@@ -154,6 +164,13 @@ export function createHostIntentRouter(
             events: [],
             command: translation.command,
           };
+        case 'advancePhase':
+          adapter.advancePhase(translation.command.phase);
+          return {
+            outcome: 'applied',
+            events: [],
+            command: translation.command,
+          };
         case 'stand':
           adapter.stand(translation.command.unitId);
           return {
@@ -197,7 +214,11 @@ export function createHostIntentRouter(
       return { outcome: 'buffered' };
     }
     const session = adapter.getSession();
-    const translation = translateIntentToEvents(intent, session);
+    const translation = translateIntentToEvents(
+      intent,
+      session,
+      adapter.getTranslationAuthority?.(),
+    );
     return tryApply(translation);
   };
 
@@ -207,7 +228,11 @@ export function createHostIntentRouter(
     const results: HostIntentRouterResult[] = [];
     for (const intent of drained) {
       const session = adapter.getSession();
-      const translation = translateIntentToEvents(intent, session);
+      const translation = translateIntentToEvents(
+        intent,
+        session,
+        adapter.getTranslationAuthority?.(),
+      );
       results.push(tryApply(translation));
     }
     return results;

@@ -4,6 +4,8 @@
  * @spec openspec/changes/add-p2p-game-session-sync/specs/multiplayer-sync/spec.md § 5
  */
 
+import type { IWeapon } from '@/simulation/ai/types';
+
 import {
   GamePhase,
   GameSide,
@@ -15,6 +17,7 @@ import {
 } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 import { createGameSession, startGame } from '@/utils/gameplay/gameSessionCore';
+import { createHexGrid } from '@/utils/gameplay/hexGrid';
 
 import {
   buildActivateMovementEnhancementIntent,
@@ -28,6 +31,7 @@ import {
   buildStandIntent,
   buildTorsoTwistIntent,
   buildWithdrawIntent,
+  type IIntentTranslationAuthorityContext,
   translateIntentToEvents,
 } from '../intentTranslation';
 
@@ -35,6 +39,21 @@ const FIXED_TIMESTAMP = '2026-04-30T00:00:00.000Z';
 const HOST_PEER = 'host-peer';
 const GUEST_PEER = 'guest-peer';
 const ROGUE_PEER = 'rogue-peer';
+
+function fixtureWeapon(): IWeapon {
+  return {
+    id: 'ml-1',
+    name: 'Medium Laser',
+    shortRange: 3,
+    mediumRange: 6,
+    longRange: 9,
+    damage: 5,
+    heat: 3,
+    minRange: 0,
+    ammoPerTon: -1,
+    destroyed: false,
+  };
+}
 
 function fixtureUnits(): readonly IGameUnit[] {
   return [
@@ -99,6 +118,27 @@ function withPhase(session: IGameSession, phase: GamePhase): IGameSession {
   };
 }
 
+function authority(): IIntentTranslationAuthorityContext {
+  return {
+    movementGrid: createHexGrid({ radius: 8 }),
+    movementByUnit: new Map([['guest-0', { walkMP: 4, runMP: 6, jumpMP: 0 }]]),
+    weaponsByUnit: new Map([['guest-0', [fixtureWeapon()]]]),
+  };
+}
+
+function guestForwardMove(session: IGameSession): {
+  readonly from: { readonly q: number; readonly r: number };
+  readonly to: { readonly q: number; readonly r: number };
+  readonly facing: Facing;
+} {
+  const guest = session.currentState.units['guest-0'];
+  return {
+    from: guest.position,
+    to: { q: guest.position.q, r: guest.position.r + 1 },
+    facing: guest.facing,
+  };
+}
+
 describe('translateIntentToEvents', () => {
   it('returns no-active-session when the host has no live match', () => {
     const intent: IGameIntent = {
@@ -113,17 +153,18 @@ describe('translateIntentToEvents', () => {
 
   it('§5.3: translates a guest-owned declareMovement into MovementDeclared + MovementLocked', () => {
     const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const move = guestForwardMove(session);
     const intent = buildDeclareMovementIntent(GUEST_PEER, {
       unitId: 'guest-0',
-      from: { q: 0, r: 0 },
-      to: { q: 1, r: 0 },
-      facing: Facing.Northeast,
+      from: move.from,
+      to: move.to,
+      facing: move.facing,
       movementType: MovementType.Walk,
       mpUsed: 1,
       heatGenerated: 0,
     });
 
-    const result = translateIntentToEvents(intent, session);
+    const result = translateIntentToEvents(intent, session, authority());
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.events).toHaveLength(2);
@@ -131,6 +172,50 @@ describe('translateIntentToEvents', () => {
     expect(result.events[1].type).toBe('movement_locked');
     expect(result.events[0].sequence).toBe(session.events.length);
     expect(result.events[1].sequence).toBe(session.events.length + 1);
+  });
+
+  it('rejects declareMovement when the guest origin does not match host state', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const move = guestForwardMove(session);
+    const intent = buildDeclareMovementIntent(GUEST_PEER, {
+      unitId: 'guest-0',
+      from: { q: 4, r: 4 },
+      to: move.to,
+      facing: move.facing,
+      movementType: MovementType.Walk,
+      mpUsed: 1,
+      heatGenerated: 0,
+    });
+
+    const result = translateIntentToEvents(intent, session, authority());
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe('unsupported-intent');
+    expect(result.detail).toContain('origin');
+  });
+
+  it('recomputes declareMovement MP and heat from host authority', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const move = guestForwardMove(session);
+    const intent = buildDeclareMovementIntent(GUEST_PEER, {
+      unitId: 'guest-0',
+      from: move.from,
+      to: move.to,
+      facing: move.facing,
+      movementType: MovementType.Walk,
+      mpUsed: 99,
+      heatGenerated: 99,
+    });
+
+    const result = translateIntentToEvents(intent, session, authority());
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.events[0].payload).toMatchObject({
+      mpUsed: 1,
+      heatGenerated: 1,
+    });
   });
 
   it('§5.4: rejects a declareMovement that targets a unit the guest does not own', () => {
@@ -336,7 +421,7 @@ describe('translateIntentToEvents', () => {
       toHitNumber: 7,
     });
 
-    const result = translateIntentToEvents(intent, session);
+    const result = translateIntentToEvents(intent, session, authority());
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.events.map((e: IGameEvent) => e.type)).toEqual([
@@ -550,7 +635,7 @@ describe('translateIntentToEvents', () => {
     expect(result.reason).toBe('malformed-payload');
   });
 
-  it('translates confirmHeat in the Heat phase into an advance-phase marker', () => {
+  it('translates confirmHeat in the Heat phase into an advance-phase command', () => {
     const session = withPhase(fixtureSession(), GamePhase.Heat);
     const intent: IGameIntent = {
       type: 'confirmHeat',
@@ -560,12 +645,12 @@ describe('translateIntentToEvents', () => {
     const result = translateIntentToEvents(intent, session);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.events).toHaveLength(1);
-    expect(result.events[0].type).toBe('phase_changed');
-    expect(result.events[0].sequence).toBe(session.events.length);
-    expect(result.events[0].payload).toMatchObject({
-      fromPhase: GamePhase.Heat,
-      toPhase: GamePhase.Heat,
+    expect(result.events).toEqual([]);
+    expect('command' in result).toBe(true);
+    if (!('command' in result)) return;
+    expect(result.command).toEqual({
+      kind: 'advancePhase',
+      phase: GamePhase.Heat,
     });
   });
 
@@ -580,5 +665,56 @@ describe('translateIntentToEvents', () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.reason).toBe('wrong-phase');
+  });
+
+  it('rejects declareMovement with invalid enum-shaped values before mutating state', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const intent: IGameIntent = {
+      type: 'declareMovement',
+      payload: {
+        unitId: 'guest-0',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        facing: 9,
+        movementType: 'teleport',
+        mpUsed: 1,
+        heatGenerated: 0,
+      },
+      authorPeerId: GUEST_PEER,
+    };
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe('malformed-payload');
+  });
+
+  it('rejects declareAttack when weaponAttacks contains malformed weapon data', () => {
+    const session = withPhase(fixtureSession(), GamePhase.WeaponAttack);
+    const intent: IGameIntent = {
+      type: 'declareAttack',
+      payload: {
+        attackerId: 'guest-0',
+        targetId: 'host-0',
+        weapons: ['ml-1'],
+        toHitNumber: 7,
+        weaponAttacks: [
+          {
+            weaponId: 'ml-1',
+            weaponName: 'Medium Laser',
+            damage: '5',
+            heat: 3,
+          },
+        ],
+      },
+      authorPeerId: GUEST_PEER,
+    };
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe('malformed-payload');
   });
 });

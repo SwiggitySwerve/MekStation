@@ -34,6 +34,7 @@ import {
   createGameSession,
   startGame,
 } from '@/utils/gameplay/gameSessionCore';
+import { createHexGrid } from '@/utils/gameplay/hexGrid';
 
 import {
   GAME_SESSION_EVENTS_ARRAY,
@@ -267,6 +268,12 @@ describe('§9.2 guest intent translates into a host-appended event', () => {
 
     const router = createHostIntentRouter({
       getSession: () => hostSession,
+      getTranslationAuthority: () => ({
+        movementGrid: createHexGrid({ radius: 8 }),
+        movementByUnit: new Map([
+          ['guest-0', { walkMP: 4, runMP: 6, jumpMP: 0 }],
+        ]),
+      }),
       appendEvent: (event) => {
         hostSession = appendEvent(hostSession, event);
         // Also broadcast onward to the guest, which is what the real
@@ -277,6 +284,7 @@ describe('§9.2 guest intent translates into a host-appended event', () => {
       stand: () => undefined,
       goProne: () => undefined,
       activateMovementEnhancement: () => undefined,
+      advancePhase: () => undefined,
       broadcastRejection: (rejection) => {
         hostChannel.broadcastRejection({ reason: rejection.reason });
       },
@@ -286,11 +294,12 @@ describe('§9.2 guest intent translates into a host-appended event', () => {
     });
 
     // Guest authors a declareMovement intent for its own unit.
+    const guestUnit = hostSession.currentState.units['guest-0'];
     const intent = buildDeclareMovementIntent(GUEST_PEER, {
       unitId: 'guest-0',
-      from: { q: 0, r: 0 },
-      to: { q: 1, r: 0 },
-      facing: Facing.Northeast,
+      from: guestUnit.position,
+      to: { q: guestUnit.position.q, r: guestUnit.position.r + 1 },
+      facing: guestUnit.facing,
       movementType: MovementType.Walk,
       mpUsed: 1,
       heatGenerated: 0,
@@ -340,6 +349,7 @@ describe('§9.2 guest intent translates into a host-appended event', () => {
       stand: () => undefined,
       goProne: () => undefined,
       activateMovementEnhancement: () => undefined,
+      advancePhase: () => undefined,
       broadcastRejection: (rejection) => {
         hostChannel.broadcastRejection({ reason: rejection.reason });
       },
@@ -396,6 +406,7 @@ describe('§9.2 guest intent translates into a host-appended event', () => {
       },
       goProne: () => undefined,
       activateMovementEnhancement: () => undefined,
+      advancePhase: () => undefined,
       broadcastRejection: (rejection) => {
         hostChannel.broadcastRejection({ reason: rejection.reason });
       },

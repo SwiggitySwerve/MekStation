@@ -8,7 +8,8 @@ import {
 import {
   type Facing,
   type IHexCoordinate,
-  type MovementType,
+  Facing as FacingValue,
+  MovementType,
 } from '@/types/gameplay/HexGridInterfaces';
 import {
   isSupportedPhysicalAttackType,
@@ -101,17 +102,26 @@ export function asMovementPayload(
   if (!isRecord(payload)) return null;
   if (typeof payload.unitId !== 'string') return null;
   if (!isHexCoord(payload.from) || !isHexCoord(payload.to)) return null;
-  if (typeof payload.facing !== 'number') return null;
-  if (typeof payload.movementType !== 'string') return null;
-  if (typeof payload.mpUsed !== 'number') return null;
-  if (typeof payload.heatGenerated !== 'number') return null;
+  if (!isFacing(payload.facing)) return null;
+  if (!isMovementType(payload.movementType)) return null;
+  if (!isFiniteNumber(payload.mpUsed)) return null;
+  if (!isFiniteNumber(payload.heatGenerated)) return null;
   if (
     payload.path !== undefined &&
     !(Array.isArray(payload.path) && payload.path.every(isHexCoord))
   ) {
     return null;
   }
-  return payload as unknown as IDeclareMovementIntentPayload;
+  return {
+    unitId: payload.unitId,
+    from: payload.from,
+    to: payload.to,
+    facing: payload.facing,
+    movementType: payload.movementType,
+    mpUsed: payload.mpUsed,
+    heatGenerated: payload.heatGenerated,
+    ...(payload.path !== undefined ? { path: payload.path } : {}),
+  };
 }
 
 export function asStandPayload(payload: unknown): IStandIntentPayload | null {
@@ -174,12 +184,32 @@ export function asAttackPayload(
   if (typeof payload.targetId !== 'string') return null;
   if (
     !Array.isArray(payload.weapons) ||
-    !payload.weapons.every((value) => typeof value === 'string')
+    payload.weapons.length === 0 ||
+    !payload.weapons.every(
+      (value) => typeof value === 'string' && value.length > 0,
+    )
   ) {
     return null;
   }
-  if (typeof payload.toHitNumber !== 'number') return null;
-  return payload as unknown as IDeclareAttackIntentPayload;
+  if (!isFiniteNumber(payload.toHitNumber)) return null;
+  if (
+    payload.weaponAttacks !== undefined &&
+    !(
+      Array.isArray(payload.weaponAttacks) &&
+      payload.weaponAttacks.every(isWeaponAttackData)
+    )
+  ) {
+    return null;
+  }
+  return {
+    attackerId: payload.attackerId,
+    targetId: payload.targetId,
+    weapons: payload.weapons,
+    toHitNumber: payload.toHitNumber,
+    ...(payload.weaponAttacks !== undefined
+      ? { weaponAttacks: payload.weaponAttacks }
+      : {}),
+  };
 }
 
 export function asPhysicalPayload(
@@ -202,7 +232,7 @@ export function asEndPhasePayload(
   payload: unknown,
 ): IEndPhaseIntentPayload | null {
   if (!isRecord(payload)) return null;
-  if (typeof payload.phase !== 'string') return null;
+  if (!isGamePhase(payload.phase)) return null;
   return payload as unknown as IEndPhaseIntentPayload;
 }
 
@@ -234,10 +264,35 @@ export function asConcedePayload(
 }
 
 function isHexCoord(value: unknown): value is IHexCoordinate {
+  return isRecord(value) && isFiniteNumber(value.q) && isFiniteNumber(value.r);
+}
+
+function isFacing(value: unknown): value is Facing {
+  return (
+    typeof value === 'number' &&
+    Number.isInteger(value) &&
+    value >= FacingValue.North &&
+    value <= FacingValue.Northwest
+  );
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+function isMovementType(value: unknown): value is MovementType {
+  return Object.values(MovementType).includes(value as MovementType);
+}
+
+function isWeaponAttackData(value: unknown): value is IWeaponAttackData {
   return (
     isRecord(value) &&
-    typeof value.q === 'number' &&
-    typeof value.r === 'number'
+    typeof value.weaponId === 'string' &&
+    value.weaponId.length > 0 &&
+    typeof value.weaponName === 'string' &&
+    value.weaponName.length > 0 &&
+    isFiniteNumber(value.damage) &&
+    isFiniteNumber(value.heat)
   );
 }
 
@@ -256,6 +311,10 @@ function isWithdrawalEdge(value: unknown): value is WithdrawalEdge {
 
 function isGameSide(value: unknown): value is GameSide {
   return value === GameSide.Player || value === GameSide.Opponent;
+}
+
+function isGamePhase(value: unknown): value is GamePhase {
+  return Object.values(GamePhase).includes(value as GamePhase);
 }
 
 /**
