@@ -865,7 +865,7 @@ describe('runPSRPhase behavior', () => {
 
   it('applies consciousness SPAs after PSR fall pilot damage', () => {
     const unit = makeUnit({
-      abilities: ['iron-man'],
+      abilities: ['pain-resistance'],
       pendingPSRs: [createDamagePSR('player-1')],
     });
     const state = makeState(unit);
@@ -875,7 +875,7 @@ describe('runPSRPhase behavior', () => {
       state,
       events,
       gameId: state.gameId,
-      random: fixedRandom(0),
+      random: fixedRandom(0.2),
     });
 
     const pilotHit = events.find((e) => e.type === GameEventType.PilotHit);

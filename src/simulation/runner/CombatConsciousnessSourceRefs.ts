@@ -94,15 +94,19 @@ export const MEGAMEK_AMMO_EXPLOSION_PILOT_DAMAGE_SOURCE_REFS =
 
 export const MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS = [
   mekstationDeviationRef(
-    'MekStation getEffectiveWounds treats Pain Resistance as local to-hit wound-penalty relief.',
-    'src/utils/gameplay/spaModifiers/abilityModifiers.ts#L307-L324',
+    'MekStation getEffectiveWounds leaves pilot wounds unchanged so Pain Resistance no longer reduces ranged to-hit wound penalties.',
+    'src/utils/gameplay/spaModifiers/abilityModifiers.ts#L315-L323',
   ),
   mekstationDeviationRef(
-    'MekStation getConsciousnessCheckModifier applies Iron Man, Pain Resistance, and Toughness aliases as target-number reductions.',
-    'src/utils/gameplay/spaModifiers/catalog.ts#L410-L420',
+    'MekStation getConsciousnessCheckModifier applies source-backed Pain Resistance ids only; Iron Man, Iron Will, and Toughness do not lower consciousness target numbers.',
+    'src/utils/gameplay/spaModifiers/catalog.ts#L411-L418',
   ),
   mekstationDeviationRef(
-    'MekStation legacy aliases collapse toughness into pain_resistance and iron-will into iron_man.',
+    'MekStation resolveBattleMechAmmoExplosionPilotDamage reduces ammo-explosion pilot damage only for source-backed Pain Resistance or Iron Man ids.',
+    'src/utils/gameplay/ammoTracking/pilotDamage.ts#L15-L52',
+  ),
+  mekstationDeviationRef(
+    'MekStation legacy aliases still collapse toughness into pain_resistance and iron-will into iron_man for generic canonicalization, so source-backed resolvers must bypass those aliases.',
     'src/lib/spa/catalog/legacyAliases.ts#L19-L123',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];

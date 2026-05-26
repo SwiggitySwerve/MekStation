@@ -203,8 +203,8 @@ describe('combat modifiers accept canonical ids', () => {
     expect(getTacticalGeniusBonus(['tactical_genius'])).toBe(0);
   });
 
-  it('getIronManModifier fires on canonical id', () => {
-    expect(getIronManModifier(['iron_man'])).toBe(-2);
+  it('getIronManModifier does not expose consciousness relief on canonical id', () => {
+    expect(getIronManModifier(['iron_man'])).toBe(0);
   });
 
   it('getClusterHitterBonus fires on canonical id', () => {
@@ -224,10 +224,9 @@ describe('combat modifiers accept canonical ids', () => {
     expect(getObliqueAttackerBonus(['oblique_attacker'])).toBe(-1);
   });
 
-  it('getConsciousnessCheckModifier combines canonical ids', () => {
-    expect(getConsciousnessCheckModifier(['iron_man', 'pain_resistance'])).toBe(
-      -3,
-    );
+  it('getConsciousnessCheckModifier applies only source-backed Pain Resistance consciousness relief', () => {
+    expect(getConsciousnessCheckModifier(['pain_resistance'])).toBe(-1);
+    expect(getConsciousnessCheckModifier(['iron_man'])).toBe(0);
   });
 
   it('catalog.hasSPA resolves via canonical bridge', () => {

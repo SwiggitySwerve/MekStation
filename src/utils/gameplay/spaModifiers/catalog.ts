@@ -261,16 +261,17 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     id: 'iron-man',
     name: 'Iron Man',
     category: 'toughness',
-    pipelines: ['consciousness'],
-    combatEffect: '-2 consciousness check target number',
+    pipelines: ['special'],
+    combatEffect: 'Reduce ammunition-explosion pilot damage by 1',
     requiresDesignation: false,
   },
   'pain-resistance': {
     id: 'pain-resistance',
     name: 'Pain Resistance',
     category: 'toughness',
-    pipelines: ['to-hit', 'consciousness'],
-    combatEffect: 'Ignore first wound penalty',
+    pipelines: ['consciousness'],
+    combatEffect:
+      '-1 consciousness target number and -1 ammunition-explosion pilot damage',
     requiresDesignation: false,
   },
   edge: {
@@ -285,8 +286,8 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     id: 'toughness',
     name: 'Toughness',
     category: 'toughness',
-    pipelines: ['consciousness'],
-    combatEffect: '-1 consciousness check target number',
+    pipelines: ['special'],
+    combatEffect: 'Unsupported RPG Toughness numeric crew state',
     requiresDesignation: false,
   },
 
@@ -357,8 +358,8 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     id: 'iron-will',
     name: 'Iron Will',
     category: 'toughness',
-    pipelines: ['consciousness'],
-    combatEffect: '-2 consciousness check target number (alias for Iron Man)',
+    pipelines: ['special'],
+    combatEffect: 'Unsupported local legacy alias; not source-backed Iron Man',
     requiresDesignation: false,
   },
   'heavy-lifter': {
@@ -410,14 +411,10 @@ export function hasSPA(abilities: readonly string[], spaId: string): boolean {
 export function getConsciousnessCheckModifier(
   abilities: readonly string[],
 ): number {
-  let modifier = 0;
-  if (hasCanonicalSPA(abilities, 'iron_man')) {
-    modifier -= 2;
-  }
-  if (hasCanonicalSPA(abilities, 'pain_resistance')) {
-    modifier -= 1;
-  }
-  return modifier;
+  return abilities.includes('pain_resistance') ||
+    abilities.includes('pain-resistance')
+    ? -1
+    : 0;
 }
 
 export function getObliqueAttackerBonus(abilities: readonly string[]): number {

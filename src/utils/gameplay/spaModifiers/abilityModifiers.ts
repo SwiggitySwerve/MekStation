@@ -312,24 +312,21 @@ export function getTacticalGeniusBonus(_abilities: readonly string[]): number {
 }
 
 /**
- * Pain Resistance: ignore first wound penalty.
- * Returns the effective wound count for to-hit penalty calculation.
+ * MegaMek uses Pain Resistance for consciousness/wake-up rolls and
+ * ammunition-explosion pilot damage, not ranged to-hit wound relief.
  */
 export function getEffectiveWounds(
-  abilities: readonly string[],
+  _abilities: readonly string[],
   pilotWounds: number,
 ): number {
-  if (hasSPA(abilities, 'pain_resistance') && pilotWounds > 0) {
-    return pilotWounds - 1;
-  }
   return pilotWounds;
 }
 
 /**
- * Iron Man: -2 to consciousness check target numbers.
+ * MegaMek Iron Man reduces ammunition-explosion pilot damage only.
  */
-export function getIronManModifier(abilities: readonly string[]): number {
-  return hasSPA(abilities, 'iron_man') ? -2 : 0;
+export function getIronManModifier(_abilities: readonly string[]): number {
+  return 0;
 }
 
 /**

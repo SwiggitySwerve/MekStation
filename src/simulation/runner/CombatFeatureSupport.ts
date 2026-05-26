@@ -13,6 +13,7 @@ import type {
 } from './CombatFeatureSourceReference';
 
 import {
+  MEGAMEK_AMMO_EXPLOSION_PILOT_DAMAGE_SOURCE_REFS,
   MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
   MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
 } from './CombatConsciousnessSourceRefs';
@@ -599,19 +600,18 @@ export const SPA_COMBAT_SUPPORT = {
     'Local Natural Grace fall PSR modifier is not wired, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
-  'iron-man': helperOnly(
+  'iron-man': integrated(
     'iron-man',
-    'resolveBattleMechAmmoExplosionPilotDamage reduces ammunition-explosion pilot damage; getConsciousnessCheckModifier plus applyPilotDamage, runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase also lower consciousness TNs through a local helper path',
-    'ammunition-explosion reduction is wired, but MegaMek source uses Iron Man for that reduction rather than generic consciousness target-number relief; split the local consciousness helper before claiming integrated Iron Man SPA parity',
+    'resolveBattleMechAmmoExplosionPilotDamage reduces ammunition-explosion pilot damage for source-backed Iron Man ids, while consciousness checks no longer apply Iron Man or Iron Will as target-number relief',
     [
-      ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
+      ...MEGAMEK_AMMO_EXPLOSION_PILOT_DAMAGE_SOURCE_REFS,
       ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
     ],
   ),
   'pain-resistance': helperOnly(
     'pain-resistance',
-    'resolveBattleMechAmmoExplosionPilotDamage reduces ammunition-explosion pilot damage; getEffectiveWounds plus calculateToHit apply local wound-penalty relief, and getConsciousnessCheckModifier plus pilot damage, fall, and heat consciousness checks apply local target-number relief',
-    'MegaMek source also uses Pain Resistance for wake-up rolls; MekStation still has local to-hit wound relief and consciousness target-number behavior that differ from the source-backed SPA boundary',
+    'resolveBattleMechAmmoExplosionPilotDamage reduces ammunition-explosion pilot damage, getConsciousnessCheckModifier applies source-backed Pain Resistance target-number relief, and ranged to-hit wound penalties remain unchanged',
+    'MegaMek source also uses Pain Resistance for wake-up rolls; MekStation has not modeled wake-up roll application yet',
     [
       ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
       ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
@@ -626,10 +626,9 @@ export const SPA_COMBAT_SUPPORT = {
       ...MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
     ],
   ),
-  toughness: helperOnly(
+  toughness: unsupported(
     'toughness',
-    'getConsciousnessCheckModifier plus applyPilotDamage, runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase lower consciousness TNs through the local toughness-to-pain-resistance alias',
-    'MegaMek RPG Toughness is a separate game option and numeric crew toughness value, not the Pain Resistance SPA alias currently used by MekStation',
+    'MegaMek RPG Toughness is a separate game option and numeric crew toughness value; MekStation has no numeric crew toughness state or RPG Toughness option resolver wired',
     [
       ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
       ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
@@ -671,10 +670,9 @@ export const SPA_COMBAT_SUPPORT = {
     'Local Multi-Target is not the MegaMek source-backed SPA; source-backed secondary-target penalty reduction is Multi-Tasker/multi_tasker',
     MEGAMEK_325B_MULTI_TASKER_SOURCE_REFS,
   ),
-  'iron-will': helperOnly(
+  'iron-will': unsupported(
     'iron-will',
-    'getConsciousnessCheckModifier plus applyPilotDamage, runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase lower consciousness TNs through the local Iron Man alias',
-    'No source-backed MegaMek Iron Will id or generic consciousness target-number relief path was identified; MekStation aliases Iron Will to Iron Man',
+    'No source-backed MegaMek Iron Will id or generic consciousness target-number relief path was identified, and source-backed Iron Man ammo-explosion reduction no longer accepts the local Iron Will alias',
     [
       ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
       ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,

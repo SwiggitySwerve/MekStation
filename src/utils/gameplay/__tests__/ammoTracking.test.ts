@@ -887,6 +887,15 @@ describe('resolveBattleMechAmmoExplosionPilotDamage', () => {
     ).toBe(1);
   });
 
+  it('does not apply the local Iron Will alias to source-backed Iron Man ammo-explosion relief', () => {
+    expect(
+      resolveBattleMechAmmoExplosionPilotDamage({
+        totalDamage: 100,
+        pilotAbilities: ['iron-will'],
+      }),
+    ).toBe(2);
+  });
+
   it('suppresses ammo-explosion pilot damage with artificial pain shunt', () => {
     expect(
       resolveBattleMechAmmoExplosionPilotDamage({

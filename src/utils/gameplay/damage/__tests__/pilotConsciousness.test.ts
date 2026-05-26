@@ -34,9 +34,18 @@ function scriptedD6(values: readonly number[]) {
 }
 
 describe('pilot consciousness SPA modifiers', () => {
-  it('lowers consciousness target numbers when the pilot has toughness SPAs', () => {
+  it('lowers consciousness target numbers only for source-backed Pain Resistance', () => {
     const withoutAbility = applyPilotDamage(
       BASE_STATE,
+      1,
+      'head_hit',
+      scriptedD6([2, 2]),
+    );
+    const withPainResistance = applyPilotDamage(
+      {
+        ...BASE_STATE,
+        pilotAbilities: ['pain-resistance'],
+      },
       1,
       'head_hit',
       scriptedD6([2, 2]),
@@ -56,11 +65,16 @@ describe('pilot consciousness SPA modifiers', () => {
       consciousnessTarget: 5,
       conscious: false,
     });
-    expect(withIronMan.result).toMatchObject({
+    expect(withPainResistance.result).toMatchObject({
       totalWounds: 2,
-      consciousnessTarget: 3,
+      consciousnessTarget: 4,
       conscious: true,
     });
-    expect(withIronMan.state.pilotConscious).toBe(true);
+    expect(withPainResistance.state.pilotConscious).toBe(true);
+    expect(withIronMan.result).toMatchObject({
+      totalWounds: 2,
+      consciousnessTarget: 5,
+      conscious: false,
+    });
   });
 });

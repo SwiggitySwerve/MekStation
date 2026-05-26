@@ -1412,7 +1412,7 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
       GameSide.Player,
       { q: 0, r: 0 },
       {
-        abilities: ['iron-man'],
+        abilities: ['pain-resistance'],
         heat: 15,
         heatSinks: 0,
         componentDamage: { ...DEFAULT_COMPONENT_DAMAGE, lifeSupport: 1 },
@@ -1425,7 +1425,7 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
       state,
       events,
       gameId: state.gameId,
-      random: { next: () => 0 } as SeededRandom,
+      random: { next: () => 0.2 } as SeededRandom,
     });
 
     const pilotHit = events.find((e) => e.type === GameEventType.PilotHit);

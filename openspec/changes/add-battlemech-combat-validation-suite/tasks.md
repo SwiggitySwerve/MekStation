@@ -376,3 +376,4 @@
 - [x] 4.3.122 Promote optional TacOps sprint/evade absent-action rows to row-source authority so missing movement action surfaces remain explicit completion blockers instead of inheriting broad movement requirement authority.
 - [x] 4.3.123 Export a sorted machine-readable unresolved catalog inventory so helper-only and unsupported BattleMech rows can be queried by review and PR gates instead of living only inside contract-test helpers.
 - [x] 4.3.124 Wire the unresolved inventory into `validate:combat:gaps` and `validate:combat` so PR-style validation exercises the machine-readable gap export.
+- [x] 4.3.125 Align Iron Man, Pain Resistance, Toughness, and Iron Will support with MegaMek source truth by keeping Iron Man ammo-explosion-only, removing Pain Resistance ranged wound relief, and marking unsupported legacy aliases as no-op gaps.

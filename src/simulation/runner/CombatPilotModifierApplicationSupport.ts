@@ -158,10 +158,9 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
       ...MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS,
     ],
   ),
-  'legacy-pain-resistance-to-hit-application': helperOnly(
+  'legacy-pain-resistance-to-hit-application': unsupported(
     'legacy-pain-resistance-to-hit-application',
-    'calculateAttackerSPAModifiers calls getEffectiveWounds so local Pain Resistance reduces the pilot wound to-hit penalty',
-    'MegaMek source uses Pain Resistance for consciousness/wake-up rolls and ammunition-explosion pilot-damage reduction, not ranged to-hit wound-penalty relief',
+    'MegaMek source uses Pain Resistance for consciousness/wake-up rolls and ammunition-explosion pilot-damage reduction, not ranged to-hit wound-penalty relief; MekStation no longer applies Pain Resistance to ranged wound penalties',
     [
       ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
       ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
@@ -270,8 +269,8 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'consciousness-application': helperOnly(
     'consciousness-application',
-    'applyPilotDamage consumes pilotAbilities for head-hit consciousness checks; runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase consume unit abilities for fall and heat pilot-damage consciousness checks',
-    'MegaMek separates RPG Toughness numeric crew target relief, Pain Resistance +1 consciousness/wake-up rolls and ammo-explosion reduction, and Iron Man ammo-explosion reduction; local aliases and target-number reductions remain helper-only until those source-specific paths are represented',
+    'applyPilotDamage consumes source-backed Pain Resistance ids for head-hit consciousness checks, and runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase consume unit abilities for fall and heat pilot-damage consciousness checks',
+    'Pain Resistance wake-up rolls and RPG Toughness numeric crew toughness are not modeled; Iron Man and Iron Will no longer provide consciousness target-number relief',
     [
       ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
       ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,

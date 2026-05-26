@@ -12,6 +12,17 @@ export interface IResolveBattleMechAmmoExplosionPilotDamageOptions {
   readonly advancedCasePilotDamage?: boolean;
 }
 
+function hasSourceBackedIronMan(abilities: readonly string[]): boolean {
+  return abilities.includes('iron_man') || abilities.includes('iron-man');
+}
+
+function hasSourceBackedPainResistance(abilities: readonly string[]): boolean {
+  return (
+    abilities.includes('pain_resistance') ||
+    abilities.includes('pain-resistance')
+  );
+}
+
 export function resolveBattleMechAmmoExplosionPilotDamage(
   options: IResolveBattleMechAmmoExplosionPilotDamageOptions,
 ): number {
@@ -34,8 +45,8 @@ export function resolveBattleMechAmmoExplosionPilotDamage(
   }
 
   if (
-    hasSPA(pilotAbilities, 'pain_resistance') ||
-    hasSPA(pilotAbilities, 'iron_man')
+    hasSourceBackedPainResistance(pilotAbilities) ||
+    hasSourceBackedIronMan(pilotAbilities)
   ) {
     damage -= 1;
   }

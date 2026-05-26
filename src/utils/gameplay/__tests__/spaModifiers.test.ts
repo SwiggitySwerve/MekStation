@@ -441,12 +441,12 @@ describe('spaModifiers', () => {
   });
 
   describe('Pain Resistance', () => {
-    it('ignores first wound', () => {
-      expect(getEffectiveWounds(['pain-resistance'], 1)).toBe(0);
+    it('does not alter ranged to-hit wound penalties', () => {
+      expect(getEffectiveWounds(['pain-resistance'], 1)).toBe(1);
     });
 
-    it('reduces wound count by 1 for multiple wounds', () => {
-      expect(getEffectiveWounds(['pain-resistance'], 3)).toBe(2);
+    it('returns raw wound count for multiple wounds', () => {
+      expect(getEffectiveWounds(['pain-resistance'], 3)).toBe(3);
     });
 
     it('does not affect zero wounds', () => {
@@ -459,8 +459,8 @@ describe('spaModifiers', () => {
   });
 
   describe('Iron Man', () => {
-    it('returns -2 consciousness modifier', () => {
-      expect(getIronManModifier(['iron-man'])).toBe(-2);
+    it('does not return a consciousness modifier', () => {
+      expect(getIronManModifier(['iron-man'])).toBe(0);
     });
 
     it('returns 0 without the ability', () => {
@@ -633,20 +633,20 @@ describe('spaModifiers', () => {
   });
 
   describe('Consciousness check modifiers', () => {
-    it('iron-man gives -2', () => {
-      expect(getConsciousnessCheckModifier(['iron-man'])).toBe(-2);
+    it('pain-resistance gives -1', () => {
+      expect(getConsciousnessCheckModifier(['pain-resistance'])).toBe(-1);
     });
 
-    it('iron-will gives -2 (alias)', () => {
-      expect(getConsciousnessCheckModifier(['iron-will'])).toBe(-2);
+    it('iron-man gives no generic consciousness relief', () => {
+      expect(getConsciousnessCheckModifier(['iron-man'])).toBe(0);
     });
 
-    it('toughness gives -1', () => {
-      expect(getConsciousnessCheckModifier(['toughness'])).toBe(-1);
+    it('iron-will gives no generic consciousness relief', () => {
+      expect(getConsciousnessCheckModifier(['iron-will'])).toBe(0);
     });
 
-    it('combines iron-man and toughness to -3', () => {
-      expect(getConsciousnessCheckModifier(['iron-man', 'toughness'])).toBe(-3);
+    it('toughness gives no SPA consciousness relief without numeric RPG Toughness state', () => {
+      expect(getConsciousnessCheckModifier(['toughness'])).toBe(0);
     });
   });
 
@@ -1027,19 +1027,6 @@ describe('spaModifiers', () => {
         range: 1,
         expectedFinalToHit: 5,
       },
-      {
-        id: 'pain-resistance',
-        modifierName: 'Pilot Wounds',
-        attacker: {
-          ...baseAttacker,
-          abilities: ['pain-resistance'],
-          pilotWounds: 2,
-        },
-        target: baseTarget,
-        rangeBracket: RangeBracket.Short,
-        range: 1,
-        expectedFinalToHit: 5,
-      },
     ];
 
     it.each(integratedToHitSPACases)(
@@ -1087,7 +1074,7 @@ describe('spaModifiers', () => {
       expect(result.finalToHit).toBe(2); // 4 (gunnery) + 0 (range) - 2 (weapon specialist)
     });
 
-    it('applies pain resistance to reduce wound penalty', () => {
+    it('does not apply pain resistance to reduce wound penalty', () => {
       const attacker: IAttackerState = {
         gunnery: 4,
         movementType: MovementType.Stationary,
@@ -1104,8 +1091,8 @@ describe('spaModifiers', () => {
         partialCover: false,
       };
       const result = calculateToHit(attacker, target, RangeBracket.Short, 1);
-      // 4 (gunnery) + 1 (2 wounds - 1 for pain resistance = 1 wound) = 5
-      expect(result.finalToHit).toBe(5);
+      // 4 (gunnery) + 2 wounds. Pain Resistance is consciousness/ammo-explosion only.
+      expect(result.finalToHit).toBe(6);
     });
 
     it('applies blood stalker -1 vs designated target', () => {

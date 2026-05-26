@@ -247,6 +247,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       [
         'initiative-command-console-hydration',
         'initiative-hq-equipment-hydration',
+        'legacy-pain-resistance-to-hit-application',
         'low-arms-application',
         'movement-application',
         'multi-target-penalty-application',
@@ -261,7 +262,6 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'critical-prevention-application',
         'consciousness-application',
         'legacy-defensive-quirk-to-hit-application',
-        'legacy-pain-resistance-to-hit-application',
         'heat-application',
         'psr-spa-application',
         'sandblaster-application',
@@ -311,7 +311,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'legacy-pain-resistance-to-hit-application'
       ],
-    ).toMatchObject({ level: 'helper-only' });
+    ).toMatchObject({ level: 'unsupported' });
   });
 
   it('keeps source-backed Multi-Tasker distinct from local Multi-Target', () => {
@@ -1078,7 +1078,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     });
   });
 
-  it('keeps toughness and consciousness SPA boundaries source-backed but helper-only', () => {
+  it('keeps toughness and consciousness SPA boundaries source-backed and alias-safe', () => {
+    const ironManRefs = SPA_COMBAT_SUPPORT['iron-man'].sourceRefs ?? [];
     const painResistanceRefs =
       SPA_COMBAT_SUPPORT['pain-resistance'].sourceRefs ?? [];
     const consciousnessRefs =
@@ -1090,21 +1091,40 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ].sourceRefs ?? [];
 
     expect(SPA_COMBAT_SUPPORT['iron-man']).toMatchObject({
-      level: 'helper-only',
-      gap: expect.stringContaining('ammunition'),
+      level: 'integrated',
+      evidence: expect.stringContaining('ammunition-explosion'),
     });
     expect(SPA_COMBAT_SUPPORT['pain-resistance']).toMatchObject({
       level: 'helper-only',
       gap: expect.stringContaining('wake-up'),
     });
     expect(SPA_COMBAT_SUPPORT.toughness).toMatchObject({
-      level: 'helper-only',
+      level: 'unsupported',
       gap: expect.stringContaining('numeric crew toughness'),
     });
     expect(SPA_COMBAT_SUPPORT['iron-will']).toMatchObject({
-      level: 'helper-only',
+      level: 'unsupported',
       gap: expect.stringContaining('No source-backed MegaMek Iron Will'),
     });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'legacy-pain-resistance-to-hit-application'
+      ],
+    ).toMatchObject({
+      level: 'unsupported',
+      gap: expect.stringContaining('not ranged to-hit wound-penalty relief'),
+    });
+    expect(ironManRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek TWGameManager reduces ammunition-explosion pilot damage by 1 for Pain Resistance or Iron Man.',
+      'MegaMek PilotOptions registers Iron Man and Pain Resistance as distinct misc abilities.',
+      'MegaMek OptionsConstants defines MISC_IRON_MAN and MISC_PAIN_RESISTANCE as separate ability ids.',
+      'MegaMek option text defines Pain Resistance as +1 consciousness rolls plus ammunition-explosion damage reduction.',
+      'MegaMek option text defines Iron Man as ammunition-explosion pilot-hit reduction only.',
+      'MekStation getEffectiveWounds leaves pilot wounds unchanged so Pain Resistance no longer reduces ranged to-hit wound penalties.',
+      'MekStation getConsciousnessCheckModifier applies source-backed Pain Resistance ids only; Iron Man, Iron Will, and Toughness do not lower consciousness target numbers.',
+      'MekStation resolveBattleMechAmmoExplosionPilotDamage reduces ammo-explosion pilot damage only for source-backed Pain Resistance or Iron Man ids.',
+      'MekStation legacy aliases still collapse toughness into pain_resistance and iron-will into iron_man for generic canonicalization, so source-backed resolvers must bypass those aliases.',
+    ]);
     expect(painResistanceRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek TWGameManager lowers consciousness target numbers by numeric crew toughness only when the RPG Toughness game option is enabled, then adds +1 to Pain Resistance consciousness rolls.',
       'MegaMek TWGameManager adds +1 to Pain Resistance wake-up rolls.',
@@ -1119,9 +1139,21 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'MegaMek option text defines Pain Resistance as +1 consciousness rolls plus ammunition-explosion damage reduction.',
       'MegaMek option text defines Iron Man as ammunition-explosion pilot-hit reduction only.',
       'MegaMek option text defines RPG Toughness as a numeric pilot toughness bonus for consciousness check targets.',
-      'MekStation getEffectiveWounds treats Pain Resistance as local to-hit wound-penalty relief.',
-      'MekStation getConsciousnessCheckModifier applies Iron Man, Pain Resistance, and Toughness aliases as target-number reductions.',
-      'MekStation legacy aliases collapse toughness into pain_resistance and iron-will into iron_man.',
+      'MekStation getEffectiveWounds leaves pilot wounds unchanged so Pain Resistance no longer reduces ranged to-hit wound penalties.',
+      'MekStation getConsciousnessCheckModifier applies source-backed Pain Resistance ids only; Iron Man, Iron Will, and Toughness do not lower consciousness target numbers.',
+      'MekStation resolveBattleMechAmmoExplosionPilotDamage reduces ammo-explosion pilot damage only for source-backed Pain Resistance or Iron Man ids.',
+      'MekStation legacy aliases still collapse toughness into pain_resistance and iron-will into iron_man for generic canonicalization, so source-backed resolvers must bypass those aliases.',
+    ]);
+    expect(ironManRefs.map(({ kind }) => kind)).toEqual([
+      'megamek-source',
+      'megamek-source',
+      'megamek-source',
+      'megamek-source',
+      'megamek-source',
+      'mekstation-deviation',
+      'mekstation-deviation',
+      'mekstation-deviation',
+      'mekstation-deviation',
     ]);
     expect(painResistanceRefs.map(({ kind }) => kind)).toEqual([
       'megamek-source',
@@ -1140,10 +1172,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'mekstation-deviation',
       'mekstation-deviation',
       'mekstation-deviation',
+      'mekstation-deviation',
     ]);
-    expect(SPA_COMBAT_SUPPORT['iron-man'].sourceRefs).toEqual(
-      painResistanceRefs,
-    );
     expect(SPA_COMBAT_SUPPORT.toughness.sourceRefs).toEqual(painResistanceRefs);
     expect(SPA_COMBAT_SUPPORT['iron-will'].sourceRefs).toEqual(
       painResistanceRefs,

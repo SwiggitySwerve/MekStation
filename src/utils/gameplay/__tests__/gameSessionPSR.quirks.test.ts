@@ -117,13 +117,13 @@ describe('interactive PSR quirk application', () => {
       startGame(
         createGameSession(
           config(),
-          units({ abilities: ['iron-man'], unitQuirks: [] }),
+          units({ abilities: ['pain-resistance'], unitQuirks: [] }),
         ),
         GameSide.Player,
       ),
     );
 
-    const next = resolvePendingPSRs(session, scriptedD6([1, 1, 1, 1, 1, 1, 1]));
+    const next = resolvePendingPSRs(session, scriptedD6([1, 1, 1, 1, 1, 2, 1]));
 
     const pilotHit = next.events.find(
       (event) => event.type === GameEventType.PilotHit,
