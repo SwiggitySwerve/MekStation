@@ -174,13 +174,13 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 211,
+      total: 206,
       byLevel: {
-        'helper-only': 155,
+        'helper-only': 150,
         unsupported: 56,
       },
       bySection: {
-        actions: 31,
+        actions: 26,
         damageAndDeath: 2,
         featureSupport: 115,
         lifecycleAndPsr: 5,
@@ -210,7 +210,7 @@ describe('BattleMech combat validation catalog index', () => {
     ).toEqual([]);
   });
 
-  it('keeps non-BattleMech event scope rows auditable without making them BattleMech blockers', () => {
+  it('keeps non-BattleMech scope rows auditable without making them BattleMech blockers', () => {
     const outOfScopeRows = getCombatValidationOutOfScopeRows();
     const outOfScopeRefs = getCombatValidationOutOfScopeRefs();
 
@@ -221,9 +221,25 @@ describe('BattleMech combat validation catalog index', () => {
         'eventStream.nonBattleMechEventScope.motive_damaged',
         'eventStream.nonBattleMechEventScope.swarm_damage',
         'eventStream.nonBattleMechEventScope.vtol_crash_check',
+        'actions.physicalActionClassScope.airmek-ram',
+        'actions.physicalActionClassScope.battle-armor-vibro-claw',
+        'actions.physicalActionClassScope.lay-explosives',
+        'actions.physicalActionClassScope.protomek-physical',
+        'actions.physicalActionClassScope.ram',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(15);
+    expect(outOfScopeRows).toHaveLength(20);
+    expect(
+      outOfScopeRefs.filter((ref) =>
+        ref.startsWith('actions.physicalActionClassScope.'),
+      ),
+    ).toEqual([
+      'actions.physicalActionClassScope.airmek-ram',
+      'actions.physicalActionClassScope.battle-armor-vibro-claw',
+      'actions.physicalActionClassScope.lay-explosives',
+      'actions.physicalActionClassScope.protomek-physical',
+      'actions.physicalActionClassScope.ram',
+    ]);
     expect(
       outOfScopeRows.filter(
         (row) =>

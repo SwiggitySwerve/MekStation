@@ -210,7 +210,7 @@ function outOfScope(
     sourceClass,
     sourcePath: `E:/Projects/megamek/megamek/src/megamek/common/actions/${sourceClass}.java`,
     battleMechScope,
-    level: 'helper-only',
+    level: 'out-of-scope',
     evidence:
       'MegaMek source class exists and is intentionally split out of the BattleMech combat validation matrix',
     gap,
