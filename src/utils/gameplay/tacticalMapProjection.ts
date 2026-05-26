@@ -122,6 +122,10 @@ const COMBAT_RULE_REFERENCES = [
   'MegaMek LosEffects.java:797-911 LOS blocking and terrain modifiers',
 ] as const;
 
+const REPRESENTED_WATER_ENVIRONMENT_RULE_REFERENCES = [
+  'MekStation represented water attack helper: src/utils/gameplay/underwaterAttacks.ts; MegaMek/official source pin pending',
+] as const;
+
 const LOS_BLOCKER_RULE_REFERENCES = [
   'MegaMek LosEffects.java:797-911 LOS blocking and terrain modifiers',
   'MegaMek LosEffects.java:1322-1483 elevation/building blockers and cover',
@@ -497,6 +501,16 @@ function collectProjectionSourceReferences({
       detail: formatCombatSourceDetail(combat),
       ruleReferences: COMBAT_RULE_REFERENCES,
     });
+
+    if (combatHasEnvironmentRestrictions(combat)) {
+      references.push({
+        channel: 'combat',
+        kind: 'mekstation',
+        label: 'MekStation represented water weapon environment projection',
+        detail: formatCombatEnvironmentSourceDetail(combat),
+        ruleReferences: REPRESENTED_WATER_ENVIRONMENT_RULE_REFERENCES,
+      });
+    }
   }
 
   if (combatLosBlockerFor.length > 0) {
@@ -611,6 +625,21 @@ function formatStandUpMovementSourceDetail(
 function formatCombatSourceDetail(combat: ICombatRangeHex): string {
   const targetState = combat.hasTarget ? 'target' : 'range envelope';
   return `${targetState} ${combat.rangeBracket} ${combat.distance} hexes LOS ${combat.losState}`;
+}
+
+function combatHasEnvironmentRestrictions(combat: ICombatRangeHex): boolean {
+  return combat.weaponRangeOptions.some((option) => !option.environmentLegal);
+}
+
+function formatCombatEnvironmentSourceDetail(combat: ICombatRangeHex): string {
+  const blockedOptions = combat.weaponRangeOptions
+    .filter((option) => !option.environmentLegal)
+    .map((option) => {
+      const reason = option.blockedReason ?? 'environment blocked';
+      return `${option.weaponId}: ${reason}`;
+    });
+
+  return `environment restrictions ${blockedOptions.join('; ')}`;
 }
 
 function formatLosBlockerSourceDetail(

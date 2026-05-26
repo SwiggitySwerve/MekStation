@@ -1609,12 +1609,14 @@ describe('HexMapDisplay combat projection', () => {
     expect(environmentContext).toHaveAttribute(
       'data-combat-environment-source-refs',
       expect.stringContaining(
-        'combat:megamek:MegaMek combat target projection',
+        'combat:mekstation:MekStation represented water weapon environment projection',
       ),
     );
     expect(environmentContext).toHaveAttribute(
       'data-combat-environment-rule-refs',
-      expect.stringContaining('combat:megamek:MegaMek Compute.java'),
+      expect.stringContaining(
+        'combat:mekstation:MekStation represented water attack helper',
+      ),
     );
   });
 
@@ -1720,12 +1722,14 @@ describe('HexMapDisplay combat projection', () => {
     expect(environmentContext).toHaveAttribute(
       'data-combat-environment-source-refs',
       expect.stringContaining(
-        'combat:megamek:MegaMek combat target projection',
+        'combat:mekstation:MekStation represented water weapon environment projection',
       ),
     );
     expect(environmentContext).toHaveAttribute(
       'data-combat-environment-rule-refs',
-      expect.stringContaining('combat:megamek:MegaMek Compute.java'),
+      expect.stringContaining(
+        'combat:mekstation:MekStation represented water attack helper',
+      ),
     );
     const torpedoReason = screen.getByTestId(
       'hex-tactical-tooltip-combat-reason',

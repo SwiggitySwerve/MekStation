@@ -13,7 +13,7 @@ shared per-hex tactical projection explanation.
   environment rules
 - **WHEN** the player hovers that combat hex and the environment context row is
   shown
-- **THEN** the environment context row SHALL expose combat-channel source
+- **THEN** the environment context row SHALL expose environment-specific source
   references and rule references from the shared per-hex tactical projection
 - **AND** the row SHALL preserve blocked weapon ids and blocked environment
   reasons from `ICombatRangeHex.weaponRangeOptions`

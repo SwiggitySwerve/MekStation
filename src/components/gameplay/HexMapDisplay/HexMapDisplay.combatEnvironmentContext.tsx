@@ -37,10 +37,17 @@ export function CombatEnvironmentContextRows({
 
   const weaponIds = blockedOptions.map((option) => option.weaponId);
   const reasons = blockedOptions.map(environmentBlockedReason);
-  const combatSourceReferences =
+  const projectedCombatSourceReferences =
     projection?.sourceReferences.filter(
       (source) => source.channel === 'combat',
     ) ?? [];
+  const environmentSourceReferences = projectedCombatSourceReferences.filter(
+    (source) => source.label.toLowerCase().includes('environment'),
+  );
+  const combatSourceReferences =
+    environmentSourceReferences.length > 0
+      ? environmentSourceReferences
+      : projectedCombatSourceReferences;
   const combatSourceRefsAttribute =
     formatTacticalProjectionSourceReferences(combatSourceReferences) ||
     undefined;

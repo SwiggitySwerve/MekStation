@@ -1524,14 +1524,15 @@ visible C3 range-benefit explanation inspectable without relying on aggregate
 combat hex metadata.
 
 2026-05-25 combat environment context rule-reference pin: Combat environment
-context rows in combat and combined tactical hovers now expose combat-channel
-source references and MegaMek rule references from the shared per-hex tactical
+context rows in combat and combined tactical hovers now expose an
+environment-specific source reference from the shared per-hex tactical
 projection. A browser harness scenario now covers underwater environment
 restrictions with a non-torpedo weapon blocked and a torpedo weapon legal. This
 does not change underwater legality, torpedo path legality, target legality,
 attack validation, or attack resolution; it makes the visible environment
 restriction explanation inspectable without relying on aggregate combat hex
-metadata.
+metadata. The water/torpedo helper remains marked as a MekStation represented
+rule surface until a narrower MegaMek/official source pin is added.
 
 2026-05-25 combat visibility context rule-reference pin: Combat visibility
 context rows in combat and combined tactical hovers now expose combat-channel

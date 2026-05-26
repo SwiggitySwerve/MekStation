@@ -193,10 +193,20 @@ const nextConfig: NextConfig = {
             path: join(process.cwd(), 'src/utils/construction/emptyModule.ts'),
           }
         : {};
+      const e2eHarnessAliases: Record<string, string> =
+        !dev && process.env.NEXT_PUBLIC_E2E_MODE !== 'true'
+          ? {
+              '@/testing/TacticalMapE2EHarness': join(
+                process.cwd(),
+                'src/testing/emptyTacticalMapE2EHarness.tsx',
+              ),
+            }
+          : {};
 
       config.resolve.alias = {
         ...(config.resolve.alias as Record<string, string | false | string[]>),
         ...browserNodeAliases,
+        ...e2eHarnessAliases,
         '@/services': './src/services',
         '@/utils': './src/utils',
         '@/components': './src/components',

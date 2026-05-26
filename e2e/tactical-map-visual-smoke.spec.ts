@@ -2978,7 +2978,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
     await expect(environmentContext).toHaveAttribute(
       'data-combat-environment-rule-refs',
-      /combat:megamek:MegaMek Compute\.java:1313-1517 weapon range\/to-hit modifiers/,
+      /combat:mekstation:MekStation represented water attack helper/,
     );
   });
 
