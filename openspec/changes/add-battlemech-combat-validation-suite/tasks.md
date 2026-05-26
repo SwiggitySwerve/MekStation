@@ -398,3 +398,4 @@
 - [x] 4.3.134 Cross-check MegaMek `PlasmaCannonHandler` `PLAYTEST_3` armor branch before promoting optional reflective full-heat and heat-dissipating zero-heat plasma behavior while keeping external-heat timing/caps and non-Mek paths visible.
 - [x] 4.3.135 Promote `InitiativeOrderSet` event-stream support by emitting a replayable order event after initiative rolls and applying it in the reducer.
 - [x] 4.3.136 Promote simultaneous `AttacksRevealed` event-stream support by emitting a public reveal boundary after all active weapon-phase units lock attacks, replaying locked units into the `Revealed` state, and keeping phase-advance eligibility intact.
+- [x] 4.3.137 Split non-BattleMech event-scope rows into an explicit `out-of-scope` audit inventory so vehicle, VTOL, battle armor, swarm, leg-attack, mimetic, and stealth events stay source-pinned without inflating BattleMech unresolved gap counts.
