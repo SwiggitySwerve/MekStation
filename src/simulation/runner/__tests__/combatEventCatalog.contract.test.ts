@@ -134,6 +134,12 @@ describe('BattleMech combat event support catalog', () => {
         'src/utils/gameplay/gameState/gameStateReducer.ts#L248-L253',
       ]),
     );
+    expect(urlsFor(GameEventType.InitiativeOrderSet)).toEqual(
+      expect.arrayContaining([
+        'src/utils/gameplay/gameEvents/initiative.ts#L11-L85',
+        'src/utils/gameplay/gameSessionCore.ts#L258-L380',
+      ]),
+    );
   });
 
   it('keeps non-BattleMech event families split out of the BattleMech validation lane', () => {
@@ -208,9 +214,7 @@ describe('BattleMech combat event support catalog', () => {
   it('documents remaining BattleMech event-stream gaps instead of treating enum visibility as coverage', () => {
     expect(
       supportIdsByLevel(BATTLEMECH_COMBAT_EVENT_SUPPORT, 'unsupported'),
-    ).toEqual(
-      [GameEventType.AttacksRevealed, GameEventType.InitiativeOrderSet].sort(),
-    );
+    ).toEqual([GameEventType.AttacksRevealed]);
     expect(
       supportIdsByLevel(BATTLEMECH_COMBAT_EVENT_SUPPORT, 'helper-only'),
     ).toEqual([]);

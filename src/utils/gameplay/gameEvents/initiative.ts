@@ -3,6 +3,7 @@ import {
   GamePhase,
   GameSide,
   IGameEvent,
+  IInitiativeOrderSetPayload,
   IInitiativeRolledPayload,
 } from '@/types/gameplay';
 
@@ -55,6 +56,33 @@ export function createInitiativeRolledEvent(
       gameId,
       sequence,
       GameEventType.InitiativeRolled,
+      turn,
+      GamePhase.Initiative,
+    ),
+    payload,
+  };
+}
+
+export function createInitiativeOrderSetEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  winner: GameSide,
+  firstMover: GameSide,
+): IGameEvent {
+  const secondMover =
+    firstMover === GameSide.Player ? GameSide.Opponent : GameSide.Player;
+  const payload: IInitiativeOrderSetPayload = {
+    winner,
+    firstMover,
+    secondMover,
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.InitiativeOrderSet,
       turn,
       GamePhase.Initiative,
     ),

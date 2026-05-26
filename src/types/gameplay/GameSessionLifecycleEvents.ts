@@ -170,3 +170,17 @@ export interface IInitiativeRolledPayload {
    */
   readonly rolls?: readonly number[];
 }
+
+/**
+ * Explicit initiative order selected for the turn. `InitiativeRolled`
+ * preserves dice/SPA audit details; this payload is the replayable turn-order
+ * fact consumed by phase/activation state.
+ */
+export interface IInitiativeOrderSetPayload {
+  /** Side that won the initiative roll. */
+  readonly winner: GameSide;
+  /** Side that acts first in alternating phases. */
+  readonly firstMover: GameSide;
+  /** Side that acts second in alternating phases. */
+  readonly secondMover: GameSide;
+}

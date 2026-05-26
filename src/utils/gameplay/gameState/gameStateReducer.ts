@@ -14,6 +14,7 @@ import {
   IGameState,
   IFacingChangedPayload,
   IHeatPayload,
+  IInitiativeOrderSetPayload,
   IInitiativeRolledPayload,
   IMoraleShiftedPayload,
   IMovementEnhancementActivatedPayload,
@@ -89,6 +90,7 @@ import {
   applyObjectiveProgress,
 } from './objectiveReducer';
 import {
+  applyInitiativeOrderSet,
   applyInitiativeRolled,
   applyPhaseChanged,
   applyTurnStarted,
@@ -119,6 +121,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
       return applyInitiativeRolled(
         state,
         event.payload as IInitiativeRolledPayload,
+      );
+
+    case GameEventType.InitiativeOrderSet:
+      return applyInitiativeOrderSet(
+        state,
+        event.payload as IInitiativeOrderSetPayload,
       );
 
     case GameEventType.MovementDeclared:
@@ -246,7 +254,6 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
       );
 
     case GameEventType.TurnEnded:
-    case GameEventType.InitiativeOrderSet:
     case GameEventType.AttacksRevealed:
     case GameEventType.AttackResolved:
     case GameEventType.HeatEffectApplied:
