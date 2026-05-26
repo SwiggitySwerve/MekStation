@@ -150,7 +150,7 @@ describe('BattleMech combat event support catalog', () => {
       [...NON_BATTLEMECH_EVENT_TYPES].sort(),
     );
     expect(
-      supportIdsByLevel(NON_BATTLEMECH_EVENT_SCOPE_SUPPORT, 'helper-only'),
+      supportIdsByLevel(NON_BATTLEMECH_EVENT_SCOPE_SUPPORT, 'out-of-scope'),
     ).toEqual([...NON_BATTLEMECH_EVENT_TYPES].sort());
   });
 
