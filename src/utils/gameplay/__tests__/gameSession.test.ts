@@ -802,16 +802,19 @@ describe('rollInitiative', () => {
     expect(() => rollInitiative(session)).toThrow('Not in initiative phase');
   });
 
-  it('should add initiative_rolled event', () => {
+  it('should add initiative roll and explicit initiative order events', () => {
     const session = createActiveSession();
     const eventCount = session.events.length;
 
     const rolled = rollInitiative(session);
 
-    expect(rolled.events).toHaveLength(eventCount + 1);
-    expect(rolled.events[rolled.events.length - 1].type).toBe(
-      'initiative_rolled',
-    );
+    expect(rolled.events).toHaveLength(eventCount + 2);
+    expect(rolled.events.at(-2)?.type).toBe(GameEventType.InitiativeRolled);
+    expect(rolled.events.at(-1)?.type).toBe(GameEventType.InitiativeOrderSet);
+    expect(rolled.events.at(-1)?.payload).toMatchObject({
+      winner: rolled.currentState.initiativeWinner,
+      firstMover: rolled.currentState.firstMover,
+    });
   });
 
   it('should set initiative winner when player rolls higher', () => {
@@ -910,7 +913,9 @@ describe('rollInitiative', () => {
     const dice = [1, 1, 2, 3];
 
     const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
-    const event = rolled.events[rolled.events.length - 1];
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
 
     expect(rolled.currentState.initiativeWinner).toBe(GameSide.Opponent);
     expect(event.payload).toMatchObject({
@@ -940,7 +945,9 @@ describe('rollInitiative', () => {
     const dice = [1, 1, 2, 3];
 
     const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
-    const event = rolled.events[rolled.events.length - 1];
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
 
     expect(rolled.currentState.initiativeWinner).toBe(GameSide.Player);
     expect(event.payload).toMatchObject({
@@ -968,7 +975,9 @@ describe('rollInitiative', () => {
     const dice = [1, 1, 2, 3];
 
     const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
-    const event = rolled.events[rolled.events.length - 1];
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
 
     expect(rolled.currentState.initiativeWinner).toBe(GameSide.Opponent);
     expect(event.payload).toMatchObject({
@@ -1014,7 +1023,9 @@ describe('rollInitiative', () => {
     const dice = [1, 1, 2, 3];
 
     const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
-    const event = rolled.events[rolled.events.length - 1];
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
 
     expect(rolled.currentState.initiativeWinner).toBe(GameSide.Opponent);
     expect(event.payload).toMatchObject({
@@ -1045,7 +1056,9 @@ describe('rollInitiative', () => {
     const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1, {
       tacticalGeniusRerollSide: GameSide.Player,
     });
-    const event = rolled.events[rolled.events.length - 1];
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
 
     expect(rolled.currentState.initiativeWinner).toBe(GameSide.Player);
     expect(event.payload).toMatchObject({
@@ -1071,7 +1084,9 @@ describe('rollInitiative', () => {
     const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1, {
       tacticalGeniusRerollSide: GameSide.Player,
     });
-    const event = rolled.events[rolled.events.length - 1];
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
 
     expect(rolled.currentState.initiativeWinner).toBe(GameSide.Opponent);
     expect(event.payload).toMatchObject({
@@ -1465,6 +1480,7 @@ describe('generateGameLog', () => {
     const log = generateGameLog(session);
 
     expect(log).toContain('Initiative rolled');
+    expect(log).toContain('Initiative order set');
   });
 
   it('should include movement_declared event', () => {

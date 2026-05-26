@@ -23,6 +23,7 @@ import {
   createGameStartedEvent,
   createGameEndedEvent,
   createPhaseChangedEvent,
+  createInitiativeOrderSetEvent,
   createInitiativeRolledEvent,
   createMovementEnhancementActivatedEvent,
   createGoProneMovementDeclaredEvent,
@@ -418,6 +419,29 @@ describe('Initiative Event Factories', () => {
       };
       expect(maxPayload.playerRoll).toBe(12);
       expect(maxPayload.opponentRoll).toBe(2);
+    });
+  });
+
+  describe('createInitiativeOrderSetEvent', () => {
+    it('should create a replayable initiative order event', () => {
+      const event = createInitiativeOrderSetEvent(
+        'game-1',
+        4,
+        2,
+        GameSide.Player,
+        GameSide.Opponent,
+      );
+
+      expect(event.type).toBe(GameEventType.InitiativeOrderSet);
+      expect(event.gameId).toBe('game-1');
+      expect(event.sequence).toBe(4);
+      expect(event.turn).toBe(2);
+      expect(event.phase).toBe(GamePhase.Initiative);
+      expect(event.payload).toMatchObject({
+        winner: GameSide.Player,
+        firstMover: GameSide.Opponent,
+        secondMover: GameSide.Player,
+      });
     });
   });
 });
