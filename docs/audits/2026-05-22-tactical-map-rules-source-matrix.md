@@ -975,8 +975,11 @@ projection, including represented heavy-duty and Playtest3 thresholds, blocks
 ordinary walk/run/jump destinations with `Destroyed gyro only permits tracked
 or wheeled movement`, and preserves tracked/wheeled movement as reachable and
 committable when terrain and MP allow it. Remaining special conversion gaps are
-in-progress LAM/QuadVee conversion cancellation state and hull-down handling,
-not the basic destroyed-gyro non-tracked movement gate.
+in-progress LAM/QuadVee conversion cancellation state, while the remaining
+hull-down gaps are the narrower entry/exit movement actions,
+fortified-side-table behavior, QuadVee vehicle-mode details, and punch/club
+hit-table nuances listed in the later hull-down pins; they are not the basic
+destroyed-gyro non-tracked movement gate.
 
 2026-05-26 hull-down target projection pin: MegaMek
 `ComputeTerrainMods.java:215-218` adds a +2 hull-down modifier for a

@@ -8,15 +8,16 @@ The tactical map interface SHALL keep unresolved rule-trust boundaries explicit
 whenever a represented map behavior is useful to players but is not yet fully
 source-pinned, oracle-differenced, or interaction-swept.
 
-#### Scenario: Environment provenance distinguishes represented helper evidence
+#### Scenario: Source-pinned helper follow-ups are retired
 
-- **GIVEN** combat environment context is derived from MekStation's represented
-  underwater/torpedo helper behavior
-- **WHEN** the map exposes source and rule-reference metadata for that context
-- **THEN** the metadata SHALL identify the helper as represented MekStation
-  behavior until a narrower MegaMek or official source pin is linked
-- **AND** the tactical map SHALL NOT present that helper provenance as complete
-  MegaMek or official rules parity.
+- **GIVEN** a tactical-map follow-up previously tracked represented helper
+  provenance rather than a MegaMek or official rules source pin
+- **WHEN** a later OpenSpec change links that behavior to concrete MegaMek or
+  official source references and adds focused map coverage
+- **THEN** the follow-up tracker SHALL stop listing that behavior as an open
+  helper-provenance gap
+- **AND** any remaining limitations SHALL be restated as narrower behavior gaps,
+  such as missing range math, hit-table expansion, or broader oracle sweeps.
 
 #### Scenario: Movement oracle gaps remain named follow-up work
 
