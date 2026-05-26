@@ -843,7 +843,8 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 - **AND** talons SHALL remain non-selectable in runtime physical attack option lists because they modify existing kick/DFA actions rather than declaring a distinct physical attack
 - **AND** catalog UnitHydration SHALL derive biped leg talon state from `LEFT_LEG` and `RIGHT_LEG` critical slots containing Talons entries
 - **AND** `CriticalHitResolved` events that destroy, mark missing, or mark breached Talons equipment SHALL remove the matching leg talon modifier from event replay and runner combat state
-- **AND** the validation catalog SHALL keep automatic missing/breached talon event production from mounted-equipment state and non-biped talon arm-location behavior visible as remaining gaps
+- **AND** destroyed leg location replay and runner damage persistence SHALL remove the matching leg talon modifier from represented combat state
+- **AND** the validation catalog SHALL keep automatic missing/breached talon event production from mounted-equipment state beyond represented destroyed-location replay and non-biped talon arm-location behavior visible as remaining gaps
 
 #### Scenario: Claws modify punch damage and to-hit without becoming a selectable attack type
 
@@ -854,7 +855,8 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 - **AND** claws SHALL remain non-selectable in runtime physical attack option lists because they modify punch rather than declaring a distinct physical attack
 - **AND** catalog UnitHydration SHALL derive arm claw state from `LEFT_ARM` and `RIGHT_ARM` critical slots containing `ISClaw` entries
 - **AND** `CriticalHitResolved` events that destroy, mark missing, or mark breached Claw equipment SHALL remove the matching arm claw modifier from event replay and runner combat state
-- **AND** the validation catalog SHALL keep automatic missing/breached claw event production from mounted-equipment state, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions visible as remaining gaps
+- **AND** destroyed arm location replay and runner damage persistence, including side-torso arm cascades, SHALL remove the matching arm claw modifier from represented combat state
+- **AND** the validation catalog SHALL keep automatic missing/breached claw event production from mounted-equipment state beyond represented destroyed-location replay, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions visible as remaining gaps
 
 ### Requirement: Designator Marker Replay State
 

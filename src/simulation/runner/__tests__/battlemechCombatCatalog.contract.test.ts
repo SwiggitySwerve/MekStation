@@ -2589,6 +2589,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ).toEqual([
       'MegaMek PunchAttackAction.getDamageFor uses ceil(weight / 7) when the punching arm has working claws',
       'MegaMek PunchAttackAction.toHit adds the claw punch modifier and suppresses hand actuator missing/destroyed penalties when claws replace the hand',
+      'MegaMek Entity.destroyLocation marks blown-off critical slots, mounted equipment, and dependent locations missing',
     ]);
 
     expect(
@@ -2599,6 +2600,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       'MegaMek KickAttackAction.getDamageFor applies a 1.5 talon multiplier when the kicking leg has working talons and a working foot actuator',
       'MegaMek DfaAttackAction.getDamageFor and hasTalons apply 1.5 DFA damage when a qualifying talon leg has a working foot actuator',
       'MegaMek DfaAttackAction.hasTalons checks working talons and working foot actuators on qualifying biped and non-biped leg locations.',
+      'MegaMek Entity.destroyLocation marks blown-off critical slots, mounted equipment, and dependent locations missing',
     ]);
 
     expect(

@@ -68,6 +68,33 @@ export function applyDamagedPhysicalEquipmentCritical(
 export const applyDestroyedPhysicalEquipmentCritical =
   applyDamagedPhysicalEquipmentCritical;
 
+export function applyDestroyedLocationPhysicalEquipmentState(
+  unit: IUnitGameState,
+  destroyedLocations: readonly string[],
+): IUnitGameState {
+  let nextUnit = unit;
+
+  for (const location of destroyedLocations) {
+    if (location === 'left_arm' && nextUnit.leftArmHasClaw === true) {
+      nextUnit = { ...nextUnit, leftArmHasClaw: false };
+      continue;
+    }
+    if (location === 'right_arm' && nextUnit.rightArmHasClaw === true) {
+      nextUnit = { ...nextUnit, rightArmHasClaw: false };
+      continue;
+    }
+    if (location === 'left_leg' && nextUnit.leftLegHasTalons === true) {
+      nextUnit = { ...nextUnit, leftLegHasTalons: false };
+      continue;
+    }
+    if (location === 'right_leg' && nextUnit.rightLegHasTalons === true) {
+      nextUnit = { ...nextUnit, rightLegHasTalons: false };
+    }
+  }
+
+  return nextUnit;
+}
+
 export function applyPhysicalEquipmentCriticalEvents(
   unit: IUnitGameState,
   criticalEvents: readonly CriticalHitEvent[] | undefined,

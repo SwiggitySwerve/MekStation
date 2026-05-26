@@ -16,7 +16,7 @@ These are documented gaps in functionality, not defects. They represent future w
 
 **Current explicit gaps**:
 
-- Claws and talons intentionally remain modifiers on punch/kick/DFA rather than standalone attacks; automatic missing/breached event production from mounted-equipment state remains a gap.
+- Claws and talons intentionally remain modifiers on punch/kick/DFA rather than standalone attacks; destroyed arm/leg location replay clears represented modifier state, but automatic missing/breached event production from mounted-equipment state remains a gap.
 - Full physical-weapon mount location, mode, and damaged-equipment lifecycle parity remains partial.
 - Non-BattleMech physical combat families require separate validation matrices.
 - Generic invariants that only say "physical attack unavailable" may still be filtered as legacy limitations unless they are part of the BattleMech catalog validation lane.
