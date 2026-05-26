@@ -1,5 +1,6 @@
 import {
   IAttackDeclaredPayload,
+  IAttacksRevealedPayload,
   IFacingChangedPayload,
   IGameEvent,
   IGameState,
@@ -177,5 +178,28 @@ export function applyAttackLocked(
       },
     },
     activationIndex: state.activationIndex + 1,
+  };
+}
+
+export function applyAttacksRevealed(
+  state: IGameState,
+  payload: IAttacksRevealedPayload,
+): IGameState {
+  const units = { ...state.units };
+  for (const unitId of payload.unitIds) {
+    const unit = units[unitId];
+    if (!unit || unit.lockState !== LockState.Locked) {
+      continue;
+    }
+
+    units[unitId] = {
+      ...unit,
+      lockState: LockState.Revealed,
+    };
+  }
+
+  return {
+    ...state,
+    units,
   };
 }
