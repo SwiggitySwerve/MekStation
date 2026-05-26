@@ -398,6 +398,12 @@ export interface IUnitGameState {
   /** Ammo bin state tracking */
   readonly ammoState?: Record<string, IAmmoSlotState>;
   /**
+   * Optional per-location armor type projected from construction data or test
+   * fixtures. Missing keys are treated as standard armor for combat effects
+   * that care about special armor behavior.
+   */
+  readonly armorTypeByLocation?: Readonly<Record<string, string>>;
+  /**
    * Per-location ammo explosion containment projected from mounted CASE
    * equipment. `case` and `case_ii` are explicit protection levels; missing
    * keys mean the location has no CASE protection.

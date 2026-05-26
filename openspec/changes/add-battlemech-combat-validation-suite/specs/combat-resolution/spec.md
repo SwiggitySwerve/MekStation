@@ -330,7 +330,8 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **AND** damage-capable official Streak SRM ids SHALL be pinned separately from zero-damage Streak LRM/OS/prototype catalog rows before Streak support is treated as integrated
 - **AND** zero-damage Streak LRM/OS/prototype rows SHALL remain catalog-visible data gaps instead of inheriting Streak SRM damage behavior by name match
 - **AND** the official zero-damage Clan Plasma Cannon SHALL emit zero BattleMech damage plus external target heat from the source-backed 2d6 plasma roll when runner combat hits a heat-tracking BattleMech target
-- **AND** the Clan Plasma Cannon SHALL remain helper-only until reflective/heat-dissipating armor adjustments, MegaMek external-heat timing/caps, plasma ammunition hydration/consumption, and non-Mek special damage paths are represented
+- **AND** the Clan Plasma Cannon SHALL halve external target heat through intact reflective or heat-dissipating armor when combat state includes armor-type data for the hit location
+- **AND** the Clan Plasma Cannon SHALL remain helper-only until PLAYTEST_3 heat-dissipating zero-heat behavior, MegaMek external-heat timing/caps, plasma ammunition hydration/consumption, and non-Mek special damage paths are represented
 - **AND** the aggregate catalog triad for `specialWeaponFamilies` SHALL require row-level source references rather than inherited requirement authority
 - **AND** helper-only family rows SHALL keep their remaining runtime/session gaps explicit instead of treating source-backed family evidence as complete parity
 

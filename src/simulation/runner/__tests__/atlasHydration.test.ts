@@ -925,6 +925,12 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     );
     expect(armorTotal).toBe(ATLAS_CANONICAL_TOTAL_ARMOR);
     expect(unitState.structure.center_torso).toBe(31);
+    expect(unitState.armorTypeByLocation).toBeDefined();
+    expect(Object.keys(unitState.armorTypeByLocation ?? {}).sort()).toEqual(
+      Object.keys(unitState.armor).sort(),
+    );
+    expect(unitState.armorTypeByLocation?.head).toBe('STANDARD');
+    expect(unitState.armorTypeByLocation?.center_torso_rear).toBe('STANDARD');
 
     // startingInternalStructure is seeded for the retreat-trigger ratio.
     expect(unitState.startingInternalStructure).toBeDefined();

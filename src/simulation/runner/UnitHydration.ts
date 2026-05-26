@@ -1660,6 +1660,20 @@ export function hydrateArmorFromFullUnit(fullUnit: IFullUnit): {
   return { armor, totalArmor: total, locationCount };
 }
 
+function hydrateArmorTypeByLocationFromFullUnit(
+  fullUnit: IFullUnit,
+  armor: Readonly<Record<string, number>>,
+): IUnitGameState['armorTypeByLocation'] | undefined {
+  const armorType = (fullUnit.armor as { type?: unknown } | undefined)?.type;
+  if (typeof armorType !== 'string' || armorType.length === 0) {
+    return undefined;
+  }
+
+  return Object.fromEntries(
+    Object.keys(armor).map((location) => [location, armorType]),
+  );
+}
+
 /**
  * Build the runner's per-location internal-structure map from the unit's
  * tonnage. Looks up `STANDARD_STRUCTURE_TABLE[tonnage]`; rounds to the
@@ -1735,6 +1749,10 @@ export function createHydratedUnitState(
   const { runnerUnitId, side, position, fullUnit, gunnery, piloting } =
     hydrated;
   const { armor } = hydrateArmorFromFullUnit(fullUnit);
+  const armorTypeByLocation = hydrateArmorTypeByLocationFromFullUnit(
+    fullUnit,
+    armor,
+  );
   const { structure } = hydrateStructureFromFullUnit(fullUnit);
   const heatSinks = hydrateHeatSinksFromFullUnit(fullUnit);
   const talons = hydrateTalonStateFromFullUnit(fullUnit);
@@ -1770,6 +1788,7 @@ export function createHydratedUnitState(
     unitQuirks: hydrateUnitQuirksFromFullUnit(fullUnit),
     weaponLocationById: weaponLocationByIdFromWeapons(hydrated.aiWeapons),
     armor,
+    ...(armorTypeByLocation !== undefined ? { armorTypeByLocation } : {}),
     // Mirror starting structure into `startingInternalStructure` so the
     // retreat-trigger ratio (per `add-bot-retreat-behavior`) sees the
     // canonical pre-damage value, matching the engine path's contract.

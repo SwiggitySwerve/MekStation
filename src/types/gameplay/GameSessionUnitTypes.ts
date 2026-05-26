@@ -147,6 +147,12 @@ export interface IGameUnit {
    */
   readonly ammoConstruction?: readonly IAmmoConstructionInit[];
   /**
+   * Optional per-location armor type projected into combat state. Producers
+   * may supply a single uniform armor type across all locations or a richer
+   * per-location map; missing keys behave as standard armor.
+   */
+  readonly armorTypeByLocation?: Readonly<Record<string, string>>;
+  /**
    * Per-location ammo explosion containment projected from construction data
    * into interactive game sessions. Missing keys mean no CASE protection.
    */
