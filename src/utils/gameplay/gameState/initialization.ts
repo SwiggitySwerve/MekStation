@@ -245,6 +245,7 @@ export function createInitialUnitState(
     gunnery: unit.gunnery,
     piloting: unit.piloting,
     pilotSpas: unit.pilotSpas,
+    ...(unit.gyroType ? { gyroType: unit.gyroType } : {}),
     armor: {},
     structure: {},
     // Per `add-bot-retreat-behavior` § 2 (Trigger A): the retreat trigger

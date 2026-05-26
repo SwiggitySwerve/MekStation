@@ -1567,6 +1567,7 @@ export function adaptUnitFromData(
     waterCapability,
     standUpCapability,
   } = calculateMovement(unitData);
+  const gyroType = gyroTypeFromUnitData(unitData);
 
   // Ammo — provide one ton of ammo per ballistic/missile weapon type
   const ammo: Record<string, number> = {};
@@ -1614,7 +1615,18 @@ export function adaptUnitFromData(
     ...(unitHeightProfile ? { unitHeightProfile } : {}),
     ...(waterCapability ? { waterCapability } : {}),
     ...(standUpCapability ? { standUpCapability } : {}),
+    ...(gyroType ? { gyroType } : {}),
   };
+}
+
+function gyroTypeFromUnitData(
+  unitData: Record<string, unknown>,
+): string | undefined {
+  const gyro = recordField(unitData.gyro);
+  return (
+    stringField(unitData, 'gyroType', 'gyro_type') ??
+    stringField(gyro, 'type', 'gyroType', 'gyro_type')
+  );
 }
 
 /**

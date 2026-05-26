@@ -43,7 +43,10 @@ import { PSRTrigger } from './PSRTriggerCodes';
 export interface IComponentDamageState {
   /** Engine critical hits: 0-3 (3 = destroyed). Each hit adds +5 heat/turn. */
   readonly engineHits: number;
-  /** Gyro critical hits: 0-2 (2 = destroyed for standard gyro). Each hit adds +3 PSR modifier. */
+  /**
+   * Gyro critical hits. Standard/XL/compact/superheavy gyros are destroyed at
+   * 2 hits; represented heavy-duty gyros are destroyed at 3 hits.
+   */
   readonly gyroHits: number;
   /** Sensor critical hits: 0-2. Each hit adds +1/+2 to-hit penalty. */
   readonly sensorHits: number;
@@ -148,6 +151,8 @@ export interface IUnitGameState {
    * into the campaign vault.
    */
   readonly pilotSpas?: readonly string[];
+  /** Represented construction gyro type copied from the session unit binding. */
+  readonly gyroType?: string;
   /** Armor remaining per location */
   readonly armor: Record<string, number>;
   /** Structure remaining per location */

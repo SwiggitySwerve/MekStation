@@ -80,17 +80,28 @@ export function gameUnitsWithAdaptedMovementModes(
   playerUnits: readonly IAdaptedUnit[],
   opponentUnits: readonly IAdaptedUnit[],
 ): readonly IGameUnit[] {
-  const movementModeByUnit = new Map(
-    [...playerUnits, ...opponentUnits].map((unit) => [
-      unit.id,
-      unit.movementMode,
-    ]),
+  const adaptedByUnit = new Map(
+    [...playerUnits, ...opponentUnits].map((unit) => [unit.id, unit]),
   );
 
   return gameUnits.map((unit) => {
-    const movementMode = movementModeByUnit.get(unit.id);
-    if (!movementMode || unit.movementMode === movementMode) return unit;
-    return { ...unit, movementMode };
+    const adapted = adaptedByUnit.get(unit.id);
+    if (!adapted) return unit;
+
+    const movementMode = adapted.movementMode;
+    const gyroType = adapted.gyroType;
+    const hasMovementModeUpdate =
+      movementMode !== undefined && unit.movementMode !== movementMode;
+    const hasGyroTypeUpdate =
+      gyroType !== undefined && unit.gyroType !== gyroType;
+
+    return hasMovementModeUpdate || hasGyroTypeUpdate
+      ? {
+          ...unit,
+          ...(hasMovementModeUpdate ? { movementMode } : {}),
+          ...(hasGyroTypeUpdate ? { gyroType } : {}),
+        }
+      : unit;
   });
 }
 

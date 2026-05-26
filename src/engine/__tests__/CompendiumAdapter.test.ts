@@ -489,6 +489,15 @@ describe('CompendiumAdapter', () => {
       expect(result.movementHeatProfile).toBe('mek');
     });
 
+    it('should preserve represented gyro type for runtime stand-up rules', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        gyro: { type: 'Heavy-Duty Gyro' },
+      } as unknown as IFullUnit);
+
+      expect(result.gyroType).toBe('Heavy-Duty Gyro');
+    });
+
     it('should preserve no-arms quirk as represented stand-up capability', () => {
       const result = adaptUnitFromData({
         ...createAtlasData(),

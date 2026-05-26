@@ -1,3 +1,4 @@
+import { GyroType } from '@/types/construction/GyroType';
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import {
   IComponentDamageState,
@@ -260,6 +261,22 @@ describe('Piloting Skill Rolls', () => {
       const gyroMod = mods.find((m) => m.source === 'gyro');
       expect(gyroMod).toBeDefined();
       expect(gyroMod!.value).toBe(6); // 2 * 3
+    });
+
+    it('should use represented heavy-duty gyro PSR modifiers', () => {
+      const psr: IPendingPSR = createDamagePSR('unit-1');
+      const compDamage: IComponentDamageState = {
+        ...DEFAULT_COMP_DAMAGE,
+        gyroHits: 2,
+      };
+      const mods = calculatePSRModifiers(psr, compDamage, 0, {
+        gyroType: GyroType.HEAVY_DUTY,
+      });
+      const gyroMod = mods.find((m) => m.source === 'gyro');
+      expect(gyroMod).toMatchObject({
+        name: 'Heavy-duty gyro damage',
+        value: 3,
+      });
     });
 
     it('should include pilot wounds +1 per wound', () => {
@@ -548,6 +565,20 @@ describe('Piloting Skill Rolls', () => {
       expect(isGyroDestroyed({ ...DEFAULT_COMP_DAMAGE, gyroHits: 3 })).toBe(
         true,
       );
+    });
+    it('should keep heavy-duty gyros functional until 3 hits', () => {
+      expect(
+        isGyroDestroyed(
+          { ...DEFAULT_COMP_DAMAGE, gyroHits: 2 },
+          GyroType.HEAVY_DUTY,
+        ),
+      ).toBe(false);
+      expect(
+        isGyroDestroyed(
+          { ...DEFAULT_COMP_DAMAGE, gyroHits: 3 },
+          GyroType.HEAVY_DUTY,
+        ),
+      ).toBe(true);
     });
   });
 

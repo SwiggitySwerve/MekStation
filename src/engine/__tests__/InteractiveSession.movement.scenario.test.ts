@@ -8,6 +8,7 @@ import {
   buildMovementPlan,
   mergeRunMovementRangeHexes,
 } from '@/components/gameplay/pages/gameSession/GameSessionPage.movementPlanning';
+import { GyroType } from '@/types/construction/GyroType';
 import {
   Facing,
   GameEventType,
@@ -3092,6 +3093,93 @@ describe('applyInteractiveSessionMovement', () => {
     expect(result.currentState.units.m1).toMatchObject({
       position: { q: 0, r: 0 },
       prone: true,
+    });
+  });
+
+  it('keeps two-hit heavy-duty gyro stand-up projection and commit rollable', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      prone: true,
+      gyroType: GyroType.HEAVY_DUTY,
+      componentDamage: {
+        engineHits: 0,
+        gyroHits: 2,
+        sensorHits: 0,
+        lifeSupport: 0,
+        cockpitHit: false,
+        actuators: {},
+        weaponsDestroyed: [],
+        heatSinksDestroyed: 0,
+        jumpJetsDestroyed: 0,
+      },
+    };
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    const movementByUnit = capability({ walkMP: 4, runMP: 6, jumpMP: 0 });
+    const preview = deriveMovementRangeHexForDestination(
+      session.currentState.units.m1,
+      MovementType.Walk,
+      grid,
+      movementByUnit.get('m1')!,
+      { q: 1, r: 0 },
+    );
+
+    expect(preview).toMatchObject({
+      reachable: true,
+      standUpPsrTargetNumber: 8,
+      standUpPsrModifier: 3,
+      standUpPsrModifierDetails: ['Heavy-duty gyro damage +3'],
+    });
+    expect(preview?.standUpPsrImpossibleReason).toBeUndefined();
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+      diceRoller: fixed2d6(8),
+    });
+
+    const resolved = result.events.find(
+      (event) => event.type === GameEventType.PSRResolved,
+    );
+    expect(resolved?.payload).toMatchObject({
+      unitId: 'm1',
+      targetNumber: 8,
+      roll: 8,
+      modifiers: 3,
+      passed: true,
+      reason: 'Standing up',
+    });
+    expect(
+      result.events.some((event) => event.type === GameEventType.UnitStood),
+    ).toBe(true);
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared).toBeDefined();
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      mpUsed: 3,
+      standUpAttempt: true,
+      standUpSucceeded: true,
+    });
+    expect(result.currentState.units.m1).toMatchObject({
+      position: { q: 1, r: 0 },
+      prone: false,
     });
   });
 

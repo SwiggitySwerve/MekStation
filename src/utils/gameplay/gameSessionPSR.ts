@@ -92,7 +92,8 @@ export function resolvePendingPSRs(
       jumpJetsDestroyed: 0,
     };
 
-    if (isGyroDestroyed(componentDamage)) {
+    const gyroType = unitState.gyroType ?? unit.gyroType;
+    if (isGyroDestroyed(componentDamage, gyroType)) {
       const d6Roller = () => {
         const roll = diceRoller();
         return roll.dice[0];
@@ -176,6 +177,7 @@ export function resolvePendingPSRs(
       componentDamage,
       unitState.pilotWounds,
       d6Roller,
+      { gyroType },
     );
 
     for (const result of batchResult.results) {

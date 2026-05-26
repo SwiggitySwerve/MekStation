@@ -8,6 +8,7 @@ import type {
 
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
+import { isGyroDestroyedForType } from './gyroRules';
 import {
   calculatePSRModifiers,
   createStandingUpPSR,
@@ -73,6 +74,7 @@ export function projectStandUpPsr({
     psr,
     unitState.componentDamage ?? DEFAULT_COMPONENT_DAMAGE,
     unitState.pilotWounds,
+    { gyroType: unitState.gyroType },
   );
   const playtest2Modifiers = playtest2TryingToStandModifiers(optionalRules);
   const representedStandUpModifiers = representedStandUpCapabilityModifiers(
@@ -243,7 +245,10 @@ function destroyedGyroStandBlock(
   unitType?: UnitType,
 ): string | undefined {
   if (!MEK_STAND_UNIT_TYPES.has(unitType)) return undefined;
-  return (unitState.componentDamage ?? DEFAULT_COMPONENT_DAMAGE).gyroHits >= 2
+  return isGyroDestroyedForType(
+    unitState.componentDamage ?? DEFAULT_COMPONENT_DAMAGE,
+    unitState.gyroType,
+  )
     ? 'Cannot stand with a destroyed gyro'
     : undefined;
 }
@@ -257,7 +262,12 @@ function standUpAutomaticSuccessReason(
   if (movementCapability?.standUpCapability?.standUpLegProfile !== 'quad') {
     return undefined;
   }
-  if ((unitState.componentDamage ?? DEFAULT_COMPONENT_DAMAGE).gyroHits >= 2) {
+  if (
+    isGyroDestroyedForType(
+      unitState.componentDamage ?? DEFAULT_COMPONENT_DAMAGE,
+      unitState.gyroType,
+    )
+  ) {
     return undefined;
   }
   return hasDestroyedQuadLeg(unitState)

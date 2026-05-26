@@ -7,8 +7,17 @@ import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { IComponentDamageState, IPendingPSR } from '@/types/gameplay';
 
 import { defaultD6Roller } from '../diceTypes';
+import {
+  type RepresentedGyroType,
+  gyroPsrModifierForType,
+  gyroPsrModifierName,
+} from '../gyroRules';
 import { D6Roller, roll2d6 } from '../hitLocation';
 import { IPSRResult, IPSRBatchResult, IPSRModifier, PSRTrigger } from './types';
+
+export interface IPSRResolutionOptions {
+  readonly gyroType?: RepresentedGyroType;
+}
 
 /**
  * Resolve a single PSR.
@@ -27,8 +36,14 @@ export function resolvePSR(
   componentDamage: IComponentDamageState,
   pilotWounds: number,
   diceRoller: D6Roller = defaultD6Roller,
+  options: IPSRResolutionOptions = {},
 ): IPSRResult {
-  const modifiers = calculatePSRModifiers(psr, componentDamage, pilotWounds);
+  const modifiers = calculatePSRModifiers(
+    psr,
+    componentDamage,
+    pilotWounds,
+    options,
+  );
 
   const totalModifier = modifiers.reduce((sum, m) => sum + m.value, 0);
 
@@ -67,6 +82,7 @@ export function resolveAllPSRs(
   componentDamage: IComponentDamageState,
   pilotWounds: number,
   diceRoller: D6Roller = defaultD6Roller,
+  options: IPSRResolutionOptions = {},
 ): IPSRBatchResult {
   if (pendingPSRs.length === 0) {
     return {
@@ -87,6 +103,7 @@ export function resolveAllPSRs(
       componentDamage,
       pilotWounds,
       diceRoller,
+      options,
     );
     results.push(result);
 
@@ -122,14 +139,18 @@ export function calculatePSRModifiers(
   psr: IPendingPSR,
   componentDamage: IComponentDamageState,
   pilotWounds: number,
+  options: IPSRResolutionOptions = {},
 ): readonly IPSRModifier[] {
   const modifiers: IPSRModifier[] = [];
 
-  // Gyro damage: +3 per hit
-  if (componentDamage.gyroHits > 0) {
+  const gyroModifier = gyroPsrModifierForType(
+    componentDamage,
+    options.gyroType,
+  );
+  if (gyroModifier !== 0) {
     modifiers.push({
-      name: 'Gyro damage',
-      value: componentDamage.gyroHits * 3,
+      name: gyroPsrModifierName(options.gyroType),
+      value: gyroModifier,
       source: 'gyro',
     });
   }

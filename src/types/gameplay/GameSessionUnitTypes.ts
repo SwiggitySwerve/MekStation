@@ -86,6 +86,11 @@ export interface IGameUnit {
    * represented vehicle alike.
    */
   readonly movementMode?: MovementMotiveMode;
+  /**
+   * Represented construction gyro type. Movement and PSR projection use this
+   * for variant-specific destroyed thresholds such as heavy-duty gyros.
+   */
+  readonly gyroType?: string;
   /** Total heat sinks on unit (default: 10 if not provided) */
   readonly heatSinks?: number;
   /**
