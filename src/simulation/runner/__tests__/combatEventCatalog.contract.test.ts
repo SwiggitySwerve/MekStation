@@ -130,8 +130,11 @@ describe('BattleMech combat event support catalog', () => {
     );
     expect(urlsFor(GameEventType.AttacksRevealed)).toEqual(
       expect.arrayContaining([
-        'src/types/gameplay/GameSessionCoreTypes.ts#L76-L87',
-        'src/utils/gameplay/gameState/gameStateReducer.ts#L248-L253',
+        'src/utils/gameplay/gameEvents/attackReveal.ts#L1-L28',
+        'src/utils/gameplay/gameSessionCore.ts#L667-L679',
+        'src/utils/gameplay/gameSessionAttackReveal.ts#L22-L87',
+        'src/utils/gameplay/gameState/actionLocking.ts#L157-L205',
+        'src/utils/gameplay/gameState/gameStateReducer.ts#L161-L165',
       ]),
     );
     expect(urlsFor(GameEventType.InitiativeOrderSet)).toEqual(
@@ -214,7 +217,7 @@ describe('BattleMech combat event support catalog', () => {
   it('documents remaining BattleMech event-stream gaps instead of treating enum visibility as coverage', () => {
     expect(
       supportIdsByLevel(BATTLEMECH_COMBAT_EVENT_SUPPORT, 'unsupported'),
-    ).toEqual([GameEventType.AttacksRevealed]);
+    ).toEqual([]);
     expect(
       supportIdsByLevel(BATTLEMECH_COMBAT_EVENT_SUPPORT, 'helper-only'),
     ).toEqual([]);
@@ -229,6 +232,7 @@ describe('BattleMech combat event support catalog', () => {
         GameEventType.MovementEnhancementActivated,
         GameEventType.FacingChanged,
         GameEventType.AttackDeclared,
+        GameEventType.AttacksRevealed,
         GameEventType.AttackInvalid,
         GameEventType.AttackResolved,
         GameEventType.DamageApplied,
