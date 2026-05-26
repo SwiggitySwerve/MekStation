@@ -28,6 +28,7 @@ import * as heatCombat from '@/testing/tactical-map.heat-combat-scenario';
 import * as hoverWater from '@/testing/tactical-map.hover-water-scenario';
 import * as immobileCombat from '@/testing/tactical-map.immobile-combat-scenario';
 import { tacticalMapIndirectFireHarnessScenarios as indirectFireHarnessScenarios } from '@/testing/tactical-map.indirect-fire-harness';
+import * as lamAirborneFighter from '@/testing/tactical-map.lam-airborne-fighter-scenario';
 import * as lamConversion from '@/testing/tactical-map.lam-conversion-scenario';
 import * as mixedVehicle from '@/testing/tactical-map.mixed-vehicle-volley-scenario';
 import * as movementCombat from '@/testing/tactical-map.movement-combat-scenario';
@@ -85,6 +86,7 @@ const movementFixtureScenarios = new Set([
   'legend-mode-selection',
   'lam-airmek-elevation-crossing',
   'lam-airmek-long-cruise-heat',
+  'lam-fighter-airborne-ground-movement-blocked',
   'lam-fighter-grounded-elevation-blocked',
   'lam-mek-elevation-blocked',
   'occupied-destination-blocked',
@@ -219,6 +221,8 @@ const tokensByScenario = {
     lamConversion.tacticalMapLamAirMekLongCruiseTokens,
   'lam-fighter-grounded-elevation-blocked':
     lamConversion.tacticalMapLamFighterTokens,
+  'lam-fighter-airborne-ground-movement-blocked':
+    lamAirborneFighter.tacticalMapLamAirborneFighterTokens,
   'quadvee-mek-elevation-climb': quadveeConversion.tacticalMapQuadveeMekTokens,
   'quadvee-vehicle-elevation-blocked':
     quadveeConversion.tacticalMapQuadveeVehicleTokens,
@@ -285,6 +289,8 @@ const movementRangeByScenario = {
     lamConversion.tacticalMapLamAirMekLongCruiseMovementRange,
   'lam-fighter-grounded-elevation-blocked':
     lamConversion.tacticalMapLamFighterMovementRange,
+  'lam-fighter-airborne-ground-movement-blocked':
+    lamAirborneFighter.tacticalMapLamAirborneFighterMovementRange,
   'quadvee-mek-elevation-climb':
     quadveeConversion.tacticalMapQuadveeMekMovementRange,
   'quadvee-vehicle-elevation-blocked':
@@ -313,6 +319,8 @@ const mpLegendByScenario = {
   'lam-airmek-long-cruise-heat': lamConversion.tacticalMapLamAirMekMpLegend,
   'lam-fighter-grounded-elevation-blocked':
     lamConversion.tacticalMapLamFighterMpLegend,
+  'lam-fighter-airborne-ground-movement-blocked':
+    lamAirborneFighter.tacticalMapLamAirborneFighterMpLegend,
   'quadvee-mek-elevation-climb':
     quadveeConversion.tacticalMapQuadveeMekMpLegend,
   'quadvee-vehicle-elevation-blocked':
@@ -345,6 +353,8 @@ const selectedHexByScenario = {
     lamConversion.tacticalMapLamConversionSelectedHex,
   'lam-fighter-grounded-elevation-blocked':
     lamConversion.tacticalMapLamConversionSelectedHex,
+  'lam-fighter-airborne-ground-movement-blocked':
+    lamConversion.tacticalMapLamConversionSelectedHex,
   'quadvee-mek-elevation-climb':
     quadveeConversion.tacticalMapQuadveeConversionSelectedHex,
   'quadvee-vehicle-elevation-blocked':
@@ -373,6 +383,8 @@ const hexTerrainByScenario = {
   'lam-airmek-long-cruise-heat':
     lamConversion.tacticalMapLamAirMekLongCruiseHexTerrain,
   'lam-fighter-grounded-elevation-blocked':
+    lamConversion.tacticalMapLamFighterConversionHexTerrain,
+  'lam-fighter-airborne-ground-movement-blocked':
     lamConversion.tacticalMapLamFighterConversionHexTerrain,
   'quadvee-mek-elevation-climb':
     quadveeConversion.tacticalMapQuadveeConversionHexTerrain,

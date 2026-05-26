@@ -8,8 +8,11 @@ import {
   type IMovementCapability,
   type IUnitGameState,
 } from '@/types/gameplay';
+import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
 import {
+  AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON,
   resolveRuntimeMovementCapability,
+  runtimeMovementProjectionBlockedReason,
   runtimeUnitHeightForMovement,
 } from '@/utils/gameplay/movement/runtimeCapability';
 
@@ -119,6 +122,57 @@ describe('runtime movement capability', () => {
       movementMode: 'wheeled',
       unitHeight: 0,
     });
+  });
+
+  it('keeps airborne LAM Fighter conversion on aerospace thrust and blocks ground projection fallback', () => {
+    const capability: IMovementCapability = {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 5,
+      movementMode: 'walk',
+      unitHeight: 1,
+      unitHeightProfile: { kind: 'lam', standingHeight: 1 },
+    };
+    const airborneFighter = unitState({
+      conversionMode: 'fighter',
+      combatState: {
+        kind: 'aero',
+        state: createAerospaceCombatState({
+          maxSI: 3,
+          armorByArc: { nose: 1, leftWing: 1, rightWing: 1, aft: 1 },
+          heatSinks: 10,
+          fuelPoints: 20,
+          safeThrust: 5,
+          maxThrust: 8,
+          altitude: 1,
+          currentVelocity: 5,
+          nextVelocity: 5,
+          airborneState: 'airborne',
+        }),
+      },
+    });
+
+    const resolved = resolveRuntimeMovementCapability(
+      airborneFighter,
+      capability,
+    );
+
+    expect(resolved).toMatchObject({
+      walkMP: 5,
+      runMP: 8,
+      jumpMP: 0,
+      conversionThrustMP: 5,
+      unitHeight: 0,
+    });
+    expect(
+      runtimeMovementProjectionBlockedReason(airborneFighter, capability),
+    ).toBe(AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON);
+    expect(
+      runtimeMovementProjectionBlockedReason(
+        unitState({ conversionMode: 'fighter' }),
+        capability,
+      ),
+    ).toBeUndefined();
   });
 
   it('projects QuadVee vehicle mode as tracked motive, height zero, and no jumping from runtime state', () => {

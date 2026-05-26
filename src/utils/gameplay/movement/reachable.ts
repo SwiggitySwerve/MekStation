@@ -63,7 +63,10 @@ import {
   overBudgetRangeHex,
   outOfBoundsRangeHex,
 } from './rangeHexProjection';
-import { resolveRuntimeMovementCapability } from './runtimeCapability';
+import {
+  resolveRuntimeMovementCapability,
+  runtimeMovementProjectionBlockedReason,
+} from './runtimeCapability';
 import {
   deriveStandUpProjection,
   withStandUpProjection,
@@ -158,6 +161,31 @@ export function deriveReachableHexes(
   return results;
 }
 
+function runtimeBlockedRangeHex(params: {
+  readonly origin: IHexCoordinate;
+  readonly hex: IHexCoordinate;
+  readonly mpType: MovementType;
+  readonly movementMode: string;
+  readonly reason: string;
+  readonly heatGenerated: number;
+}): IMovementRangeHex {
+  return {
+    hex: params.hex,
+    mpCost: Infinity,
+    terrainCost: 0,
+    elevationDelta: undefined,
+    elevationCost: 0,
+    path: [params.origin, params.hex],
+    heatGenerated: params.heatGenerated,
+    movementMode: params.movementMode,
+    reachable: false,
+    movementType: params.mpType,
+    blockedReason: params.reason,
+    movementInvalidReason: 'InvalidDestination',
+    movementInvalidDetails: params.reason,
+  };
+}
+
 export function deriveMovementRangeHexForDestination(
   unit: IUnitGameState,
   mpType: MovementType,
@@ -212,6 +240,21 @@ export function deriveMovementRangeHexForDestination(
       mpType,
       movementMode,
       reason: immobileReason,
+    });
+  }
+
+  const runtimeBlockedReason = runtimeMovementProjectionBlockedReason(
+    unit,
+    capability,
+  );
+  if (runtimeBlockedReason) {
+    return runtimeBlockedRangeHex({
+      origin,
+      hex,
+      mpType,
+      movementMode,
+      reason: runtimeBlockedReason,
+      heatGenerated: 0,
     });
   }
 

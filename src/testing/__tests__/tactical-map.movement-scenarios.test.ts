@@ -1,4 +1,5 @@
 import { validateCommittedMovement } from '@/utils/gameplay/movement/commitValidation';
+import { AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON } from '@/utils/gameplay/movement/runtimeCapability';
 
 import {
   tacticalMapBattlefieldWreckCommitInput,
@@ -13,6 +14,11 @@ import {
   tacticalMapHoverWaterCommitInput,
   tacticalMapHoverWaterMovementRange,
 } from '../tactical-map.hover-water-scenario';
+import {
+  tacticalMapLamAirborneFighterCommitInput,
+  tacticalMapLamAirborneFighterMovementRange,
+  tacticalMapLamAirborneFighterMpLegend,
+} from '../tactical-map.lam-airborne-fighter-scenario';
 import {
   tacticalMapLamAirMekCommitInput,
   tacticalMapLamAirMekLongCruiseCommitInput,
@@ -471,6 +477,47 @@ describe('tactical map movement scenarios', () => {
     expect(fighterResult.valid).toBe(false);
     if (fighterResult.valid) {
       throw new Error('Expected grounded LAM Fighter climb to be blocked');
+    }
+    expect(fighterResult.reason).toBe(fighterProjection.movementInvalidReason);
+    expect(fighterResult.details).toBe(
+      fighterProjection.movementInvalidDetails,
+    );
+    expect(fighterResult.mpCost).toBe(fighterProjection.mpCost);
+    expect(fighterResult.heatGenerated).toBe(fighterProjection.heatGenerated);
+  });
+
+  it('keeps airborne LAM Fighter ground movement blocked between browser projection and commit validation', () => {
+    const fighterProjection = tacticalMapLamAirborneFighterMovementRange[0];
+
+    expect(fighterProjection).toMatchObject({
+      hex: { q: 1, r: 0 },
+      reachable: false,
+      mpCost: Infinity,
+      terrainCost: 0,
+      elevationCost: 0,
+      heatGenerated: 0,
+      movementMode: 'walk',
+      movementType: 'walk',
+      blockedReason: AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON,
+      movementInvalidReason: 'InvalidDestination',
+      movementInvalidDetails:
+        AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON,
+    });
+    expect(tacticalMapLamAirborneFighterMpLegend).toMatchObject({
+      movementMode: 'walk',
+      walkMP: 2,
+      runMP: 3,
+      jumpMP: 0,
+      jumpAvailable: false,
+    });
+
+    const fighterResult = validateCommittedMovement(
+      tacticalMapLamAirborneFighterCommitInput(),
+    );
+
+    expect(fighterResult.valid).toBe(false);
+    if (fighterResult.valid) {
+      throw new Error('Expected airborne LAM Fighter movement to be blocked');
     }
     expect(fighterResult.reason).toBe(fighterProjection.movementInvalidReason);
     expect(fighterResult.details).toBe(

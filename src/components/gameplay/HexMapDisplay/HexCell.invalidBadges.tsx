@@ -46,6 +46,9 @@ function formatMovementInvalidBadgeLabel(
   if (includesReason(reason, 'no legal')) return 'NO PATH';
   if (includesReason(reason, 'shut down')) return 'SHUT';
   if (includesReason(reason, 'unconscious')) return 'KO';
+  if (includesReason(reason, 'aerospace') || includesReason(reason, 'flight')) {
+    return 'AERO';
+  }
 
   switch (movementInfo.movementInvalidReason) {
     case 'DestinationOccupied':

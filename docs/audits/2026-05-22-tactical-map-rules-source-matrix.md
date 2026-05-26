@@ -1215,6 +1215,20 @@ rejected step, disabled Jump legend, and matching commit-validation details.
 Airborne aerodyne turn/velocity pathing, takeoff/landing sequencing, control
 rolls, and conversion action timing remain outside this fixture.
 
+2026-05-26 airborne LAM Fighter ground-projection guard: MegaMek
+`LandAirMek.java:365-379` distinguishes grounded Fighter taxi MP from airborne
+Fighter thrust/flank MP, `LandAirMek.java:585-610` treats airborne Fighter
+terrain entry as unrestricted aerospace flight while applying wheeled/taxing
+prohibitions only to grounded aerospace, and `LandAirMek.java:1806-1814` keeps
+airborne altitude separate from ground elevation by returning a sentinel
+elevation for flying aeros. MekStation now resolves represented airborne LAM
+Fighter MP from Fighter thrust but blocks the ground movement projection with a
+player-visible aerospace-flight reason rather than falling back to imported Mek
+walk/run/jump movement. Browser and commit-validation fixtures prove the same
+`InvalidDestination` details, disabled Jump legend, zero rejected-step heat, and
+`AERO` invalid badge. Full airborne aerospace flight pathing remains tracked
+under the aerospace movement follow-ups.
+
 2026-05-25 LAM AirMek movement heat pin: MegaMek `LandAirMek.java:464-481`
 routes AirMek VTOL walk/run heat through `getAirMekHeat()`, which adds damaged
 coolant heat and rounds `getJumpHeat(mpUsed) / 3.0`; `Mek.java:1281-1302` and

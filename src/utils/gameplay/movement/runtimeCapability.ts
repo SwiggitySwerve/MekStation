@@ -78,6 +78,31 @@ function isAirborneLamFighter(unit: IUnitGameState): boolean {
   );
 }
 
+function isLamFighterMode(
+  unit: IUnitGameState,
+  profile: MovementUnitHeightProfile,
+): boolean {
+  return (
+    profile.kind === 'lam' &&
+    normalizedConversionMode(unit.conversionMode, profile) === 'fighter'
+  );
+}
+
+export const AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON =
+  'Airborne LAM Fighter movement uses aerospace flight rules and is not available in the ground movement projection';
+
+export function runtimeMovementProjectionBlockedReason(
+  unit: IUnitGameState,
+  capability: IMovementCapability,
+): string | undefined {
+  const profile = capability.unitHeightProfile;
+  if (!profile) return undefined;
+  if (isLamFighterMode(unit, profile) && isAirborneLamFighter(unit)) {
+    return AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON;
+  }
+  return undefined;
+}
+
 function conversionModeMovementMode(
   unit: IUnitGameState,
   capability: IMovementCapability,
@@ -117,7 +142,10 @@ function conversionModeMovementPoints(
     return { walkMP, runMP: Math.ceil(walkMP * 1.5) };
   }
 
-  if (mode === 'fighter' && !isAirborneLamFighter(unit)) {
+  if (mode === 'fighter') {
+    if (isAirborneLamFighter(unit)) {
+      return { walkMP: thrust, runMP: Math.ceil(thrust * 1.5) };
+    }
     const walkMP = Math.floor(thrust / 2);
     return { walkMP, runMP: walkMP };
   }

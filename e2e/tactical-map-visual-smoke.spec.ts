@@ -2767,6 +2767,67 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows airborne LAM Fighter ground movement as rules-blocked in browser', async ({
+    page,
+  }) => {
+    const reason =
+      'Airborne LAM Fighter movement uses aerospace flight rules and is not available in the ground movement projection';
+    await page.goto(
+      '/e2e/tactical-map?scenario=lam-fighter-airborne-ground-movement-blocked',
+    );
+
+    await expect(page.getByTestId('unit-token-attacker')).toContainText('LAF');
+    await expect(page.getByTestId('mp-legend')).toHaveAttribute(
+      'data-movement-mode',
+      'walk',
+    );
+    await expect(page.getByTestId('mp-legend')).toHaveAttribute(
+      'data-walk-mp',
+      '2',
+    );
+    await expect(page.getByTestId('mp-legend')).toHaveAttribute(
+      'data-run-mp',
+      '3',
+    );
+    await expect(page.getByTestId('mp-legend-jump')).toHaveAttribute(
+      'data-disabled',
+      'true',
+    );
+    await expect(page.getByTestId('mp-legend-jump')).toHaveAttribute(
+      'data-mp',
+      '0',
+    );
+
+    const fighterClimb = page.getByTestId('hex-1-0');
+    await expect(fighterClimb).toHaveAttribute('data-reachable', 'false');
+    await expect(fighterClimb).toHaveAttribute('data-movement-type', 'walk');
+    await expect(fighterClimb).toHaveAttribute('data-movement-mode', 'walk');
+    await expect(fighterClimb).toHaveAttribute('data-mp-cost', 'Infinity');
+    await expect(fighterClimb).toHaveAttribute('data-terrain-cost', '0');
+    await expect(fighterClimb).toHaveAttribute('data-elevation', '2');
+    await expect(fighterClimb).toHaveAttribute('data-elevation-cost', '0');
+    await expect(fighterClimb).toHaveAttribute('data-heat-generated', '0');
+    await expect(fighterClimb).toHaveAttribute(
+      'data-movement-blocked-reason',
+      reason,
+    );
+    await expect(fighterClimb).toHaveAttribute(
+      'data-movement-invalid-reason',
+      'InvalidDestination',
+    );
+    await expect(fighterClimb).toHaveAttribute(
+      'data-movement-invalid-details',
+      reason,
+    );
+
+    const invalidBadge = page.getByTestId('hex-movement-invalid-badge-1-0');
+    await expect(invalidBadge.locator('text')).toHaveText('AERO');
+    await expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'InvalidDestination',
+    );
+  });
+
   test('shows run-selected water fallback as walking with blocked run metadata', async ({
     page,
   }) => {
