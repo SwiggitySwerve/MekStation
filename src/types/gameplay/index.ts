@@ -30,6 +30,9 @@ export * from './PSRTriggerCodes';
 // Combat Resolution
 export * from './CombatInterfaces';
 
+// Indirect Fire pipeline (extracted from CombatInterfaces.ts — PR-types-split G9)
+export * from './IndirectFireInterfaces';
+
 // Gameplay UI
 export * from './GameplayUIInterfaces';
 

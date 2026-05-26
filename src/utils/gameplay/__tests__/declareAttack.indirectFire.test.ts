@@ -18,7 +18,7 @@ import type {
   IIndirectFireForwardObserverPayload,
   IIndirectFireSpotterSelectedPayload,
   IIndirectFireNarcOverridePayload,
-} from '@/types/gameplay/CombatInterfaces';
+} from '@/types/gameplay/IndirectFireInterfaces';
 
 import {
   Facing,

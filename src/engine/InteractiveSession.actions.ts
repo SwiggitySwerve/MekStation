@@ -49,7 +49,7 @@ import {
 import { validateMovement } from '@/utils/gameplay/movement/validation';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
-import { computeIndirectFireContext } from './InteractiveSession.indirectFire';
+import { prepareAttackContext } from './attackContext';
 
 /**
  * Inputs for `applyInteractiveSessionMovement` — the live session, the
@@ -169,11 +169,11 @@ export interface IApplyAttackInput {
  * Firing arc is intentionally NOT pre-computed here — `resolveAttack`
  * derives it from live positions + target facing at resolve time.
  *
- * Wave 8 PR-K5: when `input.grid` is supplied, walks weapon ids and
- * picks the first weapon whose `computeIndirectFireContext` returns
- * `permitted && isIndirect` to thread into `declareAttack`. LRM volleys
- * share a single spotter election per declaration (matches MegaMek
- * `Compute.findSpottersForArtillery`).
+ * Wave 8 PR-K5/K11: when `input.grid` is supplied, delegates to
+ * `prepareAttackContext` to derive the indirect-fire pre-resolution
+ * union (direct vs indirect+spotter), then threads it into
+ * `declareAttack`. LRM volleys share a single spotter election per
+ * declaration (matches MegaMek `Compute.findSpottersForArtillery`).
  */
 export function applyInteractiveSessionAttack(
   input: IApplyAttackInput,
@@ -189,28 +189,25 @@ export function applyInteractiveSessionAttack(
     },
   );
 
-  // Wave 8 PR-K5: pre-compute indirect-fire resolution when grid available.
-  let indirectFireResolution:
-    | import('@/types/gameplay/CombatInterfaces').IIndirectFireResolution
-    | undefined;
+  // Wave 8 PR-K11: extracted the inline indirect-fire pre-compute loop
+  // into prepareAttackContext (src/engine/attackContext.ts). Pass the
+  // returned union straight into declareAttack — the function accepts
+  // either shape (back-compat preserved).
   let resolvedTargetHex = input.targetHex;
+  let attackPreResolution:
+    | import('./attackContext').IAttackPreResolution
+    | undefined;
   if (input.grid) {
     const targetUnit = input.session.currentState.units[input.targetId];
     resolvedTargetHex = resolvedTargetHex ?? targetUnit?.position;
     if (resolvedTargetHex && targetUnit) {
-      for (const weaponId of input.weaponIds) {
-        const result = computeIndirectFireContext(
-          input.attackerId,
-          weaponId,
-          resolvedTargetHex,
-          input.session.currentState,
-          input.grid,
-        );
-        if (result.permitted && result.isIndirect) {
-          indirectFireResolution = result;
-          break;
-        }
-      }
+      attackPreResolution = prepareAttackContext(
+        input.attackerId,
+        input.weaponIds,
+        input.targetId,
+        input.session.currentState,
+        input.grid,
+      );
     }
   }
 
@@ -222,7 +219,7 @@ export function applyInteractiveSessionAttack(
     weaponAttacks,
     3,
     RangeBracket.Short,
-    indirectFireResolution,
+    attackPreResolution,
     resolvedTargetHex,
   );
   const declarationEmitted = session.events

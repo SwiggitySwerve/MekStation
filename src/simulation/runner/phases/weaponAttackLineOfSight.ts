@@ -1,5 +1,5 @@
-import type { IIndirectFireResolution } from '@/types/gameplay/CombatInterfaces';
 import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
+import type { IIndirectFireResolution } from '@/types/gameplay/IndirectFireInterfaces';
 import type { ILOSResult } from '@/utils/gameplay/lineOfSight';
 
 import { computeIndirectFireContext } from '@/engine/InteractiveSession.indirectFire';

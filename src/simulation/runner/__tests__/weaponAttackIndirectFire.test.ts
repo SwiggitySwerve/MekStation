@@ -19,11 +19,11 @@
  *   - Backward-compat: no grid → no indirect events emitted
  */
 
+import type { IHex, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 import type {
   IIndirectFireForwardObserverPayload,
   IIndirectFireSpotterSelectedPayload,
-} from '@/types/gameplay/CombatInterfaces';
-import type { IHex, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
+} from '@/types/gameplay/IndirectFireInterfaces';
 import type { IElectronicWarfareState } from '@/utils/gameplay/electronicWarfare';
 
 import {
