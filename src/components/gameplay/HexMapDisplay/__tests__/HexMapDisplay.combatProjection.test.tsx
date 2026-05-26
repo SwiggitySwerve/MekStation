@@ -3445,14 +3445,159 @@ describe('HexMapDisplay combat projection', () => {
     );
 
     fireEvent.mouseEnter(targetHex);
-    expect(
-      screen.getByTestId('hex-combat-tooltip-indirect-fire'),
-    ).toHaveTextContent('Indirect fire via spotter spotter (+1)');
+    const indirectFireRows = screen.getByTestId(
+      'hex-combat-tooltip-indirect-fire',
+    );
+    expect(indirectFireRows).toHaveTextContent(
+      'Indirect fire via spotter spotter (+1)',
+    );
+    expect(indirectFireRows).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(indirectFireRows).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    expect(indirectFireRows).toHaveAttribute(
+      'data-tactical-rules-surface',
+      'combat',
+    );
+    expect(indirectFireRows).toHaveAttribute(
+      'data-combat-indirect-fire',
+      'true',
+    );
+    expect(indirectFireRows).toHaveAttribute(
+      'data-combat-indirect-spotter',
+      'spotter',
+    );
+    expect(indirectFireRows).toHaveAttribute(
+      'data-combat-indirect-basis',
+      'los',
+    );
+    expect(indirectFireRows).toHaveAttribute(
+      'data-combat-indirect-penalty',
+      '1',
+    );
+    expect(indirectFireRows).toHaveAttribute(
+      'data-combat-indirect-reason',
+      'Indirect fire via spotter spotter (+1)',
+    );
+    expect(indirectFireRows).toHaveAttribute(
+      'data-combat-indirect-source-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(indirectFireRows).toHaveAttribute(
+      'data-combat-indirect-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek Compute.java'),
+    );
     expect(screen.getByTestId('hex-combat-tooltip-geometry')).toHaveTextContent(
       'LOS blocked; front arc',
     );
     expect(screen.getByTestId('hex-combat-tooltip-weapons')).toHaveTextContent(
       'Weapons: lrm-15-1',
+    );
+  });
+
+  it('surfaces indirect-fire context in combined tactical hover explanations', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const spotter = makeToken({
+      unitId: 'spotter',
+      position: { q: 5, r: 1 },
+    });
+    const enemy = makeToken({
+      unitId: 'enemy',
+      side: GameSide.Opponent,
+      position: { q: 5, r: 0 },
+    });
+
+    render(
+      <HexMapDisplay
+        mapId="combat-map"
+        radius={5}
+        tokens={[selected, spotter, enemy]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 5, r: 0 },
+            mpCost: 5,
+            terrainCost: 0,
+            elevationDelta: 0,
+            elevationCost: 0,
+            heatGenerated: 0,
+            movementMode: 'walk',
+            reachable: true,
+            movementType: MovementType.Walk,
+          },
+        ]}
+        unitWeapons={{
+          selected: [
+            makeWeapon({
+              id: 'lrm-15-1',
+              name: 'LRM-15',
+              ranges: { short: 7, medium: 14, long: 21, minimum: 6 },
+            }),
+          ],
+        }}
+        combatState={makeCombatState({
+          selected: { side: GameSide.Player, position: { q: 0, r: 0 } },
+          spotter: { side: GameSide.Player, position: { q: 5, r: 1 } },
+          enemy: { side: GameSide.Opponent, position: { q: 5, r: 0 } },
+        })}
+        hexTerrain={[
+          {
+            coordinate: { q: 2, r: 0 },
+            elevation: 0,
+            features: [{ type: TerrainType.HeavyWoods, level: 1 }],
+          },
+          {
+            coordinate: { q: 3, r: 0 },
+            elevation: 0,
+            features: [{ type: TerrainType.LightWoods, level: 1 }],
+          },
+        ]}
+      />,
+    );
+
+    const targetHex = screen.getByTestId('hex-5-0');
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-intent',
+      'movement-combat',
+    );
+
+    fireEvent.mouseEnter(targetHex);
+
+    const indirectFireRows = screen.getByTestId(
+      'hex-tactical-tooltip-combat-indirect-fire',
+    );
+    expect(indirectFireRows).toHaveTextContent(
+      'Indirect fire via spotter spotter (+1)',
+    );
+    expect(indirectFireRows).toHaveAttribute(
+      'data-combat-indirect-spotter',
+      'spotter',
+    );
+    expect(indirectFireRows).toHaveAttribute(
+      'data-combat-indirect-basis',
+      'los',
+    );
+    expect(indirectFireRows).toHaveAttribute(
+      'data-combat-indirect-penalty',
+      '1',
+    );
+    expect(indirectFireRows).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(indirectFireRows).toHaveAttribute(
+      'data-combat-indirect-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek Compute.java'),
     );
   });
 
@@ -3534,10 +3679,19 @@ describe('HexMapDisplay combat projection', () => {
     );
 
     fireEvent.mouseEnter(targetHex);
-    expect(
-      screen.getByTestId('hex-combat-tooltip-indirect-fire'),
-    ).toHaveTextContent(
+    const indirectFireRows = screen.getByTestId(
+      'hex-combat-tooltip-indirect-fire',
+    );
+    expect(indirectFireRows).toHaveTextContent(
       'Indirect fire via spotter spotter (+1); Forward Observer cancels walked spotter penalty',
+    );
+    expect(indirectFireRows).toHaveAttribute(
+      'data-combat-indirect-forward-observer',
+      'true',
+    );
+    expect(indirectFireRows).toHaveAttribute(
+      'data-combat-indirect-penalty-cancelled',
+      '1',
     );
   });
 

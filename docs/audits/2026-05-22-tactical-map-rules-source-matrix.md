@@ -1522,6 +1522,17 @@ bands, target numbers, target legality, attack validation, or attack
 resolution; it makes the visible minimum-range explanation inspectable without
 relying on aggregate combat hex metadata.
 
+2026-05-25 combat indirect-fire context rule-reference pin: Combat
+indirect-fire context rows in combat and combined tactical hovers now expose
+combat-channel source references and MegaMek rule references from the shared
+per-hex tactical projection while pinning indirect-fire availability, spotter,
+basis, to-hit penalty, spotter gunnery, spotter skill modifier, Forward Observer
+cancellation, cancelled penalty, and reason when represented. This does not
+change indirect-fire eligibility, spotter election, penalty arithmetic, LOS
+rules, target legality, attack validation, or attack resolution; it makes the
+visible indirect-fire explanation inspectable without relying on aggregate
+combat hex metadata.
+
 ## Acceptance Gate
 
 Every tactical mechanic that appears as a map highlight must have:
