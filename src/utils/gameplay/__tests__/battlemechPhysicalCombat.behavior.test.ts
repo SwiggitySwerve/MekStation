@@ -236,6 +236,10 @@ function dominoChargeDisplacementGrid() {
   return placeUnit(adjacentPhysicalGrid(), { q: 1, r: 1 }, 'domino-blocker');
 }
 
+function friendlyDfaMissDisplacementGrid() {
+  return placeUnit(adjacentPhysicalGrid(), { q: 1, r: 1 }, 'target-friend');
+}
+
 function elevatedChargeDisplacementGrid() {
   const grid = adjacentPhysicalGrid();
   const hexes = new Map(grid.hexes);
@@ -4341,6 +4345,80 @@ describe('BattleMech physical combat behavior validation lane', () => {
       pilotConscious: false,
     });
     expect(psrEvents).toHaveLength(0);
+  });
+
+  it('avoids friendly occupied DFA miss displacement destinations before falling in', () => {
+    const context = physicalContext({
+      hexesMoved: 4,
+      attackerJumpedThisTurn: true,
+    });
+    const positioned = withPhysicalPositions(
+      physicalPhaseSession([
+        {
+          id: 'target-friend',
+          name: 'Target Friend',
+          side: GameSide.Opponent,
+          unitRef: 'target-friend-ref',
+          pilotRef: 'target-friend-pilot',
+          gunnery: 4,
+          piloting: 5,
+        },
+      ]),
+      {
+        facing: Facing.South,
+      },
+    );
+    let declared = declarePhysicalAttack(
+      positioned,
+      'attacker',
+      'target',
+      'dfa',
+      context,
+    );
+    declared = withUnitState(declared, 'attacker', {
+      position: { q: 0, r: 0 },
+      facing: Facing.South,
+    });
+    declared = withUnitState(declared, 'target', {
+      position: { q: 1, r: 0 },
+    });
+    declared = withUnitState(declared, 'target-friend', {
+      position: { q: 1, r: 1 },
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([1, 1]),
+      friendlyDfaMissDisplacementGrid(),
+    );
+    const event = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = event?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload.displacements).toEqual([
+      {
+        unitId: 'target',
+        from: { q: 1, r: 0 },
+        to: { q: 0, r: 1 },
+        reason: 'dfa_miss',
+      },
+      {
+        unitId: 'attacker',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        reason: 'dfa_miss',
+      },
+    ]);
+    expect(resolved.currentState.units.target.position).toEqual({
+      q: 0,
+      r: 1,
+    });
+    expect(resolved.currentState.units.attacker.position).toEqual({
+      q: 1,
+      r: 0,
+    });
   });
 
   it('passes missed-DFA fall pilot-damage avoidance without a PilotHit', () => {

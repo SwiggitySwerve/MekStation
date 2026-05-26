@@ -96,8 +96,10 @@ function computeResolvedPhysicalDisplacementOutcome(options: {
   readonly target: IGameSession['currentState']['units'][string];
   readonly hit: boolean;
   readonly d6Roller: D6Roller;
+  readonly friendlyUnitIds?: readonly string[];
 }): IResolvedPhysicalDisplacementOutcome {
-  const { attackType, attacker, d6Roller, grid, hit, target } = options;
+  const { attackType, attacker, d6Roller, friendlyUnitIds, grid, hit, target } =
+    options;
   if (!grid) {
     return { displacements: [] };
   }
@@ -137,6 +139,7 @@ function computeResolvedPhysicalDisplacementOutcome(options: {
       targetId: target.id,
       targetPosition: target.position,
       hit,
+      targetFriendlyUnitIds: friendlyUnitIds,
     });
   }
 
@@ -173,6 +176,18 @@ function dfaMissDropsAttacker(
     (displacement) =>
       displacement.unitId === attackerId && displacement.reason === 'dfa_miss',
   );
+}
+
+function friendlyUnitIdsForDisplacement(
+  units: IGameSession['currentState']['units'],
+  displacedUnit: IGameSession['currentState']['units'][string],
+): readonly string[] {
+  return Object.values(units)
+    .filter(
+      (unit) =>
+        unit.id !== displacedUnit.id && unit.side === displacedUnit.side,
+    )
+    .map((unit) => unit.id);
 }
 
 function appendDfaMissFallDamage(
@@ -795,6 +810,10 @@ export function resolveAllPhysicalAttacks(
       target: targetState,
       hit: result.hit,
       d6Roller,
+      friendlyUnitIds: friendlyUnitIdsForDisplacement(
+        currentSession.currentState.units,
+        targetState,
+      ),
     });
     const displacements = displacementOutcome.displacements;
     const impossibleDisplacementDestroyedUnitId =

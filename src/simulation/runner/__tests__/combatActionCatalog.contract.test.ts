@@ -1003,8 +1003,8 @@ describe('BattleMech combat action support catalog', () => {
     expect(
       PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-friendly-avoidance'],
     ).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('side-aware occupant context'),
+      level: 'integrated',
+      evidence: expect.stringContaining('DFA-miss displacement destinations'),
       sourceRefs: [
         expect.objectContaining({
           citation: expect.stringContaining(

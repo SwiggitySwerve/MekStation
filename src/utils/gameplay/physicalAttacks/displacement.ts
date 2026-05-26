@@ -56,6 +56,10 @@ export interface IDisplacementLegalityOptions {
   readonly maxElevationChange?: number;
 }
 
+export interface IPreferredDisplacementOptions {
+  readonly friendlyUnitIds?: readonly string[];
+}
+
 function normalizeDisplacementLegalityOptions(
   optionsOrExcludeUnitId?: string | IDisplacementLegalityOptions,
 ): IDisplacementLegalityOptions {
@@ -153,6 +157,15 @@ function coordKey(coord: IHexCoordinate): string {
 
 function occupantAt(grid: IHexGrid, coord: IHexCoordinate): string | null {
   return grid.hexes.get(coordKey(coord))?.occupantId ?? null;
+}
+
+function isFriendlyOccupiedDestination(
+  grid: IHexGrid,
+  coord: IHexCoordinate,
+  friendlyUnitIds: ReadonlySet<string>,
+): boolean {
+  const occupantId = occupantAt(grid, coord);
+  return occupantId !== null && friendlyUnitIds.has(occupantId);
 }
 
 function directionFromAdjacent(
@@ -616,8 +629,8 @@ export function computeValidDisplacement(
 /**
  * Mirrors MegaMek `Compute.getPreferredDisplacement` for DFA misses: scan
  * nearest-to-direction hexes, prefer same elevation, otherwise keep the
- * highest legal elevation. Friendly-unit avoidance is not represented in
- * the current `IHexGrid` occupancy model.
+ * highest legal elevation. When caller supplies same-side target friendlies,
+ * first prefer destinations that are not occupied by those friendlies.
  *
  * Source: MegaMek `Compute.java:1056-1114`.
  */
@@ -626,39 +639,59 @@ export function computePreferredDisplacement(
   displacedUnitId: string,
   source: IHexCoordinate,
   direction: Facing,
+  options: IPreferredDisplacementOptions = {},
 ): IHexCoordinate | null {
   const sourceElevation =
     grid.hexes.get(`${source.q},${source.r}`)?.elevation ?? 0;
-  let highest: IHexCoordinate | null = null;
-  let highestElevation = Number.NEGATIVE_INFINITY;
+  const friendlyUnitIds = new Set(options.friendlyUnitIds ?? []);
 
-  for (const offset of DISPLACEMENT_OFFSETS) {
-    const candidate = translateHex(
-      source,
-      ((direction + offset) % 6) as Facing,
-    );
-    if (
-      !isValidDisplacement(grid, candidate, {
-        excludeUnitId: displacedUnitId,
+  const bestCandidate = (skipFriendly: boolean): IHexCoordinate | null => {
+    let highest: IHexCoordinate | null = null;
+    let highestElevation = Number.NEGATIVE_INFINITY;
+
+    for (const offset of DISPLACEMENT_OFFSETS) {
+      const candidate = translateHex(
         source,
-        maxElevationChange: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
-      })
-    ) {
-      continue;
+        ((direction + offset) % 6) as Facing,
+      );
+      if (
+        !isValidDisplacement(grid, candidate, {
+          excludeUnitId: displacedUnitId,
+          source,
+          maxElevationChange: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
+        })
+      ) {
+        continue;
+      }
+      if (
+        skipFriendly &&
+        isFriendlyOccupiedDestination(grid, candidate, friendlyUnitIds)
+      ) {
+        continue;
+      }
+
+      const elevation =
+        grid.hexes.get(`${candidate.q},${candidate.r}`)?.elevation ?? 0;
+      if (elevation > highestElevation) {
+        highestElevation = elevation;
+        highest = candidate;
+      }
+      if (elevation === sourceElevation) {
+        return candidate;
+      }
     }
 
-    const elevation =
-      grid.hexes.get(`${candidate.q},${candidate.r}`)?.elevation ?? 0;
-    if (elevation > highestElevation) {
-      highestElevation = elevation;
-      highest = candidate;
-    }
-    if (elevation === sourceElevation) {
-      return candidate;
+    return highest;
+  };
+
+  if (friendlyUnitIds.size > 0) {
+    const nonFriendlyCandidate = bestCandidate(true);
+    if (nonFriendlyCandidate) {
+      return nonFriendlyCandidate;
     }
   }
 
-  return highest;
+  return bestCandidate(false);
 }
 
 /**
@@ -684,6 +717,7 @@ export function computeDfaDisplacementOutcome(options: {
   readonly targetId: string;
   readonly targetPosition: IHexCoordinate;
   readonly hit: boolean;
+  readonly targetFriendlyUnitIds?: readonly string[];
 }): IDfaDisplacementOutcome {
   const {
     attackerFacing,
@@ -702,6 +736,7 @@ export function computeDfaDisplacementOutcome(options: {
         targetId,
         targetPosition,
         attackerFacing,
+        { friendlyUnitIds: options.targetFriendlyUnitIds },
       );
 
   if (!targetDestination) {

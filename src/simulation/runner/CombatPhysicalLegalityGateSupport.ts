@@ -422,10 +422,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'Domino-effect PSRs, step-out fallout, and PilotingRollData-style side effects are still not emitted for stacking-violation displacement chains',
     DISPLACEMENT_DOMINO_CHAIN_LINES,
   ),
-  'shared.displacement-friendly-avoidance': unsupported(
+  'shared.displacement-friendly-avoidance': integrated(
     'shared.displacement-friendly-avoidance',
     'shared',
-    'MekStation displacement helpers do not pass side-aware occupant context into preferred-DFA displacement, so they cannot model MegaMek first-pass avoidance of friendly occupied destinations',
+    'computePreferredDisplacement accepts friendly occupant ids and first scans valid DFA-miss displacement destinations while skipping friendly occupied hexes before falling back; event-sourced and runner DFA miss resolution hydrate same-side target friendlies into that source-backed pass',
     DISPLACEMENT_FRIENDLY_AVOIDANCE_LINES,
   ),
   'shared.displacement-dropship-radius': unsupported(

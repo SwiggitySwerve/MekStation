@@ -159,6 +159,32 @@ function makeDominoDisplacementGrid(): IHexGrid {
   return { ...grid, hexes };
 }
 
+function makeFriendlyPreferredDisplacementGrid(): IHexGrid {
+  const grid = makeDisplacementGrid();
+  const hexes = new Map(grid.hexes);
+  const friendlyDestination = hexes.get('1,1');
+  const alternateDestination = hexes.get('0,1');
+  if (friendlyDestination) {
+    hexes.set('1,1', {
+      ...friendlyDestination,
+      occupantId: 'target-friend',
+    });
+  }
+  if (alternateDestination) {
+    hexes.set('0,1', {
+      ...alternateDestination,
+      elevation: 0,
+    });
+  }
+  hexes.set('1,2', {
+    coord: { q: 1, r: 2 },
+    occupantId: null,
+    terrain: 'clear',
+    elevation: 0,
+  });
+  return { ...grid, hexes };
+}
+
 function makeProhibitedChargeDisplacementGrid(
   terrain: string = 'impassable',
 ): IHexGrid {
@@ -402,6 +428,53 @@ describe('physicalAttacks', () => {
           unitId: 'target',
           from: { q: 1, r: 0 },
           to: { q: 1, r: 1 },
+          reason: 'dfa_miss',
+        },
+        {
+          unitId: 'attacker',
+          from: { q: 0, r: 0 },
+          to: { q: 1, r: 0 },
+          reason: 'dfa_miss',
+        },
+      ]);
+    });
+
+    it('prefers non-friendly DFA miss displacement before falling back to occupied friendly hexes', () => {
+      const grid = makeFriendlyPreferredDisplacementGrid();
+
+      expect(
+        computePreferredDisplacement(
+          grid,
+          'target',
+          { q: 1, r: 0 },
+          Facing.South,
+        ),
+      ).toEqual({ q: 1, r: 1 });
+      expect(
+        computePreferredDisplacement(
+          grid,
+          'target',
+          { q: 1, r: 0 },
+          Facing.South,
+          { friendlyUnitIds: ['target-friend'] },
+        ),
+      ).toEqual({ q: 0, r: 1 });
+      expect(
+        computeDfaDisplacementOutcome({
+          grid,
+          attackerId: 'attacker',
+          attackerPosition: { q: 0, r: 0 },
+          attackerFacing: Facing.South,
+          targetId: 'target',
+          targetPosition: { q: 1, r: 0 },
+          hit: false,
+          targetFriendlyUnitIds: ['target-friend'],
+        }).displacements,
+      ).toEqual([
+        {
+          unitId: 'target',
+          from: { q: 1, r: 0 },
+          to: { q: 0, r: 1 },
           reason: 'dfa_miss',
         },
         {

@@ -567,7 +567,7 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** the displacement SHALL be treated as invalid before position changes or displacement PSRs are emitted
 - **AND** successful charge damage SHALL still apply while both units remain in their original hexes
 - **AND** helper, event-sourced resolution, runner resolution, catalog, and source-truth audit evidence SHALL cite the MegaMek `Compute.isValidDisplacement` and `Mek.getMaxElevationChange` anchors
-- **AND** domino PSR/step-out fallout, friendly-unit avoidance, and DropShip-radius displacement SHALL remain explicit gaps
+- **AND** domino PSR/step-out fallout and DropShip-radius displacement SHALL remain explicit gaps
 
 #### Scenario: Physical displacement rejects prohibited BattleMech terrain
 
@@ -576,7 +576,7 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** the displacement SHALL be treated as invalid before position changes or displacement PSRs are emitted
 - **AND** successful charge damage SHALL still apply while both units remain in their original hexes
 - **AND** helper, event-sourced resolution, runner resolution, catalog, and source-truth audit evidence SHALL cite MegaMek `Compute.isValidDisplacement` prohibited-destination handling plus `Mek.isLocationProhibited` impassable and woods/jungle terrain-level handling
-- **AND** hidden-unit deployment restrictions, track/wheel motive restrictions, domino PSR/step-out fallout, friendly-unit avoidance, and DropShip-radius displacement SHALL remain explicit gaps
+- **AND** hidden-unit deployment restrictions, track/wheel motive restrictions, domino PSR/step-out fallout, and DropShip-radius displacement SHALL remain explicit gaps
 
 #### Scenario: Runner physical displacement refreshes same-phase occupancy
 
@@ -585,7 +585,7 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** the runner SHALL evaluate displacement legality against the refreshed grid occupancy from the earlier displacement payload
 - **AND** the later attack SHALL NOT emit a displacement payload or charge-specific displacement PSRs when that refreshed destination is occupied
 - **AND** runner behavior, parity catalog, task list, and source-truth audit evidence SHALL report the same stale-occupancy closure
-- **AND** domino PSR/step-out fallout, friendly-unit avoidance, and DropShip-radius displacement SHALL remain explicit gaps
+- **AND** domino PSR/step-out fallout and DropShip-radius displacement SHALL remain explicit gaps
 
 #### Scenario: Displacement chain edge gaps stay source-backed
 
@@ -593,9 +593,9 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **WHEN** the catalog is contract-tested
 - **THEN** occupied-hex domino positional displacement SHALL remain a source-backed helper-only row that recursively moves blockers and cascades position updates through helper, event-sourced, and runner physical resolution
 - **AND** domino PSR/step-out fallout SHALL remain an explicit gap until stacking-violation displacement chains emit the source-backed PilotingRollData-style side effects
-- **AND** friendly-unit displacement avoidance SHALL remain an explicit unsupported row until preferred DFA displacement receives side-aware occupant context
+- **AND** DFA-miss friendly occupied displacement avoidance SHALL remain an integrated source-backed row that passes same-side target friendlies into preferred displacement before falling back to occupied friendly destinations
 - **AND** grounded DropShip-radius displacement SHALL remain an explicit unsupported row until the displacement search can expand to radius two around a grounded DropShip footprint
-- **AND** each helper-only or unsupported row SHALL cite the corresponding MegaMek `Compute` or `TWGameManager` source anchor with commit-pinned line references
+- **AND** each helper-only, integrated, or unsupported row SHALL cite the corresponding MegaMek `Compute` or `TWGameManager` source anchor with commit-pinned line references
 
 #### Scenario: Push rejects arm-mounted weapons fired this turn
 

@@ -81,6 +81,7 @@ export function computePhysicalDisplacements(options: {
   target: IGameState['units'][string];
   hit: boolean;
   d6Roller: () => number;
+  targetFriendlyUnitIds?: readonly string[];
 }): readonly IPhysicalDisplacement[] {
   return computePhysicalDisplacementOutcome(options).displacements;
 }
@@ -92,8 +93,17 @@ export function computePhysicalDisplacementOutcome(options: {
   target: IGameState['units'][string];
   hit: boolean;
   d6Roller: () => number;
+  targetFriendlyUnitIds?: readonly string[];
 }): IPhysicalDisplacementOutcome {
-  const { attackType, attacker, d6Roller, grid, hit, target } = options;
+  const {
+    attackType,
+    attacker,
+    d6Roller,
+    grid,
+    hit,
+    target,
+    targetFriendlyUnitIds,
+  } = options;
   if (!grid) return { displacements: [] };
 
   if (!hit && attackType === 'charge') {
@@ -131,6 +141,7 @@ export function computePhysicalDisplacementOutcome(options: {
       targetId: target.id,
       targetPosition: target.position,
       hit,
+      targetFriendlyUnitIds,
     });
   }
 

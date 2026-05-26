@@ -319,6 +319,28 @@ function createDominoChargeGrid(): IHexGrid {
   return { ...grid, hexes };
 }
 
+function createFriendlyDfaMissGrid(): IHexGrid {
+  const grid = createPhysicalGrid();
+  const hexes = new Map(grid.hexes);
+  const destination = hexes.get('1,1');
+  if (destination) {
+    hexes.set('1,1', { ...destination, occupantId: 'opponent-friend' });
+  }
+  hexes.set('0,1', {
+    coord: { q: 0, r: 1 },
+    occupantId: null,
+    terrain: TerrainType.Clear,
+    elevation: 0,
+  });
+  hexes.set('1,2', {
+    coord: { q: 1, r: 2 },
+    occupantId: null,
+    terrain: TerrainType.Clear,
+    elevation: 0,
+  });
+  return { ...grid, hexes };
+}
+
 function runPhase(
   attackType: PhysicalAttackType,
   options: {
@@ -2470,6 +2492,60 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       pilotWounds: 1,
       pilotConscious: true,
     });
+  });
+
+  it('avoids friendly occupied DFA miss displacement destinations in runner resolution', () => {
+    const baseState = createState();
+    const state: IGameState = {
+      ...baseState,
+      units: {
+        ...baseState.units,
+        'player-1': {
+          ...baseState.units['player-1'],
+          facing: Facing.South,
+          movementThisTurn: MovementType.Jump,
+          hexesMovedThisTurn: 4,
+          piloting: 12,
+        },
+        'opponent-1': {
+          ...baseState.units['opponent-1'],
+          piloting: 12,
+        },
+        'opponent-friend': createUnit(
+          'opponent-friend',
+          GameSide.Opponent,
+          { q: 1, r: 1 },
+          { pilotConscious: false },
+        ),
+      },
+    };
+    const { events, result } = runPhaseWithState(
+      'dfa',
+      state,
+      createFriendlyDfaMissGrid(),
+    );
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'dfa',
+      hit: false,
+    });
+    expect(resolvedPayload(events).displacements).toEqual([
+      {
+        unitId: 'opponent-1',
+        from: { q: 1, r: 0 },
+        to: { q: 0, r: 1 },
+        reason: 'dfa_miss',
+      },
+      {
+        unitId: 'player-1',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        reason: 'dfa_miss',
+      },
+    ]);
+    expect(result.units['opponent-1'].position).toEqual({ q: 0, r: 1 });
+    expect(result.units['opponent-friend'].position).toEqual({ q: 1, r: 1 });
+    expect(result.units['player-1'].position).toEqual({ q: 1, r: 0 });
   });
 
   it('destroys the DFA target when hit displacement is impossible', () => {

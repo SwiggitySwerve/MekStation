@@ -85,6 +85,18 @@ function dfaMissDropsAttacker(
   );
 }
 
+function friendlyUnitIdsForDisplacement(
+  state: IGameState,
+  displacedUnit: IGameState['units'][string],
+): readonly string[] {
+  return Object.values(state.units)
+    .filter(
+      (unit) =>
+        unit.id !== displacedUnit.id && unit.side === displacedUnit.side,
+    )
+    .map((unit) => unit.id);
+}
+
 function markUnitFallenAfterDfaMiss(
   state: IGameState,
   unitId: string,
@@ -471,6 +483,10 @@ export function runPhysicalAttackPhase(options: {
             target,
             hit: result.hit,
             d6Roller,
+            targetFriendlyUnitIds: friendlyUnitIdsForDisplacement(
+              currentState,
+              target,
+            ),
           })
         : { displacements: [] };
     const displacements = displacementOutcome.displacements;
