@@ -539,6 +539,24 @@ function createUnit(
   };
 }
 
+function armorTypeByLocation(
+  armorType: string,
+): Readonly<Record<string, string>> {
+  return {
+    head: armorType,
+    center_torso: armorType,
+    center_torso_rear: armorType,
+    left_torso: armorType,
+    left_torso_rear: armorType,
+    right_torso: armorType,
+    right_torso_rear: armorType,
+    left_arm: armorType,
+    right_arm: armorType,
+    left_leg: armorType,
+    right_leg: armorType,
+  };
+}
+
 /**
  * Build a 1v1 game state with two units placed at the supplied
  * positions and a hydration map seeding both with the supplied
@@ -1524,6 +1542,54 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
         SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].gap,
       ).not.toContain('external target heat');
     });
+
+    it.each([
+      ['reflective armor', 'Reflective', 3],
+      ['heat-dissipating armor', 'Heat-Dissipating', 3],
+    ])(
+      'plasma cannon target heat is halved by intact %s',
+      (_label, armorType, expectedHeat) => {
+        const weapon = createPlasmaCannon();
+        const { state, weaponsByUnit } = buildScenario({
+          attackerWeapons: [weapon],
+          attackerStateOverride: { gunnery: 0 },
+          targetStateOverride: {
+            heat: 4,
+            armorTypeByLocation: armorTypeByLocation(armorType),
+          },
+          targetPosition: { q: 5, r: 0 },
+        });
+
+        const result = runPhaseWithResult({
+          state,
+          weaponsByUnit,
+          botPlayer: new ScriptedAttackAI(weapon.id),
+          random: new SequenceRandom([6, 6, 3, 4, 2, 5]),
+        });
+        const heatGenerated = result.events.find(
+          (event) =>
+            event.type === GameEventType.HeatGenerated &&
+            (event.payload as { unitId?: string }).unitId === 'opponent-1',
+        ) as
+          | (IGameEvent & {
+              payload: {
+                amount: number;
+                source: string;
+                previousTotal: number;
+                newTotal: number;
+              };
+            })
+          | undefined;
+
+        expect(heatGenerated?.payload).toMatchObject({
+          amount: expectedHeat,
+          source: 'external',
+          previousTotal: 4,
+          newTotal: 4 + expectedHeat,
+        });
+        expect(result.state.units['opponent-1'].heat).toBe(4 + expectedHeat);
+      },
+    );
 
     it('standard missile salvos use the cluster table with NARC and MRM modifiers', () => {
       const lrm = createLRM10();
