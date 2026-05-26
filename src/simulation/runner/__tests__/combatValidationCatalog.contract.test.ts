@@ -174,15 +174,15 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 206,
+      total: 201,
       byLevel: {
-        'helper-only': 150,
+        'helper-only': 145,
         unsupported: 56,
       },
       bySection: {
         actions: 26,
         damageAndDeath: 2,
-        featureSupport: 115,
+        featureSupport: 110,
         lifecycleAndPsr: 5,
         pilotSkills: 20,
         ruleSupport: 16,
@@ -193,10 +193,8 @@ describe('BattleMech combat validation catalog index', () => {
       expect.arrayContaining([
         'actions.absentActionSurfaces.movement.evade',
         'actions.absentActionSurfaces.movement.sprint',
-        'featureSupport.ammunitionCompatibility.non-battlemech-aerospace-capital-ammo',
-        'featureSupport.ammunitionCompatibility.non-battlemech-battle-armor',
-        'featureSupport.ammunitionCompatibility.non-battlemech-protomech',
-        'featureSupport.ammunitionCompatibility.unsupported-artillery-ammo',
+        'featureSupport.ammunitionCompatibility.battlemech-ammo-missing-compatible-weapon-refs',
+        'featureSupport.ammunitionCompatibility.nonstandard-empty-compatible-row',
         'featureSupport.physicalWeapons.claws',
         'featureSupport.physicalWeapons.talons',
         'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
@@ -226,9 +224,14 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.physicalActionClassScope.lay-explosives',
         'actions.physicalActionClassScope.protomek-physical',
         'actions.physicalActionClassScope.ram',
+        'featureSupport.ammunitionCompatibility.non-battlemech-aerospace-capital-ammo',
+        'featureSupport.ammunitionCompatibility.non-battlemech-battle-armor',
+        'featureSupport.ammunitionCompatibility.non-battlemech-protomech',
+        'featureSupport.ammunitionCompatibility.unsupported-aquatic-torpedo-ammo',
+        'featureSupport.ammunitionCompatibility.unsupported-artillery-ammo',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(20);
+    expect(outOfScopeRows).toHaveLength(25);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('actions.physicalActionClassScope.'),
@@ -239,6 +242,17 @@ describe('BattleMech combat validation catalog index', () => {
       'actions.physicalActionClassScope.lay-explosives',
       'actions.physicalActionClassScope.protomek-physical',
       'actions.physicalActionClassScope.ram',
+    ]);
+    expect(
+      outOfScopeRefs.filter((ref) =>
+        ref.startsWith('featureSupport.ammunitionCompatibility.'),
+      ),
+    ).toEqual([
+      'featureSupport.ammunitionCompatibility.non-battlemech-aerospace-capital-ammo',
+      'featureSupport.ammunitionCompatibility.non-battlemech-battle-armor',
+      'featureSupport.ammunitionCompatibility.non-battlemech-protomech',
+      'featureSupport.ammunitionCompatibility.unsupported-aquatic-torpedo-ammo',
+      'featureSupport.ammunitionCompatibility.unsupported-artillery-ammo',
     ]);
     expect(
       outOfScopeRows.filter(

@@ -1221,10 +1221,14 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(supportIdsByLevel(ammoCompatibilitySupport, 'helper-only')).toEqual(
       [
         'battlemech-ammo-missing-compatible-weapon-refs',
+        'nonstandard-empty-compatible-row',
+      ].sort(),
+    );
+    expect(supportIdsByLevel(ammoCompatibilitySupport, 'out-of-scope')).toEqual(
+      [
         'non-battlemech-aerospace-capital-ammo',
         'non-battlemech-battle-armor',
         'non-battlemech-protomech',
-        'nonstandard-empty-compatible-row',
         'unsupported-aquatic-torpedo-ammo',
         'unsupported-artillery-ammo',
       ].sort(),

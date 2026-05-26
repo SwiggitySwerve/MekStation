@@ -24,6 +24,17 @@ function helperOnly(
     : { id, level: 'helper-only', evidence, gap };
 }
 
+function outOfScope(
+  id: string,
+  evidence: string,
+  gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'out-of-scope', evidence, gap, sourceRefs }
+    : { id, level: 'out-of-scope', evidence, gap };
+}
+
 function mekstationDeviationSourceRef(
   citation: string,
   path: string,
@@ -137,19 +148,19 @@ export const AMMUNITION_COMPATIBILITY_SUPPORT = {
     'Catalog data needs compatibleWeaponIds before these rows can become consumable BattleMech ammo bins',
     BATTLEMECH_AMMO_GAP_SOURCE_REFS,
   ),
-  'non-battlemech-aerospace-capital-ammo': helperOnly(
+  'non-battlemech-aerospace-capital-ammo': outOfScope(
     'non-battlemech-aerospace-capital-ammo',
     'Aerospace and capital ammo rows are pinned by exact id outside the BattleMech weapon compatibility lane',
     'Aerospace and capital weapon systems need a separate validation matrix',
     BATTLEMECH_AMMO_GAP_SOURCE_REFS,
   ),
-  'non-battlemech-battle-armor': helperOnly(
+  'non-battlemech-battle-armor': outOfScope(
     'non-battlemech-battle-armor',
     'Battle armor ammo rows are pinned by exact id outside the BattleMech weapon compatibility lane',
     'Battle armor weapon systems need a separate validation matrix',
     BATTLEMECH_AMMO_GAP_SOURCE_REFS,
   ),
-  'non-battlemech-protomech': helperOnly(
+  'non-battlemech-protomech': outOfScope(
     'non-battlemech-protomech',
     'ProtoMech ammo rows are pinned by exact id outside the BattleMech weapon compatibility lane',
     'ProtoMech weapon systems need a separate validation matrix',
@@ -161,13 +172,13 @@ export const AMMUNITION_COMPATIBILITY_SUPPORT = {
     'Rules-level-specific validation must decide whether these rows belong in BattleMech combat',
     BATTLEMECH_AMMO_GAP_SOURCE_REFS,
   ),
-  'unsupported-aquatic-torpedo-ammo': helperOnly(
+  'unsupported-aquatic-torpedo-ammo': outOfScope(
     'unsupported-aquatic-torpedo-ammo',
     'Aquatic torpedo ammo rows are pinned by exact id outside normal BattleMech launcher compatibility',
     'Aquatic combat and torpedo launcher behavior need a separate validation matrix',
     BATTLEMECH_AMMO_GAP_SOURCE_REFS,
   ),
-  'unsupported-artillery-ammo': helperOnly(
+  'unsupported-artillery-ammo': outOfScope(
     'unsupported-artillery-ammo',
     'Artillery ammo rows are pinned by exact id outside direct BattleMech weapon compatibility',
     'Artillery attack flow and ammunition behavior need a separate validation matrix',
