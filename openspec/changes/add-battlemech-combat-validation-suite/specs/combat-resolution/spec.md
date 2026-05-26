@@ -16,7 +16,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** helper-only and unsupported rows SHALL remain queryable as a machine-readable unresolved completion-blocker inventory
 - **AND** the unresolved inventory SHALL expose stable catalog refs, support levels, evidence, gap text, and row-level source references outside test-local helper code
 - **AND** combat validation tooling SHALL expose the unresolved inventory through a named command suitable for review and PR gates
-- **AND** source-pinned non-BattleMech rows SHALL be queryable as `out-of-scope` audit evidence through combat validation tooling without counting as BattleMech unresolved completion blockers
+- **AND** source-pinned non-BattleMech and non-combat control-plane rows SHALL be queryable as `out-of-scope` audit evidence through combat validation tooling without counting as BattleMech unresolved completion blockers
 
 #### Scenario: Integrated mechanics require executable evidence
 
@@ -124,11 +124,11 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **AND** helper-only product command rows, including local movement cancel, weapon draft declaration/clear, withdraw, and request-spot commands, SHALL cite the MekStation command factory that exposes the local surface
 - **AND** direct UI action rows, including withdrawal edge selection, SHALL cite the MekStation component that exposes the direct action surface
 - **AND** every game-intent action row SHALL cite the MekStation game-intent mapper that constructs or maps the local intent to its server wire payload
-- **AND** every wire-intent action row SHALL cite the MekStation server dispatcher, with lobby and reconnect wire intents remaining source-visible non-combat scope splits
+- **AND** every wire-intent action row SHALL cite the MekStation server dispatcher, with lobby and reconnect wire intents remaining `out-of-scope` non-combat scope splits
 - **AND** every P2P intent translation row SHALL cite the MekStation intent translator, plus host-router source anchors for host-owned command translations
 - **AND** P2P phase-advance, movement, and weapon-attack rows SHALL prove the host revalidates or rebuilds combat state from authoritative host data instead of trusting guest-supplied phase events, movement MP/heat/path, to-hit numbers, or weapon stats
 - **AND** `physicalAttackCommands` catalog rows SHALL enforce row-level MekStation command source references before PR approval
-- **AND** GM command exclusion rows SHALL cite the MekStation GM/referee command factory and SHALL remain outside player BattleMech combat action handling
+- **AND** GM command exclusion rows SHALL cite the MekStation GM/referee command factory as `out-of-scope` control-plane rows and SHALL remain outside player BattleMech combat action handling
 - **AND** those rows SHALL NOT be inferred from helper prose or omitted because no UI command currently emits them
 
 #### Scenario: Torso twist emits source-backed secondary facing through command and wire paths
