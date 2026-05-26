@@ -426,8 +426,8 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **WHEN** the physical action class scope catalog is contract-tested
 - **THEN** every physical action class scope row SHALL cite the matching MegaMek source class with commit-pinned line anchors
 - **AND** supported punch, kick, push, charge, death-from-above, and club/melee rows SHALL expose row-level MegaMek source references before PR approval
-- **AND** non-BattleMech AirMek, battle armor, infantry explosive, ProtoMek, and aerospace ram rows SHALL remain explicit scope splits with row-level MegaMek source references
-- **AND** each row SHALL remain `unsupported` until MekStation has a runtime `PhysicalAttackType`, tactical command, event-sourced declaration/resolution, and runner resolution path for that class
+- **AND** non-BattleMech AirMek, battle armor, infantry explosive, ProtoMek, and aerospace ram rows SHALL remain explicit `out-of-scope` splits with row-level MegaMek source references
+- **AND** only BattleMech-applicable brush-off, thrash, trip, grapple, break-grapple, and jump-jet rows SHALL remain `unsupported` until MekStation has a runtime `PhysicalAttackType`, tactical command, event-sourced declaration/resolution, and runner resolution path for that class
 - **AND** the `physicalActionClassScope` catalog triad SHALL enforce row-level source references before PR approval
 
 #### Scenario: Physical attacks require existing targets
