@@ -41,6 +41,7 @@ function finalizeDamageResolution(options: {
   readonly locationDamages: IResolveDamageResult['result']['locationDamages'];
   readonly roller?: D6Roller;
   readonly applyHeadPilotDamage: boolean;
+  readonly rollCriticalHits: boolean;
 }): IResolveDamageResult {
   const {
     applyHeadPilotDamage,
@@ -49,6 +50,7 @@ function finalizeDamageResolution(options: {
     locationDamages,
     originalDamage,
     roller,
+    rollCriticalHits,
     stateAfterDamage,
   } = options;
   let currentState = stateAfterDamage;
@@ -74,58 +76,63 @@ function finalizeDamageResolution(options: {
   let runningComponentDamage: IComponentDamageState | undefined =
     ctx?.componentDamage;
 
-  for (const locDamage of locationDamages) {
-    if (locDamage.structureDamage <= 0 || locDamage.destroyed) {
-      continue;
-    }
+  if (rollCriticalHits) {
+    for (const locDamage of locationDamages) {
+      if (locDamage.structureDamage <= 0 || locDamage.destroyed) {
+        continue;
+      }
 
-    const trigger = checkCriticalHitTrigger(locDamage.structureDamage, roller);
-    if (!trigger.triggered) {
-      continue;
-    }
-
-    const count = getCriticalHitCount(trigger.roll.total);
-    criticalTriggers.push({ location: locDamage.location, count });
-
-    if (
-      ctx &&
-      runningManifest !== undefined &&
-      runningComponentDamage !== undefined &&
-      roller !== undefined
-    ) {
-      const outcome = resolveCriticalHits(
-        ctx.unitId,
-        locDamage.location,
-        runningManifest,
-        runningComponentDamage,
+      const trigger = checkCriticalHitTrigger(
+        locDamage.structureDamage,
         roller,
-        count,
-        ctx.armorType,
       );
+      if (!trigger.triggered) {
+        continue;
+      }
 
-      runningManifest = outcome.updatedManifest;
-      runningComponentDamage = outcome.updatedComponentDamage;
-      criticalEvents.push(...outcome.events);
+      const count = getCriticalHitCount(trigger.roll.total);
+      criticalTriggers.push({ location: locDamage.location, count });
 
-      for (const hit of outcome.hits) {
-        criticalHits.push({
-          location: locDamage.location,
-          severity: outcome.locationBlownOff
-            ? CriticalSeverity.LimbBlownOff
-            : CriticalSeverity.Standard,
-          slotRoll: {
-            dice: [0, 0],
-            total: 0,
-            isSnakeEyes: false,
-            isBoxcars: false,
-          },
-          slot: {
-            slotIndex: hit.slot.slotIndex,
-            equipment: hit.slot.componentName,
-            destroyed: true,
-          },
-          effect: hit.effect,
-        });
+      if (
+        ctx &&
+        runningManifest !== undefined &&
+        runningComponentDamage !== undefined &&
+        roller !== undefined
+      ) {
+        const outcome = resolveCriticalHits(
+          ctx.unitId,
+          locDamage.location,
+          runningManifest,
+          runningComponentDamage,
+          roller,
+          count,
+          ctx.armorType,
+        );
+
+        runningManifest = outcome.updatedManifest;
+        runningComponentDamage = outcome.updatedComponentDamage;
+        criticalEvents.push(...outcome.events);
+
+        for (const hit of outcome.hits) {
+          criticalHits.push({
+            location: locDamage.location,
+            severity: outcome.locationBlownOff
+              ? CriticalSeverity.LimbBlownOff
+              : CriticalSeverity.Standard,
+            slotRoll: {
+              dice: [0, 0],
+              total: 0,
+              isSnakeEyes: false,
+              isBoxcars: false,
+            },
+            slot: {
+              slotIndex: hit.slot.slotIndex,
+              equipment: hit.slot.componentName,
+              destroyed: true,
+            },
+            effect: hit.effect,
+          });
+        }
       }
     }
   }
@@ -193,6 +200,7 @@ export function resolveDamage(
   location: CombatLocation,
   damage: number,
   roller?: D6Roller,
+  options: { readonly rollCriticalHits?: boolean } = {},
 ): IResolveDamageResult {
   const effectiveDamage =
     isHeadHit(location) && damage > HEAD_DAMAGE_CAP_PER_HIT
@@ -210,6 +218,7 @@ export function resolveDamage(
     locationDamages,
     roller,
     applyHeadPilotDamage: true,
+    rollCriticalHits: options.rollCriticalHits ?? true,
   });
 }
 
@@ -224,7 +233,10 @@ export function resolveInternalDamage(
   location: CombatLocation,
   damage: number,
   roller?: D6Roller,
-  options: { readonly applyHeadPilotDamage?: boolean } = {},
+  options: {
+    readonly applyHeadPilotDamage?: boolean;
+    readonly rollCriticalHits?: boolean;
+  } = {},
 ): IResolveDamageResult {
   const { state: stateAfterDamage, results: locationDamages } =
     applyInternalDamageWithTransfer(state, location, damage);
@@ -237,5 +249,6 @@ export function resolveInternalDamage(
     locationDamages,
     roller,
     applyHeadPilotDamage: options.applyHeadPilotDamage ?? true,
+    rollCriticalHits: options.rollCriticalHits ?? true,
   });
 }

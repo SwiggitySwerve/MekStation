@@ -223,10 +223,16 @@ export function resolveAttack(
         currentSession.currentState.units[targetId]?.damageThisPhase ?? 0;
 
       const damageState = buildDamageStateFromUnit(targetState);
+      const d6Roller = () => {
+        const roll = diceRoller();
+        return roll.dice[0];
+      };
       const damageResult = resolveDamagePipeline(
         damageState,
         location as CombatLocation,
         damage,
+        d6Roller,
+        { rollCriticalHits: false },
       );
 
       // Per `integrate-damage-pipeline` tasks 3-5: emit the ordered event
@@ -335,10 +341,6 @@ export function resolveAttack(
         }
       }
 
-      const d6Roller = () => {
-        const roll = diceRoller();
-        return roll.dice[0];
-      };
       const manifest = buildDefaultCriticalSlotManifest();
       const targetComponentDamage =
         targetState.componentDamage ?? buildDefaultComponentDamageState();

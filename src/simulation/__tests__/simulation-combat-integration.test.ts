@@ -1,3 +1,5 @@
+import type { IPhysicalAttackResolvedPayload } from '@/types/gameplay';
+
 import { GameEventType } from '@/types/gameplay';
 import { SUPPORTED_PHYSICAL_ATTACK_TYPES } from '@/utils/gameplay/physicalAttacks/types';
 
@@ -149,7 +151,7 @@ describe('Simulation Combat Integration (Phase 17)', () => {
       expect(result.turns).toBeGreaterThan(0);
     });
 
-    it('should include PhysicalAttackResolved events with roll data', () => {
+    it('should include PhysicalAttackResolved events with resolution data', () => {
       // Use small map to force adjacency
       const config: ISimulationConfig = {
         seed: 41002,
@@ -164,23 +166,36 @@ describe('Simulation Combat Integration (Phase 17)', () => {
         (e) => e.type === GameEventType.PhysicalAttackResolved,
       );
 
+      let rolledResolutionCount = 0;
+
       for (const evt of resolvedEvents) {
-        const payload = evt.payload as {
-          attackerId: string;
-          targetId: string;
-          attackType: string;
-          hit: boolean;
-          roll: number;
-          toHitNumber: number;
-        };
+        const payload = evt.payload as IPhysicalAttackResolvedPayload;
         expect(payload.attackerId).toBeDefined();
         expect(payload.targetId).toBeDefined();
         expect(payload.attackType).toBeDefined();
         expect(typeof payload.hit).toBe('boolean');
+        expect(payload.toHitNumber).toBeDefined();
+
+        if (payload.automaticHit === true) {
+          expect(payload.roll).toBe(0);
+          expect(payload.automaticHitReason).toBeDefined();
+          continue;
+        }
+
+        if (payload.roll === 0) {
+          expect(payload.hit).toBe(false);
+          expect(Number.isFinite(payload.toHitNumber)).toBe(false);
+          expect(payload.location).toBeDefined();
+          continue;
+        }
+
+        rolledResolutionCount += 1;
         expect(payload.roll).toBeGreaterThanOrEqual(2);
         expect(payload.roll).toBeLessThanOrEqual(12);
-        expect(payload.toHitNumber).toBeDefined();
+        expect(Number.isFinite(payload.toHitNumber)).toBe(true);
       }
+
+      expect(rolledResolutionCount).toBeGreaterThan(0);
     });
 
     it('should only attempt runtime-supported physical attack types in simulation', () => {
