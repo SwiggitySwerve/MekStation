@@ -1,7 +1,7 @@
 import type { PhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types';
 
 import type { ICombatActionSupportEntry } from './CombatActionSupport';
-import type { ICombatFeatureSourceReference } from './CombatFeatureSupport';
+import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
 
 import { MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS } from './CombatActionSupport';
 

@@ -16,6 +16,7 @@
 
 import type { IIndirectFireResolution } from '@/types/gameplay/CombatInterfaces';
 import type { IGameState } from '@/types/gameplay/GameSessionInterfaces';
+import type { IUnitGameState } from '@/types/gameplay/GameSessionStateTypes';
 import type {
   IHexCoordinate,
   IHexGrid,
@@ -27,6 +28,11 @@ import {
   type ISpotterCandidate,
 } from '@/utils/gameplay/indirectFire';
 import { calculateLOS } from '@/utils/gameplay/lineOfSight';
+
+interface ILegacyIndirectMarkerState {
+  readonly narcMarkedByTeams?: readonly string[];
+  readonly iNarcMarkedByTeams?: readonly string[];
+}
 
 /**
  * Derive `IIndirectFireResolution` for an attack declared from
@@ -132,10 +138,11 @@ export function computeIndirectFireContext(
   const targetUnit = targetEntityId
     ? gameState.units[targetEntityId]
     : undefined;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const targetUnitAny = targetUnit as any;
+  const legacyTargetMarkers = targetUnit as
+    | (IUnitGameState & ILegacyIndirectMarkerState)
+    | undefined;
   const legacyNarcMarkedByTeams: readonly string[] =
-    targetUnitAny?.narcMarkedByTeams ?? [];
+    legacyTargetMarkers?.narcMarkedByTeams ?? [];
   const narcMarkedByTeams: readonly string[] = [
     ...(targetUnit?.narcedBy ?? []),
     ...legacyNarcMarkedByTeams,
@@ -145,7 +152,7 @@ export function computeIndirectFireContext(
       ?.filter((pod) => pod.podType === 'homing')
       .map((pod) => pod.teamId) ?? [];
   const inarcMarkedByTeams: readonly string[] =
-    targetUnitAny?.iNarcMarkedByTeams ?? [];
+    legacyTargetMarkers?.iNarcMarkedByTeams ?? [];
   const targetNarcMarkedByTeam = narcMarkedByTeams.includes(attackerTeamId);
   const targetINarcMarkedByTeam = [
     ...canonicalINarcMarkedByTeams,

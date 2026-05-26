@@ -71,6 +71,7 @@ import {
   invalidateEvadingAttackerAttack,
   invalidateInvalidTargetAttack,
 } from './gameSessionAttackResolutionValidation';
+import { appendEvent } from './gameSessionEvents';
 import { allUnitsLocked, deriveState } from './gameState';
 import {
   calculateSideInitiativeModifier,
@@ -196,20 +197,7 @@ export function endGame(
   return appendEvent(session, event);
 }
 
-export function appendEvent(
-  session: IGameSession,
-  event: IGameEvent,
-): IGameSession {
-  const events = [...session.events, event];
-  const currentState = deriveState(session.id, events);
-
-  return {
-    ...session,
-    events,
-    currentState,
-    updatedAt: new Date().toISOString(),
-  };
-}
+export { appendEvent } from './gameSessionEvents';
 
 export function getEventsForTurn(
   session: IGameSession,

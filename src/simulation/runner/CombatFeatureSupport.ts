@@ -7,6 +7,11 @@
  * known-limitation filter hide the missing rule.
  */
 
+import type {
+  CombatFeatureSourceKind,
+  ICombatFeatureSourceReference,
+} from './CombatFeatureSourceReference';
+
 import {
   MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
   MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
@@ -75,23 +80,15 @@ import {
   MEGAMEK_UAC_SOURCE_REFS,
 } from './CombatSpecialWeaponSourceRefs';
 
+export type {
+  CombatFeatureSourceKind,
+  ICombatFeatureSourceReference,
+} from './CombatFeatureSourceReference';
+
 export type CombatFeatureSupportLevel =
   | 'integrated'
   | 'helper-only'
   | 'unsupported';
-
-export type CombatFeatureSourceKind =
-  | 'rulebook'
-  | 'megamek-source'
-  | 'mekhq-behavior'
-  | 'mekstation-deviation';
-
-export interface ICombatFeatureSourceReference {
-  readonly kind: CombatFeatureSourceKind;
-  readonly citation: string;
-  readonly url: string;
-  readonly sourceVersion: string;
-}
 
 export interface ICombatFeatureSupportEntry {
   readonly id: string;

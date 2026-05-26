@@ -1,22 +1,16 @@
+import type {
+  CombatCatalogTriadAuthorityBoundaryKind,
+  ICombatCatalogTriadEvidence,
+  ICombatCatalogTriadTestReference,
+} from './CombatCatalogTriadEvidence';
+
 import { PILOT_ABILITY_FEATURE_TRIAD } from './CombatValidationPilotAbilityTriad';
 
-export type CombatCatalogTriadAuthorityBoundaryKind =
-  | 'entry-source-refs'
-  | 'requirement-primary-authority'
-  | 'mekstation-deviation';
-
-export interface ICombatCatalogTriadTestReference {
-  readonly file: string;
-  readonly assertion: string;
-}
-
-export interface ICombatCatalogTriadEvidence {
-  readonly authorityBoundary: {
-    readonly kind: CombatCatalogTriadAuthorityBoundaryKind;
-    readonly rationale: string;
-  };
-  readonly testRefs: readonly ICombatCatalogTriadTestReference[];
-}
+export type {
+  CombatCatalogTriadAuthorityBoundaryKind,
+  ICombatCatalogTriadEvidence,
+  ICombatCatalogTriadTestReference,
+} from './CombatCatalogTriadEvidence';
 
 const testRef = (
   file: string,

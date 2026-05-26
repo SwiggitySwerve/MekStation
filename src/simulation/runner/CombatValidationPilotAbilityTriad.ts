@@ -1,4 +1,4 @@
-import type { ICombatCatalogTriadEvidence } from './CombatValidationCatalogTriad';
+import type { ICombatCatalogTriadEvidence } from './CombatCatalogTriadEvidence';
 
 export const PILOT_ABILITY_FEATURE_TRIAD = {
   authorityBoundary: {

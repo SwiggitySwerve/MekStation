@@ -1,4 +1,4 @@
-import type { ICombatFeatureSourceReference } from './CombatFeatureSupport';
+import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
 
 const MEGAMEK_DAMAGE_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';

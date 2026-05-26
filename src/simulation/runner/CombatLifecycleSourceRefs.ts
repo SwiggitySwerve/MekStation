@@ -1,4 +1,4 @@
-import type { ICombatFeatureSourceReference } from './CombatFeatureSupport';
+import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
 
 import {
   MEGAMEK_ACTIVE_TARGET_FILTER_SOURCE_REFS,

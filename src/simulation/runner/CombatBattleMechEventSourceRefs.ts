@@ -1,6 +1,6 @@
 import { GameEventType } from '@/types/gameplay';
 
-import type { ICombatFeatureSourceReference } from './CombatFeatureSupport';
+import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
 
 const MEKSTATION_SOURCE_VERSION = 'MekStation working-tree';
 

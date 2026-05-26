@@ -27,6 +27,7 @@ import {
   IPSRTriggeredPayload,
   IDamageAppliedPayload,
   MovementType,
+  PSRTrigger,
 } from '@/types/gameplay';
 import { Facing } from '@/types/gameplay';
 import {
@@ -262,8 +263,7 @@ describe('implement-physical-attack-phase — smoke test', () => {
     const psr = session.events.find(
       (e: IGameEvent) =>
         e.type === GameEventType.PSRTriggered &&
-        (e.payload as IPSRTriggeredPayload).triggerSource ===
-          'physical_attack_target',
+        (e.payload as IPSRTriggeredPayload).triggerSource === PSRTrigger.Kicked,
     );
     expect(psr).toBeDefined();
   });

@@ -1,6 +1,6 @@
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
-import type { ICombatFeatureSourceReference } from './CombatFeatureSupport';
+import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
 
 import { MEGAMEK_TERRAIN_FEATURE_TO_HIT_SOURCE_REFS } from './CombatToHitSourceRefs';
 

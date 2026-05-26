@@ -1,4 +1,4 @@
-import type { ICombatFeatureSourceReference } from './CombatFeatureSupport';
+import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
 
 export {
   MEGAMEK_LBX_SOURCE_REFS,

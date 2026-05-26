@@ -163,7 +163,7 @@ describe('To-Hit Calculation', () => {
     it('should return penalty inside minimum range', () => {
       const modifier = calculateMinimumRangeModifier(3, 6);
       expect(modifier).not.toBeNull();
-      expect(modifier!.value).toBe(3); // 6 - 3 = 3
+      expect(modifier!.value).toBe(4); // 6 - 3 + canonical +1 = 4
     });
   });
 
@@ -468,7 +468,7 @@ describe('Damage Application', () => {
       const result = checkUnitDestruction(stateWithDestroyedHead);
 
       expect(result.destroyed).toBe(true);
-      expect(result.cause).toBe('damage');
+      expect(result.cause).toBe('head_destroyed');
     });
 
     it('should detect center torso destruction', () => {

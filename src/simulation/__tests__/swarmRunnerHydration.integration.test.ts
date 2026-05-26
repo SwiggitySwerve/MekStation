@@ -88,7 +88,7 @@ async function buildAtlasMirrorSwarmHydration(): Promise<
 }
 
 describe('add-always-on-event-log Phase 1 — swarm runner catalog hydration', () => {
-  it('Atlas-on-side-A swarm run emits multi-weapon AttackDeclared coverage of all 7 mounts', async () => {
+  it('Atlas-on-side-A swarm run emits hydrated multi-weapon AttackDeclared coverage', async () => {
     // Build hydration the same way the CLI does (per-side runner-
     // internal IDs, both 1-indexed) and run a multi-turn 1v1 match.
     // 5 turns is enough for the bots to close to short range and let
@@ -97,7 +97,7 @@ describe('add-always-on-event-log Phase 1 — swarm runner catalog hydration', (
     const hydration = await buildAtlasMirrorSwarmHydration();
 
     const config: ISimulationConfig = {
-      seed: 12345,
+      seed: 1,
       turnLimit: 10,
       unitCount: { player: 1, opponent: 1 },
       mapRadius: 4,

@@ -6,6 +6,7 @@
  */
 
 import type { CombatLocation } from './CombatLocationTypes';
+import type { IToHitModifier } from './GameSessionAttackEvents';
 import type { IHexCoordinate } from './HexGridInterfaces';
 import type { ITerrainFeature } from './TerrainTypes';
 
@@ -15,7 +16,6 @@ import { VehicleLocation, VTOLLocation } from '../construction/UnitLocation';
 // Re-export from equipment for backwards compatibility
 import { WeaponCategory } from '../equipment/weapons/interfaces';
 import { TurretType } from '../unit/VehicleInterfaces';
-import { IToHitModifier } from './GameSessionInterfaces';
 import { FiringArc, RangeBracket, MovementType } from './HexGridInterfaces';
 
 // Re-export for convenience

@@ -27,6 +27,7 @@ import {
   IPSRTriggeredPayload,
   IPhysicalAttackResolvedPayload,
   MovementType,
+  PSRTrigger,
 } from '@/types/gameplay';
 import { Facing } from '@/types/gameplay';
 import {
@@ -259,7 +260,7 @@ describe('physical-attack — charge + DFA cluster fan-out (tasks 6.4-6.6, 7.4-7
       (e: IGameEvent) =>
         e.type === GameEventType.PSRTriggered &&
         (e.payload as IPSRTriggeredPayload).triggerSource ===
-          'physical_attack_target',
+          PSRTrigger.DFATarget,
     );
     const attackerPSR = session.events.find(
       (e: IGameEvent) =>
@@ -352,7 +353,7 @@ describe('physical-attack — charge + DFA cluster fan-out (tasks 6.4-6.6, 7.4-7
       (e: IGameEvent) =>
         e.type === GameEventType.PSRTriggered &&
         (e.payload as IPSRTriggeredPayload).triggerSource ===
-          'physical_attack_target',
+          PSRTrigger.Charged,
     );
     const attackerPSR = session.events.find(
       (e: IGameEvent) =>

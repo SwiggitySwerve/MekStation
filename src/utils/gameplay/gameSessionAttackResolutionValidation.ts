@@ -1,7 +1,7 @@
 import { IGameSession, IUnitGameState } from '@/types/gameplay';
 
 import { createAttackInvalidEvent } from './gameEvents';
-import { appendEvent } from './gameSessionCore';
+import { appendEvent } from './gameSessionEvents';
 
 export function invalidateSameHexAttack(
   session: IGameSession,
