@@ -16,6 +16,7 @@ import {
   createChargedPSR,
   createDFAAttackerPSR,
   createDFATargetPSR,
+  createDominoEffectPSR,
   createPushedPSR,
   createKickMissPSR,
   createChargeMissPSR,
@@ -66,6 +67,11 @@ describe('PSR factory reasonCode population (PR E)', () => {
         PSRTrigger.DFATarget,
       ],
       ['createPushedPSR', createPushedPSR(ENTITY), PSRTrigger.Pushed],
+      [
+        'createDominoEffectPSR',
+        createDominoEffectPSR(ENTITY),
+        PSRTrigger.DominoEffect,
+      ],
       ['createKickMissPSR', createKickMissPSR(ENTITY), PSRTrigger.KickMiss],
       [
         'createChargeMissPSR',

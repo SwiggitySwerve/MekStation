@@ -82,6 +82,7 @@ import {
   splitPhysicalDamageIntoClusters,
   SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
 } from './physicalAttacks';
+import { createDominoEffectPSR } from './pilotingSkillRolls';
 import { waterDepthAtPosition } from './waterDepth';
 
 interface IResolvedPhysicalDisplacementOutcome {
@@ -176,6 +177,14 @@ function dfaMissDropsAttacker(
     (displacement) =>
       displacement.unitId === attackerId && displacement.reason === 'dfa_miss',
   );
+}
+
+function dominoEffectDisplacedUnitIds(
+  displacements: readonly IPhysicalDisplacement[],
+): readonly string[] {
+  return displacements
+    .filter((displacement) => displacement.reason === 'domino')
+    .map((displacement) => displacement.unitId);
 }
 
 function friendlyUnitIdsForDisplacement(
@@ -1129,6 +1138,29 @@ export function resolveAllPhysicalAttacks(
           triggerSource,
           context.pilotingSkill,
           missReasonCode,
+        ),
+      );
+    }
+
+    for (const dominoUnitId of dominoEffectDisplacedUnitIds(displacements)) {
+      const dominoPsr = createDominoEffectPSR(dominoUnitId);
+      const dominoUnit =
+        currentSession.currentState.units[dominoUnitId] ??
+        currentSession.units.find((unit) => unit.id === dominoUnitId);
+      const psrSeq = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createPSRTriggeredEvent(
+          currentSession.id,
+          psrSeq,
+          turn,
+          GamePhase.PhysicalAttack,
+          dominoUnitId,
+          dominoPsr.reason,
+          dominoPsr.additionalModifier,
+          dominoPsr.triggerSource,
+          dominoUnit?.piloting,
+          dominoPsr.reasonCode,
         ),
       );
     }

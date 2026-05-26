@@ -2130,6 +2130,10 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(result.units['domino-blocker'].position).toEqual({ q: 1, r: 2 });
     expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 1 });
     expect(result.units['player-1'].position).toEqual({ q: 1, r: 0 });
+    expectPendingPSR(result, 'domino-blocker', PSRTrigger.DominoEffect, {
+      reason: 'Domino effect',
+      additionalModifier: 0,
+    });
   });
 
   it('keeps a successful charge in place when target displacement is blocked', () => {

@@ -987,8 +987,7 @@ describe('BattleMech combat action support catalog', () => {
       PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-domino-chain'],
     ).toMatchObject({
       level: 'helper-only',
-      evidence: expect.stringContaining('positional domino payload chains'),
-      gap: expect.stringContaining('Domino-effect PSRs'),
+      gap: expect.stringContaining('Voluntary step-out/CFR'),
       sourceRefs: [
         expect.objectContaining({
           citation: expect.stringContaining(
@@ -1000,6 +999,14 @@ describe('BattleMech combat action support catalog', () => {
         }),
       ],
     });
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-domino-chain']
+        .evidence,
+    ).toContain('positional domino payload chains');
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-domino-chain']
+        .evidence,
+    ).toContain('DominoEffect PSRs');
     expect(
       PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-friendly-avoidance'],
     ).toMatchObject({

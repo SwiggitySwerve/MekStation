@@ -3981,6 +3981,23 @@ describe('BattleMech physical combat behavior validation lane', () => {
       q: 1,
       r: 0,
     });
+    const dominoPsr = resolved.events.find(
+      (entry) =>
+        entry.type === GameEventType.PSRTriggered &&
+        (entry.payload as IPSRTriggeredPayload).unitId === 'domino-blocker',
+    )?.payload as IPSRTriggeredPayload | undefined;
+    expect(dominoPsr).toMatchObject({
+      unitId: 'domino-blocker',
+      reason: 'Domino effect',
+      reasonCode: PSRTrigger.DominoEffect,
+      additionalModifier: 0,
+      basePilotingSkill: 5,
+    });
+    expect(
+      resolved.currentState.units['domino-blocker'].pendingPSRs,
+    ).toContainEqual(
+      expect.objectContaining({ reasonCode: PSRTrigger.DominoEffect }),
+    );
   });
 
   it('emits event-sourced charge damage without displacement when blocked', () => {

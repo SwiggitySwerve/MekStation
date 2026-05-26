@@ -899,13 +899,16 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     ).toContain('occupied-hex domino positional displacement cascades');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].evidence,
+    ).toContain('DominoEffect PSRs');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].evidence,
     ).toContain('DFA-miss friendly occupied displacement avoidance');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].gap,
     ).not.toContain('Stale grid occupancy');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].gap,
-    ).toContain('domino PSR/step-out fallout');
+    ).toContain('domino step-out');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['physical-self-risk'].gap,
     ).not.toContain('friendly-unit displacement avoidance');
@@ -914,6 +917,7 @@ describe('BattleMech combat validation requirement crosswalk', () => {
         .supportMapRefs,
     ).toEqual(
       expect.arrayContaining([
+        'lifecycleAndPsr.psrTriggers.domino_effect',
         'ruleSupport.physicalLegalityGates.shared.displacement-domino-chain',
         'ruleSupport.physicalLegalityGates.shared.displacement-friendly-avoidance',
         'ruleSupport.physicalLegalityGates.shared.displacement-dropship-radius',

@@ -1,6 +1,6 @@
 /**
  * Tests for `getPSRReasonCategory` — the bucket helper that partitions
- * the 27-code `PSRTrigger` taxonomy into the four `PSRReasonCategory`
+ * the 29-code `PSRTrigger` taxonomy into the four `PSRReasonCategory`
  * buckets (movement / damage / heat / recovery).
  *
  * @spec openspec/changes/structure-psr-reason-as-discriminated-code/specs/piloting-skill-rolls/spec.md
@@ -27,7 +27,7 @@ describe('getPSRReasonCategory', () => {
     });
   });
 
-  describe('exhaustive partitioning over all 27 codes', () => {
+  describe('exhaustive partitioning over all 29 codes', () => {
     const allTriggers = Object.values(PSRTrigger) as readonly PSRTrigger[];
 
     it('enumerates the canonical PSRTrigger codes', () => {
@@ -35,9 +35,10 @@ describe('getPSRReasonCategory', () => {
       // change, this assertion fails first and forces a category decision.
       // The spec proposal calls out "27 canonical snake_case codes"; the
       // enum carries one extra (`Pushed` in the physical-attack target
-      // family) for a total of 28. Both numbers are stable; if either
+      // family) and a source-backed domino-effect physical displacement
+      // PSR for a total of 29. These counts are stable; if either
       // changes the test fails and forces a spec / enum reconciliation.
-      expect(allTriggers).toHaveLength(28);
+      expect(allTriggers).toHaveLength(29);
     });
 
     it('every PSRTrigger value maps to exactly one of the four buckets', () => {
@@ -70,9 +71,9 @@ describe('getPSRReasonCategory', () => {
     });
 
     it('matches the canonical partition documented in the spec', () => {
-      // 18 movement + 8 damage + 1 heat + 1 recovery = 28
-      // (8 + 18 + 1 + 1; the spec text mentions 27 but the enum carries
-      // 28 — the bucket helper treats every enum member, regardless).
+      // 19 movement + 8 damage + 1 heat + 1 recovery = 29
+      // (8 + 19 + 1 + 1; the spec text mentions 27 but the enum carries
+      // 29 — the bucket helper treats every enum member, regardless).
       const buckets: Record<PSRReasonCategory, number> = {
         movement: 0,
         damage: 0,
@@ -83,7 +84,7 @@ describe('getPSRReasonCategory', () => {
         buckets[getPSRReasonCategory(trigger)] += 1;
       }
       expect(buckets.damage).toBe(8);
-      expect(buckets.movement).toBe(18);
+      expect(buckets.movement).toBe(19);
       expect(buckets.heat).toBe(1);
       expect(buckets.recovery).toBe(1);
     });
@@ -105,6 +106,7 @@ describe('getPSRReasonCategory', () => {
       PSRTrigger.Charged,
       PSRTrigger.DFATarget,
       PSRTrigger.Pushed,
+      PSRTrigger.DominoEffect,
       PSRTrigger.KickMiss,
       PSRTrigger.ChargeMiss,
       PSRTrigger.DFAMiss,

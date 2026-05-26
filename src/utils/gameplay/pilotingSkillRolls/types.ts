@@ -95,6 +95,7 @@ export function getPSRReasonCategory(code: PSRTrigger): PSRReasonCategory {
     case PSRTrigger.Charged:
     case PSRTrigger.DFATarget:
     case PSRTrigger.Pushed:
+    case PSRTrigger.DominoEffect:
     case PSRTrigger.KickMiss:
     case PSRTrigger.ChargeMiss:
     case PSRTrigger.DFAMiss:

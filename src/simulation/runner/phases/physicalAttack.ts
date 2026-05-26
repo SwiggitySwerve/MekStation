@@ -67,6 +67,7 @@ import {
 import {
   attackerHitPSRForAttack,
   attackerMissPSRForAttack,
+  dominoEffectPSRForDisplacement,
   queuePendingPSR,
   targetPSRForAttack,
 } from './physicalAttackPsr';
@@ -83,6 +84,17 @@ function dfaMissDropsAttacker(
     (displacement) =>
       displacement.unitId === attackerId && displacement.reason === 'dfa_miss',
   );
+}
+
+function dominoEffectDisplacedUnitIds(
+  displacements: readonly {
+    readonly unitId: string;
+    readonly reason: string;
+  }[],
+): readonly string[] {
+  return displacements
+    .filter((displacement) => displacement.reason === 'domino')
+    .map((displacement) => displacement.unitId);
 }
 
 function friendlyUnitIdsForDisplacement(
@@ -588,6 +600,14 @@ export function runPhysicalAttackPhase(options: {
         currentState,
         unitId,
         attackerMissPSRForAttack(bestAttack, unitId, result),
+      );
+    }
+
+    for (const dominoUnitId of dominoEffectDisplacedUnitIds(displacements)) {
+      currentState = queuePendingPSR(
+        currentState,
+        dominoUnitId,
+        dominoEffectPSRForDisplacement(dominoUnitId),
       );
     }
 

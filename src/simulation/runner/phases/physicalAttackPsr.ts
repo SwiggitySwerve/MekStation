@@ -9,6 +9,7 @@ import {
   createDFAAttackerPSR,
   createDFAMissPSR,
   createDFATargetPSR,
+  createDominoEffectPSR,
   createKickedPSR,
   createKickMissPSR,
   createPushedPSR,
@@ -30,6 +31,10 @@ export function targetPSRForAttack(
     default:
       return null;
   }
+}
+
+export function dominoEffectPSRForDisplacement(unitId: string): IPendingPSR {
+  return createDominoEffectPSR(unitId);
 }
 
 export function attackerMissPSRForAttack(

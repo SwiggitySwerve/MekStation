@@ -30,6 +30,7 @@ export {
   createChargedPSR,
   createDFAAttackerPSR,
   createDFATargetPSR,
+  createDominoEffectPSR,
   createPushedPSR,
   createKickMissPSR,
   createChargeMissPSR,

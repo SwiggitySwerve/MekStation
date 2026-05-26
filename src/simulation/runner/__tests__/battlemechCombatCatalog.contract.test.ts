@@ -3291,6 +3291,7 @@ describe('BattleMech combat feature-gap tracking', () => {
         PSRTrigger.Charged,
         PSRTrigger.DFATarget,
         PSRTrigger.Pushed,
+        PSRTrigger.DominoEffect,
         PSRTrigger.KickMiss,
         PSRTrigger.Shutdown,
         PSRTrigger.StandingUp,

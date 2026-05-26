@@ -1,3 +1,4 @@
+/* oxlint-disable max-lines -- Combat support catalogs stay centralized until the OpenSpec change is archived. */
 import { PSRTrigger } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
@@ -20,6 +21,7 @@ import {
   PHYSICAL_CHARGE_MISS_SOURCE_REFS,
   PHYSICAL_CHARGE_PSR_SOURCE_REFS,
   PHYSICAL_DFA_TARGET_PSR_SOURCE_REFS,
+  PHYSICAL_DOMINO_EFFECT_PSR_SOURCE_REFS,
   PHYSICAL_KICK_PSR_SOURCE_REFS,
   PHYSICAL_PUSH_PSR_SOURCE_REFS,
 } from './CombatPhysicalPsrSourceRefs';
@@ -322,6 +324,11 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
     PSRTrigger.Pushed,
     'physicalAttackPsr queues createPushedPSR for push target falls',
     PHYSICAL_PUSH_PSR_SOURCE_REFS,
+  ),
+  [PSRTrigger.DominoEffect]: integrated(
+    PSRTrigger.DominoEffect,
+    'runner and event-sourced physical displacement queue createDominoEffectPSR for units forced along occupied-hex domino displacement chains',
+    PHYSICAL_DOMINO_EFFECT_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.KickMiss]: integrated(
     PSRTrigger.KickMiss,

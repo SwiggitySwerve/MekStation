@@ -82,6 +82,21 @@ export function createPushedPSR(entityId: string): IPendingPSR {
 }
 
 /**
+ * Create a pending PSR for a unit forced along a domino displacement chain.
+ *
+ * MegaMek queues this as `PilotingRollData(..., 0, "domino effect")`.
+ */
+export function createDominoEffectPSR(entityId: string): IPendingPSR {
+  return {
+    entityId,
+    reason: 'Domino effect',
+    reasonCode: PSRTrigger.DominoEffect,
+    additionalModifier: 0,
+    triggerSource: PSRTrigger.DominoEffect,
+  };
+}
+
+/**
  * Create a pending PSR for attacker kick miss.
  */
 export function createKickMissPSR(entityId: string): IPendingPSR {

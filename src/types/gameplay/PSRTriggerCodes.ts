@@ -35,6 +35,7 @@ export enum PSRTrigger {
   Charged = 'charged',
   DFATarget = 'dfa_target',
   Pushed = 'pushed',
+  DominoEffect = 'domino_effect',
 
   // Physical attack miss triggers (attacker)
   KickMiss = 'kick_miss',

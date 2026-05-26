@@ -418,8 +418,8 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
   'shared.displacement-domino-chain': helperOnly(
     'shared.displacement-domino-chain',
     'shared',
-    'isValidDisplacement recursively validates occupied destination blockers, and push/charge/DFA/charge-miss displacement helpers emit positional domino payload chains that event-sourced resolution and runner phases apply to unit positions',
-    'Domino-effect PSRs, step-out fallout, and PilotingRollData-style side effects are still not emitted for stacking-violation displacement chains',
+    'isValidDisplacement recursively validates occupied destination blockers, and push/charge/DFA/charge-miss displacement helpers emit positional domino payload chains that event-sourced resolution and runner phases apply to unit positions while queuing source-backed DominoEffect PSRs for forced blockers',
+    'Voluntary step-out/CFR handling and the broader TWGameManager.doEntityDisplacement terrain/building/environment fallout remain unsupported for stacking-violation displacement chains',
     DISPLACEMENT_DOMINO_CHAIN_LINES,
   ),
   'shared.displacement-friendly-avoidance': integrated(

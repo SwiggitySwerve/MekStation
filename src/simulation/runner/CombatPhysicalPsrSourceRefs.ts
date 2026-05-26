@@ -53,10 +53,19 @@ const LOCAL_PHYSICAL_PSR_QUEUE_SOURCE_REFS = [
     'L945-L1024',
   ),
   mekstationDeviationRef(
-    'MekStation combat PSR factories stamp canonical physical reasonCode and triggerSource values through createKickedPSR, createChargedPSR, createDFATargetPSR, createDFAAttackerPSR, createPushedPSR, createKickMissPSR, createChargeMissPSR, and createDFAMissPSR.',
+    'MekStation combat PSR factories stamp canonical physical reasonCode and triggerSource values through createKickedPSR, createChargedPSR, createDFATargetPSR, createDFAAttackerPSR, createPushedPSR, createDominoEffectPSR, createKickMissPSR, createChargeMissPSR, and createDFAMissPSR.',
     'src/utils/gameplay/pilotingSkillRolls/combatFactories.ts',
-    'L14-L117',
+    'L14-L133',
   ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const PHYSICAL_DOMINO_EFFECT_PSR_SOURCE_REFS = [
+  megaMekSourceRef(
+    'MegaMek TWGameManager.doEntityDisplacement recursively displaces stacking-violation blockers with PilotingRollData(..., 0, "domino effect") when they cannot or do not step out.',
+    'megamek/src/megamek/server/totalWarfare/TWGameManager.java',
+    'L9187-L9294',
+  ),
+  ...LOCAL_PHYSICAL_PSR_QUEUE_SOURCE_REFS,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 export const PHYSICAL_KICK_PSR_SOURCE_REFS = [
