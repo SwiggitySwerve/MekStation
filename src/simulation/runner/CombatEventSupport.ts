@@ -39,22 +39,6 @@ function helperOnly(
     : { id: eventType, level: 'helper-only', evidence, gap };
 }
 
-function unsupported(
-  eventType: GameEventType,
-  gap: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  const refs = sourceRefs ?? BATTLEMECH_EVENT_SOURCE_REFS[eventType];
-  const entry: ICombatFeatureSupportEntry = {
-    id: eventType,
-    level: 'unsupported',
-    evidence: 'No BattleMech combat event behavior wired',
-    gap,
-  };
-
-  return refs ? { ...entry, sourceRefs: refs } : entry;
-}
-
 export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
   [GameEventType.GameCreated]: integrated(
     GameEventType.GameCreated,
@@ -112,9 +96,9 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
     GameEventType.AttackLocked,
     'lockAttack emits AttackLocked and applyAttackLocked closes weapon action eligibility',
   ),
-  [GameEventType.AttacksRevealed]: unsupported(
+  [GameEventType.AttacksRevealed]: integrated(
     GameEventType.AttacksRevealed,
-    'No simultaneous-attack reveal event is emitted by runner or interactive BattleMech combat',
+    'lockAttack emits AttacksRevealed after every active unit has locked weapon attacks, and applyAttacksRevealed replays the reveal boundary',
   ),
   [GameEventType.AttackResolved]: integrated(
     GameEventType.AttackResolved,
