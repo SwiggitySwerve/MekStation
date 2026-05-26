@@ -37,22 +37,22 @@ const BATTLEMECH_LIFECYCLE_EVENT_SOURCE_REFS = [
 
 const BATTLEMECH_TURN_PHASE_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
-    'MekStation phase and initiative factories create PhaseChanged and InitiativeRolled payloads.',
+    'MekStation phase and initiative factories create PhaseChanged, InitiativeRolled, and InitiativeOrderSet payloads.',
     'src/utils/gameplay/gameEvents/turnPhase.ts',
     'L10-L22',
   ),
   mekstationDeviationSourceRef(
-    'MekStation initiative factories create InitiativeRolled payloads.',
+    'MekStation initiative factories create InitiativeRolled and InitiativeOrderSet payloads.',
     'src/utils/gameplay/gameEvents/initiative.ts',
-    'L11-L57',
+    'L11-L85',
   ),
   mekstationDeviationSourceRef(
-    'MekStation session core appends PhaseChanged and InitiativeRolled events.',
+    'MekStation session core appends PhaseChanged, InitiativeRolled, and InitiativeOrderSet events.',
     'src/utils/gameplay/gameSessionCore.ts',
-    'L258-L370',
+    'L258-L380',
   ),
   mekstationDeviationSourceRef(
-    'MekStation reducer handles GameStarted, PhaseChanged, TurnStarted, and InitiativeRolled while treating TurnEnded and explicit order/reveal events as no-op log entries.',
+    'MekStation reducer handles GameStarted, PhaseChanged, TurnStarted, InitiativeRolled, and InitiativeOrderSet while treating TurnEnded and reveal events as no-op log entries.',
     'src/utils/gameplay/gameState/gameStateReducer.ts',
     'L99-L253',
   ),
@@ -65,12 +65,12 @@ const BATTLEMECH_TURN_PHASE_EVENT_SOURCE_REFS = [
 
 const BATTLEMECH_UNSUPPORTED_PLANNING_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
-    'MekStation exposes InitiativeOrderSet and AttacksRevealed as enum-visible event types without a BattleMech emitter.',
+    'MekStation exposes AttacksRevealed as an enum-visible event type without a BattleMech emitter.',
     'src/types/gameplay/GameSessionCoreTypes.ts',
     'L76-L87',
   ),
   mekstationDeviationSourceRef(
-    'MekStation reducer intentionally leaves TurnEnded, InitiativeOrderSet, and AttacksRevealed as no-op event-log entries.',
+    'MekStation reducer intentionally leaves AttacksRevealed as a no-op event-log entry.',
     'src/utils/gameplay/gameState/gameStateReducer.ts',
     'L248-L253',
   ),
@@ -337,8 +337,7 @@ export const BATTLEMECH_EVENT_SOURCE_REFS: Readonly<
   [GameEventType.TurnEnded]: BATTLEMECH_TURN_PHASE_EVENT_SOURCE_REFS,
   [GameEventType.PhaseChanged]: BATTLEMECH_TURN_PHASE_EVENT_SOURCE_REFS,
   [GameEventType.InitiativeRolled]: BATTLEMECH_TURN_PHASE_EVENT_SOURCE_REFS,
-  [GameEventType.InitiativeOrderSet]:
-    BATTLEMECH_UNSUPPORTED_PLANNING_EVENT_SOURCE_REFS,
+  [GameEventType.InitiativeOrderSet]: BATTLEMECH_TURN_PHASE_EVENT_SOURCE_REFS,
   [GameEventType.MovementDeclared]: BATTLEMECH_MOVEMENT_EVENT_SOURCE_REFS,
   [GameEventType.MovementLocked]: BATTLEMECH_MOVEMENT_EVENT_SOURCE_REFS,
   [GameEventType.MovementEnhancementActivated]:
