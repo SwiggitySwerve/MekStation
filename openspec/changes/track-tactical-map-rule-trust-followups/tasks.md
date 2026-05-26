@@ -9,6 +9,7 @@
 
 - [x] 2.1 Clarify represented underwater/torpedo helper provenance in the environment context change
 - [x] 2.2 Tighten exposed MegaMek movement source-reference paths to current package locations
+- [x] 2.3 Refresh the movement gap boundary so source-pinned frogman/swim, TacOps pavement-bonus, unit-height, and runtime conversion coverage are not still reported as open headline gaps
 
 ## 3. Verification
 
