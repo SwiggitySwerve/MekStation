@@ -267,6 +267,37 @@ describe('consumeAmmo', () => {
     );
   });
 
+  it('matches source-backed plasma ammo aliases to ammo-fed plasma weapons', () => {
+    expect(normalizeAmmoWeaponType('CLPlasmaCannonAmmo')).toBe(
+      'clan-plasma-cannon',
+    );
+    expect(normalizeAmmoWeaponType('Plasma Cannon Ammo')).toBe(
+      'clan-plasma-cannon',
+    );
+    expect(normalizeAmmoWeaponType('ISPlasmaRifleAmmo')).toBe('plasma-rifle');
+    expect(normalizeAmmoWeaponType('Plasma Rifle Ammo')).toBe('plasma-rifle');
+
+    const ammoState = {
+      'clan-plasma-1': makeAmmoBin({
+        binId: 'clan-plasma-1',
+        weaponType: 'CLPlasmaCannonAmmo',
+        remainingRounds: 10,
+      }),
+      'is-plasma-1': makeAmmoBin({
+        binId: 'is-plasma-1',
+        weaponType: 'ISPlasmaRifleAmmo',
+        remainingRounds: 10,
+      }),
+    };
+
+    expect(
+      consumeAmmo(ammoState, 'unit-1', 'clan-plasma-cannon')?.event.binId,
+    ).toBe('clan-plasma-1');
+    expect(consumeAmmo(ammoState, 'unit-1', 'Plasma Rifle')?.event.binId).toBe(
+      'is-plasma-1',
+    );
+  });
+
   it('matches semi-guided LRM ammo to the base LRM launcher while preserving the selected variant', () => {
     expect(normalizeAmmoWeaponType('Semi-Guided LRM 10')).toBe('lrm-10');
     expect(normalizeAmmoWeaponType('LRM 10 Semi-Guided')).toBe('lrm-10');
@@ -771,6 +802,13 @@ describe('isEnergyWeapon', () => {
     expect(isEnergyWeapon('SRM 6')).toBe(false);
     expect(isEnergyWeapon('Machine Gun')).toBe(false);
     expect(isEnergyWeapon('Gauss Rifle')).toBe(false);
+  });
+
+  it('treats MegaMek plasma AmmoWeapon families as ammo-fed despite energy flags', () => {
+    expect(isEnergyWeapon('Plasma Cannon (Clan)')).toBe(false);
+    expect(isEnergyWeapon('CLPlasmaCannon')).toBe(false);
+    expect(isEnergyWeapon('Plasma Rifle')).toBe(false);
+    expect(isEnergyWeapon('ISPlasmaRifle')).toBe(false);
   });
 });
 

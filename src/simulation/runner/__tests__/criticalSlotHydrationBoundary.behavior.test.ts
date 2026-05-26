@@ -188,6 +188,55 @@ describe('catalog critical-slot hydration boundary', () => {
     });
   });
 
+  it('hydrates source-backed plasma cannon ammo from legacy Clan critical-slot aliases', async () => {
+    const service = getNodeCanonicalUnitService();
+    const fullUnit = await service.getById('dasher-j');
+    expect(fullUnit).not.toBeNull();
+    if (!fullUnit) return;
+
+    const aiWeapons = hydrateAIWeaponsFromFullUnit(fullUnit, weaponLookup);
+    const plasmaCannon = aiWeapons.find((weapon) =>
+      weapon.id.startsWith('clan-plasma-cannon-'),
+    );
+    expect(plasmaCannon).toMatchObject({
+      name: 'Plasma Cannon (Clan)',
+      ammoPerTon: 10,
+      location: 'RIGHT_ARM',
+    });
+
+    const unitState = createHydratedUnitState({
+      runnerUnitId: 'player-1',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      fullUnit,
+      aiWeapons,
+      gunnery: 4,
+      piloting: 5,
+    });
+
+    expect(unitState.ammoState).toMatchObject({
+      'right_arm-5-clan-plasma-cannon-ammo': {
+        weaponType: 'clan-plasma-cannon',
+        location: 'right_arm',
+        remainingRounds: 10,
+        maxRounds: 10,
+        isExplosive: false,
+      },
+    });
+
+    const manifest = hydrateCriticalSlotManifestFromFullUnit(
+      fullUnit,
+      aiWeapons,
+    );
+    expect(manifest?.right_arm).toContainEqual(
+      expect.objectContaining({
+        slotIndex: 5,
+        componentType: 'ammo',
+        ammoBinId: 'right_arm-5-clan-plasma-cannon-ammo',
+      }),
+    );
+  });
+
   it('hydrates CASE-P and prototype CASE as standard CASE without broad substring matches', () => {
     const fullUnit = {
       criticalSlots: {

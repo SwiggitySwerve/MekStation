@@ -248,6 +248,13 @@ export const MEGAMEK_PLASMA_CANNON_SOURCE_REFS = [
   {
     kind: 'megamek-source',
     citation:
+      'MegaMek plasma rifle and Clan plasma cannon ammunition rows use AmmoTypeEnum.PLASMA, ten shots per ton, and non-explosive ammo state.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/AmmoType.java#L11324-L11366',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
       'PlasmaCannonHandler applies external target heat on heat-tracking entities, including armor-specific reflective and heat-dissipating adjustments.',
     url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/plasma/PlasmaCannonHandler.java#L213-L271',
     sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,

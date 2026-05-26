@@ -18,6 +18,18 @@ import type { IAmmoConstructionData, IAmmoConsumeResult } from './types';
  */
 export function normalizeAmmoWeaponType(weaponType: string): string {
   const raw = weaponType.toLowerCase().trim();
+  const compact = raw.replace(/[^a-z0-9]+/g, '');
+  if (
+    /^(?:cl|clan)?plasmacannon(?:ammo)?$/.test(compact) ||
+    compact === 'plasmacannonclan' ||
+    compact === 'plasmacannonclanammo'
+  ) {
+    return 'clan-plasma-cannon';
+  }
+  if (/^(?:is)?plasmarifle(?:ammo)?$/.test(compact)) {
+    return 'plasma-rifle';
+  }
+
   const clanPrefixed =
     /(?:^|\s|\()clan(?:\)|\s|-|$)|^cl[\s-]/.test(raw) ||
     /^clams(?:[\s-]*ammo)?$/.test(raw);

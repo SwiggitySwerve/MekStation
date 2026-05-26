@@ -1543,6 +1543,53 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       ).not.toContain('external target heat');
     });
 
+    it('plasma cannon hits consume source-backed plasma ammunition', () => {
+      const weapon = createPlasmaCannon();
+      const ammoBin = createAmmoBin({
+        binId: 'right-arm-plasma-bin',
+        weaponType: 'CLPlasmaCannonAmmo',
+        remainingRounds: 2,
+      });
+      const { state, weaponsByUnit } = buildScenario({
+        attackerWeapons: [weapon],
+        attackerStateOverride: {
+          gunnery: 0,
+          ammoState: { [ammoBin.binId]: ammoBin },
+        },
+        targetStateOverride: { heat: 4 },
+        targetPosition: { q: 5, r: 0 },
+      });
+
+      const result = runPhaseWithResult({
+        state,
+        weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(weapon.id),
+        random: new SequenceRandom([6, 6, 3, 4, 2, 5]),
+      });
+      const consumed = result.events.find(
+        (event) => event.type === GameEventType.AmmoConsumed,
+      );
+
+      expect(consumed?.payload).toMatchObject({
+        unitId: 'player-1',
+        binId: ammoBin.binId,
+        weaponType: 'clan-plasma-cannon',
+        roundsConsumed: 1,
+        roundsRemaining: 1,
+      });
+      expect(
+        result.state.units['player-1'].ammoState?.[ammoBin.binId]
+          .remainingRounds,
+      ).toBe(1);
+      expect(
+        result.events.some(
+          (event) =>
+            event.type === GameEventType.HeatGenerated &&
+            (event.payload as { unitId?: string }).unitId === 'opponent-1',
+        ),
+      ).toBe(true);
+    });
+
     it.each([
       ['reflective armor', 'Reflective', 3],
       ['heat-dissipating armor', 'Heat-Dissipating', 3],

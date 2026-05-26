@@ -102,6 +102,15 @@ export interface ICatalogAmmoStats {
 
 export type AmmoLookup = (idOrName: string) => ICatalogAmmoStats | null;
 
+const SOURCE_BACKED_WEAPON_LOOKUP_ALIASES = {
+  'plasma-cannon': 'clan-plasma-cannon',
+  plasmacannon: 'clan-plasma-cannon',
+  clplasmacannon: 'clan-plasma-cannon',
+  clanplasmacannon: 'clan-plasma-cannon',
+  plasmarifle: 'plasma-rifle',
+  isplasmarifle: 'plasma-rifle',
+} satisfies Readonly<Record<string, string>>;
+
 export interface IHydratedAIWeaponsReport {
   readonly weapons: readonly IWeapon[];
   readonly resolvedEquipmentIds: readonly string[];
@@ -1478,7 +1487,11 @@ export function hydrateAIWeaponsFromFullUnitWithReport(
     if (!raw || typeof raw !== 'object') continue;
     const entry = raw as IUnitEquipmentEntry;
     if (typeof entry.id !== 'string') continue;
-    const stats = weaponLookup(entry.id);
+    const normalizedEntryId = normalizeEquipmentId(entry.id);
+    const stats =
+      weaponLookup(entry.id) ??
+      weaponLookup(normalizedEntryId) ??
+      weaponLookup(normalizedWithoutTechPrefix(normalizedEntryId));
     if (!stats) {
       unresolvedEquipmentIds.push(entry.id);
       continue;
@@ -1890,6 +1903,16 @@ export function buildWeaponLookupFromCatalogFiles(
       });
     }
   }
+
+  for (const [alias, canonicalId] of Object.entries(
+    SOURCE_BACKED_WEAPON_LOOKUP_ALIASES,
+  )) {
+    const stats = map.get(canonicalId);
+    if (!stats) continue;
+    map.set(alias, stats);
+    map.set(normalizeCriticalSlotText(alias), stats);
+  }
+
   return (id: string) => map.get(id) ?? null;
 }
 

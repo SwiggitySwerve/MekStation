@@ -435,6 +435,7 @@ const EXPECTED_BATTLEMECH_COMPATIBLE_AMMO_IDS = [
   'clan-ams-ammo',
   'clan-large-chemical-laser-ammo',
   'clan-medium-chemical-laser-ammo',
+  'clan-plasma-cannon-ammo',
   'clan-small-chemical-laser-ammo',
   'gauss-ammo',
   'heavy-gauss-ammo',
@@ -456,6 +457,7 @@ const EXPECTED_BATTLEMECH_COMPATIBLE_AMMO_IDS = [
   'mg-ammo-half',
   'mrm-ammo',
   'narc-ammo',
+  'plasma-rifle-ammo',
   'srm-ammo',
   'srm-fragmentation-ammo',
   'srm-inferno-ammo',
@@ -1756,6 +1758,7 @@ describe('BattleMech combat catalog validation lane', () => {
       sourceRefsFor('plasma-cannon').map(({ citation }) => citation),
     ).toEqual([
       'CLPlasmaCannon declares variable damage, heat 7, plasma/energy flags, plasma ammunition, and routes attacks to PlasmaCannonHandler.',
+      'MegaMek plasma rifle and Clan plasma cannon ammunition rows use AmmoTypeEnum.PLASMA, ten shots per ton, and non-explosive ammo state.',
       'PlasmaCannonHandler applies external target heat on heat-tracking entities, including armor-specific reflective and heat-dissipating adjustments.',
       'PlasmaCannonHandler keeps plasma-cannon BattleMech damage at zero while applying non-Mek/terrain/building special damage paths.',
     ]);

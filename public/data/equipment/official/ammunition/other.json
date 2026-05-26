@@ -7,9 +7,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "ams"
-      ],
+      "compatibleWeaponIds": ["ams"],
       "shotsPerTon": 12,
       "weight": 1,
       "criticalSlots": 1,
@@ -25,9 +23,7 @@
       "variant": "Standard",
       "techBase": "CLAN",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "clan-ams"
-      ],
+      "compatibleWeaponIds": ["clan-ams"],
       "shotsPerTon": 24,
       "weight": 1,
       "criticalSlots": 1,
@@ -496,15 +492,47 @@
       "special": []
     },
     {
+      "id": "plasma-rifle-ammo",
+      "name": "Plasma Rifle Ammo",
+      "category": "Energy",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": ["plasma-rifle"],
+      "shotsPerTon": 10,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 30000,
+      "battleValue": 26,
+      "isExplosive": false,
+      "introductionYear": 3068,
+      "special": ["AmmoWeapon plasma rounds"]
+    },
+    {
+      "id": "clan-plasma-cannon-ammo",
+      "name": "Plasma Cannon Ammo",
+      "category": "Energy",
+      "variant": "Standard",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": ["clan-plasma-cannon"],
+      "shotsPerTon": 10,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 30000,
+      "battleValue": 21,
+      "isExplosive": false,
+      "introductionYear": 3069,
+      "special": ["AmmoWeapon plasma rounds"]
+    },
+    {
       "id": "clan-small-chemical-laser-ammo",
       "name": "Small Chemical Laser Ammo (Clan)",
       "category": "Energy",
       "variant": "Standard",
       "techBase": "CLAN",
       "rulesLevel": "ADVANCED",
-      "compatibleWeaponIds": [
-        "clan-small-chemical-laser"
-      ],
+      "compatibleWeaponIds": ["clan-small-chemical-laser"],
       "shotsPerTon": 60,
       "weight": 1,
       "criticalSlots": 1,
@@ -521,9 +549,7 @@
       "variant": "Standard",
       "techBase": "CLAN",
       "rulesLevel": "ADVANCED",
-      "compatibleWeaponIds": [
-        "clan-medium-chemical-laser"
-      ],
+      "compatibleWeaponIds": ["clan-medium-chemical-laser"],
       "shotsPerTon": 30,
       "weight": 1,
       "criticalSlots": 1,
@@ -540,9 +566,7 @@
       "variant": "Standard",
       "techBase": "CLAN",
       "rulesLevel": "ADVANCED",
-      "compatibleWeaponIds": [
-        "clan-large-chemical-laser"
-      ],
+      "compatibleWeaponIds": ["clan-large-chemical-laser"],
       "shotsPerTon": 10,
       "weight": 1,
       "criticalSlots": 1,
