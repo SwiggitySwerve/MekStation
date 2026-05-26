@@ -224,9 +224,11 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     const unit = baseGameUnit({
       unitType: UnitType.BATTLEMECH,
       isEvading: true,
+      evasionBonus: 3,
     });
     const state = createInitialUnitState(unit, POSITION, Facing.North);
     expect(state.isEvading).toBe(true);
+    expect(state.evasionBonus).toBe(3);
   });
 
   it('copies optional cargo interaction state for physical attacker legality gates', () => {

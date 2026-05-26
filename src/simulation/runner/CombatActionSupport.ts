@@ -998,7 +998,7 @@ export const BATTLEMECH_ABSENT_ACTION_SUPPORT = {
   'movement.evade': unsupported(
     'movement.evade',
     'absent-action-surface',
-    'Evade is a source-backed optional TacOps movement surface with running movement, evasion heat, attacker firing restrictions, and target to-hit modifiers; explicit evading attacker state now blocks ranged and physical attacks, and explicit target evasion now modifies ranged and physical to-hit, but tactical commands, MovementType, game intents, wire payloads, P2P translation, runner movement phases, authoritative evasion state creation, and Skilled Evasion scaling have no authoritative evade action path',
+    'Evade is a source-backed optional TacOps movement surface with running movement, evasion heat, attacker firing restrictions, and target to-hit modifiers; explicit evading attacker state now blocks ranged and physical attacks, and explicit target evasion/evasionBonus state now modifies ranged and physical to-hit, but tactical commands, MovementType, game intents, wire payloads, P2P translation, runner movement phases, and authoritative evasion-bonus state creation have no authoritative evade action path',
     MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
   ),
   'movement.sprint': unsupported(

@@ -48,13 +48,22 @@ export function calculateTMM(
 export function calculateTargetEvasionModifier(
   isEvading: boolean | undefined,
   isProne: boolean,
+  evasionBonus?: number,
 ): IToHitModifierDetail | null {
   if (isEvading !== true || isProne) return null;
 
+  const bonus =
+    evasionBonus === undefined
+      ? 1
+      : Number.isFinite(evasionBonus)
+        ? Math.min(3, Math.max(0, Math.trunc(evasionBonus)))
+        : 0;
+  if (bonus <= 0) return null;
+
   return {
     name: 'Target Evasion',
-    value: 1,
+    value: bonus,
     source: 'target_movement',
-    description: 'Target is evading: +1',
+    description: `Target is evading: +${bonus}`,
   };
 }

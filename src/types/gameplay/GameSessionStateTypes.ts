@@ -217,6 +217,12 @@ export interface IUnitGameState {
    */
   readonly isEvading?: boolean;
   /**
+   * Optional source-backed target evasion to-hit bonus. Undefined preserves
+   * the normal +1 evasion bonus for explicit evading targets; explicit 0 lets
+   * Skilled Evasion state suppress the bonus without clearing evasion.
+   */
+  readonly evasionBonus?: number;
+  /**
    * Whether this unit is loading or unloading cargo this turn. Explicit true
    * blocks source-backed physical attack declarations by this attacker;
    * undefined preserves legacy fixtures without cargo interaction state.

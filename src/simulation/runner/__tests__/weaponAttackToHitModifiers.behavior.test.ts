@@ -466,6 +466,26 @@ describe('runAttackPhase to-hit modifier integration', () => {
     ).toMatchObject({ level: 'integrated' });
   });
 
+  it('threads explicit Skilled Evasion target bonuses into AttackDeclared', () => {
+    const events = runModifierScenario({
+      state: createWeaponAttackState({
+        target: {
+          isEvading: true,
+          evasionBonus: 3,
+        },
+      }),
+    });
+
+    const payload = attackDeclaredPayload(events);
+
+    expect(payload.toHitNumber).toBe(7);
+    expectModifier(payload, {
+      name: 'Target Evasion',
+      value: 3,
+      source: 'target_movement',
+    });
+  });
+
   it('threads wounds, sensor hits, actuator damage, and attacker prone into AttackDeclared', () => {
     const events = runModifierScenario({
       state: createWeaponAttackState({

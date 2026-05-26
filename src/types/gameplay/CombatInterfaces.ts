@@ -690,6 +690,12 @@ export interface ITargetState {
   readonly abilities?: readonly string[];
   readonly isDodging?: boolean;
   readonly isEvading?: boolean;
+  /**
+   * Optional source-backed evasion to-hit bonus copied into combat state.
+   * When absent, explicit `isEvading` keeps the normal +1; explicit 0 models
+   * Skilled Evasion cases that create an evading state without a bonus.
+   */
+  readonly evasionBonus?: number;
   readonly terrainFeatures?: readonly ITerrainFeature[];
 }
 

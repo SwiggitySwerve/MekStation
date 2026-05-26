@@ -505,6 +505,7 @@ export function declarePhysicalAttack(
     targetTonnage: context.targetTonnage,
     targetMovementModifier: context.targetMovementModifier,
     targetEvading: targetState?.isEvading,
+    targetEvasionBonus: targetState?.evasionBonus,
     attackerMovementModifier: context.attackerMovementModifier,
     retractableBladeExtended: context.retractableBladeExtended,
     attackerJumpedThisTurn:
@@ -771,6 +772,7 @@ export function resolveAllPhysicalAttacks(
       targetTonnage: context.targetTonnage,
       targetMovementModifier: context.targetMovementModifier,
       targetEvading: targetState.isEvading,
+      targetEvasionBonus: targetState.evasionBonus,
       attackerMovementModifier: context.attackerMovementModifier,
       retractableBladeExtended: context.retractableBladeExtended,
       attackerJumpedThisTurn:

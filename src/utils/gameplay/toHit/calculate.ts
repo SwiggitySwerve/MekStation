@@ -84,6 +84,7 @@ export function calculateToHit(
   const targetEvasionMod = calculateTargetEvasionModifier(
     target.isEvading,
     target.prone,
+    target.evasionBonus,
   );
   if (targetEvasionMod) modifiers.push(targetEvasionMod);
   modifiers.push(

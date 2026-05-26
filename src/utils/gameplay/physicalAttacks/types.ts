@@ -345,6 +345,12 @@ export interface IPhysicalAttackInput {
    */
   readonly targetEvading?: boolean;
   /**
+   * Optional source-backed target evasion to-hit bonus. Undefined preserves
+   * the normal +1 target evasion modifier; explicit 0 models source-backed
+   * Skilled Evasion state that is evading but grants no target modifier.
+   */
+  readonly targetEvasionBonus?: number;
+  /**
    * Per task 6.1: charge to-hit uses piloting + attacker-movement
    * modifier. Callers derive this from the attacker's movementType.
    */

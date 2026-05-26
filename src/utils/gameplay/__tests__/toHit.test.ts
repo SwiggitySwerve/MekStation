@@ -1082,6 +1082,30 @@ describe('calculateToHit', () => {
     );
   });
 
+  it('should consume explicit Skilled Evasion target bonuses', () => {
+    const attacker = createTestAttackerState({ gunnery: 4 });
+    const target = createTestTargetState({
+      isEvading: true,
+      evasionBonus: 3,
+    });
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+
+    expect(result.finalToHit).toBe(7);
+    expect(result.modifiers).toContainEqual(
+      expect.objectContaining({
+        name: 'Target Evasion',
+        value: 3,
+        source: 'target_movement',
+      }),
+    );
+  });
+
+  it('should suppress explicit zero Skilled Evasion target bonuses', () => {
+    const modifier = calculateTargetEvasionModifier(true, false, 0);
+
+    expect(modifier).toBeNull();
+  });
+
   it('should suppress target evasion while the target is prone', () => {
     const modifier = calculateTargetEvasionModifier(true, true);
 

@@ -3746,6 +3746,49 @@ describe('physicalAttacks', () => {
       }
     });
 
+    it('applies explicit Skilled Evasion target bonuses to physical to-hit', () => {
+      const baseline = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'kick',
+          pilotingSkill: 5,
+        }),
+      );
+      const evadingTarget = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'kick',
+          pilotingSkill: 5,
+          targetEvading: true,
+          targetEvasionBonus: 3,
+        }),
+      );
+
+      expect(evadingTarget.allowed).toBe(true);
+      expect(evadingTarget.finalToHit).toBe(baseline.finalToHit + 3);
+      expect(evadingTarget.modifiers).toContainEqual({
+        name: 'Target Evasion',
+        value: 3,
+        source: 'movement',
+      });
+    });
+
+    it('suppresses explicit zero Skilled Evasion target bonuses for physical to-hit', () => {
+      const result = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'kick',
+          pilotingSkill: 5,
+          targetEvading: true,
+          targetEvasionBonus: 0,
+        }),
+      );
+
+      expect(result.finalToHit).toBe(3);
+      expect(result.modifiers).not.toContainEqual(
+        expect.objectContaining({
+          name: 'Target Evasion',
+        }),
+      );
+    });
+
     it('suppresses source-backed target evasion against prone physical targets', () => {
       const result = calculatePhysicalToHit(
         makeInput({

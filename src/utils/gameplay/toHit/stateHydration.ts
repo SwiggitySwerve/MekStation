@@ -89,6 +89,7 @@ export function buildWeaponAttackTargetToHitState(
     abilities: unit.abilities,
     isDodging: unit.isDodging,
     isEvading: unit.isEvading,
+    evasionBonus: unit.evasionBonus,
     terrainFeatures,
   };
 }

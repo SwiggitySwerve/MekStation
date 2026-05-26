@@ -445,6 +445,7 @@ export function runPhysicalAttackPhase(options: {
       targetTonnage: DEFAULT_TONNAGE,
       targetProne: target.prone ?? false,
       targetEvading: target.isEvading,
+      targetEvasionBonus: target.evasionBonus,
       targetMovementComplete: true,
       targetImmobile: target.shutdown ?? false,
       targetExists: true,

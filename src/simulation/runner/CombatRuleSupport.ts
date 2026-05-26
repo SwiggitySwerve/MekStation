@@ -638,7 +638,7 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
   ),
   'target-evasion': integrated(
     'target-evasion',
-    'calculateToHit and calculatePhysicalToHit apply the explicit non-prone target isEvading bonus, while declareAttack, declarePhysicalAttack, runAttackPhase, and runPhysicalAttackPhase hydrate IUnitGameState.isEvading into ranged and physical to-hit payloads',
+    'calculateToHit and calculatePhysicalToHit apply explicit non-prone target isEvading bonuses, defaulting to +1 and consuming explicit 0..3 evasionBonus Skilled Evasion state, while declareAttack, declarePhysicalAttack, runAttackPhase, and runPhysicalAttackPhase hydrate IUnitGameState.isEvading/evasionBonus into ranged and physical to-hit payloads',
     MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
   ),
   heat: integrated(

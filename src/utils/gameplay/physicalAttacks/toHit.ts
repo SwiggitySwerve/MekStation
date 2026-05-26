@@ -91,6 +91,7 @@ function appendTargetEvasion(
   const modifier = calculateTargetEvasionModifier(
     input.targetEvading,
     input.targetProne === true,
+    input.targetEvasionBonus,
   );
   if (!modifier) return;
 

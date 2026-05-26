@@ -233,6 +233,11 @@ export interface IGameUnit {
    */
   readonly isEvading?: boolean;
   /**
+   * Optional source-backed target evasion to-hit bonus copied into combat
+   * state. Undefined keeps the normal +1 for explicit evading targets.
+   */
+  readonly evasionBonus?: number;
+  /**
    * Optional end-of-turn cargo interaction state copied into combat state.
    * Explicit true blocks source-backed physical attack declarations by this
    * unit while it is loading or unloading cargo.
