@@ -746,7 +746,7 @@ describe('BattleMech combat action support catalog', () => {
       'trip',
     ]);
     expect(
-      supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'helper-only'),
+      supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'out-of-scope'),
     ).toEqual([
       'airmek-ram',
       'battle-armor-vibro-claw',
