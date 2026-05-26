@@ -174,13 +174,13 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 201,
+      total: 189,
       byLevel: {
         'helper-only': 145,
-        unsupported: 56,
+        unsupported: 44,
       },
       bySection: {
-        actions: 26,
+        actions: 14,
         damageAndDeath: 2,
         featureSupport: 110,
         lifecycleAndPsr: 5,
@@ -229,9 +229,21 @@ describe('BattleMech combat validation catalog index', () => {
         'featureSupport.ammunitionCompatibility.non-battlemech-protomech',
         'featureSupport.ammunitionCompatibility.unsupported-aquatic-torpedo-ammo',
         'featureSupport.ammunitionCompatibility.unsupported-artillery-ammo',
+        'actions.gmCommandExclusions.gm.advance-phase',
+        'actions.gmCommandExclusions.gm.grant-resource',
+        'actions.gmCommandExclusions.gm.set-damage',
+        'actions.wireIntents.ForfeitMatch',
+        'actions.wireIntents.LaunchMatch',
+        'actions.wireIntents.LeaveSeat',
+        'actions.wireIntents.MarkSeatAi',
+        'actions.wireIntents.OccupySeat',
+        'actions.wireIntents.ReassignSeat',
+        'actions.wireIntents.SetAiSlot',
+        'actions.wireIntents.SetHumanSlot',
+        'actions.wireIntents.SetReady',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(25);
+    expect(outOfScopeRows).toHaveLength(37);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('actions.physicalActionClassScope.'),
@@ -253,6 +265,28 @@ describe('BattleMech combat validation catalog index', () => {
       'featureSupport.ammunitionCompatibility.non-battlemech-protomech',
       'featureSupport.ammunitionCompatibility.unsupported-aquatic-torpedo-ammo',
       'featureSupport.ammunitionCompatibility.unsupported-artillery-ammo',
+    ]);
+    expect(
+      outOfScopeRefs.filter((ref) =>
+        ref.startsWith('actions.gmCommandExclusions.'),
+      ),
+    ).toEqual([
+      'actions.gmCommandExclusions.gm.advance-phase',
+      'actions.gmCommandExclusions.gm.grant-resource',
+      'actions.gmCommandExclusions.gm.set-damage',
+    ]);
+    expect(
+      outOfScopeRefs.filter((ref) => ref.startsWith('actions.wireIntents.')),
+    ).toEqual([
+      'actions.wireIntents.ForfeitMatch',
+      'actions.wireIntents.LaunchMatch',
+      'actions.wireIntents.LeaveSeat',
+      'actions.wireIntents.MarkSeatAi',
+      'actions.wireIntents.OccupySeat',
+      'actions.wireIntents.ReassignSeat',
+      'actions.wireIntents.SetAiSlot',
+      'actions.wireIntents.SetHumanSlot',
+      'actions.wireIntents.SetReady',
     ]);
     expect(
       outOfScopeRows.filter(
