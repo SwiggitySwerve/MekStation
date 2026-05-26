@@ -52,6 +52,9 @@ export function generateGameLog(session: IGameSession): string {
       case 'attack_declared':
         lines.push(`${prefix} Unit ${event.actorId} declared attack`);
         break;
+      case 'attacks_revealed':
+        lines.push(`${prefix} Attacks revealed`);
+        break;
       case 'attack_resolved':
         lines.push(`${prefix} Attack resolved`);
         break;

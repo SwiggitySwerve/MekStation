@@ -12,6 +12,7 @@ import {
   IGameEndedPayload,
   IGameEvent,
   IGameState,
+  IAttacksRevealedPayload,
   IFacingChangedPayload,
   IHeatPayload,
   IInitiativeOrderSetPayload,
@@ -46,6 +47,7 @@ import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveE
 import {
   applyAttackDeclared,
   applyAttackLocked,
+  applyAttacksRevealed,
   applyFacingChanged,
   applyMovementEnhancementActivated,
   applyMovementDeclared,
@@ -156,6 +158,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
     case GameEventType.AttackLocked:
       return applyAttackLocked(state, event);
 
+    case GameEventType.AttacksRevealed:
+      return applyAttacksRevealed(
+        state,
+        event.payload as IAttacksRevealedPayload,
+      );
+
     case GameEventType.DamageApplied:
       return applyDamageApplied(state, event.payload as IDamageAppliedPayload);
 
@@ -254,7 +262,6 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
       );
 
     case GameEventType.TurnEnded:
-    case GameEventType.AttacksRevealed:
     case GameEventType.AttackResolved:
     case GameEventType.HeatEffectApplied:
     case GameEventType.CriticalHit:
@@ -342,6 +349,7 @@ export function allUnitsLocked(state: IGameState): boolean {
   return activeUnits.every(
     (unit) =>
       unit.lockState === LockState.Locked ||
+      unit.lockState === LockState.Revealed ||
       unit.lockState === LockState.Resolved,
   );
 }

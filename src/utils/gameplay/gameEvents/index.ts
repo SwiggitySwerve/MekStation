@@ -3,6 +3,7 @@ export * from './lifecycle';
 export * from './turnPhase';
 export * from './initiative';
 export * from './movement';
+export * from './attackReveal';
 export * from './combat';
 export * from './status';
 export * from './morale';

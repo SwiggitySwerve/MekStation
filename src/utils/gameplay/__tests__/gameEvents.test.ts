@@ -30,6 +30,7 @@ import {
   createMovementDeclaredEvent,
   createMovementLockedEvent,
   createAttackDeclaredEvent,
+  createAttacksRevealedEvent,
   createAttackResolvedEvent,
   createDamageAppliedEvent,
   createHeatGeneratedEvent,
@@ -705,6 +706,43 @@ describe('Combat Event Factories', () => {
 
       expect(payload.weapons).toHaveLength(1);
       expect(payload.weapons[0]).toBe('gauss_rifle');
+    });
+  });
+
+  describe('createAttacksRevealedEvent', () => {
+    it('should create a public attack reveal boundary event', () => {
+      const event = createAttacksRevealedEvent(
+        'game-1',
+        21,
+        3,
+        ['player-1', 'opponent-1'],
+        2,
+      );
+
+      expect(event.type).toBe(GameEventType.AttacksRevealed);
+      expect(event.gameId).toBe('game-1');
+      expect(event.sequence).toBe(21);
+      expect(event.turn).toBe(3);
+      expect(event.phase).toBe(GamePhase.WeaponAttack);
+      expect(event.actorId).toBeUndefined();
+      expect(event.visibility).toBe('public');
+    });
+
+    it('should include revealed unit ids and attack count in payload', () => {
+      const event = createAttacksRevealedEvent(
+        'game-1',
+        21,
+        3,
+        ['player-1', 'opponent-1'],
+        2,
+      );
+      const payload = event.payload as {
+        unitIds: readonly string[];
+        attackCount: number;
+      };
+
+      expect(payload.unitIds).toEqual(['player-1', 'opponent-1']);
+      expect(payload.attackCount).toBe(2);
     });
   });
 

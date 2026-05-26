@@ -49,6 +49,18 @@ export interface IAttackDeclaredPayload {
 }
 
 /**
+ * All attack declarations for the weapon phase are locked and may now be
+ * exposed to every participant. The individual `AttackDeclared` events remain
+ * the source of weapon/target detail; this payload captures the reveal boundary.
+ */
+export interface IAttacksRevealedPayload {
+  /** Active units whose weapon-phase declarations are now revealed. */
+  readonly unitIds: readonly string[];
+  /** Number of AttackDeclared events revealed for this turn. */
+  readonly attackCount: number;
+}
+
+/**
  * Weapon attack data stored in attack events.
  * Carries the real weapon stats so resolveAttack can use actual damage/heat values.
  */

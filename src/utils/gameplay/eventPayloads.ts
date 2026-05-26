@@ -16,6 +16,7 @@ import {
   IMovementDeclaredPayload,
   IMovementLockedPayload,
   IAttackDeclaredPayload,
+  IAttacksRevealedPayload,
   IAttackResolvedPayload,
   IDamageAppliedPayload,
   IHeatPayload,
@@ -161,6 +162,16 @@ export function getAttackDeclaredPayload(
 ): IAttackDeclaredPayload | null {
   if (event.type !== GameEventType.AttackDeclared) return null;
   return event.payload as IAttackDeclaredPayload;
+}
+
+/**
+ * Extract AttacksRevealed payload.
+ */
+export function getAttacksRevealedPayload(
+  event: IGameEvent,
+): IAttacksRevealedPayload | null {
+  if (event.type !== GameEventType.AttacksRevealed) return null;
+  return event.payload as IAttacksRevealedPayload;
 }
 
 /**

@@ -20,6 +20,7 @@ import type {
   IAttackResolvedPayload,
   IAmmoExplosionPayload,
   IHeatPayload,
+  IAttacksRevealedPayload,
   IPhysicalAttackDeclaredPayload,
   IPhysicalAttackResolvedPayload,
   IPilotHitPayload,
@@ -452,6 +453,7 @@ export type GameEventPayload =
   | IFacingChangedPayload
   | IAttackDeclaredPayload
   | IAttackLockedPayload
+  | IAttacksRevealedPayload
   | IAttackResolvedPayload
   | IRedactedAttackResolvedPayload
   | IDamageAppliedPayload
