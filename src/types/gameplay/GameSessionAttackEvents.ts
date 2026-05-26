@@ -473,6 +473,8 @@ export interface IUnitStoodPayload {
   readonly turn: number;
   readonly roll: number;
   readonly targetNumber: number;
+  /** Reason this stand-up succeeded without rolling, when no PSR was required. */
+  readonly automaticSuccessReason?: string;
   /**
    * Per `add-authoritative-roll-arbitration` (Wave 3a): the two d6 that
    * compose `roll`. OPTIONAL.

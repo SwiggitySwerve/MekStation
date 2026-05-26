@@ -824,12 +824,13 @@ same cost in committed paths, exposes Stand Up only for prone units with enough
 heat-reduced walk/run MP, dispatches standalone Stand Up as a zero-hex
 rules-backed movement declaration with `standUpAttempt` / `standUpSucceeded`
 replay fields, emits the stand-up `PSRTriggered` / `PSRResolved` / `UnitStood`
-chain, rejects prone jump attempts until standing in both the map projection and
-Jump command availability, marks destroyed-leg-plus-both-arms stand attempts as
-impossible before the player commits, and resolves the same stand-up PSR before
-committed prone ground movement. A successful stand-up continues to the projected
-destination; a failed stand-up records only the stand-up MP/heat, stays at the
-origin, locks movement, and remains prone. The map projection now exposes
+chain for PSR-required stand-up attempts, rejects prone jump attempts until
+standing in both the map projection and Jump command availability, marks
+destroyed-leg-plus-both-arms stand attempts as impossible before the player
+commits, and resolves the same stand-up PSR before committed prone ground
+movement. A successful stand-up continues to the projected destination; a failed
+stand-up records only the stand-up MP/heat, stays at the origin, locks movement,
+and remains prone. The map projection now exposes
 `standUpRequired`, `standUpMode`, `standUpCost`, stand-up PSR
 reason/target/modifier metadata, impossible-stand reasons, and non-color
 stand-up badges/tooltips/dock disabled reasons so the player sees the stand
@@ -877,6 +878,29 @@ no/minimal-arms quirk, and side-specific hand/lower/upper/shoulder actuator
 state through import and movement projection, then keeps preview and committed
 stand-up PSR target numbers aligned. Remaining gaps: special-unit stand-up
 exceptions are still not fully modeled.
+
+2026-05-26 quad stand-up no-PSR pin: MegaMek `Entity.java:7566-7568`
+defaults `needsRollToStand()` to true, `QuadMek.java:452-453` overrides it so
+intact quads return false when `countBadLegs() == 0`, and
+`Entity.java:7824-7828` converts `!needsRollToStand() && !isGyroDestroyed()`
+into automatic stand-up success because the unit has all four legs. MekStation
+now imports ordinary `Quad` / `Quad Omnimech` configurations as a represented
+quad stand-up leg profile, treats both MegaMek legacy quad leg locations
+(`left_arm`, `right_arm`, `left_leg`, `right_leg`) and MekStation quad labels
+(`front_left_leg`, `front_right_leg`, `rear_left_leg`, `rear_right_leg`, plus
+FLL/FRL/RLL/RRL) as leg-damage blockers for the automatic success, projects an
+intact quad stand-up as normal stand-up MP with `standUpPsrRequired=false`, and
+surfaces the no-PSR reason through hex metadata, badges, tooltip rows, and the
+shared tactical projection explanation. Commit resolution now uses the same
+projection: intact quad stand-up emits `UnitStood` without consuming dice or
+emitting `PSRTriggered` / `PSRResolved`, while damaged quad-leg cases remain on
+the normal stand-up PSR path. Focused coverage lives in
+`src/utils/gameplay/movement/__tests__/reachable.test.ts`,
+`src/engine/__tests__/CompendiumAdapter.test.ts`,
+`src/engine/__tests__/InteractiveSession.movement.scenario.test.ts`, and
+`src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.movementAnimation.test.tsx`.
+Remaining gaps: QuadVee conversion-mode stand-up exceptions and destroyed-gyro
+stand-up cleanup still need dedicated source-backed passes.
 
 Additional fog visibility pin: engine attack visibility already passes the
 active battle grid into `canPlayerSeeUnit` before accepting an attack

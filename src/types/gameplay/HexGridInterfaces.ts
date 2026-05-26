@@ -136,6 +136,8 @@ export type MovementStandUpArmActuator =
   | 'upper_arm'
   | 'shoulder';
 
+export type MovementStandUpLegProfile = 'biped' | 'quad';
+
 export interface IMovementStandUpArmActuators {
   /** First missing/destroyed left-arm actuator, in MegaMek stand-up priority. */
   readonly left?: MovementStandUpArmActuator;
@@ -144,6 +146,8 @@ export interface IMovementStandUpArmActuators {
 }
 
 export interface IMovementStandUpCapability {
+  /** MegaMek stand-up leg profile; intact quads stand without a PSR. */
+  readonly standUpLegProfile?: MovementStandUpLegProfile;
   /** MegaMek no/minimal-arms quirk: stand-up PSR gets +2 before arm checks. */
   readonly noMinimalArmsQuirk?: boolean;
   /** Side-specific arm actuator losses represented for TacOps Attempting to Stand. */

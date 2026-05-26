@@ -503,6 +503,8 @@ export interface IMovementRangeHex {
   readonly standUpPsrModifierDetails?: readonly string[];
   /** Reason the stand-up attempt cannot succeed, when known. */
   readonly standUpPsrImpossibleReason?: string;
+  /** Reason stand-up succeeds without a PSR, when projected. */
+  readonly standUpPsrAutomaticSuccessReason?: string;
   readonly movementMode?: string;
   /** Same-hex movement options when walk/run/jump projections overlap. */
   readonly movementModeOptions?: readonly IMovementRangeModeOption[];

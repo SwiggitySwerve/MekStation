@@ -40,10 +40,12 @@ export interface IStandUpRuleOptions {
 
 export interface IStandUpPsrProjection {
   readonly reason: string;
+  readonly required: boolean;
   readonly targetNumber?: number;
   readonly modifier: number;
   readonly modifierDetails: readonly string[];
   readonly impossibleReason?: string;
+  readonly automaticSuccessReason?: string;
 }
 
 interface IStandUpPsrModifier {
@@ -92,18 +94,29 @@ export function projectStandUpPsr({
     allModifiers.reduce((sum, entry) => sum + entry.value, 0) +
     carefulStandModifier;
   const impossibleReason = destroyedLegAndArmsStandBlock(unitState, unitType);
+  const automaticSuccessReason = standUpAutomaticSuccessReason(
+    unitState,
+    movementCapability,
+    impossibleReason,
+  );
+  const required = automaticSuccessReason === undefined;
 
   return {
-    reason: psr.reason,
-    modifier,
-    modifierDetails: [
-      ...allModifiers.map(
-        (entry) => `${entry.name} ${entry.value >= 0 ? '+' : ''}${entry.value}`,
-      ),
-      ...(carefulStandModifier === 0 ? [] : ['Careful stand -2']),
-    ],
+    reason: automaticSuccessReason ?? psr.reason,
+    required,
+    modifier: required ? modifier : 0,
+    modifierDetails: required
+      ? [
+          ...allModifiers.map(
+            (entry) =>
+              `${entry.name} ${entry.value >= 0 ? '+' : ''}${entry.value}`,
+          ),
+          ...(carefulStandModifier === 0 ? [] : ['Careful stand -2']),
+        ]
+      : [],
     impossibleReason,
-    ...(unitPiloting === undefined
+    automaticSuccessReason,
+    ...(!required || unitPiloting === undefined
       ? {}
       : {
           targetNumber: impossibleReason ? Infinity : unitPiloting + modifier,
@@ -214,3 +227,48 @@ export function destroyedLegAndArmsStandBlock(
     ? 'Cannot stand with a destroyed leg and both arms destroyed'
     : undefined;
 }
+
+function standUpAutomaticSuccessReason(
+  unitState: IUnitGameState,
+  movementCapability: IMovementCapability | undefined,
+  impossibleReason: string | undefined,
+): string | undefined {
+  if (impossibleReason !== undefined) return undefined;
+  if (movementCapability?.standUpCapability?.standUpLegProfile !== 'quad') {
+    return undefined;
+  }
+  if ((unitState.componentDamage ?? DEFAULT_COMPONENT_DAMAGE).gyroHits >= 2) {
+    return undefined;
+  }
+  return hasDestroyedQuadLeg(unitState)
+    ? undefined
+    : 'Quad Mek has all four legs and does not need a stand-up PSR';
+}
+
+function hasDestroyedQuadLeg(unitState: IUnitGameState): boolean {
+  const destroyed = new Set(
+    unitState.destroyedLocations.map(normalizedLocationKey),
+  );
+  return QUAD_STAND_LEG_LOCATION_KEYS.some((location) =>
+    destroyed.has(location),
+  );
+}
+
+function normalizedLocationKey(location: string): string {
+  return location.toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+const QUAD_STAND_LEG_LOCATION_KEYS = [
+  'leftarm',
+  'rightarm',
+  'leftleg',
+  'rightleg',
+  'frontleftleg',
+  'frontrightleg',
+  'rearleftleg',
+  'rearrightleg',
+  'fll',
+  'frl',
+  'rll',
+  'rrl',
+] as const;

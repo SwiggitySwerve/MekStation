@@ -298,8 +298,34 @@ export function attemptStandUp(
 
   let currentSession = session;
 
-  // 1. Emit PSRTriggered so the reducer pushes the PSR onto the queue.
   const psr = createStandingUpPSR(unitId);
+  const standUpPsr = projectStandUpPsr({
+    unitState,
+    unitPiloting: unit.piloting,
+    unitType: unit.unitType,
+    movementCapability,
+    standUpMode,
+    optionalRules: session.config.optionalRules,
+  });
+
+  if (!standUpPsr.required && !standUpPsr.impossibleReason) {
+    const stoodSeq = currentSession.events.length;
+    return appendEvent(
+      currentSession,
+      createUnitStoodEvent(
+        currentSession.id,
+        stoodSeq,
+        turn,
+        phase,
+        unitId,
+        0,
+        0,
+        standUpPsr.automaticSuccessReason,
+      ),
+    );
+  }
+
+  // 1. Emit PSRTriggered so the reducer pushes the PSR onto the queue.
   const triggeredSeq = currentSession.events.length;
   currentSession = appendEvent(
     currentSession,
@@ -319,14 +345,6 @@ export function attemptStandUp(
 
   // 2. Roll the PSR with the same modifier projection the map exposes.
   //    Destroyed-leg-plus-both-arms is an impossible stand-up target.
-  const standUpPsr = projectStandUpPsr({
-    unitState,
-    unitPiloting: unit.piloting,
-    unitType: unit.unitType,
-    movementCapability,
-    standUpMode,
-    optionalRules: session.config.optionalRules,
-  });
   const tn = standUpPsr.targetNumber ?? unit.piloting;
   const roll = standUpPsr.impossibleReason
     ? { total: 0, dice: [0, 0] as const }

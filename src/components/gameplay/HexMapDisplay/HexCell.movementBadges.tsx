@@ -114,6 +114,12 @@ function formatStandUpBadgeTitle(movementInfo: IMovementRangeHex): string {
       `${movementInfo.standUpMode === 'careful' ? 'careful stand' : 'stand-up'} cost ${movementInfo.standUpCost} MP`,
     );
   }
+  if (
+    !movementInfo.standUpPsrRequired &&
+    movementInfo.standUpPsrAutomaticSuccessReason
+  ) {
+    details.push(`${movementInfo.standUpPsrAutomaticSuccessReason}; no PSR`);
+  }
   if (movementInfo.standUpPsrRequired) {
     if (movementInfo.standUpPsrImpossibleReason) {
       details.push('PSR impossible');
@@ -323,6 +329,9 @@ export function MovementStandUpBadge({
       )}
       data-stand-up-psr-impossible-reason={
         movementInfo.standUpPsrImpossibleReason
+      }
+      data-stand-up-psr-automatic-success-reason={
+        movementInfo.standUpPsrAutomaticSuccessReason
       }
     >
       <title>{title}</title>

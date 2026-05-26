@@ -175,8 +175,13 @@ export function formatMovementLabel(movementInfo: IMovementRangeHex): string {
             : ` TN ${movementInfo.standUpPsrTargetNumber}`
       }`
     : '';
+  const standNoPsrLabel =
+    !movementInfo.standUpPsrRequired &&
+    movementInfo.standUpPsrAutomaticSuccessReason
+      ? `, ${movementInfo.standUpPsrAutomaticSuccessReason}: no PSR`
+      : '';
   const standLabel = movementInfo.standUpRequired
-    ? `, stand +${movementInfo.standUpCost ?? '?'} MP${standPsrLabel}`
+    ? `, stand +${movementInfo.standUpCost ?? '?'} MP${standPsrLabel}${standNoPsrLabel}`
     : '';
   const invalidLabel = movementInfo.movementInvalidReason
     ? `, invalid ${movementInfo.movementInvalidReason}${

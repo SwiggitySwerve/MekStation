@@ -112,6 +112,8 @@ const MOVEMENT_RULE_REFERENCES = [
 const STAND_UP_MOVEMENT_RULE_REFERENCES = [
   'MegaMek GetUpStep.java:62 stand-up MP cost',
   'MegaMek MovePathHandler.java:2027-2058 stand-up PSR resolution',
+  'MegaMek QuadMek.java:452-453 intact quads do not roll to stand',
+  'MegaMek Entity.java:7824-7828 all-four-legs stand-up automatic success',
 ] as const;
 
 const COMBAT_RULE_REFERENCES = [
@@ -590,6 +592,7 @@ function movementHasStandUpContext(movement: IMovementRangeHex): boolean {
   return Boolean(
     movement.standUpRequired ||
     movement.standUpPsrRequired ||
+    movement.standUpPsrAutomaticSuccessReason ||
     movement.standUpPsrModifierDetails?.length,
   );
 }
@@ -838,6 +841,10 @@ function formatProjectionExplanation({
               ? `${movement.standUpPsrTargetNumber}`
               : 'impossible';
         parts.push(`stand-up PSR ${psrReason}TN ${target}`);
+      } else if (movement.standUpPsrAutomaticSuccessReason) {
+        parts.push(
+          `stand-up no PSR ${movement.standUpPsrAutomaticSuccessReason}`,
+        );
       }
       if (
         movement.standUpPsrModifier !== undefined &&

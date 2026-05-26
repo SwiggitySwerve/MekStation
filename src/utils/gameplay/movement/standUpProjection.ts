@@ -21,6 +21,7 @@ type StandUpProjection = Pick<
   | 'standUpPsrModifier'
   | 'standUpPsrModifierDetails'
   | 'standUpPsrImpossibleReason'
+  | 'standUpPsrAutomaticSuccessReason'
 >;
 
 export function deriveStandUpProjection(
@@ -43,7 +44,7 @@ export function deriveStandUpProjection(
     standUpRequired: true,
     standUpMode,
     standUpCost: getStandingCost(capability, standUpMode),
-    standUpPsrRequired: true,
+    standUpPsrRequired: psr.required,
     standUpPsrReason: psr.reason,
     standUpPsrModifier: psr.modifier,
     standUpPsrModifierDetails: psr.modifierDetails,
@@ -53,6 +54,9 @@ export function deriveStandUpProjection(
     ...(psr.impossibleReason === undefined
       ? {}
       : { standUpPsrImpossibleReason: psr.impossibleReason }),
+    ...(psr.automaticSuccessReason === undefined
+      ? {}
+      : { standUpPsrAutomaticSuccessReason: psr.automaticSuccessReason }),
   };
 }
 

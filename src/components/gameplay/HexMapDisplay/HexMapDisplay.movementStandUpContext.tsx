@@ -50,6 +50,9 @@ function formatStandUpLabel(movementInfo: IMovementRangeHex): string {
 
 function formatStandUpPsrLabel(movementInfo: IMovementRangeHex): string {
   const reason = movementInfo.standUpPsrReason ?? 'Stand-up PSR';
+  if (!movementInfo.standUpPsrRequired) {
+    return `${movementInfo.standUpPsrAutomaticSuccessReason ?? reason}: no PSR`;
+  }
   if (movementInfo.standUpPsrImpossibleReason) {
     return `${reason} impossible - ${movementInfo.standUpPsrImpossibleReason}`;
   }
@@ -76,12 +79,16 @@ export function MovementStandUpContextRows({
   if (
     !movementInfo.standUpRequired &&
     !movementInfo.standUpPsrRequired &&
+    !movementInfo.standUpPsrAutomaticSuccessReason &&
     !movementInfo.standUpPsrModifierDetails?.length
   ) {
     return null;
   }
 
   const sourceAttributes = movementSourceAttributes(movementInfo, projection);
+  const hasStandUpPsrContext =
+    movementInfo.standUpPsrRequired ||
+    movementInfo.standUpPsrAutomaticSuccessReason !== undefined;
 
   return (
     <>
@@ -97,12 +104,17 @@ export function MovementStandUpContextRows({
           {formatStandUpLabel(movementInfo)}
         </div>
       )}
-      {movementInfo.standUpPsrRequired && (
+      {hasStandUpPsrContext && (
         <div
           data-testid={`${testIdPrefix}-stand-up-psr`}
           data-movement-context-kind="stand-up-psr"
-          data-movement-stand-up-psr-required="true"
+          data-movement-stand-up-psr-required={
+            movementInfo.standUpPsrRequired ? 'true' : 'false'
+          }
           data-movement-stand-up-psr-reason={movementInfo.standUpPsrReason}
+          data-movement-stand-up-psr-automatic-success-reason={
+            movementInfo.standUpPsrAutomaticSuccessReason
+          }
           data-movement-stand-up-psr-target-number={finiteNumberAttribute(
             movementInfo.standUpPsrTargetNumber,
           )}

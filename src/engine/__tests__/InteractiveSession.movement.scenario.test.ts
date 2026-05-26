@@ -18,6 +18,7 @@ import {
   type IGameUnit,
   type IMovementDeclaredPayload,
   type IMovementInvalidPayload,
+  type IUnitStoodPayload,
 } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
 import {
@@ -2720,6 +2721,93 @@ describe('applyInteractiveSessionMovement', () => {
     expect(
       result.events.some((event) => event.type === GameEventType.UnitStood),
     ).toBe(true);
+    expect(result.currentState.units.m1).toMatchObject({
+      position: { q: 0, r: 2 },
+      prone: false,
+    });
+  });
+
+  it('keeps intact quad stand-up preview and commit aligned without rolling a PSR', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      prone: true,
+    };
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    const movementByUnit = capability({
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 0,
+      standUpCapability: { standUpLegProfile: 'quad' },
+    });
+
+    const preview = deriveMovementRangeHexForDestination(
+      session.currentState.units.m1,
+      MovementType.Walk,
+      grid,
+      movementByUnit.get('m1')!,
+      { q: 0, r: 2 },
+    );
+
+    expect(preview).toMatchObject({
+      reachable: true,
+      mpCost: 4,
+      standUpRequired: true,
+      standUpCost: 2,
+      standUpPsrRequired: false,
+      standUpPsrAutomaticSuccessReason:
+        'Quad Mek has all four legs and does not need a stand-up PSR',
+    });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 0, r: 2 },
+      facing: Facing.Southeast,
+      movementType: MovementType.Walk,
+      path: [
+        { q: 0, r: 0 },
+        { q: 0, r: 1 },
+        { q: 0, r: 2 },
+      ],
+      diceRoller: () => {
+        throw new Error('Intact quad stand-up should not roll a PSR');
+      },
+    });
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.PSRTriggered),
+    ).toBe(false);
+    expect(
+      result.events.some((event) => event.type === GameEventType.PSRResolved),
+    ).toBe(false);
+
+    const stood = result.events.find(
+      (event) => event.type === GameEventType.UnitStood,
+    );
+    expect(stood?.payload as IUnitStoodPayload).toMatchObject({
+      unitId: 'm1',
+      roll: 0,
+      targetNumber: 0,
+      automaticSuccessReason:
+        'Quad Mek has all four legs and does not need a stand-up PSR',
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      mpUsed: preview!.mpCost,
+      standUpAttempt: true,
+      standUpSucceeded: true,
+    });
     expect(result.currentState.units.m1).toMatchObject({
       position: { q: 0, r: 2 },
       prone: false,

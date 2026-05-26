@@ -19,6 +19,7 @@ import {
   type IMovementStandUpCapability,
   type IMovementWaterCapability,
   type MovementStandUpArmActuator,
+  type MovementStandUpLegProfile,
   MovementType,
   type MovementHeatProfile,
   type MovementMotiveMode,
@@ -731,6 +732,19 @@ function isQuadVeeUnitType(unitType: string): boolean {
   return unitType === 'quadvee';
 }
 
+function isQuadMekStandUpUnitType(unitType: string): boolean {
+  switch (unitType) {
+    case 'quad':
+    case 'quadmech':
+    case 'quadmek':
+    case 'quadomnimech':
+    case 'quadomnimek':
+      return true;
+    default:
+      return false;
+  }
+}
+
 function isConventionalInfantryUnitType(unitType: string): boolean {
   return unitType === 'infantry' || unitType === 'conventionalinfantry';
 }
@@ -1296,18 +1310,49 @@ function standUpCapabilityFromUnitData(
     booleanField(unitData, ...TAC_OPS_ATTEMPTING_STAND_FIELDS) ||
     booleanField(movement, ...TAC_OPS_ATTEMPTING_STAND_FIELDS) ||
     booleanField(source, ...TAC_OPS_ATTEMPTING_STAND_FIELDS);
+  const explicitStandUpLegProfile =
+    standUpLegProfileFromSource(source) ??
+    standUpLegProfileFromSource(movement) ??
+    standUpLegProfileFromSource(unitData);
+  const unitTypeKeys = normalizedUnitTypeKeys(unitData);
+  const standUpLegProfile =
+    explicitStandUpLegProfile ??
+    (unitTypeKeys.some(isQuadMekStandUpUnitType) ? 'quad' : undefined);
 
   const standUpCapability: IMovementStandUpCapability = {
+    ...(standUpLegProfile ? { standUpLegProfile } : {}),
     ...(noMinimalArmsQuirk ? { noMinimalArmsQuirk } : {}),
     ...(tacOpsAttemptingStand ? { tacOpsAttemptingStand } : {}),
     ...(armActuators ? { armActuators } : {}),
   };
 
-  return standUpCapability.noMinimalArmsQuirk ||
+  return standUpCapability.standUpLegProfile ||
+    standUpCapability.noMinimalArmsQuirk ||
     standUpCapability.tacOpsAttemptingStand ||
     standUpCapability.armActuators !== undefined
     ? standUpCapability
     : undefined;
+}
+
+function standUpLegProfileFromSource(
+  source: Record<string, unknown> | undefined,
+): MovementStandUpLegProfile | undefined {
+  const normalized =
+    normalizedKey(source?.standUpLegProfile) ||
+    normalizedKey(source?.legProfile) ||
+    normalizedKey(source?.megamekStandUpLegProfile);
+  switch (normalized) {
+    case 'biped':
+    case 'bipedmek':
+    case 'bipedmech':
+      return 'biped';
+    case 'quad':
+    case 'quadmek':
+    case 'quadmech':
+      return 'quad';
+    default:
+      return undefined;
+  }
 }
 
 function booleanField(

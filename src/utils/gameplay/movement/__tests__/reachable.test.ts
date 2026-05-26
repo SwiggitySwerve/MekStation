@@ -168,6 +168,76 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('projects intact quad Mek stand-up as MP cost without a PSR', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = { ...makeUnitAtOrigin(), prone: true };
+    const cap: IMovementCapability = {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 0,
+      standUpCapability: { standUpLegProfile: 'quad' },
+    };
+
+    const projected = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+    );
+
+    expect(projected).toMatchObject({
+      reachable: true,
+      mpCost: 3,
+      standUpRequired: true,
+      standUpCost: 2,
+      standUpPsrRequired: false,
+      standUpPsrReason:
+        'Quad Mek has all four legs and does not need a stand-up PSR',
+      standUpPsrModifier: 0,
+      standUpPsrModifierDetails: [],
+      standUpPsrAutomaticSuccessReason:
+        'Quad Mek has all four legs and does not need a stand-up PSR',
+    });
+    expect(projected?.standUpPsrTargetNumber).toBeUndefined();
+  });
+
+  it.each(['left_arm', 'front_left_leg'] as const)(
+    'requires the normal stand-up PSR when a quad leg is destroyed as %s',
+    (destroyedLocation) => {
+      const grid = createHexGrid({ radius: 5 });
+      const unit = {
+        ...makeUnitAtOrigin(),
+        prone: true,
+        destroyedLocations: [destroyedLocation],
+      };
+      const cap: IMovementCapability = {
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 0,
+        standUpCapability: { standUpLegProfile: 'quad' },
+      };
+
+      const projected = deriveMovementRangeHexForDestination(
+        unit,
+        MovementType.Walk,
+        grid,
+        cap,
+        { q: 1, r: 0 },
+      );
+
+      expect(projected).toMatchObject({
+        reachable: true,
+        standUpPsrRequired: true,
+        standUpPsrReason: 'Standing up',
+        standUpPsrTargetNumber: 5,
+        standUpPsrModifier: 0,
+        standUpPsrModifierDetails: [],
+      });
+      expect(projected?.standUpPsrAutomaticSuccessReason).toBeUndefined();
+    },
+  );
+
   it('projects TacOps careful stand as a whole-turn stand with the PSR bonus', () => {
     const grid = createHexGrid({ radius: 5 });
     const unit = { ...makeUnitAtOrigin(), prone: true };

@@ -544,6 +544,33 @@ describe('CompendiumAdapter', () => {
       });
     });
 
+    it.each(['Quad', 'Quad Omnimech'] as const)(
+      'should derive represented quad stand-up leg profile from %s configuration',
+      (configuration) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          configuration,
+        } as unknown as IFullUnit);
+
+        expect(result.standUpCapability).toEqual({
+          standUpLegProfile: 'quad',
+        });
+        expect(toMovementCapability(result).standUpCapability).toEqual({
+          standUpLegProfile: 'quad',
+        });
+      },
+    );
+
+    it('should not derive normal quad stand-up profile from QuadVee configuration alone', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        configuration: 'QuadVee',
+      } as unknown as IFullUnit);
+
+      expect(result.standUpCapability).toBeUndefined();
+      expect(toMovementCapability(result).standUpCapability).toBeUndefined();
+    });
+
     it('should derive represented Mek entity height for movement capability', () => {
       const result = adaptUnitFromData(createAtlasData());
 
