@@ -95,6 +95,10 @@ async function measureRenderedContrast(screenshot: Buffer): Promise<{
 }
 
 test.describe('Tactical map visual smoke @smoke @game', () => {
+  // The dense tactical-map harness shares one Next dev server; serializing the
+  // suite keeps route compilation and screenshot contrast checks deterministic.
+  test.describe.configure({ mode: 'serial' });
+
   test('renders top-down labels and rotatable isometric occlusion in browser', async ({
     page,
   }) => {
@@ -257,10 +261,10 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-movement-blocked-options-badge-invalid-reasons',
       'jump:InsufficientMP',
     );
-    await mixedMovementHex.dispatchEvent('mouseover', {
-      bubbles: true,
-      cancelable: true,
+    await mixedMovementHex.locator('path[data-terrain="clear"]').hover({
+      position: { x: 72, y: 34 },
     });
+    await expect(page.getByTestId('hex-tactical-tooltip')).toBeVisible();
     const mixedTooltipBlockedOption = page.getByTestId(
       'hex-tactical-tooltip-movement-options-option-jump-jump-2',
     );

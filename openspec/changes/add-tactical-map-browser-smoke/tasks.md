@@ -282,3 +282,6 @@
   turret projection, committed rejection, and browser invalid-badge metadata.
 - [x] 3.60 Focused Jest parity and Playwright smoke pass for right-sponson
   multi-arc projection, committed attack, and browser badge metadata.
+- [x] 3.61 Clear-terrain base hex shapes remain pointer-targetable, and the
+  full tactical-map Playwright smoke file is serialized and passes under the
+  default smoke project worker settings across all 57 map scenarios.

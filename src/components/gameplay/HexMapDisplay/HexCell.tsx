@@ -758,6 +758,7 @@ export const HexCell = React.memo(function HexCell({
         fill={polygonFill}
         stroke={HEX_COLORS.gridLine}
         strokeWidth={1}
+        pointerEvents="all"
         data-terrain={terrainType}
       />
       {hasOverlay && overlayFill && (

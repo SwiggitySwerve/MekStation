@@ -23,6 +23,9 @@ the top-down map.
 - **AND** a reachable movement-highlighted hex with a blocked movement mode
   SHALL expose legal option states, blocked option reason metadata, and a
   separate blocked-options badge that does not rely on color alone
+- **AND** each rendered hex SHALL keep its base shape pointer-targetable even
+  when the terrain fill is transparent, so hover/click tactical details remain
+  reachable on clear terrain
 - **AND** when the Run overlay contains a destination whose Run path is blocked
   but a Walk path is legal, the map SHALL render the reachable Walk projection
   as primary while retaining the blocked Run option metadata
