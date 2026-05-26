@@ -22,6 +22,7 @@ import { SeededDiceRoller } from '@/lib/multiplayer/server/RollCapture';
 import { RollCapture } from '@/lib/multiplayer/server/RollCapture';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
+  GameEventType,
   GamePhase,
   GameSide,
   type IGameUnit,
@@ -104,10 +105,20 @@ describe('host-authoritative RNG determinism (replay roller)', () => {
       expect(die).toBeLessThanOrEqual(6);
     }
 
-    // The host's emitted InitiativeRolled event is the last one. Stamp
-    // the captured rolls onto the payload so the guest can replay them.
-    const lastEvent = hostSession2.events[hostSession2.events.length - 1];
-    const broadcastEvent = embedRollsIntoEvent(lastEvent, capturedRolls);
+    // Stamp only the dice-bearing InitiativeRolled payload. The following
+    // InitiativeOrderSet event remains a separate replayable turn-order fact.
+    const initiativeRolledEvent = hostSession2.events.find(
+      (event) => event.type === GameEventType.InitiativeRolled,
+    );
+    const initiativeOrderEvent = hostSession2.events.find(
+      (event) => event.type === GameEventType.InitiativeOrderSet,
+    );
+    expect(initiativeRolledEvent).toBeDefined();
+    expect(initiativeOrderEvent).toBeDefined();
+    const broadcastEvent = embedRollsIntoEvent(
+      initiativeRolledEvent!,
+      capturedRolls,
+    );
 
     // Sanity-check the embedding round-trips to extraction.
     expect(extractRollsFromEvent(broadcastEvent)).toEqual(capturedRolls);
@@ -126,8 +137,11 @@ describe('host-authoritative RNG determinism (replay roller)', () => {
     });
     const guestSession1 = startGame(guestSession0, GameSide.Player);
 
-    // Guest replays by appending the host's broadcast event verbatim.
-    const guestSession2 = appendEvent(guestSession1, broadcastEvent);
+    // Guest replays by appending the host's broadcast events verbatim.
+    const guestSession2 = appendEvent(
+      appendEvent(guestSession1, broadcastEvent),
+      initiativeOrderEvent!,
+    );
 
     // -- Assertion: byte-identical derived state ---------------------
     // Compare the full currentState (ignoring updatedAt timestamps that
@@ -146,7 +160,9 @@ describe('host-authoritative RNG determinism (replay roller)', () => {
     // streams the host's GameCreated/GameStarted events too, in which
     // case full event-list parity holds; that's covered by
     // gameSessionChannel.test.ts.)
-    const guestInit = guestSession2.events[guestSession2.events.length - 1];
+    const guestInit = guestSession2.events.find(
+      (event) => event.type === GameEventType.InitiativeRolled,
+    );
     expect(guestInit).toEqual(broadcastEvent);
   });
 

@@ -2,6 +2,7 @@ import {
   GamePhase,
   IGameEvent,
   IGameState,
+  IInitiativeOrderSetPayload,
   IInitiativeRolledPayload,
   IPhaseChangedPayload,
   LockState,
@@ -82,5 +83,17 @@ export function applyInitiativeRolled(
     ...state,
     initiativeWinner: payload.winner,
     firstMover: payload.movesFirst,
+  };
+}
+
+export function applyInitiativeOrderSet(
+  state: IGameState,
+  payload: IInitiativeOrderSetPayload,
+): IGameState {
+  return {
+    ...state,
+    initiativeWinner: payload.winner,
+    firstMover: payload.firstMover,
+    activationIndex: 0,
   };
 }
