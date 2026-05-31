@@ -28,6 +28,7 @@ import {
   buildEjectIntent,
   buildEndPhaseIntent,
   buildGoProneIntent,
+  buildRequestSpotIntent,
   buildStandIntent,
   buildTorsoTwistIntent,
   buildWithdrawIntent,
@@ -500,6 +501,51 @@ describe('translateIntentToEvents', () => {
       'attack_declared',
       'attack_locked',
     ]);
+  });
+
+  it('translates a guest-owned requestSpot in the WeaponAttack phase', () => {
+    const session = withPhase(fixtureSession(), GamePhase.WeaponAttack);
+    const intent = buildRequestSpotIntent(GUEST_PEER, {
+      unitId: 'guest-0',
+      targetId: 'host-0',
+    });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.events).toHaveLength(1);
+    expect(result.events[0].type).toBe('spotting_declared');
+    expect(result.events[0].sequence).toBe(session.events.length);
+    expect(result.events[0].payload).toMatchObject({
+      unitId: 'guest-0',
+      targetId: 'host-0',
+      turn: session.currentState.turn,
+    });
+  });
+
+  it('rejects requestSpot outside WeaponAttack or for an unowned unit', () => {
+    const movementSession = withPhase(fixtureSession(), GamePhase.Movement);
+    const wrongPhase = translateIntentToEvents(
+      buildRequestSpotIntent(GUEST_PEER, {
+        unitId: 'guest-0',
+        targetId: 'host-0',
+      }),
+      movementSession,
+    );
+    expect(wrongPhase.ok).toBe(false);
+    if (!wrongPhase.ok) expect(wrongPhase.reason).toBe('wrong-phase');
+
+    const weaponSession = withPhase(fixtureSession(), GamePhase.WeaponAttack);
+    const unowned = translateIntentToEvents(
+      buildRequestSpotIntent(GUEST_PEER, {
+        unitId: 'host-0',
+        targetId: 'guest-0',
+      }),
+      weaponSession,
+    );
+    expect(unowned.ok).toBe(false);
+    if (!unowned.ok) expect(unowned.reason).toBe('unowned-unit');
   });
 
   it('translates a guest-owned declarePhysical in the PhysicalAttack phase', () => {
