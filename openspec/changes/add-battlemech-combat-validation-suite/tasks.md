@@ -436,3 +436,4 @@
 - [x] 4.3.170 Promote source-backed prone BattleMech Thrash legality, automatic-success classification, and weight-based damage coverage to helper-only while keeping the missing runtime action path explicit.
 - [x] 4.3.171 Promote source-backed BattleMech Brush-Off legality, dedicated modifier, and punch-equivalent damage coverage to helper-only while keeping the missing runtime action path explicit.
 - [x] 4.3.172 Promote source-backed Break Grapple legality, automatic-success, actuator/AES, and weight-class modifier coverage to helper-only while keeping the missing runtime grapple state and action path explicit.
+- [x] 4.3.173 Promote source-backed Jump Jet Attack legality, selected-leg damage, automatic-building success, and source-specific modifier coverage to helper-only while keeping the missing runtime action path explicit.
