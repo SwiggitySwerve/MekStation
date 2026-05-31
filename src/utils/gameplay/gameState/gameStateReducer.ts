@@ -38,6 +38,7 @@ import {
   IUnitFellPayload,
   IUnitRetreatedPayload,
   IUnitStoodPayload,
+  IUnitStuckPayload,
   IUnitGameState,
   IWithdrawalDeclaredPayload,
   IGameStartedPayload,
@@ -77,6 +78,7 @@ import {
   applyUnitFell,
   applyUnitRetreated,
   applyUnitStood,
+  applyUnitStuck,
   applyWithdrawalDeclared,
 } from './extendedCombat';
 import {
@@ -193,6 +195,9 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.UnitFell:
       return applyUnitFell(state, event.payload as IUnitFellPayload);
+
+    case GameEventType.UnitStuck:
+      return applyUnitStuck(state, event.payload as IUnitStuckPayload);
 
     case GameEventType.UnitStood:
       return applyUnitStood(state, event.payload as IUnitStoodPayload);
