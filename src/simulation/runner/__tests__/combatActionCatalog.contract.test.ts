@@ -762,10 +762,10 @@ describe('BattleMech combat action support catalog', () => {
     ).toEqual(['charge', 'club', 'dfa', 'kick', 'punch', 'push']);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'unsupported'),
-    ).toEqual(['break-grapple', 'grapple', 'jump-jet-attack']);
+    ).toEqual(['grapple', 'jump-jet-attack']);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'helper-only'),
-    ).toEqual(['brush-off', 'thrash', 'trip']);
+    ).toEqual(['break-grapple', 'brush-off', 'thrash', 'trip']);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'out-of-scope'),
     ).toEqual([
@@ -784,11 +784,12 @@ describe('BattleMech combat action support catalog', () => {
       )
       .map((entry) => entry.id)
       .sort();
-    expect(battleMechGaps).toEqual([
-      'break-grapple',
-      'grapple',
-      'jump-jet-attack',
-    ]);
+    expect(battleMechGaps).toEqual(['grapple', 'jump-jet-attack']);
+    expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['break-grapple']).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('canBreakGrapple'),
+      gap: expect.stringContaining('no runtime PhysicalAttackType'),
+    });
     expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['brush-off']).toMatchObject({
       level: 'helper-only',
       evidence: expect.stringContaining('canBrushOff'),
@@ -822,7 +823,12 @@ describe('BattleMech combat action support catalog', () => {
           ) {
             failures.push(`${sourceRefId}: expected commit-pinned version`);
           }
-          if (!sourceRef.url.includes(entry.sourceClass)) {
+          const expectedSourceClass =
+            entry.id === 'break-grapple' &&
+            sourceRef.citation.includes('shared grapple weight-class')
+              ? 'GrappleAttackAction'
+              : entry.sourceClass;
+          if (!sourceRef.url.includes(expectedSourceClass)) {
             failures.push(`${sourceRefId}: expected source class URL`);
           }
         } else if (sourceRef.kind === 'mekstation-deviation') {
@@ -881,7 +887,12 @@ describe('BattleMech combat action support catalog', () => {
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['break-grapple'].sourceRefs?.map(
         ({ citation }) => citation,
       ),
-    ).toEqual([expect.stringContaining('BreakGrappleAttackAction')]);
+    ).toEqual([
+      expect.stringContaining('BreakGrappleAttackAction'),
+      expect.stringContaining('GrappleAttackAction'),
+      expect.stringContaining('canBreakGrapple'),
+      expect.stringContaining('physical attack tests'),
+    ]);
     expect(
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['jump-jet-attack'].sourceRefs?.map(
         ({ citation }) => citation,
