@@ -144,6 +144,12 @@ function hasAnyTerrain(
   return terrainFeatures.some((feature) => types.includes(feature.type));
 }
 
+function isRunBasedMovement(movementType: MovementType): boolean {
+  return (
+    movementType === MovementType.Run || movementType === MovementType.Evade
+  );
+}
+
 /**
  * Terrain Master defensive gunnery variants.
  */
@@ -171,7 +177,7 @@ export function calculateTerrainMasterDefensiveToHitModifier(
 
   if (
     hasSPA(targetAbilities, 'tm_swamp_beast') &&
-    targetMovementType === MovementType.Run &&
+    isRunBasedMovement(targetMovementType) &&
     hasAnyTerrain(targetTerrainFeatures, [TerrainType.Mud, TerrainType.Swamp])
   ) {
     return {
