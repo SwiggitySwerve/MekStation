@@ -174,15 +174,15 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 146,
+      total: 144,
       byLevel: {
-        'helper-only': 113,
+        'helper-only': 111,
         unsupported: 33,
       },
       bySection: {
         actions: 9,
         damageAndDeath: 2,
-        featureSupport: 83,
+        featureSupport: 81,
         lifecycleAndPsr: 3,
         pilotSkills: 19,
         ruleSupport: 13,
@@ -240,6 +240,12 @@ describe('BattleMech combat validation catalog index', () => {
     expect(unresolvedRefs).not.toContain('ruleSupport.movementRules.prone');
     expect(unresolvedRefs).not.toContain(
       'featureSupport.canonicalPilotAbilityScope.edge_when_masc_fails',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.canonicalPilotAbilityScope.animal_mimic',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.animal-mimicry',
     );
     expect(unresolvedRefs).not.toContain(
       'ruleSupport.terrainTypeLos.light_woods',
