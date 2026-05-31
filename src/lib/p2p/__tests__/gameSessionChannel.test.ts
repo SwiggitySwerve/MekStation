@@ -635,6 +635,7 @@ describe('game session role and intent contracts', () => {
       'torsoTwist',
       'declareAttack',
       'declarePhysical',
+      'requestSpot',
       'confirmHeat',
       'endPhase',
       'eject',

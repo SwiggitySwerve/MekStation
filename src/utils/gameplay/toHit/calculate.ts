@@ -24,6 +24,7 @@ import {
   calculateSensorDamageModifier,
   calculateActuatorDamageModifier,
   calculateAttackerProneModifier,
+  calculateSpottingAttackerModifier,
   calculateIndirectFireModifier,
   calculateCalledShotModifier,
 } from './damageModifiers';
@@ -151,6 +152,9 @@ export function calculateToHit(
     const attackerProneMod = calculateAttackerProneModifier(attacker.prone);
     if (attackerProneMod) modifiers.push(attackerProneMod);
   }
+
+  const spottingMod = calculateSpottingAttackerModifier(attacker.isSpotting);
+  if (spottingMod) modifiers.push(spottingMod);
 
   if (attacker.secondaryTarget) {
     const secMod = calculateSecondaryTargetModifier(attacker.secondaryTarget);
