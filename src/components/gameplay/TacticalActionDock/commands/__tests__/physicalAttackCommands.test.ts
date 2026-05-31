@@ -37,6 +37,7 @@ describe('physicalAttackCommands', () => {
       'physical.jump-jet-attack',
       'physical.brush-off',
       'physical.grapple',
+      'physical.break-grapple',
       'physical.charge',
       'physical.dfa',
       'physical.club',
@@ -126,6 +127,16 @@ describe('physicalAttackCommands', () => {
     expect(grapple.commit(makeCtx())).toEqual({
       actionId: 'physical-attack',
       payload: { attackType: 'grapple' },
+    });
+  });
+
+  it('break grapple dispatches physical-attack actionId with attackType=break-grapple', () => {
+    const breakGrapple = commands.find(
+      (c) => c.id === 'physical.break-grapple',
+    )!;
+    expect(breakGrapple.commit(makeCtx())).toEqual({
+      actionId: 'physical-attack',
+      payload: { attackType: 'break-grapple' },
     });
   });
 
