@@ -306,11 +306,11 @@ export const PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT = {
       ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS.thrash,
     ],
   ),
-  trip: helperOnlyBattleMech(
+  trip: integrated(
     'trip',
     'TripAttackAction',
-    'canTrip helper coverage applies source-backed optional TacOps trip legality gates and exposes the Trip base to-hit adjustment',
-    'Trip attacks still have no runtime PhysicalAttackType, tactical command, event-sourced declaration, or resolution path',
+    'MekStation runtime PhysicalAttackType, tactical command, runner, and event-sourced physical resolution support optional TacOps BattleMech trip attacks as zero-damage PSR-triggering hits',
+    ['trip'],
     [
       ...MEGAMEK_HELPER_ONLY_BATTLEMECH_PHYSICAL_ACTION_REFS.trip,
       ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS.trip,
