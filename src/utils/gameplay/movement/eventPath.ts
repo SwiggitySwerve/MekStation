@@ -19,8 +19,10 @@ import {
   hexLine,
 } from '@/utils/gameplay/hexMath';
 
-import type { IMovementCostContext } from './calculations';
-
+import {
+  getSprintMPForCapability,
+  type IMovementCostContext,
+} from './calculations';
 import { findPath } from './pathfinding';
 
 export function movementAnimationModeForType(
@@ -32,6 +34,7 @@ export function movementAnimationModeForType(
     case MovementType.Jump:
       return movementType;
     case MovementType.Evade:
+    case MovementType.Sprint:
       return MovementType.Run;
     default:
       return null;
@@ -88,6 +91,7 @@ function toUnitMovementType(
   switch (movementType) {
     case MovementType.Run:
     case MovementType.Evade:
+    case MovementType.Sprint:
       return 'run';
     case MovementType.Jump:
       return 'jump';
@@ -112,6 +116,8 @@ export function maxMovementCostForCapability(
     case MovementType.Run:
     case MovementType.Evade:
       return capability.runMP;
+    case MovementType.Sprint:
+      return getSprintMPForCapability(capability);
     case MovementType.Jump:
       return capability.jumpMP;
     default:
