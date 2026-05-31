@@ -560,6 +560,7 @@ describe('usePhysicalAttackPlanStore', () => {
     expect(usePhysicalAttackPlanStore.getState().physicalAttackPlan).toEqual({
       targetUnitId: null,
       attackType: null,
+      limb: null,
     });
   });
 
@@ -572,11 +573,15 @@ describe('usePhysicalAttackPlanStore', () => {
     ).toBe('phys-defender');
   });
 
-  it('setPhysicalAttackType sets the attack type', () => {
-    usePhysicalAttackPlanStore.getState().setPhysicalAttackType('punch');
-    expect(
-      usePhysicalAttackPlanStore.getState().physicalAttackPlan.attackType,
-    ).toBe('punch');
+  it('setPhysicalAttackType sets the attack type and selected limb', () => {
+    usePhysicalAttackPlanStore
+      .getState()
+      .setPhysicalAttackType('punch', 'leftArm');
+    expect(usePhysicalAttackPlanStore.getState().physicalAttackPlan).toEqual({
+      targetUnitId: null,
+      attackType: 'punch',
+      limb: 'leftArm',
+    });
   });
 
   it('clearPhysicalAttackPlan resets target + type', () => {
@@ -587,6 +592,7 @@ describe('usePhysicalAttackPlanStore', () => {
     expect(usePhysicalAttackPlanStore.getState().physicalAttackPlan).toEqual({
       targetUnitId: null,
       attackType: null,
+      limb: null,
     });
   });
 
@@ -623,6 +629,7 @@ describe('usePhysicalAttackPlanStore', () => {
     expect(payload.attackerId).toBe('phys-attacker');
     expect(payload.targetId).toBe('phys-defender');
     expect(payload.attackType).toBe('punch');
+    expect(payload.limb).toBe('rightArm');
   });
 
   it('commitPhysicalAttack clears the plan after a successful commit', () => {
@@ -638,6 +645,7 @@ describe('usePhysicalAttackPlanStore', () => {
     expect(usePhysicalAttackPlanStore.getState().physicalAttackPlan).toEqual({
       targetUnitId: null,
       attackType: null,
+      limb: null,
     });
   });
 });

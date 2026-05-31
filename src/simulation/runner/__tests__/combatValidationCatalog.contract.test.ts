@@ -174,17 +174,17 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 135,
+      total: 132,
       byLevel: {
         'helper-only': 106,
-        unsupported: 29,
+        unsupported: 26,
       },
       bySection: {
         actions: 7,
         damageAndDeath: 2,
-        featureSupport: 75,
+        featureSupport: 73,
         lifecycleAndPsr: 3,
-        pilotSkills: 18,
+        pilotSkills: 17,
         ruleSupport: 13,
         validationScope: 17,
       },
@@ -265,6 +265,15 @@ describe('BattleMech combat validation catalog index', () => {
     );
     expect(unresolvedRefs).not.toContain(
       'pilotSkills.pilotModifierResolvers.anti-mek-actuator-application',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.canonicalPilotAbilityScope.melee_master',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.melee-master',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'pilotSkills.pilotModifierResolvers.physical-action-count-application',
     );
     expect(unresolvedRefs).not.toContain(
       'ruleSupport.terrainTypeLos.light_woods',
