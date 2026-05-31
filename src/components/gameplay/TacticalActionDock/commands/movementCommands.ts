@@ -29,6 +29,7 @@ import {
 import {
   getMaxMP,
   getStandingCost,
+  isMekStyleHullDownExitCapability,
   movementDeclarationLockInvalidState,
 } from '@/utils/gameplay/movement';
 
@@ -161,6 +162,16 @@ const MovementJumpCommand: ITacticalCommand = {
         reason: 'Unit is prone and must stand before jumping.',
       };
     }
+    if (
+      ctx.activeUnitHullDown === true &&
+      ctx.movementCapability &&
+      isMekStyleHullDownExitCapability(ctx.movementCapability)
+    ) {
+      return {
+        available: false,
+        reason: 'Unit is hull-down and must stand before jumping.',
+      };
+    }
     const destinationUnavailable = movementProjectionUnavailableReason(
       ctx,
       MovementType.Jump,
@@ -240,13 +251,23 @@ const MovementStandCommand: ITacticalCommand = {
     if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
     const locked = movementDeclarationLockInvalidState(ctx.activeUnitLockState);
     if (locked) return { available: false, reason: locked.details };
-    if (ctx.activeUnitProne !== true) {
-      return { available: false, reason: 'Unit is not prone.' };
+    if (ctx.activeUnitProne !== true && ctx.activeUnitHullDown !== true) {
+      return { available: false, reason: 'Unit is not prone or hull-down.' };
     }
     if (!ctx.movementCapability) {
       return { available: false, reason: 'No movement capability.' };
     }
-    if (ctx.activeUnitStandUpImpossibleReason) {
+    if (
+      ctx.activeUnitProne !== true &&
+      !isMekStyleHullDownExitCapability(ctx.movementCapability)
+    ) {
+      return {
+        available: false,
+        reason:
+          'Hull-down stand action is only available for Mek-style movement.',
+      };
+    }
+    if (ctx.activeUnitProne === true && ctx.activeUnitStandUpImpossibleReason) {
       return {
         available: false,
         reason: ctx.activeUnitStandUpImpossibleReason,
@@ -293,6 +314,12 @@ const MovementCarefulStandCommand: ITacticalCommand = {
   availability(ctx) {
     const base = MovementStandCommand.availability(ctx);
     if (!base.available) return base;
+    if (ctx.activeUnitHullDown === true && ctx.activeUnitProne !== true) {
+      return {
+        available: false,
+        reason: 'Careful Stand is only available when prone.',
+      };
+    }
     if (!ctx.movementCapability) {
       return { available: false, reason: 'No movement capability.' };
     }

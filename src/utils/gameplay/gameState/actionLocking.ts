@@ -23,6 +23,12 @@ export function applyMovementDeclared(
       : unit.prone && payload.movementType !== MovementType.Stationary
         ? false
         : unit.prone;
+  const hullDown =
+    payload.hullDownExitAttempt === true
+      ? false
+      : payload.standUpAttempt === true && payload.standUpSucceeded === true
+        ? false
+        : unit.hullDown;
 
   const updatedUnit: IUnitGameState = {
     ...unit,
@@ -32,6 +38,7 @@ export function applyMovementDeclared(
     hexesMovedThisTurn: payload.mpUsed,
     heat: unit.heat + payload.heatGenerated,
     prone,
+    hullDown,
     lockState: LockState.Planning,
   };
 

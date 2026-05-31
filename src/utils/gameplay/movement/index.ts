@@ -22,6 +22,10 @@ export {
   getValidDestinations,
 } from './validation';
 export {
+  getHullDownExitCost,
+  isMekStyleHullDownExitCapability,
+} from './hullDownExit';
+export {
   validateCommittedMovement,
   movementInvalidReasonFromValidation,
 } from './commitValidation';

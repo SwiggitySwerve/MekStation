@@ -2728,6 +2728,48 @@ describe('applyInteractiveSessionMovement', () => {
     });
   });
 
+  it('keeps hull-down GET_UP posture exit preview cost and commit state aligned', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      hullDown: true,
+      prone: false,
+    };
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid: makeGrid(),
+      movementByUnit: capability({ walkMP: 4, runMP: 6 }),
+      unitId: 'm1',
+      to: { q: 0, r: 0 },
+      facing: Facing.North,
+      movementType: MovementType.Walk,
+      path: [{ q: 0, r: 0 }],
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      from: { q: 0, r: 0 },
+      to: { q: 0, r: 0 },
+      movementType: MovementType.Walk,
+      mpUsed: 2,
+      heatGenerated: 1,
+      path: [{ q: 0, r: 0 }],
+      hullDownExitAttempt: true,
+    });
+    expect(
+      result.events.some((event) => event.type === GameEventType.UnitStood),
+    ).toBe(false);
+    expect(result.currentState.units.m1).toMatchObject({
+      hullDown: false,
+      prone: false,
+      lockState: LockState.Locked,
+    });
+  });
+
   it('keeps intact quad stand-up preview and commit aligned without rolling a PSR', () => {
     const session = setupSessionAtMovement();
     session.currentState.units.m1 = {

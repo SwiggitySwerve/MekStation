@@ -79,6 +79,7 @@ import {
 import {
   calculateMovementHeat,
   gridWithUnitOccupants,
+  getHullDownExitCost,
   getStandingCost,
   resolveRuntimeMovementCapability,
   validateCommittedMovement,
@@ -175,6 +176,9 @@ export function applyInteractiveSessionMovement(
     movementCapability !== undefined &&
     input.movementType !== MovementType.Jump &&
     input.movementType !== MovementType.Stationary;
+  const hullDownExitAttempt =
+    movementCapability !== undefined &&
+    getHullDownExitCost(unit, movementCapability, input.movementType) > 0;
 
   let session = input.session;
   let standUpSucceeded: boolean | undefined;
@@ -233,6 +237,7 @@ export function applyInteractiveSessionMovement(
       standUpAttempt,
       standUpSucceeded,
       standUpMode,
+      hullDownExitAttempt,
     },
   );
   session = lockMovement(session, input.unitId);

@@ -350,6 +350,7 @@ export function declareMovement(
     readonly standUpAttempt?: boolean;
     readonly standUpSucceeded?: boolean;
     readonly standUpMode?: StandUpMode;
+    readonly hullDownExitAttempt?: boolean;
   },
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.Movement) {

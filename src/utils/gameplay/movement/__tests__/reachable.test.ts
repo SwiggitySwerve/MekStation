@@ -187,6 +187,111 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('subtracts MegaMek GET_UP MP before projecting hull-down ground reach', () => {
+    const grid = createHexGrid({ radius: 6 });
+    const unit = { ...makeUnitAtOrigin(), hullDown: true };
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 3 };
+
+    const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
+
+    const maxHullDownWalk = result.find(
+      (entry) => entry.hex.q === 2 && entry.hex.r === 0,
+    );
+    expect(maxHullDownWalk).toMatchObject({
+      mpCost: 4,
+      heatGenerated: 1,
+      reachable: true,
+      movementType: MovementType.Walk,
+      hullDownExitRequired: true,
+      hullDownExitCost: 2,
+    });
+    expect(maxHullDownWalk?.standUpRequired).toBeUndefined();
+
+    const tooFar = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 3, r: 0 },
+    );
+    expect(tooFar).toMatchObject({
+      mpCost: 5,
+      reachable: false,
+      movementInvalidReason: 'InsufficientMP',
+      movementInvalidDetails:
+        'Destination is 3 hexes away, but max range for walk after exit hull-down is 2',
+      hullDownExitRequired: true,
+      hullDownExitCost: 2,
+    });
+
+    const occupiedOriginGrid = setOccupant(grid, { q: 0, r: 0 }, 'u1');
+    const sameHexExit = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      occupiedOriginGrid,
+      cap,
+      { q: 0, r: 0 },
+    );
+    expect(sameHexExit).toMatchObject({
+      mpCost: 2,
+      reachable: true,
+      movementType: MovementType.Walk,
+      hullDownExitRequired: true,
+      hullDownExitCost: 2,
+    });
+  });
+
+  it('does not apply Mek GET_UP hull-down exit costs to vehicle motive modes', () => {
+    const grid = createHexGrid({ radius: 6 });
+    const unit = { ...makeUnitAtOrigin(), hullDown: true };
+    const cap: IMovementCapability = {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 0,
+      movementMode: 'tracked',
+      movementHeatProfile: 'none',
+    };
+
+    const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
+
+    const maxTrackedWalk = result.find(
+      (entry) => entry.hex.q === 4 && entry.hex.r === 0,
+    );
+    expect(maxTrackedWalk).toMatchObject({
+      mpCost: 4,
+      heatGenerated: 0,
+      reachable: true,
+      movementType: MovementType.Walk,
+    });
+    expect(maxTrackedWalk?.hullDownExitRequired).toBeUndefined();
+    expect(maxTrackedWalk?.hullDownExitCost).toBeUndefined();
+  });
+
+  it('projects hull-down jump attempts as blocked until the unit exits hull-down', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = { ...makeUnitAtOrigin(), hullDown: true };
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 3 };
+
+    const projected = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Jump,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+    );
+
+    expect(projected).toMatchObject({
+      mpCost: 2,
+      heatGenerated: 0,
+      reachable: false,
+      movementType: MovementType.Jump,
+      movementInvalidReason: 'InvalidDestination',
+      movementInvalidDetails: 'Unit is hull-down and must stand before jumping',
+    });
+    expect(projected?.hullDownExitRequired).toBeUndefined();
+    expect(projected?.standUpRequired).toBeUndefined();
+  });
+
   it('projects intact quad Mek stand-up as MP cost without a PSR', () => {
     const grid = createHexGrid({ radius: 5 });
     const unit = { ...makeUnitAtOrigin(), prone: true };

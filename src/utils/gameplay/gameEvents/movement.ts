@@ -33,6 +33,7 @@ export function createMovementDeclaredEvent(
     readonly standUpAttempt?: boolean;
     readonly standUpSucceeded?: boolean;
     readonly standUpMode?: StandUpMode;
+    readonly hullDownExitAttempt?: boolean;
   },
 ): IGameEvent {
   const mode = movementAnimationModeForType(movementType);
@@ -53,6 +54,7 @@ export function createMovementDeclaredEvent(
     ...(options?.standUpAttempt && options.standUpMode
       ? { standUpMode: options.standUpMode }
       : {}),
+    ...(options?.hullDownExitAttempt ? { hullDownExitAttempt: true } : {}),
   };
 
   return {

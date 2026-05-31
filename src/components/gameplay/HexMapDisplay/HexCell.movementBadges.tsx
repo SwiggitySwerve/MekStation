@@ -147,6 +147,16 @@ function formatStandUpBadgeTitle(movementInfo: IMovementRangeHex): string {
     : `${movementInfo.standUpMode === 'careful' ? 'Careful stand' : 'Must stand'} before moving: ${details.join('; ')}`;
 }
 
+function formatHullDownExitBadgeLabel(movementInfo: IMovementRangeHex): string {
+  return movementInfo.hullDownExitCost === undefined
+    ? 'HD-UP'
+    : `HD-UP ${movementInfo.hullDownExitCost}MP`;
+}
+
+function formatHullDownExitBadgeTitle(movementInfo: IMovementRangeHex): string {
+  return `Must exit hull-down before moving: posture exit cost ${movementInfo.hullDownExitCost ?? '?'} MP`;
+}
+
 export function MovementReachBadge({
   x,
   y,
@@ -307,10 +317,16 @@ export function MovementStandUpBadge({
   readonly hex: IHexCoordinate;
   readonly movementInfo?: IMovementRangeHex;
 }): React.ReactElement | null {
-  if (!movementInfo?.standUpRequired) return null;
+  if (!movementInfo?.standUpRequired && !movementInfo?.hullDownExitRequired) {
+    return null;
+  }
 
-  const label = formatStandUpBadgeLabel(movementInfo);
-  const title = formatStandUpBadgeTitle(movementInfo);
+  const label = movementInfo.hullDownExitRequired
+    ? formatHullDownExitBadgeLabel(movementInfo)
+    : formatStandUpBadgeLabel(movementInfo);
+  const title = movementInfo.hullDownExitRequired
+    ? formatHullDownExitBadgeTitle(movementInfo)
+    : formatStandUpBadgeTitle(movementInfo);
   const width = Math.max(42, label.length * 5.2 + 10);
   return (
     <g
@@ -333,6 +349,10 @@ export function MovementStandUpBadge({
       data-stand-up-psr-automatic-success-reason={
         movementInfo.standUpPsrAutomaticSuccessReason
       }
+      data-hull-down-exit-required={
+        movementInfo.hullDownExitRequired ? 'true' : undefined
+      }
+      data-hull-down-exit-cost={movementInfo.hullDownExitCost}
     >
       <title>{title}</title>
       <rect

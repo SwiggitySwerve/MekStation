@@ -23,6 +23,7 @@ import {
 } from './calculations';
 import { movementDeclarationLockInvalidState } from './declarationEligibility';
 import { buildMovementEventPath } from './eventPath';
+import { getHullDownExitCost } from './hullDownExit';
 import { movementModeForPath } from './mode';
 import { hexHasPavementRoadBonusSurface } from './pathfinding';
 import { deriveMovementRangeHexForDestination } from './reachable';
@@ -108,7 +109,7 @@ export function validateCommittedMovement(
   const standUpMode = input.standUpMode ?? 'normal';
   const standingCost = input.unit.prone
     ? getStandingCost(capability, standUpMode)
-    : 0;
+    : getHullDownExitCost(input.unit, capability, input.movementType);
   if (
     input.unit.prone &&
     standUpMode === 'careful' &&

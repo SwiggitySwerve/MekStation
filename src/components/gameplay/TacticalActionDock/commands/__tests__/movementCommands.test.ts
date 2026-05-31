@@ -271,6 +271,23 @@ describe('movementCommands', () => {
     });
   });
 
+  it('jump explains that a hull-down unit must stand before jumping', () => {
+    const jump = commands.find((c) => c.id === 'movement.jump')!;
+
+    expect(
+      jump.availability(
+        makeCtx({
+          activeUnitProne: false,
+          activeUnitHullDown: true,
+          movementCapability: { walkMP: 4, runMP: 6, jumpMP: 4 },
+        }),
+      ),
+    ).toEqual({
+      available: false,
+      reason: 'Unit is hull-down and must stand before jumping.',
+    });
+  });
+
   it('stand commit produces a stand actionId', () => {
     const stand = commands.find((c) => c.id === 'movement.stand')!;
     expect(stand.commit(makeCtx()).actionId).toBe('stand');
@@ -306,7 +323,33 @@ describe('movementCommands', () => {
     expect(stand.availability(makeCtx())).toEqual({ available: true });
     expect(stand.availability(makeCtx({ activeUnitProne: false }))).toEqual({
       available: false,
-      reason: 'Unit is not prone.',
+      reason: 'Unit is not prone or hull-down.',
+    });
+    expect(
+      stand.availability(
+        makeCtx({ activeUnitProne: false, activeUnitHullDown: true }),
+      ),
+    ).toEqual({
+      available: true,
+    });
+    expect(
+      stand.availability(
+        makeCtx({
+          activeUnitProne: false,
+          activeUnitHullDown: true,
+          movementCapability: {
+            walkMP: 4,
+            runMP: 6,
+            jumpMP: 0,
+            movementMode: 'tracked',
+            movementHeatProfile: 'none',
+          },
+        }),
+      ),
+    ).toEqual({
+      available: false,
+      reason:
+        'Hull-down stand action is only available for Mek-style movement.',
     });
     expect(stand.availability(makeCtx({ movementCapability: null }))).toEqual({
       available: false,
@@ -343,6 +386,21 @@ describe('movementCommands', () => {
     ).toEqual({
       available: false,
       reason,
+    });
+  });
+
+  it('careful stand is not offered as a hull-down exit action', () => {
+    const carefulStand = commands.find(
+      (c) => c.id === 'movement.carefulStand',
+    )!;
+
+    expect(
+      carefulStand.availability(
+        makeCtx({ activeUnitProne: false, activeUnitHullDown: true }),
+      ),
+    ).toEqual({
+      available: false,
+      reason: 'Careful Stand is only available when prone.',
     });
   });
 });

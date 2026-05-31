@@ -565,6 +565,10 @@ export const HexCell = React.memo(function HexCell({
       data-stand-up-psr-automatic-success-reason={
         movementInfo?.standUpPsrAutomaticSuccessReason
       }
+      data-hull-down-exit-required={
+        movementInfo?.hullDownExitRequired ? 'true' : undefined
+      }
+      data-hull-down-exit-cost={movementInfo?.hullDownExitCost}
       data-movement-blocked-reason={movementInfo?.blockedReason}
       data-movement-invalid-reason={movementInfo?.movementInvalidReason}
       data-movement-invalid-details={movementInfo?.movementInvalidDetails}

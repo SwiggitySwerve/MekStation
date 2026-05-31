@@ -51,6 +51,11 @@ export interface IMovementDeclaredPayload {
   /** Stand-up variant used for this declaration. */
   readonly standUpMode?: StandUpMode;
   /**
+   * True when this declaration spends the GET_UP posture step to leave
+   * hull-down before resolving movement. No stand-up PSR is implied.
+   */
+  readonly hullDownExitAttempt?: boolean;
+  /**
    * Per `enrich-movement-declared-with-chain-and-displacement` (movement-system
    * delta — Movement Decomposition Fields): total hex transitions in the
    * move (`path.length - 1`). Equals the count of forward + backward +

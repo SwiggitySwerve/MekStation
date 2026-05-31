@@ -226,6 +226,8 @@ function movementRangeModeOptionFor(
     elevationDelta: movementRangeHex.elevationDelta,
     elevationCost: movementRangeHex.elevationCost,
     heatGenerated: movementRangeHex.heatGenerated,
+    hullDownExitRequired: movementRangeHex.hullDownExitRequired,
+    hullDownExitCost: movementRangeHex.hullDownExitCost,
     blockedReason: movementRangeHex.blockedReason,
     movementInvalidReason: movementRangeHex.movementInvalidReason,
     movementInvalidDetails: movementRangeHex.movementInvalidDetails,

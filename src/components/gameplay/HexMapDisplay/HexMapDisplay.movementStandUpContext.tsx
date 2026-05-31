@@ -48,6 +48,10 @@ function formatStandUpLabel(movementInfo: IMovementRangeHex): string {
   return `${movementInfo.standUpMode === 'careful' ? 'Careful stand' : 'Stand up'}: +${movementInfo.standUpCost ?? '?'} MP`;
 }
 
+function formatHullDownExitLabel(movementInfo: IMovementRangeHex): string {
+  return `Exit hull-down: +${movementInfo.hullDownExitCost ?? '?'} MP`;
+}
+
 function formatStandUpPsrLabel(movementInfo: IMovementRangeHex): string {
   const reason = movementInfo.standUpPsrReason ?? 'Stand-up PSR';
   if (!movementInfo.standUpPsrRequired) {
@@ -78,6 +82,7 @@ export function MovementStandUpContextRows({
 }): React.ReactElement | null {
   if (
     !movementInfo.standUpRequired &&
+    !movementInfo.hullDownExitRequired &&
     !movementInfo.standUpPsrRequired &&
     !movementInfo.standUpPsrAutomaticSuccessReason &&
     !movementInfo.standUpPsrModifierDetails?.length
@@ -102,6 +107,17 @@ export function MovementStandUpContextRows({
           {...sourceAttributes}
         >
           {formatStandUpLabel(movementInfo)}
+        </div>
+      )}
+      {movementInfo.hullDownExitRequired && (
+        <div
+          data-testid={`${testIdPrefix}-hull-down-exit`}
+          data-movement-context-kind="hull-down-exit"
+          data-movement-hull-down-exit-required="true"
+          data-movement-hull-down-exit-cost={movementInfo.hullDownExitCost}
+          {...sourceAttributes}
+        >
+          {formatHullDownExitLabel(movementInfo)}
         </div>
       )}
       {hasStandUpPsrContext && (

@@ -976,7 +976,7 @@ ordinary walk/run/jump destinations with `Destroyed gyro only permits tracked
 or wheeled movement`, and preserves tracked/wheeled movement as reachable and
 committable when terrain and MP allow it. Remaining special conversion gaps are
 in-progress LAM/QuadVee conversion cancellation state, while the remaining
-hull-down gaps are the narrower entry/exit movement actions,
+hull-down gaps are the narrower entry/go-prone movement actions,
 fortified-side-table behavior, QuadVee vehicle-mode details, and punch/club
 hit-table nuances listed in the later hull-down pins; they are not the basic
 destroyed-gyro non-tracked movement gate.
@@ -1002,7 +1002,7 @@ commit weapon shapes; tactical combat projection, interactive commit, bot
 commit, and quick-sim attack loops all exclude hull-down leg-mounted weapons
 with a matching invalid reason. Physical attack projections and physical commit
 validation now block kick rows/commands while hull-down. Remaining hull-down
-gaps are entry/exit movement actions, vehicle/QuadVee fortified-hex side-table
+gaps are entry/go-prone movement actions, vehicle/QuadVee fortified-hex side-table
 handling, and punch/club hull-down hit-table nuances, not attacker leg-weapon
 or kick preview/commit agreement.
 
@@ -1789,7 +1789,20 @@ commits, and quick-sim weapon loops. Focused projection and interactive
 agreement tests prove direct front-mounted hull-down vehicle weapons are blocked
 before declaration while front-mounted indirect LRM fire remains available.
 Fortified-side-table behavior, QuadVee-specific hull-down vehicle mode details,
-and hull-down entry/exit movement actions remain follow-up work.
+and hull-down entry/go-prone movement actions remain follow-up work.
+
+2026-05-31 hull-down movement-exit projection pin: MegaMek `GetUpStep.java`
+sets `GET_UP` MP to 2, or 1 when run MP is only 1, and `MoveStep.java:2021-2034`
+keeps prone/hull-down Meks from spending ordinary movement until a permitted
+`GET_UP`/posture step clears the state at `MoveStep.java:2544-2546`.
+MekStation now subtracts the same exit cost from hull-down ground movement
+projection, blocks direct hull-down jump commands with the same "stand before
+jumping" posture boundary, exposes `hullDownExitRequired`/cost through map
+labels, badges, context rows, and DOM metadata, and records
+`hullDownExitAttempt` on committed movement so replay clears `hullDown`
+without emitting prone stand-up PSR or `UnitStood` events. Remaining hull-down
+movement gaps are entering hull-down and going prone from hull-down, plus the
+vehicle/QuadVee side-table work named above.
 
 ## Acceptance Gate
 

@@ -38,7 +38,7 @@ import type { IStandUpRuleOptions } from '@/utils/gameplay/standUpRules';
 import { getHeatMovementPenalty } from '@/constants/heat';
 import { MovementType } from '@/types/gameplay';
 import { isInBounds, isOccupied } from '@/utils/gameplay/hexGrid';
-import { hexDistance, hexesInRange } from '@/utils/gameplay/hexMath';
+import { hexDistance, hexEquals, hexesInRange } from '@/utils/gameplay/hexMath';
 import { representedUnitImmobileReason } from '@/utils/gameplay/unitImmobility';
 
 import {
@@ -50,6 +50,7 @@ import {
   getPavementRoadBonusMP,
   movementCostContextForCapability,
 } from './calculations';
+import { getHullDownExitCost } from './hullDownExit';
 import { immobileMovementRangeHex } from './immobilityProjection';
 import { movementModeForPath, movementModeForRange } from './mode';
 import { calculateMovementHeat } from './modifiers';
@@ -119,7 +120,7 @@ export function deriveReachableHexes(
   const standingCost =
     unit.prone && mpType !== MovementType.Jump
       ? getStandingCost(capability, standUpMode)
-      : 0;
+      : getHullDownExitCost(unit, capability, mpType);
   const pathBudget = Math.max(0, mp - standingCost);
   const candidateRange =
     mpType === MovementType.Jump
@@ -150,8 +151,9 @@ export function deriveReachableHexes(
   }
 
   // Walk / Run: use the engine's A* to guarantee parity with the
-  // simulator's own walkability rules. The destination projection
-  // subtracts stand-up MP from the path budget when the unit starts prone.
+  // simulator's own walkability rules. The destination projection subtracts
+  // posture-exit MP from the path budget when the unit starts prone or
+  // hull-down.
   for (const hex of candidates) {
     const projection = projectCandidate(hex);
     if (projection) results.push(projection);
@@ -186,6 +188,34 @@ function runtimeBlockedRangeHex(params: {
   };
 }
 
+type HullDownExitProjection = Pick<
+  IMovementRangeHex,
+  'hullDownExitRequired' | 'hullDownExitCost'
+>;
+type StandUpProjection = Parameters<typeof withStandUpProjection>[1];
+
+function deriveHullDownExitProjection(
+  unit: IUnitGameState,
+  capability: IMovementCapability,
+  mpType: MovementType,
+): HullDownExitProjection {
+  const hullDownExitCost = getHullDownExitCost(unit, capability, mpType);
+  return hullDownExitCost > 0
+    ? { hullDownExitRequired: true, hullDownExitCost }
+    : {};
+}
+
+function withPostureProjection(
+  movementHex: IMovementRangeHex,
+  standUpProjection: StandUpProjection,
+  hullDownExitProjection: HullDownExitProjection,
+): IMovementRangeHex {
+  return {
+    ...withStandUpProjection(movementHex, standUpProjection),
+    ...hullDownExitProjection,
+  };
+}
+
 export function deriveMovementRangeHexForDestination(
   unit: IUnitGameState,
   mpType: MovementType,
@@ -204,7 +234,7 @@ export function deriveMovementRangeHexForDestination(
   }
 
   const origin = unit.position;
-  if (hex.q === origin.q && hex.r === origin.r) {
+  if (hexEquals(hex, origin) && !unit.hullDown) {
     return null;
   }
 
@@ -225,7 +255,18 @@ export function deriveMovementRangeHexForDestination(
   });
   const standingCost = unit.prone
     ? getStandingCost(capability, standUpMode)
-    : 0;
+    : getHullDownExitCost(unit, capability, mpType);
+  const hullDownExitProjection = deriveHullDownExitProjection(
+    unit,
+    capability,
+    mpType,
+  );
+  const postureAction =
+    unit.hullDown && !unit.prone ? 'exit hull-down' : 'stand';
+  const postureAfterLabel =
+    unit.hullDown && !unit.prone ? 'exit hull-down' : 'standing';
+  const postureNoun =
+    unit.hullDown && !unit.prone ? 'hull-down exit' : 'stand-up';
   const pathBudget = mp - standingCost;
   const maxPathCost =
     mpType === MovementType.Jump
@@ -268,7 +309,7 @@ export function deriveMovementRangeHexForDestination(
   );
 
   if (!isInBounds(grid, hex)) {
-    return withStandUpProjection(
+    return withPostureProjection(
       outOfBoundsRangeHex({
         hex,
         mpType,
@@ -277,11 +318,12 @@ export function deriveMovementRangeHexForDestination(
         path: [origin, hex],
       }),
       standUpProjection,
+      hullDownExitProjection,
     );
   }
 
-  if (isOccupied(grid, hex)) {
-    return withStandUpProjection(
+  if (!hexEquals(origin, hex) && isOccupied(grid, hex)) {
+    return withPostureProjection(
       occupiedRangeHex({
         grid,
         origin,
@@ -292,6 +334,7 @@ export function deriveMovementRangeHexForDestination(
         path: [origin, hex],
       }),
       standUpProjection,
+      hullDownExitProjection,
     );
   }
 
@@ -354,6 +397,25 @@ export function deriveMovementRangeHexForDestination(
     };
   }
 
+  if (unit.hullDown && !unit.prone && mpType === MovementType.Jump) {
+    const details = 'Unit is hull-down and must stand before jumping';
+    return {
+      hex,
+      mpCost: getStandingCost(capability),
+      terrainCost: 0,
+      elevationDelta: getJumpElevationDelta(grid, origin, hex),
+      elevationCost: 0,
+      path: [origin, hex],
+      heatGenerated: 0,
+      movementMode,
+      reachable: false,
+      movementType: MovementType.Jump,
+      blockedReason: details,
+      movementInvalidReason: 'InvalidDestination',
+      movementInvalidDetails: details,
+    };
+  }
+
   if (standUpProjection.standUpPsrImpossibleReason) {
     const details = standUpProjection.standUpPsrImpossibleReason;
     return {
@@ -375,7 +437,7 @@ export function deriveMovementRangeHexForDestination(
   }
 
   if (standingCost > mp) {
-    const details = `Unit needs ${standingCost} MP to stand, but max range for ${mpType} is ${mp}`;
+    const details = `Unit needs ${standingCost} MP to ${postureAction}, but max range for ${mpType} is ${mp}`;
     return {
       hex,
       mpCost: standingCost,
@@ -394,6 +456,7 @@ export function deriveMovementRangeHexForDestination(
       movementInvalidReason: 'InsufficientMP',
       movementInvalidDetails: details,
       ...standUpProjection,
+      ...hullDownExitProjection,
     };
   }
 
@@ -421,7 +484,7 @@ export function deriveMovementRangeHexForDestination(
 
   if (dist > maxPathCost) {
     if (standingCost > 0) {
-      const details = `Destination is ${dist} hexes away, but max range for ${mpType} after standing is ${maxPathCost}`;
+      const details = `Destination is ${dist} hexes away, but max range for ${mpType} after ${postureAfterLabel} is ${maxPathCost}`;
       return {
         hex,
         mpCost: dist + standingCost,
@@ -437,6 +500,7 @@ export function deriveMovementRangeHexForDestination(
         movementInvalidReason: 'InsufficientMP',
         movementInvalidDetails: details,
         ...standUpProjection,
+        ...hullDownExitProjection,
       };
     }
     return insufficientMpRangeHex({
@@ -507,7 +571,11 @@ export function deriveMovementRangeHexForDestination(
       costContext,
     });
     if (blockedProjection.movementInvalidReason === 'TerrainBlocked') {
-      return withStandUpProjection(blockedProjection, standUpProjection);
+      return withPostureProjection(
+        blockedProjection,
+        standUpProjection,
+        hullDownExitProjection,
+      );
     }
 
     const diagnosticPath = findPath(
@@ -519,7 +587,7 @@ export function deriveMovementRangeHexForDestination(
       costContext,
     );
     if (diagnosticPath && diagnosticPath.length > 0) {
-      return withStandUpProjection(
+      return withPostureProjection(
         overBudgetRangeHex({
           grid,
           path: diagnosticPath,
@@ -532,10 +600,15 @@ export function deriveMovementRangeHexForDestination(
           costContext,
         }),
         standUpProjection,
+        hullDownExitProjection,
       );
     }
 
-    return withStandUpProjection(blockedProjection, standUpProjection);
+    return withPostureProjection(
+      blockedProjection,
+      standUpProjection,
+      hullDownExitProjection,
+    );
   }
 
   const pathCost = calculatePathMovementCost(
@@ -550,7 +623,7 @@ export function deriveMovementRangeHexForDestination(
     const finalStep = finalStepCost(grid, path, movementMode, costContext);
     const details =
       standingCost > 0
-        ? `Path costs ${cost} MP including stand-up, but only ${maxTotalCost} MP is available`
+        ? `Path costs ${cost} MP including ${postureNoun}, but only ${maxTotalCost} MP is available`
         : `Path costs ${cost} MP, but only ${maxPathCost} MP is available`;
     return {
       hex,
@@ -567,6 +640,7 @@ export function deriveMovementRangeHexForDestination(
       movementInvalidReason: 'InsufficientMP',
       movementInvalidDetails: details,
       ...standUpProjection,
+      ...hullDownExitProjection,
     };
   }
   const finalStep = finalStepCost(grid, path, movementMode, costContext);
@@ -583,5 +657,6 @@ export function deriveMovementRangeHexForDestination(
     reachable: true,
     movementType: mpType,
     ...standUpProjection,
+    ...hullDownExitProjection,
   };
 }

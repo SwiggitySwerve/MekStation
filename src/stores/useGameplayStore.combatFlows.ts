@@ -195,10 +195,11 @@ function hasNewMovementDeclaredEvent(
 }
 
 /**
- * Commit a standalone stand-up action for the selected prone unit through the
- * same movement validator used by normal map movement. This declares a
- * zero-hex Walk move at the unit's current position so stand-up MP, invalid
- * events, locking, and state replay stay on the movement event path.
+ * Commit a standalone stand-up/posture-exit action for the selected prone or
+ * hull-down unit through the same movement validator used by normal map
+ * movement. This declares a zero-hex Walk move at the unit's current position
+ * so MP, invalid events, locking, and state replay stay on the movement event
+ * path.
  */
 export function standActiveUnitLogic(
   get: GetFn,
@@ -211,7 +212,7 @@ export function standActiveUnitLogic(
   const unitId = ui.selectedUnitId;
   const beforeSession = interactiveSession.getSession();
   const unitState = beforeSession.currentState.units[unitId];
-  if (!unitState?.prone) return;
+  if (!unitState?.prone && !unitState?.hullDown) return;
 
   const beforeEventCount = beforeSession.events.length;
   interactiveSession.applyMovement(

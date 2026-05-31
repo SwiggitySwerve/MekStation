@@ -173,6 +173,8 @@ export interface ITacticalCommandContext {
   readonly canAct: boolean;
   /** True when the active unit is currently prone and can attempt to stand. */
   readonly activeUnitProne?: boolean;
+  /** True when the active unit is currently hull-down and can exit that posture. */
+  readonly activeUnitHullDown?: boolean;
   /** Current movement declaration lock state for the active unit. */
   readonly activeUnitLockState?: LockState;
   /** Current heat on the active unit, used for heat-reduced movement MP gates. */
