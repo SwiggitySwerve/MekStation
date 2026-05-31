@@ -293,6 +293,47 @@ export function getMeleeMasterDamageBonus(
   return 0;
 }
 
+export interface IHeavyLifterGroundObjectCapacityInput {
+  readonly unitTonnage: number;
+  readonly abilities?: readonly string[];
+  readonly leftHandAvailable?: boolean;
+  readonly rightHandAvailable?: boolean;
+  readonly tsmPickupModifier?: number;
+}
+
+/**
+ * Heavy Lifter multiplies ground-object lift capacity by 1.5.
+ */
+export function getHeavyLifterGroundObjectLiftMultiplier(
+  abilities: readonly string[] = [],
+): number {
+  return hasSPA(abilities, 'hvy_lifter') ? 1.5 : 1;
+}
+
+/**
+ * MegaMek's MekWithArms lift capacity is 5% of tonnage per available hand,
+ * then Heavy Lifter and active TSM pickup modifiers multiply that base.
+ */
+export function calculateGroundObjectLiftCapacity({
+  unitTonnage,
+  abilities = [],
+  leftHandAvailable = true,
+  rightHandAvailable = true,
+  tsmPickupModifier = 1,
+}: IHeavyLifterGroundObjectCapacityInput): number {
+  const availableHandCount =
+    (leftHandAvailable ? 1 : 0) + (rightHandAvailable ? 1 : 0);
+  if (unitTonnage <= 0 || availableHandCount === 0) return 0;
+
+  return (
+    unitTonnage *
+    availableHandCount *
+    0.05 *
+    getHeavyLifterGroundObjectLiftMultiplier(abilities) *
+    Math.max(0, tsmPickupModifier)
+  );
+}
+
 /**
  * Maneuvering Ace: -1 to the movement-before-skid PSR modifier.
  */

@@ -22,6 +22,10 @@ import {
   MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
 } from './CombatEdgeSourceRefs';
 import {
+  MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
+  MEKSTATION_HEAVY_LIFTER_HELPER_SOURCE_REFS,
+} from './CombatHeavyLifterSourceRefs';
+import {
   MEGAMEK_BLOOD_STALKER_SOURCE_REFS,
   MEGAMEK_CLUSTER_HITTER_SOURCE_REFS,
   MEGAMEK_FORWARD_OBSERVER_SOURCE_REFS,
@@ -51,7 +55,6 @@ import {
 import {
   MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   MEGAMEK_DISTRACTING_QUIRK_SOURCE_REFS,
-  MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
   MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
   MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   MEGAMEK_LOW_PROFILE_GLANCING_SOURCE_REFS,
@@ -769,10 +772,14 @@ export const SPA_COMBAT_SUPPORT = {
       ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
     ],
   ),
-  'heavy-lifter': unsupported(
+  'heavy-lifter': helperOnly(
     'heavy-lifter',
-    'MegaMek Heavy Lifter increases ground-object lift capacity by 1.5, but MekStation has no carry/throw-object physical combat action path',
-    MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
+    'calculateGroundObjectLiftCapacity applies the source-backed 1.5 Heavy Lifter lift-capacity multiplier for canonical and legacy ids',
+    'MekStation still has no carry/throw-object physical combat action declaration or resolution path',
+    [
+      ...MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
+      ...MEKSTATION_HEAVY_LIFTER_HELPER_SOURCE_REFS,
+    ],
   ),
   'animal-mimicry': integrated(
     'animal-mimicry',
