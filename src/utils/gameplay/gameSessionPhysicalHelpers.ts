@@ -4,6 +4,7 @@ import type {
   IPhysicalAttackRestriction,
   PhysicalAttackLimb,
   PhysicalTargetObjectType,
+  ThrashAttackBlockingTerrain,
 } from './physicalAttacks';
 
 /**
@@ -117,6 +118,8 @@ export interface IPhysicalAttackContext {
   readonly leftTripLimbUsable?: boolean;
   readonly rightTripLimbUsable?: boolean;
   readonly legAesFunctional?: boolean;
+  readonly thrashBlockingTerrains?: readonly ThrashAttackBlockingTerrain[];
+  readonly hasWorkingThrashArmOrLeg?: boolean;
 }
 
 type ArmSide = 'left' | 'right';
