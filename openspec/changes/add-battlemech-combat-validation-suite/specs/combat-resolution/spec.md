@@ -323,7 +323,8 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **GIVEN** the physical damage modifier catalog covers active TSM, claws, talons, and underwater physical damage
 - **WHEN** the aggregate catalog triad and BattleMech combat catalog contract tests run
 - **THEN** every integrated or helper-only physical damage modifier row SHALL carry structured MegaMek source references with commit-pinned URLs and line anchors
-- **AND** helper-only claw and talon rows SHALL keep remaining automatic damaged-equipment state creation and option-rule lifecycle gaps explicit instead of treating source-backed damage formulas as full parity
+- **AND** core claw punch and talon kick/DFA damage modifier rows SHALL be integrated only when their source-backed damage, to-hit, option-rule, hydration, critical-event cleanup, destroyed-location replay, and runner/session consumption paths are represented
+- **AND** separate helper-only claw and talon equipment-lifecycle rows SHALL keep remaining automatic damaged-equipment state creation and claw club-with-hand interaction gaps explicit instead of treating source-backed damage formulas as full physical-weapon lifecycle parity
 - **AND** the aggregate catalog triad for `physicalDamageModifiers` SHALL require row-level source references rather than inherited requirement authority
 
 #### Scenario: AMS helper boundary stays source-backed
@@ -862,7 +863,7 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 - **AND** catalog UnitHydration SHALL derive biped leg talon state from `LEFT_LEG` and `RIGHT_LEG` critical slots and quad/non-biped front-leg talon state from `LEFT_ARM` and `RIGHT_ARM` critical slots containing Talons entries
 - **AND** `CriticalHitResolved` events that destroy, mark missing, or mark breached Talons equipment SHALL remove the matching leg or arm-location talon modifier from event replay and runner combat state
 - **AND** destroyed leg or arm-location replay and runner damage persistence SHALL remove the matching talon modifier from represented combat state
-- **AND** the validation catalog SHALL keep automatic missing/breached talon event production from mounted-equipment state beyond represented destroyed-location replay visible as a remaining gap
+- **AND** the validation catalog SHALL mark core talon damage modifier behavior integrated while keeping automatic missing/breached talon event production from mounted-equipment state beyond represented destroyed-location replay visible through a separate helper-only lifecycle row
 
 #### Scenario: Claws modify punch damage and to-hit without becoming a selectable attack type
 
@@ -875,7 +876,7 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 - **AND** `CriticalHitResolved` events that destroy, mark missing, or mark breached Claw equipment SHALL remove the matching arm claw modifier from event replay and runner combat state
 - **AND** destroyed arm location replay and runner damage persistence, including side-torso arm cascades, SHALL remove the matching arm claw modifier from represented combat state
 - **AND** PLAYTEST_3 SHALL remove only the claw punch to-hit penalty while preserving claw punch damage
-- **AND** the validation catalog SHALL keep automatic missing/breached claw event production from mounted-equipment state beyond represented destroyed-location replay and claw club-with-hand interactions visible as remaining gaps
+- **AND** the validation catalog SHALL mark core claw damage modifier behavior integrated while keeping automatic missing/breached claw event production from mounted-equipment state beyond represented destroyed-location replay and claw club-with-hand interactions visible through a separate helper-only lifecycle row
 
 ### Requirement: Designator Marker Replay State
 
