@@ -27,6 +27,8 @@ const PHYSICAL_ATTACK_COMMAND_SOURCE_REFS = {
   push: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.push'],
   trip: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.trip'],
   thrash: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.thrash'],
+  'jump-jet-attack':
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.jump-jet-attack'],
   hatchet: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.club'],
   sword: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.sword'],
   mace: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.mace'],
@@ -76,6 +78,11 @@ export const PHYSICAL_ATTACK_ACTION_SUPPORT = {
     'thrash',
     'Tactical command, game intent, wire schema, dispatcher, and runner physical phase support prone BattleMech same-hex thrash as an automatic-hit infantry attack with attacker PSR',
     PHYSICAL_ATTACK_COMMAND_SOURCE_REFS.thrash,
+  ),
+  'jump-jet-attack': integrated(
+    'jump-jet-attack',
+    'Tactical command, game intent, wire schema, dispatcher, and runner physical phase support optional TacOps jump-jet attack with selected-leg damage and no self-PSR side effects',
+    PHYSICAL_ATTACK_COMMAND_SOURCE_REFS['jump-jet-attack'],
   ),
   hatchet: integrated(
     'hatchet',
