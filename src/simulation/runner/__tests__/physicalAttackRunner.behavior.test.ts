@@ -544,6 +544,37 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     ]);
   });
 
+  it('honors an injected optional TacOps trip declaration and queues the tripped PSR', () => {
+    const { events, result } = runPhase('trip', {
+      attacker: { facing: Facing.Southeast },
+      optionalRules: ['tacops_trip_attack'],
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.PhysicalAttackDeclared,
+      GameEventType.PhysicalAttackResolved,
+    ]);
+
+    const resolved = events[1].payload as IPhysicalAttackResolvedPayload;
+    expect(resolved).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'trip',
+      roll: 8,
+      toHitNumber: 4,
+      hit: true,
+      damage: 0,
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
+    expect(result.units['opponent-1'].pendingPSRs).toEqual([
+      expect.objectContaining({
+        reason: 'Tripped',
+        additionalModifier: 0,
+        triggerSource: 'trip',
+      }),
+    ]);
+  });
+
   it('rejects injected physical declarations against passenger targets before side effects', () => {
     const { events, result } = runPhase('kick', {
       target: { isPassenger: true },
