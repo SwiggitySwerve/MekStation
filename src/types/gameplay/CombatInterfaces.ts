@@ -697,9 +697,9 @@ export interface ITargetState {
    */
   readonly evasionBonus?: number;
   /**
-   * Explicit target movement state for optional TacOps Sprint. This does not
-   * imply MekStation can declare sprint movement yet; it lets source-backed
-   * to-hit resolution consume replayed or prehydrated sprint state.
+   * Explicit target movement state for optional TacOps Sprint. Declared
+   * sprint movement and replayed/prehydrated sprint state feed source-backed
+   * to-hit resolution.
    */
   readonly sprintedThisTurn?: boolean;
   readonly terrainFeatures?: readonly ITerrainFeature[];

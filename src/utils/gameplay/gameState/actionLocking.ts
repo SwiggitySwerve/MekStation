@@ -26,6 +26,7 @@ export function applyMovementDeclared(
   const wentProne =
     payload.steps?.some((step) => step.kind === 'goProne') ?? false;
   const isEvadeMovement = payload.movementType === MovementType.Evade;
+  const isSprintMovement = payload.movementType === MovementType.Sprint;
 
   const updatedUnit: IUnitGameState = {
     ...unit,
@@ -41,6 +42,7 @@ export function applyMovementDeclared(
     ),
     isEvading: isEvadeMovement,
     evasionBonus: isEvadeMovement ? 1 : undefined,
+    sprintedThisTurn: isSprintMovement,
     heat: unit.heat + payload.heatGenerated,
     prone: wentProne ? true : unit.prone,
     ...(wentProne ? { hullDown: false } : {}),
