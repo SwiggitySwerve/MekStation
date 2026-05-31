@@ -636,6 +636,62 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
   });
 
+  it('honors an injected source-backed jump jet attack declaration as selected-leg damage without PSR side effects', () => {
+    const { events, result } = runPhase('jump-jet-attack', {
+      attacker: { facing: Facing.Southeast },
+      movementCapabilitiesByUnit: new Map([
+        ['player-1', { walkMP: 4, runMP: 6, jumpMP: 2 }],
+      ]),
+      optionalRules: ['tacops_jump_jet_attack'],
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.PhysicalAttackDeclared,
+      GameEventType.DamageApplied,
+      GameEventType.PhysicalAttackResolved,
+    ]);
+
+    const resolved = resolvedPayload(events);
+    expect(resolved).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'jump-jet-attack',
+      toHitNumber: 7,
+      hit: true,
+      damage: 6,
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toEqual([
+      expect.objectContaining({
+        unitId: 'opponent-1',
+        damage: 6,
+        sourceUnitId: 'player-1',
+      }),
+    ]);
+    expect(result.units['player-1'].pendingPSRs).toHaveLength(0);
+    expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
+  });
+
+  it('rejects injected jump jet attacks without the TacOps option before side effects', () => {
+    const { events, result } = runPhase('jump-jet-attack', {
+      attacker: { facing: Facing.Southeast },
+      movementCapabilitiesByUnit: new Map([
+        ['player-1', { walkMP: 4, runMP: 6, jumpMP: 2 }],
+      ]),
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'jump-jet-attack',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'TacOpsJumpJetAttackDisabled',
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
+    expect(result.units['player-1'].pendingPSRs).toHaveLength(0);
+    expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
+  });
+
   it('rejects injected thrash declarations in non-clear same-hex terrain before side effects', () => {
     const { events, result } = runPhase('thrash', {
       attacker: { prone: true },
