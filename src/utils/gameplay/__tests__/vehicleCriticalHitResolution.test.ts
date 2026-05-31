@@ -187,6 +187,29 @@ describe('vehicleCriticalHitResolution', () => {
       expect(killed.kind).toBe('crew_killed');
     });
 
+    it('falls through front weapon/stabilizer crits when no weapon is present', () => {
+      const r = vehicleCritFromRollForLocation([3, 4], {
+        location: VehicleLocation.FRONT,
+        motionType: GroundMotionType.TRACKED,
+        engineType: EngineType.STANDARD,
+        hasWeaponAtLocation: false,
+      });
+
+      expect(r.kind).toBe('sensor_hit');
+    });
+
+    it('falls through rear cargo crits when no cargo is loaded', () => {
+      const r = vehicleCritFromRollForLocation([3, 4], {
+        location: VehicleLocation.REAR,
+        motionType: GroundMotionType.TRACKED,
+        engineType: EngineType.STANDARD,
+        hasCargoLoaded: false,
+        hasWeaponAtLocation: false,
+      });
+
+      expect(r.kind).toBe('engine_hit');
+    });
+
     it('falls through rotor damage when a VTOL is already immobile', () => {
       const stabilizer = vehicleCritFromRollForLocation([3, 3], {
         location: VTOLLocation.ROTOR,

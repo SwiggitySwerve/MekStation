@@ -90,8 +90,8 @@ vehicle hits through the vehicle hit-location and damage pipeline instead of
 the generic Mek damage path. Focused fixtures cover normal vehicle Front damage,
 hull-down turret fixed-location hits without consuming location dice, and VTOL
 rotor damage emitting crash and immobilization events. Remaining vehicle combat
-trust gaps are dual-turret split representation, vehicle critical
-equipment-availability fallthrough, and broader MegaMek differential sweeps.
+trust gaps are dual-turret split representation, cargo/stabilizer/runtime
+weapon-state critical availability, and broader MegaMek differential sweeps.
 
 2026-05-31 vehicle critical dispatch pin: MegaMek
 `TWGameManager.java:21257-21294` rolls vehicle criticals through
@@ -105,9 +105,18 @@ replay-visible critical/crew-stun/component/ammo/destruction/turret/rotor events
 where MekStation has represented state, and mirrors engine, driver, commander,
 pilot/copilot, crew-kill, fuel-tank, ammo-explosion, turret, and rotor effects
 into the vehicle combat-state envelope. Remaining vehicle critical trust gaps
-are equipment-availability fallthrough for weapon/cargo/stabilizer/ammo
-availability, dual-turret split critical resolution, and external differential
-sweeps.
+are cargo/stabilizer/runtime weapon-state availability, dual-turret split
+critical resolution, and external differential sweeps.
+
+2026-05-31 vehicle critical target-equipment availability pin: MegaMek Tank /
+VTOL critical selection checks whether the struck location has an available
+weapon before accepting weapon-jam, weapon-destroyed, or stabilizer criticals,
+and checks loaded cargo before accepting cargo hits. MekStation now carries
+optional `vehicleInit.criticalAvailability` metadata, seeds initial target
+weapon locations from adapted vehicle weapon mounts, and feeds that metadata
+into committed session vehicle critical fallthrough. Unknown cargo/stabilizer
+facts stay optimistic until source-backed import exists, and runtime mutation
+after a represented weapon/stabilizer critical remains follow-up work.
 
 2026-05-25 iNarc beacon browser pin: the tactical-map harness now also
 represents the same no-spotter blocked LRM target carrying a player-team iNarc
@@ -1840,10 +1849,11 @@ restriction helper in combat projection, interactive attack commits, bot attack
 commits, and quick-sim weapon loops. Focused projection and interactive
 agreement tests prove direct front-mounted hull-down vehicle weapons are blocked
 before declaration while front-mounted indirect LRM fire remains available.
-Session-level vehicle damage, location-sensitive critical dispatch, and
-represented ammo/engine/crew/turret/rotor critical availability fallthrough have
-since landed; dual-turret split locations and target weapon/cargo/stabilizer
-availability import parity remain follow-up work.
+Session-level vehicle damage, location-sensitive critical dispatch, represented
+ammo/engine/crew/turret/rotor critical availability fallthrough, and initial
+target weapon-location availability have since landed; dual-turret split
+locations, cargo/stabilizer availability import parity, and runtime target
+weapon-state mutation remain follow-up work.
 
 2026-05-31 hull-down movement-exit projection pin: MegaMek `GetUpStep.java`
 sets `GET_UP` MP to 2, or 1 when run MP is only 1, and `MoveStep.java:2021-2034`

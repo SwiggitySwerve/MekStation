@@ -46,13 +46,15 @@ decisions are made, not because CI is stale.
 - Combat: broader special range-mode coverage, remaining LOS terrain families,
   full surface-naval underwater expansion, and broader external oracle
   comparisons remain follow-up work.
-- Hull-down / vehicle combat: dual-turret split handling, target weapon/cargo/
-  stabilizer import parity for vehicle critical availability, and broader
-  vehicle critical oracle sweeps remain follow-up work. Full location-sensitive
-  Tank/VTOL vehicle critical-table selection is no longer open after the
-  `align-vehicle-critical-location-tables` slice, and represented ammo/engine/
-  crew/turret/rotor availability fallthrough is covered by
-  `align-vehicle-critical-availability-fallthrough`.
+- Hull-down / vehicle combat: dual-turret split handling, cargo/stabilizer
+  import parity, runtime target weapon-state mutation for vehicle critical
+  availability, and broader vehicle critical oracle sweeps remain follow-up
+  work. Full location-sensitive Tank/VTOL vehicle critical-table selection is no
+  longer open after the `align-vehicle-critical-location-tables` slice,
+  represented ammo/engine/crew/turret/rotor availability fallthrough is covered
+  by `align-vehicle-critical-availability-fallthrough`, and initial target
+  weapon-location availability is covered by
+  `import-vehicle-critical-target-equipment-availability`.
   Target hull-down modifiers, attacker leg-weapon/kick blocks, and vehicle
   front-weapon direct-fire blocks, hull-down go-prone, and standing hull-down
   entry, prone-to-hull-down actuator/hip costs, punch/club hull-down hit-table

@@ -484,4 +484,36 @@ describe('resolveAttack vehicle target dispatch', () => {
         : undefined,
     ).toBe('crew_killed');
   });
+
+  it('uses target weapon availability to fall through front weapon criticals', () => {
+    const session = createGameSession(config(), [
+      mechUnit('attacker'),
+      vehicleUnit({
+        criticalAvailability: {
+          weaponLocations: [],
+          jammableWeaponLocations: [],
+          destroyableWeaponLocations: [],
+        },
+      }),
+    ]);
+    const diceRoller = diceRollerFor([
+      [6, 6],
+      [1, 1],
+    ]);
+    const d6Roller = d6RollerFor([3, 4]);
+
+    const resolved = resolveAttack(
+      session,
+      attackEvent(session.id),
+      diceRoller,
+      d6Roller,
+    );
+
+    const critical = resolved.events.find(
+      (event) => event.type === GameEventType.CriticalHitResolved,
+    )!;
+    expect((critical.payload as ICriticalHitResolvedPayload).effect).toBe(
+      'sensor_hit',
+    );
+  });
 });

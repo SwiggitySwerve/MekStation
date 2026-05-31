@@ -14,8 +14,13 @@
 
 import type { IWeapon } from '@/simulation/ai/types';
 import type {
+  VehicleLocation,
+  VTOLLocation,
+} from '@/types/construction/UnitLocation';
+import type {
   IGameConfig,
   IGameUnit,
+  IVehicleCriticalAvailabilityProfile,
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IMovementCapability } from '@/types/gameplay/HexGridInterfaces';
 
@@ -90,19 +95,101 @@ export function gameUnitsWithAdaptedMovementModes(
 
     const movementMode = adapted.movementMode;
     const gyroType = adapted.gyroType;
+    const vehicleCriticalAvailability = vehicleCriticalAvailabilityFromWeapons(
+      adapted.weapons,
+    );
     const hasMovementModeUpdate =
       movementMode !== undefined && unit.movementMode !== movementMode;
     const hasGyroTypeUpdate =
       gyroType !== undefined && unit.gyroType !== gyroType;
+    const hasVehicleCriticalAvailabilityUpdate =
+      unit.vehicleInit !== undefined &&
+      vehicleCriticalAvailability !== undefined;
 
-    return hasMovementModeUpdate || hasGyroTypeUpdate
+    return hasMovementModeUpdate ||
+      hasGyroTypeUpdate ||
+      hasVehicleCriticalAvailabilityUpdate
       ? {
           ...unit,
           ...(hasMovementModeUpdate ? { movementMode } : {}),
           ...(hasGyroTypeUpdate ? { gyroType } : {}),
+          ...(hasVehicleCriticalAvailabilityUpdate
+            ? {
+                vehicleInit: {
+                  ...unit.vehicleInit,
+                  criticalAvailability: mergeVehicleCriticalAvailability(
+                    unit.vehicleInit.criticalAvailability,
+                    vehicleCriticalAvailability,
+                  ),
+                },
+              }
+            : {}),
         }
       : unit;
   });
+}
+
+function vehicleCriticalAvailabilityFromWeapons(
+  weapons: readonly IWeapon[],
+): IVehicleCriticalAvailabilityProfile | undefined {
+  const mountedWeapons = weapons.filter(
+    (weapon) => weapon.vehicleMountLocation !== undefined,
+  );
+  if (mountedWeapons.length === 0) {
+    return undefined;
+  }
+
+  const weaponLocations = uniqueVehicleLocations(
+    mountedWeapons
+      .filter((weapon) => !weapon.destroyed)
+      .map((weapon) => weapon.vehicleMountLocation),
+  );
+
+  return {
+    weaponLocations,
+    jammableWeaponLocations: weaponLocations,
+    destroyableWeaponLocations: weaponLocations,
+  };
+}
+
+function uniqueVehicleLocations(
+  locations: readonly (VehicleLocation | VTOLLocation | undefined)[],
+): readonly (VehicleLocation | VTOLLocation)[] {
+  return Array.from(
+    new Set(
+      locations.filter(
+        (location): location is VehicleLocation | VTOLLocation =>
+          location !== undefined,
+      ),
+    ),
+  );
+}
+
+function mergeVehicleCriticalAvailability(
+  existing: IVehicleCriticalAvailabilityProfile | undefined,
+  derived: IVehicleCriticalAvailabilityProfile,
+): IVehicleCriticalAvailabilityProfile {
+  if (!existing) {
+    return derived;
+  }
+
+  return {
+    weaponLocations: existing.weaponLocations ?? derived.weaponLocations,
+    jammableWeaponLocations:
+      existing.jammableWeaponLocations ??
+      existing.weaponLocations ??
+      derived.jammableWeaponLocations,
+    destroyableWeaponLocations:
+      existing.destroyableWeaponLocations ??
+      existing.weaponLocations ??
+      derived.destroyableWeaponLocations,
+    ...(existing.cargoLoaded !== undefined
+      ? { cargoLoaded: existing.cargoLoaded }
+      : {}),
+    ...(existing.stabilizerHitLocations
+      ? { stabilizerHitLocations: existing.stabilizerHitLocations }
+      : {}),
+  };
 }
 
 /**

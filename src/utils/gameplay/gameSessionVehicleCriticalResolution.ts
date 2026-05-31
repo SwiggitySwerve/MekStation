@@ -25,6 +25,7 @@ import {
   createVTOLCrashCheckEvent,
 } from './gameEvents';
 import { appendEvent } from './gameSessionCore';
+import { vehicleCriticalAvailabilityContext } from './vehicleCriticalAvailability';
 import {
   applyVehicleCritEffect,
   rollVehicleCrit,
@@ -74,6 +75,10 @@ export function resolveVehicleCriticalIfTriggered(
       input.location === VehicleLocation.TURRET &&
       input.damageResult.state.turretLock.primaryLocked,
     vehicleImmobile: input.damageResult.state.motive.immobilized,
+    ...vehicleCriticalAvailabilityContext(
+      input.session.units.find((unit) => unit.id === input.targetId),
+      input.location,
+    ),
   });
   const critResult = applyVehicleCritEffect(
     input.damageResult.state,

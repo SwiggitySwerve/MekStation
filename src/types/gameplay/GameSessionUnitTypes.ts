@@ -67,6 +67,28 @@ export interface IGameConfig {
   readonly forcedWithdrawal?: boolean;
 }
 
+export interface IVehicleCriticalAvailabilityProfile {
+  /**
+   * Vehicle locations with represented target weapons. When omitted, critical
+   * resolution preserves the legacy optimistic behavior for weapon entries.
+   */
+  readonly weaponLocations?: readonly (VehicleLocation | VTOLLocation)[];
+  /** Vehicle locations with represented weapons that can jam. */
+  readonly jammableWeaponLocations?: readonly (
+    | VehicleLocation
+    | VTOLLocation
+  )[];
+  /** Vehicle locations with represented weapons that can be destroyed. */
+  readonly destroyableWeaponLocations?: readonly (
+    | VehicleLocation
+    | VTOLLocation
+  )[];
+  /** True/false only when scenario construction can prove loaded cargo state. */
+  readonly cargoLoaded?: boolean;
+  /** Locations whose weapon stabilizer critical has already been represented. */
+  readonly stabilizerHitLocations?: readonly (VehicleLocation | VTOLLocation)[];
+}
+
 /**
  * Unit participating in a game.
  */
@@ -182,6 +204,7 @@ export interface IGameUnit {
     readonly armor: Partial<Record<VehicleLocation | VTOLLocation, number>>;
     readonly structure: Partial<Record<VehicleLocation | VTOLLocation, number>>;
     readonly altitude?: number;
+    readonly criticalAvailability?: IVehicleCriticalAvailabilityProfile;
   };
 }
 
