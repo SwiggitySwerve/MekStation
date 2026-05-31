@@ -12,5 +12,15 @@ export const PILOT_ABILITY_FEATURE_TRIAD = {
       assertion:
         'Feature-support rows stay aligned with official weapons, ammo, SPAs, quirks, and source-backed mechanic rows.',
     },
+    {
+      file: 'src/utils/gameplay/movement/__tests__/battlemechMovementTerrain.behavior.test.ts',
+      assertion:
+        'Movement behavior proves source-backed Terrain Master: Mountaineer rough/rubble and upward-elevation MP relief in validation, pathfinding, and reachable previews.',
+    },
+    {
+      file: 'src/simulation/runner/__tests__/movementPhase.behavior.test.ts',
+      assertion:
+        'Runner movement behavior proves pilot-ability movement-cost relief before MovementDeclared commit.',
+    },
   ],
 } satisfies ICombatCatalogTriadEvidence;
