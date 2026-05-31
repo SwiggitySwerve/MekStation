@@ -38,7 +38,7 @@ import { hexDistance, hexesInRange } from '@/utils/gameplay/hexMath';
 
 import type { UnitMovementType } from './types';
 
-import { getHexMovementCost } from './calculations';
+import { getHexMovementCost, type IMovementCostContext } from './calculations';
 import { findPath } from './pathfinding';
 
 /**
@@ -74,6 +74,9 @@ export function deriveReachableHexes(
   const origin = unit.position;
   const candidates = hexesInRange(origin, mp);
   const results: IMovementRangeHex[] = [];
+  const movementContext: IMovementCostContext = {
+    pilotAbilities: unit.abilities,
+  };
 
   if (mpType === MovementType.Jump) {
     for (const hex of candidates) {
@@ -98,10 +101,18 @@ export function deriveReachableHexes(
   // available MP.
   for (const hex of candidates) {
     if (hex.q === origin.q && hex.r === origin.r) continue;
-    const path = findPath(grid, origin, hex, mp);
+    const unitMovementType = toUnitMovementType(mpType);
+    const path = findPath(
+      grid,
+      origin,
+      hex,
+      mp,
+      unitMovementType,
+      movementContext,
+    );
     if (!path || path.length === 0) continue;
 
-    const cost = computePathCost(grid, path, mpType);
+    const cost = computePathCost(grid, path, mpType, movementContext);
     if (cost > mp) continue;
 
     results.push({
@@ -148,13 +159,20 @@ function computePathCost(
   grid: IHexGrid,
   path: readonly IHexCoordinate[],
   movementType: MovementType,
+  movementContext?: IMovementCostContext,
 ): number {
   const unitMovementType = toUnitMovementType(movementType);
   let total = 0;
   for (let i = 1; i < path.length; i++) {
     const prev = path[i - 1];
     const curr = path[i];
-    const cost = getHexMovementCost(grid, curr, unitMovementType, prev);
+    const cost = getHexMovementCost(
+      grid,
+      curr,
+      unitMovementType,
+      prev,
+      movementContext,
+    );
     if (!Number.isFinite(cost)) return Infinity;
     total += cost;
   }

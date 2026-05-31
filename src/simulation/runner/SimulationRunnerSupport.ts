@@ -197,6 +197,7 @@ export function toAIUnitState(
     hexesMoved: unit.hexesMovedThisTurn,
     prone: unit.prone ?? false,
     unitType: unit.unitType,
+    abilities: unit.abilities,
   };
 }
 
