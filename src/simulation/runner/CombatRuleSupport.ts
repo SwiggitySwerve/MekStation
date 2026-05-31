@@ -722,10 +722,9 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
     'Source-backed runAttackPhase and declareAttack carry called-shot intent into calculateCalledShotModifier for the TacOps-style +3 called-shot penalty',
     MEGAMEK_CALLED_SHOT_SOURCE_REFS,
   ),
-  ecm: helperOnly(
+  ecm: integrated(
     'ecm',
-    'MegaMek-source-checked: runAttackPhase already suppresses Artemis/NARC/iNARC guidance benefits through special-weapon and C3 ECM state instead of adding a generic to-hit penalty',
-    'No source-authoritative generic +1 ECM to-hit modifier exists for Artemis, NARC, C3, or targeting computers; keep ECM helper-classified until every guidance-suppression path has source-backed assertions',
+    'MegaMek-source-checked: runAttackPhase suppresses source-backed Artemis, NARC/iNARC Homing, semi-guided TAG, and C3 guidance benefits through explicit ECM/C3/special-weapon state instead of adding a generic ECM to-hit penalty',
     MEGAMEK_ECM_GUIDANCE_TO_HIT_SOURCE_REFS,
   ),
   c3: integrated(
