@@ -93,6 +93,46 @@ class ScriptedMovePlayer implements IAIPlayer {
   }
 }
 
+class ScriptedGoPronePlayer implements IAIPlayer {
+  constructor(private readonly unitId: string) {}
+
+  evaluateRetreat(): IRetreatEvent | null {
+    return null;
+  }
+
+  playMovementPhase(unit: IAIUnitState): IMovementEvent | null {
+    if (unit.unitId !== this.unitId) return null;
+    return {
+      type: GameEventType.MovementDeclared,
+      payload: {
+        unitId: unit.unitId,
+        from: unit.position,
+        to: unit.position,
+        facing: unit.facing,
+        movementType: MovementType.Stationary,
+        mpUsed: 1,
+        heatGenerated: 0,
+        steps: [
+          {
+            kind: 'goProne',
+            index: 0,
+            at: { q: unit.position.q, r: unit.position.r },
+            mpCost: 1,
+          },
+        ],
+      },
+    };
+  }
+
+  playAttackPhase(): IAttackEvent | null {
+    return null;
+  }
+
+  playPhysicalAttackPhase(): IPhysicalAttackEvent | null {
+    return null;
+  }
+}
+
 function fixedRandom(nextValue: number): SeededRandom {
   return { next: () => nextValue } as unknown as SeededRandom;
 }
@@ -903,6 +943,66 @@ describe('runMovementPhase movement validation parity', () => {
     expect(
       RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.RunningDamagedGyro],
     ).toMatchObject({ level: 'integrated' });
+  });
+
+  it('commits scripted voluntary go-prone as a same-hex movement step', () => {
+    const unit = createMinimalUnitState('player-1', GameSide.Player, {
+      q: 0,
+      r: 0,
+    });
+    const state = {
+      gameId: 'runner-go-prone-validation',
+      status: GameStatus.Active,
+      turn: 1,
+      phase: GamePhase.Movement,
+      activationIndex: 0,
+      units: {
+        'player-1': unit,
+      },
+      turnEvents: [],
+    };
+    const events: Parameters<typeof runMovementPhase>[0]['events'] = [];
+    const violations: Parameters<typeof runMovementPhase>[0]['violations'] = [];
+
+    const next = runMovementPhase({
+      state,
+      botPlayer: new ScriptedGoPronePlayer('player-1'),
+      grid: createMinimalGrid(3),
+      invariantRunner: new InvariantRunner(),
+      violations,
+      events,
+      gameId: state.gameId,
+    });
+    const payload = events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    )?.payload as IMovementDeclaredPayload | undefined;
+
+    expect(payload).toMatchObject({
+      unitId: 'player-1',
+      from: { q: 0, r: 0 },
+      to: { q: 0, r: 0 },
+      movementType: MovementType.Stationary,
+      mpUsed: 1,
+      heatGenerated: 0,
+      hexesMoved: 0,
+      straightHexes: 0,
+      turningMpCost: 1,
+      netDisplacement: 0,
+      steps: [
+        expect.objectContaining({
+          kind: 'goProne',
+          at: { q: 0, r: 0 },
+          mpCost: 1,
+        }),
+      ],
+    });
+    expect(next.units['player-1'].position).toEqual({ q: 0, r: 0 });
+    expect(next.units['player-1'].prone).toBe(true);
+    expect(MOVEMENT_RULE_COMBAT_SUPPORT.prone).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('runner AI'),
+      gap: expect.not.stringContaining('Runner movement AI/planning'),
+    });
   });
 
   it('resolves a successful stand-up PSR before committing prone movement', () => {
