@@ -7,6 +7,7 @@ export const CORE_PHYSICAL_ATTACK_TYPES = [
   'charge',
   'dfa',
   'push',
+  'trip',
 ] as const;
 
 export const SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES = [
@@ -148,6 +149,10 @@ export type PhysicalAttackInvalidReason =
   | 'FriendlyTarget'
   | 'TargetNotAdjacent'
   | 'TargetNotDirectlyAhead'
+  | 'TargetNotInFrontArc'
+  | 'TacOpsTripDisabled'
+  | 'AttackerAlreadyGrappled'
+  | 'TripLimbUnavailable'
   | 'UnsupportedAttackType'
   | 'PhysicalAttackLimitReached'
   | 'RetractableBladeNotExtended'
@@ -435,6 +440,16 @@ export interface IPhysicalAttackInput {
    * uses PLAYTEST_3 for MegaMek's claw punch to-hit branch.
    */
   readonly optionalRules?: readonly string[];
+  /**
+   * Source-backed optional TacOps trip attacks can be enabled by a caller
+   * boolean or by the matching optional-rule token.
+   */
+  readonly tacOpsTripAttackEnabled?: boolean;
+  readonly attackerAlreadyGrappled?: boolean;
+  readonly targetInFrontArc?: boolean;
+  readonly leftTripLimbUsable?: boolean;
+  readonly rightTripLimbUsable?: boolean;
+  readonly legAesFunctional?: boolean;
   /**
    * Per task 8.5: a push is only legal when the displacement destination
    * is on-map and unoccupied. Undefined preserves legacy callers that have
