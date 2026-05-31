@@ -11,6 +11,10 @@ interface IEnteringWaterPSROptions {
   readonly waterDepth?: number;
 }
 
+interface ISwampBogDownPSROptions {
+  readonly swampDepth?: number;
+}
+
 /**
  * Per `enrich-movement-declared-with-chain-and-displacement` (piloting-skill-rolls
  * delta — Movement-Step PSR Trigger-Source Stamping): when a PSR fires
@@ -197,6 +201,29 @@ export function createSkiddingPSR(
     reasonCode: PSRTrigger.Skidding,
     additionalModifier: movementBeforeSkidModifier,
     triggerSource: movementStepSource ?? PSRTrigger.Skidding,
+  };
+}
+
+/**
+ * Create a pending PSR for avoiding swamp bog-down.
+ */
+export function createSwampBogDownPSR(
+  entityId: string,
+  stepIndex?: number,
+  options: ISwampBogDownPSROptions = {},
+): IPendingPSR {
+  const movementStepSource = movementStepTriggerSource(stepIndex);
+  const swampDepth = normalizeTerrainLevel(options.swampDepth);
+  return {
+    entityId,
+    reason: 'Avoid bogging down',
+    reasonCode: PSRTrigger.SwampBogDown,
+    additionalModifier: 0,
+    ...(swampDepth !== undefined ? { terrainLevel: swampDepth } : {}),
+    ...(swampDepth !== undefined && swampDepth > 1
+      ? { fixedTargetNumber: Number.POSITIVE_INFINITY }
+      : {}),
+    triggerSource: movementStepSource ?? PSRTrigger.SwampBogDown,
   };
 }
 
