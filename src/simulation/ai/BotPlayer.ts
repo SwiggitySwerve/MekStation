@@ -78,6 +78,29 @@ const MELEE_RANGE_HEXES = 1;
  */
 const DEFAULT_HEAT_DISSIPATION = 10;
 
+function createVoluntaryGoProneEvent(unit: IAIUnitState): IMovementEvent {
+  return {
+    type: GameEventType.MovementDeclared,
+    payload: {
+      unitId: unit.unitId,
+      from: unit.position,
+      to: unit.position,
+      facing: unit.facing,
+      movementType: MovementType.Stationary,
+      mpUsed: 1,
+      heatGenerated: 0,
+      steps: [
+        {
+          kind: 'goProne',
+          index: 0,
+          at: { q: unit.position.q, r: unit.position.r },
+          mpCost: 1,
+        },
+      ],
+    },
+  };
+}
+
 export class BotPlayer implements IAIPlayer {
   private readonly moveAI: MoveAI;
   private readonly attackAI: AttackAI;
@@ -257,6 +280,12 @@ export class BotPlayer implements IAIPlayer {
     );
 
     if (nonStationaryMoves.length === 0) {
+      if (
+        this.behavior.voluntaryGoProneWhenStationary === true &&
+        unit.prone !== true
+      ) {
+        return createVoluntaryGoProneEvent(unit);
+      }
       return null;
     }
 
