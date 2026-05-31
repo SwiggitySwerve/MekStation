@@ -541,6 +541,7 @@ export type PhysicalAttackEventType =
   | 'jump-jet-attack'
   | 'brush-off'
   | 'grapple'
+  | 'break-grapple'
   | 'hatchet'
   | 'sword'
   | 'mace'
@@ -572,6 +573,7 @@ export interface IPhysicalDisplacement {
     | 'charge_miss'
     | 'dfa'
     | 'dfa_miss'
+    | 'break-grapple'
     | 'domino';
 }
 
