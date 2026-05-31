@@ -174,13 +174,13 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 131,
+      total: 130,
       byLevel: {
-        'helper-only': 114,
+        'helper-only': 113,
         unsupported: 17,
       },
       bySection: {
-        actions: 6,
+        actions: 5,
         damageAndDeath: 2,
         featureSupport: 73,
         lifecycleAndPsr: 3,
@@ -338,11 +338,9 @@ describe('BattleMech combat validation catalog index', () => {
     expect(unsupportedRefs).not.toContain(
       'actions.physicalActionClassScope.grapple',
     );
-    expect(
-      unresolvedRows.find(
-        (row) => row.ref === 'actions.physicalActionClassScope.trip',
-      )?.level,
-    ).toBe('helper-only');
+    expect(unresolvedRefs).not.toContain(
+      'actions.physicalActionClassScope.trip',
+    );
     expect(
       unresolvedRows.find(
         (row) => row.ref === 'actions.physicalActionClassScope.thrash',
@@ -824,6 +822,7 @@ describe('BattleMech combat validation catalog index', () => {
         'motive_damaged',
         'physical.charge',
         'physical.push',
+        'physical.trip',
         'shared.displacement-elevation-cap',
         'shared.displacement-prohibited-terrain',
         'shared.displacement-overgrown-terrain',
