@@ -66,6 +66,23 @@ describe('dispatchToEngine', () => {
     expect(physicalCalls).toEqual([['player-1', 'opponent-1', 'lance']]);
   });
 
+  it('routes RequestSpot wire intents to InteractiveSession.requestSpot', () => {
+    const spotCalls: Array<readonly [string, string]> = [];
+    const session = {
+      requestSpot: (unitId: string, targetId: string) => {
+        spotCalls.push([unitId, targetId]);
+      },
+    } as unknown as InteractiveSession;
+
+    dispatchToEngine(session, {
+      kind: 'RequestSpot',
+      unitId: 'player-1',
+      targetId: 'opponent-1',
+    });
+
+    expect(spotCalls).toEqual([['player-1', 'opponent-1']]);
+  });
+
   it('routes Eject wire intents to InteractiveSession.ejectUnit', () => {
     const ejectedUnitIds: string[] = [];
     const session = {
