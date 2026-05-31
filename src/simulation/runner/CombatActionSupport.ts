@@ -302,6 +302,11 @@ export const MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS = {
     'thrash',
     'L101-L113',
   ),
+  'physical.jump-jet-attack': mekstationPhysicalCommandSourceRefs(
+    'physical.jump-jet-attack',
+    'jump-jet-attack',
+    'L117-L132',
+  ),
   'physical.charge': mekstationPhysicalCommandSourceRefs(
     'physical.charge',
     'charge',
@@ -944,6 +949,12 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'tactical-command',
     'buildPhysicalAttackCommands commits physical-attack thrash; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
     MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.thrash'],
+  ),
+  'physical.jump-jet-attack': integrated(
+    'physical.jump-jet-attack',
+    'tactical-command',
+    'buildPhysicalAttackCommands commits right-leg jump-jet attack; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack preserve the selected leg limb',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.jump-jet-attack'],
   ),
   'physical.charge': integrated(
     'physical.charge',
