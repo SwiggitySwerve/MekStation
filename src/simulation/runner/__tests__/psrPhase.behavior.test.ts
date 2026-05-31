@@ -461,7 +461,7 @@ describe('runPSRPhase behavior', () => {
       reasonCode: PSRTrigger.EnteringRubble,
     });
     expect(SPA_COMBAT_SUPPORT.tm_mountaineer).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('Mountaineer rubble-entry relief'),
     });
   });
