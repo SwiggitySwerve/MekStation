@@ -977,8 +977,8 @@ or wheeled movement`, and preserves tracked/wheeled movement as reachable and
 committable when terrain and MP allow it. Remaining special conversion gaps are
 in-progress LAM/QuadVee conversion cancellation state, while the remaining
 hull-down gaps are fortified-side-table behavior, QuadVee vehicle-mode details,
-and punch/club hit-table nuances listed in the later hull-down pins; they are
-not the basic destroyed-gyro non-tracked movement gate.
+and punch/club hit-table nuances until the later hull-down pins retire them;
+they are not the basic destroyed-gyro non-tracked movement gate.
 
 2026-05-26 hull-down target projection pin: MegaMek
 `ComputeTerrainMods.java:215-218` adds a +2 hull-down modifier for a
@@ -1004,6 +1004,19 @@ validation now block kick rows/commands while hull-down. Remaining hull-down
 gaps are vehicle/QuadVee fortified-hex side-table handling and punch/club
 hull-down hit-table nuances, not attacker leg-weapon or kick preview/commit
 agreement.
+
+2026-05-31 hull-down physical hit-table pin: MegaMek
+`PunchAttackAction.java:344-365` switches a hull-down attacker's punch to the
+kick hit table when the target base is at the attacker's arm level, while
+`ClubAttackAction.java:561-580` applies the kick hit table to hull-down
+club-style attacks against Mek targets unless the target is a converted
+QuadVee. MekStation now selects that physical hit table in the shared physical
+projection/damage helper, surfaces it through physical option rows and forecast
+damage, persists it on `PhysicalAttackDeclared`, and makes the later resolver
+prefer the declared table so target-specific elevation context cannot drift out
+before hit-location resolution. Remaining hull-down gaps are vehicle/QuadVee
+fortified-side-table behavior and QuadVee vehicle-mode side-table details, not
+punch/club hit-table preview/commit agreement.
 
 Additional fog visibility pin: engine attack visibility already passes the
 active battle grid into `canPlayerSeeUnit` before accepting an attack
@@ -1835,8 +1848,7 @@ declaration from represented per-location leg/support actuator and hip damage,
 rejects destroyed support locations with a 99 MP impossible-cost invalid event,
 and replays the declaration by clearing prone and setting hull-down without a
 stand-up PSR or `UnitStood` event. Remaining hull-down movement gaps are the
-vehicle/QuadVee fortified-side-table work named above, plus the punch/club
-hull-down hit-table nuance outside movement.
+vehicle/QuadVee fortified-side-table work named above.
 
 ## Acceptance Gate
 

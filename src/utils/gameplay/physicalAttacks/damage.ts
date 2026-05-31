@@ -1,4 +1,5 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import {
   CHARGE_DAMAGE_DIVISOR,
@@ -21,6 +22,7 @@ import {
 import {
   IPhysicalAttackInput,
   IPhysicalDamageResult,
+  PhysicalHitTable,
   PhysicalAttackType,
 } from './types';
 
@@ -182,6 +184,56 @@ export function calculateLanceDamage(
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
+function isRepresentedMekTarget(unitType: UnitType | undefined): boolean {
+  return (
+    unitType === UnitType.BATTLEMECH ||
+    unitType === UnitType.OMNIMECH ||
+    unitType === UnitType.INDUSTRIALMECH
+  );
+}
+
+function isMeleeWeaponAttack(attackType: PhysicalAttackType): boolean {
+  return (
+    attackType === 'hatchet' ||
+    attackType === 'sword' ||
+    attackType === 'mace' ||
+    attackType === 'lance'
+  );
+}
+
+export function selectPhysicalHitTable(
+  input: IPhysicalAttackInput,
+): PhysicalHitTable {
+  if (input.hitTableOverride) {
+    return input.hitTableOverride;
+  }
+
+  if (input.attackType === 'kick') {
+    return 'kick';
+  }
+
+  if (input.attackType === 'punch') {
+    if (!input.attackerHullDown || !input.elevationContext) {
+      return 'punch';
+    }
+
+    return input.elevationContext.attackerArmElevation >
+      input.elevationContext.targetBaseElevation
+      ? 'punch'
+      : 'kick';
+  }
+
+  if (
+    isMeleeWeaponAttack(input.attackType) &&
+    input.attackerHullDown &&
+    isRepresentedMekTarget(input.targetUnitType)
+  ) {
+    return 'kick';
+  }
+
+  return 'punch';
+}
+
 /**
  * Per `implement-physical-attack-phase` tasks 6.4 / 7.4: split damage
  * into 5-point clusters before hit-location resolution. Zero damage
@@ -214,7 +266,7 @@ export function calculatePhysicalDamage(
         targetPSR: false,
         attackerPSR: false,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     case 'kick':
@@ -269,7 +321,7 @@ export function calculatePhysicalDamage(
         targetPSR: false,
         attackerPSR: false,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     case 'sword':
@@ -280,7 +332,7 @@ export function calculatePhysicalDamage(
         targetPSR: false,
         attackerPSR: false,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     case 'mace':
@@ -291,7 +343,7 @@ export function calculatePhysicalDamage(
         targetPSR: false,
         attackerPSR: false,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     case 'lance':
@@ -305,7 +357,7 @@ export function calculatePhysicalDamage(
         targetPSR: false,
         attackerPSR: false,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     default:

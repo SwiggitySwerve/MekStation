@@ -49,6 +49,7 @@ import {
   isVehicleCrewStunned,
   PhysicalAttackType,
   resolvePhysicalAttack,
+  selectPhysicalHitTable,
   splitPhysicalDamageIntoClusters,
 } from './physicalAttacks';
 
@@ -170,6 +171,7 @@ export function declarePhysicalAttack(
   // declared event carries the calculated TN so UI can show the
   // forecast modal before resolution.
   const declaredTN = context.pilotingSkill;
+  const hitTable = selectPhysicalHitTable(input);
 
   return appendEvent(
     session,
@@ -181,6 +183,8 @@ export function declarePhysicalAttack(
       targetId,
       attackType as 'punch' | 'kick' | 'charge' | 'dfa' | 'push',
       declaredTN,
+      context.limb,
+      hitTable,
     ),
   );
 }
@@ -226,6 +230,9 @@ export function resolveAllPhysicalAttacks(
     const attackerUnit = currentSession.units.find(
       (unit) => unit.id === payload.attackerId,
     );
+    const targetUnit = currentSession.units.find(
+      (unit) => unit.id === payload.targetId,
+    );
     const attackerMovementMode =
       context.attackerMovementMode ?? attackerUnit?.movementMode;
 
@@ -256,7 +263,11 @@ export function resolveAllPhysicalAttacks(
         ),
       attackerVehicleCrewStunned: isVehicleCrewStunned(attackerState),
       optionalRules: context.optionalRules ?? session.config.optionalRules,
-      targetUnitType: context.targetUnitType,
+      targetUnitType: context.targetUnitType ?? targetUnit?.unitType,
+      limb: payload.limb ?? context.limb,
+      elevationContext: context.elevationContext,
+      terrainContext: context.terrainContext,
+      hitTableOverride: payload.hitTable,
     };
 
     // The standalone module uses a d6 roller; wrap our 2d6 roller's
@@ -308,7 +319,8 @@ export function resolveAllPhysicalAttacks(
           clusterIndex === 0
             ? result.hitLocation
             : determinePhysicalHitLocation(
-                payload.attackType === 'kick' ? 'kick' : 'punch',
+                result.hitTable ??
+                  (payload.attackType === 'kick' ? 'kick' : 'punch'),
                 d6Roller,
               );
 
@@ -424,9 +436,6 @@ export function resolveAllPhysicalAttacks(
     // pass the unit's base piloting skill (looked up from `IGameUnit`).
     // For the attacker the runner already has `context.pilotingSkill`;
     // for the target we look it up from `currentSession.units`.
-    const targetUnit = currentSession.units.find(
-      (u) => u.id === payload.targetId,
-    );
     if (result.hit && result.targetPSR) {
       // Per `structure-psr-reason-as-discriminated-code` (PR E): map the
       // generic `physical_attack_target` trigger source to the canonical

@@ -1200,6 +1200,41 @@ describe('physicalAttacks', () => {
       ]);
     });
 
+    it('projects MegaMek hull-down punch and club hit tables from elevation context', () => {
+      const attacker = {
+        ...unitAt('hull-down-mek-1', 0, 0),
+        hullDown: true,
+      } as IUnitGameState;
+      const target = unitAt('mech-1', 1, 0);
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 55,
+        attackerPilotingSkill: 4,
+        targetTonnage: 55,
+        attackerUnitType: UnitType.BATTLEMECH,
+        targetUnitType: UnitType.BATTLEMECH,
+        meleeWeaponsEquipped: ['hatchet'],
+        elevationContext: {
+          attackerBaseElevation: 0,
+          attackerArmElevation: 1,
+          targetBaseElevation: 1,
+          targetTopElevation: 2,
+        },
+      });
+
+      const punch = options.find(
+        (option) => option.attackType === 'punch' && option.limb === 'rightArm',
+      );
+      const hatchet = options.find((option) => option.attackType === 'hatchet');
+
+      expect(punch).toBeDefined();
+      expect(punch!.toHit.allowed).toBe(true);
+      expect(punch!.damage.hitTable).toBe('kick');
+      expect(hatchet).toBeDefined();
+      expect(hatchet!.toHit.allowed).toBe(true);
+      expect(hatchet!.damage.hitTable).toBe('kick');
+    });
+
     it('keeps battle armor from producing generic physical target highlights', () => {
       const attacker = unitAt('ba-1', 0, 0);
       const target = unitAt('mech-1', 1, 0);
@@ -1477,6 +1512,43 @@ describe('physicalAttacks', () => {
       expect(result.hitTable).toBe('punch');
     });
 
+    it('uses the kick hit table for a hull-down punch at attacker arm level', () => {
+      const result = calculatePhysicalDamage(
+        makeInput({
+          attackerTonnage: 80,
+          attackType: 'punch',
+          attackerHullDown: true,
+          elevationContext: {
+            attackerBaseElevation: 0,
+            attackerArmElevation: 1,
+            targetBaseElevation: 1,
+            targetTopElevation: 2,
+          },
+        }),
+      );
+
+      expect(result.targetDamage).toBe(8);
+      expect(result.hitTable).toBe('kick');
+    });
+
+    it('keeps the punch hit table for a hull-down punch from above the target base', () => {
+      const result = calculatePhysicalDamage(
+        makeInput({
+          attackerTonnage: 80,
+          attackType: 'punch',
+          attackerHullDown: true,
+          elevationContext: {
+            attackerBaseElevation: 1,
+            attackerArmElevation: 2,
+            targetBaseElevation: 0,
+            targetTopElevation: 1,
+          },
+        }),
+      );
+
+      expect(result.hitTable).toBe('punch');
+    });
+
     it('should return correct kick damage result with PSR', () => {
       const result = calculatePhysicalDamage(
         makeInput({ attackerTonnage: 80, attackType: 'kick' }),
@@ -1525,6 +1597,20 @@ describe('physicalAttacks', () => {
       );
       expect(result.targetDamage).toBe(14);
       expect(result.hitTable).toBe('punch');
+    });
+
+    it('uses the kick hit table for a hull-down club attack against a represented Mek', () => {
+      const result = calculatePhysicalDamage(
+        makeInput({
+          attackerTonnage: 70,
+          attackType: 'hatchet',
+          attackerHullDown: true,
+          targetUnitType: UnitType.BATTLEMECH,
+        }),
+      );
+
+      expect(result.targetDamage).toBe(14);
+      expect(result.hitTable).toBe('kick');
     });
   });
 
@@ -1617,6 +1703,30 @@ describe('physicalAttacks', () => {
       expect(result.roll).toBe(7);
       expect(result.targetDamage).toBe(8);
       expect(result.hitLocation).toBe('center_torso');
+    });
+
+    it('resolves a hull-down punch against a level arm-height target on the kick table', () => {
+      // dice: 6+6=12 (to-hit), 4 (kick table location = left leg)
+      const roller = makeDiceSequence([6, 6, 4]);
+      const result = resolvePhysicalAttack(
+        makeInput({
+          attackerTonnage: 80,
+          attackType: 'punch',
+          pilotingSkill: 5,
+          attackerHullDown: true,
+          elevationContext: {
+            attackerBaseElevation: 0,
+            attackerArmElevation: 1,
+            targetBaseElevation: 1,
+            targetTopElevation: 2,
+          },
+        }),
+        roller,
+      );
+
+      expect(result.hit).toBe(true);
+      expect(result.hitTable).toBe('kick');
+      expect(result.hitLocation).toBe('left_leg');
     });
 
     it('should resolve a missing punch', () => {

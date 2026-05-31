@@ -8,6 +8,7 @@ import {
   MovementType,
   type IGameSession,
   type IHexCoordinate,
+  type IPhysicalAttackDeclaredPayload,
   type IPhysicalAttackResolvedPayload,
 } from '@/types/gameplay';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
@@ -164,6 +165,38 @@ describe('declarePhysicalAttack target range', () => {
         (event) => event.type === GameEventType.PhysicalAttackResolved,
       ),
     ).toBe(false);
+  });
+
+  it('persists MegaMek hull-down punch hit-table selection on declaration', () => {
+    const session = buildPhysicalSession({ q: 1, r: 0 });
+    session.currentState.units.attacker = {
+      ...session.currentState.units.attacker,
+      hullDown: true,
+    };
+
+    const next = declarePhysicalAttack(session, 'attacker', 'target', 'punch', {
+      ...PUNCH_CONTEXT,
+      limb: 'rightArm',
+      attackerUnitType: UnitType.BATTLEMECH,
+      targetUnitType: UnitType.BATTLEMECH,
+      elevationContext: {
+        attackerBaseElevation: 0,
+        attackerArmElevation: 1,
+        targetBaseElevation: 1,
+        targetTopElevation: 2,
+      },
+    });
+
+    const declared = next.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    expect(declared?.payload as IPhysicalAttackDeclaredPayload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'punch',
+      limb: 'rightArm',
+      hitTable: 'kick',
+    });
   });
 
   it('rejects hull-down kick commits before declaration', () => {

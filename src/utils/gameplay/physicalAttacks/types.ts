@@ -21,6 +21,8 @@ export type PhysicalAttackType =
   | 'mace'
   | 'lance';
 
+export type PhysicalHitTable = 'punch' | 'kick';
+
 /**
  * Per `implement-physical-attack-phase` task 2.1: canonical declaration
  * shape emitted by players (human UI + bot). `limb` is required for
@@ -182,6 +184,12 @@ export interface IPhysicalAttackInput {
   readonly footActuatorPresent?: boolean;
   readonly elevationContext?: IPhysicalAttackElevationContext;
   readonly terrainContext?: IPhysicalAttackTerrainContext;
+  /**
+   * Hit table selected and persisted by the declaration path. Resolution uses
+   * this when present so target-specific projection facts cannot drift out of
+   * scope before the physical phase resolves.
+   */
+  readonly hitTableOverride?: PhysicalHitTable;
 }
 
 export interface IPhysicalToHitResult {
@@ -210,7 +218,7 @@ export interface IPhysicalDamageResult {
   readonly targetPSR: boolean;
   readonly attackerPSR: boolean;
   readonly attackerPSRModifier: number;
-  readonly hitTable: 'punch' | 'kick';
+  readonly hitTable: PhysicalHitTable;
   readonly targetDisplaced: boolean;
 }
 
@@ -225,6 +233,7 @@ export interface IPhysicalAttackResult {
   readonly targetPSR: boolean;
   readonly attackerPSR: boolean;
   readonly attackerPSRModifier: number;
+  readonly hitTable?: PhysicalHitTable;
   readonly hitLocation?: CombatLocation;
   readonly targetDisplaced: boolean;
 }

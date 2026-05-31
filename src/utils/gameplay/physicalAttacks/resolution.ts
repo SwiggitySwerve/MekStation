@@ -4,10 +4,14 @@ import { D6Roller } from '../hitLocation';
 import { KICK_HIT_TABLE, PUNCH_HIT_TABLE } from './constants';
 import { calculatePhysicalDamage, getPhysicalMissConsequences } from './damage';
 import { calculatePhysicalToHit } from './toHit';
-import { IPhysicalAttackInput, IPhysicalAttackResult } from './types';
+import {
+  IPhysicalAttackInput,
+  IPhysicalAttackResult,
+  PhysicalHitTable,
+} from './types';
 
 export function determinePhysicalHitLocation(
-  hitTable: 'punch' | 'kick',
+  hitTable: PhysicalHitTable,
   diceRoller: D6Roller,
 ): CombatLocation {
   const roll = diceRoller();
@@ -65,6 +69,7 @@ export function resolvePhysicalAttack(
       targetPSR: damageResult.targetPSR,
       attackerPSR: damageResult.attackerPSR,
       attackerPSRModifier: damageResult.attackerPSRModifier,
+      hitTable: damageResult.hitTable,
       hitLocation,
       targetDisplaced: damageResult.targetDisplaced,
     };

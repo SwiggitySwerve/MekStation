@@ -505,6 +505,12 @@ export interface IPhysicalAttackDeclaredPayload {
   readonly attackType: PhysicalAttackEventType;
   readonly toHitNumber: number;
   /**
+   * Physical hit-location table selected at declaration time. Optional for
+   * backward compatibility with older events that predate represented
+   * physical hit-table projection.
+   */
+  readonly hitTable?: 'punch' | 'kick';
+  /**
    * Per `implement-physical-attack-phase` task 2.3: limb targeted by the
    * declaration. Required for `punch` and `kick`; may be supplied for
    * club attacks. OPTIONAL.
