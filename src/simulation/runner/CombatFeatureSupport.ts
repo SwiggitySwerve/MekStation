@@ -640,7 +640,7 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'terrain-master': unsupported(
     'terrain-master',
-    'Generic Terrain Master behavior and variants beyond Frogman/Mountaineer/Forest Ranger/Swamp Beast are not wired; source-backed Frogman physical to-hit relief, Frogman water-entry PSR relief, Mountaineer rubble-entry PSR plus rough/rubble/elevation MP relief, and Forest Ranger/Swamp Beast defensive to-hit variants are tracked separately as tm_frogman, tm_mountaineer, tm_forest_ranger, and tm_swamp_beast, while Swamp Beast bog-down relief remains a source-backed stuck-state gap',
+    'Generic Terrain Master behavior and variants beyond Frogman/Mountaineer/Forest Ranger/Swamp Beast are not wired; source-backed Frogman physical to-hit relief, Frogman water-entry PSR relief, Mountaineer rubble-entry PSR plus rough/rubble/elevation MP relief, Swamp Beast bog-down PSR relief, and Forest Ranger/Swamp Beast defensive to-hit variants are tracked separately as tm_frogman, tm_mountaineer, tm_forest_ranger, and tm_swamp_beast',
     MEGAMEK_TERRAIN_MASTER_GAP_SOURCE_REFS,
   ),
   tm_frogman: integrated(
@@ -660,7 +660,7 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   tm_swamp_beast: integrated(
     'tm_swamp_beast',
-    'Source-backed calculateTerrainMasterDefensiveToHitModifier plus calculateToHit and runner target terrain hydration apply +1 to-hit against running targets in mud or swamp; source-backed bog-down relief is tracked under the PSR and terrain stuck-state gap rows',
+    'Source-backed calculateTerrainMasterDefensiveToHitModifier plus calculateToHit and runner target terrain hydration apply +1 to-hit against running targets in mud or swamp; calculatePSRModifiers applies Swamp Beast bog-down relief as -1 to swamp bog-down PSRs',
     MEGAMEK_325B_SWAMP_BEAST_SOURCE_REFS,
   ),
   acrobat: unsupported(

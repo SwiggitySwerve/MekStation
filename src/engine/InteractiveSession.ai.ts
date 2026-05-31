@@ -107,6 +107,7 @@ export function runInteractiveSessionAITurn(
             coord: refreshedUnit.position,
             facing: refreshedUnit.facing,
             prone: refreshedUnit.prone ?? false,
+            isStuck: refreshedUnit.isStuck ?? false,
           },
           moveEvt.payload.to,
           moveEvt.payload.facing as Facing,
