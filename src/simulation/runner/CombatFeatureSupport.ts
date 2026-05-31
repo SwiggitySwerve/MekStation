@@ -121,6 +121,17 @@ function helperOnly(
     : { id, level: 'helper-only', evidence, gap };
 }
 
+function outOfScope(
+  id: string,
+  evidence: string,
+  gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'out-of-scope', evidence, gap, sourceRefs }
+    : { id, level: 'out-of-scope', evidence, gap };
+}
+
 function unsupported(
   id: string,
   gap: string,
@@ -847,16 +858,16 @@ export const QUIRK_COMBAT_SUPPORT = {
     'calculateMultiTracModifier plus calculateToHit suppress the source-backed secondary-target penalty for Multi-Trac front-arc attacks',
     MEGAMEK_MULTI_TRAC_SOURCE_REFS,
   ),
-  rugged_1: helperOnly(
+  rugged_1: outOfScope(
     'rugged_1',
     'getRuggedMaintenanceMultiplier models the MekHQ maintenance-cycle multiplier',
-    'Rugged is a campaign maintenance quirk, not a combat critical-hit prevention rule',
+    'Rugged is a MekHQ campaign maintenance quirk, not a BattleMech combat critical-hit prevention or runner modifier row',
     MEKHQ_RUGGED_SOURCE_REFS,
   ),
-  rugged_2: helperOnly(
+  rugged_2: outOfScope(
     'rugged_2',
     'getRuggedMaintenanceMultiplier models the MekHQ maintenance-cycle multiplier',
-    'Rugged is a campaign maintenance quirk, not a combat critical-hit prevention rule',
+    'Rugged is a MekHQ campaign maintenance quirk, not a BattleMech combat critical-hit prevention or runner modifier row',
     MEKHQ_RUGGED_SOURCE_REFS,
   ),
   protected_actuators: helperOnly(
