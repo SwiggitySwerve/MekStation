@@ -830,13 +830,14 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'buildMovementCommands commits activate-supercharger; useGameplayStore, activateMovementEnhancement game intent, ActivateMovementEnhancement wire payload, server dispatch, P2P host command, and InteractiveSession.activateMovementEnhancement set replayable activeSupercharger state before the movement declaration consumes boosted MP and PSR checks',
     MOVEMENT_ACTIVATE_SUPERCHARGER_ACTION_SOURCE_REFS,
   ),
-  'movement.stabilize': unsupported(
+  'movement.stabilize': outOfScope(
     'movement.stabilize',
     'tactical-command',
+    'buildMovementCommands exposes movement.stabilize as a MekStation-local command surface without identified official BattleMech combat rule authority',
     'Stabilize is exposed as a MekStation-local command id but has no authoritative combat-state mutation path, no game intent, no wire payload, no P2P translation, and no identified BattleMech rule source',
     MEKSTATION_STABILIZE_COMMAND_SOURCE_REFS,
   ),
-  'movement.cancel': helperOnly(
+  'movement.cancel': outOfScope(
     'movement.cancel',
     'tactical-command',
     'buildMovementCommands commits undo for local preview cancellation',
@@ -861,7 +862,7 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'buildFacingCommands exposes source-backed torso-twist during WeaponAttack with a direction payload; useGameplayStore routes it to torsoTwist, which validates BattleMech legality and emits FacingChanged secondaryFacing state consumed by replay, AI weapon arcs, runner secondary-target math, game intent, wire, P2P, and server dispatch paths',
     FACING_TORSO_TWIST_ACTION_SOURCE_REFS,
   ),
-  'weapon.declare-attack': helperOnly(
+  'weapon.declare-attack': outOfScope(
     'weapon.declare-attack',
     'tactical-command',
     'buildWeaponAttackCommands exposes a target-selection declaration command',
@@ -874,7 +875,7 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'buildWeaponAttackCommands commits the irreversible volley; declareAttack/Attack/dispatchToEngine.applyAttack carry the authoritative attack path',
     MEKSTATION_WEAPON_FIRE_VOLLEY_COMMAND_SOURCE_REFS,
   ),
-  'weapon.clear-attacks': helperOnly(
+  'weapon.clear-attacks': outOfScope(
     'weapon.clear-attacks',
     'tactical-command',
     'buildWeaponAttackCommands clears queued local attack selections',
