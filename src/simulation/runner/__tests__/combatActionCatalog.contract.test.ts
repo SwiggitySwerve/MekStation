@@ -149,6 +149,7 @@ describe('BattleMech combat action support catalog', () => {
       'physical.push',
       'physical.retractable-blade',
       'physical.sword',
+      'physical.trip',
       'physical.wrecking-ball',
       'utility.concede',
       'utility.eject',
@@ -316,6 +317,7 @@ describe('BattleMech combat action support catalog', () => {
       'physical.push',
       'physical.retractable-blade',
       'physical.sword',
+      'physical.trip',
       'physical.wrecking-ball',
     ];
     for (const id of physicalCommandSourceRows) {
@@ -709,6 +711,7 @@ describe('BattleMech combat action support catalog', () => {
       'physical.push': 'push',
       'physical.retractable-blade': 'retractable-blade',
       'physical.sword': 'sword',
+      'physical.trip': 'trip',
       'physical.wrecking-ball': 'wrecking-ball',
     });
     expect(
@@ -725,6 +728,7 @@ describe('BattleMech combat action support catalog', () => {
       'push',
       'retractable-blade',
       'sword',
+      'trip',
       'wrecking-ball',
     ]);
     expect(
@@ -752,7 +756,7 @@ describe('BattleMech combat action support catalog', () => {
 
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'integrated'),
-    ).toEqual(['charge', 'club', 'dfa', 'kick', 'punch', 'push']);
+    ).toEqual(['charge', 'club', 'dfa', 'kick', 'punch', 'push', 'trip']);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'unsupported'),
     ).toEqual([]);
@@ -764,7 +768,6 @@ describe('BattleMech combat action support catalog', () => {
       'grapple',
       'jump-jet-attack',
       'thrash',
-      'trip',
     ]);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'out-of-scope'),
@@ -806,10 +809,11 @@ describe('BattleMech combat action support catalog', () => {
       gap: expect.stringContaining('no runtime PhysicalAttackType'),
     });
     expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.trip).toMatchObject({
-      level: 'helper-only',
-      evidence: expect.stringContaining('canTrip'),
-      gap: expect.stringContaining('no runtime PhysicalAttackType'),
+      level: 'integrated',
+      evidence: expect.stringContaining('runtime PhysicalAttackType'),
+      runtimeAttackTypes: ['trip'],
     });
+    expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.trip.gap).toBeUndefined();
     expect(
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['jump-jet-attack'],
     ).toMatchObject({
