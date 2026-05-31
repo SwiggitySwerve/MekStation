@@ -271,10 +271,9 @@ function makeTerrainLosEntry(terrain: TerrainType): ICombatFeatureSupportEntry {
   }
 
   if (terrain === TerrainType.Water) {
-    return helperOnly(
+    return integrated(
       terrain,
-      'MekStation calculateLOS records this TerrainType as non-blocking and relies on attack modifier and heat rows for local water effects',
-      'MegaMek can make land-to-underwater LOS impossible, but MekStation LOS does not model underwater sightline state or divided/diagram LOS paths',
+      'MekStation calculateLOS blocks source-backed land-to-depth-2+ water endpoint sightlines while keeping non-endpoint water non-blocking for local attack modifier and heat rows',
       terrainLosSourceRefs(terrain),
     );
   }
