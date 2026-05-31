@@ -176,8 +176,8 @@ describe('BattleMech combat validation catalog index', () => {
     }).toEqual({
       total: 132,
       byLevel: {
-        'helper-only': 111,
-        unsupported: 21,
+        'helper-only': 112,
+        unsupported: 20,
       },
       bySection: {
         actions: 7,
@@ -326,6 +326,9 @@ describe('BattleMech combat validation catalog index', () => {
     expect(unsupportedRefs).not.toContain(
       'actions.physicalActionClassScope.thrash',
     );
+    expect(unsupportedRefs).not.toContain(
+      'actions.physicalActionClassScope.brush-off',
+    );
     expect(
       unresolvedRows.find(
         (row) => row.ref === 'actions.physicalActionClassScope.trip',
@@ -334,6 +337,11 @@ describe('BattleMech combat validation catalog index', () => {
     expect(
       unresolvedRows.find(
         (row) => row.ref === 'actions.physicalActionClassScope.thrash',
+      )?.level,
+    ).toBe('helper-only');
+    expect(
+      unresolvedRows.find(
+        (row) => row.ref === 'actions.physicalActionClassScope.brush-off',
       )?.level,
     ).toBe('helper-only');
   });
