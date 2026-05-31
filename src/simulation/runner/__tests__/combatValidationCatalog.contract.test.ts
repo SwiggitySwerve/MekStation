@@ -176,8 +176,8 @@ describe('BattleMech combat validation catalog index', () => {
     }).toEqual({
       total: 132,
       byLevel: {
-        'helper-only': 106,
-        unsupported: 26,
+        'helper-only': 108,
+        unsupported: 24,
       },
       bySection: {
         actions: 7,
@@ -275,6 +275,26 @@ describe('BattleMech combat validation catalog index', () => {
     expect(unresolvedRefs).not.toContain(
       'pilotSkills.pilotModifierResolvers.physical-action-count-application',
     );
+    const unsupportedRefs = unresolvedRows
+      .filter((row) => row.level === 'unsupported')
+      .map((row) => row.ref);
+    expect(unsupportedRefs).not.toContain(
+      'featureSupport.canonicalPilotAbilityScope.hvy_lifter',
+    );
+    expect(unsupportedRefs).not.toContain(
+      'featureSupport.pilotAbilities.heavy-lifter',
+    );
+    expect(
+      unresolvedRows.find(
+        (row) =>
+          row.ref === 'featureSupport.canonicalPilotAbilityScope.hvy_lifter',
+      )?.level,
+    ).toBe('helper-only');
+    expect(
+      unresolvedRows.find(
+        (row) => row.ref === 'featureSupport.pilotAbilities.heavy-lifter',
+      )?.level,
+    ).toBe('helper-only');
     expect(unresolvedRefs).not.toContain(
       'ruleSupport.terrainTypeLos.light_woods',
     );
