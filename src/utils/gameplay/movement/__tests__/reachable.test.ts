@@ -1819,6 +1819,57 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('lets infantry dismount state override stale mounted height for bridge-clearance projection', () => {
+    let grid = createHexGrid({ radius: 2 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Water, 0);
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([
+        { type: TerrainType.Water, level: 1 },
+        { type: TerrainType.Bridge, level: 1 },
+      ]),
+      0,
+    );
+    const capability: IMovementCapability = {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'naval',
+      unitHeight: 1,
+      unitHeightProfile: { kind: 'infantry_mount', mountedHeight: 1 },
+    };
+
+    const mountedState = deriveMovementRangeHexForDestination(
+      { ...makeUnitAtOrigin(), infantryMounted: true },
+      MovementType.Walk,
+      grid,
+      capability,
+      { q: 1, r: 0 },
+    );
+    const dismountedState = deriveMovementRangeHexForDestination(
+      { ...makeUnitAtOrigin(), infantryMounted: false, unitHeight: 1 },
+      MovementType.Walk,
+      grid,
+      capability,
+      { q: 1, r: 0 },
+    );
+
+    expect(mountedState).toMatchObject({
+      reachable: false,
+      movementMode: 'naval',
+      blockedReason: 'Naval movement lacks bridge clearance',
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails: 'Naval movement lacks bridge clearance',
+    });
+    expect(dismountedState).toMatchObject({
+      reachable: true,
+      mpCost: 1,
+      terrainCost: 0,
+      movementMode: 'naval',
+    });
+  });
+
   it('lets flotation-hull tracked vehicles enter water with water MP costs', () => {
     let grid = createHexGrid({ radius: 3 });
     grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);

@@ -15,6 +15,10 @@ import {
   tacticalMapHoverWaterMovementRange,
 } from '../tactical-map.hover-water-scenario';
 import {
+  tacticalMapInfantryMountStateCommitInputs,
+  tacticalMapInfantryMountStateMovementRange,
+} from '../tactical-map.infantry-mount-state-scenario';
+import {
   tacticalMapLamAirborneFighterCommitInput,
   tacticalMapLamAirborneFighterMovementRange,
   tacticalMapLamAirborneFighterMpLegend,
@@ -243,6 +247,65 @@ describe('tactical map movement scenarios', () => {
     expect(result.details).toBe(projection.movementInvalidDetails);
     expect(result.mpCost).toBe(projection.mpCost);
     expect(result.heatGenerated).toBe(projection.heatGenerated);
+  });
+
+  it('keeps infantry mount-state height changes aligned between browser projection and commit validation', () => {
+    const [mountedProjection, dismountedProjection] =
+      tacticalMapInfantryMountStateMovementRange;
+    const [mountedInput, dismountedInput] =
+      tacticalMapInfantryMountStateCommitInputs();
+
+    expect(mountedProjection).toMatchObject({
+      hex: { q: 1, r: 0 },
+      reachable: false,
+      mpCost: Infinity,
+      terrainCost: 0,
+      elevationDelta: 0,
+      elevationCost: 0,
+      heatGenerated: 0,
+      movementMode: 'naval',
+      movementType: 'walk',
+      blockedReason: 'Naval movement lacks bridge clearance',
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails: 'Naval movement lacks bridge clearance',
+    });
+
+    const mountedResult = validateCommittedMovement(mountedInput);
+
+    expect(mountedResult.valid).toBe(false);
+    if (mountedResult.valid) {
+      throw new Error('Expected mounted infantry height to block clearance');
+    }
+    expect(mountedResult.reason).toBe(mountedProjection.movementInvalidReason);
+    expect(mountedResult.details).toBe(
+      mountedProjection.movementInvalidDetails,
+    );
+    expect(mountedResult.mpCost).toBe(mountedProjection.mpCost);
+    expect(mountedResult.heatGenerated).toBe(mountedProjection.heatGenerated);
+
+    expect(dismountedProjection).toMatchObject({
+      hex: { q: 1, r: 0 },
+      reachable: true,
+      mpCost: 1,
+      terrainCost: 0,
+      elevationDelta: 0,
+      elevationCost: 0,
+      heatGenerated: 0,
+      movementMode: 'naval',
+      movementType: 'walk',
+    });
+
+    const dismountedResult = validateCommittedMovement(dismountedInput);
+
+    expect(dismountedResult.valid).toBe(true);
+    if (!dismountedResult.valid) {
+      throw new Error(dismountedResult.details);
+    }
+    expect(dismountedResult.mpCost).toBe(dismountedProjection.mpCost);
+    expect(dismountedResult.heatGenerated).toBe(
+      dismountedProjection.heatGenerated,
+    );
+    expect(dismountedResult.path).toEqual(dismountedProjection.path);
   });
 
   it('keeps occupied destination blocking aligned between browser projection and commit validation', () => {

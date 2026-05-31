@@ -200,6 +200,7 @@ function infantryMountHeight(
   unit: IUnitGameState,
   profile: MovementUnitHeightProfile | undefined,
   fallbackHeight: number | undefined,
+  runtimeHeight: number | undefined,
 ): number | undefined {
   if (
     unit.infantryMounted === undefined &&
@@ -212,6 +213,7 @@ function infantryMountHeight(
 
   const mountedHeight =
     unit.infantryMountHeight ??
+    runtimeHeight ??
     (profile?.kind === 'infantry_mount' ? profile.mountedHeight : undefined) ??
     fallbackHeight;
   return normalizedHeight(mountedHeight);
@@ -221,16 +223,17 @@ export function runtimeUnitHeightForMovement(
   unit: IUnitGameState,
   capability: IMovementCapability,
 ): number | undefined {
-  const explicitRuntimeHeight = normalizedHeight(unit.unitHeight);
-  if (explicitRuntimeHeight !== undefined) return explicitRuntimeHeight;
-
   const profile = capability.unitHeightProfile;
+  const explicitRuntimeHeight = normalizedHeight(unit.unitHeight);
   const mountedHeight = infantryMountHeight(
     unit,
     profile,
     capability.unitHeight,
+    explicitRuntimeHeight,
   );
   if (mountedHeight !== undefined) return mountedHeight;
+
+  if (explicitRuntimeHeight !== undefined) return explicitRuntimeHeight;
 
   if (profile) {
     return conversionModeHeight(unit, profile);

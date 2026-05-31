@@ -271,7 +271,19 @@ describe('runtime movement capability', () => {
     ).toMatchObject({ unitHeight: 0 });
     expect(
       resolveRuntimeMovementCapability(
+        unitState({ infantryMounted: false, unitHeight: 1 }),
+        capability,
+      ),
+    ).toMatchObject({ unitHeight: 0 });
+    expect(
+      resolveRuntimeMovementCapability(
         unitState({ infantryMounted: true, infantryMountHeight: 2 }),
+        capability,
+      ),
+    ).toMatchObject({ unitHeight: 2 });
+    expect(
+      resolveRuntimeMovementCapability(
+        unitState({ infantryMounted: true, unitHeight: 2 }),
         capability,
       ),
     ).toMatchObject({ unitHeight: 2 });

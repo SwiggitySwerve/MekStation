@@ -746,6 +746,17 @@ render the specific non-color `BRDG` invalid badge instead of the generic
 terrain badge, while preserving the source-backed `TerrainBlocked` code and
 `Naval movement lacks bridge clearance` detail used by commit validation.
 
+2026-05-31 infantry mount-state height precedence: the runtime movement
+capability resolver now applies `infantryMounted: false` as height 0 before any
+stale live `unitHeight`, matching MegaMek `Infantry.java:629-631` where height
+is 0 when no mount is present and otherwise comes from `mount.size().height`
+(`InfantryMount.java:48-50`). Focused movement projection and commit
+validation fixtures prove a mounted-height state blocks height-sensitive bridge
+clearance while the dismounted runtime state clears that block, with matching
+MP, heat, path, and rejection details. Remaining infantry mount gaps are the
+gameplay event/UI paths that mutate `infantryMounted`/`infantryMountHeight` and
+broader oracle sweeps, not the projection/commit height precedence.
+
 Additional small-unit movement data pin: MegaMek `Infantry.java:560-568` and
 `BattleArmor.java:520-523` return walk MP as base run MP unless optional TacOps
 fast infantry movement is enabled. MegaMek `ProtoMek.java:602-606` falls back to
@@ -1857,6 +1868,13 @@ same MP recorded when the stand-up PSR fails. This keeps commit side effects on
 the same runtime capability path as movement highlights and available-action
 gating; conversion action timing, airborne Fighter/AirMek submode coverage, and
 broader external oracle sweeps remain follow-up work.
+
+2026-05-31 infantry mounted-height precedence pin: movement runtime capability
+now resolves live infantry dismount state before stale `unitHeight` values, so
+source-pinned unmounted infantry height 0 feeds the same projection and commit
+validation path as imported mounted height. The new fixture narrows the
+infantry mount follow-up to gameplay events/UI that actually toggle mount
+state, plus broad external oracle comparisons.
 
 2026-05-26 underwater weapon environment source pin: Combat environment source
 metadata now points underwater/torpedo restriction explanations at MegaMek
