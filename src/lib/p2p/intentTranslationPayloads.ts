@@ -74,6 +74,11 @@ export interface IDeclarePhysicalIntentPayload {
   readonly toHitNumber?: number;
 }
 
+export interface IRequestSpotIntentPayload {
+  readonly unitId: string;
+  readonly targetId: string;
+}
+
 /**
  * Payload for an `endPhase` intent - the guest is asking the host to
  * advance through the current phase. Host validates that the local
@@ -236,6 +241,19 @@ export function asPhysicalPayload(
     return null;
   }
   return payload as unknown as IDeclarePhysicalIntentPayload;
+}
+
+export function asRequestSpotPayload(
+  payload: unknown,
+): IRequestSpotIntentPayload | null {
+  if (!isRecord(payload)) return null;
+  if (typeof payload.unitId !== 'string' || payload.unitId.length === 0) {
+    return null;
+  }
+  if (typeof payload.targetId !== 'string' || payload.targetId.length === 0) {
+    return null;
+  }
+  return payload as unknown as IRequestSpotIntentPayload;
 }
 
 export function asEndPhasePayload(
@@ -404,6 +422,17 @@ export function buildDeclarePhysicalIntent(
 ): IGameIntent {
   return {
     type: 'declarePhysical',
+    payload,
+    authorPeerId,
+  };
+}
+
+export function buildRequestSpotIntent(
+  authorPeerId: string,
+  payload: IRequestSpotIntentPayload,
+): IGameIntent {
+  return {
+    type: 'requestSpot',
     payload,
     authorPeerId,
   };
