@@ -218,17 +218,17 @@ const BATTLEMECH_HEAT_EVENT_SOURCE_REFS = [
 
 const BATTLEMECH_PSR_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
-    'MekStation status-check factories create PSRTriggered, PSRResolved, UnitFell, UnitStood, ShutdownCheck, StartupAttempt, and AmmoConsumed payloads.',
+    'MekStation status-check factories create PSRTriggered, PSRResolved, UnitFell, UnitStuck, UnitStood, ShutdownCheck, StartupAttempt, and AmmoConsumed payloads.',
     'src/utils/gameplay/gameEvents/statusChecks.ts',
     'L18-L243',
   ),
   mekstationDeviationSourceRef(
-    'MekStation interactive PSR resolver emits PSRResolved, UnitFell, PilotHit, UnitDestroyed, and UnitStood paths.',
+    'MekStation interactive PSR resolver emits PSRResolved, UnitFell, UnitStuck, PilotHit, UnitDestroyed, and UnitStood paths.',
     'src/utils/gameplay/gameSessionPSR.ts',
     'L44-L388',
   ),
   mekstationDeviationSourceRef(
-    'MekStation runner post-combat phase resolves queued PSRs, failed falls, stand-up attempts, shutdown checks, and startup attempts.',
+    'MekStation runner post-combat phase resolves queued PSRs, failed falls, failed bog-down stuck outcomes, stand-up attempts, shutdown checks, and startup attempts.',
     'src/simulation/runner/phases/postCombat.ts',
     'L101-L469',
   ),
@@ -386,6 +386,7 @@ export const BATTLEMECH_EVENT_SOURCE_REFS: Readonly<
   [GameEventType.PSRTriggered]: BATTLEMECH_PSR_EVENT_SOURCE_REFS,
   [GameEventType.PSRResolved]: BATTLEMECH_PSR_EVENT_SOURCE_REFS,
   [GameEventType.UnitFell]: BATTLEMECH_PSR_EVENT_SOURCE_REFS,
+  [GameEventType.UnitStuck]: BATTLEMECH_PSR_EVENT_SOURCE_REFS,
   [GameEventType.UnitStood]: BATTLEMECH_PSR_EVENT_SOURCE_REFS,
   [GameEventType.PhysicalAttackDeclared]: BATTLEMECH_PHYSICAL_EVENT_SOURCE_REFS,
   [GameEventType.PhysicalAttackResolved]: BATTLEMECH_PHYSICAL_EVENT_SOURCE_REFS,
