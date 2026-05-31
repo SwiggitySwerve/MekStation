@@ -168,6 +168,10 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
     GameEventType.UnitFell,
     'failed PSRs and source-backed missed-DFA fall resolution emit UnitFell with fall damage, facing, and pilot damage context',
   ),
+  [GameEventType.UnitStuck]: integrated(
+    GameEventType.UnitStuck,
+    'swamp bog-down movement and PSR paths emit UnitStuck with stuck reason and reasonCode context instead of fall payloads',
+  ),
   [GameEventType.UnitStood]: integrated(
     GameEventType.UnitStood,
     'gameSessionPSR emits UnitStood when an AttemptStand PSR succeeds',

@@ -508,6 +508,16 @@ export interface IUnitFellPayload {
 }
 
 /**
+ * Emitted when a failed source-backed movement PSR makes a unit stuck
+ * instead of fallen, such as MegaMek swamp bog-down.
+ */
+export interface IUnitStuckPayload {
+  readonly unitId: string;
+  readonly reason?: string;
+  readonly reasonCode?: PSRTrigger;
+}
+
+/**
  * Per `wire-piloting-skill-rolls` task 0.5.4: emitted when a prone
  * unit passes an `AttemptStand` PSR and returns to upright state.
  */
