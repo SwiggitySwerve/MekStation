@@ -21,6 +21,7 @@ import {
   calculateTMM,
   deriveReachableHexes,
   findPath,
+  getHexMovementCost,
   getStandingCost,
   getValidDestinations,
   validateMovement,
@@ -384,6 +385,141 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
         1 + TERRAIN_PROPERTIES[terrain].movementCostModifier.walk,
       );
     }
+  });
+
+  it('applies Terrain Master: Mountaineer rough and rubble MP relief to ground movement only', () => {
+    const mountaineer = { pilotAbilities: ['tm_mountaineer'] };
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: -1 }, { terrain: TerrainType.Rough });
+    grid = setHex(grid, { q: 1, r: 0 }, { terrain: TerrainType.Rubble });
+
+    expect(getHexMovementCost(grid, { q: 0, r: -1 }, 'walk')).toBe(2);
+    expect(
+      getHexMovementCost(
+        grid,
+        { q: 0, r: -1 },
+        'walk',
+        { q: 0, r: 0 },
+        mountaineer,
+      ),
+    ).toBe(1);
+    expect(
+      getHexMovementCost(
+        grid,
+        { q: 1, r: 0 },
+        'run',
+        { q: 0, r: 0 },
+        mountaineer,
+      ),
+    ).toBe(1);
+    expect(
+      getHexMovementCost(
+        grid,
+        { q: 1, r: 0 },
+        'jump',
+        { q: 0, r: 0 },
+        mountaineer,
+      ),
+    ).toBe(1);
+  });
+
+  it('threads Terrain Master: Mountaineer MP relief through validation, pathfinding, and reachable previews', () => {
+    const mountaineer = { pilotAbilities: ['tm_mountaineer'] };
+    const mountaineerUnit = {
+      ...unitAtOrigin(),
+      abilities: ['tm_mountaineer'],
+    };
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 1, r: 0 }, { terrain: TerrainType.Rubble });
+
+    const blockedWithoutAbility = validateMovement(
+      grid,
+      { ...positionAtOrigin(), facing: Facing.Southeast },
+      { q: 1, r: 0 },
+      Facing.Southeast,
+      MovementType.Walk,
+      { walkMP: 1, runMP: 1, jumpMP: 0 },
+    );
+    const allowedWithAbility = validateMovement(
+      grid,
+      { ...positionAtOrigin(), facing: Facing.Southeast },
+      { q: 1, r: 0 },
+      Facing.Southeast,
+      MovementType.Walk,
+      { walkMP: 1, runMP: 1, jumpMP: 0 },
+      0,
+      undefined,
+      mountaineer,
+    );
+
+    expect(blockedWithoutAbility.valid).toBe(false);
+    expect(blockedWithoutAbility.error).toContain('costs 2 MP');
+    expect(allowedWithAbility).toMatchObject({
+      valid: true,
+      mpCost: 1,
+    });
+    expect(findPath(grid, { q: 0, r: 0 }, { q: 1, r: 0 }, 1)).toBeNull();
+    expect(
+      findPath(grid, { q: 0, r: 0 }, { q: 1, r: 0 }, 1, 'walk', mountaineer),
+    ).toEqual([
+      { q: 0, r: 0 },
+      { q: 1, r: 0 },
+    ]);
+
+    const reachable = deriveReachableHexes(
+      mountaineerUnit,
+      MovementType.Walk,
+      grid,
+      { walkMP: 1, runMP: 1, jumpMP: 0 },
+    );
+    expect(
+      reachable.find((entry) => entry.hex.q === 1 && entry.hex.r === 0),
+    ).toMatchObject({ mpCost: 1, reachable: true });
+  });
+
+  it('applies Terrain Master: Mountaineer upward elevation MP relief without relaxing the climb cap', () => {
+    const mountaineer = { pilotAbilities: ['tm_mountaineer'] };
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: -1 }, { elevation: 2 });
+
+    const withoutAbility = validateMovement(
+      grid,
+      positionAtOrigin(),
+      { q: 0, r: -1 },
+      Facing.North,
+      MovementType.Walk,
+      { walkMP: 2, runMP: 3, jumpMP: 0 },
+    );
+    const withAbility = validateMovement(
+      grid,
+      positionAtOrigin(),
+      { q: 0, r: -1 },
+      Facing.North,
+      MovementType.Walk,
+      { walkMP: 2, runMP: 3, jumpMP: 0 },
+      0,
+      undefined,
+      mountaineer,
+    );
+
+    expect(withoutAbility.valid).toBe(false);
+    expect(withoutAbility.error).toContain('costs 3 MP');
+    expect(withAbility).toMatchObject({ valid: true, mpCost: 2 });
+
+    grid = setHex(grid, { q: 0, r: -1 }, { elevation: 3 });
+    const stillTooSteep = validateMovement(
+      grid,
+      positionAtOrigin(),
+      { q: 0, r: -1 },
+      Facing.North,
+      MovementType.Walk,
+      standardMove,
+      0,
+      undefined,
+      mountaineer,
+    );
+    expect(stillTooSteep.valid).toBe(false);
+    expect(stillTooSteep.error).toContain('impassable terrain');
   });
 
   it('rejects ground movement through impassable terrain and elevation while preserving jump landings', () => {
