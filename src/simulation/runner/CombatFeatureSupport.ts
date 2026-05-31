@@ -867,16 +867,16 @@ export const QUIRK_COMBAT_SUPPORT = {
     'Rugged is a MekHQ campaign maintenance quirk, not a BattleMech combat critical-hit prevention or runner modifier row',
     MEKHQ_RUGGED_SOURCE_REFS,
   ),
-  protected_actuators: helperOnly(
+  protected_actuators: outOfScope(
     'protected_actuators',
-    'getAntiMekActuatorTargetModifier exposes the anti-Mek Leg/Swarm target-number modifier',
-    'Infantry and battle-armor anti-Mek Leg/Swarm attack paths do not consume actuator quirks',
+    'getAntiMekActuatorTargetModifier exposes the anti-Mek Leg/Swarm target-number modifier for the separate infantry and battle-armor combat matrix',
+    'Anti-Mek Leg/Swarm attack paths are non-BattleMech attacker actions and are excluded from BattleMech runner validation until the battle-armor/infantry matrix consumes them',
     MEGAMEK_ANTI_MEK_ACTUATOR_SOURCE_REFS,
   ),
-  exposed_actuators: helperOnly(
+  exposed_actuators: outOfScope(
     'exposed_actuators',
-    'getAntiMekActuatorTargetModifier exposes the anti-Mek Leg/Swarm target-number modifier',
-    'Infantry and battle-armor anti-Mek Leg/Swarm attack paths do not consume actuator quirks',
+    'getAntiMekActuatorTargetModifier exposes the anti-Mek Leg/Swarm target-number modifier for the separate infantry and battle-armor combat matrix',
+    'Anti-Mek Leg/Swarm attack paths are non-BattleMech attacker actions and are excluded from BattleMech runner validation until the battle-armor/infantry matrix consumes them',
     MEGAMEK_ANTI_MEK_ACTUATOR_SOURCE_REFS,
   ),
   accurate: integrated(
