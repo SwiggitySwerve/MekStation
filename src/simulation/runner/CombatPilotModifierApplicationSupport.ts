@@ -12,6 +12,10 @@ import {
   MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
 } from './CombatEdgeSourceRefs';
 import {
+  MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
+  MEKSTATION_HEAVY_LIFTER_HELPER_SOURCE_REFS,
+} from './CombatHeavyLifterSourceRefs';
+import {
   MEGAMEK_CLUSTER_HITTER_SOURCE_REFS,
   MEGAMEK_FORWARD_OBSERVER_SOURCE_REFS,
   MEGAMEK_MELEE_SPECIALIST_SOURCE_REFS,
@@ -34,7 +38,6 @@ import {
   MEGAMEK_CALLED_SHOT_SOURCE_REFS,
   MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   MEGAMEK_DISTRACTING_QUIRK_SOURCE_REFS,
-  MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
   MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
   MEGAMEK_INITIATIVE_EQUIPMENT_SOURCE_REFS,
   MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
@@ -359,11 +362,12 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'movement-application': unsupported(
     'movement-application',
-    'Legacy Evasive SPA movement application is superseded by the integrated source-backed TacOps Evade action row; Maneuvering Ace lateral-shift movement, Speed Demon run-distance/heat tradeoff, and Heavy Lifter carry/throw movement effects are not wired in the BattleMech combat matrix',
+    'Legacy Evasive SPA movement application is superseded by the integrated source-backed TacOps Evade action row; Maneuvering Ace lateral-shift movement, Speed Demon run-distance/heat tradeoff, and Heavy Lifter carry/throw actions are not wired in the BattleMech combat matrix even though Heavy Lifter lift-capacity helper math exists',
     [
       ...MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
       ...MEGAMEK_MANEUVERING_ACE_MOVEMENT_SOURCE_REFS,
       ...MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
+      ...MEKSTATION_HEAVY_LIFTER_HELPER_SOURCE_REFS,
     ],
   ),
   'multi-target-penalty-application': unsupported(
