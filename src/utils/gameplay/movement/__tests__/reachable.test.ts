@@ -2191,6 +2191,48 @@ describe('deriveReachableHexes', () => {
         reachable: true,
         movementType: MovementType.Walk,
       });
+
+      const staleCapability: IMovementCapability = {
+        ...capability,
+        movementMode: 'walk',
+      };
+      const stalePreview = deriveMovementRangeHexForDestination(
+        airborneUnit,
+        MovementType.Walk,
+        grid,
+        staleCapability,
+        { q: 1, r: 0 },
+      );
+      expect(stalePreview).toMatchObject({
+        mpCost: Infinity,
+        heatGenerated: 0,
+        movementMode: 'walk',
+        reachable: false,
+        movementType: MovementType.Walk,
+        blockedReason: reason,
+        movementInvalidReason: 'InvalidDestination',
+        movementInvalidDetails: reason,
+      });
+
+      const staleCommit = validateCommittedMovement({
+        grid,
+        unit: airborneUnit,
+        to: { q: 1, r: 0 },
+        facing: Facing.Southeast,
+        movementType: MovementType.Walk,
+        capability: staleCapability,
+        path: [
+          { q: 0, r: 0 },
+          { q: 1, r: 0 },
+        ],
+      });
+      expect(staleCommit).toMatchObject({
+        valid: false,
+        reason: 'InvalidDestination',
+        details: reason,
+        mpCost: Infinity,
+        heatGenerated: 0,
+      });
     },
   );
 

@@ -304,6 +304,48 @@ describe('runtime movement capability', () => {
     }
   });
 
+  it('uses represented airborne vehicle motion type when movement capability motive is stale', () => {
+    const capability: IMovementCapability = {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 0,
+      movementMode: 'walk',
+    };
+    const airborneWige = unitState({
+      combatState: {
+        kind: 'vehicle',
+        state: createVehicleCombatState({
+          unitId: 'unit',
+          motionType: GroundMotionType.WIGE,
+          originalCruiseMP: 4,
+          armor: {},
+          structure: {},
+          altitude: 2,
+        }),
+      },
+    });
+    const landedWige = unitState({
+      combatState: {
+        kind: 'vehicle',
+        state: createVehicleCombatState({
+          unitId: 'unit',
+          motionType: GroundMotionType.WIGE,
+          originalCruiseMP: 4,
+          armor: {},
+          structure: {},
+          altitude: 0,
+        }),
+      },
+    });
+
+    expect(
+      runtimeMovementProjectionBlockedReason(airborneWige, capability, 'walk'),
+    ).toBe(AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON);
+    expect(
+      runtimeMovementProjectionBlockedReason(landedWige, capability, 'walk'),
+    ).toBeUndefined();
+  });
+
   it('blocks destroyed-gyro non-tracked movement while preserving tracked and wheeled exceptions', () => {
     const destroyedGyro = unitState({
       componentDamage: {

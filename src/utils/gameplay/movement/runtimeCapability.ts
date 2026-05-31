@@ -7,6 +7,7 @@ import type {
   MovementUnitHeightProfile,
 } from '@/types/gameplay';
 
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { isGyroDestroyedForType } from '@/utils/gameplay/gyroRules';
 
 function normalizedHeight(value: number | undefined): number | undefined {
@@ -98,6 +99,16 @@ function airborneVtolOrWigeGroundMovementBlockedReason(
   unit: IUnitGameState,
 ): string | undefined {
   if (!isAltitudeTrackedAirborneState(unit)) return undefined;
+  if (unit.combatState?.kind === 'vehicle') {
+    switch (unit.combatState.state.motionType) {
+      case GroundMotionType.VTOL:
+        return AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON;
+      case GroundMotionType.WIGE:
+        return AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON;
+      default:
+        break;
+    }
+  }
   if (movementMode === 'vtol') {
     return AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON;
   }

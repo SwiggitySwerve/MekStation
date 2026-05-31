@@ -845,6 +845,15 @@ visible `ALTn`/`HOV` non-color badge used by VTOL tokens, and preserves WiGE
 altitude in top-down wrapper metadata, accessible labels, and isometric scene
 token metadata. Ground-only vehicle motives still suppress altitude chrome.
 
+2026-05-31 airborne vehicle state-mismatch guard: MegaMek
+`Entity.java:12004-12022` keys airborne VTOL/WiGE state to VTOL or WiGE motive
+plus positive elevation, and `MovePath.java:1699-1741` uses airborne WiGE
+state for automatic landing/hover handling. MekStation now fails closed from
+represented vehicle combat-state motion type when altitude is positive, even
+if the movement capability still reports an ordinary ground motive. Preview and
+commit validation now share the same altitude-control blocked reason for stale
+VTOL/WiGE capability data while preserving landed altitude-zero behavior.
+
 Tracked-vehicle browser update: the tactical-map browser harness now pairs the
 VTOL proof with a tracked ground-vehicle abrupt-climb scenario. The top-down map
 renders the destination elevation label, exposes `movementMode: tracked`,
