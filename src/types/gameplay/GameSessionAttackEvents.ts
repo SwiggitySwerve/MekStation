@@ -540,6 +540,7 @@ export type PhysicalAttackEventType =
   | 'thrash'
   | 'jump-jet-attack'
   | 'brush-off'
+  | 'grapple'
   | 'hatchet'
   | 'sword'
   | 'mace'
