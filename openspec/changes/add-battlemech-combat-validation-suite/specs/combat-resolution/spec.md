@@ -1454,7 +1454,7 @@ Heat rule support rows SHALL carry source references before they are treated as 
 
 ### Requirement: Source-Backed Terrain Environment Catalog Anchors
 
-Terrain/environment support rows SHALL carry source references before they are treated as validation coverage. Terrain movement costs, partial cover, terrain to-hit features, water cooling, fire heat, smoke to-hit, fog, night, wind, and extreme-temperature rows SHALL be pinned to MegaMek source references with commit-pinned URLs and line anchors when they claim comparable source-backed behavior. The terrain LOS blocking row SHALL remain helper-only while MekStation implements direct blockers plus cumulative woods/smoke density but still lacks land-to-underwater LOS, divided/diagram LOS, and richer building-level handling. MekStation-only water walk/run rejection and atmosphere heat adjustment SHALL be marked as MekStation deviation sources instead of being attributed to MegaMek. Dust and mines SHALL remain helper-only until first-class battlefield condition and minefield movement-damage resolution exist, and those gap rows SHALL carry both source-truth and local absence references.
+Terrain/environment support rows SHALL carry source references before they are treated as validation coverage. Terrain movement costs, direct terrain LOS blocking, cumulative woods/smoke LOS density, partial cover, terrain to-hit features, water cooling, fire heat, smoke to-hit, fog, night, wind, and extreme-temperature rows SHALL be pinned to MegaMek source references with commit-pinned URLs and line anchors when they claim comparable source-backed behavior. The terrain LOS blocking row SHALL be integrated for MekStation direct blockers plus cumulative woods/smoke density, while a separate terrain LOS side-path row SHALL remain helper-only for land-to-underwater LOS, divided/diagram LOS, and richer building-level handling. MekStation-only water walk/run rejection and atmosphere heat adjustment SHALL be marked as MekStation deviation sources instead of being attributed to MegaMek. Dust and mines SHALL remain helper-only until first-class battlefield condition and minefield movement-damage resolution exist, and those gap rows SHALL carry both source-truth and local absence references.
 
 #### Scenario: Terrain environment rows expose source truth
 
@@ -1462,7 +1462,7 @@ Terrain/environment support rows SHALL carry source references before they are t
 - **WHEN** any terrain/environment support row is inspected
 - **THEN** each integrated or helper-only row SHALL expose structured source references
 - **AND** MegaMek-backed terrain/environment rows SHALL use commit-pinned MegaMek URLs with line anchors
-- **AND** MekStation-only water ground-disallow, terrain LOS simplification, atmosphere, dust, and mines boundaries SHALL use MekStation deviation source references where the behavior or absence is local
+- **AND** MekStation-only water ground-disallow, terrain LOS side-path, atmosphere, dust, and mines boundaries SHALL use MekStation deviation source references where the behavior or absence is local
 - **AND** the terrain/environment catalog triad SHALL enforce row-level source references before PR approval
 
 ### Requirement: Source-Backed TerrainType Movement Catalog Anchors
