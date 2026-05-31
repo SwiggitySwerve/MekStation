@@ -35,6 +35,7 @@ import {
   sourceContainsGroundedDropShip,
   splitPhysicalDamageIntoClusters,
   thrashBlockingTerrainsForHexTerrain,
+  translateHex,
 } from '@/utils/gameplay/physicalAttacks';
 import {
   calculateAttackerMovementModifier,
@@ -220,6 +221,75 @@ function applyGrappleState(
         grappledThisRound: true,
         grappleSide: 'both',
         facing: ((attacker.facing + 3) % 6) as typeof target.facing,
+      },
+    },
+  };
+}
+
+function facingToward(
+  source: IGameState['units'][string]['position'],
+  destination: IGameState['units'][string]['position'],
+  fallback: IGameState['units'][string]['facing'],
+): IGameState['units'][string]['facing'] {
+  for (let facing = 0; facing < 6; facing++) {
+    const translated = translateHex(source, facing as typeof fallback);
+    if (translated.q === destination.q && translated.r === destination.r) {
+      return facing as typeof fallback;
+    }
+  }
+  return fallback;
+}
+
+function applyBreakGrappleState(options: {
+  readonly state: IGameState;
+  readonly attackerId: string;
+  readonly targetId: string;
+  readonly displacements: readonly {
+    readonly unitId: string;
+    readonly reason: string;
+  }[];
+}): IGameState {
+  const { attackerId, displacements, state, targetId } = options;
+  const attacker = state.units[attackerId];
+  const target = state.units[targetId];
+  if (!attacker || !target) return state;
+
+  const attackerMoved = displacements.some(
+    (displacement) =>
+      displacement.reason === 'break-grapple' &&
+      displacement.unitId === attackerId,
+  );
+  const targetMoved = displacements.some(
+    (displacement) =>
+      displacement.reason === 'break-grapple' &&
+      displacement.unitId === targetId,
+  );
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [attackerId]: {
+        ...attacker,
+        grappledUnitId: undefined,
+        isGrappleAttacker: undefined,
+        grappledThisRound: false,
+        grappleSide: undefined,
+        isChainWhipGrappled: false,
+        facing: attackerMoved
+          ? facingToward(attacker.position, target.position, attacker.facing)
+          : attacker.facing,
+      },
+      [targetId]: {
+        ...target,
+        grappledUnitId: undefined,
+        isGrappleAttacker: undefined,
+        grappledThisRound: false,
+        grappleSide: undefined,
+        isChainWhipGrappled: false,
+        facing: targetMoved
+          ? facingToward(target.position, attacker.position, target.facing)
+          : target.facing,
       },
     },
   };
@@ -865,6 +935,14 @@ export function runPhysicalAttackPhase(options: {
         displacement.unitId,
         displacement.to,
       );
+    }
+    if (result.hit && bestAttack === 'break-grapple') {
+      currentState = applyBreakGrappleState({
+        state: currentState,
+        attackerId: unitId,
+        targetId: target.id,
+        displacements,
+      });
     }
     physicalGrid = applyPhysicalDisplacementsToGrid(
       physicalGrid,
