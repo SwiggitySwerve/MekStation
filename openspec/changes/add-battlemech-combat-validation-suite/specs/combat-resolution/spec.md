@@ -1214,14 +1214,15 @@ Terrain PSR validation SHALL keep MegaMek's BattleMech swamp bog-down rule visib
 
 ### Requirement: Source-Backed Cross-Country Scope Split
 
-Pilot modifier validation SHALL keep MegaMek's Cross-Country SPA visible as an explicit non-BattleMech combat-vehicle movement/passability scope split. The BattleMech combat matrix SHALL NOT represent Cross-Country as a terrain PSR modifier unless a future source-backed BattleMech rule is identified.
+Pilot modifier validation SHALL keep MegaMek's Cross-Country SPA visible as an explicit non-BattleMech combat-vehicle movement/passability scope split. The BattleMech combat matrix SHALL NOT represent Cross-Country as a terrain PSR modifier unless a future source-backed BattleMech rule is identified. Cross-Country SHALL stay in the `out-of-scope` audit inventory until vehicle movement/passability coverage consumes it.
 
 #### Scenario: Cross-Country is cataloged outside BattleMech PSRs
 
 - **GIVEN** the BattleMech SPA and pilot modifier catalogs are generated
 - **WHEN** Cross-Country support is inspected
-- **THEN** the SPA SHALL be unsupported with MegaMek source references to combat-vehicle terrain movement-cost and passability behavior
-- **AND** the movement resolver family SHALL own the visible gap
+- **THEN** the SPA SHALL be out-of-scope with MegaMek source references to combat-vehicle terrain movement-cost and passability behavior
+- **AND** the BattleMech movement resolver family SHALL NOT assign Cross-Country while it remains vehicle-scoped
+- **AND** a vehicle movement resolver family SHALL assign Cross-Country as out-of-scope audit coverage
 - **AND** the PSR resolver family SHALL NOT assign Cross-Country
 
 ### Requirement: Source-Backed Heavy Lifter Carry/Throw Gap
