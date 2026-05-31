@@ -57,6 +57,7 @@ import {
   canCharge,
   canDFA,
   canBrushOffPhysical,
+  canGrapplePhysical,
   canKick,
   canJumpJetAttackPhysical,
   canMeleeWeapon,
@@ -390,6 +391,7 @@ function weaponsFiredFromArmForAttack(
     return context.weaponsFiredFromArm;
   }
   if (attackType === 'thrash') return attackerState.weaponsFiredThisTurn ?? [];
+  if (attackType === 'grapple') return attackerState.weaponsFiredThisTurn ?? [];
   if (attackType === 'push') return firedWeaponIdsFromMountedArm(attackerState);
   if (
     attackType === 'brush-off' ||
@@ -664,6 +666,22 @@ export function declarePhysicalAttack(
     rightArmHasClaw: context.rightArmHasClaw ?? attackerState.rightArmHasClaw,
     optionalRules: context.optionalRules ?? session.config.optionalRules,
     tacOpsTripAttackEnabled: context.tacOpsTripAttackEnabled,
+    tacOpsGrapplingEnabled: context.tacOpsGrapplingEnabled,
+    grappleSide: context.grappleSide,
+    attackerGrappledTargetId:
+      context.attackerGrappledTargetId ?? attackerState.grappledUnitId,
+    targetGrappledTargetId:
+      context.targetGrappledTargetId ?? targetState?.grappledUnitId,
+    attackerIsGrappleAttacker:
+      context.attackerIsGrappleAttacker ?? attackerState.isGrappleAttacker,
+    targetIsGrappleAttacker:
+      context.targetIsGrappleAttacker ?? targetState?.isGrappleAttacker,
+    attackerChainWhipGrappled:
+      context.attackerChainWhipGrappled ?? attackerState.isChainWhipGrappled,
+    leftArmAesFunctional: context.leftArmAesFunctional,
+    rightArmAesFunctional: context.rightArmAesFunctional,
+    attackerWeightClass: context.attackerWeightClass,
+    targetWeightClass: context.targetWeightClass,
     attackerAlreadyGrappled: context.attackerAlreadyGrappled,
     targetInFrontArc: targetState
       ? (context.targetInFrontArc ??
@@ -756,6 +774,8 @@ export function declarePhysicalAttack(
     restriction = canJumpJetAttackPhysical(input);
   } else if (attackType === 'brush-off') {
     restriction = canBrushOffPhysical(input);
+  } else if (attackType === 'grapple') {
+    restriction = canGrapplePhysical(input);
   } else if (
     attackType === 'hatchet' ||
     attackType === 'sword' ||
@@ -1008,6 +1028,22 @@ export function resolveAllPhysicalAttacks(
       optionalRules:
         context.optionalRules ?? currentSession.config.optionalRules,
       tacOpsTripAttackEnabled: context.tacOpsTripAttackEnabled,
+      tacOpsGrapplingEnabled: context.tacOpsGrapplingEnabled,
+      grappleSide: context.grappleSide,
+      attackerGrappledTargetId:
+        context.attackerGrappledTargetId ?? attackerState.grappledUnitId,
+      targetGrappledTargetId:
+        context.targetGrappledTargetId ?? targetState.grappledUnitId,
+      attackerIsGrappleAttacker:
+        context.attackerIsGrappleAttacker ?? attackerState.isGrappleAttacker,
+      targetIsGrappleAttacker:
+        context.targetIsGrappleAttacker ?? targetState.isGrappleAttacker,
+      attackerChainWhipGrappled:
+        context.attackerChainWhipGrappled ?? attackerState.isChainWhipGrappled,
+      leftArmAesFunctional: context.leftArmAesFunctional,
+      rightArmAesFunctional: context.rightArmAesFunctional,
+      attackerWeightClass: context.attackerWeightClass,
+      targetWeightClass: context.targetWeightClass,
       attackerAlreadyGrappled: context.attackerAlreadyGrappled,
       targetInFrontArc:
         context.targetInFrontArc ??
