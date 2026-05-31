@@ -228,6 +228,7 @@ export {
   createStartupAttemptEvent,
   createUnitFellEvent,
   createUnitStoodEvent,
+  createUnitStuckEvent,
 } from './statusChecks';
 
 export {
