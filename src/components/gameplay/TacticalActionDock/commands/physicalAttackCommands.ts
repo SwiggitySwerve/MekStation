@@ -20,6 +20,7 @@ export function buildPhysicalAttackCommands(): readonly ITacticalCommand[] {
     PhysicalThrashCommand,
     PhysicalJumpJetAttackCommand,
     PhysicalBrushOffCommand,
+    PhysicalGrappleCommand,
     PhysicalChargeCommand,
     PhysicalDeathFromAboveCommand,
     PhysicalClubCommand,
@@ -147,6 +148,20 @@ const PhysicalBrushOffCommand: ITacticalCommand = {
       actionId: 'physical-attack',
       payload: { attackType: 'brush-off', limb: 'rightArm' },
     };
+  },
+};
+
+const PhysicalGrappleCommand: ITacticalCommand = {
+  id: 'physical.grapple',
+  category: 'physical',
+  label: 'Grapple',
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return { actionId: 'physical-attack', payload: { attackType: 'grapple' } };
   },
 };
 
