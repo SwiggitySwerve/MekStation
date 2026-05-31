@@ -836,16 +836,14 @@ export const QUIRK_COMBAT_SUPPORT = {
     'MegaMek source snapshot registers Low Arms but does not expose a combat resolver; MekStation intentionally leaves the helper no-op instead of enforcing a local elevation rule',
     MEGAMEK_LOW_ARMS_GAP_SOURCE_REFS,
   ),
-  command_mech: helperOnly(
+  command_mech: integrated(
     'command_mech',
-    'calculateInitiativeQuirkModifier plus rollInitiative apply the source-backed +1 force initiative bonus from active conscious units alongside explicit HQ/command equipment initiative fields',
-    'Automatic command-console/HQ initiative equipment hydration is not wired; equipment-derived initiative bonuses require complete eligibility state and remain explicit-only',
+    'calculateInitiativeQuirkModifier plus rollInitiative apply the source-backed +1 force initiative bonus from active conscious units alongside explicit HQ/command equipment initiative fields; automatic HQ and command-console equipment hydration remains tracked under initiative-hq-equipment-hydration and initiative-command-console-hydration',
     MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   ),
-  battle_computer: helperOnly(
+  battle_computer: integrated(
     'battle_computer',
-    'calculateInitiativeQuirkModifier plus rollInitiative apply the source-backed +2 force initiative bonus from active conscious units, keep it non-cumulative with Command Mech/HQ, and stack explicit command equipment bonus separately',
-    'Automatic command-console/HQ initiative equipment hydration is not wired; equipment-derived initiative bonuses require complete eligibility state and remain explicit-only',
+    'calculateInitiativeQuirkModifier plus rollInitiative apply the source-backed +2 force initiative bonus from active conscious units, keep it non-cumulative with Command Mech/HQ, and stack explicit command equipment bonus separately; automatic HQ and command-console equipment hydration remains tracked under initiative-hq-equipment-hydration and initiative-command-console-hydration',
     MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   ),
   sensor_ghosts: integrated(
