@@ -440,3 +440,4 @@
 - [x] 4.3.174 Promote source-backed Grapple legality, counter-grapple relaxations, actuator/AES/TSM, and weight-class modifier coverage to helper-only while keeping the missing runtime grapple state and action path explicit.
 - [x] 4.3.175 Promote MegaMek-backed Improved Autocannon ammunition rows to consumable BattleMech ammo by wiring exact compatible weapon ids while keeping RAC/10, RAC/20, and the ambiguous LB 2-X cluster row visible as compatibility gaps.
 - [x] 4.3.176 Promote MegaMek-backed LB 2-X cluster ammunition to consumable BattleMech ammo by wiring exact Inner Sphere and Clan LB 2-X AC compatible weapon ids while keeping RAC/10 and RAC/20 visible as compatibility gaps.
+- [x] 4.3.177 Tighten the helper-only `utility.request-spot` command contract so it carries active-unit and target-unit payload fields while keeping the missing SpotAction lifecycle, spotting penalties, wire dispatch, and turn reset behavior visible as the remaining gap.
