@@ -1,4 +1,8 @@
-import type { GameEventType, MovementType } from '@/types/gameplay';
+import type {
+  GameEventType,
+  IMovementStep,
+  MovementType,
+} from '@/types/gameplay';
 import type { PhysicalAttackType } from '@/utils/gameplay/physicalAttacks';
 
 export interface IMovementEvent {
@@ -11,6 +15,7 @@ export interface IMovementEvent {
     movementType: MovementType;
     mpUsed: number;
     heatGenerated: number;
+    steps?: readonly IMovementStep[];
   };
 }
 
