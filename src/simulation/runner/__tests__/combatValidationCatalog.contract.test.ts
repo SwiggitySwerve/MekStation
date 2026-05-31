@@ -174,9 +174,9 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 154,
+      total: 152,
       byLevel: {
-        'helper-only': 121,
+        'helper-only': 119,
         unsupported: 33,
       },
       bySection: {
@@ -185,7 +185,7 @@ describe('BattleMech combat validation catalog index', () => {
         featureSupport: 88,
         lifecycleAndPsr: 3,
         pilotSkills: 19,
-        ruleSupport: 15,
+        ruleSupport: 13,
         validationScope: 18,
       },
     });
@@ -203,6 +203,10 @@ describe('BattleMech combat validation catalog index', () => {
     expect(unresolvedRefs).not.toContain(
       'featureSupport.canonicalPilotAbilityScope.edge_when_masc_fails',
     );
+    expect(unresolvedRefs).not.toContain(
+      'ruleSupport.terrainTypeLos.light_woods',
+    );
+    expect(unresolvedRefs).not.toContain('ruleSupport.terrainTypeLos.smoke');
     expect(
       unresolvedRefs.filter((ref) =>
         ref.startsWith('eventStream.nonBattleMechEventScope.'),
