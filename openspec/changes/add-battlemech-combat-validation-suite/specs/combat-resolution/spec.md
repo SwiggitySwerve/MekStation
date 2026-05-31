@@ -461,15 +461,15 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **GIVEN** MegaMek exposes BattleMech-applicable brush-off, thrash, trip, grapple, break-grapple, and jump-jet physical action classes
 - **WHEN** the physical action class scope catalog is contract-tested
 - **THEN** every physical action class scope row SHALL cite the matching MegaMek source class with commit-pinned line anchors
-- **AND** supported punch, kick, push, trip, thrash, jump-jet attack, brush-off, charge, death-from-above, and club/melee rows SHALL expose row-level MegaMek source references before PR approval
+- **AND** supported punch, kick, push, trip, thrash, jump-jet attack, brush-off, grapple, charge, death-from-above, and club/melee rows SHALL expose row-level MegaMek source references before PR approval
 - **AND** non-BattleMech AirMek, battle armor, infantry explosive, ProtoMek, and aerospace ram rows SHALL remain explicit `out-of-scope` splits with row-level MegaMek source references
-- **AND** `break-grapple` SHALL be helper-only when MekStation exposes source-backed optional-rule, airborne, common locked-grapple, chain-whip, unit-type, grapple-target, automatic-success, actuator/AES, and weight-class modifier branches but still lacks a runtime `PhysicalAttackType`, tactical command, event-sourced grapple state/declaration/resolution, and runner resolution path
+- **AND** `break-grapple` SHALL be helper-only when MekStation exposes source-backed optional-rule, airborne, common locked-grapple, chain-whip, unit-type, grapple-target, automatic-success, actuator/AES, and weight-class modifier branches but still lacks a runtime break-grapple `PhysicalAttackType`, tactical command, declaration, and resolution path
 - **AND** `brush-off` SHALL expose a runtime `PhysicalAttackType`, tactical command, selected-arm payload, event-sourced declaration/resolution, runner resolution path, source-backed swarming-infantry target legality, arm gates, dedicated brush-off modifiers, hit dislodgement, punch-equivalent target damage, and punch-equivalent miss self-damage while targetable iNARC pod removal remains visible under the iNARC pod mechanic gap
-- **AND** `grapple` SHALL be helper-only when MekStation exposes source-backed optional-rule, airborne, common locked-grapple, friendly-fire, unit-type, arm/shoulder, range, elevation, front-arc, prone, weapon-fire, already-grappled, actuator/AES/TSM, and weight-class branches but still lacks a runtime `PhysicalAttackType`, tactical command, event-sourced grapple state/declaration/resolution, and runner resolution path
+- **AND** `grapple` SHALL expose a runtime `PhysicalAttackType`, tactical command, event-sourced declaration/resolution, runner resolution path, source-backed optional-rule, airborne, common locked-grapple, friendly-fire, unit-type, arm/shoulder, range, elevation, front-arc, prone, weapon-fire, already-grappled, actuator/AES/TSM, and weight-class branches, zero damage, attacker relocation into the target hex, target facing reversal, and both-unit grapple state
 - **AND** optional TacOps `trip` SHALL expose a runtime `PhysicalAttackType`, tactical command, event-sourced declaration/resolution, runner resolution path, optional-rule gate, source-backed front-arc/range/prone/elevation/usable-limb restrictions, `-1` base to-hit adjustment, zero damage on hit, and a target PSR trigger
 - **AND** `thrash` SHALL expose a runtime `PhysicalAttackType`, tactical command, event-sourced declaration/resolution, runner resolution path, prone-Mek same-hex infantry legality, clear/pavement terrain validation, automatic-hit resolution, weight-based infantry damage, no target PSR, and an attacker PSR trigger
 - **AND** optional TacOps `jump-jet-attack` SHALL expose a runtime `PhysicalAttackType`, tactical command, selected-leg payload, event-sourced declaration/resolution, runner resolution path, optional-rule gate, ready-jump-jet gate, leg-weapon-fire gate, source-backed range/elevation/facing restrictions, source-specific to-hit modifiers, selected-leg damage, and no self-PSR side effects
-- **AND** no BattleMech-applicable physical action class scope row SHALL remain `unsupported` while helper-only grapple and break-grapple class rows continue to expose the missing runtime action paths
+- **AND** no BattleMech-applicable physical action class scope row SHALL remain `unsupported` while the helper-only break-grapple class row continues to expose the missing runtime action path
 - **AND** the `physicalActionClassScope` catalog triad SHALL enforce row-level source references before PR approval
 
 #### Scenario: Jump jet attacks resolve as selected-leg optional TacOps damage
@@ -500,6 +500,15 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **AND** a miss SHALL apply punch-equivalent self-damage to the attacker on the punch hit table without dislodging the swarmer
 - **AND** non-Mek attackers, missing or invalid selected arms, non-swarming non-iNARC targets, quad attackers, flipped arms, no/minimal-arms quirks, shoulder destruction, selected-arm weapon fire, target-DFA state, prone attackers, and explicit building/fuel-tank/hex targets SHALL reject the attack before damage
 - **AND** targetable iNARC pod brush-off removal SHALL remain tracked as a separate iNARC pod target-model gap until pod objects can be selected and removed by physical attack resolution
+
+#### Scenario: Grapple resolves as source-backed zero-damage grapple state
+
+- **GIVEN** a biped BattleMech declares `grapple` against an adjacent Mek or ProtoMek with the TacOps grappling option enabled
+- **WHEN** helper, eligibility, tactical-command, intent/wire, event-sourced, or runner resolution surfaces validate the declaration
+- **THEN** the attack SHALL apply source-backed actuator/AES/TSM, target movement, evasion, spotting, SPA, and weight-class to-hit modifiers
+- **AND** a hit SHALL deal zero damage, set both units' grapple state, move the attacker into the target hex, mark both units as grappled this round, mark the attacker as the grapple initiator, and face the target opposite the attacker
+- **AND** disabled optional rules, airborne state, common locked-grapple impossibility, friendly targets, invalid attacker or target unit type, missing arms, destroyed shoulders, invalid range, invalid elevation, non-front-arc targets, prone-state gates, selected-arm weapon fire, and already-grappled state SHALL reject the attack before grapple state changes
+- **AND** break-grapple and chain-whip follow-up behavior SHALL remain tracked as separate helper-only gaps until runtime break-grapple declaration and resolution exist
 
 #### Scenario: Physical attacks require existing targets
 
