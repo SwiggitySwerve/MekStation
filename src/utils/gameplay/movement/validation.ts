@@ -166,6 +166,7 @@ function toUnitMovementType(movementType: MovementType): UnitMovementType {
   switch (movementType) {
     case MovementType.Run:
     case MovementType.Evade:
+    case MovementType.Sprint:
       return 'run';
     case MovementType.Jump:
       return 'jump';
