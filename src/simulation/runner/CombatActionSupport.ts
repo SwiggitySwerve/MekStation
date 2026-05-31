@@ -413,9 +413,9 @@ const MEKSTATION_WITHDRAW_CONTROL_SOURCE_REFS = [
 
 const MEKSTATION_REQUEST_SPOT_COMMAND_SOURCE_REFS = [
   mekstationDeviationSourceRef(
-    'MekStation buildUtilityCommands exposes utility.request-spot as a target-aware local spotting command that commits the request-spot action id.',
+    'MekStation buildUtilityCommands exposes utility.request-spot as a target-aware local spotting command that commits the request-spot action id with active-unit and target-unit payload fields.',
     'src/components/gameplay/TacticalActionDock/commands/utilityCommands.ts',
-    'L85-L103',
+    'L85-L111',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -1006,7 +1006,7 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
   'utility.request-spot': helperOnly(
     'utility.request-spot',
     'tactical-command',
-    'buildUtilityCommands exposes target spotting during WeaponAttack',
+    'buildUtilityCommands exposes target spotting during WeaponAttack and preserves the active unit plus selected target in the command payload',
     'No spotting lifecycle, TAG/NARC marker intent, wire payload, or dispatch path is wired',
     MEKSTATION_REQUEST_SPOT_COMMAND_SOURCE_REFS,
   ),
