@@ -31,6 +31,8 @@ const PHYSICAL_ATTACK_COMMAND_SOURCE_REFS = {
     MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.jump-jet-attack'],
   'brush-off': MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.brush-off'],
   grapple: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.grapple'],
+  'break-grapple':
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.break-grapple'],
   hatchet: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.club'],
   sword: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.sword'],
   mace: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.mace'],
@@ -95,6 +97,11 @@ export const PHYSICAL_ATTACK_ACTION_SUPPORT = {
     'grapple',
     'Tactical command, game intent, wire schema, dispatcher, event-sourced physical resolution, and runner physical phase support source-backed normal TacOps grapple state without damage',
     PHYSICAL_ATTACK_COMMAND_SOURCE_REFS.grapple,
+  ),
+  'break-grapple': integrated(
+    'break-grapple',
+    'Tactical command, game intent, wire schema, dispatcher, event-sourced physical resolution, and runner physical phase support source-backed normal TacOps break-grapple state clearing without damage',
+    PHYSICAL_ATTACK_COMMAND_SOURCE_REFS['break-grapple'],
   ),
   hatchet: integrated(
     'hatchet',
