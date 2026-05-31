@@ -153,17 +153,14 @@ describe('BattleMech combat action support catalog', () => {
     ]);
     expect(
       supportIdsByLevel(COMBAT_COMMAND_ACTION_SUPPORT, 'helper-only'),
-    ).toEqual([
-      'movement.cancel',
-      'utility.request-spot',
-      'utility.withdraw',
-      'weapon.clear-attacks',
-      'weapon.declare-attack',
-    ]);
+    ).toEqual(['utility.request-spot', 'utility.withdraw']);
     const helperCommandSourceFiles = {
-      'movement.cancel': 'movementCommands.ts',
       'utility.request-spot': 'utilityCommands.ts',
       'utility.withdraw': 'utilityCommands.ts',
+    } as const;
+    const outOfScopeCommandSourceFiles = {
+      'movement.cancel': 'movementCommands.ts',
+      'movement.stabilize': 'movementCommands.ts',
       'weapon.clear-attacks': 'weaponAttackCommands.ts',
       'weapon.declare-attack': 'weaponAttackCommands.ts',
     } as const;
@@ -173,6 +170,22 @@ describe('BattleMech combat action support catalog', () => {
           id as keyof typeof COMBAT_COMMAND_ACTION_SUPPORT
         ];
 
+      expect(entry.sourceRefs).toEqual([
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining(id),
+          url: expect.stringContaining(file),
+          sourceVersion: 'MekStation working-tree',
+        }),
+      ]);
+    }
+    for (const [id, file] of Object.entries(outOfScopeCommandSourceFiles)) {
+      const entry =
+        COMBAT_COMMAND_ACTION_SUPPORT[
+          id as keyof typeof COMBAT_COMMAND_ACTION_SUPPORT
+        ];
+
+      expect(entry).toMatchObject({ level: 'out-of-scope' });
       expect(entry.sourceRefs).toEqual([
         expect.objectContaining({
           kind: 'mekstation-deviation',
@@ -340,8 +353,9 @@ describe('BattleMech combat action support catalog', () => {
     }
     expect(
       supportIdsByLevel(COMBAT_COMMAND_ACTION_SUPPORT, 'unsupported'),
-    ).toEqual(['movement.stabilize']);
+    ).toEqual([]);
     expect(COMBAT_COMMAND_ACTION_SUPPORT['movement.stabilize']).toMatchObject({
+      level: 'out-of-scope',
       layer: 'tactical-command',
       gap: expect.stringContaining('MekStation-local command id'),
       sourceRefs: [

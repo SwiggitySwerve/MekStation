@@ -174,13 +174,13 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 189,
+      total: 185,
       byLevel: {
-        'helper-only': 145,
-        unsupported: 44,
+        'helper-only': 142,
+        unsupported: 43,
       },
       bySection: {
-        actions: 14,
+        actions: 10,
         damageAndDeath: 2,
         featureSupport: 110,
         lifecycleAndPsr: 5,
@@ -232,6 +232,10 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.gmCommandExclusions.gm.advance-phase',
         'actions.gmCommandExclusions.gm.grant-resource',
         'actions.gmCommandExclusions.gm.set-damage',
+        'actions.tacticalCommands.movement.cancel',
+        'actions.tacticalCommands.movement.stabilize',
+        'actions.tacticalCommands.weapon.clear-attacks',
+        'actions.tacticalCommands.weapon.declare-attack',
         'actions.wireIntents.ForfeitMatch',
         'actions.wireIntents.LaunchMatch',
         'actions.wireIntents.LeaveSeat',
@@ -243,7 +247,7 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.wireIntents.SetReady',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(37);
+    expect(outOfScopeRows).toHaveLength(41);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('actions.physicalActionClassScope.'),
@@ -274,6 +278,16 @@ describe('BattleMech combat validation catalog index', () => {
       'actions.gmCommandExclusions.gm.advance-phase',
       'actions.gmCommandExclusions.gm.grant-resource',
       'actions.gmCommandExclusions.gm.set-damage',
+    ]);
+    expect(
+      outOfScopeRefs.filter((ref) =>
+        ref.startsWith('actions.tacticalCommands.'),
+      ),
+    ).toEqual([
+      'actions.tacticalCommands.movement.cancel',
+      'actions.tacticalCommands.movement.stabilize',
+      'actions.tacticalCommands.weapon.clear-attacks',
+      'actions.tacticalCommands.weapon.declare-attack',
     ]);
     expect(
       outOfScopeRefs.filter((ref) => ref.startsWith('actions.wireIntents.')),
