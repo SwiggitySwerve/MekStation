@@ -1,6 +1,7 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { hasNoArms } from '@/utils/gameplay/quirkModifiers';
 
+import { canThrash, type ThrashAttackInvalidReason } from './thrashEligibility';
 import { canTrip, type TripAttackInvalidReason } from './tripEligibility';
 import {
   IPhysicalAttackInput,
@@ -30,6 +31,13 @@ const CHARGE_DFA_NON_ENTITY_TARGET_OBJECT_TYPES = new Set([
 ]);
 
 const PUSH_BLOCKED_TARGET_OBJECT_TYPES = new Set(['building', 'fuelTank']);
+const THRASH_NON_ENTITY_TARGET_OBJECT_TYPES = new Set([
+  'building',
+  'fuelTank',
+  'buildingIgnite',
+  'hexClear',
+  'hexIgnite',
+]);
 const TACOPS_TRIP_ATTACK_OPTIONS = new Set([
   'tacops_trip_attack',
   'advanced_combat_tac_ops_trip_attack',
@@ -55,6 +63,12 @@ export function physicalTargetObjectInvalidReason(
     PUSH_BLOCKED_TARGET_OBJECT_TYPES.has(targetObjectType)
   ) {
     return 'TargetBuilding';
+  }
+  if (
+    attackType === 'thrash' &&
+    THRASH_NON_ENTITY_TARGET_OBJECT_TYPES.has(targetObjectType)
+  ) {
+    return 'InvalidPhysicalTarget';
   }
   return undefined;
 }
@@ -191,7 +205,25 @@ function sharedPhysicalTargetRestriction(
     );
   }
 
-  if (input.targetDistance !== undefined && input.targetDistance !== 1) {
+  if (
+    input.attackType === 'thrash' &&
+    input.targetObjectType &&
+    THRASH_NON_ENTITY_TARGET_OBJECT_TYPES.has(input.targetObjectType)
+  ) {
+    return blocked(
+      'Thrash attacks require an infantry unit target',
+      'InvalidPhysicalTarget',
+    );
+  }
+
+  if (input.targetDistance !== undefined && input.attackType === 'thrash') {
+    if (input.targetDistance !== 0) {
+      return blocked(
+        'Thrash attacks require a target in the same hex',
+        'TargetNotSameHex',
+      );
+    }
+  } else if (input.targetDistance !== undefined && input.targetDistance !== 1) {
     return blocked(
       'Physical attacks require an adjacent target',
       'TargetNotAdjacent',
@@ -270,6 +302,10 @@ function infantryUnitType(value: string | undefined): boolean {
   return canonical !== undefined && INFANTRY_UNIT_TYPES.has(canonical);
 }
 
+function standardInfantryUnitType(value: string | undefined): boolean {
+  return canonicalUnitType(value) === 'infantry';
+}
+
 function dropshipUnitType(value: string | undefined): boolean {
   const canonical = canonicalUnitType(value);
   return canonical !== undefined && DROPSHIP_UNIT_TYPES.has(canonical);
@@ -309,6 +345,18 @@ function attackerLocationDestroyed(
   location: string,
 ): boolean {
   return input.attackerDestroyedLocations?.includes(location) ?? false;
+}
+
+function attackerHasWorkingThrashArmOrLeg(
+  input: IPhysicalAttackInput,
+): boolean {
+  if (input.hasWorkingThrashArmOrLeg !== undefined) {
+    return input.hasWorkingThrashArmOrLeg;
+  }
+
+  return ['left_arm', 'right_arm', 'left_leg', 'right_leg'].some(
+    (location) => !attackerLocationDestroyed(input, location),
+  );
 }
 
 function optionalRuleEnabled(
@@ -362,6 +410,17 @@ function mapTripInvalidReason(
   switch (reasonCode) {
     case 'LegMissing':
       return 'LimbMissing';
+    default:
+      return reasonCode;
+  }
+}
+
+function mapThrashInvalidReason(
+  reasonCode: ThrashAttackInvalidReason | undefined,
+): PhysicalAttackInvalidReason | undefined {
+  switch (reasonCode) {
+    case 'InvalidExplicitTarget':
+      return 'InvalidPhysicalTarget';
     default:
       return reasonCode;
   }
@@ -956,5 +1015,39 @@ export function canTripPhysical(
     allowed: false,
     reason: tripRestriction.reason,
     reasonCode: mapTripInvalidReason(tripRestriction.reasonCode),
+  };
+}
+
+export function canThrashPhysical(
+  input: IPhysicalAttackInput,
+): IPhysicalAttackRestriction {
+  const sharedRestriction = sharedPhysicalTargetRestriction(input);
+  if (!sharedRestriction.allowed) return sharedRestriction;
+
+  const thrashRestriction = canThrash({
+    targetIsFriendly: input.targetIsFriendly,
+    attackerIsMek: !explicitNonMekUnitType(input.attackerUnitType),
+    attackerProne: input.attackerProne,
+    targetIsInfantry: standardInfantryUnitType(input.targetUnitType),
+    targetIsSwarming: input.targetIsSwarming,
+    targetDistance: input.targetDistance,
+    sameElevation:
+      input.elevationDifference === undefined
+        ? undefined
+        : input.elevationDifference === 0,
+    blockingTerrains: input.thrashBlockingTerrains,
+    targetIsBuildingFuelTankOrHex:
+      input.targetObjectType !== undefined &&
+      input.targetObjectType !== 'entity',
+    weaponFiredThisTurn: (input.weaponsFiredFromArm?.length ?? 0) > 0,
+    hasWorkingArmOrLeg: attackerHasWorkingThrashArmOrLeg(input),
+  });
+
+  if (thrashRestriction.allowed) return { allowed: true };
+
+  return {
+    allowed: false,
+    reason: thrashRestriction.reason,
+    reasonCode: mapThrashInvalidReason(thrashRestriction.reasonCode),
   };
 }
