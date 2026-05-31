@@ -166,10 +166,29 @@ export function applyPhysicalAttackResolved(
     const target = state.units[payload.targetId];
     if (target) {
       const currentDamageThisPhase = target.damageThisPhase ?? 0;
+      const brushOffState =
+        payload.attackType === 'brush-off'
+          ? (() => {
+              const combatState =
+                target.combatState?.kind === 'squad'
+                  ? (() => {
+                      const { swarmingUnitId: _swarmingUnitId, ...squadState } =
+                        target.combatState.state;
+                      return { ...target.combatState, state: squadState };
+                    })()
+                  : target.combatState;
+
+              return {
+                isSwarming: false,
+                ...(combatState ? { combatState } : {}),
+              };
+            })()
+          : {};
       units = {
         ...units,
         [payload.targetId]: {
           ...target,
+          ...brushOffState,
           damageThisPhase: currentDamageThisPhase + (payload.damage ?? 0),
         },
       };
