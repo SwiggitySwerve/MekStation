@@ -74,6 +74,7 @@ function mpBudget(
     case MovementType.Walk:
       return capability.walkMP;
     case MovementType.Run:
+    case MovementType.Evade:
       return capability.runMP;
     case MovementType.Jump:
       return capability.jumpMP;

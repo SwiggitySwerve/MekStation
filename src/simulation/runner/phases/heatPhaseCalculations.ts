@@ -48,14 +48,17 @@ export function computeWeaponHeat(
 /**
  * Movement heat per the canonical Total Warfare table: Walk = 1,
  * Run = 2, Jump = max(3, jumped hexes), Stationary = 0. Optional
- * TacOps sprint/evade state is explicit because MekStation does not yet
- * model those as MovementType values.
+ * TacOps Sprint state and declared Evade state are explicit because
+ * their combat side effects are consumed by attack validation.
  */
 export function computeMovementHeat(unit: IUnitGameState): number {
   if (unit.sprintedThisTurn === true) return SPRINT_HEAT;
   if (unit.isEvading === true) return RUN_HEAT + EVADE_HEAT_BONUS;
   if (unit.movementThisTurn === MovementType.Walk) return WALK_HEAT;
   if (unit.movementThisTurn === MovementType.Run) return RUN_HEAT;
+  if (unit.movementThisTurn === MovementType.Evade) {
+    return RUN_HEAT + EVADE_HEAT_BONUS;
+  }
   if (unit.movementThisTurn === MovementType.Jump) {
     return Math.max(JUMP_HEAT, unit.hexesMovedThisTurn);
   }
