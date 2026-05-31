@@ -25,6 +25,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   HipDestroyed: 'Hip actuator destroyed',
   ShoulderDestroyed: 'Shoulder actuator destroyed',
   SameLimbUsedThisTurn: 'Limb already used for a physical attack',
+  InvalidArmSelection: 'Select a valid arm',
   PhysicalAttackLimitReached: 'Physical attack allowance used this turn',
   AttackerEvading: 'Attacker is evading',
   AttackerCargoInteraction: 'Attacker is loading or unloading cargo',
@@ -74,6 +75,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   TargetNotDirectlyBehindFeet:
     'Prone jump jet attack target must be directly behind',
   TargetNotInFrontArc: 'Target must be in the front arc',
+  InvalidBrushOffTarget: 'Brush-off requires swarming infantry or an iNARC pod',
   TerrainNotClearOrPavement: 'Thrash requires clear or pavement terrain',
   TacOpsTripDisabled: 'TacOps Trip Attack option is disabled',
   TacOpsJumpJetAttackDisabled: 'TacOps Jump Jet Attack option is disabled',
@@ -105,6 +107,7 @@ export function attackTypeLabel(
     trip: 'Trip',
     thrash: 'Thrash',
     'jump-jet-attack': 'Jump Jet Attack',
+    'brush-off': 'Brush Off',
     hatchet: 'Hatchet',
     sword: 'Sword',
     mace: 'Mace',
