@@ -230,12 +230,16 @@ export function createSwampBogDownPSR(
 /**
  * Create a pending PSR for building collapse.
  */
-export function createBuildingCollapsePSR(entityId: string): IPendingPSR {
+export function createBuildingCollapsePSR(
+  entityId: string,
+  stepIndex?: number,
+): IPendingPSR {
+  const movementStepSource = movementStepTriggerSource(stepIndex);
   return {
     entityId,
     reason: 'Building collapse',
     reasonCode: PSRTrigger.BuildingCollapse,
     additionalModifier: 0,
-    triggerSource: PSRTrigger.BuildingCollapse,
+    triggerSource: movementStepSource ?? PSRTrigger.BuildingCollapse,
   };
 }
