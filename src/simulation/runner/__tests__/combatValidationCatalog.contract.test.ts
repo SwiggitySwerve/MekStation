@@ -174,15 +174,15 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 141,
+      total: 139,
       byLevel: {
         'helper-only': 108,
-        unsupported: 33,
+        unsupported: 31,
       },
       bySection: {
         actions: 9,
         damageAndDeath: 2,
-        featureSupport: 79,
+        featureSupport: 77,
         lifecycleAndPsr: 3,
         pilotSkills: 18,
         ruleSupport: 13,
@@ -248,6 +248,12 @@ describe('BattleMech combat validation catalog index', () => {
       'featureSupport.pilotAbilities.animal-mimicry',
     );
     expect(unresolvedRefs).not.toContain(
+      'featureSupport.canonicalPilotAbilityScope.cross_country',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.cross-country',
+    );
+    expect(unresolvedRefs).not.toContain(
       'featureSupport.mechQuirks.protected_actuators',
     );
     expect(unresolvedRefs).not.toContain(
@@ -291,16 +297,19 @@ describe('BattleMech combat validation catalog index', () => {
         'featureSupport.ammunitionCompatibility.non-battlemech-protomech',
         'featureSupport.ammunitionCompatibility.unsupported-aquatic-torpedo-ammo',
         'featureSupport.ammunitionCompatibility.unsupported-artillery-ammo',
+        'featureSupport.canonicalPilotAbilityScope.cross_country',
         'featureSupport.canonicalPilotAbilityScope.edge_when_aero_alt_loss',
         'featureSupport.canonicalPilotAbilityScope.foot_cav',
         'featureSupport.canonicalPilotAbilityScope.gunnery_laser',
         'featureSupport.canonicalPilotAbilityScope.weathered',
+        'featureSupport.pilotAbilities.cross-country',
         'featureSupport.mechQuirks.rugged_1',
         'featureSupport.mechQuirks.rugged_2',
         'lifecycleAndPsr.psrTriggers.charge_miss',
         'lifecycleAndPsr.psrTriggers.dfa_miss',
         'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
         'pilotSkills.pilotModifierResolvers.anti-mek-actuator-application',
+        'pilotSkills.pilotModifierResolvers.vehicle-movement-application',
         'validationScope.objectiveRequirements.campaign-quirk-behavior',
         'validationScope.knownLimitationsAndScope.non-battlemech-ammo-scope',
         'validationScope.knownLimitationsAndScope.non-battlemech-combat-system-split',
@@ -324,7 +333,7 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.wireIntents.SetReady',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(73);
+    expect(outOfScopeRows).toHaveLength(76);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('actions.physicalActionClassScope.'),
@@ -356,6 +365,7 @@ describe('BattleMech combat validation catalog index', () => {
       'featureSupport.canonicalPilotAbilityScope.blind_fighter',
       'featureSupport.canonicalPilotAbilityScope.clan_pilot_training',
       'featureSupport.canonicalPilotAbilityScope.cluster_master',
+      'featureSupport.canonicalPilotAbilityScope.cross_country',
       'featureSupport.canonicalPilotAbilityScope.edge_when_aero_alt_loss',
       'featureSupport.canonicalPilotAbilityScope.edge_when_aero_explosion',
       'featureSupport.canonicalPilotAbilityScope.edge_when_aero_ko',
@@ -384,6 +394,11 @@ describe('BattleMech combat validation catalog index', () => {
     ]);
     expect(
       outOfScopeRefs.filter((ref) =>
+        ref.startsWith('featureSupport.pilotAbilities.'),
+      ),
+    ).toEqual(['featureSupport.pilotAbilities.cross-country']);
+    expect(
+      outOfScopeRefs.filter((ref) =>
         ref.startsWith('lifecycleAndPsr.psrTriggers.'),
       ),
     ).toEqual([
@@ -397,6 +412,7 @@ describe('BattleMech combat validation catalog index', () => {
     ).toEqual([
       'pilotSkills.pilotModifierResolvers.anti-mek-actuator-application',
       'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
+      'pilotSkills.pilotModifierResolvers.vehicle-movement-application',
     ]);
     expect(
       outOfScopeRefs.filter((ref) => ref.startsWith('validationScope.')),
