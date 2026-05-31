@@ -2,6 +2,10 @@ import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { hasNoArms } from '@/utils/gameplay/quirkModifiers';
 
 import {
+  canBreakGrapple,
+  type BreakGrappleAttackInvalidReason,
+} from './breakGrappleEligibility';
+import {
   canBrushOff,
   type BrushOffAttackInvalidReason,
 } from './brushOffEligibility';
@@ -547,6 +551,12 @@ function mapGrappleInvalidReason(
     default:
       return reasonCode;
   }
+}
+
+function mapBreakGrappleInvalidReason(
+  reasonCode: BreakGrappleAttackInvalidReason | undefined,
+): PhysicalAttackInvalidReason | undefined {
+  return reasonCode;
 }
 
 function selectedPunchArmDestroyed(input: IPhysicalAttackInput): boolean {
@@ -1233,6 +1243,43 @@ export function canGrapplePhysical(
     allowed: false,
     reason: grappleRestriction.reason,
     reasonCode: mapGrappleInvalidReason(grappleRestriction.reasonCode),
+  };
+}
+
+export function canBreakGrapplePhysical(
+  input: IPhysicalAttackInput,
+): IPhysicalAttackRestriction {
+  const sharedRestriction = sharedPhysicalTargetRestriction({
+    ...input,
+    targetDistance: undefined,
+  });
+  if (!sharedRestriction.allowed) return sharedRestriction;
+
+  const attackerIsProtoMek = protoMekUnitType(input.attackerUnitType);
+  const attackerIsMek =
+    !attackerIsProtoMek && legacyOrMekUnitType(input.attackerUnitType);
+  const breakGrappleRestriction = canBreakGrapple({
+    tacOpsGrapplingEnabled: grapplingEnabled(input),
+    attackerIsAirborneVTOLorWIGE: input.attackerIsAirborne,
+    commonImpossibleReasonCode:
+      input.commonPhysicalImpossibleReasonCode ??
+      (input.attackerGrappledTargetId !== undefined
+        ? 'LockedInGrapple'
+        : undefined),
+    attackerChainWhipGrappled: input.attackerChainWhipGrappled,
+    attackerIsMek,
+    attackerIsProtoMek,
+    grappledTargetMatches: input.attackerGrappledTargetId === input.targetId,
+  });
+
+  if (breakGrappleRestriction.allowed) return { allowed: true };
+
+  return {
+    allowed: false,
+    reason: breakGrappleRestriction.reason,
+    reasonCode: mapBreakGrappleInvalidReason(
+      breakGrappleRestriction.reasonCode,
+    ),
   };
 }
 
