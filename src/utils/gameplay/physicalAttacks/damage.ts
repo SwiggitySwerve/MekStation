@@ -8,6 +8,7 @@ import {
 } from '@/utils/gameplay/hitLocation';
 import { getMeleeSpecialistDamageBonus } from '@/utils/gameplay/spaModifiers';
 
+import { calculateBrushOffAttackDamage } from './brushOffEligibility';
 import {
   CHARGE_DAMAGE_DIVISOR,
   CHARGE_HIT_PSR_MODIFIER,
@@ -464,6 +465,10 @@ export function calculateJumpJetAttackDamage(
   });
 }
 
+export function calculateBrushOffDamage(input: IPhysicalAttackInput): number {
+  return calculateBrushOffAttackDamage(input);
+}
+
 /**
  * Per `implement-physical-attack-phase` tasks 6.4 / 7.4: split damage
  * into 5-point clusters before hit-location resolution. Zero damage
@@ -576,6 +581,17 @@ export function calculatePhysicalDamage(
         hitTable: 'punch',
         targetDisplaced: false,
       };
+    case 'brush-off':
+      return {
+        targetDamage: calculateBrushOffDamage(input),
+        attackerDamage: 0,
+        attackerLegDamagePerLeg: 0,
+        targetPSR: false,
+        attackerPSR: false,
+        attackerPSRModifier: 0,
+        hitTable: 'punch',
+        targetDisplaced: false,
+      };
     case 'hatchet':
       return {
         targetDamage: calculateHatchetDamage(input),
@@ -670,18 +686,34 @@ export function calculatePhysicalDamage(
   }
 }
 
-export function getPhysicalMissConsequences(attackType: PhysicalAttackType): {
+export function getPhysicalMissConsequences(
+  attackType: PhysicalAttackType,
+  input?: IPhysicalAttackInput,
+): {
   attackerPSR: boolean;
   attackerPSRModifier: number;
+  attackerDamage: number;
+  hitTable?: 'punch' | 'kick';
 } {
   switch (attackType) {
     case 'kick':
-      return { attackerPSR: true, attackerPSRModifier: 0 };
+      return { attackerPSR: true, attackerPSRModifier: 0, attackerDamage: 0 };
     case 'charge':
-      return { attackerPSR: false, attackerPSRModifier: 0 };
+      return { attackerPSR: false, attackerPSRModifier: 0, attackerDamage: 0 };
     case 'dfa':
-      return { attackerPSR: true, attackerPSRModifier: DFA_MISS_PSR_MODIFIER };
+      return {
+        attackerPSR: true,
+        attackerPSRModifier: DFA_MISS_PSR_MODIFIER,
+        attackerDamage: 0,
+      };
+    case 'brush-off':
+      return {
+        attackerPSR: false,
+        attackerPSRModifier: 0,
+        attackerDamage: input ? calculateBrushOffDamage(input) : 0,
+        hitTable: 'punch',
+      };
     default:
-      return { attackerPSR: false, attackerPSRModifier: 0 };
+      return { attackerPSR: false, attackerPSRModifier: 0, attackerDamage: 0 };
   }
 }
