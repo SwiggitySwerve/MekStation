@@ -254,6 +254,14 @@ export const MEKSTATION_MELEE_MASTER_DEVIATION_SOURCE_REFS = [
     'MekStation getMeleeMasterDamageBonus now returns no flat damage because Melee Master is an action-count rule, not a damage modifier.',
     'src/utils/gameplay/spaModifiers/abilityModifiers.ts#L280-L287',
   ),
+  mekstationDeviationRef(
+    'MekStation physical action-count helpers return two allowed physical attacks for canonical or legacy Melee Master ids and one attack otherwise.',
+    'src/utils/gameplay/physicalAttacks/actionCount.ts#L14-L20',
+  ),
+  mekstationDeviationRef(
+    'MekStation declarePhysicalAttack enforces the per-turn physical attack allowance, derives declaration limbs, and rejects over-limit declarations without scheduling a physical attack.',
+    'src/utils/gameplay/gameSessionPhysical.ts#L437-L469',
+  ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 export const MEGAMEK_TERRAIN_MASTER_GAP_SOURCE_REFS = [

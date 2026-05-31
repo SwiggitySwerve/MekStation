@@ -68,10 +68,14 @@ import {
   CHARGE_HIT_PSR_MODIFIER,
   DFA_TARGET_PSR_MODIFIER,
   determinePhysicalHitLocation,
+  getAllowedPhysicalAttackCount,
   IPhysicalAttackInput,
   IPhysicalAttackRestriction,
   isPhysicalAirborneVtolOrWigeTarget,
   isTargetDirectlyAhead,
+  physicalAttackDeclarationsForTurn,
+  physicalAttackLimbForDeclaration,
+  physicalAttackLimbsUsedThisTurn,
   physicalTargetObjectTypeForUnitType,
   physicalTargetObjectInvalidReason,
   PhysicalAttackType,
@@ -431,6 +435,37 @@ export function declarePhysicalAttack(
 
   const componentDamage =
     attackerState.componentDamage ?? buildDefaultComponentDamageState();
+  const declaredLimb = physicalAttackLimbForDeclaration(attackType, {
+    limb: context.limb,
+    arm: context.arm,
+  });
+  const priorPhysicalDeclarations = physicalAttackDeclarationsForTurn(
+    session.events,
+    session.currentState.turn,
+    attackerId,
+  );
+  const allowedPhysicalAttacks = getAllowedPhysicalAttackCount(
+    context.pilotAbilities ?? attackerState.abilities,
+  );
+  if (priorPhysicalDeclarations.length >= allowedPhysicalAttacks) {
+    return appendEvent(
+      session,
+      createPhysicalAttackResolvedEvent(
+        session.id,
+        session.events.length,
+        session.currentState.turn,
+        attackerId,
+        targetId,
+        attackType,
+        0,
+        Infinity,
+        false,
+        undefined,
+        'PhysicalAttackLimitReached',
+      ),
+    );
+  }
+
   const targetObjectType =
     context.targetObjectType ??
     physicalTargetObjectTypeForUnitType(targetState?.unitType);
@@ -518,8 +553,14 @@ export function declarePhysicalAttack(
     attackerMovedBackwardThisTurn:
       context.attackerMovedBackwardThisTurn ??
       attackerState.movedBackwardThisTurn,
-    limbsUsedThisTurn: context.limbsUsedThisTurn,
-    limb: context.limb,
+    limbsUsedThisTurn:
+      context.limbsUsedThisTurn ??
+      physicalAttackLimbsUsedThisTurn(
+        session.events,
+        session.currentState.turn,
+        attackerId,
+      ),
+    limb: declaredLimb,
     lowerArmActuatorPresent: context.lowerArmActuatorPresent,
     handActuatorPresent: context.handActuatorPresent,
     upperLegActuatorPresent: context.upperLegActuatorPresent,
@@ -620,6 +661,7 @@ export function declarePhysicalAttack(
       targetId,
       attackType,
       declaredTN,
+      declaredLimb,
     ),
   );
 }

@@ -118,6 +118,25 @@ function withPhase(session: IGameSession, phase: GamePhase): IGameSession {
   };
 }
 
+function withGuestAbilities(
+  session: IGameSession,
+  abilities: readonly string[],
+): IGameSession {
+  return {
+    ...session,
+    currentState: {
+      ...session.currentState,
+      units: {
+        ...session.currentState.units,
+        'guest-0': {
+          ...session.currentState.units['guest-0'],
+          abilities,
+        },
+      },
+    },
+  };
+}
+
 function authority(): IIntentTranslationAuthorityContext {
   return {
     movementGrid: createHexGrid({ radius: 8 }),
@@ -489,6 +508,7 @@ describe('translateIntentToEvents', () => {
       attackerId: 'guest-0',
       targetId: 'host-0',
       attackType: 'kick',
+      limb: 'leftLeg',
       toHitNumber: 6,
     });
 
@@ -504,7 +524,67 @@ describe('translateIntentToEvents', () => {
       targetId: 'host-0',
       attackType: 'kick',
       toHitNumber: 6,
+      limb: 'leftLeg',
     });
+  });
+
+  it('rejects a second physical declaration from a non-Melee Master unit', () => {
+    const session = withPhase(fixtureSession(), GamePhase.PhysicalAttack);
+    const firstIntent = buildDeclarePhysicalIntent(GUEST_PEER, {
+      attackerId: 'guest-0',
+      targetId: 'host-0',
+      attackType: 'punch',
+    });
+
+    const first = translateIntentToEvents(firstIntent, session);
+    expect(first.ok).toBe(true);
+    if (!first.ok) return;
+
+    const secondIntent = buildDeclarePhysicalIntent(GUEST_PEER, {
+      attackerId: 'guest-0',
+      targetId: 'host-0',
+      attackType: 'kick',
+    });
+    const second = translateIntentToEvents(secondIntent, {
+      ...session,
+      events: [...session.events, ...first.events],
+    });
+
+    expect(second.ok).toBe(false);
+    if (second.ok) return;
+    expect(second.reason).toBe('physical-attack-limit-reached');
+  });
+
+  it('rejects a Melee Master physical declaration that reuses the same limb over P2P', () => {
+    const session = withGuestAbilities(
+      withPhase(fixtureSession(), GamePhase.PhysicalAttack),
+      ['melee_master'],
+    );
+    const firstIntent = buildDeclarePhysicalIntent(GUEST_PEER, {
+      attackerId: 'guest-0',
+      targetId: 'host-0',
+      attackType: 'kick',
+      limb: 'leftLeg',
+    });
+
+    const first = translateIntentToEvents(firstIntent, session);
+    expect(first.ok).toBe(true);
+    if (!first.ok) return;
+
+    const secondIntent = buildDeclarePhysicalIntent(GUEST_PEER, {
+      attackerId: 'guest-0',
+      targetId: 'host-0',
+      attackType: 'kick',
+      limb: 'leftLeg',
+    });
+    const second = translateIntentToEvents(secondIntent, {
+      ...session,
+      events: [...session.events, ...first.events],
+    });
+
+    expect(second.ok).toBe(false);
+    if (second.ok) return;
+    expect(second.reason).toBe('physical-attack-limb-used');
   });
 
   it('rejects declarePhysical outside the PhysicalAttack phase', () => {
