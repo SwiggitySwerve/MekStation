@@ -41,6 +41,7 @@ import {
   createEnteringWaterPSR,
   createExitingWaterPSR,
   createSkiddingPSR,
+  createSwampBogDownPSR,
   createBuildingCollapsePSR,
 
   // system family
@@ -166,6 +167,11 @@ describe('PSR factory reasonCode population (PR E)', () => {
         PSRTrigger.ExitingWater,
       ],
       ['createSkiddingPSR', createSkiddingPSR(ENTITY), PSRTrigger.Skidding],
+      [
+        'createSwampBogDownPSR',
+        createSwampBogDownPSR(ENTITY),
+        PSRTrigger.SwampBogDown,
+      ],
       [
         'createBuildingCollapsePSR',
         createBuildingCollapsePSR(ENTITY),
