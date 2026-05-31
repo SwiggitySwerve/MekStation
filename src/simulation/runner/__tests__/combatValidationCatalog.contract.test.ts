@@ -174,13 +174,13 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 136,
+      total: 135,
       byLevel: {
         'helper-only': 106,
-        unsupported: 30,
+        unsupported: 29,
       },
       bySection: {
-        actions: 8,
+        actions: 7,
         damageAndDeath: 2,
         featureSupport: 75,
         lifecycleAndPsr: 3,
@@ -191,7 +191,6 @@ describe('BattleMech combat validation catalog index', () => {
     });
     expect(unresolvedRefs).toEqual(
       expect.arrayContaining([
-        'actions.absentActionSurfaces.movement.sprint',
         'featureSupport.ammunitionCompatibility.battlemech-ammo-missing-compatible-weapon-refs',
         'featureSupport.ammunitionCompatibility.nonstandard-empty-compatible-row',
         'pilotSkills.pilotModifierResolvers.edge-application',
@@ -202,6 +201,9 @@ describe('BattleMech combat validation catalog index', () => {
         'ruleSupport.physicalDamageModifiers.talon-equipment-lifecycle',
         'ruleSupport.terrainEnvironment.terrain-los-side-paths',
       ]),
+    );
+    expect(unresolvedRefs).not.toContain(
+      'actions.absentActionSurfaces.movement.sprint',
     );
     expect(unresolvedRefs).not.toContain(
       'ruleSupport.movementEnhancements.MASC',

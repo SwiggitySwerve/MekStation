@@ -15,6 +15,7 @@
 import React from 'react';
 
 import { MovementType } from '@/types/gameplay';
+import { calculateSprintMP } from '@/utils/gameplay/movement';
 
 export interface MovementTypeSwitcherProps {
   /** Current movement type the player is planning */
@@ -81,6 +82,7 @@ export function MovementTypeSwitcher({
   // hiding keeps button positions stable across units (less visual
   // jitter when the player switches between mechs).
   const runMP = Math.ceil(walkMP * 1.5);
+  const sprintMP = calculateSprintMP(walkMP);
 
   return (
     <div
@@ -102,6 +104,13 @@ export function MovementTypeSwitcher({
         active={active === MovementType.Run}
         disabled={walkMP <= 0}
         onClick={() => onChange(MovementType.Run)}
+      />
+      <TypeButton
+        type={MovementType.Sprint}
+        label={`Sprint (${sprintMP} MP)`}
+        active={active === MovementType.Sprint}
+        disabled={walkMP <= 0}
+        onClick={() => onChange(MovementType.Sprint)}
       />
       <TypeButton
         type={MovementType.Evade}

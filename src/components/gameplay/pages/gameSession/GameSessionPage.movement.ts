@@ -16,6 +16,7 @@ import {
   MovementType,
 } from '@/types/gameplay';
 import { AXIAL_DIRECTION_DELTAS } from '@/types/gameplay/HexGridInterfaces';
+import { getSprintMPForCapability } from '@/utils/gameplay/movement';
 import { findPath } from '@/utils/gameplay/movement/pathfinding';
 import { deriveReachableHexes } from '@/utils/gameplay/movement/reachable';
 import { logger } from '@/utils/logger';
@@ -49,7 +50,9 @@ interface MovementPlanningResult {
 
 function isRunBasedMovementType(movementType: MovementType): boolean {
   return (
-    movementType === MovementType.Run || movementType === MovementType.Evade
+    movementType === MovementType.Run ||
+    movementType === MovementType.Evade ||
+    movementType === MovementType.Sprint
   );
 }
 
@@ -62,6 +65,9 @@ function groundMovementMaxCost(
   movementType: MovementType,
 ): number {
   if (!capability) return Infinity;
+  if (movementType === MovementType.Sprint) {
+    return getSprintMPForCapability(capability);
+  }
   return isRunBasedMovementType(movementType)
     ? capability.runMP
     : capability.walkMP;
