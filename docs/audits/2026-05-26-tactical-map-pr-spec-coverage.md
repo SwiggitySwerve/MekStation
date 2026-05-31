@@ -44,6 +44,11 @@ decisions are made, not because CI is stale.
   external oracle differential sweeps remain follow-up work. Represented
   AirMek-to-Mek conversion phase sequencing is now source-pinned by
   `pin-lam-airmek-mek-conversion-steps`.
+  Represented altitude-positive VTOL/WiGE units now fail closed in the ground
+  projection with source-backed altitude-control reasons via
+  `block-airborne-vtol-wige-ground-projection`; full airborne altitude pathing,
+  hover/takeoff/landing sequencing, and automatic WiGE landing remain
+  follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
   `apply-runtime-movement-state-events`, and tactical command controls are now

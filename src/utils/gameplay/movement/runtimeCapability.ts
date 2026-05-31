@@ -81,6 +81,32 @@ function isAirborneAeroState(unit: IUnitGameState): boolean {
   );
 }
 
+function isAltitudeTrackedAirborneState(unit: IUnitGameState): boolean {
+  switch (unit.combatState?.kind) {
+    case 'vehicle':
+    case 'proto':
+      return (unit.combatState.state.altitude ?? 0) > 0;
+    case 'aero':
+      return isAirborneAeroState(unit);
+    default:
+      return false;
+  }
+}
+
+function airborneVtolOrWigeGroundMovementBlockedReason(
+  movementMode: MovementTravelMode,
+  unit: IUnitGameState,
+): string | undefined {
+  if (!isAltitudeTrackedAirborneState(unit)) return undefined;
+  if (movementMode === 'vtol') {
+    return AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON;
+  }
+  if (movementMode === 'wige') {
+    return AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON;
+  }
+  return undefined;
+}
+
 function isLamFighterMode(
   unit: IUnitGameState,
   profile: MovementUnitHeightProfile,
@@ -107,6 +133,12 @@ export const AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON =
 export const AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON =
   'Airborne LAM AirMek movement uses airborne WiGE rules and is not available in the ground movement projection';
 
+export const AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON =
+  'Airborne VTOL movement uses altitude controls and is not available in the ground movement projection';
+
+export const AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON =
+  'Airborne WiGE movement uses altitude controls and is not available in the ground movement projection';
+
 export const DESTROYED_GYRO_NON_TRACKED_MOVEMENT_BLOCKED_REASON =
   'Destroyed gyro only permits tracked or wheeled movement';
 
@@ -127,6 +159,9 @@ export function runtimeMovementProjectionBlockedReason(
   if (profile && isLamAirMekMode(unit, profile) && isAirborneAeroState(unit)) {
     return AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON;
   }
+  const airborneVtolOrWigeReason =
+    airborneVtolOrWigeGroundMovementBlockedReason(movementMode, unit);
+  if (airborneVtolOrWigeReason) return airborneVtolOrWigeReason;
   if (
     !unit.prone &&
     unit.componentDamage &&

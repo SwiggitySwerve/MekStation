@@ -20,13 +20,20 @@ import {
   type IHexGrid,
   type IUnitGameState,
 } from '@/types/gameplay';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { createHexGrid } from '@/utils/gameplay/hexGrid';
 import { coordToKey } from '@/utils/gameplay/hexMath';
+import { validateCommittedMovement } from '@/utils/gameplay/movement/commitValidation';
 import {
   deriveMovementRangeHexForDestination,
   deriveReachableHexes,
 } from '@/utils/gameplay/movement/reachable';
+import {
+  AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON,
+  AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON,
+} from '@/utils/gameplay/movement/runtimeCapability';
 import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
+import { createVehicleCombatState } from '@/utils/gameplay/vehicleDamage';
 
 function makeUnitAtOrigin(): IUnitGameState {
   return {
@@ -2084,6 +2091,108 @@ describe('deriveReachableHexes', () => {
       movementType: MovementType.Walk,
     });
   });
+
+  it.each([
+    {
+      label: 'VTOL',
+      movementMode: 'vtol',
+      motionType: GroundMotionType.VTOL,
+      reason: AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON,
+    },
+    {
+      label: 'WiGE',
+      movementMode: 'wige',
+      motionType: GroundMotionType.WIGE,
+      reason: AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON,
+    },
+  ] as const)(
+    'blocks airborne $label ground projection while preserving landed movement',
+    ({ movementMode, motionType, reason }) => {
+      let grid = createHexGrid({ radius: 3 });
+      grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+      grid = setHex(grid, { q: 1, r: 0 }, TerrainType.HeavyWoods, 4);
+      const capability: IMovementCapability = {
+        walkMP: 3,
+        runMP: 5,
+        jumpMP: 0,
+        movementMode,
+      };
+      const vehicleCombatState = (altitude: number) => ({
+        kind: 'vehicle' as const,
+        state: createVehicleCombatState({
+          unitId: 'u1',
+          motionType,
+          originalCruiseMP: 3,
+          armor: {},
+          structure: {},
+          altitude,
+        }),
+      });
+      const airborneUnit = {
+        ...makeUnitAtOrigin(),
+        combatState: vehicleCombatState(2),
+      };
+      const landedUnit = {
+        ...makeUnitAtOrigin(),
+        combatState: vehicleCombatState(0),
+      };
+
+      const airbornePreview = deriveMovementRangeHexForDestination(
+        airborneUnit,
+        MovementType.Walk,
+        grid,
+        capability,
+        { q: 1, r: 0 },
+      );
+      expect(airbornePreview).toMatchObject({
+        mpCost: Infinity,
+        heatGenerated: 0,
+        movementMode,
+        reachable: false,
+        movementType: MovementType.Walk,
+        blockedReason: reason,
+        movementInvalidReason: 'InvalidDestination',
+        movementInvalidDetails: reason,
+      });
+
+      const commit = validateCommittedMovement({
+        grid,
+        unit: airborneUnit,
+        to: { q: 1, r: 0 },
+        facing: Facing.Southeast,
+        movementType: MovementType.Walk,
+        capability,
+        path: [
+          { q: 0, r: 0 },
+          { q: 1, r: 0 },
+        ],
+      });
+      expect(commit).toMatchObject({
+        valid: false,
+        reason: 'InvalidDestination',
+        details: reason,
+        mpCost: Infinity,
+        heatGenerated: 0,
+      });
+
+      const landedPreview = deriveMovementRangeHexForDestination(
+        landedUnit,
+        MovementType.Walk,
+        grid,
+        capability,
+        { q: 1, r: 0 },
+      );
+      expect(landedPreview).toMatchObject({
+        mpCost: 1,
+        terrainCost: 0,
+        elevationDelta: 4,
+        elevationCost: 0,
+        movementMode,
+        reachable: true,
+        movementType: MovementType.Walk,
+      });
+    },
+  );
 
   it('requires naval motive movement to stay on water terrain', () => {
     let grid = createHexGrid({ radius: 3 });

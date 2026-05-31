@@ -1431,6 +1431,19 @@ zero rejected-step heat, and AirMek MP legend. Full airborne AirMek/WiGE
 altitude pathing, hover/takeoff/landing sequencing, velocity/turn behavior,
 control rolls, and broader external oracle sweeps remain follow-ups.
 
+2026-05-31 airborne VTOL/WiGE ground-projection guard: MegaMek
+`Entity.java:12004-12022` defines airborne VTOL/WiGE state from VTOL/WiGE
+motive, elevation, and building/bridge clearance, `MovementDisplay.java:2276-2291`
+switches airborne entities to altitude controls instead of ordinary elevation
+controls, and `MovePath.java:1689-1741` represents airborne WiGE landing/hover
+behavior separately from normal ground movement. MekStation now blocks
+represented altitude-positive VTOL/WiGE ground projection with an explicit
+altitude-control reason while preserving landed/hover VTOL/WiGE terrain and
+elevation projection. Focused projection and commit-validation tests prove the
+same `InvalidDestination` details and zero rejected-step heat. Full airborne
+VTOL/WiGE altitude pathing, hover/takeoff/landing sequencing, clearance,
+automatic WiGE landing, and broad oracle sweeps remain follow-ups.
+
 2026-05-25 LAM AirMek movement heat pin: MegaMek `LandAirMek.java:464-481`
 routes AirMek VTOL walk/run heat through `getAirMekHeat()`, which adds damaged
 coolant heat and rounds `getJumpHeat(mpUsed) / 3.0`; `Mek.java:1281-1302` and

@@ -8,15 +8,19 @@ import {
   type IMovementCapability,
   type IUnitGameState,
 } from '@/types/gameplay';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
 import {
   AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON,
   AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON,
+  AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON,
+  AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON,
   DESTROYED_GYRO_NON_TRACKED_MOVEMENT_BLOCKED_REASON,
   resolveRuntimeMovementCapability,
   runtimeMovementProjectionBlockedReason,
   runtimeUnitHeightForMovement,
 } from '@/utils/gameplay/movement/runtimeCapability';
+import { createVehicleCombatState } from '@/utils/gameplay/vehicleDamage';
 
 function unitState(overrides: Partial<IUnitGameState> = {}): IUnitGameState {
   return {
@@ -233,6 +237,71 @@ describe('runtime movement capability', () => {
         'wige',
       ),
     ).toBeUndefined();
+  });
+
+  it('blocks represented airborne VTOL and WiGE vehicles from ground movement projection fallback', () => {
+    const cases = [
+      {
+        movementMode: 'vtol',
+        motionType: GroundMotionType.VTOL,
+        reason: AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON,
+      },
+      {
+        movementMode: 'wige',
+        motionType: GroundMotionType.WIGE,
+        reason: AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON,
+      },
+    ] as const;
+
+    for (const { movementMode, motionType, reason } of cases) {
+      const capability: IMovementCapability = {
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 0,
+        movementMode,
+      };
+      const airborneVehicle = unitState({
+        combatState: {
+          kind: 'vehicle',
+          state: createVehicleCombatState({
+            unitId: 'unit',
+            motionType,
+            originalCruiseMP: 4,
+            armor: {},
+            structure: {},
+            altitude: 2,
+          }),
+        },
+      });
+      const landedVehicle = unitState({
+        combatState: {
+          kind: 'vehicle',
+          state: createVehicleCombatState({
+            unitId: 'unit',
+            motionType,
+            originalCruiseMP: 4,
+            armor: {},
+            structure: {},
+            altitude: 0,
+          }),
+        },
+      });
+
+      expect(
+        runtimeMovementProjectionBlockedReason(
+          airborneVehicle,
+          capability,
+          movementMode,
+        ),
+      ).toBe(reason);
+      expect(
+        runtimeMovementProjectionBlockedReason(
+          landedVehicle,
+          capability,
+          movementMode,
+        ),
+      ).toBeUndefined();
+    }
   });
 
   it('blocks destroyed-gyro non-tracked movement while preserving tracked and wheeled exceptions', () => {
