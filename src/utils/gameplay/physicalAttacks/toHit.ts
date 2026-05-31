@@ -31,6 +31,7 @@ import {
   canMeleeWeapon,
   canPunch,
   canPush,
+  canThrashPhysical,
   canTripPhysical,
 } from './restrictions';
 import { getTripAttackBaseToHitAdjustment } from './tripEligibility';
@@ -43,6 +44,7 @@ import {
 const AUTOMATIC_SUCCESS_TO_HIT = 0;
 const GUN_EMPLACEMENT_AUTOMATIC_HIT_REASON =
   'Targeting adjacent gun emplacement.';
+const THRASH_AUTOMATIC_HIT_REASON = 'Thrash attacks always hit.';
 const PLAYTEST_3_OPTIONAL_RULES = new Set([
   'playtest_3',
   'playtest3',
@@ -578,6 +580,37 @@ export function calculateTripToHit(
   };
 }
 
+export function calculateThrashToHit(
+  input: IPhysicalAttackInput,
+): IPhysicalToHitResult {
+  const restriction = canThrashPhysical(input);
+  if (!restriction.allowed) {
+    return {
+      baseToHit: AUTOMATIC_SUCCESS_TO_HIT,
+      finalToHit: Infinity,
+      modifiers: [],
+      allowed: false,
+      restrictionReason: restriction.reason,
+      restrictionReasonCode: restriction.reasonCode,
+    };
+  }
+
+  return {
+    baseToHit: AUTOMATIC_SUCCESS_TO_HIT,
+    finalToHit: AUTOMATIC_SUCCESS_TO_HIT,
+    modifiers: [
+      {
+        name: 'Thrash attacks always hit',
+        value: 0,
+        source: 'physical-action',
+      },
+    ],
+    allowed: true,
+    automaticHit: true,
+    automaticHitReason: THRASH_AUTOMATIC_HIT_REASON,
+  };
+}
+
 export function calculateMeleeWeaponToHit(
   input: IPhysicalAttackInput,
 ): IPhysicalToHitResult {
@@ -660,6 +693,8 @@ export function calculatePhysicalToHit(
       return calculatePushToHit(input);
     case 'trip':
       return calculateTripToHit(input);
+    case 'thrash':
+      return calculateThrashToHit(input);
     case 'hatchet':
     case 'sword':
     case 'mace':
