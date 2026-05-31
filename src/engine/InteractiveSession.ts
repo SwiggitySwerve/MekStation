@@ -53,6 +53,7 @@ import {
   goProne as goProneAction,
   attemptStandUp as attemptStandUpAction,
   torsoTwist as torsoTwistAction,
+  requestSpot as requestSpotAction,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
 import { declarePlayerWithdrawal } from '@/utils/gameplay/morale';
@@ -433,6 +434,11 @@ export class InteractiveSession {
       attackType,
       context,
     );
+    this.tryFinalizeAndPublish();
+  }
+
+  requestSpot(unitId: string, targetId: string): void {
+    this.session = requestSpotAction(this.session, unitId, targetId);
     this.tryFinalizeAndPublish();
   }
 
