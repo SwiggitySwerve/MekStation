@@ -711,10 +711,9 @@ export const SPA_COMBAT_SUPPORT = {
     'MegaMek Heavy Lifter increases ground-object lift capacity by 1.5, but MekStation has no carry/throw-object physical combat action path',
     MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
   ),
-  'animal-mimicry': helperOnly(
+  'animal-mimicry': integrated(
     'animal-mimicry',
-    'getAnimalMimicryPSRModifier plus resolveAllPSRs/stand-up PSR paths apply source-backed Animal Mimicry -1 to quad Mek PSRs',
-    'Animal Mimicry terrain-designation movement effects and broader terrain specialization are not wired',
+    'getAnimalMimicryPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs and stand-up PSR paths apply the source-backed Animal Mimicry -1 modifier to explicit quad Mek PSRs',
     MEGAMEK_325B_ANIMAL_MIMICRY_SOURCE_REFS,
   ),
   antagonizer: unsupported(
