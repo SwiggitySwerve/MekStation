@@ -192,6 +192,39 @@ function clearBrushOffSwarmingState(
   };
 }
 
+function applyGrappleState(
+  state: IGameState,
+  attackerId: string,
+  targetId: string,
+): IGameState {
+  const attacker = state.units[attackerId];
+  const target = state.units[targetId];
+  if (!attacker || !target) return state;
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [attackerId]: {
+        ...attacker,
+        grappledUnitId: targetId,
+        isGrappleAttacker: true,
+        grappledThisRound: true,
+        grappleSide: 'both',
+        position: target.position,
+      },
+      [targetId]: {
+        ...target,
+        grappledUnitId: attackerId,
+        isGrappleAttacker: false,
+        grappledThisRound: true,
+        grappleSide: 'both',
+        facing: ((attacker.facing + 3) % 6) as typeof target.facing,
+      },
+    },
+  };
+}
+
 function markUnitFallenAfterDfaMiss(
   state: IGameState,
   unitId: string,
@@ -461,6 +494,12 @@ export function runPhysicalAttackPhase(options: {
           ),
           weaponsFiredThisTurn,
           optionalRules,
+          tacOpsGrapplingEnabled: optionalRules?.includes('tacops_grappling'),
+          attackerGrappledTargetId: unit.grappledUnitId,
+          targetGrappledTargetId: target.grappledUnitId,
+          attackerIsGrappleAttacker: unit.isGrappleAttacker,
+          targetIsGrappleAttacker: target.isGrappleAttacker,
+          attackerChainWhipGrappled: unit.isChainWhipGrappled,
           tacOpsJumpJetAttackEnabled: optionalRules?.includes(
             'tacops_jump_jet_attack',
           ),
@@ -551,11 +590,13 @@ export function runPhysicalAttackPhase(options: {
       weaponsFiredFromArm:
         bestAttack === 'thrash'
           ? weaponsFiredThisTurn
-          : bestAttack === 'push'
-            ? weaponsFiredFromEitherArm
-            : bestAttack === 'punch' || bestAttack === 'brush-off'
-              ? weaponsFiredFromRightArm
-              : undefined,
+          : bestAttack === 'grapple'
+            ? weaponsFiredThisTurn
+            : bestAttack === 'push'
+              ? weaponsFiredFromEitherArm
+              : bestAttack === 'punch' || bestAttack === 'brush-off'
+                ? weaponsFiredFromRightArm
+                : undefined,
       attackerDestroyedLocations: unit.destroyedLocations,
       attackerUnitType: unit.unitType,
       attackerIsQuad: unit.isQuad,
@@ -576,6 +617,12 @@ export function runPhysicalAttackPhase(options: {
       leftArmHasClaw: unit.leftArmHasClaw,
       rightArmHasClaw: unit.rightArmHasClaw,
       optionalRules,
+      tacOpsGrapplingEnabled: optionalRules?.includes('tacops_grappling'),
+      attackerGrappledTargetId: unit.grappledUnitId,
+      targetGrappledTargetId: target.grappledUnitId,
+      attackerIsGrappleAttacker: unit.isGrappleAttacker,
+      targetIsGrappleAttacker: target.isGrappleAttacker,
+      attackerChainWhipGrappled: unit.isChainWhipGrappled,
       targetInFrontArc: isTargetInFrontArc(
         unit.position,
         unit.facing,
@@ -721,6 +768,10 @@ export function runPhysicalAttackPhase(options: {
 
     if (result.hit && bestAttack === 'brush-off') {
       currentState = clearBrushOffSwarmingState(currentState, target.id);
+    }
+
+    if (result.hit && bestAttack === 'grapple') {
+      currentState = applyGrappleState(currentState, unitId, target.id);
     }
 
     if (
