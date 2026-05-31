@@ -51,6 +51,7 @@ import type { ICombatRangeHex } from './CombatProjectionInterfaces';
 import type { IMovementRangeHex } from './GameplayUIInterfaces';
 import type { IAttackInvalidPayload } from './GameSessionAttackEvents';
 import type { GamePhase, LockState } from './GameSessionCoreTypes';
+import type { IComponentDamageState } from './GameSessionStateTypes';
 import type { IHexCoordinate, IMovementCapability } from './HexGridInterfaces';
 
 /**
@@ -181,6 +182,10 @@ export interface ITacticalCommandContext {
   readonly activeUnitHeat?: number;
   /** Source-backed reason the active unit cannot complete a stand-up attempt. */
   readonly activeUnitStandUpImpossibleReason?: string;
+  /** Active unit component damage used by posture commands with damage-scaled costs. */
+  readonly activeUnitComponentDamage?: IComponentDamageState;
+  /** Active unit destroyed locations used by posture commands with limb gates. */
+  readonly activeUnitDestroyedLocations?: readonly string[];
   /**
    * Engine-derived movement envelope for activeUnitId, when available.
    * Command availability uses this to explain unavailable movement modes

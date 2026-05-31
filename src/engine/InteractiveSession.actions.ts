@@ -82,10 +82,11 @@ import {
 import {
   calculateMovementHeat,
   gridWithUnitOccupants,
+  getHullDownEntryCost,
   getHullDownExitCost,
   getMaxMP,
   getStandingCost,
-  getStandingHullDownEntryCost,
+  hullDownSupportDestroyedReason,
   isMekStyleHullDownExitCapability,
   resolveRuntimeMovementCapability,
   validateCommittedMovement,
@@ -204,7 +205,7 @@ export function applyInteractiveSessionMovement(
       optionalRules: input.session.config.optionalRules,
     });
     const hullDownEntryCost = movementCapability
-      ? getStandingHullDownEntryCost(unit, movementCapability)
+      ? getHullDownEntryCost(unit, movementCapability)
       : 0;
     if (invalidHullDownEntryDetails) {
       return appendInteractiveMovementInvalid(
@@ -372,9 +373,6 @@ function hullDownEntryInvalidDetails(input: {
   if (!hexEquals(input.from, input.to) || input.facing !== input.unit.facing) {
     return 'Enter hull-down must stay in the current hex and facing';
   }
-  if (input.unit.prone === true) {
-    return 'Unit must be standing before entering hull-down';
-  }
   if (input.unit.hullDown === true) {
     return 'Unit is already hull-down';
   }
@@ -394,7 +392,15 @@ function hullDownEntryInvalidDetails(input: {
     return 'Cannot enter hull-down with a destroyed gyro';
   }
 
-  const hullDownEntryCost = getStandingHullDownEntryCost(
+  const destroyedSupportReason = hullDownSupportDestroyedReason(
+    input.unit,
+    input.movementCapability,
+  );
+  if (destroyedSupportReason) {
+    return destroyedSupportReason;
+  }
+
+  const hullDownEntryCost = getHullDownEntryCost(
     input.unit,
     input.movementCapability,
   );

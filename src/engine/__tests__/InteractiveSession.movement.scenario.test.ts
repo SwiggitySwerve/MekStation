@@ -9,6 +9,7 @@ import {
   mergeRunMovementRangeHexes,
 } from '@/components/gameplay/pages/gameSession/GameSessionPage.movementPlanning';
 import { GyroType } from '@/types/construction/GyroType';
+import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import {
   Facing,
   GameEventType,
@@ -2818,6 +2819,107 @@ describe('applyInteractiveSessionMovement', () => {
       hullDown: true,
       prone: false,
       lockState: LockState.Locked,
+    });
+  });
+
+  it('commits prone HULL_DOWN with actuator and hip MP costs', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      hullDown: false,
+      prone: true,
+      componentDamage: {
+        engineHits: 0,
+        gyroHits: 0,
+        sensorHits: 0,
+        lifeSupport: 0,
+        cockpitHit: false,
+        actuators: {},
+        actuatorsByLocation: {
+          right_leg: { [ActuatorType.UPPER_LEG]: true },
+          left_leg: { [ActuatorType.HIP]: true },
+        },
+        weaponsDestroyed: [],
+        heatSinksDestroyed: 0,
+        jumpJetsDestroyed: 0,
+      },
+    };
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid: makeGrid(),
+      movementByUnit: capability({ walkMP: 3, runMP: 5 }),
+      unitId: 'm1',
+      to: { q: 0, r: 0 },
+      facing: Facing.North,
+      movementType: MovementType.Walk,
+      path: [{ q: 0, r: 0 }],
+      hullDownEntryAttempt: true,
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      movementType: MovementType.Walk,
+      mpUsed: 3,
+      heatGenerated: 1,
+      hullDownEntryAttempt: true,
+      steps: [
+        {
+          kind: 'hullDown',
+          index: 0,
+          at: { q: 0, r: 0 },
+          mpCost: 3,
+        },
+      ],
+    });
+    expect(
+      result.events.some((event) => event.type === GameEventType.UnitStood),
+    ).toBe(false);
+    expect(result.currentState.units.m1).toMatchObject({
+      hullDown: true,
+      prone: false,
+      lockState: LockState.Locked,
+    });
+  });
+
+  it('rejects prone HULL_DOWN when a required support location is destroyed', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      hullDown: false,
+      prone: true,
+      destroyedLocations: ['left_leg'],
+    };
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid: makeGrid(),
+      movementByUnit: capability({ walkMP: 20, runMP: 30 }),
+      unitId: 'm1',
+      to: { q: 0, r: 0 },
+      facing: Facing.North,
+      movementType: MovementType.Walk,
+      path: [{ q: 0, r: 0 }],
+      hullDownEntryAttempt: true,
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.MovementDeclared,
+      ),
+    ).toBe(false);
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.MovementInvalid,
+    );
+    expect(invalid!.payload as IMovementInvalidPayload).toMatchObject({
+      unitId: 'm1',
+      reason: 'InvalidDestination',
+      details: 'Cannot enter hull-down with a destroyed leg/support location',
+      mpCost: 100,
+      heatGenerated: 0,
     });
   });
 

@@ -9,6 +9,7 @@
  * @spec openspec/changes/add-tactical-action-menu-system/specs/tactical-map-interface/spec.md
  */
 
+import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import {
   GamePhase,
   LockState,
@@ -421,13 +422,66 @@ describe('movementCommands', () => {
     });
   });
 
-  it('hull down explains prone, existing hull-down, non-Mek, and MP blockers', () => {
+  it('hull down commits a 1 MP posture action for prone Mek-style units', () => {
+    const hullDown = commands.find((c) => c.id === 'movement.hullDown')!;
+    const ctx = makeCtx({
+      activeUnitProne: true,
+      activeUnitHullDown: false,
+      movementCapability: { walkMP: 1, runMP: 2, jumpMP: 0 },
+    });
+
+    expect(hullDown.availability(ctx)).toEqual({ available: true });
+    expect(hullDown.commit(ctx)).toEqual({
+      actionId: 'hull-down',
+      payload: {},
+    });
+  });
+
+  it('hull down explains prone actuator cost and destroyed support blockers', () => {
     const hullDown = commands.find((c) => c.id === 'movement.hullDown')!;
 
-    expect(hullDown.availability(makeCtx({ activeUnitProne: true }))).toEqual({
+    expect(
+      hullDown.availability(
+        makeCtx({
+          activeUnitProne: true,
+          activeUnitComponentDamage: {
+            engineHits: 0,
+            gyroHits: 0,
+            sensorHits: 0,
+            lifeSupport: 0,
+            cockpitHit: false,
+            actuators: {},
+            actuatorsByLocation: {
+              right_leg: { [ActuatorType.UPPER_LEG]: true },
+              left_leg: { [ActuatorType.HIP]: true },
+            },
+            weaponsDestroyed: [],
+            heatSinksDestroyed: 0,
+            jumpJetsDestroyed: 0,
+          },
+          movementCapability: { walkMP: 2, runMP: 3, jumpMP: 0 },
+        }),
+      ),
+    ).toEqual({
       available: false,
-      reason: 'Unit must stand before entering hull-down.',
+      reason: 'Needs 3 MP to enter hull-down.',
     });
+    expect(
+      hullDown.availability(
+        makeCtx({
+          activeUnitProne: true,
+          activeUnitDestroyedLocations: ['left_leg'],
+        }),
+      ),
+    ).toEqual({
+      available: false,
+      reason: 'Cannot enter hull-down with a destroyed leg/support location.',
+    });
+  });
+
+  it('hull down explains existing hull-down, non-Mek, and MP blockers', () => {
+    const hullDown = commands.find((c) => c.id === 'movement.hullDown')!;
+
     expect(
       hullDown.availability(
         makeCtx({

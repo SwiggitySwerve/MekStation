@@ -944,6 +944,8 @@ export function GameplayLayout({
               activeUnitHeat: selectedUnit?.heat ?? 0,
               activeUnitStandUpImpossibleReason:
                 selectedStandUpImpossibleReason,
+              activeUnitComponentDamage: selectedUnit?.componentDamage,
+              activeUnitDestroyedLocations: selectedUnit?.destroyedLocations,
               movementCapability: selectedMovementCapability,
             }}
             shellMode={shellMode}

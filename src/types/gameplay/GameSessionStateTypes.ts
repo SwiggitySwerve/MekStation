@@ -12,6 +12,7 @@ import type { IProtoMechCombatState } from '@/utils/gameplay/protomech/state';
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 
 import type { IBattleArmorCombatState } from './BattleArmorCombatInterfaces';
+import type { CombatLocation } from './CombatLocationTypes';
 import type { IGameEvent } from './GameSessionStatusEvents';
 import type { IGameConfig, IGameUnit } from './GameSessionUnitTypes';
 import type { IVehicleCombatState } from './VehicleCombatInterfaces';
@@ -57,6 +58,10 @@ export interface IComponentDamageState {
   readonly cockpitHit: boolean;
   /** Actuator destruction state per actuator type. */
   readonly actuators: Partial<Record<ActuatorType, boolean>>;
+  /** Actuator destruction state keyed by combat location when source data carries it. */
+  readonly actuatorsByLocation?: Partial<
+    Record<CombatLocation, Partial<Record<ActuatorType, boolean>>>
+  >;
   /** IDs of destroyed weapons. */
   readonly weaponsDestroyed: readonly string[];
   /** Number of heat sinks destroyed (reduces dissipation by 1 single / 2 double each). */

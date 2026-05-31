@@ -22,8 +22,12 @@ export {
   getValidDestinations,
 } from './validation';
 export {
+  getHullDownEntryCost,
   getHullDownExitCost,
+  getProneHullDownEntryCost,
   getStandingHullDownEntryCost,
+  hullDownSupportDestroyedReason,
+  PRONE_HULL_DOWN_ENTRY_BASE_MP_COST,
   isMekStyleHullDownExitCapability,
   STANDING_HULL_DOWN_ENTRY_MP_COST,
 } from './hullDownExit';

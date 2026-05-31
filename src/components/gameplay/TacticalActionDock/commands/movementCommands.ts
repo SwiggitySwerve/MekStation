@@ -27,11 +27,12 @@ import {
   type ITacticalCommandContext,
 } from '@/types/gameplay';
 import {
+  getHullDownEntryCost,
   getMaxMP,
   getStandingCost,
+  hullDownSupportDestroyedReason,
   isMekStyleHullDownExitCapability,
   movementDeclarationLockInvalidState,
-  STANDING_HULL_DOWN_ENTRY_MP_COST,
 } from '@/utils/gameplay/movement';
 
 /**
@@ -361,12 +362,6 @@ const MovementHullDownCommand: ITacticalCommand = {
     if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
     const locked = movementDeclarationLockInvalidState(ctx.activeUnitLockState);
     if (locked) return { available: false, reason: locked.details };
-    if (ctx.activeUnitProne === true) {
-      return {
-        available: false,
-        reason: 'Unit must stand before entering hull-down.',
-      };
-    }
     if (ctx.activeUnitHullDown === true) {
       return { available: false, reason: 'Unit is already hull-down.' };
     }
@@ -379,19 +374,36 @@ const MovementHullDownCommand: ITacticalCommand = {
         reason: 'Hull-down entry is only available for Mek-style movement.',
       };
     }
+    const entryUnit = {
+      componentDamage: ctx.activeUnitComponentDamage,
+      destroyedLocations: ctx.activeUnitDestroyedLocations ?? [],
+      hullDown: ctx.activeUnitHullDown ?? false,
+      prone: ctx.activeUnitProne ?? false,
+    };
+    const destroyedSupportReason = hullDownSupportDestroyedReason(
+      entryUnit,
+      ctx.movementCapability,
+    );
+    if (destroyedSupportReason) {
+      return { available: false, reason: `${destroyedSupportReason}.` };
+    }
+    const hullDownEntryCost = getHullDownEntryCost(
+      entryUnit,
+      ctx.movementCapability,
+    );
     const heatPenalty = getHeatMovementPenalty(ctx.activeUnitHeat ?? 0);
     const effectiveWalkMP = getMaxMP(
       ctx.movementCapability,
       MovementType.Walk,
       heatPenalty,
     );
-    if (effectiveWalkMP < STANDING_HULL_DOWN_ENTRY_MP_COST) {
+    if (effectiveWalkMP < hullDownEntryCost) {
       return {
         available: false,
         reason:
           heatPenalty > 0
-            ? `Needs ${STANDING_HULL_DOWN_ENTRY_MP_COST} MP to enter hull-down after heat penalty.`
-            : `Needs ${STANDING_HULL_DOWN_ENTRY_MP_COST} MP to enter hull-down.`,
+            ? `Needs ${hullDownEntryCost} MP to enter hull-down after heat penalty.`
+            : `Needs ${hullDownEntryCost} MP to enter hull-down.`,
       };
     }
     return { available: true };
