@@ -404,13 +404,19 @@ export interface IPhysicalAttackInput {
   /**
    * Source-backed Talons modifier state. MegaMek applies the +50% damage
    * modifier only when the attacking leg (or either DFA leg) has working
-   * talons and a working foot actuator. Undefined preserves callers outside
-   * UnitHydration that do not carry mounted talon equipment.
+   * talons and a working foot actuator. For quad/non-biped BattleMechs,
+   * MegaMek maps front-leg talon checks through arm locations. Undefined
+   * preserves callers outside UnitHydration that do not carry mounted talon
+   * equipment.
    */
   readonly leftLegHasTalons?: boolean;
   readonly rightLegHasTalons?: boolean;
+  readonly leftArmHasTalons?: boolean;
+  readonly rightArmHasTalons?: boolean;
   readonly leftFootActuatorPresent?: boolean;
   readonly rightFootActuatorPresent?: boolean;
+  readonly leftArmFootActuatorPresent?: boolean;
+  readonly rightArmFootActuatorPresent?: boolean;
   /**
    * Source-backed Claw modifier state. MegaMek treats claws as working hand
    * weapons that modify punch damage/to-hit for the matching arm, not as a
@@ -539,10 +545,15 @@ export interface IChooseBestPhysicalAttackOptions {
   hasTSM?: boolean;
   pilotAbilities?: readonly string[];
   unitQuirks?: readonly string[];
+  attackerIsQuad?: boolean;
   leftLegHasTalons?: boolean;
   rightLegHasTalons?: boolean;
+  leftArmHasTalons?: boolean;
+  rightArmHasTalons?: boolean;
   leftFootActuatorPresent?: boolean;
   rightFootActuatorPresent?: boolean;
+  leftArmFootActuatorPresent?: boolean;
+  rightArmFootActuatorPresent?: boolean;
   leftArmHasClaw?: boolean;
   rightArmHasClaw?: boolean;
   attackerEvading?: boolean;
