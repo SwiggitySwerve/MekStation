@@ -25,7 +25,7 @@ import { type IUnitGameState, MovementType } from '@/types/gameplay';
 
 import { hexDistance } from '../hexMath';
 import { calculatePhysicalDamage } from './damage';
-import { isTargetDirectlyAhead } from './displacement';
+import { isTargetDirectlyAhead, isTargetInFrontArc } from './displacement';
 import {
   canCharge,
   canDFA,
@@ -33,6 +33,7 @@ import {
   canMeleeWeapon,
   canPunch,
   canPush,
+  canTripPhysical,
 } from './restrictions';
 import { calculatePhysicalToHit } from './toHit';
 import {
@@ -107,6 +108,11 @@ export interface IEligibilityContext {
   readonly rightArmHasClaw?: boolean;
   /** Optional physical-combat rule branches, such as PLAYTEST_3. */
   readonly optionalRules?: readonly string[];
+  readonly tacOpsTripAttackEnabled?: boolean;
+  readonly attackerAlreadyGrappled?: boolean;
+  readonly leftTripLimbUsable?: boolean;
+  readonly rightTripLimbUsable?: boolean;
+  readonly legAesFunctional?: boolean;
   /** Equipped melee weapon types (hatchet / sword / mace / lance). */
   readonly meleeWeaponsEquipped?: readonly PhysicalAttackType[];
   /** False when the computed push destination is off-map or occupied. */
@@ -346,6 +352,16 @@ export function getEligiblePhysicalAttacks(
     leftArmHasClaw: context.leftArmHasClaw ?? attacker.leftArmHasClaw,
     rightArmHasClaw: context.rightArmHasClaw ?? attacker.rightArmHasClaw,
     optionalRules: context.optionalRules,
+    tacOpsTripAttackEnabled: context.tacOpsTripAttackEnabled,
+    attackerAlreadyGrappled: context.attackerAlreadyGrappled,
+    targetInFrontArc: isTargetInFrontArc(
+      attacker.position,
+      attacker.facing,
+      target.position,
+    ),
+    leftTripLimbUsable: context.leftTripLimbUsable,
+    rightTripLimbUsable: context.rightTripLimbUsable,
+    legAesFunctional: context.legAesFunctional,
     pushDestinationValid: context.pushDestinationValid,
     pushTargetDirectlyAhead: isTargetDirectlyAhead(
       attacker.position,
@@ -437,6 +453,12 @@ export function getEligiblePhysicalAttacks(
     ],
   };
   options.push(buildOption('push', pushInput, canPush(pushInput)));
+
+  const tripInput: IPhysicalAttackInput = {
+    ...baseInput,
+    attackType: 'trip',
+  };
+  options.push(buildOption('trip', tripInput, canTripPhysical(tripInput)));
 
   // Melee weapons — one row per equipped type, gated by
   // `canMeleeWeapon` (shoulder / hand / lower-arm actuator destruction
