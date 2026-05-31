@@ -2412,6 +2412,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       'attacker-prone',
       'c3',
       'called-shot',
+      'ecm',
       'environmental-conditions',
       'gunnery',
       'heat',
@@ -2433,7 +2434,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['c3-equipment-network-formation', 'ecm']);
+    ).toEqual(['c3-equipment-network-formation']);
   });
 
   it('pins source-backed to-hit modifiers to MegaMek refs', () => {

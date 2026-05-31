@@ -1708,6 +1708,17 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
           targetNarcedBy: [GameSide.Player],
         },
       });
+      const narcedThroughTargetEcm = resolveSpecialProjectileHit({
+        baseWeapon: lrm,
+        shotWeapon: lrm,
+        selectedMode: undefined,
+        d6Roller: sequenceD6Roller(3, 4),
+        clusterContext: {
+          attackerTeamId: GameSide.Player,
+          targetNarcedBy: [GameSide.Player],
+          targetEcmProtected: true,
+        },
+      });
       const mrm = createMRM10();
       const mrmWithPenalty = resolveSpecialProjectileHit({
         baseWeapon: mrm,
@@ -1724,6 +1735,7 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
         projectileCount: 8,
         weapon: { damage: 8 },
       });
+      expect(narcedThroughTargetEcm).toMatchObject(unmarked);
       expect(mrmWithPenalty).toMatchObject({
         projectileCount: 6,
         weapon: { damage: 6 },
@@ -1756,6 +1768,17 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
           isIndirectFire: true,
         },
       });
+      const ecmProtectedINarced = resolveSpecialProjectileHit({
+        baseWeapon: lrm,
+        shotWeapon: lrm,
+        selectedMode: undefined,
+        d6Roller: sequenceD6Roller(3, 4),
+        clusterContext: {
+          attackerTeamId: GameSide.Player,
+          targetINarcedBy: [GameSide.Player],
+          targetEcmProtected: true,
+        },
+      });
       const mrm = createMRM10();
       const mrmWithoutGuidance = resolveSpecialProjectileHit({
         baseWeapon: mrm,
@@ -1779,6 +1802,10 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
         weapon: { damage: 8 },
       });
       expect(indirectINarced).toMatchObject({
+        projectileCount: 6,
+        weapon: { damage: 6 },
+      });
+      expect(ecmProtectedINarced).toMatchObject({
         projectileCount: 6,
         weapon: { damage: 6 },
       });
@@ -1828,6 +1855,66 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
             source: 'equipment',
           }),
         ]),
+      );
+    });
+
+    it('target ECM suppresses source-backed iNARC homing to-hit guidance', () => {
+      const lrm = createLRM10();
+      const baseline = buildScenario({
+        attackerWeapons: [lrm],
+      });
+      const ecmProtected = buildScenario({
+        attackerWeapons: [lrm],
+        targetStateOverride: {
+          iNarcPods: [{ teamId: GameSide.Player, podType: 'homing' }],
+        },
+      });
+      const targetPosition = ecmProtected.state.units['opponent-1'].position;
+      const ecmProtectedState: IGameState = {
+        ...ecmProtected.state,
+        electronicWarfare: {
+          ecmSuites: [
+            {
+              type: 'guardian',
+              mode: 'ecm',
+              operational: true,
+              entityId: 'opponent-ecm-suite',
+              teamId: GameSide.Opponent,
+              position: targetPosition,
+            },
+          ],
+          activeProbes: [],
+        },
+      };
+
+      const baselineResult = runPhaseWithResult({
+        state: baseline.state,
+        weaponsByUnit: baseline.weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(lrm.id),
+        random: new SequenceRandom([6, 6, 1, 1]),
+      });
+      const ecmProtectedResult = runPhaseWithResult({
+        state: ecmProtectedState,
+        weaponsByUnit: ecmProtected.weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(lrm.id),
+        random: new SequenceRandom([6, 6, 1, 1]),
+      });
+
+      const declared = ecmProtectedResult.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ) as IGameEvent & { payload: IAttackDeclaredPayload };
+      const baselineDeclared = baselineResult.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ) as IGameEvent & { payload: IAttackDeclaredPayload };
+
+      expect(declared.payload.toHitNumber).toBe(
+        baselineDeclared.payload.toHitNumber,
+      );
+      expect(declared.payload.modifiers).not.toContainEqual(
+        expect.objectContaining({ name: 'iNARC Homing' }),
+      );
+      expect(declared.payload.modifiers).not.toContainEqual(
+        expect.objectContaining({ name: expect.stringContaining('ECM') }),
       );
     });
 

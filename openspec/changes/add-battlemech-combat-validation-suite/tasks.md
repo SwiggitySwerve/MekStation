@@ -217,6 +217,7 @@
 - [x] 3.4.41 Remove the legacy semi-guided TAG cluster helper export from official helper surfaces, catalog rows, tests, and runner missile resolution.
 - [x] 3.4.42 Source-pin every canonical SPA scope row across integrated, helper-only, unsupported, infantry, ATOW, bioware, unofficial, and Edge partitions so canonical catalog coverage cannot rely on prose-only authority.
 - [x] 3.4.43 Correct the archived generic `+1 ECM` to-hit assumption against MegaMek source, remove runner/helper generic ECM to-hit wiring, and pin ECM as source-backed guidance-suppression behavior instead of an additive modifier.
+- [x] 3.4.44 Promote the ECM to-hit modifier support row to integrated after source-backed assertions prove target ECM suppresses NARC/iNARC Homing guidance, iNARC ECM disrupts C3/Artemis flight-path guidance, semi-guided TAG respects target ECM, and no generic ECM to-hit penalty is emitted.
 - [x] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
