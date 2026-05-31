@@ -300,11 +300,15 @@ export const PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT = {
     ['hatchet', 'sword', 'mace', 'lance', 'retractable-blade'],
     MEGAMEK_SUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS.club,
   ),
-  'brush-off': unsupportedBattleMech(
+  'brush-off': helperOnlyBattleMech(
     'brush-off',
     'BrushOffAttackAction',
-    'Brush-off against swarming infantry/battle armor has no runtime PhysicalAttackType, tactical command, or resolution path',
-    MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS['brush-off'],
+    'canBrushOff helper coverage applies source-backed swarming-infantry/iNarc target legality, arm gates, dedicated brush-off modifiers, and punch-equivalent damage',
+    'Brush-off attacks still have no runtime PhysicalAttackType, tactical command, event-sourced declaration, miss self-damage handling, or resolution path',
+    [
+      ...MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS['brush-off'],
+      ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS['brush-off'],
+    ],
   ),
   thrash: helperOnlyBattleMech(
     'thrash',
