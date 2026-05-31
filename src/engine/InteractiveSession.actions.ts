@@ -96,6 +96,8 @@ export function applyInteractiveSessionMovement(
     input.movementType,
     capability,
     unit.heat,
+    undefined,
+    { pilotAbilities: unit.abilities },
   );
   if (!validation.valid) {
     throw new Error(
@@ -115,6 +117,7 @@ export function applyInteractiveSessionMovement(
             validation.mpCost,
             maxMovementCostForCapability(capability, input.movementType),
           ),
+          movementContext: { pilotAbilities: unit.abilities },
         });
 
   let session = declareMovement(
