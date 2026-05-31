@@ -1180,7 +1180,7 @@ Movement PSR validation SHALL apply MegaMek's water-entry depth modifier when a 
 
 ### Requirement: Source-Backed Terrain Master Mountaineer Rubble-Entry PSR
 
-Movement PSR validation SHALL apply MegaMek's Terrain Master: Mountaineer relief as a named `-1` SPA modifier only when the pending PSR is an entering-rubble PSR and the acting unit has canonical `tm_mountaineer` or legacy `terrain-master-mountaineer`. Mountaineer movement-cost and elevation movement effects SHALL remain explicit gaps until separately wired.
+Movement PSR validation SHALL apply MegaMek's Terrain Master: Mountaineer relief as a named `-1` SPA modifier only when the pending PSR is an entering-rubble PSR and the acting unit has canonical `tm_mountaineer` or legacy `terrain-master-mountaineer`. Mountaineer rough/rubble movement-cost relief and upward elevation movement-cost relief SHALL remain explicit BattleMech `movement-application` gaps until separately wired.
 
 #### Scenario: Mountaineer applies to entering-rubble PSR
 
