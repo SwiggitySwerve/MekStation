@@ -28,6 +28,13 @@ export function targetPSRForAttack(
       return createDFATargetPSR(targetId);
     case 'push':
       return createPushedPSR(targetId);
+    case 'trip':
+      return {
+        entityId: targetId,
+        reason: 'Tripped',
+        additionalModifier: 0,
+        triggerSource: 'trip',
+      };
     default:
       return null;
   }
