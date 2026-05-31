@@ -399,12 +399,19 @@ describe('BattleMech terrain and environment combat support catalog', () => {
   });
 
   it('keeps source-backed terrain PSR gaps visible without inventing non-BattleMech gaps', () => {
-    expect([...TERRAIN_TYPES_WITH_PSR_GAPS].sort()).toEqual([
-      TerrainType.Building,
-    ]);
+    expect([...TERRAIN_TYPES_WITH_PSR_GAPS].sort()).toEqual([]);
     expect(
       supportIdsByLevel(TERRAIN_TYPE_PSR_COMBAT_SUPPORT, 'helper-only'),
     ).toEqual([...TERRAIN_TYPES_WITH_PSR_GAPS].sort());
+    expect(TERRAIN_TYPE_PSR_COMBAT_SUPPORT[TerrainType.Building]).toMatchObject(
+      {
+        level: 'integrated',
+        evidence: expect.stringContaining('constructionFactor'),
+        sourceRefs: expect.arrayContaining([
+          expect.objectContaining({ kind: 'megamek-source' }),
+        ]),
+      },
+    );
     expect(TERRAIN_TYPE_PSR_COMBAT_SUPPORT[TerrainType.Swamp]).toMatchObject({
       level: 'integrated',
       evidence: expect.stringContaining('UnitStuck'),
@@ -438,11 +445,11 @@ describe('BattleMech terrain and environment combat support catalog', () => {
         expect.arrayContaining([
           expect.objectContaining({
             kind: 'mekstation-deviation',
-            url: 'src/simulation/runner/phases/movementTerrainPsr.ts#L37-L231',
+            url: 'src/simulation/runner/phases/movementTerrainPsr.ts#L37-L352',
           }),
           expect.objectContaining({
             kind: 'mekstation-deviation',
-            url: 'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts#L94-L232',
+            url: 'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts#L94-L245',
           }),
         ]),
       );
