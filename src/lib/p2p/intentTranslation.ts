@@ -284,6 +284,8 @@ function translateDeclareMovement(
     payload.movementType,
     capability,
     unit.heat,
+    undefined,
+    { pilotAbilities: unit.abilities },
   );
   if (!validation.valid) {
     return {
@@ -302,6 +304,7 @@ function translateDeclareMovement(
       validation.mpCost,
       maxMovementCostForCapability(capability, payload.movementType),
     ),
+    movementContext: { pilotAbilities: unit.abilities },
   });
 
   const baseSeq = session.events.length;
