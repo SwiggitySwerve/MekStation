@@ -1362,6 +1362,14 @@ movement projection, and serializes two replayable `convertMode` movement-event
 steps before path movement. Airborne AirMek/WiGE pathing, bimodal import
 differentiation, and broad conversion oracle sweeps remain follow-ups.
 
+2026-05-31 conversion-step explanation surface pin: Pending conversion
+step/cost metadata now survives same-hex movement-option summarization and is
+exposed in top-down hex attributes, movement badge metadata/title text,
+projection overlay attributes, movement option rows, and movement hover tooltip
+rows. This keeps the map's explanation layer aligned with the runtime
+conversion command and event sequence above instead of hiding conversion work in
+projection-only fields.
+
 2026-05-25 over-budget movement explanation pin: MegaMek pathfinding exposes
 path MP through `MovePath.getMpUsed()` (`MovePath.java:1214-1218`) and filters
 one-to-all paths by available MP with `MovePathLengthFilter`

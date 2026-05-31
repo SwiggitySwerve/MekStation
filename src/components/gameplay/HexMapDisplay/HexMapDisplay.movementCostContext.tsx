@@ -64,11 +64,18 @@ export function MovementCostContextRows({
   const pathStepCount = movementInfo.path
     ? Math.max(0, movementInfo.path.length - 1)
     : undefined;
+  const hasConversionContext =
+    movementInfo.conversionStepCount !== undefined ||
+    movementInfo.conversionMpCost !== undefined;
+  const conversionStepCount = movementInfo.conversionStepCount ?? 0;
+  const conversionStepLabel =
+    conversionStepCount === 1 ? '1 step' : `${conversionStepCount} steps`;
 
   if (
     movementInfo.terrainCost === undefined &&
     movementInfo.elevationDelta === undefined &&
     movementInfo.heatGenerated === undefined &&
+    !hasConversionContext &&
     !pathSummaryLabel
   ) {
     return null;
@@ -108,6 +115,18 @@ export function MovementCostContextRows({
           {...sourceAttributes}
         >
           Heat: +{movementInfo.heatGenerated}
+        </div>
+      )}
+      {hasConversionContext && (
+        <div
+          data-testid={`${testIdPrefix}-conversion`}
+          data-movement-context-kind="conversion"
+          data-movement-conversion-step-count={conversionStepCount}
+          data-movement-conversion-mp-cost={movementInfo.conversionMpCost ?? 0}
+          {...sourceAttributes}
+        >
+          Conversion: {conversionStepLabel},{' '}
+          {movementInfo.conversionMpCost ?? 0} MP
         </div>
       )}
       {pathSummaryLabel && (

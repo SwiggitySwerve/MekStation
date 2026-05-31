@@ -9,6 +9,8 @@ import {
   formatMovementOptionTitle,
   formatMovementTypeLabel,
   movementOptionBlockedReasonsAttribute,
+  movementOptionConversionMpCostsAttribute,
+  movementOptionConversionStepCountsAttribute,
   movementOptionElevationCostsAttribute,
   movementOptionElevationDeltasAttribute,
   movementOptionHeatGeneratedAttribute,
@@ -53,7 +55,14 @@ export function formatMovementModeTitle(
 export function formatMovementReachBadgeTitle(
   movementInfo: IMovementRangeHex,
 ): string {
-  const primary = `${formatMovementModeTitle(movementInfo)} reachable: ${movementInfo.mpCost} MP`;
+  const conversion =
+    movementInfo.conversionStepCount === undefined &&
+    movementInfo.conversionMpCost === undefined
+      ? ''
+      : `; conversion ${movementInfo.conversionStepCount ?? 0} steps ${
+          movementInfo.conversionMpCost ?? 0
+        } MP`;
+  const primary = `${formatMovementModeTitle(movementInfo)} reachable: ${movementInfo.mpCost} MP${conversion}`;
   const options = movementInfo.movementModeOptions ?? [];
   if (options.length <= 1) return primary;
   return `${primary}; options ${options.map(formatMovementOptionTitle).join('; ')}`;
@@ -183,6 +192,10 @@ export function MovementReachBadge({
       data-movement-badge-mode={movementInfo.movementMode}
       data-movement-badge-mp-cost={movementInfo.mpCost}
       data-movement-badge-heat-generated={movementInfo.heatGenerated}
+      data-movement-badge-conversion-step-count={
+        movementInfo.conversionStepCount
+      }
+      data-movement-badge-conversion-mp-cost={movementInfo.conversionMpCost}
       data-movement-badge-option-count={
         movementOptions.length > 1 ? movementOptions.length : undefined
       }
@@ -231,6 +244,16 @@ export function MovementReachBadge({
       data-movement-badge-option-heats={movementOptionHeatGeneratedAttribute(
         movementOptions,
       )}
+      data-movement-badge-option-conversion-step-counts={
+        movementOptions.length > 1
+          ? movementOptionConversionStepCountsAttribute(movementOptions)
+          : undefined
+      }
+      data-movement-badge-option-conversion-mp-costs={
+        movementOptions.length > 1
+          ? movementOptionConversionMpCostsAttribute(movementOptions)
+          : undefined
+      }
     >
       <title>{title}</title>
       <rect

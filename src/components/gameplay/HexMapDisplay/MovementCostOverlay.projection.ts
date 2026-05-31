@@ -3,6 +3,8 @@ import type { IMovementRangeHex } from '@/types/gameplay';
 import { formatMovementModeTitle } from './HexCell.movementBadges';
 import {
   movementOptionBlockedReasonsAttribute,
+  movementOptionConversionMpCostsAttribute,
+  movementOptionConversionStepCountsAttribute,
   movementOptionElevationCostsAttribute,
   movementOptionElevationDeltasAttribute,
   movementOptionHeatGeneratedAttribute,
@@ -93,6 +95,10 @@ export function movementProjectionOverlayAttributes(
     'data-movement-projection-elevation-delta': movementInfo?.elevationDelta,
     'data-movement-projection-elevation-cost': movementInfo?.elevationCost,
     'data-movement-projection-heat-generated': movementInfo?.heatGenerated,
+    'data-movement-projection-conversion-step-count':
+      movementInfo?.conversionStepCount,
+    'data-movement-projection-conversion-mp-cost':
+      movementInfo?.conversionMpCost,
     'data-movement-projection-blocked-reason': movementInfo?.blockedReason,
     'data-movement-projection-invalid-reason':
       movementInfo?.movementInvalidReason,
@@ -112,6 +118,12 @@ export function movementProjectionOverlayAttributes(
       : undefined,
     'data-movement-projection-option-heats': hasMultipleOptions
       ? movementOptionHeatGeneratedAttribute(movementOptions)
+      : undefined,
+    'data-movement-projection-option-conversion-step-counts': hasMultipleOptions
+      ? movementOptionConversionStepCountsAttribute(movementOptions)
+      : undefined,
+    'data-movement-projection-option-conversion-mp-costs': hasMultipleOptions
+      ? movementOptionConversionMpCostsAttribute(movementOptions)
       : undefined,
     'data-movement-projection-option-blocked-reasons': hasMultipleOptions
       ? movementOptionBlockedReasonsAttribute(movementOptions)

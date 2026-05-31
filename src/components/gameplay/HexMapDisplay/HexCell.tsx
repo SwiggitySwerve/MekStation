@@ -69,6 +69,8 @@ import { MovementBlockedOptionsBadge } from './HexCell.movementBlockedOptionsBad
 import {
   movementOptionCostsAttribute,
   movementOptionBlockedReasonsAttribute,
+  movementOptionConversionMpCostsAttribute,
+  movementOptionConversionStepCountsAttribute,
   movementOptionElevationCostsAttribute,
   movementOptionElevationDeltasAttribute,
   movementOptionHeatGeneratedAttribute,
@@ -500,6 +502,8 @@ export const HexCell = React.memo(function HexCell({
       }
       data-movement-type={movementInfo?.movementType}
       data-movement-mode={movementInfo?.movementMode}
+      data-movement-conversion-step-count={movementInfo?.conversionStepCount}
+      data-movement-conversion-mp-cost={movementInfo?.conversionMpCost}
       data-movement-option-count={
         movementOptionCount && movementOptionCount > 1
           ? movementOptionCount
@@ -527,6 +531,12 @@ export const HexCell = React.memo(function HexCell({
         movementOptions ?? [],
       )}
       data-movement-option-heats={movementOptionHeatGeneratedAttribute(
+        movementOptions ?? [],
+      )}
+      data-movement-option-conversion-step-counts={movementOptionConversionStepCountsAttribute(
+        movementOptions ?? [],
+      )}
+      data-movement-option-conversion-mp-costs={movementOptionConversionMpCostsAttribute(
         movementOptions ?? [],
       )}
       data-mp-cost={movementInfo?.mpCost}

@@ -104,6 +104,8 @@ function movementRangeOptionFor(
     elevationDelta: movementInfo.elevationDelta,
     elevationCost: movementInfo.elevationCost,
     heatGenerated: movementInfo.heatGenerated,
+    conversionStepCount: movementInfo.conversionStepCount,
+    conversionMpCost: movementInfo.conversionMpCost,
     blockedReason: movementInfo.blockedReason,
     movementInvalidReason: movementInfo.movementInvalidReason,
     movementInvalidDetails: movementInfo.movementInvalidDetails,
@@ -252,6 +254,24 @@ export function movementOptionHeatGeneratedAttribute(
   return heatOptions.length > 0 ? heatOptions.join('|') : undefined;
 }
 
+export function movementOptionConversionStepCountsAttribute(
+  options: readonly IMovementRangeModeOption[],
+): string | undefined {
+  const conversionOptions = options
+    .filter((option) => option.conversionStepCount !== undefined)
+    .map((option) => `${option.movementType}:${option.conversionStepCount}`);
+  return conversionOptions.length > 0 ? conversionOptions.join('|') : undefined;
+}
+
+export function movementOptionConversionMpCostsAttribute(
+  options: readonly IMovementRangeModeOption[],
+): string | undefined {
+  const conversionOptions = options
+    .filter((option) => option.conversionMpCost !== undefined)
+    .map((option) => `${option.movementType}:${option.conversionMpCost}`);
+  return conversionOptions.length > 0 ? conversionOptions.join('|') : undefined;
+}
+
 export function movementOptionMaxReachableHeatGenerated(
   movementInfo?: IMovementRangeHex,
 ): number | undefined {
@@ -291,6 +311,20 @@ function formatMovementOptionCostBreakdown(
   return parts.length > 0 ? `, ${parts.join(', ')}` : '';
 }
 
+function formatMovementOptionConversionDetail(
+  option: IMovementRangeModeOption,
+): string {
+  if (
+    option.conversionStepCount === undefined &&
+    option.conversionMpCost === undefined
+  ) {
+    return '';
+  }
+  const stepCount = option.conversionStepCount ?? 0;
+  const stepLabel = stepCount === 1 ? '1 step' : `${stepCount} steps`;
+  return `, conversion ${stepLabel} ${option.conversionMpCost ?? 0} MP`;
+}
+
 export function formatMovementOptionTitle(
   option: IMovementRangeModeOption,
 ): string {
@@ -300,11 +334,12 @@ export function formatMovementOptionTitle(
       : '';
   const cost = Number.isFinite(option.mpCost) ? `${option.mpCost} MP` : 'X MP';
   const costBreakdown = formatMovementOptionCostBreakdown(option);
+  const conversion = formatMovementOptionConversionDetail(option);
   const heat =
     option.heatGenerated === undefined ? '' : `, heat +${option.heatGenerated}`;
   const blockedDetail = movementOptionBlockedDetail(option);
   const blocked = option.reachable
     ? ''
     : `, blocked${blockedDetail ? `: ${blockedDetail}` : ''}`;
-  return `${option.movementType}${movementMode} ${option.reachable ? 'reachable' : 'blocked'} ${cost}${costBreakdown}${heat}${blocked}`;
+  return `${option.movementType}${movementMode} ${option.reachable ? 'reachable' : 'blocked'} ${cost}${costBreakdown}${conversion}${heat}${blocked}`;
 }

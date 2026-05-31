@@ -15,6 +15,8 @@ import {
   formatMovementOptionTitle,
   movementOptionBlockedDetail,
   movementOptionBlockedReasonsAttribute,
+  movementOptionConversionMpCostsAttribute,
+  movementOptionConversionStepCountsAttribute,
   movementOptionCostsAttribute,
   movementOptionElevationCostsAttribute,
   movementOptionElevationDeltasAttribute,
@@ -83,6 +85,12 @@ export function MovementModeOptionRows({
         options,
       )}
       data-movement-option-heats={movementOptionHeatGeneratedAttribute(options)}
+      data-movement-option-conversion-step-counts={movementOptionConversionStepCountsAttribute(
+        options,
+      )}
+      data-movement-option-conversion-mp-costs={movementOptionConversionMpCostsAttribute(
+        options,
+      )}
       data-movement-option-blocked-reasons={movementOptionBlockedReasonsAttribute(
         options,
       )}
@@ -119,6 +127,10 @@ export function MovementModeOptionRows({
             data-movement-option-elevation-delta={option.elevationDelta}
             data-movement-option-elevation-cost={option.elevationCost}
             data-movement-option-heat={option.heatGenerated}
+            data-movement-option-conversion-step-count={
+              option.conversionStepCount
+            }
+            data-movement-option-conversion-mp-cost={option.conversionMpCost}
             data-movement-option-blocked-reason={blockedDetail}
             data-movement-option-invalid-reason={option.movementInvalidReason}
             data-movement-option-invalid-details={option.movementInvalidDetails}

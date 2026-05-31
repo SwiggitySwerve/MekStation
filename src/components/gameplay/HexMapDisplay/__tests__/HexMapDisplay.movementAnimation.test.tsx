@@ -1385,6 +1385,8 @@ describe('HexMapDisplay tactical visual layers', () => {
           {
             hex: { q: 1, r: 0 },
             mpCost: 3,
+            conversionStepCount: 2,
+            conversionMpCost: 0,
             heatGenerated: 0,
             movementMode: 'tracked',
             reachable: true,
@@ -1422,6 +1424,14 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(hex).toHaveAttribute(
       'data-movement-option-states',
       'walk:reachable|run:reachable|jump:blocked',
+    );
+    expect(hex).toHaveAttribute(
+      'data-movement-option-conversion-step-counts',
+      'walk:2',
+    );
+    expect(hex).toHaveAttribute(
+      'data-movement-option-conversion-mp-costs',
+      'walk:0',
     );
     expect(hex).toHaveAttribute(
       'data-movement-option-blocked-reasons',
@@ -1490,6 +1500,14 @@ describe('HexMapDisplay tactical visual layers', () => {
       `jump:${blockedReason}`,
     );
     expect(badge).toHaveAttribute(
+      'data-movement-badge-option-conversion-step-counts',
+      'walk:2',
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-option-conversion-mp-costs',
+      'walk:0',
+    );
+    expect(badge).toHaveAttribute(
       'data-movement-badge-option-invalid-reasons',
       'jump:TerrainBlocked',
     );
@@ -1537,9 +1555,34 @@ describe('HexMapDisplay tactical visual layers', () => {
       'walk:reachable|run:reachable|jump:blocked',
     );
     expect(optionRows).toHaveAttribute(
+      'data-movement-option-conversion-step-counts',
+      'walk:2',
+    );
+    expect(optionRows).toHaveAttribute(
+      'data-movement-option-conversion-mp-costs',
+      'walk:0',
+    );
+    expect(optionRows).toHaveAttribute(
       'data-movement-option-blocked-reasons',
       `jump:${blockedReason}`,
     );
+    expect(
+      screen.getByTestId(
+        'hex-movement-tooltip-mode-options-option-walk-tracked-0',
+      ),
+    ).toHaveTextContent(
+      'walk via tracked reachable 3 MP, conversion 2 steps 0 MP',
+    );
+    expect(
+      screen.getByTestId(
+        'hex-movement-tooltip-mode-options-option-walk-tracked-0',
+      ),
+    ).toHaveAttribute('data-movement-option-conversion-step-count', '2');
+    expect(
+      screen.getByTestId(
+        'hex-movement-tooltip-mode-options-option-walk-tracked-0',
+      ),
+    ).toHaveAttribute('data-movement-option-conversion-mp-cost', '0');
     expect(
       screen.getByTestId(
         'hex-movement-tooltip-mode-options-option-jump-jump-2',
@@ -2651,6 +2694,8 @@ describe('HexMapDisplay tactical visual layers', () => {
             elevationDelta: 1,
             elevationCost: 1,
             heatGenerated: 0,
+            conversionStepCount: 2,
+            conversionMpCost: 0,
             movementMode: 'walk',
             reachable: true,
             movementType: MovementType.Walk,
@@ -2664,7 +2709,24 @@ describe('HexMapDisplay tactical visual layers', () => {
       />,
     );
 
-    fireEvent.mouseEnter(screen.getByTestId('hex-1--1'));
+    const hex = screen.getByTestId('hex-1--1');
+    expect(hex).toHaveAttribute('data-movement-conversion-step-count', '2');
+    expect(hex).toHaveAttribute('data-movement-conversion-mp-cost', '0');
+    const badge = screen.getByTestId('hex-movement-badge-1--1');
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-conversion-step-count',
+      '2',
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-conversion-mp-cost',
+      '0',
+    );
+    expect(badge).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('conversion 2 steps 0 MP'),
+    );
+
+    fireEvent.mouseEnter(hex);
 
     expect(screen.getByTestId('hex-movement-tooltip-cost')).toHaveTextContent(
       'MP: 4',
@@ -2723,6 +2785,18 @@ describe('HexMapDisplay tactical visual layers', () => {
       'data-movement-heat-generated',
       '0',
     );
+    expect(
+      screen.getByTestId('hex-movement-tooltip-conversion'),
+    ).toHaveTextContent('Conversion: 2 steps, 0 MP');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-conversion'),
+    ).toHaveAttribute('data-movement-context-kind', 'conversion');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-conversion'),
+    ).toHaveAttribute('data-movement-conversion-step-count', '2');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-conversion'),
+    ).toHaveAttribute('data-movement-conversion-mp-cost', '0');
     expect(screen.getByTestId('hex-movement-tooltip-path')).toHaveTextContent(
       'Path: 2 steps',
     );
