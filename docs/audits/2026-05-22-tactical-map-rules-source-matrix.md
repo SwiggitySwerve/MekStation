@@ -884,9 +884,21 @@ runtime altitude action, replays it as pending unit movement state, adds it to
 projected movement costs and remaining budget, carries the metadata through
 top-down badges/tooltips/shared projection explanations, consumes the same
 reserve during committed movement validation, and clears the reserve when the
-movement declaration replays. Full airborne pathing, clearance-specific
-UP/DOWN legality, hover/takeoff/landing sequencing, and automatic WiGE landing
+movement declaration replays. Full airborne pathing, hover/takeoff/landing
+sequencing, automatic WiGE landing, and advanced WiGE subtype altitude ceilings
 remain follow-ups.
+
+2026-05-31 altitude-control clearance gate pin: MegaMek
+`Entity.java:2433-2497` derives minimum descent altitude from water, woods
+foliage, bridge decks, and building roofs, `Entity.java:2504-2540` derives
+maximum climb altitude including VTOL under-bridge clearance and ordinary WiGE
+building-top clearance, and `MovementDisplay.java:2276-2291` enables Climb /
+Descend from those predicates. MekStation command availability now consumes the
+selected unit's encoded terrain, map elevation, and represented unit height to
+disable misleading altitude controls before dispatch while preserving the same
+replayable altitude-control event and MP reserve for legal commands. Remaining
+altitude-control gaps are full airborne pathing, hover/takeoff/landing
+sequencing, automatic WiGE landing, and LAM/ProtoMek-specific WiGE ceilings.
 
 Tracked-vehicle browser update: the tactical-map browser harness now pairs the
 VTOL proof with a tracked ground-vehicle abrupt-climb scenario. The top-down map

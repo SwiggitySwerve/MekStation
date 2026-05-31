@@ -60,9 +60,11 @@ decisions are made, not because CI is stale.
   movement-phase Climb/Descend commands via
   `wire-vtol-wige-altitude-controls`. The represented 1 MP UP/DOWN reserve now
   carries into later movement projection, hover metadata, and commit validation
-  via `reserve-altitude-control-mp`; full multi-step airborne pathing,
-  hover/takeoff/landing sequencing, automatic WiGE landing, and
-  terrain-clearance-specific altitude gates remain follow-up work.
+  via `reserve-altitude-control-mp`. Basic selected-hex water, woods, bridge,
+  building, VTOL under-bridge, and ordinary WiGE building-top altitude command
+  gates are covered by `gate-altitude-controls-by-clearance`; full multi-step
+  airborne pathing, hover/takeoff/landing sequencing, automatic WiGE landing,
+  and LAM/ProtoMek-specific WiGE ceilings remain follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
   `apply-runtime-movement-state-events`, and tactical command controls are now

@@ -14,11 +14,13 @@ import {
   GamePhase,
   LockState,
   MovementType,
+  TerrainType,
   type IComponentDamageState,
   type IMovementRangeHex,
   type ITacticalCommandContext,
 } from '@/types/gameplay';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 import { buildMovementCommands } from '../movementCommands';
 
@@ -708,6 +710,82 @@ describe('movementCommands', () => {
       available: false,
       reason: 'Altitude controls are already at maximum altitude 1.',
     });
+
+    expect(
+      descend.availability({
+        ...vtolCtx,
+        activeUnitVehicleAltitude: 1,
+        activeUnitTerrain: 'water',
+      }),
+    ).toEqual({
+      available: false,
+      reason:
+        'Altitude controls cannot descend below altitude 1 over this terrain.',
+    });
+    expect(
+      descend.availability({
+        ...vtolCtx,
+        activeUnitVehicleAltitude: 3,
+        activeUnitTerrain: terrainStringFromFeatures([
+          { type: TerrainType.HeavyWoods, level: 2 },
+        ]),
+      }),
+    ).toEqual({
+      available: false,
+      reason:
+        'Altitude controls cannot descend below altitude 3 over this terrain.',
+    });
+    expect(
+      descend.availability({
+        ...vtolCtx,
+        activeUnitVehicleAltitude: 2,
+        activeUnitTerrain: terrainStringFromFeatures([
+          { type: TerrainType.Building, level: 2 },
+        ]),
+      }),
+    ).toEqual({
+      available: false,
+      reason:
+        'Altitude controls cannot descend below altitude 2 over this terrain.',
+    });
+    expect(
+      descend.availability({
+        ...vtolCtx,
+        activeUnitVehicleAltitude: 2,
+        activeUnitTerrain: terrainStringFromFeatures([
+          { type: TerrainType.Bridge, level: 2 },
+        ]),
+      }),
+    ).toEqual({
+      available: false,
+      reason:
+        'Altitude controls cannot descend below altitude 2 over this terrain.',
+    });
+    expect(
+      climb.availability({
+        ...vtolCtx,
+        activeUnitVehicleAltitude: 0,
+        activeUnitTerrain: terrainStringFromFeatures([
+          { type: TerrainType.Bridge, level: 2 },
+        ]),
+        movementCapability: {
+          ...vtolCtx.movementCapability!,
+          unitHeight: 1,
+        },
+      }),
+    ).toEqual({
+      available: false,
+      reason: 'Bridge clearance blocks climbing from altitude 0.',
+    });
+    expect(
+      climb.availability({
+        ...wigeCtx,
+        activeUnitVehicleAltitude: 1,
+        activeUnitTerrain: terrainStringFromFeatures([
+          { type: TerrainType.Building, level: 3 },
+        ]),
+      }),
+    ).toEqual({ available: true });
   });
 
   it('adds LAM conversion controls that clear stale explicit height', () => {

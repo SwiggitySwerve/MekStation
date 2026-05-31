@@ -102,6 +102,8 @@ export function useCommandRegistry(
       ctx.activeUnitConversionMode,
       ctx.activeUnitVehicleMotionType,
       ctx.activeUnitVehicleAltitude,
+      ctx.activeUnitTerrain,
+      ctx.activeUnitElevation,
       ctx.activeUnitInfantryMounted,
       ctx.activeUnitInfantryMountHeight,
       ctx.movementCapability?.unitHeight,
