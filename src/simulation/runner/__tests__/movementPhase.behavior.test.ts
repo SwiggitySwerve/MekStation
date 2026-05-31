@@ -960,6 +960,12 @@ describe('runMovementPhase movement validation parity', () => {
       expected: PSRTrigger.MovingOnIce,
     },
     {
+      name: 'swamp bog-down entry',
+      terrain: TerrainType.Swamp,
+      movementType: MovementType.Walk,
+      expected: PSRTrigger.SwampBogDown,
+    },
+    {
       name: 'jumping into water',
       terrain: TerrainType.Water,
       movementType: MovementType.Jump,
@@ -998,6 +1004,41 @@ describe('runMovementPhase movement validation parity', () => {
     expect(TERRAIN_TYPE_PSR_COMBAT_SUPPORT[scenario.terrain]).toMatchObject({
       level: 'integrated',
     });
+  });
+
+  it('marks BattleMechs stuck immediately when they jump into swamp', () => {
+    const target = { q: 1, r: 0 };
+    const grid = setTerrain(createMinimalGrid(3), target, TerrainType.Swamp);
+
+    const { next, events } = runScriptedMove(
+      grid,
+      target,
+      {
+        unitType: UnitType.BATTLEMECH,
+      },
+      {
+        movementType: MovementType.Jump,
+        capability: { walkMP: 4, runMP: 6, jumpMP: 4 },
+      },
+    );
+
+    expect(next.units['player-1']).toMatchObject({
+      position: target,
+      isStuck: true,
+      pendingPSRs: [],
+    });
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        type: GameEventType.UnitStuck,
+        payload: expect.objectContaining({
+          unitId: 'player-1',
+          reasonCode: PSRTrigger.SwampBogDown,
+        }),
+      }),
+    );
+    expect(
+      events.some((event) => event.type === GameEventType.PSRTriggered),
+    ).toBe(false);
   });
 
   it('queues depth-aware entering-water PSRs from complex terrain features', () => {
