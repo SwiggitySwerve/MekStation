@@ -2,6 +2,8 @@ import { GameEventType } from '@/types/gameplay';
 
 import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
 
+import { BATTLEMECH_SPOTTING_EVENT_SOURCE_REFS } from './CombatSpottingSourceRefs';
+
 const MEKSTATION_SOURCE_VERSION = 'MekStation working-tree';
 
 function mekstationDeviationSourceRef(
@@ -372,6 +374,7 @@ export const BATTLEMECH_EVENT_SOURCE_REFS: Readonly<
     BATTLEMECH_INDIRECT_FIRE_EVENT_SOURCE_REFS,
   [GameEventType.IndirectFireNarcOverride]:
     BATTLEMECH_INDIRECT_FIRE_EVENT_SOURCE_REFS,
+  [GameEventType.SpottingDeclared]: BATTLEMECH_SPOTTING_EVENT_SOURCE_REFS,
   [GameEventType.HeatGenerated]: BATTLEMECH_HEAT_EVENT_SOURCE_REFS,
   [GameEventType.HeatDissipated]: BATTLEMECH_HEAT_EVENT_SOURCE_REFS,
   [GameEventType.HeatEffectApplied]: BATTLEMECH_HEAT_EVENT_SOURCE_REFS,

@@ -407,6 +407,56 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(byType.get('wrecking-ball')?.damage.targetDamage).toBe(8);
   });
 
+  it('applies attacker spotting to every physical to-hit family', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        facing: Facing.Southeast,
+        isSpotting: true,
+        movementThisTurn: MovementType.Run,
+        hexesMovedThisTurn: 5,
+      },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      attackerMovementModifier: 1,
+      attackerRanThisTurn: true,
+      attackerJumpedThisTurn: true,
+      meleeWeaponsEquipped: ['sword'],
+      pushDestinationValid: true,
+    });
+    const byType = new Map(
+      options.map((option) => [option.attackType, option]),
+    );
+
+    for (const attackType of [
+      'punch',
+      'kick',
+      'charge',
+      'dfa',
+      'push',
+      'sword',
+    ] as const) {
+      expect(byType.get(attackType)?.toHit.modifiers).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: 'Attacker spotting',
+            value: 1,
+            source: 'other',
+          }),
+        ]),
+      );
+    }
+    expect(byType.get('punch')?.toHit.finalToHit).toBe(6);
+    expect(byType.get('charge')?.toHit.finalToHit).toBe(7);
+  });
+
   it('projects source-backed talon damage on kick and DFA rows', () => {
     const attacker = unitState(
       'attacker',
