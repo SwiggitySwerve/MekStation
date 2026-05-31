@@ -978,11 +978,11 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'buildUtilityCommands commits eject; eject game intent, Eject wire payload, and InteractiveSession.ejectUnit are wired',
     MEKSTATION_EJECT_COMMAND_SOURCE_REFS,
   ),
-  'utility.withdraw': helperOnly(
+  'utility.withdraw': outOfScope(
     'utility.withdraw',
     'tactical-command',
     'InteractiveSession.declareWithdrawal, withdraw game intent, Withdraw wire payload, server dispatch, and P2P translation model player withdrawal',
-    'The tactical command still has no edge-selection payload, so the UI command cannot directly produce the authoritative withdraw intent',
+    'The command-shell shortcut has no edge-selection payload and is superseded by the integrated edge-selecting WithdrawControl action path',
     MEKSTATION_WITHDRAW_COMMAND_SOURCE_REFS,
   ),
   'utility.concede': integrated(

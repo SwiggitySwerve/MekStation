@@ -121,8 +121,8 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **AND** facing tactical command rows, including chassis rotation and torso twist surfaces, SHALL cite the MekStation command factory that exposes the facing surface
 - **AND** physical tactical command rows, including punch, kick, push, charge, death from above, and melee weapon surfaces, SHALL cite the MekStation command factory that exposes the physical attack surface
 - **AND** heat/end tactical command rows, including heat continue, end phase, and next turn, SHALL cite the MekStation command factory that exposes the phase-control surface
-- **AND** helper-only product command rows, including withdraw and request-spot commands, SHALL cite the MekStation command factory that exposes the local surface and SHALL remain unresolved while authoritative edge-selection or spotting lifecycle behavior is missing
-- **AND** local draft/reset command rows, including movement cancel and weapon draft declaration/clear, SHALL cite the MekStation command factory as `out-of-scope` UI shell rows outside official BattleMech combat action handling
+- **AND** helper-only product command rows, including request-spot commands, SHALL cite the MekStation command factory that exposes the local surface and SHALL remain unresolved while authoritative spotting lifecycle behavior is missing
+- **AND** local draft/reset and superseded command-shell rows, including movement cancel, weapon draft declaration/clear, and the edge-less withdraw shortcut, SHALL cite the MekStation command factory as `out-of-scope` UI shell rows outside official BattleMech combat action handling
 - **AND** direct UI action rows, including withdrawal edge selection, SHALL cite the MekStation component that exposes the direct action surface
 - **AND** every game-intent action row SHALL cite the MekStation game-intent mapper that constructs or maps the local intent to its server wire payload
 - **AND** every wire-intent action row SHALL cite the MekStation server dispatcher, with lobby and reconnect wire intents remaining `out-of-scope` non-combat scope splits
