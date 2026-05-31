@@ -737,7 +737,13 @@ function calculateMoveCandidateMpCost(params: {
 function toGroundUnitMovementType(
   movementType: MovementType,
 ): UnitMovementType {
-  return movementType === MovementType.Run ? 'run' : 'walk';
+  return isRunBasedMovement(movementType) ? 'run' : 'walk';
+}
+
+function isRunBasedMovement(movementType: MovementType): boolean {
+  return (
+    movementType === MovementType.Run || movementType === MovementType.Evade
+  );
 }
 
 export class MoveAI {
@@ -1006,7 +1012,7 @@ function deriveCapability(
   }
   return {
     walkMP: movementType === MovementType.Walk ? maxMp : 0,
-    runMP: movementType === MovementType.Run ? maxMp : 0,
+    runMP: isRunBasedMovement(movementType) ? maxMp : 0,
     jumpMP: movementType === MovementType.Jump ? maxMp : 0,
   };
 }

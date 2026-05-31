@@ -19,6 +19,12 @@ type MovementDamageStep = {
   readonly index: number;
 };
 
+function isRunBasedMovement(movementType: MovementType): boolean {
+  return (
+    movementType === MovementType.Run || movementType === MovementType.Evade
+  );
+}
+
 export function queueMovementDamagePSRs(options: {
   currentState: IGameState;
   events: IGameEvent[];
@@ -63,7 +69,7 @@ function movementDamagePSRsForUnit(
   movementType: MovementType,
   steps: readonly MovementDamageStep[],
 ): readonly IPendingPSR[] {
-  if (movementType !== MovementType.Run) return [];
+  if (!isRunBasedMovement(movementType)) return [];
 
   const unit = state.units[unitId];
   const componentDamage = unit?.componentDamage;
