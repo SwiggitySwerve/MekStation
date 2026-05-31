@@ -1,4 +1,5 @@
 export type { UnitMovementType } from './types';
+export type { IMovementCostContext } from './calculations';
 export { createMovementRecord } from './types';
 export {
   applyActiveMPBoosters,

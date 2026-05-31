@@ -13,11 +13,16 @@ import {
   getHeatMovementPenalty,
   isTSMActive,
 } from '@/types/validation/HeatManagement';
+import { hasSPA } from '@/utils/gameplay/spaModifiers/canonicalize';
 
 import type { UnitMovementType } from './types';
 
 import { getHex } from '../hexGrid';
 import { hexDistance } from '../hexMath';
+
+export interface IMovementCostContext {
+  readonly pilotAbilities?: readonly string[];
+}
 
 /**
  * Calculate running MP from walking MP.
@@ -172,6 +177,7 @@ export function getHexMovementCost(
   coord: IHexCoordinate,
   movementType: UnitMovementType = 'walk',
   fromCoord?: IHexCoordinate,
+  context?: IMovementCostContext,
 ): number {
   const hex = getHex(grid, coord);
   if (!hex) return Infinity;
@@ -185,6 +191,14 @@ export function getHexMovementCost(
 
     if (terrainProps) {
       terrainModifier = terrainProps.movementCostModifier[movementType] || 0;
+      if (
+        hasMountaineerMovementRelief(context) &&
+        isBattleMechGroundMovement(movementType) &&
+        (terrainType === TerrainType.Rough ||
+          terrainType === TerrainType.Rubble)
+      ) {
+        terrainModifier = Math.max(0, terrainModifier - 1);
+      }
 
       if (terrainType === TerrainType.Water) {
         if (movementType === 'walk' || movementType === 'run') {
@@ -212,11 +226,28 @@ export function getHexMovementCost(
         ) {
           return Infinity;
         }
+
+        if (
+          hasMountaineerMovementRelief(context) &&
+          isBattleMechGroundMovement(movementType)
+        ) {
+          elevationCost = Math.max(0, elevationCost - 1);
+        }
       }
     }
   }
 
   return baseCost + terrainModifier + elevationCost;
+}
+
+function hasMountaineerMovementRelief(
+  context: IMovementCostContext | undefined,
+): boolean {
+  return hasSPA(context?.pilotAbilities ?? [], 'tm_mountaineer');
+}
+
+function isBattleMechGroundMovement(movementType: UnitMovementType): boolean {
+  return movementType === 'walk' || movementType === 'run';
 }
 
 /**
