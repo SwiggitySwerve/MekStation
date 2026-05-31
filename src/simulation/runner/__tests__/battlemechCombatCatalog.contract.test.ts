@@ -3322,13 +3322,14 @@ describe('BattleMech combat feature-gap tracking', () => {
       supportIdsByLevel(RUNNER_PSR_TRIGGER_COMBAT_SUPPORT, 'helper-only'),
     ).toEqual(
       [
-        PSRTrigger.ChargeMiss,
-        PSRTrigger.DFAMiss,
         PSRTrigger.BuildingCollapse,
         PSRTrigger.MASCFailure,
         PSRTrigger.SuperchargerFailure,
       ].sort(),
     );
+    expect(
+      supportIdsByLevel(RUNNER_PSR_TRIGGER_COMBAT_SUPPORT, 'out-of-scope'),
+    ).toEqual([PSRTrigger.ChargeMiss, PSRTrigger.DFAMiss].sort());
     const damageAndCriticalPsrTriggers = [
       PSRTrigger.PhaseDamage20Plus,
       PSRTrigger.LegDamage,

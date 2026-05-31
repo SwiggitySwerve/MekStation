@@ -174,16 +174,16 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 163,
+      total: 161,
       byLevel: {
-        'helper-only': 130,
+        'helper-only': 128,
         unsupported: 33,
       },
       bySection: {
         actions: 10,
         damageAndDeath: 2,
         featureSupport: 91,
-        lifecycleAndPsr: 5,
+        lifecycleAndPsr: 3,
         pilotSkills: 20,
         ruleSupport: 16,
         validationScope: 19,
@@ -232,6 +232,8 @@ describe('BattleMech combat validation catalog index', () => {
         'featureSupport.canonicalPilotAbilityScope.foot_cav',
         'featureSupport.canonicalPilotAbilityScope.gunnery_laser',
         'featureSupport.canonicalPilotAbilityScope.weathered',
+        'lifecycleAndPsr.psrTriggers.charge_miss',
+        'lifecycleAndPsr.psrTriggers.dfa_miss',
         'validationScope.knownLimitationsAndScope.non-battlemech-ammo-scope',
         'validationScope.knownLimitationsAndScope.non-battlemech-combat-system-split',
         'validationScope.objectiveRequirements.non-battlemech-scope',
@@ -253,7 +255,7 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.wireIntents.SetReady',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(63);
+    expect(outOfScopeRows).toHaveLength(65);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('actions.physicalActionClassScope.'),
@@ -300,6 +302,14 @@ describe('BattleMech combat validation catalog index', () => {
       'featureSupport.canonicalPilotAbilityScope.small_pilot',
       'featureSupport.canonicalPilotAbilityScope.urban_guerrilla',
       'featureSupport.canonicalPilotAbilityScope.weathered',
+    ]);
+    expect(
+      outOfScopeRefs.filter((ref) =>
+        ref.startsWith('lifecycleAndPsr.psrTriggers.'),
+      ),
+    ).toEqual([
+      'lifecycleAndPsr.psrTriggers.charge_miss',
+      'lifecycleAndPsr.psrTriggers.dfa_miss',
     ]);
     expect(
       outOfScopeRefs.filter((ref) => ref.startsWith('validationScope.')),

@@ -797,8 +797,8 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** kick target, kick miss, push target, charge hit, DFA target, successful-DFA attacker, charge miss, and missed-DFA rows SHALL carry structured MegaMek source references with commit-pinned line anchors
 - **AND** successful charge target and attacker PSRs SHALL use the MegaMek-backed `+2` modifier
 - **AND** successful DFA target PSRs SHALL use the MegaMek-backed `+2` modifier
-- **AND** normal missed charges SHALL displace the attacker without queuing a normal `ChargeMiss` PSR, keeping the legacy/local `ChargeMiss` factory helper-only rather than an integrated parity claim
-- **AND** missed-DFA grid resolution SHALL remain immediate fall handling rather than a queued normal `DFAMiss` PSR
+- **AND** normal missed charges SHALL displace the attacker without queuing a normal `ChargeMiss` PSR, keeping the legacy/local `ChargeMiss` factory in the `out-of-scope` audit inventory rather than an integrated parity claim or unresolved BattleMech blocker
+- **AND** missed-DFA grid resolution SHALL remain immediate fall handling rather than a queued normal `DFAMiss` PSR, with the no-grid fallback factory remaining an `out-of-scope` audit row outside source-backed BattleMech blocker accounting
 
 #### Scenario: Death from above miss immediately drops the attacker
 

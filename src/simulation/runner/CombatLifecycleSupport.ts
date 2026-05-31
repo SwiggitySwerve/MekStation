@@ -69,6 +69,17 @@ function helperOnly(
     : { id, level: 'helper-only', evidence, gap };
 }
 
+function outOfScope(
+  id: string,
+  evidence: string,
+  gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'out-of-scope', evidence, gap, sourceRefs }
+    : { id, level: 'out-of-scope', evidence, gap };
+}
+
 const MEGAMEK_PSR_QUEUE_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -335,16 +346,16 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
     'physicalAttackPsr queues createKickMissPSR for attacker kick misses',
     PHYSICAL_KICK_PSR_SOURCE_REFS,
   ),
-  [PSRTrigger.ChargeMiss]: helperOnly(
+  [PSRTrigger.ChargeMiss]: outOfScope(
     PSRTrigger.ChargeMiss,
     'createChargeMissPSR remains available as a legacy/local factory, but source-backed charge misses displace without a normal ChargeMiss PSR',
-    'Normal source-backed missed charges no longer queue ChargeMiss; keep the legacy factory visible until callers that still depend on it are removed or reclassified',
+    'Normal source-backed missed-charge BattleMech behavior is covered by displacement; the ChargeMiss PSR factory is a local/legacy compatibility row outside unresolved BattleMech blocker accounting',
     PHYSICAL_CHARGE_MISS_SOURCE_REFS,
   ),
-  [PSRTrigger.DFAMiss]: helperOnly(
+  [PSRTrigger.DFAMiss]: outOfScope(
     PSRTrigger.DFAMiss,
     'createDFAMissPSR remains available for legacy/no-grid fallback coverage',
-    'Source-backed grid resolution applies immediate missed-DFA fall damage, UnitFell, and pilot-damage avoidance instead of queuing a normal DFAMiss PSR',
+    'Source-backed missed-DFA BattleMech behavior is covered by immediate fall, fall damage, UnitFell, and pilot-damage avoidance; the DFAMiss PSR factory is a local/no-grid fallback row outside unresolved BattleMech blocker accounting',
     MEGAMEK_DFA_MISS_FALL_SOURCE_REFS,
   ),
   [PSRTrigger.Shutdown]: integrated(
