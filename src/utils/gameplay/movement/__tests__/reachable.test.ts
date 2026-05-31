@@ -102,6 +102,23 @@ describe('deriveReachableHexes', () => {
     expect(run.length).toBeGreaterThan(walk.length);
   });
 
+  it('derives TacOps Evade reach from the run MP envelope', () => {
+    const grid = createHexGrid({ radius: 8 });
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = { walkMP: 5, runMP: 8, jumpMP: 0 };
+
+    const run = deriveReachableHexes(unit, MovementType.Run, grid, cap);
+    const evade = deriveReachableHexes(unit, MovementType.Evade, grid, cap);
+
+    expect(evade.length).toBe(run.length);
+    expect(
+      evade.every((entry) => entry.movementType === MovementType.Evade),
+    ).toBe(true);
+    expect(evade.map((entry) => entry.mpCost)).toEqual(
+      run.map((entry) => entry.mpCost),
+    );
+  });
+
   it('jump reach is a flat hex-distance gate regardless of path', () => {
     const grid = createHexGrid({ radius: 5 });
     const unit = makeUnitAtOrigin();
