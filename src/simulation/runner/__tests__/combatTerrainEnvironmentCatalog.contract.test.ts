@@ -503,8 +503,14 @@ describe('BattleMech terrain and environment combat support catalog', () => {
     expect(
       supportIdsByLevel(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT, 'helper-only'),
     ).toEqual(
-      expect.arrayContaining(['dust', 'mines', 'terrain-los-blocking']),
+      expect.arrayContaining(['dust', 'mines', 'terrain-los-side-paths']),
     );
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['terrain-los-blocking'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('cumulative woods/smoke density'),
+    });
     expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.wind).toMatchObject({
       level: 'integrated',
     });
