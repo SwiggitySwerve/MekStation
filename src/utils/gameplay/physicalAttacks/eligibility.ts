@@ -30,6 +30,7 @@ import { calculatePhysicalDamage } from './damage';
 import { isTargetDirectlyAhead, isTargetInFrontArc } from './displacement';
 import {
   canBrushOffPhysical,
+  canBreakGrapplePhysical,
   canCharge,
   canDFA,
   canGrapplePhysical,
@@ -625,6 +626,20 @@ export function getEligiblePhysicalAttacks(
     options.push(
       buildOption('grapple', grappleInput, canGrapplePhysical(grappleInput)),
     );
+
+    if (baseInput.attackerGrappledTargetId === target.id) {
+      const breakGrappleInput: IPhysicalAttackInput = {
+        ...baseInput,
+        attackType: 'break-grapple',
+      };
+      options.push(
+        buildOption(
+          'break-grapple',
+          breakGrappleInput,
+          canBreakGrapplePhysical(breakGrappleInput),
+        ),
+      );
+    }
   }
 
   if (
