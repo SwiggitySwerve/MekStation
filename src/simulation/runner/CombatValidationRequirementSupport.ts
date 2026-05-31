@@ -829,8 +829,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'terrain-environment-modifiers': helperOnly(
     'terrain-environment-modifiers',
-    'Terrain/environment maps track woods, rubble, rough, water, ice, swamp, buildings, fire, smoke, fog, night, dust, mines, and extreme conditions',
-    'Building-collapse, dust, and minefield modifiers remain helper-only until runner phases consume those battlefield conditions',
+    'Terrain/environment maps track woods, rubble, rough, water, ice, swamp, buildings, fire, smoke, fog, night, dust, mines, and extreme conditions, including explicit-load building-collapse PSR queueing',
+    'Damage-triggered building collapse, basement collapse, top-floor collapse, WiGE flyover collapse, dust, and minefield modifiers remain helper-only until runner phases consume those battlefield conditions',
     [
       ...TERRAIN_ENVIRONMENT_SUPPORT_REFS,
       ...TERRAIN_TYPE_ATTACK_MODIFIER_SUPPORT_REFS,
@@ -979,8 +979,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'psr-trigger-catalog': helperOnly(
     'psr-trigger-catalog',
-    'PSR trigger support catalogs damage, leg/actuator/gyro/engine, kicked, charged, DFA, pushed, shutdown, standing, terrain, skid, swamp bog-down stuck outcomes, MASC, and Supercharger triggers, including source-backed standard MASC/Supercharger fixed failure target numbers plus automatic prior-use counter advance/decay at runner turn reset',
-    'Building-collapse remains helper-only; MASC and Supercharger side paths still lack alternate MASC option tables, IndustrialMek/support-unit Supercharger roll adjustment, separate first-step equipment-check timing, and non-BattleMech Supercharger motive-damage branches after runner movement queues explicit active-run triggers',
+    'PSR trigger support catalogs damage, leg/actuator/gyro/engine, kicked, charged, DFA, pushed, shutdown, standing, terrain, skid, source-backed explicit-load building collapse, swamp bog-down stuck outcomes, MASC, and Supercharger triggers, including source-backed standard MASC/Supercharger fixed failure target numbers plus automatic prior-use counter advance/decay at runner turn reset',
+    'MASC and Supercharger side paths still lack alternate MASC option tables, IndustrialMek/support-unit Supercharger roll adjustment, separate first-step equipment-check timing, and non-BattleMech Supercharger motive-damage branches after runner movement queues explicit active-run triggers',
     PSR_TRIGGER_SUPPORT_REFS,
   ),
   'turn-rotation-removal': integrated(
