@@ -369,10 +369,25 @@ describe('runtime movement state events', () => {
         lamAirMekAltitude: 0,
         altitudeControlStepCount: 1,
         altitudeControlMpCost: 1,
+        lamAirMekLandingControlRequired: true,
+        lamAirMekLandingControlReason: 'landing with gyro or leg damage',
+        lamAirMekLandingControlModifier: 1,
+        lamAirMekLandingControlModifierDetails: [
+          'Left Leg Foot Actuator destroyed +1',
+        ],
       },
     );
     const nextState = applyEvent(stateWithUnit(unit), event);
     const landed = nextState.units[unit.id];
+
+    expect(event.payload).toMatchObject({
+      lamAirMekLandingControlRequired: true,
+      lamAirMekLandingControlReason: 'landing with gyro or leg damage',
+      lamAirMekLandingControlModifier: 1,
+      lamAirMekLandingControlModifierDetails: [
+        'Left Leg Foot Actuator destroyed +1',
+      ],
+    });
 
     expect(landed).toMatchObject({
       conversionMode: 'airmek',
