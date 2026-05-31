@@ -38,6 +38,8 @@ export enum MovementType {
   Walk = 'walk',
   /** Ran (1.5x walk MP) */
   Run = 'run',
+  /** Evaded (TacOps optional running movement with evasion side effects) */
+  Evade = 'evade',
   /** Jumped (jump jets) */
   Jump = 'jump',
 }
