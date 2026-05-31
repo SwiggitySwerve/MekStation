@@ -109,6 +109,14 @@ const P2P_DECLARE_PHYSICAL_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const P2P_REQUEST_SPOT_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation translateIntentToEvents routes requestSpot into SpottingDeclared after phase and ownership validation.',
+    'src/lib/p2p/intentTranslation.ts',
+    'L220-L470',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const P2P_EJECT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation translateIntentToEvents routes eject into UnitEjected after ownership validation.',
@@ -189,6 +197,11 @@ export const P2P_INTENT_TRANSLATION_SUPPORT = {
     'declarePhysical',
     'translateIntentToEvents emits PhysicalAttackDeclared',
     P2P_DECLARE_PHYSICAL_SOURCE_REFS,
+  ),
+  requestSpot: integrated(
+    'requestSpot',
+    'translateIntentToEvents emits SpottingDeclared',
+    P2P_REQUEST_SPOT_SOURCE_REFS,
   ),
   endPhase: integrated(
     'endPhase',
