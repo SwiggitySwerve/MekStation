@@ -3,6 +3,12 @@
  * Extracted from GameSessionInterfaces.ts to keep focused type modules under the lint line cap.
  */
 
+import type {
+  VehicleLocation,
+  VTOLLocation,
+} from '../construction/UnitLocation';
+import type { GroundMotionType } from '../unit/BaseUnitInterfaces';
+import type { TurretType } from '../unit/VehicleInterfaces';
 import type { IAmmoConstructionInit } from './AmmoTypes';
 import type { IEnvironmentalConditions } from './EnvironmentalConditions';
 import type { GameSide } from './GameSessionCoreTypes';
@@ -166,6 +172,14 @@ export interface IGameUnit {
     readonly hasMagneticClamp?: boolean;
     readonly hasVibroClaws?: boolean;
     readonly vibroClawCount?: number;
+  };
+  readonly vehicleInit?: {
+    readonly motionType: GroundMotionType;
+    readonly turretType?: TurretType;
+    readonly originalCruiseMP: number;
+    readonly armor: Partial<Record<VehicleLocation | VTOLLocation, number>>;
+    readonly structure: Partial<Record<VehicleLocation | VTOLLocation, number>>;
+    readonly altitude?: number;
   };
 }
 

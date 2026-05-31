@@ -40,6 +40,7 @@ import {
 } from './gameSessionAttackResolutionHelpers';
 import { invalidateSameHexAttack } from './gameSessionAttackResolutionValidation';
 import { appendEvent } from './gameSessionCore';
+import { tryResolveVehicleAttackHit } from './gameSessionVehicleAttackResolution';
 import {
   determineHitLocationFromRoll,
   isHeadHit,
@@ -186,6 +187,25 @@ export function resolveAttack(
     const arcString = firingArcToString(firingArc);
 
     if (hit) {
+      const vehicleResolvedSession = tryResolveVehicleAttackHit({
+        session: currentSession,
+        attackerId,
+        targetId,
+        weaponId,
+        weaponData,
+        attackRollTotal: attackRoll.total,
+        toHitNumber: weaponToHitNumber,
+        attackDirection: arcString,
+        ammoBinId: ammoBinIdForResolved,
+        targetState,
+        diceRoller,
+        d6Roller,
+      });
+      if (vehicleResolvedSession) {
+        currentSession = vehicleResolvedSession;
+        continue;
+      }
+
       const locationRoll = diceRoller();
       const hitLocationResult = determineHitLocationFromRoll(
         firingArc,

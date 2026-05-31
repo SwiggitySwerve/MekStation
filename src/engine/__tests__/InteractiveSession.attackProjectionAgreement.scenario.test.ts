@@ -22,6 +22,7 @@ import {
   type IAttackInvalidPayload,
   type IIndirectFireNarcOverridePayload,
 } from '@/types/gameplay';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
 import {
@@ -319,15 +320,48 @@ function buildUnits(): readonly IGameUnit[] {
   ];
 }
 
+function vehicleLocationRecord(
+  values: Record<string, number>,
+): Partial<Record<VehicleLocation, number>> {
+  return values as Partial<Record<VehicleLocation, number>>;
+}
+
+function makeVehicleInit(): NonNullable<IGameUnit['vehicleInit']> {
+  return {
+    motionType: GroundMotionType.TRACKED,
+    originalCruiseMP: 4,
+    armor: vehicleLocationRecord({
+      [VehicleLocation.FRONT]: 20,
+      [VehicleLocation.LEFT]: 15,
+      [VehicleLocation.RIGHT]: 15,
+      [VehicleLocation.REAR]: 10,
+    }),
+    structure: vehicleLocationRecord({
+      [VehicleLocation.FRONT]: 10,
+      [VehicleLocation.LEFT]: 8,
+      [VehicleLocation.RIGHT]: 8,
+      [VehicleLocation.REAR]: 6,
+    }),
+  };
+}
+
+function asVehicleUnit(unit: IGameUnit): IGameUnit {
+  return {
+    ...unit,
+    unitType: UnitType.VEHICLE,
+    vehicleInit: makeVehicleInit(),
+  };
+}
+
 function buildUnitsWithVehicleTarget(): readonly IGameUnit[] {
   return buildUnits().map((unit) =>
-    unit.id === 't1' ? { ...unit, unitType: UnitType.VEHICLE } : unit,
+    unit.id === 't1' ? asVehicleUnit(unit) : unit,
   );
 }
 
 function buildUnitsWithVehicleAttacker(): readonly IGameUnit[] {
   return buildUnits().map((unit) =>
-    unit.id === 'a1' ? { ...unit, unitType: UnitType.VEHICLE } : unit,
+    unit.id === 'a1' ? asVehicleUnit(unit) : unit,
   );
 }
 
@@ -343,6 +377,7 @@ function buildUnitsWithStackedVehicleTarget(): readonly IGameUnit[] {
       unitType: UnitType.VEHICLE,
       gunnery: 4,
       piloting: 5,
+      vehicleInit: makeVehicleInit(),
     } as IGameUnit,
   ];
 }

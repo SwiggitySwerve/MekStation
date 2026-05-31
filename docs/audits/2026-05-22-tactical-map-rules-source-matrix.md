@@ -84,6 +84,15 @@ movement status, combat status, blocked reasons, and source references. This
 keeps the depth-sorted 2.5D layer inspectable without adding a separate
 isometric-only movement/combat calculation path.
 
+2026-05-31 vehicle damage dispatch pin: represented vehicle targets now seed a
+`combatState.kind === "vehicle"` envelope and committed session attacks route
+vehicle hits through the vehicle hit-location and damage pipeline instead of
+the generic Mek damage path. Focused fixtures cover normal vehicle Front damage,
+hull-down turret fixed-location hits without consuming location dice, and VTOL
+rotor damage emitting crash and immobilization events. Remaining vehicle combat
+trust gaps are dual-turret split representation, full vehicle critical-table
+dispatch, and broader MegaMek differential sweeps.
+
 2026-05-25 iNarc beacon browser pin: the tactical-map harness now also
 represents the same no-spotter blocked LRM target carrying a player-team iNarc
 beacon. The shared projection, browser metadata, indirect-fire badge,

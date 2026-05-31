@@ -3,10 +3,17 @@ import {
   IDamageAppliedPayload,
   IGameState,
   IHeatPayload,
+  IMotiveDamagedPayload,
+  IMotivePenaltyAppliedPayload,
   IPilotHitPayload,
+  ITurretLockedPayload,
   IUnitDestroyedPayload,
   IUnitGameState,
+  IVehicleCombatState,
+  IVehicleCrewStunnedPayload,
+  IVehicleImmobilizedPayload,
 } from '@/types/gameplay';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 
 import { DEFAULT_COMPONENT_DAMAGE } from './initialization';
 
@@ -80,6 +87,7 @@ export function applyDamageApplied(
       ? [...unit.destroyedEquipment, ...payload.criticals]
       : unit.destroyedEquipment,
     damageThisPhase: currentDamageThisPhase + payload.damage,
+    combatState: applyVehicleDamageToEnvelope(unit, payload),
   };
 
   return {
@@ -87,6 +95,43 @@ export function applyDamageApplied(
     units: {
       ...state.units,
       [payload.unitId]: updatedUnit,
+    },
+  };
+}
+
+function applyVehicleDamageToEnvelope(
+  unit: IUnitGameState,
+  payload: IDamageAppliedPayload,
+): IUnitGameState['combatState'] {
+  if (unit.combatState?.kind !== 'vehicle') {
+    return unit.combatState;
+  }
+
+  const vehicleState = unit.combatState.state;
+  const armor = {
+    ...(vehicleState.armor as Record<string, number>),
+    [payload.location]: payload.armorRemaining,
+  };
+  const structure = {
+    ...(vehicleState.structure as Record<string, number>),
+    [payload.location]: payload.structureRemaining,
+  };
+  const location =
+    payload.location as (typeof vehicleState.destroyedLocations)[number];
+  const destroyedLocations = payload.locationDestroyed
+    ? vehicleState.destroyedLocations.includes(location)
+      ? vehicleState.destroyedLocations
+      : [...vehicleState.destroyedLocations, location]
+    : vehicleState.destroyedLocations;
+
+  return {
+    kind: 'vehicle',
+    state: {
+      ...vehicleState,
+      armor: armor as typeof vehicleState.armor,
+      structure: structure as typeof vehicleState.structure,
+      destroyedLocations:
+        destroyedLocations as typeof vehicleState.destroyedLocations,
     },
   };
 }
@@ -154,6 +199,143 @@ export function applyUnitDestroyed(
       [payload.unitId]: {
         ...unit,
         destroyed: true,
+        combatState:
+          unit.combatState?.kind === 'vehicle'
+            ? {
+                kind: 'vehicle',
+                state: {
+                  ...unit.combatState.state,
+                  destroyed: true,
+                  destructionCause:
+                    payload.cause === 'engine_destroyed'
+                      ? 'engine_destroyed'
+                      : payload.cause === 'ammo_explosion'
+                        ? 'ammo_explosion'
+                        : 'damage',
+                },
+              }
+            : unit.combatState,
+      },
+    },
+  };
+}
+
+export function applyMotiveDamaged(
+  state: IGameState,
+  payload: IMotiveDamagedPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit || unit.combatState?.kind !== 'vehicle') {
+    return state;
+  }
+
+  const vehicleState = unit.combatState.state;
+  const nextMotive = {
+    ...vehicleState.motive,
+    penaltyMP: vehicleState.motive.penaltyMP + Math.max(0, payload.mpPenalty),
+    immobilized:
+      vehicleState.motive.immobilized || payload.severity === 'immobilized',
+    sinking:
+      vehicleState.motive.sinking ||
+      (payload.severity === 'heavy' &&
+        (vehicleState.motionType === GroundMotionType.NAVAL ||
+          vehicleState.motionType === GroundMotionType.HYDROFOIL ||
+          vehicleState.motionType === GroundMotionType.SUBMARINE)),
+  };
+
+  return updateVehicleUnit(state, payload.unitId, {
+    ...vehicleState,
+    motive: nextMotive,
+  });
+}
+
+export function applyMotivePenaltyApplied(
+  state: IGameState,
+  _payload: IMotivePenaltyAppliedPayload,
+): IGameState {
+  return state;
+}
+
+export function applyVehicleImmobilized(
+  state: IGameState,
+  payload: IVehicleImmobilizedPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit || unit.combatState?.kind !== 'vehicle') {
+    return state;
+  }
+
+  const vehicleState = unit.combatState.state;
+  return updateVehicleUnit(state, payload.unitId, {
+    ...vehicleState,
+    motive: {
+      ...vehicleState.motive,
+      immobilized: true,
+    },
+  });
+}
+
+export function applyTurretLocked(
+  state: IGameState,
+  payload: ITurretLockedPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit || unit.combatState?.kind !== 'vehicle') {
+    return state;
+  }
+
+  const vehicleState = unit.combatState.state;
+  return updateVehicleUnit(state, payload.unitId, {
+    ...vehicleState,
+    turretLock: payload.secondary
+      ? { ...vehicleState.turretLock, secondaryLocked: true }
+      : { ...vehicleState.turretLock, primaryLocked: true },
+    motive: payload.secondary
+      ? vehicleState.motive
+      : { ...vehicleState.motive, turretLocked: true },
+  });
+}
+
+export function applyVehicleCrewStunned(
+  state: IGameState,
+  payload: IVehicleCrewStunnedPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit || unit.combatState?.kind !== 'vehicle') {
+    return state;
+  }
+
+  const vehicleState = unit.combatState.state;
+  return updateVehicleUnit(state, payload.unitId, {
+    ...vehicleState,
+    motive: {
+      ...vehicleState.motive,
+      crewStunnedPhases:
+        vehicleState.motive.crewStunnedPhases + payload.phasesStunned,
+    },
+  });
+}
+
+function updateVehicleUnit(
+  state: IGameState,
+  unitId: string,
+  vehicleState: IVehicleCombatState,
+): IGameState {
+  const unit = state.units[unitId];
+  if (!unit || unit.combatState?.kind !== 'vehicle') {
+    return state;
+  }
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [unitId]: {
+        ...unit,
+        combatState: {
+          kind: 'vehicle',
+          state: vehicleState,
+        },
       },
     },
   };

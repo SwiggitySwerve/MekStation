@@ -170,7 +170,7 @@ function directionToFixedLocation(
   }
 }
 
-function getHullDownFixedLocation(
+export function getHullDownVehicleFixedLocation(
   direction: VehicleAttackDirection,
   options: IVehicleHitLocationOptions,
 ): VehicleHitLocation | undefined {
@@ -223,7 +223,7 @@ export function determineVehicleHitLocation(
   diceRoller: D6Roller = defaultD6Roller,
   options: IVehicleHitLocationOptions = {},
 ): IVehicleHitLocationResult {
-  const fixedLocation = getHullDownFixedLocation(direction, options);
+  const fixedLocation = getHullDownVehicleFixedLocation(direction, options);
   if (fixedLocation) {
     return createHullDownFixedResult(direction, fixedLocation);
   }
@@ -245,7 +245,7 @@ export function determineVehicleHitLocationFromRoll(
   dice: readonly [number, number],
   options: IVehicleHitLocationOptions = {},
 ): IVehicleHitLocationResult {
-  const fixedLocation = getHullDownFixedLocation(direction, options);
+  const fixedLocation = getHullDownVehicleFixedLocation(direction, options);
   if (fixedLocation) {
     return createHullDownFixedResult(direction, fixedLocation, dice);
   }
