@@ -193,6 +193,32 @@ export function applyPhysicalAttackResolved(
         },
       };
     }
+
+    if (payload.attackType === 'grapple') {
+      const attacker = units[payload.attackerId];
+      const grappleTarget = units[payload.targetId];
+      if (attacker && grappleTarget) {
+        units = {
+          ...units,
+          [payload.attackerId]: {
+            ...attacker,
+            grappledUnitId: payload.targetId,
+            isGrappleAttacker: true,
+            grappledThisRound: true,
+            grappleSide: 'both',
+            position: grappleTarget.position,
+          },
+          [payload.targetId]: {
+            ...grappleTarget,
+            grappledUnitId: payload.attackerId,
+            isGrappleAttacker: false,
+            grappledThisRound: true,
+            grappleSide: 'both',
+            facing: ((attacker.facing + 3) % 6) as typeof grappleTarget.facing,
+          },
+        };
+      }
+    }
   }
 
   for (const displacement of payload.displacements ?? []) {
