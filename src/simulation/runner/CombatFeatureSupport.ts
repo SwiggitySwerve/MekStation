@@ -406,6 +406,22 @@ const MEGAMEK_325B_MOUNTAINEER_RUBBLE_PSR = {
   sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
 
+const MEGAMEK_325B_MOUNTAINEER_TERRAIN_MOVEMENT_COST = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Terrain.movementCost applies -1 MP for Mountaineer in rough/rubble movement-cost branches.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Terrain.java#L404-L584',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_MOUNTAINEER_ELEVATION_MOVEMENT_COST = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek MoveStep applies Mountaineer as one MP less for upward elevation changes.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/moves/MoveStep.java#L2828-L2841',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
 const MEGAMEK_325B_MOUNTAINEER_OPTION = {
   kind: 'megamek-source',
   citation:
@@ -416,6 +432,8 @@ const MEGAMEK_325B_MOUNTAINEER_OPTION = {
 
 const MEGAMEK_325B_MOUNTAINEER_SOURCE_REFS = [
   MEGAMEK_325B_MOUNTAINEER_RUBBLE_PSR,
+  MEGAMEK_325B_MOUNTAINEER_TERRAIN_MOVEMENT_COST,
+  MEGAMEK_325B_MOUNTAINEER_ELEVATION_MOVEMENT_COST,
   MEGAMEK_325B_MOUNTAINEER_OPTION,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -590,7 +608,7 @@ export const SPA_COMBAT_SUPPORT = {
   tm_mountaineer: helperOnly(
     'tm_mountaineer',
     'Source-backed getMountaineerRubblePSRModifier plus calculatePSRModifiers apply Mountaineer rubble-entry relief as -1 to entering-rubble PSR target numbers',
-    'Terrain Master: Mountaineer movement-cost and elevation movement effects are not wired',
+    'Terrain Master: Mountaineer rough/rubble movement-cost and elevation movement effects are tracked under the movement-application gap until wired',
     MEGAMEK_325B_MOUNTAINEER_SOURCE_REFS,
   ),
   tm_swamp_beast: integrated(
