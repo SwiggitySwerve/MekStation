@@ -203,6 +203,7 @@ describe('BattleMech combat validation catalog index', () => {
         'ruleSupport.movementRules.go-prone-side-paths',
         'ruleSupport.physicalDamageModifiers.claw-equipment-lifecycle',
         'ruleSupport.physicalDamageModifiers.talon-equipment-lifecycle',
+        'ruleSupport.terrainEnvironment.terrain-los-side-paths',
       ]),
     );
     expect(unresolvedRefs).not.toContain(
@@ -225,6 +226,9 @@ describe('BattleMech combat validation catalog index', () => {
       'ruleSupport.terrainTypeLos.light_woods',
     );
     expect(unresolvedRefs).not.toContain('ruleSupport.terrainTypeLos.smoke');
+    expect(unresolvedRefs).not.toContain(
+      'ruleSupport.terrainEnvironment.terrain-los-blocking',
+    );
     expect(
       unresolvedRefs.filter((ref) =>
         ref.startsWith('eventStream.nonBattleMechEventScope.'),

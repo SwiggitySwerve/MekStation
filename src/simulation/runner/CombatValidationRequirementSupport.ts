@@ -817,10 +817,11 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'terrain-movement-los-cover': helperOnly(
     'terrain-movement-los-cover',
     'Terrain matrices cover movement, MekStation direct and cumulative-density LOS blocking, and partial-cover derivation for every TerrainType',
-    'Full MegaMek LOS parity remains helper-only because land-to-underwater sightline blocking, divided/diagram LOS, and richer building-level handling are not fully modeled',
+    'Full MegaMek LOS parity side paths remain helper-only because land-to-underwater sightline blocking, divided/diagram LOS, and richer building-level handling are not fully modeled',
     [
       'ruleSupport.terrainEnvironment.terrain-movement-costs',
       'ruleSupport.terrainEnvironment.terrain-los-blocking',
+      'ruleSupport.terrainEnvironment.terrain-los-side-paths',
       'ruleSupport.terrainEnvironment.terrain-partial-cover',
       ...TERRAIN_TYPE_MOVEMENT_SUPPORT_REFS,
       ...TERRAIN_TYPE_LOS_SUPPORT_REFS,
