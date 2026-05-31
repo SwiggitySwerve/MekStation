@@ -48,6 +48,7 @@ import {
   INDIRECT_FIRE_AIRBORNE_TARGET_REJECTION,
   groundToAirIndirectWeaponBlockedReason,
 } from '@/utils/gameplay/aerospace/groundToAir';
+import { queueAirMekLandingControlPSR } from '@/utils/gameplay/airMekLandingPsr';
 import {
   determineArc,
   firingArcProjectionLabel,
@@ -385,7 +386,7 @@ export function applyInteractiveSessionRuntimeMovementState(
     return input.session;
   }
 
-  return appendEvent(
+  const session = appendEvent(
     input.session,
     createRuntimeMovementStateChangedEvent(
       input.session.id,
@@ -395,6 +396,7 @@ export function applyInteractiveSessionRuntimeMovementState(
       input.patch,
     ),
   );
+  return queueAirMekLandingControlPSR(session, input.unitId, input.patch);
 }
 
 function hullDownEntryInvalidDetails(input: {
