@@ -841,8 +841,8 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
   ),
   prone: helperOnly(
     'prone',
-    'unit prone state, fall/standing helpers, and voluntary go-prone game-session/interactive action path',
-    'Runner movement AI/planning cannot choose voluntary go-prone, and hull-down, swarmer dislodge, and inferno wash-off nuances are not modeled',
+    'unit prone state, fall/standing helpers, voluntary go-prone game-session/interactive action path, and opt-in BotPlayer/runner AI same-hex go-prone movement-step handling',
+    'Hull-down, swarmer dislodge, inferno wash-off, and broader tactical go-prone policy nuances are not modeled',
     MEGAMEK_GO_PRONE_MOVEMENT_SOURCE_REFS,
   ),
   facing: integrated(
