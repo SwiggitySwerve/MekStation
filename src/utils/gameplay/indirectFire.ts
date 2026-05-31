@@ -193,7 +193,11 @@ export function isEligibleSpotter(
     return false;
   }
 
-  if (candidate.sprintedThisTurn === true || candidate.isEvading === true) {
+  if (
+    candidate.sprintedThisTurn === true ||
+    candidate.isEvading === true ||
+    candidate.movementType === MovementType.Evade
+  ) {
     return false;
   }
 
