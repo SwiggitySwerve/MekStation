@@ -49,6 +49,7 @@ import { appendEvent } from './gameSessionCore';
 import {
   buildRestrictionEventReason,
   firedWeaponIdsFromMountedArm,
+  firedWeaponIdsFromMountedLeg,
 } from './gameSessionPhysicalHelpers';
 import { hexDistance } from './hexMath';
 import { roll2d6 as rollDice } from './hitLocation';
@@ -56,6 +57,7 @@ import {
   canCharge,
   canDFA,
   canKick,
+  canJumpJetAttackPhysical,
   canMeleeWeapon,
   canPunch,
   canPush,
@@ -82,6 +84,7 @@ import {
   physicalTargetObjectTypeForUnitType,
   physicalTargetObjectInvalidReason,
   PhysicalAttackType,
+  type JumpJetAttackSelectedLeg,
   isSupportedPhysicalAttackType,
   resolveDfaMissFallDamage,
   resolveDfaMissFallPilotDamageAvoidance,
@@ -398,6 +401,41 @@ function weaponsFiredFromArmForAttack(
   return undefined;
 }
 
+function jumpJetAttackSelectedLegForLimb(
+  limb: IPhysicalAttackDeclaredPayload['limb'] | undefined,
+  context: IPhysicalAttackContext,
+): JumpJetAttackSelectedLeg | undefined {
+  if (context.jumpJetAttackSelectedLeg) return context.jumpJetAttackSelectedLeg;
+  if (limb === 'leftLeg') return 'left';
+  if (limb === 'rightLeg') return 'right';
+  return undefined;
+}
+
+function legWeaponFiredThisTurn(
+  attackerState: IGameSession['currentState']['units'][string],
+  context: IPhysicalAttackContext,
+  leg: 'left' | 'right',
+): boolean | undefined {
+  const explicit =
+    leg === 'left'
+      ? context.leftLegWeaponFiredThisTurn
+      : context.rightLegWeaponFiredThisTurn;
+  if (explicit !== undefined) return explicit;
+  return firedWeaponIdsFromMountedLeg(attackerState, leg).length > 0;
+}
+
+function isTargetDirectlyBehindFeet(
+  attacker: IGameSession['currentState']['units'][string],
+  target: IGameSession['currentState']['units'][string],
+): boolean {
+  const oppositeFacing = ((attacker.facing + 3) % 6) as typeof attacker.facing;
+  return isTargetDirectlyAhead(
+    attacker.position,
+    oppositeFacing,
+    target.position,
+  );
+}
+
 function terrainAtPosition(
   grid: IHexGrid | undefined,
   position: IGameSession['currentState']['units'][string]['position'],
@@ -609,6 +647,40 @@ export function declarePhysicalAttack(
     legAesFunctional: context.legAesFunctional,
     thrashBlockingTerrains: context.thrashBlockingTerrains,
     hasWorkingThrashArmOrLeg: context.hasWorkingThrashArmOrLeg,
+    tacOpsJumpJetAttackEnabled: context.tacOpsJumpJetAttackEnabled,
+    jumpJetAttackSelectedLeg: jumpJetAttackSelectedLegForLimb(
+      declaredLimb,
+      context,
+    ),
+    leftReadyJumpJetCount: context.leftReadyJumpJetCount,
+    rightReadyJumpJetCount: context.rightReadyJumpJetCount,
+    leftLegWet: context.leftLegWet,
+    rightLegWet: context.rightLegWet,
+    leftLegWeaponFiredThisTurn: legWeaponFiredThisTurn(
+      attackerState,
+      context,
+      'left',
+    ),
+    rightLegWeaponFiredThisTurn: legWeaponFiredThisTurn(
+      attackerState,
+      context,
+      'right',
+    ),
+    standingAttackerHeightAboveTargetHeight:
+      context.standingAttackerHeightAboveTargetHeight,
+    proneTargetElevationInRange: context.proneTargetElevationInRange,
+    targetDirectlyAheadOfFeet: targetState
+      ? (context.targetDirectlyAheadOfFeet ??
+        isTargetDirectlyAhead(
+          attackerState.position,
+          attackerState.facing,
+          targetState.position,
+        ))
+      : context.targetDirectlyAheadOfFeet,
+    targetDirectlyBehindFeet: targetState
+      ? (context.targetDirectlyBehindFeet ??
+        isTargetDirectlyBehindFeet(attackerState, targetState))
+      : context.targetDirectlyBehindFeet,
     pushDestinationValid: context.pushDestinationValid,
     pushTargetDirectlyAhead: targetState
       ? isTargetDirectlyAhead(
@@ -640,6 +712,8 @@ export function declarePhysicalAttack(
     restriction = canTripPhysical(input);
   } else if (attackType === 'thrash') {
     restriction = canThrashPhysical(input);
+  } else if (attackType === 'jump-jet-attack') {
+    restriction = canJumpJetAttackPhysical(input);
   } else if (
     attackType === 'hatchet' ||
     attackType === 'sword' ||
@@ -783,6 +857,7 @@ export function resolveAllPhysicalAttacks(
     const targetObjectType =
       context.targetObjectType ??
       physicalTargetObjectTypeForUnitType(targetState.unitType);
+    const resolvedLimb = payload.limb ?? context.limb;
 
     const input: IPhysicalAttackInput = {
       attackerId: payload.attackerId,
@@ -869,7 +944,7 @@ export function resolveAllPhysicalAttacks(
         context.attackerMovedBackwardThisTurn ??
         attackerState.movedBackwardThisTurn,
       limbsUsedThisTurn: context.limbsUsedThisTurn,
-      limb: context.limb,
+      limb: resolvedLimb,
       lowerArmActuatorPresent: context.lowerArmActuatorPresent,
       handActuatorPresent: context.handActuatorPresent,
       upperLegActuatorPresent: context.upperLegActuatorPresent,
@@ -908,6 +983,38 @@ export function resolveAllPhysicalAttacks(
           terrainAtPosition(grid, attackerState.position),
         ),
       hasWorkingThrashArmOrLeg: context.hasWorkingThrashArmOrLeg,
+      tacOpsJumpJetAttackEnabled: context.tacOpsJumpJetAttackEnabled,
+      jumpJetAttackSelectedLeg: jumpJetAttackSelectedLegForLimb(
+        resolvedLimb,
+        context,
+      ),
+      leftReadyJumpJetCount: context.leftReadyJumpJetCount,
+      rightReadyJumpJetCount: context.rightReadyJumpJetCount,
+      leftLegWet: context.leftLegWet,
+      rightLegWet: context.rightLegWet,
+      leftLegWeaponFiredThisTurn: legWeaponFiredThisTurn(
+        attackerState,
+        context,
+        'left',
+      ),
+      rightLegWeaponFiredThisTurn: legWeaponFiredThisTurn(
+        attackerState,
+        context,
+        'right',
+      ),
+      standingAttackerHeightAboveTargetHeight:
+        context.standingAttackerHeightAboveTargetHeight,
+      proneTargetElevationInRange: context.proneTargetElevationInRange,
+      targetDirectlyAheadOfFeet:
+        context.targetDirectlyAheadOfFeet ??
+        isTargetDirectlyAhead(
+          attackerState.position,
+          attackerState.facing,
+          targetState.position,
+        ),
+      targetDirectlyBehindFeet:
+        context.targetDirectlyBehindFeet ??
+        isTargetDirectlyBehindFeet(attackerState, targetState),
       pushDestinationValid: context.pushDestinationValid,
       pushTargetDirectlyAhead: isTargetDirectlyAhead(
         attackerState.position,
