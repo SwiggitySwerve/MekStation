@@ -234,6 +234,8 @@ export function runMovementPhase(
         moveEvt.payload.movementType,
         cap,
         unit.heat,
+        undefined,
+        { pilotAbilities: unit.abilities },
       );
       if (!validation.valid) {
         updatedSession = lockMovement(updatedSession, unitId);
@@ -249,6 +251,7 @@ export function runMovementPhase(
           validation.mpCost,
           maxMovementCostForCapability(cap, moveEvt.payload.movementType),
         ),
+        movementContext: { pilotAbilities: unit.abilities },
       });
       updatedSession = declareMovement(
         updatedSession,

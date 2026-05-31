@@ -90,30 +90,6 @@ const MEGAMEK_MANEUVERING_ACE_MOVEMENT_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
-const MEGAMEK_MOUNTAINEER_MOVEMENT_SOURCE_REFS = [
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek Terrain.movementCost applies -1 MP for Mountaineer in rough/rubble movement-cost branches.',
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/units/Terrain.java#L404-L584`,
-    sourceVersion: MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION,
-  },
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek MoveStep applies Mountaineer as one MP less for upward elevation changes.',
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/moves/MoveStep.java#L2828-L2841`,
-    sourceVersion: MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION,
-  },
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek OptionsConstants defines PILOT_TM_MOUNTAINEER as tm_mountaineer.',
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/options/OptionsConstants.java#L183-L187`,
-    sourceVersion: MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION,
-  },
-] satisfies readonly ICombatFeatureSourceReference[];
-
 function integrated(
   id: string,
   evidence: string,
@@ -383,12 +359,11 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'movement-application': unsupported(
     'movement-application',
-    'Source-backed optional TacOps Evade movement, Maneuvering Ace lateral-shift movement, Speed Demon run-distance/heat tradeoff, Heavy Lifter carry/throw movement effects, and Terrain Master: Mountaineer rough/rubble/elevation MP relief are not wired in the BattleMech combat matrix',
+    'Source-backed optional TacOps Evade movement, Maneuvering Ace lateral-shift movement, Speed Demon run-distance/heat tradeoff, and Heavy Lifter carry/throw movement effects are not wired in the BattleMech combat matrix',
     [
       ...MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
       ...MEGAMEK_MANEUVERING_ACE_MOVEMENT_SOURCE_REFS,
       ...MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
-      ...MEGAMEK_MOUNTAINEER_MOVEMENT_SOURCE_REFS,
     ],
   ),
   'multi-target-penalty-application': unsupported(
@@ -513,13 +488,7 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
     quirkIds: [],
   },
   'movement-application': {
-    spaIds: [
-      'evasive',
-      'maneuvering-ace',
-      'speed-demon',
-      'heavy-lifter',
-      'tm_mountaineer',
-    ],
+    spaIds: ['evasive', 'maneuvering-ace', 'speed-demon', 'heavy-lifter'],
     quirkIds: [],
   },
   'multi-target-penalty-application': {
