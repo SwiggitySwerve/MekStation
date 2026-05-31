@@ -57,6 +57,26 @@ describe('utilityCommands', () => {
     expect(result.available).toBe(false);
   });
 
+  it('request-spot commits the active unit and selected target payload', () => {
+    const spot = commands.find((c) => c.id === 'utility.request-spot')!;
+
+    expect(
+      spot.commit(
+        makeCtx({
+          phase: GamePhase.WeaponAttack,
+          activeUnitId: 'spotter-1',
+          targetUnitId: 'target-1',
+        }),
+      ),
+    ).toEqual({
+      actionId: 'request-spot',
+      payload: {
+        unitId: 'spotter-1',
+        targetUnitId: 'target-1',
+      },
+    });
+  });
+
   it('concede requires confirmation', () => {
     const concede = commands.find((c) => c.id === 'utility.concede')!;
     expect(concede.requiresConfirmation).toBe(true);
