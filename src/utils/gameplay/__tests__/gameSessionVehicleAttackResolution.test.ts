@@ -13,7 +13,6 @@ import {
   type IGameConfig,
   type IGameEvent,
   type IGameUnit,
-  type IVehicleCrewStunnedPayload,
   MovementType,
   RangeBracket,
 } from '@/types/gameplay';
@@ -139,6 +138,29 @@ function d6RollerFor(
   });
 }
 
+function markTargetHullDown(
+  session: ReturnType<typeof createGameSession>,
+): ReturnType<typeof createGameSession> {
+  const target = session.currentState.units.target;
+  return appendEvent(
+    session,
+    createMovementDeclaredEvent(
+      session.id,
+      session.events.length,
+      session.currentState.turn,
+      'target',
+      target.position,
+      target.position,
+      Facing.South,
+      MovementType.Stationary,
+      1,
+      0,
+      [target.position],
+      { hullDownEntryAttempt: true },
+    ),
+  );
+}
+
 describe('resolveAttack vehicle target dispatch', () => {
   it('uses vehicle hit locations and vehicle damage for represented vehicles', () => {
     const session = createGameSession(config(), [
@@ -195,24 +217,7 @@ describe('resolveAttack vehicle target dispatch', () => {
         }),
       }),
     ]);
-    const target = session.currentState.units.target;
-    session = appendEvent(
-      session,
-      createMovementDeclaredEvent(
-        session.id,
-        session.events.length,
-        session.currentState.turn,
-        'target',
-        target.position,
-        target.position,
-        Facing.South,
-        MovementType.Stationary,
-        1,
-        0,
-        [target.position],
-        { hullDownEntryAttempt: true },
-      ),
-    );
+    session = markTargetHullDown(session);
     const diceRoller = diceRollerFor([[6, 6]]);
 
     const resolved = resolveAttack(
@@ -303,24 +308,78 @@ describe('resolveAttack vehicle target dispatch', () => {
       (event) => event.type === GameEventType.CriticalHitResolved,
     )!;
     expect((critical.payload as ICriticalHitResolvedPayload).effect).toBe(
-      'crew_stunned',
+      'driver_hit',
     );
 
-    const stunned = resolved.events.find(
-      (event) => event.type === GameEventType.VehicleCrewStunned,
-    )!;
-    expect((stunned.payload as IVehicleCrewStunnedPayload).phasesStunned).toBe(
-      2,
-    );
+    expect(
+      resolved.events.some(
+        (event) => event.type === GameEventType.VehicleCrewStunned,
+      ),
+    ).toBe(false);
     expect(
       resolved.currentState.units.target.combatState?.kind === 'vehicle'
-        ? resolved.currentState.units.target.combatState.state.motive
-            .crewStunnedPhases
+        ? resolved.currentState.units.target.combatState.state.motive.driverHits
         : undefined,
-    ).toBe(2);
+    ).toBe(1);
   });
 
   it('emits crit-induced ammo explosions for vehicle ammo crits', () => {
+    let session = createGameSession(config(), [
+      mechUnit('attacker'),
+      {
+        ...vehicleUnit({
+          turretType: TurretType.SINGLE,
+          armor: vehicleArmor({
+            [VehicleLocation.FRONT]: 10,
+            [VehicleLocation.TURRET]: 0,
+          }),
+          structure: vehicleArmor({
+            [VehicleLocation.FRONT]: 5,
+            [VehicleLocation.TURRET]: 10,
+          }),
+        }),
+        ammoConstruction: [
+          {
+            binId: 'ac10-turret',
+            weaponType: 'AC/10',
+            location: VehicleLocation.TURRET,
+            maxRounds: 5,
+            damagePerRound: 10,
+            isExplosive: true,
+          },
+        ],
+      },
+    ]);
+    session = markTargetHullDown(session);
+    const diceRoller = diceRollerFor([[6, 6]]);
+    const d6Roller = d6RollerFor([5, 6]);
+
+    const resolved = resolveAttack(
+      session,
+      attackEvent(session.id, session.events.length),
+      diceRoller,
+      d6Roller,
+    );
+
+    expect(
+      resolved.events.some(
+        (event) => event.type === GameEventType.AmmoExplosion,
+      ),
+    ).toBe(true);
+    expect(
+      resolved.events.some(
+        (event) => event.type === GameEventType.UnitDestroyed,
+      ),
+    ).toBe(true);
+    expect(resolved.currentState.units.target.destroyed).toBe(true);
+    expect(
+      resolved.currentState.units.target.combatState?.kind === 'vehicle'
+        ? resolved.currentState.units.target.combatState.state.destructionCause
+        : undefined,
+    ).toBe('ammo_explosion');
+  });
+
+  it('front roll 12 kills vehicle crew instead of selecting ammo', () => {
     const session = createGameSession(config(), [
       mechUnit('attacker'),
       {
@@ -352,11 +411,17 @@ describe('resolveAttack vehicle target dispatch', () => {
       d6Roller,
     );
 
+    const critical = resolved.events.find(
+      (event) => event.type === GameEventType.CriticalHitResolved,
+    )!;
+    expect((critical.payload as ICriticalHitResolvedPayload).effect).toBe(
+      'crew_killed',
+    );
     expect(
       resolved.events.some(
         (event) => event.type === GameEventType.AmmoExplosion,
       ),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       resolved.events.some(
         (event) => event.type === GameEventType.UnitDestroyed,
@@ -367,6 +432,6 @@ describe('resolveAttack vehicle target dispatch', () => {
       resolved.currentState.units.target.combatState?.kind === 'vehicle'
         ? resolved.currentState.units.target.combatState.state.destructionCause
         : undefined,
-    ).toBe('ammo_explosion');
+    ).toBe('crew_killed');
   });
 });

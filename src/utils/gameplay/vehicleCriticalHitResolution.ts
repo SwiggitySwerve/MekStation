@@ -1,19 +1,18 @@
 /**
  * Vehicle Critical Hit Resolution
  *
- * 2d6 vehicle critical-hit table + effect application. Unlike mechs, vehicle
- * crits don't consume critical slots — they modify the combat state:
- *   - Crew Stunned: skip next movement + weapon phase.
- *   - Engine Hit: 1st disables for a turn, 2nd destroys the vehicle.
- *   - Driver/Commander: wound counter; 2 kills the crew (vehicle destroyed).
- *   - Fuel Tank: ICE/FuelCell only — engine disabled; fusion → reroll.
- *   - Ammo Explosion: vehicle destroyed (per ammo-explosion system).
+ * Applies vehicle critical effects to the represented combat-state envelope.
+ * The legacy `vehicleCritFromRoll` generic table remains for direct callers;
+ * committed session attacks pass a location context to `rollVehicleCrit` so
+ * Tank / VTOL critical results follow the struck location table.
  *
  * @spec openspec/changes/add-vehicle-combat-behavior/specs/combat-resolution/spec.md
  *   #requirement vehicle-critical-hit-table
+ * @spec openspec/changes/align-vehicle-critical-location-tables/specs/combat-resolution/spec.md
  */
 
 import { EngineType } from '@/types/construction/EngineType';
+import { VehicleLocation } from '@/types/construction/UnitLocation';
 import {
   IVehicleCombatState,
   IVehicleCritRollResult,
@@ -21,22 +20,11 @@ import {
 } from '@/types/gameplay';
 
 import { D6Roller, defaultD6Roller, roll2d6 } from './diceTypes';
+import {
+  type IVehicleCriticalTableContext,
+  vehicleCritFromRollForLocation,
+} from './vehicleCriticalTables';
 
-// =============================================================================
-// Crit Table
-// =============================================================================
-
-/**
- * Vehicle 2d6 crit table (spec delta, authoritative):
- *   2-5  = no critical
- *   6    = Crew Stunned
- *   7    = Weapon Destroyed
- *   8    = Cargo / Infantry Hit
- *   9    = Driver Hit
- *   10   = Fuel Tank Hit (ICE/Fuel Cell only; energy → reroll)
- *   11   = Engine Hit
- *   12   = Ammo Explosion (if ammo in slot)
- */
 export function vehicleCritFromRoll(
   dice: readonly [number, number],
 ): IVehicleCritRollResult {
@@ -58,52 +46,33 @@ export function vehicleCritFromRoll(
 
 export function rollVehicleCrit(
   diceRoller: D6Roller = defaultD6Roller,
+  context?: IVehicleCriticalTableContext,
 ): IVehicleCritRollResult {
   const rolled = roll2d6(diceRoller);
-  return vehicleCritFromRoll([rolled.dice[0], rolled.dice[1]]);
+  const dice = [rolled.dice[0], rolled.dice[1]] as const;
+  return context
+    ? vehicleCritFromRollForLocation(dice, context)
+    : vehicleCritFromRoll(dice);
 }
 
-// =============================================================================
-// Engine-type helpers
-// =============================================================================
-
-/**
- * Whether this engine has a physical fuel tank (ICE, Fuel Cell).
- * Fusion/XL/Light/XXL engines have no fuel-tank crit target — a Fuel Tank
- * roll for them becomes a reroll per TW.
- */
 export function engineHasFuelTank(
   engineType: EngineType | string | number,
 ): boolean {
   return engineType === EngineType.ICE || engineType === EngineType.FUEL_CELL;
 }
 
-// =============================================================================
-// Crit Effect Application
-// =============================================================================
-
 export interface IVehicleCritEffectContext {
-  /** Engine type of the target (governs fuel-tank reroll). */
   readonly engineType: EngineType | string | number;
-  /** Whether ammo is mounted at the crit location (governs ammo-explosion resolution). */
   readonly hasAmmoInSlot: boolean;
-  /** True if the secondary turret took the crit (dual turrets). */
   readonly secondaryTurret?: boolean;
 }
 
 export interface IVehicleCritEffectResult {
   readonly state: IVehicleCombatState;
-  /** The crit that was actually applied (may differ from rolled on reroll). */
   readonly applied: IVehicleCritRollResult;
-  /** True when this crit triggers additional resolution (e.g., ammo explosion event). */
   readonly ammoExplosion: boolean;
 }
 
-/**
- * Apply a rolled vehicle crit to combat state. Returns the updated state
- * plus flags for callers that need to emit events (ammo explosion, crew
- * killed, etc.).
- */
 export function applyVehicleCritEffect(
   state: IVehicleCombatState,
   crit: IVehicleCritRollResult,
@@ -120,75 +89,39 @@ export function applyVehicleCritEffect(
   switch (applied.kind) {
     case 'none':
       return { state, applied, ammoExplosion: false };
-
-    case 'crew_stunned': {
-      // Skip next movement + weapon phase (2 phases).
-      next = {
-        ...state,
-        motive: {
-          ...state.motive,
-          crewStunnedPhases: state.motive.crewStunnedPhases + 2,
-        },
-      };
+    case 'crew_stunned':
+      next = applyCrewStunned(state);
       break;
-    }
-
-    case 'weapon_destroyed':
-      // Weapon destruction handled by the equipment subsystem; combat state
-      // doesn't track weapon status here. Caller emits `ComponentDestroyed`.
-      return { state, applied, ammoExplosion: false };
-
-    case 'cargo_hit':
-      // Cargo / infantry damage handled by transport subsystem.
-      return { state, applied, ammoExplosion: false };
-
-    case 'driver_hit': {
-      const newDriverHits = state.motive.driverHits + 1;
-      const crewKilled = newDriverHits >= 2;
-      next = {
-        ...state,
-        motive: { ...state.motive, driverHits: newDriverHits },
-        destroyed: crewKilled ? true : state.destroyed,
-        destructionCause: crewKilled ? 'crew_killed' : state.destructionCause,
-      };
+    case 'driver_hit':
+    case 'pilot_hit':
+      next = applyDriverHit(state);
       break;
-    }
-
-    case 'fuel_tank': {
+    case 'commander_hit':
+    case 'copilot_hit':
+      next = applyCommanderHit(state);
+      break;
+    case 'crew_killed':
+      next = { ...state, destroyed: true, destructionCause: 'crew_killed' };
+      break;
+    case 'fuel_tank':
       if (!engineHasFuelTank(ctx.engineType)) {
-        // Fusion/energy engines → reroll becomes "no effect" in this
-        // simplified implementation (caller may opt to reroll).
         return {
           state,
           applied: { ...applied, kind: 'none' },
           ammoExplosion: false,
         };
       }
-      // Fuel tank: engine disabled this turn (treat as first engine hit).
       next = {
         ...state,
-        motive: { ...state.motive, engineHits: state.motive.engineHits + 1 },
+        destroyed: true,
+        destructionCause: 'fuel_tank_explosion',
       };
       break;
-    }
-
-    case 'engine_hit': {
-      const newEngineHits = state.motive.engineHits + 1;
-      const destroyed = newEngineHits >= 2;
-      next = {
-        ...state,
-        motive: { ...state.motive, engineHits: newEngineHits },
-        destroyed: destroyed ? true : state.destroyed,
-        destructionCause: destroyed
-          ? 'engine_destroyed'
-          : state.destructionCause,
-      };
+    case 'engine_hit':
+      next = applyEngineHit(state);
       break;
-    }
-
-    case 'ammo_explosion': {
+    case 'ammo_explosion':
       if (!ctx.hasAmmoInSlot) {
-        // No ammo in slot → no effect (per spec).
         return {
           state,
           applied: { ...applied, kind: 'none' },
@@ -196,22 +129,36 @@ export function applyVehicleCritEffect(
         };
       }
       ammoExplosion = true;
+      next = { ...state, destroyed: true, destructionCause: 'ammo_explosion' };
+      break;
+    case 'turret_locked':
+      next = applyTurretLocked(state, ctx.secondaryTurret === true);
+      break;
+    case 'turret_destroyed':
+      next = applyTurretDestroyed(state);
+      break;
+    case 'rotor_damage':
+      next = applyRotorDamage(state);
+      break;
+    case 'rotor_destroyed':
       next = {
         ...state,
-        destroyed: true,
-        destructionCause: 'ammo_explosion',
+        motive: { ...state.motive, immobilized: true },
       };
       break;
-    }
+    case 'weapon_destroyed':
+    case 'weapon_jammed':
+    case 'cargo_hit':
+    case 'stabilizer_hit':
+    case 'sensor_hit':
+    case 'turret_jammed':
+    case 'flight_stabilizer':
+      return { state, applied, ammoExplosion: false };
   }
 
   return { state: next, applied, ammoExplosion };
 }
 
-/**
- * Roll + apply a vehicle crit in one call. The caller passes context telling
- * the resolver about the engine type and whether ammo is in the slot.
- */
 export function vehicleResolveCriticalHits(
   state: IVehicleCombatState,
   ctx: IVehicleCritEffectContext,
@@ -221,14 +168,6 @@ export function vehicleResolveCriticalHits(
   return applyVehicleCritEffect(state, rolled, ctx);
 }
 
-// =============================================================================
-// Turret Lock
-// =============================================================================
-
-/**
- * Apply a "turret locked" critical to the primary (or secondary) turret.
- * The locked turret subsequently uses the chassis Front arc only.
- */
 export function applyTurretLocked(
   state: IVehicleCombatState,
   secondary = false,
@@ -239,5 +178,76 @@ export function applyTurretLocked(
       ? { ...state.turretLock, secondaryLocked: true }
       : { ...state.turretLock, primaryLocked: true },
     motive: secondary ? state.motive : { ...state.motive, turretLocked: true },
+  };
+}
+
+function applyCrewStunned(state: IVehicleCombatState): IVehicleCombatState {
+  return {
+    ...state,
+    motive: {
+      ...state.motive,
+      crewStunnedPhases: state.motive.crewStunnedPhases + 2,
+    },
+  };
+}
+
+function applyDriverHit(state: IVehicleCombatState): IVehicleCombatState {
+  const driverHits = state.motive.driverHits + 1;
+  return {
+    ...state,
+    motive: { ...state.motive, driverHits },
+    destroyed: driverHits >= 2 ? true : state.destroyed,
+    destructionCause: driverHits >= 2 ? 'crew_killed' : state.destructionCause,
+  };
+}
+
+function applyCommanderHit(state: IVehicleCombatState): IVehicleCombatState {
+  const commanderHits = state.motive.commanderHits + 1;
+  const crewKilled = commanderHits >= 2;
+  return {
+    ...state,
+    motive: {
+      ...state.motive,
+      commanderHits,
+      crewStunnedPhases: state.motive.crewStunnedPhases + 2,
+    },
+    destroyed: crewKilled ? true : state.destroyed,
+    destructionCause: crewKilled ? 'crew_killed' : state.destructionCause,
+  };
+}
+
+function applyEngineHit(state: IVehicleCombatState): IVehicleCombatState {
+  const engineHits = state.motive.engineHits + 1;
+  return {
+    ...state,
+    motive: { ...state.motive, engineHits },
+    destroyed: engineHits >= 2 ? true : state.destroyed,
+    destructionCause:
+      engineHits >= 2 ? 'engine_destroyed' : state.destructionCause,
+  };
+}
+
+function applyTurretDestroyed(state: IVehicleCombatState): IVehicleCombatState {
+  const turretLocation = VehicleLocation.TURRET;
+  return {
+    ...state,
+    destroyedLocations: state.destroyedLocations.includes(turretLocation)
+      ? state.destroyedLocations
+      : [...state.destroyedLocations, turretLocation],
+    destroyed: true,
+    destructionCause: 'turret_destroyed',
+  };
+}
+
+function applyRotorDamage(state: IVehicleCombatState): IVehicleCombatState {
+  const penaltyMP = state.motive.penaltyMP + 1;
+  return {
+    ...state,
+    motive: {
+      ...state.motive,
+      penaltyMP,
+      immobilized:
+        state.motive.immobilized || penaltyMP >= state.motive.originalCruiseMP,
+    },
   };
 }

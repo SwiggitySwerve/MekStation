@@ -19,7 +19,10 @@ import {
   createAmmoExplosionEvent,
   createComponentDestroyedEvent,
   createCriticalHitResolvedEvent,
+  createTurretLockedEvent,
   createVehicleCrewStunnedEvent,
+  createVehicleImmobilizedEvent,
+  createVTOLCrashCheckEvent,
 } from './gameEvents';
 import { appendEvent } from './gameSessionCore';
 import {
@@ -58,16 +61,18 @@ export function resolveVehicleCriticalIfTriggered(
     };
   }
 
-  const rolledCrit = rollVehicleCrit(input.d6Roller);
+  const rolledCrit = rollVehicleCrit(input.d6Roller, {
+    location: input.location,
+    motionType: input.damageResult.state.motionType,
+    engineType: input.damageResult.state.engineType ?? EngineType.STANDARD,
+    engineAlreadyHit: input.damageResult.state.motive.engineHits > 0,
+  });
   const critResult = applyVehicleCritEffect(
     input.damageResult.state,
     rolledCrit,
     {
       engineType: input.damageResult.state.engineType ?? EngineType.STANDARD,
-      hasAmmoInSlot: hasExplosiveAmmoAtLocation(
-        input.targetState.ammoState,
-        input.location,
-      ),
+      hasAmmoInSlot: hasExplosiveAmmoForVehicle(input.targetState.ammoState),
     },
   );
 
@@ -77,6 +82,7 @@ export function resolveVehicleCriticalIfTriggered(
     input.location,
     critResult.applied,
     critResult.state.destroyed,
+    input.damageResult.state.altitude ?? 0,
   );
 
   if (critResult.ammoExplosion) {
@@ -84,7 +90,7 @@ export function resolveVehicleCriticalIfTriggered(
       currentSession,
       input.targetId,
       input.location,
-      selectExplosiveAmmoAtLocation(
+      selectExplosiveAmmoForVehicle(
         input.targetState.ammoState,
         input.location,
       ),
@@ -104,6 +110,7 @@ function emitVehicleCriticalEvents(
   location: VehicleLocation | VTOLLocation,
   crit: IVehicleCritRollResult,
   destroyed: boolean,
+  altitude: number,
 ): IGameSession {
   if (crit.kind === 'none') {
     return session;
@@ -126,7 +133,11 @@ function emitVehicleCriticalEvents(
     ),
   );
 
-  if (crit.kind === 'crew_stunned') {
+  if (
+    crit.kind === 'crew_stunned' ||
+    crit.kind === 'commander_hit' ||
+    crit.kind === 'copilot_hit'
+  ) {
     currentSession = appendEvent(
       currentSession,
       createVehicleCrewStunnedEvent(
@@ -136,6 +147,20 @@ function emitVehicleCriticalEvents(
         GamePhase.WeaponAttack,
         targetId,
         2,
+      ),
+    );
+  }
+
+  if (crit.kind === 'turret_locked') {
+    currentSession = appendEvent(
+      currentSession,
+      createTurretLockedEvent(
+        currentSession.id,
+        currentSession.events.length,
+        currentSession.currentState.turn,
+        GamePhase.WeaponAttack,
+        targetId,
+        false,
       ),
     );
   }
@@ -152,6 +177,33 @@ function emitVehicleCriticalEvents(
         'weapon',
         0,
         'Vehicle weapon',
+      ),
+    );
+  }
+
+  if (crit.kind === 'rotor_destroyed') {
+    currentSession = appendEvent(
+      currentSession,
+      createVehicleImmobilizedEvent(
+        currentSession.id,
+        currentSession.events.length,
+        currentSession.currentState.turn,
+        GamePhase.WeaponAttack,
+        targetId,
+        'rotor_destroyed',
+      ),
+    );
+
+    currentSession = appendEvent(
+      currentSession,
+      createVTOLCrashCheckEvent(
+        currentSession.id,
+        currentSession.events.length,
+        currentSession.currentState.turn,
+        GamePhase.WeaponAttack,
+        targetId,
+        altitude,
+        altitude * 10,
       ),
     );
   }
@@ -193,13 +245,32 @@ function vehicleCritComponentType(kind: VehicleCritKind): string {
       return 'ammo';
     case 'cargo_hit':
       return 'cargo';
+    case 'commander_hit':
+      return 'commander';
+    case 'copilot_hit':
+      return 'copilot';
+    case 'crew_killed':
     case 'crew_stunned':
       return 'crew';
     case 'driver_hit':
+    case 'pilot_hit':
       return 'driver';
     case 'engine_hit':
     case 'fuel_tank':
       return 'engine';
+    case 'flight_stabilizer':
+    case 'stabilizer_hit':
+      return 'stabilizer';
+    case 'rotor_damage':
+    case 'rotor_destroyed':
+      return 'rotor';
+    case 'sensor_hit':
+      return 'sensor';
+    case 'turret_destroyed':
+    case 'turret_jammed':
+    case 'turret_locked':
+      return 'turret';
+    case 'weapon_jammed':
     case 'weapon_destroyed':
       return 'weapon';
     case 'none':
@@ -213,6 +284,12 @@ function vehicleCritComponentName(kind: VehicleCritKind): string {
       return 'Ammo';
     case 'cargo_hit':
       return 'Cargo';
+    case 'commander_hit':
+      return 'Commander';
+    case 'copilot_hit':
+      return 'Copilot';
+    case 'crew_killed':
+      return 'Crew killed';
     case 'crew_stunned':
       return 'Crew';
     case 'driver_hit':
@@ -221,6 +298,26 @@ function vehicleCritComponentName(kind: VehicleCritKind): string {
       return 'Engine';
     case 'fuel_tank':
       return 'Fuel Tank';
+    case 'flight_stabilizer':
+      return 'Flight stabilizer';
+    case 'pilot_hit':
+      return 'Pilot';
+    case 'rotor_damage':
+      return 'Rotor damage';
+    case 'rotor_destroyed':
+      return 'Rotor destroyed';
+    case 'sensor_hit':
+      return 'Sensor';
+    case 'stabilizer_hit':
+      return 'Stabilizer';
+    case 'turret_destroyed':
+      return 'Turret destroyed';
+    case 'turret_jammed':
+      return 'Turret jammed';
+    case 'turret_locked':
+      return 'Turret locked';
+    case 'weapon_jammed':
+      return 'Vehicle weapon jammed';
     case 'weapon_destroyed':
       return 'Vehicle weapon';
     case 'none':
@@ -228,20 +325,24 @@ function vehicleCritComponentName(kind: VehicleCritKind): string {
   }
 }
 
-function hasExplosiveAmmoAtLocation(
+function hasExplosiveAmmoForVehicle(
   ammoState: Record<string, IAmmoSlotState> | undefined,
-  location: VehicleLocation | VTOLLocation,
 ): boolean {
-  return selectExplosiveAmmoAtLocation(ammoState, location) !== undefined;
+  return Object.values(ammoState ?? {}).some(
+    (bin) => bin.isExplosive && bin.remainingRounds > 0,
+  );
 }
 
-function selectExplosiveAmmoAtLocation(
+function selectExplosiveAmmoForVehicle(
   ammoState: Record<string, IAmmoSlotState> | undefined,
   location: VehicleLocation | VTOLLocation,
 ): IAmmoSlotState | undefined {
-  return Object.values(ammoState ?? {}).find(
-    (bin) =>
-      bin.location === location && bin.isExplosive && bin.remainingRounds > 0,
+  const bins = Object.values(ammoState ?? {});
+  return (
+    bins.find(
+      (bin) =>
+        bin.location === location && bin.isExplosive && bin.remainingRounds > 0,
+    ) ?? bins.find((bin) => bin.isExplosive && bin.remainingRounds > 0)
   );
 }
 

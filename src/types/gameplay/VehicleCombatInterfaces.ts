@@ -93,12 +93,25 @@ export interface IMotiveDamageRollResult {
 export type VehicleCritKind =
   | 'none'
   | 'crew_stunned'
+  | 'crew_killed'
+  | 'commander_hit'
+  | 'copilot_hit'
+  | 'pilot_hit'
   | 'weapon_destroyed'
+  | 'weapon_jammed'
   | 'cargo_hit'
   | 'driver_hit'
   | 'fuel_tank'
   | 'engine_hit'
-  | 'ammo_explosion';
+  | 'ammo_explosion'
+  | 'stabilizer_hit'
+  | 'sensor_hit'
+  | 'turret_jammed'
+  | 'turret_locked'
+  | 'turret_destroyed'
+  | 'rotor_damage'
+  | 'rotor_destroyed'
+  | 'flight_stabilizer';
 
 /**
  * Result of a vehicle crit-table roll.
@@ -197,9 +210,11 @@ export interface IVehicleCombatState {
     | 'motive_immobilized'
     | 'engine_destroyed'
     | 'ammo_explosion'
+    | 'fuel_tank_explosion'
     | 'crash'
     | 'sinking'
-    | 'crew_killed';
+    | 'crew_killed'
+    | 'turret_destroyed';
 }
 
 // =============================================================================
