@@ -683,7 +683,7 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   evasive: unsupported(
     'evasive',
-    'The legacy Evasive SPA TMM bonus is not wired as a pilot ability; the MegaMek source-backed behavior is optional TacOps Evade movement with separate action, heat, attacker firing, and target modifier semantics',
+    'The legacy Evasive SPA TMM bonus is not wired as a pilot ability; the MegaMek source-backed behavior is optional TacOps Evade movement with action, heat, attacker firing, and target modifier semantics plus optional Skilled Evasion scaling',
     MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
   ),
   'natural-grace': unsupported(
