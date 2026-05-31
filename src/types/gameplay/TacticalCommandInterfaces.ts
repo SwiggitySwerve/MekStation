@@ -52,7 +52,11 @@ import type { IMovementRangeHex } from './GameplayUIInterfaces';
 import type { IAttackInvalidPayload } from './GameSessionAttackEvents';
 import type { GamePhase, LockState } from './GameSessionCoreTypes';
 import type { IComponentDamageState } from './GameSessionStateTypes';
-import type { IHexCoordinate, IMovementCapability } from './HexGridInterfaces';
+import type {
+  IHexCoordinate,
+  IMovementCapability,
+  MovementConversionMode,
+} from './HexGridInterfaces';
 
 /**
  * Top-level command categories. Determines dock grouping and which
@@ -180,6 +184,12 @@ export interface ITacticalCommandContext {
   readonly activeUnitLockState?: LockState;
   /** Current heat on the active unit, used for heat-reduced movement MP gates. */
   readonly activeUnitHeat?: number;
+  /** Runtime conversion mode for LAM / QuadVee style movement controls. */
+  readonly activeUnitConversionMode?: MovementConversionMode | number;
+  /** Runtime mounted state for represented conventional infantry controls. */
+  readonly activeUnitInfantryMounted?: boolean;
+  /** Runtime or imported mount height for represented conventional infantry. */
+  readonly activeUnitInfantryMountHeight?: number;
   /** Source-backed reason the active unit cannot complete a stand-up attempt. */
   readonly activeUnitStandUpImpossibleReason?: string;
   /** Active unit component damage used by posture commands with damage-scaled costs. */

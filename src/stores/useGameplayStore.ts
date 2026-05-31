@@ -21,6 +21,7 @@
 import { create } from 'zustand';
 
 import type { InteractiveSession } from '@/engine/GameEngine';
+import type { IRuntimeMovementStateChangedPayload } from '@/types/gameplay/GameSessionMovementEvents';
 
 import {
   DEFAULT_UI_STATE,
@@ -43,6 +44,7 @@ import {
   enterHullDownActiveUnitLogic,
   getAttackPlanFor,
   goProneActiveUnitLogic,
+  applyRuntimeMovementStateForSelectedUnitLogic,
   setAttackTargetLogic,
   setPlannedMovementLogic,
   setPlannedWeaponModeLogic,
@@ -216,6 +218,10 @@ interface GameplayActions {
   enterHullDownActiveUnit: () => void;
   /** Commit a zero-hex go-prone movement for the selected hull-down unit. */
   goProneActiveUnit: () => void;
+  /** Commit a replayable conversion or infantry mount-state update. */
+  applyRuntimeMovementState: (
+    patch: Omit<IRuntimeMovementStateChangedPayload, 'unitId'>,
+  ) => void;
   /**
    * Per `add-combat-phase-ui-flows`: Attack-phase planning actions.
    * `setAttackTarget` sets the target id when an enemy token is
@@ -457,6 +463,8 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   standActiveUnit: (standUpMode) => standActiveUnitLogic(get, set, standUpMode),
   enterHullDownActiveUnit: () => enterHullDownActiveUnitLogic(get, set),
   goProneActiveUnit: () => goProneActiveUnitLogic(get, set),
+  applyRuntimeMovementState: (patch) =>
+    applyRuntimeMovementStateForSelectedUnitLogic(get, set, patch),
   setAttackTarget: (unitId) => setAttackTargetLogic(unitId, set),
   togglePlannedWeapon: (weaponId) => togglePlannedWeaponLogic(weaponId, set),
   setPlannedWeaponMode: (weaponId, mode) =>

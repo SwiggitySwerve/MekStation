@@ -572,4 +572,124 @@ describe('movementCommands', () => {
         'Hull-down go-prone action is only available for Mek-style movement.',
     });
   });
+
+  it('adds infantry mount-state controls only for infantry mount profiles', () => {
+    const infantryCtx = makeCtx({
+      activeUnitProne: false,
+      movementCapability: {
+        walkMP: 3,
+        runMP: 5,
+        jumpMP: 0,
+        unitHeight: 1,
+        unitHeightProfile: { kind: 'infantry_mount', mountedHeight: 1 },
+      },
+    });
+    const infantryCommands = buildMovementCommands(infantryCtx);
+    const mount = infantryCommands.find(
+      (c) => c.id === 'movement.infantryMount',
+    )!;
+    const dismount = infantryCommands.find(
+      (c) => c.id === 'movement.infantryDismount',
+    )!;
+
+    expect(infantryCommands.map((command) => command.id)).toEqual(
+      expect.arrayContaining([
+        'movement.infantryMount',
+        'movement.infantryDismount',
+      ]),
+    );
+    expect(mount.availability(makeCtx())).toEqual({
+      available: false,
+      reason: 'Unit has no infantry mount profile.',
+    });
+    expect(
+      mount.availability(
+        makeCtx({
+          activeUnitProne: false,
+          activeUnitInfantryMounted: false,
+          movementCapability: infantryCtx.movementCapability,
+        }),
+      ),
+    ).toEqual({ available: true });
+    expect(dismount.availability(infantryCtx)).toEqual({ available: true });
+    expect(dismount.commit(infantryCtx)).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'infantry_mount_action',
+        infantryMounted: false,
+      },
+    });
+  });
+
+  it('adds LAM conversion controls that clear stale explicit height', () => {
+    const lamCtx = makeCtx({
+      activeUnitProne: false,
+      activeUnitConversionMode: 'mek',
+      movementCapability: {
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 5,
+        unitHeight: 1,
+        unitHeightProfile: { kind: 'lam', standingHeight: 1 },
+      },
+    });
+    const lamCommands = buildMovementCommands(lamCtx);
+    const mek = lamCommands.find((c) => c.id === 'movement.convert.mek')!;
+    const fighter = lamCommands.find(
+      (c) => c.id === 'movement.convert.fighter',
+    )!;
+
+    expect(lamCommands.map((command) => command.id)).toEqual(
+      expect.arrayContaining([
+        'movement.convert.mek',
+        'movement.convert.airmek',
+        'movement.convert.fighter',
+      ]),
+    );
+    expect(mek.availability(lamCtx)).toEqual({
+      available: false,
+      reason: 'Unit is already in Mek Mode.',
+    });
+    expect(fighter.availability(lamCtx)).toEqual({ available: true });
+    expect(fighter.commit(lamCtx)).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'conversion_action',
+        conversionMode: 'fighter',
+        unitHeight: null,
+      },
+    });
+  });
+
+  it('adds QuadVee conversion controls and treats tracked vehicle mode as current', () => {
+    const quadVeeCtx = makeCtx({
+      activeUnitProne: false,
+      activeUnitConversionMode: 'tracked',
+      movementCapability: {
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 3,
+        movementMode: 'tracked',
+        unitHeight: 1,
+        unitHeightProfile: { kind: 'quadvee', standingHeight: 1 },
+      },
+    });
+    const quadVeeCommands = buildMovementCommands(quadVeeCtx);
+    const mek = quadVeeCommands.find((c) => c.id === 'movement.convert.mek')!;
+    const vehicle = quadVeeCommands.find(
+      (c) => c.id === 'movement.convert.vehicle',
+    )!;
+
+    expect(quadVeeCommands.map((command) => command.id)).toEqual(
+      expect.arrayContaining([
+        'movement.convert.mek',
+        'movement.convert.vehicle',
+      ]),
+    );
+    expect(mek.availability(quadVeeCtx)).toEqual({ available: true });
+    expect(vehicle.availability(quadVeeCtx)).toEqual({
+      available: false,
+      reason: 'Unit is already in Vehicle Mode.',
+    });
+  });
 });

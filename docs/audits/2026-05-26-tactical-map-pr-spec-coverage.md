@@ -41,12 +41,13 @@ decisions are made, not because CI is stale.
 ## Remaining Gaps To Keep Out Of Ready-For-Review Claims
 
 - Movement: conversion action timing, remaining airborne LAM Fighter/AirMek
-  submodes, UI controls that mutate infantry mount/conversion state, and broader
-  external oracle differential sweeps remain follow-up work.
+  submodes, and broader external oracle differential sweeps remain follow-up
+  work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
-  `apply-runtime-movement-state-events`, leaving UI/action-timing integration and
-  oracle sweeps.
+  `apply-runtime-movement-state-events`, and tactical command controls are now
+  covered by `wire-runtime-movement-state-controls`, leaving source-specific
+  action timing and oracle sweeps.
 - Combat: broader special range-mode coverage, remaining LOS terrain families,
   full surface-naval underwater expansion, and broader external oracle
   comparisons remain follow-up work.

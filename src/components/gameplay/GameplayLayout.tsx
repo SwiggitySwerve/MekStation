@@ -942,6 +942,9 @@ export function GameplayLayout({
               activeUnitHullDown: selectedUnit?.hullDown ?? false,
               activeUnitLockState: selectedUnit?.lockState,
               activeUnitHeat: selectedUnit?.heat ?? 0,
+              activeUnitConversionMode: selectedUnit?.conversionMode,
+              activeUnitInfantryMounted: selectedUnit?.infantryMounted,
+              activeUnitInfantryMountHeight: selectedUnit?.infantryMountHeight,
               activeUnitStandUpImpossibleReason:
                 selectedStandUpImpossibleReason,
               activeUnitComponentDamage: selectedUnit?.componentDamage,

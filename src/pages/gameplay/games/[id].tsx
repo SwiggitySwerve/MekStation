@@ -12,6 +12,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { PhysicalAttackIntent } from '@/components/gameplay';
 import type { TacticalActionPayload } from '@/types/gameplay';
+import type { IRuntimeMovementStateChangedPayload } from '@/types/gameplay/GameSessionMovementEvents';
 
 import {
   CombatPlanningPanel,
@@ -85,6 +86,9 @@ export default function GameSessionPage(): React.ReactElement {
   );
   const goProneActiveUnit = useGameplaySelector(
     (state) => state.goProneActiveUnit,
+  );
+  const applyRuntimeMovementState = useGameplaySelector(
+    (state) => state.applyRuntimeMovementState,
   );
   const setPlannedMovement = useGameplaySelector(
     (state) => state.setPlannedMovement,
@@ -192,6 +196,13 @@ export default function GameSessionPage(): React.ReactElement {
         case 'go-prone':
           goProneActiveUnit();
           break;
+        case 'runtime-movement-state':
+          if (payload) {
+            applyRuntimeMovementState(
+              payload as Omit<IRuntimeMovementStateChangedPayload, 'unitId'>,
+            );
+          }
+          break;
         case 'next-turn':
           runAITurn();
           break;
@@ -221,6 +232,7 @@ export default function GameSessionPage(): React.ReactElement {
       standActiveUnit,
       enterHullDownActiveUnit,
       goProneActiveUnit,
+      applyRuntimeMovementState,
       runAITurn,
       fireWeapons,
       advanceInteractivePhase,

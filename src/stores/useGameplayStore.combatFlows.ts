@@ -14,6 +14,7 @@
 import { create } from 'zustand';
 
 import type { InteractiveSession } from '@/engine/GameEngine';
+import type { IRuntimeMovementStateChangedPayload } from '@/types/gameplay/GameSessionMovementEvents';
 import type {
   IPhysicalAttackInput,
   PhysicalAttackLimb,
@@ -330,6 +331,38 @@ export function goProneActiveUnitLogic(get: GetFn, set: SetFn): void {
     plannedMovement: null,
     validMovementHexes: [],
     ui: { ...get().ui, selectedUnitId: null },
+  });
+}
+
+/**
+ * Commit a runtime movement-state change for the selected unit without
+ * locking movement. Conversion and infantry mount/dismount controls use this
+ * to force the same replayable state event consumed by movement projection and
+ * commit validation, then keep the unit selected so the map immediately
+ * recomputes the overlay in the new mode.
+ */
+export function applyRuntimeMovementStateForSelectedUnitLogic(
+  get: GetFn,
+  set: SetFn,
+  patch: Omit<IRuntimeMovementStateChangedPayload, 'unitId'>,
+): void {
+  const { interactiveSession, ui } = get();
+  if (!interactiveSession || !ui.selectedUnitId) return;
+
+  const unitId = ui.selectedUnitId;
+  const beforeSession = interactiveSession.getSession();
+  if (!beforeSession.currentState.units[unitId]) return;
+
+  interactiveSession.applyRuntimeMovementState(unitId, patch);
+  const nextSession = interactiveSession.getSession();
+  const validMoves = interactiveSession.getAvailableActions(unitId).validMoves;
+
+  set({
+    session: nextSession,
+    interactivePhase: InteractivePhase.SelectMovement,
+    plannedMovement: null,
+    validMovementHexes: validMoves,
+    ui: { ...get().ui, selectedUnitId: unitId },
   });
 }
 

@@ -35,6 +35,8 @@ import {
   movementDeclarationLockInvalidState,
 } from '@/utils/gameplay/movement';
 
+import { buildRuntimeMovementStateCommands } from './runtimeMovementStateCommands';
+
 /**
  * Build the movement-family command list for the current active unit.
  *
@@ -42,7 +44,9 @@ import {
  * multi-viewer command authorization lands. Today every movement
  * command is visible to the local viewer when an active unit exists.
  */
-export function buildMovementCommands(): readonly ITacticalCommand[] {
+export function buildMovementCommands(
+  ctx?: ITacticalCommandContext,
+): readonly ITacticalCommand[] {
   return [
     MovementWalkCommand,
     MovementRunCommand,
@@ -51,6 +55,7 @@ export function buildMovementCommands(): readonly ITacticalCommand[] {
     MovementCarefulStandCommand,
     MovementHullDownCommand,
     MovementGoProneCommand,
+    ...buildRuntimeMovementStateCommands(ctx),
     MovementStabilizeCommand,
     MovementCancelCommand,
   ];

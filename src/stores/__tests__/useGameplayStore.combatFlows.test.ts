@@ -387,6 +387,105 @@ function buildStandFakeSession(
   };
 }
 
+function buildRuntimeMovementStateSession(): {
+  session: InteractiveSession;
+  calls: Array<{
+    readonly unitId: string;
+    readonly patch: Readonly<Record<string, unknown>>;
+  }>;
+  snapshot: IGameSession;
+} {
+  const calls: Array<{
+    readonly unitId: string;
+    readonly patch: Readonly<Record<string, unknown>>;
+  }> = [];
+  const snapshot: IGameSession = {
+    id: 'runtime-movement-state-session',
+    createdAt: '',
+    updatedAt: '',
+    config: {
+      mapRadius: 5,
+      turnLimit: 0,
+      victoryConditions: [],
+      optionalRules: [],
+    },
+    units: [],
+    events: [],
+    currentState: {
+      gameId: 'runtime-movement-state-session',
+      status: GameStatus.Active,
+      turn: 1,
+      phase: GamePhase.Movement,
+      activationIndex: 0,
+      units: {
+        'unit-a': {
+          id: 'unit-a',
+          side: GameSide.Player,
+          position: { q: 0, r: 0 },
+          facing: Facing.North,
+          heat: 0,
+          movementThisTurn: MovementType.Stationary,
+          hexesMovedThisTurn: 0,
+          armor: {},
+          structure: {},
+          destroyedLocations: [],
+          destroyedEquipment: [],
+          ammo: {},
+          pilotWounds: 0,
+          pilotConscious: true,
+          destroyed: false,
+          lockState: LockState.Planning,
+          conversionMode: 'mek',
+          unitHeight: 1,
+        },
+      },
+      turnEvents: [],
+    },
+  };
+
+  const fake = {
+    applyRuntimeMovementState: (
+      unitId: string,
+      patch: Readonly<Record<string, unknown>>,
+    ) => {
+      calls.push({ unitId, patch });
+      snapshot.currentState.units[unitId] = {
+        ...snapshot.currentState.units[unitId],
+        conversionMode: patch.conversionMode as 'fighter',
+      };
+      delete (snapshot.currentState.units[unitId] as { unitHeight?: number })
+        .unitHeight;
+      (snapshot.events as IGameEvent[]).push({
+        id: 'runtime-state-0',
+        gameId: snapshot.id,
+        sequence: 0,
+        turn: 1,
+        phase: GamePhase.Movement,
+        type: GameEventType.RuntimeMovementStateChanged,
+        actorId: unitId,
+        timestamp: '',
+        payload: { unitId, ...patch },
+      } as IGameEvent);
+    },
+    getAvailableActions: () => ({
+      validMoves: [{ q: 2, r: 0 }],
+      validTargets: [],
+    }),
+    getSession: () => snapshot,
+    getState: () => snapshot.currentState,
+    isGameOver: () => false,
+    getResult: () => null,
+    advancePhase: () => undefined,
+    runAITurn: () => undefined,
+  };
+
+  return {
+    session: fake as unknown as InteractiveSession,
+    calls,
+    snapshot,
+  };
+}
+
 function buildWeaponTargetSelectionSession(targetQ: number): {
   session: IGameSession;
   interactiveSession: InteractiveSession;
@@ -856,6 +955,66 @@ describe('useGameplayStore — combat-phase planning actions', () => {
 
       expect(calls.movement).toHaveLength(0);
       expect(useGameplayStore.getState().ui.selectedUnitId).toBe('unit-a');
+    });
+
+    it('applyRuntimeMovementState emits a replayable state event and keeps map planning active', () => {
+      const { session, calls, snapshot } = buildRuntimeMovementStateSession();
+      const plan = {
+        unitId: 'unit-a',
+        destination: { q: 1, r: 0 },
+        facing: Facing.North,
+        movementType: MovementType.Walk,
+        path: [
+          { q: 0, r: 0 },
+          { q: 1, r: 0 },
+        ],
+      };
+      useGameplayStore.setState({
+        interactiveSession: session,
+        session: snapshot,
+        plannedMovement: plan,
+        interactivePhase: InteractivePhase.SelectMovement,
+        validMovementHexes: [],
+        ui: {
+          ...useGameplayStore.getState().ui,
+          selectedUnitId: 'unit-a',
+        },
+      });
+
+      useGameplayStore.getState().applyRuntimeMovementState({
+        source: 'conversion_action',
+        conversionMode: 'fighter',
+        unitHeight: null,
+      });
+
+      expect(calls).toEqual([
+        {
+          unitId: 'unit-a',
+          patch: {
+            source: 'conversion_action',
+            conversionMode: 'fighter',
+            unitHeight: null,
+          },
+        },
+      ]);
+      expect(snapshot.events.at(-1)?.type).toBe(
+        GameEventType.RuntimeMovementStateChanged,
+      );
+      expect(snapshot.currentState.units['unit-a']).toMatchObject({
+        conversionMode: 'fighter',
+      });
+      expect(snapshot.currentState.units['unit-a']).not.toHaveProperty(
+        'unitHeight',
+      );
+      expect(useGameplayStore.getState().session).toBe(snapshot);
+      expect(useGameplayStore.getState().plannedMovement).toBeNull();
+      expect(useGameplayStore.getState().ui.selectedUnitId).toBe('unit-a');
+      expect(useGameplayStore.getState().interactivePhase).toBe(
+        InteractivePhase.SelectMovement,
+      );
+      expect(useGameplayStore.getState().validMovementHexes).toEqual([
+        { q: 2, r: 0 },
+      ]);
     });
   });
 
