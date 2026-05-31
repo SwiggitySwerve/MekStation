@@ -1531,6 +1531,116 @@ describe('BattleMech physical combat behavior validation lane', () => {
     });
   });
 
+  it('caps non-Melee Master units at one accepted physical attack declaration per turn', () => {
+    let session = withPhysicalPositions(physicalPhaseSession());
+    session = declarePhysicalAttack(
+      session,
+      'attacker',
+      'target',
+      'punch',
+      physicalContext({ limb: 'rightArm' }),
+    );
+    session = withPhysicalPositions(session);
+    session = declarePhysicalAttack(
+      session,
+      'attacker',
+      'target',
+      'kick',
+      physicalContext({ limb: 'rightLeg' }),
+    );
+
+    const declarations = session.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const rejection = session.events.findLast(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(1);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'kick',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'PhysicalAttackLimitReached',
+    });
+  });
+
+  it('lets Melee Master declare two physical attacks but rejects the third', () => {
+    const meleeMasterContext = physicalContext({
+      pilotAbilities: ['melee_master'],
+    });
+    const meleeMasterState = { abilities: ['melee_master'] };
+    let session = withPhysicalPositions(
+      physicalPhaseSession(),
+      meleeMasterState,
+    );
+    session = declarePhysicalAttack(session, 'attacker', 'target', 'punch', {
+      ...meleeMasterContext,
+      limb: 'rightArm',
+    });
+    session = withPhysicalPositions(session, meleeMasterState);
+    session = declarePhysicalAttack(session, 'attacker', 'target', 'kick', {
+      ...meleeMasterContext,
+      limb: 'rightLeg',
+    });
+    session = withPhysicalPositions(session, meleeMasterState);
+    session = declarePhysicalAttack(session, 'attacker', 'target', 'push', {
+      ...meleeMasterContext,
+      pushDestinationValid: true,
+    });
+
+    const declarations = session.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const declaredPayloads = declarations.map(
+      (event) => event.payload as IPhysicalAttackDeclaredPayload,
+    );
+    const rejection = session.events.findLast(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const rejectionPayload =
+      rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declaredPayloads).toMatchObject([
+      { attackType: 'punch', limb: 'rightArm' },
+      { attackType: 'kick', limb: 'rightLeg' },
+    ]);
+    expect(rejectionPayload.location).toBe('PhysicalAttackLimitReached');
+  });
+
+  it('rejects a Melee Master second declaration that reuses the same limb', () => {
+    const meleeMasterContext = physicalContext({
+      pilotAbilities: ['melee_master'],
+    });
+    let session = withPhysicalPositions(physicalPhaseSession(), {
+      abilities: ['melee_master'],
+    });
+    session = declarePhysicalAttack(session, 'attacker', 'target', 'punch', {
+      ...meleeMasterContext,
+      limb: 'rightArm',
+    });
+    session = withPhysicalPositions(session, { abilities: ['melee_master'] });
+    session = declarePhysicalAttack(session, 'attacker', 'target', 'punch', {
+      ...meleeMasterContext,
+      limb: 'rightArm',
+    });
+
+    const declarations = session.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const rejection = session.events.findLast(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(1);
+    expect(payload.location).toBe('SameLimbUsedThisTurn');
+  });
+
   it('rejects push declarations against prone targets before scheduling resolution', () => {
     const session = declarePhysicalAttack(
       withPhysicalPositions(physicalPhaseSession(), {}, { prone: true }),
