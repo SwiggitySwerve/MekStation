@@ -190,37 +190,42 @@ const MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS = {
   'movement.walk': mekstationMovementCommandSourceRefs(
     'movement.walk',
     'the local lock action id with a walk movement mode payload',
-    'L47-L68',
+    'L48-L71',
   ),
   'movement.run': mekstationMovementCommandSourceRefs(
     'movement.run',
     'the local lock action id with a run movement mode payload',
-    'L72-L88',
+    'L73-L91',
+  ),
+  'movement.evade': mekstationMovementCommandSourceRefs(
+    'movement.evade',
+    'the local lock action id with an evade movement mode payload',
+    'L93-L111',
   ),
   'movement.jump': mekstationMovementCommandSourceRefs(
     'movement.jump',
     'the local lock action id with a jump movement mode payload',
-    'L92-L113',
+    'L113-L136',
   ),
   'movement.stand': mekstationMovementCommandSourceRefs(
     'movement.stand',
     'the local stand action id',
-    'L117-L134',
+    'L138-L157',
   ),
   'movement.go-prone': mekstationMovementCommandSourceRefs(
     'movement.go-prone',
     'the local go-prone action id',
-    'L138-L153',
+    'L159-L176',
   ),
   'movement.activate-masc': mekstationMovementCommandSourceRefs(
     'movement.activate-masc',
     'the local activate-masc action id',
-    'L157-L171',
+    'L178-L194',
   ),
   'movement.activate-supercharger': mekstationMovementCommandSourceRefs(
     'movement.activate-supercharger',
     'the local activate-supercharger action id',
-    'L175-L189',
+    'L196-L212',
   ),
 } satisfies Record<string, readonly ICombatFeatureSourceReference[]>;
 
@@ -243,7 +248,7 @@ const MEKSTATION_STABILIZE_COMMAND_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation buildMovementCommands exposes movement.stabilize as a product-visible tactical command that commits the local stabilize action id.',
     'src/components/gameplay/TacticalActionDock/commands/movementCommands.ts',
-    'L193-L207',
+    'L214-L230',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -251,7 +256,7 @@ const MEKSTATION_MOVEMENT_CANCEL_COMMAND_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation buildMovementCommands exposes movement.cancel as a local movement-preview reset command that commits the undo action id.',
     'src/components/gameplay/TacticalActionDock/commands/movementCommands.ts',
-    'L211-L227',
+    'L232-L250',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -800,6 +805,15 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'buildMovementCommands commits lock mode run; declareMovement/Move carries authoritative movement',
     MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.run'],
   ),
+  'movement.evade': integrated(
+    'movement.evade',
+    'tactical-command',
+    'buildMovementCommands commits lock mode evade; MovementType.Evade uses run MP/pathing, creates authoritative evading/evasionBonus state, emits source-backed evasion heat, and declareMovement/Move/P2P movement validation carry it through the existing movement action path',
+    [
+      ...MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
+      ...MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.evade'],
+    ],
+  ),
   'movement.jump': integrated(
     'movement.jump',
     'tactical-command',
@@ -1025,12 +1039,6 @@ export const GM_COMMAND_EXCLUSION_SUPPORT = {
 } satisfies Record<string, ICombatActionSupportEntry>;
 
 export const BATTLEMECH_ABSENT_ACTION_SUPPORT = {
-  'movement.evade': unsupported(
-    'movement.evade',
-    'absent-action-surface',
-    'Evade is a source-backed optional TacOps movement surface with running movement, evasion heat, attacker firing restrictions, and target to-hit modifiers; explicit evading state now blocks ranged/physical attacks, modifies target to-hit through evasion/evasionBonus state, rejects LOS spotters, and feeds runner heat as run heat plus evasion heat, but tactical commands, MovementType, game intents, wire payloads, P2P translation, runner movement phases, and authoritative evasion-bonus state creation have no authoritative evade action path',
-    MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
-  ),
   'movement.sprint': unsupported(
     'movement.sprint',
     'absent-action-surface',
