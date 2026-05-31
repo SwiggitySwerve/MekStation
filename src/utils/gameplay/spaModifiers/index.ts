@@ -27,6 +27,7 @@ export {
   getMeleeSpecialistDamageBonus,
   getMountaineerRubblePSRModifier,
   getSomeLikeItHotHeatPenaltyReduction,
+  getSwampBeastBogDownPSRModifier,
   getTacticalGeniusBonus,
 } from './abilityModifiers';
 export {
