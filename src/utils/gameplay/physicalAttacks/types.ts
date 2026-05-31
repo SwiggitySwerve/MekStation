@@ -207,6 +207,11 @@ export interface IPhysicalAttackInput {
    */
   readonly attackerEvading?: boolean;
   /**
+   * Source-backed spotting penalty: a unit that declared SpotAction-style
+   * target spotting applies +1 to its own weapon and physical attacks.
+   */
+  readonly attackerSpotting?: boolean;
+  /**
    * Source-backed shared physical legality: an attacker that is loading or
    * unloading cargo cannot make physical attacks.
    */
