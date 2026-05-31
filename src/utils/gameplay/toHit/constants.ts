@@ -15,6 +15,7 @@ export const ATTACKER_MOVEMENT_MODIFIERS: Readonly<
   [MovementType.Stationary]: 0,
   [MovementType.Walk]: 1,
   [MovementType.Run]: 2,
+  [MovementType.Evade]: 2,
   [MovementType.Jump]: 3,
 };
 
