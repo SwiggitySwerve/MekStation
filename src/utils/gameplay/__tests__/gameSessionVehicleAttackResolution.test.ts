@@ -379,6 +379,56 @@ describe('resolveAttack vehicle target dispatch', () => {
     ).toBe('ammo_explosion');
   });
 
+  it('falls through turret ammo crits when no explosive ammo is represented', () => {
+    let session = createGameSession(config(), [
+      mechUnit('attacker'),
+      vehicleUnit({
+        turretType: TurretType.SINGLE,
+        armor: vehicleArmor({
+          [VehicleLocation.FRONT]: 10,
+          [VehicleLocation.TURRET]: 0,
+        }),
+        structure: vehicleArmor({
+          [VehicleLocation.FRONT]: 5,
+          [VehicleLocation.TURRET]: 10,
+        }),
+      }),
+    ]);
+    session = markTargetHullDown(session);
+    const diceRoller = diceRollerFor([[6, 6]]);
+    const d6Roller = d6RollerFor([5, 6]);
+
+    const resolved = resolveAttack(
+      session,
+      attackEvent(session.id, session.events.length),
+      diceRoller,
+      d6Roller,
+    );
+
+    const critical = resolved.events.find(
+      (event) => event.type === GameEventType.CriticalHitResolved,
+    )!;
+    expect((critical.payload as ICriticalHitResolvedPayload).effect).toBe(
+      'turret_destroyed',
+    );
+    expect(
+      resolved.events.some(
+        (event) => event.type === GameEventType.AmmoExplosion,
+      ),
+    ).toBe(false);
+    expect(
+      resolved.events.some(
+        (event) => event.type === GameEventType.UnitDestroyed,
+      ),
+    ).toBe(true);
+    expect(resolved.currentState.units.target.destroyed).toBe(true);
+    expect(
+      resolved.currentState.units.target.combatState?.kind === 'vehicle'
+        ? resolved.currentState.units.target.combatState.state.destructionCause
+        : undefined,
+    ).toBe('turret_destroyed');
+  });
+
   it('front roll 12 kills vehicle crew instead of selecting ammo', () => {
     const session = createGameSession(config(), [
       mechUnit('attacker'),

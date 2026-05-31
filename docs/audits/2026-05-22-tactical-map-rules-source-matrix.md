@@ -1840,9 +1840,10 @@ restriction helper in combat projection, interactive attack commits, bot attack
 commits, and quick-sim weapon loops. Focused projection and interactive
 agreement tests prove direct front-mounted hull-down vehicle weapons are blocked
 before declaration while front-mounted indirect LRM fire remains available.
-Session-level vehicle damage and location-sensitive critical dispatch have
-since landed; dual-turret split locations and vehicle critical
-equipment-availability fallthrough remain follow-up work.
+Session-level vehicle damage, location-sensitive critical dispatch, and
+represented ammo/engine/crew/turret/rotor critical availability fallthrough have
+since landed; dual-turret split locations and target weapon/cargo/stabilizer
+availability import parity remain follow-up work.
 
 2026-05-31 hull-down movement-exit projection pin: MegaMek `GetUpStep.java`
 sets `GET_UP` MP to 2, or 1 when run MP is only 1, and `MoveStep.java:2021-2034`

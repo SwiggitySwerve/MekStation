@@ -65,7 +65,15 @@ export function resolveVehicleCriticalIfTriggered(
     location: input.location,
     motionType: input.damageResult.state.motionType,
     engineType: input.damageResult.state.engineType ?? EngineType.STANDARD,
+    hasAvailableAmmo: hasExplosiveAmmoForVehicle(input.targetState.ammoState),
     engineAlreadyHit: input.damageResult.state.motive.engineHits > 0,
+    driverAlreadyHit: input.damageResult.state.motive.driverHits > 0,
+    commanderAlreadyHit: input.damageResult.state.motive.commanderHits > 0,
+    sensorHits: input.targetState.componentDamage?.sensorHits,
+    turretAlreadyLocked:
+      input.location === VehicleLocation.TURRET &&
+      input.damageResult.state.turretLock.primaryLocked,
+    vehicleImmobile: input.damageResult.state.motive.immobilized,
   });
   const critResult = applyVehicleCritEffect(
     input.damageResult.state,

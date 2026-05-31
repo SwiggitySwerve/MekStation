@@ -126,6 +126,85 @@ describe('vehicleCriticalHitResolution', () => {
 
       expect(r.kind).toBe('rotor_destroyed');
     });
+
+    it('falls through unavailable rear ammo into engine/fuel results', () => {
+      const noAmmoIce = vehicleCritFromRollForLocation([5, 6], {
+        location: VehicleLocation.REAR,
+        motionType: GroundMotionType.TRACKED,
+        engineType: EngineType.ICE,
+        hasAvailableAmmo: false,
+      });
+      const noAmmoFusion = vehicleCritFromRollForLocation([5, 6], {
+        location: VehicleLocation.REAR,
+        motionType: GroundMotionType.TRACKED,
+        engineType: EngineType.STANDARD,
+        hasAvailableAmmo: false,
+      });
+
+      expect(noAmmoIce.kind).toBe('fuel_tank');
+      expect(noAmmoFusion.kind).toBe('engine_hit');
+    });
+
+    it('retries from roll 6 when rear ammo and fusion engine are unavailable', () => {
+      const r = vehicleCritFromRollForLocation([5, 6], {
+        location: VehicleLocation.REAR,
+        motionType: GroundMotionType.TRACKED,
+        engineType: EngineType.STANDARD,
+        hasAvailableAmmo: false,
+        engineAlreadyHit: true,
+      });
+
+      expect(r.kind).toBe('weapon_jammed');
+    });
+
+    it('falls through unavailable turret ammo into turret destruction', () => {
+      const r = vehicleCritFromRollForLocation([5, 6], {
+        location: VehicleLocation.TURRET,
+        motionType: GroundMotionType.TRACKED,
+        engineType: EngineType.STANDARD,
+        hasAvailableAmmo: false,
+      });
+
+      expect(r.kind).toBe('turret_destroyed');
+    });
+
+    it('uses represented crew hit counters for front crew fallthrough', () => {
+      const stunned = vehicleCritFromRollForLocation([3, 3], {
+        location: VehicleLocation.FRONT,
+        motionType: GroundMotionType.TRACKED,
+        engineType: EngineType.STANDARD,
+        driverAlreadyHit: true,
+      });
+      const killed = vehicleCritFromRollForLocation([3, 3], {
+        location: VehicleLocation.FRONT,
+        motionType: GroundMotionType.TRACKED,
+        engineType: EngineType.STANDARD,
+        driverAlreadyHit: true,
+        commanderAlreadyHit: true,
+      });
+
+      expect(stunned.kind).toBe('crew_stunned');
+      expect(killed.kind).toBe('crew_killed');
+    });
+
+    it('falls through rotor damage when a VTOL is already immobile', () => {
+      const stabilizer = vehicleCritFromRollForLocation([3, 3], {
+        location: VTOLLocation.ROTOR,
+        motionType: GroundMotionType.VTOL,
+        engineType: EngineType.STANDARD,
+        vehicleImmobile: true,
+      });
+      const rotorDestroyed = vehicleCritFromRollForLocation([3, 3], {
+        location: VTOLLocation.ROTOR,
+        motionType: GroundMotionType.VTOL,
+        engineType: EngineType.STANDARD,
+        vehicleImmobile: true,
+        flightStabilizerAlreadyHit: true,
+      });
+
+      expect(stabilizer.kind).toBe('flight_stabilizer');
+      expect(rotorDestroyed.kind).toBe('rotor_destroyed');
+    });
   });
 
   describe('applyVehicleCritEffect', () => {

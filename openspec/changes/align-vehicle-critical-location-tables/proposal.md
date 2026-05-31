@@ -27,8 +27,8 @@ flight-stabilizer / rotor-destroyed outcomes.
 
 ## Out Of Scope
 
-- Full equipment availability fallthrough parity for weapon jam/destroyed,
-  stabilizer, cargo, ammo, and already-damaged subsystem checks.
+- Full target weapon/cargo/stabilizer import parity for vehicle critical
+  availability checks.
 - Dual-turret split location identity beyond the current generic turret
   abstraction.
 - External differential sweeps against MegaMek across all Tank/VTOL critical
