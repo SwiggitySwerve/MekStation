@@ -16,6 +16,7 @@ import {
   findPath,
   getFacingChangeCost,
   getMaxMP,
+  type IMovementCostContext,
   type UnitMovementType,
 } from '@/utils/gameplay/movement';
 import { terrainTagOffersCover } from '@/utils/gameplay/terrainCover';
@@ -698,8 +699,17 @@ function calculateMoveCandidateMpCost(params: {
   readonly destination: IHexCoordinate;
   readonly facing: Facing;
   readonly movementType: MovementType;
+  readonly movementContext?: IMovementCostContext;
 }): number {
-  const { grid, path, position, destination, facing, movementType } = params;
+  const {
+    grid,
+    path,
+    position,
+    destination,
+    facing,
+    movementType,
+    movementContext,
+  } = params;
   const distance = hexDistance(position.coord, destination);
 
   if (distance === 0) {
@@ -720,6 +730,7 @@ function calculateMoveCandidateMpCost(params: {
     toGroundUnitMovementType(movementType),
     position.facing,
     facing,
+    movementContext,
   );
 }
 
@@ -737,6 +748,7 @@ export class MoveAI {
     position: IUnitPosition,
     movementType: MovementType,
     capability: IMovementCapability,
+    movementContext?: IMovementCostContext,
   ): readonly IMove[] {
     const maxMP = getMaxMP(capability, movementType);
     const destinations = enumerateMovementCandidateDestinations(
@@ -752,7 +764,14 @@ export class MoveAI {
 
       const path =
         movementType !== MovementType.Jump && distance > 0
-          ? findPath(grid, position.coord, destination)
+          ? findPath(
+              grid,
+              position.coord,
+              destination,
+              Infinity,
+              toGroundUnitMovementType(movementType),
+              movementContext,
+            )
           : null;
       if (movementType !== MovementType.Jump && distance > 0 && !path) {
         continue;
@@ -767,6 +786,7 @@ export class MoveAI {
           destination,
           facing: typedFacing,
           movementType,
+          movementContext,
         });
 
         if (mpCost > maxMP) continue;

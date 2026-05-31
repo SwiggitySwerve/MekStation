@@ -886,16 +886,15 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual({ spaIds: [], quirkIds: [] });
   });
 
-  it('pins Terrain Master Mountaineer rubble PSR relief to MegaMek semantics', () => {
+  it('pins Terrain Master Mountaineer PSR and movement relief to MegaMek semantics', () => {
     const mountaineerRefs = SPA_COMBAT_SUPPORT.tm_mountaineer.sourceRefs ?? [];
     const movementRefs =
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application']
         .sourceRefs ?? [];
 
     expect(SPA_COMBAT_SUPPORT.tm_mountaineer).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('Mountaineer'),
-      gap: expect.stringContaining('movement-cost'),
     });
     expect(SPA_COMBAT_SUPPORT['terrain-master'].gap).toContain(
       'tm_mountaineer',
@@ -908,9 +907,9 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ]);
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application'].gap,
-    ).toContain('Terrain Master: Mountaineer');
+    ).not.toContain('Terrain Master: Mountaineer');
     expect(movementRefs.map(({ citation }) => citation)).toEqual(
-      expect.arrayContaining([
+      expect.not.arrayContaining([
         'MegaMek Terrain.movementCost applies -1 MP for Mountaineer in rough/rubble movement-cost branches.',
         'MegaMek MoveStep applies Mountaineer as one MP less for upward elevation changes.',
         'MegaMek OptionsConstants defines PILOT_TM_MOUNTAINEER as tm_mountaineer.',
@@ -921,7 +920,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual(expect.arrayContaining(['tm_mountaineer']));
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['movement-application'].spaIds,
-    ).toEqual(expect.arrayContaining(['tm_mountaineer']));
+    ).not.toContain('tm_mountaineer');
   });
 
   it('pins Terrain Master defender to-hit variants to MegaMek terrain and movement semantics', () => {

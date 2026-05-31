@@ -143,6 +143,14 @@ const PILOT_REFS = [
     'src/simulation/runner/__tests__/combatPilotModifierApplicationCatalog.contract.test.ts',
     'Pilot modifier resolver rows stay aligned with executable SPA and quirk resolver paths.',
   ),
+  testRef(
+    'src/utils/gameplay/movement/__tests__/battlemechMovementTerrain.behavior.test.ts',
+    'Movement behavior proves source-backed Terrain Master: Mountaineer rough/rubble and upward-elevation MP relief in validation, pathfinding, and reachable previews.',
+  ),
+  testRef(
+    'src/simulation/runner/__tests__/movementPhase.behavior.test.ts',
+    'Runner movement behavior proves pilot-ability movement-cost relief before MovementDeclared commit.',
+  ),
 ] as const;
 
 const REQUIREMENT_REFS = [
