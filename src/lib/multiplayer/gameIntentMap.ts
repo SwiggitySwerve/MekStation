@@ -89,6 +89,11 @@ export interface IDeclarePhysicalPayload {
   readonly attackType: PhysicalAttackType;
 }
 
+export interface IRequestSpotPayload {
+  readonly unitId: string;
+  readonly targetId: string;
+}
+
 /**
  * Concede payload carried by a `concede` `IGameIntent`. `side` is the
  * side the conceding player owns.
@@ -167,6 +172,13 @@ export function declarePhysicalIntent(
   return { type: 'declarePhysical', payload, authorPeerId };
 }
 
+export function requestSpotIntent(
+  authorPeerId: string,
+  payload: IRequestSpotPayload,
+): IGameIntent {
+  return { type: 'requestSpot', payload, authorPeerId };
+}
+
 export function endPhaseIntent(authorPeerId: string): IGameIntent {
   return { type: 'endPhase', payload: {}, authorPeerId };
 }
@@ -231,6 +243,8 @@ export function toServerIntent(intent: IGameIntent): IIntentPayload | null {
       return toAttackIntent(intent.payload);
     case 'declarePhysical':
       return toPhysicalIntent(intent.payload);
+    case 'requestSpot':
+      return toRequestSpotIntent(intent.payload);
     case 'endPhase':
     case 'confirmHeat':
       return { kind: 'AdvancePhase' };
@@ -331,6 +345,14 @@ function toPhysicalIntent(payload: unknown): IIntentPayload | null {
     targetId,
     attackType,
   };
+}
+
+function toRequestSpotIntent(payload: unknown): IIntentPayload | null {
+  if (!isRecord(payload)) return null;
+  const { unitId, targetId } = payload;
+  if (typeof unitId !== 'string' || unitId.length === 0) return null;
+  if (typeof targetId !== 'string' || targetId.length === 0) return null;
+  return { kind: 'RequestSpot', unitId, targetId };
 }
 
 function toEjectIntent(payload: unknown): IIntentPayload | null {

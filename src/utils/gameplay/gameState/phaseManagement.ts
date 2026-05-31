@@ -34,6 +34,8 @@ export function applyPhaseChanged(
         usedMechanicalJumpBoosterThisTurn: false,
         isEvading: false,
         evasionBonus: undefined,
+        isSpotting: false,
+        spotTargetId: undefined,
       };
     }
   }
@@ -64,6 +66,8 @@ export function applyTurnStarted(
       weaponsFiredThisTurn: [],
       pendingPSRs: [],
       tagDesignated: false,
+      isSpotting: false,
+      spotTargetId: undefined,
     };
   }
 
