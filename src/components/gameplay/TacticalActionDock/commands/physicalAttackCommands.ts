@@ -16,6 +16,7 @@ export function buildPhysicalAttackCommands(): readonly ITacticalCommand[] {
     PhysicalPunchCommand,
     PhysicalKickCommand,
     PhysicalPushCommand,
+    PhysicalTripCommand,
     PhysicalChargeCommand,
     PhysicalDeathFromAboveCommand,
     PhysicalClubCommand,
@@ -81,6 +82,20 @@ const PhysicalPushCommand: ITacticalCommand = {
   availability: requireActiveAndTarget,
   commit() {
     return { actionId: 'physical-attack', payload: { attackType: 'push' } };
+  },
+};
+
+const PhysicalTripCommand: ITacticalCommand = {
+  id: 'physical.trip',
+  category: 'physical',
+  label: 'Trip',
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return { actionId: 'physical-attack', payload: { attackType: 'trip' } };
   },
 };
 
