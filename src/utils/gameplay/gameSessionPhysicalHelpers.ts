@@ -2,6 +2,7 @@ import type { IUnitGameState } from '@/types/gameplay';
 
 import type {
   IPhysicalAttackRestriction,
+  JumpJetAttackSelectedLeg,
   PhysicalAttackLimb,
   PhysicalTargetObjectType,
   ThrashAttackBlockingTerrain,
@@ -120,9 +121,22 @@ export interface IPhysicalAttackContext {
   readonly legAesFunctional?: boolean;
   readonly thrashBlockingTerrains?: readonly ThrashAttackBlockingTerrain[];
   readonly hasWorkingThrashArmOrLeg?: boolean;
+  readonly tacOpsJumpJetAttackEnabled?: boolean;
+  readonly jumpJetAttackSelectedLeg?: JumpJetAttackSelectedLeg;
+  readonly leftReadyJumpJetCount?: number;
+  readonly rightReadyJumpJetCount?: number;
+  readonly leftLegWet?: boolean;
+  readonly rightLegWet?: boolean;
+  readonly leftLegWeaponFiredThisTurn?: boolean;
+  readonly rightLegWeaponFiredThisTurn?: boolean;
+  readonly standingAttackerHeightAboveTargetHeight?: number;
+  readonly proneTargetElevationInRange?: boolean;
+  readonly targetDirectlyAheadOfFeet?: boolean;
+  readonly targetDirectlyBehindFeet?: boolean;
 }
 
 type ArmSide = 'left' | 'right';
+type LegSide = 'left' | 'right';
 
 function normalizeMountedLocation(location: string | undefined): string {
   return (location ?? '')
@@ -142,6 +156,17 @@ function isArmMountedLocation(location: string, arm?: ArmSide): boolean {
   );
 }
 
+function isLegMountedLocation(location: string, leg?: LegSide): boolean {
+  if (leg === 'left') return location === 'left_leg' || location === 'll';
+  if (leg === 'right') return location === 'right_leg' || location === 'rl';
+  return (
+    location === 'left_leg' ||
+    location === 'll' ||
+    location === 'right_leg' ||
+    location === 'rl'
+  );
+}
+
 export function firedWeaponIdsFromMountedArm(
   unit: Pick<IUnitGameState, 'weaponsFiredThisTurn' | 'weaponLocationById'>,
   arm?: ArmSide,
@@ -158,6 +183,26 @@ export function firedWeaponIdsFromMountedArm(
     );
     return (
       mountedLocation.length === 0 || isArmMountedLocation(mountedLocation, arm)
+    );
+  });
+}
+
+export function firedWeaponIdsFromMountedLeg(
+  unit: Pick<IUnitGameState, 'weaponsFiredThisTurn' | 'weaponLocationById'>,
+  leg?: LegSide,
+): readonly string[] {
+  const firedWeaponIds = unit.weaponsFiredThisTurn ?? [];
+  if (firedWeaponIds.length === 0) return [];
+
+  const weaponLocationById = unit.weaponLocationById;
+  if (weaponLocationById === undefined) return firedWeaponIds;
+
+  return firedWeaponIds.filter((weaponId) => {
+    const mountedLocation = normalizeMountedLocation(
+      weaponLocationById[weaponId],
+    );
+    return (
+      mountedLocation.length === 0 || isLegMountedLocation(mountedLocation, leg)
     );
   });
 }

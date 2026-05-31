@@ -1,6 +1,7 @@
 import { IComponentDamageState, IUnitGameState } from '@/types/gameplay';
 import { CombatLocation } from '@/types/gameplay';
 
+import type { JumpJetAttackSelectedLeg } from './jumpJetAttackEligibility';
 import type { ThrashAttackBlockingTerrain } from './thrashEligibility';
 
 export const CORE_PHYSICAL_ATTACK_TYPES = [
@@ -11,6 +12,7 @@ export const CORE_PHYSICAL_ATTACK_TYPES = [
   'push',
   'trip',
   'thrash',
+  'jump-jet-attack',
 ] as const;
 
 export const SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES = [
@@ -155,9 +157,18 @@ export type PhysicalAttackInvalidReason =
   | 'TargetNotAdjacent'
   | 'TargetNotSameHex'
   | 'TargetNotDirectlyAhead'
+  | 'TargetNotDirectlyBehindFeet'
   | 'TargetNotInFrontArc'
   | 'TerrainNotClearOrPavement'
   | 'TacOpsTripDisabled'
+  | 'TacOpsJumpJetAttackDisabled'
+  | 'CommonImpossible'
+  | 'InvalidLegSelection'
+  | 'BothLegsRequiresProne'
+  | 'JumpJetsMissingOrDestroyed'
+  | 'AttackerJumpedThisTurn'
+  | 'LegWeaponFiredThisTurn'
+  | 'LandAirMekNotMekMode'
   | 'AttackerAlreadyGrappled'
   | 'TripLimbUnavailable'
   | 'ThrashLimbUnavailable'
@@ -460,6 +471,20 @@ export interface IPhysicalAttackInput {
   readonly legAesFunctional?: boolean;
   readonly thrashBlockingTerrains?: readonly ThrashAttackBlockingTerrain[];
   readonly hasWorkingThrashArmOrLeg?: boolean;
+  readonly tacOpsJumpJetAttackEnabled?: boolean;
+  readonly attackerIsLandAirMek?: boolean;
+  readonly attackerIsMekMode?: boolean;
+  readonly jumpJetAttackSelectedLeg?: JumpJetAttackSelectedLeg;
+  readonly leftReadyJumpJetCount?: number;
+  readonly rightReadyJumpJetCount?: number;
+  readonly leftLegWet?: boolean;
+  readonly rightLegWet?: boolean;
+  readonly leftLegWeaponFiredThisTurn?: boolean;
+  readonly rightLegWeaponFiredThisTurn?: boolean;
+  readonly standingAttackerHeightAboveTargetHeight?: number;
+  readonly proneTargetElevationInRange?: boolean;
+  readonly targetDirectlyAheadOfFeet?: boolean;
+  readonly targetDirectlyBehindFeet?: boolean;
   /**
    * Per task 8.5: a push is only legal when the displacement destination
    * is on-map and unoccupied. Undefined preserves legacy callers that have
@@ -609,6 +634,17 @@ export interface IChooseBestPhysicalAttackOptions {
   targetIsPushing?: boolean;
   targetDisplacementAttackTargetId?: string;
   targetedByDisplacementAttackerId?: string;
+  optionalRules?: readonly string[];
+  tacOpsJumpJetAttackEnabled?: boolean;
+  jumpJetAttackSelectedLeg?: JumpJetAttackSelectedLeg;
+  leftReadyJumpJetCount?: number;
+  rightReadyJumpJetCount?: number;
+  leftLegWeaponFiredThisTurn?: boolean;
+  rightLegWeaponFiredThisTurn?: boolean;
+  standingAttackerHeightAboveTargetHeight?: number;
+  proneTargetElevationInRange?: boolean;
+  targetDirectlyAheadOfFeet?: boolean;
+  targetDirectlyBehindFeet?: boolean;
 }
 
 export interface IPhysicalAttackCandidate {
