@@ -136,6 +136,21 @@ export function calculateAttackerProneModifier(
   };
 }
 
+export function calculateSpottingAttackerModifier(
+  isSpotting?: boolean,
+): IToHitModifierDetail | null {
+  if (!isSpotting) {
+    return null;
+  }
+
+  return {
+    name: 'Attacker Spotting',
+    value: 1,
+    source: 'other',
+    description: 'Attacker is spotting for indirect fire: +1',
+  };
+}
+
 export function calculateIndirectFireModifier(
   indirectFire: IIndirectFire,
 ): IToHitModifierDetail | null {

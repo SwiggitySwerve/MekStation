@@ -47,6 +47,7 @@ import {
   calculateSensorDamageModifier,
   calculateActuatorDamageModifier,
   calculateAttackerProneModifier,
+  calculateSpottingAttackerModifier,
   calculateIndirectFireModifier,
   calculateCalledShotModifier,
   // Aggregation functions
@@ -2328,6 +2329,22 @@ describe('calculateAttackerProneModifier', () => {
   });
 });
 
+describe('calculateSpottingAttackerModifier', () => {
+  it('should return null when the attacker is not spotting', () => {
+    expect(calculateSpottingAttackerModifier(false)).toBeNull();
+    expect(calculateSpottingAttackerModifier()).toBeNull();
+  });
+
+  it('should apply +1 when the attacker is spotting', () => {
+    const modifier = calculateSpottingAttackerModifier(true);
+    expect(modifier).toMatchObject({
+      name: 'Attacker Spotting',
+      value: 1,
+      source: 'other',
+    });
+  });
+});
+
 describe('calculateIndirectFireModifier', () => {
   it('should return null when not indirect fire', () => {
     const info: IIndirectFire = { isIndirect: false, spotterWalked: false };
@@ -2550,6 +2567,20 @@ describe('calculateToHit with Phase 10 modifiers', () => {
     // Gunnery 4 + prone 2 = 6
     expect(result.finalToHit).toBe(6);
     expect(result.modifiers.some((m) => m.name === 'Attacker Prone')).toBe(
+      true,
+    );
+  });
+
+  it('should apply attacker spotting penalty', () => {
+    const attacker = createTestAttackerState({
+      gunnery: 4,
+      isSpotting: true,
+    });
+    const target = createTestTargetState();
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+
+    expect(result.finalToHit).toBe(5);
+    expect(result.modifiers.some((m) => m.name === 'Attacker Spotting')).toBe(
       true,
     );
   });
