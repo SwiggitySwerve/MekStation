@@ -15,6 +15,7 @@ import {
   IPSRTriggeredPayload,
   IPSRResolvedPayload,
   IUnitFellPayload,
+  IUnitStuckPayload,
   IShutdownCheckPayload,
   IStartupAttemptPayload,
   IAmmoConsumedPayload,
@@ -693,6 +694,35 @@ describe('Phase 4: IUnitGameState Extension', () => {
       const unit = result.units['unit-1'];
       expect(unit.prone).toBe(true);
       expect(unit.facing).toBe(Facing.Southeast);
+      expect(unit.pendingPSRs).toEqual([]);
+    });
+  });
+
+  describe('UnitStuck reducer', () => {
+    it('sets unit stuck and clears pending PSRs without changing prone state', () => {
+      const state = createStateWithUnit({
+        pendingPSRs: [
+          {
+            entityId: 'unit-1',
+            reason: 'Avoid bogging down',
+            reasonCode: PSRTrigger.SwampBogDown,
+            additionalModifier: 0,
+            triggerSource: PSRTrigger.SwampBogDown,
+          },
+        ],
+        prone: false,
+      });
+
+      const event = makeEvent(GameEventType.UnitStuck, {
+        unitId: 'unit-1',
+        reason: 'Avoid bogging down',
+        reasonCode: PSRTrigger.SwampBogDown,
+      } satisfies IUnitStuckPayload);
+
+      const result = applyEvent(state, event);
+      const unit = result.units['unit-1'];
+      expect(unit.isStuck).toBe(true);
+      expect(unit.prone).toBe(false);
       expect(unit.pendingPSRs).toEqual([]);
     });
   });

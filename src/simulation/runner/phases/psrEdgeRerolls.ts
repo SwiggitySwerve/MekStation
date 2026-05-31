@@ -42,6 +42,10 @@ function isMASCOrSuperchargerFailurePSR(psr: IPendingPSR): boolean {
   );
 }
 
+function isStuckFailurePSR(psr: IPendingPSR): boolean {
+  return (psr.reasonCode ?? psr.triggerSource) === PSRTrigger.SwampBogDown;
+}
+
 function canUseMASCFailureEdge(
   unit: IUnitGameState,
   psr: IRunnerPSRResult,
@@ -173,6 +177,16 @@ export function resolveRunnerPSRs(options: {
 
     for (let j = i + 1; j < options.pendingPSRs.length; j++) {
       clearedPSRs.push(options.pendingPSRs[j]);
+    }
+    if (isStuckFailurePSR(psr)) {
+      return {
+        results,
+        unitFell: false,
+        unitStuck: true,
+        clearedPSRs,
+        failedResult: result,
+        unit: currentUnit,
+      };
     }
     return {
       results,
