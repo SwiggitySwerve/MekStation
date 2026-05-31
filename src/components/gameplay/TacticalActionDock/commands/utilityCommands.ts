@@ -99,7 +99,13 @@ const UtilityRequestSpotCommand: ITacticalCommand = {
     }
     return { available: true };
   },
-  commit() {
-    return { actionId: 'request-spot', payload: {} };
+  commit(ctx) {
+    return {
+      actionId: 'request-spot',
+      payload: {
+        unitId: ctx.activeUnitId,
+        targetUnitId: ctx.targetUnitId,
+      },
+    };
   },
 };
