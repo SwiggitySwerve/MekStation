@@ -2610,9 +2610,9 @@ describe('BattleMech combat feature-gap tracking', () => {
         ({ citation }) => citation,
       ),
     ).toEqual([
-      'MegaMek KickAttackAction.getDamageFor applies a 1.5 talon multiplier when the kicking leg has working talons and a working foot actuator',
+      'MegaMek KickAttackAction.getDamageFor applies a 1.5 talon multiplier when the kicking leg has working talons and a working foot actuator, mapping quad front kicks to arm locations',
       'MegaMek DfaAttackAction.getDamageFor and hasTalons apply 1.5 DFA damage when a qualifying talon leg has a working foot actuator',
-      'MegaMek DfaAttackAction.hasTalons checks working talons and working foot actuators on qualifying biped and non-biped leg locations.',
+      'MegaMek DfaAttackAction.hasTalons checks working talons and working foot actuators on qualifying biped legs plus non-biped leg and arm locations.',
       'MegaMek Entity.destroyLocation marks blown-off critical slots, mounted equipment, and dependent locations missing',
     ]);
 
