@@ -6,6 +6,7 @@ import {
 } from '@/utils/gameplay/spaModifiers';
 import { calculateTargetEvasionModifier } from '@/utils/gameplay/toHit/movementModifiers';
 
+import { getBreakGrappleAttackToHitModifiers } from './breakGrappleEligibility';
 import { getBrushOffAttackToHitModifiers } from './brushOffEligibility';
 import {
   FOOT_KICK_MODIFIER,
@@ -30,6 +31,7 @@ import { getGrappleAttackToHitModifiers } from './grappleEligibility';
 import { getJumpJetAttackToHitModifiers } from './jumpJetAttackEligibility';
 import {
   canBrushOffPhysical,
+  canBreakGrapplePhysical,
   canGrapplePhysical,
   canJumpJetAttackPhysical,
   canCharge,
@@ -254,6 +256,14 @@ function grappleModifierSource(reasonCode: string): string {
     return 'actuator';
   }
   if (reasonCode === 'TSMActiveBonus') return 'myomer';
+  if (reasonCode === 'WeightClassDifference') return 'weight-class';
+  return 'physical-action';
+}
+
+function breakGrappleModifierSource(reasonCode: string): string {
+  if (reasonCode.includes('Actuator') || reasonCode === 'ArmAES') {
+    return 'actuator';
+  }
   if (reasonCode === 'WeightClassDifference') return 'weight-class';
   return 'physical-action';
 }
@@ -865,6 +875,77 @@ export function calculateGrappleToHit(
   };
 }
 
+export function calculateBreakGrappleToHit(
+  input: IPhysicalAttackInput,
+): IPhysicalToHitResult {
+  const restriction = canBreakGrapplePhysical(input);
+  if (!restriction.allowed) {
+    return {
+      baseToHit: input.pilotingSkill,
+      finalToHit: Infinity,
+      modifiers: [],
+      allowed: false,
+      restrictionReason: restriction.reason,
+      restrictionReasonCode: restriction.reasonCode,
+    };
+  }
+
+  const actuators = input.componentDamage.actuators;
+  const breakGrappleModifiers = getBreakGrappleAttackToHitModifiers({
+    originalGrappleAttacker: input.attackerIsGrappleAttacker,
+    attackerIsMek: attackerIsMekForGrapple(input),
+    leftShoulderWorking: !actuators[ActuatorType.SHOULDER],
+    leftUpperArmWorking: !actuators[ActuatorType.UPPER_ARM],
+    leftLowerArmWorking: !actuators[ActuatorType.LOWER_ARM],
+    leftHandWorking: !actuators[ActuatorType.HAND],
+    rightShoulderWorking: !actuators[ActuatorType.SHOULDER],
+    rightUpperArmWorking: !actuators[ActuatorType.UPPER_ARM],
+    rightLowerArmWorking: !actuators[ActuatorType.LOWER_ARM],
+    rightHandWorking: !actuators[ActuatorType.HAND],
+    bothArmAesFunctional:
+      input.leftArmAesFunctional === true &&
+      input.rightArmAesFunctional === true,
+    attackerUnitKind: grappleUnitKind(input.attackerUnitType),
+    targetUnitKind: grappleUnitKind(input.targetUnitType),
+    attackerWeightClass: input.attackerWeightClass,
+    targetWeightClass: input.targetWeightClass,
+  });
+
+  if (breakGrappleModifiers.automaticSuccess) {
+    return {
+      baseToHit: input.pilotingSkill,
+      finalToHit: AUTOMATIC_SUCCESS_TO_HIT,
+      modifiers: [],
+      allowed: true,
+      automaticHit: true,
+      automaticHitReason: breakGrappleModifiers.automaticSuccessReason,
+    };
+  }
+
+  const modifiers: IPhysicalModifier[] = breakGrappleModifiers.modifiers.map(
+    (modifier) => ({
+      name: modifier.description,
+      value: modifier.value,
+      source: breakGrappleModifierSource(modifier.reasonCode),
+    }),
+  );
+
+  appendTMM(modifiers, input.targetMovementModifier);
+  appendTargetEvasion(modifiers, input);
+  appendAttackerSpotting(modifiers, input);
+  appendMeleeSpecialist(modifiers, input.pilotAbilities);
+  appendFrogmanPhysicalModifier(modifiers, input);
+
+  const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
+
+  return {
+    baseToHit: input.pilotingSkill,
+    finalToHit: input.pilotingSkill + totalMod,
+    modifiers,
+    allowed: true,
+  };
+}
+
 export function calculateMeleeWeaponToHit(
   input: IPhysicalAttackInput,
 ): IPhysicalToHitResult {
@@ -955,6 +1036,8 @@ export function calculatePhysicalToHit(
       return calculateBrushOffToHit(input);
     case 'grapple':
       return calculateGrappleToHit(input);
+    case 'break-grapple':
+      return calculateBreakGrappleToHit(input);
     case 'hatchet':
     case 'sword':
     case 'mace':
