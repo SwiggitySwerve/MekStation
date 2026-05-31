@@ -31,7 +31,9 @@ import {
   canMeleeWeapon,
   canPunch,
   canPush,
+  canTripPhysical,
 } from './restrictions';
+import { getTripAttackBaseToHitAdjustment } from './tripEligibility';
 import {
   IPhysicalAttackInput,
   IPhysicalModifier,
@@ -509,6 +511,73 @@ export function calculatePushToHit(
   };
 }
 
+export function calculateTripToHit(
+  input: IPhysicalAttackInput,
+): IPhysicalToHitResult {
+  const baseToHit = input.pilotingSkill + getTripAttackBaseToHitAdjustment();
+  const restriction = canTripPhysical(input);
+  if (!restriction.allowed) {
+    return {
+      baseToHit,
+      finalToHit: Infinity,
+      modifiers: [],
+      allowed: false,
+      restrictionReason: restriction.reason,
+      restrictionReasonCode: restriction.reasonCode,
+    };
+  }
+
+  const modifiers: IPhysicalModifier[] = [];
+  const actuators = input.componentDamage.actuators;
+
+  if (actuators[ActuatorType.UPPER_LEG]) {
+    modifiers.push({
+      name: 'Upper leg actuator destroyed',
+      value: UPPER_LEG_KICK_MODIFIER,
+      source: 'actuator',
+    });
+  }
+
+  if (actuators[ActuatorType.LOWER_LEG]) {
+    modifiers.push({
+      name: 'Lower leg actuator destroyed',
+      value: LOWER_LEG_KICK_MODIFIER,
+      source: 'actuator',
+    });
+  }
+
+  if (actuators[ActuatorType.FOOT]) {
+    modifiers.push({
+      name: 'Foot actuator destroyed',
+      value: FOOT_KICK_MODIFIER,
+      source: 'actuator',
+    });
+  }
+
+  if (input.legAesFunctional) {
+    modifiers.push({
+      name: 'Leg AES modifier',
+      value: -1,
+      source: 'actuator',
+    });
+  }
+
+  appendTMM(modifiers, input.targetMovementModifier);
+  appendTargetEvasion(modifiers, input);
+  appendAttackerSpotting(modifiers, input);
+  appendMeleeSpecialist(modifiers, input.pilotAbilities);
+  appendFrogmanPhysicalModifier(modifiers, input);
+
+  const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
+
+  return {
+    baseToHit,
+    finalToHit: baseToHit + totalMod,
+    modifiers,
+    allowed: true,
+  };
+}
+
 export function calculateMeleeWeaponToHit(
   input: IPhysicalAttackInput,
 ): IPhysicalToHitResult {
@@ -589,6 +658,8 @@ export function calculatePhysicalToHit(
       return calculateDFAToHit(input);
     case 'push':
       return calculatePushToHit(input);
+    case 'trip':
+      return calculateTripToHit(input);
     case 'hatchet':
     case 'sword':
     case 'mace':
