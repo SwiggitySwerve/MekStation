@@ -124,6 +124,7 @@ export const PhysicalIntentSchema = z.object({
   attackerId: z.string().min(1),
   targetId: z.string().min(1),
   attackType: z.enum(SUPPORTED_PHYSICAL_ATTACK_TYPES),
+  limb: z.enum(['leftArm', 'rightArm', 'leftLeg', 'rightLeg']).optional(),
 });
 export type IPhysicalIntent = z.infer<typeof PhysicalIntentSchema>;
 
