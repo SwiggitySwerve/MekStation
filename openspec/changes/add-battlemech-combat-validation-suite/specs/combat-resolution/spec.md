@@ -1370,7 +1370,8 @@ Pilot modifier validation SHALL keep Mek Edge triggers as helper-only trigger-st
 
 - **GIVEN** the BattleMech SPA and pilot modifier resolver catalogs are generated
 - **WHEN** Edge, Edge application, or critical-prevention support is inspected
-- **THEN** each Mek Edge trigger row SHALL remain helper-only with structured source references to MegaMek Edge trigger registration and point consumption
+- **THEN** unresolved Mek Edge trigger rows SHALL remain helper-only with structured source references to MegaMek Edge trigger registration and point consumption
+- **AND** `edge_when_masc_fails` SHALL be integrated only for source-backed runner `MASCFailure` and `SuperchargerFailure` rerolls that spend Edge and suppress failure aftermath when the reroll passes
 - **AND** each Aero Edge trigger row SHALL remain out-of-scope with the same source references until an aerospace validation matrix exists
 - **AND** each row SHALL cite the MekStation generic Edge helper or SPA catalog partition as a local deviation boundary
 - **AND** no attack, non-booster PSR, consciousness, TAC, head-hit, or explosion resolver SHALL be counted as Edge-integrated until trigger-specific combat behavior exists
