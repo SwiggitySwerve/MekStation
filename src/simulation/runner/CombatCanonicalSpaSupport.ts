@@ -23,6 +23,16 @@ function helperOnly(
     : { id, level: 'helper-only', evidence, gap };
 }
 
+function integrated(
+  id: string,
+  evidence: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'integrated', evidence, sourceRefs }
+    : { id, level: 'integrated', evidence };
+}
+
 function outOfScope(
   id: string,
   evidence: string,
@@ -98,6 +108,14 @@ function canonicalSpaFallback(spa: ISPADefinition): ICombatFeatureSupportEntry {
     );
   }
 
+  if (spa.category === 'edge' && spa.id === 'edge_when_masc_fails') {
+    return integrated(
+      spa.id,
+      `${evidence}; runPSRPhase consumes this trigger for source-backed MASC and Supercharger failure rerolls, spends Edge, emits superseded/reroll evidence, and suppresses failure aftermath when the reroll passes`,
+      canonicalSpaScopeSourceRefs(spa),
+    );
+  }
+
   if (spa.category === 'bioware') {
     return helperOnly(
       spa.id,
@@ -111,7 +129,7 @@ function canonicalSpaFallback(spa: ISPADefinition): ICombatFeatureSupportEntry {
     return helperOnly(
       spa.id,
       evidence,
-      'Trigger-specific Edge SPAs are catalog-visible; edge_when_masc_fails is consumed by runner MASC/Supercharger failure rerolls, while attack, other PSR, consciousness, and critical resolvers still do not consume Edge trigger state',
+      'Trigger-specific Edge SPAs are catalog-visible; attack, non-booster PSR, consciousness, and critical resolvers still do not consume their trigger-specific Edge state',
       canonicalSpaScopeSourceRefs(spa),
     );
   }
