@@ -13,6 +13,7 @@ export const CORE_PHYSICAL_ATTACK_TYPES = [
   'trip',
   'thrash',
   'jump-jet-attack',
+  'brush-off',
 ] as const;
 
 export const SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES = [
@@ -112,6 +113,7 @@ export type PhysicalAttackInvalidReason =
   | 'HipDestroyed'
   | 'ShoulderDestroyed'
   | 'SameLimbUsedThisTurn'
+  | 'InvalidArmSelection'
   | 'AttackerEvading'
   | 'AttackerCargoInteraction'
   | 'NoJumpThisTurn'
@@ -159,6 +161,7 @@ export type PhysicalAttackInvalidReason =
   | 'TargetNotDirectlyAhead'
   | 'TargetNotDirectlyBehindFeet'
   | 'TargetNotInFrontArc'
+  | 'InvalidBrushOffTarget'
   | 'TerrainNotClearOrPavement'
   | 'TacOpsTripDisabled'
   | 'TacOpsJumpJetAttackDisabled'
@@ -485,6 +488,13 @@ export interface IPhysicalAttackInput {
   readonly proneTargetElevationInRange?: boolean;
   readonly targetDirectlyAheadOfFeet?: boolean;
   readonly targetDirectlyBehindFeet?: boolean;
+  readonly targetIsSwarmingInfantryOnAttacker?: boolean;
+  readonly targetIsINarcPod?: boolean;
+  readonly armAesFunctional?: boolean;
+  readonly torsoMountedCockpit?: boolean;
+  readonly headSensorHits?: number;
+  readonly centerTorsoSensorHits?: number;
+  readonly defenderHasMagneticClaws?: boolean;
   /**
    * Per task 8.5: a push is only legal when the displacement destination
    * is on-map and unoccupied. Undefined preserves legacy callers that have
@@ -601,6 +611,8 @@ export interface IChooseBestPhysicalAttackOptions {
   targetUnitType?: string;
   targetDistance?: number;
   targetIsSwarming?: boolean;
+  targetIsSwarmingInfantryOnAttacker?: boolean;
+  targetIsINarcPod?: boolean;
   targetObjectType?: PhysicalTargetObjectType;
   targetIsFriendly?: boolean;
   weaponsFiredThisTurn?: readonly string[];
