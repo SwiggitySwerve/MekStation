@@ -296,6 +296,70 @@ describe('runMovementPhase movement validation parity', () => {
     expect(next.units['player-1'].heat).toBe(0);
   });
 
+  it('commits TacOps Evade as run-based movement with source-backed evasion state', () => {
+    const target = { q: 2, r: 0 };
+    const { next, events } = runScriptedMove(
+      createMinimalGrid(4),
+      target,
+      {},
+      {
+        movementType: MovementType.Evade,
+        capability: { walkMP: 2, runMP: 3, jumpMP: 0 },
+      },
+    );
+    const payload = events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    )?.payload as IMovementDeclaredPayload | undefined;
+
+    expect(payload).toMatchObject({
+      unitId: 'player-1',
+      to: target,
+      movementType: MovementType.Evade,
+      mode: MovementType.Run,
+      mpUsed: 2,
+      heatGenerated: 4,
+      hexesMoved: 2,
+    });
+    expect(next.units['player-1']).toMatchObject({
+      position: target,
+      movementThisTurn: MovementType.Evade,
+      isEvading: true,
+      evasionBonus: 1,
+      hexesMovedThisTurn: 2,
+    });
+
+    const reset = resetTurnState(next);
+    expect(reset.units['player-1']).toMatchObject({
+      sprintedThisTurn: false,
+      isEvading: false,
+      evasionBonus: undefined,
+    });
+  });
+
+  it('does not allow MASC or Supercharger boosted MP to extend TacOps Evade reach', () => {
+    const target = { q: 4, r: 0 };
+    const { next, events } = runScriptedMove(
+      createMinimalGrid(5),
+      target,
+      {
+        hasMASC: true,
+        activeMASC: true,
+      },
+      {
+        movementType: MovementType.Evade,
+        capability: { walkMP: 2, runMP: 3, jumpMP: 0 },
+      },
+    );
+
+    expect(events).toEqual([]);
+    expect(next.units['player-1']).toMatchObject({
+      position: { q: 0, r: 0 },
+      movementThisTurn: MovementType.Stationary,
+    });
+    expect(next.units['player-1'].isEvading).not.toBe(true);
+    expect(next.units['player-1'].evasionBonus).toBeUndefined();
+  });
+
   it('applies Terrain Master: Mountaineer movement relief before committing runner movement', () => {
     const target = { q: 1, r: 0 };
     const grid = setTerrain(createMinimalGrid(3), target, TerrainType.Rubble);
