@@ -31,6 +31,8 @@ export function movementAnimationModeForType(
     case MovementType.Run:
     case MovementType.Jump:
       return movementType;
+    case MovementType.Evade:
+      return MovementType.Run;
     default:
       return null;
   }
@@ -85,6 +87,7 @@ function toUnitMovementType(
 ): 'walk' | 'run' | 'jump' {
   switch (movementType) {
     case MovementType.Run:
+    case MovementType.Evade:
       return 'run';
     case MovementType.Jump:
       return 'jump';
@@ -107,6 +110,7 @@ export function maxMovementCostForCapability(
     case MovementType.Walk:
       return capability.walkMP;
     case MovementType.Run:
+    case MovementType.Evade:
       return capability.runMP;
     case MovementType.Jump:
       return capability.jumpMP;

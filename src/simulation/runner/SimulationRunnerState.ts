@@ -14,6 +14,7 @@ import {
   IGameState,
   IMovementStep,
   IUnitGameState,
+  MovementType,
 } from '@/types/gameplay';
 import { ScenarioObjectiveType } from '@/types/scenario/ScenarioInterfaces';
 import {
@@ -450,6 +451,8 @@ export function resetTurnState(state: IGameState): IGameState {
       pendingPSRs: [],
       tagDesignated: false,
       sprintedThisTurn: false,
+      isEvading: false,
+      evasionBonus: undefined,
     };
 
     if (shouldTrackMASC(unit)) {
@@ -493,6 +496,7 @@ export function applyMovementEvent(
   if (!unit) return state;
   const wentProne =
     payload.steps?.some((step) => step.kind === 'goProne') ?? false;
+  const isEvadeMovement = payload.movementType === MovementType.Evade;
 
   const updatedUnit: IUnitGameState = {
     ...unit,
@@ -504,6 +508,8 @@ export function applyMovementEvent(
     usedMechanicalJumpBoosterThisTurn: movementStepsUseMechanicalJumpBooster(
       payload.steps,
     ),
+    isEvading: isEvadeMovement,
+    evasionBonus: isEvadeMovement ? 1 : undefined,
     prone: wentProne ? true : unit.prone,
     ...(wentProne ? { hullDown: false } : {}),
   };
