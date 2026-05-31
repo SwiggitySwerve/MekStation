@@ -106,6 +106,9 @@ function movementRangeOptionFor(
     heatGenerated: movementInfo.heatGenerated,
     conversionStepCount: movementInfo.conversionStepCount,
     conversionMpCost: movementInfo.conversionMpCost,
+    altitudeControlRequired: movementInfo.altitudeControlRequired,
+    altitudeControlMode: movementInfo.altitudeControlMode,
+    altitudeControlAltitude: movementInfo.altitudeControlAltitude,
     blockedReason: movementInfo.blockedReason,
     movementInvalidReason: movementInfo.movementInvalidReason,
     movementInvalidDetails: movementInfo.movementInvalidDetails,
@@ -272,6 +275,20 @@ export function movementOptionConversionMpCostsAttribute(
   return conversionOptions.length > 0 ? conversionOptions.join('|') : undefined;
 }
 
+export function movementOptionAltitudeControlsAttribute(
+  options: readonly IMovementRangeModeOption[],
+): string | undefined {
+  const altitudeOptions = options
+    .filter((option) => option.altitudeControlRequired)
+    .map(
+      (option) =>
+        `${option.movementType}:${option.altitudeControlMode ?? 'unknown'}:${
+          option.altitudeControlAltitude ?? '?'
+        }`,
+    );
+  return altitudeOptions.length > 0 ? altitudeOptions.join('|') : undefined;
+}
+
 export function movementOptionMaxReachableHeatGenerated(
   movementInfo?: IMovementRangeHex,
 ): number | undefined {
@@ -325,6 +342,20 @@ function formatMovementOptionConversionDetail(
   return `, conversion ${stepLabel} ${option.conversionMpCost ?? 0} MP`;
 }
 
+function formatMovementOptionAltitudeControlDetail(
+  option: IMovementRangeModeOption,
+): string {
+  if (!option.altitudeControlRequired) return '';
+  const mode = option.altitudeControlMode
+    ? formatMovementModeTitleLabel(option.altitudeControlMode)
+    : 'altitude';
+  const altitude =
+    option.altitudeControlAltitude === undefined
+      ? ''
+      : ` altitude ${option.altitudeControlAltitude}`;
+  return `, ${mode}${altitude} uses altitude controls`;
+}
+
 export function formatMovementOptionTitle(
   option: IMovementRangeModeOption,
 ): string {
@@ -335,11 +366,12 @@ export function formatMovementOptionTitle(
   const cost = Number.isFinite(option.mpCost) ? `${option.mpCost} MP` : 'X MP';
   const costBreakdown = formatMovementOptionCostBreakdown(option);
   const conversion = formatMovementOptionConversionDetail(option);
+  const altitudeControl = formatMovementOptionAltitudeControlDetail(option);
   const heat =
     option.heatGenerated === undefined ? '' : `, heat +${option.heatGenerated}`;
   const blockedDetail = movementOptionBlockedDetail(option);
   const blocked = option.reachable
     ? ''
     : `, blocked${blockedDetail ? `: ${blockedDetail}` : ''}`;
-  return `${option.movementType}${movementMode} ${option.reachable ? 'reachable' : 'blocked'} ${cost}${costBreakdown}${conversion}${heat}${blocked}`;
+  return `${option.movementType}${movementMode} ${option.reachable ? 'reachable' : 'blocked'} ${cost}${costBreakdown}${conversion}${altitudeControl}${heat}${blocked}`;
 }

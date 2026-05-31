@@ -854,6 +854,16 @@ if the movement capability still reports an ordinary ground motive. Preview and
 commit validation now share the same altitude-control blocked reason for stale
 VTOL/WiGE capability data while preserving landed altitude-zero behavior.
 
+2026-05-31 altitude-control context pin: the same MegaMek airborne-state pins,
+plus `MovementDisplay.java:2276-2291` routing airborne entities through altitude
+controls, now drive blocked movement projection context as well as the rejection
+reason. MekStation blocked VTOL/WiGE ground projections now carry
+altitude-control required, represented control mode, and represented altitude
+through top-down hex metadata, movement badges, invalid badges, accessible
+labels, tooltip reason rows, and same-hex option metadata. This is explanatory
+context only; full airborne altitude pathing, hover, takeoff, landing, and
+automatic WiGE landing remain follow-ups.
+
 Tracked-vehicle browser update: the tactical-map browser harness now pairs the
 VTOL proof with a tracked ground-vehicle abrupt-climb scenario. The top-down map
 renders the destination elevation label, exposes `movementMode: tracked`,
@@ -1459,9 +1469,13 @@ behavior separately from normal ground movement. MekStation now blocks
 represented altitude-positive VTOL/WiGE ground projection with an explicit
 altitude-control reason while preserving landed/hover VTOL/WiGE terrain and
 elevation projection. Focused projection and commit-validation tests prove the
-same `InvalidDestination` details and zero rejected-step heat. Full airborne
-VTOL/WiGE altitude pathing, hover/takeoff/landing sequencing, clearance,
-automatic WiGE landing, and broad oracle sweeps remain follow-ups.
+same `InvalidDestination` details and zero rejected-step heat. The blocked
+projection now also surfaces represented altitude-control mode and altitude in
+top-down hex metadata, movement badges, invalid badges, accessible labels,
+tooltip reason rows, and same-hex option metadata via
+`surface-airborne-altitude-control-context`. Full airborne VTOL/WiGE altitude
+pathing, hover/takeoff/landing sequencing, clearance, automatic WiGE landing,
+and broad oracle sweeps remain follow-ups.
 
 2026-05-25 LAM AirMek movement heat pin: MegaMek `LandAirMek.java:464-481`
 routes AirMek VTOL walk/run heat through `getAirMekHeat()`, which adds damaged

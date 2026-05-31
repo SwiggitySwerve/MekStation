@@ -52,7 +52,10 @@ decisions are made, not because CI is stale.
   same top-down/isometric metadata and visible badge channel as VTOL tokens via
   `show-wige-altitude-token-context`. Stale or mismatched movement capability
   motives now fail closed from represented altitude-positive VTOL/WiGE vehicle
-  combat state via `block-airborne-vehicle-state-mismatch`.
+  combat state via `block-airborne-vehicle-state-mismatch`. Blocked
+  altitude-control projections now carry represented control mode and altitude
+  through top-down hex metadata, badges, accessible labels, tooltips, and
+  same-hex option metadata via `surface-airborne-altitude-control-context`.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
   `apply-runtime-movement-state-events`, and tactical command controls are now

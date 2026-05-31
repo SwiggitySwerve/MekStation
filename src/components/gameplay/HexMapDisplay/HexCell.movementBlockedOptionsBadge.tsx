@@ -9,6 +9,7 @@ import type {
 import {
   formatMovementOptionTitle,
   formatMovementTypeLabel,
+  movementOptionAltitudeControlsAttribute,
   movementOptionBlockedReasonsAttribute,
   movementOptionInvalidDetailsAttribute,
   movementOptionInvalidReasonsAttribute,
@@ -82,6 +83,9 @@ export function MovementBlockedOptionsBadge({
         blockedOptions,
       )}
       data-movement-blocked-options-badge-invalid-details={movementOptionInvalidDetailsAttribute(
+        blockedOptions,
+      )}
+      data-movement-blocked-options-badge-altitude-controls={movementOptionAltitudeControlsAttribute(
         blockedOptions,
       )}
     >

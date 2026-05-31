@@ -461,6 +461,12 @@ export interface IMovementRangeModeOption {
   readonly conversionStepCount?: number;
   /** MP reserved by represented conversion steps before this movement option. */
   readonly conversionMpCost?: number;
+  /** True when altitude controls, not ground movement, own this option. */
+  readonly altitudeControlRequired?: boolean;
+  /** Altitude-control motive that owns this option, when represented. */
+  readonly altitudeControlMode?: 'vtol' | 'wige';
+  /** Represented altitude that triggered altitude-control ownership. */
+  readonly altitudeControlAltitude?: number;
   /** True when a hull-down unit must leave hull-down before this option. */
   readonly hullDownExitRequired?: boolean;
   /** MP reserved for leaving hull-down before entering this option's path. */
@@ -498,6 +504,12 @@ export interface IMovementRangeHex {
   readonly conversionStepCount?: number;
   /** MP reserved by represented conversion steps before this movement projection. */
   readonly conversionMpCost?: number;
+  /** True when altitude controls, not ground movement, own this projection. */
+  readonly altitudeControlRequired?: boolean;
+  /** Altitude-control motive that owns this projection, when represented. */
+  readonly altitudeControlMode?: 'vtol' | 'wige';
+  /** Represented altitude that triggered altitude-control ownership. */
+  readonly altitudeControlAltitude?: number;
   /** True when a hull-down unit must leave hull-down before this movement can resolve. */
   readonly hullDownExitRequired?: boolean;
   /** MP reserved for leaving hull-down before entering the projected path. */

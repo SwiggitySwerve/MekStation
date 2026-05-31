@@ -17,6 +17,7 @@ import {
   AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON,
   DESTROYED_GYRO_NON_TRACKED_MOVEMENT_BLOCKED_REASON,
   resolveRuntimeMovementCapability,
+  runtimeMovementAltitudeControlContext,
   runtimeMovementProjectionBlockedReason,
   runtimeUnitHeightForMovement,
 } from '@/utils/gameplay/movement/runtimeCapability';
@@ -295,11 +296,22 @@ describe('runtime movement capability', () => {
         ),
       ).toBe(reason);
       expect(
+        runtimeMovementAltitudeControlContext(airborneVehicle),
+      ).toMatchObject({
+        altitudeControlRequired: true,
+        altitudeControlMode: movementMode,
+        altitudeControlAltitude: 2,
+        blockedReason: reason,
+      });
+      expect(
         runtimeMovementProjectionBlockedReason(
           landedVehicle,
           capability,
           movementMode,
         ),
+      ).toBeUndefined();
+      expect(
+        runtimeMovementAltitudeControlContext(landedVehicle),
       ).toBeUndefined();
     }
   });

@@ -71,6 +71,7 @@ import {
   outOfBoundsRangeHex,
 } from './rangeHexProjection';
 import {
+  runtimeMovementAltitudeControlContext,
   resolveRuntimeMovementCapability,
   runtimeMovementProjectionBlockedReason,
 } from './runtimeCapability';
@@ -178,6 +179,9 @@ function runtimeBlockedRangeHex(params: {
   readonly movementMode: string;
   readonly reason: string;
   readonly heatGenerated: number;
+  readonly altitudeControlRequired?: boolean;
+  readonly altitudeControlMode?: 'vtol' | 'wige';
+  readonly altitudeControlAltitude?: number;
 }): IMovementRangeHex {
   return {
     hex: params.hex,
@@ -193,6 +197,9 @@ function runtimeBlockedRangeHex(params: {
     blockedReason: params.reason,
     movementInvalidReason: 'InvalidDestination',
     movementInvalidDetails: params.reason,
+    altitudeControlRequired: params.altitudeControlRequired,
+    altitudeControlMode: params.altitudeControlMode,
+    altitudeControlAltitude: params.altitudeControlAltitude,
   };
 }
 
@@ -363,6 +370,7 @@ export function deriveMovementRangeHexForDestination(
     ruleOptions,
   );
   if (runtimeBlockedReason) {
+    const altitudeControlContext = runtimeMovementAltitudeControlContext(unit);
     return withConversionProjection(
       runtimeBlockedRangeHex({
         origin,
@@ -371,6 +379,11 @@ export function deriveMovementRangeHexForDestination(
         movementMode,
         reason: runtimeBlockedReason,
         heatGenerated: 0,
+        altitudeControlRequired:
+          altitudeControlContext?.altitudeControlRequired,
+        altitudeControlMode: altitudeControlContext?.altitudeControlMode,
+        altitudeControlAltitude:
+          altitudeControlContext?.altitudeControlAltitude,
       }),
     );
   }

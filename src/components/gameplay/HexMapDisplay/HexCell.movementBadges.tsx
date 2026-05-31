@@ -8,6 +8,7 @@ import {
   formatMovementOptionCostBadgeLabel,
   formatMovementOptionTitle,
   formatMovementTypeLabel,
+  movementOptionAltitudeControlsAttribute,
   movementOptionBlockedReasonsAttribute,
   movementOptionConversionMpCostsAttribute,
   movementOptionConversionStepCountsAttribute,
@@ -196,6 +197,15 @@ export function MovementReachBadge({
         movementInfo.conversionStepCount
       }
       data-movement-badge-conversion-mp-cost={movementInfo.conversionMpCost}
+      data-movement-badge-altitude-control-required={
+        movementInfo.altitudeControlRequired ? 'true' : undefined
+      }
+      data-movement-badge-altitude-control-mode={
+        movementInfo.altitudeControlMode
+      }
+      data-movement-badge-altitude-control-altitude={
+        movementInfo.altitudeControlAltitude
+      }
       data-movement-badge-option-count={
         movementOptions.length > 1 ? movementOptions.length : undefined
       }
@@ -252,6 +262,11 @@ export function MovementReachBadge({
       data-movement-badge-option-conversion-mp-costs={
         movementOptions.length > 1
           ? movementOptionConversionMpCostsAttribute(movementOptions)
+          : undefined
+      }
+      data-movement-badge-option-altitude-controls={
+        movementOptions.length > 1
+          ? movementOptionAltitudeControlsAttribute(movementOptions)
           : undefined
       }
     >

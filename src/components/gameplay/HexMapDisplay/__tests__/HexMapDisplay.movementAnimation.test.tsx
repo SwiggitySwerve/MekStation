@@ -2512,6 +2512,80 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('renders airborne altitude-control movement context without relying on color', () => {
+    const reason =
+      'Airborne WiGE movement uses altitude controls and is not available in the ground movement projection';
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: Infinity,
+            terrainCost: 0,
+            elevationDelta: 4,
+            elevationCost: 0,
+            heatGenerated: 0,
+            movementMode: 'walk',
+            reachable: false,
+            movementType: MovementType.Walk,
+            blockedReason: reason,
+            movementInvalidReason: 'InvalidDestination',
+            movementInvalidDetails: reason,
+            altitudeControlRequired: true,
+            altitudeControlMode: 'wige',
+            altitudeControlAltitude: 2,
+          },
+        ]}
+      />,
+    );
+
+    const blocked = screen.getByTestId('hex-1-0');
+    expect(blocked).toHaveAttribute(
+      'data-movement-altitude-control-required',
+      'true',
+    );
+    expect(blocked).toHaveAttribute(
+      'data-movement-altitude-control-mode',
+      'wige',
+    );
+    expect(blocked).toHaveAttribute(
+      'data-movement-altitude-control-altitude',
+      '2',
+    );
+    expect(blocked).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('wige altitude controls at altitude 2'),
+    );
+
+    const invalidBadge = screen.getByTestId('hex-movement-invalid-badge-1-0');
+    expect(invalidBadge).toHaveTextContent('ALT');
+    expect(invalidBadge).toHaveAttribute('data-invalid-badge-reason', reason);
+
+    fireEvent.mouseEnter(blocked);
+    const reasonRows = screen.getByTestId('hex-movement-tooltip-reason');
+    expect(reasonRows).toHaveAttribute(
+      'data-movement-altitude-control-required',
+      'true',
+    );
+    expect(reasonRows).toHaveAttribute(
+      'data-movement-altitude-control-mode',
+      'wige',
+    );
+    expect(reasonRows).toHaveAttribute(
+      'data-movement-altitude-control-altitude',
+      '2',
+    );
+    expect(reasonRows).toHaveTextContent(reason);
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('renders terrain and elevation step costs directly on reachable movement hexes', () => {
     const { unmount } = render(
       <HexMapDisplay

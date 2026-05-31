@@ -582,6 +582,13 @@ export const HexCell = React.memo(function HexCell({
       data-movement-blocked-reason={movementInfo?.blockedReason}
       data-movement-invalid-reason={movementInfo?.movementInvalidReason}
       data-movement-invalid-details={movementInfo?.movementInvalidDetails}
+      data-movement-altitude-control-required={
+        movementInfo?.altitudeControlRequired ? 'true' : undefined
+      }
+      data-movement-altitude-control-mode={movementInfo?.altitudeControlMode}
+      data-movement-altitude-control-altitude={
+        movementInfo?.altitudeControlAltitude
+      }
       data-path-index={pathIndex}
       data-path-step={
         pathIndex === undefined

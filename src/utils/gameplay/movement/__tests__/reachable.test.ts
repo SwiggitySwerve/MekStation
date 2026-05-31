@@ -2153,6 +2153,9 @@ describe('deriveReachableHexes', () => {
         blockedReason: reason,
         movementInvalidReason: 'InvalidDestination',
         movementInvalidDetails: reason,
+        altitudeControlRequired: true,
+        altitudeControlMode: movementMode,
+        altitudeControlAltitude: 2,
       });
 
       const commit = validateCommittedMovement({
@@ -2212,6 +2215,9 @@ describe('deriveReachableHexes', () => {
         blockedReason: reason,
         movementInvalidReason: 'InvalidDestination',
         movementInvalidDetails: reason,
+        altitudeControlRequired: true,
+        altitudeControlMode: movementMode,
+        altitudeControlAltitude: 2,
       });
 
       const staleCommit = validateCommittedMovement({

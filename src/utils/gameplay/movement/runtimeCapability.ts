@@ -94,21 +94,56 @@ function isAltitudeTrackedAirborneState(unit: IUnitGameState): boolean {
   }
 }
 
+export interface IRuntimeMovementAltitudeControlContext {
+  readonly altitudeControlRequired: true;
+  readonly altitudeControlMode: 'vtol' | 'wige';
+  readonly altitudeControlAltitude: number;
+  readonly blockedReason: string;
+}
+
+function altitudePositiveVehicleMotionControlMode(
+  unit: IUnitGameState,
+): 'vtol' | 'wige' | undefined {
+  if (unit.combatState?.kind !== 'vehicle') return undefined;
+  if ((unit.combatState.state.altitude ?? 0) <= 0) return undefined;
+  switch (unit.combatState.state.motionType) {
+    case GroundMotionType.VTOL:
+      return 'vtol';
+    case GroundMotionType.WIGE:
+      return 'wige';
+    default:
+      return undefined;
+  }
+}
+
+function altitudeControlBlockedReason(mode: 'vtol' | 'wige'): string {
+  return mode === 'vtol'
+    ? AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON
+    : AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON;
+}
+
+export function runtimeMovementAltitudeControlContext(
+  unit: IUnitGameState,
+): IRuntimeMovementAltitudeControlContext | undefined {
+  const vehicleState =
+    unit.combatState?.kind === 'vehicle' ? unit.combatState.state : undefined;
+  const vehicleMode = altitudePositiveVehicleMotionControlMode(unit);
+  if (!vehicleState || !vehicleMode) return undefined;
+  return {
+    altitudeControlRequired: true,
+    altitudeControlMode: vehicleMode,
+    altitudeControlAltitude: vehicleState.altitude ?? 0,
+    blockedReason: altitudeControlBlockedReason(vehicleMode),
+  };
+}
+
 function airborneVtolOrWigeGroundMovementBlockedReason(
   movementMode: MovementTravelMode,
   unit: IUnitGameState,
 ): string | undefined {
   if (!isAltitudeTrackedAirborneState(unit)) return undefined;
-  if (unit.combatState?.kind === 'vehicle') {
-    switch (unit.combatState.state.motionType) {
-      case GroundMotionType.VTOL:
-        return AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON;
-      case GroundMotionType.WIGE:
-        return AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON;
-      default:
-        break;
-    }
-  }
+  const altitudeContext = runtimeMovementAltitudeControlContext(unit);
+  if (altitudeContext) return altitudeContext.blockedReason;
   if (movementMode === 'vtol') {
     return AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON;
   }
