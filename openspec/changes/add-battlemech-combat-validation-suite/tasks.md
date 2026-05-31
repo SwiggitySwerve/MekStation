@@ -434,3 +434,4 @@
 - [x] 4.3.168 Promote source-backed Multi-Tasker secondary-target penalty application from unsupported to helper-only resolver coverage while keeping the local Multi-Target SPA row unsupported.
 - [x] 4.3.169 Promote source-backed optional TacOps Trip legality and base modifier coverage to helper-only while keeping the missing runtime action path explicit.
 - [x] 4.3.170 Promote source-backed prone BattleMech Thrash legality, automatic-success classification, and weight-based damage coverage to helper-only while keeping the missing runtime action path explicit.
+- [x] 4.3.171 Promote source-backed BattleMech Brush-Off legality, dedicated modifier, and punch-equivalent damage coverage to helper-only while keeping the missing runtime action path explicit.
