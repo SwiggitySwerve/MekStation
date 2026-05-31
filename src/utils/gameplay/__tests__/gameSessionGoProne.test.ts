@@ -10,6 +10,7 @@ import {
   type IGameUnit,
   type IMovementDeclaredPayload,
 } from '@/types/gameplay';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import {
   advancePhase,
@@ -119,6 +120,56 @@ describe('goProne', () => {
           'player-1': {
             ...base.currentState.units['player-1'],
             prone: true,
+          },
+        },
+      },
+    };
+
+    expect(goProne(session, 'player-1')).toBe(session);
+  });
+
+  it('converts hull-down posture to prone at zero MP', () => {
+    const base = makeMovementSession();
+    const session = {
+      ...base,
+      currentState: {
+        ...base.currentState,
+        units: {
+          ...base.currentState.units,
+          'player-1': {
+            ...base.currentState.units['player-1'],
+            hullDown: true,
+          },
+        },
+      },
+    };
+
+    const next = goProne(session, 'player-1');
+    const movement = next.events.find(
+      (entry) => entry.type === GameEventType.MovementDeclared,
+    );
+    const payload = movement?.payload as IMovementDeclaredPayload;
+
+    expect(payload.mpUsed).toBe(0);
+    expect(payload.turningMpCost).toBe(0);
+    expect(payload.steps).toEqual([
+      { kind: 'goProne', index: 0, at: payload.from, mpCost: 0 },
+    ]);
+    expect(next.currentState.units['player-1'].prone).toBe(true);
+    expect(next.currentState.units['player-1'].hullDown).toBe(false);
+  });
+
+  it('rejects explicit non-Mek go-prone units', () => {
+    const base = makeMovementSession();
+    const session = {
+      ...base,
+      currentState: {
+        ...base.currentState,
+        units: {
+          ...base.currentState.units,
+          'player-1': {
+            ...base.currentState.units['player-1'],
+            unitType: UnitType.VEHICLE,
           },
         },
       },
