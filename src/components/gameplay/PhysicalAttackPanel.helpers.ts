@@ -25,6 +25,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   HipDestroyed: 'Hip actuator destroyed',
   ShoulderDestroyed: 'Shoulder actuator destroyed',
   SameLimbUsedThisTurn: 'Limb already used for a physical attack',
+  PhysicalAttackLimitReached: 'Physical attack allowance used this turn',
   AttackerEvading: 'Attacker is evading',
   AttackerCargoInteraction: 'Attacker is loading or unloading cargo',
   NoJumpThisTurn: 'DFA requires jumping this turn',
