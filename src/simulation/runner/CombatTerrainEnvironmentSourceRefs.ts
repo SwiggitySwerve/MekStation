@@ -130,15 +130,15 @@ const MEKSTATION_TERRAIN_PSR_PROPERTIES_SOURCE_REF =
   );
 
 const MEKSTATION_TERRAIN_PSR_RUNNER_SOURCE_REF = mekstationDeviationSourceRef(
-  'MekStation queueMovementTerrainPSRs queues water entry/exit, rubble, running rough terrain, ice, swamp bog-down, and pavement-or-ice skidding PSRs from movement-step terrain features, and emits UnitStuck for jump-entry bog-down.',
+  'MekStation queueMovementTerrainPSRs queues water entry/exit, rubble, running rough terrain, ice, swamp bog-down, overloaded building-collapse, and pavement-or-ice skidding PSRs from movement-step terrain features, and emits UnitStuck for jump-entry bog-down.',
   'src/simulation/runner/phases/movementTerrainPsr.ts',
-  'L37-L231',
+  'L37-L352',
 );
 
 const MEKSTATION_TERRAIN_PSR_FACTORY_SOURCE_REF = mekstationDeviationSourceRef(
-  'MekStation terrain PSR factories define rubble, running-rough, ice, water, swamp bog-down, skidding, and building-collapse pending PSRs plus local water-depth and swamp-depth modifiers.',
+  'MekStation terrain PSR factories define rubble, running-rough, ice, water, swamp bog-down, skidding, and movement-step stamped building-collapse pending PSRs plus local water-depth and swamp-depth modifiers.',
   'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts',
-  'L94-L232',
+  'L94-L245',
 );
 
 const MEKSTATION_TERRAIN_PSR_CLASSIFICATION_SOURCE_REF =
