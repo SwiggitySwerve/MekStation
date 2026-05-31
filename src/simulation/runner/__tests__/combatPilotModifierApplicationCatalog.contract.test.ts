@@ -121,6 +121,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'ranged-to-hit-state-hydration',
         'sandblaster-application',
         'target-priority-application',
+        'vehicle-movement-application',
         'weapon-to-hit-quirk-application',
       ].sort(),
     );
@@ -288,6 +289,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual([
       'anti-mek-actuator-application',
       'campaign-maintenance-application',
+      'vehicle-movement-application',
     ]);
   });
 
@@ -620,13 +622,16 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     const movementRefs =
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application']
         .sourceRefs ?? [];
+    const vehicleMovementRefs =
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['vehicle-movement-application']
+        .sourceRefs ?? [];
 
     expect(SPA_COMBAT_SUPPORT['cross-country']).toMatchObject({
-      level: 'unsupported',
+      level: 'out-of-scope',
       gap: expect.stringContaining('combat-vehicle'),
     });
     expect(SPA_COMBAT_SUPPORT['cross-country'].gap).toContain(
-      'BattleMech terrain PSR',
+      'not a BattleMech terrain PSR',
     );
     expect(crossCountryRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek Terrain.movementCost applies Cross-Country only inside ground combat-vehicle terrain movement-cost gates.',
@@ -637,12 +642,25 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application'],
     ).toMatchObject({
       level: 'unsupported',
-      gap: expect.stringContaining('Cross-Country combat-vehicle'),
+      gap: expect.not.stringContaining('Cross-Country'),
     });
-    expect(movementRefs).toEqual(expect.arrayContaining([...crossCountryRefs]));
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['vehicle-movement-application'],
+    ).toMatchObject({
+      level: 'out-of-scope',
+      gap: expect.stringContaining('Vehicle movement/passability'),
+    });
+    expect(movementRefs).toEqual(
+      expect.not.arrayContaining([...crossCountryRefs]),
+    );
+    expect(vehicleMovementRefs).toEqual(crossCountryRefs);
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['movement-application'].spaIds,
-    ).toEqual(expect.arrayContaining(['cross-country']));
+    ).not.toContain('cross-country');
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['vehicle-movement-application']
+        .spaIds,
+    ).toEqual(['cross-country']);
   });
 
   it('pins legacy Evasive to the source-backed TacOps Evade action gap', () => {
