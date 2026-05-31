@@ -2193,17 +2193,20 @@ describe('BattleMech combat feature-gap tracking', () => {
       'helper-only',
     );
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.foot_cav.level).toBe(
-      'helper-only',
+      'out-of-scope',
     );
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_headhit.level).toBe(
       'helper-only',
     );
+    expect(
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_aero_alt_loss.level,
+    ).toBe('out-of-scope');
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.sandblaster).toMatchObject({
       level: 'helper-only',
       gap: expect.stringContaining('UAC/RAC'),
     });
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.cluster_master.level).toBe(
-      'unsupported',
+      'out-of-scope',
     );
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.shaky_stick).toMatchObject({
       level: 'integrated',
@@ -2283,7 +2286,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       expect.arrayContaining([
         'MegaMek TWGameManager consumes EDGE_WHEN_MASC_FAILS to reroll failed MASC checks, spends Edge, and suppresses failure processing when the reroll passes.',
         'MekStation psrEdgeRerolls consumes edge_when_masc_fails to reroll failed MASCFailure and SuperchargerFailure PSRs before applying fall or booster-failure aftermath.',
-        'MekStation Edge SPA table defines the trigger-specific canonical Edge rows that canonicalPilotAbilityScope keeps helper-only except for MASC/Supercharger reroll consumption.',
+        'MekStation Edge SPA table defines trigger-specific canonical Edge rows; canonicalPilotAbilityScope keeps Mek Edge triggers helper-only except for MASC/Supercharger reroll consumption and splits Aero Edge triggers out-of-scope.',
       ]),
     );
   });
