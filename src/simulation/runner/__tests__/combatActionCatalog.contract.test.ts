@@ -762,10 +762,16 @@ describe('BattleMech combat action support catalog', () => {
     ).toEqual(['charge', 'club', 'dfa', 'kick', 'punch', 'push']);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'unsupported'),
-    ).toEqual(['grapple', 'jump-jet-attack']);
+    ).toEqual(['grapple']);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'helper-only'),
-    ).toEqual(['break-grapple', 'brush-off', 'thrash', 'trip']);
+    ).toEqual([
+      'break-grapple',
+      'brush-off',
+      'jump-jet-attack',
+      'thrash',
+      'trip',
+    ]);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'out-of-scope'),
     ).toEqual([
@@ -784,7 +790,7 @@ describe('BattleMech combat action support catalog', () => {
       )
       .map((entry) => entry.id)
       .sort();
-    expect(battleMechGaps).toEqual(['grapple', 'jump-jet-attack']);
+    expect(battleMechGaps).toEqual(['grapple']);
     expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['break-grapple']).toMatchObject({
       level: 'helper-only',
       evidence: expect.stringContaining('canBreakGrapple'),
@@ -803,6 +809,13 @@ describe('BattleMech combat action support catalog', () => {
     expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.trip).toMatchObject({
       level: 'helper-only',
       evidence: expect.stringContaining('canTrip'),
+      gap: expect.stringContaining('no runtime PhysicalAttackType'),
+    });
+    expect(
+      PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['jump-jet-attack'],
+    ).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('canJumpJetAttack'),
       gap: expect.stringContaining('no runtime PhysicalAttackType'),
     });
 
@@ -897,7 +910,11 @@ describe('BattleMech combat action support catalog', () => {
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['jump-jet-attack'].sourceRefs?.map(
         ({ citation }) => citation,
       ),
-    ).toEqual([expect.stringContaining('JumpJetAttackAction')]);
+    ).toEqual([
+      expect.stringContaining('JumpJetAttackAction'),
+      expect.stringContaining('canJumpJetAttack'),
+      expect.stringContaining('physical attack tests'),
+    ]);
   });
 
   it('anchors every physical legality gate to commit-pinned MegaMek source', () => {
