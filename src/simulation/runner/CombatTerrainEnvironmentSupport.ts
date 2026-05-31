@@ -250,23 +250,31 @@ function makeTerrainMovementEntry(
 function makeTerrainLosEntry(terrain: TerrainType): ICombatFeatureSupportEntry {
   const properties = TERRAIN_PROPERTIES[terrain];
 
-  if (terrain === TerrainType.Building || terrain === TerrainType.HeavyWoods) {
+  if (terrain === TerrainType.Building) {
     return integrated(
       terrain,
-      'MekStation calculateLOS blocks this terrain through simplified blocksLOS and losBlockHeight local rules; MegaMek LOS uses richer building, woods, smoke, water, and diagramming thresholds',
+      'MekStation calculateLOS blocks this terrain through local blocksLOS and losBlockHeight rules while leaving richer MegaMek building-level handling visible in aggregate terrain LOS gaps',
       terrainLosSourceRefs(terrain),
     );
   }
 
   if (
     terrain === TerrainType.LightWoods ||
-    terrain === TerrainType.Smoke ||
-    terrain === TerrainType.Water
+    terrain === TerrainType.HeavyWoods ||
+    terrain === TerrainType.Smoke
   ) {
+    return integrated(
+      terrain,
+      'MekStation calculateLOS accumulates woods and smoke density through intervening hexes and blocks LOS once cumulative density exceeds 2 while still relying on attack modifier rows for local to-hit effects',
+      terrainLosSourceRefs(terrain),
+    );
+  }
+
+  if (terrain === TerrainType.Water) {
     return helperOnly(
       terrain,
-      'MekStation calculateLOS records this TerrainType as non-blocking and relies on attack modifier rows for local to-hit effects',
-      'MegaMek can make cumulative woods/smoke or land-to-underwater LOS impossible, but MekStation LOS does not model cumulative density, underwater sightline state, or divided/diagram LOS paths',
+      'MekStation calculateLOS records this TerrainType as non-blocking and relies on attack modifier and heat rows for local water effects',
+      'MegaMek can make land-to-underwater LOS impossible, but MekStation LOS does not model underwater sightline state or divided/diagram LOS paths',
       terrainLosSourceRefs(terrain),
     );
   }
