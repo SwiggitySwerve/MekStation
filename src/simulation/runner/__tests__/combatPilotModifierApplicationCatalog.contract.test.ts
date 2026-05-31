@@ -725,15 +725,19 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     );
 
     expect(QUIRK_COMBAT_SUPPORT.command_mech).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('rollInitiative'),
-      gap: expect.stringContaining('equipment hydration'),
     });
+    expect(QUIRK_COMBAT_SUPPORT.command_mech.evidence).toContain(
+      'initiative-hq-equipment-hydration',
+    );
     expect(QUIRK_COMBAT_SUPPORT.battle_computer).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('non-cumulative'),
-      gap: expect.stringContaining('equipment hydration'),
     });
+    expect(QUIRK_COMBAT_SUPPORT.battle_computer.evidence).toContain(
+      'initiative-command-console-hydration',
+    );
     expect(SPA_COMBAT_SUPPORT['tactical-genius']).toMatchObject({
       level: 'integrated',
       evidence: expect.stringContaining('replaces only that side raw 2d6 roll'),

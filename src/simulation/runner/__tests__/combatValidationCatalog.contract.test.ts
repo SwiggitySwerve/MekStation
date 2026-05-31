@@ -174,15 +174,15 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 149,
+      total: 147,
       byLevel: {
-        'helper-only': 116,
+        'helper-only': 114,
         unsupported: 33,
       },
       bySection: {
         actions: 9,
         damageAndDeath: 2,
-        featureSupport: 86,
+        featureSupport: 84,
         lifecycleAndPsr: 3,
         pilotSkills: 19,
         ruleSupport: 13,
@@ -224,6 +224,12 @@ describe('BattleMech combat validation catalog index', () => {
     );
     expect(unresolvedRefs).not.toContain(
       'validationScope.objectiveRequirements.official-physical-weapons',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.mechQuirks.command_mech',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.mechQuirks.battle_computer',
     );
     expect(unresolvedRefs).not.toContain('ruleSupport.movementRules.prone');
     expect(unresolvedRefs).not.toContain(
