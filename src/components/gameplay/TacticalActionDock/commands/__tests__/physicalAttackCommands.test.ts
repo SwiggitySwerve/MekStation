@@ -33,6 +33,7 @@ describe('physicalAttackCommands', () => {
       'physical.kick',
       'physical.push',
       'physical.trip',
+      'physical.thrash',
       'physical.charge',
       'physical.dfa',
       'physical.club',
@@ -88,6 +89,14 @@ describe('physicalAttackCommands', () => {
     expect(trip.commit(makeCtx())).toEqual({
       actionId: 'physical-attack',
       payload: { attackType: 'trip' },
+    });
+  });
+
+  it('thrash dispatches physical-attack actionId with attackType=thrash', () => {
+    const thrash = commands.find((c) => c.id === 'physical.thrash')!;
+    expect(thrash.commit(makeCtx())).toEqual({
+      actionId: 'physical-attack',
+      payload: { attackType: 'thrash' },
     });
   });
 
