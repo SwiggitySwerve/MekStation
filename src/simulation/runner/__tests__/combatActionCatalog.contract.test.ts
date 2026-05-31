@@ -153,14 +153,14 @@ describe('BattleMech combat action support catalog', () => {
     ]);
     expect(
       supportIdsByLevel(COMBAT_COMMAND_ACTION_SUPPORT, 'helper-only'),
-    ).toEqual(['utility.request-spot', 'utility.withdraw']);
+    ).toEqual(['utility.request-spot']);
     const helperCommandSourceFiles = {
       'utility.request-spot': 'utilityCommands.ts',
-      'utility.withdraw': 'utilityCommands.ts',
     } as const;
     const outOfScopeCommandSourceFiles = {
       'movement.cancel': 'movementCommands.ts',
       'movement.stabilize': 'movementCommands.ts',
+      'utility.withdraw': 'utilityCommands.ts',
       'weapon.clear-attacks': 'weaponAttackCommands.ts',
       'weapon.declare-attack': 'weaponAttackCommands.ts',
     } as const;
