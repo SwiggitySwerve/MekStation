@@ -5,38 +5,44 @@ import { MovementType } from '@/types/gameplay';
 import { dispatchToEngine } from '../ServerMatchHostEngineDispatch';
 
 describe('dispatchToEngine', () => {
-  it('routes Evade Move wire intents to InteractiveSession.applyMovement', () => {
-    const movements: Array<
-      readonly [
-        string,
-        { readonly q: number; readonly r: number },
-        number,
-        MovementType,
-      ]
-    > = [];
-    const session = {
-      applyMovement: (
-        unitId: string,
-        to: { readonly q: number; readonly r: number },
-        facing: number,
-        movementType: MovementType,
-      ) => {
-        movements.push([unitId, to, facing, movementType]);
-      },
-    } as unknown as InteractiveSession;
+  it.each([
+    ['Evade', 'evade', MovementType.Evade],
+    ['Sprint', 'sprint', MovementType.Sprint],
+  ] as const)(
+    'routes %s Move wire intents to InteractiveSession.applyMovement',
+    (_label, wireMovementType, expectedMovementType) => {
+      const movements: Array<
+        readonly [
+          string,
+          { readonly q: number; readonly r: number },
+          number,
+          MovementType,
+        ]
+      > = [];
+      const session = {
+        applyMovement: (
+          unitId: string,
+          to: { readonly q: number; readonly r: number },
+          facing: number,
+          movementType: MovementType,
+        ) => {
+          movements.push([unitId, to, facing, movementType]);
+        },
+      } as unknown as InteractiveSession;
 
-    dispatchToEngine(session, {
-      kind: 'Move',
-      unitId: 'player-1',
-      to: { q: 2, r: -1 },
-      facing: 3,
-      movementType: 'evade',
-    });
+      dispatchToEngine(session, {
+        kind: 'Move',
+        unitId: 'player-1',
+        to: { q: 2, r: -1 },
+        facing: 3,
+        movementType: wireMovementType,
+      });
 
-    expect(movements).toEqual([
-      ['player-1', { q: 2, r: -1 }, 3, MovementType.Evade],
-    ]);
-  });
+      expect(movements).toEqual([
+        ['player-1', { q: 2, r: -1 }, 3, expectedMovementType],
+      ]);
+    },
+  );
 
   it('routes Physical wire intents to InteractiveSession.applyPhysicalAttack', () => {
     const physicalCalls: Array<readonly [string, string, string]> = [];

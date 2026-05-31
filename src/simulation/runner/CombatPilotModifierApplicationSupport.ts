@@ -359,7 +359,7 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'movement-application': unsupported(
     'movement-application',
-    'Source-backed optional TacOps Evade movement, Maneuvering Ace lateral-shift movement, Speed Demon run-distance/heat tradeoff, and Heavy Lifter carry/throw movement effects are not wired in the BattleMech combat matrix',
+    'Legacy Evasive SPA movement application is superseded by the integrated source-backed TacOps Evade action row; Maneuvering Ace lateral-shift movement, Speed Demon run-distance/heat tradeoff, and Heavy Lifter carry/throw movement effects are not wired in the BattleMech combat matrix',
     [
       ...MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
       ...MEGAMEK_MANEUVERING_ACE_MOVEMENT_SOURCE_REFS,

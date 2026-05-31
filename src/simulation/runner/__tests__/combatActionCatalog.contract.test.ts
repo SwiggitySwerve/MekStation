@@ -134,6 +134,7 @@ describe('BattleMech combat action support catalog', () => {
       'movement.go-prone',
       'movement.jump',
       'movement.run',
+      'movement.sprint',
       'movement.stand',
       'movement.walk',
       'physical.charge',
@@ -384,7 +385,7 @@ describe('BattleMech combat action support catalog', () => {
     ).toBeUndefined();
   });
 
-  it('tracks official BattleMech action surfaces that have no authoritative command or wire path', () => {
+  it('tracks source-backed optional BattleMech movement action surfaces explicitly', () => {
     const playerCommandIds = commandIds([
       ...buildMovementCommands(),
       ...buildFacingCommands(),
@@ -394,20 +395,41 @@ describe('BattleMech combat action support catalog', () => {
       ...buildUtilityCommands(),
     ]);
 
-    expect(sortedKeys(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([
-      'movement.sprint',
-    ]);
+    expect(sortedKeys(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([]);
     expect(supportGaps(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(BATTLEMECH_ABSENT_ACTION_SUPPORT, 'unsupported'),
-    ).toEqual(['movement.sprint']);
+    ).toEqual([]);
     expect(
       sortedKeys(BATTLEMECH_ABSENT_ACTION_SUPPORT).filter((id) =>
         playerCommandIds.includes(id),
       ),
     ).toEqual([]);
     expect(Object.values(MovementType)).toContain('evade');
-    expect(Object.values(MovementType)).not.toContain('sprint');
+    expect(Object.values(MovementType)).toContain('sprint');
+    expect(COMBAT_COMMAND_ACTION_SUPPORT['movement.sprint']).toMatchObject({
+      layer: 'tactical-command',
+      level: 'integrated',
+      evidence: expect.stringContaining('MovementType.Sprint'),
+    });
+    expect(
+      COMBAT_COMMAND_ACTION_SUPPORT['movement.sprint'].gap,
+    ).toBeUndefined();
+    expect(
+      COMBAT_COMMAND_ACTION_SUPPORT['movement.sprint'].sourceRefs?.map(
+        (sourceRef) => sourceRef.citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('movement.sprint'),
+        expect.stringContaining('MoveStep.canUseSprint'),
+        expect.stringContaining('Mek.getSprintMP'),
+        expect.stringContaining('Mek.getSprintHeat'),
+        expect.stringContaining('Engine.getSprintHeat'),
+        expect.stringContaining('attacks by sprinting attackers'),
+        expect.stringContaining('target sprinted'),
+      ]),
+    );
     expect(COMBAT_COMMAND_ACTION_SUPPORT['movement.evade']).toMatchObject({
       layer: 'tactical-command',
       level: 'integrated',
@@ -428,27 +450,6 @@ describe('BattleMech combat action support catalog', () => {
         expect.stringContaining('getEvasionBonus'),
         expect.stringContaining('target evasion bonus'),
         expect.stringContaining('evading attackers from firing'),
-      ]),
-    );
-    expect(BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.sprint']).toMatchObject({
-      layer: 'absent-action-surface',
-      gap: expect.stringContaining('no authoritative sprint action path'),
-    });
-    expect(BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.sprint'].gap).toContain(
-      'feeds runner heat as normal-engine sprint heat',
-    );
-    expect(
-      BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.sprint'].sourceRefs?.map(
-        (sourceRef) => sourceRef.citation,
-      ),
-    ).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining('MoveStep.canUseSprint'),
-        expect.stringContaining('Mek.getSprintMP'),
-        expect.stringContaining('Mek.getSprintHeat'),
-        expect.stringContaining('Engine.getSprintHeat'),
-        expect.stringContaining('attacks by sprinting attackers'),
-        expect.stringContaining('target sprinted'),
       ]),
     );
   });

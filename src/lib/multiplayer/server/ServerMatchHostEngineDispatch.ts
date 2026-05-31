@@ -99,6 +99,9 @@ export function parseMovementType(kind: string): MovementType {
     case 'run':
     case 'Run':
       return MovementType.Run;
+    case 'sprint':
+    case 'Sprint':
+      return MovementType.Sprint;
     case 'evade':
     case 'Evade':
       return MovementType.Evade;
