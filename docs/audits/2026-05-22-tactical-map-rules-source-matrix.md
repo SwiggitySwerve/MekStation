@@ -864,6 +864,18 @@ labels, tooltip reason rows, and same-hex option metadata. This is explanatory
 context only; full airborne altitude pathing, hover, takeoff, landing, and
 automatic WiGE landing remain follow-ups.
 
+2026-05-31 VTOL/WiGE altitude-control command pin: MegaMek
+`MovementDisplay.java:5268-5286` handles raise/lower controls by adding UP/DOWN
+movement steps, while `Entity.java:2433-2540` gates whether the unit can move up
+or down at the current position. MekStation now exposes movement-phase
+Climb/Descend commands for represented VTOL/WiGE vehicle combat state, dispatches
+them through `RuntimeMovementStateChanged` with source
+`altitude_control_action`, and replays the result into the vehicle combat-state
+altitude consumed by map projection. Current command bounds are conservative:
+VTOL altitude can climb toward MegaMek's 50-elevation ceiling, while ordinary
+WiGE climb caps at altitude 1 until building/bridge/proto/LAM-specific altitude
+gates are modeled.
+
 Tracked-vehicle browser update: the tactical-map browser harness now pairs the
 VTOL proof with a tracked ground-vehicle abrupt-climb scenario. The top-down map
 renders the destination elevation label, exposes `movementMode: tracked`,
@@ -1475,7 +1487,9 @@ top-down hex metadata, movement badges, invalid badges, accessible labels,
 tooltip reason rows, and same-hex option metadata via
 `surface-airborne-altitude-control-context`. Full airborne VTOL/WiGE altitude
 pathing, hover/takeoff/landing sequencing, clearance, automatic WiGE landing,
-and broad oracle sweeps remain follow-ups.
+and broad oracle sweeps remain follow-ups. Basic Climb/Descend runtime
+altitude-control commands now exist via `wire-vtol-wige-altitude-controls`, but
+full UP/DOWN MP accounting and terrain-clearance-specific gates remain pending.
 
 2026-05-25 LAM AirMek movement heat pin: MegaMek `LandAirMek.java:464-481`
 routes AirMek VTOL walk/run heat through `getAirMekHeat()`, which adds damaged

@@ -953,6 +953,14 @@ export function GameplayLayout({
                   plannedMovement.unitId === selectedUnit?.id),
               ),
               activeUnitConversionMode: selectedUnit?.conversionMode,
+              activeUnitVehicleMotionType:
+                selectedUnit?.combatState?.kind === 'vehicle'
+                  ? selectedUnit.combatState.state.motionType
+                  : undefined,
+              activeUnitVehicleAltitude:
+                selectedUnit?.combatState?.kind === 'vehicle'
+                  ? (selectedUnit.combatState.state.altitude ?? 0)
+                  : undefined,
               activeUnitTerrain: selectedUnitMapHex?.terrain,
               activeUnitElevation: selectedUnitMapHex?.elevation,
               activeUnitInfantryMounted: selectedUnit?.infantryMounted,

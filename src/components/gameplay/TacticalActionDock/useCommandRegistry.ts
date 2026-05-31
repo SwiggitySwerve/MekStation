@@ -100,6 +100,8 @@ export function useCommandRegistry(
       ctx.phase,
       ctx.canAct,
       ctx.activeUnitConversionMode,
+      ctx.activeUnitVehicleMotionType,
+      ctx.activeUnitVehicleAltitude,
       ctx.activeUnitInfantryMounted,
       ctx.activeUnitInfantryMountHeight,
       ctx.movementCapability?.unitHeight,

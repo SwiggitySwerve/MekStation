@@ -18,6 +18,7 @@ import {
   type IMovementRangeHex,
   type ITacticalCommandContext,
 } from '@/types/gameplay';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 
 import { buildMovementCommands } from '../movementCommands';
 
@@ -636,6 +637,72 @@ describe('movementCommands', () => {
         source: 'infantry_mount_action',
         infantryMounted: false,
       },
+    });
+  });
+
+  it('adds represented VTOL and WiGE altitude controls as runtime state actions', () => {
+    const vtolCtx = makeCtx({
+      activeUnitProne: false,
+      activeUnitVehicleMotionType: GroundMotionType.VTOL,
+      activeUnitVehicleAltitude: 2,
+      movementCapability: {
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 0,
+        movementMode: 'vtol',
+      },
+    });
+    const vtolCommands = buildMovementCommands(vtolCtx);
+    const climb = vtolCommands.find((c) => c.id === 'movement.altitudeUp')!;
+    const descend = vtolCommands.find((c) => c.id === 'movement.altitudeDown')!;
+
+    expect(vtolCommands.map((command) => command.id)).toEqual(
+      expect.arrayContaining(['movement.altitudeUp', 'movement.altitudeDown']),
+    );
+    expect(climb.availability(vtolCtx)).toEqual({ available: true });
+    expect(climb.commit(vtolCtx)).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'altitude_control_action',
+        vehicleAltitude: 3,
+      },
+    });
+    expect(descend.availability(vtolCtx)).toEqual({ available: true });
+    expect(descend.commit(vtolCtx)).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'altitude_control_action',
+        vehicleAltitude: 1,
+      },
+    });
+
+    expect(
+      climb.availability({ ...vtolCtx, activeUnitHasPlannedMovement: true }),
+    ).toEqual({
+      available: false,
+      reason: 'Clear the current movement preview before changing altitude.',
+    });
+    expect(
+      descend.availability({ ...vtolCtx, activeUnitVehicleAltitude: 0 }),
+    ).toEqual({
+      available: false,
+      reason: 'Altitude controls are already at altitude 0.',
+    });
+
+    const wigeCtx = makeCtx({
+      activeUnitProne: false,
+      activeUnitVehicleMotionType: GroundMotionType.WIGE,
+      activeUnitVehicleAltitude: 1,
+      movementCapability: {
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 0,
+        movementMode: 'wige',
+      },
+    });
+    expect(climb.availability(wigeCtx)).toEqual({
+      available: false,
+      reason: 'Altitude controls are already at maximum altitude 1.',
     });
   });
 

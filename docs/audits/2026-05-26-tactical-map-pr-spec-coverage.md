@@ -56,6 +56,11 @@ decisions are made, not because CI is stale.
   altitude-control projections now carry represented control mode and altitude
   through top-down hex metadata, badges, accessible labels, tooltips, and
   same-hex option metadata via `surface-airborne-altitude-control-context`.
+  Represented VTOL/WiGE vehicle altitude can now be changed through replayable
+  movement-phase Climb/Descend commands via
+  `wire-vtol-wige-altitude-controls`; complete UP/DOWN MP accounting,
+  hover/takeoff/landing sequencing, automatic WiGE landing, and
+  terrain-clearance-specific altitude gates remain follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
   `apply-runtime-movement-state-events`, and tactical command controls are now

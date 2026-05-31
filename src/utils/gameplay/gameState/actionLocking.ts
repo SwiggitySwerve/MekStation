@@ -132,6 +132,7 @@ function applyRuntimeMovementPatch(
   let next: Record<string, unknown> = { ...unit };
   next = applyNullableField(next, payload, 'conversionMode');
   next = applyNullableField(next, payload, 'unitHeight');
+  next = applyVehicleAltitudeField(next, payload);
   next = applyNullableField(next, payload, 'infantryMounted');
   next = applyNullableField(next, payload, 'infantryMountHeight');
   next = {
@@ -160,6 +161,42 @@ function applyNullableField(
     return rest;
   }
   return { ...target, [key]: value };
+}
+
+function applyVehicleAltitudeField(
+  target: Record<string, unknown>,
+  payload: IRuntimeMovementStateChangedPayload,
+): Record<string, unknown> {
+  if (!Object.prototype.hasOwnProperty.call(payload, 'vehicleAltitude')) {
+    return target;
+  }
+  const combatState = target.combatState;
+  if (
+    !combatState ||
+    typeof combatState !== 'object' ||
+    (combatState as { readonly kind?: unknown }).kind !== 'vehicle'
+  ) {
+    return target;
+  }
+  const vehicleState = combatState as {
+    readonly kind: 'vehicle';
+    readonly state: Record<string, unknown>;
+  };
+  return {
+    ...target,
+    combatState: {
+      ...vehicleState,
+      state: {
+        ...vehicleState.state,
+        altitude: normalizedVehicleAltitude(payload.vehicleAltitude),
+      },
+    },
+  };
+}
+
+function normalizedVehicleAltitude(value: number | undefined): number {
+  if (value === undefined || !Number.isFinite(value)) return 0;
+  return Math.max(0, Math.floor(value));
 }
 
 export function applyAttackDeclared(

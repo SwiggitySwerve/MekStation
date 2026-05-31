@@ -4,6 +4,7 @@ import {
   type ITacticalCommandContext,
   type MovementConversionMode,
 } from '@/types/gameplay';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { movementDeclarationLockInvalidState } from '@/utils/gameplay/movement';
 
 import {
@@ -15,29 +16,40 @@ import {
 export function buildRuntimeMovementStateCommands(
   ctx: ITacticalCommandContext | undefined,
 ): readonly ITacticalCommand[] {
+  const commands: ITacticalCommand[] = [];
+  if (hasVehicleAltitudeControl(ctx)) {
+    commands.push(MovementAltitudeUpCommand, MovementAltitudeDownCommand);
+  }
+
   const profile = ctx?.movementCapability?.unitHeightProfile;
-  if (!profile) return [];
+  if (!profile) return commands;
 
   if (profile.kind === 'infantry_mount') {
-    return [MovementInfantryMountCommand, MovementInfantryDismountCommand];
+    commands.push(
+      MovementInfantryMountCommand,
+      MovementInfantryDismountCommand,
+    );
+    return commands;
   }
 
   if (profile.kind === 'lam') {
-    return [
+    commands.push(
       createConversionCommand('mek', 'Mek Mode'),
       createConversionCommand('airmek', 'AirMek Mode'),
       createConversionCommand('fighter', 'Fighter Mode'),
-    ];
+    );
+    return commands;
   }
 
   if (profile.kind === 'quadvee') {
-    return [
+    commands.push(
       createConversionCommand('mek', 'Mek Mode'),
       createConversionCommand('vehicle', 'Vehicle Mode'),
-    ];
+    );
+    return commands;
   }
 
-  return [];
+  return commands;
 }
 
 function runtimeStateUnavailableReason(
@@ -48,6 +60,101 @@ function runtimeStateUnavailableReason(
   const locked = movementDeclarationLockInvalidState(ctx.activeUnitLockState);
   return locked?.details ?? null;
 }
+
+function hasVehicleAltitudeControl(
+  ctx: ITacticalCommandContext | undefined,
+): boolean {
+  return (
+    ctx?.activeUnitVehicleMotionType === GroundMotionType.VTOL ||
+    ctx?.activeUnitVehicleMotionType === GroundMotionType.WIGE
+  );
+}
+
+function currentVehicleAltitude(ctx: ITacticalCommandContext): number {
+  const altitude = ctx.activeUnitVehicleAltitude;
+  return altitude === undefined || !Number.isFinite(altitude)
+    ? 0
+    : Math.max(0, Math.floor(altitude));
+}
+
+function altitudeControlUnavailableReason(
+  ctx: ITacticalCommandContext,
+): string | null {
+  const unavailable = runtimeStateUnavailableReason(ctx);
+  if (unavailable) return unavailable;
+  if (!hasVehicleAltitudeControl(ctx)) {
+    return 'Unit has no represented VTOL/WiGE altitude controls.';
+  }
+  if (ctx.activeUnitHasPlannedMovement) {
+    return 'Clear the current movement preview before changing altitude.';
+  }
+  return null;
+}
+
+function maxVehicleAltitude(ctx: ITacticalCommandContext): number {
+  return ctx.activeUnitVehicleMotionType === GroundMotionType.VTOL ? 50 : 1;
+}
+
+const MovementAltitudeUpCommand: ITacticalCommand = {
+  id: 'movement.altitudeUp',
+  category: 'movement',
+  label: 'Climb',
+  phaseConstraints: [GamePhase.Movement],
+  requiresConfirmation: false,
+  undoable: true,
+  availability(ctx) {
+    const unavailable = altitudeControlUnavailableReason(ctx);
+    if (unavailable) return { available: false, reason: unavailable };
+    const altitude = currentVehicleAltitude(ctx);
+    const maxAltitude = maxVehicleAltitude(ctx);
+    if (altitude >= maxAltitude) {
+      return {
+        available: false,
+        reason: `Altitude controls are already at maximum altitude ${maxAltitude}.`,
+      };
+    }
+    return { available: true };
+  },
+  commit(ctx) {
+    return {
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'altitude_control_action',
+        vehicleAltitude: currentVehicleAltitude(ctx) + 1,
+      },
+    };
+  },
+};
+
+const MovementAltitudeDownCommand: ITacticalCommand = {
+  id: 'movement.altitudeDown',
+  category: 'movement',
+  label: 'Descend',
+  phaseConstraints: [GamePhase.Movement],
+  requiresConfirmation: false,
+  undoable: true,
+  availability(ctx) {
+    const unavailable = altitudeControlUnavailableReason(ctx);
+    if (unavailable) return { available: false, reason: unavailable };
+    const altitude = currentVehicleAltitude(ctx);
+    if (altitude <= 0) {
+      return {
+        available: false,
+        reason: 'Altitude controls are already at altitude 0.',
+      };
+    }
+    return { available: true };
+  },
+  commit(ctx) {
+    return {
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'altitude_control_action',
+        vehicleAltitude: currentVehicleAltitude(ctx) - 1,
+      },
+    };
+  },
+};
 
 const MovementInfantryMountCommand: ITacticalCommand = {
   id: 'movement.infantryMount',

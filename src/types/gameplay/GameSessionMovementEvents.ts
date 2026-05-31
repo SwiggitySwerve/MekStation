@@ -291,6 +291,7 @@ export interface IRuntimeMovementStateChangedPayload {
   readonly unitId: string;
   readonly source:
     | 'conversion_action'
+    | 'altitude_control_action'
     | 'infantry_mount_action'
     | 'scenario_setup'
     | 'rules_correction';
@@ -300,6 +301,8 @@ export interface IRuntimeMovementStateChangedPayload {
   /** Represented MP cost of the conversion action before later movement steps. */
   readonly conversionMpCost?: number;
   readonly unitHeight?: number | null;
+  /** Runtime VTOL/WiGE vehicle altitude changed through altitude controls. */
+  readonly vehicleAltitude?: number;
   readonly infantryMounted?: boolean | null;
   readonly infantryMountHeight?: number | null;
 }

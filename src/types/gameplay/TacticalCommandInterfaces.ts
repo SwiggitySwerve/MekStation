@@ -47,6 +47,7 @@ import type {
   PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks/types';
 
+import type { GroundMotionType } from '../unit/BaseUnitInterfaces';
 import type { ICombatRangeHex } from './CombatProjectionInterfaces';
 import type { IMovementRangeHex } from './GameplayUIInterfaces';
 import type { IAttackInvalidPayload } from './GameSessionAttackEvents';
@@ -188,6 +189,10 @@ export interface ITacticalCommandContext {
   readonly activeUnitHasPlannedMovement?: boolean;
   /** Runtime conversion mode for LAM / QuadVee style movement controls. */
   readonly activeUnitConversionMode?: MovementConversionMode | number;
+  /** Represented vehicle motive used by VTOL/WiGE altitude controls. */
+  readonly activeUnitVehicleMotionType?: GroundMotionType;
+  /** Represented VTOL/WiGE vehicle altitude, where 0 means landed/hovering. */
+  readonly activeUnitVehicleAltitude?: number;
   /** Active unit terrain tag at its current hex, used by source-backed action gates. */
   readonly activeUnitTerrain?: string;
   /** Active unit elevation at its current hex, when represented by the map. */

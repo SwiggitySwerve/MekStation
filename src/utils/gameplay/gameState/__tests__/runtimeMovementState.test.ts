@@ -14,6 +14,7 @@ import {
   type IMovementCapability,
   type IUnitGameState,
 } from '@/types/gameplay';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import {
   createMovementDeclaredEvent,
   createRuntimeMovementStateChangedEvent,
@@ -21,6 +22,12 @@ import {
 import { createHexGrid } from '@/utils/gameplay/hexGrid';
 import { validateCommittedMovement } from '@/utils/gameplay/movement/commitValidation';
 import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/reachable';
+import {
+  AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON,
+  runtimeMovementAltitudeControlContext,
+  runtimeMovementProjectionBlockedReason,
+} from '@/utils/gameplay/movement/runtimeCapability';
+import { createVehicleCombatState } from '@/utils/gameplay/vehicleDamage';
 
 import { applyEvent, createInitialGameState } from '..';
 
@@ -136,6 +143,74 @@ describe('runtime movement state events', () => {
 
     expect(converted.conversionMode).toBe('fighter');
     expect(converted).not.toHaveProperty('unitHeight');
+  });
+
+  it('replays represented vehicle altitude controls into movement projection state', () => {
+    const unit: IUnitGameState = {
+      id: 'wige-1',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+      heat: 0,
+      movementThisTurn: MovementType.Stationary,
+      hexesMovedThisTurn: 0,
+      armor: {},
+      structure: {},
+      destroyedLocations: [],
+      destroyedEquipment: [],
+      ammo: {},
+      pilotWounds: 0,
+      pilotConscious: true,
+      destroyed: false,
+      lockState: LockState.Pending,
+      combatState: {
+        kind: 'vehicle',
+        state: createVehicleCombatState({
+          unitId: 'wige-1',
+          motionType: GroundMotionType.WIGE,
+          originalCruiseMP: 4,
+          armor: {},
+          structure: {},
+          altitude: 1,
+        }),
+      },
+    };
+    const capability: IMovementCapability = {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 0,
+      movementMode: 'wige',
+    };
+
+    expect(
+      runtimeMovementProjectionBlockedReason(unit, capability, 'wige'),
+    ).toBe(AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON);
+    expect(runtimeMovementAltitudeControlContext(unit)).toMatchObject({
+      altitudeControlMode: 'wige',
+      altitudeControlAltitude: 1,
+    });
+
+    const event = createRuntimeMovementStateChangedEvent(
+      'game-1',
+      1,
+      1,
+      unit.id,
+      {
+        source: 'altitude_control_action',
+        vehicleAltitude: 0,
+      },
+    );
+    const nextState = applyEvent(stateWithUnit(unit), event);
+    const landed = nextState.units[unit.id];
+
+    expect(landed.combatState).toMatchObject({
+      kind: 'vehicle',
+      state: { altitude: 0, motionType: GroundMotionType.WIGE },
+    });
+    expect(
+      runtimeMovementProjectionBlockedReason(landed, capability, 'wige'),
+    ).toBeUndefined();
+    expect(runtimeMovementAltitudeControlContext(landed)).toBeUndefined();
   });
 
   it('replays conversion MP as pending movement cost consumed by projection and commit validation', () => {
