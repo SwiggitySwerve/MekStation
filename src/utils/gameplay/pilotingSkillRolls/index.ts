@@ -46,6 +46,7 @@ export {
   createEnteringWaterPSR,
   createExitingWaterPSR,
   createSkiddingPSR,
+  createSwampBogDownPSR,
   createBuildingCollapsePSR,
 } from './environmentFactories';
 

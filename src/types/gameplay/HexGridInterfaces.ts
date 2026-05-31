@@ -145,6 +145,8 @@ export interface IUnitPosition {
   readonly facing: Facing;
   /** Whether unit is prone (fallen) */
   readonly prone: boolean;
+  /** Whether unit is stuck/bogged down and cannot voluntarily move */
+  readonly isStuck?: boolean;
 }
 
 /**
