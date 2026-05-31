@@ -9,7 +9,10 @@ import {
   PSRTrigger,
 } from '@/types/gameplay';
 import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
-import { firedWeaponIdsFromMountedArm } from '@/utils/gameplay/gameSessionPhysicalHelpers';
+import {
+  firedWeaponIdsFromMountedArm,
+  firedWeaponIdsFromMountedLeg,
+} from '@/utils/gameplay/gameSessionPhysicalHelpers';
 import { hexDistance } from '@/utils/gameplay/hexMath';
 import {
   applyJumpJetCriticalDamage,
@@ -118,6 +121,18 @@ function terrainAtPosition(
 ): string | undefined {
   if (!grid) return undefined;
   return grid.hexes.get(`${position.q},${position.r}`)?.terrain;
+}
+
+function targetDirectlyBehindFeet(
+  attacker: IGameState['units'][string],
+  target: IGameState['units'][string],
+): boolean {
+  const oppositeFacing = ((attacker.facing + 3) % 6) as typeof attacker.facing;
+  return isTargetDirectlyAhead(
+    attacker.position,
+    oppositeFacing,
+    target.position,
+  );
 }
 
 function markUnitFallenAfterDfaMiss(
@@ -285,6 +300,10 @@ export function runPhysicalAttackPhase(options: {
       'right',
     );
     const weaponsFiredFromEitherArm = firedWeaponIdsFromMountedArm(unit);
+    const leftLegWeaponFiredThisTurn =
+      firedWeaponIdsFromMountedLeg(unit, 'left').length > 0;
+    const rightLegWeaponFiredThisTurn =
+      firedWeaponIdsFromMountedLeg(unit, 'right').length > 0;
     const weaponsFiredThisTurn = unit.weaponsFiredThisTurn ?? [];
     const hexesMoved = unit.hexesMovedThisTurn ?? 0;
     const attackerRanThisTurn = unit.movementThisTurn === MovementType.Run;
@@ -382,6 +401,28 @@ export function runPhysicalAttackPhase(options: {
             target.unitType,
           ),
           weaponsFiredThisTurn,
+          optionalRules,
+          tacOpsJumpJetAttackEnabled: optionalRules?.includes(
+            'tacops_jump_jet_attack',
+          ),
+          jumpJetAttackSelectedLeg: 'right',
+          rightReadyJumpJetCount: attackerJumpMP,
+          leftLegWeaponFiredThisTurn,
+          rightLegWeaponFiredThisTurn,
+          standingAttackerHeightAboveTargetHeight:
+            elevationDifference === undefined
+              ? undefined
+              : 1 - elevationDifference,
+          proneTargetElevationInRange:
+            elevationDifference === undefined
+              ? undefined
+              : elevationDifference === 0,
+          targetDirectlyAheadOfFeet: isTargetDirectlyAhead(
+            unit.position,
+            unit.facing,
+            target.position,
+          ),
+          targetDirectlyBehindFeet: targetDirectlyBehindFeet(unit, target),
           thrashBlockingTerrains: thrashBlockingTerrainsForHexTerrain(
             terrainAtPosition(physicalGrid, unit.position),
           ),
@@ -393,7 +434,12 @@ export function runPhysicalAttackPhase(options: {
     }
 
     if (!bestAttack) continue;
-    if ((unit.prone ?? false) && bestAttack !== 'thrash') continue;
+    if (
+      (unit.prone ?? false) &&
+      bestAttack !== 'thrash' &&
+      bestAttack !== 'jump-jet-attack'
+    )
+      continue;
 
     const targetMovementModifier = calculateTMM(
       target.movementThisTurn,
@@ -479,6 +525,25 @@ export function runPhysicalAttackPhase(options: {
       thrashBlockingTerrains: thrashBlockingTerrainsForHexTerrain(
         terrainAtPosition(physicalGrid, unit.position),
       ),
+      tacOpsJumpJetAttackEnabled: optionalRules?.includes(
+        'tacops_jump_jet_attack',
+      ),
+      jumpJetAttackSelectedLeg: 'right',
+      rightReadyJumpJetCount: attackerJumpMP,
+      leftLegWeaponFiredThisTurn,
+      rightLegWeaponFiredThisTurn,
+      standingAttackerHeightAboveTargetHeight:
+        elevationDifference === undefined ? undefined : 1 - elevationDifference,
+      proneTargetElevationInRange:
+        elevationDifference === undefined
+          ? undefined
+          : elevationDifference === 0,
+      targetDirectlyAheadOfFeet: isTargetDirectlyAhead(
+        unit.position,
+        unit.facing,
+        target.position,
+      ),
+      targetDirectlyBehindFeet: targetDirectlyBehindFeet(unit, target),
       isUnderwater,
       attackerWaterDepth,
       targetTonnage: DEFAULT_TONNAGE,
