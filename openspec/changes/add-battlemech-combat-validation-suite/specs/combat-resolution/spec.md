@@ -460,8 +460,9 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** every physical action class scope row SHALL cite the matching MegaMek source class with commit-pinned line anchors
 - **AND** supported punch, kick, push, charge, death-from-above, and club/melee rows SHALL expose row-level MegaMek source references before PR approval
 - **AND** non-BattleMech AirMek, battle armor, infantry explosive, ProtoMek, and aerospace ram rows SHALL remain explicit `out-of-scope` splits with row-level MegaMek source references
+- **AND** `thrash` SHALL be helper-only when MekStation exposes source-backed prone-Mek same-hex infantry legality, automatic-success, and weight-based damage helper coverage but still lacks a runtime `PhysicalAttackType`, tactical command, event-sourced declaration/resolution, miss/self-damage PSR handling, and runner resolution path
 - **AND** `trip` SHALL be helper-only when MekStation exposes source-backed trip legality and base to-hit helper coverage but still lacks a runtime `PhysicalAttackType`, tactical command, event-sourced declaration/resolution, and runner resolution path
-- **AND** only BattleMech-applicable brush-off, thrash, grapple, break-grapple, and jump-jet rows SHALL remain `unsupported` until MekStation has a runtime action path for those classes
+- **AND** only BattleMech-applicable brush-off, grapple, break-grapple, and jump-jet rows SHALL remain `unsupported` until MekStation has a runtime action path for those classes
 - **AND** the `physicalActionClassScope` catalog triad SHALL enforce row-level source references before PR approval
 
 #### Scenario: Physical attacks require existing targets
