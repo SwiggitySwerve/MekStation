@@ -53,6 +53,7 @@ export function computeWeaponHeat(
  */
 export function computeMovementHeat(unit: IUnitGameState): number {
   if (unit.sprintedThisTurn === true) return SPRINT_HEAT;
+  if (unit.movementThisTurn === MovementType.Sprint) return SPRINT_HEAT;
   if (unit.isEvading === true) return RUN_HEAT + EVADE_HEAT_BONUS;
   if (unit.movementThisTurn === MovementType.Walk) return WALK_HEAT;
   if (unit.movementThisTurn === MovementType.Run) return RUN_HEAT;
