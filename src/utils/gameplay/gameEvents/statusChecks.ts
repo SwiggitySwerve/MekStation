@@ -10,6 +10,7 @@ import {
   IStartupAttemptPayload,
   IUnitFellPayload,
   IUnitStoodPayload,
+  IUnitStuckPayload,
   PSRTrigger,
 } from '@/types/gameplay';
 
@@ -115,6 +116,34 @@ export function createUnitFellEvent(
       gameId,
       sequence,
       GameEventType.UnitFell,
+      turn,
+      phase,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+export function createUnitStuckEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  reason?: string,
+  reasonCode?: PSRTrigger,
+): IGameEvent {
+  const payload: IUnitStuckPayload = {
+    unitId,
+    ...(reason !== undefined ? { reason } : {}),
+    ...(reasonCode !== undefined ? { reasonCode } : {}),
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.UnitStuck,
       turn,
       phase,
       unitId,
