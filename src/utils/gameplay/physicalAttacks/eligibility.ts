@@ -23,6 +23,8 @@
 
 import { type IUnitGameState, MovementType } from '@/types/gameplay';
 
+import type { ThrashAttackBlockingTerrain } from './thrashEligibility';
+
 import { hexDistance } from '../hexMath';
 import { calculatePhysicalDamage } from './damage';
 import { isTargetDirectlyAhead, isTargetInFrontArc } from './displacement';
@@ -33,6 +35,7 @@ import {
   canMeleeWeapon,
   canPunch,
   canPush,
+  canThrashPhysical,
   canTripPhysical,
 } from './restrictions';
 import { calculatePhysicalToHit } from './toHit';
@@ -68,6 +71,8 @@ export interface IEligibilityContext {
   readonly weaponsFiredFromLeftArm?: readonly string[];
   /** Weapons fired from the attacker's right arm this turn. */
   readonly weaponsFiredFromRightArm?: readonly string[];
+  /** All weapons fired by the attacker this turn. */
+  readonly weaponsFiredThisTurn?: readonly string[];
   /** Limbs already used for a physical attack this turn. */
   readonly limbsUsedThisTurn?: readonly PhysicalAttackLimb[];
   /** True when the attacker ran this turn — gates charge. */
@@ -113,6 +118,8 @@ export interface IEligibilityContext {
   readonly leftTripLimbUsable?: boolean;
   readonly rightTripLimbUsable?: boolean;
   readonly legAesFunctional?: boolean;
+  readonly thrashBlockingTerrains?: readonly ThrashAttackBlockingTerrain[];
+  readonly hasWorkingThrashArmOrLeg?: boolean;
   /** Equipped melee weapon types (hatchet / sword / mace / lance). */
   readonly meleeWeaponsEquipped?: readonly PhysicalAttackType[];
   /** False when the computed push destination is off-map or occupied. */
@@ -189,6 +196,16 @@ function buildSelfRisk(
         pilotingSkillRoll: null,
         onMiss: null,
       };
+    case 'thrash':
+      return {
+        damageToAttacker: 0,
+        legDamagePerLeg: 0,
+        pilotingSkillRoll: {
+          trigger: 'ThrashCompleted',
+          required: true,
+        },
+        onMiss: null,
+      };
     default:
       return {
         damageToAttacker: 0,
@@ -252,8 +269,10 @@ export function getEligiblePhysicalAttacks(
   ) {
     return [];
   }
-  // Per spec scenario "Non-adjacent target returns empty list".
-  if (hexDistance(attacker.position, target.position) !== 1) return [];
+  const targetDistance = hexDistance(attacker.position, target.position);
+  // Per spec scenario "Non-adjacent target returns empty list"; same-hex is
+  // retained for source-backed prone BattleMech thrash attacks.
+  if (targetDistance > 1) return [];
 
   const componentDamage = attacker.componentDamage ?? {
     engineHits: 0,
@@ -319,7 +338,7 @@ export function getEligiblePhysicalAttacks(
     targetOccupiedBuildingId: target.occupiedBuildingId,
     targetIsSelf: attacker.id === target.id,
     targetIsFriendly: attacker.side === target.side,
-    targetDistance: hexDistance(attacker.position, target.position),
+    targetDistance,
     hexesMoved: attacker.hexesMovedThisTurn,
     targetTonnage: context.targetTonnage,
     targetMovementModifier: context.targetMovementModifier,
@@ -362,6 +381,8 @@ export function getEligiblePhysicalAttacks(
     leftTripLimbUsable: context.leftTripLimbUsable,
     rightTripLimbUsable: context.rightTripLimbUsable,
     legAesFunctional: context.legAesFunctional,
+    thrashBlockingTerrains: context.thrashBlockingTerrains,
+    hasWorkingThrashArmOrLeg: context.hasWorkingThrashArmOrLeg,
     pushDestinationValid: context.pushDestinationValid,
     pushTargetDirectlyAhead: isTargetDirectlyAhead(
       attacker.position,
@@ -459,6 +480,22 @@ export function getEligiblePhysicalAttacks(
     attackType: 'trip',
   };
   options.push(buildOption('trip', tripInput, canTripPhysical(tripInput)));
+
+  if (targetDistance === 0) {
+    const thrashInput: IPhysicalAttackInput = {
+      ...baseInput,
+      attackType: 'thrash',
+      weaponsFiredFromArm: [
+        ...(context.weaponsFiredThisTurn ?? [
+          ...(context.weaponsFiredFromLeftArm ?? []),
+          ...(context.weaponsFiredFromRightArm ?? []),
+        ]),
+      ],
+    };
+    options.push(
+      buildOption('thrash', thrashInput, canThrashPhysical(thrashInput)),
+    );
+  }
 
   // Melee weapons — one row per equipped type, gated by
   // `canMeleeWeapon` (shoulder / hand / lower-arm actuator destruction
