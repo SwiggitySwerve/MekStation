@@ -173,8 +173,8 @@ describe('Protocol envelope schemas', () => {
       expect(IntentSchema.safeParse(env).success).toBe(true);
     });
 
-    it('parses source-backed flail and wrecking ball Physical intents', () => {
-      for (const attackType of ['flail', 'wrecking-ball']) {
+    it('parses source-backed runtime Physical intents', () => {
+      for (const attackType of ['flail', 'thrash', 'wrecking-ball']) {
         const env = {
           kind: 'Intent' as const,
           matchId: 'm',

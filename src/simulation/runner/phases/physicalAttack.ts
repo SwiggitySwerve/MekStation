@@ -31,6 +31,7 @@ import {
   resolvePhysicalAttack,
   sourceContainsGroundedDropShip,
   splitPhysicalDamageIntoClusters,
+  thrashBlockingTerrainsForHexTerrain,
 } from '@/utils/gameplay/physicalAttacks';
 import {
   calculateAttackerMovementModifier,
@@ -109,6 +110,14 @@ function friendlyUnitIdsForDisplacement(
         unit.id !== displacedUnit.id && unit.side === displacedUnit.side,
     )
     .map((unit) => unit.id);
+}
+
+function terrainAtPosition(
+  grid: IHexGrid | undefined,
+  position: IGameState['units'][string]['position'],
+): string | undefined {
+  if (!grid) return undefined;
+  return grid.hexes.get(`${position.q},${position.r}`)?.terrain;
 }
 
 function markUnitFallenAfterDfaMiss(
@@ -252,8 +261,7 @@ export function runPhysicalAttackPhase(options: {
       unit.hasRetreated ||
       unit.hasEjected ||
       unit.shutdown ||
-      !unit.pilotConscious ||
-      (unit.prone ?? false)
+      !unit.pilotConscious
     ) {
       continue;
     }
@@ -277,6 +285,7 @@ export function runPhysicalAttackPhase(options: {
       'right',
     );
     const weaponsFiredFromEitherArm = firedWeaponIdsFromMountedArm(unit);
+    const weaponsFiredThisTurn = unit.weaponsFiredThisTurn ?? [];
     const hexesMoved = unit.hexesMovedThisTurn ?? 0;
     const attackerRanThisTurn = unit.movementThisTurn === MovementType.Run;
     const attackerJumpedThisTurn = unit.movementThisTurn === MovementType.Jump;
@@ -366,6 +375,16 @@ export function runPhysicalAttackPhase(options: {
           targetedByDisplacementAttackerId:
             target.targetedByDisplacementAttackerId,
           elevationDifference,
+          targetUnitType: target.unitType,
+          targetDistance: hexDistance(unit.position, target.position),
+          targetIsSwarming: target.isSwarming,
+          targetObjectType: physicalTargetObjectTypeForUnitType(
+            target.unitType,
+          ),
+          weaponsFiredThisTurn,
+          thrashBlockingTerrains: thrashBlockingTerrainsForHexTerrain(
+            terrainAtPosition(physicalGrid, unit.position),
+          ),
           targetIsAirborne: target.isAirborne,
           targetIsAirborneVTOLorWIGE,
           attackerJumpMP,
@@ -374,6 +393,7 @@ export function runPhysicalAttackPhase(options: {
     }
 
     if (!bestAttack) continue;
+    if ((unit.prone ?? false) && bestAttack !== 'thrash') continue;
 
     const targetMovementModifier = calculateTMM(
       target.movementThisTurn,
@@ -424,11 +444,13 @@ export function runPhysicalAttackPhase(options: {
       hexesMoved,
       attackerProne: unit.prone ?? false,
       weaponsFiredFromArm:
-        bestAttack === 'push'
-          ? weaponsFiredFromEitherArm
-          : bestAttack === 'punch'
-            ? weaponsFiredFromRightArm
-            : undefined,
+        bestAttack === 'thrash'
+          ? weaponsFiredThisTurn
+          : bestAttack === 'push'
+            ? weaponsFiredFromEitherArm
+            : bestAttack === 'punch'
+              ? weaponsFiredFromRightArm
+              : undefined,
       attackerDestroyedLocations: unit.destroyedLocations,
       attackerUnitType: unit.unitType,
       attackerIsQuad: unit.isQuad,
@@ -453,6 +475,9 @@ export function runPhysicalAttackPhase(options: {
         unit.position,
         unit.facing,
         target.position,
+      ),
+      thrashBlockingTerrains: thrashBlockingTerrainsForHexTerrain(
+        terrainAtPosition(physicalGrid, unit.position),
       ),
       isUnderwater,
       attackerWaterDepth,
