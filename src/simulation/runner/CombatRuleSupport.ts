@@ -977,13 +977,16 @@ export const TERRAIN_ENVIRONMENT_COMBAT_SUPPORT = {
   ),
   'terrain-los-blocking': integrated(
     'terrain-los-blocking',
-    'lineOfSight consumes TerrainType direct blockers and cumulative woods/smoke density for MekStation LOS blocking',
-    terrainLosSourceRefs(TerrainType.HeavyWoods),
+    'lineOfSight consumes TerrainType direct blockers, cumulative woods/smoke density, and source-backed land-to-depth-2+ water endpoint state for MekStation LOS blocking',
+    [
+      ...terrainLosSourceRefs(TerrainType.HeavyWoods),
+      ...terrainLosSourceRefs(TerrainType.Water),
+    ],
   ),
   'terrain-los-side-paths': helperOnly(
     'terrain-los-side-paths',
-    'Core direct TerrainType blockers plus cumulative woods/smoke LOS density are integrated under terrain-los-blocking',
-    'MegaMek land-to-underwater LOS blocking, divided LOS, and richer building-level handling are not fully modeled by the local TerrainType LOS helper',
+    'Core direct TerrainType blockers, cumulative woods/smoke LOS density, and land-to-depth-2+ water endpoint blocking are integrated under terrain-los-blocking and per-TerrainType LOS rows',
+    'MegaMek divided/diagram LOS, richer underwater-combat sightline tracing, and richer building-level handling are not fully modeled by the local TerrainType LOS helper',
     terrainLosSourceRefs(TerrainType.Water),
   ),
   'terrain-partial-cover': integrated(
