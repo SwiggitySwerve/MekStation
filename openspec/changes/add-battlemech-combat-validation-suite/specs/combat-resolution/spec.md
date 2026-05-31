@@ -160,7 +160,7 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **AND** runner movement SHALL preserve the same `goProne` step when the AI chooses the opt-in stationary go-prone posture
 - **AND** explicit non-Mek and already-prone units SHALL be rejected before emitting a go-prone movement declaration
 - **AND** a hull-down go-prone transition SHALL cost 0 MP and clear `hullDown` when the reducer marks the unit prone
-- **AND** swarmer dislodge, inferno wash-off, stuck-state legality, and broader tactical go-prone policy SHALL remain explicit follow-up gaps
+- **AND** swarmer dislodge, inferno wash-off, and broader tactical go-prone policy SHALL remain explicit follow-up gaps
 
 #### Scenario: Movement booster activation emits replayable active state
 
@@ -1211,7 +1211,7 @@ Ranged to-hit validation SHALL apply MegaMek's jump-attacker SPA relief: Jumping
 
 ### Requirement: Source-Backed Terrain Master Frogman Physical To-Hit
 
-Physical to-hit validation SHALL apply MegaMek's Terrain Master: Frogman relief as a `-1` to-hit modifier only when the attacker has canonical `tm_frogman` or legacy `terrain-master-frogman`, the attacker is a Mek or ProtoMek, and the attacker occupies water deeper than level 1. Runner and event-sourced physical resolution SHALL derive or accept attacker water depth without using target-only water. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry, Mountaineer rubble-entry plus movement-cost relief, Forest Ranger defender to-hit, and Swamp Beast defender to-hit SHALL remain an explicit gap until separately source-backed.
+Physical to-hit validation SHALL apply MegaMek's Terrain Master: Frogman relief as a `-1` to-hit modifier only when the attacker has canonical `tm_frogman` or legacy `terrain-master-frogman`, the attacker is a Mek or ProtoMek, and the attacker occupies water deeper than level 1. Runner and event-sourced physical resolution SHALL derive or accept attacker water depth without using target-only water. Terrain Master source-backed variant coverage includes Frogman water-entry, Mountaineer rubble-entry plus movement-cost relief, Forest Ranger defender to-hit, Swamp Beast defender to-hit, and Swamp Beast bog-down relief. Generic Terrain Master movement and PSR behavior beyond those source-backed variant rows SHALL remain an explicit gap until separately source-backed.
 
 #### Scenario: Frogman applies in depth-2 attacker water
 
@@ -1285,16 +1285,31 @@ Movement PSR validation SHALL apply MegaMek's Terrain Master: Mountaineer relief
 - **AND** the normal impassable climb cap for upward elevation changes greater than 2 SHALL still apply
 - **AND** runner movement, interactive movement, P2P movement validation, pathfinding, and reachable previews SHALL report the same reduced MP cost
 
-### Requirement: Source-Backed Swamp Bog-Down Gap
+### Requirement: Source-Backed Swamp Bog-Down Stuck State
 
-Terrain PSR validation SHALL keep MegaMek's BattleMech swamp bog-down rule visible as an explicit unsupported stuck-state gap until MekStation has a bogged/stuck lifecycle state. The catalog SHALL NOT model swamp bog-down as a normal pending PSR that causes a fall on failure. MegaMek mud bog-down SHALL remain excluded from the BattleMech swamp gap because biped and quad movement modes do not bog down in mud. Terrain Master: Swamp Beast bog-down relief SHALL remain helper-only until the stuck-state path exists.
+Terrain PSR validation SHALL queue MegaMek's BattleMech swamp bog-down rule as a stuck-state PSR when a BattleMech-like unit enters swamp by ground movement. The catalog SHALL NOT model swamp bog-down as a normal failed-PSR fall. A failed swamp bog-down PSR SHALL emit `UnitStuck`, set `isStuck`, clear pending PSRs, and SHALL NOT emit `UnitFell` or pilot fall damage. Jumping into swamp SHALL mark BattleMech-like units stuck immediately without queueing a fall PSR. Terrain Master: Swamp Beast bog-down relief SHALL apply as `-1` to swamp bog-down PSRs. MegaMek mud bog-down SHALL remain excluded from BattleMech swamp bog-down coverage because biped and quad movement modes do not bog down in mud.
 
-#### Scenario: Swamp bog-down is cataloged as stuck-state gap
+#### Scenario: Swamp bog-down queues stuck-state PSR
 
-- **GIVEN** the terrain PSR support catalog is generated
-- **WHEN** swamp terrain support is inspected
-- **THEN** swamp SHALL be helper-only with MegaMek source references for bog-down and Swamp Beast relief
-- **AND** the gap SHALL name the missing bogged/stuck lifecycle state
+- **GIVEN** a BattleMech-like unit enters swamp by ground movement
+- **WHEN** movement terrain PSRs are queued
+- **THEN** a swamp bog-down PSR SHALL be queued with MegaMek source references
+- **AND** a pilot with `tm_swamp_beast` SHALL receive a `-1` Swamp Beast bog-down modifier
+
+#### Scenario: Failed swamp bog-down marks unit stuck
+
+- **GIVEN** a BattleMech-like unit has a pending swamp bog-down PSR
+- **WHEN** the PSR fails during runner or event-sourced PSR resolution
+- **THEN** the unit SHALL be marked `isStuck`
+- **AND** a `UnitStuck` event SHALL preserve the failed PSR reason and reason code
+- **AND** no `UnitFell`, `PilotHit`, or fall-damage side effect SHALL be emitted for that failure
+
+#### Scenario: Jumping into swamp marks unit stuck immediately
+
+- **GIVEN** a BattleMech-like unit jumps into swamp
+- **WHEN** the movement phase applies terrain PSR handling
+- **THEN** the unit SHALL be marked `isStuck` immediately
+- **AND** the terrain handling SHALL emit `UnitStuck` without queueing a normal fall PSR
 
 #### Scenario: Mud is not promoted to a BattleMech bog-down gap
 
@@ -1494,7 +1509,7 @@ Pilot modifier validation SHALL keep Mek Edge triggers as helper-only trigger-st
 
 ### Requirement: Source-Backed Terrain Master Defender To-Hit Variants
 
-Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit variants from target state and target terrain: Forest Ranger SHALL add a `+1` to-hit modifier only when the target has canonical `tm_forest_ranger` or legacy `terrain-master-forest-ranger`, the target moved by walking, and the target occupies wooded terrain; Swamp Beast SHALL add a `+1` to-hit modifier only when the target has canonical `tm_swamp_beast` or legacy `terrain-master-swamp-beast`, the target moved by running, and the target occupies mud or swamp. Runner ranged attacks SHALL hydrate target terrain features into to-hit state. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry, Mountaineer rubble-entry plus movement-cost relief, and Forest Ranger/Swamp Beast defender to-hit relief, including Swamp Beast bog-down relief, SHALL remain an explicit gap until separately source-backed.
+Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit variants from target state and target terrain: Forest Ranger SHALL add a `+1` to-hit modifier only when the target has canonical `tm_forest_ranger` or legacy `terrain-master-forest-ranger`, the target moved by walking, and the target occupies wooded terrain; Swamp Beast SHALL add a `+1` to-hit modifier only when the target has canonical `tm_swamp_beast` or legacy `terrain-master-swamp-beast`, the target moved by running, and the target occupies mud or swamp. Runner ranged attacks SHALL hydrate target terrain features into to-hit state. Terrain Master source-backed variant coverage includes Frogman water-entry, Mountaineer rubble-entry plus movement-cost relief, Forest Ranger/Swamp Beast defender to-hit relief, and Swamp Beast bog-down relief. Generic Terrain Master movement and PSR behavior beyond those source-backed variant rows SHALL remain an explicit gap until separately source-backed.
 
 #### Scenario: Forest Ranger applies to walking wooded targets
 
@@ -1629,7 +1644,7 @@ Every TerrainType heat support row SHALL expose structured source references bef
 
 ### Requirement: Source-Backed TerrainType PSR Catalog Anchors
 
-Every TerrainType PSR support row SHALL expose structured source references before the map is treated as source-backed validation coverage. Rubble, water, pavement, ice, swamp, and building rows SHALL cite commit-pinned MegaMek source URLs with line anchors for rubble-entry PSRs, water-entry PSRs, skidding PSRs, swamp bog-down, or building-collapse handling, plus local movement-runner, PSR factory, and PSR-resolution paths. Swamp SHALL remain helper-only until MekStation has a bogged/stuck lifecycle state. Building SHALL remain helper-only until building collapse is wired through runner movement or damage resolution. Terrain rows with no terrain-entry PSR SHALL remain source-checked through local no-PSR references instead of inheriting a generic terrain authority. Any future TerrainType PSR expansion SHALL either add a MegaMek/MekHQ source reference or explicitly mark the row as a local deviation/gap.
+Every TerrainType PSR support row SHALL expose structured source references before the map is treated as source-backed validation coverage. Rubble, water, pavement, ice, swamp, and building rows SHALL cite commit-pinned MegaMek source URLs with line anchors for rubble-entry PSRs, water-entry PSRs, skidding PSRs, swamp bog-down, or building-collapse handling, plus local movement-runner, PSR factory, and PSR-resolution paths. Swamp SHALL be integrated only when movement queues swamp bog-down PSRs, jump-entry immediate stuck handling, Swamp Beast relief, and failed-PSR `UnitStuck` outcomes are covered. Building SHALL remain helper-only until building collapse is wired through runner movement or damage resolution. Terrain rows with no terrain-entry PSR SHALL remain source-checked through local no-PSR references instead of inheriting a generic terrain authority. Any future TerrainType PSR expansion SHALL either add a MegaMek/MekHQ source reference or explicitly mark the row as a local deviation/gap.
 
 #### Scenario: TerrainType PSR rows expose source truth
 
@@ -1637,7 +1652,8 @@ Every TerrainType PSR support row SHALL expose structured source references befo
 - **WHEN** any TerrainType PSR row is inspected
 - **THEN** the row SHALL expose structured source references with line anchors
 - **AND** rubble, water, pavement, ice, swamp, and building rows SHALL include commit-pinned MegaMek comparison references
-- **AND** swamp and building rows SHALL remain helper-only until bogged/stuck lifecycle and building-collapse runtime wiring exist
+- **AND** swamp SHALL remain integrated only while the stuck-state PSR lifecycle stays covered by behavior tests
+- **AND** building rows SHALL remain helper-only until building-collapse runtime wiring exists
 - **AND** local no-PSR terrain rows SHALL use MekStation deviation source references for the local no-op mapping
 - **AND** the terrainTypePsr catalog triad SHALL enforce row-level source references before PR approval
 
