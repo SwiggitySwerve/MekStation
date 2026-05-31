@@ -296,11 +296,11 @@ export const PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT = {
       ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS['brush-off'],
     ],
   ),
-  thrash: helperOnlyBattleMech(
+  thrash: integrated(
     'thrash',
     'ThrashAttackAction',
-    'canThrash helper coverage applies source-backed prone-Mek same-hex infantry legality gates, automatic-success classification, and weight-based damage',
-    'Thrash attacks still have no runtime PhysicalAttackType, tactical command, event-sourced declaration, miss/self-damage PSR handling, or resolution path',
+    'MekStation runtime PhysicalAttackType, tactical command, runner, and event-sourced physical resolution support prone BattleMech same-hex thrash attacks as automatic-hit infantry damage with attacker PSR',
+    ['thrash'],
     [
       ...MEGAMEK_HELPER_ONLY_BATTLEMECH_PHYSICAL_ACTION_REFS.thrash,
       ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS.thrash,
