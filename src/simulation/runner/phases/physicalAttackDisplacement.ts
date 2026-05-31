@@ -2,6 +2,7 @@ import { IGameState, IHexGrid, IPhysicalDisplacement } from '@/types/gameplay';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import {
   computeChargeDisplacementOutcome,
+  computeBreakGrappleDisplacementOutcome,
   computeDfaDisplacementOutcome,
   computeDisplacementWithDominoChain,
   computeMissedChargeDisplacement,
@@ -157,6 +158,17 @@ export function computePhysicalDisplacementOutcome(options: {
       attackerFacing: attacker.facing,
       targetId: target.id,
       targetPosition: target.position,
+    });
+  }
+
+  if (hit && attackType === 'break-grapple') {
+    return computeBreakGrappleDisplacementOutcome({
+      grid,
+      attackerId: attacker.id,
+      targetId: target.id,
+      attackerPosition: attacker.position,
+      targetPosition: target.position,
+      attackerIsGrappleAttacker: attacker.isGrappleAttacker,
     });
   }
 

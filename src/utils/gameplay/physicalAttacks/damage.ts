@@ -593,6 +593,7 @@ export function calculatePhysicalDamage(
         targetDisplaced: false,
       };
     case 'grapple':
+    case 'break-grapple':
       return {
         targetDamage: 0,
         attackerDamage: 0,

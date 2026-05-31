@@ -18,6 +18,7 @@ import {
 } from './damage';
 import {
   canBrushOffPhysical,
+  canBreakGrapplePhysical,
   canCharge,
   canDFA,
   canGrapplePhysical,
@@ -162,6 +163,17 @@ export function chooseBestPhysicalAttack(
   if (canGrapplePhysical(grappleInput).allowed) {
     candidates.push({
       type: 'grapple',
+      expectedDamage: 0,
+    });
+  }
+
+  const breakGrappleInput: IPhysicalAttackInput = {
+    ...baseInput,
+    attackType: 'break-grapple',
+  };
+  if (canBreakGrapplePhysical(breakGrappleInput).allowed) {
+    candidates.push({
+      type: 'break-grapple',
       expectedDamage: 0,
     });
   }
