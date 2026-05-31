@@ -15,6 +15,7 @@ import {
   type IGameUnit,
   type IMovementEnhancementActivatedPayload,
   type IMovementDeclaredPayload,
+  type ISpottingDeclaredPayload,
 } from '@/types/gameplay';
 import {
   advancePhase,
@@ -664,6 +665,92 @@ describe('useGameplayStore utility actions', () => {
       useGameplayStore.getState().session!.currentState.units['player-a']
         .secondaryFacing,
     ).toBe(Facing.Northwest);
+  });
+
+  it('turns request-spot into SpottingDeclared state for local sessions', () => {
+    const session = forceWeaponAttackState(makeSession());
+    useGameplayStore.setState({
+      session,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+        targetUnitId: 'opponent-a',
+        queuedWeaponIds: ['medium-laser'],
+      },
+    });
+
+    useGameplayStore.getState().handleAction('request-spot', {
+      unitId: 'player-a',
+      targetUnitId: 'opponent-a',
+    });
+
+    const updated = useGameplayStore.getState().session!;
+    const event = updated.events.find(
+      (entry) => entry.type === GameEventType.SpottingDeclared,
+    );
+    expect(event?.payload as ISpottingDeclaredPayload).toMatchObject({
+      unitId: 'player-a',
+      targetId: 'opponent-a',
+      turn: updated.currentState.turn,
+    });
+    expect(updated.currentState.units['player-a'].isSpotting).toBe(true);
+    expect(updated.currentState.units['player-a'].spotTargetId).toBe(
+      'opponent-a',
+    );
+    expect(updated.currentState.units['player-a'].lockState).toBe(
+      LockState.Locked,
+    );
+    expect(useGameplayStore.getState().ui.selectedUnitId).toBeNull();
+    expect(useGameplayStore.getState().ui.targetUnitId).toBeNull();
+    expect(useGameplayStore.getState().ui.queuedWeaponIds).toEqual([]);
+  });
+
+  it('delegates request-spot to InteractiveSession when one is active', () => {
+    let snapshot = forceWeaponAttackState(makeSession());
+    const spottingCalls: Array<readonly [string, string]> = [];
+    const fake = {
+      requestSpot: (unitId: string, targetId: string) => {
+        spottingCalls.push([unitId, targetId]);
+        snapshot = {
+          ...snapshot,
+          currentState: {
+            ...snapshot.currentState,
+            units: {
+              ...snapshot.currentState.units,
+              [unitId]: {
+                ...snapshot.currentState.units[unitId],
+                isSpotting: true,
+                spotTargetId: targetId,
+                lockState: LockState.Locked,
+              },
+            },
+          },
+        };
+      },
+      getSession: () => snapshot,
+    } as unknown as InteractiveSession;
+
+    useGameplayStore.setState({
+      session: snapshot,
+      interactiveSession: fake,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+        targetUnitId: 'opponent-a',
+        queuedWeaponIds: ['medium-laser'],
+      },
+    });
+
+    useGameplayStore.getState().handleAction('request-spot');
+
+    expect(spottingCalls).toEqual([['player-a', 'opponent-a']]);
+    expect(
+      useGameplayStore.getState().session!.currentState.units['player-a']
+        .isSpotting,
+    ).toBe(true);
+    expect(useGameplayStore.getState().ui.selectedUnitId).toBeNull();
+    expect(useGameplayStore.getState().ui.targetUnitId).toBeNull();
+    expect(useGameplayStore.getState().ui.queuedWeaponIds).toEqual([]);
   });
 
   it('excludes ejected targets when selecting a weapon-attack target', () => {
