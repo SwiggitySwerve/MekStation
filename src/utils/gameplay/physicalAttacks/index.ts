@@ -7,4 +7,5 @@ export * from './eligibility';
 export * from './resolution';
 export * from './restrictions';
 export * from './toHit';
+export * from './tripEligibility';
 export * from './types';
