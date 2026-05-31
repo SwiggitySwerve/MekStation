@@ -87,6 +87,7 @@ export enum GameEventType {
   AttacksRevealed = 'attacks_revealed',
   AttackResolved = 'attack_resolved',
   DamageApplied = 'damage_applied',
+  SpottingDeclared = 'spotting_declared',
 
   // Indirect-fire events (Wave 8 PR-K4)
   IndirectFireSpotterSelected = 'indirect_fire_spotter_selected',
@@ -377,6 +378,7 @@ export const GAME_INTENT_TYPES = [
   'torsoTwist',
   'declareAttack',
   'declarePhysical',
+  'requestSpot',
   'confirmHeat',
   'endPhase',
   'eject',
