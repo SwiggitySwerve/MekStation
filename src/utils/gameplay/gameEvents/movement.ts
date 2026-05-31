@@ -7,6 +7,7 @@ import {
   IMovementDeclaredPayload,
   IMovementInvalidPayload,
   IMovementLockedPayload,
+  IRuntimeMovementStateChangedPayload,
   MovementType,
   type StandUpMode,
 } from '@/types/gameplay';
@@ -157,6 +158,31 @@ export function createMovementLockedEvent(
       gameId,
       sequence,
       GameEventType.MovementLocked,
+      turn,
+      GamePhase.Movement,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+export function createRuntimeMovementStateChangedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  unitId: string,
+  patch: Omit<IRuntimeMovementStateChangedPayload, 'unitId'>,
+): IGameEvent {
+  const payload: IRuntimeMovementStateChangedPayload = {
+    unitId,
+    ...patch,
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.RuntimeMovementStateChanged,
       turn,
       GamePhase.Movement,
       unitId,

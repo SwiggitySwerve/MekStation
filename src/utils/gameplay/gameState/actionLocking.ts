@@ -3,6 +3,7 @@ import {
   IGameEvent,
   IGameState,
   IMovementDeclaredPayload,
+  IRuntimeMovementStateChangedPayload,
   IMovementStep,
   IUnitGameState,
   LockState,
@@ -102,6 +103,52 @@ export function applyMovementLocked(
     },
     activationIndex: state.activationIndex + 1,
   };
+}
+
+export function applyRuntimeMovementStateChanged(
+  state: IGameState,
+  payload: IRuntimeMovementStateChangedPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) return state;
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: applyRuntimeMovementPatch(unit, payload),
+    },
+  };
+}
+
+function applyRuntimeMovementPatch(
+  unit: IUnitGameState,
+  payload: IRuntimeMovementStateChangedPayload,
+): IUnitGameState {
+  let next: Record<string, unknown> = { ...unit };
+  next = applyNullableField(next, payload, 'conversionMode');
+  next = applyNullableField(next, payload, 'unitHeight');
+  next = applyNullableField(next, payload, 'infantryMounted');
+  next = applyNullableField(next, payload, 'infantryMountHeight');
+  return next as unknown as IUnitGameState;
+}
+
+function applyNullableField(
+  target: Record<string, unknown>,
+  payload: IRuntimeMovementStateChangedPayload,
+  key:
+    | 'conversionMode'
+    | 'unitHeight'
+    | 'infantryMounted'
+    | 'infantryMountHeight',
+): Record<string, unknown> {
+  if (!Object.prototype.hasOwnProperty.call(payload, key)) return target;
+  const value = payload[key];
+  if (value === null) {
+    const { [key]: _removed, ...rest } = target;
+    return rest;
+  }
+  return { ...target, [key]: value };
 }
 
 export function applyAttackDeclared(

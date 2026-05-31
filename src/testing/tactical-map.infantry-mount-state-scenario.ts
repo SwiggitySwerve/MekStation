@@ -21,7 +21,7 @@ import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 const bridgeOrigin = { q: 0, r: 0 } as const;
 const bridgeDestination = { q: 1, r: 0 } as const;
 
-function movementGrid(): IHexGrid {
+export function tacticalMapInfantryMountStateGrid(): IHexGrid {
   const grid = createHexGrid({ radius: 2 });
   const hexes = new Map(grid.hexes);
 
@@ -102,7 +102,7 @@ export const tacticalMapInfantryMountStateMovementRange: readonly [
     deriveMovementRangeHexForDestination(
       mountedUnit,
       MovementType.Walk,
-      movementGrid(),
+      tacticalMapInfantryMountStateGrid(),
       capability,
       bridgeDestination,
     ),
@@ -111,7 +111,7 @@ export const tacticalMapInfantryMountStateMovementRange: readonly [
     deriveMovementRangeHexForDestination(
       dismountedUnit,
       MovementType.Walk,
-      movementGrid(),
+      tacticalMapInfantryMountStateGrid(),
       capability,
       bridgeDestination,
     ),
@@ -124,7 +124,7 @@ export function tacticalMapInfantryMountStateCommitInputs(): readonly [
 ] {
   return [
     {
-      grid: movementGrid(),
+      grid: tacticalMapInfantryMountStateGrid(),
       unit: mountedUnit,
       to: bridgeDestination,
       facing: Facing.Northeast,
@@ -133,7 +133,7 @@ export function tacticalMapInfantryMountStateCommitInputs(): readonly [
       path: tacticalMapInfantryMountStateMovementRange[0].path,
     },
     {
-      grid: movementGrid(),
+      grid: tacticalMapInfantryMountStateGrid(),
       unit: dismountedUnit,
       to: bridgeDestination,
       facing: Facing.Northeast,
@@ -143,3 +143,15 @@ export function tacticalMapInfantryMountStateCommitInputs(): readonly [
     },
   ];
 }
+
+export function tacticalMapInfantryMountStateUnit(
+  mounted: boolean,
+): IUnitGameState {
+  return mounted ? mountedUnit : dismountedUnit;
+}
+
+export function tacticalMapInfantryMountStateCapability(): IMovementCapability {
+  return capability;
+}
+
+export const tacticalMapInfantryMountStateDestination = bridgeDestination;

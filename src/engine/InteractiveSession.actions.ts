@@ -20,6 +20,7 @@ import type { IAttackInvalidPayload } from '@/types/gameplay/GameSessionAttackEv
 import type { IGameSession } from '@/types/gameplay/GameSessionInterfaces';
 import type {
   IMovementInvalidPayload,
+  IRuntimeMovementStateChangedPayload,
   StandUpMode,
 } from '@/types/gameplay/GameSessionMovementEvents';
 import type {
@@ -54,6 +55,7 @@ import {
 import {
   createAttackInvalidEvent,
   createMovementInvalidEvent,
+  createRuntimeMovementStateChangedEvent,
 } from '@/utils/gameplay/gameEvents';
 import {
   createLegAttackResolvedEvent,
@@ -356,6 +358,31 @@ export function applyInteractiveSessionMovement(
   );
   session = lockMovement(session, input.unitId);
   return session;
+}
+
+export interface IApplyRuntimeMovementStateInput {
+  readonly session: IGameSession;
+  readonly unitId: string;
+  readonly patch: Omit<IRuntimeMovementStateChangedPayload, 'unitId'>;
+}
+
+export function applyInteractiveSessionRuntimeMovementState(
+  input: IApplyRuntimeMovementStateInput,
+): IGameSession {
+  if (!input.session.currentState.units[input.unitId]) {
+    return input.session;
+  }
+
+  return appendEvent(
+    input.session,
+    createRuntimeMovementStateChangedEvent(
+      input.session.id,
+      input.session.events.length,
+      input.session.currentState.turn,
+      input.unitId,
+      input.patch,
+    ),
+  );
 }
 
 function hullDownEntryInvalidDetails(input: {

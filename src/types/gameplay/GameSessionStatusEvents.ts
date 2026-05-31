@@ -52,6 +52,7 @@ import type {
   IMovementDeclaredPayload,
   IMovementInvalidPayload,
   IMovementLockedPayload,
+  IRuntimeMovementStateChangedPayload,
 } from './GameSessionMovementEvents';
 import type {
   IObjectiveCapturedPayload,
@@ -424,6 +425,7 @@ export type GameEventPayload =
   | IMovementDeclaredPayload
   | IMovementInvalidPayload
   | IMovementLockedPayload
+  | IRuntimeMovementStateChangedPayload
   | IAttackDeclaredPayload
   | IAttackLockedPayload
   | IAttackResolvedPayload

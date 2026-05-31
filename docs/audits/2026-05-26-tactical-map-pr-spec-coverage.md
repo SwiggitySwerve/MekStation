@@ -41,10 +41,12 @@ decisions are made, not because CI is stale.
 ## Remaining Gaps To Keep Out Of Ready-For-Review Claims
 
 - Movement: conversion action timing, remaining airborne LAM Fighter/AirMek
-  submodes, gameplay events or UI that mutate infantry mount/conversion state,
-  and broader external oracle differential sweeps remain follow-up work.
+  submodes, UI controls that mutate infantry mount/conversion state, and broader
+  external oracle differential sweeps remain follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
-  remaining mount-state gap is the action/UI mutation path and oracle sweep.
+  replayable gameplay-event mutation path is now covered by
+  `apply-runtime-movement-state-events`, leaving UI/action-timing integration and
+  oracle sweeps.
 - Combat: broader special range-mode coverage, remaining LOS terrain families,
   full surface-naval underwater expansion, and broader external oracle
   comparisons remain follow-up work.
@@ -73,9 +75,9 @@ decisions are made, not because CI is stale.
   broader mobile device gesture-matrix and full battlefield occlusion
   interaction sweeps remain follow-up work beyond the representative smoke,
   metadata, pan/zoom, touch-rotation, and occluder-retarget coverage.
-- PR readiness: PR `#682` is currently draft by design. Before the isometric
-  occlusion-rotation slice, GitHub PR Checks were attached to current head
-  `9e4da66d7e4673af607329435868c26c3e7b557a` and passing; pushing the next
+- PR readiness: PR `#682` is currently draft by design. Before the runtime
+  movement-state event slice, GitHub PR Checks were attached to current head
+  `a5a2e3969af3cf4c8aded006d55c488bf312daf3` and passing; pushing the next
   slice will start a fresh check set.
 
 ## Merge-Readiness Implication

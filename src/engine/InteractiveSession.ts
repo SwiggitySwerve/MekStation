@@ -4,6 +4,7 @@
  */
 
 import type { IWeapon } from '@/simulation/ai/types';
+import type { IRuntimeMovementStateChangedPayload } from '@/types/gameplay/GameSessionMovementEvents';
 import type {
   IIndirectFireResolution,
   WeaponFireMode,
@@ -72,6 +73,7 @@ import {
 import {
   applyInteractiveSessionAttack,
   applyInteractiveSessionMovement,
+  applyInteractiveSessionRuntimeMovementState,
 } from './InteractiveSession.actions';
 import { runInteractiveSessionAITurn } from './InteractiveSession.ai';
 import { computeIndirectFireContext as computeIndirectFireContextImpl } from './InteractiveSession.indirectFire';
@@ -405,6 +407,18 @@ export class InteractiveSession {
       hullDownEntryAttempt: options?.hullDownEntryAttempt,
       goProneAttempt: options?.goProneAttempt,
       diceRoller: this.diceRollerForResolvers(),
+    });
+    this.tryFinalizeAndPublish();
+  }
+
+  applyRuntimeMovementState(
+    unitId: string,
+    patch: Omit<IRuntimeMovementStateChangedPayload, 'unitId'>,
+  ): void {
+    this.session = applyInteractiveSessionRuntimeMovementState({
+      session: this.session,
+      unitId,
+      patch,
     });
     this.tryFinalizeAndPublish();
   }

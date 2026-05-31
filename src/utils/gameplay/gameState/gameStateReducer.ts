@@ -17,6 +17,7 @@ import {
   IMotiveDamagedPayload,
   IMotivePenaltyAppliedPayload,
   IMovementDeclaredPayload,
+  IRuntimeMovementStateChangedPayload,
   IObjectiveCapturedPayload,
   IObjectiveLostPayload,
   IObjectiveProgressPayload,
@@ -49,6 +50,7 @@ import {
   applyAttackLocked,
   applyMovementDeclared,
   applyMovementLocked,
+  applyRuntimeMovementStateChanged,
 } from './actionLocking';
 import {
   applyCriticalHitResolved,
@@ -133,6 +135,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.MovementLocked:
       return applyMovementLocked(state, event);
+
+    case GameEventType.RuntimeMovementStateChanged:
+      return applyRuntimeMovementStateChanged(
+        state,
+        event.payload as IRuntimeMovementStateChangedPayload,
+      );
 
     case GameEventType.AttackDeclared:
       return applyAttackDeclared(

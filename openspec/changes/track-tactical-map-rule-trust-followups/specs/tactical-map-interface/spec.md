@@ -24,7 +24,7 @@ source-pinned, oracle-differenced, or interaction-swept.
 - **GIVEN** movement highlights use represented runtime movement capability,
   terrain cost, elevation cost, and commit-validation paths
 - **WHEN** unresolved runtime transitions such as conversion action timing,
-  gameplay events or UI that mutate infantry mount state, remaining airborne
+  UI controls that mutate infantry mount/conversion state, remaining airborne
   LAM Fighter or AirMek submodes, or broad external oracle sweeps are required
 - **THEN** those cases SHALL remain tracked as follow-up outcomes before the
   map claims full movement-oracle coverage
@@ -33,8 +33,8 @@ source-pinned, oracle-differenced, or interaction-swept.
 - **AND** movement gaps that already have source-pinned preview/commit coverage,
   such as frogman/swim movement, optional infantry pavement bonus, represented
   unit-height bridge clearance, runtime infantry mounted/dismounted height
-  precedence, and runtime LAM/QuadVee conversion projection, SHALL NOT remain
-  listed as open headline gaps.
+  precedence, runtime LAM/QuadVee conversion projection, and replayable runtime
+  movement-state gameplay events, SHALL NOT remain listed as open headline gaps.
 - **AND** hull-down `GET_UP` movement exit projection and replay-state clearing
   SHALL NOT remain grouped under unresolved hull-down entry action
   gaps once source-pinned coverage exists.

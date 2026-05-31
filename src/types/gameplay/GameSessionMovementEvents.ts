@@ -5,7 +5,12 @@
 
 import type { MovementAnimationMode } from './GameSessionCoreTypes';
 
-import { Facing, IHexCoordinate, MovementType } from './HexGridInterfaces';
+import {
+  Facing,
+  IHexCoordinate,
+  MovementConversionMode,
+  MovementType,
+} from './HexGridInterfaces';
 
 export type StandUpMode = 'normal' | 'careful';
 
@@ -261,6 +266,24 @@ export type IMovementStep =
 export interface IMovementLockedPayload {
   /** Unit whose movement was locked */
   readonly unitId: string;
+}
+
+/**
+ * Replayable runtime movement-state mutation. These fields are the shared
+ * source for map projection and commit validation after LAM/QuadVee conversion
+ * or conventional-infantry mount-state changes.
+ */
+export interface IRuntimeMovementStateChangedPayload {
+  readonly unitId: string;
+  readonly source:
+    | 'conversion_action'
+    | 'infantry_mount_action'
+    | 'scenario_setup'
+    | 'rules_correction';
+  readonly conversionMode?: MovementConversionMode | number | null;
+  readonly unitHeight?: number | null;
+  readonly infantryMounted?: boolean | null;
+  readonly infantryMountHeight?: number | null;
 }
 
 /**
