@@ -39,6 +39,7 @@ import {
   startGame,
 } from '@/utils/gameplay/gameSession';
 import { deriveState } from '@/utils/gameplay/gameState';
+import { createSwampBogDownPSR } from '@/utils/gameplay/pilotingSkillRolls';
 
 const config: IGameConfig = {
   mapRadius: 10,
@@ -244,6 +245,55 @@ describe('wire-piloting-skill-rolls — smoke test', () => {
 
     // Reducer should have set prone=true.
     expect(session.currentState.units['attacker'].prone).toBe(true);
+  });
+
+  it('swamp bog-down PSR failure marks stuck without UnitFell or PilotHit', () => {
+    let session = setupActiveSession();
+    const psr = createSwampBogDownPSR('attacker');
+    const event: IGameEvent = {
+      id: 'seed-swamp-bog-down',
+      gameId: session.id,
+      sequence: session.events.length,
+      timestamp: new Date().toISOString(),
+      type: GameEventType.PSRTriggered,
+      turn: session.currentState.turn,
+      phase: session.currentState.phase,
+      actorId: 'attacker',
+      payload: {
+        unitId: 'attacker',
+        reason: psr.reason,
+        additionalModifier: psr.additionalModifier,
+        triggerSource: psr.triggerSource,
+        reasonCode: psr.reasonCode,
+      } satisfies IPSRTriggeredPayload,
+    };
+    const events = [...session.events, event];
+    session = {
+      ...session,
+      events,
+      currentState: deriveState(session.id, events),
+    };
+
+    session = resolvePendingPSRs(
+      session,
+      mockDiceRoller([{ dice: [1, 1], total: 2 }]),
+    );
+
+    expect(session.currentState.units['attacker']).toMatchObject({
+      isStuck: true,
+      prone: false,
+      pilotWounds: 0,
+      pendingPSRs: [],
+    });
+    expect(
+      session.events.some((entry) => entry.type === GameEventType.UnitStuck),
+    ).toBe(true);
+    expect(
+      session.events.some((entry) => entry.type === GameEventType.UnitFell),
+    ).toBe(false);
+    expect(
+      session.events.some((entry) => entry.type === GameEventType.PilotHit),
+    ).toBe(false);
   });
 
   it('attemptStandUp succeeds → emits UnitStood and clears prone', () => {
