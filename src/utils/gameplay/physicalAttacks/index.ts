@@ -6,6 +6,7 @@ export * from './displacement';
 export * from './eligibility';
 export * from './resolution';
 export * from './restrictions';
+export * from './thrashEligibility';
 export * from './toHit';
 export * from './tripEligibility';
 export * from './types';
