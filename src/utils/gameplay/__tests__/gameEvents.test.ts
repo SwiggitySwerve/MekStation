@@ -680,6 +680,30 @@ describe('Movement Event Factories', () => {
         ],
       });
     });
+
+    it('should serialize represented altitude-control MP metadata', () => {
+      const position = { q: 0, r: 0 };
+      const event = createMovementDeclaredEvent(
+        'game-1',
+        10,
+        1,
+        'wige-1',
+        position,
+        { q: 1, r: 0 },
+        Facing.Northeast,
+        MovementType.Walk,
+        2,
+        0,
+        [position, { q: 1, r: 0 }],
+        { altitudeControlStepCount: 1, altitudeControlMpCost: 1 },
+      );
+      const payload = event.payload as IMovementDeclaredPayload;
+
+      expect(payload).toMatchObject({
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+      });
+    });
   });
 
   describe('createMovementLockedEvent', () => {

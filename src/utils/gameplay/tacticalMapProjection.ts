@@ -446,6 +446,11 @@ function movementOptionsForProjection(
       heatGenerated: movement.heatGenerated,
       conversionStepCount: movement.conversionStepCount,
       conversionMpCost: movement.conversionMpCost,
+      altitudeControlStepCount: movement.altitudeControlStepCount,
+      altitudeControlMpCost: movement.altitudeControlMpCost,
+      altitudeControlRequired: movement.altitudeControlRequired,
+      altitudeControlMode: movement.altitudeControlMode,
+      altitudeControlAltitude: movement.altitudeControlAltitude,
       blockedReason: movement.blockedReason,
       movementInvalidReason: movement.movementInvalidReason,
       movementInvalidDetails: movement.movementInvalidDetails,
@@ -852,6 +857,16 @@ function formatProjectionExplanation({
         } MP`,
       );
     }
+    if (
+      movement.altitudeControlStepCount !== undefined ||
+      movement.altitudeControlMpCost !== undefined
+    ) {
+      parts.push(
+        `altitude control ${movement.altitudeControlStepCount ?? 0} steps ${
+          movement.altitudeControlMpCost ?? 0
+        } MP`,
+      );
+    }
     if (movement.movementModeOptions?.length) {
       parts.push(
         `movement options ${movement.movementModeOptions
@@ -1045,11 +1060,18 @@ function formatMovementOption(option: IMovementRangeModeOption): string {
       : ` conversion ${option.conversionStepCount ?? 0} steps ${
           option.conversionMpCost ?? 0
         } MP`;
+  const altitudeControl =
+    option.altitudeControlStepCount === undefined &&
+    option.altitudeControlMpCost === undefined
+      ? ''
+      : ` altitude control ${option.altitudeControlStepCount ?? 0} steps ${
+          option.altitudeControlMpCost ?? 0
+        } MP`;
   const blockedDetail = movementOptionBlockedDetail(option);
   const blocked = blockedDetail ? `: ${blockedDetail}` : '';
   return `${option.movementType}${mode} ${
     option.reachable ? 'reachable' : 'blocked'
-  } ${option.mpCost} MP${terrain}${elevation}${heat}${conversion}${option.reachable ? '' : blocked}`;
+  } ${option.mpCost} MP${terrain}${elevation}${heat}${conversion}${altitudeControl}${option.reachable ? '' : blocked}`;
 }
 
 function formatMovementOptionElevation(

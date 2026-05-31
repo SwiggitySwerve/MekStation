@@ -665,6 +665,8 @@ describe('movementCommands', () => {
       payload: {
         source: 'altitude_control_action',
         vehicleAltitude: 3,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
       },
     });
     expect(descend.availability(vtolCtx)).toEqual({ available: true });
@@ -673,6 +675,8 @@ describe('movementCommands', () => {
       payload: {
         source: 'altitude_control_action',
         vehicleAltitude: 1,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
       },
     });
 

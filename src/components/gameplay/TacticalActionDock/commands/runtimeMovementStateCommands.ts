@@ -121,6 +121,8 @@ const MovementAltitudeUpCommand: ITacticalCommand = {
       payload: {
         source: 'altitude_control_action',
         vehicleAltitude: currentVehicleAltitude(ctx) + 1,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
       },
     };
   },
@@ -151,6 +153,8 @@ const MovementAltitudeDownCommand: ITacticalCommand = {
       payload: {
         source: 'altitude_control_action',
         vehicleAltitude: currentVehicleAltitude(ctx) - 1,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
       },
     };
   },

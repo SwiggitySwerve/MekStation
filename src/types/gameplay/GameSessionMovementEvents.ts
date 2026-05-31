@@ -74,6 +74,10 @@ export interface IMovementDeclaredPayload {
   readonly conversionStepCount?: number;
   /** Represented MP spent by CONVERT_MODE steps before path steps. */
   readonly conversionMpCost?: number;
+  /** Represented VTOL/WiGE UP/DOWN altitude-control steps before path steps. */
+  readonly altitudeControlStepCount?: number;
+  /** MP spent by represented VTOL/WiGE altitude-control steps before path steps. */
+  readonly altitudeControlMpCost?: number;
   /**
    * Per `enrich-movement-declared-with-chain-and-displacement` (movement-system
    * delta — Movement Decomposition Fields): total hex transitions in the
@@ -233,6 +237,16 @@ export interface IConvertModeStep {
   readonly stepCount: number;
 }
 
+export interface IAltitudeControlStep {
+  readonly kind: 'altitudeControl';
+  readonly index: number;
+  readonly at: IHexCoordinate;
+  readonly mpCost: number;
+  readonly direction: 'up' | 'down';
+  readonly stepNumber: number;
+  readonly stepCount: number;
+}
+
 export interface IChargeDeclaredStep {
   readonly kind: 'chargeDeclared';
   readonly index: number;
@@ -270,6 +284,7 @@ export type IMovementStep =
   | IGoProneStep
   | IHullDownStep
   | IConvertModeStep
+  | IAltitudeControlStep
   | IChargeDeclaredStep
   | IDfaDeclaredStep
   | IShakeOffSwarmStep;
@@ -303,6 +318,10 @@ export interface IRuntimeMovementStateChangedPayload {
   readonly unitHeight?: number | null;
   /** Runtime VTOL/WiGE vehicle altitude changed through altitude controls. */
   readonly vehicleAltitude?: number;
+  /** Represented MegaMek UP/DOWN step count for altitude-control audit/replay metadata. */
+  readonly altitudeControlStepCount?: number;
+  /** Represented MP cost of the altitude-control action before later movement steps. */
+  readonly altitudeControlMpCost?: number;
   readonly infantryMounted?: boolean | null;
   readonly infantryMountHeight?: number | null;
 }

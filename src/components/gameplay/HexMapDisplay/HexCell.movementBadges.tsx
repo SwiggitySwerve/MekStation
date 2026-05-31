@@ -9,6 +9,8 @@ import {
   formatMovementOptionTitle,
   formatMovementTypeLabel,
   movementOptionAltitudeControlsAttribute,
+  movementOptionAltitudeControlMpCostsAttribute,
+  movementOptionAltitudeControlStepCountsAttribute,
   movementOptionBlockedReasonsAttribute,
   movementOptionConversionMpCostsAttribute,
   movementOptionConversionStepCountsAttribute,
@@ -63,7 +65,14 @@ export function formatMovementReachBadgeTitle(
       : `; conversion ${movementInfo.conversionStepCount ?? 0} steps ${
           movementInfo.conversionMpCost ?? 0
         } MP`;
-  const primary = `${formatMovementModeTitle(movementInfo)} reachable: ${movementInfo.mpCost} MP${conversion}`;
+  const altitudeControl =
+    movementInfo.altitudeControlStepCount === undefined &&
+    movementInfo.altitudeControlMpCost === undefined
+      ? ''
+      : `; altitude control ${
+          movementInfo.altitudeControlStepCount ?? 0
+        } steps ${movementInfo.altitudeControlMpCost ?? 0} MP`;
+  const primary = `${formatMovementModeTitle(movementInfo)} reachable: ${movementInfo.mpCost} MP${conversion}${altitudeControl}`;
   const options = movementInfo.movementModeOptions ?? [];
   if (options.length <= 1) return primary;
   return `${primary}; options ${options.map(formatMovementOptionTitle).join('; ')}`;
@@ -197,6 +206,12 @@ export function MovementReachBadge({
         movementInfo.conversionStepCount
       }
       data-movement-badge-conversion-mp-cost={movementInfo.conversionMpCost}
+      data-movement-badge-altitude-control-step-count={
+        movementInfo.altitudeControlStepCount
+      }
+      data-movement-badge-altitude-control-mp-cost={
+        movementInfo.altitudeControlMpCost
+      }
       data-movement-badge-altitude-control-required={
         movementInfo.altitudeControlRequired ? 'true' : undefined
       }
@@ -262,6 +277,16 @@ export function MovementReachBadge({
       data-movement-badge-option-conversion-mp-costs={
         movementOptions.length > 1
           ? movementOptionConversionMpCostsAttribute(movementOptions)
+          : undefined
+      }
+      data-movement-badge-option-altitude-control-step-counts={
+        movementOptions.length > 1
+          ? movementOptionAltitudeControlStepCountsAttribute(movementOptions)
+          : undefined
+      }
+      data-movement-badge-option-altitude-control-mp-costs={
+        movementOptions.length > 1
+          ? movementOptionAltitudeControlMpCostsAttribute(movementOptions)
           : undefined
       }
       data-movement-badge-option-altitude-controls={

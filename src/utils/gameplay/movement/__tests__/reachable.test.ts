@@ -2242,6 +2242,85 @@ describe('deriveReachableHexes', () => {
     },
   );
 
+  it('reserves represented WiGE altitude-control MP before landed ground movement', () => {
+    const grid = createHexGrid({ radius: 3 });
+    const unit = {
+      ...makeUnitAtOrigin(),
+      pendingAltitudeControlStepCount: 1,
+      pendingAltitudeControlMpCost: 1,
+      combatState: {
+        kind: 'vehicle' as const,
+        state: createVehicleCombatState({
+          unitId: 'u1',
+          motionType: GroundMotionType.WIGE,
+          originalCruiseMP: 2,
+          armor: {},
+          structure: {},
+          altitude: 0,
+        }),
+      },
+    };
+    const capability: IMovementCapability = {
+      walkMP: 2,
+      runMP: 3,
+      jumpMP: 0,
+      movementMode: 'wige',
+    };
+
+    const reachable = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      capability,
+      { q: 1, r: 0 },
+    );
+    expect(reachable).toMatchObject({
+      reachable: true,
+      mpCost: 2,
+      movementMode: 'wige',
+      altitudeControlStepCount: 1,
+      altitudeControlMpCost: 1,
+    });
+
+    const tooFar = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      capability,
+      { q: 2, r: 0 },
+    );
+    expect(tooFar).toMatchObject({
+      reachable: false,
+      mpCost: 3,
+      movementInvalidReason: 'InsufficientMP',
+      movementInvalidDetails:
+        'Destination is 2 hexes away, but max range for walk after altitude control is 1',
+      altitudeControlStepCount: 1,
+      altitudeControlMpCost: 1,
+    });
+
+    const committed = validateCommittedMovement({
+      grid,
+      unit,
+      to: { q: 2, r: 0 },
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+      capability,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+        { q: 2, r: 0 },
+      ],
+    });
+    expect(committed).toMatchObject({
+      valid: false,
+      reason: 'InsufficientMP',
+      details:
+        'Destination is 2 hexes away, but max range for walk after altitude control is 1',
+      mpCost: 3,
+    });
+  });
+
   it('requires naval motive movement to stay on water terrain', () => {
     let grid = createHexGrid({ radius: 3 });
     grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Water, 0);

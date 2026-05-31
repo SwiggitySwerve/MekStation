@@ -198,6 +198,8 @@ describe('runtime movement state events', () => {
       {
         source: 'altitude_control_action',
         vehicleAltitude: 0,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
       },
     );
     const nextState = applyEvent(stateWithUnit(unit), event);
@@ -207,10 +209,41 @@ describe('runtime movement state events', () => {
       kind: 'vehicle',
       state: { altitude: 0, motionType: GroundMotionType.WIGE },
     });
+    expect(landed).toMatchObject({
+      pendingAltitudeControlStepCount: 1,
+      pendingAltitudeControlMpCost: 1,
+    });
     expect(
       runtimeMovementProjectionBlockedReason(landed, capability, 'wige'),
     ).toBeUndefined();
     expect(runtimeMovementAltitudeControlContext(landed)).toBeUndefined();
+
+    const grid = createHexGrid({ radius: 2 });
+    const destination = { q: 1, r: 0 };
+    const projection = deriveMovementRangeHexForDestination(
+      landed,
+      MovementType.Walk,
+      grid,
+      capability,
+      destination,
+    );
+    expect(projection).toMatchObject({
+      reachable: true,
+      mpCost: 2,
+      altitudeControlStepCount: 1,
+      altitudeControlMpCost: 1,
+    });
+
+    const committed = validateCommittedMovement({
+      grid,
+      unit: landed,
+      to: destination,
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+      capability,
+      path: projection?.path,
+    });
+    expect(committed).toMatchObject({ valid: true, mpCost: 2 });
   });
 
   it('replays conversion MP as pending movement cost consumed by projection and commit validation', () => {
@@ -395,5 +428,51 @@ describe('runtime movement state events', () => {
     });
     expect(moved).not.toHaveProperty('pendingConversionStepCount');
     expect(moved).not.toHaveProperty('pendingConversionMpCost');
+  });
+
+  it('clears pending altitude-control cost after committed movement replay', () => {
+    const landed: IUnitGameState = {
+      id: 'wige-1',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+      heat: 0,
+      movementThisTurn: MovementType.Stationary,
+      hexesMovedThisTurn: 0,
+      armor: {},
+      structure: {},
+      destroyedLocations: [],
+      destroyedEquipment: [],
+      ammo: {},
+      pilotWounds: 0,
+      pilotConscious: true,
+      destroyed: false,
+      lockState: LockState.Pending,
+      pendingAltitudeControlStepCount: 1,
+      pendingAltitudeControlMpCost: 1,
+    };
+    const movement = createMovementDeclaredEvent(
+      'game-1',
+      2,
+      1,
+      landed.id,
+      landed.position,
+      { q: 1, r: 0 },
+      Facing.Northeast,
+      MovementType.Walk,
+      2,
+      0,
+      [landed.position, { q: 1, r: 0 }],
+      { altitudeControlStepCount: 1, altitudeControlMpCost: 1 },
+    );
+
+    const moved = applyEvent(stateWithUnit(landed), movement).units[landed.id];
+
+    expect(moved).toMatchObject({
+      position: { q: 1, r: 0 },
+      hexesMovedThisTurn: 2,
+    });
+    expect(moved).not.toHaveProperty('pendingAltitudeControlStepCount');
+    expect(moved).not.toHaveProperty('pendingAltitudeControlMpCost');
   });
 });

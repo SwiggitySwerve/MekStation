@@ -58,7 +58,9 @@ decisions are made, not because CI is stale.
   same-hex option metadata via `surface-airborne-altitude-control-context`.
   Represented VTOL/WiGE vehicle altitude can now be changed through replayable
   movement-phase Climb/Descend commands via
-  `wire-vtol-wige-altitude-controls`; complete UP/DOWN MP accounting,
+  `wire-vtol-wige-altitude-controls`. The represented 1 MP UP/DOWN reserve now
+  carries into later movement projection, hover metadata, and commit validation
+  via `reserve-altitude-control-mp`; full multi-step airborne pathing,
   hover/takeoff/landing sequencing, automatic WiGE landing, and
   terrain-clearance-specific altitude gates remain follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the

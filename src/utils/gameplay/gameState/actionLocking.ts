@@ -10,6 +10,10 @@ import {
   MovementType,
 } from '@/types/gameplay';
 import {
+  accumulatedAltitudeControlMovementPatch,
+  clearPendingAltitudeControlMovementCost,
+} from '@/utils/gameplay/movement/altitudeControlAccounting';
+import {
   accumulatedConversionMovementPatch,
   clearPendingConversionMovementCost,
 } from '@/utils/gameplay/movement/conversionAccounting';
@@ -50,18 +54,20 @@ export function applyMovementDeclared(
         ? unit.hullDownEnteredBackwards
         : false;
 
-  const updatedUnit: IUnitGameState = clearPendingConversionMovementCost({
-    ...unit,
-    position: payload.to,
-    facing: payload.facing,
-    movementThisTurn: payload.movementType,
-    hexesMovedThisTurn: payload.mpUsed,
-    heat: unit.heat + payload.heatGenerated,
-    prone,
-    hullDown,
-    hullDownEnteredBackwards,
-    lockState: LockState.Planning,
-  });
+  const updatedUnit: IUnitGameState = clearPendingAltitudeControlMovementCost(
+    clearPendingConversionMovementCost({
+      ...unit,
+      position: payload.to,
+      facing: payload.facing,
+      movementThisTurn: payload.movementType,
+      hexesMovedThisTurn: payload.mpUsed,
+      heat: unit.heat + payload.heatGenerated,
+      prone,
+      hullDown,
+      hullDownEnteredBackwards,
+      lockState: LockState.Planning,
+    }),
+  );
 
   return {
     ...state,
@@ -137,6 +143,10 @@ function applyRuntimeMovementPatch(
   next = applyNullableField(next, payload, 'infantryMountHeight');
   next = {
     ...next,
+    ...accumulatedAltitudeControlMovementPatch(
+      next as unknown as IUnitGameState,
+      payload,
+    ),
     ...accumulatedConversionMovementPatch(
       next as unknown as IUnitGameState,
       payload,

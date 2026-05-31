@@ -67,15 +67,24 @@ export function MovementCostContextRows({
   const hasConversionContext =
     movementInfo.conversionStepCount !== undefined ||
     movementInfo.conversionMpCost !== undefined;
+  const hasAltitudeControlContext =
+    movementInfo.altitudeControlStepCount !== undefined ||
+    movementInfo.altitudeControlMpCost !== undefined;
   const conversionStepCount = movementInfo.conversionStepCount ?? 0;
   const conversionStepLabel =
     conversionStepCount === 1 ? '1 step' : `${conversionStepCount} steps`;
+  const altitudeControlStepCount = movementInfo.altitudeControlStepCount ?? 0;
+  const altitudeControlStepLabel =
+    altitudeControlStepCount === 1
+      ? '1 step'
+      : `${altitudeControlStepCount} steps`;
 
   if (
     movementInfo.terrainCost === undefined &&
     movementInfo.elevationDelta === undefined &&
     movementInfo.heatGenerated === undefined &&
     !hasConversionContext &&
+    !hasAltitudeControlContext &&
     !pathSummaryLabel
   ) {
     return null;
@@ -127,6 +136,20 @@ export function MovementCostContextRows({
         >
           Conversion: {conversionStepLabel},{' '}
           {movementInfo.conversionMpCost ?? 0} MP
+        </div>
+      )}
+      {hasAltitudeControlContext && (
+        <div
+          data-testid={`${testIdPrefix}-altitude-control`}
+          data-movement-context-kind="altitude-control"
+          data-movement-altitude-control-step-count={altitudeControlStepCount}
+          data-movement-altitude-control-mp-cost={
+            movementInfo.altitudeControlMpCost ?? 0
+          }
+          {...sourceAttributes}
+        >
+          Altitude control: {altitudeControlStepLabel},{' '}
+          {movementInfo.altitudeControlMpCost ?? 0} MP
         </div>
       )}
       {pathSummaryLabel && (

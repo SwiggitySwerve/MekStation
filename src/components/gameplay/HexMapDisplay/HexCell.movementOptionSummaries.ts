@@ -106,6 +106,8 @@ function movementRangeOptionFor(
     heatGenerated: movementInfo.heatGenerated,
     conversionStepCount: movementInfo.conversionStepCount,
     conversionMpCost: movementInfo.conversionMpCost,
+    altitudeControlStepCount: movementInfo.altitudeControlStepCount,
+    altitudeControlMpCost: movementInfo.altitudeControlMpCost,
     altitudeControlRequired: movementInfo.altitudeControlRequired,
     altitudeControlMode: movementInfo.altitudeControlMode,
     altitudeControlAltitude: movementInfo.altitudeControlAltitude,
@@ -275,6 +277,26 @@ export function movementOptionConversionMpCostsAttribute(
   return conversionOptions.length > 0 ? conversionOptions.join('|') : undefined;
 }
 
+export function movementOptionAltitudeControlStepCountsAttribute(
+  options: readonly IMovementRangeModeOption[],
+): string | undefined {
+  const altitudeOptions = options
+    .filter((option) => option.altitudeControlStepCount !== undefined)
+    .map(
+      (option) => `${option.movementType}:${option.altitudeControlStepCount}`,
+    );
+  return altitudeOptions.length > 0 ? altitudeOptions.join('|') : undefined;
+}
+
+export function movementOptionAltitudeControlMpCostsAttribute(
+  options: readonly IMovementRangeModeOption[],
+): string | undefined {
+  const altitudeOptions = options
+    .filter((option) => option.altitudeControlMpCost !== undefined)
+    .map((option) => `${option.movementType}:${option.altitudeControlMpCost}`);
+  return altitudeOptions.length > 0 ? altitudeOptions.join('|') : undefined;
+}
+
 export function movementOptionAltitudeControlsAttribute(
   options: readonly IMovementRangeModeOption[],
 ): string | undefined {
@@ -345,15 +367,28 @@ function formatMovementOptionConversionDetail(
 function formatMovementOptionAltitudeControlDetail(
   option: IMovementRangeModeOption,
 ): string {
-  if (!option.altitudeControlRequired) return '';
-  const mode = option.altitudeControlMode
-    ? formatMovementModeTitleLabel(option.altitudeControlMode)
-    : 'altitude';
-  const altitude =
-    option.altitudeControlAltitude === undefined
-      ? ''
-      : ` altitude ${option.altitudeControlAltitude}`;
-  return `, ${mode}${altitude} uses altitude controls`;
+  const parts: string[] = [];
+  if (
+    option.altitudeControlStepCount !== undefined ||
+    option.altitudeControlMpCost !== undefined
+  ) {
+    const stepCount = option.altitudeControlStepCount ?? 0;
+    const stepLabel = stepCount === 1 ? '1 step' : `${stepCount} steps`;
+    parts.push(
+      `altitude control ${stepLabel} ${option.altitudeControlMpCost ?? 0} MP`,
+    );
+  }
+  if (option.altitudeControlRequired) {
+    const mode = option.altitudeControlMode
+      ? formatMovementModeTitleLabel(option.altitudeControlMode)
+      : 'altitude';
+    const altitude =
+      option.altitudeControlAltitude === undefined
+        ? ''
+        : ` altitude ${option.altitudeControlAltitude}`;
+    parts.push(`${mode}${altitude} uses altitude controls`);
+  }
+  return parts.length > 0 ? `, ${parts.join(', ')}` : '';
 }
 
 export function formatMovementOptionTitle(

@@ -2,6 +2,8 @@ import type { IMovementRangeHex } from '@/types/gameplay';
 
 import { formatMovementModeTitle } from './HexCell.movementBadges';
 import {
+  movementOptionAltitudeControlMpCostsAttribute,
+  movementOptionAltitudeControlStepCountsAttribute,
   movementOptionBlockedReasonsAttribute,
   movementOptionConversionMpCostsAttribute,
   movementOptionConversionStepCountsAttribute,
@@ -51,6 +53,16 @@ function formatMovementProjectionTitle(
     `elevation cost +${movementInfo.elevationCost ?? 0}`,
     `heat +${movementInfo.heatGenerated ?? 0}`,
   ];
+  if (
+    movementInfo.altitudeControlStepCount !== undefined ||
+    movementInfo.altitudeControlMpCost !== undefined
+  ) {
+    details.push(
+      `altitude control ${movementInfo.altitudeControlStepCount ?? 0} steps ${
+        movementInfo.altitudeControlMpCost ?? 0
+      } MP`,
+    );
+  }
   const blockedReason =
     movementInfo.movementInvalidDetails ??
     movementInfo.blockedReason ??
@@ -99,6 +111,10 @@ export function movementProjectionOverlayAttributes(
       movementInfo?.conversionStepCount,
     'data-movement-projection-conversion-mp-cost':
       movementInfo?.conversionMpCost,
+    'data-movement-projection-altitude-control-step-count':
+      movementInfo?.altitudeControlStepCount,
+    'data-movement-projection-altitude-control-mp-cost':
+      movementInfo?.altitudeControlMpCost,
     'data-movement-projection-blocked-reason': movementInfo?.blockedReason,
     'data-movement-projection-invalid-reason':
       movementInfo?.movementInvalidReason,
@@ -125,6 +141,14 @@ export function movementProjectionOverlayAttributes(
     'data-movement-projection-option-conversion-mp-costs': hasMultipleOptions
       ? movementOptionConversionMpCostsAttribute(movementOptions)
       : undefined,
+    'data-movement-projection-option-altitude-control-step-counts':
+      hasMultipleOptions
+        ? movementOptionAltitudeControlStepCountsAttribute(movementOptions)
+        : undefined,
+    'data-movement-projection-option-altitude-control-mp-costs':
+      hasMultipleOptions
+        ? movementOptionAltitudeControlMpCostsAttribute(movementOptions)
+        : undefined,
     'data-movement-projection-option-blocked-reasons': hasMultipleOptions
       ? movementOptionBlockedReasonsAttribute(movementOptions)
       : undefined,

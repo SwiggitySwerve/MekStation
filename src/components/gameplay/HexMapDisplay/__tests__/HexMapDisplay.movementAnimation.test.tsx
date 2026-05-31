@@ -1396,6 +1396,8 @@ describe('HexMapDisplay tactical visual layers', () => {
           {
             hex: { q: 1, r: 0 },
             mpCost: 4,
+            altitudeControlStepCount: 1,
+            altitudeControlMpCost: 1,
             heatGenerated: 2,
             movementMode: 'tracked',
             reachable: true,
@@ -1435,6 +1437,14 @@ describe('HexMapDisplay tactical visual layers', () => {
       'walk:0',
     );
     expect(hex).toHaveAttribute(
+      'data-movement-option-altitude-control-step-counts',
+      'run:1',
+    );
+    expect(hex).toHaveAttribute(
+      'data-movement-option-altitude-control-mp-costs',
+      'run:1',
+    );
+    expect(hex).toHaveAttribute(
       'data-movement-option-blocked-reasons',
       `jump:${blockedReason}`,
     );
@@ -1465,6 +1475,14 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(hex).toHaveAttribute(
       'aria-label',
       expect.stringContaining('movement options walk via tracked reachable'),
+    );
+    expect(hex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('run via tracked reachable 4 MP'),
+    );
+    expect(hex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('altitude control 1 steps 1 MP'),
     );
 
     expect(
@@ -1507,6 +1525,14 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(badge).toHaveAttribute(
       'data-movement-badge-option-conversion-mp-costs',
       'walk:0',
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-option-altitude-control-step-counts',
+      'run:1',
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-option-altitude-control-mp-costs',
+      'run:1',
     );
     expect(badge).toHaveAttribute(
       'data-movement-badge-option-invalid-reasons',

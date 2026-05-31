@@ -67,6 +67,8 @@ import {
 } from './HexCell.movementBadges';
 import { MovementBlockedOptionsBadge } from './HexCell.movementBlockedOptionsBadge';
 import {
+  movementOptionAltitudeControlMpCostsAttribute,
+  movementOptionAltitudeControlStepCountsAttribute,
   movementOptionCostsAttribute,
   movementOptionBlockedReasonsAttribute,
   movementOptionConversionMpCostsAttribute,
@@ -504,6 +506,12 @@ export const HexCell = React.memo(function HexCell({
       data-movement-mode={movementInfo?.movementMode}
       data-movement-conversion-step-count={movementInfo?.conversionStepCount}
       data-movement-conversion-mp-cost={movementInfo?.conversionMpCost}
+      data-movement-altitude-control-step-count={
+        movementInfo?.altitudeControlStepCount
+      }
+      data-movement-altitude-control-mp-cost={
+        movementInfo?.altitudeControlMpCost
+      }
       data-movement-option-count={
         movementOptionCount && movementOptionCount > 1
           ? movementOptionCount
@@ -537,6 +545,12 @@ export const HexCell = React.memo(function HexCell({
         movementOptions ?? [],
       )}
       data-movement-option-conversion-mp-costs={movementOptionConversionMpCostsAttribute(
+        movementOptions ?? [],
+      )}
+      data-movement-option-altitude-control-step-counts={movementOptionAltitudeControlStepCountsAttribute(
+        movementOptions ?? [],
+      )}
+      data-movement-option-altitude-control-mp-costs={movementOptionAltitudeControlMpCostsAttribute(
         movementOptions ?? [],
       )}
       data-mp-cost={movementInfo?.mpCost}

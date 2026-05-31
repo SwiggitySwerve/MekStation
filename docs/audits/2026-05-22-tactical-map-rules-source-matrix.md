@@ -876,6 +876,18 @@ VTOL altitude can climb toward MegaMek's 50-elevation ceiling, while ordinary
 WiGE climb caps at altitude 1 until building/bridge/proto/LAM-specific altitude
 gates are modeled.
 
+2026-05-31 altitude-control MP reserve pin: MegaMek `MoveStep.java:2645-2729`
+initializes movement steps to 1 MP and preserves that default for VTOL UP/DOWN
+steps, while `MovementDisplay.java:5268-5286` appends those steps for
+Climb/Descend. MekStation now records altitude-control step count and MP on the
+runtime altitude action, replays it as pending unit movement state, adds it to
+projected movement costs and remaining budget, carries the metadata through
+top-down badges/tooltips/shared projection explanations, consumes the same
+reserve during committed movement validation, and clears the reserve when the
+movement declaration replays. Full airborne pathing, clearance-specific
+UP/DOWN legality, hover/takeoff/landing sequencing, and automatic WiGE landing
+remain follow-ups.
+
 Tracked-vehicle browser update: the tactical-map browser harness now pairs the
 VTOL proof with a tracked ground-vehicle abrupt-climb scenario. The top-down map
 renders the destination elevation label, exposes `movementMode: tracked`,

@@ -93,6 +93,7 @@ import {
   resolveRuntimeMovementCapability,
   validateCommittedMovement,
 } from '@/utils/gameplay/movement';
+import { pendingAltitudeControlMovementCost } from '@/utils/gameplay/movement/altitudeControlAccounting';
 import { pendingConversionMovementCost } from '@/utils/gameplay/movement/conversionAccounting';
 import { getWeaponRangeBracket } from '@/utils/gameplay/range';
 import {
@@ -162,6 +163,7 @@ export function applyInteractiveSessionMovement(
 
   const from = unit.position;
   const pendingConversion = pendingConversionMovementCost(unit);
+  const pendingAltitudeControl = pendingAltitudeControlMovementCost(unit);
   const gridWithOccupants = gridWithUnitOccupants(
     input.grid,
     input.session.currentState.units,
@@ -336,6 +338,8 @@ export function applyInteractiveSessionMovement(
           standUpMode,
           conversionStepCount: pendingConversion.stepCount,
           conversionMpCost: pendingConversion.mpCost,
+          altitudeControlStepCount: pendingAltitudeControl.stepCount,
+          altitudeControlMpCost: pendingAltitudeControl.mpCost,
         },
       );
       session = lockMovement(session, input.unitId);
@@ -360,6 +364,8 @@ export function applyInteractiveSessionMovement(
       hullDownExitAttempt,
       conversionStepCount: pendingConversion.stepCount,
       conversionMpCost: pendingConversion.mpCost,
+      altitudeControlStepCount: pendingAltitudeControl.stepCount,
+      altitudeControlMpCost: pendingAltitudeControl.mpCost,
     },
   );
   session = lockMovement(session, input.unitId);

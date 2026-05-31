@@ -461,6 +461,10 @@ export interface IMovementRangeModeOption {
   readonly conversionStepCount?: number;
   /** MP reserved by represented conversion steps before this movement option. */
   readonly conversionMpCost?: number;
+  /** Represented altitude-control steps reserved before this movement option. */
+  readonly altitudeControlStepCount?: number;
+  /** MP reserved by represented altitude-control steps before this movement option. */
+  readonly altitudeControlMpCost?: number;
   /** True when altitude controls, not ground movement, own this option. */
   readonly altitudeControlRequired?: boolean;
   /** Altitude-control motive that owns this option, when represented. */
@@ -504,6 +508,10 @@ export interface IMovementRangeHex {
   readonly conversionStepCount?: number;
   /** MP reserved by represented conversion steps before this movement projection. */
   readonly conversionMpCost?: number;
+  /** Represented altitude-control steps reserved before this movement projection. */
+  readonly altitudeControlStepCount?: number;
+  /** MP reserved by represented altitude-control steps before this movement projection. */
+  readonly altitudeControlMpCost?: number;
   /** True when altitude controls, not ground movement, own this projection. */
   readonly altitudeControlRequired?: boolean;
   /** Altitude-control motive that owns this projection, when represented. */

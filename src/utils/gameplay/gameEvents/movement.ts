@@ -40,6 +40,8 @@ export function createMovementDeclaredEvent(
     readonly goProneAttempt?: boolean;
     readonly conversionStepCount?: number;
     readonly conversionMpCost?: number;
+    readonly altitudeControlStepCount?: number;
+    readonly altitudeControlMpCost?: number;
   },
 ): IGameEvent {
   const mode = movementAnimationModeForType(movementType);
@@ -49,6 +51,13 @@ export function createMovementDeclaredEvent(
   );
   const conversionMpCost = normalizedConversionMpCost(
     options?.conversionMpCost,
+  );
+  const altitudeControlStepCount = normalizedAltitudeControlStepCount(
+    options?.altitudeControlStepCount,
+    options?.altitudeControlMpCost,
+  );
+  const altitudeControlMpCost = normalizedAltitudeControlMpCost(
+    options?.altitudeControlMpCost,
   );
   const conversionSteps = buildConversionSteps(
     from,
@@ -67,6 +76,9 @@ export function createMovementDeclaredEvent(
     heatGenerated,
     ...(conversionStepCount > 0
       ? { conversionStepCount, conversionMpCost }
+      : {}),
+    ...(altitudeControlStepCount > 0
+      ? { altitudeControlStepCount, altitudeControlMpCost }
       : {}),
     ...(conversionSteps.length > 0 ? { steps: conversionSteps } : {}),
     ...(options?.standUpAttempt ? { standUpAttempt: true } : {}),
@@ -139,6 +151,21 @@ function normalizedConversionStepCount(
 }
 
 function normalizedConversionMpCost(mpCost: number | undefined): number {
+  if (mpCost === undefined || !Number.isFinite(mpCost)) return 0;
+  return Math.max(0, Math.floor(mpCost));
+}
+
+function normalizedAltitudeControlStepCount(
+  stepCount: number | undefined,
+  mpCost: number | undefined,
+): number {
+  if (stepCount !== undefined && Number.isFinite(stepCount)) {
+    return Math.max(0, Math.floor(stepCount));
+  }
+  return mpCost !== undefined && mpCost > 0 ? 1 : 0;
+}
+
+function normalizedAltitudeControlMpCost(mpCost: number | undefined): number {
   if (mpCost === undefined || !Number.isFinite(mpCost)) return 0;
   return Math.max(0, Math.floor(mpCost));
 }
