@@ -8,6 +8,7 @@ import {
   IMovementDeclaredPayload,
   IUnitGameState,
   LockState,
+  MovementType,
 } from '@/types/gameplay';
 import {
   movementStepsUseBackwardMovement,
@@ -24,6 +25,7 @@ export function applyMovementDeclared(
   }
   const wentProne =
     payload.steps?.some((step) => step.kind === 'goProne') ?? false;
+  const isEvadeMovement = payload.movementType === MovementType.Evade;
 
   const updatedUnit: IUnitGameState = {
     ...unit,
@@ -37,6 +39,8 @@ export function applyMovementDeclared(
     usedMechanicalJumpBoosterThisTurn: movementStepsUseMechanicalJumpBooster(
       payload.steps,
     ),
+    isEvading: isEvadeMovement,
+    evasionBonus: isEvadeMovement ? 1 : undefined,
     heat: unit.heat + payload.heatGenerated,
     prone: wentProne ? true : unit.prone,
     ...(wentProne ? { hullDown: false } : {}),

@@ -236,6 +236,32 @@ describe('translateIntentToEvents', () => {
     expect(result.reason).toBe('unowned-unit');
   });
 
+  it('translates guest-owned TacOps Evade with authoritative run-mode heat', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const move = guestForwardMove(session);
+    const intent = buildDeclareMovementIntent(GUEST_PEER, {
+      unitId: 'guest-0',
+      from: move.from,
+      to: move.to,
+      facing: move.facing,
+      movementType: MovementType.Evade,
+      mpUsed: 99,
+      heatGenerated: 99,
+    });
+
+    const result = translateIntentToEvents(intent, session, authority());
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.events[0].payload).toMatchObject({
+      unitId: 'guest-0',
+      movementType: MovementType.Evade,
+      mode: MovementType.Run,
+      mpUsed: 1,
+      heatGenerated: 4,
+    });
+  });
+
   it('translates a guest-owned stand intent into an authoritative host command', () => {
     const session = withPhase(fixtureSession(), GamePhase.Movement);
     const intent = buildStandIntent(GUEST_PEER, { unitId: 'guest-0' });
