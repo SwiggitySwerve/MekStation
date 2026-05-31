@@ -152,6 +152,9 @@ describe('BattleMech validation scope support catalog', () => {
     );
     expect(
       supportIdsByLevel(BATTLEMECH_VALIDATION_SCOPE_SUPPORT, 'helper-only'),
+    ).toEqual([]);
+    expect(
+      supportIdsByLevel(BATTLEMECH_VALIDATION_SCOPE_SUPPORT, 'out-of-scope'),
     ).toEqual(
       [
         'non-battlemech-ammo-scope',
