@@ -53,8 +53,8 @@ describe('withdrawal command intent boundary', () => {
     ).toBe(true);
 
     expect(COMBAT_COMMAND_ACTION_SUPPORT['utility.withdraw']).toMatchObject({
-      level: 'helper-only',
-      gap: expect.stringContaining('no edge-selection payload'),
+      level: 'out-of-scope',
+      gap: expect.stringContaining('superseded by the integrated'),
     });
     expect(
       COMBAT_DIRECT_UI_ACTION_SUPPORT['utility.withdraw-control'],
