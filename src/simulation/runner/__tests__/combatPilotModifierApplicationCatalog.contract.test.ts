@@ -858,6 +858,9 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
 
   it('pins Terrain Master Mountaineer rubble PSR relief to MegaMek semantics', () => {
     const mountaineerRefs = SPA_COMBAT_SUPPORT.tm_mountaineer.sourceRefs ?? [];
+    const movementRefs =
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application']
+        .sourceRefs ?? [];
 
     expect(SPA_COMBAT_SUPPORT.tm_mountaineer).toMatchObject({
       level: 'helper-only',
@@ -869,10 +872,25 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     );
     expect(mountaineerRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek Entity.checkRubbleMove applies -1 Mountaineer to entering-rubble piloting rolls.',
+      'MegaMek Terrain.movementCost applies -1 MP for Mountaineer in rough/rubble movement-cost branches.',
+      'MegaMek MoveStep applies Mountaineer as one MP less for upward elevation changes.',
       'MegaMek OptionsConstants defines Terrain Master: Mountaineer as tm_mountaineer.',
     ]);
     expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application'].gap,
+    ).toContain('Terrain Master: Mountaineer');
+    expect(movementRefs.map(({ citation }) => citation)).toEqual(
+      expect.arrayContaining([
+        'MegaMek Terrain.movementCost applies -1 MP for Mountaineer in rough/rubble movement-cost branches.',
+        'MegaMek MoveStep applies Mountaineer as one MP less for upward elevation changes.',
+        'MegaMek OptionsConstants defines PILOT_TM_MOUNTAINEER as tm_mountaineer.',
+      ]),
+    );
+    expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['psr-spa-application'].spaIds,
+    ).toEqual(expect.arrayContaining(['tm_mountaineer']));
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['movement-application'].spaIds,
     ).toEqual(expect.arrayContaining(['tm_mountaineer']));
   });
 
