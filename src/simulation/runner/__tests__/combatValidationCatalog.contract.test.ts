@@ -174,13 +174,12 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 126,
+      total: 125,
       byLevel: {
-        'helper-only': 109,
+        'helper-only': 108,
         unsupported: 17,
       },
       bySection: {
-        actions: 1,
         damageAndDeath: 2,
         featureSupport: 73,
         lifecycleAndPsr: 3,
@@ -353,11 +352,9 @@ describe('BattleMech combat validation catalog index', () => {
     expect(unresolvedRefs).not.toContain(
       'actions.physicalActionClassScope.brush-off',
     );
-    expect(
-      unresolvedRows.find(
-        (row) => row.ref === 'actions.physicalActionClassScope.break-grapple',
-      )?.level,
-    ).toBe('helper-only');
+    expect(unresolvedRefs).not.toContain(
+      'actions.physicalActionClassScope.break-grapple',
+    );
   });
 
   it('keeps non-BattleMech scope rows auditable without making them BattleMech blockers', () => {
