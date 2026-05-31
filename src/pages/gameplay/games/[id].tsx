@@ -80,6 +80,9 @@ export default function GameSessionPage(): React.ReactElement {
   const skipPhase = useGameplaySelector((state) => state.skipPhase);
   const checkGameOver = useGameplaySelector((state) => state.checkGameOver);
   const standActiveUnit = useGameplaySelector((state) => state.standActiveUnit);
+  const enterHullDownActiveUnit = useGameplaySelector(
+    (state) => state.enterHullDownActiveUnit,
+  );
   const goProneActiveUnit = useGameplaySelector(
     (state) => state.goProneActiveUnit,
   );
@@ -183,6 +186,9 @@ export default function GameSessionPage(): React.ReactElement {
         case 'stand-careful':
           standActiveUnit('careful');
           break;
+        case 'hull-down':
+          enterHullDownActiveUnit();
+          break;
         case 'go-prone':
           goProneActiveUnit();
           break;
@@ -213,6 +219,7 @@ export default function GameSessionPage(): React.ReactElement {
       setPlannedMovement,
       skipPhase,
       standActiveUnit,
+      enterHullDownActiveUnit,
       goProneActiveUnit,
       runAITurn,
       fireWeapons,

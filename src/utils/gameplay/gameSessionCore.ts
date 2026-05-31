@@ -351,6 +351,7 @@ export function declareMovement(
     readonly standUpSucceeded?: boolean;
     readonly standUpMode?: StandUpMode;
     readonly hullDownExitAttempt?: boolean;
+    readonly hullDownEntryAttempt?: boolean;
     readonly goProneAttempt?: boolean;
   },
 ): IGameSession {

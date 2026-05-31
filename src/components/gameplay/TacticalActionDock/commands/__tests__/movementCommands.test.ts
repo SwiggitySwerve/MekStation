@@ -62,6 +62,7 @@ describe('movementCommands', () => {
       'movement.jump',
       'movement.stand',
       'movement.carefulStand',
+      'movement.hullDown',
       'movement.goProne',
       'movement.stabilize',
       'movement.cancel',
@@ -402,6 +403,69 @@ describe('movementCommands', () => {
     ).toEqual({
       available: false,
       reason: 'Careful Stand is only available when prone.',
+    });
+  });
+
+  it('hull down commits a 2 MP posture action for standing Mek-style units', () => {
+    const hullDown = commands.find((c) => c.id === 'movement.hullDown')!;
+    const ctx = makeCtx({
+      activeUnitProne: false,
+      activeUnitHullDown: false,
+      movementCapability: { walkMP: 4, runMP: 6, jumpMP: 0 },
+    });
+
+    expect(hullDown.availability(ctx)).toEqual({ available: true });
+    expect(hullDown.commit(ctx)).toEqual({
+      actionId: 'hull-down',
+      payload: {},
+    });
+  });
+
+  it('hull down explains prone, existing hull-down, non-Mek, and MP blockers', () => {
+    const hullDown = commands.find((c) => c.id === 'movement.hullDown')!;
+
+    expect(hullDown.availability(makeCtx({ activeUnitProne: true }))).toEqual({
+      available: false,
+      reason: 'Unit must stand before entering hull-down.',
+    });
+    expect(
+      hullDown.availability(
+        makeCtx({
+          activeUnitProne: false,
+          activeUnitHullDown: true,
+        }),
+      ),
+    ).toEqual({
+      available: false,
+      reason: 'Unit is already hull-down.',
+    });
+    expect(
+      hullDown.availability(
+        makeCtx({
+          activeUnitProne: false,
+          movementCapability: {
+            walkMP: 4,
+            runMP: 6,
+            jumpMP: 0,
+            movementMode: 'tracked',
+            movementHeatProfile: 'none',
+          },
+        }),
+      ),
+    ).toEqual({
+      available: false,
+      reason: 'Hull-down entry is only available for Mek-style movement.',
+    });
+    expect(
+      hullDown.availability(
+        makeCtx({
+          activeUnitProne: false,
+          movementCapability: { walkMP: 1, runMP: 2, jumpMP: 0 },
+        }),
+      ),
+    ).toEqual({
+      available: false,
+      reason: 'Needs 2 MP to enter hull-down.',
     });
   });
 

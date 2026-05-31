@@ -523,6 +523,54 @@ describe('applyEvent - MovementDeclared', () => {
       hexesMovedThisTurn: 0,
     });
   });
+
+  it('should replay hull-down entry declarations as hull-down posture', () => {
+    let state = createInitialGameState('game-1');
+
+    const createEvent = createTestEvent({
+      type: GameEventType.GameCreated,
+      payload: {
+        config: createTestConfig(),
+        units: [createTestUnit()],
+      } as IGameCreatedPayload,
+    });
+    state = applyEvent(state, createEvent);
+    state = {
+      ...state,
+      units: {
+        ...state.units,
+        'unit-1': {
+          ...state.units['unit-1'],
+          hullDown: false,
+          prone: false,
+        },
+      },
+    };
+
+    const movementEvent = createTestEvent({
+      sequence: 2,
+      type: GameEventType.MovementDeclared,
+      payload: {
+        unitId: 'unit-1',
+        from: { q: 0, r: 0 },
+        to: { q: 0, r: 0 },
+        facing: Facing.North,
+        movementType: MovementType.Walk,
+        mpUsed: 2,
+        heatGenerated: 1,
+        hullDownEntryAttempt: true,
+      } as IMovementDeclaredPayload,
+    });
+
+    const newState = applyEvent(state, movementEvent);
+
+    expect(newState.units['unit-1']).toMatchObject({
+      prone: false,
+      hullDown: true,
+      movementThisTurn: MovementType.Walk,
+      hexesMovedThisTurn: 2,
+    });
+  });
 });
 
 // =============================================================================

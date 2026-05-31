@@ -14,6 +14,7 @@
  */
 
 import type { IWeapon } from '@/simulation/ai/types';
+import type { IComponentDamageState } from '@/types/gameplay';
 import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
 import type { IAttackInvalidPayload } from '@/types/gameplay/GameSessionAttackEvents';
 import type { IGameSession } from '@/types/gameplay/GameSessionInterfaces';
@@ -27,6 +28,7 @@ import type {
 } from '@/types/gameplay/IndirectFireInterfaces';
 import type { DiceRoller } from '@/utils/gameplay/diceTypes';
 
+import { getHeatMovementPenalty } from '@/constants/heat';
 import {
   calculateSwarmDamage,
   type IBALegAttackSquadDef,
@@ -65,6 +67,7 @@ import {
   attemptStandUp,
 } from '@/utils/gameplay/gameSession';
 import { appendEvent } from '@/utils/gameplay/gameSession';
+import { isGyroDestroyedForType } from '@/utils/gameplay/gyroRules';
 import { coordToKey, hexDistance, hexEquals } from '@/utils/gameplay/hexMath';
 import {
   hullDownLegWeaponBlockedReason,
@@ -80,7 +83,9 @@ import {
   calculateMovementHeat,
   gridWithUnitOccupants,
   getHullDownExitCost,
+  getMaxMP,
   getStandingCost,
+  getStandingHullDownEntryCost,
   isMekStyleHullDownExitCapability,
   resolveRuntimeMovementCapability,
   validateCommittedMovement,
@@ -102,6 +107,18 @@ import { weaponMountCoversTargetArc } from '@/utils/gameplay/weaponMountArcs';
 
 import { prepareAttackContext } from './attackContext';
 
+const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
+  engineHits: 0,
+  gyroHits: 0,
+  sensorHits: 0,
+  lifeSupport: 0,
+  cockpitHit: false,
+  actuators: {},
+  weaponsDestroyed: [],
+  heatSinksDestroyed: 0,
+  jumpJetsDestroyed: 0,
+};
+
 /**
  * Inputs for `applyInteractiveSessionMovement` — the live session, the
  * grid the pathfinder uses, and the cached per-unit movement maps.
@@ -120,6 +137,8 @@ export interface IApplyMovementInput {
   readonly diceRoller?: DiceRoller;
   /** Normal GET_UP or TacOps CAREFUL_STAND for prone stand-up attempts. */
   readonly standUpMode?: StandUpMode;
+  /** MegaMek HULL_DOWN posture transition for standing Mek-style units. */
+  readonly hullDownEntryAttempt?: boolean;
   /** MegaMek GO_PRONE posture transition from hull-down to prone. */
   readonly goProneAttempt?: boolean;
 }
@@ -172,6 +191,56 @@ export function applyInteractiveSessionMovement(
       validation.mpCost,
       validation.heatGenerated,
     );
+  }
+
+  if (input.hullDownEntryAttempt === true) {
+    const invalidHullDownEntryDetails = hullDownEntryInvalidDetails({
+      unit,
+      movementCapability,
+      from,
+      to: input.to,
+      facing: input.facing,
+      movementType: input.movementType,
+      optionalRules: input.session.config.optionalRules,
+    });
+    const hullDownEntryCost = movementCapability
+      ? getStandingHullDownEntryCost(unit, movementCapability)
+      : 0;
+    if (invalidHullDownEntryDetails) {
+      return appendInteractiveMovementInvalid(
+        input.session,
+        input.unitId,
+        from,
+        input.to,
+        input.facing,
+        input.movementType,
+        'InvalidDestination',
+        invalidHullDownEntryDetails,
+        hullDownEntryCost,
+        0,
+      );
+    }
+
+    let session = input.session;
+    session = declareMovement(
+      session,
+      input.unitId,
+      from,
+      from,
+      unit.facing,
+      MovementType.Walk,
+      hullDownEntryCost,
+      calculateMovementHeat(
+        MovementType.Walk,
+        0,
+        movementCapability?.movementMode,
+        movementCapability?.movementHeatProfile,
+      ),
+      [from],
+      { hullDownEntryAttempt: true },
+    );
+    session = lockMovement(session, input.unitId);
+    return session;
   }
 
   if (input.goProneAttempt === true) {
@@ -286,6 +355,62 @@ export function applyInteractiveSessionMovement(
   );
   session = lockMovement(session, input.unitId);
   return session;
+}
+
+function hullDownEntryInvalidDetails(input: {
+  readonly unit: IGameSession['currentState']['units'][string];
+  readonly movementCapability?: IMovementCapability;
+  readonly from: IHexCoordinate;
+  readonly to: IHexCoordinate;
+  readonly facing: Facing;
+  readonly movementType: MovementType;
+  readonly optionalRules?: readonly string[];
+}): string | null {
+  if (input.movementType !== MovementType.Walk) {
+    return 'Enter hull-down is a same-hex walk posture action';
+  }
+  if (!hexEquals(input.from, input.to) || input.facing !== input.unit.facing) {
+    return 'Enter hull-down must stay in the current hex and facing';
+  }
+  if (input.unit.prone === true) {
+    return 'Unit must be standing before entering hull-down';
+  }
+  if (input.unit.hullDown === true) {
+    return 'Unit is already hull-down';
+  }
+  if (
+    !input.movementCapability ||
+    !isMekStyleHullDownExitCapability(input.movementCapability)
+  ) {
+    return 'Hull-down entry is only available for Mek-style movement';
+  }
+  if (
+    isGyroDestroyedForType(
+      input.unit.componentDamage ?? DEFAULT_COMPONENT_DAMAGE,
+      input.unit.gyroType,
+      { optionalRules: input.optionalRules },
+    )
+  ) {
+    return 'Cannot enter hull-down with a destroyed gyro';
+  }
+
+  const hullDownEntryCost = getStandingHullDownEntryCost(
+    input.unit,
+    input.movementCapability,
+  );
+  const heatPenalty = getHeatMovementPenalty(input.unit.heat);
+  const effectiveWalkMP = getMaxMP(
+    input.movementCapability,
+    MovementType.Walk,
+    heatPenalty,
+  );
+  if (effectiveWalkMP < hullDownEntryCost) {
+    return heatPenalty > 0
+      ? `Needs ${hullDownEntryCost} MP to enter hull-down after heat penalty`
+      : `Needs ${hullDownEntryCost} MP to enter hull-down`;
+  }
+
+  return null;
 }
 
 function hullDownGoProneInvalidDetails(input: {

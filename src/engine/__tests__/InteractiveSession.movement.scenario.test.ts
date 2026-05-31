@@ -2770,6 +2770,147 @@ describe('applyInteractiveSessionMovement', () => {
     });
   });
 
+  it('commits standing HULL_DOWN as a same-hex 2 MP posture action', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      hullDown: false,
+      prone: false,
+    };
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid: makeGrid(),
+      movementByUnit: capability({ walkMP: 4, runMP: 6 }),
+      unitId: 'm1',
+      to: { q: 0, r: 0 },
+      facing: Facing.North,
+      movementType: MovementType.Walk,
+      path: [{ q: 0, r: 0 }],
+      hullDownEntryAttempt: true,
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      from: { q: 0, r: 0 },
+      to: { q: 0, r: 0 },
+      movementType: MovementType.Walk,
+      mpUsed: 2,
+      heatGenerated: 1,
+      path: [{ q: 0, r: 0 }],
+      hullDownEntryAttempt: true,
+      steps: [
+        {
+          kind: 'hullDown',
+          index: 0,
+          at: { q: 0, r: 0 },
+          mpCost: 2,
+        },
+      ],
+    });
+    expect(
+      result.events.some((event) => event.type === GameEventType.UnitStood),
+    ).toBe(false);
+    expect(result.currentState.units.m1).toMatchObject({
+      hullDown: true,
+      prone: false,
+      lockState: LockState.Locked,
+    });
+  });
+
+  it('rejects HULL_DOWN entry for non-Mek-style movement profiles', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      hullDown: false,
+      prone: false,
+    };
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid: makeGrid(),
+      movementByUnit: capability({
+        walkMP: 4,
+        runMP: 6,
+        movementMode: 'tracked',
+        movementHeatProfile: 'none',
+      }),
+      unitId: 'm1',
+      to: { q: 0, r: 0 },
+      facing: Facing.North,
+      movementType: MovementType.Walk,
+      path: [{ q: 0, r: 0 }],
+      hullDownEntryAttempt: true,
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.MovementDeclared,
+      ),
+    ).toBe(false);
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.MovementLocked,
+      ),
+    ).toBe(false);
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.MovementInvalid,
+    );
+    expect(invalid!.payload as IMovementInvalidPayload).toMatchObject({
+      unitId: 'm1',
+      reason: 'InvalidDestination',
+      details: 'Hull-down entry is only available for Mek-style movement',
+      mpCost: 0,
+      heatGenerated: 0,
+    });
+  });
+
+  it('rejects HULL_DOWN entry with a destroyed gyro', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      hullDown: false,
+      prone: false,
+      componentDamage: {
+        engineHits: 0,
+        gyroHits: 2,
+        sensorHits: 0,
+        lifeSupport: 0,
+        cockpitHit: false,
+        actuators: {},
+        weaponsDestroyed: [],
+        heatSinksDestroyed: 0,
+        jumpJetsDestroyed: 0,
+      },
+    };
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid: makeGrid(),
+      movementByUnit: capability({ walkMP: 4, runMP: 6 }),
+      unitId: 'm1',
+      to: { q: 0, r: 0 },
+      facing: Facing.North,
+      movementType: MovementType.Walk,
+      path: [{ q: 0, r: 0 }],
+      hullDownEntryAttempt: true,
+    });
+
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.MovementInvalid,
+    );
+    expect(invalid!.payload as IMovementInvalidPayload).toMatchObject({
+      unitId: 'm1',
+      reason: 'InvalidDestination',
+      details: 'Cannot enter hull-down with a destroyed gyro',
+      mpCost: 2,
+      heatGenerated: 0,
+    });
+  });
+
   it('commits hull-down GO_PRONE as a same-hex 0 MP posture action', () => {
     const session = setupSessionAtMovement();
     session.currentState.units.m1 = {

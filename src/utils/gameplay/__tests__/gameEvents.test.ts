@@ -569,6 +569,41 @@ describe('Movement Event Factories', () => {
         ],
       });
     });
+
+    it('should serialize a hull-down entry posture step', () => {
+      const position = { q: 0, r: 0 };
+      const event = createMovementDeclaredEvent(
+        'game-1',
+        10,
+        1,
+        'unit-1',
+        position,
+        position,
+        Facing.North,
+        MovementType.Walk,
+        2,
+        1,
+        [position],
+        { hullDownEntryAttempt: true },
+      );
+      const payload = event.payload as IMovementDeclaredPayload;
+
+      expect(payload).toMatchObject({
+        hullDownEntryAttempt: true,
+        hexesMoved: 0,
+        straightHexes: 0,
+        turningMpCost: 0,
+        netDisplacement: 0,
+        steps: [
+          {
+            kind: 'hullDown',
+            index: 0,
+            at: position,
+            mpCost: 2,
+          },
+        ],
+      });
+    });
   });
 
   describe('createMovementLockedEvent', () => {

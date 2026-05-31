@@ -244,6 +244,52 @@ export function standActiveUnitLogic(
 }
 
 /**
+ * Commit MegaMek's standing HULL_DOWN posture transition as a same-hex
+ * walking movement declaration. The engine owns MP/heat legality and rejects
+ * non-Mek-style or damaged-gyro branches before state changes.
+ */
+export function enterHullDownActiveUnitLogic(get: GetFn, set: SetFn): void {
+  const { interactiveSession, ui } = get();
+  if (!interactiveSession || !ui.selectedUnitId) return;
+
+  const unitId = ui.selectedUnitId;
+  const beforeSession = interactiveSession.getSession();
+  const unitState = beforeSession.currentState.units[unitId];
+  if (!unitState || unitState.prone === true || unitState.hullDown === true) {
+    return;
+  }
+
+  const beforeEventCount = beforeSession.events.length;
+  interactiveSession.applyMovement(
+    unitId,
+    unitState.position,
+    unitState.facing,
+    MovementType.Walk,
+    [unitState.position],
+    undefined,
+    { hullDownEntryAttempt: true },
+  );
+
+  const nextSession = interactiveSession.getSession();
+  const declared = nextSession.events
+    .slice(beforeEventCount)
+    .some((event) => event.type === GameEventType.MovementDeclared);
+
+  if (!declared) {
+    set({ session: nextSession, plannedMovement: null });
+    return;
+  }
+
+  set({
+    session: nextSession,
+    interactivePhase: InteractivePhase.SelectUnit,
+    plannedMovement: null,
+    validMovementHexes: [],
+    ui: { ...get().ui, selectedUnitId: null },
+  });
+}
+
+/**
  * Commit MegaMek's 0 MP GO_PRONE posture transition from hull-down to prone.
  * This uses `MovementDeclared` so replay, lock-state, and map state all share
  * the same authoritative path as ordinary movement actions.

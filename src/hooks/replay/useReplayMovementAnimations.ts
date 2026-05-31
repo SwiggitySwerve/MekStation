@@ -235,7 +235,8 @@ function enqueueMovementForEvent(
  * Translate a single `IMovementStep` into the matching
  * `TacticalAnimation` payload for `useAnimationQueue.enqueue`. Returns
  * `null` for steps that should not produce a queue entry (state-
- * transition kinds like `standUp` / `goProne` / charge / DFA / swarm).
+ * transition kinds like `standUp` / `hullDown` / `goProne` / charge / DFA /
+ * swarm).
  */
 function animationForStep(
   step: IMovementStep,
@@ -313,6 +314,7 @@ function animationForStep(
     // state (prone / standing / charging / DFA / swarm), not by an
     // interpolated tween. Skip silently per the spec contract.
     case 'standUp':
+    case 'hullDown':
     case 'goProne':
     case 'chargeDeclared':
     case 'dfaDeclared':

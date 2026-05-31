@@ -4,6 +4,8 @@ import { MovementType } from '@/types/gameplay';
 
 import { getStandingCost } from './validation';
 
+export const STANDING_HULL_DOWN_ENTRY_MP_COST = 2;
+
 export function isMekStyleHullDownExitCapability(
   capability: IMovementCapability,
 ): boolean {
@@ -38,4 +40,19 @@ export function getHullDownExitCost(
   }
 
   return getStandingCost(capability);
+}
+
+export function getStandingHullDownEntryCost(
+  unit: IUnitGameState,
+  capability: IMovementCapability,
+): number {
+  if (
+    unit.prone ||
+    unit.hullDown ||
+    !isMekStyleHullDownExitCapability(capability)
+  ) {
+    return 0;
+  }
+
+  return STANDING_HULL_DOWN_ENTRY_MP_COST;
 }

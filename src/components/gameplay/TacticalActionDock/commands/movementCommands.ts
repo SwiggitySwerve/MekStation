@@ -31,6 +31,7 @@ import {
   getStandingCost,
   isMekStyleHullDownExitCapability,
   movementDeclarationLockInvalidState,
+  STANDING_HULL_DOWN_ENTRY_MP_COST,
 } from '@/utils/gameplay/movement';
 
 /**
@@ -47,6 +48,7 @@ export function buildMovementCommands(): readonly ITacticalCommand[] {
     MovementJumpCommand,
     MovementStandCommand,
     MovementCarefulStandCommand,
+    MovementHullDownCommand,
     MovementGoProneCommand,
     MovementStabilizeCommand,
     MovementCancelCommand,
@@ -343,6 +345,59 @@ const MovementCarefulStandCommand: ITacticalCommand = {
   },
   commit() {
     return { actionId: 'stand-careful', payload: { mode: 'careful' } };
+  },
+};
+
+const MovementHullDownCommand: ITacticalCommand = {
+  id: 'movement.hullDown',
+  category: 'movement',
+  label: 'Hull Down',
+  phaseConstraints: [GamePhase.Movement],
+  requiresConfirmation: false,
+  undoable: true,
+  availability(ctx) {
+    if (!ctx.activeUnitId)
+      return { available: false, reason: 'No unit is active.' };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    const locked = movementDeclarationLockInvalidState(ctx.activeUnitLockState);
+    if (locked) return { available: false, reason: locked.details };
+    if (ctx.activeUnitProne === true) {
+      return {
+        available: false,
+        reason: 'Unit must stand before entering hull-down.',
+      };
+    }
+    if (ctx.activeUnitHullDown === true) {
+      return { available: false, reason: 'Unit is already hull-down.' };
+    }
+    if (!ctx.movementCapability) {
+      return { available: false, reason: 'No movement capability.' };
+    }
+    if (!isMekStyleHullDownExitCapability(ctx.movementCapability)) {
+      return {
+        available: false,
+        reason: 'Hull-down entry is only available for Mek-style movement.',
+      };
+    }
+    const heatPenalty = getHeatMovementPenalty(ctx.activeUnitHeat ?? 0);
+    const effectiveWalkMP = getMaxMP(
+      ctx.movementCapability,
+      MovementType.Walk,
+      heatPenalty,
+    );
+    if (effectiveWalkMP < STANDING_HULL_DOWN_ENTRY_MP_COST) {
+      return {
+        available: false,
+        reason:
+          heatPenalty > 0
+            ? `Needs ${STANDING_HULL_DOWN_ENTRY_MP_COST} MP to enter hull-down after heat penalty.`
+            : `Needs ${STANDING_HULL_DOWN_ENTRY_MP_COST} MP to enter hull-down.`,
+      };
+    }
+    return { available: true };
+  },
+  commit() {
+    return { actionId: 'hull-down', payload: {} };
   },
 };
 

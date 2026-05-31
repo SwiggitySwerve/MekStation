@@ -40,6 +40,7 @@ import {
   clearPlannedMovementLogic,
   commitAttackLogic,
   commitPlannedMovementLogic,
+  enterHullDownActiveUnitLogic,
   getAttackPlanFor,
   goProneActiveUnitLogic,
   setAttackTargetLogic,
@@ -211,6 +212,8 @@ interface GameplayActions {
   commitPlannedMovement: () => void;
   /** Commit a zero-hex stand-up movement for the selected prone unit. */
   standActiveUnit: (standUpMode?: StandUpMode) => void;
+  /** Commit a zero-hex hull-down entry movement for the selected standing unit. */
+  enterHullDownActiveUnit: () => void;
   /** Commit a zero-hex go-prone movement for the selected hull-down unit. */
   goProneActiveUnit: () => void;
   /**
@@ -452,6 +455,7 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   clearPlannedMovement: () => clearPlannedMovementLogic(set),
   commitPlannedMovement: () => commitPlannedMovementLogic(get, set),
   standActiveUnit: (standUpMode) => standActiveUnitLogic(get, set, standUpMode),
+  enterHullDownActiveUnit: () => enterHullDownActiveUnitLogic(get, set),
   goProneActiveUnit: () => goProneActiveUnitLogic(get, set),
   setAttackTarget: (unitId) => setAttackTargetLogic(unitId, set),
   togglePlannedWeapon: (weaponId) => togglePlannedWeaponLogic(weaponId, set),

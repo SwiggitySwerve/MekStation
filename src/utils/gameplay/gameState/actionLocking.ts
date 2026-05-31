@@ -18,21 +18,25 @@ export function applyMovementDeclared(
   }
 
   const prone =
-    payload.goProneAttempt === true
-      ? true
-      : payload.standUpAttempt === true
-        ? payload.standUpSucceeded !== true
-        : unit.prone && payload.movementType !== MovementType.Stationary
-          ? false
-          : unit.prone;
-  const hullDown =
-    payload.goProneAttempt === true
+    payload.hullDownEntryAttempt === true
       ? false
-      : payload.hullDownExitAttempt === true
+      : payload.goProneAttempt === true
+        ? true
+        : payload.standUpAttempt === true
+          ? payload.standUpSucceeded !== true
+          : unit.prone && payload.movementType !== MovementType.Stationary
+            ? false
+            : unit.prone;
+  const hullDown =
+    payload.hullDownEntryAttempt === true
+      ? true
+      : payload.goProneAttempt === true
         ? false
-        : payload.standUpAttempt === true && payload.standUpSucceeded === true
+        : payload.hullDownExitAttempt === true
           ? false
-          : unit.hullDown;
+          : payload.standUpAttempt === true && payload.standUpSucceeded === true
+            ? false
+            : unit.hullDown;
 
   const updatedUnit: IUnitGameState = {
     ...unit,

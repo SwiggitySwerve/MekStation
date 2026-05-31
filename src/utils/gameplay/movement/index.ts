@@ -23,7 +23,9 @@ export {
 } from './validation';
 export {
   getHullDownExitCost,
+  getStandingHullDownEntryCost,
   isMekStyleHullDownExitCapability,
+  STANDING_HULL_DOWN_ENTRY_MP_COST,
 } from './hullDownExit';
 export {
   validateCommittedMovement,

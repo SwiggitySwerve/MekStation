@@ -56,6 +56,11 @@ export interface IMovementDeclaredPayload {
    */
   readonly hullDownExitAttempt?: boolean;
   /**
+   * True when this declaration represents MegaMek's standing `HULL_DOWN`
+   * posture transition into hull-down.
+   */
+  readonly hullDownEntryAttempt?: boolean;
+  /**
    * True when this declaration represents MegaMek's legal 0 MP
    * GO_PRONE posture transition from hull-down to prone.
    */
@@ -71,7 +76,7 @@ export interface IMovementDeclaredPayload {
   /**
    * Per the same delta: hexes entered without a facing change in the
    * same step (forward + backward + lateral, excluding turns and
-   * stand-up / go-prone steps). Used by the readable-companion formatter
+   * posture steps). Used by the readable-companion formatter
    * to render `mp=N(s<sh>+t<th>)` with the straight-vs-turning split.
    */
   readonly straightHexes?: number;
@@ -203,6 +208,13 @@ export interface IGoProneStep {
   readonly mpCost: number;
 }
 
+export interface IHullDownStep {
+  readonly kind: 'hullDown';
+  readonly index: number;
+  readonly at: IHexCoordinate;
+  readonly mpCost: number;
+}
+
 export interface IChargeDeclaredStep {
   readonly kind: 'chargeDeclared';
   readonly index: number;
@@ -238,6 +250,7 @@ export type IMovementStep =
   | IJumpStep
   | IStandUpStep
   | IGoProneStep
+  | IHullDownStep
   | IChargeDeclaredStep
   | IDfaDeclaredStep
   | IShakeOffSwarmStep;

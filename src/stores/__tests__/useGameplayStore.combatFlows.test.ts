@@ -45,7 +45,10 @@ interface FakeSessionCalls {
     facing: Facing;
     type: MovementType;
     path?: readonly { q: number; r: number }[];
-    options?: { readonly goProneAttempt?: boolean };
+    options?: {
+      readonly hullDownEntryAttempt?: boolean;
+      readonly goProneAttempt?: boolean;
+    };
   }>;
   attacks: Array<{
     attackerId: string;
@@ -318,7 +321,10 @@ function buildStandFakeSession(
       type: MovementType,
       path?: readonly { q: number; r: number }[],
       _standUpMode?: 'normal' | 'careful',
-      options?: { readonly goProneAttempt?: boolean },
+      options?: {
+        readonly hullDownEntryAttempt?: boolean;
+        readonly goProneAttempt?: boolean;
+      },
     ) => {
       calls.movement.push({
         unitId,
@@ -346,14 +352,22 @@ function buildStandFakeSession(
           mpUsed: 2,
           heatGenerated: 1,
           path,
+          ...(options?.hullDownEntryAttempt
+            ? { hullDownEntryAttempt: true }
+            : {}),
           ...(options?.goProneAttempt ? { goProneAttempt: true } : {}),
         },
       } as IGameEvent);
+      const hullDownEntryAttempt = options?.hullDownEntryAttempt === true;
       const goProneAttempt = options?.goProneAttempt === true;
       snapshot.currentState.units['unit-a'] = {
         ...snapshot.currentState.units['unit-a'],
         prone: goProneAttempt ? true : false,
-        hullDown: goProneAttempt ? false : hullDown,
+        hullDown: hullDownEntryAttempt
+          ? true
+          : goProneAttempt
+            ? false
+            : hullDown,
       };
     },
     getSession: () => snapshot,
@@ -725,6 +739,63 @@ describe('useGameplayStore — combat-phase planning actions', () => {
       });
 
       useGameplayStore.getState().standActiveUnit();
+
+      expect(calls.movement).toHaveLength(0);
+      expect(useGameplayStore.getState().ui.selectedUnitId).toBe('unit-a');
+    });
+
+    it('enterHullDownActiveUnit commits a same-hex walk hull-down action', () => {
+      const { session, calls, snapshot } = buildStandFakeSession(false);
+      useGameplayStore.setState({
+        interactiveSession: session,
+        session: snapshot,
+        plannedMovement: {
+          destination: { q: 2, r: 0 },
+          facing: Facing.South,
+          movementType: MovementType.Walk,
+          path: [
+            { q: 0, r: 0 },
+            { q: 1, r: 0 },
+            { q: 2, r: 0 },
+          ],
+        },
+        ui: {
+          ...useGameplayStore.getState().ui,
+          selectedUnitId: 'unit-a',
+        },
+      });
+
+      useGameplayStore.getState().enterHullDownActiveUnit();
+
+      expect(calls.movement).toEqual([
+        {
+          unitId: 'unit-a',
+          to: { q: 0, r: 0 },
+          facing: Facing.North,
+          type: MovementType.Walk,
+          path: [{ q: 0, r: 0 }],
+          options: { hullDownEntryAttempt: true },
+        },
+      ]);
+      expect(useGameplayStore.getState().plannedMovement).toBeNull();
+      expect(useGameplayStore.getState().ui.selectedUnitId).toBeNull();
+      expect(snapshot.currentState.units['unit-a']).toMatchObject({
+        prone: false,
+        hullDown: true,
+      });
+    });
+
+    it('enterHullDownActiveUnit is a no-op when the selected unit is prone', () => {
+      const { session, calls } = buildStandFakeSession(true);
+      useGameplayStore.setState({
+        interactiveSession: session,
+        ui: {
+          ...useGameplayStore.getState().ui,
+          selectedUnitId: 'unit-a',
+        },
+      });
+
+      useGameplayStore.getState().enterHullDownActiveUnit();
 
       expect(calls.movement).toHaveLength(0);
       expect(useGameplayStore.getState().ui.selectedUnitId).toBe('unit-a');
