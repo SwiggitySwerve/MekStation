@@ -3414,6 +3414,35 @@ describe('physicalAttacks', () => {
       );
     });
 
+    it('removes only the claw punch to-hit modifier when PLAYTEST_3 is enabled', () => {
+      const toHit = calculatePunchToHit(
+        makeInput({
+          pilotingSkill: 5,
+          arm: 'left',
+          leftArmHasClaw: true,
+          optionalRules: ['PLAYTEST_3'],
+        }),
+      );
+      const damage = calculatePunchDamage(
+        makeInput({
+          attackerTonnage: 55,
+          arm: 'left',
+          leftArmHasClaw: true,
+          optionalRules: ['PLAYTEST_3'],
+        }),
+      );
+
+      expect(toHit.finalToHit).toBe(5);
+      expect(toHit.modifiers).toContainEqual(
+        expect.objectContaining({
+          name: 'Using Claws',
+          value: 0,
+          source: 'physical-equipment',
+        }),
+      );
+      expect(damage).toBe(8);
+    });
+
     it('uses claws instead of a destroyed hand actuator modifier', () => {
       const result = calculatePunchToHit(
         makeInput({
