@@ -165,6 +165,7 @@ export function validateMovement(
 function toUnitMovementType(movementType: MovementType): UnitMovementType {
   switch (movementType) {
     case MovementType.Run:
+    case MovementType.Evade:
       return 'run';
     case MovementType.Jump:
       return 'jump';

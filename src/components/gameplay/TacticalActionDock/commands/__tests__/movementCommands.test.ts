@@ -30,11 +30,12 @@ function makeCtx(
 describe('movementCommands', () => {
   const commands = buildMovementCommands();
 
-  it('exposes walk / run / jump / stand / go-prone / boosters / stabilize / cancel', () => {
+  it('exposes walk / run / evade / jump / stand / go-prone / boosters / stabilize / cancel', () => {
     const ids = commands.map((c) => c.id);
     expect(ids).toEqual([
       'movement.walk',
       'movement.run',
+      'movement.evade',
       'movement.jump',
       'movement.stand',
       'movement.go-prone',
@@ -93,6 +94,14 @@ describe('movementCommands', () => {
     expect(jump.commit(makeCtx())).toEqual({
       actionId: 'lock',
       payload: { mode: 'jump' },
+    });
+  });
+
+  it('evade commit produces a lock actionId with mode=evade', () => {
+    const evade = commands.find((c) => c.id === 'movement.evade')!;
+    expect(evade.commit(makeCtx())).toEqual({
+      actionId: 'lock',
+      payload: { mode: 'evade' },
     });
   });
 
