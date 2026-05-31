@@ -176,8 +176,8 @@ describe('BattleMech combat validation catalog index', () => {
     }).toEqual({
       total: 132,
       byLevel: {
-        'helper-only': 109,
-        unsupported: 23,
+        'helper-only': 110,
+        unsupported: 22,
       },
       bySection: {
         actions: 7,
@@ -320,6 +320,14 @@ describe('BattleMech combat validation catalog index', () => {
     expect(unresolvedRefs).toContain(
       'featureSupport.pilotAbilities.multi-target',
     );
+    expect(unsupportedRefs).not.toContain(
+      'actions.physicalActionClassScope.trip',
+    );
+    expect(
+      unresolvedRows.find(
+        (row) => row.ref === 'actions.physicalActionClassScope.trip',
+      )?.level,
+    ).toBe('helper-only');
   });
 
   it('keeps non-BattleMech scope rows auditable without making them BattleMech blockers', () => {

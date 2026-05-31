@@ -64,6 +64,25 @@ const MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS = {
   ],
 } satisfies Record<string, readonly ICombatFeatureSourceReference[]>;
 
+const MEKSTATION_PHYSICAL_ACTION_HELPER_REFS = {
+  trip: [
+    {
+      kind: 'mekstation-deviation',
+      citation:
+        'MekStation canTrip exposes source-backed trip attack legality gates as helper-only coverage without adding a runtime PhysicalAttackType.',
+      url: 'src/utils/gameplay/physicalAttacks/tripEligibility.ts#L47-L136',
+      sourceVersion: 'MekStation working-tree',
+    },
+    {
+      kind: 'mekstation-deviation',
+      citation:
+        'MekStation physical attack tests cover source-backed canTrip gates and the Trip base to-hit adjustment.',
+      url: 'src/utils/gameplay/__tests__/physicalAttacks.test.ts#L1474-L1534',
+      sourceVersion: 'MekStation working-tree',
+    },
+  ],
+} satisfies Record<string, readonly ICombatFeatureSourceReference[]>;
+
 const MEGAMEK_SUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS = {
   punch: [
     megamekPhysicalActionRef(
@@ -198,6 +217,25 @@ function unsupportedBattleMech(
   return sourceRefs ? { ...entry, sourceRefs } : entry;
 }
 
+function helperOnlyBattleMech(
+  id: string,
+  sourceClass: string,
+  evidence: string,
+  gap: string,
+  sourceRefs: readonly ICombatFeatureSourceReference[],
+): IPhysicalActionClassScopeEntry {
+  return {
+    id,
+    sourceClass,
+    sourcePath: `E:/Projects/megamek/megamek/src/megamek/common/actions/${sourceClass}.java`,
+    battleMechScope: 'battlemech',
+    level: 'helper-only',
+    evidence,
+    gap,
+    sourceRefs,
+  };
+}
+
 function outOfScope(
   id: string,
   sourceClass: string,
@@ -293,11 +331,15 @@ export const PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT = {
     'Prone BattleMech thrash attacks against infantry have no runtime PhysicalAttackType, tactical command, or resolution path',
     MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS.thrash,
   ),
-  trip: unsupportedBattleMech(
+  trip: helperOnlyBattleMech(
     'trip',
     'TripAttackAction',
-    'Trip attacks have no runtime PhysicalAttackType, tactical command, or resolution path',
-    MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS.trip,
+    'canTrip helper coverage applies source-backed optional TacOps trip legality gates and exposes the Trip base to-hit adjustment',
+    'Trip attacks still have no runtime PhysicalAttackType, tactical command, event-sourced declaration, or resolution path',
+    [
+      ...MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS.trip,
+      ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS.trip,
+    ],
   ),
   grapple: unsupportedBattleMech(
     'grapple',
