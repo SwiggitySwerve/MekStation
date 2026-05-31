@@ -515,6 +515,17 @@ export function calculatePhysicalDamage(
         hitTable: 'punch',
         targetDisplaced: true,
       };
+    case 'trip':
+      return {
+        targetDamage: 0,
+        attackerDamage: 0,
+        attackerLegDamagePerLeg: 0,
+        targetPSR: true,
+        attackerPSR: false,
+        attackerPSRModifier: 0,
+        hitTable: 'punch',
+        targetDisplaced: false,
+      };
     case 'hatchet':
       return {
         targetDamage: calculateHatchetDamage(input),
