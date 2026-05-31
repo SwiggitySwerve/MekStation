@@ -366,7 +366,7 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
     ),
     movementEnhancements: triad(
       'entry-source-refs',
-      'Movement enhancement rows are source-backed MASC, Supercharger, TSM, and Partial Wing boundaries and must carry row-level sourceRefs.',
+      'Movement enhancement rows are source-backed MASC, Supercharger, TSM, Partial Wing, and remaining MASC/Supercharger side-path boundaries and must carry row-level sourceRefs.',
       RULE_REFS,
     ),
     terrainEnvironment: TERRAIN_ENVIRONMENT_TRIAD,

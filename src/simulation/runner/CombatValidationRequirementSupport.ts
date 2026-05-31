@@ -761,8 +761,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'movement-enhancements': helperOnly(
     'movement-enhancements',
-    'Movement enhancement support catalogs MASC, supercharger, source-backed replayable activation, source-backed active TSM movement validation, source-backed standard MASC/Supercharger fixed failure target numbers, automatic prior-use counter advance/decay at runner turn reset, and source-backed Partial Wing jump MP/heat validation against combat movement behavior',
-    'MASC and supercharger remain helper-only until MovementType.Sprint, alternate MASC option tables, IndustrialMek/support-unit supercharger roll adjustment, separate first-step equipment-check timing, and non-BattleMech Supercharger motive-damage branches are wired; Partial Wing atmosphere and damaged critical-slot lifecycle refinements remain explicit gaps until combat state hydrates them',
+    'Movement enhancement support catalogs integrated core MASC and Supercharger active-run, activation, failure-PSR, Edge-reroll, failure-damage, and prior-use lifecycle behavior, source-backed active TSM movement validation, source-backed Partial Wing jump MP/heat validation, and separate helper-only MASC/Supercharger side-path rows',
+    'MASC and Supercharger side paths remain helper-only until MovementType.Sprint, alternate MASC option tables, IndustrialMek/support-unit Supercharger roll adjustment, separate first-step equipment-check timing, and non-BattleMech Supercharger motive-damage branches are wired; Partial Wing atmosphere and damaged critical-slot lifecycle refinements remain explicit gaps until combat state hydrates them',
     MOVEMENT_ENHANCEMENT_SUPPORT_REFS,
   ),
   'heat-generation': integrated(
@@ -973,8 +973,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'psr-trigger-catalog': helperOnly(
     'psr-trigger-catalog',
-    'PSR trigger support catalogs damage, leg/actuator/gyro/engine, kicked, charged, DFA, pushed, shutdown, standing, terrain, skid, MASC, and supercharger triggers, including source-backed standard MASC/Supercharger fixed failure target numbers plus automatic prior-use counter advance/decay at runner turn reset',
-    'Building-collapse remains helper-only; swamp bog-down is tracked as a terrain/stuck-state gap rather than a fall PSR; MASC and supercharger still lack alternate MASC option tables, IndustrialMek/support-unit supercharger roll adjustment, separate first-step equipment-check timing, and non-BattleMech Supercharger motive-damage branches after runner movement queues explicit active-run triggers',
+    'PSR trigger support catalogs damage, leg/actuator/gyro/engine, kicked, charged, DFA, pushed, shutdown, standing, terrain, skid, MASC, and Supercharger triggers, including source-backed standard MASC/Supercharger fixed failure target numbers plus automatic prior-use counter advance/decay at runner turn reset',
+    'Building-collapse remains helper-only; swamp bog-down is tracked as a terrain/stuck-state gap rather than a fall PSR; MASC and Supercharger side paths still lack alternate MASC option tables, IndustrialMek/support-unit Supercharger roll adjustment, separate first-step equipment-check timing, and non-BattleMech Supercharger motive-damage branches after runner movement queues explicit active-run triggers',
     PSR_TRIGGER_SUPPORT_REFS,
   ),
   'turn-rotation-removal': integrated(

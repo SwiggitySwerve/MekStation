@@ -198,10 +198,18 @@ describe('BattleMech combat validation catalog index', () => {
         'featureSupport.physicalWeapons.claws',
         'featureSupport.physicalWeapons.talons',
         'pilotSkills.pilotModifierResolvers.edge-application',
+        'ruleSupport.movementEnhancements.masc-side-paths',
+        'ruleSupport.movementEnhancements.supercharger-side-paths',
         'ruleSupport.movementRules.go-prone-side-paths',
         'ruleSupport.physicalDamageModifiers.claw-equipment-lifecycle',
         'ruleSupport.physicalDamageModifiers.talon-equipment-lifecycle',
       ]),
+    );
+    expect(unresolvedRefs).not.toContain(
+      'ruleSupport.movementEnhancements.MASC',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'ruleSupport.movementEnhancements.Supercharger',
     );
     expect(unresolvedRefs).not.toContain(
       'ruleSupport.physicalDamageModifiers.claws',
@@ -702,7 +710,9 @@ describe('BattleMech combat validation catalog index', () => {
         'gunnery',
         'terrain-movement-costs',
         'MASC',
+        'masc-side-paths',
         'Supercharger',
+        'supercharger-side-paths',
         'Triple-Strength Myomer',
         'Partial Wing',
         'tsm',
