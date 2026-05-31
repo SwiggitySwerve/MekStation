@@ -24,7 +24,9 @@ import {
   UPPER_LEG_KICK_MODIFIER,
   WRECKING_BALL_TO_HIT_MODIFIER,
 } from './constants';
+import { getJumpJetAttackToHitModifiers } from './jumpJetAttackEligibility';
 import {
+  canJumpJetAttackPhysical,
   canCharge,
   canDFA,
   canKick,
@@ -245,6 +247,16 @@ function appendBattleFistModifier(
     value: modifier,
     source: 'quirk',
   });
+}
+
+function jumpJetTargetObjectIsAutomaticSuccess(
+  input: IPhysicalAttackInput,
+): boolean {
+  return (
+    input.targetObjectType === 'building' ||
+    input.targetObjectType === 'fuelTank' ||
+    input.targetObjectType === 'gunEmplacement'
+  );
 }
 
 export function calculatePunchToHit(
@@ -611,6 +623,66 @@ export function calculateThrashToHit(
   };
 }
 
+export function calculateJumpJetAttackToHit(
+  input: IPhysicalAttackInput,
+): IPhysicalToHitResult {
+  const restriction = canJumpJetAttackPhysical(input);
+  if (!restriction.allowed) {
+    return {
+      baseToHit: input.pilotingSkill,
+      finalToHit: Infinity,
+      modifiers: [],
+      allowed: false,
+      restrictionReason: restriction.reason,
+      restrictionReasonCode: restriction.reasonCode,
+    };
+  }
+
+  const jumpJetModifiers = getJumpJetAttackToHitModifiers({
+    attackerProne: input.attackerProne,
+    targetIsBuildingFuelTankOrGunEmplacement:
+      jumpJetTargetObjectIsAutomaticSuccess(input),
+  });
+  if (jumpJetModifiers.automaticSuccess) {
+    return {
+      baseToHit: input.pilotingSkill,
+      finalToHit: AUTOMATIC_SUCCESS_TO_HIT,
+      modifiers: [
+        {
+          name: jumpJetModifiers.automaticSuccessReason ?? 'Jump Jet Attack',
+          value: 0,
+          source: 'physical-action',
+        },
+      ],
+      allowed: true,
+      automaticHit: true,
+      automaticHitReason: jumpJetModifiers.automaticSuccessReason,
+    };
+  }
+
+  const modifiers: IPhysicalModifier[] = jumpJetModifiers.modifiers.map(
+    (modifier) => ({
+      name: modifier.description,
+      value: modifier.value,
+      source: 'physical-action',
+    }),
+  );
+  appendTMM(modifiers, input.targetMovementModifier);
+  appendTargetEvasion(modifiers, input);
+  appendAttackerSpotting(modifiers, input);
+  appendMeleeSpecialist(modifiers, input.pilotAbilities);
+  appendFrogmanPhysicalModifier(modifiers, input);
+
+  const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
+
+  return {
+    baseToHit: input.pilotingSkill,
+    finalToHit: input.pilotingSkill + totalMod,
+    modifiers,
+    allowed: true,
+  };
+}
+
 export function calculateMeleeWeaponToHit(
   input: IPhysicalAttackInput,
 ): IPhysicalToHitResult {
@@ -695,6 +767,8 @@ export function calculatePhysicalToHit(
       return calculateTripToHit(input);
     case 'thrash':
       return calculateThrashToHit(input);
+    case 'jump-jet-attack':
+      return calculateJumpJetAttackToHit(input);
     case 'hatchet':
     case 'sword':
     case 'mace':
