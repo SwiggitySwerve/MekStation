@@ -603,9 +603,10 @@ export const SPA_COMBAT_SUPPORT = {
     'Local Acrobat DFA PSR modifier is not wired, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
-  'cross-country': unsupported(
+  'cross-country': outOfScope(
     'cross-country',
-    'MegaMek Cross-Country is a combat-vehicle terrain movement-cost/passability modifier; no source-backed BattleMech terrain PSR modifier is represented in the BattleMech combat matrix',
+    'MegaMek Cross-Country is a combat-vehicle terrain movement-cost/passability modifier for the separate vehicle combat matrix',
+    'Cross-Country is combat-vehicle movement/passability behavior, not a BattleMech terrain PSR modifier, and is excluded from BattleMech runner validation until vehicle movement/passability coverage consumes it',
     MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   ),
   'dodge-maneuver': integrated(
