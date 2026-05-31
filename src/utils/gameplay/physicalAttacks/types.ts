@@ -419,6 +419,11 @@ export interface IPhysicalAttackInput {
   readonly leftArmHasClaw?: boolean;
   readonly rightArmHasClaw?: boolean;
   /**
+   * Optional combat rules that affect physical attack math. Current coverage
+   * uses PLAYTEST_3 for MegaMek's claw punch to-hit branch.
+   */
+  readonly optionalRules?: readonly string[];
+  /**
    * Per task 8.5: a push is only legal when the displacement destination
    * is on-map and unoccupied. Undefined preserves legacy callers that have
    * not computed the push hex yet.
