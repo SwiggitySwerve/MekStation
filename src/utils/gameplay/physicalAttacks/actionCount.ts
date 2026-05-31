@@ -52,7 +52,7 @@ export function physicalAttackLimbForDeclaration(
 ): PhysicalAttackLimb | undefined {
   if (options.limb) return options.limb;
 
-  if (attackType === 'punch') {
+  if (attackType === 'punch' || attackType === 'brush-off') {
     return options.arm === 'left' ? 'leftArm' : 'rightArm';
   }
 

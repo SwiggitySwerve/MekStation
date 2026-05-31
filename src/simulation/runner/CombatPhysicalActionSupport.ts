@@ -29,6 +29,7 @@ const PHYSICAL_ATTACK_COMMAND_SOURCE_REFS = {
   thrash: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.thrash'],
   'jump-jet-attack':
     MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.jump-jet-attack'],
+  'brush-off': MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.brush-off'],
   hatchet: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.club'],
   sword: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.sword'],
   mace: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.mace'],
@@ -83,6 +84,11 @@ export const PHYSICAL_ATTACK_ACTION_SUPPORT = {
     'jump-jet-attack',
     'Tactical command, game intent, wire schema, dispatcher, and runner physical phase support optional TacOps jump-jet attack with selected-leg damage and no self-PSR side effects',
     PHYSICAL_ATTACK_COMMAND_SOURCE_REFS['jump-jet-attack'],
+  ),
+  'brush-off': integrated(
+    'brush-off',
+    'Tactical command, game intent, wire schema, dispatcher, event-sourced physical resolution, and runner physical phase support source-backed brush-off against swarming infantry, including hit dislodgement and miss self-damage',
+    PHYSICAL_ATTACK_COMMAND_SOURCE_REFS['brush-off'],
   ),
   hatchet: integrated(
     'hatchet',
