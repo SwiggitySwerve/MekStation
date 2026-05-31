@@ -754,8 +754,8 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
   ),
   claws: helperOnly(
     'claws',
-    'calculatePunchDamage, calculatePunchToHit, eligibility projection, session physical contexts, UnitHydration, critical-event replay, destroyed-location replay, and runPhysicalAttackPhase consume claw arm state for source-backed punch damage/to-hit modifiers; critical-event replay removes claw state when the mount is destroyed, missing, or breached, and destroyed arm state clears the represented modifier',
-    'Automatic missing/breached claw event production from mounted-equipment state beyond represented destroyed-location replay, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions are not modeled',
+    'calculatePunchDamage, calculatePunchToHit, eligibility projection, session physical contexts, UnitHydration, critical-event replay, destroyed-location replay, and runPhysicalAttackPhase consume claw arm state for source-backed punch damage/to-hit modifiers; PLAYTEST_3 removes only the claw punch to-hit penalty while preserving claw punch damage; critical-event replay removes claw state when the mount is destroyed, missing, or breached, and destroyed arm state clears the represented modifier',
+    'Automatic missing/breached claw event production from mounted-equipment state beyond represented destroyed-location replay and claw club-with-hand interactions are not modeled',
     [
       {
         kind: 'megamek-source',
@@ -767,7 +767,7 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
       {
         kind: 'megamek-source',
         citation:
-          'MegaMek PunchAttackAction.toHit adds the claw punch modifier and suppresses hand actuator missing/destroyed penalties when claws replace the hand',
+          'MegaMek PunchAttackAction.toHit adds the claw punch modifier outside PLAYTEST_3, records a zero-value Using Claws modifier under PLAYTEST_3, and suppresses hand actuator missing/destroyed penalties when claws replace the hand',
         url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PHYSICAL_SOURCE_VERSION}/megamek/src/megamek/common/actions/PunchAttackAction.java#L309-L333`,
         sourceVersion: MEGAMEK_PHYSICAL_SOURCE_VERSION,
       },
