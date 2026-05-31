@@ -175,6 +175,7 @@ describe('Protocol envelope schemas', () => {
 
     it('parses source-backed runtime Physical intents', () => {
       for (const attackType of [
+        'break-grapple',
         'brush-off',
         'flail',
         'grapple',
