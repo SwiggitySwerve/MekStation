@@ -1187,7 +1187,7 @@ describe('runMovementPhase movement validation parity', () => {
       passed: true,
     });
     expect(SPA_COMBAT_SUPPORT['animal-mimicry']).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('Animal Mimicry'),
     });
   });
