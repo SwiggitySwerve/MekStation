@@ -138,6 +138,7 @@ describe('BattleMech combat action support catalog', () => {
       'movement.sprint',
       'movement.stand',
       'movement.walk',
+      'physical.brush-off',
       'physical.charge',
       'physical.club',
       'physical.dfa',
@@ -312,6 +313,7 @@ describe('BattleMech combat action support catalog', () => {
       'physical.club',
       'physical.dfa',
       'physical.flail',
+      'physical.brush-off',
       'physical.jump-jet-attack',
       'physical.kick',
       'physical.lance',
@@ -707,6 +709,7 @@ describe('BattleMech combat action support catalog', () => {
       'physical.club': 'hatchet',
       'physical.dfa': 'dfa',
       'physical.flail': 'flail',
+      'physical.brush-off': 'brush-off',
       'physical.jump-jet-attack': 'jump-jet-attack',
       'physical.kick': 'kick',
       'physical.lance': 'lance',
@@ -722,6 +725,7 @@ describe('BattleMech combat action support catalog', () => {
     expect(
       supportIdsByLevel(PHYSICAL_ATTACK_ACTION_SUPPORT, 'integrated'),
     ).toEqual([
+      'brush-off',
       'charge',
       'dfa',
       'flail',
@@ -764,6 +768,7 @@ describe('BattleMech combat action support catalog', () => {
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'integrated'),
     ).toEqual([
+      'brush-off',
       'charge',
       'club',
       'dfa',
@@ -779,7 +784,7 @@ describe('BattleMech combat action support catalog', () => {
     ).toEqual([]);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'helper-only'),
-    ).toEqual(['break-grapple', 'brush-off', 'grapple']);
+    ).toEqual(['break-grapple', 'grapple']);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'out-of-scope'),
     ).toEqual([
@@ -810,10 +815,13 @@ describe('BattleMech combat action support catalog', () => {
       gap: expect.stringContaining('no runtime PhysicalAttackType'),
     });
     expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['brush-off']).toMatchObject({
-      level: 'helper-only',
-      evidence: expect.stringContaining('canBrushOff'),
-      gap: expect.stringContaining('no runtime PhysicalAttackType'),
+      level: 'integrated',
+      evidence: expect.stringContaining('runtime PhysicalAttackType'),
+      runtimeAttackTypes: ['brush-off'],
     });
+    expect(
+      PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['brush-off'].gap,
+    ).toBeUndefined();
     expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.thrash).toMatchObject({
       level: 'integrated',
       evidence: expect.stringContaining('runtime PhysicalAttackType'),
