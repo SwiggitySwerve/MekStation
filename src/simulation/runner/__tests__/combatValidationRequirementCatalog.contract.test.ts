@@ -869,6 +869,10 @@ describe('BattleMech combat validation requirement crosswalk', () => {
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['official-ammo'].level,
     ).toBe('helper-only');
     expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['official-physical-weapons']
+        .level,
+    ).toBe('integrated');
+    expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['damage-string-hazards'].level,
     ).toBe('integrated');
     expect(
