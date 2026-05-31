@@ -762,16 +762,10 @@ describe('BattleMech combat action support catalog', () => {
     ).toEqual(['charge', 'club', 'dfa', 'kick', 'punch', 'push']);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'unsupported'),
-    ).toEqual([
-      'break-grapple',
-      'brush-off',
-      'grapple',
-      'jump-jet-attack',
-      'thrash',
-    ]);
+    ).toEqual(['break-grapple', 'brush-off', 'grapple', 'jump-jet-attack']);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'helper-only'),
-    ).toEqual(['trip']);
+    ).toEqual(['thrash', 'trip']);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'out-of-scope'),
     ).toEqual([
@@ -795,8 +789,12 @@ describe('BattleMech combat action support catalog', () => {
       'brush-off',
       'grapple',
       'jump-jet-attack',
-      'thrash',
     ]);
+    expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.thrash).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('canThrash'),
+      gap: expect.stringContaining('no runtime PhysicalAttackType'),
+    });
     expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.trip).toMatchObject({
       level: 'helper-only',
       evidence: expect.stringContaining('canTrip'),
@@ -852,7 +850,11 @@ describe('BattleMech combat action support catalog', () => {
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.thrash.sourceRefs?.map(
         ({ citation }) => citation,
       ),
-    ).toEqual([expect.stringContaining('ThrashAttackAction')]);
+    ).toEqual([
+      expect.stringContaining('ThrashAttackAction'),
+      expect.stringContaining('canThrash'),
+      expect.stringContaining('physical attack tests'),
+    ]);
     expect(
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.trip.sourceRefs?.map(
         ({ citation }) => citation,
