@@ -824,6 +824,10 @@ export function canDFA(
   const targetObjectRestriction = chargeDfaTargetObjectRestriction(input);
   if (!targetObjectRestriction.allowed) return targetObjectRestriction;
 
+  if (input.attackerStuck) {
+    return blocked('Cannot DFA while stuck', 'AttackerStuck');
+  }
+
   if (input.attackerUsedMechanicalJumpBooster) {
     return {
       allowed: false,
@@ -893,6 +897,10 @@ export function canCharge(
 
   const targetObjectRestriction = chargeDfaTargetObjectRestriction(input);
   if (!targetObjectRestriction.allowed) return targetObjectRestriction;
+
+  if (input.attackerStuck) {
+    return blocked('Cannot charge while stuck', 'AttackerStuck');
+  }
 
   if (input.attackerJumpedThisTurn) {
     return blocked('No jumping allowed while charging', 'ChargeJumpMovement');

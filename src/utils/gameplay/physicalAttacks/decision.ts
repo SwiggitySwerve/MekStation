@@ -53,6 +53,7 @@ export function chooseBestPhysicalAttack(
     heat: options.heat,
     hasTSM: options.hasTSM,
     attackerProne: options.attackerProne,
+    attackerStuck: options.attackerStuck,
     pilotAbilities: options.pilotAbilities,
     unitQuirks: options.unitQuirks,
     attackerIsQuad: options.attackerIsQuad,
