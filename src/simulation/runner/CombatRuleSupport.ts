@@ -780,13 +780,13 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
   ),
   talons: helperOnly(
     'talons',
-    'calculateKickDamage, calculateDFADamageToTarget, eligibility projection, session physical contexts, UnitHydration, critical-event replay, destroyed-location replay, and runPhysicalAttackPhase consume talon leg state for source-backed +50% kick/DFA damage; critical-event replay removes talon state when the mount is destroyed, missing, or breached, and destroyed leg state clears the represented modifier',
-    'Automatic missing/breached talon event production from mounted-equipment state beyond represented destroyed-location replay and non-biped talon arm-location behavior are not modeled',
+    'calculateKickDamage, calculateDFADamageToTarget, eligibility projection, session physical contexts, UnitHydration, critical-event replay, destroyed-location replay, and runPhysicalAttackPhase consume biped leg plus quad/non-biped arm-location talon state for source-backed +50% kick/DFA damage; critical-event replay removes talon state when the mount is destroyed, missing, or breached, and destroyed location state clears the represented modifier',
+    'Automatic missing/breached talon event production from mounted-equipment state beyond represented destroyed-location replay remains partial',
     [
       {
         kind: 'megamek-source',
         citation:
-          'MegaMek KickAttackAction.getDamageFor applies a 1.5 talon multiplier when the kicking leg has working talons and a working foot actuator',
+          'MegaMek KickAttackAction.getDamageFor applies a 1.5 talon multiplier when the kicking leg has working talons and a working foot actuator, mapping quad front kicks to arm locations',
         url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/KickAttackAction.java#L95-L122',
         sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
       },
@@ -800,7 +800,7 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
       {
         kind: 'megamek-source',
         citation:
-          'MegaMek DfaAttackAction.hasTalons checks working talons and working foot actuators on qualifying biped and non-biped leg locations.',
+          'MegaMek DfaAttackAction.hasTalons checks working talons and working foot actuators on qualifying biped legs plus non-biped leg and arm locations.',
         url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/DfaAttackAction.java#L427-L445',
         sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
       },

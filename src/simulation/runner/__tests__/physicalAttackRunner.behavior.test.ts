@@ -2037,6 +2037,23 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     });
   });
 
+  it('threads quad arm-location talon state into runner kick damage resolution', () => {
+    const { events } = runPhase('kick', {
+      attacker: {
+        isQuad: true,
+        rightArmHasTalons: true,
+      },
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'kick',
+      hit: true,
+      damage: 20,
+    });
+  });
+
   it('threads claw state into runner punch damage and to-hit resolution', () => {
     const { events } = runPhase('punch', {
       attacker: {
