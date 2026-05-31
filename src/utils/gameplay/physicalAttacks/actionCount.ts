@@ -56,7 +56,7 @@ export function physicalAttackLimbForDeclaration(
     return options.arm === 'left' ? 'leftArm' : 'rightArm';
   }
 
-  if (attackType === 'kick') {
+  if (attackType === 'kick' || attackType === 'jump-jet-attack') {
     return 'rightLeg';
   }
 
