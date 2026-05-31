@@ -39,6 +39,7 @@ export function applyMovementDeclared(
     ),
     heat: unit.heat + payload.heatGenerated,
     prone: wentProne ? true : unit.prone,
+    ...(wentProne ? { hullDown: false } : {}),
     lockState: LockState.Planning,
   };
 
