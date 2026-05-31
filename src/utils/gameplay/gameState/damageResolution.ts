@@ -16,6 +16,7 @@ import {
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 
 import { DEFAULT_COMPONENT_DAMAGE } from './initialization';
+import { applyVehicleCriticalToEnvelope } from './vehicleCriticalReplay';
 
 function getArmForSideTorso(location: string): string | null {
   if (location === 'left_torso' || location === 'left_torso_rear') {
@@ -211,7 +212,7 @@ export function applyUnitDestroyed(
                       ? 'engine_destroyed'
                       : payload.cause === 'ammo_explosion'
                         ? 'ammo_explosion'
-                        : 'damage',
+                        : (unit.combatState.state.destructionCause ?? 'damage'),
                 },
               }
             : unit.combatState,
@@ -423,6 +424,7 @@ export function applyCriticalHitResolved(
       [payload.unitId]: {
         ...unit,
         componentDamage: updatedDamage,
+        combatState: applyVehicleCriticalToEnvelope(unit, payload),
       },
     },
   };

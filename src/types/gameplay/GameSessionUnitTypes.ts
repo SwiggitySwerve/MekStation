@@ -3,6 +3,7 @@
  * Extracted from GameSessionInterfaces.ts to keep focused type modules under the lint line cap.
  */
 
+import type { EngineType } from '../construction/EngineType';
 import type {
   VehicleLocation,
   VTOLLocation,
@@ -176,6 +177,7 @@ export interface IGameUnit {
   readonly vehicleInit?: {
     readonly motionType: GroundMotionType;
     readonly turretType?: TurretType;
+    readonly engineType?: EngineType | string | number;
     readonly originalCruiseMP: number;
     readonly armor: Partial<Record<VehicleLocation | VTOLLocation, number>>;
     readonly structure: Partial<Record<VehicleLocation | VTOLLocation, number>>;

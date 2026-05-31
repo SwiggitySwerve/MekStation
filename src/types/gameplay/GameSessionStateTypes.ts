@@ -84,6 +84,8 @@ export interface IAmmoSlotState {
   readonly remainingRounds: number;
   /** Maximum rounds capacity */
   readonly maxRounds: number;
+  /** Damage each round contributes when this bin explodes. */
+  readonly damagePerRound?: number;
   /** Whether this ammo is explosive (for CASE interactions) */
   readonly isExplosive: boolean;
 }

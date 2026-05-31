@@ -8,6 +8,8 @@
  * @spec openspec/changes/add-vehicle-combat-behavior/specs/vehicle-unit-system/spec.md
  */
 
+import type { EngineType } from '@/types/construction/EngineType';
+
 import {
   VehicleLocation,
   VTOLLocation,
@@ -164,6 +166,8 @@ export interface IVehicleCombatState {
   readonly motionType: GroundMotionType;
   /** Vehicle primary turret configuration used by vehicle-specific combat modifiers. */
   readonly turretType?: TurretType;
+  /** Engine type used by vehicle critical-hit fuel-tank / engine-hit effects. */
+  readonly engineType?: EngineType | string | number;
   /** Armor remaining per vehicle location. */
   readonly armor: Readonly<
     Partial<Record<VehicleLocation | VTOLLocation, number>>

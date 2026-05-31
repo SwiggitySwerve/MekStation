@@ -93,6 +93,19 @@ rotor damage emitting crash and immobilization events. Remaining vehicle combat
 trust gaps are dual-turret split representation, full vehicle critical-table
 dispatch, and broader MegaMek differential sweeps.
 
+2026-05-31 vehicle critical dispatch pin: MegaMek
+`TWGameManager.java:21257-21294` rolls vehicle criticals through
+`criticalTank(...)` after qualifying vehicle hits, and `Tank.java:1800-2025` /
+`VTOL.java:398-608` select location-sensitive critical effects such as crew,
+weapon, cargo, sensor/stabilizer, engine, fuel-tank, ammo, turret, and rotor
+results. MekStation now dispatches represented vehicle TAC and structure-exposing
+session weapon hits through the existing vehicle critical helper, emits
+replay-visible critical/crew-stun/component/ammo/destruction events, and mirrors
+engine, driver, and ammo-explosion effects into the vehicle combat-state
+envelope. Remaining vehicle critical trust gaps are replacing the simplified
+helper table with the full MegaMek location-sensitive Tank/VTOL tables,
+dual-turret split critical resolution, and external differential sweeps.
+
 2026-05-25 iNarc beacon browser pin: the tactical-map harness now also
 represents the same no-spotter blocked LRM target carrying a player-team iNarc
 beacon. The shared projection, browser metadata, indirect-fire badge,

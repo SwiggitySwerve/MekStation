@@ -1,3 +1,4 @@
+import { EngineType } from '@/types/construction/EngineType';
 import {
   VehicleLocation,
   VTOLLocation,
@@ -8,9 +9,11 @@ import {
   GameSide,
   type IDamageAppliedPayload,
   type IAttackResolvedPayload,
+  type ICriticalHitResolvedPayload,
   type IGameConfig,
   type IGameEvent,
   type IGameUnit,
+  type IVehicleCrewStunnedPayload,
   MovementType,
   RangeBracket,
 } from '@/types/gameplay';
@@ -67,6 +70,7 @@ function vehicleUnit(
     piloting: 5,
     vehicleInit: {
       motionType: GroundMotionType.TRACKED,
+      engineType: EngineType.STANDARD,
       originalCruiseMP: 4,
       armor: vehicleArmor({
         [VehicleLocation.FRONT]: 10,
@@ -119,6 +123,19 @@ function diceRollerFor(
       isSnakeEyes: total === 2,
       isBoxcars: total === 12,
     };
+  });
+}
+
+function d6RollerFor(
+  rolls: readonly number[],
+): jest.MockedFunction<() => number> {
+  const queue = [...rolls];
+  return jest.fn(() => {
+    const next = queue.shift();
+    if (next === undefined) {
+      throw new Error('unexpected d6 roll');
+    }
+    return next;
   });
 }
 
@@ -243,11 +260,13 @@ describe('resolveAttack vehicle target dispatch', () => {
       [6, 6],
       [6, 6],
     ]);
+    const d6Roller = d6RollerFor([1, 1]);
 
     const resolved = resolveAttack(
       session,
       attackEvent(session.id),
       diceRoller,
+      d6Roller,
     );
 
     expect(
@@ -260,5 +279,94 @@ describe('resolveAttack vehicle target dispatch', () => {
         (event) => event.type === GameEventType.VehicleImmobilized,
       ),
     ).toBe(true);
+  });
+
+  it('dispatches vehicle TAC critical effects into replay-visible state', () => {
+    const session = createGameSession(config(), [
+      mechUnit('attacker'),
+      vehicleUnit(),
+    ]);
+    const diceRoller = diceRollerFor([
+      [6, 6],
+      [1, 1],
+    ]);
+    const d6Roller = d6RollerFor([3, 3]);
+
+    const resolved = resolveAttack(
+      session,
+      attackEvent(session.id),
+      diceRoller,
+      d6Roller,
+    );
+
+    const critical = resolved.events.find(
+      (event) => event.type === GameEventType.CriticalHitResolved,
+    )!;
+    expect((critical.payload as ICriticalHitResolvedPayload).effect).toBe(
+      'crew_stunned',
+    );
+
+    const stunned = resolved.events.find(
+      (event) => event.type === GameEventType.VehicleCrewStunned,
+    )!;
+    expect((stunned.payload as IVehicleCrewStunnedPayload).phasesStunned).toBe(
+      2,
+    );
+    expect(
+      resolved.currentState.units.target.combatState?.kind === 'vehicle'
+        ? resolved.currentState.units.target.combatState.state.motive
+            .crewStunnedPhases
+        : undefined,
+    ).toBe(2);
+  });
+
+  it('emits crit-induced ammo explosions for vehicle ammo crits', () => {
+    const session = createGameSession(config(), [
+      mechUnit('attacker'),
+      {
+        ...vehicleUnit({
+          engineType: EngineType.ICE,
+        }),
+        ammoConstruction: [
+          {
+            binId: 'ac10-front',
+            weaponType: 'AC/10',
+            location: VehicleLocation.FRONT,
+            maxRounds: 5,
+            damagePerRound: 10,
+            isExplosive: true,
+          },
+        ],
+      },
+    ]);
+    const diceRoller = diceRollerFor([
+      [6, 6],
+      [1, 1],
+    ]);
+    const d6Roller = d6RollerFor([6, 6]);
+
+    const resolved = resolveAttack(
+      session,
+      attackEvent(session.id),
+      diceRoller,
+      d6Roller,
+    );
+
+    expect(
+      resolved.events.some(
+        (event) => event.type === GameEventType.AmmoExplosion,
+      ),
+    ).toBe(true);
+    expect(
+      resolved.events.some(
+        (event) => event.type === GameEventType.UnitDestroyed,
+      ),
+    ).toBe(true);
+    expect(resolved.currentState.units.target.destroyed).toBe(true);
+    expect(
+      resolved.currentState.units.target.combatState?.kind === 'vehicle'
+        ? resolved.currentState.units.target.combatState.state.destructionCause
+        : undefined,
+    ).toBe('ammo_explosion');
   });
 });

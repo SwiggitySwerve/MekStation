@@ -24,6 +24,7 @@ import {
   createVTOLCrashCheckEvent,
 } from './gameEvents';
 import { appendEvent } from './gameSessionCore';
+import { resolveVehicleCriticalIfTriggered } from './gameSessionVehicleCriticalResolution';
 import { computeEffectiveMP } from './motiveDamage';
 import {
   vehicleHitLocationToArmorKey,
@@ -208,7 +209,22 @@ export function tryResolveVehicleAttackHit(
     );
   }
 
-  if (damageResult.unitDestroyed) {
+  const critSession = resolveVehicleCriticalIfTriggered({
+    session: currentSession,
+    targetId: params.targetId,
+    location: armorLocation,
+    hitLocation,
+    damageResult,
+    targetState: params.targetState,
+    d6Roller: params.d6Roller,
+  });
+  currentSession = critSession.session;
+
+  const unitDestroyed = damageResult.unitDestroyed || critSession.unitDestroyed;
+  const destructionCause =
+    critSession.destructionCause ?? damageResult.destructionCause;
+
+  if (unitDestroyed) {
     currentSession = appendEvent(
       currentSession,
       createUnitDestroyedEvent(
@@ -217,7 +233,7 @@ export function tryResolveVehicleAttackHit(
         currentSession.currentState.turn,
         GamePhase.WeaponAttack,
         params.targetId,
-        mapVehicleDestructionCause(damageResult.destructionCause),
+        mapVehicleDestructionCause(destructionCause),
       ),
     );
   }

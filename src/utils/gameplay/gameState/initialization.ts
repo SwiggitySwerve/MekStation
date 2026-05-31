@@ -105,6 +105,7 @@ function buildCombatStateForUnit(
         unitId: unit.id,
         motionType: init.motionType,
         turretType: init.turretType,
+        engineType: init.engineType,
         originalCruiseMP: init.originalCruiseMP,
         armor: init.armor,
         structure: init.structure,
@@ -261,6 +262,7 @@ export function createInitialUnitState(
         location: bin.location,
         remainingRounds: bin.maxRounds,
         maxRounds: bin.maxRounds,
+        damagePerRound: bin.damagePerRound,
         isExplosive: bin.isExplosive,
       };
     }

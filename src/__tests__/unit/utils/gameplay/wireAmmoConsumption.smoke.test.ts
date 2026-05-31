@@ -165,6 +165,7 @@ describe('wire-ammo-consumption — smoke test', () => {
       location: 'rt',
       remainingRounds: 10,
       maxRounds: 10,
+      damagePerRound: 10,
       isExplosive: true,
     });
   });
