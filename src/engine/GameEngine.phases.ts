@@ -16,7 +16,6 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   type D6Roller,
   type DiceRoller,
@@ -43,6 +42,10 @@ import {
   resolvePendingPSRs,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
+import {
+  canUnitGoProne,
+  getGoProneMpCost,
+} from '@/utils/gameplay/gameSessionProne';
 import { getGridTerrainHeatEffect } from '@/utils/gameplay/heat';
 import {
   applyForcedWithdrawalCheck,
@@ -101,11 +104,6 @@ function elevationDifferenceBetween(
 const DEFAULT_ATTACKER_TONNAGE = 65;
 /** Default piloting skill when no `IGameUnit` lookup is available. */
 const DEFAULT_PILOTING_SKILL = 5;
-const GO_PRONE_UNIT_TYPES = new Set<string>([
-  UnitType.BATTLEMECH,
-  UnitType.OMNIMECH,
-  UnitType.INDUSTRIALMECH,
-]);
 
 function canUnitAct(unit: IUnitGameState): boolean {
   return (
@@ -125,11 +123,6 @@ function isGoProneMovementPayload(
   payload: IMovementDeclaredPayload | undefined,
 ): boolean {
   return payload?.steps?.some((step) => step.kind === 'goProne') ?? false;
-}
-
-function canUnitGoProne(unit: IUnitGameState): boolean {
-  if (unit.prone === true) return false;
-  return unit.unitType === undefined || GO_PRONE_UNIT_TYPES.has(unit.unitType);
 }
 
 /**
@@ -220,6 +213,7 @@ export function runMovementPhase(
               unitId,
               unit.position,
               unit.facing,
+              getGoProneMpCost(unit),
             ),
           );
         }
