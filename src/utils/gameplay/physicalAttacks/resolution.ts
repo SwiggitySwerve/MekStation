@@ -74,7 +74,11 @@ export function resolvePhysicalAttack(
     };
   }
 
-  const missConsequences = getPhysicalMissConsequences(input.attackType);
+  const missConsequences = getPhysicalMissConsequences(input.attackType, input);
+  const selfDamageLocation =
+    missConsequences.attackerDamage > 0 && missConsequences.hitTable
+      ? determinePhysicalHitLocation(missConsequences.hitTable, diceRoller)
+      : undefined;
 
   return {
     attackType: input.attackType,
@@ -82,11 +86,12 @@ export function resolvePhysicalAttack(
     roll,
     hit: false,
     targetDamage: 0,
-    attackerDamage: 0,
+    attackerDamage: missConsequences.attackerDamage,
     attackerLegDamagePerLeg: 0,
     targetPSR: false,
     attackerPSR: missConsequences.attackerPSR,
     attackerPSRModifier: missConsequences.attackerPSRModifier,
+    hitLocation: selfDamageLocation,
     targetDisplaced: false,
   };
 }
