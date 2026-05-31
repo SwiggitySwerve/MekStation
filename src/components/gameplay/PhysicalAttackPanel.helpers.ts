@@ -47,6 +47,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   NoArmsQuirk: 'No Arms quirk prevents this attack',
   LowArmsQuirk: 'Low Arms combat restriction is unsupported',
   AttackerProne: 'Attacker is prone',
+  AttackerStuck: 'Attacker is stuck',
   TargetProne: 'Target is prone',
   TargetMovementIncomplete: 'Charge target has not completed movement',
   TargetDropShip: 'DFA cannot target DropShips',
