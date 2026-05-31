@@ -624,9 +624,9 @@ export const SPA_COMBAT_SUPPORT = {
     'calculateMeleeSpecialistModifier and getMeleeSpecialistDamageBonus plus physical attack input pilotAbilities reduce helper, runner, and interactive physical to-hit TNs and add source-backed physical damage',
     MEGAMEK_MELEE_SPECIALIST_SOURCE_REFS,
   ),
-  'melee-master': unsupported(
+  'melee-master': integrated(
     'melee-master',
-    'MegaMek Melee Master grants two allowed physical attacks instead of a flat damage bonus; MekStation no longer applies a legacy damage bonus, but the second-physical-attack action-count rule is not modeled',
+    'getAllowedPhysicalAttackCount plus declarePhysicalAttack enforce the source-backed Melee Master two-physical-attacks allowance while getMeleeMasterDamageBonus preserves the no-flat-damage boundary',
     MEKSTATION_MELEE_MASTER_DEVIATION_SOURCE_REFS,
   ),
   'maneuvering-ace': helperOnly(
