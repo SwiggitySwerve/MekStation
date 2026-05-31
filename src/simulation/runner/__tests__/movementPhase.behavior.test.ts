@@ -1080,6 +1080,79 @@ describe('runMovementPhase movement validation parity', () => {
     });
   });
 
+  it('queues building-collapse PSRs when explicit unit load exceeds building CF', () => {
+    const target = { q: 1, r: 0 };
+    const grid = setTerrainFeatures(createMinimalGrid(3), target, [
+      { type: TerrainType.Building, level: 2, constructionFactor: 40 },
+    ]);
+
+    const { next, events } = runScriptedMove(
+      grid,
+      target,
+      {
+        tonnage: 55,
+        unitType: UnitType.BATTLEMECH,
+      },
+      { movementType: MovementType.Walk },
+    );
+    const payloads = psrPayloads(events);
+
+    expect(next.units['player-1'].position).toEqual(target);
+    expect(next.units['player-1'].pendingPSRs).toContainEqual(
+      expect.objectContaining({
+        reasonCode: PSRTrigger.BuildingCollapse,
+        additionalModifier: 0,
+      }),
+    );
+    expect(payloads).toContainEqual(
+      expect.objectContaining({
+        unitId: 'player-1',
+        reasonCode: PSRTrigger.BuildingCollapse,
+        triggerSource: expect.stringMatching(/^movement-step:/),
+      }),
+    );
+    expect(
+      RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.BuildingCollapse],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('constructionFactor'),
+    });
+    expect(TERRAIN_TYPE_PSR_COMBAT_SUPPORT[TerrainType.Building]).toMatchObject(
+      {
+        level: 'integrated',
+        evidence: expect.stringContaining('constructionFactor'),
+      },
+    );
+  });
+
+  it('does not invent building-collapse PSRs without explicit load metadata', () => {
+    const target = { q: 1, r: 0 };
+    const grid = setTerrainFeatures(createMinimalGrid(3), target, [
+      { type: TerrainType.Building, level: 2, constructionFactor: 40 },
+    ]);
+
+    const { next, events } = runScriptedMove(
+      grid,
+      target,
+      {
+        unitType: UnitType.BATTLEMECH,
+      },
+      { movementType: MovementType.Walk },
+    );
+
+    expect(next.units['player-1'].position).toEqual(target);
+    expect(next.units['player-1'].pendingPSRs).not.toContainEqual(
+      expect.objectContaining({
+        reasonCode: PSRTrigger.BuildingCollapse,
+      }),
+    );
+    expect(psrPayloads(events)).not.toContainEqual(
+      expect.objectContaining({
+        reasonCode: PSRTrigger.BuildingCollapse,
+      }),
+    );
+  });
+
   it('queues water-exit PSRs when a unit leaves water terrain', () => {
     const target = { q: 1, r: 0 };
     const grid = setTerrain(

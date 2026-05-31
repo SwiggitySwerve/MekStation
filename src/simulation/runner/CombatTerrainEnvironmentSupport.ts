@@ -154,7 +154,7 @@ function helperOnly(
 
 export const TERRAIN_TYPE_COMBAT_COVERAGE = Object.values(TerrainType);
 
-export const TERRAIN_TYPES_WITH_PSR_GAPS = [TerrainType.Building] as const;
+export const TERRAIN_TYPES_WITH_PSR_GAPS = [] as readonly TerrainType[];
 
 const terrainTypesWithPsrGaps = new Set<TerrainType>(
   TERRAIN_TYPES_WITH_PSR_GAPS,
@@ -369,8 +369,16 @@ function makeTerrainPsrEntry(terrain: TerrainType): ICombatFeatureSupportEntry {
   if (terrainTypesWithPsrGaps.has(terrain)) {
     return helperOnly(
       terrain,
-      'MekStation exposes a local BuildingCollapse PSR factory, while MegaMek resolves building collapse through building load/damage state rather than a generic terrain-entry PSR',
-      'building-collapse PSRs are not wired into runner movement or damage resolution',
+      'MekStation exposes local terrain PSR helpers while this TerrainType still lacks runner integration',
+      'terrain PSRs are not wired into runner movement or damage resolution for this TerrainType',
+      terrainPsrSourceRefs(terrain),
+    );
+  }
+
+  if (terrain === TerrainType.Building) {
+    return integrated(
+      terrain,
+      'runMovementPhase queues source-backed building-collapse PSRs when explicit BattleMech tonnage exceeds a destination Building constructionFactor; richer damage-triggered, basement, top-floor, and WiGE collapse branches remain requirement-level gaps',
       terrainPsrSourceRefs(terrain),
     );
   }
