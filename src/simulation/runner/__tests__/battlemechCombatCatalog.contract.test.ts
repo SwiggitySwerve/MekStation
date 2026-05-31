@@ -2700,26 +2700,29 @@ describe('BattleMech combat feature-gap tracking', () => {
       'MegaMek MovePathHandler resolves GO_PRONE by setting the entity prone, with swarmer dislodge and inferno wash-off side paths.',
     ]);
 
+    const movementEnhancementDefinitionTypes =
+      MOVEMENT_ENHANCEMENT_DEFINITIONS.map(({ type }) => type).sort();
     expect(sortedKeys(MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT)).toEqual(
-      MOVEMENT_ENHANCEMENT_DEFINITIONS.map(({ type }) => type).sort(),
+      [
+        ...movementEnhancementDefinitionTypes,
+        'masc-side-paths',
+        'supercharger-side-paths',
+      ].sort(),
     );
     expect(supportGaps(MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT, 'integrated'),
     ).toEqual(
       [
+        MovementEnhancementType.MASC,
         MovementEnhancementType.PARTIAL_WING,
+        MovementEnhancementType.SUPERCHARGER,
         MovementEnhancementType.TSM,
       ].sort(),
     );
     expect(
       supportIdsByLevel(MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(
-      [
-        MovementEnhancementType.MASC,
-        MovementEnhancementType.SUPERCHARGER,
-      ].sort(),
-    );
+    ).toEqual(['masc-side-paths', 'supercharger-side-paths']);
 
     expect(TERRAIN_TYPE_MOVEMENT_COVERAGE).toHaveLength(17);
     expect(supportGaps(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT)).toEqual([]);
