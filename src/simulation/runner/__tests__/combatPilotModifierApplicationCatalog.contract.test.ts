@@ -172,8 +172,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       evidence: expect.stringContaining('physical damage'),
     });
     expect(SPA_COMBAT_SUPPORT['melee-master']).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('two allowed physical attacks'),
+      level: 'integrated',
+      evidence: expect.stringContaining('two-physical-attacks allowance'),
     });
   });
 
@@ -251,6 +251,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'ranged-to-hit-state-hydration',
         'cluster-hitter-application',
         'indirect-fire-spa-application',
+        'physical-action-count-application',
         'physical-restriction-application',
         'physical-damage-application',
         'physical-to-hit-application',
@@ -268,7 +269,6 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'low-arms-application',
         'movement-application',
         'multi-target-penalty-application',
-        'physical-action-count-application',
         'target-priority-application',
       ].sort(),
     );
