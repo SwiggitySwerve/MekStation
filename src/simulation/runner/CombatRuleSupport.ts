@@ -907,8 +907,8 @@ export const TERRAIN_ENVIRONMENT_COMBAT_SUPPORT = {
   ),
   'terrain-los-blocking': helperOnly(
     'terrain-los-blocking',
-    'lineOfSight consumes TerrainType blocksLOS for MekStation simplified woods/buildings blocking',
-    'MegaMek cumulative woods/smoke thresholds, land-to-underwater LOS blocking, divided LOS, and richer building-level handling are not fully modeled by the local TerrainType LOS helper',
+    'lineOfSight consumes TerrainType direct blockers and cumulative woods/smoke density for MekStation LOS blocking',
+    'MegaMek land-to-underwater LOS blocking, divided LOS, and richer building-level handling are not fully modeled by the local TerrainType LOS helper',
     terrainLosSourceRefs(TerrainType.HeavyWoods),
   ),
   'terrain-partial-cover': integrated(
