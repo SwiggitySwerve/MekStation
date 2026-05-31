@@ -6,6 +6,7 @@ import { hasReachedEdge, resolveEdge } from '@/simulation/ai/RetreatAI';
 import {
   GamePhase,
   LockState,
+  type IMovementDeclaredPayload,
   type IGameSession,
   type IUnitGameState,
 } from '@/types/gameplay/GameSessionInterfaces';
@@ -15,12 +16,14 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   type D6Roller,
   type DiceRoller,
   defaultD6Roller,
 } from '@/utils/gameplay/diceTypes';
 import {
+  createGoProneMovementDeclaredEvent,
   createRetreatTriggeredEvent,
   createUnitRetreatedEvent,
 } from '@/utils/gameplay/gameEvents';
@@ -98,6 +101,11 @@ function elevationDifferenceBetween(
 const DEFAULT_ATTACKER_TONNAGE = 65;
 /** Default piloting skill when no `IGameUnit` lookup is available. */
 const DEFAULT_PILOTING_SKILL = 5;
+const GO_PRONE_UNIT_TYPES = new Set<string>([
+  UnitType.BATTLEMECH,
+  UnitType.OMNIMECH,
+  UnitType.INDUSTRIALMECH,
+]);
 
 function canUnitAct(unit: IUnitGameState): boolean {
   return (
@@ -111,6 +119,17 @@ function canUnitAct(unit: IUnitGameState): boolean {
 
 function canUnitBeTargeted(unit: IUnitGameState): boolean {
   return !unit.destroyed && !unit.hasRetreated && !unit.hasEjected;
+}
+
+function isGoProneMovementPayload(
+  payload: IMovementDeclaredPayload | undefined,
+): boolean {
+  return payload?.steps?.some((step) => step.kind === 'goProne') ?? false;
+}
+
+function canUnitGoProne(unit: IUnitGameState): boolean {
+  if (unit.prone === true) return false;
+  return unit.unitType === undefined || GO_PRONE_UNIT_TYPES.has(unit.unitType);
 }
 
 /**
@@ -190,6 +209,24 @@ export function runMovementPhase(
     const moveEvt = botPlayer.playMovementPhase(aiUnit, grid, cap);
 
     if (moveEvt) {
+      if (isGoProneMovementPayload(moveEvt.payload)) {
+        if (canUnitGoProne(unit)) {
+          updatedSession = appendEvent(
+            updatedSession,
+            createGoProneMovementDeclaredEvent(
+              updatedSession.id,
+              updatedSession.events.length,
+              updatedSession.currentState.turn,
+              unitId,
+              unit.position,
+              unit.facing,
+            ),
+          );
+        }
+        updatedSession = lockMovement(updatedSession, unitId);
+        continue;
+      }
+
       const validation = validateMovement(
         grid,
         {
