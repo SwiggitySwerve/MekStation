@@ -307,6 +307,11 @@ export const MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS = {
     'jump-jet-attack',
     'L117-L132',
   ),
+  'physical.brush-off': mekstationPhysicalCommandSourceRefs(
+    'physical.brush-off',
+    'brush-off',
+    'L134-L150',
+  ),
   'physical.charge': mekstationPhysicalCommandSourceRefs(
     'physical.charge',
     'charge',
@@ -955,6 +960,12 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'tactical-command',
     'buildPhysicalAttackCommands commits right-leg jump-jet attack; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack preserve the selected leg limb',
     MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.jump-jet-attack'],
+  ),
+  'physical.brush-off': integrated(
+    'physical.brush-off',
+    'tactical-command',
+    'buildPhysicalAttackCommands commits right-arm brush-off; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack preserve the selected arm limb',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.brush-off'],
   ),
   'physical.charge': integrated(
     'physical.charge',
