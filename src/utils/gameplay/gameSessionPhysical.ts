@@ -59,6 +59,7 @@ import {
   canMeleeWeapon,
   canPunch,
   canPush,
+  canTripPhysical,
   computeChargeDisplacementOutcome,
   computeDfaDisplacementOutcome,
   computeDisplacementWithDominoChain,
@@ -73,6 +74,7 @@ import {
   IPhysicalAttackRestriction,
   isPhysicalAirborneVtolOrWigeTarget,
   isTargetDirectlyAhead,
+  isTargetInFrontArc,
   physicalAttackDeclarationsForTurn,
   physicalAttackLimbForDeclaration,
   physicalAttackLimbsUsedThisTurn,
@@ -580,6 +582,20 @@ export function declarePhysicalAttack(
     rightArmFootActuatorPresent: context.rightArmFootActuatorPresent,
     leftArmHasClaw: context.leftArmHasClaw ?? attackerState.leftArmHasClaw,
     rightArmHasClaw: context.rightArmHasClaw ?? attackerState.rightArmHasClaw,
+    optionalRules: context.optionalRules ?? session.config.optionalRules,
+    tacOpsTripAttackEnabled: context.tacOpsTripAttackEnabled,
+    attackerAlreadyGrappled: context.attackerAlreadyGrappled,
+    targetInFrontArc: targetState
+      ? (context.targetInFrontArc ??
+        isTargetInFrontArc(
+          attackerState.position,
+          attackerState.facing,
+          targetState.position,
+        ))
+      : context.targetInFrontArc,
+    leftTripLimbUsable: context.leftTripLimbUsable,
+    rightTripLimbUsable: context.rightTripLimbUsable,
+    legAesFunctional: context.legAesFunctional,
     pushDestinationValid: context.pushDestinationValid,
     pushTargetDirectlyAhead: targetState
       ? isTargetDirectlyAhead(
@@ -607,6 +623,8 @@ export function declarePhysicalAttack(
     restriction = canDFA(input);
   } else if (attackType === 'push') {
     restriction = canPush(input);
+  } else if (attackType === 'trip') {
+    restriction = canTripPhysical(input);
   } else if (
     attackType === 'hatchet' ||
     attackType === 'sword' ||
@@ -855,6 +873,20 @@ export function resolveAllPhysicalAttacks(
       rightArmFootActuatorPresent: context.rightArmFootActuatorPresent,
       leftArmHasClaw: context.leftArmHasClaw ?? attackerState.leftArmHasClaw,
       rightArmHasClaw: context.rightArmHasClaw ?? attackerState.rightArmHasClaw,
+      optionalRules:
+        context.optionalRules ?? currentSession.config.optionalRules,
+      tacOpsTripAttackEnabled: context.tacOpsTripAttackEnabled,
+      attackerAlreadyGrappled: context.attackerAlreadyGrappled,
+      targetInFrontArc:
+        context.targetInFrontArc ??
+        isTargetInFrontArc(
+          attackerState.position,
+          attackerState.facing,
+          targetState.position,
+        ),
+      leftTripLimbUsable: context.leftTripLimbUsable,
+      rightTripLimbUsable: context.rightTripLimbUsable,
+      legAesFunctional: context.legAesFunctional,
       pushDestinationValid: context.pushDestinationValid,
       pushTargetDirectlyAhead: isTargetDirectlyAhead(
         attackerState.position,
@@ -1106,12 +1138,19 @@ export function resolveAllPhysicalAttacks(
                     triggerSource: PSRTrigger.Pushed,
                     reasonCode: PSRTrigger.Pushed,
                   }
-                : {
-                    reason: 'Hit by physical attack',
-                    additionalModifier: 0,
-                    triggerSource: 'physical_attack_target',
-                    reasonCode: undefined,
-                  };
+                : payload.attackType === 'trip'
+                  ? {
+                      reason: 'Tripped',
+                      additionalModifier: 0,
+                      triggerSource: 'trip',
+                      reasonCode: undefined,
+                    }
+                  : {
+                      reason: 'Hit by physical attack',
+                      additionalModifier: 0,
+                      triggerSource: 'physical_attack_target',
+                      reasonCode: undefined,
+                    };
       const psrSeq = currentSession.events.length;
       currentSession = appendEvent(
         currentSession,
