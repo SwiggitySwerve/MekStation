@@ -17,15 +17,15 @@ function integrated(
     : { id, level: 'integrated', evidence };
 }
 
-function helperOnly(
+function outOfScope(
   id: string,
   evidence: string,
   gap: string,
   sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatFeatureSupportEntry {
   return sourceRefs
-    ? { id, level: 'helper-only', evidence, gap, sourceRefs }
-    : { id, level: 'helper-only', evidence, gap };
+    ? { id, level: 'out-of-scope', evidence, gap, sourceRefs }
+    : { id, level: 'out-of-scope', evidence, gap };
 }
 
 function mekstationDeviationSourceRef(
@@ -297,13 +297,13 @@ export const BATTLEMECH_VALIDATION_SCOPE_SUPPORT = {
     'CombatValidationGapInventory exports the aggregate helper-only and unsupported support rows as sorted machine-readable completion blockers for review and PR gating',
     UNRESOLVED_COMPLETION_BLOCKER_INVENTORY_SOURCE_REFS,
   ),
-  'non-battlemech-ammo-scope': helperOnly(
+  'non-battlemech-ammo-scope': outOfScope(
     'non-battlemech-ammo-scope',
     'ammo compatibility audit classifies aerospace/capital, battle-armor, and protomech ammo separately from BattleMech weapon compatibility',
     'non-BattleMech ammo is explicitly outside the BattleMech combat validation lane',
     NON_BATTLEMECH_AMMO_SCOPE_SOURCE_REFS,
   ),
-  'non-battlemech-combat-system-split': helperOnly(
+  'non-battlemech-combat-system-split': outOfScope(
     'non-battlemech-combat-system-split',
     'aerospace, protomech, battle-armor, infantry, and vehicle helpers live under dedicated gameplay modules instead of runner BattleMech support matrices',
     'non-BattleMech systems need their own validation matrices rather than being folded into the BattleMech suite',
