@@ -4,9 +4,9 @@
  * Per `add-movement-phase-ui` task 9: a small preview chip the action
  * panel shows below the MP-type buttons during the Movement phase. It
  * surfaces the heat the unit will accumulate this turn for the chosen
- * movement type (Walk = +1, Run = +2, Evade = +4, Jump = max(3,
- * jumpMP)) so the player can plan around heat limits before committing
- * the move.
+ * movement type (Walk = +1, Run = +2, Sprint = +3, Evade = +4,
+ * Jump = max(3, jumpMP)) so the player can plan around heat limits
+ * before committing the move.
  *
  * Heat math is delegated to `calculateMovementHeat` from
  * `utils/gameplay/movement` so this component can never drift from the
@@ -25,7 +25,7 @@ export interface MovementHeatPreviewProps {
   movementType: MovementType;
   /**
    * Number of hexes the unit will jump (only used when
-   * `movementType === MovementType.Jump`). Walk, Run, and Evade heat are
+   * `movementType === MovementType.Jump`). Walk, Run, Sprint, and Evade heat are
    * fixed regardless of distance per canonical rules.
    */
   jumpHexes?: number;
@@ -37,6 +37,7 @@ const MOVEMENT_TYPE_LABEL: Record<MovementType, string> = {
   [MovementType.Stationary]: 'Stationary',
   [MovementType.Walk]: 'Walk',
   [MovementType.Run]: 'Run',
+  [MovementType.Sprint]: 'Sprint',
   [MovementType.Evade]: 'Evade',
   [MovementType.Jump]: 'Jump',
 };

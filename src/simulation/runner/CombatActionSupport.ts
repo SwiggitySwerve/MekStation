@@ -47,22 +47,6 @@ function helperOnly(
     : { id, layer, level: 'helper-only', evidence, gap };
 }
 
-function unsupported(
-  id: string,
-  layer: CombatActionLayer,
-  gap: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
-): ICombatActionSupportEntry {
-  return {
-    id,
-    layer,
-    level: 'unsupported',
-    evidence: 'No BattleMech combat action behavior wired',
-    gap,
-    ...(sourceRefs ? { sourceRefs } : {}),
-  };
-}
-
 function outOfScope(
   id: string,
   layer: CombatActionLayer,
@@ -197,15 +181,20 @@ const MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS = {
     'the local lock action id with a run movement mode payload',
     'L73-L91',
   ),
+  'movement.sprint': mekstationMovementCommandSourceRefs(
+    'movement.sprint',
+    'the local lock action id with a sprint movement mode payload',
+    'L114-L132',
+  ),
   'movement.evade': mekstationMovementCommandSourceRefs(
     'movement.evade',
     'the local lock action id with an evade movement mode payload',
-    'L93-L111',
+    'L94-L112',
   ),
   'movement.jump': mekstationMovementCommandSourceRefs(
     'movement.jump',
     'the local lock action id with a jump movement mode payload',
-    'L113-L136',
+    'L134-L157',
   ),
   'movement.stand': mekstationMovementCommandSourceRefs(
     'movement.stand',
@@ -805,6 +794,15 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'buildMovementCommands commits lock mode run; declareMovement/Move carries authoritative movement',
     MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.run'],
   ),
+  'movement.sprint': integrated(
+    'movement.sprint',
+    'tactical-command',
+    'buildMovementCommands commits lock mode sprint; MovementType.Sprint uses source-backed sprint MP, run-based pathing/PSRs, normal-engine sprint heat, current-turn sprint state, and declareMovement/Move/P2P movement validation carry it through the existing movement action path; engine-variant/coolant sprint heat remains a cataloged heat-rule gap',
+    [
+      ...MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS,
+      ...MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.sprint'],
+    ],
+  ),
   'movement.evade': integrated(
     'movement.evade',
     'tactical-command',
@@ -1038,14 +1036,10 @@ export const GM_COMMAND_EXCLUSION_SUPPORT = {
   ),
 } satisfies Record<string, ICombatActionSupportEntry>;
 
-export const BATTLEMECH_ABSENT_ACTION_SUPPORT = {
-  'movement.sprint': unsupported(
-    'movement.sprint',
-    'absent-action-surface',
-    'Sprint is a source-backed optional TacOps BattleMech movement surface with distinct MP, heat, and attack/targeting side effects; explicit sprinting state now blocks ranged attacks, feeds ranged target to-hit relief, rejects LOS spotters, and feeds runner heat as normal-engine sprint heat, but MovementType, tactical commands, game intents, wire payloads, P2P translation, runner movement phases, authoritative sprint state creation, and engine-variant/coolant sprint heat have no authoritative sprint action path',
-    MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS,
-  ),
-} satisfies Record<string, ICombatActionSupportEntry>;
+export const BATTLEMECH_ABSENT_ACTION_SUPPORT = {} satisfies Record<
+  string,
+  ICombatActionSupportEntry
+>;
 
 export const COMBAT_DIRECT_UI_ACTION_SUPPORT = {
   'utility.withdraw-control': integrated(
