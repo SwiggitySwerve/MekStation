@@ -1259,14 +1259,14 @@ Pilot modifier validation SHALL keep MegaMek's Cross-Country SPA visible as an e
 
 ### Requirement: Source-Backed Heavy Lifter Carry/Throw Gap
 
-Pilot modifier validation SHALL keep MegaMek's Heavy Lifter SPA visible as an unsupported carry/throw-object action gap. The source-backed BattleMech behavior SHALL be recorded as a `1.5x` ground-object lift-capacity multiplier for Meks with arms, while MekStation lacks object carry/throw physical action declarations and resolution.
+Pilot modifier validation SHALL keep MegaMek's Heavy Lifter SPA visible as helper-only lift-capacity coverage plus an unsupported carry/throw-object action gap. The source-backed BattleMech helper behavior SHALL calculate `5%` of unit tonnage per available hand, apply the `1.5x` Heavy Lifter multiplier for canonical `hvy_lifter` and legacy `heavy-lifter` ids, and then apply the active TSM pickup multiplier. MekStation SHALL still report missing object carry/throw physical action declarations and resolution through the movement/application gap.
 
 #### Scenario: Heavy Lifter is cataloged as lift capacity without action support
 
 - **GIVEN** the BattleMech SPA and pilot modifier catalogs are generated
 - **WHEN** Heavy Lifter support is inspected
-- **THEN** the SPA SHALL be unsupported with MegaMek source references to BattleMech lift-capacity behavior
-- **AND** the movement resolver family SHALL own the visible carry/throw action gap
+- **THEN** the SPA SHALL be helper-only with MegaMek source references to BattleMech lift-capacity behavior and MekStation helper/test anchors
+- **AND** the movement resolver family SHALL own the visible unsupported carry/throw action gap
 - **AND** Heavy Lifter SHALL NOT be represented as a physical damage or to-hit modifier
 
 ### Requirement: Source-Backed Shaky Stick Ground-To-Air To-Hit
