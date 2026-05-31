@@ -221,7 +221,7 @@ const TERRAIN_TYPE_ATTACK_MODIFIER_TRIAD = entryTriad(
   TERRAIN_REFS,
 );
 const TERRAIN_TYPE_LOS_TRIAD = entryTriad(
-  'Per-TerrainType LOS rows are source checked and must carry row-level sourceRefs, distinguishing MekStation simplified blocksLOS behavior from MegaMek cumulative woods/smoke, building, water, and divided-LOS parity gaps.',
+  'Per-TerrainType LOS rows are source checked and must carry row-level sourceRefs, distinguishing MekStation direct and cumulative woods/smoke LOS behavior from MegaMek building, water, and divided-LOS parity gaps.',
   TERRAIN_REFS,
 );
 const TERRAIN_TYPE_PSR_TRIAD = entryTriad(
