@@ -120,6 +120,10 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
     GameEventType.IndirectFireNarcOverride,
     'runner and interactive indirect-fire declarations emit NARC override events',
   ),
+  [GameEventType.SpottingDeclared]: integrated(
+    GameEventType.SpottingDeclared,
+    'requestSpot emits SpottingDeclared and the reducer latches the spotting unit plus selected spot target for ranged and physical attacker penalties',
+  ),
   [GameEventType.HeatGenerated]: integrated(
     GameEventType.HeatGenerated,
     'weapon, movement, and heat phases emit HeatGenerated with source and total heat payloads',

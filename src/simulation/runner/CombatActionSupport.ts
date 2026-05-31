@@ -8,6 +8,7 @@ import type {
 
 import { MEGAMEK_TORSO_TWIST_SOURCE_REFS } from './CombatMovementSourceRefs';
 import { MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS } from './CombatPilotModifierSourceRefs';
+import { MEGAMEK_REQUEST_SPOT_SOURCE_REFS } from './CombatSpottingSourceRefs';
 
 export { P2P_INTENT_TRANSLATION_SUPPORT } from './CombatP2PIntentSupport';
 
@@ -33,18 +34,6 @@ function integrated(
   return sourceRefs
     ? { id, layer, level: 'integrated', evidence, sourceRefs }
     : { id, layer, level: 'integrated', evidence };
-}
-
-function helperOnly(
-  id: string,
-  layer: CombatActionLayer,
-  evidence: string,
-  gap: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
-): ICombatActionSupportEntry {
-  return sourceRefs
-    ? { id, layer, level: 'helper-only', evidence, gap, sourceRefs }
-    : { id, layer, level: 'helper-only', evidence, gap };
 }
 
 function outOfScope(
@@ -536,6 +525,18 @@ const MEKSTATION_GAME_INTENT_SOURCE_REFS = {
       'L218-L334',
     ),
   ],
+  requestSpot: [
+    mekstationDeviationSourceRef(
+      'MekStation requestSpotIntent builds requestSpot game intents with spotting unit and target ids.',
+      'src/lib/multiplayer/gameIntentMap.ts',
+      'L171-L176',
+    ),
+    mekstationDeviationSourceRef(
+      'MekStation toServerIntent maps requestSpot game intents to RequestSpot wire payloads.',
+      'src/lib/multiplayer/gameIntentMap.ts',
+      'L230-L343',
+    ),
+  ],
   confirmHeat: [
     mekstationDeviationSourceRef(
       'MekStation toServerIntent maps confirmHeat game intents to AdvancePhase because heat confirmation advances the Heat phase.',
@@ -676,6 +677,16 @@ const MEKSTATION_WIRE_INTENT_SOURCE_REFS = {
     wireDispatchSourceRef(
       'MekStation dispatchToEngine routes Physical wire intents to InteractiveSession.applyPhysicalAttack.',
       'L46-L52',
+    ),
+  ],
+  RequestSpot: [
+    wireProtocolSourceRef(
+      'MekStation Protocol defines RequestSpot wire intents with spotting unit id and target id.',
+      'L127-L132',
+    ),
+    wireDispatchSourceRef(
+      'MekStation dispatchToEngine routes RequestSpot wire intents to InteractiveSession.requestSpot.',
+      'L54-L58',
     ),
   ],
   GoProne: [
@@ -1003,12 +1014,14 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'buildUtilityCommands commits concede; concede game intent maps to Concede wire payload and server dispatch',
     MEKSTATION_CONCEDE_COMMAND_SOURCE_REFS,
   ),
-  'utility.request-spot': helperOnly(
+  'utility.request-spot': integrated(
     'utility.request-spot',
     'tactical-command',
-    'buildUtilityCommands exposes target spotting during WeaponAttack and preserves the active unit plus selected target in the command payload',
-    'No spotting lifecycle, TAG/NARC marker intent, wire payload, or dispatch path is wired',
-    MEKSTATION_REQUEST_SPOT_COMMAND_SOURCE_REFS,
+    'buildUtilityCommands commits request-spot with active/target payload; requestSpot emits SpottingDeclared, latches spotting state, clears on turn reset, and routes through game intent, wire dispatch, and P2P translation',
+    [
+      ...MEKSTATION_REQUEST_SPOT_COMMAND_SOURCE_REFS,
+      ...MEGAMEK_REQUEST_SPOT_SOURCE_REFS,
+    ],
   ),
 } satisfies Record<string, ICombatActionSupportEntry>;
 
@@ -1058,6 +1071,7 @@ export const GAME_INTENT_TO_WIRE_KIND = {
   torsoTwist: 'TorsoTwist',
   declareAttack: 'Attack',
   declarePhysical: 'Physical',
+  requestSpot: 'RequestSpot',
   confirmHeat: 'AdvancePhase',
   endPhase: 'AdvancePhase',
   eject: 'Eject',
@@ -1117,6 +1131,15 @@ export const GAME_INTENT_ACTION_SUPPORT = {
     'toServerIntent maps declarePhysical to Physical',
     MEKSTATION_GAME_INTENT_SOURCE_REFS.declarePhysical,
   ),
+  requestSpot: integrated(
+    'requestSpot',
+    'game-intent',
+    'toServerIntent maps requestSpot to RequestSpot',
+    [
+      ...MEKSTATION_GAME_INTENT_SOURCE_REFS.requestSpot,
+      ...MEGAMEK_REQUEST_SPOT_SOURCE_REFS,
+    ],
+  ),
   confirmHeat: integrated(
     'confirmHeat',
     'game-intent',
@@ -1156,6 +1179,7 @@ export const ENGINE_WIRE_COMBAT_INTENT_KINDS = [
   'Eject',
   'Move',
   'Physical',
+  'RequestSpot',
   'GoProne',
   'ActivateMovementEnhancement',
   'TorsoTwist',
@@ -1244,6 +1268,15 @@ export const WIRE_INTENT_KIND_ACTION_SUPPORT = {
     'wire-intent',
     'dispatchToEngine routes Physical to InteractiveSession.applyPhysicalAttack',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.Physical,
+  ),
+  RequestSpot: integrated(
+    'RequestSpot',
+    'wire-intent',
+    'Protocol accepts RequestSpot and dispatchToEngine routes it to InteractiveSession.requestSpot',
+    [
+      ...MEKSTATION_WIRE_INTENT_SOURCE_REFS.RequestSpot,
+      ...MEGAMEK_REQUEST_SPOT_SOURCE_REFS,
+    ],
   ),
   Withdraw: integrated(
     'Withdraw',

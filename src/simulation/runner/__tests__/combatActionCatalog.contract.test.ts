@@ -14,6 +14,7 @@ import {
   ejectIntent,
   endPhaseIntent,
   goProneIntent,
+  requestSpotIntent,
   standIntent,
   toServerIntent,
   torsoTwistIntent,
@@ -151,14 +152,12 @@ describe('BattleMech combat action support catalog', () => {
       'physical.wrecking-ball',
       'utility.concede',
       'utility.eject',
+      'utility.request-spot',
       'weapon.fire-volley',
     ]);
     expect(
       supportIdsByLevel(COMBAT_COMMAND_ACTION_SUPPORT, 'helper-only'),
-    ).toEqual(['utility.request-spot']);
-    const helperCommandSourceFiles = {
-      'utility.request-spot': 'utilityCommands.ts',
-    } as const;
+    ).toEqual([]);
     const outOfScopeCommandSourceFiles = {
       'movement.cancel': 'movementCommands.ts',
       'movement.stabilize': 'movementCommands.ts',
@@ -166,21 +165,6 @@ describe('BattleMech combat action support catalog', () => {
       'weapon.clear-attacks': 'weaponAttackCommands.ts',
       'weapon.declare-attack': 'weaponAttackCommands.ts',
     } as const;
-    for (const [id, file] of Object.entries(helperCommandSourceFiles)) {
-      const entry =
-        COMBAT_COMMAND_ACTION_SUPPORT[
-          id as keyof typeof COMBAT_COMMAND_ACTION_SUPPORT
-        ];
-
-      expect(entry.sourceRefs).toEqual([
-        expect.objectContaining({
-          kind: 'mekstation-deviation',
-          citation: expect.stringContaining(id),
-          url: expect.stringContaining(file),
-          sourceVersion: 'MekStation working-tree',
-        }),
-      ]);
-    }
     for (const [id, file] of Object.entries(outOfScopeCommandSourceFiles)) {
       const entry =
         COMBAT_COMMAND_ACTION_SUPPORT[
@@ -499,6 +483,12 @@ describe('BattleMech combat action support catalog', () => {
           attackType: 'kick',
         }),
       )?.kind,
+      requestSpot: toServerIntent(
+        requestSpotIntent(peer, {
+          unitId: 'player-1',
+          targetId: 'opponent-1',
+        }),
+      )?.kind,
       confirmHeat: toServerIntent(confirmHeatIntent)?.kind,
       endPhase: toServerIntent(endPhaseIntent(peer))?.kind,
       eject: toServerIntent(ejectIntent(peer, { unitId: 'player-1' }))?.kind,
@@ -536,6 +526,7 @@ describe('BattleMech combat action support catalog', () => {
       goProne: 'MoveStepType defines GO_PRONE',
       activateMovementEnhancement: 'MovePath derives active MASC/Supercharger',
       torsoTwist: 'TorsoTwistAction',
+      requestSpot: 'SpotAction carries',
     } as const;
     for (const [intentType, citation] of Object.entries(
       megamekBackedGameIntentRows,
@@ -623,6 +614,7 @@ describe('BattleMech combat action support catalog', () => {
       GoProne: 'MoveStepType defines GO_PRONE',
       ActivateMovementEnhancement: 'MovePath derives active MASC/Supercharger',
       TorsoTwist: 'TorsoTwistAction',
+      RequestSpot: 'SpotAction carries',
     } as const;
     for (const [kind, citation] of Object.entries(
       megamekBackedWireIntentRows,
@@ -652,6 +644,7 @@ describe('BattleMech combat action support catalog', () => {
       'eject',
       'endPhase',
       'goProne',
+      'requestSpot',
       'stand',
       'torsoTwist',
       'withdraw',
