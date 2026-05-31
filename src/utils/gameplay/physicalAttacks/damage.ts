@@ -99,15 +99,60 @@ function footActuatorWorksForLeg(
   return input.rightFootActuatorPresent !== false;
 }
 
+function footActuatorWorksForArmLeg(
+  input: IPhysicalAttackInput,
+  limb: 'leftArm' | 'rightArm',
+): boolean {
+  if (input.componentDamage.actuators[ActuatorType.FOOT]) return false;
+  if (input.footActuatorPresent === false) return false;
+  if (limb === 'leftArm') return input.leftArmFootActuatorPresent !== false;
+  return input.rightArmFootActuatorPresent !== false;
+}
+
+function talonLocationForKick(
+  input: IPhysicalAttackInput,
+  limb: 'leftLeg' | 'rightLeg',
+): 'leftLeg' | 'rightLeg' | 'leftArm' | 'rightArm' {
+  if (!input.attackerIsQuad) return limb;
+  return limb === 'leftLeg' ? 'leftArm' : 'rightArm';
+}
+
+function talonLocationHasWorkingTalons(
+  input: IPhysicalAttackInput,
+  location: 'leftLeg' | 'rightLeg' | 'leftArm' | 'rightArm',
+): boolean {
+  if (location === 'leftLeg') {
+    return (
+      input.leftLegHasTalons === true &&
+      footActuatorWorksForLeg(input, 'leftLeg')
+    );
+  }
+  if (location === 'rightLeg') {
+    return (
+      input.rightLegHasTalons === true &&
+      footActuatorWorksForLeg(input, 'rightLeg')
+    );
+  }
+  if (location === 'leftArm') {
+    return (
+      input.leftArmHasTalons === true &&
+      footActuatorWorksForArmLeg(input, 'leftArm')
+    );
+  }
+  return (
+    input.rightArmHasTalons === true &&
+    footActuatorWorksForArmLeg(input, 'rightArm')
+  );
+}
+
 function legHasWorkingTalons(
   input: IPhysicalAttackInput,
   limb: 'leftLeg' | 'rightLeg',
 ): boolean {
-  const hasTalons =
-    limb === 'leftLeg'
-      ? input.leftLegHasTalons === true
-      : input.rightLegHasTalons === true;
-  return hasTalons && footActuatorWorksForLeg(input, limb);
+  return talonLocationHasWorkingTalons(
+    input,
+    talonLocationForKick(input, limb),
+  );
 }
 
 function selectedKickLegHasWorkingTalons(input: IPhysicalAttackInput): boolean {
@@ -121,11 +166,26 @@ function selectedKickLegHasWorkingTalons(input: IPhysicalAttackInput): boolean {
   );
 }
 
-function dfaHasWorkingTalons(input: IPhysicalAttackInput): boolean {
+function nonBipedDfaArmLocationsHaveTalons(
+  input: IPhysicalAttackInput,
+): boolean {
+  if (input.rightArmHasTalons !== true) return false;
+
+  // MegaMek gates the non-biped arm-location DFA branch on a right-arm talon
+  // mount, then accepts either the right-arm foot or the paired left arm.
   return (
-    legHasWorkingTalons(input, 'leftLeg') ||
-    legHasWorkingTalons(input, 'rightLeg')
+    footActuatorWorksForArmLeg(input, 'rightArm') ||
+    talonLocationHasWorkingTalons(input, 'leftArm')
   );
+}
+
+function dfaHasWorkingTalons(input: IPhysicalAttackInput): boolean {
+  const legTalons =
+    talonLocationHasWorkingTalons(input, 'leftLeg') ||
+    talonLocationHasWorkingTalons(input, 'rightLeg');
+  if (!input.attackerIsQuad) return legTalons;
+
+  return legTalons || nonBipedDfaArmLocationsHaveTalons(input);
 }
 
 function selectedPunchArmHasClaw(input: IPhysicalAttackInput): boolean {
