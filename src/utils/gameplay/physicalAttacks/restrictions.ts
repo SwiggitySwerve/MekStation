@@ -1,6 +1,11 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { hasNoArms } from '@/utils/gameplay/quirkModifiers';
 
+import {
+  canJumpJetAttack,
+  type JumpJetAttackInvalidReason,
+  type JumpJetAttackSelectedLeg,
+} from './jumpJetAttackEligibility';
 import { canThrash, type ThrashAttackInvalidReason } from './thrashEligibility';
 import { canTrip, type TripAttackInvalidReason } from './tripEligibility';
 import {
@@ -42,6 +47,11 @@ const TACOPS_TRIP_ATTACK_OPTIONS = new Set([
   'tacops_trip_attack',
   'advanced_combat_tac_ops_trip_attack',
   'tacops_trip',
+]);
+const TACOPS_JUMP_JET_ATTACK_OPTIONS = new Set([
+  'tacops_jump_jet_attack',
+  'advanced_combat_tac_ops_jump_jet_attack',
+  'jump_jet_attack',
 ]);
 
 export function physicalTargetObjectInvalidReason(
@@ -382,6 +392,20 @@ function tripAttackEnabled(input: IPhysicalAttackInput): boolean {
   );
 }
 
+function jumpJetAttackEnabled(input: IPhysicalAttackInput): boolean {
+  return (
+    input.tacOpsJumpJetAttackEnabled === true ||
+    optionalRuleEnabled(input.optionalRules, TACOPS_JUMP_JET_ATTACK_OPTIONS)
+  );
+}
+
+function selectedJumpJetAttackLeg(
+  input: IPhysicalAttackInput,
+): JumpJetAttackSelectedLeg {
+  if (input.jumpJetAttackSelectedLeg) return input.jumpJetAttackSelectedLeg;
+  return input.limb === 'leftLeg' ? 'left' : 'right';
+}
+
 function tripTargetIsMek(input: IPhysicalAttackInput): boolean {
   if (
     input.targetObjectType !== undefined &&
@@ -421,6 +445,21 @@ function mapThrashInvalidReason(
   switch (reasonCode) {
     case 'InvalidExplicitTarget':
       return 'InvalidPhysicalTarget';
+    default:
+      return reasonCode;
+  }
+}
+
+function mapJumpJetAttackInvalidReason(
+  reasonCode: JumpJetAttackInvalidReason | undefined,
+): PhysicalAttackInvalidReason | undefined {
+  switch (reasonCode) {
+    case 'LegMissing':
+      return 'LimbMissing';
+    case 'TargetElevationNotInRange':
+      return 'ElevationMismatch';
+    case 'TargetNotDirectlyAheadOfFeet':
+      return 'TargetNotDirectlyAhead';
     default:
       return reasonCode;
   }
@@ -1049,5 +1088,43 @@ export function canThrashPhysical(
     allowed: false,
     reason: thrashRestriction.reason,
     reasonCode: mapThrashInvalidReason(thrashRestriction.reasonCode),
+  };
+}
+
+export function canJumpJetAttackPhysical(
+  input: IPhysicalAttackInput,
+): IPhysicalAttackRestriction {
+  const sharedRestriction = sharedPhysicalTargetRestriction(input);
+  if (!sharedRestriction.allowed) return sharedRestriction;
+
+  const selectedLeg = selectedJumpJetAttackLeg(input);
+  const jumpJetRestriction = canJumpJetAttack({
+    tacOpsJumpJetAttackEnabled: jumpJetAttackEnabled(input),
+    attackerIsLandAirMek: input.attackerIsLandAirMek,
+    attackerIsMekMode: input.attackerIsMekMode,
+    selectedLeg,
+    attackerIsMek: !explicitNonMekUnitType(input.attackerUnitType),
+    attackerProne: input.attackerProne,
+    leftLegPresent: !attackerLocationDestroyed(input, 'left_leg'),
+    rightLegPresent: !attackerLocationDestroyed(input, 'right_leg'),
+    leftReadyJumpJetCount: input.leftReadyJumpJetCount,
+    rightReadyJumpJetCount: input.rightReadyJumpJetCount,
+    attackerMovedJump: input.attackerJumpedThisTurn,
+    leftLegWeaponFiredThisTurn: input.leftLegWeaponFiredThisTurn,
+    rightLegWeaponFiredThisTurn: input.rightLegWeaponFiredThisTurn,
+    targetDistance: input.targetDistance,
+    standingAttackerHeightAboveTargetHeight:
+      input.standingAttackerHeightAboveTargetHeight,
+    proneTargetElevationInRange: input.proneTargetElevationInRange,
+    targetDirectlyAheadOfFeet: input.targetDirectlyAheadOfFeet,
+    targetDirectlyBehindFeet: input.targetDirectlyBehindFeet,
+  });
+
+  if (jumpJetRestriction.allowed) return { allowed: true };
+
+  return {
+    allowed: false,
+    reason: jumpJetRestriction.reason,
+    reasonCode: mapJumpJetAttackInvalidReason(jumpJetRestriction.reasonCode),
   };
 }
