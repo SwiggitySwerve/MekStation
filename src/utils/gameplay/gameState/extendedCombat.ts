@@ -21,6 +21,8 @@ import {
   type MoraleLevel,
 } from '@/types/gameplay';
 
+import { hexNeighbor } from '../hexMath';
+
 export function applyPSRTriggered(
   state: IGameState,
   payload: IPSRTriggeredPayload,
@@ -152,6 +154,20 @@ export function applyPhysicalAttackDeclared(
   };
 }
 
+function facingToward(
+  source: IGameState['units'][string]['position'],
+  destination: IGameState['units'][string]['position'],
+  fallback: IGameState['units'][string]['facing'],
+): IGameState['units'][string]['facing'] {
+  for (let facing = 0; facing < 6; facing++) {
+    const neighbor = hexNeighbor(source, facing as typeof fallback);
+    if (neighbor.q === destination.q && neighbor.r === destination.r) {
+      return facing as typeof fallback;
+    }
+  }
+  return fallback;
+}
+
 export function applyPhysicalAttackResolved(
   state: IGameState,
   payload: IPhysicalAttackResolvedPayload,
@@ -231,6 +247,43 @@ export function applyPhysicalAttackResolved(
         position: displacement.to,
       },
     };
+  }
+
+  if (payload.hit && payload.attackType === 'break-grapple') {
+    const attacker = units[payload.attackerId];
+    const target = units[payload.targetId];
+    if (attacker && target) {
+      const movedUnitIds = new Set(
+        (payload.displacements ?? [])
+          .filter((displacement) => displacement.reason === 'break-grapple')
+          .map((displacement) => displacement.unitId),
+      );
+      units = {
+        ...units,
+        [payload.attackerId]: {
+          ...attacker,
+          grappledUnitId: undefined,
+          isGrappleAttacker: undefined,
+          grappledThisRound: false,
+          grappleSide: undefined,
+          isChainWhipGrappled: false,
+          facing: movedUnitIds.has(payload.attackerId)
+            ? facingToward(attacker.position, target.position, attacker.facing)
+            : attacker.facing,
+        },
+        [payload.targetId]: {
+          ...target,
+          grappledUnitId: undefined,
+          isGrappleAttacker: undefined,
+          grappledThisRound: false,
+          grappleSide: undefined,
+          isChainWhipGrappled: false,
+          facing: movedUnitIds.has(payload.targetId)
+            ? facingToward(target.position, attacker.position, target.facing)
+            : target.facing,
+        },
+      };
+    }
   }
 
   return { ...state, units };
