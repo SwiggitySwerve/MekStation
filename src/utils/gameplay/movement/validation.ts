@@ -52,6 +52,15 @@ export function validateMovement(
   environmentalConditions?: IEnvironmentalConditions,
   movementContext?: IMovementCostContext,
 ): IMovementValidation {
+  if (position.isStuck) {
+    return {
+      valid: false,
+      error: 'Unit is stuck',
+      mpCost: 0,
+      heatGenerated: 0,
+    };
+  }
+
   if (!isInBounds(grid, destination)) {
     return {
       valid: false,

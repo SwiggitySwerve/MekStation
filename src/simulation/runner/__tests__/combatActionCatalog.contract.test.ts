@@ -1041,6 +1041,28 @@ describe('BattleMech combat action support catalog', () => {
     });
   });
 
+  it('catalogs charge and DFA stuck-attacker legality as integrated source-backed gates', () => {
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['charge.attacker-not-stuck'],
+    ).toMatchObject({
+      level: 'integrated',
+      attackFamily: 'charge',
+      evidence: expect.stringContaining('attackerStuck'),
+      sourceRefs: [
+        expect.objectContaining({
+          citation: expect.stringContaining('stuck'),
+        }),
+      ],
+    });
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['dfa.attacker-not-stuck'],
+    ).toMatchObject({
+      level: 'integrated',
+      attackFamily: 'dfa',
+      evidence: expect.stringContaining('attackerStuck'),
+    });
+  });
+
   it('catalogs charge backward-movement legality as an integrated source-backed gate', () => {
     expect(
       PHYSICAL_LEGALITY_GATE_SUPPORT['charge.no-backward-movement'],
