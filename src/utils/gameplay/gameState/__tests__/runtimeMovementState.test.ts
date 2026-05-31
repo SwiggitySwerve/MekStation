@@ -213,6 +213,66 @@ describe('runtime movement state events', () => {
     });
   });
 
+  it('replays LAM AirMek-to-Mek conversion as two pending zero-MP steps', () => {
+    const unit: IUnitGameState = {
+      id: 'lam-1',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+      heat: 0,
+      movementThisTurn: MovementType.Stationary,
+      hexesMovedThisTurn: 0,
+      armor: {},
+      structure: {},
+      destroyedLocations: [],
+      destroyedEquipment: [],
+      ammo: {},
+      pilotWounds: 0,
+      pilotConscious: true,
+      destroyed: false,
+      lockState: LockState.Pending,
+      conversionMode: 'airmek',
+    };
+    const conversion = createRuntimeMovementStateChangedEvent(
+      'game-1',
+      1,
+      1,
+      unit.id,
+      {
+        source: 'conversion_action',
+        conversionMode: 'mek',
+        conversionStepCount: 2,
+        conversionMpCost: 0,
+      },
+    );
+
+    const converted = applyEvent(stateWithUnit(unit), conversion).units[
+      unit.id
+    ];
+    expect(converted).toMatchObject({
+      conversionMode: 'mek',
+      pendingConversionStepCount: 2,
+      pendingConversionMpCost: 0,
+    });
+
+    const grid = createHexGrid({ radius: 2 });
+    const destination = { q: 1, r: 0 };
+    const projection = deriveMovementRangeHexForDestination(
+      converted,
+      MovementType.Walk,
+      grid,
+      BASIC_CAPABILITY,
+      destination,
+    );
+
+    expect(projection).toMatchObject({
+      reachable: true,
+      mpCost: 1,
+      conversionStepCount: 2,
+      conversionMpCost: 0,
+    });
+  });
+
   it('clears pending conversion cost after committed movement replay', () => {
     const converted: IUnitGameState = {
       id: 'quadvee-1',

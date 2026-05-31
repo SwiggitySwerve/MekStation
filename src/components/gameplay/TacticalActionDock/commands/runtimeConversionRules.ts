@@ -197,9 +197,19 @@ function conversionStepCountFor(
     return 0;
   }
   return profile.kind === 'lam' &&
-    isDirectStandardLamMekFighterConversion(currentMode, targetMode)
+    requiresTwoLamConversionSteps(currentMode, targetMode)
     ? 2
     : 1;
+}
+
+function requiresTwoLamConversionSteps(
+  currentMode: string | undefined,
+  targetMode: string | undefined,
+): boolean {
+  return (
+    isDirectStandardLamMekFighterConversion(currentMode, targetMode) ||
+    (currentMode === 'airmek' && targetMode === 'mek')
+  );
 }
 
 function quadVeeConversionCost(

@@ -679,6 +679,17 @@ describe('movementCommands', () => {
       ...lamCtx,
       activeUnitConversionMode: 'airmek',
     };
+    expect(mek.availability(airmekCtx)).toEqual({ available: true });
+    expect(mek.commit(airmekCtx)).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'conversion_action',
+        conversionMode: 'mek',
+        conversionStepCount: 2,
+        conversionMpCost: 0,
+        unitHeight: null,
+      },
+    });
     expect(fighter.availability(airmekCtx)).toEqual({ available: true });
     expect(fighter.commit(airmekCtx)).toEqual({
       actionId: 'runtime-movement-state',

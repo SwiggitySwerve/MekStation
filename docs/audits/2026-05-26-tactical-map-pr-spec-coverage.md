@@ -40,14 +40,15 @@ decisions are made, not because CI is stale.
 
 ## Remaining Gaps To Keep Out Of Ready-For-Review Claims
 
-- Movement: remaining airborne LAM AirMek/WiGE full pathing, LAM conversion
-  phase sequencing, and broader external oracle differential sweeps remain
-  follow-up work.
+- Movement: remaining airborne LAM AirMek/WiGE full pathing and broader
+  external oracle differential sweeps remain follow-up work. Represented
+  AirMek-to-Mek conversion phase sequencing is now source-pinned by
+  `pin-lam-airmek-mek-conversion-steps`.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
   `apply-runtime-movement-state-events`, and tactical command controls are now
-  covered by `wire-runtime-movement-state-controls`, leaving source-specific
-  action timing and oracle sweeps.
+  covered by `wire-runtime-movement-state-controls`, leaving remaining
+  source-specific conversion cases and oracle sweeps.
 - Combat: broader special range-mode coverage, remaining LOS terrain families,
   full surface-naval underwater expansion, and broader external oracle
   comparisons remain follow-up work.

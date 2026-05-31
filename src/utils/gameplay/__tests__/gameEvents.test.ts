@@ -638,6 +638,48 @@ describe('Movement Event Factories', () => {
         ],
       });
     });
+
+    it('should serialize two zero-cost represented conversion steps', () => {
+      const position = { q: 0, r: 0 };
+      const event = createMovementDeclaredEvent(
+        'game-1',
+        10,
+        1,
+        'lam-1',
+        position,
+        { q: 1, r: 0 },
+        Facing.Northeast,
+        MovementType.Walk,
+        1,
+        0,
+        [position, { q: 1, r: 0 }],
+        { conversionStepCount: 2, conversionMpCost: 0 },
+      );
+      const payload = event.payload as IMovementDeclaredPayload;
+
+      expect(payload).toMatchObject({
+        conversionStepCount: 2,
+        conversionMpCost: 0,
+        steps: [
+          {
+            kind: 'convertMode',
+            index: 0,
+            at: position,
+            mpCost: 0,
+            stepNumber: 1,
+            stepCount: 2,
+          },
+          {
+            kind: 'convertMode',
+            index: 1,
+            at: position,
+            mpCost: 0,
+            stepNumber: 2,
+            stepCount: 2,
+          },
+        ],
+      });
+    });
   });
 
   describe('createMovementLockedEvent', () => {

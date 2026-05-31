@@ -24,8 +24,9 @@ claim full rules trust.
 its older final sentence about frogman/swim, optional infantry pavement-bonus,
 unit-height, and runtime conversion-state gaps is superseded by later
 source-pinned fixtures and OpenSpec deltas. The current movement headline gaps
-are conversion action timing, remaining airborne LAM Fighter/AirMek submodes,
-and broader external oracle differential fixtures. Replayable gameplay events
+are remaining airborne LAM Fighter/AirMek submodes and broader external oracle
+differential fixtures. Represented LAM AirMek-to-Mek conversion sequencing is
+covered by `pin-lam-airmek-mek-conversion-steps`. Replayable gameplay events
 for runtime movement state are covered by
 `apply-runtime-movement-state-events`; player-facing tactical command controls
 for represented conversion and infantry mount-state changes are covered by
@@ -1346,8 +1347,20 @@ both projection and commit validation. The tactical-map browser harness proves
 the same route is over-budget in Mek mode with a non-color `NO MP` invalid badge
 and legal in AirMek mode with WiGE movement, AirMek MP, zero elevation cost, and
 matching commit validation. Fighter/aerodyne mode, AirMek ground-clearance
-submodes, conversion action timing, turn mode, and landing/control-roll
-behavior remain outside this fixture.
+submodes, turn mode, landing/control-roll behavior, and broader conversion
+oracle sweeps remain outside this fixture.
+
+2026-05-31 LAM AirMek-to-Mek conversion sequencing pin: MegaMek
+`MovePath.java:1047-1053` documents that LAMs converting from AirMek to Biped
+mode require two convert commands, `MovementDisplay.java:5691-5712` adds one
+`CONVERT_MODE` command and then adds a second when the final conversion mode
+still does not match the requested end mode, and `ConvertModeStep.java:52-68`
+keeps LAM conversion MP at 0 while only QuadVees pay conversion cost. MekStation
+now emits two zero-cost conversion steps when tactical commands convert a
+represented LAM from AirMek back to Mek, carries those pending steps into
+movement projection, and serializes two replayable `convertMode` movement-event
+steps before path movement. Airborne AirMek/WiGE pathing, bimodal import
+differentiation, and broad conversion oracle sweeps remain follow-ups.
 
 2026-05-25 over-budget movement explanation pin: MegaMek pathfinding exposes
 path MP through `MovePath.getMpUsed()` (`MovePath.java:1214-1218`) and filters
@@ -1873,8 +1886,8 @@ imports a LAM in Mek mode, changes its runtime state to AirMek after session
 creation, and proves the AirMek-reachable destination appears in
 `getAvailableActions()` before the same path commits with matching MP cost,
 heat, and movement event path. This narrows the movement-oracle gap for
-runtime conversion changes after import; conversion action timing, remaining
-LAM airborne Fighter/AirMek ground-clearance submodes, infantry mount/dismount
+runtime conversion changes after import; remaining LAM airborne Fighter/AirMek
+ground-clearance submodes, infantry mount/dismount
 oracle sweeps, and broader external oracle comparisons remain follow-up work.
 
 2026-05-26 runtime movement commit side-effect pin: Interactive movement
@@ -1884,8 +1897,8 @@ event costs. Focused movement-scenario coverage changes a LAM to AirMek mode
 after import and proves a careful-stand projection's AirMek stand-up MP is the
 same MP recorded when the stand-up PSR fails. This keeps commit side effects on
 the same runtime capability path as movement highlights and available-action
-gating; conversion action timing, airborne Fighter/AirMek submode coverage, and
-broader external oracle sweeps remain follow-up work.
+gating; airborne Fighter/AirMek submode coverage and broader external oracle
+sweeps remain follow-up work.
 
 2026-05-31 infantry mounted-height precedence pin: movement runtime capability
 now resolves live infantry dismount state before stale `unitHeight` values, so
