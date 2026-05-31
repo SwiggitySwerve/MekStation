@@ -196,6 +196,7 @@ function movementAnimationModeForType(
     case MovementType.Jump:
       return movementType;
     case MovementType.Evade:
+    case MovementType.Sprint:
       return MovementType.Run;
     default:
       return null;

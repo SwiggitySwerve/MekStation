@@ -244,9 +244,9 @@ export interface IGameUnit {
    */
   readonly evasionBonus?: number;
   /**
-   * Optional current-turn sprint state copied into combat state. This is an
-   * explicit hydration hook for target-sprinted to-hit relief, not evidence
-   * that the optional TacOps Sprint movement action is implemented.
+   * Optional current-turn sprint state copied into combat state. Declared
+   * TacOps Sprint sets this state for target-sprinted to-hit relief and
+   * sprinting-attacker invalidation.
    */
   readonly sprintedThisTurn?: boolean;
   /**

@@ -1073,6 +1073,8 @@ function computeMovementHeat(
       return 1;
     case MovementType.Run:
       return 2;
+    case MovementType.Sprint:
+      return 3;
     case MovementType.Evade:
       return 4;
     case MovementType.Jump:
