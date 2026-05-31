@@ -1,5 +1,6 @@
 import {
   GamePhase,
+  PSRTrigger,
   type IGameEvent,
   type IGameState,
   type IHexCoordinate,
@@ -11,7 +12,10 @@ import {
   TerrainType,
   type ITerrainFeature,
 } from '@/types/gameplay/TerrainTypes';
-import { createPSRTriggeredEvent } from '@/utils/gameplay/gameEvents/statusChecks';
+import {
+  createPSRTriggeredEvent,
+  createUnitStuckEvent,
+} from '@/utils/gameplay/gameEvents/statusChecks';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import { parseTerrainFeatures } from '@/utils/gameplay/lineOfSight';
 import {
@@ -21,6 +25,7 @@ import {
   createRubblePSR,
   createRunningRoughTerrainPSR,
   createSkiddingPSR,
+  createSwampBogDownPSR,
 } from '@/utils/gameplay/pilotingSkillRolls';
 
 import { queuePendingPSR } from './physicalAttackPsr';
@@ -53,6 +58,7 @@ export function queueMovementTerrainPSRs(options: {
 }): IGameState {
   const { events, gameId, grid, movementType, steps, unitId } = options;
   let currentState = options.currentState;
+  const unit = currentState.units[unitId];
 
   for (const step of steps) {
     if (
@@ -63,12 +69,47 @@ export function queueMovementTerrainPSRs(options: {
       continue;
     }
 
+    if (
+      unit &&
+      !currentState.units[unitId]?.isStuck &&
+      isJumpIntoSwampBogDown({
+        grid,
+        movementType,
+        step,
+        unitType: unit.unitType,
+      })
+    ) {
+      currentState = {
+        ...currentState,
+        units: {
+          ...currentState.units,
+          [unitId]: {
+            ...currentState.units[unitId],
+            isStuck: true,
+          },
+        },
+      };
+      events.push(
+        createUnitStuckEvent(
+          gameId,
+          events.length,
+          currentState.turn,
+          GamePhase.Movement,
+          unitId,
+          'Jumped into bog-down terrain',
+          PSRTrigger.SwampBogDown,
+        ),
+      );
+      continue;
+    }
+
     const psrs = terrainPSRsForStep({
       grid,
       movementType,
       step,
       steps,
       unitId,
+      unitType: unit?.unitType,
     });
 
     for (const psr of psrs) {
@@ -85,6 +126,7 @@ export function queueMovementTerrainPSRs(options: {
           psr.triggerSource,
           currentState.units[unitId]?.piloting,
           psr.reasonCode,
+          psr.fixedTargetNumber,
         ),
       );
     }
@@ -99,8 +141,9 @@ function terrainPSRsForStep(options: {
   readonly step: TerrainBearingMovementStep;
   readonly steps: readonly TerrainBearingMovementStep[];
   readonly unitId: string;
+  readonly unitType?: string;
 }): readonly IPendingPSR[] {
-  const { grid, movementType, step, steps, unitId } = options;
+  const { grid, movementType, step, steps, unitId, unitType } = options;
   const enteredFeatures = terrainFeaturesFromTag(
     step.terrainEntered ?? terrainAt(grid, step.to),
   );
@@ -141,6 +184,24 @@ function terrainPSRsForStep(options: {
   }
 
   if (
+    step.kind !== 'turn' &&
+    movementType !== MovementType.Jump &&
+    isBattleMechLikeUnitType(unitType) &&
+    hasTerrainFeature(enteredFeatures, TerrainType.Swamp) &&
+    !hasTerrainFeature(fromFeatures, TerrainType.Swamp) &&
+    !hasTerrainFeature(enteredFeatures, TerrainType.Pavement)
+  ) {
+    psrs.push(
+      createSwampBogDownPSR(unitId, step.index, {
+        swampDepth: terrainLevelFromFeatures(
+          enteredFeatures,
+          TerrainType.Swamp,
+        ),
+      }),
+    );
+  }
+
+  if (
     step.kind === 'turn' &&
     isRunBasedMovement(movementType) &&
     isSkidTerrain(terrainFeaturesFromTag(terrainAt(grid, step.at)))
@@ -157,6 +218,27 @@ function terrainPSRsForStep(options: {
   }
 
   return psrs;
+}
+
+function isJumpIntoSwampBogDown(options: {
+  readonly grid: IHexGrid;
+  readonly movementType: MovementType;
+  readonly step: TerrainBearingMovementStep;
+  readonly unitType?: string;
+}): boolean {
+  const { grid, movementType, step, unitType } = options;
+  if (movementType !== MovementType.Jump || step.kind !== 'jump') return false;
+  if (!isBattleMechLikeUnitType(unitType)) return false;
+
+  const enteredFeatures = terrainFeaturesFromTag(
+    step.terrainEntered ?? terrainAt(grid, step.to),
+  );
+  const fromFeatures = terrainFeaturesFromTag(terrainAt(grid, step.from));
+  return (
+    hasTerrainFeature(enteredFeatures, TerrainType.Swamp) &&
+    !hasTerrainFeature(fromFeatures, TerrainType.Swamp) &&
+    !hasTerrainFeature(enteredFeatures, TerrainType.Pavement)
+  );
 }
 
 function countHexesMovedBeforeStep(
@@ -224,6 +306,25 @@ function waterDepthFromFeatures(
   );
   if (!water) return undefined;
   return Math.max(1, water.level);
+}
+
+function terrainLevelFromFeatures(
+  terrainFeatures: readonly ITerrainFeature[],
+  terrainType: TerrainType,
+): number | undefined {
+  const feature = terrainFeatures.find((entry) => entry.type === terrainType);
+  if (!feature) return undefined;
+  return Math.max(1, feature.level);
+}
+
+function isBattleMechLikeUnitType(unitType: string | undefined): boolean {
+  if (unitType === undefined) return true;
+  const canonical = unitType.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return (
+    canonical === 'battlemech' ||
+    canonical === 'omnimech' ||
+    canonical === 'industrialmech'
+  );
 }
 
 function isSkidTerrain(terrainFeatures: readonly ITerrainFeature[]): boolean {

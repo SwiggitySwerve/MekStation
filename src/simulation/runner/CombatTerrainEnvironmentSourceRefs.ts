@@ -130,28 +130,28 @@ const MEKSTATION_TERRAIN_PSR_PROPERTIES_SOURCE_REF =
   );
 
 const MEKSTATION_TERRAIN_PSR_RUNNER_SOURCE_REF = mekstationDeviationSourceRef(
-  'MekStation queueMovementTerrainPSRs queues water entry/exit, rubble, running rough terrain, ice, and pavement-or-ice skidding PSRs from movement-step terrain features.',
+  'MekStation queueMovementTerrainPSRs queues water entry/exit, rubble, running rough terrain, ice, swamp bog-down, and pavement-or-ice skidding PSRs from movement-step terrain features, and emits UnitStuck for jump-entry bog-down.',
   'src/simulation/runner/phases/movementTerrainPsr.ts',
-  'L37-L151',
+  'L37-L231',
 );
 
 const MEKSTATION_TERRAIN_PSR_FACTORY_SOURCE_REF = mekstationDeviationSourceRef(
-  'MekStation terrain PSR factories define rubble, running-rough, ice, water, skidding, and building-collapse pending PSRs plus local water-depth modifiers.',
+  'MekStation terrain PSR factories define rubble, running-rough, ice, water, swamp bog-down, skidding, and building-collapse pending PSRs plus local water-depth and swamp-depth modifiers.',
   'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts',
-  'L94-L214',
+  'L94-L232',
 );
 
 const MEKSTATION_TERRAIN_PSR_CLASSIFICATION_SOURCE_REF =
   mekstationDeviationSourceRef(
     'MekStation PSR resolution classifies terrain PSRs for quirk handling before resolving terrain and pilot-ability modifiers.',
     'src/utils/gameplay/pilotingSkillRolls/resolution.ts',
-    'L20-L33',
+    'L20-L40',
   );
 
 const MEKSTATION_TERRAIN_PSR_SPA_SOURCE_REF = mekstationDeviationSourceRef(
-  'MekStation PSR resolution applies Maneuvering Ace to skidding, Frogman to entering-water, and Mountaineer to entering-rubble pending PSRs.',
+  'MekStation PSR resolution applies Maneuvering Ace to skidding, Frogman to entering-water, Mountaineer to entering-rubble, and Swamp Beast to swamp bog-down pending PSRs.',
   'src/utils/gameplay/pilotingSkillRolls/resolution.ts',
-  'L261-L297',
+  'L276-L328',
 );
 
 const MEKSTATION_LOS_FEATURE_PARSE_SOURCE_REF = mekstationDeviationSourceRef(
