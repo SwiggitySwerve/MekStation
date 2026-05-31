@@ -57,6 +57,7 @@ import {
   canCharge,
   canDFA,
   canBrushOffPhysical,
+  canBreakGrapplePhysical,
   canGrapplePhysical,
   canKick,
   canJumpJetAttackPhysical,
@@ -66,6 +67,7 @@ import {
   canThrashPhysical,
   canTripPhysical,
   computeChargeDisplacementOutcome,
+  computeBreakGrappleDisplacementOutcome,
   computeDfaDisplacementOutcome,
   computeDisplacementWithDominoChain,
   calculatePhysicalToHit,
@@ -169,6 +171,17 @@ function computeResolvedPhysicalDisplacementOutcome(options: {
       attackerFacing: attacker.facing,
       targetId: target.id,
       targetPosition: target.position,
+    });
+  }
+
+  if (hit && attackType === 'break-grapple') {
+    return computeBreakGrappleDisplacementOutcome({
+      grid,
+      attackerId: attacker.id,
+      targetId: target.id,
+      attackerPosition: attacker.position,
+      targetPosition: target.position,
+      attackerIsGrappleAttacker: attacker.isGrappleAttacker,
     });
   }
 
@@ -776,6 +789,8 @@ export function declarePhysicalAttack(
     restriction = canBrushOffPhysical(input);
   } else if (attackType === 'grapple') {
     restriction = canGrapplePhysical(input);
+  } else if (attackType === 'break-grapple') {
+    restriction = canBreakGrapplePhysical(input);
   } else if (
     attackType === 'hatchet' ||
     attackType === 'sword' ||
