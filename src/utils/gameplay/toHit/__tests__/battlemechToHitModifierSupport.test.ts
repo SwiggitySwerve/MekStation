@@ -30,6 +30,7 @@ const INTEGRATED_TO_HIT_MODIFIERS = [
   'attacker-prone',
   'c3',
   'called-shot',
+  'ecm',
   'hull-down',
   'pilot-wounds',
   'sensor-damage',
@@ -40,7 +41,6 @@ const INTEGRATED_TO_HIT_MODIFIERS = [
 
 const HELPER_ONLY_TO_HIT_MODIFIERS = [
   'c3-equipment-network-formation',
-  'ecm',
 ] as const;
 
 type HelperOnlyToHitModifierId = (typeof HELPER_ONLY_TO_HIT_MODIFIERS)[number];
@@ -227,7 +227,7 @@ describe('BattleMech to-hit support matrix modifiers', () => {
     },
   );
 
-  it('keeps ECM as guidance suppression instead of additive calculateToHit math', () => {
+  it('keeps ECM integrated as guidance suppression instead of additive calculateToHit math', () => {
     const result = shortRangeBaseline();
     const ecmSupport = RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT.ecm;
 
@@ -235,9 +235,10 @@ describe('BattleMech to-hit support matrix modifiers', () => {
     expect(modifierNames(result)).not.toEqual(
       expect.arrayContaining([expect.stringContaining('ECM')]),
     );
-    expect(ecmSupport.level).toBe('helper-only');
+    expect(ecmSupport.level).toBe('integrated');
     expect(ecmSupport.evidence).toContain('suppresses');
-    expect(ecmSupport.gap).toContain('generic +1 ECM');
+    expect(ecmSupport.evidence).toContain('generic ECM to-hit penalty');
+    expect('gap' in ecmSupport).toBe(false);
   });
 
   it('applies C3 by replacing the attacker range bracket with the best network bracket', () => {
