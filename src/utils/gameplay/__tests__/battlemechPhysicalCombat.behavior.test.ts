@@ -362,6 +362,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       attackerRanThisTurn: true,
       attackerJumpedThisTurn: true,
       meleeWeaponsEquipped: meleeWeapons,
+      optionalRules: ['tacops_trip_attack'],
       pushDestinationValid: true,
     });
 
@@ -375,6 +376,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       'charge:-',
       'dfa:-',
       'push:-',
+      'trip:-',
       'hatchet:-',
       'sword:-',
       'mace:-',
@@ -653,7 +655,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       pushDestinationValid: true,
     });
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(
       options.every((option) =>
         option.restrictionsFailed.includes('TargetPassenger'),
@@ -748,7 +750,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       pushDestinationValid: true,
     });
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(
       options.every((option) =>
         option.restrictionsFailed.includes('TargetSwarming'),
@@ -783,7 +785,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       pushDestinationValid: true,
     });
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(
       options.every((option) =>
         option.restrictionsFailed.includes('TargetMakingDFA'),
@@ -821,7 +823,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       options.map((option) => [option.attackType, option]),
     );
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(byType.get('charge')?.restrictionsFailed).toContain(
       'TargetMakingDisplacementAttack',
     );
@@ -869,7 +871,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       options.map((option) => [option.attackType, option]),
     );
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(byType.get('push')?.restrictionsFailed).toContain(
       'TargetPushingAnotherMek',
     );
@@ -908,7 +910,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       pushDestinationValid: true,
     });
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(
       options.every((option) =>
         option.restrictionsFailed.includes('TargetInsideBuilding'),
@@ -943,7 +945,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       pushDestinationValid: true,
     });
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(
       options.every((option) =>
         option.restrictionsFailed.includes('TargetAirborne'),
@@ -1030,7 +1032,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       pushDestinationValid: true,
     });
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(
       options.every((option) =>
         option.restrictionsFailed.includes('AttackerEvading'),
@@ -1059,7 +1061,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       pushDestinationValid: true,
     });
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(
       options.every((option) =>
         option.restrictionsFailed.includes('AttackerCargoInteraction'),
@@ -1095,7 +1097,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       pushDestinationValid: true,
     });
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(
       options.every((option) =>
         option.restrictionsFailed.includes('DifferentBoard'),
@@ -4076,6 +4078,51 @@ describe('BattleMech physical combat behavior validation lane', () => {
       q: 1,
       r: 0,
     });
+  });
+
+  it('emits event-sourced optional TacOps trip as zero damage with a target PSR', () => {
+    const context = physicalContext({
+      optionalRules: ['tacops_trip_attack'],
+    });
+    const declared = declareAdjacentPhysicalAttack('trip', context, {
+      facing: Facing.Southeast,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6, 6]),
+      adjacentPhysicalGrid(),
+    );
+    const event = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = event?.payload as IPhysicalAttackResolvedPayload;
+    const damageEvents = resolved.events.filter(
+      (entry) => entry.type === GameEventType.DamageApplied,
+    );
+    const psrPayload = resolved.events.find(
+      (entry) =>
+        entry.type === GameEventType.PSRTriggered &&
+        (entry.payload as IPSRTriggeredPayload).unitId === 'target',
+    )?.payload as IPSRTriggeredPayload | undefined;
+
+    expect(payload).toMatchObject({
+      attackType: 'trip',
+      toHitNumber: 4,
+      hit: true,
+      damage: 0,
+    });
+    expect(payload.location).toBeUndefined();
+    expect(payload.displacements).toBeUndefined();
+    expect(damageEvents).toHaveLength(0);
+    expect(psrPayload).toMatchObject({
+      unitId: 'target',
+      reason: 'Tripped',
+      additionalModifier: 0,
+      triggerSource: 'trip',
+    });
+    expect(psrPayload?.reasonCode).toBeUndefined();
   });
 
   it('emits event-sourced charge displacement with attacker follow-through', () => {
