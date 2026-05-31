@@ -975,11 +975,16 @@ export const TERRAIN_ENVIRONMENT_COMBAT_SUPPORT = {
     'validateMovement consumes TERRAIN_PROPERTIES movementCostModifier for every TerrainType',
     [MEGAMEK_TERRAIN_TYPE_SOURCE_REF, MEGAMEK_TERRAIN_MOVEMENT_COST_SOURCE_REF],
   ),
-  'terrain-los-blocking': helperOnly(
+  'terrain-los-blocking': integrated(
     'terrain-los-blocking',
     'lineOfSight consumes TerrainType direct blockers and cumulative woods/smoke density for MekStation LOS blocking',
-    'MegaMek land-to-underwater LOS blocking, divided LOS, and richer building-level handling are not fully modeled by the local TerrainType LOS helper',
     terrainLosSourceRefs(TerrainType.HeavyWoods),
+  ),
+  'terrain-los-side-paths': helperOnly(
+    'terrain-los-side-paths',
+    'Core direct TerrainType blockers plus cumulative woods/smoke LOS density are integrated under terrain-los-blocking',
+    'MegaMek land-to-underwater LOS blocking, divided LOS, and richer building-level handling are not fully modeled by the local TerrainType LOS helper',
+    terrainLosSourceRefs(TerrainType.Water),
   ),
   'terrain-partial-cover': integrated(
     'terrain-partial-cover',
