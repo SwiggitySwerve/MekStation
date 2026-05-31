@@ -935,10 +935,10 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
     'Most remaining non-ranged-to-hit resolver families are still helper-only until their phases consume hydrated ability and quirk state',
     PILOT_MODIFIER_RESOLVER_SUPPORT_REFS,
   ),
-  'campaign-quirk-behavior': helperOnly(
+  'campaign-quirk-behavior': outOfScope(
     'campaign-quirk-behavior',
     'Rugged quirk support exposes MekHQ-style maintenance-cycle multipliers and keeps that behavior separate from combat critical-hit prevention',
-    'The combat runner has no campaign maintenance cycle subsystem',
+    'Campaign maintenance-cycle behavior is source-pinned audit evidence outside BattleMech combat runner validation scope',
     [
       'featureSupport.mechQuirks.rugged_1',
       'featureSupport.mechQuirks.rugged_2',

@@ -944,6 +944,13 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['non-battlemech-scope'].gap,
     ).toContain('Non-BattleMech');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['campaign-quirk-behavior']
+        .level,
+    ).toBe('out-of-scope');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['campaign-quirk-behavior'].gap,
+    ).toContain('outside BattleMech combat runner validation scope');
   });
 
   it('keeps source-backed movement action gaps helper-only until action paths exist', () => {

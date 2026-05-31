@@ -217,6 +217,14 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       level: 'unsupported',
       gap: expect.stringContaining('does not expose a combat resolver'),
     });
+    expect(QUIRK_COMBAT_SUPPORT.rugged_1).toMatchObject({
+      level: 'out-of-scope',
+      gap: expect.stringContaining('campaign maintenance quirk'),
+    });
+    expect(QUIRK_COMBAT_SUPPORT.rugged_2).toMatchObject({
+      level: 'out-of-scope',
+      gap: expect.stringContaining('campaign maintenance quirk'),
+    });
     expect(QUIRK_COMBAT_SUPPORT.rugged_1.sourceRefs).toEqual(
       QUIRK_COMBAT_SUPPORT.rugged_2.sourceRefs,
     );
@@ -267,6 +275,9 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'sandblaster-application',
       ]),
     );
+    expect(
+      supportIdsByLevel(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT, 'out-of-scope'),
+    ).toEqual(['campaign-maintenance-application']);
   });
 
   it('keeps ranged to-hit feature support distinct from ranged attack state hydration', () => {

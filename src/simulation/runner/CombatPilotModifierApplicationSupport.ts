@@ -77,6 +77,17 @@ function helperOnly(
     : { id, level: 'helper-only', evidence, gap };
 }
 
+function outOfScope(
+  id: string,
+  evidence: string,
+  gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'out-of-scope', evidence, gap, sourceRefs }
+    : { id, level: 'out-of-scope', evidence, gap };
+}
+
 function unsupported(
   id: string,
   gap: string,
@@ -300,10 +311,10 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
     'Infantry and battle-armor anti-Mek Leg/Swarm attack paths are not implemented',
     MEGAMEK_ANTI_MEK_ACTUATOR_SOURCE_REFS,
   ),
-  'campaign-maintenance-application': helperOnly(
+  'campaign-maintenance-application': outOfScope(
     'campaign-maintenance-application',
     'getRuggedMaintenanceMultiplier exposes MekHQ-style Rugged maintenance-cycle multipliers',
-    'The combat runner has no campaign maintenance cycle subsystem',
+    'Campaign maintenance-cycle application belongs to MekHQ campaign scope, not BattleMech combat runner modifier scope',
     MEKHQ_RUGGED_SOURCE_REFS,
   ),
   'movement-application': unsupported(

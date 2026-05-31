@@ -174,19 +174,19 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 161,
+      total: 157,
       byLevel: {
-        'helper-only': 128,
+        'helper-only': 124,
         unsupported: 33,
       },
       bySection: {
         actions: 10,
         damageAndDeath: 2,
-        featureSupport: 91,
+        featureSupport: 89,
         lifecycleAndPsr: 3,
-        pilotSkills: 20,
+        pilotSkills: 19,
         ruleSupport: 16,
-        validationScope: 19,
+        validationScope: 18,
       },
     });
     expect(unresolvedRefs).toEqual(
@@ -197,7 +197,7 @@ describe('BattleMech combat validation catalog index', () => {
         'featureSupport.ammunitionCompatibility.nonstandard-empty-compatible-row',
         'featureSupport.physicalWeapons.claws',
         'featureSupport.physicalWeapons.talons',
-        'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
+        'pilotSkills.pilotModifierResolvers.edge-application',
       ]),
     );
     expect(
@@ -232,8 +232,12 @@ describe('BattleMech combat validation catalog index', () => {
         'featureSupport.canonicalPilotAbilityScope.foot_cav',
         'featureSupport.canonicalPilotAbilityScope.gunnery_laser',
         'featureSupport.canonicalPilotAbilityScope.weathered',
+        'featureSupport.mechQuirks.rugged_1',
+        'featureSupport.mechQuirks.rugged_2',
         'lifecycleAndPsr.psrTriggers.charge_miss',
         'lifecycleAndPsr.psrTriggers.dfa_miss',
+        'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
+        'validationScope.objectiveRequirements.campaign-quirk-behavior',
         'validationScope.knownLimitationsAndScope.non-battlemech-ammo-scope',
         'validationScope.knownLimitationsAndScope.non-battlemech-combat-system-split',
         'validationScope.objectiveRequirements.non-battlemech-scope',
@@ -255,7 +259,7 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.wireIntents.SetReady',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(65);
+    expect(outOfScopeRows).toHaveLength(69);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('actions.physicalActionClassScope.'),
@@ -305,6 +309,14 @@ describe('BattleMech combat validation catalog index', () => {
     ]);
     expect(
       outOfScopeRefs.filter((ref) =>
+        ref.startsWith('featureSupport.mechQuirks.'),
+      ),
+    ).toEqual([
+      'featureSupport.mechQuirks.rugged_1',
+      'featureSupport.mechQuirks.rugged_2',
+    ]);
+    expect(
+      outOfScopeRefs.filter((ref) =>
         ref.startsWith('lifecycleAndPsr.psrTriggers.'),
       ),
     ).toEqual([
@@ -312,10 +324,18 @@ describe('BattleMech combat validation catalog index', () => {
       'lifecycleAndPsr.psrTriggers.dfa_miss',
     ]);
     expect(
+      outOfScopeRefs.filter((ref) =>
+        ref.startsWith('pilotSkills.pilotModifierResolvers.'),
+      ),
+    ).toEqual([
+      'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
+    ]);
+    expect(
       outOfScopeRefs.filter((ref) => ref.startsWith('validationScope.')),
     ).toEqual([
       'validationScope.knownLimitationsAndScope.non-battlemech-ammo-scope',
       'validationScope.knownLimitationsAndScope.non-battlemech-combat-system-split',
+      'validationScope.objectiveRequirements.campaign-quirk-behavior',
       'validationScope.objectiveRequirements.non-battlemech-scope',
     ]);
     expect(
