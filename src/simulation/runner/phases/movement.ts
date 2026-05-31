@@ -10,7 +10,10 @@ import {
   type IMovementDeclaredPayload,
   MovementType,
 } from '@/types/gameplay';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import {
+  canUnitGoProne,
+  getGoProneMpCost,
+} from '@/utils/gameplay/gameSessionProne';
 import {
   applyActiveMPBoosters,
   applyJumpJetCriticalDamage,
@@ -42,27 +45,18 @@ import { resolveRunnerStandUpAttempt } from './movementStandUp';
 import { queueMovementTerrainPSRs } from './movementTerrainPsr';
 import { createD6Roller, createGameEvent } from './utils';
 
-const GO_PRONE_UNIT_TYPES = new Set<string>([
-  UnitType.BATTLEMECH,
-  UnitType.OMNIMECH,
-  UnitType.INDUSTRIALMECH,
-]);
-
 function isGoProneMovementPayload(
   payload: IMovementDeclaredPayload | undefined,
 ): boolean {
   return payload?.steps?.some((step) => step.kind === 'goProne') ?? false;
 }
 
-function canUnitGoProne(unit: IGameState['units'][string]): boolean {
-  if (unit.prone === true) return false;
-  return unit.unitType === undefined || GO_PRONE_UNIT_TYPES.has(unit.unitType);
-}
-
 function createGoPronePayload(
   unitId: string,
   unit: IGameState['units'][string],
 ): IMovementDeclaredPayload {
+  const mpCost = getGoProneMpCost(unit);
+
   return {
     unitId,
     from: unit.position,
@@ -70,18 +64,18 @@ function createGoPronePayload(
     facing: unit.facing as Facing,
     movementType: MovementType.Stationary,
     path: [unit.position],
-    mpUsed: 1,
+    mpUsed: mpCost,
     heatGenerated: 0,
     hexesMoved: 0,
     straightHexes: 0,
-    turningMpCost: 1,
+    turningMpCost: mpCost,
     netDisplacement: 0,
     steps: [
       {
         kind: 'goProne',
         index: 0,
         at: { q: unit.position.q, r: unit.position.r },
-        mpCost: 1,
+        mpCost,
       },
     ],
   };
