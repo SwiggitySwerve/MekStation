@@ -35,6 +35,7 @@ describe('physicalAttackCommands', () => {
       'physical.trip',
       'physical.thrash',
       'physical.jump-jet-attack',
+      'physical.brush-off',
       'physical.charge',
       'physical.dfa',
       'physical.club',
@@ -108,6 +109,14 @@ describe('physicalAttackCommands', () => {
     expect(jumpJetAttack.commit(makeCtx())).toEqual({
       actionId: 'physical-attack',
       payload: { attackType: 'jump-jet-attack', limb: 'rightLeg' },
+    });
+  });
+
+  it('brush off dispatches right-arm physical-attack intent', () => {
+    const brushOff = commands.find((c) => c.id === 'physical.brush-off')!;
+    expect(brushOff.commit(makeCtx())).toEqual({
+      actionId: 'physical-attack',
+      payload: { attackType: 'brush-off', limb: 'rightArm' },
     });
   });
 
