@@ -729,16 +729,19 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         .sourceRefs ?? [];
 
     expect(SPA_COMBAT_SUPPORT['heavy-lifter']).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('lift capacity by 1.5'),
+      level: 'helper-only',
+      evidence: expect.stringContaining('lift-capacity multiplier'),
+      gap: expect.stringContaining('carry/throw-object'),
     });
     expect(SPA_COMBAT_SUPPORT['heavy-lifter'].gap).toContain(
-      'no carry/throw-object physical combat action path',
+      'no carry/throw-object physical combat action declaration or resolution path',
     );
     expect(heavyLifterRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek MekWithArms.maxGroundObjectTonnage multiplies BattleMech ground-object lift capacity by 1.5 for Heavy Lifter.',
       'MegaMek ProtoMek.maxGroundObjectTonnage multiplies ProtoMek ground-object lift capacity by 1.5 for Heavy Lifter.',
       'MegaMek OptionsConstants defines PILOT_HVY_LIFTER as hvy_lifter.',
+      'MekStation calculateGroundObjectLiftCapacity implements the source-backed 5 percent per available hand lift capacity plus Heavy Lifter and TSM pickup multipliers.',
+      'MekStation SPA helper tests prove canonical and legacy Heavy Lifter ids apply the 1.5 lift-capacity multiplier without adding carry or throw action support.',
     ]);
     expect(movementRefs).toEqual(expect.arrayContaining([...heavyLifterRefs]));
     expect(
