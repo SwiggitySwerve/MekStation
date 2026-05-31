@@ -74,16 +74,22 @@ export interface IVehicleCriticalAvailabilityProfile {
    * Stabilizer criticals use this as mount-presence evidence.
    */
   readonly weaponLocations?: readonly (VehicleLocation | VTOLLocation)[];
+  /** Count of represented target weapon mounts by vehicle location. */
+  readonly weaponLocationCounts?: Partial<Record<string, number>>;
   /** Vehicle locations with represented weapons that can jam. */
   readonly jammableWeaponLocations?: readonly (
     | VehicleLocation
     | VTOLLocation
   )[];
+  /** Count of represented target weapons that can jam by vehicle location. */
+  readonly jammableWeaponLocationCounts?: Partial<Record<string, number>>;
   /** Vehicle locations with represented weapons that can be destroyed. */
   readonly destroyableWeaponLocations?: readonly (
     | VehicleLocation
     | VTOLLocation
   )[];
+  /** Count of represented target weapons that can be destroyed by location. */
+  readonly destroyableWeaponLocationCounts?: Partial<Record<string, number>>;
   /** True/false only when scenario construction can prove loaded cargo state. */
   readonly cargoLoaded?: boolean;
   /** Locations whose weapon stabilizer critical has already been represented. */

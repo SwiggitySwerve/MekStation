@@ -142,7 +142,15 @@ function vehicleCriticalAvailabilityFromWeapons(
   const weaponLocations = uniqueVehicleLocations(
     mountedWeapons.map((weapon) => weapon.vehicleMountLocation),
   );
+  const weaponLocationCounts = countVehicleLocations(
+    mountedWeapons.map((weapon) => weapon.vehicleMountLocation),
+  );
   const liveWeaponLocations = uniqueVehicleLocations(
+    mountedWeapons
+      .filter((weapon) => !weapon.destroyed)
+      .map((weapon) => weapon.vehicleMountLocation),
+  );
+  const liveWeaponLocationCounts = countVehicleLocations(
     mountedWeapons
       .filter((weapon) => !weapon.destroyed)
       .map((weapon) => weapon.vehicleMountLocation),
@@ -150,8 +158,11 @@ function vehicleCriticalAvailabilityFromWeapons(
 
   return {
     weaponLocations,
+    weaponLocationCounts,
     jammableWeaponLocations: liveWeaponLocations,
+    jammableWeaponLocationCounts: liveWeaponLocationCounts,
     destroyableWeaponLocations: liveWeaponLocations,
+    destroyableWeaponLocationCounts: liveWeaponLocationCounts,
   };
 }
 
@@ -168,6 +179,19 @@ function uniqueVehicleLocations(
   );
 }
 
+function countVehicleLocations(
+  locations: readonly (VehicleLocation | VTOLLocation | undefined)[],
+): Partial<Record<string, number>> {
+  return locations.reduce<Partial<Record<string, number>>>(
+    (counts, location) => {
+      return location === undefined
+        ? counts
+        : { ...counts, [location]: (counts[location] ?? 0) + 1 };
+    },
+    {},
+  );
+}
+
 function mergeVehicleCriticalAvailability(
   existing: IVehicleCriticalAvailabilityProfile | undefined,
   derived: IVehicleCriticalAvailabilityProfile,
@@ -178,14 +202,24 @@ function mergeVehicleCriticalAvailability(
 
   return {
     weaponLocations: existing.weaponLocations ?? derived.weaponLocations,
+    weaponLocationCounts:
+      existing.weaponLocationCounts ?? derived.weaponLocationCounts,
     jammableWeaponLocations:
       existing.jammableWeaponLocations ??
       existing.weaponLocations ??
       derived.jammableWeaponLocations,
+    jammableWeaponLocationCounts:
+      existing.jammableWeaponLocationCounts ??
+      existing.weaponLocationCounts ??
+      derived.jammableWeaponLocationCounts,
     destroyableWeaponLocations:
       existing.destroyableWeaponLocations ??
       existing.weaponLocations ??
       derived.destroyableWeaponLocations,
+    destroyableWeaponLocationCounts:
+      existing.destroyableWeaponLocationCounts ??
+      existing.weaponLocationCounts ??
+      derived.destroyableWeaponLocationCounts,
     ...(existing.cargoLoaded !== undefined
       ? { cargoLoaded: existing.cargoLoaded }
       : {}),

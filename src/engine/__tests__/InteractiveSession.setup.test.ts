@@ -97,8 +97,11 @@ describe('gameUnitsWithAdaptedMovementModes', () => {
 
     expect(unit.vehicleInit?.criticalAvailability).toEqual({
       weaponLocations: [VehicleLocation.FRONT],
+      weaponLocationCounts: { [VehicleLocation.FRONT]: 1 },
       jammableWeaponLocations: [VehicleLocation.FRONT],
+      jammableWeaponLocationCounts: { [VehicleLocation.FRONT]: 1 },
       destroyableWeaponLocations: [VehicleLocation.FRONT],
+      destroyableWeaponLocationCounts: { [VehicleLocation.FRONT]: 1 },
     });
   });
 
@@ -111,8 +114,11 @@ describe('gameUnitsWithAdaptedMovementModes', () => {
 
     expect(unit.vehicleInit?.criticalAvailability).toEqual({
       weaponLocations: [VehicleLocation.REAR],
+      weaponLocationCounts: { [VehicleLocation.REAR]: 1 },
       jammableWeaponLocations: [],
+      jammableWeaponLocationCounts: {},
       destroyableWeaponLocations: [],
+      destroyableWeaponLocationCounts: {},
     });
   });
 
@@ -132,8 +138,11 @@ describe('gameUnitsWithAdaptedMovementModes', () => {
 
     expect(unit.vehicleInit?.criticalAvailability).toEqual({
       weaponLocations: [VehicleLocation.FRONT],
+      weaponLocationCounts: { [VehicleLocation.FRONT]: 1 },
       jammableWeaponLocations: [VehicleLocation.FRONT],
+      jammableWeaponLocationCounts: { [VehicleLocation.FRONT]: 1 },
       destroyableWeaponLocations: [VehicleLocation.FRONT],
+      destroyableWeaponLocationCounts: { [VehicleLocation.FRONT]: 1 },
       cargoLoaded: false,
       stabilizerHitLocations: [VehicleLocation.FRONT],
     });

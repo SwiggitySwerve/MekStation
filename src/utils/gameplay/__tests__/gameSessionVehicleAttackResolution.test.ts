@@ -84,6 +84,19 @@ function vehicleUnit(
   };
 }
 
+function frontWeaponCriticalAvailability(): NonNullable<
+  NonNullable<IGameUnit['vehicleInit']>['criticalAvailability']
+> {
+  return {
+    weaponLocations: [VehicleLocation.FRONT],
+    weaponLocationCounts: { [VehicleLocation.FRONT]: 1 },
+    jammableWeaponLocations: [VehicleLocation.FRONT],
+    jammableWeaponLocationCounts: { [VehicleLocation.FRONT]: 1 },
+    destroyableWeaponLocations: [VehicleLocation.FRONT],
+    destroyableWeaponLocationCounts: { [VehicleLocation.FRONT]: 1 },
+  };
+}
+
 function attackEvent(sessionId: string, sequence = 1): IGameEvent {
   return createAttackDeclaredEvent(
     sessionId,
@@ -547,5 +560,88 @@ describe('resolveAttack vehicle target dispatch', () => {
     expect((critical.payload as ICriticalHitResolvedPayload).effect).toBe(
       'stabilizer_hit',
     );
+  });
+
+  it('uses runtime weapon destruction to reduce represented front weapon availability', () => {
+    const session = createGameSession(config(), [
+      mechUnit('attacker'),
+      vehicleUnit({
+        criticalAvailability: frontWeaponCriticalAvailability(),
+      }),
+    ]);
+    const destroyedWeaponSession = resolveAttack(
+      session,
+      attackEvent(session.id),
+      diceRollerFor([
+        [6, 6],
+        [1, 1],
+      ]),
+      d6RollerFor([5, 6]),
+    );
+
+    const resolved = resolveAttack(
+      destroyedWeaponSession,
+      attackEvent(
+        destroyedWeaponSession.id,
+        destroyedWeaponSession.events.length,
+      ),
+      diceRollerFor([
+        [6, 6],
+        [1, 1],
+      ]),
+      d6RollerFor([3, 4]),
+    );
+
+    const criticals = resolved.events.filter(
+      (event) => event.type === GameEventType.CriticalHitResolved,
+    );
+    expect(
+      (criticals[criticals.length - 1].payload as ICriticalHitResolvedPayload)
+        .effect,
+    ).toBe('stabilizer_hit');
+    expect(
+      resolved.currentState.units.target.componentDamage
+        ?.vehicleCriticalsByLocation?.[VehicleLocation.FRONT]?.weaponsDestroyed,
+    ).toBe(1);
+  });
+
+  it('uses runtime stabilizer hits to fall through later front stabilizer criticals', () => {
+    const session = createGameSession(config(), [
+      mechUnit('attacker'),
+      vehicleUnit({
+        criticalAvailability: frontWeaponCriticalAvailability(),
+      }),
+    ]);
+    const stabilizerHitSession = resolveAttack(
+      session,
+      attackEvent(session.id),
+      diceRollerFor([
+        [6, 6],
+        [1, 1],
+      ]),
+      d6RollerFor([4, 4]),
+    );
+
+    const resolved = resolveAttack(
+      stabilizerHitSession,
+      attackEvent(stabilizerHitSession.id, stabilizerHitSession.events.length),
+      diceRollerFor([
+        [6, 6],
+        [1, 1],
+      ]),
+      d6RollerFor([4, 4]),
+    );
+
+    const criticals = resolved.events.filter(
+      (event) => event.type === GameEventType.CriticalHitResolved,
+    );
+    expect(
+      (criticals[criticals.length - 1].payload as ICriticalHitResolvedPayload)
+        .effect,
+    ).toBe('sensor_hit');
+    expect(
+      resolved.currentState.units.target.componentDamage
+        ?.vehicleCriticalsByLocation?.[VehicleLocation.FRONT]?.stabilizerHit,
+    ).toBe(true);
   });
 });

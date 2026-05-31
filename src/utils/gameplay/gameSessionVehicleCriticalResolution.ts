@@ -78,6 +78,7 @@ export function resolveVehicleCriticalIfTriggered(
     ...vehicleCriticalAvailabilityContext(
       input.session.units.find((unit) => unit.id === input.targetId),
       input.location,
+      input.targetState.componentDamage,
     ),
   });
   const critResult = applyVehicleCritEffect(

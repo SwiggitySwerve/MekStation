@@ -47,16 +47,17 @@ decisions are made, not because CI is stale.
   full surface-naval underwater expansion, and broader external oracle
   comparisons remain follow-up work.
 - Hull-down / vehicle combat: dual-turret split handling, cargo import parity,
-  runtime target weapon/stabilizer-state mutation for vehicle critical
-  availability, and broader vehicle critical oracle sweeps remain follow-up
-  work. Full location-sensitive Tank/VTOL vehicle critical-table selection is no
-  longer open after the `align-vehicle-critical-location-tables` slice,
-  represented ammo/engine/crew/turret/rotor availability fallthrough is covered
-  by `align-vehicle-critical-availability-fallthrough`, initial target
+  and broader vehicle critical oracle sweeps remain follow-up work. Full
+  location-sensitive Tank/VTOL vehicle critical-table selection is no longer
+  open after the `align-vehicle-critical-location-tables` slice, represented
+  ammo/engine/crew/turret/rotor availability fallthrough is covered by
+  `align-vehicle-critical-availability-fallthrough`, initial target
   weapon-location availability is covered by
-  `import-vehicle-critical-target-equipment-availability`, and initial
-  stabilizer mount-presence separation is covered by
-  `separate-vehicle-critical-stabilizer-mount-presence`.
+  `import-vehicle-critical-target-equipment-availability`, initial stabilizer
+  mount-presence separation is covered by
+  `separate-vehicle-critical-stabilizer-mount-presence`, and runtime
+  weapon/stabilizer-state reduction is covered by
+  `track-runtime-vehicle-critical-equipment-state`.
   Target hull-down modifiers, attacker leg-weapon/kick blocks, and vehicle
   front-weapon direct-fire blocks, hull-down go-prone, and standing hull-down
   entry, prone-to-hull-down actuator/hip costs, punch/club hull-down hit-table

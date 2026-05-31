@@ -64,10 +64,25 @@ export interface IComponentDamageState {
   >;
   /** IDs of destroyed weapons. */
   readonly weaponsDestroyed: readonly string[];
+  /**
+   * Represented vehicle critical outcomes keyed by vehicle location. Used by
+   * later vehicle critical fallthrough so static target-equipment metadata can
+   * be reduced by already-applied weapon and stabilizer criticals.
+   */
+  readonly vehicleCriticalsByLocation?: Partial<
+    Record<string, IVehicleCriticalLocationDamageState>
+  >;
   /** Number of heat sinks destroyed (reduces dissipation by 1 single / 2 double each). */
   readonly heatSinksDestroyed: number;
   /** Number of jump jets destroyed (reduces max jump MP by 1 each). */
   readonly jumpJetsDestroyed: number;
+}
+
+export interface IVehicleCriticalLocationDamageState {
+  readonly weaponsDestroyed?: number;
+  readonly weaponsJammed?: number;
+  readonly stabilizerHit?: boolean;
+  readonly flightStabilizerHit?: boolean;
 }
 
 /**

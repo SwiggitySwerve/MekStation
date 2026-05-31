@@ -16,6 +16,7 @@ import {
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 
 import { DEFAULT_COMPONENT_DAMAGE } from './initialization';
+import { applyVehicleCriticalLocationDamage } from './vehicleCriticalLocationDamage';
 import { applyVehicleCriticalToEnvelope } from './vehicleCriticalReplay';
 
 function getArmForSideTorso(location: string): string | null {
@@ -386,13 +387,15 @@ export function applyCriticalHitResolved(
       updatedDamage = { ...updatedDamage, cockpitHit: true };
       break;
     case 'weapon':
-      updatedDamage = {
-        ...updatedDamage,
-        weaponsDestroyed: [
-          ...updatedDamage.weaponsDestroyed,
-          payload.componentName,
-        ],
-      };
+      if (payload.destroyed) {
+        updatedDamage = {
+          ...updatedDamage,
+          weaponsDestroyed: [
+            ...updatedDamage.weaponsDestroyed,
+            payload.componentName,
+          ],
+        };
+      }
       break;
     case 'heat_sink':
       updatedDamage = {
@@ -415,6 +418,10 @@ export function applyCriticalHitResolved(
         },
       };
       break;
+  }
+
+  if (unit.combatState?.kind === 'vehicle') {
+    updatedDamage = applyVehicleCriticalLocationDamage(updatedDamage, payload);
   }
 
   return {
