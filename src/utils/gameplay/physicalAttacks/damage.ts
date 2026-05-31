@@ -33,6 +33,10 @@ import {
   TSM_ACTIVATION_HEAT,
   WRECKING_BALL_DAMAGE,
 } from './constants';
+import {
+  getJumpJetAttackDamage,
+  type JumpJetAttackSelectedLeg,
+} from './jumpJetAttackEligibility';
 import { getThrashAttackDamageForWeight } from './thrashEligibility';
 import {
   IPhysicalAttackInput,
@@ -441,6 +445,25 @@ export function calculateThrashDamage(input: IPhysicalAttackInput): number {
   return getThrashAttackDamageForWeight(input.attackerTonnage);
 }
 
+function selectedJumpJetAttackLeg(
+  input: IPhysicalAttackInput,
+): JumpJetAttackSelectedLeg {
+  if (input.jumpJetAttackSelectedLeg) return input.jumpJetAttackSelectedLeg;
+  return input.limb === 'leftLeg' ? 'left' : 'right';
+}
+
+export function calculateJumpJetAttackDamage(
+  input: IPhysicalAttackInput,
+): number {
+  return getJumpJetAttackDamage({
+    selectedLeg: selectedJumpJetAttackLeg(input),
+    leftReadyJumpJetCount: input.leftReadyJumpJetCount,
+    rightReadyJumpJetCount: input.rightReadyJumpJetCount,
+    leftLegWet: input.leftLegWet,
+    rightLegWet: input.rightLegWet,
+  });
+}
+
 /**
  * Per `implement-physical-attack-phase` tasks 6.4 / 7.4: split damage
  * into 5-point clusters before hit-location resolution. Zero damage
@@ -538,6 +561,17 @@ export function calculatePhysicalDamage(
         attackerLegDamagePerLeg: 0,
         targetPSR: false,
         attackerPSR: true,
+        attackerPSRModifier: 0,
+        hitTable: 'punch',
+        targetDisplaced: false,
+      };
+    case 'jump-jet-attack':
+      return {
+        targetDamage: calculateJumpJetAttackDamage(input),
+        attackerDamage: 0,
+        attackerLegDamagePerLeg: 0,
+        targetPSR: false,
+        attackerPSR: false,
         attackerPSRModifier: 0,
         hitTable: 'punch',
         targetDisplaced: false,

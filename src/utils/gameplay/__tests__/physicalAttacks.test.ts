@@ -38,6 +38,7 @@ import {
   canPush,
   canTripPhysical,
   canThrashPhysical,
+  canJumpJetAttackPhysical,
   canThrash,
   canTrip,
   computeChargeDisplacementOutcome,
@@ -2419,6 +2420,61 @@ describe('physicalAttacks', () => {
         automaticSuccessReason: 'Targeting adjacent building.',
         automaticSuccessReasonCode: 'AdjacentBuilding',
         modifiers: [],
+      });
+    });
+
+    it('wires jump jet attack through runtime restrictions, to-hit, damage, and resolution', () => {
+      const input = makeInput({
+        attackType: 'jump-jet-attack',
+        optionalRules: ['tacops_jump_jet_attack'],
+        limb: 'rightLeg',
+        rightReadyJumpJetCount: 2,
+        targetDistance: 1,
+        standingAttackerHeightAboveTargetHeight: 1,
+        targetDirectlyAheadOfFeet: true,
+      });
+
+      expect(canJumpJetAttackPhysical(input)).toEqual({ allowed: true });
+      expect(calculatePhysicalToHit(input)).toMatchObject({
+        allowed: true,
+        baseToHit: 5,
+        finalToHit: 7,
+        modifiers: [expect.objectContaining({ name: 'Jump Jet', value: 2 })],
+      });
+      expect(calculatePhysicalDamage(input)).toMatchObject({
+        targetDamage: 6,
+        attackerDamage: 0,
+        attackerPSR: false,
+        targetPSR: false,
+      });
+      expect(
+        resolvePhysicalAttack(input, makeDiceSequence([4, 4, 3])),
+      ).toMatchObject({
+        attackType: 'jump-jet-attack',
+        hit: true,
+        targetDamage: 6,
+        attackerDamage: 0,
+      });
+    });
+
+    it('rejects runtime jump jet attacks without the TacOps option before side effects', () => {
+      expect(
+        resolvePhysicalAttack(
+          makeInput({
+            attackType: 'jump-jet-attack',
+            limb: 'rightLeg',
+            rightReadyJumpJetCount: 2,
+            targetDistance: 1,
+            standingAttackerHeightAboveTargetHeight: 1,
+            targetDirectlyAheadOfFeet: true,
+          }),
+          makeDiceSequence([6, 6, 6]),
+        ),
+      ).toMatchObject({
+        hit: false,
+        targetDamage: 0,
+        attackerDamage: 0,
+        restrictionReasonCode: 'TacOpsJumpJetAttackDisabled',
       });
     });
   });
