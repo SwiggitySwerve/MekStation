@@ -174,9 +174,9 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 155,
+      total: 154,
       byLevel: {
-        'helper-only': 122,
+        'helper-only': 121,
         unsupported: 33,
       },
       bySection: {
@@ -185,7 +185,7 @@ describe('BattleMech combat validation catalog index', () => {
         featureSupport: 88,
         lifecycleAndPsr: 3,
         pilotSkills: 19,
-        ruleSupport: 16,
+        ruleSupport: 15,
         validationScope: 18,
       },
     });
