@@ -1,6 +1,22 @@
 import type { ICombatFeatureSourceReference } from './CombatFeatureSupport';
 
 export const MEKSTATION_PHYSICAL_ACTION_HELPER_REFS = {
+  'break-grapple': [
+    {
+      kind: 'mekstation-deviation',
+      citation:
+        'MekStation canBreakGrapple exposes source-backed optional-rule, airborne, common locked-grapple, chain-whip, Mek/ProtoMek, and grapple-target state gates as helper-only coverage without adding a runtime PhysicalAttackType.',
+      url: 'src/utils/gameplay/physicalAttacks/breakGrappleEligibility.ts#L88-L263',
+      sourceVersion: 'MekStation working-tree',
+    },
+    {
+      kind: 'mekstation-deviation',
+      citation:
+        'MekStation physical attack tests cover source-backed canBreakGrapple gates, original-attacker automatic success, actuator/AES modifiers, and grapple weight-class branches.',
+      url: 'src/utils/gameplay/__tests__/physicalAttacks.test.ts#L1765-L1930',
+      sourceVersion: 'MekStation working-tree',
+    },
+  ],
   'brush-off': [
     {
       kind: 'mekstation-deviation',
