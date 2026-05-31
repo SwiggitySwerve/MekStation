@@ -130,6 +130,7 @@ describe('BattleMech combat action support catalog', () => {
       'heat.continue',
       'movement.activate-masc',
       'movement.activate-supercharger',
+      'movement.evade',
       'movement.go-prone',
       'movement.jump',
       'movement.run',
@@ -198,6 +199,7 @@ describe('BattleMech combat action support catalog', () => {
     const integratedMovementCommandSourceRows = [
       'movement.activate-masc',
       'movement.activate-supercharger',
+      'movement.evade',
       'movement.go-prone',
       'movement.jump',
       'movement.run',
@@ -393,33 +395,32 @@ describe('BattleMech combat action support catalog', () => {
     ]);
 
     expect(sortedKeys(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([
-      'movement.evade',
       'movement.sprint',
     ]);
     expect(supportGaps(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(BATTLEMECH_ABSENT_ACTION_SUPPORT, 'unsupported'),
-    ).toEqual(['movement.evade', 'movement.sprint']);
+    ).toEqual(['movement.sprint']);
     expect(
       sortedKeys(BATTLEMECH_ABSENT_ACTION_SUPPORT).filter((id) =>
         playerCommandIds.includes(id),
       ),
     ).toEqual([]);
-    expect(Object.values(MovementType)).not.toContain('evade');
+    expect(Object.values(MovementType)).toContain('evade');
     expect(Object.values(MovementType)).not.toContain('sprint');
-    expect(BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.evade']).toMatchObject({
-      layer: 'absent-action-surface',
-      gap: expect.stringContaining('no authoritative evade action path'),
+    expect(COMBAT_COMMAND_ACTION_SUPPORT['movement.evade']).toMatchObject({
+      layer: 'tactical-command',
+      level: 'integrated',
+      evidence: expect.stringContaining('MovementType.Evade'),
     });
-    expect(BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.evade'].gap).toContain(
-      'feeds runner heat as run heat plus evasion heat',
-    );
+    expect(COMBAT_COMMAND_ACTION_SUPPORT['movement.evade'].gap).toBeUndefined();
     expect(
-      BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.evade'].sourceRefs?.map(
+      COMBAT_COMMAND_ACTION_SUPPORT['movement.evade'].sourceRefs?.map(
         (sourceRef) => sourceRef.citation,
       ),
     ).toEqual(
       expect.arrayContaining([
+        expect.stringContaining('movement.evade'),
         expect.stringContaining('TacOps Evade'),
         expect.stringContaining('MoveStepType defines EVADE'),
         expect.stringContaining('sets the entity evading flag'),

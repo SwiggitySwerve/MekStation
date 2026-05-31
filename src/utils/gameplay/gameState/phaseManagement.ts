@@ -32,6 +32,8 @@ export function applyPhaseChanged(
         hexesMovedThisTurn: 0,
         movedBackwardThisTurn: false,
         usedMechanicalJumpBoosterThisTurn: false,
+        isEvading: false,
+        evasionBonus: undefined,
       };
     }
   }

@@ -34,7 +34,7 @@ import { Facing, MovementType } from '@/types/gameplay';
 // ---------------------------------------------------------------------------
 
 describe('MovementTypeSwitcher', () => {
-  it('renders three buttons and marks the active one with aria-pressed', () => {
+  it('renders movement buttons and marks the active one with aria-pressed', () => {
     const onChange = jest.fn();
     render(
       <MovementTypeSwitcher
@@ -47,10 +47,12 @@ describe('MovementTypeSwitcher', () => {
 
     const walkBtn = screen.getByTestId('movement-type-walk');
     const runBtn = screen.getByTestId('movement-type-run');
+    const evadeBtn = screen.getByTestId('movement-type-evade');
     const jumpBtn = screen.getByTestId('movement-type-jump');
 
     expect(walkBtn).toHaveAttribute('aria-pressed', 'true');
     expect(runBtn).toHaveAttribute('aria-pressed', 'false');
+    expect(evadeBtn).toHaveAttribute('aria-pressed', 'false');
     expect(jumpBtn).toHaveAttribute('aria-pressed', 'false');
   });
 
@@ -90,6 +92,8 @@ describe('MovementTypeSwitcher', () => {
     );
     fireEvent.click(screen.getByTestId('movement-type-run'));
     expect(onChange).toHaveBeenCalledWith(MovementType.Run);
+    fireEvent.click(screen.getByTestId('movement-type-evade'));
+    expect(onChange).toHaveBeenCalledWith(MovementType.Evade);
     fireEvent.click(screen.getByTestId('movement-type-jump'));
     expect(onChange).toHaveBeenCalledWith(MovementType.Jump);
   });
