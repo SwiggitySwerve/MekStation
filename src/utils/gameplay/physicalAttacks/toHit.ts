@@ -6,6 +6,7 @@ import {
 } from '@/utils/gameplay/spaModifiers';
 import { calculateTargetEvasionModifier } from '@/utils/gameplay/toHit/movementModifiers';
 
+import { getBrushOffAttackToHitModifiers } from './brushOffEligibility';
 import {
   FOOT_KICK_MODIFIER,
   CLAW_PUNCH_TO_HIT_MODIFIER,
@@ -26,6 +27,7 @@ import {
 } from './constants';
 import { getJumpJetAttackToHitModifiers } from './jumpJetAttackEligibility';
 import {
+  canBrushOffPhysical,
   canJumpJetAttackPhysical,
   canCharge,
   canDFA,
@@ -225,6 +227,23 @@ function selectedPunchArmHasClaw(input: IPhysicalAttackInput): boolean {
 function selectedPunchArm(input: IPhysicalAttackInput): 'left' | 'right' {
   if (input.arm === 'left' || input.limb === 'leftArm') return 'left';
   return 'right';
+}
+
+function selectedBrushOffArmHasClaw(input: IPhysicalAttackInput): boolean {
+  if (input.arm === 'left' || input.limb === 'leftArm') {
+    return input.leftArmHasClaw === true;
+  }
+  return input.rightArmHasClaw === true;
+}
+
+function brushOffModifierSource(reasonCode: string): string {
+  if (reasonCode.includes('Actuator') || reasonCode === 'ArmAES') {
+    return 'actuator';
+  }
+  if (reasonCode === 'UsingClaws') return 'physical-equipment';
+  if (reasonCode === 'DefenderMagneticClaws') return 'target-equipment';
+  if (reasonCode.includes('Sensor')) return 'sensor';
+  return 'physical-action';
 }
 
 function appendBattleFistModifier(
@@ -683,6 +702,70 @@ export function calculateJumpJetAttackToHit(
   };
 }
 
+export function calculateBrushOffToHit(
+  input: IPhysicalAttackInput,
+): IPhysicalToHitResult {
+  const restriction = canBrushOffPhysical(input);
+  if (!restriction.allowed) {
+    return {
+      baseToHit: input.pilotingSkill,
+      finalToHit: Infinity,
+      modifiers: [],
+      allowed: false,
+      restrictionReason: restriction.reason,
+      restrictionReasonCode: restriction.reasonCode,
+    };
+  }
+
+  const actuators = input.componentDamage.actuators;
+  const brushOffModifiers = getBrushOffAttackToHitModifiers({
+    upperArmWorking: !actuators[ActuatorType.UPPER_ARM],
+    lowerArmWorking:
+      input.lowerArmActuatorPresent === false
+        ? false
+        : !actuators[ActuatorType.LOWER_ARM],
+    armAesFunctional: input.armAesFunctional,
+    hasClaws: selectedBrushOffArmHasClaw(input),
+    handActuatorPresent: input.handActuatorPresent,
+    handWorking: !actuators[ActuatorType.HAND],
+    torsoMountedCockpit: input.torsoMountedCockpit,
+    headSensorHits: input.headSensorHits,
+    centerTorsoSensorHits: input.centerTorsoSensorHits,
+    defenderHasMagneticClaws: input.defenderHasMagneticClaws,
+  });
+
+  const modifiers: IPhysicalModifier[] = brushOffModifiers.modifiers.map(
+    (modifier) => ({
+      name: modifier.description,
+      value: modifier.value,
+      source: brushOffModifierSource(modifier.reasonCode),
+    }),
+  );
+
+  if (!brushOffModifiers.possible) {
+    return {
+      baseToHit: input.pilotingSkill,
+      finalToHit: Infinity,
+      modifiers,
+      allowed: false,
+      restrictionReason: brushOffModifiers.impossibleReason,
+      restrictionReasonCode: 'InvalidPhysicalTarget',
+    };
+  }
+
+  appendMeleeSpecialist(modifiers, input.pilotAbilities);
+  appendFrogmanPhysicalModifier(modifiers, input);
+
+  const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
+
+  return {
+    baseToHit: input.pilotingSkill,
+    finalToHit: input.pilotingSkill + totalMod,
+    modifiers,
+    allowed: true,
+  };
+}
+
 export function calculateMeleeWeaponToHit(
   input: IPhysicalAttackInput,
 ): IPhysicalToHitResult {
@@ -769,6 +852,8 @@ export function calculatePhysicalToHit(
       return calculateThrashToHit(input);
     case 'jump-jet-attack':
       return calculateJumpJetAttackToHit(input);
+    case 'brush-off':
+      return calculateBrushOffToHit(input);
     case 'hatchet':
     case 'sword':
     case 'mace':
