@@ -36,6 +36,14 @@ const MEGAMEK_CUMULATIVE_LOS_BLOCKING_SOURCE_REF = {
   sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
 } satisfies ICombatFeatureSourceReference;
 
+const MEGAMEK_LAND_UNDERWATER_LOS_SOURCE_REF = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek LosEffects blocks LOS when one endpoint is on land and the other endpoint is underwater before divided or straight LOS tracing.',
+  url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/common/LosEffects.java#L763-L768`,
+  sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
+} satisfies ICombatFeatureSourceReference;
+
 const MEGAMEK_INTERVENING_LOS_FEATURE_SOURCE_REF = {
   kind: 'megamek-source',
   citation:
@@ -153,9 +161,9 @@ const MEKSTATION_LOS_FEATURE_PARSE_SOURCE_REF = mekstationDeviationSourceRef(
 );
 
 const MEKSTATION_LOS_BLOCKING_SOURCE_REF = mekstationDeviationSourceRef(
-  'MekStation calculateLOS checks intervening hexes for direct blocks, blocking wrecks, and cumulative woods or smoke density before returning blockingTerrain or blockingUnit.',
+  'MekStation calculateLOS gates land-to-depth-2+ water endpoint sightlines, then checks intervening hexes for direct blocks, blocking wrecks, and cumulative woods or smoke density.',
   'src/utils/gameplay/lineOfSight.ts',
-  'L157-L281',
+  'L193-L334',
 );
 
 const MEKSTATION_ATTACK_LOS_PHASE_SOURCE_REF = mekstationDeviationSourceRef(
@@ -219,11 +227,15 @@ export function terrainLosSourceRefs(
   ];
 
   if (megaMekComparedLosTerrains.has(terrain)) {
-    return [
+    const sourceRefs = [
       MEGAMEK_CUMULATIVE_LOS_BLOCKING_SOURCE_REF,
       MEGAMEK_INTERVENING_LOS_FEATURE_SOURCE_REF,
       ...localLosRefs,
     ];
+
+    return terrain === TerrainType.Water
+      ? [MEGAMEK_LAND_UNDERWATER_LOS_SOURCE_REF, ...sourceRefs]
+      : sourceRefs;
   }
 
   return localLosRefs;
