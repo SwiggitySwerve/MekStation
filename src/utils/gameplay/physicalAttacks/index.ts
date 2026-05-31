@@ -6,6 +6,7 @@ export * from './damage';
 export * from './decision';
 export * from './displacement';
 export * from './eligibility';
+export * from './jumpJetAttackEligibility';
 export * from './resolution';
 export * from './restrictions';
 export * from './thrashEligibility';
