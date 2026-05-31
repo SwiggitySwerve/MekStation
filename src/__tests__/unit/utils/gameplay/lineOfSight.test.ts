@@ -122,6 +122,54 @@ describe('lineOfSight', () => {
       expect(result.interveningHexes).toHaveLength(0);
     });
 
+    it('should block adjacent land-to-underwater LOS at depth 2+', () => {
+      const hexes = [
+        createHex(0, 0, TerrainType.Clear, 0),
+        createHex(1, 0, 'water:2', 0),
+      ];
+      const grid = createGrid(hexes);
+
+      const result = calculateLOS({ q: 0, r: 0 }, { q: 1, r: 0 }, grid);
+
+      expect(result.hasLOS).toBe(false);
+      expect(result.blockedBy).toEqual({ q: 1, r: 0 });
+      expect(result.blockingTerrain).toBe(TerrainType.Water);
+      expect(result.interveningHexes).toHaveLength(0);
+    });
+
+    it('should block underwater-to-land LOS at depth 2+', () => {
+      const underwater: ITerrainFeature[] = [
+        { type: TerrainType.Water, level: 2 },
+      ];
+      const hexes = [
+        createHex(0, 0, JSON.stringify(underwater), 0),
+        createHex(1, 0, TerrainType.Clear, 0),
+      ];
+      const grid = createGrid(hexes);
+
+      const result = calculateLOS({ q: 0, r: 0 }, { q: 1, r: 0 }, grid);
+
+      expect(result.hasLOS).toBe(false);
+      expect(result.blockedBy).toEqual({ q: 0, r: 0 });
+      expect(result.blockingTerrain).toBe(TerrainType.Water);
+    });
+
+    it('should allow shallow-water-to-underwater endpoint LOS through this narrow water gate', () => {
+      const underwater: ITerrainFeature[] = [
+        { type: TerrainType.Water, level: 2 },
+      ];
+      const hexes = [
+        createHex(0, 0, TerrainType.Water, 0),
+        createHex(1, 0, JSON.stringify(underwater), 0),
+      ];
+      const grid = createGrid(hexes);
+
+      const result = calculateLOS({ q: 0, r: 0 }, { q: 1, r: 0 }, grid);
+
+      expect(result.hasLOS).toBe(true);
+      expect(result.blockingTerrain).toBeUndefined();
+    });
+
     it('should return intervening hexes for longer lines', () => {
       const from: IHexCoordinate = { q: 0, r: 0 };
       const to: IHexCoordinate = { q: 4, r: 0 };
