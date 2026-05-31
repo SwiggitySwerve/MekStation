@@ -296,6 +296,35 @@ describe('runMovementPhase movement validation parity', () => {
     expect(next.units['player-1'].heat).toBe(0);
   });
 
+  it('applies Terrain Master: Mountaineer movement relief before committing runner movement', () => {
+    const target = { q: 1, r: 0 };
+    const grid = setTerrain(createMinimalGrid(3), target, TerrainType.Rubble);
+
+    const { next, events } = runScriptedMove(
+      grid,
+      target,
+      { abilities: ['tm_mountaineer'] },
+      {
+        movementType: MovementType.Walk,
+        capability: { walkMP: 1, runMP: 1, jumpMP: 0 },
+      },
+    );
+    const payload = events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    )?.payload as IMovementDeclaredPayload | undefined;
+
+    expect(payload).toMatchObject({
+      unitId: 'player-1',
+      to: target,
+      mpUsed: 1,
+      heatGenerated: 1,
+    });
+    expect(next.units['player-1'].position).toEqual(target);
+    expect(SPA_COMBAT_SUPPORT.tm_mountaineer).toMatchObject({
+      level: 'integrated',
+    });
+  });
+
   it('commits same-hex facing changes with authoritative turn MP', () => {
     const { next, events } = runScriptedMove(
       createMinimalGrid(3),
