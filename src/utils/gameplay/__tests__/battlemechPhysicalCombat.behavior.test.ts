@@ -211,6 +211,16 @@ function sameHexPhysicalGrid(terrain = 'clear') {
   return { ...grid, hexes };
 }
 
+function breakGrapplePhysicalGrid() {
+  const grid = sameHexPhysicalGrid();
+  const hexes = new Map(grid.hexes);
+  const dangerousHex = hexes.get('1,0');
+  if (dangerousHex) {
+    hexes.set('1,0', { ...dangerousHex, terrain: 'magma' });
+  }
+  return { ...grid, hexes };
+}
+
 function blockedDfaDisplacementGrid() {
   let grid = adjacentPhysicalGrid();
   [
@@ -470,6 +480,44 @@ describe('BattleMech physical combat behavior validation lane', () => {
     }
     expect(byType.get('punch')?.toHit.finalToHit).toBe(6);
     expect(byType.get('charge')?.toHit.finalToHit).toBe(7);
+  });
+
+  it('projects break-grapple only for the current grappled target', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        grappledUnitId: 'target',
+        isGrappleAttacker: true,
+      },
+    );
+    const target = unitState(
+      'target',
+      GameSide.Opponent,
+      { q: 0, r: 0 },
+      {
+        grappledUnitId: 'attacker',
+        isGrappleAttacker: false,
+      },
+    );
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      optionalRules: ['tacops_grappling'],
+    });
+    const breakGrapple = options.find(
+      (option) => option.attackType === 'break-grapple',
+    );
+
+    expect(breakGrapple).toBeDefined();
+    expect(breakGrapple?.restrictionsFailed).toEqual([]);
+    expect(breakGrapple?.toHit).toMatchObject({
+      automaticHit: true,
+      finalToHit: 0,
+    });
   });
 
   it('projects optional jump jet attack when TacOps state and selected-leg jump jets are supplied', () => {
@@ -4540,6 +4588,91 @@ describe('BattleMech physical combat behavior validation lane', () => {
       grappledThisRound: true,
       grappleSide: 'both',
       facing: oppositeAttackerFacing,
+    });
+  });
+
+  it('emits event-sourced break-grapple state clearing and displacement on hit', () => {
+    const context = physicalContext({
+      optionalRules: ['tacops_grappling'],
+      attackerGrappledTargetId: 'target',
+      targetGrappledTargetId: 'attacker',
+      attackerIsGrappleAttacker: true,
+      targetIsGrappleAttacker: false,
+    });
+    const grappleState = {
+      position: { q: 0, r: 0 },
+      grappledThisRound: true,
+      grappleSide: 'both' as const,
+    };
+    let session = withUnitState(physicalPhaseSession(), 'attacker', {
+      ...grappleState,
+      facing: Facing.North,
+      grappledUnitId: 'target',
+      isGrappleAttacker: true,
+    });
+    session = withUnitState(session, 'target', {
+      ...grappleState,
+      facing: Facing.North,
+      grappledUnitId: 'attacker',
+      isGrappleAttacker: false,
+    });
+    let declared = declarePhysicalAttack(
+      session,
+      'attacker',
+      'target',
+      'break-grapple',
+      context,
+    );
+    declared = withUnitState(
+      declared,
+      'attacker',
+      session.currentState.units.attacker,
+    );
+    declared = withUnitState(
+      declared,
+      'target',
+      session.currentState.units.target,
+    );
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6]),
+      breakGrapplePhysicalGrid(),
+    );
+    const payload = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload).toMatchObject({
+      attackType: 'break-grapple',
+      roll: 0,
+      toHitNumber: 0,
+      hit: true,
+      damage: 0,
+      automaticHit: true,
+      automaticHitReason: 'original attacker',
+      displacements: [
+        {
+          unitId: 'attacker',
+          from: { q: 0, r: 0 },
+          to: { q: 0, r: -1 },
+          reason: 'break-grapple',
+        },
+      ],
+    });
+    expect(resolved.currentState.units.attacker).toMatchObject({
+      position: { q: 0, r: -1 },
+      grappledUnitId: undefined,
+      isGrappleAttacker: undefined,
+      grappledThisRound: false,
+      grappleSide: undefined,
+    });
+    expect(resolved.currentState.units.target).toMatchObject({
+      grappledUnitId: undefined,
+      isGrappleAttacker: undefined,
+      grappledThisRound: false,
+      grappleSide: undefined,
     });
   });
 
