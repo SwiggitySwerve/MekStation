@@ -1651,6 +1651,15 @@ source plus the isometric-camera channel, current heading, and next heading, so
 browser and accessibility checks can connect camera actions to the presentation
 state that reveals stacked terrain and occluded units.
 
+2026-05-31 isometric touch camera gesture pin: Isometric mode now maps a
+two-finger twist on the map surface to the same discrete 60-degree camera
+heading state used by button and keyboard rotation, while preserving
+single-touch pan and two-finger pinch zoom. The focused map surface exposes the
+shared tactical projection source, isometric-camera channel, presentation
+rules surface, and touch-rotation control contract so browser and accessibility
+checks can verify mobile rotation without recalculating movement, combat, LOS,
+terrain, elevation, or visibility state.
+
 2026-05-25 tactical projection rule-reference metadata pin: Tactical projection
 source references now also carry rule-reference metadata for terrain/elevation,
 movement, combat, LOS blocker, and legacy attack-range fallback channels.

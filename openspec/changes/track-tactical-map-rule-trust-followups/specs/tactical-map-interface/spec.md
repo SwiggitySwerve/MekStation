@@ -45,7 +45,7 @@ source-pinned, oracle-differenced, or interaction-swept.
 
 - **GIVEN** isometric topography, occluder highlighting, and camera rotation
   have representative smoke coverage, including button/keyboard rotation,
-  pointer pan, touch pan, pinch-zoom, and touch rotation
+  pointer pan, touch pan, pinch-zoom, and direct touch rotation
 - **WHEN** the map is evaluated for full battlefield interaction readiness
 - **THEN** broader mobile gesture-matrix and occlusion interaction sweeps SHALL
   remain tracked as follow-up outcomes

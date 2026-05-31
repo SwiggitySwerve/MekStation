@@ -25,7 +25,8 @@ missing.
   provenance from behavior that has since gained MegaMek/official source-pinned
   evidence.
 - Carry the remaining movement runtime mutation/oracle matrix and isometric
-  interaction sweep as named follow-up outcomes.
+  interaction sweep as named follow-up outcomes while recognizing direct
+  isometric touch rotation once `add-isometric-touch-camera-gesture` lands.
 - Narrow the represented vehicle critical follow-up boundary to cargo import
   parity, dual-turret split identity, and external oracle sweeps.
 

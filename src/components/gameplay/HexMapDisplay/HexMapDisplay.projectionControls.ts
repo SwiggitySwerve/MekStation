@@ -46,7 +46,7 @@ type IsometricSvgCameraControlAttributes = {
     | 'presentation'
     | undefined;
   readonly 'data-isometric-pointer-camera-controls'?:
-    | 'mouse-pan|touch-pan|pinch-zoom|touch-rotate-buttons'
+    | 'mouse-pan|touch-pan|pinch-zoom|touch-rotate|touch-rotate-buttons'
     | undefined;
 };
 
@@ -138,7 +138,7 @@ export function isometricSvgCameraControlAttributes(
     'data-isometric-pointer-camera-channel': 'isometric-camera',
     'data-isometric-pointer-camera-rules-surface': 'presentation',
     'data-isometric-pointer-camera-controls':
-      'mouse-pan|touch-pan|pinch-zoom|touch-rotate-buttons',
+      'mouse-pan|touch-pan|pinch-zoom|touch-rotate|touch-rotate-buttons',
   };
 }
 
