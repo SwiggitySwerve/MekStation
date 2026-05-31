@@ -174,13 +174,13 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 129,
+      total: 128,
       byLevel: {
-        'helper-only': 112,
+        'helper-only': 111,
         unsupported: 17,
       },
       bySection: {
-        actions: 4,
+        actions: 3,
         damageAndDeath: 2,
         featureSupport: 73,
         lifecycleAndPsr: 3,
@@ -344,6 +344,9 @@ describe('BattleMech combat validation catalog index', () => {
     expect(unresolvedRefs).not.toContain(
       'actions.physicalActionClassScope.thrash',
     );
+    expect(unresolvedRefs).not.toContain(
+      'actions.physicalActionClassScope.jump-jet-attack',
+    );
     expect(
       unresolvedRows.find(
         (row) => row.ref === 'actions.physicalActionClassScope.brush-off',
@@ -352,11 +355,6 @@ describe('BattleMech combat validation catalog index', () => {
     expect(
       unresolvedRows.find(
         (row) => row.ref === 'actions.physicalActionClassScope.break-grapple',
-      )?.level,
-    ).toBe('helper-only');
-    expect(
-      unresolvedRows.find(
-        (row) => row.ref === 'actions.physicalActionClassScope.jump-jet-attack',
       )?.level,
     ).toBe('helper-only');
     expect(
