@@ -21,13 +21,16 @@ import {
   PUSH_TO_HIT_BONUS,
   RETRACTABLE_BLADE_TO_HIT_MODIFIER,
   SWORD_TO_HIT_MODIFIER,
+  TSM_ACTIVATION_HEAT,
   UPPER_ARM_PUNCH_MODIFIER,
   UPPER_LEG_KICK_MODIFIER,
   WRECKING_BALL_TO_HIT_MODIFIER,
 } from './constants';
+import { getGrappleAttackToHitModifiers } from './grappleEligibility';
 import { getJumpJetAttackToHitModifiers } from './jumpJetAttackEligibility';
 import {
   canBrushOffPhysical,
+  canGrapplePhysical,
   canJumpJetAttackPhysical,
   canCharge,
   canDFA,
@@ -244,6 +247,44 @@ function brushOffModifierSource(reasonCode: string): string {
   if (reasonCode === 'DefenderMagneticClaws') return 'target-equipment';
   if (reasonCode.includes('Sensor')) return 'sensor';
   return 'physical-action';
+}
+
+function grappleModifierSource(reasonCode: string): string {
+  if (reasonCode.includes('Actuator') || reasonCode === 'ArmAES') {
+    return 'actuator';
+  }
+  if (reasonCode === 'TSMActiveBonus') return 'myomer';
+  if (reasonCode === 'WeightClassDifference') return 'weight-class';
+  return 'physical-action';
+}
+
+function selectedGrappleSide(
+  input: IPhysicalAttackInput,
+): 'left' | 'right' | 'both' {
+  if (input.grappleSide) return input.grappleSide;
+  if (input.limb === 'leftArm' || input.arm === 'left') return 'left';
+  if (input.limb === 'rightArm' || input.arm === 'right') return 'right';
+  return 'both';
+}
+
+function attackerHasActiveTsm(input: IPhysicalAttackInput): boolean {
+  return input.hasTSM === true && (input.heat ?? 0) >= TSM_ACTIVATION_HEAT;
+}
+
+function grappleUnitKind(unitType: string | undefined): 'mek' | 'protoMek' {
+  return unitType?.toLowerCase().includes('proto') === true
+    ? 'protoMek'
+    : 'mek';
+}
+
+function attackerIsMekForGrapple(input: IPhysicalAttackInput): boolean {
+  const canonical =
+    input.attackerUnitType?.toLowerCase().replace(/[^a-z0-9]/g, '') ?? '';
+  return (
+    canonical === '' ||
+    ((canonical.includes('mek') || canonical.includes('mech')) &&
+      !canonical.includes('proto'))
+  );
 }
 
 function appendBattleFistModifier(
@@ -766,6 +807,64 @@ export function calculateBrushOffToHit(
   };
 }
 
+export function calculateGrappleToHit(
+  input: IPhysicalAttackInput,
+): IPhysicalToHitResult {
+  const restriction = canGrapplePhysical(input);
+  if (!restriction.allowed) {
+    return {
+      baseToHit: input.pilotingSkill,
+      finalToHit: Infinity,
+      modifiers: [],
+      allowed: false,
+      restrictionReason: restriction.reason,
+      restrictionReasonCode: restriction.reasonCode,
+    };
+  }
+
+  const actuators = input.componentDamage.actuators;
+  const grappleModifiers = getGrappleAttackToHitModifiers({
+    grappleSide: selectedGrappleSide(input),
+    attackerIsMek: attackerIsMekForGrapple(input),
+    leftUpperArmWorking: !actuators[ActuatorType.UPPER_ARM],
+    leftLowerArmWorking: !actuators[ActuatorType.LOWER_ARM],
+    leftHandWorking: !actuators[ActuatorType.HAND],
+    rightUpperArmWorking: !actuators[ActuatorType.UPPER_ARM],
+    rightLowerArmWorking: !actuators[ActuatorType.LOWER_ARM],
+    rightHandWorking: !actuators[ActuatorType.HAND],
+    leftArmAesFunctional: input.leftArmAesFunctional,
+    rightArmAesFunctional: input.rightArmAesFunctional,
+    attackerHasActiveTsm: attackerHasActiveTsm(input),
+    attackerUnitKind: grappleUnitKind(input.attackerUnitType),
+    targetUnitKind: grappleUnitKind(input.targetUnitType),
+    attackerWeightClass: input.attackerWeightClass,
+    targetWeightClass: input.targetWeightClass,
+  });
+
+  const modifiers: IPhysicalModifier[] = grappleModifiers.modifiers.map(
+    (modifier) => ({
+      name: modifier.description,
+      value: modifier.value,
+      source: grappleModifierSource(modifier.reasonCode),
+    }),
+  );
+
+  appendTMM(modifiers, input.targetMovementModifier);
+  appendTargetEvasion(modifiers, input);
+  appendAttackerSpotting(modifiers, input);
+  appendMeleeSpecialist(modifiers, input.pilotAbilities);
+  appendFrogmanPhysicalModifier(modifiers, input);
+
+  const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
+
+  return {
+    baseToHit: input.pilotingSkill,
+    finalToHit: input.pilotingSkill + totalMod,
+    modifiers,
+    allowed: true,
+  };
+}
+
 export function calculateMeleeWeaponToHit(
   input: IPhysicalAttackInput,
 ): IPhysicalToHitResult {
@@ -854,6 +953,8 @@ export function calculatePhysicalToHit(
       return calculateJumpJetAttackToHit(input);
     case 'brush-off':
       return calculateBrushOffToHit(input);
+    case 'grapple':
+      return calculateGrappleToHit(input);
     case 'hatchet':
     case 'sword':
     case 'mace':
