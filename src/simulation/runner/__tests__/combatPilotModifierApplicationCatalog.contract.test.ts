@@ -228,6 +228,14 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(QUIRK_COMBAT_SUPPORT.rugged_1.sourceRefs).toEqual(
       QUIRK_COMBAT_SUPPORT.rugged_2.sourceRefs,
     );
+    expect(QUIRK_COMBAT_SUPPORT.protected_actuators).toMatchObject({
+      level: 'out-of-scope',
+      gap: expect.stringContaining('non-BattleMech attacker actions'),
+    });
+    expect(QUIRK_COMBAT_SUPPORT.exposed_actuators).toMatchObject({
+      level: 'out-of-scope',
+      gap: expect.stringContaining('non-BattleMech attacker actions'),
+    });
     expect(QUIRK_COMBAT_SUPPORT.protected_actuators.sourceRefs).toEqual(
       QUIRK_COMBAT_SUPPORT.exposed_actuators.sourceRefs,
     );
@@ -277,7 +285,10 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     );
     expect(
       supportIdsByLevel(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT, 'out-of-scope'),
-    ).toEqual(['campaign-maintenance-application']);
+    ).toEqual([
+      'anti-mek-actuator-application',
+      'campaign-maintenance-application',
+    ]);
   });
 
   it('keeps ranged to-hit feature support distinct from ranged attack state hydration', () => {
