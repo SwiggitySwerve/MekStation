@@ -461,8 +461,17 @@ describe('runMovementPhase movement validation parity', () => {
     expect(
       MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT[MovementEnhancementType.MASC],
     ).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('active MASC run MP'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({ kind: 'megamek-source' }),
+      ]),
+    });
+    expect(
+      MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT['masc-side-paths'],
+    ).toMatchObject({
+      level: 'helper-only',
+      gap: expect.stringContaining('MovementType.Sprint'),
       sourceRefs: expect.arrayContaining([
         expect.objectContaining({ kind: 'megamek-source' }),
       ]),
@@ -545,8 +554,17 @@ describe('runMovementPhase movement validation parity', () => {
     expect(
       MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT[MovementEnhancementType.SUPERCHARGER],
     ).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('active Supercharger run MP'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({ kind: 'megamek-source' }),
+      ]),
+    });
+    expect(
+      MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT['supercharger-side-paths'],
+    ).toMatchObject({
+      level: 'helper-only',
+      gap: expect.stringContaining('MovementType.Sprint'),
       sourceRefs: expect.arrayContaining([
         expect.objectContaining({ kind: 'megamek-source' }),
       ]),
