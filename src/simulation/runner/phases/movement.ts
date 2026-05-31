@@ -199,6 +199,10 @@ export function runMovementPhase(options: {
         continue;
       }
 
+      const movementCapability =
+        moveEvent.payload.movementType === MovementType.Evade
+          ? unboostedCapability
+          : capability;
       const validation = validateMovement(
         grid,
         {
@@ -210,7 +214,7 @@ export function runMovementPhase(options: {
         moveEvent.payload.to,
         moveEvent.payload.facing as Facing,
         moveEvent.payload.movementType,
-        capability,
+        movementCapability,
         validationHeat,
         environmentalConditions,
         { pilotAbilities: unit.abilities },
@@ -260,7 +264,7 @@ export function runMovementPhase(options: {
         maxCost: Math.min(
           validation.mpCost,
           maxMovementCostForCapability(
-            capability,
+            movementCapability,
             committedPayload.movementType,
           ),
         ),
