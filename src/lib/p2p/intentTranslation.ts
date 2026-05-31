@@ -59,6 +59,12 @@ import {
   maxMovementCostForCapability,
 } from '@/utils/gameplay/movement/eventPath';
 import { validateMovement } from '@/utils/gameplay/movement/validation';
+import {
+  getAllowedPhysicalAttackCount,
+  physicalAttackDeclarationsForTurn,
+  physicalAttackLimbForDeclaration,
+  physicalAttackLimbsUsedThisTurn,
+} from '@/utils/gameplay/physicalAttacks';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
 import {
@@ -109,6 +115,8 @@ export type IntentRejectionReason =
   | 'malformed-payload'
   | 'wrong-phase'
   | 'unowned-unit'
+  | 'physical-attack-limit-reached'
+  | 'physical-attack-limb-used'
   | 'unsupported-intent';
 
 export interface IIntentRejection {
@@ -552,6 +560,31 @@ function translateDeclarePhysical(
   }
 
   const attacker = session.currentState.units[payload.attackerId];
+  const declarationsThisTurn = physicalAttackDeclarationsForTurn(
+    session.events,
+    session.currentState.turn,
+    payload.attackerId,
+  );
+  const allowedPhysicalAttacks = getAllowedPhysicalAttackCount(
+    attacker?.abilities,
+  );
+  if (declarationsThisTurn.length >= allowedPhysicalAttacks) {
+    return { ok: false, reason: 'physical-attack-limit-reached' };
+  }
+  const declaredLimb = physicalAttackLimbForDeclaration(payload.attackType, {
+    limb: payload.limb,
+  });
+  if (
+    declaredLimb &&
+    physicalAttackLimbsUsedThisTurn(
+      session.events,
+      session.currentState.turn,
+      payload.attackerId,
+    ).includes(declaredLimb)
+  ) {
+    return { ok: false, reason: 'physical-attack-limb-used' };
+  }
+
   const event = createPhysicalAttackDeclaredEvent(
     session.id,
     session.events.length,
@@ -560,6 +593,7 @@ function translateDeclarePhysical(
     payload.targetId,
     payload.attackType,
     payload.toHitNumber ?? attacker?.piloting ?? 5,
+    declaredLimb,
   );
 
   return { ok: true, events: [event] };
