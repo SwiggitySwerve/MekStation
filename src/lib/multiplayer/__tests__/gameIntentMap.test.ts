@@ -20,6 +20,7 @@ import {
   ejectIntent,
   endPhaseIntent,
   goProneIntent,
+  requestSpotIntent,
   standIntent,
   torsoTwistIntent,
   toServerIntent,
@@ -288,6 +289,32 @@ describe('toServerIntent — declarePhysical', () => {
     });
 
     expect(toServerIntent(intent)).toBeNull();
+  });
+});
+
+describe('toServerIntent requestSpot', () => {
+  it('maps a requestSpot intent to a RequestSpot wire payload', () => {
+    const wire = toServerIntent(
+      requestSpotIntent(PEER, {
+        unitId: 'player-1',
+        targetId: 'opponent-1',
+      }),
+    );
+
+    expect(wire).toEqual({
+      kind: 'RequestSpot',
+      unitId: 'player-1',
+      targetId: 'opponent-1',
+    });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('returns null for requestSpot without a target id', () => {
+    expect(
+      toServerIntent(
+        requestSpotIntent(PEER, { unitId: 'player-1', targetId: '' }),
+      ),
+    ).toBeNull();
   });
 });
 

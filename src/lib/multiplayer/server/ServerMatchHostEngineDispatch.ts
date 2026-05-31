@@ -51,6 +51,10 @@ export function dispatchToEngine(
       );
       return;
     }
+    case 'RequestSpot': {
+      session.requestSpot(intent.unitId, intent.targetId);
+      return;
+    }
     case 'AdvancePhase': {
       session.advancePhase();
       return;
