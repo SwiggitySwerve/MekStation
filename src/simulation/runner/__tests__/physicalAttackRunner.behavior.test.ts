@@ -259,6 +259,34 @@ function createSameHexPhysicalGrid(
   return { ...grid, hexes };
 }
 
+function createBreakGrapplePhysicalGrid(): IHexGrid {
+  const grid = createSameHexPhysicalGrid();
+  const hexes = new Map(grid.hexes);
+  hexes.set('0,-1', {
+    coord: { q: 0, r: -1 },
+    occupantId: null,
+    terrain: TerrainType.Clear,
+    elevation: 0,
+  });
+  hexes.set('1,-1', {
+    coord: { q: 1, r: -1 },
+    occupantId: null,
+    terrain: 'water:2',
+    elevation: 0,
+  });
+  hexes.set('-1,0', {
+    coord: { q: -1, r: 0 },
+    occupantId: null,
+    terrain: TerrainType.Clear,
+    elevation: 0,
+  });
+  const dangerousHex = hexes.get('1,0');
+  if (dangerousHex) {
+    hexes.set('1,0', { ...dangerousHex, terrain: 'magma' });
+  }
+  return { ...grid, hexes };
+}
+
 function createGroundedDropShipDfaGrid(): IHexGrid {
   const grid = createPhysicalGrid();
   const hexes = new Map(grid.hexes);
@@ -629,6 +657,70 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       grappledThisRound: true,
       grappleSide: 'both',
       facing: Facing.Northwest,
+    });
+  });
+
+  it('honors an injected break-grapple declaration as zero-damage state clearing', () => {
+    const { events, result } = runPhase('break-grapple', {
+      attacker: {
+        position: { q: 0, r: 0 },
+        facing: Facing.North,
+        grappledUnitId: 'opponent-1',
+        isGrappleAttacker: true,
+        grappledThisRound: true,
+        grappleSide: 'both',
+      },
+      target: {
+        position: { q: 0, r: 0 },
+        grappledUnitId: 'player-1',
+        isGrappleAttacker: false,
+        grappledThisRound: true,
+        grappleSide: 'both',
+      },
+      grid: createBreakGrapplePhysicalGrid(),
+      optionalRules: ['tacops_grappling'],
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.PhysicalAttackDeclared,
+      GameEventType.PhysicalAttackResolved,
+    ]);
+
+    const resolved = events[1].payload as IPhysicalAttackResolvedPayload;
+    expect(resolved).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'break-grapple',
+      roll: 0,
+      toHitNumber: 0,
+      hit: true,
+      damage: 0,
+      automaticHit: true,
+      automaticHitReason: 'original attacker',
+      displacements: [
+        {
+          unitId: 'player-1',
+          from: { q: 0, r: 0 },
+          to: { q: 0, r: -1 },
+          reason: 'break-grapple',
+        },
+      ],
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
+    expect(result.units['player-1']).toMatchObject({
+      position: { q: 0, r: -1 },
+      grappledUnitId: undefined,
+      isGrappleAttacker: undefined,
+      grappledThisRound: false,
+      grappleSide: undefined,
+      facing: Facing.South,
+    });
+    expect(result.units['opponent-1']).toMatchObject({
+      position: { q: 0, r: 0 },
+      grappledUnitId: undefined,
+      isGrappleAttacker: undefined,
+      grappledThisRound: false,
+      grappleSide: undefined,
     });
   });
 
