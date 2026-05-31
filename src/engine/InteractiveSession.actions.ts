@@ -90,6 +90,7 @@ export function applyInteractiveSessionMovement(
       coord: unit.position,
       facing: unit.facing,
       prone: unit.prone ?? false,
+      isStuck: unit.isStuck ?? false,
     },
     input.to,
     input.facing,
