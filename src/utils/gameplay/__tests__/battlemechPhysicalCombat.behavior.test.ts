@@ -373,7 +373,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       attackerRanThisTurn: true,
       attackerJumpedThisTurn: true,
       meleeWeaponsEquipped: meleeWeapons,
-      optionalRules: ['tacops_trip_attack'],
+      optionalRules: ['tacops_trip_attack', 'tacops_grappling'],
       pushDestinationValid: true,
     });
 
@@ -387,6 +387,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       'charge:-',
       'dfa:-',
       'push:-',
+      'grapple:-',
       'trip:-',
       'hatchet:-',
       'sword:-',
@@ -406,6 +407,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(byType.get('kick')?.toHit.finalToHit).toBe(5);
     expect(byType.get('charge')?.toHit.finalToHit).toBe(8);
     expect(byType.get('dfa')?.toHit.finalToHit).toBe(7);
+    expect(byType.get('grapple')?.toHit.finalToHit).toBe(7);
     expect(byType.get('sword')?.toHit.finalToHit).toBe(5);
     expect(byType.get('mace')?.toHit.finalToHit).toBe(8);
     expect(byType.get('lance')?.toHit.finalToHit).toBe(8);
@@ -531,6 +533,33 @@ describe('BattleMech physical combat behavior validation lane', () => {
       toHit: { finalToHit: 9 },
       damage: { targetDamage: 8, attackerDamage: 0 },
       selfRisk: { damageToAttacker: 8, onMiss: 'None' },
+    });
+  });
+
+  it('projects source-backed optional TacOps grapple as zero-damage state attack', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      { facing: Facing.Southeast },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      optionalRules: ['tacops_grappling'],
+      targetMovementModifier: 2,
+    });
+    const grapple = options.find((option) => option.attackType === 'grapple');
+
+    expect(grapple).toMatchObject({
+      attackType: 'grapple',
+      restrictionsFailed: [],
+      toHit: { finalToHit: 7 },
+      damage: { targetDamage: 0, attackerDamage: 0 },
+      selfRisk: { damageToAttacker: 0, onMiss: null },
     });
   });
 
@@ -4466,6 +4495,52 @@ describe('BattleMech physical combat behavior validation lane', () => {
       }),
     ]);
     expect(damageEvents.some((entry) => entry.unitId === 'target')).toBe(false);
+  });
+
+  it('emits event-sourced grapple state and attacker relocation on hit', () => {
+    const context = physicalContext({
+      pilotingSkill: 1,
+      optionalRules: ['tacops_grappling'],
+    });
+    const declared = declareAdjacentPhysicalAttack('grapple', context, {
+      facing: Facing.Southeast,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6]),
+    );
+    const payload = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload).toMatchObject({
+      attackType: 'grapple',
+      roll: 12,
+      toHitNumber: 1,
+      hit: true,
+      damage: 0,
+    });
+    const grappleTargetPosition = resolved.currentState.units.target.position;
+    expect(resolved.currentState.units.attacker).toMatchObject({
+      grappledUnitId: 'target',
+      isGrappleAttacker: true,
+      grappledThisRound: true,
+      grappleSide: 'both',
+      position: grappleTargetPosition,
+    });
+    const oppositeAttackerFacing = ((resolved.currentState.units.attacker
+      .facing +
+      3) %
+      6) as IUnitGameState['facing'];
+    expect(resolved.currentState.units.target).toMatchObject({
+      grappledUnitId: 'attacker',
+      isGrappleAttacker: false,
+      grappledThisRound: true,
+      grappleSide: 'both',
+      facing: oppositeAttackerFacing,
+    });
   });
 
   it('emits event-sourced charge displacement with attacker follow-through', () => {
