@@ -56,30 +56,61 @@ import {
   MEGAMEK_WEAPON_TO_HIT_QUIRK_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
 
-const MEGAMEK_MOUNTAINEER_MOVEMENT_SOURCE_VERSION =
+const MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+
+const MEGAMEK_MANEUVERING_ACE_MOVEMENT_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MovePath.canShift lets Maneuvering Ace biped Meks perform lateral shifts.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/moves/MovePath.java#L252-L266`,
+    sourceVersion: MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek SideStepStep preserves base lateral-step MP for QuadMek units with Maneuvering Ace instead of adding the normal side-step surcharge.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/moves/SideStepStep.java#L47-L57`,
+    sourceVersion: MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek ManeuverStep reduces aerospace maneuver thrust cost by 1 for Maneuvering Ace.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/moves/ManeuverStep.java#L60-L66`,
+    sourceVersion: MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek OptionsConstants defines PILOT_MANEUVERING_ACE as maneuvering_ace.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/options/OptionsConstants.java#L173-L180`,
+    sourceVersion: MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
 
 const MEGAMEK_MOUNTAINEER_MOVEMENT_SOURCE_REFS = [
   {
     kind: 'megamek-source',
     citation:
       'MegaMek Terrain.movementCost applies -1 MP for Mountaineer in rough/rubble movement-cost branches.',
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOUNTAINEER_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/units/Terrain.java#L404-L584`,
-    sourceVersion: MEGAMEK_MOUNTAINEER_MOVEMENT_SOURCE_VERSION,
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/units/Terrain.java#L404-L584`,
+    sourceVersion: MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION,
   },
   {
     kind: 'megamek-source',
     citation:
       'MegaMek MoveStep applies Mountaineer as one MP less for upward elevation changes.',
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOUNTAINEER_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/moves/MoveStep.java#L2828-L2841`,
-    sourceVersion: MEGAMEK_MOUNTAINEER_MOVEMENT_SOURCE_VERSION,
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/moves/MoveStep.java#L2828-L2841`,
+    sourceVersion: MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION,
   },
   {
     kind: 'megamek-source',
     citation:
       'MegaMek OptionsConstants defines PILOT_TM_MOUNTAINEER as tm_mountaineer.',
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOUNTAINEER_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/options/OptionsConstants.java#L183-L187`,
-    sourceVersion: MEGAMEK_MOUNTAINEER_MOVEMENT_SOURCE_VERSION,
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/options/OptionsConstants.java#L183-L187`,
+    sourceVersion: MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION,
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -272,7 +303,7 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   'psr-spa-application': helperOnly(
     'psr-spa-application',
     'calculatePSRModifiers, runPSRPhase, resolvePendingPSRs, and stand-up PSR paths apply source-backed Maneuvering Ace skidding relief, Animal Mimicry quad-Mek relief, Terrain Master: Frogman water-entry relief, and Terrain Master: Mountaineer rubble-entry relief to PSR target numbers',
-    'Maneuvering Ace terrain PSRs beyond skidding, Terrain Master variants beyond Frogman water-entry and Mountaineer rubble-entry, Swamp Beast bog-down relief, Acrobat, and Natural Grace PSR modifiers are not wired',
+    'Maneuvering Ace controlled-sideslip and out-of-control control-roll side paths beyond skidding, Terrain Master variants beyond Frogman water-entry and Mountaineer rubble-entry, Swamp Beast bog-down relief, Acrobat, and Natural Grace PSR modifiers are not wired',
     MEGAMEK_PSR_SPA_SOURCE_REFS,
   ),
   'initiative-application': helperOnly(
@@ -352,9 +383,10 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'movement-application': unsupported(
     'movement-application',
-    'Source-backed optional TacOps Evade movement, Speed Demon run-distance/heat tradeoff, Heavy Lifter carry/throw movement effects, and Terrain Master: Mountaineer rough/rubble/elevation MP relief are not wired in the BattleMech combat matrix',
+    'Source-backed optional TacOps Evade movement, Maneuvering Ace lateral-shift movement, Speed Demon run-distance/heat tradeoff, Heavy Lifter carry/throw movement effects, and Terrain Master: Mountaineer rough/rubble/elevation MP relief are not wired in the BattleMech combat matrix',
     [
       ...MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
+      ...MEGAMEK_MANEUVERING_ACE_MOVEMENT_SOURCE_REFS,
       ...MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
       ...MEGAMEK_MOUNTAINEER_MOVEMENT_SOURCE_REFS,
     ],
@@ -481,7 +513,13 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
     quirkIds: [],
   },
   'movement-application': {
-    spaIds: ['evasive', 'speed-demon', 'heavy-lifter', 'tm_mountaineer'],
+    spaIds: [
+      'evasive',
+      'maneuvering-ace',
+      'speed-demon',
+      'heavy-lifter',
+      'tm_mountaineer',
+    ],
     quirkIds: [],
   },
   'multi-target-penalty-application': {
