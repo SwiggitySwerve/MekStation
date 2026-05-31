@@ -38,7 +38,11 @@ import { hexDistance, hexesInRange } from '@/utils/gameplay/hexMath';
 
 import type { UnitMovementType } from './types';
 
-import { getHexMovementCost, type IMovementCostContext } from './calculations';
+import {
+  getHexMovementCost,
+  getSprintMPForCapability,
+  type IMovementCostContext,
+} from './calculations';
 import { findPath } from './pathfinding';
 
 /**
@@ -144,6 +148,8 @@ function maxMPFor(
     case MovementType.Run:
     case MovementType.Evade:
       return capability.runMP;
+    case MovementType.Sprint:
+      return getSprintMPForCapability(capability);
     case MovementType.Jump:
       return capability.jumpMP;
     default:
@@ -184,6 +190,7 @@ function toUnitMovementType(movementType: MovementType): UnitMovementType {
   switch (movementType) {
     case MovementType.Run:
     case MovementType.Evade:
+    case MovementType.Sprint:
       return 'run';
     case MovementType.Jump:
       return 'jump';
