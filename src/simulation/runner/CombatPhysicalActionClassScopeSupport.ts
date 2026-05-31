@@ -316,11 +316,11 @@ export const PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT = {
       ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS.trip,
     ],
   ),
-  grapple: helperOnlyBattleMech(
+  grapple: integrated(
     'grapple',
     'GrappleAttackAction',
-    'canGrapple helper coverage applies source-backed optional-rule, airborne, common locked-grapple, friendly-fire, unit-type, arm/shoulder, range, elevation, front-arc, prone, weapon-fire, already-grappled, actuator/AES/TSM, and weight-class branches',
-    'Grapple attacks still have no runtime PhysicalAttackType, tactical command, event-sourced grapple state, declaration, or resolution path',
+    'MekStation runtime PhysicalAttackType, tactical command, event-sourced physical resolution, and runner physical phase support source-backed normal TacOps grapple attacks with no damage, attacker relocation into the target hex, target facing reversal, and both-unit grapple state',
+    ['grapple'],
     [
       ...MEGAMEK_HELPER_ONLY_BATTLEMECH_PHYSICAL_ACTION_REFS.grapple,
       ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS.grapple,
@@ -330,7 +330,7 @@ export const PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT = {
     'break-grapple',
     'BreakGrappleAttackAction',
     'canBreakGrapple helper coverage applies source-backed optional-rule, airborne, common locked-grapple, chain-whip, unit-type, grapple-target, automatic-success, actuator/AES, and weight-class modifier branches',
-    'Breaking grapples still has no runtime PhysicalAttackType, tactical command, event-sourced grapple state, declaration, or resolution path',
+    'Breaking grapples still has no runtime PhysicalAttackType, tactical command, event-sourced break-grapple declaration, or resolution path',
     [
       ...MEGAMEK_HELPER_ONLY_BATTLEMECH_PHYSICAL_ACTION_REFS['break-grapple'],
       ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS['break-grapple'],
