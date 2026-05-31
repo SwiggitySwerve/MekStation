@@ -32,6 +32,7 @@ import {
   canBrushOffPhysical,
   canCharge,
   canDFA,
+  canGrapplePhysical,
   canKick,
   canJumpJetAttackPhysical,
   canMeleeWeapon,
@@ -121,6 +122,17 @@ export interface IEligibilityContext {
   /** Optional physical-combat rule branches, such as PLAYTEST_3. */
   readonly optionalRules?: readonly string[];
   readonly tacOpsTripAttackEnabled?: boolean;
+  readonly tacOpsGrapplingEnabled?: boolean;
+  readonly grappleSide?: 'left' | 'right' | 'both';
+  readonly attackerGrappledTargetId?: string;
+  readonly targetGrappledTargetId?: string;
+  readonly attackerIsGrappleAttacker?: boolean;
+  readonly targetIsGrappleAttacker?: boolean;
+  readonly attackerChainWhipGrappled?: boolean;
+  readonly leftArmAesFunctional?: boolean;
+  readonly rightArmAesFunctional?: boolean;
+  readonly attackerWeightClass?: number;
+  readonly targetWeightClass?: number;
   readonly attackerAlreadyGrappled?: boolean;
   readonly leftTripLimbUsable?: boolean;
   readonly rightTripLimbUsable?: boolean;
@@ -444,6 +456,22 @@ export function getEligiblePhysicalAttacks(
     rightArmHasClaw: context.rightArmHasClaw ?? attacker.rightArmHasClaw,
     optionalRules: context.optionalRules,
     tacOpsTripAttackEnabled: context.tacOpsTripAttackEnabled,
+    tacOpsGrapplingEnabled: context.tacOpsGrapplingEnabled,
+    grappleSide: context.grappleSide,
+    attackerGrappledTargetId:
+      context.attackerGrappledTargetId ?? attacker.grappledUnitId,
+    targetGrappledTargetId:
+      context.targetGrappledTargetId ?? target.grappledUnitId,
+    attackerIsGrappleAttacker:
+      context.attackerIsGrappleAttacker ?? attacker.isGrappleAttacker,
+    targetIsGrappleAttacker:
+      context.targetIsGrappleAttacker ?? target.isGrappleAttacker,
+    attackerChainWhipGrappled:
+      context.attackerChainWhipGrappled ?? attacker.isChainWhipGrappled,
+    leftArmAesFunctional: context.leftArmAesFunctional,
+    rightArmAesFunctional: context.rightArmAesFunctional,
+    attackerWeightClass: context.attackerWeightClass,
+    targetWeightClass: context.targetWeightClass,
     attackerAlreadyGrappled: context.attackerAlreadyGrappled,
     targetInFrontArc: isTargetInFrontArc(
       attacker.position,
@@ -573,6 +601,31 @@ export function getEligiblePhysicalAttacks(
     ],
   };
   options.push(buildOption('push', pushInput, canPush(pushInput)));
+
+  if (
+    baseInput.tacOpsGrapplingEnabled === true ||
+    baseInput.optionalRules?.some((rule) =>
+      [
+        'tacops_grappling',
+        'advanced_combat_tac_ops_grappling',
+        'grappling',
+      ].includes(
+        rule
+          .trim()
+          .toLowerCase()
+          .replace(/[\s-]+/g, '_'),
+      ),
+    )
+  ) {
+    const grappleInput: IPhysicalAttackInput = {
+      ...baseInput,
+      attackType: 'grapple',
+      weaponsFiredFromArm: context.weaponsFiredThisTurn,
+    };
+    options.push(
+      buildOption('grapple', grappleInput, canGrapplePhysical(grappleInput)),
+    );
+  }
 
   if (
     baseInput.targetIsSwarmingInfantryOnAttacker === true ||
