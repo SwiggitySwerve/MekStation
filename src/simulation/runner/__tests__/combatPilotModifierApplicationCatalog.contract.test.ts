@@ -268,7 +268,6 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'legacy-pain-resistance-to-hit-application',
         'low-arms-application',
         'movement-application',
-        'multi-target-penalty-application',
         'target-priority-application',
       ].sort(),
     );
@@ -280,6 +279,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'consciousness-application',
         'legacy-defensive-quirk-to-hit-application',
         'heat-application',
+        'multi-target-penalty-application',
         'psr-spa-application',
         'sandblaster-application',
       ]),
@@ -352,11 +352,18 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'multi-target-penalty-application'
       ],
-    ).toMatchObject({ level: 'unsupported' });
+    ).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('Multi-Tasker/multi_tasker'),
+      gap: expect.stringContaining('local Multi-Target SPA'),
+    });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['multi-target-penalty-application']
-        .gap,
-    ).toContain('source-backed MegaMek');
+        .evidence,
+    ).toContain('local Multi-Target assigned as an unsupported SPA boundary');
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['multi-target-penalty-application'],
+    ).toEqual({ spaIds: ['multi-tasker', 'multi-target'], quirkIds: [] });
 
     const multiTaskerRefs = SPA_COMBAT_SUPPORT['multi-tasker'].sourceRefs ?? [];
     expect(multiTaskerRefs.map(({ citation }) => citation)).toEqual([
