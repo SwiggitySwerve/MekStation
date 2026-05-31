@@ -1359,18 +1359,20 @@ Pilot modifier validation SHALL treat every canonical SPA catalog row as source-
 - **WHEN** any canonical SPA row is inspected
 - **THEN** the row SHALL carry at least one anchored `mekstation-deviation` reference to the canonical SPA catalog or category file
 - **AND** the row SHALL carry anchored source references for MegaMek `PilotOptions` or `OptionsConstants` when the id is mirrored from the MegaMek pilot option registry
-- **AND** helper-only or unsupported rows for infantry, ATOW, bioware, unofficial, and Edge partitions SHALL cite the specific partition authority that keeps the row out of integrated BattleMech combat coverage
+- **AND** helper-only, unsupported, or out-of-scope rows for infantry, ATOW, bioware, unofficial, legacy, and Edge partitions SHALL cite the specific partition authority that keeps the row out of integrated BattleMech combat coverage
+- **AND** infantry-scoped SPAs, unofficial or legacy SPAs without explicit integrated support, and Aero Edge triggers SHALL remain `out-of-scope` audit evidence instead of unresolved official BattleMech blockers
 
 ### Requirement: Source-Backed Edge Trigger Boundary
 
-Pilot modifier validation SHALL keep Edge as helper-only trigger-state coverage until combat resolvers consume each trigger-specific Edge behavior. Edge rows SHALL cite MegaMek's point-pool and trigger-option source anchors plus MekStation's local generic trigger helper. The `edge_when_masc_fails` trigger SHALL be counted as consumed by runner `MASCFailure` and `SuperchargerFailure` PSR rerolls only; TAC, head-hit, KO, explosion, attack, non-booster PSR, and consciousness resolvers SHALL NOT be treated as Edge-integrated until those trigger-specific reroll or prevention paths are wired.
+Pilot modifier validation SHALL keep Mek Edge triggers as helper-only trigger-state coverage until combat resolvers consume each trigger-specific Edge behavior, while Aero Edge triggers SHALL be split out of the BattleMech matrix. Edge rows SHALL cite MegaMek's point-pool and trigger-option source anchors plus MekStation's local generic trigger helper. The `edge_when_masc_fails` trigger SHALL be counted as consumed by runner `MASCFailure` and `SuperchargerFailure` PSR rerolls only; TAC, head-hit, KO, explosion, attack, non-booster PSR, and consciousness resolvers SHALL NOT be treated as Edge-integrated until those trigger-specific reroll or prevention paths are wired.
 
 #### Scenario: Edge helper rows cite source truth without claiming resolver parity
 
 - **GIVEN** the BattleMech SPA and pilot modifier resolver catalogs are generated
 - **WHEN** Edge, Edge application, or critical-prevention support is inspected
-- **THEN** each row SHALL remain helper-only with structured source references to MegaMek Edge trigger registration and point consumption
-- **AND** each row SHALL cite the MekStation generic Edge helper as a local deviation boundary
+- **THEN** each Mek Edge trigger row SHALL remain helper-only with structured source references to MegaMek Edge trigger registration and point consumption
+- **AND** each Aero Edge trigger row SHALL remain out-of-scope with the same source references until an aerospace validation matrix exists
+- **AND** each row SHALL cite the MekStation generic Edge helper or SPA catalog partition as a local deviation boundary
 - **AND** no attack, non-booster PSR, consciousness, TAC, head-hit, or explosion resolver SHALL be counted as Edge-integrated until trigger-specific combat behavior exists
 
 ### Requirement: Source-Backed Terrain Master Defender To-Hit Variants
