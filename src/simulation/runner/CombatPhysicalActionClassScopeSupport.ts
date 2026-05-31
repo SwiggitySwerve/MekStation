@@ -351,11 +351,15 @@ export const PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT = {
       ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS['break-grapple'],
     ],
   ),
-  'jump-jet-attack': unsupportedBattleMech(
+  'jump-jet-attack': helperOnlyBattleMech(
     'jump-jet-attack',
     'JumpJetAttackAction',
-    'Jump-jet attacks have no runtime PhysicalAttackType, tactical command, jump-jet exposure model, or resolution path',
-    MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS['jump-jet-attack'],
+    'canJumpJetAttack helper coverage applies source-backed optional-rule, LAM mode, selected-leg, Mek-only, leg, jump-jet, movement, weapon-fire, range, elevation, facing, automatic adjacent-building success, source-specific modifiers, and jump-jet damage branches',
+    'Jump-jet attacks still have no runtime PhysicalAttackType, tactical command, event-sourced declaration, selected-leg payload, or resolution path',
+    [
+      ...MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS['jump-jet-attack'],
+      ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS['jump-jet-attack'],
+    ],
   ),
   'airmek-ram': outOfScope(
     'airmek-ram',
