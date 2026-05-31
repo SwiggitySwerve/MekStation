@@ -496,6 +496,7 @@ export function declarePhysicalAttack(
     targetUnitType: targetState?.unitType,
     targetPilotingSkill: targetState?.piloting,
     attackerEvading: attackerState.isEvading,
+    attackerSpotting: attackerState.isSpotting,
     attackerLoadingOrUnloadingCargo: attackerState.isLoadingOrUnloadingCargo,
     attackerTargetedByDisplacementAttackerId:
       attackerState.targetedByDisplacementAttackerId,
@@ -780,6 +781,7 @@ export function resolveAllPhysicalAttacks(
       targetUnitType: targetState.unitType,
       targetPilotingSkill: targetState.piloting,
       attackerEvading: attackerState.isEvading,
+      attackerSpotting: attackerState.isSpotting,
       attackerLoadingOrUnloadingCargo: attackerState.isLoadingOrUnloadingCargo,
       attackerTargetedByDisplacementAttackerId:
         attackerState.targetedByDisplacementAttackerId,
