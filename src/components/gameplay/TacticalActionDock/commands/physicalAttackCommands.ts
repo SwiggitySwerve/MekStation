@@ -18,6 +18,7 @@ export function buildPhysicalAttackCommands(): readonly ITacticalCommand[] {
     PhysicalPushCommand,
     PhysicalTripCommand,
     PhysicalThrashCommand,
+    PhysicalJumpJetAttackCommand,
     PhysicalChargeCommand,
     PhysicalDeathFromAboveCommand,
     PhysicalClubCommand,
@@ -111,6 +112,23 @@ const PhysicalThrashCommand: ITacticalCommand = {
   availability: requireActiveAndTarget,
   commit() {
     return { actionId: 'physical-attack', payload: { attackType: 'thrash' } };
+  },
+};
+
+const PhysicalJumpJetAttackCommand: ITacticalCommand = {
+  id: 'physical.jump-jet-attack',
+  category: 'physical',
+  label: 'Jump Jet Attack',
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return {
+      actionId: 'physical-attack',
+      payload: { attackType: 'jump-jet-attack', limb: 'rightLeg' },
+    };
   },
 };
 
