@@ -25,6 +25,7 @@ import {
   calculatePushToHit,
   calculateTripToHit,
   calculateThrashToHit,
+  calculateGrappleToHit,
   calculateMeleeWeaponToHit,
   calculatePhysicalToHit,
   calculatePhysicalDamage,
@@ -38,6 +39,7 @@ import {
   canPush,
   canTripPhysical,
   canThrashPhysical,
+  canGrapplePhysical,
   canJumpJetAttackPhysical,
   canThrash,
   canTrip,
@@ -2323,6 +2325,96 @@ describe('physicalAttacks', () => {
           targetWeightClass: 2,
         }).modifiers,
       ).toEqual([]);
+    });
+  });
+
+  describe('runtime grapple attack', () => {
+    const validGrappleInput = () =>
+      makeInput({
+        attackerId: 'attacker',
+        targetId: 'target',
+        attackType: 'grapple',
+        optionalRules: ['tacops_grappling'],
+        targetDistance: 1,
+        targetInFrontArc: true,
+      });
+
+    it('allows source-backed normal TacOps grapple through physical restrictions', () => {
+      expect(canGrapplePhysical(validGrappleInput())).toEqual({
+        allowed: true,
+      });
+    });
+
+    it('rejects runtime grapple declarations when TacOps grappling is disabled', () => {
+      expect(
+        canGrapplePhysical({
+          ...validGrappleInput(),
+          optionalRules: [],
+        }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TacOpsGrapplingDisabled',
+      });
+    });
+
+    it('threads source-backed grapple modifiers into runtime to-hit', () => {
+      const toHit = calculateGrappleToHit({
+        ...validGrappleInput(),
+        attackerUnitType: UnitType.BATTLEMECH,
+        grappleSide: 'right',
+        componentDamage: {
+          ...DEFAULT_COMPONENT_DAMAGE,
+          actuators: { [ActuatorType.UPPER_ARM]: true },
+        },
+        rightArmAesFunctional: true,
+        hasTSM: true,
+        heat: TSM_ACTIVATION_HEAT,
+        attackerWeightClass: 4,
+        targetWeightClass: 5,
+      });
+
+      expect(toHit.allowed).toBe(true);
+      expect(toHit.modifiers).toEqual([
+        expect.objectContaining({
+          name: 'Right upper arm actuator destroyed',
+          value: 2,
+          source: 'actuator',
+        }),
+        expect.objectContaining({
+          name: 'AES modifier',
+          value: -1,
+          source: 'actuator',
+        }),
+        expect.objectContaining({
+          name: 'TSM Active Bonus',
+          value: -2,
+          source: 'myomer',
+        }),
+        expect.objectContaining({
+          name: 'Weight class difference',
+          value: 1,
+          source: 'weight-class',
+        }),
+      ]);
+      expect(toHit.finalToHit).toBe(5);
+    });
+
+    it('resolves a successful grapple as zero-damage grapple state setup', () => {
+      const result = resolvePhysicalAttack(
+        validGrappleInput(),
+        makeDiceSequence([6, 6]),
+      );
+
+      expect(result).toMatchObject({
+        attackType: 'grapple',
+        hit: true,
+        targetDamage: 0,
+        attackerDamage: 0,
+        targetPSR: false,
+        attackerPSR: false,
+        targetDisplaced: false,
+      });
+      expect(result.hitLocation).toBeUndefined();
     });
   });
 
