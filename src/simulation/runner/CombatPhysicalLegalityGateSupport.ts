@@ -82,6 +82,8 @@ const CHARGE_MOVEMENT_PATH_LINES =
   'MegaMek ChargeAttackAction.toHit movement-path validation rejects jumping, backward charge steps, and prone charge endings, ChargeAttackAction.java:404-439';
 const DFA_ACTION_LINES =
   'MegaMek DfaAttackAction movement validation and toHit, DfaAttackAction.java:140-329';
+const STUCK_CHARGE_DFA_LINES =
+  'MegaMek Entity.canCharge and Entity.canDFA reject stuck entities before charge or death-from-above declarations, Entity.java:10245-10253';
 const GUN_EMPLACEMENT_AUTOMATIC_HIT_LINES =
   'MegaMek PunchAttackAction, KickAttackAction, ClubAttackAction, and DfaAttackAction return AUTOMATIC_SUCCESS for adjacent GunEmplacement targets after impossibility checks';
 const DISPLACEMENT_ELEVATION_LINES =
@@ -149,6 +151,12 @@ const DFA_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
   'MegaMek DfaAttackAction applies movement-path and death-from-above-specific legality gates',
   'common/actions/DfaAttackAction.java',
   'L140-L329',
+);
+
+const STUCK_CHARGE_DFA_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek Entity.canCharge and Entity.canDFA reject stuck entities',
+  'common/units/Entity.java',
+  'L10245-L10253',
 );
 
 const PUNCH_GUN_EMPLACEMENT_AUTO_HIT_SOURCE_REF = megamekPhysicalSourceRef(
@@ -251,6 +259,8 @@ function sourceRefsForAuthority(
       return [CHARGE_MOVEMENT_PATH_SOURCE_REF];
     case DFA_ACTION_LINES:
       return [DFA_ACTION_SOURCE_REF];
+    case STUCK_CHARGE_DFA_LINES:
+      return [STUCK_CHARGE_DFA_SOURCE_REF];
     case GUN_EMPLACEMENT_AUTOMATIC_HIT_LINES:
       return [
         PUNCH_GUN_EMPLACEMENT_AUTO_HIT_SOURCE_REF,
@@ -542,6 +552,12 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'canCharge rejects attackerProne after the source-backed run gate passes; event-sourced declarations emit AttackerProne before scheduling and runner physical phase skips prone attackers before bot/automatic charge declarations',
     CHARGE_MOVEMENT_PATH_LINES,
   ),
+  'charge.attacker-not-stuck': integrated(
+    'charge.attacker-not-stuck',
+    'charge',
+    'canCharge consumes attackerStuck and rejects stuck attackers before charge movement-path gates; eligibility, event-sourced declarations, and runner resolution thread isStuck from swamp bog-down state',
+    STUCK_CHARGE_DFA_LINES,
+  ),
   'charge.target-entity': integrated(
     'charge.target-entity',
     'charge',
@@ -625,6 +641,12 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'dfa',
     'canDFA rejects attackerProne even when attackerJumpedThisTurn is true',
     DFA_ACTION_LINES,
+  ),
+  'dfa.attacker-not-stuck': integrated(
+    'dfa.attacker-not-stuck',
+    'dfa',
+    'canDFA consumes attackerStuck and rejects stuck attackers before DFA jump/prone gates; eligibility, event-sourced declarations, and runner resolution thread isStuck from swamp bog-down state',
+    STUCK_CHARGE_DFA_LINES,
   ),
   'dfa.displacement-state-conflicts': integrated(
     'dfa.displacement-state-conflicts',

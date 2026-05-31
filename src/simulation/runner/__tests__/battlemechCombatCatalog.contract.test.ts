@@ -3340,6 +3340,7 @@ describe('BattleMech combat feature-gap tracking', () => {
         PSRTrigger.EnteringWater,
         PSRTrigger.ExitingWater,
         PSRTrigger.Skidding,
+        PSRTrigger.SwampBogDown,
         PSRTrigger.RunningDamagedHip,
         PSRTrigger.RunningDamagedGyro,
       ].sort(),
