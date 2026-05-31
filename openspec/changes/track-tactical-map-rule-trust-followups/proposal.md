@@ -11,6 +11,12 @@ boundary is now retired by the `pin-underwater-weapon-environment-source`
 change, which links the map metadata to MegaMek source lines instead of a
 MekStation-only helper label.
 
+The same tracking rule now applies to vehicle criticals: the
+`align-vehicle-critical-location-tables` change source-pins committed vehicle
+critical dispatch to MegaMek Tank/VTOL struck-location tables, so follow-up
+tracking should no longer present full location-sensitive table selection as
+missing.
+
 ## What Changes
 
 - Add a tactical-map interface follow-up contract for unresolved rule-trust
@@ -20,6 +26,9 @@ MekStation-only helper label.
   evidence.
 - Carry the remaining movement runtime mutation/oracle matrix and isometric
   interaction sweep as named follow-up outcomes.
+- Narrow the represented vehicle critical follow-up boundary to
+  equipment-availability fallthrough, dual-turret split identity, and external
+  oracle sweeps.
 
 ## Out Of Scope
 

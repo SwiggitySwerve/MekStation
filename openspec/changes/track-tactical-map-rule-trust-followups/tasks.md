@@ -10,6 +10,7 @@
 - [x] 2.1 Retire the represented underwater/torpedo helper provenance gap once the MegaMek source pin lands
 - [x] 2.2 Tighten exposed MegaMek movement source-reference paths to current package locations
 - [x] 2.3 Refresh the movement gap boundary so source-pinned frogman/swim, TacOps pavement-bonus, unit-height, and runtime conversion coverage are not still reported as open headline gaps
+- [x] 2.4 Retire full location-sensitive vehicle critical table dispatch from the open follow-up list now that the MegaMek Tank/VTOL table slice has landed
 
 ## 3. Verification
 

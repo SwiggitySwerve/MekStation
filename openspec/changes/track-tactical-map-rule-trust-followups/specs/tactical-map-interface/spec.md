@@ -52,3 +52,15 @@ source-pinned, oracle-differenced, or interaction-swept.
 - **AND** those sweeps SHALL verify that isometric presentation continues to
   consume the same shared projection data as top-down movement, combat,
   terrain, elevation, LOS, and visibility highlights.
+
+#### Scenario: Vehicle critical table follow-ups are narrowed after source-pinned dispatch
+
+- **GIVEN** represented vehicle critical dispatch is source-pinned to MegaMek
+  Tank and VTOL struck-location critical tables
+- **WHEN** focused coverage proves front, rear, side/body, turret, VTOL rotor,
+  engine-type, fuel-tank, and replay-visible state outcomes
+- **THEN** tactical-map rule-trust tracking SHALL NOT keep full
+  location-sensitive vehicle critical-table dispatch listed as an open gap
+- **AND** the remaining vehicle critical follow-ups SHALL be narrowed to
+  equipment-availability fallthrough, dual-turret split identity, and broader
+  external oracle sweeps.

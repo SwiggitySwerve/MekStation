@@ -6,6 +6,7 @@ Branch: `codex/tactical-map-rules-projection`
 PR: `#682` (`Draft: Rules-backed tactical map projection`)
 Baseline inspected before this maintenance note:
 `ff4240ac0b16b604ac1ed77c47b4a4fe07991448`
+Latest refreshed head: `38ef4e4c492efb8a8746443560dec330ed488f85`
 
 ## Current Review Posture
 
@@ -14,12 +15,17 @@ outcomes in the goal: rules-backed movement projection, combat projection,
 terrain/elevation labels, top-down and isometric presentation, shared tooltip
 metadata, and preview-to-commit agreement. The PR should still remain draft
 until the listed follow-up gaps are either closed or explicitly carved out of
-the merge scope, because the branch is broad and GitHub had not attached a
-current-head PR check run to the inspected baseline.
+the merge scope because the branch is broad.
 
-Local inspection on this date found GitHub still reporting PR `#682` as
+The baseline inspection on 2026-05-26 found GitHub still reporting PR `#682` as
 `BLOCKED`; `gh pr checks 682` reported no current checks, while the queued PR
-Checks run visible in `gh run list` targeted stale head `6a592e5d`.
+Checks run visible in `gh run list` targeted stale head `6a592e5d`. That CI
+state has since been superseded by the refresh below.
+
+2026-05-31 refresh: PR `#682` is now `CLEAN` at head
+`38ef4e4c492efb8a8746443560dec330ed488f85`, and GitHub PR Checks are passing.
+The PR should remain draft by design while review splits and follow-up scope
+decisions are made, not because CI is stale.
 
 ## Spec-Covered Outcomes
 
@@ -40,8 +46,11 @@ Checks run visible in `gh run list` targeted stale head `6a592e5d`.
 - Combat: broader special range-mode coverage, remaining LOS terrain families,
   full surface-naval underwater expansion, and broader external oracle
   comparisons remain follow-up work.
-- Hull-down: dual-turret split handling and full MegaMek location-sensitive
-  vehicle critical-table fidelity remain follow-up work.
+- Hull-down / vehicle combat: dual-turret split handling, vehicle critical
+  equipment-availability fallthrough, and broader vehicle critical oracle
+  sweeps remain follow-up work. Full location-sensitive Tank/VTOL vehicle
+  critical-table selection is no longer open after the
+  `align-vehicle-critical-location-tables` slice.
   Target hull-down modifiers, attacker leg-weapon/kick blocks, and vehicle
   front-weapon direct-fire blocks, hull-down go-prone, and standing hull-down
   entry, prone-to-hull-down actuator/hip costs, punch/club hull-down hit-table
@@ -52,9 +61,9 @@ Checks run visible in `gh run list` targeted stale head `6a592e5d`.
 - Isometric: broader mobile gesture-matrix and full battlefield
   rotation/occlusion interaction sweeps remain follow-up work beyond the
   representative smoke and metadata coverage.
-- PR readiness: a current-head GitHub PR check run is still missing or stale at
-  this inspection point; local gates remain the authoritative evidence until CI
-  attaches to the latest head.
+- PR readiness: PR `#682` is currently draft by design. At the latest inspection
+  point, GitHub PR Checks are attached to current head
+  `38ef4e4c492efb8a8746443560dec330ed488f85` and passing.
 
 ## Merge-Readiness Implication
 

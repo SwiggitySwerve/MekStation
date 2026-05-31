@@ -90,8 +90,8 @@ vehicle hits through the vehicle hit-location and damage pipeline instead of
 the generic Mek damage path. Focused fixtures cover normal vehicle Front damage,
 hull-down turret fixed-location hits without consuming location dice, and VTOL
 rotor damage emitting crash and immobilization events. Remaining vehicle combat
-trust gaps are dual-turret split representation, full vehicle critical-table
-dispatch, and broader MegaMek differential sweeps.
+trust gaps are dual-turret split representation, vehicle critical
+equipment-availability fallthrough, and broader MegaMek differential sweeps.
 
 2026-05-31 vehicle critical dispatch pin: MegaMek
 `TWGameManager.java:21257-21294` rolls vehicle criticals through
@@ -99,12 +99,15 @@ dispatch, and broader MegaMek differential sweeps.
 `VTOL.java:398-608` select location-sensitive critical effects such as crew,
 weapon, cargo, sensor/stabilizer, engine, fuel-tank, ammo, turret, and rotor
 results. MekStation now dispatches represented vehicle TAC and structure-exposing
-session weapon hits through the existing vehicle critical helper, emits
-replay-visible critical/crew-stun/component/ammo/destruction events, and mirrors
-engine, driver, and ammo-explosion effects into the vehicle combat-state
-envelope. Remaining vehicle critical trust gaps are replacing the simplified
-helper table with the full MegaMek location-sensitive Tank/VTOL tables,
-dual-turret split critical resolution, and external differential sweeps.
+session weapon hits through MegaMek-aligned location-sensitive Tank/VTOL critical
+tables for front, rear, side/body, turret, and VTOL rotor hits. It emits
+replay-visible critical/crew-stun/component/ammo/destruction/turret/rotor events
+where MekStation has represented state, and mirrors engine, driver, commander,
+pilot/copilot, crew-kill, fuel-tank, ammo-explosion, turret, and rotor effects
+into the vehicle combat-state envelope. Remaining vehicle critical trust gaps
+are equipment-availability fallthrough for weapon/cargo/stabilizer/ammo
+availability, dual-turret split critical resolution, and external differential
+sweeps.
 
 2026-05-25 iNarc beacon browser pin: the tactical-map harness now also
 represents the same no-spotter blocked LRM target carrying a player-team iNarc
@@ -1050,9 +1053,10 @@ vehicle mode and otherwise falls back to Mek hull-down behavior. MekStation now
 applies that fixed-location behavior in the vehicle hit-location primitive,
 records `hullDownEnteredBackwards` from movement step chains, avoids consuming
 normal table dice for protected hull-down hits, and leaves exposed opposite
-arcs on the ordinary vehicle/VTOL table. Remaining follow-ups are full
-session-level vehicle damage dispatch and dual-turret split locations beyond
-the current generic `turret` abstraction.
+arcs on the ordinary vehicle/VTOL table. Session-level vehicle damage and
+location-sensitive critical dispatch have since landed; the remaining
+follow-up is dual-turret split locations beyond the current generic `turret`
+abstraction.
 
 Additional fog visibility pin: engine attack visibility already passes the
 active battle grid into `canPlayerSeeUnit` before accepting an attack
@@ -1836,8 +1840,9 @@ restriction helper in combat projection, interactive attack commits, bot attack
 commits, and quick-sim weapon loops. Focused projection and interactive
 agreement tests prove direct front-mounted hull-down vehicle weapons are blocked
 before declaration while front-mounted indirect LRM fire remains available.
-Full session-level vehicle damage dispatch and dual-turret split locations
-remain follow-up work.
+Session-level vehicle damage and location-sensitive critical dispatch have
+since landed; dual-turret split locations and vehicle critical
+equipment-availability fallthrough remain follow-up work.
 
 2026-05-31 hull-down movement-exit projection pin: MegaMek `GetUpStep.java`
 sets `GET_UP` MP to 2, or 1 when run MP is only 1, and `MoveStep.java:2021-2034`
