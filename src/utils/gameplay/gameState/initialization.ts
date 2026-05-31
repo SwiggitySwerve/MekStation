@@ -301,6 +301,7 @@ export function createInitialUnitState(
     lockState: LockState.Pending,
     componentDamage: DEFAULT_COMPONENT_DAMAGE,
     prone: false,
+    isStuck: false,
     shutdown: false,
     ammoState,
     ...(unit.armorTypeByLocation !== undefined
