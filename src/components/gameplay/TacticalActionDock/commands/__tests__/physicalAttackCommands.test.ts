@@ -32,6 +32,7 @@ describe('physicalAttackCommands', () => {
       'physical.punch',
       'physical.kick',
       'physical.push',
+      'physical.trip',
       'physical.charge',
       'physical.dfa',
       'physical.club',
@@ -79,6 +80,14 @@ describe('physicalAttackCommands', () => {
     expect(push.commit(makeCtx())).toEqual({
       actionId: 'physical-attack',
       payload: { attackType: 'push' },
+    });
+  });
+
+  it('trip dispatches physical-attack actionId with attackType=trip', () => {
+    const trip = commands.find((c) => c.id === 'physical.trip')!;
+    expect(trip.commit(makeCtx())).toEqual({
+      actionId: 'physical-attack',
+      payload: { attackType: 'trip' },
     });
   });
 
