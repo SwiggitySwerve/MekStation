@@ -466,6 +466,46 @@ const MEGAMEK_325B_MANEUVERING_ACE_SKID = {
   sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
 
+const MEGAMEK_325B_MANEUVERING_ACE_LATERAL_SHIFT = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek MovePath.canShift lets Maneuvering Ace biped Meks perform lateral shifts.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/moves/MovePath.java#L252-L266',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_MANEUVERING_ACE_QUAD_SIDE_STEP_COST = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek SideStepStep preserves base lateral-step MP for QuadMek units with Maneuvering Ace instead of adding the normal side-step surcharge.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/moves/SideStepStep.java#L47-L57',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_MANEUVERING_ACE_AERO_MANEUVER_COST = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek ManeuverStep reduces aerospace maneuver thrust cost by 1 for Maneuvering Ace.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/moves/ManeuverStep.java#L60-L66',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_MANEUVERING_ACE_SIDE_SLIP = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Entity.checkSideSlip applies Maneuvering Ace relief to flanking-and-turning checks and suppresses controlled-sideslip checks for walking Maneuvering Ace units.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L11978-L11998',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_MANEUVERING_ACE_OUT_OF_CONTROL = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek TWGameManager.getControlRollTarget applies -1 Maneuvering Ace to out-of-control checks.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L16908-L16920',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
 const MEGAMEK_325B_MANEUVERING_ACE_OPTION = {
   kind: 'megamek-source',
   citation:
@@ -476,6 +516,11 @@ const MEGAMEK_325B_MANEUVERING_ACE_OPTION = {
 
 const MEGAMEK_325B_MANEUVERING_ACE_SOURCE_REFS = [
   MEGAMEK_325B_MANEUVERING_ACE_SKID,
+  MEGAMEK_325B_MANEUVERING_ACE_LATERAL_SHIFT,
+  MEGAMEK_325B_MANEUVERING_ACE_QUAD_SIDE_STEP_COST,
+  MEGAMEK_325B_MANEUVERING_ACE_AERO_MANEUVER_COST,
+  MEGAMEK_325B_MANEUVERING_ACE_SIDE_SLIP,
+  MEGAMEK_325B_MANEUVERING_ACE_OUT_OF_CONTROL,
   MEGAMEK_325B_MANEUVERING_ACE_OPTION,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -587,7 +632,7 @@ export const SPA_COMBAT_SUPPORT = {
   'maneuvering-ace': helperOnly(
     'maneuvering-ace',
     'getManeuveringAceSkidModifier plus resolveAllPSRs apply source-backed Maneuvering Ace -1 to Skidding PSRs',
-    'Terrain-specific Maneuvering Ace PSR modifiers beyond skidding are not wired',
+    'Maneuvering Ace lateral-shift movement allowance, QuadMek lateral-step MP relief, aerospace maneuver-thrust relief, controlled-sideslip relief, and out-of-control checks are not wired',
     MEGAMEK_325B_MANEUVERING_ACE_SOURCE_REFS,
   ),
   'terrain-master': unsupported(
