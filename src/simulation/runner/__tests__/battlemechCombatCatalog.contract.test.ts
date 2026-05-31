@@ -2344,7 +2344,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       .sort();
 
     expect(integrated).toEqual(
-      [...SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES].sort(),
+      [...SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES, 'claws', 'talons'].sort(),
     );
     expect(
       Object.values(PHYSICAL_WEAPON_COMBAT_SUPPORT)
@@ -2353,7 +2353,7 @@ describe('BattleMech combat feature-gap tracking', () => {
           (entry.sourceRefs?.length ?? 0) === 0 ? [entry.id] : [],
         ),
     ).toEqual([]);
-    expect(helperOnly).toEqual(['claws', 'talons']);
+    expect(helperOnly).toEqual([]);
     expect(unsupported).toEqual([]);
   });
 
