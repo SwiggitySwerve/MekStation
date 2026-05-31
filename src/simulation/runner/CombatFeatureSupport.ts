@@ -1018,10 +1018,9 @@ export const PHYSICAL_WEAPON_COMBAT_SUPPORT = {
       MEGAMEK_6CA1867_RETRACTABLE_BLADE_MODE_GATE,
     ],
   ),
-  talons: helperOnly(
+  talons: integrated(
     'talons',
-    'source-backed kick and DFA damage helpers apply the +50% talon modifier from explicit biped leg or quad/non-biped arm-location state, UnitHydration critical-slot state, destroyed/missing/breached equipment critical events, or destroyed location state',
-    'Automatic missing/breached talon event production from mounted-equipment state beyond represented destroyed-location replay remains partial',
+    'source-backed kick and DFA damage helpers apply the +50% talon modifier from explicit biped leg or quad/non-biped arm-location state, UnitHydration critical-slot state, destroyed/missing/breached equipment critical events, or destroyed location state without exposing talons as a selectable attack type; remaining mounted-equipment lifecycle gaps are tracked under talon-equipment-lifecycle',
     [
       MEGAMEK_325B_TALON_KICK_DAMAGE,
       MEGAMEK_325B_TALON_DFA_DAMAGE,
@@ -1030,10 +1029,9 @@ export const PHYSICAL_WEAPON_COMBAT_SUPPORT = {
       MEGAMEK_325B_DESTROY_LOCATION_MISSING_MOUNT_GATE,
     ],
   ),
-  claws: helperOnly(
+  claws: integrated(
     'claws',
-    'source-backed punch damage/to-hit helpers apply claw modifiers from explicit state, UnitHydration arm critical-slot state, destroyed/missing/breached equipment critical events, or destroyed arm location state without exposing claws as a selectable attack type; PLAYTEST_3 removes only the claw punch to-hit penalty while preserving claw punch damage',
-    'Automatic missing/breached claw event production from mounted-equipment state beyond represented destroyed-location replay and claw club-with-hand interactions are not modeled',
+    'source-backed punch damage/to-hit helpers apply claw modifiers from explicit state, UnitHydration arm critical-slot state, destroyed/missing/breached equipment critical events, or destroyed arm location state without exposing claws as a selectable attack type; PLAYTEST_3 removes only the claw punch to-hit penalty while preserving claw punch damage, and remaining mounted-equipment lifecycle gaps are tracked under claw-equipment-lifecycle',
     [
       MEGAMEK_325B_CLAW_PUNCH_DAMAGE,
       MEGAMEK_325B_CLAW_PUNCH_TO_HIT,

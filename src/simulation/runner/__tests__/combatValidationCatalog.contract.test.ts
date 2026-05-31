@@ -174,19 +174,19 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 152,
+      total: 149,
       byLevel: {
-        'helper-only': 119,
+        'helper-only': 116,
         unsupported: 33,
       },
       bySection: {
         actions: 9,
         damageAndDeath: 2,
-        featureSupport: 88,
+        featureSupport: 86,
         lifecycleAndPsr: 3,
         pilotSkills: 19,
         ruleSupport: 13,
-        validationScope: 18,
+        validationScope: 17,
       },
     });
     expect(unresolvedRefs).toEqual(
@@ -195,8 +195,6 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.absentActionSurfaces.movement.sprint',
         'featureSupport.ammunitionCompatibility.battlemech-ammo-missing-compatible-weapon-refs',
         'featureSupport.ammunitionCompatibility.nonstandard-empty-compatible-row',
-        'featureSupport.physicalWeapons.claws',
-        'featureSupport.physicalWeapons.talons',
         'pilotSkills.pilotModifierResolvers.edge-application',
         'ruleSupport.movementEnhancements.masc-side-paths',
         'ruleSupport.movementEnhancements.supercharger-side-paths',
@@ -217,6 +215,15 @@ describe('BattleMech combat validation catalog index', () => {
     );
     expect(unresolvedRefs).not.toContain(
       'ruleSupport.physicalDamageModifiers.talons',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.physicalWeapons.claws',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.physicalWeapons.talons',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'validationScope.objectiveRequirements.official-physical-weapons',
     );
     expect(unresolvedRefs).not.toContain('ruleSupport.movementRules.prone');
     expect(unresolvedRefs).not.toContain(

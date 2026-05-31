@@ -824,7 +824,7 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 - **THEN** every official physical weapon id SHALL have a combat support row
 - **AND** local construction physical weapon definitions SHALL expose the same id set as `weapons/physical.json`
 - **AND** standalone physical weapon rows SHALL exactly match `SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES`
-- **AND** claws and talons SHALL remain modifier-only helper rows that do not pass intent, wire, or physical option validation as selectable attack types
+- **AND** claws and talons SHALL remain integrated modifier-only rows that do not pass intent, wire, or physical option validation as selectable attack types
 - **AND** no official physical weapon row SHALL be left unsupported without an explicit support-map entry
 
 #### Scenario: Retractable blade uses source-backed damage, to-hit, and extension gate
@@ -848,7 +848,7 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 - **AND** flail to-hit SHALL include source-backed `+0` and wrecking ball to-hit SHALL include source-backed `+1`
 - **AND** flail SHALL not require a hand actuator but SHALL stay blocked on quad BattleMechs
 - **AND** wrecking ball SHALL be treated as a non-arm-mounted physical weapon for arm, hand, shoulder, No Arms, and quad legality gates
-- **AND** the validation catalog SHALL have no unsupported standalone official physical weapon runtime types after flail and wrecking ball integration, while modifier-only claw/talon lifecycle and full mounted physical-weapon lifecycle remain visible gaps
+- **AND** the validation catalog SHALL have no unsupported standalone official physical weapon runtime types after flail and wrecking ball integration, while modifier-only claw/talon lifecycle and full mounted physical-weapon lifecycle remain visible gaps under the physical-weapon action and damage-modifier lifecycle rows
 
 #### Scenario: Talons modify kick and DFA damage without becoming a selectable attack type
 
