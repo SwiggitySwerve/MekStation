@@ -1,3 +1,4 @@
+export * from './actionCount';
 export * from './constants';
 export * from './damage';
 export * from './decision';
