@@ -189,6 +189,16 @@ export interface IUnitGameState {
    */
   readonly isPushing?: boolean;
   /**
+   * Source-backed TacOps grapple state. A successful grapple records the
+   * opposing unit id on both participants; the unit that initiated the
+   * grapple sets `isGrappleAttacker`.
+   */
+  readonly grappledUnitId?: string;
+  readonly isGrappleAttacker?: boolean;
+  readonly grappledThisRound?: boolean;
+  readonly grappleSide?: 'left' | 'right' | 'both';
+  readonly isChainWhipGrappled?: boolean;
+  /**
    * Target id of this unit's active displacement attack. Push legality uses
    * this to prove counter-push ownership when `isPushing` is true.
    */

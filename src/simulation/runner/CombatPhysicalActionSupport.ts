@@ -30,6 +30,7 @@ const PHYSICAL_ATTACK_COMMAND_SOURCE_REFS = {
   'jump-jet-attack':
     MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.jump-jet-attack'],
   'brush-off': MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.brush-off'],
+  grapple: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.grapple'],
   hatchet: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.club'],
   sword: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.sword'],
   mace: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.mace'],
@@ -89,6 +90,11 @@ export const PHYSICAL_ATTACK_ACTION_SUPPORT = {
     'brush-off',
     'Tactical command, game intent, wire schema, dispatcher, event-sourced physical resolution, and runner physical phase support source-backed brush-off against swarming infantry, including hit dislodgement and miss self-damage',
     PHYSICAL_ATTACK_COMMAND_SOURCE_REFS['brush-off'],
+  ),
+  grapple: integrated(
+    'grapple',
+    'Tactical command, game intent, wire schema, dispatcher, event-sourced physical resolution, and runner physical phase support source-backed normal TacOps grapple state without damage',
+    PHYSICAL_ATTACK_COMMAND_SOURCE_REFS.grapple,
   ),
   hatchet: integrated(
     'hatchet',
