@@ -6,7 +6,10 @@
 import type { IWeapon } from '@/simulation/ai/types';
 import type { IIndirectFireResolution } from '@/types/gameplay/IndirectFireInterfaces';
 import type { D6Roller, DiceRoller } from '@/utils/gameplay/diceTypes';
-import type { PhysicalAttackType } from '@/utils/gameplay/physicalAttacks';
+import type {
+  PhysicalAttackLimb,
+  PhysicalAttackType,
+} from '@/utils/gameplay/physicalAttacks';
 
 import {
   deriveCombatOutcome,
@@ -415,15 +418,25 @@ export class InteractiveSession {
     attackerId: string,
     targetId: string,
     attackType: PhysicalAttackType,
+    limb?: PhysicalAttackLimb,
   ): void {
     const baseContext = this.physicalContextByUnit().get(attackerId);
     if (!baseContext) return;
+    const elevationDifference = this.elevationDifferenceBetween(
+      attackerId,
+      targetId,
+    );
     const context: IPhysicalAttackContext = {
       ...baseContext,
-      elevationDifference: this.elevationDifferenceBetween(
+      ...this.buildJumpJetAttackSessionContext(
         attackerId,
-        targetId,
+        attackType,
+        limb,
+        baseContext,
+        elevationDifference,
       ),
+      elevationDifference,
+      limb,
       targetMovementComplete: true,
     };
 
@@ -435,6 +448,39 @@ export class InteractiveSession {
       context,
     );
     this.tryFinalizeAndPublish();
+  }
+
+  private buildJumpJetAttackSessionContext(
+    attackerId: string,
+    attackType: PhysicalAttackType,
+    limb: PhysicalAttackLimb | undefined,
+    baseContext: IPhysicalAttackContext,
+    elevationDifference: number,
+  ): Partial<IPhysicalAttackContext> {
+    if (attackType !== 'jump-jet-attack') return {};
+
+    const jumpMP = this.movementByUnit.get(attackerId)?.jumpMP ?? 0;
+    if (jumpMP <= 0) return {};
+
+    const selectedLeg =
+      baseContext.jumpJetAttackSelectedLeg ??
+      (limb === 'leftLeg' ? 'left' : 'right');
+    const selectedLeftLeg = selectedLeg === 'left' || selectedLeg === 'both';
+    const selectedRightLeg = selectedLeg === 'right' || selectedLeg === 'both';
+
+    return {
+      attackerJumpMP: baseContext.attackerJumpMP ?? jumpMP,
+      jumpJetAttackSelectedLeg: selectedLeg,
+      standingAttackerHeightAboveTargetHeight:
+        baseContext.standingAttackerHeightAboveTargetHeight ??
+        1 - elevationDifference,
+      leftReadyJumpJetCount: selectedLeftLeg
+        ? (baseContext.leftReadyJumpJetCount ?? jumpMP)
+        : baseContext.leftReadyJumpJetCount,
+      rightReadyJumpJetCount: selectedRightLeg
+        ? (baseContext.rightReadyJumpJetCount ?? jumpMP)
+        : baseContext.rightReadyJumpJetCount,
+    };
   }
 
   requestSpot(unitId: string, targetId: string): void {

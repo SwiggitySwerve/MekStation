@@ -5,6 +5,7 @@ import {
   calculateDFADamageToTarget,
   calculateFlailDamage,
   calculateHatchetDamage,
+  calculateJumpJetAttackDamage,
   calculateKickDamage,
   calculateLanceDamage,
   calculateMaceDamage,
@@ -18,6 +19,7 @@ import {
   canCharge,
   canDFA,
   canKick,
+  canJumpJetAttackPhysical,
   canMeleeWeapon,
   canPunch,
   canThrashPhysical,
@@ -81,6 +83,18 @@ export function chooseBestPhysicalAttack(
     targetIsPushing: options.targetIsPushing,
     targetDisplacementAttackTargetId: options.targetDisplacementAttackTargetId,
     targetedByDisplacementAttackerId: options.targetedByDisplacementAttackerId,
+    optionalRules: options.optionalRules,
+    tacOpsJumpJetAttackEnabled: options.tacOpsJumpJetAttackEnabled,
+    jumpJetAttackSelectedLeg: options.jumpJetAttackSelectedLeg,
+    leftReadyJumpJetCount: options.leftReadyJumpJetCount,
+    rightReadyJumpJetCount: options.rightReadyJumpJetCount,
+    leftLegWeaponFiredThisTurn: options.leftLegWeaponFiredThisTurn,
+    rightLegWeaponFiredThisTurn: options.rightLegWeaponFiredThisTurn,
+    standingAttackerHeightAboveTargetHeight:
+      options.standingAttackerHeightAboveTargetHeight,
+    proneTargetElevationInRange: options.proneTargetElevationInRange,
+    targetDirectlyAheadOfFeet: options.targetDirectlyAheadOfFeet,
+    targetDirectlyBehindFeet: options.targetDirectlyBehindFeet,
     thrashBlockingTerrains: options.thrashBlockingTerrains,
     hasWorkingThrashArmOrLeg: options.hasWorkingThrashArmOrLeg,
   };
@@ -94,6 +108,18 @@ export function chooseBestPhysicalAttack(
     candidates.push({
       type: 'thrash',
       expectedDamage: calculateThrashDamage(thrashInput),
+    });
+  }
+
+  const jumpJetInput: IPhysicalAttackInput = {
+    ...baseInput,
+    attackType: 'jump-jet-attack',
+    limb: options.jumpJetAttackSelectedLeg === 'left' ? 'leftLeg' : 'rightLeg',
+  };
+  if (canJumpJetAttackPhysical(jumpJetInput).allowed) {
+    candidates.push({
+      type: 'jump-jet-attack',
+      expectedDamage: calculateJumpJetAttackDamage(jumpJetInput),
     });
   }
 
