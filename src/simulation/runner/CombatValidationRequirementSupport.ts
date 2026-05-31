@@ -593,6 +593,24 @@ function helperOnly(
   };
 }
 
+function outOfScope(
+  id: CombatRequirementId,
+  evidence: string,
+  gap: string,
+  supportMapRefs: readonly string[],
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatRequirementSupportEntry {
+  return {
+    id,
+    level: 'out-of-scope',
+    evidence,
+    gap,
+    primaryAuthority: primaryAuthorityFor(id),
+    supportMapRefs,
+    sourceRefs: sourceRefs ?? sourceRefsFromSupportMapRefs(supportMapRefs),
+  };
+}
+
 export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'official-ranged-weapons': integrated(
     'official-ranged-weapons',
@@ -1053,7 +1071,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       'validationScope.knownLimitationsAndScope.unresolved-completion-blocker-inventory',
     ],
   ),
-  'non-battlemech-scope': helperOnly(
+  'non-battlemech-scope': outOfScope(
     'non-battlemech-scope',
     'Validation scope support splits aerospace, vehicle, battle armor, infantry, protomech, and motive-system responsibilities out of this BattleMech suite',
     'Non-BattleMech systems need their own validation matrices rather than being treated as BattleMech coverage',
