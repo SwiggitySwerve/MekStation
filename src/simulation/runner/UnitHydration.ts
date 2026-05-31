@@ -409,6 +409,8 @@ export function hydrateHasStealthArmorFromFullUnit(
 export interface IHydratedTalonState {
   readonly leftLegHasTalons: boolean;
   readonly rightLegHasTalons: boolean;
+  readonly leftArmHasTalons: boolean;
+  readonly rightArmHasTalons: boolean;
 }
 
 export interface IHydratedClawState {
@@ -439,6 +441,12 @@ export function hydrateTalonStateFromFullUnit(
     ),
     rightLegHasTalons: hasTalonCriticalSlot(
       locationSlotTexts(criticalSlots, 'RIGHT_LEG'),
+    ),
+    leftArmHasTalons: hasTalonCriticalSlot(
+      locationSlotTexts(criticalSlots, 'LEFT_ARM'),
+    ),
+    rightArmHasTalons: hasTalonCriticalSlot(
+      locationSlotTexts(criticalSlots, 'RIGHT_ARM'),
     ),
   };
 }
@@ -1795,6 +1803,8 @@ export function createHydratedUnitState(
     partialWingJumpBonus: hydratePartialWingJumpBonusFromFullUnit(fullUnit),
     leftLegHasTalons: talons.leftLegHasTalons,
     rightLegHasTalons: talons.rightLegHasTalons,
+    leftArmHasTalons: talons.leftArmHasTalons,
+    rightArmHasTalons: talons.rightArmHasTalons,
     leftArmHasClaw: claws.leftArmHasClaw,
     rightArmHasClaw: claws.rightArmHasClaw,
     hasStealthArmor: hydrateHasStealthArmorFromFullUnit(fullUnit),
