@@ -1160,10 +1160,13 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       expect(consumed?.payload.roundsConsumed).toBe(1);
       expect(consumed?.payload.roundsRemaining).toBe(1);
       expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.level).toBe(
-        'helper-only',
+        'integrated',
       );
       expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.evidence).toContain(
         'narcedBy',
+      );
+      expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.evidence).toContain(
+        'inarc-pod-variants',
       );
     });
 
