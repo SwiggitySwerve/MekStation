@@ -35,7 +35,10 @@ export function queueMovementEnhancementPSRs(options: {
     unitId,
   } = options;
 
-  if (movementType !== MovementType.Run) {
+  if (
+    movementType !== MovementType.Run &&
+    movementType !== MovementType.Sprint
+  ) {
     return options.currentState;
   }
 
