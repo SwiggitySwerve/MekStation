@@ -85,14 +85,14 @@ export const MEKSTATION_PHYSICAL_ACTION_HELPER_REFS = {
     {
       kind: 'mekstation-deviation',
       citation:
-        'MekStation canTrip exposes source-backed trip attack legality gates as helper-only coverage without adding a runtime PhysicalAttackType.',
+        'MekStation canTrip exposes source-backed trip attack legality gates consumed by the runtime optional TacOps Trip PhysicalAttackType.',
       url: 'src/utils/gameplay/physicalAttacks/tripEligibility.ts#L47-L136',
       sourceVersion: 'MekStation working-tree',
     },
     {
       kind: 'mekstation-deviation',
       citation:
-        'MekStation physical attack tests cover source-backed canTrip gates and the Trip base to-hit adjustment.',
+        'MekStation physical attack tests cover source-backed canTrip gates, runtime trip resolution, zero damage, and the Trip base to-hit adjustment.',
       url: 'src/utils/gameplay/__tests__/physicalAttacks.test.ts#L1474-L1534',
       sourceVersion: 'MekStation working-tree',
     },
