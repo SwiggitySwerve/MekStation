@@ -133,6 +133,13 @@ export interface IPhysicalAttackContext {
   readonly proneTargetElevationInRange?: boolean;
   readonly targetDirectlyAheadOfFeet?: boolean;
   readonly targetDirectlyBehindFeet?: boolean;
+  readonly targetIsSwarmingInfantryOnAttacker?: boolean;
+  readonly targetIsINarcPod?: boolean;
+  readonly armAesFunctional?: boolean;
+  readonly torsoMountedCockpit?: boolean;
+  readonly headSensorHits?: number;
+  readonly centerTorsoSensorHits?: number;
+  readonly defenderHasMagneticClaws?: boolean;
 }
 
 type ArmSide = 'left' | 'right';

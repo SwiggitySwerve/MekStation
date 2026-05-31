@@ -56,6 +56,7 @@ import { roll2d6 as rollDice } from './hitLocation';
 import {
   canCharge,
   canDFA,
+  canBrushOffPhysical,
   canKick,
   canJumpJetAttackPhysical,
   canMeleeWeapon,
@@ -391,6 +392,7 @@ function weaponsFiredFromArmForAttack(
   if (attackType === 'thrash') return attackerState.weaponsFiredThisTurn ?? [];
   if (attackType === 'push') return firedWeaponIdsFromMountedArm(attackerState);
   if (
+    attackType === 'brush-off' ||
     attackType === 'punch' ||
     (SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES as readonly string[]).includes(
       attackType,
@@ -442,6 +444,35 @@ function terrainAtPosition(
 ): string | undefined {
   if (!grid) return undefined;
   return grid.hexes.get(`${position.q},${position.r}`)?.terrain;
+}
+
+function canonicalBrushOffTargetUnitType(unitType: string | undefined): string {
+  return unitType?.toLowerCase().replace(/[^a-z0-9]/g, '') ?? '';
+}
+
+function swarmingHostId(
+  target: IGameSession['currentState']['units'][string] | undefined,
+): string | undefined {
+  if (target?.combatState?.kind !== 'squad') return undefined;
+  return target.combatState.state.swarmingUnitId;
+}
+
+function targetIsSwarmingInfantryOnAttacker(
+  attackerId: string,
+  target: IGameSession['currentState']['units'][string] | undefined,
+): boolean | undefined {
+  if (!target?.isSwarming) return undefined;
+  const targetType = canonicalBrushOffTargetUnitType(target.unitType);
+  if (
+    targetType !== 'infantry' &&
+    targetType !== 'battlearmor' &&
+    target.combatState?.kind !== 'squad'
+  ) {
+    return false;
+  }
+
+  const hostId = swarmingHostId(target);
+  return hostId === undefined || hostId === attackerId;
 }
 
 function appendInvalidPhysicalResolution(
@@ -681,6 +712,15 @@ export function declarePhysicalAttack(
       ? (context.targetDirectlyBehindFeet ??
         isTargetDirectlyBehindFeet(attackerState, targetState))
       : context.targetDirectlyBehindFeet,
+    targetIsSwarmingInfantryOnAttacker:
+      context.targetIsSwarmingInfantryOnAttacker ??
+      targetIsSwarmingInfantryOnAttacker(attackerId, targetState),
+    targetIsINarcPod: context.targetIsINarcPod,
+    armAesFunctional: context.armAesFunctional,
+    torsoMountedCockpit: context.torsoMountedCockpit,
+    headSensorHits: context.headSensorHits,
+    centerTorsoSensorHits: context.centerTorsoSensorHits,
+    defenderHasMagneticClaws: context.defenderHasMagneticClaws,
     pushDestinationValid: context.pushDestinationValid,
     pushTargetDirectlyAhead: targetState
       ? isTargetDirectlyAhead(
@@ -714,6 +754,8 @@ export function declarePhysicalAttack(
     restriction = canThrashPhysical(input);
   } else if (attackType === 'jump-jet-attack') {
     restriction = canJumpJetAttackPhysical(input);
+  } else if (attackType === 'brush-off') {
+    restriction = canBrushOffPhysical(input);
   } else if (
     attackType === 'hatchet' ||
     attackType === 'sword' ||
@@ -1015,6 +1057,15 @@ export function resolveAllPhysicalAttacks(
       targetDirectlyBehindFeet:
         context.targetDirectlyBehindFeet ??
         isTargetDirectlyBehindFeet(attackerState, targetState),
+      targetIsSwarmingInfantryOnAttacker:
+        context.targetIsSwarmingInfantryOnAttacker ??
+        targetIsSwarmingInfantryOnAttacker(payload.attackerId, targetState),
+      targetIsINarcPod: context.targetIsINarcPod,
+      armAesFunctional: context.armAesFunctional,
+      torsoMountedCockpit: context.torsoMountedCockpit,
+      headSensorHits: context.headSensorHits,
+      centerTorsoSensorHits: context.centerTorsoSensorHits,
+      defenderHasMagneticClaws: context.defenderHasMagneticClaws,
       pushDestinationValid: context.pushDestinationValid,
       pushTargetDirectlyAhead: isTargetDirectlyAhead(
         attackerState.position,
@@ -1135,6 +1186,37 @@ export function resolveAllPhysicalAttacks(
             ),
           );
         }
+      }
+    }
+
+    if (
+      !result.hit &&
+      payload.attackType === 'brush-off' &&
+      result.attackerDamage > 0 &&
+      result.hitLocation
+    ) {
+      const damageState = buildDamageStateFromUnit(attackerState);
+      const damageResult = resolveDamagePipeline(
+        damageState,
+        result.hitLocation,
+        result.attackerDamage,
+      );
+      for (const locationDamage of damageResult.result.locationDamages) {
+        const damageSeq = currentSession.events.length;
+        currentSession = appendEvent(
+          currentSession,
+          createDamageAppliedEvent(
+            currentSession.id,
+            damageSeq,
+            turn,
+            payload.attackerId,
+            locationDamage.location,
+            locationDamage.damage,
+            locationDamage.armorRemaining,
+            locationDamage.structureRemaining,
+            locationDamage.destroyed,
+          ),
+        );
       }
     }
 

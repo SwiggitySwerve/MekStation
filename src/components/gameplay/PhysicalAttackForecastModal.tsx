@@ -93,6 +93,8 @@ function attackTypeLabel(attackType: PhysicalAttackType): string {
       return 'Thrash';
     case 'jump-jet-attack':
       return 'Jump Jet Attack';
+    case 'brush-off':
+      return 'Brush Off';
     case 'hatchet':
       return 'Hatchet';
     case 'sword':
