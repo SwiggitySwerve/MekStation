@@ -45,6 +45,7 @@ import {
 import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
 import { GamePhase, type IHexCoordinate } from '@/types/gameplay';
 import { hexDistance } from '@/utils/gameplay/hexMath';
+import { physicalAttackLimbsUsedThisTurn } from '@/utils/gameplay/physicalAttacks/actionCount';
 import { getEligiblePhysicalAttacks } from '@/utils/gameplay/physicalAttacks/eligibility';
 
 import type { PhysicalAttackIntentVariant } from './overlays/PhysicalAttackIntentArrow';
@@ -162,6 +163,18 @@ export function PhysicalAttackPanel({
     return session.currentState.units[physicalAttackPlan.targetUnitId] ?? null;
   }, [physicalAttackPlan.targetUnitId, session]);
 
+  const limbsUsedThisTurn = useMemo(
+    () =>
+      selected && session
+        ? physicalAttackLimbsUsedThisTurn(
+            session.events,
+            session.currentState.turn,
+            selected.id,
+          )
+        : [],
+    [selected, session],
+  );
+
   /**
    * Per task 3.1-3.3: project the engine's `getEligiblePhysicalAttacks`
    * into one row per attack type. Rows include both eligible and
@@ -176,13 +189,20 @@ export function PhysicalAttackPanel({
       targetTonnage: attackerTonnage,
       weaponsFiredFromLeftArm: selected.state.weaponsFiredThisTurn,
       weaponsFiredFromRightArm: selected.state.weaponsFiredThisTurn,
-      limbsUsedThisTurn: undefined,
+      limbsUsedThisTurn,
       attackerRanThisTurn: false,
       attackerJumpedThisTurn: false,
       meleeWeaponsEquipped,
       optionalRules: session.config.optionalRules,
     });
-  }, [selected, targetState, attackerTonnage, meleeWeaponsEquipped, session]);
+  }, [
+    selected,
+    targetState,
+    attackerTonnage,
+    meleeWeaponsEquipped,
+    limbsUsedThisTurn,
+    session,
+  ]);
 
   /**
    * Build the attack input consumed by the forecast modal when a
@@ -197,13 +217,14 @@ export function PhysicalAttackPanel({
       pilotingSkill: selected.unit.piloting,
       componentDamage: selected.state.componentDamage ?? EMPTY_DAMAGE,
       attackType: physicalAttackPlan.attackType,
+      limb: physicalAttackPlan.limb ?? undefined,
       heat: selected.state.heat,
       attackerProne: selected.state.prone,
       hexesMoved: selected.state.hexesMovedThisTurn,
       weaponsFiredFromArm: selected.state.weaponsFiredThisTurn,
       optionalRules: session?.config.optionalRules,
     };
-  }, [selected, attackerTonnage, physicalAttackPlan.attackType, session]);
+  }, [selected, attackerTonnage, physicalAttackPlan, session]);
 
   // ---------------------------------------------------------------------------
   // Callbacks
@@ -252,7 +273,7 @@ export function PhysicalAttackPanel({
    */
   const handleDeclare = useCallback(
     (option: IPhysicalAttackOption) => {
-      setPhysicalAttackType(option.attackType);
+      setPhysicalAttackType(option.attackType, option.limb ?? null);
       setForecastOpen(true);
     },
     [setPhysicalAttackType],
@@ -273,7 +294,10 @@ export function PhysicalAttackPanel({
         (t) => t.id === physicalAttackPlan.targetUnitId,
       );
       setCommittedSummary(
-        `Declared ${attackTypeLabel(physicalAttackPlan.attackType ?? 'punch')} vs ${target?.name ?? 'target'}`,
+        `Declared ${attackTypeLabel(
+          physicalAttackPlan.attackType ?? 'punch',
+          physicalAttackPlan.limb ?? undefined,
+        )} vs ${target?.name ?? 'target'}`,
       );
     }
     setForecastOpen(false);
@@ -287,6 +311,7 @@ export function PhysicalAttackPanel({
     meleeTargets,
     physicalAttackPlan.targetUnitId,
     physicalAttackPlan.attackType,
+    physicalAttackPlan.limb,
     onIntentChange,
   ]);
 
