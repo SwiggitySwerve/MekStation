@@ -312,6 +312,11 @@ export const MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS = {
     'brush-off',
     'L134-L150',
   ),
+  'physical.grapple': mekstationPhysicalCommandSourceRefs(
+    'physical.grapple',
+    'grapple',
+    'L152-L164',
+  ),
   'physical.charge': mekstationPhysicalCommandSourceRefs(
     'physical.charge',
     'charge',
@@ -966,6 +971,12 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'tactical-command',
     'buildPhysicalAttackCommands commits right-arm brush-off; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack preserve the selected arm limb',
     MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.brush-off'],
+  ),
+  'physical.grapple': integrated(
+    'physical.grapple',
+    'tactical-command',
+    'buildPhysicalAttackCommands commits physical-attack grapple; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.grapple'],
   ),
   'physical.charge': integrated(
     'physical.charge',
