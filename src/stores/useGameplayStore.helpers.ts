@@ -21,6 +21,7 @@ import {
   activateMovementEnhancement,
   declareMovement,
   torsoTwist,
+  requestSpot,
   goProne,
   attemptStandUp,
   advancePhase,
@@ -281,6 +282,52 @@ export function handleActionLogic(
       }
 
       set({ session: torsoTwist(session, unitId, secondaryFacing) });
+      break;
+    }
+    case 'request-spot': {
+      if (phase !== GamePhase.WeaponAttack) return;
+
+      const unitId = stringPayloadValue(payload, 'unitId') ?? ui.selectedUnitId;
+      const targetId =
+        stringPayloadValue(payload, 'targetUnitId') ??
+        stringPayloadValue(payload, 'targetId') ??
+        ui.targetUnitId;
+      if (!unitId || !targetId) return;
+
+      const unit = session.currentState.units[unitId];
+      const target = session.currentState.units[targetId];
+      if (
+        !unit ||
+        !target ||
+        unit.destroyed ||
+        unit.hasRetreated ||
+        unit.hasEjected ||
+        unit.shutdown ||
+        !unit.pilotConscious ||
+        unit.sprintedThisTurn ||
+        unit.isEvading ||
+        unit.isSpotting ||
+        target.destroyed ||
+        target.hasRetreated ||
+        target.hasEjected ||
+        unit.side === target.side
+      ) {
+        return;
+      }
+
+      if (interactiveSession) {
+        interactiveSession.requestSpot(unitId, targetId);
+        set({
+          session: interactiveSession.getSession(),
+          ui: clearCombatSelection(ui),
+        });
+        break;
+      }
+
+      set({
+        session: requestSpot(session, unitId, targetId),
+        ui: clearCombatSelection(ui),
+      });
       break;
     }
     case 'clear':
@@ -546,6 +593,14 @@ function resolveTorsoTwistSecondaryFacing(
   const direction: TorsoTwistDirection =
     payload?.direction === 'right' ? 'right' : 'left';
   return getTwistedFacing(facing, direction);
+}
+
+function stringPayloadValue(
+  payload: ActionPayload,
+  key: string,
+): string | null {
+  const value = payload?.[key];
+  return typeof value === 'string' && value.length > 0 ? value : null;
 }
 
 function shouldWaitForAnimations(): boolean {
