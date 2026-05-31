@@ -36,6 +36,7 @@ export function applyAirMekLandingControlPSR(
   unitId: string,
   patch: Omit<IRuntimeMovementStateChangedPayload, 'unitId'>,
   diceRoller: D6Roller = defaultD6Roller,
+  unitTonnage?: number,
 ): IGameSession {
   if (patch.lamAirMekLandingControlRequired !== true) return session;
 
@@ -103,7 +104,7 @@ export function applyAirMekLandingControlPSR(
   const latestUnitState = currentSession.currentState.units[unitId];
   const fallHeight = landingFallHeight(patch);
   const fallResult = resolveFall(
-    DEFAULT_AIRMEK_LANDING_TONNAGE,
+    landingFallTonnage(unitTonnage),
     latestUnitState?.facing ?? unitState.facing,
     fallHeight,
     diceRoller,
@@ -143,6 +144,13 @@ export function applyAirMekLandingControlPSR(
       totalWounds < 6,
     ),
   );
+}
+
+function landingFallTonnage(tonnage: number | undefined): number {
+  if (tonnage === undefined || !Number.isFinite(tonnage) || tonnage <= 0) {
+    return DEFAULT_AIRMEK_LANDING_TONNAGE;
+  }
+  return tonnage;
 }
 
 function landingFallHeight(

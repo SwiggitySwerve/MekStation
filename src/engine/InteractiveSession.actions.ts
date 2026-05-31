@@ -379,6 +379,7 @@ export interface IApplyRuntimeMovementStateInput {
   readonly unitId: string;
   readonly patch: Omit<IRuntimeMovementStateChangedPayload, 'unitId'>;
   readonly diceRoller?: D6Roller;
+  readonly tonnageByUnit?: ReadonlyMap<string, number>;
 }
 
 export function applyInteractiveSessionRuntimeMovementState(
@@ -403,6 +404,7 @@ export function applyInteractiveSessionRuntimeMovementState(
     input.unitId,
     input.patch,
     input.diceRoller,
+    input.tonnageByUnit?.get(input.unitId),
   );
 }
 

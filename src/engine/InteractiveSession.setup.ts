@@ -45,8 +45,8 @@ export interface IInteractiveSessionUnitMaps {
 /**
  * Build the per-unit lookup maps from the adapted units (weapons +
  * movement capability + tonnage) and the game units (gunnery +
- * piloting). Tonnage uses the Phase 1 stand-in of 65t because catalog
- * tonnage is not yet on `IAdaptedUnit` — matches `SimulationRunnerConstants`.
+ * piloting). Current adapted units carry catalog tonnage when available;
+ * missing/legacy fixtures still fall back to the 65t stand-in.
  */
 export function buildInteractiveSessionUnitMaps(
   playerUnits: readonly IAdaptedUnit[],
@@ -62,9 +62,7 @@ export function buildInteractiveSessionUnitMaps(
   for (const u of [...playerUnits, ...opponentUnits]) {
     weaponsByUnit.set(u.id, u.weapons);
     movementByUnit.set(u.id, toMovementCapability(u));
-    // Phase 1 stand-in: catalog tonnage isn't on `IAdaptedUnit` yet,
-    // so we default to 65t (matches `SimulationRunnerConstants`).
-    tonnageByUnit.set(u.id, 65);
+    tonnageByUnit.set(u.id, representedTonnage(u.tonnage));
   }
   for (const gu of gameUnits) {
     gunneryByUnit.set(gu.id, gu.gunnery);
@@ -78,6 +76,12 @@ export function buildInteractiveSessionUnitMaps(
     pilotingByUnit,
     tonnageByUnit,
   };
+}
+
+function representedTonnage(tonnage: number | undefined): number {
+  return tonnage !== undefined && Number.isFinite(tonnage) && tonnage > 0
+    ? tonnage
+    : 65;
 }
 
 export function gameUnitsWithAdaptedMovementModes(

@@ -807,8 +807,11 @@ converts required landing metadata into a canonical `airmek_landing`
 PSR modifiers do not double-count the source-backed landing check.
 `resolve-airmek-landing-psr` now resolves the landing roll immediately in
 movement-command order and emits `PSRResolved`, `UnitFell`, and `PilotHit` on
-failed represented descents. Full crash armor/internal damage application and
-automatic forced landing from higher WiGE elevations remain follow-up work.
+failed represented descents. `use-airmek-landing-fall-tonnage` now carries
+adapted catalog tonnage into the interactive-session resolver map so failed
+AirMek landing falls scale the `UnitFell` damage by the moved unit instead of a
+placeholder. Full crash armor/internal damage application and automatic forced
+landing from higher WiGE elevations remain follow-up work.
 
 Additional small-unit movement data pin: MegaMek `Infantry.java:560-568` and
 `BattleArmor.java:520-523` return walk MP as base run MP unless optional TacOps

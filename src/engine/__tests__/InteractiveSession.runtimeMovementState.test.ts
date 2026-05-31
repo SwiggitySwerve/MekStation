@@ -130,6 +130,7 @@ describe('applyInteractiveSessionRuntimeMovementState', () => {
         lamAirMekLandingControlFallHeight: 1,
       },
       diceRoller: d6Sequence([1, 1, 1, 3, 4, 3, 4]),
+      tonnageByUnit: new Map([['lam-1', 80]]),
     });
 
     const appended = result.events.slice(session.events.length);
@@ -151,7 +152,7 @@ describe('applyInteractiveSessionRuntimeMovementState', () => {
     });
     expect(appended[3].payload as IUnitFellPayload).toMatchObject({
       unitId: 'lam-1',
-      fallDamage: 10,
+      fallDamage: 16,
       newFacing: Facing.North,
       pilotDamage: 1,
       reason: 'landing with gyro or leg damage',
