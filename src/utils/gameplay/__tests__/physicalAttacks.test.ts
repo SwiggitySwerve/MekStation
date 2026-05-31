@@ -26,6 +26,7 @@ import {
   calculateTripToHit,
   calculateThrashToHit,
   calculateGrappleToHit,
+  calculateBreakGrappleToHit,
   calculateMeleeWeaponToHit,
   calculatePhysicalToHit,
   calculatePhysicalDamage,
@@ -40,10 +41,12 @@ import {
   canTripPhysical,
   canThrashPhysical,
   canGrapplePhysical,
+  canBreakGrapplePhysical,
   canJumpJetAttackPhysical,
   canThrash,
   canTrip,
   computeChargeDisplacementOutcome,
+  computeBreakGrappleDisplacementOutcome,
   computeDfaDisplacementOutcome,
   computeDfaDisplacements,
   computePreferredDisplacement,
@@ -140,6 +143,33 @@ function makeDisplacementGrid(): IHexGrid {
     terrain: 'clear',
     elevation: 1,
   });
+  return { config: { radius: 2 }, hexes };
+}
+
+function makeBreakGrappleGrid(): IHexGrid {
+  const hexes = new Map();
+  const addHex = (
+    q: number,
+    r: number,
+    terrain: string,
+    elevation: number,
+    occupantId: string | null = null,
+  ) => {
+    hexes.set(`${q},${r}`, {
+      coord: { q, r },
+      occupantId,
+      terrain,
+      elevation,
+    });
+  };
+
+  addHex(0, 0, 'clear', 0, 'attacker');
+  addHex(0, -1, 'clear', 0);
+  addHex(1, -1, 'water:2', 0);
+  addHex(1, 0, 'magma', 0);
+  addHex(0, 1, 'clear', -2);
+  addHex(-1, 1, 'water:1', -2);
+  addHex(-1, 0, 'clear', 0);
   return { config: { radius: 2 }, hexes };
 }
 
@@ -2092,6 +2122,150 @@ describe('physicalAttacks', () => {
           targetWeightClass: 2,
         }),
       ).toBe(0);
+    });
+  });
+
+  describe('runtime break-grapple attack', () => {
+    const validBreakGrappleInput = () =>
+      makeInput({
+        attackerId: 'attacker',
+        targetId: 'target',
+        attackType: 'break-grapple',
+        optionalRules: ['tacops_grappling'],
+        commonPhysicalImpossibleReasonCode: 'LockedInGrapple',
+        attackerGrappledTargetId: 'target',
+        targetGrappledTargetId: 'attacker',
+        attackerUnitType: UnitType.BATTLEMECH,
+        targetUnitType: UnitType.BATTLEMECH,
+        targetDistance: 0,
+      });
+
+    it('allows source-backed break-grapple through runtime physical restrictions', () => {
+      expect(canBreakGrapplePhysical(validBreakGrappleInput())).toEqual({
+        allowed: true,
+      });
+    });
+
+    it('rejects chain-whip and non-matching grapple state before runtime side effects', () => {
+      expect(
+        canBreakGrapplePhysical({
+          ...validBreakGrappleInput(),
+          attackerChainWhipGrappled: true,
+        }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'ChainWhipGrappled',
+      });
+
+      expect(
+        canBreakGrapplePhysical({
+          ...validBreakGrappleInput(),
+          attackerGrappledTargetId: 'other-target',
+        }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'NotGrappledToTarget',
+      });
+    });
+
+    it('resolves original-attacker break-grapple as automatic zero-damage success', () => {
+      const result = resolvePhysicalAttack(
+        {
+          ...validBreakGrappleInput(),
+          attackerIsGrappleAttacker: true,
+        },
+        makeDiceSequence([1, 1]),
+      );
+
+      expect(result).toMatchObject({
+        attackType: 'break-grapple',
+        roll: 0,
+        toHitNumber: 0,
+        hit: true,
+        targetDamage: 0,
+        attackerDamage: 0,
+        automaticHit: true,
+        automaticHitReason: 'original attacker',
+      });
+      expect(result.hitLocation).toBeUndefined();
+    });
+
+    it('threads source-backed break-grapple actuator, AES, and weight modifiers into runtime to-hit', () => {
+      const toHit = calculateBreakGrappleToHit({
+        ...validBreakGrappleInput(),
+        attackerIsGrappleAttacker: false,
+        componentDamage: {
+          ...DEFAULT_COMPONENT_DAMAGE,
+          actuators: { [ActuatorType.SHOULDER]: true },
+        },
+        leftArmAesFunctional: true,
+        rightArmAesFunctional: true,
+        attackerWeightClass: 4,
+        targetWeightClass: 5,
+      });
+
+      expect(toHit.allowed).toBe(true);
+      expect(toHit.modifiers).toEqual([
+        expect.objectContaining({
+          name: 'Left shoulder actuator destroyed',
+          value: 2,
+          source: 'actuator',
+        }),
+        expect.objectContaining({
+          name: 'Right shoulder actuator destroyed',
+          value: 2,
+          source: 'actuator',
+        }),
+        expect.objectContaining({
+          name: 'AES modifier',
+          value: -1,
+          source: 'actuator',
+        }),
+        expect.objectContaining({
+          name: 'Weight class difference',
+          value: 1,
+          source: 'weight-class',
+        }),
+      ]);
+      expect(toHit.finalToHit).toBe(9);
+    });
+
+    it('chooses source-backed least- and most-dangerous adjacent displacement hexes', () => {
+      expect(
+        computeBreakGrappleDisplacementOutcome({
+          grid: makeBreakGrappleGrid(),
+          attackerId: 'attacker',
+          targetId: 'target',
+          attackerPosition: { q: 0, r: 0 },
+          targetPosition: { q: 0, r: 0 },
+          attackerIsGrappleAttacker: true,
+        }).displacements,
+      ).toEqual([
+        {
+          unitId: 'attacker',
+          from: { q: 0, r: 0 },
+          to: { q: 0, r: -1 },
+          reason: 'break-grapple',
+        },
+      ]);
+
+      expect(
+        computeBreakGrappleDisplacementOutcome({
+          grid: makeBreakGrappleGrid(),
+          attackerId: 'attacker',
+          targetId: 'target',
+          attackerPosition: { q: 0, r: 0 },
+          targetPosition: { q: 0, r: 0 },
+          attackerIsGrappleAttacker: false,
+        }).displacements,
+      ).toEqual([
+        {
+          unitId: 'target',
+          from: { q: 0, r: 0 },
+          to: { q: 1, r: 0 },
+          reason: 'break-grapple',
+        },
+      ]);
     });
   });
 
