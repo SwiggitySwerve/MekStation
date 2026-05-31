@@ -117,6 +117,38 @@ describe('InteractiveSession movement validation', () => {
     expect(next.currentState.units['unit-player'].heat).toBe(1);
   });
 
+  it('commits TacOps Sprint beyond run MP with sprint state and heat', () => {
+    const session = createMovementPhaseSession();
+    const from = session.currentState.units['unit-player'].position;
+    const target = { q: from.q, r: from.r - 4 };
+
+    const next = applyInteractiveSessionMovement({
+      session,
+      grid: createHexGrid({ radius: 8 }),
+      movementByUnit: new Map([
+        ['unit-player', { walkMP: 2, runMP: 3, sprintMP: 4, jumpMP: 0 }],
+      ]),
+      unitId: 'unit-player',
+      to: target,
+      facing: Facing.North,
+      movementType: MovementType.Sprint,
+    });
+
+    const payload = latestMovementPayload(next);
+    expect(payload).toMatchObject({
+      movementType: MovementType.Sprint,
+      mode: MovementType.Run,
+      mpUsed: 4,
+      heatGenerated: 3,
+    });
+    expect(next.currentState.units['unit-player']).toMatchObject({
+      position: target,
+      heat: 3,
+      movementThisTurn: MovementType.Sprint,
+      sprintedThisTurn: true,
+    });
+  });
+
   it('rejects impassable movement before declaring or locking the unit', () => {
     const session = createMovementPhaseSession();
     const from = session.currentState.units['unit-player'].position;
