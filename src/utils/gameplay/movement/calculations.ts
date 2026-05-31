@@ -33,6 +33,20 @@ export function calculateRunMP(walkMP: number): number {
 }
 
 /**
+ * Calculate TacOps Sprint MP from walking MP.
+ * Base Sprint MP = walk MP * 2.
+ */
+export function calculateSprintMP(walkMP: number): number {
+  return walkMP * 2;
+}
+
+export function getSprintMPForCapability(
+  capability: IMovementCapability,
+): number {
+  return capability.sprintMP ?? calculateSprintMP(capability.walkMP);
+}
+
+/**
  * Create movement capability from base values.
  */
 export function createMovementCapability(
@@ -102,9 +116,10 @@ export function applyJumpJetCriticalDamage(
 }
 
 /**
- * Apply explicit active MASC/Supercharger run MP. MegaMek derives boosted run
- * MP from the already-effective walk MP: one active booster doubles walk MP;
- * both active boosters produce ceil(walk MP * 2.5).
+ * Apply explicit active MASC/Supercharger run and sprint MP. MegaMek derives
+ * boosted MP from the already-effective walk MP: one active booster doubles
+ * run MP and raises sprint MP to ceil(walk MP * 2.5); both active boosters
+ * produce ceil(walk MP * 2.5) run MP and walk MP * 3 sprint MP.
  */
 export function applyActiveMPBoosters(
   capability: IMovementCapability,
@@ -121,10 +136,15 @@ export function applyActiveMPBoosters(
     hasMASC && hasSupercharger
       ? Math.ceil(capability.walkMP * 2.5)
       : capability.walkMP * 2;
+  const sprintMP =
+    hasMASC && hasSupercharger
+      ? capability.walkMP * 3
+      : Math.ceil(capability.walkMP * 2.5);
 
   return {
     ...capability,
     runMP,
+    sprintMP,
   };
 }
 
@@ -162,6 +182,8 @@ function getRawMaxMP(
     case MovementType.Run:
     case MovementType.Evade:
       return capability.runMP;
+    case MovementType.Sprint:
+      return getSprintMPForCapability(capability);
     case MovementType.Jump:
       return capability.jumpMP;
     default:
