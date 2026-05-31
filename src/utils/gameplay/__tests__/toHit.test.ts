@@ -161,6 +161,10 @@ describe('ATTACKER_MOVEMENT_MODIFIERS', () => {
     expect(ATTACKER_MOVEMENT_MODIFIERS[MovementType.Run]).toBe(2);
   });
 
+  it('should have TacOps Evade modifier of 2', () => {
+    expect(ATTACKER_MOVEMENT_MODIFIERS[MovementType.Evade]).toBe(2);
+  });
+
   it('should have Jump modifier of 3', () => {
     expect(ATTACKER_MOVEMENT_MODIFIERS[MovementType.Jump]).toBe(3);
   });
@@ -580,6 +584,11 @@ describe('calculateAttackerMovementModifier', () => {
 
   it('should return +2 for running', () => {
     const modifier = calculateAttackerMovementModifier(MovementType.Run);
+    expect(modifier.value).toBe(2);
+  });
+
+  it('should return +2 for TacOps Evade', () => {
+    const modifier = calculateAttackerMovementModifier(MovementType.Evade);
     expect(modifier.value).toBe(2);
   });
 

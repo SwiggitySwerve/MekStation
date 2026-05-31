@@ -142,6 +142,7 @@ function maxMPFor(
     case MovementType.Walk:
       return capability.walkMP;
     case MovementType.Run:
+    case MovementType.Evade:
       return capability.runMP;
     case MovementType.Jump:
       return capability.jumpMP;
@@ -182,6 +183,7 @@ function computePathCost(
 function toUnitMovementType(movementType: MovementType): UnitMovementType {
   switch (movementType) {
     case MovementType.Run:
+    case MovementType.Evade:
       return 'run';
     case MovementType.Jump:
       return 'jump';
