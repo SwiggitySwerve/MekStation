@@ -762,12 +762,13 @@ describe('BattleMech combat action support catalog', () => {
     ).toEqual(['charge', 'club', 'dfa', 'kick', 'punch', 'push']);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'unsupported'),
-    ).toEqual(['grapple']);
+    ).toEqual([]);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'helper-only'),
     ).toEqual([
       'break-grapple',
       'brush-off',
+      'grapple',
       'jump-jet-attack',
       'thrash',
       'trip',
@@ -790,7 +791,12 @@ describe('BattleMech combat action support catalog', () => {
       )
       .map((entry) => entry.id)
       .sort();
-    expect(battleMechGaps).toEqual(['grapple']);
+    expect(battleMechGaps).toEqual([]);
+    expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.grapple).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('canGrapple'),
+      gap: expect.stringContaining('no runtime PhysicalAttackType'),
+    });
     expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['break-grapple']).toMatchObject({
       level: 'helper-only',
       evidence: expect.stringContaining('canBreakGrapple'),
@@ -895,7 +901,11 @@ describe('BattleMech combat action support catalog', () => {
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.grapple.sourceRefs?.map(
         ({ citation }) => citation,
       ),
-    ).toEqual([expect.stringContaining('GrappleAttackAction')]);
+    ).toEqual([
+      expect.stringContaining('GrappleAttackAction'),
+      expect.stringContaining('canGrapple'),
+      expect.stringContaining('physical attack tests'),
+    ]);
     expect(
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['break-grapple'].sourceRefs?.map(
         ({ citation }) => citation,
