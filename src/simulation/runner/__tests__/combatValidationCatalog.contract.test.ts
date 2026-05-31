@@ -174,13 +174,13 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 137,
+      total: 136,
       byLevel: {
         'helper-only': 106,
-        unsupported: 31,
+        unsupported: 30,
       },
       bySection: {
-        actions: 9,
+        actions: 8,
         damageAndDeath: 2,
         featureSupport: 75,
         lifecycleAndPsr: 3,
@@ -191,7 +191,6 @@ describe('BattleMech combat validation catalog index', () => {
     });
     expect(unresolvedRefs).toEqual(
       expect.arrayContaining([
-        'actions.absentActionSurfaces.movement.evade',
         'actions.absentActionSurfaces.movement.sprint',
         'featureSupport.ammunitionCompatibility.battlemech-ammo-missing-compatible-weapon-refs',
         'featureSupport.ammunitionCompatibility.nonstandard-empty-compatible-row',
@@ -238,6 +237,9 @@ describe('BattleMech combat validation catalog index', () => {
       'featureSupport.specialWeaponMechanics.inarc-pod-variants',
     );
     expect(unresolvedRefs).not.toContain('ruleSupport.movementRules.prone');
+    expect(unresolvedRefs).not.toContain(
+      'actions.absentActionSurfaces.movement.evade',
+    );
     expect(unresolvedRefs).not.toContain(
       'featureSupport.canonicalPilotAbilityScope.edge_when_masc_fails',
     );

@@ -34,6 +34,7 @@ export function buildMovementCommands(): readonly ITacticalCommand[] {
   return [
     MovementWalkCommand,
     MovementRunCommand,
+    MovementEvadeCommand,
     MovementJumpCommand,
     MovementStandCommand,
     MovementGoProneCommand,
@@ -86,6 +87,26 @@ const MovementRunCommand: ITacticalCommand = {
   },
   commit() {
     return { actionId: 'lock', payload: { mode: 'run' } };
+  },
+};
+
+const MovementEvadeCommand: ITacticalCommand = {
+  id: 'movement.evade',
+  category: 'movement',
+  label: 'Evade',
+  hotkey: 'E',
+  phaseConstraints: [GamePhase.Movement],
+  requiresConfirmation: false,
+  undoable: true,
+  targetsHex: true,
+  availability(ctx) {
+    if (!ctx.activeUnitId)
+      return { available: false, reason: 'No unit is active.' };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    return { available: true };
+  },
+  commit() {
+    return { actionId: 'lock', payload: { mode: 'evade' } };
   },
 };
 
