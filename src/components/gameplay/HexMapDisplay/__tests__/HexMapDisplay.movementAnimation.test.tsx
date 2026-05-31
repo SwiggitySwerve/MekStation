@@ -12,6 +12,7 @@ import {
   MovementType,
   TerrainType,
   TokenUnitType,
+  VehicleMotionType,
 } from '@/types/gameplay';
 
 import { HexMapDisplay } from '../HexMapDisplay';
@@ -3275,6 +3276,57 @@ describe('HexMapDisplay tactical visual layers', () => {
     const nestedToken = screen.getByTestId('unit-token-aero');
     expect(nestedToken).toHaveAttribute('data-aerospace-altitude', '4');
     expect(nestedToken).toHaveAttribute('data-aerospace-velocity', '7');
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('preserves WiGE altitude on isometric scene vehicle tokens', () => {
+    const wige = makeToken({
+      unitId: 'wige',
+      position: { q: 0, r: 0 },
+      unitType: TokenUnitType.Vehicle,
+      vehicleMotionType: VehicleMotionType.WiGE,
+      altitude: 2,
+    });
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[wige]}
+        selectedHex={null}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+
+    const sceneToken = screen.getByTestId('isometric-scene-token-wige');
+    expect(sceneToken).toHaveAttribute(
+      'data-isometric-token-unit-type',
+      TokenUnitType.Vehicle,
+    );
+    expect(sceneToken).toHaveAttribute(
+      'data-isometric-vehicle-motion-type',
+      VehicleMotionType.WiGE,
+    );
+    expect(sceneToken).toHaveAttribute('data-isometric-vehicle-altitude', '2');
+    expect(sceneToken).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('motion wige'),
+    );
+    expect(sceneToken).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('altitude 2'),
+    );
+    expect(sceneToken.querySelector('title')).toHaveTextContent('altitude 2');
+
+    const nestedToken = screen.getByTestId('unit-token-wige');
+    expect(nestedToken).toHaveAttribute('data-vehicle-altitude', '2');
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveTextContent(
+      'ALT2',
+    );
 
     act(() => {
       unmount();

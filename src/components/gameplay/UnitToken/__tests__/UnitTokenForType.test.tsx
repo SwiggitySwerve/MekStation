@@ -193,6 +193,34 @@ describe('UnitTokenForType dispatcher routing', () => {
     );
   });
 
+  it('Vehicle WiGE exposes altitude metadata and aria context', () => {
+    const token = makeToken({
+      unitType: TokenUnitType.Vehicle,
+      vehicleMotionType: VehicleMotionType.WiGE,
+      altitude: 2,
+    });
+    renderInSvg(<UnitTokenForType token={token} onClick={noop} />);
+    const wrapper = screen.getByTestId('unit-token-unit-1');
+
+    expect(wrapper).toHaveAttribute('data-unit-type', TokenUnitType.Vehicle);
+    expect(wrapper).toHaveAttribute(
+      'data-vehicle-motion-type',
+      VehicleMotionType.WiGE,
+    );
+    expect(wrapper).toHaveAttribute('data-vehicle-altitude', '2');
+    expect(wrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('motion WiGE'),
+    );
+    expect(wrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('altitude 2'),
+    );
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveTextContent(
+      'ALT2',
+    );
+  });
+
   it('Aerospace → renders altitude badge text element', () => {
     const token = makeToken({
       unitType: TokenUnitType.Aerospace,

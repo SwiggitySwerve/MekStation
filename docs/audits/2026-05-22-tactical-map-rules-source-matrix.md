@@ -835,6 +835,16 @@ toggles into isometric mode and asserts the depth-sorted isometric scene wrapper
 also preserves vehicle type, VTOL motion type, and altitude 3 metadata before
 checking the nested token badge, keeping the 2.5D stack path inspectable.
 
+2026-05-31 WiGE altitude token pin: MegaMek `Entity.java:12004-12022`
+treats VTOL and WiGE movement as the same airborne-state family when
+elevation/clearance makes them airborne, `MovementDisplay.java:2276-2291`
+switches airborne entities to altitude controls, and `MovePath.java:1689-1741`
+models airborne WiGE hover/landing behavior from that state. MekStation now
+projects represented WiGE altitude into vehicle map tokens, renders the same
+visible `ALTn`/`HOV` non-color badge used by VTOL tokens, and preserves WiGE
+altitude in top-down wrapper metadata, accessible labels, and isometric scene
+token metadata. Ground-only vehicle motives still suppress altitude chrome.
+
 Tracked-vehicle browser update: the tactical-map browser harness now pairs the
 VTOL proof with a tracked ground-vehicle abrupt-climb scenario. The top-down map
 renders the destination elevation label, exposes `movementMode: tracked`,
@@ -1606,7 +1616,7 @@ inspectable from the same per-hex projection as top-down cells and tooltips.
 2026-05-25 isometric scene token context pin: Isometric scene token wrappers
 now carry a readable title/accessible label summarizing the represented token
 state used by the nested renderer: displayed map hex, source hex, facing, unit
-type, aerospace altitude/velocity, VTOL altitude, fog/last-known state,
+type, aerospace altitude/velocity, VTOL/WiGE altitude, fog/last-known state,
 combat-projection target state, and terrain-occlusion foreground boost/reason.
 This does not add or change tactical legality; it keeps the depth-sorted 2.5D
 wrapper inspectable from existing projection, visibility, and unit-state data.

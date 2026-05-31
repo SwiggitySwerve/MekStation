@@ -48,7 +48,9 @@ decisions are made, not because CI is stale.
   projection with source-backed altitude-control reasons via
   `block-airborne-vtol-wige-ground-projection`; full airborne altitude pathing,
   hover/takeoff/landing sequencing, and automatic WiGE landing remain
-  follow-up work.
+  follow-up work. WiGE vehicle tokens now expose represented altitude in the
+  same top-down/isometric metadata and visible badge channel as VTOL tokens via
+  `show-wige-altitude-token-context`.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
   `apply-runtime-movement-state-events`, and tactical command controls are now
