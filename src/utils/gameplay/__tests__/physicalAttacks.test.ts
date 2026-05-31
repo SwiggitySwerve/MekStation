@@ -54,7 +54,10 @@ import {
   isPhysicalAirborneVtolOrWigeTarget,
   isThrashAttackAutomaticSuccess,
   sourceContainsGroundedDropShip,
+  canBreakGrapple,
   canBrushOff,
+  getBreakGrappleAttackToHitModifiers,
+  getBreakGrappleWeightClassModifier,
   getBrushOffAttackToHitModifiers,
   getThrashAttackDamageForWeight,
   getTripAttackBaseToHitAdjustment,
@@ -1756,6 +1759,172 @@ describe('physicalAttacks', () => {
           }),
         ),
       ).toBe(4);
+    });
+  });
+
+  describe('canBreakGrapple', () => {
+    const validBreakGrappleInput = {
+      tacOpsGrapplingEnabled: true,
+      attackerIsMek: true,
+      commonImpossibleReasonCode: 'LockedInGrapple',
+      grappledTargetMatches: true,
+    } as const;
+
+    it('allows source-backed Mek and ProtoMek break-grapple attempts locked in grapple', () => {
+      expect(canBreakGrapple(validBreakGrappleInput)).toEqual({
+        allowed: true,
+      });
+      expect(
+        canBreakGrapple({
+          ...validBreakGrappleInput,
+          attackerIsMek: false,
+          attackerIsProtoMek: true,
+        }),
+      ).toEqual({ allowed: true });
+    });
+
+    it.each([
+      [
+        'disabled optional rule',
+        { tacOpsGrapplingEnabled: false },
+        'TacOpsGrapplingDisabled',
+      ],
+      [
+        'airborne attacker',
+        { attackerIsAirborneVTOLorWIGE: true },
+        'AttackerAirborne',
+      ],
+      [
+        'common impossible state other than locked grapple',
+        { commonImpossibleReasonCode: 'Other' },
+        'CommonImpossible',
+      ],
+      [
+        'chain-whip grapple',
+        { attackerChainWhipGrappled: true },
+        'ChainWhipGrappled',
+      ],
+      [
+        'non-Mek or ProtoMek attacker',
+        { attackerIsMek: false },
+        'AttackerNotMekOrProtoMek',
+      ],
+      [
+        'target not matching grapple state',
+        { grappledTargetMatches: false },
+        'NotGrappledToTarget',
+      ],
+    ] as const)('rejects %s', (_label, overrides, reasonCode) => {
+      expect(
+        canBreakGrapple({ ...validBreakGrappleInput, ...overrides }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode,
+      });
+    });
+
+    it('exposes source-backed original-attacker automatic success', () => {
+      expect(
+        getBreakGrappleAttackToHitModifiers({
+          originalGrappleAttacker: true,
+          attackerIsMek: true,
+          leftShoulderWorking: false,
+          targetUnitKind: 'mek',
+          attackerWeightClass: 2,
+          targetWeightClass: 5,
+        }),
+      ).toEqual({
+        automaticSuccess: true,
+        automaticSuccessReason: 'original attacker',
+        automaticSuccessReasonCode: 'OriginalGrappleAttacker',
+        modifiers: [],
+      });
+    });
+
+    it('exposes source-backed break-grapple actuator, AES, and weight modifiers', () => {
+      expect(
+        getBreakGrappleAttackToHitModifiers({
+          attackerIsMek: true,
+          leftShoulderWorking: false,
+          leftUpperArmWorking: false,
+          leftLowerArmWorking: false,
+          leftHandWorking: false,
+          rightShoulderWorking: false,
+          rightUpperArmWorking: false,
+          rightLowerArmWorking: false,
+          rightHandWorking: false,
+          bothArmAesFunctional: true,
+          attackerUnitKind: 'mek',
+          targetUnitKind: 'mek',
+          attackerWeightClass: 2,
+          targetWeightClass: 5,
+        }).modifiers,
+      ).toEqual([
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'LeftShoulderActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'LeftUpperArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'LeftLowerArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 1,
+          reasonCode: 'LeftHandActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'RightShoulderActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'RightUpperArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'RightLowerArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 1,
+          reasonCode: 'RightHandActuatorDestroyed',
+        }),
+        expect.objectContaining({ value: -1, reasonCode: 'ArmAES' }),
+        expect.objectContaining({
+          value: 3,
+          reasonCode: 'WeightClassDifference',
+        }),
+      ]);
+    });
+
+    it('uses MegaMek grapple weight-class branches for ProtoMeks', () => {
+      expect(
+        getBreakGrappleWeightClassModifier({
+          attackerUnitKind: 'mek',
+          targetUnitKind: 'protoMek',
+          attackerWeightClass: 4,
+          targetWeightClass: 1,
+        }),
+      ).toBe(-4);
+      expect(
+        getBreakGrappleWeightClassModifier({
+          attackerUnitKind: 'protoMek',
+          targetUnitKind: 'mek',
+          attackerWeightClass: 1,
+          targetWeightClass: 5,
+        }),
+      ).toBe(5);
+      expect(
+        getBreakGrappleWeightClassModifier({
+          attackerUnitKind: 'protoMek',
+          targetUnitKind: 'protoMek',
+          attackerWeightClass: 1,
+          targetWeightClass: 2,
+        }),
+      ).toBe(0);
     });
   });
 
