@@ -425,3 +425,4 @@
 - [x] 4.3.159 Move Protected/Exposed Actuators and their anti-Mek resolver row to out-of-scope BattleMech audit coverage because MegaMek's behavior applies to non-BattleMech Leg/Swarm anti-Mek attack paths owned by the battle-armor/infantry matrix.
 - [x] 4.3.160 Move Cross-Country SPA and canonical scope rows to out-of-scope BattleMech audit coverage because MegaMek's source-backed behavior applies to combat-vehicle terrain movement/passability, not BattleMech terrain PSRs.
 - [x] 4.3.161 Split Terrain Master: Mountaineer rough/rubble and upward-elevation movement-cost source refs into the BattleMech movement resolver gap while preserving integrated rubble-entry PSR relief.
+- [x] 4.3.162 Split Maneuvering Ace lateral-shift, QuadMek lateral-step, aerospace maneuver-thrust, controlled-sideslip, and out-of-control source refs into movement/control gaps while preserving integrated skidding PSR relief.
