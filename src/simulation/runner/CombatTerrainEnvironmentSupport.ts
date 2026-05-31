@@ -154,10 +154,7 @@ function helperOnly(
 
 export const TERRAIN_TYPE_COMBAT_COVERAGE = Object.values(TerrainType);
 
-export const TERRAIN_TYPES_WITH_PSR_GAPS = [
-  TerrainType.Building,
-  TerrainType.Swamp,
-] as const;
+export const TERRAIN_TYPES_WITH_PSR_GAPS = [TerrainType.Building] as const;
 
 const terrainTypesWithPsrGaps = new Set<TerrainType>(
   TERRAIN_TYPES_WITH_PSR_GAPS,
@@ -370,15 +367,6 @@ function makeTerrainHeatEntry(
 
 function makeTerrainPsrEntry(terrain: TerrainType): ICombatFeatureSupportEntry {
   if (terrainTypesWithPsrGaps.has(terrain)) {
-    if (terrain === TerrainType.Swamp) {
-      return helperOnly(
-        terrain,
-        'MegaMek source shows BattleMechs entering swamp can make a bog-down piloting roll with Terrain Master: Swamp Beast relief',
-        'MekStation has no bogged/stuck lifecycle state, so swamp bog-down must not be modeled as a normal failed-PSR fall',
-        terrainPsrSourceRefs(terrain),
-      );
-    }
-
     return helperOnly(
       terrain,
       'MekStation exposes a local BuildingCollapse PSR factory, while MegaMek resolves building collapse through building load/damage state rather than a generic terrain-entry PSR',
@@ -407,6 +395,14 @@ function makeTerrainPsrEntry(terrain: TerrainType): ICombatFeatureSupportEntry {
     return integrated(
       terrain,
       'runMovementPhase queues local skidding PSRs for running turn steps on pavement or ice, with source-backed movement-before-skid distance modifiers',
+      terrainPsrSourceRefs(terrain),
+    );
+  }
+
+  if (terrain === TerrainType.Swamp) {
+    return integrated(
+      terrain,
+      'runMovementPhase queues source-backed swamp bog-down PSRs for non-jump BattleMech entry, emits UnitStuck immediately for jump entry, and resolvePSR applies Swamp Beast relief while failed bog-down PSRs set isStuck without UnitFell/PilotHit',
       terrainPsrSourceRefs(terrain),
     );
   }
