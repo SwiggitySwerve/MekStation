@@ -751,10 +751,9 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
     'UnitHydration, game/session physical contexts, and runPhysicalAttackPhase thread hasTSM into resolvePhysicalAttack so active TSM doubles physical damage at heat 9+',
     MEGAMEK_TSM_PHYSICAL_DAMAGE_SOURCE_REFS,
   ),
-  claws: helperOnly(
+  claws: integrated(
     'claws',
     'calculatePunchDamage, calculatePunchToHit, eligibility projection, session physical contexts, UnitHydration, critical-event replay, destroyed-location replay, and runPhysicalAttackPhase consume claw arm state for source-backed punch damage/to-hit modifiers; PLAYTEST_3 removes only the claw punch to-hit penalty while preserving claw punch damage; critical-event replay removes claw state when the mount is destroyed, missing, or breached, and destroyed arm state clears the represented modifier',
-    'Automatic missing/breached claw event production from mounted-equipment state beyond represented destroyed-location replay and claw club-with-hand interactions are not modeled',
     [
       {
         kind: 'megamek-source',
@@ -777,10 +776,28 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
       ),
     ],
   ),
-  talons: helperOnly(
+  'claw-equipment-lifecycle': helperOnly(
+    'claw-equipment-lifecycle',
+    'Core claw punch damage, punch to-hit, PLAYTEST_3 to-hit relief, critical-event replay cleanup, destroyed-location replay, UnitHydration, and runner/session consumption are integrated under the claws row',
+    'Automatic missing/breached claw event production from mounted-equipment state beyond represented destroyed-location replay and claw club-with-hand interactions are not modeled',
+    [
+      {
+        kind: 'megamek-source',
+        citation:
+          'MegaMek PunchAttackAction.toHit adds the claw punch modifier outside PLAYTEST_3, records a zero-value Using Claws modifier under PLAYTEST_3, and suppresses hand actuator missing/destroyed penalties when claws replace the hand',
+        url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PHYSICAL_SOURCE_VERSION}/megamek/src/megamek/common/actions/PunchAttackAction.java#L309-L333`,
+        sourceVersion: MEGAMEK_PHYSICAL_SOURCE_VERSION,
+      },
+      megamekPhysicalSourceRef(
+        'MegaMek Entity.destroyLocation marks blown-off critical slots, mounted equipment, and dependent locations missing',
+        'common/units/Entity.java',
+        'L11864-L11939',
+      ),
+    ],
+  ),
+  talons: integrated(
     'talons',
     'calculateKickDamage, calculateDFADamageToTarget, eligibility projection, session physical contexts, UnitHydration, critical-event replay, destroyed-location replay, and runPhysicalAttackPhase consume biped leg plus quad/non-biped arm-location talon state for source-backed +50% kick/DFA damage; critical-event replay removes talon state when the mount is destroyed, missing, or breached, and destroyed location state clears the represented modifier',
-    'Automatic missing/breached talon event production from mounted-equipment state beyond represented destroyed-location replay remains partial',
     [
       {
         kind: 'megamek-source',
@@ -794,6 +811,32 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
         citation:
           'MegaMek DfaAttackAction.getDamageFor and hasTalons apply 1.5 DFA damage when a qualifying talon leg has a working foot actuator',
         url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/DfaAttackAction.java#L95-L104',
+        sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+      },
+      {
+        kind: 'megamek-source',
+        citation:
+          'MegaMek DfaAttackAction.hasTalons checks working talons and working foot actuators on qualifying biped legs plus non-biped leg and arm locations.',
+        url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/DfaAttackAction.java#L427-L445',
+        sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+      },
+      megamekPhysicalSourceRef(
+        'MegaMek Entity.destroyLocation marks blown-off critical slots, mounted equipment, and dependent locations missing',
+        'common/units/Entity.java',
+        'L11864-L11939',
+      ),
+    ],
+  ),
+  'talon-equipment-lifecycle': helperOnly(
+    'talon-equipment-lifecycle',
+    'Core talon kick/DFA damage, biped and quad/non-biped location mapping, critical-event replay cleanup, destroyed-location replay, UnitHydration, and runner/session consumption are integrated under the talons row',
+    'Automatic missing/breached talon event production from mounted-equipment state beyond represented destroyed-location replay remains partial',
+    [
+      {
+        kind: 'megamek-source',
+        citation:
+          'MegaMek KickAttackAction.getDamageFor applies a 1.5 talon multiplier when the kicking leg has working talons and a working foot actuator, mapping quad front kicks to arm locations',
+        url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/KickAttackAction.java#L95-L122',
         sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
       },
       {

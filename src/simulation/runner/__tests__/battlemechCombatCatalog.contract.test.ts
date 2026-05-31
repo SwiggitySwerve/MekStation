@@ -2575,10 +2575,10 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(supportGaps(PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT, 'integrated'),
-    ).toEqual(['tsm', 'underwater']);
+    ).toEqual(['claws', 'talons', 'tsm', 'underwater']);
     expect(
       supportIdsByLevel(PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['claws', 'talons']);
+    ).toEqual(['claw-equipment-lifecycle', 'talon-equipment-lifecycle']);
   });
 
   it('pins physical damage modifier rows to MegaMek source refs', () => {

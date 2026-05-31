@@ -268,7 +268,7 @@ const PHYSICAL_LEGALITY_TRIAD = entryTriad(
   ],
 );
 const PHYSICAL_DAMAGE_TRIAD = entryTriad(
-  'Physical damage modifier rows are MegaMek-source checked and must carry row-level sourceRefs for active TSM, claw punch, talon kick/DFA, and underwater physical damage boundaries.',
+  'Physical damage modifier rows are MegaMek-source checked and must carry row-level sourceRefs for active TSM, claw punch, talon kick/DFA, underwater physical damage, and remaining claw/talon equipment-lifecycle side paths.',
   RULE_REFS,
 );
 const HEAT_TRIAD = entryTriad(

@@ -199,7 +199,15 @@ describe('BattleMech combat validation catalog index', () => {
         'featureSupport.physicalWeapons.talons',
         'pilotSkills.pilotModifierResolvers.edge-application',
         'ruleSupport.movementRules.go-prone-side-paths',
+        'ruleSupport.physicalDamageModifiers.claw-equipment-lifecycle',
+        'ruleSupport.physicalDamageModifiers.talon-equipment-lifecycle',
       ]),
+    );
+    expect(unresolvedRefs).not.toContain(
+      'ruleSupport.physicalDamageModifiers.claws',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'ruleSupport.physicalDamageModifiers.talons',
     );
     expect(unresolvedRefs).not.toContain('ruleSupport.movementRules.prone');
     expect(unresolvedRefs).not.toContain(
