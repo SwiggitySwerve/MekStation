@@ -32,6 +32,7 @@ import {
   canCharge,
   canDFA,
   canKick,
+  canJumpJetAttackPhysical,
   canMeleeWeapon,
   canPunch,
   canPush,
@@ -55,6 +56,11 @@ import {
 const SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPE_SET = new Set<string>(
   SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
 );
+const TACOPS_JUMP_JET_ATTACK_OPTIONS = new Set([
+  'tacops_jump_jet_attack',
+  'advanced_combat_tac_ops_jump_jet_attack',
+  'jump_jet_attack',
+]);
 
 /**
  * Per `add-physical-attack-phase-ui` task 3.2: caller-supplied context
@@ -120,6 +126,18 @@ export interface IEligibilityContext {
   readonly legAesFunctional?: boolean;
   readonly thrashBlockingTerrains?: readonly ThrashAttackBlockingTerrain[];
   readonly hasWorkingThrashArmOrLeg?: boolean;
+  readonly tacOpsJumpJetAttackEnabled?: boolean;
+  readonly jumpJetAttackSelectedLeg?: 'left' | 'right' | 'both';
+  readonly leftReadyJumpJetCount?: number;
+  readonly rightReadyJumpJetCount?: number;
+  readonly leftLegWet?: boolean;
+  readonly rightLegWet?: boolean;
+  readonly leftLegWeaponFiredThisTurn?: boolean;
+  readonly rightLegWeaponFiredThisTurn?: boolean;
+  readonly standingAttackerHeightAboveTargetHeight?: number;
+  readonly proneTargetElevationInRange?: boolean;
+  readonly targetDirectlyAheadOfFeet?: boolean;
+  readonly targetDirectlyBehindFeet?: boolean;
   /** Equipped melee weapon types (hatchet / sword / mace / lance). */
   readonly meleeWeaponsEquipped?: readonly PhysicalAttackType[];
   /** False when the computed push destination is off-map or occupied. */
@@ -246,6 +264,20 @@ function isRuntimeMeleeWeaponAttackType(
   weaponType: PhysicalAttackType,
 ): boolean {
   return SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPE_SET.has(weaponType);
+}
+
+function jumpJetAttackOptionEnabled(context: IEligibilityContext): boolean {
+  if (context.tacOpsJumpJetAttackEnabled === true) return true;
+  return (
+    context.optionalRules?.some((rule) =>
+      TACOPS_JUMP_JET_ATTACK_OPTIONS.has(
+        rule
+          .trim()
+          .toLowerCase()
+          .replace(/[\s-]+/g, '_'),
+      ),
+    ) ?? false
+  );
 }
 
 /**
@@ -383,6 +415,24 @@ export function getEligiblePhysicalAttacks(
     legAesFunctional: context.legAesFunctional,
     thrashBlockingTerrains: context.thrashBlockingTerrains,
     hasWorkingThrashArmOrLeg: context.hasWorkingThrashArmOrLeg,
+    tacOpsJumpJetAttackEnabled: context.tacOpsJumpJetAttackEnabled,
+    leftReadyJumpJetCount: context.leftReadyJumpJetCount,
+    rightReadyJumpJetCount: context.rightReadyJumpJetCount,
+    leftLegWet: context.leftLegWet,
+    rightLegWet: context.rightLegWet,
+    leftLegWeaponFiredThisTurn: context.leftLegWeaponFiredThisTurn,
+    rightLegWeaponFiredThisTurn: context.rightLegWeaponFiredThisTurn,
+    standingAttackerHeightAboveTargetHeight:
+      context.standingAttackerHeightAboveTargetHeight,
+    proneTargetElevationInRange: context.proneTargetElevationInRange,
+    targetDirectlyAheadOfFeet:
+      context.targetDirectlyAheadOfFeet ??
+      isTargetDirectlyAhead(
+        attacker.position,
+        attacker.facing,
+        target.position,
+      ),
+    targetDirectlyBehindFeet: context.targetDirectlyBehindFeet,
     pushDestinationValid: context.pushDestinationValid,
     pushTargetDirectlyAhead: isTargetDirectlyAhead(
       attacker.position,
@@ -494,6 +544,24 @@ export function getEligiblePhysicalAttacks(
     };
     options.push(
       buildOption('thrash', thrashInput, canThrashPhysical(thrashInput)),
+    );
+  }
+
+  if (targetDistance === 1 && jumpJetAttackOptionEnabled(context)) {
+    const jumpJetSelectedLeg = context.jumpJetAttackSelectedLeg ?? 'right';
+    const jumpJetAttackInput: IPhysicalAttackInput = {
+      ...baseInput,
+      attackType: 'jump-jet-attack',
+      limb: jumpJetSelectedLeg === 'left' ? 'leftLeg' : 'rightLeg',
+      jumpJetAttackSelectedLeg: jumpJetSelectedLeg,
+    };
+    options.push(
+      buildOption(
+        'jump-jet-attack',
+        jumpJetAttackInput,
+        canJumpJetAttackPhysical(jumpJetAttackInput),
+        jumpJetSelectedLeg === 'left' ? 'leftLeg' : 'rightLeg',
+      ),
     );
   }
 
