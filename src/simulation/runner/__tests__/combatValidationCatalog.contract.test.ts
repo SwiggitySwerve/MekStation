@@ -174,15 +174,15 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 147,
+      total: 146,
       byLevel: {
-        'helper-only': 114,
+        'helper-only': 113,
         unsupported: 33,
       },
       bySection: {
         actions: 9,
         damageAndDeath: 2,
-        featureSupport: 84,
+        featureSupport: 83,
         lifecycleAndPsr: 3,
         pilotSkills: 19,
         ruleSupport: 13,
@@ -230,6 +230,12 @@ describe('BattleMech combat validation catalog index', () => {
     );
     expect(unresolvedRefs).not.toContain(
       'featureSupport.mechQuirks.battle_computer',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.specialWeaponFamilies.narc',
+    );
+    expect(unresolvedRefs).toContain(
+      'featureSupport.specialWeaponMechanics.inarc-pod-variants',
     );
     expect(unresolvedRefs).not.toContain('ruleSupport.movementRules.prone');
     expect(unresolvedRefs).not.toContain(

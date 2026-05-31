@@ -938,10 +938,9 @@ export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
     'Exact official MML ids feed resolveCatalogDamage variable 1-2/missile descriptors, UnitHydration SRM/LRM modes, and selected-mode SRM/LRM ammo-bin consumption',
     MEGAMEK_MML_SOURCE_REFS,
   ),
-  narc: helperOnly(
+  narc: integrated(
     'narc',
-    'isNarc + getNarcBonus + runner NARC hits attach narcedBy + runner iNarc selected-ammo hits attach Homing/ECM/Haywire/Nemesis iNarcPods + DesignatorMarkerApplied replay + indirect-fire NARC/iNARC basis helpers consume canonical marker state + runner direct NARC-compatible missile cluster, iNarc Homing to-hit, iNarc Haywire to-hit, iNarc ECM attacker flight-path Artemis suppression, iNarc ECM C3 disruption, explicit runner C3 range-bracket math, and iNarc Nemesis redirect consume marker state',
-    'Remaining iNarc ECM sensor effects and ambiguous/player-authored C3 network assignment are not wired into runner combat resolution',
+    'isNarc + getNarcBonus + runner NARC hits attach narcedBy + runner iNarc selected-ammo hits attach Homing/ECM/Haywire/Nemesis iNarcPods + DesignatorMarkerApplied replay + indirect-fire NARC/iNARC basis helpers consume canonical marker state + runner direct NARC-compatible missile cluster, iNarc Homing to-hit, iNarc Haywire to-hit, iNarc ECM attacker flight-path Artemis suppression, iNarc ECM C3 disruption, explicit runner C3 range-bracket math, and iNarc Nemesis redirect consume marker state; remaining iNarc ECM sensor effects stay tracked under inarc-pod-variants and ambiguous/player-authored C3 network assignment stays tracked under C3 network formation',
     MEGAMEK_NARC_FAMILY_SOURCE_REFS,
   ),
   ams: helperOnly(

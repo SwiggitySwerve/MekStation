@@ -347,6 +347,8 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **AND** the Clan Plasma Cannon SHALL follow source-backed `PLAYTEST_3` armor behavior where reflective armor no longer halves plasma heat and heat-dissipating armor receives zero plasma heat
 - **AND** the Clan Plasma Cannon and Plasma Rifle SHALL hydrate official plasma ammunition bins from source-backed catalog ammo rows and consume those rounds during runner combat despite MegaMek energy weapon flags
 - **AND** the Clan Plasma Cannon SHALL remain helper-only until MegaMek external-heat timing/caps and non-Mek special damage paths are represented
+- **AND** the NARC/iNARC family row SHALL be integrated once standard NARC markers, iNARC selected-ammo pod attachment, Homing guidance, Haywire to-hit, ECM flight-path/C3 disruption, Nemesis redirect, event replay, and marker lifecycle behavior are represented
+- **AND** remaining iNARC ECM sensor side paths SHALL stay visible under the `inarc-pod-variants` mechanic row instead of keeping the NARC family row helper-only
 - **AND** the aggregate catalog triad for `specialWeaponFamilies` SHALL require row-level source references rather than inherited requirement authority
 - **AND** helper-only family rows SHALL keep their remaining runtime/session gaps explicit instead of treating source-backed family evidence as complete parity
 
