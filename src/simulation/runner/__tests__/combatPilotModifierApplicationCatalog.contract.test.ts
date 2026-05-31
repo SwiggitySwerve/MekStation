@@ -576,6 +576,11 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     const psrSpaRefs =
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application']
         .sourceRefs ?? [];
+    const maneuveringAceRefs =
+      SPA_COMBAT_SUPPORT['maneuvering-ace'].sourceRefs ?? [];
+    const movementRefs =
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application']
+        .sourceRefs ?? [];
 
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application'],
@@ -614,6 +619,31 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application'].gap,
     ).not.toContain('Animal Mimicry');
+    expect(SPA_COMBAT_SUPPORT['maneuvering-ace'].gap).toContain(
+      'lateral-shift',
+    );
+    expect(SPA_COMBAT_SUPPORT['maneuvering-ace'].gap).toContain(
+      'out-of-control',
+    );
+    expect(maneuveringAceRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek Entity.getMovementBeforeSkidPSRModifier reduces the skidding PSR movement-distance modifier by 1 for PILOT_MANEUVERING_ACE.',
+      'MegaMek MovePath.canShift lets Maneuvering Ace biped Meks perform lateral shifts.',
+      'MegaMek SideStepStep preserves base lateral-step MP for QuadMek units with Maneuvering Ace instead of adding the normal side-step surcharge.',
+      'MegaMek ManeuverStep reduces aerospace maneuver thrust cost by 1 for Maneuvering Ace.',
+      'MegaMek Entity.checkSideSlip applies Maneuvering Ace relief to flanking-and-turning checks and suppresses controlled-sideslip checks for walking Maneuvering Ace units.',
+      'MegaMek TWGameManager.getControlRollTarget applies -1 Maneuvering Ace to out-of-control checks.',
+      'MegaMek OptionsConstants defines the source-backed Maneuvering Ace SPA id as maneuvering_ace.',
+    ]);
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['movement-application'].spaIds,
+    ).toEqual(expect.arrayContaining(['maneuvering-ace']));
+    expect(movementRefs.map(({ citation }) => citation)).toEqual(
+      expect.arrayContaining([
+        'MegaMek MovePath.canShift lets Maneuvering Ace biped Meks perform lateral shifts.',
+        'MegaMek SideStepStep preserves base lateral-step MP for QuadMek units with Maneuvering Ace instead of adding the normal side-step surcharge.',
+        'MegaMek ManeuverStep reduces aerospace maneuver thrust cost by 1 for Maneuvering Ace.',
+      ]),
+    );
   });
 
   it('pins Cross-Country to MegaMek combat-vehicle movement scope', () => {
