@@ -2198,6 +2198,9 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_headhit.level).toBe(
       'helper-only',
     );
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_masc_fails.level).toBe(
+      'integrated',
+    );
     expect(
       CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_aero_alt_loss.level,
     ).toBe('out-of-scope');
