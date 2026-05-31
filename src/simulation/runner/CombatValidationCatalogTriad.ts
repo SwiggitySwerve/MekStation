@@ -298,7 +298,7 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
   actions: {
     tacticalCommands: ACTION_TRIAD,
     absentActionSurfaces: entryTriad(
-      'Absent official BattleMech action surfaces must carry row-level sourceRefs so optional TacOps sprint gaps remain explicit action blockers instead of inheriting broad movement authority.',
+      'Absent official BattleMech action surfaces must carry row-level sourceRefs so future optional-action gaps remain explicit blockers instead of inheriting broad movement authority.',
       ACTION_CONTRACT_REFS,
     ),
     directUiActions: ACTION_TRIAD,
