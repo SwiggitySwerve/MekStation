@@ -392,6 +392,7 @@ export function getEligiblePhysicalAttacks(
     attackerTargetedByDisplacementAttackerId:
       attacker.targetedByDisplacementAttackerId,
     attackerProne: attacker.prone,
+    attackerStuck: attacker.isStuck,
     targetProne: target.prone,
     targetMovementComplete: context.targetMovementComplete,
     targetImmobile: target.shutdown,
