@@ -89,6 +89,8 @@ function attackTypeLabel(attackType: PhysicalAttackType): string {
       return 'Push';
     case 'trip':
       return 'Trip';
+    case 'thrash':
+      return 'Thrash';
     case 'hatchet':
       return 'Hatchet';
     case 'sword':
