@@ -1806,6 +1806,44 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('calculates runtime brush-off to-hit for swarming infantry and rejects normal targets', () => {
+      expect(
+        calculatePhysicalToHit(
+          makeInput({
+            attackType: 'brush-off',
+            arm: 'right',
+            limb: 'rightArm',
+            targetIsSwarming: true,
+            targetIsSwarmingInfantryOnAttacker: true,
+            targetUnitType: 'Infantry',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: true,
+        baseToHit: 5,
+        finalToHit: 9,
+        modifiers: expect.arrayContaining([
+          expect.objectContaining({
+            value: 4,
+            source: 'physical-action',
+          }),
+        ]),
+      });
+
+      expect(
+        calculatePhysicalToHit(
+          makeInput({
+            attackType: 'brush-off',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        restrictionReasonCode: 'InvalidBrushOffTarget',
+      });
+    });
+
     it('uses the source-backed hand/claw modifier precedence', () => {
       expect(
         getBrushOffAttackToHitModifiers({
@@ -1861,6 +1899,31 @@ describe('physicalAttacks', () => {
           }),
         ),
       ).toBe(4);
+    });
+
+    it('resolves runtime brush-off miss as punch-equivalent self-damage', () => {
+      const result = resolvePhysicalAttack(
+        makeInput({
+          attackType: 'brush-off',
+          arm: 'right',
+          limb: 'rightArm',
+          targetIsSwarming: true,
+          targetIsSwarmingInfantryOnAttacker: true,
+          targetUnitType: 'Infantry',
+          targetDistance: 1,
+        }),
+        makeDiceSequence([1, 1, 3]),
+      );
+
+      expect(result).toMatchObject({
+        attackType: 'brush-off',
+        roll: 2,
+        toHitNumber: 9,
+        hit: false,
+        targetDamage: 0,
+        attackerDamage: 8,
+        hitLocation: 'center_torso',
+      });
     });
   });
 
@@ -5051,6 +5114,16 @@ describe('physicalAttacks', () => {
       const result = getPhysicalMissConsequences('charge');
       expect(result.attackerPSR).toBe(false);
       expect(result.attackerPSRModifier).toBe(0);
+    });
+
+    it('brush-off miss damages the attacker on the punch table', () => {
+      const result = getPhysicalMissConsequences(
+        'brush-off',
+        makeInput({ attackType: 'brush-off', attackerTonnage: 80 }),
+      );
+      expect(result.attackerPSR).toBe(false);
+      expect(result.attackerDamage).toBe(8);
+      expect(result.hitTable).toBe('punch');
     });
   });
 
