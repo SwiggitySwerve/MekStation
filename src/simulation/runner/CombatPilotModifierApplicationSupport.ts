@@ -305,10 +305,10 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
       ...MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
     ],
   ),
-  'anti-mek-actuator-application': helperOnly(
+  'anti-mek-actuator-application': outOfScope(
     'anti-mek-actuator-application',
-    'getAntiMekActuatorTargetModifier exposes Protected/Exposed Actuators as anti-Mek Leg/Swarm attack target-number modifiers',
-    'Infantry and battle-armor anti-Mek Leg/Swarm attack paths are not implemented',
+    'getAntiMekActuatorTargetModifier exposes Protected/Exposed Actuators as anti-Mek Leg/Swarm attack target-number modifiers for the separate infantry and battle-armor combat matrix',
+    'Anti-Mek Leg/Swarm attack paths are non-BattleMech attacker actions and are excluded from BattleMech runner validation until the battle-armor/infantry matrix consumes them',
     MEGAMEK_ANTI_MEK_ACTUATOR_SOURCE_REFS,
   ),
   'campaign-maintenance-application': outOfScope(
