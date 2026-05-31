@@ -292,10 +292,15 @@ export const MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS = {
     'push',
     'L73-L83',
   ),
+  'physical.trip': mekstationPhysicalCommandSourceRefs(
+    'physical.trip',
+    'trip',
+    'L87-L99',
+  ),
   'physical.charge': mekstationPhysicalCommandSourceRefs(
     'physical.charge',
     'charge',
-    'L87-L97',
+    'L101-L111',
   ),
   'physical.dfa': mekstationPhysicalCommandSourceRefs(
     'physical.dfa',
@@ -922,6 +927,12 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'tactical-command',
     'buildPhysicalAttackCommands commits physical-attack push; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
     MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.push'],
+  ),
+  'physical.trip': integrated(
+    'physical.trip',
+    'tactical-command',
+    'buildPhysicalAttackCommands commits physical-attack trip; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.trip'],
   ),
   'physical.charge': integrated(
     'physical.charge',
