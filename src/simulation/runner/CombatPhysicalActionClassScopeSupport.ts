@@ -54,7 +54,12 @@ const MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS = {
     megamekPhysicalActionRef(
       'MegaMek BreakGrappleAttackAction models optional break-grapple attempts with grapple state, chain-whip, actuator, automatic-success, and weight-class handling.',
       'BreakGrappleAttackAction',
-      'L81-L169',
+      'L81-L175',
+    ),
+    megamekPhysicalActionRef(
+      'MegaMek GrappleAttackAction supplies the shared grapple weight-class modifier branches reused by break-grapple attempts.',
+      'GrappleAttackAction',
+      'L203-L212',
     ),
   ],
   'jump-jet-attack': [
@@ -336,11 +341,15 @@ export const PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT = {
     'Grapple attacks have no runtime PhysicalAttackType, tactical command, grapple state, or resolution path',
     MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS.grapple,
   ),
-  'break-grapple': unsupportedBattleMech(
+  'break-grapple': helperOnlyBattleMech(
     'break-grapple',
     'BreakGrappleAttackAction',
-    'Breaking grapples has no runtime PhysicalAttackType, tactical command, grapple state, or resolution path',
-    MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS['break-grapple'],
+    'canBreakGrapple helper coverage applies source-backed optional-rule, airborne, common locked-grapple, chain-whip, unit-type, grapple-target, automatic-success, actuator/AES, and weight-class modifier branches',
+    'Breaking grapples still has no runtime PhysicalAttackType, tactical command, event-sourced grapple state, declaration, or resolution path',
+    [
+      ...MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS['break-grapple'],
+      ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS['break-grapple'],
+    ],
   ),
   'jump-jet-attack': unsupportedBattleMech(
     'jump-jet-attack',
