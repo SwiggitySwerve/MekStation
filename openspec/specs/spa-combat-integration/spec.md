@@ -556,12 +556,13 @@ The Shaky Stick SPA SHALL apply as a source-backed ground-to-air defender to-hit
 
 ### Requirement: Piloting SPA — Animal Mimicry
 
-The Animal Mimicry SPA SHALL grant -1 PSR modifier in specific terrain.
+The Animal Mimicry SPA SHALL grant a -1 PSR modifier to explicit quad BattleMechs.
 
-#### Scenario: Animal Mimicry terrain bonus
+#### Scenario: Animal Mimicry quad-Mek bonus
 
-- **WHEN** a pilot with Animal Mimicry makes a PSR in their designated terrain
+- **WHEN** a quad BattleMech pilot with Animal Mimicry makes a PSR
 - **THEN** the PSR SHALL receive a -1 modifier
+- **AND** non-quad units SHALL NOT receive the Animal Mimicry modifier
 
 ### Requirement: Tactical SPA — Antagonizer
 
