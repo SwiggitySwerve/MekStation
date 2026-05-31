@@ -23,20 +23,15 @@ function helperOnly(
     : { id, level: 'helper-only', evidence, gap };
 }
 
-function unsupported(
+function outOfScope(
   id: string,
+  evidence: string,
   gap: string,
   sourceRefs?: readonly ICombatFeatureSourceReference[],
-  evidence = 'No combat behavior wired',
 ): ICombatFeatureSupportEntry {
-  const entry: ICombatFeatureSupportEntry = {
-    id,
-    level: 'unsupported',
-    evidence,
-    gap,
-  };
-
-  return sourceRefs ? { ...entry, sourceRefs } : entry;
+  return sourceRefs
+    ? { id, level: 'out-of-scope', evidence, gap, sourceRefs }
+    : { id, level: 'out-of-scope', evidence, gap };
 }
 
 const CANONICAL_ONLY_SPA_SUPPORT: Readonly<
@@ -76,19 +71,29 @@ function canonicalSpaFallback(spa: ISPADefinition): ICombatFeatureSupportEntry {
   const pipelineList = spa.pipelines.join(', ') || 'none';
   const evidence = `Canonical SPA catalog entry "${spa.displayName}" (${spa.id}) affects pipeline(s): ${pipelineList}`;
 
-  if (spa.source === 'Unofficial') {
-    return unsupported(
+  if (spa.source === 'Unofficial' || spa.source === 'Legacy') {
+    return outOfScope(
       spa.id,
-      `${evidence}; unofficial SPAs are excluded from the official BattleMech validation matrix until explicitly enabled`,
+      evidence,
+      'Unofficial and legacy SPA rows are excluded from the official BattleMech validation matrix until explicitly enabled',
       canonicalSpaScopeSourceRefs(spa),
     );
   }
 
   if (spa.category === 'infantry') {
-    return helperOnly(
+    return outOfScope(
       spa.id,
       evidence,
       'Infantry-scoped SPAs belong in the separate infantry or battle-armor validation matrix',
+      canonicalSpaScopeSourceRefs(spa),
+    );
+  }
+
+  if (spa.category === 'edge' && spa.id.startsWith('edge_when_aero_')) {
+    return outOfScope(
+      spa.id,
+      evidence,
+      'Aero Edge triggers belong in the separate aerospace validation matrix; Mek Edge triggers remain BattleMech combat gaps until their resolvers consume trigger-specific Edge state',
       canonicalSpaScopeSourceRefs(spa),
     );
   }
