@@ -410,6 +410,8 @@ export interface IUnitGameState {
   readonly componentDamage?: IComponentDamageState;
   /** Unit is prone (fallen) */
   readonly prone?: boolean;
+  /** Unit is bogged down or otherwise stuck and cannot voluntarily move. */
+  readonly isStuck?: boolean;
   /** Unit is in a hull-down defensive position. */
   readonly hullDown?: boolean;
   /** Unit is bracing and cannot change secondary facing. */

@@ -14,6 +14,7 @@ import {
   getFrogmanWaterPSRModifier,
   getManeuveringAceSkidModifier,
   getMountaineerRubblePSRModifier,
+  getSwampBeastBogDownPSRModifier,
 } from '../spaModifiers';
 import { IPSRResult, IPSRBatchResult, IPSRModifier, PSRTrigger } from './types';
 
@@ -25,11 +26,16 @@ function isTerrainPSR(psr: IPendingPSR): boolean {
     case PSRTrigger.EnteringWater:
     case PSRTrigger.ExitingWater:
     case PSRTrigger.Skidding:
+    case PSRTrigger.SwampBogDown:
     case PSRTrigger.BuildingCollapse:
       return true;
     default:
       return false;
   }
+}
+
+function isStuckFailurePSR(psr: IPendingPSR): boolean {
+  return (psr.reasonCode ?? psr.triggerSource) === PSRTrigger.SwampBogDown;
 }
 
 /**
@@ -143,9 +149,19 @@ export function resolveAllPSRs(
       for (let j = i + 1; j < pendingPSRs.length; j++) {
         clearedPSRs.push(pendingPSRs[j]);
       }
+      if (isStuckFailurePSR(psr)) {
+        return {
+          results,
+          unitFell: false,
+          unitStuck: true,
+          failedResult: result,
+          clearedPSRs,
+        };
+      }
       return {
         results,
         unitFell: true,
+        failedResult: result,
         clearedPSRs,
       };
     }
@@ -296,6 +312,17 @@ export function calculatePSRModifiers(
       modifiers.push({
         name: 'Mountaineer',
         value: mountaineerModifier,
+        source: 'spa',
+      });
+    }
+  }
+
+  if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.SwampBogDown) {
+    const swampBeastModifier = getSwampBeastBogDownPSRModifier(pilotAbilities);
+    if (swampBeastModifier !== 0) {
+      modifiers.push({
+        name: 'Swamp Beast',
+        value: swampBeastModifier,
         source: 'spa',
       });
     }

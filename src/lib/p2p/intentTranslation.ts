@@ -292,6 +292,7 @@ function translateDeclareMovement(
       coord: unit.position,
       facing: unit.facing,
       prone: unit.prone ?? false,
+      isStuck: unit.isStuck ?? false,
     },
     payload.to,
     payload.facing,
