@@ -598,6 +598,9 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application'].gap,
     ).not.toContain('Cross-Country');
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application'].gap,
+    ).not.toContain('Animal Mimicry');
   });
 
   it('pins Cross-Country to MegaMek combat-vehicle movement scope', () => {

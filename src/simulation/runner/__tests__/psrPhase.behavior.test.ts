@@ -398,7 +398,7 @@ describe('runPSRPhase behavior', () => {
       reasonCode: PSRTrigger.PhaseDamage20Plus,
     });
     expect(SPA_COMBAT_SUPPORT['animal-mimicry']).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('Animal Mimicry'),
     });
   });
