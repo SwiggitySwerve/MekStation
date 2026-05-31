@@ -850,13 +850,15 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 - **GIVEN** a BattleMech has explicit biped leg talon combat state and a working foot actuator
 - **WHEN** it resolves a kick using that leg
 - **THEN** kick target damage SHALL apply MegaMek's source-backed `round(baseKickDamage * 1.5)` talon modifier before physical damage bonuses
+- **AND** quad/non-biped BattleMech front-leg kicks SHALL map the selected kicking leg to the matching arm-location talon state before applying the same modifier
 - **WHEN** it resolves death from above with at least one qualifying talon leg
 - **THEN** DFA target damage SHALL apply MegaMek's source-backed truncating `baseDfaDamage * 1.5` talon modifier before physical damage bonuses
+- **AND** quad/non-biped DFA talon checks SHALL include MegaMek's right-arm talon gate plus explicit and catalog-hydrated arm-location talon state for front legs
 - **AND** talons SHALL remain non-selectable in runtime physical attack option lists because they modify existing kick/DFA actions rather than declaring a distinct physical attack
-- **AND** catalog UnitHydration SHALL derive biped leg talon state from `LEFT_LEG` and `RIGHT_LEG` critical slots containing Talons entries
-- **AND** `CriticalHitResolved` events that destroy, mark missing, or mark breached Talons equipment SHALL remove the matching leg talon modifier from event replay and runner combat state
-- **AND** destroyed leg location replay and runner damage persistence SHALL remove the matching leg talon modifier from represented combat state
-- **AND** the validation catalog SHALL keep automatic missing/breached talon event production from mounted-equipment state beyond represented destroyed-location replay and non-biped talon arm-location behavior visible as remaining gaps
+- **AND** catalog UnitHydration SHALL derive biped leg talon state from `LEFT_LEG` and `RIGHT_LEG` critical slots and quad/non-biped front-leg talon state from `LEFT_ARM` and `RIGHT_ARM` critical slots containing Talons entries
+- **AND** `CriticalHitResolved` events that destroy, mark missing, or mark breached Talons equipment SHALL remove the matching leg or arm-location talon modifier from event replay and runner combat state
+- **AND** destroyed leg or arm-location replay and runner damage persistence SHALL remove the matching talon modifier from represented combat state
+- **AND** the validation catalog SHALL keep automatic missing/breached talon event production from mounted-equipment state beyond represented destroyed-location replay visible as a remaining gap
 
 #### Scenario: Claws modify punch damage and to-hit without becoming a selectable attack type
 
