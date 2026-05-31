@@ -17,6 +17,22 @@ export const MEKSTATION_PHYSICAL_ACTION_HELPER_REFS = {
       sourceVersion: 'MekStation working-tree',
     },
   ],
+  grapple: [
+    {
+      kind: 'mekstation-deviation',
+      citation:
+        'MekStation canGrapple exposes source-backed optional-rule, airborne, common locked-grapple, friendly-fire, biped-Mek/ProtoMek target, arm/shoulder, range, elevation, front-arc, prone, weapon-fire, and already-grappled gates as helper-only coverage without adding a runtime PhysicalAttackType.',
+      url: 'src/utils/gameplay/physicalAttacks/grappleEligibility.ts#L122-L352',
+      sourceVersion: 'MekStation working-tree',
+    },
+    {
+      kind: 'mekstation-deviation',
+      citation:
+        'MekStation physical attack tests cover source-backed canGrapple gates, counter-grapple relaxations, actuator/AES/TSM modifiers, and grapple weight-class branches.',
+      url: 'src/utils/gameplay/__tests__/physicalAttacks.test.ts#L1936-L2167',
+      sourceVersion: 'MekStation working-tree',
+    },
+  ],
   'jump-jet-attack': [
     {
       kind: 'mekstation-deviation',
