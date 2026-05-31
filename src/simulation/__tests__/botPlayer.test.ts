@@ -137,6 +137,46 @@ describe('BotPlayer', () => {
       expect(event).toBeNull();
     });
 
+    it('can choose source-backed voluntary go-prone when stationary behavior is enabled', () => {
+      const random = new SeededRandom(12345);
+      const bot = new BotPlayer(random, {
+        retreatThreshold: 0.3,
+        retreatEdge: 'nearest',
+        safeHeatThreshold: 13,
+        voluntaryGoProneWhenStationary: true,
+      });
+      const grid = createMockGrid(1, [
+        { q: 0, r: -1 },
+        { q: 1, r: -1 },
+        { q: 1, r: 0 },
+        { q: 0, r: 1 },
+        { q: -1, r: 1 },
+        { q: -1, r: 0 },
+      ]);
+      const unit = createMockUnit({ position: { q: 0, r: 0 } });
+      const capability = createMovementCapability(1);
+
+      const event = bot.playMovementPhase(unit, grid, capability);
+
+      expect(event).toMatchObject({
+        type: GameEventType.MovementDeclared,
+        payload: {
+          unitId: 'unit-1',
+          from: { q: 0, r: 0 },
+          to: { q: 0, r: 0 },
+          movementType: MovementType.Stationary,
+          mpUsed: 1,
+          heatGenerated: 0,
+          steps: [
+            expect.objectContaining({
+              kind: 'goProne',
+              mpCost: 1,
+            }),
+          ],
+        },
+      });
+    });
+
     it('should be deterministic with same seed', () => {
       const grid = createMockGrid(10);
       const unit = createMockUnit({ position: { q: 0, r: 0 } });

@@ -491,6 +491,8 @@ export function applyMovementEvent(
 ): IGameState {
   const unit = state.units[unitId];
   if (!unit) return state;
+  const wentProne =
+    payload.steps?.some((step) => step.kind === 'goProne') ?? false;
 
   const updatedUnit: IUnitGameState = {
     ...unit,
@@ -502,6 +504,7 @@ export function applyMovementEvent(
     usedMechanicalJumpBoosterThisTurn: movementStepsUseMechanicalJumpBooster(
       payload.steps,
     ),
+    prone: wentProne ? true : unit.prone,
   };
 
   return {

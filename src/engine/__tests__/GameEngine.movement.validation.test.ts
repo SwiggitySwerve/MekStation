@@ -66,6 +66,40 @@ class ScriptedMoveBot extends BotPlayer {
   }
 }
 
+class ScriptedGoProneBot extends BotPlayer {
+  constructor(private readonly unitId: string) {
+    super(new SeededRandom(11));
+  }
+
+  override evaluateRetreat(): IRetreatEvent | null {
+    return null;
+  }
+
+  override playMovementPhase(unit: IAIUnitState): IMovementEvent | null {
+    if (unit.unitId !== this.unitId) return null;
+    return {
+      type: GameEventType.MovementDeclared,
+      payload: {
+        unitId: unit.unitId,
+        from: unit.position,
+        to: unit.position,
+        facing: unit.facing,
+        movementType: MovementType.Stationary,
+        mpUsed: 1,
+        heatGenerated: 0,
+        steps: [
+          {
+            kind: 'goProne',
+            index: 0,
+            at: { q: unit.position.q, r: unit.position.r },
+            mpCost: 1,
+          },
+        ],
+      },
+    };
+  }
+}
+
 function makeConfig(): IGameConfig {
   return {
     mapRadius: 5,
@@ -217,5 +251,38 @@ describe('GameEngine movement phase validation', () => {
       heatGenerated: 1,
     });
     expect(next.currentState.units['unit-player'].heat).toBe(1);
+  });
+
+  it('honors a bot voluntary go-prone movement step through the session reducer', () => {
+    const session = createMovementPhaseSession();
+    const from = session.currentState.units['unit-player'].position;
+
+    const next = runMovementPhase(
+      session,
+      createHexGrid({ radius: 5 }),
+      new ScriptedGoProneBot('unit-player'),
+      new Map(),
+      movementMaps({ walkMP: 5, runMP: 8, jumpMP: 0 }),
+      new Map(),
+    );
+
+    const payload = movementPayloads(next)[0];
+    expect(payload).toMatchObject({
+      unitId: 'unit-player',
+      from,
+      to: from,
+      movementType: MovementType.Stationary,
+      mpUsed: 1,
+      heatGenerated: 0,
+      hexesMoved: 0,
+      steps: [
+        expect.objectContaining({
+          kind: 'goProne',
+          mpCost: 1,
+        }),
+      ],
+    });
+    expect(next.currentState.units['unit-player'].position).toEqual(from);
+    expect(next.currentState.units['unit-player'].prone).toBe(true);
   });
 });

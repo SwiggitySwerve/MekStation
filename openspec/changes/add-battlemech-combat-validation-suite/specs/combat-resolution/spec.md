@@ -153,10 +153,11 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 #### Scenario: Voluntary go-prone emits source-backed movement step
 
 - **GIVEN** MegaMek defines voluntary go-prone as `MoveStepType.GO_PRONE` for standing Meks
-- **WHEN** a unit commits the go-prone movement command through local, wire, or P2P command routing
+- **WHEN** a unit commits the go-prone movement command through local, wire, P2P command routing, or an opt-in runner AI movement decision
 - **THEN** the action SHALL emit a same-hex `MovementDeclared` payload with a `goProne` step, `mpUsed: 1`, `heatGenerated: 0`, and `hexesMoved: 0`
 - **AND** the reducer SHALL mark the unit prone and lock its movement activation
-- **AND** hull-down, swarmer dislodge, inferno wash-off, and runner AI/planning choice SHALL remain explicit follow-up gaps
+- **AND** runner movement SHALL preserve the same `goProne` step when the AI chooses the opt-in stationary go-prone posture
+- **AND** hull-down, swarmer dislodge, inferno wash-off, and broader tactical go-prone policy SHALL remain explicit follow-up gaps
 
 #### Scenario: Movement booster activation emits replayable active state
 
