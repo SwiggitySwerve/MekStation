@@ -3450,6 +3450,24 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows stuck charge attackers before movement-path gates', () => {
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            attackerMovedBackwardThisTurn: true,
+            attackerProne: true,
+            attackerStuck: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerStuck',
+      });
+    });
+
     it('disallows jumping charge movement before run/backward/prone gates', () => {
       expect(
         canCharge(
@@ -4576,6 +4594,22 @@ describe('physicalAttacks', () => {
       ).toMatchObject({
         allowed: false,
         reasonCode: 'AttackerProne',
+      });
+    });
+
+    it('disallows DFA by a stuck attacker before jump/prone gates', () => {
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            attackerProne: true,
+            attackerStuck: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerStuck',
       });
     });
 
