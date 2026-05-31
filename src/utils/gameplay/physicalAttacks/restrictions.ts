@@ -1,6 +1,7 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { hasNoArms } from '@/utils/gameplay/quirkModifiers';
 
+import { canTrip, type TripAttackInvalidReason } from './tripEligibility';
 import {
   IPhysicalAttackInput,
   IPhysicalAttackRestriction,
@@ -29,6 +30,11 @@ const CHARGE_DFA_NON_ENTITY_TARGET_OBJECT_TYPES = new Set([
 ]);
 
 const PUSH_BLOCKED_TARGET_OBJECT_TYPES = new Set(['building', 'fuelTank']);
+const TACOPS_TRIP_ATTACK_OPTIONS = new Set([
+  'tacops_trip_attack',
+  'advanced_combat_tac_ops_trip_attack',
+  'tacops_trip',
+]);
 
 export function physicalTargetObjectInvalidReason(
   attackType: PhysicalAttackType,
@@ -303,6 +309,62 @@ function attackerLocationDestroyed(
   location: string,
 ): boolean {
   return input.attackerDestroyedLocations?.includes(location) ?? false;
+}
+
+function optionalRuleEnabled(
+  optionalRules: readonly string[] | undefined,
+  aliases: ReadonlySet<string>,
+): boolean {
+  return (
+    optionalRules?.some((rule) =>
+      aliases.has(
+        rule
+          .trim()
+          .toLowerCase()
+          .replace(/[\s-]+/g, '_'),
+      ),
+    ) ?? false
+  );
+}
+
+function tripAttackEnabled(input: IPhysicalAttackInput): boolean {
+  return (
+    input.tacOpsTripAttackEnabled === true ||
+    optionalRuleEnabled(input.optionalRules, TACOPS_TRIP_ATTACK_OPTIONS)
+  );
+}
+
+function tripTargetIsMek(input: IPhysicalAttackInput): boolean {
+  if (
+    input.targetObjectType !== undefined &&
+    input.targetObjectType !== 'entity'
+  ) {
+    return false;
+  }
+  return !explicitNonMekUnitType(input.targetUnitType);
+}
+
+function tripLimbUsable(
+  input: IPhysicalAttackInput,
+  side: 'left' | 'right',
+): boolean {
+  const explicit =
+    side === 'left' ? input.leftTripLimbUsable : input.rightTripLimbUsable;
+  if (explicit !== undefined) return explicit;
+  if (input.componentDamage.actuators[ActuatorType.HIP]) return false;
+  const location = side === 'left' ? 'left_leg' : 'right_leg';
+  return !attackerLocationDestroyed(input, location);
+}
+
+function mapTripInvalidReason(
+  reasonCode: TripAttackInvalidReason | undefined,
+): PhysicalAttackInvalidReason | undefined {
+  switch (reasonCode) {
+    case 'LegMissing':
+      return 'LimbMissing';
+    default:
+      return reasonCode;
+  }
 }
 
 function selectedPunchArmDestroyed(input: IPhysicalAttackInput): boolean {
@@ -859,4 +921,40 @@ export function canPush(
     };
   }
   return { allowed: true };
+}
+
+export function canTripPhysical(
+  input: IPhysicalAttackInput,
+): IPhysicalAttackRestriction {
+  const sharedRestriction = sharedPhysicalTargetRestriction(input);
+  if (!sharedRestriction.allowed) return sharedRestriction;
+
+  const tripRestriction = canTrip({
+    tacOpsTripAttackEnabled: tripAttackEnabled(input),
+    attackerIsMek: !explicitNonMekUnitType(input.attackerUnitType),
+    targetIsMek: tripTargetIsMek(input),
+    attackerAlreadyGrappled: input.attackerAlreadyGrappled,
+    targetIsFriendly: input.targetIsFriendly,
+    attackerIsAirborneVTOLorWIGE: input.attackerIsAirborne,
+    targetDistance: input.targetDistance,
+    targetInFrontArc: input.targetInFrontArc,
+    attackerProne: input.attackerProne,
+    targetProne: input.targetProne,
+    sameElevation:
+      input.elevationDifference === undefined
+        ? undefined
+        : input.elevationDifference === 0,
+    leftLegPresent: !attackerLocationDestroyed(input, 'left_leg'),
+    rightLegPresent: !attackerLocationDestroyed(input, 'right_leg'),
+    leftTripLimbUsable: tripLimbUsable(input, 'left'),
+    rightTripLimbUsable: tripLimbUsable(input, 'right'),
+  });
+
+  if (tripRestriction.allowed) return { allowed: true };
+
+  return {
+    allowed: false,
+    reason: tripRestriction.reason,
+    reasonCode: mapTripInvalidReason(tripRestriction.reasonCode),
+  };
 }
