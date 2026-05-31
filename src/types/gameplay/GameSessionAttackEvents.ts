@@ -537,6 +537,7 @@ export type PhysicalAttackEventType =
   | 'dfa'
   | 'push'
   | 'trip'
+  | 'thrash'
   | 'hatchet'
   | 'sword'
   | 'mace'

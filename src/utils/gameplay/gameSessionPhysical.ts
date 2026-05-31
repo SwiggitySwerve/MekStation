@@ -59,6 +59,7 @@ import {
   canMeleeWeapon,
   canPunch,
   canPush,
+  canThrashPhysical,
   canTripPhysical,
   computeChargeDisplacementOutcome,
   computeDfaDisplacementOutcome,
@@ -88,6 +89,7 @@ import {
   sourceContainsGroundedDropShip,
   splitPhysicalDamageIntoClusters,
   SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
+  thrashBlockingTerrainsForHexTerrain,
 } from './physicalAttacks';
 import { createDominoEffectPSR } from './pilotingSkillRolls';
 import { waterDepthAtPosition } from './waterDepth';
@@ -383,6 +385,7 @@ function weaponsFiredFromArmForAttack(
   if (context.weaponsFiredFromArm !== undefined) {
     return context.weaponsFiredFromArm;
   }
+  if (attackType === 'thrash') return attackerState.weaponsFiredThisTurn ?? [];
   if (attackType === 'push') return firedWeaponIdsFromMountedArm(attackerState);
   if (
     attackType === 'punch' ||
@@ -393,6 +396,14 @@ function weaponsFiredFromArmForAttack(
     return firedWeaponIdsFromMountedArm(attackerState, context.arm);
   }
   return undefined;
+}
+
+function terrainAtPosition(
+  grid: IHexGrid | undefined,
+  position: IGameSession['currentState']['units'][string]['position'],
+): string | undefined {
+  if (!grid) return undefined;
+  return grid.hexes.get(`${position.q},${position.r}`)?.terrain;
 }
 
 function appendInvalidPhysicalResolution(
@@ -596,6 +607,8 @@ export function declarePhysicalAttack(
     leftTripLimbUsable: context.leftTripLimbUsable,
     rightTripLimbUsable: context.rightTripLimbUsable,
     legAesFunctional: context.legAesFunctional,
+    thrashBlockingTerrains: context.thrashBlockingTerrains,
+    hasWorkingThrashArmOrLeg: context.hasWorkingThrashArmOrLeg,
     pushDestinationValid: context.pushDestinationValid,
     pushTargetDirectlyAhead: targetState
       ? isTargetDirectlyAhead(
@@ -625,6 +638,8 @@ export function declarePhysicalAttack(
     restriction = canPush(input);
   } else if (attackType === 'trip') {
     restriction = canTripPhysical(input);
+  } else if (attackType === 'thrash') {
+    restriction = canThrashPhysical(input);
   } else if (
     attackType === 'hatchet' ||
     attackType === 'sword' ||
@@ -887,6 +902,12 @@ export function resolveAllPhysicalAttacks(
       leftTripLimbUsable: context.leftTripLimbUsable,
       rightTripLimbUsable: context.rightTripLimbUsable,
       legAesFunctional: context.legAesFunctional,
+      thrashBlockingTerrains:
+        context.thrashBlockingTerrains ??
+        thrashBlockingTerrainsForHexTerrain(
+          terrainAtPosition(grid, attackerState.position),
+        ),
+      hasWorkingThrashArmOrLeg: context.hasWorkingThrashArmOrLeg,
       pushDestinationValid: context.pushDestinationValid,
       pushTargetDirectlyAhead: isTargetDirectlyAhead(
         attackerState.position,
@@ -1177,7 +1198,9 @@ export function resolveAllPhysicalAttacks(
           ? 'charge_attacker_hit'
           : payload.attackType === 'dfa'
             ? 'dfa_attacker_hit'
-            : 'physical_attacker_hit';
+            : payload.attackType === 'thrash'
+              ? 'thrash_attacker_hit'
+              : 'physical_attacker_hit';
       // Attacker-on-hit PSRs share the canonical movement codes for the
       // attack family — Charged / DFATarget mirror the target codes per
       // the PSR Trigger Catalog. Kept undefined when no canonical code
@@ -1199,7 +1222,9 @@ export function resolveAllPhysicalAttacks(
           payload.attackerId,
           payload.attackType === 'dfa'
             ? 'Executed DFA'
-            : `Hit ${payload.attackType}`,
+            : payload.attackType === 'thrash'
+              ? 'Thrashing attack'
+              : `Hit ${payload.attackType}`,
           result.attackerPSRModifier,
           attackerHitTrigger,
           context.pilotingSkill,
