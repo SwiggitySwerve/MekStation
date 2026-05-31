@@ -59,6 +59,9 @@ import {
   getBreakGrappleAttackToHitModifiers,
   getBreakGrappleWeightClassModifier,
   getBrushOffAttackToHitModifiers,
+  canJumpJetAttack,
+  getJumpJetAttackDamage,
+  getJumpJetAttackToHitModifiers,
   getThrashAttackDamageForWeight,
   getTripAttackBaseToHitAdjustment,
 } from '../physicalAttacks';
@@ -1925,6 +1928,167 @@ describe('physicalAttacks', () => {
           targetWeightClass: 2,
         }),
       ).toBe(0);
+    });
+  });
+
+  describe('canJumpJetAttack', () => {
+    const validJumpJetAttackInput = {
+      tacOpsJumpJetAttackEnabled: true,
+      selectedLeg: 'left',
+      attackerIsMek: true,
+      leftLegPresent: true,
+      leftReadyJumpJetCount: 2,
+      targetDistance: 1,
+      standingAttackerHeightAboveTargetHeight: 1,
+      targetDirectlyAheadOfFeet: true,
+    } as const;
+
+    it('allows source-backed standing and prone jump jet attacks', () => {
+      expect(canJumpJetAttack(validJumpJetAttackInput)).toEqual({
+        allowed: true,
+      });
+      expect(
+        canJumpJetAttack({
+          ...validJumpJetAttackInput,
+          selectedLeg: 'both',
+          attackerProne: true,
+          rightLegPresent: true,
+          rightReadyJumpJetCount: 1,
+          standingAttackerHeightAboveTargetHeight: undefined,
+          targetDirectlyAheadOfFeet: undefined,
+          proneTargetElevationInRange: true,
+          targetDirectlyBehindFeet: true,
+        }),
+      ).toEqual({ allowed: true });
+    });
+
+    it.each([
+      [
+        'disabled optional rule',
+        { tacOpsJumpJetAttackEnabled: false },
+        'TacOpsJumpJetAttackDisabled',
+      ],
+      [
+        'common impossible state',
+        { commonImpossible: true },
+        'CommonImpossible',
+      ],
+      [
+        'LAM outside Mek mode',
+        { attackerIsLandAirMek: true, attackerIsMekMode: false },
+        'LandAirMekNotMekMode',
+      ],
+      [
+        'missing leg selection',
+        { selectedLeg: undefined },
+        'InvalidLegSelection',
+      ],
+      ['non-Mek attacker', { attackerIsMek: false }, 'AttackerNotMek'],
+      [
+        'standing both-leg attack',
+        {
+          selectedLeg: 'both',
+          rightLegPresent: true,
+          rightReadyJumpJetCount: 1,
+        },
+        'BothLegsRequiresProne',
+      ],
+      ['missing selected leg', { leftLegPresent: false }, 'LegMissing'],
+      [
+        'selected leg jump jets destroyed',
+        { leftReadyJumpJetCount: 0 },
+        'JumpJetsMissingOrDestroyed',
+      ],
+      [
+        'attacker already jumped',
+        { attackerMovedJump: true },
+        'AttackerJumpedThisTurn',
+      ],
+      [
+        'selected leg weapon fired',
+        { leftLegWeaponFiredThisTurn: true },
+        'LegWeaponFiredThisTurn',
+      ],
+      ['non-adjacent target', { targetDistance: 2 }, 'TargetNotAdjacent'],
+      [
+        'standing target elevation mismatch',
+        { standingAttackerHeightAboveTargetHeight: 0 },
+        'TargetElevationNotInRange',
+      ],
+      [
+        'standing target not ahead',
+        { targetDirectlyAheadOfFeet: false },
+        'TargetNotDirectlyAheadOfFeet',
+      ],
+      [
+        'prone target elevation mismatch',
+        {
+          attackerProne: true,
+          standingAttackerHeightAboveTargetHeight: undefined,
+          targetDirectlyAheadOfFeet: undefined,
+          proneTargetElevationInRange: false,
+        },
+        'TargetElevationNotInRange',
+      ],
+      [
+        'prone target not behind',
+        {
+          attackerProne: true,
+          standingAttackerHeightAboveTargetHeight: undefined,
+          targetDirectlyAheadOfFeet: undefined,
+          proneTargetElevationInRange: true,
+          targetDirectlyBehindFeet: false,
+        },
+        'TargetNotDirectlyBehindFeet',
+      ],
+    ] as const)('rejects %s', (_label, overrides, reasonCode) => {
+      expect(
+        canJumpJetAttack({ ...validJumpJetAttackInput, ...overrides }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode,
+      });
+    });
+
+    it('uses source-backed selected-leg jump jet damage and wet-location zero damage', () => {
+      expect(
+        getJumpJetAttackDamage({
+          selectedLeg: 'both',
+          leftReadyJumpJetCount: 2,
+          rightReadyJumpJetCount: 1,
+        }),
+      ).toBe(9);
+      expect(
+        getJumpJetAttackDamage({
+          selectedLeg: 'left',
+          leftReadyJumpJetCount: 3,
+          leftLegWet: true,
+        }),
+      ).toBe(0);
+    });
+
+    it('exposes source-backed jump jet to-hit branches', () => {
+      expect(getJumpJetAttackToHitModifiers()).toEqual({
+        automaticSuccess: false,
+        modifiers: [
+          expect.objectContaining({ value: 2, reasonCode: 'JumpJetAttack' }),
+        ],
+      });
+      expect(
+        getJumpJetAttackToHitModifiers({ attackerProne: true }).modifiers,
+      ).toContainEqual(
+        expect.objectContaining({ value: 2, reasonCode: 'AttackerProne' }),
+      );
+      expect(
+        getJumpJetAttackToHitModifiers({
+          targetIsBuildingFuelTankOrGunEmplacement: true,
+        }),
+      ).toEqual({
+        automaticSuccess: true,
+        automaticSuccessReason: 'Targeting adjacent building.',
+        automaticSuccessReasonCode: 'AdjacentBuilding',
+        modifiers: [],
+      });
     });
   });
 
