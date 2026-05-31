@@ -16,6 +16,7 @@ import {
   IUnitFellPayload,
   IUnitRetreatedPayload,
   IUnitStoodPayload,
+  IUnitStuckPayload,
   IWithdrawalDeclaredPayload,
   LockState,
   type MoraleLevel,
@@ -101,6 +102,28 @@ export function applyUnitFell(
         ...unit,
         prone: true,
         facing: payload.newFacing,
+        pendingPSRs: [],
+      },
+    },
+  };
+}
+
+export function applyUnitStuck(
+  state: IGameState,
+  payload: IUnitStuckPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) {
+    return state;
+  }
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        isStuck: true,
         pendingPSRs: [],
       },
     },
