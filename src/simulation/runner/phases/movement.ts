@@ -213,6 +213,7 @@ export function runMovementPhase(options: {
         capability,
         validationHeat,
         environmentalConditions,
+        { pilotAbilities: unit.abilities },
       );
 
       if (!validation.valid) {
@@ -263,6 +264,7 @@ export function runMovementPhase(options: {
             committedPayload.movementType,
           ),
         ),
+        movementContext: { pilotAbilities: unit.abilities },
       });
       const decomposition = decomposeMovementSteps({
         from: unit.position,
