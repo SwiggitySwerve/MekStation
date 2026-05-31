@@ -54,6 +54,7 @@ export function buildWeaponAttackAttackerToHitState(
     sensorHits: unit.componentDamage?.sensorHits,
     actuatorDamage: buildWeaponAttackActuatorDamage(unit.componentDamage),
     prone: unit.prone ?? false,
+    isSpotting: unit.isSpotting,
     abilities: unit.abilities,
     weaponType: weapon?.name ?? weapon?.id,
     weaponCategory: weapon?.category,
