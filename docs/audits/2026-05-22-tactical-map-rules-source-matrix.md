@@ -26,8 +26,11 @@ unit-height, and runtime conversion-state gaps is superseded by later
 source-pinned fixtures and OpenSpec deltas. The current movement headline gaps
 are remaining airborne LAM Fighter/AirMek submodes and broader external oracle
 differential fixtures. Represented LAM AirMek-to-Mek conversion sequencing is
-covered by `pin-lam-airmek-mek-conversion-steps`. Replayable gameplay events
-for runtime movement state are covered by
+covered by `pin-lam-airmek-mek-conversion-steps`, and AirMek-to-Mek conversion
+now clears represented AirMek WiGE elevation in line with MegaMek
+`MovePath.java:1699-1712` automatic landing behavior via
+`pin-lam-airmek-mek-automatic-landing`. Replayable gameplay events for runtime
+movement state are covered by
 `apply-runtime-movement-state-events`; player-facing tactical command controls
 for represented conversion and infantry mount-state changes are covered by
 `wire-runtime-movement-state-controls`.

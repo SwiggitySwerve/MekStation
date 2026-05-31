@@ -495,6 +495,7 @@ describe('runtime movement state events', () => {
       destroyed: false,
       lockState: LockState.Pending,
       conversionMode: 'airmek',
+      lamAirMekAltitude: 2,
     };
     const conversion = createRuntimeMovementStateChangedEvent(
       'game-1',
@@ -504,6 +505,7 @@ describe('runtime movement state events', () => {
       {
         source: 'conversion_action',
         conversionMode: 'mek',
+        lamAirMekAltitude: 0,
         conversionStepCount: 2,
         conversionMpCost: 0,
       },
@@ -514,6 +516,7 @@ describe('runtime movement state events', () => {
     ];
     expect(converted).toMatchObject({
       conversionMode: 'mek',
+      lamAirMekAltitude: 0,
       pendingConversionStepCount: 2,
       pendingConversionMpCost: 0,
     });
@@ -534,6 +537,17 @@ describe('runtime movement state events', () => {
       conversionStepCount: 2,
       conversionMpCost: 0,
     });
+    expect(
+      runtimeMovementProjectionBlockedReason(
+        converted,
+        {
+          ...BASIC_CAPABILITY,
+          movementMode: 'wige',
+          unitHeightProfile: { kind: 'lam', standingHeight: 1 },
+        },
+        'wige',
+      ),
+    ).toBeUndefined();
   });
 
   it('clears pending conversion cost after committed movement replay', () => {

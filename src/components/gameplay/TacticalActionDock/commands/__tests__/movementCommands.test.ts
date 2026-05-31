@@ -933,6 +933,7 @@ describe('movementCommands', () => {
     const airmekCtx: ITacticalCommandContext = {
       ...lamCtx,
       activeUnitConversionMode: 'airmek',
+      activeUnitLamAirMekAltitude: 2,
     };
     expect(mek.availability(airmekCtx)).toEqual({ available: true });
     expect(mek.commit(airmekCtx)).toEqual({
@@ -942,6 +943,7 @@ describe('movementCommands', () => {
         conversionMode: 'mek',
         conversionStepCount: 2,
         conversionMpCost: 0,
+        lamAirMekAltitude: 0,
         unitHeight: null,
       },
     });

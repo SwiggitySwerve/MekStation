@@ -12,6 +12,7 @@ import { parseWaterDepth } from '@/utils/gameplay/waterDepth';
 
 import {
   normalizedCommandConversionMode,
+  runtimeLamAirMekAutomaticLandingPatch,
   runtimeConversionActionUnavailableReason,
   runtimeConversionCommandMetadata,
 } from './runtimeConversionRules';
@@ -455,6 +456,7 @@ function createConversionCommand(
           conversionMode,
           conversionStepCount: metadata.conversionStepCount,
           conversionMpCost: metadata.conversionMpCost,
+          ...runtimeLamAirMekAutomaticLandingPatch(ctx, conversionMode),
           unitHeight: null,
         },
       };
