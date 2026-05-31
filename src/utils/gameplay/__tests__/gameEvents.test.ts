@@ -13,6 +13,7 @@ import {
   IGameConfig,
   IGameUnit,
   IAttackDeclaredPayload,
+  IMovementDeclaredPayload,
   Facing,
   MovementType,
   IToHitModifier,
@@ -532,6 +533,41 @@ describe('Movement Event Factories', () => {
       expect(payload.to).toEqual(position);
       expect(payload.mpUsed).toBe(0);
       expect(payload.heatGenerated).toBe(0);
+    });
+
+    it('should serialize a hull-down go-prone posture step', () => {
+      const position = { q: 0, r: 0 };
+      const event = createMovementDeclaredEvent(
+        'game-1',
+        10,
+        1,
+        'unit-1',
+        position,
+        position,
+        Facing.North,
+        MovementType.Stationary,
+        0,
+        0,
+        [position],
+        { goProneAttempt: true },
+      );
+      const payload = event.payload as IMovementDeclaredPayload;
+
+      expect(payload).toMatchObject({
+        goProneAttempt: true,
+        hexesMoved: 0,
+        straightHexes: 0,
+        turningMpCost: 0,
+        netDisplacement: 0,
+        steps: [
+          {
+            kind: 'goProne',
+            index: 0,
+            at: position,
+            mpCost: 0,
+          },
+        ],
+      });
     });
   });
 

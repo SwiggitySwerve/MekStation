@@ -34,6 +34,7 @@ export function createMovementDeclaredEvent(
     readonly standUpSucceeded?: boolean;
     readonly standUpMode?: StandUpMode;
     readonly hullDownExitAttempt?: boolean;
+    readonly goProneAttempt?: boolean;
   },
 ): IGameEvent {
   const mode = movementAnimationModeForType(movementType);
@@ -55,6 +56,23 @@ export function createMovementDeclaredEvent(
       ? { standUpMode: options.standUpMode }
       : {}),
     ...(options?.hullDownExitAttempt ? { hullDownExitAttempt: true } : {}),
+    ...(options?.goProneAttempt
+      ? {
+          goProneAttempt: true,
+          steps: [
+            {
+              kind: 'goProne' as const,
+              index: 0,
+              at: from,
+              mpCost: 0,
+            },
+          ],
+          hexesMoved: 0,
+          straightHexes: 0,
+          turningMpCost: 0,
+          netDisplacement: 0,
+        }
+      : {}),
   };
 
   return {

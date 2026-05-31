@@ -41,6 +41,7 @@ import {
   commitAttackLogic,
   commitPlannedMovementLogic,
   getAttackPlanFor,
+  goProneActiveUnitLogic,
   setAttackTargetLogic,
   setPlannedMovementLogic,
   setPlannedWeaponModeLogic,
@@ -210,6 +211,8 @@ interface GameplayActions {
   commitPlannedMovement: () => void;
   /** Commit a zero-hex stand-up movement for the selected prone unit. */
   standActiveUnit: (standUpMode?: StandUpMode) => void;
+  /** Commit a zero-hex go-prone movement for the selected hull-down unit. */
+  goProneActiveUnit: () => void;
   /**
    * Per `add-combat-phase-ui-flows`: Attack-phase planning actions.
    * `setAttackTarget` sets the target id when an enemy token is
@@ -449,6 +452,7 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   clearPlannedMovement: () => clearPlannedMovementLogic(set),
   commitPlannedMovement: () => commitPlannedMovementLogic(get, set),
   standActiveUnit: (standUpMode) => standActiveUnitLogic(get, set, standUpMode),
+  goProneActiveUnit: () => goProneActiveUnitLogic(get, set),
   setAttackTarget: (unitId) => setAttackTargetLogic(unitId, set),
   togglePlannedWeapon: (weaponId) => togglePlannedWeaponLogic(weaponId, set),
   setPlannedWeaponMode: (weaponId, mode) =>

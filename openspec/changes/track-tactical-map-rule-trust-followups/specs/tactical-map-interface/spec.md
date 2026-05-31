@@ -35,7 +35,10 @@ source-pinned, oracle-differenced, or interaction-swept.
   unit-height bridge clearance, and runtime LAM/QuadVee conversion projection,
   SHALL NOT remain listed as open headline gaps.
 - **AND** hull-down `GET_UP` movement exit projection and replay-state clearing
-  SHALL NOT remain grouped under unresolved hull-down entry/go-prone action
+  SHALL NOT remain grouped under unresolved hull-down entry action
+  gaps once source-pinned coverage exists.
+- **AND** hull-down `GO_PRONE` movement action projection and replay-state
+  clearing SHALL NOT remain grouped under unresolved hull-down entry action
   gaps once source-pinned coverage exists.
 
 #### Scenario: Isometric browser coverage distinguishes smoke from full interaction sweep

@@ -351,6 +351,7 @@ export function declareMovement(
     readonly standUpSucceeded?: boolean;
     readonly standUpMode?: StandUpMode;
     readonly hullDownExitAttempt?: boolean;
+    readonly goProneAttempt?: boolean;
   },
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.Movement) {

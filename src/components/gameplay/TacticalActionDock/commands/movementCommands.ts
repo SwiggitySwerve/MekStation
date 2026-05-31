@@ -47,6 +47,7 @@ export function buildMovementCommands(): readonly ITacticalCommand[] {
     MovementJumpCommand,
     MovementStandCommand,
     MovementCarefulStandCommand,
+    MovementGoProneCommand,
     MovementStabilizeCommand,
     MovementCancelCommand,
   ];
@@ -342,6 +343,42 @@ const MovementCarefulStandCommand: ITacticalCommand = {
   },
   commit() {
     return { actionId: 'stand-careful', payload: { mode: 'careful' } };
+  },
+};
+
+const MovementGoProneCommand: ITacticalCommand = {
+  id: 'movement.goProne',
+  category: 'movement',
+  label: 'Go Prone',
+  phaseConstraints: [GamePhase.Movement],
+  requiresConfirmation: false,
+  undoable: true,
+  availability(ctx) {
+    if (!ctx.activeUnitId)
+      return { available: false, reason: 'No unit is active.' };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    const locked = movementDeclarationLockInvalidState(ctx.activeUnitLockState);
+    if (locked) return { available: false, reason: locked.details };
+    if (ctx.activeUnitProne === true) {
+      return { available: false, reason: 'Unit is already prone.' };
+    }
+    if (ctx.activeUnitHullDown !== true) {
+      return { available: false, reason: 'Unit must be hull-down.' };
+    }
+    if (!ctx.movementCapability) {
+      return { available: false, reason: 'No movement capability.' };
+    }
+    if (!isMekStyleHullDownExitCapability(ctx.movementCapability)) {
+      return {
+        available: false,
+        reason:
+          'Hull-down go-prone action is only available for Mek-style movement.',
+      };
+    }
+    return { available: true };
+  },
+  commit() {
+    return { actionId: 'go-prone', payload: {} };
   },
 };
 

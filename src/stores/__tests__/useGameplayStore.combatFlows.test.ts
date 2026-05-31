@@ -45,6 +45,7 @@ interface FakeSessionCalls {
     facing: Facing;
     type: MovementType;
     path?: readonly { q: number; r: number }[];
+    options?: { readonly goProneAttempt?: boolean };
   }>;
   attacks: Array<{
     attackerId: string;
@@ -256,7 +257,10 @@ function buildRejectedMovementSession(): {
   };
 }
 
-function buildStandFakeSession(prone = true): {
+function buildStandFakeSession(
+  prone = true,
+  hullDown = false,
+): {
   session: InteractiveSession;
   calls: FakeSessionCalls;
   snapshot: IGameSession;
@@ -299,6 +303,7 @@ function buildStandFakeSession(prone = true): {
           destroyed: false,
           lockState: LockState.Planning,
           prone,
+          hullDown,
         },
       },
       turnEvents: [],
@@ -312,6 +317,8 @@ function buildStandFakeSession(prone = true): {
       facing: Facing,
       type: MovementType,
       path?: readonly { q: number; r: number }[],
+      _standUpMode?: 'normal' | 'careful',
+      options?: { readonly goProneAttempt?: boolean },
     ) => {
       calls.movement.push({
         unitId,
@@ -319,6 +326,7 @@ function buildStandFakeSession(prone = true): {
         facing,
         type,
         ...(path !== undefined ? { path } : {}),
+        ...(options !== undefined ? { options } : {}),
       });
       (snapshot.events as IGameEvent[]).push({
         id: 'stand-move',
@@ -338,11 +346,14 @@ function buildStandFakeSession(prone = true): {
           mpUsed: 2,
           heatGenerated: 1,
           path,
+          ...(options?.goProneAttempt ? { goProneAttempt: true } : {}),
         },
       } as IGameEvent);
+      const goProneAttempt = options?.goProneAttempt === true;
       snapshot.currentState.units['unit-a'] = {
         ...snapshot.currentState.units['unit-a'],
-        prone: false,
+        prone: goProneAttempt ? true : false,
+        hullDown: goProneAttempt ? false : hullDown,
       };
     },
     getSession: () => snapshot,
@@ -714,6 +725,63 @@ describe('useGameplayStore — combat-phase planning actions', () => {
       });
 
       useGameplayStore.getState().standActiveUnit();
+
+      expect(calls.movement).toHaveLength(0);
+      expect(useGameplayStore.getState().ui.selectedUnitId).toBe('unit-a');
+    });
+
+    it('goProneActiveUnit commits a zero-hex stationary go-prone action', () => {
+      const { session, calls, snapshot } = buildStandFakeSession(false, true);
+      useGameplayStore.setState({
+        interactiveSession: session,
+        session: snapshot,
+        plannedMovement: {
+          destination: { q: 2, r: 0 },
+          facing: Facing.South,
+          movementType: MovementType.Walk,
+          path: [
+            { q: 0, r: 0 },
+            { q: 1, r: 0 },
+            { q: 2, r: 0 },
+          ],
+        },
+        ui: {
+          ...useGameplayStore.getState().ui,
+          selectedUnitId: 'unit-a',
+        },
+      });
+
+      useGameplayStore.getState().goProneActiveUnit();
+
+      expect(calls.movement).toEqual([
+        {
+          unitId: 'unit-a',
+          to: { q: 0, r: 0 },
+          facing: Facing.North,
+          type: MovementType.Stationary,
+          path: [{ q: 0, r: 0 }],
+          options: { goProneAttempt: true },
+        },
+      ]);
+      expect(useGameplayStore.getState().plannedMovement).toBeNull();
+      expect(useGameplayStore.getState().ui.selectedUnitId).toBeNull();
+      expect(snapshot.currentState.units['unit-a']).toMatchObject({
+        prone: true,
+        hullDown: false,
+      });
+    });
+
+    it('goProneActiveUnit is a no-op when the selected unit is not hull-down', () => {
+      const { session, calls } = buildStandFakeSession(false, false);
+      useGameplayStore.setState({
+        interactiveSession: session,
+        ui: {
+          ...useGameplayStore.getState().ui,
+          selectedUnitId: 'unit-a',
+        },
+      });
+
+      useGameplayStore.getState().goProneActiveUnit();
 
       expect(calls.movement).toHaveLength(0);
       expect(useGameplayStore.getState().ui.selectedUnitId).toBe('unit-a');

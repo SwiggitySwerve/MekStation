@@ -54,7 +54,7 @@ function makeMovementProjection(
 describe('movementCommands', () => {
   const commands = buildMovementCommands();
 
-  it('exposes walk / run / jump / stand / careful stand / stabilize / cancel', () => {
+  it('exposes walk / run / jump / stand / posture / stabilize / cancel', () => {
     const ids = commands.map((c) => c.id);
     expect(ids).toEqual([
       'movement.walk',
@@ -62,6 +62,7 @@ describe('movementCommands', () => {
       'movement.jump',
       'movement.stand',
       'movement.carefulStand',
+      'movement.goProne',
       'movement.stabilize',
       'movement.cancel',
     ]);
@@ -401,6 +402,56 @@ describe('movementCommands', () => {
     ).toEqual({
       available: false,
       reason: 'Careful Stand is only available when prone.',
+    });
+  });
+
+  it('go prone commits a 0 MP hull-down posture action for Mek-style units', () => {
+    const goProne = commands.find((c) => c.id === 'movement.goProne')!;
+    const ctx = makeCtx({
+      activeUnitProne: false,
+      activeUnitHullDown: true,
+      movementCapability: { walkMP: 4, runMP: 6, jumpMP: 0 },
+    });
+
+    expect(goProne.availability(ctx)).toEqual({ available: true });
+    expect(goProne.commit(ctx)).toEqual({
+      actionId: 'go-prone',
+      payload: {},
+    });
+  });
+
+  it('go prone explains non-hull-down and non-Mek-style blockers', () => {
+    const goProne = commands.find((c) => c.id === 'movement.goProne')!;
+
+    expect(
+      goProne.availability(
+        makeCtx({
+          activeUnitProne: false,
+          activeUnitHullDown: false,
+        }),
+      ),
+    ).toEqual({
+      available: false,
+      reason: 'Unit must be hull-down.',
+    });
+    expect(
+      goProne.availability(
+        makeCtx({
+          activeUnitProne: false,
+          activeUnitHullDown: true,
+          movementCapability: {
+            walkMP: 4,
+            runMP: 6,
+            jumpMP: 0,
+            movementMode: 'tracked',
+            movementHeatProfile: 'none',
+          },
+        }),
+      ),
+    ).toEqual({
+      available: false,
+      reason:
+        'Hull-down go-prone action is only available for Mek-style movement.',
     });
   });
 });

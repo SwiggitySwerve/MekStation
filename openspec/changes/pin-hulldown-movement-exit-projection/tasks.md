@@ -4,7 +4,7 @@
 
 - [x] 1.1 Cross-check MegaMek `GetUpStep`, `MoveStep`, `MovePath`, and movement
       display handling for hull-down exit semantics
-- [x] 1.2 Keep the remaining hull-down entry/go-prone/vehicle-side-table gaps
+- [x] 1.2 Keep the remaining hull-down entry/vehicle-side-table gaps
       explicit in audits
 
 ## 2. Implementation

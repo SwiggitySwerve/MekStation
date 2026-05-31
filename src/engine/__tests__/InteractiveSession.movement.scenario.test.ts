@@ -2770,6 +2770,104 @@ describe('applyInteractiveSessionMovement', () => {
     });
   });
 
+  it('commits hull-down GO_PRONE as a same-hex 0 MP posture action', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      hullDown: true,
+      prone: false,
+    };
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid: makeGrid(),
+      movementByUnit: capability({ walkMP: 4, runMP: 6 }),
+      unitId: 'm1',
+      to: { q: 0, r: 0 },
+      facing: Facing.North,
+      movementType: MovementType.Stationary,
+      path: [{ q: 0, r: 0 }],
+      goProneAttempt: true,
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      from: { q: 0, r: 0 },
+      to: { q: 0, r: 0 },
+      movementType: MovementType.Stationary,
+      mpUsed: 0,
+      heatGenerated: 0,
+      path: [{ q: 0, r: 0 }],
+      goProneAttempt: true,
+      steps: [
+        {
+          kind: 'goProne',
+          index: 0,
+          at: { q: 0, r: 0 },
+          mpCost: 0,
+        },
+      ],
+    });
+    expect(
+      result.events.some((event) => event.type === GameEventType.UnitStood),
+    ).toBe(false);
+    expect(result.currentState.units.m1).toMatchObject({
+      hullDown: false,
+      prone: true,
+      lockState: LockState.Locked,
+    });
+  });
+
+  it('rejects hull-down GO_PRONE for non-Mek-style movement profiles', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      hullDown: true,
+      prone: false,
+    };
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid: makeGrid(),
+      movementByUnit: capability({
+        walkMP: 4,
+        runMP: 6,
+        movementMode: 'tracked',
+        movementHeatProfile: 'none',
+      }),
+      unitId: 'm1',
+      to: { q: 0, r: 0 },
+      facing: Facing.North,
+      movementType: MovementType.Stationary,
+      path: [{ q: 0, r: 0 }],
+      goProneAttempt: true,
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.MovementDeclared,
+      ),
+    ).toBe(false);
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.MovementLocked,
+      ),
+    ).toBe(false);
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.MovementInvalid,
+    );
+    expect(invalid!.payload as IMovementInvalidPayload).toMatchObject({
+      unitId: 'm1',
+      reason: 'InvalidDestination',
+      details: 'Hull-down go-prone is only available for Mek-style movement',
+      mpCost: 0,
+      heatGenerated: 0,
+    });
+  });
+
   it('keeps intact quad stand-up preview and commit aligned without rolling a PSR', () => {
     const session = setupSessionAtMovement();
     session.currentState.units.m1 = {

@@ -65,7 +65,7 @@ import {
   attemptStandUp,
 } from '@/utils/gameplay/gameSession';
 import { appendEvent } from '@/utils/gameplay/gameSession';
-import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
+import { coordToKey, hexDistance, hexEquals } from '@/utils/gameplay/hexMath';
 import {
   hullDownLegWeaponBlockedReason,
   hullDownVehicleFrontWeaponBlockedReason,
@@ -81,6 +81,7 @@ import {
   gridWithUnitOccupants,
   getHullDownExitCost,
   getStandingCost,
+  isMekStyleHullDownExitCapability,
   resolveRuntimeMovementCapability,
   validateCommittedMovement,
 } from '@/utils/gameplay/movement';
@@ -119,6 +120,8 @@ export interface IApplyMovementInput {
   readonly diceRoller?: DiceRoller;
   /** Normal GET_UP or TacOps CAREFUL_STAND for prone stand-up attempts. */
   readonly standUpMode?: StandUpMode;
+  /** MegaMek GO_PRONE posture transition from hull-down to prone. */
+  readonly goProneAttempt?: boolean;
 }
 
 /**
@@ -169,6 +172,47 @@ export function applyInteractiveSessionMovement(
       validation.mpCost,
       validation.heatGenerated,
     );
+  }
+
+  if (input.goProneAttempt === true) {
+    const invalidGoProneDetails = hullDownGoProneInvalidDetails({
+      unit,
+      movementCapability,
+      from,
+      to: input.to,
+      facing: input.facing,
+      movementType: input.movementType,
+    });
+    if (invalidGoProneDetails) {
+      return appendInteractiveMovementInvalid(
+        input.session,
+        input.unitId,
+        from,
+        input.to,
+        input.facing,
+        input.movementType,
+        'InvalidDestination',
+        invalidGoProneDetails,
+        0,
+        0,
+      );
+    }
+
+    let session = input.session;
+    session = declareMovement(
+      session,
+      input.unitId,
+      from,
+      from,
+      unit.facing,
+      MovementType.Stationary,
+      0,
+      0,
+      [from],
+      { goProneAttempt: true },
+    );
+    session = lockMovement(session, input.unitId);
+    return session;
   }
 
   const standUpAttempt =
@@ -242,6 +286,35 @@ export function applyInteractiveSessionMovement(
   );
   session = lockMovement(session, input.unitId);
   return session;
+}
+
+function hullDownGoProneInvalidDetails(input: {
+  readonly unit: IGameSession['currentState']['units'][string];
+  readonly movementCapability?: IMovementCapability;
+  readonly from: IHexCoordinate;
+  readonly to: IHexCoordinate;
+  readonly facing: Facing;
+  readonly movementType: MovementType;
+}): string | null {
+  if (input.movementType !== MovementType.Stationary) {
+    return 'Go Prone from hull-down is a stationary posture action';
+  }
+  if (!hexEquals(input.from, input.to) || input.facing !== input.unit.facing) {
+    return 'Go Prone from hull-down must stay in the current hex and facing';
+  }
+  if (input.unit.prone === true) {
+    return 'Unit is already prone';
+  }
+  if (input.unit.hullDown !== true) {
+    return 'Unit must be hull-down before going prone';
+  }
+  if (
+    !input.movementCapability ||
+    !isMekStyleHullDownExitCapability(input.movementCapability)
+  ) {
+    return 'Hull-down go-prone is only available for Mek-style movement';
+  }
+  return null;
 }
 
 function appendInteractiveMovementInvalid(

@@ -56,6 +56,11 @@ export interface IMovementDeclaredPayload {
    */
   readonly hullDownExitAttempt?: boolean;
   /**
+   * True when this declaration represents MegaMek's legal 0 MP
+   * GO_PRONE posture transition from hull-down to prone.
+   */
+  readonly goProneAttempt?: boolean;
+  /**
    * Per `enrich-movement-declared-with-chain-and-displacement` (movement-system
    * delta — Movement Decomposition Fields): total hex transitions in the
    * move (`path.length - 1`). Equals the count of forward + backward +

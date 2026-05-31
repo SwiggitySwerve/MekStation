@@ -386,6 +386,7 @@ export class InteractiveSession {
     movementType: MovementType,
     path?: readonly IHexCoordinate[],
     standUpMode?: StandUpMode,
+    options?: { readonly goProneAttempt?: boolean },
   ): void {
     // Declare-then-lock logic lives in `InteractiveSession.actions`.
     this.session = applyInteractiveSessionMovement({
@@ -398,6 +399,7 @@ export class InteractiveSession {
       movementType,
       path,
       standUpMode,
+      goProneAttempt: options?.goProneAttempt,
       diceRoller: this.diceRollerForResolvers(),
     });
     this.tryFinalizeAndPublish();
