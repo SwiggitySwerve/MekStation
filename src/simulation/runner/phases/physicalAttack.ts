@@ -521,6 +521,7 @@ export function runPhysicalAttackPhase(options: {
         componentDamage,
         {
           attackerProne: unit.prone ?? false,
+          attackerStuck: unit.isStuck ?? false,
           weaponsFiredFromLeftArm,
           weaponsFiredFromRightArm,
           heat: unit.heat,
@@ -657,6 +658,7 @@ export function runPhysicalAttackPhase(options: {
       arm: 'right',
       hexesMoved,
       attackerProne: unit.prone ?? false,
+      attackerStuck: unit.isStuck ?? false,
       weaponsFiredFromArm:
         bestAttack === 'thrash'
           ? weaponsFiredThisTurn
