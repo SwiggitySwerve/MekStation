@@ -1,10 +1,10 @@
 /**
  * MovementTypeSwitcher
  *
- * Per `add-combat-phase-ui-flows`: three-button toggle the player uses
- * during the Movement phase to choose Walk / Run / Jump before picking
- * a destination hex. Highlights the active type and disables Jump if
- * the unit has no jump MP.
+ * Per `add-combat-phase-ui-flows`: movement-type toggle the player uses
+ * during the Movement phase to choose Walk / Run / Evade / Jump before
+ * picking a destination hex. Highlights the active type and disables
+ * Jump if the unit has no jump MP.
  *
  * Switching types clears any in-progress destination/facing pick (the
  * planning state is delegated to `useGameplayStore.clearPlannedMovement`)
@@ -77,9 +77,11 @@ export function MovementTypeSwitcher({
   onChange,
   className = '',
 }: MovementTypeSwitcherProps): React.ReactElement {
-  // Reasoning: we expose three options always; disabling rather than
+  // Reasoning: we expose movement options always; disabling rather than
   // hiding keeps button positions stable across units (less visual
   // jitter when the player switches between mechs).
+  const runMP = Math.ceil(walkMP * 1.5);
+
   return (
     <div
       className={`flex items-center gap-2 ${className}`}
@@ -96,10 +98,17 @@ export function MovementTypeSwitcher({
       />
       <TypeButton
         type={MovementType.Run}
-        label={`Run (${Math.ceil(walkMP * 1.5)} MP)`}
+        label={`Run (${runMP} MP)`}
         active={active === MovementType.Run}
         disabled={walkMP <= 0}
         onClick={() => onChange(MovementType.Run)}
+      />
+      <TypeButton
+        type={MovementType.Evade}
+        label={`Evade (${runMP} MP)`}
+        active={active === MovementType.Evade}
+        disabled={walkMP <= 0}
+        onClick={() => onChange(MovementType.Evade)}
       />
       <TypeButton
         type={MovementType.Jump}
