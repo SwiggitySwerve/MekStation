@@ -1654,6 +1654,11 @@ describe('simpleToHit', () => {
     expect(result.finalToHit).toBe(6); // 4 + 2
   });
 
+  it('should include TacOps Sprint attacker movement modifier', () => {
+    const result = simpleToHit(4, RangeBracket.Short, MovementType.Sprint);
+    expect(result.finalToHit).toBe(6); // 4 + 2
+  });
+
   it('should include target movement modifier', () => {
     const result = simpleToHit(
       4,

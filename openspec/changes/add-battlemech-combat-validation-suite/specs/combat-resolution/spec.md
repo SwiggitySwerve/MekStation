@@ -111,11 +111,11 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 
 - **GIVEN** a BattleMech action surface has source-backed or product-visible relevance but no authoritative command, game intent, wire payload, P2P translation, or runner action path
 - **WHEN** the action support catalog is contract-tested
-- **THEN** optional TacOps sprint and evade movement SHALL appear as unsupported absent-action rows
-- **AND** the sprint row SHALL cite MegaMek source anchors for optional TacOps sprint availability, BattleMech sprint MP, sprint heat, attacker-sprinted firing failure, target-sprinted to-hit relief, and sprinting spotter rejection
+- **THEN** optional TacOps sprint and evade movement SHALL appear as integrated tactical command rows when their command, intent, wire, P2P, movement, heat, and state paths exist
+- **AND** the sprint row SHALL cite MegaMek source anchors for optional TacOps sprint availability, BattleMech sprint MP, MASC/Supercharger sprint formulas, sprint heat, attacker-sprinted firing failure, target-sprinted to-hit relief, and sprinting spotter rejection
 - **AND** the evade row SHALL cite MegaMek source anchors for optional TacOps evade availability, evasion state, evasion heat, attacker-evading firing restrictions, and target-evading to-hit modifiers
 - **AND** product-visible MekStation command surfaces without identified BattleMech rule authority, including `movement.stabilize`, SHALL stay in `COMBAT_COMMAND_ACTION_SUPPORT` as `out-of-scope` `mekstation-deviation` rows rather than absent official action rows or BattleMech completion blockers
-- **AND** integrated movement tactical command rows, including walk, run, jump, stand, go-prone, MASC activation, and Supercharger activation, SHALL cite the MekStation command factory that exposes the movement surface
+- **AND** integrated movement tactical command rows, including walk, run, sprint, evade, jump, stand, go-prone, MASC activation, and Supercharger activation, SHALL cite the MekStation command factory that exposes the movement surface
 - **AND** utility tactical command rows, including eject, concede, withdraw, and request-spot, SHALL cite the MekStation command factory that exposes the utility surface
 - **AND** weapon tactical command rows, including the fire-volley attack commit surface, SHALL cite the MekStation command factory that exposes the weapon surface
 - **AND** facing tactical command rows, including chassis rotation and torso twist surfaces, SHALL cite the MekStation command factory that exposes the facing surface
@@ -275,23 +275,35 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **WHEN** that unit attempts a ranged weapon attack through runner attack resolution or event-sourced `declareAttack`
 - **THEN** the attack SHALL emit `AttackInvalid` with reason `AttackerSprinted`
 - **AND** no `AttackDeclared`, `AttackResolved`, heat, ammo, damage, or fired-weapon state side effects SHALL follow
-- **AND** optional TacOps Sprint movement-step declaration, sprint MP generation, authoritative sprint-state creation, and engine-variant/coolant sprint heat SHALL remain visible gaps until their source-backed paths exist
+- **AND** declared TacOps Sprint movement SHALL be one source-backed creator of that current-turn state
+- **AND** engine-variant/coolant sprint heat SHALL remain a visible heat-rule gap until source-backed engine-state hydration exists
+
+#### Scenario: TacOps Sprint declares movement state
+
+- **GIVEN** a BattleMech declares `MovementType.Sprint` through movement UI, game intent, wire, P2P, interactive, or runner movement paths
+- **WHEN** movement validation computes its envelope and commits the movement
+- **THEN** base Sprint MP SHALL be `walkMP * 2`
+- **AND** one active MASC or Supercharger SHALL validate Sprint MP against `ceil(walkMP * 2.5)`
+- **AND** active MASC plus active Supercharger SHALL validate Sprint MP against `walkMP * 3`
+- **AND** Sprint SHALL use run-based terrain/pathing/PSR behavior and queue active MASC/Supercharger failure PSRs when boosters are used
+- **AND** the committed movement SHALL create current-turn `sprintedThisTurn: true`, `movementThisTurn: MovementType.Sprint`, normal-engine sprint heat `+3`, and a run-mode movement animation payload
+- **AND** engine-variant/coolant sprint heat SHALL remain a visible heat-rule gap until source-backed engine-state hydration exists
 
 #### Scenario: Sprinting and evading units cannot spot indirect fire
 
 - **GIVEN** an indirect-capable ranged attack has no attacker-to-target line of sight
-- **AND** the only friendly spotter candidates with target line of sight have explicit `sprintedThisTurn: true`, `isEvading: true`, or `movementType: MovementType.Evade`
+- **AND** the only friendly spotter candidates with target line of sight have explicit `sprintedThisTurn: true`, `isEvading: true`, `movementType: MovementType.Sprint`, or `movementType: MovementType.Evade`
 - **WHEN** the runner or interactive indirect-fire context elects a LOS spotter
 - **THEN** those candidates SHALL be rejected before spotter election
 - **AND** the attack SHALL continue through the normal no-spotter `NoLineOfSight` invalidation path without heat, ammo, fired-weapon, or damage side effects
 
 #### Scenario: Sprint state and Evade movement generate movement heat
 
-- **GIVEN** a unit has explicit `sprintedThisTurn: true` or declared `MovementType.Evade`
+- **GIVEN** a unit has explicit `sprintedThisTurn: true`, declared `MovementType.Sprint`, or declared `MovementType.Evade`
 - **WHEN** runner heat resolution computes movement heat
-- **THEN** explicit sprint state SHALL generate normal-engine sprint heat
+- **THEN** explicit sprint state and declared Sprint movement SHALL generate normal-engine sprint heat
 - **AND** Evade movement SHALL generate run heat plus the source-backed evasion heat surcharge
-- **AND** optional TacOps Sprint movement-step declaration, authoritative sprint-state creation, and engine-variant/coolant sprint heat SHALL remain visible absent-action gaps
+- **AND** engine-variant/coolant sprint heat SHALL remain a visible heat-rule gap until source-backed engine-state hydration exists
 
 #### Scenario: Evading targets modify ranged to-hit
 
@@ -308,7 +320,8 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **WHEN** helper to-hit calculation, event-sourced `declareAttack`, or runner attack resolution builds the `AttackDeclared` to-hit payload
 - **THEN** the attack SHALL include a `Target Sprinted` to-hit modifier of `-1`
 - **AND** runner turn reset SHALL clear `sprintedThisTurn` so the target-sprinted modifier is current-turn state
-- **AND** optional TacOps Sprint movement-step declaration, sprint MP generation, authoritative sprint-state creation, and engine-variant/coolant sprint heat SHALL remain visible gaps until their source-backed paths exist
+- **AND** declared TacOps Sprint movement SHALL be one source-backed creator of that current-turn state
+- **AND** engine-variant/coolant sprint heat SHALL remain a visible heat-rule gap until source-backed engine-state hydration exists
 
 #### Scenario: Evading targets modify physical to-hit
 
@@ -1016,7 +1029,7 @@ Runner movement validation SHALL consume explicit BattleMech `hasTSM` state and 
 
 ### Requirement: Source-Backed Active MASC/Supercharger Run Movement Boundary
 
-Runner movement validation SHALL consume explicit active `activeMASC` and `activeSupercharger` BattleMech combat state when calculating running movement capability. A single active MASC or Supercharger SHALL double the effective walk MP for run validation, and active MASC plus active Supercharger SHALL validate run movement against `ceil(effectiveWalkMP * 2.5)`. Runner movement SHALL queue the corresponding MASC and/or Supercharger failure PSR triggers when an explicit active booster is used for running movement. TacOps Evade SHALL remain run-based but SHALL use the unboosted run MP envelope rather than the MASC/Supercharger-boosted run capability. Those pending PSRs SHALL carry source-backed standard fixed target numbers from explicit `mascTurnsUsed` and `superchargerTurnsUsed` prior-use state, defaulting first use to 3 and mapping prior-use counts through `[3, 5, 7, 11, 13, 13, 13]`. When a runner `MASCFailure` or `SuperchargerFailure` check fails and the pilot has `edge_when_masc_fails` plus remaining Edge, runner PSR resolution SHALL spend one Edge point and reroll the failed check before applying fall or movement-enhancement failure aftermath. When the Edge reroll passes, the original failed roll SHALL be marked superseded and no fall or movement-enhancement failure aftermath SHALL occur. When a final runner `MASCFailure` check fails, runner PSR resolution SHALL apply one critical-slot hit to each leg from the current critical-slot manifest and SHALL NOT destroy the MASC system. When a final runner `SuperchargerFailure` check fails, runner PSR resolution SHALL destroy the Supercharger slot when present, roll the source-backed 2d6 engine critical table (`<=7` no engine hits, `8-9` one hit, `10-11` two hits, `12` three hits), and apply resulting engine critical slots in the center torso. At turn reset, runner state SHALL advance the used booster's prior-use counter, clear active booster use, and decay idle prior-use counters. Alternate MASC option tables, IndustrialMek/support-unit supercharger adjustment, `MovementType.Sprint`, separate first-step equipment-check timing, and non-BattleMech Supercharger motive-damage branches SHALL remain explicit gaps.
+Runner movement validation SHALL consume explicit active `activeMASC` and `activeSupercharger` BattleMech combat state when calculating running and sprinting movement capability. A single active MASC or Supercharger SHALL double the effective walk MP for run validation and validate Sprint MP against `ceil(effectiveWalkMP * 2.5)`, and active MASC plus active Supercharger SHALL validate run movement against `ceil(effectiveWalkMP * 2.5)` and Sprint movement against `effectiveWalkMP * 3`. Runner movement SHALL queue the corresponding MASC and/or Supercharger failure PSR triggers when an explicit active booster is used for running or sprinting movement. TacOps Evade SHALL remain run-based but SHALL use the unboosted run MP envelope rather than the MASC/Supercharger-boosted run capability. Those pending PSRs SHALL carry source-backed standard fixed target numbers from explicit `mascTurnsUsed` and `superchargerTurnsUsed` prior-use state, defaulting first use to 3 and mapping prior-use counts through `[3, 5, 7, 11, 13, 13, 13]`. When a runner `MASCFailure` or `SuperchargerFailure` check fails and the pilot has `edge_when_masc_fails` plus remaining Edge, runner PSR resolution SHALL spend one Edge point and reroll the failed check before applying fall or movement-enhancement failure aftermath. When the Edge reroll passes, the original failed roll SHALL be marked superseded and no fall or movement-enhancement failure aftermath SHALL occur. When a final runner `MASCFailure` check fails, runner PSR resolution SHALL apply one critical-slot hit to each leg from the current critical-slot manifest and SHALL NOT destroy the MASC system. When a final runner `SuperchargerFailure` check fails, runner PSR resolution SHALL destroy the Supercharger slot when present, roll the source-backed 2d6 engine critical table (`<=7` no engine hits, `8-9` one hit, `10-11` two hits, `12` three hits), and apply resulting engine critical slots in the center torso. At turn reset, runner state SHALL advance the used booster's prior-use counter, clear active booster use, and decay idle prior-use counters. Alternate MASC option tables, IndustrialMek/support-unit supercharger adjustment, separate first-step equipment-check timing, and non-BattleMech Supercharger motive-damage branches SHALL remain explicit gaps.
 
 #### Scenario: Active MASC expands run validation and queues a failure PSR
 
@@ -1024,7 +1037,7 @@ Runner movement validation SHALL consume explicit active `activeMASC` and `activ
 - **WHEN** the runner validates an 8 MP running movement
 - **THEN** the movement SHALL be accepted with 8 MP used
 - **AND** the unit SHALL receive a pending `MASCFailure` PSR with fixed target number 3
-- **AND** the movement-enhancement catalog SHALL mark the core MASC row integrated and keep sprint, alternate table, and first-step timing side paths in a separate helper-only row with MegaMek source anchors
+- **AND** the movement-enhancement catalog SHALL mark the core MASC row integrated and keep alternate table and first-step timing side paths in a separate helper-only row with MegaMek source anchors
 
 #### Scenario: Failed MASC check applies leg critical damage
 
