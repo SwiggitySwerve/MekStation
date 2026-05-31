@@ -33,6 +33,7 @@ import {
   TSM_ACTIVATION_HEAT,
   WRECKING_BALL_DAMAGE,
 } from './constants';
+import { getThrashAttackDamageForWeight } from './thrashEligibility';
 import {
   IPhysicalAttackInput,
   IPhysicalDamageResult,
@@ -436,6 +437,10 @@ export function calculateWreckingBallDamage(
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
+export function calculateThrashDamage(input: IPhysicalAttackInput): number {
+  return getThrashAttackDamageForWeight(input.attackerTonnage);
+}
+
 /**
  * Per `implement-physical-attack-phase` tasks 6.4 / 7.4: split damage
  * into 5-point clusters before hit-location resolution. Zero damage
@@ -522,6 +527,17 @@ export function calculatePhysicalDamage(
         attackerLegDamagePerLeg: 0,
         targetPSR: true,
         attackerPSR: false,
+        attackerPSRModifier: 0,
+        hitTable: 'punch',
+        targetDisplaced: false,
+      };
+    case 'thrash':
+      return {
+        targetDamage: calculateThrashDamage(input),
+        attackerDamage: 0,
+        attackerLegDamagePerLeg: 0,
+        targetPSR: false,
+        attackerPSR: true,
         attackerPSRModifier: 0,
         hitTable: 'punch',
         targetDisplaced: false,

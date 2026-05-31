@@ -200,6 +200,17 @@ function adjacentPhysicalGrid() {
   return grid;
 }
 
+function sameHexPhysicalGrid(terrain = 'clear') {
+  let grid = createHexGrid({ radius: 3 });
+  grid = placeUnit(grid, { q: 0, r: 0 }, 'attacker');
+  const hexes = new Map(grid.hexes);
+  const hex = hexes.get('0,0');
+  if (hex) {
+    hexes.set('0,0', { ...hex, terrain });
+  }
+  return { ...grid, hexes };
+}
+
 function blockedDfaDisplacementGrid() {
   let grid = adjacentPhysicalGrid();
   [
@@ -1538,6 +1549,64 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(
       options.find((option) => option.attackType === 'dfa')?.restrictionsFailed,
     ).toEqual(['TargetDropShip']);
+  });
+
+  it('projects source-backed thrash eligibility and rejects any prior weapon fire', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        prone: true,
+      },
+    );
+    const target = unitState(
+      'target',
+      GameSide.Opponent,
+      { q: 0, r: 0 },
+      { unitType: UnitType.INFANTRY },
+    );
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 5,
+      weaponsFiredThisTurn: [],
+      thrashBlockingTerrains: [],
+    });
+    const thrash = options.find((option) => option.attackType === 'thrash');
+
+    expect(thrash).toMatchObject({
+      restrictionsFailed: [],
+      damage: {
+        targetDamage: 27,
+        attackerPSR: true,
+        targetPSR: false,
+      },
+      selfRisk: {
+        pilotingSkillRoll: {
+          trigger: 'ThrashCompleted',
+          required: true,
+        },
+      },
+      toHit: {
+        finalToHit: 0,
+        automaticHit: true,
+      },
+    });
+
+    const afterWeaponFire = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 5,
+      weaponsFiredThisTurn: ['center-torso-medium-laser'],
+      thrashBlockingTerrains: [],
+    });
+
+    expect(
+      afterWeaponFire.find((option) => option.attackType === 'thrash')
+        ?.restrictionsFailed,
+    ).toEqual(['WeaponFiredThisTurn']);
   });
 
   it('lets AI choose a lance when leg attacks are blocked', () => {
@@ -4123,6 +4192,62 @@ describe('BattleMech physical combat behavior validation lane', () => {
       triggerSource: 'trip',
     });
     expect(psrPayload?.reasonCode).toBeUndefined();
+  });
+
+  it('emits event-sourced thrash as automatic same-hex infantry damage with attacker PSR', () => {
+    const context = physicalContext();
+    const session = withPhysicalPositions(
+      physicalPhaseSession(),
+      { prone: true },
+      { position: { q: 0, r: 0 }, unitType: UnitType.INFANTRY },
+    );
+    const declared = declarePhysicalAttack(
+      session,
+      'attacker',
+      'target',
+      'thrash',
+      context,
+    );
+    const positioned = withPhysicalPositions(
+      declared,
+      { prone: true },
+      { position: { q: 0, r: 0 }, unitType: UnitType.INFANTRY },
+    );
+
+    const resolved = resolveAllPhysicalAttacks(
+      positioned,
+      new Map([['attacker', context]]),
+      scriptedDice([3, 3]),
+      sameHexPhysicalGrid(),
+    );
+    const payload = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+    const damageEvents = resolved.events.filter(
+      (entry) => entry.type === GameEventType.DamageApplied,
+    );
+    const psrPayload = resolved.events.find(
+      (entry) =>
+        entry.type === GameEventType.PSRTriggered &&
+        (entry.payload as IPSRTriggeredPayload).unitId === 'attacker',
+    )?.payload as IPSRTriggeredPayload | undefined;
+
+    expect(payload).toMatchObject({
+      attackType: 'thrash',
+      toHitNumber: 0,
+      roll: 0,
+      hit: true,
+      damage: 27,
+      automaticHit: true,
+      automaticHitReason: 'Thrash attacks always hit.',
+    });
+    expect(damageEvents).toHaveLength(1);
+    expect(psrPayload).toMatchObject({
+      unitId: 'attacker',
+      reason: 'Thrashing attack',
+      additionalModifier: 0,
+      triggerSource: 'thrash_attacker_hit',
+    });
   });
 
   it('emits event-sourced charge displacement with attacker follow-through', () => {
