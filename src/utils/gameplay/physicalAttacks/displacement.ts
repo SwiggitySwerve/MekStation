@@ -12,6 +12,7 @@
 
 import {
   Facing,
+  FiringArc,
   IHexCoordinate,
   IHexGrid,
   IPhysicalDisplacement,
@@ -19,6 +20,7 @@ import {
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import { D6Roller } from '../diceTypes';
+import { determineArc } from '../firingArcs';
 import { isInBounds } from '../hexGrid';
 import { hexNeighbor } from '../hexMath';
 
@@ -255,6 +257,24 @@ export function isTargetDirectlyAhead(
   const directlyAhead = translateHex(attackerPosition, attackerFacing);
   return (
     directlyAhead.q === targetPosition.q && directlyAhead.r === targetPosition.r
+  );
+}
+
+export function isTargetInFrontArc(
+  attackerPosition: IHexCoordinate,
+  attackerFacing: Facing,
+  targetPosition: IHexCoordinate,
+): boolean {
+  return (
+    determineArc(
+      {
+        unitId: 'attacker',
+        coord: attackerPosition,
+        facing: attackerFacing,
+        prone: false,
+      },
+      targetPosition,
+    ).arc === FiringArc.Front
   );
 }
 
