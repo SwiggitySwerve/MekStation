@@ -360,6 +360,7 @@ function runPhase(
     target?: Partial<IUnitGameState>;
     grid?: IHexGrid;
     movementCapabilitiesByUnit?: ReadonlyMap<string, IMovementCapability>;
+    optionalRules?: readonly string[];
   } = {},
 ): {
   initialState: IGameState;
@@ -393,6 +394,7 @@ function runPhase(
     gameId: state.gameId,
     grid: options.grid,
     movementCapabilitiesByUnit: options.movementCapabilitiesByUnit,
+    optionalRules: options.optionalRules,
     random: new SeededRandom(11),
   });
 
@@ -2048,6 +2050,25 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       attackType: 'punch',
       roll: 8,
       toHitNumber: 6,
+      hit: true,
+      damage: 10,
+    });
+  });
+
+  it('threads PLAYTEST_3 claw to-hit relief without removing runner claw damage', () => {
+    const { events } = runPhase('punch', {
+      attacker: {
+        rightArmHasClaw: true,
+      },
+      optionalRules: ['PLAYTEST_3'],
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'punch',
+      roll: 8,
+      toHitNumber: 5,
       hit: true,
       damage: 10,
     });
