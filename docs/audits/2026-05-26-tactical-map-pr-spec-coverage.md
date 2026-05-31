@@ -77,8 +77,9 @@ decisions are made, not because CI is stale.
   actions that land at altitude 0 now carry source-backed landing-control
   required/not-required metadata and event-log explanation via
   `pin-airmek-landing-control-context`, and required damaged landings now queue
-  a canonical pending AirMek landing PSR via `queue-airmek-landing-psr`;
-  failed landing/fall damage resolution, full elevated AirMek/WiGE pathing,
+  a canonical AirMek landing PSR via `queue-airmek-landing-psr` and resolve in
+  movement-command order through `resolve-airmek-landing-psr`; full crash
+  armor/internal damage application, full elevated AirMek/WiGE pathing,
   minimum-distance automatic WiGE landing, and takeoff/hover sequencing remain
   follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the

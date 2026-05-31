@@ -27,6 +27,7 @@ import type {
   IIndirectFireResolution,
   WeaponFireMode,
 } from '@/types/gameplay/IndirectFireInterfaces';
+import type { D6Roller } from '@/utils/gameplay/diceTypes';
 import type { DiceRoller } from '@/utils/gameplay/diceTypes';
 
 import { getHeatMovementPenalty } from '@/constants/heat';
@@ -48,7 +49,7 @@ import {
   INDIRECT_FIRE_AIRBORNE_TARGET_REJECTION,
   groundToAirIndirectWeaponBlockedReason,
 } from '@/utils/gameplay/aerospace/groundToAir';
-import { queueAirMekLandingControlPSR } from '@/utils/gameplay/airMekLandingPsr';
+import { applyAirMekLandingControlPSR } from '@/utils/gameplay/airMekLandingPsr';
 import {
   determineArc,
   firingArcProjectionLabel,
@@ -377,6 +378,7 @@ export interface IApplyRuntimeMovementStateInput {
   readonly session: IGameSession;
   readonly unitId: string;
   readonly patch: Omit<IRuntimeMovementStateChangedPayload, 'unitId'>;
+  readonly diceRoller?: D6Roller;
 }
 
 export function applyInteractiveSessionRuntimeMovementState(
@@ -396,7 +398,12 @@ export function applyInteractiveSessionRuntimeMovementState(
       input.patch,
     ),
   );
-  return queueAirMekLandingControlPSR(session, input.unitId, input.patch);
+  return applyAirMekLandingControlPSR(
+    session,
+    input.unitId,
+    input.patch,
+    input.diceRoller,
+  );
 }
 
 function hullDownEntryInvalidDetails(input: {

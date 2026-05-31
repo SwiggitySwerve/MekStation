@@ -33,7 +33,8 @@ now clears represented AirMek WiGE elevation in line with MegaMek
 altitude 0 now carry MegaMek `LandAirMek.java:789-847`
 landing-control required/not-required context via
 `pin-airmek-landing-control-context`, and required damaged landings now queue a
-canonical pending AirMek landing PSR via `queue-airmek-landing-psr`.
+canonical AirMek landing PSR via `queue-airmek-landing-psr`, then resolve that
+landing check in the same movement command via `resolve-airmek-landing-psr`.
 Replayable gameplay events for runtime movement state are covered by
 `apply-runtime-movement-state-events`; player-facing tactical command controls
 for represented conversion and infantry mount-state changes are covered by
@@ -802,10 +803,12 @@ MekStation now annotates final AirMek Descend-to-0 runtime events with
 landing-control required/not-required metadata, modifier totals, readable
 damage details, and an event-log explanation. `queue-airmek-landing-psr` now
 converts required landing metadata into a canonical `airmek_landing`
-`PSRTriggered` event plus pending PSR, with landing-specific modifiers so
-generic gyro/actuator PSR modifiers do not double-count the source-backed
-landing check. Failed landing crash/fall resolution and damage application
-remain follow-up work.
+`PSRTriggered` event, with landing-specific modifiers so generic gyro/actuator
+PSR modifiers do not double-count the source-backed landing check.
+`resolve-airmek-landing-psr` now resolves the landing roll immediately in
+movement-command order and emits `PSRResolved`, `UnitFell`, and `PilotHit` on
+failed represented descents. Full crash armor/internal damage application and
+automatic forced landing from higher WiGE elevations remain follow-up work.
 
 Additional small-unit movement data pin: MegaMek `Infantry.java:560-568` and
 `BattleArmor.java:520-523` return walk MP as base run MP unless optional TacOps

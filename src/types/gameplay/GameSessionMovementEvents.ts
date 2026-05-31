@@ -334,6 +334,8 @@ export interface IRuntimeMovementStateChangedPayload {
   readonly lamAirMekLandingControlModifier?: number;
   /** Human-readable modifier breakdown for AirMek landing control explanation. */
   readonly lamAirMekLandingControlModifierDetails?: readonly string[];
+  /** Elevation/altitude height used for failed AirMek landing fall damage. */
+  readonly lamAirMekLandingControlFallHeight?: number;
   readonly infantryMounted?: boolean | null;
   readonly infantryMountHeight?: number | null;
 }
