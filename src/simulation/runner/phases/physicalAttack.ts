@@ -224,6 +224,7 @@ export function runPhysicalAttackPhase(options: {
   random: SeededRandom;
   grid?: IHexGrid;
   movementCapabilitiesByUnit?: ReadonlyMap<string, IMovementCapability>;
+  optionalRules?: readonly string[];
 }): IGameState {
   const {
     botPlayer,
@@ -232,6 +233,7 @@ export function runPhysicalAttackPhase(options: {
     grid,
     invariantRunner,
     movementCapabilitiesByUnit,
+    optionalRules,
     random,
     state,
     violations,
@@ -440,6 +442,7 @@ export function runPhysicalAttackPhase(options: {
       rightLegHasTalons: unit.rightLegHasTalons,
       leftArmHasClaw: unit.leftArmHasClaw,
       rightArmHasClaw: unit.rightArmHasClaw,
+      optionalRules,
       isUnderwater,
       attackerWaterDepth,
       targetTonnage: DEFAULT_TONNAGE,

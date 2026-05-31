@@ -2601,7 +2601,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       ),
     ).toEqual([
       'MegaMek PunchAttackAction.getDamageFor uses ceil(weight / 7) when the punching arm has working claws',
-      'MegaMek PunchAttackAction.toHit adds the claw punch modifier and suppresses hand actuator missing/destroyed penalties when claws replace the hand',
+      'MegaMek PunchAttackAction.toHit adds the claw punch modifier outside PLAYTEST_3, records a zero-value Using Claws modifier under PLAYTEST_3, and suppresses hand actuator missing/destroyed penalties when claws replace the hand',
       'MegaMek Entity.destroyLocation marks blown-off critical slots, mounted equipment, and dependent locations missing',
     ]);
 
