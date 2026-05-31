@@ -360,6 +360,92 @@ describe('runMovementPhase movement validation parity', () => {
     expect(next.units['player-1'].evasionBonus).toBeUndefined();
   });
 
+  it('commits TacOps Sprint as run-based movement with source-backed sprint state', () => {
+    const target = { q: 4, r: 0 };
+    const { next, events } = runScriptedMove(
+      createMinimalGrid(5),
+      target,
+      {},
+      {
+        movementType: MovementType.Sprint,
+        capability: { walkMP: 2, runMP: 3, jumpMP: 0 },
+      },
+    );
+    const payload = events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    )?.payload as IMovementDeclaredPayload | undefined;
+
+    expect(payload).toMatchObject({
+      unitId: 'player-1',
+      to: target,
+      movementType: MovementType.Sprint,
+      mode: MovementType.Run,
+      mpUsed: 4,
+      heatGenerated: 3,
+      hexesMoved: 4,
+    });
+    expect(next.units['player-1']).toMatchObject({
+      position: target,
+      movementThisTurn: MovementType.Sprint,
+      sprintedThisTurn: true,
+      isEvading: false,
+      hexesMovedThisTurn: 4,
+    });
+
+    const reset = resetTurnState(next);
+    expect(reset.units['player-1']).toMatchObject({
+      sprintedThisTurn: false,
+      isEvading: false,
+      evasionBonus: undefined,
+    });
+  });
+
+  it('applies active MASC/Supercharger sprint MP and queues their failure PSRs', () => {
+    const target = { q: 12, r: 0 };
+    const { next, events } = runScriptedMove(
+      createMinimalGrid(13),
+      target,
+      {
+        hasMASC: true,
+        hasSupercharger: true,
+        activeMASC: true,
+        activeSupercharger: true,
+      },
+      {
+        movementType: MovementType.Sprint,
+        capability: { walkMP: 4, runMP: 6, jumpMP: 0 },
+      },
+    );
+    const movementPayload = events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    )?.payload as IMovementDeclaredPayload | undefined;
+    const payloads = psrPayloads(events);
+
+    expect(movementPayload).toMatchObject({
+      unitId: 'player-1',
+      to: target,
+      movementType: MovementType.Sprint,
+      mpUsed: 12,
+      heatGenerated: 3,
+    });
+    expect(next.units['player-1']).toMatchObject({
+      position: target,
+      sprintedThisTurn: true,
+    });
+    expect(payloads).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          fixedTargetNumber: 3,
+          reasonCode: PSRTrigger.MASCFailure,
+        }),
+        expect.objectContaining({
+          fixedTargetNumber: 3,
+          reasonCode: PSRTrigger.SuperchargerFailure,
+        }),
+      ]),
+    );
+  });
+
   it('applies Terrain Master: Mountaineer movement relief before committing runner movement', () => {
     const target = { q: 1, r: 0 };
     const grid = setTerrain(createMinimalGrid(3), target, TerrainType.Rubble);
@@ -555,7 +641,7 @@ describe('runMovementPhase movement validation parity', () => {
       MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT[MovementEnhancementType.MASC],
     ).toMatchObject({
       level: 'integrated',
-      evidence: expect.stringContaining('active MASC run MP'),
+      evidence: expect.stringContaining('active MASC run and sprint MP'),
       sourceRefs: expect.arrayContaining([
         expect.objectContaining({ kind: 'megamek-source' }),
       ]),
@@ -564,7 +650,7 @@ describe('runMovementPhase movement validation parity', () => {
       MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT['masc-side-paths'],
     ).toMatchObject({
       level: 'helper-only',
-      gap: expect.stringContaining('MovementType.Sprint'),
+      gap: expect.stringContaining('Alternate MASC option tables'),
       sourceRefs: expect.arrayContaining([
         expect.objectContaining({ kind: 'megamek-source' }),
       ]),
@@ -648,7 +734,9 @@ describe('runMovementPhase movement validation parity', () => {
       MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT[MovementEnhancementType.SUPERCHARGER],
     ).toMatchObject({
       level: 'integrated',
-      evidence: expect.stringContaining('active Supercharger run MP'),
+      evidence: expect.stringContaining(
+        'active Supercharger run and sprint MP',
+      ),
       sourceRefs: expect.arrayContaining([
         expect.objectContaining({ kind: 'megamek-source' }),
       ]),
@@ -657,7 +745,7 @@ describe('runMovementPhase movement validation parity', () => {
       MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT['supercharger-side-paths'],
     ).toMatchObject({
       level: 'helper-only',
-      gap: expect.stringContaining('MovementType.Sprint'),
+      gap: expect.stringContaining('IndustrialMek/support-unit'),
       sourceRefs: expect.arrayContaining([
         expect.objectContaining({ kind: 'megamek-source' }),
       ]),
