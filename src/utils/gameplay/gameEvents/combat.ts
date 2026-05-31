@@ -17,6 +17,7 @@ import {
   IDamageAppliedPayload,
   IGameEvent,
   ILocationDestroyedPayload,
+  ISpottingDeclaredPayload,
   IToHitModifier,
   ITransferDamagePayload,
   IWeaponAttackData,
@@ -146,6 +147,32 @@ export function createAttackInvalidEvent(
       turn,
       GamePhase.WeaponAttack,
       attackerId,
+    ),
+    payload,
+  };
+}
+
+export function createSpottingDeclaredEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  unitId: string,
+  targetId: string,
+): IGameEvent {
+  const payload: ISpottingDeclaredPayload = {
+    unitId,
+    targetId,
+    turn,
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.SpottingDeclared,
+      turn,
+      GamePhase.WeaponAttack,
+      unitId,
     ),
     payload,
   };
