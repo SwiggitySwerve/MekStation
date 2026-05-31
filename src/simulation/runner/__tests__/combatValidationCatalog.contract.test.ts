@@ -174,9 +174,9 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 185,
+      total: 182,
       byLevel: {
-        'helper-only': 142,
+        'helper-only': 139,
         unsupported: 43,
       },
       bySection: {
@@ -186,7 +186,7 @@ describe('BattleMech combat validation catalog index', () => {
         lifecycleAndPsr: 5,
         pilotSkills: 20,
         ruleSupport: 16,
-        validationScope: 22,
+        validationScope: 19,
       },
     });
     expect(unresolvedRefs).toEqual(
@@ -198,7 +198,6 @@ describe('BattleMech combat validation catalog index', () => {
         'featureSupport.physicalWeapons.claws',
         'featureSupport.physicalWeapons.talons',
         'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
-        'validationScope.objectiveRequirements.non-battlemech-scope',
       ]),
     );
     expect(
@@ -229,6 +228,9 @@ describe('BattleMech combat validation catalog index', () => {
         'featureSupport.ammunitionCompatibility.non-battlemech-protomech',
         'featureSupport.ammunitionCompatibility.unsupported-aquatic-torpedo-ammo',
         'featureSupport.ammunitionCompatibility.unsupported-artillery-ammo',
+        'validationScope.knownLimitationsAndScope.non-battlemech-ammo-scope',
+        'validationScope.knownLimitationsAndScope.non-battlemech-combat-system-split',
+        'validationScope.objectiveRequirements.non-battlemech-scope',
         'actions.gmCommandExclusions.gm.advance-phase',
         'actions.gmCommandExclusions.gm.grant-resource',
         'actions.gmCommandExclusions.gm.set-damage',
@@ -247,7 +249,7 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.wireIntents.SetReady',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(41);
+    expect(outOfScopeRows).toHaveLength(44);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('actions.physicalActionClassScope.'),
@@ -269,6 +271,13 @@ describe('BattleMech combat validation catalog index', () => {
       'featureSupport.ammunitionCompatibility.non-battlemech-protomech',
       'featureSupport.ammunitionCompatibility.unsupported-aquatic-torpedo-ammo',
       'featureSupport.ammunitionCompatibility.unsupported-artillery-ammo',
+    ]);
+    expect(
+      outOfScopeRefs.filter((ref) => ref.startsWith('validationScope.')),
+    ).toEqual([
+      'validationScope.knownLimitationsAndScope.non-battlemech-ammo-scope',
+      'validationScope.knownLimitationsAndScope.non-battlemech-combat-system-split',
+      'validationScope.objectiveRequirements.non-battlemech-scope',
     ]);
     expect(
       outOfScopeRefs.filter((ref) =>
