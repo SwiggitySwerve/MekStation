@@ -11,8 +11,8 @@
 
 - [x] 2.1 Add optional vehicle critical availability metadata to session unit
   bindings
-- [x] 2.2 Derive represented vehicle weapon locations from adapted target
-  weapons during session setup
+- [x] 2.2 Derive represented vehicle weapon mount locations and live weapon
+  locations from adapted target weapons during session setup
 - [x] 2.3 Feed committed session vehicle critical dispatch from target
   availability metadata while preserving optimistic defaults for unknown facts
 

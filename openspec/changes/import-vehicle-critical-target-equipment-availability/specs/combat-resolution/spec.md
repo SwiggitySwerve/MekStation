@@ -15,13 +15,15 @@ existing optimistic table behavior rather than inventing absence.
   vehicle mount locations
 - **WHEN** the session unit bindings are created
 - **THEN** the vehicle unit SHALL carry critical availability metadata listing
-  the locations with available represented weapons.
+  the locations with represented weapon mounts
+- **AND** the metadata SHALL separately list represented locations with live
+  weapons available for weapon-jam and weapon-destroyed critical entries.
 
 #### Scenario: Missing target weapon location falls through weapon criticals
 
 - **GIVEN** a represented vehicle is critically hit in the front
-- **AND** target availability metadata proves there is no available weapon at
-  the front location
+- **AND** target availability metadata proves there is no mounted weapon at the
+  front location
 - **WHEN** the vehicle critical roll total selects a front weapon critical
 - **THEN** the resolver SHALL skip weapon-jam, weapon-destroyed, and stabilizer
   outcomes that require a weapon at that location

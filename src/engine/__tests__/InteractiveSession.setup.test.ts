@@ -102,7 +102,7 @@ describe('gameUnitsWithAdaptedMovementModes', () => {
     });
   });
 
-  it('keeps destroyed vehicle weapons unavailable for crit fallthrough', () => {
+  it('keeps destroyed vehicle weapons unavailable for weapon crits but available for stabilizers', () => {
     const [unit] = gameUnitsWithAdaptedMovementModes(
       [vehicleGameUnit()],
       [adaptedVehicle([weaponAt(VehicleLocation.REAR, true)])],
@@ -110,7 +110,7 @@ describe('gameUnitsWithAdaptedMovementModes', () => {
     );
 
     expect(unit.vehicleInit?.criticalAvailability).toEqual({
-      weaponLocations: [],
+      weaponLocations: [VehicleLocation.REAR],
       jammableWeaponLocations: [],
       destroyableWeaponLocations: [],
     });

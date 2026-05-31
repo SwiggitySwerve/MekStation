@@ -140,6 +140,9 @@ function vehicleCriticalAvailabilityFromWeapons(
   }
 
   const weaponLocations = uniqueVehicleLocations(
+    mountedWeapons.map((weapon) => weapon.vehicleMountLocation),
+  );
+  const liveWeaponLocations = uniqueVehicleLocations(
     mountedWeapons
       .filter((weapon) => !weapon.destroyed)
       .map((weapon) => weapon.vehicleMountLocation),
@@ -147,8 +150,8 @@ function vehicleCriticalAvailabilityFromWeapons(
 
   return {
     weaponLocations,
-    jammableWeaponLocations: weaponLocations,
-    destroyableWeaponLocations: weaponLocations,
+    jammableWeaponLocations: liveWeaponLocations,
+    destroyableWeaponLocations: liveWeaponLocations,
   };
 }
 

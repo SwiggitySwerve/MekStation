@@ -69,8 +69,9 @@ export interface IGameConfig {
 
 export interface IVehicleCriticalAvailabilityProfile {
   /**
-   * Vehicle locations with represented target weapons. When omitted, critical
-   * resolution preserves the legacy optimistic behavior for weapon entries.
+   * Vehicle locations with represented target weapon mounts, including weapons
+   * that are already unavailable for weapon-jam/destroyed critical entries.
+   * Stabilizer criticals use this as mount-presence evidence.
    */
   readonly weaponLocations?: readonly (VehicleLocation | VTOLLocation)[];
   /** Vehicle locations with represented weapons that can jam. */

@@ -26,8 +26,8 @@ missing.
   evidence.
 - Carry the remaining movement runtime mutation/oracle matrix and isometric
   interaction sweep as named follow-up outcomes.
-- Narrow the represented vehicle critical follow-up boundary to target
-  weapon/cargo/stabilizer availability import parity, dual-turret split
+- Narrow the represented vehicle critical follow-up boundary to cargo import
+  parity, runtime target weapon/stabilizer-state mutation, dual-turret split
   identity, and external oracle sweeps.
 
 ## Out Of Scope

@@ -61,6 +61,6 @@ source-pinned, oracle-differenced, or interaction-swept.
   engine-type, fuel-tank, and replay-visible state outcomes
 - **THEN** tactical-map rule-trust tracking SHALL NOT keep full
   location-sensitive vehicle critical-table dispatch listed as an open gap
-- **AND** the remaining vehicle critical follow-ups SHALL be narrowed to
-  cargo/stabilizer availability import parity, runtime target weapon-state
-  mutation, dual-turret split identity, and broader external oracle sweeps.
+- **AND** the remaining vehicle critical follow-ups SHALL be narrowed to cargo
+  import parity, runtime target weapon/stabilizer-state mutation, dual-turret
+  split identity, and broader external oracle sweeps.

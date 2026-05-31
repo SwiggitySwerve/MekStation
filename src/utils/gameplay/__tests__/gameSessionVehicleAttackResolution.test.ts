@@ -516,4 +516,36 @@ describe('resolveAttack vehicle target dispatch', () => {
       'sensor_hit',
     );
   });
+
+  it('keeps front stabilizer criticals available for represented mounted weapons already unavailable for weapon crits', () => {
+    const session = createGameSession(config(), [
+      mechUnit('attacker'),
+      vehicleUnit({
+        criticalAvailability: {
+          weaponLocations: [VehicleLocation.FRONT],
+          jammableWeaponLocations: [],
+          destroyableWeaponLocations: [],
+        },
+      }),
+    ]);
+    const diceRoller = diceRollerFor([
+      [6, 6],
+      [1, 1],
+    ]);
+    const d6Roller = d6RollerFor([3, 4]);
+
+    const resolved = resolveAttack(
+      session,
+      attackEvent(session.id),
+      diceRoller,
+      d6Roller,
+    );
+
+    const critical = resolved.events.find(
+      (event) => event.type === GameEventType.CriticalHitResolved,
+    )!;
+    expect((critical.payload as ICriticalHitResolvedPayload).effect).toBe(
+      'stabilizer_hit',
+    );
+  });
 });

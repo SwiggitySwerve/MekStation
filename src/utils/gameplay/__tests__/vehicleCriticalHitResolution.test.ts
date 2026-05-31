@@ -198,6 +198,19 @@ describe('vehicleCriticalHitResolution', () => {
       expect(r.kind).toBe('sensor_hit');
     });
 
+    it('keeps stabilizer crits available when only destroyed mounted weapons remain', () => {
+      const r = vehicleCritFromRollForLocation([3, 4], {
+        location: VehicleLocation.FRONT,
+        motionType: GroundMotionType.TRACKED,
+        engineType: EngineType.STANDARD,
+        hasWeaponAtLocation: true,
+        hasJammableWeaponAtLocation: false,
+        hasDestroyableWeaponAtLocation: false,
+      });
+
+      expect(r.kind).toBe('stabilizer_hit');
+    });
+
     it('falls through rear cargo crits when no cargo is loaded', () => {
       const r = vehicleCritFromRollForLocation([3, 4], {
         location: VehicleLocation.REAR,

@@ -90,8 +90,9 @@ vehicle hits through the vehicle hit-location and damage pipeline instead of
 the generic Mek damage path. Focused fixtures cover normal vehicle Front damage,
 hull-down turret fixed-location hits without consuming location dice, and VTOL
 rotor damage emitting crash and immobilization events. Remaining vehicle combat
-trust gaps are dual-turret split representation, cargo/stabilizer/runtime
-weapon-state critical availability, and broader MegaMek differential sweeps.
+trust gaps are dual-turret split representation, cargo import parity, runtime
+weapon/stabilizer-state critical availability, and broader MegaMek differential
+sweeps.
 
 2026-05-31 vehicle critical dispatch pin: MegaMek
 `TWGameManager.java:21257-21294` rolls vehicle criticals through
@@ -105,18 +106,19 @@ replay-visible critical/crew-stun/component/ammo/destruction/turret/rotor events
 where MekStation has represented state, and mirrors engine, driver, commander,
 pilot/copilot, crew-kill, fuel-tank, ammo-explosion, turret, and rotor effects
 into the vehicle combat-state envelope. Remaining vehicle critical trust gaps
-are cargo/stabilizer/runtime weapon-state availability, dual-turret split
-critical resolution, and external differential sweeps.
+are cargo import parity, runtime weapon/stabilizer-state availability,
+dual-turret split critical resolution, and external differential sweeps.
 
 2026-05-31 vehicle critical target-equipment availability pin: MegaMek Tank /
 VTOL critical selection checks whether the struck location has an available
-weapon before accepting weapon-jam, weapon-destroyed, or stabilizer criticals,
-and checks loaded cargo before accepting cargo hits. MekStation now carries
-optional `vehicleInit.criticalAvailability` metadata, seeds initial target
-weapon locations from adapted vehicle weapon mounts, and feeds that metadata
-into committed session vehicle critical fallthrough. Unknown cargo/stabilizer
-facts stay optimistic until source-backed import exists, and runtime mutation
-after a represented weapon/stabilizer critical remains follow-up work.
+weapon before accepting weapon-jam or weapon-destroyed criticals, checks mounted
+weapon presence before accepting stabilizer criticals, and checks loaded cargo
+before accepting cargo hits. MekStation now carries optional
+`vehicleInit.criticalAvailability` metadata, seeds initial target weapon mount
+locations separately from live weapon availability, and feeds that metadata into
+committed session vehicle critical fallthrough. Unknown cargo facts stay
+optimistic until source-backed import exists, and runtime mutation after a
+represented weapon/stabilizer critical remains follow-up work.
 
 2026-05-25 iNarc beacon browser pin: the tactical-map harness now also
 represents the same no-spotter blocked LRM target carrying a player-team iNarc
