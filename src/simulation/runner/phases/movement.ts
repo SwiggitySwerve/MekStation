@@ -7,7 +7,10 @@ import {
   IGameState,
   IHexGrid,
   type IMovementCapability,
+  type IMovementDeclaredPayload,
+  MovementType,
 } from '@/types/gameplay';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   applyActiveMPBoosters,
   applyJumpJetCriticalDamage,
@@ -38,6 +41,51 @@ import { queueMovementEnhancementPSRs } from './movementEnhancementPsr';
 import { resolveRunnerStandUpAttempt } from './movementStandUp';
 import { queueMovementTerrainPSRs } from './movementTerrainPsr';
 import { createD6Roller, createGameEvent } from './utils';
+
+const GO_PRONE_UNIT_TYPES = new Set<string>([
+  UnitType.BATTLEMECH,
+  UnitType.OMNIMECH,
+  UnitType.INDUSTRIALMECH,
+]);
+
+function isGoProneMovementPayload(
+  payload: IMovementDeclaredPayload | undefined,
+): boolean {
+  return payload?.steps?.some((step) => step.kind === 'goProne') ?? false;
+}
+
+function canUnitGoProne(unit: IGameState['units'][string]): boolean {
+  if (unit.prone === true) return false;
+  return unit.unitType === undefined || GO_PRONE_UNIT_TYPES.has(unit.unitType);
+}
+
+function createGoPronePayload(
+  unitId: string,
+  unit: IGameState['units'][string],
+): IMovementDeclaredPayload {
+  return {
+    unitId,
+    from: unit.position,
+    to: unit.position,
+    facing: unit.facing as Facing,
+    movementType: MovementType.Stationary,
+    path: [unit.position],
+    mpUsed: 1,
+    heatGenerated: 0,
+    hexesMoved: 0,
+    straightHexes: 0,
+    turningMpCost: 1,
+    netDisplacement: 0,
+    steps: [
+      {
+        kind: 'goProne',
+        index: 0,
+        at: { q: unit.position.q, r: unit.position.r },
+        mpCost: 1,
+      },
+    ],
+  };
+}
 
 export function runMovementPhase(options: {
   state: IGameState;
@@ -118,6 +166,34 @@ export function runMovementPhase(options: {
     const moveEvent = botPlayer.playMovementPhase(aiUnit, grid, capability);
 
     if (moveEvent) {
+      if (isGoProneMovementPayload(moveEvent.payload)) {
+        if (!canUnitGoProne(unit)) {
+          continue;
+        }
+
+        const payload = createGoPronePayload(unitId, unit);
+        currentState = applyMovementEvent(currentState, unitId, {
+          to: payload.to,
+          facing: payload.facing,
+          movementType: payload.movementType,
+          mpUsed: payload.mpUsed,
+          hexesMoved: payload.hexesMoved,
+          steps: payload.steps,
+        });
+        events.push(
+          createGameEvent(
+            gameId,
+            events.length,
+            GameEventType.MovementDeclared,
+            currentState.turn,
+            GamePhase.Movement,
+            payload,
+            unitId,
+          ),
+        );
+        continue;
+      }
+
       if (unit.prone) {
         currentState = resolveRunnerStandUpAttempt({
           currentState,
