@@ -939,6 +939,9 @@ describe('BattleMech combat validation requirement crosswalk', () => {
       ].level,
     ).toBe('helper-only');
     expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['non-battlemech-scope'].level,
+    ).toBe('out-of-scope');
+    expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['non-battlemech-scope'].gap,
     ).toContain('Non-BattleMech');
   });
