@@ -53,6 +53,7 @@ export enum PSRTrigger {
   EnteringWater = 'entering_water',
   ExitingWater = 'exiting_water',
   Skidding = 'skidding',
+  SwampBogDown = 'swamp_bog_down',
 
   // Movement with damage triggers
   RunningDamagedHip = 'running_damaged_hip',
