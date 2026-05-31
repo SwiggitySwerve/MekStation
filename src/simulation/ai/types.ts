@@ -312,6 +312,9 @@ export interface IAIUnitState {
   /** Construction-side unit type label, when known. */
   readonly unitType?: string;
 
+  /** Pilot SPA ids available to movement and combat decision helpers. */
+  readonly abilities?: readonly string[];
+
   /**
    * Per `improve-bot-basic-combat-competence` task 2.2: fraction of
    * max armor + structure remaining on this unit. Used in threat
