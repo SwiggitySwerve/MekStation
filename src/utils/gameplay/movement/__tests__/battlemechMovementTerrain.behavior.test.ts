@@ -134,6 +134,13 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
         attacker: 2,
       },
       {
+        movementType: MovementType.Evade,
+        hexes: 6,
+        heat: 4,
+        tmm: 2,
+        attacker: 2,
+      },
+      {
         movementType: MovementType.Jump,
         hexes: 2,
         heat: 3,
