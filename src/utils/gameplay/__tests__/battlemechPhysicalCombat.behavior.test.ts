@@ -470,6 +470,40 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(rightPunch?.toHit.finalToHit).toBe(5);
   });
 
+  it('projects PLAYTEST_3 claw to-hit relief while keeping claw punch damage', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        facing: Facing.Southeast,
+        leftArmHasClaw: true,
+      },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 55,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      optionalRules: ['PLAYTEST_3'],
+      pushDestinationValid: true,
+    });
+    const leftPunch = options.find(
+      (option) => option.attackType === 'punch' && option.limb === 'leftArm',
+    );
+
+    expect(leftPunch?.damage.targetDamage).toBe(8);
+    expect(leftPunch?.toHit.finalToHit).toBe(5);
+    expect(leftPunch?.toHit.modifiers).toContainEqual(
+      expect.objectContaining({
+        name: 'Using Claws',
+        value: 0,
+        source: 'physical-equipment',
+      }),
+    );
+  });
+
   it('projects missing-limb restrictions on punch and kick rows', () => {
     const attacker = unitState(
       'attacker',
