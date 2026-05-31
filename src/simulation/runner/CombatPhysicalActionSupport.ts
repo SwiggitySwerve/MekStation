@@ -25,6 +25,7 @@ const PHYSICAL_ATTACK_COMMAND_SOURCE_REFS = {
   charge: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.charge'],
   dfa: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.dfa'],
   push: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.push'],
+  trip: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.trip'],
   hatchet: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.club'],
   sword: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.sword'],
   mace: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.mace'],
@@ -64,6 +65,11 @@ export const PHYSICAL_ATTACK_ACTION_SUPPORT = {
     'push',
     'Tactical command, game intent, wire schema, dispatcher, and runner physical phase support push, including target displacement and attacker follow-through',
     PHYSICAL_ATTACK_COMMAND_SOURCE_REFS.push,
+  ),
+  trip: integrated(
+    'trip',
+    'Tactical command, game intent, wire schema, dispatcher, and runner physical phase support optional TacOps trip as a zero-damage target-PSR attack',
+    PHYSICAL_ATTACK_COMMAND_SOURCE_REFS.trip,
   ),
   hatchet: integrated(
     'hatchet',
