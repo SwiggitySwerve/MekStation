@@ -22,6 +22,7 @@ import {
   calculateChargeToHit,
   calculateDFAToHit,
   calculatePushToHit,
+  calculateTripToHit,
   calculateMeleeWeaponToHit,
   calculatePhysicalToHit,
   calculatePhysicalDamage,
@@ -33,6 +34,7 @@ import {
   canDFA,
   canMeleeWeapon,
   canPush,
+  canTripPhysical,
   canThrash,
   canTrip,
   computeChargeDisplacementOutcome,
@@ -1542,6 +1544,40 @@ describe('physicalAttacks', () => {
       expect(canTrip({ ...validTripInput, ...overrides })).toMatchObject({
         allowed: false,
         reasonCode,
+      });
+    });
+
+    it('maps source-backed trip gates into runtime physical restrictions and to-hit math', () => {
+      const input = makeInput({
+        attackType: 'trip',
+        optionalRules: ['tacops_trip_attack'],
+        targetDistance: 1,
+        targetInFrontArc: true,
+        elevationDifference: 0,
+      });
+
+      expect(canTripPhysical(input)).toEqual({ allowed: true });
+      expect(calculateTripToHit(input)).toMatchObject({
+        allowed: true,
+        baseToHit: 4,
+        finalToHit: 4,
+      });
+    });
+
+    it('rejects runtime trip attacks when the optional rule is not enabled', () => {
+      expect(
+        calculateTripToHit(
+          makeInput({
+            attackType: 'trip',
+            targetDistance: 1,
+            targetInFrontArc: true,
+            elevationDifference: 0,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        finalToHit: Infinity,
+        restrictionReasonCode: 'TacOpsTripDisabled',
       });
     });
   });
@@ -5064,6 +5100,28 @@ describe('physicalAttacks', () => {
       expect(result.hit).toBe(true);
       expect(result.targetDamage).toBe(0);
       expect(result.targetDisplaced).toBe(true);
+      expect(result.targetPSR).toBe(true);
+    });
+
+    it('resolves optional TacOps trip as zero damage with a target PSR', () => {
+      const roller = makeDiceSequence([5, 4]);
+      const result = resolvePhysicalAttack(
+        makeInput({
+          attackType: 'trip',
+          pilotingSkill: 5,
+          optionalRules: ['tacops_trip_attack'],
+          targetDistance: 1,
+          targetInFrontArc: true,
+          elevationDifference: 0,
+        }),
+        roller,
+      );
+
+      expect(result.hit).toBe(true);
+      expect(result.toHitNumber).toBe(4);
+      expect(result.targetDamage).toBe(0);
+      expect(result.hitLocation).toBeUndefined();
+      expect(result.targetDisplaced).toBe(false);
       expect(result.targetPSR).toBe(true);
     });
 
