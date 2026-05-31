@@ -725,16 +725,16 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'movement-actions': helperOnly(
     'movement-actions',
-    'Action and movement rule maps cover walk, run, source-backed TacOps evade, jump, same-hex facing rotation, stand, source-backed voluntary go-prone including non-Mek/already-prone legality and hull-down zero-MP posture transition, source-backed MASC/Supercharger activation, prone state, source-backed torso-twist exposure with replayed secondaryFacing consumption, and a source-backed first-class absent-action row for optional TacOps sprint',
-    'Sprint action creation remains absent, even though explicit sprint state can be consumed by to-hit, indirect-fire spotter rejection, and runner movement heat; go-prone swarmer dislodge, inferno wash-off, and stuck-state side paths remain helper-only; torso-twist lower-level UI direction/reset refinements remain outside the authoritative action path',
+    'Action and movement rule maps cover walk, run, source-backed TacOps sprint and evade, jump, same-hex facing rotation, stand, source-backed voluntary go-prone including non-Mek/already-prone legality and hull-down zero-MP posture transition, source-backed MASC/Supercharger activation, prone state, source-backed torso-twist exposure with replayed secondaryFacing consumption, and local shell-row exclusions',
+    'Sprint now has command, MovementType, wire/P2P, runner movement, normal-engine heat, spotter, and ranged to-hit state coverage; engine-variant/coolant sprint heat, go-prone swarmer dislodge, inferno wash-off, and stuck-state side paths remain helper-only; torso-twist lower-level UI direction/reset refinements remain outside the authoritative action path',
     [
       'actions.tacticalCommands.movement.walk',
+      'actions.tacticalCommands.movement.sprint',
       'actions.tacticalCommands.movement.evade',
       'actions.tacticalCommands.movement.stand',
       'actions.tacticalCommands.movement.go-prone',
       'actions.tacticalCommands.movement.activate-masc',
       'actions.tacticalCommands.movement.activate-supercharger',
-      'actions.absentActionSurfaces.movement.sprint',
       'actions.gameIntents.activateMovementEnhancement',
       'actions.wireIntents.ActivateMovementEnhancement',
       'actions.p2pIntents.activateMovementEnhancement',
@@ -760,13 +760,13 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'movement-enhancements': helperOnly(
     'movement-enhancements',
-    'Movement enhancement support catalogs integrated core MASC and Supercharger active-run, activation, failure-PSR, Edge-reroll, failure-damage, and prior-use lifecycle behavior, source-backed active TSM movement validation, source-backed Partial Wing jump MP/heat validation, and separate helper-only MASC/Supercharger side-path rows',
-    'MASC and Supercharger side paths remain helper-only until MovementType.Sprint, alternate MASC option tables, IndustrialMek/support-unit Supercharger roll adjustment, separate first-step equipment-check timing, and non-BattleMech Supercharger motive-damage branches are wired; Partial Wing atmosphere and damaged critical-slot lifecycle refinements remain explicit gaps until combat state hydrates them',
+    'Movement enhancement support catalogs integrated core MASC and Supercharger active-run/sprint, activation, failure-PSR, Edge-reroll, failure-damage, and prior-use lifecycle behavior, source-backed active TSM movement validation, source-backed Partial Wing jump MP/heat validation, and separate helper-only MASC/Supercharger side-path rows',
+    'MASC and Supercharger side paths remain helper-only until alternate MASC option tables, IndustrialMek/support-unit Supercharger roll adjustment, separate first-step equipment-check timing, and non-BattleMech Supercharger motive-damage branches are wired; Partial Wing atmosphere and damaged critical-slot lifecycle refinements remain explicit gaps until combat state hydrates them',
     MOVEMENT_ENHANCEMENT_SUPPORT_REFS,
   ),
   'heat-generation': integrated(
     'heat-generation',
-    'Heat rules cover movement heat, explicit optional TacOps sprint state heat, declared TacOps Evade heat, jump-distance heat, weapon heat, engine heat, environmental fire heat, and heat generated event emission',
+    'Heat rules cover movement heat, declared TacOps Sprint normal-engine heat, declared TacOps Evade heat, jump-distance heat, weapon heat, engine heat, environmental fire heat, and heat generated event emission',
     HEAT_GENERATION_SUPPORT_REFS,
   ),
   'heat-dissipation': integrated(
@@ -806,10 +806,11 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'to-hit-advanced-modifiers': helperOnly(
     'to-hit-advanced-modifiers',
-    'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, explicit target evasion including 0..3 Skilled Evasion bonus state across ranged and physical to-hit, ECM, C3, terrain features, and source-backed TacOps Evade movement creation, with C3 explicit-state consumption, attack-time lifecycle and critical-slot damage refresh, attacker-evading ranged invalidation, and conservative runner initial network seeding separated from ambiguous battle-wide assignment gaps',
-    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, target hull-down state, target evasion/evasionBonus state, secondary-target state, called-shot state, explicit C3 network state with current positions/lifecycle/ECM disruption and matching C3 critical-slot damage suppression, mounted C3 equipment roles, conservative unambiguous runner C3/C3i initial networks, non-blocking intervening terrain, evading-attacker ranged invalidation, explicit sprinting-attacker ranged invalidation, explicit sprinting/evading spotter rejection for indirect fire, declared evade action state creation, explicit sprint heat consumption, and declared Evade heat consumption, but ECM inputs, session/player-authored C3 network assignment, multiple or oversized C3 networks, and Sprint movement-step state creation remain helper-only or absent',
+    'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, explicit target evasion including 0..3 Skilled Evasion bonus state across ranged and physical to-hit, ECM, C3, terrain features, and source-backed TacOps Sprint/Evade movement creation, with C3 explicit-state consumption, attack-time lifecycle and critical-slot damage refresh, attacker-evading ranged invalidation, and conservative runner initial network seeding separated from ambiguous battle-wide assignment gaps',
+    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, target hull-down state, target evasion/evasionBonus state, secondary-target state, called-shot state, explicit C3 network state with current positions/lifecycle/ECM disruption and matching C3 critical-slot damage suppression, mounted C3 equipment roles, conservative unambiguous runner C3/C3i initial networks, non-blocking intervening terrain, evading-attacker ranged invalidation, explicit sprinting-attacker ranged invalidation, explicit sprinting/evading spotter rejection for indirect fire, declared Sprint/Evade action state creation, declared Sprint normal-engine heat consumption, and declared Evade heat consumption, but ECM inputs, session/player-authored C3 network assignment, and multiple or oversized C3 networks remain helper-only or absent',
     [
       ...TO_HIT_ADVANCED_MODIFIER_SUPPORT_REFS,
+      'actions.tacticalCommands.movement.sprint',
       'actions.tacticalCommands.movement.evade',
     ],
   ),
