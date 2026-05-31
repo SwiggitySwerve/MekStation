@@ -1,6 +1,8 @@
 import { IComponentDamageState, IUnitGameState } from '@/types/gameplay';
 import { CombatLocation } from '@/types/gameplay';
 
+import type { ThrashAttackBlockingTerrain } from './thrashEligibility';
+
 export const CORE_PHYSICAL_ATTACK_TYPES = [
   'punch',
   'kick',
@@ -8,6 +10,7 @@ export const CORE_PHYSICAL_ATTACK_TYPES = [
   'dfa',
   'push',
   'trip',
+  'thrash',
 ] as const;
 
 export const SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES = [
@@ -116,10 +119,12 @@ export type PhysicalAttackInvalidReason =
   | 'ChargeBackwardMovement'
   | 'AttackerInfantry'
   | 'AttackerNotMek'
+  | 'AttackerNotProne'
   | 'AttackerQuad'
   | 'AttackerAirborne'
   | 'ArmsFlipped'
   | 'TargetNotMek'
+  | 'TargetNotInfantry'
   | 'TargetInfantryOrProtoMek'
   | 'LimbMissing'
   | 'NoArmsQuirk'
@@ -148,11 +153,14 @@ export type PhysicalAttackInvalidReason =
   | 'SelfTarget'
   | 'FriendlyTarget'
   | 'TargetNotAdjacent'
+  | 'TargetNotSameHex'
   | 'TargetNotDirectlyAhead'
   | 'TargetNotInFrontArc'
+  | 'TerrainNotClearOrPavement'
   | 'TacOpsTripDisabled'
   | 'AttackerAlreadyGrappled'
   | 'TripLimbUnavailable'
+  | 'ThrashLimbUnavailable'
   | 'UnsupportedAttackType'
   | 'PhysicalAttackLimitReached'
   | 'RetractableBladeNotExtended'
@@ -450,6 +458,8 @@ export interface IPhysicalAttackInput {
   readonly leftTripLimbUsable?: boolean;
   readonly rightTripLimbUsable?: boolean;
   readonly legAesFunctional?: boolean;
+  readonly thrashBlockingTerrains?: readonly ThrashAttackBlockingTerrain[];
+  readonly hasWorkingThrashArmOrLeg?: boolean;
   /**
    * Per task 8.5: a push is only legal when the displacement destination
    * is on-map and unoccupied. Undefined preserves legacy callers that have
@@ -562,6 +572,15 @@ export interface IChooseBestPhysicalAttackOptions {
   weaponsFiredFromLeftArm?: readonly string[];
   weaponsFiredFromRightArm?: readonly string[];
   attackerProne?: boolean;
+  attackerUnitType?: string;
+  targetUnitType?: string;
+  targetDistance?: number;
+  targetIsSwarming?: boolean;
+  targetObjectType?: PhysicalTargetObjectType;
+  targetIsFriendly?: boolean;
+  weaponsFiredThisTurn?: readonly string[];
+  thrashBlockingTerrains?: readonly ThrashAttackBlockingTerrain[];
+  hasWorkingThrashArmOrLeg?: boolean;
   heat?: number;
   hasTSM?: boolean;
   pilotAbilities?: readonly string[];
