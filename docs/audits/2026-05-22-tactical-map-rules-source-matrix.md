@@ -761,6 +761,16 @@ MP, heat, path, and rejection details. Remaining infantry mount gaps are the
 gameplay event/UI paths that mutate `infantryMounted`/`infantryMountHeight` and
 broader oracle sweeps, not the projection/commit height precedence.
 
+2026-05-31 ProtoMek Glider altitude-control update: MegaMek
+`Entity.java:2561-2569` caps ProtoMek WiGE climb at current hex level + 12, and
+`ProtoMek.java:947-952` calls out Glider elevation-down handling for airborne
+WiGE-like altitude. MekStation now exposes represented ProtoMek Glider altitude
+to movement commands, dispatches replayable `protoAltitude` runtime state
+through the shared altitude-control step/MP reserve, blocks positive-altitude
+Glider ground projection as WiGE altitude-control-owned, and caps Climb
+availability at altitude 12. LAM AirMek +25 altitude controls and full airborne
+pathing remain follow-up work.
+
 Additional small-unit movement data pin: MegaMek `Infantry.java:560-568` and
 `BattleArmor.java:520-523` return walk MP as base run MP unless optional TacOps
 fast infantry movement is enabled. MegaMek `ProtoMek.java:602-606` falls back to

@@ -69,12 +69,24 @@ function hasVehicleAltitudeControl(
 ): boolean {
   return (
     ctx?.activeUnitVehicleMotionType === GroundMotionType.VTOL ||
-    ctx?.activeUnitVehicleMotionType === GroundMotionType.WIGE
+    ctx?.activeUnitVehicleMotionType === GroundMotionType.WIGE ||
+    isProtoGliderWigeAltitudeControl(ctx)
+  );
+}
+
+function isProtoGliderWigeAltitudeControl(
+  ctx: ITacticalCommandContext | undefined,
+): boolean {
+  return (
+    ctx?.activeUnitProtoGlider === true &&
+    ctx.movementCapability?.movementMode === 'wige'
   );
 }
 
 function currentVehicleAltitude(ctx: ITacticalCommandContext): number {
-  const altitude = ctx.activeUnitVehicleAltitude;
+  const altitude = isProtoGliderWigeAltitudeControl(ctx)
+    ? ctx.activeUnitProtoAltitude
+    : ctx.activeUnitVehicleAltitude;
   return altitude === undefined || !Number.isFinite(altitude)
     ? 0
     : Math.max(0, Math.floor(altitude));
@@ -125,6 +137,10 @@ function maxVehicleAltitude(ctx: ITacticalCommandContext): number {
   const baseElevation = activeUnitBaseElevation(ctx);
   const bridgeLevel = maxFeatureLevel(ctx, TerrainType.Bridge);
   const altitude = currentVehicleAltitude(ctx);
+
+  if (isProtoGliderWigeAltitudeControl(ctx)) {
+    return 12;
+  }
 
   if (ctx.activeUnitVehicleMotionType === GroundMotionType.VTOL) {
     if (bridgeLevel > 0 && altitude < bridgeLevel) {
@@ -206,6 +222,15 @@ function altitudeControlUnavailableReason(
   return null;
 }
 
+function altitudeControlAltitudePatch(
+  ctx: ITacticalCommandContext,
+  altitude: number,
+): { readonly protoAltitude: number } | { readonly vehicleAltitude: number } {
+  return isProtoGliderWigeAltitudeControl(ctx)
+    ? { protoAltitude: altitude }
+    : { vehicleAltitude: altitude };
+}
+
 const MovementAltitudeUpCommand: ITacticalCommand = {
   id: 'movement.altitudeUp',
   category: 'movement',
@@ -233,7 +258,7 @@ const MovementAltitudeUpCommand: ITacticalCommand = {
       actionId: 'runtime-movement-state',
       payload: {
         source: 'altitude_control_action',
-        vehicleAltitude: currentVehicleAltitude(ctx) + 1,
+        ...altitudeControlAltitudePatch(ctx, currentVehicleAltitude(ctx) + 1),
         altitudeControlStepCount: 1,
         altitudeControlMpCost: 1,
       },
@@ -272,7 +297,7 @@ const MovementAltitudeDownCommand: ITacticalCommand = {
       actionId: 'runtime-movement-state',
       payload: {
         source: 'altitude_control_action',
-        vehicleAltitude: currentVehicleAltitude(ctx) - 1,
+        ...altitudeControlAltitudePatch(ctx, currentVehicleAltitude(ctx) - 1),
         altitudeControlStepCount: 1,
         altitudeControlMpCost: 1,
       },

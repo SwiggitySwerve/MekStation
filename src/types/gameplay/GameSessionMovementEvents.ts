@@ -318,6 +318,8 @@ export interface IRuntimeMovementStateChangedPayload {
   readonly unitHeight?: number | null;
   /** Runtime VTOL/WiGE vehicle altitude changed through altitude controls. */
   readonly vehicleAltitude?: number;
+  /** Runtime ProtoMek Glider altitude changed through WiGE-style altitude controls. */
+  readonly protoAltitude?: number;
   /** Represented MegaMek UP/DOWN step count for altitude-control audit/replay metadata. */
   readonly altitudeControlStepCount?: number;
   /** Represented MP cost of the altitude-control action before later movement steps. */

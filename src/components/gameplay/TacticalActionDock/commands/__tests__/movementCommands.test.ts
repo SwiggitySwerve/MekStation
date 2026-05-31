@@ -786,6 +786,55 @@ describe('movementCommands', () => {
         ]),
       }),
     ).toEqual({ available: true });
+
+    const protoGliderCtx = makeCtx({
+      activeUnitProne: false,
+      activeUnitProtoGlider: true,
+      activeUnitProtoAltitude: 11,
+      movementCapability: {
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 0,
+        movementMode: 'wige',
+      },
+    });
+    const protoCommands = buildMovementCommands(protoGliderCtx);
+    const protoClimb = protoCommands.find(
+      (c) => c.id === 'movement.altitudeUp',
+    )!;
+    const protoDescend = protoCommands.find(
+      (c) => c.id === 'movement.altitudeDown',
+    )!;
+    expect(protoClimb.availability(protoGliderCtx)).toEqual({
+      available: true,
+    });
+    expect(protoClimb.commit(protoGliderCtx)).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'altitude_control_action',
+        protoAltitude: 12,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+      },
+    });
+    expect(
+      protoClimb.availability({
+        ...protoGliderCtx,
+        activeUnitProtoAltitude: 12,
+      }),
+    ).toEqual({
+      available: false,
+      reason: 'Altitude controls are already at maximum altitude 12.',
+    });
+    expect(
+      protoDescend.availability({
+        ...protoGliderCtx,
+        activeUnitProtoAltitude: 0,
+      }),
+    ).toEqual({
+      available: false,
+      reason: 'Altitude controls are already at altitude 0.',
+    });
   });
 
   it('adds LAM conversion controls that clear stale explicit height', () => {

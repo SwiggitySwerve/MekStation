@@ -62,9 +62,13 @@ decisions are made, not because CI is stale.
   carries into later movement projection, hover metadata, and commit validation
   via `reserve-altitude-control-mp`. Basic selected-hex water, woods, bridge,
   building, VTOL under-bridge, and ordinary WiGE building-top altitude command
-  gates are covered by `gate-altitude-controls-by-clearance`; full multi-step
-  airborne pathing, hover/takeoff/landing sequencing, automatic WiGE landing,
-  and LAM/ProtoMek-specific WiGE ceilings remain follow-up work.
+  gates are covered by `gate-altitude-controls-by-clearance`. Represented
+  ProtoMek Glider altitude controls now replay `protoAltitude`, reserve
+  altitude-control MP, block airborne ground projection, and cap Climb at the
+  source-backed altitude 12 ceiling via
+  `gate-protomek-wige-altitude-ceiling`; full multi-step airborne pathing,
+  hover/takeoff/landing sequencing, automatic WiGE landing, and the
+  LandAirMek-specific WiGE +25 ceiling remain follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
   `apply-runtime-movement-state-events`, and tactical command controls are now

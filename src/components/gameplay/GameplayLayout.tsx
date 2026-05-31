@@ -33,6 +33,7 @@ import {
   MovementType,
   type IMovementRangeHex,
 } from '@/types/gameplay';
+import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import { deriveValidWeaponTargetIds } from '@/utils/gameplay/combatTargetIds';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import { resolveRuntimeMovementCapability } from '@/utils/gameplay/movement';
@@ -959,6 +960,15 @@ export function GameplayLayout({
                   : undefined,
               activeUnitVehicleAltitude:
                 selectedUnit?.combatState?.kind === 'vehicle'
+                  ? (selectedUnit.combatState.state.altitude ?? 0)
+                  : undefined,
+              activeUnitProtoGlider:
+                selectedUnit?.combatState?.kind === 'proto'
+                  ? selectedUnit.combatState.state.chassisType ===
+                    ProtoChassis.GLIDER
+                  : undefined,
+              activeUnitProtoAltitude:
+                selectedUnit?.combatState?.kind === 'proto'
                   ? (selectedUnit.combatState.state.altitude ?? 0)
                   : undefined,
               activeUnitTerrain: selectedUnitMapHex?.terrain,

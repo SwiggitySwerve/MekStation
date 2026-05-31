@@ -139,6 +139,7 @@ function applyRuntimeMovementPatch(
   next = applyNullableField(next, payload, 'conversionMode');
   next = applyNullableField(next, payload, 'unitHeight');
   next = applyVehicleAltitudeField(next, payload);
+  next = applyProtoAltitudeField(next, payload);
   next = applyNullableField(next, payload, 'infantryMounted');
   next = applyNullableField(next, payload, 'infantryMountHeight');
   next = {
@@ -199,6 +200,37 @@ function applyVehicleAltitudeField(
       state: {
         ...vehicleState.state,
         altitude: normalizedVehicleAltitude(payload.vehicleAltitude),
+      },
+    },
+  };
+}
+
+function applyProtoAltitudeField(
+  target: Record<string, unknown>,
+  payload: IRuntimeMovementStateChangedPayload,
+): Record<string, unknown> {
+  if (!Object.prototype.hasOwnProperty.call(payload, 'protoAltitude')) {
+    return target;
+  }
+  const combatState = target.combatState;
+  if (
+    !combatState ||
+    typeof combatState !== 'object' ||
+    (combatState as { readonly kind?: unknown }).kind !== 'proto'
+  ) {
+    return target;
+  }
+  const protoState = combatState as {
+    readonly kind: 'proto';
+    readonly state: Record<string, unknown>;
+  };
+  return {
+    ...target,
+    combatState: {
+      ...protoState,
+      state: {
+        ...protoState.state,
+        altitude: normalizedVehicleAltitude(payload.protoAltitude),
       },
     },
   };

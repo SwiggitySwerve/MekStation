@@ -8,6 +8,7 @@ import type {
 } from '@/types/gameplay';
 
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import { isGyroDestroyedForType } from '@/utils/gameplay/gyroRules';
 
 function normalizedHeight(value: number | undefined): number | undefined {
@@ -116,6 +117,16 @@ function altitudePositiveVehicleMotionControlMode(
   }
 }
 
+function altitudePositiveProtoControlMode(
+  unit: IUnitGameState,
+): 'wige' | undefined {
+  if (unit.combatState?.kind !== 'proto') return undefined;
+  if (unit.combatState.state.chassisType !== ProtoChassis.GLIDER) {
+    return undefined;
+  }
+  return (unit.combatState.state.altitude ?? 0) > 0 ? 'wige' : undefined;
+}
+
 function altitudeControlBlockedReason(mode: 'vtol' | 'wige'): string {
   return mode === 'vtol'
     ? AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON
@@ -128,12 +139,24 @@ export function runtimeMovementAltitudeControlContext(
   const vehicleState =
     unit.combatState?.kind === 'vehicle' ? unit.combatState.state : undefined;
   const vehicleMode = altitudePositiveVehicleMotionControlMode(unit);
-  if (!vehicleState || !vehicleMode) return undefined;
+  if (vehicleState && vehicleMode) {
+    return {
+      altitudeControlRequired: true,
+      altitudeControlMode: vehicleMode,
+      altitudeControlAltitude: vehicleState.altitude ?? 0,
+      blockedReason: altitudeControlBlockedReason(vehicleMode),
+    };
+  }
+
+  const protoState =
+    unit.combatState?.kind === 'proto' ? unit.combatState.state : undefined;
+  const protoMode = altitudePositiveProtoControlMode(unit);
+  if (!protoState || !protoMode) return undefined;
   return {
     altitudeControlRequired: true,
-    altitudeControlMode: vehicleMode,
-    altitudeControlAltitude: vehicleState.altitude ?? 0,
-    blockedReason: altitudeControlBlockedReason(vehicleMode),
+    altitudeControlMode: protoMode,
+    altitudeControlAltitude: protoState.altitude ?? 0,
+    blockedReason: altitudeControlBlockedReason(protoMode),
   };
 }
 

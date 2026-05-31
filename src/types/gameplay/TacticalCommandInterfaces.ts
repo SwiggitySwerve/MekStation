@@ -193,6 +193,10 @@ export interface ITacticalCommandContext {
   readonly activeUnitVehicleMotionType?: GroundMotionType;
   /** Represented VTOL/WiGE vehicle altitude, where 0 means landed/hovering. */
   readonly activeUnitVehicleAltitude?: number;
+  /** True when the active ProtoMek combat state is a represented Glider chassis. */
+  readonly activeUnitProtoGlider?: boolean;
+  /** Represented ProtoMek Glider altitude, where 0 means grounded. */
+  readonly activeUnitProtoAltitude?: number;
   /** Active unit terrain tag at its current hex, used by source-backed action gates. */
   readonly activeUnitTerrain?: string;
   /** Active unit elevation at its current hex, when represented by the map. */
