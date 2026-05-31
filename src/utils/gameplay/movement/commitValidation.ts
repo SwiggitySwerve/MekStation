@@ -21,6 +21,11 @@ import {
   movementCostContextForCapability,
   movementCostContextForStep,
 } from './calculations';
+import {
+  hasPendingConversionMovementCost,
+  pendingConversionMovementCost,
+  type IPendingConversionMovementCost,
+} from './conversionAccounting';
 import { movementDeclarationLockInvalidState } from './declarationEligibility';
 import { buildMovementEventPath } from './eventPath';
 import { getHullDownExitCost } from './hullDownExit';
@@ -110,6 +115,12 @@ export function validateCommittedMovement(
   const standingCost = input.unit.prone
     ? getStandingCost(capability, standUpMode)
     : getHullDownExitCost(input.unit, capability, input.movementType);
+  const pendingConversion = pendingConversionMovementCost(input.unit);
+  const reservedCost = standingCost + pendingConversion.mpCost;
+  const reservedCostLabel = movementReservedCostLabel(
+    standingCost,
+    pendingConversion,
+  );
   if (
     input.unit.prone &&
     standUpMode === 'careful' &&
@@ -119,7 +130,7 @@ export function validateCommittedMovement(
       valid: false,
       reason: 'InvalidDestination',
       details: 'Careful stand consumes the movement for this turn',
-      mpCost: standingCost,
+      mpCost: reservedCost,
       heatGenerated: 0,
     };
   }
@@ -178,7 +189,8 @@ export function validateCommittedMovement(
         movementType: input.movementType,
         capability,
         maxCost,
-        standingCost,
+        standingCost: reservedCost,
+        reservedCostLabel,
         optionalRules: input.optionalRules,
       });
       if (!pathValidation.valid) {
@@ -214,6 +226,7 @@ export function validateCommittedMovement(
       movementType: input.movementType,
       capability,
       standingCost,
+      pendingConversionCost: pendingConversion.mpCost,
       optionalRules: input.optionalRules,
     });
     if (directBlockedStep) {
@@ -258,7 +271,8 @@ export function validateCommittedMovement(
       movementType: input.movementType,
       capability,
       maxCost,
-      standingCost,
+      standingCost: reservedCost,
+      reservedCostLabel,
       optionalRules: input.optionalRules,
     });
     if (!pathValidation.valid) {
@@ -299,6 +313,7 @@ function directTerrainBlockedStep(input: {
   readonly movementType: MovementType;
   readonly capability: IMovementCapability;
   readonly standingCost?: number;
+  readonly pendingConversionCost?: number;
   readonly optionalRules?: readonly string[] | undefined;
 }): { readonly blockedReason: string; readonly mpCost: number } | null {
   if (input.movementType === MovementType.Jump) return null;
@@ -324,8 +339,23 @@ function directTerrainBlockedStep(input: {
   if (!step.blockedReason) return null;
   return {
     blockedReason: step.blockedReason,
-    mpCost: step.mpCost + (input.standingCost ?? 0),
+    mpCost:
+      step.mpCost +
+      (input.standingCost ?? 0) +
+      (input.pendingConversionCost ?? 0),
   };
+}
+
+function movementReservedCostLabel(
+  standingCost: number,
+  pendingConversion: IPendingConversionMovementCost,
+): string {
+  const parts: string[] = [];
+  if (standingCost > 0) parts.push('stand-up');
+  if (hasPendingConversionMovementCost(pendingConversion)) {
+    parts.push('conversion');
+  }
+  return parts.join(' and ');
 }
 
 export function movementInvalidReasonFromValidation(
@@ -368,6 +398,7 @@ function validateSuppliedMovementPath(input: {
   readonly capability: IMovementCapability;
   readonly maxCost: number;
   readonly standingCost: number;
+  readonly reservedCostLabel: string;
   readonly optionalRules?: readonly string[];
 }): ISuppliedMovementPathValidation {
   if (input.path.length === 0) {
@@ -416,7 +447,7 @@ function validateSuppliedMovementPath(input: {
     return {
       valid: false,
       reason: 'InsufficientMP',
-      details: `Unit needs ${input.standingCost} MP to stand, but only ${input.maxCost} MP is available`,
+      details: `Unit needs ${input.standingCost} MP for ${input.reservedCostLabel}, but only ${input.maxCost} MP is available`,
       mpCost: totalCost,
     };
   }
@@ -473,7 +504,7 @@ function validateSuppliedMovementPath(input: {
     if (totalCost > maxAllowedCost) {
       const details =
         input.standingCost > 0
-          ? `Committed movement path costs ${totalCost} MP including stand-up, but only ${maxAllowedCost} MP is available`
+          ? `Committed movement path costs ${totalCost} MP including ${input.reservedCostLabel}, but only ${maxAllowedCost} MP is available`
           : `Committed movement path costs ${totalCost} MP, but only ${maxAllowedCost} MP is available`;
       return {
         valid: false,

@@ -11,9 +11,14 @@ import {
   LockState,
   MovementType,
   type IGameState,
+  type IMovementCapability,
   type IUnitGameState,
 } from '@/types/gameplay';
-import { createRuntimeMovementStateChangedEvent } from '@/utils/gameplay/gameEvents';
+import {
+  createMovementDeclaredEvent,
+  createRuntimeMovementStateChangedEvent,
+} from '@/utils/gameplay/gameEvents';
+import { createHexGrid } from '@/utils/gameplay/hexGrid';
 import { validateCommittedMovement } from '@/utils/gameplay/movement/commitValidation';
 import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/reachable';
 
@@ -25,6 +30,12 @@ function stateWithUnit(unit: IUnitGameState): IGameState {
     units: { [unit.id]: unit },
   };
 }
+
+const BASIC_CAPABILITY: IMovementCapability = {
+  walkMP: 4,
+  runMP: 6,
+  jumpMP: 0,
+};
 
 describe('runtime movement state events', () => {
   it('replays infantry dismount state into projection and commit validation', () => {
@@ -125,5 +136,129 @@ describe('runtime movement state events', () => {
 
     expect(converted.conversionMode).toBe('fighter');
     expect(converted).not.toHaveProperty('unitHeight');
+  });
+
+  it('replays conversion MP as pending movement cost consumed by projection and commit validation', () => {
+    const unit: IUnitGameState = {
+      id: 'quadvee-1',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+      heat: 0,
+      movementThisTurn: MovementType.Stationary,
+      hexesMovedThisTurn: 0,
+      armor: {},
+      structure: {},
+      destroyedLocations: [],
+      destroyedEquipment: [],
+      ammo: {},
+      pilotWounds: 0,
+      pilotConscious: true,
+      destroyed: false,
+      lockState: LockState.Pending,
+      conversionMode: 'mek',
+    };
+    const conversion = createRuntimeMovementStateChangedEvent(
+      'game-1',
+      1,
+      1,
+      unit.id,
+      {
+        source: 'conversion_action',
+        conversionMode: 'vehicle',
+        conversionStepCount: 1,
+        conversionMpCost: 3,
+      },
+    );
+
+    const converted = applyEvent(stateWithUnit(unit), conversion).units[
+      unit.id
+    ];
+    expect(converted).toMatchObject({
+      conversionMode: 'vehicle',
+      pendingConversionStepCount: 1,
+      pendingConversionMpCost: 3,
+    });
+
+    const grid = createHexGrid({ radius: 2 });
+    const destination = { q: 1, r: 0 };
+    const projection = deriveMovementRangeHexForDestination(
+      converted,
+      MovementType.Walk,
+      grid,
+      BASIC_CAPABILITY,
+      destination,
+    );
+
+    expect(projection).toMatchObject({
+      reachable: true,
+      mpCost: 4,
+      conversionStepCount: 1,
+      conversionMpCost: 3,
+    });
+
+    const committed = validateCommittedMovement({
+      grid,
+      unit: converted,
+      to: destination,
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+      capability: BASIC_CAPABILITY,
+      path: projection?.path,
+    });
+
+    expect(committed).toMatchObject({
+      valid: true,
+      mpCost: 4,
+    });
+  });
+
+  it('clears pending conversion cost after committed movement replay', () => {
+    const converted: IUnitGameState = {
+      id: 'quadvee-1',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+      heat: 0,
+      movementThisTurn: MovementType.Stationary,
+      hexesMovedThisTurn: 0,
+      armor: {},
+      structure: {},
+      destroyedLocations: [],
+      destroyedEquipment: [],
+      ammo: {},
+      pilotWounds: 0,
+      pilotConscious: true,
+      destroyed: false,
+      lockState: LockState.Pending,
+      conversionMode: 'vehicle',
+      pendingConversionStepCount: 1,
+      pendingConversionMpCost: 3,
+    };
+    const movement = createMovementDeclaredEvent(
+      'game-1',
+      2,
+      1,
+      converted.id,
+      converted.position,
+      { q: 1, r: 0 },
+      Facing.Northeast,
+      MovementType.Walk,
+      4,
+      0,
+      [converted.position, { q: 1, r: 0 }],
+      { conversionStepCount: 1, conversionMpCost: 3 },
+    );
+
+    const moved = applyEvent(stateWithUnit(converted), movement).units[
+      converted.id
+    ];
+
+    expect(moved).toMatchObject({
+      position: { q: 1, r: 0 },
+      hexesMovedThisTurn: 4,
+    });
+    expect(moved).not.toHaveProperty('pendingConversionStepCount');
+    expect(moved).not.toHaveProperty('pendingConversionMpCost');
   });
 });

@@ -70,6 +70,10 @@ export interface IMovementDeclaredPayload {
    * GO_PRONE posture transition from hull-down to prone.
    */
   readonly goProneAttempt?: boolean;
+  /** Represented MegaMek CONVERT_MODE step count consumed before path steps. */
+  readonly conversionStepCount?: number;
+  /** Represented MP spent by CONVERT_MODE steps before path steps. */
+  readonly conversionMpCost?: number;
   /**
    * Per `enrich-movement-declared-with-chain-and-displacement` (movement-system
    * delta — Movement Decomposition Fields): total hex transitions in the
@@ -220,6 +224,15 @@ export interface IHullDownStep {
   readonly mpCost: number;
 }
 
+export interface IConvertModeStep {
+  readonly kind: 'convertMode';
+  readonly index: number;
+  readonly at: IHexCoordinate;
+  readonly mpCost: number;
+  readonly stepNumber: number;
+  readonly stepCount: number;
+}
+
 export interface IChargeDeclaredStep {
   readonly kind: 'chargeDeclared';
   readonly index: number;
@@ -256,6 +269,7 @@ export type IMovementStep =
   | IStandUpStep
   | IGoProneStep
   | IHullDownStep
+  | IConvertModeStep
   | IChargeDeclaredStep
   | IDfaDeclaredStep
   | IShakeOffSwarmStep;

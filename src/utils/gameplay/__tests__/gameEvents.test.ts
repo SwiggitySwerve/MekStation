@@ -604,6 +604,40 @@ describe('Movement Event Factories', () => {
         ],
       });
     });
+
+    it('should serialize represented conversion steps before movement path cost', () => {
+      const position = { q: 0, r: 0 };
+      const event = createMovementDeclaredEvent(
+        'game-1',
+        10,
+        1,
+        'unit-1',
+        position,
+        { q: 1, r: 0 },
+        Facing.Northeast,
+        MovementType.Walk,
+        4,
+        0,
+        [position, { q: 1, r: 0 }],
+        { conversionStepCount: 1, conversionMpCost: 3 },
+      );
+      const payload = event.payload as IMovementDeclaredPayload;
+
+      expect(payload).toMatchObject({
+        conversionStepCount: 1,
+        conversionMpCost: 3,
+        steps: [
+          {
+            kind: 'convertMode',
+            index: 0,
+            at: position,
+            mpCost: 3,
+            stepNumber: 1,
+            stepCount: 1,
+          },
+        ],
+      });
+    });
   });
 
   describe('createMovementLockedEvent', () => {

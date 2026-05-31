@@ -283,6 +283,13 @@ export interface IUnitGameState {
    */
   readonly conversionMode?: MovementConversionMode | number;
   /**
+   * Pending represented CONVERT_MODE steps already chosen this movement phase.
+   * Movement projection and commit validation consume this before later path MP.
+   */
+  readonly pendingConversionStepCount?: number;
+  /** Pending MP reserved by represented CONVERT_MODE steps this movement phase. */
+  readonly pendingConversionMpCost?: number;
+  /**
    * Runtime mounted-infantry state. `false` forces conventional infantry
    * height to 0; `true` uses the runtime or imported mount height when known.
    */

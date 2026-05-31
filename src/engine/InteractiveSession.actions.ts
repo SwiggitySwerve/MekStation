@@ -93,6 +93,7 @@ import {
   resolveRuntimeMovementCapability,
   validateCommittedMovement,
 } from '@/utils/gameplay/movement';
+import { pendingConversionMovementCost } from '@/utils/gameplay/movement/conversionAccounting';
 import { getWeaponRangeBracket } from '@/utils/gameplay/range';
 import {
   gameUnitUsesMekHorizontalCover,
@@ -160,6 +161,7 @@ export function applyInteractiveSessionMovement(
   if (!unit) return input.session;
 
   const from = unit.position;
+  const pendingConversion = pendingConversionMovementCost(unit);
   const gridWithOccupants = gridWithUnitOccupants(
     input.grid,
     input.session.currentState.units,
@@ -332,6 +334,8 @@ export function applyInteractiveSessionMovement(
           standUpAttempt: true,
           standUpSucceeded: false,
           standUpMode,
+          conversionStepCount: pendingConversion.stepCount,
+          conversionMpCost: pendingConversion.mpCost,
         },
       );
       session = lockMovement(session, input.unitId);
@@ -354,6 +358,8 @@ export function applyInteractiveSessionMovement(
       standUpSucceeded,
       standUpMode,
       hullDownExitAttempt,
+      conversionStepCount: pendingConversion.stepCount,
+      conversionMpCost: pendingConversion.mpCost,
     },
   );
   session = lockMovement(session, input.unitId);

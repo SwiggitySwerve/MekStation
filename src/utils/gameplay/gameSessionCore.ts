@@ -353,6 +353,8 @@ export function declareMovement(
     readonly hullDownExitAttempt?: boolean;
     readonly hullDownEntryAttempt?: boolean;
     readonly goProneAttempt?: boolean;
+    readonly conversionStepCount?: number;
+    readonly conversionMpCost?: number;
   },
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.Movement) {

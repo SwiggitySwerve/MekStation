@@ -9,6 +9,10 @@ import {
   LockState,
   MovementType,
 } from '@/types/gameplay';
+import {
+  accumulatedConversionMovementPatch,
+  clearPendingConversionMovementCost,
+} from '@/utils/gameplay/movement/conversionAccounting';
 
 export function applyMovementDeclared(
   state: IGameState,
@@ -46,7 +50,7 @@ export function applyMovementDeclared(
         ? unit.hullDownEnteredBackwards
         : false;
 
-  const updatedUnit: IUnitGameState = {
+  const updatedUnit: IUnitGameState = clearPendingConversionMovementCost({
     ...unit,
     position: payload.to,
     facing: payload.facing,
@@ -57,7 +61,7 @@ export function applyMovementDeclared(
     hullDown,
     hullDownEnteredBackwards,
     lockState: LockState.Planning,
-  };
+  });
 
   return {
     ...state,
@@ -130,6 +134,13 @@ function applyRuntimeMovementPatch(
   next = applyNullableField(next, payload, 'unitHeight');
   next = applyNullableField(next, payload, 'infantryMounted');
   next = applyNullableField(next, payload, 'infantryMountHeight');
+  next = {
+    ...next,
+    ...accumulatedConversionMovementPatch(
+      next as unknown as IUnitGameState,
+      payload,
+    ),
+  };
   return next as unknown as IUnitGameState;
 }
 

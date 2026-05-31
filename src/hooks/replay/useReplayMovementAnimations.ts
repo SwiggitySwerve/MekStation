@@ -314,6 +314,7 @@ function animationForStep(
     // state (prone / standing / charging / DFA / swarm), not by an
     // interpolated tween. Skip silently per the spec contract.
     case 'standUp':
+    case 'convertMode':
     case 'hullDown':
     case 'goProne':
     case 'chargeDeclared':

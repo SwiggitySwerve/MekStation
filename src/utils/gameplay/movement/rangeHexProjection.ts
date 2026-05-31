@@ -168,6 +168,7 @@ export function overBudgetRangeHex({
   pathBudget,
   maxPathCost,
   standingCost,
+  reservedCostLabel = 'stand-up',
   costContext = {},
 }: {
   readonly grid: IHexGrid;
@@ -178,6 +179,7 @@ export function overBudgetRangeHex({
   readonly pathBudget: number;
   readonly maxPathCost: number;
   readonly standingCost: number;
+  readonly reservedCostLabel?: string;
   readonly costContext?: IMovementCostContext;
 }): IMovementRangeHex {
   const pathCost = calculatePathMovementCost(
@@ -199,7 +201,7 @@ export function overBudgetRangeHex({
   const finalStep = finalStepCost(grid, path, movementMode, costContext);
   const details =
     standingCost > 0
-      ? `Path costs ${cost} MP including stand-up, but only ${allowedTotalCost} MP is available`
+      ? `Path costs ${cost} MP including ${reservedCostLabel}, but only ${allowedTotalCost} MP is available`
       : `Path costs ${cost} MP, but only ${allowedPathCost} MP is available`;
 
   return {
