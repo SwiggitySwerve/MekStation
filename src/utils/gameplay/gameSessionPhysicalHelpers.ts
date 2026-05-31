@@ -110,6 +110,13 @@ export interface IPhysicalAttackContext {
   readonly unitQuirks?: readonly string[];
   /** Target elevation minus attacker elevation. */
   readonly elevationDifference?: number;
+  readonly optionalRules?: readonly string[];
+  readonly tacOpsTripAttackEnabled?: boolean;
+  readonly attackerAlreadyGrappled?: boolean;
+  readonly targetInFrontArc?: boolean;
+  readonly leftTripLimbUsable?: boolean;
+  readonly rightTripLimbUsable?: boolean;
+  readonly legAesFunctional?: boolean;
 }
 
 type ArmSide = 'left' | 'right';

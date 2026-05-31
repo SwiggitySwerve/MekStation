@@ -90,6 +90,7 @@
 - [x] 2.32.21 Add source-backed DominoEffect PSR queueing for occupied-hex domino displacement blockers through runner and event-sourced physical resolution while leaving voluntary step-out/CFR and broader displacement terrain/building/environment fallout explicit.
 - [x] 2.32.22 Add source-backed helper coverage for grounded DropShip radius-two `Compute.getValidDisplacement` search order while leaving runtime hydration and broader DropShip footprint/secondary-hex consequences explicit.
 - [x] 2.32.23 Add runtime/event-sourced grounded DropShip source-context hydration for DFA hit radius-two displacement while leaving broader DropShip footprint/secondary-hex consequences explicit.
+- [x] 2.32.24 Integrate optional TacOps Trip as a runtime physical attack command with source-backed legality gates, event-sourced resolution, runner PSR coverage, zero damage, and catalog/spec/audit updates while leaving remaining brush-off/thrash/grapple/break-grapple/jump-jet attack runtime paths explicit.
 
 ## 3. Full combat validation catalog
 
