@@ -813,6 +813,35 @@ describe('physicalAttacks', () => {
         ),
       ).toBe(10);
     });
+
+    it('maps quad kick talons through the matching arm-location front leg', () => {
+      expect(
+        calculateKickDamage(
+          makeInput({
+            attackerTonnage: 50,
+            attackType: 'kick',
+            attackerIsQuad: true,
+            limb: 'rightLeg',
+            rightArmHasTalons: true,
+          }),
+        ),
+      ).toBe(15);
+    });
+
+    it('requires the quad arm-location foot actuator for front-leg talon kick damage', () => {
+      expect(
+        calculateKickDamage(
+          makeInput({
+            attackerTonnage: 50,
+            attackType: 'kick',
+            attackerIsQuad: true,
+            limb: 'rightLeg',
+            rightArmHasTalons: true,
+            rightArmFootActuatorPresent: false,
+          }),
+        ),
+      ).toBe(10);
+    });
   });
 
   // =============================================================================
@@ -895,6 +924,32 @@ describe('physicalAttacks', () => {
             attackType: 'dfa',
             leftLegHasTalons: true,
             leftFootActuatorPresent: false,
+          }),
+        ),
+      ).toBe(21);
+    });
+
+    it('applies source-backed quad DFA talon damage from arm-location front legs', () => {
+      expect(
+        calculateDFADamageToTarget(
+          makeInput({
+            attackerTonnage: 70,
+            attackType: 'dfa',
+            attackerIsQuad: true,
+            rightArmHasTalons: true,
+          }),
+        ),
+      ).toBe(31);
+    });
+
+    it('honors MegaMek non-biped DFA right-arm talon gate for arm-location talons', () => {
+      expect(
+        calculateDFADamageToTarget(
+          makeInput({
+            attackerTonnage: 70,
+            attackType: 'dfa',
+            attackerIsQuad: true,
+            leftArmHasTalons: true,
           }),
         ),
       ).toBe(21);

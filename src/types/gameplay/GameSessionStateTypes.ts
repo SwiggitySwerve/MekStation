@@ -335,10 +335,13 @@ export interface IUnitGameState {
   /**
    * Talon equipment projected into combat state. UnitHydration derives this
    * from leg critical slots for catalog units; undefined preserves synthetic
-   * fixtures that do not carry mounted talon equipment.
+   * fixtures that do not carry mounted talon equipment. For quad/non-biped
+   * BattleMechs, MegaMek stores the front leg talon checks on arm locations.
    */
   readonly leftLegHasTalons?: boolean;
   readonly rightLegHasTalons?: boolean;
+  readonly leftArmHasTalons?: boolean;
+  readonly rightArmHasTalons?: boolean;
   /**
    * Claw equipment projected into combat state. UnitHydration derives this
    * from arm critical slots for catalog units; undefined preserves synthetic

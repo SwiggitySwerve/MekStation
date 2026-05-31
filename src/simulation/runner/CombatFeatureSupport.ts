@@ -206,7 +206,7 @@ const MEGAMEK_325B_FLAIL_WRECKING_LEGALITY = {
 const MEGAMEK_325B_TALON_KICK_DAMAGE = {
   kind: 'megamek-source',
   citation:
-    'MegaMek KickAttackAction.getDamageFor applies a 1.5 talon multiplier when the kicking leg has working talons and a working foot actuator',
+    'MegaMek KickAttackAction.getDamageFor applies a 1.5 talon multiplier when the kicking leg has working talons and a working foot actuator, mapping quad front kicks to arm locations',
   url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/KickAttackAction.java#L95-L122',
   sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
@@ -222,7 +222,7 @@ const MEGAMEK_325B_TALON_DFA_DAMAGE = {
 const MEGAMEK_325B_TALON_DFA_LEG_GATE = {
   kind: 'megamek-source',
   citation:
-    'MegaMek DfaAttackAction.hasTalons checks working talons and working foot actuators on biped legs, with a separate non-biped path',
+    'MegaMek DfaAttackAction.hasTalons checks working talons and working foot actuators on biped legs plus non-biped leg and arm-location paths',
   url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/DfaAttackAction.java#L427-L445',
   sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
@@ -1020,8 +1020,8 @@ export const PHYSICAL_WEAPON_COMBAT_SUPPORT = {
   ),
   talons: helperOnly(
     'talons',
-    'source-backed kick and DFA damage helpers apply the +50% talon modifier from explicit state, UnitHydration leg critical-slot state, destroyed/missing/breached equipment critical events, or destroyed leg location state',
-    'Automatic missing/breached talon event production from mounted-equipment state beyond represented destroyed-location replay and non-biped talon arm-location behavior are not modeled',
+    'source-backed kick and DFA damage helpers apply the +50% talon modifier from explicit biped leg or quad/non-biped arm-location state, UnitHydration critical-slot state, destroyed/missing/breached equipment critical events, or destroyed location state',
+    'Automatic missing/breached talon event production from mounted-equipment state beyond represented destroyed-location replay remains partial',
     [
       MEGAMEK_325B_TALON_KICK_DAMAGE,
       MEGAMEK_325B_TALON_DFA_DAMAGE,

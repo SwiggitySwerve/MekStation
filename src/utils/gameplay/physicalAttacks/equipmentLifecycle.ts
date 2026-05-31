@@ -54,6 +54,12 @@ export function applyDamagedPhysicalEquipmentCritical(
   }
 
   if (isTalonEquipment(payload.componentName)) {
+    if (payload.location === 'left_arm' && unit.leftArmHasTalons === true) {
+      return { ...unit, leftArmHasTalons: false };
+    }
+    if (payload.location === 'right_arm' && unit.rightArmHasTalons === true) {
+      return { ...unit, rightArmHasTalons: false };
+    }
     if (payload.location === 'left_leg' && unit.leftLegHasTalons === true) {
       return { ...unit, leftLegHasTalons: false };
     }
@@ -75,14 +81,46 @@ export function applyDestroyedLocationPhysicalEquipmentState(
   let nextUnit = unit;
 
   for (const location of destroyedLocations) {
-    if (location === 'left_arm' && nextUnit.leftArmHasClaw === true) {
-      nextUnit = { ...nextUnit, leftArmHasClaw: false };
+    if (location === 'left_arm') {
+      const updates: {
+        leftArmHasClaw?: boolean;
+        leftArmHasTalons?: boolean;
+      } = {};
+      if (nextUnit.leftArmHasClaw === true) {
+        updates.leftArmHasClaw = false;
+      }
+      if (nextUnit.leftArmHasTalons === true) {
+        updates.leftArmHasTalons = false;
+      }
+      if (
+        updates.leftArmHasClaw !== undefined ||
+        updates.leftArmHasTalons !== undefined
+      ) {
+        nextUnit = { ...nextUnit, ...updates };
+      }
       continue;
     }
-    if (location === 'right_arm' && nextUnit.rightArmHasClaw === true) {
-      nextUnit = { ...nextUnit, rightArmHasClaw: false };
+
+    if (location === 'right_arm') {
+      const updates: {
+        rightArmHasClaw?: boolean;
+        rightArmHasTalons?: boolean;
+      } = {};
+      if (nextUnit.rightArmHasClaw === true) {
+        updates.rightArmHasClaw = false;
+      }
+      if (nextUnit.rightArmHasTalons === true) {
+        updates.rightArmHasTalons = false;
+      }
+      if (
+        updates.rightArmHasClaw !== undefined ||
+        updates.rightArmHasTalons !== undefined
+      ) {
+        nextUnit = { ...nextUnit, ...updates };
+      }
       continue;
     }
+
     if (location === 'left_leg' && nextUnit.leftLegHasTalons === true) {
       nextUnit = { ...nextUnit, leftLegHasTalons: false };
       continue;

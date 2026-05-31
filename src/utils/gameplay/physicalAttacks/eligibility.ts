@@ -95,8 +95,13 @@ export interface IEligibilityContext {
   /** Per-leg talon state used by kick/DFA damage projections. */
   readonly leftLegHasTalons?: boolean;
   readonly rightLegHasTalons?: boolean;
+  /** Quad/non-biped front-leg talons are checked through arm locations. */
+  readonly leftArmHasTalons?: boolean;
+  readonly rightArmHasTalons?: boolean;
   readonly leftFootActuatorPresent?: boolean;
   readonly rightFootActuatorPresent?: boolean;
+  readonly leftArmFootActuatorPresent?: boolean;
+  readonly rightArmFootActuatorPresent?: boolean;
   /** Per-arm claw state used by punch damage/to-hit projections. */
   readonly leftArmHasClaw?: boolean;
   readonly rightArmHasClaw?: boolean;
@@ -331,8 +336,12 @@ export function getEligiblePhysicalAttacks(
     footActuatorPresent: context.footActuatorPresent,
     leftLegHasTalons: context.leftLegHasTalons ?? attacker.leftLegHasTalons,
     rightLegHasTalons: context.rightLegHasTalons ?? attacker.rightLegHasTalons,
+    leftArmHasTalons: context.leftArmHasTalons ?? attacker.leftArmHasTalons,
+    rightArmHasTalons: context.rightArmHasTalons ?? attacker.rightArmHasTalons,
     leftFootActuatorPresent: context.leftFootActuatorPresent,
     rightFootActuatorPresent: context.rightFootActuatorPresent,
+    leftArmFootActuatorPresent: context.leftArmFootActuatorPresent,
+    rightArmFootActuatorPresent: context.rightArmFootActuatorPresent,
     leftArmHasClaw: context.leftArmHasClaw ?? attacker.leftArmHasClaw,
     rightArmHasClaw: context.rightArmHasClaw ?? attacker.rightArmHasClaw,
     optionalRules: context.optionalRules,

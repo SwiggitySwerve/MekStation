@@ -528,8 +528,14 @@ export function declarePhysicalAttack(
       context.leftLegHasTalons ?? attackerState.leftLegHasTalons,
     rightLegHasTalons:
       context.rightLegHasTalons ?? attackerState.rightLegHasTalons,
+    leftArmHasTalons:
+      context.leftArmHasTalons ?? attackerState.leftArmHasTalons,
+    rightArmHasTalons:
+      context.rightArmHasTalons ?? attackerState.rightArmHasTalons,
     leftFootActuatorPresent: context.leftFootActuatorPresent,
     rightFootActuatorPresent: context.rightFootActuatorPresent,
+    leftArmFootActuatorPresent: context.leftArmFootActuatorPresent,
+    rightArmFootActuatorPresent: context.rightArmFootActuatorPresent,
     leftArmHasClaw: context.leftArmHasClaw ?? attackerState.leftArmHasClaw,
     rightArmHasClaw: context.rightArmHasClaw ?? attackerState.rightArmHasClaw,
     pushDestinationValid: context.pushDestinationValid,
@@ -795,8 +801,14 @@ export function resolveAllPhysicalAttacks(
         context.leftLegHasTalons ?? attackerState.leftLegHasTalons,
       rightLegHasTalons:
         context.rightLegHasTalons ?? attackerState.rightLegHasTalons,
+      leftArmHasTalons:
+        context.leftArmHasTalons ?? attackerState.leftArmHasTalons,
+      rightArmHasTalons:
+        context.rightArmHasTalons ?? attackerState.rightArmHasTalons,
       leftFootActuatorPresent: context.leftFootActuatorPresent,
       rightFootActuatorPresent: context.rightFootActuatorPresent,
+      leftArmFootActuatorPresent: context.leftArmFootActuatorPresent,
+      rightArmFootActuatorPresent: context.rightArmFootActuatorPresent,
       leftArmHasClaw: context.leftArmHasClaw ?? attackerState.leftArmHasClaw,
       rightArmHasClaw: context.rightArmHasClaw ?? attackerState.rightArmHasClaw,
       pushDestinationValid: context.pushDestinationValid,

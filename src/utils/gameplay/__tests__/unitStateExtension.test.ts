@@ -409,6 +409,27 @@ describe('Phase 4: IUnitGameState Extension', () => {
       expect(result.units['unit-1'].rightLegHasTalons).toBe(true);
     });
 
+    it('removes quad front-leg talon modifiers when an arm-location talons critical is destroyed', () => {
+      const state = createStateWithUnit({
+        isQuad: true,
+        leftArmHasTalons: true,
+        rightArmHasTalons: true,
+      });
+      const event = makeEvent(GameEventType.CriticalHitResolved, {
+        unitId: 'unit-1',
+        location: 'right_arm',
+        slotIndex: 4,
+        componentType: 'equipment',
+        componentName: 'Talons',
+        effect: 'Equipment destroyed: Talons',
+        destroyed: true,
+      } satisfies ICriticalHitResolvedPayload);
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-1'].leftArmHasTalons).toBe(true);
+      expect(result.units['unit-1'].rightArmHasTalons).toBe(false);
+    });
+
     it('does not remove physical modifiers for unrelated equipment criticals', () => {
       const state = createStateWithUnit({
         leftArmHasClaw: true,
@@ -504,6 +525,24 @@ describe('Phase 4: IUnitGameState Extension', () => {
       const result = applyEvent(state, event);
       expect(result.units['unit-1'].leftLegHasTalons).toBe(true);
       expect(result.units['unit-1'].rightLegHasTalons).toBe(false);
+    });
+
+    it('removes quad front-leg talon modifiers when an arm location is destroyed', () => {
+      const state = createStateWithUnit({
+        isQuad: true,
+        rightArmHasTalons: true,
+      });
+      const event = makeEvent(GameEventType.DamageApplied, {
+        unitId: 'unit-1',
+        location: 'right_arm',
+        damage: 18,
+        armorRemaining: 0,
+        structureRemaining: 0,
+        locationDestroyed: true,
+      } satisfies IDamageAppliedPayload);
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-1'].rightArmHasTalons).toBe(false);
     });
   });
 

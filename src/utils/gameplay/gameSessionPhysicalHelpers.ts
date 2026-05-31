@@ -66,12 +66,17 @@ export interface IPhysicalAttackContext {
   /**
    * Per-leg talon state for source-backed kick/DFA damage modifiers.
    * Equipment hydration is optional today, so callers may supply it
-   * explicitly through the physical context.
+   * explicitly through the physical context. Quad/non-biped front-leg
+   * talons are represented by arm-location state, matching MegaMek.
    */
   readonly leftLegHasTalons?: boolean;
   readonly rightLegHasTalons?: boolean;
+  readonly leftArmHasTalons?: boolean;
+  readonly rightArmHasTalons?: boolean;
   readonly leftFootActuatorPresent?: boolean;
   readonly rightFootActuatorPresent?: boolean;
+  readonly leftArmFootActuatorPresent?: boolean;
+  readonly rightArmFootActuatorPresent?: boolean;
   /**
    * Per-arm claw state for source-backed punch damage/to-hit modifiers.
    * Equipment hydration is optional today, so callers may supply it
