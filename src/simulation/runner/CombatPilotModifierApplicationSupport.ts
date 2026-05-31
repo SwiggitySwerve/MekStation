@@ -281,8 +281,8 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'psr-spa-application': helperOnly(
     'psr-spa-application',
-    'calculatePSRModifiers, runPSRPhase, resolvePendingPSRs, and stand-up PSR paths apply source-backed Maneuvering Ace skidding relief, Animal Mimicry quad-Mek relief, Terrain Master: Frogman water-entry relief, and Terrain Master: Mountaineer rubble-entry relief to PSR target numbers',
-    'Maneuvering Ace controlled-sideslip and out-of-control control-roll side paths beyond skidding, Terrain Master variants beyond Frogman water-entry and Mountaineer rubble-entry, Swamp Beast bog-down relief, Acrobat, and Natural Grace PSR modifiers are not wired',
+    'calculatePSRModifiers, runPSRPhase, resolvePendingPSRs, and stand-up PSR paths apply source-backed Maneuvering Ace skidding relief, Animal Mimicry quad-Mek relief, Terrain Master: Frogman water-entry relief, Terrain Master: Mountaineer rubble-entry relief, and Swamp Beast bog-down relief to PSR target numbers',
+    'Maneuvering Ace controlled-sideslip and out-of-control control-roll side paths beyond skidding, Terrain Master variants beyond Frogman water-entry, Mountaineer rubble-entry, and Swamp Beast bog-down relief, Acrobat, and Natural Grace PSR modifiers are not wired',
     MEGAMEK_PSR_SPA_SOURCE_REFS,
   ),
   'initiative-application': helperOnly(
