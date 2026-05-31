@@ -317,6 +317,11 @@ export const MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS = {
     'grapple',
     'L152-L164',
   ),
+  'physical.break-grapple': mekstationPhysicalCommandSourceRefs(
+    'physical.break-grapple',
+    'break-grapple',
+    'L166-L180',
+  ),
   'physical.charge': mekstationPhysicalCommandSourceRefs(
     'physical.charge',
     'charge',
@@ -977,6 +982,12 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'tactical-command',
     'buildPhysicalAttackCommands commits physical-attack grapple; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
     MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.grapple'],
+  ),
+  'physical.break-grapple': integrated(
+    'physical.break-grapple',
+    'tactical-command',
+    'buildPhysicalAttackCommands commits physical-attack break-grapple; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.break-grapple'],
   ),
   'physical.charge': integrated(
     'physical.charge',
