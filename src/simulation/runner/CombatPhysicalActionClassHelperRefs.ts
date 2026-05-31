@@ -5,15 +5,15 @@ export const MEKSTATION_PHYSICAL_ACTION_HELPER_REFS = {
     {
       kind: 'mekstation-deviation',
       citation:
-        'MekStation canBreakGrapple exposes source-backed optional-rule, airborne, common locked-grapple, chain-whip, Mek/ProtoMek, and grapple-target state gates as helper-only coverage without adding a runtime PhysicalAttackType.',
-      url: 'src/utils/gameplay/physicalAttacks/breakGrappleEligibility.ts#L88-L263',
+        'MekStation canBreakGrapplePhysical consumes source-backed canBreakGrapple optional-rule, airborne, common locked-grapple, chain-whip, Mek/ProtoMek, and grapple-target state gates for the runtime Break Grapple PhysicalAttackType.',
+      url: 'src/utils/gameplay/physicalAttacks/restrictions.ts#L1249-L1319',
       sourceVersion: 'MekStation working-tree',
     },
     {
       kind: 'mekstation-deviation',
       citation:
-        'MekStation physical attack tests cover source-backed canBreakGrapple gates, original-attacker automatic success, actuator/AES modifiers, and grapple weight-class branches.',
-      url: 'src/utils/gameplay/__tests__/physicalAttacks.test.ts#L1867-L2030',
+        'MekStation physical attack tests cover source-backed canBreakGrapple gates, original-attacker automatic success, actuator/AES modifiers, grapple weight-class branches, zero damage, and adjacent break-grapple displacement.',
+      url: 'src/utils/gameplay/__tests__/physicalAttacks.test.ts#L1962-L2269',
       sourceVersion: 'MekStation working-tree',
     },
   ],
