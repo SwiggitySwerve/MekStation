@@ -142,6 +142,7 @@ describe('BattleMech combat action support catalog', () => {
       'physical.club',
       'physical.dfa',
       'physical.flail',
+      'physical.jump-jet-attack',
       'physical.kick',
       'physical.lance',
       'physical.mace',
@@ -311,6 +312,7 @@ describe('BattleMech combat action support catalog', () => {
       'physical.club',
       'physical.dfa',
       'physical.flail',
+      'physical.jump-jet-attack',
       'physical.kick',
       'physical.lance',
       'physical.mace',
@@ -705,6 +707,7 @@ describe('BattleMech combat action support catalog', () => {
       'physical.club': 'hatchet',
       'physical.dfa': 'dfa',
       'physical.flail': 'flail',
+      'physical.jump-jet-attack': 'jump-jet-attack',
       'physical.kick': 'kick',
       'physical.lance': 'lance',
       'physical.mace': 'mace',
@@ -723,6 +726,7 @@ describe('BattleMech combat action support catalog', () => {
       'dfa',
       'flail',
       'hatchet',
+      'jump-jet-attack',
       'kick',
       'lance',
       'mace',
@@ -763,6 +767,7 @@ describe('BattleMech combat action support catalog', () => {
       'charge',
       'club',
       'dfa',
+      'jump-jet-attack',
       'kick',
       'punch',
       'push',
@@ -774,7 +779,7 @@ describe('BattleMech combat action support catalog', () => {
     ).toEqual([]);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'helper-only'),
-    ).toEqual(['break-grapple', 'brush-off', 'grapple', 'jump-jet-attack']);
+    ).toEqual(['break-grapple', 'brush-off', 'grapple']);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'out-of-scope'),
     ).toEqual([
@@ -824,10 +829,13 @@ describe('BattleMech combat action support catalog', () => {
     expect(
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['jump-jet-attack'],
     ).toMatchObject({
-      level: 'helper-only',
-      evidence: expect.stringContaining('canJumpJetAttack'),
-      gap: expect.stringContaining('no runtime PhysicalAttackType'),
+      level: 'integrated',
+      evidence: expect.stringContaining('runtime PhysicalAttackType'),
+      runtimeAttackTypes: ['jump-jet-attack'],
     });
+    expect(
+      PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['jump-jet-attack'].gap,
+    ).toBeUndefined();
 
     const invalidPhysicalClassRefs = Object.values(
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT,
