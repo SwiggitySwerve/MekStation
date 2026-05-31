@@ -235,6 +235,21 @@ describe('movement', () => {
       expect(result.mpCost).toBe(2);
     });
 
+    it('should reject voluntary movement for stuck units', () => {
+      const result = validateMovement(
+        grid,
+        { ...position, isStuck: true },
+        { q: 0, r: -1 },
+        Facing.North,
+        MovementType.Walk,
+        capability,
+      );
+
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('stuck');
+      expect(result.mpCost).toBe(0);
+    });
+
     it('should reject movement outside grid bounds', () => {
       const result = validateMovement(
         grid,
