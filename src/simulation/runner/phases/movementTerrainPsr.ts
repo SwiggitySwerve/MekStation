@@ -34,6 +34,12 @@ type TerrainBearingMovementStep = {
   readonly terrainEntered?: string;
 };
 
+function isRunBasedMovement(movementType: MovementType): boolean {
+  return (
+    movementType === MovementType.Run || movementType === MovementType.Evade
+  );
+}
+
 export function queueMovementTerrainPSRs(options: {
   currentState: IGameState;
   events: IGameEvent[];
@@ -123,7 +129,7 @@ function terrainPSRsForStep(options: {
 
   if (
     hasTerrainFeature(enteredFeatures, TerrainType.Rough) &&
-    movementType === MovementType.Run
+    isRunBasedMovement(movementType)
   ) {
     psrs.push(createRunningRoughTerrainPSR(unitId, step.index));
   }
@@ -134,7 +140,7 @@ function terrainPSRsForStep(options: {
 
   if (
     step.kind === 'turn' &&
-    movementType === MovementType.Run &&
+    isRunBasedMovement(movementType) &&
     isSkidTerrain(terrainFeaturesFromTag(terrainAt(grid, step.at)))
   ) {
     psrs.push(
