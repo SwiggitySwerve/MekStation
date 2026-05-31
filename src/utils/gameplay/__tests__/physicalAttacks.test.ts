@@ -32,6 +32,7 @@ import {
   canDFA,
   canMeleeWeapon,
   canPush,
+  canThrash,
   canTrip,
   computeChargeDisplacementOutcome,
   computeDfaDisplacementOutcome,
@@ -50,7 +51,9 @@ import {
   TSM_ACTIVATION_HEAT,
   IPhysicalAttackInput,
   isPhysicalAirborneVtolOrWigeTarget,
+  isThrashAttackAutomaticSuccess,
   sourceContainsGroundedDropShip,
+  getThrashAttackDamageForWeight,
   getTripAttackBaseToHitAdjustment,
 } from '../physicalAttacks';
 
@@ -1528,6 +1531,74 @@ describe('physicalAttacks', () => {
       expect(canTrip({ ...validTripInput, ...overrides })).toMatchObject({
         allowed: false,
         reasonCode,
+      });
+    });
+  });
+
+  describe('canThrash', () => {
+    const validThrashInput = {
+      attackerIsMek: true,
+      attackerProne: true,
+      targetIsInfantry: true,
+      targetDistance: 0,
+      sameElevation: true,
+      blockingTerrains: [],
+      hasWorkingArmOrLeg: true,
+    };
+
+    it('allows source-backed prone Mek same-hex infantry thrash and exposes automatic success damage math', () => {
+      expect(canThrash(validThrashInput)).toEqual({ allowed: true });
+      expect(isThrashAttackAutomaticSuccess()).toBe(true);
+      expect(getThrashAttackDamageForWeight(55)).toBe(18);
+      expect(getThrashAttackDamageForWeight(100)).toBe(33);
+    });
+
+    it.each([
+      ['friendly target', { targetIsFriendly: true }, 'FriendlyTarget'],
+      ['non-Mek attacker', { attackerIsMek: false }, 'AttackerNotMek'],
+      ['standing attacker', { attackerProne: false }, 'AttackerNotProne'],
+      ['non-infantry target', { targetIsInfantry: false }, 'TargetNotInfantry'],
+      ['swarming infantry', { targetIsSwarming: true }, 'TargetSwarming'],
+      ['different hex', { targetDistance: 1 }, 'TargetNotSameHex'],
+      ['elevation mismatch', { sameElevation: false }, 'ElevationMismatch'],
+      [
+        'building or hex target',
+        { targetIsBuildingFuelTankOrHex: true },
+        'InvalidExplicitTarget',
+      ],
+      [
+        'weapon fired this turn',
+        { weaponFiredThisTurn: true },
+        'WeaponFiredThisTurn',
+      ],
+      [
+        'no working arm or leg',
+        { hasWorkingArmOrLeg: false },
+        'ThrashLimbUnavailable',
+      ],
+    ])('rejects %s', (_label, overrides, reasonCode) => {
+      expect(canThrash({ ...validThrashInput, ...overrides })).toMatchObject({
+        allowed: false,
+        reasonCode,
+      });
+    });
+
+    it.each([
+      'woods',
+      'jungle',
+      'rough',
+      'rubble',
+      'fuel-tank',
+      'building',
+    ] as const)('rejects %s terrain as not clear or pavement', (terrain) => {
+      expect(
+        canThrash({
+          ...validThrashInput,
+          blockingTerrains: [terrain],
+        }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TerrainNotClearOrPavement',
       });
     });
   });
