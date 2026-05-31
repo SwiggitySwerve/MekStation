@@ -14,9 +14,11 @@ import {
   calculateDodgeManeuverModifier,
   calculateMeleeSpecialistModifier,
   calculateFrogmanPhysicalToHitModifier,
+  calculateGroundObjectLiftCapacity,
   calculateTerrainMasterDefensiveToHitModifier,
   calculateShakyStickModifier,
   getFrogmanWaterPSRModifier,
+  getHeavyLifterGroundObjectLiftMultiplier,
   getMeleeMasterDamageBonus,
   getMeleeSpecialistDamageBonus,
   getMountaineerRubblePSRModifier,
@@ -647,6 +649,61 @@ describe('spaModifiers', () => {
 
     it('toughness gives no SPA consciousness relief without numeric RPG Toughness state', () => {
       expect(getConsciousnessCheckModifier(['toughness'])).toBe(0);
+    });
+  });
+
+  describe('Heavy Lifter ground-object lift capacity', () => {
+    it('uses the source-backed 1.5x lift multiplier for canonical and legacy ability ids', () => {
+      expect(getHeavyLifterGroundObjectLiftMultiplier(['hvy_lifter'])).toBe(
+        1.5,
+      );
+      expect(getHeavyLifterGroundObjectLiftMultiplier(['heavy-lifter'])).toBe(
+        1.5,
+      );
+      expect(getHeavyLifterGroundObjectLiftMultiplier([])).toBe(1);
+    });
+
+    it('calculates MekWithArms lift capacity as 5 percent of tonnage per available hand', () => {
+      expect(
+        calculateGroundObjectLiftCapacity({
+          unitTonnage: 80,
+          abilities: [],
+        }),
+      ).toBe(8);
+      expect(
+        calculateGroundObjectLiftCapacity({
+          unitTonnage: 80,
+          abilities: ['hvy_lifter'],
+        }),
+      ).toBe(12);
+      expect(
+        calculateGroundObjectLiftCapacity({
+          unitTonnage: 80,
+          abilities: ['hvy_lifter'],
+          leftHandAvailable: false,
+        }),
+      ).toBe(6);
+    });
+
+    it('preserves the MegaMek TSM pickup multiplier after Heavy Lifter', () => {
+      expect(
+        calculateGroundObjectLiftCapacity({
+          unitTonnage: 80,
+          abilities: ['heavy-lifter'],
+          tsmPickupModifier: 2,
+        }),
+      ).toBe(24);
+    });
+
+    it('returns zero when no hand is available or tonnage is non-positive', () => {
+      expect(
+        calculateGroundObjectLiftCapacity({
+          unitTonnage: 80,
+          leftHandAvailable: false,
+          rightHandAvailable: false,
+        }),
+      ).toBe(0);
+      expect(calculateGroundObjectLiftCapacity({ unitTonnage: 0 })).toBe(0);
     });
   });
 
