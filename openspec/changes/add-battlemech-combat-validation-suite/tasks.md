@@ -92,6 +92,7 @@
 - [x] 2.32.23 Add runtime/event-sourced grounded DropShip source-context hydration for DFA hit radius-two displacement while leaving broader DropShip footprint/secondary-hex consequences explicit.
 - [x] 2.32.24 Integrate optional TacOps Trip as a runtime physical attack command with source-backed legality gates, event-sourced resolution, runner PSR coverage, zero damage, and catalog/spec/audit updates while leaving remaining brush-off/thrash/grapple/break-grapple/jump-jet attack runtime paths explicit as of that slice.
 - [x] 2.32.25 Integrate source-backed Thrash as a runtime physical attack command with prone-Mek same-hex infantry legality, clear/pavement terrain validation, automatic-hit weight-based damage, attacker PSR coverage, and catalog/spec/audit updates while leaving brush-off/grapple/break-grapple/jump-jet attack runtime paths explicit.
+- [x] 2.32.26 Integrate optional TacOps Jump Jet Attack as a runtime physical attack command with selected-leg payloads, ready-jump-jet and leg-weapon-fire validation, event-sourced and runner selected-leg damage, no self-PSR side effects, and catalog/spec/audit updates while leaving brush-off/grapple/break-grapple runtime paths explicit.
 
 ## 3. Full combat validation catalog
 
