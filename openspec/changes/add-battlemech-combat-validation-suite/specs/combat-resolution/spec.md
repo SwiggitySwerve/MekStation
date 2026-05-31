@@ -1001,7 +1001,7 @@ Runner movement validation SHALL consume explicit BattleMech `hasTSM` state and 
 - **WHEN** the runner validates a 5 MP walking movement
 - **THEN** the movement SHALL be accepted with 5 MP used
 - **AND** a BattleMech with the same TSM equipment below heat 9 SHALL NOT receive the TSM walk bonus
-- **AND** the movement-enhancement catalog SHALL mark TSM movement as integrated while leaving MASC and Supercharger helper-only
+- **AND** the movement-enhancement catalog SHALL mark TSM, core MASC, and core Supercharger movement behavior as integrated while keeping remaining MASC/Supercharger side paths helper-only
 
 ### Requirement: Source-Backed Active MASC/Supercharger Run Movement Boundary
 
@@ -1013,7 +1013,7 @@ Runner movement validation SHALL consume explicit active `activeMASC` and `activ
 - **WHEN** the runner validates an 8 MP running movement
 - **THEN** the movement SHALL be accepted with 8 MP used
 - **AND** the unit SHALL receive a pending `MASCFailure` PSR with fixed target number 3
-- **AND** the movement-enhancement catalog SHALL keep MASC helper-only with MegaMek source anchors for the implemented run/trigger boundary and explicit gaps for sprint and full failure lifecycle
+- **AND** the movement-enhancement catalog SHALL mark the core MASC row integrated and keep sprint, alternate table, and first-step timing side paths in a separate helper-only row with MegaMek source anchors
 
 #### Scenario: Failed MASC check applies leg critical damage
 
