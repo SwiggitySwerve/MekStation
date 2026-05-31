@@ -174,15 +174,15 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 182,
+      total: 163,
       byLevel: {
-        'helper-only': 139,
-        unsupported: 43,
+        'helper-only': 130,
+        unsupported: 33,
       },
       bySection: {
         actions: 10,
         damageAndDeath: 2,
-        featureSupport: 110,
+        featureSupport: 91,
         lifecycleAndPsr: 5,
         pilotSkills: 20,
         ruleSupport: 16,
@@ -228,6 +228,10 @@ describe('BattleMech combat validation catalog index', () => {
         'featureSupport.ammunitionCompatibility.non-battlemech-protomech',
         'featureSupport.ammunitionCompatibility.unsupported-aquatic-torpedo-ammo',
         'featureSupport.ammunitionCompatibility.unsupported-artillery-ammo',
+        'featureSupport.canonicalPilotAbilityScope.edge_when_aero_alt_loss',
+        'featureSupport.canonicalPilotAbilityScope.foot_cav',
+        'featureSupport.canonicalPilotAbilityScope.gunnery_laser',
+        'featureSupport.canonicalPilotAbilityScope.weathered',
         'validationScope.knownLimitationsAndScope.non-battlemech-ammo-scope',
         'validationScope.knownLimitationsAndScope.non-battlemech-combat-system-split',
         'validationScope.objectiveRequirements.non-battlemech-scope',
@@ -249,7 +253,7 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.wireIntents.SetReady',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(44);
+    expect(outOfScopeRows).toHaveLength(63);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('actions.physicalActionClassScope.'),
@@ -271,6 +275,31 @@ describe('BattleMech combat validation catalog index', () => {
       'featureSupport.ammunitionCompatibility.non-battlemech-protomech',
       'featureSupport.ammunitionCompatibility.unsupported-aquatic-torpedo-ammo',
       'featureSupport.ammunitionCompatibility.unsupported-artillery-ammo',
+    ]);
+    expect(
+      outOfScopeRefs.filter((ref) =>
+        ref.startsWith('featureSupport.canonicalPilotAbilityScope.'),
+      ),
+    ).toEqual([
+      'featureSupport.canonicalPilotAbilityScope.allweather',
+      'featureSupport.canonicalPilotAbilityScope.blind_fighter',
+      'featureSupport.canonicalPilotAbilityScope.clan_pilot_training',
+      'featureSupport.canonicalPilotAbilityScope.cluster_master',
+      'featureSupport.canonicalPilotAbilityScope.edge_when_aero_alt_loss',
+      'featureSupport.canonicalPilotAbilityScope.edge_when_aero_explosion',
+      'featureSupport.canonicalPilotAbilityScope.edge_when_aero_ko',
+      'featureSupport.canonicalPilotAbilityScope.edge_when_aero_lucky_crit',
+      'featureSupport.canonicalPilotAbilityScope.edge_when_aero_nuke_crit',
+      'featureSupport.canonicalPilotAbilityScope.edge_when_aero_unit_cargo_lost',
+      'featureSupport.canonicalPilotAbilityScope.ei_implant',
+      'featureSupport.canonicalPilotAbilityScope.foot_cav',
+      'featureSupport.canonicalPilotAbilityScope.gunnery_ballistic',
+      'featureSupport.canonicalPilotAbilityScope.gunnery_laser',
+      'featureSupport.canonicalPilotAbilityScope.gunnery_missile',
+      'featureSupport.canonicalPilotAbilityScope.sensor_geek',
+      'featureSupport.canonicalPilotAbilityScope.small_pilot',
+      'featureSupport.canonicalPilotAbilityScope.urban_guerrilla',
+      'featureSupport.canonicalPilotAbilityScope.weathered',
     ]);
     expect(
       outOfScopeRefs.filter((ref) => ref.startsWith('validationScope.')),
