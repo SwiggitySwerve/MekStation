@@ -413,10 +413,9 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
     'movementDamagePsr queues createRunningDamagedGyroPSR when a unit runs with gyro damage; MegaMek combines hip and gyro into one running-with-damage PSR while MekStation keeps separate reason codes',
     RUNNING_WITH_DAMAGE_PSR_SOURCE_REFS,
   ),
-  [PSRTrigger.BuildingCollapse]: helperOnly(
+  [PSRTrigger.BuildingCollapse]: integrated(
     PSRTrigger.BuildingCollapse,
-    'createBuildingCollapsePSR factory + resolveAllPSRs modifier math',
-    'building collapse movement/damage triggers are not wired into runner combat',
+    'movementTerrainPsr queues createBuildingCollapsePSR when explicit unit tonnage exceeds Building constructionFactor, and resolveAllPSRs applies normal terrain PSR modifier math',
     terrainPsrSourceRefs(TerrainType.Building),
   ),
   [PSRTrigger.MASCFailure]: helperOnly(
