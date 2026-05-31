@@ -20,6 +20,7 @@ import {
   canBrushOffPhysical,
   canCharge,
   canDFA,
+  canGrapplePhysical,
   canKick,
   canJumpJetAttackPhysical,
   canMeleeWeapon,
@@ -89,6 +90,17 @@ export function chooseBestPhysicalAttack(
     targetDisplacementAttackTargetId: options.targetDisplacementAttackTargetId,
     targetedByDisplacementAttackerId: options.targetedByDisplacementAttackerId,
     optionalRules: options.optionalRules,
+    tacOpsGrapplingEnabled: options.tacOpsGrapplingEnabled,
+    grappleSide: options.grappleSide,
+    attackerGrappledTargetId: options.attackerGrappledTargetId,
+    targetGrappledTargetId: options.targetGrappledTargetId,
+    attackerIsGrappleAttacker: options.attackerIsGrappleAttacker,
+    targetIsGrappleAttacker: options.targetIsGrappleAttacker,
+    attackerChainWhipGrappled: options.attackerChainWhipGrappled,
+    leftArmAesFunctional: options.leftArmAesFunctional,
+    rightArmAesFunctional: options.rightArmAesFunctional,
+    attackerWeightClass: options.attackerWeightClass,
+    targetWeightClass: options.targetWeightClass,
     tacOpsJumpJetAttackEnabled: options.tacOpsJumpJetAttackEnabled,
     jumpJetAttackSelectedLeg: options.jumpJetAttackSelectedLeg,
     leftReadyJumpJetCount: options.leftReadyJumpJetCount,
@@ -139,6 +151,18 @@ export function chooseBestPhysicalAttack(
     candidates.push({
       type: 'brush-off',
       expectedDamage: calculateBrushOffDamage(brushOffInput),
+    });
+  }
+
+  const grappleInput: IPhysicalAttackInput = {
+    ...baseInput,
+    attackType: 'grapple',
+    weaponsFiredFromArm: options.weaponsFiredThisTurn,
+  };
+  if (canGrapplePhysical(grappleInput).allowed) {
+    candidates.push({
+      type: 'grapple',
+      expectedDamage: 0,
     });
   }
 
