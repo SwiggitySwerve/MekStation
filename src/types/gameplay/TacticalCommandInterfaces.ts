@@ -197,6 +197,8 @@ export interface ITacticalCommandContext {
   readonly activeUnitProtoGlider?: boolean;
   /** Represented ProtoMek Glider altitude, where 0 means grounded. */
   readonly activeUnitProtoAltitude?: number;
+  /** Represented LAM AirMek WiGE elevation selected through altitude controls. */
+  readonly activeUnitLamAirMekAltitude?: number;
   /** Active unit terrain tag at its current hex, used by source-backed action gates. */
   readonly activeUnitTerrain?: string;
   /** Active unit elevation at its current hex, when represented by the map. */

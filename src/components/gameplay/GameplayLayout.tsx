@@ -971,6 +971,7 @@ export function GameplayLayout({
                 selectedUnit?.combatState?.kind === 'proto'
                   ? (selectedUnit.combatState.state.altitude ?? 0)
                   : undefined,
+              activeUnitLamAirMekAltitude: selectedUnit?.lamAirMekAltitude,
               activeUnitTerrain: selectedUnitMapHex?.terrain,
               activeUnitElevation: selectedUnitMapHex?.elevation,
               activeUnitInfantryMounted: selectedUnit?.infantryMounted,

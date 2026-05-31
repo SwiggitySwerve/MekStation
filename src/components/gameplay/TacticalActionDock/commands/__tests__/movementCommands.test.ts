@@ -835,6 +835,63 @@ describe('movementCommands', () => {
       available: false,
       reason: 'Altitude controls are already at altitude 0.',
     });
+
+    const lamAirMekCtx = makeCtx({
+      activeUnitProne: false,
+      activeUnitConversionMode: 'airmek',
+      activeUnitLamAirMekAltitude: 24,
+      movementCapability: {
+        walkMP: 6,
+        runMP: 9,
+        jumpMP: 0,
+        movementMode: 'wige',
+        unitHeightProfile: { kind: 'lam', standingHeight: 1 },
+      },
+    });
+    const lamAirMekCommands = buildMovementCommands(lamAirMekCtx);
+    const lamAirMekClimb = lamAirMekCommands.find(
+      (c) => c.id === 'movement.altitudeUp',
+    )!;
+    const lamAirMekDescend = lamAirMekCommands.find(
+      (c) => c.id === 'movement.altitudeDown',
+    )!;
+    expect(lamAirMekClimb.availability(lamAirMekCtx)).toEqual({
+      available: true,
+    });
+    expect(lamAirMekClimb.commit(lamAirMekCtx)).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'altitude_control_action',
+        lamAirMekAltitude: 25,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+      },
+    });
+    expect(
+      lamAirMekClimb.availability({
+        ...lamAirMekCtx,
+        activeUnitLamAirMekAltitude: 25,
+      }),
+    ).toEqual({
+      available: false,
+      reason: 'Altitude controls are already at maximum altitude 25.',
+    });
+    expect(
+      lamAirMekDescend.availability({
+        ...lamAirMekCtx,
+        activeUnitLamAirMekAltitude: 1,
+        activeUnitTerrain: 'water',
+      }),
+    ).toEqual({ available: true });
+    expect(
+      lamAirMekDescend.availability({
+        ...lamAirMekCtx,
+        activeUnitLamAirMekAltitude: 0,
+      }),
+    ).toEqual({
+      available: false,
+      reason: 'Altitude controls are already at altitude 0.',
+    });
   });
 
   it('adds LAM conversion controls that clear stale explicit height', () => {

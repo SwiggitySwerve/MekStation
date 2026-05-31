@@ -298,6 +298,13 @@ export interface IUnitGameState {
   /** Pending MP reserved by represented VTOL/WiGE altitude-control steps. */
   readonly pendingAltitudeControlMpCost?: number;
   /**
+   * Runtime LAM AirMek WiGE elevation selected through UP/DOWN altitude
+   * controls. Kept separate from aerospace altitude: MegaMek treats grounded
+   * AirMek WiGE elevation as terrain-board elevation while aerospace altitude
+   * stays 0 until full airborne flight rules take over.
+   */
+  readonly lamAirMekAltitude?: number;
+  /**
    * Runtime mounted-infantry state. `false` forces conventional infantry
    * height to 0; `true` uses the runtime or imported mount height when known.
    */

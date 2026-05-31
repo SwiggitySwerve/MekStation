@@ -127,6 +127,21 @@ function altitudePositiveProtoControlMode(
   return (unit.combatState.state.altitude ?? 0) > 0 ? 'wige' : undefined;
 }
 
+function normalizedLamAirMekAltitude(unit: IUnitGameState): number {
+  const altitude = unit.lamAirMekAltitude;
+  return altitude === undefined || !Number.isFinite(altitude)
+    ? 0
+    : Math.max(0, Math.floor(altitude));
+}
+
+function isLamAirMekAltitudeState(unit: IUnitGameState): boolean {
+  return (
+    unit.conversionMode === 1 ||
+    unit.conversionMode === 'airmek' ||
+    unit.conversionMode === 'airmech'
+  );
+}
+
 function altitudeControlBlockedReason(mode: 'vtol' | 'wige'): string {
   return mode === 'vtol'
     ? AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON
@@ -151,12 +166,24 @@ export function runtimeMovementAltitudeControlContext(
   const protoState =
     unit.combatState?.kind === 'proto' ? unit.combatState.state : undefined;
   const protoMode = altitudePositiveProtoControlMode(unit);
-  if (!protoState || !protoMode) return undefined;
+  if (protoState && protoMode) {
+    return {
+      altitudeControlRequired: true,
+      altitudeControlMode: protoMode,
+      altitudeControlAltitude: protoState.altitude ?? 0,
+      blockedReason: altitudeControlBlockedReason(protoMode),
+    };
+  }
+
+  const lamAirMekAltitude = normalizedLamAirMekAltitude(unit);
+  if (lamAirMekAltitude <= 0 || !isLamAirMekAltitudeState(unit)) {
+    return undefined;
+  }
   return {
     altitudeControlRequired: true,
-    altitudeControlMode: protoMode,
-    altitudeControlAltitude: protoState.altitude ?? 0,
-    blockedReason: altitudeControlBlockedReason(protoMode),
+    altitudeControlMode: 'wige',
+    altitudeControlAltitude: lamAirMekAltitude,
+    blockedReason: AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON,
   };
 }
 
@@ -226,6 +253,13 @@ export function runtimeMovementProjectionBlockedReason(
     return AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON;
   }
   if (profile && isLamAirMekMode(unit, profile) && isAirborneAeroState(unit)) {
+    return AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON;
+  }
+  if (
+    profile &&
+    isLamAirMekMode(unit, profile) &&
+    normalizedLamAirMekAltitude(unit) > 0
+  ) {
     return AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON;
   }
   const airborneVtolOrWigeReason =

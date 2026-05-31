@@ -320,6 +320,8 @@ export interface IRuntimeMovementStateChangedPayload {
   readonly vehicleAltitude?: number;
   /** Runtime ProtoMek Glider altitude changed through WiGE-style altitude controls. */
   readonly protoAltitude?: number;
+  /** Runtime LAM AirMek WiGE elevation changed through altitude controls. */
+  readonly lamAirMekAltitude?: number;
   /** Represented MegaMek UP/DOWN step count for altitude-control audit/replay metadata. */
   readonly altitudeControlStepCount?: number;
   /** Represented MP cost of the altitude-control action before later movement steps. */

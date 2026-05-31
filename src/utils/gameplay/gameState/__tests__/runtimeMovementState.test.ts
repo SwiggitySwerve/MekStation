@@ -4,6 +4,7 @@ import {
   tacticalMapInfantryMountStateGrid,
   tacticalMapInfantryMountStateUnit,
 } from '@/testing/tactical-map.infantry-mount-state-scenario';
+import { tacticalMapLamAirMekCommitInput } from '@/testing/tactical-map.lam-conversion-scenario';
 import {
   Facing,
   GameEventType,
@@ -24,6 +25,7 @@ import { createHexGrid } from '@/utils/gameplay/hexGrid';
 import { validateCommittedMovement } from '@/utils/gameplay/movement/commitValidation';
 import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/reachable';
 import {
+  AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON,
   AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON,
   runtimeMovementAltitudeControlContext,
   runtimeMovementProjectionBlockedReason,
@@ -332,6 +334,68 @@ describe('runtime movement state events', () => {
     expect(projection).toMatchObject({
       reachable: true,
       mpCost: 2,
+      altitudeControlStepCount: 1,
+      altitudeControlMpCost: 1,
+    });
+  });
+
+  it('replays LAM AirMek WiGE altitude controls into movement projection state', () => {
+    const lamInput = tacticalMapLamAirMekCommitInput();
+    const capability = lamInput.capability;
+    if (!capability) {
+      throw new Error('LAM AirMek fixture must provide movement capability');
+    }
+    const unit: IUnitGameState = {
+      ...lamInput.unit,
+      lamAirMekAltitude: 1,
+    };
+
+    expect(
+      runtimeMovementProjectionBlockedReason(unit, capability, 'wige'),
+    ).toBe(AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON);
+    expect(runtimeMovementAltitudeControlContext(unit)).toMatchObject({
+      altitudeControlMode: 'wige',
+      altitudeControlAltitude: 1,
+      blockedReason: AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON,
+    });
+
+    const event = createRuntimeMovementStateChangedEvent(
+      'game-1',
+      1,
+      1,
+      unit.id,
+      {
+        source: 'altitude_control_action',
+        lamAirMekAltitude: 0,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+      },
+    );
+    const nextState = applyEvent(stateWithUnit(unit), event);
+    const landed = nextState.units[unit.id];
+
+    expect(landed).toMatchObject({
+      conversionMode: 'airmek',
+      lamAirMekAltitude: 0,
+      pendingAltitudeControlStepCount: 1,
+      pendingAltitudeControlMpCost: 1,
+    });
+    expect(
+      runtimeMovementProjectionBlockedReason(landed, capability, 'wige'),
+    ).toBeUndefined();
+    expect(runtimeMovementAltitudeControlContext(landed)).toBeUndefined();
+
+    const projection = deriveMovementRangeHexForDestination(
+      landed,
+      lamInput.movementType,
+      lamInput.grid,
+      capability,
+      lamInput.to,
+    );
+
+    expect(projection).toMatchObject({
+      reachable: true,
+      mpCost: 4,
       altitudeControlStepCount: 1,
       altitudeControlMpCost: 1,
     });

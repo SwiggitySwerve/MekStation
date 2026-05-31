@@ -67,8 +67,12 @@ decisions are made, not because CI is stale.
   altitude-control MP, block airborne ground projection, and cap Climb at the
   source-backed altitude 12 ceiling via
   `gate-protomek-wige-altitude-ceiling`; full multi-step airborne pathing,
-  hover/takeoff/landing sequencing, automatic WiGE landing, and the
-  LandAirMek-specific WiGE +25 ceiling remain follow-up work.
+  hover/takeoff/landing sequencing, and automatic WiGE landing remain
+  follow-up work. Represented LAM AirMek altitude controls now replay
+  `lamAirMekAltitude`, reserve altitude-control MP, block elevated ground
+  projection, and cap Climb at the LandAirMek-specific WiGE +25 ceiling via
+  `gate-lam-airmek-wige-altitude-ceiling`; full elevated AirMek/WiGE pathing
+  and automatic takeoff/landing sequencing remain follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
   `apply-runtime-movement-state-events`, and tactical command controls are now

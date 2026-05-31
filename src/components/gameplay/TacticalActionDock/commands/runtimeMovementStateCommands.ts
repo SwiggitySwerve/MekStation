@@ -70,7 +70,20 @@ function hasVehicleAltitudeControl(
   return (
     ctx?.activeUnitVehicleMotionType === GroundMotionType.VTOL ||
     ctx?.activeUnitVehicleMotionType === GroundMotionType.WIGE ||
+    isLamAirMekWigeAltitudeControl(ctx) ||
     isProtoGliderWigeAltitudeControl(ctx)
+  );
+}
+
+function isLamAirMekWigeAltitudeControl(
+  ctx: ITacticalCommandContext | undefined,
+): boolean {
+  const profile = ctx?.movementCapability?.unitHeightProfile;
+  return (
+    profile?.kind === 'lam' &&
+    normalizedCommandConversionMode(ctx?.activeUnitConversionMode, profile) ===
+      'airmek' &&
+    ctx?.movementCapability?.movementMode === 'wige'
   );
 }
 
@@ -84,9 +97,11 @@ function isProtoGliderWigeAltitudeControl(
 }
 
 function currentVehicleAltitude(ctx: ITacticalCommandContext): number {
-  const altitude = isProtoGliderWigeAltitudeControl(ctx)
-    ? ctx.activeUnitProtoAltitude
-    : ctx.activeUnitVehicleAltitude;
+  const altitude = isLamAirMekWigeAltitudeControl(ctx)
+    ? ctx.activeUnitLamAirMekAltitude
+    : isProtoGliderWigeAltitudeControl(ctx)
+      ? ctx.activeUnitProtoAltitude
+      : ctx.activeUnitVehicleAltitude;
   return altitude === undefined || !Number.isFinite(altitude)
     ? 0
     : Math.max(0, Math.floor(altitude));
@@ -142,6 +157,10 @@ function maxVehicleAltitude(ctx: ITacticalCommandContext): number {
     return 12;
   }
 
+  if (isLamAirMekWigeAltitudeControl(ctx)) {
+    return 25;
+  }
+
   if (ctx.activeUnitVehicleMotionType === GroundMotionType.VTOL) {
     if (bridgeLevel > 0 && altitude < bridgeLevel) {
       return Math.max(0, bridgeLevel - activeUnitHeight(ctx) - 1);
@@ -191,7 +210,7 @@ function minVehicleAltitude(ctx: ITacticalCommandContext): number {
   }
 
   const waterDepth = activeUnitWaterDepth(ctx);
-  if (waterDepth > 0) {
+  if (waterDepth > 0 && !isLamAirMekWigeAltitudeControl(ctx)) {
     minElevation = Math.max(minElevation, 1);
   }
 
@@ -225,10 +244,17 @@ function altitudeControlUnavailableReason(
 function altitudeControlAltitudePatch(
   ctx: ITacticalCommandContext,
   altitude: number,
-): { readonly protoAltitude: number } | { readonly vehicleAltitude: number } {
-  return isProtoGliderWigeAltitudeControl(ctx)
-    ? { protoAltitude: altitude }
-    : { vehicleAltitude: altitude };
+):
+  | { readonly lamAirMekAltitude: number }
+  | { readonly protoAltitude: number }
+  | { readonly vehicleAltitude: number } {
+  if (isLamAirMekWigeAltitudeControl(ctx)) {
+    return { lamAirMekAltitude: altitude };
+  }
+  if (isProtoGliderWigeAltitudeControl(ctx)) {
+    return { protoAltitude: altitude };
+  }
+  return { vehicleAltitude: altitude };
 }
 
 const MovementAltitudeUpCommand: ITacticalCommand = {

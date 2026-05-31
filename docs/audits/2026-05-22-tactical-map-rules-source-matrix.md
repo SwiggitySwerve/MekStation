@@ -768,8 +768,22 @@ WiGE-like altitude. MekStation now exposes represented ProtoMek Glider altitude
 to movement commands, dispatches replayable `protoAltitude` runtime state
 through the shared altitude-control step/MP reserve, blocks positive-altitude
 Glider ground projection as WiGE altitude-control-owned, and caps Climb
-availability at altitude 12. LAM AirMek +25 altitude controls and full airborne
-pathing remain follow-up work.
+availability at altitude 12. LAM AirMek +25 altitude controls are now handled
+by the follow-on `gate-lam-airmek-wige-altitude-ceiling` slice; full airborne
+pathing remains follow-up work.
+
+2026-05-31 LAM AirMek WiGE altitude ceiling pin: MegaMek
+`Entity.java:2561-2573` gives LandAirMek WiGE movement a current-hex-level +25
+ceiling, while ordinary WiGE vehicles remain at level +1 and ProtoMeks remain
+at level +12. `Entity.java:2426-2518` drives DOWN availability through the
+same WIGE/VTOL elevation gate and lets WIGE descend to the current hex level
+over water. `LandAirMek.java:1806-1812` explicitly separates aerospace
+altitude from ground-map elevation. MekStation now tracks represented AirMek
+WiGE elevation in `lamAirMekAltitude`, exposes Climb/Descend controls in
+AirMek mode, dispatches replayable altitude-control MP reserves, caps Climb at
+25, and marks positive-elevation AirMek ground projection as altitude-control
+owned. Full elevated AirMek/WiGE pathing, takeoff/landing sequencing, and
+automatic WiGE landing remain follow-up work.
 
 Additional small-unit movement data pin: MegaMek `Infantry.java:560-568` and
 `BattleArmor.java:520-523` return walk MP as base run MP unless optional TacOps
