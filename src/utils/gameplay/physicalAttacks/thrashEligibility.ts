@@ -19,6 +19,32 @@ export type ThrashAttackBlockingTerrain =
   | 'fuel-tank'
   | 'building';
 
+const TERRAIN_TOKEN_SPLIT = /[,_:+|/\s-]+/;
+
+function terrainTokens(terrain: string | undefined): readonly string[] {
+  return (terrain ?? '')
+    .trim()
+    .toLowerCase()
+    .split(TERRAIN_TOKEN_SPLIT)
+    .filter(Boolean);
+}
+
+export function thrashBlockingTerrainsForHexTerrain(
+  terrain: string | undefined,
+): readonly ThrashAttackBlockingTerrain[] {
+  const tokens = new Set(terrainTokens(terrain));
+  const blockers: ThrashAttackBlockingTerrain[] = [];
+
+  if (tokens.has('woods') || tokens.has('wood')) blockers.push('woods');
+  if (tokens.has('jungle')) blockers.push('jungle');
+  if (tokens.has('rough')) blockers.push('rough');
+  if (tokens.has('rubble')) blockers.push('rubble');
+  if (tokens.has('building')) blockers.push('building');
+  if (tokens.has('fuel') && tokens.has('tank')) blockers.push('fuel-tank');
+
+  return blockers;
+}
+
 export interface IThrashAttackEligibilityInput {
   readonly friendlyFireEnabled?: boolean;
   readonly targetIsFriendly?: boolean;
