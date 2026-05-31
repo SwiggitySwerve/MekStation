@@ -58,7 +58,8 @@ function makeBlockedGrid(): IHexGrid {
       hexes.set(`${q},${r}`, makeHex(q, r));
     }
   }
-  // Heavy woods at (3, 0) blocks LOS from (0,0) to (5,0)
+  // Light + heavy woods block LOS from (0,0) to (5,0).
+  hexes.set('2,0', makeHex(2, 0, TerrainType.LightWoods));
   hexes.set('3,0', makeHex(3, 0, TerrainType.HeavyWoods));
   return { config: { radius: 10 }, hexes };
 }

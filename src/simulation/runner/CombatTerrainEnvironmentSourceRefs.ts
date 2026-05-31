@@ -153,9 +153,9 @@ const MEKSTATION_LOS_FEATURE_PARSE_SOURCE_REF = mekstationDeviationSourceRef(
 );
 
 const MEKSTATION_LOS_BLOCKING_SOURCE_REF = mekstationDeviationSourceRef(
-  'MekStation calculateLOS checks intervening hexes for blocksLOS terrain, computes local blocking height, and returns blockingTerrain when the simplified sight line is blocked.',
+  'MekStation calculateLOS checks intervening hexes for direct blocks, blocking wrecks, and cumulative woods or smoke density before returning blockingTerrain or blockingUnit.',
   'src/utils/gameplay/lineOfSight.ts',
-  'L137-L232',
+  'L157-L281',
 );
 
 const MEKSTATION_ATTACK_LOS_PHASE_SOURCE_REF = mekstationDeviationSourceRef(

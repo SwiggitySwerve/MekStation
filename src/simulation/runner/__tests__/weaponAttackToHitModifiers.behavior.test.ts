@@ -193,7 +193,7 @@ function createUnit(options: {
   };
 }
 
-function createHex(q: number, r: number, terrain: TerrainType) {
+function createHex(q: number, r: number, terrain: string) {
   return { coord: { q, r }, occupantId: null, terrain, elevation: 0 };
 }
 
@@ -202,7 +202,7 @@ function createGrid(
   interveningTerrain: ReadonlyArray<{
     q: number;
     r: number;
-    terrain: TerrainType;
+    terrain: string;
   }> = [],
 ): IHexGrid {
   const hexes = new Map();
@@ -692,7 +692,14 @@ describe('runAttackPhase to-hit modifier integration', () => {
       target: { position: { q: 0, r: 0 } },
     });
     const grid = createGrid(TerrainType.Clear, [
-      { q: 1, r: 1, terrain: TerrainType.HeavyWoods },
+      {
+        q: 1,
+        r: 1,
+        terrain: JSON.stringify([
+          { type: TerrainType.HeavyWoods, level: 1 },
+          { type: TerrainType.LightWoods, level: 1 },
+        ]),
+      },
     ]);
 
     expect(network).not.toBeNull();
@@ -760,7 +767,14 @@ describe('runAttackPhase to-hit modifier integration', () => {
       target: { position: { q: 0, r: 0 } },
     });
     const grid = createGrid(TerrainType.Clear, [
-      { q: 1, r: 1, terrain: TerrainType.HeavyWoods },
+      {
+        q: 1,
+        r: 1,
+        terrain: JSON.stringify([
+          { type: TerrainType.HeavyWoods, level: 1 },
+          { type: TerrainType.LightWoods, level: 1 },
+        ]),
+      },
     ]);
 
     expect(network).not.toBeNull();

@@ -42,9 +42,10 @@ function makeClearGrid(): IHexGrid {
   return { config: { radius: 10 }, hexes };
 }
 
-/** Grid with heavy woods at (3,0) — blocks attacker LOS from (0,0) to (5,0). */
+/** Grid with cumulative woods density blocking attacker LOS from (0,0) to (5,0). */
 function makeBlockedGrid(): IHexGrid {
   const grid = makeClearGrid();
+  grid.hexes.set('2,0', makeHex(2, 0, TerrainType.LightWoods));
   grid.hexes.set('3,0', makeHex(3, 0, TerrainType.HeavyWoods));
   return grid;
 }

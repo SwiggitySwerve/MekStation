@@ -54,7 +54,8 @@ function makeClearGrid(): IHexGrid {
 
 function makeBlockedGrid(): IHexGrid {
   const grid = makeClearGrid();
-  // Heavy woods at (3, 0) blocks LOS from (0,0) → (5,0)
+  // Light + heavy woods block LOS from (0,0) -> (5,0).
+  grid.hexes.set('2,0', makeHex(2, 0, TerrainType.LightWoods));
   grid.hexes.set('3,0', makeHex(3, 0, TerrainType.HeavyWoods));
   return grid;
 }

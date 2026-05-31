@@ -94,6 +94,25 @@ function getTerrainHeight(
   return props.losBlockHeight;
 }
 
+const CUMULATIVE_LOS_BLOCKING_THRESHOLD = 2;
+const MINIMUM_CUMULATIVE_LOS_TERRAIN_HEIGHT = 1;
+
+function getCumulativeLosDensity(feature: ITerrainFeature): number {
+  if (feature.type === TerrainType.LightWoods) {
+    return 1;
+  }
+
+  if (feature.type === TerrainType.HeavyWoods) {
+    return 2;
+  }
+
+  if (feature.type === TerrainType.Smoke) {
+    return Math.min(Math.max(Math.trunc(feature.level || 1), 1), 2);
+  }
+
+  return 0;
+}
+
 /**
  * Calculate the LOS height at a specific point along the line.
  * Uses linear interpolation between shooter and target heights.
@@ -125,6 +144,7 @@ function interpolateLOSHeight(
  * Implements basic BattleTech LOS rules:
  * - Draws a line from source to target
  * - Checks intervening hexes for blocking terrain
+ * - Blocks through cumulative woods and smoke density greater than 2
  * - Considers elevation differences (can see over lower obstacles)
  *
  * @param from - Source hex coordinate
@@ -169,6 +189,7 @@ export function calculateLOS(
   const targetHeight = toElevation ?? toBaseElevation + 1;
 
   const totalDistance = interveningHexes.length + 1; // +1 for target
+  let cumulativeLosDensity = 0;
 
   // Check each intervening hex for blocking terrain
   for (let i = 0; i < interveningHexes.length; i++) {
@@ -195,12 +216,19 @@ export function calculateLOS(
     for (const feature of features) {
       const props = TERRAIN_PROPERTIES[feature.type];
 
-      if (!props || !props.blocksLOS) {
+      if (!props) {
         continue;
       }
 
       // Calculate the blocking height (terrain height + hex elevation)
-      const terrainHeight = getTerrainHeight(feature, props);
+      const density = getCumulativeLosDensity(feature);
+      const terrainHeight =
+        density > 0
+          ? Math.max(
+              getTerrainHeight(feature, props),
+              MINIMUM_CUMULATIVE_LOS_TERRAIN_HEIGHT,
+            )
+          : getTerrainHeight(feature, props);
       const blockingHeight = hexData.elevation + terrainHeight;
 
       // Calculate the LOS height at this hex (interpolate between shooter and target)
@@ -211,6 +239,27 @@ export function calculateLOS(
         totalDistance,
         currentDistance,
       );
+
+      if (density > 0) {
+        if (blockingHeight >= losHeight) {
+          cumulativeLosDensity += density;
+
+          if (cumulativeLosDensity > CUMULATIVE_LOS_BLOCKING_THRESHOLD) {
+            return {
+              hasLOS: false,
+              blockedBy: hex,
+              blockingTerrain: feature.type,
+              interveningHexes,
+            };
+          }
+        }
+
+        continue;
+      }
+
+      if (!props.blocksLOS) {
+        continue;
+      }
 
       // LOS is blocked if the blocking terrain is taller than the line of sight
       if (blockingHeight >= losHeight) {
@@ -243,8 +292,8 @@ function findBlockingWreck(
 }
 
 /**
- * Check if a specific hex blocks LOS.
- * Utility function for checking individual hexes.
+ * Check if a specific hex has terrain that directly blocks LOS.
+ * Cumulative woods and smoke require full line context and are handled by calculateLOS.
  *
  * @param hex - The hex to check
  * @param grid - Hex grid with terrain data
@@ -264,7 +313,7 @@ export function getBlockingTerrain(
 
   for (const feature of features) {
     const props = TERRAIN_PROPERTIES[feature.type];
-    if (props?.blocksLOS) {
+    if (props?.blocksLOS && getCumulativeLosDensity(feature) === 0) {
       return feature.type;
     }
   }

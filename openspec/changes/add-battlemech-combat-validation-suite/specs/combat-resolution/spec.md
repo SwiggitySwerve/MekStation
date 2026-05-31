@@ -1451,7 +1451,7 @@ Heat rule support rows SHALL carry source references before they are treated as 
 
 ### Requirement: Source-Backed Terrain Environment Catalog Anchors
 
-Terrain/environment support rows SHALL carry source references before they are treated as validation coverage. Terrain movement costs, partial cover, terrain to-hit features, water cooling, fire heat, smoke to-hit, fog, night, wind, and extreme-temperature rows SHALL be pinned to MegaMek source references with commit-pinned URLs and line anchors when they claim comparable source-backed behavior. The terrain LOS blocking row SHALL remain helper-only while MekStation uses simplified `blocksLOS` / `losBlockHeight` behavior instead of MegaMek cumulative woods/smoke, water, divided-LOS, and building-level handling. MekStation-only water walk/run rejection and atmosphere heat adjustment SHALL be marked as MekStation deviation sources instead of being attributed to MegaMek. Dust and mines SHALL remain helper-only until first-class battlefield condition and minefield movement-damage resolution exist, and those gap rows SHALL carry both source-truth and local absence references.
+Terrain/environment support rows SHALL carry source references before they are treated as validation coverage. Terrain movement costs, partial cover, terrain to-hit features, water cooling, fire heat, smoke to-hit, fog, night, wind, and extreme-temperature rows SHALL be pinned to MegaMek source references with commit-pinned URLs and line anchors when they claim comparable source-backed behavior. The terrain LOS blocking row SHALL remain helper-only while MekStation implements direct blockers plus cumulative woods/smoke density but still lacks land-to-underwater LOS, divided/diagram LOS, and richer building-level handling. MekStation-only water walk/run rejection and atmosphere heat adjustment SHALL be marked as MekStation deviation sources instead of being attributed to MegaMek. Dust and mines SHALL remain helper-only until first-class battlefield condition and minefield movement-damage resolution exist, and those gap rows SHALL carry both source-truth and local absence references.
 
 #### Scenario: Terrain environment rows expose source truth
 
@@ -1477,7 +1477,7 @@ Every TerrainType movement support row SHALL expose structured source references
 
 ### Requirement: Source-Backed TerrainType LOS Catalog Anchors
 
-Every TerrainType LOS support row SHALL expose structured source references before the map is treated as source-backed validation coverage. Every row SHALL cite the local `TERRAIN_PROPERTIES`, `calculateLOS`, and runner attack LOS validation paths. Building and heavy woods SHALL be marked as MekStation simplified blocking behavior rather than full MegaMek LOS parity. Light woods, smoke, and water SHALL remain helper-only gap rows for cumulative woods/smoke density, land-to-underwater sightline blocking, and divided/diagram LOS behavior. Terrain rows with no LOS blocking behavior SHALL remain source-checked through local no-op source references instead of inheriting generic terrain authority. Any future TerrainType LOS expansion SHALL either add a MegaMek/MekHQ source reference or explicitly mark the row as a local deviation/gap.
+Every TerrainType LOS support row SHALL expose structured source references before the map is treated as source-backed validation coverage. Every row SHALL cite the local `TERRAIN_PROPERTIES`, `calculateLOS`, and runner attack LOS validation paths. Building SHALL be marked as MekStation direct blocking behavior rather than full MegaMek building-level parity. Heavy woods, light woods, and smoke SHALL be marked integrated only when `calculateLOS` accumulates intervening density and blocks LOS once woods/smoke density exceeds 2. Water SHALL remain a helper-only gap row for land-to-underwater sightline blocking and divided/diagram LOS behavior. Terrain rows with no LOS blocking behavior SHALL remain source-checked through local no-op source references instead of inheriting generic terrain authority. Any future TerrainType LOS expansion SHALL either add a MegaMek/MekHQ source reference or explicitly mark the row as a local deviation/gap.
 
 #### Scenario: TerrainType LOS rows expose source truth
 
@@ -1485,7 +1485,8 @@ Every TerrainType LOS support row SHALL expose structured source references befo
 - **WHEN** any TerrainType LOS row is inspected
 - **THEN** the row SHALL expose structured source references with line anchors
 - **AND** building, heavy woods, light woods, smoke, and water rows SHALL include commit-pinned MegaMek LOS comparison references
-- **AND** light woods, smoke, and water rows SHALL remain helper-only until cumulative woods/smoke density, land-to-underwater LOS, and divided/diagram LOS behavior are implemented
+- **AND** heavy woods, light woods, and smoke rows SHALL be integrated only when cumulative density blocking over 2 is implemented and covered by behavior tests
+- **AND** water SHALL remain helper-only until land-to-underwater LOS and divided/diagram LOS behavior are implemented
 - **AND** local no-LOS-effect terrain rows SHALL use MekStation deviation source references for the local no-op mapping
 - **AND** the terrainTypeLos catalog triad SHALL enforce row-level source references before PR approval
 

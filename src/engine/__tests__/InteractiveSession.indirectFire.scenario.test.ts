@@ -2,7 +2,7 @@
  * Scenario tests for the indirect-fire production wiring (PR-K5).
  *
  * Exercises `applyInteractiveSessionAttack` (which `InteractiveSession.applyAttack`
- * delegates to) with a heavy-woods grid that blocks attacker LOS but leaves
+ * delegates to) with a cumulative-woods grid that blocks attacker LOS but leaves
  * the spotter with LOS to the target. Verifies:
  *
  *   1. POSITIVE — when a spotter has LOS, applyInteractiveSessionAttack
@@ -65,7 +65,8 @@ function makeBlockedGrid(): IHexGrid {
       hexes.set(`${q},${r}`, makeHex(q, r));
     }
   }
-  // Heavy woods at (3, 0) blocks LOS from attacker (0,0) → target (5,0)
+  // Light + heavy woods block LOS from attacker (0,0) -> target (5,0).
+  hexes.set('2,0', makeHex(2, 0, TerrainType.LightWoods));
   hexes.set('3,0', makeHex(3, 0, TerrainType.HeavyWoods));
   return { config: { radius: 12 }, hexes };
 }

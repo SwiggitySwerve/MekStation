@@ -101,6 +101,28 @@ describe('losClassifier', () => {
     expect(result.engineResult.hasLOS).toBe(true);
   });
 
+  it('classifies cumulative woods density as blocked', () => {
+    const grid = createGrid([
+      createHex(0, 0),
+      createHex(1, 0, TerrainType.HeavyWoods),
+      createHex(2, 0, TerrainType.LightWoods),
+      createHex(3, 0),
+    ]);
+
+    const result = classifyLOS(origin, { q: 3, r: 0 }, grid);
+
+    expect(result.state).toBe('blocked');
+    expect(result.blockers).toEqual([{ q: 2, r: 0 }]);
+    expect(result.blockerAnnotations).toEqual([
+      expect.objectContaining({
+        coord: { q: 2, r: 0 },
+        terrain: TerrainType.LightWoods,
+        icon: 'wall',
+      }),
+    ]);
+    expect(result.engineResult.hasLOS).toBe(false);
+  });
+
   it('classifies a blocking building through the existing LOS result', () => {
     const grid = createGrid([
       createHex(0, 0),

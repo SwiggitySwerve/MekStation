@@ -160,11 +160,7 @@ describe('BattleMech terrain and environment combat support catalog', () => {
       TerrainType.Smoke,
       TerrainType.Water,
     ];
-    const localLosGapTerrains = [
-      TerrainType.LightWoods,
-      TerrainType.Smoke,
-      TerrainType.Water,
-    ];
+    const localLosGapTerrains = [TerrainType.Water];
 
     Object.values(TERRAIN_TYPE_LOS_COMBAT_SUPPORT).forEach((entry) => {
       const sourceRefs = entry.sourceRefs ?? [];
@@ -183,7 +179,7 @@ describe('BattleMech terrain and environment combat support catalog', () => {
           }),
           expect.objectContaining({
             kind: 'mekstation-deviation',
-            url: 'src/utils/gameplay/lineOfSight.ts#L137-L232',
+            url: 'src/utils/gameplay/lineOfSight.ts#L157-L281',
           }),
           expect.objectContaining({
             kind: 'mekstation-deviation',
@@ -218,17 +214,19 @@ describe('BattleMech terrain and environment combat support catalog', () => {
     ).toEqual([
       expect.objectContaining({
         level: 'helper-only',
-        gap: expect.stringContaining('cumulative'),
-      }),
-      expect.objectContaining({
-        level: 'helper-only',
-        gap: expect.stringContaining('cumulative'),
-      }),
-      expect.objectContaining({
-        level: 'helper-only',
         gap: expect.stringContaining('underwater'),
       }),
     ]);
+    expect(
+      TERRAIN_TYPE_LOS_COMBAT_SUPPORT[TerrainType.LightWoods],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('cumulative density exceeds 2'),
+    });
+    expect(TERRAIN_TYPE_LOS_COMBAT_SUPPORT[TerrainType.Smoke]).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('cumulative density exceeds 2'),
+    });
   });
 
   it('treats non-zero terrain attack modifiers as integrated runner to-hit behavior', () => {
