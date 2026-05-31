@@ -333,21 +333,6 @@ export const MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
-export const MEGAMEK_HEAVY_LIFTER_SOURCE_REFS = [
-  megamekRef(
-    'MegaMek MekWithArms.maxGroundObjectTonnage multiplies BattleMech ground-object lift capacity by 1.5 for Heavy Lifter.',
-    'megamek/src/megamek/common/units/MekWithArms.java#L97-L115',
-  ),
-  megamekRef(
-    'MegaMek ProtoMek.maxGroundObjectTonnage multiplies ProtoMek ground-object lift capacity by 1.5 for Heavy Lifter.',
-    'megamek/src/megamek/common/units/ProtoMek.java#L553-L567',
-  ),
-  megamekRef(
-    'MegaMek OptionsConstants defines PILOT_HVY_LIFTER as hvy_lifter.',
-    'megamek/src/megamek/common/options/OptionsConstants.java#L169-L178',
-  ),
-] satisfies readonly ICombatFeatureSourceReference[];
-
 export const MEGAMEK_SHAKY_STICK_SOURCE_REFS = [
   megamekRef(
     'MegaMek ComputeAbilityMods.processDefenderSPAs applies +1 Shaky Stick when an airborne or airborne VTOL/WIGE target is attacked by a non-airborne attacker.',
