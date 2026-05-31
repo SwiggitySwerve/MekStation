@@ -143,6 +143,7 @@ describe('BattleMech combat action support catalog', () => {
       'physical.club',
       'physical.dfa',
       'physical.flail',
+      'physical.grapple',
       'physical.jump-jet-attack',
       'physical.kick',
       'physical.lance',
@@ -710,6 +711,7 @@ describe('BattleMech combat action support catalog', () => {
       'physical.dfa': 'dfa',
       'physical.flail': 'flail',
       'physical.brush-off': 'brush-off',
+      'physical.grapple': 'grapple',
       'physical.jump-jet-attack': 'jump-jet-attack',
       'physical.kick': 'kick',
       'physical.lance': 'lance',
@@ -729,6 +731,7 @@ describe('BattleMech combat action support catalog', () => {
       'charge',
       'dfa',
       'flail',
+      'grapple',
       'hatchet',
       'jump-jet-attack',
       'kick',
@@ -772,6 +775,7 @@ describe('BattleMech combat action support catalog', () => {
       'charge',
       'club',
       'dfa',
+      'grapple',
       'jump-jet-attack',
       'kick',
       'punch',
@@ -784,7 +788,7 @@ describe('BattleMech combat action support catalog', () => {
     ).toEqual([]);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'helper-only'),
-    ).toEqual(['break-grapple', 'grapple']);
+    ).toEqual(['break-grapple']);
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'out-of-scope'),
     ).toEqual([
@@ -805,10 +809,11 @@ describe('BattleMech combat action support catalog', () => {
       .sort();
     expect(battleMechGaps).toEqual([]);
     expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.grapple).toMatchObject({
-      level: 'helper-only',
-      evidence: expect.stringContaining('canGrapple'),
-      gap: expect.stringContaining('no runtime PhysicalAttackType'),
+      level: 'integrated',
+      evidence: expect.stringContaining('runtime PhysicalAttackType'),
+      runtimeAttackTypes: ['grapple'],
     });
+    expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.grapple.gap).toBeUndefined();
     expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['break-grapple']).toMatchObject({
       level: 'helper-only',
       evidence: expect.stringContaining('canBreakGrapple'),
