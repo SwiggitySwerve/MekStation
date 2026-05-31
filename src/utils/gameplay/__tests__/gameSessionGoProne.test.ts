@@ -128,6 +128,25 @@ describe('goProne', () => {
     expect(goProne(session, 'player-1')).toBe(session);
   });
 
+  it('does not emit a goProne action for a stuck unit', () => {
+    const base = makeMovementSession();
+    const session = {
+      ...base,
+      currentState: {
+        ...base.currentState,
+        units: {
+          ...base.currentState.units,
+          'player-1': {
+            ...base.currentState.units['player-1'],
+            isStuck: true,
+          },
+        },
+      },
+    };
+
+    expect(goProne(session, 'player-1')).toBe(session);
+  });
+
   it('converts hull-down posture to prone at zero MP', () => {
     const base = makeMovementSession();
     const session = {

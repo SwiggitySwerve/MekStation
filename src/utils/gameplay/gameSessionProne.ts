@@ -16,10 +16,11 @@ const GO_PRONE_UNIT_TYPES = new Set<string>([
 export function canUnitGoProne(
   unit: Pick<
     IGameSession['currentState']['units'][string],
-    'prone' | 'unitType'
+    'isStuck' | 'prone' | 'unitType'
   >,
 ): boolean {
   if (unit.prone === true) return false;
+  if (unit.isStuck === true) return false;
   return unit.unitType === undefined || GO_PRONE_UNIT_TYPES.has(unit.unitType);
 }
 
