@@ -31,6 +31,7 @@ import type {
   IUnitDestroyedPayload,
   IUnitFellPayload,
   IUnitStoodPayload,
+  IUnitStuckPayload,
   IDamageAppliedPayload,
   ICriticalHitResolvedPayload,
 } from './GameSessionAttackEvents';
@@ -477,6 +478,7 @@ export type GameEventPayload =
   | IPSRTriggeredPayload
   | IPSRResolvedPayload
   | IUnitFellPayload
+  | IUnitStuckPayload
   | IUnitStoodPayload
   | IPhysicalAttackDeclaredPayload
   | IPhysicalAttackResolvedPayload
