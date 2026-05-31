@@ -453,7 +453,7 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 
 Physical attack declaration and resolution SHALL validate action-specific legality gates before scheduling a combat action. Push, charge, death from above, melee weapon, punch, kick, and club logic SHALL share the same legality helpers across eligibility display, event-sourced declaration, and simulation runner resolution so UI options, game events, and automated combat cannot diverge.
 
-#### Scenario: Unsupported BattleMech physical classes stay source-backed
+#### Scenario: Helper-only BattleMech physical classes stay source-backed
 
 - **GIVEN** MegaMek exposes BattleMech-applicable brush-off, thrash, trip, grapple, break-grapple, and jump-jet physical action classes
 - **WHEN** the physical action class scope catalog is contract-tested
@@ -462,10 +462,11 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **AND** non-BattleMech AirMek, battle armor, infantry explosive, ProtoMek, and aerospace ram rows SHALL remain explicit `out-of-scope` splits with row-level MegaMek source references
 - **AND** `break-grapple` SHALL be helper-only when MekStation exposes source-backed optional-rule, airborne, common locked-grapple, chain-whip, unit-type, grapple-target, automatic-success, actuator/AES, and weight-class modifier branches but still lacks a runtime `PhysicalAttackType`, tactical command, event-sourced grapple state/declaration/resolution, and runner resolution path
 - **AND** `brush-off` SHALL be helper-only when MekStation exposes source-backed swarming-infantry/iNarc target legality, arm gates, dedicated brush-off modifiers, and punch-equivalent damage but still lacks a runtime `PhysicalAttackType`, tactical command, event-sourced declaration/resolution, miss self-damage handling, and runner resolution path
+- **AND** `grapple` SHALL be helper-only when MekStation exposes source-backed optional-rule, airborne, common locked-grapple, friendly-fire, unit-type, arm/shoulder, range, elevation, front-arc, prone, weapon-fire, already-grappled, actuator/AES/TSM, and weight-class branches but still lacks a runtime `PhysicalAttackType`, tactical command, event-sourced grapple state/declaration/resolution, and runner resolution path
 - **AND** `jump-jet-attack` SHALL be helper-only when MekStation exposes source-backed optional-rule, LAM mode, selected-leg, Mek-only, leg, jump-jet, movement, weapon-fire, range, elevation, facing, automatic adjacent-building success, source-specific modifiers, and jump-jet damage branches but still lacks a runtime `PhysicalAttackType`, tactical command, event-sourced declaration/resolution, selected-leg payload, and runner resolution path
 - **AND** `thrash` SHALL be helper-only when MekStation exposes source-backed prone-Mek same-hex infantry legality, automatic-success, and weight-based damage helper coverage but still lacks a runtime `PhysicalAttackType`, tactical command, event-sourced declaration/resolution, miss/self-damage PSR handling, and runner resolution path
 - **AND** `trip` SHALL be helper-only when MekStation exposes source-backed trip legality and base to-hit helper coverage but still lacks a runtime `PhysicalAttackType`, tactical command, event-sourced declaration/resolution, and runner resolution path
-- **AND** only BattleMech-applicable grapple rows SHALL remain `unsupported` until MekStation has a runtime action path for those classes
+- **AND** no BattleMech-applicable physical action class scope row SHALL remain `unsupported` while helper-only class rows continue to expose the missing runtime action paths
 - **AND** the `physicalActionClassScope` catalog triad SHALL enforce row-level source references before PR approval
 
 #### Scenario: Physical attacks require existing targets
