@@ -143,6 +143,13 @@ describe('BattleMech combat event support catalog', () => {
         'src/utils/gameplay/gameSessionCore.ts#L258-L380',
       ]),
     );
+    expect(urlsFor(GameEventType.UnitStuck)).toEqual(
+      expect.arrayContaining([
+        'src/utils/gameplay/gameEvents/statusChecks.ts#L18-L243',
+        'src/utils/gameplay/gameSessionPSR.ts#L44-L388',
+        'src/simulation/runner/phases/postCombat.ts#L101-L469',
+      ]),
+    );
   });
 
   it('keeps non-BattleMech event families split out of the BattleMech validation lane', () => {
@@ -247,6 +254,7 @@ describe('BattleMech combat event support catalog', () => {
         GameEventType.PSRTriggered,
         GameEventType.PSRResolved,
         GameEventType.UnitFell,
+        GameEventType.UnitStuck,
         GameEventType.PhysicalAttackDeclared,
         GameEventType.PhysicalAttackResolved,
         GameEventType.UnitDestroyed,

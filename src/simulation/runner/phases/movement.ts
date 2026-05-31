@@ -210,6 +210,7 @@ export function runMovementPhase(options: {
           coord: unit.position,
           facing: unit.facing,
           prone: unit.prone ?? false,
+          isStuck: unit.isStuck ?? false,
         },
         moveEvent.payload.to,
         moveEvent.payload.facing as Facing,
