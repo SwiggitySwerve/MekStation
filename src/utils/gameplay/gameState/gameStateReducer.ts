@@ -31,6 +31,7 @@ import {
   IPSRTriggeredPayload,
   IRetreatTriggeredPayload,
   IShutdownCheckPayload,
+  ISpottingDeclaredPayload,
   IStartupAttemptPayload,
   IUnitEjectedPayload,
   IUnitDestroyedPayload,
@@ -71,6 +72,7 @@ import {
   applyRetreatTriggered,
   applyShutdownCheck,
   applyStartupAttempt,
+  applySpottingDeclared,
   applyUnitEjected,
   applyUnitFell,
   applyUnitRetreated,
@@ -223,6 +225,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
       return applyDesignatorMarkerApplied(
         state,
         event.payload as IDesignatorMarkerAppliedPayload,
+      );
+
+    case GameEventType.SpottingDeclared:
+      return applySpottingDeclared(
+        state,
+        event.payload as ISpottingDeclaredPayload,
       );
 
     case GameEventType.RetreatTriggered:
