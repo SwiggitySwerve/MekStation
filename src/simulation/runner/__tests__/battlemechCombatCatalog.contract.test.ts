@@ -2214,6 +2214,10 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(
       CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_aero_alt_loss.level,
     ).toBe('out-of-scope');
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.animal_mimic).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('quad Mek PSRs'),
+    });
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.sandblaster).toMatchObject({
       level: 'helper-only',
       gap: expect.stringContaining('UAC/RAC'),

@@ -924,7 +924,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'spa-quirk-catalog': helperOnly(
     'spa-quirk-catalog',
     'SPA and quirk support maps cover the combat SPA helper catalog, the canonical SPA catalog boundary, Maneuvering Ace skidding relief, Animal Mimicry quad-Mek PSR relief, and every mech or weapon quirk in the local catalogs',
-    'Several canonical SPA, SPA-helper, and quirk entries remain helper-only or unsupported until runner/application plumbing exists; Maneuvering Ace terrain PSRs beyond skidding and Animal Mimicry terrain-designation movement effects remain explicit gaps',
+    'Several canonical SPA, SPA-helper, and quirk entries remain helper-only or unsupported until runner/application plumbing exists; Maneuvering Ace terrain PSRs beyond skidding remain explicit gaps',
     [
       ...PILOT_ABILITY_SUPPORT_REFS,
       ...CANONICAL_SPA_SUPPORT_REFS,
