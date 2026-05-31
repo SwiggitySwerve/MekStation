@@ -15,6 +15,7 @@ export {
   lockMovement,
   declareAttack,
   lockAttack,
+  requestSpot,
   type ICreateGameSessionOptions,
 } from './gameSessionCore';
 
