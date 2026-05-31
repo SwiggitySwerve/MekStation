@@ -174,6 +174,7 @@ export function toAIUnitState(
     hexesMoved: unit.hexesMovedThisTurn,
     prone: unit.prone ?? false,
     unitType: unit.unitType,
+    abilities: unit.abilities,
     // Per `wire-bot-ai-helpers-and-capstone`: propagate retreat latch
     // through to the AI so RetreatAI helpers can read it without a
     // round-trip through the session lookup.

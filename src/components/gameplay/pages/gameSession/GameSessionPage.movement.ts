@@ -168,6 +168,8 @@ export function useGameMovementPlanning({
             ? capability.walkMP
             : capability.runMP
           : Infinity,
+        movementType === MovementType.Run ? 'run' : 'walk',
+        { pilotAbilities: selectedUnitState.abilities },
       ) ?? []
     );
   }, [
@@ -302,6 +304,8 @@ function buildMovementPlan({
               ? capability.walkMP
               : capability.runMP
             : Infinity,
+          movementType === MovementType.Run ? 'run' : 'walk',
+          { pilotAbilities: selectedUnitState.abilities },
         ) ?? []);
   return {
     destination: hex,

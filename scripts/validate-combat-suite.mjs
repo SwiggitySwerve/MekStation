@@ -34,6 +34,7 @@ const COMBAT_VALIDATION_TESTS = [
   'src/simulation/runner/__tests__/withdrawalIntentBoundary.behavior.test.ts',
   'src/simulation/__tests__/simulation-combat-integration.test.ts',
   'src/simulation/__tests__/wireBotAiHelpersAndCapstone.smoke.test.ts',
+  'src/utils/gameplay/movement/__tests__/battlemechMovementTerrain.behavior.test.ts',
   'src/utils/gameplay/toHit/__tests__/battlemechToHitModifierSupport.test.ts',
 ];
 
