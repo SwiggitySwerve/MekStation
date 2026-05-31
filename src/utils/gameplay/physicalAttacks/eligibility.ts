@@ -29,6 +29,7 @@ import { hexDistance } from '../hexMath';
 import { calculatePhysicalDamage } from './damage';
 import { isTargetDirectlyAhead, isTargetInFrontArc } from './displacement';
 import {
+  canBrushOffPhysical,
   canCharge,
   canDFA,
   canKick,
@@ -134,6 +135,13 @@ export interface IEligibilityContext {
   readonly rightLegWet?: boolean;
   readonly leftLegWeaponFiredThisTurn?: boolean;
   readonly rightLegWeaponFiredThisTurn?: boolean;
+  readonly targetIsSwarmingInfantryOnAttacker?: boolean;
+  readonly targetIsINarcPod?: boolean;
+  readonly armAesFunctional?: boolean;
+  readonly torsoMountedCockpit?: boolean;
+  readonly headSensorHits?: number;
+  readonly centerTorsoSensorHits?: number;
+  readonly defenderHasMagneticClaws?: boolean;
   readonly standingAttackerHeightAboveTargetHeight?: number;
   readonly proneTargetElevationInRange?: boolean;
   readonly targetDirectlyAheadOfFeet?: boolean;
@@ -224,6 +232,13 @@ function buildSelfRisk(
         },
         onMiss: null,
       };
+    case 'brush-off':
+      return {
+        damageToAttacker: damage.targetDamage,
+        legDamagePerLeg: 0,
+        pilotingSkillRoll: null,
+        onMiss: 'None',
+      };
     default:
       return {
         damageToAttacker: 0,
@@ -278,6 +293,31 @@ function jumpJetAttackOptionEnabled(context: IEligibilityContext): boolean {
       ),
     ) ?? false
   );
+}
+
+function canonicalBrushOffTargetUnitType(
+  unit: IUnitGameState,
+): string | undefined {
+  if (unit.combatState?.kind === 'squad') return 'battlearmor';
+  return unit.unitType?.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function swarmingHostId(unit: IUnitGameState): string | undefined {
+  if (unit.combatState?.kind !== 'squad') return undefined;
+  return unit.combatState.state.swarmingUnitId;
+}
+
+function targetIsSwarmingInfantryOnAttacker(
+  attackerId: string,
+  target: IUnitGameState,
+): boolean {
+  if (target.isSwarming !== true) return false;
+
+  const canonical = canonicalBrushOffTargetUnitType(target);
+  if (canonical !== 'infantry' && canonical !== 'battlearmor') return false;
+
+  const hostId = swarmingHostId(target);
+  return hostId === undefined || hostId === attackerId;
 }
 
 /**
@@ -433,6 +473,15 @@ export function getEligiblePhysicalAttacks(
         target.position,
       ),
     targetDirectlyBehindFeet: context.targetDirectlyBehindFeet,
+    targetIsSwarmingInfantryOnAttacker:
+      context.targetIsSwarmingInfantryOnAttacker ??
+      targetIsSwarmingInfantryOnAttacker(attacker.id, target),
+    targetIsINarcPod: context.targetIsINarcPod,
+    armAesFunctional: context.armAesFunctional,
+    torsoMountedCockpit: context.torsoMountedCockpit,
+    headSensorHits: context.headSensorHits,
+    centerTorsoSensorHits: context.centerTorsoSensorHits,
+    defenderHasMagneticClaws: context.defenderHasMagneticClaws,
     pushDestinationValid: context.pushDestinationValid,
     pushTargetDirectlyAhead: isTargetDirectlyAhead(
       attacker.position,
@@ -524,6 +573,27 @@ export function getEligiblePhysicalAttacks(
     ],
   };
   options.push(buildOption('push', pushInput, canPush(pushInput)));
+
+  if (
+    baseInput.targetIsSwarmingInfantryOnAttacker === true ||
+    baseInput.targetIsINarcPod === true
+  ) {
+    const brushOffInput: IPhysicalAttackInput = {
+      ...baseInput,
+      attackType: 'brush-off',
+      arm: 'right',
+      limb: 'rightArm',
+      weaponsFiredFromArm: context.weaponsFiredFromRightArm,
+    };
+    options.push(
+      buildOption(
+        'brush-off',
+        brushOffInput,
+        canBrushOffPhysical(brushOffInput),
+        'rightArm',
+      ),
+    );
+  }
 
   const tripInput: IPhysicalAttackInput = {
     ...baseInput,
