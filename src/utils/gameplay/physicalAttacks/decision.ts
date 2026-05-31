@@ -1,6 +1,7 @@
 import { IComponentDamageState } from '@/types/gameplay';
 
 import {
+  calculateBrushOffDamage,
   calculateChargeDamageToTarget,
   calculateDFADamageToTarget,
   calculateFlailDamage,
@@ -16,6 +17,7 @@ import {
   calculateWreckingBallDamage,
 } from './damage';
 import {
+  canBrushOffPhysical,
   canCharge,
   canDFA,
   canKick,
@@ -73,6 +75,9 @@ export function chooseBestPhysicalAttack(
     targetIsAirborneVTOLorWIGE: options.targetIsAirborneVTOLorWIGE,
     targetIsFriendly: options.targetIsFriendly,
     targetIsSwarming: options.targetIsSwarming,
+    targetIsSwarmingInfantryOnAttacker:
+      options.targetIsSwarmingInfantryOnAttacker,
+    targetIsINarcPod: options.targetIsINarcPod,
     targetDistance: options.targetDistance,
     targetObjectType: options.targetObjectType,
     targetUnitType: options.targetUnitType,
@@ -120,6 +125,20 @@ export function chooseBestPhysicalAttack(
     candidates.push({
       type: 'jump-jet-attack',
       expectedDamage: calculateJumpJetAttackDamage(jumpJetInput),
+    });
+  }
+
+  const brushOffInput: IPhysicalAttackInput = {
+    ...baseInput,
+    attackType: 'brush-off',
+    arm: 'right',
+    limb: 'rightArm',
+    weaponsFiredFromArm: options.weaponsFiredFromRightArm,
+  };
+  if (canBrushOffPhysical(brushOffInput).allowed) {
+    candidates.push({
+      type: 'brush-off',
+      expectedDamage: calculateBrushOffDamage(brushOffInput),
     });
   }
 
