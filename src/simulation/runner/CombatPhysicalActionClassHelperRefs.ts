@@ -1,6 +1,22 @@
 import type { ICombatFeatureSourceReference } from './CombatFeatureSupport';
 
 export const MEKSTATION_PHYSICAL_ACTION_HELPER_REFS = {
+  'brush-off': [
+    {
+      kind: 'mekstation-deviation',
+      citation:
+        'MekStation canBrushOff exposes source-backed brush-off target, arm, posture, actuator, quirk, and selected-arm weapon-fire gates as helper-only coverage without adding a runtime PhysicalAttackType.',
+      url: 'src/utils/gameplay/physicalAttacks/brushOffEligibility.ts#L95-L252',
+      sourceVersion: 'MekStation working-tree',
+    },
+    {
+      kind: 'mekstation-deviation',
+      citation:
+        'MekStation physical attack tests cover source-backed canBrushOff gates, dedicated brush-off modifiers, torso-mounted cockpit sensor branches, and punch-equivalent damage.',
+      url: 'src/utils/gameplay/__tests__/physicalAttacks.test.ts#L1609-L1761',
+      sourceVersion: 'MekStation working-tree',
+    },
+  ],
   thrash: [
     {
       kind: 'mekstation-deviation',
