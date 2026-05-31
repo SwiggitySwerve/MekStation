@@ -1431,7 +1431,7 @@ Runner movement and PSR resolution SHALL apply MegaMek's movement-before-skid PS
 
 ### Requirement: Source-Backed Animal Mimicry Quad-Mek PSR Relief
 
-Runner and interactive PSR resolution SHALL apply MegaMek's source-backed Animal Mimicry `-1` piloting-roll modifier only for explicit quad BattleMech combat state. Both canonical `animal_mimic` and legacy `animal-mimicry` ids SHALL resolve through the SPA canonicalization layer. Animal Mimicry terrain-designation movement effects SHALL remain an explicit catalog gap until movement state consumes those designated-terrain rules.
+Runner and interactive PSR resolution SHALL apply MegaMek's source-backed Animal Mimicry `-1` piloting-roll modifier only for explicit quad BattleMech combat state. Both canonical `animal_mimic` and legacy `animal-mimicry` ids SHALL resolve through the SPA canonicalization layer, and the Animal Mimicry SPA and canonical scope rows SHALL be marked integrated once those runner and interactive PSR paths are covered.
 
 #### Scenario: Quad Mek PSRs consume Animal Mimicry relief
 
