@@ -174,13 +174,13 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 157,
+      total: 156,
       byLevel: {
-        'helper-only': 124,
+        'helper-only': 123,
         unsupported: 33,
       },
       bySection: {
-        actions: 10,
+        actions: 9,
         damageAndDeath: 2,
         featureSupport: 89,
         lifecycleAndPsr: 3,
@@ -246,6 +246,7 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.gmCommandExclusions.gm.set-damage',
         'actions.tacticalCommands.movement.cancel',
         'actions.tacticalCommands.movement.stabilize',
+        'actions.tacticalCommands.utility.withdraw',
         'actions.tacticalCommands.weapon.clear-attacks',
         'actions.tacticalCommands.weapon.declare-attack',
         'actions.wireIntents.ForfeitMatch',
@@ -259,7 +260,7 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.wireIntents.SetReady',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(69);
+    expect(outOfScopeRows).toHaveLength(70);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('actions.physicalActionClassScope.'),
@@ -354,6 +355,7 @@ describe('BattleMech combat validation catalog index', () => {
     ).toEqual([
       'actions.tacticalCommands.movement.cancel',
       'actions.tacticalCommands.movement.stabilize',
+      'actions.tacticalCommands.utility.withdraw',
       'actions.tacticalCommands.weapon.clear-attacks',
       'actions.tacticalCommands.weapon.declare-attack',
     ]);
