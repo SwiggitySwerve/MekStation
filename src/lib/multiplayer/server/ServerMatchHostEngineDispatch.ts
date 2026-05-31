@@ -48,6 +48,7 @@ export function dispatchToEngine(
         intent.attackerId,
         intent.targetId,
         intent.attackType,
+        intent.limb,
       );
       return;
     }
