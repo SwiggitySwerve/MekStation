@@ -114,6 +114,17 @@ export interface IPhysicalAttackContext {
   readonly elevationDifference?: number;
   readonly optionalRules?: readonly string[];
   readonly tacOpsTripAttackEnabled?: boolean;
+  readonly tacOpsGrapplingEnabled?: boolean;
+  readonly grappleSide?: 'left' | 'right' | 'both';
+  readonly attackerGrappledTargetId?: string;
+  readonly targetGrappledTargetId?: string;
+  readonly attackerIsGrappleAttacker?: boolean;
+  readonly targetIsGrappleAttacker?: boolean;
+  readonly attackerChainWhipGrappled?: boolean;
+  readonly leftArmAesFunctional?: boolean;
+  readonly rightArmAesFunctional?: boolean;
+  readonly attackerWeightClass?: number;
+  readonly targetWeightClass?: number;
   readonly attackerAlreadyGrappled?: boolean;
   readonly targetInFrontArc?: boolean;
   readonly leftTripLimbUsable?: boolean;
