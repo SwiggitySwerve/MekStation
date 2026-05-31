@@ -114,14 +114,15 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **THEN** optional TacOps sprint and evade movement SHALL appear as unsupported absent-action rows
 - **AND** the sprint row SHALL cite MegaMek source anchors for optional TacOps sprint availability, BattleMech sprint MP, sprint heat, attacker-sprinted firing failure, target-sprinted to-hit relief, and sprinting spotter rejection
 - **AND** the evade row SHALL cite MegaMek source anchors for optional TacOps evade availability, evasion state, evasion heat, attacker-evading firing restrictions, and target-evading to-hit modifiers
-- **AND** product-visible MekStation command surfaces without identified BattleMech rule authority, including `movement.stabilize`, SHALL stay in `COMBAT_COMMAND_ACTION_SUPPORT` as unsupported `mekstation-deviation` rows rather than absent official action rows
+- **AND** product-visible MekStation command surfaces without identified BattleMech rule authority, including `movement.stabilize`, SHALL stay in `COMBAT_COMMAND_ACTION_SUPPORT` as `out-of-scope` `mekstation-deviation` rows rather than absent official action rows or BattleMech completion blockers
 - **AND** integrated movement tactical command rows, including walk, run, jump, stand, go-prone, MASC activation, and Supercharger activation, SHALL cite the MekStation command factory that exposes the movement surface
 - **AND** utility tactical command rows, including eject, concede, withdraw, and request-spot, SHALL cite the MekStation command factory that exposes the utility surface
 - **AND** weapon tactical command rows, including the fire-volley attack commit surface, SHALL cite the MekStation command factory that exposes the weapon surface
 - **AND** facing tactical command rows, including chassis rotation and torso twist surfaces, SHALL cite the MekStation command factory that exposes the facing surface
 - **AND** physical tactical command rows, including punch, kick, push, charge, death from above, and melee weapon surfaces, SHALL cite the MekStation command factory that exposes the physical attack surface
 - **AND** heat/end tactical command rows, including heat continue, end phase, and next turn, SHALL cite the MekStation command factory that exposes the phase-control surface
-- **AND** helper-only product command rows, including local movement cancel, weapon draft declaration/clear, withdraw, and request-spot commands, SHALL cite the MekStation command factory that exposes the local surface
+- **AND** helper-only product command rows, including withdraw and request-spot commands, SHALL cite the MekStation command factory that exposes the local surface and SHALL remain unresolved while authoritative edge-selection or spotting lifecycle behavior is missing
+- **AND** local draft/reset command rows, including movement cancel and weapon draft declaration/clear, SHALL cite the MekStation command factory as `out-of-scope` UI shell rows outside official BattleMech combat action handling
 - **AND** direct UI action rows, including withdrawal edge selection, SHALL cite the MekStation component that exposes the direct action surface
 - **AND** every game-intent action row SHALL cite the MekStation game-intent mapper that constructs or maps the local intent to its server wire payload
 - **AND** every wire-intent action row SHALL cite the MekStation server dispatcher, with lobby and reconnect wire intents remaining `out-of-scope` non-combat scope splits
