@@ -174,17 +174,17 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 144,
+      total: 141,
       byLevel: {
-        'helper-only': 111,
+        'helper-only': 108,
         unsupported: 33,
       },
       bySection: {
         actions: 9,
         damageAndDeath: 2,
-        featureSupport: 81,
+        featureSupport: 79,
         lifecycleAndPsr: 3,
-        pilotSkills: 19,
+        pilotSkills: 18,
         ruleSupport: 13,
         validationScope: 17,
       },
@@ -248,6 +248,15 @@ describe('BattleMech combat validation catalog index', () => {
       'featureSupport.pilotAbilities.animal-mimicry',
     );
     expect(unresolvedRefs).not.toContain(
+      'featureSupport.mechQuirks.protected_actuators',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.mechQuirks.exposed_actuators',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'pilotSkills.pilotModifierResolvers.anti-mek-actuator-application',
+    );
+    expect(unresolvedRefs).not.toContain(
       'ruleSupport.terrainTypeLos.light_woods',
     );
     expect(unresolvedRefs).not.toContain('ruleSupport.terrainTypeLos.smoke');
@@ -291,6 +300,7 @@ describe('BattleMech combat validation catalog index', () => {
         'lifecycleAndPsr.psrTriggers.charge_miss',
         'lifecycleAndPsr.psrTriggers.dfa_miss',
         'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
+        'pilotSkills.pilotModifierResolvers.anti-mek-actuator-application',
         'validationScope.objectiveRequirements.campaign-quirk-behavior',
         'validationScope.knownLimitationsAndScope.non-battlemech-ammo-scope',
         'validationScope.knownLimitationsAndScope.non-battlemech-combat-system-split',
@@ -314,7 +324,7 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.wireIntents.SetReady',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(70);
+    expect(outOfScopeRows).toHaveLength(73);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('actions.physicalActionClassScope.'),
@@ -367,6 +377,8 @@ describe('BattleMech combat validation catalog index', () => {
         ref.startsWith('featureSupport.mechQuirks.'),
       ),
     ).toEqual([
+      'featureSupport.mechQuirks.exposed_actuators',
+      'featureSupport.mechQuirks.protected_actuators',
       'featureSupport.mechQuirks.rugged_1',
       'featureSupport.mechQuirks.rugged_2',
     ]);
@@ -383,6 +395,7 @@ describe('BattleMech combat validation catalog index', () => {
         ref.startsWith('pilotSkills.pilotModifierResolvers.'),
       ),
     ).toEqual([
+      'pilotSkills.pilotModifierResolvers.anti-mek-actuator-application',
       'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
     ]);
     expect(
