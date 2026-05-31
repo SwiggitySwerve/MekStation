@@ -470,6 +470,35 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(byType.get('charge')?.toHit.finalToHit).toBe(7);
   });
 
+  it('projects optional jump jet attack when TacOps state and selected-leg jump jets are supplied', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      { facing: Facing.Southeast },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      optionalRules: ['tacops_jump_jet_attack'],
+      rightReadyJumpJetCount: 2,
+      standingAttackerHeightAboveTargetHeight: 1,
+    });
+    const jumpJetAttack = options.find(
+      (option) => option.attackType === 'jump-jet-attack',
+    );
+
+    expect(jumpJetAttack).toMatchObject({
+      attackType: 'jump-jet-attack',
+      limb: 'rightLeg',
+      restrictionsFailed: [],
+      toHit: { finalToHit: 7 },
+      damage: { targetDamage: 6, attackerDamage: 0 },
+    });
+  });
+
   it('projects source-backed talon damage on kick and DFA rows', () => {
     const attacker = unitState(
       'attacker',
@@ -2311,6 +2340,90 @@ describe('BattleMech physical combat behavior validation lane', () => {
 
     expect(declarations).toHaveLength(1);
     expect(rejection).toBeUndefined();
+  });
+
+  it('declares and resolves source-backed jump jet attacks through the event-sourced physical path', () => {
+    const context = physicalContext({
+      optionalRules: ['tacops_jump_jet_attack'],
+      limb: 'rightLeg',
+      rightReadyJumpJetCount: 2,
+      standingAttackerHeightAboveTargetHeight: 1,
+    });
+    const declared = declareAdjacentPhysicalAttack('jump-jet-attack', context);
+    const declaration = declared.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    )?.payload as IPhysicalAttackDeclaredPayload;
+
+    expect(declaration).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'jump-jet-attack',
+      limb: 'rightLeg',
+      toHitNumber: 7,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6, 6, 3]),
+    );
+    const resolution = resolved.events.findLast(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+    const damage = resolved.events.find(
+      (event) => event.type === GameEventType.DamageApplied,
+    )?.payload as IDamageAppliedPayload;
+
+    expect(resolution).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'jump-jet-attack',
+      roll: 12,
+      toHitNumber: 7,
+      hit: true,
+      damage: 6,
+    });
+    expect(damage).toMatchObject({
+      unitId: 'target',
+      damage: 6,
+    });
+  });
+
+  it('rejects jump jet attacks after hydrated selected-leg weapon fire', () => {
+    const session = declarePhysicalAttack(
+      withPhysicalPositions(physicalPhaseSession(), {
+        weaponsFiredThisTurn: ['medium-laser-0'],
+        weaponLocationById: { 'medium-laser-0': 'RIGHT_LEG' },
+      }),
+      'attacker',
+      'target',
+      'jump-jet-attack',
+      physicalContext({
+        optionalRules: ['tacops_jump_jet_attack'],
+        limb: 'rightLeg',
+        rightReadyJumpJetCount: 2,
+        standingAttackerHeightAboveTargetHeight: 1,
+      }),
+    );
+
+    const declarations = session.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const rejection = session.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'jump-jet-attack',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'LegWeaponFiredThisTurn',
+    });
   });
 
   it('rejects push declarations when either attacker arm is missing', () => {
