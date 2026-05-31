@@ -90,7 +90,8 @@
 - [x] 2.32.21 Add source-backed DominoEffect PSR queueing for occupied-hex domino displacement blockers through runner and event-sourced physical resolution while leaving voluntary step-out/CFR and broader displacement terrain/building/environment fallout explicit.
 - [x] 2.32.22 Add source-backed helper coverage for grounded DropShip radius-two `Compute.getValidDisplacement` search order while leaving runtime hydration and broader DropShip footprint/secondary-hex consequences explicit.
 - [x] 2.32.23 Add runtime/event-sourced grounded DropShip source-context hydration for DFA hit radius-two displacement while leaving broader DropShip footprint/secondary-hex consequences explicit.
-- [x] 2.32.24 Integrate optional TacOps Trip as a runtime physical attack command with source-backed legality gates, event-sourced resolution, runner PSR coverage, zero damage, and catalog/spec/audit updates while leaving remaining brush-off/thrash/grapple/break-grapple/jump-jet attack runtime paths explicit.
+- [x] 2.32.24 Integrate optional TacOps Trip as a runtime physical attack command with source-backed legality gates, event-sourced resolution, runner PSR coverage, zero damage, and catalog/spec/audit updates while leaving remaining brush-off/thrash/grapple/break-grapple/jump-jet attack runtime paths explicit as of that slice.
+- [x] 2.32.25 Integrate source-backed Thrash as a runtime physical attack command with prone-Mek same-hex infantry legality, clear/pavement terrain validation, automatic-hit weight-based damage, attacker PSR coverage, and catalog/spec/audit updates while leaving brush-off/grapple/break-grapple/jump-jet attack runtime paths explicit.
 
 ## 3. Full combat validation catalog
 
@@ -443,3 +444,4 @@
 - [x] 4.3.176 Promote MegaMek-backed LB 2-X cluster ammunition to consumable BattleMech ammo by wiring exact Inner Sphere and Clan LB 2-X AC compatible weapon ids while keeping RAC/10 and RAC/20 visible as compatibility gaps.
 - [x] 4.3.177 Tighten the helper-only `utility.request-spot` command contract so it carries active-unit and target-unit payload fields while keeping the missing SpotAction lifecycle, spotting penalties, wire dispatch, and turn reset behavior visible as the remaining gap.
 - [x] 4.3.178 Promote `utility.request-spot` from helper-only to integrated by wiring `SpottingDeclared` lifecycle state, turn reset, local store/InteractiveSession handling, `requestSpot` game intent, `RequestSpot` wire dispatch, P2P translation, and source-backed +1 spotting attacker penalties for ranged and physical attacks while documenting the unmodeled command-console exception.
+- [x] 4.3.179 Promote source-backed Thrash from helper-only to integrated by wiring runtime physical type support, tactical command, game intent/wire schema acceptance, event-sourced resolution, runner resolution, automatic-hit infantry damage, attacker PSR, catalog rows, OpenSpec coverage, and audit maintenance.
