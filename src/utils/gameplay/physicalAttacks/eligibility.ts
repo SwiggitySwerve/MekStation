@@ -100,6 +100,8 @@ export interface IEligibilityContext {
   /** Per-arm claw state used by punch damage/to-hit projections. */
   readonly leftArmHasClaw?: boolean;
   readonly rightArmHasClaw?: boolean;
+  /** Optional physical-combat rule branches, such as PLAYTEST_3. */
+  readonly optionalRules?: readonly string[];
   /** Equipped melee weapon types (hatchet / sword / mace / lance). */
   readonly meleeWeaponsEquipped?: readonly PhysicalAttackType[];
   /** False when the computed push destination is off-map or occupied. */
@@ -333,6 +335,7 @@ export function getEligiblePhysicalAttacks(
     rightFootActuatorPresent: context.rightFootActuatorPresent,
     leftArmHasClaw: context.leftArmHasClaw ?? attacker.leftArmHasClaw,
     rightArmHasClaw: context.rightArmHasClaw ?? attacker.rightArmHasClaw,
+    optionalRules: context.optionalRules,
     pushDestinationValid: context.pushDestinationValid,
     pushTargetDirectlyAhead: isTargetDirectlyAhead(
       attacker.position,

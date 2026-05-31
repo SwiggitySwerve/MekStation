@@ -41,6 +41,21 @@ import {
 const AUTOMATIC_SUCCESS_TO_HIT = 0;
 const GUN_EMPLACEMENT_AUTOMATIC_HIT_REASON =
   'Targeting adjacent gun emplacement.';
+const PLAYTEST_3_OPTIONAL_RULES = new Set([
+  'playtest_3',
+  'playtest3',
+  'tacops_playtest_3',
+]);
+
+function hasPlaytest3Rule(
+  optionalRules: readonly string[] | undefined,
+): boolean {
+  return (
+    optionalRules?.some((rule) =>
+      PLAYTEST_3_OPTIONAL_RULES.has(rule.toLowerCase()),
+    ) ?? false
+  );
+}
 
 function gunEmplacementAutomaticSuccess(
   input: IPhysicalAttackInput,
@@ -264,7 +279,9 @@ export function calculatePunchToHit(
   if (usingClaws) {
     modifiers.push({
       name: 'Using Claws',
-      value: CLAW_PUNCH_TO_HIT_MODIFIER,
+      value: hasPlaytest3Rule(input.optionalRules)
+        ? 0
+        : CLAW_PUNCH_TO_HIT_MODIFIER,
       source: 'physical-equipment',
     });
   }

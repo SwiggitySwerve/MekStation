@@ -868,7 +868,8 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 - **AND** catalog UnitHydration SHALL derive arm claw state from `LEFT_ARM` and `RIGHT_ARM` critical slots containing `ISClaw` entries
 - **AND** `CriticalHitResolved` events that destroy, mark missing, or mark breached Claw equipment SHALL remove the matching arm claw modifier from event replay and runner combat state
 - **AND** destroyed arm location replay and runner damage persistence, including side-torso arm cascades, SHALL remove the matching arm claw modifier from represented combat state
-- **AND** the validation catalog SHALL keep automatic missing/breached claw event production from mounted-equipment state beyond represented destroyed-location replay, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions visible as remaining gaps
+- **AND** PLAYTEST_3 SHALL remove only the claw punch to-hit penalty while preserving claw punch damage
+- **AND** the validation catalog SHALL keep automatic missing/breached claw event production from mounted-equipment state beyond represented destroyed-location replay and claw club-with-hand interactions visible as remaining gaps
 
 ### Requirement: Designator Marker Replay State
 

@@ -169,7 +169,7 @@ export function PhysicalAttackPanel({
    * tooltip (task 4.4).
    */
   const options = useMemo<readonly IPhysicalAttackOption[]>(() => {
-    if (!selected || !targetState) return [];
+    if (!selected || !targetState || !session) return [];
     return getEligiblePhysicalAttacks(selected.state, targetState, {
       attackerTonnage,
       attackerPilotingSkill: selected.unit.piloting,
@@ -180,8 +180,9 @@ export function PhysicalAttackPanel({
       attackerRanThisTurn: false,
       attackerJumpedThisTurn: false,
       meleeWeaponsEquipped,
+      optionalRules: session.config.optionalRules,
     });
-  }, [selected, targetState, attackerTonnage, meleeWeaponsEquipped]);
+  }, [selected, targetState, attackerTonnage, meleeWeaponsEquipped, session]);
 
   /**
    * Build the attack input consumed by the forecast modal when a
@@ -200,8 +201,9 @@ export function PhysicalAttackPanel({
       attackerProne: selected.state.prone,
       hexesMoved: selected.state.hexesMovedThisTurn,
       weaponsFiredFromArm: selected.state.weaponsFiredThisTurn,
+      optionalRules: session?.config.optionalRules,
     };
-  }, [selected, attackerTonnage, physicalAttackPlan.attackType]);
+  }, [selected, attackerTonnage, physicalAttackPlan.attackType, session]);
 
   // ---------------------------------------------------------------------------
   // Callbacks
