@@ -477,6 +477,7 @@ export function GameplayLayout({
     () => (combatGrid ? hexTerrainFromGrid(combatGrid) : []),
     [combatGrid],
   );
+  const plannedMovement = useGameplaySelector((s) => s.plannedMovement);
 
   const movementProjectionByHex = useMemo(() => {
     const byHex: Record<string, IMovementRangeHex> = {};
@@ -539,6 +540,10 @@ export function GameplayLayout({
   const selectedUnit = selectedUnitId
     ? currentState.units[selectedUnitId]
     : null;
+  const selectedUnitMapHex =
+    combatGrid && selectedUnit
+      ? (combatGrid.hexes.get(coordToKey(selectedUnit.position)) ?? null)
+      : null;
   const selectedUnitInfo = selectedUnitId
     ? unitInfoLookup[selectedUnitId]
     : null;
@@ -942,12 +947,20 @@ export function GameplayLayout({
               activeUnitHullDown: selectedUnit?.hullDown ?? false,
               activeUnitLockState: selectedUnit?.lockState,
               activeUnitHeat: selectedUnit?.heat ?? 0,
+              activeUnitHasPlannedMovement: Boolean(
+                plannedMovement &&
+                (!plannedMovement.unitId ||
+                  plannedMovement.unitId === selectedUnit?.id),
+              ),
               activeUnitConversionMode: selectedUnit?.conversionMode,
+              activeUnitTerrain: selectedUnitMapHex?.terrain,
+              activeUnitElevation: selectedUnitMapHex?.elevation,
               activeUnitInfantryMounted: selectedUnit?.infantryMounted,
               activeUnitInfantryMountHeight: selectedUnit?.infantryMountHeight,
               activeUnitStandUpImpossibleReason:
                 selectedStandUpImpossibleReason,
               activeUnitComponentDamage: selectedUnit?.componentDamage,
+              activeUnitGyroType: selectedUnit?.gyroType,
               activeUnitDestroyedLocations: selectedUnit?.destroyedLocations,
               movementCapability: selectedMovementCapability,
             }}

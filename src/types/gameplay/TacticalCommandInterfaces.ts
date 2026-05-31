@@ -184,8 +184,14 @@ export interface ITacticalCommandContext {
   readonly activeUnitLockState?: LockState;
   /** Current heat on the active unit, used for heat-reduced movement MP gates. */
   readonly activeUnitHeat?: number;
+  /** True when the active unit already has a movement preview/plan queued. */
+  readonly activeUnitHasPlannedMovement?: boolean;
   /** Runtime conversion mode for LAM / QuadVee style movement controls. */
   readonly activeUnitConversionMode?: MovementConversionMode | number;
+  /** Active unit terrain tag at its current hex, used by source-backed action gates. */
+  readonly activeUnitTerrain?: string;
+  /** Active unit elevation at its current hex, when represented by the map. */
+  readonly activeUnitElevation?: number;
   /** Runtime mounted state for represented conventional infantry controls. */
   readonly activeUnitInfantryMounted?: boolean;
   /** Runtime or imported mount height for represented conventional infantry. */
@@ -194,6 +200,8 @@ export interface ITacticalCommandContext {
   readonly activeUnitStandUpImpossibleReason?: string;
   /** Active unit component damage used by posture commands with damage-scaled costs. */
   readonly activeUnitComponentDamage?: IComponentDamageState;
+  /** Active unit gyro type used by damage-sensitive runtime movement gates. */
+  readonly activeUnitGyroType?: string;
   /** Active unit destroyed locations used by posture commands with limb gates. */
   readonly activeUnitDestroyedLocations?: readonly string[];
   /**

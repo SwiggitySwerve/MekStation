@@ -14,6 +14,7 @@ import {
   GamePhase,
   LockState,
   MovementType,
+  type IComponentDamageState,
   type IMovementRangeHex,
   type ITacticalCommandContext,
 } from '@/types/gameplay';
@@ -48,6 +49,23 @@ function makeMovementProjection(
     blockedReason: 'Destination hex is occupied',
     movementInvalidReason: 'DestinationOccupied',
     movementInvalidDetails: 'Destination hex is occupied',
+    ...overrides,
+  };
+}
+
+function makeComponentDamage(
+  overrides: Partial<IComponentDamageState> = {},
+): IComponentDamageState {
+  return {
+    engineHits: 0,
+    gyroHits: 0,
+    sensorHits: 0,
+    lifeSupport: 0,
+    cockpitHit: false,
+    actuators: {},
+    weaponsDestroyed: [],
+    heatSinksDestroyed: 0,
+    jumpJetsDestroyed: 0,
     ...overrides,
   };
 }
@@ -635,6 +653,7 @@ describe('movementCommands', () => {
     });
     const lamCommands = buildMovementCommands(lamCtx);
     const mek = lamCommands.find((c) => c.id === 'movement.convert.mek')!;
+    const airmek = lamCommands.find((c) => c.id === 'movement.convert.airmek')!;
     const fighter = lamCommands.find(
       (c) => c.id === 'movement.convert.fighter',
     )!;
@@ -650,12 +669,24 @@ describe('movementCommands', () => {
       available: false,
       reason: 'Unit is already in Mek Mode.',
     });
-    expect(fighter.availability(lamCtx)).toEqual({ available: true });
-    expect(fighter.commit(lamCtx)).toEqual({
+    expect(airmek.availability(lamCtx)).toEqual({ available: true });
+    expect(fighter.availability(lamCtx)).toEqual({
+      available: false,
+      reason: 'Standard LAMs must convert through AirMek mode first.',
+    });
+
+    const airmekCtx: ITacticalCommandContext = {
+      ...lamCtx,
+      activeUnitConversionMode: 'airmek',
+    };
+    expect(fighter.availability(airmekCtx)).toEqual({ available: true });
+    expect(fighter.commit(airmekCtx)).toEqual({
       actionId: 'runtime-movement-state',
       payload: {
         source: 'conversion_action',
         conversionMode: 'fighter',
+        conversionStepCount: 1,
+        conversionMpCost: 0,
         unitHeight: null,
       },
     });
@@ -690,6 +721,164 @@ describe('movementCommands', () => {
     expect(vehicle.availability(quadVeeCtx)).toEqual({
       available: false,
       reason: 'Unit is already in Vehicle Mode.',
+    });
+    expect(mek.commit(quadVeeCtx)).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'conversion_action',
+        conversionMode: 'mek',
+        conversionStepCount: 1,
+        conversionMpCost: 2,
+        unitHeight: null,
+      },
+    });
+  });
+
+  it('gates conversion controls as source-backed first movement steps', () => {
+    const ctx = makeCtx({
+      activeUnitProne: false,
+      activeUnitConversionMode: 'mek',
+      movementCapability: {
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 5,
+        unitHeightProfile: { kind: 'lam', standingHeight: 1 },
+      },
+    });
+    const airmek = buildMovementCommands(ctx).find(
+      (c) => c.id === 'movement.convert.airmek',
+    )!;
+
+    expect(
+      airmek.availability({ ...ctx, activeUnitHasPlannedMovement: true }),
+    ).toEqual({
+      available: false,
+      reason: 'Clear the current movement preview before converting.',
+    });
+    expect(airmek.availability({ ...ctx, activeUnitProne: true })).toEqual({
+      available: false,
+      reason: 'Unit must stand before converting.',
+    });
+    expect(
+      airmek.availability({
+        ...ctx,
+        activeUnitTerrain: 'water',
+        activeUnitElevation: -1,
+      }),
+    ).toEqual({
+      available: false,
+      reason: 'Unit cannot convert while underwater.',
+    });
+  });
+
+  it('gates LAM conversion controls by gyro and actuator damage', () => {
+    const ctx = makeCtx({
+      activeUnitProne: false,
+      activeUnitConversionMode: 'airmek',
+      movementCapability: {
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 5,
+        unitHeightProfile: { kind: 'lam', standingHeight: 1 },
+      },
+    });
+    const mek = buildMovementCommands(ctx).find(
+      (c) => c.id === 'movement.convert.mek',
+    )!;
+    const fighter = buildMovementCommands(ctx).find(
+      (c) => c.id === 'movement.convert.fighter',
+    )!;
+
+    expect(
+      mek.availability({
+        ...ctx,
+        activeUnitComponentDamage: makeComponentDamage({ gyroHits: 1 }),
+      }),
+    ).toEqual({
+      available: false,
+      reason: 'LAM cannot convert with gyro damage.',
+    });
+    expect(
+      mek.availability({
+        ...ctx,
+        activeUnitGyroType: 'Heavy Duty',
+        activeUnitComponentDamage: makeComponentDamage({ gyroHits: 1 }),
+      }),
+    ).toEqual({ available: true });
+    expect(
+      mek.availability({
+        ...ctx,
+        activeUnitComponentDamage: makeComponentDamage({
+          actuatorsByLocation: {
+            right_arm: { [ActuatorType.SHOULDER]: true },
+          },
+        }),
+      }),
+    ).toEqual({
+      available: false,
+      reason:
+        'LAM cannot convert to or from Mek mode with shoulder or arm actuator damage.',
+    });
+    expect(
+      fighter.availability({
+        ...ctx,
+        activeUnitComponentDamage: makeComponentDamage({
+          actuatorsByLocation: {
+            left_leg: { [ActuatorType.HIP]: true },
+          },
+        }),
+      }),
+    ).toEqual({
+      available: false,
+      reason:
+        'LAM cannot convert to or from Fighter mode with hip or leg actuator damage.',
+    });
+  });
+
+  it('gates QuadVee conversion controls by represented conversion cost', () => {
+    const ctx = makeCtx({
+      activeUnitProne: false,
+      activeUnitConversionMode: 'mek',
+      movementCapability: {
+        walkMP: 2,
+        runMP: 3,
+        jumpMP: 0,
+        unitHeightProfile: { kind: 'quadvee', standingHeight: 1 },
+      },
+      activeUnitComponentDamage: makeComponentDamage({
+        actuatorsByLocation: {
+          right_arm: { [ActuatorType.SHOULDER]: true },
+          left_leg: { [ActuatorType.FOOT]: true },
+        },
+      }),
+    });
+    const vehicle = buildMovementCommands(ctx).find(
+      (c) => c.id === 'movement.convert.vehicle',
+    )!;
+
+    expect(vehicle.availability(ctx)).toEqual({
+      available: false,
+      reason: 'QuadVee conversion needs 4 MP, but only 3 run MP is available.',
+    });
+
+    const oneHitCtx = {
+      ...ctx,
+      activeUnitComponentDamage: makeComponentDamage({
+        actuatorsByLocation: {
+          right_arm: { [ActuatorType.SHOULDER]: true },
+        },
+      }),
+    };
+    expect(vehicle.availability(oneHitCtx)).toEqual({ available: true });
+    expect(vehicle.commit(oneHitCtx)).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'conversion_action',
+        conversionMode: 'vehicle',
+        conversionStepCount: 1,
+        conversionMpCost: 3,
+        unitHeight: null,
+      },
     });
   });
 });

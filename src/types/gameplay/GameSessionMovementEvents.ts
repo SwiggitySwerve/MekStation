@@ -281,6 +281,10 @@ export interface IRuntimeMovementStateChangedPayload {
     | 'scenario_setup'
     | 'rules_correction';
   readonly conversionMode?: MovementConversionMode | number | null;
+  /** Represented MegaMek CONVERT_MODE step count for conversion-action audit/replay metadata. */
+  readonly conversionStepCount?: number;
+  /** Represented MP cost of the conversion action before later movement steps. */
+  readonly conversionMpCost?: number;
   readonly unitHeight?: number | null;
   readonly infantryMounted?: boolean | null;
   readonly infantryMountHeight?: number | null;

@@ -6,6 +6,12 @@ import {
 } from '@/types/gameplay';
 import { movementDeclarationLockInvalidState } from '@/utils/gameplay/movement';
 
+import {
+  normalizedCommandConversionMode,
+  runtimeConversionActionUnavailableReason,
+  runtimeConversionCommandMetadata,
+} from './runtimeConversionRules';
+
 export function buildRuntimeMovementStateCommands(
   ctx: ITacticalCommandContext | undefined,
 ): readonly ITacticalCommand[] {
@@ -148,54 +154,28 @@ function createConversionCommand(
           reason: `Unit is already in ${label}.`,
         };
       }
+      const conversionUnavailable = runtimeConversionActionUnavailableReason(
+        ctx,
+        conversionMode,
+      );
+      if (conversionUnavailable) {
+        return { available: false, reason: conversionUnavailable };
+      }
       return { available: true };
     },
-    commit() {
+    commit(ctx) {
+      const metadata = runtimeConversionCommandMetadata(ctx, conversionMode);
+
       return {
         actionId: 'runtime-movement-state',
         payload: {
           source: 'conversion_action',
           conversionMode,
+          conversionStepCount: metadata.conversionStepCount,
+          conversionMpCost: metadata.conversionMpCost,
           unitHeight: null,
         },
       };
     },
   };
-}
-
-function normalizedCommandConversionMode(
-  value: MovementConversionMode | number | undefined,
-  profile: NonNullable<
-    ITacticalCommandContext['movementCapability']
-  >['unitHeightProfile'],
-): 'mek' | 'airmek' | 'fighter' | 'vehicle' | undefined {
-  if (!profile) return undefined;
-  if (value === undefined) return 'mek';
-
-  if (typeof value === 'number') {
-    if (value === 0) return 'mek';
-    if (profile.kind === 'lam') {
-      if (value === 1) return 'airmek';
-      if (value === 2) return 'fighter';
-    }
-    if (profile.kind === 'quadvee' && value === 1) return 'vehicle';
-    return undefined;
-  }
-
-  switch (value) {
-    case 'mek':
-    case 'mech':
-      return 'mek';
-    case 'airmek':
-    case 'airmech':
-      return 'airmek';
-    case 'fighter':
-      return 'fighter';
-    case 'vehicle':
-    case 'tracked':
-    case 'wheeled':
-      return 'vehicle';
-    default:
-      return undefined;
-  }
 }
