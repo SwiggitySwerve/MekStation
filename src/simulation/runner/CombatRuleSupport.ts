@@ -894,13 +894,13 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
   ),
   prone: integrated(
     'prone',
-    'unit prone state, fall/standing helpers, explicit non-Mek/already-prone go-prone legality, hull-down zero-MP go-prone transition clearing hull-down state, voluntary go-prone game-session/interactive action path, and opt-in BotPlayer/runner AI same-hex go-prone movement-step handling',
+    'unit prone state, fall/standing helpers, explicit non-Mek/already-prone/stuck go-prone legality, hull-down zero-MP go-prone transition clearing hull-down state, voluntary go-prone game-session/interactive action path, and opt-in BotPlayer/runner AI same-hex go-prone movement-step handling',
     MEGAMEK_GO_PRONE_MOVEMENT_SOURCE_REFS,
   ),
   'go-prone-side-paths': helperOnly(
     'go-prone-side-paths',
-    'source references identify GO_PRONE swarmer dislodge, inferno wash-off, and stuck-entity legality side paths separately from the integrated core prone posture transition',
-    'Swarmer dislodge PSRs, inferno wash-off effects, stuck-state legality, and broader tactical go-prone policy nuances are not modeled',
+    'source references identify GO_PRONE swarmer dislodge and inferno wash-off side paths separately from the integrated core prone posture transition',
+    'Swarmer dislodge PSRs, inferno wash-off effects, and broader tactical go-prone policy nuances are not modeled',
     MEGAMEK_GO_PRONE_MOVEMENT_SOURCE_REFS,
   ),
   facing: integrated(
