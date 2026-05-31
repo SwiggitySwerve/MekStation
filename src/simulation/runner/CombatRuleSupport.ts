@@ -541,6 +541,17 @@ const MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_MASC_SUPERCHARGER_SIDE_PATH_SOURCE_REFS = [
+  ...MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MPBoosters.calculateSprintMP uses ceil(walk MP * 2.5) for one active MASC/Supercharger booster and 3x walk MP when both are active.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/enums/MPBoosters.java#L89-L97`,
+    sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_PARTIAL_WING_MOVEMENT_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -920,17 +931,27 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 
 export const MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT = {
-  [MovementEnhancementType.MASC]: helperOnly(
+  [MovementEnhancementType.MASC]: integrated(
     MovementEnhancementType.MASC,
     'UnitHydration detects installed MASC, runMovementPhase consumes explicit active MASC run MP, movementEnhancementPsr queues createMASCFailurePSR with source-backed standard fixed failure target numbers, runPSRPhase consumes edge_when_masc_fails rerolls and applies one critical hit to each leg when the final check fails, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers still expose sprint_masc formula support',
-    'No combat MovementType.Sprint, alternate MASC option tables, or separate first-step equipment-check timing is wired',
     MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
   ),
-  [MovementEnhancementType.SUPERCHARGER]: helperOnly(
+  'masc-side-paths': helperOnly(
+    'masc-side-paths',
+    'Core MASC installation hydration, replayable activation, active run MP expansion, standard fixed failure target numbers, Edge reroll consumption, failed-check leg critical damage, prior-use counter lifecycle, and active-use clearing are integrated under the MASC row',
+    'MovementType.Sprint, alternate MASC option tables, and separate first-step equipment-check timing are not wired',
+    MEGAMEK_MASC_SUPERCHARGER_SIDE_PATH_SOURCE_REFS,
+  ),
+  [MovementEnhancementType.SUPERCHARGER]: integrated(
     MovementEnhancementType.SUPERCHARGER,
     'UnitHydration detects installed Supercharger, runMovementPhase consumes explicit active Supercharger run MP, movementEnhancementPsr queues createSuperchargerFailurePSR with source-backed standard fixed failure target numbers, runPSRPhase consumes edge_when_masc_fails rerolls and destroys the Supercharger slot plus applies the source-backed engine critical table when the final check fails, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers still expose sprint_combined formula support',
-    'No combat MovementType.Sprint, IndustrialMek/support-unit supercharger roll adjustment, separate first-step equipment-check timing, or non-BattleMech motive-damage branch is wired',
     MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
+  ),
+  'supercharger-side-paths': helperOnly(
+    'supercharger-side-paths',
+    'Core Supercharger installation hydration, replayable activation, active run MP expansion, standard fixed failure target numbers, Edge reroll consumption, failed-check Supercharger slot and engine-table damage, prior-use counter lifecycle, and active-use clearing are integrated under the Supercharger row',
+    'MovementType.Sprint, IndustrialMek/support-unit supercharger roll adjustment, separate first-step equipment-check timing, and the non-BattleMech motive-damage branch are not wired',
+    MEGAMEK_MASC_SUPERCHARGER_SIDE_PATH_SOURCE_REFS,
   ),
   [MovementEnhancementType.TSM]: integrated(
     MovementEnhancementType.TSM,
@@ -945,7 +966,8 @@ export const MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT = {
 } satisfies Record<
   (typeof MOVEMENT_ENHANCEMENT_DEFINITIONS)[number]['type'],
   ICombatFeatureSupportEntry
->;
+> &
+  Record<string, ICombatFeatureSupportEntry>;
 
 export const TERRAIN_ENVIRONMENT_COMBAT_SUPPORT = {
   'terrain-movement-costs': integrated(
