@@ -3,6 +3,8 @@ import type {
   ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 
+import { MEKSTATION_PHYSICAL_ACTION_HELPER_REFS } from './CombatPhysicalActionClassHelperRefs';
+
 const MEGAMEK_PHYSICAL_ACTION_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
 
@@ -61,25 +63,6 @@ const MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS = {
       'JumpJetAttackAction',
       'L89-L287',
     ),
-  ],
-} satisfies Record<string, readonly ICombatFeatureSourceReference[]>;
-
-const MEKSTATION_PHYSICAL_ACTION_HELPER_REFS = {
-  trip: [
-    {
-      kind: 'mekstation-deviation',
-      citation:
-        'MekStation canTrip exposes source-backed trip attack legality gates as helper-only coverage without adding a runtime PhysicalAttackType.',
-      url: 'src/utils/gameplay/physicalAttacks/tripEligibility.ts#L47-L136',
-      sourceVersion: 'MekStation working-tree',
-    },
-    {
-      kind: 'mekstation-deviation',
-      citation:
-        'MekStation physical attack tests cover source-backed canTrip gates and the Trip base to-hit adjustment.',
-      url: 'src/utils/gameplay/__tests__/physicalAttacks.test.ts#L1474-L1534',
-      sourceVersion: 'MekStation working-tree',
-    },
   ],
 } satisfies Record<string, readonly ICombatFeatureSourceReference[]>;
 
@@ -216,7 +199,6 @@ function unsupportedBattleMech(
 
   return sourceRefs ? { ...entry, sourceRefs } : entry;
 }
-
 function helperOnlyBattleMech(
   id: string,
   sourceClass: string,
@@ -235,7 +217,6 @@ function helperOnlyBattleMech(
     sourceRefs,
   };
 }
-
 function outOfScope(
   id: string,
   sourceClass: string,
@@ -325,11 +306,15 @@ export const PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT = {
     'Brush-off against swarming infantry/battle armor has no runtime PhysicalAttackType, tactical command, or resolution path',
     MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS['brush-off'],
   ),
-  thrash: unsupportedBattleMech(
+  thrash: helperOnlyBattleMech(
     'thrash',
     'ThrashAttackAction',
-    'Prone BattleMech thrash attacks against infantry have no runtime PhysicalAttackType, tactical command, or resolution path',
-    MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS.thrash,
+    'canThrash helper coverage applies source-backed prone-Mek same-hex infantry legality gates, automatic-success classification, and weight-based damage',
+    'Thrash attacks still have no runtime PhysicalAttackType, tactical command, event-sourced declaration, miss/self-damage PSR handling, or resolution path',
+    [
+      ...MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS.thrash,
+      ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS.thrash,
+    ],
   ),
   trip: helperOnlyBattleMech(
     'trip',
