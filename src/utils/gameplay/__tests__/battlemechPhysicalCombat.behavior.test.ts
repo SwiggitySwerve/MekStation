@@ -499,6 +499,41 @@ describe('BattleMech physical combat behavior validation lane', () => {
     });
   });
 
+  it('projects source-backed brush-off against swarming infantry with miss self-damage risk', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      { facing: Facing.Southeast },
+    );
+    const target = unitState(
+      'target',
+      GameSide.Opponent,
+      { q: 1, r: 0 },
+      {
+        isSwarming: true,
+        unitType: UnitType.INFANTRY,
+      },
+    );
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+    });
+    const brushOff = options.find(
+      (option) => option.attackType === 'brush-off',
+    );
+
+    expect(brushOff).toMatchObject({
+      attackType: 'brush-off',
+      limb: 'rightArm',
+      restrictionsFailed: [],
+      toHit: { finalToHit: 9 },
+      damage: { targetDamage: 8, attackerDamage: 0 },
+      selfRisk: { damageToAttacker: 8, onMiss: 'None' },
+    });
+  });
+
   it('projects source-backed talon damage on kick and DFA rows', () => {
     const attacker = unitState(
       'attacker',
@@ -4361,6 +4396,76 @@ describe('BattleMech physical combat behavior validation lane', () => {
       additionalModifier: 0,
       triggerSource: 'thrash_attacker_hit',
     });
+  });
+
+  it('emits event-sourced brush-off as swarming-infantry damage and dislodgement on hit', () => {
+    const context = physicalContext({ pilotingSkill: 1 });
+    const declared = declareAdjacentPhysicalAttack(
+      'brush-off',
+      context,
+      {},
+      { isSwarming: true, unitType: UnitType.INFANTRY },
+    );
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6]),
+    );
+    const payload = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+    const damage = resolved.events.find(
+      (entry) => entry.type === GameEventType.DamageApplied,
+    )?.payload as IDamageAppliedPayload;
+
+    expect(payload).toMatchObject({
+      attackType: 'brush-off',
+      roll: 12,
+      toHitNumber: 5,
+      hit: true,
+      damage: 8,
+    });
+    expect(damage).toMatchObject({
+      unitId: 'target',
+    });
+    expect(resolved.currentState.units.target.isSwarming).toBe(false);
+  });
+
+  it('emits event-sourced brush-off miss self-damage without dislodging the swarmer', () => {
+    const context = physicalContext();
+    const declared = declareAdjacentPhysicalAttack(
+      'brush-off',
+      context,
+      {},
+      { isSwarming: true, unitType: UnitType.INFANTRY },
+    );
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([1]),
+    );
+    const payload = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+    const damageEvents = resolved.events
+      .filter((entry) => entry.type === GameEventType.DamageApplied)
+      .map((entry) => entry.payload as IDamageAppliedPayload);
+
+    expect(payload).toMatchObject({
+      attackType: 'brush-off',
+      roll: 2,
+      toHitNumber: 9,
+      hit: false,
+    });
+    expect(damageEvents).toEqual([
+      expect.objectContaining({
+        unitId: 'attacker',
+        damage: 8,
+      }),
+    ]);
+    expect(damageEvents.some((entry) => entry.unitId === 'target')).toBe(false);
   });
 
   it('emits event-sourced charge displacement with attacker follow-through', () => {
