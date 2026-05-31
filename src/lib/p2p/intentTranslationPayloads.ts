@@ -13,6 +13,7 @@ import {
 } from '@/types/gameplay/HexGridInterfaces';
 import {
   isSupportedPhysicalAttackType,
+  type PhysicalAttackLimb,
   type PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks/types';
 
@@ -69,6 +70,7 @@ export interface IDeclarePhysicalIntentPayload {
   readonly attackerId: string;
   readonly targetId: string;
   readonly attackType: PhysicalAttackType;
+  readonly limb?: PhysicalAttackLimb;
   readonly toHitNumber?: number;
 }
 
@@ -222,6 +224,14 @@ export function asPhysicalPayload(
   if (
     payload.toHitNumber !== undefined &&
     typeof payload.toHitNumber !== 'number'
+  ) {
+    return null;
+  }
+  if (
+    payload.limb !== undefined &&
+    !['leftArm', 'rightArm', 'leftLeg', 'rightLeg'].includes(
+      String(payload.limb),
+    )
   ) {
     return null;
   }
