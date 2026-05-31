@@ -174,15 +174,15 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 156,
+      total: 155,
       byLevel: {
-        'helper-only': 123,
+        'helper-only': 122,
         unsupported: 33,
       },
       bySection: {
         actions: 9,
         damageAndDeath: 2,
-        featureSupport: 89,
+        featureSupport: 88,
         lifecycleAndPsr: 3,
         pilotSkills: 19,
         ruleSupport: 16,
@@ -199,6 +199,9 @@ describe('BattleMech combat validation catalog index', () => {
         'featureSupport.physicalWeapons.talons',
         'pilotSkills.pilotModifierResolvers.edge-application',
       ]),
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.canonicalPilotAbilityScope.edge_when_masc_fails',
     );
     expect(
       unresolvedRefs.filter((ref) =>
