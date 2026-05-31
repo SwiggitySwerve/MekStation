@@ -32,6 +32,7 @@ import {
   canDFA,
   canMeleeWeapon,
   canPush,
+  canTrip,
   computeChargeDisplacementOutcome,
   computeDfaDisplacementOutcome,
   computeDfaDisplacements,
@@ -50,6 +51,7 @@ import {
   IPhysicalAttackInput,
   isPhysicalAirborneVtolOrWigeTarget,
   sourceContainsGroundedDropShip,
+  getTripAttackBaseToHitAdjustment,
 } from '../physicalAttacks';
 
 const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
@@ -1465,6 +1467,67 @@ describe('physicalAttacks', () => {
       ).toMatchObject({
         allowed: false,
         reasonCode: 'LimbMissing',
+      });
+    });
+  });
+
+  describe('canTrip', () => {
+    const validTripInput = {
+      tacOpsTripAttackEnabled: true,
+      attackerIsMek: true,
+      targetIsMek: true,
+      targetDistance: 1,
+      targetInFrontArc: true,
+      sameElevation: true,
+      leftLegPresent: true,
+      rightLegPresent: true,
+      leftTripLimbUsable: true,
+      rightTripLimbUsable: true,
+    };
+
+    it('allows source-backed adjacent Mek trip attempts and exposes the base to-hit relief', () => {
+      expect(canTrip(validTripInput)).toEqual({ allowed: true });
+      expect(getTripAttackBaseToHitAdjustment()).toBe(-1);
+    });
+
+    it.each([
+      [
+        'disabled optional rule',
+        { tacOpsTripAttackEnabled: false },
+        'TacOpsTripDisabled',
+      ],
+      [
+        'already grappled attacker',
+        { attackerAlreadyGrappled: true },
+        'AttackerAlreadyGrappled',
+      ],
+      ['friendly target', { targetIsFriendly: true }, 'FriendlyTarget'],
+      ['non-Mek attacker', { attackerIsMek: false }, 'AttackerNotMek'],
+      ['non-Mek target', { targetIsMek: false }, 'TargetNotMek'],
+      [
+        'airborne attacker',
+        { attackerIsAirborneVTOLorWIGE: true },
+        'AttackerAirborne',
+      ],
+      ['missing leg', { leftLegPresent: false }, 'LegMissing'],
+      ['distant target', { targetDistance: 2 }, 'TargetNotAdjacent'],
+      [
+        'rear or side target',
+        { targetInFrontArc: false },
+        'TargetNotInFrontArc',
+      ],
+      ['prone attacker', { attackerProne: true }, 'AttackerProne'],
+      ['prone target', { targetProne: true }, 'TargetProne'],
+      ['elevation mismatch', { sameElevation: false }, 'ElevationMismatch'],
+      [
+        'both trip limbs unavailable',
+        { leftTripLimbUsable: false, rightTripLimbUsable: false },
+        'TripLimbUnavailable',
+      ],
+    ])('rejects %s', (_label, overrides, reasonCode) => {
+      expect(canTrip({ ...validTripInput, ...overrides })).toMatchObject({
+        allowed: false,
+        reasonCode,
       });
     });
   });
