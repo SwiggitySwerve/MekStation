@@ -40,9 +40,9 @@ decisions are made, not because CI is stale.
 
 ## Remaining Gaps To Keep Out Of Ready-For-Review Claims
 
-- Movement: conversion action timing, remaining airborne LAM Fighter/AirMek
-  submodes, and broader external oracle differential sweeps remain follow-up
-  work.
+- Movement: remaining airborne LAM AirMek/WiGE full pathing, LAM conversion
+  phase sequencing, and broader external oracle differential sweeps remain
+  follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
   `apply-runtime-movement-state-events`, and tactical command controls are now

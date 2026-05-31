@@ -72,7 +72,7 @@ function quadVeeVehicleMovementMode(
   return capability.movementMode === 'wheeled' ? 'wheeled' : 'tracked';
 }
 
-function isAirborneLamFighter(unit: IUnitGameState): boolean {
+function isAirborneAeroState(unit: IUnitGameState): boolean {
   if (unit.combatState?.kind !== 'aero') return false;
   return (
     unit.combatState.state.altitude > 0 ||
@@ -91,8 +91,21 @@ function isLamFighterMode(
   );
 }
 
+function isLamAirMekMode(
+  unit: IUnitGameState,
+  profile: MovementUnitHeightProfile,
+): boolean {
+  return (
+    profile.kind === 'lam' &&
+    normalizedConversionMode(unit.conversionMode, profile) === 'airmek'
+  );
+}
+
 export const AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON =
   'Airborne LAM Fighter movement uses aerospace flight rules and is not available in the ground movement projection';
+
+export const AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON =
+  'Airborne LAM AirMek movement uses airborne WiGE rules and is not available in the ground movement projection';
 
 export const DESTROYED_GYRO_NON_TRACKED_MOVEMENT_BLOCKED_REASON =
   'Destroyed gyro only permits tracked or wheeled movement';
@@ -108,12 +121,11 @@ export function runtimeMovementProjectionBlockedReason(
   ruleOptions: IRuntimeMovementRuleOptions = {},
 ): string | undefined {
   const profile = capability.unitHeightProfile;
-  if (
-    profile &&
-    isLamFighterMode(unit, profile) &&
-    isAirborneLamFighter(unit)
-  ) {
+  if (profile && isLamFighterMode(unit, profile) && isAirborneAeroState(unit)) {
     return AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON;
+  }
+  if (profile && isLamAirMekMode(unit, profile) && isAirborneAeroState(unit)) {
+    return AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON;
   }
   if (
     !unit.prone &&
@@ -141,7 +153,7 @@ function conversionModeMovementMode(
   if (
     profile.kind === 'lam' &&
     mode === 'fighter' &&
-    !isAirborneLamFighter(unit)
+    !isAirborneAeroState(unit)
   ) {
     return 'wheeled';
   }
@@ -169,7 +181,7 @@ function conversionModeMovementPoints(
   }
 
   if (mode === 'fighter') {
-    if (isAirborneLamFighter(unit)) {
+    if (isAirborneAeroState(unit)) {
       return { walkMP: thrust, runMP: Math.ceil(thrust * 1.5) };
     }
     const walkMP = Math.floor(thrust / 2);

@@ -10,6 +10,7 @@ import {
 } from '@/types/gameplay';
 import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
 import {
+  AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON,
   AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON,
   DESTROYED_GYRO_NON_TRACKED_MOVEMENT_BLOCKED_REASON,
   resolveRuntimeMovementCapability,
@@ -177,6 +178,59 @@ describe('runtime movement capability', () => {
         unitState({ conversionMode: 'fighter' }),
         capability,
         'wheeled',
+      ),
+    ).toBeUndefined();
+  });
+
+  it('keeps airborne LAM AirMek conversion on WiGE capability but blocks ground projection fallback', () => {
+    const capability: IMovementCapability = {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 2,
+      movementMode: 'walk',
+      unitHeight: 1,
+      unitHeightProfile: { kind: 'lam', standingHeight: 1 },
+    };
+    const airborneAirMek = unitState({
+      conversionMode: 'airmek',
+      combatState: {
+        kind: 'aero',
+        state: createAerospaceCombatState({
+          maxSI: 3,
+          armorByArc: { nose: 1, leftWing: 1, rightWing: 1, aft: 1 },
+          heatSinks: 10,
+          fuelPoints: 20,
+          safeThrust: 5,
+          maxThrust: 8,
+          altitude: 1,
+          currentVelocity: 2,
+          nextVelocity: 2,
+          airborneState: 'airborne',
+        }),
+      },
+    });
+
+    expect(
+      resolveRuntimeMovementCapability(airborneAirMek, capability),
+    ).toMatchObject({
+      walkMP: 6,
+      runMP: 9,
+      movementMode: 'wige',
+      movementHeatProfile: 'airmek',
+      unitHeight: 0,
+    });
+    expect(
+      runtimeMovementProjectionBlockedReason(
+        airborneAirMek,
+        capability,
+        'wige',
+      ),
+    ).toBe(AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON);
+    expect(
+      runtimeMovementProjectionBlockedReason(
+        unitState({ conversionMode: 'airmek' }),
+        capability,
+        'wige',
       ),
     ).toBeUndefined();
   });

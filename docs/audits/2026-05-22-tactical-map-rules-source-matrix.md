@@ -1395,6 +1395,21 @@ walk/run/jump movement. Browser and commit-validation fixtures prove the same
 `AERO` invalid badge. Full airborne aerospace flight pathing remains tracked
 under the aerospace movement follow-ups.
 
+2026-05-31 airborne LAM AirMek ground-projection guard: MegaMek
+`MovementDisplay.java:2276-2291` uses altitude controls when an entity is
+airborne and handles grounded WiGE/LAM elevation controls separately,
+`MovePath.java:1689-1741` distinguishes airborne WiGE/LAM hover and landing
+behavior from normal ground movement, and `Entity.java:12004-12022` defines
+airborne VTOL/WiGE state from VTOL/WiGE motive, elevation, and
+building/bridge clearance. MekStation now keeps represented airborne LAM
+AirMek capability resolution on AirMek WiGE MP/heat/height, but blocks the
+ground movement projection with a player-visible airborne-WiGE reason rather
+than presenting grounded WiGE movement as legal. Browser and
+commit-validation fixtures prove the same `InvalidDestination` details,
+zero rejected-step heat, and AirMek MP legend. Full airborne AirMek/WiGE
+altitude pathing, hover/takeoff/landing sequencing, velocity/turn behavior,
+control rolls, and broader external oracle sweeps remain follow-ups.
+
 2026-05-25 LAM AirMek movement heat pin: MegaMek `LandAirMek.java:464-481`
 routes AirMek VTOL walk/run heat through `getAirMekHeat()`, which adds damaged
 coolant heat and rounds `getJumpHeat(mpUsed) / 3.0`; `Mek.java:1281-1302` and
