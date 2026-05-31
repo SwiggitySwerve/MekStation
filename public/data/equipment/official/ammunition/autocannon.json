@@ -369,7 +369,7 @@
       "variant": "Cluster",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "ADVANCED",
-      "compatibleWeaponIds": [],
+      "compatibleWeaponIds": ["lb-2-x-ac", "clan-lb-2-x-ac"],
       "shotsPerTon": 45,
       "weight": 1,
       "criticalSlots": 1,
