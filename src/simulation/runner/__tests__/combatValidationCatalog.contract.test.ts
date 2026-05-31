@@ -174,9 +174,9 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 125,
+      total: 124,
       byLevel: {
-        'helper-only': 108,
+        'helper-only': 107,
         unsupported: 17,
       },
       bySection: {
@@ -184,7 +184,7 @@ describe('BattleMech combat validation catalog index', () => {
         featureSupport: 73,
         lifecycleAndPsr: 3,
         pilotSkills: 17,
-        ruleSupport: 13,
+        ruleSupport: 12,
         validationScope: 17,
       },
     });
@@ -204,6 +204,7 @@ describe('BattleMech combat validation catalog index', () => {
     expect(unresolvedRefs).not.toContain(
       'actions.absentActionSurfaces.movement.sprint',
     );
+    expect(unresolvedRefs).not.toContain('ruleSupport.terrainTypeLos.water');
     expect(unresolvedRefs).not.toContain(
       'ruleSupport.movementEnhancements.MASC',
     );
