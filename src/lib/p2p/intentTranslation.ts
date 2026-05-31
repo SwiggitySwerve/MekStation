@@ -51,6 +51,7 @@ import {
 } from '@/utils/gameplay/gameEvents/statusPhysical';
 import {
   declareAttack,
+  requestSpot,
   validateTorsoTwist,
 } from '@/utils/gameplay/gameSession';
 import { hexEquals } from '@/utils/gameplay/hexMath';
@@ -76,6 +77,7 @@ import {
   asGoPronePayload,
   asMovementPayload,
   asPhysicalPayload,
+  asRequestSpotPayload,
   asStandPayload,
   asTorsoTwistPayload,
   asWithdrawPayload,
@@ -90,6 +92,7 @@ export {
   buildEjectIntent,
   buildEndPhaseIntent,
   buildGoProneIntent,
+  buildRequestSpotIntent,
   buildStandIntent,
   buildTorsoTwistIntent,
   buildWithdrawIntent,
@@ -101,6 +104,7 @@ export {
   type IEjectIntentPayload,
   type IEndPhaseIntentPayload,
   type IGoProneIntentPayload,
+  type IRequestSpotIntentPayload,
   type IStandIntentPayload,
   type ITorsoTwistIntentPayload,
   type IWithdrawIntentPayload,
@@ -217,6 +221,8 @@ export function translateIntentToEvents(
       return translateDeclareAttack(intent, session, authority);
     case 'declarePhysical':
       return translateDeclarePhysical(intent, session);
+    case 'requestSpot':
+      return translateRequestSpot(intent, session);
     case 'eject':
       return translateEject(intent, session);
     case 'withdraw':
@@ -597,6 +603,43 @@ function translateDeclarePhysical(
   );
 
   return { ok: true, events: [event] };
+}
+
+function translateRequestSpot(
+  intent: IGameIntent,
+  session: IGameSession,
+): IntentTranslationResult {
+  const payload = asRequestSpotPayload(intent.payload);
+  if (!payload) {
+    return { ok: false, reason: 'malformed-payload' };
+  }
+
+  if (session.currentState.phase !== GamePhase.WeaponAttack) {
+    return { ok: false, reason: 'wrong-phase' };
+  }
+
+  if (!canLocalPeerControlUnit(session, intent.authorPeerId, payload.unitId)) {
+    return { ok: false, reason: 'unowned-unit' };
+  }
+
+  const eventCountBeforeDeclaration = session.events.length;
+  try {
+    const updatedSession = requestSpot(
+      session,
+      payload.unitId,
+      payload.targetId,
+    );
+    return {
+      ok: true,
+      events: updatedSession.events.slice(eventCountBeforeDeclaration),
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      reason: 'unsupported-intent',
+      detail: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 function translateEject(
