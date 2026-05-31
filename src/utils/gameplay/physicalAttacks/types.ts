@@ -16,6 +16,7 @@ export const CORE_PHYSICAL_ATTACK_TYPES = [
   'jump-jet-attack',
   'brush-off',
   'grapple',
+  'break-grapple',
 ] as const;
 
 export const SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES = [
@@ -169,6 +170,7 @@ export type PhysicalAttackInvalidReason =
   | 'TacOpsJumpJetAttackDisabled'
   | 'TacOpsGrapplingDisabled'
   | 'CommonImpossible'
+  | 'ChainWhipGrappled'
   | 'InvalidLegSelection'
   | 'BothLegsRequiresProne'
   | 'JumpJetsMissingOrDestroyed'
@@ -178,7 +180,9 @@ export type PhysicalAttackInvalidReason =
   | 'AttackerAlreadyGrappled'
   | 'AlreadyGrappled'
   | 'AttackerNotBipedMekOrProtoMek'
+  | 'AttackerNotMekOrProtoMek'
   | 'TargetNotMekOrProtoMek'
+  | 'NotGrappledToTarget'
   | 'TripLimbUnavailable'
   | 'ThrashLimbUnavailable'
   | 'UnsupportedAttackType'
