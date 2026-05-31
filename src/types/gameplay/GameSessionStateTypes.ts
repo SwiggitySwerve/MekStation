@@ -217,6 +217,14 @@ export interface IUnitGameState {
    */
   readonly isEvading?: boolean;
   /**
+   * Whether this unit declared target spotting for indirect fire this turn.
+   * The state persists into the same turn's physical phase so source-backed
+   * "attacker is spotting" penalties can be applied before turn reset.
+   */
+  readonly isSpotting?: boolean;
+  /** Target id selected by this turn's spotting declaration. */
+  readonly spotTargetId?: string;
+  /**
    * Optional source-backed target evasion to-hit bonus. Undefined preserves
    * the normal +1 evasion bonus for explicit evading targets; explicit 0 lets
    * Skilled Evasion state suppress the bonus without clearing evasion.
