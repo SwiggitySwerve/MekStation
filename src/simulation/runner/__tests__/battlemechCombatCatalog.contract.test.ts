@@ -2638,6 +2638,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       'heat-mp-penalty',
       'jump',
       'occupancy',
+      'prone',
       'run',
       'stand',
       'torso-twist',
@@ -2645,7 +2646,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(MOVEMENT_RULE_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['prone']);
+    ).toEqual(['go-prone-side-paths']);
     expect(
       MOVEMENT_RULE_COMBAT_SUPPORT['torso-twist'].sourceRefs?.map(
         (sourceRef) => sourceRef.citation,
@@ -2693,6 +2694,9 @@ describe('BattleMech combat feature-gap tracking', () => {
       ),
     ).toEqual([
       'MegaMek MovePath allows GO_PRONE while restricting follow-up moves after leaving and returning to an enemy-occupied start hex.',
+      'MegaMek GoProneStep assigns 1 MP when the entity is not hull-down, leaving hull-down go-prone as a zero-MP transition.',
+      'MegaMek MoveStep marks GO_PRONE illegal for already-prone units, non-Meks, or stuck entities.',
+      'MegaMek MoveStep updates GO_PRONE posture by setting prone state and clearing hull-down state.',
       'MegaMek MovePathHandler resolves GO_PRONE by setting the entity prone, with swarmer dislodge and inferno wash-off side paths.',
     ]);
 

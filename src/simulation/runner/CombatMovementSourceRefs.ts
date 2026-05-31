@@ -92,6 +92,18 @@ export const MEGAMEK_GO_PRONE_MOVEMENT_SOURCE_REFS = [
     'megamek/src/megamek/common/moves/MovePath.java#L663-L704',
   ),
   megamekMovementRef(
+    'MegaMek GoProneStep assigns 1 MP when the entity is not hull-down, leaving hull-down go-prone as a zero-MP transition.',
+    'megamek/src/megamek/common/moves/GoProneStep.java#L50-L63',
+  ),
+  megamekMovementRef(
+    'MegaMek MoveStep marks GO_PRONE illegal for already-prone units, non-Meks, or stuck entities.',
+    'megamek/src/megamek/common/moves/MoveStep.java#L2379-L2381',
+  ),
+  megamekMovementRef(
+    'MegaMek MoveStep updates GO_PRONE posture by setting prone state and clearing hull-down state.',
+    'megamek/src/megamek/common/moves/MoveStep.java#L2557-L2560',
+  ),
+  megamekMovementRef(
     'MegaMek MovePathHandler resolves GO_PRONE by setting the entity prone, with swarmer dislodge and inferno wash-off side paths.',
     'megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L3572-L3590',
   ),

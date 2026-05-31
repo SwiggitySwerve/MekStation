@@ -65,12 +65,13 @@ export function createGoProneMovementDeclaredEvent(
   unitId: string,
   at: IHexCoordinate,
   facing: Facing,
+  mpCost = 1,
 ): IGameEvent {
   const step: IGoProneStep = {
     kind: 'goProne',
     index: 0,
     at: { q: at.q, r: at.r },
-    mpCost: 1,
+    mpCost,
   };
   const payload: IMovementDeclaredPayload = {
     unitId,
@@ -79,11 +80,11 @@ export function createGoProneMovementDeclaredEvent(
     facing,
     movementType: MovementType.Stationary,
     path: [{ q: at.q, r: at.r }],
-    mpUsed: 1,
+    mpUsed: mpCost,
     heatGenerated: 0,
     hexesMoved: 0,
     straightHexes: 0,
-    turningMpCost: 1,
+    turningMpCost: mpCost,
     netDisplacement: 0,
     steps: [step],
   };

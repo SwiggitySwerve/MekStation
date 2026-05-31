@@ -505,6 +505,7 @@ export function applyMovementEvent(
       payload.steps,
     ),
     prone: wentProne ? true : unit.prone,
+    ...(wentProne ? { hullDown: false } : {}),
   };
 
   return {

@@ -198,8 +198,10 @@ describe('BattleMech combat validation catalog index', () => {
         'featureSupport.physicalWeapons.claws',
         'featureSupport.physicalWeapons.talons',
         'pilotSkills.pilotModifierResolvers.edge-application',
+        'ruleSupport.movementRules.go-prone-side-paths',
       ]),
     );
+    expect(unresolvedRefs).not.toContain('ruleSupport.movementRules.prone');
     expect(unresolvedRefs).not.toContain(
       'featureSupport.canonicalPilotAbilityScope.edge_when_masc_fails',
     );

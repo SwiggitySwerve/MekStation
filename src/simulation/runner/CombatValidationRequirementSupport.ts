@@ -726,8 +726,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'movement-actions': helperOnly(
     'movement-actions',
-    'Action and movement rule maps cover walk, run, jump, same-hex facing rotation, stand, source-backed voluntary go-prone, source-backed MASC/Supercharger activation, prone state, source-backed torso-twist exposure with replayed secondaryFacing consumption, and source-backed first-class absent-action rows for optional TacOps sprint and evade',
-    'Sprint and evade action creation remain absent, even though explicit sprint/evasion state can be consumed by to-hit, indirect-fire spotter rejection, and runner movement heat; torso-twist lower-level UI direction/reset refinements remain outside the authoritative action path',
+    'Action and movement rule maps cover walk, run, jump, same-hex facing rotation, stand, source-backed voluntary go-prone including non-Mek/already-prone legality and hull-down zero-MP posture transition, source-backed MASC/Supercharger activation, prone state, source-backed torso-twist exposure with replayed secondaryFacing consumption, and source-backed first-class absent-action rows for optional TacOps sprint and evade',
+    'Sprint and evade action creation remain absent, even though explicit sprint/evasion state can be consumed by to-hit, indirect-fire spotter rejection, and runner movement heat; go-prone swarmer dislodge, inferno wash-off, and stuck-state side paths remain helper-only; torso-twist lower-level UI direction/reset refinements remain outside the authoritative action path',
     [
       'actions.tacticalCommands.movement.walk',
       'actions.tacticalCommands.movement.stand',

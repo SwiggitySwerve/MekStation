@@ -999,10 +999,91 @@ describe('runMovementPhase movement validation parity', () => {
     expect(next.units['player-1'].position).toEqual({ q: 0, r: 0 });
     expect(next.units['player-1'].prone).toBe(true);
     expect(MOVEMENT_RULE_COMBAT_SUPPORT.prone).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('runner AI'),
-      gap: expect.not.stringContaining('Runner movement AI/planning'),
     });
+  });
+
+  it('commits hull-down go-prone at zero MP and clears hull-down posture', () => {
+    const unit = {
+      ...createMinimalUnitState('player-1', GameSide.Player, { q: 0, r: 0 }),
+      hullDown: true,
+    };
+    const state = {
+      gameId: 'runner-hull-down-go-prone-validation',
+      status: GameStatus.Active,
+      turn: 1,
+      phase: GamePhase.Movement,
+      activationIndex: 0,
+      units: {
+        'player-1': unit,
+      },
+      turnEvents: [],
+    };
+    const events: Parameters<typeof runMovementPhase>[0]['events'] = [];
+    const violations: Parameters<typeof runMovementPhase>[0]['violations'] = [];
+
+    const next = runMovementPhase({
+      state,
+      botPlayer: new ScriptedGoPronePlayer('player-1'),
+      grid: createMinimalGrid(3),
+      invariantRunner: new InvariantRunner(),
+      violations,
+      events,
+      gameId: state.gameId,
+    });
+    const payload = events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    )?.payload as IMovementDeclaredPayload | undefined;
+
+    expect(payload).toMatchObject({
+      unitId: 'player-1',
+      mpUsed: 0,
+      turningMpCost: 0,
+      steps: [
+        expect.objectContaining({
+          kind: 'goProne',
+          mpCost: 0,
+        }),
+      ],
+    });
+    expect(next.units['player-1'].prone).toBe(true);
+    expect(next.units['player-1'].hullDown).toBe(false);
+  });
+
+  it('rejects scripted go-prone for explicit non-Mek units', () => {
+    const unit = {
+      ...createMinimalUnitState('player-1', GameSide.Player, { q: 0, r: 0 }),
+      unitType: UnitType.VEHICLE,
+    };
+    const state = {
+      gameId: 'runner-non-mek-go-prone-validation',
+      status: GameStatus.Active,
+      turn: 1,
+      phase: GamePhase.Movement,
+      activationIndex: 0,
+      units: {
+        'player-1': unit,
+      },
+      turnEvents: [],
+    };
+    const events: Parameters<typeof runMovementPhase>[0]['events'] = [];
+    const violations: Parameters<typeof runMovementPhase>[0]['violations'] = [];
+
+    const next = runMovementPhase({
+      state,
+      botPlayer: new ScriptedGoPronePlayer('player-1'),
+      grid: createMinimalGrid(3),
+      invariantRunner: new InvariantRunner(),
+      violations,
+      events,
+      gameId: state.gameId,
+    });
+
+    expect(
+      events.some((event) => event.type === GameEventType.MovementDeclared),
+    ).toBe(false);
+    expect(next.units['player-1'].prone).toBe(false);
   });
 
   it('resolves a successful stand-up PSR before committing prone movement', () => {

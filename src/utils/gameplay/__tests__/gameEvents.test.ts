@@ -592,6 +592,30 @@ describe('Movement Event Factories', () => {
         { kind: 'goProne', index: 0, at: position, mpCost: 1 },
       ]);
     });
+
+    it('should preserve a zero-cost goProne step for hull-down transitions', () => {
+      const position = { q: 3, r: -1 };
+      const event = createGoProneMovementDeclaredEvent(
+        'game-1',
+        10,
+        1,
+        'unit-1',
+        position,
+        Facing.North,
+        0,
+      );
+      const payload = event.payload as {
+        mpUsed: number;
+        turningMpCost?: number;
+        steps?: readonly unknown[];
+      };
+
+      expect(payload.mpUsed).toBe(0);
+      expect(payload.turningMpCost).toBe(0);
+      expect(payload.steps).toEqual([
+        { kind: 'goProne', index: 0, at: position, mpCost: 0 },
+      ]);
+    });
   });
 
   describe('createMovementEnhancementActivatedEvent', () => {
