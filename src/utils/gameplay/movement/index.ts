@@ -4,8 +4,10 @@ export { createMovementRecord } from './types';
 export {
   applyActiveMPBoosters,
   calculateRunMP,
+  calculateSprintMP,
   createMovementCapability,
   getMaxMP,
+  getSprintMPForCapability,
   getHexMovementCost,
   estimateMovementCost,
 } from './calculations';

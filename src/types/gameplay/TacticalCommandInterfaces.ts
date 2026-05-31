@@ -128,8 +128,8 @@ export interface IMovementCommandPreview {
   readonly mpCost: number;
   /** Proposed final facing after movement (0..5). */
   readonly finalFacing: number;
-  /** Walk vs run vs jump (drives heat preview + indicator color). */
-  readonly mode: 'walk' | 'run' | 'jump';
+  /** Walk/run/sprint/evade/jump (drives heat preview + indicator color). */
+  readonly mode: 'walk' | 'run' | 'sprint' | 'evade' | 'jump';
   /** True if the previewed destination is unreachable (over MP). */
   readonly unreachable: boolean;
 }

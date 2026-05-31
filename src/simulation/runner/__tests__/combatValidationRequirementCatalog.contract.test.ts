@@ -957,13 +957,13 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     ).toContain('outside BattleMech combat runner validation scope');
   });
 
-  it('keeps source-backed movement action support explicit until every optional path exists', () => {
+  it('keeps source-backed movement action support explicit with remaining side-path gaps', () => {
     const evadeRefs =
       BATTLEMECH_COMBAT_VALIDATION_CATALOG.actions.tacticalCommands[
         'movement.evade'
       ].sourceRefs ?? [];
     const sprintRefs =
-      BATTLEMECH_COMBAT_VALIDATION_CATALOG.actions.absentActionSurfaces[
+      BATTLEMECH_COMBAT_VALIDATION_CATALOG.actions.tacticalCommands[
         'movement.sprint'
       ].sourceRefs ?? [];
     const torsoTwistActionRefs =
@@ -1018,7 +1018,11 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
         .supportMapRefs,
-    ).toContain('actions.absentActionSurfaces.movement.sprint');
+    ).toContain('actions.tacticalCommands.movement.sprint');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
+        .supportMapRefs,
+    ).not.toContain('actions.absentActionSurfaces.movement.sprint');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
         .supportMapRefs,
@@ -1035,7 +1039,7 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     );
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions'].gap,
-    ).toContain('Sprint action creation remains absent');
+    ).toContain('engine-variant/coolant sprint heat');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions'].gap,
     ).not.toContain('torso-twist intent/wire/server actions');
@@ -1046,7 +1050,15 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
         .supportMapRefs,
+    ).toContain('actions.tacticalCommands.movement.sprint');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
+        .supportMapRefs,
     ).not.toContain('actions.absentActionSurfaces.movement.evade');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
+        .supportMapRefs,
+    ).not.toContain('actions.absentActionSurfaces.movement.sprint');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
         .evidence,
