@@ -271,6 +271,7 @@ export class BotPlayer implements IAIPlayer {
       position,
       movementType,
       capability,
+      { pilotAbilities: unit.abilities },
     );
 
     const nonStationaryMoves = moves.filter(
