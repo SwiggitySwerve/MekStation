@@ -144,6 +144,11 @@ export interface IUnitGameState {
    */
   readonly unitType?: string;
   /**
+   * Unit mass in tons. Undefined preserves legacy synthetic fixtures, while
+   * explicit values allow terrain/load rules to avoid guessing.
+   */
+  readonly tonnage?: number;
+  /**
    * Construction-side movement/motion mode copied into combat state for
    * source-backed rules that distinguish VTOL/WIGE-like airborne targets
    * from generic vehicles. Undefined preserves legacy BattleMech fixtures.
