@@ -177,6 +177,7 @@ describe('Protocol envelope schemas', () => {
       for (const attackType of [
         'brush-off',
         'flail',
+        'grapple',
         'thrash',
         'wrecking-ball',
       ]) {
