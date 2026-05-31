@@ -229,6 +229,7 @@ export function createInitialUnitState(
   return {
     id: unit.id,
     unitType: unit.unitType,
+    ...(unit.tonnage !== undefined ? { tonnage: unit.tonnage } : {}),
     motionType: unit.motionType,
     isQuad: unit.isQuad,
     armsFlipped: unit.armsFlipped,
