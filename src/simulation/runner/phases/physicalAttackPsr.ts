@@ -82,6 +82,13 @@ export function attackerHitPSRForAttack(
         ...createDFAAttackerPSR(attackerId),
         additionalModifier: result.attackerPSRModifier,
       };
+    case 'thrash':
+      return {
+        entityId: attackerId,
+        reason: 'Thrashing attack',
+        additionalModifier: result.attackerPSRModifier,
+        triggerSource: 'thrash_attacker_hit',
+      };
     default:
       return null;
   }
