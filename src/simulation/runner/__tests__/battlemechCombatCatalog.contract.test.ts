@@ -157,10 +157,6 @@ type PinnedScopeSplitAmmoGapClass =
 const EXPECTED_BATTLEMECH_AMMO_GAP_IDS = {
   'battlemech-ammo-missing-compatible-weapon-refs': [
     'clan-lb-2-x-cluster',
-    'impammoac10',
-    'impammoac2',
-    'impammoac20',
-    'impammoac5',
     'rotaryac10',
     'rotaryac20',
   ],
@@ -440,6 +436,10 @@ const EXPECTED_BATTLEMECH_COMPATIBLE_AMMO_IDS = [
   'gauss-ammo',
   'heavy-gauss-ammo',
   'heavy-mg-ammo',
+  'impammoac10',
+  'impammoac2',
+  'impammoac20',
+  'impammoac5',
   'inarc-ammo',
   'lb-10-x-ammo',
   'lb-10-x-cluster-ammo',
@@ -1209,7 +1209,7 @@ describe('BattleMech combat catalog validation lane', () => {
       EXPECTED_NONSTANDARD_AMMO_GAP_IDS,
     );
     expect(countBy(gapClasses)).toEqual({
-      'battlemech-ammo-missing-compatible-weapon-refs': 7,
+      'battlemech-ammo-missing-compatible-weapon-refs': 3,
       'duplicate-runtime-id': 12,
       'non-battlemech-aerospace-capital-ammo': 8,
       'non-battlemech-battle-armor': 17,
