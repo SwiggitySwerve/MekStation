@@ -317,14 +317,16 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
     'Campaign maintenance-cycle application belongs to MekHQ campaign scope, not BattleMech combat runner modifier scope',
     MEKHQ_RUGGED_SOURCE_REFS,
   ),
+  'vehicle-movement-application': outOfScope(
+    'vehicle-movement-application',
+    'MegaMek Cross-Country applies to combat-vehicle terrain movement-cost and passability gates for the separate vehicle combat matrix',
+    'Vehicle movement/passability behavior is excluded from BattleMech runner validation until a vehicle combat matrix consumes it',
+    MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
+  ),
   'movement-application': unsupported(
     'movement-application',
-    'Source-backed optional TacOps Evade movement, Speed Demon run-distance/heat tradeoff, Heavy Lifter carry/throw movement effects, and source-backed Cross-Country combat-vehicle movement/passability behavior are not wired in the BattleMech combat matrix',
-    [
-      ...MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
-      ...MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
-      ...MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
-    ],
+    'Source-backed optional TacOps Evade movement, Speed Demon run-distance/heat tradeoff, and Heavy Lifter carry/throw movement effects are not wired in the BattleMech combat matrix',
+    [...MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS, ...MEGAMEK_HEAVY_LIFTER_SOURCE_REFS],
   ),
   'multi-target-penalty-application': unsupported(
     'multi-target-penalty-application',
@@ -443,8 +445,12 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
     spaIds: [],
     quirkIds: ['rugged_1', 'rugged_2'],
   },
+  'vehicle-movement-application': {
+    spaIds: ['cross-country'],
+    quirkIds: [],
+  },
   'movement-application': {
-    spaIds: ['evasive', 'speed-demon', 'heavy-lifter', 'cross-country'],
+    spaIds: ['evasive', 'speed-demon', 'heavy-lifter'],
     quirkIds: [],
   },
   'multi-target-penalty-application': {
