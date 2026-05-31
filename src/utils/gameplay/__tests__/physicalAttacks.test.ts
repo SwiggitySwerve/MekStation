@@ -16,6 +16,7 @@ import {
   calculateMaceDamage,
   calculateRetractableBladeDamage,
   calculateWreckingBallDamage,
+  calculateThrashDamage,
   calculateBrushOffAttackDamage,
   calculatePunchToHit,
   calculateKickToHit,
@@ -23,6 +24,7 @@ import {
   calculateDFAToHit,
   calculatePushToHit,
   calculateTripToHit,
+  calculateThrashToHit,
   calculateMeleeWeaponToHit,
   calculatePhysicalToHit,
   calculatePhysicalDamage,
@@ -35,6 +37,7 @@ import {
   canMeleeWeapon,
   canPush,
   canTripPhysical,
+  canThrashPhysical,
   canThrash,
   canTrip,
   computeChargeDisplacementOutcome,
@@ -1643,6 +1646,63 @@ describe('physicalAttacks', () => {
           ...validThrashInput,
           blockingTerrains: [terrain],
         }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TerrainNotClearOrPavement',
+      });
+    });
+
+    it('maps source-backed thrash gates into runtime restrictions and automatic-hit to-hit math', () => {
+      const input = makeInput({
+        attackType: 'thrash',
+        attackerProne: true,
+        attackerUnitType: 'BattleMech',
+        targetUnitType: 'Infantry',
+        targetDistance: 0,
+        elevationDifference: 0,
+        thrashBlockingTerrains: [],
+      });
+
+      expect(canThrashPhysical(input)).toEqual({ allowed: true });
+      expect(calculateThrashToHit(input)).toMatchObject({
+        allowed: true,
+        baseToHit: 0,
+        finalToHit: 0,
+        automaticHit: true,
+        automaticHitReason: 'Thrash attacks always hit.',
+      });
+      expect(calculateThrashDamage(input)).toBe(27);
+    });
+
+    it('rejects runtime thrash attacks when a prone Mek is not in clear same-hex infantry conditions', () => {
+      expect(
+        canThrashPhysical(
+          makeInput({
+            attackType: 'thrash',
+            attackerProne: false,
+            attackerUnitType: 'BattleMech',
+            targetUnitType: 'Infantry',
+            targetDistance: 0,
+            elevationDifference: 0,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerNotProne',
+      });
+
+      expect(
+        canThrashPhysical(
+          makeInput({
+            attackType: 'thrash',
+            attackerProne: true,
+            attackerUnitType: 'BattleMech',
+            targetUnitType: 'Infantry',
+            targetDistance: 0,
+            elevationDifference: 0,
+            thrashBlockingTerrains: ['woods'],
+          }),
+        ),
       ).toMatchObject({
         allowed: false,
         reasonCode: 'TerrainNotClearOrPavement',
@@ -5123,6 +5183,34 @@ describe('physicalAttacks', () => {
       expect(result.hitLocation).toBeUndefined();
       expect(result.targetDisplaced).toBe(false);
       expect(result.targetPSR).toBe(true);
+    });
+
+    it('resolves source-backed thrash as automatic infantry damage with attacker PSR', () => {
+      const roller = makeDiceSequence([3]);
+      const result = resolvePhysicalAttack(
+        makeInput({
+          attackType: 'thrash',
+          attackerTonnage: 80,
+          attackerProne: true,
+          attackerUnitType: 'BattleMech',
+          targetUnitType: 'Infantry',
+          targetDistance: 0,
+          elevationDifference: 0,
+          thrashBlockingTerrains: [],
+        }),
+        roller,
+      );
+
+      expect(result.hit).toBe(true);
+      expect(result.toHitNumber).toBe(0);
+      expect(result.roll).toBe(0);
+      expect(result.automaticHit).toBe(true);
+      expect(result.automaticHitReason).toBe('Thrash attacks always hit.');
+      expect(result.targetDamage).toBe(27);
+      expect(result.hitLocation).toBe('center_torso');
+      expect(result.attackerPSR).toBe(true);
+      expect(result.attackerPSRModifier).toBe(0);
+      expect(result.targetPSR).toBe(false);
     });
 
     it('should resolve charge with damage to both', () => {
