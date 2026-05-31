@@ -44,6 +44,7 @@ import {
   createRunningDamagedHipPSR,
   createRunningDamagedGyroPSR,
   createBuildingCollapsePSR,
+  createSwampBogDownPSR,
   getMASCOrSuperchargerFailureTargetNumber,
   createMASCFailurePSR,
   createSuperchargerFailurePSR,
@@ -818,9 +819,35 @@ describe('Piloting Skill Rolls', () => {
       ]);
       expect(damageMods).toHaveLength(0);
     });
+
+    it('should apply Swamp Beast only to swamp bog-down PSRs', () => {
+      const swampMods = calculatePSRModifiers(
+        createSwampBogDownPSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['terrain-master-swamp-beast'],
+      );
+      const damageMods = calculatePSRModifiers(
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['tm_swamp_beast'],
+      );
+
+      expect(swampMods).toEqual([
+        {
+          name: 'Swamp Beast',
+          source: 'spa',
+          value: -1,
+        },
+      ]);
+      expect(damageMods).toHaveLength(0);
+    });
   });
 
-  describe('PSR Trigger Generators — all 27 triggers', () => {
+  describe('PSR Trigger Generators — all 28 triggers', () => {
     const triggerTests: Array<{
       fn: (id: string) => IPendingPSR;
       expectedSource: PSRTrigger;
@@ -933,6 +960,11 @@ describe('Piloting Skill Rolls', () => {
         expectedMod: 0,
       },
       {
+        fn: createSwampBogDownPSR,
+        expectedSource: PSRTrigger.SwampBogDown,
+        expectedMod: 0,
+      },
+      {
         fn: createSkiddingPSR,
         expectedSource: PSRTrigger.Skidding,
         expectedMod: 0,
@@ -975,8 +1007,8 @@ describe('Piloting Skill Rolls', () => {
       },
     );
 
-    it('should have exactly 28 trigger types (27 catalog entries + standing up)', () => {
-      expect(triggerTests).toHaveLength(28);
+    it('should have exactly 29 trigger types (28 catalog entries + standing up)', () => {
+      expect(triggerTests).toHaveLength(29);
     });
 
     it.each([

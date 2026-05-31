@@ -119,6 +119,7 @@ export type PhysicalAttackInvalidReason =
   | 'InvalidArmSelection'
   | 'AttackerEvading'
   | 'AttackerCargoInteraction'
+  | 'AttackerStuck'
   | 'NoJumpThisTurn'
   | 'MechanicalJumpBooster'
   | 'ChargeJumpMovement'
@@ -253,6 +254,10 @@ export interface IPhysicalAttackInput {
    * unloading cargo cannot make physical attacks.
    */
   readonly attackerLoadingOrUnloadingCargo?: boolean;
+  /**
+   * Source-backed bog-down legality: stuck Meks cannot charge or execute DFA.
+   */
+  readonly attackerStuck?: boolean;
   /**
    * Source-backed retractable blade legality: MegaMek rejects the attack
    * when the blade is not extended. Undefined preserves legacy runtime
@@ -629,6 +634,7 @@ export interface IChooseBestPhysicalAttackOptions {
   weaponsFiredFromLeftArm?: readonly string[];
   weaponsFiredFromRightArm?: readonly string[];
   attackerProne?: boolean;
+  attackerStuck?: boolean;
   attackerUnitType?: string;
   targetUnitType?: string;
   targetDistance?: number;
