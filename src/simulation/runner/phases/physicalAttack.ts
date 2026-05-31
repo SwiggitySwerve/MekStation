@@ -135,6 +135,63 @@ function targetDirectlyBehindFeet(
   );
 }
 
+function canonicalBrushOffTargetUnitType(
+  unit: IGameState['units'][string],
+): string | undefined {
+  if (unit.combatState?.kind === 'squad') return 'battlearmor';
+  return unit.unitType?.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function swarmingHostId(unit: IGameState['units'][string]): string | undefined {
+  if (unit.combatState?.kind !== 'squad') return undefined;
+  return unit.combatState.state.swarmingUnitId;
+}
+
+function targetIsSwarmingInfantryOnAttacker(
+  attackerId: string,
+  target: IGameState['units'][string],
+): boolean {
+  if (target.isSwarming !== true) return false;
+
+  const canonical = canonicalBrushOffTargetUnitType(target);
+  if (canonical !== 'infantry' && canonical !== 'battlearmor') return false;
+
+  const hostId = swarmingHostId(target);
+  return hostId === undefined || hostId === attackerId;
+}
+
+function clearBrushOffSwarmingState(
+  state: IGameState,
+  unitId: string,
+): IGameState {
+  const unit = state.units[unitId];
+  if (!unit) return state;
+
+  const combatState =
+    unit.combatState?.kind === 'squad'
+      ? (() => {
+          const { swarmingUnitId: _swarmingUnitId, ...squadState } =
+            unit.combatState.state;
+          return {
+            ...unit.combatState,
+            state: squadState,
+          };
+        })()
+      : unit.combatState;
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [unitId]: {
+        ...unit,
+        isSwarming: false,
+        ...(combatState ? { combatState } : {}),
+      },
+    },
+  };
+}
+
 function markUnitFallenAfterDfaMiss(
   state: IGameState,
   unitId: string,
@@ -397,6 +454,8 @@ export function runPhysicalAttackPhase(options: {
           targetUnitType: target.unitType,
           targetDistance: hexDistance(unit.position, target.position),
           targetIsSwarming: target.isSwarming,
+          targetIsSwarmingInfantryOnAttacker:
+            targetIsSwarmingInfantryOnAttacker(unit.id, target),
           targetObjectType: physicalTargetObjectTypeForUnitType(
             target.unitType,
           ),
@@ -494,7 +553,7 @@ export function runPhysicalAttackPhase(options: {
           ? weaponsFiredThisTurn
           : bestAttack === 'push'
             ? weaponsFiredFromEitherArm
-            : bestAttack === 'punch'
+            : bestAttack === 'punch' || bestAttack === 'brush-off'
               ? weaponsFiredFromRightArm
               : undefined,
       attackerDestroyedLocations: unit.destroyedLocations,
@@ -561,6 +620,10 @@ export function runPhysicalAttackPhase(options: {
       targetBoardId: target.boardId,
       targetIsPassenger: target.isPassenger,
       targetIsSwarming: target.isSwarming,
+      targetIsSwarmingInfantryOnAttacker: targetIsSwarmingInfantryOnAttacker(
+        unit.id,
+        target,
+      ),
       targetIsMakingDFA: target.isMakingDFA,
       targetIsMakingDisplacementAttack: target.isMakingDisplacementAttack,
       targetIsPushing: target.isPushing,
@@ -650,6 +713,29 @@ export function runPhysicalAttackPhase(options: {
         unitId: target.id,
         clusters: targetClusters,
         hitTable: bestAttack === 'kick' ? 'kick' : 'punch',
+        d6Roller,
+        sourceUnitId: unitId,
+        firstHitLocation: result.hitLocation,
+      });
+    }
+
+    if (result.hit && bestAttack === 'brush-off') {
+      currentState = clearBrushOffSwarmingState(currentState, target.id);
+    }
+
+    if (
+      !result.hit &&
+      bestAttack === 'brush-off' &&
+      result.attackerDamage > 0 &&
+      result.hitLocation
+    ) {
+      currentState = applyPhysicalDamageClusters({
+        state: currentState,
+        events,
+        gameId,
+        unitId,
+        clusters: [result.attackerDamage],
+        hitTable: 'punch',
         d6Roller,
         sourceUnitId: unitId,
         firstHitLocation: result.hitLocation,

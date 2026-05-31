@@ -121,7 +121,7 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   'inarc-pod-variants': helperOnly(
     'inarc-pod-variants',
     'Source-backed iNarc pod variants are cataloged as separate ECM, Haywire, Nemesis, and Homing marker shapes; selected ammo can attach each runner pod type, Homing has runner marker and missile guidance coverage, Haywire has attacker to-hit coverage, ECM suppresses attacker flight-path Artemis guidance and disrupts C3 state, and Nemesis redirects confusable missiles',
-    'Remaining iNarc ECM sensor effects and ambiguous/player-authored C3 network assignment are not represented in runner combat resolution',
+    'Remaining iNarc ECM sensor effects, ambiguous/player-authored C3 network assignment, and targetable iNARC pod brush-off removal are not represented in runner combat resolution',
     MEGAMEK_INARC_POD_TYPE_SOURCE_REFS,
   ),
   'inarc-nemesis-redirect': integrated(
