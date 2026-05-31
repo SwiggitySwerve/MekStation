@@ -149,6 +149,7 @@ export type PhysicalAttackInvalidReason =
   | 'TargetNotAdjacent'
   | 'TargetNotDirectlyAhead'
   | 'UnsupportedAttackType'
+  | 'PhysicalAttackLimitReached'
   | 'RetractableBladeNotExtended'
   | 'DestinationBlocked';
 
