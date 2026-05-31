@@ -185,24 +185,6 @@ function integrated(
   };
 }
 
-function helperOnlyBattleMech(
-  id: string,
-  sourceClass: string,
-  evidence: string,
-  gap: string,
-  sourceRefs: readonly ICombatFeatureSourceReference[],
-): IPhysicalActionClassScopeEntry {
-  return {
-    id,
-    sourceClass,
-    sourcePath: `E:/Projects/megamek/megamek/src/megamek/common/actions/${sourceClass}.java`,
-    battleMechScope: 'battlemech',
-    level: 'helper-only',
-    evidence,
-    gap,
-    sourceRefs,
-  };
-}
 function outOfScope(
   id: string,
   sourceClass: string,
@@ -326,11 +308,11 @@ export const PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT = {
       ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS.grapple,
     ],
   ),
-  'break-grapple': helperOnlyBattleMech(
+  'break-grapple': integrated(
     'break-grapple',
     'BreakGrappleAttackAction',
-    'canBreakGrapple helper coverage applies source-backed optional-rule, airborne, common locked-grapple, chain-whip, unit-type, grapple-target, automatic-success, actuator/AES, and weight-class modifier branches',
-    'Breaking grapples still has no runtime PhysicalAttackType, tactical command, event-sourced break-grapple declaration, or resolution path',
+    'MekStation runtime PhysicalAttackType, tactical command, event-sourced physical resolution, and runner physical phase support source-backed normal TacOps break-grapple attacks with no damage, automatic original-attacker success, grapple state clearing, and grid-backed adjacent displacement',
+    ['break-grapple'],
     [
       ...MEGAMEK_HELPER_ONLY_BATTLEMECH_PHYSICAL_ACTION_REFS['break-grapple'],
       ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS['break-grapple'],
