@@ -249,9 +249,9 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
     'calculatePhysicalDamage and runPhysicalAttackPhase consume pilot abilities for source-backed Melee Specialist physical damage without applying Battle Fists as legacy flat damage',
     MEGAMEK_MELEE_SPECIALIST_SOURCE_REFS,
   ),
-  'physical-action-count-application': unsupported(
+  'physical-action-count-application': integrated(
     'physical-action-count-application',
-    'MegaMek Melee Master grants two allowed physical attacks, but MekStation has no per-turn physical attack count allowance resolver yet',
+    'getAllowedPhysicalAttackCount and declarePhysicalAttack consume Melee Master to permit two accepted physical declarations per turn while rejecting third declarations and same-limb repeats',
     MEKSTATION_MELEE_MASTER_DEVIATION_SOURCE_REFS,
   ),
   'physical-restriction-application': integrated(
