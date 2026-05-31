@@ -1305,6 +1305,19 @@ Ranged to-hit validation SHALL keep Improved Targeting and Poor Targeting rows s
 - **AND** every row SHALL cite the MekStation alias boundary for the local `improved_targeting_*` and `poor_targeting_*` ids
 - **AND** the ranged to-hit resolver row SHALL cite the MegaMek targeting quirk behavior without hiding the alias boundary on each quirk support row
 
+### Requirement: Source-Backed Multi-Tasker Secondary Target Relief
+
+Ranged to-hit validation SHALL keep MegaMek's Multi-Tasker SPA distinct from MekStation's legacy local Multi-Target row. The `multi-tasker` SPA row SHALL stay integrated for source-backed `multi_tasker` behavior that reduces secondary-target penalties through ranged to-hit calculation. The `multi-target-penalty-application` resolver row SHALL be helper-only: it SHALL expose source-backed Multi-Tasker application evidence while keeping local `multi-target` mapped to the same penalty family for catalog completeness. The local `multi-target` SPA row SHALL remain unsupported unless an independent source-backed combat authority is identified.
+
+#### Scenario: Multi-Tasker application stays separate from local Multi-Target
+
+- **GIVEN** the BattleMech SPA and pilot modifier resolver catalogs are generated
+- **WHEN** secondary-target penalty support is inspected
+- **THEN** `multi-tasker` SHALL be integrated with structured MegaMek source references
+- **AND** `multi-target-penalty-application` SHALL be helper-only with the same source-backed Multi-Tasker references
+- **AND** the resolver assignment SHALL include both `multi-tasker` and local `multi-target`
+- **AND** `multi-target` SHALL remain unsupported as a local SPA source-boundary
+
 ### Requirement: Source-Backed Multi-Trac Secondary Target Relief
 
 Ranged to-hit validation SHALL keep Multi-Trac source-backed as secondary-target penalty relief. The `multi_trac` quirk row SHALL cite MegaMek `Compute.getSecondaryTargetMod` and option-id anchors, and the ranged to-hit resolver row SHALL expose the same source-backed modifier family before claiming complete quirk to-hit coverage.
