@@ -243,6 +243,22 @@ function createPhysicalGrid(
   return { config: { radius: 2 }, hexes };
 }
 
+function createSameHexPhysicalGrid(
+  attackerTerrain: string = TerrainType.Clear,
+): IHexGrid {
+  const grid = createPhysicalGrid();
+  const hexes = new Map(grid.hexes);
+  const attackerHex = hexes.get('0,0');
+  const targetHex = hexes.get('1,0');
+  if (attackerHex) {
+    hexes.set('0,0', { ...attackerHex, terrain: attackerTerrain });
+  }
+  if (targetHex) {
+    hexes.set('1,0', { ...targetHex, occupantId: null });
+  }
+  return { ...grid, hexes };
+}
+
 function createGroundedDropShipDfaGrid(): IHexGrid {
   const grid = createPhysicalGrid();
   const hexes = new Map(grid.hexes);
@@ -573,6 +589,74 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
         triggerSource: 'trip',
       }),
     ]);
+  });
+
+  it('honors an injected source-backed thrash declaration as automatic infantry damage with attacker PSR', () => {
+    const { events, result } = runPhase('thrash', {
+      attacker: { prone: true },
+      target: {
+        position: { q: 0, r: 0 },
+        unitType: UnitType.INFANTRY,
+      },
+      grid: createSameHexPhysicalGrid(),
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.PhysicalAttackDeclared,
+      GameEventType.DamageApplied,
+      GameEventType.PhysicalAttackResolved,
+    ]);
+
+    const resolved = resolvedPayload(events);
+    expect(resolved).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'thrash',
+      roll: 0,
+      toHitNumber: 0,
+      hit: true,
+      damage: 22,
+      automaticHit: true,
+      automaticHitReason: 'Thrash attacks always hit.',
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toEqual([
+      expect.objectContaining({
+        unitId: 'opponent-1',
+        damage: 22,
+        sourceUnitId: 'player-1',
+      }),
+    ]);
+    expect(result.units['player-1'].pendingPSRs).toEqual([
+      expect.objectContaining({
+        reason: 'Thrashing attack',
+        additionalModifier: 0,
+        triggerSource: 'thrash_attacker_hit',
+      }),
+    ]);
+    expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
+  });
+
+  it('rejects injected thrash declarations in non-clear same-hex terrain before side effects', () => {
+    const { events, result } = runPhase('thrash', {
+      attacker: { prone: true },
+      target: {
+        position: { q: 0, r: 0 },
+        unitType: UnitType.INFANTRY,
+      },
+      grid: createSameHexPhysicalGrid(TerrainType.LightWoods),
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'thrash',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'TerrainNotClearOrPavement',
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
+    expect(result.units['player-1'].pendingPSRs).toHaveLength(0);
+    expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
   });
 
   it('rejects injected physical declarations against passenger targets before side effects', () => {
