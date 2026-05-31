@@ -109,6 +109,7 @@ export enum GameEventType {
   PSRTriggered = 'psr_triggered',
   PSRResolved = 'psr_resolved',
   UnitFell = 'unit_fell',
+  UnitStuck = 'unit_stuck',
   /**
    * Per `wire-piloting-skill-rolls` task 0.5.2: emitted when a prone
    * unit successfully passes an `AttemptStand` PSR and returns to its

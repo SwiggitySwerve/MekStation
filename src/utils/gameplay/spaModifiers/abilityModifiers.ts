@@ -275,6 +275,15 @@ export function getMountaineerRubblePSRModifier(
 }
 
 /**
+ * Terrain Master: Swamp Beast: -1 to avoid-bog-down PSRs.
+ */
+export function getSwampBeastBogDownPSRModifier(
+  abilities: readonly string[],
+): number {
+  return hasSPA(abilities, 'tm_swamp_beast') ? -1 : 0;
+}
+
+/**
  * Melee Specialist: +1 physical attack damage bonus.
  * Not a to-hit modifier -- returns a damage bonus.
  */
