@@ -11,6 +11,7 @@ import {
   calculatePunchDamage,
   calculateRetractableBladeDamage,
   calculateSwordDamage,
+  calculateThrashDamage,
   calculateWreckingBallDamage,
 } from './damage';
 import {
@@ -19,6 +20,7 @@ import {
   canKick,
   canMeleeWeapon,
   canPunch,
+  canThrashPhysical,
 } from './restrictions';
 import {
   IChooseBestPhysicalAttackOptions,
@@ -44,6 +46,7 @@ export function chooseBestPhysicalAttack(
     attackType: 'punch',
     heat: options.heat,
     hasTSM: options.hasTSM,
+    attackerProne: options.attackerProne,
     pilotAbilities: options.pilotAbilities,
     unitQuirks: options.unitQuirks,
     attackerIsQuad: options.attackerIsQuad,
@@ -66,6 +69,11 @@ export function chooseBestPhysicalAttack(
     elevationDifference: options.elevationDifference,
     targetIsAirborne: options.targetIsAirborne,
     targetIsAirborneVTOLorWIGE: options.targetIsAirborneVTOLorWIGE,
+    targetIsFriendly: options.targetIsFriendly,
+    targetIsSwarming: options.targetIsSwarming,
+    targetDistance: options.targetDistance,
+    targetObjectType: options.targetObjectType,
+    targetUnitType: options.targetUnitType,
     attackerJumpMP: options.attackerJumpMP,
     attackerUsedMechanicalJumpBooster:
       options.attackerUsedMechanicalJumpBooster,
@@ -73,12 +81,25 @@ export function chooseBestPhysicalAttack(
     targetIsPushing: options.targetIsPushing,
     targetDisplacementAttackTargetId: options.targetDisplacementAttackTargetId,
     targetedByDisplacementAttackerId: options.targetedByDisplacementAttackerId,
+    thrashBlockingTerrains: options.thrashBlockingTerrains,
+    hasWorkingThrashArmOrLeg: options.hasWorkingThrashArmOrLeg,
   };
+
+  const thrashInput: IPhysicalAttackInput = {
+    ...baseInput,
+    attackType: 'thrash',
+    weaponsFiredFromArm: options.weaponsFiredThisTurn,
+  };
+  if (canThrashPhysical(thrashInput).allowed) {
+    candidates.push({
+      type: 'thrash',
+      expectedDamage: calculateThrashDamage(thrashInput),
+    });
+  }
 
   const kickInput: IPhysicalAttackInput = {
     ...baseInput,
     attackType: 'kick',
-    attackerProne: options.attackerProne,
   };
   const kickRestriction = canKick(kickInput);
   if (kickRestriction.allowed) {
