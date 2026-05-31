@@ -644,6 +644,7 @@ export interface IAttackerState {
   readonly actuatorDamage?: IActuatorDamage;
   readonly targetingComputer?: boolean;
   readonly prone?: boolean;
+  readonly isSpotting?: boolean;
   readonly secondaryTarget?: ISecondaryTarget;
   readonly indirectFire?: IIndirectFire;
   readonly calledShot?: boolean;
