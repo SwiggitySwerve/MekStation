@@ -157,7 +157,9 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **THEN** the action SHALL emit a same-hex `MovementDeclared` payload with a `goProne` step, `mpUsed: 1`, `heatGenerated: 0`, and `hexesMoved: 0`
 - **AND** the reducer SHALL mark the unit prone and lock its movement activation
 - **AND** runner movement SHALL preserve the same `goProne` step when the AI chooses the opt-in stationary go-prone posture
-- **AND** hull-down, swarmer dislodge, inferno wash-off, and broader tactical go-prone policy SHALL remain explicit follow-up gaps
+- **AND** explicit non-Mek and already-prone units SHALL be rejected before emitting a go-prone movement declaration
+- **AND** a hull-down go-prone transition SHALL cost 0 MP and clear `hullDown` when the reducer marks the unit prone
+- **AND** swarmer dislodge, inferno wash-off, stuck-state legality, and broader tactical go-prone policy SHALL remain explicit follow-up gaps
 
 #### Scenario: Movement booster activation emits replayable active state
 
