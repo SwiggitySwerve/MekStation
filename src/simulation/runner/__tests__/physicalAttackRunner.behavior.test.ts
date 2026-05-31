@@ -671,6 +671,73 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
   });
 
+  it('honors an injected source-backed brush-off declaration as swarmer damage and dislodgement', () => {
+    const { events, result } = runPhase('brush-off', {
+      attacker: { piloting: 1 },
+      target: {
+        isSwarming: true,
+        unitType: UnitType.INFANTRY,
+      },
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.PhysicalAttackDeclared,
+      GameEventType.DamageApplied,
+      GameEventType.PhysicalAttackResolved,
+    ]);
+
+    const resolved = resolvedPayload(events);
+    expect(resolved).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'brush-off',
+      toHitNumber: 5,
+      hit: true,
+      damage: 7,
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toEqual([
+      expect.objectContaining({
+        unitId: 'opponent-1',
+        damage: 7,
+        sourceUnitId: 'player-1',
+      }),
+    ]);
+    expect(result.units['opponent-1'].isSwarming).toBe(false);
+  });
+
+  it('honors an injected source-backed brush-off miss as attacker self-damage', () => {
+    const { events, result } = runPhase('brush-off', {
+      target: {
+        isSwarming: true,
+        unitType: UnitType.INFANTRY,
+      },
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.PhysicalAttackDeclared,
+      GameEventType.DamageApplied,
+      GameEventType.PhysicalAttackResolved,
+    ]);
+
+    const resolved = resolvedPayload(events);
+    expect(resolved).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'brush-off',
+      toHitNumber: 9,
+      hit: false,
+      damage: 0,
+    });
+    expect(damageEventsFor(events, 'player-1')).toEqual([
+      expect.objectContaining({
+        unitId: 'player-1',
+        damage: 7,
+        sourceUnitId: 'player-1',
+      }),
+    ]);
+    expect(result.units['opponent-1'].isSwarming).toBe(true);
+  });
+
   it('rejects injected jump jet attacks without the TacOps option before side effects', () => {
     const { events, result } = runPhase('jump-jet-attack', {
       attacker: { facing: Facing.Southeast },
