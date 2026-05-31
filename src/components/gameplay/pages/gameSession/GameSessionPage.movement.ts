@@ -47,6 +47,26 @@ interface MovementPlanningResult {
   readonly handleHexClick: (hex: IHexCoordinate) => void;
 }
 
+function isRunBasedMovementType(movementType: MovementType): boolean {
+  return (
+    movementType === MovementType.Run || movementType === MovementType.Evade
+  );
+}
+
+function groundMovementMode(movementType: MovementType): 'walk' | 'run' {
+  return isRunBasedMovementType(movementType) ? 'run' : 'walk';
+}
+
+function groundMovementMaxCost(
+  capability: ReturnType<InteractiveSession['getMovementCapability']> | null,
+  movementType: MovementType,
+): number {
+  if (!capability) return Infinity;
+  return isRunBasedMovementType(movementType)
+    ? capability.runMP
+    : capability.walkMP;
+}
+
 function facingFromPath(
   path: readonly IHexCoordinate[],
   fallback: Facing,
@@ -118,7 +138,7 @@ export function useGameMovementPlanning({
       grid,
       capability,
     );
-    if (movementType !== MovementType.Run) return primary;
+    if (!isRunBasedMovementType(movementType)) return primary;
 
     const walk = deriveReachableHexes(
       selectedUnitState,
@@ -163,12 +183,8 @@ export function useGameMovementPlanning({
         interactiveSession.getGrid(),
         selectedUnitState.position,
         hoveredHex,
-        capability
-          ? movementType === MovementType.Walk
-            ? capability.walkMP
-            : capability.runMP
-          : Infinity,
-        movementType === MovementType.Run ? 'run' : 'walk',
+        groundMovementMaxCost(capability, movementType),
+        groundMovementMode(movementType),
         { pilotAbilities: selectedUnitState.abilities },
       ) ?? []
     );
@@ -205,7 +221,7 @@ export function useGameMovementPlanning({
     const active =
       movementType === MovementType.Jump
         ? ('jump' as const)
-        : movementType === MovementType.Run
+        : isRunBasedMovementType(movementType)
           ? ('run' as const)
           : ('walk' as const);
     return { active, jumpAvailable: capability.jumpMP > 0 };
@@ -299,12 +315,8 @@ function buildMovementPlan({
           interactiveSession.getGrid(),
           selectedUnitState.position,
           hex,
-          capability
-            ? movementType === MovementType.Walk
-              ? capability.walkMP
-              : capability.runMP
-            : Infinity,
-          movementType === MovementType.Run ? 'run' : 'walk',
+          groundMovementMaxCost(capability, movementType),
+          groundMovementMode(movementType),
           { pilotAbilities: selectedUnitState.abilities },
         ) ?? []);
   return {
