@@ -2,6 +2,10 @@ import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { hasNoArms } from '@/utils/gameplay/quirkModifiers';
 
 import {
+  canBrushOff,
+  type BrushOffAttackInvalidReason,
+} from './brushOffEligibility';
+import {
   canJumpJetAttack,
   type JumpJetAttackInvalidReason,
   type JumpJetAttackSelectedLeg,
@@ -170,7 +174,7 @@ function sharedPhysicalTargetRestriction(
     );
   }
 
-  if (input.targetIsSwarming) {
+  if (input.targetIsSwarming && input.attackType !== 'brush-off') {
     return blocked(
       'Physical attacks cannot target units conducting a swarm attack',
       'TargetSwarming',
@@ -231,6 +235,16 @@ function sharedPhysicalTargetRestriction(
       return blocked(
         'Thrash attacks require a target in the same hex',
         'TargetNotSameHex',
+      );
+    }
+  } else if (
+    input.targetDistance !== undefined &&
+    input.attackType === 'brush-off'
+  ) {
+    if (input.targetDistance > 1) {
+      return blocked(
+        'Brush-off attacks require an attached or adjacent target',
+        'TargetNotAdjacent',
       );
     }
   } else if (input.targetDistance !== undefined && input.targetDistance !== 1) {
@@ -465,6 +479,27 @@ function mapJumpJetAttackInvalidReason(
   }
 }
 
+function mapBrushOffInvalidReason(
+  reasonCode: BrushOffAttackInvalidReason | undefined,
+): PhysicalAttackInvalidReason | undefined {
+  switch (reasonCode) {
+    case 'InvalidArmSelection':
+      return 'InvalidArmSelection';
+    case 'InvalidTarget':
+      return 'InvalidBrushOffTarget';
+    case 'ArmMissing':
+      return 'LimbMissing';
+    case 'ArmWeaponFiredThisTurn':
+      return 'WeaponFiredThisTurn';
+    case 'TargetMakingDfa':
+      return 'TargetMakingDFA';
+    case 'InvalidExplicitTarget':
+      return 'InvalidPhysicalTarget';
+    default:
+      return reasonCode;
+  }
+}
+
 function selectedPunchArmDestroyed(input: IPhysicalAttackInput): boolean {
   if (input.limb === 'leftArm' || input.arm === 'left') {
     return attackerLocationDestroyed(input, 'left_arm');
@@ -476,6 +511,18 @@ function anyKickLegDestroyed(input: IPhysicalAttackInput): boolean {
   return (
     attackerLocationDestroyed(input, 'left_leg') ||
     attackerLocationDestroyed(input, 'right_leg')
+  );
+}
+
+function selectedBrushOffArm(input: IPhysicalAttackInput): 'left' | 'right' {
+  if (input.limb === 'leftArm' || input.arm === 'left') return 'left';
+  return 'right';
+}
+
+function selectedBrushOffArmMissing(input: IPhysicalAttackInput): boolean {
+  return attackerLocationDestroyed(
+    input,
+    selectedBrushOffArm(input) === 'left' ? 'left_arm' : 'right_arm',
   );
 }
 
@@ -1019,6 +1066,40 @@ export function canPush(
     };
   }
   return { allowed: true };
+}
+
+export function canBrushOffPhysical(
+  input: IPhysicalAttackInput,
+): IPhysicalAttackRestriction {
+  const sharedRestriction = sharedPhysicalTargetRestriction(input);
+  if (!sharedRestriction.allowed) return sharedRestriction;
+
+  const brushOffRestriction = canBrushOff({
+    attackerIsMek: !explicitNonMekUnitType(input.attackerUnitType),
+    selectedArm: selectedBrushOffArm(input),
+    targetIsSwarmingInfantryOnAttacker:
+      input.targetIsSwarmingInfantryOnAttacker,
+    targetIsINarcPod: input.targetIsINarcPod,
+    attackerIsQuad: input.attackerIsQuad,
+    armsFlipped: input.attackerArmsFlipped,
+    selectedArmMissing: selectedBrushOffArmMissing(input),
+    noMinimalArmsQuirk: hasNoArms(input.unitQuirks ?? []),
+    shoulderWorking: !input.componentDamage.actuators[ActuatorType.SHOULDER],
+    armWeaponFiredThisTurn: (input.weaponsFiredFromArm?.length ?? 0) > 0,
+    targetMakingDfa: input.targetIsMakingDFA,
+    attackerProne: input.attackerProne,
+    targetIsBuildingFuelTankOrHex:
+      input.targetObjectType !== undefined &&
+      input.targetObjectType !== 'entity',
+  });
+
+  if (brushOffRestriction.allowed) return { allowed: true };
+
+  return {
+    allowed: false,
+    reason: brushOffRestriction.reason,
+    reasonCode: mapBrushOffInvalidReason(brushOffRestriction.reasonCode),
+  };
 }
 
 export function canTripPhysical(
