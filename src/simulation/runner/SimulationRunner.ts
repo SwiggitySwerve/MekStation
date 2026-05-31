@@ -308,6 +308,7 @@ export class SimulationRunner {
         grid,
         random: this.random,
         movementCapabilitiesByUnit: this.movementCapabilitiesByUnit,
+        optionalRules: config.optionalRules,
       });
 
       currentState = runPSRPhase({
