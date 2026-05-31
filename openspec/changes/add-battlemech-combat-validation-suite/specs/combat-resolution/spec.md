@@ -1131,7 +1131,7 @@ Ranged to-hit validation SHALL apply MegaMek's jump-attacker SPA relief: Jumping
 
 ### Requirement: Source-Backed Terrain Master Frogman Physical To-Hit
 
-Physical to-hit validation SHALL apply MegaMek's Terrain Master: Frogman relief as a `-1` to-hit modifier only when the attacker has canonical `tm_frogman` or legacy `terrain-master-frogman`, the attacker is a Mek or ProtoMek, and the attacker occupies water deeper than level 1. Runner and event-sourced physical resolution SHALL derive or accept attacker water depth without using target-only water. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry and Mountaineer rubble-entry relief SHALL remain an explicit gap until separately source-backed.
+Physical to-hit validation SHALL apply MegaMek's Terrain Master: Frogman relief as a `-1` to-hit modifier only when the attacker has canonical `tm_frogman` or legacy `terrain-master-frogman`, the attacker is a Mek or ProtoMek, and the attacker occupies water deeper than level 1. Runner and event-sourced physical resolution SHALL derive or accept attacker water depth without using target-only water. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry, Mountaineer rubble-entry plus movement-cost relief, Forest Ranger defender to-hit, and Swamp Beast defender to-hit SHALL remain an explicit gap until separately source-backed.
 
 #### Scenario: Frogman applies in depth-2 attacker water
 
@@ -1178,9 +1178,9 @@ Movement PSR validation SHALL apply MegaMek's water-entry depth modifier when a 
 - **WHEN** the PSR reason is not entering water
 - **THEN** no `Frogman` PSR modifier SHALL apply
 
-### Requirement: Source-Backed Terrain Master Mountaineer Rubble-Entry PSR
+### Requirement: Source-Backed Terrain Master Mountaineer Movement And Rubble-Entry PSR
 
-Movement PSR validation SHALL apply MegaMek's Terrain Master: Mountaineer relief as a named `-1` SPA modifier only when the pending PSR is an entering-rubble PSR and the acting unit has canonical `tm_mountaineer` or legacy `terrain-master-mountaineer`. Mountaineer rough/rubble movement-cost relief and upward elevation movement-cost relief SHALL remain explicit BattleMech `movement-application` gaps until separately wired.
+Movement PSR validation SHALL apply MegaMek's Terrain Master: Mountaineer relief as a named `-1` SPA modifier only when the pending PSR is an entering-rubble PSR and the acting unit has canonical `tm_mountaineer` or legacy `terrain-master-mountaineer`. BattleMech movement pricing SHALL also apply Mountaineer rough/rubble terrain MP relief and upward-elevation MP relief when unit pilot abilities include `tm_mountaineer` or legacy `terrain-master-mountaineer`. Runner movement validation, interactive movement, P2P movement intent validation, pathfinding, and reachable movement previews SHALL consume the same movement-cost context so committed movement and previews agree.
 
 #### Scenario: Mountaineer applies to entering-rubble PSR
 
@@ -1194,6 +1194,16 @@ Movement PSR validation SHALL apply MegaMek's Terrain Master: Mountaineer relief
 - **GIVEN** a unit with `tm_mountaineer`
 - **WHEN** the pending PSR reason is not entering rubble
 - **THEN** no `Mountaineer` PSR modifier SHALL apply
+
+#### Scenario: Mountaineer movement-cost relief
+
+- **GIVEN** a unit with `tm_mountaineer`
+- **WHEN** the unit validates ground movement into rough or rubble terrain
+- **THEN** the terrain entry MP surcharge SHALL be reduced by 1 and never below 0
+- **WHEN** the unit validates ground movement up 1 or 2 elevation levels
+- **THEN** the upward-elevation MP surcharge SHALL be reduced by 1 and never below 0
+- **AND** the normal impassable climb cap for upward elevation changes greater than 2 SHALL still apply
+- **AND** runner movement, interactive movement, P2P movement validation, pathfinding, and reachable previews SHALL report the same reduced MP cost
 
 ### Requirement: Source-Backed Swamp Bog-Down Gap
 
@@ -1391,7 +1401,7 @@ Pilot modifier validation SHALL keep Mek Edge triggers as helper-only trigger-st
 
 ### Requirement: Source-Backed Terrain Master Defender To-Hit Variants
 
-Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit variants from target state and target terrain: Forest Ranger SHALL add a `+1` to-hit modifier only when the target has canonical `tm_forest_ranger` or legacy `terrain-master-forest-ranger`, the target moved by walking, and the target occupies wooded terrain; Swamp Beast SHALL add a `+1` to-hit modifier only when the target has canonical `tm_swamp_beast` or legacy `terrain-master-swamp-beast`, the target moved by running, and the target occupies mud or swamp. Runner ranged attacks SHALL hydrate target terrain features into to-hit state. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry and Mountaineer rubble-entry relief, including Swamp Beast bog-down relief, SHALL remain an explicit gap until separately source-backed.
+Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit variants from target state and target terrain: Forest Ranger SHALL add a `+1` to-hit modifier only when the target has canonical `tm_forest_ranger` or legacy `terrain-master-forest-ranger`, the target moved by walking, and the target occupies wooded terrain; Swamp Beast SHALL add a `+1` to-hit modifier only when the target has canonical `tm_swamp_beast` or legacy `terrain-master-swamp-beast`, the target moved by running, and the target occupies mud or swamp. Runner ranged attacks SHALL hydrate target terrain features into to-hit state. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry, Mountaineer rubble-entry plus movement-cost relief, and Forest Ranger/Swamp Beast defender to-hit relief, including Swamp Beast bog-down relief, SHALL remain an explicit gap until separately source-backed.
 
 #### Scenario: Forest Ranger applies to walking wooded targets
 

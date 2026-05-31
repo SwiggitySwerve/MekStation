@@ -4,9 +4,11 @@
 
 import { IHexCoordinate, IHexGrid } from '@/types/gameplay';
 
+import type { UnitMovementType } from './types';
+
 import { isInBounds, isOccupied } from '../hexGrid';
 import { hexDistance, hexEquals, hexNeighbors, coordToKey } from '../hexMath';
-import { getHexMovementCost } from './calculations';
+import { getHexMovementCost, type IMovementCostContext } from './calculations';
 
 /**
  * Find the shortest path between two hexes using A*.
@@ -17,6 +19,8 @@ export function findPath(
   start: IHexCoordinate,
   end: IHexCoordinate,
   maxCost: number = Infinity,
+  movementType: UnitMovementType = 'walk',
+  context?: IMovementCostContext,
 ): readonly IHexCoordinate[] | null {
   if (hexEquals(start, end)) {
     return [start];
@@ -86,8 +90,9 @@ export function findPath(
       const moveCost = getHexMovementCost(
         grid,
         neighbor,
-        'walk',
+        movementType,
         current.coord,
+        context,
       );
       if (!Number.isFinite(moveCost)) continue;
       const tentativeG = current.g + moveCost;

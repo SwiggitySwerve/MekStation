@@ -637,7 +637,7 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'terrain-master': unsupported(
     'terrain-master',
-    'Generic Terrain Master movement behavior and variants beyond Frogman/Mountaineer/Forest Ranger/Swamp Beast are not wired; source-backed Frogman physical to-hit relief, Frogman water-entry PSR relief, Mountaineer rubble-entry PSR relief, and Forest Ranger/Swamp Beast defensive to-hit variants are tracked separately as tm_frogman, tm_mountaineer, tm_forest_ranger, and tm_swamp_beast, while Swamp Beast bog-down relief remains a source-backed stuck-state gap',
+    'Generic Terrain Master behavior and variants beyond Frogman/Mountaineer/Forest Ranger/Swamp Beast are not wired; source-backed Frogman physical to-hit relief, Frogman water-entry PSR relief, Mountaineer rubble-entry PSR plus rough/rubble/elevation MP relief, and Forest Ranger/Swamp Beast defensive to-hit variants are tracked separately as tm_frogman, tm_mountaineer, tm_forest_ranger, and tm_swamp_beast, while Swamp Beast bog-down relief remains a source-backed stuck-state gap',
     MEGAMEK_TERRAIN_MASTER_GAP_SOURCE_REFS,
   ),
   tm_frogman: integrated(
@@ -650,10 +650,9 @@ export const SPA_COMBAT_SUPPORT = {
     'Source-backed calculateTerrainMasterDefensiveToHitModifier plus calculateToHit and runner target terrain hydration apply +1 to-hit against walking targets in woods',
     MEGAMEK_325B_TERRAIN_MASTER_DEFENSIVE_SOURCE_REFS,
   ),
-  tm_mountaineer: helperOnly(
+  tm_mountaineer: integrated(
     'tm_mountaineer',
-    'Source-backed getMountaineerRubblePSRModifier plus calculatePSRModifiers apply Mountaineer rubble-entry relief as -1 to entering-rubble PSR target numbers',
-    'Terrain Master: Mountaineer rough/rubble movement-cost and elevation movement effects are tracked under the movement-application gap until wired',
+    'Source-backed getMountaineerRubblePSRModifier plus calculatePSRModifiers apply Mountaineer rubble-entry relief as -1 to entering-rubble PSR target numbers; getHexMovementCost, validateMovement, pathfinding, reachable movement previews, runner movement, interactive movement, and P2P movement validation apply rough/rubble and upward-elevation MP relief from unit pilot abilities',
     MEGAMEK_325B_MOUNTAINEER_SOURCE_REFS,
   ),
   tm_swamp_beast: integrated(
