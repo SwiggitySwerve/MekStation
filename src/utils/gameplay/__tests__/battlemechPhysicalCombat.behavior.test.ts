@@ -439,6 +439,39 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(dfa?.damage.targetDamage).toBe(36);
   });
 
+  it('projects source-backed quad front-leg talon damage from arm-location state', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        facing: Facing.Southeast,
+        isQuad: true,
+        rightArmHasTalons: true,
+      },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      attackerJumpedThisTurn: true,
+      pushDestinationValid: true,
+    });
+    const leftKick = options.find(
+      (option) => option.attackType === 'kick' && option.limb === 'leftLeg',
+    );
+    const rightKick = options.find(
+      (option) => option.attackType === 'kick' && option.limb === 'rightLeg',
+    );
+    const dfa = options.find((option) => option.attackType === 'dfa');
+
+    expect(leftKick?.damage.targetDamage).toBe(16);
+    expect(rightKick?.damage.targetDamage).toBe(24);
+    expect(dfa?.damage.targetDamage).toBe(36);
+  });
+
   it('projects source-backed claw modifiers on matching punch rows', () => {
     const attacker = unitState(
       'attacker',
