@@ -3,6 +3,7 @@ import {
   IGameEvent,
   IGameState,
   IMovementDeclaredPayload,
+  IMovementStep,
   IUnitGameState,
   LockState,
   MovementType,
@@ -37,6 +38,12 @@ export function applyMovementDeclared(
           : payload.standUpAttempt === true && payload.standUpSucceeded === true
             ? false
             : unit.hullDown;
+  const hullDownEnteredBackwards =
+    payload.hullDownEntryAttempt === true
+      ? pathContainsBackwardStep(payload.steps)
+      : hullDown === true
+        ? unit.hullDownEnteredBackwards
+        : false;
 
   const updatedUnit: IUnitGameState = {
     ...unit,
@@ -47,6 +54,7 @@ export function applyMovementDeclared(
     heat: unit.heat + payload.heatGenerated,
     prone,
     hullDown,
+    hullDownEnteredBackwards,
     lockState: LockState.Planning,
   };
 
@@ -57,6 +65,16 @@ export function applyMovementDeclared(
       [payload.unitId]: updatedUnit,
     },
   };
+}
+
+function pathContainsBackwardStep(
+  steps: readonly IMovementStep[] | undefined,
+): boolean {
+  return (
+    steps?.some(
+      (step) => step.kind === 'forward' && step.direction === 'backward',
+    ) ?? false
+  );
 }
 
 export function applyMovementLocked(

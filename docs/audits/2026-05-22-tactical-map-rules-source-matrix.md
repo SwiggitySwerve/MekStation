@@ -1014,9 +1014,23 @@ QuadVee. MekStation now selects that physical hit table in the shared physical
 projection/damage helper, surfaces it through physical option rows and forecast
 damage, persists it on `PhysicalAttackDeclared`, and makes the later resolver
 prefer the declared table so target-specific elevation context cannot drift out
-before hit-location resolution. Remaining hull-down gaps are vehicle/QuadVee
-fortified-side-table behavior and QuadVee vehicle-mode side-table details, not
-punch/club hit-table preview/commit agreement.
+before hit-location resolution. At this pin, the remaining hull-down gaps were
+vehicle/QuadVee fortified-side-table behavior and QuadVee vehicle-mode
+side-table details, not punch/club hit-table preview/commit agreement.
+
+2026-05-31 hull-down vehicle side-table pin: MegaMek `Tank.java:155-164`
+maps side-table directions to fixed vehicle locations, `Tank.java:1123-1156`
+routes hull-down tank hits from the protected move direction or either side to
+the turret when available, otherwise to the incoming fixed side, and
+`Tank.java:2861-2870` records backed-into-hull-down status from backward
+movement. `QuadVee.java:545-551` uses fortified-hex hull-down gating while in
+vehicle mode and otherwise falls back to Mek hull-down behavior. MekStation now
+applies that fixed-location behavior in the vehicle hit-location primitive,
+records `hullDownEnteredBackwards` from movement step chains, avoids consuming
+normal table dice for protected hull-down hits, and leaves exposed opposite
+arcs on the ordinary vehicle/VTOL table. Remaining follow-ups are full
+session-level vehicle damage dispatch and dual-turret split locations beyond
+the current generic `turret` abstraction.
 
 Additional fog visibility pin: engine attack visibility already passes the
 active battle grid into `canPlayerSeeUnit` before accepting an attack
@@ -1800,8 +1814,8 @@ restriction helper in combat projection, interactive attack commits, bot attack
 commits, and quick-sim weapon loops. Focused projection and interactive
 agreement tests prove direct front-mounted hull-down vehicle weapons are blocked
 before declaration while front-mounted indirect LRM fire remains available.
-Fortified-side-table behavior and QuadVee-specific hull-down vehicle mode
-details remain follow-up work.
+Full session-level vehicle damage dispatch and dual-turret split locations
+remain follow-up work.
 
 2026-05-31 hull-down movement-exit projection pin: MegaMek `GetUpStep.java`
 sets `GET_UP` MP to 2, or 1 when run MP is only 1, and `MoveStep.java:2021-2034`
@@ -1813,7 +1827,8 @@ jumping" posture boundary, exposes `hullDownExitRequired`/cost through map
 labels, badges, context rows, and DOM metadata, and records
 `hullDownExitAttempt` on committed movement so replay clears `hullDown`
 without emitting prone stand-up PSR or `UnitStood` events. Remaining hull-down
-movement gaps are the vehicle/QuadVee side-table work named above.
+movement gaps are full vehicle damage-dispatch wiring, not the fixed vehicle
+side-table primitive named above.
 
 2026-05-31 hull-down go-prone projection pin: MegaMek `GoProneStep.java`
 charges 1 MP only when the unit is not already hull-down, `MoveStep.java:2167-2168`
@@ -1824,7 +1839,8 @@ for standing hull-down Mek-style units, rejects non-hull-down/already-prone and
 non-Mek-style attempts, records same-hex stationary `MovementDeclared`
 metadata with `goProneAttempt` and a 0 MP `goProne` step, and replays the event
 by clearing hull-down and setting prone before movement locks. Remaining
-hull-down movement gaps are the vehicle/QuadVee side-table work named above.
+hull-down movement gaps are full vehicle damage-dispatch wiring, not the fixed
+vehicle side-table primitive named above.
 
 2026-05-31 hull-down entry projection pin: MegaMek `HullDownStep.java`
 sets standing `HULL_DOWN` MP to 2, `MoveStep.java:2378-2395` rejects existing
@@ -1836,7 +1852,8 @@ already-hull-down, non-Mek-style, insufficient-MP, and destroyed-gyro attempts,
 records same-hex walking `MovementDeclared` metadata with
 `hullDownEntryAttempt` and a 2 MP `hullDown` step, and replays the event by
 setting hull-down before movement locks. Remaining hull-down movement gaps are
-the vehicle/QuadVee side-table work named above.
+full vehicle damage-dispatch wiring, not the fixed vehicle side-table primitive
+named above.
 
 2026-05-31 prone hull-down entry-cost pin: MegaMek `HullDownStep.java:61-82`
 sets prone Mek `HULL_DOWN` MP to 1 plus non-hip leg actuator crits, plus one
@@ -1847,8 +1864,9 @@ allows prone Mek-style Hull Down commands, prices the same-hex walking
 declaration from represented per-location leg/support actuator and hip damage,
 rejects destroyed support locations with a 99 MP impossible-cost invalid event,
 and replays the declaration by clearing prone and setting hull-down without a
-stand-up PSR or `UnitStood` event. Remaining hull-down movement gaps are the
-vehicle/QuadVee fortified-side-table work named above.
+stand-up PSR or `UnitStood` event. Remaining hull-down movement gaps are full
+vehicle damage-dispatch wiring, not the fixed vehicle side-table primitive named
+above.
 
 ## Acceptance Gate
 

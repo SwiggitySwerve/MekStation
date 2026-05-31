@@ -200,6 +200,12 @@ export interface IUnitGameState {
   readonly prone?: boolean;
   /** Unit is in a represented hull-down position. */
   readonly hullDown?: boolean;
+  /**
+   * True when the unit entered its current hull-down state through a backward
+   * movement step. MegaMek uses this to flip vehicle hull-down protected-facing
+   * hit-location behavior from front-facing to rear-facing cover.
+   */
+  readonly hullDownEnteredBackwards?: boolean;
   /** Unit is shut down (reactor offline) */
   readonly shutdown?: boolean;
   /** Ammo bin state tracking */

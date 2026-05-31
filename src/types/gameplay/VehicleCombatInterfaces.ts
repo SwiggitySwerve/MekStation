@@ -48,6 +48,10 @@ export interface IVehicleHitLocationResult {
   readonly location: VehicleHitLocation;
   /** True when the table entry marks a TAC (Through-Armor Critical) trigger. */
   readonly isTAC: boolean;
+  /** True when hull-down vehicle rules fixed the location without using the table roll. */
+  readonly hullDownFixedLocation?: boolean;
+  /** Short replay/debug reason for a hull-down fixed-location result. */
+  readonly hullDownReason?: string;
 }
 
 // =============================================================================

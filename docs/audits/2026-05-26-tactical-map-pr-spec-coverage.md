@@ -40,12 +40,13 @@ Checks run visible in `gh run list` targeted stale head `6a592e5d`.
 - Combat: broader special range-mode coverage, remaining LOS terrain families,
   full surface-naval underwater expansion, and broader external oracle
   comparisons remain follow-up work.
-- Hull-down: vehicle/QuadVee fortified-side-table behavior remains follow-up
-  work.
+- Hull-down: full session-level vehicle damage dispatch and dual-turret split
+  handling remain follow-up work.
   Target hull-down modifiers, attacker leg-weapon/kick blocks, and vehicle
   front-weapon direct-fire blocks, hull-down go-prone, and standing hull-down
-  entry, prone-to-hull-down actuator/hip costs, and punch/club hull-down
-  hit-table selection are no longer open preview/commit agreement gaps.
+  entry, prone-to-hull-down actuator/hip costs, punch/club hull-down hit-table
+  selection, and vehicle/QuadVee hull-down fixed side-table behavior are no
+  longer open preview/commit agreement gaps.
 - Isometric: broader mobile gesture-matrix and full battlefield
   rotation/occlusion interaction sweeps remain follow-up work beyond the
   representative smoke and metadata coverage.
