@@ -424,3 +424,4 @@
 - [x] 4.3.158 Promote the Animal Mimicry SPA and canonical scope rows to integrated after rechecking MegaMek `QuadMek.addEntityBonuses` and `PILOT_ANIMAL_MIMIC` source refs against runner and interactive quad-Mek PSR coverage.
 - [x] 4.3.159 Move Protected/Exposed Actuators and their anti-Mek resolver row to out-of-scope BattleMech audit coverage because MegaMek's behavior applies to non-BattleMech Leg/Swarm anti-Mek attack paths owned by the battle-armor/infantry matrix.
 - [x] 4.3.160 Move Cross-Country SPA and canonical scope rows to out-of-scope BattleMech audit coverage because MegaMek's source-backed behavior applies to combat-vehicle terrain movement/passability, not BattleMech terrain PSRs.
+- [x] 4.3.161 Split Terrain Master: Mountaineer rough/rubble and upward-elevation movement-cost source refs into the BattleMech movement resolver gap while preserving integrated rubble-entry PSR relief.
