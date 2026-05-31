@@ -77,6 +77,11 @@ export interface IGameUnit {
   /** Pilot skills */
   readonly gunnery: number;
   readonly piloting: number;
+  /**
+   * Unit mass in tons, projected into combat state for source-backed rules
+   * that compare unit load against terrain or equipment thresholds.
+   */
+  readonly tonnage?: number;
   /** Total heat sinks on unit (default: 10 if not provided) */
   readonly heatSinks?: number;
   /**
