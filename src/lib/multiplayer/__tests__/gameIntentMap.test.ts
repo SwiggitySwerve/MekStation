@@ -96,6 +96,26 @@ describe('toServerIntent — declareMovement', () => {
     expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
   });
 
+  it('maps TacOps Sprint through the Move wire payload', () => {
+    const intent = declareMovementIntent(PEER, {
+      unitId: 'player-1',
+      to: { q: 2, r: 0 },
+      facing: 2,
+      movementType: 'sprint',
+    });
+
+    const wire = toServerIntent(intent);
+
+    expect(wire).toEqual({
+      kind: 'Move',
+      unitId: 'player-1',
+      to: { q: 2, r: 0 },
+      facing: 2,
+      movementType: 'sprint',
+    });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
   it('returns null for a movement intent missing the unit id', () => {
     const intent = declareMovementIntent(PEER, {
       unitId: '',

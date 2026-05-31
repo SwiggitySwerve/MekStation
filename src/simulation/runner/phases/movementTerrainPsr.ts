@@ -36,7 +36,9 @@ type TerrainBearingMovementStep = {
 
 function isRunBasedMovement(movementType: MovementType): boolean {
   return (
-    movementType === MovementType.Run || movementType === MovementType.Evade
+    movementType === MovementType.Run ||
+    movementType === MovementType.Evade ||
+    movementType === MovementType.Sprint
   );
 }
 
