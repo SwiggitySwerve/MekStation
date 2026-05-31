@@ -37,7 +37,7 @@ export interface ISpotterCandidate {
   readonly position: IHexCoordinate;
   /** Movement type this turn */
   readonly movementType: MovementType;
-  /** Explicit TacOps Sprint state when no MovementType.Sprint exists yet. */
+  /** Explicit TacOps Sprint state. */
   readonly sprintedThisTurn?: boolean;
   /** Explicit TacOps Evade state. Evading units cannot spot in MegaMek. */
   readonly isEvading?: boolean;
@@ -188,7 +188,8 @@ export function isEligibleSpotter(
   // Must not have run or jumped (only stationary or walked)
   if (
     candidate.movementType === MovementType.Run ||
-    candidate.movementType === MovementType.Jump
+    candidate.movementType === MovementType.Jump ||
+    candidate.movementType === MovementType.Sprint
   ) {
     return false;
   }
