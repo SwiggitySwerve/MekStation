@@ -598,6 +598,7 @@ export function declarePhysicalAttack(
     attackerTargetedByDisplacementAttackerId:
       attackerState.targetedByDisplacementAttackerId,
     attackerProne: attackerState.prone,
+    attackerStuck: attackerState.isStuck,
     targetProne: targetState?.prone,
     targetMovementComplete: context.targetMovementComplete,
     targetImmobile: targetState?.shutdown,
@@ -971,6 +972,7 @@ export function resolveAllPhysicalAttacks(
       attackerTargetedByDisplacementAttackerId:
         attackerState.targetedByDisplacementAttackerId,
       attackerProne: attackerState.prone,
+      attackerStuck: attackerState.isStuck,
       targetProne: targetState.prone,
       targetMovementComplete: context.targetMovementComplete,
       targetImmobile: targetState.shutdown,
