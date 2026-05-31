@@ -591,6 +591,47 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     ]);
   });
 
+  it('honors an injected normal TacOps grapple declaration as zero-damage grapple state', () => {
+    const { events, result } = runPhase('grapple', {
+      attacker: {
+        facing: Facing.Southeast,
+        piloting: 1,
+      },
+      optionalRules: ['tacops_grappling'],
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.PhysicalAttackDeclared,
+      GameEventType.PhysicalAttackResolved,
+    ]);
+
+    const resolved = events[1].payload as IPhysicalAttackResolvedPayload;
+    expect(resolved).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'grapple',
+      roll: 8,
+      toHitNumber: 1,
+      hit: true,
+      damage: 0,
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
+    expect(result.units['player-1']).toMatchObject({
+      grappledUnitId: 'opponent-1',
+      isGrappleAttacker: true,
+      grappledThisRound: true,
+      grappleSide: 'both',
+      position: { q: 1, r: 0 },
+    });
+    expect(result.units['opponent-1']).toMatchObject({
+      grappledUnitId: 'player-1',
+      isGrappleAttacker: false,
+      grappledThisRound: true,
+      grappleSide: 'both',
+      facing: Facing.Northwest,
+    });
+  });
+
   it('honors an injected source-backed thrash declaration as automatic infantry damage with attacker PSR', () => {
     const { events, result } = runPhase('thrash', {
       attacker: { prone: true },
