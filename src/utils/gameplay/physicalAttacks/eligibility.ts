@@ -276,6 +276,7 @@ export function getEligiblePhysicalAttacks(
     targetUnitType: target.unitType,
     targetPilotingSkill: target.piloting,
     attackerEvading: attacker.isEvading,
+    attackerSpotting: attacker.isSpotting,
     attackerLoadingOrUnloadingCargo: attacker.isLoadingOrUnloadingCargo,
     retractableBladeExtended: context.retractableBladeExtended,
     attackerTargetedByDisplacementAttackerId:

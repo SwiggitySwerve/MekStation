@@ -117,6 +117,19 @@ function appendTargetEvasion(
   });
 }
 
+function appendAttackerSpotting(
+  modifiers: IPhysicalModifier[],
+  input: IPhysicalAttackInput,
+): void {
+  if (!input.attackerSpotting) return;
+
+  modifiers.push({
+    name: 'Attacker spotting',
+    value: 1,
+    source: 'other',
+  });
+}
+
 function appendMeleeSpecialist(
   modifiers: IPhysicalModifier[],
   abilities: readonly string[] | undefined,
@@ -289,6 +302,7 @@ export function calculatePunchToHit(
   // Per task 4.3: target movement modifier (TMM) applies to punch to-hit.
   appendTMM(modifiers, input.targetMovementModifier);
   appendTargetEvasion(modifiers, input);
+  appendAttackerSpotting(modifiers, input);
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
   appendBattleFistModifier(modifiers, input);
   appendFrogmanPhysicalModifier(modifiers, input);
@@ -356,6 +370,7 @@ export function calculateKickToHit(
   // Per task 5.3: target movement modifier (TMM) applies to kick to-hit.
   appendTMM(modifiers, input.targetMovementModifier);
   appendTargetEvasion(modifiers, input);
+  appendAttackerSpotting(modifiers, input);
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
   appendFrogmanPhysicalModifier(modifiers, input);
 
@@ -403,6 +418,7 @@ export function calculateChargeToHit(
   // Per task 4.3 / 5.3 analog: charge also respects target TMM.
   appendTMM(modifiers, input.targetMovementModifier);
   appendTargetEvasion(modifiers, input);
+  appendAttackerSpotting(modifiers, input);
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
   appendFrogmanPhysicalModifier(modifiers, input);
 
@@ -441,6 +457,7 @@ export function calculateDFAToHit(
   // DFA inherits TMM like punch/kick.
   appendTMM(modifiers, input.targetMovementModifier);
   appendTargetEvasion(modifiers, input);
+  appendAttackerSpotting(modifiers, input);
   appendDfaPilotingDifferentialModifier(
     modifiers,
     input.pilotingSkill,
@@ -479,6 +496,7 @@ export function calculatePushToHit(
 
   appendTMM(modifiers, input.targetMovementModifier);
   appendTargetEvasion(modifiers, input);
+  appendAttackerSpotting(modifiers, input);
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
   appendFrogmanPhysicalModifier(modifiers, input);
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
@@ -544,6 +562,7 @@ export function calculateMeleeWeaponToHit(
 
   appendTMM(modifiers, input.targetMovementModifier);
   appendTargetEvasion(modifiers, input);
+  appendAttackerSpotting(modifiers, input);
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
   appendFrogmanPhysicalModifier(modifiers, input);
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
