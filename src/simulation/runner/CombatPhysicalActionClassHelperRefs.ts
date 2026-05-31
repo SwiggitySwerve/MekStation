@@ -69,14 +69,14 @@ export const MEKSTATION_PHYSICAL_ACTION_HELPER_REFS = {
     {
       kind: 'mekstation-deviation',
       citation:
-        'MekStation canThrash exposes source-backed thrash attack legality gates, automatic-success classification, and weight-based damage as helper-only coverage without adding a runtime PhysicalAttackType.',
+        'MekStation canThrash exposes source-backed thrash attack legality gates, automatic-success classification, and weight-based damage consumed by the runtime Thrash PhysicalAttackType.',
       url: 'src/utils/gameplay/physicalAttacks/thrashEligibility.ts#L50-L135',
       sourceVersion: 'MekStation working-tree',
     },
     {
       kind: 'mekstation-deviation',
       citation:
-        'MekStation physical attack tests cover source-backed canThrash gates, terrain exclusions, automatic success, and weight-based damage.',
+        'MekStation physical attack tests cover source-backed canThrash gates, terrain exclusions, automatic success, runtime thrash resolution, and weight-based damage.',
       url: 'src/utils/gameplay/__tests__/physicalAttacks.test.ts#L1538-L1605',
       sourceVersion: 'MekStation working-tree',
     },
