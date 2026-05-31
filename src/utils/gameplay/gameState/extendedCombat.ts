@@ -10,6 +10,7 @@ import {
   IPSRTriggeredPayload,
   IRetreatTriggeredPayload,
   IShutdownCheckPayload,
+  ISpottingDeclaredPayload,
   IStartupAttemptPayload,
   IUnitEjectedPayload,
   IUnitFellPayload,
@@ -346,6 +347,29 @@ export function applyDesignatorMarkerApplied(
       [payload.targetId]: {
         ...target,
         narcedBy: [...narcedBy, payload.teamId],
+      },
+    },
+  };
+}
+
+export function applySpottingDeclared(
+  state: IGameState,
+  payload: ISpottingDeclaredPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) {
+    return state;
+  }
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        isSpotting: true,
+        spotTargetId: payload.targetId,
+        lockState: LockState.Locked,
       },
     },
   };
