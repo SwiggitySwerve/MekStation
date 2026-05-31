@@ -1660,6 +1660,16 @@ rules surface, and touch-rotation control contract so browser and accessibility
 checks can verify mobile rotation without recalculating movement, combat, LOS,
 terrain, elevation, or visibility state.
 
+2026-05-31 isometric occlusion rotation sweep pin: Rendered isometric scene
+tokens, tall-hex occluder highlights, and elevation stacks now expose the
+camera rotation step that produced terrain-occlusion metadata. Focused render
+coverage rotates the camera 180 degrees with a unit between opposite tall
+elevations and verifies that the active occluder retargets to the new foreground
+hex while the old occluder highlight disappears. This keeps occlusion
+readability tied to the same presentation-only camera state as the shared
+tactical projection, without changing movement, combat, LOS, terrain,
+elevation, or visibility rules.
+
 2026-05-25 tactical projection rule-reference metadata pin: Tactical projection
 source references now also carry rule-reference metadata for terrain/elevation,
 movement, combat, LOS blocker, and legacy attack-range fallback channels.

@@ -120,6 +120,9 @@ export function IsometricElevationStack({
       data-isometric-occlusion-reasons={
         occlusionReasons.length > 0 ? occlusionReasons.join('|') : undefined
       }
+      data-isometric-occluder-rotation-step={
+        isometricOccluderInfo?.rotationStep
+      }
       aria-label={occluderTitle ?? stackTitle}
     >
       <title>{occluderTitle ?? stackTitle}</title>

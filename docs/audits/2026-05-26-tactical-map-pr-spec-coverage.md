@@ -66,13 +66,14 @@ decisions are made, not because CI is stale.
   critical dispatch for represented vehicle targets are no longer open
   preview/commit agreement gaps.
 - Isometric: direct touch rotation is now covered by
-  `add-isometric-touch-camera-gesture`; broader mobile device gesture-matrix and
-  full battlefield rotation/occlusion interaction sweeps remain follow-up work
-  beyond the representative smoke, metadata, pan/zoom, and touch-rotation
-  coverage.
+  `add-isometric-touch-camera-gesture`, and rendered camera-rotation occluder
+  retargeting is now covered by `add-isometric-occlusion-rotation-sweep`;
+  broader mobile device gesture-matrix and full battlefield occlusion
+  interaction sweeps remain follow-up work beyond the representative smoke,
+  metadata, pan/zoom, touch-rotation, and occluder-retarget coverage.
 - PR readiness: PR `#682` is currently draft by design. Before the isometric
-  touch-camera slice, GitHub PR Checks were attached to current head
-  `5bd529a32f97c89c01549c12bd2e4a155f2b488e` and passing; pushing the next
+  occlusion-rotation slice, GitHub PR Checks were attached to current head
+  `9e4da66d7e4673af607329435868c26c3e7b557a` and passing; pushing the next
   slice will start a fresh check set.
 
 ## Merge-Readiness Implication

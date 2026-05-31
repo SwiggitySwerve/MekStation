@@ -358,6 +358,10 @@ function IsometricSceneLayer({
             data-isometric-occlusion-reasons={joinNonEmpty(
               occlusionInfos.map((info) => info.reason),
             )}
+            data-isometric-occlusion-rotation-step={occlusionInfo?.rotationStep}
+            data-isometric-occlusion-rotation-steps={joinNonEmpty(
+              occlusionInfos.map((info) => `${info.rotationStep}`),
+            )}
             data-isometric-occluder-hex={
               occlusionInfo ? coordToKey(occlusionInfo.occluderHex) : undefined
             }

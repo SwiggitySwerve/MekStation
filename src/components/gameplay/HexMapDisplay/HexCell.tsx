@@ -616,6 +616,9 @@ export const HexCell = React.memo(function HexCell({
           ? isometricOccluderInfo.occluderElevation
           : undefined
       }
+      data-isometric-occluder-rotation-step={
+        isIsometricOccluder ? isometricOccluderInfo.rotationStep : undefined
+      }
       data-combat-range-bracket={combatInfo?.rangeBracket}
       data-combat-distance={combatInfo?.distance}
       data-combat-los-state={combatInfo?.losState}
@@ -823,6 +826,9 @@ export const HexCell = React.memo(function HexCell({
           data-testid={`hex-isometric-occluder-highlight-${hex.q}-${hex.r}`}
           data-isometric-occludes-units={occludedUnitIds}
           data-isometric-occlusion-reasons={occlusionReasons}
+          data-isometric-occluder-rotation-step={
+            isometricOccluderInfo.rotationStep
+          }
           aria-label={`Tall elevation ${occluderElevationLabel} may hide units ${occludedUnitIds}`}
         >
           <title>

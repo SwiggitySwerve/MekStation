@@ -79,10 +79,10 @@ function formatIsometricSceneTokenOcclusionLabel(
 ): string {
   if (occlusionInfos.length === 0) return '';
   if (occlusionInfos.length === 1) {
-    return `terrain occlusion ${occlusionInfos[0].reason}`;
+    return `terrain occlusion ${occlusionInfos[0].reason}; camera step ${occlusionInfos[0].rotationStep}`;
   }
   return `terrain occlusions ${occlusionInfos.length} blockers: ${occlusionInfos
-    .map((info) => info.reason)
+    .map((info) => `${info.reason}; camera step ${info.rotationStep}`)
     .join('; ')}`;
 }
 

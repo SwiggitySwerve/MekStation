@@ -26,7 +26,9 @@ missing.
   evidence.
 - Carry the remaining movement runtime mutation/oracle matrix and isometric
   interaction sweep as named follow-up outcomes while recognizing direct
-  isometric touch rotation once `add-isometric-touch-camera-gesture` lands.
+  isometric touch rotation once `add-isometric-touch-camera-gesture` lands and
+  rendered occlusion retargeting once `add-isometric-occlusion-rotation-sweep`
+  lands.
 - Narrow the represented vehicle critical follow-up boundary to cargo import
   parity, dual-turret split identity, and external oracle sweeps.
 
