@@ -15,6 +15,7 @@ import {
 } from '@/types/gameplay/TerrainTypes';
 
 import { hexLine, coordToKey, hexEquals } from './hexMath';
+import { parseWaterDepth } from './waterDepth';
 
 // =============================================================================
 // Result Interface
@@ -113,6 +114,41 @@ function getCumulativeLosDensity(feature: ITerrainFeature): number {
   return 0;
 }
 
+type EndpointWaterState = 'land' | 'in-water' | 'underwater';
+
+function terrainWaterDepth(terrainString: string): number {
+  const taggedDepth = parseWaterDepth(terrainString);
+  if (taggedDepth > 0 || terrainString.startsWith(TerrainType.Water)) {
+    return taggedDepth;
+  }
+
+  const waterFeature = parseTerrainFeatures(terrainString).find(
+    (feature) => feature.type === TerrainType.Water,
+  );
+  return Math.max(0, Math.trunc(waterFeature?.level ?? 0));
+}
+
+function endpointWaterState(terrainString: string): EndpointWaterState {
+  const waterDepth = terrainWaterDepth(terrainString);
+
+  if (waterDepth <= 0) return 'land';
+  if (waterDepth === 1) return 'in-water';
+  return 'underwater';
+}
+
+function landToUnderwaterBlocked(
+  fromHexTerrain: string | undefined,
+  toHexTerrain: string | undefined,
+): boolean {
+  const fromState = endpointWaterState(fromHexTerrain ?? TerrainType.Clear);
+  const toState = endpointWaterState(toHexTerrain ?? TerrainType.Clear);
+
+  return (
+    (fromState === 'land' && toState === 'underwater') ||
+    (fromState === 'underwater' && toState === 'land')
+  );
+}
+
 /**
  * Calculate the LOS height at a specific point along the line.
  * Uses linear interpolation between shooter and target heights.
@@ -170,6 +206,27 @@ export function calculateLOS(
     (hex) => !hexEquals(hex, from) && !hexEquals(hex, to),
   );
 
+  // Get source and target hex data
+  const fromHex = grid.hexes.get(coordToKey(from));
+  const toHex = grid.hexes.get(coordToKey(to));
+
+  if (
+    !hexEquals(from, to) &&
+    landToUnderwaterBlocked(fromHex?.terrain, toHex?.terrain)
+  ) {
+    const blockedBy =
+      endpointWaterState(toHex?.terrain ?? TerrainType.Clear) === 'underwater'
+        ? to
+        : from;
+
+    return {
+      hasLOS: false,
+      blockedBy,
+      blockingTerrain: TerrainType.Water,
+      interveningHexes,
+    };
+  }
+
   // If adjacent, always have LOS
   if (interveningHexes.length === 0) {
     return {
@@ -177,10 +234,6 @@ export function calculateLOS(
       interveningHexes: [],
     };
   }
-
-  // Get source and target hex data
-  const fromHex = grid.hexes.get(coordToKey(from));
-  const toHex = grid.hexes.get(coordToKey(to));
 
   // Calculate effective heights (hex elevation + unit height of 1)
   const fromBaseElevation = fromHex?.elevation ?? 0;
