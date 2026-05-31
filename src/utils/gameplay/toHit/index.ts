@@ -38,6 +38,7 @@ export {
   calculateSensorDamageModifier,
   calculateActuatorDamageModifier,
   calculateAttackerProneModifier,
+  calculateSpottingAttackerModifier,
   calculateIndirectFireModifier,
   calculateCalledShotModifier,
 } from './damageModifiers';
