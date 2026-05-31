@@ -160,8 +160,6 @@ describe('BattleMech terrain and environment combat support catalog', () => {
       TerrainType.Smoke,
       TerrainType.Water,
     ];
-    const localLosGapTerrains = [TerrainType.Water];
-
     Object.values(TERRAIN_TYPE_LOS_COMBAT_SUPPORT).forEach((entry) => {
       const sourceRefs = entry.sourceRefs ?? [];
 
@@ -179,7 +177,7 @@ describe('BattleMech terrain and environment combat support catalog', () => {
           }),
           expect.objectContaining({
             kind: 'mekstation-deviation',
-            url: 'src/utils/gameplay/lineOfSight.ts#L157-L281',
+            url: 'src/utils/gameplay/lineOfSight.ts#L193-L334',
           }),
           expect.objectContaining({
             kind: 'mekstation-deviation',
@@ -208,15 +206,18 @@ describe('BattleMech terrain and environment combat support catalog', () => {
         ),
     ).toEqual([]);
     expect(
-      localLosGapTerrains.map(
-        (terrain) => TERRAIN_TYPE_LOS_COMBAT_SUPPORT[terrain],
-      ),
-    ).toEqual([
-      expect.objectContaining({
-        level: 'helper-only',
-        gap: expect.stringContaining('underwater'),
-      }),
-    ]);
+      supportIdsByLevel(TERRAIN_TYPE_LOS_COMBAT_SUPPORT, 'helper-only'),
+    ).toEqual([]);
+    expect(TERRAIN_TYPE_LOS_COMBAT_SUPPORT[TerrainType.Water]).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('land-to-depth-2+ water'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('LosEffects.java#L763-L768'),
+        }),
+      ]),
+    });
     expect(
       TERRAIN_TYPE_LOS_COMBAT_SUPPORT[TerrainType.LightWoods],
     ).toMatchObject({
