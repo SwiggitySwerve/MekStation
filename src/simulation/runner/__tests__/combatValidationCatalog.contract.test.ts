@@ -176,8 +176,8 @@ describe('BattleMech combat validation catalog index', () => {
     }).toEqual({
       total: 132,
       byLevel: {
-        'helper-only': 108,
-        unsupported: 24,
+        'helper-only': 109,
+        unsupported: 23,
       },
       bySection: {
         actions: 7,
@@ -307,6 +307,19 @@ describe('BattleMech combat validation catalog index', () => {
         ref.startsWith('eventStream.nonBattleMechEventScope.'),
       ),
     ).toEqual([]);
+    expect(unsupportedRefs).not.toContain(
+      'pilotSkills.pilotModifierResolvers.multi-target-penalty-application',
+    );
+    expect(
+      unresolvedRows.find(
+        (row) =>
+          row.ref ===
+          'pilotSkills.pilotModifierResolvers.multi-target-penalty-application',
+      )?.level,
+    ).toBe('helper-only');
+    expect(unresolvedRefs).toContain(
+      'featureSupport.pilotAbilities.multi-target',
+    );
   });
 
   it('keeps non-BattleMech scope rows auditable without making them BattleMech blockers', () => {
