@@ -17,6 +17,22 @@ export const MEKSTATION_PHYSICAL_ACTION_HELPER_REFS = {
       sourceVersion: 'MekStation working-tree',
     },
   ],
+  'jump-jet-attack': [
+    {
+      kind: 'mekstation-deviation',
+      citation:
+        'MekStation canJumpJetAttack exposes source-backed optional-rule, LAM mode, selected-leg, Mek-only, leg, jump-jet, movement, weapon-fire, range, elevation, and facing gates as helper-only coverage without adding a runtime PhysicalAttackType.',
+      url: 'src/utils/gameplay/physicalAttacks/jumpJetAttackEligibility.ts#L102-L264',
+      sourceVersion: 'MekStation working-tree',
+    },
+    {
+      kind: 'mekstation-deviation',
+      citation:
+        'MekStation physical attack tests cover source-backed canJumpJetAttack gates, selected-leg jump jet damage, wet-location zero damage, automatic adjacent-building success, and source-specific to-hit modifiers.',
+      url: 'src/utils/gameplay/__tests__/physicalAttacks.test.ts#L1934-L2094',
+      sourceVersion: 'MekStation working-tree',
+    },
+  ],
   'brush-off': [
     {
       kind: 'mekstation-deviation',
