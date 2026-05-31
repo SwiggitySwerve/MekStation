@@ -254,7 +254,7 @@ const MEGAMEK_325B_CLAW_PUNCH_DAMAGE = {
 const MEGAMEK_325B_CLAW_PUNCH_TO_HIT = {
   kind: 'megamek-source',
   citation:
-    'MegaMek PunchAttackAction.toHit adds the claw punch modifier and suppresses hand actuator missing/destroyed penalties when claws replace the hand',
+    'MegaMek PunchAttackAction.toHit adds the claw punch modifier outside PLAYTEST_3, records a zero-value Using Claws modifier under PLAYTEST_3, and suppresses hand actuator missing/destroyed penalties when claws replace the hand',
   url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/PunchAttackAction.java#L309-L333',
   sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
@@ -1032,8 +1032,8 @@ export const PHYSICAL_WEAPON_COMBAT_SUPPORT = {
   ),
   claws: helperOnly(
     'claws',
-    'source-backed punch damage/to-hit helpers apply claw modifiers from explicit state, UnitHydration arm critical-slot state, destroyed/missing/breached equipment critical events, or destroyed arm location state without exposing claws as a selectable attack type',
-    'Automatic missing/breached claw event production from mounted-equipment state beyond represented destroyed-location replay, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions are not modeled',
+    'source-backed punch damage/to-hit helpers apply claw modifiers from explicit state, UnitHydration arm critical-slot state, destroyed/missing/breached equipment critical events, or destroyed arm location state without exposing claws as a selectable attack type; PLAYTEST_3 removes only the claw punch to-hit penalty while preserving claw punch damage',
+    'Automatic missing/breached claw event production from mounted-equipment state beyond represented destroyed-location replay and claw club-with-hand interactions are not modeled',
     [
       MEGAMEK_325B_CLAW_PUNCH_DAMAGE,
       MEGAMEK_325B_CLAW_PUNCH_TO_HIT,
