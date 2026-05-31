@@ -6,6 +6,11 @@ import {
   type BrushOffAttackInvalidReason,
 } from './brushOffEligibility';
 import {
+  canGrapple,
+  type GrappleAttackInvalidReason,
+  type GrappleAttackSide,
+} from './grappleEligibility';
+import {
   canJumpJetAttack,
   type JumpJetAttackInvalidReason,
   type JumpJetAttackSelectedLeg,
@@ -56,6 +61,11 @@ const TACOPS_JUMP_JET_ATTACK_OPTIONS = new Set([
   'tacops_jump_jet_attack',
   'advanced_combat_tac_ops_jump_jet_attack',
   'jump_jet_attack',
+]);
+const TACOPS_GRAPPLING_OPTIONS = new Set([
+  'tacops_grappling',
+  'advanced_combat_tac_ops_grappling',
+  'grappling',
 ]);
 
 export function physicalTargetObjectInvalidReason(
@@ -303,6 +313,7 @@ const MEK_UNIT_TYPES = new Set([
   'omnimech',
   'industrialmech',
 ]);
+const PROTOMEK_UNIT_TYPES = new Set(['protomek']);
 const INFANTRY_UNIT_TYPES = new Set(['infantry', 'battlearmor']);
 const DROPSHIP_UNIT_TYPES = new Set(['dropship']);
 const DEFAULT_STANDING_MEK_HEIGHT = 1;
@@ -319,6 +330,24 @@ function explicitNonMekUnitType(value: string | undefined): boolean {
 function legacyOrMekUnitType(value: string | undefined): boolean {
   const canonical = canonicalUnitType(value);
   return canonical === undefined || MEK_UNIT_TYPES.has(canonical);
+}
+
+function protoMekUnitType(value: string | undefined): boolean {
+  const canonical = canonicalUnitType(value);
+  return canonical !== undefined && PROTOMEK_UNIT_TYPES.has(canonical);
+}
+
+function battleMekOrProtoMekTarget(input: IPhysicalAttackInput): boolean {
+  if (
+    input.targetObjectType !== undefined &&
+    input.targetObjectType !== 'entity'
+  ) {
+    return false;
+  }
+  return (
+    legacyOrMekUnitType(input.targetUnitType) ||
+    protoMekUnitType(input.targetUnitType)
+  );
 }
 
 function infantryUnitType(value: string | undefined): boolean {
@@ -413,6 +442,13 @@ function jumpJetAttackEnabled(input: IPhysicalAttackInput): boolean {
   );
 }
 
+function grapplingEnabled(input: IPhysicalAttackInput): boolean {
+  return (
+    input.tacOpsGrapplingEnabled === true ||
+    optionalRuleEnabled(input.optionalRules, TACOPS_GRAPPLING_OPTIONS)
+  );
+}
+
 function selectedJumpJetAttackLeg(
   input: IPhysicalAttackInput,
 ): JumpJetAttackSelectedLeg {
@@ -500,6 +536,19 @@ function mapBrushOffInvalidReason(
   }
 }
 
+function mapGrappleInvalidReason(
+  reasonCode: GrappleAttackInvalidReason | undefined,
+): PhysicalAttackInvalidReason | undefined {
+  switch (reasonCode) {
+    case 'ArmMissing':
+      return 'LimbMissing';
+    case 'ShoulderMissingOrDestroyed':
+      return 'ShoulderDestroyed';
+    default:
+      return reasonCode;
+  }
+}
+
 function selectedPunchArmDestroyed(input: IPhysicalAttackInput): boolean {
   if (input.limb === 'leftArm' || input.arm === 'left') {
     return attackerLocationDestroyed(input, 'left_arm');
@@ -524,6 +573,21 @@ function selectedBrushOffArmMissing(input: IPhysicalAttackInput): boolean {
     input,
     selectedBrushOffArm(input) === 'left' ? 'left_arm' : 'right_arm',
   );
+}
+
+function selectedGrappleSide(input: IPhysicalAttackInput): GrappleAttackSide {
+  if (input.grappleSide) return input.grappleSide;
+  if (input.limb === 'leftArm' || input.arm === 'left') return 'left';
+  if (input.limb === 'rightArm' || input.arm === 'right') return 'right';
+  return 'both';
+}
+
+function grappleSelectsLeft(side: GrappleAttackSide): boolean {
+  return side === 'left' || side === 'both';
+}
+
+function grappleSelectsRight(side: GrappleAttackSide): boolean {
+  return side === 'right' || side === 'both';
 }
 
 export function canPunch(
@@ -1099,6 +1163,76 @@ export function canBrushOffPhysical(
     allowed: false,
     reason: brushOffRestriction.reason,
     reasonCode: mapBrushOffInvalidReason(brushOffRestriction.reasonCode),
+  };
+}
+
+export function canGrapplePhysical(
+  input: IPhysicalAttackInput,
+): IPhysicalAttackRestriction {
+  const sharedRestriction = sharedPhysicalTargetRestriction(input);
+  if (!sharedRestriction.allowed) return sharedRestriction;
+
+  const grappleSide = selectedGrappleSide(input);
+  const counterGrapple =
+    input.attackerGrappledTargetId === input.targetId &&
+    input.attackerIsGrappleAttacker === false;
+  const attackerIsProtoMek = protoMekUnitType(input.attackerUnitType);
+  const attackerIsBipedMek =
+    !attackerIsProtoMek &&
+    legacyOrMekUnitType(input.attackerUnitType) &&
+    input.attackerIsQuad !== true;
+  const targetIsProtoMek = protoMekUnitType(input.targetUnitType);
+  const targetIsMek = !targetIsProtoMek && battleMekOrProtoMekTarget(input);
+
+  const grappleRestriction = canGrapple({
+    tacOpsGrapplingEnabled: grapplingEnabled(input),
+    attackerIsAirborneVTOLorWIGE: input.attackerIsAirborne,
+    commonImpossibleReasonCode:
+      input.commonPhysicalImpossibleReasonCode ??
+      (input.attackerGrappledTargetId !== undefined
+        ? 'LockedInGrapple'
+        : undefined),
+    friendlyFireEnabled: false,
+    targetIsFriendly: input.targetIsFriendly,
+    attackerIsBipedMek,
+    attackerIsProtoMek,
+    targetIsMek,
+    targetIsProtoMek,
+    noMinimalArmsQuirk: hasNoArms(input.unitQuirks ?? []),
+    grappleSide,
+    leftArmPresent:
+      !grappleSelectsLeft(grappleSide) ||
+      !attackerLocationDestroyed(input, 'left_arm'),
+    rightArmPresent:
+      !grappleSelectsRight(grappleSide) ||
+      !attackerLocationDestroyed(input, 'right_arm'),
+    leftShoulderWorking:
+      !grappleSelectsLeft(grappleSide) ||
+      !input.componentDamage.actuators[ActuatorType.SHOULDER],
+    rightShoulderWorking:
+      !grappleSelectsRight(grappleSide) ||
+      !input.componentDamage.actuators[ActuatorType.SHOULDER],
+    counterGrapple,
+    targetDistance: input.targetDistance,
+    elevationDifference: input.elevationDifference,
+    maxElevationChange: 1,
+    targetInFrontArc: input.targetInFrontArc,
+    attackerProne: input.attackerProne,
+    targetProne: input.targetProne,
+    weaponFiredThisTurn: (input.weaponsFiredFromArm?.length ?? 0) > 0,
+    attackerGrappledTargetMatches:
+      input.attackerGrappledTargetId === undefined
+        ? undefined
+        : input.attackerGrappledTargetId === input.targetId,
+    targetIsGrappleAttacker: input.targetIsGrappleAttacker,
+  });
+
+  if (grappleRestriction.allowed) return { allowed: true };
+
+  return {
+    allowed: false,
+    reason: grappleRestriction.reason,
+    reasonCode: mapGrappleInvalidReason(grappleRestriction.reasonCode),
   };
 }
 
