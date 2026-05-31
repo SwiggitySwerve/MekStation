@@ -1073,6 +1073,8 @@ function computeMovementHeat(
       return 1;
     case MovementType.Run:
       return 2;
+    case MovementType.Evade:
+      return 4;
     case MovementType.Jump:
       return Math.max(hexesMoved, 3);
     default:
