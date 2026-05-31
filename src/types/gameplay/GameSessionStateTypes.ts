@@ -224,8 +224,8 @@ export interface IUnitGameState {
   readonly evasionBonus?: number;
   /**
    * Whether this unit sprinted during the current turn. Explicit true feeds
-   * the source-backed target-sprinted ranged to-hit modifier; full sprint
-   * movement declaration remains an absent optional TacOps action surface.
+   * the source-backed target-sprinted ranged to-hit modifier and
+   * sprinting-attacker ranged attack invalidation.
    */
   readonly sprintedThisTurn?: boolean;
   /**
