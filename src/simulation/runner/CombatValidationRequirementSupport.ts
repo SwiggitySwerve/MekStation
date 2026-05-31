@@ -619,10 +619,9 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       'validationScope.knownLimitationsAndScope.battlemech-official-catalog-scope',
     ],
   ),
-  'official-physical-weapons': helperOnly(
+  'official-physical-weapons': integrated(
     'official-physical-weapons',
-    'Catalog contracts enumerate official physical weapons, require construction definitions to match the official physical catalog, partition every row into either standalone runtime attacks or modifier-only helper equipment, and keep claws/talons out of selectable attack types',
-    'Automatic claw/talon missing/breached event production beyond represented destroyed-location replay is not wired from mounted-equipment state, and full mounted physical-weapon mode/location lifecycle remains partial',
+    'Catalog contracts enumerate official physical weapons, require construction definitions to match the official physical catalog, partition every row into either standalone runtime attacks or modifier-only integrated equipment, and keep claws/talons out of selectable attack types while their remaining lifecycle gaps stay under physical-weapon-actions',
     [
       'validationScope.knownLimitationsAndScope.battlemech-official-catalog-scope',
       'featureSupport.physicalWeapons.hatchet',
