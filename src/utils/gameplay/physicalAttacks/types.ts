@@ -1,6 +1,7 @@
 import { IComponentDamageState, IUnitGameState } from '@/types/gameplay';
 import { CombatLocation } from '@/types/gameplay';
 
+import type { GrappleAttackSide } from './grappleEligibility';
 import type { JumpJetAttackSelectedLeg } from './jumpJetAttackEligibility';
 import type { ThrashAttackBlockingTerrain } from './thrashEligibility';
 
@@ -14,6 +15,7 @@ export const CORE_PHYSICAL_ATTACK_TYPES = [
   'thrash',
   'jump-jet-attack',
   'brush-off',
+  'grapple',
 ] as const;
 
 export const SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES = [
@@ -165,6 +167,7 @@ export type PhysicalAttackInvalidReason =
   | 'TerrainNotClearOrPavement'
   | 'TacOpsTripDisabled'
   | 'TacOpsJumpJetAttackDisabled'
+  | 'TacOpsGrapplingDisabled'
   | 'CommonImpossible'
   | 'InvalidLegSelection'
   | 'BothLegsRequiresProne'
@@ -173,6 +176,9 @@ export type PhysicalAttackInvalidReason =
   | 'LegWeaponFiredThisTurn'
   | 'LandAirMekNotMekMode'
   | 'AttackerAlreadyGrappled'
+  | 'AlreadyGrappled'
+  | 'AttackerNotBipedMekOrProtoMek'
+  | 'TargetNotMekOrProtoMek'
   | 'TripLimbUnavailable'
   | 'ThrashLimbUnavailable'
   | 'UnsupportedAttackType'
@@ -467,6 +473,18 @@ export interface IPhysicalAttackInput {
    * boolean or by the matching optional-rule token.
    */
   readonly tacOpsTripAttackEnabled?: boolean;
+  readonly tacOpsGrapplingEnabled?: boolean;
+  readonly grappleSide?: GrappleAttackSide;
+  readonly commonPhysicalImpossibleReasonCode?: 'LockedInGrapple' | 'Other';
+  readonly attackerGrappledTargetId?: string;
+  readonly targetGrappledTargetId?: string;
+  readonly attackerIsGrappleAttacker?: boolean;
+  readonly targetIsGrappleAttacker?: boolean;
+  readonly attackerChainWhipGrappled?: boolean;
+  readonly leftArmAesFunctional?: boolean;
+  readonly rightArmAesFunctional?: boolean;
+  readonly attackerWeightClass?: number;
+  readonly targetWeightClass?: number;
   readonly attackerAlreadyGrappled?: boolean;
   readonly targetInFrontArc?: boolean;
   readonly leftTripLimbUsable?: boolean;
@@ -647,6 +665,17 @@ export interface IChooseBestPhysicalAttackOptions {
   targetDisplacementAttackTargetId?: string;
   targetedByDisplacementAttackerId?: string;
   optionalRules?: readonly string[];
+  tacOpsGrapplingEnabled?: boolean;
+  grappleSide?: GrappleAttackSide;
+  attackerGrappledTargetId?: string;
+  targetGrappledTargetId?: string;
+  attackerIsGrappleAttacker?: boolean;
+  targetIsGrappleAttacker?: boolean;
+  attackerChainWhipGrappled?: boolean;
+  leftArmAesFunctional?: boolean;
+  rightArmAesFunctional?: boolean;
+  attackerWeightClass?: number;
+  targetWeightClass?: number;
   tacOpsJumpJetAttackEnabled?: boolean;
   jumpJetAttackSelectedLeg?: JumpJetAttackSelectedLeg;
   leftReadyJumpJetCount?: number;
