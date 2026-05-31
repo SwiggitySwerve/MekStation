@@ -208,6 +208,7 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **WHEN** the ammunition compatibility catalog is contract-tested
 - **THEN** official ammo rows that hydrate consumable BattleMech ammo bins SHALL be pinned by exact id
 - **AND** every compatible ammo row SHALL initialize an ammo bin, report total rounds, and consume through combat ammo tracking for each referenced official weapon id
+- **AND** source-backed Improved Autocannon ammunition rows SHALL name their matching official Improved Autocannon weapon ids before they are counted as consumable BattleMech ammo
 - **AND** official ammo rows that duplicate weapon runtime ids SHALL be pinned by exact id and classified before compatibility checks
 - **AND** standard or advanced official ammo rows with no compatible weapon references SHALL be pinned by exact id as helper-only BattleMech ammo gaps
 - **AND** aerospace/capital, battle armor, ProtoMech, aquatic torpedo, and artillery ammo rows SHALL be pinned by exact id as `out-of-scope` separate validation-matrix scope splits
@@ -215,7 +216,7 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **AND** experimental or nonstandard official ammo rows with no compatible weapon references SHALL be pinned by exact id as catalog-visible scope gaps
 - **AND** every ammunition compatibility support row SHALL carry structured row-level source references to the official ammo catalog import list, ammo hydration or tracking path, and exact-id classification contract
 - **AND** the ammunition compatibility catalog triad SHALL enforce row-level source references before PR approval
-- **AND** these rows SHALL NOT be counted as consumable BattleMech ammunition until catalog data supplies unambiguous compatible weapon references
+- **AND** remaining no-compatible-reference rows SHALL NOT be counted as consumable BattleMech ammunition until catalog data supplies unambiguous compatible weapon references
 
 #### Scenario: Range bracket rows stay source-backed
 
