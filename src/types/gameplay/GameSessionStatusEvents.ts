@@ -192,6 +192,17 @@ export interface IDesignatorMarkerAppliedPayload {
 }
 
 /**
+ * A unit declared source-backed target spotting for indirect fire. Mirrors
+ * MegaMek SpotAction's entity id + target id pair while keeping the state
+ * change replayable in MekStation's event log.
+ */
+export interface ISpottingDeclaredPayload {
+  readonly unitId: string;
+  readonly targetId: string;
+  readonly turn: number;
+}
+
+/**
  * Per `integrate-damage-pipeline`: a location's internal structure has
  * reached zero. `cascadedTo` is set when the destruction triggered a
  * linked-location destruction (e.g., LT destroyed → LA also destroyed).
@@ -475,6 +486,7 @@ export type GameEventPayload =
   | IAmmoConsumedPayload
   | IAMSInterceptionPayload
   | IDesignatorMarkerAppliedPayload
+  | ISpottingDeclaredPayload
   | IAttackInvalidPayload
   | ILocationDestroyedPayload
   | ITransferDamagePayload
