@@ -497,6 +497,7 @@ export function applyMovementEvent(
   const wentProne =
     payload.steps?.some((step) => step.kind === 'goProne') ?? false;
   const isEvadeMovement = payload.movementType === MovementType.Evade;
+  const isSprintMovement = payload.movementType === MovementType.Sprint;
 
   const updatedUnit: IUnitGameState = {
     ...unit,
@@ -510,6 +511,7 @@ export function applyMovementEvent(
     ),
     isEvading: isEvadeMovement,
     evasionBonus: isEvadeMovement ? 1 : undefined,
+    sprintedThisTurn: isSprintMovement,
     prone: wentProne ? true : unit.prone,
     ...(wentProne ? { hullDown: false } : {}),
   };

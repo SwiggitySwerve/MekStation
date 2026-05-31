@@ -933,24 +933,24 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
 export const MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT = {
   [MovementEnhancementType.MASC]: integrated(
     MovementEnhancementType.MASC,
-    'UnitHydration detects installed MASC, runMovementPhase consumes explicit active MASC run MP, movementEnhancementPsr queues createMASCFailurePSR with source-backed standard fixed failure target numbers, runPSRPhase consumes edge_when_masc_fails rerolls and applies one critical hit to each leg when the final check fails, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers still expose sprint_masc formula support',
+    'UnitHydration detects installed MASC, runMovementPhase consumes explicit active MASC run and sprint MP, movementEnhancementPsr queues createMASCFailurePSR with source-backed standard fixed failure target numbers, runPSRPhase consumes edge_when_masc_fails rerolls and applies one critical hit to each leg when the final check fails, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers expose sprint_masc formula support',
     MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
   ),
   'masc-side-paths': helperOnly(
     'masc-side-paths',
-    'Core MASC installation hydration, replayable activation, active run MP expansion, standard fixed failure target numbers, Edge reroll consumption, failed-check leg critical damage, prior-use counter lifecycle, and active-use clearing are integrated under the MASC row',
-    'MovementType.Sprint, alternate MASC option tables, and separate first-step equipment-check timing are not wired',
+    'Core MASC installation hydration, replayable activation, active run/sprint MP expansion, standard fixed failure target numbers, Edge reroll consumption, failed-check leg critical damage, prior-use counter lifecycle, and active-use clearing are integrated under the MASC row',
+    'Alternate MASC option tables and separate first-step equipment-check timing are not wired',
     MEGAMEK_MASC_SUPERCHARGER_SIDE_PATH_SOURCE_REFS,
   ),
   [MovementEnhancementType.SUPERCHARGER]: integrated(
     MovementEnhancementType.SUPERCHARGER,
-    'UnitHydration detects installed Supercharger, runMovementPhase consumes explicit active Supercharger run MP, movementEnhancementPsr queues createSuperchargerFailurePSR with source-backed standard fixed failure target numbers, runPSRPhase consumes edge_when_masc_fails rerolls and destroys the Supercharger slot plus applies the source-backed engine critical table when the final check fails, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers still expose sprint_combined formula support',
+    'UnitHydration detects installed Supercharger, runMovementPhase consumes explicit active Supercharger run and sprint MP, movementEnhancementPsr queues createSuperchargerFailurePSR with source-backed standard fixed failure target numbers, runPSRPhase consumes edge_when_masc_fails rerolls and destroys the Supercharger slot plus applies the source-backed engine critical table when the final check fails, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers expose sprint_combined formula support',
     MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
   ),
   'supercharger-side-paths': helperOnly(
     'supercharger-side-paths',
-    'Core Supercharger installation hydration, replayable activation, active run MP expansion, standard fixed failure target numbers, Edge reroll consumption, failed-check Supercharger slot and engine-table damage, prior-use counter lifecycle, and active-use clearing are integrated under the Supercharger row',
-    'MovementType.Sprint, IndustrialMek/support-unit supercharger roll adjustment, separate first-step equipment-check timing, and the non-BattleMech motive-damage branch are not wired',
+    'Core Supercharger installation hydration, replayable activation, active run/sprint MP expansion, standard fixed failure target numbers, Edge reroll consumption, failed-check Supercharger slot and engine-table damage, prior-use counter lifecycle, and active-use clearing are integrated under the Supercharger row',
+    'IndustrialMek/support-unit supercharger roll adjustment, separate first-step equipment-check timing, and the non-BattleMech motive-damage branch are not wired',
     MEGAMEK_MASC_SUPERCHARGER_SIDE_PATH_SOURCE_REFS,
   ),
   [MovementEnhancementType.TSM]: integrated(
@@ -1072,7 +1072,7 @@ export const HEAT_RULE_COMBAT_SUPPORT = {
   ),
   'movement-heat': integrated(
     'movement-heat',
-    'runHeatPhase emits movement-sourced HeatGenerated for walk/run/jump movement types plus explicit optional TacOps sprint and evade state',
+    'runHeatPhase emits movement-sourced HeatGenerated for walk/run/sprint/evade/jump movement types, with Sprint using the source-backed normal-engine sprint heat path',
     [
       MEGAMEK_MOVEMENT_HEAT_SOURCE_REF,
       MEGAMEK_MEK_STANDING_WALK_HEAT_SOURCE_REF,
