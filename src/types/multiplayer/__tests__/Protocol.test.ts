@@ -174,7 +174,12 @@ describe('Protocol envelope schemas', () => {
     });
 
     it('parses source-backed runtime Physical intents', () => {
-      for (const attackType of ['flail', 'thrash', 'wrecking-ball']) {
+      for (const attackType of [
+        'brush-off',
+        'flail',
+        'thrash',
+        'wrecking-ball',
+      ]) {
         const env = {
           kind: 'Intent' as const,
           matchId: 'm',
