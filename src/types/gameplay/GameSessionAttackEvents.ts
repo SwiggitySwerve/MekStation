@@ -536,6 +536,7 @@ export type PhysicalAttackEventType =
   | 'charge'
   | 'dfa'
   | 'push'
+  | 'trip'
   | 'hatchet'
   | 'sword'
   | 'mace'
