@@ -20,6 +20,7 @@ import { coordToKey } from '@/utils/gameplay/hexMath';
 import { parseTerrainFeatures } from '@/utils/gameplay/lineOfSight';
 import {
   createEnteringWaterPSR,
+  createBuildingCollapsePSR,
   createExitingWaterPSR,
   createIcePSR,
   createRubblePSR,
@@ -109,6 +110,7 @@ export function queueMovementTerrainPSRs(options: {
       step,
       steps,
       unitId,
+      unitTonnage: unit?.tonnage,
       unitType: unit?.unitType,
     });
 
@@ -141,9 +143,11 @@ function terrainPSRsForStep(options: {
   readonly step: TerrainBearingMovementStep;
   readonly steps: readonly TerrainBearingMovementStep[];
   readonly unitId: string;
+  readonly unitTonnage?: number;
   readonly unitType?: string;
 }): readonly IPendingPSR[] {
-  const { grid, movementType, step, steps, unitId, unitType } = options;
+  const { grid, movementType, step, steps, unitId, unitTonnage, unitType } =
+    options;
   const enteredFeatures = terrainFeaturesFromTag(
     step.terrainEntered ?? terrainAt(grid, step.to),
   );
@@ -199,6 +203,18 @@ function terrainPSRsForStep(options: {
         ),
       }),
     );
+  }
+
+  const hasOverloadedBuilding = hasOverloadedBuildingFeature(
+    enteredFeatures,
+    unitTonnage,
+  );
+  if (
+    step.kind !== 'turn' &&
+    isBattleMechLikeUnitType(unitType) &&
+    hasOverloadedBuilding
+  ) {
+    psrs.push(createBuildingCollapsePSR(unitId, step.index));
   }
 
   if (
@@ -315,6 +331,24 @@ function terrainLevelFromFeatures(
   const feature = terrainFeatures.find((entry) => entry.type === terrainType);
   if (!feature) return undefined;
   return Math.max(1, feature.level);
+}
+
+function hasOverloadedBuildingFeature(
+  terrainFeatures: readonly ITerrainFeature[],
+  unitTonnage: number | undefined,
+): boolean {
+  if (unitTonnage === undefined || !Number.isFinite(unitTonnage)) return false;
+
+  const building = terrainFeatures.find(
+    (feature) =>
+      feature.type === TerrainType.Building &&
+      feature.level > 0 &&
+      feature.constructionFactor !== undefined &&
+      Number.isFinite(feature.constructionFactor),
+  );
+  if (!building || building.constructionFactor === undefined) return false;
+
+  return unitTonnage > building.constructionFactor;
 }
 
 function isBattleMechLikeUnitType(unitType: string | undefined): boolean {
