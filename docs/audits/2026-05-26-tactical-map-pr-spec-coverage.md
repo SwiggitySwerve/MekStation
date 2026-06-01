@@ -99,8 +99,11 @@ decisions are made, not because CI is stale.
   WiGE landing is covered by `auto-land-short-wige-movement`, while
   `pin-wige-hover-distance-exemptions` keeps those landing highlights and
   runtime patches suppressed when MegaMek's represented prior-distance or
-  hover-style exemptions apply. Full elevated AirMek/WiGE pathing and broader
-  takeoff/hover sequencing remain follow-up work.
+  hover-style exemptions apply. Represented WiGE building-top climb cost is now
+  covered by `pin-wige-building-climb-cost`, including preview/commit
+  insufficient-MP agreement for the +2 MP climb-mode surcharge. Full elevated
+  AirMek/WiGE pathing, directional cliff metadata, and broader takeoff/hover
+  sequencing remain follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
   `apply-runtime-movement-state-events`, and tactical command controls are now

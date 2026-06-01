@@ -37,6 +37,7 @@ import {
   requiresWaterTerrain,
   waterMovementCostModifier,
 } from './terrainRules';
+import { wigeBuildingClimbModeCost } from './wigeClimbModeCost';
 
 export const PAVEMENT_ROAD_BONUS_MP = 1;
 
@@ -338,6 +339,14 @@ export function getMovementStepCostBreakdown(
           };
         }
       }
+      terrainCost += wigeBuildingClimbModeCost({
+        grid,
+        fromCoord,
+        toCoord: coord,
+        toElevation: hex.elevation,
+        toTerrainFeatures: terrainFeatures,
+        movementType,
+      });
     }
   }
 

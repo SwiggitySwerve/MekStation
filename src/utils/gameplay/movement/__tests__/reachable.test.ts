@@ -2092,6 +2092,96 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('charges WiGE climb-mode MP when entering a higher represented building top', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([{ type: TerrainType.Building, level: 3 }]),
+      0,
+    );
+    const unit = makeUnitAtOrigin();
+    const capability: IMovementCapability = {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'wige',
+    };
+
+    const preview = deriveReachableHexes(
+      unit,
+      MovementType.Walk,
+      grid,
+      capability,
+    ).find((r) => r.hex.q === 1 && r.hex.r === 0);
+    expect(preview).toMatchObject({
+      mpCost: 3,
+      terrainCost: 2,
+      elevationDelta: 0,
+      elevationCost: 0,
+      movementMode: 'wige',
+      reachable: true,
+      movementType: MovementType.Walk,
+    });
+
+    const commit = validateCommittedMovement({
+      grid,
+      unit,
+      to: { q: 1, r: 0 },
+      facing: Facing.Southeast,
+      movementType: MovementType.Walk,
+      capability,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+    expect(commit).toMatchObject({
+      valid: true,
+      mpCost: 3,
+      heatGenerated: 0,
+    });
+
+    const insufficientCapability: IMovementCapability = {
+      ...capability,
+      walkMP: 2,
+    };
+    const overBudgetPreview = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      insufficientCapability,
+      { q: 1, r: 0 },
+    );
+    expect(overBudgetPreview).toMatchObject({
+      mpCost: 3,
+      terrainCost: 2,
+      movementMode: 'wige',
+      reachable: false,
+      movementInvalidReason: 'InsufficientMP',
+    });
+
+    const overBudgetCommit = validateCommittedMovement({
+      grid,
+      unit,
+      to: { q: 1, r: 0 },
+      facing: Facing.Southeast,
+      movementType: MovementType.Walk,
+      capability: insufficientCapability,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+    expect(overBudgetCommit).toMatchObject({
+      valid: false,
+      reason: 'InsufficientMP',
+      mpCost: 3,
+      heatGenerated: 0,
+    });
+  });
+
   it.each([
     {
       label: 'VTOL',

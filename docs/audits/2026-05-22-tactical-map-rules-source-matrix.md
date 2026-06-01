@@ -43,6 +43,12 @@ channel used by altitude controls. The represented already-moved distance and
 UP/HOVER-style exemptions from the same MegaMek helper are now covered by
 `pin-wige-hover-distance-exemptions`, so the map no longer shows a `LAND`
 consequence or runtime landing patch when those source guards apply.
+Represented WiGE building-top climb cost is now covered by
+`pin-wige-building-climb-cost`, source-pinned to MegaMek
+`MoveStep.java:2844-2864`: the shared movement-cost helper adds the +2 MP
+climb-mode surcharge when entering a higher represented building ceiling while
+leaving the separate +1 sheer-cliff surcharge as a follow-up until MekStation
+encodes directional cliff-top terrain metadata.
 Replayable gameplay events for runtime movement state are covered by
 `apply-runtime-movement-state-events`; player-facing tactical command controls
 for represented conversion and infantry mount-state changes are covered by
