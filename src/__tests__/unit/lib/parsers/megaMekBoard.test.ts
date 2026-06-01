@@ -7,6 +7,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 import { parseMegaMekBoard } from '@/lib/parsers/megaMekBoard';
+import { Facing } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
 describe('parseMegaMekBoard', () => {
@@ -296,6 +297,56 @@ end`;
       expect(result.hexes[0].features).toContainEqual({
         type: TerrainType.Rubble,
         level: 1,
+      });
+    });
+  });
+
+  describe('cliff-top terrain exits', () => {
+    it('should parse valid cliff_top exit masks onto the first terrain feature', () => {
+      const content = `size 2 1
+hex 0101 1 "cliff_top:1:4;pavement:1" ""
+hex 0201 0 "" ""
+end`;
+      const result = parseMegaMekBoard(content);
+      expect(result.hexes[0].features[0]).toEqual({
+        type: TerrainType.Pavement,
+        level: 1,
+        cliffTopExits: [Facing.Southeast],
+      });
+    });
+
+    it('should create a clear feature when a valid cliff_top has no mapped terrain', () => {
+      const content = `size 2 1
+hex 0101 0 "" ""
+hex 0201 1 "cliff_top:1:32" ""
+end`;
+      const result = parseMegaMekBoard(content);
+      expect(result.hexes[1].features[0]).toEqual({
+        type: TerrainType.Clear,
+        level: 0,
+        cliffTopExits: [Facing.Northwest],
+      });
+    });
+
+    it('should drop cliff_top exits that do not point to a 1- or 2-level drop', () => {
+      const content = `size 2 1
+hex 0101 1 "cliff_top:1:4" ""
+hex 0201 1 "" ""
+end`;
+      const result = parseMegaMekBoard(content);
+      expect(result.hexes[0].features).toHaveLength(0);
+    });
+
+    it('should keep only valid cliff_top bits from a mixed exit mask', () => {
+      const content = `size 2 1
+hex 0101 1 "cliff_top:1:6;pavement:1" ""
+hex 0201 0 "" ""
+end`;
+      const result = parseMegaMekBoard(content);
+      expect(result.hexes[0].features[0]).toEqual({
+        type: TerrainType.Pavement,
+        level: 1,
+        cliffTopExits: [Facing.Southeast],
       });
     });
   });

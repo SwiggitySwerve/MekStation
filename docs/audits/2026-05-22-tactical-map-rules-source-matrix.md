@@ -54,6 +54,12 @@ sheer-cliff movement is now covered by
 cliff-top exits add the WiGE +1 MP ascent surcharge and block represented
 tracked/wheeled/hover vehicle ascent when no pavement/road surface cancels the
 cliff effect, without inferring cliffs from ordinary elevation deltas.
+Imported MegaMek board cliff metadata is covered by
+`import-megamek-cliff-top-exits`, source-pinned to MegaMek
+`Terrain.java:103-119`, `Terrain.java:302`, `Terrains.java:147-150`, and
+`Board.java:537-602`: `.board` `cliff_top:1:<exitMask>` entries now import as
+`cliffTopExits` only for in-board 1- or 2-level drops, so real map data drives
+the same movement projection instead of relying on hand-authored fixtures.
 Replayable gameplay events for runtime movement state are covered by
 `apply-runtime-movement-state-events`; player-facing tactical command controls
 for represented conversion and infantry mount-state changes are covered by

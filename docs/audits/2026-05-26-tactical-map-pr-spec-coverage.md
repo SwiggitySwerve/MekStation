@@ -105,8 +105,12 @@ decisions are made, not because CI is stale.
   sheer-cliff metadata is now covered by
   `pin-directional-cliff-movement-metadata`, including WiGE +1 MP cliff-ascent
   cost and tracked/wheeled/hover vehicle cliff-ascent blocking when no
-  pavement/road surface cancels the cliff. Full elevated AirMek/WiGE pathing
-  and broader takeoff/hover sequencing remain follow-up work.
+  pavement/road surface cancels the cliff. MegaMek `.board`
+  `cliff_top:1:<exitMask>` import is covered by
+  `import-megamek-cliff-top-exits`, including exit-mask conversion and
+  MegaMek-style removal of exits that do not point to an in-board 1- or
+  2-level drop. Full elevated AirMek/WiGE pathing and broader takeoff/hover
+  sequencing remain follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
   `apply-runtime-movement-state-events`, and tactical command controls are now

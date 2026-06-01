@@ -7,6 +7,7 @@
 
 import { describe, expect, it } from '@jest/globals';
 
+import { parseMegaMekBoard } from '@/lib/parsers/megaMekBoard';
 import { GyroType } from '@/types/construction/GyroType';
 import {
   Facing,
@@ -15,6 +16,7 @@ import {
   MovementType,
   TerrainType,
   type IComponentDamageState,
+  type IHex,
   type IMovementCapability,
   type IHexCoordinate,
   type IHexGrid,
@@ -86,6 +88,25 @@ function setHex(
   const hexes = new Map(grid.hexes);
   hexes.set(key, { ...hex, terrain, elevation });
   return { ...grid, hexes };
+}
+
+function gridFromParsedBoard(content: string): IHexGrid {
+  const parsedBoard = parseMegaMekBoard(content);
+  const hexes = new Map<string, IHex>();
+
+  for (const parsedHex of parsedBoard.hexes) {
+    hexes.set(coordToKey(parsedHex.coordinate), {
+      coord: parsedHex.coordinate,
+      occupantId: null,
+      terrain: terrainStringFromFeatures(parsedHex.features),
+      elevation: parsedHex.elevation,
+    });
+  }
+
+  return {
+    config: { radius: Math.max(parsedBoard.width, parsedBoard.height) },
+    hexes,
+  };
 }
 
 function setOccupant(
@@ -2309,6 +2330,54 @@ describe('deriveReachableHexes', () => {
       details: 'Tracked movement cannot ascend a sheer cliff',
       mpCost: Infinity,
       heatGenerated: 0,
+    });
+  });
+
+  it('uses parsed MegaMek cliff_top exits for movement projection', () => {
+    const grid = gridFromParsedBoard(`size 2 1
+hex 0101 0 "" ""
+hex 0201 1 "cliff_top:1:32" ""
+end`);
+    const unit = makeUnitAtOrigin();
+
+    const wigePreview = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      {
+        walkMP: 2,
+        runMP: 3,
+        jumpMP: 0,
+        movementMode: 'wige',
+      },
+      { q: 1, r: 0 },
+    );
+    expect(wigePreview).toMatchObject({
+      mpCost: 2,
+      terrainCost: 1,
+      elevationDelta: 1,
+      movementMode: 'wige',
+      reachable: true,
+    });
+
+    const trackedPreview = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      {
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 0,
+        movementMode: 'tracked',
+      },
+      { q: 1, r: 0 },
+    );
+    expect(trackedPreview).toMatchObject({
+      mpCost: Infinity,
+      movementMode: 'tracked',
+      reachable: false,
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails: 'Tracked movement cannot ascend a sheer cliff',
     });
   });
 

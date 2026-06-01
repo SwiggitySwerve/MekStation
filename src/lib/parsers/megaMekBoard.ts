@@ -3,12 +3,17 @@ import type {
   ITerrainFeature,
 } from '@/types/gameplay/TerrainTypes';
 
+import { AXIAL_DIRECTION_DELTAS } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
 export interface ParsedBoard {
   width: number;
   height: number;
   hexes: IHexTerrain[];
+}
+
+interface ParsedHexTerrain extends IHexTerrain {
+  readonly cliffTopExitMask?: number;
 }
 
 const TERRAIN_MAP: Record<string, (level: number) => TerrainType | null> = {
@@ -27,6 +32,8 @@ const TERRAIN_MAP: Record<string, (level: number) => TerrainType | null> = {
   swamp: () => TerrainType.Swamp,
 };
 
+const CLIFF_TOP_TERRAIN = 'cliff_top';
+
 function convertOffsetToAxial(
   col: number,
   row: number,
@@ -39,12 +46,14 @@ function convertOffsetToAxial(
 function parseTerrainString(terrainStr: string): {
   features: ITerrainFeature[];
   buildingCF?: number;
+  cliffTopExitMask?: number;
 } {
   if (!terrainStr || terrainStr === '""' || terrainStr === '') {
     return { features: [] };
   }
 
-  const cleaned = terrainStr.replace(/^"|"$/g, '');
+  const cleaned =
+    terrainStr.match(/^"([^"]*)"/)?.[1] ?? terrainStr.replace(/^"|"$/g, '');
   if (!cleaned) {
     return { features: [] };
   }
@@ -52,12 +61,21 @@ function parseTerrainString(terrainStr: string): {
   const parts = cleaned.split(';');
   const features: ITerrainFeature[] = [];
   let buildingCF: number | undefined;
+  let cliffTopExitMask: number | undefined;
 
   for (const part of parts) {
-    const [terrainType, levelStr] = part.split(':');
+    const [terrainType, levelStr, exitMaskStr] = part.split(':');
 
     if (terrainType === 'bldg_cf') {
       buildingCF = parseInt(levelStr, 10);
+      continue;
+    }
+
+    if (terrainType === CLIFF_TOP_TERRAIN) {
+      const parsedExitMask = parseInt(exitMaskStr ?? '', 10);
+      if (!isNaN(parsedExitMask)) {
+        cliffTopExitMask = parsedExitMask;
+      }
       continue;
     }
 
@@ -79,7 +97,75 @@ function parseTerrainString(terrainStr: string): {
     features.push({ type, level });
   }
 
-  return { features, buildingCF };
+  return { features, buildingCF, cliffTopExitMask };
+}
+
+function coordinateKey(coordinate: { q: number; r: number }): string {
+  return `${coordinate.q},${coordinate.r}`;
+}
+
+function exitMaskToDirections(exitMask: number): number[] {
+  const directions: number[] = [];
+  for (
+    let direction = 0;
+    direction < AXIAL_DIRECTION_DELTAS.length;
+    direction++
+  ) {
+    if ((exitMask & (1 << direction)) !== 0) {
+      directions.push(direction);
+    }
+  }
+  return directions;
+}
+
+function validCliffTopDirections(
+  hex: ParsedHexTerrain,
+  byCoordinate: ReadonlyMap<string, ParsedHexTerrain>,
+): readonly number[] {
+  if (!hex.cliffTopExitMask) return [];
+
+  return exitMaskToDirections(hex.cliffTopExitMask).filter((direction) => {
+    const delta = AXIAL_DIRECTION_DELTAS[direction];
+    const neighbor = byCoordinate.get(
+      coordinateKey({
+        q: hex.coordinate.q + delta.q,
+        r: hex.coordinate.r + delta.r,
+      }),
+    );
+    if (!neighbor) return false;
+
+    const elevationDrop = hex.elevation - neighbor.elevation;
+    return elevationDrop === 1 || elevationDrop === 2;
+  });
+}
+
+function applyCliffTopExits(hexes: readonly ParsedHexTerrain[]): IHexTerrain[] {
+  const byCoordinate = new Map<string, ParsedHexTerrain>(
+    hexes.map((hex) => [coordinateKey(hex.coordinate), hex]),
+  );
+
+  return hexes.map((hex) => {
+    const cliffTopExits = validCliffTopDirections(hex, byCoordinate);
+    if (cliffTopExits.length === 0) {
+      return {
+        coordinate: hex.coordinate,
+        elevation: hex.elevation,
+        features: hex.features,
+      };
+    }
+
+    const [firstFeature, ...remainingFeatures] = hex.features;
+    const featureWithCliffExits: ITerrainFeature = {
+      ...(firstFeature ?? { type: TerrainType.Clear, level: 0 }),
+      cliffTopExits,
+    };
+
+    return {
+      coordinate: hex.coordinate,
+      elevation: hex.elevation,
+      features: [featureWithCliffExits, ...remainingFeatures],
+    };
+  });
 }
 
 export function parseMegaMekBoard(content: string): ParsedBoard {
@@ -87,7 +173,7 @@ export function parseMegaMekBoard(content: string): ParsedBoard {
 
   let width = 0;
   let height = 0;
-  const hexes: IHexTerrain[] = [];
+  const hexes: ParsedHexTerrain[] = [];
   let foundSize = false;
 
   for (const line of lines) {
@@ -139,7 +225,8 @@ export function parseMegaMekBoard(content: string): ParsedBoard {
       }
 
       const coordinate = convertOffsetToAxial(col, row);
-      const { features, buildingCF } = parseTerrainString(terrainStr);
+      const { features, buildingCF, cliffTopExitMask } =
+        parseTerrainString(terrainStr);
 
       if (buildingCF !== undefined) {
         const buildingFeature = features.find(
@@ -158,6 +245,7 @@ export function parseMegaMekBoard(content: string): ParsedBoard {
         coordinate,
         elevation,
         features,
+        cliffTopExitMask,
       });
     }
   }
@@ -166,5 +254,5 @@ export function parseMegaMekBoard(content: string): ParsedBoard {
     throw new Error('Missing size declaration');
   }
 
-  return { width, height, hexes };
+  return { width, height, hexes: applyCliffTopExits(hexes) };
 }
