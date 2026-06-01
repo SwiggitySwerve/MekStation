@@ -147,9 +147,9 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     );
     expect(assignedQuirkIds()).toEqual(sortedKeys(QUIRK_CATALOG));
     expect(assignedQuirkIds()).toEqual(sortedKeys(QUIRK_COMBAT_SUPPORT));
-    expect(SPA_COMBAT_SUPPORT.marksman.level).toBe('helper-only');
+    expect(SPA_COMBAT_SUPPORT.marksman.level).toBe('out-of-scope');
     expect(SPA_COMBAT_SUPPORT['multi-target'].level).toBe('unsupported');
-    expect(SPA_COMBAT_SUPPORT.sharpshooter.level).toBe('helper-only');
+    expect(SPA_COMBAT_SUPPORT.sharpshooter.level).toBe('out-of-scope');
     expect(SPA_COMBAT_SUPPORT['cool-under-fire'].level).toBe('helper-only');
   });
 
@@ -1011,13 +1011,13 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
 
   it('keeps local called-shot helpers out of MegaMek-backed SPA claims', () => {
     expect(SPA_COMBAT_SUPPORT.marksman).toMatchObject({
-      level: 'helper-only',
+      level: 'out-of-scope',
     });
     expect(SPA_COMBAT_SUPPORT.sharpshooter).toMatchObject({
-      level: 'helper-only',
+      level: 'out-of-scope',
     });
     expect(SPA_COMBAT_SUPPORT.marksman.gap).toContain(
-      'not Marksman as a called-shot SPA',
+      'local called-shot helper',
     );
     expect(SPA_COMBAT_SUPPORT.sharpshooter.gap).toContain(
       'Sharpshooter constant commented out',
