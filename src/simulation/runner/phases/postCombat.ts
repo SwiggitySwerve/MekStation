@@ -16,10 +16,7 @@ import {
 import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
 import { calculateEnvironmentalHeatModifier } from '@/utils/gameplay/environmentalModifiers';
 import { getGridTerrainHeatEffect } from '@/utils/gameplay/heat';
-import {
-  getCoolUnderFireHeatReduction,
-  getHotDogHeatTargetNumberModifier,
-} from '@/utils/gameplay/spaModifiers';
+import { getHotDogHeatTargetNumberModifier } from '@/utils/gameplay/spaModifiers';
 
 import type { IWeapon } from '../../ai/types';
 
@@ -379,10 +376,8 @@ export function runHeatPhase(options: {
       environmentalConditions !== undefined
         ? calculateEnvironmentalHeatModifier(environmentalConditions)
         : 0;
-    const heatGenerationReduction = Math.min(
-      getCoolUnderFireHeatReduction(unit.abilities ?? []),
-      weaponHeat + movementHeat + engineHeat + environmentHeat,
-    );
+    // Cool Under Fire is a local helper-only row until source authority exists.
+    const heatGenerationReduction = 0;
     const hotDogTargetNumberModifier = getHotDogHeatTargetNumberModifier(
       unit.abilities ?? [],
     );
