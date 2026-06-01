@@ -176,8 +176,8 @@ describe('BattleMech combat validation catalog index', () => {
     }).toEqual({
       total: 93,
       byLevel: {
-        'helper-only': 85,
-        unsupported: 8,
+        'helper-only': 84,
+        unsupported: 9,
       },
       bySection: {
         damageAndDeath: 2,
@@ -398,11 +398,17 @@ describe('BattleMech combat validation catalog index', () => {
     expect(unsupportedRefs).toContain(
       'featureSupport.canonicalPilotAbilityScope.tm_nightwalker',
     );
+    expect(unsupportedRefs).toContain('featureSupport.mechQuirks.low_profile');
     expect(
       unresolvedRows.find(
         (row) =>
           row.ref ===
           'featureSupport.canonicalPilotAbilityScope.tm_nightwalker',
+      )?.level,
+    ).toBe('unsupported');
+    expect(
+      unresolvedRows.find(
+        (row) => row.ref === 'featureSupport.mechQuirks.low_profile',
       )?.level,
     ).toBe('unsupported');
     expect(
