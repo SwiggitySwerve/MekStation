@@ -8,6 +8,7 @@ import {
   type ICombatFeatureSourceReference,
   type ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
+import { MEGAMEK_NIGHTWALKER_SOURCE_REFS } from './CombatLegacyPilotAbilitySourceRefs';
 
 const SPA_SUPPORT_BY_ID: Record<string, ICombatFeatureSupportEntry> =
   SPA_COMBAT_SUPPORT;
@@ -44,9 +45,27 @@ function outOfScope(
     : { id, level: 'out-of-scope', evidence, gap };
 }
 
+function unsupported(
+  id: string,
+  evidence: string,
+  gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'unsupported', evidence, gap, sourceRefs }
+    : { id, level: 'unsupported', evidence, gap };
+}
+
 const CANONICAL_ONLY_SPA_SUPPORT: Readonly<
   Record<string, ICombatFeatureSupportEntry>
-> = {};
+> = {
+  tm_nightwalker: unsupported(
+    'tm_nightwalker',
+    'MegaMek source applies Terrain Master: Nightwalker through light-condition movement handling, but MekStation has no combat resolver for lighting-condition movement or to-hit penalties',
+    'Terrain Master: Nightwalker remains unsupported until combat state represents lighting conditions, Nightwalker movement penalties/run prohibition, and any source-backed darkness to-hit interactions',
+    MEGAMEK_NIGHTWALKER_SOURCE_REFS,
+  ),
+};
 
 function cloneForCanonicalSpa(
   spa: ISPADefinition,
@@ -163,7 +182,8 @@ function canonicalSpaSupportEntry(
   if (aliasedSupport) return cloneForCanonicalSpa(spa, aliasedSupport);
 
   const canonicalOnlySupport = CANONICAL_ONLY_SPA_SUPPORT[spa.id];
-  if (canonicalOnlySupport) return canonicalOnlySupport;
+  if (canonicalOnlySupport)
+    return cloneForCanonicalSpa(spa, canonicalOnlySupport);
 
   return canonicalSpaFallback(spa);
 }
