@@ -320,7 +320,6 @@ const HEAT_LIFECYCLE_SUPPORT_REFS = [
 const HEAT_DRIVEN_MODIFIER_SUPPORT_REFS = [
   'featureSupport.pilotAbilities.hot-dog',
   'featureSupport.pilotAbilities.some-like-it-hot',
-  'featureSupport.pilotAbilities.cool-under-fire',
   'featureSupport.mechQuirks.improved_cooling',
   'featureSupport.mechQuirks.poor_cooling',
   'featureSupport.mechQuirks.no_cooling',
@@ -779,10 +778,9 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
     'Heat rules cover threshold effects, shutdown checks, auto-shutdown, startup, heat pilot damage, optional MaxTech heat critical damage, and runner/event-sourced heat-induced ammo explosion selection plus CASE-aware damage cascade',
     HEAT_LIFECYCLE_SUPPORT_REFS,
   ),
-  'heat-driven-modifiers': helperOnly(
+  'heat-driven-modifiers': integrated(
     'heat-driven-modifiers',
-    'Heat-driven modifier support separates source-backed Hot Dog heat roll relief, Some Like It Hot heat to-hit relief, and weapon cooling quirk heat changes from local-only Cool Under Fire helper behavior',
-    'Cool Under Fire source authority is unresolved, so generated-heat relief remains helper-only and unconsumed by BattleMech heat resolution',
+    'Heat-driven modifier support covers source-backed Hot Dog heat roll relief, Some Like It Hot heat to-hit relief, and weapon cooling quirk heat changes while keeping local-only Cool Under Fire out-of-scope and unconsumed by BattleMech heat resolution',
     HEAT_DRIVEN_MODIFIER_SUPPORT_REFS,
   ),
   'range-validation': integrated(
@@ -924,7 +922,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'pilot-skills': helperOnly(
     'pilot-skills',
     'Pilot skill support covers gunnery, piloting, indirect-fire spotter gunnery, wound penalties, PSR resolution, source-backed Command Mech/Battle Computer force initiative bonuses, explicit HQ/command equipment initiative bonuses, and Tactical Genius reroll requests',
-    'Combat Intuition first-round sequencing and automatic command-console/HQ initiative equipment hydration are still helper-only; equipment-derived initiative bonuses require complete eligibility state before they can be promoted from explicit-only inputs',
+    'Automatic command-console/HQ initiative equipment hydration is still helper-only; equipment-derived initiative bonuses require complete eligibility state before they can be promoted from explicit-only inputs',
     PILOT_SKILL_SUPPORT_REFS,
   ),
   'spa-quirk-catalog': helperOnly(
