@@ -6,6 +6,7 @@ import {
   calculateLightModifier,
   calculatePrecipitationModifier,
   calculateFogModifier,
+  calculateBlowingSandModifier,
   calculateWindMissileModifier,
   getWindJumpReduction,
   scaleJumpDistance,
@@ -25,6 +26,7 @@ describe('DEFAULT_ENVIRONMENTAL_CONDITIONS', () => {
     expect(DEFAULT_ENVIRONMENTAL_CONDITIONS.light).toBe('daylight');
     expect(DEFAULT_ENVIRONMENTAL_CONDITIONS.precipitation).toBe('none');
     expect(DEFAULT_ENVIRONMENTAL_CONDITIONS.fog).toBe('none');
+    expect(DEFAULT_ENVIRONMENTAL_CONDITIONS.blowingSand).toBe(false);
     expect(DEFAULT_ENVIRONMENTAL_CONDITIONS.wind).toBe('none');
     expect(DEFAULT_ENVIRONMENTAL_CONDITIONS.gravity).toBe(1.0);
     expect(DEFAULT_ENVIRONMENTAL_CONDITIONS.atmosphere).toBe('standard');
@@ -47,6 +49,7 @@ describe('createEnvironmentalConditions', () => {
     expect(conditions.gravity).toBe(0.5);
     expect(conditions.precipitation).toBe('none');
     expect(conditions.fog).toBe('none');
+    expect(conditions.blowingSand).toBe(false);
   });
 });
 
@@ -129,6 +132,28 @@ describe('calculateFogModifier', () => {
     const mod = calculateFogModifier('heavy_fog');
     expect(mod).not.toBeNull();
     expect(mod!.value).toBe(2);
+  });
+});
+
+// =============================================================================
+// Blowing Sand Modifiers
+// =============================================================================
+
+describe('calculateBlowingSandModifier', () => {
+  it('should return null when blowing sand is inactive', () => {
+    expect(calculateBlowingSandModifier(false, true)).toBeNull();
+  });
+
+  it('should return null for non-energy weapons in blowing sand', () => {
+    expect(calculateBlowingSandModifier(true, false)).toBeNull();
+  });
+
+  it('should return +1 for energy weapons in blowing sand', () => {
+    const mod = calculateBlowingSandModifier(true, true);
+    expect(mod).not.toBeNull();
+    expect(mod!.name).toBe('Blowing Sand');
+    expect(mod!.value).toBe(1);
+    expect(mod!.source).toBe('environmental');
   });
 });
 
@@ -336,22 +361,43 @@ describe('calculateEnvironmentalModifiers', () => {
     expect(mods).toHaveLength(0);
   });
 
+  it('should default isEnergyWeapon to false when not specified', () => {
+    const conditions = createEnvironmentalConditions({ blowingSand: true });
+    const mods = calculateEnvironmentalModifiers(conditions);
+    expect(mods).toHaveLength(0);
+  });
+
+  it('should include blowing sand only for energy weapons', () => {
+    const conditions = createEnvironmentalConditions({ blowingSand: true });
+    const mods = calculateEnvironmentalModifiers(conditions, {
+      isEnergyWeapon: true,
+    });
+    expect(mods).toHaveLength(1);
+    expect(mods[0]).toMatchObject({
+      name: 'Blowing Sand',
+      value: 1,
+      source: 'environmental',
+    });
+  });
+
   it('should combine all modifiers including wind for missile weapons', () => {
     const conditions: IEnvironmentalConditions = {
       light: 'night',
       precipitation: 'snow',
       fog: 'light_fog',
+      blowingSand: true,
       wind: 'moderate',
       gravity: 1.0,
       atmosphere: 'standard',
       temperature: 'normal',
     };
     const mods = calculateEnvironmentalModifiers(conditions, {
+      isEnergyWeapon: true,
       isMissileWeapon: true,
     });
-    expect(mods).toHaveLength(4); // night + snow + fog + wind
+    expect(mods).toHaveLength(5); // night + snow + fog + sand + wind
     const total = mods.reduce((sum, m) => sum + m.value, 0);
-    expect(total).toBe(5); // +2 + +1 + +1 + +1
+    expect(total).toBe(6); // +2 + +1 + +1 + +1 + +1
   });
 });
 
