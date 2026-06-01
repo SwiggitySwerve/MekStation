@@ -547,6 +547,7 @@ export function declareAttack(
       undefined,
       weapons.some((weapon) => weapon.calledShot === true),
       weapons.some((weapon) => weapon.teammateCalledShot === true),
+      false,
     ),
     buildWeaponAttackTargetToHitState(targetUnit, false),
     rangeBracket,

@@ -174,16 +174,16 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 120,
+      total: 119,
       byLevel: {
-        'helper-only': 103,
+        'helper-only': 102,
         unsupported: 17,
       },
       bySection: {
         damageAndDeath: 2,
         featureSupport: 73,
         lifecycleAndPsr: 2,
-        pilotSkills: 17,
+        pilotSkills: 16,
         ruleSupport: 9,
         validationScope: 17,
       },
@@ -275,6 +275,9 @@ describe('BattleMech combat validation catalog index', () => {
     );
     expect(unresolvedRefs).not.toContain(
       'pilotSkills.pilotModifierResolvers.physical-action-count-application',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'pilotSkills.pilotModifierResolvers.called-shot-application',
     );
     const unsupportedRefs = unresolvedRows
       .filter((row) => row.level === 'unsupported')
