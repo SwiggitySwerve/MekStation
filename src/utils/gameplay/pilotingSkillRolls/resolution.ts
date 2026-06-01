@@ -143,18 +143,22 @@ export function calculatePSRModifiers(
   options: IPSRResolutionOptions = {},
 ): readonly IPSRModifier[] {
   const modifiers: IPSRModifier[] = [];
+  const landingSpecificDamageModifiers =
+    usesAirMekLandingSpecificDamageModifiers(psr);
 
-  const gyroModifier = gyroPsrModifierForType(
-    componentDamage,
-    options.gyroType,
-    { optionalRules: options.optionalRules },
-  );
-  if (gyroModifier !== 0) {
-    modifiers.push({
-      name: gyroPsrModifierName(options.gyroType),
-      value: gyroModifier,
-      source: 'gyro',
-    });
+  if (!landingSpecificDamageModifiers) {
+    const gyroModifier = gyroPsrModifierForType(
+      componentDamage,
+      options.gyroType,
+      { optionalRules: options.optionalRules },
+    );
+    if (gyroModifier !== 0) {
+      modifiers.push({
+        name: gyroPsrModifierName(options.gyroType),
+        value: gyroModifier,
+        source: 'gyro',
+      });
+    }
   }
 
   // Pilot wounds: +1 per wound
@@ -166,35 +170,37 @@ export function calculatePSRModifiers(
     });
   }
 
-  // Leg actuator damage modifiers
-  const actuators = componentDamage.actuators;
-  if (actuators[ActuatorType.HIP]) {
-    modifiers.push({
-      name: 'Hip actuator destroyed',
-      value: 2,
-      source: 'actuator',
-    });
-  }
-  if (actuators[ActuatorType.UPPER_LEG]) {
-    modifiers.push({
-      name: 'Upper leg actuator destroyed',
-      value: 1,
-      source: 'actuator',
-    });
-  }
-  if (actuators[ActuatorType.LOWER_LEG]) {
-    modifiers.push({
-      name: 'Lower leg actuator destroyed',
-      value: 1,
-      source: 'actuator',
-    });
-  }
-  if (actuators[ActuatorType.FOOT]) {
-    modifiers.push({
-      name: 'Foot actuator destroyed',
-      value: 1,
-      source: 'actuator',
-    });
+  if (!landingSpecificDamageModifiers) {
+    // Leg actuator damage modifiers
+    const actuators = componentDamage.actuators;
+    if (actuators[ActuatorType.HIP]) {
+      modifiers.push({
+        name: 'Hip actuator destroyed',
+        value: 2,
+        source: 'actuator',
+      });
+    }
+    if (actuators[ActuatorType.UPPER_LEG]) {
+      modifiers.push({
+        name: 'Upper leg actuator destroyed',
+        value: 1,
+        source: 'actuator',
+      });
+    }
+    if (actuators[ActuatorType.LOWER_LEG]) {
+      modifiers.push({
+        name: 'Lower leg actuator destroyed',
+        value: 1,
+        source: 'actuator',
+      });
+    }
+    if (actuators[ActuatorType.FOOT]) {
+      modifiers.push({
+        name: 'Foot actuator destroyed',
+        value: 1,
+        source: 'actuator',
+      });
+    }
   }
 
   // PSR-specific additional modifier (e.g., DFA miss +4)
@@ -207,4 +213,11 @@ export function calculatePSRModifiers(
   }
 
   return modifiers;
+}
+
+function usesAirMekLandingSpecificDamageModifiers(psr: IPendingPSR): boolean {
+  return (
+    psr.reasonCode === PSRTrigger.AirMekLanding ||
+    psr.triggerSource === PSRTrigger.AirMekLanding
+  );
 }

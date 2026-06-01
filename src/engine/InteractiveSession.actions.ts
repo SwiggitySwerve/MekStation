@@ -27,6 +27,7 @@ import type {
   IIndirectFireResolution,
   WeaponFireMode,
 } from '@/types/gameplay/IndirectFireInterfaces';
+import type { D6Roller } from '@/utils/gameplay/diceTypes';
 import type { DiceRoller } from '@/utils/gameplay/diceTypes';
 
 import { getHeatMovementPenalty } from '@/constants/heat';
@@ -48,6 +49,7 @@ import {
   INDIRECT_FIRE_AIRBORNE_TARGET_REJECTION,
   groundToAirIndirectWeaponBlockedReason,
 } from '@/utils/gameplay/aerospace/groundToAir';
+import { applyAirMekLandingControlPSR } from '@/utils/gameplay/airMekLandingPsr';
 import {
   determineArc,
   firingArcProjectionLabel,
@@ -93,6 +95,8 @@ import {
   resolveRuntimeMovementCapability,
   validateCommittedMovement,
 } from '@/utils/gameplay/movement';
+import { pendingAltitudeControlMovementCost } from '@/utils/gameplay/movement/altitudeControlAccounting';
+import { automaticWigeLandingRuntimePatch } from '@/utils/gameplay/movement/automaticWigeLanding';
 import { pendingConversionMovementCost } from '@/utils/gameplay/movement/conversionAccounting';
 import { getWeaponRangeBracket } from '@/utils/gameplay/range';
 import {
@@ -162,6 +166,7 @@ export function applyInteractiveSessionMovement(
 
   const from = unit.position;
   const pendingConversion = pendingConversionMovementCost(unit);
+  const pendingAltitudeControl = pendingAltitudeControlMovementCost(unit);
   const gridWithOccupants = gridWithUnitOccupants(
     input.grid,
     input.session.currentState.units,
@@ -336,6 +341,8 @@ export function applyInteractiveSessionMovement(
           standUpMode,
           conversionStepCount: pendingConversion.stepCount,
           conversionMpCost: pendingConversion.mpCost,
+          altitudeControlStepCount: pendingAltitudeControl.stepCount,
+          altitudeControlMpCost: pendingAltitudeControl.mpCost,
         },
       );
       session = lockMovement(session, input.unitId);
@@ -360,8 +367,29 @@ export function applyInteractiveSessionMovement(
       hullDownExitAttempt,
       conversionStepCount: pendingConversion.stepCount,
       conversionMpCost: pendingConversion.mpCost,
+      altitudeControlStepCount: pendingAltitudeControl.stepCount,
+      altitudeControlMpCost: pendingAltitudeControl.mpCost,
     },
   );
+  const automaticLandingPatch = automaticWigeLandingRuntimePatch(
+    unit,
+    input.movementType,
+    validation.path,
+    input.to,
+    { movementMode: movementCapability?.movementMode },
+  );
+  if (automaticLandingPatch) {
+    session = appendEvent(
+      session,
+      createRuntimeMovementStateChangedEvent(
+        session.id,
+        session.events.length,
+        session.currentState.turn,
+        input.unitId,
+        automaticLandingPatch,
+      ),
+    );
+  }
   session = lockMovement(session, input.unitId);
   return session;
 }
@@ -370,6 +398,8 @@ export interface IApplyRuntimeMovementStateInput {
   readonly session: IGameSession;
   readonly unitId: string;
   readonly patch: Omit<IRuntimeMovementStateChangedPayload, 'unitId'>;
+  readonly diceRoller?: D6Roller;
+  readonly tonnageByUnit?: ReadonlyMap<string, number>;
 }
 
 export function applyInteractiveSessionRuntimeMovementState(
@@ -379,7 +409,7 @@ export function applyInteractiveSessionRuntimeMovementState(
     return input.session;
   }
 
-  return appendEvent(
+  const session = appendEvent(
     input.session,
     createRuntimeMovementStateChangedEvent(
       input.session.id,
@@ -388,6 +418,13 @@ export function applyInteractiveSessionRuntimeMovementState(
       input.unitId,
       input.patch,
     ),
+  );
+  return applyAirMekLandingControlPSR(
+    session,
+    input.unitId,
+    input.patch,
+    input.diceRoller,
+    input.tonnageByUnit?.get(input.unitId),
   );
 }
 

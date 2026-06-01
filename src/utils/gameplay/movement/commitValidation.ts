@@ -15,6 +15,11 @@ import { representedUnitImmobileReason } from '@/utils/gameplay/unitImmobility';
 import { isOccupied } from '../hexGrid';
 import { hexDistance, hexEquals } from '../hexMath';
 import {
+  hasPendingAltitudeControlMovementCost,
+  pendingAltitudeControlMovementCost,
+  type IPendingAltitudeControlMovementCost,
+} from './altitudeControlAccounting';
+import {
   getMaxMP,
   getMovementStepCostBreakdown,
   getPavementRoadBonusMP,
@@ -116,10 +121,13 @@ export function validateCommittedMovement(
     ? getStandingCost(capability, standUpMode)
     : getHullDownExitCost(input.unit, capability, input.movementType);
   const pendingConversion = pendingConversionMovementCost(input.unit);
-  const reservedCost = standingCost + pendingConversion.mpCost;
+  const pendingAltitudeControl = pendingAltitudeControlMovementCost(input.unit);
+  const reservedCost =
+    standingCost + pendingConversion.mpCost + pendingAltitudeControl.mpCost;
   const reservedCostLabel = movementReservedCostLabel(
     standingCost,
     pendingConversion,
+    pendingAltitudeControl,
   );
   if (
     input.unit.prone &&
@@ -227,6 +235,7 @@ export function validateCommittedMovement(
       capability,
       standingCost,
       pendingConversionCost: pendingConversion.mpCost,
+      pendingAltitudeControlCost: pendingAltitudeControl.mpCost,
       optionalRules: input.optionalRules,
     });
     if (directBlockedStep) {
@@ -253,7 +262,7 @@ export function validateCommittedMovement(
     input.movementType !== MovementType.Jump &&
     input.movementType !== MovementType.Stationary &&
     hexEquals(from, input.to)
-      ? standingCost
+      ? reservedCost
       : validation.mpCost;
   let heatGenerated = validation.heatGenerated;
   let committedPath: readonly IHexCoordinate[] | undefined;
@@ -314,6 +323,7 @@ function directTerrainBlockedStep(input: {
   readonly capability: IMovementCapability;
   readonly standingCost?: number;
   readonly pendingConversionCost?: number;
+  readonly pendingAltitudeControlCost?: number;
   readonly optionalRules?: readonly string[] | undefined;
 }): { readonly blockedReason: string; readonly mpCost: number } | null {
   if (input.movementType === MovementType.Jump) return null;
@@ -342,18 +352,23 @@ function directTerrainBlockedStep(input: {
     mpCost:
       step.mpCost +
       (input.standingCost ?? 0) +
-      (input.pendingConversionCost ?? 0),
+      (input.pendingConversionCost ?? 0) +
+      (input.pendingAltitudeControlCost ?? 0),
   };
 }
 
 function movementReservedCostLabel(
   standingCost: number,
   pendingConversion: IPendingConversionMovementCost,
+  pendingAltitudeControl: IPendingAltitudeControlMovementCost,
 ): string {
   const parts: string[] = [];
   if (standingCost > 0) parts.push('stand-up');
   if (hasPendingConversionMovementCost(pendingConversion)) {
     parts.push('conversion');
+  }
+  if (hasPendingAltitudeControlMovementCost(pendingAltitudeControl)) {
+    parts.push('altitude control');
   }
   return parts.join(' and ');
 }

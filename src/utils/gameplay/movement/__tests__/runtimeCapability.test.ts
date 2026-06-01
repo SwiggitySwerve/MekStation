@@ -9,6 +9,7 @@ import {
   type IUnitGameState,
 } from '@/types/gameplay';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
 import {
   AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON,
@@ -17,9 +18,11 @@ import {
   AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON,
   DESTROYED_GYRO_NON_TRACKED_MOVEMENT_BLOCKED_REASON,
   resolveRuntimeMovementCapability,
+  runtimeMovementAltitudeControlContext,
   runtimeMovementProjectionBlockedReason,
   runtimeUnitHeightForMovement,
 } from '@/utils/gameplay/movement/runtimeCapability';
+import { createProtoMechCombatState } from '@/utils/gameplay/protomech/state';
 import { createVehicleCombatState } from '@/utils/gameplay/vehicleDamage';
 
 function unitState(overrides: Partial<IUnitGameState> = {}): IUnitGameState {
@@ -237,6 +240,37 @@ describe('runtime movement capability', () => {
         'wige',
       ),
     ).toBeUndefined();
+
+    const elevatedAirMek = unitState({
+      conversionMode: 'airmek',
+      lamAirMekAltitude: 2,
+    });
+
+    expect(
+      runtimeMovementProjectionBlockedReason(
+        elevatedAirMek,
+        capability,
+        'wige',
+      ),
+    ).toBeUndefined();
+    expect(runtimeMovementAltitudeControlContext(elevatedAirMek)).toMatchObject(
+      {
+        altitudeControlRequired: true,
+        altitudeControlMode: 'wige',
+        altitudeControlAltitude: 2,
+        blockedReason: AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON,
+      },
+    );
+    expect(
+      runtimeMovementAltitudeControlContext(
+        unitState({ conversionMode: 'airmek', lamAirMekAltitude: 0 }),
+      ),
+    ).toBeUndefined();
+    expect(
+      runtimeMovementAltitudeControlContext(
+        unitState({ conversionMode: 'mek', lamAirMekAltitude: 2 }),
+      ),
+    ).toBeUndefined();
   });
 
   it('blocks represented airborne VTOL and WiGE vehicles from ground movement projection fallback', () => {
@@ -293,7 +327,15 @@ describe('runtime movement capability', () => {
           capability,
           movementMode,
         ),
-      ).toBe(reason);
+      ).toBe(movementMode === 'wige' ? undefined : reason);
+      expect(
+        runtimeMovementAltitudeControlContext(airborneVehicle),
+      ).toMatchObject({
+        altitudeControlRequired: true,
+        altitudeControlMode: movementMode,
+        altitudeControlAltitude: 2,
+        blockedReason: reason,
+      });
       expect(
         runtimeMovementProjectionBlockedReason(
           landedVehicle,
@@ -301,7 +343,79 @@ describe('runtime movement capability', () => {
           movementMode,
         ),
       ).toBeUndefined();
+      expect(
+        runtimeMovementAltitudeControlContext(landedVehicle),
+      ).toBeUndefined();
     }
+  });
+
+  it('surfaces airborne ProtoMek Gliders as WiGE altitude-control owners', () => {
+    const capability: IMovementCapability = {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 0,
+      movementMode: 'wige',
+    };
+    const airborneGlider = unitState({
+      combatState: {
+        kind: 'proto',
+        state: createProtoMechCombatState({
+          unitId: 'unit',
+          chassisType: ProtoChassis.GLIDER,
+          hasMainGun: false,
+          armorByLocation: {},
+          structureByLocation: {},
+          altitude: 2,
+        }),
+      },
+    });
+    const groundedGlider = unitState({
+      combatState: {
+        kind: 'proto',
+        state: createProtoMechCombatState({
+          unitId: 'unit',
+          chassisType: ProtoChassis.GLIDER,
+          hasMainGun: false,
+          armorByLocation: {},
+          structureByLocation: {},
+          altitude: 0,
+        }),
+      },
+    });
+    const airborneBiped = unitState({
+      combatState: {
+        kind: 'proto',
+        state: createProtoMechCombatState({
+          unitId: 'unit',
+          chassisType: ProtoChassis.BIPED,
+          hasMainGun: false,
+          armorByLocation: {},
+          structureByLocation: {},
+          altitude: 2,
+        }),
+      },
+    });
+
+    expect(
+      runtimeMovementProjectionBlockedReason(
+        airborneGlider,
+        capability,
+        'wige',
+      ),
+    ).toBeUndefined();
+    expect(runtimeMovementAltitudeControlContext(airborneGlider)).toMatchObject(
+      {
+        altitudeControlRequired: true,
+        altitudeControlMode: 'wige',
+        altitudeControlAltitude: 2,
+      },
+    );
+    expect(
+      runtimeMovementAltitudeControlContext(groundedGlider),
+    ).toBeUndefined();
+    expect(
+      runtimeMovementAltitudeControlContext(airborneBiped),
+    ).toBeUndefined();
   });
 
   it('uses represented airborne vehicle motion type when movement capability motive is stale', () => {

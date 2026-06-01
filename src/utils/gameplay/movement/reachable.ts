@@ -42,6 +42,13 @@ import { hexDistance, hexEquals, hexesInRange } from '@/utils/gameplay/hexMath';
 import { representedUnitImmobileReason } from '@/utils/gameplay/unitImmobility';
 
 import {
+  formatPendingAltitudeControlCost,
+  pendingAltitudeControlMovementCost,
+  withPendingAltitudeControlProjection,
+  type IPendingAltitudeControlMovementCost,
+} from './altitudeControlAccounting';
+import { withAutomaticWigeLandingProjection } from './automaticWigeLanding';
+import {
   calculatePathMovementCost,
   getJumpClearanceBlockedReason,
   getJumpElevationBlockedReason,
@@ -71,6 +78,7 @@ import {
   outOfBoundsRangeHex,
 } from './rangeHexProjection';
 import {
+  runtimeMovementAltitudeControlContext,
   resolveRuntimeMovementCapability,
   runtimeMovementProjectionBlockedReason,
 } from './runtimeCapability';
@@ -128,7 +136,9 @@ export function deriveReachableHexes(
       ? getStandingCost(capability, standUpMode)
       : getHullDownExitCost(unit, capability, mpType);
   const pendingConversion = pendingConversionMovementCost(unit);
-  const reservedCost = standingCost + pendingConversion.mpCost;
+  const pendingAltitudeControl = pendingAltitudeControlMovementCost(unit);
+  const reservedCost =
+    standingCost + pendingConversion.mpCost + pendingAltitudeControl.mpCost;
   const pathBudget = Math.max(0, mp - reservedCost);
   const candidateRange =
     mpType === MovementType.Jump
@@ -178,6 +188,9 @@ function runtimeBlockedRangeHex(params: {
   readonly movementMode: string;
   readonly reason: string;
   readonly heatGenerated: number;
+  readonly altitudeControlRequired?: boolean;
+  readonly altitudeControlMode?: 'vtol' | 'wige';
+  readonly altitudeControlAltitude?: number;
 }): IMovementRangeHex {
   return {
     hex: params.hex,
@@ -193,6 +206,9 @@ function runtimeBlockedRangeHex(params: {
     blockedReason: params.reason,
     movementInvalidReason: 'InvalidDestination',
     movementInvalidDetails: params.reason,
+    altitudeControlRequired: params.altitudeControlRequired,
+    altitudeControlMode: params.altitudeControlMode,
+    altitudeControlAltitude: params.altitudeControlAltitude,
   };
 }
 
@@ -227,12 +243,23 @@ function withPostureProjection(
 function formatReservedMovementCostReason(
   standingCost: number,
   pendingConversion: IPendingConversionMovementCost,
+  pendingAltitudeControl: IPendingAltitudeControlMovementCost,
   postureAction: string,
 ): string {
   const parts: string[] = [];
   if (pendingConversion.stepCount > 0 || pendingConversion.mpCost > 0) {
     parts.push(
       `conversion (${formatPendingConversionCost(pendingConversion)})`,
+    );
+  }
+  if (
+    pendingAltitudeControl.stepCount > 0 ||
+    pendingAltitudeControl.mpCost > 0
+  ) {
+    parts.push(
+      `altitude control (${formatPendingAltitudeControlCost(
+        pendingAltitudeControl,
+      )})`,
     );
   }
   if (standingCost > 0) parts.push(`${postureAction} (${standingCost} MP)`);
@@ -242,11 +269,18 @@ function formatReservedMovementCostReason(
 function formatReservedMovementAfterLabel(
   standingCost: number,
   pendingConversion: IPendingConversionMovementCost,
+  pendingAltitudeControl: IPendingAltitudeControlMovementCost,
   postureAfterLabel: string,
 ): string {
   const parts: string[] = [];
   if (pendingConversion.stepCount > 0 || pendingConversion.mpCost > 0) {
     parts.push('conversion');
+  }
+  if (
+    pendingAltitudeControl.stepCount > 0 ||
+    pendingAltitudeControl.mpCost > 0
+  ) {
+    parts.push('altitude control');
   }
   if (standingCost > 0) parts.push(postureAfterLabel);
   return parts.join(' and ');
@@ -255,11 +289,18 @@ function formatReservedMovementAfterLabel(
 function formatReservedMovementNoun(
   standingCost: number,
   pendingConversion: IPendingConversionMovementCost,
+  pendingAltitudeControl: IPendingAltitudeControlMovementCost,
   postureNoun: string,
 ): string {
   const parts: string[] = [];
   if (pendingConversion.stepCount > 0 || pendingConversion.mpCost > 0) {
     parts.push('conversion');
+  }
+  if (
+    pendingAltitudeControl.stepCount > 0 ||
+    pendingAltitudeControl.mpCost > 0
+  ) {
+    parts.push('altitude control');
   }
   if (standingCost > 0) parts.push(postureNoun);
   return parts.join(' and ');
@@ -306,11 +347,16 @@ export function deriveMovementRangeHexForDestination(
     ? getStandingCost(capability, standUpMode)
     : getHullDownExitCost(unit, capability, mpType);
   const pendingConversion = pendingConversionMovementCost(unit);
-  const reservedCost = standingCost + pendingConversion.mpCost;
-  const withConversionProjection = (
+  const pendingAltitudeControl = pendingAltitudeControlMovementCost(unit);
+  const reservedCost =
+    standingCost + pendingConversion.mpCost + pendingAltitudeControl.mpCost;
+  const withReservedProjection = (
     movementHex: IMovementRangeHex,
   ): IMovementRangeHex =>
-    withPendingConversionProjection(movementHex, pendingConversion);
+    withPendingAltitudeControlProjection(
+      withPendingConversionProjection(movementHex, pendingConversion),
+      pendingAltitudeControl,
+    );
   const hullDownExitProjection = deriveHullDownExitProjection(
     unit,
     capability,
@@ -325,16 +371,19 @@ export function deriveMovementRangeHexForDestination(
   const reservedCostReason = formatReservedMovementCostReason(
     standingCost,
     pendingConversion,
+    pendingAltitudeControl,
     postureAction,
   );
   const reservedAfterLabel = formatReservedMovementAfterLabel(
     standingCost,
     pendingConversion,
+    pendingAltitudeControl,
     postureAfterLabel,
   );
   const reservedNoun = formatReservedMovementNoun(
     standingCost,
     pendingConversion,
+    pendingAltitudeControl,
     postureNoun,
   );
   const pathBudget = mp - reservedCost;
@@ -344,7 +393,7 @@ export function deriveMovementRangeHexForDestination(
       : pathBudget + getPavementRoadBonusMP(movementMode, costContext);
   const immobileReason = representedUnitImmobileReason(unit);
   if (immobileReason) {
-    return withConversionProjection(
+    return withReservedProjection(
       immobileMovementRangeHex({
         grid,
         origin,
@@ -363,7 +412,8 @@ export function deriveMovementRangeHexForDestination(
     ruleOptions,
   );
   if (runtimeBlockedReason) {
-    return withConversionProjection(
+    const altitudeControlContext = runtimeMovementAltitudeControlContext(unit);
+    return withReservedProjection(
       runtimeBlockedRangeHex({
         origin,
         hex,
@@ -371,6 +421,11 @@ export function deriveMovementRangeHexForDestination(
         movementMode,
         reason: runtimeBlockedReason,
         heatGenerated: 0,
+        altitudeControlRequired:
+          altitudeControlContext?.altitudeControlRequired,
+        altitudeControlMode: altitudeControlContext?.altitudeControlMode,
+        altitudeControlAltitude:
+          altitudeControlContext?.altitudeControlAltitude,
       }),
     );
   }
@@ -383,7 +438,7 @@ export function deriveMovementRangeHexForDestination(
   );
 
   if (!isInBounds(grid, hex)) {
-    return withConversionProjection(
+    return withReservedProjection(
       withPostureProjection(
         outOfBoundsRangeHex({
           hex,
@@ -399,7 +454,7 @@ export function deriveMovementRangeHexForDestination(
   }
 
   if (!hexEquals(origin, hex) && isOccupied(grid, hex)) {
-    return withConversionProjection(
+    return withReservedProjection(
       withPostureProjection(
         occupiedRangeHex({
           grid,
@@ -418,7 +473,7 @@ export function deriveMovementRangeHexForDestination(
 
   if (mpType === MovementType.Jump && capability.jumpMP <= 0) {
     const details = 'Unit cannot jump (no jump jets)';
-    return withConversionProjection({
+    return withReservedProjection({
       hex,
       mpCost: reservedCost,
       terrainCost: 0,
@@ -437,7 +492,7 @@ export function deriveMovementRangeHexForDestination(
 
   if (unit.prone && standUpMode === 'careful') {
     const details = 'Careful stand consumes the movement for this turn';
-    return withConversionProjection({
+    return withReservedProjection({
       hex,
       mpCost: reservedCost,
       terrainCost: undefined,
@@ -457,7 +512,7 @@ export function deriveMovementRangeHexForDestination(
 
   if (unit.prone && mpType === MovementType.Jump) {
     const details = 'Unit is prone and must stand before jumping';
-    return withConversionProjection({
+    return withReservedProjection({
       hex,
       mpCost: reservedCost,
       terrainCost: 0,
@@ -477,9 +532,12 @@ export function deriveMovementRangeHexForDestination(
 
   if (unit.hullDown && !unit.prone && mpType === MovementType.Jump) {
     const details = 'Unit is hull-down and must stand before jumping';
-    return withConversionProjection({
+    return withReservedProjection({
       hex,
-      mpCost: getStandingCost(capability) + pendingConversion.mpCost,
+      mpCost:
+        getStandingCost(capability) +
+        pendingConversion.mpCost +
+        pendingAltitudeControl.mpCost,
       terrainCost: 0,
       elevationDelta: getJumpElevationDelta(grid, origin, hex),
       elevationCost: 0,
@@ -496,7 +554,7 @@ export function deriveMovementRangeHexForDestination(
 
   if (standUpProjection.standUpPsrImpossibleReason) {
     const details = standUpProjection.standUpPsrImpossibleReason;
-    return withConversionProjection({
+    return withReservedProjection({
       hex,
       mpCost: reservedCost,
       terrainCost: undefined,
@@ -516,7 +574,7 @@ export function deriveMovementRangeHexForDestination(
 
   if (reservedCost > mp) {
     const details = `Unit needs ${reservedCost} MP for ${reservedCostReason}, but max range for ${mpType} is ${mp}`;
-    return withConversionProjection({
+    return withReservedProjection({
       hex,
       mpCost: reservedCost,
       terrainCost: mpType === MovementType.Jump ? 0 : undefined,
@@ -540,7 +598,7 @@ export function deriveMovementRangeHexForDestination(
 
   if (mp <= 0) {
     const details = `Destination is ${dist} hexes away, but max range for ${mpType} is ${mp}`;
-    return withConversionProjection({
+    return withReservedProjection({
       hex,
       mpCost: dist + reservedCost,
       terrainCost: mpType === MovementType.Jump ? 0 : undefined,
@@ -563,7 +621,7 @@ export function deriveMovementRangeHexForDestination(
   if (dist > maxPathCost) {
     if (reservedCost > 0) {
       const details = `Destination is ${dist} hexes away, but max range for ${mpType} after ${reservedAfterLabel} is ${maxPathCost}`;
-      return withConversionProjection({
+      return withReservedProjection({
         hex,
         mpCost: dist + reservedCost,
         terrainCost: undefined,
@@ -581,7 +639,7 @@ export function deriveMovementRangeHexForDestination(
         ...hullDownExitProjection,
       });
     }
-    return withConversionProjection(
+    return withReservedProjection(
       insufficientMpRangeHex({
         grid,
         origin,
@@ -607,7 +665,7 @@ export function deriveMovementRangeHexForDestination(
       blockedReason ??
       getJumpClearanceBlockedReason(grid, origin, hex, pathBudget);
     if (clearanceBlockedReason) {
-      return withConversionProjection({
+      return withReservedProjection({
         hex,
         mpCost: dist + reservedCost,
         elevationDelta,
@@ -624,18 +682,23 @@ export function deriveMovementRangeHexForDestination(
       });
     }
 
-    return withConversionProjection({
-      hex,
-      mpCost: dist + reservedCost,
-      elevationDelta,
-      elevationCost: 0,
-      terrainCost: 0,
-      path: [origin, hex],
-      heatGenerated,
-      movementMode,
-      reachable: true,
-      movementType: MovementType.Jump,
-    });
+    return withReservedProjection(
+      withAutomaticWigeLandingProjection(
+        {
+          hex,
+          mpCost: dist + reservedCost,
+          elevationDelta,
+          elevationCost: 0,
+          terrainCost: 0,
+          path: [origin, hex],
+          heatGenerated,
+          movementMode,
+          reachable: true,
+          movementType: MovementType.Jump,
+        },
+        unit,
+      ),
+    );
   }
 
   const path =
@@ -657,7 +720,7 @@ export function deriveMovementRangeHexForDestination(
       costContext,
     });
     if (blockedProjection.movementInvalidReason === 'TerrainBlocked') {
-      return withConversionProjection(
+      return withReservedProjection(
         withPostureProjection(
           blockedProjection,
           standUpProjection,
@@ -675,7 +738,7 @@ export function deriveMovementRangeHexForDestination(
       costContext,
     );
     if (diagnosticPath && diagnosticPath.length > 0) {
-      return withConversionProjection(
+      return withReservedProjection(
         withPostureProjection(
           overBudgetRangeHex({
             grid,
@@ -695,7 +758,7 @@ export function deriveMovementRangeHexForDestination(
       );
     }
 
-    return withConversionProjection(
+    return withReservedProjection(
       withPostureProjection(
         blockedProjection,
         standUpProjection,
@@ -718,7 +781,7 @@ export function deriveMovementRangeHexForDestination(
       reservedCost > 0
         ? `Path costs ${cost} MP including ${reservedNoun}, but only ${maxTotalCost} MP is available`
         : `Path costs ${cost} MP, but only ${maxPathCost} MP is available`;
-    return withConversionProjection({
+    return withReservedProjection({
       hex,
       mpCost: cost,
       terrainCost: finalStep?.terrainCost,
@@ -738,18 +801,23 @@ export function deriveMovementRangeHexForDestination(
   }
   const finalStep = finalStepCost(grid, path, movementMode, costContext);
 
-  return withConversionProjection({
-    hex,
-    mpCost: cost,
-    terrainCost: finalStep?.terrainCost,
-    elevationDelta: finalStep?.elevationDelta,
-    elevationCost: finalStep?.elevationCost,
-    path,
-    heatGenerated,
-    movementMode,
-    reachable: true,
-    movementType: mpType,
-    ...standUpProjection,
-    ...hullDownExitProjection,
-  });
+  return withReservedProjection(
+    withAutomaticWigeLandingProjection(
+      {
+        hex,
+        mpCost: cost,
+        terrainCost: finalStep?.terrainCost,
+        elevationDelta: finalStep?.elevationDelta,
+        elevationCost: finalStep?.elevationCost,
+        path,
+        heatGenerated,
+        movementMode,
+        reachable: true,
+        movementType: mpType,
+        ...standUpProjection,
+        ...hullDownExitProjection,
+      },
+      unit,
+    ),
+  );
 }
