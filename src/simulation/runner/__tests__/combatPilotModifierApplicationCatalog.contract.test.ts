@@ -1271,8 +1271,9 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       gap: expect.stringContaining('wake-up'),
     });
     expect(SPA_COMBAT_SUPPORT.toughness).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('numeric crew toughness'),
+      level: 'helper-only',
+      evidence: expect.stringContaining('explicit numeric pilotToughness'),
+      gap: expect.stringContaining('Automatic RPG Toughness'),
     });
     expect(SPA_COMBAT_SUPPORT['iron-will']).toMatchObject({
       level: 'unsupported',
