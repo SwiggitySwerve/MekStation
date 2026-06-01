@@ -176,8 +176,8 @@ describe('BattleMech combat validation catalog index', () => {
     }).toEqual({
       total: 93,
       byLevel: {
-        'helper-only': 89,
-        unsupported: 4,
+        'helper-only': 85,
+        unsupported: 8,
       },
       bySection: {
         damageAndDeath: 2,
@@ -377,6 +377,24 @@ describe('BattleMech combat validation catalog index', () => {
     expect(unresolvedRefs).not.toContain(
       'featureSupport.pilotAbilities.terrain-master',
     );
+    expect(unsupportedRefs).toEqual(
+      expect.arrayContaining([
+        'featureSupport.canonicalPilotAbilityScope.edge_when_headhit',
+        'featureSupport.canonicalPilotAbilityScope.edge_when_tac',
+        'featureSupport.canonicalPilotAbilityScope.edge_when_ko',
+        'featureSupport.canonicalPilotAbilityScope.edge_when_explosion',
+      ]),
+    );
+    for (const edgeRef of [
+      'featureSupport.canonicalPilotAbilityScope.edge_when_headhit',
+      'featureSupport.canonicalPilotAbilityScope.edge_when_tac',
+      'featureSupport.canonicalPilotAbilityScope.edge_when_ko',
+      'featureSupport.canonicalPilotAbilityScope.edge_when_explosion',
+    ]) {
+      expect(unresolvedRows.find((row) => row.ref === edgeRef)?.level).toBe(
+        'unsupported',
+      );
+    }
     expect(unsupportedRefs).toContain(
       'featureSupport.canonicalPilotAbilityScope.tm_nightwalker',
     );
