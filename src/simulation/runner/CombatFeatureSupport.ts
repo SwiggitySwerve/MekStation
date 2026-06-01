@@ -559,10 +559,10 @@ export const SPA_COMBAT_SUPPORT = {
     'calculateGunnerySpecialistModifier + calculateAttackerSPAModifiers',
     MEGAMEK_GUNNERY_SPECIALIST_SOURCE_REFS,
   ),
-  marksman: helperOnly(
+  marksman: outOfScope(
     'marksman',
     'getSharpshooterBonus plus calculateCalledShotModifier reduce called-shot penalties for the local Marksman helper',
-    'MegaMek source cross-check found TacOps called shots but not Marksman as a called-shot SPA',
+    'Marksman is a local called-shot helper, not a source-backed official BattleMech combat SPA; source-backed BattleMech called shots use TacOps +3 penalties without this local reduction',
     MEKSTATION_MARKSMAN_CALLED_SHOT_SOURCE_REFS,
   ),
   sniper: integrated(
@@ -606,10 +606,10 @@ export const SPA_COMBAT_SUPPORT = {
     'computeIndirectFireContext hydrates spotter abilities into resolveIndirectFire, cancels walked-spotter penalties, and emits IndirectFireForwardObserver audit events',
     MEGAMEK_FORWARD_OBSERVER_SOURCE_REFS,
   ),
-  sharpshooter: helperOnly(
+  sharpshooter: outOfScope(
     'sharpshooter',
     'getSharpshooterBonus plus calculateCalledShotModifier preserve the local legacy Sharpshooter alias for called-shot penalty reduction',
-    'Sharpshooter is not a canonical SPA id, and MegaMek keeps the Sharpshooter constant commented out',
+    'Sharpshooter is a local legacy called-shot helper alias, not a source-backed official BattleMech combat SPA; MegaMek keeps the Sharpshooter constant commented out and source-backed BattleMech called shots use TacOps +3 penalties',
     MEKSTATION_SHARPSHOOTER_CALLED_SHOT_SOURCE_REFS,
   ),
   'jumping-jack': integrated(
