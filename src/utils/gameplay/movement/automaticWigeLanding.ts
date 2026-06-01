@@ -27,6 +27,10 @@ export interface IAutomaticWigeLandingContext {
   readonly automaticLandingMinimumDistance: number;
 }
 
+interface IAutomaticWigeLandingOptions {
+  readonly movementMode?: string;
+}
+
 function normalizedAltitude(value: number | undefined): number {
   return value === undefined || !Number.isFinite(value)
     ? 0
@@ -83,18 +87,34 @@ function pathHexesMoved(
   return hexDistance(origin, destination);
 }
 
+function hexesMovedThisTurn(
+  unit: Pick<IUnitGameState, 'hexesMovedThisTurn'>,
+): number {
+  const moved = unit.hexesMovedThisTurn;
+  return moved === undefined || !Number.isFinite(moved)
+    ? 0
+    : Math.max(0, Math.floor(moved));
+}
+
+function isHoverExemptMovement(options: IAutomaticWigeLandingOptions): boolean {
+  return options.movementMode === 'hover';
+}
+
 export function automaticWigeLandingContext(
   unit: IUnitGameState,
   movementType: MovementType,
   path: readonly IHexCoordinate[] | undefined,
   destination: IHexCoordinate,
+  options: IAutomaticWigeLandingOptions = {},
 ): IAutomaticWigeLandingContext | undefined {
   const owner = automaticWigeLandingOwner(unit);
   if (!owner) return undefined;
   if (movementType === MovementType.Jump) return undefined;
+  if (isHoverExemptMovement(options)) return undefined;
   if (normalizedAltitudeControlSteps(unit) > 0) return undefined;
 
-  const distance = pathHexesMoved(unit.position, destination, path);
+  const distance =
+    hexesMovedThisTurn(unit) + pathHexesMoved(unit.position, destination, path);
   if (distance >= owner.minimumDistance) return undefined;
 
   return {
@@ -116,6 +136,7 @@ export function withAutomaticWigeLandingProjection(
     movementHex.movementType,
     movementHex.path,
     movementHex.hex,
+    { movementMode: movementHex.movementMode },
   );
   return context ? { ...movementHex, ...context } : movementHex;
 }
@@ -125,6 +146,7 @@ export function automaticWigeLandingRuntimePatch(
   movementType: MovementType,
   path: readonly IHexCoordinate[] | undefined,
   destination: IHexCoordinate,
+  options: IAutomaticWigeLandingOptions = {},
 ): Omit<IRuntimeMovementStateChangedPayload, 'unitId'> | undefined {
   const owner = automaticWigeLandingOwner(unit);
   const context = automaticWigeLandingContext(
@@ -132,6 +154,7 @@ export function automaticWigeLandingRuntimePatch(
     movementType,
     path,
     destination,
+    options,
   );
   if (!owner || !context) return undefined;
 
