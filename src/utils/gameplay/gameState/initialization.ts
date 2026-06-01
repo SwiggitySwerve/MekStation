@@ -229,6 +229,7 @@ export function createInitialUnitState(
   return {
     id: unit.id,
     unitType: unit.unitType,
+    ...(unit.tonnage !== undefined ? { tonnage: unit.tonnage } : {}),
     motionType: unit.motionType,
     isQuad: unit.isQuad,
     armsFlipped: unit.armsFlipped,
@@ -296,13 +297,18 @@ export function createInitialUnitState(
     destroyedEquipment: [],
     ammo: {},
     pilotWounds: 0,
+    pilotToughness: unit.pilotToughness,
     pilotConscious: true,
     destroyed: false,
     lockState: LockState.Pending,
     componentDamage: DEFAULT_COMPONENT_DAMAGE,
     prone: false,
+    isStuck: false,
     shutdown: false,
     ammoState,
+    ...(unit.armorTypeByLocation !== undefined
+      ? { armorTypeByLocation: unit.armorTypeByLocation }
+      : {}),
     ...(unit.caseProtection !== undefined
       ? { caseProtection: unit.caseProtection }
       : {}),

@@ -334,7 +334,7 @@ The Terrain Master: Forest Ranger SPA SHALL grant +1 enemy to-hit only when the 
 
 ### Requirement: Piloting SPA - Terrain Master: Swamp Beast
 
-The Terrain Master: Swamp Beast SPA SHALL grant +1 enemy to-hit only when the target owns `tm_swamp_beast`, moved by running, and occupies mud or swamp terrain. MegaMek's Swamp Beast bog-down PSR relief SHALL remain helper-only until MekStation has a bogged/stuck lifecycle state; it SHALL NOT be modeled as a normal failed-PSR fall.
+The Terrain Master: Swamp Beast SPA SHALL grant +1 enemy to-hit only when the target owns `tm_swamp_beast`, moved by running, and occupies mud or swamp terrain. MegaMek's Swamp Beast bog-down PSR relief SHALL apply as `-1` to swamp bog-down PSRs, and swamp bog-down SHALL resolve through `UnitStuck`/`isStuck` instead of a normal failed-PSR fall.
 
 #### Scenario: Swamp Beast running mud or swamp defense
 
@@ -348,11 +348,11 @@ The Terrain Master: Swamp Beast SPA SHALL grant +1 enemy to-hit only when the ta
 - **WHEN** the same pilot ran outside mud or swamp
 - **THEN** no Swamp Beast to-hit modifier SHALL apply
 
-#### Scenario: Swamp Beast bog-down relief remains explicit gap
+#### Scenario: Swamp Beast bog-down relief applies to stuck-state PSRs
 
 - **WHEN** a BattleMech with Terrain Master: Swamp Beast enters swamp
-- **THEN** the validation catalog SHALL mark bog-down relief as a source-backed stuck-state gap
-- **AND** the combat PSR resolver SHALL NOT apply a fake fall-causing swamp bog-down PSR
+- **THEN** the combat PSR resolver SHALL apply a `-1` Swamp Beast modifier to the swamp bog-down PSR
+- **AND** a failed swamp bog-down PSR SHALL mark the unit stuck instead of applying a fall outcome
 
 ### Requirement: Piloting SPA — Acrobat
 
@@ -408,26 +408,26 @@ The Tactical Genius SPA SHALL be modeled as an initiative reroll gate, not as a 
 
 ### Requirement: Misc SPA — Pain Resistance
 
-The Pain Resistance SPA SHALL allow the pilot to ignore the first wound's effects.
+The Pain Resistance SPA SHALL apply only to source-backed consciousness-roll and ammunition-explosion pilot-damage behavior. It SHALL NOT reduce ranged attack wound penalties or generic to-hit wound modifiers.
 
-#### Scenario: Pain Resistance ignores first wound
+#### Scenario: Pain Resistance does not reduce ranged wound penalties
 
-- **WHEN** a pilot with Pain Resistance has 1 wound
-- **THEN** the pilot wound to-hit modifier SHALL be 0 (first wound ignored)
+- **WHEN** a pilot with Pain Resistance has wounds during a ranged attack
+- **THEN** the ranged attack to-hit modifier SHALL use the raw wound penalty
 
-#### Scenario: Pain Resistance with multiple wounds
+#### Scenario: Pain Resistance applies to source-backed consciousness and explosion paths
 
-- **WHEN** a pilot with Pain Resistance has 3 wounds
-- **THEN** the pilot wound to-hit modifier SHALL be +2 (ignoring first wound: 3 - 1 = 2)
+- **WHEN** a pilot with Pain Resistance rolls for consciousness or takes ammunition-explosion pilot damage
+- **THEN** the supported combat path SHALL apply only the source-backed consciousness or explosion effect
 
 ### Requirement: Misc SPA — Iron Man
 
-The Iron Man SPA SHALL grant -2 to consciousness check target numbers.
+The Iron Man SPA SHALL reduce BattleMech ammunition-explosion pilot hits where that source-backed explosion path is wired. It SHALL NOT grant generic consciousness check target-number relief.
 
-#### Scenario: Iron Man consciousness check bonus
+#### Scenario: Iron Man is not generic consciousness relief
 
 - **WHEN** a pilot with Iron Man makes a consciousness check
-- **THEN** the consciousness check target number SHALL be reduced by 2
+- **THEN** the consciousness check target number SHALL NOT be reduced by Iron Man
 
 ### Requirement: Misc SPA — Hot Dog
 
@@ -471,12 +471,17 @@ The Edge SPA SHALL provide MegaMek-style trigger-based Edge options for BattleMe
 
 ### Requirement: Misc SPA — Toughness
 
-The Toughness SPA SHALL grant -1 to consciousness check target numbers.
+RPG Toughness SHALL be represented as explicit numeric `pilotToughness` combat state that lowers consciousness check target numbers by that nonnegative integer. A legacy Toughness ability string SHALL NOT imply RPG Toughness relief.
 
-#### Scenario: Toughness consciousness check bonus
+#### Scenario: Explicit RPG Toughness state lowers consciousness targets
 
-- **WHEN** a pilot with Toughness makes a consciousness check
+- **WHEN** a pilot with `pilotToughness=1` makes a consciousness check
 - **THEN** the consciousness check target number SHALL be reduced by 1
+
+#### Scenario: Legacy Toughness ability string is inert
+
+- **WHEN** a pilot has a `toughness` ability string without explicit `pilotToughness`
+- **THEN** the consciousness check target number SHALL NOT be reduced
 
 ### Requirement: Misc SPA — Cool Under Fire
 
@@ -527,12 +532,12 @@ The Multi-Target SPA SHALL reduce multi-target penalty.
 
 ### Requirement: Misc SPA — Iron Will
 
-The Iron Will SPA SHALL grant -2 to consciousness check target numbers (alias for Iron Man).
+The Iron Will SPA SHALL remain a local legacy alias boundary for BattleMech combat validation until source-backed behavior is represented. It SHALL NOT grant generic consciousness check target-number relief.
 
-#### Scenario: Iron Will consciousness check bonus
+#### Scenario: Iron Will is not generic consciousness relief
 
 - **WHEN** a pilot with Iron Will makes a consciousness check
-- **THEN** the consciousness check target number SHALL be reduced by 2
+- **THEN** the consciousness check target number SHALL NOT be reduced by Iron Will
 
 ### Requirement: Piloting SPA — Heavy Lifter
 
@@ -556,12 +561,13 @@ The Shaky Stick SPA SHALL apply as a source-backed ground-to-air defender to-hit
 
 ### Requirement: Piloting SPA — Animal Mimicry
 
-The Animal Mimicry SPA SHALL grant -1 PSR modifier in specific terrain.
+The Animal Mimicry SPA SHALL grant a -1 PSR modifier to explicit quad BattleMechs.
 
-#### Scenario: Animal Mimicry terrain bonus
+#### Scenario: Animal Mimicry quad-Mek bonus
 
-- **WHEN** a pilot with Animal Mimicry makes a PSR in their designated terrain
+- **WHEN** a quad BattleMech pilot with Animal Mimicry makes a PSR
 - **THEN** the PSR SHALL receive a -1 modifier
+- **AND** non-quad units SHALL NOT receive the Animal Mimicry modifier
 
 ### Requirement: Tactical SPA — Antagonizer
 

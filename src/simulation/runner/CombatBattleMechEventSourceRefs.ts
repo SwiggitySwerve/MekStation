@@ -2,6 +2,8 @@ import { GameEventType } from '@/types/gameplay';
 
 import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
 
+import { BATTLEMECH_SPOTTING_EVENT_SOURCE_REFS } from './CombatSpottingSourceRefs';
+
 const MEKSTATION_SOURCE_VERSION = 'MekStation working-tree';
 
 function mekstationDeviationSourceRef(
@@ -37,22 +39,22 @@ const BATTLEMECH_LIFECYCLE_EVENT_SOURCE_REFS = [
 
 const BATTLEMECH_TURN_PHASE_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
-    'MekStation phase and initiative factories create PhaseChanged and InitiativeRolled payloads.',
+    'MekStation phase and initiative factories create PhaseChanged, InitiativeRolled, and InitiativeOrderSet payloads.',
     'src/utils/gameplay/gameEvents/turnPhase.ts',
     'L10-L22',
   ),
   mekstationDeviationSourceRef(
-    'MekStation initiative factories create InitiativeRolled payloads.',
+    'MekStation initiative factories create InitiativeRolled and InitiativeOrderSet payloads.',
     'src/utils/gameplay/gameEvents/initiative.ts',
-    'L11-L57',
+    'L11-L85',
   ),
   mekstationDeviationSourceRef(
-    'MekStation session core appends PhaseChanged and InitiativeRolled events.',
+    'MekStation session core appends PhaseChanged, InitiativeRolled, and InitiativeOrderSet events.',
     'src/utils/gameplay/gameSessionCore.ts',
-    'L258-L370',
+    'L258-L380',
   ),
   mekstationDeviationSourceRef(
-    'MekStation reducer handles GameStarted, PhaseChanged, TurnStarted, and InitiativeRolled while treating TurnEnded and explicit order/reveal events as no-op log entries.',
+    'MekStation reducer handles GameStarted, PhaseChanged, TurnStarted, InitiativeRolled, and InitiativeOrderSet while treating TurnEnded and reveal events as no-op log entries.',
     'src/utils/gameplay/gameState/gameStateReducer.ts',
     'L99-L253',
   ),
@@ -63,16 +65,31 @@ const BATTLEMECH_TURN_PHASE_EVENT_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
-const BATTLEMECH_UNSUPPORTED_PLANNING_EVENT_SOURCE_REFS = [
+const BATTLEMECH_ATTACK_REVEAL_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
-    'MekStation exposes InitiativeOrderSet and AttacksRevealed as enum-visible event types without a BattleMech emitter.',
-    'src/types/gameplay/GameSessionCoreTypes.ts',
-    'L76-L87',
+    'MekStation combat event factories create AttacksRevealed with revealed unit ids and the current-turn attack count.',
+    'src/utils/gameplay/gameEvents/attackReveal.ts',
+    'L1-L28',
   ),
   mekstationDeviationSourceRef(
-    'MekStation reducer intentionally leaves TurnEnded, InitiativeOrderSet, and AttacksRevealed as no-op event-log entries.',
+    'MekStation session core appends AttackLocked and routes reveal checks through the attack reveal helper.',
+    'src/utils/gameplay/gameSessionCore.ts',
+    'L667-L679',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation attack reveal helper emits AttacksRevealed after every active weapon-phase unit has locked attacks.',
+    'src/utils/gameplay/gameSessionAttackReveal.ts',
+    'L22-L87',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation reducer applies AttacksRevealed by moving locked weapon-phase units to the replayable Revealed lock state.',
+    'src/utils/gameplay/gameState/actionLocking.ts',
+    'L157-L205',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation reducer routes AttacksRevealed events into the action-locking replay helper.',
     'src/utils/gameplay/gameState/gameStateReducer.ts',
-    'L248-L253',
+    'L161-L165',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -201,17 +218,17 @@ const BATTLEMECH_HEAT_EVENT_SOURCE_REFS = [
 
 const BATTLEMECH_PSR_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
-    'MekStation status-check factories create PSRTriggered, PSRResolved, UnitFell, UnitStood, ShutdownCheck, StartupAttempt, and AmmoConsumed payloads.',
+    'MekStation status-check factories create PSRTriggered, PSRResolved, UnitFell, UnitStuck, UnitStood, ShutdownCheck, StartupAttempt, and AmmoConsumed payloads.',
     'src/utils/gameplay/gameEvents/statusChecks.ts',
     'L18-L243',
   ),
   mekstationDeviationSourceRef(
-    'MekStation interactive PSR resolver emits PSRResolved, UnitFell, PilotHit, UnitDestroyed, and UnitStood paths.',
+    'MekStation interactive PSR resolver emits PSRResolved, UnitFell, UnitStuck, PilotHit, UnitDestroyed, and UnitStood paths.',
     'src/utils/gameplay/gameSessionPSR.ts',
     'L44-L388',
   ),
   mekstationDeviationSourceRef(
-    'MekStation runner post-combat phase resolves queued PSRs, failed falls, stand-up attempts, shutdown checks, and startup attempts.',
+    'MekStation runner post-combat phase resolves queued PSRs, failed falls, failed bog-down stuck outcomes, stand-up attempts, shutdown checks, and startup attempts.',
     'src/simulation/runner/phases/postCombat.ts',
     'L101-L469',
   ),
@@ -337,8 +354,7 @@ export const BATTLEMECH_EVENT_SOURCE_REFS: Readonly<
   [GameEventType.TurnEnded]: BATTLEMECH_TURN_PHASE_EVENT_SOURCE_REFS,
   [GameEventType.PhaseChanged]: BATTLEMECH_TURN_PHASE_EVENT_SOURCE_REFS,
   [GameEventType.InitiativeRolled]: BATTLEMECH_TURN_PHASE_EVENT_SOURCE_REFS,
-  [GameEventType.InitiativeOrderSet]:
-    BATTLEMECH_UNSUPPORTED_PLANNING_EVENT_SOURCE_REFS,
+  [GameEventType.InitiativeOrderSet]: BATTLEMECH_TURN_PHASE_EVENT_SOURCE_REFS,
   [GameEventType.MovementDeclared]: BATTLEMECH_MOVEMENT_EVENT_SOURCE_REFS,
   [GameEventType.MovementLocked]: BATTLEMECH_MOVEMENT_EVENT_SOURCE_REFS,
   [GameEventType.MovementEnhancementActivated]:
@@ -346,8 +362,7 @@ export const BATTLEMECH_EVENT_SOURCE_REFS: Readonly<
   [GameEventType.FacingChanged]: BATTLEMECH_MOVEMENT_EVENT_SOURCE_REFS,
   [GameEventType.AttackDeclared]: BATTLEMECH_RANGED_ATTACK_EVENT_SOURCE_REFS,
   [GameEventType.AttackLocked]: BATTLEMECH_RANGED_ATTACK_EVENT_SOURCE_REFS,
-  [GameEventType.AttacksRevealed]:
-    BATTLEMECH_UNSUPPORTED_PLANNING_EVENT_SOURCE_REFS,
+  [GameEventType.AttacksRevealed]: BATTLEMECH_ATTACK_REVEAL_EVENT_SOURCE_REFS,
   [GameEventType.AttackResolved]: BATTLEMECH_RANGED_ATTACK_EVENT_SOURCE_REFS,
   [GameEventType.AttackInvalid]: BATTLEMECH_RANGED_ATTACK_EVENT_SOURCE_REFS,
   [GameEventType.DamageApplied]: BATTLEMECH_DAMAGE_EVENT_SOURCE_REFS,
@@ -359,6 +374,7 @@ export const BATTLEMECH_EVENT_SOURCE_REFS: Readonly<
     BATTLEMECH_INDIRECT_FIRE_EVENT_SOURCE_REFS,
   [GameEventType.IndirectFireNarcOverride]:
     BATTLEMECH_INDIRECT_FIRE_EVENT_SOURCE_REFS,
+  [GameEventType.SpottingDeclared]: BATTLEMECH_SPOTTING_EVENT_SOURCE_REFS,
   [GameEventType.HeatGenerated]: BATTLEMECH_HEAT_EVENT_SOURCE_REFS,
   [GameEventType.HeatDissipated]: BATTLEMECH_HEAT_EVENT_SOURCE_REFS,
   [GameEventType.HeatEffectApplied]: BATTLEMECH_HEAT_EVENT_SOURCE_REFS,
@@ -370,6 +386,7 @@ export const BATTLEMECH_EVENT_SOURCE_REFS: Readonly<
   [GameEventType.PSRTriggered]: BATTLEMECH_PSR_EVENT_SOURCE_REFS,
   [GameEventType.PSRResolved]: BATTLEMECH_PSR_EVENT_SOURCE_REFS,
   [GameEventType.UnitFell]: BATTLEMECH_PSR_EVENT_SOURCE_REFS,
+  [GameEventType.UnitStuck]: BATTLEMECH_PSR_EVENT_SOURCE_REFS,
   [GameEventType.UnitStood]: BATTLEMECH_PSR_EVENT_SOURCE_REFS,
   [GameEventType.PhysicalAttackDeclared]: BATTLEMECH_PHYSICAL_EVENT_SOURCE_REFS,
   [GameEventType.PhysicalAttackResolved]: BATTLEMECH_PHYSICAL_EVENT_SOURCE_REFS,

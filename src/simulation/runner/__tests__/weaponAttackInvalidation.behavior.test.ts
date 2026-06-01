@@ -6,7 +6,10 @@
  * state changes.
  */
 
-import type { IAttackDeclaredPayload } from '@/types/gameplay/GameSessionAttackEvents';
+import type {
+  IAttackDeclaredPayload,
+  IAttackInvalidPayload,
+} from '@/types/gameplay/GameSessionAttackEvents';
 import type { IAmmoSlotState } from '@/types/gameplay/GameSessionInterfaces';
 
 import {
@@ -190,7 +193,23 @@ function createBlockedGrid(): IHexGrid {
     }
   }
 
+  hexes.set('2,0', createHex(2, 0, TerrainType.LightWoods));
   hexes.set('3,0', createHex(3, 0, TerrainType.HeavyWoods));
+  return { config: { radius: 8 }, hexes };
+}
+
+function createLandToUnderwaterGrid(targetPosition: { q: number; r: number }) {
+  const hexes = new Map();
+  for (let q = -2; q <= 8; q++) {
+    for (let r = -2; r <= 2; r++) {
+      hexes.set(`${q},${r}`, createHex(q, r));
+    }
+  }
+
+  hexes.set(
+    `${targetPosition.q},${targetPosition.r}`,
+    createHex(targetPosition.q, targetPosition.r, 'water:2'),
+  );
   return { config: { radius: 8 }, hexes };
 }
 
@@ -704,6 +723,47 @@ describe('runAttackPhase invalid attacks', () => {
     assertNoCombatSideEffects(result, stateWithAmmo, ammoBin);
   });
 
+  it('emits AttackInvalid for source-backed land-to-underwater no-LOS declarations without combat side effects', () => {
+    const targetPosition = { q: 3, r: 0 };
+    const ammoBin = createAmmoBin({
+      weaponType: AC20_WEAPON_ID,
+      remainingRounds: 4,
+    });
+    const initialState = createWeaponAttackState(targetPosition);
+    const stateWithAmmo = withAttackerAmmo(initialState, ammoBin);
+    const grid = createLandToUnderwaterGrid(targetPosition);
+
+    expect(
+      calculateLOS(
+        stateWithAmmo.units['player-1'].position,
+        stateWithAmmo.units['opponent-1'].position,
+        grid,
+      ),
+    ).toMatchObject({
+      hasLOS: false,
+      blockedBy: targetPosition,
+      blockingTerrain: TerrainType.Water,
+    });
+
+    const { events, result } = runInvalidationScenario({
+      state: stateWithAmmo,
+      weapon: createAC20(),
+      grid,
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.AttackInvalid,
+    ]);
+    expect(events[0].payload).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      weaponId: AC20_WEAPON_ID,
+      reason: 'NoLineOfSight',
+    });
+
+    assertNoCombatSideEffects(result, stateWithAmmo, ammoBin);
+  });
+
   it('emits AttackInvalid for indirect-capable no-LOS declarations without a spotter', () => {
     const ammoBin = createAmmoBin({
       weaponType: 'lrm-15',
@@ -728,6 +788,61 @@ describe('runAttackPhase invalid attacks', () => {
       weaponId: LRM15_WEAPON_ID,
       reason: 'NoLineOfSight',
     });
+
+    assertNoCombatSideEffects(result, stateWithAmmo, ammoBin);
+  });
+
+  it('does not elect sprinting or evading spotters for no-LOS indirect declarations', () => {
+    const ammoBin = createAmmoBin({
+      weaponType: 'lrm-15',
+      remainingRounds: 4,
+    });
+    const initialState = createWeaponAttackState({ q: 6, r: 0 });
+    const stateWithAmmo = withAttackerAmmo(
+      {
+        ...initialState,
+        units: {
+          ...initialState.units,
+          'sprinting-spotter': {
+            ...createUnit('sprinting-spotter', GameSide.Player, {
+              q: 5,
+              r: 1,
+            }),
+            sprintedThisTurn: true,
+          },
+          'evading-spotter': {
+            ...createUnit('evading-spotter', GameSide.Player, {
+              q: 5,
+              r: -1,
+            }),
+            isEvading: true,
+          },
+        },
+      },
+      ammoBin,
+    );
+    const grid = createBlockedGrid();
+
+    const { events, result } = runInvalidationScenario({
+      state: stateWithAmmo,
+      weapon: createLRM15(),
+      grid,
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.AttackInvalid,
+    ]);
+    expect(events[0].payload).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      weaponId: LRM15_WEAPON_ID,
+      reason: 'NoLineOfSight',
+    });
+    expect(
+      String((events[0].payload as IAttackInvalidPayload).details),
+    ).toContain(
+      'No friendly unit with line of sight to target is available as spotter',
+    );
 
     assertNoCombatSideEffects(result, stateWithAmmo, ammoBin);
   });

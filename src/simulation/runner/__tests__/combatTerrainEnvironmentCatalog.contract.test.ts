@@ -160,12 +160,6 @@ describe('BattleMech terrain and environment combat support catalog', () => {
       TerrainType.Smoke,
       TerrainType.Water,
     ];
-    const localLosGapTerrains = [
-      TerrainType.LightWoods,
-      TerrainType.Smoke,
-      TerrainType.Water,
-    ];
-
     Object.values(TERRAIN_TYPE_LOS_COMBAT_SUPPORT).forEach((entry) => {
       const sourceRefs = entry.sourceRefs ?? [];
 
@@ -183,7 +177,7 @@ describe('BattleMech terrain and environment combat support catalog', () => {
           }),
           expect.objectContaining({
             kind: 'mekstation-deviation',
-            url: 'src/utils/gameplay/lineOfSight.ts#L137-L232',
+            url: 'src/utils/gameplay/lineOfSight.ts#L193-L334',
           }),
           expect.objectContaining({
             kind: 'mekstation-deviation',
@@ -212,23 +206,28 @@ describe('BattleMech terrain and environment combat support catalog', () => {
         ),
     ).toEqual([]);
     expect(
-      localLosGapTerrains.map(
-        (terrain) => TERRAIN_TYPE_LOS_COMBAT_SUPPORT[terrain],
-      ),
-    ).toEqual([
-      expect.objectContaining({
-        level: 'helper-only',
-        gap: expect.stringContaining('cumulative'),
-      }),
-      expect.objectContaining({
-        level: 'helper-only',
-        gap: expect.stringContaining('cumulative'),
-      }),
-      expect.objectContaining({
-        level: 'helper-only',
-        gap: expect.stringContaining('underwater'),
-      }),
-    ]);
+      supportIdsByLevel(TERRAIN_TYPE_LOS_COMBAT_SUPPORT, 'helper-only'),
+    ).toEqual([]);
+    expect(TERRAIN_TYPE_LOS_COMBAT_SUPPORT[TerrainType.Water]).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('land-to-depth-2+ water'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('LosEffects.java#L763-L768'),
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_TYPE_LOS_COMBAT_SUPPORT[TerrainType.LightWoods],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('cumulative density exceeds 2'),
+    });
+    expect(TERRAIN_TYPE_LOS_COMBAT_SUPPORT[TerrainType.Smoke]).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('cumulative density exceeds 2'),
+    });
   });
 
   it('treats non-zero terrain attack modifiers as integrated runner to-hit behavior', () => {
@@ -400,17 +399,22 @@ describe('BattleMech terrain and environment combat support catalog', () => {
   });
 
   it('keeps source-backed terrain PSR gaps visible without inventing non-BattleMech gaps', () => {
-    expect([...TERRAIN_TYPES_WITH_PSR_GAPS].sort()).toEqual([
-      TerrainType.Building,
-      TerrainType.Swamp,
-    ]);
+    expect([...TERRAIN_TYPES_WITH_PSR_GAPS].sort()).toEqual([]);
     expect(
       supportIdsByLevel(TERRAIN_TYPE_PSR_COMBAT_SUPPORT, 'helper-only'),
     ).toEqual([...TERRAIN_TYPES_WITH_PSR_GAPS].sort());
+    expect(TERRAIN_TYPE_PSR_COMBAT_SUPPORT[TerrainType.Building]).toMatchObject(
+      {
+        level: 'integrated',
+        evidence: expect.stringContaining('constructionFactor'),
+        sourceRefs: expect.arrayContaining([
+          expect.objectContaining({ kind: 'megamek-source' }),
+        ]),
+      },
+    );
     expect(TERRAIN_TYPE_PSR_COMBAT_SUPPORT[TerrainType.Swamp]).toMatchObject({
-      level: 'helper-only',
-      evidence: expect.stringContaining('bog-down'),
-      gap: expect.stringContaining('bogged/stuck lifecycle state'),
+      level: 'integrated',
+      evidence: expect.stringContaining('UnitStuck'),
       sourceRefs: expect.arrayContaining([
         expect.objectContaining({ kind: 'megamek-source' }),
       ]),
@@ -441,11 +445,11 @@ describe('BattleMech terrain and environment combat support catalog', () => {
         expect.arrayContaining([
           expect.objectContaining({
             kind: 'mekstation-deviation',
-            url: 'src/simulation/runner/phases/movementTerrainPsr.ts#L37-L151',
+            url: 'src/simulation/runner/phases/movementTerrainPsr.ts#L37-L352',
           }),
           expect.objectContaining({
             kind: 'mekstation-deviation',
-            url: 'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts#L94-L214',
+            url: 'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts#L94-L245',
           }),
         ]),
       );
@@ -504,9 +508,17 @@ describe('BattleMech terrain and environment combat support catalog', () => {
     expect(supportGaps(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(
-      expect.arrayContaining(['dust', 'mines', 'terrain-los-blocking']),
-    );
+    ).toEqual(expect.arrayContaining(['mines', 'terrain-los-side-paths']));
+    expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.dust).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('blowingSand'),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['terrain-los-blocking'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('cumulative woods/smoke density'),
+    });
     expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.wind).toMatchObject({
       level: 'integrated',
     });

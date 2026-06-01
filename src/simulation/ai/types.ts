@@ -57,6 +57,15 @@ export interface IBotBehavior {
   readonly safeHeatThreshold: number;
 
   /**
+   * Opt-in tactical posture rule for source-backed voluntary go-prone
+   * movement. When enabled, `BotPlayer` may choose a same-hex `goProne`
+   * movement step instead of returning no movement when a standing unit has
+   * no non-stationary legal destinations. Default/variant presets leave this
+   * unset so existing AI traces remain unchanged.
+   */
+  readonly voluntaryGoProneWhenStationary?: boolean;
+
+  /**
    * Per `add-ai-terrain-aware-movement` design D3: the AI difficulty tier
    * this bot plays at. The tier name keys into the AI Difficulty Tier
    * Registry (`AITierRegistry.ts`), which supplies the movement-scoring
@@ -296,6 +305,15 @@ export interface IAIUnitState {
 
   /** Hexes moved this turn */
   readonly hexesMoved: number;
+
+  /** True when the unit is currently prone. */
+  readonly prone?: boolean;
+
+  /** Construction-side unit type label, when known. */
+  readonly unitType?: string;
+
+  /** Pilot SPA ids available to movement and combat decision helpers. */
+  readonly abilities?: readonly string[];
 
   /**
    * Per `improve-bot-basic-combat-competence` task 2.2: fraction of

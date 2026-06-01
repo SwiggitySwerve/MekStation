@@ -22,7 +22,11 @@ import type { UnitMovementType } from './types';
 
 import { isInBounds, isOccupied } from '../hexGrid';
 import { hexDistance, hexEquals } from '../hexMath';
-import { getHexMovementCost, getMaxMP } from './calculations';
+import {
+  getHexMovementCost,
+  getMaxMP,
+  type IMovementCostContext,
+} from './calculations';
 import { calculateGroundPathTurningMpCost } from './eventPath';
 import { calculateMovementHeat } from './modifiers';
 import { findPath } from './pathfinding';
@@ -46,7 +50,17 @@ export function validateMovement(
   capability: IMovementCapability,
   currentHeat: number = 0,
   environmentalConditions?: IEnvironmentalConditions,
+  movementContext?: IMovementCostContext,
 ): IMovementValidation {
+  if (position.isStuck) {
+    return {
+      valid: false,
+      error: 'Unit is stuck',
+      mpCost: 0,
+      heatGenerated: 0,
+    };
+  }
+
   if (!isInBounds(grid, destination)) {
     return {
       valid: false,
@@ -91,7 +105,14 @@ export function validateMovement(
   let mpCost = distance === 0 ? facingChangeCost : distance;
   if (movementType !== MovementType.Jump && distance > 0) {
     const unitMovementType = toUnitMovementType(movementType);
-    const path = findPath(grid, position.coord, destination);
+    const path = findPath(
+      grid,
+      position.coord,
+      destination,
+      Infinity,
+      unitMovementType,
+      movementContext,
+    );
 
     if (!path) {
       const directCost = getHexMovementCost(
@@ -99,6 +120,7 @@ export function validateMovement(
         destination,
         unitMovementType,
         position.coord,
+        movementContext,
       );
       if (!Number.isFinite(directCost)) {
         return {
@@ -123,6 +145,7 @@ export function validateMovement(
       unitMovementType,
       position.facing,
       newFacing,
+      movementContext,
     );
   }
 
@@ -151,6 +174,8 @@ export function validateMovement(
 function toUnitMovementType(movementType: MovementType): UnitMovementType {
   switch (movementType) {
     case MovementType.Run:
+    case MovementType.Evade:
+    case MovementType.Sprint:
       return 'run';
     case MovementType.Jump:
       return 'jump';
@@ -194,6 +219,7 @@ function calculatePathMovementCost(
   grid: IHexGrid,
   path: readonly IHexCoordinate[],
   movementType: UnitMovementType,
+  movementContext?: IMovementCostContext,
 ): number {
   let total = 0;
 
@@ -203,6 +229,7 @@ function calculatePathMovementCost(
       path[i],
       movementType,
       path[i - 1],
+      movementContext,
     );
     if (!Number.isFinite(stepCost)) return Infinity;
     total += stepCost;
@@ -217,9 +244,10 @@ export function calculateGroundPathMpCost(
   movementType: UnitMovementType,
   fromFacing: Facing,
   toFacing: Facing,
+  movementContext?: IMovementCostContext,
 ): number {
   return (
-    calculatePathMovementCost(grid, path, movementType) +
+    calculatePathMovementCost(grid, path, movementType, movementContext) +
     calculateGroundPathTurningMpCost({
       path,
       fromFacing,
@@ -260,6 +288,7 @@ export function getValidDestinations(
   capability: IMovementCapability,
   currentHeat: number = 0,
   environmentalConditions?: IEnvironmentalConditions,
+  movementContext?: IMovementCostContext,
 ): readonly IHexCoordinate[] {
   const heatPenalty = currentHeat > 0 ? getHeatMovementPenalty(currentHeat) : 0;
   const maxMP = getEnvironmentalMaxMP(
@@ -290,6 +319,7 @@ export function getValidDestinations(
         capability,
         currentHeat,
         environmentalConditions,
+        movementContext,
       );
 
       if (validation.valid) {

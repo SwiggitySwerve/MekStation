@@ -62,16 +62,19 @@ import {
   createIndirectFireForwardObserverEvent,
   createIndirectFireNarcOverrideEvent,
   createIndirectFireSpotterSelectedEvent,
+  createInitiativeOrderSetEvent,
   createInitiativeRolledEvent,
   createMovementDeclaredEvent,
   createMovementLockedEvent,
   createPhaseChangedEvent,
+  createSpottingDeclaredEvent,
 } from './gameEvents';
 import {
   invalidateEvadingAttackerAttack,
   invalidateInvalidTargetAttack,
   invalidateSprintingAttackerAttack,
 } from './gameSessionAttackResolutionValidation';
+import { appendAttackRevealIfReady } from './gameSessionAttackReveal';
 import { appendEvent } from './gameSessionEvents';
 import { allUnitsLocked, deriveState } from './gameState';
 import {
@@ -338,7 +341,7 @@ export function rollInitiative(
 
   const sequence = session.events.length;
   const { turn } = session.currentState;
-  const event = createInitiativeRolledEvent(
+  const initiativeRolledEvent = createInitiativeRolledEvent(
     session.id,
     sequence,
     turn,
@@ -355,8 +358,18 @@ export function rollInitiative(
         }
       : undefined,
   );
+  const initiativeOrderSetEvent = createInitiativeOrderSetEvent(
+    session.id,
+    sequence + 1,
+    turn,
+    winner,
+    actualMovesFirst,
+  );
 
-  return appendEvent(session, event);
+  return appendEvent(
+    appendEvent(session, initiativeRolledEvent),
+    initiativeOrderSetEvent,
+  );
 }
 
 export function declareMovement(
@@ -534,6 +547,7 @@ export function declareAttack(
       undefined,
       weapons.some((weapon) => weapon.calledShot === true),
       weapons.some((weapon) => weapon.teammateCalledShot === true),
+      false,
     ),
     buildWeaponAttackTargetToHitState(targetUnit, false),
     rangeBracket,
@@ -663,6 +677,67 @@ export function lockAttack(
   const sequence = session.events.length;
   const { turn } = session.currentState;
   const event = createAttackLockedEvent(session.id, sequence, turn, unitId);
+
+  return appendAttackRevealIfReady(appendEvent(session, event), unitId);
+}
+
+function assertCanRequestSpot(
+  session: IGameSession,
+  unitId: string,
+  targetId: string,
+): void {
+  if (session.currentState.status !== GameStatus.Active) {
+    throw new Error('Game is not active');
+  }
+  if (session.currentState.phase !== GamePhase.WeaponAttack) {
+    throw new Error('Not in weapon attack phase');
+  }
+
+  const unit = session.currentState.units[unitId];
+  if (!unit) {
+    throw new Error(`Unit ${unitId} not found`);
+  }
+  if (unit.destroyed || unit.hasRetreated || unit.hasEjected) {
+    throw new Error(`Unit ${unitId} is not active`);
+  }
+  if (unit.shutdown || !unit.pilotConscious) {
+    throw new Error(`Unit ${unitId} cannot spot`);
+  }
+  if (unit.sprintedThisTurn || unit.isEvading) {
+    throw new Error(`Unit ${unitId} cannot spot after sprinting or evading`);
+  }
+  if (unit.isSpotting) {
+    throw new Error(`Unit ${unitId} is already spotting`);
+  }
+
+  const target = session.currentState.units[targetId];
+  if (!target) {
+    throw new Error(`Target unit ${targetId} not found`);
+  }
+  if (target.destroyed || target.hasRetreated || target.hasEjected) {
+    throw new Error(`Target unit ${targetId} is not targetable`);
+  }
+  if (target.side === unit.side) {
+    throw new Error('Cannot spot a friendly target');
+  }
+}
+
+export function requestSpot(
+  session: IGameSession,
+  unitId: string,
+  targetId: string,
+): IGameSession {
+  assertCanRequestSpot(session, unitId, targetId);
+
+  const sequence = session.events.length;
+  const { turn } = session.currentState;
+  const event = createSpottingDeclaredEvent(
+    session.id,
+    sequence,
+    turn,
+    unitId,
+    targetId,
+  );
 
   return appendEvent(session, event);
 }

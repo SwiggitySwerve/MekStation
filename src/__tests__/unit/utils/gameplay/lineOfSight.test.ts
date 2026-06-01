@@ -122,6 +122,54 @@ describe('lineOfSight', () => {
       expect(result.interveningHexes).toHaveLength(0);
     });
 
+    it('should block adjacent land-to-underwater LOS at depth 2+', () => {
+      const hexes = [
+        createHex(0, 0, TerrainType.Clear, 0),
+        createHex(1, 0, 'water:2', 0),
+      ];
+      const grid = createGrid(hexes);
+
+      const result = calculateLOS({ q: 0, r: 0 }, { q: 1, r: 0 }, grid);
+
+      expect(result.hasLOS).toBe(false);
+      expect(result.blockedBy).toEqual({ q: 1, r: 0 });
+      expect(result.blockingTerrain).toBe(TerrainType.Water);
+      expect(result.interveningHexes).toHaveLength(0);
+    });
+
+    it('should block underwater-to-land LOS at depth 2+', () => {
+      const underwater: ITerrainFeature[] = [
+        { type: TerrainType.Water, level: 2 },
+      ];
+      const hexes = [
+        createHex(0, 0, JSON.stringify(underwater), 0),
+        createHex(1, 0, TerrainType.Clear, 0),
+      ];
+      const grid = createGrid(hexes);
+
+      const result = calculateLOS({ q: 0, r: 0 }, { q: 1, r: 0 }, grid);
+
+      expect(result.hasLOS).toBe(false);
+      expect(result.blockedBy).toEqual({ q: 0, r: 0 });
+      expect(result.blockingTerrain).toBe(TerrainType.Water);
+    });
+
+    it('should allow shallow-water-to-underwater endpoint LOS through this narrow water gate', () => {
+      const underwater: ITerrainFeature[] = [
+        { type: TerrainType.Water, level: 2 },
+      ];
+      const hexes = [
+        createHex(0, 0, TerrainType.Water, 0),
+        createHex(1, 0, JSON.stringify(underwater), 0),
+      ];
+      const grid = createGrid(hexes);
+
+      const result = calculateLOS({ q: 0, r: 0 }, { q: 1, r: 0 }, grid);
+
+      expect(result.hasLOS).toBe(true);
+      expect(result.blockingTerrain).toBeUndefined();
+    });
+
     it('should return intervening hexes for longer lines', () => {
       const from: IHexCoordinate = { q: 0, r: 0 };
       const to: IHexCoordinate = { q: 4, r: 0 };
@@ -131,7 +179,7 @@ describe('lineOfSight', () => {
       expect(result.interveningHexes.length).toBeGreaterThan(0);
     });
 
-    it('should return hasLOS=false when heavy woods blocks', () => {
+    it('should not block LOS through one heavy woods hex', () => {
       const hexes = [
         createHex(0, 0, TerrainType.Clear, 0),
         createHex(1, 0, TerrainType.HeavyWoods, 0),
@@ -144,8 +192,88 @@ describe('lineOfSight', () => {
       const to: IHexCoordinate = { q: 3, r: 0 };
       const result = calculateLOS(from, to, grid);
 
+      expect(result.hasLOS).toBe(true);
+      expect(result.blockedBy).toBeUndefined();
+      expect(result.blockingTerrain).toBeUndefined();
+    });
+
+    it('should return hasLOS=false when cumulative woods density blocks', () => {
+      const hexes = [
+        createHex(0, 0, TerrainType.Clear, 0),
+        createHex(1, 0, TerrainType.HeavyWoods, 0),
+        createHex(2, 0, TerrainType.LightWoods, 0),
+        createHex(3, 0, TerrainType.Clear, 0),
+      ];
+      const grid = createGrid(hexes);
+
+      const from: IHexCoordinate = { q: 0, r: 0 };
+      const to: IHexCoordinate = { q: 3, r: 0 };
+      const result = calculateLOS(from, to, grid);
+
       expect(result.hasLOS).toBe(false);
-      expect(result.blockedBy).toEqual({ q: 1, r: 0 });
+      expect(result.blockedBy).toEqual({ q: 2, r: 0 });
+      expect(result.blockingTerrain).toBe(TerrainType.LightWoods);
+    });
+
+    it('should return hasLOS=false when cumulative smoke density blocks', () => {
+      const lightSmoke: ITerrainFeature[] = [
+        { type: TerrainType.Smoke, level: 1 },
+      ];
+      const heavySmoke: ITerrainFeature[] = [
+        { type: TerrainType.Smoke, level: 2 },
+      ];
+      const hexes = [
+        createHex(0, 0, TerrainType.Clear, 0),
+        createHex(1, 0, JSON.stringify(lightSmoke), 0),
+        createHex(2, 0, JSON.stringify(heavySmoke), 0),
+        createHex(3, 0, TerrainType.Clear, 0),
+      ];
+      const grid = createGrid(hexes);
+
+      const from: IHexCoordinate = { q: 0, r: 0 };
+      const to: IHexCoordinate = { q: 3, r: 0 };
+      const result = calculateLOS(from, to, grid);
+
+      expect(result.hasLOS).toBe(false);
+      expect(result.blockedBy).toEqual({ q: 2, r: 0 });
+      expect(result.blockingTerrain).toBe(TerrainType.Smoke);
+    });
+
+    it('should return hasLOS=false when mixed woods and smoke density blocks', () => {
+      const smoke: ITerrainFeature[] = [{ type: TerrainType.Smoke, level: 1 }];
+      const hexes = [
+        createHex(0, 0, TerrainType.Clear, 0),
+        createHex(1, 0, TerrainType.LightWoods, 0),
+        createHex(2, 0, JSON.stringify(smoke), 0),
+        createHex(3, 0, TerrainType.LightWoods, 0),
+        createHex(4, 0, TerrainType.Clear, 0),
+      ];
+      const grid = createGrid(hexes);
+
+      const from: IHexCoordinate = { q: 0, r: 0 };
+      const to: IHexCoordinate = { q: 4, r: 0 };
+      const result = calculateLOS(from, to, grid);
+
+      expect(result.hasLOS).toBe(false);
+      expect(result.blockedBy).toEqual({ q: 3, r: 0 });
+      expect(result.blockingTerrain).toBe(TerrainType.LightWoods);
+    });
+
+    it('should return hasLOS=false when two heavy woods hexes block', () => {
+      const hexes = [
+        createHex(0, 0, TerrainType.Clear, 0),
+        createHex(1, 0, TerrainType.HeavyWoods, 0),
+        createHex(2, 0, TerrainType.HeavyWoods, 0),
+        createHex(3, 0, TerrainType.Clear, 0),
+      ];
+      const grid = createGrid(hexes);
+
+      const from: IHexCoordinate = { q: 0, r: 0 };
+      const to: IHexCoordinate = { q: 3, r: 0 };
+      const result = calculateLOS(from, to, grid);
+
+      expect(result.hasLOS).toBe(false);
+      expect(result.blockedBy).toEqual({ q: 2, r: 0 });
       expect(result.blockingTerrain).toBe(TerrainType.HeavyWoods);
     });
 
@@ -305,16 +433,20 @@ describe('lineOfSight', () => {
       expect(getBlockingTerrain({ q: 0, r: 0 }, grid)).toBeUndefined();
     });
 
-    it('should return terrain type for blocking terrain', () => {
-      const grid = createGrid([createHex(0, 0, TerrainType.HeavyWoods, 0)]);
+    it('should return terrain type for direct blocking terrain', () => {
+      const grid = createGrid([createHex(0, 0, TerrainType.Building, 0)]);
       expect(getBlockingTerrain({ q: 0, r: 0 }, grid)).toBe(
-        TerrainType.HeavyWoods,
+        TerrainType.Building,
       );
     });
 
-    it('should return undefined for non-blocking terrain', () => {
-      const grid = createGrid([createHex(0, 0, TerrainType.LightWoods, 0)]);
+    it('should return undefined for cumulative-density terrain without line context', () => {
+      const grid = createGrid([
+        createHex(0, 0, TerrainType.LightWoods, 0),
+        createHex(1, 0, TerrainType.HeavyWoods, 0),
+      ]);
       expect(getBlockingTerrain({ q: 0, r: 0 }, grid)).toBeUndefined();
+      expect(getBlockingTerrain({ q: 1, r: 0 }, grid)).toBeUndefined();
     });
 
     it('should return undefined for missing hex', () => {

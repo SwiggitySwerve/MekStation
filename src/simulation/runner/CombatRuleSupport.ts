@@ -155,6 +155,12 @@ const MEGAMEK_MEK_RUN_SPRINT_HEAT_SOURCE_REF = megamekHeatSourceRef(
   'L1034-L1077',
 );
 
+const MEGAMEK_ENGINE_RUN_SPRINT_HEAT_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek Engine.getRunHeat and getSprintHeat provide the normal-engine 2 run heat and 3 sprint heat values used by BattleMechs without working supercooling myomer.',
+  'common/equipment/Engine.java',
+  'L693-L713',
+);
+
 const MEGAMEK_MEK_JUMP_HEAT_SOURCE_REF = megamekHeatSourceRef(
   'MegaMek Mek.getJumpHeat computes BattleMech jump heat from moved MP, damaged coolant state, partial-wing reduction, and jump-jet type.',
   'common/units/Mek.java',
@@ -214,6 +220,24 @@ const MEKSTATION_ATMOSPHERE_HEAT_SOURCE_REF = mekstationDeviationSourceRef(
   'src/utils/gameplay/environmentalModifiers.ts',
   'L257-L359',
 );
+
+const MEKSTATION_ENVIRONMENTAL_TO_HIT_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation IEnvironmentalConditions carries explicit blowingSand state alongside light, precipitation, fog, wind, gravity, atmosphere, and temperature.',
+    'src/types/gameplay/EnvironmentalConditions.ts',
+    'L17-L26',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation calculateEnvironmentalModifiers applies Blowing Sand only when blowingSand is active and the attack weapon is classified as energy.',
+    'src/utils/gameplay/environmentalModifiers.ts',
+    'L49-L352',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation runAttackPhase passes energy-weapon and missile-weapon classification into environmental to-hit modifier calculation before emitting AttackDeclared.',
+    'src/simulation/runner/phases/weaponAttack.ts',
+    'L1044-L1062',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
 
 const MEGAMEK_TERRAIN_TYPE_SOURCE_REF = megamekTerrainSourceRef(
   'MegaMek Terrains enumerates core terrain ids for woods, water, rough, rubble, swamp, ice, fire, and smoke with level semantics.',
@@ -535,6 +559,17 @@ const MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_MASC_SUPERCHARGER_SIDE_PATH_SOURCE_REFS = [
+  ...MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MPBoosters.calculateSprintMP uses ceil(walk MP * 2.5) for one active MASC/Supercharger booster and 3x walk MP when both are active.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/enums/MPBoosters.java#L89-L97`,
+    sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_PARTIAL_WING_MOVEMENT_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -678,7 +713,7 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
   ),
   'indirect-fire': integrated(
     'indirect-fire',
-    'runAttackPhase applies validateLineOfSightForAttack indirect-fire penalty to declared/resolved TN',
+    'runAttackPhase applies validateLineOfSightForAttack indirect-fire penalty to declared/resolved TN, and explicit sprinting/evading spotter state is rejected before LOS-spotter election',
     MEGAMEK_INDIRECT_FIRE_TO_HIT_SOURCE_REFS,
   ),
   'pilot-wounds': integrated(
@@ -716,10 +751,9 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
     'Source-backed runAttackPhase and declareAttack carry called-shot intent into calculateCalledShotModifier for the TacOps-style +3 called-shot penalty',
     MEGAMEK_CALLED_SHOT_SOURCE_REFS,
   ),
-  ecm: helperOnly(
+  ecm: integrated(
     'ecm',
-    'MegaMek-source-checked: runAttackPhase already suppresses Artemis/NARC/iNARC guidance benefits through special-weapon and C3 ECM state instead of adding a generic to-hit penalty',
-    'No source-authoritative generic +1 ECM to-hit modifier exists for Artemis, NARC, C3, or targeting computers; keep ECM helper-classified until every guidance-suppression path has source-backed assertions',
+    'MegaMek-source-checked: runAttackPhase suppresses source-backed Artemis, NARC/iNARC Homing, semi-guided TAG, and C3 guidance benefits through explicit ECM/C3/special-weapon state instead of adding a generic ECM to-hit penalty',
     MEGAMEK_ECM_GUIDANCE_TO_HIT_SOURCE_REFS,
   ),
   c3: integrated(
@@ -746,10 +780,9 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
     'UnitHydration, game/session physical contexts, and runPhysicalAttackPhase thread hasTSM into resolvePhysicalAttack so active TSM doubles physical damage at heat 9+',
     MEGAMEK_TSM_PHYSICAL_DAMAGE_SOURCE_REFS,
   ),
-  claws: helperOnly(
+  claws: integrated(
     'claws',
-    'calculatePunchDamage, calculatePunchToHit, eligibility projection, session physical contexts, UnitHydration, critical-event replay, and runPhysicalAttackPhase consume claw arm state for source-backed punch damage/to-hit modifiers',
-    'Missing/breached claw equipment lifecycle, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions are not modeled',
+    'calculatePunchDamage, calculatePunchToHit, eligibility projection, session physical contexts, UnitHydration, critical-event replay, destroyed-location replay, and runPhysicalAttackPhase consume claw arm state for source-backed punch damage/to-hit modifiers; PLAYTEST_3 removes only the claw punch to-hit penalty while preserving claw punch damage; critical-event replay removes claw state when the mount is destroyed, missing, or breached, and destroyed arm state clears the represented modifier',
     [
       {
         kind: 'megamek-source',
@@ -761,21 +794,44 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
       {
         kind: 'megamek-source',
         citation:
-          'MegaMek PunchAttackAction.toHit adds the claw punch modifier and suppresses hand actuator missing/destroyed penalties when claws replace the hand',
+          'MegaMek PunchAttackAction.toHit adds the claw punch modifier outside PLAYTEST_3, records a zero-value Using Claws modifier under PLAYTEST_3, and suppresses hand actuator missing/destroyed penalties when claws replace the hand',
         url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PHYSICAL_SOURCE_VERSION}/megamek/src/megamek/common/actions/PunchAttackAction.java#L309-L333`,
         sourceVersion: MEGAMEK_PHYSICAL_SOURCE_VERSION,
       },
+      megamekPhysicalSourceRef(
+        'MegaMek Entity.destroyLocation marks blown-off critical slots, mounted equipment, and dependent locations missing',
+        'common/units/Entity.java',
+        'L11864-L11939',
+      ),
     ],
   ),
-  talons: helperOnly(
-    'talons',
-    'calculateKickDamage, calculateDFADamageToTarget, eligibility projection, session physical contexts, UnitHydration, critical-event replay, and runPhysicalAttackPhase consume talon leg state for source-backed +50% kick/DFA damage',
-    'Missing/breached talon equipment lifecycle and non-biped talon arm-location behavior are not modeled',
+  'claw-equipment-lifecycle': helperOnly(
+    'claw-equipment-lifecycle',
+    'Core claw punch damage, punch to-hit, PLAYTEST_3 to-hit relief, critical-event replay cleanup, destroyed-location replay, UnitHydration, and runner/session consumption are integrated under the claws row',
+    'Automatic missing/breached claw event production from mounted-equipment state beyond represented destroyed-location replay and claw club-with-hand interactions are not modeled',
     [
       {
         kind: 'megamek-source',
         citation:
-          'MegaMek KickAttackAction.getDamageFor applies a 1.5 talon multiplier when the kicking leg has working talons and a working foot actuator',
+          'MegaMek PunchAttackAction.toHit adds the claw punch modifier outside PLAYTEST_3, records a zero-value Using Claws modifier under PLAYTEST_3, and suppresses hand actuator missing/destroyed penalties when claws replace the hand',
+        url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PHYSICAL_SOURCE_VERSION}/megamek/src/megamek/common/actions/PunchAttackAction.java#L309-L333`,
+        sourceVersion: MEGAMEK_PHYSICAL_SOURCE_VERSION,
+      },
+      megamekPhysicalSourceRef(
+        'MegaMek Entity.destroyLocation marks blown-off critical slots, mounted equipment, and dependent locations missing',
+        'common/units/Entity.java',
+        'L11864-L11939',
+      ),
+    ],
+  ),
+  talons: integrated(
+    'talons',
+    'calculateKickDamage, calculateDFADamageToTarget, eligibility projection, session physical contexts, UnitHydration, critical-event replay, destroyed-location replay, and runPhysicalAttackPhase consume biped leg plus quad/non-biped arm-location talon state for source-backed +50% kick/DFA damage; critical-event replay removes talon state when the mount is destroyed, missing, or breached, and destroyed location state clears the represented modifier',
+    [
+      {
+        kind: 'megamek-source',
+        citation:
+          'MegaMek KickAttackAction.getDamageFor applies a 1.5 talon multiplier when the kicking leg has working talons and a working foot actuator, mapping quad front kicks to arm locations',
         url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/KickAttackAction.java#L95-L122',
         sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
       },
@@ -789,10 +845,41 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
       {
         kind: 'megamek-source',
         citation:
-          'MegaMek DfaAttackAction.hasTalons checks working talons and working foot actuators on qualifying biped and non-biped leg locations.',
+          'MegaMek DfaAttackAction.hasTalons checks working talons and working foot actuators on qualifying biped legs plus non-biped leg and arm locations.',
         url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/DfaAttackAction.java#L427-L445',
         sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
       },
+      megamekPhysicalSourceRef(
+        'MegaMek Entity.destroyLocation marks blown-off critical slots, mounted equipment, and dependent locations missing',
+        'common/units/Entity.java',
+        'L11864-L11939',
+      ),
+    ],
+  ),
+  'talon-equipment-lifecycle': helperOnly(
+    'talon-equipment-lifecycle',
+    'Core talon kick/DFA damage, biped and quad/non-biped location mapping, critical-event replay cleanup, destroyed-location replay, UnitHydration, and runner/session consumption are integrated under the talons row',
+    'Automatic missing/breached talon event production from mounted-equipment state beyond represented destroyed-location replay remains partial',
+    [
+      {
+        kind: 'megamek-source',
+        citation:
+          'MegaMek KickAttackAction.getDamageFor applies a 1.5 talon multiplier when the kicking leg has working talons and a working foot actuator, mapping quad front kicks to arm locations',
+        url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/KickAttackAction.java#L95-L122',
+        sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+      },
+      {
+        kind: 'megamek-source',
+        citation:
+          'MegaMek DfaAttackAction.hasTalons checks working talons and working foot actuators on qualifying biped legs plus non-biped leg and arm locations.',
+        url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/DfaAttackAction.java#L427-L445',
+        sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+      },
+      megamekPhysicalSourceRef(
+        'MegaMek Entity.destroyLocation marks blown-off critical slots, mounted equipment, and dependent locations missing',
+        'common/units/Entity.java',
+        'L11864-L11939',
+      ),
     ],
   ),
   underwater: integrated(
@@ -823,10 +910,15 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
     'runMovementPhase resolves stand-up PSRs for prone units and emits UnitStood on success',
     MEGAMEK_STAND_MOVEMENT_SOURCE_REFS,
   ),
-  prone: helperOnly(
+  prone: integrated(
     'prone',
-    'unit prone state, fall/standing helpers, and voluntary go-prone game-session/interactive action path',
-    'Runner movement AI/planning cannot choose voluntary go-prone, and hull-down, swarmer dislodge, and inferno wash-off nuances are not modeled',
+    'unit prone state, fall/standing helpers, explicit non-Mek/already-prone/stuck go-prone legality, hull-down zero-MP go-prone transition clearing hull-down state, voluntary go-prone game-session/interactive action path, and opt-in BotPlayer/runner AI same-hex go-prone movement-step handling',
+    MEGAMEK_GO_PRONE_MOVEMENT_SOURCE_REFS,
+  ),
+  'go-prone-side-paths': helperOnly(
+    'go-prone-side-paths',
+    'source references identify GO_PRONE swarmer dislodge and inferno wash-off side paths separately from the integrated core prone posture transition',
+    'Swarmer dislodge PSRs, inferno wash-off effects, and broader tactical go-prone policy nuances are not modeled',
     MEGAMEK_GO_PRONE_MOVEMENT_SOURCE_REFS,
   ),
   facing: integrated(
@@ -857,17 +949,27 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 
 export const MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT = {
-  [MovementEnhancementType.MASC]: helperOnly(
+  [MovementEnhancementType.MASC]: integrated(
     MovementEnhancementType.MASC,
-    'UnitHydration detects installed MASC, runMovementPhase consumes explicit active MASC run MP, movementEnhancementPsr queues createMASCFailurePSR with source-backed standard fixed failure target numbers, runPSRPhase consumes edge_when_masc_fails rerolls and applies one critical hit to each leg when the final check fails, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers still expose sprint_masc formula support',
-    'No combat MovementType.Sprint, alternate MASC option tables, or separate first-step equipment-check timing is wired',
+    'UnitHydration detects installed MASC, runMovementPhase consumes explicit active MASC run and sprint MP, movementEnhancementPsr queues createMASCFailurePSR with source-backed standard fixed failure target numbers, runPSRPhase consumes edge_when_masc_fails rerolls and applies one critical hit to each leg when the final check fails, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers expose sprint_masc formula support',
     MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
   ),
-  [MovementEnhancementType.SUPERCHARGER]: helperOnly(
+  'masc-side-paths': helperOnly(
+    'masc-side-paths',
+    'Core MASC installation hydration, replayable activation, active run/sprint MP expansion, standard fixed failure target numbers, Edge reroll consumption, failed-check leg critical damage, prior-use counter lifecycle, and active-use clearing are integrated under the MASC row',
+    'Alternate MASC option tables and separate first-step equipment-check timing are not wired',
+    MEGAMEK_MASC_SUPERCHARGER_SIDE_PATH_SOURCE_REFS,
+  ),
+  [MovementEnhancementType.SUPERCHARGER]: integrated(
     MovementEnhancementType.SUPERCHARGER,
-    'UnitHydration detects installed Supercharger, runMovementPhase consumes explicit active Supercharger run MP, movementEnhancementPsr queues createSuperchargerFailurePSR with source-backed standard fixed failure target numbers, runPSRPhase consumes edge_when_masc_fails rerolls and destroys the Supercharger slot plus applies the source-backed engine critical table when the final check fails, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers still expose sprint_combined formula support',
-    'No combat MovementType.Sprint, IndustrialMek/support-unit supercharger roll adjustment, separate first-step equipment-check timing, or non-BattleMech motive-damage branch is wired',
+    'UnitHydration detects installed Supercharger, runMovementPhase consumes explicit active Supercharger run and sprint MP, movementEnhancementPsr queues createSuperchargerFailurePSR with source-backed standard fixed failure target numbers, runPSRPhase consumes edge_when_masc_fails rerolls and destroys the Supercharger slot plus applies the source-backed engine critical table when the final check fails, resetTurnState advances/decays prior-use counters and clears active use, and construction helpers expose sprint_combined formula support',
     MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
+  ),
+  'supercharger-side-paths': helperOnly(
+    'supercharger-side-paths',
+    'Core Supercharger installation hydration, replayable activation, active run/sprint MP expansion, standard fixed failure target numbers, Edge reroll consumption, failed-check Supercharger slot and engine-table damage, prior-use counter lifecycle, and active-use clearing are integrated under the Supercharger row',
+    'IndustrialMek/support-unit supercharger roll adjustment, separate first-step equipment-check timing, and the non-BattleMech motive-damage branch are not wired',
+    MEGAMEK_MASC_SUPERCHARGER_SIDE_PATH_SOURCE_REFS,
   ),
   [MovementEnhancementType.TSM]: integrated(
     MovementEnhancementType.TSM,
@@ -882,7 +984,8 @@ export const MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT = {
 } satisfies Record<
   (typeof MOVEMENT_ENHANCEMENT_DEFINITIONS)[number]['type'],
   ICombatFeatureSupportEntry
->;
+> &
+  Record<string, ICombatFeatureSupportEntry>;
 
 export const TERRAIN_ENVIRONMENT_COMBAT_SUPPORT = {
   'terrain-movement-costs': integrated(
@@ -890,11 +993,19 @@ export const TERRAIN_ENVIRONMENT_COMBAT_SUPPORT = {
     'validateMovement consumes TERRAIN_PROPERTIES movementCostModifier for every TerrainType',
     [MEGAMEK_TERRAIN_TYPE_SOURCE_REF, MEGAMEK_TERRAIN_MOVEMENT_COST_SOURCE_REF],
   ),
-  'terrain-los-blocking': helperOnly(
+  'terrain-los-blocking': integrated(
     'terrain-los-blocking',
-    'lineOfSight consumes TerrainType blocksLOS for MekStation simplified woods/buildings blocking',
-    'MegaMek cumulative woods/smoke thresholds, land-to-underwater LOS blocking, divided LOS, and richer building-level handling are not fully modeled by the local TerrainType LOS helper',
-    terrainLosSourceRefs(TerrainType.HeavyWoods),
+    'lineOfSight consumes TerrainType direct blockers, cumulative woods/smoke density, and source-backed land-to-depth-2+ water endpoint state for MekStation LOS blocking',
+    [
+      ...terrainLosSourceRefs(TerrainType.HeavyWoods),
+      ...terrainLosSourceRefs(TerrainType.Water),
+    ],
+  ),
+  'terrain-los-side-paths': helperOnly(
+    'terrain-los-side-paths',
+    'Core direct TerrainType blockers, cumulative woods/smoke LOS density, and land-to-depth-2+ water endpoint blocking are integrated under terrain-los-blocking and per-TerrainType LOS rows',
+    'MegaMek divided/diagram LOS, richer underwater-combat sightline tracing, and richer building-level handling are not fully modeled by the local TerrainType LOS helper',
+    terrainLosSourceRefs(TerrainType.Water),
   ),
   'terrain-partial-cover': integrated(
     'terrain-partial-cover',
@@ -954,13 +1065,12 @@ export const TERRAIN_ENVIRONMENT_COMBAT_SUPPORT = {
     'runHeatPhase and resolveHeatPhase consume getAtmosphereHeatModifier through calculateEnvironmentalHeatModifier',
     [MEKSTATION_ATMOSPHERE_HEAT_SOURCE_REF],
   ),
-  dust: helperOnly(
+  dust: integrated(
     'dust',
-    'No Dust enum; closest modeled weather modifiers are fog/precipitation helpers',
-    'dust storms are not represented as a first-class battlefield condition',
+    'runAttackPhase consumes environmental blowingSand state and applies the source-backed +1 modifier to energy-weapon attacks while non-energy weapons receive no blowing-sand modifier',
     [
       ...MEGAMEK_ENVIRONMENTAL_TO_HIT_SOURCE_REFS,
-      MEKSTATION_TERRAIN_TYPE_ENUM_SOURCE_REF,
+      ...MEKSTATION_ENVIRONMENTAL_TO_HIT_SOURCE_REFS,
     ],
   ),
   mines: helperOnly(
@@ -982,11 +1092,12 @@ export const HEAT_RULE_COMBAT_SUPPORT = {
   ),
   'movement-heat': integrated(
     'movement-heat',
-    'runHeatPhase emits movement-sourced HeatGenerated for walk/run/jump movement types',
+    'runHeatPhase emits movement-sourced HeatGenerated for walk/run/sprint/evade/jump movement types, with Sprint using the source-backed normal-engine sprint heat path',
     [
       MEGAMEK_MOVEMENT_HEAT_SOURCE_REF,
       MEGAMEK_MEK_STANDING_WALK_HEAT_SOURCE_REF,
       MEGAMEK_MEK_RUN_SPRINT_HEAT_SOURCE_REF,
+      MEGAMEK_ENGINE_RUN_SPRINT_HEAT_SOURCE_REF,
     ],
   ),
   'jump-distance-heat': integrated(

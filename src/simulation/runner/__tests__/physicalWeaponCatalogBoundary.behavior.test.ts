@@ -49,13 +49,6 @@ function unsupportedPhysicalWeaponIds(): readonly string[] {
     .map((entry) => entry.id);
 }
 
-function helperOnlyPhysicalWeaponIds(): readonly string[] {
-  return Object.values(PHYSICAL_WEAPON_COMBAT_SUPPORT)
-    .filter((entry) => entry.level === 'helper-only')
-    .map((entry) => entry.id)
-    .sort();
-}
-
 function makeUnit(
   id: string,
   side: GameSide,
@@ -104,13 +97,19 @@ describe('physical weapon catalog runtime boundary', () => {
     expect(sorted([...SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES])).toEqual(
       standaloneAttackIds,
     );
-    expect(helperOnlyPhysicalWeaponIds()).toEqual(modifierOnlyIds);
+    expect(
+      Object.values(PHYSICAL_WEAPON_COMBAT_SUPPORT)
+        .filter((entry) => entry.level !== 'integrated')
+        .map((entry) => entry.id),
+    ).toEqual([]);
     expect(unsupportedPhysicalWeaponIds()).toEqual([]);
   });
 
   it('projects all standalone official physical weapons but not modifier-only equipment', () => {
     const unsupportedPhysicalWeapons = unsupportedPhysicalWeaponIds();
-    const helperOnlyPhysicalWeapons = helperOnlyPhysicalWeaponIds();
+    const modifierOnlyPhysicalWeapons = sorted([
+      ...MODIFIER_ONLY_PHYSICAL_WEAPON_IDS,
+    ]);
 
     expect(unsupportedPhysicalWeapons).toEqual([]);
     for (const weaponId of SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES) {
@@ -120,16 +119,14 @@ describe('physical weapon catalog runtime boundary', () => {
         level: 'integrated',
       });
     }
-    expect(helperOnlyPhysicalWeapons).toEqual(['claws', 'talons']);
+    expect(modifierOnlyPhysicalWeapons).toEqual(['claws', 'talons']);
     expect(PHYSICAL_WEAPON_COMBAT_SUPPORT.claws).toMatchObject({
-      level: 'helper-only',
-      gap: expect.stringContaining('Missing/breached claw equipment lifecycle'),
+      level: 'integrated',
+      evidence: expect.stringContaining('claw-equipment-lifecycle'),
     });
     expect(PHYSICAL_WEAPON_COMBAT_SUPPORT.talons).toMatchObject({
-      level: 'helper-only',
-      gap: expect.stringContaining(
-        'Missing/breached talon equipment lifecycle',
-      ),
+      level: 'integrated',
+      evidence: expect.stringContaining('talon-equipment-lifecycle'),
     });
 
     const options = getEligiblePhysicalAttacks(
@@ -144,7 +141,7 @@ describe('physical weapon catalog runtime boundary', () => {
         pushDestinationValid: true,
         meleeWeaponsEquipped: [
           ...SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
-          ...helperOnlyPhysicalWeapons,
+          ...modifierOnlyPhysicalWeapons,
         ] as unknown as readonly PhysicalAttackType[],
       },
     );
@@ -153,7 +150,7 @@ describe('physical weapon catalog runtime boundary', () => {
     expect(projectedAttackTypes).toEqual(
       expect.arrayContaining([...SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES]),
     );
-    for (const weaponId of helperOnlyPhysicalWeapons) {
+    for (const weaponId of modifierOnlyPhysicalWeapons) {
       expect(projectedAttackTypes).not.toContain(weaponId);
     }
   });
@@ -185,7 +182,7 @@ describe('physical weapon catalog runtime boundary', () => {
   });
 
   it('rejects modifier-only physical equipment before runtime action dispatch', () => {
-    for (const weaponId of helperOnlyPhysicalWeaponIds()) {
+    for (const weaponId of MODIFIER_ONLY_PHYSICAL_WEAPON_IDS) {
       const intent: IGameIntent = {
         type: 'declarePhysical',
         authorPeerId: 'peer-1',

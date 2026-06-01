@@ -162,6 +162,45 @@ describe('declareAttack to-hit state hydration', () => {
     );
   });
 
+  it('keeps Pain Resistance from reducing declared ranged wound penalties', () => {
+    const session = setupWeaponAttackSession();
+    const hydratedSession: IGameSession = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        units: {
+          ...session.currentState.units,
+          attacker: {
+            ...session.currentState.units.attacker,
+            abilities: ['pain-resistance'],
+            pilotWounds: 2,
+          },
+        },
+      },
+    };
+
+    const result = declareAttack(
+      hydratedSession,
+      'attacker',
+      'target',
+      buildMediumLaserAttack(),
+      3,
+      RangeBracket.Short,
+    );
+
+    const payload = latestAttackDeclaredPayload(result);
+    expect(payload.toHitNumber).toBe(6);
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Pilot Wounds',
+          value: 2,
+          source: 'other',
+        }),
+      ]),
+    );
+  });
+
   it('threads pilot SPA and quirk state into declared to-hit modifiers', () => {
     const session = setupWeaponAttackSession();
     const hydratedSession: IGameSession = {
@@ -252,6 +291,43 @@ describe('declareAttack to-hit state hydration', () => {
         }),
       ]),
     );
+  });
+
+  it('does not apply local called-shot SPA reductions in declared combat to-hit', () => {
+    const session = setupWeaponAttackSession();
+    const hydratedSession: IGameSession = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        units: {
+          ...session.currentState.units,
+          attacker: {
+            ...session.currentState.units.attacker,
+            abilities: ['marksman', 'sharpshooter'],
+          },
+        },
+      },
+    };
+    const [calledShotWeapon] = buildMediumLaserAttack();
+    const result = declareAttack(
+      hydratedSession,
+      'attacker',
+      'target',
+      [{ ...calledShotWeapon, calledShot: true }],
+      3,
+      RangeBracket.Short,
+    );
+
+    const payload = latestAttackDeclaredPayload(result);
+    const calledShotModifier = payload.modifiers.find(
+      (modifier) => modifier.name === 'Called Shot',
+    );
+
+    expect(payload.toHitNumber).toBe(7);
+    expect(calledShotModifier).toMatchObject({
+      value: 3,
+      source: 'other',
+    });
   });
 
   it('threads explicit target evasion state into declared to-hit modifiers', () => {

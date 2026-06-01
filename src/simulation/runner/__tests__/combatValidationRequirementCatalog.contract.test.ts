@@ -448,17 +448,18 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['heat-driven-modifiers'],
     ).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('Some Like It Hot'),
-      gap: expect.stringContaining('Cool Under Fire'),
     });
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['heat-driven-modifiers'].gap,
+    ).toBeUndefined();
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['heat-driven-modifiers']
         .supportMapRefs,
     ).toEqual([
       'featureSupport.pilotAbilities.hot-dog',
       'featureSupport.pilotAbilities.some-like-it-hot',
-      'featureSupport.pilotAbilities.cool-under-fire',
       'featureSupport.mechQuirks.improved_cooling',
       'featureSupport.mechQuirks.poor_cooling',
       'featureSupport.mechQuirks.no_cooling',
@@ -869,6 +870,10 @@ describe('BattleMech combat validation requirement crosswalk', () => {
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['official-ammo'].level,
     ).toBe('helper-only');
     expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['official-physical-weapons']
+        .level,
+    ).toBe('integrated');
+    expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['damage-string-hazards'].level,
     ).toBe('integrated');
     expect(
@@ -876,7 +881,7 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     ).toBe('integrated');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['heat-driven-modifiers'].level,
-    ).toBe('helper-only');
+    ).toBe('integrated');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-enhancements'].level,
     ).toBe('helper-only');
@@ -939,17 +944,27 @@ describe('BattleMech combat validation requirement crosswalk', () => {
       ].level,
     ).toBe('helper-only');
     expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['non-battlemech-scope'].level,
+    ).toBe('out-of-scope');
+    expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['non-battlemech-scope'].gap,
     ).toContain('Non-BattleMech');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['campaign-quirk-behavior']
+        .level,
+    ).toBe('out-of-scope');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['campaign-quirk-behavior'].gap,
+    ).toContain('outside BattleMech combat runner validation scope');
   });
 
-  it('keeps source-backed movement action gaps helper-only until action paths exist', () => {
+  it('keeps source-backed movement action support explicit with remaining side-path gaps', () => {
     const evadeRefs =
-      BATTLEMECH_COMBAT_VALIDATION_CATALOG.actions.absentActionSurfaces[
+      BATTLEMECH_COMBAT_VALIDATION_CATALOG.actions.tacticalCommands[
         'movement.evade'
       ].sourceRefs ?? [];
     const sprintRefs =
-      BATTLEMECH_COMBAT_VALIDATION_CATALOG.actions.absentActionSurfaces[
+      BATTLEMECH_COMBAT_VALIDATION_CATALOG.actions.tacticalCommands[
         'movement.sprint'
       ].sourceRefs ?? [];
     const torsoTwistActionRefs =
@@ -996,11 +1011,19 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
         .supportMapRefs,
-    ).toContain('actions.absentActionSurfaces.movement.evade');
+    ).toContain('actions.tacticalCommands.movement.evade');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
         .supportMapRefs,
-    ).toContain('actions.absentActionSurfaces.movement.sprint');
+    ).not.toContain('actions.absentActionSurfaces.movement.evade');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
+        .supportMapRefs,
+    ).toContain('actions.tacticalCommands.movement.sprint');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
+        .supportMapRefs,
+    ).not.toContain('actions.absentActionSurfaces.movement.sprint');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
         .supportMapRefs,
@@ -1017,14 +1040,26 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     );
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions'].gap,
-    ).toContain('Sprint and evade action creation');
+    ).toContain('engine-variant/coolant sprint heat');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions'].gap,
     ).not.toContain('torso-twist intent/wire/server actions');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
         .supportMapRefs,
-    ).toContain('actions.absentActionSurfaces.movement.evade');
+    ).toContain('actions.tacticalCommands.movement.evade');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
+        .supportMapRefs,
+    ).toContain('actions.tacticalCommands.movement.sprint');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
+        .supportMapRefs,
+    ).not.toContain('actions.absentActionSurfaces.movement.evade');
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
+        .supportMapRefs,
+    ).not.toContain('actions.absentActionSurfaces.movement.sprint');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
         .evidence,

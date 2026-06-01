@@ -195,6 +195,9 @@ export function toAIUnitState(
     piloting: unit.piloting ?? DEFAULT_PILOTING,
     movementType: unit.movementThisTurn,
     hexesMoved: unit.hexesMovedThisTurn,
+    prone: unit.prone ?? false,
+    unitType: unit.unitType,
+    abilities: unit.abilities,
   };
 }
 

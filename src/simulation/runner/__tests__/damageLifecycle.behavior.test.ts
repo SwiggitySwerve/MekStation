@@ -141,6 +141,66 @@ describe('BattleMech damage lifecycle validation anchors', () => {
     expect(updated.units.target.destructionCause).toBe('ammo_explosion');
   });
 
+  it('clears claw and talon modifier state when damage destroys their locations', () => {
+    const baseState = createGameState();
+    const state: IGameState = {
+      ...baseState,
+      units: {
+        target: {
+          ...baseState.units.target,
+          leftArmHasClaw: true,
+          rightArmHasClaw: true,
+          leftLegHasTalons: true,
+          rightLegHasTalons: true,
+        },
+      },
+    };
+
+    const afterTorsoCascade = applyDamageResultToState(
+      state,
+      'target',
+      createDamageState(),
+      {
+        locationDamages: [
+          {
+            location: 'left_torso',
+            armorRemaining: 0,
+            structureRemaining: 0,
+            destroyed: true,
+          },
+        ],
+        unitDestroyed: false,
+      },
+    );
+
+    expect(afterTorsoCascade.units.target.destroyedLocations).toEqual([
+      'left_torso',
+      'left_arm',
+    ]);
+    expect(afterTorsoCascade.units.target.leftArmHasClaw).toBe(false);
+    expect(afterTorsoCascade.units.target.rightArmHasClaw).toBe(true);
+
+    const afterLegDestroyed = applyDamageResultToState(
+      afterTorsoCascade,
+      'target',
+      createDamageState(),
+      {
+        locationDamages: [
+          {
+            location: 'right_leg',
+            armorRemaining: 0,
+            structureRemaining: 0,
+            destroyed: true,
+          },
+        ],
+        unitDestroyed: false,
+      },
+    );
+
+    expect(afterLegDestroyed.units.target.leftLegHasTalons).toBe(true);
+    expect(afterLegDestroyed.units.target.rightLegHasTalons).toBe(false);
+  });
+
   it('documents default critical slots and mounted critical-effect boundaries', () => {
     const defaultComponentTypes = Array.from(
       new Set(

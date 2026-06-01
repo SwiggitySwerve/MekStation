@@ -14,7 +14,10 @@
 import { create } from 'zustand';
 
 import type { InteractiveSession } from '@/engine/GameEngine';
-import type { PhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types';
+import type {
+  PhysicalAttackLimb,
+  PhysicalAttackType,
+} from '@/utils/gameplay/physicalAttacks/types';
 
 import { getPrefersReducedMotion } from '@/hooks/useReducedMotion';
 import {
@@ -64,6 +67,7 @@ export interface IAttackPlan {
 export interface IPhysicalAttackPlan {
   readonly targetUnitId: string | null;
   readonly attackType: PhysicalAttackType | null;
+  readonly limb: PhysicalAttackLimb | null;
 }
 
 /**
@@ -195,6 +199,9 @@ function movementAnimationModeForType(
     case MovementType.Run:
     case MovementType.Jump:
       return movementType;
+    case MovementType.Evade:
+    case MovementType.Sprint:
+      return MovementType.Run;
     default:
       return null;
   }
@@ -289,9 +296,12 @@ export interface IPhysicalAttackPlanState {
   readonly physicalAttackPlan: IPhysicalAttackPlan;
   /** Target-lock setter — mirrors `setAttackTarget` for the weapon flow. */
   setPhysicalAttackTarget: (unitId: string | null) => void;
-  /** Stash the chosen attack type. */
-  setPhysicalAttackType: (attackType: PhysicalAttackType | null) => void;
-  /** Reset back to `{targetUnitId: null, attackType: null}`. */
+  /** Stash the chosen attack type and selected limb, when the row has one. */
+  setPhysicalAttackType: (
+    attackType: PhysicalAttackType | null,
+    limb?: PhysicalAttackLimb | null,
+  ) => void;
+  /** Reset back to an empty physical plan. */
   clearPhysicalAttackPlan: () => void;
   /**
    * Commit the plan via `declarePhysicalAttack`. Returns the updated
@@ -322,6 +332,7 @@ export interface ICommitPhysicalAttackArgs {
 const EMPTY_PHYSICAL_PLAN: IPhysicalAttackPlan = {
   targetUnitId: null,
   attackType: null,
+  limb: null,
 };
 
 /**
@@ -344,9 +355,9 @@ export const usePhysicalAttackPlanStore = create<IPhysicalAttackPlanState>(
         },
       })),
 
-    setPhysicalAttackType: (attackType) =>
+    setPhysicalAttackType: (attackType, limb = null) =>
       set((state) => ({
-        physicalAttackPlan: { ...state.physicalAttackPlan, attackType },
+        physicalAttackPlan: { ...state.physicalAttackPlan, attackType, limb },
       })),
 
     clearPhysicalAttackPlan: () =>
@@ -391,6 +402,7 @@ export const usePhysicalAttackPlanStore = create<IPhysicalAttackPlanState>(
           targetTonnage,
           pilotingSkill: args.attackerPiloting,
           hexesMoved,
+          limb: plan.limb ?? undefined,
         },
       );
 

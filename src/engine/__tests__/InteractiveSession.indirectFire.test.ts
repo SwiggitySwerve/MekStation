@@ -54,7 +54,8 @@ function makeClearGrid(): IHexGrid {
 
 function makeBlockedGrid(): IHexGrid {
   const grid = makeClearGrid();
-  // Heavy woods at (3, 0) blocks LOS from (0,0) → (5,0)
+  // Light + heavy woods block LOS from (0,0) -> (5,0).
+  grid.hexes.set('2,0', makeHex(2, 0, TerrainType.LightWoods));
   grid.hexes.set('3,0', makeHex(3, 0, TerrainType.HeavyWoods));
   return grid;
 }
@@ -268,6 +269,27 @@ describe('computeIndirectFireContext', () => {
     expect(result.permitted).toBe(true);
     // Should pick s1 (alive); s2 is excluded as a candidate.
     expect(result.spotterId).toBe('s1');
+  });
+
+  it('hydrates sprinted and evading state so those units cannot spot indirect fire', () => {
+    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
+    const sprintedSpotter = makeUnit('s1', GameSide.Player, { q: 5, r: 1 });
+    const evadingSpotter = makeUnit('s2', GameSide.Player, { q: 5, r: -1 });
+    (
+      sprintedSpotter as unknown as { sprintedThisTurn: boolean }
+    ).sprintedThisTurn = true;
+    (evadingSpotter as unknown as { isEvading: boolean }).isEvading = true;
+
+    const result = computeIndirectFireContext(
+      'a1',
+      'lrm-15',
+      { q: 5, r: 0 },
+      makeState([attacker, sprintedSpotter, evadingSpotter]),
+      makeBlockedGrid(),
+    );
+
+    expect(result.permitted).toBe(false);
+    expect(result.spotterId).toBeNull();
   });
 
   // -------------------------------------------------------------------------

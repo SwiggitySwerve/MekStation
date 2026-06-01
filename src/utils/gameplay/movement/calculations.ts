@@ -13,11 +13,16 @@ import {
   getHeatMovementPenalty,
   isTSMActive,
 } from '@/types/validation/HeatManagement';
+import { hasSPA } from '@/utils/gameplay/spaModifiers/canonicalize';
 
 import type { UnitMovementType } from './types';
 
 import { getHex } from '../hexGrid';
 import { hexDistance } from '../hexMath';
+
+export interface IMovementCostContext {
+  readonly pilotAbilities?: readonly string[];
+}
 
 /**
  * Calculate running MP from walking MP.
@@ -25,6 +30,20 @@ import { hexDistance } from '../hexMath';
  */
 export function calculateRunMP(walkMP: number): number {
   return Math.ceil(walkMP * 1.5);
+}
+
+/**
+ * Calculate TacOps Sprint MP from walking MP.
+ * Base Sprint MP = walk MP * 2.
+ */
+export function calculateSprintMP(walkMP: number): number {
+  return walkMP * 2;
+}
+
+export function getSprintMPForCapability(
+  capability: IMovementCapability,
+): number {
+  return capability.sprintMP ?? calculateSprintMP(capability.walkMP);
 }
 
 /**
@@ -97,9 +116,10 @@ export function applyJumpJetCriticalDamage(
 }
 
 /**
- * Apply explicit active MASC/Supercharger run MP. MegaMek derives boosted run
- * MP from the already-effective walk MP: one active booster doubles walk MP;
- * both active boosters produce ceil(walk MP * 2.5).
+ * Apply explicit active MASC/Supercharger run and sprint MP. MegaMek derives
+ * boosted MP from the already-effective walk MP: one active booster doubles
+ * run MP and raises sprint MP to ceil(walk MP * 2.5); both active boosters
+ * produce ceil(walk MP * 2.5) run MP and walk MP * 3 sprint MP.
  */
 export function applyActiveMPBoosters(
   capability: IMovementCapability,
@@ -116,10 +136,15 @@ export function applyActiveMPBoosters(
     hasMASC && hasSupercharger
       ? Math.ceil(capability.walkMP * 2.5)
       : capability.walkMP * 2;
+  const sprintMP =
+    hasMASC && hasSupercharger
+      ? capability.walkMP * 3
+      : Math.ceil(capability.walkMP * 2.5);
 
   return {
     ...capability,
     runMP,
+    sprintMP,
   };
 }
 
@@ -155,7 +180,10 @@ function getRawMaxMP(
     case MovementType.Walk:
       return capability.walkMP;
     case MovementType.Run:
+    case MovementType.Evade:
       return capability.runMP;
+    case MovementType.Sprint:
+      return getSprintMPForCapability(capability);
     case MovementType.Jump:
       return capability.jumpMP;
     default:
@@ -172,6 +200,7 @@ export function getHexMovementCost(
   coord: IHexCoordinate,
   movementType: UnitMovementType = 'walk',
   fromCoord?: IHexCoordinate,
+  context?: IMovementCostContext,
 ): number {
   const hex = getHex(grid, coord);
   if (!hex) return Infinity;
@@ -185,6 +214,14 @@ export function getHexMovementCost(
 
     if (terrainProps) {
       terrainModifier = terrainProps.movementCostModifier[movementType] || 0;
+      if (
+        hasMountaineerMovementRelief(context) &&
+        isBattleMechGroundMovement(movementType) &&
+        (terrainType === TerrainType.Rough ||
+          terrainType === TerrainType.Rubble)
+      ) {
+        terrainModifier = Math.max(0, terrainModifier - 1);
+      }
 
       if (terrainType === TerrainType.Water) {
         if (movementType === 'walk' || movementType === 'run') {
@@ -212,11 +249,28 @@ export function getHexMovementCost(
         ) {
           return Infinity;
         }
+
+        if (
+          hasMountaineerMovementRelief(context) &&
+          isBattleMechGroundMovement(movementType)
+        ) {
+          elevationCost = Math.max(0, elevationCost - 1);
+        }
       }
     }
   }
 
   return baseCost + terrainModifier + elevationCost;
+}
+
+function hasMountaineerMovementRelief(
+  context: IMovementCostContext | undefined,
+): boolean {
+  return hasSPA(context?.pilotAbilities ?? [], 'tm_mountaineer');
+}
+
+function isBattleMechGroundMovement(movementType: UnitMovementType): boolean {
+  return movementType === 'walk' || movementType === 'run';
 }
 
 /**

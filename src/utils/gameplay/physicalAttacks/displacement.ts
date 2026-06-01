@@ -12,6 +12,7 @@
 
 import {
   Facing,
+  FiringArc,
   IHexCoordinate,
   IHexGrid,
   IPhysicalDisplacement,
@@ -19,6 +20,7 @@ import {
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import { D6Roller } from '../diceTypes';
+import { determineArc } from '../firingArcs';
 import { isInBounds } from '../hexGrid';
 import { hexNeighbor } from '../hexMath';
 
@@ -48,6 +50,10 @@ export interface IChargeDisplacementOutcome {
 }
 
 export interface IPushDisplacementOutcome {
+  readonly displacements: readonly IPhysicalDisplacement[];
+}
+
+export interface IBreakGrappleDisplacementOutcome {
   readonly displacements: readonly IPhysicalDisplacement[];
 }
 
@@ -258,6 +264,24 @@ export function isTargetDirectlyAhead(
   );
 }
 
+export function isTargetInFrontArc(
+  attackerPosition: IHexCoordinate,
+  attackerFacing: Facing,
+  targetPosition: IHexCoordinate,
+): boolean {
+  return (
+    determineArc(
+      {
+        unitId: 'attacker',
+        coord: attackerPosition,
+        facing: attackerFacing,
+        prone: false,
+      },
+      targetPosition,
+    ).arc === FiringArc.Front
+  );
+}
+
 /**
  * Per Resolved Q3: a hex is a valid displacement destination when it's
  * in-bounds, does not climb beyond the BattleMech elevation-change cap, and
@@ -450,6 +474,84 @@ function isLegalBattleMechDisplacement(
     source,
     maxElevationChange: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
   });
+}
+
+function isLegalBreakGrappleDestination(
+  grid: IHexGrid,
+  unitId: string,
+  source: IHexCoordinate,
+  destination: IHexCoordinate,
+): boolean {
+  const hex = grid.hexes.get(coordKey(destination));
+  if (hex?.occupantId && hex.occupantId !== unitId) {
+    return false;
+  }
+  return isValidDisplacement(grid, destination, {
+    excludeUnitId: unitId,
+    source,
+  });
+}
+
+function breakGrappleDestinationScore(
+  grid: IHexGrid,
+  source: IHexCoordinate,
+  destination: IHexCoordinate,
+): number {
+  const sourceElevation = grid.hexes.get(coordKey(source))?.elevation ?? 0;
+  const destinationHex = grid.hexes.get(coordKey(destination));
+  const destinationElevation = destinationHex?.elevation ?? 0;
+  const terrainScore = terrainFeatures(destinationHex?.terrain ?? '').reduce(
+    (score, feature) => {
+      if (feature.type.includes('magma')) return score + 10;
+      if (feature.type.includes('water')) return score + feature.level;
+      return score;
+    },
+    0,
+  );
+  const drop = sourceElevation - destinationElevation;
+  return terrainScore + (drop >= 2 ? drop * 2 : 0);
+}
+
+function chooseBreakGrappleDestination(options: {
+  readonly grid: IHexGrid;
+  readonly source: IHexCoordinate;
+  readonly unitId: string;
+  readonly preferDangerous: boolean;
+}): IHexCoordinate | null {
+  const candidates: {
+    readonly coord: IHexCoordinate;
+    readonly score: number;
+    readonly facing: number;
+  }[] = [];
+
+  for (let facing = 0; facing < 6; facing++) {
+    const coord = translateHex(options.source, facing as Facing);
+    if (
+      !isLegalBreakGrappleDestination(
+        options.grid,
+        options.unitId,
+        options.source,
+        coord,
+      )
+    ) {
+      continue;
+    }
+    candidates.push({
+      coord,
+      score: breakGrappleDestinationScore(options.grid, options.source, coord),
+      facing,
+    });
+  }
+
+  if (candidates.length === 0) return null;
+  candidates.sort((a, b) => {
+    const scoreDelta = options.preferDangerous
+      ? b.score - a.score
+      : a.score - b.score;
+    if (scoreDelta !== 0) return scoreDelta;
+    return a.facing - b.facing;
+  });
+  return candidates[0].coord;
 }
 
 function appendAttackerFollowThrough(
@@ -648,6 +750,51 @@ export function computeChargeDisplacementOutcome(options: {
       targetPosition,
       'charge',
     ),
+  };
+}
+
+/**
+ * Source-backed break-grapple displacement. MegaMek clears the grapple on a
+ * successful break and moves exactly one unit out of the shared grapple hex:
+ * the original grapple attacker gets the least-dangerous adjacent hex, while a
+ * defender breaking free moves the opponent into the most-dangerous adjacent
+ * hex. Hazard scoring mirrors the local source branches for magma, water
+ * depth, and two-plus-level drops.
+ */
+export function computeBreakGrappleDisplacementOutcome(options: {
+  readonly grid: IHexGrid;
+  readonly attackerId: string;
+  readonly targetId: string;
+  readonly attackerPosition: IHexCoordinate;
+  readonly targetPosition: IHexCoordinate;
+  readonly attackerIsGrappleAttacker?: boolean;
+}): IBreakGrappleDisplacementOutcome {
+  const movedUnitId =
+    options.attackerIsGrappleAttacker === true
+      ? options.attackerId
+      : options.targetId;
+  const from =
+    options.attackerIsGrappleAttacker === true
+      ? options.attackerPosition
+      : options.targetPosition;
+  const destination = chooseBreakGrappleDestination({
+    grid: options.grid,
+    source: options.attackerPosition,
+    unitId: movedUnitId,
+    preferDangerous: options.attackerIsGrappleAttacker !== true,
+  });
+
+  if (!destination) return { displacements: [] };
+
+  return {
+    displacements: [
+      {
+        unitId: movedUnitId,
+        from,
+        to: destination,
+        reason: 'break-grapple',
+      },
+    ],
   };
 }
 

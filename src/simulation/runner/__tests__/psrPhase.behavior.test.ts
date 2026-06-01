@@ -24,6 +24,7 @@ import {
   createRubblePSR,
   createSkiddingPSR,
   createSuperchargerFailurePSR,
+  createSwampBogDownPSR,
 } from '@/utils/gameplay/pilotingSkillRolls';
 import { UNIT_QUIRK_IDS } from '@/utils/gameplay/quirkModifiers';
 
@@ -398,7 +399,7 @@ describe('runPSRPhase behavior', () => {
       reasonCode: PSRTrigger.PhaseDamage20Plus,
     });
     expect(SPA_COMBAT_SUPPORT['animal-mimicry']).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('Animal Mimicry'),
     });
   });
@@ -461,9 +462,73 @@ describe('runPSRPhase behavior', () => {
       reasonCode: PSRTrigger.EnteringRubble,
     });
     expect(SPA_COMBAT_SUPPORT.tm_mountaineer).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('Mountaineer rubble-entry relief'),
     });
+  });
+
+  it('applies Swamp Beast to source-backed swamp bog-down PSRs', () => {
+    const unit = makeUnit({
+      abilities: ['tm_swamp_beast'],
+      unitType: UnitType.BATTLEMECH,
+      pendingPSRs: [createSwampBogDownPSR('player-1')],
+    });
+    const state = makeState(unit);
+    const events: IGameEvent[] = [];
+
+    runPSRPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: fixedRandom(0.5),
+    });
+
+    const resolved = events.find((e) => e.type === GameEventType.PSRResolved)
+      ?.payload as IPSRResolvedPayload | undefined;
+    expect(resolved).toMatchObject({
+      unitId: 'player-1',
+      targetNumber: 4,
+      modifiers: -1,
+      passed: true,
+      reasonCode: PSRTrigger.SwampBogDown,
+    });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application'],
+    ).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('Swamp Beast'),
+    });
+  });
+
+  it('marks failed swamp bog-down PSRs stuck without fall or pilot damage', () => {
+    const unit = makeUnit({
+      pendingPSRs: [createSwampBogDownPSR('player-1')],
+    });
+    const state = makeState(unit);
+    const events: IGameEvent[] = [];
+
+    const next = runPSRPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: fixedRandom(0),
+    });
+
+    expect(next.units['player-1']).toMatchObject({
+      isStuck: true,
+      prone: false,
+      pilotWounds: 0,
+      pendingPSRs: [],
+    });
+    expect(events.map((event) => event.type)).toContain(
+      GameEventType.UnitStuck,
+    );
+    expect(events.some((event) => event.type === GameEventType.UnitFell)).toBe(
+      false,
+    );
+    expect(events.some((event) => event.type === GameEventType.PilotHit)).toBe(
+      false,
+    );
   });
 
   it('turns a failed pending PSR into a fall, pilot wound, and pilot-death destruction', () => {

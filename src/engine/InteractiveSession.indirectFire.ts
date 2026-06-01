@@ -120,6 +120,8 @@ export function computeIndirectFireContext(
       teamId: unit.side as string,
       position: unit.position,
       movementType: unit.movementThisTurn,
+      sprintedThisTurn: unit.sprintedThisTurn,
+      isEvading: unit.isEvading,
       isOperational: !unit.destroyed && !unit.shutdown,
       // Thread pilot SPA list into candidate when caller supplies it, falling
       // back to the combat-state ability list hydrated onto the unit.

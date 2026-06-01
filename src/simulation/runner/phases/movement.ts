@@ -7,7 +7,13 @@ import {
   IGameState,
   IHexGrid,
   type IMovementCapability,
+  type IMovementDeclaredPayload,
+  MovementType,
 } from '@/types/gameplay';
+import {
+  canUnitGoProne,
+  getGoProneMpCost,
+} from '@/utils/gameplay/gameSessionProne';
 import {
   applyActiveMPBoosters,
   applyJumpJetCriticalDamage,
@@ -38,6 +44,42 @@ import { queueMovementEnhancementPSRs } from './movementEnhancementPsr';
 import { resolveRunnerStandUpAttempt } from './movementStandUp';
 import { queueMovementTerrainPSRs } from './movementTerrainPsr';
 import { createD6Roller, createGameEvent } from './utils';
+
+function isGoProneMovementPayload(
+  payload: IMovementDeclaredPayload | undefined,
+): boolean {
+  return payload?.steps?.some((step) => step.kind === 'goProne') ?? false;
+}
+
+function createGoPronePayload(
+  unitId: string,
+  unit: IGameState['units'][string],
+): IMovementDeclaredPayload {
+  const mpCost = getGoProneMpCost(unit);
+
+  return {
+    unitId,
+    from: unit.position,
+    to: unit.position,
+    facing: unit.facing as Facing,
+    movementType: MovementType.Stationary,
+    path: [unit.position],
+    mpUsed: mpCost,
+    heatGenerated: 0,
+    hexesMoved: 0,
+    straightHexes: 0,
+    turningMpCost: mpCost,
+    netDisplacement: 0,
+    steps: [
+      {
+        kind: 'goProne',
+        index: 0,
+        at: { q: unit.position.q, r: unit.position.r },
+        mpCost,
+      },
+    ],
+  };
+}
 
 export function runMovementPhase(options: {
   state: IGameState;
@@ -118,6 +160,34 @@ export function runMovementPhase(options: {
     const moveEvent = botPlayer.playMovementPhase(aiUnit, grid, capability);
 
     if (moveEvent) {
+      if (isGoProneMovementPayload(moveEvent.payload)) {
+        if (!canUnitGoProne(unit)) {
+          continue;
+        }
+
+        const payload = createGoPronePayload(unitId, unit);
+        currentState = applyMovementEvent(currentState, unitId, {
+          to: payload.to,
+          facing: payload.facing,
+          movementType: payload.movementType,
+          mpUsed: payload.mpUsed,
+          hexesMoved: payload.hexesMoved,
+          steps: payload.steps,
+        });
+        events.push(
+          createGameEvent(
+            gameId,
+            events.length,
+            GameEventType.MovementDeclared,
+            currentState.turn,
+            GamePhase.Movement,
+            payload,
+            unitId,
+          ),
+        );
+        continue;
+      }
+
       if (unit.prone) {
         currentState = resolveRunnerStandUpAttempt({
           currentState,
@@ -129,6 +199,10 @@ export function runMovementPhase(options: {
         continue;
       }
 
+      const movementCapability =
+        moveEvent.payload.movementType === MovementType.Evade
+          ? unboostedCapability
+          : capability;
       const validation = validateMovement(
         grid,
         {
@@ -136,13 +210,15 @@ export function runMovementPhase(options: {
           coord: unit.position,
           facing: unit.facing,
           prone: unit.prone ?? false,
+          isStuck: unit.isStuck ?? false,
         },
         moveEvent.payload.to,
         moveEvent.payload.facing as Facing,
         moveEvent.payload.movementType,
-        capability,
+        movementCapability,
         validationHeat,
         environmentalConditions,
+        { pilotAbilities: unit.abilities },
       );
 
       if (!validation.valid) {
@@ -189,10 +265,11 @@ export function runMovementPhase(options: {
         maxCost: Math.min(
           validation.mpCost,
           maxMovementCostForCapability(
-            capability,
+            movementCapability,
             committedPayload.movementType,
           ),
         ),
+        movementContext: { pilotAbilities: unit.abilities },
       });
       const decomposition = decomposeMovementSteps({
         from: unit.position,

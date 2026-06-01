@@ -20,6 +20,7 @@ import {
   ejectIntent,
   endPhaseIntent,
   goProneIntent,
+  requestSpotIntent,
   standIntent,
   torsoTwistIntent,
   toServerIntent,
@@ -74,6 +75,46 @@ describe('toServerIntent — declareMovement', () => {
       facing: 5,
       movementType: 'walk',
     });
+  });
+
+  it('maps TacOps Evade through the Move wire payload', () => {
+    const intent = declareMovementIntent(PEER, {
+      unitId: 'player-1',
+      to: { q: 1, r: 0 },
+      facing: 2,
+      movementType: 'evade',
+    });
+
+    const wire = toServerIntent(intent);
+
+    expect(wire).toEqual({
+      kind: 'Move',
+      unitId: 'player-1',
+      to: { q: 1, r: 0 },
+      facing: 2,
+      movementType: 'evade',
+    });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('maps TacOps Sprint through the Move wire payload', () => {
+    const intent = declareMovementIntent(PEER, {
+      unitId: 'player-1',
+      to: { q: 2, r: 0 },
+      facing: 2,
+      movementType: 'sprint',
+    });
+
+    const wire = toServerIntent(intent);
+
+    expect(wire).toEqual({
+      kind: 'Move',
+      unitId: 'player-1',
+      to: { q: 2, r: 0 },
+      facing: 2,
+      movementType: 'sprint',
+    });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
   });
 
   it('returns null for a movement intent missing the unit id', () => {
@@ -248,6 +289,32 @@ describe('toServerIntent — declarePhysical', () => {
     });
 
     expect(toServerIntent(intent)).toBeNull();
+  });
+});
+
+describe('toServerIntent requestSpot', () => {
+  it('maps a requestSpot intent to a RequestSpot wire payload', () => {
+    const wire = toServerIntent(
+      requestSpotIntent(PEER, {
+        unitId: 'player-1',
+        targetId: 'opponent-1',
+      }),
+    );
+
+    expect(wire).toEqual({
+      kind: 'RequestSpot',
+      unitId: 'player-1',
+      targetId: 'opponent-1',
+    });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('returns null for requestSpot without a target id', () => {
+    expect(
+      toServerIntent(
+        requestSpotIntent(PEER, { unitId: 'player-1', targetId: '' }),
+      ),
+    ).toBeNull();
   });
 });
 

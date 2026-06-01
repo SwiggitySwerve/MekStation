@@ -3,7 +3,7 @@
  *
  * Asserts:
  * - MovementHeatPreview renders the canonical per-type heat values
- *   (Walk=+1, Run=+2, Jump=max(3,jumpMP), Stationary=0)
+ *   (Walk=+1, Run=+2, Sprint=+3, Evade=+4, Jump=max(3,jumpMP), Stationary=0)
  * - HEX_COLORS exposes per-movement-type tile colors (walk/run/jump)
  *
  * @spec openspec/changes/add-movement-phase-ui/tasks.md § 3, § 9
@@ -32,6 +32,22 @@ describe('add-movement-phase-ui — smoke test', () => {
       expect(preview.dataset.heat).toBe('2');
       expect(preview.textContent).toContain('+2');
       expect(preview.textContent).toContain('Run');
+    });
+
+    it('renders +3 heat for TacOps Sprint', () => {
+      render(<MovementHeatPreview movementType={MovementType.Sprint} />);
+      const preview = screen.getByTestId('movement-heat-preview');
+      expect(preview.dataset.heat).toBe('3');
+      expect(preview.textContent).toContain('+3');
+      expect(preview.textContent).toContain('Sprint');
+    });
+
+    it('renders +4 heat for TacOps Evade', () => {
+      render(<MovementHeatPreview movementType={MovementType.Evade} />);
+      const preview = screen.getByTestId('movement-heat-preview');
+      expect(preview.dataset.heat).toBe('4');
+      expect(preview.textContent).toContain('+4');
+      expect(preview.textContent).toContain('Evade');
     });
 
     it('renders +3 heat for Jump with 0 jumpHexes (min floor of 3)', () => {
