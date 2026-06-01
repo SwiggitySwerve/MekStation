@@ -43,6 +43,60 @@ channel used by altitude controls. The represented already-moved distance and
 UP/HOVER-style exemptions from the same MegaMek helper are now covered by
 `pin-wige-hover-distance-exemptions`, so the map no longer shows a `LAND`
 consequence or runtime landing patch when those source guards apply.
+Represented WiGE building-top climb cost is now covered by
+`pin-wige-building-climb-cost`, source-pinned to MegaMek
+`MoveStep.java:2844-2864`: the shared movement-cost helper adds the +2 MP
+climb-mode surcharge when entering a higher represented building ceiling while
+leaving the separate cliff behavior to explicit edge metadata. Directional
+sheer-cliff movement is now covered by
+`pin-directional-cliff-movement-metadata`, source-pinned to MegaMek
+`Hex.java:744-750` and `MoveStep.java:2858-2864` / `:3159-3178`: encoded
+cliff-top exits add the WiGE +1 MP ascent surcharge and block represented
+tracked/wheeled/hover vehicle ascent when no pavement/road surface cancels the
+cliff effect, without inferring cliffs from ordinary elevation deltas.
+Imported MegaMek board cliff metadata is covered by
+`import-megamek-cliff-top-exits`, source-pinned to MegaMek
+`Terrain.java:103-119`, `Terrain.java:302`, `Terrains.java:147-150`, and
+`Board.java:537-602`: `.board` `cliff_top:1:<exitMask>` entries now import as
+`cliffTopExits` only for in-board 1- or 2-level drops, so real map data drives
+the same movement projection instead of relying on hand-authored fixtures.
+Large MegaMek board labels are covered by
+`import-large-megamek-board-coordinates`, source-pinned to MegaMek
+`Coords.java:510-514`, `Board.java:1062-1063`, and real
+`170x120 Fort David.board` labels such as `10412`, `10016`, and `104120`:
+the parser now splits two-or-more digit column/row components against declared
+board dimensions so large-board terrain, elevation, and cliff metadata reaches
+the same tactical projection path instead of failing the old fixed-four-digit
+guard.
+The follow-on `audit-megamek-board-import-corpus` verifier now makes that import
+claim repeatable against a local MegaMek board checkout. Its first local run
+found ambiguous labels such as `10101` on `170x120 Fort David.board`; MekStation
+now uses MegaMek row order to disambiguate those labels, matching
+`Board.java:1062-1063`. The verified local corpus run parsed all 2,386 boards
+under `E:\Projects\megamek\megamek\data\boards` with 0 failures, covering
+3,638,056 hex rows, 382,251 large-coordinate rows, and 5,253 `cliff_top` rows.
+The follow-on `surface-cliff-exits-map-context` slice exposes represented
+`cliffTopExits` on hex metadata, terrain labels, terrain/elevation source
+details, and terrain hover context so the map explains directional cliff edges
+from imported terrain instead of hiding them inside movement-only diagnostics.
+The `surface-movement-option-source-details` slice expands the shared movement
+source reference so same-hex walk/run/jump options carry their reachable or
+blocked state, MP cost, terrain and elevation costs, heat, and blocked reason
+directly in `movement:megamek` projection metadata instead of only in visible
+badges/tooltips.
+The `source-movement-reach-badge` slice pins the normal reachable movement
+badge to that same source-backed path, so the standing MP badge now exposes
+`movement:megamek` source refs, MegaMek rule refs, and projection explanation
+metadata before hover path preview replaces it.
+The `source-movement-step-cost-badge` slice extends that provenance to the
+separate terrain/elevation step-cost marker, so visible `T+`/`E+`/`UP`/`DN`
+cost labels also identify their shared `movement:megamek` source and rule
+references.
+The `source-hover-path-preview-badge` slice keeps the hovered path MP badge on
+that same source-backed path: hovering a reachable destination now preserves
+terrain/elevation cost, heat, `movement:megamek` source refs, and MegaMek rule
+refs on the preview badge instead of thinning the displayed commit preview to
+MP and movement type only.
 Replayable gameplay events for runtime movement state are covered by
 `apply-runtime-movement-state-events`; player-facing tactical command controls
 for represented conversion and infantry mount-state changes are covered by
