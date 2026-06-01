@@ -59,7 +59,7 @@ export const MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS = [
     'megamek/src/megamek/common/options/OptionsConstants.java#L169-L230',
   ),
   mekstationDeviationRef(
-    'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
+    'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
     'src/utils/gameplay/spaModifiers/catalog.ts#L204-L386',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
