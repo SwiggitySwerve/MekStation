@@ -998,6 +998,8 @@ export const HexCell = React.memo(function HexCell({
         hex={hex}
         hoverMpCost={hoverMpCost}
         movementInfo={movementInfo}
+        projectionExplanation={tacticalProjectionExplanation}
+        sourceReferences={tacticalProjectionSourceReferences}
       />
       <CombatLineOfSightBlockerBadge
         x={x}

@@ -1683,7 +1683,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
       'aria-label',
-      'run via hover path preview: 4 MP',
+      'run via hover path preview: 4 MP; terrain +1; elevation delta +1 cost +1; heat +2',
     );
     expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
       'data-hover-mp-cost',
@@ -1698,9 +1698,41 @@ describe('HexMapDisplay tactical visual layers', () => {
       'hover',
     );
     expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'data-movement-badge-terrain-cost',
+      '1',
+    );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'data-movement-badge-elevation-delta',
+      '1',
+    );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'data-movement-badge-elevation-cost',
+      '1',
+    );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
       'data-movement-badge-heat-generated',
       '2',
     );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'movement',
+    );
+    expect(
+      screen
+        .getByTestId('hex-mp-badge-1-0')
+        .getAttribute('data-movement-badge-source-refs'),
+    ).toContain(
+      'movement:megamek:MegaMek movement rules projection:run/hover projection: run via hover reachable 4 MP terrain +1 elevation delta +1 cost +1 heat +2',
+    );
+    expect(
+      screen
+        .getByTestId('hex-mp-badge-1-0')
+        .getAttribute('data-movement-badge-rule-refs'),
+    ).toContain('movement:megamek:MegaMek common/moves/MoveStep.java');
 
     act(() => {
       unmount();
@@ -1765,7 +1797,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
       'aria-label',
-      'run via tracked path preview: 5 MP',
+      'run via tracked path preview: 5 MP; terrain +2; elevation delta +1 cost +1; heat +2',
     );
     expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
       'data-hover-mp-cost',
@@ -1778,6 +1810,13 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
       'data-movement-badge-mode',
       'tracked',
+    );
+    expect(
+      screen
+        .getByTestId('hex-mp-badge-1-0')
+        .getAttribute('data-movement-badge-source-refs'),
+    ).toContain(
+      'run/tracked,walk/tracked projection: run via tracked reachable 5 MP terrain +2 elevation delta +1 cost +1 heat +2, walk via tracked reachable 3 MP terrain +2 elevation delta +1 cost +1 heat +1',
     );
 
     act(() => {

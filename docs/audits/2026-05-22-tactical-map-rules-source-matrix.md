@@ -84,6 +84,11 @@ source reference so same-hex walk/run/jump options carry their reachable or
 blocked state, MP cost, terrain and elevation costs, heat, and blocked reason
 directly in `movement:megamek` projection metadata instead of only in visible
 badges/tooltips.
+The `source-hover-path-preview-badge` slice keeps the hovered path MP badge on
+that same source-backed path: hovering a reachable destination now preserves
+terrain/elevation cost, heat, `movement:megamek` source refs, and MegaMek rule
+refs on the preview badge instead of thinning the displayed commit preview to
+MP and movement type only.
 Replayable gameplay events for runtime movement state are covered by
 `apply-runtime-movement-state-events`; player-facing tactical command controls
 for represented conversion and infantry mount-state changes are covered by
