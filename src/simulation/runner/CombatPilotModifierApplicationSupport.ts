@@ -260,9 +260,10 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
     'canPunch, canPush, canMeleeWeapon, runPhysicalAttackPhase, and interactive declarations consume unit quirks for source-backed No Arms restrictions',
     MEGAMEK_NO_ARMS_SOURCE_REFS,
   ),
-  'low-arms-application': unsupported(
+  'low-arms-application': outOfScope(
     'low-arms-application',
-    'MegaMek registers Low Arms as a quirk option but the pinned source tree contains no combat resolver, so MekStation must not apply a local elevation gate as covered behavior',
+    'Pinned MegaMek source search finds only Low Arms option registration, so MekStation must not apply a local elevation gate as covered behavior',
+    'Low Arms resolver assignment remains registry-only out-of-scope audit evidence until a pinned MegaMek or MekHQ authority exposes combat resolver semantics',
     MEGAMEK_LOW_ARMS_GAP_SOURCE_REFS,
   ),
   'psr-application': integrated(
