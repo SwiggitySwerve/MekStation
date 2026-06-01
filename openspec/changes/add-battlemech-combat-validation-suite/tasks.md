@@ -462,3 +462,4 @@
 - [x] 4.3.185 Promote source-backed heat modifier resolver coverage to integrated by leaving the local helper-only Cool Under Fire generated-heat reducer unconsumed in runner and interactive BattleMech heat resolution.
 - [x] 4.3.186 Promote Pain Resistance ranged to-hit non-application to integrated by proving runner and event-sourced ranged attacks preserve raw pilot wound penalties while keeping Pain Resistance helper-only for missing wake-up behavior.
 - [x] 4.3.187 Split AToW/personnel-origin canonical SPA rows into the out-of-scope audit inventory so Natural Aptitude, Combat Sense/Paralysis, and G-Tolerance do not inflate official BattleMech combat blockers.
+- [x] 4.3.188 Split local Marksman/legacy Sharpshooter called-shot helper rows into the out-of-scope audit inventory because source-backed BattleMech called shots use TacOps +3 penalties without those reductions.
