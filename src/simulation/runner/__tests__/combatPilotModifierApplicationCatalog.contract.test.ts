@@ -269,6 +269,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'cluster-hitter-application',
         'heat-application',
         'indirect-fire-spa-application',
+        'legacy-pain-resistance-to-hit-application',
         'multi-target-penalty-application',
         'physical-action-count-application',
         'physical-damage-application',
@@ -286,7 +287,6 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       [
         'initiative-command-console-hydration',
         'initiative-hq-equipment-hydration',
-        'legacy-pain-resistance-to-hit-application',
         'low-arms-application',
         'movement-application',
         'target-priority-application',
@@ -349,12 +349,15 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS[
         'legacy-pain-resistance-to-hit-application'
       ],
-    ).toEqual({ spaIds: ['pain-resistance'], quirkIds: [] });
+    ).toEqual({ spaIds: [], quirkIds: [] });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'legacy-pain-resistance-to-hit-application'
       ],
-    ).toMatchObject({ level: 'unsupported' });
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('preserve raw pilot wound penalties'),
+    });
   });
 
   it('keeps source-backed Multi-Tasker distinct from local Multi-Target', () => {
@@ -1252,8 +1255,10 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'legacy-pain-resistance-to-hit-application'
       ],
     ).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('not ranged to-hit wound-penalty relief'),
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'not ranged to-hit wound-penalty relief',
+      ),
     });
     expect(ironManRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek TWGameManager reduces ammunition-explosion pilot damage by 1 for Pain Resistance or Iron Man.',
@@ -1331,7 +1336,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS[
         'legacy-pain-resistance-to-hit-application'
       ],
-    ).toEqual({ spaIds: ['pain-resistance'], quirkIds: [] });
+    ).toEqual({ spaIds: [], quirkIds: [] });
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['ranged-to-hit-calculation'].spaIds,
     ).not.toContain('pain-resistance');
