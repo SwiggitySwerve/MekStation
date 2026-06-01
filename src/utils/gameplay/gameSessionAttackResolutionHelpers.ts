@@ -186,6 +186,7 @@ export function buildDamageStateFromUnit(
     structure: structureRecord,
     destroyedLocations: unit.destroyedLocations as CombatLocation[],
     pilotWounds: unit.pilotWounds,
+    pilotToughness: unit.pilotToughness,
     pilotConscious: unit.pilotConscious,
     pilotAbilities: unit.abilities,
     destroyed: unit.destroyed,

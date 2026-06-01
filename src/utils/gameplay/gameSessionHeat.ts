@@ -333,6 +333,7 @@ function appendHeatAmmoExplosionPilotDamage(
     pilotDamage,
     unit.abilities,
     d6Roller,
+    unit.pilotToughness,
   );
   const consciousnessPassed =
     unit.pilotConscious &&
@@ -1110,6 +1111,7 @@ export function resolveHeatPhase(
         pilotDamage,
         currentUnitState.abilities ?? unit.abilities ?? [],
         d6Roller,
+        currentUnitState.pilotToughness,
       );
       const consciousnessPassed =
         currentUnitState.pilotConscious &&
