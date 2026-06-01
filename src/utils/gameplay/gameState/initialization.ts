@@ -297,6 +297,7 @@ export function createInitialUnitState(
     destroyedEquipment: [],
     ammo: {},
     pilotWounds: 0,
+    pilotToughness: unit.pilotToughness,
     pilotConscious: true,
     destroyed: false,
     lockState: LockState.Pending,
