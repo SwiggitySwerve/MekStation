@@ -281,13 +281,13 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   'psr-spa-application': helperOnly(
     'psr-spa-application',
     'calculatePSRModifiers, runPSRPhase, resolvePendingPSRs, and stand-up PSR paths apply source-backed Maneuvering Ace skidding relief, Animal Mimicry quad-Mek relief, Terrain Master: Frogman water-entry relief, Terrain Master: Mountaineer rubble-entry relief, and Swamp Beast bog-down relief to PSR target numbers',
-    'Maneuvering Ace controlled-sideslip and out-of-control control-roll side paths beyond skidding, Terrain Master variants beyond Frogman water-entry, Mountaineer rubble-entry, and Swamp Beast bog-down relief, Acrobat, and Natural Grace PSR modifiers are not wired',
+    'Maneuvering Ace controlled-sideslip and out-of-control control-roll side paths beyond skidding and Terrain Master variants beyond Frogman water-entry, Mountaineer rubble-entry, and Swamp Beast bog-down relief are not wired',
     MEGAMEK_PSR_SPA_SOURCE_REFS,
   ),
   'initiative-application': helperOnly(
     'initiative-application',
     'rollInitiative consumes source-backed Command Mech/Battle Computer force-level quirk bonuses, explicit HQ/command equipment initiative bonuses, and Tactical Genius reroll requests while preserving raw 2d6 payload fields',
-    'Combat Intuition first-round sequencing and automatic command-console/HQ initiative equipment hydration are not wired; equipment-derived initiative remains unsupported unless source-kind/rules-profile, working/default-mode communications tonnage, command-console crew, weight-class, IndustrialMek, and advanced-fire-control eligibility context exists',
+    'Automatic command-console/HQ initiative equipment hydration is not wired; equipment-derived initiative remains unsupported unless source-kind/rules-profile, working/default-mode communications tonnage, command-console crew, weight-class, IndustrialMek, and advanced-fire-control eligibility context exists',
     [
       ...MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
       ...MEGAMEK_INITIATIVE_EQUIPMENT_SOURCE_REFS,
@@ -360,7 +360,7 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'movement-application': unsupported(
     'movement-application',
-    'Legacy Evasive SPA movement application is superseded by the integrated source-backed TacOps Evade action row; Maneuvering Ace lateral-shift movement, Speed Demon run-distance/heat tradeoff, and Heavy Lifter carry/throw actions are not wired in the BattleMech combat matrix even though Heavy Lifter lift-capacity helper math exists',
+    'Legacy Evasive SPA movement application is superseded by the integrated source-backed TacOps Evade action row; Maneuvering Ace lateral-shift movement and Heavy Lifter carry/throw actions are not wired in the BattleMech combat matrix even though Heavy Lifter lift-capacity helper math exists',
     [
       ...MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
       ...MEGAMEK_MANEUVERING_ACE_MOVEMENT_SOURCE_REFS,
@@ -373,9 +373,10 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
     'calculateToHit applies source-backed secondary-target penalties and calculateMultiTaskerModifier reduces those penalties for Multi-Tasker/multi_tasker through ranged to-hit calculation while leaving the unsupported local Multi-Target row unconsumed',
     MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS,
   ),
-  'target-priority-application': unsupported(
+  'target-priority-application': outOfScope(
     'target-priority-application',
-    'Local Antagonizer target-priority enforcement is not implemented in target selection or attack validation, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
+    'MekStation local Antagonizer target-priority enforcement has no identified source-backed MegaMek combat SPA authority',
+    'Local Antagonizer target-priority behavior is excluded from the official BattleMech validation blocker inventory until a source-backed combat authority and executable resolver path exist',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
@@ -459,14 +460,12 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
       'tm_frogman',
       'tm_mountaineer',
       'tm_swamp_beast',
-      'acrobat',
-      'natural-grace',
       'animal-mimicry',
     ],
     quirkIds: [],
   },
   'initiative-application': {
-    spaIds: ['tactical-genius', 'combat-intuition'],
+    spaIds: ['tactical-genius'],
     quirkIds: ['command_mech', 'battle_computer'],
   },
   'initiative-hq-equipment-hydration': { spaIds: [], quirkIds: [] },
@@ -490,7 +489,7 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
     quirkIds: [],
   },
   'movement-application': {
-    spaIds: ['evasive', 'maneuvering-ace', 'speed-demon', 'heavy-lifter'],
+    spaIds: ['evasive', 'maneuvering-ace', 'heavy-lifter'],
     quirkIds: [],
   },
   'multi-target-penalty-application': {
@@ -498,7 +497,7 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
     quirkIds: [],
   },
   'target-priority-application': {
-    spaIds: ['antagonizer'],
+    spaIds: [],
     quirkIds: [],
   },
 } satisfies Record<
