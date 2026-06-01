@@ -174,16 +174,16 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 119,
+      total: 118,
       byLevel: {
-        'helper-only': 102,
+        'helper-only': 101,
         unsupported: 17,
       },
       bySection: {
         damageAndDeath: 2,
         featureSupport: 73,
         lifecycleAndPsr: 2,
-        pilotSkills: 16,
+        pilotSkills: 15,
         ruleSupport: 9,
         validationScope: 17,
       },
@@ -314,13 +314,9 @@ describe('BattleMech combat validation catalog index', () => {
     expect(unsupportedRefs).not.toContain(
       'pilotSkills.pilotModifierResolvers.multi-target-penalty-application',
     );
-    expect(
-      unresolvedRows.find(
-        (row) =>
-          row.ref ===
-          'pilotSkills.pilotModifierResolvers.multi-target-penalty-application',
-      )?.level,
-    ).toBe('helper-only');
+    expect(unresolvedRefs).not.toContain(
+      'pilotSkills.pilotModifierResolvers.multi-target-penalty-application',
+    );
     expect(unresolvedRefs).toContain(
       'featureSupport.pilotAbilities.multi-target',
     );
