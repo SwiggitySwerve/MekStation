@@ -440,7 +440,7 @@ describe('heat environment runner/interactive parity boundaries', () => {
     });
   });
 
-  it('applies Cool Under Fire and weapon cooling quirks in the interactive resolver and quick-sim runHeatPhase', () => {
+  it('applies weapon cooling quirks but does not consume local-only Cool Under Fire in heat resolution', () => {
     const interactive = resolveHeatPhase(
       withInteractiveUnit(
         createInteractiveHeatSession([createPpc('ppc-1')]),
@@ -483,11 +483,11 @@ describe('heat environment runner/interactive parity boundaries', () => {
       ),
     ).toEqual([expect.objectContaining({ amount: 9 })]);
     expect(interactiveDissipation).toMatchObject({
-      amount: -11,
-      newTotal: 18,
+      amount: -10,
+      newTotal: 19,
       breakdown: {
         baseDissipation: 10,
-        heatGenerationReduction: 1,
+        heatGenerationReduction: 0,
       },
     });
     expect(
@@ -496,14 +496,14 @@ describe('heat environment runner/interactive parity boundaries', () => {
         .map((event) => event.payload as IHeatPayload),
     ).toEqual([expect.objectContaining({ amount: 9, source: 'firing' })]);
     expect(runnerDissipation).toMatchObject({
-      amount: -11,
-      newTotal: 18,
+      amount: -10,
+      newTotal: 19,
       breakdown: {
         baseDissipation: 10,
-        heatGenerationReduction: 1,
+        heatGenerationReduction: 0,
       },
     });
-    expect(runnerState.units['player-1'].heat).toBe(18);
+    expect(runnerState.units['player-1'].heat).toBe(19);
     expect(SPA_COMBAT_SUPPORT['cool-under-fire']).toMatchObject({
       level: 'helper-only',
       gap: expect.stringContaining('No MegaMek source'),
@@ -513,7 +513,12 @@ describe('heat environment runner/interactive parity boundaries', () => {
     });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application'],
-    ).toMatchObject({ level: 'helper-only' });
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'leaving local Cool Under Fire unconsumed',
+      ),
+    });
   });
 
   it('applies atmosphere and temperature heat modifiers in the interactive resolver and quick-sim runHeatPhase', () => {
