@@ -174,14 +174,14 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 94,
+      total: 93,
       byLevel: {
-        'helper-only': 90,
+        'helper-only': 89,
         unsupported: 4,
       },
       bySection: {
         damageAndDeath: 2,
-        featureSupport: 56,
+        featureSupport: 55,
         pilotSkills: 11,
         ruleSupport: 9,
         validationScope: 16,
@@ -374,6 +374,19 @@ describe('BattleMech combat validation catalog index', () => {
     expect(unresolvedRefs).not.toContain(
       'featureSupport.pilotAbilities.iron-will',
     );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.terrain-master',
+    );
+    expect(unsupportedRefs).toContain(
+      'featureSupport.canonicalPilotAbilityScope.tm_nightwalker',
+    );
+    expect(
+      unresolvedRows.find(
+        (row) =>
+          row.ref ===
+          'featureSupport.canonicalPilotAbilityScope.tm_nightwalker',
+      )?.level,
+    ).toBe('unsupported');
     expect(
       unresolvedRows.find(
         (row) => row.ref === 'featureSupport.pilotAbilities.toughness',
@@ -490,7 +503,7 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.wireIntents.SetReady',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(95);
+    expect(outOfScopeRows).toHaveLength(96);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('actions.physicalActionClassScope.'),
@@ -572,6 +585,7 @@ describe('BattleMech combat validation catalog index', () => {
       'featureSupport.pilotAbilities.natural-grace',
       'featureSupport.pilotAbilities.sharpshooter',
       'featureSupport.pilotAbilities.speed-demon',
+      'featureSupport.pilotAbilities.terrain-master',
     ]);
     expect(
       outOfScopeRefs.filter((ref) =>
