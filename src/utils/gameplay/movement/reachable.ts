@@ -47,6 +47,7 @@ import {
   withPendingAltitudeControlProjection,
   type IPendingAltitudeControlMovementCost,
 } from './altitudeControlAccounting';
+import { withAutomaticWigeLandingProjection } from './automaticWigeLanding';
 import {
   calculatePathMovementCost,
   getJumpClearanceBlockedReason,
@@ -681,18 +682,23 @@ export function deriveMovementRangeHexForDestination(
       });
     }
 
-    return withReservedProjection({
-      hex,
-      mpCost: dist + reservedCost,
-      elevationDelta,
-      elevationCost: 0,
-      terrainCost: 0,
-      path: [origin, hex],
-      heatGenerated,
-      movementMode,
-      reachable: true,
-      movementType: MovementType.Jump,
-    });
+    return withReservedProjection(
+      withAutomaticWigeLandingProjection(
+        {
+          hex,
+          mpCost: dist + reservedCost,
+          elevationDelta,
+          elevationCost: 0,
+          terrainCost: 0,
+          path: [origin, hex],
+          heatGenerated,
+          movementMode,
+          reachable: true,
+          movementType: MovementType.Jump,
+        },
+        unit,
+      ),
+    );
   }
 
   const path =
@@ -795,18 +801,23 @@ export function deriveMovementRangeHexForDestination(
   }
   const finalStep = finalStepCost(grid, path, movementMode, costContext);
 
-  return withReservedProjection({
-    hex,
-    mpCost: cost,
-    terrainCost: finalStep?.terrainCost,
-    elevationDelta: finalStep?.elevationDelta,
-    elevationCost: finalStep?.elevationCost,
-    path,
-    heatGenerated,
-    movementMode,
-    reachable: true,
-    movementType: mpType,
-    ...standUpProjection,
-    ...hullDownExitProjection,
-  });
+  return withReservedProjection(
+    withAutomaticWigeLandingProjection(
+      {
+        hex,
+        mpCost: cost,
+        terrainCost: finalStep?.terrainCost,
+        elevationDelta: finalStep?.elevationDelta,
+        elevationCost: finalStep?.elevationCost,
+        path,
+        heatGenerated,
+        movementMode,
+        reachable: true,
+        movementType: mpType,
+        ...standUpProjection,
+        ...hullDownExitProjection,
+      },
+      unit,
+    ),
+  );
 }
