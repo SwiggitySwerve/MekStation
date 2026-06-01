@@ -364,7 +364,10 @@ describe('runAttackPhase to-hit modifier integration', () => {
     });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application'],
-    ).toMatchObject({ level: 'helper-only' });
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('Some Like It Hot'),
+    });
   });
 
   it('threads target movement, prone, shutdown, partial cover, and target terrain into AttackDeclared', () => {
