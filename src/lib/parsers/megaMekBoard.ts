@@ -43,6 +43,61 @@ function convertOffsetToAxial(
   return { q, r };
 }
 
+function formatMegaMekBoardCoordinatePart(value: number): string {
+  return value < 10 ? `0${value}` : `${value}`;
+}
+
+function parseMegaMekBoardCoordinate(
+  coordStr: string,
+  width: number,
+  height: number,
+  hexIndex: number,
+): { col: number; row: number } {
+  if (!/^\d{4,}$/.test(coordStr)) {
+    throw new Error('Invalid hex coordinate');
+  }
+
+  const candidates: Array<{ col: number; row: number }> = [];
+
+  for (let splitIndex = 2; splitIndex <= coordStr.length - 2; splitIndex++) {
+    const col = parseInt(coordStr.slice(0, splitIndex), 10);
+    const row = parseInt(coordStr.slice(splitIndex), 10);
+
+    if (
+      col < 1 ||
+      col > width ||
+      row < 1 ||
+      row > height ||
+      `${formatMegaMekBoardCoordinatePart(col)}${formatMegaMekBoardCoordinatePart(row)}` !==
+        coordStr
+    ) {
+      continue;
+    }
+
+    candidates.push({ col, row });
+  }
+
+  if (candidates.length === 1) {
+    return candidates[0];
+  }
+
+  const rowOrderCoordinate = {
+    col: (hexIndex % width) + 1,
+    row: Math.floor(hexIndex / width) + 1,
+  };
+  const rowOrderCandidate = candidates.find(
+    (candidate) =>
+      candidate.col === rowOrderCoordinate.col &&
+      candidate.row === rowOrderCoordinate.row,
+  );
+
+  if (rowOrderCandidate) {
+    return rowOrderCandidate;
+  }
+
+  throw new Error('Invalid hex coordinate');
+}
+
 function parseTerrainString(terrainStr: string): {
   features: ITerrainFeature[];
   buildingCF?: number;
@@ -212,12 +267,12 @@ export function parseMegaMekBoard(content: string): ParsedBoard {
       const elevationStr = parts[1];
       const terrainStr = parts.slice(2).join(' ');
 
-      if (!/^\d{4}$/.test(coordStr)) {
-        throw new Error('Invalid hex coordinate');
-      }
-
-      const col = parseInt(coordStr.substring(0, 2), 10);
-      const row = parseInt(coordStr.substring(2, 4), 10);
+      const { col, row } = parseMegaMekBoardCoordinate(
+        coordStr,
+        width,
+        height,
+        hexes.length,
+      );
       const elevation = parseInt(elevationStr, 10);
 
       if (isNaN(elevation)) {

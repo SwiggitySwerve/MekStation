@@ -1,6 +1,10 @@
 import type { IHexTerrain } from '@/types/gameplay';
 
-import { TerrainType } from '@/types/gameplay';
+import { Facing, TerrainType } from '@/types/gameplay';
+import {
+  getFacingAbbreviation,
+  getFacingName,
+} from '@/utils/gameplay/unitPosition';
 
 type TerrainFeature = IHexTerrain['features'][number];
 
@@ -70,4 +74,76 @@ export function terrainBuildingDetailLabel(
     formatTerrainBuildingDetail,
   );
   return details.length > 0 ? details.join('; ') : undefined;
+}
+
+function isFacing(value: number): value is Facing {
+  return (
+    Number.isInteger(value) &&
+    value >= Facing.North &&
+    value <= Facing.Northwest
+  );
+}
+
+export function terrainCliffExitDirectionsForFeatures(
+  features: readonly TerrainFeature[],
+): readonly Facing[] {
+  const directions = new Set<Facing>();
+  for (const feature of features) {
+    for (const direction of feature.cliffTopExits ?? []) {
+      if (isFacing(direction)) {
+        directions.add(direction);
+      }
+    }
+  }
+
+  return Array.from(directions).sort((a, b) => a - b);
+}
+
+export function terrainCliffExitDirectionsAttributeForFeatures(
+  features: readonly TerrainFeature[],
+): string | undefined {
+  const directions = terrainCliffExitDirectionsForFeatures(features);
+  return directions.length > 0 ? directions.join(',') : undefined;
+}
+
+export function terrainCliffExitLabelsAttributeForFeatures(
+  features: readonly TerrainFeature[],
+): string | undefined {
+  const directions = terrainCliffExitDirectionsForFeatures(features);
+  return directions.length > 0
+    ? directions.map(getFacingAbbreviation).join(',')
+    : undefined;
+}
+
+export function terrainCliffExitDetailLabelForFeatures(
+  features: readonly TerrainFeature[],
+): string | undefined {
+  const directions = terrainCliffExitDirectionsForFeatures(features);
+  return directions.length > 0
+    ? `Cliff edges: ${directions.map(getFacingName).join(', ')}`
+    : undefined;
+}
+
+export function terrainCliffExitDirectionsAttribute(
+  terrain: IHexTerrain | undefined,
+): string | undefined {
+  return terrain
+    ? terrainCliffExitDirectionsAttributeForFeatures(terrain.features)
+    : undefined;
+}
+
+export function terrainCliffExitLabelsAttribute(
+  terrain: IHexTerrain | undefined,
+): string | undefined {
+  return terrain
+    ? terrainCliffExitLabelsAttributeForFeatures(terrain.features)
+    : undefined;
+}
+
+export function terrainCliffExitDetailLabel(
+  terrain: IHexTerrain | undefined,
+): string | undefined {
+  return terrain
+    ? terrainCliffExitDetailLabelForFeatures(terrain.features)
+    : undefined;
 }
