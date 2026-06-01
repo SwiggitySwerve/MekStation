@@ -149,6 +149,7 @@ export function resolvePendingPSRs(
         1,
         currentUnitState.abilities ?? unit.abilities ?? [],
         d6Roller,
+        currentUnitState.pilotToughness,
       );
       const consciousnessPassed =
         currentUnitState.pilotConscious &&
@@ -281,6 +282,7 @@ export function resolvePendingPSRs(
         1,
         currentUnitState.abilities ?? unit.abilities ?? [],
         d6Roller,
+        currentUnitState.pilotToughness,
       );
       const consciousnessPassed =
         currentUnitState.pilotConscious &&
