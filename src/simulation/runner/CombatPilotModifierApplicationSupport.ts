@@ -368,7 +368,7 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'multi-target-penalty-application': integrated(
     'multi-target-penalty-application',
-    'calculateToHit applies source-backed secondary-target penalties and calculateMultiTaskerModifier reduces those penalties for Multi-Tasker/multi_tasker through ranged to-hit calculation while leaving the unsupported local Multi-Target row unconsumed',
+    'calculateToHit applies source-backed secondary-target penalties and calculateMultiTaskerModifier reduces those penalties for Multi-Tasker/multi_tasker through ranged to-hit calculation while leaving the out-of-scope local Multi-Target row unconsumed',
     MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS,
   ),
   'target-priority-application': outOfScope(
