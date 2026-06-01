@@ -14,7 +14,7 @@ import {
   ITargetState,
   RangeBracket,
 } from '@/types/gameplay';
-import { consumeAmmo } from '@/utils/gameplay/ammoTracking';
+import { consumeAmmo, isEnergyWeapon } from '@/utils/gameplay/ammoTracking';
 import {
   updateC3UnitOperationalStatus,
   updateC3UnitECMStatus,
@@ -1044,6 +1044,7 @@ export function runAttackPhase(options: {
       const environmentalModifiers =
         environmentalConditions !== undefined
           ? calculateEnvironmentalModifiers(environmentalConditions, {
+              isEnergyWeapon: isEnergyWeapon(baseWeapon.name),
               isMissileWeapon:
                 isMissileWeapon(baseWeapon.id) ||
                 isMissileWeapon(baseWeapon.name),
