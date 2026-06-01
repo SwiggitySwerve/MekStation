@@ -722,9 +722,10 @@ export const SPA_COMBAT_SUPPORT = {
       ...MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
     ],
   ),
-  toughness: unsupported(
+  toughness: helperOnly(
     'toughness',
-    'MegaMek RPG Toughness is a separate game option and numeric crew toughness value; MekStation has no numeric crew toughness state or RPG Toughness option resolver wired',
+    'resolvePilotConsciousnessCheck, applyPilotDamage, runner pilot-damage phases, and interactive PSR/heat/physical/ammo-explosion paths consume explicit numeric pilotToughness state without treating legacy toughness ability strings as source-backed relief',
+    'Automatic RPG Toughness game-option hydration and MUL crew toughness import remain unwired; explicit pilotToughness is the supported closed-world path',
     [
       ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
       ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
