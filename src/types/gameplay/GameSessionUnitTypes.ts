@@ -116,6 +116,12 @@ export interface IGameUnit {
   readonly superchargerFailureLevelIncreasedLastTurn?: boolean;
   /** Pilot SPA ids copied into combat state for modifier resolution. */
   readonly abilities?: readonly string[];
+  /**
+   * Source-backed RPG Toughness numeric crew value copied into combat state
+   * for consciousness checks. Ability aliases named "toughness" do not imply
+   * this value.
+   */
+  readonly pilotToughness?: number;
   /** SPA designation fields copied into combat state for to-hit resolution. */
   readonly designatedWeaponType?: string;
   readonly designatedWeaponCategory?: string;
