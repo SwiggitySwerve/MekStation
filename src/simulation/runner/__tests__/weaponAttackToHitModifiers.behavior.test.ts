@@ -1732,4 +1732,49 @@ describe('runAttackPhase to-hit modifier integration', () => {
       level: 'integrated',
     });
   });
+
+  it('uses source-backed called-shot penalties without local Marksman reductions', () => {
+    const events: IGameEvent[] = [];
+    const violations: IViolation[] = [];
+    const state = createWeaponAttackState({
+      attacker: { abilities: ['marksman', 'sharpshooter'] },
+    });
+
+    runAttackPhase({
+      state,
+      botPlayer: new DeclaresWeaponAttackAI(
+        MEDIUM_LASER_ID,
+        'opponent-1',
+        [MEDIUM_LASER_ID],
+        undefined,
+        { [MEDIUM_LASER_ID]: true },
+      ),
+      grid: createGrid(),
+      invariantRunner: new InvariantRunner(),
+      violations,
+      events,
+      gameId: state.gameId,
+      random: new SeededRandom(12345),
+      weaponsByUnit: new Map([
+        ['player-1', [createMediumLaser(MEDIUM_LASER_ID)]],
+        ['opponent-1', []],
+      ]),
+    });
+
+    const payload = attackDeclaredPayload(events);
+    const calledShotModifier = payload.modifiers.find(
+      (modifier) => modifier.name === 'Called Shot',
+    );
+
+    expect(payload.toHitNumber).toBe(7);
+    expect(calledShotModifier).toMatchObject({
+      value: 3,
+      source: 'other',
+    });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['called-shot-application'],
+    ).toMatchObject({
+      level: 'integrated',
+    });
+  });
 });

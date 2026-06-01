@@ -43,6 +43,7 @@ export function buildWeaponAttackAttackerToHitState(
   secondaryTarget?: ISecondaryTarget,
   calledShot?: boolean,
   teammateCalledShot?: boolean,
+  applyLocalCalledShotAbilityReduction: boolean = true,
 ): IAttackerState {
   return {
     gunnery,
@@ -64,6 +65,7 @@ export function buildWeaponAttackAttackerToHitState(
     secondaryTarget,
     calledShot,
     teammateCalledShot,
+    applyLocalCalledShotAbilityReduction,
     designatedTargetId: unit.designatedTargetId,
     designatedRangeBracket: unit.designatedRangeBracket,
     unitQuirks: unit.unitQuirks,
