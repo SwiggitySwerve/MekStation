@@ -1096,6 +1096,7 @@ Runner movement validation SHALL consume explicit active `activeMASC` and `activ
 - **THEN** the movement SHALL be accepted with 8 MP used
 - **AND** the unit SHALL receive a pending `MASCFailure` PSR with fixed target number 3
 - **AND** the movement-enhancement catalog SHALL mark the core MASC row integrated and keep alternate table and first-step timing side paths in a separate helper-only row with MegaMek source anchors
+- **AND** the PSR trigger catalog SHALL mark the core MASC failure trigger integrated because alternate table and first-step timing concerns live on the separate MASC side-path row
 
 #### Scenario: Failed MASC check applies leg critical damage
 
@@ -1112,6 +1113,7 @@ Runner movement validation SHALL consume explicit active `activeMASC` and `activ
 - **THEN** the Supercharger critical slot SHALL be marked destroyed when present
 - **AND** three center-torso engine critical slots SHALL be marked destroyed
 - **AND** the unit SHALL be marked destroyed from engine destruction
+- **AND** the PSR trigger catalog SHALL mark the core Supercharger failure trigger integrated because IndustrialMek/support-unit adjustments, separate first-step timing, and non-BattleMech motive-damage behavior live on the separate Supercharger side-path row
 
 #### Scenario: Edge reroll suppresses movement-enhancement failure aftermath
 
