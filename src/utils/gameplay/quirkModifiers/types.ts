@@ -13,6 +13,7 @@ export type QuirkCategory =
   | 'initiative'
   | 'combat'
   | 'crit'
+  | 'campaign'
   | 'weapon';
 
 /**
@@ -25,7 +26,8 @@ export type QuirkPipeline =
   | 'physical'
   | 'damage'
   | 'heat'
-  | 'crit';
+  | 'crit'
+  | 'campaign';
 
 /**
  * Quirk catalog entry.

@@ -1,16 +1,22 @@
-import { getAmmoExplosionTN, getShutdownTN } from '@/constants/heat';
+import { getShutdownTN } from '@/constants/heat';
 import {
   GameEventType,
   GamePhase,
+  type IEnvironmentalConditions,
   IGameEvent,
   IGameState,
-  IUnitGameState,
-  MovementType,
+  IHexGrid,
+  PSRTrigger,
 } from '@/types/gameplay';
 import {
-  IPSRBatchResult,
-  resolveAllPSRs,
-} from '@/utils/gameplay/pilotingSkillRolls';
+  buildDefaultCriticalSlotManifest,
+  type CriticalHitEvent,
+  type CriticalSlotManifest,
+} from '@/utils/gameplay/criticalHitResolution';
+import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
+import { calculateEnvironmentalHeatModifier } from '@/utils/gameplay/environmentalModifiers';
+import { getGridTerrainHeatEffect } from '@/utils/gameplay/heat';
+import { getHotDogHeatTargetNumberModifier } from '@/utils/gameplay/spaModifiers';
 
 import type { IWeapon } from '../../ai/types';
 
@@ -20,23 +26,46 @@ import {
   DEFAULT_COMPONENT_DAMAGE,
   DEFAULT_PILOTING,
   ENGINE_HEAT_PER_CRITICAL,
-  JUMP_HEAT,
   LETHAL_PILOT_WOUNDS,
-  MEDIUM_LASER_HEAT,
-  RUN_HEAT,
-  WALK_HEAT,
 } from '../SimulationRunnerConstants';
+import { applyHeatInducedAmmoExplosions } from './heatAmmoExplosions';
+import { applyRunnerMaxTechHeatCriticalDamage } from './heatCriticalDamage';
+import {
+  computeMovementHeat,
+  computeWeaponHeat,
+} from './heatPhaseCalculations';
+import { applyRunnerHeatPilotDamage } from './heatPilotDamage';
+import { queueRunnerShutdownPSR } from './heatShutdownPsr';
+import { applyRunnerStartupAttempt } from './heatStartup';
+import { emitHeatThresholdEvents } from './heatThresholdEvents';
+import {
+  applyMASCFailureCriticalDamage,
+  applySuperchargerFailureCriticalDamage,
+} from './movementEnhancementFailureDamage';
+import { resolveRunnerPSRs } from './psrEdgeRerolls';
 import { createD6Roller, createGameEvent } from './utils';
+import { applyCriticalPSRTriggers } from './weaponAttackPsrTriggers';
 
 export function runPSRPhase(options: {
   state: IGameState;
   events: IGameEvent[];
   gameId: string;
   random: SeededRandom;
+  manifestsByUnit?: Map<string, CriticalSlotManifest>;
 }): IGameState {
-  const { events, gameId, random, state } = options;
+  const { events, gameId, manifestsByUnit, random, state } = options;
   let currentState = state;
   const d6Roller = createD6Roller(random);
+  const getOrSeedManifest = (id: string): CriticalSlotManifest => {
+    if (manifestsByUnit) {
+      const existing = manifestsByUnit.get(id);
+      if (existing) return existing;
+      const seeded = buildDefaultCriticalSlotManifest();
+      manifestsByUnit.set(id, seeded);
+      return seeded;
+    }
+    return buildDefaultCriticalSlotManifest();
+  };
 
   for (const unitId of Object.keys(currentState.units)) {
     const unit = currentState.units[unitId];
@@ -50,13 +79,16 @@ export function runPSRPhase(options: {
     }
 
     const componentDamage = unit.componentDamage ?? DEFAULT_COMPONENT_DAMAGE;
-    const batchResult: IPSRBatchResult = resolveAllPSRs(
-      DEFAULT_PILOTING,
+    const pilotingSkill = unit.piloting ?? DEFAULT_PILOTING;
+    const batchResult = resolveRunnerPSRs({
+      unit,
+      unitId,
       pendingPSRs,
       componentDamage,
-      unit.pilotWounds,
+      pilotingSkill,
       d6Roller,
-    );
+      turn: currentState.turn,
+    });
 
     for (const psrResult of batchResult.results) {
       events.push(
@@ -71,7 +103,23 @@ export function runPSRPhase(options: {
             reason: psrResult.psr.reason,
             targetNumber: psrResult.targetNumber,
             roll: psrResult.roll,
+            modifiers: psrResult.modifiers.reduce(
+              (sum, modifier) => sum + modifier.value,
+              0,
+            ),
             passed: psrResult.passed,
+            ...(psrResult.edgeReroll !== undefined
+              ? { edgeReroll: psrResult.edgeReroll }
+              : {}),
+            ...(psrResult.edgeSuperseded !== undefined
+              ? { edgeSuperseded: psrResult.edgeSuperseded }
+              : {}),
+            ...(psrResult.edgeTrigger !== undefined
+              ? { edgeTrigger: psrResult.edgeTrigger }
+              : {}),
+            ...(psrResult.edgePointsRemaining !== undefined
+              ? { edgePointsRemaining: psrResult.edgePointsRemaining }
+              : {}),
             // Per `structure-psr-reason-as-discriminated-code` (PR E):
             // forward the canonical reasonCode the factory stamped onto
             // the source IPendingPSR.
@@ -84,11 +132,89 @@ export function runPSRPhase(options: {
       );
     }
 
-    if (batchResult.unitFell) {
-      const currentUnit = currentState.units[unitId];
+    if (batchResult.unitStuck) {
+      const failedPsr = batchResult.failedResult;
+      currentState = {
+        ...currentState,
+        units: {
+          ...currentState.units,
+          [unitId]: {
+            ...batchResult.unit,
+            isStuck: true,
+            pendingPSRs: [],
+          },
+        },
+      };
+
+      events.push(
+        createGameEvent(
+          gameId,
+          events.length,
+          GameEventType.UnitStuck,
+          currentState.turn,
+          currentState.phase,
+          {
+            unitId,
+            ...(failedPsr ? { reason: failedPsr.psr.reason } : {}),
+            ...(failedPsr?.psr.reasonCode !== undefined
+              ? { reasonCode: failedPsr.psr.reasonCode }
+              : {}),
+          },
+          unitId,
+        ),
+      );
+    } else if (batchResult.unitFell) {
+      let currentUnit = batchResult.unit;
+      const failedPsr = batchResult.failedResult;
+      const failureReason = failedPsr?.psr.reasonCode;
+      if (failureReason === PSRTrigger.MASCFailure) {
+        const mascDamage = applyMASCFailureCriticalDamage({
+          unit: currentUnit,
+          unitId,
+          manifest: getOrSeedManifest(unitId),
+          componentDamage:
+            currentUnit.componentDamage ?? DEFAULT_COMPONENT_DAMAGE,
+          slotRoller: d6Roller,
+          events,
+          gameId,
+          turn: currentState.turn,
+          phase: currentState.phase,
+        });
+        currentUnit = mascDamage.unit;
+        if (manifestsByUnit) {
+          manifestsByUnit.set(unitId, mascDamage.manifest);
+        }
+      } else if (failureReason === PSRTrigger.SuperchargerFailure) {
+        const superchargerDamage = applySuperchargerFailureCriticalDamage({
+          unit: currentUnit,
+          unitId,
+          manifest: getOrSeedManifest(unitId),
+          componentDamage:
+            currentUnit.componentDamage ?? DEFAULT_COMPONENT_DAMAGE,
+          d6Roller,
+          events,
+          gameId,
+          turn: currentState.turn,
+          phase: currentState.phase,
+        });
+        currentUnit = superchargerDamage.unit;
+        if (manifestsByUnit) {
+          manifestsByUnit.set(unitId, superchargerDamage.manifest);
+        }
+      }
+
       const newPilotWounds = currentUnit.pilotWounds + 1;
+      const consciousnessCheck = resolvePilotConsciousnessCheck(
+        newPilotWounds,
+        1,
+        currentUnit.abilities ?? [],
+        d6Roller,
+        currentUnit.pilotToughness,
+      );
       const pilotConscious =
-        newPilotWounds < LETHAL_PILOT_WOUNDS && currentUnit.pilotConscious;
+        newPilotWounds < LETHAL_PILOT_WOUNDS &&
+        currentUnit.pilotConscious &&
+        (consciousnessCheck.conscious ?? true);
 
       currentState = {
         ...currentState,
@@ -111,7 +237,6 @@ export function runPSRPhase(options: {
       // `'center_torso'` (canonical fall-damage location for damage-induced
       // PSR failures — PR E tightens this to a per-trigger discriminated
       // location once `PSRReasonCode` lands).
-      const failedPsr = batchResult.results.find((r) => !r.passed);
       events.push(
         createGameEvent(
           gameId,
@@ -130,6 +255,25 @@ export function runPSRPhase(options: {
             ...(failedPsr?.psr.reasonCode !== undefined
               ? { reasonCode: failedPsr.psr.reasonCode }
               : {}),
+          },
+          unitId,
+        ),
+      );
+
+      events.push(
+        createGameEvent(
+          gameId,
+          events.length,
+          GameEventType.PilotHit,
+          currentState.turn,
+          currentState.phase,
+          {
+            unitId,
+            wounds: 1,
+            totalWounds: newPilotWounds,
+            source: 'fall' as const,
+            consciousnessCheckRequired: true,
+            consciousnessCheckPassed: pilotConscious,
           },
           unitId,
         ),
@@ -156,7 +300,7 @@ export function runPSRPhase(options: {
         units: {
           ...currentState.units,
           [unitId]: {
-            ...currentState.units[unitId],
+            ...batchResult.unit,
             pendingPSRs: [],
           },
         },
@@ -165,83 +309,6 @@ export function runPSRPhase(options: {
   }
 
   return currentState;
-}
-
-// =============================================================================
-// Phase 4 — Heat lifecycle helpers
-// =============================================================================
-
-/**
- * Per `add-combat-fidelity-suite` Phase 4 (`combat-resolution` delta —
- * Heat Lifecycle Events): the canonical Total Warfare threshold ladder
- * carried into `HeatEffectApplied` events. Ordered ascending so the
- * runner emits effects from lowest threshold up — consumers receive
- * one event per threshold the unit's NEW heat meets and can render
- * each effect that just became active.
- *
- * `effect` is a coarse classification mapping multiple threshold
- * values to the same effect name (e.g. heat 8 / 13 / 17 / 24 all map
- * to `'attack_penalty'`). `threshold` carries the precise heat value
- * so UI / replay layers can show the exact match.
- */
-const HEAT_THRESHOLD_LADDER: ReadonlyArray<{
-  readonly threshold: number;
-  readonly effect:
-    | 'movement_penalty'
-    | 'attack_penalty'
-    | 'shutdown_check'
-    | 'shutdown'
-    | 'pilot_damage'
-    | 'ammo_explosion_risk';
-}> = [
-  { threshold: 5, effect: 'movement_penalty' },
-  { threshold: 8, effect: 'attack_penalty' },
-  { threshold: 13, effect: 'attack_penalty' },
-  { threshold: 14, effect: 'shutdown_check' },
-  { threshold: 15, effect: 'pilot_damage' },
-  { threshold: 17, effect: 'attack_penalty' },
-  { threshold: 19, effect: 'ammo_explosion_risk' },
-  { threshold: 23, effect: 'ammo_explosion_risk' },
-  { threshold: 24, effect: 'attack_penalty' },
-  { threshold: 25, effect: 'pilot_damage' },
-  { threshold: 28, effect: 'ammo_explosion_risk' },
-  { threshold: 30, effect: 'shutdown' },
-];
-
-/**
- * Resolve a per-unit weapon-heat total for the heat phase. When the
- * runner threaded `weaponsByUnit` (Phase 1 hydration), each weapon id
- * fired this turn maps to a real catalog heat value via the per-unit
- * weapon list. Without hydration the legacy synthetic-medium-laser
- * fallback (3 heat per shot) preserves pre-P4 behaviour for unit
- * fixtures that don't supply weapons.
- */
-function computeWeaponHeat(
-  weaponsFired: readonly string[],
-  unitWeapons: readonly IWeapon[] | undefined,
-): number {
-  if (!unitWeapons || unitWeapons.length === 0) {
-    return weaponsFired.length * MEDIUM_LASER_HEAT;
-  }
-  let total = 0;
-  for (const weaponId of weaponsFired) {
-    const weapon = unitWeapons.find((w) => w.id === weaponId);
-    total += weapon ? weapon.heat : MEDIUM_LASER_HEAT;
-  }
-  return total;
-}
-
-/**
- * Movement heat per the canonical Total Warfare table — Walk = 1,
- * Run = 2, Jump = max(3, hexes), Stationary = 0. This phase predates
- * the more elaborate jump-MP heat table; the synthetic-fixture path
- * uses the constant `JUMP_HEAT = 3` and that's preserved here.
- */
-function computeMovementHeat(unit: IUnitGameState): number {
-  if (unit.movementThisTurn === MovementType.Walk) return WALK_HEAT;
-  if (unit.movementThisTurn === MovementType.Run) return RUN_HEAT;
-  if (unit.movementThisTurn === MovementType.Jump) return JUMP_HEAT;
-  return 0;
 }
 
 export function runHeatPhase(options: {
@@ -256,18 +323,34 @@ export function runHeatPhase(options: {
    * synthetic-laser fallback fires.
    */
   weaponsByUnit?: ReadonlyMap<string, readonly IWeapon[]>;
+  grid?: IHexGrid;
+  environmentalConditions?: IEnvironmentalConditions;
+  maxTechHeatScale?: boolean;
+  manifestsByUnit?: Map<string, CriticalSlotManifest>;
 }): IGameState {
-  const { state, events, gameId, random, weaponsByUnit } = options;
+  const { state, events, gameId, random } = options;
+  const {
+    weaponsByUnit,
+    grid,
+    environmentalConditions,
+    maxTechHeatScale,
+    manifestsByUnit,
+  } = options;
   let currentState = { ...state };
 
-  // Phase 4 events require an event sink + game id + roller for
-  // shutdown / ammo-explosion 2d6 rolls. When the legacy single-arg
-  // caller invokes us via a `state`-only options object, fall back to
-  // silent state mutation so existing callers (legacy session / older
-  // test fixtures) keep working without an event log.
   const canEmit =
     events !== undefined && gameId !== undefined && random !== undefined;
   const d6Roller = random !== undefined ? createD6Roller(random) : undefined;
+  const getOrSeedManifest = (id: string): CriticalSlotManifest => {
+    if (manifestsByUnit) {
+      const existing = manifestsByUnit.get(id);
+      if (existing) return existing;
+      const seeded = buildDefaultCriticalSlotManifest();
+      manifestsByUnit.set(id, seeded);
+      return seeded;
+    }
+    return buildDefaultCriticalSlotManifest();
+  };
 
   for (const unitId of Object.keys(currentState.units)) {
     const unit = currentState.units[unitId];
@@ -279,25 +362,46 @@ export function runHeatPhase(options: {
     const weaponHeat = computeWeaponHeat(
       weaponsFired,
       weaponsByUnit?.get(unitId),
+      unit.weaponQuirks,
     );
     const movementHeat = computeMovementHeat(unit);
 
     const componentDamage = unit.componentDamage ?? DEFAULT_COMPONENT_DAMAGE;
     const engineHeat = componentDamage.engineHits * ENGINE_HEAT_PER_CRITICAL;
+    const terrainHeatEffect = grid
+      ? getGridTerrainHeatEffect(grid, unit.position)
+      : 0;
+    const environmentHeat = Math.max(0, terrainHeatEffect);
+    const waterBonus = Math.max(0, -terrainHeatEffect);
+    const environmentalModifier =
+      environmentalConditions !== undefined
+        ? calculateEnvironmentalHeatModifier(environmentalConditions)
+        : 0;
+    // Cool Under Fire is a local out-of-scope row until source authority exists.
+    const heatGenerationReduction = 0;
+    const hotDogTargetNumberModifier = getHotDogHeatTargetNumberModifier(
+      unit.abilities ?? [],
+    );
 
+    const heatSinkCount = unit.heatSinks ?? BASE_HEAT_SINKS;
+    const heatSinkRating = unit.heatSinkType === 'double' ? 2 : 1;
     const heatSinksLost = componentDamage.heatSinksDestroyed ?? 0;
-    const dissipation = Math.max(0, BASE_HEAT_SINKS - heatSinksLost);
+    const baseDissipation = Math.max(
+      0,
+      (heatSinkCount - heatSinksLost) * heatSinkRating,
+    );
+    const dissipation = Math.max(
+      0,
+      baseDissipation +
+        waterBonus +
+        environmentalModifier +
+        heatGenerationReduction,
+    );
 
-    const generated = weaponHeat + movementHeat + engineHeat;
+    const generated = weaponHeat + movementHeat + engineHeat + environmentHeat;
     const previousHeat = unit.heat;
     const newHeat = Math.max(0, previousHeat + generated - dissipation);
 
-    // Per spec scenario "Heat phase events fire even when heat is
-    // zero": emit `HeatGenerated` and `HeatDissipated` unconditionally
-    // so consumers can audit per-turn heat tracking even when no
-    // weapons fired and no movement heat applied. The event payload
-    // breakdown carries the per-source decomposition so UI / replay
-    // can show "0 heat: 0 weapons + 0 movement" rather than nothing.
     if (canEmit) {
       events.push(
         createGameEvent(
@@ -309,18 +413,14 @@ export function runHeatPhase(options: {
           {
             unitId,
             amount: generated,
-            // Source classification is multi-cause when more than one
-            // input contributed; report the dominant source. Movement
-            // outweighs weapons in alpha-strike-light cases; weapons
-            // dominate alpha-strike-heavy. When generated is exactly
-            // zero, default to `'firing'` (the most common
-            // legacy-test value).
             source:
               engineHeat > 0
                 ? 'engine_hit'
-                : weaponHeat >= movementHeat
-                  ? 'firing'
-                  : 'movement',
+                : environmentHeat > weaponHeat && environmentHeat > movementHeat
+                  ? 'environment'
+                  : weaponHeat >= movementHeat
+                    ? 'firing'
+                    : 'movement',
             newTotal: newHeat,
             previousTotal: previousHeat,
             ammoExplosionRisk: newHeat >= 19,
@@ -338,63 +438,56 @@ export function runHeatPhase(options: {
           GamePhase.Heat,
           {
             unitId,
-            amount: dissipation,
+            amount: dissipation === 0 ? 0 : -dissipation,
             source: 'dissipation',
             newTotal: newHeat,
             previousTotal: previousHeat,
             breakdown: {
-              baseDissipation: dissipation,
-              waterBonus: 0,
+              baseDissipation,
+              waterBonus,
+              environmentalModifier,
+              heatGenerationReduction,
             },
           },
           unitId,
         ),
       );
 
-      // Per spec scenario "Atlas alpha-strike at heat 0 produces
-      // shutdown event chain": every threshold the unit's NEW heat
-      // meets fires a `HeatEffectApplied` event (one per threshold
-      // crossed in this phase, ordered ascending). Heat 0 produces
-      // none. The `effect` field maps multiple thresholds to the same
-      // coarse classification (e.g. 8/13/17/24 → `'attack_penalty'`).
-      for (const entry of HEAT_THRESHOLD_LADDER) {
-        if (newHeat >= entry.threshold) {
-          events.push(
-            createGameEvent(
-              gameId,
-              events.length,
-              GameEventType.HeatEffectApplied,
-              currentState.turn,
-              GamePhase.Heat,
-              {
-                unitId,
-                threshold: entry.threshold,
-                effect: entry.effect,
-                heatLevel: newHeat,
-              },
-              unitId,
-            ),
-          );
-        }
-      }
+      emitHeatThresholdEvents({
+        unitId,
+        heat: newHeat,
+        turn: currentState.turn,
+        events,
+        gameId,
+      });
     }
 
-    // Per spec scenario: shutdown check fires when heat ≥ 14
-    // (avoidable) or ≥ 30 (auto). The roller is shared with the rest
-    // of the phase so seed-pinned tests are deterministic.
-    let shutdownNow = unit.shutdown ?? false;
-    if (canEmit && d6Roller && newHeat >= 14) {
+    const startupUnit = applyRunnerStartupAttempt({
+      unit,
+      unitId,
+      heat: newHeat,
+      turn: currentState.turn,
+      events: canEmit ? events : undefined,
+      gameId: canEmit ? gameId : undefined,
+      d6Roller: canEmit ? d6Roller : undefined,
+      hotDogTargetNumberModifier,
+    });
+
+    let shutdownNow = startupUnit.shutdown ?? false;
+    let heatPhaseUnit = startupUnit;
+    const shutdownTargetNumber = getShutdownTN(
+      newHeat,
+      hotDogTargetNumberModifier,
+    );
+    if (canEmit && d6Roller && (shutdownTargetNumber > 0 || newHeat >= 30)) {
       const automatic = newHeat >= 30;
-      const targetNumber = getShutdownTN(newHeat);
       let roll = 0;
       let shutdownOccurred = automatic;
       if (!automatic) {
         const die1 = d6Roller();
         const die2 = d6Roller();
         roll = die1 + die2;
-        // Shutdown occurs when roll is BELOW the TN (the pilot fails
-        // to avoid). Heat 30+ short-circuits to auto-shutdown above.
-        shutdownOccurred = roll < targetNumber;
+        shutdownOccurred = roll < shutdownTargetNumber;
       }
       events.push(
         createGameEvent(
@@ -406,7 +499,7 @@ export function runHeatPhase(options: {
           {
             unitId,
             heatLevel: newHeat,
-            targetNumber: automatic ? Infinity : targetNumber,
+            targetNumber: automatic ? Infinity : shutdownTargetNumber,
             roll,
             shutdownOccurred,
             automatic,
@@ -416,69 +509,68 @@ export function runHeatPhase(options: {
       );
       if (shutdownOccurred) {
         shutdownNow = true;
+        heatPhaseUnit = queueRunnerShutdownPSR({
+          unit: heatPhaseUnit,
+          unitId,
+          turn: currentState.turn,
+          events,
+          gameId,
+        });
       }
     }
 
-    // Per `ammo-explosion-system/spec.md` "Heat-Triggered Ammo
-    // Explosion": at heat 19+ the engine SHALL roll a 1d6-style check
-    // (here implemented as 2d6 ≥ TN per the canonical Total Warfare
-    // ammo-explosion table) per loaded ammo bin. On any roll meeting
-    // or exceeding the threshold for that heat level,
-    // `AmmoExplosion { source: 'heat_overflow' }` MUST emit. We use
-    // the canonical `getAmmoExplosionTN` table from
-    // `src/constants/heat.ts` (TN 4 at 19-22, TN 6 at 23-27, TN 8 at
-    // 28-29, auto-explode at 30+).
-    //
-    // CASE / CASE-II is NOT yet wired (the runner's `IUnitGameState`
-    // does not carry construction CASE flags — see the deferred-flag
-    // note in `notepad/issues.md`). The default is "no CASE" so
-    // damage cascade flows naturally per `combat-resolution`'s
-    // canonical transfer chain. Future plumbing (post-P4) will hook
-    // CASE flags into this branch.
     if (canEmit && d6Roller) {
-      const ammoState = unit.ammoState ?? {};
-      const loadedBins = Object.values(ammoState).filter(
-        (bin) => bin.remainingRounds > 0 && bin.isExplosive,
-      );
-      if (loadedBins.length > 0) {
-        const ammoTN = getAmmoExplosionTN(newHeat);
-        if (ammoTN > 0) {
-          for (const bin of loadedBins) {
-            const auto = ammoTN === Infinity;
-            let triggered = auto;
-            if (!auto) {
-              const die1 = d6Roller();
-              const die2 = d6Roller();
-              const ammoRoll = die1 + die2;
-              // Ammo explodes when the roll is BELOW the TN (per
-              // Total Warfare). At auto threshold the bin always
-              // detonates without a roll.
-              triggered = ammoRoll < ammoTN;
-            }
-            if (triggered) {
-              const damage = bin.remainingRounds * 1; // damage-per-round resolved at consumer; default 1
-              events.push(
-                createGameEvent(
-                  gameId,
-                  events.length,
-                  GameEventType.AmmoExplosion,
-                  currentState.turn,
-                  GamePhase.Heat,
-                  {
-                    unitId,
-                    location: bin.location,
-                    binId: bin.binId,
-                    weaponType: bin.weaponType,
-                    roundsDestroyed: bin.remainingRounds,
-                    damage,
-                    source: 'HeatInduced' as const,
-                  },
-                  unitId,
-                ),
-              );
-            }
-          }
-        }
+      currentState = applyHeatInducedAmmoExplosions({
+        currentState,
+        unit: heatPhaseUnit,
+        unitId,
+        heat: newHeat,
+        events,
+        gameId,
+        d6Roller,
+        unitWeapons: weaponsByUnit?.get(unitId),
+        targetNumberModifier: hotDogTargetNumberModifier,
+      });
+      heatPhaseUnit = currentState.units[unitId];
+    }
+
+    const heatPilotUnit = applyRunnerHeatPilotDamage({
+      unit: heatPhaseUnit,
+      unitId,
+      heat: newHeat,
+      lifeSupportHits: componentDamage.lifeSupport ?? 0,
+      turn: currentState.turn,
+      events: canEmit ? events : undefined,
+      gameId: canEmit ? gameId : undefined,
+      d6Roller: canEmit ? d6Roller : undefined,
+      hotDogTargetNumberModifier,
+      maxTechHeatScale,
+    });
+
+    let heatCriticalUnit = heatPilotUnit;
+    let heatCriticalEvents: readonly CriticalHitEvent[] | undefined;
+    if (maxTechHeatScale && d6Roller !== undefined && random !== undefined) {
+      const heatCriticalResult = applyRunnerMaxTechHeatCriticalDamage({
+        unit: heatPilotUnit,
+        unitId,
+        heat: newHeat,
+        turn: currentState.turn,
+        manifest: getOrSeedManifest(unitId),
+        componentDamage:
+          heatPilotUnit.componentDamage ??
+          componentDamage ??
+          DEFAULT_COMPONENT_DAMAGE,
+        d6Roller,
+        locationIndexRoller: () => random.nextInt(8),
+        events: canEmit ? events : undefined,
+        gameId: canEmit ? gameId : undefined,
+        hotDogTargetNumberModifier,
+        maxTechHeatScale,
+      });
+      heatCriticalUnit = heatCriticalResult.unit;
+      heatCriticalEvents = heatCriticalResult.criticalEvents;
+      if (manifestsByUnit) {
+        manifestsByUnit.set(unitId, heatCriticalResult.manifest);
       }
     }
 
@@ -487,12 +579,14 @@ export function runHeatPhase(options: {
       units: {
         ...currentState.units,
         [unitId]: {
-          ...unit,
+          ...heatCriticalUnit,
           heat: newHeat,
           shutdown: shutdownNow,
         },
       },
     };
+
+    currentState = applyCriticalPSRTriggers(currentState, heatCriticalEvents);
   }
 
   return currentState;

@@ -1,14 +1,7 @@
-import type {
-  IComponentDamageState,
-  IHex,
-  IHexGrid,
-  IUnitGameState,
-} from '@/types/gameplay';
-
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
-import { Facing, TerrainType } from '@/types/gameplay';
+import { Facing, IComponentDamageState, IHexGrid } from '@/types/gameplay';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 import {
   calculatePunchDamage,
@@ -17,26 +10,49 @@ import {
   calculateChargeDamageToAttacker,
   calculateDFADamageToTarget,
   calculateDFADamageToAttacker,
+  calculateFlailDamage,
   calculateHatchetDamage,
   calculateSwordDamage,
   calculateMaceDamage,
+  calculateRetractableBladeDamage,
+  calculateWreckingBallDamage,
+  calculateThrashDamage,
+  calculateBrushOffAttackDamage,
   calculatePunchToHit,
   calculateKickToHit,
   calculateChargeToHit,
   calculateDFAToHit,
   calculatePushToHit,
+  calculateTripToHit,
+  calculateThrashToHit,
+  calculateGrappleToHit,
+  calculateBreakGrappleToHit,
   calculateMeleeWeaponToHit,
   calculatePhysicalToHit,
   calculatePhysicalDamage,
   getPhysicalMissConsequences,
+  resolveDfaMissFallPilotDamageAvoidance,
   canPunch,
   canKick,
   canCharge,
-  canPush,
   canDFA,
   canMeleeWeapon,
-  getEligiblePhysicalAttacks,
-  buildPhysicalTerrainContext,
+  canPush,
+  canTripPhysical,
+  canThrashPhysical,
+  canGrapplePhysical,
+  canBreakGrapplePhysical,
+  canJumpJetAttackPhysical,
+  canThrash,
+  canTrip,
+  computeChargeDisplacementOutcome,
+  computeBreakGrappleDisplacementOutcome,
+  computeDfaDisplacementOutcome,
+  computeDfaDisplacements,
+  computePreferredDisplacement,
+  computeValidDisplacement,
+  BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
+  isTargetDirectlyAhead,
   getEffectiveWeight,
   applyUnderwaterModifier,
   determinePhysicalHitLocation,
@@ -46,6 +62,21 @@ import {
   KICK_HIT_TABLE,
   TSM_ACTIVATION_HEAT,
   IPhysicalAttackInput,
+  isPhysicalAirborneVtolOrWigeTarget,
+  isThrashAttackAutomaticSuccess,
+  sourceContainsGroundedDropShip,
+  canBreakGrapple,
+  canBrushOff,
+  canGrapple,
+  getBreakGrappleAttackToHitModifiers,
+  getBreakGrappleWeightClassModifier,
+  getBrushOffAttackToHitModifiers,
+  getGrappleAttackToHitModifiers,
+  canJumpJetAttack,
+  getJumpJetAttackDamage,
+  getJumpJetAttackToHitModifiers,
+  getThrashAttackDamageForWeight,
+  getTripAttackBaseToHitAdjustment,
 } from '../physicalAttacks';
 
 const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
@@ -80,22 +111,183 @@ function makeDiceSequence(values: number[]) {
   };
 }
 
-function makeTerrainGrid(terrainByKey: Record<string, string>): IHexGrid {
-  const hexes = new Map<string, IHex>();
-  Object.entries(terrainByKey).forEach(([key, terrain]) => {
-    const [q, r] = key.split(',').map(Number);
-    hexes.set(key, {
-      coord: { q, r },
-      occupantId: null,
-      terrain,
-      elevation: 0,
-    });
+function makeDisplacementGrid(): IHexGrid {
+  const hexes = new Map();
+  hexes.set('0,0', {
+    coord: { q: 0, r: 0 },
+    occupantId: 'attacker',
+    terrain: 'clear',
+    elevation: 0,
+  });
+  hexes.set('1,0', {
+    coord: { q: 1, r: 0 },
+    occupantId: 'target',
+    terrain: 'clear',
+    elevation: 0,
+  });
+  hexes.set('1,1', {
+    coord: { q: 1, r: 1 },
+    occupantId: null,
+    terrain: 'clear',
+    elevation: 0,
+  });
+  hexes.set('2,0', {
+    coord: { q: 2, r: 0 },
+    occupantId: null,
+    terrain: 'clear',
+    elevation: 2,
+  });
+  hexes.set('0,1', {
+    coord: { q: 0, r: 1 },
+    occupantId: null,
+    terrain: 'clear',
+    elevation: 1,
   });
   return { config: { radius: 2 }, hexes };
 }
 
-function unitAt(id: string, q: number, r: number): IUnitGameState {
-  return { id, position: { q, r } } as IUnitGameState;
+function makeBreakGrappleGrid(): IHexGrid {
+  const hexes = new Map();
+  const addHex = (
+    q: number,
+    r: number,
+    terrain: string,
+    elevation: number,
+    occupantId: string | null = null,
+  ) => {
+    hexes.set(`${q},${r}`, {
+      coord: { q, r },
+      occupantId,
+      terrain,
+      elevation,
+    });
+  };
+
+  addHex(0, 0, 'clear', 0, 'attacker');
+  addHex(0, -1, 'clear', 0);
+  addHex(1, -1, 'water:2', 0);
+  addHex(1, 0, 'magma', 0);
+  addHex(0, 1, 'clear', -2);
+  addHex(-1, 1, 'water:1', -2);
+  addHex(-1, 0, 'clear', 0);
+  return { config: { radius: 2 }, hexes };
+}
+
+function makeDropShipRadiusDisplacementGrid(
+  primaryRadiusTwoTerrain = 'clear',
+): IHexGrid {
+  const hexes = new Map();
+  const coords = [
+    { q: 0, r: 0 },
+    { q: 0, r: 1 },
+    { q: 0, r: 2 },
+    { q: -1, r: 2 },
+    { q: -2, r: 2 },
+    { q: -2, r: 1 },
+    { q: 2, r: 0 },
+    { q: 1, r: 1 },
+    { q: -2, r: 0 },
+    { q: -1, r: -1 },
+    { q: 2, r: -2 },
+    { q: 2, r: -1 },
+    { q: 0, r: -2 },
+    { q: 1, r: -2 },
+  ];
+
+  for (const coord of coords) {
+    const key = `${coord.q},${coord.r}`;
+    hexes.set(key, {
+      coord,
+      occupantId: coord.q === 0 && coord.r === 0 ? 'target' : null,
+      terrain: key === '0,2' ? primaryRadiusTwoTerrain : 'clear',
+      elevation: 0,
+    });
+  }
+
+  return { config: { radius: 2 }, hexes };
+}
+
+function makeBlockedDfaDisplacementGrid(): IHexGrid {
+  const grid = makeDisplacementGrid();
+  const hexes = new Map(grid.hexes);
+  for (const key of ['1,1', '2,0', '0,1']) {
+    const hex = hexes.get(key);
+    if (hex) {
+      hexes.set(key, { ...hex, occupantId: `blocker-${key}` });
+    }
+  }
+  return { ...grid, hexes };
+}
+
+function makeBlockedChargeDisplacementGrid(): IHexGrid {
+  const grid = makeDisplacementGrid();
+  const hexes = new Map(grid.hexes);
+  const hex = hexes.get('1,1');
+  if (hex) {
+    hexes.set('1,1', { ...hex, occupantId: 'charge-blocker' });
+  }
+  return { ...grid, hexes };
+}
+
+function makeDominoDisplacementGrid(): IHexGrid {
+  const grid = makeDisplacementGrid();
+  const hexes = new Map(grid.hexes);
+  const blockedDestination = hexes.get('1,1');
+  if (blockedDestination) {
+    hexes.set('1,1', {
+      ...blockedDestination,
+      occupantId: 'domino-blocker',
+    });
+  }
+  hexes.set('1,2', {
+    coord: { q: 1, r: 2 },
+    occupantId: null,
+    terrain: 'clear',
+    elevation: 0,
+  });
+  return { ...grid, hexes };
+}
+
+function makeFriendlyPreferredDisplacementGrid(): IHexGrid {
+  const grid = makeDisplacementGrid();
+  const hexes = new Map(grid.hexes);
+  const friendlyDestination = hexes.get('1,1');
+  const alternateDestination = hexes.get('0,1');
+  if (friendlyDestination) {
+    hexes.set('1,1', {
+      ...friendlyDestination,
+      occupantId: 'target-friend',
+    });
+  }
+  if (alternateDestination) {
+    hexes.set('0,1', {
+      ...alternateDestination,
+      elevation: 0,
+    });
+  }
+  hexes.set('1,2', {
+    coord: { q: 1, r: 2 },
+    occupantId: null,
+    terrain: 'clear',
+    elevation: 0,
+  });
+  return { ...grid, hexes };
+}
+
+function makeProhibitedChargeDisplacementGrid(
+  terrain: string = 'impassable',
+): IHexGrid {
+  const grid = makeDisplacementGrid();
+  const hexes = new Map(grid.hexes);
+  const hex = hexes.get('1,1');
+  if (hex) {
+    hexes.set('1,1', { ...hex, terrain });
+  }
+  return { ...grid, hexes };
+}
+
+function terrainFeature(type: string, level: number): string {
+  return JSON.stringify([{ type, level }]);
 }
 
 // =============================================================================
@@ -103,6 +295,395 @@ function unitAt(id: string, q: number, r: number): IUnitGameState {
 // =============================================================================
 
 describe('physicalAttacks', () => {
+  describe('physical displacement helpers', () => {
+    it('chooses valid displacement nearest the requested direction', () => {
+      expect(
+        computeValidDisplacement(
+          makeDisplacementGrid(),
+          'target',
+          { q: 1, r: 0 },
+          Facing.South,
+        ),
+      ).toEqual({ q: 1, r: 1 });
+    });
+
+    it('searches the radius-two ring when a grounded DropShip occupies the source hex', () => {
+      const grid = makeDropShipRadiusDisplacementGrid();
+
+      expect(
+        computeValidDisplacement(grid, 'target', { q: 0, r: 0 }, Facing.South),
+      ).toEqual({ q: 0, r: 1 });
+      expect(
+        computeValidDisplacement(grid, 'target', { q: 0, r: 0 }, Facing.South, {
+          sourceContainsGroundedDropShip: true,
+        }),
+      ).toEqual({ q: 0, r: 2 });
+    });
+
+    it('detects same-board grounded DropShip source context for displaced units', () => {
+      const target = {
+        id: 'target',
+        position: { q: 1, r: 0 },
+        boardId: 'ground-map',
+      };
+
+      expect(
+        sourceContainsGroundedDropShip(
+          [
+            target,
+            {
+              id: 'grounded-dropship',
+              unitType: UnitType.DROPSHIP,
+              isAirborne: false,
+              boardId: 'ground-map',
+              position: { q: 1, r: 0 },
+            },
+          ],
+          target,
+        ),
+      ).toBe(true);
+      expect(
+        sourceContainsGroundedDropShip(
+          [
+            target,
+            {
+              id: 'airborne-dropship',
+              unitType: UnitType.DROPSHIP,
+              isAirborne: true,
+              boardId: 'ground-map',
+              position: { q: 1, r: 0 },
+            },
+          ],
+          target,
+        ),
+      ).toBe(false);
+      expect(
+        sourceContainsGroundedDropShip(
+          [
+            target,
+            {
+              id: 'other-board-dropship',
+              unitType: UnitType.DROPSHIP,
+              isAirborne: false,
+              boardId: 'space-map',
+              position: { q: 1, r: 0 },
+            },
+          ],
+          target,
+        ),
+      ).toBe(false);
+    });
+
+    it('walks the grounded DropShip radius-two ring before trying the next displacement offset', () => {
+      expect(
+        computeValidDisplacement(
+          makeDropShipRadiusDisplacementGrid('impassable'),
+          'target',
+          { q: 0, r: 0 },
+          Facing.South,
+          { sourceContainsGroundedDropShip: true },
+        ),
+      ).toEqual({ q: -1, r: 2 });
+    });
+
+    it('prefers same-elevation displacement before higher side hexes', () => {
+      expect(
+        computePreferredDisplacement(
+          makeDisplacementGrid(),
+          'target',
+          { q: 1, r: 0 },
+          Facing.South,
+        ),
+      ).toEqual({ q: 1, r: 1 });
+    });
+
+    it('treats BattleMech displacement above two elevation levels as invalid', () => {
+      const grid = makeDisplacementGrid();
+      const hexes = new Map(grid.hexes);
+      const blockedClimb = hexes.get('1,1');
+      if (blockedClimb) {
+        hexes.set('1,1', {
+          ...blockedClimb,
+          elevation: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE + 1,
+        });
+      }
+
+      expect(
+        computeChargeDisplacementOutcome({
+          grid: { ...grid, hexes },
+          attackerId: 'attacker',
+          attackerPosition: { q: 0, r: 0 },
+          attackerFacing: Facing.South,
+          targetId: 'target',
+          targetPosition: { q: 1, r: 0 },
+        }).displacements,
+      ).toEqual([]);
+    });
+
+    it('treats explicit impassable BattleMech displacement terrain as invalid', () => {
+      const grid = makeProhibitedChargeDisplacementGrid();
+
+      expect(
+        computeValidDisplacement(grid, 'target', { q: 1, r: 0 }, Facing.South),
+      ).toEqual({ q: 0, r: 1 });
+      expect(
+        computeChargeDisplacementOutcome({
+          grid,
+          attackerId: 'attacker',
+          attackerPosition: { q: 0, r: 0 },
+          attackerFacing: Facing.South,
+          targetId: 'target',
+          targetPosition: { q: 1, r: 0 },
+        }).displacements,
+      ).toEqual([]);
+    });
+
+    it('treats overgrown BattleMech displacement terrain above level two as invalid', () => {
+      for (const terrain of [
+        terrainFeature('heavy_woods', 3),
+        terrainFeature('jungle', 3),
+        'woods:3',
+        'ultra_woods',
+      ]) {
+        const grid = makeProhibitedChargeDisplacementGrid(terrain);
+
+        expect(
+          computeValidDisplacement(
+            grid,
+            'target',
+            { q: 1, r: 0 },
+            Facing.South,
+          ),
+        ).toEqual({ q: 0, r: 1 });
+        expect(
+          computeChargeDisplacementOutcome({
+            grid,
+            attackerId: 'attacker',
+            attackerPosition: { q: 0, r: 0 },
+            attackerFacing: Facing.South,
+            targetId: 'target',
+            targetPosition: { q: 1, r: 0 },
+          }).displacements,
+        ).toEqual([]);
+      }
+
+      expect(
+        computeChargeDisplacementOutcome({
+          grid: makeProhibitedChargeDisplacementGrid(
+            terrainFeature('heavy_woods', 2),
+          ),
+          attackerId: 'attacker',
+          attackerPosition: { q: 0, r: 0 },
+          attackerFacing: Facing.South,
+          targetId: 'target',
+          targetPosition: { q: 1, r: 0 },
+        }).displacements,
+      ).toEqual([
+        {
+          unitId: 'target',
+          from: { q: 1, r: 0 },
+          to: { q: 1, r: 1 },
+          reason: 'charge',
+        },
+        {
+          unitId: 'attacker',
+          from: { q: 0, r: 0 },
+          to: { q: 1, r: 0 },
+          reason: 'charge',
+        },
+      ]);
+    });
+
+    it('checks push target feet-facing instead of adjacency alone', () => {
+      expect(
+        isTargetDirectlyAhead({ q: 0, r: 0 }, Facing.Southeast, { q: 1, r: 0 }),
+      ).toBe(true);
+      expect(
+        isTargetDirectlyAhead({ q: 0, r: 0 }, Facing.South, { q: 1, r: 0 }),
+      ).toBe(false);
+    });
+
+    it('keeps successful charge units in place when target displacement is blocked', () => {
+      expect(
+        computeChargeDisplacementOutcome({
+          grid: makeBlockedChargeDisplacementGrid(),
+          attackerId: 'attacker',
+          attackerPosition: { q: 0, r: 0 },
+          attackerFacing: Facing.South,
+          targetId: 'target',
+          targetPosition: { q: 1, r: 0 },
+        }).displacements,
+      ).toEqual([]);
+    });
+
+    it('cascades occupied displacement destinations as source-backed domino chains', () => {
+      const grid = makeDominoDisplacementGrid();
+
+      expect(
+        computeValidDisplacement(grid, 'target', { q: 1, r: 0 }, Facing.South),
+      ).toEqual({ q: 1, r: 1 });
+      expect(
+        computeChargeDisplacementOutcome({
+          grid,
+          attackerId: 'attacker',
+          attackerPosition: { q: 0, r: 0 },
+          attackerFacing: Facing.South,
+          targetId: 'target',
+          targetPosition: { q: 1, r: 0 },
+        }).displacements,
+      ).toEqual([
+        {
+          unitId: 'target',
+          from: { q: 1, r: 0 },
+          to: { q: 1, r: 1 },
+          reason: 'charge',
+        },
+        {
+          unitId: 'domino-blocker',
+          from: { q: 1, r: 1 },
+          to: { q: 1, r: 2 },
+          reason: 'domino',
+        },
+        {
+          unitId: 'attacker',
+          from: { q: 0, r: 0 },
+          to: { q: 1, r: 0 },
+          reason: 'charge',
+        },
+      ]);
+    });
+
+    it('models source-backed DFA hit and miss displacement order', () => {
+      const grid = makeDisplacementGrid();
+
+      expect(
+        computeDfaDisplacements({
+          grid,
+          attackerId: 'attacker',
+          attackerPosition: { q: 0, r: 0 },
+          attackerFacing: Facing.South,
+          targetId: 'target',
+          targetPosition: { q: 1, r: 0 },
+          hit: true,
+        }),
+      ).toEqual([
+        {
+          unitId: 'target',
+          from: { q: 1, r: 0 },
+          to: { q: 1, r: 1 },
+          reason: 'dfa',
+        },
+        {
+          unitId: 'attacker',
+          from: { q: 0, r: 0 },
+          to: { q: 1, r: 0 },
+          reason: 'dfa',
+        },
+      ]);
+
+      expect(
+        computeDfaDisplacements({
+          grid,
+          attackerId: 'attacker',
+          attackerPosition: { q: 0, r: 0 },
+          attackerFacing: Facing.South,
+          targetId: 'target',
+          targetPosition: { q: 1, r: 0 },
+          hit: false,
+        }),
+      ).toEqual([
+        {
+          unitId: 'target',
+          from: { q: 1, r: 0 },
+          to: { q: 1, r: 1 },
+          reason: 'dfa_miss',
+        },
+        {
+          unitId: 'attacker',
+          from: { q: 0, r: 0 },
+          to: { q: 1, r: 0 },
+          reason: 'dfa_miss',
+        },
+      ]);
+    });
+
+    it('prefers non-friendly DFA miss displacement before falling back to occupied friendly hexes', () => {
+      const grid = makeFriendlyPreferredDisplacementGrid();
+
+      expect(
+        computePreferredDisplacement(
+          grid,
+          'target',
+          { q: 1, r: 0 },
+          Facing.South,
+        ),
+      ).toEqual({ q: 1, r: 1 });
+      expect(
+        computePreferredDisplacement(
+          grid,
+          'target',
+          { q: 1, r: 0 },
+          Facing.South,
+          { friendlyUnitIds: ['target-friend'] },
+        ),
+      ).toEqual({ q: 0, r: 1 });
+      expect(
+        computeDfaDisplacementOutcome({
+          grid,
+          attackerId: 'attacker',
+          attackerPosition: { q: 0, r: 0 },
+          attackerFacing: Facing.South,
+          targetId: 'target',
+          targetPosition: { q: 1, r: 0 },
+          hit: false,
+          targetFriendlyUnitIds: ['target-friend'],
+        }).displacements,
+      ).toEqual([
+        {
+          unitId: 'target',
+          from: { q: 1, r: 0 },
+          to: { q: 0, r: 1 },
+          reason: 'dfa_miss',
+        },
+        {
+          unitId: 'attacker',
+          from: { q: 0, r: 0 },
+          to: { q: 1, r: 0 },
+          reason: 'dfa_miss',
+        },
+      ]);
+    });
+
+    it('identifies source-backed DFA impossible-displacement destruction', () => {
+      const grid = makeBlockedDfaDisplacementGrid();
+      const base = {
+        grid,
+        attackerId: 'attacker',
+        attackerPosition: { q: 0, r: 0 },
+        attackerFacing: Facing.South,
+        targetId: 'target',
+        targetPosition: { q: 1, r: 0 },
+      };
+
+      expect(computeDfaDisplacementOutcome({ ...base, hit: true })).toEqual({
+        displacements: [
+          {
+            unitId: 'attacker',
+            from: { q: 0, r: 0 },
+            to: { q: 1, r: 0 },
+            reason: 'dfa',
+          },
+        ],
+        impossibleDisplacementDestroyedUnitId: 'target',
+      });
+
+      expect(computeDfaDisplacementOutcome({ ...base, hit: false })).toEqual({
+        displacements: [],
+        impossibleDisplacementDestroyedUnitId: 'attacker',
+      });
+    });
+  });
+
   describe('calculatePunchDamage', () => {
     it('should compute ceil(weight/10) for 80-ton mech', () => {
       expect(calculatePunchDamage(makeInput({ attackerTonnage: 80 }))).toBe(8);
@@ -118,6 +699,46 @@ describe('physicalAttacks', () => {
 
     it('should compute ceil(weight/10) for 20-ton mech', () => {
       expect(calculatePunchDamage(makeInput({ attackerTonnage: 20 }))).toBe(2);
+    });
+
+    it('applies source-backed claw damage to the selected punching arm', () => {
+      expect(
+        calculatePunchDamage(
+          makeInput({
+            attackerTonnage: 55,
+            arm: 'left',
+            leftArmHasClaw: true,
+          }),
+        ),
+      ).toBe(8);
+    });
+
+    it('does not apply claw damage when the selected punching arm lacks claws', () => {
+      expect(
+        calculatePunchDamage(
+          makeInput({
+            attackerTonnage: 55,
+            arm: 'left',
+            rightArmHasClaw: true,
+          }),
+        ),
+      ).toBe(6);
+    });
+
+    it('applies arm actuator damage after the claw punch base', () => {
+      expect(
+        calculatePunchDamage(
+          makeInput({
+            attackerTonnage: 55,
+            arm: 'left',
+            leftArmHasClaw: true,
+            componentDamage: {
+              ...DEFAULT_COMPONENT_DAMAGE,
+              actuators: { [ActuatorType.UPPER_ARM]: true },
+            },
+          }),
+        ),
+      ).toBe(4);
     });
 
     it('should halve damage with upper arm actuator destroyed', () => {
@@ -162,6 +783,31 @@ describe('physicalAttacks', () => {
       // 8 -> floor(8/2)=4 -> floor(4/2)=2
       expect(damage).toBe(2);
     });
+
+    it('applies Melee Specialist but not Battle Fists to punch damage', () => {
+      const damage = calculatePunchDamage(
+        makeInput({
+          attackerTonnage: 80,
+          arm: 'right',
+          pilotAbilities: ['melee-specialist'],
+          unitQuirks: ['battle_fists_ra'],
+        }),
+      );
+
+      expect(damage).toBe(9);
+    });
+
+    it('does not apply Melee Master as a flat punch damage bonus', () => {
+      const damage = calculatePunchDamage(
+        makeInput({
+          attackerTonnage: 80,
+          arm: 'right',
+          pilotAbilities: ['melee-master'],
+        }),
+      );
+
+      expect(damage).toBe(8);
+    });
   });
 
   // =============================================================================
@@ -180,6 +826,75 @@ describe('physicalAttacks', () => {
     it('should compute floor(weight/5) for 73-ton mech', () => {
       // floor(73/5) = 14
       expect(calculateKickDamage(makeInput({ attackerTonnage: 73 }))).toBe(14);
+    });
+
+    it('applies source-backed talon damage to the selected kicking leg', () => {
+      expect(
+        calculateKickDamage(
+          makeInput({
+            attackerTonnage: 50,
+            attackType: 'kick',
+            limb: 'leftLeg',
+            leftLegHasTalons: true,
+          }),
+        ),
+      ).toBe(15);
+    });
+
+    it('does not apply talon damage when the selected leg lacks working talons', () => {
+      expect(
+        calculateKickDamage(
+          makeInput({
+            attackerTonnage: 50,
+            attackType: 'kick',
+            limb: 'leftLeg',
+            rightLegHasTalons: true,
+          }),
+        ),
+      ).toBe(10);
+    });
+
+    it('requires a working foot actuator for talon kick damage', () => {
+      expect(
+        calculateKickDamage(
+          makeInput({
+            attackerTonnage: 50,
+            attackType: 'kick',
+            limb: 'leftLeg',
+            leftLegHasTalons: true,
+            leftFootActuatorPresent: false,
+          }),
+        ),
+      ).toBe(10);
+    });
+
+    it('maps quad kick talons through the matching arm-location front leg', () => {
+      expect(
+        calculateKickDamage(
+          makeInput({
+            attackerTonnage: 50,
+            attackType: 'kick',
+            attackerIsQuad: true,
+            limb: 'rightLeg',
+            rightArmHasTalons: true,
+          }),
+        ),
+      ).toBe(15);
+    });
+
+    it('requires the quad arm-location foot actuator for front-leg talon kick damage', () => {
+      expect(
+        calculateKickDamage(
+          makeInput({
+            attackerTonnage: 50,
+            attackType: 'kick',
+            attackerIsQuad: true,
+            limb: 'rightLeg',
+            rightArmHasTalons: true,
+            rightArmFootActuatorPresent: false,
+          }),
+        ),
+      ).toBe(10);
     });
   });
 
@@ -242,6 +957,57 @@ describe('physicalAttacks', () => {
         ),
       ).toBe(24);
     });
+
+    it('applies source-backed talon damage when either DFA leg has working talons', () => {
+      expect(
+        calculateDFADamageToTarget(
+          makeInput({
+            attackerTonnage: 70,
+            attackType: 'dfa',
+            leftLegHasTalons: true,
+          }),
+        ),
+      ).toBe(31);
+    });
+
+    it('does not apply DFA talon damage without a working foot actuator', () => {
+      expect(
+        calculateDFADamageToTarget(
+          makeInput({
+            attackerTonnage: 70,
+            attackType: 'dfa',
+            leftLegHasTalons: true,
+            leftFootActuatorPresent: false,
+          }),
+        ),
+      ).toBe(21);
+    });
+
+    it('applies source-backed quad DFA talon damage from arm-location front legs', () => {
+      expect(
+        calculateDFADamageToTarget(
+          makeInput({
+            attackerTonnage: 70,
+            attackType: 'dfa',
+            attackerIsQuad: true,
+            rightArmHasTalons: true,
+          }),
+        ),
+      ).toBe(31);
+    });
+
+    it('honors MegaMek non-biped DFA right-arm talon gate for arm-location talons', () => {
+      expect(
+        calculateDFADamageToTarget(
+          makeInput({
+            attackerTonnage: 70,
+            attackType: 'dfa',
+            attackerIsQuad: true,
+            leftArmHasTalons: true,
+          }),
+        ),
+      ).toBe(21);
+    });
   });
 
   describe('calculateDFADamageToAttacker', () => {
@@ -263,6 +1029,55 @@ describe('physicalAttacks', () => {
     });
   });
 
+  describe('resolveDfaMissFallPilotDamageAvoidance', () => {
+    it('applies the source-backed fall-height modifier and wounds on failure', () => {
+      const rolls = [2, 3];
+      const result = resolveDfaMissFallPilotDamageAvoidance(
+        5,
+        2,
+        () => rolls.shift() ?? 1,
+      );
+
+      expect(result).toMatchObject({
+        targetNumber: 6,
+        roll: 5,
+        dice: [2, 3],
+        passed: false,
+        pilotDamage: 1,
+      });
+    });
+
+    it('avoids missed-DFA fall pilot damage on a successful roll', () => {
+      const rolls = [3, 3];
+      const result = resolveDfaMissFallPilotDamageAvoidance(
+        5,
+        2,
+        () => rolls.shift() ?? 1,
+      );
+
+      expect(result).toMatchObject({
+        targetNumber: 6,
+        roll: 6,
+        dice: [3, 3],
+        passed: true,
+        pilotDamage: 0,
+      });
+    });
+
+    it('honors source-backed Manei Domini fall-pilot-damage immunity', () => {
+      const result = resolveDfaMissFallPilotDamageAvoidance(5, 2, () => 1, [
+        'dermal_armor',
+      ]);
+
+      expect(result).toMatchObject({
+        targetNumber: 6,
+        dice: [],
+        passed: true,
+        pilotDamage: 0,
+      });
+    });
+  });
+
   // =============================================================================
   // Melee Weapon Damage Tests
   // =============================================================================
@@ -279,24 +1094,123 @@ describe('physicalAttacks', () => {
   });
 
   describe('calculateSwordDamage', () => {
-    it('should compute floor(weight/10) + 1 for 70-ton mech', () => {
-      // floor(70/10) + 1 = 7 + 1 = 8
+    it('should compute ceil(weight/10) + 1 for 70-ton mech', () => {
+      // ceil(70/10) + 1 = 7 + 1 = 8
       expect(
         calculateSwordDamage(
           makeInput({ attackerTonnage: 70, attackType: 'sword' }),
         ),
       ).toBe(8);
     });
+
+    it('should round sword damage up for non-even tonnage', () => {
+      // MegaMek ClubAttackAction uses ceil(weight / 10) + 1.
+      expect(
+        calculateSwordDamage(
+          makeInput({ attackerTonnage: 65, attackType: 'sword' }),
+        ),
+      ).toBe(8);
+    });
   });
 
   describe('calculateMaceDamage', () => {
-    it('should compute floor(weight×2/5) for 70-ton mech', () => {
-      // floor(70 × 2 / 5) = floor(140/5) = 28
+    it('should compute ceil(weight/4) for 70-ton mech', () => {
+      // MegaMek ClubAttackAction uses ceil(weight / 4).
       expect(
         calculateMaceDamage(
           makeInput({ attackerTonnage: 70, attackType: 'mace' }),
         ),
-      ).toBe(28);
+      ).toBe(18);
+    });
+
+    it('should round mace damage up for non-even tonnage', () => {
+      expect(
+        calculateMaceDamage(
+          makeInput({ attackerTonnage: 65, attackType: 'mace' }),
+        ),
+      ).toBe(17);
+    });
+  });
+
+  describe('calculateRetractableBladeDamage', () => {
+    it('computes ceil(weight/10) for a 70-ton mech', () => {
+      expect(
+        calculateRetractableBladeDamage(
+          makeInput({
+            attackerTonnage: 70,
+            attackType: 'retractable-blade',
+          }),
+        ),
+      ).toBe(7);
+    });
+
+    it('rounds retractable blade damage up for non-even tonnage', () => {
+      expect(
+        calculateRetractableBladeDamage(
+          makeInput({
+            attackerTonnage: 65,
+            attackType: 'retractable-blade',
+          }),
+        ),
+      ).toBe(7);
+    });
+  });
+
+  describe('source-backed constant physical weapon damage', () => {
+    it('computes constant flail and wrecking ball damage', () => {
+      expect(calculateFlailDamage(makeInput({ attackType: 'flail' }))).toBe(9);
+      expect(
+        calculateWreckingBallDamage(makeInput({ attackType: 'wrecking-ball' })),
+      ).toBe(8);
+    });
+
+    it('does not double flail or wrecking ball damage with active TSM', () => {
+      const activeTsm = {
+        hasTSM: true,
+        heat: 9,
+      };
+
+      expect(
+        calculateFlailDamage(makeInput({ ...activeTsm, attackType: 'flail' })),
+      ).toBe(9);
+      expect(
+        calculateWreckingBallDamage(
+          makeInput({ ...activeTsm, attackType: 'wrecking-ball' }),
+        ),
+      ).toBe(8);
+    });
+
+    it('applies Melee Specialist and underwater modifiers to constant weapons', () => {
+      expect(
+        calculateFlailDamage(
+          makeInput({
+            attackType: 'flail',
+            pilotAbilities: ['melee-specialist'],
+            isUnderwater: true,
+          }),
+        ),
+      ).toBe(5);
+      expect(
+        calculateWreckingBallDamage(
+          makeInput({
+            attackType: 'wrecking-ball',
+            pilotAbilities: ['melee-specialist'],
+            isUnderwater: true,
+          }),
+        ),
+      ).toBe(4);
+    });
+
+    it('does not apply Melee Master as flat constant weapon damage', () => {
+      expect(
+        calculateFlailDamage(
+          makeInput({
+            attackType: 'flail',
+            pilotAbilities: ['melee-master'],
+            isUnderwater: true,
+          }),
+        ),
+      ).toBe(4);
     });
   });
 
@@ -358,7 +1272,7 @@ describe('physicalAttacks', () => {
     });
 
     it('should double sword damage with TSM at heat 9+', () => {
-      // 70t TSM: effective 140, floor(140/10) + 1 = 14 + 1 = 15
+      // 70t TSM: effective 140, ceil(140/10) + 1 = 14 + 1 = 15
       expect(
         calculateSwordDamage(
           makeInput({
@@ -372,7 +1286,7 @@ describe('physicalAttacks', () => {
     });
 
     it('should double mace damage with TSM at heat 9+', () => {
-      // 70t TSM: effective 140, floor(140 × 2 / 5) = floor(280/5) = 56
+      // 70t TSM: effective 140, ceil(140 / 4) = 35
       expect(
         calculateMaceDamage(
           makeInput({
@@ -382,7 +1296,44 @@ describe('physicalAttacks', () => {
             heat: 9,
           }),
         ),
-      ).toBe(56);
+      ).toBe(35);
+    });
+
+    it('should double retractable blade damage with TSM at heat 9+', () => {
+      // 70t TSM: effective 140, ceil(140 / 10) = 14
+      expect(
+        calculateRetractableBladeDamage(
+          makeInput({
+            attackerTonnage: 70,
+            attackType: 'retractable-blade',
+            hasTSM: true,
+            heat: 9,
+          }),
+        ),
+      ).toBe(14);
+    });
+
+    it('should not double flail or wrecking ball damage with TSM at heat 9+', () => {
+      expect(
+        calculateFlailDamage(
+          makeInput({
+            attackerTonnage: 70,
+            attackType: 'flail',
+            hasTSM: true,
+            heat: 9,
+          }),
+        ),
+      ).toBe(9);
+      expect(
+        calculateWreckingBallDamage(
+          makeInput({
+            attackerTonnage: 70,
+            attackType: 'wrecking-ball',
+            hasTSM: true,
+            heat: 9,
+          }),
+        ),
+      ).toBe(8);
     });
   });
 
@@ -451,18 +1402,6 @@ describe('physicalAttacks', () => {
       expect(canPunch(makeInput()).allowed).toBe(true);
     });
 
-    it('should disallow punch for battle armor attackers', () => {
-      const result = canPunch(
-        makeInput({ attackerUnitType: UnitType.BATTLE_ARMOR }),
-      );
-
-      expect(result).toEqual({
-        allowed: false,
-        reason: "Non-meks can't punch",
-        reasonCode: 'AttackerNotMek',
-      });
-    });
-
     it('should disallow punch with shoulder destroyed', () => {
       const result = canPunch(
         makeInput({
@@ -482,22 +1421,48 @@ describe('physicalAttacks', () => {
       expect(result.reason).toContain('fired');
     });
 
-    it('should disallow punch when target elevation is outside arm height', () => {
+    it('disallows punch with the selected arm missing', () => {
+      expect(
+        canPunch(
+          makeInput({
+            limb: 'leftArm',
+            attackerDestroyedLocations: ['left_arm'],
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'LimbMissing',
+      });
+
+      expect(
+        canPunch(
+          makeInput({
+            arm: 'right',
+            attackerDestroyedLocations: ['right_arm'],
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'LimbMissing',
+      });
+    });
+
+    it('disallows punch when No Arms quirk is present', () => {
+      const result = canPunch(makeInput({ unitQuirks: ['no_arms'] }));
+
+      expect(result).toMatchObject({
+        allowed: false,
+        reasonCode: 'NoArmsQuirk',
+      });
+    });
+
+    it('does not apply Low Arms without a source-backed combat resolver', () => {
       const result = canPunch(
-        makeInput({
-          elevationContext: {
-            attackerBaseElevation: 0,
-            attackerArmElevation: 1,
-            targetBaseElevation: 2,
-            targetTopElevation: 3,
-          },
-        }),
+        makeInput({ unitQuirks: ['low_arms'], elevationDifference: 1 }),
       );
 
-      expect(result).toEqual({
-        allowed: false,
-        reason: 'Target elevation not in range',
-        reasonCode: 'TargetElevationNotInRange',
+      expect(result).toMatchObject({
+        allowed: true,
       });
     });
   });
@@ -507,39 +1472,12 @@ describe('physicalAttacks', () => {
       expect(canKick(makeInput({ attackType: 'kick' })).allowed).toBe(true);
     });
 
-    it('should disallow kick for battle armor attackers', () => {
-      const result = canKick(
-        makeInput({
-          attackType: 'kick',
-          attackerUnitType: UnitType.BATTLE_ARMOR,
-        }),
-      );
-
-      expect(result).toEqual({
-        allowed: false,
-        reason: "Non-meks can't kick",
-        reasonCode: 'AttackerNotMek',
-      });
-    });
-
     it('should disallow kick when prone', () => {
       const result = canKick(
         makeInput({ attackType: 'kick', attackerProne: true }),
       );
       expect(result.allowed).toBe(false);
       expect(result.reason).toContain('prone');
-    });
-
-    it('should disallow kick when attacker is hull-down', () => {
-      const result = canKick(
-        makeInput({ attackType: 'kick', attackerHullDown: true }),
-      );
-
-      expect(result).toEqual({
-        allowed: false,
-        reason: 'Attacker is hull down',
-        reasonCode: 'AttackerHullDown',
-      });
     });
 
     it('should disallow kick with hip destroyed', () => {
@@ -556,218 +1494,1317 @@ describe('physicalAttacks', () => {
       expect(result.reason).toContain('Hip');
     });
 
-    it('should disallow kick when attacker elevation is outside target height', () => {
-      const result = canKick(
-        makeInput({
-          attackType: 'kick',
-          elevationContext: {
-            attackerBaseElevation: 0,
-            attackerArmElevation: 1,
-            targetBaseElevation: 1,
-            targetTopElevation: 2,
-          },
-        }),
-      );
-
-      expect(result).toEqual({
+    it('disallows kick when either leg is missing', () => {
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            limb: 'leftLeg',
+            attackerDestroyedLocations: ['left_leg'],
+          }),
+        ),
+      ).toMatchObject({
         allowed: false,
-        reason: 'Target elevation not in range',
-        reasonCode: 'TargetElevationNotInRange',
+        reasonCode: 'LimbMissing',
+      });
+
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            limb: 'rightLeg',
+            attackerDestroyedLocations: ['left_leg'],
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'LimbMissing',
       });
     });
   });
 
-  describe('canPush', () => {
-    it('should disallow airborne AirMek pushes', () => {
-      const result = canPush(
-        makeInput({
-          attackType: 'push',
-          attackerUnitType: UnitType.BATTLEMECH,
-          attackerConversionMode: 'airmek',
-          attackerIsAirborneVTOLOrWiGE: true,
-          targetUnitType: UnitType.BATTLEMECH,
-        }),
-      );
+  describe('canTrip', () => {
+    const validTripInput = {
+      tacOpsTripAttackEnabled: true,
+      attackerIsMek: true,
+      targetIsMek: true,
+      targetDistance: 1,
+      targetInFrontArc: true,
+      sameElevation: true,
+      leftLegPresent: true,
+      rightLegPresent: true,
+      leftTripLimbUsable: true,
+      rightTripLimbUsable: true,
+    };
 
-      expect(result).toEqual({
+    it('allows source-backed adjacent Mek trip attempts and exposes the base to-hit relief', () => {
+      expect(canTrip(validTripInput)).toEqual({ allowed: true });
+      expect(getTripAttackBaseToHitAdjustment()).toBe(-1);
+    });
+
+    it.each([
+      [
+        'disabled optional rule',
+        { tacOpsTripAttackEnabled: false },
+        'TacOpsTripDisabled',
+      ],
+      [
+        'already grappled attacker',
+        { attackerAlreadyGrappled: true },
+        'AttackerAlreadyGrappled',
+      ],
+      ['friendly target', { targetIsFriendly: true }, 'FriendlyTarget'],
+      ['non-Mek attacker', { attackerIsMek: false }, 'AttackerNotMek'],
+      ['non-Mek target', { targetIsMek: false }, 'TargetNotMek'],
+      [
+        'airborne attacker',
+        { attackerIsAirborneVTOLorWIGE: true },
+        'AttackerAirborne',
+      ],
+      ['missing leg', { leftLegPresent: false }, 'LegMissing'],
+      ['distant target', { targetDistance: 2 }, 'TargetNotAdjacent'],
+      [
+        'rear or side target',
+        { targetInFrontArc: false },
+        'TargetNotInFrontArc',
+      ],
+      ['prone attacker', { attackerProne: true }, 'AttackerProne'],
+      ['prone target', { targetProne: true }, 'TargetProne'],
+      ['elevation mismatch', { sameElevation: false }, 'ElevationMismatch'],
+      [
+        'both trip limbs unavailable',
+        { leftTripLimbUsable: false, rightTripLimbUsable: false },
+        'TripLimbUnavailable',
+      ],
+    ])('rejects %s', (_label, overrides, reasonCode) => {
+      expect(canTrip({ ...validTripInput, ...overrides })).toMatchObject({
         allowed: false,
-        reason: 'Cannot push while airborne',
-        reasonCode: 'AttackerAirborne',
+        reasonCode,
       });
     });
 
-    it('should disallow non-Mek push targets', () => {
-      const result = canPush(
-        makeInput({
-          attackType: 'push',
-          targetUnitType: UnitType.VEHICLE,
-        }),
-      );
+    it('maps source-backed trip gates into runtime physical restrictions and to-hit math', () => {
+      const input = makeInput({
+        attackType: 'trip',
+        optionalRules: ['tacops_trip_attack'],
+        targetDistance: 1,
+        targetInFrontArc: true,
+        elevationDifference: 0,
+      });
 
-      expect(result).toEqual({
-        allowed: false,
-        reason: 'Target is not a mek',
-        reasonCode: 'TargetNotMek',
+      expect(canTripPhysical(input)).toEqual({ allowed: true });
+      expect(calculateTripToHit(input)).toMatchObject({
+        allowed: true,
+        baseToHit: 4,
+        finalToHit: 4,
       });
     });
 
-    it('should disallow push targets that are not directly ahead', () => {
-      const result = canPush(
-        makeInput({
-          attackType: 'push',
-          attackerPosition: { q: 0, r: 0 },
-          targetPosition: { q: 0, r: 1 },
-          attackerFacing: Facing.Southeast,
-        }),
-      );
-
-      expect(result).toEqual({
+    it('rejects runtime trip attacks when the optional rule is not enabled', () => {
+      expect(
+        calculateTripToHit(
+          makeInput({
+            attackType: 'trip',
+            targetDistance: 1,
+            targetInFrontArc: true,
+            elevationDifference: 0,
+          }),
+        ),
+      ).toMatchObject({
         allowed: false,
-        reason: 'Target not directly ahead of feet',
-        reasonCode: 'TargetNotDirectlyAhead',
+        finalToHit: Infinity,
+        restrictionReasonCode: 'TacOpsTripDisabled',
+      });
+    });
+  });
+
+  describe('canThrash', () => {
+    const validThrashInput = {
+      attackerIsMek: true,
+      attackerProne: true,
+      targetIsInfantry: true,
+      targetDistance: 0,
+      sameElevation: true,
+      blockingTerrains: [],
+      hasWorkingArmOrLeg: true,
+    };
+
+    it('allows source-backed prone Mek same-hex infantry thrash and exposes automatic success damage math', () => {
+      expect(canThrash(validThrashInput)).toEqual({ allowed: true });
+      expect(isThrashAttackAutomaticSuccess()).toBe(true);
+      expect(getThrashAttackDamageForWeight(55)).toBe(18);
+      expect(getThrashAttackDamageForWeight(100)).toBe(33);
+    });
+
+    it.each([
+      ['friendly target', { targetIsFriendly: true }, 'FriendlyTarget'],
+      ['non-Mek attacker', { attackerIsMek: false }, 'AttackerNotMek'],
+      ['standing attacker', { attackerProne: false }, 'AttackerNotProne'],
+      ['non-infantry target', { targetIsInfantry: false }, 'TargetNotInfantry'],
+      ['swarming infantry', { targetIsSwarming: true }, 'TargetSwarming'],
+      ['different hex', { targetDistance: 1 }, 'TargetNotSameHex'],
+      ['elevation mismatch', { sameElevation: false }, 'ElevationMismatch'],
+      [
+        'building or hex target',
+        { targetIsBuildingFuelTankOrHex: true },
+        'InvalidExplicitTarget',
+      ],
+      [
+        'weapon fired this turn',
+        { weaponFiredThisTurn: true },
+        'WeaponFiredThisTurn',
+      ],
+      [
+        'no working arm or leg',
+        { hasWorkingArmOrLeg: false },
+        'ThrashLimbUnavailable',
+      ],
+    ])('rejects %s', (_label, overrides, reasonCode) => {
+      expect(canThrash({ ...validThrashInput, ...overrides })).toMatchObject({
+        allowed: false,
+        reasonCode,
       });
     });
 
-    it('should disallow push when either attacker arm is missing', () => {
-      const result = canPush(
-        makeInput({
-          attackType: 'push',
-          attackerDestroyedLocations: ['left_arm'],
+    it.each([
+      'woods',
+      'jungle',
+      'rough',
+      'rubble',
+      'fuel-tank',
+      'building',
+    ] as const)('rejects %s terrain as not clear or pavement', (terrain) => {
+      expect(
+        canThrash({
+          ...validThrashInput,
+          blockingTerrains: [terrain],
         }),
-      );
-
-      expect(result).toEqual({
+      ).toMatchObject({
         allowed: false,
-        reason: 'Arm missing',
-        reasonCode: 'LimbMissing',
+        reasonCode: 'TerrainNotClearOrPavement',
       });
     });
 
-    it('should disallow outside pushes against targets in building hexes', () => {
-      const result = canPush(
-        makeInput({
-          attackType: 'push',
-          terrainContext: {
-            attackerInBuilding: false,
-            targetInBuilding: true,
-          },
-        }),
-      );
+    it('maps source-backed thrash gates into runtime restrictions and automatic-hit to-hit math', () => {
+      const input = makeInput({
+        attackType: 'thrash',
+        attackerProne: true,
+        attackerUnitType: 'BattleMech',
+        targetUnitType: 'Infantry',
+        targetDistance: 0,
+        elevationDifference: 0,
+        thrashBlockingTerrains: [],
+      });
 
-      expect(result).toEqual({
+      expect(canThrashPhysical(input)).toEqual({ allowed: true });
+      expect(calculateThrashToHit(input)).toMatchObject({
+        allowed: true,
+        baseToHit: 0,
+        finalToHit: 0,
+        automaticHit: true,
+        automaticHitReason: 'Thrash attacks always hit.',
+      });
+      expect(calculateThrashDamage(input)).toBe(27);
+    });
+
+    it('rejects runtime thrash attacks when a prone Mek is not in clear same-hex infantry conditions', () => {
+      expect(
+        canThrashPhysical(
+          makeInput({
+            attackType: 'thrash',
+            attackerProne: false,
+            attackerUnitType: 'BattleMech',
+            targetUnitType: 'Infantry',
+            targetDistance: 0,
+            elevationDifference: 0,
+          }),
+        ),
+      ).toMatchObject({
         allowed: false,
-        reason: 'Target is inside building',
-        reasonCode: 'TargetInsideBuilding',
+        reasonCode: 'AttackerNotProne',
+      });
+
+      expect(
+        canThrashPhysical(
+          makeInput({
+            attackType: 'thrash',
+            attackerProne: true,
+            attackerUnitType: 'BattleMech',
+            targetUnitType: 'Infantry',
+            targetDistance: 0,
+            elevationDifference: 0,
+            thrashBlockingTerrains: ['woods'],
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TerrainNotClearOrPavement',
+      });
+    });
+  });
+
+  describe('canBrushOff', () => {
+    const validBrushOffInput = {
+      attackerIsMek: true,
+      selectedArm: 'right',
+      targetIsSwarmingInfantryOnAttacker: true,
+      shoulderWorking: true,
+    } as const;
+
+    it('allows source-backed swarming-infantry and iNarc pod brush-off targets', () => {
+      expect(canBrushOff(validBrushOffInput)).toEqual({ allowed: true });
+      expect(
+        canBrushOff({
+          ...validBrushOffInput,
+          targetIsSwarmingInfantryOnAttacker: false,
+          targetIsINarcPod: true,
+        }),
+      ).toEqual({ allowed: true });
+    });
+
+    it.each([
+      ['non-Mek attacker', { attackerIsMek: false }, 'AttackerNotMek'],
+      [
+        'missing arm selection',
+        { selectedArm: undefined },
+        'InvalidArmSelection',
+      ],
+      ['both arms selected', { selectedArm: 'both' }, 'InvalidArmSelection'],
+      [
+        'non-swarming non-iNarc target',
+        { targetIsSwarmingInfantryOnAttacker: false },
+        'InvalidTarget',
+      ],
+      ['quad attacker', { attackerIsQuad: true }, 'AttackerQuad'],
+      ['flipped arms', { armsFlipped: true }, 'ArmsFlipped'],
+      ['missing selected arm', { selectedArmMissing: true }, 'ArmMissing'],
+      ['no/minimal arms quirk', { noMinimalArmsQuirk: true }, 'NoArmsQuirk'],
+      ['destroyed shoulder', { shoulderWorking: false }, 'ShoulderDestroyed'],
+      [
+        'selected arm fired weapons',
+        { armWeaponFiredThisTurn: true },
+        'ArmWeaponFiredThisTurn',
+      ],
+      ['DFA target', { targetMakingDfa: true }, 'TargetMakingDfa'],
+      ['prone attacker', { attackerProne: true }, 'AttackerProne'],
+      [
+        'building or hex target',
+        { targetIsBuildingFuelTankOrHex: true },
+        'InvalidExplicitTarget',
+      ],
+    ] as const)('rejects %s', (_label, overrides, reasonCode) => {
+      expect(
+        canBrushOff({ ...validBrushOffInput, ...overrides }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode,
       });
     });
 
-    it('should disallow pushes against a different known building', () => {
-      const result = canPush(
-        makeInput({
-          attackType: 'push',
-          terrainContext: {
-            attackerInBuilding: true,
-            targetInBuilding: true,
-            attackerBuildingId: 'warehouse-a',
-            targetBuildingId: 'warehouse-b',
-          },
+    it('exposes source-backed dedicated brush-off to-hit modifiers', () => {
+      expect(
+        getBrushOffAttackToHitModifiers({
+          upperArmWorking: false,
+          lowerArmWorking: false,
+          armAesFunctional: true,
+          handWorking: false,
+          defenderHasMagneticClaws: true,
         }),
-      );
-
-      expect(result).toEqual({
-        allowed: false,
-        reason: 'Target is inside building',
-        reasonCode: 'TargetInsideBuilding',
+      ).toEqual({
+        possible: true,
+        modifiers: [
+          expect.objectContaining({
+            value: 4,
+            reasonCode: 'BrushOffSwarmingInfantry',
+          }),
+          expect.objectContaining({
+            value: 2,
+            reasonCode: 'UpperArmActuatorDestroyed',
+          }),
+          expect.objectContaining({
+            value: 2,
+            reasonCode: 'LowerArmActuatorMissingOrDestroyed',
+          }),
+          expect.objectContaining({ value: -1, reasonCode: 'ArmAES' }),
+          expect.objectContaining({
+            value: 1,
+            reasonCode: 'HandActuatorDestroyed',
+          }),
+          expect.objectContaining({
+            value: 1,
+            reasonCode: 'DefenderMagneticClaws',
+          }),
+        ],
       });
     });
 
-    it('should allow pushes inside the same known building', () => {
-      const result = canPush(
-        makeInput({
-          attackType: 'push',
-          terrainContext: {
-            attackerInBuilding: true,
-            targetInBuilding: true,
-            attackerBuildingId: 'warehouse-a',
-            targetBuildingId: 'warehouse-a',
-          },
-        }),
-      );
-
-      expect(result).toEqual({ allowed: true });
-    });
-
-    it('should derive known building ids from encoded terrain context', () => {
-      const grid = makeTerrainGrid({
-        '0,0': terrainStringFromFeatures([
-          {
-            type: TerrainType.Building,
-            level: 1,
-            buildingId: 'warehouse-a',
-          },
-        ]),
-        '1,0': terrainStringFromFeatures([
-          {
-            type: TerrainType.Building,
-            level: 2,
-            buildingId: 'warehouse-b',
-          },
+    it('calculates runtime brush-off to-hit for swarming infantry and rejects normal targets', () => {
+      expect(
+        calculatePhysicalToHit(
+          makeInput({
+            attackType: 'brush-off',
+            arm: 'right',
+            limb: 'rightArm',
+            targetIsSwarming: true,
+            targetIsSwarmingInfantryOnAttacker: true,
+            targetUnitType: 'Infantry',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: true,
+        baseToHit: 5,
+        finalToHit: 9,
+        modifiers: expect.arrayContaining([
+          expect.objectContaining({
+            value: 4,
+            source: 'physical-action',
+          }),
         ]),
       });
 
       expect(
-        buildPhysicalTerrainContext(
-          unitAt('attacker', 0, 0),
-          unitAt('target', 1, 0),
-          grid,
+        calculatePhysicalToHit(
+          makeInput({
+            attackType: 'brush-off',
+            targetDistance: 1,
+          }),
         ),
-      ).toEqual({
-        attackerInBuilding: true,
-        targetInBuilding: true,
-        attackerBuildingId: 'warehouse-a',
-        targetBuildingId: 'warehouse-b',
-      });
-    });
-
-    it('should disallow push targets on a different base elevation', () => {
-      const result = canPush(
-        makeInput({
-          attackType: 'push',
-          elevationContext: {
-            attackerBaseElevation: 0,
-            attackerArmElevation: 1,
-            targetBaseElevation: 1,
-            targetTopElevation: 2,
-          },
-        }),
-      );
-
-      expect(result).toEqual({
+      ).toMatchObject({
         allowed: false,
-        reason: 'Target elevation not in range',
-        reasonCode: 'TargetElevationNotInRange',
+        restrictionReasonCode: 'InvalidBrushOffTarget',
       });
     });
 
-    it('should allow a same-elevation Mek directly ahead', () => {
-      const result = canPush(
-        makeInput({
-          attackType: 'push',
-          attackerUnitType: UnitType.BATTLEMECH,
-          targetUnitType: UnitType.OMNIMECH,
-          attackerPosition: { q: 0, r: 0 },
-          targetPosition: { q: 1, r: 0 },
-          attackerFacing: Facing.Southeast,
-          elevationContext: {
-            attackerBaseElevation: 0,
-            attackerArmElevation: 1,
-            targetBaseElevation: 0,
-            targetTopElevation: 1,
-          },
+    it('uses the source-backed hand/claw modifier precedence', () => {
+      expect(
+        getBrushOffAttackToHitModifiers({
+          handActuatorPresent: false,
+          lowerArmWorking: true,
+        }).modifiers,
+      ).toContainEqual(
+        expect.objectContaining({ reasonCode: 'HandActuatorMissing' }),
+      );
+      expect(
+        getBrushOffAttackToHitModifiers({ hasClaws: true }).modifiers,
+      ).toContainEqual(expect.objectContaining({ reasonCode: 'UsingClaws' }));
+    });
+
+    it('exposes torso-mounted cockpit sensor branches', () => {
+      expect(
+        getBrushOffAttackToHitModifiers({
+          torsoMountedCockpit: true,
+          headSensorHits: 2,
+        }).modifiers,
+      ).toContainEqual(
+        expect.objectContaining({
+          value: 4,
+          reasonCode: 'TorsoMountedCockpitHeadSensorsDestroyed',
         }),
       );
+      expect(
+        getBrushOffAttackToHitModifiers({
+          torsoMountedCockpit: true,
+          headSensorHits: 2,
+          centerTorsoSensorHits: 1,
+        }),
+      ).toMatchObject({
+        possible: false,
+        impossibleReasonCode: 'TorsoMountedCockpitSensorsDestroyed',
+      });
+    });
 
-      expect(result).toEqual({ allowed: true });
+    it('uses punch-equivalent damage for brush-off hit and miss damage', () => {
+      const input = makeInput({ attackerTonnage: 80, arm: 'right' });
+      expect(calculateBrushOffAttackDamage(input)).toBe(
+        calculatePunchDamage(input),
+      );
+      expect(
+        calculateBrushOffAttackDamage(
+          makeInput({
+            attackerTonnage: 80,
+            arm: 'right',
+            componentDamage: {
+              ...DEFAULT_COMPONENT_DAMAGE,
+              actuators: { [ActuatorType.UPPER_ARM]: true },
+            },
+          }),
+        ),
+      ).toBe(4);
+    });
+
+    it('resolves runtime brush-off miss as punch-equivalent self-damage', () => {
+      const result = resolvePhysicalAttack(
+        makeInput({
+          attackType: 'brush-off',
+          arm: 'right',
+          limb: 'rightArm',
+          targetIsSwarming: true,
+          targetIsSwarmingInfantryOnAttacker: true,
+          targetUnitType: 'Infantry',
+          targetDistance: 1,
+        }),
+        makeDiceSequence([1, 1, 3]),
+      );
+
+      expect(result).toMatchObject({
+        attackType: 'brush-off',
+        roll: 2,
+        toHitNumber: 9,
+        hit: false,
+        targetDamage: 0,
+        attackerDamage: 8,
+        hitLocation: 'center_torso',
+      });
+    });
+  });
+
+  describe('canBreakGrapple', () => {
+    const validBreakGrappleInput = {
+      tacOpsGrapplingEnabled: true,
+      attackerIsMek: true,
+      commonImpossibleReasonCode: 'LockedInGrapple',
+      grappledTargetMatches: true,
+    } as const;
+
+    it('allows source-backed Mek and ProtoMek break-grapple attempts locked in grapple', () => {
+      expect(canBreakGrapple(validBreakGrappleInput)).toEqual({
+        allowed: true,
+      });
+      expect(
+        canBreakGrapple({
+          ...validBreakGrappleInput,
+          attackerIsMek: false,
+          attackerIsProtoMek: true,
+        }),
+      ).toEqual({ allowed: true });
+    });
+
+    it.each([
+      [
+        'disabled optional rule',
+        { tacOpsGrapplingEnabled: false },
+        'TacOpsGrapplingDisabled',
+      ],
+      [
+        'airborne attacker',
+        { attackerIsAirborneVTOLorWIGE: true },
+        'AttackerAirborne',
+      ],
+      [
+        'common impossible state other than locked grapple',
+        { commonImpossibleReasonCode: 'Other' },
+        'CommonImpossible',
+      ],
+      [
+        'chain-whip grapple',
+        { attackerChainWhipGrappled: true },
+        'ChainWhipGrappled',
+      ],
+      [
+        'non-Mek or ProtoMek attacker',
+        { attackerIsMek: false },
+        'AttackerNotMekOrProtoMek',
+      ],
+      [
+        'target not matching grapple state',
+        { grappledTargetMatches: false },
+        'NotGrappledToTarget',
+      ],
+    ] as const)('rejects %s', (_label, overrides, reasonCode) => {
+      expect(
+        canBreakGrapple({ ...validBreakGrappleInput, ...overrides }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode,
+      });
+    });
+
+    it('exposes source-backed original-attacker automatic success', () => {
+      expect(
+        getBreakGrappleAttackToHitModifiers({
+          originalGrappleAttacker: true,
+          attackerIsMek: true,
+          leftShoulderWorking: false,
+          targetUnitKind: 'mek',
+          attackerWeightClass: 2,
+          targetWeightClass: 5,
+        }),
+      ).toEqual({
+        automaticSuccess: true,
+        automaticSuccessReason: 'original attacker',
+        automaticSuccessReasonCode: 'OriginalGrappleAttacker',
+        modifiers: [],
+      });
+    });
+
+    it('exposes source-backed break-grapple actuator, AES, and weight modifiers', () => {
+      expect(
+        getBreakGrappleAttackToHitModifiers({
+          attackerIsMek: true,
+          leftShoulderWorking: false,
+          leftUpperArmWorking: false,
+          leftLowerArmWorking: false,
+          leftHandWorking: false,
+          rightShoulderWorking: false,
+          rightUpperArmWorking: false,
+          rightLowerArmWorking: false,
+          rightHandWorking: false,
+          bothArmAesFunctional: true,
+          attackerUnitKind: 'mek',
+          targetUnitKind: 'mek',
+          attackerWeightClass: 2,
+          targetWeightClass: 5,
+        }).modifiers,
+      ).toEqual([
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'LeftShoulderActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'LeftUpperArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'LeftLowerArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 1,
+          reasonCode: 'LeftHandActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'RightShoulderActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'RightUpperArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'RightLowerArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 1,
+          reasonCode: 'RightHandActuatorDestroyed',
+        }),
+        expect.objectContaining({ value: -1, reasonCode: 'ArmAES' }),
+        expect.objectContaining({
+          value: 3,
+          reasonCode: 'WeightClassDifference',
+        }),
+      ]);
+    });
+
+    it('uses MegaMek grapple weight-class branches for ProtoMeks', () => {
+      expect(
+        getBreakGrappleWeightClassModifier({
+          attackerUnitKind: 'mek',
+          targetUnitKind: 'protoMek',
+          attackerWeightClass: 4,
+          targetWeightClass: 1,
+        }),
+      ).toBe(-4);
+      expect(
+        getBreakGrappleWeightClassModifier({
+          attackerUnitKind: 'protoMek',
+          targetUnitKind: 'mek',
+          attackerWeightClass: 1,
+          targetWeightClass: 5,
+        }),
+      ).toBe(5);
+      expect(
+        getBreakGrappleWeightClassModifier({
+          attackerUnitKind: 'protoMek',
+          targetUnitKind: 'protoMek',
+          attackerWeightClass: 1,
+          targetWeightClass: 2,
+        }),
+      ).toBe(0);
+    });
+  });
+
+  describe('runtime break-grapple attack', () => {
+    const validBreakGrappleInput = () =>
+      makeInput({
+        attackerId: 'attacker',
+        targetId: 'target',
+        attackType: 'break-grapple',
+        optionalRules: ['tacops_grappling'],
+        commonPhysicalImpossibleReasonCode: 'LockedInGrapple',
+        attackerGrappledTargetId: 'target',
+        targetGrappledTargetId: 'attacker',
+        attackerUnitType: UnitType.BATTLEMECH,
+        targetUnitType: UnitType.BATTLEMECH,
+        targetDistance: 0,
+      });
+
+    it('allows source-backed break-grapple through runtime physical restrictions', () => {
+      expect(canBreakGrapplePhysical(validBreakGrappleInput())).toEqual({
+        allowed: true,
+      });
+    });
+
+    it('rejects chain-whip and non-matching grapple state before runtime side effects', () => {
+      expect(
+        canBreakGrapplePhysical({
+          ...validBreakGrappleInput(),
+          attackerChainWhipGrappled: true,
+        }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'ChainWhipGrappled',
+      });
+
+      expect(
+        canBreakGrapplePhysical({
+          ...validBreakGrappleInput(),
+          attackerGrappledTargetId: 'other-target',
+        }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'NotGrappledToTarget',
+      });
+    });
+
+    it('resolves original-attacker break-grapple as automatic zero-damage success', () => {
+      const result = resolvePhysicalAttack(
+        {
+          ...validBreakGrappleInput(),
+          attackerIsGrappleAttacker: true,
+        },
+        makeDiceSequence([1, 1]),
+      );
+
+      expect(result).toMatchObject({
+        attackType: 'break-grapple',
+        roll: 0,
+        toHitNumber: 0,
+        hit: true,
+        targetDamage: 0,
+        attackerDamage: 0,
+        automaticHit: true,
+        automaticHitReason: 'original attacker',
+      });
+      expect(result.hitLocation).toBeUndefined();
+    });
+
+    it('threads source-backed break-grapple actuator, AES, and weight modifiers into runtime to-hit', () => {
+      const toHit = calculateBreakGrappleToHit({
+        ...validBreakGrappleInput(),
+        attackerIsGrappleAttacker: false,
+        componentDamage: {
+          ...DEFAULT_COMPONENT_DAMAGE,
+          actuators: { [ActuatorType.SHOULDER]: true },
+        },
+        leftArmAesFunctional: true,
+        rightArmAesFunctional: true,
+        attackerWeightClass: 4,
+        targetWeightClass: 5,
+      });
+
+      expect(toHit.allowed).toBe(true);
+      expect(toHit.modifiers).toEqual([
+        expect.objectContaining({
+          name: 'Left shoulder actuator destroyed',
+          value: 2,
+          source: 'actuator',
+        }),
+        expect.objectContaining({
+          name: 'Right shoulder actuator destroyed',
+          value: 2,
+          source: 'actuator',
+        }),
+        expect.objectContaining({
+          name: 'AES modifier',
+          value: -1,
+          source: 'actuator',
+        }),
+        expect.objectContaining({
+          name: 'Weight class difference',
+          value: 1,
+          source: 'weight-class',
+        }),
+      ]);
+      expect(toHit.finalToHit).toBe(9);
+    });
+
+    it('chooses source-backed least- and most-dangerous adjacent displacement hexes', () => {
+      expect(
+        computeBreakGrappleDisplacementOutcome({
+          grid: makeBreakGrappleGrid(),
+          attackerId: 'attacker',
+          targetId: 'target',
+          attackerPosition: { q: 0, r: 0 },
+          targetPosition: { q: 0, r: 0 },
+          attackerIsGrappleAttacker: true,
+        }).displacements,
+      ).toEqual([
+        {
+          unitId: 'attacker',
+          from: { q: 0, r: 0 },
+          to: { q: 0, r: -1 },
+          reason: 'break-grapple',
+        },
+      ]);
+
+      expect(
+        computeBreakGrappleDisplacementOutcome({
+          grid: makeBreakGrappleGrid(),
+          attackerId: 'attacker',
+          targetId: 'target',
+          attackerPosition: { q: 0, r: 0 },
+          targetPosition: { q: 0, r: 0 },
+          attackerIsGrappleAttacker: false,
+        }).displacements,
+      ).toEqual([
+        {
+          unitId: 'target',
+          from: { q: 0, r: 0 },
+          to: { q: 1, r: 0 },
+          reason: 'break-grapple',
+        },
+      ]);
+    });
+  });
+
+  describe('canGrapple', () => {
+    const validGrappleInput = {
+      tacOpsGrapplingEnabled: true,
+      attackerIsBipedMek: true,
+      targetIsMek: true,
+      leftArmPresent: true,
+      rightArmPresent: true,
+      leftShoulderWorking: true,
+      rightShoulderWorking: true,
+      targetDistance: 1,
+      elevationDifference: 0,
+      maxElevationChange: 2,
+      targetInFrontArc: true,
+    } as const;
+
+    it('allows source-backed BipedMek and ProtoMek grapple attempts', () => {
+      expect(canGrapple(validGrappleInput)).toEqual({ allowed: true });
+      expect(
+        canGrapple({
+          ...validGrappleInput,
+          attackerIsBipedMek: false,
+          attackerIsProtoMek: true,
+          targetIsMek: false,
+          targetIsProtoMek: true,
+        }),
+      ).toEqual({ allowed: true });
+    });
+
+    it('allows source-backed counter-grapples to relax range, front-arc, and weapon-fire gates', () => {
+      expect(
+        canGrapple({
+          ...validGrappleInput,
+          counterGrapple: true,
+          commonImpossibleReasonCode: 'LockedInGrapple',
+          targetDistance: 3,
+          targetInFrontArc: false,
+          weaponFiredThisTurn: true,
+        }),
+      ).toEqual({ allowed: true });
+    });
+
+    it.each([
+      [
+        'disabled optional rule',
+        { tacOpsGrapplingEnabled: false },
+        'TacOpsGrapplingDisabled',
+      ],
+      [
+        'airborne attacker',
+        { attackerIsAirborneVTOLorWIGE: true },
+        'AttackerAirborne',
+      ],
+      [
+        'common impossible state other than locked grapple',
+        { commonImpossibleReasonCode: 'Other' },
+        'CommonImpossible',
+      ],
+      [
+        'friendly target while friendly fire is disabled',
+        { targetIsFriendly: true },
+        'FriendlyTarget',
+      ],
+      [
+        'non-BipedMek or ProtoMek attacker',
+        { attackerIsBipedMek: false, attackerIsProtoMek: false },
+        'AttackerNotBipedMekOrProtoMek',
+      ],
+      [
+        'non-Mek or ProtoMek target',
+        { targetIsMek: false, targetIsProtoMek: false },
+        'TargetNotMekOrProtoMek',
+      ],
+      ['No Arms quirk', { noMinimalArmsQuirk: true }, 'NoArmsQuirk'],
+      [
+        'missing selected arm',
+        { grappleSide: 'left', leftArmPresent: false },
+        'ArmMissing',
+      ],
+      [
+        'destroyed selected shoulder',
+        { grappleSide: 'right', rightShoulderWorking: false },
+        'ShoulderMissingOrDestroyed',
+      ],
+      ['non-adjacent target', { targetDistance: 2 }, 'TargetNotAdjacent'],
+      [
+        'target elevation outside attacker elevation change',
+        { elevationDifference: 3 },
+        'ElevationMismatch',
+      ],
+      [
+        'target outside front arc',
+        { targetInFrontArc: false },
+        'TargetNotInFrontArc',
+      ],
+      ['prone attacker', { attackerProne: true }, 'AttackerProne'],
+      ['prone target', { targetProne: true }, 'TargetProne'],
+      [
+        'weapon fired before non-counter grapple',
+        { weaponFiredThisTurn: true },
+        'WeaponFiredThisTurn',
+      ],
+      [
+        'already-grappled target state',
+        {
+          attackerGrappledTargetMatches: false,
+          targetIsGrappleAttacker: true,
+        },
+        'AlreadyGrappled',
+      ],
+    ] as const)('rejects %s', (_label, overrides, reasonCode) => {
+      expect(canGrapple({ ...validGrappleInput, ...overrides })).toMatchObject({
+        allowed: false,
+        reasonCode,
+      });
+    });
+
+    it('exposes source-backed both-arm actuator, AES, and weight modifiers', () => {
+      expect(
+        getGrappleAttackToHitModifiers({
+          attackerIsMek: true,
+          leftUpperArmWorking: false,
+          leftLowerArmWorking: false,
+          leftHandWorking: false,
+          rightUpperArmWorking: false,
+          rightLowerArmWorking: false,
+          rightHandWorking: false,
+          leftArmAesFunctional: true,
+          rightArmAesFunctional: true,
+          attackerUnitKind: 'mek',
+          targetUnitKind: 'mek',
+          attackerWeightClass: 2,
+          targetWeightClass: 5,
+        }).modifiers,
+      ).toEqual([
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'LeftUpperArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'LeftLowerArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 1,
+          reasonCode: 'LeftHandActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'RightUpperArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'RightLowerArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 1,
+          reasonCode: 'RightHandActuatorDestroyed',
+        }),
+        expect.objectContaining({ value: -1, reasonCode: 'ArmAES' }),
+        expect.objectContaining({
+          value: 3,
+          reasonCode: 'WeightClassDifference',
+        }),
+      ]);
+    });
+
+    it('exposes source-backed single-arm AES and TSM modifiers', () => {
+      expect(
+        getGrappleAttackToHitModifiers({
+          grappleSide: 'right',
+          attackerIsMek: true,
+          rightUpperArmWorking: false,
+          rightLowerArmWorking: false,
+          rightHandWorking: false,
+          rightArmAesFunctional: true,
+          attackerHasActiveTsm: true,
+        }).modifiers,
+      ).toEqual([
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'RightUpperArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'RightLowerArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 1,
+          reasonCode: 'RightHandActuatorDestroyed',
+        }),
+        expect.objectContaining({ value: -1, reasonCode: 'ArmAES' }),
+        expect.objectContaining({ value: -2, reasonCode: 'TSMActiveBonus' }),
+      ]);
+    });
+
+    it('uses MegaMek grapple weight-class branches for ProtoMeks', () => {
+      expect(
+        getGrappleAttackToHitModifiers({
+          attackerUnitKind: 'mek',
+          targetUnitKind: 'protoMek',
+          attackerWeightClass: 4,
+          targetWeightClass: 1,
+        }).modifiers,
+      ).toEqual([
+        expect.objectContaining({
+          value: -4,
+          reasonCode: 'WeightClassDifference',
+        }),
+      ]);
+      expect(
+        getGrappleAttackToHitModifiers({
+          attackerUnitKind: 'protoMek',
+          targetUnitKind: 'mek',
+          attackerWeightClass: 1,
+          targetWeightClass: 5,
+        }).modifiers,
+      ).toEqual([
+        expect.objectContaining({
+          value: 5,
+          reasonCode: 'WeightClassDifference',
+        }),
+      ]);
+      expect(
+        getGrappleAttackToHitModifiers({
+          attackerUnitKind: 'protoMek',
+          targetUnitKind: 'protoMek',
+          attackerWeightClass: 1,
+          targetWeightClass: 2,
+        }).modifiers,
+      ).toEqual([]);
+    });
+  });
+
+  describe('runtime grapple attack', () => {
+    const validGrappleInput = () =>
+      makeInput({
+        attackerId: 'attacker',
+        targetId: 'target',
+        attackType: 'grapple',
+        optionalRules: ['tacops_grappling'],
+        targetDistance: 1,
+        targetInFrontArc: true,
+      });
+
+    it('allows source-backed normal TacOps grapple through physical restrictions', () => {
+      expect(canGrapplePhysical(validGrappleInput())).toEqual({
+        allowed: true,
+      });
+    });
+
+    it('rejects runtime grapple declarations when TacOps grappling is disabled', () => {
+      expect(
+        canGrapplePhysical({
+          ...validGrappleInput(),
+          optionalRules: [],
+        }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TacOpsGrapplingDisabled',
+      });
+    });
+
+    it('threads source-backed grapple modifiers into runtime to-hit', () => {
+      const toHit = calculateGrappleToHit({
+        ...validGrappleInput(),
+        attackerUnitType: UnitType.BATTLEMECH,
+        grappleSide: 'right',
+        componentDamage: {
+          ...DEFAULT_COMPONENT_DAMAGE,
+          actuators: { [ActuatorType.UPPER_ARM]: true },
+        },
+        rightArmAesFunctional: true,
+        hasTSM: true,
+        heat: TSM_ACTIVATION_HEAT,
+        attackerWeightClass: 4,
+        targetWeightClass: 5,
+      });
+
+      expect(toHit.allowed).toBe(true);
+      expect(toHit.modifiers).toEqual([
+        expect.objectContaining({
+          name: 'Right upper arm actuator destroyed',
+          value: 2,
+          source: 'actuator',
+        }),
+        expect.objectContaining({
+          name: 'AES modifier',
+          value: -1,
+          source: 'actuator',
+        }),
+        expect.objectContaining({
+          name: 'TSM Active Bonus',
+          value: -2,
+          source: 'myomer',
+        }),
+        expect.objectContaining({
+          name: 'Weight class difference',
+          value: 1,
+          source: 'weight-class',
+        }),
+      ]);
+      expect(toHit.finalToHit).toBe(5);
+    });
+
+    it('resolves a successful grapple as zero-damage grapple state setup', () => {
+      const result = resolvePhysicalAttack(
+        validGrappleInput(),
+        makeDiceSequence([6, 6]),
+      );
+
+      expect(result).toMatchObject({
+        attackType: 'grapple',
+        hit: true,
+        targetDamage: 0,
+        attackerDamage: 0,
+        targetPSR: false,
+        attackerPSR: false,
+        targetDisplaced: false,
+      });
+      expect(result.hitLocation).toBeUndefined();
+    });
+  });
+
+  describe('canJumpJetAttack', () => {
+    const validJumpJetAttackInput = {
+      tacOpsJumpJetAttackEnabled: true,
+      selectedLeg: 'left',
+      attackerIsMek: true,
+      leftLegPresent: true,
+      leftReadyJumpJetCount: 2,
+      targetDistance: 1,
+      standingAttackerHeightAboveTargetHeight: 1,
+      targetDirectlyAheadOfFeet: true,
+    } as const;
+
+    it('allows source-backed standing and prone jump jet attacks', () => {
+      expect(canJumpJetAttack(validJumpJetAttackInput)).toEqual({
+        allowed: true,
+      });
+      expect(
+        canJumpJetAttack({
+          ...validJumpJetAttackInput,
+          selectedLeg: 'both',
+          attackerProne: true,
+          rightLegPresent: true,
+          rightReadyJumpJetCount: 1,
+          standingAttackerHeightAboveTargetHeight: undefined,
+          targetDirectlyAheadOfFeet: undefined,
+          proneTargetElevationInRange: true,
+          targetDirectlyBehindFeet: true,
+        }),
+      ).toEqual({ allowed: true });
+    });
+
+    it.each([
+      [
+        'disabled optional rule',
+        { tacOpsJumpJetAttackEnabled: false },
+        'TacOpsJumpJetAttackDisabled',
+      ],
+      [
+        'common impossible state',
+        { commonImpossible: true },
+        'CommonImpossible',
+      ],
+      [
+        'LAM outside Mek mode',
+        { attackerIsLandAirMek: true, attackerIsMekMode: false },
+        'LandAirMekNotMekMode',
+      ],
+      [
+        'missing leg selection',
+        { selectedLeg: undefined },
+        'InvalidLegSelection',
+      ],
+      ['non-Mek attacker', { attackerIsMek: false }, 'AttackerNotMek'],
+      [
+        'standing both-leg attack',
+        {
+          selectedLeg: 'both',
+          rightLegPresent: true,
+          rightReadyJumpJetCount: 1,
+        },
+        'BothLegsRequiresProne',
+      ],
+      ['missing selected leg', { leftLegPresent: false }, 'LegMissing'],
+      [
+        'selected leg jump jets destroyed',
+        { leftReadyJumpJetCount: 0 },
+        'JumpJetsMissingOrDestroyed',
+      ],
+      [
+        'attacker already jumped',
+        { attackerMovedJump: true },
+        'AttackerJumpedThisTurn',
+      ],
+      [
+        'selected leg weapon fired',
+        { leftLegWeaponFiredThisTurn: true },
+        'LegWeaponFiredThisTurn',
+      ],
+      ['non-adjacent target', { targetDistance: 2 }, 'TargetNotAdjacent'],
+      [
+        'standing target elevation mismatch',
+        { standingAttackerHeightAboveTargetHeight: 0 },
+        'TargetElevationNotInRange',
+      ],
+      [
+        'standing target not ahead',
+        { targetDirectlyAheadOfFeet: false },
+        'TargetNotDirectlyAheadOfFeet',
+      ],
+      [
+        'prone target elevation mismatch',
+        {
+          attackerProne: true,
+          standingAttackerHeightAboveTargetHeight: undefined,
+          targetDirectlyAheadOfFeet: undefined,
+          proneTargetElevationInRange: false,
+        },
+        'TargetElevationNotInRange',
+      ],
+      [
+        'prone target not behind',
+        {
+          attackerProne: true,
+          standingAttackerHeightAboveTargetHeight: undefined,
+          targetDirectlyAheadOfFeet: undefined,
+          proneTargetElevationInRange: true,
+          targetDirectlyBehindFeet: false,
+        },
+        'TargetNotDirectlyBehindFeet',
+      ],
+    ] as const)('rejects %s', (_label, overrides, reasonCode) => {
+      expect(
+        canJumpJetAttack({ ...validJumpJetAttackInput, ...overrides }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode,
+      });
+    });
+
+    it('uses source-backed selected-leg jump jet damage and wet-location zero damage', () => {
+      expect(
+        getJumpJetAttackDamage({
+          selectedLeg: 'both',
+          leftReadyJumpJetCount: 2,
+          rightReadyJumpJetCount: 1,
+        }),
+      ).toBe(9);
+      expect(
+        getJumpJetAttackDamage({
+          selectedLeg: 'left',
+          leftReadyJumpJetCount: 3,
+          leftLegWet: true,
+        }),
+      ).toBe(0);
+    });
+
+    it('exposes source-backed jump jet to-hit branches', () => {
+      expect(getJumpJetAttackToHitModifiers()).toEqual({
+        automaticSuccess: false,
+        modifiers: [
+          expect.objectContaining({ value: 2, reasonCode: 'JumpJetAttack' }),
+        ],
+      });
+      expect(
+        getJumpJetAttackToHitModifiers({ attackerProne: true }).modifiers,
+      ).toContainEqual(
+        expect.objectContaining({ value: 2, reasonCode: 'AttackerProne' }),
+      );
+      expect(
+        getJumpJetAttackToHitModifiers({
+          targetIsBuildingFuelTankOrGunEmplacement: true,
+        }),
+      ).toEqual({
+        automaticSuccess: true,
+        automaticSuccessReason: 'Targeting adjacent building.',
+        automaticSuccessReasonCode: 'AdjacentBuilding',
+        modifiers: [],
+      });
+    });
+
+    it('wires jump jet attack through runtime restrictions, to-hit, damage, and resolution', () => {
+      const input = makeInput({
+        attackType: 'jump-jet-attack',
+        optionalRules: ['tacops_jump_jet_attack'],
+        limb: 'rightLeg',
+        rightReadyJumpJetCount: 2,
+        targetDistance: 1,
+        standingAttackerHeightAboveTargetHeight: 1,
+        targetDirectlyAheadOfFeet: true,
+      });
+
+      expect(canJumpJetAttackPhysical(input)).toEqual({ allowed: true });
+      expect(calculatePhysicalToHit(input)).toMatchObject({
+        allowed: true,
+        baseToHit: 5,
+        finalToHit: 7,
+        modifiers: [expect.objectContaining({ name: 'Jump Jet', value: 2 })],
+      });
+      expect(calculatePhysicalDamage(input)).toMatchObject({
+        targetDamage: 6,
+        attackerDamage: 0,
+        attackerPSR: false,
+        targetPSR: false,
+      });
+      expect(
+        resolvePhysicalAttack(input, makeDiceSequence([4, 4, 3])),
+      ).toMatchObject({
+        attackType: 'jump-jet-attack',
+        hit: true,
+        targetDamage: 6,
+        attackerDamage: 0,
+      });
+    });
+
+    it('rejects runtime jump jet attacks without the TacOps option before side effects', () => {
+      expect(
+        resolvePhysicalAttack(
+          makeInput({
+            attackType: 'jump-jet-attack',
+            limb: 'rightLeg',
+            rightReadyJumpJetCount: 2,
+            targetDistance: 1,
+            standingAttackerHeightAboveTargetHeight: 1,
+            targetDirectlyAheadOfFeet: true,
+          }),
+          makeDiceSequence([6, 6, 6]),
+        ),
+      ).toMatchObject({
+        hit: false,
+        targetDamage: 0,
+        attackerDamage: 0,
+        restrictionReasonCode: 'TacOpsJumpJetAttackDisabled',
+      });
     });
   });
 
@@ -776,21 +2813,6 @@ describe('physicalAttacks', () => {
       expect(canMeleeWeapon(makeInput({ attackType: 'hatchet' })).allowed).toBe(
         true,
       );
-    });
-
-    it('should disallow mech melee weapons for battle armor attackers', () => {
-      const result = canMeleeWeapon(
-        makeInput({
-          attackType: 'hatchet',
-          attackerUnitType: UnitType.BATTLE_ARMOR,
-        }),
-      );
-
-      expect(result).toEqual({
-        allowed: false,
-        reason: "Non-meks can't use mech melee weapons",
-        reasonCode: 'AttackerNotMek',
-      });
     });
 
     it('should disallow if lower arm destroyed', () => {
@@ -825,453 +2847,1872 @@ describe('physicalAttacks', () => {
       );
       expect(result.allowed).toBe(false);
     });
-  });
 
-  describe('canDFA', () => {
-    it('should disallow DFA for battle armor attackers', () => {
-      const result = canDFA(
+    it('disallows arm-mounted melee weapons when No Arms quirk is present', () => {
+      const result = canMeleeWeapon(
+        makeInput({ attackType: 'hatchet', unitQuirks: ['no_arms'] }),
+      );
+
+      expect(result).toMatchObject({
+        allowed: false,
+        reasonCode: 'NoArmsQuirk',
+      });
+    });
+
+    it('disallows retractable blade attacks when the blade is not extended', () => {
+      const result = canMeleeWeapon(
         makeInput({
-          attackType: 'dfa',
-          attackerUnitType: UnitType.BATTLE_ARMOR,
-          attackerJumpedThisTurn: true,
+          attackType: 'retractable-blade',
+          retractableBladeExtended: false,
         }),
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         allowed: false,
-        reason: "Non-meks can't DFA",
-        reasonCode: 'AttackerNotMek',
-      });
-    });
-  });
-
-  describe('canCharge', () => {
-    it.each([
-      UnitType.BATTLE_ARMOR,
-      UnitType.INFANTRY,
-      UnitType.PROTOMECH,
-      UnitType.VTOL,
-      UnitType.AEROSPACE,
-    ])('should disallow charge for %s attackers', (attackerUnitType) => {
-      const result = canCharge(
-        makeInput({
-          attackType: 'charge',
-          attackerUnitType,
-          attackerRanThisTurn: true,
-        }),
-      );
-
-      expect(result).toEqual({
-        allowed: false,
-        reason: "This unit type can't charge",
-        reasonCode: 'AttackerCannotCharge',
+        reasonCode: 'RetractableBladeNotExtended',
       });
     });
 
-    it('should preserve represented vehicle charge eligibility when run-gated', () => {
-      const result = canCharge(
-        makeInput({
-          attackType: 'charge',
-          attackerUnitType: UnitType.VEHICLE,
-          attackerRanThisTurn: true,
-        }),
-      );
-
-      expect(result).toEqual({ allowed: true });
-    });
-
-    it('should disallow WiGE vehicle charge even after a run', () => {
-      const result = canCharge(
-        makeInput({
-          attackType: 'charge',
-          attackerUnitType: UnitType.VEHICLE,
-          attackerMovementMode: 'wige',
-          attackerRanThisTurn: true,
-        }),
-      );
-
-      expect(result).toEqual({
-        allowed: false,
-        reason: "This movement mode can't charge",
-        reasonCode: 'AttackerCannotCharge',
-      });
-    });
-
-    it('should allow grounded AirMek charge while blocking fighter mode and airborne AirMek', () => {
-      expect(
-        canCharge(
-          makeInput({
-            attackType: 'charge',
-            attackerUnitType: UnitType.BATTLEMECH,
-            attackerMovementMode: 'wige',
-            attackerConversionMode: 'airmek',
-            attackerIsAirborneVTOLOrWiGE: false,
-            attackerRanThisTurn: true,
-          }),
-        ),
-      ).toEqual({ allowed: true });
+    it('allows flails and lances without a working hand actuator', () => {
+      const componentDamage = {
+        ...DEFAULT_COMPONENT_DAMAGE,
+        actuators: { [ActuatorType.HAND]: true },
+      };
 
       expect(
-        canCharge(
-          makeInput({
-            attackType: 'charge',
-            attackerUnitType: UnitType.BATTLEMECH,
-            attackerMovementMode: 'wige',
-            attackerConversionMode: 'fighter',
-            attackerRanThisTurn: true,
-          }),
-        ),
-      ).toEqual({
-        allowed: false,
-        reason: "This movement mode can't charge",
-        reasonCode: 'AttackerCannotCharge',
-      });
-
+        canMeleeWeapon(makeInput({ attackType: 'flail', componentDamage }))
+          .allowed,
+      ).toBe(true);
       expect(
-        canCharge(
-          makeInput({
-            attackType: 'charge',
-            attackerUnitType: UnitType.BATTLEMECH,
-            attackerMovementMode: 'wige',
-            attackerConversionMode: 'airmek',
-            attackerIsAirborneVTOLOrWiGE: true,
-            attackerRanThisTurn: true,
-          }),
-        ),
-      ).toEqual({
-        allowed: false,
-        reason: "This movement mode can't charge",
-        reasonCode: 'AttackerCannotCharge',
-      });
-    });
-
-    it('should allow hover charge unless the optional no-hover-charge rule is enabled', () => {
-      expect(
-        canCharge(
-          makeInput({
-            attackType: 'charge',
-            attackerUnitType: UnitType.VEHICLE,
-            attackerMovementMode: 'hover',
-            attackerRanThisTurn: true,
-          }),
-        ),
-      ).toEqual({ allowed: true });
-
-      expect(
-        canCharge(
-          makeInput({
-            attackType: 'charge',
-            attackerUnitType: UnitType.VEHICLE,
-            attackerMovementMode: 'hover',
-            attackerRanThisTurn: true,
-            optionalRules: ['no_hover_charge'],
-          }),
-        ),
-      ).toEqual({
-        allowed: false,
-        reason: "This movement mode can't charge",
-        reasonCode: 'AttackerCannotCharge',
-      });
-    });
-
-    it('should disallow stunned vehicle charge even after a run', () => {
-      const result = canCharge(
-        makeInput({
-          attackType: 'charge',
-          attackerUnitType: UnitType.VEHICLE,
-          attackerRanThisTurn: true,
-          attackerVehicleCrewStunned: true,
-        }),
-      );
-
-      expect(result).toEqual({
-        allowed: false,
-        reason: "Stunned vehicle crew can't charge",
-        reasonCode: 'AttackerCannotCharge',
-      });
-    });
-  });
-
-  describe('LAM fighter physical eligibility', () => {
-    it.each([
-      ['punch', canPunch],
-      ['kick', canKick],
-      ['push', canPush],
-      ['dfa', canDFA],
-      ['hatchet', canMeleeWeapon],
-    ] as const)('should block %s in fighter mode', (attackType, validator) => {
-      const result = validator(
-        makeInput({
-          attackType,
-          attackerUnitType: UnitType.BATTLEMECH,
-          attackerConversionMode: 'fighter',
-          attackerRanThisTurn: true,
-          attackerJumpedThisTurn: true,
-        }),
-      );
-
-      expect(result).toEqual({
-        allowed: false,
-        reason: "LAM fighter mode can't make physical attacks",
-        reasonCode: 'AttackerCannotUsePhysical',
-      });
-    });
-  });
-
-  describe('getEligiblePhysicalAttacks', () => {
-    it('blocks stunned vehicle charge rows from generic physical highlights', () => {
-      const attacker = {
-        ...unitAt('stunned-vehicle-1', 0, 0),
-        combatState: {
-          kind: 'vehicle',
-          state: { motive: { crewStunnedPhases: 1 } },
-        },
-      } as IUnitGameState;
-      const target = unitAt('mech-1', 1, 0);
-
-      const options = getEligiblePhysicalAttacks(attacker, target, {
-        attackerTonnage: 45,
-        attackerPilotingSkill: 4,
-        targetTonnage: 55,
-        attackerUnitType: UnitType.VEHICLE,
-        targetUnitType: UnitType.BATTLEMECH,
-        attackerRanThisTurn: true,
-      });
-
-      const charge = options.find((option) => option.attackType === 'charge');
-      expect(charge).toBeDefined();
-      expect(charge!.toHit.allowed).toBe(false);
-      expect(charge!.restrictionsFailed).toEqual(['AttackerCannotCharge']);
-    });
-
-    it('blocks WiGE vehicle charge rows from generic physical highlights', () => {
-      const attacker = unitAt('wige-1', 0, 0);
-      const target = unitAt('mech-1', 1, 0);
-
-      const options = getEligiblePhysicalAttacks(attacker, target, {
-        attackerTonnage: 45,
-        attackerPilotingSkill: 4,
-        targetTonnage: 55,
-        attackerUnitType: UnitType.VEHICLE,
-        attackerMovementMode: 'wige',
-        targetUnitType: UnitType.BATTLEMECH,
-        attackerRanThisTurn: true,
-      });
-
-      const charge = options.find((option) => option.attackType === 'charge');
-      expect(charge).toBeDefined();
-      expect(charge!.toHit.allowed).toBe(false);
-      expect(charge!.restrictionsFailed).toEqual(['AttackerCannotCharge']);
-    });
-
-    it('derives represented LAM AirMek charge eligibility from runtime conversion state', () => {
-      const attacker = {
-        ...unitAt('airmek-1', 0, 0),
-        conversionMode: 'airmek',
-      } as IUnitGameState;
-      const target = unitAt('mech-1', 1, 0);
-
-      const options = getEligiblePhysicalAttacks(attacker, target, {
-        attackerTonnage: 45,
-        attackerPilotingSkill: 4,
-        targetTonnage: 55,
-        attackerUnitType: UnitType.BATTLEMECH,
-        attackerMovementMode: 'wige',
-        targetUnitType: UnitType.BATTLEMECH,
-        attackerRanThisTurn: true,
-      });
-
-      const charge = options.find((option) => option.attackType === 'charge');
-      expect(charge).toBeDefined();
-      expect(charge!.toHit.allowed).toBe(true);
-      expect(charge!.restrictionsFailed).toEqual([]);
-    });
-
-    it('blocks represented airborne AirMek charge rows from runtime state', () => {
-      const attacker = {
-        ...unitAt('airborne-airmek-1', 0, 0),
-        conversionMode: 'airmek',
-        combatState: {
-          kind: 'aero',
-          state: { altitude: 1 },
-        },
-      } as IUnitGameState;
-      const target = unitAt('mech-1', 1, 0);
-
-      const options = getEligiblePhysicalAttacks(attacker, target, {
-        attackerTonnage: 45,
-        attackerPilotingSkill: 4,
-        targetTonnage: 55,
-        attackerUnitType: UnitType.BATTLEMECH,
-        attackerMovementMode: 'wige',
-        targetUnitType: UnitType.BATTLEMECH,
-        attackerRanThisTurn: true,
-      });
-
-      const charge = options.find((option) => option.attackType === 'charge');
-      expect(charge).toBeDefined();
-      expect(charge!.toHit.allowed).toBe(false);
-      expect(charge!.restrictionsFailed).toEqual(['AttackerCannotCharge']);
-    });
-
-    it('blocks represented airborne AirMek push rows from runtime state', () => {
-      const attacker = {
-        ...unitAt('airborne-airmek-1', 0, 0),
-        conversionMode: 'airmek',
-        combatState: {
-          kind: 'aero',
-          state: { altitude: 1 },
-        },
-      } as IUnitGameState;
-      const target = unitAt('mech-1', 1, 0);
-
-      const options = getEligiblePhysicalAttacks(attacker, target, {
-        attackerTonnage: 45,
-        attackerPilotingSkill: 4,
-        targetTonnage: 55,
-        attackerUnitType: UnitType.BATTLEMECH,
-        attackerMovementMode: 'wige',
-        targetUnitType: UnitType.BATTLEMECH,
-        attackerRanThisTurn: true,
-      });
-
-      const push = options.find((option) => option.attackType === 'push');
-      expect(push).toBeDefined();
-      expect(push!.toHit.allowed).toBe(false);
-      expect(push!.restrictionsFailed).toEqual(['AttackerAirborne']);
-    });
-
-    it('blocks represented LAM fighter physical rows from runtime state', () => {
-      const attacker = {
-        ...unitAt('fighter-lam-1', 0, 0),
-        conversionMode: 'fighter',
-      } as IUnitGameState;
-      const target = unitAt('mech-1', 1, 0);
-
-      const options = getEligiblePhysicalAttacks(attacker, target, {
-        attackerTonnage: 45,
-        attackerPilotingSkill: 4,
-        targetTonnage: 55,
-        attackerUnitType: UnitType.BATTLEMECH,
-        attackerMovementMode: 'wheeled',
-        targetUnitType: UnitType.BATTLEMECH,
-        attackerRanThisTurn: true,
-        attackerJumpedThisTurn: true,
-      });
-
-      expect(options).not.toHaveLength(0);
-      expect(options.every((option) => option.toHit.allowed === false)).toBe(
-        true,
-      );
-      expect(
-        options
-          .filter((option) => option.attackType !== 'charge')
-          .every((option) =>
-            option.restrictionsFailed.includes('AttackerCannotUsePhysical'),
-          ),
+        canMeleeWeapon(makeInput({ attackType: 'lance', componentDamage }))
+          .allowed,
       ).toBe(true);
     });
 
-    it('blocks kick rows when the runtime attacker is hull-down', () => {
-      const attacker = {
-        ...unitAt('hull-down-mek-1', 0, 0),
-        hullDown: true,
-      } as IUnitGameState;
-      const target = unitAt('mech-1', 1, 0);
-
-      const options = getEligiblePhysicalAttacks(attacker, target, {
-        attackerTonnage: 55,
-        attackerPilotingSkill: 4,
-        targetTonnage: 55,
-        attackerUnitType: UnitType.BATTLEMECH,
-        targetUnitType: UnitType.BATTLEMECH,
-        attackerRanThisTurn: true,
-        attackerJumpedThisTurn: true,
-      });
-
-      const kicks = options.filter((option) => option.attackType === 'kick');
-      expect(kicks).toHaveLength(2);
-      expect(kicks.every((option) => option.toHit.allowed === false)).toBe(
-        true,
+    it('treats wrecking balls as torso-mounted physical weapons', () => {
+      const result = canMeleeWeapon(
+        makeInput({
+          attackType: 'wrecking-ball',
+          unitQuirks: ['no_arms'],
+          weaponsFiredFromArm: ['right-arm-ppc'],
+          componentDamage: {
+            ...DEFAULT_COMPONENT_DAMAGE,
+            actuators: {
+              [ActuatorType.SHOULDER]: true,
+              [ActuatorType.LOWER_ARM]: true,
+              [ActuatorType.HAND]: true,
+            },
+          },
+        }),
       );
-      expect(kicks.map((option) => option.restrictionsFailed)).toEqual([
-        ['AttackerHullDown'],
-        ['AttackerHullDown'],
-      ]);
+
+      expect(result.allowed).toBe(true);
     });
 
-    it('projects MegaMek hull-down punch and club hit tables from elevation context', () => {
-      const attacker = {
-        ...unitAt('hull-down-mek-1', 0, 0),
-        hullDown: true,
-      } as IUnitGameState;
-      const target = unitAt('mech-1', 1, 0);
-
-      const options = getEligiblePhysicalAttacks(attacker, target, {
-        attackerTonnage: 55,
-        attackerPilotingSkill: 4,
-        targetTonnage: 55,
-        attackerUnitType: UnitType.BATTLEMECH,
-        targetUnitType: UnitType.BATTLEMECH,
-        meleeWeaponsEquipped: ['hatchet'],
-        elevationContext: {
-          attackerBaseElevation: 0,
-          attackerArmElevation: 1,
-          targetBaseElevation: 1,
-          targetTopElevation: 2,
-        },
-      });
-
-      const punch = options.find(
-        (option) => option.attackType === 'punch' && option.limb === 'rightArm',
-      );
-      const hatchet = options.find((option) => option.attackType === 'hatchet');
-
-      expect(punch).toBeDefined();
-      expect(punch!.toHit.allowed).toBe(true);
-      expect(punch!.damage.hitTable).toBe('kick');
-      expect(hatchet).toBeDefined();
-      expect(hatchet!.toHit.allowed).toBe(true);
-      expect(hatchet!.damage.hitTable).toBe('kick');
-    });
-
-    it('keeps battle armor from producing generic physical target highlights', () => {
-      const attacker = unitAt('ba-1', 0, 0);
-      const target = unitAt('mech-1', 1, 0);
-
-      const options = getEligiblePhysicalAttacks(attacker, target, {
-        attackerTonnage: 1,
-        attackerPilotingSkill: 4,
-        targetTonnage: 55,
-        attackerUnitType: UnitType.BATTLE_ARMOR,
-        targetUnitType: UnitType.BATTLEMECH,
-        attackerRanThisTurn: true,
-        attackerJumpedThisTurn: true,
-      });
-
+    it('disallows flails but allows wrecking balls on quad BattleMechs', () => {
       expect(
-        options.filter(
-          (option) =>
-            option.toHit.allowed && option.restrictionsFailed.length === 0,
+        canMeleeWeapon(
+          makeInput({ attackType: 'flail', attackerIsQuad: true }),
         ),
-      ).toHaveLength(0);
-      expect(options.map((option) => option.attackType)).toEqual(
-        expect.arrayContaining(['punch', 'kick', 'charge', 'dfa']),
-      );
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerQuad',
+      });
       expect(
-        options
-          .filter((option) =>
-            ['punch', 'kick', 'charge', 'dfa'].includes(option.attackType),
-          )
-          .flatMap((option) => option.restrictionsFailed),
-      ).toEqual(
-        expect.arrayContaining([
-          'AttackerNotMek',
-          'AttackerNotMek',
-          'AttackerNotMek',
-          'AttackerCannotCharge',
-        ]),
-      );
+        canMeleeWeapon(
+          makeInput({ attackType: 'wrecking-ball', attackerIsQuad: true }),
+        ).allowed,
+      ).toBe(true);
+    });
+  });
+
+  describe('source-backed physical legality gates', () => {
+    it('disallows missing physical targets before other target checks', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            targetExists: false,
+            targetIsSelf: true,
+            targetDistance: 0,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMissing',
+      });
+
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            targetExists: false,
+            targetIsFriendly: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMissing',
+      });
+    });
+
+    it('disallows destroyed physical targets before self and friendly checks', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            targetDestroyed: true,
+            targetIsSelf: true,
+            targetDistance: 0,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetDestroyed',
+      });
+
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetDestroyed: true,
+            targetIsFriendly: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetDestroyed',
+      });
+
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetDestroyed: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetDestroyed',
+      });
+
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            targetDestroyed: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetDestroyed',
+      });
+    });
+
+    it('disallows ejected physical targets before self and friendly checks', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            targetEjected: true,
+            targetIsSelf: true,
+            targetDistance: 0,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetEjected',
+      });
+
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetEjected: true,
+            targetIsFriendly: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetEjected',
+      });
+
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetEjected: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetEjected',
+      });
+
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            targetEjected: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetEjected',
+      });
+    });
+
+    it('disallows retreated physical targets before self and friendly checks', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            targetRetreated: true,
+            targetIsSelf: true,
+            targetDistance: 0,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetRetreated',
+      });
+
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetRetreated: true,
+            targetIsFriendly: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetRetreated',
+      });
+
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetRetreated: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetRetreated',
+      });
+
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            targetRetreated: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetRetreated',
+      });
+    });
+
+    it('disallows passenger physical targets across supported physical attack families', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            targetIsPassenger: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetPassenger',
+      });
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            targetIsPassenger: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetPassenger',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            targetIsPassenger: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetPassenger',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetIsPassenger: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetPassenger',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetIsPassenger: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetPassenger',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            targetIsPassenger: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetPassenger',
+      });
+    });
+
+    it('disallows swarming physical targets across supported physical attack families', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            targetIsSwarming: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetSwarming',
+      });
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            targetIsSwarming: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetSwarming',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            targetIsSwarming: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetSwarming',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetIsSwarming: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetSwarming',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetIsSwarming: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetSwarming',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            targetIsSwarming: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetSwarming',
+      });
+    });
+
+    it('disallows targets making DFA across supported physical attack families', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            targetIsMakingDFA: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMakingDFA',
+      });
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            targetIsMakingDFA: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMakingDFA',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            targetIsMakingDFA: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMakingDFA',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetIsMakingDFA: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMakingDFA',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetIsMakingDFA: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMakingDFA',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            targetIsMakingDFA: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMakingDFA',
+      });
+    });
+
+    it('disallows charge and DFA against targets in displacement conflicts', () => {
+      expect(
+        canCharge(
+          makeInput({
+            attackerId: 'attacker',
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetIsMakingDisplacementAttack: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMakingDisplacementAttack',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackerId: 'attacker',
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetIsMakingDisplacementAttack: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMakingDisplacementAttack',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackerId: 'attacker',
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetedByDisplacementAttackerId: 'other-attacker',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetOfDisplacementAttack',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackerId: 'attacker',
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetedByDisplacementAttackerId: 'other-attacker',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetOfDisplacementAttack',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackerId: 'attacker',
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetedByDisplacementAttackerId: 'attacker',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: true,
+      });
+    });
+
+    it('disallows prone charge attackers after the run gate passes', () => {
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            attackerProne: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerProne',
+      });
+    });
+
+    it('disallows stuck charge attackers before movement-path gates', () => {
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            attackerMovedBackwardThisTurn: true,
+            attackerProne: true,
+            attackerStuck: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerStuck',
+      });
+    });
+
+    it('disallows jumping charge movement before run/backward/prone gates', () => {
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerJumpedThisTurn: true,
+            attackerRanThisTurn: false,
+            attackerMovedBackwardThisTurn: true,
+            attackerProne: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'ChargeJumpMovement',
+      });
+    });
+
+    it('disallows backward charge movement before prone-state validation', () => {
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            attackerMovedBackwardThisTurn: true,
+            attackerProne: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'ChargeBackwardMovement',
+      });
+    });
+
+    it('disallows push displacement conflicts except legal counter-pushes', () => {
+      expect(
+        canPush(
+          makeInput({
+            attackerId: 'attacker',
+            targetId: 'target',
+            attackType: 'push',
+            targetIsMakingDisplacementAttack: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMakingDisplacementAttack',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackerId: 'attacker',
+            targetId: 'target',
+            attackType: 'push',
+            targetIsMakingDisplacementAttack: true,
+            targetIsPushing: true,
+            targetDisplacementAttackTargetId: 'other-target',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetPushingAnotherMek',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackerId: 'attacker',
+            targetId: 'target',
+            attackType: 'push',
+            attackerTargetedByDisplacementAttackerId: 'other-attacker',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerTargetOfDisplacementAttack',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackerId: 'attacker',
+            targetId: 'target',
+            attackType: 'push',
+            targetedByDisplacementAttackerId: 'other-attacker',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetOfDisplacementAttack',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackerId: 'attacker',
+            targetId: 'target',
+            attackType: 'push',
+            attackerTargetedByDisplacementAttackerId: 'target',
+            targetIsMakingDisplacementAttack: true,
+            targetIsPushing: true,
+            targetDisplacementAttackTargetId: 'attacker',
+            targetedByDisplacementAttackerId: 'attacker',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: true,
+      });
+    });
+
+    it('disallows targets inside another building across supported physical attack families', () => {
+      const buildingTarget = {
+        targetOccupiedBuildingId: 'building-east',
+        targetDistance: 1,
+      } satisfies Partial<IPhysicalAttackInput>;
+
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            ...buildingTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetInsideBuilding',
+      });
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            ...buildingTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetInsideBuilding',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            ...buildingTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetInsideBuilding',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            ...buildingTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetInsideBuilding',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            ...buildingTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetInsideBuilding',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            ...buildingTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetInsideBuilding',
+      });
+    });
+
+    it('allows physical targets inside the same building', () => {
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            attackerOccupiedBuildingId: 'building-east',
+            targetOccupiedBuildingId: 'building-east',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: true,
+      });
+    });
+
+    it('disallows invalid physical hex targets across supported attack families', () => {
+      const invalidHexTarget = {
+        targetObjectType: 'hexClear',
+        targetDistance: 1,
+      } satisfies Partial<IPhysicalAttackInput>;
+
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            ...invalidHexTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'InvalidPhysicalTarget',
+      });
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            ...invalidHexTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'InvalidPhysicalTarget',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            ...invalidHexTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'InvalidPhysicalTarget',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            ...invalidHexTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'InvalidPhysicalTarget',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            ...invalidHexTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'InvalidPhysicalTarget',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            ...invalidHexTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'InvalidPhysicalTarget',
+      });
+    });
+
+    it('disallows push targets that are buildings or fuel tanks', () => {
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            targetObjectType: 'building',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetBuilding',
+      });
+
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            targetObjectType: 'fuelTank',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetBuilding',
+      });
+    });
+
+    it('disallows charge and DFA against explicit building or fuel-tank targets', () => {
+      for (const targetObjectType of ['building', 'fuelTank'] as const) {
+        expect(
+          canCharge(
+            makeInput({
+              attackType: 'charge',
+              attackerRanThisTurn: true,
+              targetObjectType,
+              targetDistance: 1,
+            }),
+          ),
+        ).toMatchObject({
+          allowed: false,
+          reasonCode: 'InvalidPhysicalTarget',
+        });
+
+        expect(
+          canDFA(
+            makeInput({
+              attackType: 'dfa',
+              attackerJumpedThisTurn: true,
+              targetObjectType,
+              targetDistance: 1,
+            }),
+          ),
+        ).toMatchObject({
+          allowed: false,
+          reasonCode: 'InvalidPhysicalTarget',
+        });
+      }
+    });
+
+    it('treats explicit gun emplacements as automatic-success physical targets where source-backed', () => {
+      for (const attackType of [
+        'punch',
+        'kick',
+        'dfa',
+        'hatchet',
+        'sword',
+        'mace',
+        'lance',
+        'retractable-blade',
+        'flail',
+        'wrecking-ball',
+      ] as const) {
+        const result = calculatePhysicalToHit(
+          makeInput({
+            attackType,
+            attackerJumpedThisTurn: attackType === 'dfa' ? true : undefined,
+            targetObjectType: 'gunEmplacement',
+            targetDistance: 1,
+          }),
+        );
+
+        expect(result).toMatchObject({
+          allowed: true,
+          finalToHit: 0,
+          automaticHit: true,
+          automaticHitReason: 'Targeting adjacent gun emplacement.',
+        });
+      }
+    });
+
+    it('keeps gun emplacements out of BattleMech push and charge target classes', () => {
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            targetObjectType: 'gunEmplacement',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetNotMek',
+      });
+
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetObjectType: 'gunEmplacement',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetNotMek',
+      });
+    });
+
+    it('disallows airborne physical targets across supported physical attack families', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            targetIsAirborne: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetAirborne',
+      });
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            targetIsAirborne: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetAirborne',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            targetIsAirborne: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetAirborne',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetIsAirborne: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetAirborne',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetIsAirborne: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetAirborne',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            targetIsAirborne: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetAirborne',
+      });
+    });
+
+    it('disallows evading attackers across supported physical attack families', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            attackerEvading: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerEvading',
+      });
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            attackerEvading: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerEvading',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            attackerEvading: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerEvading',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            attackerEvading: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerEvading',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            attackerEvading: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerEvading',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            attackerEvading: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerEvading',
+      });
+    });
+
+    it('disallows cargo-interacting attackers across supported physical attack families', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            attackerLoadingOrUnloadingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerCargoInteraction',
+      });
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            attackerLoadingOrUnloadingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerCargoInteraction',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            attackerLoadingOrUnloadingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerCargoInteraction',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            attackerLoadingOrUnloadingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerCargoInteraction',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            attackerLoadingOrUnloadingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerCargoInteraction',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            attackerLoadingOrUnloadingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerCargoInteraction',
+      });
+    });
+
+    it('disallows different-board targets across supported physical attack families', () => {
+      const boardMismatch = {
+        attackerBoardId: 'board-alpha',
+        targetBoardId: 'board-beta',
+        targetDistance: 1,
+      };
+
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            ...boardMismatch,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'DifferentBoard',
+      });
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            ...boardMismatch,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'DifferentBoard',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            ...boardMismatch,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'DifferentBoard',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            ...boardMismatch,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'DifferentBoard',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            ...boardMismatch,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'DifferentBoard',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            ...boardMismatch,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'DifferentBoard',
+      });
+    });
+
+    it('allows same-board physical targets when board identity is explicit', () => {
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            attackerBoardId: 'board-alpha',
+            targetBoardId: 'board-alpha',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: true,
+      });
+    });
+
+    it('disallows self-targeted physical attacks before adjacency checks', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            targetIsSelf: true,
+            targetDistance: 0,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'SelfTarget',
+      });
+
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            targetIsSelf: true,
+            targetDistance: 0,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'SelfTarget',
+      });
+    });
+
+    it('disallows friendly physical targets across supported physical attack families', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            targetIsFriendly: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'FriendlyTarget',
+      });
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            targetIsFriendly: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'FriendlyTarget',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            targetIsFriendly: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'FriendlyTarget',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetIsFriendly: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'FriendlyTarget',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetIsFriendly: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'FriendlyTarget',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            targetIsFriendly: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'FriendlyTarget',
+      });
+    });
+
+    it('disallows non-adjacent targets across supported physical attack families', () => {
+      expect(
+        canPunch(makeInput({ attackType: 'punch', targetDistance: 2 })),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetNotAdjacent',
+      });
+      expect(
+        canKick(makeInput({ attackType: 'kick', targetDistance: 2 })),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetNotAdjacent',
+      });
+      expect(
+        canPush(makeInput({ attackType: 'push', targetDistance: 2 })),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetNotAdjacent',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetDistance: 2,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetNotAdjacent',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            attackerUnitType: 'BattleMech',
+            targetUnitType: 'Battle Armor',
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetNotMek',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            attackerUnitType: 'Vehicle',
+            targetUnitType: 'ProtoMech',
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetInfantryOrProtoMek',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetProne: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetProne',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            elevationDifference: 2,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'ElevationMismatch',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            elevationDifference: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: true,
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetMovementComplete: false,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMovementIncomplete',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetMovementComplete: false,
+            targetImmobile: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: true,
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetMovementComplete: false,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMovementIncomplete',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetMovementComplete: false,
+            targetImmobile: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: true,
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetDistance: 2,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetNotAdjacent',
+      });
+      expect(
+        canMeleeWeapon(makeInput({ attackType: 'sword', targetDistance: 2 })),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetNotAdjacent',
+      });
+    });
+
+    it('disallows push with No Arms, elevation mismatch, prone state, or fired arm weapons', () => {
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            attackerUnitType: 'Vehicle',
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerNotMek',
+      });
+
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            attackerIsQuad: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerQuad',
+      });
+
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            attackerIsAirborne: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerAirborne',
+      });
+
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            attackerArmsFlipped: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'ArmsFlipped',
+      });
+
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            targetUnitType: 'ProtoMech',
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetNotMek',
+      });
+
+      expect(
+        canPush(makeInput({ attackType: 'push', unitQuirks: ['no_arms'] })),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'NoArmsQuirk',
+      });
+
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            attackerDestroyedLocations: ['left_arm'],
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'LimbMissing',
+      });
+
+      expect(
+        canPush(makeInput({ attackType: 'push', elevationDifference: 1 })),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'ElevationMismatch',
+      });
+
+      expect(
+        canPush(makeInput({ attackType: 'push', attackerProne: true })),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerProne',
+      });
+
+      expect(
+        canPush(makeInput({ attackType: 'push', targetProne: true })),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetProne',
+      });
+
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            weaponsFiredFromArm: ['right-arm-medium-laser'],
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'WeaponFiredThisTurn',
+      });
+
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            pushTargetDirectlyAhead: false,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetNotDirectlyAhead',
+      });
+    });
+
+    it('disallows DFA by a prone attacker even when the unit jumped', () => {
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            attackerProne: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerProne',
+      });
+    });
+
+    it('disallows DFA by a stuck attacker before jump/prone gates', () => {
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            attackerProne: true,
+            attackerStuck: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerStuck',
+      });
+    });
+
+    it('disallows DFA using mechanical jump boosters', () => {
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            attackerUsedMechanicalJumpBooster: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'MechanicalJumpBooster',
+      });
+    });
+
+    it('disallows DFA by infantry-family attackers', () => {
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            attackerUnitType: 'Battle Armor',
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerInfantry',
+      });
+    });
+
+    it('disallows DFA against DropShip targets', () => {
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetUnitType: UnitType.DROPSHIP,
+            targetMovementComplete: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetDropShip',
+      });
+    });
+
+    it('allows DFA against reachable airborne VTOL/WIGE targets', () => {
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            attackerHeight: 1,
+            attackerJumpMP: 3,
+            elevationDifference: 4,
+            targetIsAirborne: true,
+            targetIsAirborneVTOLorWIGE: true,
+            targetMovementComplete: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: true,
+      });
+    });
+
+    it('recognizes airborne WIGE targets from vehicle motion type', () => {
+      expect(
+        isPhysicalAirborneVtolOrWigeTarget(
+          UnitType.VEHICLE,
+          GroundMotionType.WIGE,
+          true,
+        ),
+      ).toBe(true);
+      expect(
+        isPhysicalAirborneVtolOrWigeTarget(
+          UnitType.VEHICLE,
+          GroundMotionType.WIGE,
+          false,
+        ),
+      ).toBe(false);
+    });
+
+    it('disallows DFA when airborne VTOL/WIGE elevation is beyond jump MP', () => {
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            attackerHeight: 1,
+            attackerJumpMP: 3,
+            elevationDifference: 5,
+            targetIsAirborne: true,
+            targetIsAirborneVTOLorWIGE: true,
+            targetMovementComplete: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'ElevationMismatch',
+      });
     });
   });
 
@@ -1285,6 +4726,62 @@ describe('physicalAttacks', () => {
       expect(result.baseToHit).toBe(5);
       expect(result.finalToHit).toBe(5);
       expect(result.allowed).toBe(true);
+    });
+
+    it('applies Melee Specialist as a physical attack to-hit modifier', () => {
+      const result = calculatePunchToHit(
+        makeInput({ pilotingSkill: 5, pilotAbilities: ['melee-specialist'] }),
+      );
+
+      expect(result.finalToHit).toBe(4);
+      expect(result.modifiers).toContainEqual(
+        expect.objectContaining({
+          name: 'Melee Specialist',
+          value: -1,
+          source: 'spa',
+        }),
+      );
+    });
+
+    it('applies matching Battle Fists as a punch to-hit modifier', () => {
+      const result = calculatePunchToHit(
+        makeInput({
+          pilotingSkill: 5,
+          arm: 'right',
+          unitQuirks: ['battle_fists_ra'],
+        }),
+      );
+
+      expect(result.finalToHit).toBe(4);
+      expect(result.modifiers).toContainEqual(
+        expect.objectContaining({
+          name: 'Battle Fists',
+          value: -1,
+          source: 'quirk',
+        }),
+      );
+    });
+
+    it('does not apply Battle Fists without a working matching hand actuator', () => {
+      expect(
+        calculatePunchToHit(
+          makeInput({
+            pilotingSkill: 5,
+            arm: 'right',
+            unitQuirks: ['battle_fists_ra'],
+            handActuatorPresent: false,
+          }),
+        ).finalToHit,
+      ).toBe(5);
+      expect(
+        calculatePunchToHit(
+          makeInput({
+            pilotingSkill: 5,
+            arm: 'right',
+            unitQuirks: ['battle_fists_la'],
+          }),
+        ).finalToHit,
+      ).toBe(5);
     });
 
     it('should add +2 for upper arm destroyed', () => {
@@ -1324,6 +4821,76 @@ describe('physicalAttacks', () => {
         }),
       );
       expect(result.finalToHit).toBe(6);
+    });
+
+    it('adds the source-backed claw punch modifier for the selected arm', () => {
+      const result = calculatePunchToHit(
+        makeInput({
+          pilotingSkill: 5,
+          arm: 'left',
+          leftArmHasClaw: true,
+        }),
+      );
+
+      expect(result.finalToHit).toBe(6);
+      expect(result.modifiers).toContainEqual(
+        expect.objectContaining({
+          name: 'Using Claws',
+          value: 1,
+          source: 'physical-equipment',
+        }),
+      );
+    });
+
+    it('removes only the claw punch to-hit modifier when PLAYTEST_3 is enabled', () => {
+      const toHit = calculatePunchToHit(
+        makeInput({
+          pilotingSkill: 5,
+          arm: 'left',
+          leftArmHasClaw: true,
+          optionalRules: ['PLAYTEST_3'],
+        }),
+      );
+      const damage = calculatePunchDamage(
+        makeInput({
+          attackerTonnage: 55,
+          arm: 'left',
+          leftArmHasClaw: true,
+          optionalRules: ['PLAYTEST_3'],
+        }),
+      );
+
+      expect(toHit.finalToHit).toBe(5);
+      expect(toHit.modifiers).toContainEqual(
+        expect.objectContaining({
+          name: 'Using Claws',
+          value: 0,
+          source: 'physical-equipment',
+        }),
+      );
+      expect(damage).toBe(8);
+    });
+
+    it('uses claws instead of a destroyed hand actuator modifier', () => {
+      const result = calculatePunchToHit(
+        makeInput({
+          pilotingSkill: 5,
+          arm: 'right',
+          rightArmHasClaw: true,
+          componentDamage: {
+            ...DEFAULT_COMPONENT_DAMAGE,
+            actuators: { [ActuatorType.HAND]: true },
+          },
+        }),
+      );
+
+      expect(result.finalToHit).toBe(6);
+      expect(result.modifiers).toContainEqual(
+        expect.objectContaining({ name: 'Using Claws', value: 1 }),
+      );
+      expect(result.modifiers).not.toContainEqual(
+        expect.objectContaining({ name: 'Hand actuator destroyed' }),
+      );
     });
 
     it('should stack multiple actuator mods', () => {
@@ -1402,20 +4969,6 @@ describe('physicalAttacks', () => {
       expect(result.baseToHit).toBe(5);
       expect(result.allowed).toBe(true);
     });
-
-    it('should reject Battle Armor charge to-hit even after a run', () => {
-      const result = calculateChargeToHit(
-        makeInput({
-          pilotingSkill: 5,
-          attackType: 'charge',
-          attackerUnitType: UnitType.BATTLE_ARMOR,
-          attackerRanThisTurn: true,
-        }),
-      );
-
-      expect(result.allowed).toBe(false);
-      expect(result.restrictionReasonCode).toBe('AttackerCannotCharge');
-    });
   });
 
   describe('calculateDFAToHit', () => {
@@ -1425,6 +4978,53 @@ describe('physicalAttacks', () => {
       );
       expect(result.baseToHit).toBe(4);
       expect(result.allowed).toBe(true);
+    });
+
+    it('applies source-backed DFA target-class modifiers', () => {
+      const infantry = calculateDFAToHit(
+        makeInput({
+          pilotingSkill: 5,
+          attackType: 'dfa',
+          targetUnitType: UnitType.INFANTRY,
+        }),
+      );
+      const battleArmor = calculateDFAToHit(
+        makeInput({
+          pilotingSkill: 5,
+          attackType: 'dfa',
+          targetUnitType: UnitType.BATTLE_ARMOR,
+        }),
+      );
+
+      expect(infantry.finalToHit).toBe(8);
+      expect(infantry.modifiers).toContainEqual({
+        name: 'Infantry target',
+        value: 3,
+        source: 'target-class',
+      });
+      expect(battleArmor.finalToHit).toBe(6);
+      expect(battleArmor.modifiers).toContainEqual({
+        name: 'Battle Armor target',
+        value: 1,
+        source: 'target-class',
+      });
+    });
+
+    it('applies source-backed DFA piloting skill differential', () => {
+      const result = calculateDFAToHit(
+        makeInput({
+          pilotingSkill: 5,
+          attackType: 'dfa',
+          targetPilotingSkill: 3,
+        }),
+      );
+
+      expect(result.finalToHit).toBe(7);
+      expect(result.modifiers).toContainEqual({
+        name: 'Piloting skill differential',
+        value: 2,
+        source: 'pilot-skill',
+      });
     });
   });
 
@@ -1456,6 +5056,34 @@ describe('physicalAttacks', () => {
     it('should apply +1 for mace', () => {
       const result = calculateMeleeWeaponToHit(
         makeInput({ pilotingSkill: 5, attackType: 'mace' }),
+      );
+      expect(result.finalToHit).toBe(6);
+    });
+
+    it('should apply +1 for lance', () => {
+      const result = calculateMeleeWeaponToHit(
+        makeInput({ pilotingSkill: 5, attackType: 'lance' }),
+      );
+      expect(result.finalToHit).toBe(6);
+    });
+
+    it('should apply -2 for retractable blade', () => {
+      const result = calculateMeleeWeaponToHit(
+        makeInput({ pilotingSkill: 5, attackType: 'retractable-blade' }),
+      );
+      expect(result.finalToHit).toBe(3);
+    });
+
+    it('should apply 0 for flail', () => {
+      const result = calculateMeleeWeaponToHit(
+        makeInput({ pilotingSkill: 5, attackType: 'flail' }),
+      );
+      expect(result.finalToHit).toBe(5);
+    });
+
+    it('should apply +1 for wrecking ball', () => {
+      const result = calculateMeleeWeaponToHit(
+        makeInput({ pilotingSkill: 5, attackType: 'wrecking-ball' }),
       );
       expect(result.finalToHit).toBe(6);
     });
@@ -1495,6 +5123,172 @@ describe('physicalAttacks', () => {
       );
       expect(result.baseToHit).toBe(4);
     });
+
+    it('applies source-backed Frogman to every physical to-hit path in depth-2 water', () => {
+      const attackTypes = [
+        'punch',
+        'kick',
+        'charge',
+        'dfa',
+        'push',
+        'hatchet',
+        'sword',
+        'mace',
+        'lance',
+        'retractable-blade',
+        'flail',
+        'wrecking-ball',
+      ] as const satisfies readonly IPhysicalAttackInput['attackType'][];
+
+      for (const attackType of attackTypes) {
+        const result = calculatePhysicalToHit(
+          makeInput({
+            attackType,
+            pilotingSkill: 5,
+            pilotAbilities: ['tm_frogman'],
+            attackerWaterDepth: 2,
+            attackerUnitType: 'BattleMech',
+          }),
+        );
+
+        expect(result.allowed).toBe(true);
+        expect(result.modifiers).toContainEqual(
+          expect.objectContaining({
+            name: 'Frogman',
+            value: -1,
+            source: 'spa',
+          }),
+        );
+      }
+    });
+
+    it('applies source-backed target evasion to every physical to-hit path', () => {
+      const attackTypes = [
+        'punch',
+        'kick',
+        'charge',
+        'dfa',
+        'push',
+        'hatchet',
+        'sword',
+        'mace',
+        'lance',
+        'retractable-blade',
+        'flail',
+        'wrecking-ball',
+      ] as const satisfies readonly IPhysicalAttackInput['attackType'][];
+
+      for (const attackType of attackTypes) {
+        const baseline = calculatePhysicalToHit(
+          makeInput({
+            attackType,
+            pilotingSkill: 5,
+          }),
+        );
+        const evadingTarget = calculatePhysicalToHit(
+          makeInput({
+            attackType,
+            pilotingSkill: 5,
+            targetEvading: true,
+          }),
+        );
+
+        expect(evadingTarget.allowed).toBe(true);
+        expect(evadingTarget.finalToHit).toBe(baseline.finalToHit + 1);
+        expect(evadingTarget.modifiers).toContainEqual({
+          name: 'Target Evasion',
+          value: 1,
+          source: 'movement',
+        });
+      }
+    });
+
+    it('applies explicit Skilled Evasion target bonuses to physical to-hit', () => {
+      const baseline = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'kick',
+          pilotingSkill: 5,
+        }),
+      );
+      const evadingTarget = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'kick',
+          pilotingSkill: 5,
+          targetEvading: true,
+          targetEvasionBonus: 3,
+        }),
+      );
+
+      expect(evadingTarget.allowed).toBe(true);
+      expect(evadingTarget.finalToHit).toBe(baseline.finalToHit + 3);
+      expect(evadingTarget.modifiers).toContainEqual({
+        name: 'Target Evasion',
+        value: 3,
+        source: 'movement',
+      });
+    });
+
+    it('suppresses explicit zero Skilled Evasion target bonuses for physical to-hit', () => {
+      const result = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'kick',
+          pilotingSkill: 5,
+          targetEvading: true,
+          targetEvasionBonus: 0,
+        }),
+      );
+
+      expect(result.finalToHit).toBe(3);
+      expect(result.modifiers).not.toContainEqual(
+        expect.objectContaining({
+          name: 'Target Evasion',
+        }),
+      );
+    });
+
+    it('suppresses source-backed target evasion against prone physical targets', () => {
+      const result = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'kick',
+          pilotingSkill: 5,
+          targetEvading: true,
+          targetProne: true,
+        }),
+      );
+
+      expect(result.finalToHit).toBe(3);
+      expect(result.modifiers).not.toContainEqual(
+        expect.objectContaining({
+          name: 'Target Evasion',
+        }),
+      );
+    });
+
+    it('does not apply Frogman in shallow water or to explicit non-Mek attackers', () => {
+      const shallow = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'kick',
+          pilotAbilities: ['tm_frogman'],
+          attackerWaterDepth: 1,
+          attackerUnitType: 'BattleMech',
+        }),
+      );
+      const nonMek = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'kick',
+          pilotAbilities: ['tm_frogman'],
+          attackerWaterDepth: 2,
+          attackerUnitType: 'Tank',
+        }),
+      );
+
+      expect(shallow.modifiers).not.toContainEqual(
+        expect.objectContaining({ name: 'Frogman' }),
+      );
+      expect(nonMek.modifiers).not.toContainEqual(
+        expect.objectContaining({ name: 'Frogman' }),
+      );
+    });
   });
 
   // =============================================================================
@@ -1509,43 +5303,6 @@ describe('physicalAttacks', () => {
       expect(result.targetDamage).toBe(8);
       expect(result.attackerDamage).toBe(0);
       expect(result.targetPSR).toBe(false);
-      expect(result.hitTable).toBe('punch');
-    });
-
-    it('uses the kick hit table for a hull-down punch at attacker arm level', () => {
-      const result = calculatePhysicalDamage(
-        makeInput({
-          attackerTonnage: 80,
-          attackType: 'punch',
-          attackerHullDown: true,
-          elevationContext: {
-            attackerBaseElevation: 0,
-            attackerArmElevation: 1,
-            targetBaseElevation: 1,
-            targetTopElevation: 2,
-          },
-        }),
-      );
-
-      expect(result.targetDamage).toBe(8);
-      expect(result.hitTable).toBe('kick');
-    });
-
-    it('keeps the punch hit table for a hull-down punch from above the target base', () => {
-      const result = calculatePhysicalDamage(
-        makeInput({
-          attackerTonnage: 80,
-          attackType: 'punch',
-          attackerHullDown: true,
-          elevationContext: {
-            attackerBaseElevation: 1,
-            attackerArmElevation: 2,
-            targetBaseElevation: 0,
-            targetTopElevation: 1,
-          },
-        }),
-      );
-
       expect(result.hitTable).toBe('punch');
     });
 
@@ -1571,6 +5328,7 @@ describe('physicalAttacks', () => {
       expect(result.attackerDamage).toBe(8); // ceil(75/10)
       expect(result.targetPSR).toBe(true);
       expect(result.attackerPSR).toBe(true);
+      expect(result.attackerPSRModifier).toBe(2);
     });
 
     it('should return DFA damage with leg damage', () => {
@@ -1581,6 +5339,7 @@ describe('physicalAttacks', () => {
       expect(result.attackerLegDamagePerLeg).toBe(7);
       expect(result.targetPSR).toBe(true);
       expect(result.attackerPSR).toBe(true);
+      expect(result.attackerPSRModifier).toBe(4);
       expect(result.hitTable).toBe('punch');
     });
 
@@ -1599,18 +5358,30 @@ describe('physicalAttacks', () => {
       expect(result.hitTable).toBe('punch');
     });
 
-    it('uses the kick hit table for a hull-down club attack against a represented Mek', () => {
+    it('should return retractable blade damage with punch table', () => {
       const result = calculatePhysicalDamage(
         makeInput({
           attackerTonnage: 70,
-          attackType: 'hatchet',
-          attackerHullDown: true,
-          targetUnitType: UnitType.BATTLEMECH,
+          attackType: 'retractable-blade',
         }),
       );
+      expect(result.targetDamage).toBe(7);
+      expect(result.hitTable).toBe('punch');
+    });
 
-      expect(result.targetDamage).toBe(14);
-      expect(result.hitTable).toBe('kick');
+    it('should return flail and wrecking ball damage with punch table', () => {
+      expect(
+        calculatePhysicalDamage(makeInput({ attackType: 'flail' })),
+      ).toMatchObject({
+        targetDamage: 9,
+        hitTable: 'punch',
+      });
+      expect(
+        calculatePhysicalDamage(makeInput({ attackType: 'wrecking-ball' })),
+      ).toMatchObject({
+        targetDamage: 8,
+        hitTable: 'punch',
+      });
     });
   });
 
@@ -1639,8 +5410,20 @@ describe('physicalAttacks', () => {
       expect(getPhysicalMissConsequences('push').attackerPSR).toBe(false);
     });
 
-    it('charge miss has no consequence', () => {
-      expect(getPhysicalMissConsequences('charge').attackerPSR).toBe(false);
+    it('charge miss moves the attacker without a normal PSR', () => {
+      const result = getPhysicalMissConsequences('charge');
+      expect(result.attackerPSR).toBe(false);
+      expect(result.attackerPSRModifier).toBe(0);
+    });
+
+    it('brush-off miss damages the attacker on the punch table', () => {
+      const result = getPhysicalMissConsequences(
+        'brush-off',
+        makeInput({ attackType: 'brush-off', attackerTonnage: 80 }),
+      );
+      expect(result.attackerPSR).toBe(false);
+      expect(result.attackerDamage).toBe(8);
+      expect(result.hitTable).toBe('punch');
     });
   });
 
@@ -1705,28 +5488,26 @@ describe('physicalAttacks', () => {
       expect(result.hitLocation).toBe('center_torso');
     });
 
-    it('resolves a hull-down punch against a level arm-height target on the kick table', () => {
-      // dice: 6+6=12 (to-hit), 4 (kick table location = left leg)
-      const roller = makeDiceSequence([6, 6, 4]);
+    it('resolves gun-emplacement automatic success without rolling to-hit dice', () => {
+      const roller = makeDiceSequence([6]);
       const result = resolvePhysicalAttack(
         makeInput({
-          attackerTonnage: 80,
-          attackType: 'punch',
           pilotingSkill: 5,
-          attackerHullDown: true,
-          elevationContext: {
-            attackerBaseElevation: 0,
-            attackerArmElevation: 1,
-            targetBaseElevation: 1,
-            targetTopElevation: 2,
-          },
+          targetObjectType: 'gunEmplacement',
+          targetDistance: 1,
         }),
         roller,
       );
 
-      expect(result.hit).toBe(true);
-      expect(result.hitTable).toBe('kick');
-      expect(result.hitLocation).toBe('left_leg');
+      expect(result).toMatchObject({
+        hit: true,
+        roll: 0,
+        toHitNumber: 0,
+        targetDamage: 8,
+        hitLocation: 'head',
+        automaticHit: true,
+        automaticHitReason: 'Targeting adjacent gun emplacement.',
+      });
     });
 
     it('should resolve a missing punch', () => {
@@ -1811,6 +5592,56 @@ describe('physicalAttacks', () => {
       expect(result.targetPSR).toBe(true);
     });
 
+    it('resolves optional TacOps trip as zero damage with a target PSR', () => {
+      const roller = makeDiceSequence([5, 4]);
+      const result = resolvePhysicalAttack(
+        makeInput({
+          attackType: 'trip',
+          pilotingSkill: 5,
+          optionalRules: ['tacops_trip_attack'],
+          targetDistance: 1,
+          targetInFrontArc: true,
+          elevationDifference: 0,
+        }),
+        roller,
+      );
+
+      expect(result.hit).toBe(true);
+      expect(result.toHitNumber).toBe(4);
+      expect(result.targetDamage).toBe(0);
+      expect(result.hitLocation).toBeUndefined();
+      expect(result.targetDisplaced).toBe(false);
+      expect(result.targetPSR).toBe(true);
+    });
+
+    it('resolves source-backed thrash as automatic infantry damage with attacker PSR', () => {
+      const roller = makeDiceSequence([3]);
+      const result = resolvePhysicalAttack(
+        makeInput({
+          attackType: 'thrash',
+          attackerTonnage: 80,
+          attackerProne: true,
+          attackerUnitType: 'BattleMech',
+          targetUnitType: 'Infantry',
+          targetDistance: 0,
+          elevationDifference: 0,
+          thrashBlockingTerrains: [],
+        }),
+        roller,
+      );
+
+      expect(result.hit).toBe(true);
+      expect(result.toHitNumber).toBe(0);
+      expect(result.roll).toBe(0);
+      expect(result.automaticHit).toBe(true);
+      expect(result.automaticHitReason).toBe('Thrash attacks always hit.');
+      expect(result.targetDamage).toBe(27);
+      expect(result.hitLocation).toBe('center_torso');
+      expect(result.attackerPSR).toBe(true);
+      expect(result.attackerPSRModifier).toBe(0);
+      expect(result.targetPSR).toBe(false);
+    });
+
     it('should resolve charge with damage to both', () => {
       // dice: 4+4=8 (hit), 2 (location = LT)
       const roller = makeDiceSequence([4, 4, 2]);
@@ -1829,6 +5660,7 @@ describe('physicalAttacks', () => {
       expect(result.attackerDamage).toBe(8);
       expect(result.targetPSR).toBe(true);
       expect(result.attackerPSR).toBe(true);
+      expect(result.attackerPSRModifier).toBe(2);
     });
 
     it('should resolve DFA with leg damage to attacker', () => {
@@ -1894,7 +5726,7 @@ describe('physicalAttacks', () => {
       const result = chooseBestPhysicalAttack(80, 5, DEFAULT_COMPONENT_DAMAGE, {
         hasMeleeWeapon: 'mace',
       });
-      // Mace for 80t = floor(80×2/5) = 32 > kick = 16
+      // Mace for 80t = ceil(80/4) = 20 > kick = 16
       expect(result).toBe('mace');
     });
 
@@ -1909,6 +5741,30 @@ describe('physicalAttacks', () => {
       // Prone prevents kick, hip destroyed prevents kick
       // Only punch available
       expect(result).toBe('punch');
+    });
+
+    it('considers matching claw punch damage when choosing the best attack', () => {
+      const compDamage = {
+        ...DEFAULT_COMPONENT_DAMAGE,
+        actuators: { [ActuatorType.HIP]: true },
+      };
+      const result = chooseBestPhysicalAttack(80, 5, compDamage, {
+        leftArmHasClaw: true,
+        rightArmHasClaw: false,
+      });
+
+      expect(result).toBe('punch');
+    });
+
+    it('should return null when the attacker is evading', () => {
+      const result = chooseBestPhysicalAttack(80, 5, DEFAULT_COMPONENT_DAMAGE, {
+        attackerEvading: true,
+        canReachForCharge: true,
+        hexesMoved: 6,
+        isJumping: true,
+        hasMeleeWeapon: 'mace',
+      });
+      expect(result).toBeNull();
     });
   });
 
@@ -2055,6 +5911,46 @@ describe('physicalAttacks', () => {
       };
       const newState = applyEvent(state, event);
       expect(newState.units['unit-2'].damageThisPhase).toBe(8);
+    });
+
+    it('PhysicalAttackResolved should replay physical displacement payloads', () => {
+      const state = makeState();
+      const event = {
+        id: 'evt-2b',
+        gameId: 'test-game',
+        sequence: 3,
+        timestamp: new Date().toISOString(),
+        type: GE.PhysicalAttackResolved,
+        turn: 1,
+        phase: GP.PhysicalAttack,
+        actorId: 'unit-1',
+        payload: {
+          attackerId: 'unit-1',
+          targetId: 'unit-2',
+          attackType: 'push',
+          roll: 8,
+          toHitNumber: 4,
+          hit: true,
+          damage: 0,
+          displacements: [
+            {
+              unitId: 'unit-2',
+              from: { q: 1, r: 0 },
+              to: { q: 1, r: 1 },
+              reason: 'push',
+            },
+            {
+              unitId: 'unit-1',
+              from: { q: 0, r: 0 },
+              to: { q: 1, r: 0 },
+              reason: 'push',
+            },
+          ],
+        },
+      };
+      const newState = applyEvent(state, event);
+      expect(newState.units['unit-2'].position).toEqual({ q: 1, r: 1 });
+      expect(newState.units['unit-1'].position).toEqual({ q: 1, r: 0 });
     });
 
     it('PhysicalAttackResolved (miss) should not change state', () => {

@@ -5,20 +5,20 @@
 import { UNIT_QUIRK_IDS } from './catalog';
 
 /**
- * Battle Fist: +1 punch damage for equipped arm.
+ * Battle Fist: -1 punch to-hit for equipped arm.
  * @param unitQuirks - Unit's quirk identifiers
  * @param arm - Which arm is punching: 'left' or 'right'
- * @returns Damage bonus (0 or 1)
+ * @returns To-hit modifier (0 or -1)
  */
-export function getBattleFistDamageBonus(
+export function getBattleFistPunchToHitModifier(
   unitQuirks: readonly string[],
   arm: 'left' | 'right',
 ): number {
   if (arm === 'left' && unitQuirks.includes(UNIT_QUIRK_IDS.BATTLE_FISTS_LA)) {
-    return 1;
+    return -1;
   }
   if (arm === 'right' && unitQuirks.includes(UNIT_QUIRK_IDS.BATTLE_FISTS_RA)) {
-    return 1;
+    return -1;
   }
   return 0;
 }
@@ -31,16 +31,18 @@ export function hasNoArms(unitQuirks: readonly string[]): boolean {
 }
 
 /**
- * Low Arms: restricts physical attacks based on elevation.
- * Returns true if punching is restricted for the given elevation difference.
+ * Low Arms is registered in the pinned MegaMek quirk catalog, but that source
+ * snapshot does not route it through combat attack legality. Keep the helper
+ * as an explicit no-op so older callers do not invent an unsupported local
+ * elevation rule.
  */
 export function isLowArmsRestricted(
   unitQuirks: readonly string[],
   elevationDifference: number,
 ): boolean {
-  if (!unitQuirks.includes(UNIT_QUIRK_IDS.LOW_ARMS)) return false;
-  // Low Arms prevents punching targets at higher elevation
-  return elevationDifference > 0;
+  void unitQuirks;
+  void elevationDifference;
+  return false;
 }
 
 /**
@@ -108,22 +110,23 @@ export function calculateMultiTracModifier(
 }
 
 /**
- * Rugged: provides critical hit resistance.
- * Returns the number of crits that can be negated this game.
- * @param unitQuirks - Unit's quirk identifiers
- * @returns Max crit negations (0, 1, or 2)
+ * Rugged: campaign maintenance-cycle multiplier.
  */
-export function getRuggedCritNegations(unitQuirks: readonly string[]): number {
-  if (unitQuirks.includes(UNIT_QUIRK_IDS.RUGGED_2)) return 2;
-  if (unitQuirks.includes(UNIT_QUIRK_IDS.RUGGED_1)) return 1;
-  return 0;
+export function getRuggedMaintenanceMultiplier(
+  unitQuirks: readonly string[],
+): number {
+  if (unitQuirks.includes(UNIT_QUIRK_IDS.RUGGED_2)) return 3;
+  if (unitQuirks.includes(UNIT_QUIRK_IDS.RUGGED_1)) return 2;
+  return 1;
 }
 
 /**
- * Protected/Exposed Actuators: modifier to enemy crit determination roll.
- * @returns Modifier to add to crit roll (+1 Protected = harder to crit, -1 Exposed = easier)
+ * Protected/Exposed Actuators: target-number modifier for anti-Mek Leg/Swarm
+ * attacks against this unit.
  */
-export function getActuatorCritModifier(unitQuirks: readonly string[]): number {
+export function getAntiMekActuatorTargetModifier(
+  unitQuirks: readonly string[],
+): number {
   if (unitQuirks.includes(UNIT_QUIRK_IDS.PROTECTED_ACTUATORS)) return 1;
   if (unitQuirks.includes(UNIT_QUIRK_IDS.EXPOSED_ACTUATORS)) return -1;
   return 0;

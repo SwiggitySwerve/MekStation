@@ -1,12 +1,49 @@
 import type { D6Roller } from '../diceTypes';
 
 import { roll2d6 } from '../hitLocation';
+import { getConsciousnessCheckModifier } from '../spaModifiers';
 import { PILOT_DEATH_WOUND_THRESHOLD } from './constants';
 import {
   IPilotDamageResultWithState,
   IUnitDamageState,
   PilotDamageSource,
 } from './types';
+
+export interface IPilotConsciousnessCheckResult {
+  readonly consciousnessCheckRequired: boolean;
+  readonly consciousnessRoll?: ReturnType<typeof roll2d6>;
+  readonly consciousnessTarget?: number;
+  readonly conscious?: boolean;
+}
+
+export function resolvePilotConsciousnessCheck(
+  totalWounds: number,
+  woundsInflicted: number,
+  pilotAbilities: readonly string[] = [],
+  roller?: D6Roller,
+  pilotToughness = 0,
+): IPilotConsciousnessCheckResult {
+  const consciousnessCheckRequired =
+    woundsInflicted > 0 && totalWounds < PILOT_DEATH_WOUND_THRESHOLD;
+  if (!consciousnessCheckRequired) {
+    return { consciousnessCheckRequired };
+  }
+
+  const toughnessModifier = Math.max(0, Math.trunc(pilotToughness));
+  const consciousnessTarget =
+    3 +
+    totalWounds +
+    getConsciousnessCheckModifier(pilotAbilities) -
+    toughnessModifier;
+  const consciousnessRoll = roll2d6(roller);
+
+  return {
+    consciousnessCheckRequired,
+    consciousnessRoll,
+    consciousnessTarget,
+    conscious: consciousnessRoll.total >= consciousnessTarget,
+  };
+}
 
 /**
  * Apply pilot wounds and resolve the consciousness check.
@@ -27,20 +64,19 @@ export function applyPilotDamage(
   const newPilotWounds = state.pilotWounds + wounds;
   const dead = newPilotWounds >= PILOT_DEATH_WOUND_THRESHOLD;
 
-  const consciousnessCheckRequired = wounds > 0 && !dead;
-  let consciousnessRoll: ReturnType<typeof roll2d6> | undefined;
-  let consciousnessTarget: number | undefined;
-  let conscious: boolean | undefined;
+  const consciousnessCheck = resolvePilotConsciousnessCheck(
+    newPilotWounds,
+    wounds,
+    state.pilotAbilities ?? [],
+    roller,
+    state.pilotToughness,
+  );
   let newPilotConscious = state.pilotConscious;
   let newDestroyed = state.destroyed;
   let newDestructionCause = state.destructionCause;
 
-  if (consciousnessCheckRequired) {
-    consciousnessTarget = 3 + newPilotWounds;
-    consciousnessRoll = roll2d6(roller);
-    conscious = consciousnessRoll.total >= consciousnessTarget;
-
-    if (!conscious) {
+  if (consciousnessCheck.consciousnessCheckRequired) {
+    if (!consciousnessCheck.conscious) {
       newPilotConscious = false;
     }
   }
@@ -65,10 +101,10 @@ export function applyPilotDamage(
       source,
       woundsInflicted: wounds,
       totalWounds: newPilotWounds,
-      consciousnessCheckRequired,
-      consciousnessRoll,
-      consciousnessTarget,
-      conscious,
+      consciousnessCheckRequired: consciousnessCheck.consciousnessCheckRequired,
+      consciousnessRoll: consciousnessCheck.consciousnessRoll,
+      consciousnessTarget: consciousnessCheck.consciousnessTarget,
+      conscious: consciousnessCheck.conscious,
       dead,
     },
   };

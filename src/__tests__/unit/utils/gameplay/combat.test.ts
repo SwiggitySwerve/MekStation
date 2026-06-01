@@ -86,6 +86,7 @@ describe('To-Hit Calculation', () => {
       expect(ATTACKER_MOVEMENT_MODIFIERS[MovementType.Stationary]).toBe(0);
       expect(ATTACKER_MOVEMENT_MODIFIERS[MovementType.Walk]).toBe(1);
       expect(ATTACKER_MOVEMENT_MODIFIERS[MovementType.Run]).toBe(2);
+      expect(ATTACKER_MOVEMENT_MODIFIERS[MovementType.Evade]).toBe(2);
       expect(ATTACKER_MOVEMENT_MODIFIERS[MovementType.Jump]).toBe(3);
     });
   });
@@ -125,6 +126,11 @@ describe('To-Hit Calculation', () => {
       const modifier = calculateAttackerMovementModifier(MovementType.Jump);
       expect(modifier.value).toBe(3);
     });
+
+    it('should return 2 for TacOps Evade', () => {
+      const modifier = calculateAttackerMovementModifier(MovementType.Evade);
+      expect(modifier.value).toBe(2);
+    });
   });
 
   describe('calculateHeatModifier', () => {
@@ -163,7 +169,7 @@ describe('To-Hit Calculation', () => {
     it('should return penalty inside minimum range', () => {
       const modifier = calculateMinimumRangeModifier(3, 6);
       expect(modifier).not.toBeNull();
-      expect(modifier!.value).toBe(4); // BattleTech minimum range penalty is (min - distance) + 1
+      expect(modifier!.value).toBe(4); // 6 - 3 + canonical +1 = 4
     });
   });
 
@@ -468,7 +474,7 @@ describe('Damage Application', () => {
       const result = checkUnitDestruction(stateWithDestroyedHead);
 
       expect(result.destroyed).toBe(true);
-      expect(result.cause).toBe('damage');
+      expect(result.cause).toBe('head_destroyed');
     });
 
     it('should detect center torso destruction', () => {

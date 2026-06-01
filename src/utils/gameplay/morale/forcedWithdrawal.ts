@@ -81,7 +81,7 @@ export function forcedWithdrawalReasonFor(
   unit: IUnitGameState,
   battleMorale: Record<GameSide, MoraleLevel> | undefined,
 ): ForcedWithdrawalReason | null {
-  if (unit.destroyed || unit.hasRetreated) return null;
+  if (unit.destroyed || unit.hasRetreated || unit.hasEjected) return null;
   // A unit already flagged to withdraw must not be re-triggered.
   if (unit.isWithdrawing || unit.isRetreating) return null;
 

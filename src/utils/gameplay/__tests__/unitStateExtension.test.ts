@@ -11,12 +11,15 @@ import {
   IUnitGameState,
   IComponentDamageState,
   ICriticalHitResolvedPayload,
+  IDamageAppliedPayload,
   IPSRTriggeredPayload,
   IPSRResolvedPayload,
   IUnitFellPayload,
+  IUnitStuckPayload,
   IShutdownCheckPayload,
   IStartupAttemptPayload,
   IAmmoConsumedPayload,
+  PSRTrigger,
 } from '@/types/gameplay';
 
 import {
@@ -257,27 +260,6 @@ describe('Phase 4: IUnitGameState Extension', () => {
       ).toContain('Medium Laser');
     });
 
-    it('does not record vehicle critical location damage for non-vehicle units', () => {
-      const state = createStateWithUnit();
-      const event = makeEvent(GameEventType.CriticalHitResolved, {
-        unitId: 'unit-1',
-        location: 'right_arm',
-        slotIndex: 4,
-        componentType: 'weapon',
-        componentName: 'Medium Laser',
-        effect: 'weapon_destroyed',
-        destroyed: true,
-      } satisfies ICriticalHitResolvedPayload);
-
-      const result = applyEvent(state, event);
-      expect(
-        result.units['unit-1'].componentDamage?.weaponsDestroyed,
-      ).toContain('Medium Laser');
-      expect(
-        result.units['unit-1'].componentDamage?.vehicleCriticalsByLocation,
-      ).toBeUndefined();
-    });
-
     it('tracks heat sink destruction', () => {
       const state = createStateWithUnit();
       const event = makeEvent(GameEventType.CriticalHitResolved, {
@@ -346,6 +328,129 @@ describe('Phase 4: IUnitGameState Extension', () => {
       expect(result.units['unit-1'].componentDamage?.lifeSupport).toBe(1);
     });
 
+    it('removes claw punch modifiers when a claw critical slot is destroyed', () => {
+      const state = createStateWithUnit({
+        leftArmHasClaw: true,
+        rightArmHasClaw: true,
+      });
+      const event = makeEvent(GameEventType.CriticalHitResolved, {
+        unitId: 'unit-1',
+        location: 'left_arm',
+        slotIndex: 4,
+        componentType: 'equipment',
+        componentName: 'Claw',
+        effect: 'Equipment destroyed: Claw',
+        destroyed: true,
+      } satisfies ICriticalHitResolvedPayload);
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-1'].leftArmHasClaw).toBe(false);
+      expect(result.units['unit-1'].rightArmHasClaw).toBe(true);
+    });
+
+    it('removes claw punch modifiers when a claw critical slot is marked missing', () => {
+      const state = createStateWithUnit({
+        leftArmHasClaw: true,
+        rightArmHasClaw: true,
+      });
+      const event = makeEvent(GameEventType.CriticalHitResolved, {
+        unitId: 'unit-1',
+        location: 'right_arm',
+        slotIndex: 4,
+        componentType: 'equipment',
+        componentName: 'Claw',
+        effect: 'Equipment missing: Claw',
+        destroyed: false,
+        missing: true,
+      } satisfies ICriticalHitResolvedPayload);
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-1'].leftArmHasClaw).toBe(true);
+      expect(result.units['unit-1'].rightArmHasClaw).toBe(false);
+    });
+
+    it('removes talon kick modifiers when a talons critical slot is destroyed', () => {
+      const state = createStateWithUnit({
+        leftLegHasTalons: true,
+        rightLegHasTalons: true,
+      });
+      const event = makeEvent(GameEventType.CriticalHitResolved, {
+        unitId: 'unit-1',
+        location: 'right_leg',
+        slotIndex: 4,
+        componentType: 'equipment',
+        componentName: 'Talons',
+        effect: 'Equipment destroyed: Talons',
+        destroyed: true,
+      } satisfies ICriticalHitResolvedPayload);
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-1'].leftLegHasTalons).toBe(true);
+      expect(result.units['unit-1'].rightLegHasTalons).toBe(false);
+    });
+
+    it('removes talon kick modifiers when a talons critical slot is breached', () => {
+      const state = createStateWithUnit({
+        leftLegHasTalons: true,
+        rightLegHasTalons: true,
+      });
+      const event = makeEvent(GameEventType.CriticalHitResolved, {
+        unitId: 'unit-1',
+        location: 'left_leg',
+        slotIndex: 4,
+        componentType: 'equipment',
+        componentName: 'Talons',
+        effect: 'Equipment breached: Talons',
+        destroyed: false,
+        breached: true,
+      } satisfies ICriticalHitResolvedPayload);
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-1'].leftLegHasTalons).toBe(false);
+      expect(result.units['unit-1'].rightLegHasTalons).toBe(true);
+    });
+
+    it('removes quad front-leg talon modifiers when an arm-location talons critical is destroyed', () => {
+      const state = createStateWithUnit({
+        isQuad: true,
+        leftArmHasTalons: true,
+        rightArmHasTalons: true,
+      });
+      const event = makeEvent(GameEventType.CriticalHitResolved, {
+        unitId: 'unit-1',
+        location: 'right_arm',
+        slotIndex: 4,
+        componentType: 'equipment',
+        componentName: 'Talons',
+        effect: 'Equipment destroyed: Talons',
+        destroyed: true,
+      } satisfies ICriticalHitResolvedPayload);
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-1'].leftArmHasTalons).toBe(true);
+      expect(result.units['unit-1'].rightArmHasTalons).toBe(false);
+    });
+
+    it('does not remove physical modifiers for unrelated equipment criticals', () => {
+      const state = createStateWithUnit({
+        leftArmHasClaw: true,
+        rightLegHasTalons: true,
+      });
+      const event = makeEvent(GameEventType.CriticalHitResolved, {
+        unitId: 'unit-1',
+        location: 'right_torso',
+        slotIndex: 4,
+        componentType: 'equipment',
+        componentName: 'CASE',
+        effect: 'Equipment destroyed: CASE',
+        destroyed: true,
+      } satisfies ICriticalHitResolvedPayload);
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-1'].leftArmHasClaw).toBe(true);
+      expect(result.units['unit-1'].rightLegHasTalons).toBe(true);
+    });
+
     it('ignores events for non-existent units', () => {
       const state = createStateWithUnit();
       const event = makeEvent(GameEventType.CriticalHitResolved, {
@@ -363,6 +468,85 @@ describe('Phase 4: IUnitGameState Extension', () => {
     });
   });
 
+  describe('DamageApplied physical equipment lifecycle', () => {
+    it('removes claw punch modifiers when an arm location is destroyed', () => {
+      const state = createStateWithUnit({
+        leftArmHasClaw: true,
+        rightArmHasClaw: true,
+      });
+      const event = makeEvent(GameEventType.DamageApplied, {
+        unitId: 'unit-1',
+        location: 'left_arm',
+        damage: 12,
+        armorRemaining: 0,
+        structureRemaining: 0,
+        locationDestroyed: true,
+      } satisfies IDamageAppliedPayload);
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-1'].leftArmHasClaw).toBe(false);
+      expect(result.units['unit-1'].rightArmHasClaw).toBe(true);
+    });
+
+    it('removes cascaded claw modifiers when side torso destruction destroys the arm', () => {
+      const state = createStateWithUnit({
+        leftArmHasClaw: true,
+        rightArmHasClaw: true,
+      });
+      const event = makeEvent(GameEventType.DamageApplied, {
+        unitId: 'unit-1',
+        location: 'left_torso',
+        damage: 30,
+        armorRemaining: 0,
+        structureRemaining: 0,
+        locationDestroyed: true,
+      } satisfies IDamageAppliedPayload);
+
+      const result = applyEvent(state, event);
+      const unit = result.units['unit-1'];
+      expect(unit.destroyedLocations).toEqual(['left_torso', 'left_arm']);
+      expect(unit.leftArmHasClaw).toBe(false);
+      expect(unit.rightArmHasClaw).toBe(true);
+    });
+
+    it('removes talon kick modifiers when a leg location is destroyed', () => {
+      const state = createStateWithUnit({
+        leftLegHasTalons: true,
+        rightLegHasTalons: true,
+      });
+      const event = makeEvent(GameEventType.DamageApplied, {
+        unitId: 'unit-1',
+        location: 'right_leg',
+        damage: 18,
+        armorRemaining: 0,
+        structureRemaining: 0,
+        locationDestroyed: true,
+      } satisfies IDamageAppliedPayload);
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-1'].leftLegHasTalons).toBe(true);
+      expect(result.units['unit-1'].rightLegHasTalons).toBe(false);
+    });
+
+    it('removes quad front-leg talon modifiers when an arm location is destroyed', () => {
+      const state = createStateWithUnit({
+        isQuad: true,
+        rightArmHasTalons: true,
+      });
+      const event = makeEvent(GameEventType.DamageApplied, {
+        unitId: 'unit-1',
+        location: 'right_arm',
+        damage: 18,
+        armorRemaining: 0,
+        structureRemaining: 0,
+        locationDestroyed: true,
+      } satisfies IDamageAppliedPayload);
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-1'].rightArmHasTalons).toBe(false);
+    });
+  });
+
   describe('PSRTriggered reducer', () => {
     it('adds pending PSR', () => {
       const state = createStateWithUnit();
@@ -377,6 +561,50 @@ describe('Phase 4: IUnitGameState Extension', () => {
       const psrs = result.units['unit-1'].pendingPSRs ?? [];
       expect(psrs).toHaveLength(1);
       expect(psrs[0].reason).toBe('20+ damage this phase');
+    });
+
+    it('preserves canonical PSR reason codes on pending PSRs', () => {
+      const state = createStateWithUnit();
+      const event = makeEvent(GameEventType.PSRTriggered, {
+        unitId: 'unit-1',
+        reason: 'Reactor shutdown',
+        additionalModifier: 0,
+        triggerSource: 'heat_shutdown',
+        reasonCode: PSRTrigger.Shutdown,
+      } satisfies IPSRTriggeredPayload);
+
+      const result = applyEvent(state, event);
+      const psrs = result.units['unit-1'].pendingPSRs ?? [];
+
+      expect(psrs).toHaveLength(1);
+      expect(psrs[0]).toMatchObject({
+        entityId: 'unit-1',
+        reason: 'Reactor shutdown',
+        reasonCode: PSRTrigger.Shutdown,
+      });
+    });
+
+    it('preserves fixed PSR target numbers on pending PSRs', () => {
+      const state = createStateWithUnit();
+      const event = makeEvent(GameEventType.PSRTriggered, {
+        unitId: 'unit-1',
+        reason: 'MASC failure check',
+        additionalModifier: 0,
+        triggerSource: PSRTrigger.MASCFailure,
+        reasonCode: PSRTrigger.MASCFailure,
+        fixedTargetNumber: 7,
+      } satisfies IPSRTriggeredPayload);
+
+      const result = applyEvent(state, event);
+      const psrs = result.units['unit-1'].pendingPSRs ?? [];
+
+      expect(psrs).toHaveLength(1);
+      expect(psrs[0]).toMatchObject({
+        entityId: 'unit-1',
+        reason: 'MASC failure check',
+        reasonCode: PSRTrigger.MASCFailure,
+        fixedTargetNumber: 7,
+      });
     });
 
     it('accumulates multiple PSRs', () => {
@@ -466,6 +694,35 @@ describe('Phase 4: IUnitGameState Extension', () => {
       const unit = result.units['unit-1'];
       expect(unit.prone).toBe(true);
       expect(unit.facing).toBe(Facing.Southeast);
+      expect(unit.pendingPSRs).toEqual([]);
+    });
+  });
+
+  describe('UnitStuck reducer', () => {
+    it('sets unit stuck and clears pending PSRs without changing prone state', () => {
+      const state = createStateWithUnit({
+        pendingPSRs: [
+          {
+            entityId: 'unit-1',
+            reason: 'Avoid bogging down',
+            reasonCode: PSRTrigger.SwampBogDown,
+            additionalModifier: 0,
+            triggerSource: PSRTrigger.SwampBogDown,
+          },
+        ],
+        prone: false,
+      });
+
+      const event = makeEvent(GameEventType.UnitStuck, {
+        unitId: 'unit-1',
+        reason: 'Avoid bogging down',
+        reasonCode: PSRTrigger.SwampBogDown,
+      } satisfies IUnitStuckPayload);
+
+      const result = applyEvent(state, event);
+      const unit = result.units['unit-1'];
+      expect(unit.isStuck).toBe(true);
+      expect(unit.prone).toBe(false);
       expect(unit.pendingPSRs).toEqual([]);
     });
   });

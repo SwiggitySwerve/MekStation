@@ -18,6 +18,7 @@ import { TerrainType } from '@/types/gameplay/TerrainTypes';
 import { createHexGrid, placeUnit } from '@/utils/gameplay/hexGrid';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import {
+  applyActiveMPBoosters,
   calculateRunMP,
   createMovementCapability,
   getMaxMP,
@@ -29,8 +30,6 @@ import {
   findPath,
   getHexMovementCost,
 } from '@/utils/gameplay/movement';
-import { getMovementStepCostBreakdown } from '@/utils/gameplay/movement/calculations';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 function setHexTerrain(
   grid: IHexGrid,
@@ -64,6 +63,33 @@ describe('movement', () => {
       expect(calculateRunMP(5)).toBe(8); // 5 * 1.5 = 7.5 -> 8
       expect(calculateRunMP(6)).toBe(9); // 6 * 1.5 = 9
       expect(calculateRunMP(3)).toBe(5); // 3 * 1.5 = 4.5 -> 5
+    });
+  });
+
+  describe('applyActiveMPBoosters()', () => {
+    it('doubles run MP when either MASC or Supercharger is active', () => {
+      const cap = createMovementCapability(4, 0);
+
+      expect(applyActiveMPBoosters(cap, true, false)).toMatchObject({
+        walkMP: 4,
+        runMP: 8,
+        jumpMP: 0,
+      });
+      expect(applyActiveMPBoosters(cap, false, true)).toMatchObject({
+        walkMP: 4,
+        runMP: 8,
+        jumpMP: 0,
+      });
+    });
+
+    it('uses ceil(walk MP * 2.5) when MASC and Supercharger are both active', () => {
+      expect(
+        applyActiveMPBoosters(createMovementCapability(5, 0), true, true),
+      ).toMatchObject({
+        walkMP: 5,
+        runMP: 13,
+        jumpMP: 0,
+      });
     });
   });
 
@@ -148,42 +174,9 @@ describe('movement', () => {
       expect(calculateMovementHeat(MovementType.Jump, 6)).toBe(6);
     });
 
-    it('should return 0 for represented vehicle motive movement', () => {
-      expect(calculateMovementHeat(MovementType.Walk, 4, 'tracked')).toBe(0);
-      expect(calculateMovementHeat(MovementType.Run, 6, 'hover')).toBe(0);
-      expect(calculateMovementHeat(MovementType.Jump, 4, 'vtol')).toBe(0);
-    });
-
-    it('should return 0 for non-Mek units that path like walkers', () => {
-      expect(calculateMovementHeat(MovementType.Walk, 4, 'walk', 'none')).toBe(
-        0,
-      );
-      expect(calculateMovementHeat(MovementType.Run, 6, 'walk', 'none')).toBe(
-        0,
-      );
-      expect(calculateMovementHeat(MovementType.Jump, 4, 'walk', 'none')).toBe(
-        0,
-      );
-    });
-
-    it('should return MegaMek UMU heat for Mek swim movement', () => {
-      expect(calculateMovementHeat(MovementType.Walk, 1, 'biped_swim')).toBe(1);
-      expect(
-        calculateMovementHeat(MovementType.Run, 2, 'quad_swim', 'mek'),
-      ).toBe(1);
-      expect(
-        calculateMovementHeat(MovementType.Walk, 1, 'biped_swim', 'none'),
-      ).toBe(0);
-    });
-
-    it('should keep explicit Mek heat even when the profile is supplied', () => {
-      expect(
-        calculateMovementHeat(MovementType.Walk, 4, undefined, 'mek'),
-      ).toBe(1);
-      expect(calculateMovementHeat(MovementType.Run, 6, 'walk', 'mek')).toBe(2);
-      expect(calculateMovementHeat(MovementType.Jump, 4, 'walk', 'mek')).toBe(
-        4,
-      );
+    it('should subtract Partial Wing bonus from jump heat before the floor', () => {
+      expect(calculateMovementHeat(MovementType.Jump, 5, 2)).toBe(3);
+      expect(calculateMovementHeat(MovementType.Jump, 8, 2)).toBe(6);
     });
   });
 
@@ -232,7 +225,7 @@ describe('movement', () => {
       const result = validateMovement(
         grid,
         position,
-        { q: 2, r: 0 },
+        { q: 0, r: -2 },
         Facing.North,
         MovementType.Walk,
         capability,
@@ -240,6 +233,21 @@ describe('movement', () => {
 
       expect(result.valid).toBe(true);
       expect(result.mpCost).toBe(2);
+    });
+
+    it('should reject voluntary movement for stuck units', () => {
+      const result = validateMovement(
+        grid,
+        { ...position, isStuck: true },
+        { q: 0, r: -1 },
+        Facing.North,
+        MovementType.Walk,
+        capability,
+      );
+
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('stuck');
+      expect(result.mpCost).toBe(0);
     });
 
     it('should reject movement outside grid bounds', () => {
@@ -328,11 +336,11 @@ describe('movement', () => {
       // Error should mention the reduced max, not the raw max
       expect(fail.error).toContain('2');
 
-      // Distance 2 should still succeed
+      // Straight-ahead distance 2 should still succeed.
       const ok = validateMovement(
         hotGrid,
         pos,
-        { q: 2, r: 0 },
+        { q: 0, r: -2 },
         Facing.North,
         MovementType.Walk,
         cap,
@@ -354,7 +362,7 @@ describe('movement', () => {
       const ok = validateMovement(
         cleanGrid,
         pos,
-        { q: 4, r: 0 },
+        { q: 0, r: -4 },
         Facing.North,
         MovementType.Walk,
         cap,
@@ -387,10 +395,10 @@ describe('movement', () => {
       );
 
       expect(destinations.length).toBeGreaterThan(0);
-      // Should include hexes at distance 0, 1, and 2
+      // Should include straight-ahead hexes at movement point costs 0, 1, and 2.
       expect(destinations.some((d) => d.q === 0 && d.r === 0)).toBe(true); // Stay
-      expect(destinations.some((d) => d.q === 1 && d.r === 0)).toBe(true); // Distance 1
-      expect(destinations.some((d) => d.q === 2 && d.r === 0)).toBe(true); // Distance 2
+      expect(destinations.some((d) => d.q === 0 && d.r === -1)).toBe(true); // Cost 1
+      expect(destinations.some((d) => d.q === 0 && d.r === -2)).toBe(true); // Cost 2
     });
 
     it('should return only current position for stationary', () => {
@@ -440,46 +448,6 @@ describe('movement', () => {
       expect(cost).toBe(3);
     });
 
-    it('should apply infantry woods entry discount with minimum 1 MP', () => {
-      let grid = createHexGrid({ radius: 3 });
-      grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.LightWoods);
-
-      const step = getMovementStepCostBreakdown(
-        grid,
-        { q: 1, r: 0 },
-        'walk',
-        { q: 0, r: 0 },
-        { movementTerrainProfile: 'infantry' },
-      );
-
-      expect(step).toMatchObject({
-        mpCost: 1,
-        baseCost: 1,
-        terrainCost: 0,
-        elevationCost: 0,
-      });
-    });
-
-    it('should apply infantry woods discount to heavy woods without dropping below base cost', () => {
-      let grid = createHexGrid({ radius: 3 });
-      grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.HeavyWoods);
-
-      const step = getMovementStepCostBreakdown(
-        grid,
-        { q: 1, r: 0 },
-        'walk',
-        { q: 0, r: 0 },
-        { movementTerrainProfile: 'infantry' },
-      );
-
-      expect(step).toMatchObject({
-        mpCost: 2,
-        baseCost: 1,
-        terrainCost: 1,
-        elevationCost: 0,
-      });
-    });
-
     it('should return 1 for heavy woods with jump', () => {
       let grid = createHexGrid({ radius: 3 });
       grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.HeavyWoods);
@@ -494,32 +462,6 @@ describe('movement', () => {
       expect(cost).toBe(2);
     });
 
-    it.each(['umu', 'biped_swim', 'quad_swim'] as const)(
-      'should not add water-depth MP for %s movement',
-      (movementMode) => {
-        let grid = createHexGrid({ radius: 3 });
-        grid = setHexTerrain(
-          grid,
-          { q: 1, r: 0 },
-          terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
-        );
-
-        const step = getMovementStepCostBreakdown(
-          grid,
-          { q: 1, r: 0 },
-          movementMode,
-          { q: 0, r: 0 },
-        );
-
-        expect(step).toMatchObject({
-          mpCost: 1,
-          baseCost: 1,
-          terrainCost: 0,
-          elevationCost: 0,
-        });
-      },
-    );
-
     it('should add 1 MP for elevation change going up', () => {
       let grid = createHexGrid({ radius: 3 });
       grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
@@ -529,48 +471,6 @@ describe('movement', () => {
         r: 0,
       });
       expect(cost).toBe(2);
-    });
-
-    it('should double non-flying infantry elevation costs', () => {
-      let grid = createHexGrid({ radius: 3 });
-      grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
-      grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.Clear, 1);
-
-      const step = getMovementStepCostBreakdown(
-        grid,
-        { q: 1, r: 0 },
-        'walk',
-        { q: 0, r: 0 },
-        { movementTerrainProfile: 'infantry' },
-      );
-
-      expect(step).toMatchObject({
-        mpCost: 3,
-        baseCost: 1,
-        terrainCost: 0,
-        elevationDelta: 1,
-        elevationCost: 2,
-      });
-    });
-
-    it('should double ground vehicle elevation costs', () => {
-      let grid = createHexGrid({ radius: 3 });
-      grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
-      grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.Clear, 1);
-
-      const step = getMovementStepCostBreakdown(
-        grid,
-        { q: 1, r: 0 },
-        'tracked',
-        { q: 0, r: 0 },
-      );
-
-      expect(step).toMatchObject({
-        mpCost: 3,
-        baseCost: 1,
-        elevationDelta: 1,
-        elevationCost: 2,
-      });
     });
 
     it('should add 2 MP for two level elevation change', () => {
@@ -599,16 +499,11 @@ describe('movement', () => {
       let grid = createHexGrid({ radius: 3 });
       grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 2);
       grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.Clear, 0);
-      const step = getMovementStepCostBreakdown(grid, { q: 1, r: 0 }, 'walk', {
+      const cost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', {
         q: 0,
         r: 0,
       });
-      expect(step).toMatchObject({
-        mpCost: 3,
-        baseCost: 1,
-        elevationDelta: -2,
-        elevationCost: 2,
-      });
+      expect(cost).toBe(3);
     });
 
     it('should combine terrain and elevation costs', () => {
@@ -620,76 +515,6 @@ describe('movement', () => {
         r: 0,
       });
       expect(cost).toBe(3);
-    });
-
-    it('should block tracked vehicles from entering water without flotation', () => {
-      let grid = createHexGrid({ radius: 3 });
-      grid = setHexTerrain(
-        grid,
-        { q: 1, r: 0 },
-        terrainStringFromFeatures([{ type: TerrainType.Water, level: 1 }]),
-      );
-
-      const blocked = getMovementStepCostBreakdown(
-        grid,
-        { q: 1, r: 0 },
-        'tracked',
-        { q: 0, r: 0 },
-      );
-      const flotationCost = getHexMovementCost(
-        grid,
-        { q: 1, r: 0 },
-        'tracked',
-        { q: 0, r: 0 },
-        { waterCapability: { flotationHull: true } },
-      );
-
-      expect(blocked).toMatchObject({
-        mpCost: Infinity,
-        blockedReason: 'Water blocks ground movement',
-      });
-      expect(flotationCost).toBe(2);
-    });
-
-    it('should enforce vehicle elevation limits while preserving walking climb rules', () => {
-      let grid = createHexGrid({ radius: 3 });
-      grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
-      grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.Clear, 2);
-
-      const walkCost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', {
-        q: 0,
-        r: 0,
-      });
-      const tracked = getMovementStepCostBreakdown(
-        grid,
-        { q: 1, r: 0 },
-        'tracked',
-        { q: 0, r: 0 },
-      );
-
-      expect(walkCost).toBe(3);
-      expect(tracked).toMatchObject({
-        mpCost: Infinity,
-        elevationDelta: 2,
-        elevationCost: 4,
-        blockedReason: 'Elevation change of 2 exceeds Tracked movement limit',
-      });
-    });
-
-    it('should require naval movement to remain on water terrain', () => {
-      const grid = createHexGrid({ radius: 3 });
-
-      const blocked = getMovementStepCostBreakdown(
-        grid,
-        { q: 1, r: 0 },
-        'naval',
-        { q: 0, r: 0 },
-      );
-
-      expect(blocked).toMatchObject({
-        mpCost: Infinity,
-        blockedReason: 'Naval movement requires water terrain',
-      });
     });
 
     it('should return Infinity for invalid hex', () => {

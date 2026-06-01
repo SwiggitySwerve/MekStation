@@ -1,10 +1,9 @@
 /**
- * Regression guard — Jumping Jack SPA.
+ * Regression guard: Jumping Jack and Hopping Jack SPAs.
  *
  * Bug #7 from `fix-combat-rule-accuracy`: Jumping Jack originally modified
- * the TARGET's piloting roll. The canonical rule applies it to the ATTACKER's
- * to-hit when the attacker is jumping, reducing the +3 jump penalty to +1
- * (a net -2 modifier on the attacker's to-hit).
+ * the TARGET's piloting roll. MegaMek applies both jump SPAs to the ATTACKER's
+ * to-hit when jumping: Jumping Jack nets +1 and Hopping Jack nets +2.
  *
  * This suite guards against silent re-regression.
  *
@@ -14,7 +13,7 @@
 import { MovementType } from '@/types/gameplay';
 import { calculateJumpingJackModifier } from '@/utils/gameplay/spaModifiers/abilityModifiers';
 
-describe('Jumping Jack SPA — attacker-to-hit on jump (regression guard)', () => {
+describe('Jumping/Hopping Jack SPAs: attacker-to-hit on jump', () => {
   it('returns -2 when attacker has SPA and is jumping', () => {
     const mod = calculateJumpingJackModifier(
       ['jumping_jack'],
@@ -24,6 +23,35 @@ describe('Jumping Jack SPA — attacker-to-hit on jump (regression guard)', () =
     expect(mod?.value).toBe(-2);
     expect(mod?.name).toBe('Jumping Jack');
     expect(mod?.source).toBe('spa');
+  });
+
+  it('returns -1 for canonical Hopping Jack when attacker is jumping', () => {
+    const mod = calculateJumpingJackModifier(
+      ['hopping_jack'],
+      MovementType.Jump,
+    );
+    expect(mod).not.toBeNull();
+    expect(mod?.value).toBe(-1);
+    expect(mod?.name).toBe('Hopping Jack');
+    expect(mod?.source).toBe('spa');
+  });
+
+  it('accepts the legacy Hopping Jack id through canonicalization', () => {
+    const mod = calculateJumpingJackModifier(
+      ['hopping-jack'],
+      MovementType.Jump,
+    );
+    expect(mod?.value).toBe(-1);
+    expect(mod?.name).toBe('Hopping Jack');
+  });
+
+  it('prefers Jumping Jack when both jump SPAs are present', () => {
+    const mod = calculateJumpingJackModifier(
+      ['hopping_jack', 'jumping_jack'],
+      MovementType.Jump,
+    );
+    expect(mod?.value).toBe(-2);
+    expect(mod?.name).toBe('Jumping Jack');
   });
 
   it('returns null when attacker is walking (not jumping)', () => {
@@ -48,20 +76,27 @@ describe('Jumping Jack SPA — attacker-to-hit on jump (regression guard)', () =
     expect(calculateJumpingJackModifier([], MovementType.Jump)).toBeNull();
   });
 
-  it('returns null when SPA list contains other SPAs but not jumping_jack', () => {
+  it('returns null when SPA list contains other SPAs but not a jump SPA', () => {
     expect(
       calculateJumpingJackModifier(['sniper'], MovementType.Jump),
     ).toBeNull();
   });
 
-  it('net effect reduces +3 jump penalty to +1 (invariant check)', () => {
-    // The jump penalty (applied elsewhere) is +3. Jumping Jack applies -2.
-    // Combined net effect: +1 instead of +3 — this is the documented rule.
+  it('Jumping Jack net effect reduces +3 jump penalty to +1', () => {
     const JUMP_PENALTY = 3;
     const mod = calculateJumpingJackModifier(
       ['jumping_jack'],
       MovementType.Jump,
     );
     expect(JUMP_PENALTY + (mod?.value ?? 0)).toBe(1);
+  });
+
+  it('Hopping Jack net effect reduces +3 jump penalty to +2', () => {
+    const JUMP_PENALTY = 3;
+    const mod = calculateJumpingJackModifier(
+      ['hopping_jack'],
+      MovementType.Jump,
+    );
+    expect(JUMP_PENALTY + (mod?.value ?? 0)).toBe(2);
   });
 });

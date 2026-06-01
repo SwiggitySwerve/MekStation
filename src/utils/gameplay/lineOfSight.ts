@@ -5,6 +5,8 @@
  * @spec openspec/specs/terrain-system/spec.md
  */
 
+import type { IUnitToken } from '@/types/gameplay';
+
 import { IHexCoordinate, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 import {
   TerrainType,
@@ -14,6 +16,7 @@ import {
 
 import { hexLine, coordToKey, hexEquals } from './hexMath';
 import { terrainFeaturesFromString } from './terrainEncoding';
+import { parseWaterDepth } from './waterDepth';
 
 // =============================================================================
 // Result Interface
@@ -29,6 +32,8 @@ export interface ILOSResult {
   readonly blockedBy?: IHexCoordinate;
   /** Terrain type that blocks (if blocked) */
   readonly blockingTerrain?: TerrainType;
+  /** Destroyed unit token that blocks LOS as a wreck (if blocked) */
+  readonly blockingUnit?: IUnitToken;
   /** Pure terrain elevation that blocks LOS without a blocking terrain feature */
   readonly blockingElevation?: number;
   /** All intervening hexes (excluding endpoints) */
@@ -110,6 +115,41 @@ function terrainFeatureAffectsLOS(
   return hexElevation + getTerrainHeight(feature, props) >= losHeight;
 }
 
+type EndpointWaterState = 'land' | 'in-water' | 'underwater';
+
+function terrainWaterDepth(terrainString: string): number {
+  const taggedDepth = parseWaterDepth(terrainString);
+  if (taggedDepth > 0 || terrainString.startsWith(TerrainType.Water)) {
+    return taggedDepth;
+  }
+
+  const waterFeature = parseTerrainFeatures(terrainString).find(
+    (feature) => feature.type === TerrainType.Water,
+  );
+  return Math.max(0, Math.trunc(waterFeature?.level ?? 0));
+}
+
+function endpointWaterState(terrainString: string): EndpointWaterState {
+  const waterDepth = terrainWaterDepth(terrainString);
+
+  if (waterDepth <= 0) return 'land';
+  if (waterDepth === 1) return 'in-water';
+  return 'underwater';
+}
+
+function landToUnderwaterBlocked(
+  fromHexTerrain: string | undefined,
+  toHexTerrain: string | undefined,
+): boolean {
+  const fromState = endpointWaterState(fromHexTerrain ?? TerrainType.Clear);
+  const toState = endpointWaterState(toHexTerrain ?? TerrainType.Clear);
+
+  return (
+    (fromState === 'land' && toState === 'underwater') ||
+    (fromState === 'underwater' && toState === 'land')
+  );
+}
+
 /**
  * Calculate the LOS height at a specific point along the line.
  * Uses linear interpolation between shooter and target heights.
@@ -156,6 +196,7 @@ export function calculateLOS(
   grid: IHexGrid,
   fromElevation?: number,
   toElevation?: number,
+  tokens: readonly IUnitToken[] = [],
 ): ILOSResult {
   // Get all hexes on the line (includes endpoints)
   const lineHexes = hexLine(from, to);
@@ -178,6 +219,24 @@ export function calculateLOS(
   const fromHex = grid.hexes.get(coordToKey(from));
   const toHex = grid.hexes.get(coordToKey(to));
 
+  if (
+    !hexEquals(from, to) &&
+    landToUnderwaterBlocked(fromHex?.terrain, toHex?.terrain)
+  ) {
+    const blockedBy =
+      endpointWaterState(toHex?.terrain ?? TerrainType.Clear) === 'underwater'
+        ? to
+        : from;
+
+    return {
+      hasLOS: false,
+      blockedBy,
+      blockingTerrain: TerrainType.Water,
+      interveningHexes,
+      interveningTerrainEffects: [],
+    };
+  }
+
   // Calculate effective heights (hex elevation + unit height of 1)
   const fromBaseElevation = fromHex?.elevation ?? 0;
   const toBaseElevation = toHex?.elevation ?? 0;
@@ -191,6 +250,17 @@ export function calculateLOS(
   // Check each intervening hex for blocking terrain
   for (let i = 0; i < interveningHexes.length; i++) {
     const hex = interveningHexes[i];
+    const blockingUnit = findBlockingWreck(hex, tokens);
+    if (blockingUnit) {
+      return {
+        hasLOS: false,
+        blockedBy: hex,
+        blockingUnit,
+        interveningHexes,
+        interveningTerrainEffects,
+      };
+    }
+
     const hexData = grid.hexes.get(coordToKey(hex));
 
     if (!hexData) {
@@ -294,6 +364,17 @@ export function calculateLOS(
   };
 }
 
+function findBlockingWreck(
+  hex: IHexCoordinate,
+  tokens: readonly IUnitToken[],
+): IUnitToken | null {
+  return (
+    tokens.find(
+      (token) => token.isDestroyed && hexEquals(token.position, hex),
+    ) ?? null
+  );
+}
+
 function formatTerrainLabel(terrain: TerrainType): string {
   return terrain.replace(/_/g, ' ');
 }
@@ -334,6 +415,9 @@ export function formatLOSBlockedDetails(result: ILOSResult): string {
   if (!blockedBy) return 'Line of sight blocked';
 
   const hexLabel = `(${blockedBy.q}, ${blockedBy.r})`;
+  if (result.blockingUnit) {
+    return `Blocked by wreck ${result.blockingUnit.name} at ${hexLabel}`;
+  }
   if (result.blockingTerrain) {
     return `Blocked by ${
       stackedBlockingTerrainLabel(result) ??

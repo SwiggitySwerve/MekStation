@@ -2529,12 +2529,12 @@ describe('HexMapDisplay combat projection', () => {
     expect(targetHex).toHaveAttribute('data-combat-hull-down-modifier', '2');
     expect(targetHex).toHaveAttribute(
       'data-combat-hull-down-reason',
-      'Target in hull-down position with cover: +2',
+      'Target in hull-down position: +2',
     );
-    expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '7');
+    expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '6');
     expect(targetHex).toHaveAttribute(
       'data-combat-to-hit-modifiers',
-      expect.stringContaining('Hull Down:2'),
+      expect.stringContaining('Hull-Down:2'),
     );
     const coverOverlay = screen.getByTestId('cover-overlay-hex-2-0');
     expect(coverOverlay).toHaveAttribute(
@@ -2550,9 +2550,7 @@ describe('HexMapDisplay combat projection', () => {
     const coverRows = screen.getByTestId('hex-combat-tooltip-cover');
     expect(coverRows).toHaveAttribute('data-combat-target-hull-down', 'true');
     expect(coverRows).toHaveAttribute('data-combat-hull-down-modifier', '2');
-    expect(coverRows).toHaveTextContent(
-      'Target in hull-down position with cover: +2',
-    );
+    expect(coverRows).toHaveTextContent('Target in hull-down position: +2');
   });
 
   it('does not project adjacent horizontal cover for vehicle targets', () => {

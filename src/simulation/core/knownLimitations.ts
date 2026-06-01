@@ -29,7 +29,7 @@ export interface IViolation {
  * to documented limitations.
  */
 const KNOWN_LIMITATION_PATTERNS = {
-  /** Physical attacks (punches, kicks, charges, DFA) */
+  /** Legacy/generic physical attack detectors outside the catalog suite */
   physicalAttacks: [
     /physical\s*attack/i,
     /melee\s*combat/i,
@@ -75,7 +75,9 @@ const KNOWN_LIMITATION_PATTERNS = {
     /fall.*check/i,
     /skid.*check/i,
     /consciousness.*check/i,
-    /ejection/i,
+    /ejection.*psr/i,
+    /eject.*piloting/i,
+    /piloting.*eject/i,
     /pilot.*skill.*check/i,
   ],
 
@@ -130,12 +132,49 @@ const KNOWN_LIMITATION_PATTERNS = {
   mtfParsing: [/mtf.*file.*parsing/i, /mtf.*import/i, /mechtech.*format/i],
 } as const;
 
+export type KnownLimitationCategory = keyof typeof KNOWN_LIMITATION_PATTERNS;
+
+export const KNOWN_LIMITATION_CATEGORY_IDS = Object.keys(
+  KNOWN_LIMITATION_PATTERNS,
+) as readonly KnownLimitationCategory[];
+
 /**
  * Flattened list of all known limitation patterns for efficient matching.
  */
 const ALL_PATTERNS: readonly RegExp[] = Object.values(
   KNOWN_LIMITATION_PATTERNS,
 ).flat();
+
+/**
+ * Validation-suite invariants are evidence generators, not simulation bug
+ * reports. They must stay visible even when their message text overlaps with
+ * broad known-limitation buckets such as "physical attack" or "line of sight".
+ */
+const KNOWN_LIMITATION_BYPASS_INVARIANTS = new Set([
+  'battlemech-combat-validation',
+]);
+
+function bypassesKnownLimitationFiltering(violation: IViolation): boolean {
+  return KNOWN_LIMITATION_BYPASS_INVARIANTS.has(
+    violation.invariant.toLowerCase(),
+  );
+}
+
+function findLimitationCategory(violation: IViolation): string | null {
+  const message = violation.message.toLowerCase();
+  const invariant = violation.invariant.toLowerCase();
+  const combinedText = `${message} ${invariant}`;
+
+  for (const [category, patterns] of Object.entries(
+    KNOWN_LIMITATION_PATTERNS,
+  )) {
+    if (patterns.some((pattern) => pattern.test(combinedText))) {
+      return category;
+    }
+  }
+
+  return null;
+}
 
 /**
  * Check if a violation corresponds to a known limitation.
@@ -162,6 +201,8 @@ const ALL_PATTERNS: readonly RegExp[] = Object.values(
  * ```
  */
 export function isKnownLimitation(violation: IViolation): boolean {
+  if (bypassesKnownLimitationFiltering(violation)) return false;
+
   const message = violation.message.toLowerCase();
   const invariant = violation.invariant.toLowerCase();
   const combinedText = `${message} ${invariant}`;
@@ -187,19 +228,19 @@ export function isKnownLimitation(violation: IViolation): boolean {
  * ```
  */
 export function getLimitationCategory(violation: IViolation): string | null {
-  const message = violation.message.toLowerCase();
-  const invariant = violation.invariant.toLowerCase();
-  const combinedText = `${message} ${invariant}`;
+  if (bypassesKnownLimitationFiltering(violation)) return null;
+  return findLimitationCategory(violation);
+}
 
-  for (const [category, patterns] of Object.entries(
-    KNOWN_LIMITATION_PATTERNS,
-  )) {
-    if (patterns.some((pattern) => pattern.test(combinedText))) {
-      return category;
-    }
-  }
-
-  return null;
+/**
+ * Return the broad pattern category even for invariants that intentionally
+ * bypass known-limitation filtering. This is useful for auditing whether the
+ * bypass is protecting a validation lane from a real suppression hazard.
+ */
+export function getLimitationPatternCategory(
+  violation: IViolation,
+): string | null {
+  return findLimitationCategory(violation);
 }
 
 /**
@@ -225,7 +266,7 @@ export function getLimitationExplanation(violation: IViolation): string | null {
 
   const explanations: Record<string, string> = {
     physicalAttacks:
-      'Physical attacks are not yet implemented (see known-limitations.md)',
+      'Physical attacks generic detector gap; catalog validation lanes bypass this broad filter (see known-limitations.md)',
     ammoConsumption:
       'Ammo consumption tracking is not enforced (see known-limitations.md)',
     heatShutdown:

@@ -54,6 +54,8 @@
     "validate:infantry": "npx tsx scripts/validate-infantry-bv.ts",
     "validate:aerospace": "npx tsx scripts/validate-aerospace-bv.ts",
     "validate:vehicle": "npx tsx scripts/validate-vehicle-bv.ts",
+    "validate:combat": "node scripts/validate-combat-suite.mjs",
+    "validate:combat:gaps": "npx tsx scripts/print-combat-validation-gaps.ts",
     "audit:megamek-boards": "npx tsx scripts/audit-megamek-board-import.ts",
     "validate:refactor": "npm run test && npm run lint && npm run build",
     "analyze:files": "./scripts/monitor-file-sizes.sh",

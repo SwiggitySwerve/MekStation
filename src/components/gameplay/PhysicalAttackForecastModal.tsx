@@ -87,6 +87,18 @@ function attackTypeLabel(attackType: PhysicalAttackType): string {
       return 'Death From Above';
     case 'push':
       return 'Push';
+    case 'trip':
+      return 'Trip';
+    case 'thrash':
+      return 'Thrash';
+    case 'jump-jet-attack':
+      return 'Jump Jet Attack';
+    case 'brush-off':
+      return 'Brush Off';
+    case 'grapple':
+      return 'Grapple';
+    case 'break-grapple':
+      return 'Break Grapple';
     case 'hatchet':
       return 'Hatchet';
     case 'sword':
@@ -95,6 +107,12 @@ function attackTypeLabel(attackType: PhysicalAttackType): string {
       return 'Mace';
     case 'lance':
       return 'Lance';
+    case 'retractable-blade':
+      return 'Retractable Blade';
+    case 'flail':
+      return 'Flail';
+    case 'wrecking-ball':
+      return 'Wrecking Ball';
   }
 }
 

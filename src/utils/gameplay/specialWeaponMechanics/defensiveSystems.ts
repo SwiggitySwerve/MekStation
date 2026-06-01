@@ -8,6 +8,7 @@
  * @spec openspec/changes/full-combat-parity/specs/weapon-system/spec.md
  */
 
+import { lookupClusterHits } from '../clusterWeapons';
 import { type DiceRoller } from '../diceTypes';
 import { IAMSResult, ITargetStatusFlags } from './types';
 
@@ -19,6 +20,7 @@ export function isAMS(weaponId: string): boolean {
   const id = weaponId.toLowerCase();
   return (
     id === 'ams' ||
+    id.endsWith('-ams') ||
     id.includes('anti-missile') ||
     id === 'clan-ams' ||
     id === 'is-ams'
@@ -42,28 +44,35 @@ export function isTAG(weaponId: string): boolean {
 /**
  * Resolve AMS intercept against incoming missile attack.
  *
- * AMS reduces the number of missile cluster hits:
- * - Standard AMS: Reduces by 1d6 (uses 1d6 from 2d6 roll)
+ * AMS reduces missile clusters by applying a -4 cluster-table modifier:
  * - Consumes AMS ammo per activation
- * - Cannot reduce below 0 hits
+ * - Cannot reduce below the cluster table's minimum roll
  *
- * @param incomingHits Number of missile hits after cluster table roll
- * @param diceRoller Dice roller for AMS reduction roll
- * @returns AMS result with hits reduced
+ * @param incomingHits Number of missile hits before AMS
+ * @param diceRoller Dice roller for cluster roll evidence
+ * @param rackSize Missile rack size for cluster-table lookup
+ * @returns AMS result with hits reduced and remaining
  */
 export function resolveAMS(
   incomingHits: number,
   diceRoller: DiceRoller,
+  rackSize: number = incomingHits,
 ): IAMSResult {
-  // AMS rolls a d6 to determine reduction (we use first die of 2d6 roll)
   const roll = diceRoller();
-  const reduction = roll.dice[0]; // Use first die as d6 result
-  const hitsReduced = Math.min(reduction, incomingHits);
+  const clusterRoll = roll.total;
+  const clusterModifier = -4;
+  const modifiedClusterRoll = Math.max(2, clusterRoll + clusterModifier);
+  const hitsRemaining = lookupClusterHits(modifiedClusterRoll, rackSize);
+  const hitsReduced = Math.max(0, incomingHits - hitsRemaining);
 
   return {
     hitsReduced,
-    ammoConsumed: 1, // AMS consumes 1 ton of ammo per activation
+    hitsRemaining,
+    ammoConsumed: 1,
     roll,
+    clusterRoll,
+    clusterModifier,
+    modifiedClusterRoll,
   };
 }
 

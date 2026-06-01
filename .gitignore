@@ -35,7 +35,9 @@ yarn-error.log*
 *.db
 
 # Development/investigation scripts
-scripts/
+scripts/**
+!scripts/
+!scripts/print-combat-validation-gaps.ts
 
 # Development files (now organized in scripts/)
 /test-*

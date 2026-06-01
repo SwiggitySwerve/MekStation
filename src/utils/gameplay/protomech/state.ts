@@ -61,7 +61,7 @@ export interface IProtoMechCombatState {
   readonly immobilized: boolean;
   /** True when the main gun weapon has been removed (MainGun location destroyed). */
   readonly mainGunRemoved: boolean;
-  /** Altitude in hexes for Glider chassis (0 = grounded, positive = airborne). */
+  /** Altitude in hexes for Glider chassis (0 = grounded, 1-5 = airborne). */
   readonly altitude?: number;
   /** True once destroyed (Head/Torso 0, crit 12, or 2nd engine crit). */
   readonly destroyed: boolean;

@@ -38,9 +38,9 @@ export const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
 /**
  * Per-type discriminants that REQUIRE a `combatState` envelope per Council #1
  * (`openspec/council-decisions/2026-05-02-cluster-F-combat-behavior-wiring.md`)
- * and openspec change `wire-combat-behavior-dispatch`. Mech / capital
- * unit types intentionally leave `combatState` undefined; represented vehicles
- * now seed a `kind: 'vehicle'` envelope.
+ * and openspec change `wire-combat-behavior-dispatch`. Mech / vehicle / capital
+ * unit types intentionally leave `combatState` undefined — vehicles get a
+ * `kind: 'vehicle'` envelope in PR9+; capital ships are out of scope.
  */
 const PER_TYPE_COMBAT_BEHAVIOR_KINDS: ReadonlySet<UnitType> = new Set([
   UnitType.VEHICLE,
@@ -60,7 +60,7 @@ const PER_TYPE_COMBAT_BEHAVIOR_KINDS: ReadonlySet<UnitType> = new Set([
  *
  * Returns `undefined` when:
  *   - `unitType` is undefined (legacy path / mech-only stubs).
- *   - `unitType` is mech / capital — those don't get an envelope.
+ *   - `unitType` is mech / vehicle / capital — those don't get an envelope.
  *
  * Throws an `Error` whose message names the unit id and the missing field
  * when `unitType` is one of the four supported per-type discriminants but the
@@ -105,7 +105,6 @@ function buildCombatStateForUnit(
         unitId: unit.id,
         motionType: init.motionType,
         turretType: init.turretType,
-        engineType: init.engineType,
         originalCruiseMP: init.originalCruiseMP,
         armor: init.armor,
         structure: init.structure,
@@ -276,9 +275,29 @@ export function createInitialUnitState(
 
   return {
     id: unit.id,
+    unitType: unit.unitType,
+    ...(unit.tonnage !== undefined ? { tonnage: unit.tonnage } : {}),
+    motionType: unit.motionType,
+    isQuad: unit.isQuad,
+    armsFlipped: unit.armsFlipped,
+    isPassenger: unit.isPassenger,
+    isSwarming: unit.isSwarming,
+    isMakingDFA: unit.isMakingDFA,
+    isMakingDisplacementAttack: unit.isMakingDisplacementAttack,
+    isPushing: unit.isPushing,
+    displacementAttackTargetId: unit.displacementAttackTargetId,
+    targetedByDisplacementAttackerId: unit.targetedByDisplacementAttackerId,
+    isAirborne: unit.isAirborne,
+    occupiedBuildingId: unit.occupiedBuildingId,
+    isEvading: unit.isEvading,
+    evasionBonus: unit.evasionBonus,
+    sprintedThisTurn: unit.sprintedThisTurn,
+    isLoadingOrUnloadingCargo: unit.isLoadingOrUnloadingCargo,
+    boardId: unit.boardId,
     side: unit.side,
     position: startPosition,
     facing: startFacing,
+    secondaryFacing: startFacing,
     heat: 0,
     movementThisTurn: MovementType.Stationary,
     hexesMovedThisTurn: 0,
@@ -290,6 +309,28 @@ export function createInitialUnitState(
     piloting: unit.piloting,
     pilotSpas: unit.pilotSpas,
     ...(unit.gyroType ? { gyroType: unit.gyroType } : {}),
+    heatSinks: unit.heatSinks,
+    heatSinkType: unit.heatSinkType,
+    hasTSM: unit.hasTSM ?? false,
+    hasMASC: unit.hasMASC ?? false,
+    hasSupercharger: unit.hasSupercharger ?? false,
+    activeMASC: unit.activeMASC ?? false,
+    activeSupercharger: unit.activeSupercharger ?? false,
+    mascTurnsUsed: unit.mascTurnsUsed,
+    superchargerTurnsUsed: unit.superchargerTurnsUsed,
+    mascFailureLevelIncreasedLastTurn: unit.mascFailureLevelIncreasedLastTurn,
+    superchargerFailureLevelIncreasedLastTurn:
+      unit.superchargerFailureLevelIncreasedLastTurn,
+    abilities: unit.abilities,
+    designatedWeaponType: unit.designatedWeaponType,
+    designatedWeaponCategory: unit.designatedWeaponCategory,
+    designatedTargetId: unit.designatedTargetId,
+    designatedRangeBracket: unit.designatedRangeBracket,
+    unitQuirks: unit.unitQuirks,
+    weaponQuirks: unit.weaponQuirks,
+    initiativeHQBonus: unit.initiativeHQBonus,
+    initiativeCommandBonus: unit.initiativeCommandBonus,
+    weaponLocationById: unit.weaponLocationById,
     armor: {},
     structure: {},
     // Per `add-bot-retreat-behavior` § 2 (Trigger A): the retreat trigger
@@ -305,17 +346,26 @@ export function createInitialUnitState(
     destroyedEquipment: [],
     ammo: {},
     pilotWounds: 0,
+    pilotToughness: unit.pilotToughness,
     pilotConscious: true,
     destroyed: false,
     lockState: LockState.Pending,
     componentDamage: DEFAULT_COMPONENT_DAMAGE,
     prone: false,
+    isStuck: false,
     shutdown: false,
     ammoState,
+    ...(unit.armorTypeByLocation !== undefined
+      ? { armorTypeByLocation: unit.armorTypeByLocation }
+      : {}),
+    ...(unit.caseProtection !== undefined
+      ? { caseProtection: unit.caseProtection }
+      : {}),
     pendingPSRs: [],
     weaponsFiredThisTurn: [],
     jammedWeapons: [],
     narcedBy: [],
+    iNarcPods: [],
     tagDesignated: false,
     // Retreat fields (per `add-bot-retreat-behavior` § 1.2): explicit
     // defaults so replayed states always observe the same shape as
@@ -324,7 +374,8 @@ export function createInitialUnitState(
     isRetreating: false,
     retreatTargetEdge: undefined,
     hasRetreated: false,
-    // Per-type combat-behavior envelope (mech / capital paths leave undefined).
+    hasEjected: false,
+    // Per-type combat-behavior envelope (mech / vehicle paths leave undefined).
     combatState,
   };
 }

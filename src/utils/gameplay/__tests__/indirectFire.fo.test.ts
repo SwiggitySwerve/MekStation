@@ -78,6 +78,7 @@ describe('Forward Observer SPA (indirectFire helper)', () => {
     expect(result.isIndirect).toBe(true);
     expect(result.spotterWalked).toBe(true);
     expect(result.toHitPenalty).toBe(2);
+    expect(result.forwardObserverApplied).toBe(false);
   });
 
   it('walking spotter WITH FO SPA cancels walked add — toHitPenalty is 1 (base only)', () => {
@@ -93,7 +94,6 @@ describe('Forward Observer SPA (indirectFire helper)', () => {
     expect(result.spotterWalked).toBe(true);
     expect(result.toHitPenalty).toBe(1);
     expect(result.forwardObserverApplied).toBe(true);
-    expect(result.spotterMovementPenaltyCancelled).toBe(1);
   });
 
   // §2 Scenario: FO is a no-op when spotter is stationary
@@ -109,21 +109,18 @@ describe('Forward Observer SPA (indirectFire helper)', () => {
     expect(result.spotterWalked).toBe(false);
     expect(result.toHitPenalty).toBe(1);
     expect(result.forwardObserverApplied).toBe(false);
-    expect(result.spotterMovementPenaltyCancelled).toBe(0);
   });
 
-  // FO only cancels walked spotter movement in the currently represented rules.
-  it('running spotter WITH FO SPA remains legal but keeps run penalty', () => {
+  // FO does NOT override run/jump ineligibility — spot-check
+  it('running spotter WITH FO SPA remains ineligible — attack rejected (no valid spotter)', () => {
     const spotter = makeSpotter({
       movementType: MovementType.Run,
       pilotSpas: ['forward_observer'],
     });
     const result = resolveIndirectFire(makeRequest(spotter));
 
-    expect(result.permitted).toBe(true);
-    expect(result.toHitPenalty).toBe(3);
-    expect(result.forwardObserverApplied).toBe(false);
-    expect(result.spotterMovementPenaltyCancelled).toBe(0);
+    // Running spotter is screened by isEligibleSpotter before FO logic runs.
+    expect(result.permitted).toBe(false);
   });
 
   // pilotSpas undefined (legacy call site) — no regression
@@ -136,5 +133,32 @@ describe('Forward Observer SPA (indirectFire helper)', () => {
 
     expect(result.permitted).toBe(true);
     expect(result.toHitPenalty).toBe(2);
+    expect(result.forwardObserverApplied).toBe(false);
+  });
+
+  it('Oblique Attacker on the firing pilot reduces the indirect-fire penalty by 1', () => {
+    const spotter = makeSpotter({ movementType: MovementType.Stationary });
+    const result = resolveIndirectFire({
+      ...makeRequest(spotter),
+      attackerPilotSpas: ['oblique-attacker'],
+    });
+
+    expect(result.permitted).toBe(true);
+    expect(result.isIndirect).toBe(true);
+    expect(result.toHitPenalty).toBe(0);
+    expect(result.obliqueAttackerApplied).toBe(true);
+  });
+
+  it('Oblique Attacker stacks with walked-spotter penalty arithmetic', () => {
+    const spotter = makeSpotter({ movementType: MovementType.Walk });
+    const result = resolveIndirectFire({
+      ...makeRequest(spotter),
+      attackerPilotSpas: ['oblique_attacker'],
+    });
+
+    expect(result.permitted).toBe(true);
+    expect(result.spotterWalked).toBe(true);
+    expect(result.toHitPenalty).toBe(1);
+    expect(result.obliqueAttackerApplied).toBe(true);
   });
 });

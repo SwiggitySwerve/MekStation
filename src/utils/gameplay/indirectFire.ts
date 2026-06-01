@@ -16,6 +16,7 @@ import { IHexCoordinate, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 
 import { hexDistance } from './hexMath';
 import { calculateLOS, ILOSResult } from './lineOfSight';
+import { getObliqueAttackerBonus, hasSPA } from './spaModifiers';
 import {
   isSemiGuidedLRM,
   isTargetTAGDesignated,
@@ -37,6 +38,10 @@ export interface ISpotterCandidate {
   readonly position: IHexCoordinate;
   /** Movement type this turn */
   readonly movementType: MovementType;
+  /** Explicit TacOps Sprint state. */
+  readonly sprintedThisTurn?: boolean;
+  /** Explicit TacOps Evade state. Evading units cannot spot in MegaMek. */
+  readonly isEvading?: boolean;
   /** Infantry and battle armor ignore spotter movement penalties in MegaMek. */
   readonly isInfantry?: boolean;
   /** Whether the unit is operational (not destroyed/shutdown) */
@@ -95,6 +100,11 @@ export interface IIndirectFireRequest {
   readonly attackerHasLOS: boolean;
   /** Whether the attacker is represented as airborne for indirect-fire gates. */
   readonly attackerAirborne?: boolean;
+  /**
+   * Canonical SPA IDs owned by the firing pilot. Optional for backward
+   * compatibility. Oblique Attacker reduces the indirect-fire penalty by 1.
+   */
+  readonly attackerPilotSpas?: readonly string[];
   /** All friendly units that could spot */
   readonly spotterCandidates: readonly ISpotterCandidate[];
   /** The hex grid (for LOS checks) */
@@ -137,6 +147,8 @@ export interface IIndirectFireResult {
   readonly spotterSkillModifier?: number;
   /** Forward Observer SPA cancelled the represented walked-spotter add. */
   readonly forwardObserverApplied?: boolean;
+  /** Oblique Attacker SPA reduced the final indirect-fire penalty. */
+  readonly obliqueAttackerApplied?: boolean;
   /** Penalty points cancelled by Forward Observer, when represented. */
   readonly spotterMovementPenaltyCancelled?: number;
   /** LOS result from spotter to target */
@@ -220,6 +232,17 @@ export function isEligibleSpotter(
   if (
     candidate.isAirborneAerospace === true &&
     !hasAirborneAeroSpottingEquipment(candidate)
+  ) {
+    return false;
+  }
+
+  if (
+    candidate.movementType === MovementType.Run ||
+    candidate.movementType === MovementType.Jump ||
+    candidate.movementType === MovementType.Sprint ||
+    candidate.movementType === MovementType.Evade ||
+    candidate.sprintedThisTurn === true ||
+    candidate.isEvading === true
   ) {
     return false;
   }
@@ -389,6 +412,11 @@ export function isIndirectFireCapable(weaponId: string): boolean {
 export function resolveIndirectFire(
   request: IIndirectFireRequest,
 ): IIndirectFireResult {
+  const obliqueAttackerModifier = getObliqueAttackerBonus(
+    request.attackerPilotSpas ?? [],
+  );
+  const obliqueAttackerApplied = obliqueAttackerModifier < 0;
+
   // If attacker has direct LOS, no indirect fire needed
   if (request.attackerHasLOS) {
     return {
@@ -421,30 +449,10 @@ export function resolveIndirectFire(
     };
   }
 
-  // MegaMek's ComputeToHit first treats a friendly NARC/iNarc-marked
-  // target as the indirect spotter, then falls back to ordinary LOS spotters.
+  // Prefer a represented LOS spotter when one exists; NARC/iNarc then covers
+  // otherwise unspotted indirect fire.
   const narcMarked = request.targetNarcMarkedByTeam === true;
   const inarcMarked = request.targetINarcMarkedByTeam === true;
-
-  if (narcMarked) {
-    return {
-      permitted: true,
-      isIndirect: true,
-      basis: 'narc',
-      spotterWalked: false,
-      toHitPenalty: 1,
-    };
-  }
-
-  if (inarcMarked) {
-    return {
-      permitted: true,
-      isIndirect: true,
-      basis: 'inarc',
-      spotterWalked: false,
-      toHitPenalty: 1,
-    };
-  }
 
   const spotterResult = findBestSpotter(
     request.spotterCandidates,
@@ -461,7 +469,7 @@ export function resolveIndirectFire(
     // Forward Observer SPA cancels the +1 spotter-walked add. The base +1
     // indirect-fire penalty still applies, and run/jump spotter penalties are
     // left intact until those SPA interactions are represented explicitly.
-    const hasFoSpa = spotter.pilotSpas?.includes('forward_observer') ?? false;
+    const hasFoSpa = hasSPA(spotter.pilotSpas ?? [], 'forward_observer');
     const forwardObserverApplied = spotterWalked && hasFoSpa;
     const movementPenalty = forwardObserverApplied
       ? 0
@@ -476,7 +484,10 @@ export function resolveIndirectFire(
     const gunneryMod = Math.trunc((effectiveGunnery - 4) / 2);
 
     // Base +1 indirect-fire penalty + movement penalty + gunnery modifier.
-    const toHitPenalty = 1 + movementPenalty + gunneryMod;
+    const toHitPenalty = Math.max(
+      0,
+      1 + movementPenalty + gunneryMod + obliqueAttackerModifier,
+    );
 
     return {
       permitted: true,
@@ -488,12 +499,35 @@ export function resolveIndirectFire(
       spotterGunnery: effectiveGunnery,
       spotterSkillModifier: gunneryMod,
       forwardObserverApplied,
+      obliqueAttackerApplied,
       spotterMovementPenaltyCancelled: forwardObserverApplied ? 1 : 0,
       spotterLOS: losResult,
     };
   }
 
   // No spotter and no NARC/iNarc override — reject.
+  if (narcMarked) {
+    return {
+      permitted: true,
+      isIndirect: true,
+      basis: 'narc',
+      spotterWalked: false,
+      toHitPenalty: Math.max(0, 1 + obliqueAttackerModifier),
+      obliqueAttackerApplied,
+    };
+  }
+
+  if (inarcMarked) {
+    return {
+      permitted: true,
+      isIndirect: true,
+      basis: 'inarc',
+      spotterWalked: false,
+      toHitPenalty: Math.max(0, 1 + obliqueAttackerModifier),
+      obliqueAttackerApplied,
+    };
+  }
+
   return {
     permitted: false,
     reason:
@@ -634,13 +668,7 @@ export function resolveIndirectFireWithSemiGuided(
     return {
       ...baseResult,
       basis: 'semi-guided-tag',
-      spotter: undefined,
-      toHitPenalty: 0,
-      spotterGunnery: undefined,
-      spotterSkillModifier: undefined,
-      spotterWalked: false,
-      forwardObserverApplied: false,
-      spotterMovementPenaltyCancelled: 0,
+      toHitPenalty: Math.max(0, baseResult.toHitPenalty - 1),
     };
   }
 

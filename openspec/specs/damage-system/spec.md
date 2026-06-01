@@ -394,7 +394,7 @@ presentation-layer effects without recomputing state. The `UnitDestroyed.cause` 
 
 - **GIVEN** a unit is destroyed
 - **WHEN** the `UnitDestroyed` event is emitted
-- **THEN** the payload SHALL contain `cause: 'damage' | 'ammo_explosion' | 'pilot_death' | 'engine_destroyed' | 'shutdown' | 'ct_destroyed' | 'head_destroyed'`
+- **THEN** the payload SHALL contain `cause: 'damage' | 'ammo_explosion' | 'pilot_death' | 'engine_destroyed' | 'impossible_displacement' | 'ct_destroyed' | 'head_destroyed'`
 - **AND** the UI SHALL use `cause` to choose the appropriate debris
   variant
 
@@ -402,9 +402,10 @@ presentation-layer effects without recomputing state. The `UnitDestroyed.cause` 
 
 - **GIVEN** a unit is destroyed in a single turn
 - **WHEN** multiple destruction conditions could apply (e.g., pilot KIA AND CT destroyed in the same turn)
-- **THEN** the engine SHALL pick exactly ONE `cause` value following the canonical priority order: `'pilot_death'` (pilot wounds reach 6) > `'head_destroyed'` (head location destroyed) > `'ct_destroyed'` (CT destroyed) > `'engine_destroyed'` (3 engine crits) > `'ammo_explosion'` (ammo bin cooked off) > `'shutdown'` (heat-induced terminal shutdown) > `'damage'` (generic catch-all)
+- **THEN** the engine SHALL pick exactly ONE `cause` value following the canonical priority order: `'pilot_death'` (pilot wounds reach 6) > `'head_destroyed'` (head location destroyed) > `'ct_destroyed'` (CT destroyed) > `'engine_destroyed'` (3 engine crits) > `'ammo_explosion'` (ammo bin cooked off) > `'impossible_displacement'` (blocked DFA displacement destruction) > `'damage'` (generic catch-all)
 - **AND** exactly one `UnitDestroyed` event SHALL emit per destroyed unit per match
 - **AND** the chosen `cause` SHALL be auditable against the prior event chain (e.g., `cause: 'engine_destroyed'` requires three preceding `ComponentDestroyed { component: 'engine' }` events on that unit)
+- **AND** heat shutdown SHALL remain a lifecycle state reported by heat/shutdown events rather than a `UnitDestroyed` cause
 
 #### Scenario: Pilot-Killed kebab variant is no longer emitted
 
@@ -493,4 +494,3 @@ The runner SHALL emit `transfer_damage` with `unitId`, `fromLocation`, `toLocati
 - **AND** an incoming residual transfer of 12 damage from the right_arm
 - **WHEN** the cascade resolves
 - **THEN** the events SHALL include `damage_applied` (right_torso), `location_destroyed` (right_torso, viaTransfer=true), `transfer_damage` (right_torso → center_torso, damage=4)
-

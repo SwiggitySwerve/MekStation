@@ -140,7 +140,7 @@ describe('declarePhysicalAttack target range', () => {
       roll: 0,
       toHitNumber: Infinity,
       hit: false,
-      location: 'TargetNotInPhysicalRange',
+      location: 'TargetNotAdjacent',
     });
   });
 

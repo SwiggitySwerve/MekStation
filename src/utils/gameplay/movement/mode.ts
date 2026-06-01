@@ -10,7 +10,11 @@ export function movementModeForPath(
 ): UnitMovementType {
   if (movementType === MovementType.Jump) return 'jump';
   if (capability?.movementMode) return capability.movementMode;
-  return movementType === MovementType.Run ? 'run' : 'walk';
+  return movementType === MovementType.Run ||
+    movementType === MovementType.Sprint ||
+    movementType === MovementType.Evade
+    ? 'run'
+    : 'walk';
 }
 
 export function movementModeForRange(

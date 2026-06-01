@@ -75,11 +75,11 @@ async function buildAtlasMirrorHydration(): Promise<
   return map;
 }
 
-/** Run a 10-turn Atlas mirror at seed 12345 — the canonical P5 fixture. */
+/** Run a 10-turn Atlas mirror at seed 5 — the canonical P5 fixture. */
 async function runAtlasMirror(turnLimit = 10): Promise<ISimulationResult> {
   const hydration = await buildAtlasMirrorHydration();
   const config: ISimulationConfig = {
-    seed: 12345,
+    seed: 5,
     turnLimit,
     unitCount: { player: 1, opponent: 1 },
     // mapRadius=4 keeps the Atlases within AC/20 long range on turn 1
@@ -180,7 +180,7 @@ describe('MetricsCollector — Atlas mirror metrics scenario (P5)', () => {
     const expected = totalCriticalHits(result);
 
     expect(m.criticalHitsLanded).toBe(expected);
-    // Most 10-turn Atlas mirrors at seed 12345 produce at least one
+    // Most 10-turn Atlas mirrors at seed 5 produce at least one
     // crit (structure damage almost always lands by turn 5+). When the
     // run produces zero crits the test still passes — the
     // reconciliation is the load-bearing assertion.

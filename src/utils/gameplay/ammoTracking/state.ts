@@ -11,6 +11,78 @@ import {
 import type { IAmmoConstructionData, IAmmoConsumeResult } from './types';
 
 /**
+ * Normalize weapon/ammo keys that arrive as catalog ids (`ac-20`),
+ * record-sheet names (`AC/20`), or construction spellings (`LRM 20`).
+ * Matching stays tech-base aware: Clan-prefixed keys normalize to
+ * `clan-*` and do not collide with Inner Sphere bins.
+ */
+export function normalizeAmmoWeaponType(weaponType: string): string {
+  const raw = weaponType.toLowerCase().trim();
+  const compact = raw.replace(/[^a-z0-9]+/g, '');
+  if (
+    /^(?:cl|clan)?plasmacannon(?:ammo)?$/.test(compact) ||
+    compact === 'plasmacannonclan' ||
+    compact === 'plasmacannonclanammo'
+  ) {
+    return 'clan-plasma-cannon';
+  }
+  if (/^(?:is)?plasmarifle(?:ammo)?$/.test(compact)) {
+    return 'plasma-rifle';
+  }
+
+  const clanPrefixed =
+    /(?:^|\s|\()clan(?:\)|\s|-|$)|^cl[\s-]/.test(raw) ||
+    /^clams(?:[\s-]*ammo)?$/.test(raw);
+  const innerSphereStripped = raw.replace(/^is[\s-]+/, '');
+  const clanStripped = innerSphereStripped
+    .replace(/\(clan\)/g, '')
+    .replace(/^clan[\s-]+/, '')
+    .replace(/^cl[\s-]+/, '');
+  let normalized = clanStripped
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  const patterns: ReadonlyArray<readonly [RegExp, string]> = [
+    [/^(?:auto-cannon|autocannon|ac)-?(\d+)$/, 'ac-$1'],
+    [/^semi-guided-lrm-?(\d+)$/, 'lrm-$1'],
+    [/^lrm-?(\d+)-semi-guided$/, 'lrm-$1'],
+    [/^sg-lrm-?(\d+)$/, 'lrm-$1'],
+    [/^lrm-?(\d+)$/, 'lrm-$1'],
+    [/^srm-?(\d+)$/, 'srm-$1'],
+    [/^mrm-?(\d+)$/, 'mrm-$1'],
+    [/^atm-?(\d+)$/, 'atm-$1'],
+    [/^mml-?(\d+)$/, 'mml-$1'],
+    [/^(?:ultra-ac|uac)-?(\d+)$/, 'uac-$1'],
+    [/^(?:rotary-ac|rac)-?(\d+)$/, 'rac-$1'],
+    [/^lb-?(\d+)-?x-?ac$/, 'lb-$1-x-ac'],
+    [/^lb-x-ac-?(\d+)$/, 'lb-$1-x-ac'],
+    [/^streak-srm-?(\d+)$/, 'streak-srm-$1'],
+    [/^streak-lrm-?(\d+)$/, 'streak-lrm-$1'],
+    [/^machine-gun$/, 'machine-gun'],
+    [/^mg$/, 'machine-gun'],
+    [/^gauss-rifle$/, 'gauss-rifle'],
+    [/^clams(?:-ammo)?$/, 'ams'],
+    [/^(?:ams|isams)(?:-ammo)?$/, 'ams'],
+    [/^anti-missile-system(?:-ammo)?$/, 'ams'],
+    [/^narc(?:-missile)?-beacon$/, 'narc'],
+    [/^i-narc(?:-launcher)?$/, 'inarc'],
+    [/^inarc(?:-launcher)?$/, 'inarc'],
+  ];
+
+  for (const [pattern, replacement] of patterns) {
+    if (pattern.test(normalized)) {
+      normalized = normalized.replace(pattern, replacement);
+      break;
+    }
+  }
+
+  return clanPrefixed && !normalized.startsWith('clan-')
+    ? `clan-${normalized}`
+    : normalized;
+}
+
+/**
  * Initialize ammo bin state from unit construction data at game start.
  * Each ton of ammo becomes a separate bin.
  */
@@ -26,7 +98,6 @@ export function initializeAmmoState(
       location: data.location,
       remainingRounds: data.maxRounds,
       maxRounds: data.maxRounds,
-      damagePerRound: data.damagePerRound,
       isExplosive: data.isExplosive,
     };
   }
@@ -88,14 +159,18 @@ export function hasAmmoForWeapon(
 /**
  * Find the first non-empty ammo bin matching a weapon type.
  */
-function findAvailableAmmoBin(
+export function findAvailableAmmoBin(
   ammoState: Record<string, IAmmoSlotState>,
   weaponType: string,
 ): IAmmoSlotState | null {
   const bins = Object.values(ammoState);
+  const requestedType = normalizeAmmoWeaponType(weaponType);
 
   for (const bin of bins) {
-    if (bin.weaponType === weaponType && bin.remainingRounds > 0) {
+    if (
+      normalizeAmmoWeaponType(bin.weaponType) === requestedType &&
+      bin.remainingRounds > 0
+    ) {
       return bin;
     }
   }
@@ -110,8 +185,9 @@ export function getTotalAmmo(
   ammoState: Record<string, IAmmoSlotState>,
   weaponType: string,
 ): number {
+  const requestedType = normalizeAmmoWeaponType(weaponType);
   return Object.values(ammoState)
-    .filter((bin) => bin.weaponType === weaponType)
+    .filter((bin) => normalizeAmmoWeaponType(bin.weaponType) === requestedType)
     .reduce((total, bin) => total + bin.remainingRounds, 0);
 }
 

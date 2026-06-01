@@ -19,14 +19,8 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
-import {
-  applyBattlefieldWreckTerrainForSessionEvents,
-  terrainChangedPayloadFromBattlefieldWreckResult,
-} from '@/utils/gameplay/battlefieldWreckTerrain';
 import { type D6Roller, type DiceRoller } from '@/utils/gameplay/diceTypes';
-import { createTerrainChangedEvent } from '@/utils/gameplay/gameEvents';
 import {
-  appendEvent,
   createGameSession,
   startGame,
   advancePhase,
@@ -39,11 +33,7 @@ import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 
 import type { IGameEngineConfig, IAdaptedUnit } from './types';
 
-import {
-  createMinimalGrid,
-  seedHexTerrainFromGrid,
-  toMovementCapability,
-} from './GameEngine.helpers';
+import { createMinimalGrid, toMovementCapability } from './GameEngine.helpers';
 import {
   runMovementPhase,
   runAttackPhase,
@@ -53,7 +43,6 @@ import {
   InteractiveSession,
   type IInteractiveSessionLinkage,
 } from './InteractiveSession';
-import { gameUnitsWithAdaptedMovementModes } from './InteractiveSession.setup';
 
 export { InteractiveSession };
 
@@ -93,12 +82,10 @@ export class GameEngine {
     // Per `wire-bot-ai-helpers-and-capstone`: piloting needed by
     // `runPhysicalAttackPhase` for to-hit calculation.
     const pilotingByUnit = new Map<string, number>();
-    const tonnageByUnit = new Map<string, number>();
 
     for (const u of [...playerUnits, ...opponentUnits]) {
       weaponsByUnit.set(u.id, u.weapons);
       movementByUnit.set(u.id, toMovementCapability(u));
-      tonnageByUnit.set(u.id, 65);
     }
     for (const gu of gameUnits) {
       gunneryByUnit.set(gu.id, gu.gunnery);
@@ -112,15 +99,7 @@ export class GameEngine {
       optionalRules: [...this.optionalRules],
     };
 
-    const gameUnitsWithMovementModes = gameUnitsWithAdaptedMovementModes(
-      gameUnits,
-      playerUnits,
-      opponentUnits,
-    );
-
-    let session = createGameSession(gameConfig, gameUnitsWithMovementModes, {
-      hexTerrain: seedHexTerrainFromGrid(this.grid),
-    });
+    let session = createGameSession(gameConfig, gameUnits);
     session = startGame(session, GameSide.Player);
 
     const botPlayer = new BotPlayer(this.random);
@@ -165,17 +144,10 @@ export class GameEngine {
         gunneryByUnit,
         this.grid,
       );
-      let sessionBeforeResolution = session;
-      session = resolveAllAttacks(session, diceRoller, d6Roller);
-      session = this.applyBattlefieldWreckTerrainForSessionDelta(
-        sessionBeforeResolution,
-        session,
-        tonnageByUnit,
-      );
+      session = resolveAllAttacks(session, diceRoller);
       session = advancePhase(session);
       // Per `wire-bot-ai-helpers-and-capstone`: PhysicalAttack phase
       // body — declare melee attacks via the bot, then resolve them.
-      sessionBeforeResolution = session;
       session = runPhysicalAttackPhase(
         session,
         botPlayer,
@@ -185,11 +157,6 @@ export class GameEngine {
         d6Roller,
         this.grid,
       );
-      session = this.applyBattlefieldWreckTerrainForSessionDelta(
-        sessionBeforeResolution,
-        session,
-        tonnageByUnit,
-      );
       session = advancePhase(session);
       // Per `wire-heat-generation-and-effects` task 5: pass a
       // grid-aware water depth resolver so flooded hexes dissipate
@@ -197,18 +164,12 @@ export class GameEngine {
       // only emits `'clear'` hexes, yielding 0 bonus today — zero
       // behavioural change until water-tagged grids arrive.
       const grid = this.grid;
-      sessionBeforeResolution = session;
       session = resolveHeatPhase(session, diceRoller, {
         getWaterDepth: (unitId, position) => {
           const unit = session.currentState.units[unitId];
           return waterDepthAtPosition(grid, unit?.position ?? position);
         },
       });
-      session = this.applyBattlefieldWreckTerrainForSessionDelta(
-        sessionBeforeResolution,
-        session,
-        tonnageByUnit,
-      );
       session = advancePhase(session);
 
       if (isGameEnded(session.currentState, gameConfig)) {
@@ -256,11 +217,14 @@ export class GameEngine {
   }
 
   private determineWinnerFromState(state: IGameState): GameSide | 'draw' {
+    const remainsInForce = (u: IGameState['units'][string]): boolean =>
+      !u.destroyed && !u.hasRetreated && !u.hasEjected;
+
     const playerAlive = Object.values(state.units).some(
-      (u) => u.side === GameSide.Player && !u.destroyed,
+      (u) => u.side === GameSide.Player && remainsInForce(u),
     );
     const opponentAlive = Object.values(state.units).some(
-      (u) => u.side === GameSide.Opponent && !u.destroyed,
+      (u) => u.side === GameSide.Opponent && remainsInForce(u),
     );
 
     if (!playerAlive && !opponentAlive) return 'draw';
@@ -268,43 +232,13 @@ export class GameEngine {
     if (!playerAlive) return GameSide.Opponent;
     // Turn limit — compare surviving counts
     const pCount = Object.values(state.units).filter(
-      (u) => u.side === GameSide.Player && !u.destroyed,
+      (u) => u.side === GameSide.Player && remainsInForce(u),
     ).length;
     const oCount = Object.values(state.units).filter(
-      (u) => u.side === GameSide.Opponent && !u.destroyed,
+      (u) => u.side === GameSide.Opponent && remainsInForce(u),
     ).length;
     if (pCount > oCount) return GameSide.Player;
     if (oCount > pCount) return GameSide.Opponent;
     return 'draw';
-  }
-
-  private applyBattlefieldWreckTerrainForSessionDelta(
-    previousSession: IGameSession,
-    nextSession: IGameSession,
-    tonnageByUnit: ReadonlyMap<string, number>,
-  ): IGameSession {
-    const newEvents = nextSession.events.slice(previousSession.events.length);
-    const results = applyBattlefieldWreckTerrainForSessionEvents(
-      this.grid,
-      previousSession,
-      newEvents,
-      tonnageByUnit,
-    );
-    let session = nextSession;
-    for (const result of results) {
-      const payload = terrainChangedPayloadFromBattlefieldWreckResult(result);
-      if (payload === null) continue;
-      session = appendEvent(
-        session,
-        createTerrainChangedEvent(
-          session.id,
-          session.events.length,
-          session.currentState.turn,
-          session.currentState.phase,
-          payload,
-        ),
-      );
-    }
-    return session;
   }
 }

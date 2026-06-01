@@ -7,7 +7,9 @@ import {
   getAmmoExplosionTN,
   getHeatMovementPenalty,
   getHeatToHitModifier,
+  getMaxTechHeatCriticalDamageAvoidTN,
   getPilotHeatDamage,
+  getMaxTechPilotHeatDamageAvoidTN,
 } from '@/constants/heat';
 import {
   GameEventType,
@@ -19,12 +21,15 @@ import {
   LockState,
   IGameEvent,
   IGameUnit,
+  IAmmoExplosionPayload,
+  IDamageAppliedPayload,
   IComponentDamageState,
   IShutdownCheckPayload,
   IStartupAttemptPayload,
   IPilotHitPayload,
   IPSRTriggeredPayload,
   IHeatPayload,
+  PSRTrigger,
 } from '@/types/gameplay';
 
 import {
@@ -99,6 +104,24 @@ function setupGameAtHeatPhase() {
   session = startGame(session, GameSide.Player);
 
   // Advance through Initiative -> Movement -> WeaponAttack -> PhysicalAttack -> Heat
+  session = advancePhase(session); // -> Movement
+  session = advancePhase(session); // -> WeaponAttack
+  session = advancePhase(session); // -> PhysicalAttack
+  session = advancePhase(session); // -> Heat
+
+  return session;
+}
+
+function setupGameAtHeatPhaseWithUnits(units: IGameUnit[]) {
+  const config = {
+    mapRadius: 10,
+    turnLimit: 10,
+    victoryConditions: ['destruction'],
+    optionalRules: [],
+  };
+
+  let session = createGameSession(config, units);
+  session = startGame(session, GameSide.Player);
   session = advancePhase(session); // -> Movement
   session = advancePhase(session); // -> WeaponAttack
   session = advancePhase(session); // -> PhysicalAttack
@@ -204,6 +227,84 @@ function setComponentDamage(
   return currentSession;
 }
 
+function seedUnitArmorStructure(
+  session: ReturnType<typeof setupGameAtHeatPhase>,
+  unitId: string,
+  armor: Record<string, number>,
+  structure: Record<string, number>,
+) {
+  let currentSession = session;
+  const { deriveState } = require('../gameState');
+  const locations = new Set([...Object.keys(armor), ...Object.keys(structure)]);
+
+  for (const location of Array.from(locations)) {
+    const event: IGameEvent = {
+      id: `seed-${unitId}-${location}`,
+      gameId: currentSession.id,
+      sequence: currentSession.events.length,
+      timestamp: new Date().toISOString(),
+      type: GameEventType.DamageApplied,
+      turn: currentSession.currentState.turn,
+      phase: GamePhase.Heat,
+      actorId: unitId,
+      payload: {
+        unitId,
+        location,
+        damage: 0,
+        armorRemaining: armor[location] ?? 0,
+        structureRemaining: structure[location] ?? 0,
+        locationDestroyed: false,
+      },
+    };
+    const events = [...currentSession.events, event];
+    currentSession = {
+      ...currentSession,
+      events,
+      currentState: deriveState(currentSession.id, events),
+    };
+  }
+
+  return currentSession;
+}
+
+function createAmmoCookoffUnits(
+  caseProtection?: Readonly<Record<string, 'case' | 'case_ii'>>,
+): IGameUnit[] {
+  return [
+    {
+      id: 'unit-1',
+      name: 'Spotter',
+      side: GameSide.Player,
+      unitRef: 'spotter',
+      pilotRef: 'pilot-1',
+      gunnery: 4,
+      piloting: 5,
+      heatSinks: 0,
+    },
+    {
+      id: 'unit-2',
+      name: 'Ammo Subject',
+      side: GameSide.Opponent,
+      unitRef: 'ammo-subject',
+      pilotRef: 'pilot-2',
+      gunnery: 4,
+      piloting: 5,
+      heatSinks: 0,
+      ammoConstruction: [
+        {
+          binId: 'rt-ac20-bin',
+          weaponType: 'AC/20',
+          location: 'right_torso',
+          maxRounds: 5,
+          damagePerRound: 20,
+          isExplosive: true,
+        },
+      ],
+      ...(caseProtection !== undefined ? { caseProtection } : {}),
+    },
+  ];
+}
+
 // =============================================================================
 // constants/heat.ts Formula Tests
 // =============================================================================
@@ -236,11 +337,11 @@ describe('Heat System Constants', () => {
       expect(getShutdownTN(50)).toBe(Infinity);
     });
 
-    it('applies Hot Dog SPA +3 threshold shift', () => {
-      expect(getShutdownTN(14, 3)).toBe(0);
-      expect(getShutdownTN(16, 3)).toBe(0);
-      expect(getShutdownTN(17, 3)).toBe(4);
-      expect(getShutdownTN(21, 3)).toBe(6);
+    it('applies Hot Dog SPA target-number modifier', () => {
+      expect(getShutdownTN(13, -1)).toBe(0);
+      expect(getShutdownTN(14, -1)).toBe(3);
+      expect(getShutdownTN(17, -1)).toBe(3);
+      expect(getShutdownTN(18, -1)).toBe(5);
     });
   });
 
@@ -261,6 +362,11 @@ describe('Heat System Constants', () => {
       expect(tn).toBe(12);
       expect(isFinite(tn)).toBe(true);
     });
+
+    it('applies Hot Dog SPA target-number modifier', () => {
+      expect(getStartupTN(14, -1)).toBe(3);
+      expect(getStartupTN(18, -1)).toBe(5);
+    });
   });
 
   describe('getAmmoExplosionTN', () => {
@@ -273,6 +379,12 @@ describe('Heat System Constants', () => {
       expect(getAmmoExplosionTN(19)).toBe(4);
       expect(getAmmoExplosionTN(20)).toBe(4);
       expect(getAmmoExplosionTN(22)).toBe(4);
+    });
+
+    it('applies Hot Dog SPA target-number modifier', () => {
+      expect(getAmmoExplosionTN(19, -1)).toBe(3);
+      expect(getAmmoExplosionTN(23, -1)).toBe(5);
+      expect(getAmmoExplosionTN(28, -1)).toBe(7);
     });
 
     it('returns TN 6 at heat 23-27', () => {
@@ -344,6 +456,37 @@ describe('Heat System Constants', () => {
     it('returns 2 at heat 25+ with damaged life support', () => {
       expect(getPilotHeatDamage(25, 1)).toBe(2);
       expect(getPilotHeatDamage(30, 2)).toBe(2);
+    });
+  });
+
+  describe('getMaxTechPilotHeatDamageAvoidTN', () => {
+    it('tracks optional MaxTech high-heat pilot damage avoidance TNs', () => {
+      expect(getMaxTechPilotHeatDamageAvoidTN(31)).toBe(0);
+      expect(getMaxTechPilotHeatDamageAvoidTN(32)).toBe(8);
+      expect(getMaxTechPilotHeatDamageAvoidTN(39)).toBe(10);
+      expect(getMaxTechPilotHeatDamageAvoidTN(47)).toBe(12);
+    });
+
+    it('applies Hot Dog-style target-number relief without shifting default heat damage thresholds', () => {
+      expect(getMaxTechPilotHeatDamageAvoidTN(32, -1)).toBe(7);
+      expect(getMaxTechPilotHeatDamageAvoidTN(39, -1)).toBe(9);
+      expect(getMaxTechPilotHeatDamageAvoidTN(47, -1)).toBe(11);
+      expect(getPilotHeatDamage(15, 1)).toBe(1);
+      expect(getPilotHeatDamage(25, 1)).toBe(2);
+    });
+  });
+
+  describe('getMaxTechHeatCriticalDamageAvoidTN', () => {
+    it('tracks optional MaxTech critical damage avoidance TNs', () => {
+      expect(getMaxTechHeatCriticalDamageAvoidTN(35)).toBe(0);
+      expect(getMaxTechHeatCriticalDamageAvoidTN(36)).toBe(8);
+      expect(getMaxTechHeatCriticalDamageAvoidTN(43)).toBe(8);
+      expect(getMaxTechHeatCriticalDamageAvoidTN(44)).toBe(10);
+    });
+
+    it('applies Hot Dog-style target-number relief', () => {
+      expect(getMaxTechHeatCriticalDamageAvoidTN(36, -1)).toBe(7);
+      expect(getMaxTechHeatCriticalDamageAvoidTN(44, -1)).toBe(9);
     });
   });
 
@@ -506,6 +649,9 @@ describe('resolveHeatPhase', () => {
       expect((psrEvents[0].payload as IPSRTriggeredPayload).reason).toBe(
         'Reactor shutdown',
       );
+      expect((psrEvents[0].payload as IPSRTriggeredPayload).reasonCode).toBe(
+        PSRTrigger.Shutdown,
+      );
     });
   });
 
@@ -576,6 +722,97 @@ describe('resolveHeatPhase', () => {
       );
       expect(pilotEvents).toHaveLength(1);
       expect((pilotEvents[0].payload as IPilotHitPayload).wounds).toBe(2);
+    });
+  });
+
+  describe('heat-induced ammo explosions with CASE', () => {
+    it('routes protected cookoff damage through CASE cap without transfer or unit destruction', () => {
+      let session = setupGameAtHeatPhaseWithUnits(
+        createAmmoCookoffUnits({ right_torso: 'case' }),
+      );
+      session = seedUnitArmorStructure(
+        session,
+        'unit-2',
+        {
+          right_torso: 10,
+          center_torso: 20,
+        },
+        {
+          right_torso: 10,
+          center_torso: 20,
+        },
+      );
+      session = setUnitHeat(session, 'unit-2', 30);
+
+      session = resolveHeatPhase(session, createDiceRoller(12));
+
+      const ammoExplosion = session.events.find(
+        (event) =>
+          event.type === GameEventType.AmmoExplosion &&
+          event.actorId === 'unit-2',
+      );
+      expect(ammoExplosion?.payload as IAmmoExplosionPayload).toMatchObject({
+        unitId: 'unit-2',
+        location: 'right_torso',
+        binId: 'rt-ac20-bin',
+        caseProtection: 'case',
+        source: 'HeatInduced',
+      });
+
+      const heatDamage = session.events
+        .filter(
+          (event) =>
+            event.type === GameEventType.DamageApplied &&
+            event.actorId === 'unit-2' &&
+            event.phase === GamePhase.Heat,
+        )
+        .map((event) => event.payload as IDamageAppliedPayload)
+        .filter((payload) => payload.damage > 0);
+      expect(heatDamage).toEqual([
+        expect.objectContaining({
+          unitId: 'unit-2',
+          location: 'right_torso',
+          damage: 10,
+          armorRemaining: 10,
+          structureRemaining: 0,
+          locationDestroyed: true,
+        }),
+      ]);
+
+      const pilotHit = session.events.find(
+        (event) =>
+          event.type === GameEventType.PilotHit &&
+          event.actorId === 'unit-2' &&
+          event.phase === GamePhase.Heat &&
+          (event.payload as IPilotHitPayload).source === 'ammo_explosion',
+      );
+      expect(pilotHit?.payload as IPilotHitPayload).toMatchObject({
+        unitId: 'unit-2',
+        wounds: 2,
+        totalWounds: 2,
+        source: 'ammo_explosion',
+      });
+
+      expect(
+        session.events.some(
+          (event) =>
+            event.type === GameEventType.TransferDamage &&
+            event.actorId === 'unit-2' &&
+            event.phase === GamePhase.Heat,
+        ),
+      ).toBe(false);
+      expect(
+        session.events.some(
+          (event) =>
+            event.type === GameEventType.UnitDestroyed &&
+            event.actorId === 'unit-2',
+        ),
+      ).toBe(false);
+      expect(
+        session.currentState.units['unit-2'].ammoState?.['rt-ac20-bin']
+          .remainingRounds,
+      ).toBe(0);
+      expect(session.currentState.units['unit-2'].destroyed).toBe(false);
     });
   });
 

@@ -4,15 +4,41 @@ import type {
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
 import type { IUnitDamageState } from '@/utils/gameplay/damage';
+import type { IElectronicWarfareState } from '@/utils/gameplay/electronicWarfare';
 
-import { GamePhase, GameSide, GameStatus } from '@/types/gameplay';
-import { CombatLocation, IGameState, IUnitGameState } from '@/types/gameplay';
+import {
+  CombatLocation,
+  GamePhase,
+  GameSide,
+  GameStatus,
+  IGameState,
+  IMovementStep,
+  IUnitGameState,
+  MovementType,
+} from '@/types/gameplay';
 import { ScenarioObjectiveType } from '@/types/scenario/ScenarioInterfaces';
+import {
+  addC3Network,
+  C3I_MAX_UNITS,
+  C3_MASTER_SLAVE_MAX_UNITS,
+  createC3iNetwork,
+  createC3MasterSlaveNetwork,
+  createC3Unit,
+  createEmptyC3State,
+  type C3UnitRole,
+  type IC3NetworkState,
+  type IC3NetworkUnit,
+} from '@/utils/gameplay/c3Network';
+import {
+  movementStepsUseBackwardMovement,
+  movementStepsUseMechanicalJumpBooster,
+} from '@/utils/gameplay/movement/stepPredicates';
 import {
   deriveObjectivePlacementConfig,
   placeObjectives,
 } from '@/utils/gameplay/objectives';
 import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveEngine';
+import { applyDestroyedLocationPhysicalEquipmentState } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 
 import type { ISimulationConfig } from '../core/types';
 
@@ -20,6 +46,10 @@ import { DEFAULT_GUNNERY, DEFAULT_PILOTING } from './SimulationRunnerConstants';
 import { createMinimalUnitState } from './SimulationRunnerSupport';
 import {
   createHydratedUnitState,
+  hydrateActiveProbesFromFullUnit,
+  hydrateECMSuitesFromFullUnit,
+  hydrateHeatSinksFromFullUnit,
+  weaponLocationByIdFromWeapons,
   type IHydratedUnitData,
 } from './UnitHydration';
 
@@ -67,6 +97,130 @@ function createSideUnits(
   }
 }
 
+function buildElectronicWarfareState(
+  units: Readonly<Record<string, IUnitGameState>>,
+  hydration: UnitHydrationMap | undefined,
+): IElectronicWarfareState | undefined {
+  if (!hydration) return undefined;
+
+  const ecmSuites: IElectronicWarfareState['ecmSuites'] = Object.entries(
+    units,
+  ).flatMap(([unitId, unit]) => {
+    const hydrated = hydration.get(unitId);
+    if (!hydrated) return [];
+
+    return hydrateECMSuitesFromFullUnit(hydrated.fullUnit).map(
+      (suite, index) => ({
+        type: suite.type,
+        mode: 'ecm' as const,
+        operational: true,
+        entityId: `${unitId}:${suite.sourceEquipmentId}:${index}`,
+        teamId: unit.side,
+        position: { ...unit.position },
+      }),
+    );
+  });
+  const activeProbes: IElectronicWarfareState['activeProbes'] = Object.entries(
+    units,
+  ).flatMap(([unitId, unit]) => {
+    const hydrated = hydration.get(unitId);
+    if (!hydrated) return [];
+
+    return hydrateActiveProbesFromFullUnit(hydrated.fullUnit).map((probe) => ({
+      type: probe.type,
+      operational: true,
+      entityId: unitId,
+      teamId: unit.side,
+      position: { ...unit.position },
+    }));
+  });
+
+  return ecmSuites.length > 0 || activeProbes.length > 0
+    ? {
+        ecmSuites,
+        activeProbes,
+      }
+    : undefined;
+}
+
+function hasC3Role(unit: IUnitGameState, role: C3UnitRole): boolean {
+  return (
+    unit.c3Equipment?.some((equipment) => equipment.role === role) ?? false
+  );
+}
+
+function buildC3Member(
+  unitId: string,
+  unit: IUnitGameState,
+  role: C3UnitRole,
+): IC3NetworkUnit {
+  return createC3Unit({
+    entityId: unitId,
+    teamId: unit.side,
+    role,
+    position: { ...unit.position },
+    operational:
+      !unit.destroyed &&
+      !unit.hasEjected &&
+      !unit.hasRetreated &&
+      !unit.isWithdrawing,
+  });
+}
+
+function buildAutomaticC3NetworkState(
+  units: Readonly<Record<string, IUnitGameState>>,
+): IC3NetworkState | undefined {
+  let state = createEmptyC3State();
+
+  for (const side of [GameSide.Player, GameSide.Opponent]) {
+    const sideUnits = Object.entries(units).filter(
+      ([, unit]) => unit.side === side,
+    );
+    const c3iMembers = sideUnits
+      .filter(([, unit]) => hasC3Role(unit, 'c3i'))
+      .map(([unitId, unit]) => buildC3Member(unitId, unit, 'c3i'));
+
+    if (c3iMembers.length >= 2 && c3iMembers.length <= C3I_MAX_UNITS) {
+      const network = createC3iNetwork(`${side}-c3i-1`, c3iMembers);
+      if (network) {
+        state = addC3Network(state, network);
+      }
+    }
+
+    const standardMembers = sideUnits.flatMap(([unitId, unit]) => {
+      const hasMaster = hasC3Role(unit, 'master');
+      const hasSlave = hasC3Role(unit, 'slave');
+      if (hasMaster === hasSlave || hasC3Role(unit, 'c3i')) {
+        return [];
+      }
+
+      return [buildC3Member(unitId, unit, hasMaster ? 'master' : 'slave')];
+    });
+    const masterCount = standardMembers.filter(
+      (member) => member.role === 'master',
+    ).length;
+    const slaveCount = standardMembers.filter(
+      (member) => member.role === 'slave',
+    ).length;
+
+    if (
+      masterCount === 1 &&
+      slaveCount > 0 &&
+      standardMembers.length <= C3_MASTER_SLAVE_MAX_UNITS
+    ) {
+      const network = createC3MasterSlaveNetwork(
+        `${side}-c3-master-slave-1`,
+        standardMembers,
+      );
+      if (network) {
+        state = addC3Network(state, network);
+      }
+    }
+  }
+
+  return state.networks.length > 0 ? state : undefined;
+}
+
 export function createInitialState(
   config: ISimulationConfig,
   hydration?: UnitHydrationMap,
@@ -94,6 +248,8 @@ export function createInitialState(
   // through, not only by destruction. Markerless configs leave
   // `objectives` undefined and behave exactly as before.
   const objectives = buildObjectivesForConfig(config);
+  const electronicWarfare = buildElectronicWarfareState(units, hydration);
+  const c3Network = buildAutomaticC3NetworkState(units);
 
   return {
     gameId: `sim-${config.seed}`,
@@ -104,6 +260,8 @@ export function createInitialState(
     units,
     turnEvents: [],
     ...(Object.keys(objectives).length > 0 ? { objectives } : {}),
+    ...(electronicWarfare ? { electronicWarfare } : {}),
+    ...(c3Network ? { c3Network } : {}),
   };
 }
 
@@ -185,6 +343,7 @@ export function synthesizeGameUnits(
         const chassis = fullUnit.chassis ?? id;
         const model = fullUnit.model ?? '';
         const name = model.length > 0 ? `${chassis} ${model}` : chassis;
+        const heatSinks = hydrateHeatSinksFromFullUnit(hydrated.fullUnit);
         result.push({
           id,
           name,
@@ -193,6 +352,9 @@ export function synthesizeGameUnits(
           pilotRef: `pilot-${id}`,
           gunnery: hydrated.gunnery ?? DEFAULT_GUNNERY,
           piloting: hydrated.piloting ?? DEFAULT_PILOTING,
+          heatSinks: heatSinks.count,
+          heatSinkType: heatSinks.kind,
+          weaponLocationById: weaponLocationByIdFromWeapons(hydrated.aiWeapons),
         });
       } else {
         // Synthetic minimal-unit fallback path: no catalog data
@@ -215,15 +377,104 @@ export function synthesizeGameUnits(
   return result;
 }
 
+const MAX_STANDARD_BOOSTER_FAILURE_LEVEL = 6;
+
+function normalizeBoosterTurnsUsed(value: number | undefined): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return 0;
+  return Math.max(
+    0,
+    Math.min(MAX_STANDARD_BOOSTER_FAILURE_LEVEL, Math.trunc(value)),
+  );
+}
+
+function advanceBoosterTurnCounter(options: {
+  readonly active: boolean | undefined;
+  readonly turnsUsed: number | undefined;
+  readonly failureLevelIncreasedLastTurn: boolean | undefined;
+}): {
+  readonly turnsUsed: number;
+  readonly failureLevelIncreasedLastTurn: boolean;
+} {
+  const turnsUsed = normalizeBoosterTurnsUsed(options.turnsUsed);
+
+  if (options.active === true) {
+    return {
+      turnsUsed: Math.min(turnsUsed + 1, MAX_STANDARD_BOOSTER_FAILURE_LEVEL),
+      failureLevelIncreasedLastTurn: true,
+    };
+  }
+
+  const idleDecay = options.failureLevelIncreasedLastTurn === true ? 2 : 1;
+  return {
+    turnsUsed: Math.max(0, turnsUsed - idleDecay),
+    failureLevelIncreasedLastTurn: false,
+  };
+}
+
+function shouldTrackMASC(unit: IUnitGameState): boolean {
+  return (
+    unit.hasMASC === true ||
+    unit.activeMASC === true ||
+    unit.mascTurnsUsed !== undefined ||
+    unit.mascFailureLevelIncreasedLastTurn !== undefined
+  );
+}
+
+function shouldTrackSupercharger(unit: IUnitGameState): boolean {
+  return (
+    unit.hasSupercharger === true ||
+    unit.activeSupercharger === true ||
+    unit.superchargerTurnsUsed !== undefined ||
+    unit.superchargerFailureLevelIncreasedLastTurn !== undefined
+  );
+}
+
 export function resetTurnState(state: IGameState): IGameState {
   const updatedUnits: Record<string, IUnitGameState> = {};
   for (const [id, unit] of Object.entries(state.units)) {
-    updatedUnits[id] = {
+    const mascCounter = advanceBoosterTurnCounter({
+      active: unit.activeMASC,
+      turnsUsed: unit.mascTurnsUsed,
+      failureLevelIncreasedLastTurn: unit.mascFailureLevelIncreasedLastTurn,
+    });
+    const superchargerCounter = advanceBoosterTurnCounter({
+      active: unit.activeSupercharger,
+      turnsUsed: unit.superchargerTurnsUsed,
+      failureLevelIncreasedLastTurn:
+        unit.superchargerFailureLevelIncreasedLastTurn,
+    });
+
+    let updatedUnit: IUnitGameState = {
       ...unit,
       damageThisPhase: 0,
       weaponsFiredThisTurn: [],
       pendingPSRs: [],
+      tagDesignated: false,
+      sprintedThisTurn: false,
+      isEvading: false,
+      evasionBonus: undefined,
     };
+
+    if (shouldTrackMASC(unit)) {
+      updatedUnit = {
+        ...updatedUnit,
+        activeMASC: false,
+        mascTurnsUsed: mascCounter.turnsUsed,
+        mascFailureLevelIncreasedLastTurn:
+          mascCounter.failureLevelIncreasedLastTurn,
+      };
+    }
+    if (shouldTrackSupercharger(unit)) {
+      updatedUnit = {
+        ...updatedUnit,
+        activeSupercharger: false,
+        superchargerTurnsUsed: superchargerCounter.turnsUsed,
+        superchargerFailureLevelIncreasedLastTurn:
+          superchargerCounter.failureLevelIncreasedLastTurn,
+      };
+    }
+
+    updatedUnits[id] = updatedUnit;
   }
 
   return { ...state, units: updatedUnits };
@@ -237,17 +488,32 @@ export function applyMovementEvent(
     facing: number;
     movementType: IUnitGameState['movementThisTurn'];
     mpUsed: number;
+    hexesMoved?: number;
+    steps?: readonly IMovementStep[];
   },
 ): IGameState {
   const unit = state.units[unitId];
   if (!unit) return state;
+  const wentProne =
+    payload.steps?.some((step) => step.kind === 'goProne') ?? false;
+  const isEvadeMovement = payload.movementType === MovementType.Evade;
+  const isSprintMovement = payload.movementType === MovementType.Sprint;
 
   const updatedUnit: IUnitGameState = {
     ...unit,
     position: payload.to,
     facing: payload.facing,
     movementThisTurn: payload.movementType,
-    hexesMovedThisTurn: payload.mpUsed,
+    hexesMovedThisTurn: payload.hexesMoved ?? payload.mpUsed,
+    movedBackwardThisTurn: movementStepsUseBackwardMovement(payload.steps),
+    usedMechanicalJumpBoosterThisTurn: movementStepsUseMechanicalJumpBooster(
+      payload.steps,
+    ),
+    isEvading: isEvadeMovement,
+    evasionBonus: isEvadeMovement ? 1 : undefined,
+    sprintedThisTurn: isSprintMovement,
+    prone: wentProne ? true : unit.prone,
+    ...(wentProne ? { hullDown: false } : {}),
   };
 
   return {
@@ -276,8 +542,11 @@ export function buildDamageState(unit: IUnitGameState): IUnitDamageState {
     structure: unit.structure as Record<CombatLocation, number>,
     destroyedLocations: unit.destroyedLocations as CombatLocation[],
     pilotWounds: unit.pilotWounds,
+    pilotToughness: unit.pilotToughness,
     pilotConscious: unit.pilotConscious,
+    pilotAbilities: unit.abilities,
     destroyed: unit.destroyed,
+    destructionCause: unit.destructionCause,
   };
 }
 
@@ -293,6 +562,7 @@ export function applyDamageResultToState(
       readonly destroyed: boolean;
     }[];
     readonly unitDestroyed: boolean;
+    readonly destructionCause?: IUnitGameState['destructionCause'];
   },
   /**
    * Per `add-combat-fidelity-suite` Phase 3: when the runner threaded a
@@ -339,21 +609,46 @@ export function applyDamageResultToState(
     }
   }
 
-  const updatedUnit: IUnitGameState = {
-    ...target,
-    armor: newArmor,
-    structure: newStructure,
-    destroyedLocations: newDestroyedLocations,
-    pilotWounds: damageState.pilotWounds,
-    pilotConscious: damageState.pilotConscious,
-    destroyed: damageResult.unitDestroyed,
-    // When the runner supplied post-crit component damage, persist it.
-    // Engine/gyro hits drive PSR + heat thresholds + walk-MP penalties
-    // downstream; without persistence the runner re-rolls a fresh
-    // component-damage block every shot and crit-cascade scenarios
-    // (3 engine hits → destruction) can never accumulate.
-    ...(componentDamage !== undefined ? { componentDamage } : {}),
-  };
+  newArmor.center_torso_rear = damageState.rearArmor.center_torso;
+  newArmor.left_torso_rear = damageState.rearArmor.left_torso;
+  newArmor.right_torso_rear = damageState.rearArmor.right_torso;
+  if (damageState.structure.center_torso !== undefined) {
+    newStructure.center_torso = damageState.structure.center_torso;
+    newStructure.center_torso_rear = damageState.structure.center_torso;
+  }
+  if (damageState.structure.left_torso !== undefined) {
+    newStructure.left_torso = damageState.structure.left_torso;
+    newStructure.left_torso_rear = damageState.structure.left_torso;
+  }
+  if (damageState.structure.right_torso !== undefined) {
+    newStructure.right_torso = damageState.structure.right_torso;
+    newStructure.right_torso_rear = damageState.structure.right_torso;
+  }
+
+  const destructionCause = damageResult.unitDestroyed
+    ? (damageResult.destructionCause ?? target.destructionCause ?? 'damage')
+    : target.destructionCause;
+
+  const updatedUnit: IUnitGameState =
+    applyDestroyedLocationPhysicalEquipmentState(
+      {
+        ...target,
+        armor: newArmor,
+        structure: newStructure,
+        destroyedLocations: newDestroyedLocations,
+        pilotWounds: damageState.pilotWounds,
+        pilotConscious: damageState.pilotConscious,
+        destroyed: damageResult.unitDestroyed,
+        ...(destructionCause !== undefined ? { destructionCause } : {}),
+        // When the runner supplied post-crit component damage, persist it.
+        // Engine/gyro hits drive PSR + heat thresholds + walk-MP penalties
+        // downstream; without persistence the runner re-rolls a fresh
+        // component-damage block every shot and crit-cascade scenarios
+        // (3 engine hits → destruction) can never accumulate.
+        ...(componentDamage !== undefined ? { componentDamage } : {}),
+      },
+      newDestroyedLocations,
+    );
 
   return {
     ...state,
@@ -365,7 +660,12 @@ export function applyDamageResultToState(
 }
 
 export function isUnitOperable(unit: IUnitGameState): boolean {
-  return !unit.destroyed && unit.pilotConscious !== false;
+  return (
+    !unit.destroyed &&
+    !unit.hasRetreated &&
+    !unit.hasEjected &&
+    unit.pilotConscious !== false
+  );
 }
 
 export function isGameOver(state: IGameState, turnLimit = 0): boolean {

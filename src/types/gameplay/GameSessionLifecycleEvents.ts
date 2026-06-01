@@ -145,6 +145,23 @@ export interface IInitiativeRolledPayload {
   readonly playerRoll: number;
   /** Opponent roll result (2d6) */
   readonly opponentRoll: number;
+  /** Player-side initiative modifier from source-backed force bonuses. */
+  readonly playerModifier?: number;
+  /** Opponent-side initiative modifier from source-backed force bonuses. */
+  readonly opponentModifier?: number;
+  /** Player roll plus modifier, when a modifier was applied. */
+  readonly playerTotal?: number;
+  /** Opponent roll plus modifier, when a modifier was applied. */
+  readonly opponentTotal?: number;
+  /**
+   * Side whose Tactical Genius SPA replaced its initial initiative roll.
+   * `playerRoll` / `opponentRoll` remain the final raw 2d6 values.
+   */
+  readonly tacticalGeniusRerollSide?: GameSide;
+  /** Initial player raw 2d6 before Tactical Genius replacement, when used. */
+  readonly playerOriginalRoll?: number;
+  /** Initial opponent raw 2d6 before Tactical Genius replacement, when used. */
+  readonly opponentOriginalRoll?: number;
   /** Winner of initiative */
   readonly winner: GameSide;
   /** Did the winner choose to move first? */
@@ -158,4 +175,18 @@ export interface IInitiativeRolledPayload {
    * multiplayer client renders dice straight from this array.
    */
   readonly rolls?: readonly number[];
+}
+
+/**
+ * Explicit initiative order selected for the turn. `InitiativeRolled`
+ * preserves dice/SPA audit details; this payload is the replayable turn-order
+ * fact consumed by phase/activation state.
+ */
+export interface IInitiativeOrderSetPayload {
+  /** Side that won the initiative roll. */
+  readonly winner: GameSide;
+  /** Side that acts first in alternating phases. */
+  readonly firstMover: GameSide;
+  /** Side that acts second in alternating phases. */
+  readonly secondMover: GameSide;
 }

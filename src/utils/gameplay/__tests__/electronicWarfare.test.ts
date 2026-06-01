@@ -24,7 +24,10 @@ import {
   BAP_ECM_COUNTER_RANGE,
   BLOODHOUND_ECM_COUNTER_RANGE,
   CLAN_PROBE_ECM_COUNTER_RANGE,
+  LIGHT_PROBE_ECM_COUNTER_RANGE,
+  NOVA_CEWS_ECM_COUNTER_RANGE,
   STEALTH_ARMOR_MODIFIERS,
+  WATCHDOG_CEWS_ECM_COUNTER_RANGE,
   resolveC3ECMDisruption,
   IECMSuite,
   IActiveProbe,
@@ -469,10 +472,22 @@ describe('BAP / Active Probe Counter', () => {
     expect(CLAN_PROBE_ECM_COUNTER_RANGE).toBe(5);
   });
 
+  it('LIGHT_PROBE_ECM_COUNTER_RANGE should be 3', () => {
+    expect(LIGHT_PROBE_ECM_COUNTER_RANGE).toBe(3);
+  });
+
+  it('CEWS probe counter ranges should follow MegaMek BAPRange parity', () => {
+    expect(WATCHDOG_CEWS_ECM_COUNTER_RANGE).toBe(5);
+    expect(NOVA_CEWS_ECM_COUNTER_RANGE).toBe(5);
+  });
+
   it('should return correct probe ranges', () => {
     expect(getProbeECMCounterRange('beagle')).toBe(4);
     expect(getProbeECMCounterRange('bloodhound')).toBe(8);
     expect(getProbeECMCounterRange('clan-active-probe')).toBe(5);
+    expect(getProbeECMCounterRange('light-active-probe')).toBe(3);
+    expect(getProbeECMCounterRange('watchdog-cews')).toBe(5);
+    expect(getProbeECMCounterRange('nova-cews')).toBe(5);
   });
 
   it('BAP should counter Guardian ECM within range', () => {
@@ -550,6 +565,38 @@ describe('BAP / Active Probe Counter', () => {
       position: { q: 5, r: 0 },
     });
     expect(canBAPCounterECM(probe, ecm)).toBe(true);
+  });
+
+  it('Watchdog CEWS probe should counter Guardian ECM within MegaMek range', () => {
+    const probe = makeProbe({
+      entityId: 'p1',
+      teamId: 'A',
+      type: 'watchdog-cews',
+      position: { q: 0, r: 0 },
+    });
+    const ecm = makeECM({
+      entityId: 'e1',
+      teamId: 'B',
+      type: 'guardian',
+      position: { q: 5, r: 0 },
+    });
+    expect(canBAPCounterECM(probe, ecm)).toBe(true);
+  });
+
+  it('Light active probe should not counter Guardian ECM beyond 3 hexes', () => {
+    const probe = makeProbe({
+      entityId: 'p1',
+      teamId: 'A',
+      type: 'light-active-probe',
+      position: { q: 0, r: 0 },
+    });
+    const ecm = makeECM({
+      entityId: 'e1',
+      teamId: 'B',
+      type: 'guardian',
+      position: { q: 4, r: 0 },
+    });
+    expect(canBAPCounterECM(probe, ecm)).toBe(false);
   });
 
   it('Clan probe should NOT counter Angel ECM', () => {
@@ -819,6 +866,36 @@ describe('resolveC3ECMDisruption', () => {
     const result = resolveC3ECMDisruption(members, ewState);
     expect(result.get('c3_1')).toBe(false);
     expect(result.get('c3_2')).toBe(false);
+  });
+
+  it('should mark members carrying iNARC ECM pods as C3-disrupted', () => {
+    const ewState = createEmptyEWState();
+    const members = [
+      {
+        entityId: 'c3_1',
+        teamId: 'A',
+        position: { q: 0, r: 0 } as IHexCoordinate,
+        iNarcPods: [{ teamId: 'B', podType: 'ecm' }],
+      },
+      {
+        entityId: 'c3_2',
+        teamId: 'A',
+        position: { q: 5, r: 0 } as IHexCoordinate,
+        iNarcPods: [{ teamId: 'B', podType: 'haywire' }],
+      },
+      {
+        entityId: 'c3_3',
+        teamId: 'A',
+        position: { q: 6, r: 0 } as IHexCoordinate,
+        iNarcPods: [{ teamId: 'B', podType: 'homing' }],
+      },
+    ];
+
+    const result = resolveC3ECMDisruption(members, ewState);
+
+    expect(result.get('c3_1')).toBe(true);
+    expect(result.get('c3_2')).toBe(false);
+    expect(result.get('c3_3')).toBe(false);
   });
 
   it('should account for ECCM countering enemy ECM', () => {

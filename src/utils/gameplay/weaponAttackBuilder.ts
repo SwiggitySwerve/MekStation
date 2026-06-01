@@ -32,6 +32,11 @@ export function resolveWeaponFireMode(
   return isIndirectFireCapable(weaponId) ? 'Indirect' : 'Direct';
 }
 
+export interface IWeaponAttackIntentOptions {
+  readonly calledShots?: Readonly<Record<string, boolean>>;
+  readonly teammateCalledShots?: Readonly<Record<string, boolean>>;
+}
+
 /**
  * Resolve a single weapon id against the attacker's weapon inventory and
  * produce the combat-facing `IWeaponAttack` shape. Returns `null` when the
@@ -47,6 +52,7 @@ export function buildWeaponAttack(
   unitWeapons: readonly IWeapon[],
   attackerId?: string,
   weaponModesByWeaponId?: Readonly<Record<string, WeaponFireMode>>,
+  options?: IWeaponAttackIntentOptions,
 ): IWeaponAttack | null {
   const wData = unitWeapons.find((w) => w.id === weaponId);
   if (!wData) {
@@ -84,6 +90,10 @@ export function buildWeaponAttack(
     extremeRange: wData.extremeRange,
     isCluster: false,
     isTorpedo: wData.isTorpedo,
+    ...(options?.calledShots?.[weaponId] === true ? { calledShot: true } : {}),
+    ...(options?.teammateCalledShots?.[weaponId] === true
+      ? { teammateCalledShot: true }
+      : {}),
   };
 }
 
@@ -97,6 +107,7 @@ export function buildWeaponAttacks(
   unitWeapons: readonly IWeapon[],
   attackerId?: string,
   weaponModesByWeaponId?: Readonly<Record<string, WeaponFireMode>>,
+  options?: IWeaponAttackIntentOptions,
 ): IWeaponAttack[] {
   const resolved: IWeaponAttack[] = [];
   for (const wId of weaponIds) {
@@ -105,6 +116,7 @@ export function buildWeaponAttacks(
       unitWeapons,
       attackerId,
       weaponModesByWeaponId,
+      options,
     );
     if (built) resolved.push(built);
   }

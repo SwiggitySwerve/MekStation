@@ -74,7 +74,15 @@ export function projectStandUpPsr({
     psr,
     unitState.componentDamage ?? DEFAULT_COMPONENT_DAMAGE,
     unitState.pilotWounds,
-    { gyroType: unitState.gyroType, optionalRules },
+    {
+      gyroType: unitState.gyroType,
+      optionalRules,
+      unitQuirks: unitState.unitQuirks,
+      pilotAbilities: unitState.abilities,
+      isQuadMek: unitState.isQuad,
+      unitType: unitState.unitType ?? unitType,
+      pilotingSkill: unitPiloting,
+    },
   );
   const playtest2Modifiers = playtest2TryingToStandModifiers(optionalRules);
   const representedStandUpModifiers = representedStandUpCapabilityModifiers(

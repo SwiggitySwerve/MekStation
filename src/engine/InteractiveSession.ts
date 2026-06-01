@@ -10,6 +10,10 @@ import type {
   WeaponFireMode,
 } from '@/types/gameplay/IndirectFireInterfaces';
 import type { D6Roller, DiceRoller } from '@/utils/gameplay/diceTypes';
+import type {
+  PhysicalAttackLimb,
+  PhysicalAttackType,
+} from '@/utils/gameplay/physicalAttacks';
 
 import {
   deriveCombatOutcome,
@@ -29,6 +33,7 @@ import {
 } from '@/types/combat/CombatOutcome';
 import {
   GameEventType,
+  GamePhase,
   GameSide,
   GameStatus,
   type IGameCreatedPayload,
@@ -37,6 +42,7 @@ import {
   type IGameUnit,
   type IGameEvent,
   type IGameState,
+  type MovementEnhancementActivationKind,
   type StandUpMode,
 } from '@/types/gameplay/GameSessionInterfaces';
 import {
@@ -50,12 +56,21 @@ import {
   applyBattlefieldWreckTerrainForSessionEvents,
   terrainChangedPayloadFromBattlefieldWreckResult,
 } from '@/utils/gameplay/battlefieldWreckTerrain';
-import { createTerrainChangedEvent } from '@/utils/gameplay/gameEvents';
 import {
+  createTerrainChangedEvent,
+  createUnitEjectedEvent,
+} from '@/utils/gameplay/gameEvents';
+import {
+  activateMovementEnhancement as activateMovementEnhancementAction,
   createGameSession,
   startGame,
   appendEvent,
+  attemptStandUp as attemptStandUpAction,
+  declarePhysicalAttack,
   endGame,
+  goProne as goProneAction,
+  requestSpot as requestSpotAction,
+  torsoTwist as torsoTwistAction,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
 import { declarePlayerWithdrawal } from '@/utils/gameplay/morale';
@@ -88,6 +103,7 @@ import { getAvailableActionsForState } from './InteractiveSession.queries';
 import {
   d6RollerForResolvers,
   diceRollerForResolvers,
+  environmentHeatEffectAt,
   physicalContextByUnit,
   waterDepthAt,
 } from './InteractiveSession.resolvers';
@@ -346,8 +362,6 @@ export class InteractiveSession {
       this.session.currentState,
       unitId,
       this.weaponsByUnit,
-      this.movementByUnit,
-      { session: this.session, grid: this.grid },
     );
   }
 
@@ -411,6 +425,41 @@ export class InteractiveSession {
     this.tryFinalizeAndPublish();
   }
 
+  attemptStandUp(unitId: string, mode?: StandUpMode): void {
+    if (this.session.currentState.status !== GameStatus.Active) return;
+    if (this.session.currentState.phase !== GamePhase.Movement) return;
+
+    this.session = attemptStandUpAction(
+      this.session,
+      unitId,
+      this.diceRollerForResolvers(),
+      mode,
+    );
+    this.tryFinalizeAndPublish();
+  }
+
+  goProne(unitId: string): void {
+    this.session = goProneAction(this.session, unitId);
+    this.tryFinalizeAndPublish();
+  }
+
+  activateMovementEnhancement(
+    unitId: string,
+    enhancement: MovementEnhancementActivationKind,
+  ): void {
+    this.session = activateMovementEnhancementAction(
+      this.session,
+      unitId,
+      enhancement,
+    );
+    this.tryFinalizeAndPublish();
+  }
+
+  torsoTwist(unitId: string, secondaryFacing: Facing): void {
+    this.session = torsoTwistAction(this.session, unitId, secondaryFacing);
+    this.tryFinalizeAndPublish();
+  }
+
   applyRuntimeMovementState(
     unitId: string,
     patch: Omit<IRuntimeMovementStateChangedPayload, 'unitId'>,
@@ -449,6 +498,80 @@ export class InteractiveSession {
     this.tryFinalizeAndPublish();
   }
 
+  applyPhysicalAttack(
+    attackerId: string,
+    targetId: string,
+    attackType: PhysicalAttackType,
+    limb?: PhysicalAttackLimb,
+  ): void {
+    const baseContext = this.physicalContextByUnit().get(attackerId);
+    if (!baseContext) return;
+    const elevationDifference = this.elevationDifferenceBetween(
+      attackerId,
+      targetId,
+    );
+    const context: IPhysicalAttackContext = {
+      ...baseContext,
+      ...this.buildJumpJetAttackSessionContext(
+        attackerId,
+        attackType,
+        limb,
+        baseContext,
+        elevationDifference,
+      ),
+      elevationDifference,
+      limb,
+      targetMovementComplete: true,
+    };
+
+    this.session = declarePhysicalAttack(
+      this.session,
+      attackerId,
+      targetId,
+      attackType,
+      context,
+    );
+    this.tryFinalizeAndPublish();
+  }
+
+  private buildJumpJetAttackSessionContext(
+    attackerId: string,
+    attackType: PhysicalAttackType,
+    limb: PhysicalAttackLimb | undefined,
+    baseContext: IPhysicalAttackContext,
+    elevationDifference: number,
+  ): Partial<IPhysicalAttackContext> {
+    if (attackType !== 'jump-jet-attack') return {};
+
+    const jumpMP = this.movementByUnit.get(attackerId)?.jumpMP ?? 0;
+    if (jumpMP <= 0) return {};
+
+    const selectedLeg =
+      baseContext.jumpJetAttackSelectedLeg ??
+      (limb === 'leftLeg' ? 'left' : 'right');
+    const selectedLeftLeg = selectedLeg === 'left' || selectedLeg === 'both';
+    const selectedRightLeg = selectedLeg === 'right' || selectedLeg === 'both';
+
+    return {
+      attackerJumpMP: baseContext.attackerJumpMP ?? jumpMP,
+      jumpJetAttackSelectedLeg: selectedLeg,
+      standingAttackerHeightAboveTargetHeight:
+        baseContext.standingAttackerHeightAboveTargetHeight ??
+        1 - elevationDifference,
+      leftReadyJumpJetCount: selectedLeftLeg
+        ? (baseContext.leftReadyJumpJetCount ?? jumpMP)
+        : baseContext.leftReadyJumpJetCount,
+      rightReadyJumpJetCount: selectedRightLeg
+        ? (baseContext.rightReadyJumpJetCount ?? jumpMP)
+        : baseContext.rightReadyJumpJetCount,
+    };
+  }
+
+  requestSpot(unitId: string, targetId: string): void {
+    this.session = requestSpotAction(this.session, unitId, targetId);
+    this.tryFinalizeAndPublish();
+  }
+
   /**
    * Per `add-combat-morale-and-withdrawal` (D4): the player-facing
    * withdrawal action. Declares withdrawal for an owned unit toward the
@@ -469,6 +592,27 @@ export class InteractiveSession {
     this.tryFinalizeAndPublish();
   }
 
+  ejectUnit(unitId: string): void {
+    if (this.session.currentState.status !== GameStatus.Active) return;
+
+    const unit = this.session.currentState.units[unitId];
+    if (!unit || unit.destroyed || unit.hasRetreated || unit.hasEjected) {
+      return;
+    }
+
+    this.appendAndPersistEvent(
+      createUnitEjectedEvent(
+        this.session.id,
+        this.session.events.length,
+        this.session.currentState.turn,
+        this.session.currentState.phase,
+        unitId,
+        'player_declared',
+      ),
+    );
+    this.tryFinalizeAndPublish();
+  }
+
   advancePhase(): void {
     // Per-phase transition logic lives in `InteractiveSession.phases`.
     // The class stays a thin coordinator: it threads its private state
@@ -484,7 +628,10 @@ export class InteractiveSession {
       d6RollerForResolvers: () => this.d6RollerForResolvers(),
       diceRollerForResolvers: () => this.diceRollerForResolvers(),
       physicalContextByUnit: () => this.physicalContextByUnit(),
+      grid: () => this.grid,
       waterDepthAt: (position) => this.waterDepthAt(position),
+      environmentHeatEffectAt: (position) =>
+        this.environmentHeatEffectAt(position),
       isGameOver: () => this.isGameOver(),
     });
     this.applyBattlefieldWreckTerrainForNewEvents(sessionBeforePhase);
@@ -562,6 +709,7 @@ export class InteractiveSession {
       this.session,
       this.tonnageByUnit,
       this.pilotingByUnit,
+      this.grid,
     );
   }
 
@@ -656,6 +804,26 @@ export class InteractiveSession {
   // Heat-phase water-depth lookup lives in `InteractiveSession.resolvers`.
   private waterDepthAt(position: IHexCoordinate): number {
     return waterDepthAt(this.grid, position);
+  }
+
+  private elevationDifferenceBetween(
+    attackerId: string,
+    targetId: string,
+  ): number {
+    const attacker = this.session.currentState.units[attackerId];
+    const target = this.session.currentState.units[targetId];
+    if (!attacker || !target) return 0;
+    const attackerHex = this.grid.hexes.get(
+      `${attacker.position.q},${attacker.position.r}`,
+    );
+    const targetHex = this.grid.hexes.get(
+      `${target.position.q},${target.position.r}`,
+    );
+    return (targetHex?.elevation ?? 0) - (attackerHex?.elevation ?? 0);
+  }
+
+  private environmentHeatEffectAt(position: IHexCoordinate): number {
+    return environmentHeatEffectAt(this.grid, position);
   }
 
   isGameOver(): boolean {

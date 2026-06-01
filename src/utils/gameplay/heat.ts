@@ -5,11 +5,15 @@
  * @spec openspec/specs/terrain-system/spec.md
  */
 
+import type { IHexCoordinate, IHexGrid } from '@/types/gameplay';
+
 import {
   TerrainType,
   TERRAIN_PROPERTIES,
   ITerrainFeature,
 } from '@/types/gameplay/TerrainTypes';
+
+import { parseWaterDepth } from './waterDepth';
 
 /**
  * Get bonus heat dissipation from standing in water.
@@ -46,6 +50,25 @@ export function getTerrainHeatEffect(
   return heatEffect;
 }
 
+export function getGridTerrainHeatEffect(
+  grid: IHexGrid,
+  position: IHexCoordinate,
+): number {
+  const hex = grid.hexes.get(`${position.q},${position.r}`);
+  if (!hex) return 0;
+
+  const terrainType = parseTerrainType(hex.terrain);
+  if (!terrainType) return 0;
+
+  return getTerrainHeatEffect([
+    {
+      type: terrainType,
+      level:
+        terrainType === TerrainType.Water ? parseWaterDepth(hex.terrain) : 1,
+    },
+  ]);
+}
+
 /**
  * Calculate total heat dissipation including terrain effects.
  * @param baseHeatSinks - Number of heat sinks on the unit
@@ -64,4 +87,11 @@ export function calculateHeatDissipation(
     : 0;
 
   return baseHeatSinks + waterBonus;
+}
+
+function parseTerrainType(terrain: string): TerrainType | null {
+  const [tag] = terrain.split(':');
+  return Object.values(TerrainType).includes(tag as TerrainType)
+    ? (tag as TerrainType)
+    : null;
 }

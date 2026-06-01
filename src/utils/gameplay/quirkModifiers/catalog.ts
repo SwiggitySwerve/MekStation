@@ -43,9 +43,11 @@ export const UNIT_QUIRK_IDS = {
   SENSOR_GHOSTS: 'sensor_ghosts',
   MULTI_TRAC: 'multi_trac',
 
-  // Crit quirks
+  // Campaign maintenance quirks
   RUGGED_1: 'rugged_1',
   RUGGED_2: 'rugged_2',
+
+  // Anti-Mek physical attack quirks
   PROTECTED_ACTUATORS: 'protected_actuators',
   EXPOSED_ACTUATORS: 'exposed_actuators',
 } as const;
@@ -184,7 +186,7 @@ export const QUIRK_CATALOG: Record<string, IQuirkCatalogEntry> = {
     name: 'Battle Fists (LA)',
     category: 'physical',
     pipelines: ['physical'],
-    combatEffect: '+1 left arm punch damage',
+    combatEffect: '-1 left arm punch to-hit',
     isPositive: true,
   },
   [UNIT_QUIRK_IDS.BATTLE_FISTS_RA]: {
@@ -192,7 +194,7 @@ export const QUIRK_CATALOG: Record<string, IQuirkCatalogEntry> = {
     name: 'Battle Fists (RA)',
     category: 'physical',
     pipelines: ['physical'],
-    combatEffect: '+1 right arm punch damage',
+    combatEffect: '-1 right arm punch to-hit',
     isPositive: true,
   },
   [UNIT_QUIRK_IDS.NO_ARMS]: {
@@ -208,7 +210,7 @@ export const QUIRK_CATALOG: Record<string, IQuirkCatalogEntry> = {
     name: 'Low Arms',
     category: 'physical',
     pipelines: ['physical'],
-    combatEffect: 'Cannot punch targets at higher elevation',
+    combatEffect: 'Registered quirk; no source-backed combat resolver',
     isPositive: false,
   },
 
@@ -248,37 +250,39 @@ export const QUIRK_CATALOG: Record<string, IQuirkCatalogEntry> = {
     isPositive: true,
   },
 
-  // Crit quirks
+  // Campaign maintenance quirks
   [UNIT_QUIRK_IDS.RUGGED_1]: {
     id: UNIT_QUIRK_IDS.RUGGED_1,
     name: 'Rugged (1)',
-    category: 'crit',
-    pipelines: ['crit'],
-    combatEffect: 'First critical hit per game is negated',
+    category: 'campaign',
+    pipelines: ['campaign'],
+    combatEffect: 'Maintenance cycle duration is doubled',
     isPositive: true,
   },
   [UNIT_QUIRK_IDS.RUGGED_2]: {
     id: UNIT_QUIRK_IDS.RUGGED_2,
     name: 'Rugged (2)',
-    category: 'crit',
-    pipelines: ['crit'],
-    combatEffect: 'First two critical hits per game are negated',
+    category: 'campaign',
+    pipelines: ['campaign'],
+    combatEffect: 'Maintenance cycle duration is tripled',
     isPositive: true,
   },
+
+  // Anti-Mek physical attack quirks
   [UNIT_QUIRK_IDS.PROTECTED_ACTUATORS]: {
     id: UNIT_QUIRK_IDS.PROTECTED_ACTUATORS,
     name: 'Protected Actuators',
-    category: 'crit',
-    pipelines: ['crit'],
-    combatEffect: '+1 enemy crit determination roll (harder to crit)',
+    category: 'physical',
+    pipelines: ['physical'],
+    combatEffect: '+1 enemy anti-Mek Leg/Swarm attack target number',
     isPositive: true,
   },
   [UNIT_QUIRK_IDS.EXPOSED_ACTUATORS]: {
     id: UNIT_QUIRK_IDS.EXPOSED_ACTUATORS,
     name: 'Exposed Actuators',
-    category: 'crit',
-    pipelines: ['crit'],
-    combatEffect: '-1 enemy crit determination roll (easier to crit)',
+    category: 'physical',
+    pipelines: ['physical'],
+    combatEffect: '-1 enemy anti-Mek Leg/Swarm attack target number',
     isPositive: false,
   },
 
@@ -328,7 +332,7 @@ export const QUIRK_CATALOG: Record<string, IQuirkCatalogEntry> = {
     name: 'No Cooling',
     category: 'weapon',
     pipelines: ['heat'],
-    combatEffect: 'Double heat for this weapon',
+    combatEffect: '+2 heat for this weapon',
     isPositive: false,
   },
 };

@@ -138,6 +138,7 @@ describe('NetworkedGameSurface — spectator mode', () => {
     expect(
       screen.queryByTestId('advance-phase-button'),
     ).not.toBeInTheDocument();
+    expect(screen.queryByTestId('eject-button')).not.toBeInTheDocument();
     expect(screen.queryByTestId('concede-button')).not.toBeInTheDocument();
   });
 });

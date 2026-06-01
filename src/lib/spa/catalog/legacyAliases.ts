@@ -77,6 +77,32 @@ export const SPA_LEGACY_ALIASES: readonly ISPAIdAlias[] = [
     canonicalId: 'maneuvering_ace',
     source: 'systemB',
   },
+  {
+    legacyId: 'terrain-master-frogman',
+    canonicalId: 'tm_frogman',
+    source: 'systemB',
+  },
+  {
+    legacyId: 'terrain-master-mountaineer',
+    canonicalId: 'tm_mountaineer',
+    source: 'systemB',
+  },
+  {
+    legacyId: 'terrain-master-nightwalker',
+    canonicalId: 'tm_nightwalker',
+    source: 'systemB',
+  },
+  {
+    legacyId: 'terrain-master-forest-ranger',
+    canonicalId: 'tm_forest_ranger',
+    source: 'systemB',
+  },
+  {
+    legacyId: 'terrain-master-swamp-beast',
+    canonicalId: 'tm_swamp_beast',
+    source: 'systemB',
+  },
+  { legacyId: 'hopping-jack', canonicalId: 'hopping_jack', source: 'systemB' },
   { legacyId: 'jumping-jack', canonicalId: 'jumping_jack', source: 'systemB' },
   {
     legacyId: 'cross-country',

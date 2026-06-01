@@ -8,13 +8,7 @@ import type { IUnitGameState } from '@/types/gameplay/GameSessionInterfaces';
 import type {
   IHexCoordinate,
   IHexGrid,
-  MovementHeatProfile,
-  MovementPavementRoadBonusProfile,
-  MovementTerrainProfile,
-  IMovementStandUpCapability,
-  IMovementWaterCapability,
-  MovementUnitHeightProfile,
-  MovementMotiveMode,
+  IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
 
 // =============================================================================
@@ -36,7 +30,7 @@ export interface IGameEngineConfig {
    * AI pathing resolve against this grid instead of a clear placeholder map.
    */
   readonly grid?: IHexGrid;
-  /** Optional rules enabled for the session. */
+  /** Optional rule flags enabled for this match. */
   readonly optionalRules?: readonly string[];
 }
 
@@ -49,8 +43,6 @@ export interface IGameEngineConfig {
  * Carries weapon and movement capability info alongside the base state.
  */
 export interface IAdaptedUnit extends IUnitGameState {
-  /** Unit mass in tons for rules that scale damage by chassis weight. */
-  readonly tonnage?: number;
   /** Weapons equipped on this unit */
   readonly weapons: readonly IWeapon[];
   /** Walking movement points */
@@ -59,22 +51,14 @@ export interface IAdaptedUnit extends IUnitGameState {
   readonly runMP: number;
   /** Jump movement points (0 if no jump jets) */
   readonly jumpMP: number;
-  /** Chassis/squad motive mode used for terrain and elevation pathing. */
-  readonly movementMode?: MovementMotiveMode;
-  /** Whether movement should generate Mek-style engine heat. */
-  readonly movementHeatProfile?: MovementHeatProfile;
-  /** Unit-type terrain-cost adjustments layered over motive-mode pathing. */
-  readonly movementTerrainProfile?: MovementTerrainProfile;
-  /** Optional profile controlling whether pavement/road +1 MP applies. */
-  readonly pavementRoadBonusProfile?: MovementPavementRoadBonusProfile;
-  /** MegaMek-style entity height used by bridge-clearance movement checks. */
-  readonly unitHeight?: number;
-  /** Source-backed dynamic height profile for conversion or mount-state changes. */
-  readonly unitHeightProfile?: MovementUnitHeightProfile;
-  /** Optional equipment that modifies water movement legality and MP costs. */
-  readonly waterCapability?: IMovementWaterCapability;
-  /** Optional stand-up rules that affect prone movement projection. */
-  readonly standUpCapability?: IMovementStandUpCapability;
+  readonly movementMode?: IMovementCapability['movementMode'];
+  readonly movementHeatProfile?: IMovementCapability['movementHeatProfile'];
+  readonly movementTerrainProfile?: IMovementCapability['movementTerrainProfile'];
+  readonly pavementRoadBonusProfile?: IMovementCapability['pavementRoadBonusProfile'];
+  readonly unitHeight?: IMovementCapability['unitHeight'];
+  readonly unitHeightProfile?: IMovementCapability['unitHeightProfile'];
+  readonly waterCapability?: IMovementCapability['waterCapability'];
+  readonly standUpCapability?: IMovementCapability['standUpCapability'];
 }
 
 // =============================================================================
@@ -113,6 +97,8 @@ export interface IWeaponData {
   readonly mediumRange: number;
   /** Long range in hexes */
   readonly longRange: number;
+  /** Extreme range in hexes, when catalog data provides it */
+  readonly extremeRange?: number;
   /** Damage per hit */
   readonly damage: number;
   /** Heat generated when fired */

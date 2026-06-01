@@ -13,11 +13,9 @@
 import type { IHex, IHexTerrain, ITerrainFeature } from '@/types/gameplay';
 
 import { TerrainType } from '@/types/gameplay';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 import {
   getHexMovementCostFromTerrainTag,
   getPrimaryTerrainFeature,
-  getPrimaryTerrainFeatureFromTerrainTag,
   getTerrainMovementCost,
 } from '@/utils/gameplay/terrainMovementCost';
 
@@ -113,20 +111,6 @@ describe('getPrimaryTerrainFeature', () => {
   });
 });
 
-describe('getPrimaryTerrainFeatureFromTerrainTag', () => {
-  it('returns the highest-layer feature from an encoded multi-feature terrain tag', () => {
-    const tag = terrainStringFromFeatures([
-      feature(TerrainType.Rough),
-      feature(TerrainType.HeavyWoods),
-    ]);
-
-    const result = getPrimaryTerrainFeatureFromTerrainTag(tag);
-
-    expect(result?.type).toBe(TerrainType.HeavyWoods);
-    expect(result?.level).toBe(1);
-  });
-});
-
 describe('getHexMovementCostFromTerrainTag', () => {
   it('returns 1 for an open / clear grid hex', () => {
     expect(getHexMovementCostFromTerrainTag(hex('clear'))).toBe(1);
@@ -164,14 +148,5 @@ describe('getHexMovementCostFromTerrainTag', () => {
       const featureCost = getTerrainMovementCost(terrain([feature(type)]));
       expect(tagCost).toBe(featureCost);
     }
-  });
-
-  it('prices encoded multi-feature terrain from the highest-layer feature', () => {
-    const tag = terrainStringFromFeatures([
-      feature(TerrainType.Rough),
-      feature(TerrainType.HeavyWoods),
-    ]);
-
-    expect(getHexMovementCostFromTerrainTag(hex(tag))).toBe(3);
   });
 });

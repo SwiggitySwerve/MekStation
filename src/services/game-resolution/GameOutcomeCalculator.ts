@@ -79,7 +79,7 @@ export interface IOutcomeCalculationInput {
 
 function countSurvivingUnits(state: IGameState, side: GameSide): number {
   return Object.values(state.units).filter(
-    (u) => !u.destroyed && u.side === side,
+    (u) => !u.destroyed && !u.hasRetreated && !u.hasEjected && u.side === side,
   ).length;
 }
 
@@ -128,9 +128,9 @@ function generateVictoryDescription(
   switch (reason) {
     case 'elimination':
       if (winner === 'player') {
-        return `Victory! All enemy units destroyed. ${playerSurviving} units survived.`;
+        return `Victory! All enemy units destroyed or exited combat. ${playerSurviving} units survived.`;
       } else {
-        return `Defeat. All friendly units destroyed.`;
+        return `Defeat. All friendly units destroyed or exited combat.`;
       }
 
     case 'mutual_destruction':

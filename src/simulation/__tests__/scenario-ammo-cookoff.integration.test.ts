@@ -424,8 +424,6 @@ describe('Scenario: AC/20 ammo cook-off (Phase 4 task 4.7)', () => {
     // the engine 3-hit threshold (engine_destroyed) but ammo_explosion
     // takes precedence per `notepad/learnings.md` "Cause translation
     // at the event-emission boundary".
-    expect(['ammo_explosion', 'ct_destroyed', 'damage']).toContain(
-      payload.cause,
-    );
+    expect(payload.cause).toBe('ammo_explosion');
   });
 });

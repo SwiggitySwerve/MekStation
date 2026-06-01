@@ -6,7 +6,7 @@
  * - Rotary AC: 1-6 shots selected by pilot, jam on natural 2
  * - LB-X: slug (standard) vs cluster (cluster table, -1 to-hit) modes
  * - AMS: Reduce incoming missile cluster hits
- * - Artemis IV/V: +2 cluster table roll bonus
+ * - Artemis IV/V: +2/+3 cluster table roll bonus
  * - Narc/iNarc: +2 cluster table roll bonus for missiles vs marked target
  * - TAG: Designate target for semi-guided LRM
  * - MRM: -1 cluster column modifier

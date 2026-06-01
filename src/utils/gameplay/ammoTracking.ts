@@ -12,7 +12,9 @@ export {
   hasAmmoForWeapon,
   getTotalAmmo,
   getAmmoBinsAtLocation,
+  findAvailableAmmoBin,
   selectRandomAmmoBin,
+  normalizeAmmoWeaponType,
 } from './ammoTracking/state';
 export {
   resolveAmmoExplosion,
@@ -22,6 +24,16 @@ export {
   getHeatAmmoExplosionTN,
   checkHeatAmmoExplosion,
 } from './ammoTracking/explosions';
+export {
+  applyAmmoExplosionRearArmorBlowout,
+  caseProtectionForLocation,
+  resolveCaseAdjustedAmmoExplosionDamage,
+} from './ammoTracking/caseProtection';
+export {
+  BATTLEMECH_AMMO_EXPLOSION_PILOT_DAMAGE,
+  REDUCED_CASE_AMMO_EXPLOSION_PILOT_DAMAGE,
+  resolveBattleMechAmmoExplosionPilotDamage,
+} from './ammoTracking/pilotDamage';
 export { getFireableWeapons, isEnergyWeapon } from './ammoTracking/weapons';
 export type {
   CASEProtectionLevel,

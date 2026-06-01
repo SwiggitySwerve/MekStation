@@ -30,6 +30,8 @@ import type { IAIStructureState, IWeapon, IWeaponFiringMode } from './types';
 /** Mode-id constants for the LB-X cluster/slug family. */
 export const LBX_CLUSTER_MODE_ID = 'cluster';
 export const LBX_SLUG_MODE_ID = 'slug';
+export const MML_LRM_MODE_ID = 'lrm';
+export const MML_SRM_MODE_ID = 'srm';
 
 /**
  * The result of a weapon-mode selection: which mode was chosen and the
@@ -48,6 +50,8 @@ export interface IWeaponModeSelection {
   readonly effectiveHeat: number;
   /** Ammo rounds the selected mode consumes per turn. */
   readonly effectiveShots: number;
+  /** Optional ammo-bin weapon family selected by ammo-mode weapons. */
+  readonly ammoWeaponType?: string;
 }
 
 /**
@@ -108,6 +112,9 @@ function modeToSelection(
     effectiveDamage: mode.damage,
     effectiveHeat: mode.heat,
     effectiveShots: mode.shotsPerTurn,
+    ...(mode.ammoWeaponType !== undefined
+      ? { ammoWeaponType: mode.ammoWeaponType }
+      : {}),
   };
 }
 
@@ -197,6 +204,16 @@ function selectRateOfFireMode(
   return ranked[0];
 }
 
+function selectAmmoMode(
+  weapon: IWeapon,
+  modes: readonly IWeaponFiringMode[],
+  ctx: IWeaponModeContext,
+): IWeaponFiringMode {
+  const srm = modes.find((m) => m.id === MML_SRM_MODE_ID) ?? modes[0];
+  const lrm = modes.find((m) => m.id === MML_LRM_MODE_ID) ?? srm;
+  return ctx.distance <= weapon.shortRange ? srm : lrm;
+}
+
 /**
  * Select the firing mode for one weapon.
  *
@@ -242,6 +259,10 @@ export function selectWeaponMode(
       weapon,
       selectClusterSlugMode(weapon, cluster, slug, ctx),
     );
+  }
+
+  if (modes.kind === 'ammo-mode') {
+    return modeToSelection(weapon, selectAmmoMode(weapon, modes.modes, ctx));
   }
 
   // 'rate-of-fire'

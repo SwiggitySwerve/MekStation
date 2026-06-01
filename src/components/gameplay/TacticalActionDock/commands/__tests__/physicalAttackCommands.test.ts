@@ -61,14 +61,27 @@ function makePhysicalOption(
 describe('physicalAttackCommands', () => {
   const commands = buildPhysicalAttackCommands();
 
-  it('exposes punch / kick / charge / dfa / club', () => {
+  it('exposes core and supported melee weapon physical attacks', () => {
     const ids = commands.map((c) => c.id);
     expect(ids).toEqual([
       'physical.punch',
       'physical.kick',
+      'physical.push',
+      'physical.trip',
+      'physical.thrash',
+      'physical.jump-jet-attack',
+      'physical.brush-off',
+      'physical.grapple',
+      'physical.break-grapple',
       'physical.charge',
       'physical.dfa',
       'physical.club',
+      'physical.sword',
+      'physical.mace',
+      'physical.lance',
+      'physical.retractable-blade',
+      'physical.flail',
+      'physical.wrecking-ball',
     ]);
   });
 
@@ -220,11 +233,90 @@ describe('physicalAttackCommands', () => {
     });
   });
 
+  it('push dispatches physical-attack actionId with attackType=push', () => {
+    const push = commands.find((c) => c.id === 'physical.push')!;
+    expect(push.commit(makeCtx())).toEqual({
+      actionId: 'physical-attack',
+      payload: { attackType: 'push' },
+    });
+  });
+
+  it('trip dispatches physical-attack actionId with attackType=trip', () => {
+    const trip = commands.find((c) => c.id === 'physical.trip')!;
+    expect(trip.commit(makeCtx())).toEqual({
+      actionId: 'physical-attack',
+      payload: { attackType: 'trip' },
+    });
+  });
+
+  it('thrash dispatches physical-attack actionId with attackType=thrash', () => {
+    const thrash = commands.find((c) => c.id === 'physical.thrash')!;
+    expect(thrash.commit(makeCtx())).toEqual({
+      actionId: 'physical-attack',
+      payload: { attackType: 'thrash' },
+    });
+  });
+
+  it('jump jet attack dispatches right-leg physical-attack intent', () => {
+    const jumpJetAttack = commands.find(
+      (c) => c.id === 'physical.jump-jet-attack',
+    )!;
+    expect(jumpJetAttack.commit(makeCtx())).toEqual({
+      actionId: 'physical-attack',
+      payload: { attackType: 'jump-jet-attack', limb: 'rightLeg' },
+    });
+  });
+
+  it('brush off dispatches right-arm physical-attack intent', () => {
+    const brushOff = commands.find((c) => c.id === 'physical.brush-off')!;
+    expect(brushOff.commit(makeCtx())).toEqual({
+      actionId: 'physical-attack',
+      payload: { attackType: 'brush-off', limb: 'rightArm' },
+    });
+  });
+
+  it('grapple dispatches physical-attack actionId with attackType=grapple', () => {
+    const grapple = commands.find((c) => c.id === 'physical.grapple')!;
+    expect(grapple.commit(makeCtx())).toEqual({
+      actionId: 'physical-attack',
+      payload: { attackType: 'grapple' },
+    });
+  });
+
+  it('break grapple dispatches physical-attack actionId with attackType=break-grapple', () => {
+    const breakGrapple = commands.find(
+      (c) => c.id === 'physical.break-grapple',
+    )!;
+    expect(breakGrapple.commit(makeCtx())).toEqual({
+      actionId: 'physical-attack',
+      payload: { attackType: 'break-grapple' },
+    });
+  });
+
   it('dfa dispatches physical-attack actionId with attackType=dfa', () => {
     const dfa = commands.find((c) => c.id === 'physical.dfa')!;
     expect(dfa.commit(makeCtx())).toEqual({
       actionId: 'physical-attack',
       payload: { attackType: 'dfa' },
+    });
+  });
+
+  it('melee weapon commands dispatch their supported physical attack types', () => {
+    const commandAttackTypes = Object.fromEntries(
+      commands.map((command) => [
+        command.id,
+        command.commit(makeCtx()).payload?.attackType,
+      ]),
+    );
+
+    expect(commandAttackTypes).toMatchObject({
+      'physical.club': 'hatchet',
+      'physical.sword': 'sword',
+      'physical.mace': 'mace',
+      'physical.lance': 'lance',
+      'physical.retractable-blade': 'retractable-blade',
+      'physical.flail': 'flail',
+      'physical.wrecking-ball': 'wrecking-ball',
     });
   });
 });

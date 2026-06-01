@@ -62,13 +62,11 @@ export function createGyroPSR(entityId: string): IPendingPSR {
 /**
  * Create a pending PSR for an engine critical hit.
  *
- * Per the piloting-skill-rolls spec ("PSR Trigger Catalog") and MegaMek's
- * canonical engine-crit handling, an engine hit triggers a PSR for the
- * affected mech. The factory produces the catalog entry; the actual
- * dispatch from `CriticalEffectType.EngineHit` into the pending PSR queue
- * is wired by the critical-hit pipeline in a future change. Shipping the
- * factory here keeps the trigger catalog complete and gives the future
- * dispatcher a canonical entry point.
+ * This is a MekStation catalog behavior, not a MegaMek parity claim:
+ * MegaMek's engine-critical branch handles hit counters, heat/destruction,
+ * and explosion checks without queuing a normal fall PSR. The factory
+ * preserves MekStation's current EngineHit trigger while source-truth audits
+ * keep that deviation visible.
  *
  * @spec openspec/specs/piloting-skill-rolls/spec.md
  *   Requirement: PSR Trigger Catalog

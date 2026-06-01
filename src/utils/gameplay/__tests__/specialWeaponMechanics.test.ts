@@ -10,11 +10,12 @@ import {
   resolveAMS,
   applyAMSReduction,
   getArtemisIVBonus,
+  getPrototypeArtemisIVBonus,
   getArtemisVBonus,
   getNarcBonus,
   isTargetTAGDesignated,
-  getSemiGuidedLRMBonus,
   getMRMClusterModifier,
+  getSandblasterClusterModifier,
   calculateClusterModifiers,
   verifyStreakBehavior,
   resolveModifiedClusterHits,
@@ -23,6 +24,7 @@ import {
   isLBXAC,
   isMissileWeapon,
   isMRM,
+  isNarcCompatibleMissileWeapon,
   isStreakSRM,
   isAMS,
   isTAG,
@@ -377,30 +379,40 @@ describe('Special Weapon Mechanics', () => {
   // 13.4: AMS
   // =========================================================================
   describe('AMS Resolution', () => {
-    it('should reduce incoming missile hits by d6', () => {
-      const roller = createDiceRoller([[4, 2]]); // first die = 4
+    it('should reduce incoming missile hits with a -4 cluster-table modifier', () => {
+      const roller = createDiceRoller([[3, 4]]);
 
-      const result = resolveAMS(10, roller);
+      const result = resolveAMS(6, roller, 10);
 
-      expect(result.hitsReduced).toBe(4);
+      expect(result.clusterRoll).toBe(7);
+      expect(result.clusterModifier).toBe(-4);
+      expect(result.modifiedClusterRoll).toBe(3);
+      expect(result.hitsReduced).toBe(3);
+      expect(result.hitsRemaining).toBe(3);
       expect(result.ammoConsumed).toBe(1);
     });
 
-    it('should not reduce below 0', () => {
-      const roller = createDiceRoller([[6, 3]]); // first die = 6
+    it('should clamp AMS modifier to the cluster table minimum', () => {
+      const roller = createDiceRoller([[1, 1]]);
 
-      const result = resolveAMS(3, roller);
+      const result = resolveAMS(1, roller, 2);
 
-      expect(result.hitsReduced).toBe(3); // capped at incoming hits
+      expect(result.modifiedClusterRoll).toBe(2);
+      expect(result.hitsReduced).toBe(0);
+      expect(result.hitsRemaining).toBe(1);
     });
 
     it('should apply AMS reduction correctly', () => {
       const amsResult = {
-        hitsReduced: 4,
+        hitsReduced: 3,
+        hitsRemaining: 3,
         ammoConsumed: 1,
-        roll: { dice: [4, 2], total: 6, isSnakeEyes: false, isBoxcars: false },
+        roll: { dice: [3, 4], total: 7, isSnakeEyes: false, isBoxcars: false },
+        clusterRoll: 7,
+        clusterModifier: -4,
+        modifiedClusterRoll: 3,
       };
-      expect(applyAMSReduction(10, amsResult)).toBe(6);
+      expect(applyAMSReduction(6, amsResult)).toBe(3);
       expect(applyAMSReduction(3, amsResult)).toBe(0);
       expect(applyAMSReduction(0, amsResult)).toBe(0);
     });
@@ -423,11 +435,20 @@ describe('Special Weapon Mechanics', () => {
       expect(getArtemisIVBonus(equipment, target)).toBe(2);
     });
 
-    it('should return +2 for Artemis V equipped', () => {
+    it('should return +1 for prototype Artemis IV equipped', () => {
+      const equipment: IWeaponEquipmentFlags = {
+        hasPrototypeArtemisIV: true,
+      };
+      const target: ITargetStatusFlags = {};
+
+      expect(getPrototypeArtemisIVBonus(equipment, target)).toBe(1);
+    });
+
+    it('should return +3 for Artemis V equipped', () => {
       const equipment: IWeaponEquipmentFlags = { hasArtemisV: true };
       const target: ITargetStatusFlags = {};
 
-      expect(getArtemisVBonus(equipment, target)).toBe(2);
+      expect(getArtemisVBonus(equipment, target)).toBe(3);
     });
 
     it('should return 0 if not equipped', () => {
@@ -445,11 +466,60 @@ describe('Special Weapon Mechanics', () => {
       expect(getArtemisIVBonus(equipment, target)).toBe(0);
     });
 
+    it('Artemis IV should be nullified by flight-path ECM without nullifying target-only NARC', () => {
+      const result = calculateClusterModifiers(
+        'lrm-15',
+        { hasArtemisIV: true },
+        {
+          flightPathEcmAffected: true,
+          narcedTarget: true,
+        },
+      );
+
+      expect(result.artemisBonus).toBe(0);
+      expect(result.narcBonus).toBe(2);
+      expect(result.total).toBe(2);
+    });
+
     it('Artemis V should be nullified by ECM', () => {
       const equipment: IWeaponEquipmentFlags = { hasArtemisV: true };
       const target: ITargetStatusFlags = { ecmProtected: true };
 
       expect(getArtemisVBonus(equipment, target)).toBe(0);
+    });
+
+    it('Artemis IV/V should not apply to indirect fire', () => {
+      const equipment: IWeaponEquipmentFlags = {
+        hasArtemisIV: true,
+        hasPrototypeArtemisIV: true,
+        hasArtemisV: true,
+      };
+      const target: ITargetStatusFlags = { isIndirectFire: true };
+
+      expect(getArtemisIVBonus(equipment, target)).toBe(0);
+      expect(getPrototypeArtemisIVBonus(equipment, target)).toBe(0);
+      expect(getArtemisVBonus(equipment, target)).toBe(0);
+    });
+
+    it('Artemis IV/prototype IV/V should be nullified by attacker stealth', () => {
+      const target: ITargetStatusFlags = { attackerStealthActive: true };
+
+      expect(getArtemisIVBonus({ hasArtemisIV: true }, target)).toBe(0);
+      expect(
+        getPrototypeArtemisIVBonus({ hasPrototypeArtemisIV: true }, target),
+      ).toBe(0);
+      expect(getArtemisVBonus({ hasArtemisV: true }, target)).toBe(0);
+    });
+
+    it('cluster modifiers suppress Artemis while attacker stealth is active', () => {
+      const result = calculateClusterModifiers(
+        'lrm-15',
+        { hasArtemisIV: true },
+        { attackerStealthActive: true },
+      );
+
+      expect(result.artemisBonus).toBe(0);
+      expect(result.total).toBe(0);
     });
   });
 
@@ -473,6 +543,15 @@ describe('Special Weapon Mechanics', () => {
       const target: ITargetStatusFlags = {
         narcedTarget: true,
         ecmProtected: true,
+      };
+
+      expect(getNarcBonus(target)).toBe(0);
+    });
+
+    it('should not apply the cluster bonus during indirect fire', () => {
+      const target: ITargetStatusFlags = {
+        narcedTarget: true,
+        isIndirectFire: true,
       };
 
       expect(getNarcBonus(target)).toBe(0);
@@ -504,25 +583,13 @@ describe('Special Weapon Mechanics', () => {
       expect(isTargetTAGDesignated(target)).toBe(false);
     });
 
-    it('semi-guided LRM should get +2 bonus when TAG-designated', () => {
+    it('does not expose TAG as a semi-guided cluster-table helper', () => {
       const equipment: IWeaponEquipmentFlags = { isSemiGuided: true };
       const target: ITargetStatusFlags = { tagDesignated: true };
 
-      expect(getSemiGuidedLRMBonus(equipment, target)).toBe(2);
-    });
+      const mods = calculateClusterModifiers('lrm-10', equipment, target);
 
-    it('semi-guided LRM should get 0 without TAG', () => {
-      const equipment: IWeaponEquipmentFlags = { isSemiGuided: true };
-      const target: ITargetStatusFlags = {};
-
-      expect(getSemiGuidedLRMBonus(equipment, target)).toBe(0);
-    });
-
-    it('non-semi-guided should get 0 even with TAG', () => {
-      const equipment: IWeaponEquipmentFlags = {};
-      const target: ITargetStatusFlags = { tagDesignated: true };
-
-      expect(getSemiGuidedLRMBonus(equipment, target)).toBe(0);
+      expect(mods.total).toBe(0);
     });
   });
 
@@ -561,6 +628,54 @@ describe('Special Weapon Mechanics', () => {
       expect(mods.total).toBe(5);
     });
 
+    it('should apply source-backed Sandblaster range bonuses and override Cluster Hitter', () => {
+      const shortBonus = getSandblasterClusterModifier({
+        hasSandblaster: true,
+        weaponId: 'lb-10-x-ac',
+        weaponName: 'LB 10-X AC',
+        designatedWeaponType: 'LB 10-X AC',
+        range: 6,
+        shortRange: 6,
+        mediumRange: 12,
+      });
+      const mediumBonus = getSandblasterClusterModifier({
+        hasSandblaster: true,
+        weaponId: 'lb-10-x-ac',
+        weaponName: 'LB 10-X AC',
+        designatedWeaponType: 'LB 10-X AC',
+        range: 7,
+        shortRange: 6,
+        mediumRange: 12,
+      });
+      const longBonus = getSandblasterClusterModifier({
+        hasSandblaster: true,
+        weaponId: 'lb-10-x-ac',
+        weaponName: 'LB 10-X AC',
+        designatedWeaponType: 'LB 10-X AC',
+        range: 13,
+        shortRange: 6,
+        mediumRange: 12,
+      });
+      const mismatchBonus = getSandblasterClusterModifier({
+        hasSandblaster: true,
+        weaponId: 'lb-10-x-ac',
+        weaponName: 'LB 10-X AC',
+        designatedWeaponType: 'LRM 10',
+        range: 6,
+        shortRange: 6,
+        mediumRange: 12,
+      });
+      const mods = calculateClusterModifiers('lb-10-x-ac', {}, {}, true, 4);
+
+      expect(shortBonus).toBe(4);
+      expect(mediumBonus).toBe(3);
+      expect(longBonus).toBe(2);
+      expect(mismatchBonus).toBe(0);
+      expect(mods.sandblasterBonus).toBe(4);
+      expect(mods.clusterHitterBonus).toBe(0);
+      expect(mods.total).toBe(4);
+    });
+
     it('should apply MRM penalty in combined calculation', () => {
       const equipment: IWeaponEquipmentFlags = {};
       const target: ITargetStatusFlags = {};
@@ -569,6 +684,63 @@ describe('Special Weapon Mechanics', () => {
 
       expect(mods.mrmPenalty).toBe(-1);
       expect(mods.total).toBe(-1);
+    });
+
+    it('should not apply Artemis flags to non-Artemis-compatible MRM launchers', () => {
+      const equipment: IWeaponEquipmentFlags = { hasArtemisIV: true };
+      const target: ITargetStatusFlags = {};
+
+      const mods = calculateClusterModifiers('mrm-20', equipment, target);
+
+      expect(mods.artemisBonus).toBe(0);
+      expect(mods.mrmPenalty).toBe(-1);
+      expect(mods.total).toBe(-1);
+    });
+
+    it('should not apply NARC guidance to non-NARC-compatible MRM launchers', () => {
+      const equipment: IWeaponEquipmentFlags = {};
+      const target: ITargetStatusFlags = { narcedTarget: true };
+
+      const mods = calculateClusterModifiers('mrm-20', equipment, target);
+
+      expect(mods.narcBonus).toBe(0);
+      expect(mods.mrmPenalty).toBe(-1);
+      expect(mods.total).toBe(-1);
+    });
+
+    it('should not include semi-guided TAG behavior in official cluster totals', () => {
+      const equipment: IWeaponEquipmentFlags = { isSemiGuided: true };
+      const target: ITargetStatusFlags = { tagDesignated: true };
+
+      const mods = calculateClusterModifiers('lrm-10', equipment, target);
+
+      expect(mods.total).toBe(0);
+    });
+
+    it('should apply prototype Artemis IV as a +1 cluster-table modifier', () => {
+      const equipment: IWeaponEquipmentFlags = {
+        hasPrototypeArtemisIV: true,
+      };
+      const target: ITargetStatusFlags = {};
+
+      const mods = calculateClusterModifiers('lrm-10', equipment, target);
+
+      expect(mods.artemisBonus).toBe(1);
+      expect(mods.total).toBe(1);
+    });
+
+    it('should prefer Artemis V instead of stacking IV and V flags', () => {
+      const equipment: IWeaponEquipmentFlags = {
+        hasArtemisIV: true,
+        hasPrototypeArtemisIV: true,
+        hasArtemisV: true,
+      };
+      const target: ITargetStatusFlags = {};
+
+      const mods = calculateClusterModifiers('lrm-10', equipment, target);
+
+      expect(mods.artemisBonus).toBe(3);
+      expect(mods.total).toBe(3);
     });
 
     it('should not apply narc bonus for non-missile weapons', () => {
@@ -642,9 +814,20 @@ describe('Special Weapon Mechanics', () => {
     it('should detect missile weapons', () => {
       expect(isMissileWeapon('lrm-10')).toBe(true);
       expect(isMissileWeapon('srm-4')).toBe(true);
+      expect(isMissileWeapon('mml-9')).toBe(true);
       expect(isMissileWeapon('mrm-20')).toBe(true);
       expect(isMissileWeapon('atm-6')).toBe(true);
       expect(isMissileWeapon('ac-10')).toBe(false);
+    });
+
+    it('should detect NARC-compatible missile weapons separately from generic missiles', () => {
+      expect(isNarcCompatibleMissileWeapon('lrm-10')).toBe(true);
+      expect(isNarcCompatibleMissileWeapon('srm-4')).toBe(true);
+      expect(isNarcCompatibleMissileWeapon('mml-9')).toBe(true);
+      expect(isNarcCompatibleMissileWeapon('nlrm-10')).toBe(true);
+      expect(isNarcCompatibleMissileWeapon('mrm-20')).toBe(false);
+      expect(isNarcCompatibleMissileWeapon('atm-6')).toBe(false);
+      expect(isNarcCompatibleMissileWeapon('streak-srm-6')).toBe(false);
     });
 
     it('should detect MRM weapons', () => {
@@ -681,7 +864,9 @@ describe('Special Weapon Mechanics', () => {
 
     it('should detect semi-guided LRM', () => {
       expect(isSemiGuidedLRM('semi-guided-lrm-10')).toBe(true);
+      expect(isSemiGuidedLRM('Semi Guided LRM 10')).toBe(true);
       expect(isSemiGuidedLRM('sg-lrm-5')).toBe(true);
+      expect(isSemiGuidedLRM('SG LRM 5')).toBe(true);
       expect(isSemiGuidedLRM('lrm-10')).toBe(false);
     });
   });

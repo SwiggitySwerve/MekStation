@@ -26,7 +26,6 @@ import type {
 
 import { MovementType, GameSide } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
-import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
 
 import { computeIndirectFireContext } from '../InteractiveSession.indirectFire';
 
@@ -55,9 +54,9 @@ function makeClearGrid(): IHexGrid {
 
 function makeBlockedGrid(): IHexGrid {
   const grid = makeClearGrid();
-  // Heavy + light woods exceed MegaMek's intervening woods LOS threshold.
-  grid.hexes.set('2,0', makeHex(2, 0, TerrainType.HeavyWoods));
-  grid.hexes.set('3,0', makeHex(3, 0, TerrainType.LightWoods));
+  // Light + heavy woods block LOS from (0,0) -> (5,0).
+  grid.hexes.set('2,0', makeHex(2, 0, TerrainType.LightWoods));
+  grid.hexes.set('3,0', makeHex(3, 0, TerrainType.HeavyWoods));
   return grid;
 }
 
@@ -90,18 +89,6 @@ function makeState(units: IUnitGameState[]): IGameState {
   return {
     units: map,
   } as unknown as IGameState;
-}
-
-function makeAerospaceCombatState(altitude: number) {
-  return createAerospaceCombatState({
-    maxSI: 10,
-    armorByArc: { nose: 10, leftWing: 8, rightWing: 8, aft: 6 },
-    heatSinks: 10,
-    fuelPoints: 20,
-    safeThrust: 6,
-    maxThrust: 9,
-    altitude,
-  });
 }
 
 // =============================================================================
@@ -195,15 +182,17 @@ describe('computeIndirectFireContext', () => {
     expect(result.toHitPenalty).toBe(1);
   });
 
-  it('rejects airborne aerospace spotter without represented recon or imager equipment', () => {
+  // -------------------------------------------------------------------------
+  // Spotter walked → +1 spotter-walked penalty stacks on top of base +1
+  // -------------------------------------------------------------------------
+  it('applies +1 spotter-walked penalty when spotter ran/walked', () => {
     const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
-    const spotter = {
-      ...makeUnit('s1', GameSide.Player, { q: 5, r: 1 }),
-      combatState: {
-        kind: 'aero',
-        state: makeAerospaceCombatState(3),
-      },
-    } as IUnitGameState;
+    const spotter = makeUnit(
+      's1',
+      GameSide.Player,
+      { q: 5, r: 1 },
+      MovementType.Walk,
+    );
     const result = computeIndirectFireContext(
       'a1',
       'lrm-15',
@@ -211,20 +200,23 @@ describe('computeIndirectFireContext', () => {
       makeState([attacker, spotter]),
       makeBlockedGrid(),
     );
-    expect(result.permitted).toBe(false);
-    expect(result.spotterId).toBeNull();
+    expect(result.permitted).toBe(true);
+    expect(result.toHitPenalty).toBe(2);
+    expect(result.forwardObserverApplied).toBe(false);
   });
 
-  it('permits airborne aerospace spotter with represented recon equipment', () => {
+  it('hydrates Forward Observer from unit abilities and flags the cancellation', () => {
     const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
-    const spotter = {
-      ...makeUnit('s1', GameSide.Player, { q: 5, r: 1 }),
-      combatState: {
-        kind: 'aero',
-        state: makeAerospaceCombatState(3),
-      },
-      airborneAeroSpottingEquipment: { reconCamera: true },
-    } as unknown as IUnitGameState;
+    const spotter = makeUnit(
+      's1',
+      GameSide.Player,
+      { q: 5, r: 1 },
+      MovementType.Walk,
+    );
+    (spotter as unknown as { abilities: string[] }).abilities = [
+      'forward_observer',
+    ];
+
     const result = computeIndirectFireContext(
       'a1',
       'lrm-15',
@@ -232,56 +224,31 @@ describe('computeIndirectFireContext', () => {
       makeState([attacker, spotter]),
       makeBlockedGrid(),
     );
+
+    expect(result.permitted).toBe(true);
+    expect(result.toHitPenalty).toBe(1);
+    expect(result.forwardObserverApplied).toBe(true);
+  });
+
+  it('hydrates Oblique Attacker from attacker abilities and reduces indirect-fire penalty', () => {
+    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
+    (attacker as unknown as { abilities: string[] }).abilities = [
+      'oblique-attacker',
+    ];
+    const spotter = makeUnit('s1', GameSide.Player, { q: 5, r: 1 });
+
+    const result = computeIndirectFireContext(
+      'a1',
+      'lrm-15',
+      { q: 5, r: 0 },
+      makeState([attacker, spotter]),
+      makeBlockedGrid(),
+    );
+
     expect(result.permitted).toBe(true);
     expect(result.isIndirect).toBe(true);
-    expect(result.spotterId).toBe('s1');
-    expect(result.basis).toBe('los');
-  });
-
-  // -------------------------------------------------------------------------
-  // Spotter movement penalty stacks on top of base +1.
-  // -------------------------------------------------------------------------
-  it.each([
-    [MovementType.Walk, 2],
-    [MovementType.Run, 3],
-    [MovementType.Jump, 4],
-  ] as const)('applies %s spotter movement penalty', (movement, penalty) => {
-    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
-    const spotter = makeUnit('s1', GameSide.Player, { q: 5, r: 1 }, movement);
-    const result = computeIndirectFireContext(
-      'a1',
-      'lrm-15',
-      { q: 5, r: 0 },
-      makeState([attacker, spotter]),
-      makeBlockedGrid(),
-    );
-    expect(result.permitted).toBe(true);
-    expect(result.toHitPenalty).toBe(penalty);
-  });
-
-  it('uses session-state pilot SPAs to cancel walked Forward Observer penalty', () => {
-    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
-    const spotter = {
-      ...makeUnit('s1', GameSide.Player, { q: 5, r: 1 }, MovementType.Walk),
-      pilotSpas: ['forward_observer'],
-    };
-    const result = computeIndirectFireContext(
-      'a1',
-      'lrm-15',
-      { q: 5, r: 0 },
-      makeState([attacker, spotter]),
-      makeBlockedGrid(),
-    );
-
-    expect(result).toMatchObject({
-      permitted: true,
-      isIndirect: true,
-      spotterId: 's1',
-      basis: 'los',
-      toHitPenalty: 1,
-      forwardObserverApplied: true,
-      spotterMovementPenaltyCancelled: 1,
-    });
+    expect(result.toHitPenalty).toBe(0);
+    expect(result.obliqueAttackerApplied).toBe(true);
   });
 
   // -------------------------------------------------------------------------
@@ -304,9 +271,54 @@ describe('computeIndirectFireContext', () => {
     expect(result.spotterId).toBe('s1');
   });
 
+  it('hydrates sprinted and evading state so those units cannot spot indirect fire', () => {
+    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
+    const sprintedSpotter = makeUnit('s1', GameSide.Player, { q: 5, r: 1 });
+    const evadingSpotter = makeUnit('s2', GameSide.Player, { q: 5, r: -1 });
+    (
+      sprintedSpotter as unknown as { sprintedThisTurn: boolean }
+    ).sprintedThisTurn = true;
+    (evadingSpotter as unknown as { isEvading: boolean }).isEvading = true;
+
+    const result = computeIndirectFireContext(
+      'a1',
+      'lrm-15',
+      { q: 5, r: 0 },
+      makeState([attacker, sprintedSpotter, evadingSpotter]),
+      makeBlockedGrid(),
+    );
+
+    expect(result.permitted).toBe(false);
+    expect(result.spotterId).toBeNull();
+  });
+
   // -------------------------------------------------------------------------
   // §3 NARC/iNarc override wired through collaborator
   // -------------------------------------------------------------------------
+  it('wires canonical narcedBy state through collaborator: no spotter + NARC-marked target → permitted, basis=narc', () => {
+    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
+    const targetUnit = makeUnit('t1', GameSide.Opponent, { q: 5, r: 0 });
+    (targetUnit as unknown as { narcedBy: string[] }).narcedBy = [
+      GameSide.Player as string,
+    ];
+
+    const result = computeIndirectFireContext(
+      'a1',
+      'lrm-15',
+      { q: 5, r: 0 },
+      makeState([attacker, targetUnit]),
+      makeBlockedGrid(),
+      undefined,
+      't1',
+    );
+
+    expect(result.permitted).toBe(true);
+    expect(result.isIndirect).toBe(true);
+    expect(result.basis).toBe('narc');
+    expect(result.spotterId).toBeNull();
+    expect(result.toHitPenalty).toBe(1);
+  });
+
   it('wires NARC override through collaborator: no spotter + NARC-marked target → permitted, basis=narc', () => {
     const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
     // Target unit with narcMarkedByTeams carrying the attacker's side.
@@ -336,8 +348,13 @@ describe('computeIndirectFireContext', () => {
     const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
     const targetUnit = makeUnit('t1', GameSide.Opponent, { q: 5, r: 0 });
     (
-      targetUnit as unknown as { iNarcMarkedByTeams: string[] }
-    ).iNarcMarkedByTeams = [GameSide.Player as string];
+      targetUnit as unknown as { iNarcPods: typeof targetUnit.iNarcPods }
+    ).iNarcPods = [
+      {
+        teamId: GameSide.Player,
+        podType: 'homing',
+      },
+    ];
 
     const result = computeIndirectFireContext(
       'a1',
@@ -366,51 +383,6 @@ describe('computeIndirectFireContext', () => {
     const result = computeIndirectFireContext(
       'a1',
       'lrm-15',
-      { q: 5, r: 0 },
-      makeState([attacker, targetUnit]),
-      makeBlockedGrid(),
-      undefined,
-      't1',
-    );
-
-    expect(result.permitted).toBe(false);
-  });
-
-  it('wires semi-guided TAG through collaborator: no spotter + TAG-designated target → permitted with no indirect penalty', () => {
-    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
-    const targetUnit = {
-      ...makeUnit('t1', GameSide.Opponent, { q: 5, r: 0 }),
-      tagDesignated: true,
-    };
-
-    const result = computeIndirectFireContext(
-      'a1',
-      'semi-guided-lrm-15',
-      { q: 5, r: 0 },
-      makeState([attacker, targetUnit]),
-      makeBlockedGrid(),
-      undefined,
-      't1',
-    );
-
-    expect(result.permitted).toBe(true);
-    expect(result.isIndirect).toBe(true);
-    expect(result.basis).toBe('semi-guided-tag');
-    expect(result.spotterId).toBeNull();
-    expect(result.toHitPenalty).toBe(0);
-  });
-
-  it('rejects semi-guided TAG when ECM protection nullifies the target designation', () => {
-    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
-    const targetUnit = {
-      ...makeUnit('t1', GameSide.Opponent, { q: 5, r: 0 }),
-      tagDesignated: true,
-      ecmProtected: true,
-    } as ReturnType<typeof makeUnit> & { ecmProtected: boolean };
-
-    const result = computeIndirectFireContext(
-      'a1',
-      'semi-guided-lrm-15',
       { q: 5, r: 0 },
       makeState([attacker, targetUnit]),
       makeBlockedGrid(),

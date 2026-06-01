@@ -7,12 +7,17 @@ import type {
 
 import { Facing, FiringArc, MovementType } from '@/types/gameplay';
 import { determineArc } from '@/utils/gameplay/firingArcs';
-import { getHex } from '@/utils/gameplay/hexGrid';
+import { getHex, isInBounds, isOccupied } from '@/utils/gameplay/hexGrid';
 import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
 import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 import {
-  getValidDestinations,
+  calculateGroundPathMpCost,
   calculateMovementHeat,
+  findPath,
+  getFacingChangeCost,
+  getMaxMP,
+  type IMovementCostContext,
+  type UnitMovementType,
 } from '@/utils/gameplay/movement';
 import { terrainTagOffersCover } from '@/utils/gameplay/terrainCover';
 
@@ -687,6 +692,62 @@ function terrainAwareScore(move: IMove, ctx: IScoreMoveContext): number {
   return delta;
 }
 
+function calculateMoveCandidateMpCost(params: {
+  readonly grid: IHexGrid;
+  readonly path: readonly IHexCoordinate[] | null;
+  readonly position: IUnitPosition;
+  readonly destination: IHexCoordinate;
+  readonly facing: Facing;
+  readonly movementType: MovementType;
+  readonly movementContext?: IMovementCostContext;
+}): number {
+  const {
+    grid,
+    path,
+    position,
+    destination,
+    facing,
+    movementType,
+    movementContext,
+  } = params;
+  const distance = hexDistance(position.coord, destination);
+
+  if (distance === 0) {
+    return getFacingChangeCost(position.facing, facing);
+  }
+
+  if (movementType === MovementType.Jump) {
+    return distance;
+  }
+
+  if (!path) {
+    return Infinity;
+  }
+
+  return calculateGroundPathMpCost(
+    grid,
+    path,
+    toGroundUnitMovementType(movementType),
+    position.facing,
+    facing,
+    movementContext,
+  );
+}
+
+function toGroundUnitMovementType(
+  movementType: MovementType,
+): UnitMovementType {
+  return isRunBasedMovement(movementType) ? 'run' : 'walk';
+}
+
+function isRunBasedMovement(movementType: MovementType): boolean {
+  return (
+    movementType === MovementType.Run ||
+    movementType === MovementType.Evade ||
+    movementType === MovementType.Sprint
+  );
+}
+
 export class MoveAI {
   constructor(private readonly behavior: IBotBehavior) {}
 
@@ -695,31 +756,59 @@ export class MoveAI {
     position: IUnitPosition,
     movementType: MovementType,
     capability: IMovementCapability,
+    movementContext?: IMovementCostContext,
   ): readonly IMove[] {
-    const destinations = getValidDestinations(
-      grid,
-      position,
-      movementType,
-      capability,
+    const maxMP = getMaxMP(capability, movementType);
+    const destinations = enumerateMovementCandidateDestinations(
+      position.coord,
+      maxMP,
     );
     const moves: IMove[] = [];
 
     for (const destination of destinations) {
+      if (!isInBounds(grid, destination)) continue;
       const distance = hexDistance(position.coord, destination);
-      const heatGenerated = calculateMovementHeat(
-        movementType,
-        distance,
-        capability.movementMode,
-        capability.movementHeatProfile,
-      );
+      if (distance > 0 && isOccupied(grid, destination)) continue;
+
+      const path =
+        movementType !== MovementType.Jump && distance > 0
+          ? findPath(
+              grid,
+              position.coord,
+              destination,
+              Infinity,
+              toGroundUnitMovementType(movementType),
+              movementContext,
+            )
+          : null;
+      if (movementType !== MovementType.Jump && distance > 0 && !path) {
+        continue;
+      }
 
       for (let facing = 0; facing < 6; facing++) {
+        const typedFacing = facing as Facing;
+        const mpCost = calculateMoveCandidateMpCost({
+          grid,
+          path,
+          position,
+          destination,
+          facing: typedFacing,
+          movementType,
+          movementContext,
+        });
+
+        if (mpCost > maxMP) continue;
+
         moves.push({
           destination,
-          facing: facing as Facing,
+          facing: typedFacing,
           movementType,
-          mpCost: distance,
-          heatGenerated,
+          mpCost,
+          heatGenerated: calculateMovementHeat(
+            movementType,
+            distance,
+            capability.partialWingJumpBonus,
+          ),
         });
       }
     }
@@ -925,7 +1014,7 @@ function deriveCapability(
   }
   return {
     walkMP: movementType === MovementType.Walk ? maxMp : 0,
-    runMP: movementType === MovementType.Run ? maxMp : 0,
+    runMP: isRunBasedMovement(movementType) ? maxMp : 0,
     jumpMP: movementType === MovementType.Jump ? maxMp : 0,
   };
 }
@@ -952,6 +1041,24 @@ function inferMapRadiusFromMoves(
   return radius;
 }
 
+function enumerateMovementCandidateDestinations(
+  origin: IHexCoordinate,
+  maxMP: number,
+): readonly IHexCoordinate[] {
+  const destinations: IHexCoordinate[] = [];
+
+  for (let dq = -maxMP; dq <= maxMP; dq++) {
+    for (let dr = -maxMP; dr <= maxMP; dr++) {
+      destinations.push({
+        q: origin.q + dq,
+        r: origin.r + dr,
+      });
+    }
+  }
+
+  return destinations;
+}
+
 /**
  * Per-change test hook for `improve-bot-basic-combat-competence`:
  * re-export internal helpers so unit tests can pin the retreat math
@@ -963,5 +1070,6 @@ export const __testing__ = {
   distanceToEdge,
   edgeVector,
   endingFacingTowardEdge,
+  enumerateMovementCandidateDestinations,
   inferMapRadiusFromMoves,
 };

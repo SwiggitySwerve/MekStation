@@ -1,6 +1,10 @@
 import { Facing, FiringArc, IHexCoordinate } from '@/types/gameplay';
 
-import { calculateFiringArc, getTwistedFacing } from '../firingArc';
+import {
+  calculateFiringArc,
+  getTorsoTwistFromSecondaryFacing,
+  getTwistedFacing,
+} from '../firingArc';
 
 // =============================================================================
 // calculateFiringArc — All 4 arcs × 6 facings
@@ -346,6 +350,21 @@ describe('calculateFiringArc with torso twist', () => {
         const expected = ((f - 1 + 6) % 6) as Facing;
         expect(getTwistedFacing(facing, 'right')).toBe(expected);
       }
+    });
+
+    it('derives one-hexside twist direction from secondary facing', () => {
+      expect(
+        getTorsoTwistFromSecondaryFacing(Facing.North, Facing.Northeast),
+      ).toBe('left');
+      expect(
+        getTorsoTwistFromSecondaryFacing(Facing.North, Facing.Northwest),
+      ).toBe('right');
+      expect(
+        getTorsoTwistFromSecondaryFacing(Facing.North, Facing.North),
+      ).toBeUndefined();
+      expect(
+        getTorsoTwistFromSecondaryFacing(Facing.North, Facing.South),
+      ).toBeUndefined();
     });
   });
 

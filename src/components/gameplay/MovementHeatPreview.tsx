@@ -45,6 +45,8 @@ const MOVEMENT_TYPE_LABEL: Record<MovementType, string> = {
   [MovementType.Stationary]: 'Stationary',
   [MovementType.Walk]: 'Walk',
   [MovementType.Run]: 'Run',
+  [MovementType.Sprint]: 'Sprint',
+  [MovementType.Evade]: 'Evade',
   [MovementType.Jump]: 'Jump',
 };
 

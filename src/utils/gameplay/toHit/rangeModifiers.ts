@@ -1,7 +1,6 @@
 import { RangeBracket } from '@/types/gameplay';
 import { IToHitModifierDetail } from '@/types/gameplay';
 
-import { getMinimumRangePenalty } from '../range';
 import { RANGE_MODIFIERS } from './constants';
 
 export function calculateRangeModifier(
@@ -54,16 +53,11 @@ export function calculateMinimumRangeModifier(
   range: number,
   minRange: number,
 ): IToHitModifierDetail | null {
-  const penalty = getMinimumRangePenalty(range, {
-    short: 0,
-    medium: 0,
-    long: 0,
-    minimum: minRange,
-  });
-  if (penalty <= 0) {
+  if (minRange <= 0 || range > minRange) {
     return null;
   }
 
+  const penalty = minRange - range + 1;
   return {
     name: 'Minimum Range',
     value: penalty,

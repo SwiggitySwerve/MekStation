@@ -46,6 +46,18 @@ const sharedTestPathIgnorePatterns = [
   'e2e/',
 ];
 
+const perfSensitiveSimulationTestPattern =
+  'src[/\\\\]simulation[/\\\\]__tests__[/\\\\](integration|simulation-combat-integration|swarm-pilot-skills-batch|swarm-throughput)\\.test\\.ts$';
+
+const unitTestPathIgnorePatterns = [
+  ...sharedTestPathIgnorePatterns,
+  '\\.a11y\\.test\\.(ts|tsx)$',
+];
+
+if (process.env.JEST_EXCLUDE_PERF_SENSITIVE === 'true') {
+  unitTestPathIgnorePatterns.push(perfSensitiveSimulationTestPattern);
+}
+
 // =============================================================================
 // Unit project (existing test surface)
 // =============================================================================
@@ -61,10 +73,7 @@ const unitJestConfig = {
   ],
   // Exclude a11y tests from the default test surface — they live in their
   // own project and run via `--selectProjects a11y`.
-  testPathIgnorePatterns: [
-    ...sharedTestPathIgnorePatterns,
-    '\\.a11y\\.test\\.(ts|tsx)$',
-  ],
+  testPathIgnorePatterns: unitTestPathIgnorePatterns,
   transformIgnorePatterns: sharedTransformIgnorePatterns,
   transform: sharedTransform,
 };

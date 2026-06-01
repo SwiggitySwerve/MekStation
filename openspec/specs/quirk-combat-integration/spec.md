@@ -109,12 +109,13 @@ The No Arms quirk SHALL prevent the unit from performing punch attacks.
 
 ### Requirement: Physical Quirk — Low Arms
 
-The Low Arms quirk SHALL restrict physical attacks based on elevation difference.
+The Low Arms quirk SHALL remain registry-only out-of-scope audit evidence until a source-backed combat resolver is identified.
 
-#### Scenario: Low Arms elevation restriction
+#### Scenario: Low Arms registry-only combat boundary
 
-- **WHEN** a unit with Low Arms attempts to punch a target at a higher elevation
-- **THEN** the punch SHALL NOT be permitted if the elevation difference exceeds the restriction
+- **WHEN** a unit with Low Arms attempts a physical attack
+- **THEN** Low Arms SHALL NOT add a local elevation restriction
+- **AND** the combat validation catalog SHALL mark Low Arms as registry-only out-of-scope audit evidence
 
 ### Requirement: Initiative Quirk — Command Mech
 
@@ -180,37 +181,37 @@ The Multi-Trac quirk SHALL eliminate the secondary target penalty for front-arc 
 - **WHEN** a unit with Multi-Trac fires at a secondary target outside the front arc
 - **THEN** the normal +2 secondary target penalty SHALL apply
 
-### Requirement: Crit Quirk — Rugged
+### Requirement: Campaign Quirk — Rugged
 
-The Rugged quirk SHALL provide critical hit resistance.
+The Rugged quirk SHALL extend campaign maintenance cycle duration.
 
-#### Scenario: Rugged 1 crit resistance
+#### Scenario: Rugged 1 maintenance cycle
 
-- **WHEN** a critical hit is rolled on a unit with Rugged 1
-- **THEN** the first critical hit each game SHALL be negated
+- **WHEN** a unit has Rugged 1
+- **THEN** its campaign maintenance cycle duration SHALL be doubled
 
-#### Scenario: Rugged 2 crit resistance
+#### Scenario: Rugged 2 maintenance cycle
 
-- **WHEN** critical hits are rolled on a unit with Rugged 2
-- **THEN** the first two critical hits each game SHALL be negated
+- **WHEN** a unit has Rugged 2
+- **THEN** its campaign maintenance cycle duration SHALL be tripled
 
-### Requirement: Crit Quirk — Protected Actuators
+### Requirement: Anti-Mek Quirk — Protected Actuators
 
-The Protected Actuators quirk SHALL impose +1 on enemy critical hit rolls targeting actuators.
+The Protected Actuators quirk SHALL impose +1 on enemy anti-Mek Leg and Swarm attack target numbers.
 
-#### Scenario: Protected Actuators crit defense
+#### Scenario: Protected Actuators anti-Mek defense
 
-- **WHEN** an enemy scores a critical hit on a location with actuators on a unit with Protected Actuators
-- **THEN** the critical hit determination roll SHALL receive a +1 modifier (harder to crit)
+- **WHEN** infantry or battle armor makes an anti-Mek Leg or Swarm attack against a unit with Protected Actuators
+- **THEN** the attack target number SHALL receive a +1 modifier
 
-### Requirement: Crit Quirk — Exposed Actuators
+### Requirement: Anti-Mek Quirk — Exposed Actuators
 
-The Exposed Actuators quirk SHALL impose -1 on enemy critical hit rolls targeting actuators.
+The Exposed Actuators quirk SHALL impose -1 on enemy anti-Mek Leg and Swarm attack target numbers.
 
-#### Scenario: Exposed Actuators crit vulnerability
+#### Scenario: Exposed Actuators anti-Mek vulnerability
 
-- **WHEN** an enemy scores a critical hit on a location with actuators on a unit with Exposed Actuators
-- **THEN** the critical hit determination roll SHALL receive a -1 modifier (easier to crit)
+- **WHEN** infantry or battle armor makes an anti-Mek Leg or Swarm attack against a unit with Exposed Actuators
+- **THEN** the attack target number SHALL receive a -1 modifier
 
 ### Requirement: Weapon Quirk — Accurate
 
@@ -330,8 +331,8 @@ The system SHALL maintain a complete catalog of all unit and weapon quirks with 
 - **THEN** each quirk entry SHALL contain:
   - `id`: unique quirk identifier matching MTF/BLK format
   - `name`: human-readable display name
-  - `category`: quirk category (targeting, defensive, piloting, physical, initiative, combat, crit, weapon)
-  - `pipelines`: array of combat pipelines affected (to-hit, psr, initiative, physical, damage, heat, crit)
+  - `category`: quirk category (targeting, defensive, piloting, physical, initiative, combat, crit, campaign, weapon)
+  - `pipelines`: array of combat pipelines affected (to-hit, psr, initiative, physical, damage, heat, crit, campaign)
   - `combatEffect`: description of the combat effect
   - `isPositive`: whether the quirk is beneficial (true) or detrimental (false)
 
@@ -345,7 +346,8 @@ The system SHALL maintain a complete catalog of all unit and weapon quirks with 
   - 4 physical quirks (Battle Fists LA/RA, No Arms, Low Arms)
   - 2 initiative quirks (Command Mech, Battle Computer)
   - 2 combat quirks (Sensor Ghosts, Multi-Trac)
-  - 4 crit quirks (Rugged 1/2, Protected/Exposed Actuators)
+  - 2 campaign quirks (Rugged 1/2)
+  - 2 anti-Mek physical quirks (Protected/Exposed Actuators)
   - 6 weapon quirks (Accurate, Inaccurate, Stable Weapon, Improved/Poor/No Cooling)
 
 ### Requirement: Quirk Aggregation Function
@@ -429,5 +431,4 @@ The system SHALL provide helper functions for quirk-based combat logic.
 #### Scenario: isLowArmsRestricted helper
 
 - **WHEN** `isLowArmsRestricted(unitQuirks, elevationDifference)` is called
-- **THEN** it SHALL return true if the unit has Low Arms quirk AND elevation difference is positive (target higher)
-- **AND** return false otherwise
+- **THEN** it SHALL return false until a source-backed Low Arms combat resolver exists

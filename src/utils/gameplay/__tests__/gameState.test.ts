@@ -21,9 +21,12 @@ import {
   IGameStartedPayload,
   IGameEndedPayload,
   IPhaseChangedPayload,
+  IInitiativeOrderSetPayload,
   IInitiativeRolledPayload,
+  IAttacksRevealedPayload,
   IMovementDeclaredPayload,
   IDamageAppliedPayload,
+  IDesignatorMarkerAppliedPayload,
   IHeatPayload,
   IPilotHitPayload,
   IUnitDestroyedPayload,
@@ -321,6 +324,8 @@ describe('applyEvent - PhaseChanged', () => {
           ...state.units['unit-1'],
           movementThisTurn: MovementType.Walk,
           hexesMovedThisTurn: 4,
+          movedBackwardThisTurn: true,
+          usedMechanicalJumpBoosterThisTurn: true,
         },
       },
     };
@@ -341,6 +346,10 @@ describe('applyEvent - PhaseChanged', () => {
       MovementType.Stationary,
     );
     expect(newState.units['unit-1'].hexesMovedThisTurn).toBe(0);
+    expect(newState.units['unit-1'].movedBackwardThisTurn).toBe(false);
+    expect(newState.units['unit-1'].usedMechanicalJumpBoosterThisTurn).toBe(
+      false,
+    );
   });
 });
 
@@ -392,6 +401,30 @@ describe('applyEvent - InitiativeRolled', () => {
   });
 });
 
+describe('applyEvent - InitiativeOrderSet', () => {
+  it('should set replayable initiative order and reset activation index', () => {
+    const initialState = {
+      ...createInitialGameState('game-1'),
+      activationIndex: 3,
+    };
+
+    const event = createTestEvent({
+      type: GameEventType.InitiativeOrderSet,
+      payload: {
+        winner: GameSide.Player,
+        firstMover: GameSide.Opponent,
+        secondMover: GameSide.Player,
+      } as IInitiativeOrderSetPayload,
+    });
+
+    const newState = applyEvent(initialState, event);
+
+    expect(newState.initiativeWinner).toBe(GameSide.Player);
+    expect(newState.firstMover).toBe(GameSide.Opponent);
+    expect(newState.activationIndex).toBe(0);
+  });
+});
+
 // =============================================================================
 // applyEvent Tests - MovementDeclared
 // =============================================================================
@@ -436,6 +469,97 @@ describe('applyEvent - MovementDeclared', () => {
     expect(unit.lockState).toBe(LockState.Planning);
   });
 
+  it('records backward movement from the step chain', () => {
+    let state = createInitialGameState('game-1');
+
+    const createEvent = createTestEvent({
+      type: GameEventType.GameCreated,
+      payload: {
+        config: createTestConfig(),
+        units: [createTestUnit()],
+      } as IGameCreatedPayload,
+    });
+    state = applyEvent(state, createEvent);
+
+    const movementEvent = createTestEvent({
+      sequence: 2,
+      type: GameEventType.MovementDeclared,
+      payload: {
+        unitId: 'unit-1',
+        from: { q: 0, r: 0 },
+        to: { q: -1, r: 0 },
+        facing: Facing.North,
+        movementType: MovementType.Run,
+        mpUsed: 2,
+        heatGenerated: 2,
+        hexesMoved: 1,
+        steps: [
+          {
+            kind: 'forward',
+            index: 0,
+            direction: 'backward',
+            from: { q: 0, r: 0 },
+            to: { q: -1, r: 0 },
+            mpCost: 1,
+            terrainEntered: 'clear',
+            elevationDelta: 0,
+          },
+        ],
+      } as IMovementDeclaredPayload,
+    });
+
+    const newState = applyEvent(state, movementEvent);
+
+    expect(newState.units['unit-1'].hexesMovedThisTurn).toBe(1);
+    expect(newState.units['unit-1'].movedBackwardThisTurn).toBe(true);
+  });
+
+  it('records mechanical jump booster use from the step chain', () => {
+    let state = createInitialGameState('game-1');
+
+    const createEvent = createTestEvent({
+      type: GameEventType.GameCreated,
+      payload: {
+        config: createTestConfig(),
+        units: [createTestUnit()],
+      } as IGameCreatedPayload,
+    });
+    state = applyEvent(state, createEvent);
+
+    const movementEvent = createTestEvent({
+      sequence: 2,
+      type: GameEventType.MovementDeclared,
+      payload: {
+        unitId: 'unit-1',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        facing: Facing.North,
+        movementType: MovementType.Jump,
+        mpUsed: 1,
+        heatGenerated: 1,
+        hexesMoved: 1,
+        steps: [
+          {
+            kind: 'jump',
+            index: 0,
+            from: { q: 0, r: 0 },
+            to: { q: 1, r: 0 },
+            mpCost: 1,
+            terrainEntered: 'clear',
+            usesMechanicalJumpBooster: true,
+          },
+        ],
+      } as IMovementDeclaredPayload,
+    });
+
+    const newState = applyEvent(state, movementEvent);
+
+    expect(newState.units['unit-1'].movementThisTurn).toBe(MovementType.Jump);
+    expect(newState.units['unit-1'].usedMechanicalJumpBoosterThisTurn).toBe(
+      true,
+    );
+  });
+
   it('should accumulate heat', () => {
     let state = createInitialGameState('game-1');
 
@@ -475,201 +599,6 @@ describe('applyEvent - MovementDeclared', () => {
 
     expect(newState.units['unit-1'].heat).toBe(9); // 5 + 4
   });
-
-  it('should replay hull-down go-prone declarations as prone posture', () => {
-    let state = createInitialGameState('game-1');
-
-    const createEvent = createTestEvent({
-      type: GameEventType.GameCreated,
-      payload: {
-        config: createTestConfig(),
-        units: [createTestUnit()],
-      } as IGameCreatedPayload,
-    });
-    state = applyEvent(state, createEvent);
-    state = {
-      ...state,
-      units: {
-        ...state.units,
-        'unit-1': {
-          ...state.units['unit-1'],
-          hullDown: true,
-          prone: false,
-        },
-      },
-    };
-
-    const movementEvent = createTestEvent({
-      sequence: 2,
-      type: GameEventType.MovementDeclared,
-      payload: {
-        unitId: 'unit-1',
-        from: { q: 0, r: 0 },
-        to: { q: 0, r: 0 },
-        facing: Facing.North,
-        movementType: MovementType.Stationary,
-        mpUsed: 0,
-        heatGenerated: 0,
-        goProneAttempt: true,
-      } as IMovementDeclaredPayload,
-    });
-
-    const newState = applyEvent(state, movementEvent);
-
-    expect(newState.units['unit-1']).toMatchObject({
-      prone: true,
-      hullDown: false,
-      movementThisTurn: MovementType.Stationary,
-      hexesMovedThisTurn: 0,
-    });
-  });
-
-  it('should replay hull-down entry declarations as hull-down posture', () => {
-    let state = createInitialGameState('game-1');
-
-    const createEvent = createTestEvent({
-      type: GameEventType.GameCreated,
-      payload: {
-        config: createTestConfig(),
-        units: [createTestUnit()],
-      } as IGameCreatedPayload,
-    });
-    state = applyEvent(state, createEvent);
-    state = {
-      ...state,
-      units: {
-        ...state.units,
-        'unit-1': {
-          ...state.units['unit-1'],
-          hullDown: false,
-          prone: false,
-        },
-      },
-    };
-
-    const movementEvent = createTestEvent({
-      sequence: 2,
-      type: GameEventType.MovementDeclared,
-      payload: {
-        unitId: 'unit-1',
-        from: { q: 0, r: 0 },
-        to: { q: 0, r: 0 },
-        facing: Facing.North,
-        movementType: MovementType.Walk,
-        mpUsed: 2,
-        heatGenerated: 1,
-        hullDownEntryAttempt: true,
-      } as IMovementDeclaredPayload,
-    });
-
-    const newState = applyEvent(state, movementEvent);
-
-    expect(newState.units['unit-1']).toMatchObject({
-      prone: false,
-      hullDown: true,
-      movementThisTurn: MovementType.Walk,
-      hexesMovedThisTurn: 2,
-    });
-  });
-
-  it('should remember when hull-down entry used a backward step', () => {
-    let state = createInitialGameState('game-1');
-
-    const createEvent = createTestEvent({
-      type: GameEventType.GameCreated,
-      payload: {
-        config: createTestConfig(),
-        units: [createTestUnit()],
-      } as IGameCreatedPayload,
-    });
-    state = applyEvent(state, createEvent);
-
-    const movementEvent = createTestEvent({
-      sequence: 2,
-      type: GameEventType.MovementDeclared,
-      payload: {
-        unitId: 'unit-1',
-        from: { q: 0, r: 0 },
-        to: { q: 0, r: 1 },
-        facing: Facing.North,
-        movementType: MovementType.Walk,
-        mpUsed: 3,
-        heatGenerated: 1,
-        hullDownEntryAttempt: true,
-        steps: [
-          {
-            kind: 'forward',
-            index: 0,
-            direction: 'backward',
-            from: { q: 0, r: 0 },
-            to: { q: 0, r: 1 },
-            mpCost: 1,
-            terrainEntered: 'Clear',
-            elevationDelta: 0,
-          },
-          {
-            kind: 'hullDown',
-            index: 1,
-            at: { q: 0, r: 1 },
-            mpCost: 2,
-          },
-        ],
-      } as IMovementDeclaredPayload,
-    });
-
-    const newState = applyEvent(state, movementEvent);
-
-    expect(newState.units['unit-1']).toMatchObject({
-      hullDown: true,
-      hullDownEnteredBackwards: true,
-    });
-  });
-
-  it('should clear backward hull-down state when the unit leaves hull-down', () => {
-    let state = createInitialGameState('game-1');
-
-    const createEvent = createTestEvent({
-      type: GameEventType.GameCreated,
-      payload: {
-        config: createTestConfig(),
-        units: [createTestUnit()],
-      } as IGameCreatedPayload,
-    });
-    state = applyEvent(state, createEvent);
-    state = {
-      ...state,
-      units: {
-        ...state.units,
-        'unit-1': {
-          ...state.units['unit-1'],
-          hullDown: true,
-          hullDownEnteredBackwards: true,
-        },
-      },
-    };
-
-    const movementEvent = createTestEvent({
-      sequence: 2,
-      type: GameEventType.MovementDeclared,
-      payload: {
-        unitId: 'unit-1',
-        from: { q: 0, r: 0 },
-        to: { q: 1, r: 0 },
-        facing: Facing.North,
-        movementType: MovementType.Walk,
-        mpUsed: 3,
-        heatGenerated: 1,
-        hullDownExitAttempt: true,
-      } as IMovementDeclaredPayload,
-    });
-
-    const newState = applyEvent(state, movementEvent);
-
-    expect(newState.units['unit-1']).toMatchObject({
-      hullDown: false,
-      hullDownEnteredBackwards: false,
-    });
-  });
 });
 
 // =============================================================================
@@ -700,6 +629,58 @@ describe('applyEvent - MovementLocked', () => {
 
     expect(newState.units['unit-1'].lockState).toBe(LockState.Locked);
     expect(newState.activationIndex).toBe(1);
+  });
+});
+
+// =============================================================================
+// applyEvent Tests - AttacksRevealed
+// =============================================================================
+
+describe('applyEvent - AttacksRevealed', () => {
+  it('should reveal locked weapon-phase units from the payload', () => {
+    let state = createInitialGameState('game-1');
+
+    const createEvent = createTestEvent({
+      type: GameEventType.GameCreated,
+      payload: {
+        config: createTestConfig(),
+        units: [
+          createTestUnit({ id: 'unit-1' }),
+          createTestUnit({ id: 'unit-2', side: GameSide.Opponent }),
+        ],
+      } as IGameCreatedPayload,
+    });
+    state = applyEvent(state, createEvent);
+    state = {
+      ...state,
+      phase: GamePhase.WeaponAttack,
+      units: {
+        ...state.units,
+        'unit-1': {
+          ...state.units['unit-1'],
+          lockState: LockState.Locked,
+        },
+        'unit-2': {
+          ...state.units['unit-2'],
+          lockState: LockState.Locked,
+        },
+      },
+    };
+
+    const revealEvent = createTestEvent({
+      sequence: 2,
+      type: GameEventType.AttacksRevealed,
+      phase: GamePhase.WeaponAttack,
+      payload: {
+        unitIds: ['unit-1', 'unit-2'],
+        attackCount: 1,
+      } as IAttacksRevealedPayload,
+    });
+
+    const newState = applyEvent(state, revealEvent);
+
+    expect(newState.units['unit-1'].lockState).toBe(LockState.Revealed);
+    expect(newState.units['unit-2'].lockState).toBe(LockState.Revealed);
   });
 });
 
@@ -969,6 +950,188 @@ describe('applyEvent - UnitDestroyed', () => {
     const newState = applyEvent(state, destroyedEvent);
 
     expect(newState.units['unit-1'].destroyed).toBe(true);
+    expect(newState.units['unit-1'].destructionCause).toBe('damage');
+  });
+});
+
+// =============================================================================
+// applyEvent Tests - DesignatorMarkerApplied
+// =============================================================================
+
+describe('applyEvent - DesignatorMarkerApplied', () => {
+  it('should replay TAG designator marker state onto the target', () => {
+    let state = createInitialGameState('game-1');
+
+    const createEvent = createTestEvent({
+      type: GameEventType.GameCreated,
+      payload: {
+        config: createTestConfig(),
+        units: [
+          createTestUnit({ id: 'player-1', side: GameSide.Player }),
+          createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+        ],
+      } as IGameCreatedPayload,
+    });
+    state = applyEvent(state, createEvent);
+
+    const markerEvent = createTestEvent({
+      sequence: 2,
+      type: GameEventType.DesignatorMarkerApplied,
+      payload: {
+        attackerId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'tag-1',
+        marker: 'tag',
+        persistent: false,
+        turn: 1,
+      } as IDesignatorMarkerAppliedPayload,
+    });
+
+    const newState = applyEvent(state, markerEvent);
+
+    expect(newState.units['opponent-1'].tagDesignated).toBe(true);
+    expect(newState.units['opponent-1'].narcedBy).toEqual([]);
+  });
+
+  it('should replay NARC marker state without duplicating team markers', () => {
+    let state = createInitialGameState('game-1');
+
+    const createEvent = createTestEvent({
+      type: GameEventType.GameCreated,
+      payload: {
+        config: createTestConfig(),
+        units: [
+          createTestUnit({ id: 'player-1', side: GameSide.Player }),
+          createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+        ],
+      } as IGameCreatedPayload,
+    });
+    state = applyEvent(state, createEvent);
+
+    const markerEvent = createTestEvent({
+      sequence: 2,
+      type: GameEventType.DesignatorMarkerApplied,
+      payload: {
+        attackerId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'narc-1',
+        marker: 'narc',
+        persistent: true,
+        turn: 1,
+        teamId: GameSide.Player,
+      } as IDesignatorMarkerAppliedPayload,
+    });
+
+    const firstReplay = applyEvent(state, markerEvent);
+    const secondReplay = applyEvent(firstReplay, markerEvent);
+
+    expect(secondReplay.units['opponent-1'].narcedBy).toEqual([
+      GameSide.Player,
+    ]);
+    expect(secondReplay.units['opponent-1'].tagDesignated).toBe(false);
+  });
+
+  it('should replay iNARC variant pods without duplicating team pods', () => {
+    let state = createInitialGameState('game-1');
+
+    const createEvent = createTestEvent({
+      type: GameEventType.GameCreated,
+      payload: {
+        config: createTestConfig(),
+        units: [
+          createTestUnit({ id: 'player-1', side: GameSide.Player }),
+          createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+        ],
+      } as IGameCreatedPayload,
+    });
+    state = applyEvent(state, createEvent);
+
+    const markerEvent = createTestEvent({
+      sequence: 2,
+      type: GameEventType.DesignatorMarkerApplied,
+      payload: {
+        attackerId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'inarc-1',
+        marker: 'inarc',
+        podType: 'homing',
+        persistent: true,
+        turn: 1,
+        location: 'center_torso',
+        teamId: GameSide.Player,
+      } as IDesignatorMarkerAppliedPayload,
+    });
+    const haywireMarkerEvent = createTestEvent({
+      sequence: 3,
+      type: GameEventType.DesignatorMarkerApplied,
+      payload: {
+        attackerId: 'opponent-1',
+        targetId: 'player-1',
+        weaponId: 'inarc-1',
+        marker: 'inarc',
+        podType: 'haywire',
+        persistent: true,
+        turn: 1,
+        teamId: GameSide.Opponent,
+      } as IDesignatorMarkerAppliedPayload,
+    });
+    const ecmMarkerEvent = createTestEvent({
+      sequence: 4,
+      type: GameEventType.DesignatorMarkerApplied,
+      payload: {
+        attackerId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'inarc-1',
+        marker: 'inarc',
+        podType: 'ecm',
+        persistent: true,
+        turn: 1,
+        teamId: GameSide.Player,
+      } as IDesignatorMarkerAppliedPayload,
+    });
+    const nemesisMarkerEvent = createTestEvent({
+      sequence: 5,
+      type: GameEventType.DesignatorMarkerApplied,
+      payload: {
+        attackerId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'inarc-1',
+        marker: 'inarc',
+        podType: 'nemesis',
+        persistent: true,
+        turn: 1,
+        teamId: GameSide.Player,
+      } as IDesignatorMarkerAppliedPayload,
+    });
+
+    const firstReplay = applyEvent(state, markerEvent);
+    const secondReplay = applyEvent(firstReplay, markerEvent);
+    const haywireReplay = applyEvent(secondReplay, haywireMarkerEvent);
+    const ecmReplay = applyEvent(haywireReplay, ecmMarkerEvent);
+    const nemesisReplay = applyEvent(ecmReplay, nemesisMarkerEvent);
+
+    expect(nemesisReplay.units['opponent-1'].iNarcPods).toEqual([
+      {
+        teamId: GameSide.Player,
+        podType: 'homing',
+        location: 'center_torso',
+      },
+      {
+        teamId: GameSide.Player,
+        podType: 'ecm',
+      },
+      {
+        teamId: GameSide.Player,
+        podType: 'nemesis',
+      },
+    ]);
+    expect(nemesisReplay.units['opponent-1'].narcedBy).toEqual([]);
+    expect(nemesisReplay.units['player-1'].iNarcPods).toEqual([
+      {
+        teamId: GameSide.Opponent,
+        podType: 'haywire',
+      },
+    ]);
   });
 });
 
@@ -1174,6 +1337,12 @@ describe('allUnitsLocked', () => {
       {
         id: 'u2',
         lockState: LockState.Resolved,
+        destroyed: false,
+        pilotConscious: true,
+      },
+      {
+        id: 'u2b',
+        lockState: LockState.Revealed,
         destroyed: false,
         pilotConscious: true,
       },

@@ -3,7 +3,10 @@ export {
   BLOODHOUND_ECM_COUNTER_RANGE,
   CLAN_PROBE_ECM_COUNTER_RANGE,
   ECM_RADIUS,
+  LIGHT_PROBE_ECM_COUNTER_RANGE,
+  NOVA_CEWS_ECM_COUNTER_RANGE,
   STEALTH_ARMOR_MODIFIERS,
+  WATCHDOG_CEWS_ECM_COUNTER_RANGE,
 } from './constants';
 export { calculateECCMCountering } from './countering';
 export {
@@ -35,6 +38,7 @@ export {
 } from './status';
 export { calculateStealthArmorModifier } from './stealth';
 export type {
+  ActiveProbeType,
   IActiveProbe,
   ECMMode,
   IECMStatus,

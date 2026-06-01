@@ -1,6 +1,5 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import {
-  type CombatLocation,
   CriticalEffectType,
   ICriticalEffect,
   PSRTrigger,
@@ -27,29 +26,17 @@ import {
 export function applyActuatorHit(
   slot: ICriticalSlotEntry,
   unitId: string,
-  location: string,
+  _location: string,
   componentDamage: IComponentDamageState,
   events: CriticalHitEvent[],
 ): { effect: ICriticalEffect; updatedDamage: IComponentDamageState } {
   const actuatorType = slot.actuatorType;
-  const combatLocation = asCombatLocation(location);
   const updatedDamage = {
     ...componentDamage,
     actuators: {
       ...componentDamage.actuators,
       ...(actuatorType ? { [actuatorType]: true } : {}),
     },
-    ...(actuatorType && combatLocation
-      ? {
-          actuatorsByLocation: {
-            ...componentDamage.actuatorsByLocation,
-            [combatLocation]: {
-              ...componentDamage.actuatorsByLocation?.[combatLocation],
-              [actuatorType]: true,
-            },
-          },
-        }
-      : {}),
   };
 
   if (
@@ -97,25 +84,6 @@ export function applyActuatorHit(
     },
     updatedDamage,
   };
-}
-
-function asCombatLocation(location: string): CombatLocation | null {
-  switch (location) {
-    case 'head':
-    case 'center_torso':
-    case 'center_torso_rear':
-    case 'left_torso':
-    case 'left_torso_rear':
-    case 'right_torso':
-    case 'right_torso_rear':
-    case 'left_arm':
-    case 'right_arm':
-    case 'left_leg':
-    case 'right_leg':
-      return location;
-    default:
-      return null;
-  }
 }
 
 export function getActuatorToHitModifier(actuatorType: ActuatorType): number {

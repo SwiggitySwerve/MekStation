@@ -73,15 +73,6 @@ function buildUnits(): readonly IGameUnit[] {
       gunnery: 4,
       piloting: 5,
     } as IGameUnit,
-    {
-      id: 's1',
-      name: 'Spotter',
-      side: GameSide.Player,
-      unitRef: 'spotter-mech',
-      pilotRef: 'p3',
-      gunnery: 4,
-      piloting: 5,
-    } as IGameUnit,
   ];
 }
 
@@ -96,22 +87,6 @@ function buildLRMAttack(): readonly IWeaponAttack[] {
       shortRange: 7,
       mediumRange: 14,
       longRange: 21,
-    } as unknown as IWeaponAttack,
-  ];
-}
-
-function buildDirectAttack(): readonly IWeaponAttack[] {
-  return [
-    {
-      weaponId: 'medium-laser-1',
-      weaponName: 'Medium Laser',
-      mode: 'Direct',
-      damage: 5,
-      heat: 3,
-      minRange: 0,
-      shortRange: 3,
-      mediumRange: 6,
-      longRange: 9,
     } as unknown as IWeaponAttack,
   ];
 }
@@ -271,7 +246,7 @@ describe('declareAttack indirect-fire dispatch (PR-K4 §5.1)', () => {
     expect(spotterPayload.toHitPenalty).toBe(2);
   });
 
-  it('emits ForwardObserver event when FO cancels walked spotter penalty', () => {
+  it('emits Forward Observer event after spotter selection when FO cancels the walked penalty', () => {
     const session = setupWeaponAttackSession();
     const resolution: IIndirectFireResolution = {
       permitted: true,
@@ -280,7 +255,6 @@ describe('declareAttack indirect-fire dispatch (PR-K4 §5.1)', () => {
       basis: 'los',
       toHitPenalty: 1,
       forwardObserverApplied: true,
-      spotterMovementPenaltyCancelled: 1,
     };
 
     const result = declareAttack(
@@ -293,21 +267,19 @@ describe('declareAttack indirect-fire dispatch (PR-K4 §5.1)', () => {
       resolution,
     );
 
-    const spotterEventIndex = result.events.findIndex(
-      (e) => e.type === GameEventType.IndirectFireSpotterSelected,
+    const indirectEvents = result.events.filter(
+      (event) =>
+        event.type === GameEventType.IndirectFireSpotterSelected ||
+        event.type === GameEventType.IndirectFireForwardObserver,
     );
-    const forwardObserverEvent = result.events.find(
-      (e) => e.type === GameEventType.IndirectFireForwardObserver,
-    );
+    expect(indirectEvents.map((event) => event.type)).toEqual([
+      GameEventType.IndirectFireSpotterSelected,
+      GameEventType.IndirectFireForwardObserver,
+    ]);
 
-    expect(spotterEventIndex).toBeGreaterThan(-1);
-    expect(forwardObserverEvent).toBeDefined();
-    expect(forwardObserverEvent!.sequence).toBe(
-      result.events[spotterEventIndex].sequence + 1,
-    );
-    expect(
-      forwardObserverEvent!.payload as IIndirectFireForwardObserverPayload,
-    ).toMatchObject({
+    const forwardObserverPayload = indirectEvents[1]
+      .payload as IIndirectFireForwardObserverPayload;
+    expect(forwardObserverPayload).toMatchObject({
       attackerId: 'a1',
       spotterId: 's1',
       weaponId: 'lrm-15-1',
@@ -315,46 +287,6 @@ describe('declareAttack indirect-fire dispatch (PR-K4 §5.1)', () => {
       toHitPenalty: 1,
       penaltyCancelled: 1,
     });
-  });
-
-  it('adds +1 spotting-fire modifier when the elected spotter fires later that turn', () => {
-    const session = setupWeaponAttackSession();
-    const resolution: IIndirectFireResolution = {
-      permitted: true,
-      isIndirect: true,
-      spotterId: 's1',
-      basis: 'los',
-      toHitPenalty: 1,
-    };
-
-    const afterIndirect = declareAttack(
-      session,
-      'a1',
-      't1',
-      buildLRMAttack(),
-      14,
-      RangeBracket.Medium,
-      resolution,
-    );
-    const result = declareAttack(
-      afterIndirect,
-      's1',
-      't1',
-      buildDirectAttack(),
-      3,
-      RangeBracket.Short,
-    );
-
-    const declaredPayloads = result.events
-      .filter((e) => e.type === GameEventType.AttackDeclared)
-      .map((e) => e.payload as IAttackDeclaredPayload);
-    const spotterAttack = declaredPayloads[declaredPayloads.length - 1];
-    const spottingMod = spotterAttack.modifiers.find(
-      (modifier) => modifier.name === 'Spotting for indirect fire',
-    );
-
-    expect(spottingMod).toMatchObject({ value: 1, source: 'other' });
-    expect(spotterAttack.toHitNumber).toBe(5);
   });
 
   it('does NOT emit indirect events when resolution.permitted is false', () => {

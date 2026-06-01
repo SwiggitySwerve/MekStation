@@ -148,12 +148,13 @@ The Marksman SPA SHALL grant -1 to-hit for aimed/called shots.
 
 ### Requirement: Gunnery SPA — Sandblaster
 
-The Sandblaster SPA SHALL grant +1 cluster hits with ultra/rotary autocannons.
+The Sandblaster SPA SHALL grant source-backed range-based cluster-table modifiers for the pilot's designated weapon type: `+4` at short range, `+3` beyond short through medium, and `+2` beyond medium. It SHALL take precedence over Cluster Hitter when both could apply. MekStation SHALL currently apply this only to represented LB-X and missile cluster-table resolution, while UAC/RAC and TacOps rapid-fire AC rate-of-fire Sandblaster behavior remains an explicit gap.
 
-#### Scenario: Sandblaster ultra AC bonus
+#### Scenario: Sandblaster designated cluster-table bonus
 
-- **WHEN** a pilot with Sandblaster fires an ultra or rotary autocannon
-- **THEN** the cluster hit roll SHALL receive a +1 bonus
+- **WHEN** a pilot with Sandblaster fires the designated LB-X or missile cluster-table weapon
+- **THEN** the cluster hit roll SHALL receive the source-backed range bonus
+- **AND** UAC/RAC rate-of-fire behavior SHALL remain helper-only until modeled
 
 ### Requirement: Gunnery SPA — Oblique Attacker
 
@@ -177,13 +178,13 @@ The Sharpshooter SPA SHALL reduce called shot modifier by 1 (from +3 to +2).
 
 The Jumping Jack SPA SHALL modify the attacker's to-hit when the attacker jumped this turn, NOT the target's piloting roll.
 
-When an attacker with Jumping Jack jumped, the jump-movement to-hit penalty (normally +3) SHALL be reduced by 1 (net +2). The SPA SHALL NOT affect any piloting-skill-roll calculation.
+When an attacker with Jumping Jack jumped, the jump-movement to-hit penalty (normally +3) SHALL be reduced to +1. The SPA SHALL NOT affect any piloting-skill-roll calculation.
 
 #### Scenario: Attacker with Jumping Jack jumps and fires
 
 - **GIVEN** an attacker with the Jumping Jack SPA who jumped this turn
 - **WHEN** the to-hit modifier is computed
-- **THEN** the jumping-attacker penalty SHALL be +2 (reduced from +3)
+- **THEN** the jumping-attacker penalty SHALL be +1 (reduced from +3)
 
 #### Scenario: Attacker with Jumping Jack did not jump
 
@@ -197,6 +198,25 @@ When an attacker with Jumping Jack jumped, the jump-movement to-hit penalty (nor
 - **GIVEN** an attacker with the Jumping Jack SPA who triggers a piloting-skill roll
 - **WHEN** the PSR modifiers are aggregated
 - **THEN** Jumping Jack SHALL NOT contribute any modifier to the PSR
+
+### Requirement: Piloting SPA - Hopping Jack
+
+The Hopping Jack SPA SHALL modify the attacker's to-hit when the attacker jumped this turn, NOT the target's piloting roll.
+
+When an attacker with Hopping Jack jumped, the jump-movement to-hit penalty (normally +3) SHALL be reduced to +2. If an attacker has both Jumping Jack and Hopping Jack, Jumping Jack SHALL take precedence because it grants the stronger jump-attack relief.
+
+#### Scenario: Attacker with Hopping Jack jumps and fires
+
+- **GIVEN** an attacker with the Hopping Jack SPA who jumped this turn
+- **WHEN** the to-hit modifier is computed
+- **THEN** the jumping-attacker penalty SHALL be +2 (reduced from +3)
+
+#### Scenario: Attacker with Hopping Jack did not jump
+
+- **GIVEN** an attacker with the Hopping Jack SPA who walked this turn
+- **WHEN** the to-hit modifier is computed
+- **THEN** no Hopping Jack modifier SHALL apply
+- **AND** the standard walking penalty (+1) SHALL apply
 
 ### Requirement: Piloting SPA — Dodge Maneuver
 
@@ -254,6 +274,86 @@ The Terrain Master SPA SHALL ignore +1 piloting modifier for difficult terrain.
 - **WHEN** a pilot with Terrain Master moves through difficult terrain
 - **THEN** the +1 piloting modifier for difficult terrain SHALL be ignored
 
+### Requirement: Piloting SPA - Terrain Master: Frogman
+
+The Terrain Master: Frogman SPA SHALL grant -1 to physical attack to-hit numbers only when a Mek or ProtoMech attacker occupies depth-2 or deeper water. It SHALL also grant -1 to entering-water PSRs only when a Mek or ProtoMech unit enters depth-2 or deeper water.
+
+#### Scenario: Frogman physical attack bonus
+
+- **WHEN** a Mek or ProtoMech pilot with Terrain Master: Frogman makes a physical attack from depth-2 or deeper water
+- **THEN** the physical attack SHALL receive a -1 to-hit modifier
+
+#### Scenario: Frogman shallow-water and target-only boundary
+
+- **WHEN** a pilot with Terrain Master: Frogman makes a physical attack from depth-1 or shallower water
+- **THEN** no Frogman to-hit modifier SHALL apply
+- **WHEN** only the target occupies water
+- **THEN** no Frogman to-hit modifier SHALL apply
+
+#### Scenario: Frogman water-entry PSR bonus
+
+- **WHEN** a Mek or ProtoMech pilot with Terrain Master: Frogman enters depth-2 or deeper water
+- **THEN** the entering-water PSR SHALL receive a -1 Frogman modifier
+
+#### Scenario: Frogman water-entry PSR boundaries
+
+- **WHEN** a pilot with Terrain Master: Frogman enters depth-1 or shallower water
+- **THEN** no Frogman PSR modifier SHALL apply
+- **WHEN** an explicit non-Mek/non-ProtoMek unit with Terrain Master: Frogman enters depth-2 or deeper water
+- **THEN** no Frogman PSR modifier SHALL apply
+
+### Requirement: Piloting SPA - Terrain Master: Mountaineer
+
+The Terrain Master: Mountaineer SPA SHALL grant -1 to entering-rubble PSRs when a unit with `tm_mountaineer` or `terrain-master-mountaineer` has a pending entering-rubble PSR.
+
+#### Scenario: Mountaineer rubble-entry PSR bonus
+
+- **WHEN** a pilot with Terrain Master: Mountaineer enters rubble and the entering-rubble PSR is resolved
+- **THEN** the PSR SHALL receive a -1 Mountaineer modifier
+
+#### Scenario: Mountaineer non-rubble PSR boundary
+
+- **WHEN** a pilot with Terrain Master: Mountaineer resolves a non-rubble PSR
+- **THEN** no Mountaineer PSR modifier SHALL apply
+
+### Requirement: Piloting SPA - Terrain Master: Forest Ranger
+
+The Terrain Master: Forest Ranger SPA SHALL grant +1 enemy to-hit only when the target owns `tm_forest_ranger`, moved by walking, and occupies wooded terrain.
+
+#### Scenario: Forest Ranger walking woods defense
+
+- **WHEN** a pilot with Terrain Master: Forest Ranger is targeted after walking in woods
+- **THEN** attacks against that unit SHALL receive a +1 to-hit modifier
+
+#### Scenario: Forest Ranger requires walking and woods
+
+- **WHEN** a pilot with Terrain Master: Forest Ranger is targeted after running in woods
+- **THEN** no Forest Ranger to-hit modifier SHALL apply
+- **WHEN** the same pilot walked outside wooded terrain
+- **THEN** no Forest Ranger to-hit modifier SHALL apply
+
+### Requirement: Piloting SPA - Terrain Master: Swamp Beast
+
+The Terrain Master: Swamp Beast SPA SHALL grant +1 enemy to-hit only when the target owns `tm_swamp_beast`, moved by running, and occupies mud or swamp terrain. MegaMek's Swamp Beast bog-down PSR relief SHALL apply as `-1` to swamp bog-down PSRs, and swamp bog-down SHALL resolve through `UnitStuck`/`isStuck` instead of a normal failed-PSR fall.
+
+#### Scenario: Swamp Beast running mud or swamp defense
+
+- **WHEN** a pilot with Terrain Master: Swamp Beast is targeted after running in mud or swamp
+- **THEN** attacks against that unit SHALL receive a +1 to-hit modifier
+
+#### Scenario: Swamp Beast requires running and mud or swamp
+
+- **WHEN** a pilot with Terrain Master: Swamp Beast is targeted after walking in swamp
+- **THEN** no Swamp Beast to-hit modifier SHALL apply
+- **WHEN** the same pilot ran outside mud or swamp
+- **THEN** no Swamp Beast to-hit modifier SHALL apply
+
+#### Scenario: Swamp Beast bog-down relief applies to stuck-state PSRs
+
+- **WHEN** a BattleMech with Terrain Master: Swamp Beast enters swamp
+- **THEN** the combat PSR resolver SHALL apply a `-1` Swamp Beast modifier to the swamp bog-down PSR
+- **AND** a failed swamp bog-down PSR SHALL mark the unit stuck instead of applying a fall outcome
+
 ### Requirement: Piloting SPA — Acrobat
 
 The Acrobat SPA SHALL grant -1 to DFA piloting rolls.
@@ -265,12 +365,13 @@ The Acrobat SPA SHALL grant -1 to DFA piloting rolls.
 
 ### Requirement: Piloting SPA — Cross-Country
 
-The Cross-Country SPA SHALL grant -1 PSR for terrain while running.
+The Cross-Country SPA SHALL remain an explicit non-BattleMech combat-vehicle movement/passability scope split until a vehicle combat matrix owns the mechanic. The BattleMech PSR resolver SHALL NOT claim Cross-Country as a terrain PSR modifier.
 
-#### Scenario: Cross-Country running bonus
+#### Scenario: Cross-Country remains outside BattleMech PSRs
 
-- **WHEN** a pilot with Cross-Country makes a PSR for terrain while running
-- **THEN** the PSR SHALL receive a -1 modifier
+- **WHEN** the BattleMech combat validation catalog is generated
+- **THEN** Cross-Country SHALL be marked unsupported for the BattleMech matrix with MegaMek source references to combat-vehicle movement/passability behavior
+- **AND** the PSR resolver assignment SHALL NOT include Cross-Country as a terrain PSR modifier
 
 ### Requirement: Defensive SPA — Evasive
 
@@ -297,53 +398,56 @@ The Natural Grace SPA SHALL grant -1 PSR for falls.
 
 ### Requirement: Misc SPA — Tactical Genius
 
-The Tactical Genius SPA SHALL grant +1 to initiative rolls.
+The Tactical Genius SPA SHALL be modeled as an initiative reroll gate, not as a flat initiative-roll bonus.
 
-#### Scenario: Tactical Genius initiative bonus
+#### Scenario: Tactical Genius is not a flat initiative bonus
 
 - **WHEN** a force includes a pilot with Tactical Genius
-- **THEN** the initiative roll SHALL receive a +1 modifier
+- **THEN** the force SHALL NOT receive a flat numeric initiative-roll modifier
+- **AND** reroll request/replacement-roll flow SHALL be tracked separately from flat initiative bonuses
 
 ### Requirement: Misc SPA — Pain Resistance
 
-The Pain Resistance SPA SHALL allow the pilot to ignore the first wound's effects.
+The Pain Resistance SPA SHALL apply only to source-backed consciousness-roll and ammunition-explosion pilot-damage behavior. It SHALL NOT reduce ranged attack wound penalties or generic to-hit wound modifiers.
 
-#### Scenario: Pain Resistance ignores first wound
+#### Scenario: Pain Resistance does not reduce ranged wound penalties
 
-- **WHEN** a pilot with Pain Resistance has 1 wound
-- **THEN** the pilot wound to-hit modifier SHALL be 0 (first wound ignored)
+- **WHEN** a pilot with Pain Resistance has wounds during a ranged attack
+- **THEN** the ranged attack to-hit modifier SHALL use the raw wound penalty
 
-#### Scenario: Pain Resistance with multiple wounds
+#### Scenario: Pain Resistance applies to source-backed consciousness and explosion paths
 
-- **WHEN** a pilot with Pain Resistance has 3 wounds
-- **THEN** the pilot wound to-hit modifier SHALL be +2 (ignoring first wound: 3 - 1 = 2)
+- **WHEN** a pilot with Pain Resistance rolls for consciousness or takes ammunition-explosion pilot damage
+- **THEN** the supported combat path SHALL apply only the source-backed consciousness or explosion effect
 
 ### Requirement: Misc SPA — Iron Man
 
-The Iron Man SPA SHALL grant -2 to consciousness check target numbers.
+The Iron Man SPA SHALL reduce BattleMech ammunition-explosion pilot hits where that source-backed explosion path is wired. It SHALL NOT grant generic consciousness check target-number relief.
 
-#### Scenario: Iron Man consciousness check bonus
+#### Scenario: Iron Man is not generic consciousness relief
 
 - **WHEN** a pilot with Iron Man makes a consciousness check
-- **THEN** the consciousness check target number SHALL be reduced by 2
+- **THEN** the consciousness check target number SHALL NOT be reduced by Iron Man
 
 ### Requirement: Misc SPA — Hot Dog
 
-The Hot Dog SPA SHALL increase the heat threshold for shutdown checks by +3.
+The Hot Dog SPA SHALL reduce heat startup and shutdown target numbers by 1 without changing the heat 14 shutdown-check threshold.
 
-#### Scenario: Hot Dog delays shutdown
+#### Scenario: Hot Dog modifies shutdown
 
-- **WHEN** a pilot with Hot Dog SPA has heat level 16
-- **THEN** no shutdown check SHALL be required (effective threshold 17 instead of 14)
+- **WHEN** a pilot with Hot Dog SPA has heat level 14
+- **THEN** a shutdown check SHALL be required
+- **AND** the shutdown target number SHALL be 3 instead of 4
 
 ### Requirement: Misc SPA — Edge
 
-The Edge SPA SHALL provide a trigger-based reroll system with 6 mek-specific triggers.
+The Edge SPA SHALL provide MegaMek-style trigger-based Edge options for BattleMech and aerospace combat.
 
 #### Scenario: Edge triggers for mek combat
 
 - **WHEN** a pilot with Edge is in mek combat
-- **THEN** Edge SHALL be usable for: (1) reroll to-hit, (2) reroll damage location, (3) reroll critical hit determination, (4) reroll PSR, (5) reroll consciousness check, (6) negate one critical hit
+- **THEN** BattleMech Edge SHALL be usable for: head-hit location reroll, through-armor-critical location reroll, pilot-KO reroll, critical-explosion reroll, and MASC/Supercharger failure reroll
+- **AND** aerospace Edge SHALL expose altitude-loss, critical-explosion, pilot-KO, lucky-critical, nuke-critical, and transported-cargo-loss triggers
 - **AND** each use of Edge SHALL consume one Edge point
 - **AND** Edge points SHALL NOT regenerate during the game
 
@@ -363,16 +467,21 @@ The Edge SPA SHALL provide a trigger-based reroll system with 6 mek-specific tri
 
 - **WHEN** checking if a pilot can use Edge
 - **THEN** the system SHALL verify remainingPoints > 0
-- **AND** the system SHALL verify the trigger is one of the 6 valid types
+- **AND** the system SHALL verify the trigger is one of the MegaMek-derived Edge option ids
 
 ### Requirement: Misc SPA — Toughness
 
-The Toughness SPA SHALL grant -1 to consciousness check target numbers.
+RPG Toughness SHALL be represented as explicit numeric `pilotToughness` combat state that lowers consciousness check target numbers by that nonnegative integer. A legacy Toughness ability string SHALL NOT imply RPG Toughness relief.
 
-#### Scenario: Toughness consciousness check bonus
+#### Scenario: Explicit RPG Toughness state lowers consciousness targets
 
-- **WHEN** a pilot with Toughness makes a consciousness check
+- **WHEN** a pilot with `pilotToughness=1` makes a consciousness check
 - **THEN** the consciousness check target number SHALL be reduced by 1
+
+#### Scenario: Legacy Toughness ability string is inert
+
+- **WHEN** a pilot has a `toughness` ability string without explicit `pilotToughness`
+- **THEN** the consciousness check target number SHALL NOT be reduced
 
 ### Requirement: Misc SPA — Cool Under Fire
 
@@ -423,30 +532,42 @@ The Multi-Target SPA SHALL reduce multi-target penalty.
 
 ### Requirement: Misc SPA — Iron Will
 
-The Iron Will SPA SHALL grant -2 to consciousness check target numbers (alias for Iron Man).
+The Iron Will SPA SHALL remain a local legacy alias boundary for BattleMech combat validation until source-backed behavior is represented. It SHALL NOT grant generic consciousness check target-number relief.
 
-#### Scenario: Iron Will consciousness check bonus
+#### Scenario: Iron Will is not generic consciousness relief
 
 - **WHEN** a pilot with Iron Will makes a consciousness check
-- **THEN** the consciousness check target number SHALL be reduced by 2
+- **THEN** the consciousness check target number SHALL NOT be reduced by Iron Will
 
 ### Requirement: Piloting SPA — Heavy Lifter
 
-The Heavy Lifter SPA SHALL allow carrying and throwing objects in physical combat.
+The Heavy Lifter SPA SHALL remain an explicit carry/throw-object action gap in the BattleMech combat matrix until object manipulation actions exist. Source-backed MegaMek behavior SHALL be recorded as a `1.5x` ground-object lift-capacity multiplier for BattleMechs with arms, not as a generic physical attack damage or to-hit modifier.
 
-#### Scenario: Heavy Lifter object manipulation
+#### Scenario: Heavy Lifter lift capacity remains action-gated
 
-- **WHEN** a pilot with Heavy Lifter is in physical combat
-- **THEN** the pilot SHALL be able to carry and throw objects
+- **WHEN** the BattleMech combat validation catalog is generated
+- **THEN** Heavy Lifter SHALL be marked unsupported with MegaMek source references to `1.5x` ground-object lift capacity
+- **AND** the catalog SHALL state that carry/throw-object physical combat actions are not implemented
+
+### Requirement: Piloting SPA - Shaky Stick
+
+The Shaky Stick SPA SHALL apply as a source-backed ground-to-air defender to-hit modifier in the BattleMech combat matrix. MegaMek behavior SHALL be represented as a `+1` modifier only when an airborne target is attacked by a non-airborne attacker, not as a generic BattleMech target movement, terrain, or PSR modifier. VTOL/WIGE-specific airborne subtype parity SHALL remain outside this BattleMech matrix until richer movement-state hydration exists.
+
+#### Scenario: Shaky Stick applies only to ground-to-air attacks
+
+- **WHEN** the BattleMech combat validation catalog is generated
+- **THEN** Shaky Stick SHALL be marked integrated with MegaMek source references to the ground-to-air defender to-hit behavior
+- **AND** airborne target and non-airborne attacker state SHALL gate the modifier
 
 ### Requirement: Piloting SPA — Animal Mimicry
 
-The Animal Mimicry SPA SHALL grant -1 PSR modifier in specific terrain.
+The Animal Mimicry SPA SHALL grant a -1 PSR modifier to explicit quad BattleMechs.
 
-#### Scenario: Animal Mimicry terrain bonus
+#### Scenario: Animal Mimicry quad-Mek bonus
 
-- **WHEN** a pilot with Animal Mimicry makes a PSR in their designated terrain
+- **WHEN** a quad BattleMech pilot with Animal Mimicry makes a PSR
 - **THEN** the PSR SHALL receive a -1 modifier
+- **AND** non-quad units SHALL NOT receive the Animal Mimicry modifier
 
 ### Requirement: Tactical SPA — Antagonizer
 

@@ -9,7 +9,6 @@ import type {
   IStandUpStep,
   ITurnStep,
   MovementAnimationMode,
-  StandUpMode,
 } from '@/types/gameplay';
 
 import { AXIAL_DIRECTION_DELTAS, MovementType } from '@/types/gameplay';
@@ -20,8 +19,10 @@ import {
   hexLine,
 } from '@/utils/gameplay/hexMath';
 
-import { movementCostContextForCapability } from './calculations';
-import { movementModeForPath } from './mode';
+import {
+  getSprintMPForCapability,
+  type IMovementCostContext,
+} from './calculations';
 import { findPath } from './pathfinding';
 
 export function movementAnimationModeForType(
@@ -32,6 +33,9 @@ export function movementAnimationModeForType(
     case MovementType.Run:
     case MovementType.Jump:
       return movementType;
+    case MovementType.Evade:
+    case MovementType.Sprint:
+      return MovementType.Run;
     default:
       return null;
   }
@@ -54,12 +58,10 @@ export function buildMovementEventPath(params: {
   readonly from: IHexCoordinate;
   readonly to: IHexCoordinate;
   readonly movementType: MovementType;
-  readonly capability?: IMovementCapability | null;
   readonly maxCost?: number;
-  readonly optionalRules?: readonly string[] | undefined;
+  readonly movementContext?: IMovementCostContext;
 }): readonly IHexCoordinate[] {
-  const { grid, from, to, movementType, capability, maxCost, optionalRules } =
-    params;
+  const { grid, from, to, movementType, maxCost, movementContext } = params;
 
   if (hexEquals(from, to)) {
     return [copyHex(from)];
@@ -77,14 +79,27 @@ export function buildMovementEventPath(params: {
     from,
     to,
     maxCost ?? Infinity,
-    movementModeForPath(movementType, capability),
-    capability
-      ? movementCostContextForCapability(movementType, capability, {
-          optionalRules,
-        })
-      : undefined,
+    toUnitMovementType(movementType),
+    movementContext,
   );
   return normalizeMovementEventPath(from, to, path ?? undefined);
+}
+
+function toUnitMovementType(
+  movementType: MovementType,
+): 'walk' | 'run' | 'jump' {
+  switch (movementType) {
+    case MovementType.Run:
+    case MovementType.Evade:
+    case MovementType.Sprint:
+      return 'run';
+    case MovementType.Jump:
+      return 'jump';
+    case MovementType.Walk:
+    case MovementType.Stationary:
+    default:
+      return 'walk';
+  }
 }
 
 export function maxMovementCostForCapability(
@@ -99,7 +114,10 @@ export function maxMovementCostForCapability(
     case MovementType.Walk:
       return capability.walkMP;
     case MovementType.Run:
+    case MovementType.Evade:
       return capability.runMP;
+    case MovementType.Sprint:
+      return getSprintMPForCapability(capability);
     case MovementType.Jump:
       return capability.jumpMP;
     default:
@@ -170,8 +188,6 @@ export interface IDecomposeMovementInput {
    * future stand-up wiring.
    */
   readonly startedProne?: boolean;
-  readonly standUpCost?: number;
-  readonly standUpMode?: StandUpMode;
 }
 
 /**
@@ -206,6 +222,37 @@ function shortestRotation(from: Facing, to: Facing): number {
   if (cw === 0) return 0;
   if (cw <= 3) return cw;
   return cw - 6; // -1, -2 (counterclockwise)
+}
+
+export function calculateGroundPathTurningMpCost(params: {
+  readonly path: readonly IHexCoordinate[];
+  readonly fromFacing: Facing;
+  readonly toFacing: Facing;
+}): number {
+  const { path, fromFacing, toFacing } = params;
+  if (path.length === 0) return 0;
+
+  let currentFacing: Facing = fromFacing;
+  let currentCoord: IHexCoordinate = path[0];
+  let turningMpCost = 0;
+
+  for (let i = 1; i < path.length; i++) {
+    const next = path[i];
+    if (hexEquals(currentCoord, next)) continue;
+
+    const requiredFacing = facingForHexTransition(currentCoord, next);
+    if (requiredFacing !== null) {
+      turningMpCost += Math.abs(
+        shortestRotation(currentFacing, requiredFacing),
+      );
+      currentFacing = requiredFacing;
+    }
+
+    currentCoord = next;
+  }
+
+  turningMpCost += Math.abs(shortestRotation(currentFacing, toFacing));
+  return turningMpCost;
 }
 
 /**
@@ -243,13 +290,47 @@ export function decomposeMovementSteps(
   const path = input.path ?? [from, to];
   const netDisplacement = hexDistance(from, to);
 
-  // Stationary moves emit no step chain.
-  if (movementType === MovementType.Stationary || hexEquals(from, to)) {
+  // Stationary moves emit no step chain. Same-hex moves with a facing
+  // change still emit turn steps below.
+  if (
+    movementType === MovementType.Stationary ||
+    (hexEquals(from, to) && fromFacing === toFacing)
+  ) {
     return {
       steps: [],
       hexesMoved: 0,
       straightHexes: 0,
       turningMpCost: 0,
+      netDisplacement,
+    };
+  }
+
+  if (hexEquals(from, to)) {
+    const steps: IMovementStep[] = [];
+    let nextIndex = 0;
+    let currentFacing: Facing = fromFacing;
+    let rotations = shortestRotation(currentFacing, toFacing);
+    while (rotations !== 0) {
+      const stepDir: 1 | -1 = rotations > 0 ? 1 : -1;
+      const newFacing = (((currentFacing + stepDir) % 6) + 6) % 6;
+      const turn: ITurnStep = {
+        kind: 'turn',
+        index: nextIndex++,
+        at: copyHex(from),
+        fromFacing: currentFacing,
+        toFacing: newFacing as Facing,
+        mpCost: 1,
+      };
+      steps.push(turn);
+      currentFacing = newFacing as Facing;
+      rotations = shortestRotation(currentFacing, toFacing);
+    }
+
+    return {
+      steps,
+      hexesMoved: 0,
+      straightHexes: 0,
+      turningMpCost: steps.length,
       netDisplacement,
     };
   }
@@ -288,12 +369,11 @@ export function decomposeMovementSteps(
       kind: 'standUp',
       index: nextIndex++,
       at: copyHex(from),
-      mpCost: input.standUpCost ?? 2,
+      mpCost: 2,
       psrTriggered: true,
-      ...(input.standUpMode ? { mode: input.standUpMode } : {}),
     };
     steps.push(standUp);
-    turningMpCost += standUp.mpCost;
+    turningMpCost += 2;
   }
 
   for (let i = 1; i < path.length; i++) {

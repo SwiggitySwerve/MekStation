@@ -2,22 +2,38 @@ import {
   Facing,
   GameEventType,
   GamePhase,
+  type IEnvironmentalConditions,
   IGameEvent,
   IGameState,
   IHexGrid,
+  type IMovementCapability,
+  type IMovementDeclaredPayload,
+  MovementType,
 } from '@/types/gameplay';
+import { createMovementInvalidEvent } from '@/utils/gameplay/gameEvents/movement';
 import {
-  gridWithUnitOccupants,
-  validateCommittedMovement,
-} from '@/utils/gameplay/movement';
+  canUnitGoProne,
+  getGoProneMpCost,
+} from '@/utils/gameplay/gameSessionProne';
 import {
+  applyActiveMPBoosters,
+  applyJumpJetCriticalDamage,
+  applyPartialWingJumpBonus,
+  getHeatAdjustedMovementCapability,
+} from '@/utils/gameplay/movement/calculations';
+import { movementInvalidReasonFromValidation } from '@/utils/gameplay/movement/commitValidation';
+import {
+  buildMovementEventPath,
   decomposeMovementSteps,
+  maxMovementCostForCapability,
   movementAnimationModeForType,
 } from '@/utils/gameplay/movement/eventPath';
+import { validateMovement } from '@/utils/gameplay/movement/validation';
 
 import type { IAIPlayer } from '../../ai/IAIPlayer';
 import type { IWeapon } from '../../ai/types';
 
+import { SeededRandom } from '../../core/SeededRandom';
 import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { IViolation } from '../../invariants/types';
 import { applyMovementEvent } from '../SimulationRunnerState';
@@ -25,7 +41,47 @@ import {
   createMovementCapability,
   toAIUnitState,
 } from '../SimulationRunnerSupport';
-import { createGameEvent } from './utils';
+import { queueMovementDamagePSRs } from './movementDamagePsr';
+import { queueMovementEnhancementPSRs } from './movementEnhancementPsr';
+import { resolveRunnerStandUpAttempt } from './movementStandUp';
+import { queueMovementTerrainPSRs } from './movementTerrainPsr';
+import { createD6Roller, createGameEvent } from './utils';
+
+function isGoProneMovementPayload(
+  payload: IMovementDeclaredPayload | undefined,
+): boolean {
+  return payload?.steps?.some((step) => step.kind === 'goProne') ?? false;
+}
+
+function createGoPronePayload(
+  unitId: string,
+  unit: IGameState['units'][string],
+): IMovementDeclaredPayload {
+  const mpCost = getGoProneMpCost(unit);
+
+  return {
+    unitId,
+    from: unit.position,
+    to: unit.position,
+    facing: unit.facing as Facing,
+    movementType: MovementType.Stationary,
+    path: [unit.position],
+    mpUsed: mpCost,
+    heatGenerated: 0,
+    hexesMoved: 0,
+    straightHexes: 0,
+    turningMpCost: mpCost,
+    netDisplacement: 0,
+    steps: [
+      {
+        kind: 'goProne',
+        index: 0,
+        at: { q: unit.position.q, r: unit.position.r },
+        mpCost,
+      },
+    ],
+  };
+}
 
 export function runMovementPhase(options: {
   state: IGameState;
@@ -42,6 +98,9 @@ export function runMovementPhase(options: {
    * non-swarm callers keep their current behavior.
    */
   weaponsByUnit?: ReadonlyMap<string, readonly IWeapon[]>;
+  movementCapabilitiesByUnit?: ReadonlyMap<string, IMovementCapability>;
+  environmentalConditions?: IEnvironmentalConditions;
+  random?: SeededRandom;
 }): IGameState {
   const {
     botPlayer,
@@ -52,59 +111,143 @@ export function runMovementPhase(options: {
     state,
     violations,
     weaponsByUnit,
+    movementCapabilitiesByUnit,
+    environmentalConditions,
+    random,
   } = options;
   let currentState = { ...state, phase: GamePhase.Movement };
+  const d6Roller = random ? createD6Roller(random) : () => 6;
   violations.push(...invariantRunner.runAll(currentState));
 
   for (const unitId of Object.keys(currentState.units)) {
     const unit = currentState.units[unitId];
-    if (unit.destroyed) {
+    if (
+      unit.destroyed ||
+      unit.hasRetreated ||
+      unit.hasEjected ||
+      unit.shutdown ||
+      !unit.pilotConscious
+    ) {
       continue;
     }
 
     const aiUnit = toAIUnitState(unit, weaponsByUnit?.get(unitId));
-    const capability = createMovementCapability();
+    const baseCapability =
+      movementCapabilitiesByUnit?.get(unitId) ?? createMovementCapability();
+    const jumpDamageCapability = applyJumpJetCriticalDamage(
+      baseCapability,
+      unit.componentDamage?.jumpJetsDestroyed,
+    );
+    const partialWingCapability = applyPartialWingJumpBonus(
+      jumpDamageCapability,
+      unit.partialWingJumpBonus,
+    );
+    const hasSourceBackedMovementState =
+      unit.hasTSM === true ||
+      unit.activeMASC === true ||
+      unit.activeSupercharger === true;
+    const unboostedCapability = hasSourceBackedMovementState
+      ? getHeatAdjustedMovementCapability(
+          partialWingCapability,
+          unit.heat,
+          unit.hasTSM === true,
+        )
+      : partialWingCapability;
+    const capability = applyActiveMPBoosters(
+      unboostedCapability,
+      unit.activeMASC,
+      unit.activeSupercharger,
+    );
+    const validationHeat = hasSourceBackedMovementState ? 0 : unit.heat;
     const moveEvent = botPlayer.playMovementPhase(aiUnit, grid, capability);
 
     if (moveEvent) {
-      const validation = validateCommittedMovement({
-        grid: gridWithUnitOccupants(grid, currentState.units),
-        unit,
-        to: moveEvent.payload.to,
-        facing: moveEvent.payload.facing as Facing,
-        movementType: moveEvent.payload.movementType,
-        capability,
-      });
+      if (isGoProneMovementPayload(moveEvent.payload)) {
+        if (!canUnitGoProne(unit)) {
+          continue;
+        }
 
-      if (!validation.valid) {
+        const payload = createGoPronePayload(unitId, unit);
+        currentState = applyMovementEvent(currentState, unitId, {
+          to: payload.to,
+          facing: payload.facing,
+          movementType: payload.movementType,
+          mpUsed: payload.mpUsed,
+          hexesMoved: payload.hexesMoved,
+          steps: payload.steps,
+        });
         events.push(
           createGameEvent(
             gameId,
             events.length,
-            GameEventType.MovementInvalid,
+            GameEventType.MovementDeclared,
             currentState.turn,
             GamePhase.Movement,
-            {
-              unitId,
-              from: unit.position,
-              to: moveEvent.payload.to,
-              facing: moveEvent.payload.facing as Facing,
-              movementType: moveEvent.payload.movementType,
-              reason: validation.reason,
-              details: validation.details,
-              mpCost: validation.mpCost,
-              heatGenerated: validation.heatGenerated,
-            },
+            payload,
             unitId,
           ),
         );
         continue;
       }
 
-      currentState = applyMovementEvent(currentState, unitId, {
+      if (unit.prone) {
+        currentState = resolveRunnerStandUpAttempt({
+          currentState,
+          events,
+          gameId,
+          unitId,
+          d6Roller,
+        });
+        continue;
+      }
+
+      const movementCapability =
+        moveEvent.payload.movementType === MovementType.Evade
+          ? unboostedCapability
+          : capability;
+      const validation = validateMovement(
+        grid,
+        {
+          unitId,
+          coord: unit.position,
+          facing: unit.facing,
+          prone: unit.prone ?? false,
+          isStuck: unit.isStuck ?? false,
+        },
+        moveEvent.payload.to,
+        moveEvent.payload.facing as Facing,
+        moveEvent.payload.movementType,
+        movementCapability,
+        validationHeat,
+        environmentalConditions,
+        { pilotAbilities: unit.abilities },
+      );
+
+      if (!validation.valid) {
+        events.push(
+          createMovementInvalidEvent(
+            gameId,
+            events.length,
+            currentState.turn,
+            unitId,
+            unit.position,
+            moveEvent.payload.to,
+            moveEvent.payload.facing as Facing,
+            moveEvent.payload.movementType,
+            movementInvalidReasonFromValidation(validation.error),
+            validation.error,
+            validation.mpCost,
+            validation.heatGenerated,
+          ),
+        );
+        continue;
+      }
+
+      const committedPayload = {
         ...moveEvent.payload,
         mpUsed: validation.mpCost,
-      });
+        heatGenerated: validation.heatGenerated,
+      };
 
       // Per `enrich-movement-declared-with-chain-and-displacement`
       // (movement-system delta): synthesize the per-step chain plus the
@@ -129,17 +272,40 @@ export function runMovementPhase(options: {
       // PSR phase exists. PSRs that fire OUTSIDE movement-step
       // resolution (damage, heat, gyro destroyed) MUST RETAIN their
       // existing free-string `triggerSource` values.
+      // Current runner PSR wiring covers stand-up before movement commit,
+      // then terrain PSRs for rubble, running through rough, ice, water
+      // entry/exit, skidding, and explicit active MASC/Supercharger use.
+      const path = buildMovementEventPath({
+        grid,
+        from: unit.position,
+        to: committedPayload.to,
+        movementType: committedPayload.movementType,
+        maxCost: Math.min(
+          validation.mpCost,
+          maxMovementCostForCapability(
+            movementCapability,
+            committedPayload.movementType,
+          ),
+        ),
+        movementContext: { pilotAbilities: unit.abilities },
+      });
       const decomposition = decomposeMovementSteps({
         from: unit.position,
-        to: moveEvent.payload.to,
+        to: committedPayload.to,
         fromFacing: unit.facing as Facing,
-        toFacing: moveEvent.payload.facing as Facing,
-        movementType: moveEvent.payload.movementType,
-        mpUsed: validation.mpCost,
-        path: validation.path,
+        toFacing: committedPayload.facing as Facing,
+        movementType: committedPayload.movementType,
+        mpUsed: committedPayload.mpUsed,
+        path,
         grid,
       });
-      const mode = movementAnimationModeForType(moveEvent.payload.movementType);
+      const mode = movementAnimationModeForType(committedPayload.movementType);
+
+      currentState = applyMovementEvent(currentState, unitId, {
+        ...committedPayload,
+        hexesMoved: decomposition.hexesMoved,
+        steps: decomposition.steps,
+      });
 
       events.push(
         createGameEvent(
@@ -151,13 +317,13 @@ export function runMovementPhase(options: {
           {
             unitId,
             from: unit.position,
-            to: moveEvent.payload.to,
-            facing: moveEvent.payload.facing as Facing,
-            movementType: moveEvent.payload.movementType,
+            to: committedPayload.to,
+            facing: committedPayload.facing as Facing,
+            movementType: committedPayload.movementType,
             ...(mode ? { mode } : {}),
-            path: validation.path,
-            mpUsed: validation.mpCost,
-            heatGenerated: validation.heatGenerated,
+            path,
+            mpUsed: committedPayload.mpUsed,
+            heatGenerated: committedPayload.heatGenerated,
             hexesMoved: decomposition.hexesMoved,
             straightHexes: decomposition.straightHexes,
             turningMpCost: decomposition.turningMpCost,
@@ -167,6 +333,37 @@ export function runMovementPhase(options: {
           unitId,
         ),
       );
+
+      currentState = queueMovementDamagePSRs({
+        currentState,
+        events,
+        gameId,
+        unitId,
+        movementType: committedPayload.movementType,
+        steps: decomposition.steps,
+      });
+
+      currentState = queueMovementTerrainPSRs({
+        currentState,
+        events,
+        gameId,
+        grid,
+        unitId,
+        movementType: committedPayload.movementType,
+        steps: decomposition.steps,
+      });
+
+      currentState = queueMovementEnhancementPSRs({
+        currentState,
+        events,
+        gameId,
+        unitId,
+        movementType: committedPayload.movementType,
+        activeMASC: unit.activeMASC,
+        activeSupercharger: unit.activeSupercharger,
+        mascTurnsUsed: unit.mascTurnsUsed,
+        superchargerTurnsUsed: unit.superchargerTurnsUsed,
+      });
     }
   }
 

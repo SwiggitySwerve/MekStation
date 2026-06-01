@@ -2,12 +2,12 @@ import {
   GamePhase,
   IGameEvent,
   IGameState,
+  IInitiativeOrderSetPayload,
   IInitiativeRolledPayload,
   IPhaseChangedPayload,
   LockState,
   MovementType,
 } from '@/types/gameplay';
-import { clearPendingConversionMovementCost } from '@/utils/gameplay/movement/conversionAccounting';
 
 export function applyPhaseChanged(
   state: IGameState,
@@ -26,11 +26,17 @@ export function applyPhaseChanged(
 
   if (payload.toPhase === GamePhase.Movement) {
     for (const unitId of Object.keys(units)) {
-      units[unitId] = clearPendingConversionMovementCost({
+      units[unitId] = {
         ...units[unitId],
         movementThisTurn: MovementType.Stationary,
         hexesMovedThisTurn: 0,
-      });
+        movedBackwardThisTurn: false,
+        usedMechanicalJumpBoosterThisTurn: false,
+        isEvading: false,
+        evasionBonus: undefined,
+        isSpotting: false,
+        spotTargetId: undefined,
+      };
     }
   }
 
@@ -59,6 +65,9 @@ export function applyTurnStarted(
       ...units[unitId],
       weaponsFiredThisTurn: [],
       pendingPSRs: [],
+      tagDesignated: false,
+      isSpotting: false,
+      spotTargetId: undefined,
     };
   }
 
@@ -80,5 +89,17 @@ export function applyInitiativeRolled(
     ...state,
     initiativeWinner: payload.winner,
     firstMover: payload.movesFirst,
+  };
+}
+
+export function applyInitiativeOrderSet(
+  state: IGameState,
+  payload: IInitiativeOrderSetPayload,
+): IGameState {
+  return {
+    ...state,
+    initiativeWinner: payload.winner,
+    firstMover: payload.firstMover,
+    activationIndex: 0,
   };
 }

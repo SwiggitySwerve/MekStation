@@ -10,6 +10,7 @@ export {
   getUnitNetwork,
   removeC3Network,
   updateC3UnitECMStatus,
+  updateC3UnitOperationalStatus,
   updateC3UnitPosition,
 } from './state';
 export { getC3TargetingBenefit, isBetterBracket } from './targeting';
@@ -19,6 +20,7 @@ export type {
   IC3Network,
   IC3NetworkState,
   IC3NetworkUnit,
+  IC3TargetingOptions,
   IC3TargetingResult,
 } from './types';
 export { C3_MASTER_SLAVE_MAX_UNITS, C3I_MAX_UNITS } from './types';

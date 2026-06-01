@@ -233,46 +233,66 @@ LB-X Autocannons SHALL support two fire modes: slug (standard AC behavior) and c
 
 ### Requirement: AMS Missile Interception
 
-Anti-Missile System (AMS) SHALL reduce incoming missile cluster hits by rolling 1d6.
+Anti-Missile System (AMS) SHALL reduce incoming missile cluster hits by applying a -4 modifier to the missile cluster table result.
+NARC pods and Thunderbolt-style single missiles SHALL instead use the single-missile AMS check: roll 1d6; on 1-3 the pod or missile is destroyed, and on 4-6 it continues.
 
 #### Scenario: AMS reduces LRM-15 hits
 
 - **WHEN** an LRM-15 attack scores 9 hits and the target has active AMS
-- **THEN** AMS SHALL roll 1d6 (using first die of 2d6 roll)
-- **AND** the number of hits SHALL be reduced by the d6 result
+- **THEN** AMS SHALL apply a -4 modifier to the cluster table roll
+- **AND** the modified cluster result SHALL determine remaining missile hits
 - **AND** the reduced hits SHALL be applied to hit locations
-- **AND** AMS SHALL consume 1 ammo
+- **AND** ammo-fed AMS SHALL consume 1 ammo round
 
-#### Scenario: AMS rolls 4, reduces 9 hits to 5
+#### Scenario: AMS changes LRM-10 roll 7 from 6 hits to 3
 
-- **WHEN** AMS rolls 4 on 1d6 against 9 incoming missile hits
-- **THEN** the hits SHALL be reduced by 4
-- **AND** 5 hits SHALL remain
-- **AND** 5 hit locations SHALL be determined
+- **WHEN** an LRM-10 cluster roll is 7 against a target with active AMS
+- **THEN** the modified cluster roll SHALL be 3
+- **AND** 3 missile hits SHALL remain
+- **AND** 3 hit locations SHALL be determined
 
-#### Scenario: AMS cannot reduce below 0
+#### Scenario: AMS cannot reduce below the cluster table minimum
 
-- **WHEN** AMS rolls 6 on 1d6 against 3 incoming missile hits
-- **THEN** the hits SHALL be reduced by 3 (not 6)
-- **AND** 0 hits SHALL remain
-- **AND** no damage SHALL be applied
+- **WHEN** AMS modifiers would reduce a cluster roll below 2
+- **THEN** the modified cluster roll SHALL clamp to 2
+- **AND** the cluster table SHALL determine the remaining hits
 
 #### Scenario: AMS ammo consumption
 
 - **WHEN** AMS activates to intercept missiles
-- **THEN** 1 ton of AMS ammo SHALL be consumed
-- **AND** ammo consumption SHALL occur regardless of reduction amount
+- **THEN** 1 AMS ammo round SHALL be consumed
+- **AND** ammo-fed AMS SHALL NOT activate without an available ammo bin
+
+#### Scenario: Laser AMS ammo behavior
+
+- **WHEN** Laser AMS activates to intercept missiles
+- **THEN** no ammunition SHALL be consumed
+- **AND** Laser AMS SHALL still generate firing heat
+
+#### Scenario: AMS destroys a NARC pod
+
+- **WHEN** a NARC pod hits a target with active AMS
+- **AND** the single-missile AMS roll is 3 or less
+- **THEN** the pod SHALL be destroyed before marker attachment
+- **AND** no NARC marker SHALL be added to the target
+
+#### Scenario: AMS fails to destroy a Thunderbolt-style single missile
+
+- **WHEN** a Thunderbolt-style single missile hits a target with active AMS
+- **AND** the single-missile AMS roll is 4 or greater
+- **THEN** the missile SHALL continue to normal damage resolution
 
 #### Scenario: AMS result structure
 
 - **WHEN** resolving AMS interception
-- **THEN** the result SHALL include hitsReduced (number of hits stopped)
-- **AND** the result SHALL include ammoConsumed (always 1)
-- **AND** the result SHALL include roll (IDiceRoll with 2d6, first die used as d6)
+- **THEN** the result SHALL include incomingProjectiles, projectilesIntercepted, and projectilesRemaining
+- **AND** cluster-table results SHALL include clusterRoll, clusterModifier, and modifiedClusterRoll
+- **AND** single-missile results SHALL include the 1d6 interception roll
+- **AND** the result SHALL include ammoConsumed (1 for ammo-fed AMS, 0 for Laser AMS)
 
 ### Requirement: Artemis IV/V Cluster Bonus
 
-Artemis IV and Artemis V fire control systems SHALL add +2 to cluster hit table rolls, nullified by enemy ECM.
+Artemis IV fire control systems SHALL add +2 to cluster hit table rolls and Artemis V fire control systems SHALL add +3, nullified by enemy ECM and not applied to indirect fire.
 
 #### Scenario: Artemis IV adds +2 to cluster roll
 
@@ -281,31 +301,37 @@ Artemis IV and Artemis V fire control systems SHALL add +2 to cluster hit table 
 - **AND** the modified roll SHALL be used for cluster table lookup
 - **AND** the modified roll SHALL be clamped to [2, 12]
 
-#### Scenario: Artemis IV with roll 5 becomes 7
+#### Scenario: Artemis IV with roll 3 becomes 5
 
-- **WHEN** an LRM-10 with Artemis IV rolls 5 on the cluster table
-- **THEN** the modified roll SHALL be 7 (5 + 2)
-- **AND** the cluster table lookup SHALL use roll 7, size 10
+- **WHEN** an LRM-10 with Artemis IV rolls 3 on the cluster table
+- **THEN** the modified roll SHALL be 5 (3 + 2)
+- **AND** the cluster table lookup SHALL use roll 5, size 10
 - **AND** the result SHALL be 6 hits (instead of 3 hits without Artemis)
 
-#### Scenario: Artemis V adds +2 to cluster roll
+#### Scenario: Artemis V adds +3 to cluster roll
 
 - **WHEN** a weapon with Artemis V fires at a target without ECM protection
-- **THEN** the cluster roll SHALL receive a +2 modifier
-- **AND** the bonus SHALL be identical to Artemis IV (+2)
+- **THEN** the cluster roll SHALL receive a +3 modifier
+- **AND** the bonus SHALL NOT stack with Artemis IV
 
 #### Scenario: Artemis nullified by ECM
 
 - **WHEN** a weapon with Artemis IV/V fires at a target with ECM protection
-- **THEN** the +2 cluster roll bonus SHALL NOT apply
+- **THEN** the Artemis cluster roll bonus SHALL NOT apply
 - **AND** the cluster roll SHALL be unmodified
+
+#### Scenario: Artemis suppressed during indirect fire
+
+- **WHEN** an LRM or MML-LRM attack resolves as indirect fire
+- **THEN** linked Artemis IV/V cluster roll bonuses SHALL NOT apply
+- **AND** the cluster roll SHALL be unmodified by Artemis
 
 #### Scenario: Artemis equipment flag
 
 - **WHEN** checking for Artemis bonus
 - **THEN** the weapon equipment flags SHALL include hasArtemisIV or hasArtemisV
-- **AND** the target status flags SHALL include ecmProtected
-- **AND** the bonus SHALL be 0 if ecmProtected is true
+- **AND** the target status flags SHALL include ecmProtected and isIndirectFire
+- **AND** the bonus SHALL be 0 if ecmProtected or isIndirectFire is true
 
 ### Requirement: Narc Beacon Cluster Bonus
 
@@ -343,26 +369,32 @@ Narc and iNarc beacons SHALL add +2 to cluster hit table rolls for missile attac
 - **AND** the target status flags SHALL include ecmProtected
 - **AND** the bonus SHALL be 0 if ecmProtected is true or narcedTarget is false
 
-### Requirement: TAG Designation for Semi-Guided LRM
+#### Scenario: Narc marker event
 
-TAG designation SHALL enable semi-guided LRM bonuses, including +2 to cluster roll, nullified by enemy ECM.
+- **WHEN** a Narc beacon hit attaches a new target marker
+- **THEN** the event log SHALL include `DesignatorMarkerApplied`
+- **AND** the marker payload SHALL identify marker `narc`, the attacker, the target, the weapon, the attaching team, and persistent `true`
 
-#### Scenario: Semi-guided LRM with TAG adds +2
+### Requirement: TAG Designation for Semi-Guided To-Hit
+
+TAG designation SHALL enable semi-guided ammunition to-hit behavior, nullified by enemy ECM. Semi-guided TAG SHALL cancel positive target-movement to-hit modifiers and apply source-backed indirect-fire relief. It SHALL NOT add a cluster-table bonus.
+
+#### Scenario: Semi-guided LRM with TAG cancels target movement
 
 - **WHEN** a semi-guided LRM fires at a TAG-designated target without ECM protection
-- **THEN** the cluster roll SHALL receive a +2 modifier
-- **AND** the modified roll SHALL be used for cluster table lookup
+- **THEN** positive target-movement to-hit modifiers SHALL be cancelled by an equal negative semi-guided TAG modifier
+- **AND** the cluster roll SHALL NOT receive a semi-guided TAG modifier
 
 #### Scenario: Semi-guided LRM without TAG
 
 - **WHEN** a semi-guided LRM fires at a non-TAG-designated target
-- **THEN** the +2 cluster roll bonus SHALL NOT apply
+- **THEN** the semi-guided TAG to-hit modifiers SHALL NOT apply
 - **AND** the cluster roll SHALL be unmodified
 
 #### Scenario: TAG nullified by ECM
 
 - **WHEN** a semi-guided LRM fires at a TAG-designated target with ECM protection
-- **THEN** the +2 cluster roll bonus SHALL NOT apply
+- **THEN** the semi-guided TAG to-hit modifiers SHALL NOT apply
 - **AND** the cluster roll SHALL be unmodified
 
 #### Scenario: TAG designation flag
@@ -370,13 +402,19 @@ TAG designation SHALL enable semi-guided LRM bonuses, including +2 to cluster ro
 - **WHEN** checking for TAG designation
 - **THEN** the target status flags SHALL include tagDesignated
 - **AND** the target status flags SHALL include ecmProtected
-- **AND** the bonus SHALL be 0 if ecmProtected is true or tagDesignated is false
+- **AND** semi-guided TAG to-hit relief SHALL be 0 if ecmProtected is true or tagDesignated is false
+
+#### Scenario: TAG marker event
+
+- **WHEN** a TAG hit sets the target's current-turn designation
+- **THEN** the event log SHALL include `DesignatorMarkerApplied`
+- **AND** the marker payload SHALL identify marker `tag`, the attacker, the target, the weapon, and persistent `false`
 
 #### Scenario: Semi-guided equipment flag
 
-- **WHEN** checking for semi-guided LRM bonus
+- **WHEN** checking for semi-guided TAG to-hit behavior
 - **THEN** the weapon equipment flags SHALL include isSemiGuided
-- **AND** the bonus SHALL be 0 if isSemiGuided is false
+- **AND** semi-guided TAG to-hit relief SHALL be 0 if isSemiGuided is false
 
 ### Requirement: MRM Cluster Column Modifier
 
@@ -412,7 +450,7 @@ Medium Range Missiles (MRM) SHALL use a -1 cluster column modifier, resulting in
 
 ### Requirement: Combined Cluster Modifiers
 
-The system SHALL combine all applicable cluster modifiers (Artemis, Narc, semi-guided, MRM, Cluster Hitter SPA) into a single total modifier.
+The system SHALL combine all applicable cluster modifiers (Artemis, Narc, MRM, Cluster Hitter SPA) into a single total modifier. Semi-guided TAG behavior SHALL stay in to-hit resolution and SHALL NOT contribute a cluster-table modifier.
 
 #### Scenario: LRM-15 with Artemis IV and Narc
 
@@ -434,14 +472,14 @@ The system SHALL combine all applicable cluster modifiers (Artemis, Narc, semi-g
 
 - **WHEN** a semi-guided LRM with Artemis IV fires at a TAG-designated target without ECM
 - **THEN** the Artemis bonus SHALL be +2
-- **AND** the semi-guided bonus SHALL be +2
-- **AND** the total modifier SHALL be +4
+- **AND** no semi-guided TAG cluster-table modifier SHALL be applied
+- **AND** the total cluster modifier SHALL be +2
 
 #### Scenario: Cluster Hitter SPA adds +1
 
 - **WHEN** a pilot with Cluster Hitter SPA fires a cluster weapon
 - **THEN** the Cluster Hitter bonus SHALL be +1
-- **AND** this bonus SHALL stack with Artemis, Narc, and semi-guided bonuses
+- **AND** this bonus SHALL stack with Artemis and Narc bonuses
 
 #### Scenario: Cluster modifier structure
 

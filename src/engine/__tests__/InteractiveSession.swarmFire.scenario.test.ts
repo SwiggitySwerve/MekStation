@@ -152,6 +152,7 @@ function endPhaseContext(
     diceRollerForResolvers: () => undefined,
     physicalContextByUnit: () => new Map(),
     waterDepthAt: () => 0,
+    environmentHeatEffectAt: () => 0,
     // Force NOT game-over so the End-phase swarm-fire block executes.
     isGameOver: () => false,
     swarmFireOptions,
@@ -270,6 +271,7 @@ describe('PR-L2 swarm-fire-while-attached -- End-phase trigger', () => {
       diceRollerForResolvers: () => undefined,
       physicalContextByUnit: () => new Map(),
       waterDepthAt: () => 0,
+      environmentHeatEffectAt: () => 0,
       isGameOver: () => false,
     });
 

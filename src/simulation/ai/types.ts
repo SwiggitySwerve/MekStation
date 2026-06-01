@@ -62,6 +62,15 @@ export interface IBotBehavior {
   readonly safeHeatThreshold: number;
 
   /**
+   * Opt-in tactical posture rule for source-backed voluntary go-prone
+   * movement. When enabled, `BotPlayer` may choose a same-hex `goProne`
+   * movement step instead of returning no movement when a standing unit has
+   * no non-stationary legal destinations. Default/variant presets leave this
+   * unset so existing AI traces remain unchanged.
+   */
+  readonly voluntaryGoProneWhenStationary?: boolean;
+
+  /**
    * Per `add-ai-terrain-aware-movement` design D3: the AI difficulty tier
    * this bot plays at. The tier name keys into the AI Difficulty Tier
    * Registry (`AITierRegistry.ts`), which supplies the movement-scoring
@@ -142,7 +151,7 @@ export interface IWeapon {
   /** Long range (hexes) */
   readonly longRange: number;
 
-  /** Extreme range (hexes), when represented for the weapon */
+  /** Extreme range (hexes), when advanced range rules are enabled */
   readonly extremeRange?: number;
 
   /** Damage dealt on hit */
@@ -154,11 +163,25 @@ export interface IWeapon {
   /** Minimum range penalty (0 = no minimum) */
   readonly minRange: number;
 
-  /** Mounted chassis location, when known. */
-  readonly location?: string;
-
   /** Ammo per ton (-1 = energy weapon, no ammo needed) */
   readonly ammoPerTon: number;
+
+  /**
+   * Mounted unit location, when hydrated from catalog/unit construction data.
+   * Values are source labels such as `LEFT_ARM`, `RIGHT_TORSO`, or
+   * `Center Torso`; consumers normalize at the rule boundary.
+   */
+  readonly location?: string;
+
+  /**
+   * Optional missile fire-control flags hydrated from canonical unit critical
+   * slots. When present, runner missile resolution can apply source-backed
+   * Artemis cluster-table bonuses without each test hand-building helper
+   * contexts.
+   */
+  readonly hasArtemisIV?: boolean;
+  readonly hasPrototypeArtemisIV?: boolean;
+  readonly hasArtemisV?: boolean;
 
   /** Is this weapon destroyed? */
   readonly destroyed: boolean;
@@ -220,7 +243,7 @@ export interface IWeapon {
  *   - `rate-of-fire`: Ultra / Rotary autocannon — a higher rate of fire
  *     trades heat and ammo for damage.
  */
-export type WeaponModeKind = 'cluster-slug' | 'rate-of-fire';
+export type WeaponModeKind = 'ammo-mode' | 'cluster-slug' | 'rate-of-fire';
 
 /**
  * One selectable firing mode of a multi-mode weapon.
@@ -238,6 +261,8 @@ export interface IWeaponFiringMode {
   readonly heat: number;
   /** Ammo rounds this mode consumes per turn (energy weapons: `0`). */
   readonly shotsPerTurn: number;
+  /** Optional ammo-bin weapon family when mode choice changes ammo type. */
+  readonly ammoWeaponType?: string;
 }
 
 /**
@@ -301,6 +326,15 @@ export interface IAIUnitState {
 
   /** Hexes moved this turn */
   readonly hexesMoved: number;
+
+  /** True when the unit is currently prone. */
+  readonly prone?: boolean;
+
+  /** Construction-side unit type label, when known. */
+  readonly unitType?: string;
+
+  /** Pilot SPA ids available to movement and combat decision helpers. */
+  readonly abilities?: readonly string[];
 
   /**
    * Per `improve-bot-basic-combat-competence` task 2.2: fraction of

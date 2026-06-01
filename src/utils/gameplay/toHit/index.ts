@@ -20,6 +20,8 @@ export {
 export {
   calculateAttackerMovementModifier,
   calculateTMM,
+  calculateTargetEvasionModifier,
+  calculateTargetSprintedModifier,
 } from './movementModifiers';
 export {
   calculateHeatModifier,
@@ -39,6 +41,7 @@ export {
   calculateSensorDamageModifier,
   calculateActuatorDamageModifier,
   calculateAttackerProneModifier,
+  calculateSpottingAttackerModifier,
   calculateIndirectFireModifier,
   calculateCalledShotModifier,
 } from './damageModifiers';
@@ -47,6 +50,16 @@ export {
   calculateToHitFromContext,
   type IEcmContext,
 } from './calculate';
+export {
+  calculateSemiGuidedTagIndirectFireModifier,
+  calculateSemiGuidedTagTargetMovementModifier,
+  type ISemiGuidedTagToHitContext,
+} from './semiGuidedTagModifiers';
+export {
+  buildWeaponAttackActuatorDamage,
+  buildWeaponAttackAttackerToHitState,
+  buildWeaponAttackTargetToHitState,
+} from './stateHydration';
 export { calculateToHitWithC3 } from './c3';
 export type { IC3ToHitInput } from './c3';
 

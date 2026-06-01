@@ -13,6 +13,7 @@ import {
   isHeadHit,
   isLegLocation,
 } from '@/utils/gameplay/hitLocation';
+import { applyPhysicalEquipmentCriticalEvents } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 
 import type { IWeapon } from '../../ai/types';
 
@@ -23,6 +24,17 @@ import {
 } from '../SimulationRunnerState';
 import { createGameEvent } from './utils';
 import { applyCritAmmoExplosions } from './weaponAttackAmmoExplosions';
+import {
+  emitDesignatorMarkerApplied,
+  iNarcPodTypeFromAmmoWeaponType,
+  emitZeroDamageDesignatorHit,
+  isINarcBeaconWeapon,
+  isNarcBeaconWeapon,
+  isTagDesignatorWeapon,
+  markTargetINarcPod,
+  markTargetNarcedBy,
+  markTargetTagDesignated,
+} from './weaponAttackDesignatorMarkers';
 import { emitCritEvents, toFiringArc } from './weaponAttackHelpers';
 import {
   DestructionCause,
@@ -33,6 +45,14 @@ import {
   emitHeadHitPilotEvent,
   emitUnitDestroyedEvent,
 } from './weaponAttackHitResolution.helpers';
+import {
+  applyPlasmaCannonTargetHeat,
+  isPlasmaCannonWeapon,
+} from './weaponAttackPlasmaCannon';
+import {
+  applyCriticalPSRTriggers,
+  applyLegDamagePSR,
+} from './weaponAttackPsrTriggers';
 
 /**
  * Resolve a single confirmed weapon hit against a target unit: roll the
@@ -52,6 +72,8 @@ export function resolveWeaponHit(options: {
   targetId: string;
   weaponId: string;
   weapon: IWeapon;
+  ammoWeaponType?: string;
+  projectileCount?: number;
   attackRoll: number;
   toHitNumber: number;
   firingArc: 'front' | 'left' | 'right' | 'rear';
@@ -61,7 +83,13 @@ export function resolveWeaponHit(options: {
    * p. 53) — the cover absorbs the shot.
    */
   partialCover: boolean;
+  /**
+   * Whether the target is hull-down. Front-arc leg hit-location rolls are
+   * redirected before the partial-cover leg-miss conversion.
+   */
+  hullDown?: boolean;
   d6Roller: () => number;
+  optionalRules?: readonly string[];
   getOrSeedManifest: (id: string) => CriticalSlotManifest;
   manifestsByUnit?: Map<string, CriticalSlotManifest>;
   weaponsByUnit?: ReadonlyMap<string, readonly IWeapon[]>;
@@ -76,6 +104,10 @@ export function resolveWeaponHit(options: {
     getOrSeedManifest,
     manifestsByUnit,
     partialCover,
+    hullDown,
+    optionalRules,
+    ammoWeaponType,
+    projectileCount,
     targetId,
     toHitNumber,
     unitId,
@@ -84,9 +116,44 @@ export function resolveWeaponHit(options: {
     weaponsByUnit,
   } = options;
 
+  if (projectileCount === 0) {
+    events.push(
+      createGameEvent(
+        gameId,
+        events.length,
+        GameEventType.AttackResolved,
+        currentState.turn,
+        GamePhase.WeaponAttack,
+        {
+          attackerId: unitId,
+          targetId,
+          weaponId,
+          roll: attackRoll,
+          toHitNumber,
+          hit: false,
+          damage: 0,
+          heat: weapon.heat,
+          projectileCount,
+          attackerArc: firingArc,
+        },
+        unitId,
+      ),
+    );
+
+    return consumeWeaponAmmo({
+      currentState,
+      events,
+      gameId,
+      attackerId: unitId,
+      weapon,
+      ammoWeaponType,
+    });
+  }
+
   const hitLocationResult = determineHitLocation(
     toFiringArc(firingArc),
     d6Roller,
+    { hullDown: hullDown ?? false },
   );
   const location = hitLocationResult.location;
 
@@ -103,11 +170,203 @@ export function resolveWeaponHit(options: {
       targetId,
       weaponId,
       weapon,
+      projectileCount,
       attackRoll,
       toHitNumber,
       firingArc,
     });
-    return currentState;
+    return consumeWeaponAmmo({
+      currentState,
+      events,
+      gameId,
+      attackerId: unitId,
+      weapon,
+      ammoWeaponType,
+    });
+  }
+
+  if (isINarcBeaconWeapon(weapon)) {
+    const attackerTeamId = currentState.units[unitId]?.side as
+      | string
+      | undefined;
+    const podType = iNarcPodTypeFromAmmoWeaponType(ammoWeaponType);
+    const wasAlreadyINarced =
+      attackerTeamId !== undefined &&
+      (currentState.units[targetId].iNarcPods ?? []).some(
+        (pod) => pod.teamId === attackerTeamId && pod.podType === podType,
+      );
+    currentState = markTargetINarcPod({
+      currentState,
+      targetId,
+      attackerTeamId,
+      location,
+      podType,
+    });
+
+    emitZeroDamageDesignatorHit({
+      events,
+      gameId,
+      turn: currentState.turn,
+      unitId,
+      targetId,
+      weaponId,
+      attackRoll,
+      toHitNumber,
+      location,
+      weapon,
+      projectileCount,
+      firingArc,
+    });
+
+    if (!wasAlreadyINarced && attackerTeamId !== undefined) {
+      emitDesignatorMarkerApplied({
+        events,
+        gameId,
+        turn: currentState.turn,
+        unitId,
+        targetId,
+        weaponId,
+        marker: 'inarc',
+        podType,
+        persistent: true,
+        location,
+        teamId: attackerTeamId,
+      });
+    }
+
+    return consumeWeaponAmmo({
+      currentState,
+      events,
+      gameId,
+      attackerId: unitId,
+      weapon,
+      ammoWeaponType,
+    });
+  }
+
+  if (isNarcBeaconWeapon(weapon)) {
+    const attackerTeamId = currentState.units[unitId]?.side as
+      | string
+      | undefined;
+    const wasAlreadyNarced =
+      attackerTeamId !== undefined &&
+      (currentState.units[targetId].narcedBy ?? []).includes(attackerTeamId);
+    currentState = markTargetNarcedBy({
+      currentState,
+      targetId,
+      attackerTeamId,
+    });
+
+    emitZeroDamageDesignatorHit({
+      events,
+      gameId,
+      turn: currentState.turn,
+      unitId,
+      targetId,
+      weaponId,
+      attackRoll,
+      toHitNumber,
+      location,
+      weapon,
+      projectileCount,
+      firingArc,
+    });
+
+    if (!wasAlreadyNarced && attackerTeamId !== undefined) {
+      emitDesignatorMarkerApplied({
+        events,
+        gameId,
+        turn: currentState.turn,
+        unitId,
+        targetId,
+        weaponId,
+        marker: 'narc',
+        persistent: true,
+        location,
+        teamId: attackerTeamId,
+      });
+    }
+
+    return consumeWeaponAmmo({
+      currentState,
+      events,
+      gameId,
+      attackerId: unitId,
+      weapon,
+      ammoWeaponType,
+    });
+  }
+
+  if (isTagDesignatorWeapon(weapon)) {
+    const wasAlreadyTagged =
+      currentState.units[targetId].tagDesignated === true;
+    currentState = markTargetTagDesignated(currentState, targetId);
+
+    emitZeroDamageDesignatorHit({
+      events,
+      gameId,
+      turn: currentState.turn,
+      unitId,
+      targetId,
+      weaponId,
+      attackRoll,
+      toHitNumber,
+      location,
+      weapon,
+      projectileCount,
+      firingArc,
+    });
+
+    if (!wasAlreadyTagged) {
+      emitDesignatorMarkerApplied({
+        events,
+        gameId,
+        turn: currentState.turn,
+        unitId,
+        targetId,
+        weaponId,
+        marker: 'tag',
+        persistent: false,
+        location,
+      });
+    }
+
+    return consumeWeaponAmmo({
+      currentState,
+      events,
+      gameId,
+      attackerId: unitId,
+      weapon,
+      ammoWeaponType,
+    });
+  }
+
+  if (isPlasmaCannonWeapon(weapon)) {
+    currentState = applyPlasmaCannonTargetHeat({
+      currentState,
+      events,
+      gameId,
+      attackerId: unitId,
+      targetId,
+      weaponId,
+      weapon,
+      projectileCount,
+      attackRoll,
+      toHitNumber,
+      location,
+      firingArc,
+      d6Roller,
+      optionalRules,
+    });
+
+    return consumeWeaponAmmo({
+      currentState,
+      events,
+      gameId,
+      attackerId: unitId,
+      weapon,
+      ammoWeaponType,
+    });
   }
 
   let damage = weapon.damage;
@@ -160,6 +419,19 @@ export function resolveWeaponHit(options: {
     damageResult.result,
     damageResult.componentDamage,
   );
+  const targetAfterCriticals = applyPhysicalEquipmentCriticalEvents(
+    currentState.units[targetId],
+    damageResult.criticalEvents,
+  );
+  if (targetAfterCriticals !== currentState.units[targetId]) {
+    currentState = {
+      ...currentState,
+      units: {
+        ...currentState.units,
+        [targetId]: targetAfterCriticals,
+      },
+    };
+  }
   const targetAfter = currentState.units[targetId];
 
   const prevDamage = targetAfter.damageThisPhase ?? 0;
@@ -170,21 +442,6 @@ export function resolveWeaponHit(options: {
       [targetId]: {
         ...targetAfter,
         damageThisPhase: prevDamage + damage,
-      },
-    },
-  };
-
-  const attackerAfter = currentState.units[unitId];
-  currentState = {
-    ...currentState,
-    units: {
-      ...currentState.units,
-      [unitId]: {
-        ...attackerAfter,
-        weaponsFiredThisTurn: [
-          ...(attackerAfter.weaponsFiredThisTurn ?? []),
-          weapon.id,
-        ],
       },
     },
   };
@@ -209,6 +466,7 @@ export function resolveWeaponHit(options: {
         location,
         damage,
         heat: weapon.heat,
+        ...(projectileCount !== undefined ? { projectileCount } : {}),
         attackerArc: firingArc,
       },
       unitId,
@@ -223,6 +481,7 @@ export function resolveWeaponHit(options: {
     gameId,
     attackerId: unitId,
     weapon,
+    ammoWeaponType,
   });
 
   // Walk the ordered `locationDamages` chain and emit `DamageApplied` →
@@ -283,6 +542,18 @@ export function resolveWeaponHit(options: {
   currentState = ammoExplosionResult.currentState;
   critUnitDestroyed = ammoExplosionResult.critUnitDestroyed;
   critDestructionCause = ammoExplosionResult.critDestructionCause;
+
+  currentState = applyCriticalPSRTriggers(
+    currentState,
+    damageResult.criticalEvents,
+  );
+  currentState = applyLegDamagePSR({
+    currentState,
+    events,
+    gameId,
+    targetId,
+    damageResult,
+  });
 
   // Emit `PilotHit` for raw head-hit wounds (suppressed when a
   // cockpit-crit already emitted one).

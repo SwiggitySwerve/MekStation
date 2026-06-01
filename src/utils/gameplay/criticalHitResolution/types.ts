@@ -32,6 +32,7 @@ export interface ICriticalSlotEntry {
   readonly destroyed: boolean;
   readonly actuatorType?: ActuatorType;
   readonly weaponId?: string;
+  readonly ammoBinId?: string;
 }
 
 export type CriticalSlotManifest = Readonly<

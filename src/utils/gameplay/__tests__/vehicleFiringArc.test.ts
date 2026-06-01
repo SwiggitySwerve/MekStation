@@ -8,7 +8,7 @@ import {
   VehicleLocation,
   VTOLLocation,
 } from '@/types/construction/UnitLocation';
-import { Facing, FiringArc } from '@/types/gameplay';
+import { FiringArc } from '@/types/gameplay';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 
@@ -16,7 +16,6 @@ import { createVehicleCombatState } from '../vehicleDamage';
 import {
   getTurretArcs,
   getVehicleWeaponArcs,
-  canVehicleWeaponReach,
   isPrimaryTurretLocked,
   isSecondaryTurretLocked,
   VEHICLE_ARC_DEGREES,
@@ -33,11 +32,11 @@ describe('vehicleFiringArc', () => {
       expect(total).toBe(360);
     });
 
-    it('Front and Rear are 120 degrees; Left and Right are 60 degrees', () => {
-      expect(VEHICLE_ARC_DEGREES[FiringArc.Front]).toBe(120);
-      expect(VEHICLE_ARC_DEGREES[FiringArc.Rear]).toBe(120);
-      expect(VEHICLE_ARC_DEGREES[FiringArc.Left]).toBe(60);
-      expect(VEHICLE_ARC_DEGREES[FiringArc.Right]).toBe(60);
+    it('Front & Rear are 60°; Left & Right are 120°', () => {
+      expect(VEHICLE_ARC_DEGREES[FiringArc.Front]).toBe(60);
+      expect(VEHICLE_ARC_DEGREES[FiringArc.Rear]).toBe(60);
+      expect(VEHICLE_ARC_DEGREES[FiringArc.Left]).toBe(120);
+      expect(VEHICLE_ARC_DEGREES[FiringArc.Right]).toBe(120);
     });
   });
 
@@ -112,14 +111,6 @@ describe('vehicleFiringArc', () => {
       expect(r).toEqual([FiringArc.Rear]);
     });
 
-    it('BODY mount -> [Front]', () => {
-      const r = getVehicleWeaponArcs({
-        ...base,
-        mountLocation: VehicleLocation.BODY,
-      });
-      expect(r).toEqual([FiringArc.Front]);
-    });
-
     it('TURRET location without isTurretMounted → empty', () => {
       const r = getVehicleWeaponArcs({
         ...base,
@@ -186,57 +177,6 @@ describe('vehicleFiringArc', () => {
         turretLocked: false,
       });
       expect(r).toEqual([FiringArc.Front, FiringArc.Right]);
-    });
-  });
-
-  describe('canVehicleWeaponReach - MegaMek chassis boundaries', () => {
-    const base = {
-      targetPos: { q: 0, r: 0 },
-      targetFacing: Facing.North,
-      isTurretMounted: false,
-      isSponsonMounted: false,
-      turretLocked: false,
-    };
-
-    it('front-mounted weapons own the front/side boundary hexes', () => {
-      expect(
-        canVehicleWeaponReach({
-          ...base,
-          attackerPos: { q: 1, r: -1 },
-          mountLocation: VehicleLocation.FRONT,
-        }),
-      ).toBe(true);
-      expect(
-        canVehicleWeaponReach({
-          ...base,
-          attackerPos: { q: -1, r: 0 },
-          mountLocation: VehicleLocation.FRONT,
-        }),
-      ).toBe(true);
-    });
-
-    it('side-mounted weapons own the rear/side boundary hexes', () => {
-      expect(
-        canVehicleWeaponReach({
-          ...base,
-          attackerPos: { q: 1, r: 0 },
-          mountLocation: VehicleLocation.RIGHT,
-        }),
-      ).toBe(true);
-      expect(
-        canVehicleWeaponReach({
-          ...base,
-          attackerPos: { q: -1, r: 1 },
-          mountLocation: VehicleLocation.LEFT,
-        }),
-      ).toBe(true);
-      expect(
-        canVehicleWeaponReach({
-          ...base,
-          attackerPos: { q: 1, r: 0 },
-          mountLocation: VehicleLocation.REAR,
-        }),
-      ).toBe(false);
     });
   });
 

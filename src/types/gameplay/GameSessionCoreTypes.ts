@@ -80,6 +80,7 @@ export enum GameEventType {
   MovementInvalid = 'movement_invalid',
   MovementLocked = 'movement_locked',
   RuntimeMovementStateChanged = 'runtime_movement_state_changed',
+  MovementEnhancementActivated = 'movement_enhancement_activated',
   FacingChanged = 'facing_changed',
 
   // Combat events
@@ -88,6 +89,7 @@ export enum GameEventType {
   AttacksRevealed = 'attacks_revealed',
   AttackResolved = 'attack_resolved',
   DamageApplied = 'damage_applied',
+  SpottingDeclared = 'spotting_declared',
 
   // Indirect-fire events (Wave 8 PR-K4)
   IndirectFireSpotterSelected = 'indirect_fire_spotter_selected',
@@ -110,6 +112,7 @@ export enum GameEventType {
   PSRTriggered = 'psr_triggered',
   PSRResolved = 'psr_resolved',
   UnitFell = 'unit_fell',
+  UnitStuck = 'unit_stuck',
   /**
    * Per `wire-piloting-skill-rolls` task 0.5.2: emitted when a prone
    * unit successfully passes an `AttemptStand` PSR and returns to its
@@ -123,6 +126,12 @@ export enum GameEventType {
   ShutdownCheck = 'shutdown_check',
   StartupAttempt = 'startup_attempt',
   AmmoConsumed = 'ammo_consumed',
+  AMSInterception = 'ams_interception',
+  /**
+   * A zero-damage designator hit changed target marker state. NARC and
+   * iNARC markers persist on the target; TAG designations are transient.
+   */
+  DesignatorMarkerApplied = 'designator_marker_applied',
   /**
    * Per `wire-ammo-consumption`: attack attempt was rejected before any
    * damage, heat, or `AttackResolved` event fired. Reasons grow over
@@ -169,6 +178,12 @@ export enum GameEventType {
    * the unit on the edge hex.
    */
   UnitRetreated = 'unit_retreated',
+  /**
+   * Fired when a pilot ejects from a unit. The unit leaves active combat
+   * immediately without being marked destroyed and without mutating
+   * armor/structure.
+   */
+  UnitEjected = 'unit_ejected',
   /**
    * Per `add-vehicle-combat-behavior`: fired when a vehicle takes a
    * structure-exposing hit (or an any-hit for Hover/Naval/Hydrofoil/Submarine/WiGE
@@ -361,10 +376,17 @@ export enum ReplaySource {
  */
 export const GAME_INTENT_TYPES = [
   'declareMovement',
+  'stand',
+  'goProne',
+  'activateMovementEnhancement',
+  'torsoTwist',
   'declareAttack',
   'declarePhysical',
+  'requestSpot',
   'confirmHeat',
   'endPhase',
+  'eject',
+  'withdraw',
   'concede',
 ] as const;
 

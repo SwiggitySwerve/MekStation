@@ -7,6 +7,14 @@ import type { IPendingPSR } from '@/types/gameplay';
 
 import { PSRTrigger } from './types';
 
+interface IEnteringWaterPSROptions {
+  readonly waterDepth?: number;
+}
+
+interface ISwampBogDownPSROptions {
+  readonly swampDepth?: number;
+}
+
 /**
  * Per `enrich-movement-declared-with-chain-and-displacement` (piloting-skill-rolls
  * delta — Movement-Step PSR Trigger-Source Stamping): when a PSR fires
@@ -22,6 +30,21 @@ function movementStepTriggerSource(
 ): string | null {
   if (stepIndex === undefined) return null;
   return `movement-step:${stepIndex}`;
+}
+
+function normalizeTerrainLevel(level: number | undefined): number | undefined {
+  if (level === undefined) return undefined;
+  if (!Number.isFinite(level)) return undefined;
+  return Math.max(0, Math.trunc(level));
+}
+
+function calculateEnteringWaterModifier(
+  waterDepth: number | undefined,
+): number {
+  if (waterDepth === undefined || waterDepth <= 0) return 0;
+  if (waterDepth === 1) return -1;
+  if (waterDepth === 2) return 0;
+  return 1;
 }
 
 /**
@@ -126,13 +149,16 @@ export function createIcePSR(
 export function createEnteringWaterPSR(
   entityId: string,
   stepIndex?: number,
+  options: IEnteringWaterPSROptions = {},
 ): IPendingPSR {
   const movementStepSource = movementStepTriggerSource(stepIndex);
+  const waterDepth = normalizeTerrainLevel(options.waterDepth);
   return {
     entityId,
     reason: 'Entering water',
     reasonCode: PSRTrigger.EnteringWater,
-    additionalModifier: 0,
+    additionalModifier: calculateEnteringWaterModifier(waterDepth),
+    ...(waterDepth !== undefined ? { terrainLevel: waterDepth } : {}),
     triggerSource: movementStepSource ?? PSRTrigger.EnteringWater,
   };
 }
@@ -166,14 +192,38 @@ export function createExitingWaterPSR(
 export function createSkiddingPSR(
   entityId: string,
   stepIndex?: number,
+  movementBeforeSkidModifier = 0,
 ): IPendingPSR {
   const movementStepSource = movementStepTriggerSource(stepIndex);
   return {
     entityId,
     reason: 'Skidding',
     reasonCode: PSRTrigger.Skidding,
-    additionalModifier: 0,
+    additionalModifier: movementBeforeSkidModifier,
     triggerSource: movementStepSource ?? PSRTrigger.Skidding,
+  };
+}
+
+/**
+ * Create a pending PSR for avoiding swamp bog-down.
+ */
+export function createSwampBogDownPSR(
+  entityId: string,
+  stepIndex?: number,
+  options: ISwampBogDownPSROptions = {},
+): IPendingPSR {
+  const movementStepSource = movementStepTriggerSource(stepIndex);
+  const swampDepth = normalizeTerrainLevel(options.swampDepth);
+  return {
+    entityId,
+    reason: 'Avoid bogging down',
+    reasonCode: PSRTrigger.SwampBogDown,
+    additionalModifier: 0,
+    ...(swampDepth !== undefined ? { terrainLevel: swampDepth } : {}),
+    ...(swampDepth !== undefined && swampDepth > 1
+      ? { fixedTargetNumber: Number.POSITIVE_INFINITY }
+      : {}),
+    triggerSource: movementStepSource ?? PSRTrigger.SwampBogDown,
   };
 }
 
@@ -196,12 +246,16 @@ export function createAirMekLandingPSR(
 /**
  * Create a pending PSR for building collapse.
  */
-export function createBuildingCollapsePSR(entityId: string): IPendingPSR {
+export function createBuildingCollapsePSR(
+  entityId: string,
+  stepIndex?: number,
+): IPendingPSR {
+  const movementStepSource = movementStepTriggerSource(stepIndex);
   return {
     entityId,
     reason: 'Building collapse',
     reasonCode: PSRTrigger.BuildingCollapse,
     additionalModifier: 0,
-    triggerSource: PSRTrigger.BuildingCollapse,
+    triggerSource: movementStepSource ?? PSRTrigger.BuildingCollapse,
   };
 }

@@ -286,9 +286,9 @@ function buildPhysicalPreview(
     ? option.toHit.allowed && option.restrictionsFailed.length === 0
     : true;
   const restrictionReasonCodes = option?.restrictionsFailed;
-  const blockedReasons = restrictionReasonCodes?.map(
-    (reason) => REASON_COPY[reason],
-  );
+  const blockedReasons = restrictionReasonCodes
+    ?.map((reason) => REASON_COPY[reason])
+    .filter((reason): reason is string => reason !== undefined);
   const toHit =
     option && Number.isFinite(option.toHit.finalToHit)
       ? option.toHit.finalToHit

@@ -1,13 +1,40 @@
 /**
  * General Ability Modifiers
- * Blood Stalker, Multi-Tasker, Jumping Jack, Dodge, Melee Specialist,
+ * Blood Stalker, Multi-Tasker, Jumping/Hopping Jack, Dodge, Melee Specialist,
  * Tactical Genius, Iron Man, Hot Dog, Cluster Hitter, and related abilities.
  */
 
 import { MovementType } from '@/types/gameplay';
 import { IToHitModifierDetail } from '@/types/gameplay';
+import {
+  TerrainType,
+  type ITerrainFeature,
+} from '@/types/gameplay/TerrainTypes';
 
 import { hasSPA } from './canonicalize';
+
+function isMekTargetUnitType(unitType?: string): boolean {
+  if (!unitType) return true;
+
+  const normalized = unitType.replace(/[\s_-]/g, '').toLowerCase();
+  return (
+    normalized === 'battlemech' ||
+    normalized === 'omnimech' ||
+    normalized === 'industrialmech'
+  );
+}
+
+function isMekOrProtoMekUnitType(unitType?: string): boolean {
+  if (!unitType) return true;
+
+  const normalized = unitType.replace(/[\s_-]/g, '').toLowerCase();
+  return (
+    normalized === 'battlemech' ||
+    normalized === 'omnimech' ||
+    normalized === 'industrialmech' ||
+    normalized === 'protomech'
+  );
+}
 
 /**
  * Blood Stalker: -1 vs designated target, +2 vs all others.
@@ -59,21 +86,34 @@ export function getClusterHitterBonus(abilities: readonly string[]): number {
 }
 
 /**
- * Jumping Jack: reduces jump attack modifier from +3 to +1.
+ * Jumping Jack reduces jump attack modifier from +3 to +1.
+ * Hopping Jack reduces jump attack modifier from +3 to +2.
  */
 export function calculateJumpingJackModifier(
   abilities: readonly string[],
   movementType: MovementType,
 ): IToHitModifierDetail | null {
-  if (!hasSPA(abilities, 'jumping_jack')) return null;
   if (movementType !== MovementType.Jump) return null;
 
-  return {
-    name: 'Jumping Jack',
-    value: -2,
-    source: 'spa',
-    description: 'Jumping Jack: jump modifier reduced to +1 (instead of +3)',
-  };
+  if (hasSPA(abilities, 'jumping_jack')) {
+    return {
+      name: 'Jumping Jack',
+      value: -2,
+      source: 'spa',
+      description: 'Jumping Jack: jump modifier reduced to +1 (instead of +3)',
+    };
+  }
+
+  if (hasSPA(abilities, 'hopping_jack')) {
+    return {
+      name: 'Hopping Jack',
+      value: -1,
+      source: 'spa',
+      description: 'Hopping Jack: jump modifier reduced to +2 (instead of +3)',
+    };
+  }
+
+  return null;
 }
 
 /**
@@ -83,15 +123,94 @@ export function calculateJumpingJackModifier(
 export function calculateDodgeManeuverModifier(
   targetAbilities: readonly string[],
   isDodging?: boolean,
+  targetUnitType?: string,
 ): IToHitModifierDetail | null {
   if (!hasSPA(targetAbilities, 'dodge_maneuver')) return null;
   if (!isDodging) return null;
+  if (!isMekTargetUnitType(targetUnitType)) return null;
 
   return {
     name: 'Dodge Maneuver',
     value: 2,
     source: 'spa',
     description: 'Dodge Maneuver: target is dodging (+2)',
+  };
+}
+
+function hasAnyTerrain(
+  terrainFeatures: readonly ITerrainFeature[],
+  types: readonly TerrainType[],
+): boolean {
+  return terrainFeatures.some((feature) => types.includes(feature.type));
+}
+
+function isRunBasedMovement(movementType: MovementType): boolean {
+  return (
+    movementType === MovementType.Run ||
+    movementType === MovementType.Evade ||
+    movementType === MovementType.Sprint
+  );
+}
+
+/**
+ * Terrain Master defensive gunnery variants.
+ */
+export function calculateTerrainMasterDefensiveToHitModifier(
+  targetAbilities: readonly string[],
+  targetMovementType: MovementType,
+  targetTerrainFeatures: readonly ITerrainFeature[],
+): IToHitModifierDetail | null {
+  if (
+    hasSPA(targetAbilities, 'tm_forest_ranger') &&
+    targetMovementType === MovementType.Walk &&
+    hasAnyTerrain(targetTerrainFeatures, [
+      TerrainType.LightWoods,
+      TerrainType.HeavyWoods,
+    ])
+  ) {
+    return {
+      name: 'Forest Ranger',
+      value: 1,
+      source: 'spa',
+      description:
+        'Terrain Master: Forest Ranger: walking target in woods (+1)',
+    };
+  }
+
+  if (
+    hasSPA(targetAbilities, 'tm_swamp_beast') &&
+    isRunBasedMovement(targetMovementType) &&
+    hasAnyTerrain(targetTerrainFeatures, [TerrainType.Mud, TerrainType.Swamp])
+  ) {
+    return {
+      name: 'Swamp Beast',
+      value: 1,
+      source: 'spa',
+      description:
+        'Terrain Master: Swamp Beast: running target in mud/swamp (+1)',
+    };
+  }
+
+  return null;
+}
+
+/**
+ * Shaky Stick: +1 enemy to-hit for airborne targets attacked from the ground.
+ */
+export function calculateShakyStickModifier(
+  targetAbilities: readonly string[],
+  targetIsAirborne?: boolean,
+  attackerIsAirborne?: boolean,
+): IToHitModifierDetail | null {
+  if (!hasSPA(targetAbilities, 'shaky_stick')) return null;
+  if (targetIsAirborne !== true) return null;
+  if (attackerIsAirborne === true) return null;
+
+  return {
+    name: 'Shaky Stick',
+    value: 1,
+    source: 'spa',
+    description: 'Shaky Stick: airborne target attacked from ground (+1)',
   };
 }
 
@@ -112,49 +231,191 @@ export function calculateMeleeSpecialistModifier(
 }
 
 /**
- * Melee Master: +1 physical attack damage bonus.
- * Not a to-hit modifier — returns a damage bonus.
+ * Terrain Master: Frogman: -1 to physical to-hit in depth-2+ water.
+ */
+export function calculateFrogmanPhysicalToHitModifier(
+  abilities: readonly string[],
+  attackerWaterDepth?: number,
+  attackerUnitType?: string,
+): IToHitModifierDetail | null {
+  if (!hasSPA(abilities, 'tm_frogman')) return null;
+  if (!isMekOrProtoMekUnitType(attackerUnitType)) return null;
+  if ((attackerWaterDepth ?? 0) <= 1) return null;
+
+  return {
+    name: 'Frogman',
+    value: -1,
+    source: 'spa',
+    description: 'Frogman: -1 physical attack to-hit in depth-2+ water',
+  };
+}
+
+/**
+ * Terrain Master: Frogman: -1 to entering depth-2+ water PSRs.
+ */
+export function getFrogmanWaterPSRModifier(
+  abilities: readonly string[],
+  waterDepth?: number,
+  unitType?: string,
+): number {
+  if (!hasSPA(abilities, 'tm_frogman')) return 0;
+  if (!isMekOrProtoMekUnitType(unitType)) return 0;
+  if ((waterDepth ?? 0) <= 1) return 0;
+
+  return -1;
+}
+
+/**
+ * Terrain Master: Mountaineer: -1 to entering-rubble PSRs.
+ */
+export function getMountaineerRubblePSRModifier(
+  abilities: readonly string[],
+): number {
+  return hasSPA(abilities, 'tm_mountaineer') ? -1 : 0;
+}
+
+/**
+ * Terrain Master: Swamp Beast: -1 to avoid-bog-down PSRs.
+ */
+export function getSwampBeastBogDownPSRModifier(
+  abilities: readonly string[],
+): number {
+  return hasSPA(abilities, 'tm_swamp_beast') ? -1 : 0;
+}
+
+/**
+ * Melee Specialist: +1 physical attack damage bonus.
+ * Not a to-hit modifier -- returns a damage bonus.
+ */
+export function getMeleeSpecialistDamageBonus(
+  abilities: readonly string[],
+): number {
+  return hasSPA(abilities, 'melee_specialist') ? 1 : 0;
+}
+
+/**
+ * Melee Master grants an additional physical attack, not flat damage.
  */
 export function getMeleeMasterDamageBonus(
+  _abilities: readonly string[],
+): number {
+  return 0;
+}
+
+export interface IHeavyLifterGroundObjectCapacityInput {
+  readonly unitTonnage: number;
+  readonly abilities?: readonly string[];
+  readonly leftHandAvailable?: boolean;
+  readonly rightHandAvailable?: boolean;
+  readonly tsmPickupModifier?: number;
+}
+
+/**
+ * Heavy Lifter multiplies ground-object lift capacity by 1.5.
+ */
+export function getHeavyLifterGroundObjectLiftMultiplier(
+  abilities: readonly string[] = [],
+): number {
+  return hasSPA(abilities, 'hvy_lifter') ? 1.5 : 1;
+}
+
+/**
+ * MegaMek's MekWithArms lift capacity is 5% of tonnage per available hand,
+ * then Heavy Lifter and active TSM pickup modifiers multiply that base.
+ */
+export function calculateGroundObjectLiftCapacity({
+  unitTonnage,
+  abilities = [],
+  leftHandAvailable = true,
+  rightHandAvailable = true,
+  tsmPickupModifier = 1,
+}: IHeavyLifterGroundObjectCapacityInput): number {
+  const availableHandCount =
+    (leftHandAvailable ? 1 : 0) + (rightHandAvailable ? 1 : 0);
+  if (unitTonnage <= 0 || availableHandCount === 0) return 0;
+
+  return (
+    unitTonnage *
+    availableHandCount *
+    0.05 *
+    getHeavyLifterGroundObjectLiftMultiplier(abilities) *
+    Math.max(0, tsmPickupModifier)
+  );
+}
+
+/**
+ * Maneuvering Ace: -1 to the movement-before-skid PSR modifier.
+ */
+export function getManeuveringAceSkidModifier(
   abilities: readonly string[],
 ): number {
-  return hasSPA(abilities, 'melee_master') ? 1 : 0;
+  return hasSPA(abilities, 'maneuvering_ace') ? -1 : 0;
 }
 
 /**
- * Tactical Genius: +1 initiative.
+ * Animal Mimicry: QuadMeks receive -1 on piloting rolls.
  */
-export function getTacticalGeniusBonus(abilities: readonly string[]): number {
-  return hasSPA(abilities, 'tactical_genius') ? 1 : 0;
+export function getAnimalMimicryPSRModifier(
+  abilities: readonly string[],
+  isQuadMek: boolean,
+): number {
+  return isQuadMek && hasSPA(abilities, 'animal_mimic') ? -1 : 0;
 }
 
 /**
- * Pain Resistance: ignore first wound penalty.
- * Returns the effective wound count for to-hit penalty calculation.
+ * Tactical Genius is an initiative reroll gate, not a flat initiative bonus.
+ */
+export function getTacticalGeniusBonus(_abilities: readonly string[]): number {
+  return 0;
+}
+
+/**
+ * MegaMek uses Pain Resistance for consciousness/wake-up rolls and
+ * ammunition-explosion pilot damage, not ranged to-hit wound relief.
  */
 export function getEffectiveWounds(
-  abilities: readonly string[],
+  _abilities: readonly string[],
   pilotWounds: number,
 ): number {
-  if (hasSPA(abilities, 'pain_resistance') && pilotWounds > 0) {
-    return pilotWounds - 1;
-  }
   return pilotWounds;
 }
 
 /**
- * Iron Man: -2 to consciousness check target numbers.
+ * MegaMek Iron Man reduces ammunition-explosion pilot damage only.
  */
-export function getIronManModifier(abilities: readonly string[]): number {
-  return hasSPA(abilities, 'iron_man') ? -2 : 0;
+export function getIronManModifier(_abilities: readonly string[]): number {
+  return 0;
 }
 
 /**
- * Hot Dog: +3 to shutdown heat threshold.
- * Increases the heat level at which shutdown checks begin.
+ * Hot Dog: -1 to heat check target numbers.
  */
-export function getHotDogShutdownThresholdBonus(
+export function getHotDogHeatTargetNumberModifier(
   abilities: readonly string[],
 ): number {
-  return hasSPA(abilities, 'hot_dog') ? 3 : 0;
+  return hasSPA(abilities, 'hot_dog') ? -1 : 0;
+}
+
+/**
+ * Cool Under Fire: reduce generated heat by 1 per turn, minimum 0.
+ */
+export function getCoolUnderFireHeatReduction(
+  abilities: readonly string[],
+): number {
+  return hasSPA(abilities, 'cool_under_fire') ||
+    hasSPA(abilities, 'cool-under-fire')
+    ? 1
+    : 0;
+}
+
+/**
+ * Some Like It Hot: reduce heat-induced to-hit penalties by 1.
+ */
+export function getSomeLikeItHotHeatPenaltyReduction(
+  abilities: readonly string[],
+): number {
+  return hasSPA(abilities, 'some_like_it_hot') ||
+    hasSPA(abilities, 'some-like-it-hot')
+    ? 1
+    : 0;
 }

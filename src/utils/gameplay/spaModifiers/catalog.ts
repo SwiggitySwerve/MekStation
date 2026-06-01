@@ -87,8 +87,10 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     name: 'Sandblaster',
     category: 'gunnery',
     pipelines: ['damage'],
-    combatEffect: '+1 cluster hits with ultra/rotary ACs',
-    requiresDesignation: false,
+    combatEffect:
+      '+4/+3/+2 cluster-table columns by range with designated weapon type',
+    requiresDesignation: true,
+    designationType: 'weapon_type',
   },
   'oblique-attacker': {
     id: 'oblique-attacker',
@@ -96,6 +98,14 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     category: 'gunnery',
     pipelines: ['to-hit'],
     combatEffect: '-1 to indirect fire penalty',
+    requiresDesignation: false,
+  },
+  forward_observer: {
+    id: 'forward_observer',
+    name: 'Forward Observer',
+    category: 'gunnery',
+    pipelines: ['to-hit'],
+    combatEffect: 'Cancels the +1 walked-spotter indirect-fire penalty',
     requiresDesignation: false,
   },
   sharpshooter: {
@@ -118,20 +128,28 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     combatEffect: 'Jump attack modifier reduced from +3 to +1',
     requiresDesignation: false,
   },
+  'hopping-jack': {
+    id: 'hopping-jack',
+    name: 'Hopping Jack',
+    category: 'piloting',
+    pipelines: ['to-hit'],
+    combatEffect: 'Jump attack modifier reduced from +3 to +2',
+    requiresDesignation: false,
+  },
   'melee-specialist': {
     id: 'melee-specialist',
     name: 'Melee Specialist',
     category: 'piloting',
-    pipelines: ['to-hit'],
-    combatEffect: '-1 physical attack to-hit',
+    pipelines: ['to-hit', 'damage'],
+    combatEffect: '-1 physical attack to-hit, +1 physical attack damage',
     requiresDesignation: false,
   },
   'melee-master': {
     id: 'melee-master',
     name: 'Melee Master',
     category: 'piloting',
-    pipelines: ['damage'],
-    combatEffect: '+1 physical attack damage',
+    pipelines: ['special'],
+    combatEffect: 'One additional physical attack per turn',
     requiresDesignation: false,
   },
   'maneuvering-ace': {
@@ -148,6 +166,39 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     category: 'piloting',
     pipelines: ['psr'],
     combatEffect: 'Ignores +1 piloting modifier for difficult terrain',
+    requiresDesignation: false,
+  },
+  tm_frogman: {
+    id: 'tm_frogman',
+    name: 'Terrain Master: Frogman',
+    category: 'piloting',
+    pipelines: ['to-hit', 'psr'],
+    combatEffect:
+      '-1 physical attack to-hit and entering-water PSR in depth-2+ water',
+    requiresDesignation: false,
+  },
+  tm_mountaineer: {
+    id: 'tm_mountaineer',
+    name: 'Terrain Master: Mountaineer',
+    category: 'piloting',
+    pipelines: ['psr'],
+    combatEffect: '-1 entering-rubble PSR',
+    requiresDesignation: false,
+  },
+  tm_forest_ranger: {
+    id: 'tm_forest_ranger',
+    name: 'Terrain Master: Forest Ranger',
+    category: 'piloting',
+    pipelines: ['to-hit', 'psr'],
+    combatEffect: '+1 enemy to-hit when walking in woods',
+    requiresDesignation: false,
+  },
+  tm_swamp_beast: {
+    id: 'tm_swamp_beast',
+    name: 'Terrain Master: Swamp Beast',
+    category: 'piloting',
+    pipelines: ['to-hit'],
+    combatEffect: '+1 enemy to-hit when running in mud or swamp',
     requiresDesignation: false,
   },
   acrobat: {
@@ -178,6 +229,14 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     combatEffect: '+2 enemy to-hit when dodging (forfeit attack)',
     requiresDesignation: false,
   },
+  shaky_stick: {
+    id: 'shaky_stick',
+    name: 'Shaky Stick',
+    category: 'defensive',
+    pipelines: ['to-hit'],
+    combatEffect: '+1 enemy to-hit when airborne and attacked from ground',
+    requiresDesignation: false,
+  },
   evasive: {
     id: 'evasive',
     name: 'Evasive',
@@ -202,16 +261,17 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     id: 'iron-man',
     name: 'Iron Man',
     category: 'toughness',
-    pipelines: ['consciousness'],
-    combatEffect: '-2 consciousness check target number',
+    pipelines: ['special'],
+    combatEffect: 'Reduce ammunition-explosion pilot damage by 1',
     requiresDesignation: false,
   },
   'pain-resistance': {
     id: 'pain-resistance',
     name: 'Pain Resistance',
     category: 'toughness',
-    pipelines: ['to-hit', 'consciousness'],
-    combatEffect: 'Ignore first wound penalty',
+    pipelines: ['consciousness'],
+    combatEffect:
+      '-1 consciousness target number and -1 ammunition-explosion pilot damage',
     requiresDesignation: false,
   },
   edge: {
@@ -219,15 +279,16 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     name: 'Edge',
     category: 'toughness',
     pipelines: ['special'],
-    combatEffect: '6 specific reroll triggers, points do not regenerate',
+    combatEffect: 'MegaMek-style trigger-specific Edge options',
     requiresDesignation: false,
   },
   toughness: {
     id: 'toughness',
     name: 'Toughness',
     category: 'toughness',
-    pipelines: ['consciousness'],
-    combatEffect: '-1 consciousness check target number',
+    pipelines: ['special'],
+    combatEffect:
+      'Legacy alias boundary; use explicit pilotToughness for RPG Toughness consciousness relief',
     requiresDesignation: false,
   },
 
@@ -239,7 +300,7 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     name: 'Tactical Genius',
     category: 'tactical',
     pipelines: ['initiative'],
-    combatEffect: '+1 initiative roll',
+    combatEffect: 'initiative reroll gate; no flat roll bonus',
     requiresDesignation: false,
   },
   'speed-demon': {
@@ -267,7 +328,7 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     name: 'Hot Dog',
     category: 'miscellaneous',
     pipelines: ['heat'],
-    combatEffect: '+3 heat threshold before shutdown checks',
+    combatEffect: '-1 heat check target number',
     requiresDesignation: false,
   },
   'cool-under-fire': {
@@ -298,8 +359,8 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     id: 'iron-will',
     name: 'Iron Will',
     category: 'toughness',
-    pipelines: ['consciousness'],
-    combatEffect: '-2 consciousness check target number (alias for Iron Man)',
+    pipelines: ['special'],
+    combatEffect: 'Unsupported local legacy alias; not source-backed Iron Man',
     requiresDesignation: false,
   },
   'heavy-lifter': {
@@ -351,14 +412,10 @@ export function hasSPA(abilities: readonly string[], spaId: string): boolean {
 export function getConsciousnessCheckModifier(
   abilities: readonly string[],
 ): number {
-  let modifier = 0;
-  if (hasCanonicalSPA(abilities, 'iron_man')) {
-    modifier -= 2;
-  }
-  if (hasCanonicalSPA(abilities, 'pain_resistance')) {
-    modifier -= 1;
-  }
-  return modifier;
+  return abilities.includes('pain_resistance') ||
+    abilities.includes('pain-resistance')
+    ? -1
+    : 0;
 }
 
 export function getObliqueAttackerBonus(abilities: readonly string[]): number {
@@ -366,8 +423,11 @@ export function getObliqueAttackerBonus(abilities: readonly string[]): number {
 }
 
 export function getSharpshooterBonus(abilities: readonly string[]): number {
-  // 'sharpshooter' doesn't exist in the canonical catalog — it's a
-  // System-B-only legacy alias. Fall back to the raw match for the id
-  // so existing callers keep working until the UI offers a real alternative.
-  return abilities.includes('sharpshooter') ? -1 : 0;
+  // 'sharpshooter' is a System-B-only legacy alias. The local campaign SPA
+  // with the same called-shot effect is Marksman; MegaMek source does not
+  // validate either id as a called-shot reducer.
+  return hasCanonicalSPA(abilities, 'marksman') ||
+    abilities.includes('sharpshooter')
+    ? -1
+    : 0;
 }

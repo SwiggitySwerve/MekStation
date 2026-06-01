@@ -1,4 +1,7 @@
-import type { IComponentDamageState } from '@/types/gameplay/GameSessionInterfaces';
+import type {
+  IComponentDamageState,
+  IUnitDestroyedPayload,
+} from '@/types/gameplay/GameSessionInterfaces';
 
 import {
   CombatLocation,
@@ -42,42 +45,39 @@ export function emitCriticalEvents(
   events: readonly CriticalHitEvent[],
   turn: number,
   unitId: string,
-  options: {
+  options?: {
     readonly phase?: GamePhase;
     readonly sourceUnitId?: string;
     readonly emitCriticalHitPrelude?: boolean;
-  } = {},
+  },
 ): IGameSession {
   let currentSession = session;
-  const phase = options.phase ?? GamePhase.WeaponAttack;
+  const phase = options?.phase ?? GamePhase.WeaponAttack;
 
   for (const event of events) {
-    const sequence = currentSession.events.length;
-
     if (event.type === 'critical_hit_resolved') {
       const payload = event.payload;
-      if (options.emitCriticalHitPrelude) {
+      if (options?.emitCriticalHitPrelude === true) {
         currentSession = appendEvent(
           currentSession,
           createCriticalHitEvent(
             currentSession.id,
-            sequence,
+            currentSession.events.length,
             turn,
             phase,
             payload.unitId,
             payload.location,
-            options.sourceUnitId,
+            options.sourceUnitId ?? payload.unitId,
             payload.componentType,
             1,
           ),
         );
       }
-      const resolvedSequence = currentSession.events.length;
       currentSession = appendEvent(
         currentSession,
         createCriticalHitResolvedEvent(
           currentSession.id,
-          resolvedSequence,
+          currentSession.events.length,
           turn,
           phase,
           payload.unitId,
@@ -87,6 +87,7 @@ export function emitCriticalEvents(
           payload.componentName,
           payload.effect,
           payload.destroyed,
+          payload.ammoBinId,
         ),
       );
       // Per `integrate-damage-pipeline` task 8 + 0.5.4: when a
@@ -108,6 +109,7 @@ export function emitCriticalEvents(
             payload.slotIndex,
             payload.componentName,
             phase,
+            payload.ammoBinId,
           ),
         );
       }
@@ -125,7 +127,7 @@ export function emitCriticalEvents(
         currentSession,
         createPSRTriggeredEvent(
           currentSession.id,
-          sequence,
+          currentSession.events.length,
           turn,
           phase,
           payload.unitId,
@@ -145,11 +147,11 @@ export function emitCriticalEvents(
         currentSession,
         createUnitDestroyedEvent(
           currentSession.id,
-          sequence,
+          currentSession.events.length,
           turn,
           phase,
-          payload.unitId,
-          payload.cause,
+          unitId,
+          payload.cause as IUnitDestroyedPayload['cause'],
         ),
       );
       continue;
@@ -161,7 +163,7 @@ export function emitCriticalEvents(
         currentSession,
         createPilotHitEvent(
           currentSession.id,
-          sequence,
+          currentSession.events.length,
           turn,
           phase,
           payload.unitId,
@@ -205,7 +207,9 @@ export function buildDamageStateFromUnit(
     structure: structureRecord,
     destroyedLocations: unit.destroyedLocations as CombatLocation[],
     pilotWounds: unit.pilotWounds,
+    pilotToughness: unit.pilotToughness,
     pilotConscious: unit.pilotConscious,
+    pilotAbilities: unit.abilities,
     destroyed: unit.destroyed,
   };
 }

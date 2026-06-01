@@ -78,6 +78,29 @@ const MELEE_RANGE_HEXES = 1;
  */
 const DEFAULT_HEAT_DISSIPATION = 10;
 
+function createVoluntaryGoProneEvent(unit: IAIUnitState): IMovementEvent {
+  return {
+    type: GameEventType.MovementDeclared,
+    payload: {
+      unitId: unit.unitId,
+      from: unit.position,
+      to: unit.position,
+      facing: unit.facing,
+      movementType: MovementType.Stationary,
+      mpUsed: 1,
+      heatGenerated: 0,
+      steps: [
+        {
+          kind: 'goProne',
+          index: 0,
+          at: { q: unit.position.q, r: unit.position.r },
+          mpCost: 1,
+        },
+      ],
+    },
+  };
+}
+
 export class BotPlayer implements IAIPlayer {
   private readonly moveAI: MoveAI;
   private readonly attackAI: AttackAI;
@@ -248,6 +271,7 @@ export class BotPlayer implements IAIPlayer {
       position,
       movementType,
       capability,
+      { pilotAbilities: unit.abilities },
     );
 
     const nonStationaryMoves = moves.filter(
@@ -257,6 +281,12 @@ export class BotPlayer implements IAIPlayer {
     );
 
     if (nonStationaryMoves.length === 0) {
+      if (
+        this.behavior.voluntaryGoProneWhenStationary === true &&
+        unit.prone !== true
+      ) {
+        return createVoluntaryGoProneEvent(unit);
+      }
       return null;
     }
 
@@ -760,7 +790,8 @@ export class BotPlayer implements IAIPlayer {
     let maxRange = 0;
     for (const weapon of attacker.weapons) {
       if (weapon.destroyed) continue;
-      if (weapon.longRange > maxRange) maxRange = weapon.longRange;
+      const range = weapon.extremeRange ?? weapon.longRange;
+      if (range > maxRange) maxRange = range;
     }
     if (maxRange <= 0) return validTargets;
 
@@ -1042,6 +1073,10 @@ function computeMovementHeat(
       return 1;
     case MovementType.Run:
       return 2;
+    case MovementType.Sprint:
+      return 3;
+    case MovementType.Evade:
+      return 4;
     case MovementType.Jump:
       return Math.max(hexesMoved, 3);
     default:

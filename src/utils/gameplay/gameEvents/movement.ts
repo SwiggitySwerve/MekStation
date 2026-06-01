@@ -2,13 +2,17 @@ import {
   Facing,
   GameEventType,
   GamePhase,
+  IFacingChangedPayload,
   IGameEvent,
+  IGoProneStep,
   IHexCoordinate,
   IConvertModeStep,
+  IMovementEnhancementActivatedPayload,
   IMovementDeclaredPayload,
   IMovementInvalidPayload,
   IMovementLockedPayload,
   IRuntimeMovementStateChangedPayload,
+  MovementEnhancementActivationKind,
   MovementType,
   type StandUpMode,
 } from '@/types/gameplay';
@@ -137,6 +141,102 @@ export function createMovementDeclaredEvent(
       unitId,
     ),
     payload,
+  };
+}
+
+export function createGoProneMovementDeclaredEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  unitId: string,
+  at: IHexCoordinate,
+  facing: Facing,
+  mpCost = 1,
+): IGameEvent {
+  const step: IGoProneStep = {
+    kind: 'goProne',
+    index: 0,
+    at: { q: at.q, r: at.r },
+    mpCost,
+  };
+  const payload: IMovementDeclaredPayload = {
+    unitId,
+    from: { q: at.q, r: at.r },
+    to: { q: at.q, r: at.r },
+    facing,
+    movementType: MovementType.Stationary,
+    path: [{ q: at.q, r: at.r }],
+    mpUsed: mpCost,
+    heatGenerated: 0,
+    goProneAttempt: true,
+    hexesMoved: 0,
+    straightHexes: 0,
+    turningMpCost: mpCost,
+    netDisplacement: 0,
+    steps: [step],
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.MovementDeclared,
+      turn,
+      GamePhase.Movement,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+export function createMovementEnhancementActivatedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  unitId: string,
+  enhancement: MovementEnhancementActivationKind,
+): IGameEvent {
+  const payload: IMovementEnhancementActivatedPayload = {
+    unitId,
+    enhancement,
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.MovementEnhancementActivated,
+      turn,
+      GamePhase.Movement,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+export function createFacingChangedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  payload: Omit<IFacingChangedPayload, 'unitId'>,
+): IGameEvent {
+  const facingPayload: IFacingChangedPayload = {
+    unitId,
+    ...payload,
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.FacingChanged,
+      turn,
+      phase,
+      unitId,
+    ),
+    payload: facingPayload,
   };
 }
 

@@ -4,6 +4,7 @@ import type {
   StandUpMode,
 } from '@/types/gameplay';
 
+import { resolvePilotConsciousnessCheck } from './damage';
 import { type DiceRoller } from './diceTypes';
 import { resolveFall } from './fallMechanics';
 import {
@@ -12,6 +13,7 @@ import {
   createPSRTriggeredEvent,
   createUnitFellEvent,
   createUnitStoodEvent,
+  createUnitStuckEvent,
 } from './gameEvents';
 import { appendEvent } from './gameSessionCore';
 import { roll2d6 as rollDice } from './hitLocation';
@@ -92,9 +94,7 @@ export function resolvePendingPSRs(
       jumpJetsDestroyed: 0,
     };
 
-    const gyroType = unitState.gyroType ?? unit.gyroType;
-    const optionalRules = session.config.optionalRules;
-    if (isGyroDestroyed(componentDamage, gyroType, optionalRules)) {
+    if (isGyroDestroyed(componentDamage)) {
       const d6Roller = () => {
         const roll = diceRoller();
         return roll.dice[0];
@@ -147,6 +147,17 @@ export function resolvePendingPSRs(
 
       const currentUnitState = currentSession.currentState.units[unitId];
       const totalWounds = currentUnitState.pilotWounds + 1;
+      const consciousnessCheck = resolvePilotConsciousnessCheck(
+        totalWounds,
+        1,
+        currentUnitState.abilities ?? unit.abilities ?? [],
+        d6Roller,
+        currentUnitState.pilotToughness,
+      );
+      const consciousnessPassed =
+        currentUnitState.pilotConscious &&
+        (consciousnessCheck.conscious ?? true) &&
+        totalWounds < 6;
       const pilotSequence = currentSession.events.length;
       currentSession = appendEvent(
         currentSession,
@@ -158,9 +169,9 @@ export function resolvePendingPSRs(
           unitId,
           1,
           totalWounds,
-          'head_hit',
+          'fall',
           true,
-          totalWounds < 6,
+          consciousnessPassed,
         ),
       );
 
@@ -178,7 +189,10 @@ export function resolvePendingPSRs(
       componentDamage,
       unitState.pilotWounds,
       d6Roller,
-      { gyroType, optionalRules },
+      unitState.unitQuirks ?? unit.unitQuirks ?? [],
+      unitState.abilities ?? unit.abilities ?? [],
+      unitState.isQuad ?? unit.isQuad ?? false,
+      unitState.unitType ?? unit.unitType,
     );
 
     for (const result of batchResult.results) {
@@ -221,7 +235,22 @@ export function resolvePendingPSRs(
       );
     }
 
-    if (batchResult.unitFell) {
+    if (batchResult.unitStuck) {
+      const failedPsr = batchResult.failedResult;
+      const stuckSequence = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createUnitStuckEvent(
+          currentSession.id,
+          stuckSequence,
+          turn,
+          phase,
+          unitId,
+          failedPsr?.psr.reason ?? pendingPSRs[0]?.reason,
+          failedPsr?.psr.reasonCode ?? pendingPSRs[0]?.reasonCode,
+        ),
+      );
+    } else if (batchResult.unitFell) {
       const fallResult = resolveFall(50, unitState.facing, 0, d6Roller);
 
       // Per `denormalize-event-envelope-and-close-emission-contract-gaps`
@@ -251,6 +280,17 @@ export function resolvePendingPSRs(
 
       const currentUnitState = currentSession.currentState.units[unitId];
       const totalWounds = currentUnitState.pilotWounds + 1;
+      const consciousnessCheck = resolvePilotConsciousnessCheck(
+        totalWounds,
+        1,
+        currentUnitState.abilities ?? unit.abilities ?? [],
+        d6Roller,
+        currentUnitState.pilotToughness,
+      );
+      const consciousnessPassed =
+        currentUnitState.pilotConscious &&
+        (consciousnessCheck.conscious ?? true) &&
+        totalWounds < 6;
       const pilotSequence = currentSession.events.length;
       currentSession = appendEvent(
         currentSession,
@@ -262,9 +302,9 @@ export function resolvePendingPSRs(
           unitId,
           1,
           totalWounds,
-          'head_hit',
+          'fall',
           true,
-          totalWounds < 6,
+          consciousnessPassed,
         ),
       );
     }

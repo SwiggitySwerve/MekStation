@@ -10,6 +10,7 @@ import {
   IStartupAttemptPayload,
   IUnitFellPayload,
   IUnitStoodPayload,
+  IUnitStuckPayload,
   PSRTrigger,
 } from '@/types/gameplay';
 
@@ -26,6 +27,7 @@ export function createPSRTriggeredEvent(
   triggerSource: string,
   basePilotingSkill?: number,
   reasonCode?: PSRTrigger,
+  fixedTargetNumber?: number,
 ): IGameEvent {
   const payload: IPSRTriggeredPayload = {
     unitId,
@@ -34,6 +36,7 @@ export function createPSRTriggeredEvent(
     triggerSource,
     ...(basePilotingSkill !== undefined ? { basePilotingSkill } : {}),
     ...(reasonCode !== undefined ? { reasonCode } : {}),
+    ...(fixedTargetNumber !== undefined ? { fixedTargetNumber } : {}),
   };
 
   return {
@@ -121,6 +124,34 @@ export function createUnitFellEvent(
   };
 }
 
+export function createUnitStuckEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  reason?: string,
+  reasonCode?: PSRTrigger,
+): IGameEvent {
+  const payload: IUnitStuckPayload = {
+    unitId,
+    ...(reason !== undefined ? { reason } : {}),
+    ...(reasonCode !== undefined ? { reasonCode } : {}),
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.UnitStuck,
+      turn,
+      phase,
+      unitId,
+    ),
+    payload,
+  };
+}
+
 /**
  * Per `wire-piloting-skill-rolls` task 9.3: fired when a prone unit
  * successfully passes an `AttemptStand` PSR and returns upright.
@@ -140,7 +171,7 @@ export function createUnitStoodEvent(
     turn,
     roll,
     targetNumber,
-    ...(automaticSuccessReason ? { automaticSuccessReason } : {}),
+    ...(automaticSuccessReason !== undefined ? { automaticSuccessReason } : {}),
   };
   return {
     ...createEventBase(

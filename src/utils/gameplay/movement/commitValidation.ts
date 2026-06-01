@@ -308,9 +308,7 @@ export function validateCommittedMovement(
         from,
         to: input.to,
         movementType: input.movementType,
-        capability,
         maxCost: mpCost,
-        optionalRules: input.optionalRules,
       }),
   };
 }
@@ -389,6 +387,7 @@ export function movementInvalidReasonFromValidation(
     error.includes('requires water terrain') ||
     error.includes('requires open water terrain') ||
     error.includes('requires rail terrain') ||
+    error.includes('impassable terrain') ||
     error.includes('Elevation change') ||
     error.includes('Jump elevation rise')
   ) {

@@ -1,8 +1,8 @@
 # Hull-Down Position Specification
 
 **Status**: Active
-**Version**: 1.0
-**Last Updated**: 2026-02-13
+**Version**: 1.1
+**Last Updated**: 2026-05-24
 **Dependencies**: to-hit-resolution, combat-resolution
 **Affects**: to-hit-resolution, combat-resolution
 
@@ -12,15 +12,15 @@
 
 ### Purpose
 
-Defines the hull-down defensive position for BattleMechs, where a mech uses terrain (typically a hill or ridge) to shield its lower body. Hull-down grants partial cover (+1 to-hit modifier) and prevents front-arc leg hits by re-rolling them to center torso. This specification covers entry conditions, combat modifiers, hit location modification, firing restrictions, and exiting the position.
+Defines the hull-down defensive position for BattleMechs, where a mech uses terrain (typically a hill or ridge) to shield its lower body. Hull-down grants a source-backed +2 to-hit modifier and prevents front-arc leg hits by redirecting them to center torso. This specification covers entry conditions, combat modifiers, hit location modification, firing restrictions, and exiting the position.
 
 ### Scope
 
 **In Scope:**
 
 - Hull-down entry conditions (terrain requirements, deliberate action)
-- To-hit modifier for attacks against hull-down targets (+1 partial cover)
-- Hit location modification (front-arc leg hits re-roll to center torso)
+- To-hit modifier for attacks against hull-down targets (+2)
+- Hit location modification (front-arc leg hits redirect to center torso)
 - Firing restrictions while hull-down
 - Exiting hull-down position (movement action)
 - Hull-down state tracking on unit combat state
@@ -36,8 +36,8 @@ Defines the hull-down defensive position for BattleMechs, where a mech uses terr
 ### Key Concepts
 
 - **Hull-Down Position**: A defensive stance where a mech uses elevation or terrain to shield its legs from frontal attacks
-- **Partial Cover**: +1 to-hit modifier applied to attacks against a hull-down target, stacking with existing partial cover rules
-- **Leg Hit Re-roll**: When a front-arc attack would hit a leg location, the hit is re-rolled to center torso instead
+- **Hull-Down Cover**: +2 to-hit modifier applied to attacks against a hull-down target, replacing normal terrain partial cover for the attack
+- **Leg Hit Redirect**: When a front-arc attack would hit a leg location, the hit is redirected to center torso instead
 - **Deliberate Action**: Entering hull-down requires spending movement phase action (the mech does not move)
 
 ---
@@ -76,45 +76,45 @@ The system SHALL allow a BattleMech to enter hull-down position as a deliberate 
 
 ### Requirement: Hull-Down To-Hit Modifier
 
-The system SHALL apply a +1 to-hit modifier (partial cover) to all attacks against a hull-down target, representing the reduced target profile.
+The system SHALL apply a +2 to-hit modifier to all attacks against a hull-down target, representing the reduced target profile.
 
-**Rationale**: A hull-down mech exposes less of its body, making it harder to hit — equivalent to partial cover per TotalWarfare.
+**Rationale**: MegaMek `ComputeTerrainMods` applies `WeaponAttackAction.HullDown` as a +2 terrain modifier for hull-down Mek targets when LOS reports target cover.
 
 **Priority**: Critical
 
-#### Scenario: Attack against hull-down target gets +1 modifier
+#### Scenario: Attack against hull-down target gets +2 modifier
 
 - **GIVEN** a target BattleMech is in hull-down position
 - **WHEN** an attacker makes a weapon attack against the hull-down target
-- **THEN** the to-hit calculation SHALL include a +1 hull-down modifier
+- **THEN** the to-hit calculation SHALL include a +2 hull-down modifier
 - **AND** the modifier source SHALL be 'terrain'
-- **AND** the modifier name SHALL be 'Hull-Down (Partial Cover)'
+- **AND** the modifier name SHALL be 'Hull-Down'
 
 #### Scenario: Hull-down modifier stacks with other modifiers
 
 - **GIVEN** a target is hull-down and the attacker has gunnery 4, fires at medium range while walking
 - **WHEN** calculating the to-hit number
-- **THEN** the final to-hit SHALL include the +1 hull-down modifier in addition to all other applicable modifiers
-- **AND** the result SHALL be 4 (gunnery) + 2 (medium range) + 1 (walking) + 1 (hull-down) = 8
+- **THEN** the final to-hit SHALL include the +2 hull-down modifier in addition to all other applicable modifiers
+- **AND** the result SHALL be 4 (gunnery) + 2 (medium range) + 1 (walking) + 2 (hull-down) = 9
 
 #### Scenario: Hull-down and existing partial cover do not double-stack
 
 - **GIVEN** a target is hull-down AND also has partial cover from terrain
 - **WHEN** calculating to-hit modifiers
-- **THEN** the hull-down partial cover SHALL replace (not stack with) the terrain partial cover
-- **AND** only +1 total partial cover modifier SHALL be applied
+- **THEN** the hull-down modifier SHALL replace (not stack with) the terrain partial cover
+- **AND** only the +2 hull-down modifier SHALL be applied
 
 ---
 
 ### Requirement: Hull-Down Hit Location Modification
 
-The system SHALL re-roll front-arc leg hits to center torso when the target is hull-down, reflecting the shielded lower body.
+The system SHALL redirect front-arc leg hits to center torso when the target is hull-down, reflecting the shielded lower body.
 
 **Rationale**: Hull-down position physically shields the mech's legs from frontal fire; hits that would strike the legs instead impact the exposed torso.
 
 **Priority**: Critical
 
-#### Scenario: Front-arc leg hit re-rolled to center torso
+#### Scenario: Front-arc leg hit redirected to center torso
 
 - **GIVEN** a target BattleMech is in hull-down position
 - **AND** an attack from the front arc hits
@@ -213,7 +213,7 @@ interface ITargetState {
   /**
    * Whether the target is in hull-down position.
    * When true, applies +1 partial cover to-hit modifier
-   * and re-rolls front-arc leg hits to center torso.
+   * and redirects front-arc leg hits to center torso.
    * @default false
    */
   readonly hullDown?: boolean;
@@ -268,7 +268,7 @@ interface ITargetState {
 
 ### Used By
 
-- **to-hit-resolution**: Hull-down adds a +1 partial cover modifier to the to-hit pipeline
+- **to-hit-resolution**: Hull-down adds a +2 terrain modifier to the to-hit pipeline
 - **combat-resolution**: Hit location modification for front-arc leg hits
 
 ---
@@ -277,24 +277,24 @@ interface ITargetState {
 
 ### Modifier Integration
 
-The hull-down to-hit modifier integrates with the existing `calculatePartialCoverModifier()` function in `src/utils/gameplay/toHit.ts`. When a target is hull-down, it is treated as having partial cover. If the target already has `partialCover: true` from terrain, the hull-down does not add an additional +1 (partial cover is not cumulative from multiple sources — only +1 total).
+The hull-down to-hit modifier integrates with the existing `calculateHullDownModifier()` function in `src/utils/gameplay/toHit.ts`. When a target is hull-down, the normal partial-cover modifier is suppressed and the source-backed +2 hull-down terrain modifier is applied instead.
 
 ### Hit Location Integration
 
-The leg hit re-roll integrates into `determineHitLocationFromRoll()` in `src/utils/gameplay/hitLocation.ts`. After the standard table lookup, if the target is hull-down AND the arc is Front AND the location is a leg, the location is changed to `center_torso`.
+The leg hit redirect integrates into `determineHitLocationFromRoll()` in `src/utils/gameplay/hitLocation.ts`. After the standard table lookup, if the target is hull-down AND the arc is Front AND the location is a leg, the location is changed to `center_torso`.
 
 ### Performance Considerations
 
 - Hull-down check is a simple boolean — O(1) per attack
-- Leg hit re-roll is a conditional check after table lookup — no additional dice roll needed
+- Leg hit redirect is a conditional check after table lookup; no additional dice roll is needed
 - No new data structures required; extends existing `ITargetState`
 
 ### Edge Cases
 
-- **Hull-down + Partial cover from terrain**: Only +1 total (not cumulative)
-- **Hull-down from rear arc**: Leg hits are NOT re-rolled (only front arc is protected)
+- **Hull-down + Partial cover from terrain**: Only +2 hull-down total (not cumulative)
+- **Hull-down from rear arc**: Leg hits are NOT redirected (only front arc is protected)
 - **Hull-down + prone**: Mutually exclusive states
-- **Cluster weapons vs hull-down**: Each individual hit checks hull-down leg re-roll separately
+- **Cluster weapons vs hull-down**: Each individual hit checks hull-down leg redirect separately
 
 ---
 
@@ -308,12 +308,12 @@ const target: ITargetState = {
   hexesMoved: 0,
   prone: false,
   immobile: false,
-  partialCover: false, // hull-down provides its own partial cover
+  partialCover: false, // hull-down provides its own terrain modifier
   hullDown: true,
 };
 
-// To-hit calculation includes +1 hull-down modifier
-// Gunnery 4 + Short range 0 + Stationary 0 + Hull-down +1 = 5
+// To-hit calculation includes +2 hull-down modifier
+// Gunnery 4 + Short range 0 + Stationary 0 + Hull-down +2 = 6
 ```
 
 ### Example 2: Front-Arc Leg Hit Re-roll
@@ -321,7 +321,7 @@ const target: ITargetState = {
 ```typescript
 // Attack from front arc, target is hull-down
 // Roll: 5 → normally 'right_leg' from FRONT_HIT_LOCATION_TABLE
-// Hull-down: re-roll to 'center_torso'
+// Hull-down: redirect to 'center_torso'
 
 const result = determineHitLocationFromRoll(FiringArc.Front, roll, {
   hullDown: true,

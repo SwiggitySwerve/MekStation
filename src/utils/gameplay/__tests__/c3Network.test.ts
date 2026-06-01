@@ -10,6 +10,7 @@ import {
   getUnitNetwork,
   updateC3UnitPosition,
   updateC3UnitECMStatus,
+  updateC3UnitOperationalStatus,
   destroyC3Unit,
   getC3TargetingBenefit,
   isBetterBracket,
@@ -19,6 +20,10 @@ import {
   IC3NetworkUnit,
   IC3Network,
 } from '../c3Network';
+import {
+  createEmptyEWState,
+  resolveC3ECMDisruption,
+} from '../electronicWarfare';
 import { IWeaponRangeProfile } from '../range';
 import { calculateToHitWithC3 } from '../toHit';
 
@@ -254,6 +259,21 @@ describe('C3 Network State Management', () => {
     )!;
     expect(member.ecmDisrupted).toBe(true);
   });
+
+  it('should update unit operational status', () => {
+    const network = createC3MasterSlaveNetwork('net1', [
+      createC3Unit({ entityId: 'A', teamId: 'team1', role: 'master' }),
+      createC3Unit({ entityId: 'B', teamId: 'team1', role: 'slave' }),
+    ])!;
+
+    let state = addC3Network(createEmptyC3State(), network);
+    state = updateC3UnitOperationalStatus(state, 'A', false);
+
+    const member = getUnitNetwork(state, 'A')!.members.find(
+      (m) => m.entityId === 'A',
+    )!;
+    expect(member.operational).toBe(false);
+  });
 });
 
 // =============================================================================
@@ -383,6 +403,70 @@ describe('C3 Targeting Benefit', () => {
     expect(result.spotterId).toBe('B');
     expect(result.spotterRange).toBe(2);
     expect(result.denialReason).toBeNull();
+  });
+
+  it('should deny range sharing when optional spotter LOS gating excludes the only spotter', () => {
+    const network = createC3MasterSlaveNetwork('net1', [
+      createC3Unit({
+        entityId: 'A',
+        teamId: 'team1',
+        role: 'master',
+        position: { q: 15, r: 0 },
+      }),
+      createC3Unit({
+        entityId: 'B',
+        teamId: 'team1',
+        role: 'slave',
+        position: { q: 2, r: 0 },
+      }),
+    ])!;
+
+    const result = getC3TargetingBenefit(
+      'A',
+      { q: 0, r: 0 },
+      MEDIUM_LASER,
+      makeC3State(network),
+      undefined,
+      {
+        requireSpotterTargetLineOfSight: true,
+        spotterHasTargetLineOfSight: (spotter) => spotter.entityId !== 'B',
+      },
+    );
+
+    expect(result.benefitApplied).toBe(false);
+    expect(result.denialReason).toBe('No C3 spotter has target line of sight');
+  });
+
+  it('should still use a C3 spotter when optional LOS gating passes', () => {
+    const network = createC3MasterSlaveNetwork('net1', [
+      createC3Unit({
+        entityId: 'A',
+        teamId: 'team1',
+        role: 'master',
+        position: { q: 15, r: 0 },
+      }),
+      createC3Unit({
+        entityId: 'B',
+        teamId: 'team1',
+        role: 'slave',
+        position: { q: 2, r: 0 },
+      }),
+    ])!;
+
+    const result = getC3TargetingBenefit(
+      'A',
+      { q: 0, r: 0 },
+      MEDIUM_LASER,
+      makeC3State(network),
+      undefined,
+      {
+        requireSpotterTargetLineOfSight: true,
+        spotterHasTargetLineOfSight: (spotter) => spotter.entityId === 'B',
+      },
+    );
+
+    expect(result.benefitApplied).toBe(true);
+    expect(result.spotterId).toBe('B');
   });
 
   it('should not apply benefit when all units at same bracket', () => {
@@ -807,6 +891,71 @@ describe('calculateToHitWithC3', () => {
         weaponRangeProfile: MEDIUM_LASER,
         c3State,
         attackerEcmDisrupted: true,
+      },
+    );
+
+    expect(result.c3Result.benefitApplied).toBe(false);
+    expect(result.c3Result.denialReason).toBe('C3 Network disrupted by ECM');
+
+    const rangeModifier = result.modifiers.find((m) => m.source === 'range');
+    expect(rangeModifier?.value).toBe(4);
+  });
+
+  it('should use own bracket when iNARC ECM pod state disrupts C3', () => {
+    const network = createC3MasterSlaveNetwork('net1', [
+      createC3Unit({
+        entityId: 'attacker',
+        teamId: 'team1',
+        role: 'master',
+        position: { q: 8, r: 0 },
+      }),
+      createC3Unit({
+        entityId: 'spotter',
+        teamId: 'team1',
+        role: 'slave',
+        position: { q: 2, r: 0 },
+      }),
+    ])!;
+
+    const disruption = resolveC3ECMDisruption(
+      [
+        {
+          entityId: 'attacker',
+          teamId: 'team1',
+          position: { q: 8, r: 0 },
+          iNarcPods: [{ teamId: 'team2', podType: 'ecm' }],
+        },
+        {
+          entityId: 'spotter',
+          teamId: 'team1',
+          position: { q: 2, r: 0 },
+          iNarcPods: [{ teamId: 'team2', podType: 'haywire' }],
+        },
+      ],
+      createEmptyEWState(),
+    );
+    let c3State = addC3Network(createEmptyC3State(), network);
+    c3State = updateC3UnitECMStatus(
+      c3State,
+      'attacker',
+      disruption.get('attacker') ?? false,
+    );
+    c3State = updateC3UnitECMStatus(
+      c3State,
+      'spotter',
+      disruption.get('spotter') ?? false,
+    );
+
+    const result = calculateToHitWithC3(
+      baseAttacker,
+      baseTarget,
+      RangeBracket.Long,
+      8,
+      {
+        attackerEntityId: 'attacker',
+        targetPosition: { q: 0, r: 0 },
+        weaponRangeProfile: MEDIUM_LASER,
+        c3State,
       },
     );
 

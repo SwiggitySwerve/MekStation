@@ -463,6 +463,8 @@ export class ScenarioGenerator {
       pilotWounds: 0,
       pilotConscious: true,
       destroyed: false,
+      hasRetreated: false,
+      hasEjected: false,
       lockState: LockState.Pending,
     };
   }

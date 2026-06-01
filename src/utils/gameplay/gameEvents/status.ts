@@ -7,6 +7,7 @@ import {
   IGameEvent,
   IHeatPayload,
   IPilotHitPayload,
+  ISpottingDeclaredPayload,
   ITerrainChangedPayload,
   IUnitDestroyedPayload,
 } from '@/types/gameplay';
@@ -75,7 +76,7 @@ export function createPilotHitEvent(
   unitId: string,
   wounds: number,
   totalWounds: number,
-  source: 'head_hit' | 'ammo_explosion' | 'mech_destruction' | 'heat',
+  source: IPilotHitPayload['source'],
   consciousnessCheckRequired: boolean,
   consciousnessCheckPassed?: boolean,
 ): IGameEvent {
@@ -112,11 +113,18 @@ export function createUnitDestroyedEvent(
     | 'ammo_explosion'
     | 'pilot_death'
     | 'engine_destroyed'
-    | 'shutdown'
+    | 'impossible_displacement'
     | 'ct_destroyed'
     | 'head_destroyed',
+  options?: { readonly killerUnitId?: string },
 ): IGameEvent {
-  const payload: IUnitDestroyedPayload = { unitId, cause };
+  const payload: IUnitDestroyedPayload = {
+    unitId,
+    cause,
+    ...(options?.killerUnitId !== undefined
+      ? { killerUnitId: options.killerUnitId }
+      : {}),
+  };
 
   return {
     ...createEventBase(
@@ -125,6 +133,28 @@ export function createUnitDestroyedEvent(
       GameEventType.UnitDestroyed,
       turn,
       phase,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+export function createSpottingDeclaredEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  unitId: string,
+  targetId: string,
+): IGameEvent {
+  const payload: ISpottingDeclaredPayload = { unitId, targetId, turn };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.SpottingDeclared,
+      turn,
+      GamePhase.WeaponAttack,
       unitId,
     ),
     payload,
@@ -169,6 +199,7 @@ export function createAmmoExplosionEvent(
     readonly binId?: string;
     readonly weaponType?: string;
     readonly roundsDestroyed?: number;
+    readonly caseProtection?: IAmmoExplosionPayload['caseProtection'];
   },
 ): IGameEvent {
   const payload: IAmmoExplosionPayload = {
@@ -182,6 +213,9 @@ export function createAmmoExplosionEvent(
       : {}),
     ...(options?.roundsDestroyed !== undefined
       ? { roundsDestroyed: options.roundsDestroyed }
+      : {}),
+    ...(options?.caseProtection !== undefined
+      ? { caseProtection: options.caseProtection }
       : {}),
   };
 
@@ -242,6 +276,7 @@ export function createCriticalHitResolvedEvent(
   componentName: string,
   effect: string,
   destroyed: boolean,
+  ammoBinId?: string,
 ): IGameEvent {
   const payload: ICriticalHitResolvedPayload = {
     unitId,
@@ -251,6 +286,7 @@ export function createCriticalHitResolvedEvent(
     componentName,
     effect,
     destroyed,
+    ...(ammoBinId !== undefined ? { ammoBinId } : {}),
   };
 
   return {

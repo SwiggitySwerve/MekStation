@@ -12,7 +12,9 @@ import {
   getAmmoExplosionTN,
   getHeatMovementPenalty,
   getHeatToHitModifier,
+  getMaxTechHeatCriticalDamageAvoidTN,
   getPilotHeatDamage,
+  getMaxTechPilotHeatDamageAvoidTN,
 } from '../heat';
 
 describe('HEAT_THRESHOLDS', () => {
@@ -208,10 +210,11 @@ describe('getShutdownTN', () => {
     expect(getShutdownTN(35)).toBe(Infinity);
   });
 
-  it('should apply Hot Dog SPA bonus (+3 threshold shift)', () => {
-    expect(getShutdownTN(14, 3)).toBe(0);
-    expect(getShutdownTN(17, 3)).toBe(4);
-    expect(getShutdownTN(21, 3)).toBe(6);
+  it('should apply Hot Dog SPA target-number modifier', () => {
+    expect(getShutdownTN(13, -1)).toBe(0);
+    expect(getShutdownTN(14, -1)).toBe(3);
+    expect(getShutdownTN(17, -1)).toBe(3);
+    expect(getShutdownTN(18, -1)).toBe(5);
   });
 });
 
@@ -236,6 +239,11 @@ describe('getStartupTN', () => {
   it('should still allow startup at heat 30+', () => {
     expect(getStartupTN(30)).toBe(12);
   });
+
+  it('should apply Hot Dog SPA target-number modifier', () => {
+    expect(getStartupTN(14, -1)).toBe(3);
+    expect(getStartupTN(18, -1)).toBe(5);
+  });
 });
 
 describe('getAmmoExplosionTN', () => {
@@ -247,6 +255,12 @@ describe('getAmmoExplosionTN', () => {
   it('should return TN 4 at heat 19-22', () => {
     expect(getAmmoExplosionTN(19)).toBe(4);
     expect(getAmmoExplosionTN(22)).toBe(4);
+  });
+
+  it('should apply Hot Dog SPA target-number modifier', () => {
+    expect(getAmmoExplosionTN(19, -1)).toBe(3);
+    expect(getAmmoExplosionTN(23, -1)).toBe(5);
+    expect(getAmmoExplosionTN(28, -1)).toBe(7);
   });
 
   it('should return TN 6 at heat 23-27', () => {
@@ -326,5 +340,42 @@ describe('getPilotHeatDamage', () => {
   it('should return 2 at heat 25+ with damaged life support', () => {
     expect(getPilotHeatDamage(25, 1)).toBe(2);
     expect(getPilotHeatDamage(30, 2)).toBe(2);
+  });
+});
+
+describe('getMaxTechPilotHeatDamageAvoidTN', () => {
+  it('should return 0 below optional MaxTech pilot heat damage checks', () => {
+    expect(getMaxTechPilotHeatDamageAvoidTN(31)).toBe(0);
+  });
+
+  it('should return optional MaxTech high-heat pilot damage avoidance TNs', () => {
+    expect(getMaxTechPilotHeatDamageAvoidTN(32)).toBe(8);
+    expect(getMaxTechPilotHeatDamageAvoidTN(39)).toBe(10);
+    expect(getMaxTechPilotHeatDamageAvoidTN(47)).toBe(12);
+  });
+
+  it('should apply Hot Dog-style target-number relief without changing default life-support heat damage', () => {
+    expect(getMaxTechPilotHeatDamageAvoidTN(32, -1)).toBe(7);
+    expect(getMaxTechPilotHeatDamageAvoidTN(39, -1)).toBe(9);
+    expect(getMaxTechPilotHeatDamageAvoidTN(47, -1)).toBe(11);
+    expect(getPilotHeatDamage(15, 1)).toBe(1);
+    expect(getPilotHeatDamage(25, 1)).toBe(2);
+  });
+});
+
+describe('getMaxTechHeatCriticalDamageAvoidTN', () => {
+  it('should return 0 below optional MaxTech critical damage checks', () => {
+    expect(getMaxTechHeatCriticalDamageAvoidTN(35)).toBe(0);
+  });
+
+  it('should return optional MaxTech high-heat critical damage avoidance TNs', () => {
+    expect(getMaxTechHeatCriticalDamageAvoidTN(36)).toBe(8);
+    expect(getMaxTechHeatCriticalDamageAvoidTN(43)).toBe(8);
+    expect(getMaxTechHeatCriticalDamageAvoidTN(44)).toBe(10);
+  });
+
+  it('should apply Hot Dog-style target-number relief', () => {
+    expect(getMaxTechHeatCriticalDamageAvoidTN(36, -1)).toBe(7);
+    expect(getMaxTechHeatCriticalDamageAvoidTN(44, -1)).toBe(9);
   });
 });

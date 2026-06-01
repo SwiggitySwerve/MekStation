@@ -3,10 +3,12 @@
  */
 
 import { TerrainType, ITerrainFeature } from '@/types/gameplay/TerrainTypes';
+import { createHexGrid, setTerrain } from '@/utils/gameplay/hexGrid';
 
 import {
   getWaterCoolingBonus,
   getTerrainHeatEffect,
+  getGridTerrainHeatEffect,
   calculateHeatDissipation,
 } from '../heat';
 
@@ -69,6 +71,28 @@ describe('getTerrainHeatEffect', () => {
   it('should return 5 for fire terrain', () => {
     const terrain: ITerrainFeature[] = [{ type: TerrainType.Fire, level: 1 }];
     expect(getTerrainHeatEffect(terrain)).toBe(5);
+  });
+});
+
+describe('getGridTerrainHeatEffect', () => {
+  it('reads fire terrain heat from the live hex grid', () => {
+    const grid = setTerrain(
+      createHexGrid({ radius: 1 }),
+      { q: 0, r: 0 },
+      TerrainType.Fire,
+    );
+
+    expect(getGridTerrainHeatEffect(grid, { q: 0, r: 0 })).toBe(5);
+  });
+
+  it('parses tagged water depth as cooling', () => {
+    const grid = setTerrain(
+      createHexGrid({ radius: 1 }),
+      { q: 0, r: 0 },
+      'water:2',
+    );
+
+    expect(getGridTerrainHeatEffect(grid, { q: 0, r: 0 })).toBe(-4);
   });
 });
 

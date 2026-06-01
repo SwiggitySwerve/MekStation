@@ -23,6 +23,20 @@ export function applyEngineHit(
   const newHits = componentDamage.engineHits + 1;
   const updatedDamage = { ...componentDamage, engineHits: newHits };
 
+  // MekStation keeps EngineHit as a local PSR trigger even though MegaMek's
+  // engine-critical path handles counters, heat/destruction, and explosion
+  // checks without queuing a normal fall PSR.
+  events.push({
+    type: 'psr_triggered',
+    payload: {
+      unitId,
+      reason: 'Engine hit',
+      additionalModifier: 0,
+      triggerSource: PSRTrigger.EngineHit,
+      reasonCode: PSRTrigger.EngineHit,
+    },
+  });
+
   if (newHits >= ENGINE_DESTRUCTION_THRESHOLD) {
     events.push({
       type: 'unit_destroyed',

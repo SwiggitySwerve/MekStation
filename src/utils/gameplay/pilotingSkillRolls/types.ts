@@ -51,13 +51,17 @@ export interface IPSRBatchResult {
   readonly results: readonly IPSRResult[];
   /** Whether any PSR failed (unit falls) */
   readonly unitFell: boolean;
+  /** Whether any PSR failed by making the unit stuck instead of fallen */
+  readonly unitStuck?: boolean;
+  /** First failed PSR result, when a failure stopped the batch */
+  readonly failedResult?: IPSRResult;
   /** PSRs that were cleared without rolling (due to first-failure-clears rule) */
   readonly clearedPSRs: readonly IPendingPSR[];
 }
 
 /**
  * Per `structure-psr-reason-as-discriminated-code` (PR E): the four
- * coarse buckets that partition the `PSRTrigger` taxonomy.
+ * coarse buckets that partition the 27-code `PSRTrigger` taxonomy.
  * Consumers (the readable formatter, metrics aggregators) bucket PSRs
  * by category instead of enumerating all 27 codes.
  *
@@ -95,6 +99,7 @@ export function getPSRReasonCategory(code: PSRTrigger): PSRReasonCategory {
     case PSRTrigger.Charged:
     case PSRTrigger.DFATarget:
     case PSRTrigger.Pushed:
+    case PSRTrigger.DominoEffect:
     case PSRTrigger.KickMiss:
     case PSRTrigger.ChargeMiss:
     case PSRTrigger.DFAMiss:
@@ -104,6 +109,7 @@ export function getPSRReasonCategory(code: PSRTrigger): PSRReasonCategory {
     case PSRTrigger.EnteringWater:
     case PSRTrigger.ExitingWater:
     case PSRTrigger.Skidding:
+    case PSRTrigger.SwampBogDown:
     case PSRTrigger.AirMekLanding:
     case PSRTrigger.RunningDamagedHip:
     case PSRTrigger.RunningDamagedGyro:

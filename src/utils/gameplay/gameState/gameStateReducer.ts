@@ -6,16 +6,19 @@ import {
   IAttackDeclaredPayload,
   ICriticalHitResolvedPayload,
   IDamageAppliedPayload,
+  IDesignatorMarkerAppliedPayload,
   IGameConfig,
   IGameCreatedPayload,
   IGameEndedPayload,
   IGameEvent,
   IGameState,
+  IAttacksRevealedPayload,
+  IFacingChangedPayload,
   IHeatPayload,
+  IInitiativeOrderSetPayload,
   IInitiativeRolledPayload,
   IMoraleShiftedPayload,
-  IMotiveDamagedPayload,
-  IMotivePenaltyAppliedPayload,
+  IMovementEnhancementActivatedPayload,
   IMovementDeclaredPayload,
   IRuntimeMovementStateChangedPayload,
   IObjectiveCapturedPayload,
@@ -29,25 +32,28 @@ import {
   IPSRTriggeredPayload,
   IRetreatTriggeredPayload,
   IShutdownCheckPayload,
+  ISpottingDeclaredPayload,
   IStartupAttemptPayload,
   ITerrainChangedPayload,
-  ITurretLockedPayload,
+  IUnitEjectedPayload,
   IUnitDestroyedPayload,
   IUnitFellPayload,
   IUnitRetreatedPayload,
   IUnitStoodPayload,
+  IUnitStuckPayload,
   IUnitGameState,
   IWithdrawalDeclaredPayload,
   IGameStartedPayload,
   LockState,
-  IVehicleCrewStunnedPayload,
-  IVehicleImmobilizedPayload,
 } from '@/types/gameplay';
 import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveEngine';
 
 import {
   applyAttackDeclared,
   applyAttackLocked,
+  applyAttacksRevealed,
+  applyFacingChanged,
+  applyMovementEnhancementActivated,
   applyMovementDeclared,
   applyMovementLocked,
   applyRuntimeMovementStateChanged,
@@ -56,16 +62,12 @@ import {
   applyCriticalHitResolved,
   applyDamageApplied,
   applyHeatChange,
-  applyMotiveDamaged,
-  applyMotivePenaltyApplied,
   applyPilotHit,
-  applyTurretLocked,
   applyUnitDestroyed,
-  applyVehicleCrewStunned,
-  applyVehicleImmobilized,
 } from './damageResolution';
 import {
   applyAmmoConsumed,
+  applyDesignatorMarkerApplied,
   applyMoraleShifted,
   applyPhysicalAttackDeclared,
   applyPhysicalAttackResolved,
@@ -74,9 +76,12 @@ import {
   applyRetreatTriggered,
   applyShutdownCheck,
   applyStartupAttempt,
+  applySpottingDeclared,
+  applyUnitEjected,
   applyUnitFell,
   applyUnitRetreated,
   applyUnitStood,
+  applyUnitStuck,
   applyWithdrawalDeclared,
 } from './extendedCombat';
 import {
@@ -94,6 +99,7 @@ import {
   applyObjectiveProgress,
 } from './objectiveReducer';
 import {
+  applyInitiativeOrderSet,
   applyInitiativeRolled,
   applyPhaseChanged,
   applyTurnStarted,
@@ -127,6 +133,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
         event.payload as IInitiativeRolledPayload,
       );
 
+    case GameEventType.InitiativeOrderSet:
+      return applyInitiativeOrderSet(
+        state,
+        event.payload as IInitiativeOrderSetPayload,
+      );
+
     case GameEventType.MovementDeclared:
       return applyMovementDeclared(
         state,
@@ -142,6 +154,15 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
         event.payload as IRuntimeMovementStateChangedPayload,
       );
 
+    case GameEventType.MovementEnhancementActivated:
+      return applyMovementEnhancementActivated(
+        state,
+        event.payload as IMovementEnhancementActivatedPayload,
+      );
+
+    case GameEventType.FacingChanged:
+      return applyFacingChanged(state, event.payload as IFacingChangedPayload);
+
     case GameEventType.AttackDeclared:
       return applyAttackDeclared(
         state,
@@ -150,6 +171,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.AttackLocked:
       return applyAttackLocked(state, event);
+
+    case GameEventType.AttacksRevealed:
+      return applyAttacksRevealed(
+        state,
+        event.payload as IAttacksRevealedPayload,
+      );
 
     case GameEventType.DamageApplied:
       return applyDamageApplied(state, event.payload as IDamageAppliedPayload);
@@ -163,36 +190,6 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.UnitDestroyed:
       return applyUnitDestroyed(state, event.payload as IUnitDestroyedPayload);
-
-    case GameEventType.MotiveDamaged:
-      return applyMotiveDamaged(state, event.payload as IMotiveDamagedPayload);
-
-    case GameEventType.MotivePenaltyApplied:
-      return applyMotivePenaltyApplied(
-        state,
-        event.payload as IMotivePenaltyAppliedPayload,
-      );
-
-    case GameEventType.VehicleImmobilized:
-      return applyVehicleImmobilized(
-        state,
-        event.payload as IVehicleImmobilizedPayload,
-      );
-
-    case GameEventType.TurretLocked:
-      return applyTurretLocked(state, event.payload as ITurretLockedPayload);
-
-    case GameEventType.VehicleCrewStunned:
-      return applyVehicleCrewStunned(
-        state,
-        event.payload as IVehicleCrewStunnedPayload,
-      );
-
-    case GameEventType.TerrainChanged:
-      return applyTerrainChanged(
-        state,
-        event.payload as ITerrainChangedPayload,
-      );
 
     case GameEventType.CriticalHitResolved:
       return applyCriticalHitResolved(
@@ -208,6 +205,9 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.UnitFell:
       return applyUnitFell(state, event.payload as IUnitFellPayload);
+
+    case GameEventType.UnitStuck:
+      return applyUnitStuck(state, event.payload as IUnitStuckPayload);
 
     case GameEventType.UnitStood:
       return applyUnitStood(state, event.payload as IUnitStoodPayload);
@@ -236,6 +236,18 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
     case GameEventType.AmmoConsumed:
       return applyAmmoConsumed(state, event.payload as IAmmoConsumedPayload);
 
+    case GameEventType.DesignatorMarkerApplied:
+      return applyDesignatorMarkerApplied(
+        state,
+        event.payload as IDesignatorMarkerAppliedPayload,
+      );
+
+    case GameEventType.SpottingDeclared:
+      return applySpottingDeclared(
+        state,
+        event.payload as ISpottingDeclaredPayload,
+      );
+
     case GameEventType.RetreatTriggered:
       return applyRetreatTriggered(
         state,
@@ -244,6 +256,9 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.UnitRetreated:
       return applyUnitRetreated(state, event.payload as IUnitRetreatedPayload);
+
+    case GameEventType.UnitEjected:
+      return applyUnitEjected(state, event.payload as IUnitEjectedPayload);
 
     case GameEventType.MoraleShifted:
       return applyMoraleShifted(state, event.payload as IMoraleShiftedPayload);
@@ -269,15 +284,16 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
         event.payload as IObjectiveProgressPayload,
       );
 
+    case GameEventType.TerrainChanged:
+      return applyTerrainChanged(
+        state,
+        event.payload as ITerrainChangedPayload,
+      );
+
     case GameEventType.TurnEnded:
-    case GameEventType.InitiativeOrderSet:
-    case GameEventType.AttacksRevealed:
-    case GameEventType.MovementInvalid:
     case GameEventType.AttackResolved:
-    case GameEventType.VTOLCrashCheck:
     case GameEventType.HeatEffectApplied:
     case GameEventType.CriticalHit:
-    case GameEventType.FacingChanged:
     case GameEventType.AmmoExplosion:
     // `ForcedWithdrawalTriggered` is informational only — the paired
     // `WithdrawalDeclared` event performs the actual state change.
@@ -325,7 +341,13 @@ export function getActiveUnits(
   side: GameSide,
 ): readonly IUnitGameState[] {
   return Object.values(state.units).filter(
-    (unit) => unit.side === side && !unit.destroyed && unit.pilotConscious,
+    (unit) =>
+      unit.side === side &&
+      !unit.destroyed &&
+      !unit.shutdown &&
+      !unit.hasRetreated &&
+      !unit.hasEjected &&
+      unit.pilotConscious,
   );
 }
 
@@ -335,6 +357,9 @@ export function getUnitsAwaitingAction(
   return Object.values(state.units).filter(
     (unit) =>
       !unit.destroyed &&
+      !unit.shutdown &&
+      !unit.hasRetreated &&
+      !unit.hasEjected &&
       unit.pilotConscious &&
       unit.lockState === LockState.Pending,
   );
@@ -342,12 +367,18 @@ export function getUnitsAwaitingAction(
 
 export function allUnitsLocked(state: IGameState): boolean {
   const activeUnits = Object.values(state.units).filter(
-    (unit) => !unit.destroyed && unit.pilotConscious,
+    (unit) =>
+      !unit.destroyed &&
+      !unit.shutdown &&
+      !unit.hasRetreated &&
+      !unit.hasEjected &&
+      unit.pilotConscious,
   );
 
   return activeUnits.every(
     (unit) =>
       unit.lockState === LockState.Locked ||
+      unit.lockState === LockState.Revealed ||
       unit.lockState === LockState.Resolved,
   );
 }
@@ -369,7 +400,11 @@ function getSurvivingUnitsForSide(
   // remaining-unit total — even though `destroyed` stays false so that
   // post-battle summaries can distinguish withdrawal from combat loss.
   return Object.values(state.units).filter(
-    (unit) => !unit.destroyed && !unit.hasRetreated && unit.side === side,
+    (unit) =>
+      !unit.destroyed &&
+      !unit.hasRetreated &&
+      !unit.hasEjected &&
+      unit.side === side,
   );
 }
 

@@ -91,6 +91,15 @@ Pilots with the `FORWARD_OBSERVER` Special Piloting Ability SHALL act as spotter
 - **WHEN** the resolver enumerates spotter candidates
 - **THEN** S SHALL NOT be eligible (FO does not override the run/jump ineligibility from `Spotter Movement Penalty`)
 
+#### Scenario: Projection and commit paths hydrate FO consistently
+
+- **GIVEN** spotter candidate S stores pilot abilities on either `pilotSpas` or
+  the legacy `abilities` field
+- **WHEN** an indirect attack is projected or committed
+- **THEN** both paths SHALL recognize `FORWARD_OBSERVER`
+- **AND** the projected modifier stack SHALL match the committed attack
+  context for the same board state.
+
 ### Requirement: Indirect-Eligible Weapon Catalog
 
 The system SHALL define a single source-of-truth catalog of weapon families that may fire indirectly: LRM, LRM (Improved), MML loaded with LRM ammo, Mek Mortar, NLRM. Streak LRM, ATM, MRM, ROCKET LAUNCHER, and direct-fire energy/ballistic weapons SHALL NOT be eligible. Attempts to fire an ineligible weapon indirectly SHALL be rejected.
@@ -177,6 +186,15 @@ LRM-family weapons (LRM, LRM Improved, MML loaded with LRM ammo, Mek Mortar, NLR
 - **WHEN** an LRM weapon attempts indirect fire and no friendly unit has LOS to the target and the target is not NARC/iNarc-marked by a friendly unit
 - **THEN** the indirect-fire attack SHALL NOT be permitted
 - **AND** `computeIndirectFireContext` SHALL return `{ permitted: false, reason: 'No valid spotter and no NARC override' }`
+
+#### Scenario: Interactive no-spotter rejection has no side effects
+
+- **GIVEN** a blocked-LOS indirect weapon attack has no valid spotter and no
+  friendly NARC/iNARC override
+- **WHEN** the attack reaches the interactive session command path
+- **THEN** the command SHALL emit `AttackInvalid` with reason `NoLineOfSight`
+- **AND** no attack declaration, target lock, heat, ammunition, or indirect-fire
+  event SHALL be recorded.
 
 #### Scenario: Direct-fire ineligible weapon attempts indirect
 

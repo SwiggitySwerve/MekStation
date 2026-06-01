@@ -89,28 +89,42 @@ export const HEAT_TO_HIT_TABLE: readonly {
  * At heat 30+, shutdown is automatic (returns Infinity).
  *
  * @param heat - Current heat level
- * @param hotDogBonus - Hot Dog SPA bonus (shifts threshold by +3, default 0)
+ * @param targetNumberModifier - Heat-check target-number modifier (default 0)
  * @returns Target number for 2d6 roll, or Infinity for auto-shutdown
  */
-export function getShutdownTN(heat: number, hotDogBonus: number = 0): number {
-  const effectiveThreshold = HEAT_THRESHOLDS.SHUTDOWN_CHECK + hotDogBonus;
+export function getShutdownTN(
+  heat: number,
+  targetNumberModifier: number = 0,
+): number {
   if (heat >= HEAT_THRESHOLDS.AUTO_SHUTDOWN) return Infinity;
-  if (heat < effectiveThreshold) return 0; // No check needed
-  return 4 + Math.floor((heat - effectiveThreshold) / 4) * 2;
+  if (heat < HEAT_THRESHOLDS.SHUTDOWN_CHECK) return 0; // No check needed
+  return (
+    4 +
+    Math.floor((heat - HEAT_THRESHOLDS.SHUTDOWN_CHECK) / 4) * 2 +
+    targetNumberModifier
+  );
 }
 
 /**
  * Calculate startup target number (same formula as shutdown).
  *
  * @param heat - Current heat level
- * @param hotDogBonus - Hot Dog SPA bonus (default 0)
+ * @param targetNumberModifier - Heat-check target-number modifier (default 0)
  * @returns Target number for 2d6 roll
  */
-export function getStartupTN(heat: number, hotDogBonus: number = 0): number {
+export function getStartupTN(
+  heat: number,
+  targetNumberModifier: number = 0,
+): number {
   // Startup uses same formula but can always be attempted (even at 30+)
-  const effectiveThreshold = HEAT_THRESHOLDS.SHUTDOWN_CHECK + hotDogBonus;
-  if (heat < effectiveThreshold) return 4; // Base TN if somehow below threshold
-  return 4 + Math.floor((heat - effectiveThreshold) / 4) * 2;
+  if (heat < HEAT_THRESHOLDS.SHUTDOWN_CHECK) {
+    return 4 + targetNumberModifier; // Base TN if somehow below threshold
+  }
+  return (
+    4 +
+    Math.floor((heat - HEAT_THRESHOLDS.SHUTDOWN_CHECK) / 4) * 2 +
+    targetNumberModifier
+  );
 }
 
 // =============================================================================
@@ -140,12 +154,18 @@ export const AMMO_EXPLOSION_TN_TABLE: readonly {
  * Get ammo explosion avoidance TN for a given heat level.
  *
  * @param heat - Current heat level
+ * @param targetNumberModifier - Heat-check target-number modifier (default 0)
  * @returns TN for 2d6 roll, Infinity for auto-explosion, or 0 for no check needed
  */
-export function getAmmoExplosionTN(heat: number): number {
+export function getAmmoExplosionTN(
+  heat: number,
+  targetNumberModifier: number = 0,
+): number {
   if (heat >= HEAT_THRESHOLDS.AUTO_SHUTDOWN) return Infinity; // Auto explode
   for (const entry of AMMO_EXPLOSION_TN_TABLE) {
-    if (heat >= entry.minHeat && heat <= entry.maxHeat) return entry.tn;
+    if (heat >= entry.minHeat && heat <= entry.maxHeat) {
+      return entry.tn + targetNumberModifier;
+    }
   }
   return 0; // No check needed
 }
@@ -205,6 +225,47 @@ export function getPilotHeatDamage(
   if (lifeSupportHits <= 0) return 0;
   if (heat >= HEAT_THRESHOLDS.PILOT_DAMAGE_2) return 2;
   if (heat >= HEAT_THRESHOLDS.PILOT_DAMAGE_1) return 1;
+  return 0;
+}
+
+/**
+ * Get the optional MaxTech heat-scale pilot damage avoidance target number.
+ *
+ * This is separate from default damaged-life-support heat damage: default
+ * heat damage is threshold-based, while the optional MaxTech high-heat rule
+ * rolls to avoid 1 pilot damage at heat 32+.
+ *
+ * @param heat - Current heat level
+ * @param targetNumberModifier - Heat-check target-number modifier (default 0)
+ * @returns TN for 2d6 roll, or 0 for no optional check needed
+ */
+export function getMaxTechPilotHeatDamageAvoidTN(
+  heat: number,
+  targetNumberModifier: number = 0,
+): number {
+  if (heat >= 47) return 12 + targetNumberModifier;
+  if (heat >= 39) return 10 + targetNumberModifier;
+  if (heat >= 32) return 8 + targetNumberModifier;
+  return 0;
+}
+
+/**
+ * Get the optional MaxTech heat-scale critical damage avoidance target number.
+ *
+ * MegaMek's MaxTech heat resolver checks this separately from pilot heat
+ * damage: heat 36+ risks one random-location critical, with a harder avoid
+ * roll at heat 44+.
+ *
+ * @param heat - Current heat level
+ * @param targetNumberModifier - Heat-check target-number modifier (default 0)
+ * @returns TN for 2d6 roll, or 0 for no optional check needed
+ */
+export function getMaxTechHeatCriticalDamageAvoidTN(
+  heat: number,
+  targetNumberModifier: number = 0,
+): number {
+  if (heat >= 44) return 10 + targetNumberModifier;
+  if (heat >= 36) return 8 + targetNumberModifier;
   return 0;
 }
 

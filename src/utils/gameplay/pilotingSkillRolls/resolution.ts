@@ -13,11 +13,44 @@ import {
   gyroPsrModifierName,
 } from '../gyroRules';
 import { D6Roller, roll2d6 } from '../hitLocation';
+import { calculatePilotingQuirkPSRModifier } from '../quirkModifiers';
+import {
+  getAnimalMimicryPSRModifier,
+  getFrogmanWaterPSRModifier,
+  getManeuveringAceSkidModifier,
+  getMountaineerRubblePSRModifier,
+  getSwampBeastBogDownPSRModifier,
+} from '../spaModifiers';
 import { IPSRResult, IPSRBatchResult, IPSRModifier, PSRTrigger } from './types';
 
 export interface IPSRResolutionOptions {
   readonly gyroType?: RepresentedGyroType;
   readonly optionalRules?: readonly string[];
+  readonly unitQuirks?: readonly string[];
+  readonly pilotAbilities?: readonly string[];
+  readonly isQuadMek?: boolean;
+  readonly unitType?: string;
+  readonly pilotingSkill?: number;
+}
+
+function isTerrainPSR(psr: IPendingPSR): boolean {
+  switch (psr.reasonCode ?? psr.triggerSource) {
+    case PSRTrigger.EnteringRubble:
+    case PSRTrigger.RunningRoughTerrain:
+    case PSRTrigger.MovingOnIce:
+    case PSRTrigger.EnteringWater:
+    case PSRTrigger.ExitingWater:
+    case PSRTrigger.Skidding:
+    case PSRTrigger.SwampBogDown:
+    case PSRTrigger.BuildingCollapse:
+      return true;
+    default:
+      return false;
+  }
+}
+
+function isStuckFailurePSR(psr: IPendingPSR): boolean {
+  return (psr.reasonCode ?? psr.triggerSource) === PSRTrigger.SwampBogDown;
 }
 
 /**
@@ -37,20 +70,32 @@ export function resolvePSR(
   componentDamage: IComponentDamageState,
   pilotWounds: number,
   diceRoller: D6Roller = defaultD6Roller,
-  options: IPSRResolutionOptions = {},
+  unitQuirks: readonly string[] | IPSRResolutionOptions = [],
+  pilotAbilities: readonly string[] = [],
+  isQuadMek = false,
+  unitType?: string,
 ): IPSRResult {
+  const usesFixedTargetNumber = psr.fixedTargetNumber !== undefined;
   const modifiers = calculatePSRModifiers(
     psr,
     componentDamage,
     pilotWounds,
-    options,
+    unitQuirks,
+    pilotAbilities,
+    isQuadMek,
+    unitType,
+    pilotingSkill,
   );
 
   const totalModifier = modifiers.reduce((sum, m) => sum + m.value, 0);
 
   // Special case: Shutdown PSR has fixed TN 3 (piloting skill not used)
   const isShutdownPSR = psr.triggerSource === PSRTrigger.Shutdown;
-  const targetNumber = isShutdownPSR ? 3 : pilotingSkill + totalModifier;
+  const targetNumber = usesFixedTargetNumber
+    ? psr.fixedTargetNumber + totalModifier
+    : isShutdownPSR
+      ? 3
+      : pilotingSkill + totalModifier;
 
   const roll = roll2d6(diceRoller);
 
@@ -83,7 +128,10 @@ export function resolveAllPSRs(
   componentDamage: IComponentDamageState,
   pilotWounds: number,
   diceRoller: D6Roller = defaultD6Roller,
-  options: IPSRResolutionOptions = {},
+  unitQuirks: readonly string[] | IPSRResolutionOptions = [],
+  pilotAbilities: readonly string[] = [],
+  isQuadMek = false,
+  unitType?: string,
 ): IPSRBatchResult {
   if (pendingPSRs.length === 0) {
     return {
@@ -104,7 +152,10 @@ export function resolveAllPSRs(
       componentDamage,
       pilotWounds,
       diceRoller,
-      options,
+      unitQuirks,
+      pilotAbilities,
+      isQuadMek,
+      unitType,
     );
     results.push(result);
 
@@ -113,9 +164,19 @@ export function resolveAllPSRs(
       for (let j = i + 1; j < pendingPSRs.length; j++) {
         clearedPSRs.push(pendingPSRs[j]);
       }
+      if (isStuckFailurePSR(psr)) {
+        return {
+          results,
+          unitFell: false,
+          unitStuck: true,
+          failedResult: result,
+          clearedPSRs,
+        };
+      }
       return {
         results,
         unitFell: true,
+        failedResult: result,
         clearedPSRs,
       };
     }
@@ -140,8 +201,43 @@ export function calculatePSRModifiers(
   psr: IPendingPSR,
   componentDamage: IComponentDamageState,
   pilotWounds: number,
-  options: IPSRResolutionOptions = {},
+  unitQuirks: readonly string[] | IPSRResolutionOptions = [],
+  pilotAbilities: readonly string[] = [],
+  isQuadMek = false,
+  unitType?: string,
+  pilotingSkill?: number,
 ): readonly IPSRModifier[] {
+  const unitQuirksIsList = Array.isArray(unitQuirks);
+  const options: IPSRResolutionOptions = unitQuirksIsList
+    ? {}
+    : (unitQuirks as IPSRResolutionOptions);
+  const normalizedUnitQuirks = unitQuirksIsList
+    ? unitQuirks
+    : (options.unitQuirks ?? []);
+  const normalizedPilotAbilities = unitQuirksIsList
+    ? pilotAbilities
+    : (options.pilotAbilities ?? pilotAbilities);
+  const normalizedIsQuadMek = unitQuirksIsList
+    ? isQuadMek
+    : (options.isQuadMek ?? isQuadMek);
+  const normalizedUnitType = unitQuirksIsList
+    ? unitType
+    : (options.unitType ?? unitType);
+  const normalizedPilotingSkill = unitQuirksIsList
+    ? pilotingSkill
+    : (options.pilotingSkill ?? pilotingSkill);
+  if (psr.fixedTargetNumber !== undefined) {
+    return psr.additionalModifier !== 0
+      ? [
+          {
+            name: `${psr.reason} modifier`,
+            value: psr.additionalModifier,
+            source: psr.triggerSource,
+          },
+        ]
+      : [];
+  }
+
   const modifiers: IPSRModifier[] = [];
   const landingSpecificDamageModifiers =
     usesAirMekLandingSpecificDamageModifiers(psr);
@@ -209,6 +305,87 @@ export function calculatePSRModifiers(
       name: `${psr.reason} modifier`,
       value: psr.additionalModifier,
       source: psr.triggerSource,
+    });
+  }
+
+  const quirkModifier = calculatePilotingQuirkPSRModifier(
+    normalizedUnitQuirks,
+    isTerrainPSR(psr),
+    psr.reasonCode ?? psr.triggerSource,
+    normalizedPilotingSkill,
+    normalizedPilotAbilities,
+  );
+  if (quirkModifier !== 0) {
+    modifiers.push({
+      name: 'Piloting quirks',
+      value: quirkModifier,
+      source: 'quirk',
+    });
+  }
+
+  if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.Skidding) {
+    const maneuveringAceModifier = getManeuveringAceSkidModifier(
+      normalizedPilotAbilities,
+    );
+    if (maneuveringAceModifier !== 0) {
+      modifiers.push({
+        name: 'Maneuvering Ace',
+        value: maneuveringAceModifier,
+        source: 'spa',
+      });
+    }
+  }
+
+  if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.EnteringWater) {
+    const frogmanModifier = getFrogmanWaterPSRModifier(
+      normalizedPilotAbilities,
+      psr.terrainLevel,
+      normalizedUnitType,
+    );
+    if (frogmanModifier !== 0) {
+      modifiers.push({
+        name: 'Frogman',
+        value: frogmanModifier,
+        source: 'spa',
+      });
+    }
+  }
+
+  if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.EnteringRubble) {
+    const mountaineerModifier = getMountaineerRubblePSRModifier(
+      normalizedPilotAbilities,
+    );
+    if (mountaineerModifier !== 0) {
+      modifiers.push({
+        name: 'Mountaineer',
+        value: mountaineerModifier,
+        source: 'spa',
+      });
+    }
+  }
+
+  if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.SwampBogDown) {
+    const swampBeastModifier = getSwampBeastBogDownPSRModifier(
+      normalizedPilotAbilities,
+    );
+    if (swampBeastModifier !== 0) {
+      modifiers.push({
+        name: 'Swamp Beast',
+        value: swampBeastModifier,
+        source: 'spa',
+      });
+    }
+  }
+
+  const animalMimicryModifier = getAnimalMimicryPSRModifier(
+    normalizedPilotAbilities,
+    normalizedIsQuadMek,
+  );
+  if (animalMimicryModifier !== 0) {
+    modifiers.push({
+      name: 'Animal Mimicry',
+      value: animalMimicryModifier,
+      source: 'spa',
     });
   }
 

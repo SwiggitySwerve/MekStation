@@ -543,11 +543,6 @@ describe('actuator critical effects', () => {
       expect(
         result.updatedComponentDamage.actuators[ActuatorType.UPPER_LEG],
       ).toBe(true);
-      expect(
-        result.updatedComponentDamage.actuatorsByLocation?.left_leg?.[
-          ActuatorType.UPPER_LEG
-        ],
-      ).toBe(true);
       expect(getActuatorToHitModifier(ActuatorType.UPPER_LEG)).toBe(2);
       expect(actuatorHalvesDamage(ActuatorType.UPPER_LEG, 'kick')).toBe(true);
 

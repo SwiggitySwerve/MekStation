@@ -9,6 +9,8 @@ const MOVEMENT_TYPE_PRIORITY: Record<MovementType, number> = {
   [MovementType.Stationary]: 0,
   [MovementType.Walk]: 1,
   [MovementType.Run]: 2,
+  [MovementType.Sprint]: 3,
+  [MovementType.Evade]: 3,
   [MovementType.Jump]: 3,
 };
 
@@ -18,6 +20,10 @@ export function formatMovementTypeLabel(type: MovementType): string {
       return 'W';
     case MovementType.Run:
       return 'R';
+    case MovementType.Sprint:
+      return 'SPR';
+    case MovementType.Evade:
+      return 'EVD';
     case MovementType.Jump:
       return 'J';
     case MovementType.Stationary:

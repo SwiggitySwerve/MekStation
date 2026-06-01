@@ -97,18 +97,17 @@ The system SHALL permit a pilot to attempt to override an automatic shutdown by 
 
 ### Requirement: Hot Dog SPA Interaction
 
-The Hot Dog special pilot ability SHALL increase the shutdown threshold by +3.
+The Hot Dog special pilot ability SHALL reduce heat startup and shutdown target numbers by 1 without changing the heat 14 shutdown-check threshold.
 
-#### Scenario: Hot Dog delays shutdown checks
+#### Scenario: Hot Dog preserves shutdown threshold
 
 - **WHEN** a pilot with the Hot Dog SPA has heat level 14
-- **THEN** the effective shutdown threshold SHALL be 17 (14 + 3)
-- **AND** no shutdown check SHALL be required at heat 14-16
+- **THEN** a shutdown check SHALL be required
 
 #### Scenario: Hot Dog modifies shutdown TN
 
-- **WHEN** a pilot with Hot Dog SPA has heat level 17
-- **THEN** the shutdown TN calculation SHALL use `4 + floor((17 - 17) / 4) * 2 = 4`
+- **WHEN** a pilot with Hot Dog SPA has heat level 14
+- **THEN** the shutdown TN calculation SHALL use `4 + floor((14 - 14) / 4) * 2 - 1 = 3`
 
 ### Requirement: Shutdown State in Game State
 

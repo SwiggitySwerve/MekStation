@@ -3,11 +3,12 @@
  *
  * Wave 4 multiplayer foundation B (`add-p2p-game-session-sync` § 5.3 +
  * § 7.2): the host listens for guest-authored intents on the peer
- * channel, translates each one into events via `intentTranslation`, and
+ * channel, translates each one via `intentTranslation`, and
  * either:
  *   1. Appends the events through the host's engine (which broadcasts
  *      them onward to the guest via the channel's normal path), or
- *   2. Broadcasts a structured `peer-rejected` envelope back to the
+ *   2. Applies a host-owned command through the engine/session API, or
+ *   3. Broadcasts a structured `peer-rejected` envelope back to the
  *      guest so its UI can surface a toast.
  *
  * § 7.2: when the guest is currently `PeerPending` (their awareness
@@ -26,6 +27,8 @@
  */
 
 import type {
+  GamePhase,
+  GameSide,
   IGameEvent,
   IGameIntent,
   IGameSession,
@@ -33,8 +36,9 @@ import type {
 
 import {
   translateIntentToEvents,
+  type IIntentTranslationAuthorityContext,
+  type IntentTranslationCommand,
   type IntentRejectionReason,
-  type IIntentTranslationOptions,
   type IntentTranslationResult,
 } from './intentTranslation';
 
@@ -49,6 +53,12 @@ export interface IHostIntentRouterAdapter {
   /** Returns the host's current session snapshot, or null if no match is live. */
   readonly getSession: () => IGameSession | null;
   /**
+   * Returns host-owned combat authority used to validate guest intents
+   * before turning them into replay events. Movement needs the host grid
+   * and MP map; weapon attacks need the host inventory map.
+   */
+  readonly getTranslationAuthority?: () => IIntentTranslationAuthorityContext;
+  /**
    * Append a host-translated event. The router calls this in order
    * for every event the translator produced. The adapter is
    * responsible for both updating local engine state AND broadcasting
@@ -56,6 +66,23 @@ export interface IHostIntentRouterAdapter {
    * `appendEvent` path already does both.
    */
   readonly appendEvent: (event: IGameEvent) => void;
+  /**
+   * Apply an authoritative host-side command that must run through
+   * engine/session APIs rather than being represented by a synthetic
+   * guest-authored event.
+   */
+  readonly concede: (side: GameSide) => void;
+  /** Apply a host-owned stand-up attempt so the host owns the PSR roll. */
+  readonly stand: (unitId: string) => void;
+  /** Apply a host-owned voluntary prone action. */
+  readonly goProne: (unitId: string) => void;
+  /** Apply a host-owned MASC/Supercharger activation. */
+  readonly activateMovementEnhancement: (
+    unitId: string,
+    enhancement: 'MASC' | 'Supercharger',
+  ) => void;
+  /** Apply host-owned phase advancement so reducer side effects run. */
+  readonly advancePhase: (phase: GamePhase) => void;
   /**
    * Broadcast a structured rejection back to the guest. Called when
    * the translator returns `{ ok: false }` or when the host is
@@ -65,12 +92,6 @@ export interface IHostIntentRouterAdapter {
     reason: IntentRejectionReason | string;
     detail?: string;
   }) => void;
-  /**
-   * Optional host-authoritative rules context. When provided, movement
-   * intents are validated against the same grid/capability data the local
-   * engine uses instead of trusting guest-supplied MP, heat, or path data.
-   */
-  readonly getIntentTranslationOptions?: () => IIntentTranslationOptions;
   /**
    * True when the host is currently in a `guestPending` state and
    * cannot apply the guest's intents in real time. Defaults to false.
@@ -102,7 +123,11 @@ export interface IHostIntentRouter {
 }
 
 export type HostIntentRouterResult =
-  | { readonly outcome: 'applied'; readonly events: readonly IGameEvent[] }
+  | {
+      readonly outcome: 'applied';
+      readonly events: readonly IGameEvent[];
+      readonly command?: IntentTranslationCommand;
+    }
   | {
       readonly outcome: 'rejected';
       readonly reason: IntentRejectionReason;
@@ -120,14 +145,57 @@ export function createHostIntentRouter(
   const buffer: IGameIntent[] = [];
 
   const tryApply = (
-    intent: IGameIntent,
     translation: IntentTranslationResult,
   ): HostIntentRouterResult => {
     if (translation.ok) {
       for (const event of translation.events) {
         adapter.appendEvent(event);
       }
-      return { outcome: 'applied', events: translation.events };
+
+      if (!('command' in translation)) {
+        return { outcome: 'applied', events: translation.events };
+      }
+
+      switch (translation.command.kind) {
+        case 'concede':
+          adapter.concede(translation.command.side);
+          return {
+            outcome: 'applied',
+            events: [],
+            command: translation.command,
+          };
+        case 'advancePhase':
+          adapter.advancePhase(translation.command.phase);
+          return {
+            outcome: 'applied',
+            events: [],
+            command: translation.command,
+          };
+        case 'stand':
+          adapter.stand(translation.command.unitId);
+          return {
+            outcome: 'applied',
+            events: [],
+            command: translation.command,
+          };
+        case 'goProne':
+          adapter.goProne(translation.command.unitId);
+          return {
+            outcome: 'applied',
+            events: [],
+            command: translation.command,
+          };
+        case 'activateMovementEnhancement':
+          adapter.activateMovementEnhancement(
+            translation.command.unitId,
+            translation.command.enhancement,
+          );
+          return {
+            outcome: 'applied',
+            events: [],
+            command: translation.command,
+          };
+      }
     }
     adapter.broadcastRejection({
       reason: translation.reason,
@@ -149,9 +217,9 @@ export function createHostIntentRouter(
     const translation = translateIntentToEvents(
       intent,
       session,
-      adapter.getIntentTranslationOptions?.(),
+      adapter.getTranslationAuthority?.(),
     );
-    return tryApply(intent, translation);
+    return tryApply(translation);
   };
 
   const flushBuffered = (): HostIntentRouterResult[] => {
@@ -163,9 +231,9 @@ export function createHostIntentRouter(
       const translation = translateIntentToEvents(
         intent,
         session,
-        adapter.getIntentTranslationOptions?.(),
+        adapter.getTranslationAuthority?.(),
       );
-      results.push(tryApply(intent, translation));
+      results.push(tryApply(translation));
     }
     return results;
   };

@@ -53,4 +53,17 @@ describe('facingCommands', () => {
     const cmd = commands.find((c) => c.id === 'facing.rotate-right')!;
     expect(cmd.commit(makeCtx()).actionId).toBe('facing-right');
   });
+
+  it('rotate-left commit dispatches facing-left actionId', () => {
+    const cmd = commands.find((c) => c.id === 'facing.rotate-left')!;
+    expect(cmd.commit(makeCtx()).actionId).toBe('facing-left');
+  });
+
+  it('torso-twist commit carries a source-backed direction payload', () => {
+    const cmd = commands.find((c) => c.id === 'facing.torso-twist')!;
+    expect(cmd.commit(makeCtx({ phase: GamePhase.WeaponAttack }))).toEqual({
+      actionId: 'torso-twist',
+      payload: { direction: 'left' },
+    });
+  });
 });

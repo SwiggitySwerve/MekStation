@@ -20,6 +20,7 @@ import type {
   IAttackResolvedPayload,
   IAmmoExplosionPayload,
   IHeatPayload,
+  IAttacksRevealedPayload,
   IPhysicalAttackDeclaredPayload,
   IPhysicalAttackResolvedPayload,
   IPilotHitPayload,
@@ -30,6 +31,7 @@ import type {
   IUnitDestroyedPayload,
   IUnitFellPayload,
   IUnitStoodPayload,
+  IUnitStuckPayload,
   IDamageAppliedPayload,
   ICriticalHitResolvedPayload,
 } from './GameSessionAttackEvents';
@@ -42,12 +44,14 @@ import type {
   IGameCreatedPayload,
   IGameEndedPayload,
   IGameStartedPayload,
+  IInitiativeOrderSetPayload,
   IInitiativeRolledPayload,
   IPhaseChangedPayload,
   ITurnEndedPayload,
   ITurnStartedPayload,
 } from './GameSessionLifecycleEvents';
 import type {
+  IFacingChangedPayload,
   IAttackLockedPayload,
   IMovementDeclaredPayload,
   IMovementInvalidPayload,
@@ -160,6 +164,48 @@ export interface IAmmoConsumedPayload {
   readonly roundsRemaining: number;
 }
 
+export interface IAMSInterceptionPayload {
+  readonly defenderId: string;
+  readonly targetId: string;
+  readonly attackerId: string;
+  readonly incomingWeaponId: string;
+  readonly amsWeaponId: string;
+  readonly resolution: 'cluster-table' | 'single-missile';
+  readonly incomingProjectiles: number;
+  readonly projectilesIntercepted: number;
+  readonly projectilesRemaining: number;
+  readonly ammoConsumed: number;
+  readonly roll: readonly number[];
+  readonly clusterRoll?: number;
+  readonly clusterModifier?: number;
+  readonly modifiedClusterRoll?: number;
+  readonly ammoBinId?: string;
+  readonly ammoRemaining?: number;
+}
+
+export interface IDesignatorMarkerAppliedPayload {
+  readonly attackerId: string;
+  readonly targetId: string;
+  readonly weaponId: string;
+  readonly marker: 'inarc' | 'narc' | 'tag';
+  readonly podType?: 'homing' | 'ecm' | 'haywire' | 'nemesis';
+  readonly persistent: boolean;
+  readonly turn: number;
+  readonly location?: string;
+  readonly teamId?: string;
+}
+
+/**
+ * A unit declared source-backed target spotting for indirect fire. Mirrors
+ * MegaMek SpotAction's entity id + target id pair while keeping the state
+ * change replayable in MekStation's event log.
+ */
+export interface ISpottingDeclaredPayload {
+  readonly unitId: string;
+  readonly targetId: string;
+  readonly turn: number;
+}
+
 /**
  * Per `integrate-damage-pipeline`: a location's internal structure has
  * reached zero. `cascadedTo` is set when the destruction triggered a
@@ -206,6 +252,7 @@ export interface IComponentDestroyedPayload {
   readonly componentType: string;
   readonly slotIndex: number;
   readonly componentName?: string;
+  readonly ammoBinId?: string;
 }
 
 /**
@@ -277,6 +324,16 @@ export interface IUnitRetreatedPayload {
   readonly unitId: string;
   readonly retreatEdge: 'north' | 'south' | 'east' | 'west';
   readonly turn: number;
+}
+
+/**
+ * Pilot ejection removes a unit from active combat without damaging the
+ * chassis. Reducers keep armor/structure intact and leave `destroyed=false`.
+ */
+export interface IUnitEjectedPayload {
+  readonly unitId: string;
+  readonly turn: number;
+  readonly reason: 'player_declared' | 'forced' | 'pilot_survival';
 }
 
 /**
@@ -422,12 +479,15 @@ export type GameEventPayload =
   | ITurnEndedPayload
   | IPhaseChangedPayload
   | IInitiativeRolledPayload
+  | IInitiativeOrderSetPayload
   | IMovementDeclaredPayload
   | IMovementInvalidPayload
   | IMovementLockedPayload
   | IRuntimeMovementStateChangedPayload
+  | IFacingChangedPayload
   | IAttackDeclaredPayload
   | IAttackLockedPayload
+  | IAttacksRevealedPayload
   | IAttackResolvedPayload
   | IRedactedAttackResolvedPayload
   | IDamageAppliedPayload
@@ -441,6 +501,7 @@ export type GameEventPayload =
   | IPSRTriggeredPayload
   | IPSRResolvedPayload
   | IUnitFellPayload
+  | IUnitStuckPayload
   | IUnitStoodPayload
   | IPhysicalAttackDeclaredPayload
   | IPhysicalAttackResolvedPayload
@@ -448,6 +509,9 @@ export type GameEventPayload =
   | IHeatEffectAppliedPayload
   | IStartupAttemptPayload
   | IAmmoConsumedPayload
+  | IAMSInterceptionPayload
+  | IDesignatorMarkerAppliedPayload
+  | ISpottingDeclaredPayload
   | IAttackInvalidPayload
   | ILocationDestroyedPayload
   | ITransferDamagePayload
@@ -455,6 +519,7 @@ export type GameEventPayload =
   | ICriticalHitPayload
   | IRetreatTriggeredPayload
   | IUnitRetreatedPayload
+  | IUnitEjectedPayload
   | IMotiveDamagedPayload
   | IMotivePenaltyAppliedPayload
   | IVehicleImmobilizedPayload

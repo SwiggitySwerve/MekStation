@@ -4,6 +4,7 @@
 
 import { getHeatMovementPenalty } from '@/constants/heat';
 import {
+  IEnvironmentalConditions,
   IHexCoordinate,
   IHexGrid,
   IUnitPosition,
@@ -13,11 +14,23 @@ import {
   Facing,
   StandUpMode,
 } from '@/types/gameplay';
+import {
+  getWindJumpReduction,
+  scaleJumpDistance,
+} from '@/utils/gameplay/environmentalModifiers';
+
+import type { UnitMovementType } from './types';
 
 import { isInBounds, isOccupied } from '../hexGrid';
-import { hexDistance, hexEquals, hexLine } from '../hexMath';
-import { getMaxMP } from './calculations';
+import { hexDistance, hexEquals } from '../hexMath';
+import {
+  getHexMovementCost,
+  getMaxMP,
+  type IMovementCostContext,
+} from './calculations';
+import { calculateGroundPathTurningMpCost } from './eventPath';
 import { calculateMovementHeat } from './modifiers';
+import { findPath } from './pathfinding';
 
 /**
  * Validate a movement action.
@@ -37,7 +50,18 @@ export function validateMovement(
   movementType: MovementType,
   capability: IMovementCapability,
   currentHeat: number = 0,
+  environmentalConditions?: IEnvironmentalConditions,
+  movementContext?: IMovementCostContext,
 ): IMovementValidation {
+  if (position.isStuck) {
+    return {
+      valid: false,
+      error: 'Unit is stuck',
+      mpCost: 0,
+      heatGenerated: 0,
+    };
+  }
+
   if (!isInBounds(grid, destination)) {
     return {
       valid: false,
@@ -60,6 +84,7 @@ export function validateMovement(
   }
 
   const distance = hexDistance(position.coord, destination);
+  const facingChangeCost = getFacingChangeCost(position.facing, newFacing);
 
   if (movementType === MovementType.Jump && capability.jumpMP === 0) {
     return {
@@ -71,51 +96,165 @@ export function validateMovement(
   }
 
   const heatPenalty = currentHeat > 0 ? getHeatMovementPenalty(currentHeat) : 0;
-  const maxMP = getMaxMP(capability, movementType, heatPenalty);
+  const maxMP = getEnvironmentalMaxMP(
+    capability,
+    movementType,
+    heatPenalty,
+    environmentalConditions,
+  );
 
-  if (distance > maxMP) {
-    return {
-      valid: false,
-      error: `Destination is ${distance} hexes away, but max range for ${movementType} is ${maxMP}`,
-      mpCost: distance,
-      heatGenerated: 0,
-    };
+  let mpCost = distance === 0 ? facingChangeCost : distance;
+  if (movementType !== MovementType.Jump && distance > 0) {
+    const unitMovementType = toUnitMovementType(movementType);
+    const path = findPath(
+      grid,
+      position.coord,
+      destination,
+      Infinity,
+      unitMovementType,
+      movementContext,
+    );
+
+    if (!path) {
+      const directCost = getHexMovementCost(
+        grid,
+        destination,
+        unitMovementType,
+        position.coord,
+        movementContext,
+      );
+      if (!Number.isFinite(directCost)) {
+        return {
+          valid: false,
+          error: `Path crosses impassable terrain at (${destination.q}, ${destination.r})`,
+          mpCost: 0,
+          heatGenerated: 0,
+        };
+      }
+
+      return {
+        valid: false,
+        error: 'No valid ground path to destination',
+        mpCost: 0,
+        heatGenerated: 0,
+      };
+    }
+
+    mpCost = calculateGroundPathMpCost(
+      grid,
+      path,
+      unitMovementType,
+      position.facing,
+      newFacing,
+      movementContext,
+    );
   }
 
-  if (movementType !== MovementType.Jump && distance > 0) {
-    const path = hexLine(position.coord, destination);
-    for (let i = 1; i < path.length - 1; i++) {
-      if (!isInBounds(grid, path[i])) {
-        return {
-          valid: false,
-          error: 'Path goes outside map bounds',
-          mpCost: distance,
-          heatGenerated: 0,
-        };
-      }
-      if (isOccupied(grid, path[i])) {
-        return {
-          valid: false,
-          error: `Path blocked by unit at (${path[i].q}, ${path[i].r})`,
-          mpCost: distance,
-          heatGenerated: 0,
-        };
-      }
-    }
+  if (mpCost > maxMP) {
+    return {
+      valid: false,
+      error: `Destination costs ${mpCost} MP, but max range for ${movementType} is ${maxMP}`,
+      mpCost,
+      heatGenerated: 0,
+    };
   }
 
   const heatGenerated = calculateMovementHeat(
     movementType,
     distance,
-    capability.movementMode,
-    capability.movementHeatProfile,
+    capability.partialWingJumpBonus,
   );
 
   return {
     valid: true,
-    mpCost: distance,
+    mpCost,
     heatGenerated,
   };
+}
+
+function toUnitMovementType(movementType: MovementType): UnitMovementType {
+  switch (movementType) {
+    case MovementType.Run:
+    case MovementType.Evade:
+    case MovementType.Sprint:
+      return 'run';
+    case MovementType.Jump:
+      return 'jump';
+    case MovementType.Walk:
+    case MovementType.Stationary:
+    default:
+      return 'walk';
+  }
+}
+
+export function getFacingChangeCost(from: Facing, to: Facing): number {
+  const diff = Math.abs(from - to);
+  return Math.min(diff, 6 - diff);
+}
+
+function getEnvironmentalMaxMP(
+  capability: IMovementCapability,
+  movementType: MovementType,
+  heatPenalty: number,
+  environmentalConditions: IEnvironmentalConditions | undefined,
+): number {
+  if (
+    movementType !== MovementType.Jump ||
+    environmentalConditions === undefined
+  ) {
+    return getMaxMP(capability, movementType, heatPenalty);
+  }
+
+  const scaledJumpMP = scaleJumpDistance(
+    capability.jumpMP,
+    environmentalConditions.gravity,
+  );
+  const windAdjustedJumpMP = Math.max(
+    0,
+    scaledJumpMP - getWindJumpReduction(environmentalConditions.wind),
+  );
+  return Math.max(0, windAdjustedJumpMP - heatPenalty);
+}
+
+function calculatePathMovementCost(
+  grid: IHexGrid,
+  path: readonly IHexCoordinate[],
+  movementType: UnitMovementType,
+  movementContext?: IMovementCostContext,
+): number {
+  let total = 0;
+
+  for (let i = 1; i < path.length; i++) {
+    const stepCost = getHexMovementCost(
+      grid,
+      path[i],
+      movementType,
+      path[i - 1],
+      movementContext,
+    );
+    if (!Number.isFinite(stepCost)) return Infinity;
+    total += stepCost;
+  }
+
+  return total;
+}
+
+export function calculateGroundPathMpCost(
+  grid: IHexGrid,
+  path: readonly IHexCoordinate[],
+  movementType: UnitMovementType,
+  fromFacing: Facing,
+  toFacing: Facing,
+  movementContext?: IMovementCostContext,
+): number {
+  return (
+    calculatePathMovementCost(grid, path, movementType, movementContext) +
+    calculateGroundPathTurningMpCost({
+      path,
+      fromFacing,
+      toFacing,
+    })
+  );
 }
 
 /**
@@ -158,9 +297,16 @@ export function getValidDestinations(
   movementType: MovementType,
   capability: IMovementCapability,
   currentHeat: number = 0,
+  environmentalConditions?: IEnvironmentalConditions,
+  movementContext?: IMovementCostContext,
 ): readonly IHexCoordinate[] {
   const heatPenalty = currentHeat > 0 ? getHeatMovementPenalty(currentHeat) : 0;
-  const maxMP = getMaxMP(capability, movementType, heatPenalty);
+  const maxMP = getEnvironmentalMaxMP(
+    capability,
+    movementType,
+    heatPenalty,
+    environmentalConditions,
+  );
   if (maxMP === 0) {
     return [position.coord];
   }
@@ -182,6 +328,8 @@ export function getValidDestinations(
         movementType,
         capability,
         currentHeat,
+        environmentalConditions,
+        movementContext,
       );
 
       if (validation.valid) {

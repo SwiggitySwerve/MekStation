@@ -15,36 +15,23 @@
  */
 
 import type { IGameState } from '@/types/gameplay/GameSessionInterfaces';
+import type { IUnitGameState } from '@/types/gameplay/GameSessionStateTypes';
 import type {
   IHexCoordinate,
   IHexGrid,
 } from '@/types/gameplay/HexGridInterfaces';
 import type { IIndirectFireResolution } from '@/types/gameplay/IndirectFireInterfaces';
 
-import { isAirborneGameUnit } from '@/utils/gameplay/groundToGround';
 import {
-  resolveIndirectFireWithSemiGuided,
+  resolveIndirectFire,
   isIndirectFireCapable,
-  type IAirborneAeroSpottingEquipment,
   type ISpotterCandidate,
 } from '@/utils/gameplay/indirectFire';
 import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 
-type AirborneAeroSpottingUnitState = IGameState['units'][string] & {
-  readonly airborneAeroSpottingEquipment?: IAirborneAeroSpottingEquipment;
-};
-
-type NarcMarkedUnitState = IGameState['units'][string] & {
+interface ILegacyIndirectMarkerState {
   readonly narcMarkedByTeams?: readonly string[];
   readonly iNarcMarkedByTeams?: readonly string[];
-  readonly tagDesignated?: boolean;
-  readonly ecmProtected?: boolean;
-};
-
-function getAirborneAeroSpottingEquipment(
-  unit: IGameState['units'][string],
-): IAirborneAeroSpottingEquipment | undefined {
-  return (unit as AirborneAeroSpottingUnitState).airborneAeroSpottingEquipment;
 }
 
 /**
@@ -61,11 +48,9 @@ function getAirborneAeroSpottingEquipment(
  *     is supplied, the matching SPA list is threaded into each candidate so
  *     the helper can apply FO (Forward Observer) and future SPA cancellations.
  *  5. When no LOS spotter is found, check NARC/iNarc beacon flags on the
- *     target unit (§3). When `targetEntityId` is supplied and the target unit
- *     carries `narcMarkedByTeams` / `iNarcMarkedByTeams` arrays, those flags
- *     are plumbed into the helper. If the target unit or the arrays are absent
- *     (fields not yet populated by weapon resolution), both flags default to
- *     `false` — forward-compatible once NARC weapon resolution lands.
+ *     target unit (§3). Canonical NARC state is `IUnitGameState.narcedBy`;
+ *     legacy `narcMarkedByTeams` / `iNarcMarkedByTeams` arrays are still read
+ *     defensively for older fixtures and saves.
  *  6. Delegate to `resolveIndirectFire` and map the result to
  *     `IIndirectFireResolution`.
  *
@@ -129,21 +114,18 @@ export function computeIndirectFireContext(
   const spotterCandidates: ISpotterCandidate[] = [];
   for (const [unitId, unit] of Object.entries(gameState.units)) {
     // Skip destroyed, retreated, or non-operational units.
-    if (unit.destroyed || unit.hasRetreated) continue;
+    if (unit.destroyed || unit.hasRetreated || unit.hasEjected) continue;
     spotterCandidates.push({
       entityId: unitId,
       teamId: unit.side as string,
       position: unit.position,
       movementType: unit.movementThisTurn,
-      isInfantry:
-        unit.combatState?.kind === 'platoon' ||
-        unit.combatState?.kind === 'squad',
+      sprintedThisTurn: unit.sprintedThisTurn,
+      isEvading: unit.isEvading,
       isOperational: !unit.destroyed && !unit.shutdown,
-      isAirborneAerospace: isAirborneGameUnit(unit),
-      airborneAeroSpottingEquipment: getAirborneAeroSpottingEquipment(unit),
-      // Prefer per-call pilot SPA overrides, then persisted session state.
-      // Absent entries leave pilotSpas undefined - no SPA modifier applied.
-      pilotSpas: pilotSpasByUnitId?.[unitId] ?? unit.pilotSpas,
+      // Thread pilot SPA list into candidate when caller supplies it, falling
+      // back to the combat-state ability list hydrated onto the unit.
+      pilotSpas: pilotSpasByUnitId?.[unitId] ?? unit.abilities,
       // Thread pilot gunnery into candidate for the spotter-skill modifier.
       // IUnitGameState.gunnery is optional (seeded at session-creation time from
       // IGameUnit.gunnery). When absent (synthetic fixtures, legacy saves), the
@@ -152,46 +134,49 @@ export function computeIndirectFireContext(
     });
   }
 
-  // Derive NARC/iNarc beacon flags for the target unit (§3).
-  // The fields `narcMarkedByTeams` / `iNarcMarkedByTeams` do not exist yet on
-  // IUnitGameState — they land when NARC weapon resolution ships in a later PR.
-  // Until then we read them defensively via a narrow forward-compat overlay.
+  // Derive NARC/iNarc beacon flags for the target unit (§3). NARC uses the
+  // canonical `narcedBy` state field; iNARC uses Homing pods from `iNarcPods`.
+  // Legacy arrays stay as compatibility fallbacks until older fixtures retire.
   const targetUnit = targetEntityId
     ? gameState.units[targetEntityId]
     : undefined;
-  const targetUnitWithBeacons = targetUnit as NarcMarkedUnitState | undefined;
-  const narcMarkedByTeams: readonly string[] =
-    targetUnitWithBeacons?.narcMarkedByTeams ?? [];
+  const legacyTargetMarkers = targetUnit as
+    | (IUnitGameState & ILegacyIndirectMarkerState)
+    | undefined;
+  const legacyNarcMarkedByTeams: readonly string[] =
+    legacyTargetMarkers?.narcMarkedByTeams ?? [];
+  const narcMarkedByTeams: readonly string[] = [
+    ...(targetUnit?.narcedBy ?? []),
+    ...legacyNarcMarkedByTeams,
+  ];
+  const canonicalINarcMarkedByTeams =
+    targetUnit?.iNarcPods
+      ?.filter((pod) => pod.podType === 'homing')
+      .map((pod) => pod.teamId) ?? [];
   const inarcMarkedByTeams: readonly string[] =
-    targetUnitWithBeacons?.iNarcMarkedByTeams ?? [];
+    legacyTargetMarkers?.iNarcMarkedByTeams ?? [];
   const targetNarcMarkedByTeam = narcMarkedByTeams.includes(attackerTeamId);
-  const targetINarcMarkedByTeam = inarcMarkedByTeams.includes(attackerTeamId);
+  const targetINarcMarkedByTeam = [
+    ...canonicalINarcMarkedByTeams,
+    ...inarcMarkedByTeams,
+  ].includes(attackerTeamId);
 
   // Delegate to the pure helper — it handles eligibility, LOS per spotter,
   // spotter-election tiebreak, NARC/iNarc override, and penalty arithmetic.
-  const result = resolveIndirectFireWithSemiGuided(
-    {
-      attackerEntityId: attackerId,
-      attackerTeamId,
-      attackerPosition: attackerUnit.position,
-      targetPosition: targetHex,
-      weaponId,
-      attackerHasLOS: false,
-      attackerAirborne: isAirborneGameUnit(attackerUnit),
-      spotterCandidates,
-      grid,
-      targetNarcMarkedByTeam,
-      targetINarcMarkedByTeam,
-    },
-    {
-      weaponId,
-      equipment: { isSemiGuided: false },
-      targetStatus: {
-        tagDesignated: targetUnitWithBeacons?.tagDesignated === true,
-        ecmProtected: targetUnitWithBeacons?.ecmProtected === true,
-      },
-    },
-  );
+  const result = resolveIndirectFire({
+    attackerEntityId: attackerId,
+    attackerTeamId,
+    attackerPosition: attackerUnit.position,
+    targetPosition: targetHex,
+    weaponId,
+    attackerHasLOS: false,
+    attackerPilotSpas:
+      pilotSpasByUnitId?.[attackerId] ?? attackerUnit.abilities,
+    spotterCandidates,
+    grid,
+    targetNarcMarkedByTeam,
+    targetINarcMarkedByTeam,
+  });
 
   if (!result.permitted) {
     return {
@@ -210,9 +195,10 @@ export function computeIndirectFireContext(
     spotterId: result.spotter?.entityId ?? null,
     basis: result.basis,
     toHitPenalty: result.toHitPenalty,
+    forwardObserverApplied: result.forwardObserverApplied,
+    obliqueAttackerApplied: result.obliqueAttackerApplied,
     spotterGunnery: result.spotterGunnery,
     spotterSkillModifier: result.spotterSkillModifier,
-    forwardObserverApplied: result.forwardObserverApplied,
     spotterMovementPenaltyCancelled: result.spotterMovementPenaltyCancelled,
   };
 }

@@ -44,3 +44,39 @@ export function calculateTMM(
     description: `Target moved ${hexesMoved} hexes${movementType === MovementType.Jump ? ' (jumped)' : ''}: +${tmm}`,
   };
 }
+
+export function calculateTargetEvasionModifier(
+  isEvading: boolean | undefined,
+  isProne: boolean,
+  evasionBonus?: number,
+): IToHitModifierDetail | null {
+  if (isEvading !== true || isProne) return null;
+
+  const bonus =
+    evasionBonus === undefined
+      ? 1
+      : Number.isFinite(evasionBonus)
+        ? Math.min(3, Math.max(0, Math.trunc(evasionBonus)))
+        : 0;
+  if (bonus <= 0) return null;
+
+  return {
+    name: 'Target Evasion',
+    value: bonus,
+    source: 'target_movement',
+    description: `Target is evading: +${bonus}`,
+  };
+}
+
+export function calculateTargetSprintedModifier(
+  sprintedThisTurn: boolean | undefined,
+): IToHitModifierDetail | null {
+  if (sprintedThisTurn !== true) return null;
+
+  return {
+    name: 'Target Sprinted',
+    value: -1,
+    source: 'target_movement',
+    description: 'Target sprinted this turn: -1',
+  };
+}

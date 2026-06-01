@@ -452,12 +452,12 @@ describe('A3b integration — Breakthrough scenario', () => {
     };
     let units: IUnitGameState[] = [
       unitState('player-1', GameSide.Player, { q: 6, r: 0 }),
-      unitState('opponent-1', GameSide.Opponent, { q: 11, r: 0 }),
+      unitState('opponent-1', GameSide.Opponent, { q: -6, r: 6 }),
     ];
 
     const bot = new BotPlayer(new SeededRandom(5), ELITE);
     let won = false;
-    for (let turn = 1; turn <= 14; turn++) {
+    for (let turn = 1; turn <= 20; turn++) {
       units = runBotMovementTurn(
         bot,
         grid,

@@ -25,7 +25,9 @@ import {
   declareAttackIntent,
   declareMovementIntent,
   declarePhysicalIntent,
+  ejectIntent,
   endPhaseIntent,
+  standIntent,
   type IDeclareMovementPayload,
 } from '@/lib/multiplayer/gameIntentMap';
 import { type ITurnOwnership } from '@/lib/multiplayer/turnOwnership';
@@ -123,26 +125,42 @@ export function NetworkedActionBar({
       className="flex flex-wrap items-center gap-2"
     >
       {phase === GamePhase.Movement && (
-        <button
-          type="button"
-          data-testid="declare-movement-button"
-          className={controlClass(
-            enabled && selectedUnitId !== null && selectedHex !== null,
-          )}
-          disabled={!enabled || !selectedUnitId || !selectedHex}
-          onClick={() => {
-            if (!selectedUnitId || !selectedHex) return;
-            const payload: IDeclareMovementPayload = {
-              unitId: selectedUnitId,
-              to: selectedHex,
-              facing: session.currentState.units[selectedUnitId]?.facing ?? 0,
-              movementType: MovementType.Walk,
-            };
-            onSendIntent(declareMovementIntent(authorPeerId, payload));
-          }}
-        >
-          Declare movement
-        </button>
+        <>
+          <button
+            type="button"
+            data-testid="declare-movement-button"
+            className={controlClass(
+              enabled && selectedUnitId !== null && selectedHex !== null,
+            )}
+            disabled={!enabled || !selectedUnitId || !selectedHex}
+            onClick={() => {
+              if (!selectedUnitId || !selectedHex) return;
+              const payload: IDeclareMovementPayload = {
+                unitId: selectedUnitId,
+                to: selectedHex,
+                facing: session.currentState.units[selectedUnitId]?.facing ?? 0,
+                movementType: MovementType.Walk,
+              };
+              onSendIntent(declareMovementIntent(authorPeerId, payload));
+            }}
+          >
+            Declare movement
+          </button>
+          <button
+            type="button"
+            data-testid="stand-button"
+            className={controlClass(enabled && selectedUnitId !== null)}
+            disabled={!enabled || !selectedUnitId}
+            onClick={() => {
+              if (!selectedUnitId) return;
+              onSendIntent(
+                standIntent(authorPeerId, { unitId: selectedUnitId }),
+              );
+            }}
+          >
+            Stand up
+          </button>
+        </>
       )}
 
       {phase === GamePhase.WeaponAttack && (
@@ -201,6 +219,19 @@ export function NetworkedActionBar({
         onClick={() => onSendIntent(endPhaseIntent(authorPeerId))}
       >
         End phase
+      </button>
+
+      <button
+        type="button"
+        data-testid="eject-button"
+        className={controlClass(enabled && selectedUnitId !== null)}
+        disabled={!enabled || !selectedUnitId}
+        onClick={() => {
+          if (!selectedUnitId) return;
+          onSendIntent(ejectIntent(authorPeerId, { unitId: selectedUnitId }));
+        }}
+      >
+        Eject
       </button>
 
       <ConcedeControl

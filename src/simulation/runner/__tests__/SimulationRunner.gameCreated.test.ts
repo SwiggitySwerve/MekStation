@@ -11,8 +11,14 @@ import type { IGameCreatedPayload } from '@/types/gameplay';
 
 import { GameEventType, GameSide } from '@/types/gameplay';
 
+import type { IHydratedUnitData } from '../UnitHydration';
+
 import { ISimulationConfig } from '../../core/types';
 import { SimulationRunner } from '../SimulationRunner';
+import {
+  createInitialState,
+  synthesizeGameUnits,
+} from '../SimulationRunnerState';
 
 function makeConfig(
   overrides: Partial<ISimulationConfig> = {},
@@ -23,6 +29,32 @@ function makeConfig(
     unitCount: { player: 2, opponent: 2 },
     mapRadius: 9,
     ...overrides,
+  };
+}
+
+function hydratedC3Unit(
+  id: string,
+  chassis: string,
+  equipment: IHydratedUnitData['fullUnit']['equipment'],
+): IHydratedUnitData {
+  return {
+    runnerUnitId: id,
+    side: id.startsWith('opponent') ? GameSide.Opponent : GameSide.Player,
+    position: { q: 0, r: 0 },
+    fullUnit: {
+      id: `${id}-catalog-unit`,
+      chassis,
+      variant: 'C3',
+      model: 'C3',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3050',
+      unitType: 'BattleMech',
+      equipment,
+    },
+    aiWeapons: [],
+    gunnery: 3,
+    piloting: 4,
   };
 }
 
@@ -114,6 +146,246 @@ describe('SimulationRunner GameCreated seed event', () => {
       const payload = result.events[0].payload as IGameCreatedPayload;
       expect(payload.config.mapRadius).toBe(11);
       expect(payload.config.turnLimit).toBe(7);
+    });
+
+    it('synthesizes hydrated heat sink count and type into GameCreated units', () => {
+      const hydrated: IHydratedUnitData = {
+        runnerUnitId: 'player-1',
+        side: GameSide.Player,
+        position: { q: 0, r: 0 },
+        fullUnit: {
+          id: 'double-sink-test',
+          chassis: 'Nightstar',
+          variant: 'NSR-9J',
+          model: 'NSR-9J',
+          tonnage: 95,
+          techBase: 'Inner Sphere',
+          era: '3050',
+          unitType: 'BattleMech',
+          unitRef: 'nightstar-nsr-9j',
+          heatSinks: { type: 'DOUBLE', count: 14 },
+        },
+        aiWeapons: [],
+        gunnery: 3,
+        piloting: 4,
+      };
+
+      const units = synthesizeGameUnits(
+        makeConfig({ unitCount: { player: 1, opponent: 0 } }),
+        new Map([['player-1', hydrated]]),
+      );
+
+      expect(units[0]).toMatchObject({
+        id: 'player-1',
+        name: 'Nightstar NSR-9J',
+        heatSinks: 14,
+        heatSinkType: 'double',
+      });
+    });
+
+    it('seeds runner electronic-warfare state from hydrated ECM equipment', () => {
+      const hydrated: IHydratedUnitData = {
+        runnerUnitId: 'player-1',
+        side: GameSide.Player,
+        position: { q: 0, r: 0 },
+        fullUnit: {
+          id: 'guardian-ecm-test',
+          chassis: 'Raven',
+          variant: 'RVN-4L',
+          model: 'RVN-4L',
+          tonnage: 35,
+          techBase: 'Inner Sphere',
+          era: '3050',
+          unitType: 'BattleMech',
+          equipment: [{ id: '1-isguardianecm', location: 'RIGHT_TORSO' }],
+        },
+        aiWeapons: [],
+        gunnery: 3,
+        piloting: 4,
+      };
+
+      const state = createInitialState(
+        makeConfig({ unitCount: { player: 1, opponent: 0 } }),
+        new Map([['player-1', hydrated]]),
+      );
+
+      expect(state.electronicWarfare?.ecmSuites).toEqual([
+        {
+          type: 'guardian',
+          mode: 'ecm',
+          operational: true,
+          entityId: 'player-1:1-isguardianecm:0',
+          teamId: GameSide.Player,
+          position: { q: -1, r: -8 },
+        },
+      ]);
+      expect(state.electronicWarfare?.activeProbes).toEqual([]);
+    });
+
+    it('seeds active probes and combined CEWS into runner electronic-warfare state', () => {
+      const hydrated: IHydratedUnitData = {
+        runnerUnitId: 'player-1',
+        side: GameSide.Player,
+        position: { q: 0, r: 0 },
+        fullUnit: {
+          id: 'cews-probe-test',
+          chassis: 'Raven',
+          variant: 'EW',
+          model: 'EW',
+          tonnage: 35,
+          techBase: 'Mixed',
+          era: '3050',
+          unitType: 'BattleMech',
+          equipment: [
+            { id: '1-isbeagleactiveprobe', location: 'HEAD' },
+            { id: '1-clwatchdogcews', location: 'RIGHT_TORSO' },
+          ],
+        },
+        aiWeapons: [],
+        gunnery: 3,
+        piloting: 4,
+      };
+
+      const state = createInitialState(
+        makeConfig({ unitCount: { player: 1, opponent: 0 } }),
+        new Map([['player-1', hydrated]]),
+      );
+
+      expect(state.electronicWarfare?.ecmSuites).toEqual([
+        {
+          type: 'clan',
+          mode: 'ecm',
+          operational: true,
+          entityId: 'player-1:1-clwatchdogcews:0',
+          teamId: GameSide.Player,
+          position: { q: -1, r: -8 },
+        },
+      ]);
+      expect(state.electronicWarfare?.activeProbes).toEqual([
+        {
+          type: 'beagle',
+          operational: true,
+          entityId: 'player-1',
+          teamId: GameSide.Player,
+          position: { q: -1, r: -8 },
+        },
+        {
+          type: 'watchdog-cews',
+          operational: true,
+          entityId: 'player-1',
+          teamId: GameSide.Player,
+          position: { q: -1, r: -8 },
+        },
+      ]);
+    });
+
+    it('seeds unambiguous C3 and C3i networks from hydrated BattleMech equipment', () => {
+      const state = createInitialState(
+        makeConfig({ unitCount: { player: 2, opponent: 2 } }),
+        new Map([
+          [
+            'player-1',
+            hydratedC3Unit('player-1', 'Master', [
+              { id: 'c3-master', location: 'HEAD' },
+            ]),
+          ],
+          [
+            'player-2',
+            hydratedC3Unit('player-2', 'Slave', [
+              { id: '1-c3-slave', location: 'RIGHT_TORSO' },
+            ]),
+          ],
+          [
+            'opponent-1',
+            hydratedC3Unit('opponent-1', 'C3i A', [
+              { id: 'Improved C3 Computer (C3I)', location: 'HEAD' },
+            ]),
+          ],
+          [
+            'opponent-2',
+            hydratedC3Unit('opponent-2', 'C3i B', [
+              { id: 'IS C3i Computer', location: 'CENTER_TORSO' },
+            ]),
+          ],
+        ]),
+      );
+
+      expect(state.c3Network?.networks).toEqual([
+        {
+          networkId: 'player-c3-master-slave-1',
+          type: 'master-slave',
+          teamId: GameSide.Player,
+          members: [
+            {
+              entityId: 'player-1',
+              teamId: GameSide.Player,
+              role: 'master',
+              position: { q: -1, r: -8 },
+              operational: true,
+              ecmDisrupted: false,
+            },
+            {
+              entityId: 'player-2',
+              teamId: GameSide.Player,
+              role: 'slave',
+              position: { q: 0, r: -8 },
+              operational: true,
+              ecmDisrupted: false,
+            },
+          ],
+        },
+        {
+          networkId: 'opponent-c3i-1',
+          type: 'improved',
+          teamId: GameSide.Opponent,
+          members: [
+            {
+              entityId: 'opponent-1',
+              teamId: GameSide.Opponent,
+              role: 'c3i',
+              position: { q: -1, r: 8 },
+              operational: true,
+              ecmDisrupted: false,
+            },
+            {
+              entityId: 'opponent-2',
+              teamId: GameSide.Opponent,
+              role: 'c3i',
+              position: { q: 0, r: 8 },
+              operational: true,
+              ecmDisrupted: false,
+            },
+          ],
+        },
+      ]);
+    });
+
+    it('leaves ambiguous C3 equipment unassembled instead of guessing networks', () => {
+      const state = createInitialState(
+        makeConfig({ unitCount: { player: 3, opponent: 0 } }),
+        new Map([
+          [
+            'player-1',
+            hydratedC3Unit('player-1', 'Master A', [
+              { id: 'c3-master', location: 'HEAD' },
+            ]),
+          ],
+          [
+            'player-2',
+            hydratedC3Unit('player-2', 'Master B', [
+              { id: 'C3 Boosted System (Master)', location: 'CENTER_TORSO' },
+            ]),
+          ],
+          [
+            'player-3',
+            hydratedC3Unit('player-3', 'Slave', [
+              { id: '1-c3-slave', location: 'RIGHT_TORSO' },
+            ]),
+          ],
+        ]),
+      );
+
+      expect(state.c3Network).toBeUndefined();
     });
   });
 

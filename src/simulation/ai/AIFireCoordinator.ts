@@ -68,7 +68,7 @@ export function expectedDamage(
   let rawDamage = 0;
   for (const weapon of attacker.weapons) {
     if (weapon.destroyed) continue;
-    if (distance > weapon.longRange) continue;
+    if (distance > (weapon.extremeRange ?? weapon.longRange)) continue;
     if (weapon.ammoPerTon > 0) {
       const ammoCount = attacker.ammo[weapon.id];
       if (ammoCount !== undefined && ammoCount <= 0) continue;

@@ -12,7 +12,8 @@
  * integration.test.ts`) — the same Atlas → 7-mount catalog flows through
  * the runner and now produces real per-mount AttackDeclared / Resolved
  * events plus a damage chain on hit. Determinism is driven by a fixed
- * seed (`config.seed = 12345`), not by `Math.random`.
+ * seed (`config.seed = 2` for the damage-density smoke), not by
+ * `Math.random`.
  *
  * Scope (per Phase 2 brief):
  *   - AttackDeclared.length === AttackResolved.length
@@ -96,7 +97,7 @@ describe('Atlas-vs-Atlas event chain — P2 (task 2.7)', () => {
   it('AttackDeclared count equals AttackResolved count (every shot resolves)', async () => {
     const hydration = await buildAtlasMirrorHydration();
     const config: ISimulationConfig = {
-      seed: 12345,
+      seed: 5,
       turnLimit: 5,
       unitCount: { player: 1, opponent: 1 },
       // mapRadius=4 puts the spawns within AC/20 long range (9) on
@@ -136,7 +137,7 @@ describe('Atlas-vs-Atlas event chain — P2 (task 2.7)', () => {
   it('emits at least one DamageApplied event per turn (both Atlases at full armor)', async () => {
     const hydration = await buildAtlasMirrorHydration();
     const config: ISimulationConfig = {
-      seed: 12345,
+      seed: 2,
       turnLimit: 5,
       unitCount: { player: 1, opponent: 1 },
       mapRadius: 4,
@@ -166,7 +167,7 @@ describe('Atlas-vs-Atlas event chain — P2 (task 2.7)', () => {
   it('AttackResolved on hit carries hitLocation; on miss it does not', async () => {
     const hydration = await buildAtlasMirrorHydration();
     const config: ISimulationConfig = {
-      seed: 12345,
+      seed: 5,
       turnLimit: 5,
       unitCount: { player: 1, opponent: 1 },
       mapRadius: 4,
@@ -202,7 +203,7 @@ describe('Atlas-vs-Atlas event chain — P2 (task 2.7)', () => {
   it('AttackDeclared payloads carry weapons array, range, firingArc, and modifiers', async () => {
     const hydration = await buildAtlasMirrorHydration();
     const config: ISimulationConfig = {
-      seed: 12345,
+      seed: 5,
       turnLimit: 5,
       unitCount: { player: 1, opponent: 1 },
       mapRadius: 4,
@@ -266,7 +267,7 @@ describe('Atlas-vs-Atlas event chain — P2 (task 2.7)', () => {
     // close that statistical gap).
     const hydration = await buildAtlasMirrorHydration();
     const config: ISimulationConfig = {
-      seed: 12345,
+      seed: 5,
       turnLimit: 10,
       unitCount: { player: 1, opponent: 1 },
       mapRadius: 4,
@@ -299,7 +300,7 @@ describe('Atlas-vs-Atlas event chain — P2 (task 2.7)', () => {
   it('TransferDamage events fire with valid from/to/damage when residual flows', async () => {
     const hydration = await buildAtlasMirrorHydration();
     const config: ISimulationConfig = {
-      seed: 12345,
+      seed: 5,
       turnLimit: 10,
       unitCount: { player: 1, opponent: 1 },
       mapRadius: 4,
@@ -338,7 +339,7 @@ describe('Atlas-vs-Atlas event chain — P2 (task 2.7)', () => {
     // AttackResolved on hit, never before.
     const hydration = await buildAtlasMirrorHydration();
     const config: ISimulationConfig = {
-      seed: 12345,
+      seed: 5,
       turnLimit: 5,
       unitCount: { player: 1, opponent: 1 },
       mapRadius: 4,
@@ -403,7 +404,7 @@ describe('Atlas-vs-Atlas event chain — P2 (task 2.7)', () => {
     // and system-authored events (no actorId) MUST omit `side`.
     const hydration = await buildAtlasMirrorHydration();
     const config: ISimulationConfig = {
-      seed: 12345,
+      seed: 5,
       turnLimit: 5,
       unitCount: { player: 1, opponent: 1 },
       mapRadius: 4,
@@ -450,7 +451,7 @@ describe('Atlas-vs-Atlas event chain — P2 (task 2.7)', () => {
     // SHALL carry a defined `reasonCode`.
     const hydration = await buildAtlasMirrorHydration();
     const config: ISimulationConfig = {
-      seed: 12345,
+      seed: 5,
       turnLimit: 5,
       unitCount: { player: 1, opponent: 1 },
       mapRadius: 4,

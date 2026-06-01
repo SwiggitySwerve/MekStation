@@ -6,6 +6,9 @@ import type { MovementHeatProfile, MovementMotiveMode } from '@/types/gameplay';
 
 import { MovementType } from '@/types/gameplay';
 
+const STANDARD_EVADE_HEAT = 4;
+const STANDARD_SPRINT_HEAT = 3;
+
 function motiveModeGeneratesMovementHeat(
   movementMode: MovementMotiveMode | undefined,
 ): boolean {
@@ -54,9 +57,19 @@ function calculateAirMekMovementHeat(
 export function calculateMovementHeat(
   movementType: MovementType,
   hexesMoved: number,
-  movementMode?: MovementMotiveMode,
+  movementModeOrPartialWingBonus?: MovementMotiveMode | number,
   movementHeatProfile?: MovementHeatProfile,
 ): number {
+  const partialWingJumpBonus =
+    typeof movementModeOrPartialWingBonus === 'number' &&
+    Number.isFinite(movementModeOrPartialWingBonus)
+      ? Math.max(0, Math.floor(movementModeOrPartialWingBonus))
+      : 0;
+  const movementMode =
+    typeof movementModeOrPartialWingBonus === 'number'
+      ? undefined
+      : movementModeOrPartialWingBonus;
+
   if (movementHeatProfile === 'airmek') {
     const airMekHeat = calculateAirMekMovementHeat(movementType, hexesMoved);
     if (airMekHeat !== null) return airMekHeat;
@@ -81,8 +94,12 @@ export function calculateMovementHeat(
       return 1;
     case MovementType.Run:
       return 2;
+    case MovementType.Sprint:
+      return STANDARD_SPRINT_HEAT;
+    case MovementType.Evade:
+      return STANDARD_EVADE_HEAT;
     case MovementType.Jump:
-      return Math.max(hexesMoved, 3);
+      return Math.max(hexesMoved - partialWingJumpBonus, 3);
     default:
       return 0;
   }
@@ -120,6 +137,8 @@ export function calculateAttackerMovementModifier(
     case MovementType.Walk:
       return 1;
     case MovementType.Run:
+    case MovementType.Evade:
+    case MovementType.Sprint:
       return 2;
     case MovementType.Jump:
       return 3;

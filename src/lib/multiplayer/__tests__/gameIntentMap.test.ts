@@ -12,12 +12,19 @@ import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import { IntentPayloadSchema } from '@/types/multiplayer/Protocol';
 
 import {
+  activateMovementEnhancementIntent,
   concedeIntent,
   declareAttackIntent,
   declareMovementIntent,
   declarePhysicalIntent,
+  ejectIntent,
   endPhaseIntent,
+  goProneIntent,
+  requestSpotIntent,
+  standIntent,
+  torsoTwistIntent,
   toServerIntent,
+  withdrawIntent,
 } from '../gameIntentMap';
 
 const PEER = 'player';
@@ -53,6 +60,63 @@ describe('toServerIntent — declareMovement', () => {
     expect(wire).toMatchObject({ kind: 'Move', facing: 1 });
   });
 
+  it('maps same-hex facing changes through the Move wire payload', () => {
+    const intent = declareMovementIntent(PEER, {
+      unitId: 'player-1',
+      to: { q: 0, r: 0 },
+      facing: 5,
+      movementType: 'walk',
+    });
+
+    expect(toServerIntent(intent)).toEqual({
+      kind: 'Move',
+      unitId: 'player-1',
+      to: { q: 0, r: 0 },
+      facing: 5,
+      movementType: 'walk',
+    });
+  });
+
+  it('maps TacOps Evade through the Move wire payload', () => {
+    const intent = declareMovementIntent(PEER, {
+      unitId: 'player-1',
+      to: { q: 1, r: 0 },
+      facing: 2,
+      movementType: 'evade',
+    });
+
+    const wire = toServerIntent(intent);
+
+    expect(wire).toEqual({
+      kind: 'Move',
+      unitId: 'player-1',
+      to: { q: 1, r: 0 },
+      facing: 2,
+      movementType: 'evade',
+    });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('maps TacOps Sprint through the Move wire payload', () => {
+    const intent = declareMovementIntent(PEER, {
+      unitId: 'player-1',
+      to: { q: 2, r: 0 },
+      facing: 2,
+      movementType: 'sprint',
+    });
+
+    const wire = toServerIntent(intent);
+
+    expect(wire).toEqual({
+      kind: 'Move',
+      unitId: 'player-1',
+      to: { q: 2, r: 0 },
+      facing: 2,
+      movementType: 'sprint',
+    });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
   it('returns null for a movement intent missing the unit id', () => {
     const intent = declareMovementIntent(PEER, {
       unitId: '',
@@ -61,6 +125,96 @@ describe('toServerIntent — declareMovement', () => {
       movementType: 'walk',
     });
     expect(toServerIntent(intent)).toBeNull();
+  });
+});
+
+describe('toServerIntent stand', () => {
+  it('maps a stand intent to a Stand wire payload', () => {
+    const wire = toServerIntent(standIntent(PEER, { unitId: 'player-1' }));
+    expect(wire).toEqual({ kind: 'Stand', unitId: 'player-1' });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('returns null for stand without a unit id', () => {
+    expect(toServerIntent(standIntent(PEER, { unitId: '' }))).toBeNull();
+  });
+});
+
+describe('toServerIntent go-prone', () => {
+  it('maps a go-prone intent to a GoProne wire payload', () => {
+    const wire = toServerIntent(goProneIntent(PEER, { unitId: 'player-1' }));
+    expect(wire).toEqual({ kind: 'GoProne', unitId: 'player-1' });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('returns null for go-prone without a unit id', () => {
+    expect(toServerIntent(goProneIntent(PEER, { unitId: '' }))).toBeNull();
+  });
+});
+
+describe('toServerIntent movement enhancement activation', () => {
+  it('maps a MASC activation intent to an ActivateMovementEnhancement wire payload', () => {
+    const wire = toServerIntent(
+      activateMovementEnhancementIntent(PEER, {
+        unitId: 'player-1',
+        enhancement: 'MASC',
+      }),
+    );
+    expect(wire).toEqual({
+      kind: 'ActivateMovementEnhancement',
+      unitId: 'player-1',
+      enhancement: 'MASC',
+    });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('returns null for activation without a unit id', () => {
+    expect(
+      toServerIntent(
+        activateMovementEnhancementIntent(PEER, {
+          unitId: '',
+          enhancement: 'Supercharger',
+        }),
+      ),
+    ).toBeNull();
+  });
+});
+
+describe('toServerIntent torso twist', () => {
+  it('maps a torso twist intent to a TorsoTwist wire payload', () => {
+    const wire = toServerIntent(
+      torsoTwistIntent(PEER, {
+        unitId: 'player-1',
+        secondaryFacing: 1,
+      }),
+    );
+    expect(wire).toEqual({
+      kind: 'TorsoTwist',
+      unitId: 'player-1',
+      secondaryFacing: 1,
+    });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('normalizes torso twist secondary facing into 0-5', () => {
+    const wire = toServerIntent(
+      torsoTwistIntent(PEER, {
+        unitId: 'player-1',
+        secondaryFacing: -1,
+      }),
+    );
+    expect(wire).toMatchObject({
+      kind: 'TorsoTwist',
+      secondaryFacing: 5,
+    });
+  });
+
+  it('returns null for torso twist without a unit id', () => {
+    expect(
+      toServerIntent(
+        torsoTwistIntent(PEER, { unitId: '', secondaryFacing: 1 }),
+      ),
+    ).toBeNull();
   });
 });
 
@@ -92,7 +246,7 @@ describe('toServerIntent — declareAttack', () => {
 });
 
 describe('toServerIntent — declarePhysical', () => {
-  it('maps a physical intent onto the Attack envelope', () => {
+  it('maps a physical intent to a Physical wire payload', () => {
     const intent = declarePhysicalIntent(PEER, {
       attackerId: 'player-1',
       targetId: 'opponent-1',
@@ -100,12 +254,67 @@ describe('toServerIntent — declarePhysical', () => {
     });
     const wire = toServerIntent(intent);
     expect(wire).toEqual({
-      kind: 'Attack',
+      kind: 'Physical',
       attackerId: 'player-1',
       targetId: 'opponent-1',
-      weaponIds: ['kick'],
+      attackType: 'kick',
     });
     expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('maps source-backed flail and wrecking ball physical intents', () => {
+    for (const attackType of ['flail', 'wrecking-ball'] as const) {
+      const intent = declarePhysicalIntent(PEER, {
+        attackerId: 'player-1',
+        targetId: 'opponent-1',
+        attackType,
+      });
+      const wire = toServerIntent(intent);
+
+      expect(wire).toEqual({
+        kind: 'Physical',
+        attackerId: 'player-1',
+        targetId: 'opponent-1',
+        attackType,
+      });
+      expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+    }
+  });
+
+  it('returns null for an unsupported physical attack type', () => {
+    const intent = declarePhysicalIntent(PEER, {
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'talons' as never,
+    });
+
+    expect(toServerIntent(intent)).toBeNull();
+  });
+});
+
+describe('toServerIntent requestSpot', () => {
+  it('maps a requestSpot intent to a RequestSpot wire payload', () => {
+    const wire = toServerIntent(
+      requestSpotIntent(PEER, {
+        unitId: 'player-1',
+        targetId: 'opponent-1',
+      }),
+    );
+
+    expect(wire).toEqual({
+      kind: 'RequestSpot',
+      unitId: 'player-1',
+      targetId: 'opponent-1',
+    });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('returns null for requestSpot without a target id', () => {
+    expect(
+      toServerIntent(
+        requestSpotIntent(PEER, { unitId: 'player-1', targetId: '' }),
+      ),
+    ).toBeNull();
   });
 });
 
@@ -114,6 +323,39 @@ describe('toServerIntent — endPhase / concede', () => {
     expect(toServerIntent(endPhaseIntent(PEER))).toEqual({
       kind: 'AdvancePhase',
     });
+  });
+
+  it('maps eject to the Eject wire payload', () => {
+    const wire = toServerIntent(ejectIntent(PEER, { unitId: 'player-1' }));
+    expect(wire).toEqual({ kind: 'Eject', unitId: 'player-1' });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('returns null for eject without a unit id', () => {
+    expect(toServerIntent(ejectIntent(PEER, { unitId: '' }))).toBeNull();
+  });
+
+  it('maps withdraw to the Withdraw wire payload', () => {
+    const wire = toServerIntent(
+      withdrawIntent(PEER, { unitId: 'player-1', edge: 'north' }),
+    );
+    expect(wire).toEqual({
+      kind: 'Withdraw',
+      unitId: 'player-1',
+      edge: 'north',
+    });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('returns null for withdraw without a valid edge', () => {
+    expect(
+      toServerIntent(
+        withdrawIntent(PEER, {
+          unitId: 'player-1',
+          edge: 'nearest' as never,
+        }),
+      ),
+    ).toBeNull();
   });
 
   it('maps a concede intent to the Concede wire payload', () => {

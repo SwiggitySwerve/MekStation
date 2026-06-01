@@ -8,20 +8,30 @@ These are documented gaps in functionality, not defects. They represent future w
 
 ## Physical Attacks
 
-**Status**: Not Implemented (marked "Future" in codebase)
+**Status**: Partially Implemented; broad legacy filter retained for generic simulation detectors
 
-**Why**: Physical attacks (punches, kicks, pushes, charges, death-from-above) require complex hit location tables, damage calculations, and piloting skill checks that are not yet implemented. The game phase exists (`GamePhase.PhysicalAttack`) but has no resolution logic.
+**Why**: The current BattleMech combat stack has runtime support for punch, kick, push, charge, death-from-above, and the supported melee weapon attack types (hatchet, sword, mace, lance, retractable blade, flail, wrecking ball). The broad `physicalAttacks` known-limitation bucket is retained only for older generic invariant reports whose messages do not distinguish implemented BattleMech mechanics from missing physical-combat families.
 
-**When**: Planned for future milestone after ranged combat is stable and thoroughly tested.
+**Catalog validation rule**: BattleMech combat validation invariants must not be filtered through this broad bucket. They bypass known-limitation filtering via `battlemech-combat-validation` and use the explicit support maps under `src/simulation/runner/` to classify integrated, helper-only, and unsupported physical behavior.
 
-**Code Reference**: `src/types/gameplay/GameSessionInterfaces.ts:39` - `PhysicalAttack = 'physical_attack'` with comment "Physical attacks (future)"
+**Current explicit gaps**:
+
+- Claws and talons intentionally remain modifiers on punch/kick/DFA rather than standalone attacks; destroyed arm/leg location replay clears represented modifier state, including quad/non-biped arm-location talons, but automatic missing/breached event production from mounted-equipment state remains a gap.
+- Full physical-weapon mount location, mode, and damaged-equipment lifecycle parity remains partial.
+- Non-BattleMech physical combat families require separate validation matrices.
+- Generic invariants that only say "physical attack unavailable" may still be filtered as legacy limitations unless they are part of the BattleMech catalog validation lane.
+
+**Code Reference**:
+
+- `src/utils/gameplay/physicalAttacks/types.ts` - runtime-supported physical attack type list
+- `src/simulation/runner/CombatFeatureSupport.ts` - official physical weapon support map
+- `src/simulation/runner/CombatPhysicalActionSupport.ts` - physical action support map
 
 **Example Violations to Exclude**:
 
-- "Unit should have physical attack option available"
-- "Physical attack phase has no actions"
-- "Melee combat not resolved"
-- "Punch/kick/charge not implemented"
+- "Generic physical attack option unavailable in non-catalog detector"
+- "Vehicle melee combat not resolved"
+- "Unsupported physical weapon lacks runtime attack type"
 
 ---
 
@@ -101,7 +111,6 @@ These are documented gaps in functionality, not defects. They represent future w
 - Fall checks after taking leg damage
 - Skid checks after running on pavement
 - Consciousness checks after head hits (defined but not enforced)
-- Ejection mechanics
 
 **When**: Part of pilot mechanics milestone.
 
@@ -115,7 +124,6 @@ These are documented gaps in functionality, not defects. They represent future w
 - "Piloting check not performed after leg damage"
 - "Unit should fall after failed piloting check"
 - "Consciousness check not triggered"
-- "Ejection not available"
 
 ---
 
@@ -171,9 +179,9 @@ These are documented gaps in functionality, not defects. They represent future w
 
 ## Special Pilot Abilities (SPAs)
 
-**Status**: Not Implemented (stubs exist)
+**Status**: Partially Implemented
 
-**Why**: Special Pilot Abilities are defined in the type system but not enforced during gameplay. Effects like "Gunnery Specialist", "Dodge", "Melee Specialist" do not modify combat calculations.
+**Why**: The combat validation catalog now tracks which SPAs are integrated, helper-only, or unsupported. Several ranged, heat, toughness, physical, and target-modifier SPAs are enforced during gameplay, including source-backed Dodge Maneuver to-hit behavior for explicit dodging Mek targets. Other SPA families still remain helper-only or unsupported until their owning combat pipeline consumes them.
 
 **When**: Part of advanced pilot mechanics milestone.
 
@@ -181,11 +189,12 @@ These are documented gaps in functionality, not defects. They represent future w
 
 - `src/lib/campaign/progression/spaAcquisition.ts` - Marked `@stub - Not implemented`
 - `src/types/pilot/SpecialAbilities.ts` - Abilities defined but not applied
+- `src/simulation/runner/CombatFeatureSupport.ts` - Source of truth for SPA combat integration state
 
 **Example Violations to Exclude**:
 
-- "SPA effect not applied to to-hit roll"
-- "Dodge ability not reducing incoming damage"
+- "Unsupported SPA effect not applied to combat resolution"
+- "Helper-only SPA visible but not consumed by runner pipeline"
 - "Gunnery Specialist bonus not applied"
 
 ---

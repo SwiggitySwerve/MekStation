@@ -1,23 +1,33 @@
 import { CombatLocation } from '@/types/gameplay';
 
 export const PUNCH_DAMAGE_DIVISOR = 10;
+export const CLAW_PUNCH_DAMAGE_DIVISOR = 7;
 export const KICK_DAMAGE_DIVISOR = 5;
 export const KICK_TO_HIT_BONUS = 2;
 export const PUSH_TO_HIT_BONUS = 1;
 export const CHARGE_DAMAGE_DIVISOR = 10;
+export const CHARGE_HIT_PSR_MODIFIER = 2;
 export const DFA_TARGET_DAMAGE_DIVISOR = 10;
 export const DFA_DAMAGE_MULTIPLIER = 3;
 export const DFA_ATTACKER_DAMAGE_DIVISOR = 5;
+export const DFA_TARGET_PSR_MODIFIER = 2;
+export const DFA_HIT_ATTACKER_PSR_MODIFIER = 4;
+export const DFA_MISS_FALL_FACING_OFFSET = 3;
+export const DFA_MISS_FALL_HEIGHT = 2;
 export const HATCHET_DAMAGE_DIVISOR = 5;
 export const SWORD_DAMAGE_DIVISOR = 10;
 export const SWORD_DAMAGE_BONUS = 1;
-export const MACE_WEIGHT_MULTIPLIER = 2;
-export const MACE_DAMAGE_DIVISOR = 5;
+export const MACE_DAMAGE_DIVISOR = 4;
+export const RETRACTABLE_BLADE_DAMAGE_DIVISOR = 10;
 // Per `implement-physical-attack-phase` task 9.4: lance damage baseline
 // is floor(weight / 5); doubled when the attacker is charging.
 export const LANCE_DAMAGE_DIVISOR = 5;
 export const LANCE_CHARGE_DAMAGE_MULTIPLIER = 2;
-export const LANCE_TO_HIT_MODIFIER = 0;
+export const LANCE_TO_HIT_MODIFIER = 1;
+export const FLAIL_DAMAGE = 9;
+export const WRECKING_BALL_DAMAGE = 8;
+export const FLAIL_TO_HIT_MODIFIER = 0;
+export const WRECKING_BALL_TO_HIT_MODIFIER = 1;
 
 // Per task 6.4 / 7.4: charge + DFA damage splits into 5-point clusters
 // before hit-location resolution. Damage under 5 is a single cluster.
@@ -25,12 +35,14 @@ export const PHYSICAL_CLUSTER_SIZE = 5;
 export const UPPER_ARM_PUNCH_MODIFIER = 2;
 export const LOWER_ARM_PUNCH_MODIFIER = 2;
 export const HAND_PUNCH_MODIFIER = 1;
+export const CLAW_PUNCH_TO_HIT_MODIFIER = 1;
 export const UPPER_LEG_KICK_MODIFIER = 2;
 export const LOWER_LEG_KICK_MODIFIER = 2;
 export const FOOT_KICK_MODIFIER = 1;
 export const HATCHET_TO_HIT_MODIFIER = -1;
 export const SWORD_TO_HIT_MODIFIER = -2;
 export const MACE_TO_HIT_MODIFIER = 1;
+export const RETRACTABLE_BLADE_TO_HIT_MODIFIER = -2;
 export const DFA_MISS_PSR_MODIFIER = 4;
 
 export const PUNCH_HIT_TABLE: Readonly<Record<number, CombatLocation>> = {

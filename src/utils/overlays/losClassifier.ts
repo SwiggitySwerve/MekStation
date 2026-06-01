@@ -1,3 +1,4 @@
+import type { IUnitToken } from '@/types/gameplay/GameplayUIInterfaces';
 import type {
   IHexCoordinate,
   IHexGrid,
@@ -33,6 +34,7 @@ export interface LOSClassification {
 export interface LOSClassifierOptions {
   readonly fromElevation?: number;
   readonly toElevation?: number;
+  readonly tokens?: readonly IUnitToken[];
 }
 
 const PARTIAL_COVER_TERRAINS: readonly TerrainType[] = [
@@ -103,6 +105,17 @@ function elevationAnnotation(
   };
 }
 
+function wreckAnnotation(
+  coord: IHexCoordinate,
+  unitName: string,
+): LOSBlockerMetadata {
+  return {
+    coord,
+    icon: 'wall',
+    title: `Blocked by wreck ${unitName} at ${hexLabel(coord)}`,
+  };
+}
+
 function partialCoverAnnotationsFromEffects(
   effects: ILOSResult['interveningTerrainEffects'],
 ): readonly LOSBlockerMetadata[] {
@@ -139,21 +152,25 @@ export function classifyLOS(
     grid,
     options.fromElevation,
     options.toElevation,
+    options.tokens,
   );
 
   if (!engineResult.hasLOS) {
     const blockedBy = engineResult.blockedBy;
+    const blockingUnit = engineResult.blockingUnit;
     const blockerAnnotations = blockedBy
       ? [
-          engineResult.blockingElevation !== undefined
-            ? elevationAnnotation(blockedBy, engineResult.blockingElevation)
-            : blockedAnnotation(
-                blockedBy,
-                engineResult.blockingTerrain ??
-                  terrainAt(grid, blockedBy) ??
-                  TerrainType.Building,
-                formatLOSBlockedDetails(engineResult),
-              ),
+          blockingUnit
+            ? wreckAnnotation(blockedBy, blockingUnit.name)
+            : engineResult.blockingElevation !== undefined
+              ? elevationAnnotation(blockedBy, engineResult.blockingElevation)
+              : blockedAnnotation(
+                  blockedBy,
+                  engineResult.blockingTerrain ??
+                    terrainAt(grid, blockedBy) ??
+                    TerrainType.Building,
+                  formatLOSBlockedDetails(engineResult),
+                ),
         ]
       : [];
 

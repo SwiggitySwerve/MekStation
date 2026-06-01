@@ -25,6 +25,8 @@ export const EVENT_LABELS: Partial<Record<GameEventType, string>> = {
   [GameEventType.InitiativeRolled]: 'Initiative Rolled',
   [GameEventType.MovementDeclared]: 'Movement',
   [GameEventType.AttackDeclared]: 'Attack Declared',
+  [GameEventType.AMSInterception]: 'AMS Interception',
+  [GameEventType.DesignatorMarkerApplied]: 'Designator Marker',
   [GameEventType.AttackResolved]: 'Attack Resolved',
   [GameEventType.DamageApplied]: 'Damage Applied',
   [GameEventType.UnitDestroyed]: 'Unit Destroyed',

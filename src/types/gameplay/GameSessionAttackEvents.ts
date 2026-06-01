@@ -7,9 +7,8 @@ import type {
   AttackVisualCategory,
   HeatVisualThreshold,
 } from './GameSessionCoreTypes';
-import type { WeaponFireMode } from './IndirectFireInterfaces';
 
-import { Facing } from './HexGridInterfaces';
+import { Facing, IHexCoordinate } from './HexGridInterfaces';
 import { PSRTrigger } from './PSRTriggerCodes';
 
 /**
@@ -22,6 +21,8 @@ export interface IAttackDeclaredPayload {
   readonly targetId: string;
   /** Weapon ID(s) used (backward-compatible) */
   readonly weapons: readonly string[];
+  /** Selected firing mode by weapon id for multi-mode weapons. */
+  readonly weaponModes?: Readonly<Record<string, string>>;
   /** Full weapon attack data (damage, heat, ranges per weapon) */
   readonly weaponAttacks?: readonly IWeaponAttackData[];
   /** Calculated to-hit number */
@@ -48,6 +49,18 @@ export interface IAttackDeclaredPayload {
 }
 
 /**
+ * All attack declarations for the weapon phase are locked and may now be
+ * exposed to every participant. The individual `AttackDeclared` events remain
+ * the source of weapon/target detail; this payload captures the reveal boundary.
+ */
+export interface IAttacksRevealedPayload {
+  /** Active units whose weapon-phase declarations are now revealed. */
+  readonly unitIds: readonly string[];
+  /** Number of AttackDeclared events revealed for this turn. */
+  readonly attackCount: number;
+}
+
+/**
  * Weapon attack data stored in attack events.
  * Carries the real weapon stats so resolveAttack can use actual damage/heat values.
  */
@@ -56,16 +69,10 @@ export interface IWeaponAttackData {
   readonly weaponId: string;
   /** Weapon name */
   readonly weaponName: string;
-  /** Resolved per-weapon fire mode at declaration time. */
-  readonly mode?: WeaponFireMode;
   /** Damage per hit */
   readonly damage: number;
   /** Heat generated */
   readonly heat: number;
-  /** Per-weapon target number used by resolution when available. */
-  readonly toHitNumber?: number;
-  /** Per-weapon modifier stack used to build toHitNumber. */
-  readonly modifiers?: readonly IToHitModifier[];
 }
 
 /**
@@ -166,7 +173,12 @@ export interface IAttackInvalidPayload {
     | 'OutOfArc'
     | 'NoLineOfSight'
     | 'TargetNotVisible'
-    | 'InvalidTarget';
+    | 'InvalidTarget'
+    | 'UnknownWeapon'
+    | 'WeaponDestroyed'
+    | 'WeaponJammed'
+    | 'AttackerEvading'
+    | 'AttackerSprinted';
   readonly details?: string;
 }
 
@@ -241,10 +253,15 @@ export interface IHeatPayload {
    * re-reading terrain state. `baseDissipation` is the heat-sink
    * contribution (count × rating − destroyed × rating), `waterBonus`
    * is the water-cooling add per `getWaterCoolingBonus(depth)`.
+   * `environmentalModifier` is the net atmosphere/temperature adjustment.
+   * `heatGenerationReduction` is the per-turn generated-heat reduction
+   * from abilities such as Cool Under Fire, capped by generated heat.
    */
   readonly breakdown?: {
     readonly baseDissipation: number;
     readonly waterBonus: number;
+    readonly environmentalModifier?: number;
+    readonly heatGenerationReduction?: number;
   };
 }
 
@@ -266,7 +283,12 @@ export interface IPilotHitPayload {
    * life-support damage); distinct from `'head_hit'` (head-location
    * critical) so UI / replay consumers can show the right cause.
    */
-  readonly source: 'head_hit' | 'ammo_explosion' | 'mech_destruction' | 'heat';
+  readonly source:
+    | 'head_hit'
+    | 'ammo_explosion'
+    | 'mech_destruction'
+    | 'fall'
+    | 'heat';
   /** Consciousness check required? */
   readonly consciousnessCheckRequired: boolean;
   /** Consciousness check result (if required) */
@@ -300,8 +322,10 @@ export interface IAmmoExplosionPayload {
   readonly weaponType?: string;
   /** Rounds destroyed in the blast */
   readonly roundsDestroyed?: number;
-  /** Damage delivered to the internal structure */
+  /** Total explosion damage before CASE caps or local containment */
   readonly damage: number;
+  /** CASE protection that modified downstream damage transfer, when known. */
+  readonly caseProtection?: 'none' | 'case' | 'case_ii';
   /** Why the bin exploded */
   readonly source: 'HeatInduced' | 'CritInduced';
 }
@@ -324,14 +348,19 @@ export interface IUnitDestroyedPayload {
    * event. Priority order when multiple conditions apply in the same
    * turn (per `damage-system` spec):
    *   `pilot_death` > `head_destroyed` > `ct_destroyed` >
-   *   `engine_destroyed` > `ammo_explosion` > `shutdown` > `damage`.
+   *   `engine_destroyed` > `ammo_explosion` >
+   *   `impossible_displacement` > `damage`.
+   *
+   * Heat shutdown is a lifecycle/action-eligibility state, not a
+   * destruction cause. It is reported by `ShutdownCheck`/heat lifecycle
+   * events and should not be encoded as `UnitDestroyed`.
    */
   readonly cause:
     | 'damage'
     | 'ammo_explosion'
     | 'pilot_death'
     | 'engine_destroyed'
-    | 'shutdown'
+    | 'impossible_displacement'
     | 'ct_destroyed'
     | 'head_destroyed';
   /** Unit that killed this unit (undefined for self-destruction: ammo explosions, pilot death, etc.) */
@@ -370,8 +399,11 @@ export interface ICriticalHitResolvedPayload {
   readonly slotIndex: number;
   readonly componentType: string;
   readonly componentName: string;
+  readonly ammoBinId?: string;
   readonly effect: string;
   readonly destroyed: boolean;
+  readonly missing?: boolean;
+  readonly breached?: boolean;
   /**
    * Per `add-authoritative-roll-arbitration` (Wave 3a): the server's
    * consumed d6 sequence for this crit (determination roll + slot
@@ -397,6 +429,12 @@ export interface IPSRTriggeredPayload {
    */
   readonly basePilotingSkill?: number;
   /**
+   * Fixed system target number for PSRs that do not derive from the
+   * pilot's piloting skill. Optional for back-compat with older event
+   * streams and omitted for normal piloting-skill rolls.
+   */
+  readonly fixedTargetNumber?: number;
+  /**
    * Per `structure-psr-reason-as-discriminated-code` (PR E): canonical
    * `PSRTrigger` enum value paired with the human-readable `reason`
    * string. Display consumers (`EventLogDisplay`, `format-event-log.py`)
@@ -415,6 +453,15 @@ export interface IPSRResolvedPayload {
   readonly modifiers: number;
   readonly passed: boolean;
   readonly reason: string;
+  /**
+   * Optional trigger-specific Edge metadata. `edgeSuperseded` marks an
+   * original failed roll that was replaced by a legal Edge reroll, while
+   * `edgeReroll` marks the replacement roll.
+   */
+  readonly edgeReroll?: boolean;
+  readonly edgeSuperseded?: boolean;
+  readonly edgeTrigger?: string;
+  readonly edgePointsRemaining?: number;
   /**
    * Per `add-authoritative-roll-arbitration` (Wave 3a): the two d6 that
    * compose `roll`. OPTIONAL — see `IInitiativeRolledPayload.rolls`.
@@ -465,6 +512,16 @@ export interface IUnitFellPayload {
 }
 
 /**
+ * Emitted when a failed source-backed movement PSR makes a unit stuck
+ * instead of fallen, such as MegaMek swamp bog-down.
+ */
+export interface IUnitStuckPayload {
+  readonly unitId: string;
+  readonly reason?: string;
+  readonly reasonCode?: PSRTrigger;
+}
+
+/**
  * Per `wire-piloting-skill-rolls` task 0.5.4: emitted when a prone
  * unit passes an `AttemptStand` PSR and returns to upright state.
  */
@@ -484,9 +541,10 @@ export interface IUnitStoodPayload {
 
 /**
  * Per `implement-physical-attack-phase` task 2.2: physical attack event
- * types include core physical attacks plus the four melee-weapon variants
- * (hatchet, sword, mace, lance). The resolved payload uses the same
- * union so club swings and charges emit the same event shape.
+ * types include core physical attacks plus the melee-weapon variants
+ * (hatchet, sword, mace, lance, retractable blade, flail, wrecking ball).
+ * The resolved payload uses the same union so club swings and charges emit
+ * the same event shape.
  */
 export type PhysicalAttackEventType =
   | 'punch'
@@ -494,10 +552,19 @@ export type PhysicalAttackEventType =
   | 'charge'
   | 'dfa'
   | 'push'
+  | 'trip'
+  | 'thrash'
+  | 'jump-jet-attack'
+  | 'brush-off'
+  | 'grapple'
+  | 'break-grapple'
   | 'hatchet'
   | 'sword'
   | 'mace'
-  | 'lance';
+  | 'lance'
+  | 'retractable-blade'
+  | 'flail'
+  | 'wrecking-ball';
 
 export interface IPhysicalAttackDeclaredPayload {
   readonly attackerId: string;
@@ -505,17 +572,30 @@ export interface IPhysicalAttackDeclaredPayload {
   readonly attackType: PhysicalAttackEventType;
   readonly toHitNumber: number;
   /**
-   * Physical hit-location table selected at declaration time. Optional for
-   * backward compatibility with older events that predate represented
-   * physical hit-table projection.
-   */
-  readonly hitTable?: 'punch' | 'kick';
-  /**
    * Per `implement-physical-attack-phase` task 2.3: limb targeted by the
    * declaration. Required for `punch` and `kick`; may be supplied for
    * club attacks. OPTIONAL.
    */
   readonly limb?: 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg';
+  /**
+   * Hit-location table selected at declaration time so replay resolves the
+   * same hull-down/elevation-specific table that the command preview showed.
+   */
+  readonly hitTable?: 'punch' | 'kick';
+}
+
+export interface IPhysicalDisplacement {
+  readonly unitId: string;
+  readonly from: IHexCoordinate;
+  readonly to: IHexCoordinate;
+  readonly reason:
+    | 'push'
+    | 'charge'
+    | 'charge_miss'
+    | 'dfa'
+    | 'dfa_miss'
+    | 'break-grapple'
+    | 'domino';
 }
 
 export interface IPhysicalAttackResolvedPayload {
@@ -537,6 +617,14 @@ export interface IPhysicalAttackResolvedPayload {
     readonly damage: number;
     readonly location: string;
   }[];
+  /**
+   * Source-backed physical displacement results. Push, charge, and DFA move
+   * the target and then the attacker follows into the target's original hex
+   * when the destination is legal.
+   */
+  readonly displacements?: readonly IPhysicalDisplacement[];
+  readonly automaticHit?: boolean;
+  readonly automaticHitReason?: string;
   /**
    * Per `add-authoritative-roll-arbitration` (Wave 3a): consumed d6s for
    * the to-hit + hit-location rolls (location omitted on miss). OPTIONAL.

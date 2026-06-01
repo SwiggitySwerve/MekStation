@@ -5,7 +5,6 @@ import {
 } from '@/utils/gameplay/firingArc';
 import { determineArc } from '@/utils/gameplay/firingArcs';
 import { hexDistance } from '@/utils/gameplay/hexMath';
-import { weaponMountCoversTargetArc } from '@/utils/gameplay/weaponMountArcs';
 
 import type { SeededRandom } from '../core/SeededRandom';
 import type { IAIStructureState, IAIUnitState, IWeapon } from './types';
@@ -206,7 +205,13 @@ function targetArcFromAttacker(
  * weapon's MML location so the arc filter actually applies.
  */
 function weaponCanCoverArc(weapon: IWeapon, targetArc: FiringArc): boolean {
-  return weaponMountCoversTargetArc(weapon, targetArc);
+  if (weapon.mountingArc === undefined) return true;
+  const weaponArc = weapon.mountingArc;
+  if (weaponArc === FiringArc.Front) return targetArc === FiringArc.Front;
+  if (weaponArc === FiringArc.Rear) return targetArc === FiringArc.Rear;
+  if (weaponArc === FiringArc.Left) return targetArc === FiringArc.Left;
+  if (weaponArc === FiringArc.Right) return targetArc === FiringArc.Right;
+  return false;
 }
 
 /**
@@ -242,7 +247,12 @@ export function orderWeaponsByEfficiency(
 function bracketRankFor(weapon: IWeapon, distance: number): number {
   if (distance <= weapon.shortRange) return 0;
   if (distance <= weapon.mediumRange) return 1;
-  return 2;
+  if (distance <= weapon.longRange) return 2;
+  return 3;
+}
+
+function maximumWeaponRange(weapon: IWeapon): number {
+  return weapon.extremeRange ?? weapon.longRange;
 }
 
 /**
@@ -301,7 +311,7 @@ export class AttackAI {
     }
 
     const maxWeaponRange = Math.max(
-      ...attacker.weapons.filter((w) => !w.destroyed).map((w) => w.longRange),
+      ...attacker.weapons.filter((w) => !w.destroyed).map(maximumWeaponRange),
     );
 
     if (maxWeaponRange === 0 || maxWeaponRange === -Infinity) {
@@ -371,7 +381,7 @@ export class AttackAI {
    * weapons the bot will fire this phase. The filter pipeline:
    *
    *   1. Weapon is not destroyed
-   *   2. Target distance <= weapon.longRange (in weapon range)
+   *   2. Target distance <= weapon extreme/long range (in weapon range)
    *   3. Ammo present (if `ammoPerTon > 0`)
    *   4. Target hex is in the weapon's mounting arc given attacker
    *      facing (+ optional torso twist)
@@ -394,7 +404,7 @@ export class AttackAI {
     // Pass 1: basic filters (destroyed / range / ammo / arc).
     const viable = attacker.weapons.filter((weapon) => {
       if (weapon.destroyed) return false;
-      if (distance > weapon.longRange) return false;
+      if (distance > maximumWeaponRange(weapon)) return false;
 
       if (weapon.ammoPerTon > 0) {
         const ammoCount = attacker.ammo[weapon.id];

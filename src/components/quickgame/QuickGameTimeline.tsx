@@ -23,6 +23,8 @@ const EVENT_LABELS: Partial<Record<GameEventType, string>> = {
   [GameEventType.InitiativeRolled]: 'Initiative Rolled',
   [GameEventType.MovementDeclared]: 'Movement',
   [GameEventType.AttackDeclared]: 'Attack Declared',
+  [GameEventType.AMSInterception]: 'AMS Interception',
+  [GameEventType.DesignatorMarkerApplied]: 'Designator Marker',
   [GameEventType.AttackResolved]: 'Attack Resolved',
   [GameEventType.DamageApplied]: 'Damage Applied',
   [GameEventType.UnitDestroyed]: 'Unit Destroyed',
@@ -47,6 +49,8 @@ function getEventColor(type: GameEventType): string {
     case GameEventType.TurnEnded:
       return 'bg-amber-500';
     case GameEventType.AttackResolved:
+    case GameEventType.AMSInterception:
+    case GameEventType.DesignatorMarkerApplied:
     case GameEventType.DamageApplied:
       return 'bg-red-500';
     case GameEventType.UnitDestroyed:

@@ -32,8 +32,11 @@ import {
   GamePhase,
   GameSide,
   GameStatus,
+  IAmmoExplosionPayload,
+  IAmmoSlotState,
   IComponentDestroyedPayload,
   ICriticalHitResolvedPayload,
+  IDamageAppliedPayload,
   IGameEvent,
   IGameState,
   IPSRTriggeredPayload,
@@ -41,8 +44,12 @@ import {
   IUnitGameState,
   LockState,
   MovementType,
+  PSRTrigger,
 } from '@/types/gameplay';
-import { buildDefaultCriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
+import {
+  buildCriticalSlotManifest,
+  buildDefaultCriticalSlotManifest,
+} from '@/utils/gameplay/criticalHitResolution';
 import { resolveDamage } from '@/utils/gameplay/damage';
 
 import type { IWeapon } from '../../ai/types';
@@ -52,6 +59,7 @@ import { SeededRandom } from '../../core/SeededRandom';
 import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { IViolation } from '../../invariants/types';
 import { runAttackPhase } from '../phases/weaponAttack';
+import { resolveWeaponHit } from '../phases/weaponAttackHitResolution';
 import { DEFAULT_COMPONENT_DAMAGE } from '../SimulationRunnerConstants';
 
 // =============================================================================
@@ -157,6 +165,37 @@ describe('resolveDamage critical-hit dispatch (Phase 3 spec scenarios)', () => {
     expect(result.criticalHits).toHaveLength(1);
     expect(result.criticalHits[0].location).toBe('center_torso');
     expect(result.criticalHits[0].slot.destroyed).toBe(true);
+  });
+
+  it('Scenario: engine critical emits an engine-hit PSR trigger', () => {
+    const roller = scriptedRoller([4, 4, 1]);
+    const state = buildPrimedDamageState({ location: 'center_torso' });
+    const stateWithCtx: IUnitDamageState = {
+      ...state,
+      criticalContext: {
+        unitId: 'opponent-1',
+        manifest: buildDefaultCriticalSlotManifest(),
+        componentDamage: DEFAULT_COMPONENT_DAMAGE,
+      },
+    };
+
+    const { criticalEvents } = resolveDamage(
+      stateWithCtx,
+      'center_torso',
+      5,
+      roller,
+    );
+
+    expect(criticalEvents).toContainEqual(
+      expect.objectContaining({
+        type: 'psr_triggered',
+        payload: expect.objectContaining({
+          unitId: 'opponent-1',
+          reasonCode: PSRTrigger.EngineHit,
+          triggerSource: PSRTrigger.EngineHit,
+        }),
+      }),
+    );
   });
 
   it('Scenario: structure damage with crit roll 7 produces 0 critical hits', () => {
@@ -271,12 +310,39 @@ function createAC20(id = 'ac-20'): IWeapon {
   };
 }
 
+function createAmmoBin(binId: string, remainingRounds: number): IAmmoSlotState {
+  return {
+    binId,
+    weaponType: 'ac-20',
+    location: 'right_torso',
+    remainingRounds,
+    maxRounds: 5,
+    isExplosive: true,
+  };
+}
+
+function createCritProbeWeapon(id = 'engine-probe'): IWeapon {
+  return {
+    id,
+    name: 'Engine Probe',
+    shortRange: 3,
+    mediumRange: 6,
+    longRange: 9,
+    damage: 5,
+    heat: 0,
+    minRange: 0,
+    ammoPerTon: -1,
+    destroyed: false,
+  };
+}
+
 function createUnit(
   id: string,
   side: GameSide,
   position: { q: number; r: number },
   armorOverride: Partial<IUnitGameState['armor']> = {},
   structureOverride: Partial<IUnitGameState['structure']> = {},
+  unitOverride: Partial<IUnitGameState> = {},
 ): IUnitGameState {
   return {
     id,
@@ -326,6 +392,7 @@ function createUnit(
     weaponsFiredThisTurn: [],
     gunnery: 4,
     piloting: 5,
+    ...unitOverride,
   };
 }
 
@@ -538,9 +605,547 @@ describe('runAttackPhase crit event chain (Phase 3, combat-resolution delta)', (
       expect(typeof p.effect).toBe('string');
       expect(p.destroyed).toBe(true);
     });
+
+    it('ammo criticals target the exact hydrated bin before same-location fallback', () => {
+      const runAmmoCrit = (slotSelectionRoll: number) => {
+        const emptyBin = createAmmoBin('right-torso-empty-bin', 0);
+        const loadedBin = createAmmoBin('right-torso-loaded-bin', 5);
+        const scenario = buildPrimedRunnerScenario();
+        const target = scenario.state.units['opponent-1'];
+        const state: IGameState = {
+          ...scenario.state,
+          units: {
+            ...scenario.state.units,
+            'opponent-1': {
+              ...target,
+              ammoState: {
+                [emptyBin.binId]: emptyBin,
+                [loadedBin.binId]: loadedBin,
+              },
+            },
+          },
+        };
+        const manifest = buildCriticalSlotManifest({
+          right_torso: [
+            {
+              slotIndex: 0,
+              componentType: 'ammo',
+              componentName: 'IS Ammo AC/20',
+              ammoBinId: emptyBin.binId,
+              destroyed: false,
+            },
+            {
+              slotIndex: 1,
+              componentType: 'ammo',
+              componentName: 'IS Ammo AC/20',
+              ammoBinId: loadedBin.binId,
+              destroyed: false,
+            },
+          ],
+        });
+        const manifestsByUnit = new Map<string, CriticalSlotManifest>([
+          ['opponent-1', manifest],
+        ]);
+        const events: IGameEvent[] = [];
+        const next = resolveWeaponHit({
+          currentState: state,
+          events,
+          gameId: state.gameId,
+          unitId: 'player-1',
+          targetId: 'opponent-1',
+          weaponId: 'ammo-crit-probe',
+          weapon: createCritProbeWeapon('ammo-crit-probe'),
+          attackRoll: 12,
+          toHitNumber: 2,
+          firingArc: 'front',
+          partialCover: false,
+          // Hit location 3+3 = right_torso, crit trigger 4+4 = one crit.
+          d6Roller: scriptedRoller([3, 3, 4, 4, slotSelectionRoll]),
+          getOrSeedManifest: () => manifest,
+          manifestsByUnit,
+          weaponsByUnit: new Map<string, readonly IWeapon[]>([
+            ['player-1', [createCritProbeWeapon('ammo-crit-probe')]],
+            ['opponent-1', [createAC20()]],
+          ]),
+        });
+
+        return { events, next, emptyBin, loadedBin };
+      };
+
+      const emptyTarget = runAmmoCrit(1);
+      const emptyResolved = emptyTarget.events.find(
+        (event) => event.type === GameEventType.CriticalHitResolved,
+      ) as IGameEvent & { payload: ICriticalHitResolvedPayload };
+      const emptyDestroyed = emptyTarget.events.find(
+        (event) => event.type === GameEventType.ComponentDestroyed,
+      ) as IGameEvent & { payload: IComponentDestroyedPayload };
+      expect(emptyResolved.payload).toMatchObject({
+        componentType: 'ammo',
+        ammoBinId: emptyTarget.emptyBin.binId,
+      });
+      expect(emptyDestroyed.payload).toMatchObject({
+        componentType: 'ammo',
+        ammoBinId: emptyTarget.emptyBin.binId,
+      });
+      expect(
+        emptyTarget.events.some(
+          (event) => event.type === GameEventType.AmmoExplosion,
+        ),
+      ).toBe(false);
+      expect(
+        emptyTarget.next.units['opponent-1'].ammoState?.[
+          emptyTarget.loadedBin.binId
+        ].remainingRounds,
+      ).toBe(5);
+
+      const loadedTarget = runAmmoCrit(2);
+      const explosion = loadedTarget.events.find(
+        (event) => event.type === GameEventType.AmmoExplosion,
+      ) as IGameEvent & { payload: IAmmoExplosionPayload };
+      expect(explosion.payload).toMatchObject({
+        binId: loadedTarget.loadedBin.binId,
+        weaponType: 'ac-20',
+        roundsDestroyed: 5,
+        source: 'CritInduced',
+      });
+      expect(
+        loadedTarget.next.units['opponent-1'].ammoState?.[
+          loadedTarget.loadedBin.binId
+        ].remainingRounds,
+      ).toBe(0);
+    });
+
+    it('CASE-contained ammo critical cookoffs do not transfer into the center torso', () => {
+      const loadedBin = createAmmoBin('right-torso-loaded-bin', 5);
+      const scenario = buildPrimedRunnerScenario();
+      const target = scenario.state.units['opponent-1'];
+      const state: IGameState = {
+        ...scenario.state,
+        units: {
+          ...scenario.state.units,
+          'opponent-1': {
+            ...target,
+            caseProtection: { right_torso: 'case' },
+            armor: {
+              ...target.armor,
+              right_torso: 0,
+              center_torso: 0,
+            },
+            structure: {
+              ...target.structure,
+              right_torso: 15,
+              center_torso: 10,
+            },
+            ammoState: {
+              [loadedBin.binId]: loadedBin,
+            },
+          },
+        },
+      };
+      const manifest = buildCriticalSlotManifest({
+        right_torso: [
+          {
+            slotIndex: 0,
+            componentType: 'ammo',
+            componentName: 'IS Ammo AC/20',
+            ammoBinId: loadedBin.binId,
+            destroyed: false,
+          },
+        ],
+      });
+      const manifestsByUnit = new Map<string, CriticalSlotManifest>([
+        ['opponent-1', manifest],
+      ]);
+      const events: IGameEvent[] = [];
+
+      const next = resolveWeaponHit({
+        currentState: state,
+        events,
+        gameId: state.gameId,
+        unitId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'ammo-crit-probe',
+        weapon: createCritProbeWeapon('ammo-crit-probe'),
+        attackRoll: 12,
+        toHitNumber: 2,
+        firingArc: 'front',
+        partialCover: false,
+        // Hit location 3+3 = right_torso, crit trigger 4+4 = one crit.
+        d6Roller: scriptedRoller([3, 3, 4, 4, 1]),
+        getOrSeedManifest: () => manifest,
+        manifestsByUnit,
+        weaponsByUnit: new Map<string, readonly IWeapon[]>([
+          ['player-1', [createCritProbeWeapon('ammo-crit-probe')]],
+          ['opponent-1', [createAC20('ac-20-0')]],
+        ]),
+      });
+
+      const explosion = events.find(
+        (event) => event.type === GameEventType.AmmoExplosion,
+      ) as IGameEvent & { payload: IAmmoExplosionPayload };
+      const explosionIndex = events.findIndex(
+        (event) => event.type === GameEventType.AmmoExplosion,
+      );
+      const postExplosionDamageEvents = events
+        .slice(explosionIndex + 1)
+        .filter((event) => event.type === GameEventType.DamageApplied);
+
+      expect(explosion.payload).toMatchObject({
+        binId: loadedBin.binId,
+        damage: 100,
+        caseProtection: 'case',
+        source: 'CritInduced',
+      });
+      expect(
+        events.some((event) => event.type === GameEventType.TransferDamage),
+      ).toBe(false);
+      expect(
+        events.some((event) => event.type === GameEventType.UnitDestroyed),
+      ).toBe(false);
+      expect(
+        postExplosionDamageEvents.map(
+          (event) => event.payload as IDamageAppliedPayload,
+        ),
+      ).toEqual([
+        expect.objectContaining({
+          location: 'right_torso',
+          damage: 10,
+          structureRemaining: 0,
+          locationDestroyed: true,
+        }),
+      ]);
+      expect(next.units['opponent-1']).toMatchObject({
+        destroyed: false,
+        destroyedLocations: expect.arrayContaining([
+          'right_torso',
+          'right_arm',
+        ]),
+      });
+      expect(next.units['opponent-1'].structure.center_torso).toBe(10);
+      expect(
+        next.units['opponent-1'].ammoState?.[loadedBin.binId].remainingRounds,
+      ).toBe(0);
+    });
+
+    it('CASE-contained ammo critical cookoffs blow out rear torso armor when the location survives', () => {
+      const loadedBin = createAmmoBin('right-torso-loaded-bin', 5);
+      const scenario = buildPrimedRunnerScenario();
+      const target = scenario.state.units['opponent-1'];
+      const state: IGameState = {
+        ...scenario.state,
+        units: {
+          ...scenario.state.units,
+          'opponent-1': {
+            ...target,
+            caseProtection: { right_torso: 'case' },
+            armor: {
+              ...target.armor,
+              right_torso: 0,
+              right_torso_rear: 6,
+              center_torso: 0,
+            },
+            structure: {
+              ...target.structure,
+              right_torso: 20,
+              center_torso: 10,
+            },
+            ammoState: {
+              [loadedBin.binId]: loadedBin,
+            },
+          },
+        },
+      };
+      const manifest = buildCriticalSlotManifest({
+        right_torso: [
+          {
+            slotIndex: 0,
+            componentType: 'ammo',
+            componentName: 'IS Ammo AC/20',
+            ammoBinId: loadedBin.binId,
+            destroyed: false,
+          },
+        ],
+      });
+      const manifestsByUnit = new Map<string, CriticalSlotManifest>([
+        ['opponent-1', manifest],
+      ]);
+      const events: IGameEvent[] = [];
+
+      const next = resolveWeaponHit({
+        currentState: state,
+        events,
+        gameId: state.gameId,
+        unitId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'ammo-crit-probe',
+        weapon: createCritProbeWeapon('ammo-crit-probe'),
+        attackRoll: 12,
+        toHitNumber: 2,
+        firingArc: 'front',
+        partialCover: false,
+        d6Roller: scriptedRoller([3, 3, 4, 4, 1]),
+        getOrSeedManifest: () => manifest,
+        manifestsByUnit,
+        weaponsByUnit: new Map<string, readonly IWeapon[]>([
+          ['player-1', [createCritProbeWeapon('ammo-crit-probe')]],
+          ['opponent-1', [createAC20('ac-20-0')]],
+        ]),
+      });
+
+      const explosionIndex = events.findIndex(
+        (event) => event.type === GameEventType.AmmoExplosion,
+      );
+      const postExplosionDamageEvents = events
+        .slice(explosionIndex + 1)
+        .filter((event) => event.type === GameEventType.DamageApplied)
+        .map((event) => event.payload as IDamageAppliedPayload);
+
+      expect(postExplosionDamageEvents).toEqual([
+        expect.objectContaining({
+          location: 'right_torso_rear',
+          damage: 6,
+          armorRemaining: 0,
+          structureRemaining: 15,
+          locationDestroyed: false,
+        }),
+        expect.objectContaining({
+          location: 'right_torso',
+          damage: 10,
+          armorRemaining: 0,
+          structureRemaining: 5,
+          locationDestroyed: false,
+        }),
+      ]);
+      expect(
+        events.some((event) => event.type === GameEventType.TransferDamage),
+      ).toBe(false);
+      expect(next.units['opponent-1'].armor.right_torso).toBe(0);
+      expect(next.units['opponent-1'].armor.right_torso_rear).toBe(0);
+      expect(next.units['opponent-1'].structure.right_torso).toBe(5);
+      expect(next.units['opponent-1'].structure.center_torso).toBe(10);
+    });
   });
 
   describe('PSR + UnitDestroyed cascades', () => {
+    it('runner queues a pending LegDamage PSR when leg structure takes damage', () => {
+      const scenario = buildPrimedRunnerScenario();
+      const events: IGameEvent[] = [];
+
+      const next = resolveWeaponHit({
+        currentState: scenario.state,
+        events,
+        gameId: scenario.state.gameId,
+        unitId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'leg-probe',
+        weapon: createCritProbeWeapon('leg-probe'),
+        attackRoll: 12,
+        toHitNumber: 2,
+        firingArc: 'front',
+        partialCover: false,
+        // hit location 4+5 = left leg, crit trigger 1+1 = no crit.
+        d6Roller: scriptedRoller([4, 5, 1, 1]),
+        getOrSeedManifest: () => buildDefaultCriticalSlotManifest(),
+      });
+
+      const psrEvent = events.find(
+        (event) =>
+          event.type === GameEventType.PSRTriggered &&
+          (event.payload as IPSRTriggeredPayload).reasonCode ===
+            PSRTrigger.LegDamage,
+      );
+      expect(psrEvent?.payload).toMatchObject({
+        unitId: 'opponent-1',
+        reason: 'Leg damage (internal structure exposed)',
+        triggerSource: PSRTrigger.LegDamage,
+        reasonCode: PSRTrigger.LegDamage,
+      });
+      expect(next.units['opponent-1'].pendingPSRs).toEqual([
+        expect.objectContaining({
+          reasonCode: PSRTrigger.LegDamage,
+          triggerSource: PSRTrigger.LegDamage,
+        }),
+      ]);
+    });
+
+    it('runner queues a pending EngineHit PSR when an engine crit resolves', () => {
+      const scenario = buildPrimedRunnerScenario();
+      const events: IGameEvent[] = [];
+      const getOrSeedManifest = (unitId: string): CriticalSlotManifest => {
+        const existing = scenario.manifestsByUnit.get(unitId);
+        if (existing) return existing;
+        const seeded = buildDefaultCriticalSlotManifest();
+        scenario.manifestsByUnit.set(unitId, seeded);
+        return seeded;
+      };
+
+      const next = resolveWeaponHit({
+        currentState: scenario.state,
+        events,
+        gameId: scenario.state.gameId,
+        unitId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'engine-probe',
+        weapon: createCritProbeWeapon(),
+        attackRoll: 12,
+        toHitNumber: 2,
+        firingArc: 'front',
+        partialCover: false,
+        // hit location 3+4 = CT, crit trigger 4+4 = one crit,
+        // slot-selection 1 = first CT slot (engine).
+        d6Roller: scriptedRoller([3, 4, 4, 4, 1]),
+        getOrSeedManifest,
+        manifestsByUnit: scenario.manifestsByUnit,
+      });
+
+      const engineResolved = events.find(
+        (event) =>
+          event.type === GameEventType.CriticalHitResolved &&
+          (event.payload as ICriticalHitResolvedPayload).componentType ===
+            'engine',
+      );
+      expect(engineResolved).toBeDefined();
+
+      const psrEvent = events.find(
+        (event) =>
+          event.type === GameEventType.PSRTriggered &&
+          (event.payload as IPSRTriggeredPayload).reasonCode ===
+            PSRTrigger.EngineHit,
+      );
+      expect(psrEvent?.payload).toMatchObject({
+        unitId: 'opponent-1',
+        reason: 'Engine hit',
+        triggerSource: PSRTrigger.EngineHit,
+        reasonCode: PSRTrigger.EngineHit,
+      });
+      expect(next.units['opponent-1'].pendingPSRs).toEqual([
+        expect.objectContaining({
+          reasonCode: PSRTrigger.EngineHit,
+          triggerSource: PSRTrigger.EngineHit,
+        }),
+      ]);
+    });
+
+    it('runner removes claw punch modifiers when a claw equipment critical resolves', () => {
+      const scenario = buildPrimedRunnerScenario();
+      const events: IGameEvent[] = [];
+      const target = scenario.state.units['opponent-1'];
+      const state: IGameState = {
+        ...scenario.state,
+        units: {
+          ...scenario.state.units,
+          'opponent-1': {
+            ...target,
+            leftArmHasClaw: true,
+            rightArmHasClaw: true,
+          },
+        },
+      };
+      const manifest = buildCriticalSlotManifest({
+        right_arm: [
+          {
+            slotIndex: 0,
+            componentType: 'equipment',
+            componentName: 'Claw',
+            destroyed: false,
+          },
+        ],
+      });
+
+      const next = resolveWeaponHit({
+        currentState: state,
+        events,
+        gameId: state.gameId,
+        unitId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'claw-crit-probe',
+        weapon: createCritProbeWeapon('claw-crit-probe'),
+        attackRoll: 12,
+        toHitNumber: 2,
+        firingArc: 'front',
+        partialCover: false,
+        // hit location 1+2 = right arm, crit trigger 4+4 = one crit,
+        // slot-selection 1 = the claw equipment slot.
+        d6Roller: scriptedRoller([1, 2, 4, 4, 1]),
+        getOrSeedManifest: () => manifest,
+      });
+
+      expect(events).toContainEqual(
+        expect.objectContaining({
+          type: GameEventType.CriticalHitResolved,
+          payload: expect.objectContaining({
+            unitId: 'opponent-1',
+            location: 'right_arm',
+            componentType: 'equipment',
+            componentName: 'Claw',
+            destroyed: true,
+          }),
+        }),
+      );
+      expect(next.units['opponent-1'].leftArmHasClaw).toBe(true);
+      expect(next.units['opponent-1'].rightArmHasClaw).toBe(false);
+    });
+
+    it('runner removes talon kick modifiers when a talons equipment critical resolves', () => {
+      const scenario = buildPrimedRunnerScenario();
+      const events: IGameEvent[] = [];
+      const target = scenario.state.units['opponent-1'];
+      const state: IGameState = {
+        ...scenario.state,
+        units: {
+          ...scenario.state.units,
+          'opponent-1': {
+            ...target,
+            leftLegHasTalons: true,
+            rightLegHasTalons: true,
+          },
+        },
+      };
+      const manifest = buildCriticalSlotManifest({
+        right_leg: [
+          {
+            slotIndex: 0,
+            componentType: 'equipment',
+            componentName: 'Talons',
+            destroyed: false,
+          },
+        ],
+      });
+
+      const next = resolveWeaponHit({
+        currentState: state,
+        events,
+        gameId: state.gameId,
+        unitId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'talons-crit-probe',
+        weapon: createCritProbeWeapon('talons-crit-probe'),
+        attackRoll: 12,
+        toHitNumber: 2,
+        firingArc: 'front',
+        partialCover: false,
+        // hit location 2+3 = right leg, crit trigger 4+4 = one crit,
+        // slot-selection 1 = the talons equipment slot.
+        d6Roller: scriptedRoller([2, 3, 4, 4, 1]),
+        getOrSeedManifest: () => manifest,
+      });
+
+      expect(events).toContainEqual(
+        expect.objectContaining({
+          type: GameEventType.CriticalHitResolved,
+          payload: expect.objectContaining({
+            unitId: 'opponent-1',
+            location: 'right_leg',
+            componentType: 'equipment',
+            componentName: 'Talons',
+            destroyed: true,
+          }),
+        }),
+      );
+      expect(next.units['opponent-1'].leftLegHasTalons).toBe(true);
+      expect(next.units['opponent-1'].rightLegHasTalons).toBe(false);
+    });
+
     it('PSRTriggered fires after a gyro CriticalHitResolved (gyro PSR cascade)', () => {
       // Hard to deterministically force gyro slot in the runner — we
       // assert structurally: when ANY gyro CriticalHitResolved fires

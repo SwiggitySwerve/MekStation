@@ -1105,9 +1105,9 @@ describe('checkUnitDestruction', () => {
       const { state: newState, destroyed, cause } = checkUnitDestruction(state);
 
       expect(destroyed).toBe(true);
-      expect(cause).toBe('damage');
+      expect(cause).toBe('head_destroyed');
       expect(newState.destroyed).toBe(true);
-      expect(newState.destructionCause).toBe('damage');
+      expect(newState.destructionCause).toBe('head_destroyed');
     });
 
     it('should not destroy unit if head is not in destroyed list', () => {
@@ -1128,8 +1128,9 @@ describe('checkUnitDestruction', () => {
       const { state: newState, destroyed, cause } = checkUnitDestruction(state);
 
       expect(destroyed).toBe(true);
-      expect(cause).toBe('damage');
+      expect(cause).toBe('ct_destroyed');
       expect(newState.destroyed).toBe(true);
+      expect(newState.destructionCause).toBe('ct_destroyed');
     });
 
     it('should not destroy unit if only side torsos are destroyed', () => {
@@ -1139,6 +1140,20 @@ describe('checkUnitDestruction', () => {
       const { destroyed } = checkUnitDestruction(state);
 
       expect(destroyed).toBe(false);
+    });
+  });
+
+  describe('cause priority', () => {
+    it('should prefer pilot death over fatal location destruction', () => {
+      const state = createTestState({
+        destroyedLocations: ['head', 'center_torso'],
+        pilotWounds: 6,
+      });
+      const { state: newState, destroyed, cause } = checkUnitDestruction(state);
+
+      expect(destroyed).toBe(true);
+      expect(cause).toBe('pilot_death');
+      expect(newState.destructionCause).toBe('pilot_death');
     });
   });
 
@@ -1310,7 +1325,7 @@ describe('resolveDamage', () => {
       const { state: newState, result } = resolveDamage(state, 'head', 10);
 
       expect(result.unitDestroyed).toBe(true);
-      expect(result.destructionCause).toBe('damage');
+      expect(result.destructionCause).toBe('head_destroyed');
       expect(newState.destroyed).toBe(true);
     });
 
@@ -1322,7 +1337,7 @@ describe('resolveDamage', () => {
       const { result } = resolveDamage(state, 'center_torso', 20);
 
       expect(result.unitDestroyed).toBe(true);
-      expect(result.destructionCause).toBe('damage');
+      expect(result.destructionCause).toBe('ct_destroyed');
     });
 
     it('should detect pilot death from head hit', () => {
@@ -1772,7 +1787,7 @@ describe('applyDamageWithTerrainEffects', () => {
       );
 
       expect(result.unitDestroyed).toBe(true);
-      expect(result.destructionCause).toBe('damage');
+      expect(result.destructionCause).toBe('head_destroyed');
     });
   });
 });
@@ -2019,7 +2034,7 @@ describe('Integration: Full damage scenarios', () => {
     const { state: finalState, result } = resolveDamage(state, 'left_arm', 10);
 
     expect(result.unitDestroyed).toBe(true);
-    expect(result.destructionCause).toBe('damage');
+    expect(result.destructionCause).toBe('ct_destroyed');
     expect(finalState.destroyed).toBe(true);
     expect(finalState.destroyedLocations).toContain('center_torso');
   });

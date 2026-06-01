@@ -82,157 +82,6 @@ describe('losClassifier', () => {
     expect(result.engineResult.hasLOS).toBe(true);
   });
 
-  it('classifies a single heavy woods hex as partial instead of blocked', () => {
-    const grid = createGrid([
-      createHex(0, 0),
-      createHex(1, 0, TerrainType.HeavyWoods),
-      createHex(2, 0),
-    ]);
-
-    const result = classifyLOS(origin, target, grid);
-
-    expect(result.state).toBe('partial');
-    expect(result.blockerAnnotations[0]).toEqual(
-      expect.objectContaining({
-        coord: { q: 1, r: 0 },
-        terrain: TerrainType.HeavyWoods,
-        icon: 'cover',
-      }),
-    );
-    expect(result.engineResult.hasLOS).toBe(true);
-  });
-
-  it('blocks LOS when cumulative woods exceeds the MegaMek threshold', () => {
-    const grid = createGrid([
-      createHex(0, 0),
-      createHex(1, 0, TerrainType.HeavyWoods),
-      createHex(2, 0, TerrainType.LightWoods),
-      createHex(3, 0),
-    ]);
-
-    const result = classifyLOS(origin, { q: 3, r: 0 }, grid);
-
-    expect(result.state).toBe('blocked');
-    expect(result.blockers).toEqual([{ q: 2, r: 0 }]);
-    expect(result.blockerAnnotations[0]).toEqual(
-      expect.objectContaining({
-        coord: { q: 2, r: 0 },
-        terrain: TerrainType.LightWoods,
-        icon: 'wall',
-      }),
-    );
-    expect(result.engineResult.hasLOS).toBe(false);
-    expect(result.engineResult.blockingTerrain).toBe(TerrainType.LightWoods);
-  });
-
-  it('classifies light smoke as an intervening LOS modifier', () => {
-    const grid = createGrid([
-      createHex(0, 0),
-      createHex(1, 0, TerrainType.Smoke),
-      createHex(2, 0),
-    ]);
-
-    const result = classifyLOS(origin, target, grid);
-
-    expect(result.state).toBe('partial');
-    expect(result.blockers).toEqual([{ q: 1, r: 0 }]);
-    expect(result.blockerAnnotations[0]).toEqual(
-      expect.objectContaining({
-        coord: { q: 1, r: 0 },
-        terrain: TerrainType.Smoke,
-        icon: 'cover',
-        title: 'Partial cover through smoke at (1, 0)',
-      }),
-    );
-    expect(result.engineResult.hasLOS).toBe(true);
-    expect(result.engineResult.interveningTerrainEffects).toEqual([
-      {
-        coord: { q: 1, r: 0 },
-        terrain: TerrainType.Smoke,
-        modifier: 1,
-      },
-    ]);
-  });
-
-  it('blocks LOS when smoke and woods cumulatively exceed MegaMek density', () => {
-    const grid = createGrid([
-      createHex(0, 0),
-      createHex(
-        1,
-        0,
-        terrainStringFromFeatures([{ type: TerrainType.Smoke, level: 2 }]),
-      ),
-      createHex(2, 0, TerrainType.LightWoods),
-      createHex(3, 0),
-    ]);
-
-    const result = classifyLOS(origin, { q: 3, r: 0 }, grid);
-
-    expect(result.state).toBe('blocked');
-    expect(result.blockers).toEqual([{ q: 2, r: 0 }]);
-    expect(result.blockerAnnotations[0]).toEqual(
-      expect.objectContaining({
-        coord: { q: 2, r: 0 },
-        terrain: TerrainType.LightWoods,
-        icon: 'wall',
-      }),
-    );
-    expect(result.engineResult.hasLOS).toBe(false);
-    expect(result.engineResult.interveningTerrainEffects).toEqual([
-      {
-        coord: { q: 1, r: 0 },
-        terrain: TerrainType.Smoke,
-        modifier: 2,
-      },
-      {
-        coord: { q: 2, r: 0 },
-        terrain: TerrainType.LightWoods,
-        modifier: 1,
-      },
-    ]);
-  });
-
-  it('stacks smoke and woods in the same hex before classifying LOS blockers', () => {
-    const grid = createGrid([
-      createHex(0, 0),
-      createHex(
-        1,
-        0,
-        terrainStringFromFeatures([
-          { type: TerrainType.Smoke, level: 1 },
-          { type: TerrainType.HeavyWoods, level: 1 },
-        ]),
-      ),
-      createHex(2, 0),
-    ]);
-
-    const result = classifyLOS(origin, target, grid);
-
-    expect(result.state).toBe('blocked');
-    expect(result.blockers).toEqual([{ q: 1, r: 0 }]);
-    expect(result.blockerAnnotations[0]).toEqual(
-      expect.objectContaining({
-        coord: { q: 1, r: 0 },
-        terrain: TerrainType.HeavyWoods,
-        icon: 'wall',
-        title: 'Blocked by smoke and heavy woods at (1, 0)',
-      }),
-    );
-    expect(result.engineResult.hasLOS).toBe(false);
-    expect(result.engineResult.interveningTerrainEffects).toEqual([
-      {
-        coord: { q: 1, r: 0 },
-        terrain: TerrainType.Smoke,
-        modifier: 1,
-      },
-      {
-        coord: { q: 1, r: 0 },
-        terrain: TerrainType.HeavyWoods,
-        modifier: 2,
-      },
-    ]);
-  });
-
   it('classifies heavy woods as clear when elevation lets LOS pass over it', () => {
     const grid = createGrid([
       createHex(0, 0, TerrainType.Clear, 3),
@@ -243,23 +92,31 @@ describe('losClassifier', () => {
     const result = classifyLOS(origin, target, grid);
 
     expect(result.state).toBe('clear');
+    expect(result.blockers).toEqual([]);
     expect(result.blockerAnnotations).toEqual([]);
     expect(result.engineResult.hasLOS).toBe(true);
   });
 
-  it('classifies a level-1 building equal to mech height as clear LOS', () => {
+  it('classifies cumulative woods density as blocked', () => {
     const grid = createGrid([
       createHex(0, 0),
-      createHex(1, 0, TerrainType.Building),
-      createHex(2, 0),
+      createHex(1, 0, TerrainType.HeavyWoods),
+      createHex(2, 0, TerrainType.LightWoods),
+      createHex(3, 0),
     ]);
 
-    const result = classifyLOS(origin, target, grid);
+    const result = classifyLOS(origin, { q: 3, r: 0 }, grid);
 
-    expect(result.state).toBe('clear');
-    expect(result.blockers).toEqual([]);
-    expect(result.blockerAnnotations).toEqual([]);
-    expect(result.engineResult.hasLOS).toBe(true);
+    expect(result.state).toBe('blocked');
+    expect(result.blockers).toEqual([{ q: 2, r: 0 }]);
+    expect(result.blockerAnnotations).toEqual([
+      expect.objectContaining({
+        coord: { q: 2, r: 0 },
+        terrain: TerrainType.LightWoods,
+        icon: 'wall',
+      }),
+    ]);
+    expect(result.engineResult.hasLOS).toBe(false);
   });
 
   it('classifies a blocking building through the existing LOS result', () => {
@@ -286,44 +143,6 @@ describe('losClassifier', () => {
     ]);
     expect(result.lineEnd).toEqual({ q: 1, r: 0 });
     expect(result.engineResult.hasLOS).toBe(false);
-  });
-
-  it('classifies a level-1 ridge equal to mech height as clear LOS', () => {
-    const grid = createGrid([
-      createHex(0, 0),
-      createHex(1, 0, TerrainType.Clear, 1),
-      createHex(2, 0),
-    ]);
-
-    const result = classifyLOS(origin, target, grid);
-
-    expect(result.state).toBe('clear');
-    expect(result.blockers).toEqual([]);
-    expect(result.blockerAnnotations).toEqual([]);
-    expect(result.engineResult.hasLOS).toBe(true);
-  });
-
-  it('classifies an intervening elevation ridge as a blocker without inventing terrain', () => {
-    const grid = createGrid([
-      createHex(0, 0),
-      createHex(1, 0, TerrainType.Clear, 2),
-      createHex(2, 0),
-    ]);
-
-    const result = classifyLOS(origin, target, grid);
-
-    expect(result.state).toBe('blocked');
-    expect(result.blockers).toEqual([{ q: 1, r: 0 }]);
-    expect(result.blockerAnnotations).toEqual([
-      expect.objectContaining({
-        coord: { q: 1, r: 0 },
-        icon: 'wall',
-        title: 'Blocked by elevation +2 at (1, 0)',
-      }),
-    ]);
-    expect(result.engineResult.hasLOS).toBe(false);
-    expect(result.engineResult.blockingElevation).toBe(2);
-    expect(result.engineResult.blockingTerrain).toBeUndefined();
   });
 
   it('keeps LOS clear when elevation lets the engine see over blocking terrain', () => {

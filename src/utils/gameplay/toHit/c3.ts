@@ -6,14 +6,17 @@ import {
   IToHitModifierDetail,
 } from '@/types/gameplay';
 
+import type { ISemiGuidedTagToHitContext } from './semiGuidedTagModifiers';
+
 import {
   getC3TargetingBenefit,
+  type IC3TargetingOptions,
   IC3NetworkState,
   IC3TargetingResult,
   isBetterBracket,
 } from '../c3Network';
 import { IWeaponRangeProfile } from '../range';
-import { calculateToHit } from './calculate';
+import { calculateToHit, type IEcmContext } from './calculate';
 
 export interface IC3ToHitInput {
   readonly attackerEntityId: string;
@@ -21,6 +24,7 @@ export interface IC3ToHitInput {
   readonly weaponRangeProfile: IWeaponRangeProfile;
   readonly c3State: IC3NetworkState;
   readonly attackerEcmDisrupted?: boolean;
+  readonly targetingOptions?: IC3TargetingOptions;
 }
 
 export interface IC3RangeBracketSelection {
@@ -95,6 +99,8 @@ export function calculateToHitWithC3(
   range: number,
   c3Input: IC3ToHitInput,
   minRange: number = 0,
+  weaponIdOrEcmContext?: string | IEcmContext,
+  semiGuidedTagContext?: ISemiGuidedTagToHitContext,
 ): IToHitCalculation & { readonly c3Result: IC3TargetingResult } {
   const c3Result = getC3TargetingBenefit(
     c3Input.attackerEntityId,
@@ -102,6 +108,7 @@ export function calculateToHitWithC3(
     c3Input.weaponRangeProfile,
     c3Input.c3State,
     c3Input.attackerEcmDisrupted,
+    c3Input.targetingOptions,
   );
 
   const effectiveBracket = c3Result.benefitApplied
@@ -114,6 +121,8 @@ export function calculateToHitWithC3(
     effectiveBracket,
     range,
     minRange,
+    weaponIdOrEcmContext,
+    semiGuidedTagContext,
   );
 
   if (!c3Result.benefitApplied) {

@@ -12,13 +12,12 @@ const PUBLIC_EVENTS = new Set<GameEventType>([
   GameEventType.PhaseChanged,
   GameEventType.InitiativeRolled,
   GameEventType.InitiativeOrderSet,
-  GameEventType.TerrainChanged,
-  GameEventType.RuntimeMovementStateChanged,
+  GameEventType.AttacksRevealed,
 ]);
 
 const ACTOR_ONLY_EVENTS = new Set<GameEventType>([
   GameEventType.MovementDeclared,
-  GameEventType.MovementInvalid,
+  GameEventType.MovementEnhancementActivated,
   GameEventType.AttackDeclared,
   GameEventType.AttackLocked,
   GameEventType.PhysicalAttackDeclared,
@@ -26,6 +25,8 @@ const ACTOR_ONLY_EVENTS = new Set<GameEventType>([
 
 const TARGET_VISIBLE_EVENTS = new Set<GameEventType>([
   GameEventType.AttackResolved,
+  GameEventType.AMSInterception,
+  GameEventType.DesignatorMarkerApplied,
   GameEventType.DamageApplied,
   GameEventType.PhysicalAttackResolved,
 ]);

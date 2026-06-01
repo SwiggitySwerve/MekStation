@@ -62,17 +62,25 @@ export interface IIndirectFireResolution {
   /**
    * Integer to-hit penalty to add to the running to-hit number.
    * 0 for direct-fire or semi-guided-tag with active TAG.
-   * 0 for direct-fire or semi-guided-tag with active TAG.
-   * LOS spotters add base indirect + movement + represented spotter skill.
-   * NARC/iNarc use the base indirect penalty only.
+   * 1 = base indirect only (stationary spotter or NARC/iNarc).
+   * 2 = base + spotter walked.
    */
   readonly toHitPenalty: number;
+  /**
+   * True when a walking LOS spotter's Forward Observer SPA cancelled the
+   * walked-spotter penalty. Consumers use this to emit the matching audit
+   * event after the selected-spotter event.
+   */
+  readonly forwardObserverApplied?: boolean;
+  /**
+   * True when the attacker's Oblique Attacker SPA reduced the final
+   * indirect-fire penalty. The net penalty remains in `toHitPenalty`.
+   */
+  readonly obliqueAttackerApplied?: boolean;
   /** Gunnery skill of the elected LOS spotter, when represented. */
   readonly spotterGunnery?: number;
-  /** Spotter-skill modifier folded into the indirect-fire penalty. */
+  /** Spotter-skill modifier applied to the indirect-fire penalty. */
   readonly spotterSkillModifier?: number;
-  /** Forward Observer SPA cancelled the represented walked-spotter add. */
-  readonly forwardObserverApplied?: boolean;
   /** Penalty points cancelled by Forward Observer, when represented. */
   readonly spotterMovementPenaltyCancelled?: number;
   /** Human-readable reason when permitted=false. */
@@ -103,12 +111,12 @@ export interface IIndirectFireEventBase {
   readonly targetHex: IHexCoordinate;
   /** Net to-hit penalty applied by the indirect resolution. */
   readonly toHitPenalty: number;
-  /** Gunnery skill of the elected LOS spotter, when represented. */
-  readonly spotterGunnery?: number;
-  /** Spotter-skill modifier folded into the indirect-fire penalty. */
-  readonly spotterSkillModifier?: number;
   /** How the resolution was established. */
   readonly basis: IndirectFireBasis;
+  /** Gunnery skill of the elected LOS spotter, when represented. */
+  readonly spotterGunnery?: number;
+  /** Spotter-skill modifier applied to the indirect-fire penalty. */
+  readonly spotterSkillModifier?: number;
 }
 
 /**

@@ -1,3 +1,5 @@
+import type { IUnitDestroyedPayload } from '@/types/gameplay/GameSessionInterfaces';
+
 import {
   CombatLocation,
   GameEventType,
@@ -48,11 +50,15 @@ import {
 } from './hitLocation';
 import { isLegLocation } from './pilotingSkillRolls';
 
+type WeaponAttackDataWithToHit = {
+  readonly toHitNumber?: number;
+};
+
 export function resolveAttack(
   session: IGameSession,
   attackEvent: IGameEvent,
   diceRoller: DiceRoller = rollDice,
-  d6Roller: D6Roller = () => diceRoller().dice[0],
+  criticalD6Roller?: D6Roller,
 ): IGameSession {
   const payload = attackEvent.payload as IAttackDeclaredPayload;
   const { attackerId, targetId, weapons, weaponAttacks, toHitNumber } = payload;
@@ -79,7 +85,6 @@ export function resolveAttack(
       continue;
     }
     const weaponName = weaponData.weaponName;
-    const weaponToHitNumber = weaponData.toHitNumber ?? toHitNumber;
 
     let ammoBinIdForResolved: string | null = null;
     const attackerStateForAmmo = currentSession.currentState.units[attackerId];
@@ -123,6 +128,8 @@ export function resolveAttack(
       ammoBinIdForResolved = ammoResult.event.binId;
     }
 
+    const weaponToHitNumber =
+      (weaponData as WeaponAttackDataWithToHit).toHitNumber ?? toHitNumber;
     const attackRoll = diceRoller();
     let hit = attackRoll.total >= weaponToHitNumber;
 
@@ -187,7 +194,7 @@ export function resolveAttack(
     const arcString = firingArcToString(firingArc);
 
     if (hit) {
-      const vehicleResolvedSession = tryResolveVehicleAttackHit({
+      const vehicleResolved = tryResolveVehicleAttackHit({
         session: currentSession,
         attackerId,
         targetId,
@@ -199,10 +206,15 @@ export function resolveAttack(
         ammoBinId: ammoBinIdForResolved,
         targetState,
         diceRoller,
-        d6Roller,
+        d6Roller:
+          criticalD6Roller ??
+          (() => {
+            const roll = diceRoller();
+            return roll.dice[0] ?? 1;
+          }),
       });
-      if (vehicleResolvedSession) {
-        currentSession = vehicleResolvedSession;
+      if (vehicleResolved) {
+        currentSession = vehicleResolved;
         continue;
       }
 
@@ -243,11 +255,16 @@ export function resolveAttack(
         currentSession.currentState.units[targetId]?.damageThisPhase ?? 0;
 
       const damageState = buildDamageStateFromUnit(targetState);
+      const d6Roller = () => {
+        const roll = diceRoller();
+        return roll.dice[0];
+      };
       const damageResult = resolveDamagePipeline(
         damageState,
         location as CombatLocation,
         damage,
         d6Roller,
+        { rollCriticalHits: false },
       );
 
       // Per `integrate-damage-pipeline` tasks 3-5: emit the ordered event
@@ -485,11 +502,8 @@ export function resolveAttack(
           turn,
           GamePhase.WeaponAttack,
           targetId,
-          (damageResult.result.destructionCause as
-            | 'damage'
-            | 'ammo_explosion'
-            | 'pilot_death'
-            | 'shutdown') ?? 'damage',
+          (damageResult.result
+            .destructionCause as IUnitDestroyedPayload['cause']) ?? 'damage',
         );
         currentSession = appendEvent(currentSession, destroyEvent);
       }
@@ -526,13 +540,12 @@ export function resolveAttack(
 export function resolveAllAttacks(
   session: IGameSession,
   diceRoller: DiceRoller = rollDice,
-  d6Roller: D6Roller = () => diceRoller().dice[0],
 ): IGameSession {
   let currentSession = session;
   for (const event of session.events) {
     if (event.type !== GameEventType.AttackDeclared) continue;
     if (event.turn !== session.currentState.turn) continue;
-    currentSession = resolveAttack(currentSession, event, diceRoller, d6Roller);
+    currentSession = resolveAttack(currentSession, event, diceRoller);
   }
   return currentSession;
 }

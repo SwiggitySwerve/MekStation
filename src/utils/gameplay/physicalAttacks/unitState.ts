@@ -1,8 +1,4 @@
-import type {
-  IUnitGameState,
-  MovementConversionMode,
-  MovementMotiveMode,
-} from '@/types/gameplay';
+import type { IUnitGameState, MovementConversionMode } from '@/types/gameplay';
 
 export function isVehicleCrewStunned(
   unit: Pick<IUnitGameState, 'combatState'> | undefined,
@@ -14,7 +10,7 @@ export function isVehicleCrewStunned(
 }
 
 export function normalizedLamConversionMode(
-  value: MovementConversionMode | number | undefined,
+  value: MovementConversionMode | string | number | undefined,
 ): 'mek' | 'airmek' | 'fighter' | 'vehicle' | undefined {
   if (typeof value === 'number') {
     if (value === 0) return 'mek';
@@ -43,7 +39,7 @@ export function normalizedLamConversionMode(
 
 export function isAirborneVTOLOrWiGEForPhysicalAttack(
   unit: Pick<IUnitGameState, 'combatState'> | undefined,
-  movementMode: MovementMotiveMode | undefined,
+  movementMode: string | undefined,
 ): boolean {
   if (movementMode !== 'vtol' && movementMode !== 'wige') return false;
 

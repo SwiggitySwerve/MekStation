@@ -15,6 +15,7 @@ export {
   lockMovement,
   declareAttack,
   lockAttack,
+  requestSpot,
   type ICreateGameSessionOptions,
 } from './gameSessionCore';
 
@@ -30,6 +31,17 @@ export {
   checkAndQueueDamagePSRs,
   resolvePendingPSRs,
 } from './gameSessionPSR';
+
+export { goProne } from './gameSessionProne';
+
+export { activateMovementEnhancement } from './gameSessionMovementEnhancements';
+
+export {
+  torsoTwist,
+  validateTorsoTwist,
+  type TorsoTwistLegality,
+  type TorsoTwistLegalityReason,
+} from './gameSessionTorsoTwist';
 
 export { resolveHeatPhase } from './gameSessionHeat';
 

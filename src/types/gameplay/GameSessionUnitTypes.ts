@@ -13,7 +13,7 @@ import type { TurretType } from '../unit/VehicleInterfaces';
 import type { IAmmoConstructionInit } from './AmmoTypes';
 import type { IEnvironmentalConditions } from './EnvironmentalConditions';
 import type { GameSide } from './GameSessionCoreTypes';
-import type { MovementMotiveMode } from './HexGridInterfaces';
+import type { MovementMotiveMode, RangeBracket } from './HexGridInterfaces';
 
 // Game Configuration
 // =============================================================================
@@ -127,6 +127,11 @@ export interface IGameUnit {
    * for variant-specific destroyed thresholds such as heavy-duty gyros.
    */
   readonly gyroType?: string;
+  /**
+   * Unit mass in tons, projected into combat state for source-backed rules
+   * that compare unit load against terrain or equipment thresholds.
+   */
+  readonly tonnage?: number;
   /** Total heat sinks on unit (default: 10 if not provided) */
   readonly heatSinks?: number;
   /**
@@ -139,6 +144,60 @@ export interface IGameUnit {
    */
   readonly heatSinkType?: 'single' | 'double';
   /**
+   * Triple-strength myomer construction flag. When true, physical damage
+   * helpers double effective weight once the unit reaches heat 9+.
+   */
+  readonly hasTSM?: boolean;
+  /** MASC construction flag; active use is represented separately. */
+  readonly hasMASC?: boolean;
+  /** Supercharger construction flag; active use is represented separately. */
+  readonly hasSupercharger?: boolean;
+  /** MASC active for the current movement declaration. */
+  readonly activeMASC?: boolean;
+  /** Supercharger active for the current movement declaration. */
+  readonly activeSupercharger?: boolean;
+  /** Consecutive previous turns of MASC use, for source-backed failure TNs. */
+  readonly mascTurnsUsed?: number;
+  /** Consecutive previous turns of Supercharger use, for source-backed failure TNs. */
+  readonly superchargerTurnsUsed?: number;
+  /** Source-backed MASC failure-level decay marker copied into combat state. */
+  readonly mascFailureLevelIncreasedLastTurn?: boolean;
+  /** Source-backed Supercharger failure-level decay marker copied into combat state. */
+  readonly superchargerFailureLevelIncreasedLastTurn?: boolean;
+  /** Pilot SPA ids copied into combat state for modifier resolution. */
+  readonly abilities?: readonly string[];
+  /**
+   * Source-backed RPG Toughness numeric crew value copied into combat state
+   * for consciousness checks. Ability aliases named "toughness" do not imply
+   * this value.
+   */
+  readonly pilotToughness?: number;
+  /** SPA designation fields copied into combat state for to-hit resolution. */
+  readonly designatedWeaponType?: string;
+  readonly designatedWeaponCategory?: string;
+  readonly designatedTargetId?: string;
+  readonly designatedRangeBracket?: RangeBracket;
+  /** Unit and weapon quirk ids copied into combat state for modifier resolution. */
+  readonly unitQuirks?: readonly string[];
+  readonly weaponQuirks?: Readonly<Record<string, readonly string[]>>;
+  /**
+   * Explicit source-backed per-unit HQ initiative bonus. MegaMek takes the
+   * best HQ/quirk bonus across the force rather than stacking them.
+   */
+  readonly initiativeHQBonus?: number;
+  /**
+   * Explicit source-backed command initiative bonus, such as a qualifying
+   * cockpit command console or active tech officer. This stacks with the
+   * best HQ/quirk force bonus.
+   */
+  readonly initiativeCommandBonus?: number;
+  /**
+   * Mounted weapon location by runtime weapon id. Optional so legacy setup
+   * paths keep working; hydrated runners and adapters populate it for physical
+   * arm-fired legality checks.
+   */
+  readonly weaponLocationById?: Readonly<Record<string, string>>;
+  /**
    * Ammo bin construction data (one entry per ton of ammo carried).
    * When present, `createGameSession` seeds this unit's `ammoState` so
    * the attack resolver can consume bins per fire. When absent, the
@@ -148,6 +207,17 @@ export interface IGameUnit {
    * data per `wire-ammo-consumption`.
    */
   readonly ammoConstruction?: readonly IAmmoConstructionInit[];
+  /**
+   * Optional per-location armor type projected into combat state. Producers
+   * may supply a single uniform armor type across all locations or a richer
+   * per-location map; missing keys behave as standard armor.
+   */
+  readonly armorTypeByLocation?: Readonly<Record<string, string>>;
+  /**
+   * Per-location ammo explosion containment projected from construction data
+   * into interactive game sessions. Missing keys mean no CASE protection.
+   */
+  readonly caseProtection?: Readonly<Record<string, 'case' | 'case_ii'>>;
   /**
    * Construction-side `UnitType` (BattleMech / Aerospace / Infantry / Battle
    * Armor / ProtoMech / Vehicle / etc.). Per `wire-combat-behavior-dispatch`
@@ -162,6 +232,96 @@ export interface IGameUnit {
    * construction inputs below — the init-time assertion will throw otherwise.
    */
   readonly unitType?: import('@/types/unit/BattleMechInterfaces').UnitType;
+  /**
+   * Optional construction movement/motion mode copied into combat state for
+   * targetability branches that need VTOL/WIGE-like airborne behavior without
+   * widening top-level UnitType.
+   */
+  readonly motionType?: string;
+  /**
+   * Optional BattleMech chassis posture copied into combat state for physical
+   * legality gates. Undefined preserves legacy synthetic biped fixtures.
+   */
+  readonly isQuad?: boolean;
+  /**
+   * Optional arm-posture state copied into combat state. Explicit true blocks
+   * source-backed push declarations with rear-flipped arms.
+   */
+  readonly armsFlipped?: boolean;
+  /**
+   * Optional transport/passenger state copied into combat state. Explicit true
+   * blocks source-backed physical target declarations against this unit.
+   */
+  readonly isPassenger?: boolean;
+  /**
+   * Optional swarm-attack state copied into combat state. Explicit true blocks
+   * source-backed physical target declarations against this unit.
+   */
+  readonly isSwarming?: boolean;
+  /**
+   * Optional death-from-above attack state copied into combat state. Explicit
+   * true blocks source-backed physical target declarations against this unit.
+   */
+  readonly isMakingDFA?: boolean;
+  /**
+   * Optional displacement attack state copied into combat state. Explicit true
+   * blocks source-backed charge/DFA target declarations against this unit.
+   */
+  readonly isMakingDisplacementAttack?: boolean;
+  /**
+   * Optional push lifecycle state copied into combat state. Push declarations
+   * use this plus `displacementAttackTargetId` to distinguish counter-pushes.
+   */
+  readonly isPushing?: boolean;
+  /**
+   * Optional target id of this unit's active displacement attack. Push legality
+   * allows counter-pushes only when this id points at the new attacker.
+   */
+  readonly displacementAttackTargetId?: string;
+  /**
+   * Optional attacker id whose charge/DFA/push displacement currently targets
+   * this unit. Charge/DFA reject when another attacker already owns it.
+   */
+  readonly targetedByDisplacementAttackerId?: string;
+  /**
+   * Optional airborne state copied into combat state. Explicit true blocks
+   * source-backed physical target declarations against this unit.
+   */
+  readonly isAirborne?: boolean;
+  /**
+   * Optional building occupancy identifier copied into combat state. Explicit
+   * ids allow source-backed physical target declarations only from the same
+   * building.
+   */
+  readonly occupiedBuildingId?: string;
+  /**
+   * Optional evasion state copied into combat state. Explicit true blocks
+   * source-backed physical attack declarations by this unit.
+   */
+  readonly isEvading?: boolean;
+  /**
+   * Optional source-backed target evasion to-hit bonus copied into combat
+   * state. Undefined keeps the normal +1 for explicit evading targets.
+   */
+  readonly evasionBonus?: number;
+  /**
+   * Optional current-turn sprint state copied into combat state. Declared
+   * TacOps Sprint sets this state for target-sprinted to-hit relief and
+   * sprinting-attacker invalidation.
+   */
+  readonly sprintedThisTurn?: boolean;
+  /**
+   * Optional end-of-turn cargo interaction state copied into combat state.
+   * Explicit true blocks source-backed physical attack declarations by this
+   * unit while it is loading or unloading cargo.
+   */
+  readonly isLoadingOrUnloadingCargo?: boolean;
+  /**
+   * Optional board identity copied into combat state. When both attacker and
+   * target provide explicit ids, source-backed physical declarations require
+   * them to match.
+   */
+  readonly boardId?: string;
   /**
    * Per-type construction inputs consumed by `createInitialUnitState` to
    * build `combatState` via `create{Type}CombatState` factories. Each block

@@ -23,12 +23,49 @@ export function dispatchToEngine(
       );
       return;
     }
+    case 'Stand': {
+      session.attemptStandUp(intent.unitId);
+      return;
+    }
+    case 'GoProne': {
+      session.goProne(intent.unitId);
+      return;
+    }
+    case 'ActivateMovementEnhancement': {
+      session.activateMovementEnhancement(intent.unitId, intent.enhancement);
+      return;
+    }
+    case 'TorsoTwist': {
+      session.torsoTwist(intent.unitId, intent.secondaryFacing as Facing);
+      return;
+    }
     case 'Attack': {
       session.applyAttack(intent.attackerId, intent.targetId, intent.weaponIds);
       return;
     }
+    case 'Physical': {
+      session.applyPhysicalAttack(
+        intent.attackerId,
+        intent.targetId,
+        intent.attackType,
+        intent.limb,
+      );
+      return;
+    }
+    case 'RequestSpot': {
+      session.requestSpot(intent.unitId, intent.targetId);
+      return;
+    }
     case 'AdvancePhase': {
       session.advancePhase();
+      return;
+    }
+    case 'Eject': {
+      session.ejectUnit(intent.unitId);
+      return;
+    }
+    case 'Withdraw': {
+      session.declareWithdrawal(intent.unitId, intent.edge);
       return;
     }
     case 'Concede': {
@@ -67,6 +104,12 @@ export function parseMovementType(kind: string): MovementType {
     case 'run':
     case 'Run':
       return MovementType.Run;
+    case 'sprint':
+    case 'Sprint':
+      return MovementType.Sprint;
+    case 'evade':
+    case 'Evade':
+      return MovementType.Evade;
     case 'jump':
     case 'Jump':
       return MovementType.Jump;

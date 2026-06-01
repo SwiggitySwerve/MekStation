@@ -152,6 +152,8 @@ function colorForMovementType(type: MovementType): string {
     case MovementType.Walk:
       return HEX_COLORS.movementRangeWalk;
     case MovementType.Run:
+    case MovementType.Sprint:
+    case MovementType.Evade:
       return HEX_COLORS.movementRangeRun;
     case MovementType.Jump:
       return HEX_COLORS.movementRangeJump;

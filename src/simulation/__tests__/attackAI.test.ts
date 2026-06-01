@@ -73,6 +73,23 @@ describe('AttackAI', () => {
       expect(validTargets[0].unitId).toBe('target-1');
     });
 
+    it('should include targets inside a weapon extreme range', () => {
+      const attackAI = new AttackAI();
+      const attacker = createMockUnit({
+        position: { q: 0, r: 0 },
+        weapons: [createMockWeapon({ longRange: 9, extremeRange: 18 })],
+      });
+      const targets: IAIUnitState[] = [
+        createMockUnit({ unitId: 'target-extreme', position: { q: 12, r: 0 } }),
+      ];
+
+      const validTargets = attackAI.getValidTargets(attacker, targets);
+
+      expect(validTargets.map((target) => target.unitId)).toEqual([
+        'target-extreme',
+      ]);
+    });
+
     it('should filter out destroyed targets', () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({ position: { q: 0, r: 0 } });
@@ -238,6 +255,22 @@ describe('AttackAI', () => {
 
       expect(weapons.length).toBe(1);
       expect(weapons[0].id).toBe('long');
+    });
+
+    it('should keep weapons that can reach through extreme range', () => {
+      const attackAI = new AttackAI();
+      const attacker = createMockUnit({
+        position: { q: 0, r: 0 },
+        weapons: [
+          createMockWeapon({ id: 'standard', longRange: 9 }),
+          createMockWeapon({ id: 'extreme', longRange: 9, extremeRange: 18 }),
+        ],
+      });
+      const target = createMockUnit({ position: { q: 12, r: 0 } });
+
+      const weapons = attackAI.selectWeapons(attacker, target);
+
+      expect(weapons.map((weapon) => weapon.id)).toEqual(['extreme']);
     });
 
     it('should exclude destroyed weapons', () => {

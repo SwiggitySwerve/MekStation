@@ -55,15 +55,20 @@ describe('Scenario: partial cover LOS (P6b — task 6.13)', () => {
     expect(mod).toBeNull();
   });
 
-  it('hull-down adds MegaMek +2 when partial cover is already active', () => {
+  it('hull-down modifier replaces normal partial cover when both are active', () => {
+    // MegaMek's ComputeTerrainMods treats hull-down as a stronger cover
+    // modifier. MekStation suppresses normal partial cover here so one
+    // terrain-cover modifier is emitted.
     const mod = calculateHullDownModifier(true, true);
     expect(mod).not.toBeNull();
     expect(mod!.value).toBe(2);
   });
 
-  it('hull-down does not add a modifier without LOS/terrain cover', () => {
+  it('hull-down adds +2 when partial cover is NOT active', () => {
+    // Without partial cover, hull-down on its own contributes +2.
     const mod = calculateHullDownModifier(true, false);
-    expect(mod).toBeNull();
+    expect(mod).not.toBeNull();
+    expect(mod!.value).toBe(2);
   });
 
   // =============================================================================

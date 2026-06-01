@@ -34,6 +34,7 @@ import {
   rollInitiative,
   declareMovement,
   lockMovement,
+  lockAttack,
   replayToSequence,
   replayToTurn,
   generateGameLog,
@@ -102,6 +103,10 @@ function createMovementPhaseSession(): IGameSession {
   // Advance to movement phase
   session = advancePhase(session);
   return session;
+}
+
+function createWeaponAttackPhaseSession(): IGameSession {
+  return advancePhase(createMovementPhaseSession());
 }
 
 // =============================================================================
@@ -710,6 +715,89 @@ describe('canAdvancePhase', () => {
 });
 
 // =============================================================================
+// lockAttack reveal boundary Tests
+// =============================================================================
+
+describe('lockAttack', () => {
+  it('should not reveal attacks until every active unit has locked', () => {
+    let session = createWeaponAttackPhaseSession();
+
+    session = lockAttack(session, 'player-1');
+
+    expect(
+      session.events.some(
+        (event) => event.type === GameEventType.AttacksRevealed,
+      ),
+    ).toBe(false);
+    expect(session.currentState.units['player-1'].lockState).toBe(
+      LockState.Locked,
+    );
+  });
+
+  it('should emit AttacksRevealed after the last active unit locks', () => {
+    let session = createWeaponAttackPhaseSession();
+
+    session = lockAttack(session, 'player-1');
+    session = lockAttack(session, 'player-2');
+    session = lockAttack(session, 'opponent-1');
+    session = lockAttack(session, 'opponent-2');
+
+    const revealEvent = session.events.findLast(
+      (event) => event.type === GameEventType.AttacksRevealed,
+    );
+    expect(revealEvent).toBeDefined();
+    expect(revealEvent?.sequence).toBe(session.events.length - 1);
+    expect(revealEvent?.visibility).toBe('public');
+    expect(revealEvent?.payload).toEqual({
+      unitIds: ['opponent-1', 'opponent-2', 'player-1', 'player-2'],
+      attackCount: 0,
+    });
+    expect(session.currentState.units['player-1'].lockState).toBe(
+      LockState.Revealed,
+    );
+    expect(session.currentState.units['opponent-2'].lockState).toBe(
+      LockState.Revealed,
+    );
+    expect(canAdvancePhase(session)).toBe(true);
+  });
+
+  it('should include only current-turn AttackDeclared records in reveal count', () => {
+    let session = createWeaponAttackPhaseSession();
+    session = appendEvent(session, {
+      id: 'older-attack',
+      gameId: session.id,
+      sequence: session.events.length,
+      timestamp: '2026-05-26T00:00:00.000Z',
+      type: GameEventType.AttackDeclared,
+      turn: session.currentState.turn - 1,
+      phase: GamePhase.WeaponAttack,
+      actorId: 'player-1',
+      payload: {},
+    } as IGameEvent);
+    session = appendEvent(session, {
+      id: 'current-attack',
+      gameId: session.id,
+      sequence: session.events.length,
+      timestamp: '2026-05-26T00:00:00.000Z',
+      type: GameEventType.AttackDeclared,
+      turn: session.currentState.turn,
+      phase: GamePhase.WeaponAttack,
+      actorId: 'player-1',
+      payload: {},
+    } as IGameEvent);
+
+    for (const unitId of ['player-1', 'player-2', 'opponent-1', 'opponent-2']) {
+      session = lockAttack(session, unitId);
+    }
+
+    const revealEvent = session.events.findLast(
+      (event) => event.type === GameEventType.AttacksRevealed,
+    );
+    expect(revealEvent?.payload).toMatchObject({ attackCount: 1 });
+  });
+});
+
+// =============================================================================
 // roll2d6 Tests
 // =============================================================================
 
@@ -802,16 +890,19 @@ describe('rollInitiative', () => {
     expect(() => rollInitiative(session)).toThrow('Not in initiative phase');
   });
 
-  it('should add initiative_rolled event', () => {
+  it('should add initiative roll and explicit initiative order events', () => {
     const session = createActiveSession();
     const eventCount = session.events.length;
 
     const rolled = rollInitiative(session);
 
-    expect(rolled.events).toHaveLength(eventCount + 1);
-    expect(rolled.events[rolled.events.length - 1].type).toBe(
-      'initiative_rolled',
-    );
+    expect(rolled.events).toHaveLength(eventCount + 2);
+    expect(rolled.events.at(-2)?.type).toBe(GameEventType.InitiativeRolled);
+    expect(rolled.events.at(-1)?.type).toBe(GameEventType.InitiativeOrderSet);
+    expect(rolled.events.at(-1)?.payload).toMatchObject({
+      winner: rolled.currentState.initiativeWinner,
+      firstMover: rolled.currentState.firstMover,
+    });
   });
 
   it('should set initiative winner when player rolls higher', () => {
@@ -893,6 +984,206 @@ describe('rollInitiative', () => {
 
     // Opponent won, so player moves first by default
     expect(rolled.currentState.firstMover).toBe(GameSide.Player);
+  });
+
+  it('applies source-backed force initiative quirks without changing raw dice fields', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({
+        id: 'player-1',
+        side: GameSide.Player,
+        unitQuirks: ['battle_computer', 'command_mech'],
+      }),
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const dice = [1, 1, 2, 3];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
+
+    expect(rolled.currentState.initiativeWinner).toBe(GameSide.Opponent);
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 5,
+      playerModifier: 2,
+      opponentModifier: 0,
+      playerTotal: 4,
+      opponentTotal: 5,
+      winner: GameSide.Opponent,
+    });
+  });
+
+  it('applies explicit command initiative bonus with the best HQ or quirk bonus', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({
+        id: 'player-1',
+        side: GameSide.Player,
+        initiativeCommandBonus: 2,
+        unitQuirks: ['battle_computer'],
+      }),
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const dice = [1, 1, 2, 3];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
+
+    expect(rolled.currentState.initiativeWinner).toBe(GameSide.Player);
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 5,
+      playerModifier: 4,
+      playerTotal: 6,
+      winner: GameSide.Player,
+    });
+  });
+
+  it('does not stack HQ and quirk force initiative bonuses', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({
+        id: 'player-1',
+        side: GameSide.Player,
+        initiativeHQBonus: 2,
+        unitQuirks: ['battle_computer'],
+      }),
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const dice = [1, 1, 2, 3];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
+
+    expect(rolled.currentState.initiativeWinner).toBe(GameSide.Opponent);
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 5,
+      playerModifier: 2,
+      playerTotal: 4,
+      winner: GameSide.Opponent,
+    });
+  });
+
+  it('does not infer initiative equipment bonuses from command-looking metadata', () => {
+    const config = createTestConfig();
+    const commandLookingUnit = {
+      ...createTestUnit({
+        id: 'player-1',
+        name: 'Command Console HQ',
+        side: GameSide.Player,
+        unitRef: 'command-console-hq',
+      }),
+      cockpitType: 'Command Console',
+      equipment: [
+        {
+          id: 'Communications Equipment',
+          location: 'HEAD',
+          tons: 7,
+        },
+      ],
+    } as IGameUnit & {
+      readonly cockpitType: string;
+      readonly equipment: readonly {
+        readonly id: string;
+        readonly location: string;
+        readonly tons: number;
+      }[];
+    };
+    const units = [
+      commandLookingUnit,
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const dice = [1, 1, 2, 3];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
+
+    expect(rolled.currentState.initiativeWinner).toBe(GameSide.Opponent);
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 5,
+      winner: GameSide.Opponent,
+    });
+    expect(event.payload).not.toHaveProperty('playerModifier');
+    expect(event.payload).not.toHaveProperty('opponentModifier');
+    expect(event.payload).not.toHaveProperty('playerTotal');
+    expect(event.payload).not.toHaveProperty('opponentTotal');
+  });
+
+  it('replaces the requested side roll when active Tactical Genius is present', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({
+        id: 'player-1',
+        side: GameSide.Player,
+        abilities: ['tactical_genius'],
+      }),
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const dice = [1, 1, 6, 1, 6, 6];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1, {
+      tacticalGeniusRerollSide: GameSide.Player,
+    });
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
+
+    expect(rolled.currentState.initiativeWinner).toBe(GameSide.Player);
+    expect(event.payload).toMatchObject({
+      playerOriginalRoll: 2,
+      opponentOriginalRoll: 7,
+      playerRoll: 12,
+      opponentRoll: 7,
+      tacticalGeniusRerollSide: GameSide.Player,
+      winner: GameSide.Player,
+    });
+  });
+
+  it('ignores a Tactical Genius reroll request for a side without the SPA', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({ id: 'player-1', side: GameSide.Player }),
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const dice = [1, 1, 6, 1, 6, 6];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1, {
+      tacticalGeniusRerollSide: GameSide.Player,
+    });
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
+
+    expect(rolled.currentState.initiativeWinner).toBe(GameSide.Opponent);
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 7,
+      winner: GameSide.Opponent,
+    });
+    expect(event.payload).not.toHaveProperty('tacticalGeniusRerollSide');
+    expect(dice).toEqual([6, 6]);
   });
 });
 
@@ -1277,6 +1568,7 @@ describe('generateGameLog', () => {
     const log = generateGameLog(session);
 
     expect(log).toContain('Initiative rolled');
+    expect(log).toContain('Initiative order set');
   });
 
   it('should include movement_declared event', () => {
@@ -1306,6 +1598,17 @@ describe('generateGameLog', () => {
 
     expect(log).toContain('player-1');
     expect(log).toContain('locked movement');
+  });
+
+  it('should include attacks_revealed event', () => {
+    let session = createWeaponAttackPhaseSession();
+    for (const unitId of ['player-1', 'player-2', 'opponent-1', 'opponent-2']) {
+      session = lockAttack(session, unitId);
+    }
+
+    const log = generateGameLog(session);
+
+    expect(log).toContain('Attacks revealed');
   });
 
   it('should format log lines with turn and phase', () => {

@@ -6,9 +6,9 @@ import { hasReachedEdge } from '@/simulation/ai/RetreatAI';
 import {
   GamePhase,
   GameSide,
-  LockState,
   type IGameEvent,
   type IGameSession,
+  type IUnitGameState,
 } from '@/types/gameplay/GameSessionInterfaces';
 import {
   Facing,
@@ -22,29 +22,33 @@ import {
 } from '@/utils/gameplay/gameEvents';
 import {
   declareAttack,
+  declareMovement,
   declarePhysicalAttack,
   lockAttack,
   lockMovement,
 } from '@/utils/gameplay/gameSession';
 import {
-  hullDownLegWeaponBlockedReason,
-  hullDownVehicleFrontWeaponBlockedReason,
-  isRepresentedVehicleAttacker,
-} from '@/utils/gameplay/hullDownRestrictions';
-import { calculateLOS } from '@/utils/gameplay/lineOfSight';
-import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
-import { buildPhysicalTerrainContext } from '@/utils/gameplay/physicalAttacks/terrain';
-import {
-  gameUnitUsesMekHorizontalCover,
-  gameUnitUsesMekWaterCover,
-  getTargetCoverInfo,
-} from '@/utils/gameplay/terrainCover';
-import { calculateTargetTerrainModifierFromHex } from '@/utils/gameplay/toHit';
-import { weaponPassesRepresentedWaterAttackRules } from '@/utils/gameplay/underwaterAttacks';
+  buildMovementEventPath,
+  maxMovementCostForCapability,
+} from '@/utils/gameplay/movement/eventPath';
+import { validateMovement } from '@/utils/gameplay/movement/validation';
+import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
 import { toAIUnitState } from './GameEngine.helpers';
-import { applyInteractiveSessionMovement } from './InteractiveSession.actions';
+
+function elevationDifferenceBetween(
+  grid: IHexGrid,
+  attacker: IUnitGameState,
+  target: IUnitGameState | undefined,
+): number {
+  if (!target) return 0;
+  const attackerHex = grid.hexes.get(
+    `${attacker.position.q},${attacker.position.r}`,
+  );
+  const targetHex = grid.hexes.get(`${target.position.q},${target.position.r}`);
+  return (targetHex?.elevation ?? 0) - (attackerHex?.elevation ?? 0);
+}
 
 export interface IInteractiveSessionAIContext {
   readonly side: GameSide;
@@ -96,22 +100,55 @@ export function runInteractiveSessionAITurn(
         cap,
       );
       if (moveEvt) {
-        setSession(
-          applyInteractiveSessionMovement({
-            session,
-            grid: context.grid,
-            movementByUnit: context.movementByUnit,
+        const validation = validateMovement(
+          context.grid,
+          {
             unitId,
-            to: moveEvt.payload.to,
-            facing: moveEvt.payload.facing as Facing,
-            movementType: moveEvt.payload.movementType,
-          }),
+            coord: refreshedUnit.position,
+            facing: refreshedUnit.facing,
+            prone: refreshedUnit.prone ?? false,
+            isStuck: refreshedUnit.isStuck ?? false,
+          },
+          moveEvt.payload.to,
+          moveEvt.payload.facing as Facing,
+          moveEvt.payload.movementType,
+          cap,
+          refreshedUnit.heat,
+          undefined,
+          { pilotAbilities: refreshedUnit.abilities },
         );
-        session = context.getSession();
+        if (!validation.valid) {
+          setSession(lockMovement(session, unitId));
+          emitUnitRetreatedIfNeeded(context, unitId);
+          continue;
+        }
+
+        const eventPath = buildMovementEventPath({
+          grid: context.grid,
+          from: refreshedUnit.position,
+          to: moveEvt.payload.to,
+          movementType: moveEvt.payload.movementType,
+          maxCost: Math.min(
+            validation.mpCost,
+            maxMovementCostForCapability(cap, moveEvt.payload.movementType),
+          ),
+          movementContext: { pilotAbilities: refreshedUnit.abilities },
+        });
+        setSession(
+          declareMovement(
+            session,
+            unitId,
+            refreshedUnit.position,
+            moveEvt.payload.to,
+            moveEvt.payload.facing as Facing,
+            moveEvt.payload.movementType,
+            validation.mpCost,
+            validation.heatGenerated,
+            eventPath,
+          ),
+        );
       }
-      if (session.currentState.units[unitId]?.lockState !== LockState.Locked) {
-        setSession(lockMovement(session, unitId));
-      }
+      setSession(lockMovement(session, unitId));
       emitUnitRetreatedIfNeeded(context, unitId);
     } else if (phase === GamePhase.WeaponAttack) {
       emitRetreatIfNeeded(context, unitId, weapons, gunnery);
@@ -125,92 +162,20 @@ export function runInteractiveSessionAITurn(
           atkEvt.payload.weapons,
           weapons,
           unitId,
+          undefined,
+          {
+            calledShots: atkEvt.payload.calledShots,
+            teammateCalledShots: atkEvt.payload.teammateCalledShots,
+          },
         );
-        const targetHex =
-          session.currentState.units[atkEvt.payload.targetId]?.position;
-        const attackerGameUnit = session.units.find(
-          (entry) => entry.id === unitId,
-        );
-        const attackerIsRepresentedVehicle = isRepresentedVehicleAttacker({
-          unitType: attackerGameUnit?.unitType,
-          combatStateKind: refreshedUnit?.combatState?.kind,
-        });
-        const usableWeaponAttacks = targetHex
-          ? weaponAttacks.filter(
-              (weapon) =>
-                weaponPassesRepresentedWaterAttackRules({
-                  grid: context.grid,
-                  attackerPosition: refreshedUnit?.position ?? unit.position,
-                  targetPosition: targetHex,
-                  weapon,
-                }) &&
-                !hullDownLegWeaponBlockedReason(
-                  refreshedUnit?.hullDown,
-                  weapon,
-                ) &&
-                !hullDownVehicleFrontWeaponBlockedReason(
-                  refreshedUnit?.hullDown,
-                  attackerIsRepresentedVehicle,
-                  weapon,
-                ),
-            )
-          : weaponAttacks.filter(
-              (weapon) =>
-                !hullDownLegWeaponBlockedReason(
-                  refreshedUnit?.hullDown,
-                  weapon,
-                ) &&
-                !hullDownVehicleFrontWeaponBlockedReason(
-                  refreshedUnit?.hullDown,
-                  attackerIsRepresentedVehicle,
-                  weapon,
-                ),
-            );
-        if (usableWeaponAttacks.length === 0) continue;
-        const targetPartialCover = targetHex
-          ? getTargetCoverInfo(
-              context.grid,
-              refreshedUnit?.position ?? unit.position,
-              targetHex,
-              {
-                horizontalCoverEligible: gameUnitUsesMekHorizontalCover(
-                  session.units.find(
-                    (entry) => entry.id === atkEvt.payload.targetId,
-                  ),
-                ),
-                targetHexWaterCoverEligible: gameUnitUsesMekWaterCover(
-                  session.units.find(
-                    (entry) => entry.id === atkEvt.payload.targetId,
-                  ),
-                ),
-              },
-            ).partialCover
-          : false;
-        const targetTerrainModifier = targetHex
-          ? calculateTargetTerrainModifierFromHex(
-              context.grid.hexes.get(`${targetHex.q},${targetHex.r}`),
-            )
-          : null;
-        const directLos = targetHex
-          ? calculateLOS(
-              refreshedUnit?.position ?? unit.position,
-              targetHex,
-              context.grid,
-            )
-          : undefined;
         setSession(
           declareAttack(
             session,
             unitId,
             atkEvt.payload.targetId,
-            usableWeaponAttacks,
+            weaponAttacks,
             3,
             RangeBracket.Short,
-            undefined,
-            targetHex,
-            targetPartialCover,
-            directLos?.hasLOS ? directLos.interveningTerrainEffects : [],
-            targetTerrainModifier,
           ),
         );
       }
@@ -223,14 +188,7 @@ export function runInteractiveSessionAITurn(
         enemies,
       );
       if (physEvt) {
-        const targetState =
-          session.currentState.units[physEvt.payload.targetId] ?? null;
-        const attackerBinding = session.units.find(
-          (entry) => entry.id === physEvt.payload.attackerId,
-        );
-        const targetBinding = session.units.find(
-          (entry) => entry.id === physEvt.payload.targetId,
-        );
+        const targetUnit = session.currentState.units[physEvt.payload.targetId];
         setSession(
           declarePhysicalAttack(
             session,
@@ -241,16 +199,19 @@ export function runInteractiveSessionAITurn(
               attackerTonnage: context.tonnageByUnit.get(unitId) ?? 65,
               pilotingSkill: context.pilotingByUnit.get(unitId) ?? 5,
               hexesMoved: unit.hexesMovedThisTurn,
-              attackerUnitType: attackerBinding?.unitType,
-              attackerMovementMode: attackerBinding?.movementMode,
-              optionalRules: session.config.optionalRules,
-              targetUnitType: targetBinding?.unitType,
-              elevationContext: targetState
-                ? buildPhysicalElevationContext(unit, targetState, context.grid)
-                : undefined,
-              terrainContext: targetState
-                ? buildPhysicalTerrainContext(unit, targetState, context.grid)
-                : undefined,
+              isUnderwater:
+                waterDepthAtPosition(context.grid, unit.position) > 0 ||
+                (targetUnit
+                  ? waterDepthAtPosition(context.grid, targetUnit.position) > 0
+                  : false),
+              pilotAbilities: unit.abilities,
+              unitQuirks: unit.unitQuirks,
+              elevationDifference: elevationDifferenceBetween(
+                context.grid,
+                unit,
+                targetUnit,
+              ),
+              targetMovementComplete: true,
             },
           ),
         );
@@ -295,6 +256,7 @@ function emitUnitRetreatedIfNeeded(
   if (
     !postMoveUnit ||
     postMoveUnit.destroyed ||
+    postMoveUnit.hasEjected ||
     !postMoveUnit.isRetreating ||
     postMoveUnit.hasRetreated ||
     !postMoveUnit.retreatTargetEdge ||
@@ -338,6 +300,7 @@ function buildEnemyAIUnits(
     .filter(
       (unit) =>
         !unit.destroyed &&
+        !session.currentState.units[unit.unitId].hasEjected &&
         session.currentState.units[unit.unitId].side !== side,
     );
 }

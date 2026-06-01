@@ -124,25 +124,8 @@ describe('Scenario: head 3-shot KIA (P6b — task 6.8)', () => {
     // After 3 head hits at 1 damage each: head structure was 3 → 0.
     expect(state.structure.head).toBe(0);
 
-    // The unit MUST be destroyed.
-    //
-    // ENGINE GAP: per `damage-system/spec.md` cause-priority rule, the
-    // canonical cause when the head's structure zeroes is
-    // `'head_destroyed'`. The current `checkUnitDestruction`
-    // implementation in `src/utils/gameplay/damage/destruction.ts`
-    // sets the cause to `'damage'` for ALL fatal-location destruction
-    // (head OR center_torso) without distinguishing the two. The
-    // resolver-side translation layer (P3) only translates engine
-    // 3-hit destruction; head destruction passes through with
-    // `cause: 'damage'`. This gap is recorded in
-    // `notepad/issues.md` for follow-on resolution.
-    //
-    // We assert the OBSERVED engine behaviour here (cause: 'damage')
-    // and document the spec-mismatch in the notepad. When the gap is
-    // closed in a follow-on PR, this assertion flips to
-    // `'head_destroyed'` without touching the rest of the test.
     expect(state.destroyed).toBe(true);
-    expect(['head_destroyed', 'damage']).toContain(state.destructionCause);
+    expect(state.destructionCause).toBe('head_destroyed');
   });
 
   it('damage cap of 3 per hit applies to head — large hits do not over-kill the pilot', () => {
@@ -157,12 +140,9 @@ describe('Scenario: head 3-shot KIA (P6b — task 6.8)', () => {
     expect(result.state.pilotWounds).toBe(1);
     // Head structure zeroed by the capped 3-point hit.
     expect(result.state.structure.head).toBe(0);
-    // Unit destroyed; cause: 'damage' per the engine-gap noted above
-    // (head_destroyed translation deferred — see notepad/issues.md).
+    // Unit destroyed by the capped fatal head structure loss.
     expect(result.state.destroyed).toBe(true);
-    expect(['head_destroyed', 'damage']).toContain(
-      result.state.destructionCause,
-    );
+    expect(result.state.destructionCause).toBe('head_destroyed');
     // Pilot wounds are well under the 6-wound pilot_death threshold —
     // cause is fatal-location, not pilot-death.
     expect(result.state.destructionCause).not.toBe('pilot_death');
@@ -172,9 +152,8 @@ describe('Scenario: head 3-shot KIA (P6b — task 6.8)', () => {
     // Documents the canonical priority interaction in this scenario:
     // standard mech head profile (3 structure) means the head ALWAYS
     // zeroes before the pilot reaches the 6-wound `pilot_death`
-    // threshold. The fatal-location-destroyed branch in
-    // `checkUnitDestruction` runs BEFORE the pilot-wound branch, so
-    // a head-3-shot match-end never observes `cause: 'pilot_death'`.
+    // threshold, so a head-3-shot match-end never observes
+    // `cause: 'pilot_death'`.
     let state = buildPrimedHeadStripped();
     expect(state.structure.head).toBe(3);
 

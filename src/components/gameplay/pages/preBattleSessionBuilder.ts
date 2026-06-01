@@ -89,6 +89,8 @@ function buildGameUnits(
       pilotRef: assignment.pilotId ?? 'Unknown',
       gunnery: getPilotSkills(assignment.pilotId, pilots).gunnery,
       piloting: getPilotSkills(assignment.pilotId, pilots).piloting,
+      heatSinks: playerAdapted[index]?.heatSinks,
+      heatSinkType: playerAdapted[index]?.heatSinkType,
     })),
     ...opponentAssignments.map((assignment, index) => ({
       id: opponentAdapted[index]?.id ?? assignment.unitId ?? assignment.id,
@@ -98,6 +100,8 @@ function buildGameUnits(
       pilotRef: assignment.pilotId ?? 'Unknown',
       gunnery: getPilotSkills(assignment.pilotId, pilots).gunnery,
       piloting: getPilotSkills(assignment.pilotId, pilots).piloting,
+      heatSinks: opponentAdapted[index]?.heatSinks,
+      heatSinkType: opponentAdapted[index]?.heatSinkType,
     })),
   ];
 }

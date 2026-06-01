@@ -6,7 +6,9 @@
  */
 
 import type { CombatLocation } from './CombatLocationTypes';
+import type { IToHitModifier } from './GameSessionAttackEvents';
 import type { WeaponFireMode } from './IndirectFireInterfaces';
+import type { ITerrainFeature } from './TerrainTypes';
 
 // Re-export from construction for backwards compatibility
 import { MechLocation } from '../construction/CriticalSlotAllocation';
@@ -14,7 +16,6 @@ import { VehicleLocation, VTOLLocation } from '../construction/UnitLocation';
 // Re-export from equipment for backwards compatibility
 import { WeaponCategory } from '../equipment/weapons/interfaces';
 import { TurretType } from '../unit/VehicleInterfaces';
-import { IToHitModifier } from './GameSessionInterfaces';
 import { FiringArc, RangeBracket, MovementType } from './HexGridInterfaces';
 
 // Re-export for convenience
@@ -124,6 +125,10 @@ export interface IWeaponAttack {
   readonly clusterSize?: number;
   /** True for represented torpedo weapons that must remain in water. */
   readonly isTorpedo?: boolean;
+  /** Attack declares a TacOps-style called shot. */
+  readonly calledShot?: boolean;
+  /** Called-shot setup was provided by a teammate. */
+  readonly teammateCalledShot?: boolean;
 }
 
 /**
@@ -356,13 +361,16 @@ export interface IDamageResult {
    * `IUnitDamageState` (in `utils/gameplay/damage/types.ts`). All three
    * MUST contain exactly the same 7 values per the
    * `add-combat-fidelity-suite` Phase 0.5 reconciliation.
+   *
+   * Heat shutdown is modeled as lifecycle state rather than a
+   * destruction cause.
    */
   readonly destructionCause?:
     | 'damage'
     | 'ammo_explosion'
     | 'pilot_death'
     | 'engine_destroyed'
-    | 'shutdown'
+    | 'impossible_displacement'
     | 'ct_destroyed'
     | 'head_destroyed';
 }
@@ -648,6 +656,7 @@ export interface IIndirectFire {
 export interface IAttackerState {
   readonly gunnery: number;
   readonly movementType: MovementType;
+  readonly isAirborne?: boolean;
   readonly heat: number;
   readonly damageModifiers: readonly IToHitModifierDetail[];
   readonly pilotWounds?: number;
@@ -655,10 +664,13 @@ export interface IAttackerState {
   readonly actuatorDamage?: IActuatorDamage;
   readonly targetingComputer?: boolean;
   readonly prone?: boolean;
+  readonly isSpotting?: boolean;
   readonly secondaryTarget?: ISecondaryTarget;
   readonly indirectFire?: IIndirectFire;
   readonly calledShot?: boolean;
   readonly teammateCalledShot?: boolean;
+  /** Set false for source-backed BattleMech combat paths that must not apply local called-shot SPA helper reductions. */
+  readonly applyLocalCalledShotAbilityReduction?: boolean;
   readonly abilities?: readonly string[];
   readonly weaponType?: string;
   readonly designatedWeaponType?: string;
@@ -687,7 +699,9 @@ export interface IAttackerState {
  * Target combat state for to-hit calculation.
  */
 export interface ITargetState {
+  readonly unitType?: string;
   readonly movementType: MovementType;
+  readonly isAirborne?: boolean;
   readonly hexesMoved: number;
   readonly prone: boolean;
   readonly immobile: boolean;
@@ -698,6 +712,20 @@ export interface ITargetState {
   readonly weaponQuirks?: Readonly<Record<string, readonly string[]>>;
   readonly abilities?: readonly string[];
   readonly isDodging?: boolean;
+  readonly isEvading?: boolean;
+  /**
+   * Optional source-backed evasion to-hit bonus copied into combat state.
+   * When absent, explicit `isEvading` keeps the normal +1; explicit 0 models
+   * Skilled Evasion cases that create an evading state without a bonus.
+   */
+  readonly evasionBonus?: number;
+  /**
+   * Explicit target movement state for optional TacOps Sprint. Declared
+   * sprint movement and replayed/prehydrated sprint state feed source-backed
+   * to-hit resolution.
+   */
+  readonly sprintedThisTurn?: boolean;
+  readonly terrainFeatures?: readonly ITerrainFeature[];
 }
 
 /**

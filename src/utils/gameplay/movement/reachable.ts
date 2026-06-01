@@ -129,7 +129,10 @@ export function deriveReachableHexes(
   const projectionCostContext = movementCostContextForCapability(
     mpType,
     capability,
-    { optionalRules: ruleOptions.optionalRules },
+    {
+      optionalRules: ruleOptions.optionalRules,
+      pilotAbilities: unit.abilities,
+    },
   );
   const standingCost =
     unit.prone && mpType !== MovementType.Jump
@@ -342,6 +345,7 @@ export function deriveMovementRangeHexForDestination(
       : movementModeForPath(mpType, capability);
   const costContext = movementCostContextForCapability(mpType, capability, {
     optionalRules: ruleOptions.optionalRules,
+    pilotAbilities: unit.abilities,
   });
   const standingCost = unit.prone
     ? getStandingCost(capability, standUpMode)

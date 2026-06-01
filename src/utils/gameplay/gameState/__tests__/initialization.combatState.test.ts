@@ -6,17 +6,14 @@
  * + Discriminated Initialization Assertion). Verifies:
  *   - Each of the four per-type discriminants seeds the matching `combatState`
  *     envelope using the real factory (no mocks).
- *   - Mech / vehicle / capital paths leave `combatState === undefined`.
+ *   - Mech / capital paths leave `combatState === undefined`.
  *   - Missing required fields throw an Error whose message names the unit id
  *     and the missing field(s).
  */
 
 import type { IInfantry } from '@/types/unit/PersonnelInterfaces';
 
-import {
-  VehicleLocation,
-  VTOLLocation,
-} from '@/types/construction/UnitLocation';
+import { VehicleLocation } from '@/types/construction/UnitLocation';
 import {
   Facing,
   GameSide,
@@ -33,7 +30,6 @@ import {
   InfantrySpecialization,
 } from '@/types/unit/PersonnelInterfaces';
 import { ProtoChassis, ProtoLocation } from '@/types/unit/ProtoMechInterfaces';
-import { TurretType } from '@/types/unit/VehicleInterfaces';
 
 import { createInitialUnitState } from '../initialization';
 
@@ -54,12 +50,6 @@ function baseGameUnit(overrides: Partial<IGameUnit> = {}): IGameUnit {
     piloting: 5,
     ...overrides,
   };
-}
-
-function vehicleArmor(
-  values: Record<string, number>,
-): Partial<Record<VehicleLocation | VTOLLocation, number>> {
-  return values as Partial<Record<VehicleLocation | VTOLLocation, number>>;
 }
 
 /** Minimal `IInfantry` shape sufficient for `createInfantryCombatStateFromUnit`. */
@@ -113,6 +103,30 @@ const SAMPLE_AERO_INIT = {
   maxThrust: 8,
 } as const;
 
+const SAMPLE_VEHICLE_ARMOR = {
+  [VehicleLocation.FRONT]: 20,
+  [VehicleLocation.LEFT]: 16,
+  [VehicleLocation.RIGHT]: 16,
+  [VehicleLocation.REAR]: 12,
+  [VehicleLocation.BODY]: 10,
+} as NonNullable<IGameUnit['vehicleInit']>['armor'];
+
+const SAMPLE_VEHICLE_STRUCTURE = {
+  [VehicleLocation.FRONT]: 8,
+  [VehicleLocation.LEFT]: 8,
+  [VehicleLocation.RIGHT]: 8,
+  [VehicleLocation.REAR]: 6,
+  [VehicleLocation.BODY]: 10,
+} as NonNullable<IGameUnit['vehicleInit']>['structure'];
+
+const SAMPLE_VEHICLE_INIT: NonNullable<IGameUnit['vehicleInit']> = {
+  motionType: GroundMotionType.WIGE,
+  originalCruiseMP: 5,
+  armor: SAMPLE_VEHICLE_ARMOR,
+  structure: SAMPLE_VEHICLE_STRUCTURE,
+  altitude: 1,
+} as const;
+
 const SAMPLE_PROTO_INIT = {
   chassisType: ProtoChassis.BIPED,
   hasMainGun: true,
@@ -156,79 +170,157 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     expect(state.combatState).toBeUndefined();
   });
 
-  it('throws when VEHICLE is missing vehicleInit', () => {
+  it('copies optional quad chassis state for BattleMech physical legality gates', () => {
+    const unit = baseGameUnit({ unitType: UnitType.BATTLEMECH, isQuad: true });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.isQuad).toBe(true);
+  });
+
+  it('copies optional flipped-arm state for BattleMech physical legality gates', () => {
     const unit = baseGameUnit({
-      id: 'vehicle-missing',
-      unitType: UnitType.VEHICLE,
+      unitType: UnitType.BATTLEMECH,
+      armsFlipped: true,
     });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.armsFlipped).toBe(true);
+  });
+
+  it('copies optional passenger state for physical targetability gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      isPassenger: true,
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.isPassenger).toBe(true);
+  });
+
+  it('copies optional swarming state for physical targetability gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      isSwarming: true,
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.isSwarming).toBe(true);
+  });
+
+  it('copies optional armor-type state for special armor combat effects', () => {
+    const armorTypeByLocation = { center_torso: 'Reflective' } as const;
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      armorTypeByLocation,
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.armorTypeByLocation).toBe(armorTypeByLocation);
+  });
+
+  it('copies optional DFA-making state for physical targetability gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      isMakingDFA: true,
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.isMakingDFA).toBe(true);
+  });
+
+  it('copies optional displacement attack state for charge and DFA targetability gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      isMakingDisplacementAttack: true,
+      isPushing: true,
+      displacementAttackTargetId: 'target-2',
+      targetedByDisplacementAttackerId: 'attacker-2',
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.isMakingDisplacementAttack).toBe(true);
+    expect(state.isPushing).toBe(true);
+    expect(state.displacementAttackTargetId).toBe('target-2');
+    expect(state.targetedByDisplacementAttackerId).toBe('attacker-2');
+  });
+
+  it('copies optional building occupancy state for physical targetability gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      occupiedBuildingId: 'building-east',
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.occupiedBuildingId).toBe('building-east');
+  });
+
+  it('copies optional airborne state for physical targetability gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      isAirborne: true,
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.isAirborne).toBe(true);
+  });
+
+  it('copies optional evading state for physical attacker legality gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      isEvading: true,
+      evasionBonus: 3,
+      sprintedThisTurn: true,
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.isEvading).toBe(true);
+    expect(state.evasionBonus).toBe(3);
+    expect(state.sprintedThisTurn).toBe(true);
+  });
+
+  it('copies optional cargo interaction state for physical attacker legality gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      isLoadingOrUnloadingCargo: true,
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.isLoadingOrUnloadingCargo).toBe(true);
+  });
+
+  it('copies optional board identity for physical same-board gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      boardId: 'board-alpha',
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.boardId).toBe('board-alpha');
+  });
+
+  it('copies optional mounted weapon locations for physical arm-fire gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      weaponLocationById: {
+        'medium-laser-0': 'RIGHT_ARM',
+        'ac-20-1': 'RIGHT_TORSO',
+      },
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.weaponLocationById).toEqual({
+      'medium-laser-0': 'RIGHT_ARM',
+      'ac-20-1': 'RIGHT_TORSO',
+    });
+  });
+
+  it('requires vehicleInit for VEHICLE combat state seeding', () => {
+    const unit = baseGameUnit({ unitType: UnitType.VEHICLE });
     expect(() => createInitialUnitState(unit, POSITION, Facing.North)).toThrow(
-      /vehicle-missing.*vehicleInit/i,
+      /vehicleInit/,
     );
   });
 
-  it("seeds combatState with kind='vehicle' for represented vehicles", () => {
+  it('copies vehicle motion type into combat state for physical targetability', () => {
     const unit = baseGameUnit({
-      id: 'vehicle-1',
       unitType: UnitType.VEHICLE,
-      vehicleInit: {
-        motionType: GroundMotionType.TRACKED,
-        turretType: TurretType.SINGLE,
-        originalCruiseMP: 4,
-        armor: vehicleArmor({
-          [VehicleLocation.FRONT]: 24,
-          [VehicleLocation.TURRET]: 12,
-        }),
-        structure: vehicleArmor({
-          [VehicleLocation.FRONT]: 12,
-          [VehicleLocation.TURRET]: 6,
-        }),
-      },
+      motionType: GroundMotionType.WIGE,
+      vehicleInit: SAMPLE_VEHICLE_INIT,
     });
     const state = createInitialUnitState(unit, POSITION, Facing.North);
-
+    expect(state.motionType).toBe(GroundMotionType.WIGE);
     expect(state.combatState?.kind).toBe('vehicle');
     if (state.combatState?.kind === 'vehicle') {
-      expect(state.combatState.state.motionType).toBe(GroundMotionType.TRACKED);
-      expect(state.combatState.state.motive.originalCruiseMP).toBe(4);
-      expect(
-        (state.combatState.state.armor as Record<string, number>)[
-          VehicleLocation.FRONT
-        ],
-      ).toBe(24);
-      expect(state.combatState.state.turretType).toBe(TurretType.SINGLE);
-    }
-  });
-
-  it('seeds VTOL vehicle state with altitude', () => {
-    const unit = baseGameUnit({
-      id: 'vtol-1',
-      unitType: UnitType.VTOL,
-      vehicleInit: {
-        motionType: GroundMotionType.VTOL,
-        turretType: TurretType.CHIN,
-        originalCruiseMP: 6,
-        altitude: 3,
-        armor: vehicleArmor({
-          [VTOLLocation.FRONT]: 18,
-          [VTOLLocation.ROTOR]: 2,
-        }),
-        structure: vehicleArmor({
-          [VTOLLocation.FRONT]: 9,
-          [VTOLLocation.ROTOR]: 1,
-        }),
-      },
-    });
-    const state = createInitialUnitState(unit, POSITION, Facing.North);
-
-    expect(state.combatState?.kind).toBe('vehicle');
-    if (state.combatState?.kind === 'vehicle') {
-      expect(state.combatState.state.motionType).toBe(GroundMotionType.VTOL);
-      expect(state.combatState.state.altitude).toBe(3);
-      expect(
-        (state.combatState.state.armor as Record<string, number>)[
-          VTOLLocation.ROTOR
-        ],
-      ).toBe(2);
+      expect(state.combatState.state.motionType).toBe(GroundMotionType.WIGE);
+      expect(state.combatState.state.motive.originalCruiseMP).toBe(5);
+      expect(state.combatState.state.altitude).toBe(1);
     }
   });
 });
@@ -282,36 +374,6 @@ describe('createInitialUnitState — aerospace seeding', () => {
     const state = createInitialUnitState(buildAeroUnit(0), POSITION);
     if (state.combatState?.kind === 'aero') {
       expect(state.combatState.state.altitude).toBe(0);
-      expect(state.combatState.state.currentVelocity).toBe(0);
-      expect(state.combatState.state.nextVelocity).toBe(0);
-      expect(state.combatState.state.airborneState).toBe('grounded');
-    } else {
-      throw new Error('expected aero combatState');
-    }
-  });
-
-  it('honours explicit aerospace velocity fields', () => {
-    const unit = baseGameUnit({
-      id: 'aero-velocity',
-      unitType: UnitType.AEROSPACE,
-      aerospaceInit: {
-        ...SAMPLE_AERO_INIT,
-        altitude: 4,
-        currentVelocity: 7,
-        nextVelocity: 8,
-        airborneState: 'airborne',
-        dogfightWith: 'bandit-1',
-      },
-    });
-    const state = createInitialUnitState(unit, POSITION);
-    if (state.combatState?.kind === 'aero') {
-      expect(state.combatState.state).toMatchObject({
-        altitude: 4,
-        currentVelocity: 7,
-        nextVelocity: 8,
-        airborneState: 'airborne',
-        dogfightWith: 'bandit-1',
-      });
     } else {
       throw new Error('expected aero combatState');
     }

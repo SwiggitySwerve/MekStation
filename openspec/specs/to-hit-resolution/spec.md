@@ -1163,54 +1163,53 @@ same `IAttackPreview`.
 - **AND** the next real dice roll SHALL produce the same value it
   would have produced without the preview call
 
-### Requirement: ECM To-Hit Modifier
+### Requirement: ECM Guidance Suppression
 
-The to-hit calculator SHALL apply a `+1 to-hit` modifier when a weapon attack's guidance system is degraded by an active ECM bubble. The four guidance types covered are C3-linked weapons (link broken), Artemis-IV-guided LRM/SRM (lock degraded), targeting-computer-assisted weapons (TC degraded), and NARC-linked weapons (homing degraded). The modifier is positional — it depends on whether the shooter, target, or both are inside an `EcmCoverageMap` bubble for the relevant guidance type.
+The to-hit and combat pipeline SHALL NOT apply a generic `+1 ECM`
+to-hit modifier. ECM SHALL suppress source-backed electronic guidance
+benefits where MegaMek does: C3 range sharing, Artemis missile cluster
+bonuses, NARC/iNARC missile cluster bonuses, iNARC Homing to-hit relief,
+and optional PLAYTEST_3 NARC to-hit relief. Targeting-computer direct-fire
+modifiers SHALL remain independent of ECM unless a future source-backed
+rule proves otherwise.
 
 **Priority**: High
 
-#### Scenario: C3-linked weapon firing with shooter inside an ECM bubble
+#### Scenario: C3 range sharing is denied by ECM
 
-**GIVEN** a unit equipped with a C3-linked PPC inside an ECM bubble
-**AND** a target outside the bubble
+**GIVEN** a unit using C3 range sharing
+**AND** its C3 link is disrupted by ECM
 **WHEN** the to-hit calculator resolves the attack
-**THEN** the calculator SHALL add a `+1` modifier with `reason: 'c3-broken'`
-**AND** the modifier SHALL stack additively with existing range / movement / terrain / heat modifiers
+**THEN** the calculator SHALL use the attacker's own range bracket
+**AND** the calculator SHALL NOT add a generic `ECM` line item
 
-#### Scenario: Artemis-IV-guided LRM firing at target inside an ECM bubble
+#### Scenario: Artemis guidance is suppressed without a generic to-hit penalty
 
-**GIVEN** a unit equipped with Artemis-IV-LRM-15 firing at a target inside an ECM bubble
-**AND** the shooter is outside the bubble
+**GIVEN** an Artemis-capable missile weapon firing through ECM-disrupted
+guidance
+**WHEN** the attack is declared or resolved
+**THEN** the pipeline SHALL suppress the Artemis cluster guidance benefit
+**AND** the declared to-hit breakdown SHALL NOT include `ECM (+1)` or any
+generic ECM to-hit modifier
+
+#### Scenario: NARC and iNARC guidance is suppressed without a generic to-hit penalty
+
+**GIVEN** a NARC- or iNARC-guided missile attack against a target protected
+by ECM
+**WHEN** the attack is declared or resolved
+**THEN** the pipeline SHALL suppress NARC/iNARC cluster guidance benefits
+and iNARC Homing to-hit relief
+**AND** the declared to-hit breakdown SHALL NOT include `ECM (+1)` or any
+generic ECM to-hit modifier
+
+#### Scenario: Targeting-computer modifier is not ECM-gated
+
+**GIVEN** a targeting-computer-assisted direct-fire weapon
+**AND** the shooter is inside an ECM bubble
 **WHEN** the to-hit calculator resolves the attack
-**THEN** the calculator SHALL add a `+1` modifier with `reason: 'artemis-degraded'`
-
-#### Scenario: TC-assisted weapon firing with shooter inside an ECM bubble
-
-**GIVEN** a unit equipped with a TC-assisted ER large laser inside an ECM bubble
-**AND** firing at any target (inside or outside the bubble)
-**WHEN** the to-hit calculator resolves the attack
-**THEN** the calculator SHALL add a `+1` modifier with `reason: 'tc-degraded'`
-
-#### Scenario: NARC-linked weapon firing at NARCd target inside an ECM bubble
-
-**GIVEN** a unit firing a NARC-linked SRM at a target carrying a NARC beacon
-**AND** the target is inside an ECM bubble
-**WHEN** the to-hit calculator resolves the attack
-**THEN** the calculator SHALL add a `+1` modifier with `reason: 'narc-degraded'`
-
-#### Scenario: Non-electronic weapon fires unaffected by ECM
-
-**GIVEN** a unit firing a standard medium laser (no electronic guidance)
-**AND** the shooter and/or target is inside an ECM bubble
-**WHEN** the to-hit calculator resolves the attack
-**THEN** the calculator SHALL NOT add any ECM modifier
-**AND** the to-hit roll SHALL be unchanged from the previous (pre-fix) behavior
-
-#### Scenario: Modifier appears in the post-resolve breakdown
-
-**GIVEN** an attack to which the ECM modifier was applied
-**WHEN** the result is rendered in the after-combat report
-**THEN** the modifier SHALL appear as a line item with the `reason` label, so the operator can see why the to-hit was elevated
+**THEN** the targeting-computer modifier SHALL be evaluated by the normal
+targeting-computer rules
+**AND** the calculator SHALL NOT add a generic targeting-computer ECM penalty
 
 ## Cross-References
 

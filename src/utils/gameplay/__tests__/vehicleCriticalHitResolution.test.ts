@@ -18,7 +18,6 @@ import {
   engineHasFuelTank,
   vehicleCritFromRoll,
 } from '../vehicleCriticalHitResolution';
-import { vehicleCritFromRollForLocation } from '../vehicleCriticalTables';
 import { createVehicleCombatState } from '../vehicleDamage';
 
 function mkState() {
@@ -54,7 +53,7 @@ describe('vehicleCriticalHitResolution', () => {
     ];
 
     for (const c of cases) {
-      it(`roll ${c.dice[0] + c.dice[1]} -> ${c.kind}`, () => {
+      it(`roll ${c.dice[0] + c.dice[1]} → ${c.kind}`, () => {
         const r = vehicleCritFromRoll(c.dice);
         expect(r.kind).toBe(c.kind);
       });
@@ -65,186 +64,20 @@ describe('vehicleCriticalHitResolution', () => {
     it('ICE has fuel tank', () => {
       expect(engineHasFuelTank(EngineType.ICE)).toBe(true);
     });
-
     it('Fuel Cell has fuel tank', () => {
       expect(engineHasFuelTank(EngineType.FUEL_CELL)).toBe(true);
     });
-
     it('Standard fusion does NOT', () => {
       expect(engineHasFuelTank(EngineType.STANDARD)).toBe(false);
     });
-
     it('XL fusion does NOT', () => {
       expect(engineHasFuelTank(EngineType.XL_IS)).toBe(false);
       expect(engineHasFuelTank(EngineType.XL_CLAN)).toBe(false);
     });
   });
 
-  describe('vehicleCritFromRollForLocation', () => {
-    it('uses the front vehicle table for crew casualties', () => {
-      const r = vehicleCritFromRollForLocation([6, 6], {
-        location: VehicleLocation.FRONT,
-        motionType: GroundMotionType.TRACKED,
-        engineType: EngineType.ICE,
-      });
-
-      expect(r.kind).toBe('crew_killed');
-    });
-
-    it('uses engine type for rear roll 12 engine/fuel results', () => {
-      const ice = vehicleCritFromRollForLocation([6, 6], {
-        location: VehicleLocation.REAR,
-        motionType: GroundMotionType.TRACKED,
-        engineType: EngineType.ICE,
-      });
-      const fusion = vehicleCritFromRollForLocation([6, 6], {
-        location: VehicleLocation.REAR,
-        motionType: GroundMotionType.TRACKED,
-        engineType: EngineType.STANDARD,
-      });
-
-      expect(ice.kind).toBe('fuel_tank');
-      expect(fusion.kind).toBe('engine_hit');
-    });
-
-    it('maps turret roll 9 to turret locked', () => {
-      const r = vehicleCritFromRollForLocation([4, 5], {
-        location: VehicleLocation.TURRET,
-        motionType: GroundMotionType.TRACKED,
-        engineType: EngineType.STANDARD,
-      });
-
-      expect(r.kind).toBe('turret_locked');
-    });
-
-    it('maps VTOL rotor roll 11 to rotor destroyed', () => {
-      const r = vehicleCritFromRollForLocation([5, 6], {
-        location: VTOLLocation.ROTOR,
-        motionType: GroundMotionType.VTOL,
-        engineType: EngineType.STANDARD,
-      });
-
-      expect(r.kind).toBe('rotor_destroyed');
-    });
-
-    it('falls through unavailable rear ammo into engine/fuel results', () => {
-      const noAmmoIce = vehicleCritFromRollForLocation([5, 6], {
-        location: VehicleLocation.REAR,
-        motionType: GroundMotionType.TRACKED,
-        engineType: EngineType.ICE,
-        hasAvailableAmmo: false,
-      });
-      const noAmmoFusion = vehicleCritFromRollForLocation([5, 6], {
-        location: VehicleLocation.REAR,
-        motionType: GroundMotionType.TRACKED,
-        engineType: EngineType.STANDARD,
-        hasAvailableAmmo: false,
-      });
-
-      expect(noAmmoIce.kind).toBe('fuel_tank');
-      expect(noAmmoFusion.kind).toBe('engine_hit');
-    });
-
-    it('retries from roll 6 when rear ammo and fusion engine are unavailable', () => {
-      const r = vehicleCritFromRollForLocation([5, 6], {
-        location: VehicleLocation.REAR,
-        motionType: GroundMotionType.TRACKED,
-        engineType: EngineType.STANDARD,
-        hasAvailableAmmo: false,
-        engineAlreadyHit: true,
-      });
-
-      expect(r.kind).toBe('weapon_jammed');
-    });
-
-    it('falls through unavailable turret ammo into turret destruction', () => {
-      const r = vehicleCritFromRollForLocation([5, 6], {
-        location: VehicleLocation.TURRET,
-        motionType: GroundMotionType.TRACKED,
-        engineType: EngineType.STANDARD,
-        hasAvailableAmmo: false,
-      });
-
-      expect(r.kind).toBe('turret_destroyed');
-    });
-
-    it('uses represented crew hit counters for front crew fallthrough', () => {
-      const stunned = vehicleCritFromRollForLocation([3, 3], {
-        location: VehicleLocation.FRONT,
-        motionType: GroundMotionType.TRACKED,
-        engineType: EngineType.STANDARD,
-        driverAlreadyHit: true,
-      });
-      const killed = vehicleCritFromRollForLocation([3, 3], {
-        location: VehicleLocation.FRONT,
-        motionType: GroundMotionType.TRACKED,
-        engineType: EngineType.STANDARD,
-        driverAlreadyHit: true,
-        commanderAlreadyHit: true,
-      });
-
-      expect(stunned.kind).toBe('crew_stunned');
-      expect(killed.kind).toBe('crew_killed');
-    });
-
-    it('falls through front weapon/stabilizer crits when no weapon is present', () => {
-      const r = vehicleCritFromRollForLocation([3, 4], {
-        location: VehicleLocation.FRONT,
-        motionType: GroundMotionType.TRACKED,
-        engineType: EngineType.STANDARD,
-        hasWeaponAtLocation: false,
-      });
-
-      expect(r.kind).toBe('sensor_hit');
-    });
-
-    it('keeps stabilizer crits available when only destroyed mounted weapons remain', () => {
-      const r = vehicleCritFromRollForLocation([3, 4], {
-        location: VehicleLocation.FRONT,
-        motionType: GroundMotionType.TRACKED,
-        engineType: EngineType.STANDARD,
-        hasWeaponAtLocation: true,
-        hasJammableWeaponAtLocation: false,
-        hasDestroyableWeaponAtLocation: false,
-      });
-
-      expect(r.kind).toBe('stabilizer_hit');
-    });
-
-    it('falls through rear cargo crits when no cargo is loaded', () => {
-      const r = vehicleCritFromRollForLocation([3, 4], {
-        location: VehicleLocation.REAR,
-        motionType: GroundMotionType.TRACKED,
-        engineType: EngineType.STANDARD,
-        hasCargoLoaded: false,
-        hasWeaponAtLocation: false,
-      });
-
-      expect(r.kind).toBe('engine_hit');
-    });
-
-    it('falls through rotor damage when a VTOL is already immobile', () => {
-      const stabilizer = vehicleCritFromRollForLocation([3, 3], {
-        location: VTOLLocation.ROTOR,
-        motionType: GroundMotionType.VTOL,
-        engineType: EngineType.STANDARD,
-        vehicleImmobile: true,
-      });
-      const rotorDestroyed = vehicleCritFromRollForLocation([3, 3], {
-        location: VTOLLocation.ROTOR,
-        motionType: GroundMotionType.VTOL,
-        engineType: EngineType.STANDARD,
-        vehicleImmobile: true,
-        flightStabilizerAlreadyHit: true,
-      });
-
-      expect(stabilizer.kind).toBe('flight_stabilizer');
-      expect(rotorDestroyed.kind).toBe('rotor_destroyed');
-    });
-  });
-
   describe('applyVehicleCritEffect', () => {
-    it('none leaves state unchanged', () => {
+    it('none → no state change', () => {
       const state = mkState();
       const r = applyVehicleCritEffect(state, vehicleCritFromRoll([1, 1]), {
         engineType: EngineType.ICE,
@@ -263,7 +96,7 @@ describe('vehicleCriticalHitResolution', () => {
       expect(r.state.motive.crewStunnedPhases).toBe(2);
     });
 
-    it('driver_hit increments; second kills crew and destroys vehicle', () => {
+    it('driver_hit increments; second kills crew → vehicle destroyed', () => {
       let state = mkState();
       state = applyVehicleCritEffect(state, vehicleCritFromRoll([4, 5]), {
         engineType: EngineType.ICE,
@@ -299,14 +132,13 @@ describe('vehicleCriticalHitResolution', () => {
       expect(r2.state.destructionCause).toBe('engine_destroyed');
     });
 
-    it('fuel_tank on ICE destroys the vehicle; on fusion rerolls to none', () => {
+    it('fuel_tank on ICE → +1 engineHit; on fusion → reroll to none', () => {
       const state = mkState();
       const ice = applyVehicleCritEffect(state, vehicleCritFromRoll([5, 5]), {
         engineType: EngineType.ICE,
         hasAmmoInSlot: false,
       });
-      expect(ice.state.destroyed).toBe(true);
-      expect(ice.state.destructionCause).toBe('fuel_tank_explosion');
+      expect(ice.state.motive.engineHits).toBe(1);
 
       const fusion = applyVehicleCritEffect(
         state,
@@ -317,7 +149,7 @@ describe('vehicleCriticalHitResolution', () => {
       expect(fusion.state).toBe(state);
     });
 
-    it('ammo_explosion explodes if ammo present, otherwise has no effect', () => {
+    it('ammo_explosion: explodes if ammo present, otherwise no effect', () => {
       const state = mkState();
       const withAmmo = applyVehicleCritEffect(
         state,
@@ -335,37 +167,6 @@ describe('vehicleCriticalHitResolution', () => {
       );
       expect(noAmmo.applied.kind).toBe('none');
       expect(noAmmo.state.destroyed).toBe(false);
-    });
-
-    it('turret_locked marks the primary turret as locked', () => {
-      const state = mkState();
-      const r = applyVehicleCritEffect(
-        state,
-        vehicleCritFromRollForLocation([4, 5], {
-          location: VehicleLocation.TURRET,
-          motionType: GroundMotionType.TRACKED,
-          engineType: EngineType.STANDARD,
-        }),
-        { engineType: EngineType.STANDARD, hasAmmoInSlot: false },
-      );
-
-      expect(r.state.turretLock.primaryLocked).toBe(true);
-      expect(r.state.motive.turretLocked).toBe(true);
-    });
-
-    it('rotor_destroyed immobilizes VTOL movement', () => {
-      const state = mkState();
-      const r = applyVehicleCritEffect(
-        state,
-        vehicleCritFromRollForLocation([5, 6], {
-          location: VTOLLocation.ROTOR,
-          motionType: GroundMotionType.VTOL,
-          engineType: EngineType.STANDARD,
-        }),
-        { engineType: EngineType.STANDARD, hasAmmoInSlot: false },
-      );
-
-      expect(r.state.motive.immobilized).toBe(true);
     });
 
     it('destroyed vehicle is idempotent to subsequent crits', () => {

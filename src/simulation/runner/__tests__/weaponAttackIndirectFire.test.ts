@@ -20,7 +20,11 @@
  */
 
 import type { IHex, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
-import type { IIndirectFireSpotterSelectedPayload } from '@/types/gameplay/IndirectFireInterfaces';
+import type {
+  IIndirectFireForwardObserverPayload,
+  IIndirectFireSpotterSelectedPayload,
+} from '@/types/gameplay/IndirectFireInterfaces';
+import type { IElectronicWarfareState } from '@/utils/gameplay/electronicWarfare';
 
 import {
   Facing,
@@ -28,6 +32,7 @@ import {
   GameSide,
   GameStatus,
   IAttackDeclaredPayload,
+  IAttackResolvedPayload,
   IGameEvent,
   IGameState,
   IUnitGameState,
@@ -36,13 +41,21 @@ import {
   GameEventType,
 } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import {
+  addC3Network,
+  createC3MasterSlaveNetwork,
+  createC3Unit,
+  createEmptyC3State,
+} from '@/utils/gameplay/c3Network';
 
+import type { IAIPlayer, IAIUnitState, IAttackEvent } from '../../ai/IAIPlayer';
 import type { IWeapon } from '../../ai/types';
 
 import { BotPlayer } from '../../ai/BotPlayer';
 import { SeededRandom } from '../../core/SeededRandom';
 import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { IViolation } from '../../invariants/types';
+import { SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT } from '../CombatFeatureSupport';
 import { runAttackPhase } from '../phases/weaponAttack';
 import { DEFAULT_COMPONENT_DAMAGE } from '../SimulationRunnerConstants';
 
@@ -63,6 +76,47 @@ function makeLRM15(): IWeapon {
     ammoPerTon: 8,
     destroyed: false,
   };
+}
+
+class SequenceRandom extends SeededRandom {
+  private index = 0;
+
+  constructor(private readonly d6Rolls: readonly number[]) {
+    super(0);
+  }
+
+  override next(): number {
+    const die = this.d6Rolls[this.index++] ?? 1;
+    return (die - 0.5) / 6;
+  }
+}
+
+class ScriptedAttackAI implements IAIPlayer {
+  constructor(private readonly weaponId: string) {}
+
+  evaluateRetreat() {
+    return null;
+  }
+
+  playMovementPhase() {
+    return null;
+  }
+
+  playAttackPhase(attacker: IAIUnitState): IAttackEvent | null {
+    if (attacker.unitId !== 'player-1') return null;
+    return {
+      type: GameEventType.AttackDeclared,
+      payload: {
+        attackerId: attacker.unitId,
+        targetId: 'opponent-1',
+        weapons: [this.weaponId],
+      },
+    };
+  }
+
+  playPhysicalAttackPhase() {
+    return null;
+  }
 }
 
 function makeUnit(
@@ -135,9 +189,9 @@ function makeBlockedGrid(): IHexGrid {
       hexes.set(`${q},${r}`, makeHex(q, r));
     }
   }
-  // Heavy + light woods exceed MegaMek's intervening woods LOS threshold.
-  hexes.set('4,0', makeHex(4, 0, TerrainType.HeavyWoods));
-  hexes.set('5,0', makeHex(5, 0, TerrainType.LightWoods));
+  // Light + heavy woods block LOS from attacker (0,0) -> target (10,0).
+  hexes.set('4,0', makeHex(4, 0, TerrainType.LightWoods));
+  hexes.set('5,0', makeHex(5, 0, TerrainType.HeavyWoods));
   return { config: { radius: 15 }, hexes };
 }
 
@@ -151,18 +205,25 @@ function makeClearGrid(): IHexGrid {
   return { config: { radius: 15 }, hexes };
 }
 
-function buildScenario(options: { includeSpotter: boolean }): {
+function buildScenario(options: {
+  includeSpotter: boolean;
+  attackerWeapon?: IWeapon;
+  attackerOverrides?: Partial<IUnitGameState>;
+}): {
   state: IGameState;
   weaponsByUnit: ReadonlyMap<string, readonly IWeapon[]>;
 } {
-  const attacker = makeUnit('player-1', GameSide.Player, { q: 0, r: 0 });
+  const attacker = {
+    ...makeUnit('player-1', GameSide.Player, { q: 0, r: 0 }),
+    ...options.attackerOverrides,
+  };
   const target = makeUnit('opponent-1', GameSide.Opponent, { q: 10, r: 0 });
   const units: Record<string, IUnitGameState> = {
     'player-1': attacker,
     'opponent-1': target,
   };
   const weaponsMap = new Map<string, readonly IWeapon[]>([
-    ['player-1', [makeLRM15()]],
+    ['player-1', [options.attackerWeapon ?? makeLRM15()]],
     ['opponent-1', []],
   ]);
   if (options.includeSpotter) {
@@ -186,9 +247,11 @@ function runPhase(options: {
   weaponsByUnit: ReadonlyMap<string, readonly IWeapon[]>;
   grid?: IHexGrid;
   seed?: number;
+  random?: SeededRandom;
+  botPlayer?: IAIPlayer;
 }): IGameEvent[] {
-  const random = new SeededRandom(options.seed ?? 12345);
-  const botPlayer = new BotPlayer(random);
+  const random = options.random ?? new SeededRandom(options.seed ?? 12345);
+  const botPlayer = options.botPlayer ?? new BotPlayer(random);
   const invariantRunner = new InvariantRunner();
   const violations: IViolation[] = [];
   const events: IGameEvent[] = [];
@@ -240,6 +303,133 @@ describe('runAttackPhase — Quick-Sim indirect-fire dispatch (PR-K7)', () => {
     expect(spotterPayload.basis).toBe('los');
   });
 
+  it('does not apply C3 range sharing to indirect fire', () => {
+    const { state, weaponsByUnit } = buildScenario({ includeSpotter: true });
+    const network = createC3MasterSlaveNetwork('runner-indirect-c3', [
+      createC3Unit({
+        entityId: 'player-1',
+        teamId: GameSide.Player,
+        role: 'master',
+        position: { q: 0, r: 0 },
+      }),
+      createC3Unit({
+        entityId: 'player-2',
+        teamId: GameSide.Player,
+        role: 'slave',
+        position: { q: 10, r: 1 },
+      }),
+    ]);
+
+    expect(network).not.toBeNull();
+
+    const events = runPhase({
+      state: {
+        ...state,
+        c3Network: addC3Network(createEmptyC3State(), network!),
+      },
+      weaponsByUnit,
+      grid: makeBlockedGrid(),
+    });
+    const declared = events.find(
+      (e) =>
+        e.type === GameEventType.AttackDeclared &&
+        (e.payload as IAttackDeclaredPayload).attackerId === 'player-1',
+    );
+
+    expect(declared).toBeDefined();
+
+    const declaredPayload = declared!.payload as IAttackDeclaredPayload;
+    expect(declaredPayload.toHitNumber).toBe(7);
+    expect(declaredPayload.modifiers).toContainEqual(
+      expect.objectContaining({
+        name: 'Range (medium)',
+        value: 2,
+        source: 'range',
+      }),
+    );
+    expect(declaredPayload.modifiers).toContainEqual(
+      expect.objectContaining({ name: 'Indirect fire' }),
+    );
+    expect(declaredPayload.modifiers).not.toContainEqual(
+      expect.objectContaining({ name: 'C3 Network' }),
+    );
+  });
+
+  it('emits Forward Observer event when a walking spotter cancels the walked penalty', () => {
+    const { state, weaponsByUnit } = buildScenario({ includeSpotter: true });
+    state.units['player-2'] = {
+      ...state.units['player-2'],
+      movementThisTurn: MovementType.Walk,
+      abilities: ['forward_observer'],
+    };
+
+    const events = runPhase({ state, weaponsByUnit, grid: makeBlockedGrid() });
+
+    const declared = events.find(
+      (e) =>
+        e.type === GameEventType.AttackDeclared &&
+        (e.payload as IAttackDeclaredPayload).attackerId === 'player-1',
+    );
+    expect(declared).toBeDefined();
+    const declaredPayload = declared!.payload as IAttackDeclaredPayload;
+    expect(
+      declaredPayload.modifiers.find((m) => m.name === 'Indirect fire'),
+    ).toMatchObject({ value: 1 });
+
+    const indirectEvents = events.filter(
+      (e) =>
+        e.type === GameEventType.IndirectFireSpotterSelected ||
+        e.type === GameEventType.IndirectFireForwardObserver,
+    );
+    expect(indirectEvents.map((e) => e.type)).toEqual([
+      GameEventType.IndirectFireSpotterSelected,
+      GameEventType.IndirectFireForwardObserver,
+    ]);
+
+    const forwardObserverPayload = indirectEvents[1]
+      .payload as IIndirectFireForwardObserverPayload;
+    expect(forwardObserverPayload).toMatchObject({
+      attackerId: 'player-1',
+      spotterId: 'player-2',
+      weaponId: 'lrm-15-1',
+      basis: 'los',
+      toHitPenalty: 1,
+      penaltyCancelled: 1,
+    });
+  });
+
+  it('applies Oblique Attacker to runner indirect-fire penalty math', () => {
+    const { state, weaponsByUnit } = buildScenario({ includeSpotter: true });
+    state.units['player-1'] = {
+      ...state.units['player-1'],
+      abilities: ['oblique-attacker'],
+    };
+
+    const events = runPhase({ state, weaponsByUnit, grid: makeBlockedGrid() });
+
+    const declared = events.find(
+      (e) =>
+        e.type === GameEventType.AttackDeclared &&
+        (e.payload as IAttackDeclaredPayload).attackerId === 'player-1',
+    );
+    expect(declared).toBeDefined();
+    const declaredPayload = declared!.payload as IAttackDeclaredPayload;
+    expect(
+      declaredPayload.modifiers.find((m) => m.name === 'Indirect fire'),
+    ).toBeUndefined();
+
+    const spotterEvent = events.find(
+      (e) => e.type === GameEventType.IndirectFireSpotterSelected,
+    );
+    expect(spotterEvent?.payload).toMatchObject({
+      attackerId: 'player-1',
+      spotterId: 'player-2',
+      weaponId: 'lrm-15-1',
+      basis: 'los',
+      toHitPenalty: 0,
+    });
+  });
+
   it('BACKWARD-COMPAT: no grid passed → no indirect events emitted', () => {
     const { state, weaponsByUnit } = buildScenario({ includeSpotter: true });
     const events = runPhase({ state, weaponsByUnit });
@@ -288,5 +478,324 @@ describe('runAttackPhase — Quick-Sim indirect-fire dispatch (PR-K7)', () => {
       );
       expect(indirectMod).toBeUndefined();
     }
+  });
+
+  it('applies indirect-fire to-hit penalty strongly enough to change hit outcome', () => {
+    const lrm15: IWeapon = { ...makeLRM15(), damage: 15 };
+    const directScenario = buildScenario({
+      includeSpotter: false,
+      attackerWeapon: lrm15,
+      attackerOverrides: { gunnery: 1 },
+    });
+    const indirectScenario = buildScenario({
+      includeSpotter: true,
+      attackerWeapon: lrm15,
+      attackerOverrides: { gunnery: 1 },
+    });
+
+    const directEvents = runPhase({
+      ...directScenario,
+      grid: makeClearGrid(),
+      random: new SequenceRandom([1, 2, 1, 2, 1, 1]),
+      botPlayer: new ScriptedAttackAI(lrm15.id),
+    });
+    const indirectEvents = runPhase({
+      ...indirectScenario,
+      grid: makeBlockedGrid(),
+      random: new SequenceRandom([1, 2]),
+      botPlayer: new ScriptedAttackAI(lrm15.id),
+    });
+
+    const directResolved = directEvents.find(
+      (event) =>
+        event.type === GameEventType.AttackResolved &&
+        (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+    ) as IGameEvent & { payload: IAttackResolvedPayload };
+    const indirectResolved = indirectEvents.find(
+      (event) =>
+        event.type === GameEventType.AttackResolved &&
+        (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+    ) as IGameEvent & { payload: IAttackResolvedPayload };
+
+    expect(directResolved.payload).toMatchObject({
+      hit: true,
+      roll: 3,
+      toHitNumber: 3,
+    });
+    expect(indirectResolved.payload).toMatchObject({
+      hit: false,
+      roll: 3,
+      toHitNumber: 4,
+    });
+  });
+
+  it('suppresses Artemis IV cluster bonus during indirect LRM fire', () => {
+    const artemisLRM: IWeapon = {
+      ...makeLRM15(),
+      damage: 15,
+      hasArtemisIV: true,
+    };
+    const directScenario = buildScenario({
+      includeSpotter: false,
+      attackerWeapon: artemisLRM,
+      attackerOverrides: { gunnery: 0 },
+    });
+    const indirectScenario = buildScenario({
+      includeSpotter: true,
+      attackerWeapon: artemisLRM,
+      attackerOverrides: { gunnery: 0 },
+    });
+
+    const directEvents = runPhase({
+      ...directScenario,
+      grid: makeClearGrid(),
+      random: new SequenceRandom([6, 6, 1, 2, 1, 1]),
+      botPlayer: new ScriptedAttackAI(artemisLRM.id),
+    });
+    const indirectEvents = runPhase({
+      ...indirectScenario,
+      grid: makeBlockedGrid(),
+      random: new SequenceRandom([6, 6, 1, 2, 1, 1]),
+      botPlayer: new ScriptedAttackAI(artemisLRM.id),
+    });
+
+    const directResolved = directEvents.find(
+      (event) =>
+        event.type === GameEventType.AttackResolved &&
+        (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+    ) as IGameEvent & { payload: IAttackResolvedPayload };
+    const indirectResolved = indirectEvents.find(
+      (event) =>
+        event.type === GameEventType.AttackResolved &&
+        (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+    ) as IGameEvent & { payload: IAttackResolvedPayload };
+    const indirectDeclared = indirectEvents.find(
+      (event) =>
+        event.type === GameEventType.AttackDeclared &&
+        (event.payload as IAttackDeclaredPayload).attackerId === 'player-1',
+    );
+
+    expect(directResolved.payload).toMatchObject({
+      hit: true,
+      projectileCount: 9,
+      damage: 9,
+      toHitNumber: 2,
+    });
+    expect(indirectResolved.payload).toMatchObject({
+      hit: true,
+      projectileCount: 5,
+      damage: 5,
+      toHitNumber: 3,
+    });
+    expect(
+      (indirectDeclared!.payload as IAttackDeclaredPayload).modifiers.find(
+        (modifier) => modifier.name === 'Indirect fire',
+      ),
+    ).toMatchObject({ value: 1 });
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.artemis.evidence).toContain(
+      'indirect-fire suppression',
+    );
+  });
+
+  it('suppresses Artemis IV cluster bonus when target ECM covers direct fire', () => {
+    const artemisLRM: IWeapon = {
+      ...makeLRM15(),
+      damage: 15,
+      hasArtemisIV: true,
+    };
+    const noEcmScenario = buildScenario({
+      includeSpotter: false,
+      attackerWeapon: artemisLRM,
+      attackerOverrides: { gunnery: 0 },
+    });
+    const ecmScenario = buildScenario({
+      includeSpotter: false,
+      attackerWeapon: artemisLRM,
+      attackerOverrides: { gunnery: 0 },
+    });
+    const electronicWarfare: IElectronicWarfareState = {
+      ecmSuites: [
+        {
+          type: 'guardian',
+          mode: 'ecm',
+          operational: true,
+          entityId: 'opponent-ecm',
+          teamId: GameSide.Opponent,
+          position: { q: 10, r: 0 },
+        },
+      ],
+      activeProbes: [],
+    };
+
+    const noEcmEvents = runPhase({
+      ...noEcmScenario,
+      grid: makeClearGrid(),
+      random: new SequenceRandom([6, 6, 1, 2, 1, 1]),
+      botPlayer: new ScriptedAttackAI(artemisLRM.id),
+    });
+    const ecmEvents = runPhase({
+      ...ecmScenario,
+      state: { ...ecmScenario.state, electronicWarfare },
+      grid: makeClearGrid(),
+      random: new SequenceRandom([6, 6, 1, 2, 1, 1]),
+      botPlayer: new ScriptedAttackAI(artemisLRM.id),
+    });
+
+    const noEcmResolved = noEcmEvents.find(
+      (event) =>
+        event.type === GameEventType.AttackResolved &&
+        (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+    ) as IGameEvent & { payload: IAttackResolvedPayload };
+    const ecmResolved = ecmEvents.find(
+      (event) =>
+        event.type === GameEventType.AttackResolved &&
+        (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+    ) as IGameEvent & { payload: IAttackResolvedPayload };
+
+    expect(noEcmResolved.payload).toMatchObject({
+      hit: true,
+      projectileCount: 9,
+      damage: 9,
+    });
+    expect(ecmResolved.payload).toMatchObject({
+      hit: true,
+      projectileCount: 5,
+      damage: 5,
+    });
+  });
+
+  it('allows active probes to counter target ECM before Artemis IV suppression', () => {
+    const artemisLRM: IWeapon = {
+      ...makeLRM15(),
+      damage: 15,
+      hasArtemisIV: true,
+    };
+    const baseScenario = buildScenario({
+      includeSpotter: false,
+      attackerWeapon: artemisLRM,
+      attackerOverrides: { gunnery: 0 },
+    });
+    const electronicWarfare: IElectronicWarfareState = {
+      ecmSuites: [
+        {
+          type: 'guardian',
+          mode: 'ecm',
+          operational: true,
+          entityId: 'opponent-ecm',
+          teamId: GameSide.Opponent,
+          position: { q: 4, r: 0 },
+        },
+      ],
+      activeProbes: [
+        {
+          type: 'beagle',
+          operational: true,
+          entityId: 'player-1',
+          teamId: GameSide.Player,
+          position: { q: 0, r: 0 },
+        },
+      ],
+    };
+
+    const events = runPhase({
+      ...baseScenario,
+      state: { ...baseScenario.state, electronicWarfare },
+      grid: makeClearGrid(),
+      random: new SequenceRandom([6, 6, 1, 2, 1, 1]),
+      botPlayer: new ScriptedAttackAI(artemisLRM.id),
+    });
+
+    const resolved = events.find(
+      (event) =>
+        event.type === GameEventType.AttackResolved &&
+        (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+    ) as IGameEvent & { payload: IAttackResolvedPayload };
+
+    expect(resolved.payload).toMatchObject({
+      hit: true,
+      projectileCount: 9,
+      damage: 9,
+    });
+  });
+
+  it('suppresses Artemis IV cluster bonus while attacker stealth armor is active', () => {
+    const artemisLRM: IWeapon = {
+      ...makeLRM15(),
+      damage: 15,
+      hasArtemisIV: true,
+    };
+    const noStealthScenario = buildScenario({
+      includeSpotter: false,
+      attackerWeapon: artemisLRM,
+      attackerOverrides: { gunnery: 0 },
+    });
+    const stealthWithoutEcmScenario = buildScenario({
+      includeSpotter: false,
+      attackerWeapon: artemisLRM,
+      attackerOverrides: { gunnery: 0, hasStealthArmor: true },
+    });
+    const stealthWithEcmScenario = buildScenario({
+      includeSpotter: false,
+      attackerWeapon: artemisLRM,
+      attackerOverrides: { gunnery: 0, hasStealthArmor: true },
+    });
+    const electronicWarfare: IElectronicWarfareState = {
+      ecmSuites: [
+        {
+          type: 'guardian',
+          mode: 'ecm',
+          operational: true,
+          entityId: 'player-1:ISGuardianECMSuite:0',
+          teamId: GameSide.Player,
+          position: { q: 0, r: 0 },
+        },
+      ],
+      activeProbes: [],
+    };
+
+    const noStealthEvents = runPhase({
+      ...noStealthScenario,
+      grid: makeClearGrid(),
+      random: new SequenceRandom([6, 6, 1, 2, 1, 1]),
+      botPlayer: new ScriptedAttackAI(artemisLRM.id),
+    });
+    const stealthWithoutEcmEvents = runPhase({
+      ...stealthWithoutEcmScenario,
+      grid: makeClearGrid(),
+      random: new SequenceRandom([6, 6, 1, 2, 1, 1]),
+      botPlayer: new ScriptedAttackAI(artemisLRM.id),
+    });
+    const stealthWithEcmEvents = runPhase({
+      ...stealthWithEcmScenario,
+      state: { ...stealthWithEcmScenario.state, electronicWarfare },
+      grid: makeClearGrid(),
+      random: new SequenceRandom([6, 6, 1, 2, 1, 1]),
+      botPlayer: new ScriptedAttackAI(artemisLRM.id),
+    });
+
+    const findResolved = (
+      events: readonly IGameEvent[],
+    ): IGameEvent & { payload: IAttackResolvedPayload } =>
+      events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+
+    expect(findResolved(noStealthEvents).payload).toMatchObject({
+      hit: true,
+      projectileCount: 9,
+      damage: 9,
+    });
+    expect(findResolved(stealthWithoutEcmEvents).payload).toMatchObject({
+      hit: true,
+      projectileCount: 9,
+      damage: 9,
+    });
+    expect(findResolved(stealthWithEcmEvents).payload).toMatchObject({
+      hit: true,
+      projectileCount: 5,
+      damage: 5,
+    });
   });
 });

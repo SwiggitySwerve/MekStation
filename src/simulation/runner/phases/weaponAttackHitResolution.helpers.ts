@@ -17,7 +17,7 @@ import { weaponTypeFromMountId } from './weaponAttackHelpers';
 /**
  * Canonical `UnitDestroyed` cause taxonomy. Extracted as a named alias
  * so the resolution phase and its helpers share one definition instead
- * of repeating the seven-member union at every call site (it appears in
+ * of repeating the shared union at every call site (it appears in
  * both `emitCritEvents` and `applyCritAmmoExplosions` today).
  */
 export type DestructionCause =
@@ -25,7 +25,7 @@ export type DestructionCause =
   | 'ammo_explosion'
   | 'pilot_death'
   | 'engine_destroyed'
-  | 'shutdown'
+  | 'impossible_displacement'
   | 'ct_destroyed'
   | 'head_destroyed';
 
@@ -53,6 +53,7 @@ export function emitCoveredLegMiss(options: {
   targetId: string;
   weaponId: string;
   weapon: IWeapon;
+  projectileCount?: number;
   attackRoll: number;
   toHitNumber: number;
   firingArc: 'front' | 'left' | 'right' | 'rear';
@@ -65,6 +66,7 @@ export function emitCoveredLegMiss(options: {
     targetId,
     weaponId,
     weapon,
+    projectileCount,
     attackRoll,
     toHitNumber,
     firingArc,
@@ -85,6 +87,7 @@ export function emitCoveredLegMiss(options: {
         toHitNumber,
         hit: false,
         heat: weapon.heat,
+        ...(projectileCount !== undefined ? { projectileCount } : {}),
         attackerArc: firingArc,
       },
       attackerId,
@@ -96,7 +99,8 @@ export function emitCoveredLegMiss(options: {
  * Per `add-combat-fidelity-suite` Phase 4 (`combat-resolution` delta —
  * Ammo Consumption and Explosion Events): when a non-energy weapon fires,
  * decrement its ammo bin and emit `AmmoConsumed`. Energy weapons (laser /
- * PPC / flamer / plasma) are skipped via `isEnergyWeapon`. When the unit
+ * PPC / flamer) are skipped via `isEnergyWeapon`; source-backed plasma
+ * AmmoWeapon families remain ammo-fed despite their energy flag. When the unit
  * has no `ammoState` populated (synthetic test fixtures, legacy session)
  * the consumption is silently skipped — pre-P4 behaviour preserved.
  *
@@ -110,8 +114,9 @@ export function consumeWeaponAmmo(options: {
   gameId: string;
   attackerId: string;
   weapon: IWeapon;
+  ammoWeaponType?: string;
 }): IGameState {
-  const { events, gameId, attackerId, weapon } = options;
+  const { ammoWeaponType, events, gameId, attackerId, weapon } = options;
   let { currentState } = options;
 
   const attackerForAmmo = currentState.units[attackerId];
@@ -121,7 +126,7 @@ export function consumeWeaponAmmo(options: {
     Object.keys(ammoStateBefore).length > 0 &&
     !isEnergyWeapon(weapon.name)
   ) {
-    const baseWeaponType = weaponTypeFromMountId(weapon.id);
+    const baseWeaponType = ammoWeaponType ?? weaponTypeFromMountId(weapon.id);
     const ammoResult = consumeAmmo(ammoStateBefore, attackerId, baseWeaponType);
     if (ammoResult) {
       currentState = {

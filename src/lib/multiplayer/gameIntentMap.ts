@@ -20,12 +20,18 @@
  */
 
 import type { IIntentPayload } from '@/types/multiplayer/Protocol';
+import type {
+  PhysicalAttackLimb,
+  PhysicalAttackType,
+} from '@/utils/gameplay/physicalAttacks/types';
 
 import {
   GameSide,
   type GameIntentType,
   type IGameIntent,
+  type MovementEnhancementActivationKind,
 } from '@/types/gameplay/GameSessionInterfaces';
+import { isSupportedPhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types';
 
 // =============================================================================
 // Action payload shapes
@@ -44,6 +50,28 @@ export interface IDeclareMovementPayload {
 }
 
 /**
+ * Stand-up payload carried by a `stand` `IGameIntent`. The server owns the
+ * PSR roll; the intent only names the unit trying to rise.
+ */
+export interface IStandPayload {
+  readonly unitId: string;
+}
+
+export interface IGoPronePayload {
+  readonly unitId: string;
+}
+
+export interface IActivateMovementEnhancementPayload {
+  readonly unitId: string;
+  readonly enhancement: MovementEnhancementActivationKind;
+}
+
+export interface ITorsoTwistPayload {
+  readonly unitId: string;
+  readonly secondaryFacing: number;
+}
+
+/**
  * Attack-declaration payload carried by a `declareAttack` `IGameIntent`.
  */
 export interface IDeclareAttackPayload {
@@ -54,16 +82,20 @@ export interface IDeclareAttackPayload {
 
 /**
  * Physical-attack-declaration payload carried by a `declarePhysical`
- * `IGameIntent`. The Wave-3 server protocol has no dedicated `Physical`
- * wire intent — a physical attack is declared through the same `Attack`
- * envelope (the server's engine dispatcher routes by phase). The
- * `weaponIds` list names the physical "weapons" (`punch` / `kick` /
- * `charge` / `dfa`) the engine recognizes.
+ * `IGameIntent`. Physical combat has a dedicated `Physical` wire intent
+ * so punch / kick / melee declarations never masquerade as ranged weapon
+ * ids in the server dispatcher.
  */
 export interface IDeclarePhysicalPayload {
   readonly attackerId: string;
   readonly targetId: string;
-  readonly attackType: string;
+  readonly attackType: PhysicalAttackType;
+  readonly limb?: PhysicalAttackLimb;
+}
+
+export interface IRequestSpotPayload {
+  readonly unitId: string;
+  readonly targetId: string;
 }
 
 /**
@@ -72,6 +104,17 @@ export interface IDeclarePhysicalPayload {
  */
 export interface IConcedePayload {
   readonly side: GameSide;
+}
+
+export interface IEjectPayload {
+  readonly unitId: string;
+}
+
+export type WithdrawalEdge = 'north' | 'south' | 'east' | 'west';
+
+export interface IWithdrawPayload {
+  readonly unitId: string;
+  readonly edge: WithdrawalEdge;
 }
 
 // =============================================================================
@@ -91,6 +134,34 @@ export function declareMovementIntent(
   return { type: 'declareMovement', payload, authorPeerId };
 }
 
+export function standIntent(
+  authorPeerId: string,
+  payload: IStandPayload,
+): IGameIntent {
+  return { type: 'stand', payload, authorPeerId };
+}
+
+export function goProneIntent(
+  authorPeerId: string,
+  payload: IGoPronePayload,
+): IGameIntent {
+  return { type: 'goProne', payload, authorPeerId };
+}
+
+export function activateMovementEnhancementIntent(
+  authorPeerId: string,
+  payload: IActivateMovementEnhancementPayload,
+): IGameIntent {
+  return { type: 'activateMovementEnhancement', payload, authorPeerId };
+}
+
+export function torsoTwistIntent(
+  authorPeerId: string,
+  payload: ITorsoTwistPayload,
+): IGameIntent {
+  return { type: 'torsoTwist', payload, authorPeerId };
+}
+
 export function declareAttackIntent(
   authorPeerId: string,
   payload: IDeclareAttackPayload,
@@ -105,8 +176,29 @@ export function declarePhysicalIntent(
   return { type: 'declarePhysical', payload, authorPeerId };
 }
 
+export function requestSpotIntent(
+  authorPeerId: string,
+  payload: IRequestSpotPayload,
+): IGameIntent {
+  return { type: 'requestSpot', payload, authorPeerId };
+}
+
 export function endPhaseIntent(authorPeerId: string): IGameIntent {
   return { type: 'endPhase', payload: {}, authorPeerId };
+}
+
+export function ejectIntent(
+  authorPeerId: string,
+  payload: IEjectPayload,
+): IGameIntent {
+  return { type: 'eject', payload, authorPeerId };
+}
+
+export function withdrawIntent(
+  authorPeerId: string,
+  payload: IWithdrawPayload,
+): IGameIntent {
+  return { type: 'withdraw', payload, authorPeerId };
 }
 
 export function concedeIntent(
@@ -143,13 +235,27 @@ export function toServerIntent(intent: IGameIntent): IIntentPayload | null {
   switch (intent.type as GameIntentType) {
     case 'declareMovement':
       return toMoveIntent(intent.payload);
+    case 'stand':
+      return toStandIntent(intent.payload);
+    case 'goProne':
+      return toGoProneIntent(intent.payload);
+    case 'activateMovementEnhancement':
+      return toActivateMovementEnhancementIntent(intent.payload);
+    case 'torsoTwist':
+      return toTorsoTwistIntent(intent.payload);
     case 'declareAttack':
       return toAttackIntent(intent.payload);
     case 'declarePhysical':
       return toPhysicalIntent(intent.payload);
+    case 'requestSpot':
+      return toRequestSpotIntent(intent.payload);
     case 'endPhase':
     case 'confirmHeat':
       return { kind: 'AdvancePhase' };
+    case 'eject':
+      return toEjectIntent(intent.payload);
+    case 'withdraw':
+      return toWithdrawIntent(intent.payload);
     case 'concede':
       return toConcedeIntent(intent.payload);
     default:
@@ -182,6 +288,42 @@ function toMoveIntent(payload: unknown): IIntentPayload | null {
   };
 }
 
+function toStandIntent(payload: unknown): IIntentPayload | null {
+  if (!isRecord(payload)) return null;
+  const { unitId } = payload;
+  if (typeof unitId !== 'string' || unitId.length === 0) return null;
+  return { kind: 'Stand', unitId };
+}
+
+function toGoProneIntent(payload: unknown): IIntentPayload | null {
+  if (!isRecord(payload)) return null;
+  const { unitId } = payload;
+  if (typeof unitId !== 'string' || unitId.length === 0) return null;
+  return { kind: 'GoProne', unitId };
+}
+
+function toActivateMovementEnhancementIntent(
+  payload: unknown,
+): IIntentPayload | null {
+  if (!isRecord(payload)) return null;
+  const { unitId, enhancement } = payload;
+  if (typeof unitId !== 'string' || unitId.length === 0) return null;
+  if (enhancement !== 'MASC' && enhancement !== 'Supercharger') return null;
+  return { kind: 'ActivateMovementEnhancement', unitId, enhancement };
+}
+
+function toTorsoTwistIntent(payload: unknown): IIntentPayload | null {
+  if (!isRecord(payload)) return null;
+  const { unitId, secondaryFacing } = payload;
+  if (typeof unitId !== 'string' || unitId.length === 0) return null;
+  if (typeof secondaryFacing !== 'number') return null;
+  return {
+    kind: 'TorsoTwist',
+    unitId,
+    secondaryFacing: ((Math.trunc(secondaryFacing) % 6) + 6) % 6,
+  };
+}
+
 function toAttackIntent(payload: unknown): IIntentPayload | null {
   if (!isRecord(payload)) return null;
   const { attackerId, targetId, weaponIds } = payload;
@@ -197,19 +339,55 @@ function toAttackIntent(payload: unknown): IIntentPayload | null {
 
 function toPhysicalIntent(payload: unknown): IIntentPayload | null {
   if (!isRecord(payload)) return null;
-  const { attackerId, targetId, attackType } = payload;
+  const { attackerId, targetId, attackType, limb } = payload;
   if (typeof attackerId !== 'string' || attackerId.length === 0) return null;
   if (typeof targetId !== 'string' || targetId.length === 0) return null;
-  if (typeof attackType !== 'string' || attackType.length === 0) return null;
-  // A physical attack rides the `Attack` envelope; the attack type is
-  // carried as the single "weapon" id so the engine's physical-attack
-  // dispatcher recognizes it.
+  if (!isSupportedPhysicalAttackType(attackType)) return null;
+  if (
+    limb !== undefined &&
+    !['leftArm', 'rightArm', 'leftLeg', 'rightLeg'].includes(String(limb))
+  ) {
+    return null;
+  }
   return {
-    kind: 'Attack',
+    kind: 'Physical',
     attackerId,
     targetId,
-    weaponIds: [attackType],
+    attackType,
+    ...(limb !== undefined ? { limb: limb as PhysicalAttackLimb } : {}),
   };
+}
+
+function toRequestSpotIntent(payload: unknown): IIntentPayload | null {
+  if (!isRecord(payload)) return null;
+  const { unitId, targetId } = payload;
+  if (typeof unitId !== 'string' || unitId.length === 0) return null;
+  if (typeof targetId !== 'string' || targetId.length === 0) return null;
+  return { kind: 'RequestSpot', unitId, targetId };
+}
+
+function toEjectIntent(payload: unknown): IIntentPayload | null {
+  if (!isRecord(payload)) return null;
+  const { unitId } = payload;
+  if (typeof unitId !== 'string' || unitId.length === 0) return null;
+  return { kind: 'Eject', unitId };
+}
+
+function isWithdrawalEdge(value: unknown): value is WithdrawalEdge {
+  return (
+    value === 'north' ||
+    value === 'south' ||
+    value === 'east' ||
+    value === 'west'
+  );
+}
+
+function toWithdrawIntent(payload: unknown): IIntentPayload | null {
+  if (!isRecord(payload)) return null;
+  const { unitId, edge } = payload;
+  if (typeof unitId !== 'string' || unitId.length === 0) return null;
+  if (!isWithdrawalEdge(edge)) return null;
+  return { kind: 'Withdraw', unitId, edge };
 }
 
 function toConcedeIntent(payload: unknown): IIntentPayload | null {

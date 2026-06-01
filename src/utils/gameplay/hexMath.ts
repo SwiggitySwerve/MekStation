@@ -293,14 +293,9 @@ export function hexLine(
  * 0 degrees is North, increases clockwise.
  */
 export function hexAngle(from: IHexCoordinate, to: IHexCoordinate): number {
-  // Match MegaMek's IdealHex center geometry after converting MekStation's
-  // axial coordinates to MegaMek's offset board coordinates:
-  // x = q * sqrt(3), y = 2r + q. This keeps the six neighbor directions on
-  // exact 60-degree increments for firing-arc boundary checks.
-  const dq = to.q - from.q;
-  const dr = to.r - from.r;
-  const dx = dq * Math.sqrt(3);
-  const dy = 2 * dr + dq;
+  // Convert to pixel coordinates for angle calculation (flat-top hex)
+  const dx = (to.q - from.q) * 1.5; // Simplified, actual would use hex size
+  const dy = to.r - from.r + (to.q - from.q) * 0.5;
 
   // atan2 gives angle from positive x-axis, we need from positive y-axis (North)
   const radians = Math.atan2(dx, -dy);
@@ -311,8 +306,7 @@ export function hexAngle(from: IHexCoordinate, to: IHexCoordinate): number {
     degrees += 360;
   }
 
-  const rounded = Math.round(degrees);
-  return rounded === 360 ? 0 : rounded;
+  return degrees;
 }
 
 /**

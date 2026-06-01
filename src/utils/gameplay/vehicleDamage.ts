@@ -14,8 +14,6 @@
  * @spec openspec/changes/add-vehicle-combat-behavior/specs/combat-resolution/spec.md
  */
 
-import type { EngineType } from '@/types/construction/EngineType';
-
 import {
   VehicleLocation,
   VTOLLocation,
@@ -350,18 +348,15 @@ export function vehicleResolveDamage(
 export function createVehicleCombatState(params: {
   readonly unitId: string;
   readonly motionType: GroundMotionType;
-  readonly turretType?: import('@/types/unit/VehicleInterfaces').TurretType;
-  readonly engineType?: EngineType | string | number;
   readonly originalCruiseMP: number;
   readonly armor: Partial<Record<VehicleLocation | VTOLLocation, number>>;
   readonly structure: Partial<Record<VehicleLocation | VTOLLocation, number>>;
   readonly altitude?: number;
+  readonly turretType?: IVehicleCombatState['turretType'];
 }): IVehicleCombatState {
   return {
     unitId: params.unitId,
     motionType: params.motionType,
-    turretType: params.turretType,
-    engineType: params.engineType,
     armor: { ...params.armor },
     structure: { ...params.structure },
     destroyedLocations: [],
@@ -377,6 +372,7 @@ export function createVehicleCombatState(params: {
       crewStunnedPhases: 0,
     },
     turretLock: { primaryLocked: false, secondaryLocked: false },
+    turretType: params.turretType,
     altitude: params.altitude,
     destroyed: false,
   };

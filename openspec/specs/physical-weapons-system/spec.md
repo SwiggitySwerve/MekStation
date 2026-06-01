@@ -111,6 +111,11 @@ Physical weapons SHALL have specific to-hit modifiers that apply during physical
 - **WHEN** a unit with a mace makes a melee attack using the mace
 - **THEN** the to-hit calculation SHALL include a +1 modifier (harder to hit)
 
+#### Scenario: Lance to-hit modifier
+
+- **WHEN** a unit with a lance makes a melee attack using the lance
+- **THEN** the to-hit calculation SHALL include a +1 modifier (harder to hit)
+
 ### Requirement: Physical Weapon Damage in Combat
 
 Physical weapon damage formulas SHALL be applied during combat resolution, not just during construction.

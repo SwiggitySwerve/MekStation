@@ -11,6 +11,7 @@ import { calculateAttackerQuirkModifiers } from '../quirkModifiers';
 import {
   calculateAttackerSPAModifiers,
   getEffectiveWounds,
+  getSomeLikeItHotHeatPenaltyReduction,
 } from '../spaModifiers';
 import { aggregateModifiers } from './aggregation';
 import { createBaseModifier } from './baseModifier';
@@ -23,6 +24,7 @@ import {
   calculateSensorDamageModifier,
   calculateActuatorDamageModifier,
   calculateAttackerProneModifier,
+  calculateSpottingAttackerModifier,
   calculateIndirectFireModifier,
   calculateCalledShotModifier,
 } from './damageModifiers';
@@ -40,25 +42,23 @@ import { calculateTargetingComputerModifier } from './equipmentModifiers';
 import {
   calculateAttackerMovementModifier,
   calculateTMM,
+  calculateTargetEvasionModifier,
+  calculateTargetSprintedModifier,
 } from './movementModifiers';
 import {
   calculateMinimumRangeModifier,
   getRangeModifierForBracket,
   getRangeBracket,
 } from './rangeModifiers';
+import {
+  calculateSemiGuidedTagIndirectFireModifier,
+  calculateSemiGuidedTagTargetMovementModifier,
+  type ISemiGuidedTagToHitContext,
+} from './semiGuidedTagModifiers';
 import { calculateChinTurretPivotModifier } from './vehicleModifiers';
 
-/**
- * Per `add-ecm-tohit-modifier` (closes playtest gap #1): optional ECM
- * context that, when present, adds a `+1 to-hit` modifier when the
- * weapon's electronic guidance is degraded by an active ECM bubble. The
- * field is OPTIONAL so existing callers (no ECM in the scenario, or
- * weapon has no electronic guidance) are unaffected.
- */
 export interface IEcmContext {
-  /** The weapon's guidance type (`'none'` returns no modifier). */
   readonly guidance: WeaponGuidanceType;
-  /** Resolved per-attack ECM coverage flags. */
   readonly coverage: IEcmCoverageState;
 }
 
@@ -68,17 +68,18 @@ export function calculateToHit(
   rangeBracket: RangeBracket,
   range: number,
   minRange: number = 0,
-  ecmContext?: IEcmContext,
+  weaponIdOrEcmContext?: string | IEcmContext,
+  semiGuidedTagContext?: ISemiGuidedTagToHitContext,
 ): IToHitCalculation {
+  const weaponId =
+    typeof weaponIdOrEcmContext === 'string' ? weaponIdOrEcmContext : undefined;
+  const ecmContext =
+    typeof weaponIdOrEcmContext === 'object' ? weaponIdOrEcmContext : undefined;
   const modifiers: IToHitModifierDetail[] = [];
 
   modifiers.push(createBaseModifier(attacker.gunnery));
   modifiers.push(getRangeModifierForBracket(rangeBracket));
 
-  // Per `add-ecm-tohit-modifier`: ECM modifier is appended to the
-  // accumulator and stacks additively with every other modifier. The
-  // helper returns null when the guidance is 'none' or the per-guidance
-  // rule does not fire, so no-ECM scenarios are unchanged.
   if (ecmContext !== undefined) {
     const ecmMod = calculateEcmModifier(
       ecmContext.guidance,
@@ -91,8 +92,35 @@ export function calculateToHit(
   if (minRangeMod) modifiers.push(minRangeMod);
 
   modifiers.push(calculateAttackerMovementModifier(attacker.movementType));
-  modifiers.push(calculateTMM(target.movementType, target.hexesMoved));
-  modifiers.push(calculateHeatModifier(attacker.heat));
+  const targetMovementModifier = calculateTMM(
+    target.movementType,
+    target.hexesMoved,
+  );
+  modifiers.push(targetMovementModifier);
+  const semiGuidedTargetMovementModifier =
+    calculateSemiGuidedTagTargetMovementModifier(
+      semiGuidedTagContext,
+      targetMovementModifier,
+    );
+  if (semiGuidedTargetMovementModifier) {
+    modifiers.push(semiGuidedTargetMovementModifier);
+  }
+  const targetEvasionMod = calculateTargetEvasionModifier(
+    target.isEvading,
+    target.prone,
+    target.evasionBonus,
+  );
+  if (targetEvasionMod) modifiers.push(targetEvasionMod);
+  const targetSprintedMod = calculateTargetSprintedModifier(
+    target.sprintedThisTurn,
+  );
+  if (targetSprintedMod) modifiers.push(targetSprintedMod);
+  modifiers.push(
+    calculateHeatModifier(
+      attacker.heat,
+      getSomeLikeItHotHeatPenaltyReduction(attacker.abilities ?? []),
+    ),
+  );
 
   const proneMod = calculateProneModifier(target.prone, range);
   if (proneMod) modifiers.push(proneMod);
@@ -100,11 +128,14 @@ export function calculateToHit(
   const immobileMod = calculateImmobileModifier(target.immobile);
   if (immobileMod) modifiers.push(immobileMod);
 
-  const coverMod = calculatePartialCoverModifier(target.partialCover);
+  const targetHullDown = target.hullDown ?? false;
+  const coverMod = calculatePartialCoverModifier(
+    targetHullDown ? false : target.partialCover,
+  );
   if (coverMod) modifiers.push(coverMod);
 
   const hullDownMod = calculateHullDownModifier(
-    target.hullDown ?? false,
+    targetHullDown,
     target.partialCover,
   );
   if (hullDownMod) modifiers.push(hullDownMod);
@@ -144,6 +175,9 @@ export function calculateToHit(
     if (attackerProneMod) modifiers.push(attackerProneMod);
   }
 
+  const spottingMod = calculateSpottingAttackerModifier(attacker.isSpotting);
+  if (spottingMod) modifiers.push(spottingMod);
+
   if (attacker.secondaryTarget) {
     const secMod = calculateSecondaryTargetModifier(attacker.secondaryTarget);
     if (secMod) modifiers.push(secMod);
@@ -153,12 +187,16 @@ export function calculateToHit(
     const indirectMod = calculateIndirectFireModifier(attacker.indirectFire);
     if (indirectMod) modifiers.push(indirectMod);
   }
+  const semiGuidedIndirectMod =
+    calculateSemiGuidedTagIndirectFireModifier(semiGuidedTagContext);
+  if (semiGuidedIndirectMod) modifiers.push(semiGuidedIndirectMod);
 
   if (attacker.calledShot) {
     const calledMod = calculateCalledShotModifier(
       attacker.calledShot,
       attacker.teammateCalledShot,
       attacker.abilities,
+      attacker.applyLocalCalledShotAbilityReduction !== false,
     );
     if (calledMod) modifiers.push(calledMod);
   }
@@ -197,6 +235,7 @@ export function calculateToHit(
     attacker,
     target,
     rangeBracket,
+    weaponId,
   );
   modifiers.push(...quirkModifiers);
 

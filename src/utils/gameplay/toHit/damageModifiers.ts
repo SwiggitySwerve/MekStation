@@ -5,6 +5,8 @@ import {
   IToHitModifierDetail,
 } from '@/types/gameplay';
 
+import { getSharpshooterBonus } from '../spaModifiers';
+
 export function calculateProneModifier(
   targetProne: boolean,
   range: number,
@@ -134,6 +136,21 @@ export function calculateAttackerProneModifier(
   };
 }
 
+export function calculateSpottingAttackerModifier(
+  isSpotting?: boolean,
+): IToHitModifierDetail | null {
+  if (!isSpotting) {
+    return null;
+  }
+
+  return {
+    name: 'Attacker Spotting',
+    value: 1,
+    source: 'other',
+    description: 'Attacker is spotting for indirect fire: +1',
+  };
+}
+
 export function calculateIndirectFireModifier(
   indirectFire: IIndirectFire,
 ): IToHitModifierDetail | null {
@@ -141,17 +158,14 @@ export function calculateIndirectFireModifier(
     return null;
   }
 
-  const movementPenalty =
-    indirectFire.spotterMovementPenalty ?? (indirectFire.spotterWalked ? 1 : 0);
-  const value = 1 + movementPenalty;
+  const value = indirectFire.spotterWalked ? 2 : 1;
   return {
     name: 'Indirect Fire',
     value,
     source: 'other',
-    description:
-      movementPenalty > 0
-        ? `Indirect fire (+1) + spotter movement (+${movementPenalty}): +${value}`
-        : 'Indirect fire: +1',
+    description: indirectFire.spotterWalked
+      ? 'Indirect fire (+1) + spotter walked (+1): +2'
+      : 'Indirect fire: +1',
   };
 }
 
@@ -159,6 +173,7 @@ export function calculateCalledShotModifier(
   calledShot: boolean,
   teammateCalledShot?: boolean,
   abilities?: readonly string[],
+  applyLocalAbilityReduction: boolean = true,
 ): IToHitModifierDetail | null {
   if (!calledShot) {
     return null;
@@ -173,16 +188,21 @@ export function calculateCalledShotModifier(
     };
   }
 
-  const sharpshooterReduction = abilities?.includes('sharpshooter') ? 1 : 0;
-  const value = 3 - sharpshooterReduction;
+  const calledShotReduction = applyLocalAbilityReduction
+    ? -(abilities ? getSharpshooterBonus(abilities) : 0)
+    : 0;
+  const value = 3 - calledShotReduction;
+  const reductionName = abilities?.includes('marksman')
+    ? 'Marksman'
+    : 'Sharpshooter';
 
   return {
     name: 'Called Shot',
     value,
     source: 'other',
     description:
-      sharpshooterReduction > 0
-        ? `Called shot (Sharpshooter): +${value}`
+      calledShotReduction > 0
+        ? `Called shot (${reductionName}): +${value}`
         : `Called shot: +${value}`,
   };
 }

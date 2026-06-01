@@ -61,6 +61,7 @@ import {
   InteractivePhase,
   runAITurnLogic,
   skipPhaseLogic,
+  type IGameplayActionPayload,
 } from './useGameplayStore.helpers';
 import {
   fireWeaponsLogic,
@@ -185,7 +186,7 @@ interface GameplayActions {
   ) => void;
   selectUnit: (unitId: string | null) => void;
   setTarget: (unitId: string | null) => void;
-  handleAction: (actionId: string) => void;
+  handleAction: (actionId: string, payload?: IGameplayActionPayload) => void;
   toggleWeapon: (weaponId: string) => void;
   clearError: () => void;
   reset: () => void;
@@ -393,9 +394,9 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   // -------------------------------------------------------------------------
   // Phase / AI / engine handshake (delegated to useGameplayStore.helpers)
   // -------------------------------------------------------------------------
-  handleAction: (actionId) => {
-    const { session, ui } = get();
-    handleActionLogic(actionId, session, ui, set);
+  handleAction: (actionId, payload) => {
+    const { session, ui, interactiveSession } = get();
+    handleActionLogic(actionId, session, ui, set, interactiveSession, payload);
   },
   runAITurn: () => {
     const { interactiveSession } = get();

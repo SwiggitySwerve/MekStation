@@ -57,8 +57,6 @@ export function isTurnLimitDraw(
   return delta <= TURN_LIMIT_DRAW_TOLERANCE;
 }
 
-import { calculateGroundToAirAltitudeModifier } from './aerospace/groundToAir';
-import { isRepresentedTargetImmobile } from './combatImmobility';
 import { type D6Roller, defaultD6Roller } from './diceTypes';
 import {
   createAttackDeclaredEvent,
@@ -69,17 +67,31 @@ import {
   createIndirectFireForwardObserverEvent,
   createIndirectFireNarcOverrideEvent,
   createIndirectFireSpotterSelectedEvent,
+  createInitiativeOrderSetEvent,
   createInitiativeRolledEvent,
   createMovementDeclaredEvent,
   createMovementLockedEvent,
   createPhaseChangedEvent,
+  createSpottingDeclaredEvent,
 } from './gameEvents';
+import {
+  invalidateEvadingAttackerAttack,
+  invalidateInvalidTargetAttack,
+  invalidateSprintingAttackerAttack,
+} from './gameSessionAttackResolutionValidation';
+import { appendAttackRevealIfReady } from './gameSessionAttackReveal';
+import { appendEvent } from './gameSessionEvents';
 import { allUnitsLocked, deriveState } from './gameState';
-import { isGroundToGroundGameAttack } from './groundToGround';
-import { getWeaponRangeBracket } from './range';
-import { calculateInterveningTerrainModifier, calculateToHit } from './toHit';
-import { calculateToHitWithC3, selectC3RangeBracket } from './toHit/c3';
-import { deriveVehicleToHitContext } from './vehicleToHitContext';
+import {
+  calculateSideInitiativeModifier,
+  hasSideTacticalGeniusInitiativeReroll,
+} from './initiativeModifiers';
+import { isSemiGuidedLRM } from './specialWeaponMechanics';
+import {
+  buildWeaponAttackAttackerToHitState,
+  buildWeaponAttackTargetToHitState,
+  calculateToHit,
+} from './toHit';
 
 export interface ICreateGameSessionOptions {
   readonly id?: string;
@@ -95,10 +107,6 @@ export interface ICreateGameSessionOptions {
    * manifest from disk. Null/omitted for non-encounter callers.
    */
   readonly encounterMeta?: IEncounterMeta;
-  /**
-   * Non-default initial terrain/elevation seed captured from the grid
-   * used to start the session.
-   */
   readonly hexTerrain?: readonly IHexTerrain[];
 }
 
@@ -201,20 +209,7 @@ export function endGame(
   return appendEvent(session, event);
 }
 
-export function appendEvent(
-  session: IGameSession,
-  event: IGameEvent,
-): IGameSession {
-  const events = [...session.events, event];
-  const currentState = deriveState(session.id, events);
-
-  return {
-    ...session,
-    events,
-    currentState,
-    updatedAt: new Date().toISOString(),
-  };
-}
+export { appendEvent } from './gameSessionEvents';
 
 export function getEventsForTurn(
   session: IGameSession,
@@ -293,10 +288,15 @@ export function roll2d6(diceRoller: D6Roller = defaultD6Roller): number {
   return diceRoller() + diceRoller();
 }
 
+export interface IInitiativeRollOptions {
+  readonly tacticalGeniusRerollSide?: GameSide;
+}
+
 export function rollInitiative(
   session: IGameSession,
   movesFirst?: GameSide,
   diceRoller: D6Roller = defaultD6Roller,
+  options: IInitiativeRollOptions = {},
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.Initiative) {
     throw new Error('Not in initiative phase');
@@ -305,13 +305,39 @@ export function rollInitiative(
   // Per `add-quick-resolve-monte-carlo`: accept an injectable D6 roller
   // so the Monte Carlo wrapper can drive initiative deterministically
   // from a SeededRandom. Default preserves prior behavior (Math.random).
-  const playerRoll = roll2d6(diceRoller);
-  const opponentRoll = roll2d6(diceRoller);
+  const initialPlayerRoll = roll2d6(diceRoller);
+  const initialOpponentRoll = roll2d6(diceRoller);
+  let playerRoll = initialPlayerRoll;
+  let opponentRoll = initialOpponentRoll;
+  const tacticalGeniusRerollSide =
+    options.tacticalGeniusRerollSide &&
+    hasSideTacticalGeniusInitiativeReroll(
+      session.currentState,
+      options.tacticalGeniusRerollSide,
+    )
+      ? options.tacticalGeniusRerollSide
+      : undefined;
+
+  if (tacticalGeniusRerollSide === GameSide.Player) {
+    playerRoll = roll2d6(diceRoller);
+  } else if (tacticalGeniusRerollSide === GameSide.Opponent) {
+    opponentRoll = roll2d6(diceRoller);
+  }
+  const playerModifier = calculateSideInitiativeModifier(
+    session.currentState,
+    GameSide.Player,
+  );
+  const opponentModifier = calculateSideInitiativeModifier(
+    session.currentState,
+    GameSide.Opponent,
+  );
+  const playerTotal = playerRoll + playerModifier;
+  const opponentTotal = opponentRoll + opponentModifier;
 
   let winner: GameSide;
-  if (playerRoll > opponentRoll) {
+  if (playerTotal > opponentTotal) {
     winner = GameSide.Player;
-  } else if (opponentRoll > playerRoll) {
+  } else if (opponentTotal > playerTotal) {
     winner = GameSide.Opponent;
   } else {
     winner = GameSide.Player;
@@ -323,7 +349,7 @@ export function rollInitiative(
 
   const sequence = session.events.length;
   const { turn } = session.currentState;
-  const event = createInitiativeRolledEvent(
+  const initiativeRolledEvent = createInitiativeRolledEvent(
     session.id,
     sequence,
     turn,
@@ -331,9 +357,27 @@ export function rollInitiative(
     opponentRoll,
     winner,
     actualMovesFirst,
+    { playerModifier, opponentModifier },
+    tacticalGeniusRerollSide
+      ? {
+          side: tacticalGeniusRerollSide,
+          originalPlayerRoll: initialPlayerRoll,
+          originalOpponentRoll: initialOpponentRoll,
+        }
+      : undefined,
+  );
+  const initiativeOrderSetEvent = createInitiativeOrderSetEvent(
+    session.id,
+    sequence + 1,
+    turn,
+    winner,
+    actualMovesFirst,
   );
 
-  return appendEvent(session, event);
+  return appendEvent(
+    appendEvent(session, initiativeRolledEvent),
+    initiativeOrderSetEvent,
+  );
 }
 
 export function declareMovement(
@@ -454,6 +498,31 @@ export function declareAttack(
   if (!attackerUnit) {
     throw new Error(`Attacker unit ${attackerId} not found`);
   }
+
+  const invalidTargetSession = invalidateInvalidTargetAttack(
+    session,
+    attackerId,
+    targetId,
+    weapons.map((weapon) => weapon.weaponId),
+  );
+  if (invalidTargetSession) return invalidTargetSession;
+
+  const evadingAttackerSession = invalidateEvadingAttackerAttack(
+    session,
+    attackerId,
+    targetId,
+    weapons.map((weapon) => weapon.weaponId),
+  );
+  if (evadingAttackerSession) return evadingAttackerSession;
+
+  const sprintingAttackerSession = invalidateSprintingAttackerAttack(
+    session,
+    attackerId,
+    targetId,
+    weapons.map((weapon) => weapon.weaponId),
+  );
+  if (sprintingAttackerSession) return sprintingAttackerSession;
+
   if (!targetUnit) {
     throw new Error(`Target unit ${targetId} not found`);
   }
@@ -463,6 +532,9 @@ export function declareAttack(
     throw new Error(`Attacker ${attackerId} not found in units`);
   }
 
+  // Wave 8 PR-K11: normalize IAttackPreResolution union → bare resolution
+  // so the existing pipeline below uses one shape. Back-compat: pre-K11
+  // callers passing IIndirectFireResolution directly continue to work.
   const indirectFireResolution:
     | import('@/types/gameplay/IndirectFireInterfaces').IIndirectFireResolution
     | undefined = !indirectFireResolutionInput
@@ -473,174 +545,100 @@ export function declareAttack(
         : undefined
       : indirectFireResolutionInput;
 
-  const resolvedTargetHex = targetHex ?? targetUnit.position;
-  const interveningTerrainModifier = calculateInterveningTerrainModifier(
-    interveningTerrainEffects,
+  const primaryWeapon = weapons[0];
+  const semiGuidedTagContext = primaryWeapon
+    ? {
+        isSemiGuided:
+          isSemiGuidedLRM(primaryWeapon.ammoType ?? '') ||
+          isSemiGuidedLRM(primaryWeapon.weaponId) ||
+          isSemiGuidedLRM(primaryWeapon.weaponName),
+        targetTagDesignated: targetUnit.tagDesignated,
+        isIndirectFire:
+          indirectFireResolution?.permitted === true &&
+          indirectFireResolution.isIndirect,
+      }
+    : undefined;
+
+  const toHitCalc = calculateToHit(
+    buildWeaponAttackAttackerToHitState(
+      attackerUnit,
+      attacker.gunnery,
+      primaryWeapon
+        ? {
+            id: primaryWeapon.weaponId,
+            name: primaryWeapon.weaponName,
+            category: primaryWeapon.category,
+          }
+        : undefined,
+      targetId,
+      undefined,
+      weapons.some((weapon) => weapon.calledShot === true),
+      weapons.some((weapon) => weapon.teammateCalledShot === true),
+      targetPartialCover,
+    ),
+    buildWeaponAttackTargetToHitState(targetUnit, targetPartialCover),
+    rangeBracket,
+    range,
+    primaryWeapon?.minRange,
+    primaryWeapon?.weaponId,
+    semiGuidedTagContext,
   );
-  const groundToAirAltitudeModifier = calculateGroundToAirAltitudeModifier(
-    attackerUnit,
-    targetUnit,
-  );
-  const attackContextModifiers = [
-    interveningTerrainModifier,
-    targetTerrainModifier,
-    groundToAirAltitudeModifier,
-  ].filter(
-    (modifier): modifier is IToHitModifierDetail =>
-      modifier !== null && modifier !== undefined,
-  );
 
-  const c3State = session.currentState.c3State;
-  const indirectAttack =
-    indirectFireResolution?.permitted === true &&
-    indirectFireResolution.isIndirect;
-  const spottingPenaltyApplies =
-    !indirectAttack &&
-    wasElectedIndirectSpotterThisTurn(
-      session,
-      attackerId,
-      session.currentState.turn,
-    );
-  const calculateAttackToHitForWeapons = (
-    attackWeapons: readonly IWeaponAttack[],
-  ): {
-    readonly rangeBracket: RangeBracket;
-    readonly toHitNumber: number;
-    readonly modifiers: readonly IToHitModifier[];
-  } => {
-    const directRangeBracket = bestRangeBracketForAttack(range, attackWeapons);
-    const attackRangeBracket =
-      directRangeBracket === RangeBracket.OutOfRange
-        ? rangeBracket
-        : directRangeBracket;
-    const attackerState = {
-      gunnery: attacker.gunnery,
-      movementType: attackerUnit.movementThisTurn,
-      heat: attackerUnit.heat,
-      damageModifiers: attackContextModifiers,
-      prone: attackerUnit.prone ?? false,
-      ...deriveVehicleToHitContext(attackerUnit, attackWeapons),
-    };
-    const targetState = {
-      movementType: targetUnit.movementThisTurn,
-      hexesMoved: targetUnit.hexesMovedThisTurn,
-      prone: targetUnit.prone ?? false,
-      immobile: isRepresentedTargetImmobile(targetUnit),
-      partialCover: targetPartialCover,
-      hullDown: targetUnit.hullDown === true,
-    };
-    const minimumRange = minimumRangeForAttack(
-      attackWeapons,
-      range,
-      isGroundToGroundGameAttack(attackerUnit, targetUnit),
-    );
-    const weaponRangeProfiles = attackWeapons.map((weapon) => ({
-      short: weapon.shortRange,
-      medium: weapon.mediumRange,
-      long: weapon.longRange,
-      extreme: weapon.extremeRange,
-      minimum: weapon.minRange,
-    }));
-    const c3Selection =
-      indirectAttack || !c3State
-        ? undefined
-        : selectC3RangeBracket({
-            attackerEntityId: attackerId,
-            targetPosition: resolvedTargetHex,
-            weaponRangeProfiles,
-            directRangeBracket: attackRangeBracket,
-            c3State,
-          });
-    const c3WeaponRangeProfile =
-      c3Selection !== undefined
-        ? weaponRangeProfiles[c3Selection.weaponIndex]
-        : undefined;
-    let effectiveRangeBracket = attackRangeBracket;
-    const toHitCalc =
-      c3Selection !== undefined && c3WeaponRangeProfile !== undefined && c3State
-        ? (() => {
-            const c3ToHit = calculateToHitWithC3(
-              attackerState,
-              targetState,
-              attackRangeBracket,
-              range,
-              {
-                attackerEntityId: attackerId,
-                targetPosition: resolvedTargetHex,
-                weaponRangeProfile: c3WeaponRangeProfile,
-                c3State,
-              },
-              minimumRange,
-            );
-            if (c3ToHit.c3Result.benefitApplied) {
-              effectiveRangeBracket = c3ToHit.c3Result.bestBracket;
-            }
-            return c3ToHit;
-          })()
-        : calculateToHit(
-            attackerState,
-            targetState,
-            attackRangeBracket,
-            range,
-            minimumRange,
-          );
+  const modifiers: IToHitModifier[] = toHitCalc.modifiers.map((modifier) => ({
+    name: modifier.name,
+    value: modifier.value,
+    source: modifier.source,
+    description: modifier.description,
+  }));
+  let attackContextModifierTotal = 0;
 
-    const modifiers: IToHitModifier[] = toHitCalc.modifiers.map((modifier) => ({
-      name: modifier.name,
-      value: modifier.value,
-      source: modifier.source,
-      description: modifier.description,
-    }));
+  for (const terrainEffect of interveningTerrainEffects) {
+    if (terrainEffect.modifier === 0) continue;
+    attackContextModifierTotal += terrainEffect.modifier;
+    modifiers.push({
+      name: 'Intervening terrain',
+      value: terrainEffect.modifier,
+      source: 'terrain',
+      description: `${terrainEffect.terrain} at (${terrainEffect.coord.q}, ${terrainEffect.coord.r})`,
+    });
+  }
 
-    // Wave 8 PR-K4: append indirect-fire and spotting penalties to the
-    // modifier list so target-number metadata stays replayable.
-    let finalToHit = toHitCalc.finalToHit;
-    if (
-      indirectFireResolution &&
-      indirectFireResolution.permitted &&
-      indirectFireResolution.isIndirect &&
-      indirectFireResolution.toHitPenalty > 0
-    ) {
-      modifiers.push({
-        name: 'Indirect fire',
-        value: indirectFireResolution.toHitPenalty,
-        source: 'other',
-      });
-      finalToHit += indirectFireResolution.toHitPenalty;
-    }
-    if (spottingPenaltyApplies) {
-      modifiers.push({
-        name: 'Spotting for indirect fire',
-        value: 1,
-        source: 'other',
-      });
-      finalToHit += 1;
-    }
+  if (targetTerrainModifier) {
+    attackContextModifierTotal += targetTerrainModifier.value;
+    modifiers.push({
+      name: targetTerrainModifier.name,
+      value: targetTerrainModifier.value,
+      source: targetTerrainModifier.source,
+      description: targetTerrainModifier.description,
+    });
+  }
 
-    return {
-      rangeBracket: effectiveRangeBracket,
-      toHitNumber: finalToHit,
-      modifiers,
-    };
-  };
+  // Wave 8 PR-K4: append indirect-fire penalty to the modifier list so
+  // the AttackDeclared event's toHitNumber reflects the live indirect
+  // resolution. The penalty math (base +1, +1 spotter-walked, -1 FO SPA)
+  // happened upstream in `computeIndirectFireContext`.
+  let finalToHit = toHitCalc.finalToHit + attackContextModifierTotal;
+  if (
+    indirectFireResolution &&
+    indirectFireResolution.permitted &&
+    indirectFireResolution.isIndirect &&
+    indirectFireResolution.toHitPenalty > 0
+  ) {
+    modifiers.push({
+      name: 'Indirect fire',
+      value: indirectFireResolution.toHitPenalty,
+      source: 'other',
+    });
+    finalToHit += indirectFireResolution.toHitPenalty;
+  }
 
   const weaponIds = weapons.map((weapon) => weapon.weaponId);
-  const aggregateToHit = calculateAttackToHitForWeapons(weapons);
-  const finalToHit = aggregateToHit.toHitNumber;
-  const modifiers = aggregateToHit.modifiers;
-  const effectiveRangeBracket = aggregateToHit.rangeBracket;
-  const weaponAttackData: IWeaponAttackData[] = weapons.map((weapon) => {
-    const weaponToHit = calculateAttackToHitForWeapons([weapon]);
-    return {
-      weaponId: weapon.weaponId,
-      weaponName: weapon.weaponName,
-      mode: weapon.mode ?? 'Direct',
-      damage: weapon.damage,
-      heat: weapon.heat,
-      toHitNumber: weaponToHit.toHitNumber,
-      modifiers: weaponToHit.modifiers,
-    };
-  });
+  const weaponAttackData: IWeaponAttackData[] = weapons.map((weapon) => ({
+    weaponId: weapon.weaponId,
+    weaponName: weapon.weaponName,
+    damage: weapon.damage,
+    heat: weapon.heat,
+  }));
 
   const sequence = session.events.length;
   const { turn } = session.currentState;
@@ -654,7 +652,6 @@ export function declareAttack(
     finalToHit,
     modifiers,
     weaponAttackData,
-    effectiveRangeBracket,
   );
 
   let updatedSession = appendEvent(session, event);
@@ -670,6 +667,7 @@ export function declareAttack(
     indirectFireResolution.isIndirect &&
     weaponIds.length > 0
   ) {
+    const resolvedTargetHex = targetHex ?? targetUnit.position;
     const eventWeaponId = weaponIds[0];
     const eventSequence = updatedSession.events.length;
     if (
@@ -697,12 +695,9 @@ export function declareAttack(
         eventWeaponId,
         resolvedTargetHex,
         indirectFireResolution.toHitPenalty,
-        undefined,
-        indirectFireResolution.spotterGunnery,
-        indirectFireResolution.spotterSkillModifier,
       );
       updatedSession = appendEvent(updatedSession, spotterEvent);
-      if (indirectFireResolution.forwardObserverApplied === true) {
+      if (indirectFireResolution.forwardObserverApplied) {
         const forwardObserverEvent = createIndirectFireForwardObserverEvent(
           updatedSession.id,
           updatedSession.events.length,
@@ -712,9 +707,6 @@ export function declareAttack(
           eventWeaponId,
           resolvedTargetHex,
           indirectFireResolution.toHitPenalty,
-          undefined,
-          indirectFireResolution.spotterGunnery,
-          indirectFireResolution.spotterSkillModifier,
         );
         updatedSession = appendEvent(updatedSession, forwardObserverEvent);
       }
@@ -722,63 +714,6 @@ export function declareAttack(
   }
 
   return updatedSession;
-}
-
-function minimumRangeForAttack(
-  weapons: readonly IWeaponAttack[],
-  range: number,
-  minimumRangeApplies = true,
-): number {
-  if (!minimumRangeApplies) return 0;
-  return weapons.reduce((strictestMinimum, weapon) => {
-    const minimum = weapon.minRange ?? 0;
-    return minimum > range
-      ? Math.max(strictestMinimum, minimum)
-      : strictestMinimum;
-  }, 0);
-}
-
-const ATTACK_RANGE_BRACKET_RANK: Readonly<Record<RangeBracket, number>> = {
-  [RangeBracket.Short]: 0,
-  [RangeBracket.Medium]: 1,
-  [RangeBracket.Long]: 2,
-  [RangeBracket.Extreme]: 3,
-  [RangeBracket.OutOfRange]: 4,
-};
-
-function bestRangeBracketForAttack(
-  range: number,
-  weapons: readonly IWeaponAttack[],
-): RangeBracket {
-  return weapons.reduce<RangeBracket>((best, weapon) => {
-    const bracket = getWeaponRangeBracket(range, {
-      short: weapon.shortRange,
-      medium: weapon.mediumRange,
-      long: weapon.longRange,
-      extreme: weapon.extremeRange,
-      minimum: weapon.minRange,
-    });
-    return ATTACK_RANGE_BRACKET_RANK[bracket] < ATTACK_RANGE_BRACKET_RANK[best]
-      ? bracket
-      : best;
-  }, RangeBracket.OutOfRange);
-}
-
-function wasElectedIndirectSpotterThisTurn(
-  session: IGameSession,
-  spotterId: string,
-  turn: number,
-): boolean {
-  return session.events.some((event) => {
-    if (
-      event.turn !== turn ||
-      event.type !== GameEventType.IndirectFireSpotterSelected
-    ) {
-      return false;
-    }
-    const payload = event.payload as { readonly spotterId?: string | null };
-    return payload.spotterId === spotterId;
-  });
 }
 
 export function lockAttack(
@@ -792,6 +727,67 @@ export function lockAttack(
   const sequence = session.events.length;
   const { turn } = session.currentState;
   const event = createAttackLockedEvent(session.id, sequence, turn, unitId);
+
+  return appendAttackRevealIfReady(appendEvent(session, event), unitId);
+}
+
+function assertCanRequestSpot(
+  session: IGameSession,
+  unitId: string,
+  targetId: string,
+): void {
+  if (session.currentState.status !== GameStatus.Active) {
+    throw new Error('Game is not active');
+  }
+  if (session.currentState.phase !== GamePhase.WeaponAttack) {
+    throw new Error('Not in weapon attack phase');
+  }
+
+  const unit = session.currentState.units[unitId];
+  if (!unit) {
+    throw new Error(`Unit ${unitId} not found`);
+  }
+  if (unit.destroyed || unit.hasRetreated || unit.hasEjected) {
+    throw new Error(`Unit ${unitId} is not active`);
+  }
+  if (unit.shutdown || !unit.pilotConscious) {
+    throw new Error(`Unit ${unitId} cannot spot`);
+  }
+  if (unit.sprintedThisTurn || unit.isEvading) {
+    throw new Error(`Unit ${unitId} cannot spot after sprinting or evading`);
+  }
+  if (unit.isSpotting) {
+    throw new Error(`Unit ${unitId} is already spotting`);
+  }
+
+  const target = session.currentState.units[targetId];
+  if (!target) {
+    throw new Error(`Target unit ${targetId} not found`);
+  }
+  if (target.destroyed || target.hasRetreated || target.hasEjected) {
+    throw new Error(`Target unit ${targetId} is not targetable`);
+  }
+  if (target.side === unit.side) {
+    throw new Error('Cannot spot a friendly target');
+  }
+}
+
+export function requestSpot(
+  session: IGameSession,
+  unitId: string,
+  targetId: string,
+): IGameSession {
+  assertCanRequestSpot(session, unitId, targetId);
+
+  const sequence = session.events.length;
+  const { turn } = session.currentState;
+  const event = createSpottingDeclaredEvent(
+    session.id,
+    sequence,
+    turn,
+    unitId,
+    targetId,
+  );
 
   return appendEvent(session, event);
 }

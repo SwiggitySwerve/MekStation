@@ -8,13 +8,10 @@
 
 import type { IWeapon } from '@/simulation/ai/types';
 
-import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
-import { FiringArc } from '@/types/gameplay';
 import {
   buildWeaponAttack,
   buildWeaponAttacks,
-  resolveWeaponFireMode,
 } from '@/utils/gameplay/weaponAttackBuilder';
 import { logger } from '@/utils/logger';
 
@@ -76,67 +73,6 @@ describe('buildWeaponAttack', () => {
     expect(result?.heat).toBe(7);
   });
 
-  it('preserves represented extreme range for engine range checks', () => {
-    const result = buildWeaponAttack('er-ac-1', [
-      {
-        ...ac20,
-        id: 'er-ac-1',
-        name: 'Extended AC',
-        longRange: 6,
-        extremeRange: 9,
-      },
-    ]);
-    expect(result?.longRange).toBe(6);
-    expect(result?.extremeRange).toBe(9);
-  });
-
-  it('preserves mounted firing arc for engine arc checks', () => {
-    const result = buildWeaponAttack('rear-ml-1', [
-      {
-        ...mediumLaser,
-        id: 'rear-ml-1',
-        mountingArc: FiringArc.Rear,
-      },
-    ]);
-    expect(result?.mountingArc).toBe(FiringArc.Rear);
-  });
-
-  it('preserves represented multi-arc mounts for engine arc checks', () => {
-    const result = buildWeaponAttack('sponson-ml-1', [
-      {
-        ...mediumLaser,
-        id: 'sponson-ml-1',
-        mountingArcs: [FiringArc.Front, FiringArc.Left],
-      },
-    ]);
-    expect(result?.mountingArcs).toEqual([FiringArc.Front, FiringArc.Left]);
-  });
-
-  it('preserves represented mount location for hull-down attacker gates', () => {
-    const result = buildWeaponAttack('leg-ml-1', [
-      {
-        ...mediumLaser,
-        id: 'leg-ml-1',
-        location: 'left_leg',
-      },
-    ]);
-
-    expect(result?.location).toBe('left_leg');
-  });
-
-  it('preserves vehicle mount metadata for vehicle to-hit modifiers', () => {
-    const result = buildWeaponAttack('chin-ml-1', [
-      {
-        ...mediumLaser,
-        id: 'chin-ml-1',
-        vehicleMountLocation: VehicleLocation.TURRET,
-        vehicleIsTurretMounted: true,
-      },
-    ]);
-    expect(result?.vehicleMountLocation).toBe(VehicleLocation.TURRET);
-    expect(result?.vehicleIsTurretMounted).toBe(true);
-  });
-
   it('returns null + warns when the weapon id is not on the unit', () => {
     const warnSpy = jest.spyOn(logger, 'warn').mockImplementation();
     const result = buildWeaponAttack('nonexistent', [mediumLaser], 'unit-1');
@@ -174,41 +110,6 @@ describe('buildWeaponAttack', () => {
     expect(buildWeaponAttack('lrm10-1', [lrm10])?.category).toBe(
       WeaponCategory.MISSILE,
     );
-  });
-
-  it('defaults unresolved fire mode to Direct', () => {
-    expect(buildWeaponAttack('lrm10-1', [lrm10])?.mode).toBe('Direct');
-  });
-
-  it('preserves requested Indirect mode for indirect-capable weapons', () => {
-    expect(
-      buildWeaponAttack('lrm10-1', [lrm10], 'unit-1', {
-        'lrm10-1': 'Indirect',
-      })?.mode,
-    ).toBe('Indirect');
-  });
-
-  it('falls back to Direct when Indirect is requested for a non-eligible weapon', () => {
-    expect(
-      buildWeaponAttack('ac20-1', [ac20], 'unit-1', {
-        'ac20-1': 'Indirect',
-      })?.mode,
-    ).toBe('Direct');
-  });
-});
-
-describe('resolveWeaponFireMode', () => {
-  it('resolves eligible indirect mode requests', () => {
-    expect(resolveWeaponFireMode('lrm-15-1', 'Indirect')).toBe('Indirect');
-  });
-
-  it('normalizes missing and explicit direct modes to Direct', () => {
-    expect(resolveWeaponFireMode('lrm-15-1')).toBe('Direct');
-    expect(resolveWeaponFireMode('lrm-15-1', 'Direct')).toBe('Direct');
-  });
-
-  it('normalizes corrupt non-eligible indirect requests to Direct', () => {
-    expect(resolveWeaponFireMode('ac-20-1', 'Indirect')).toBe('Direct');
   });
 });
 

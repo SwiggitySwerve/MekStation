@@ -5,6 +5,9 @@ import {
   BAP_ECM_COUNTER_RANGE,
   BLOODHOUND_ECM_COUNTER_RANGE,
   CLAN_PROBE_ECM_COUNTER_RANGE,
+  LIGHT_PROBE_ECM_COUNTER_RANGE,
+  NOVA_CEWS_ECM_COUNTER_RANGE,
+  WATCHDOG_CEWS_ECM_COUNTER_RANGE,
 } from './constants';
 import { IActiveProbe, IElectronicWarfareState, IECMSuite } from './types';
 
@@ -18,6 +21,12 @@ export function getProbeECMCounterRange(
       return BLOODHOUND_ECM_COUNTER_RANGE;
     case 'clan-active-probe':
       return CLAN_PROBE_ECM_COUNTER_RANGE;
+    case 'light-active-probe':
+      return LIGHT_PROBE_ECM_COUNTER_RANGE;
+    case 'watchdog-cews':
+      return WATCHDOG_CEWS_ECM_COUNTER_RANGE;
+    case 'nova-cews':
+      return NOVA_CEWS_ECM_COUNTER_RANGE;
   }
 }
 

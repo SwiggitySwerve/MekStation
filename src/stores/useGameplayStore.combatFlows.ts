@@ -88,7 +88,7 @@ export interface IPlannedMovement {
 export interface IAttackPlan {
   readonly targetUnitId: string | null;
   readonly selectedWeapons: readonly string[];
-  readonly weaponModeError: string | null;
+  readonly weaponModeError?: string | null;
 }
 
 /**

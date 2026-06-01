@@ -1,7 +1,10 @@
+import type { CriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
+
 import {
   GameEventType,
   GamePhase,
   IGameEvent,
+  IMovementCapability,
   ReplaySource,
 } from '@/types/gameplay';
 import { GameSide } from '@/types/gameplay';
@@ -46,7 +49,12 @@ import {
   type UnitHydrationMap,
 } from './SimulationRunnerState';
 import { createMinimalGrid } from './SimulationRunnerSupport';
+import { appendRunnerGameEndedEvent } from './SimulationRunnerTerminalEvent';
 import { IDetectorConfig, ISimulationRunResult } from './types';
+import {
+  hydrateCriticalSlotManifestFromFullUnit,
+  hydrateMovementCapabilityFromFullUnit,
+} from './UnitHydration';
 
 /**
  * Default AI player factory — constructs a `BotPlayer` with the supplied
@@ -63,6 +71,14 @@ export class SimulationRunner {
   private readonly aiPlayerFactory: AIPlayerFactory;
   private readonly hydration: UnitHydrationMap | undefined;
   private readonly weaponsByUnit: ReadonlyMap<string, readonly IWeapon[]>;
+  private readonly criticalSlotManifestSeedsByUnit: ReadonlyMap<
+    string,
+    CriticalSlotManifest
+  >;
+  private readonly movementCapabilitiesByUnit: ReadonlyMap<
+    string,
+    IMovementCapability
+  >;
   private readonly keyMomentDetector = createKeyMomentDetector();
   private readonly anomalyDetectors: IAnomalyDetectors =
     createAnomalyDetectors();
@@ -124,15 +140,48 @@ export class SimulationRunner {
     // hydration data per turn.
     this.hydration = hydration;
     const weaponsMap = new Map<string, readonly IWeapon[]>();
+    const manifestSeedMap = new Map<string, CriticalSlotManifest>();
+    const movementCapabilityMap = new Map<string, IMovementCapability>();
     if (hydration) {
       // forEach avoids relying on Map iterator protocol — tsconfig target
       // is ES5 and downlevelIteration is off, so `for..of` over a Map
       // would force a transpile flag flip across the whole project.
       hydration.forEach((data, unitId) => {
         weaponsMap.set(unitId, data.aiWeapons);
+        const manifest = hydrateCriticalSlotManifestFromFullUnit(
+          data.fullUnit,
+          data.aiWeapons,
+        );
+        if (manifest !== undefined) {
+          manifestSeedMap.set(unitId, manifest);
+        }
+        const movementCapability = hydrateMovementCapabilityFromFullUnit(
+          data.fullUnit,
+        );
+        if (movementCapability !== undefined) {
+          movementCapabilityMap.set(unitId, movementCapability);
+        }
       });
     }
     this.weaponsByUnit = weaponsMap;
+    this.criticalSlotManifestSeedsByUnit = manifestSeedMap;
+    this.movementCapabilitiesByUnit = movementCapabilityMap;
+  }
+
+  private createCriticalSlotManifestRunMap():
+    | Map<string, CriticalSlotManifest>
+    | undefined {
+    if (this.criticalSlotManifestSeedsByUnit.size === 0) return undefined;
+
+    const out = new Map<string, CriticalSlotManifest>();
+    this.criticalSlotManifestSeedsByUnit.forEach((manifest, unitId) => {
+      const clone: Record<string, CriticalSlotManifest[string]> = {};
+      for (const [location, slots] of Object.entries(manifest)) {
+        clone[location] = slots.map((slot) => ({ ...slot }));
+      }
+      out.set(unitId, clone);
+    });
+    return out;
   }
 
   run(config: ISimulationConfig): ISimulationRunResult {
@@ -143,6 +192,7 @@ export class SimulationRunner {
 
     const grid = createMinimalGrid(config.mapRadius);
     const state = createInitialState(config, this.hydration);
+    const manifestsByUnit = this.createCriticalSlotManifestRunMap();
     // Per `add-scenario-objective-engine`: the objective map seeded
     // into the initial state is also stamped onto the GameCreated
     // payload so the persisted event log replays objective state.
@@ -171,10 +221,10 @@ export class SimulationRunner {
             mapRadius: config.mapRadius,
             turnLimit: config.turnLimit,
             // Synthetic — the runner is single-mode today (destruction-
-            // win, no optional rules). When victory conditions become
+            // win). When victory conditions become
             // configurable, this MUST move to the real source.
             victoryConditions: ['destruction'],
-            optionalRules: [],
+            optionalRules: config.optionalRules ?? [],
           },
           units: gameUnits,
           // Per `add-scenario-objective-engine`: stamp the placed
@@ -212,23 +262,28 @@ export class SimulationRunner {
         state: currentState,
         botPlayer,
         grid,
+        environmentalConditions: config.environmentalConditions,
         invariantRunner: this.invariantRunner,
         violations,
         events,
         gameId,
         weaponsByUnit: this.weaponsByUnit,
+        random: this.random,
       });
 
       currentState = runAttackPhase({
         state: currentState,
         botPlayer,
         grid,
+        environmentalConditions: config.environmentalConditions,
         invariantRunner: this.invariantRunner,
         violations,
         events,
         gameId,
         random: this.random,
         weaponsByUnit: this.weaponsByUnit,
+        manifestsByUnit,
+        optionalRules: config.optionalRules,
       });
 
       currentState = runPSRPhase({
@@ -236,6 +291,7 @@ export class SimulationRunner {
         events,
         gameId,
         random: this.random,
+        manifestsByUnit,
       });
 
       if (isGameOver(currentState, config.turnLimit)) {
@@ -244,11 +300,15 @@ export class SimulationRunner {
 
       currentState = runPhysicalAttackPhase({
         state: currentState,
+        botPlayer,
         invariantRunner: this.invariantRunner,
         violations,
         events,
         gameId,
+        grid,
         random: this.random,
+        movementCapabilitiesByUnit: this.movementCapabilitiesByUnit,
+        optionalRules: config.optionalRules,
       });
 
       currentState = runPSRPhase({
@@ -256,6 +316,7 @@ export class SimulationRunner {
         events,
         gameId,
         random: this.random,
+        manifestsByUnit,
       });
 
       if (isGameOver(currentState, config.turnLimit)) {
@@ -264,10 +325,13 @@ export class SimulationRunner {
 
       currentState = runHeatPhase({
         state: currentState,
+        grid,
+        environmentalConditions: config.environmentalConditions,
         events,
         gameId,
         random: this.random,
         weaponsByUnit: this.weaponsByUnit,
+        manifestsByUnit,
       });
 
       currentState = { ...currentState, phase: GamePhase.End };
@@ -355,6 +419,15 @@ export class SimulationRunner {
       maxTurns: MAX_TURNS,
       hadWithdrawal: false,
       hadForfeit: false,
+    });
+
+    appendRunnerGameEndedEvent({
+      events,
+      gameId,
+      state: currentState,
+      turnLimit,
+      winner,
+      haltedByCriticalAnomaly,
     });
 
     const keyMomentBattleState = buildKeyMomentBattleState(currentState);

@@ -15,11 +15,14 @@ interface IInterveningTerrainModifierInput {
   readonly modifier: number;
 }
 
-export function calculateHeatModifier(heat: number): IToHitModifierDetail {
+export function calculateHeatModifier(
+  heat: number,
+  penaltyReduction = 0,
+): IToHitModifierDetail {
   const threshold = HEAT_THRESHOLDS.find(
     (entry) => heat >= entry.minHeat && heat <= entry.maxHeat,
   );
-  const value = threshold?.modifier ?? 0;
+  const value = Math.max(0, (threshold?.modifier ?? 0) - penaltyReduction);
 
   return {
     name: 'Heat',
@@ -46,17 +49,17 @@ export function calculatePartialCoverModifier(
 
 export function calculateHullDownModifier(
   hullDown: boolean,
-  partialCover: boolean,
+  _partialCover: boolean,
 ): IToHitModifierDetail | null {
-  if (!hullDown || !partialCover) {
+  if (!hullDown) {
     return null;
   }
 
   return {
-    name: 'Hull Down',
+    name: 'Hull-Down',
     value: 2,
     source: 'terrain',
-    description: 'Target in hull-down position with cover: +2',
+    description: 'Target in hull-down position: +2',
   };
 }
 
@@ -121,7 +124,7 @@ export function calculateTargetTerrainModifierFromHex(
 
 export function getTerrainToHitModifier(
   targetTerrain: readonly ITerrainFeature[],
-  interveningTerrain: readonly ITerrainFeature[][],
+  interveningTerrain: readonly (readonly ITerrainFeature[])[],
 ): number {
   let modifier = 0;
 

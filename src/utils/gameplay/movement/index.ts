@@ -1,15 +1,23 @@
 export type { UnitMovementType } from './types';
 export { createMovementRecord } from './types';
 export {
+  applyActiveMPBoosters,
+  applyJumpJetCriticalDamage,
+  applyPartialWingJumpBonus,
   calculateRunMP,
+  calculateSprintMP,
   createMovementCapability,
   getMaxMP,
+  getSprintMPForCapability,
   getHexMovementCost,
   getMovementStepCostBreakdown,
   calculatePathMovementCost,
   estimateMovementCost,
 } from './calculations';
-export type { IMovementStepCostBreakdown } from './calculations';
+export type {
+  IMovementCostContext,
+  IMovementStepCostBreakdown,
+} from './calculations';
 export { movementModeForPath, movementModeForRange } from './mode';
 export {
   resolveRuntimeMovementCapability,
@@ -18,6 +26,8 @@ export {
 export {
   validateMovement,
   canStand,
+  calculateGroundPathMpCost,
+  getFacingChangeCost,
   getStandingCost,
   getValidDestinations,
 } from './validation';

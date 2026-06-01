@@ -132,7 +132,7 @@ describe('fog-of-war unit visibility helpers', () => {
     expect(canPlayerSeeUnit(PLAYER_ID, 'enemy-adjacent', state)).toBe(true);
   });
 
-  it('returns false when blocking terrain interrupts LOS', () => {
+  it('returns false when cumulative terrain density interrupts LOS', () => {
     const grid = makeGrid([
       makeHex(0, 0),
       makeHex(1, 0, TerrainType.HeavyWoods),

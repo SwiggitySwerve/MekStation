@@ -186,6 +186,16 @@ Sequential `BatchRunner.runBatch` SHALL be the only execution path in this chang
 - **WHEN** the run completes
 - **THEN** total wall-clock time SHALL be less than 60 seconds
 - **AND** the runner SHALL NOT have spawned any `Worker` threads or child processes
+- **AND** CI smoke runs MAY set a lower run count and proportional wall-clock budget while preserving the 1,000-run / 60-second default as the explicit throughput proof
+
+#### Scenario: PR validation keeps simulation proofs in fast smoke lanes
+
+- **GIVEN** perf-sensitive simulation proof suites that run large statistical or combat-integration batches by default
+- **WHEN** PR CI executes the unit test shards
+- **THEN** those perf-sensitive suites SHALL be excluded from ordinary unit shards
+- **AND** a dedicated perf-smoke job SHALL run the same suites with explicit CI-scaled run counts and wall-clock budgets
+- **AND** the CI-scaled counts SHALL be small enough to keep the PR check fan-out inside the expected short feedback window
+- **AND** local/default test settings SHALL preserve the larger statistical and combat-integration proof counts for deeper validation
 
 #### Scenario: Output JSON validates against schema
 
@@ -635,4 +645,3 @@ After the file is written, the system SHALL append a corresponding `IQuickReplay
 - **GIVEN** a persisted `simulation-reports/quick/<gameId>.jsonl`
 - **WHEN** any line is parsed
 - **THEN** the parsed event SHALL have `replaySource: ReplaySource.Quick` (or `undefined` for events authored before this change shipped if the quick game was started under a legacy code path)
-

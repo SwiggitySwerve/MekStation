@@ -1381,12 +1381,11 @@ describe('interactive attack projection agreement', () => {
       targetPartialCover: true,
       targetHullDown: true,
       targetHullDownModifier: 2,
-      toHitNumber: 7,
+      toHitNumber: 6,
     });
     expect(projection?.toHitModifiers).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ name: 'Partial Cover', value: 1 }),
-        expect.objectContaining({ name: 'Hull Down', value: 2 }),
+        expect.objectContaining({ name: 'Hull-Down', value: 2 }),
       ]),
     );
 
@@ -1407,8 +1406,7 @@ describe('interactive attack projection agreement', () => {
     expect(payload.toHitNumber).toBe(projection!.toHitNumber);
     expect(payload.modifiers).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ name: 'Partial Cover', value: 1 }),
-        expect.objectContaining({ name: 'Hull Down', value: 2 }),
+        expect.objectContaining({ name: 'Hull-Down', value: 2 }),
       ]),
     );
   });
@@ -3283,7 +3281,7 @@ describe('interactive attack projection agreement', () => {
     ).toBe(true);
   });
 
-  it('keeps run-moved indirect-fire spotter penalty aligned between preview and commit', () => {
+  it('keeps run-moved indirect-fire spotter ineligibility aligned between preview and commit', () => {
     const session = setupIndirectSessionAtWeaponAttack();
     session.currentState.units.s1 = {
       ...session.currentState.units.s1,
@@ -3326,12 +3324,11 @@ describe('interactive attack projection agreement', () => {
     }).find((hex) => hex.hex.q === 5 && hex.hex.r === 0);
 
     expect(projection).toMatchObject({
-      attackable: true,
-      indirectFireAvailable: true,
-      indirectFireSpotterId: 's1',
-      indirectFireBasis: 'los',
-      indirectFireToHitPenalty: 3,
-      indirectFireReason: 'Indirect fire via spotter s1 (+3)',
+      attackable: false,
+      indirectFireAvailable: undefined,
+      indirectFireSpotterId: undefined,
+      indirectFireBasis: undefined,
+      indirectFireToHitPenalty: undefined,
     });
 
     const result = applyInteractiveSessionAttack({
@@ -3345,15 +3342,18 @@ describe('interactive attack projection agreement', () => {
 
     expect(
       result.events.some((event) => event.type === GameEventType.AttackInvalid),
-    ).toBe(false);
+    ).toBe(true);
     const declared = result.events.find(
       (event) => event.type === GameEventType.AttackDeclared,
     );
-    const declaredPayload = declared!.payload as IAttackDeclaredPayload;
-    const indirectModifier = declaredPayload.modifiers.find(
-      (modifier) => modifier.name === 'Indirect fire',
+    expect(declared).toBeUndefined();
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
     );
-    expect(indirectModifier?.value).toBe(projection!.indirectFireToHitPenalty);
+    expect(invalid?.payload as IAttackInvalidPayload).toMatchObject({
+      reason: projection!.attackInvalidReason,
+      details: projection!.attackInvalidDetails,
+    });
   });
 
   it.each([

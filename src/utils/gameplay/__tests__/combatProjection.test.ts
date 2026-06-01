@@ -197,13 +197,12 @@ describe('deriveCombatRangeHexes', () => {
       targetCoverModifier: 1,
       targetHullDown: true,
       targetHullDownModifier: 2,
-      targetHullDownReason: 'Target in hull-down position with cover: +2',
-      toHitNumber: 7,
+      targetHullDownReason: 'Target in hull-down position: +2',
+      toHitNumber: 6,
     });
     expect(targetHex?.toHitModifiers).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ name: 'Partial Cover', value: 1 }),
-        expect.objectContaining({ name: 'Hull Down', value: 2 }),
+        expect.objectContaining({ name: 'Hull-Down', value: 2 }),
       ]),
     );
   });

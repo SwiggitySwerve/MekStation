@@ -9,8 +9,9 @@
  * `pilotingSkillRolls/types.ts`; back-compat is preserved via a re-export
  * from that module.
  *
- * The canonical snake_case codes mirror MegaMek's movement and tactical
- * PSR taxonomy, including AirMek landing checks. See the `piloting-skill-rolls` spec
+ * The 27 canonical snake_case codes mirror MegaMek's
+ * `Server.processPilotingRolls` and `MovePathHandler.checkSkid`
+ * taxonomy. See the `piloting-skill-rolls` spec
  * (`Requirement: PSR Reason Code Discriminated Field`) for the
  * code → category mapping.
  *
@@ -34,6 +35,7 @@ export enum PSRTrigger {
   Charged = 'charged',
   DFATarget = 'dfa_target',
   Pushed = 'pushed',
+  DominoEffect = 'domino_effect',
 
   // Physical attack miss triggers (attacker)
   KickMiss = 'kick_miss',
@@ -51,6 +53,7 @@ export enum PSRTrigger {
   EnteringWater = 'entering_water',
   ExitingWater = 'exiting_water',
   Skidding = 'skidding',
+  SwampBogDown = 'swamp_bog_down',
   AirMekLanding = 'airmek_landing',
 
   // Movement with damage triggers

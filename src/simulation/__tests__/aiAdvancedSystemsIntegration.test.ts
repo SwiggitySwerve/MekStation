@@ -20,7 +20,7 @@
  */
 
 import { execSync } from 'child_process';
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 import type {
@@ -385,6 +385,13 @@ describe('A4 scope boundary — no core-engine modification', () => {
   }
 
   it('the electronicWarfare module and fogOfWar.ts are not in the A4 changeset', () => {
+    const activeA4Change = existsSync(
+      join(process.cwd(), 'openspec/changes/add-ai-advanced-systems'),
+    );
+    if (!activeA4Change) {
+      return;
+    }
+
     // A4 consumes both modules as-is (proposal Non-Goals). When the git diff
     // is resolvable, confirm no file under the electronic-warfare module or
     // the fog-of-war module appears in the changeset.

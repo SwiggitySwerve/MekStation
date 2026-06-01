@@ -5,7 +5,7 @@
  * network targeting systems:
  * - C3 Master/Slave: 4-unit max, requires master, master destruction dissolves network
  * - C3i (Improved): 6-unit max, peer-to-peer, no single point of failure
- * - Targeting benefit: use best range bracket among networked units with LOS to target
+ * - Targeting benefit: use best range bracket among operational networked units
  * - ECM disruption: ECM blocks C3 benefit for affected attacks (flag-based check)
  *
  * @spec openspec/specs/c3-network-targeting/spec.md
@@ -23,15 +23,18 @@ export {
   getUnitNetwork,
   removeC3Network,
   updateC3UnitECMStatus,
+  updateC3UnitOperationalStatus,
   updateC3UnitPosition,
 } from './c3Network/state';
 export { getC3TargetingBenefit, isBetterBracket } from './c3Network/targeting';
 export type {
   C3NetworkType,
   C3UnitRole,
+  IC3EquipmentMountState,
   IC3Network,
   IC3NetworkState,
   IC3NetworkUnit,
+  IC3TargetingOptions,
   IC3TargetingResult,
 } from './c3Network/types';
 export { C3_MASTER_SLAVE_MAX_UNITS, C3I_MAX_UNITS } from './c3Network/types';

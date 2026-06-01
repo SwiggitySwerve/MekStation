@@ -23,6 +23,7 @@ import {
   type D6Roller,
   type DiceRoller,
 } from '@/utils/gameplay/diceTypes';
+import { getGridTerrainHeatEffect } from '@/utils/gameplay/heat';
 import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 
 /**
@@ -68,16 +69,22 @@ export function physicalContextByUnit(
   session: IGameSession,
   tonnageByUnit: Map<string, number>,
   pilotingByUnit: Map<string, number>,
+  grid?: IHexGrid,
 ): Map<string, IPhysicalAttackContext> {
   const map = new Map<string, IPhysicalAttackContext>();
   for (const [unitId, unit] of Object.entries(session.currentState.units)) {
     map.set(unitId, {
       attackerTonnage: tonnageByUnit.get(unitId) ?? 65,
       pilotingSkill: pilotingByUnit.get(unitId) ?? 5,
+      hasTSM: unit.hasTSM ?? false,
+      isUnderwater:
+        grid !== undefined
+          ? waterDepthAtPosition(grid, unit.position) > 0
+          : false,
       hexesMoved: unit.hexesMovedThisTurn,
-      attackerMovementMode: session.units.find((entry) => entry.id === unitId)
-        ?.movementMode,
-      optionalRules: session.config.optionalRules,
+      targetMovementComplete: true,
+      pilotAbilities: unit.abilities,
+      unitQuirks: unit.unitQuirks,
     });
   }
   return map;
@@ -95,4 +102,11 @@ export function physicalContextByUnit(
  */
 export function waterDepthAt(grid: IHexGrid, position: IHexCoordinate): number {
   return waterDepthAtPosition(grid, position);
+}
+
+export function environmentHeatEffectAt(
+  grid: IHexGrid,
+  position: IHexCoordinate,
+): number {
+  return getGridTerrainHeatEffect(grid, position);
 }

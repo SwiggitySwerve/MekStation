@@ -1,4 +1,3 @@
-import { GyroType } from '@/types/construction/GyroType';
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import {
   IComponentDamageState,
@@ -28,6 +27,7 @@ import {
   createFootActuatorPSR,
   createKickedPSR,
   createChargedPSR,
+  createDFAAttackerPSR,
   createDFATargetPSR,
   createPushedPSR,
   createKickMissPSR,
@@ -44,11 +44,14 @@ import {
   createRunningDamagedHipPSR,
   createRunningDamagedGyroPSR,
   createBuildingCollapsePSR,
+  createSwampBogDownPSR,
+  getMASCOrSuperchargerFailureTargetNumber,
   createMASCFailurePSR,
   createSuperchargerFailurePSR,
   PSRTrigger,
   IPSRResult,
 } from '../pilotingSkillRolls';
+import { UNIT_QUIRK_IDS } from '../quirkModifiers';
 
 const DEFAULT_COMP_DAMAGE: IComponentDamageState = {
   engineHits: 0,
@@ -157,6 +160,54 @@ describe('Piloting Skill Rolls', () => {
       expect(result.passed).toBe(true);
     });
 
+    it('uses source-backed fixed MASC/Supercharger target numbers without piloting modifiers', () => {
+      const psr: IPendingPSR = createMASCFailurePSR('unit-1', 2);
+      const compDamage: IComponentDamageState = {
+        ...DEFAULT_COMP_DAMAGE,
+        gyroHits: 1,
+      };
+      const roller = makeDiceSequence([3, 3]); // total = 6
+      const result = resolvePSR(3, psr, compDamage, 2, roller, [
+        UNIT_QUIRK_IDS.STABLE,
+      ]);
+
+      expect(getMASCOrSuperchargerFailureTargetNumber(2)).toBe(7);
+      expect(psr.fixedTargetNumber).toBe(7);
+      expect(result.targetNumber).toBe(7);
+      expect(result.roll).toBe(6);
+      expect(result.passed).toBe(false);
+      expect(result.modifiers).toEqual([]);
+    });
+
+    it('applies explicit trigger modifiers on fixed target numbers without piloting modifiers', () => {
+      const psr: IPendingPSR = {
+        entityId: 'unit-1',
+        reason: 'Fixed system check',
+        additionalModifier: 1,
+        triggerSource: 'system_check',
+        fixedTargetNumber: 7,
+      };
+      const compDamage: IComponentDamageState = {
+        ...DEFAULT_COMP_DAMAGE,
+        gyroHits: 1,
+      };
+      const roller = makeDiceSequence([3, 5]); // total = 8
+      const result = resolvePSR(3, psr, compDamage, 2, roller, [
+        UNIT_QUIRK_IDS.STABLE,
+      ]);
+
+      expect(result.targetNumber).toBe(8);
+      expect(result.roll).toBe(8);
+      expect(result.passed).toBe(true);
+      expect(result.modifiers).toEqual([
+        {
+          name: 'Fixed system check modifier',
+          value: 1,
+          source: 'system_check',
+        },
+      ]);
+    });
+
     it('should apply DFA miss +4 modifier', () => {
       const psr: IPendingPSR = createDFAMissPSR('unit-1');
       const roller = makeDiceSequence([5, 4]); // total = 9
@@ -164,6 +215,20 @@ describe('Piloting Skill Rolls', () => {
 
       expect(result.targetNumber).toBe(9); // 5 + 4
       expect(result.passed).toBe(true); // 9 >= 9
+    });
+
+    it('should apply source-backed DFA attacker +4 modifier', () => {
+      const psr: IPendingPSR = createDFAAttackerPSR('unit-1');
+      const roller = makeDiceSequence([5, 4]); // total = 9
+      const result = resolvePSR(5, psr, DEFAULT_COMP_DAMAGE, 0, roller);
+
+      expect(psr).toMatchObject({
+        reason: 'Executed DFA',
+        reasonCode: PSRTrigger.DFATarget,
+        triggerSource: 'dfa_attacker_hit',
+      });
+      expect(result.targetNumber).toBe(9);
+      expect(result.passed).toBe(true);
     });
 
     it('should return modifier breakdown', () => {
@@ -183,6 +248,125 @@ describe('Piloting Skill Rolls', () => {
         ]),
       );
       expect(result.targetNumber).toBe(13); // 5 + 3 + 1 + 4
+    });
+
+    it('does not apply Stable to non-kick/push PSR target numbers', () => {
+      const psr: IPendingPSR = createDamagePSR('unit-1');
+      const roller = makeDiceSequence([2, 2]); // total = 4
+      const result = resolvePSR(5, psr, DEFAULT_COMP_DAMAGE, 0, roller, [
+        UNIT_QUIRK_IDS.STABLE,
+      ]);
+
+      expect(result.targetNumber).toBe(5);
+      expect(result.roll).toBe(4);
+      expect(result.passed).toBe(false);
+      expect(result.modifiers).toEqual([]);
+    });
+
+    it('applies source-backed Stable relief to kick and push PSRs', () => {
+      const roller = makeDiceSequence([2, 2, 2, 2]); // total = 4 twice
+      const kicked = resolvePSR(
+        5,
+        createKickedPSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        roller,
+        [UNIT_QUIRK_IDS.STABLE],
+      );
+      const pushed = resolvePSR(
+        5,
+        createPushedPSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        roller,
+        [UNIT_QUIRK_IDS.STABLE],
+      );
+
+      expect(kicked).toMatchObject({ targetNumber: 4, passed: true });
+      expect(pushed).toMatchObject({ targetNumber: 4, passed: true });
+      expect(kicked.modifiers).toEqual([
+        { name: 'Piloting quirks', source: 'quirk', value: -1 },
+      ]);
+      expect(pushed.modifiers).toEqual([
+        { name: 'Piloting quirks', source: 'quirk', value: -1 },
+      ]);
+    });
+
+    it('applies source-backed Easy Pilot relief only to eligible PSRs for pilots worse than 3', () => {
+      const roller = makeDiceSequence([2, 2, 2, 2, 2, 2, 2, 2]);
+      const terrain = resolvePSR(
+        5,
+        createRubblePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        roller,
+        [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+      );
+      const damage = resolvePSR(
+        5,
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        roller,
+        [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+      );
+      const skilledPilot = resolvePSR(
+        3,
+        createRubblePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        roller,
+        [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+      );
+      const legDamage = resolvePSR(
+        5,
+        createLegDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        roller,
+        [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+      );
+
+      expect(terrain).toMatchObject({ targetNumber: 4, passed: true });
+      expect(damage).toMatchObject({ targetNumber: 4, passed: true });
+      expect(skilledPilot).toMatchObject({ targetNumber: 3, passed: true });
+      expect(legDamage).toMatchObject({ targetNumber: 5, passed: false });
+      expect(terrain.modifiers).toEqual([
+        { name: 'Piloting quirks', source: 'quirk', value: -1 },
+      ]);
+      expect(damage.modifiers).toEqual([
+        { name: 'Piloting quirks', source: 'quirk', value: -1 },
+      ]);
+      expect(skilledPilot.modifiers).toEqual([]);
+      expect(legDamage.modifiers).toEqual([]);
+    });
+
+    it('suppresses Cramped Cockpit PSR penalties when pilot has Small Pilot', () => {
+      const roller = makeDiceSequence([2, 2, 2, 2]);
+      const cramped = resolvePSR(
+        5,
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        roller,
+        [UNIT_QUIRK_IDS.CRAMPED_COCKPIT],
+      );
+      const smallPilot = resolvePSR(
+        5,
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        roller,
+        [UNIT_QUIRK_IDS.CRAMPED_COCKPIT],
+        ['small_pilot'],
+      );
+
+      expect(cramped).toMatchObject({ targetNumber: 6, passed: false });
+      expect(smallPilot).toMatchObject({ targetNumber: 5, passed: false });
+      expect(cramped.modifiers).toEqual([
+        { name: 'Piloting quirks', source: 'quirk', value: 1 },
+      ]);
+      expect(smallPilot.modifiers).toEqual([]);
     });
   });
 
@@ -263,53 +447,6 @@ describe('Piloting Skill Rolls', () => {
       expect(gyroMod!.value).toBe(6); // 2 * 3
     });
 
-    it('should use represented heavy-duty gyro PSR modifiers', () => {
-      const psr: IPendingPSR = createDamagePSR('unit-1');
-      const compDamage: IComponentDamageState = {
-        ...DEFAULT_COMP_DAMAGE,
-        gyroHits: 2,
-      };
-      const mods = calculatePSRModifiers(psr, compDamage, 0, {
-        gyroType: GyroType.HEAVY_DUTY,
-      });
-      const gyroMod = mods.find((m) => m.source === 'gyro');
-      expect(gyroMod).toMatchObject({
-        name: 'Heavy-duty gyro damage',
-        value: 3,
-      });
-    });
-
-    it('should use Playtest3 heavy-duty gyro PSR modifiers by hit count', () => {
-      const psr: IPendingPSR = createDamagePSR('unit-1');
-      const twoHitMods = calculatePSRModifiers(
-        psr,
-        {
-          ...DEFAULT_COMP_DAMAGE,
-          gyroHits: 2,
-        },
-        0,
-        { gyroType: GyroType.HEAVY_DUTY, optionalRules: ['playtest_3'] },
-      );
-      const threeHitMods = calculatePSRModifiers(
-        psr,
-        {
-          ...DEFAULT_COMP_DAMAGE,
-          gyroHits: 3,
-        },
-        0,
-        { gyroType: GyroType.HEAVY_DUTY, optionalRules: ['playtest_3'] },
-      );
-
-      expect(twoHitMods.find((m) => m.source === 'gyro')).toMatchObject({
-        name: 'Heavy-duty gyro damage',
-        value: 2,
-      });
-      expect(threeHitMods.find((m) => m.source === 'gyro')).toMatchObject({
-        name: 'Heavy-duty gyro damage',
-        value: 3,
-      });
-    });
-
     it('should include pilot wounds +1 per wound', () => {
       const psr: IPendingPSR = createDamagePSR('unit-1');
       const mods = calculatePSRModifiers(psr, DEFAULT_COMP_DAMAGE, 3);
@@ -354,14 +491,363 @@ describe('Piloting Skill Rolls', () => {
       expect(dfaMod!.value).toBe(4);
     });
 
+    it('should include source-backed skidding movement-distance modifier', () => {
+      const psr: IPendingPSR = createSkiddingPSR('unit-1', undefined, 2);
+      const mods = calculatePSRModifiers(psr, DEFAULT_COMP_DAMAGE, 0);
+      const skidMod = mods.find((m) => m.source === PSRTrigger.Skidding);
+
+      expect(skidMod).toEqual({
+        name: 'Skidding modifier',
+        source: PSRTrigger.Skidding,
+        value: 2,
+      });
+    });
+
     it('should not include zero additional modifier', () => {
       const psr: IPendingPSR = createDamagePSR('unit-1');
       const mods = calculatePSRModifiers(psr, DEFAULT_COMP_DAMAGE, 0);
       expect(mods).toHaveLength(0);
     });
+
+    it.each([
+      [UNIT_QUIRK_IDS.HARD_TO_PILOT, 1],
+      [UNIT_QUIRK_IDS.CRAMPED_COCKPIT, 1],
+    ])('should apply %s to non-terrain PSRs', (quirkId, expectedValue) => {
+      const psr: IPendingPSR = createDamagePSR('unit-1');
+      const mods = calculatePSRModifiers(psr, DEFAULT_COMP_DAMAGE, 0, [
+        quirkId,
+      ]);
+
+      expect(mods).toEqual([
+        {
+          name: 'Piloting quirks',
+          source: 'quirk',
+          value: expectedValue,
+        },
+      ]);
+    });
+
+    it('suppresses source-backed Cramped Cockpit PSR penalties for Small Pilot', () => {
+      const psr: IPendingPSR = createDamagePSR('unit-1');
+      const crampedMods = calculatePSRModifiers(
+        psr,
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.CRAMPED_COCKPIT],
+        [],
+        false,
+        undefined,
+        5,
+      );
+      const smallPilotMods = calculatePSRModifiers(
+        psr,
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.CRAMPED_COCKPIT],
+        ['small_pilot'],
+        false,
+        undefined,
+        5,
+      );
+
+      expect(crampedMods).toEqual([
+        { name: 'Piloting quirks', source: 'quirk', value: 1 },
+      ]);
+      expect(smallPilotMods).toHaveLength(0);
+    });
+
+    it('should apply Stable only to source-backed kick/push PSRs', () => {
+      const kickedMods = calculatePSRModifiers(
+        createKickedPSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.STABLE],
+      );
+      const pushedMods = calculatePSRModifiers(
+        createPushedPSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.STABLE],
+      );
+      const damageMods = calculatePSRModifiers(
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.STABLE],
+      );
+
+      expect(kickedMods).toEqual([
+        { name: 'Piloting quirks', source: 'quirk', value: -1 },
+      ]);
+      expect(pushedMods).toEqual([
+        { name: 'Piloting quirks', source: 'quirk', value: -1 },
+      ]);
+      expect(damageMods).toHaveLength(0);
+    });
+
+    it('should apply Easy Pilot to source-backed PSRs only when piloting is worse than 3', () => {
+      const terrainMods = calculatePSRModifiers(
+        createRubblePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+        [],
+        false,
+        undefined,
+        5,
+      );
+      const damageMods = calculatePSRModifiers(
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+        [],
+        false,
+        undefined,
+        5,
+      );
+      const skilledPilotMods = calculatePSRModifiers(
+        createRubblePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+        [],
+        false,
+        undefined,
+        3,
+      );
+      const legDamageMods = calculatePSRModifiers(
+        createLegDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+        [],
+        false,
+        undefined,
+        5,
+      );
+
+      expect(terrainMods).toEqual([
+        {
+          name: 'Piloting quirks',
+          source: 'quirk',
+          value: -1,
+        },
+      ]);
+      expect(damageMods).toEqual([
+        {
+          name: 'Piloting quirks',
+          source: 'quirk',
+          value: -1,
+        },
+      ]);
+      expect(skilledPilotMods).toHaveLength(0);
+      expect(legDamageMods).toHaveLength(0);
+    });
+
+    it('should apply Unbalanced only to terrain PSRs', () => {
+      const terrainMods = calculatePSRModifiers(
+        createRubblePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.UNBALANCED],
+      );
+      const damageMods = calculatePSRModifiers(
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.UNBALANCED],
+      );
+
+      expect(terrainMods).toEqual([
+        {
+          name: 'Piloting quirks',
+          source: 'quirk',
+          value: 1,
+        },
+      ]);
+      expect(damageMods).toHaveLength(0);
+    });
+
+    it('should apply No Arms only to stand-up PSRs', () => {
+      const standUpMods = calculatePSRModifiers(
+        createStandingUpPSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.NO_ARMS],
+      );
+      const damageMods = calculatePSRModifiers(
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [UNIT_QUIRK_IDS.NO_ARMS],
+      );
+
+      expect(standUpMods).toEqual([
+        {
+          name: 'Piloting quirks',
+          source: 'quirk',
+          value: 2,
+        },
+      ]);
+      expect(damageMods).toHaveLength(0);
+    });
+
+    it('should apply Maneuvering Ace to skidding PSRs only', () => {
+      const skidMods = calculatePSRModifiers(
+        createSkiddingPSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['maneuvering-ace'],
+      );
+      const damageMods = calculatePSRModifiers(
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['maneuvering_ace'],
+      );
+
+      expect(skidMods).toEqual([
+        {
+          name: 'Maneuvering Ace',
+          source: 'spa',
+          value: -1,
+        },
+      ]);
+      expect(damageMods).toHaveLength(0);
+    });
+
+    it('should apply Animal Mimicry only to quad Mek PSRs', () => {
+      const quadMods = calculatePSRModifiers(
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['animal-mimicry'],
+        true,
+      );
+      const bipedMods = calculatePSRModifiers(
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['animal_mimic'],
+        false,
+      );
+
+      expect(quadMods).toEqual([
+        {
+          name: 'Animal Mimicry',
+          source: 'spa',
+          value: -1,
+        },
+      ]);
+      expect(bipedMods).toHaveLength(0);
+    });
+
+    it('should apply Frogman only to depth-2+ entering-water PSRs for Meks', () => {
+      const depthTwoMods = calculatePSRModifiers(
+        createEnteringWaterPSR('unit-1', undefined, { waterDepth: 2 }),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['terrain-master-frogman'],
+        false,
+        'BattleMech',
+      );
+      const shallowWaterMods = calculatePSRModifiers(
+        createEnteringWaterPSR('unit-1', undefined, { waterDepth: 1 }),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['tm_frogman'],
+        false,
+        'BattleMech',
+      );
+      const vehicleMods = calculatePSRModifiers(
+        createEnteringWaterPSR('unit-1', undefined, { waterDepth: 2 }),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['tm_frogman'],
+        false,
+        'Vehicle',
+      );
+
+      expect(depthTwoMods).toEqual([
+        {
+          name: 'Frogman',
+          source: 'spa',
+          value: -1,
+        },
+      ]);
+      expect(shallowWaterMods).toContainEqual({
+        name: 'Entering water modifier',
+        source: PSRTrigger.EnteringWater,
+        value: -1,
+      });
+      expect(shallowWaterMods).not.toContainEqual(
+        expect.objectContaining({ name: 'Frogman' }),
+      );
+      expect(vehicleMods).toHaveLength(0);
+    });
+
+    it('should apply Mountaineer only to entering-rubble PSRs', () => {
+      const rubbleMods = calculatePSRModifiers(
+        createRubblePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['terrain-master-mountaineer'],
+      );
+      const damageMods = calculatePSRModifiers(
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['tm_mountaineer'],
+      );
+
+      expect(rubbleMods).toEqual([
+        {
+          name: 'Mountaineer',
+          source: 'spa',
+          value: -1,
+        },
+      ]);
+      expect(damageMods).toHaveLength(0);
+    });
+
+    it('should apply Swamp Beast only to swamp bog-down PSRs', () => {
+      const swampMods = calculatePSRModifiers(
+        createSwampBogDownPSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['terrain-master-swamp-beast'],
+      );
+      const damageMods = calculatePSRModifiers(
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['tm_swamp_beast'],
+      );
+
+      expect(swampMods).toEqual([
+        {
+          name: 'Swamp Beast',
+          source: 'spa',
+          value: -1,
+        },
+      ]);
+      expect(damageMods).toHaveLength(0);
+    });
   });
 
-  describe('PSR Trigger Generators — all 27 triggers', () => {
+  describe('PSR Trigger Generators — all 28 triggers', () => {
     const triggerTests: Array<{
       fn: (id: string) => IPendingPSR;
       expectedSource: PSRTrigger;
@@ -411,12 +897,12 @@ describe('Piloting Skill Rolls', () => {
       {
         fn: createChargedPSR,
         expectedSource: PSRTrigger.Charged,
-        expectedMod: 0,
+        expectedMod: 2,
       },
       {
         fn: createDFATargetPSR,
         expectedSource: PSRTrigger.DFATarget,
-        expectedMod: 0,
+        expectedMod: 2,
       },
       {
         fn: createPushedPSR,
@@ -474,6 +960,11 @@ describe('Piloting Skill Rolls', () => {
         expectedMod: 0,
       },
       {
+        fn: createSwampBogDownPSR,
+        expectedSource: PSRTrigger.SwampBogDown,
+        expectedMod: 0,
+      },
+      {
         fn: createSkiddingPSR,
         expectedSource: PSRTrigger.Skidding,
         expectedMod: 0,
@@ -516,9 +1007,25 @@ describe('Piloting Skill Rolls', () => {
       },
     );
 
-    it('should have exactly 28 trigger types (27 catalog entries + standing up)', () => {
-      expect(triggerTests).toHaveLength(28);
+    it('should have exactly 29 trigger types (28 catalog entries + standing up)', () => {
+      expect(triggerTests).toHaveLength(29);
     });
+
+    it.each([
+      [1, -1],
+      [2, 0],
+      [3, 1],
+    ])(
+      'stamps source-backed Depth %s water-entry modifier',
+      (waterDepth, mod) => {
+        const psr = createEnteringWaterPSR('test-unit', undefined, {
+          waterDepth,
+        });
+
+        expect(psr.additionalModifier).toBe(mod);
+        expect(psr.terrainLevel).toBe(waterDepth);
+      },
+    );
   });
 
   describe('checkPhaseDamagePSR', () => {
@@ -596,37 +1103,6 @@ describe('Piloting Skill Rolls', () => {
       expect(isGyroDestroyed({ ...DEFAULT_COMP_DAMAGE, gyroHits: 3 })).toBe(
         true,
       );
-    });
-    it('should keep heavy-duty gyros functional until 3 hits', () => {
-      expect(
-        isGyroDestroyed(
-          { ...DEFAULT_COMP_DAMAGE, gyroHits: 2 },
-          GyroType.HEAVY_DUTY,
-        ),
-      ).toBe(false);
-      expect(
-        isGyroDestroyed(
-          { ...DEFAULT_COMP_DAMAGE, gyroHits: 3 },
-          GyroType.HEAVY_DUTY,
-        ),
-      ).toBe(true);
-    });
-
-    it('should keep Playtest3 heavy-duty gyros functional until 4 hits', () => {
-      expect(
-        isGyroDestroyed(
-          { ...DEFAULT_COMP_DAMAGE, gyroHits: 3 },
-          GyroType.HEAVY_DUTY,
-          ['playtest_3'],
-        ),
-      ).toBe(false);
-      expect(
-        isGyroDestroyed(
-          { ...DEFAULT_COMP_DAMAGE, gyroHits: 4 },
-          GyroType.HEAVY_DUTY,
-          ['playtest_3'],
-        ),
-      ).toBe(true);
     });
   });
 

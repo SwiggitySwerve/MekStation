@@ -6,7 +6,7 @@
  *   - No-LOS + no spotter + NARC-marked by attacker's team → permitted, basis='narc'
  *   - No-LOS + no spotter + iNarc-marked by attacker's team → permitted, basis='inarc'
  *   - NARC-marked by ENEMY team → rejected (falls through to spotter; none → reject)
- *   - No-LOS + valid LOS spotter + NARC-marked → NARC wins (basis='narc')
+ *   - No-LOS + valid LOS spotter + NARC-marked → LOS spotter wins (basis='los')
  *   - LOS on attacker + NARC-marked → direct-fire pass-through (no indirect)
  *   - Both NARC and iNarc true → NARC wins (basis='narc')
  *   - Neither flag set (undefined) → backward-compat: no override, rejected
@@ -42,11 +42,11 @@ function makeClearGrid(): IHexGrid {
   return { config: { radius: 10 }, hexes };
 }
 
-/** Grid with cumulative woods blocking attacker LOS from (0,0) to (5,0). */
+/** Grid with cumulative woods density blocking attacker LOS from (0,0) to (5,0). */
 function makeBlockedGrid(): IHexGrid {
   const grid = makeClearGrid();
-  grid.hexes.set('2,0', makeHex(2, 0, TerrainType.HeavyWoods));
-  grid.hexes.set('3,0', makeHex(3, 0, TerrainType.LightWoods));
+  grid.hexes.set('2,0', makeHex(2, 0, TerrainType.LightWoods));
+  grid.hexes.set('3,0', makeHex(3, 0, TerrainType.HeavyWoods));
   return grid;
 }
 
@@ -167,11 +167,11 @@ describe('NARC vs iNarc precedence', () => {
 });
 
 // =============================================================================
-// §3.4 — NARC/iNarc beacon takes precedence over LOS spotters
+// §3.4 — LOS spotter takes precedence over NARC/iNarc override
 // =============================================================================
 
-describe('NARC override preference over LOS spotters', () => {
-  it('uses NARC beacon (basis="narc") even when a LOS spotter is available', () => {
+describe('LOS spotter preference over NARC override', () => {
+  it('elects LOS spotter (basis="los") even when target is NARC-marked', () => {
     // Spotter at (5,1) has clear LOS to target at (5,0) despite woods at (3,0).
     const result = resolveIndirectFire(
       makeNoLosNoSpotterRequest({
@@ -182,13 +182,14 @@ describe('NARC override preference over LOS spotters', () => {
     );
 
     expect(result.permitted).toBe(true);
-    expect(result.basis).toBe('narc');
-    // NARC beacon path is a no-unit spotter override with the base penalty only.
+    expect(result.basis).toBe('los');
+    // LOS spotter is stationary → base penalty only.
     expect(result.toHitPenalty).toBe(1);
-    expect(result.spotter).toBeUndefined();
+    expect(result.spotter).toBeDefined();
+    expect(result.spotter?.entityId).toBe('spotter-1');
   });
 
-  it('uses iNarc beacon (basis="inarc") even when a LOS spotter is available', () => {
+  it('elects LOS spotter (basis="los") even when target is iNarc-marked', () => {
     const result = resolveIndirectFire(
       makeNoLosNoSpotterRequest({
         targetINarcMarkedByTeam: true,
@@ -197,9 +198,8 @@ describe('NARC override preference over LOS spotters', () => {
       }),
     );
 
-    expect(result.basis).toBe('inarc');
+    expect(result.basis).toBe('los');
     expect(result.permitted).toBe(true);
-    expect(result.spotter).toBeUndefined();
   });
 });
 

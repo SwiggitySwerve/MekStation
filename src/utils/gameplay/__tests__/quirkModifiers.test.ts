@@ -1,4 +1,4 @@
-import { RangeBracket, MovementType } from '@/types/gameplay';
+import { RangeBracket, MovementType, PSRTrigger } from '@/types/gameplay';
 import { IAttackerState, ITargetState } from '@/types/gameplay';
 
 import {
@@ -9,14 +9,14 @@ import {
   hasLowProfile,
   calculateLowProfileModifier,
   calculatePilotingQuirkPSRModifier,
-  getBattleFistDamageBonus,
+  getBattleFistPunchToHitModifier,
   hasNoArms,
   isLowArmsRestricted,
   calculateInitiativeQuirkModifier,
   calculateSensorGhostsModifier,
   calculateMultiTracModifier,
-  getRuggedCritNegations,
-  getActuatorCritModifier,
+  getRuggedMaintenanceMultiplier,
+  getAntiMekActuatorTargetModifier,
   calculateAccurateWeaponModifier,
   calculateInaccurateWeaponModifier,
   calculateStableWeaponModifier,
@@ -160,12 +160,31 @@ describe('Defensive Quirks', () => {
 // =============================================================================
 
 describe('Piloting Quirks', () => {
-  it('Stable: -1 to all PSRs', () => {
-    const mod = calculatePilotingQuirkPSRModifier(
+  it('Stable: -1 to kick and push PSRs only', () => {
+    const kickMod = calculatePilotingQuirkPSRModifier(
+      [UNIT_QUIRK_IDS.STABLE],
+      false,
+      PSRTrigger.Kicked,
+    );
+    const pushMod = calculatePilotingQuirkPSRModifier(
+      [UNIT_QUIRK_IDS.STABLE],
+      false,
+      PSRTrigger.Pushed,
+    );
+    const damageMod = calculatePilotingQuirkPSRModifier(
+      [UNIT_QUIRK_IDS.STABLE],
+      false,
+      PSRTrigger.PhaseDamage20Plus,
+    );
+    const unspecifiedMod = calculatePilotingQuirkPSRModifier(
       [UNIT_QUIRK_IDS.STABLE],
       false,
     );
-    expect(mod).toBe(-1);
+
+    expect(kickMod).toBe(-1);
+    expect(pushMod).toBe(-1);
+    expect(damageMod).toBe(0);
+    expect(unspecifiedMod).toBe(0);
   });
 
   it('Hard to Pilot: +1 to all PSRs', () => {
@@ -176,26 +195,62 @@ describe('Piloting Quirks', () => {
     expect(mod).toBe(1);
   });
 
-  it('Cramped Cockpit: +1 to all piloting rolls', () => {
+  it('Cramped Cockpit: +1 to all piloting rolls unless pilot has Small Pilot', () => {
     const mod = calculatePilotingQuirkPSRModifier(
       [UNIT_QUIRK_IDS.CRAMPED_COCKPIT],
       false,
     );
     expect(mod).toBe(1);
+
+    const smallPilotMod = calculatePilotingQuirkPSRModifier(
+      [UNIT_QUIRK_IDS.CRAMPED_COCKPIT],
+      false,
+      PSRTrigger.PhaseDamage20Plus,
+      5,
+      ['small_pilot'],
+    );
+    expect(smallPilotMod).toBe(0);
   });
 
-  it('Easy to Pilot: -1 for terrain PSR only', () => {
+  it('Easy to Pilot: -1 for terrain and 20+ damage PSRs only when piloting is worse than 3', () => {
     const terrainMod = calculatePilotingQuirkPSRModifier(
       [UNIT_QUIRK_IDS.EASY_TO_PILOT],
       true,
+      PSRTrigger.EnteringRubble,
+      4,
     );
     expect(terrainMod).toBe(-1);
 
-    const nonTerrainMod = calculatePilotingQuirkPSRModifier(
+    const damageMod = calculatePilotingQuirkPSRModifier(
       [UNIT_QUIRK_IDS.EASY_TO_PILOT],
       false,
+      PSRTrigger.PhaseDamage20Plus,
+      5,
     );
-    expect(nonTerrainMod).toBe(0);
+    expect(damageMod).toBe(-1);
+
+    const skilledPilotMod = calculatePilotingQuirkPSRModifier(
+      [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+      true,
+      PSRTrigger.EnteringRubble,
+      3,
+    );
+    expect(skilledPilotMod).toBe(0);
+
+    const legDamageMod = calculatePilotingQuirkPSRModifier(
+      [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+      false,
+      PSRTrigger.LegDamage,
+      5,
+    );
+    expect(legDamageMod).toBe(0);
+
+    const missingSkillMod = calculatePilotingQuirkPSRModifier(
+      [UNIT_QUIRK_IDS.EASY_TO_PILOT],
+      true,
+      PSRTrigger.EnteringRubble,
+    );
+    expect(missingSkillMod).toBe(0);
   });
 
   it('Unbalanced: +1 for terrain PSR only', () => {
@@ -216,6 +271,7 @@ describe('Piloting Quirks', () => {
     const mod = calculatePilotingQuirkPSRModifier(
       [UNIT_QUIRK_IDS.STABLE, UNIT_QUIRK_IDS.CRAMPED_COCKPIT],
       false,
+      PSRTrigger.Kicked,
     );
     expect(mod).toBe(0);
   });
@@ -224,6 +280,22 @@ describe('Piloting Quirks', () => {
     const mod = calculatePilotingQuirkPSRModifier([], false);
     expect(mod).toBe(0);
   });
+
+  it('No Arms: +2 only to stand-up PSRs', () => {
+    const standUpMod = calculatePilotingQuirkPSRModifier(
+      [UNIT_QUIRK_IDS.NO_ARMS],
+      false,
+      PSRTrigger.StandingUp,
+    );
+    const damageMod = calculatePilotingQuirkPSRModifier(
+      [UNIT_QUIRK_IDS.NO_ARMS],
+      false,
+      PSRTrigger.PhaseDamage20Plus,
+    );
+
+    expect(standUpMod).toBe(2);
+    expect(damageMod).toBe(0);
+  });
 });
 
 // =============================================================================
@@ -231,31 +303,37 @@ describe('Piloting Quirks', () => {
 // =============================================================================
 
 describe('Physical Quirks', () => {
-  it('Battle Fists LA: +1 left punch damage', () => {
+  it('Battle Fists LA: -1 left punch to-hit', () => {
     expect(
-      getBattleFistDamageBonus([UNIT_QUIRK_IDS.BATTLE_FISTS_LA], 'left'),
-    ).toBe(1);
+      getBattleFistPunchToHitModifier([UNIT_QUIRK_IDS.BATTLE_FISTS_LA], 'left'),
+    ).toBe(-1);
   });
 
-  it('Battle Fists RA: +1 right punch damage', () => {
+  it('Battle Fists RA: -1 right punch to-hit', () => {
     expect(
-      getBattleFistDamageBonus([UNIT_QUIRK_IDS.BATTLE_FISTS_RA], 'right'),
-    ).toBe(1);
+      getBattleFistPunchToHitModifier(
+        [UNIT_QUIRK_IDS.BATTLE_FISTS_RA],
+        'right',
+      ),
+    ).toBe(-1);
   });
 
   it('Battle Fists LA: no bonus for right arm', () => {
     expect(
-      getBattleFistDamageBonus([UNIT_QUIRK_IDS.BATTLE_FISTS_LA], 'right'),
+      getBattleFistPunchToHitModifier(
+        [UNIT_QUIRK_IDS.BATTLE_FISTS_LA],
+        'right',
+      ),
     ).toBe(0);
   });
 
-  it('Battle Fists both: +1 each arm', () => {
+  it('Battle Fists both: -1 each matching arm', () => {
     const quirks = [
       UNIT_QUIRK_IDS.BATTLE_FISTS_LA,
       UNIT_QUIRK_IDS.BATTLE_FISTS_RA,
     ];
-    expect(getBattleFistDamageBonus(quirks, 'left')).toBe(1);
-    expect(getBattleFistDamageBonus(quirks, 'right')).toBe(1);
+    expect(getBattleFistPunchToHitModifier(quirks, 'left')).toBe(-1);
+    expect(getBattleFistPunchToHitModifier(quirks, 'right')).toBe(-1);
   });
 
   it('No Arms: prevents punching', () => {
@@ -263,8 +341,8 @@ describe('Physical Quirks', () => {
     expect(hasNoArms([])).toBe(false);
   });
 
-  it('Low Arms: restricts punch at higher elevation', () => {
-    expect(isLowArmsRestricted([UNIT_QUIRK_IDS.LOW_ARMS], 1)).toBe(true);
+  it('Low Arms: stays no-op until a source-backed combat resolver exists', () => {
+    expect(isLowArmsRestricted([UNIT_QUIRK_IDS.LOW_ARMS], 1)).toBe(false);
     expect(isLowArmsRestricted([UNIT_QUIRK_IDS.LOW_ARMS], 0)).toBe(false);
     expect(isLowArmsRestricted([UNIT_QUIRK_IDS.LOW_ARMS], -1)).toBe(false);
   });
@@ -354,36 +432,36 @@ describe('Combat Quirks', () => {
 });
 
 // =============================================================================
-// Crit Quirks (Task 12.9)
+// Campaign and Anti-Mek Quirks (Task 12.9)
 // =============================================================================
 
-describe('Crit Quirks', () => {
-  it('Rugged 1: 1 crit negation', () => {
-    expect(getRuggedCritNegations([UNIT_QUIRK_IDS.RUGGED_1])).toBe(1);
+describe('Campaign and Anti-Mek Quirks', () => {
+  it('Rugged 1: doubles the maintenance cycle', () => {
+    expect(getRuggedMaintenanceMultiplier([UNIT_QUIRK_IDS.RUGGED_1])).toBe(2);
   });
 
-  it('Rugged 2: 2 crit negations', () => {
-    expect(getRuggedCritNegations([UNIT_QUIRK_IDS.RUGGED_2])).toBe(2);
+  it('Rugged 2: triples the maintenance cycle', () => {
+    expect(getRuggedMaintenanceMultiplier([UNIT_QUIRK_IDS.RUGGED_2])).toBe(3);
   });
 
-  it('no Rugged: 0 crit negations', () => {
-    expect(getRuggedCritNegations([])).toBe(0);
+  it('no Rugged: normal maintenance cycle', () => {
+    expect(getRuggedMaintenanceMultiplier([])).toBe(1);
   });
 
-  it('Protected Actuators: +1 crit roll modifier', () => {
-    expect(getActuatorCritModifier([UNIT_QUIRK_IDS.PROTECTED_ACTUATORS])).toBe(
-      1,
-    );
+  it('Protected Actuators: +1 anti-Mek attack target modifier', () => {
+    expect(
+      getAntiMekActuatorTargetModifier([UNIT_QUIRK_IDS.PROTECTED_ACTUATORS]),
+    ).toBe(1);
   });
 
-  it('Exposed Actuators: -1 crit roll modifier', () => {
-    expect(getActuatorCritModifier([UNIT_QUIRK_IDS.EXPOSED_ACTUATORS])).toBe(
-      -1,
-    );
+  it('Exposed Actuators: -1 anti-Mek attack target modifier', () => {
+    expect(
+      getAntiMekActuatorTargetModifier([UNIT_QUIRK_IDS.EXPOSED_ACTUATORS]),
+    ).toBe(-1);
   });
 
-  it('no crit quirks: 0', () => {
-    expect(getActuatorCritModifier([])).toBe(0);
+  it('no actuator quirk: 0 anti-Mek attack target modifier', () => {
+    expect(getAntiMekActuatorTargetModifier([])).toBe(0);
   });
 });
 
@@ -437,19 +515,25 @@ describe('Weapon Quirks', () => {
     ).toBe(-1);
   });
 
+  it('Improved Cooling: final heat floors at 1', () => {
+    expect(
+      getWeaponCoolingHeatModifier([WEAPON_QUIRK_IDS.IMPROVED_COOLING], 1),
+    ).toBe(0);
+  });
+
   it('Poor Cooling: +1 heat', () => {
     expect(
       getWeaponCoolingHeatModifier([WEAPON_QUIRK_IDS.POOR_COOLING], 5),
     ).toBe(1);
   });
 
-  it('No Cooling: doubles heat', () => {
+  it('No Cooling: +2 heat', () => {
     expect(getWeaponCoolingHeatModifier([WEAPON_QUIRK_IDS.NO_COOLING], 5)).toBe(
-      5,
+      2,
     );
     expect(
       getWeaponCoolingHeatModifier([WEAPON_QUIRK_IDS.NO_COOLING], 12),
-    ).toBe(12);
+    ).toBe(2);
   });
 
   it('no cooling quirk: 0', () => {
@@ -655,6 +739,160 @@ describe('calculateToHit integration with quirks', () => {
     immobile: false,
     partialCover: false,
   };
+
+  const integratedToHitQuirkCases: readonly {
+    readonly id: string;
+    readonly modifierName: string;
+    readonly attacker: IAttackerState;
+    readonly target: ITargetState;
+    readonly rangeBracket: RangeBracket;
+    readonly range: number;
+    readonly expectedFinalToHit: number;
+  }[] = [
+    {
+      id: UNIT_QUIRK_IDS.IMPROVED_TARGETING_SHORT,
+      modifierName: 'Improved Targeting',
+      attacker: {
+        ...baseAttacker,
+        unitQuirks: [UNIT_QUIRK_IDS.IMPROVED_TARGETING_SHORT],
+      },
+      target: baseTarget,
+      rangeBracket: RangeBracket.Short,
+      range: 3,
+      expectedFinalToHit: 3,
+    },
+    {
+      id: UNIT_QUIRK_IDS.IMPROVED_TARGETING_MEDIUM,
+      modifierName: 'Improved Targeting',
+      attacker: {
+        ...baseAttacker,
+        unitQuirks: [UNIT_QUIRK_IDS.IMPROVED_TARGETING_MEDIUM],
+      },
+      target: baseTarget,
+      rangeBracket: RangeBracket.Medium,
+      range: 6,
+      expectedFinalToHit: 5,
+    },
+    {
+      id: UNIT_QUIRK_IDS.IMPROVED_TARGETING_LONG,
+      modifierName: 'Improved Targeting',
+      attacker: {
+        ...baseAttacker,
+        unitQuirks: [UNIT_QUIRK_IDS.IMPROVED_TARGETING_LONG],
+      },
+      target: baseTarget,
+      rangeBracket: RangeBracket.Long,
+      range: 9,
+      expectedFinalToHit: 7,
+    },
+    {
+      id: UNIT_QUIRK_IDS.POOR_TARGETING_SHORT,
+      modifierName: 'Poor Targeting',
+      attacker: {
+        ...baseAttacker,
+        unitQuirks: [UNIT_QUIRK_IDS.POOR_TARGETING_SHORT],
+      },
+      target: baseTarget,
+      rangeBracket: RangeBracket.Short,
+      range: 3,
+      expectedFinalToHit: 5,
+    },
+    {
+      id: UNIT_QUIRK_IDS.POOR_TARGETING_MEDIUM,
+      modifierName: 'Poor Targeting',
+      attacker: {
+        ...baseAttacker,
+        unitQuirks: [UNIT_QUIRK_IDS.POOR_TARGETING_MEDIUM],
+      },
+      target: baseTarget,
+      rangeBracket: RangeBracket.Medium,
+      range: 6,
+      expectedFinalToHit: 7,
+    },
+    {
+      id: UNIT_QUIRK_IDS.POOR_TARGETING_LONG,
+      modifierName: 'Poor Targeting',
+      attacker: {
+        ...baseAttacker,
+        unitQuirks: [UNIT_QUIRK_IDS.POOR_TARGETING_LONG],
+      },
+      target: baseTarget,
+      rangeBracket: RangeBracket.Long,
+      range: 9,
+      expectedFinalToHit: 9,
+    },
+    {
+      id: UNIT_QUIRK_IDS.SENSOR_GHOSTS,
+      modifierName: 'Sensor Ghosts',
+      attacker: {
+        ...baseAttacker,
+        unitQuirks: [UNIT_QUIRK_IDS.SENSOR_GHOSTS],
+      },
+      target: baseTarget,
+      rangeBracket: RangeBracket.Short,
+      range: 3,
+      expectedFinalToHit: 5,
+    },
+    {
+      id: UNIT_QUIRK_IDS.MULTI_TRAC,
+      modifierName: 'Multi-Trac',
+      attacker: {
+        ...baseAttacker,
+        unitQuirks: [UNIT_QUIRK_IDS.MULTI_TRAC],
+        secondaryTarget: { isSecondary: true, inFrontArc: true },
+      },
+      target: baseTarget,
+      rangeBracket: RangeBracket.Short,
+      range: 3,
+      expectedFinalToHit: 4,
+    },
+    {
+      id: UNIT_QUIRK_IDS.DISTRACTING,
+      modifierName: 'Distracting',
+      attacker: baseAttacker,
+      target: {
+        ...baseTarget,
+        unitQuirks: [UNIT_QUIRK_IDS.DISTRACTING],
+      },
+      rangeBracket: RangeBracket.Short,
+      range: 3,
+      expectedFinalToHit: 5,
+    },
+    {
+      id: UNIT_QUIRK_IDS.LOW_PROFILE,
+      modifierName: 'Low Profile',
+      attacker: baseAttacker,
+      target: {
+        ...baseTarget,
+        unitQuirks: [UNIT_QUIRK_IDS.LOW_PROFILE],
+      },
+      rangeBracket: RangeBracket.Short,
+      range: 3,
+      expectedFinalToHit: 5,
+    },
+  ];
+
+  it.each(integratedToHitQuirkCases)(
+    'applies catalog to-hit quirk $id through full calculateToHit',
+    ({
+      id,
+      modifierName,
+      attacker,
+      target,
+      rangeBracket,
+      range,
+      expectedFinalToHit,
+    }) => {
+      expect(QUIRK_CATALOG[id].pipelines).toContain('to-hit');
+
+      const result = calculateToHit(attacker, target, rangeBracket, range);
+
+      expect(result.finalToHit).toBe(expectedFinalToHit);
+      expect(result.modifiers.map((modifier) => modifier.name)).toContain(
+        modifierName,
+      );
+    },
+  );
 
   it('Improved Targeting Short reduces to-hit at short range', () => {
     const attacker: IAttackerState = {

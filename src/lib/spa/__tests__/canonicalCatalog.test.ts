@@ -182,7 +182,26 @@ describe('id canonicalization helpers', () => {
 
   it('canonicalizeSPAIds maps legacy ids to canonical form and drops unknowns', () => {
     expect(
-      canonicalizeSPAIds(['iron-man', 'nonsense', 'weapon_specialist']),
-    ).toEqual(['iron_man', 'weapon_specialist']);
+      canonicalizeSPAIds([
+        'hopping-jack',
+        'iron-man',
+        'nonsense',
+        'terrain-master-forest-ranger',
+        'terrain-master-frogman',
+        'terrain-master-mountaineer',
+        'terrain-master-nightwalker',
+        'terrain-master-swamp-beast',
+        'weapon_specialist',
+      ]),
+    ).toEqual([
+      'hopping_jack',
+      'iron_man',
+      'tm_forest_ranger',
+      'tm_frogman',
+      'tm_mountaineer',
+      'tm_nightwalker',
+      'tm_swamp_beast',
+      'weapon_specialist',
+    ]);
   });
 });

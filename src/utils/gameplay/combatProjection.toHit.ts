@@ -261,7 +261,7 @@ function buildSpotterCandidates(
     isOperational: !unit.destroyed && !unit.shutdown && !unit.hasRetreated,
     isAirborneAerospace: isAirborneGameUnit(unit),
     airborneAeroSpottingEquipment: getAirborneAeroSpottingEquipment(unit),
-    pilotSpas: unit.pilotSpas,
+    pilotSpas: unit.pilotSpas ?? unit.abilities,
     spotterGunnery: unit.gunnery,
   }));
 }
@@ -353,6 +353,7 @@ export function deriveIndirectFireProjection({
       weaponId: indirectWeaponId,
       attackerHasLOS: false,
       attackerAirborne: isAirborneGameUnit(attackerUnit),
+      attackerPilotSpas: attackerUnit.pilotSpas ?? attackerUnit.abilities,
       spotterCandidates: buildSpotterCandidates(combatState),
       grid,
       targetNarcMarkedByTeam:

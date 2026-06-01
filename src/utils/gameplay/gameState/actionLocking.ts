@@ -1,10 +1,13 @@
 import {
   IAttackDeclaredPayload,
+  IAttacksRevealedPayload,
+  IFacingChangedPayload,
   IGameEvent,
   IGameState,
+  IMovementEnhancementActivatedPayload,
   IMovementDeclaredPayload,
-  IRuntimeMovementStateChangedPayload,
   IMovementStep,
+  IRuntimeMovementStateChangedPayload,
   IUnitGameState,
   LockState,
   MovementType,
@@ -17,6 +20,10 @@ import {
   accumulatedConversionMovementPatch,
   clearPendingConversionMovementCost,
 } from '@/utils/gameplay/movement/conversionAccounting';
+import {
+  movementStepsUseBackwardMovement,
+  movementStepsUseMechanicalJumpBooster,
+} from '@/utils/gameplay/movement/stepPredicates';
 
 export function applyMovementDeclared(
   state: IGameState,
@@ -26,11 +33,14 @@ export function applyMovementDeclared(
   if (!unit) {
     return state;
   }
-
+  const wentProne =
+    payload.steps?.some((step) => step.kind === 'goProne') ?? false;
+  const isEvadeMovement = payload.movementType === MovementType.Evade;
+  const isSprintMovement = payload.movementType === MovementType.Sprint;
   const prone =
     payload.hullDownEntryAttempt === true
       ? false
-      : payload.goProneAttempt === true
+      : payload.goProneAttempt === true || wentProne
         ? true
         : payload.standUpAttempt === true
           ? payload.standUpSucceeded !== true
@@ -40,7 +50,7 @@ export function applyMovementDeclared(
   const hullDown =
     payload.hullDownEntryAttempt === true
       ? true
-      : payload.goProneAttempt === true
+      : payload.goProneAttempt === true || wentProne
         ? false
         : payload.hullDownExitAttempt === true
           ? false
@@ -59,8 +69,17 @@ export function applyMovementDeclared(
       ...unit,
       position: payload.to,
       facing: payload.facing,
+      secondaryFacing: payload.facing,
+      torsoTwist: undefined,
       movementThisTurn: payload.movementType,
-      hexesMovedThisTurn: payload.mpUsed,
+      hexesMovedThisTurn: payload.hexesMoved ?? payload.mpUsed,
+      movedBackwardThisTurn: movementStepsUseBackwardMovement(payload.steps),
+      usedMechanicalJumpBoosterThisTurn: movementStepsUseMechanicalJumpBooster(
+        payload.steps,
+      ),
+      isEvading: isEvadeMovement,
+      evasionBonus: isEvadeMovement ? 1 : undefined,
+      sprintedThisTurn: isSprintMovement,
       heat: unit.heat + payload.heatGenerated,
       prone,
       hullDown,
@@ -86,6 +105,38 @@ function pathContainsBackwardStep(
       (step) => step.kind === 'forward' && step.direction === 'backward',
     ) ?? false
   );
+}
+
+export function applyFacingChanged(
+  state: IGameState,
+  payload: IFacingChangedPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) {
+    return state;
+  }
+
+  const facing = payload.facing ?? unit.facing;
+  const secondaryFacing =
+    payload.secondaryFacing ??
+    (payload.facing !== undefined ? facing : unit.secondaryFacing);
+
+  const updatedUnit: IUnitGameState = {
+    ...unit,
+    facing,
+    ...(secondaryFacing !== undefined ? { secondaryFacing } : {}),
+    ...(payload.torsoTwist !== undefined
+      ? { torsoTwist: payload.torsoTwist }
+      : { torsoTwist: undefined }),
+  };
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: updatedUnit,
+    },
+  };
 }
 
 export function applyMovementLocked(
@@ -255,6 +306,29 @@ function normalizedVehicleAltitude(value: number | undefined): number {
   return Math.max(0, Math.floor(value));
 }
 
+export function applyMovementEnhancementActivated(
+  state: IGameState,
+  payload: IMovementEnhancementActivatedPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) {
+    return state;
+  }
+
+  const updatedUnit: IUnitGameState =
+    payload.enhancement === 'MASC'
+      ? { ...unit, activeMASC: true }
+      : { ...unit, activeSupercharger: true };
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: updatedUnit,
+    },
+  };
+}
+
 export function applyAttackDeclared(
   state: IGameState,
   payload: IAttackDeclaredPayload,
@@ -300,5 +374,28 @@ export function applyAttackLocked(
       },
     },
     activationIndex: state.activationIndex + 1,
+  };
+}
+
+export function applyAttacksRevealed(
+  state: IGameState,
+  payload: IAttacksRevealedPayload,
+): IGameState {
+  const units = { ...state.units };
+  for (const unitId of payload.unitIds) {
+    const unit = units[unitId];
+    if (!unit || unit.lockState !== LockState.Locked) {
+      continue;
+    }
+
+    units[unitId] = {
+      ...unit,
+      lockState: LockState.Revealed,
+    };
+  }
+
+  return {
+    ...state,
+    units,
   };
 }

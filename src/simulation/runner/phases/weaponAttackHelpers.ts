@@ -102,14 +102,11 @@ export function toFiringArc(
 /**
  * Per `add-combat-fidelity-suite` Phase 4 (`ammo-explosion-system`
  * delta — Ammo Explosion Triggered by Critical Hit on Loaded Bin):
- * locate a loaded ammo bin in `ammoState` matching the destroyed
- * component slot's location. We don't yet have a slot-to-bin direct
- * mapping in the runner state (that's a follow-on hookup once the
- * resolver carries `ammoBinId` on `ICriticalHitResolvedPayload`); for
- * now we pick the first non-empty explosive bin AT the same location
- * as the crit. When no loaded bin is found at the location, returns
- * `null` and the runner skips the AmmoExplosion event (matching the
- * spec scenario "Empty ammo bin crit produces no explosion").
+ * prefer the destroyed component slot's exact `ammoBinId`, then fall
+ * back to the legacy same-location lookup for older synthetic manifests.
+ * When no loaded bin is found at the location or the exact targeted bin,
+ * returns `null` and the runner skips the AmmoExplosion event (matching
+ * the spec scenario "Empty ammo bin crit produces no explosion").
  *
  * `damagePerRound` is sourced from the bin's `weaponType` looked up
  * against the unit's catalog weapon list; we fallback to 1 when the
@@ -119,7 +116,21 @@ export function toFiringArc(
 export function findExplodingAmmoBin(
   ammoState: Record<string, IAmmoSlotState>,
   location: string,
+  ammoBinId?: string,
 ): IAmmoSlotState | null {
+  if (ammoBinId !== undefined) {
+    const bin = ammoState[ammoBinId];
+    if (
+      bin &&
+      bin.location === location &&
+      bin.remainingRounds > 0 &&
+      bin.isExplosive
+    ) {
+      return bin;
+    }
+    return null;
+  }
+
   for (const bin of Object.values(ammoState)) {
     if (
       bin.location === location &&
@@ -209,7 +220,7 @@ export function emitCritEvents(options: {
     | 'ammo_explosion'
     | 'pilot_death'
     | 'engine_destroyed'
-    | 'shutdown'
+    | 'impossible_displacement'
     | 'ct_destroyed'
     | 'head_destroyed'
     | undefined;
@@ -231,7 +242,7 @@ export function emitCritEvents(options: {
     | 'ammo_explosion'
     | 'pilot_death'
     | 'engine_destroyed'
-    | 'shutdown'
+    | 'impossible_displacement'
     | 'ct_destroyed'
     | 'head_destroyed'
     | undefined = undefined;
@@ -280,6 +291,7 @@ export function emitCritEvents(options: {
             slotIndex: p.slotIndex,
             componentType: p.componentType,
             componentName: p.componentName,
+            ...(p.ammoBinId !== undefined ? { ammoBinId: p.ammoBinId } : {}),
             effect: p.effect,
             destroyed: p.destroyed,
           },
@@ -305,6 +317,7 @@ export function emitCritEvents(options: {
               componentType: p.componentType,
               slotIndex: p.slotIndex,
               componentName: p.componentName,
+              ...(p.ammoBinId !== undefined ? { ammoBinId: p.ammoBinId } : {}),
             },
             attackerId,
           ),
@@ -380,7 +393,7 @@ export function emitCritEvents(options: {
         | 'ammo_explosion'
         | 'pilot_death'
         | 'engine_destroyed'
-        | 'shutdown'
+        | 'impossible_displacement'
         | 'ct_destroyed'
         | 'head_destroyed' =
         rawCause === 'damage'
@@ -389,7 +402,7 @@ export function emitCritEvents(options: {
             ? 'pilot_death'
             : (rawCause as
                 | 'ammo_explosion'
-                | 'shutdown'
+                | 'impossible_displacement'
                 | 'ct_destroyed'
                 | 'head_destroyed');
 

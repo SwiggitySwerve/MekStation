@@ -1,3 +1,5 @@
+import type { IUnitGameState } from '@/types/gameplay';
+
 import { IAmmoSlotState } from '@/types/gameplay/GameSessionInterfaces';
 
 import {
@@ -14,8 +16,14 @@ import {
   selectRandomAmmoBin,
   getTotalAmmo,
   getAmmoBinsAtLocation,
+  findAvailableAmmoBin,
   isEnergyWeapon,
+  normalizeAmmoWeaponType,
   IAmmoConstructionData,
+  applyAmmoExplosionRearArmorBlowout,
+  caseProtectionForLocation,
+  resolveCaseAdjustedAmmoExplosionDamage,
+  resolveBattleMechAmmoExplosionPilotDamage,
 } from '../ammoTracking';
 
 // =============================================================================
@@ -46,6 +54,16 @@ function makeConstructionData(
     isExplosive: true,
     ...overrides,
   };
+}
+
+function makeCaseUnit(overrides: Partial<IUnitGameState> = {}): IUnitGameState {
+  return {
+    armor: {},
+    structure: {},
+    destroyedLocations: [],
+    caseProtection: {},
+    ...overrides,
+  } as IUnitGameState;
 }
 
 const fixedDiceRoller = (value: number) => () => value;
@@ -172,6 +190,135 @@ describe('consumeAmmo', () => {
     const result = consumeAmmo(ammoState, 'unit-1', 'AC/10', 5);
     expect(result!.updatedAmmoState['bin-1'].remainingRounds).toBe(0);
   });
+
+  it('matches equivalent catalog IDs, slashes, and display names', () => {
+    expect(normalizeAmmoWeaponType('AC/20')).toBe('ac-20');
+    expect(normalizeAmmoWeaponType('AC-20')).toBe('ac-20');
+    expect(normalizeAmmoWeaponType('LRM 20')).toBe('lrm-20');
+    expect(normalizeAmmoWeaponType('Ultra AC/5')).toBe('uac-5');
+    expect(normalizeAmmoWeaponType('Ultra AC/5 (Clan)')).toBe('clan-uac-5');
+
+    const ammoState = {
+      'ac20-1': makeAmmoBin({
+        binId: 'ac20-1',
+        weaponType: 'AC/20',
+        remainingRounds: 5,
+      }),
+      'lrm20-1': makeAmmoBin({
+        binId: 'lrm20-1',
+        weaponType: 'lrm-20',
+        remainingRounds: 5,
+      }),
+      'clan-uac5-1': makeAmmoBin({
+        binId: 'clan-uac5-1',
+        weaponType: 'Ultra AC/5 (Clan)',
+        remainingRounds: 5,
+      }),
+    };
+
+    expect(consumeAmmo(ammoState, 'unit-1', 'ac-20')?.event.binId).toBe(
+      'ac20-1',
+    );
+    expect(consumeAmmo(ammoState, 'unit-1', 'LRM 20')?.event.binId).toBe(
+      'lrm20-1',
+    );
+    expect(consumeAmmo(ammoState, 'unit-1', 'clan-uac-5')?.event.binId).toBe(
+      'clan-uac5-1',
+    );
+  });
+
+  it('does not merge Clan and Inner Sphere ammo bins during normalized matching', () => {
+    const ammoState = {
+      'clan-uac5-1': makeAmmoBin({
+        binId: 'clan-uac5-1',
+        weaponType: 'clan-uac-5',
+        remainingRounds: 5,
+      }),
+    };
+
+    expect(consumeAmmo(ammoState, 'unit-1', 'uac-5')).toBeNull();
+    expect(
+      consumeAmmo(ammoState, 'unit-1', 'Ultra AC/5 (Clan)'),
+    ).not.toBeNull();
+  });
+
+  it('matches official AMS ammo names to AMS launchers', () => {
+    expect(normalizeAmmoWeaponType('AMS Ammo')).toBe('ams');
+    expect(normalizeAmmoWeaponType('Anti-Missile System Ammo')).toBe('ams');
+    expect(normalizeAmmoWeaponType('ISAMS Ammo')).toBe('ams');
+    expect(normalizeAmmoWeaponType('CLAMS Ammo')).toBe('clan-ams');
+
+    const ammoState = {
+      'ams-1': makeAmmoBin({
+        binId: 'ams-1',
+        weaponType: 'AMS Ammo',
+        remainingRounds: 5,
+      }),
+      'clan-ams-1': makeAmmoBin({
+        binId: 'clan-ams-1',
+        weaponType: 'CLAMS Ammo',
+        remainingRounds: 5,
+      }),
+    };
+
+    expect(consumeAmmo(ammoState, 'unit-1', 'ams')?.event.binId).toBe('ams-1');
+    expect(consumeAmmo(ammoState, 'unit-1', 'clan-ams')?.event.binId).toBe(
+      'clan-ams-1',
+    );
+  });
+
+  it('matches source-backed plasma ammo aliases to ammo-fed plasma weapons', () => {
+    expect(normalizeAmmoWeaponType('CLPlasmaCannonAmmo')).toBe(
+      'clan-plasma-cannon',
+    );
+    expect(normalizeAmmoWeaponType('Plasma Cannon Ammo')).toBe(
+      'clan-plasma-cannon',
+    );
+    expect(normalizeAmmoWeaponType('ISPlasmaRifleAmmo')).toBe('plasma-rifle');
+    expect(normalizeAmmoWeaponType('Plasma Rifle Ammo')).toBe('plasma-rifle');
+
+    const ammoState = {
+      'clan-plasma-1': makeAmmoBin({
+        binId: 'clan-plasma-1',
+        weaponType: 'CLPlasmaCannonAmmo',
+        remainingRounds: 10,
+      }),
+      'is-plasma-1': makeAmmoBin({
+        binId: 'is-plasma-1',
+        weaponType: 'ISPlasmaRifleAmmo',
+        remainingRounds: 10,
+      }),
+    };
+
+    expect(
+      consumeAmmo(ammoState, 'unit-1', 'clan-plasma-cannon')?.event.binId,
+    ).toBe('clan-plasma-1');
+    expect(consumeAmmo(ammoState, 'unit-1', 'Plasma Rifle')?.event.binId).toBe(
+      'is-plasma-1',
+    );
+  });
+
+  it('matches semi-guided LRM ammo to the base LRM launcher while preserving the selected variant', () => {
+    expect(normalizeAmmoWeaponType('Semi-Guided LRM 10')).toBe('lrm-10');
+    expect(normalizeAmmoWeaponType('LRM 10 Semi-Guided')).toBe('lrm-10');
+    expect(normalizeAmmoWeaponType('SG LRM 10')).toBe('lrm-10');
+
+    const ammoState = {
+      'sg-lrm10-1': makeAmmoBin({
+        binId: 'sg-lrm10-1',
+        weaponType: 'Semi-Guided LRM 10',
+        remainingRounds: 5,
+      }),
+    };
+
+    expect(hasAmmoForWeapon(ammoState, 'lrm-10')).toBe(true);
+    expect(findAvailableAmmoBin(ammoState, 'LRM 10')?.weaponType).toBe(
+      'Semi-Guided LRM 10',
+    );
+    expect(consumeAmmo(ammoState, 'unit-1', 'lrm-10')?.event.binId).toBe(
+      'sg-lrm10-1',
+    );
+  });
 });
 
 // =============================================================================
@@ -196,6 +343,24 @@ describe('hasAmmoForWeapon', () => {
 
   it('returns true for energy weapons regardless of ammo', () => {
     expect(hasAmmoForWeapon({}, 'Medium Laser', true)).toBe(true);
+  });
+
+  it('uses normalized weapon-type matching for availability and totals', () => {
+    const ammoState = {
+      'bin-1': makeAmmoBin({
+        binId: 'bin-1',
+        weaponType: 'AC/20',
+        remainingRounds: 4,
+      }),
+      'bin-2': makeAmmoBin({
+        binId: 'bin-2',
+        weaponType: 'ac-20',
+        remainingRounds: 3,
+      }),
+    };
+
+    expect(hasAmmoForWeapon(ammoState, 'AC-20')).toBe(true);
+    expect(getTotalAmmo(ammoState, 'AC/20')).toBe(7);
   });
 });
 
@@ -325,6 +490,120 @@ describe('resolveAmmoExplosion with CASE variants', () => {
   });
 });
 
+describe('CASE-adjusted ammo explosion damage', () => {
+  it('reports no protection when a location has no CASE entry', () => {
+    const unit = makeCaseUnit();
+
+    expect(caseProtectionForLocation(unit, 'right_torso')).toBe('none');
+  });
+
+  it('caps standard CASE damage to 10 before local damage resolution', () => {
+    const unit = makeCaseUnit({
+      armor: { right_torso: 12 },
+      structure: { right_torso: 10 },
+      caseProtection: { right_torso: 'case' },
+    });
+
+    expect(
+      resolveCaseAdjustedAmmoExplosionDamage(unit, 'right_torso', 100),
+    ).toEqual({
+      caseProtection: 'case',
+      damageToApply: 10,
+    });
+  });
+
+  it('caps CASE II damage to 1 before local damage resolution', () => {
+    const unit = makeCaseUnit({
+      armor: { right_torso: 12 },
+      structure: { right_torso: 10 },
+      caseProtection: { right_torso: 'case_ii' },
+    });
+
+    expect(
+      resolveCaseAdjustedAmmoExplosionDamage(unit, 'right_torso', 100),
+    ).toEqual({
+      caseProtection: 'case_ii',
+      damageToApply: 1,
+    });
+  });
+
+  it('never applies more protected damage than the local internal structure can hold', () => {
+    const unit = makeCaseUnit({
+      armor: { right_torso: 4 },
+      structure: { right_torso: 3 },
+      caseProtection: { right_torso: 'case' },
+    });
+
+    expect(
+      resolveCaseAdjustedAmmoExplosionDamage(unit, 'right_torso', 100),
+    ).toEqual({
+      caseProtection: 'case',
+      damageToApply: 3,
+    });
+  });
+
+  it('blows out protected torso rear armor when the internal structure survives', () => {
+    const result = applyAmmoExplosionRearArmorBlowout(
+      {
+        armor: {
+          head: 0,
+          center_torso: 0,
+          center_torso_rear: 0,
+          left_torso: 0,
+          left_torso_rear: 0,
+          right_torso: 12,
+          right_torso_rear: 6,
+          left_arm: 0,
+          right_arm: 0,
+          left_leg: 0,
+          right_leg: 0,
+        },
+        rearArmor: {
+          center_torso: 0,
+          left_torso: 0,
+          right_torso: 6,
+        },
+        structure: {
+          head: 0,
+          center_torso: 0,
+          center_torso_rear: 0,
+          left_torso: 0,
+          left_torso_rear: 0,
+          right_torso: 15,
+          right_torso_rear: 15,
+          left_arm: 0,
+          right_arm: 0,
+          left_leg: 0,
+          right_leg: 0,
+        },
+        destroyedLocations: [],
+        pilotWounds: 0,
+        pilotConscious: true,
+        destroyed: false,
+      },
+      'right_torso',
+      'case',
+      10,
+    );
+
+    expect(result.state.armor.right_torso).toBe(12);
+    expect(result.state.armor.right_torso_rear).toBe(0);
+    expect(result.state.rearArmor.right_torso).toBe(0);
+    expect(result.state.structure.right_torso).toBe(15);
+    expect(result.locationDamages).toEqual([
+      expect.objectContaining({
+        location: 'right_torso_rear',
+        damage: 6,
+        armorDamage: 6,
+        structureDamage: 0,
+        armorRemaining: 0,
+        structureRemaining: 15,
+        destroyed: false,
+      }),
+    ]);
+  });
+});
+
 // =============================================================================
 // Task 6.10: Clan OmniMech Default CASE
 // =============================================================================
@@ -410,6 +689,12 @@ describe('getHeatAmmoExplosionTN', () => {
     expect(getHeatAmmoExplosionTN(22)).toBe(4);
   });
 
+  it('applies heat target-number modifiers', () => {
+    expect(getHeatAmmoExplosionTN(19, -1)).toBe(3);
+    expect(getHeatAmmoExplosionTN(23, -1)).toBe(5);
+    expect(getHeatAmmoExplosionTN(28, -1)).toBe(7);
+  });
+
   it('returns TN 6 at heat 23-27', () => {
     expect(getHeatAmmoExplosionTN(23)).toBe(6);
     expect(getHeatAmmoExplosionTN(27)).toBe(6);
@@ -443,6 +728,13 @@ describe('checkHeatAmmoExplosion', () => {
   it('returns false when roll meets TN at heat 19', () => {
     // TN 4, roll 3+3=6, ≥4 → no explosion
     expect(checkHeatAmmoExplosion(19, fixedDiceRoller(3))).toBe(false);
+  });
+  it('applies heat target-number modifiers to the explosion check', () => {
+    // Base TN 4, Hot Dog-style -1 modifier, roll 1+2=3 meets TN 3.
+    let next = 0;
+    const dice = [1, 2];
+
+    expect(checkHeatAmmoExplosion(19, () => dice[next++] ?? 1, -1)).toBe(false);
   });
 });
 
@@ -510,6 +802,13 @@ describe('isEnergyWeapon', () => {
     expect(isEnergyWeapon('SRM 6')).toBe(false);
     expect(isEnergyWeapon('Machine Gun')).toBe(false);
     expect(isEnergyWeapon('Gauss Rifle')).toBe(false);
+  });
+
+  it('treats MegaMek plasma AmmoWeapon families as ammo-fed despite energy flags', () => {
+    expect(isEnergyWeapon('Plasma Cannon (Clan)')).toBe(false);
+    expect(isEnergyWeapon('CLPlasmaCannon')).toBe(false);
+    expect(isEnergyWeapon('Plasma Rifle')).toBe(false);
+    expect(isEnergyWeapon('ISPlasmaRifle')).toBe(false);
   });
 });
 
@@ -598,5 +897,65 @@ describe('ammo explosion integration with CASE', () => {
     expect(result!.totalDamage).toBe(100);
     expect(result!.transferDamage).toBe(100);
     expect(result!.pilotDamage).toBe(1);
+  });
+});
+
+describe('resolveBattleMechAmmoExplosionPilotDamage', () => {
+  it('applies the default BattleMech ammo-explosion pilot damage', () => {
+    expect(
+      resolveBattleMechAmmoExplosionPilotDamage({
+        totalDamage: 100,
+        caseProtection: 'none',
+      }),
+    ).toBe(2);
+  });
+
+  it('reduces ammo-explosion pilot damage for Iron Man and Pain Resistance', () => {
+    expect(
+      resolveBattleMechAmmoExplosionPilotDamage({
+        totalDamage: 100,
+        pilotAbilities: ['iron-man'],
+      }),
+    ).toBe(1);
+    expect(
+      resolveBattleMechAmmoExplosionPilotDamage({
+        totalDamage: 100,
+        pilotAbilities: ['pain_resistance'],
+      }),
+    ).toBe(1);
+  });
+
+  it('does not apply the local Iron Will alias to source-backed Iron Man ammo-explosion relief', () => {
+    expect(
+      resolveBattleMechAmmoExplosionPilotDamage({
+        totalDamage: 100,
+        pilotAbilities: ['iron-will'],
+      }),
+    ).toBe(2);
+  });
+
+  it('suppresses ammo-explosion pilot damage with artificial pain shunt', () => {
+    expect(
+      resolveBattleMechAmmoExplosionPilotDamage({
+        totalDamage: 100,
+        pilotAbilities: ['artificial_pain_shunt'],
+      }),
+    ).toBe(0);
+  });
+
+  it('only applies the optional CASE pilot-damage reduction when enabled', () => {
+    expect(
+      resolveBattleMechAmmoExplosionPilotDamage({
+        totalDamage: 100,
+        caseProtection: 'case',
+      }),
+    ).toBe(2);
+    expect(
+      resolveBattleMechAmmoExplosionPilotDamage({
+        totalDamage: 100,
+        caseProtection: 'case',
+        advancedCasePilotDamage: true,
+      }),
+    ).toBe(1);
   });
 });

@@ -1,8 +1,8 @@
 /**
  * MovementTypeSwitcher
  *
- * Per `add-combat-phase-ui-flows`: three-button toggle the player uses
- * during the Movement phase to choose Walk / Run / Jump before picking
+ * Per `add-combat-phase-ui-flows`: movement toggle the player uses
+ * during the Movement phase to choose Walk / Run / Sprint / Evade / Jump before picking
  * a destination hex. Highlights the active type and disables Jump if
  * the unit has no jump MP.
  *
@@ -15,6 +15,7 @@
 import React from 'react';
 
 import { MovementType } from '@/types/gameplay';
+import { calculateSprintMP } from '@/utils/gameplay/movement/calculations';
 
 export interface MovementTypeSwitcherProps {
   /** Current movement type the player is planning */
@@ -23,6 +24,10 @@ export interface MovementTypeSwitcherProps {
   walkMP: number;
   /** Run MP available from the selected unit's actual movement capability */
   runMP?: number;
+  /** Sprint MP available from optional tactical movement rules */
+  sprintMP?: number;
+  /** Evade MP available from optional tactical movement rules */
+  evadeMP?: number;
   /** Jump MP available (0 disables Jump button) */
   jumpMP: number;
   /** Callback fired when player picks a new type */
@@ -76,11 +81,15 @@ export function MovementTypeSwitcher({
   active,
   walkMP,
   runMP,
+  sprintMP,
+  evadeMP,
   jumpMP,
   onChange,
   className = '',
 }: MovementTypeSwitcherProps): React.ReactElement {
   const displayedRunMP = runMP ?? Math.ceil(walkMP * 1.5);
+  const displayedSprintMP = sprintMP ?? calculateSprintMP(walkMP);
+  const displayedEvadeMP = evadeMP ?? displayedRunMP;
 
   // Reasoning: we expose three options always; disabling rather than
   // hiding keeps button positions stable across units (less visual
@@ -105,6 +114,20 @@ export function MovementTypeSwitcher({
         active={active === MovementType.Run}
         disabled={displayedRunMP <= 0}
         onClick={() => onChange(MovementType.Run)}
+      />
+      <TypeButton
+        type={MovementType.Sprint}
+        label={`Sprint (${displayedSprintMP} MP)`}
+        active={active === MovementType.Sprint}
+        disabled={displayedSprintMP <= 0}
+        onClick={() => onChange(MovementType.Sprint)}
+      />
+      <TypeButton
+        type={MovementType.Evade}
+        label={`Evade (${displayedEvadeMP} MP)`}
+        active={active === MovementType.Evade}
+        disabled={displayedEvadeMP <= 0}
+        onClick={() => onChange(MovementType.Evade)}
       />
       <TypeButton
         type={MovementType.Jump}

@@ -27,9 +27,9 @@ export type RearArmorLocation = 'center_torso' | 'left_torso' | 'right_torso';
  * but slot resolution is deferred to the runner — `criticalHits[]`
  * stays empty in that case.
  *
- * The four fields mirror the `resolveCriticalHits` parameter list. Held
- * here as a single bundle so callers don't have to thread four
- * positional arguments through every helper.
+ * The fields mirror the `resolveCriticalHits` parameter list. Held here as a
+ * single bundle so callers don't have to thread positional arguments through
+ * every helper.
  */
 export interface ICriticalContext {
   readonly unitId: string;
@@ -45,13 +45,20 @@ export interface IUnitDamageState {
   readonly destroyedLocations: readonly CombatLocation[];
   readonly pilotWounds: number;
   readonly pilotConscious: boolean;
+  readonly pilotAbilities?: readonly string[];
+  /**
+   * Source-backed RPG Toughness numeric crew value. Undefined preserves the
+   * default MegaMek behavior when the RPG Toughness option is absent or not
+   * hydrated; ability aliases named "toughness" do not imply this value.
+   */
+  readonly pilotToughness?: number;
   readonly destroyed: boolean;
   readonly destructionCause?:
     | 'damage'
     | 'ammo_explosion'
     | 'pilot_death'
     | 'engine_destroyed'
-    | 'shutdown'
+    | 'impossible_displacement'
     | 'ct_destroyed'
     | 'head_destroyed';
   /**
@@ -85,7 +92,7 @@ export interface IDestructionCheckResult {
     | 'ammo_explosion'
     | 'pilot_death'
     | 'engine_destroyed'
-    | 'shutdown'
+    | 'impossible_displacement'
     | 'ct_destroyed'
     | 'head_destroyed';
 }

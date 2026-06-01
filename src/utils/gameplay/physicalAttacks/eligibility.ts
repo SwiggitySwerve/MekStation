@@ -21,20 +21,30 @@
  * @spec openspec/changes/add-physical-attack-phase-ui/specs/physical-attack-system/spec.md
  */
 
-import type { IUnitGameState } from '@/types/gameplay';
+import { type IUnitGameState, MovementType } from '@/types/gameplay';
+
+import type { ThrashAttackBlockingTerrain } from './thrashEligibility';
 
 import { hexDistance } from '../hexMath';
 import { calculatePhysicalDamage } from './damage';
+import { isTargetDirectlyAhead, isTargetInFrontArc } from './displacement';
 import {
+  canBrushOffPhysical,
+  canBreakGrapplePhysical,
   canCharge,
   canDFA,
+  canGrapplePhysical,
   canKick,
+  canJumpJetAttackPhysical,
   canMeleeWeapon,
   canPunch,
   canPush,
+  canThrashPhysical,
+  canTripPhysical,
 } from './restrictions';
 import { calculatePhysicalToHit } from './toHit';
 import {
+  SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
   IPhysicalAttackInput,
   IPhysicalAttackOption,
   IPhysicalAttackRestriction,
@@ -42,11 +52,22 @@ import {
   PhysicalAttackInvalidReason,
   PhysicalAttackLimb,
   PhysicalAttackType,
+  isPhysicalAirborneVtolOrWigeTarget,
+  physicalTargetObjectTypeForUnitType,
 } from './types';
 import {
   isAirborneVTOLOrWiGEForPhysicalAttack,
   isVehicleCrewStunned,
 } from './unitState';
+
+const SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPE_SET = new Set<string>(
+  SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
+);
+const TACOPS_JUMP_JET_ATTACK_OPTIONS = new Set([
+  'tacops_jump_jet_attack',
+  'advanced_combat_tac_ops_jump_jet_attack',
+  'jump_jet_attack',
+]);
 
 /**
  * Per `add-physical-attack-phase-ui` task 3.2: caller-supplied context
@@ -63,12 +84,20 @@ export interface IEligibilityContext {
   readonly weaponsFiredFromLeftArm?: readonly string[];
   /** Weapons fired from the attacker's right arm this turn. */
   readonly weaponsFiredFromRightArm?: readonly string[];
+  /** All weapons fired by the attacker this turn. */
+  readonly weaponsFiredThisTurn?: readonly string[];
   /** Limbs already used for a physical attack this turn. */
   readonly limbsUsedThisTurn?: readonly PhysicalAttackLimb[];
   /** True when the attacker ran this turn — gates charge. */
   readonly attackerRanThisTurn?: boolean;
+  /** True when the movement step chain included backward movement. */
+  readonly attackerMovedBackwardThisTurn?: boolean;
   /** True when the attacker jumped this turn — gates DFA. */
   readonly attackerJumpedThisTurn?: boolean;
+  /** True when this turn's jump used mechanical jump boosters instead of normal jump movement. */
+  readonly attackerUsedMechanicalJumpBooster?: boolean;
+  /** Attacker jump MP for DFA reach against airborne VTOL/WIGE targets. */
+  readonly attackerJumpMP?: number;
   /** Target movement modifier (TMM). */
   readonly targetMovementModifier?: number;
   /** Attacker movement modifier (used by charge to-hit). */
@@ -77,17 +106,81 @@ export interface IEligibilityContext {
   readonly attackerMovementMode?: IPhysicalAttackInput['attackerMovementMode'];
   readonly attackerConversionMode?: IPhysicalAttackInput['attackerConversionMode'];
   readonly attackerIsAirborneVTOLOrWiGE?: IPhysicalAttackInput['attackerIsAirborneVTOLOrWiGE'];
-  readonly optionalRules?: IPhysicalAttackInput['optionalRules'];
   readonly targetUnitType?: IPhysicalAttackInput['targetUnitType'];
+  /** Charge target movement-complete gate; false blocks unless target is immobile. */
+  readonly targetMovementComplete?: boolean;
+  /** Triple-strength myomer installed on the attacker. */
+  readonly hasTSM?: boolean;
   /** Per-attacker presence flags for arm actuators (punches). */
   readonly lowerArmActuatorPresent?: boolean;
   readonly handActuatorPresent?: boolean;
   readonly upperLegActuatorPresent?: boolean;
   readonly footActuatorPresent?: boolean;
+  /** Per-leg talon state used by kick/DFA damage projections. */
+  readonly leftLegHasTalons?: boolean;
+  readonly rightLegHasTalons?: boolean;
+  /** Quad/non-biped front-leg talons are checked through arm locations. */
+  readonly leftArmHasTalons?: boolean;
+  readonly rightArmHasTalons?: boolean;
+  readonly leftFootActuatorPresent?: boolean;
+  readonly rightFootActuatorPresent?: boolean;
+  readonly leftArmFootActuatorPresent?: boolean;
+  readonly rightArmFootActuatorPresent?: boolean;
+  /** Per-arm claw state used by punch damage/to-hit projections. */
+  readonly leftArmHasClaw?: boolean;
+  readonly rightArmHasClaw?: boolean;
+  /** Optional physical-combat rule branches, such as PLAYTEST_3. */
+  readonly optionalRules?: readonly string[];
+  readonly tacOpsTripAttackEnabled?: boolean;
+  readonly tacOpsGrapplingEnabled?: boolean;
+  readonly grappleSide?: 'left' | 'right' | 'both';
+  readonly attackerGrappledTargetId?: string;
+  readonly targetGrappledTargetId?: string;
+  readonly attackerIsGrappleAttacker?: boolean;
+  readonly targetIsGrappleAttacker?: boolean;
+  readonly attackerChainWhipGrappled?: boolean;
+  readonly leftArmAesFunctional?: boolean;
+  readonly rightArmAesFunctional?: boolean;
+  readonly attackerWeightClass?: number;
+  readonly targetWeightClass?: number;
+  readonly attackerAlreadyGrappled?: boolean;
+  readonly leftTripLimbUsable?: boolean;
+  readonly rightTripLimbUsable?: boolean;
+  readonly legAesFunctional?: boolean;
+  readonly thrashBlockingTerrains?: readonly ThrashAttackBlockingTerrain[];
+  readonly hasWorkingThrashArmOrLeg?: boolean;
+  readonly tacOpsJumpJetAttackEnabled?: boolean;
+  readonly jumpJetAttackSelectedLeg?: 'left' | 'right' | 'both';
+  readonly leftReadyJumpJetCount?: number;
+  readonly rightReadyJumpJetCount?: number;
+  readonly leftLegWet?: boolean;
+  readonly rightLegWet?: boolean;
+  readonly leftLegWeaponFiredThisTurn?: boolean;
+  readonly rightLegWeaponFiredThisTurn?: boolean;
+  readonly targetIsSwarmingInfantryOnAttacker?: boolean;
+  readonly targetIsINarcPod?: boolean;
+  readonly armAesFunctional?: boolean;
+  readonly torsoMountedCockpit?: boolean;
+  readonly headSensorHits?: number;
+  readonly centerTorsoSensorHits?: number;
+  readonly defenderHasMagneticClaws?: boolean;
+  readonly standingAttackerHeightAboveTargetHeight?: number;
+  readonly proneTargetElevationInRange?: boolean;
+  readonly targetDirectlyAheadOfFeet?: boolean;
+  readonly targetDirectlyBehindFeet?: boolean;
   /** Equipped melee weapon types (hatchet / sword / mace / lance). */
   readonly meleeWeaponsEquipped?: readonly PhysicalAttackType[];
+  /** False when the computed push destination is off-map or occupied. */
+  readonly pushDestinationValid?: boolean;
+  /** Pilot abilities and unit quirks that modify physical attacks. */
+  readonly pilotAbilities?: readonly string[];
+  readonly unitQuirks?: readonly string[];
+  /** Target elevation minus attacker elevation. */
+  readonly elevationDifference?: number;
   readonly elevationContext?: IPhysicalAttackInput['elevationContext'];
   readonly terrainContext?: IPhysicalAttackInput['terrainContext'];
+  /** False when a retractable blade is present but not extended. */
+  readonly retractableBladeExtended?: boolean;
 }
 
 /**
@@ -153,6 +246,23 @@ function buildSelfRisk(
         pilotingSkillRoll: null,
         onMiss: null,
       };
+    case 'thrash':
+      return {
+        damageToAttacker: 0,
+        legDamagePerLeg: 0,
+        pilotingSkillRoll: {
+          trigger: 'ThrashCompleted',
+          required: true,
+        },
+        onMiss: null,
+      };
+    case 'brush-off':
+      return {
+        damageToAttacker: damage.targetDamage,
+        legDamagePerLeg: 0,
+        pilotingSkillRoll: null,
+        onMiss: 'None',
+      };
     default:
       return {
         damageToAttacker: 0,
@@ -189,6 +299,51 @@ function buildOption(
   };
 }
 
+function isRuntimeMeleeWeaponAttackType(
+  weaponType: PhysicalAttackType,
+): boolean {
+  return SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPE_SET.has(weaponType);
+}
+
+function jumpJetAttackOptionEnabled(context: IEligibilityContext): boolean {
+  if (context.tacOpsJumpJetAttackEnabled === true) return true;
+  return (
+    context.optionalRules?.some((rule) =>
+      TACOPS_JUMP_JET_ATTACK_OPTIONS.has(
+        rule
+          .trim()
+          .toLowerCase()
+          .replace(/[\s-]+/g, '_'),
+      ),
+    ) ?? false
+  );
+}
+
+function canonicalBrushOffTargetUnitType(
+  unit: IUnitGameState,
+): string | undefined {
+  if (unit.combatState?.kind === 'squad') return 'battlearmor';
+  return unit.unitType?.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function swarmingHostId(unit: IUnitGameState): string | undefined {
+  if (unit.combatState?.kind !== 'squad') return undefined;
+  return unit.combatState.state.swarmingUnitId;
+}
+
+function targetIsSwarmingInfantryOnAttacker(
+  attackerId: string,
+  target: IUnitGameState,
+): boolean {
+  if (target.isSwarming !== true) return false;
+
+  const canonical = canonicalBrushOffTargetUnitType(target);
+  if (canonical !== 'infantry' && canonical !== 'battlearmor') return false;
+
+  const hostId = swarmingHostId(target);
+  return hostId === undefined || hostId === attackerId;
+}
+
 /**
  * Per spec scenario "Fully-intact mech returns punch + kick options":
  * the canonical entry point. Returns `[]` when target is null or more
@@ -202,9 +357,18 @@ export function getEligiblePhysicalAttacks(
   context: IEligibilityContext,
 ): readonly IPhysicalAttackOption[] {
   if (!attacker || !target) return [];
-  if (attacker.destroyed || target.destroyed) return [];
-  // Per spec scenario "Non-adjacent target returns empty list".
-  if (hexDistance(attacker.position, target.position) !== 1) return [];
+  if (
+    attacker.destroyed ||
+    target.destroyed ||
+    target.hasRetreated ||
+    target.hasEjected
+  ) {
+    return [];
+  }
+  const targetDistance = hexDistance(attacker.position, target.position);
+  // Per spec scenario "Non-adjacent target returns empty list"; same-hex is
+  // retained for source-backed prone BattleMech thrash attacks.
+  if (targetDistance > 1) return [];
 
   const componentDamage = attacker.componentDamage ?? {
     engineHits: 0,
@@ -219,18 +383,14 @@ export function getEligiblePhysicalAttacks(
   };
 
   const baseInput = {
+    attackerId: attacker.id,
+    targetId: target.id,
     attackerTonnage: context.attackerTonnage,
     pilotingSkill: context.attackerPilotingSkill,
     componentDamage,
     heat: attacker.heat,
-    attackerProne: attacker.prone,
-    attackerHullDown: attacker.hullDown,
-    hexesMoved: attacker.hexesMovedThisTurn,
-    targetTonnage: context.targetTonnage,
-    targetMovementModifier: context.targetMovementModifier,
-    attackerMovementModifier: context.attackerMovementModifier,
-    attackerRanThisTurn: context.attackerRanThisTurn,
-    attackerJumpedThisTurn: context.attackerJumpedThisTurn,
+    attackerDestroyedLocations: attacker.destroyedLocations,
+    attackerUnitType: context.attackerUnitType ?? attacker.unitType,
     attackerMovementMode: context.attackerMovementMode,
     attackerConversionMode:
       context.attackerConversionMode ?? attacker.conversionMode,
@@ -241,20 +401,147 @@ export function getEligiblePhysicalAttacks(
         context.attackerMovementMode,
       ),
     attackerVehicleCrewStunned: isVehicleCrewStunned(attacker),
-    optionalRules: context.optionalRules,
+    attackerIsQuad: attacker.isQuad,
+    attackerIsAirborne: attacker.isAirborne,
+    attackerArmsFlipped: attacker.armsFlipped,
+    targetUnitType: context.targetUnitType ?? target.unitType,
+    targetPilotingSkill: target.piloting,
+    attackerEvading: attacker.isEvading,
+    attackerSpotting: attacker.isSpotting,
+    attackerLoadingOrUnloadingCargo: attacker.isLoadingOrUnloadingCargo,
+    retractableBladeExtended: context.retractableBladeExtended,
+    attackerTargetedByDisplacementAttackerId:
+      attacker.targetedByDisplacementAttackerId,
+    attackerProne: attacker.prone,
+    attackerStuck: attacker.isStuck,
+    targetProne: target.prone,
+    targetMovementComplete: context.targetMovementComplete,
+    targetImmobile: target.shutdown,
+    targetExists: true,
+    targetObjectType: physicalTargetObjectTypeForUnitType(target.unitType),
+    targetDestroyed: target.destroyed,
+    targetRetreated: target.hasRetreated,
+    targetEjected: target.hasEjected,
+    targetIsPassenger: target.isPassenger,
+    attackerBoardId: attacker.boardId,
+    targetBoardId: target.boardId,
+    targetIsSwarming: target.isSwarming,
+    targetIsMakingDFA: target.isMakingDFA,
+    targetIsMakingDisplacementAttack: target.isMakingDisplacementAttack,
+    targetIsPushing: target.isPushing,
+    targetDisplacementAttackTargetId: target.displacementAttackTargetId,
+    targetedByDisplacementAttackerId: target.targetedByDisplacementAttackerId,
+    targetIsAirborne: target.isAirborne,
+    targetIsAirborneVTOLorWIGE:
+      context.attackerJumpMP !== undefined &&
+      context.elevationDifference !== undefined &&
+      isPhysicalAirborneVtolOrWigeTarget(
+        target.unitType,
+        target.motionType,
+        target.isAirborne,
+      ),
+    attackerJumpMP: context.attackerJumpMP,
+    attackerOccupiedBuildingId: attacker.occupiedBuildingId,
+    targetOccupiedBuildingId: target.occupiedBuildingId,
+    targetIsSelf: attacker.id === target.id,
+    targetIsFriendly: attacker.side === target.side,
+    targetDistance,
+    hexesMoved: attacker.hexesMovedThisTurn,
+    targetTonnage: context.targetTonnage,
+    targetMovementModifier: context.targetMovementModifier,
+    targetEvading: target.isEvading,
+    targetEvasionBonus: target.evasionBonus,
+    attackerMovementModifier: context.attackerMovementModifier,
+    hasTSM: context.hasTSM,
+    attackerRanThisTurn: context.attackerRanThisTurn,
+    attackerMovedBackwardThisTurn:
+      context.attackerMovedBackwardThisTurn ?? attacker.movedBackwardThisTurn,
+    attackerJumpedThisTurn:
+      context.attackerJumpedThisTurn ??
+      attacker.movementThisTurn === MovementType.Jump,
+    attackerUsedMechanicalJumpBooster:
+      context.attackerUsedMechanicalJumpBooster ??
+      attacker.usedMechanicalJumpBoosterThisTurn,
     limbsUsedThisTurn: context.limbsUsedThisTurn,
-    attackerDestroyedLocations: attacker.destroyedLocations,
     lowerArmActuatorPresent: context.lowerArmActuatorPresent,
     handActuatorPresent: context.handActuatorPresent,
     upperLegActuatorPresent: context.upperLegActuatorPresent,
     footActuatorPresent: context.footActuatorPresent,
-    attackerUnitType: context.attackerUnitType,
-    targetUnitType: context.targetUnitType,
-    attackerPosition: attacker.position,
-    targetPosition: target.position,
-    attackerFacing: attacker.facing,
-    targetProne: target.prone,
-    targetIsAirborne: physicalTargetIsAirborne(target),
+    leftLegHasTalons: context.leftLegHasTalons ?? attacker.leftLegHasTalons,
+    rightLegHasTalons: context.rightLegHasTalons ?? attacker.rightLegHasTalons,
+    leftArmHasTalons: context.leftArmHasTalons ?? attacker.leftArmHasTalons,
+    rightArmHasTalons: context.rightArmHasTalons ?? attacker.rightArmHasTalons,
+    leftFootActuatorPresent: context.leftFootActuatorPresent,
+    rightFootActuatorPresent: context.rightFootActuatorPresent,
+    leftArmFootActuatorPresent: context.leftArmFootActuatorPresent,
+    rightArmFootActuatorPresent: context.rightArmFootActuatorPresent,
+    leftArmHasClaw: context.leftArmHasClaw ?? attacker.leftArmHasClaw,
+    rightArmHasClaw: context.rightArmHasClaw ?? attacker.rightArmHasClaw,
+    optionalRules: context.optionalRules,
+    tacOpsTripAttackEnabled: context.tacOpsTripAttackEnabled,
+    tacOpsGrapplingEnabled: context.tacOpsGrapplingEnabled,
+    grappleSide: context.grappleSide,
+    attackerGrappledTargetId:
+      context.attackerGrappledTargetId ?? attacker.grappledUnitId,
+    targetGrappledTargetId:
+      context.targetGrappledTargetId ?? target.grappledUnitId,
+    attackerIsGrappleAttacker:
+      context.attackerIsGrappleAttacker ?? attacker.isGrappleAttacker,
+    targetIsGrappleAttacker:
+      context.targetIsGrappleAttacker ?? target.isGrappleAttacker,
+    attackerChainWhipGrappled:
+      context.attackerChainWhipGrappled ?? attacker.isChainWhipGrappled,
+    leftArmAesFunctional: context.leftArmAesFunctional,
+    rightArmAesFunctional: context.rightArmAesFunctional,
+    attackerWeightClass: context.attackerWeightClass,
+    targetWeightClass: context.targetWeightClass,
+    attackerAlreadyGrappled: context.attackerAlreadyGrappled,
+    targetInFrontArc: isTargetInFrontArc(
+      attacker.position,
+      attacker.facing,
+      target.position,
+    ),
+    leftTripLimbUsable: context.leftTripLimbUsable,
+    rightTripLimbUsable: context.rightTripLimbUsable,
+    legAesFunctional: context.legAesFunctional,
+    thrashBlockingTerrains: context.thrashBlockingTerrains,
+    hasWorkingThrashArmOrLeg: context.hasWorkingThrashArmOrLeg,
+    tacOpsJumpJetAttackEnabled: context.tacOpsJumpJetAttackEnabled,
+    leftReadyJumpJetCount: context.leftReadyJumpJetCount,
+    rightReadyJumpJetCount: context.rightReadyJumpJetCount,
+    leftLegWet: context.leftLegWet,
+    rightLegWet: context.rightLegWet,
+    leftLegWeaponFiredThisTurn: context.leftLegWeaponFiredThisTurn,
+    rightLegWeaponFiredThisTurn: context.rightLegWeaponFiredThisTurn,
+    standingAttackerHeightAboveTargetHeight:
+      context.standingAttackerHeightAboveTargetHeight,
+    proneTargetElevationInRange: context.proneTargetElevationInRange,
+    targetDirectlyAheadOfFeet:
+      context.targetDirectlyAheadOfFeet ??
+      isTargetDirectlyAhead(
+        attacker.position,
+        attacker.facing,
+        target.position,
+      ),
+    targetDirectlyBehindFeet: context.targetDirectlyBehindFeet,
+    targetIsSwarmingInfantryOnAttacker:
+      context.targetIsSwarmingInfantryOnAttacker ??
+      targetIsSwarmingInfantryOnAttacker(attacker.id, target),
+    targetIsINarcPod: context.targetIsINarcPod,
+    armAesFunctional: context.armAesFunctional,
+    torsoMountedCockpit: context.torsoMountedCockpit,
+    headSensorHits: context.headSensorHits,
+    centerTorsoSensorHits: context.centerTorsoSensorHits,
+    defenderHasMagneticClaws: context.defenderHasMagneticClaws,
+    pushDestinationValid: context.pushDestinationValid,
+    pushTargetDirectlyAhead: isTargetDirectlyAhead(
+      attacker.position,
+      attacker.facing,
+      target.position,
+    ),
+    pilotAbilities: context.pilotAbilities ?? attacker.abilities,
+    unitQuirks: context.unitQuirks ?? attacker.unitQuirks,
+    elevationDifference: context.elevationDifference,
     elevationContext: context.elevationContext,
     terrainContext: context.terrainContext,
   } as const;
@@ -314,6 +601,7 @@ export function getEligiblePhysicalAttacks(
   const chargeInput: IPhysicalAttackInput = {
     ...baseInput,
     attackType: 'charge',
+    attackerJumpedThisTurn: attacker.movementThisTurn === MovementType.Jump,
   };
   const chargeRestriction = canCharge(chargeInput);
   options.push(buildOption('charge', chargeInput, chargeRestriction));
@@ -327,9 +615,8 @@ export function getEligiblePhysicalAttacks(
   const dfaRestriction = canDFA(dfaInput);
   options.push(buildOption('dfa', dfaInput, dfaRestriction));
 
-  // Push legality mirrors MegaMek's represented target-type, facing,
-  // prone, and elevation gates before commit. Displacement destination
-  // handling remains a resolution/intent-overlay concern.
+  // Push is gated by facing, posture, elevation, quirks, and optional
+  // displacement-destination validity when callers can compute it.
   const pushInput: IPhysicalAttackInput = {
     ...baseInput,
     attackType: 'push',
@@ -338,13 +625,116 @@ export function getEligiblePhysicalAttacks(
       ...(context.weaponsFiredFromRightArm ?? []),
     ],
   };
-  const pushRestriction = canPush(pushInput);
-  options.push(buildOption('push', pushInput, pushRestriction));
+  options.push(buildOption('push', pushInput, canPush(pushInput)));
+
+  if (
+    baseInput.tacOpsGrapplingEnabled === true ||
+    baseInput.optionalRules?.some((rule) =>
+      [
+        'tacops_grappling',
+        'advanced_combat_tac_ops_grappling',
+        'grappling',
+      ].includes(
+        rule
+          .trim()
+          .toLowerCase()
+          .replace(/[\s-]+/g, '_'),
+      ),
+    )
+  ) {
+    const grappleInput: IPhysicalAttackInput = {
+      ...baseInput,
+      attackType: 'grapple',
+      weaponsFiredFromArm: context.weaponsFiredThisTurn,
+    };
+    options.push(
+      buildOption('grapple', grappleInput, canGrapplePhysical(grappleInput)),
+    );
+
+    if (baseInput.attackerGrappledTargetId === target.id) {
+      const breakGrappleInput: IPhysicalAttackInput = {
+        ...baseInput,
+        attackType: 'break-grapple',
+      };
+      options.push(
+        buildOption(
+          'break-grapple',
+          breakGrappleInput,
+          canBreakGrapplePhysical(breakGrappleInput),
+        ),
+      );
+    }
+  }
+
+  if (
+    baseInput.targetIsSwarmingInfantryOnAttacker === true ||
+    baseInput.targetIsINarcPod === true
+  ) {
+    const brushOffInput: IPhysicalAttackInput = {
+      ...baseInput,
+      attackType: 'brush-off',
+      arm: 'right',
+      limb: 'rightArm',
+      weaponsFiredFromArm: context.weaponsFiredFromRightArm,
+    };
+    options.push(
+      buildOption(
+        'brush-off',
+        brushOffInput,
+        canBrushOffPhysical(brushOffInput),
+        'rightArm',
+      ),
+    );
+  }
+
+  const tripInput: IPhysicalAttackInput = {
+    ...baseInput,
+    attackType: 'trip',
+  };
+  options.push(buildOption('trip', tripInput, canTripPhysical(tripInput)));
+
+  if (targetDistance === 0) {
+    const thrashInput: IPhysicalAttackInput = {
+      ...baseInput,
+      attackType: 'thrash',
+      weaponsFiredFromArm: [
+        ...(context.weaponsFiredThisTurn ?? [
+          ...(context.weaponsFiredFromLeftArm ?? []),
+          ...(context.weaponsFiredFromRightArm ?? []),
+        ]),
+      ],
+    };
+    options.push(
+      buildOption('thrash', thrashInput, canThrashPhysical(thrashInput)),
+    );
+  }
+
+  if (targetDistance === 1 && jumpJetAttackOptionEnabled(context)) {
+    const jumpJetSelectedLeg = context.jumpJetAttackSelectedLeg ?? 'right';
+    const jumpJetAttackInput: IPhysicalAttackInput = {
+      ...baseInput,
+      attackType: 'jump-jet-attack',
+      limb: jumpJetSelectedLeg === 'left' ? 'leftLeg' : 'rightLeg',
+      jumpJetAttackSelectedLeg: jumpJetSelectedLeg,
+    };
+    options.push(
+      buildOption(
+        'jump-jet-attack',
+        jumpJetAttackInput,
+        canJumpJetAttackPhysical(jumpJetAttackInput),
+        jumpJetSelectedLeg === 'left' ? 'leftLeg' : 'rightLeg',
+      ),
+    );
+  }
 
   // Melee weapons — one row per equipped type, gated by
   // `canMeleeWeapon` (shoulder / hand / lower-arm actuator destruction
   // and per-arm weapon-fire lockouts).
   for (const weaponType of context.meleeWeaponsEquipped ?? []) {
+    if (!isRuntimeMeleeWeaponAttackType(weaponType)) {
+      continue;
+    }
+
     const meleeInput: IPhysicalAttackInput = {
       ...baseInput,
       attackType: weaponType,
@@ -357,14 +747,4 @@ export function getEligiblePhysicalAttacks(
   }
 
   return options;
-}
-
-function physicalTargetIsAirborne(target: IUnitGameState): boolean {
-  switch (target.combatState?.kind) {
-    case 'aero':
-    case 'proto':
-      return (target.combatState.state.altitude ?? 0) > 0;
-    default:
-      return false;
-  }
 }

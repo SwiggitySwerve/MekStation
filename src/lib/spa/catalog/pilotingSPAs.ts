@@ -47,7 +47,7 @@ export const PILOTING_SPAS: readonly ISPADefinition[] = [
   piloting({
     id: 'hot_dog',
     displayName: 'Hot Dog',
-    description: '-1 to shutdown and ammo-explosion avoidance rolls from heat.',
+    description: '-1 to source-backed heat check target numbers.',
     pipelines: ['heat'],
     category: 'miscellaneous',
   }),
@@ -81,7 +81,8 @@ export const PILOTING_SPAS: readonly ISPADefinition[] = [
   piloting({
     id: 'shaky_stick',
     displayName: 'Shaky Stick',
-    description: '+1 enemy to-hit with indirect fire against this unit.',
+    description:
+      '+1 enemy to-hit when this airborne unit is attacked from the ground.',
     pipelines: ['to-hit'],
     category: 'defensive',
   }),

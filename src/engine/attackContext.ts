@@ -97,7 +97,6 @@ export function prepareAttackContext(
       gameState,
       grid,
       pilotSpasByUnitId,
-      targetId,
     );
     if (result.permitted && result.isIndirect) {
       return { kind: 'indirect', resolution: result };

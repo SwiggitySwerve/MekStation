@@ -43,7 +43,7 @@ export function objectiveSideToGameSide(side: ObjectiveSide): GameSide | null {
  * retreated unit no longer projects control onto its hex.
  */
 function unitOccupiesHexes(unit: IUnitGameState): boolean {
-  return !unit.destroyed && !unit.hasRetreated;
+  return !unit.destroyed && !unit.hasRetreated && !unit.hasEjected;
 }
 
 /**
@@ -311,7 +311,7 @@ function evaluateBreakthrough(
   let reached = 0;
   for (const unit of Object.values(state.units)) {
     if (unit.side !== attackerGameSide) continue;
-    if (unit.destroyed) continue;
+    if (!unitOccupiesHexes(unit)) continue;
     if (exitHexKeys.has(coordToKey(unit.position))) reached += 1;
   }
 

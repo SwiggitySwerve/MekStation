@@ -3,14 +3,19 @@ import { IHexCoordinate, RangeBracket } from '@/types/gameplay';
 import { hexDistance } from '../hexMath';
 import { getWeaponRangeBracket, IWeaponRangeProfile } from '../range';
 import { getUnitNetwork } from './state';
-import { IC3NetworkState, IC3TargetingResult } from './types';
+import {
+  IC3NetworkState,
+  IC3NetworkUnit,
+  IC3TargetingOptions,
+  IC3TargetingResult,
+} from './types';
 
 /**
  * Get the best range bracket to a target from all operational, non-ECM-disrupted
  * units in the attacker's C3 network.
  *
  * This is the core C3 targeting mechanic: the attacker uses the best range bracket
- * among all networked units that have LOS to the target.
+ * among all operational networked units.
  *
  * @param attackerEntityId - The attacking unit's entity ID
  * @param targetPosition - Target hex position
@@ -26,6 +31,7 @@ export function getC3TargetingBenefit(
   weaponRangeProfile: IWeaponRangeProfile,
   c3State: IC3NetworkState,
   attackerEcmDisrupted?: boolean,
+  options?: IC3TargetingOptions,
 ): IC3TargetingResult {
   const noBenefit = (reason: string): IC3TargetingResult => ({
     benefitApplied: false,
@@ -63,7 +69,16 @@ export function getC3TargetingBenefit(
     (m) => m.operational && !m.ecmDisrupted,
   );
 
-  if (activeMembers.length < 2) {
+  const candidateMembers = filterMembersBySpotterLineOfSight(
+    activeMembers,
+    attackerEntityId,
+    options,
+  );
+
+  if (candidateMembers.length < 2) {
+    if (options?.requireSpotterTargetLineOfSight && activeMembers.length >= 2) {
+      return noBenefit('No C3 spotter has target line of sight');
+    }
     return noBenefit('Not enough active units in network');
   }
 
@@ -72,7 +87,7 @@ export function getC3TargetingBenefit(
   let bestDistance = Infinity;
   let spotterId: string | null = null;
 
-  for (const member of activeMembers) {
+  for (const member of candidateMembers) {
     const distance = hexDistance(member.position, targetPosition);
     const bracket = getWeaponRangeBracket(distance, weaponRangeProfile);
 
@@ -120,6 +135,24 @@ export function getC3TargetingBenefit(
 // =============================================================================
 // Helpers
 // =============================================================================
+
+function filterMembersBySpotterLineOfSight(
+  members: readonly IC3NetworkUnit[],
+  attackerEntityId: string,
+  options?: IC3TargetingOptions,
+): readonly IC3NetworkUnit[] {
+  if (!options?.requireSpotterTargetLineOfSight) {
+    return members;
+  }
+
+  return members.filter((member) => {
+    if (member.entityId === attackerEntityId) {
+      return true;
+    }
+
+    return options.spotterHasTargetLineOfSight?.(member) === true;
+  });
+}
 
 /** Range bracket ordering (lower index = better/closer) */
 const BRACKET_ORDER: readonly RangeBracket[] = [

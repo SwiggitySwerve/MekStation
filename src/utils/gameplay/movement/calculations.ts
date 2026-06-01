@@ -13,6 +13,7 @@ import {
   getHeatMovementPenalty,
   isTSMActive,
 } from '@/types/validation/HeatManagement';
+import { hasSPA } from '@/utils/gameplay/spaModifiers/canonicalize';
 import { terrainFeaturesFromString } from '@/utils/gameplay/terrainEncoding';
 import { getPrimaryTerrainFeatureFromTerrainTag } from '@/utils/gameplay/terrainMovementCost';
 
@@ -84,6 +85,20 @@ export function calculateRunMP(walkMP: number): number {
 }
 
 /**
+ * Calculate TacOps Sprint MP from walking MP.
+ * Base Sprint MP = walk MP * 2.
+ */
+export function calculateSprintMP(walkMP: number): number {
+  return walkMP * 2;
+}
+
+export function getSprintMPForCapability(
+  capability: IMovementCapability,
+): number {
+  return capability.sprintMP ?? calculateSprintMP(capability.walkMP);
+}
+
+/**
  * Create movement capability from base values.
  */
 export function createMovementCapability(
@@ -94,6 +109,94 @@ export function createMovementCapability(
     walkMP,
     runMP: calculateRunMP(walkMP),
     jumpMP,
+  };
+}
+
+function normalizePartialWingJumpBonus(
+  partialWingJumpBonus: number | undefined,
+): number {
+  if (
+    typeof partialWingJumpBonus !== 'number' ||
+    !Number.isFinite(partialWingJumpBonus)
+  ) {
+    return 0;
+  }
+  return Math.max(0, Math.floor(partialWingJumpBonus));
+}
+
+/**
+ * Apply an explicit Partial Wing jump bonus to a movement capability. MegaMek
+ * only applies the wing bonus when the Mek already has positive jump MP.
+ */
+export function applyPartialWingJumpBonus(
+  capability: IMovementCapability,
+  partialWingJumpBonus: number | undefined,
+): IMovementCapability {
+  const bonus = normalizePartialWingJumpBonus(partialWingJumpBonus);
+  if (bonus <= 0 || capability.jumpMP <= 0) {
+    return capability;
+  }
+
+  return {
+    ...capability,
+    jumpMP: capability.jumpMP + bonus,
+    partialWingJumpBonus: bonus,
+  };
+}
+
+/**
+ * Apply destroyed jump jets before optional jump enhancers. A jump-jet critical
+ * removes one point of base jump MP; once all base jump capability is gone,
+ * effects like Partial Wing cannot create a jump move on their own.
+ */
+export function applyJumpJetCriticalDamage(
+  capability: IMovementCapability,
+  jumpJetsDestroyed: number | undefined,
+): IMovementCapability {
+  if (
+    typeof jumpJetsDestroyed !== 'number' ||
+    !Number.isFinite(jumpJetsDestroyed) ||
+    jumpJetsDestroyed <= 0
+  ) {
+    return capability;
+  }
+
+  return {
+    ...capability,
+    jumpMP: Math.max(0, capability.jumpMP - Math.floor(jumpJetsDestroyed)),
+  };
+}
+
+/**
+ * Apply explicit active MASC/Supercharger run and sprint MP. MegaMek derives
+ * boosted MP from the already-effective walk MP: one active booster doubles
+ * run MP and raises sprint MP to ceil(walk MP * 2.5); both active boosters
+ * produce ceil(walk MP * 2.5) run MP and walk MP * 3 sprint MP.
+ */
+export function applyActiveMPBoosters(
+  capability: IMovementCapability,
+  activeMASC: boolean | undefined,
+  activeSupercharger: boolean | undefined,
+): IMovementCapability {
+  const hasMASC = activeMASC === true;
+  const hasSupercharger = activeSupercharger === true;
+  if (!hasMASC && !hasSupercharger) {
+    return capability;
+  }
+
+  const runMP =
+    hasMASC && hasSupercharger
+      ? Math.ceil(capability.walkMP * 2.5)
+      : capability.walkMP * 2;
+  const sprintMP =
+    hasMASC && hasSupercharger
+      ? capability.walkMP * 3
+      : Math.ceil(capability.walkMP * 2.5);
+
+  return {
+    ...capability,
+    runMP,
+    sprintMP,
   };
 }
 
@@ -129,7 +232,10 @@ function getRawMaxMP(
     case MovementType.Walk:
       return capability.walkMP;
     case MovementType.Run:
+    case MovementType.Evade:
       return capability.runMP;
+    case MovementType.Sprint:
+      return getSprintMPForCapability(capability);
     case MovementType.Jump:
       return capability.jumpMP;
     default:
@@ -282,13 +388,23 @@ export function getMovementStepCostBreakdown(
         terrainType === TerrainType.Water
           ? 0
           : (terrainProps.movementCostModifier[movementType] ?? 0);
+      if (
+        hasMountaineerMovementRelief(context) &&
+        isBattleMechGroundMovement(movementType) &&
+        (terrainType === TerrainType.Rough ||
+          terrainType === TerrainType.Rubble)
+      ) {
+        terrainCost = Math.max(0, terrainCost - 1);
+      }
 
       if (
         hasWaterFeature &&
         !hasPavementSurfaceFeature &&
         !hasSurfaceIce &&
         waterLevel > 0 &&
-        blocksWaterMovement(movementType, context)
+        blocksWaterMovement(movementType, context) &&
+        !context.waterCapability?.fullyAmphibious &&
+        !hasFrogmanWaterMovement(context)
       ) {
         return {
           mpCost: Infinity,
@@ -362,6 +478,12 @@ export function getMovementStepCostBreakdown(
             blockedReason: `Elevation change of ${elevationChange} exceeds ${limitLabel}`,
           };
         }
+        if (
+          hasMountaineerMovementRelief(context) &&
+          isBattleMechGroundMovement(movementType)
+        ) {
+          elevationCost = Math.max(0, elevationCost - 1);
+        }
       }
       terrainCost += wigeSheerCliffAscentCost({
         grid,
@@ -400,6 +522,25 @@ export function getMovementStepCostBreakdown(
     elevationCost,
     elevationDelta,
   };
+}
+
+function hasMountaineerMovementRelief(
+  context: IMovementCostContext | undefined,
+): boolean {
+  return hasSPA(context?.pilotAbilities ?? [], 'tm_mountaineer');
+}
+
+function hasFrogmanWaterMovement(
+  context: IMovementCostContext | undefined,
+): boolean {
+  return (
+    context?.waterCapability?.frogmanSpecialist === true ||
+    hasSPA(context?.pilotAbilities ?? [], 'tm_frogman')
+  );
+}
+
+function isBattleMechGroundMovement(movementType: UnitMovementType): boolean {
+  return movementType === 'walk' || movementType === 'run';
 }
 
 export function getJumpElevationDelta(
@@ -523,4 +664,26 @@ export function getEffectiveWalkMP(
   const tsmBonus = hasTSM && isTSMActive(currentHeat) ? 2 : 0;
   const heatPenalty = getHeatMovementPenalty(currentHeat);
   return Math.max(0, baseWalkMP + tsmBonus - heatPenalty);
+}
+
+/**
+ * Build the movement capability a BattleMech should validate against when TSM
+ * and heat are both known at runner time. MegaMek applies heat/TSM to walk MP
+ * first, then derives run MP from the adjusted walk MP; jump MP keeps the heat
+ * penalty only.
+ */
+export function getHeatAdjustedMovementCapability(
+  capability: IMovementCapability,
+  currentHeat: number,
+  hasTSM: boolean,
+): IMovementCapability {
+  const heatPenalty = getHeatMovementPenalty(currentHeat);
+  const walkMP = getEffectiveWalkMP(capability.walkMP, currentHeat, hasTSM);
+
+  return {
+    ...capability,
+    walkMP,
+    runMP: calculateRunMP(walkMP),
+    jumpMP: Math.max(0, capability.jumpMP - heatPenalty),
+  };
 }

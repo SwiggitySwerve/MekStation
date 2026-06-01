@@ -18,7 +18,8 @@
  *   - Range Master       (range_bracket)
  *
  * TODO (next wave):
- *   - Sandblaster        (weapon_type damage modifier)
+ *   - Sandblaster        (weapon_type damage modifier; cluster path consumes
+ *                         `designatedWeaponType` outside to-hit aggregation)
  *   - Human TRO          (weapon_type critical hit shift)
  *   - Environmental Specialist / Terrain Master (terrain)
  *   - Oblique Attacker terrain refinement (currently unconditional)
@@ -43,6 +44,8 @@ import { calculateBloodStalkerModifier } from './abilityModifiers';
 import { calculateMultiTaskerModifier } from './abilityModifiers';
 import { calculateJumpingJackModifier } from './abilityModifiers';
 import { calculateDodgeManeuverModifier } from './abilityModifiers';
+import { calculateShakyStickModifier } from './abilityModifiers';
+import { calculateTerrainMasterDefensiveToHitModifier } from './abilityModifiers';
 import { calculateWeaponSpecialistModifier } from './weaponSpecialists';
 import { calculateGunnerySpecialistModifier } from './weaponSpecialists';
 import { calculateRangeMasterModifier } from './weaponSpecialists';
@@ -121,8 +124,24 @@ export function calculateAttackerSPAModifiers(
   const dodgeMod = calculateDodgeManeuverModifier(
     targetAbilities,
     target.isDodging,
+    target.unitType,
   );
   if (dodgeMod) modifiers.push(dodgeMod);
+
+  const terrainMasterDefensiveMod =
+    calculateTerrainMasterDefensiveToHitModifier(
+      targetAbilities,
+      target.movementType,
+      target.terrainFeatures ?? [],
+    );
+  if (terrainMasterDefensiveMod) modifiers.push(terrainMasterDefensiveMod);
+
+  const shakyStickMod = calculateShakyStickModifier(
+    targetAbilities,
+    target.isAirborne,
+    attacker.isAirborne,
+  );
+  if (shakyStickMod) modifiers.push(shakyStickMod);
 
   return modifiers;
 }

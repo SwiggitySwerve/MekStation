@@ -3,8 +3,8 @@
  *
  * Implements BattleTech missile weapon resolution:
  * - LB-X: slug (standard) vs cluster (cluster table, -1 to-hit) modes
- * - Artemis IV/V: +2 cluster table roll bonus
- * - Narc/iNarc: +2 cluster table roll bonus for missiles vs marked target
+ * - Artemis IV/prototype IV/V: +2/+1/+3 cluster table roll bonus
+ * - Narc/iNarc: +2 cluster table roll bonus for NARC-compatible missiles vs marked target
  * - MRM: -1 cluster column modifier
  * - Streak SRM: All-or-nothing (verification)
  *
@@ -35,8 +35,26 @@ export function isMissileWeapon(weaponId: string): boolean {
   return (
     id.includes('lrm') ||
     id.includes('srm') ||
+    id.includes('mml') ||
     id.includes('mrm') ||
     id.includes('atm')
+  );
+}
+
+export function isArtemisCompatibleMissileWeapon(weaponId: string): boolean {
+  const id = weaponId.toLowerCase();
+  if (id.includes('streak')) return false;
+  return id.includes('lrm') || id.includes('srm') || id.includes('mml');
+}
+
+export function isNarcCompatibleMissileWeapon(weaponId: string): boolean {
+  const id = weaponId.toLowerCase();
+  if (id.includes('streak')) return false;
+  return (
+    id.includes('lrm') ||
+    id.includes('srm') ||
+    id.includes('mml') ||
+    id.includes('nlrm')
   );
 }
 
@@ -58,7 +76,7 @@ export function isNarc(weaponId: string): boolean {
 
 export function isSemiGuidedLRM(weaponId: string): boolean {
   const id = weaponId.toLowerCase();
-  return id.includes('semi-guided') || id.includes('sg-lrm');
+  return /semi[-\s]?guided/.test(id) || /\bsg[-\s]?lrm\b/.test(id);
 }
 
 // =============================================================================
@@ -119,35 +137,60 @@ export function resolveLBXCluster(
 }
 
 // =============================================================================
-// 13.5: Artemis IV/V Cluster Bonus
+// 13.5: Artemis IV/prototype IV/V Cluster Bonus
 // =============================================================================
+
+function isArtemisSuppressedByECM(targetStatus: ITargetStatusFlags): boolean {
+  return (
+    targetStatus.flightPathEcmAffected === true ||
+    targetStatus.ecmProtected === true
+  );
+}
 
 /**
  * Calculate Artemis IV cluster table bonus.
  * +2 to cluster hit table roll when equipped and linked.
- * Nullified by enemy ECM.
+ * Nullified by enemy ECM, indirect fire, and active stealth on the attacker.
  */
 export function getArtemisIVBonus(
   equipment: IWeaponEquipmentFlags,
   targetStatus: ITargetStatusFlags,
 ): number {
   if (!equipment.hasArtemisIV) return 0;
-  if (targetStatus.ecmProtected) return 0; // ECM nullifies Artemis
+  if (targetStatus.isIndirectFire) return 0;
+  if (isArtemisSuppressedByECM(targetStatus)) return 0;
+  if (targetStatus.attackerStealthActive) return 0;
   return 2;
 }
 
 /**
+ * Calculate prototype Artemis IV cluster table bonus.
+ * +1 to cluster hit table roll when equipped and linked.
+ */
+export function getPrototypeArtemisIVBonus(
+  equipment: IWeaponEquipmentFlags,
+  targetStatus: ITargetStatusFlags,
+): number {
+  if (!equipment.hasPrototypeArtemisIV) return 0;
+  if (targetStatus.isIndirectFire) return 0;
+  if (isArtemisSuppressedByECM(targetStatus)) return 0;
+  if (targetStatus.attackerStealthActive) return 0;
+  return 1;
+}
+
+/**
  * Calculate Artemis V cluster table bonus.
- * +2 to cluster hit table roll when equipped and linked.
- * Slightly harder to jam via ECM than Artemis IV (still nullified for now).
+ * +3 to cluster hit table roll when equipped and linked.
  */
 export function getArtemisVBonus(
   equipment: IWeaponEquipmentFlags,
   targetStatus: ITargetStatusFlags,
 ): number {
   if (!equipment.hasArtemisV) return 0;
-  if (targetStatus.ecmProtected) return 0; // ECM nullifies (Phase 14 may differentiate)
-  return 2;
+  if (targetStatus.isIndirectFire) return 0;
+  if (isArtemisSuppressedByECM(targetStatus)) return 0;
+  if (targetStatus.attackerStealthActive) return 0;
+  return 3;
 }
 
 // =============================================================================
@@ -156,11 +199,12 @@ export function getArtemisVBonus(
 
 /**
  * Calculate Narc beacon cluster table bonus.
- * +2 to cluster hit table roll for missile attacks against narced target.
+ * +2 to cluster hit table roll for NARC-compatible missile attacks against narced target.
  * Nullified by enemy ECM.
  */
 export function getNarcBonus(targetStatus: ITargetStatusFlags): number {
   if (!targetStatus.narcedTarget) return 0;
+  if (targetStatus.isIndirectFire) return 0;
   if (targetStatus.ecmProtected) return 0; // ECM nullifies Narc
   return 2;
 }
@@ -176,6 +220,54 @@ export function getNarcBonus(targetStatus: ITargetStatusFlags): number {
 export function getMRMClusterModifier(weaponId: string): number {
   if (isMRM(weaponId)) return -1;
   return 0;
+}
+
+function normalizeWeaponDesignation(value: string): string {
+  return value.replace(/[^a-z0-9]/gi, '').toLowerCase();
+}
+
+function designationMatchesWeapon(
+  designatedWeaponType: string,
+  weaponId: string,
+  weaponName?: string,
+): boolean {
+  const normalizedDesignation =
+    normalizeWeaponDesignation(designatedWeaponType);
+  return [weaponId, weaponName]
+    .filter((value): value is string => typeof value === 'string')
+    .some(
+      (value) => normalizeWeaponDesignation(value) === normalizedDesignation,
+    );
+}
+
+export function getSandblasterClusterModifier(options: {
+  readonly hasSandblaster?: boolean;
+  readonly weaponId: string;
+  readonly weaponName?: string;
+  readonly designatedWeaponType?: string;
+  readonly range?: number;
+  readonly shortRange?: number;
+  readonly mediumRange?: number;
+}): number {
+  const {
+    designatedWeaponType,
+    hasSandblaster,
+    mediumRange,
+    range,
+    shortRange,
+    weaponId,
+    weaponName,
+  } = options;
+
+  if (hasSandblaster !== true || !designatedWeaponType) return 0;
+  if (range === undefined || shortRange === undefined) return 0;
+  if (!designationMatchesWeapon(designatedWeaponType, weaponId, weaponName)) {
+    return 0;
+  }
+
+  if (mediumRange !== undefined && range > mediumRange) return 2;
+  if (range > shortRange) return 3;
+  return 4;
 }
 
 // =============================================================================
@@ -202,34 +294,43 @@ export function verifyStreakBehavior(weaponId: string): boolean {
 // =============================================================================
 
 /**
- * Calculate total cluster roll modifier from all sources.
- * Combines Artemis, Narc, Cluster Hitter SPA, MRM penalty, and semi-guided bonus.
+ * Calculate total cluster roll modifier from all source-backed cluster-table
+ * sources. Semi-guided TAG behavior is intentionally excluded here because the
+ * source-backed behavior is to-hit target-movement and indirect-fire relief.
  */
 export function calculateClusterModifiers(
   weaponId: string,
   equipment: IWeaponEquipmentFlags,
   targetStatus: ITargetStatusFlags,
   clusterHitterSPA: boolean = false,
+  sandblasterBonus: number = 0,
 ): IClusterModifiers {
-  const artemisBonus =
-    getArtemisIVBonus(equipment, targetStatus) +
-    getArtemisVBonus(equipment, targetStatus);
-  const narcBonus = isMissileWeapon(weaponId) ? getNarcBonus(targetStatus) : 0;
-  const clusterHitterBonus = clusterHitterSPA ? 1 : 0;
+  const artemisBonus = isArtemisCompatibleMissileWeapon(weaponId)
+    ? equipment.hasArtemisV
+      ? getArtemisVBonus(equipment, targetStatus)
+      : equipment.hasArtemisIV
+        ? getArtemisIVBonus(equipment, targetStatus)
+        : getPrototypeArtemisIVBonus(equipment, targetStatus)
+    : 0;
+  const narcBonus = isNarcCompatibleMissileWeapon(weaponId)
+    ? getNarcBonus(targetStatus)
+    : 0;
+  const clusterHitterBonus =
+    sandblasterBonus > 0 ? 0 : clusterHitterSPA ? 1 : 0;
   const mrmPenalty = getMRMClusterModifier(weaponId);
-  const semiGuidedBonus = getSemiGuidedLRMBonus(equipment, targetStatus);
 
   return {
     artemisBonus,
     narcBonus,
+    sandblasterBonus,
     clusterHitterBonus,
     mrmPenalty,
     total:
       artemisBonus +
       narcBonus +
+      sandblasterBonus +
       clusterHitterBonus +
-      mrmPenalty +
-      semiGuidedBonus,
+      mrmPenalty,
   };
 }
 
@@ -239,7 +340,8 @@ export function calculateClusterModifiers(
 
 /**
  * Resolve cluster weapon hits with all applicable modifiers.
- * Applies Artemis, Narc, MRM, Cluster Hitter, and semi-guided modifiers.
+ * Applies source-backed cluster modifiers such as Artemis, Narc, MRM, and
+ * Cluster Hitter.
  *
  * @param clusterSize Number of missiles/pellets
  * @param damagePerHit Damage per individual hit
@@ -286,25 +388,6 @@ export function resolveModifiedClusterHits(
     hitDistribution,
     totalDamage,
   };
-}
-
-// =============================================================================
-// Semi-Guided LRM Helpers
-// =============================================================================
-
-/**
- * Calculate semi-guided LRM bonus when TAG-designated.
- * Semi-guided LRMs against TAG-designated targets ignore some modifiers.
- * For cluster purposes: +2 to cluster roll.
- */
-export function getSemiGuidedLRMBonus(
-  equipment: IWeaponEquipmentFlags,
-  targetStatus: ITargetStatusFlags,
-): number {
-  if (!equipment.isSemiGuided) return 0;
-  // TAG check: target must be designated and not ECM-protected
-  if (!targetStatus.tagDesignated || targetStatus.ecmProtected) return 0;
-  return 2;
 }
 
 // =============================================================================

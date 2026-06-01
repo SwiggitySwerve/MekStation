@@ -109,12 +109,16 @@ describe('PhysicalAttackTypePicker', () => {
         attackerTonnage={50}
         pilotingSkill={4}
         componentDamage={EMPTY_DAMAGE}
-        meleeWeaponsEquipped={['hatchet']}
+        meleeWeaponsEquipped={['hatchet', 'lance', 'retractable-blade']}
         onSelect={jest.fn()}
       />,
     );
     expect(
       screen.getByTestId('physical-attack-row-hatchet'),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('physical-attack-row-lance')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('physical-attack-row-retractable-blade'),
     ).toBeInTheDocument();
     expect(
       screen.queryByTestId('physical-attack-row-sword'),
@@ -474,11 +478,15 @@ describe('usePhysicalAttackPlanStore', () => {
     ).toBe('defender');
   });
 
-  it('setPhysicalAttackType updates attackType', () => {
-    usePhysicalAttackPlanStore.getState().setPhysicalAttackType('kick');
-    expect(
-      usePhysicalAttackPlanStore.getState().physicalAttackPlan.attackType,
-    ).toBe('kick');
+  it('setPhysicalAttackType updates attackType and limb', () => {
+    usePhysicalAttackPlanStore
+      .getState()
+      .setPhysicalAttackType('kick', 'leftLeg');
+    expect(usePhysicalAttackPlanStore.getState().physicalAttackPlan).toEqual({
+      targetUnitId: null,
+      attackType: 'kick',
+      limb: 'leftLeg',
+    });
   });
 
   it('setPhysicalAttackType stores the selected physical limb', () => {
@@ -539,6 +547,7 @@ describe('usePhysicalAttackPlanStore', () => {
     expect(payload.attackerId).toBe('attacker');
     expect(payload.targetId).toBe('defender');
     expect(payload.attackType).toBe('punch');
+    expect(payload.limb).toBe('rightArm');
   });
 
   it('commitPhysicalAttack infers run-gated charge legality from attacker movement state', () => {

@@ -146,10 +146,11 @@ describe('detectObjectiveControl — sole occupancy', () => {
     expect(detectObjectiveControl(held, s).controlSide).toBe('opponent');
   });
 
-  it('ignores destroyed and retreated units for control', () => {
+  it('ignores destroyed, retreated, and ejected units for control', () => {
     const s = state([
       unit('player-1', GameSide.Player, 0, 0, { destroyed: true }),
       unit('opponent-1', GameSide.Opponent, 0, 0, { hasRetreated: true }),
+      unit('player-2', GameSide.Player, 0, 0, { hasEjected: true }),
     ]);
     // Neither projects control → hex stays neutral.
     expect(detectObjectiveControl(marker(), s).controlSide).toBe('neutral');
@@ -338,6 +339,26 @@ describe('evaluateObjectiveOutcome — Breakthrough', () => {
     const outcome = evaluateObjectiveOutcome(s2);
     expect(outcome?.winningSide).toBe(GameSide.Player);
     expect(outcome?.objectiveType).toBe(ScenarioObjectiveType.Breakthrough);
+  });
+
+  it('does not count ejected units toward breakthrough exits', () => {
+    const objectives = {
+      '0,4': marker({
+        id: 'objective-1',
+        hexKey: '0,4',
+        objectiveType: 'breakthrough',
+        holdTurnsRequired: 2,
+      }),
+    };
+    const s = state(
+      [
+        unit('player-1', GameSide.Player, 0, 4),
+        unit('player-2', GameSide.Player, 0, 4, { hasEjected: true }),
+      ],
+      objectives,
+    );
+
+    expect(evaluateObjectiveOutcome(s)).toBeNull();
   });
 
   it('overrides surviving units — objective win even with both sides alive', () => {

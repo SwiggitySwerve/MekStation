@@ -25,9 +25,6 @@ export * from './movement';
 // Range - Range calculations
 export * from './range';
 
-// Combat Projection - rules-backed map attack explanation data
-export * from './combatProjection';
-
 // Game Events - Event creation and serialization
 export * from './gameEvents';
 

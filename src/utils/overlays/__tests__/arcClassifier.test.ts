@@ -60,8 +60,8 @@ describe('arcClassifier', () => {
   it('distinguishes left-side and right-side labels using the engine arc result', () => {
     const north = unit(Facing.North);
 
-    expect(classifyFiringArc(north, { q: -2, r: 1 })).toBe('left-side');
-    expect(classifyFiringArc(north, { q: 2, r: -1 })).toBe('right-side');
+    expect(classifyFiringArc(north, { q: -1, r: 1 })).toBe('left-side');
+    expect(classifyFiringArc(north, { q: 1, r: 0 })).toBe('right-side');
     expect(classifyFiringArc(north, { q: 0, r: 1 })).toBe('rear');
   });
 
