@@ -58,17 +58,6 @@ function integrated(
     : { id, level: 'integrated', evidence };
 }
 
-function helperOnly(
-  id: string,
-  evidence: string,
-  gap: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  return sourceRefs
-    ? { id, level: 'helper-only', evidence, gap, sourceRefs }
-    : { id, level: 'helper-only', evidence, gap };
-}
-
 function outOfScope(
   id: string,
   evidence: string,
@@ -418,16 +407,14 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
     'movementTerrainPsr queues createBuildingCollapsePSR when explicit unit tonnage exceeds Building constructionFactor, and resolveAllPSRs applies normal terrain PSR modifier math',
     terrainPsrSourceRefs(TerrainType.Building),
   ),
-  [PSRTrigger.MASCFailure]: helperOnly(
+  [PSRTrigger.MASCFailure]: integrated(
     PSRTrigger.MASCFailure,
     'movementEnhancementPsr queues createMASCFailurePSR for explicit active MASC run movement with source-backed standard fixed target numbers, runPSRPhase consumes edge_when_masc_fails rerolls and applies one critical hit to each leg when the final check fails, and resetTurnState advances/decays prior-use counters before clearing active use',
-    'Alternate MASC option tables and separate first-step equipment-check timing are not wired',
     MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS,
   ),
-  [PSRTrigger.SuperchargerFailure]: helperOnly(
+  [PSRTrigger.SuperchargerFailure]: integrated(
     PSRTrigger.SuperchargerFailure,
     'movementEnhancementPsr queues createSuperchargerFailurePSR for explicit active Supercharger run movement with source-backed standard fixed target numbers, runPSRPhase consumes edge_when_masc_fails rerolls and destroys the Supercharger slot plus applies the source-backed engine critical table when the final check fails, and resetTurnState advances/decays prior-use counters before clearing active use',
-    'IndustrialMek/support-unit supercharger roll adjustment, separate first-step equipment-check timing, and non-BattleMech motive-damage branches are not wired',
     MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS,
   ),
 } satisfies Record<PSRTrigger, ICombatFeatureSupportEntry>;
