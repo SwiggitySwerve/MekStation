@@ -2227,9 +2227,24 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.foot_cav.level).toBe(
       'out-of-scope',
     );
-    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_headhit.level).toBe(
-      'helper-only',
-    );
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_headhit).toMatchObject({
+      level: 'unsupported',
+      gap: expect.stringContaining('edge_when_headhit'),
+    });
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_tac).toMatchObject({
+      level: 'unsupported',
+      gap: expect.stringContaining('edge_when_tac'),
+    });
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_ko).toMatchObject({
+      level: 'unsupported',
+      gap: expect.stringContaining('edge_when_ko'),
+    });
+    expect(
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_explosion,
+    ).toMatchObject({
+      level: 'unsupported',
+      gap: expect.stringContaining('edge_when_explosion'),
+    });
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_masc_fails.level).toBe(
       'integrated',
     );
@@ -2325,7 +2340,18 @@ describe('BattleMech combat feature-gap tracking', () => {
       expect.arrayContaining([
         'MegaMek TWGameManager consumes EDGE_WHEN_MASC_FAILS to reroll failed MASC checks, spends Edge, and suppresses failure processing when the reroll passes.',
         'MekStation psrEdgeRerolls consumes edge_when_masc_fails to reroll failed MASCFailure and SuperchargerFailure PSRs before applying fall or booster-failure aftermath.',
-        'MekStation Edge SPA table defines trigger-specific canonical Edge rows; canonicalPilotAbilityScope keeps Mek Edge triggers helper-only except for MASC/Supercharger reroll consumption and splits Aero Edge triggers out-of-scope.',
+        'MekStation Edge SPA table defines trigger-specific canonical Edge rows; canonicalPilotAbilityScope marks non-MASC Mek Edge triggers unsupported, marks MASC/Supercharger reroll consumption integrated, and splits Aero Edge triggers out-of-scope.',
+      ]),
+    );
+    expect(
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_ko.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        'MegaMek TWGameManager consumes EDGE_WHEN_KO to reroll failed BattleMech crew knockout checks while Edge remains available.',
+        'MekStation EDGE_TRIGGERS mirrors the known Edge trigger ids and createEdgeState/canUseEdge/useEdge model generic trigger point consumption.',
+        'MekStation Edge SPA table defines trigger-specific canonical Edge rows; canonicalPilotAbilityScope marks non-MASC Mek Edge triggers unsupported, marks MASC/Supercharger reroll consumption integrated, and splits Aero Edge triggers out-of-scope.',
       ]),
     );
   });
