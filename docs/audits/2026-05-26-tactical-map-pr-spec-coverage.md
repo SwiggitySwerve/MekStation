@@ -116,8 +116,11 @@ decisions are made, not because CI is stale.
   source-checks the parser against a local MegaMek board corpus; the first
   recorded run parsed 2,386 boards, 3,638,056 hex rows, 382,251
   large-coordinate rows, and 5,253 `cliff_top` rows with 0 failures after
-  disambiguating labels by MegaMek row order. Full elevated AirMek/WiGE pathing
-  and broader takeoff/hover sequencing remain follow-up work.
+  disambiguating labels by MegaMek row order. The
+  `surface-cliff-exits-map-context` slice now carries represented cliff exit
+  directions into rendered hex metadata, terrain labels, projection source
+  detail, and hover terrain context. Full elevated AirMek/WiGE pathing and
+  broader takeoff/hover sequencing remain follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
   `apply-runtime-movement-state-events`, and tactical command controls are now

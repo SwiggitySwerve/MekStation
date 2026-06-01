@@ -8,9 +8,10 @@ import type {
   IMovementRangeModeOption,
 } from '@/types/gameplay';
 
-import { TerrainType } from '@/types/gameplay';
+import { Facing, TerrainType } from '@/types/gameplay';
 
 import { coordToKey, hexEquals } from './hexMath';
+import { getFacingAbbreviation } from './unitPosition';
 
 export type TacticalMapHexProjectionIntent =
   | 'terrain'
@@ -585,7 +586,23 @@ function formatTerrainFeatureSourceDetail(
   if (feature.constructionFactor !== undefined) {
     parts.push(`CF ${feature.constructionFactor}`);
   }
+  const cliffExits = Array.from(
+    new Set(feature.cliffTopExits?.filter(isFacing) ?? []),
+  ).sort((a, b) => a - b);
+  if (cliffExits.length > 0) {
+    parts.push(
+      `cliff edges ${cliffExits.map(getFacingAbbreviation).join('/')}`,
+    );
+  }
   return parts.join(' ');
+}
+
+function isFacing(value: number): value is Facing {
+  return (
+    Number.isInteger(value) &&
+    value >= Facing.North &&
+    value <= Facing.Northwest
+  );
 }
 
 function formatTerrainFeatureLevelSourceDetail(

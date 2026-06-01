@@ -75,6 +75,10 @@ now uses MegaMek row order to disambiguate those labels, matching
 `Board.java:1062-1063`. The verified local corpus run parsed all 2,386 boards
 under `E:\Projects\megamek\megamek\data\boards` with 0 failures, covering
 3,638,056 hex rows, 382,251 large-coordinate rows, and 5,253 `cliff_top` rows.
+The follow-on `surface-cliff-exits-map-context` slice exposes represented
+`cliffTopExits` on hex metadata, terrain labels, terrain/elevation source
+details, and terrain hover context so the map explains directional cliff edges
+from imported terrain instead of hiding them inside movement-only diagnostics.
 Replayable gameplay events for runtime movement state are covered by
 `apply-runtime-movement-state-events`; player-facing tactical command controls
 for represented conversion and infantry mount-state changes are covered by
