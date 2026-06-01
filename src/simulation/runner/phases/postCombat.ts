@@ -376,7 +376,7 @@ export function runHeatPhase(options: {
       environmentalConditions !== undefined
         ? calculateEnvironmentalHeatModifier(environmentalConditions)
         : 0;
-    // Cool Under Fire is a local helper-only row until source authority exists.
+    // Cool Under Fire is a local out-of-scope row until source authority exists.
     const heatGenerationReduction = 0;
     const hotDogTargetNumberModifier = getHotDogHeatTargetNumberModifier(
       unit.abilities ?? [],
