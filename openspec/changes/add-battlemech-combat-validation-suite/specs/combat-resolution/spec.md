@@ -1417,7 +1417,7 @@ Ranged to-hit validation SHALL NOT count legacy defensive quirk to-hit helpers a
 
 ### Requirement: Source-Backed Initiative Quirk Bonuses
 
-Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer force initiative bonuses from active conscious units. Battle Computer SHALL provide `+2`, Command Mech SHALL provide `+1`, and the bonuses SHALL NOT stack. Explicit HQ initiative equipment bonuses SHALL be treated as the same best-of force turn bonus as initiative quirks, while explicit command initiative equipment bonuses SHALL stack as a separate command bonus. Tactical Genius SHALL be modeled as a reroll request that replaces only the requested side's raw initiative roll when that side has an active conscious Tactical Genius unit, not as a flat modifier. Raw `2d6` initiative payload fields SHALL remain raw dice values for replay/RNG arbitration, with modifier and total fields carrying adjusted values. The Command Mech and Battle Computer quirk rows SHALL be integrated once their source-backed quirk behavior is covered; automatic command-console/HQ equipment hydration and Combat Intuition first-round sequencing SHALL remain explicit gaps until equipment-derived command state and movement-before-initiative flow are modeled. Automatic initiative equipment hydration SHALL fail closed unless source-kind/rules-profile, working/default-mode communications tonnage, active command-console crew, heavy-or-larger weight class, IndustrialMek, and advanced-fire-control eligibility context are represented.
+Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer force initiative bonuses from active conscious units. Battle Computer SHALL provide `+2`, Command Mech SHALL provide `+1`, and the bonuses SHALL NOT stack. Explicit HQ initiative equipment bonuses SHALL be treated as the same best-of force turn bonus as initiative quirks, while explicit command initiative equipment bonuses SHALL stack as a separate command bonus. Tactical Genius SHALL be modeled as a reroll request that replaces only the requested side's raw initiative roll when that side has an active conscious Tactical Genius unit, not as a flat modifier. Raw `2d6` initiative payload fields SHALL remain raw dice values for replay/RNG arbitration, with modifier and total fields carrying adjusted values. The Command Mech and Battle Computer quirk rows SHALL be integrated once their source-backed quirk behavior is covered; automatic command-console/HQ equipment hydration SHALL remain an explicit gap until equipment-derived command state is modeled. Automatic initiative equipment hydration SHALL fail closed unless source-kind/rules-profile, working/default-mode communications tonnage, active command-console crew, heavy-or-larger weight class, IndustrialMek, and advanced-fire-control eligibility context are represented.
 
 #### Scenario: Battle Computer bonus remains non-cumulative with Command Mech
 
@@ -1470,14 +1470,15 @@ Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer for
 
 ### Requirement: Local-Only SPA Gap Boundaries
 
-Pilot modifier validation SHALL keep local-only SPA rows visible as MekStation deviation boundaries when a MegaMek combat SPA authority has not been identified. Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, and Antagonizer SHALL NOT be treated as MegaMek parity claims unless the catalog row carries source-backed implementation evidence. Unsupported or helper-only rows SHALL cite the current MegaMek pilot option registry plus the MekStation SPA catalog row that introduced the local behavior.
+Pilot modifier validation SHALL keep local-only SPA rows visible as MekStation deviation boundaries when a MegaMek combat SPA authority has not been identified. Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, and Antagonizer SHALL NOT be treated as MegaMek parity claims unless the catalog row carries source-backed implementation evidence. Those local-only rows SHALL remain out-of-scope audit evidence and SHALL cite the current MegaMek pilot option registry plus the MekStation SPA catalog row that introduced the local behavior.
 
 #### Scenario: Local SPA rows stay source-boundary explicit
 
 - **GIVEN** the combat catalog includes Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, or Antagonizer
-- **WHEN** the support row is helper-only or unsupported
+- **WHEN** the support row is inspected
 - **THEN** the row SHALL cite the MegaMek pilot option registry used for the source-truth cross-check
 - **AND** the row SHALL cite the MekStation SPA catalog as a `mekstation-deviation`
+- **AND** the row SHALL remain out-of-scope until source-backed combat authority exists
 - **AND** no row SHALL be promoted to integrated until an implementation and source-backed combat authority exist
 
 ### Requirement: Canonical SPA Scope Source References
@@ -1751,7 +1752,7 @@ Heat and movement runner PSR trigger rows SHALL expose structured source referen
 
 ### Requirement: Source-Backed Heat SPA Boundary
 
-Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior from local helper behavior before claiming parity. Some Like It Hot SHALL carry MegaMek source references for reducing positive heat firing modifiers by 1. Hot Dog startup, shutdown, heat-induced ammo-explosion, opt-in MaxTech pilot heat-damage, and opt-in MaxTech critical-damage checks SHALL apply MegaMek's `hotDogMod = 1` target-number relief without shifting heat thresholds. Default life-support heat damage SHALL remain threshold-based at heat 15/25+ because MegaMek does not apply `hotDogMod` to that path. Hot Dog SHALL be integrated for BattleMech heat lifecycle resolution once those source-backed paths are executable in runner and interactive heat resolution. Cool Under Fire SHALL remain helper-only and SHALL NOT be consumed by the BattleMech heat resolver until a source authority for generated-heat relief is identified.
+Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior from local helper behavior before claiming parity. Some Like It Hot SHALL carry MegaMek source references for reducing positive heat firing modifiers by 1. Hot Dog startup, shutdown, heat-induced ammo-explosion, opt-in MaxTech pilot heat-damage, and opt-in MaxTech critical-damage checks SHALL apply MegaMek's `hotDogMod = 1` target-number relief without shifting heat thresholds. Default life-support heat damage SHALL remain threshold-based at heat 15/25+ because MegaMek does not apply `hotDogMod` to that path. Hot Dog SHALL be integrated for BattleMech heat lifecycle resolution once those source-backed paths are executable in runner and interactive heat resolution. Cool Under Fire SHALL remain out-of-scope local helper evidence and SHALL NOT be consumed by the BattleMech heat resolver until a source authority for generated-heat relief is identified.
 
 #### Scenario: Heat SPA support rows expose source truth
 
@@ -1759,7 +1760,7 @@ Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior 
 - **WHEN** Hot Dog, Cool Under Fire, Some Like It Hot, and the heat-application resolver row are inspected
 - **THEN** Some Like It Hot SHALL be integrated with structured MegaMek source references
 - **AND** Hot Dog SHALL be integrated with structured MegaMek source references and executable startup, shutdown, ammo-explosion, optional MaxTech pilot heat-damage, and optional MaxTech critical-damage target-number coverage
-- **AND** Cool Under Fire SHALL be helper-only with the unresolved source authority recorded as a gap
+- **AND** Cool Under Fire SHALL be out-of-scope with the unresolved source authority recorded as local helper evidence
 - **AND** the heat-application resolver SHALL be integrated for source-backed Hot Dog, Some Like It Hot, and weapon cooling behavior while leaving Cool Under Fire unconsumed
 
 #### Scenario: Heat-driven modifiers remain separate from core heat lifecycle completeness
@@ -1767,13 +1768,13 @@ Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior 
 - **GIVEN** core heat generation, dissipation, and lifecycle rows are integrated
 - **WHEN** the BattleMech validation requirement crosswalk is inspected
 - **THEN** heat-driven pilot ability and quirk modifiers SHALL have their own `heat-driven-modifiers` requirement
-- **AND** that requirement SHALL reference Hot Dog, Some Like It Hot, Cool Under Fire, Improved Cooling, Poor Cooling, No Cooling, and the heat-application resolver row
-- **AND** the requirement SHALL remain helper-only while Cool Under Fire source authority is unresolved and unconsumed
+- **AND** that requirement SHALL reference Hot Dog, Some Like It Hot, Improved Cooling, Poor Cooling, No Cooling, and the heat-application resolver row while Cool Under Fire remains visible through the out-of-scope audit inventory
+- **AND** the requirement SHALL be integrated for source-backed official heat modifiers while Cool Under Fire remains out-of-scope and unconsumed
 - **AND** the integrated `heat-lifecycle` requirement SHALL NOT imply complete heat-driven modifier parity
 
 ### Requirement: Source-Backed Pilot Skill Use Rows
 
-Pilot skill use support rows SHALL expose structured row-level source references before the map is treated as validation coverage. Ranged gunnery rows SHALL cite MegaMek ranged attack gunnery anchors plus MekStation runner/session to-hit hydration. Physical piloting rows SHALL cite MegaMek physical attack piloting baselines plus MekStation runner/session physical to-hit paths. PSR and stand-up rows SHALL cite MegaMek base piloting roll, PSR resolution, and stand-up anchors plus MekStation runner/session resolution paths. Initiative rows SHALL cite source-backed Command Mech, Battle Computer, HQ/command equipment, and Tactical Genius anchors while preserving helper-only gaps for Combat Intuition and automatic equipment hydration. MekStation-local pilot wound penalties and PSR event skill stamping SHALL be marked as explicit MekStation deviation refs rather than inferred MegaMek parity.
+Pilot skill use support rows SHALL expose structured row-level source references before the map is treated as validation coverage. Ranged gunnery rows SHALL cite MegaMek ranged attack gunnery anchors plus MekStation runner/session to-hit hydration. Physical piloting rows SHALL cite MegaMek physical attack piloting baselines plus MekStation runner/session physical to-hit paths. PSR and stand-up rows SHALL cite MegaMek base piloting roll, PSR resolution, and stand-up anchors plus MekStation runner/session resolution paths. Initiative rows SHALL cite source-backed Command Mech, Battle Computer, HQ/command equipment, and Tactical Genius anchors while preserving helper-only gaps for automatic equipment hydration. MekStation-local pilot wound penalties and PSR event skill stamping SHALL be marked as explicit MekStation deviation refs rather than inferred MegaMek parity.
 
 #### Scenario: Pilot skill use rows expose source truth
 
