@@ -221,6 +221,24 @@ const MEKSTATION_ATMOSPHERE_HEAT_SOURCE_REF = mekstationDeviationSourceRef(
   'L257-L359',
 );
 
+const MEKSTATION_ENVIRONMENTAL_TO_HIT_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation IEnvironmentalConditions carries explicit blowingSand state alongside light, precipitation, fog, wind, gravity, atmosphere, and temperature.',
+    'src/types/gameplay/EnvironmentalConditions.ts',
+    'L17-L26',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation calculateEnvironmentalModifiers applies Blowing Sand only when blowingSand is active and the attack weapon is classified as energy.',
+    'src/utils/gameplay/environmentalModifiers.ts',
+    'L49-L352',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation runAttackPhase passes energy-weapon and missile-weapon classification into environmental to-hit modifier calculation before emitting AttackDeclared.',
+    'src/simulation/runner/phases/weaponAttack.ts',
+    'L1044-L1062',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_TERRAIN_TYPE_SOURCE_REF = megamekTerrainSourceRef(
   'MegaMek Terrains enumerates core terrain ids for woods, water, rough, rubble, swamp, ice, fire, and smoke with level semantics.',
   'common/units/Terrains.java',
@@ -1047,13 +1065,12 @@ export const TERRAIN_ENVIRONMENT_COMBAT_SUPPORT = {
     'runHeatPhase and resolveHeatPhase consume getAtmosphereHeatModifier through calculateEnvironmentalHeatModifier',
     [MEKSTATION_ATMOSPHERE_HEAT_SOURCE_REF],
   ),
-  dust: helperOnly(
+  dust: integrated(
     'dust',
-    'No Dust enum; closest modeled weather modifiers are fog/precipitation helpers',
-    'dust storms are not represented as a first-class battlefield condition',
+    'runAttackPhase consumes environmental blowingSand state and applies the source-backed +1 modifier to energy-weapon attacks while non-energy weapons receive no blowing-sand modifier',
     [
       ...MEGAMEK_ENVIRONMENTAL_TO_HIT_SOURCE_REFS,
-      MEKSTATION_TERRAIN_TYPE_ENUM_SOURCE_REF,
+      ...MEKSTATION_ENVIRONMENTAL_TO_HIT_SOURCE_REFS,
     ],
   ),
   mines: helperOnly(
