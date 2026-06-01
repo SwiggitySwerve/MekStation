@@ -128,11 +128,22 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(supportGaps(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT)).toEqual([]);
   });
 
-  it('assigns every cataloged SPA and quirk to at least one combat resolver family', () => {
-    expect(assignedSpaIds()).toEqual(sortedKeys(SPA_CATALOG));
-    expect(assignedSpaIds()).toEqual(sortedKeys(SPA_COMBAT_SUPPORT));
+  it('assigns every combat-consumed SPA and quirk to at least one resolver family', () => {
+    const unconsumedLocalCalledShotSpas = ['marksman', 'sharpshooter'];
+    const expectedAssignedSpas = sortedKeys(SPA_CATALOG).filter(
+      (spaId) => !unconsumedLocalCalledShotSpas.includes(spaId),
+    );
+
+    expect(assignedSpaIds()).toEqual(expectedAssignedSpas);
+    expect(assignedSpaIds()).toEqual(
+      sortedKeys(SPA_COMBAT_SUPPORT).filter(
+        (spaId) => !unconsumedLocalCalledShotSpas.includes(spaId),
+      ),
+    );
     expect(assignedQuirkIds()).toEqual(sortedKeys(QUIRK_CATALOG));
     expect(assignedQuirkIds()).toEqual(sortedKeys(QUIRK_COMBAT_SUPPORT));
+    expect(SPA_COMBAT_SUPPORT.marksman.level).toBe('helper-only');
+    expect(SPA_COMBAT_SUPPORT.sharpshooter.level).toBe('helper-only');
   });
 
   it('does not assign unknown SPA or quirk ids to resolver families', () => {
@@ -247,6 +258,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       supportIdsByLevel(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT, 'integrated'),
     ).toEqual(
       [
+        'called-shot-application',
         'ranged-to-hit-calculation',
         'ranged-to-hit-state-hydration',
         'cluster-hitter-application',
@@ -1002,8 +1014,19 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'Sharpshooter constant commented out',
     );
     expect(
-      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['called-shot-application'].gap,
-    ).toContain('not Marksman/Sharpshooter reduction');
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['called-shot-application'],
+    ).toEqual({
+      spaIds: [],
+      quirkIds: [],
+    });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['called-shot-application'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'disable local Marksman/legacy Sharpshooter helper reductions',
+      ),
+    });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'called-shot-application'

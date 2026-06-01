@@ -214,10 +214,9 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
       ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
     ],
   ),
-  'called-shot-application': helperOnly(
+  'called-shot-application': integrated(
     'called-shot-application',
-    'Source-backed runAttackPhase and declareAttack pass calledShot intent into calculateCalledShotModifier for TacOps-style +3 called-shot penalties; local Marksman/legacy Sharpshooter helper reductions still exist',
-    'MegaMek source validates called-shot penalties but not Marksman/Sharpshooter reduction',
+    'Source-backed runAttackPhase and declareAttack pass calledShot intent into calculateCalledShotModifier for TacOps-style +3 called-shot penalties and disable local Marksman/legacy Sharpshooter helper reductions for BattleMech combat',
     MEGAMEK_CALLED_SHOT_SOURCE_REFS,
   ),
   'indirect-fire-spa-application': integrated(
@@ -405,7 +404,7 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
     quirkIds: [],
   },
   'called-shot-application': {
-    spaIds: ['marksman', 'sharpshooter'],
+    spaIds: [],
     quirkIds: [],
   },
   'indirect-fire-spa-application': {
