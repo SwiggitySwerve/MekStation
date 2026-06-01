@@ -980,6 +980,8 @@ export const HexCell = React.memo(function HexCell({
         y={y}
         hex={hex}
         movementInfo={movementInfo}
+        projectionExplanation={tacticalProjectionExplanation}
+        sourceReferences={tacticalProjectionSourceReferences}
       />
       <MovementStandUpBadge x={x} y={y} hex={hex} movementInfo={movementInfo} />
       <MovementAutomaticLandingBadge
