@@ -148,7 +148,7 @@ const MEGAMEK_UNOFFICIAL_SPA_SOURCE_REFS = [
 
 const MEKSTATION_EDGE_SPA_SOURCE_REFS = [
   mekstationDeviationRef(
-    'MekStation Edge SPA table defines trigger-specific canonical Edge rows; canonicalPilotAbilityScope keeps Mek Edge triggers helper-only except for MASC/Supercharger reroll consumption and splits Aero Edge triggers out-of-scope.',
+    'MekStation Edge SPA table defines trigger-specific canonical Edge rows; canonicalPilotAbilityScope marks non-MASC Mek Edge triggers unsupported, marks MASC/Supercharger reroll consumption integrated, and splits Aero Edge triggers out-of-scope.',
     'src/lib/spa/catalog/edgeSPAs.ts#L10-L67',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
