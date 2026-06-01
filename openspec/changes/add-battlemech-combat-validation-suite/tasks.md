@@ -472,3 +472,4 @@
 - [x] 4.3.194 Split legacy Iron Will into the local-only out-of-scope audit inventory because source-backed Iron Man is already represented as ammunition-explosion-only support and the pinned MegaMek registry exposes no separate Iron Will combat option id.
 - [x] 4.3.195 Split legacy generic Terrain Master into the local-only out-of-scope audit inventory while promoting source-backed `tm_nightwalker` to an explicit canonical unsupported lighting-condition movement blocker.
 - [x] 4.3.196 Promote non-MASC Mek Edge triggers into explicit canonical unsupported blockers by source-pinning head-hit, TAC, KO, and explosion reroll hooks while preserving `edge_when_masc_fails` as the only integrated Edge trigger.
+- [x] 4.3.197 Promote source-backed Low Profile glancing-blow behavior into an explicit unsupported quirk blocker while preserving MekStation's local defensive to-hit helper as non-integrated deviation coverage.
