@@ -572,6 +572,33 @@ describe('runAttackPhase to-hit modifier integration', () => {
     ).toMatchObject({ level: 'integrated' });
   });
 
+  it('keeps Pain Resistance from reducing ranged wound penalties in AttackDeclared', () => {
+    const events = runModifierScenario({
+      state: createWeaponAttackState({
+        attacker: {
+          abilities: ['pain-resistance'],
+          pilotWounds: 2,
+        },
+      }),
+    });
+
+    const payload = attackDeclaredPayload(events);
+    expect(payload.toHitNumber).toBe(6);
+    expectModifier(payload, {
+      name: 'Pilot Wounds',
+      value: 2,
+      source: 'other',
+    });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'legacy-pain-resistance-to-hit-application'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('preserve raw pilot wound penalties'),
+    });
+  });
+
   it('threads non-blocking intervening terrain features into AttackDeclared', () => {
     const clearEvents = runModifierScenario();
     const terrainEvents = runModifierScenario({
