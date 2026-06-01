@@ -304,10 +304,9 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
     'Automatic command-console initiative hydration is unsupported until command-console cockpit type, active command-console crew, heavy-or-larger weight, IndustrialMek, and advanced-fire-control gates are represented; explicit initiativeCommandBonus is the supported closed-world path',
     MEGAMEK_INITIATIVE_EQUIPMENT_SOURCE_REFS,
   ),
-  'heat-application': helperOnly(
+  'heat-application': integrated(
     'heat-application',
-    'runHeatPhase and resolveHeatPhase consume source-backed Hot Dog startup/shutdown plus heat-induced ammo-explosion, opt-in MaxTech pilot heat-damage, and opt-in MaxTech critical-damage avoid-number relief, local Cool Under Fire generated-heat relief, and weapon cooling quirks; calculateToHit consumes source-backed Some Like It Hot heat to-hit relief',
-    'Cool Under Fire source authority is unresolved',
+    'runHeatPhase and resolveHeatPhase consume source-backed Hot Dog startup/shutdown plus heat-induced ammo-explosion, opt-in MaxTech pilot heat-damage, opt-in MaxTech critical-damage avoid-number relief, and weapon cooling quirks; calculateToHit consumes source-backed Some Like It Hot heat to-hit relief while leaving local Cool Under Fire unconsumed',
     [
       ...MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
       ...MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,
@@ -473,7 +472,7 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
   'initiative-hq-equipment-hydration': { spaIds: [], quirkIds: [] },
   'initiative-command-console-hydration': { spaIds: [], quirkIds: [] },
   'heat-application': {
-    spaIds: ['hot-dog', 'cool-under-fire', 'some-like-it-hot'],
+    spaIds: ['hot-dog', 'some-like-it-hot'],
     quirkIds: ['improved_cooling', 'poor_cooling', 'no_cooling'],
   },
   'consciousness-application': {
