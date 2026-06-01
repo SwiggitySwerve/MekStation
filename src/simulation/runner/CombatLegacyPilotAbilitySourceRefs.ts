@@ -278,3 +278,22 @@ export const MEGAMEK_TERRAIN_MASTER_GAP_SOURCE_REFS = [
     'src/utils/gameplay/spaModifiers/catalog.ts#L163-L202',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_NIGHTWALKER_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek PilotOptions registers Terrain Master: Nightwalker as the source-backed tm_nightwalker pilot option.',
+    'megamek/src/megamek/common/options/PilotOptions.java#L72-L76',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines Terrain Master: Nightwalker as tm_nightwalker.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L183-L187',
+  ),
+  megamekRef(
+    'MegaMek LandAirMek.isNightwalker applies Terrain Master: Nightwalker only while the LAM is not airborne.',
+    'megamek/src/megamek/common/units/LandAirMek.java#L1205-L1210',
+  ),
+  megamekRef(
+    'MegaMek MoveStep uses isNightwalker to bypass full-moon, glare, moonless, solar-flare, and pitch-black movement light penalties, while prohibiting running in those light conditions.',
+    'megamek/src/megamek/common/moves/MoveStep.java#L2682-L2724',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
