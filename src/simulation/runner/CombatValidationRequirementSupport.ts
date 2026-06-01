@@ -830,7 +830,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'terrain-environment-modifiers': helperOnly(
     'terrain-environment-modifiers',
     'Terrain/environment maps track woods, rubble, rough, water, ice, swamp, buildings, fire, smoke, fog, night, dust, mines, and extreme conditions, including explicit-load building-collapse PSR queueing',
-    'Damage-triggered building collapse, basement collapse, top-floor collapse, WiGE flyover collapse, dust, and minefield modifiers remain helper-only until runner phases consume those battlefield conditions',
+    'Damage-triggered building collapse, basement collapse, top-floor collapse, WiGE flyover collapse, and minefield modifiers remain helper-only; blowing-sand dust to-hit is integrated through explicit environmental state',
     [
       ...TERRAIN_ENVIRONMENT_SUPPORT_REFS,
       ...TERRAIN_TYPE_ATTACK_MODIFIER_SUPPORT_REFS,
