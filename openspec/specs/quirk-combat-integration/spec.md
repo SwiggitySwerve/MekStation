@@ -109,13 +109,13 @@ The No Arms quirk SHALL prevent the unit from performing punch attacks.
 
 ### Requirement: Physical Quirk — Low Arms
 
-The Low Arms quirk SHALL remain registry-only until a source-backed combat resolver is identified.
+The Low Arms quirk SHALL remain registry-only out-of-scope audit evidence until a source-backed combat resolver is identified.
 
-#### Scenario: Low Arms unsupported combat behavior
+#### Scenario: Low Arms registry-only combat boundary
 
 - **WHEN** a unit with Low Arms attempts a physical attack
 - **THEN** Low Arms SHALL NOT add a local elevation restriction
-- **AND** the combat validation catalog SHALL mark Low Arms as unsupported registry-only behavior
+- **AND** the combat validation catalog SHALL mark Low Arms as registry-only out-of-scope audit evidence
 
 ### Requirement: Initiative Quirk — Command Mech
 
