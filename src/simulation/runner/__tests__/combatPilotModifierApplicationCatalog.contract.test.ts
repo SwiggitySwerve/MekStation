@@ -134,6 +134,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'antagonizer',
       'combat-intuition',
       'cool-under-fire',
+      'evasive',
       'marksman',
       'multi-target',
       'natural-grace',
@@ -726,33 +727,29 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual(['cross-country']);
   });
 
-  it('pins legacy Evasive to the source-backed TacOps Evade action gap', () => {
+  it('splits legacy Evasive from source-backed TacOps Evade action coverage', () => {
     const evasiveRefs = SPA_COMBAT_SUPPORT.evasive.sourceRefs ?? [];
     const movementRefs =
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application']
         .sourceRefs ?? [];
 
     expect(SPA_COMBAT_SUPPORT.evasive).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('optional TacOps Evade movement'),
+      level: 'out-of-scope',
+      evidence: expect.stringContaining('local SPA catalog'),
+      gap: expect.stringContaining('source-backed evasion remains covered'),
     });
     expect(SPA_COMBAT_SUPPORT.evasive.gap).toContain(
-      'attacker firing, and target modifier semantics',
+      'integrated optional TacOps Evade movement action row',
     );
-    expect(evasiveRefs.map(({ citation }) => citation)).toEqual(
-      expect.arrayContaining([
-        'MegaMek OptionsConstants defines optional TacOps Evade and Skilled Evasion option ids.',
-        'MegaMek GameOptions registers optional TacOps Evade and Skilled Evasion movement rules.',
-        'MegaMek MoveStepType defines EVADE as a movement step.',
-        'MegaMek Entity.getEvasionBonus returns the target evasion modifier, including optional Skilled Evasion piloting-skill scaling.',
-        'MegaMek ComputeTargetToHitMods applies the target evasion bonus to ranged weapon attacks.',
-        'MegaMek ComputeToHitIsImpossible prevents non-large-spacecraft evading attackers from firing ranged attacks.',
-      ]),
-    );
-    expect(movementRefs).toEqual(expect.arrayContaining([...evasiveRefs]));
+    expect(evasiveRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek PilotOptions registers the source-backed pilot advantage ids in this combat source snapshot; MekStation local-only SPA ids are not part of that registry.',
+      'MegaMek OptionsConstants defines the source-backed pilot option constants used by the combat SPA catalog boundary.',
+      'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
+    ]);
+    expect(movementRefs).toEqual(expect.not.arrayContaining([...evasiveRefs]));
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['movement-application'].spaIds,
-    ).toEqual(expect.arrayContaining(['evasive']));
+    ).toEqual(['maneuvering-ace', 'heavy-lifter']);
   });
 
   it('pins Heavy Lifter to MegaMek lift-capacity scope', () => {
@@ -1143,6 +1140,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'speed-demon',
       'combat-intuition',
       'cool-under-fire',
+      'evasive',
       'antagonizer',
     ] as const;
 
@@ -1151,7 +1149,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       expect(support.sourceRefs?.map(({ citation }) => citation)).toEqual([
         'MegaMek PilotOptions registers the source-backed pilot advantage ids in this combat source snapshot; MekStation local-only SPA ids are not part of that registry.',
         'MegaMek OptionsConstants defines the source-backed pilot option constants used by the combat SPA catalog boundary.',
-        'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
+        'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
       ]);
       expect(
         support.sourceRefs?.some(
@@ -1173,7 +1171,11 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'out-of-scope',
       'out-of-scope',
       'out-of-scope',
+      'out-of-scope',
     ]);
+    expect(SPA_COMBAT_SUPPORT.evasive.gap).toContain(
+      'source-backed evasion remains covered by the integrated optional TacOps Evade movement action row',
+    );
     expect(SPA_COMBAT_SUPPORT['cool-under-fire'].gap).toContain(
       'outside the official BattleMech validation blocker inventory',
     );
