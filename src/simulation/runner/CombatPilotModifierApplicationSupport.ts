@@ -315,8 +315,8 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'consciousness-application': helperOnly(
     'consciousness-application',
-    'applyPilotDamage consumes source-backed Pain Resistance ids for head-hit consciousness checks, and runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase consume unit abilities for fall and heat pilot-damage consciousness checks',
-    'Pain Resistance wake-up rolls and RPG Toughness numeric crew toughness are not modeled; Iron Man and Iron Will no longer provide consciousness target-number relief',
+    'applyPilotDamage consumes source-backed Pain Resistance ids and explicit numeric RPG Toughness state for head-hit consciousness checks, and runPSRPhase, resolvePendingPSRs, runHeatPhase, resolveHeatPhase, physical self-damage, and ammo-explosion pilot damage consume the same state for fall, heat, physical, and explosion consciousness checks',
+    'Pain Resistance wake-up rolls plus automatic RPG Toughness game-option hydration and MUL crew toughness import are not modeled; Iron Man, Iron Will, and legacy toughness ability strings do not provide consciousness target-number relief',
     [
       ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
       ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,

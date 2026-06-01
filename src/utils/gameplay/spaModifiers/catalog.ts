@@ -287,7 +287,8 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     name: 'Toughness',
     category: 'toughness',
     pipelines: ['special'],
-    combatEffect: 'Unsupported RPG Toughness numeric crew state',
+    combatEffect:
+      'Legacy alias boundary; use explicit pilotToughness for RPG Toughness consciousness relief',
     requiresDesignation: false,
   },
 
