@@ -1499,13 +1499,14 @@ Pilot modifier validation SHALL treat every canonical SPA catalog row as source-
 
 ### Requirement: Source-Backed Edge Trigger Boundary
 
-Pilot modifier validation SHALL keep Mek Edge triggers as helper-only trigger-state coverage until combat resolvers consume each trigger-specific Edge behavior, while Aero Edge triggers SHALL be split out of the BattleMech matrix. Edge rows SHALL cite MegaMek's point-pool and trigger-option source anchors plus MekStation's local generic trigger helper. The `edge_when_masc_fails` trigger SHALL be counted as consumed by runner `MASCFailure` and `SuperchargerFailure` PSR rerolls only; TAC, head-hit, KO, explosion, attack, non-booster PSR, and consciousness resolvers SHALL NOT be treated as Edge-integrated until those trigger-specific reroll or prevention paths are wired.
+Pilot modifier validation SHALL keep generic Edge point state as helper-only trigger-state coverage, SHALL split non-MASC Mek Edge triggers into explicit unsupported blockers, and SHALL split Aero Edge triggers out of the BattleMech matrix. Edge rows SHALL cite MegaMek's point-pool and trigger-option source anchors plus MekStation's local generic trigger helper. The `edge_when_masc_fails` trigger SHALL be counted as consumed by runner `MASCFailure` and `SuperchargerFailure` PSR rerolls only; `edge_when_headhit`, `edge_when_tac`, `edge_when_ko`, and `edge_when_explosion` SHALL remain unsupported until hit-location, consciousness, and critical-slot resolvers consume those trigger-specific reroll paths.
 
 #### Scenario: Edge helper rows cite source truth without claiming resolver parity
 
 - **GIVEN** the BattleMech SPA and pilot modifier resolver catalogs are generated
 - **WHEN** Edge, Edge application, or critical-prevention support is inspected
-- **THEN** unresolved Mek Edge trigger rows SHALL remain helper-only with structured source references to MegaMek Edge trigger registration and point consumption
+- **THEN** generic Edge point state SHALL remain helper-only with structured source references to MegaMek Edge trigger registration and point consumption
+- **AND** `edge_when_headhit`, `edge_when_tac`, `edge_when_ko`, and `edge_when_explosion` SHALL remain unsupported with source references to their MegaMek hit-location, consciousness, or critical-slot consumption paths until the matching MekStation resolvers spend Edge and reroll those outcomes
 - **AND** `edge_when_masc_fails` SHALL be integrated only for source-backed runner `MASCFailure` and `SuperchargerFailure` rerolls that spend Edge and suppress failure aftermath when the reroll passes
 - **AND** each Aero Edge trigger row SHALL remain out-of-scope with the same source references until an aerospace validation matrix exists
 - **AND** each row SHALL cite the MekStation generic Edge helper or SPA catalog partition as a local deviation boundary
