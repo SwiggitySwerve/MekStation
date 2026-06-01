@@ -129,20 +129,21 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
   });
 
   it('assigns every combat-consumed SPA and quirk to at least one resolver family', () => {
-    const unconsumedLocalCalledShotSpas = ['marksman', 'sharpshooter'];
+    const unconsumedLocalSpas = ['marksman', 'multi-target', 'sharpshooter'];
     const expectedAssignedSpas = sortedKeys(SPA_CATALOG).filter(
-      (spaId) => !unconsumedLocalCalledShotSpas.includes(spaId),
+      (spaId) => !unconsumedLocalSpas.includes(spaId),
     );
 
     expect(assignedSpaIds()).toEqual(expectedAssignedSpas);
     expect(assignedSpaIds()).toEqual(
       sortedKeys(SPA_COMBAT_SUPPORT).filter(
-        (spaId) => !unconsumedLocalCalledShotSpas.includes(spaId),
+        (spaId) => !unconsumedLocalSpas.includes(spaId),
       ),
     );
     expect(assignedQuirkIds()).toEqual(sortedKeys(QUIRK_CATALOG));
     expect(assignedQuirkIds()).toEqual(sortedKeys(QUIRK_COMBAT_SUPPORT));
     expect(SPA_COMBAT_SUPPORT.marksman.level).toBe('helper-only');
+    expect(SPA_COMBAT_SUPPORT['multi-target'].level).toBe('unsupported');
     expect(SPA_COMBAT_SUPPORT.sharpshooter.level).toBe('helper-only');
   });
 
@@ -263,6 +264,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'ranged-to-hit-state-hydration',
         'cluster-hitter-application',
         'indirect-fire-spa-application',
+        'multi-target-penalty-application',
         'physical-action-count-application',
         'physical-restriction-application',
         'physical-damage-application',
@@ -291,7 +293,6 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'consciousness-application',
         'legacy-defensive-quirk-to-hit-application',
         'heat-application',
-        'multi-target-penalty-application',
         'psr-spa-application',
         'sandblaster-application',
       ]),
@@ -365,17 +366,16 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'multi-target-penalty-application'
       ],
     ).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('Multi-Tasker/multi_tasker'),
-      gap: expect.stringContaining('local Multi-Target SPA'),
     });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['multi-target-penalty-application']
         .evidence,
-    ).toContain('local Multi-Target assigned as an unsupported SPA boundary');
+    ).toContain('leaving the unsupported local Multi-Target row unconsumed');
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['multi-target-penalty-application'],
-    ).toEqual({ spaIds: ['multi-tasker', 'multi-target'], quirkIds: [] });
+    ).toEqual({ spaIds: ['multi-tasker'], quirkIds: [] });
 
     const multiTaskerRefs = SPA_COMBAT_SUPPORT['multi-tasker'].sourceRefs ?? [];
     expect(multiTaskerRefs.map(({ citation }) => citation)).toEqual([
