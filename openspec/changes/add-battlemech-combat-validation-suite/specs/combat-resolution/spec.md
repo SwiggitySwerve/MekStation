@@ -1408,13 +1408,14 @@ Ranged to-hit validation SHALL keep Multi-Trac source-backed as secondary-target
 
 ### Requirement: Source-Backed Defensive Quirk Boundary
 
-Ranged to-hit validation SHALL NOT count legacy defensive quirk to-hit helpers as source-backed integrated coverage when the source authority does not match the local helper behavior. `Distracting` SHALL remain helper-only until a combat resolver authority is identified. `Low Profile` SHALL remain helper-only until MekStation implements the source-backed glancing-blow behavior rather than treating it as a normal target to-hit modifier.
+Ranged to-hit validation SHALL NOT count legacy defensive quirk to-hit helpers as source-backed integrated coverage when the source authority does not match the local helper behavior. `Distracting` SHALL remain helper-only until a combat resolver authority is identified. `Low Profile` SHALL be tracked as an unsupported source-backed glancing-blow blocker until MekStation implements that hit/damage resolution behavior rather than treating it as a normal target to-hit modifier.
 
 #### Scenario: Defensive quirk helpers expose source mismatch instead of hiding it
 
 - **GIVEN** the BattleMech quirk and pilot modifier resolver catalogs are generated
 - **WHEN** `distracting` and `low_profile` support is inspected
-- **THEN** both rows SHALL be helper-only with structured MegaMek source references and MekStation deviation references
+- **THEN** `distracting` SHALL be helper-only with structured MegaMek source references and MekStation deviation references
+- **AND** `low_profile` SHALL be unsupported with structured MegaMek glancing-blow source references and MekStation deviation references
 - **AND** the helper-only resolver row SHALL own the local `+1` target to-hit helper boundary
 - **AND** the source-backed ranged to-hit resolver row SHALL NOT count those two defensive quirk helpers as integrated quirk to-hit coverage
 
