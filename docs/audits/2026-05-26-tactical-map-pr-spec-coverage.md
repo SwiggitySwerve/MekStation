@@ -126,6 +126,9 @@ decisions are made, not because CI is stale.
   shared projection metadata itself. The `source-movement-reach-badge` slice
   now pins the normal reachable movement badge to the shared movement
   projection source references, rule references, and explanation detail. The
+  `source-movement-step-cost-badge` slice does the same for the separate
+  terrain/elevation cost badge, so the visible `T+`/`E+`/`UP`/`DN` cost marker
+  is also pinned to `movement:megamek` evidence. The
   `source-hover-path-preview-badge` slice keeps the hovered path MP badge tied
   to that same source-backed movement badge path instead of thinning the
   displayed commit preview. Full elevated AirMek/WiGE pathing and broader
