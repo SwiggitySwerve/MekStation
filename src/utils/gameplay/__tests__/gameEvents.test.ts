@@ -35,6 +35,7 @@ import {
   createHeatGeneratedEvent,
   createHeatDissipatedEvent,
   createPilotHitEvent,
+  createCriticalHitEvent,
   createUnitDestroyedEvent,
   serializeEvent,
   deserializeEvent,
@@ -986,6 +987,24 @@ describe('Combat Event Factories', () => {
 
       expect(payload.criticals).toBeUndefined();
     });
+
+    it('can stamp damage from runtime movement consequences in movement phase', () => {
+      const event = createDamageAppliedEvent(
+        'game-1',
+        32,
+        4,
+        'unit-2',
+        'center_torso',
+        5,
+        0,
+        8,
+        false,
+        undefined,
+        GamePhase.Movement,
+      );
+
+      expect(event.phase).toBe(GamePhase.Movement);
+    });
   });
 });
 
@@ -1196,6 +1215,36 @@ describe('Status Event Factories', () => {
 
       expect(payload.consciousnessCheckRequired).toBe(false);
       expect(payload.consciousnessCheckPassed).toBeUndefined();
+    });
+  });
+
+  describe('createCriticalHitEvent', () => {
+    it('should create a movement-phase critical hit event with source context', () => {
+      const event = createCriticalHitEvent(
+        'game-1',
+        65,
+        6,
+        GamePhase.Movement,
+        'target-1',
+        'center_torso',
+        'attacker-1',
+        'engine',
+        1,
+      );
+
+      expect(event.type).toBe(GameEventType.CriticalHit);
+      expect(event.gameId).toBe('game-1');
+      expect(event.sequence).toBe(65);
+      expect(event.turn).toBe(6);
+      expect(event.phase).toBe(GamePhase.Movement);
+      expect(event.actorId).toBe('attacker-1');
+      expect(event.payload).toMatchObject({
+        unitId: 'target-1',
+        location: 'center_torso',
+        sourceUnitId: 'attacker-1',
+        component: 'engine',
+        count: 1,
+      });
     });
   });
 

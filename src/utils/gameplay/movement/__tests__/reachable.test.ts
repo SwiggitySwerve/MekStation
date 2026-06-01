@@ -7,6 +7,7 @@
 
 import { describe, expect, it } from '@jest/globals';
 
+import { parseMegaMekBoard } from '@/lib/parsers/megaMekBoard';
 import { GyroType } from '@/types/construction/GyroType';
 import {
   Facing,
@@ -15,6 +16,7 @@ import {
   MovementType,
   TerrainType,
   type IComponentDamageState,
+  type IHex,
   type IMovementCapability,
   type IHexCoordinate,
   type IHexGrid,
@@ -86,6 +88,25 @@ function setHex(
   const hexes = new Map(grid.hexes);
   hexes.set(key, { ...hex, terrain, elevation });
   return { ...grid, hexes };
+}
+
+function gridFromParsedBoard(content: string): IHexGrid {
+  const parsedBoard = parseMegaMekBoard(content);
+  const hexes = new Map<string, IHex>();
+
+  for (const parsedHex of parsedBoard.hexes) {
+    hexes.set(coordToKey(parsedHex.coordinate), {
+      coord: parsedHex.coordinate,
+      occupantId: null,
+      terrain: terrainStringFromFeatures(parsedHex.features),
+      elevation: parsedHex.elevation,
+    });
+  }
+
+  return {
+    config: { radius: Math.max(parsedBoard.width, parsedBoard.height) },
+    hexes,
+  };
 }
 
 function setOccupant(
@@ -2092,6 +2113,274 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('charges WiGE climb-mode MP when entering a higher represented building top', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([{ type: TerrainType.Building, level: 3 }]),
+      0,
+    );
+    const unit = makeUnitAtOrigin();
+    const capability: IMovementCapability = {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'wige',
+    };
+
+    const preview = deriveReachableHexes(
+      unit,
+      MovementType.Walk,
+      grid,
+      capability,
+    ).find((r) => r.hex.q === 1 && r.hex.r === 0);
+    expect(preview).toMatchObject({
+      mpCost: 3,
+      terrainCost: 2,
+      elevationDelta: 0,
+      elevationCost: 0,
+      movementMode: 'wige',
+      reachable: true,
+      movementType: MovementType.Walk,
+    });
+
+    const commit = validateCommittedMovement({
+      grid,
+      unit,
+      to: { q: 1, r: 0 },
+      facing: Facing.Southeast,
+      movementType: MovementType.Walk,
+      capability,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+    expect(commit).toMatchObject({
+      valid: true,
+      mpCost: 3,
+      heatGenerated: 0,
+    });
+
+    const insufficientCapability: IMovementCapability = {
+      ...capability,
+      walkMP: 2,
+    };
+    const overBudgetPreview = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      insufficientCapability,
+      { q: 1, r: 0 },
+    );
+    expect(overBudgetPreview).toMatchObject({
+      mpCost: 3,
+      terrainCost: 2,
+      movementMode: 'wige',
+      reachable: false,
+      movementInvalidReason: 'InsufficientMP',
+    });
+
+    const overBudgetCommit = validateCommittedMovement({
+      grid,
+      unit,
+      to: { q: 1, r: 0 },
+      facing: Facing.Southeast,
+      movementType: MovementType.Walk,
+      capability: insufficientCapability,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+    expect(overBudgetCommit).toMatchObject({
+      valid: false,
+      reason: 'InsufficientMP',
+      mpCost: 3,
+      heatGenerated: 0,
+    });
+  });
+
+  it('uses explicit directional cliff metadata for WiGE and vehicle ascent projection', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(grid, { q: -1, r: 0 }, TerrainType.Clear, 1);
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([
+        {
+          type: TerrainType.Clear,
+          level: 0,
+          cliffTopExits: [
+            Facing.North,
+            Facing.Northeast,
+            Facing.Southeast,
+            Facing.South,
+            Facing.Southwest,
+            Facing.Northwest,
+          ],
+        },
+      ]),
+      1,
+    );
+    const unit = makeUnitAtOrigin();
+
+    const ordinaryTrackedRise = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      {
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 0,
+        movementMode: 'tracked',
+      },
+      { q: -1, r: 0 },
+    );
+    expect(ordinaryTrackedRise).toMatchObject({
+      mpCost: 3,
+      movementMode: 'tracked',
+      elevationDelta: 1,
+      elevationCost: 2,
+      reachable: true,
+    });
+
+    const wigeCapability: IMovementCapability = {
+      walkMP: 2,
+      runMP: 3,
+      jumpMP: 0,
+      movementMode: 'wige',
+    };
+    const wigePreview = deriveReachableHexes(
+      unit,
+      MovementType.Walk,
+      grid,
+      wigeCapability,
+    ).find((r) => r.hex.q === 1 && r.hex.r === 0);
+    expect(wigePreview).toMatchObject({
+      mpCost: 2,
+      terrainCost: 1,
+      elevationDelta: 1,
+      elevationCost: 0,
+      movementMode: 'wige',
+      reachable: true,
+    });
+
+    const wigeCommit = validateCommittedMovement({
+      grid,
+      unit,
+      to: { q: 1, r: 0 },
+      facing: Facing.Southeast,
+      movementType: MovementType.Walk,
+      capability: wigeCapability,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+    expect(wigeCommit).toMatchObject({
+      valid: true,
+      mpCost: 2,
+      heatGenerated: 0,
+    });
+
+    const trackedPreview = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      {
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 0,
+        movementMode: 'tracked',
+      },
+      { q: 1, r: 0 },
+    );
+    expect(trackedPreview).toMatchObject({
+      mpCost: Infinity,
+      movementMode: 'tracked',
+      reachable: false,
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails: 'Tracked movement cannot ascend a sheer cliff',
+    });
+
+    const trackedCommit = validateCommittedMovement({
+      grid,
+      unit,
+      to: { q: 1, r: 0 },
+      facing: Facing.Southeast,
+      movementType: MovementType.Walk,
+      capability: {
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 0,
+        movementMode: 'tracked',
+      },
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+    expect(trackedCommit).toMatchObject({
+      valid: false,
+      reason: 'TerrainBlocked',
+      details: 'Tracked movement cannot ascend a sheer cliff',
+      mpCost: Infinity,
+      heatGenerated: 0,
+    });
+  });
+
+  it('uses parsed MegaMek cliff_top exits for movement projection', () => {
+    const grid = gridFromParsedBoard(`size 2 1
+hex 0101 0 "" ""
+hex 0201 1 "cliff_top:1:32" ""
+end`);
+    const unit = makeUnitAtOrigin();
+
+    const wigePreview = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      {
+        walkMP: 2,
+        runMP: 3,
+        jumpMP: 0,
+        movementMode: 'wige',
+      },
+      { q: 1, r: 0 },
+    );
+    expect(wigePreview).toMatchObject({
+      mpCost: 2,
+      terrainCost: 1,
+      elevationDelta: 1,
+      movementMode: 'wige',
+      reachable: true,
+    });
+
+    const trackedPreview = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      {
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 0,
+        movementMode: 'tracked',
+      },
+      { q: 1, r: 0 },
+    );
+    expect(trackedPreview).toMatchObject({
+      mpCost: Infinity,
+      movementMode: 'tracked',
+      reachable: false,
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails: 'Tracked movement cannot ascend a sheer cliff',
+    });
+  });
+
   it.each([
     {
       label: 'VTOL',
@@ -2144,19 +2433,35 @@ describe('deriveReachableHexes', () => {
         capability,
         { q: 1, r: 0 },
       );
-      expect(airbornePreview).toMatchObject({
-        mpCost: Infinity,
-        heatGenerated: 0,
-        movementMode,
-        reachable: false,
-        movementType: MovementType.Walk,
-        blockedReason: reason,
-        movementInvalidReason: 'InvalidDestination',
-        movementInvalidDetails: reason,
-        altitudeControlRequired: true,
-        altitudeControlMode: movementMode,
-        altitudeControlAltitude: 2,
-      });
+      if (movementMode === 'wige') {
+        expect(airbornePreview).toMatchObject({
+          mpCost: 1,
+          terrainCost: 0,
+          elevationDelta: 4,
+          elevationCost: 0,
+          movementMode,
+          reachable: true,
+          movementType: MovementType.Walk,
+          automaticLandingRequired: true,
+          automaticLandingMode: 'wige',
+          automaticLandingDistance: 1,
+          automaticLandingMinimumDistance: 5,
+        });
+      } else {
+        expect(airbornePreview).toMatchObject({
+          mpCost: Infinity,
+          heatGenerated: 0,
+          movementMode,
+          reachable: false,
+          movementType: MovementType.Walk,
+          blockedReason: reason,
+          movementInvalidReason: 'InvalidDestination',
+          movementInvalidDetails: reason,
+          altitudeControlRequired: true,
+          altitudeControlMode: movementMode,
+          altitudeControlAltitude: 2,
+        });
+      }
 
       const commit = validateCommittedMovement({
         grid,
@@ -2170,13 +2475,21 @@ describe('deriveReachableHexes', () => {
           { q: 1, r: 0 },
         ],
       });
-      expect(commit).toMatchObject({
-        valid: false,
-        reason: 'InvalidDestination',
-        details: reason,
-        mpCost: Infinity,
-        heatGenerated: 0,
-      });
+      if (movementMode === 'wige') {
+        expect(commit).toMatchObject({
+          valid: true,
+          mpCost: 1,
+          heatGenerated: 0,
+        });
+      } else {
+        expect(commit).toMatchObject({
+          valid: false,
+          reason: 'InvalidDestination',
+          details: reason,
+          mpCost: Infinity,
+          heatGenerated: 0,
+        });
+      }
 
       const landedPreview = deriveMovementRangeHexForDestination(
         landedUnit,
@@ -2241,6 +2554,83 @@ describe('deriveReachableHexes', () => {
       });
     },
   );
+
+  it('counts prior WiGE movement before showing automatic landing metadata', () => {
+    let grid = createHexGrid({ radius: 5 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 0);
+    const capability: IMovementCapability = {
+      walkMP: 5,
+      runMP: 7,
+      jumpMP: 0,
+      movementMode: 'wige',
+    };
+    const unit = {
+      ...makeUnitAtOrigin(),
+      hexesMovedThisTurn: 4,
+      combatState: {
+        kind: 'vehicle' as const,
+        state: createVehicleCombatState({
+          unitId: 'u1',
+          motionType: GroundMotionType.WIGE,
+          originalCruiseMP: 5,
+          armor: {},
+          structure: {},
+          altitude: 2,
+        }),
+      },
+    };
+
+    const preview = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      capability,
+      { q: 1, r: 0 },
+    );
+
+    expect(preview).toMatchObject({
+      mpCost: 1,
+      movementMode: 'wige',
+      reachable: true,
+      movementType: MovementType.Walk,
+    });
+    expect(preview?.automaticLandingRequired).toBeUndefined();
+    expect(preview?.automaticLandingDistance).toBeUndefined();
+  });
+
+  it('does not show automatic landing metadata for represented hover-style WiGE movement', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 0);
+    const unit = {
+      ...makeUnitAtOrigin(),
+      conversionMode: 'airmek' as const,
+      lamAirMekAltitude: 2,
+    };
+
+    const preview = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      {
+        walkMP: 3,
+        runMP: 5,
+        jumpMP: 0,
+        movementMode: 'hover',
+      },
+      { q: 1, r: 0 },
+    );
+
+    expect(preview).toMatchObject({
+      mpCost: 1,
+      movementMode: 'hover',
+      reachable: true,
+      movementType: MovementType.Walk,
+    });
+    expect(preview?.automaticLandingRequired).toBeUndefined();
+    expect(preview?.automaticLandingDistance).toBeUndefined();
+  });
 
   it('reserves represented WiGE altitude-control MP before landed ground movement', () => {
     const grid = createHexGrid({ radius: 3 });

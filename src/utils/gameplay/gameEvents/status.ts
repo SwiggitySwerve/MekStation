@@ -2,6 +2,7 @@ import {
   GameEventType,
   GamePhase,
   ICriticalHitResolvedPayload,
+  ICriticalHitPayload,
   IAmmoExplosionPayload,
   IGameEvent,
   IHeatPayload,
@@ -192,6 +193,38 @@ export function createAmmoExplosionEvent(
       turn,
       phase,
       unitId,
+    ),
+    payload,
+  };
+}
+
+export function createCriticalHitEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  location: string,
+  sourceUnitId?: string,
+  component?: string,
+  count?: number,
+): IGameEvent {
+  const payload: ICriticalHitPayload = {
+    unitId,
+    location,
+    ...(sourceUnitId !== undefined ? { sourceUnitId } : {}),
+    ...(component !== undefined ? { component } : {}),
+    ...(count !== undefined ? { count } : {}),
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.CriticalHit,
+      turn,
+      phase,
+      sourceUnitId ?? unitId,
     ),
     payload,
   };
