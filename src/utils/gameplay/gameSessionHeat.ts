@@ -866,7 +866,7 @@ export function resolveHeatPhase(
       options?.environmentalConditions !== undefined
         ? calculateEnvironmentalHeatModifier(options.environmentalConditions)
         : 0;
-    // Cool Under Fire is a local helper-only row until source authority exists.
+    // Cool Under Fire is a local out-of-scope row until source authority exists.
     const heatGenerationReduction = 0;
 
     const totalDissipation = Math.max(
