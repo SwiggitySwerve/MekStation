@@ -58,6 +58,13 @@ export function MovementReasonContextRows({
       data-movement-blocked-reason={movementInfo.blockedReason}
       data-movement-invalid-reason={movementInfo.movementInvalidReason}
       data-movement-invalid-details={movementInfo.movementInvalidDetails}
+      data-movement-altitude-control-required={
+        movementInfo.altitudeControlRequired ? 'true' : undefined
+      }
+      data-movement-altitude-control-mode={movementInfo.altitudeControlMode}
+      data-movement-altitude-control-altitude={
+        movementInfo.altitudeControlAltitude
+      }
       data-movement-reason={label}
       data-movement-reason-source-refs={movementSourceRefsAttribute}
       data-movement-reason-rule-refs={movementRuleRefsAttribute}

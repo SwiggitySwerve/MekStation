@@ -169,7 +169,31 @@ describe('unitStateToToken — vehicle projection', () => {
     expect(widen(token).altitude).toBe(3);
   });
 
-  it('does not project altitude for non-VTOL vehicles', () => {
+  it('projects WiGE altitude from vehicle combat state', () => {
+    const token = unitStateToToken(
+      'u1',
+      baseState({
+        combatState: {
+          kind: 'vehicle',
+          state: createVehicleCombatState({
+            unitId: 'u1',
+            motionType: GroundMotionType.WIGE,
+            originalCruiseMP: 10,
+            armor: {},
+            structure: {},
+            altitude: 2,
+          }),
+        },
+      }),
+      UNIT_INFO,
+    );
+
+    expect(token.unitType).toBe(TokenUnitType.Vehicle);
+    expect(widen(token).vehicleMotionType).toBe(VehicleMotionType.WiGE);
+    expect(widen(token).altitude).toBe(2);
+  });
+
+  it('does not project altitude for ground-only vehicles', () => {
     const token = unitStateToToken(
       'u1',
       baseState({
