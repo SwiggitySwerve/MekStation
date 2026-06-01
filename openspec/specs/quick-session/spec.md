@@ -194,6 +194,7 @@ Sequential `BatchRunner.runBatch` SHALL be the only execution path in this chang
 - **WHEN** PR CI executes the unit test shards
 - **THEN** those perf-sensitive suites SHALL be excluded from ordinary unit shards
 - **AND** a dedicated perf-smoke job SHALL run the same suites with explicit CI-scaled run counts and wall-clock budgets
+- **AND** the CI-scaled counts SHALL be small enough to keep the PR check fan-out inside the expected short feedback window
 - **AND** local/default test settings SHALL preserve the larger statistical and combat-integration proof counts for deeper validation
 
 #### Scenario: Output JSON validates against schema
