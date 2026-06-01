@@ -29,8 +29,75 @@ differential fixtures. Represented LAM AirMek-to-Mek conversion sequencing is
 covered by `pin-lam-airmek-mek-conversion-steps`, and AirMek-to-Mek conversion
 now clears represented AirMek WiGE elevation in line with MegaMek
 `MovePath.java:1699-1712` automatic landing behavior via
-`pin-lam-airmek-mek-automatic-landing`. Replayable gameplay events for runtime
-movement state are covered by
+`pin-lam-airmek-mek-automatic-landing`. AirMek Descend actions that land at
+altitude 0 now carry MegaMek `LandAirMek.java:789-847`
+landing-control required/not-required context via
+`pin-airmek-landing-control-context`, and required damaged landings now queue a
+canonical AirMek landing PSR via `queue-airmek-landing-psr`, then resolve that
+landing check in the same movement command via `resolve-airmek-landing-psr`.
+Short-distance automatic WiGE landing for represented positive-altitude WiGE
+vehicles, Glider ProtoMeks, and LAM AirMeks is now covered by
+`auto-land-short-wige-movement`, source-pinned to MegaMek
+`MovePath.java:1689-1738`, and replays through the same runtime movement-state
+channel used by altitude controls. The represented already-moved distance and
+UP/HOVER-style exemptions from the same MegaMek helper are now covered by
+`pin-wige-hover-distance-exemptions`, so the map no longer shows a `LAND`
+consequence or runtime landing patch when those source guards apply.
+Represented WiGE building-top climb cost is now covered by
+`pin-wige-building-climb-cost`, source-pinned to MegaMek
+`MoveStep.java:2844-2864`: the shared movement-cost helper adds the +2 MP
+climb-mode surcharge when entering a higher represented building ceiling while
+leaving the separate cliff behavior to explicit edge metadata. Directional
+sheer-cliff movement is now covered by
+`pin-directional-cliff-movement-metadata`, source-pinned to MegaMek
+`Hex.java:744-750` and `MoveStep.java:2858-2864` / `:3159-3178`: encoded
+cliff-top exits add the WiGE +1 MP ascent surcharge and block represented
+tracked/wheeled/hover vehicle ascent when no pavement/road surface cancels the
+cliff effect, without inferring cliffs from ordinary elevation deltas.
+Imported MegaMek board cliff metadata is covered by
+`import-megamek-cliff-top-exits`, source-pinned to MegaMek
+`Terrain.java:103-119`, `Terrain.java:302`, `Terrains.java:147-150`, and
+`Board.java:537-602`: `.board` `cliff_top:1:<exitMask>` entries now import as
+`cliffTopExits` only for in-board 1- or 2-level drops, so real map data drives
+the same movement projection instead of relying on hand-authored fixtures.
+Large MegaMek board labels are covered by
+`import-large-megamek-board-coordinates`, source-pinned to MegaMek
+`Coords.java:510-514`, `Board.java:1062-1063`, and real
+`170x120 Fort David.board` labels such as `10412`, `10016`, and `104120`:
+the parser now splits two-or-more digit column/row components against declared
+board dimensions so large-board terrain, elevation, and cliff metadata reaches
+the same tactical projection path instead of failing the old fixed-four-digit
+guard.
+The follow-on `audit-megamek-board-import-corpus` verifier now makes that import
+claim repeatable against a local MegaMek board checkout. Its first local run
+found ambiguous labels such as `10101` on `170x120 Fort David.board`; MekStation
+now uses MegaMek row order to disambiguate those labels, matching
+`Board.java:1062-1063`. The verified local corpus run parsed all 2,386 boards
+under `E:\Projects\megamek\megamek\data\boards` with 0 failures, covering
+3,638,056 hex rows, 382,251 large-coordinate rows, and 5,253 `cliff_top` rows.
+The follow-on `surface-cliff-exits-map-context` slice exposes represented
+`cliffTopExits` on hex metadata, terrain labels, terrain/elevation source
+details, and terrain hover context so the map explains directional cliff edges
+from imported terrain instead of hiding them inside movement-only diagnostics.
+The `surface-movement-option-source-details` slice expands the shared movement
+source reference so same-hex walk/run/jump options carry their reachable or
+blocked state, MP cost, terrain and elevation costs, heat, and blocked reason
+directly in `movement:megamek` projection metadata instead of only in visible
+badges/tooltips.
+The `source-movement-reach-badge` slice pins the normal reachable movement
+badge to that same source-backed path, so the standing MP badge now exposes
+`movement:megamek` source refs, MegaMek rule refs, and projection explanation
+metadata before hover path preview replaces it.
+The `source-movement-step-cost-badge` slice extends that provenance to the
+separate terrain/elevation step-cost marker, so visible `T+`/`E+`/`UP`/`DN`
+cost labels also identify their shared `movement:megamek` source and rule
+references.
+The `source-hover-path-preview-badge` slice keeps the hovered path MP badge on
+that same source-backed path: hovering a reachable destination now preserves
+terrain/elevation cost, heat, `movement:megamek` source refs, and MegaMek rule
+refs on the preview badge instead of thinning the displayed commit preview to
+MP and movement type only.
+Replayable gameplay events for runtime movement state are covered by
 `apply-runtime-movement-state-events`; player-facing tactical command controls
 for represented conversion and infantry mount-state changes are covered by
 `wire-runtime-movement-state-controls`.
@@ -785,8 +852,41 @@ altitude from ground-map elevation. MekStation now tracks represented AirMek
 WiGE elevation in `lamAirMekAltitude`, exposes Climb/Descend controls in
 AirMek mode, dispatches replayable altitude-control MP reserves, caps Climb at
 25, and marks positive-elevation AirMek ground projection as altitude-control
-owned. Full elevated AirMek/WiGE pathing, takeoff/landing sequencing, and
-automatic WiGE landing remain follow-up work.
+owned. Represented short-distance automatic WiGE landing is covered by
+`auto-land-short-wige-movement`; full hover/takeoff/landing sequencing and
+broader elevated AirMek/WiGE pathing remain follow-up work.
+
+2026-05-31 LAM AirMek landing-control context pin: MegaMek
+`LandAirMek.java:789-847` requires an AirMek landing control roll only when
+effective gyro damage, a destroyed leg, upper/lower/foot actuator damage, or
+TacOps-enabled hip actuator damage is present. The first heavy-duty gyro hit is
+ignored for this gate, and MegaMek `OptionsConstants.java:460` /
+`GameOptions.java:240` identify `tacops_leg_damage` as disabled by default.
+MekStation now annotates final AirMek Descend-to-0 runtime events with
+landing-control required/not-required metadata, modifier totals, readable
+damage details, and an event-log explanation. `queue-airmek-landing-psr` now
+converts required landing metadata into a canonical `airmek_landing`
+`PSRTriggered` event, with landing-specific modifiers so generic gyro/actuator
+PSR modifiers do not double-count the source-backed landing check.
+`resolve-airmek-landing-psr` now resolves the landing roll immediately in
+movement-command order and emits `PSRResolved`, `UnitFell`, and `PilotHit` on
+failed represented descents. `use-airmek-landing-fall-tonnage` now carries
+adapted catalog tonnage into the interactive-session resolver map so failed
+AirMek landing falls scale the `UnitFell` damage by the moved unit instead of a
+placeholder. `apply-airmek-landing-fall-clusters` now applies those represented
+fall clusters through movement-phase `DamageApplied` events, so replay reduces
+armor/internal state after a failed AirMek landing. Broader crash extras such as
+`fanout-airmek-landing-destruction` now emits movement-phase
+`LocationDestroyed`, `TransferDamage`, and `UnitDestroyed` lifecycle events when
+those fall clusters destroy locations or the unit.
+`resolve-airmek-landing-crash-crits` now routes structure-exposing landing fall
+clusters through the shared critical-hit resolver and emits movement-phase
+`CriticalHit`, `CriticalHitResolved`, and `ComponentDestroyed` follow-through
+events. Short-distance forced landing from represented higher WiGE elevations is
+covered by `auto-land-short-wige-movement`; represented already-moved distance
+and hover-style exemptions are covered by
+`pin-wige-hover-distance-exemptions`; finer-grained hover/takeoff direction
+state remains follow-up work.
 
 Additional small-unit movement data pin: MegaMek `Infantry.java:560-568` and
 `BattleArmor.java:520-523` return walk MP as base run MP unless optional TacOps
@@ -888,8 +988,10 @@ reason. MekStation blocked VTOL/WiGE ground projections now carry
 altitude-control required, represented control mode, and represented altitude
 through top-down hex metadata, movement badges, invalid badges, accessible
 labels, tooltip reason rows, and same-hex option metadata. This is explanatory
-context only; full airborne altitude pathing, hover, takeoff, landing, and
-automatic WiGE landing remain follow-ups.
+context only; full airborne altitude pathing, VTOL landing, hover, takeoff,
+and non-represented airborne paths remain follow-ups.
+Represented short-distance WiGE auto-landing is covered separately by
+`auto-land-short-wige-movement`.
 
 2026-05-31 VTOL/WiGE altitude-control command pin: MegaMek
 `MovementDisplay.java:5268-5286` handles raise/lower controls by adding UP/DOWN
@@ -912,8 +1014,9 @@ projected movement costs and remaining budget, carries the metadata through
 top-down badges/tooltips/shared projection explanations, consumes the same
 reserve during committed movement validation, and clears the reserve when the
 movement declaration replays. Full airborne pathing, hover/takeoff/landing
-sequencing, automatic WiGE landing, and advanced WiGE subtype altitude ceilings
-remain follow-ups.
+sequencing and advanced WiGE subtype altitude ceilings remain follow-ups;
+represented short-distance WiGE auto-landing is covered by
+`auto-land-short-wige-movement`.
 
 2026-05-31 altitude-control clearance gate pin: MegaMek
 `Entity.java:2433-2497` derives minimum descent altitude from water, woods
@@ -925,7 +1028,8 @@ selected unit's encoded terrain, map elevation, and represented unit height to
 disable misleading altitude controls before dispatch while preserving the same
 replayable altitude-control event and MP reserve for legal commands. Remaining
 altitude-control gaps are full airborne pathing, hover/takeoff/landing
-sequencing, automatic WiGE landing, and LAM/ProtoMek-specific WiGE ceilings.
+sequencing and LAM/ProtoMek-specific WiGE ceilings; represented short-distance
+WiGE auto-landing is covered by `auto-land-short-wige-movement`.
 
 Tracked-vehicle browser update: the tactical-map browser harness now pairs the
 VTOL proof with a tracked ground-vehicle abrupt-climb scenario. The top-down map
@@ -1537,8 +1641,11 @@ projection now also surfaces represented altitude-control mode and altitude in
 top-down hex metadata, movement badges, invalid badges, accessible labels,
 tooltip reason rows, and same-hex option metadata via
 `surface-airborne-altitude-control-context`. Full airborne VTOL/WiGE altitude
-pathing, hover/takeoff/landing sequencing, clearance, automatic WiGE landing,
-and broad oracle sweeps remain follow-ups. Basic Climb/Descend runtime
+pathing, hover/takeoff/landing sequencing, clearance, and broad oracle sweeps
+remain follow-ups. Represented short-distance WiGE auto-landing is covered by
+`auto-land-short-wige-movement`, and the represented prior-distance plus
+hover-style exemptions for that auto-landing helper are covered by
+`pin-wige-hover-distance-exemptions`. Basic Climb/Descend runtime
 altitude-control commands now exist via `wire-vtol-wige-altitude-controls`, but
 full UP/DOWN MP accounting and terrain-clearance-specific gates remain pending.
 

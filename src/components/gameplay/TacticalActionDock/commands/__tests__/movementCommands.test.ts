@@ -884,6 +884,25 @@ describe('movementCommands', () => {
       }),
     ).toEqual({ available: true });
     expect(
+      lamAirMekDescend.commit({
+        ...lamAirMekCtx,
+        activeUnitLamAirMekAltitude: 1,
+      }),
+    ).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'altitude_control_action',
+        lamAirMekAltitude: 0,
+        lamAirMekLandingControlRequired: false,
+        lamAirMekLandingControlReason: 'Check not required for landing',
+        lamAirMekLandingControlModifier: 0,
+        lamAirMekLandingControlModifierDetails: [],
+        lamAirMekLandingControlFallHeight: 1,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+      },
+    });
+    expect(
       lamAirMekDescend.availability({
         ...lamAirMekCtx,
         activeUnitLamAirMekAltitude: 0,
@@ -891,6 +910,112 @@ describe('movementCommands', () => {
     ).toEqual({
       available: false,
       reason: 'Altitude controls are already at altitude 0.',
+    });
+  });
+
+  it('adds source-backed AirMek landing control context for damaged landings', () => {
+    const ctx = makeCtx({
+      activeUnitProne: false,
+      activeUnitConversionMode: 'airmek',
+      activeUnitLamAirMekAltitude: 1,
+      activeUnitComponentDamage: makeComponentDamage({
+        gyroHits: 1,
+        actuatorsByLocation: {
+          left_leg: { [ActuatorType.FOOT]: true },
+        },
+      }),
+      activeUnitDestroyedLocations: ['right_leg'],
+      movementCapability: {
+        walkMP: 6,
+        runMP: 9,
+        jumpMP: 0,
+        movementMode: 'wige',
+        unitHeightProfile: { kind: 'lam', standingHeight: 1 },
+      },
+    });
+    const descend = buildMovementCommands(ctx).find(
+      (c) => c.id === 'movement.altitudeDown',
+    )!;
+
+    expect(descend.availability(ctx)).toEqual({ available: true });
+    expect(descend.commit(ctx)).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'altitude_control_action',
+        lamAirMekAltitude: 0,
+        lamAirMekLandingControlRequired: true,
+        lamAirMekLandingControlReason: 'landing with gyro or leg damage',
+        lamAirMekLandingControlModifier: 6,
+        lamAirMekLandingControlModifierDetails: [
+          'Gyro damage requires landing control roll',
+          'Left Leg Foot Actuator destroyed +1',
+          'Right Leg destroyed +5',
+        ],
+        lamAirMekLandingControlFallHeight: 1,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+      },
+    });
+  });
+
+  it('keeps heavy-duty gyro first-hit and hip-only landing checks source-gated', () => {
+    const ctx = makeCtx({
+      activeUnitProne: false,
+      activeUnitConversionMode: 'airmek',
+      activeUnitLamAirMekAltitude: 1,
+      activeUnitGyroType: 'Heavy Duty',
+      activeUnitComponentDamage: makeComponentDamage({
+        gyroHits: 1,
+        actuatorsByLocation: {
+          left_leg: { [ActuatorType.HIP]: true },
+        },
+      }),
+      movementCapability: {
+        walkMP: 6,
+        runMP: 9,
+        jumpMP: 0,
+        movementMode: 'wige',
+        unitHeightProfile: { kind: 'lam', standingHeight: 1 },
+      },
+    });
+    const descend = buildMovementCommands(ctx).find(
+      (c) => c.id === 'movement.altitudeDown',
+    )!;
+
+    expect(descend.commit(ctx)).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'altitude_control_action',
+        lamAirMekAltitude: 0,
+        lamAirMekLandingControlRequired: false,
+        lamAirMekLandingControlReason: 'Check not required for landing',
+        lamAirMekLandingControlModifier: 0,
+        lamAirMekLandingControlModifierDetails: [],
+        lamAirMekLandingControlFallHeight: 1,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+      },
+    });
+    expect(
+      descend.commit({
+        ...ctx,
+        optionalRules: ['tacops_leg_damage'],
+      }),
+    ).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'altitude_control_action',
+        lamAirMekAltitude: 0,
+        lamAirMekLandingControlRequired: true,
+        lamAirMekLandingControlReason: 'landing with gyro or leg damage',
+        lamAirMekLandingControlModifier: 2,
+        lamAirMekLandingControlModifierDetails: [
+          'Left Leg Hip Actuator destroyed +2',
+        ],
+        lamAirMekLandingControlFallHeight: 1,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+      },
     });
   });
 

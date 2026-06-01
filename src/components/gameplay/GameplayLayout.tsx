@@ -981,6 +981,7 @@ export function GameplayLayout({
               activeUnitComponentDamage: selectedUnit?.componentDamage,
               activeUnitGyroType: selectedUnit?.gyroType,
               activeUnitDestroyedLocations: selectedUnit?.destroyedLocations,
+              optionalRules: session.config.optionalRules,
               movementCapability: selectedMovementCapability,
             }}
             shellMode={shellMode}

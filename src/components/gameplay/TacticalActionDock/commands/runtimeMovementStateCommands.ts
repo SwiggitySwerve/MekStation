@@ -10,6 +10,7 @@ import { movementDeclarationLockInvalidState } from '@/utils/gameplay/movement';
 import { terrainFeaturesFromString } from '@/utils/gameplay/terrainEncoding';
 import { parseWaterDepth } from '@/utils/gameplay/waterDepth';
 
+import { lamAirMekLandingControlPatch } from './runtimeAirMekLandingControl';
 import {
   normalizedCommandConversionMode,
   runtimeLamAirMekAutomaticLandingPatch,
@@ -320,11 +321,14 @@ const MovementAltitudeDownCommand: ITacticalCommand = {
     return { available: true };
   },
   commit(ctx) {
+    const currentAltitude = currentVehicleAltitude(ctx);
+    const nextAltitude = currentAltitude - 1;
     return {
       actionId: 'runtime-movement-state',
       payload: {
         source: 'altitude_control_action',
-        ...altitudeControlAltitudePatch(ctx, currentVehicleAltitude(ctx) - 1),
+        ...altitudeControlAltitudePatch(ctx, nextAltitude),
+        ...lamAirMekLandingControlPatch(ctx, currentAltitude, nextAltitude),
         altitudeControlStepCount: 1,
         altitudeControlMpCost: 1,
       },

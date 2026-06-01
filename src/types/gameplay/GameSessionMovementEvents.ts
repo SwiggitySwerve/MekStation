@@ -307,6 +307,7 @@ export interface IRuntimeMovementStateChangedPayload {
   readonly source:
     | 'conversion_action'
     | 'altitude_control_action'
+    | 'automatic_wige_landing'
     | 'infantry_mount_action'
     | 'scenario_setup'
     | 'rules_correction';
@@ -326,6 +327,16 @@ export interface IRuntimeMovementStateChangedPayload {
   readonly altitudeControlStepCount?: number;
   /** Represented MP cost of the altitude-control action before later movement steps. */
   readonly altitudeControlMpCost?: number;
+  /** True when a LAM AirMek descent to ground level needs a landing control roll. */
+  readonly lamAirMekLandingControlRequired?: boolean;
+  /** Source-backed reason label for the represented AirMek landing control result. */
+  readonly lamAirMekLandingControlReason?: string;
+  /** Net landing control roll modifier represented from damaged legs/actuators. */
+  readonly lamAirMekLandingControlModifier?: number;
+  /** Human-readable modifier breakdown for AirMek landing control explanation. */
+  readonly lamAirMekLandingControlModifierDetails?: readonly string[];
+  /** Elevation/altitude height used for failed AirMek landing fall damage. */
+  readonly lamAirMekLandingControlFallHeight?: number;
   readonly infantryMounted?: boolean | null;
   readonly infantryMountHeight?: number | null;
 }
