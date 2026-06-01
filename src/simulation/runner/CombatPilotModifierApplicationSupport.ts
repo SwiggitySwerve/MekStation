@@ -206,9 +206,9 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
       ...MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS,
     ],
   ),
-  'legacy-pain-resistance-to-hit-application': unsupported(
+  'legacy-pain-resistance-to-hit-application': integrated(
     'legacy-pain-resistance-to-hit-application',
-    'MegaMek source uses Pain Resistance for consciousness/wake-up rolls and ammunition-explosion pilot-damage reduction, not ranged to-hit wound-penalty relief; MekStation no longer applies Pain Resistance to ranged wound penalties',
+    'MegaMek source uses Pain Resistance for consciousness/wake-up rolls and ammunition-explosion pilot-damage reduction, not ranged to-hit wound-penalty relief; calculateToHit, runAttackPhase, and declareAttack preserve raw pilot wound penalties when attackers have Pain Resistance',
     [
       ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
       ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
@@ -398,7 +398,7 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
     quirkIds: ['distracting', 'low_profile'],
   },
   'legacy-pain-resistance-to-hit-application': {
-    spaIds: ['pain-resistance'],
+    spaIds: [],
     quirkIds: [],
   },
   'called-shot-application': {
