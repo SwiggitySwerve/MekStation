@@ -49,6 +49,8 @@ export interface IGameEngineConfig {
  * Carries weapon and movement capability info alongside the base state.
  */
 export interface IAdaptedUnit extends IUnitGameState {
+  /** Unit mass in tons for rules that scale damage by chassis weight. */
+  readonly tonnage?: number;
   /** Weapons equipped on this unit */
   readonly weapons: readonly IWeapon[];
   /** Walking movement points */

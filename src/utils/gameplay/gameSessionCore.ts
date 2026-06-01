@@ -355,6 +355,8 @@ export function declareMovement(
     readonly goProneAttempt?: boolean;
     readonly conversionStepCount?: number;
     readonly conversionMpCost?: number;
+    readonly altitudeControlStepCount?: number;
+    readonly altitudeControlMpCost?: number;
   },
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.Movement) {

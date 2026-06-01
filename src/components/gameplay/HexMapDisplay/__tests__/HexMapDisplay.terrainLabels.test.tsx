@@ -405,6 +405,73 @@ describe('HexMapDisplay terrain and elevation labels', () => {
     });
   });
 
+  it('surfaces represented cliff exits in hex labels and terrain hover context', () => {
+    const cliffTerrain: IHexTerrain = {
+      coordinate: { q: 1, r: 0 },
+      elevation: 2,
+      features: [
+        {
+          type: TerrainType.Rough,
+          level: 1,
+          cliffTopExits: [Facing.North, Facing.Southeast],
+        },
+      ],
+    };
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="cliff-exit-terrain-labels"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        hexTerrain={[cliffTerrain]}
+      />,
+    );
+
+    const cliffHex = screen.getByTestId('hex-1-0');
+    expect(cliffHex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('terrain rough L1 cliff edges N,SE'),
+    );
+    expect(cliffHex).toHaveAttribute('data-terrain-cliff-exits', '0,2');
+    expect(cliffHex).toHaveAttribute('data-terrain-cliff-exit-labels', 'N,SE');
+    expect(cliffHex).toHaveAttribute(
+      'data-tactical-projection-sources',
+      expect.stringContaining(
+        'terrain-elevation:mekstation:Rendered map terrain/elevation grid:rough level 1 cliff edges N/SE elevation 2',
+      ),
+    );
+
+    const terrainBadge = screen.getByTestId('hex-terrain-label-1-0');
+    expect(terrainBadge).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('Terrain rough L1 cliff edges N,SE'),
+    );
+    expect(terrainBadge).toHaveAttribute('data-terrain-cliff-exits', '0,2');
+    expect(terrainBadge).toHaveAttribute(
+      'data-terrain-cliff-exit-labels',
+      'N,SE',
+    );
+
+    fireEvent.mouseEnter(cliffHex);
+
+    const cliffContext = screen.getByTestId('hex-terrain-tooltip-cliff-exits');
+    expect(cliffContext).toHaveTextContent('Cliff edges: North, Southeast');
+    expect(cliffContext).toHaveAttribute('data-terrain-cliff-exits', '0,2');
+    expect(cliffContext).toHaveAttribute(
+      'data-terrain-cliff-exit-labels',
+      'N,SE',
+    );
+    expect(cliffContext).toHaveAttribute(
+      'data-terrain-source-refs',
+      expect.stringContaining('rough level 1 cliff edges N/SE elevation 2'),
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('renders represented building levels as isometric stack layers on flat terrain', () => {
     const flatBuilding: IHexTerrain = {
       coordinate: { q: 1, r: 0 },

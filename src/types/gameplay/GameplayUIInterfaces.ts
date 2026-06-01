@@ -303,8 +303,9 @@ export interface IVehicleToken extends IUnitTokenBase {
   /** Turret facing in 8-directions (0=N, 1=NE, …, 7=NW). Absent if no turret. */
   readonly turretFacing?: number;
   /**
-   * Current VTOL altitude level. Undefined for non-VTOL vehicles or callers
-   * that have not projected vehicle combat state yet. 0 = hover.
+   * Current altitude level for altitude-tracked vehicle motives such as VTOL
+   * and WiGE. Undefined for ground-only vehicles or callers that have not
+   * projected vehicle combat state yet. 0 = hover/landed.
    */
   readonly altitude?: number;
 }
@@ -460,6 +461,26 @@ export interface IMovementRangeModeOption {
   readonly conversionStepCount?: number;
   /** MP reserved by represented conversion steps before this movement option. */
   readonly conversionMpCost?: number;
+  /** Represented altitude-control steps reserved before this movement option. */
+  readonly altitudeControlStepCount?: number;
+  /** MP reserved by represented altitude-control steps before this movement option. */
+  readonly altitudeControlMpCost?: number;
+  /** True when altitude controls, not ground movement, own this option. */
+  readonly altitudeControlRequired?: boolean;
+  /** Altitude-control motive that owns this option, when represented. */
+  readonly altitudeControlMode?: 'vtol' | 'wige';
+  /** Represented altitude that triggered altitude-control ownership. */
+  readonly altitudeControlAltitude?: number;
+  /** True when source-backed WiGE rules will force a landing after this move. */
+  readonly automaticLandingRequired?: boolean;
+  /** Player-facing reason for the automatic landing consequence. */
+  readonly automaticLandingReason?: string;
+  /** Motive mode whose automatic landing rule owns this consequence. */
+  readonly automaticLandingMode?: 'wige';
+  /** Hexes moved for the automatic landing minimum-distance check. */
+  readonly automaticLandingDistance?: number;
+  /** Minimum hex distance needed to remain airborne for this unit. */
+  readonly automaticLandingMinimumDistance?: number;
   /** True when a hull-down unit must leave hull-down before this option. */
   readonly hullDownExitRequired?: boolean;
   /** MP reserved for leaving hull-down before entering this option's path. */
@@ -497,6 +518,26 @@ export interface IMovementRangeHex {
   readonly conversionStepCount?: number;
   /** MP reserved by represented conversion steps before this movement projection. */
   readonly conversionMpCost?: number;
+  /** Represented altitude-control steps reserved before this movement projection. */
+  readonly altitudeControlStepCount?: number;
+  /** MP reserved by represented altitude-control steps before this movement projection. */
+  readonly altitudeControlMpCost?: number;
+  /** True when altitude controls, not ground movement, own this projection. */
+  readonly altitudeControlRequired?: boolean;
+  /** Altitude-control motive that owns this projection, when represented. */
+  readonly altitudeControlMode?: 'vtol' | 'wige';
+  /** Represented altitude that triggered altitude-control ownership. */
+  readonly altitudeControlAltitude?: number;
+  /** True when source-backed WiGE rules will force a landing after this move. */
+  readonly automaticLandingRequired?: boolean;
+  /** Player-facing reason for the automatic landing consequence. */
+  readonly automaticLandingReason?: string;
+  /** Motive mode whose automatic landing rule owns this consequence. */
+  readonly automaticLandingMode?: 'wige';
+  /** Hexes moved for the automatic landing minimum-distance check. */
+  readonly automaticLandingDistance?: number;
+  /** Minimum hex distance needed to remain airborne for this unit. */
+  readonly automaticLandingMinimumDistance?: number;
   /** True when a hull-down unit must leave hull-down before this movement can resolve. */
   readonly hullDownExitRequired?: boolean;
   /** MP reserved for leaving hull-down before entering the projected path. */
