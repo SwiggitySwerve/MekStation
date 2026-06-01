@@ -66,11 +66,7 @@ import {
   getWeaponCoolingHeatModifier,
   getWeaponQuirks,
 } from './quirkModifiers';
-import {
-  getCoolUnderFireHeatReduction,
-  getHotDogHeatTargetNumberModifier,
-  hasSPA,
-} from './spaModifiers';
+import { getHotDogHeatTargetNumberModifier, hasSPA } from './spaModifiers';
 
 /**
  * Per `wire-heat-generation-and-effects` task 5 (water cooling) and
@@ -870,12 +866,8 @@ export function resolveHeatPhase(
       options?.environmentalConditions !== undefined
         ? calculateEnvironmentalHeatModifier(options.environmentalConditions)
         : 0;
-    const heatGenerationReduction = Math.min(
-      getCoolUnderFireHeatReduction(
-        unitState.abilities ?? unit.abilities ?? [],
-      ),
-      heatFromMovement + heatFromWeapons + heatFromEngine + heatFromEnvironment,
-    );
+    // Cool Under Fire is a local helper-only row until source authority exists.
+    const heatGenerationReduction = 0;
 
     const totalDissipation = Math.max(
       0,
