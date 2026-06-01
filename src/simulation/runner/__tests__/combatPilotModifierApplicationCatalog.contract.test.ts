@@ -466,9 +466,9 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ]);
 
     expect(QUIRK_COMBAT_SUPPORT.low_profile).toMatchObject({
-      level: 'helper-only',
-      evidence: expect.stringContaining('local +1 target to-hit helper'),
-      gap: expect.stringContaining('glancing-blow handling'),
+      level: 'unsupported',
+      evidence: expect.stringContaining('glancing-blow handling'),
+      gap: expect.stringContaining('glancing blows'),
     });
     expect(lowProfileRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek WeaponHandler.isLowProfileGlancingBlow applies Low Profile as glancing-blow handling when the attack roll equals the target number or target number plus one.',
