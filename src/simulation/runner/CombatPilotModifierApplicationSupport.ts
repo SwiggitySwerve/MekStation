@@ -455,7 +455,6 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
   'psr-spa-application': {
     spaIds: [
       'maneuvering-ace',
-      'terrain-master',
       'tm_frogman',
       'tm_mountaineer',
       'tm_swamp_beast',
