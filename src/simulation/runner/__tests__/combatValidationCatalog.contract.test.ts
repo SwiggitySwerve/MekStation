@@ -174,14 +174,14 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 99,
+      total: 98,
       byLevel: {
         'helper-only': 89,
-        unsupported: 10,
+        unsupported: 9,
       },
       bySection: {
         damageAndDeath: 2,
-        featureSupport: 60,
+        featureSupport: 59,
         pilotSkills: 12,
         ruleSupport: 9,
         validationScope: 16,
@@ -301,6 +301,9 @@ describe('BattleMech combat validation catalog index', () => {
     );
     expect(unresolvedRefs).not.toContain(
       'featureSupport.pilotAbilities.cool-under-fire',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.evasive',
     );
     expect(unresolvedRefs).not.toContain(
       'featureSupport.pilotAbilities.natural-grace',
@@ -424,6 +427,7 @@ describe('BattleMech combat validation catalog index', () => {
         'featureSupport.pilotAbilities.antagonizer',
         'featureSupport.pilotAbilities.combat-intuition',
         'featureSupport.pilotAbilities.cool-under-fire',
+        'featureSupport.pilotAbilities.evasive',
         'featureSupport.canonicalPilotAbilityScope.aptitude_gunnery',
         'featureSupport.canonicalPilotAbilityScope.aptitude_piloting',
         'featureSupport.canonicalPilotAbilityScope.atow_combat_paralysis',
@@ -470,7 +474,7 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.wireIntents.SetReady',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(90);
+    expect(outOfScopeRows).toHaveLength(91);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('actions.physicalActionClassScope.'),
@@ -544,6 +548,7 @@ describe('BattleMech combat validation catalog index', () => {
       'featureSupport.pilotAbilities.combat-intuition',
       'featureSupport.pilotAbilities.cool-under-fire',
       'featureSupport.pilotAbilities.cross-country',
+      'featureSupport.pilotAbilities.evasive',
       'featureSupport.pilotAbilities.marksman',
       'featureSupport.pilotAbilities.natural-grace',
       'featureSupport.pilotAbilities.sharpshooter',
