@@ -70,6 +70,7 @@ export function applyRunnerHeatPilotDamage(
     pilotHeatDamage,
     unit.abilities ?? [],
     d6Roller,
+    unit.pilotToughness,
   );
   const pilotConscious =
     pilotWounds < LETHAL_PILOT_WOUNDS &&
