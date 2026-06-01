@@ -8,9 +8,10 @@ import type {
   IMovementRangeModeOption,
 } from '@/types/gameplay';
 
-import { TerrainType } from '@/types/gameplay';
+import { Facing, TerrainType } from '@/types/gameplay';
 
 import { coordToKey, hexEquals } from './hexMath';
+import { getFacingAbbreviation } from './unitPosition';
 
 export type TacticalMapHexProjectionIntent =
   | 'terrain'
@@ -446,6 +447,16 @@ function movementOptionsForProjection(
       heatGenerated: movement.heatGenerated,
       conversionStepCount: movement.conversionStepCount,
       conversionMpCost: movement.conversionMpCost,
+      altitudeControlStepCount: movement.altitudeControlStepCount,
+      altitudeControlMpCost: movement.altitudeControlMpCost,
+      altitudeControlRequired: movement.altitudeControlRequired,
+      altitudeControlMode: movement.altitudeControlMode,
+      altitudeControlAltitude: movement.altitudeControlAltitude,
+      automaticLandingRequired: movement.automaticLandingRequired,
+      automaticLandingReason: movement.automaticLandingReason,
+      automaticLandingMode: movement.automaticLandingMode,
+      automaticLandingDistance: movement.automaticLandingDistance,
+      automaticLandingMinimumDistance: movement.automaticLandingMinimumDistance,
       blockedReason: movement.blockedReason,
       movementInvalidReason: movement.movementInvalidReason,
       movementInvalidDetails: movement.movementInvalidDetails,
@@ -575,7 +586,23 @@ function formatTerrainFeatureSourceDetail(
   if (feature.constructionFactor !== undefined) {
     parts.push(`CF ${feature.constructionFactor}`);
   }
+  const cliffExits = Array.from(
+    new Set(feature.cliffTopExits?.filter(isFacing) ?? []),
+  ).sort((a, b) => a - b);
+  if (cliffExits.length > 0) {
+    parts.push(
+      `cliff edges ${cliffExits.map(getFacingAbbreviation).join('/')}`,
+    );
+  }
   return parts.join(' ');
+}
+
+function isFacing(value: number): value is Facing {
+  return (
+    Number.isInteger(value) &&
+    value >= Facing.North &&
+    value <= Facing.Northwest
+  );
 }
 
 function formatTerrainFeatureLevelSourceDetail(
@@ -604,7 +631,9 @@ function formatMovementSourceDetail(movement: IMovementRangeHex): string {
       ),
     ),
   );
-  return `${modes.join(',')} projection`;
+  return `${modes.join(',')} projection: ${options
+    .map(formatMovementOption)
+    .join(', ')}`;
 }
 
 function movementHasStandUpContext(movement: IMovementRangeHex): boolean {
@@ -852,6 +881,28 @@ function formatProjectionExplanation({
         } MP`,
       );
     }
+    if (
+      movement.altitudeControlStepCount !== undefined ||
+      movement.altitudeControlMpCost !== undefined
+    ) {
+      parts.push(
+        `altitude control ${movement.altitudeControlStepCount ?? 0} steps ${
+          movement.altitudeControlMpCost ?? 0
+        } MP`,
+      );
+    }
+    if (movement.automaticLandingRequired) {
+      parts.push(
+        `automatic landing ${movement.automaticLandingDistance ?? 0}/${
+          movement.automaticLandingMinimumDistance ?? 0
+        } hexes`,
+      );
+      if (movement.automaticLandingReason) {
+        parts.push(
+          `automatic landing reason ${movement.automaticLandingReason}`,
+        );
+      }
+    }
     if (movement.movementModeOptions?.length) {
       parts.push(
         `movement options ${movement.movementModeOptions
@@ -1045,11 +1096,23 @@ function formatMovementOption(option: IMovementRangeModeOption): string {
       : ` conversion ${option.conversionStepCount ?? 0} steps ${
           option.conversionMpCost ?? 0
         } MP`;
+  const altitudeControl =
+    option.altitudeControlStepCount === undefined &&
+    option.altitudeControlMpCost === undefined
+      ? ''
+      : ` altitude control ${option.altitudeControlStepCount ?? 0} steps ${
+          option.altitudeControlMpCost ?? 0
+        } MP`;
+  const automaticLanding = option.automaticLandingRequired
+    ? ` automatic landing ${option.automaticLandingDistance ?? 0}/${
+        option.automaticLandingMinimumDistance ?? 0
+      } hexes`
+    : '';
   const blockedDetail = movementOptionBlockedDetail(option);
   const blocked = blockedDetail ? `: ${blockedDetail}` : '';
   return `${option.movementType}${mode} ${
     option.reachable ? 'reachable' : 'blocked'
-  } ${option.mpCost} MP${terrain}${elevation}${heat}${conversion}${option.reachable ? '' : blocked}`;
+  } ${option.mpCost} MP${terrain}${elevation}${heat}${conversion}${altitudeControl}${automaticLanding}${option.reachable ? '' : blocked}`;
 }
 
 function formatMovementOptionElevation(
