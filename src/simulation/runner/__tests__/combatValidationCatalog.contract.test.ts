@@ -174,16 +174,16 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 118,
+      total: 117,
       byLevel: {
-        'helper-only': 101,
+        'helper-only': 100,
         unsupported: 17,
       },
       bySection: {
         damageAndDeath: 2,
         featureSupport: 73,
         lifecycleAndPsr: 2,
-        pilotSkills: 15,
+        pilotSkills: 14,
         ruleSupport: 9,
         validationScope: 17,
       },
@@ -278,6 +278,9 @@ describe('BattleMech combat validation catalog index', () => {
     );
     expect(unresolvedRefs).not.toContain(
       'pilotSkills.pilotModifierResolvers.called-shot-application',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'pilotSkills.pilotModifierResolvers.heat-application',
     );
     const unsupportedRefs = unresolvedRows
       .filter((row) => row.level === 'unsupported')
