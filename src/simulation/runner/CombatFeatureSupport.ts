@@ -663,9 +663,10 @@ export const SPA_COMBAT_SUPPORT = {
     'Source-backed calculateTerrainMasterDefensiveToHitModifier plus calculateToHit and runner target terrain hydration apply +1 to-hit against running targets in mud or swamp; calculatePSRModifiers applies Swamp Beast bog-down relief as -1 to swamp bog-down PSRs',
     MEGAMEK_325B_SWAMP_BEAST_SOURCE_REFS,
   ),
-  acrobat: unsupported(
+  acrobat: outOfScope(
     'acrobat',
-    'Local Acrobat DFA PSR modifier is not wired, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
+    'MekStation local SPA catalog defines Acrobat as a DFA PSR helper, but the pinned MegaMek pilot option registry does not identify Acrobat as an official BattleMech combat SPA',
+    'Local Acrobat behavior is excluded from the official BattleMech validation blocker inventory until a source-backed combat authority is identified',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
   'cross-country': outOfScope(
@@ -689,9 +690,10 @@ export const SPA_COMBAT_SUPPORT = {
     'The legacy Evasive SPA TMM bonus is not wired as a pilot ability; the MegaMek source-backed behavior is optional TacOps Evade movement with action, heat, attacker firing, and target modifier semantics plus optional Skilled Evasion scaling',
     MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
   ),
-  'natural-grace': unsupported(
+  'natural-grace': outOfScope(
     'natural-grace',
-    'Local Natural Grace fall PSR modifier is not wired, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
+    'MekStation local SPA catalog defines Natural Grace as a fall PSR helper, but the pinned MegaMek pilot option registry does not identify Natural Grace as an official BattleMech combat SPA',
+    'Local Natural Grace behavior is excluded from the official BattleMech validation blocker inventory until a source-backed combat authority is identified',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
   'iron-man': integrated(
@@ -733,14 +735,16 @@ export const SPA_COMBAT_SUPPORT = {
     'rollInitiative accepts a source-backed Tactical Genius reroll request, requires an active conscious unit with tactical_genius, replaces only that side raw 2d6 roll, and records original raw rolls separately',
     MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
   ),
-  'speed-demon': unsupported(
+  'speed-demon': outOfScope(
     'speed-demon',
-    'Local Speed Demon run-distance and heat tradeoff is not wired, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
+    'MekStation local SPA catalog defines Speed Demon as a run-distance and heat tradeoff helper, but the pinned MegaMek pilot option registry does not identify Speed Demon as an official BattleMech combat SPA',
+    'Local Speed Demon behavior is excluded from the official BattleMech validation blocker inventory until a source-backed combat authority is identified',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
-  'combat-intuition': unsupported(
+  'combat-intuition': outOfScope(
     'combat-intuition',
-    'Local Combat Intuition round-one initiative sequencing is not wired, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
+    'MekStation local SPA catalog defines Combat Intuition as a round-one initiative sequencing helper, but the pinned MegaMek pilot option registry does not identify Combat Intuition as an official BattleMech combat SPA',
+    'Local Combat Intuition behavior is excluded from the official BattleMech validation blocker inventory until a source-backed combat authority is identified',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
   'hot-dog': integrated(
@@ -748,10 +752,10 @@ export const SPA_COMBAT_SUPPORT = {
     'getHotDogHeatTargetNumberModifier plus runHeatPhase and resolveHeatPhase apply source-backed -1 startup/shutdown, heat-induced ammo-explosion, opt-in MaxTech pilot heat-damage, and opt-in MaxTech critical-damage avoid-number relief while preserving default life-support heat damage thresholds',
     MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
   ),
-  'cool-under-fire': helperOnly(
+  'cool-under-fire': outOfScope(
     'cool-under-fire',
     'getCoolUnderFireHeatReduction exposes the local generated-heat helper without being consumed by BattleMech heat resolution',
-    'No MegaMek source-backed Cool Under Fire ability id or generated-heat reduction path was found in commit 325b2504; keep this as local helper behavior outside the source-backed BattleMech heat resolver until an authority is identified',
+    'No MegaMek source-backed Cool Under Fire ability id or generated-heat reduction path was found in commit 325b2504; keep this local helper behavior outside the official BattleMech validation blocker inventory until an authority is identified',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
   'some-like-it-hot': integrated(
@@ -786,9 +790,10 @@ export const SPA_COMBAT_SUPPORT = {
     'getAnimalMimicryPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs and stand-up PSR paths apply the source-backed Animal Mimicry -1 modifier to explicit quad Mek PSRs',
     MEGAMEK_325B_ANIMAL_MIMICRY_SOURCE_REFS,
   ),
-  antagonizer: unsupported(
+  antagonizer: outOfScope(
     'antagonizer',
-    'Local Antagonizer target-priority enforcement is not wired, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
+    'MekStation local SPA catalog defines Antagonizer as target-priority enforcement, but the pinned MegaMek pilot option registry does not identify Antagonizer as an official BattleMech combat SPA',
+    'Local Antagonizer behavior is excluded from the official BattleMech validation blocker inventory until a source-backed combat authority is identified',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
