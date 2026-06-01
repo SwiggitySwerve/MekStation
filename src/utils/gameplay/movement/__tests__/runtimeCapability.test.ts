@@ -240,6 +240,37 @@ describe('runtime movement capability', () => {
         'wige',
       ),
     ).toBeUndefined();
+
+    const elevatedAirMek = unitState({
+      conversionMode: 'airmek',
+      lamAirMekAltitude: 2,
+    });
+
+    expect(
+      runtimeMovementProjectionBlockedReason(
+        elevatedAirMek,
+        capability,
+        'wige',
+      ),
+    ).toBeUndefined();
+    expect(runtimeMovementAltitudeControlContext(elevatedAirMek)).toMatchObject(
+      {
+        altitudeControlRequired: true,
+        altitudeControlMode: 'wige',
+        altitudeControlAltitude: 2,
+        blockedReason: AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON,
+      },
+    );
+    expect(
+      runtimeMovementAltitudeControlContext(
+        unitState({ conversionMode: 'airmek', lamAirMekAltitude: 0 }),
+      ),
+    ).toBeUndefined();
+    expect(
+      runtimeMovementAltitudeControlContext(
+        unitState({ conversionMode: 'mek', lamAirMekAltitude: 2 }),
+      ),
+    ).toBeUndefined();
   });
 
   it('blocks represented airborne VTOL and WiGE vehicles from ground movement projection fallback', () => {
@@ -296,7 +327,7 @@ describe('runtime movement capability', () => {
           capability,
           movementMode,
         ),
-      ).toBe(reason);
+      ).toBe(movementMode === 'wige' ? undefined : reason);
       expect(
         runtimeMovementAltitudeControlContext(airborneVehicle),
       ).toMatchObject({
@@ -371,7 +402,7 @@ describe('runtime movement capability', () => {
         capability,
         'wige',
       ),
-    ).toBe(AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON);
+    ).toBeUndefined();
     expect(runtimeMovementAltitudeControlContext(airborneGlider)).toMatchObject(
       {
         altitudeControlRequired: true,

@@ -971,6 +971,7 @@ export function GameplayLayout({
                 selectedUnit?.combatState?.kind === 'proto'
                   ? (selectedUnit.combatState.state.altitude ?? 0)
                   : undefined,
+              activeUnitLamAirMekAltitude: selectedUnit?.lamAirMekAltitude,
               activeUnitTerrain: selectedUnitMapHex?.terrain,
               activeUnitElevation: selectedUnitMapHex?.elevation,
               activeUnitInfantryMounted: selectedUnit?.infantryMounted,
@@ -980,6 +981,7 @@ export function GameplayLayout({
               activeUnitComponentDamage: selectedUnit?.componentDamage,
               activeUnitGyroType: selectedUnit?.gyroType,
               activeUnitDestroyedLocations: selectedUnit?.destroyedLocations,
+              optionalRules: session.config.optionalRules,
               movementCapability: selectedMovementCapability,
             }}
             shellMode={shellMode}
