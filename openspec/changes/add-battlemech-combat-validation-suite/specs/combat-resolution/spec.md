@@ -1786,7 +1786,7 @@ Pilot skill use support rows SHALL expose structured row-level source references
 
 ### Requirement: Source-Backed Legacy Pilot Ability Support Rows
 
-Legacy `pilotAbilities` support rows SHALL expose structured row-level source references before the map is treated as validation coverage. Weapon Specialist, Gunnery Specialist, Blood Stalker, Cluster Hitter, Range Master, Sniper, Oblique Attacker, and Forward Observer rows SHALL cite pinned MegaMek behavior plus MekStation helper or runner paths. Marksman and Sharpshooter SHALL remain helper-only local called-shot helpers because MegaMek source backs TacOps called-shot penalties but does not validate those reductions. Melee Specialist SHALL apply both source-backed physical to-hit relief and +1 physical damage. Melee Master SHALL enforce the source-backed two-allowed-physical-attacks rule and SHALL NOT be treated as a flat physical damage bonus. Generic Terrain Master SHALL remain an unsupported variant-split row while source-backed Terrain Master variants are tracked separately.
+Legacy `pilotAbilities` support rows SHALL expose structured row-level source references before the map is treated as validation coverage. Weapon Specialist, Gunnery Specialist, Blood Stalker, Cluster Hitter, Range Master, Sniper, Oblique Attacker, and Forward Observer rows SHALL cite pinned MegaMek behavior plus MekStation helper or runner paths. Called-shot application SHALL be integrated only for the MegaMek-backed TacOps +3 called-shot penalty, and runner/event-sourced BattleMech attack declarations SHALL NOT apply local Marksman or legacy Sharpshooter called-shot reductions to that source-backed path. Marksman and Sharpshooter SHALL remain helper-only local called-shot helpers because MegaMek source backs TacOps called-shot penalties but does not validate those reductions. Melee Specialist SHALL apply both source-backed physical to-hit relief and +1 physical damage. Melee Master SHALL enforce the source-backed two-allowed-physical-attacks rule and SHALL NOT be treated as a flat physical damage bonus. Generic Terrain Master SHALL remain an unsupported variant-split row while source-backed Terrain Master variants are tracked separately.
 
 #### Scenario: Legacy pilot ability rows expose source truth
 
@@ -1794,6 +1794,7 @@ Legacy `pilotAbilities` support rows SHALL expose structured row-level source re
 - **WHEN** any `pilotAbilities` support row is inspected
 - **THEN** the row SHALL carry at least one structured source reference with a line anchor
 - **AND** the `pilotAbilities` catalog triad SHALL enforce row-level source references before PR approval
+- **AND** called-shot application SHALL remain integrated only when runner and event-sourced BattleMech attack declarations apply the +3 TacOps called-shot penalty without consuming Marksman or legacy Sharpshooter reductions
 - **AND** Melee Specialist rows SHALL be integrated only when both physical to-hit and +1 physical damage behavior are wired
 - **AND** Melee Master rows SHALL be integrated only when event-sourced declarations, P2P translation, UI planning, and catalog evidence enforce one physical attack for normal pilots, two physical attacks for Melee Master pilots, independent same-limb reuse rejection, and no flat physical damage behavior
 
