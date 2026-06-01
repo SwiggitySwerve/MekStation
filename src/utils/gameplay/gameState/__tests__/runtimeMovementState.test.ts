@@ -26,7 +26,6 @@ import { validateCommittedMovement } from '@/utils/gameplay/movement/commitValid
 import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/reachable';
 import {
   AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON,
-  AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON,
   runtimeMovementAltitudeControlContext,
   runtimeMovementProjectionBlockedReason,
 } from '@/utils/gameplay/movement/runtimeCapability';
@@ -188,7 +187,7 @@ describe('runtime movement state events', () => {
 
     expect(
       runtimeMovementProjectionBlockedReason(unit, capability, 'wige'),
-    ).toBe(AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON);
+    ).toBeUndefined();
     expect(runtimeMovementAltitudeControlContext(unit)).toMatchObject({
       altitudeControlMode: 'wige',
       altitudeControlAltitude: 1,
@@ -289,7 +288,7 @@ describe('runtime movement state events', () => {
 
     expect(
       runtimeMovementProjectionBlockedReason(unit, capability, 'wige'),
-    ).toBe(AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON);
+    ).toBeUndefined();
     expect(runtimeMovementAltitudeControlContext(unit)).toMatchObject({
       altitudeControlMode: 'wige',
       altitudeControlAltitude: 1,
@@ -352,7 +351,7 @@ describe('runtime movement state events', () => {
 
     expect(
       runtimeMovementProjectionBlockedReason(unit, capability, 'wige'),
-    ).toBe(AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON);
+    ).toBeUndefined();
     expect(runtimeMovementAltitudeControlContext(unit)).toMatchObject({
       altitudeControlMode: 'wige',
       altitudeControlAltitude: 1,
@@ -369,10 +368,25 @@ describe('runtime movement state events', () => {
         lamAirMekAltitude: 0,
         altitudeControlStepCount: 1,
         altitudeControlMpCost: 1,
+        lamAirMekLandingControlRequired: true,
+        lamAirMekLandingControlReason: 'landing with gyro or leg damage',
+        lamAirMekLandingControlModifier: 1,
+        lamAirMekLandingControlModifierDetails: [
+          'Left Leg Foot Actuator destroyed +1',
+        ],
       },
     );
     const nextState = applyEvent(stateWithUnit(unit), event);
     const landed = nextState.units[unit.id];
+
+    expect(event.payload).toMatchObject({
+      lamAirMekLandingControlRequired: true,
+      lamAirMekLandingControlReason: 'landing with gyro or leg damage',
+      lamAirMekLandingControlModifier: 1,
+      lamAirMekLandingControlModifierDetails: [
+        'Left Leg Foot Actuator destroyed +1',
+      ],
+    });
 
     expect(landed).toMatchObject({
       conversionMode: 'airmek',
@@ -495,6 +509,7 @@ describe('runtime movement state events', () => {
       destroyed: false,
       lockState: LockState.Pending,
       conversionMode: 'airmek',
+      lamAirMekAltitude: 2,
     };
     const conversion = createRuntimeMovementStateChangedEvent(
       'game-1',
@@ -504,6 +519,7 @@ describe('runtime movement state events', () => {
       {
         source: 'conversion_action',
         conversionMode: 'mek',
+        lamAirMekAltitude: 0,
         conversionStepCount: 2,
         conversionMpCost: 0,
       },
@@ -514,6 +530,7 @@ describe('runtime movement state events', () => {
     ];
     expect(converted).toMatchObject({
       conversionMode: 'mek',
+      lamAirMekAltitude: 0,
       pendingConversionStepCount: 2,
       pendingConversionMpCost: 0,
     });
@@ -534,6 +551,17 @@ describe('runtime movement state events', () => {
       conversionStepCount: 2,
       conversionMpCost: 0,
     });
+    expect(
+      runtimeMovementProjectionBlockedReason(
+        converted,
+        {
+          ...BASIC_CAPABILITY,
+          movementMode: 'wige',
+          unitHeightProfile: { kind: 'lam', standingHeight: 1 },
+        },
+        'wige',
+      ),
+    ).toBeUndefined();
   });
 
   it('clears pending conversion cost after committed movement replay', () => {

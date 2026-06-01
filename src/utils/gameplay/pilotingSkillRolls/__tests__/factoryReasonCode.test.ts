@@ -39,6 +39,7 @@ import {
   createEnteringWaterPSR,
   createExitingWaterPSR,
   createSkiddingPSR,
+  createAirMekLandingPSR,
   createBuildingCollapsePSR,
 
   // system family
@@ -136,6 +137,11 @@ describe('PSR factory reasonCode population (PR E)', () => {
         PSRTrigger.ExitingWater,
       ],
       ['createSkiddingPSR', createSkiddingPSR(ENTITY), PSRTrigger.Skidding],
+      [
+        'createAirMekLandingPSR',
+        createAirMekLandingPSR(ENTITY, 2),
+        PSRTrigger.AirMekLanding,
+      ],
       [
         'createBuildingCollapsePSR',
         createBuildingCollapsePSR(ENTITY),

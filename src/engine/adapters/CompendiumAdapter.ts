@@ -1604,6 +1604,7 @@ export function adaptUnitFromData(
     pilotConscious: true,
     destroyed: false,
     lockState: LockState.Pending,
+    tonnage,
     weapons,
     walkMP,
     runMP,

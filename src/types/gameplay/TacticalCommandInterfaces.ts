@@ -215,6 +215,8 @@ export interface ITacticalCommandContext {
   readonly activeUnitGyroType?: string;
   /** Active unit destroyed locations used by posture commands with limb gates. */
   readonly activeUnitDestroyedLocations?: readonly string[];
+  /** Active session optional-rule keys used by source-backed command gates. */
+  readonly optionalRules?: readonly string[];
   /**
    * Engine-derived movement envelope for activeUnitId, when available.
    * Command availability uses this to explain unavailable movement modes
