@@ -129,7 +129,12 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
   });
 
   it('assigns every combat-consumed SPA and quirk to at least one resolver family', () => {
-    const unconsumedLocalSpas = ['marksman', 'multi-target', 'sharpshooter'];
+    const unconsumedLocalSpas = [
+      'cool-under-fire',
+      'marksman',
+      'multi-target',
+      'sharpshooter',
+    ];
     const expectedAssignedSpas = sortedKeys(SPA_CATALOG).filter(
       (spaId) => !unconsumedLocalSpas.includes(spaId),
     );
@@ -145,6 +150,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(SPA_COMBAT_SUPPORT.marksman.level).toBe('helper-only');
     expect(SPA_COMBAT_SUPPORT['multi-target'].level).toBe('unsupported');
     expect(SPA_COMBAT_SUPPORT.sharpshooter.level).toBe('helper-only');
+    expect(SPA_COMBAT_SUPPORT['cool-under-fire'].level).toBe('helper-only');
   });
 
   it('does not assign unknown SPA or quirk ids to resolver families', () => {
@@ -260,16 +266,17 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual(
       [
         'called-shot-application',
-        'ranged-to-hit-calculation',
-        'ranged-to-hit-state-hydration',
         'cluster-hitter-application',
+        'heat-application',
         'indirect-fire-spa-application',
         'multi-target-penalty-application',
         'physical-action-count-application',
-        'physical-restriction-application',
         'physical-damage-application',
+        'physical-restriction-application',
         'physical-to-hit-application',
         'psr-application',
+        'ranged-to-hit-calculation',
+        'ranged-to-hit-state-hydration',
         'weapon-to-hit-quirk-application',
       ].sort(),
     );
@@ -292,7 +299,6 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'critical-prevention-application',
         'consciousness-application',
         'legacy-defensive-quirk-to-hit-application',
-        'heat-application',
         'psr-spa-application',
         'sandblaster-application',
       ]),
@@ -1068,6 +1074,9 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       evidence: expect.stringContaining('getCoolUnderFireHeatReduction'),
       gap: expect.stringContaining('No MegaMek source-backed'),
     });
+    expect(SPA_COMBAT_SUPPORT['cool-under-fire'].evidence).toContain(
+      'without being consumed by BattleMech heat resolution',
+    );
     expect(
       SPA_COMBAT_SUPPORT['cool-under-fire'].sourceRefs?.some(
         (sourceRef) => sourceRef.kind === 'mekstation-deviation',
@@ -1103,10 +1112,15 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application'],
     ).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('source-backed Some Like It Hot'),
-      gap: expect.stringContaining('Cool Under Fire'),
     });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application'].evidence,
+    ).toContain('leaving local Cool Under Fire unconsumed');
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application'].gap,
+    ).toBeUndefined();
     expect(heatApplicationRefs).toEqual([
       ...hotDogRefs,
       ...someLikeItHotRefs,
