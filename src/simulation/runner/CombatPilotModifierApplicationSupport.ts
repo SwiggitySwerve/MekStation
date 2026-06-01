@@ -369,10 +369,9 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
       ...MEKSTATION_HEAVY_LIFTER_HELPER_SOURCE_REFS,
     ],
   ),
-  'multi-target-penalty-application': helperOnly(
+  'multi-target-penalty-application': integrated(
     'multi-target-penalty-application',
-    'calculateToHit applies source-backed secondary-target penalties and calculateMultiTaskerModifier reduces those penalties for Multi-Tasker/multi_tasker through ranged to-hit calculation; the resolver family also keeps local Multi-Target assigned as an unsupported SPA boundary',
-    'The local Multi-Target SPA still has no source-backed combat authority, so this resolver family cannot be treated as fully integrated until the local row is removed, aliased, or separately sourced',
+    'calculateToHit applies source-backed secondary-target penalties and calculateMultiTaskerModifier reduces those penalties for Multi-Tasker/multi_tasker through ranged to-hit calculation while leaving the unsupported local Multi-Target row unconsumed',
     MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS,
   ),
   'target-priority-application': unsupported(
@@ -496,7 +495,7 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
     quirkIds: [],
   },
   'multi-target-penalty-application': {
-    spaIds: ['multi-tasker', 'multi-target'],
+    spaIds: ['multi-tasker'],
     quirkIds: [],
   },
   'target-priority-application': {
