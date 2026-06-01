@@ -173,6 +173,7 @@ export function calculateCalledShotModifier(
   calledShot: boolean,
   teammateCalledShot?: boolean,
   abilities?: readonly string[],
+  applyLocalAbilityReduction: boolean = true,
 ): IToHitModifierDetail | null {
   if (!calledShot) {
     return null;
@@ -187,9 +188,9 @@ export function calculateCalledShotModifier(
     };
   }
 
-  const calledShotReduction = -(abilities
-    ? getSharpshooterBonus(abilities)
-    : 0);
+  const calledShotReduction = applyLocalAbilityReduction
+    ? -(abilities ? getSharpshooterBonus(abilities) : 0)
+    : 0;
   const value = 3 - calledShotReduction;
   const reductionName = abilities?.includes('marksman')
     ? 'Marksman'
