@@ -16,7 +16,10 @@ import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import type { IAdaptedUnit } from '../types';
 
-import { gameUnitsWithAdaptedMovementModes } from '../InteractiveSession.setup';
+import {
+  buildInteractiveSessionUnitMaps,
+  gameUnitsWithAdaptedMovementModes,
+} from '../InteractiveSession.setup';
 
 function vehicleGameUnit(
   vehicleInitOverrides: Partial<IGameUnit['vehicleInit']> = {},
@@ -80,12 +83,25 @@ function adaptedVehicle(weapons: readonly IWeapon[]): IAdaptedUnit {
     pilotConscious: true,
     destroyed: false,
     lockState: LockState.Pending,
+    tonnage: 80,
     weapons,
     walkMP: 4,
     runMP: 6,
     jumpMP: 0,
   };
 }
+
+describe('buildInteractiveSessionUnitMaps', () => {
+  it('carries adapted catalog tonnage into resolver lookup maps', () => {
+    const maps = buildInteractiveSessionUnitMaps(
+      [adaptedVehicle([])],
+      [],
+      [vehicleGameUnit()],
+    );
+
+    expect(maps.tonnageByUnit.get('target')).toBe(80);
+  });
+});
 
 describe('gameUnitsWithAdaptedMovementModes', () => {
   it('derives represented vehicle weapon locations for crit availability', () => {

@@ -53,6 +53,16 @@ function vehicleMotionTypeFromGroundMotion(
   }
 }
 
+function vehicleAltitudeFromState(
+  motionType: GroundMotionType,
+  altitude: number | undefined,
+): number | undefined {
+  return motionType === GroundMotionType.VTOL ||
+    motionType === GroundMotionType.WIGE
+    ? altitude
+    : undefined;
+}
+
 /**
  * Subset of `IUnitTokenBase` fog-projection fields that callers may layer onto
  * a token. These survive redaction (they ARE the redaction signal) — only the
@@ -155,10 +165,10 @@ export function unitStateToToken(
         vehicleMotionType: vehicleMotionTypeFromGroundMotion(
           cs.state.motionType,
         ),
-        altitude:
-          cs.state.motionType === GroundMotionType.VTOL
-            ? cs.state.altitude
-            : undefined,
+        altitude: vehicleAltitudeFromState(
+          cs.state.motionType,
+          cs.state.altitude,
+        ),
       };
     case 'platoon':
       return {
