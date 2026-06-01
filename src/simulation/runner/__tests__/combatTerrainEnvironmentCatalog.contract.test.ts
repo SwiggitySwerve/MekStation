@@ -508,9 +508,11 @@ describe('BattleMech terrain and environment combat support catalog', () => {
     expect(supportGaps(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(
-      expect.arrayContaining(['dust', 'mines', 'terrain-los-side-paths']),
-    );
+    ).toEqual(expect.arrayContaining(['mines', 'terrain-los-side-paths']));
+    expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.dust).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('blowingSand'),
+    });
     expect(
       TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['terrain-los-blocking'],
     ).toMatchObject({

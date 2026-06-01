@@ -2744,6 +2744,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       supportIdsByLevel(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT, 'integrated'),
     ).toEqual([
       'atmosphere',
+      'dust',
       'extreme-temperature',
       'fire-heat',
       'fog',
@@ -2759,7 +2760,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['dust', 'mines', 'terrain-los-side-paths']);
+    ).toEqual(['mines', 'terrain-los-side-paths']);
     expect(
       Object.values(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT)
         .filter((entry) => entry.level !== 'unsupported')
@@ -2816,7 +2817,8 @@ describe('BattleMech combat feature-gap tracking', () => {
     ).toEqual(
       expect.arrayContaining([
         expect.stringContaining('blowing sand'),
-        expect.stringContaining('no Dust or Mines entry'),
+        expect.stringContaining('IEnvironmentalConditions'),
+        expect.stringContaining('energy'),
       ]),
     );
     expect(
