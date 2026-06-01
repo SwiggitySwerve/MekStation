@@ -79,6 +79,24 @@ The follow-on `surface-cliff-exits-map-context` slice exposes represented
 `cliffTopExits` on hex metadata, terrain labels, terrain/elevation source
 details, and terrain hover context so the map explains directional cliff edges
 from imported terrain instead of hiding them inside movement-only diagnostics.
+The `surface-movement-option-source-details` slice expands the shared movement
+source reference so same-hex walk/run/jump options carry their reachable or
+blocked state, MP cost, terrain and elevation costs, heat, and blocked reason
+directly in `movement:megamek` projection metadata instead of only in visible
+badges/tooltips.
+The `source-movement-reach-badge` slice pins the normal reachable movement
+badge to that same source-backed path, so the standing MP badge now exposes
+`movement:megamek` source refs, MegaMek rule refs, and projection explanation
+metadata before hover path preview replaces it.
+The `source-movement-step-cost-badge` slice extends that provenance to the
+separate terrain/elevation step-cost marker, so visible `T+`/`E+`/`UP`/`DN`
+cost labels also identify their shared `movement:megamek` source and rule
+references.
+The `source-hover-path-preview-badge` slice keeps the hovered path MP badge on
+that same source-backed path: hovering a reachable destination now preserves
+terrain/elevation cost, heat, `movement:megamek` source refs, and MegaMek rule
+refs on the preview badge instead of thinning the displayed commit preview to
+MP and movement type only.
 Replayable gameplay events for runtime movement state are covered by
 `apply-runtime-movement-state-events`; player-facing tactical command controls
 for represented conversion and infantry mount-state changes are covered by
