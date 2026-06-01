@@ -135,10 +135,10 @@ function canonicalSpaFallback(spa: ISPADefinition): ICombatFeatureSupportEntry {
   }
 
   if (spa.source === 'ATOW') {
-    return helperOnly(
+    return outOfScope(
       spa.id,
       evidence,
-      'ATOW/origin-level SPA effects are catalog-visible but not hydrated into BattleMech combat resolvers',
+      'ATOW/origin-level and aerospace-control SPA effects belong in a separate personnel or aerospace validation matrix instead of the official BattleMech combat blocker inventory',
       canonicalSpaScopeSourceRefs(spa),
     );
   }
