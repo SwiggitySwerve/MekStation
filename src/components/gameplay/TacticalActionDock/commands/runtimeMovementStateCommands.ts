@@ -10,8 +10,10 @@ import { movementDeclarationLockInvalidState } from '@/utils/gameplay/movement';
 import { terrainFeaturesFromString } from '@/utils/gameplay/terrainEncoding';
 import { parseWaterDepth } from '@/utils/gameplay/waterDepth';
 
+import { lamAirMekLandingControlPatch } from './runtimeAirMekLandingControl';
 import {
   normalizedCommandConversionMode,
+  runtimeLamAirMekAutomaticLandingPatch,
   runtimeConversionActionUnavailableReason,
   runtimeConversionCommandMetadata,
 } from './runtimeConversionRules';
@@ -69,12 +71,39 @@ function hasVehicleAltitudeControl(
 ): boolean {
   return (
     ctx?.activeUnitVehicleMotionType === GroundMotionType.VTOL ||
-    ctx?.activeUnitVehicleMotionType === GroundMotionType.WIGE
+    ctx?.activeUnitVehicleMotionType === GroundMotionType.WIGE ||
+    isLamAirMekWigeAltitudeControl(ctx) ||
+    isProtoGliderWigeAltitudeControl(ctx)
+  );
+}
+
+function isLamAirMekWigeAltitudeControl(
+  ctx: ITacticalCommandContext | undefined,
+): boolean {
+  const profile = ctx?.movementCapability?.unitHeightProfile;
+  return (
+    profile?.kind === 'lam' &&
+    normalizedCommandConversionMode(ctx?.activeUnitConversionMode, profile) ===
+      'airmek' &&
+    ctx?.movementCapability?.movementMode === 'wige'
+  );
+}
+
+function isProtoGliderWigeAltitudeControl(
+  ctx: ITacticalCommandContext | undefined,
+): boolean {
+  return (
+    ctx?.activeUnitProtoGlider === true &&
+    ctx.movementCapability?.movementMode === 'wige'
   );
 }
 
 function currentVehicleAltitude(ctx: ITacticalCommandContext): number {
-  const altitude = ctx.activeUnitVehicleAltitude;
+  const altitude = isLamAirMekWigeAltitudeControl(ctx)
+    ? ctx.activeUnitLamAirMekAltitude
+    : isProtoGliderWigeAltitudeControl(ctx)
+      ? ctx.activeUnitProtoAltitude
+      : ctx.activeUnitVehicleAltitude;
   return altitude === undefined || !Number.isFinite(altitude)
     ? 0
     : Math.max(0, Math.floor(altitude));
@@ -126,6 +155,14 @@ function maxVehicleAltitude(ctx: ITacticalCommandContext): number {
   const bridgeLevel = maxFeatureLevel(ctx, TerrainType.Bridge);
   const altitude = currentVehicleAltitude(ctx);
 
+  if (isProtoGliderWigeAltitudeControl(ctx)) {
+    return 12;
+  }
+
+  if (isLamAirMekWigeAltitudeControl(ctx)) {
+    return 25;
+  }
+
   if (ctx.activeUnitVehicleMotionType === GroundMotionType.VTOL) {
     if (bridgeLevel > 0 && altitude < bridgeLevel) {
       return Math.max(0, bridgeLevel - activeUnitHeight(ctx) - 1);
@@ -175,7 +212,7 @@ function minVehicleAltitude(ctx: ITacticalCommandContext): number {
   }
 
   const waterDepth = activeUnitWaterDepth(ctx);
-  if (waterDepth > 0) {
+  if (waterDepth > 0 && !isLamAirMekWigeAltitudeControl(ctx)) {
     minElevation = Math.max(minElevation, 1);
   }
 
@@ -206,6 +243,22 @@ function altitudeControlUnavailableReason(
   return null;
 }
 
+function altitudeControlAltitudePatch(
+  ctx: ITacticalCommandContext,
+  altitude: number,
+):
+  | { readonly lamAirMekAltitude: number }
+  | { readonly protoAltitude: number }
+  | { readonly vehicleAltitude: number } {
+  if (isLamAirMekWigeAltitudeControl(ctx)) {
+    return { lamAirMekAltitude: altitude };
+  }
+  if (isProtoGliderWigeAltitudeControl(ctx)) {
+    return { protoAltitude: altitude };
+  }
+  return { vehicleAltitude: altitude };
+}
+
 const MovementAltitudeUpCommand: ITacticalCommand = {
   id: 'movement.altitudeUp',
   category: 'movement',
@@ -233,7 +286,7 @@ const MovementAltitudeUpCommand: ITacticalCommand = {
       actionId: 'runtime-movement-state',
       payload: {
         source: 'altitude_control_action',
-        vehicleAltitude: currentVehicleAltitude(ctx) + 1,
+        ...altitudeControlAltitudePatch(ctx, currentVehicleAltitude(ctx) + 1),
         altitudeControlStepCount: 1,
         altitudeControlMpCost: 1,
       },
@@ -268,11 +321,14 @@ const MovementAltitudeDownCommand: ITacticalCommand = {
     return { available: true };
   },
   commit(ctx) {
+    const currentAltitude = currentVehicleAltitude(ctx);
+    const nextAltitude = currentAltitude - 1;
     return {
       actionId: 'runtime-movement-state',
       payload: {
         source: 'altitude_control_action',
-        vehicleAltitude: currentVehicleAltitude(ctx) - 1,
+        ...altitudeControlAltitudePatch(ctx, nextAltitude),
+        ...lamAirMekLandingControlPatch(ctx, currentAltitude, nextAltitude),
         altitudeControlStepCount: 1,
         altitudeControlMpCost: 1,
       },
@@ -404,6 +460,7 @@ function createConversionCommand(
           conversionMode,
           conversionStepCount: metadata.conversionStepCount,
           conversionMpCost: metadata.conversionMpCost,
+          ...runtimeLamAirMekAutomaticLandingPatch(ctx, conversionMode),
           unitHeight: null,
         },
       };

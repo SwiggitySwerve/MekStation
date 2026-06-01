@@ -111,6 +111,12 @@ function movementRangeOptionFor(
     altitudeControlRequired: movementInfo.altitudeControlRequired,
     altitudeControlMode: movementInfo.altitudeControlMode,
     altitudeControlAltitude: movementInfo.altitudeControlAltitude,
+    automaticLandingRequired: movementInfo.automaticLandingRequired,
+    automaticLandingReason: movementInfo.automaticLandingReason,
+    automaticLandingMode: movementInfo.automaticLandingMode,
+    automaticLandingDistance: movementInfo.automaticLandingDistance,
+    automaticLandingMinimumDistance:
+      movementInfo.automaticLandingMinimumDistance,
     blockedReason: movementInfo.blockedReason,
     movementInvalidReason: movementInfo.movementInvalidReason,
     movementInvalidDetails: movementInfo.movementInvalidDetails,
@@ -311,6 +317,22 @@ export function movementOptionAltitudeControlsAttribute(
   return altitudeOptions.length > 0 ? altitudeOptions.join('|') : undefined;
 }
 
+export function movementOptionAutomaticLandingsAttribute(
+  options: readonly IMovementRangeModeOption[],
+): string | undefined {
+  const automaticLandingOptions = options
+    .filter((option) => option.automaticLandingRequired)
+    .map(
+      (option) =>
+        `${option.movementType}:${option.automaticLandingMode ?? 'wige'}:${
+          option.automaticLandingDistance ?? '?'
+        }/${option.automaticLandingMinimumDistance ?? '?'}`,
+    );
+  return automaticLandingOptions.length > 0
+    ? automaticLandingOptions.join('|')
+    : undefined;
+}
+
 export function movementOptionMaxReachableHeatGenerated(
   movementInfo?: IMovementRangeHex,
 ): number | undefined {
@@ -391,6 +413,21 @@ function formatMovementOptionAltitudeControlDetail(
   return parts.length > 0 ? `, ${parts.join(', ')}` : '';
 }
 
+function formatMovementOptionAutomaticLandingDetail(
+  option: IMovementRangeModeOption,
+): string {
+  if (!option.automaticLandingRequired) return '';
+  const mode = option.automaticLandingMode
+    ? formatMovementModeTitleLabel(option.automaticLandingMode)
+    : 'WiGE';
+  const distance = option.automaticLandingDistance ?? 0;
+  const minimumDistance = option.automaticLandingMinimumDistance ?? 0;
+  const reason = option.automaticLandingReason
+    ? `: ${option.automaticLandingReason}`
+    : '';
+  return `, automatic ${mode} landing ${distance}/${minimumDistance} hexes${reason}`;
+}
+
 export function formatMovementOptionTitle(
   option: IMovementRangeModeOption,
 ): string {
@@ -402,11 +439,12 @@ export function formatMovementOptionTitle(
   const costBreakdown = formatMovementOptionCostBreakdown(option);
   const conversion = formatMovementOptionConversionDetail(option);
   const altitudeControl = formatMovementOptionAltitudeControlDetail(option);
+  const automaticLanding = formatMovementOptionAutomaticLandingDetail(option);
   const heat =
     option.heatGenerated === undefined ? '' : `, heat +${option.heatGenerated}`;
   const blockedDetail = movementOptionBlockedDetail(option);
   const blocked = option.reachable
     ? ''
     : `, blocked${blockedDetail ? `: ${blockedDetail}` : ''}`;
-  return `${option.movementType}${movementMode} ${option.reachable ? 'reachable' : 'blocked'} ${cost}${costBreakdown}${conversion}${altitudeControl}${heat}${blocked}`;
+  return `${option.movementType}${movementMode} ${option.reachable ? 'reachable' : 'blocked'} ${cost}${costBreakdown}${conversion}${altitudeControl}${automaticLanding}${heat}${blocked}`;
 }

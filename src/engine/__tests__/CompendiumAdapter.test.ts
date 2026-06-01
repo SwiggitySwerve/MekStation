@@ -479,6 +479,7 @@ describe('CompendiumAdapter', () => {
       const result = adaptUnitFromData(createAtlasData());
       expect(result.id).toBe('atlas-as7-d');
       expect(result.side).toBe('player');
+      expect(result.tonnage).toBe(100);
     });
 
     it('should have correct movement (walk 3, run 5, jump 0)', () => {

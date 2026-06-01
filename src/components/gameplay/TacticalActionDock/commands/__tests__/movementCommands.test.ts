@@ -786,6 +786,237 @@ describe('movementCommands', () => {
         ]),
       }),
     ).toEqual({ available: true });
+
+    const protoGliderCtx = makeCtx({
+      activeUnitProne: false,
+      activeUnitProtoGlider: true,
+      activeUnitProtoAltitude: 11,
+      movementCapability: {
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 0,
+        movementMode: 'wige',
+      },
+    });
+    const protoCommands = buildMovementCommands(protoGliderCtx);
+    const protoClimb = protoCommands.find(
+      (c) => c.id === 'movement.altitudeUp',
+    )!;
+    const protoDescend = protoCommands.find(
+      (c) => c.id === 'movement.altitudeDown',
+    )!;
+    expect(protoClimb.availability(protoGliderCtx)).toEqual({
+      available: true,
+    });
+    expect(protoClimb.commit(protoGliderCtx)).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'altitude_control_action',
+        protoAltitude: 12,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+      },
+    });
+    expect(
+      protoClimb.availability({
+        ...protoGliderCtx,
+        activeUnitProtoAltitude: 12,
+      }),
+    ).toEqual({
+      available: false,
+      reason: 'Altitude controls are already at maximum altitude 12.',
+    });
+    expect(
+      protoDescend.availability({
+        ...protoGliderCtx,
+        activeUnitProtoAltitude: 0,
+      }),
+    ).toEqual({
+      available: false,
+      reason: 'Altitude controls are already at altitude 0.',
+    });
+
+    const lamAirMekCtx = makeCtx({
+      activeUnitProne: false,
+      activeUnitConversionMode: 'airmek',
+      activeUnitLamAirMekAltitude: 24,
+      movementCapability: {
+        walkMP: 6,
+        runMP: 9,
+        jumpMP: 0,
+        movementMode: 'wige',
+        unitHeightProfile: { kind: 'lam', standingHeight: 1 },
+      },
+    });
+    const lamAirMekCommands = buildMovementCommands(lamAirMekCtx);
+    const lamAirMekClimb = lamAirMekCommands.find(
+      (c) => c.id === 'movement.altitudeUp',
+    )!;
+    const lamAirMekDescend = lamAirMekCommands.find(
+      (c) => c.id === 'movement.altitudeDown',
+    )!;
+    expect(lamAirMekClimb.availability(lamAirMekCtx)).toEqual({
+      available: true,
+    });
+    expect(lamAirMekClimb.commit(lamAirMekCtx)).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'altitude_control_action',
+        lamAirMekAltitude: 25,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+      },
+    });
+    expect(
+      lamAirMekClimb.availability({
+        ...lamAirMekCtx,
+        activeUnitLamAirMekAltitude: 25,
+      }),
+    ).toEqual({
+      available: false,
+      reason: 'Altitude controls are already at maximum altitude 25.',
+    });
+    expect(
+      lamAirMekDescend.availability({
+        ...lamAirMekCtx,
+        activeUnitLamAirMekAltitude: 1,
+        activeUnitTerrain: 'water',
+      }),
+    ).toEqual({ available: true });
+    expect(
+      lamAirMekDescend.commit({
+        ...lamAirMekCtx,
+        activeUnitLamAirMekAltitude: 1,
+      }),
+    ).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'altitude_control_action',
+        lamAirMekAltitude: 0,
+        lamAirMekLandingControlRequired: false,
+        lamAirMekLandingControlReason: 'Check not required for landing',
+        lamAirMekLandingControlModifier: 0,
+        lamAirMekLandingControlModifierDetails: [],
+        lamAirMekLandingControlFallHeight: 1,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+      },
+    });
+    expect(
+      lamAirMekDescend.availability({
+        ...lamAirMekCtx,
+        activeUnitLamAirMekAltitude: 0,
+      }),
+    ).toEqual({
+      available: false,
+      reason: 'Altitude controls are already at altitude 0.',
+    });
+  });
+
+  it('adds source-backed AirMek landing control context for damaged landings', () => {
+    const ctx = makeCtx({
+      activeUnitProne: false,
+      activeUnitConversionMode: 'airmek',
+      activeUnitLamAirMekAltitude: 1,
+      activeUnitComponentDamage: makeComponentDamage({
+        gyroHits: 1,
+        actuatorsByLocation: {
+          left_leg: { [ActuatorType.FOOT]: true },
+        },
+      }),
+      activeUnitDestroyedLocations: ['right_leg'],
+      movementCapability: {
+        walkMP: 6,
+        runMP: 9,
+        jumpMP: 0,
+        movementMode: 'wige',
+        unitHeightProfile: { kind: 'lam', standingHeight: 1 },
+      },
+    });
+    const descend = buildMovementCommands(ctx).find(
+      (c) => c.id === 'movement.altitudeDown',
+    )!;
+
+    expect(descend.availability(ctx)).toEqual({ available: true });
+    expect(descend.commit(ctx)).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'altitude_control_action',
+        lamAirMekAltitude: 0,
+        lamAirMekLandingControlRequired: true,
+        lamAirMekLandingControlReason: 'landing with gyro or leg damage',
+        lamAirMekLandingControlModifier: 6,
+        lamAirMekLandingControlModifierDetails: [
+          'Gyro damage requires landing control roll',
+          'Left Leg Foot Actuator destroyed +1',
+          'Right Leg destroyed +5',
+        ],
+        lamAirMekLandingControlFallHeight: 1,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+      },
+    });
+  });
+
+  it('keeps heavy-duty gyro first-hit and hip-only landing checks source-gated', () => {
+    const ctx = makeCtx({
+      activeUnitProne: false,
+      activeUnitConversionMode: 'airmek',
+      activeUnitLamAirMekAltitude: 1,
+      activeUnitGyroType: 'Heavy Duty',
+      activeUnitComponentDamage: makeComponentDamage({
+        gyroHits: 1,
+        actuatorsByLocation: {
+          left_leg: { [ActuatorType.HIP]: true },
+        },
+      }),
+      movementCapability: {
+        walkMP: 6,
+        runMP: 9,
+        jumpMP: 0,
+        movementMode: 'wige',
+        unitHeightProfile: { kind: 'lam', standingHeight: 1 },
+      },
+    });
+    const descend = buildMovementCommands(ctx).find(
+      (c) => c.id === 'movement.altitudeDown',
+    )!;
+
+    expect(descend.commit(ctx)).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'altitude_control_action',
+        lamAirMekAltitude: 0,
+        lamAirMekLandingControlRequired: false,
+        lamAirMekLandingControlReason: 'Check not required for landing',
+        lamAirMekLandingControlModifier: 0,
+        lamAirMekLandingControlModifierDetails: [],
+        lamAirMekLandingControlFallHeight: 1,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+      },
+    });
+    expect(
+      descend.commit({
+        ...ctx,
+        optionalRules: ['tacops_leg_damage'],
+      }),
+    ).toEqual({
+      actionId: 'runtime-movement-state',
+      payload: {
+        source: 'altitude_control_action',
+        lamAirMekAltitude: 0,
+        lamAirMekLandingControlRequired: true,
+        lamAirMekLandingControlReason: 'landing with gyro or leg damage',
+        lamAirMekLandingControlModifier: 2,
+        lamAirMekLandingControlModifierDetails: [
+          'Left Leg Hip Actuator destroyed +2',
+        ],
+        lamAirMekLandingControlFallHeight: 1,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+      },
+    });
   });
 
   it('adds LAM conversion controls that clear stale explicit height', () => {
@@ -827,6 +1058,7 @@ describe('movementCommands', () => {
     const airmekCtx: ITacticalCommandContext = {
       ...lamCtx,
       activeUnitConversionMode: 'airmek',
+      activeUnitLamAirMekAltitude: 2,
     };
     expect(mek.availability(airmekCtx)).toEqual({ available: true });
     expect(mek.commit(airmekCtx)).toEqual({
@@ -836,6 +1068,7 @@ describe('movementCommands', () => {
         conversionMode: 'mek',
         conversionStepCount: 2,
         conversionMpCost: 0,
+        lamAirMekAltitude: 0,
         unitHeight: null,
       },
     });

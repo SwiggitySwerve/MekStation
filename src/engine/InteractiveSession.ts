@@ -419,6 +419,8 @@ export class InteractiveSession {
       session: this.session,
       unitId,
       patch,
+      diceRoller: this.d6RollerForResolvers(),
+      tonnageByUnit: this.tonnageByUnit,
     });
     this.tryFinalizeAndPublish();
   }
