@@ -143,6 +143,38 @@ describe('interactive PSR quirk application', () => {
     });
   });
 
+  it('applies explicit RPG Toughness state after failed pending PSR fall damage', () => {
+    const session = withPendingPSR(
+      startGame(
+        createGameSession(
+          config(),
+          units({ unitQuirks: [], pilotToughness: 1 }),
+        ),
+        GameSide.Player,
+      ),
+    );
+
+    const next = resolvePendingPSRs(session, scriptedD6([1, 1, 1, 1, 1, 2, 1]));
+
+    const pilotHit = next.events.find(
+      (event) => event.type === GameEventType.PilotHit,
+    )?.payload as IPilotHitPayload | undefined;
+    expect(pilotHit).toMatchObject({
+      unitId: 'player-1',
+      wounds: 1,
+      totalWounds: 1,
+      source: 'fall',
+      consciousnessCheckRequired: true,
+      consciousnessCheckPassed: true,
+    });
+    expect(next.currentState.units['player-1']).toMatchObject({
+      prone: true,
+      pilotWounds: 1,
+      pilotToughness: 1,
+      pilotConscious: true,
+    });
+  });
+
   it('applies Maneuvering Ace while resolving interactive skidding PSRs', () => {
     const session = withPendingPSR(
       startGame(
