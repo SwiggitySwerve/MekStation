@@ -724,7 +724,13 @@ export function deriveMovementRangeHexForDestination(
       costContext,
     });
     if (blockedProjection.movementInvalidReason === 'TerrainBlocked') {
-      return null;
+      return withReservedProjection(
+        withPostureProjection(
+          blockedProjection,
+          standUpProjection,
+          hullDownExitProjection,
+        ),
+      );
     }
 
     const diagnosticPath = findPath(

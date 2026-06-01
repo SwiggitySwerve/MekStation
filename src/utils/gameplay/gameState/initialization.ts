@@ -18,6 +18,7 @@ import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
 import { createBattleArmorCombatState } from '@/utils/gameplay/battlearmor/state';
 import { createInfantryCombatStateFromUnit } from '@/utils/gameplay/infantry/state';
 import { createProtoMechCombatState } from '@/utils/gameplay/protomech/state';
+import { createVehicleCombatState } from '@/utils/gameplay/vehicleDamage';
 
 export const PLAYER_DEPLOY_ROW = 5;
 export const OPPONENT_DEPLOY_ROW = -5;
@@ -42,6 +43,9 @@ export const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
  * `kind: 'vehicle'` envelope in PR9+; capital ships are out of scope.
  */
 const PER_TYPE_COMBAT_BEHAVIOR_KINDS: ReadonlySet<UnitType> = new Set([
+  UnitType.VEHICLE,
+  UnitType.VTOL,
+  UnitType.SUPPORT_VEHICLE,
   UnitType.AEROSPACE,
   UnitType.CONVENTIONAL_FIGHTER,
   UnitType.SMALL_CRAFT,
@@ -70,6 +74,44 @@ function buildCombatStateForUnit(
   const ut = unit.unitType;
   if (ut === undefined) return undefined;
   if (!PER_TYPE_COMBAT_BEHAVIOR_KINDS.has(ut)) return undefined;
+
+  // ---- Vehicle family ----
+  if (
+    ut === UnitType.VEHICLE ||
+    ut === UnitType.VTOL ||
+    ut === UnitType.SUPPORT_VEHICLE
+  ) {
+    const init = unit.vehicleInit;
+    if (init === undefined) {
+      throw new Error(
+        `createInitialUnitState: ${ut} unit '${unit.id}' missing required field(s): vehicleInit`,
+      );
+    }
+    const missing: string[] = [];
+    if (init.motionType === undefined) missing.push('vehicleInit.motionType');
+    if (init.originalCruiseMP === undefined) {
+      missing.push('vehicleInit.originalCruiseMP');
+    }
+    if (init.armor === undefined) missing.push('vehicleInit.armor');
+    if (init.structure === undefined) missing.push('vehicleInit.structure');
+    if (missing.length > 0) {
+      throw new Error(
+        `createInitialUnitState: ${ut} unit '${unit.id}' missing required field(s): ${missing.join(', ')}`,
+      );
+    }
+    return {
+      kind: 'vehicle',
+      state: createVehicleCombatState({
+        unitId: unit.id,
+        motionType: init.motionType,
+        turretType: init.turretType,
+        originalCruiseMP: init.originalCruiseMP,
+        armor: init.armor,
+        structure: init.structure,
+        altitude: init.altitude,
+      }),
+    };
+  }
 
   // ---- Aerospace family ----
   if (
@@ -105,6 +147,10 @@ function buildCombatStateForUnit(
         safeThrust: init.safeThrust,
         maxThrust: init.maxThrust,
         altitude: init.altitude ?? 1,
+        currentVelocity: init.currentVelocity,
+        nextVelocity: init.nextVelocity,
+        airborneState: init.airborneState,
+        dogfightWith: init.dogfightWith,
       }),
     };
   }
@@ -215,6 +261,7 @@ export function createInitialUnitState(
         location: bin.location,
         remainingRounds: bin.maxRounds,
         maxRounds: bin.maxRounds,
+        damagePerRound: bin.damagePerRound,
         isExplosive: bin.isExplosive,
       };
     }
@@ -260,6 +307,8 @@ export function createInitialUnitState(
     // These fields never mutate mid-match.
     gunnery: unit.gunnery,
     piloting: unit.piloting,
+    pilotSpas: unit.pilotSpas,
+    ...(unit.gyroType ? { gyroType: unit.gyroType } : {}),
     heatSinks: unit.heatSinks,
     heatSinkType: unit.heatSinkType,
     hasTSM: unit.hasTSM ?? false,

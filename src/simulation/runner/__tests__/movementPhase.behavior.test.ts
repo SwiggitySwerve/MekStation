@@ -151,6 +151,20 @@ function setTerrain(
   return { ...grid, hexes };
 }
 
+function setElevation(
+  grid: IHexGrid,
+  coord: IHexCoordinate,
+  elevation: number,
+): IHexGrid {
+  const key = `${coord.q},${coord.r}`;
+  const existing = grid.hexes.get(key);
+  if (!existing) throw new Error(`Missing hex ${key}`);
+
+  const hexes = new Map(grid.hexes);
+  hexes.set(key, { ...existing, elevation });
+  return { ...grid, hexes };
+}
+
 function setTerrainFeatures(
   grid: IHexGrid,
   coord: IHexCoordinate,
@@ -260,7 +274,7 @@ function psrPayloads(
 describe('runMovementPhase movement validation parity', () => {
   it('rejects invalid ground movement before committing the bot payload', () => {
     const target = { q: 1, r: 0 };
-    const grid = setTerrain(createMinimalGrid(3), target, TerrainType.Water);
+    const grid = setElevation(createMinimalGrid(3), target, 3);
 
     const { next, events } = runScriptedMove(grid, target);
 

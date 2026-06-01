@@ -276,9 +276,12 @@ export function canStand(
  */
 export function getStandingCost(
   capability: IMovementCapability,
-  _standUpMode: StandUpMode = 'normal',
+  standUpMode: StandUpMode = 'normal',
 ): number {
-  return capability.walkMP;
+  if (standUpMode === 'careful' && capability.walkMP > 2) {
+    return capability.walkMP;
+  }
+  return capability.runMP === 1 ? 1 : 2;
 }
 
 /**

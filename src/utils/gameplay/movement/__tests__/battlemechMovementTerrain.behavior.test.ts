@@ -96,7 +96,7 @@ const standardMove: IMovementCapability = {
 };
 
 describe('BattleMech movement, terrain, and modifier behavior', () => {
-  it('keeps stand-up helpers tied to prone state and walking MP', () => {
+  it('keeps stand-up helpers tied to prone state and stand-up mode', () => {
     expect(canStand({ ...positionAtOrigin(), prone: true }, standardMove)).toBe(
       true,
     );
@@ -107,7 +107,10 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
         { ...standardMove, walkMP: 0 },
       ),
     ).toBe(false);
-    expect(getStandingCost({ walkMP: 5, runMP: 8, jumpMP: 0 })).toBe(5);
+    expect(getStandingCost({ walkMP: 5, runMP: 8, jumpMP: 0 })).toBe(2);
+    expect(getStandingCost({ walkMP: 5, runMP: 8, jumpMP: 0 }, 'careful')).toBe(
+      5,
+    );
   });
 
   it('keeps movement heat, target movement, and attacker modifiers aligned by movement class', () => {
@@ -388,12 +391,6 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
         { walkMP: 20, runMP: 30, jumpMP: 0 },
       );
 
-      if (terrain === TerrainType.Water) {
-        expect(result.valid).toBe(false);
-        expect(result.error).toContain('impassable terrain');
-        continue;
-      }
-
       expect(result.valid).toBe(true);
       expect(result.mpCost).toBe(
         1 + TERRAIN_PROPERTIES[terrain].movementCostModifier.walk,
@@ -536,27 +533,13 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
     expect(stillTooSteep.error).toContain('impassable terrain');
   });
 
-  it('rejects ground movement through impassable terrain and elevation while preserving jump landings', () => {
+  it('rejects impassable elevation while preserving jump landings', () => {
     let waterGrid = createHexGrid({ radius: 3 });
     waterGrid = setHex(
       waterGrid,
       { q: 0, r: -1 },
       { terrain: TerrainType.Water },
     );
-
-    for (const movementType of [MovementType.Walk, MovementType.Run]) {
-      const result = validateMovement(
-        waterGrid,
-        positionAtOrigin(),
-        { q: 0, r: -1 },
-        Facing.North,
-        movementType,
-        standardMove,
-      );
-      expect(result.valid).toBe(false);
-      expect(result.error).toContain('impassable terrain');
-      expect(result.heatGenerated).toBe(0);
-    }
 
     const jumpIntoWater = validateMovement(
       waterGrid,
@@ -628,7 +611,7 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
   it('keeps valid destination previews from advertising impassable or over-budget terrain', () => {
     let grid = createHexGrid({ radius: 3 });
     grid = setHex(grid, { q: 0, r: -1 }, { terrain: TerrainType.LightWoods });
-    grid = setHex(grid, { q: 1, r: 0 }, { terrain: TerrainType.Water });
+    grid = setHex(grid, { q: 1, r: 0 }, { elevation: 3 });
     grid = setHex(grid, { q: -1, r: 1 }, { terrain: TerrainType.HeavyWoods });
 
     const destinations = getValidDestinations(
@@ -669,7 +652,7 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
 
   it('validates against a legal path instead of failing on an impassable straight-line hex', () => {
     let grid = createHexGrid({ radius: 3 });
-    grid = setHex(grid, { q: 0, r: -1 }, { terrain: TerrainType.Water });
+    grid = setHex(grid, { q: 0, r: -1 }, { elevation: 3 });
 
     const result = validateMovement(
       grid,
@@ -684,10 +667,10 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
     expect(result.mpCost).toBeGreaterThan(2);
   });
 
-  it('reports reachable movement costs with terrain and pathfinding disallows impassable endpoints', () => {
+  it('reports terrain costs and blocked endpoint previews', () => {
     let grid = createHexGrid({ radius: 3 });
     grid = setHex(grid, { q: 1, r: 0 }, { terrain: TerrainType.LightWoods });
-    grid = setHex(grid, { q: 0, r: 1 }, { terrain: TerrainType.Water });
+    grid = setHex(grid, { q: 0, r: 1 }, { elevation: 3 });
 
     const reachable = deriveReachableHexes(
       unitAtOrigin(),
@@ -704,7 +687,10 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
     ).toMatchObject({ mpCost: 2, reachable: true });
     expect(
       reachable.find((entry) => entry.hex.q === 0 && entry.hex.r === 1),
-    ).toBeUndefined();
+    ).toMatchObject({
+      reachable: false,
+      movementInvalidReason: 'TerrainBlocked',
+    });
 
     grid = setHex(
       grid,

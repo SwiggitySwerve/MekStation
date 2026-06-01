@@ -6,9 +6,12 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { IComponentDamageState, IPendingPSR } from '@/types/gameplay';
 
-import type { RepresentedGyroType } from '../gyroRules';
-
 import { defaultD6Roller } from '../diceTypes';
+import {
+  type RepresentedGyroType,
+  gyroPsrModifierForType,
+  gyroPsrModifierName,
+} from '../gyroRules';
 import { D6Roller, roll2d6 } from '../hitLocation';
 import { calculatePilotingQuirkPSRModifier } from '../quirkModifiers';
 import {
@@ -199,7 +202,11 @@ export function calculatePSRModifiers(
   unitType?: string,
   pilotingSkill?: number,
 ): readonly IPSRModifier[] {
-  const normalizedUnitQuirks = Array.isArray(unitQuirks) ? unitQuirks : [];
+  const unitQuirksIsList = Array.isArray(unitQuirks);
+  const options: IPSRResolutionOptions = unitQuirksIsList
+    ? {}
+    : (unitQuirks as IPSRResolutionOptions);
+  const normalizedUnitQuirks = unitQuirksIsList ? unitQuirks : [];
   if (psr.fixedTargetNumber !== undefined) {
     return psr.additionalModifier !== 0
       ? [
@@ -213,14 +220,22 @@ export function calculatePSRModifiers(
   }
 
   const modifiers: IPSRModifier[] = [];
+  const landingSpecificDamageModifiers =
+    usesAirMekLandingSpecificDamageModifiers(psr);
 
-  // Gyro damage: +3 per hit
-  if (componentDamage.gyroHits > 0) {
-    modifiers.push({
-      name: 'Gyro damage',
-      value: componentDamage.gyroHits * 3,
-      source: 'gyro',
-    });
+  if (!landingSpecificDamageModifiers) {
+    const gyroModifier = gyroPsrModifierForType(
+      componentDamage,
+      options.gyroType,
+      { optionalRules: options.optionalRules },
+    );
+    if (gyroModifier !== 0) {
+      modifiers.push({
+        name: gyroPsrModifierName(options.gyroType),
+        value: gyroModifier,
+        source: 'gyro',
+      });
+    }
   }
 
   // Pilot wounds: +1 per wound
@@ -232,35 +247,37 @@ export function calculatePSRModifiers(
     });
   }
 
-  // Leg actuator damage modifiers
-  const actuators = componentDamage.actuators;
-  if (actuators[ActuatorType.HIP]) {
-    modifiers.push({
-      name: 'Hip actuator destroyed',
-      value: 2,
-      source: 'actuator',
-    });
-  }
-  if (actuators[ActuatorType.UPPER_LEG]) {
-    modifiers.push({
-      name: 'Upper leg actuator destroyed',
-      value: 1,
-      source: 'actuator',
-    });
-  }
-  if (actuators[ActuatorType.LOWER_LEG]) {
-    modifiers.push({
-      name: 'Lower leg actuator destroyed',
-      value: 1,
-      source: 'actuator',
-    });
-  }
-  if (actuators[ActuatorType.FOOT]) {
-    modifiers.push({
-      name: 'Foot actuator destroyed',
-      value: 1,
-      source: 'actuator',
-    });
+  if (!landingSpecificDamageModifiers) {
+    // Leg actuator damage modifiers
+    const actuators = componentDamage.actuators;
+    if (actuators[ActuatorType.HIP]) {
+      modifiers.push({
+        name: 'Hip actuator destroyed',
+        value: 2,
+        source: 'actuator',
+      });
+    }
+    if (actuators[ActuatorType.UPPER_LEG]) {
+      modifiers.push({
+        name: 'Upper leg actuator destroyed',
+        value: 1,
+        source: 'actuator',
+      });
+    }
+    if (actuators[ActuatorType.LOWER_LEG]) {
+      modifiers.push({
+        name: 'Lower leg actuator destroyed',
+        value: 1,
+        source: 'actuator',
+      });
+    }
+    if (actuators[ActuatorType.FOOT]) {
+      modifiers.push({
+        name: 'Foot actuator destroyed',
+        value: 1,
+        source: 'actuator',
+      });
+    }
   }
 
   // PSR-specific additional modifier (e.g., DFA miss +4)
@@ -349,4 +366,11 @@ export function calculatePSRModifiers(
   }
 
   return modifiers;
+}
+
+function usesAirMekLandingSpecificDamageModifiers(psr: IPendingPSR): boolean {
+  return (
+    psr.reasonCode === PSRTrigger.AirMekLanding ||
+    psr.triggerSource === PSRTrigger.AirMekLanding
+  );
 }

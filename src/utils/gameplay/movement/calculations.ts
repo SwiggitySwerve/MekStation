@@ -398,27 +398,6 @@ export function getMovementStepCostBreakdown(
       }
 
       if (
-        ((terrainType === TerrainType.Water &&
-          isBattleMechGroundMovement(movementType)) ||
-          (hasWaterFeature &&
-            !hasPavementSurfaceFeature &&
-            !hasSurfaceIce &&
-            waterLevel > 0 &&
-            blocksWaterMovement(movementType, context))) &&
-        !context.waterCapability?.fullyAmphibious &&
-        !hasFrogmanWaterMovement(context)
-      ) {
-        return {
-          mpCost: Infinity,
-          baseCost,
-          terrainCost,
-          elevationCost: 0,
-          elevationDelta: 0,
-          blockedReason: 'Water blocks ground movement',
-        };
-      }
-
-      if (
         hasWaterFeature &&
         !hasPavementSurfaceFeature &&
         !hasSurfaceIce &&
