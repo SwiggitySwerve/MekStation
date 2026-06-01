@@ -1383,7 +1383,7 @@ Ranged to-hit validation SHALL keep Improved Targeting and Poor Targeting rows s
 
 ### Requirement: Source-Backed Multi-Tasker Secondary Target Relief
 
-Ranged to-hit validation SHALL keep MegaMek's Multi-Tasker SPA distinct from MekStation's legacy local Multi-Target row. The `multi-tasker` SPA row SHALL stay integrated for source-backed `multi_tasker` behavior that reduces secondary-target penalties through ranged to-hit calculation. The `multi-target-penalty-application` resolver row SHALL stay integrated only for source-backed secondary-target penalty application and Multi-Tasker relief. The local `multi-target` SPA row SHALL remain unsupported and unconsumed by the integrated resolver unless an independent source-backed combat authority is identified.
+Ranged to-hit validation SHALL keep MegaMek's Multi-Tasker SPA distinct from MekStation's legacy local Multi-Target row. The `multi-tasker` SPA row SHALL stay integrated for source-backed `multi_tasker` behavior that reduces secondary-target penalties through ranged to-hit calculation. The `multi-target-penalty-application` resolver row SHALL stay integrated only for source-backed secondary-target penalty application and Multi-Tasker relief. The local `multi-target` SPA row SHALL remain out-of-scope and unconsumed by the integrated resolver unless an independent source-backed combat authority is identified.
 
 #### Scenario: Multi-Tasker application stays separate from local Multi-Target
 
@@ -1392,7 +1392,7 @@ Ranged to-hit validation SHALL keep MegaMek's Multi-Tasker SPA distinct from Mek
 - **THEN** `multi-tasker` SHALL be integrated with structured MegaMek source references
 - **AND** `multi-target-penalty-application` SHALL be integrated with the same source-backed Multi-Tasker references
 - **AND** the resolver assignment SHALL include `multi-tasker` and SHALL NOT include local `multi-target`
-- **AND** `multi-target` SHALL remain unsupported as a local SPA source-boundary
+- **AND** `multi-target` SHALL remain out-of-scope as a local SPA source-boundary
 
 ### Requirement: Source-Backed Multi-Trac Secondary Target Relief
 
@@ -1473,11 +1473,11 @@ Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer for
 
 ### Requirement: Local-Only SPA Gap Boundaries
 
-Pilot modifier validation SHALL keep local-only SPA rows visible as MekStation deviation boundaries when a MegaMek combat SPA authority has not been identified. Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, and Antagonizer SHALL NOT be treated as MegaMek parity claims unless the catalog row carries source-backed implementation evidence. Those local-only rows SHALL remain out-of-scope audit evidence and SHALL cite the current MegaMek pilot option registry plus the MekStation SPA catalog row that introduced the local behavior.
+Pilot modifier validation SHALL keep local-only SPA rows visible as MekStation deviation boundaries when a MegaMek combat SPA authority has not been identified. Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, and Antagonizer SHALL NOT be treated as MegaMek parity claims unless the catalog row carries source-backed implementation evidence. Those local-only rows SHALL remain out-of-scope audit evidence and SHALL cite the current MegaMek pilot option registry plus the MekStation SPA catalog row that introduced the local behavior.
 
 #### Scenario: Local SPA rows stay source-boundary explicit
 
-- **GIVEN** the combat catalog includes Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, or Antagonizer
+- **GIVEN** the combat catalog includes Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, or Antagonizer
 - **WHEN** the support row is inspected
 - **THEN** the row SHALL cite the MegaMek pilot option registry used for the source-truth cross-check
 - **AND** the row SHALL cite the MekStation SPA catalog as a `mekstation-deviation`
