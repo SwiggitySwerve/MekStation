@@ -8,6 +8,7 @@ import {
 } from '@/utils/gameplay/hitLocation';
 import { getMeleeSpecialistDamageBonus } from '@/utils/gameplay/spaModifiers';
 
+import { calculateBrushOffAttackDamage } from './brushOffEligibility';
 import {
   CHARGE_DAMAGE_DIVISOR,
   CHARGE_HIT_PSR_MODIFIER,
@@ -33,6 +34,11 @@ import {
   TSM_ACTIVATION_HEAT,
   WRECKING_BALL_DAMAGE,
 } from './constants';
+import {
+  getJumpJetAttackDamage,
+  type JumpJetAttackSelectedLeg,
+} from './jumpJetAttackEligibility';
+import { getThrashAttackDamageForWeight } from './thrashEligibility';
 import {
   IPhysicalAttackInput,
   IPhysicalDamageResult,
@@ -99,15 +105,60 @@ function footActuatorWorksForLeg(
   return input.rightFootActuatorPresent !== false;
 }
 
+function footActuatorWorksForArmLeg(
+  input: IPhysicalAttackInput,
+  limb: 'leftArm' | 'rightArm',
+): boolean {
+  if (input.componentDamage.actuators[ActuatorType.FOOT]) return false;
+  if (input.footActuatorPresent === false) return false;
+  if (limb === 'leftArm') return input.leftArmFootActuatorPresent !== false;
+  return input.rightArmFootActuatorPresent !== false;
+}
+
+function talonLocationForKick(
+  input: IPhysicalAttackInput,
+  limb: 'leftLeg' | 'rightLeg',
+): 'leftLeg' | 'rightLeg' | 'leftArm' | 'rightArm' {
+  if (!input.attackerIsQuad) return limb;
+  return limb === 'leftLeg' ? 'leftArm' : 'rightArm';
+}
+
+function talonLocationHasWorkingTalons(
+  input: IPhysicalAttackInput,
+  location: 'leftLeg' | 'rightLeg' | 'leftArm' | 'rightArm',
+): boolean {
+  if (location === 'leftLeg') {
+    return (
+      input.leftLegHasTalons === true &&
+      footActuatorWorksForLeg(input, 'leftLeg')
+    );
+  }
+  if (location === 'rightLeg') {
+    return (
+      input.rightLegHasTalons === true &&
+      footActuatorWorksForLeg(input, 'rightLeg')
+    );
+  }
+  if (location === 'leftArm') {
+    return (
+      input.leftArmHasTalons === true &&
+      footActuatorWorksForArmLeg(input, 'leftArm')
+    );
+  }
+  return (
+    input.rightArmHasTalons === true &&
+    footActuatorWorksForArmLeg(input, 'rightArm')
+  );
+}
+
 function legHasWorkingTalons(
   input: IPhysicalAttackInput,
   limb: 'leftLeg' | 'rightLeg',
 ): boolean {
-  const hasTalons =
-    limb === 'leftLeg'
-      ? input.leftLegHasTalons === true
-      : input.rightLegHasTalons === true;
-  return hasTalons && footActuatorWorksForLeg(input, limb);
+  return talonLocationHasWorkingTalons(
+    input,
+    talonLocationForKick(input, limb),
+  );
 }
 
 function selectedKickLegHasWorkingTalons(input: IPhysicalAttackInput): boolean {
@@ -121,11 +172,26 @@ function selectedKickLegHasWorkingTalons(input: IPhysicalAttackInput): boolean {
   );
 }
 
-function dfaHasWorkingTalons(input: IPhysicalAttackInput): boolean {
+function nonBipedDfaArmLocationsHaveTalons(
+  input: IPhysicalAttackInput,
+): boolean {
+  if (input.rightArmHasTalons !== true) return false;
+
+  // MegaMek gates the non-biped arm-location DFA branch on a right-arm talon
+  // mount, then accepts either the right-arm foot or the paired left arm.
   return (
-    legHasWorkingTalons(input, 'leftLeg') ||
-    legHasWorkingTalons(input, 'rightLeg')
+    footActuatorWorksForArmLeg(input, 'rightArm') ||
+    talonLocationHasWorkingTalons(input, 'leftArm')
   );
+}
+
+function dfaHasWorkingTalons(input: IPhysicalAttackInput): boolean {
+  const legTalons =
+    talonLocationHasWorkingTalons(input, 'leftLeg') ||
+    talonLocationHasWorkingTalons(input, 'rightLeg');
+  if (!input.attackerIsQuad) return legTalons;
+
+  return legTalons || nonBipedDfaArmLocationsHaveTalons(input);
 }
 
 function selectedPunchArmHasClaw(input: IPhysicalAttackInput): boolean {
@@ -376,6 +442,33 @@ export function calculateWreckingBallDamage(
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
+export function calculateThrashDamage(input: IPhysicalAttackInput): number {
+  return getThrashAttackDamageForWeight(input.attackerTonnage);
+}
+
+function selectedJumpJetAttackLeg(
+  input: IPhysicalAttackInput,
+): JumpJetAttackSelectedLeg {
+  if (input.jumpJetAttackSelectedLeg) return input.jumpJetAttackSelectedLeg;
+  return input.limb === 'leftLeg' ? 'left' : 'right';
+}
+
+export function calculateJumpJetAttackDamage(
+  input: IPhysicalAttackInput,
+): number {
+  return getJumpJetAttackDamage({
+    selectedLeg: selectedJumpJetAttackLeg(input),
+    leftReadyJumpJetCount: input.leftReadyJumpJetCount,
+    rightReadyJumpJetCount: input.rightReadyJumpJetCount,
+    leftLegWet: input.leftLegWet,
+    rightLegWet: input.rightLegWet,
+  });
+}
+
+export function calculateBrushOffDamage(input: IPhysicalAttackInput): number {
+  return calculateBrushOffAttackDamage(input);
+}
+
 /**
  * Per `implement-physical-attack-phase` tasks 6.4 / 7.4: split damage
  * into 5-point clusters before hit-location resolution. Zero damage
@@ -454,6 +547,62 @@ export function calculatePhysicalDamage(
         attackerPSRModifier: 0,
         hitTable: 'punch',
         targetDisplaced: true,
+      };
+    case 'trip':
+      return {
+        targetDamage: 0,
+        attackerDamage: 0,
+        attackerLegDamagePerLeg: 0,
+        targetPSR: true,
+        attackerPSR: false,
+        attackerPSRModifier: 0,
+        hitTable: 'punch',
+        targetDisplaced: false,
+      };
+    case 'thrash':
+      return {
+        targetDamage: calculateThrashDamage(input),
+        attackerDamage: 0,
+        attackerLegDamagePerLeg: 0,
+        targetPSR: false,
+        attackerPSR: true,
+        attackerPSRModifier: 0,
+        hitTable: 'punch',
+        targetDisplaced: false,
+      };
+    case 'jump-jet-attack':
+      return {
+        targetDamage: calculateJumpJetAttackDamage(input),
+        attackerDamage: 0,
+        attackerLegDamagePerLeg: 0,
+        targetPSR: false,
+        attackerPSR: false,
+        attackerPSRModifier: 0,
+        hitTable: 'punch',
+        targetDisplaced: false,
+      };
+    case 'brush-off':
+      return {
+        targetDamage: calculateBrushOffDamage(input),
+        attackerDamage: 0,
+        attackerLegDamagePerLeg: 0,
+        targetPSR: false,
+        attackerPSR: false,
+        attackerPSRModifier: 0,
+        hitTable: 'punch',
+        targetDisplaced: false,
+      };
+    case 'grapple':
+    case 'break-grapple':
+      return {
+        targetDamage: 0,
+        attackerDamage: 0,
+        attackerLegDamagePerLeg: 0,
+        targetPSR: false,
+        attackerPSR: false,
+        attackerPSRModifier: 0,
+        hitTable: 'punch',
+        targetDisplaced: false,
       };
     case 'hatchet':
       return {
@@ -549,18 +698,34 @@ export function calculatePhysicalDamage(
   }
 }
 
-export function getPhysicalMissConsequences(attackType: PhysicalAttackType): {
+export function getPhysicalMissConsequences(
+  attackType: PhysicalAttackType,
+  input?: IPhysicalAttackInput,
+): {
   attackerPSR: boolean;
   attackerPSRModifier: number;
+  attackerDamage: number;
+  hitTable?: 'punch' | 'kick';
 } {
   switch (attackType) {
     case 'kick':
-      return { attackerPSR: true, attackerPSRModifier: 0 };
+      return { attackerPSR: true, attackerPSRModifier: 0, attackerDamage: 0 };
     case 'charge':
-      return { attackerPSR: false, attackerPSRModifier: 0 };
+      return { attackerPSR: false, attackerPSRModifier: 0, attackerDamage: 0 };
     case 'dfa':
-      return { attackerPSR: true, attackerPSRModifier: DFA_MISS_PSR_MODIFIER };
+      return {
+        attackerPSR: true,
+        attackerPSRModifier: DFA_MISS_PSR_MODIFIER,
+        attackerDamage: 0,
+      };
+    case 'brush-off':
+      return {
+        attackerPSR: false,
+        attackerPSRModifier: 0,
+        attackerDamage: input ? calculateBrushOffDamage(input) : 0,
+        hitTable: 'punch',
+      };
     default:
-      return { attackerPSR: false, attackerPSRModifier: 0 };
+      return { attackerPSR: false, attackerPSRModifier: 0, attackerDamage: 0 };
   }
 }

@@ -51,6 +51,10 @@ export interface IPSRBatchResult {
   readonly results: readonly IPSRResult[];
   /** Whether any PSR failed (unit falls) */
   readonly unitFell: boolean;
+  /** Whether any PSR failed by making the unit stuck instead of fallen */
+  readonly unitStuck?: boolean;
+  /** First failed PSR result, when a failure stopped the batch */
+  readonly failedResult?: IPSRResult;
   /** PSRs that were cleared without rolling (due to first-failure-clears rule) */
   readonly clearedPSRs: readonly IPendingPSR[];
 }
@@ -105,6 +109,7 @@ export function getPSRReasonCategory(code: PSRTrigger): PSRReasonCategory {
     case PSRTrigger.EnteringWater:
     case PSRTrigger.ExitingWater:
     case PSRTrigger.Skidding:
+    case PSRTrigger.SwampBogDown:
     case PSRTrigger.RunningDamagedHip:
     case PSRTrigger.RunningDamagedGyro:
     case PSRTrigger.BuildingCollapse:

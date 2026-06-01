@@ -86,6 +86,7 @@ describe('To-Hit Calculation', () => {
       expect(ATTACKER_MOVEMENT_MODIFIERS[MovementType.Stationary]).toBe(0);
       expect(ATTACKER_MOVEMENT_MODIFIERS[MovementType.Walk]).toBe(1);
       expect(ATTACKER_MOVEMENT_MODIFIERS[MovementType.Run]).toBe(2);
+      expect(ATTACKER_MOVEMENT_MODIFIERS[MovementType.Evade]).toBe(2);
       expect(ATTACKER_MOVEMENT_MODIFIERS[MovementType.Jump]).toBe(3);
     });
   });
@@ -124,6 +125,11 @@ describe('To-Hit Calculation', () => {
     it('should return 3 for jumping', () => {
       const modifier = calculateAttackerMovementModifier(MovementType.Jump);
       expect(modifier.value).toBe(3);
+    });
+
+    it('should return 2 for TacOps Evade', () => {
+      const modifier = calculateAttackerMovementModifier(MovementType.Evade);
+      expect(modifier.value).toBe(2);
     });
   });
 

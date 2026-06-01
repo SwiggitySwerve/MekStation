@@ -23,12 +23,14 @@ import {
   createGameStartedEvent,
   createGameEndedEvent,
   createPhaseChangedEvent,
+  createInitiativeOrderSetEvent,
   createInitiativeRolledEvent,
   createMovementEnhancementActivatedEvent,
   createGoProneMovementDeclaredEvent,
   createMovementDeclaredEvent,
   createMovementLockedEvent,
   createAttackDeclaredEvent,
+  createAttacksRevealedEvent,
   createAttackResolvedEvent,
   createDamageAppliedEvent,
   createHeatGeneratedEvent,
@@ -420,6 +422,29 @@ describe('Initiative Event Factories', () => {
       expect(maxPayload.opponentRoll).toBe(2);
     });
   });
+
+  describe('createInitiativeOrderSetEvent', () => {
+    it('should create a replayable initiative order event', () => {
+      const event = createInitiativeOrderSetEvent(
+        'game-1',
+        4,
+        2,
+        GameSide.Player,
+        GameSide.Opponent,
+      );
+
+      expect(event.type).toBe(GameEventType.InitiativeOrderSet);
+      expect(event.gameId).toBe('game-1');
+      expect(event.sequence).toBe(4);
+      expect(event.turn).toBe(2);
+      expect(event.phase).toBe(GamePhase.Initiative);
+      expect(event.payload).toMatchObject({
+        winner: GameSide.Player,
+        firstMover: GameSide.Opponent,
+        secondMover: GameSide.Player,
+      });
+    });
+  });
 });
 
 // =============================================================================
@@ -567,6 +592,30 @@ describe('Movement Event Factories', () => {
         { kind: 'goProne', index: 0, at: position, mpCost: 1 },
       ]);
     });
+
+    it('should preserve a zero-cost goProne step for hull-down transitions', () => {
+      const position = { q: 3, r: -1 };
+      const event = createGoProneMovementDeclaredEvent(
+        'game-1',
+        10,
+        1,
+        'unit-1',
+        position,
+        Facing.North,
+        0,
+      );
+      const payload = event.payload as {
+        mpUsed: number;
+        turningMpCost?: number;
+        steps?: readonly unknown[];
+      };
+
+      expect(payload.mpUsed).toBe(0);
+      expect(payload.turningMpCost).toBe(0);
+      expect(payload.steps).toEqual([
+        { kind: 'goProne', index: 0, at: position, mpCost: 0 },
+      ]);
+    });
   });
 
   describe('createMovementEnhancementActivatedEvent', () => {
@@ -681,6 +730,43 @@ describe('Combat Event Factories', () => {
 
       expect(payload.weapons).toHaveLength(1);
       expect(payload.weapons[0]).toBe('gauss_rifle');
+    });
+  });
+
+  describe('createAttacksRevealedEvent', () => {
+    it('should create a public attack reveal boundary event', () => {
+      const event = createAttacksRevealedEvent(
+        'game-1',
+        21,
+        3,
+        ['player-1', 'opponent-1'],
+        2,
+      );
+
+      expect(event.type).toBe(GameEventType.AttacksRevealed);
+      expect(event.gameId).toBe('game-1');
+      expect(event.sequence).toBe(21);
+      expect(event.turn).toBe(3);
+      expect(event.phase).toBe(GamePhase.WeaponAttack);
+      expect(event.actorId).toBeUndefined();
+      expect(event.visibility).toBe('public');
+    });
+
+    it('should include revealed unit ids and attack count in payload', () => {
+      const event = createAttacksRevealedEvent(
+        'game-1',
+        21,
+        3,
+        ['player-1', 'opponent-1'],
+        2,
+      );
+      const payload = event.payload as {
+        unitIds: readonly string[];
+        attackCount: number;
+      };
+
+      expect(payload.unitIds).toEqual(['player-1', 'opponent-1']);
+      expect(payload.attackCount).toBe(2);
     });
   });
 

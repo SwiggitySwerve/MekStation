@@ -38,6 +38,7 @@ import {
   hexDistance,
   hexNeighbors,
 } from '@/utils/gameplay/hexMath';
+import { getSprintMPForCapability } from '@/utils/gameplay/movement';
 import { getHexMovementCostFromTerrainTag } from '@/utils/gameplay/terrainMovementCost';
 
 /** A single legal path from origin to a destination hex. */
@@ -74,7 +75,10 @@ function mpBudget(
     case MovementType.Walk:
       return capability.walkMP;
     case MovementType.Run:
+    case MovementType.Evade:
       return capability.runMP;
+    case MovementType.Sprint:
+      return getSprintMPForCapability(capability);
     case MovementType.Jump:
       return capability.jumpMP;
     case MovementType.Stationary:

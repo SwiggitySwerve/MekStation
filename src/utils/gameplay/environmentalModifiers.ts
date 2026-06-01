@@ -50,6 +50,7 @@ export const DEFAULT_ENVIRONMENTAL_CONDITIONS: IEnvironmentalConditions = {
   light: 'daylight',
   precipitation: 'none',
   fog: 'none',
+  blowingSand: false,
   wind: 'none',
   gravity: 1.0,
   atmosphere: 'standard',
@@ -162,6 +163,28 @@ export function calculateFogModifier(
     value,
     source: 'environmental',
     description: `${fog === 'light_fog' ? 'Light fog' : 'Heavy fog'}: +${value}`,
+  };
+}
+
+// =============================================================================
+// Blowing Sand Modifiers
+// =============================================================================
+
+/**
+ * Calculate the MegaMek blowing-sand modifier.
+ * Blowing sand applies +1 only to energy-weapon attacks.
+ */
+export function calculateBlowingSandModifier(
+  blowingSand: boolean,
+  isEnergyWeapon: boolean = false,
+): IToHitModifierDetail | null {
+  if (!blowingSand || !isEnergyWeapon) return null;
+
+  return {
+    name: 'Blowing Sand',
+    value: 1,
+    source: 'environmental',
+    description: 'Blowing sand affects energy weapons: +1',
   };
 }
 
@@ -302,6 +325,8 @@ export function getTemperatureHeatModifier(
  * Options for calculating environmental modifiers.
  */
 export interface IEnvironmentalModifierOptions {
+  /** Whether the weapon is an energy weapon (for blowing sand effects) */
+  readonly isEnergyWeapon?: boolean;
   /** Whether the weapon is a missile weapon (for wind effects) */
   readonly isMissileWeapon?: boolean;
 }
@@ -331,6 +356,13 @@ export function calculateEnvironmentalModifiers(
   // Fog
   const fogMod = calculateFogModifier(conditions.fog);
   if (fogMod) modifiers.push(fogMod);
+
+  // Blowing sand (energy only)
+  const sandMod = calculateBlowingSandModifier(
+    conditions.blowingSand,
+    options.isEnergyWeapon,
+  );
+  if (sandMod) modifiers.push(sandMod);
 
   // Wind (missile only)
   if (options.isMissileWeapon) {

@@ -3,6 +3,8 @@ import type {
   ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 
+import { MEKSTATION_PHYSICAL_ACTION_HELPER_REFS } from './CombatPhysicalActionClassHelperRefs';
+
 const MEGAMEK_PHYSICAL_ACTION_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
 
@@ -19,7 +21,7 @@ function megamekPhysicalActionRef(
   };
 }
 
-const MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS = {
+const MEGAMEK_HELPER_ONLY_BATTLEMECH_PHYSICAL_ACTION_REFS = {
   'brush-off': [
     megamekPhysicalActionRef(
       'MegaMek BrushOffAttackAction models BattleMech brush-off attacks against swarming infantry or iNarc pods with arm, prone, target, and actuator gates.',
@@ -45,14 +47,19 @@ const MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS = {
     megamekPhysicalActionRef(
       'MegaMek GrappleAttackAction models optional grappling for biped Meks and ProtoMeks with grapple state, arm, range, elevation, facing, prone-state, weapon-fire, and weight-class handling.',
       'GrappleAttackAction',
-      'L93-L352',
+      'L93-L348',
     ),
   ],
   'break-grapple': [
     megamekPhysicalActionRef(
       'MegaMek BreakGrappleAttackAction models optional break-grapple attempts with grapple state, chain-whip, actuator, automatic-success, and weight-class handling.',
       'BreakGrappleAttackAction',
-      'L81-L169',
+      'L81-L175',
+    ),
+    megamekPhysicalActionRef(
+      'MegaMek GrappleAttackAction supplies the shared grapple weight-class modifier branches reused by break-grapple attempts.',
+      'GrappleAttackAction',
+      'L203-L212',
     ),
   ],
   'jump-jet-attack': [
@@ -178,26 +185,6 @@ function integrated(
   };
 }
 
-function unsupportedBattleMech(
-  id: string,
-  sourceClass: string,
-  gap: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
-): IPhysicalActionClassScopeEntry {
-  const entry: IPhysicalActionClassScopeEntry = {
-    id,
-    sourceClass,
-    sourcePath: `E:/Projects/megamek/megamek/src/megamek/common/actions/${sourceClass}.java`,
-    battleMechScope: 'battlemech',
-    level: 'unsupported',
-    evidence:
-      'MegaMek source class exists, but no MekStation runtime action type is wired',
-    gap,
-  };
-
-  return sourceRefs ? { ...entry, sourceRefs } : entry;
-}
-
 function outOfScope(
   id: string,
   sourceClass: string,
@@ -210,7 +197,7 @@ function outOfScope(
     sourceClass,
     sourcePath: `E:/Projects/megamek/megamek/src/megamek/common/actions/${sourceClass}.java`,
     battleMechScope,
-    level: 'helper-only',
+    level: 'out-of-scope',
     evidence:
       'MegaMek source class exists and is intentionally split out of the BattleMech combat validation matrix',
     gap,
@@ -281,41 +268,65 @@ export const PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT = {
     ['hatchet', 'sword', 'mace', 'lance', 'retractable-blade'],
     MEGAMEK_SUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS.club,
   ),
-  'brush-off': unsupportedBattleMech(
+  'brush-off': integrated(
     'brush-off',
     'BrushOffAttackAction',
-    'Brush-off against swarming infantry/battle armor has no runtime PhysicalAttackType, tactical command, or resolution path',
-    MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS['brush-off'],
+    'MekStation runtime PhysicalAttackType, tactical command, runner, and event-sourced physical resolution support BattleMech brush-off attacks against swarming infantry with hit dislodgement and punch-equivalent miss self-damage; iNARC pod target removal remains tracked separately under the iNARC pod mechanic row',
+    ['brush-off'],
+    [
+      ...MEGAMEK_HELPER_ONLY_BATTLEMECH_PHYSICAL_ACTION_REFS['brush-off'],
+      ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS['brush-off'],
+    ],
   ),
-  thrash: unsupportedBattleMech(
+  thrash: integrated(
     'thrash',
     'ThrashAttackAction',
-    'Prone BattleMech thrash attacks against infantry have no runtime PhysicalAttackType, tactical command, or resolution path',
-    MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS.thrash,
+    'MekStation runtime PhysicalAttackType, tactical command, runner, and event-sourced physical resolution support prone BattleMech same-hex thrash attacks as automatic-hit infantry damage with attacker PSR',
+    ['thrash'],
+    [
+      ...MEGAMEK_HELPER_ONLY_BATTLEMECH_PHYSICAL_ACTION_REFS.thrash,
+      ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS.thrash,
+    ],
   ),
-  trip: unsupportedBattleMech(
+  trip: integrated(
     'trip',
     'TripAttackAction',
-    'Trip attacks have no runtime PhysicalAttackType, tactical command, or resolution path',
-    MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS.trip,
+    'MekStation runtime PhysicalAttackType, tactical command, runner, and event-sourced physical resolution support optional TacOps BattleMech trip attacks as zero-damage PSR-triggering hits',
+    ['trip'],
+    [
+      ...MEGAMEK_HELPER_ONLY_BATTLEMECH_PHYSICAL_ACTION_REFS.trip,
+      ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS.trip,
+    ],
   ),
-  grapple: unsupportedBattleMech(
+  grapple: integrated(
     'grapple',
     'GrappleAttackAction',
-    'Grapple attacks have no runtime PhysicalAttackType, tactical command, grapple state, or resolution path',
-    MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS.grapple,
+    'MekStation runtime PhysicalAttackType, tactical command, event-sourced physical resolution, and runner physical phase support source-backed normal TacOps grapple attacks with no damage, attacker relocation into the target hex, target facing reversal, and both-unit grapple state',
+    ['grapple'],
+    [
+      ...MEGAMEK_HELPER_ONLY_BATTLEMECH_PHYSICAL_ACTION_REFS.grapple,
+      ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS.grapple,
+    ],
   ),
-  'break-grapple': unsupportedBattleMech(
+  'break-grapple': integrated(
     'break-grapple',
     'BreakGrappleAttackAction',
-    'Breaking grapples has no runtime PhysicalAttackType, tactical command, grapple state, or resolution path',
-    MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS['break-grapple'],
+    'MekStation runtime PhysicalAttackType, tactical command, event-sourced physical resolution, and runner physical phase support source-backed normal TacOps break-grapple attacks with no damage, automatic original-attacker success, grapple state clearing, and grid-backed adjacent displacement',
+    ['break-grapple'],
+    [
+      ...MEGAMEK_HELPER_ONLY_BATTLEMECH_PHYSICAL_ACTION_REFS['break-grapple'],
+      ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS['break-grapple'],
+    ],
   ),
-  'jump-jet-attack': unsupportedBattleMech(
+  'jump-jet-attack': integrated(
     'jump-jet-attack',
     'JumpJetAttackAction',
-    'Jump-jet attacks have no runtime PhysicalAttackType, tactical command, jump-jet exposure model, or resolution path',
-    MEGAMEK_UNSUPPORTED_BATTLEMECH_PHYSICAL_ACTION_REFS['jump-jet-attack'],
+    'MekStation runtime PhysicalAttackType, tactical command, selected-leg limb payload, event-sourced physical resolution, and runner physical phase support optional TacOps BattleMech jump-jet attacks with selected-leg damage and source-backed helper gates',
+    ['jump-jet-attack'],
+    [
+      ...MEGAMEK_HELPER_ONLY_BATTLEMECH_PHYSICAL_ACTION_REFS['jump-jet-attack'],
+      ...MEKSTATION_PHYSICAL_ACTION_HELPER_REFS['jump-jet-attack'],
+    ],
   ),
   'airmek-ram': outOfScope(
     'airmek-ram',

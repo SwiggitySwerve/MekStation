@@ -46,6 +46,10 @@ import {
   emitUnitDestroyedEvent,
 } from './weaponAttackHitResolution.helpers';
 import {
+  applyPlasmaCannonTargetHeat,
+  isPlasmaCannonWeapon,
+} from './weaponAttackPlasmaCannon';
+import {
   applyCriticalPSRTriggers,
   applyLegDamagePSR,
 } from './weaponAttackPsrTriggers';
@@ -85,6 +89,7 @@ export function resolveWeaponHit(options: {
    */
   hullDown?: boolean;
   d6Roller: () => number;
+  optionalRules?: readonly string[];
   getOrSeedManifest: (id: string) => CriticalSlotManifest;
   manifestsByUnit?: Map<string, CriticalSlotManifest>;
   weaponsByUnit?: ReadonlyMap<string, readonly IWeapon[]>;
@@ -100,6 +105,7 @@ export function resolveWeaponHit(options: {
     manifestsByUnit,
     partialCover,
     hullDown,
+    optionalRules,
     ammoWeaponType,
     projectileCount,
     targetId,
@@ -324,6 +330,34 @@ export function resolveWeaponHit(options: {
         location,
       });
     }
+
+    return consumeWeaponAmmo({
+      currentState,
+      events,
+      gameId,
+      attackerId: unitId,
+      weapon,
+      ammoWeaponType,
+    });
+  }
+
+  if (isPlasmaCannonWeapon(weapon)) {
+    currentState = applyPlasmaCannonTargetHeat({
+      currentState,
+      events,
+      gameId,
+      attackerId: unitId,
+      targetId,
+      weaponId,
+      weapon,
+      projectileCount,
+      attackRoll,
+      toHitNumber,
+      location,
+      firingArc,
+      d6Roller,
+      optionalRules,
+    });
 
     return consumeWeaponAmmo({
       currentState,

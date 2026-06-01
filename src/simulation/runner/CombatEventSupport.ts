@@ -26,33 +26,13 @@ function integrated(
     : { id: eventType, level: 'integrated', evidence };
 }
 
-function helperOnly(
+function outOfScope(
   eventType: GameEventType,
   evidence: string,
   gap: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
+  sourceRefs: readonly ICombatFeatureSourceReference[],
 ): ICombatFeatureSupportEntry {
-  const refs = sourceRefs ?? BATTLEMECH_EVENT_SOURCE_REFS[eventType];
-
-  return refs
-    ? { id: eventType, level: 'helper-only', evidence, gap, sourceRefs: refs }
-    : { id: eventType, level: 'helper-only', evidence, gap };
-}
-
-function unsupported(
-  eventType: GameEventType,
-  gap: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  const refs = sourceRefs ?? BATTLEMECH_EVENT_SOURCE_REFS[eventType];
-  const entry: ICombatFeatureSupportEntry = {
-    id: eventType,
-    level: 'unsupported',
-    evidence: 'No BattleMech combat event behavior wired',
-    gap,
-  };
-
-  return refs ? { ...entry, sourceRefs: refs } : entry;
+  return { id: eventType, level: 'out-of-scope', evidence, gap, sourceRefs };
 }
 
 export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
@@ -84,9 +64,9 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
     GameEventType.InitiativeRolled,
     'rollInitiative emits InitiativeRolled and applyInitiativeRolled records turn order',
   ),
-  [GameEventType.InitiativeOrderSet]: unsupported(
+  [GameEventType.InitiativeOrderSet]: integrated(
     GameEventType.InitiativeOrderSet,
-    'No BattleMech emitter or reducer mutation sets an explicit initiative order event',
+    'rollInitiative emits InitiativeOrderSet after InitiativeRolled and applyInitiativeOrderSet records replayable turn order',
   ),
   [GameEventType.MovementDeclared]: integrated(
     GameEventType.MovementDeclared,
@@ -112,9 +92,9 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
     GameEventType.AttackLocked,
     'lockAttack emits AttackLocked and applyAttackLocked closes weapon action eligibility',
   ),
-  [GameEventType.AttacksRevealed]: unsupported(
+  [GameEventType.AttacksRevealed]: integrated(
     GameEventType.AttacksRevealed,
-    'No simultaneous-attack reveal event is emitted by runner or interactive BattleMech combat',
+    'lockAttack emits AttacksRevealed after every active unit has locked weapon attacks, and applyAttacksRevealed replays the reveal boundary',
   ),
   [GameEventType.AttackResolved]: integrated(
     GameEventType.AttackResolved,
@@ -139,6 +119,10 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
   [GameEventType.IndirectFireNarcOverride]: integrated(
     GameEventType.IndirectFireNarcOverride,
     'runner and interactive indirect-fire declarations emit NARC override events',
+  ),
+  [GameEventType.SpottingDeclared]: integrated(
+    GameEventType.SpottingDeclared,
+    'requestSpot emits SpottingDeclared and the reducer latches the spotting unit plus selected spot target for ranged and physical attacker penalties',
   ),
   [GameEventType.HeatGenerated]: integrated(
     GameEventType.HeatGenerated,
@@ -184,6 +168,10 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
     GameEventType.UnitFell,
     'failed PSRs and source-backed missed-DFA fall resolution emit UnitFell with fall damage, facing, and pilot damage context',
   ),
+  [GameEventType.UnitStuck]: integrated(
+    GameEventType.UnitStuck,
+    'swamp bog-down movement and PSR paths emit UnitStuck with stuck reason and reasonCode context instead of fall payloads',
+  ),
   [GameEventType.UnitStood]: integrated(
     GameEventType.UnitStood,
     'gameSessionPSR emits UnitStood when an AttemptStand PSR succeeds',
@@ -218,7 +206,7 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
   ),
   [GameEventType.AttackInvalid]: integrated(
     GameEventType.AttackInvalid,
-    'runner target, LOS, ammo, range, evading-attacker, destroyed-weapon, and jammed-weapon validation emits AttackInvalid before combat side effects',
+    'runner target, LOS, ammo, range, evading/sprinting-attacker, destroyed-weapon, and jammed-weapon validation emits AttackInvalid before combat side effects',
   ),
   [GameEventType.LocationDestroyed]: integrated(
     GameEventType.LocationDestroyed,
@@ -271,91 +259,91 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 
 export const NON_BATTLEMECH_EVENT_SCOPE_SUPPORT = {
-  [GameEventType.MotiveDamaged]: helperOnly(
+  [GameEventType.MotiveDamaged]: outOfScope(
     GameEventType.MotiveDamaged,
     'vehicle motive-damage helpers and vehicle event tests cover this event',
     'vehicle-specific combat belongs in a separate vehicle validation matrix',
     VEHICLE_EVENT_SCOPE_SOURCE_REFS,
   ),
-  [GameEventType.MotivePenaltyApplied]: helperOnly(
+  [GameEventType.MotivePenaltyApplied]: outOfScope(
     GameEventType.MotivePenaltyApplied,
     'vehicle motive-damage helpers and vehicle event tests cover this event',
     'vehicle-specific combat belongs in a separate vehicle validation matrix',
     VEHICLE_EVENT_SCOPE_SOURCE_REFS,
   ),
-  [GameEventType.VehicleImmobilized]: helperOnly(
+  [GameEventType.VehicleImmobilized]: outOfScope(
     GameEventType.VehicleImmobilized,
     'vehicle motive-damage helpers and vehicle event tests cover this event',
     'vehicle-specific combat belongs in a separate vehicle validation matrix',
     VEHICLE_EVENT_SCOPE_SOURCE_REFS,
   ),
-  [GameEventType.TurretLocked]: helperOnly(
+  [GameEventType.TurretLocked]: outOfScope(
     GameEventType.TurretLocked,
     'vehicle critical-effect helpers and vehicle event tests cover this event',
     'vehicle-specific combat belongs in a separate vehicle validation matrix',
     VEHICLE_EVENT_SCOPE_SOURCE_REFS,
   ),
-  [GameEventType.VehicleCrewStunned]: helperOnly(
+  [GameEventType.VehicleCrewStunned]: outOfScope(
     GameEventType.VehicleCrewStunned,
     'vehicle critical-effect helpers and vehicle event tests cover this event',
     'vehicle-specific combat belongs in a separate vehicle validation matrix',
     VEHICLE_EVENT_SCOPE_SOURCE_REFS,
   ),
-  [GameEventType.VTOLCrashCheck]: helperOnly(
+  [GameEventType.VTOLCrashCheck]: outOfScope(
     GameEventType.VTOLCrashCheck,
     'VTOL vehicle helpers and vehicle event tests cover this event',
     'vehicle-specific combat belongs in a separate vehicle validation matrix',
     VEHICLE_EVENT_SCOPE_SOURCE_REFS,
   ),
-  [GameEventType.TrooperKilled]: helperOnly(
+  [GameEventType.TrooperKilled]: outOfScope(
     GameEventType.TrooperKilled,
     'battle armor combat helpers cover trooper casualty events',
     'battle armor combat belongs in a separate battle-armor validation matrix',
     BATTLE_ARMOR_CASUALTY_EVENT_SOURCE_REFS,
   ),
-  [GameEventType.SquadEliminated]: helperOnly(
+  [GameEventType.SquadEliminated]: outOfScope(
     GameEventType.SquadEliminated,
     'battle armor combat helpers cover squad elimination events',
     'battle armor combat belongs in a separate battle-armor validation matrix',
     BATTLE_ARMOR_CASUALTY_EVENT_SOURCE_REFS,
   ),
-  [GameEventType.SwarmAttached]: helperOnly(
+  [GameEventType.SwarmAttached]: outOfScope(
     GameEventType.SwarmAttached,
     'battle armor swarm helpers cover swarm attachment events',
     'battle armor combat belongs in a separate battle-armor validation matrix',
     BATTLE_ARMOR_SWARM_EVENT_SOURCE_REFS,
   ),
-  [GameEventType.SwarmDamage]: helperOnly(
+  [GameEventType.SwarmDamage]: outOfScope(
     GameEventType.SwarmDamage,
     'battle armor swarm helpers cover swarm damage events',
     'battle armor combat belongs in a separate battle-armor validation matrix',
     BATTLE_ARMOR_SWARM_EVENT_SOURCE_REFS,
   ),
-  [GameEventType.SwarmDismounted]: helperOnly(
+  [GameEventType.SwarmDismounted]: outOfScope(
     GameEventType.SwarmDismounted,
     'battle armor swarm helpers cover swarm dismount events',
     'battle armor combat belongs in a separate battle-armor validation matrix',
     BATTLE_ARMOR_SWARM_EVENT_SOURCE_REFS,
   ),
-  [GameEventType.LegAttack]: helperOnly(
+  [GameEventType.LegAttack]: outOfScope(
     GameEventType.LegAttack,
     'legacy battle armor leg-attack helpers cover LegAttack events',
     'battle armor combat belongs in a separate battle-armor validation matrix',
     BATTLE_ARMOR_LEG_EVENT_SOURCE_REFS,
   ),
-  [GameEventType.LegAttackResolved]: helperOnly(
+  [GameEventType.LegAttackResolved]: outOfScope(
     GameEventType.LegAttackResolved,
     'InteractiveSession battle armor leg-attack scenarios cover LegAttackResolved',
     'battle armor combat belongs in a separate battle-armor validation matrix',
     BATTLE_ARMOR_LEG_EVENT_SOURCE_REFS,
   ),
-  [GameEventType.MimeticBonus]: helperOnly(
+  [GameEventType.MimeticBonus]: outOfScope(
     GameEventType.MimeticBonus,
     'battle armor mimetic helpers cover this event',
     'battle armor combat belongs in a separate battle-armor validation matrix',
     BATTLE_ARMOR_STEALTH_EVENT_SOURCE_REFS,
   ),
-  [GameEventType.StealthBonus]: helperOnly(
+  [GameEventType.StealthBonus]: outOfScope(
     GameEventType.StealthBonus,
     'battle armor stealth helpers cover this event',
     'battle armor combat belongs in a separate battle-armor validation matrix',

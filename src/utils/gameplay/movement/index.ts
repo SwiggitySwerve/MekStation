@@ -1,10 +1,13 @@
 export type { UnitMovementType } from './types';
+export type { IMovementCostContext } from './calculations';
 export { createMovementRecord } from './types';
 export {
   applyActiveMPBoosters,
   calculateRunMP,
+  calculateSprintMP,
   createMovementCapability,
   getMaxMP,
+  getSprintMPForCapability,
   getHexMovementCost,
   estimateMovementCost,
 } from './calculations';

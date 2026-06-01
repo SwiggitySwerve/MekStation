@@ -40,6 +40,9 @@ export function generateGameLog(session: IGameSession): string {
       case 'initiative_rolled':
         lines.push(`${prefix} Initiative rolled`);
         break;
+      case 'initiative_order_set':
+        lines.push(`${prefix} Initiative order set`);
+        break;
       case 'movement_declared':
         lines.push(`${prefix} Unit ${event.actorId} moved`);
         break;
@@ -48,6 +51,9 @@ export function generateGameLog(session: IGameSession): string {
         break;
       case 'attack_declared':
         lines.push(`${prefix} Unit ${event.actorId} declared attack`);
+        break;
+      case 'attacks_revealed':
+        lines.push(`${prefix} Attacks revealed`);
         break;
       case 'attack_resolved':
         lines.push(`${prefix} Attack resolved`);

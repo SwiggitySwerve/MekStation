@@ -2,6 +2,26 @@ import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { hasNoArms } from '@/utils/gameplay/quirkModifiers';
 
 import {
+  canBreakGrapple,
+  type BreakGrappleAttackInvalidReason,
+} from './breakGrappleEligibility';
+import {
+  canBrushOff,
+  type BrushOffAttackInvalidReason,
+} from './brushOffEligibility';
+import {
+  canGrapple,
+  type GrappleAttackInvalidReason,
+  type GrappleAttackSide,
+} from './grappleEligibility';
+import {
+  canJumpJetAttack,
+  type JumpJetAttackInvalidReason,
+  type JumpJetAttackSelectedLeg,
+} from './jumpJetAttackEligibility';
+import { canThrash, type ThrashAttackInvalidReason } from './thrashEligibility';
+import { canTrip, type TripAttackInvalidReason } from './tripEligibility';
+import {
   IPhysicalAttackInput,
   IPhysicalAttackRestriction,
   PhysicalAttackInvalidReason,
@@ -29,6 +49,28 @@ const CHARGE_DFA_NON_ENTITY_TARGET_OBJECT_TYPES = new Set([
 ]);
 
 const PUSH_BLOCKED_TARGET_OBJECT_TYPES = new Set(['building', 'fuelTank']);
+const THRASH_NON_ENTITY_TARGET_OBJECT_TYPES = new Set([
+  'building',
+  'fuelTank',
+  'buildingIgnite',
+  'hexClear',
+  'hexIgnite',
+]);
+const TACOPS_TRIP_ATTACK_OPTIONS = new Set([
+  'tacops_trip_attack',
+  'advanced_combat_tac_ops_trip_attack',
+  'tacops_trip',
+]);
+const TACOPS_JUMP_JET_ATTACK_OPTIONS = new Set([
+  'tacops_jump_jet_attack',
+  'advanced_combat_tac_ops_jump_jet_attack',
+  'jump_jet_attack',
+]);
+const TACOPS_GRAPPLING_OPTIONS = new Set([
+  'tacops_grappling',
+  'advanced_combat_tac_ops_grappling',
+  'grappling',
+]);
 
 export function physicalTargetObjectInvalidReason(
   attackType: PhysicalAttackType,
@@ -49,6 +91,12 @@ export function physicalTargetObjectInvalidReason(
     PUSH_BLOCKED_TARGET_OBJECT_TYPES.has(targetObjectType)
   ) {
     return 'TargetBuilding';
+  }
+  if (
+    attackType === 'thrash' &&
+    THRASH_NON_ENTITY_TARGET_OBJECT_TYPES.has(targetObjectType)
+  ) {
+    return 'InvalidPhysicalTarget';
   }
   return undefined;
 }
@@ -140,7 +188,7 @@ function sharedPhysicalTargetRestriction(
     );
   }
 
-  if (input.targetIsSwarming) {
+  if (input.targetIsSwarming && input.attackType !== 'brush-off') {
     return blocked(
       'Physical attacks cannot target units conducting a swarm attack',
       'TargetSwarming',
@@ -185,7 +233,35 @@ function sharedPhysicalTargetRestriction(
     );
   }
 
-  if (input.targetDistance !== undefined && input.targetDistance !== 1) {
+  if (
+    input.attackType === 'thrash' &&
+    input.targetObjectType &&
+    THRASH_NON_ENTITY_TARGET_OBJECT_TYPES.has(input.targetObjectType)
+  ) {
+    return blocked(
+      'Thrash attacks require an infantry unit target',
+      'InvalidPhysicalTarget',
+    );
+  }
+
+  if (input.targetDistance !== undefined && input.attackType === 'thrash') {
+    if (input.targetDistance !== 0) {
+      return blocked(
+        'Thrash attacks require a target in the same hex',
+        'TargetNotSameHex',
+      );
+    }
+  } else if (
+    input.targetDistance !== undefined &&
+    input.attackType === 'brush-off'
+  ) {
+    if (input.targetDistance > 1) {
+      return blocked(
+        'Brush-off attacks require an attached or adjacent target',
+        'TargetNotAdjacent',
+      );
+    }
+  } else if (input.targetDistance !== undefined && input.targetDistance !== 1) {
     return blocked(
       'Physical attacks require an adjacent target',
       'TargetNotAdjacent',
@@ -241,6 +317,7 @@ const MEK_UNIT_TYPES = new Set([
   'omnimech',
   'industrialmech',
 ]);
+const PROTOMEK_UNIT_TYPES = new Set(['protomek']);
 const INFANTRY_UNIT_TYPES = new Set(['infantry', 'battlearmor']);
 const DROPSHIP_UNIT_TYPES = new Set(['dropship']);
 const DEFAULT_STANDING_MEK_HEIGHT = 1;
@@ -259,9 +336,31 @@ function legacyOrMekUnitType(value: string | undefined): boolean {
   return canonical === undefined || MEK_UNIT_TYPES.has(canonical);
 }
 
+function protoMekUnitType(value: string | undefined): boolean {
+  const canonical = canonicalUnitType(value);
+  return canonical !== undefined && PROTOMEK_UNIT_TYPES.has(canonical);
+}
+
+function battleMekOrProtoMekTarget(input: IPhysicalAttackInput): boolean {
+  if (
+    input.targetObjectType !== undefined &&
+    input.targetObjectType !== 'entity'
+  ) {
+    return false;
+  }
+  return (
+    legacyOrMekUnitType(input.targetUnitType) ||
+    protoMekUnitType(input.targetUnitType)
+  );
+}
+
 function infantryUnitType(value: string | undefined): boolean {
   const canonical = canonicalUnitType(value);
   return canonical !== undefined && INFANTRY_UNIT_TYPES.has(canonical);
+}
+
+function standardInfantryUnitType(value: string | undefined): boolean {
+  return canonicalUnitType(value) === 'infantry';
 }
 
 function dropshipUnitType(value: string | undefined): boolean {
@@ -305,6 +404,161 @@ function attackerLocationDestroyed(
   return input.attackerDestroyedLocations?.includes(location) ?? false;
 }
 
+function attackerHasWorkingThrashArmOrLeg(
+  input: IPhysicalAttackInput,
+): boolean {
+  if (input.hasWorkingThrashArmOrLeg !== undefined) {
+    return input.hasWorkingThrashArmOrLeg;
+  }
+
+  return ['left_arm', 'right_arm', 'left_leg', 'right_leg'].some(
+    (location) => !attackerLocationDestroyed(input, location),
+  );
+}
+
+function optionalRuleEnabled(
+  optionalRules: readonly string[] | undefined,
+  aliases: ReadonlySet<string>,
+): boolean {
+  return (
+    optionalRules?.some((rule) =>
+      aliases.has(
+        rule
+          .trim()
+          .toLowerCase()
+          .replace(/[\s-]+/g, '_'),
+      ),
+    ) ?? false
+  );
+}
+
+function tripAttackEnabled(input: IPhysicalAttackInput): boolean {
+  return (
+    input.tacOpsTripAttackEnabled === true ||
+    optionalRuleEnabled(input.optionalRules, TACOPS_TRIP_ATTACK_OPTIONS)
+  );
+}
+
+function jumpJetAttackEnabled(input: IPhysicalAttackInput): boolean {
+  return (
+    input.tacOpsJumpJetAttackEnabled === true ||
+    optionalRuleEnabled(input.optionalRules, TACOPS_JUMP_JET_ATTACK_OPTIONS)
+  );
+}
+
+function grapplingEnabled(input: IPhysicalAttackInput): boolean {
+  return (
+    input.tacOpsGrapplingEnabled === true ||
+    optionalRuleEnabled(input.optionalRules, TACOPS_GRAPPLING_OPTIONS)
+  );
+}
+
+function selectedJumpJetAttackLeg(
+  input: IPhysicalAttackInput,
+): JumpJetAttackSelectedLeg {
+  if (input.jumpJetAttackSelectedLeg) return input.jumpJetAttackSelectedLeg;
+  return input.limb === 'leftLeg' ? 'left' : 'right';
+}
+
+function tripTargetIsMek(input: IPhysicalAttackInput): boolean {
+  if (
+    input.targetObjectType !== undefined &&
+    input.targetObjectType !== 'entity'
+  ) {
+    return false;
+  }
+  return !explicitNonMekUnitType(input.targetUnitType);
+}
+
+function tripLimbUsable(
+  input: IPhysicalAttackInput,
+  side: 'left' | 'right',
+): boolean {
+  const explicit =
+    side === 'left' ? input.leftTripLimbUsable : input.rightTripLimbUsable;
+  if (explicit !== undefined) return explicit;
+  if (input.componentDamage.actuators[ActuatorType.HIP]) return false;
+  const location = side === 'left' ? 'left_leg' : 'right_leg';
+  return !attackerLocationDestroyed(input, location);
+}
+
+function mapTripInvalidReason(
+  reasonCode: TripAttackInvalidReason | undefined,
+): PhysicalAttackInvalidReason | undefined {
+  switch (reasonCode) {
+    case 'LegMissing':
+      return 'LimbMissing';
+    default:
+      return reasonCode;
+  }
+}
+
+function mapThrashInvalidReason(
+  reasonCode: ThrashAttackInvalidReason | undefined,
+): PhysicalAttackInvalidReason | undefined {
+  switch (reasonCode) {
+    case 'InvalidExplicitTarget':
+      return 'InvalidPhysicalTarget';
+    default:
+      return reasonCode;
+  }
+}
+
+function mapJumpJetAttackInvalidReason(
+  reasonCode: JumpJetAttackInvalidReason | undefined,
+): PhysicalAttackInvalidReason | undefined {
+  switch (reasonCode) {
+    case 'LegMissing':
+      return 'LimbMissing';
+    case 'TargetElevationNotInRange':
+      return 'ElevationMismatch';
+    case 'TargetNotDirectlyAheadOfFeet':
+      return 'TargetNotDirectlyAhead';
+    default:
+      return reasonCode;
+  }
+}
+
+function mapBrushOffInvalidReason(
+  reasonCode: BrushOffAttackInvalidReason | undefined,
+): PhysicalAttackInvalidReason | undefined {
+  switch (reasonCode) {
+    case 'InvalidArmSelection':
+      return 'InvalidArmSelection';
+    case 'InvalidTarget':
+      return 'InvalidBrushOffTarget';
+    case 'ArmMissing':
+      return 'LimbMissing';
+    case 'ArmWeaponFiredThisTurn':
+      return 'WeaponFiredThisTurn';
+    case 'TargetMakingDfa':
+      return 'TargetMakingDFA';
+    case 'InvalidExplicitTarget':
+      return 'InvalidPhysicalTarget';
+    default:
+      return reasonCode;
+  }
+}
+
+function mapGrappleInvalidReason(
+  reasonCode: GrappleAttackInvalidReason | undefined,
+): PhysicalAttackInvalidReason | undefined {
+  switch (reasonCode) {
+    case 'ArmMissing':
+      return 'LimbMissing';
+    case 'ShoulderMissingOrDestroyed':
+      return 'ShoulderDestroyed';
+    default:
+      return reasonCode;
+  }
+}
+
+function mapBreakGrappleInvalidReason(
+  reasonCode: BreakGrappleAttackInvalidReason | undefined,
+): PhysicalAttackInvalidReason | undefined {
+  return reasonCode;
+}
+
 function selectedPunchArmDestroyed(input: IPhysicalAttackInput): boolean {
   if (input.limb === 'leftArm' || input.arm === 'left') {
     return attackerLocationDestroyed(input, 'left_arm');
@@ -317,6 +571,33 @@ function anyKickLegDestroyed(input: IPhysicalAttackInput): boolean {
     attackerLocationDestroyed(input, 'left_leg') ||
     attackerLocationDestroyed(input, 'right_leg')
   );
+}
+
+function selectedBrushOffArm(input: IPhysicalAttackInput): 'left' | 'right' {
+  if (input.limb === 'leftArm' || input.arm === 'left') return 'left';
+  return 'right';
+}
+
+function selectedBrushOffArmMissing(input: IPhysicalAttackInput): boolean {
+  return attackerLocationDestroyed(
+    input,
+    selectedBrushOffArm(input) === 'left' ? 'left_arm' : 'right_arm',
+  );
+}
+
+function selectedGrappleSide(input: IPhysicalAttackInput): GrappleAttackSide {
+  if (input.grappleSide) return input.grappleSide;
+  if (input.limb === 'leftArm' || input.arm === 'left') return 'left';
+  if (input.limb === 'rightArm' || input.arm === 'right') return 'right';
+  return 'both';
+}
+
+function grappleSelectsLeft(side: GrappleAttackSide): boolean {
+  return side === 'left' || side === 'both';
+}
+
+function grappleSelectsRight(side: GrappleAttackSide): boolean {
+  return side === 'right' || side === 'both';
 }
 
 export function canPunch(
@@ -543,6 +824,10 @@ export function canDFA(
   const targetObjectRestriction = chargeDfaTargetObjectRestriction(input);
   if (!targetObjectRestriction.allowed) return targetObjectRestriction;
 
+  if (input.attackerStuck) {
+    return blocked('Cannot DFA while stuck', 'AttackerStuck');
+  }
+
   if (input.attackerUsedMechanicalJumpBooster) {
     return {
       allowed: false,
@@ -612,6 +897,10 @@ export function canCharge(
 
   const targetObjectRestriction = chargeDfaTargetObjectRestriction(input);
   if (!targetObjectRestriction.allowed) return targetObjectRestriction;
+
+  if (input.attackerStuck) {
+    return blocked('Cannot charge while stuck', 'AttackerStuck');
+  }
 
   if (input.attackerJumpedThisTurn) {
     return blocked('No jumping allowed while charging', 'ChargeJumpMovement');
@@ -859,4 +1148,253 @@ export function canPush(
     };
   }
   return { allowed: true };
+}
+
+export function canBrushOffPhysical(
+  input: IPhysicalAttackInput,
+): IPhysicalAttackRestriction {
+  const sharedRestriction = sharedPhysicalTargetRestriction(input);
+  if (!sharedRestriction.allowed) return sharedRestriction;
+
+  const brushOffRestriction = canBrushOff({
+    attackerIsMek: !explicitNonMekUnitType(input.attackerUnitType),
+    selectedArm: selectedBrushOffArm(input),
+    targetIsSwarmingInfantryOnAttacker:
+      input.targetIsSwarmingInfantryOnAttacker,
+    targetIsINarcPod: input.targetIsINarcPod,
+    attackerIsQuad: input.attackerIsQuad,
+    armsFlipped: input.attackerArmsFlipped,
+    selectedArmMissing: selectedBrushOffArmMissing(input),
+    noMinimalArmsQuirk: hasNoArms(input.unitQuirks ?? []),
+    shoulderWorking: !input.componentDamage.actuators[ActuatorType.SHOULDER],
+    armWeaponFiredThisTurn: (input.weaponsFiredFromArm?.length ?? 0) > 0,
+    targetMakingDfa: input.targetIsMakingDFA,
+    attackerProne: input.attackerProne,
+    targetIsBuildingFuelTankOrHex:
+      input.targetObjectType !== undefined &&
+      input.targetObjectType !== 'entity',
+  });
+
+  if (brushOffRestriction.allowed) return { allowed: true };
+
+  return {
+    allowed: false,
+    reason: brushOffRestriction.reason,
+    reasonCode: mapBrushOffInvalidReason(brushOffRestriction.reasonCode),
+  };
+}
+
+export function canGrapplePhysical(
+  input: IPhysicalAttackInput,
+): IPhysicalAttackRestriction {
+  const sharedRestriction = sharedPhysicalTargetRestriction(input);
+  if (!sharedRestriction.allowed) return sharedRestriction;
+
+  const grappleSide = selectedGrappleSide(input);
+  const counterGrapple =
+    input.attackerGrappledTargetId === input.targetId &&
+    input.attackerIsGrappleAttacker === false;
+  const attackerIsProtoMek = protoMekUnitType(input.attackerUnitType);
+  const attackerIsBipedMek =
+    !attackerIsProtoMek &&
+    legacyOrMekUnitType(input.attackerUnitType) &&
+    input.attackerIsQuad !== true;
+  const targetIsProtoMek = protoMekUnitType(input.targetUnitType);
+  const targetIsMek = !targetIsProtoMek && battleMekOrProtoMekTarget(input);
+
+  const grappleRestriction = canGrapple({
+    tacOpsGrapplingEnabled: grapplingEnabled(input),
+    attackerIsAirborneVTOLorWIGE: input.attackerIsAirborne,
+    commonImpossibleReasonCode:
+      input.commonPhysicalImpossibleReasonCode ??
+      (input.attackerGrappledTargetId !== undefined
+        ? 'LockedInGrapple'
+        : undefined),
+    friendlyFireEnabled: false,
+    targetIsFriendly: input.targetIsFriendly,
+    attackerIsBipedMek,
+    attackerIsProtoMek,
+    targetIsMek,
+    targetIsProtoMek,
+    noMinimalArmsQuirk: hasNoArms(input.unitQuirks ?? []),
+    grappleSide,
+    leftArmPresent:
+      !grappleSelectsLeft(grappleSide) ||
+      !attackerLocationDestroyed(input, 'left_arm'),
+    rightArmPresent:
+      !grappleSelectsRight(grappleSide) ||
+      !attackerLocationDestroyed(input, 'right_arm'),
+    leftShoulderWorking:
+      !grappleSelectsLeft(grappleSide) ||
+      !input.componentDamage.actuators[ActuatorType.SHOULDER],
+    rightShoulderWorking:
+      !grappleSelectsRight(grappleSide) ||
+      !input.componentDamage.actuators[ActuatorType.SHOULDER],
+    counterGrapple,
+    targetDistance: input.targetDistance,
+    elevationDifference: input.elevationDifference,
+    maxElevationChange: 1,
+    targetInFrontArc: input.targetInFrontArc,
+    attackerProne: input.attackerProne,
+    targetProne: input.targetProne,
+    weaponFiredThisTurn: (input.weaponsFiredFromArm?.length ?? 0) > 0,
+    attackerGrappledTargetMatches:
+      input.attackerGrappledTargetId === undefined
+        ? undefined
+        : input.attackerGrappledTargetId === input.targetId,
+    targetIsGrappleAttacker: input.targetIsGrappleAttacker,
+  });
+
+  if (grappleRestriction.allowed) return { allowed: true };
+
+  return {
+    allowed: false,
+    reason: grappleRestriction.reason,
+    reasonCode: mapGrappleInvalidReason(grappleRestriction.reasonCode),
+  };
+}
+
+export function canBreakGrapplePhysical(
+  input: IPhysicalAttackInput,
+): IPhysicalAttackRestriction {
+  const sharedRestriction = sharedPhysicalTargetRestriction({
+    ...input,
+    targetDistance: undefined,
+  });
+  if (!sharedRestriction.allowed) return sharedRestriction;
+
+  const attackerIsProtoMek = protoMekUnitType(input.attackerUnitType);
+  const attackerIsMek =
+    !attackerIsProtoMek && legacyOrMekUnitType(input.attackerUnitType);
+  const breakGrappleRestriction = canBreakGrapple({
+    tacOpsGrapplingEnabled: grapplingEnabled(input),
+    attackerIsAirborneVTOLorWIGE: input.attackerIsAirborne,
+    commonImpossibleReasonCode:
+      input.commonPhysicalImpossibleReasonCode ??
+      (input.attackerGrappledTargetId !== undefined
+        ? 'LockedInGrapple'
+        : undefined),
+    attackerChainWhipGrappled: input.attackerChainWhipGrappled,
+    attackerIsMek,
+    attackerIsProtoMek,
+    grappledTargetMatches: input.attackerGrappledTargetId === input.targetId,
+  });
+
+  if (breakGrappleRestriction.allowed) return { allowed: true };
+
+  return {
+    allowed: false,
+    reason: breakGrappleRestriction.reason,
+    reasonCode: mapBreakGrappleInvalidReason(
+      breakGrappleRestriction.reasonCode,
+    ),
+  };
+}
+
+export function canTripPhysical(
+  input: IPhysicalAttackInput,
+): IPhysicalAttackRestriction {
+  const sharedRestriction = sharedPhysicalTargetRestriction(input);
+  if (!sharedRestriction.allowed) return sharedRestriction;
+
+  const tripRestriction = canTrip({
+    tacOpsTripAttackEnabled: tripAttackEnabled(input),
+    attackerIsMek: !explicitNonMekUnitType(input.attackerUnitType),
+    targetIsMek: tripTargetIsMek(input),
+    attackerAlreadyGrappled: input.attackerAlreadyGrappled,
+    targetIsFriendly: input.targetIsFriendly,
+    attackerIsAirborneVTOLorWIGE: input.attackerIsAirborne,
+    targetDistance: input.targetDistance,
+    targetInFrontArc: input.targetInFrontArc,
+    attackerProne: input.attackerProne,
+    targetProne: input.targetProne,
+    sameElevation:
+      input.elevationDifference === undefined
+        ? undefined
+        : input.elevationDifference === 0,
+    leftLegPresent: !attackerLocationDestroyed(input, 'left_leg'),
+    rightLegPresent: !attackerLocationDestroyed(input, 'right_leg'),
+    leftTripLimbUsable: tripLimbUsable(input, 'left'),
+    rightTripLimbUsable: tripLimbUsable(input, 'right'),
+  });
+
+  if (tripRestriction.allowed) return { allowed: true };
+
+  return {
+    allowed: false,
+    reason: tripRestriction.reason,
+    reasonCode: mapTripInvalidReason(tripRestriction.reasonCode),
+  };
+}
+
+export function canThrashPhysical(
+  input: IPhysicalAttackInput,
+): IPhysicalAttackRestriction {
+  const sharedRestriction = sharedPhysicalTargetRestriction(input);
+  if (!sharedRestriction.allowed) return sharedRestriction;
+
+  const thrashRestriction = canThrash({
+    targetIsFriendly: input.targetIsFriendly,
+    attackerIsMek: !explicitNonMekUnitType(input.attackerUnitType),
+    attackerProne: input.attackerProne,
+    targetIsInfantry: standardInfantryUnitType(input.targetUnitType),
+    targetIsSwarming: input.targetIsSwarming,
+    targetDistance: input.targetDistance,
+    sameElevation:
+      input.elevationDifference === undefined
+        ? undefined
+        : input.elevationDifference === 0,
+    blockingTerrains: input.thrashBlockingTerrains,
+    targetIsBuildingFuelTankOrHex:
+      input.targetObjectType !== undefined &&
+      input.targetObjectType !== 'entity',
+    weaponFiredThisTurn: (input.weaponsFiredFromArm?.length ?? 0) > 0,
+    hasWorkingArmOrLeg: attackerHasWorkingThrashArmOrLeg(input),
+  });
+
+  if (thrashRestriction.allowed) return { allowed: true };
+
+  return {
+    allowed: false,
+    reason: thrashRestriction.reason,
+    reasonCode: mapThrashInvalidReason(thrashRestriction.reasonCode),
+  };
+}
+
+export function canJumpJetAttackPhysical(
+  input: IPhysicalAttackInput,
+): IPhysicalAttackRestriction {
+  const sharedRestriction = sharedPhysicalTargetRestriction(input);
+  if (!sharedRestriction.allowed) return sharedRestriction;
+
+  const selectedLeg = selectedJumpJetAttackLeg(input);
+  const jumpJetRestriction = canJumpJetAttack({
+    tacOpsJumpJetAttackEnabled: jumpJetAttackEnabled(input),
+    attackerIsLandAirMek: input.attackerIsLandAirMek,
+    attackerIsMekMode: input.attackerIsMekMode,
+    selectedLeg,
+    attackerIsMek: !explicitNonMekUnitType(input.attackerUnitType),
+    attackerProne: input.attackerProne,
+    leftLegPresent: !attackerLocationDestroyed(input, 'left_leg'),
+    rightLegPresent: !attackerLocationDestroyed(input, 'right_leg'),
+    leftReadyJumpJetCount: input.leftReadyJumpJetCount,
+    rightReadyJumpJetCount: input.rightReadyJumpJetCount,
+    attackerMovedJump: input.attackerJumpedThisTurn,
+    leftLegWeaponFiredThisTurn: input.leftLegWeaponFiredThisTurn,
+    rightLegWeaponFiredThisTurn: input.rightLegWeaponFiredThisTurn,
+    targetDistance: input.targetDistance,
+    standingAttackerHeightAboveTargetHeight:
+      input.standingAttackerHeightAboveTargetHeight,
+    proneTargetElevationInRange: input.proneTargetElevationInRange,
+    targetDirectlyAheadOfFeet: input.targetDirectlyAheadOfFeet,
+    targetDirectlyBehindFeet: input.targetDirectlyBehindFeet,
+  });
+
+  if (jumpJetRestriction.allowed) return { allowed: true };
+
+  return {
+    allowed: false,
+    reason: jumpJetRestriction.reason,
+    reasonCode: mapJumpJetAttackInvalidReason(jumpJetRestriction.reasonCode),
+  };
 }
