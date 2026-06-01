@@ -39,7 +39,10 @@ Short-distance automatic WiGE landing for represented positive-altitude WiGE
 vehicles, Glider ProtoMeks, and LAM AirMeks is now covered by
 `auto-land-short-wige-movement`, source-pinned to MegaMek
 `MovePath.java:1689-1738`, and replays through the same runtime movement-state
-channel used by altitude controls.
+channel used by altitude controls. The represented already-moved distance and
+UP/HOVER-style exemptions from the same MegaMek helper are now covered by
+`pin-wige-hover-distance-exemptions`, so the map no longer shows a `LAND`
+consequence or runtime landing patch when those source guards apply.
 Replayable gameplay events for runtime movement state are covered by
 `apply-runtime-movement-state-events`; player-facing tactical command controls
 for represented conversion and infantry mount-state changes are covered by
@@ -826,8 +829,10 @@ those fall clusters destroy locations or the unit.
 clusters through the shared critical-hit resolver and emits movement-phase
 `CriticalHit`, `CriticalHitResolved`, and `ComponentDestroyed` follow-through
 events. Short-distance forced landing from represented higher WiGE elevations is
-covered by `auto-land-short-wige-movement`; finer-grained hover/takeoff
-direction state remains follow-up work.
+covered by `auto-land-short-wige-movement`; represented already-moved distance
+and hover-style exemptions are covered by
+`pin-wige-hover-distance-exemptions`; finer-grained hover/takeoff direction
+state remains follow-up work.
 
 Additional small-unit movement data pin: MegaMek `Infantry.java:560-568` and
 `BattleArmor.java:520-523` return walk MP as base run MP unless optional TacOps
@@ -1584,7 +1589,9 @@ tooltip reason rows, and same-hex option metadata via
 `surface-airborne-altitude-control-context`. Full airborne VTOL/WiGE altitude
 pathing, hover/takeoff/landing sequencing, clearance, and broad oracle sweeps
 remain follow-ups. Represented short-distance WiGE auto-landing is covered by
-`auto-land-short-wige-movement`. Basic Climb/Descend runtime
+`auto-land-short-wige-movement`, and the represented prior-distance plus
+hover-style exemptions for that auto-landing helper are covered by
+`pin-wige-hover-distance-exemptions`. Basic Climb/Descend runtime
 altitude-control commands now exist via `wire-vtol-wige-altitude-controls`, but
 full UP/DOWN MP accounting and terrain-clearance-specific gates remain pending.
 

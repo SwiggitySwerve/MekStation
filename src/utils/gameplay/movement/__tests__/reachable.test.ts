@@ -2266,6 +2266,83 @@ describe('deriveReachableHexes', () => {
     },
   );
 
+  it('counts prior WiGE movement before showing automatic landing metadata', () => {
+    let grid = createHexGrid({ radius: 5 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 0);
+    const capability: IMovementCapability = {
+      walkMP: 5,
+      runMP: 7,
+      jumpMP: 0,
+      movementMode: 'wige',
+    };
+    const unit = {
+      ...makeUnitAtOrigin(),
+      hexesMovedThisTurn: 4,
+      combatState: {
+        kind: 'vehicle' as const,
+        state: createVehicleCombatState({
+          unitId: 'u1',
+          motionType: GroundMotionType.WIGE,
+          originalCruiseMP: 5,
+          armor: {},
+          structure: {},
+          altitude: 2,
+        }),
+      },
+    };
+
+    const preview = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      capability,
+      { q: 1, r: 0 },
+    );
+
+    expect(preview).toMatchObject({
+      mpCost: 1,
+      movementMode: 'wige',
+      reachable: true,
+      movementType: MovementType.Walk,
+    });
+    expect(preview?.automaticLandingRequired).toBeUndefined();
+    expect(preview?.automaticLandingDistance).toBeUndefined();
+  });
+
+  it('does not show automatic landing metadata for represented hover-style WiGE movement', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 0);
+    const unit = {
+      ...makeUnitAtOrigin(),
+      conversionMode: 'airmek' as const,
+      lamAirMekAltitude: 2,
+    };
+
+    const preview = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      {
+        walkMP: 3,
+        runMP: 5,
+        jumpMP: 0,
+        movementMode: 'hover',
+      },
+      { q: 1, r: 0 },
+    );
+
+    expect(preview).toMatchObject({
+      mpCost: 1,
+      movementMode: 'hover',
+      reachable: true,
+      movementType: MovementType.Walk,
+    });
+    expect(preview?.automaticLandingRequired).toBeUndefined();
+    expect(preview?.automaticLandingDistance).toBeUndefined();
+  });
+
   it('reserves represented WiGE altitude-control MP before landed ground movement', () => {
     const grid = createHexGrid({ radius: 3 });
     const unit = {

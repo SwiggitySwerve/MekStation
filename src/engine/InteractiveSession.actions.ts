@@ -376,6 +376,7 @@ export function applyInteractiveSessionMovement(
     input.movementType,
     validation.path,
     input.to,
+    { movementMode: movementCapability?.movementMode },
   );
   if (automaticLandingPatch) {
     session = appendEvent(

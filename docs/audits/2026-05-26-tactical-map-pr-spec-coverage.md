@@ -49,7 +49,9 @@ decisions are made, not because CI is stale.
   `block-airborne-vtol-wige-ground-projection`; full airborne altitude pathing,
   hover/takeoff/landing sequencing, and non-represented airborne cases remain
   follow-up work. Represented short-distance WiGE automatic landing is covered
-  by `auto-land-short-wige-movement`. WiGE vehicle tokens now expose
+  by `auto-land-short-wige-movement`, and the MegaMek prior-distance plus
+  UP/HOVER exemptions for that helper are covered by
+  `pin-wige-hover-distance-exemptions`. WiGE vehicle tokens now expose
   represented altitude in the same top-down/isometric metadata and visible
   badge channel as VTOL tokens via `show-wige-altitude-token-context`.
   Stale or mismatched movement capability
@@ -71,7 +73,9 @@ decisions are made, not because CI is stale.
   `gate-protomek-wige-altitude-ceiling`; full multi-step airborne pathing,
   hover/takeoff/landing sequencing, and non-represented airborne cases remain
   follow-up work. Represented Glider ProtoMek short-distance automatic landing
-  is covered by `auto-land-short-wige-movement`. Represented LAM AirMek
+  is covered by `auto-land-short-wige-movement`, with represented hover-style
+  exemption and already-moved distance accounting covered by
+  `pin-wige-hover-distance-exemptions`. Represented LAM AirMek
   altitude controls now replay `lamAirMekAltitude`, reserve altitude-control
   MP, block elevated ground projection, and cap Climb at the
   LandAirMek-specific WiGE +25 ceiling via
@@ -92,9 +96,11 @@ decisions are made, not because CI is stale.
   clusters now resolve movement-phase `CriticalHit`, `CriticalHitResolved`, and
   `ComponentDestroyed` follow-through via
   `resolve-airmek-landing-crash-crits`; represented minimum-distance automatic
-  WiGE landing is covered by `auto-land-short-wige-movement`, while full
-  elevated AirMek/WiGE pathing and takeoff/hover sequencing remain follow-up
-  work.
+  WiGE landing is covered by `auto-land-short-wige-movement`, while
+  `pin-wige-hover-distance-exemptions` keeps those landing highlights and
+  runtime patches suppressed when MegaMek's represented prior-distance or
+  hover-style exemptions apply. Full elevated AirMek/WiGE pathing and broader
+  takeoff/hover sequencing remain follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
   `apply-runtime-movement-state-events`, and tactical command controls are now
