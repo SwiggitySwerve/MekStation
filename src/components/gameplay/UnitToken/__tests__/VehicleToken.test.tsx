@@ -94,10 +94,10 @@ describe('VehicleToken motion-type label', () => {
 });
 
 // -----------------------------------------------------------------------------
-// VTOL altitude badge
+// Altitude badge
 // -----------------------------------------------------------------------------
 
-describe('VehicleToken VTOL altitude badge', () => {
+describe('VehicleToken altitude badge', () => {
   it('renders VTOL altitude as a visible non-color badge', () => {
     const token = makeVehicleToken({
       vehicleMotionType: VehicleMotionType.VTOL,
@@ -118,6 +118,26 @@ describe('VehicleToken VTOL altitude badge', () => {
     );
   });
 
+  it('renders WiGE altitude as a visible non-color badge', () => {
+    const token = makeVehicleToken({
+      vehicleMotionType: VehicleMotionType.WiGE,
+      altitude: 2,
+    });
+    renderInSvg(<VehicleToken token={token} eventState={EMPTY_EVENT_STATE} />);
+
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveTextContent(
+      'ALT2',
+    );
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveAttribute(
+      'data-vehicle-altitude-badge-motion',
+      VehicleMotionType.WiGE,
+    );
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveAttribute(
+      'data-vehicle-altitude-badge-altitude',
+      '2',
+    );
+  });
+
   it('renders hover altitude zero distinctly', () => {
     const token = makeVehicleToken({
       vehicleMotionType: VehicleMotionType.VTOL,
@@ -134,7 +154,7 @@ describe('VehicleToken VTOL altitude badge', () => {
     );
   });
 
-  it('omits altitude badge for non-VTOL vehicles', () => {
+  it('omits altitude badge for ground-only vehicles', () => {
     const token = makeVehicleToken({
       vehicleMotionType: VehicleMotionType.Hover,
       altitude: 3,

@@ -12,6 +12,7 @@ import {
   MovementType,
   TerrainType,
   TokenUnitType,
+  VehicleMotionType,
 } from '@/types/gameplay';
 
 import { HexMapDisplay } from '../HexMapDisplay';
@@ -1295,6 +1296,33 @@ describe('HexMapDisplay tactical visual layers', () => {
       'data-movement-badge-option-heats',
       'walk:0|run:2|jump:1',
     );
+    expect(badge).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(badge).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'movement',
+    );
+    expect(badge).toHaveAttribute('data-tactical-rules-surface', 'movement');
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-source-refs',
+      expect.stringContaining(
+        'movement:megamek:MegaMek movement rules projection:walk/tracked,run/tracked,jump projection: walk via tracked reachable 3 MP terrain +1 elevation delta +1 cost +1 heat +0, run via tracked reachable 3 MP terrain +2 elevation delta +1 cost +1 heat +2, jump reachable 1 MP terrain +0 elevation delta +2 cost +0 heat +1',
+      ),
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-rule-refs',
+      expect.stringContaining(
+        'movement:megamek:MegaMek common/moves/MoveStep.java',
+      ),
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-projection-explanation',
+      expect.stringContaining(
+        'movement options walk via tracked reachable 3 MP terrain +1 elevation delta +1 cost +1 heat +0',
+      ),
+    );
     expect(screen.getByTestId('hex-heat-badge-1-0')).toHaveTextContent('+2H');
     expect(screen.getByTestId('hex-heat-badge-1-0')).toHaveAttribute(
       'data-movement-option-heats',
@@ -1385,6 +1413,8 @@ describe('HexMapDisplay tactical visual layers', () => {
           {
             hex: { q: 1, r: 0 },
             mpCost: 3,
+            conversionStepCount: 2,
+            conversionMpCost: 0,
             heatGenerated: 0,
             movementMode: 'tracked',
             reachable: true,
@@ -1393,6 +1423,8 @@ describe('HexMapDisplay tactical visual layers', () => {
           {
             hex: { q: 1, r: 0 },
             mpCost: 4,
+            altitudeControlStepCount: 1,
+            altitudeControlMpCost: 1,
             heatGenerated: 2,
             movementMode: 'tracked',
             reachable: true,
@@ -1422,6 +1454,22 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(hex).toHaveAttribute(
       'data-movement-option-states',
       'walk:reachable|run:reachable|jump:blocked',
+    );
+    expect(hex).toHaveAttribute(
+      'data-movement-option-conversion-step-counts',
+      'walk:2',
+    );
+    expect(hex).toHaveAttribute(
+      'data-movement-option-conversion-mp-costs',
+      'walk:0',
+    );
+    expect(hex).toHaveAttribute(
+      'data-movement-option-altitude-control-step-counts',
+      'run:1',
+    );
+    expect(hex).toHaveAttribute(
+      'data-movement-option-altitude-control-mp-costs',
+      'run:1',
     );
     expect(hex).toHaveAttribute(
       'data-movement-option-blocked-reasons',
@@ -1454,6 +1502,14 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(hex).toHaveAttribute(
       'aria-label',
       expect.stringContaining('movement options walk via tracked reachable'),
+    );
+    expect(hex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('run via tracked reachable 4 MP'),
+    );
+    expect(hex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('altitude control 1 steps 1 MP'),
     );
 
     expect(
@@ -1488,6 +1544,22 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(badge).toHaveAttribute(
       'data-movement-badge-option-blocked-reasons',
       `jump:${blockedReason}`,
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-option-conversion-step-counts',
+      'walk:2',
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-option-conversion-mp-costs',
+      'walk:0',
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-option-altitude-control-step-counts',
+      'run:1',
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-option-altitude-control-mp-costs',
+      'run:1',
     );
     expect(badge).toHaveAttribute(
       'data-movement-badge-option-invalid-reasons',
@@ -1537,9 +1609,34 @@ describe('HexMapDisplay tactical visual layers', () => {
       'walk:reachable|run:reachable|jump:blocked',
     );
     expect(optionRows).toHaveAttribute(
+      'data-movement-option-conversion-step-counts',
+      'walk:2',
+    );
+    expect(optionRows).toHaveAttribute(
+      'data-movement-option-conversion-mp-costs',
+      'walk:0',
+    );
+    expect(optionRows).toHaveAttribute(
       'data-movement-option-blocked-reasons',
       `jump:${blockedReason}`,
     );
+    expect(
+      screen.getByTestId(
+        'hex-movement-tooltip-mode-options-option-walk-tracked-0',
+      ),
+    ).toHaveTextContent(
+      'walk via tracked reachable 3 MP, conversion 2 steps 0 MP',
+    );
+    expect(
+      screen.getByTestId(
+        'hex-movement-tooltip-mode-options-option-walk-tracked-0',
+      ),
+    ).toHaveAttribute('data-movement-option-conversion-step-count', '2');
+    expect(
+      screen.getByTestId(
+        'hex-movement-tooltip-mode-options-option-walk-tracked-0',
+      ),
+    ).toHaveAttribute('data-movement-option-conversion-mp-cost', '0');
     expect(
       screen.getByTestId(
         'hex-movement-tooltip-mode-options-option-jump-jump-2',
@@ -1613,7 +1710,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
       'aria-label',
-      'run via hover path preview: 4 MP',
+      'run via hover path preview: 4 MP; terrain +1; elevation delta +1 cost +1; heat +2',
     );
     expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
       'data-hover-mp-cost',
@@ -1628,9 +1725,41 @@ describe('HexMapDisplay tactical visual layers', () => {
       'hover',
     );
     expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'data-movement-badge-terrain-cost',
+      '1',
+    );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'data-movement-badge-elevation-delta',
+      '1',
+    );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'data-movement-badge-elevation-cost',
+      '1',
+    );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
       'data-movement-badge-heat-generated',
       '2',
     );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'movement',
+    );
+    expect(
+      screen
+        .getByTestId('hex-mp-badge-1-0')
+        .getAttribute('data-movement-badge-source-refs'),
+    ).toContain(
+      'movement:megamek:MegaMek movement rules projection:run/hover projection: run via hover reachable 4 MP terrain +1 elevation delta +1 cost +1 heat +2',
+    );
+    expect(
+      screen
+        .getByTestId('hex-mp-badge-1-0')
+        .getAttribute('data-movement-badge-rule-refs'),
+    ).toContain('movement:megamek:MegaMek common/moves/MoveStep.java');
 
     act(() => {
       unmount();
@@ -1695,7 +1824,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
       'aria-label',
-      'run via tracked path preview: 5 MP',
+      'run via tracked path preview: 5 MP; terrain +2; elevation delta +1 cost +1; heat +2',
     );
     expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
       'data-hover-mp-cost',
@@ -1708,6 +1837,13 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
       'data-movement-badge-mode',
       'tracked',
+    );
+    expect(
+      screen
+        .getByTestId('hex-mp-badge-1-0')
+        .getAttribute('data-movement-badge-source-refs'),
+    ).toContain(
+      'run/tracked,walk/tracked projection: run via tracked reachable 5 MP terrain +2 elevation delta +1 cost +1 heat +2, walk via tracked reachable 3 MP terrain +2 elevation delta +1 cost +1 heat +1',
     );
 
     act(() => {
@@ -2468,6 +2604,80 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('renders airborne altitude-control movement context without relying on color', () => {
+    const reason =
+      'Airborne WiGE movement uses altitude controls and is not available in the ground movement projection';
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: Infinity,
+            terrainCost: 0,
+            elevationDelta: 4,
+            elevationCost: 0,
+            heatGenerated: 0,
+            movementMode: 'walk',
+            reachable: false,
+            movementType: MovementType.Walk,
+            blockedReason: reason,
+            movementInvalidReason: 'InvalidDestination',
+            movementInvalidDetails: reason,
+            altitudeControlRequired: true,
+            altitudeControlMode: 'wige',
+            altitudeControlAltitude: 2,
+          },
+        ]}
+      />,
+    );
+
+    const blocked = screen.getByTestId('hex-1-0');
+    expect(blocked).toHaveAttribute(
+      'data-movement-altitude-control-required',
+      'true',
+    );
+    expect(blocked).toHaveAttribute(
+      'data-movement-altitude-control-mode',
+      'wige',
+    );
+    expect(blocked).toHaveAttribute(
+      'data-movement-altitude-control-altitude',
+      '2',
+    );
+    expect(blocked).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('wige altitude controls at altitude 2'),
+    );
+
+    const invalidBadge = screen.getByTestId('hex-movement-invalid-badge-1-0');
+    expect(invalidBadge).toHaveTextContent('ALT');
+    expect(invalidBadge).toHaveAttribute('data-invalid-badge-reason', reason);
+
+    fireEvent.mouseEnter(blocked);
+    const reasonRows = screen.getByTestId('hex-movement-tooltip-reason');
+    expect(reasonRows).toHaveAttribute(
+      'data-movement-altitude-control-required',
+      'true',
+    );
+    expect(reasonRows).toHaveAttribute(
+      'data-movement-altitude-control-mode',
+      'wige',
+    );
+    expect(reasonRows).toHaveAttribute(
+      'data-movement-altitude-control-altitude',
+      '2',
+    );
+    expect(reasonRows).toHaveTextContent(reason);
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('renders terrain and elevation step costs directly on reachable movement hexes', () => {
     const { unmount } = render(
       <HexMapDisplay
@@ -2507,6 +2717,32 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
       'data-movement-step-elevation-cost',
       '2',
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'movement',
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
+      'data-movement-step-source-refs',
+      expect.stringContaining(
+        'movement:megamek:MegaMek movement rules projection:walk/tracked projection: walk via tracked reachable 3 MP terrain +1 elevation delta +2 cost +2',
+      ),
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
+      'data-movement-step-rule-refs',
+      expect.stringContaining(
+        'movement:megamek:MegaMek common/moves/MoveStep.java',
+      ),
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
+      'data-movement-step-projection-explanation',
+      expect.stringContaining(
+        'Walk reachable 3 MP; mode tracked; terrain cost +1; elevation delta +2 cost +2',
+      ),
     );
 
     act(() => {
@@ -2651,6 +2887,8 @@ describe('HexMapDisplay tactical visual layers', () => {
             elevationDelta: 1,
             elevationCost: 1,
             heatGenerated: 0,
+            conversionStepCount: 2,
+            conversionMpCost: 0,
             movementMode: 'walk',
             reachable: true,
             movementType: MovementType.Walk,
@@ -2664,7 +2902,24 @@ describe('HexMapDisplay tactical visual layers', () => {
       />,
     );
 
-    fireEvent.mouseEnter(screen.getByTestId('hex-1--1'));
+    const hex = screen.getByTestId('hex-1--1');
+    expect(hex).toHaveAttribute('data-movement-conversion-step-count', '2');
+    expect(hex).toHaveAttribute('data-movement-conversion-mp-cost', '0');
+    const badge = screen.getByTestId('hex-movement-badge-1--1');
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-conversion-step-count',
+      '2',
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-conversion-mp-cost',
+      '0',
+    );
+    expect(badge).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('conversion 2 steps 0 MP'),
+    );
+
+    fireEvent.mouseEnter(hex);
 
     expect(screen.getByTestId('hex-movement-tooltip-cost')).toHaveTextContent(
       'MP: 4',
@@ -2723,6 +2978,18 @@ describe('HexMapDisplay tactical visual layers', () => {
       'data-movement-heat-generated',
       '0',
     );
+    expect(
+      screen.getByTestId('hex-movement-tooltip-conversion'),
+    ).toHaveTextContent('Conversion: 2 steps, 0 MP');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-conversion'),
+    ).toHaveAttribute('data-movement-context-kind', 'conversion');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-conversion'),
+    ).toHaveAttribute('data-movement-conversion-step-count', '2');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-conversion'),
+    ).toHaveAttribute('data-movement-conversion-mp-cost', '0');
     expect(screen.getByTestId('hex-movement-tooltip-path')).toHaveTextContent(
       'Path: 2 steps',
     );
@@ -2790,6 +3057,86 @@ describe('HexMapDisplay tactical visual layers', () => {
       'data-movement-step-elevation-cost',
       '0',
     );
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('surfaces automatic WiGE landing consequences on reachable movement hexes', () => {
+    const reason =
+      'MegaMek automatic WiGE landing: unit moved below the minimum airborne distance';
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 1,
+            terrainCost: 0,
+            elevationDelta: 2,
+            elevationCost: 0,
+            movementMode: 'wige',
+            reachable: true,
+            movementType: MovementType.Walk,
+            automaticLandingRequired: true,
+            automaticLandingMode: 'wige',
+            automaticLandingDistance: 1,
+            automaticLandingMinimumDistance: 5,
+            automaticLandingReason: reason,
+          },
+        ]}
+      />,
+    );
+
+    const wigeHex = screen.getByTestId('hex-1-0');
+    expect(wigeHex).toHaveAttribute(
+      'data-movement-automatic-landing-required',
+      'true',
+    );
+    expect(wigeHex).toHaveAttribute(
+      'data-movement-automatic-landing-mode',
+      'wige',
+    );
+    expect(wigeHex).toHaveAttribute(
+      'data-movement-automatic-landing-distance',
+      '1',
+    );
+    expect(wigeHex).toHaveAttribute(
+      'data-movement-automatic-landing-minimum-distance',
+      '5',
+    );
+    expect(wigeHex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('automatic WiGE landing 1/5 hexes'),
+    );
+
+    const movementBadge = screen.getByTestId('hex-movement-badge-1-0');
+    expect(movementBadge).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('automatic WiGE landing 1/5 hexes'),
+    );
+    expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-automatic-landing-required',
+      'true',
+    );
+    expect(
+      screen.getByTestId('hex-automatic-landing-badge-1-0'),
+    ).toHaveAccessibleName(`Automatic WiGE landing after 1/5 hexes: ${reason}`);
+    expect(
+      screen.getByTestId('hex-automatic-landing-badge-1-0'),
+    ).toHaveTextContent('LAND');
+
+    fireEvent.mouseEnter(wigeHex);
+    expect(
+      screen.getByTestId('hex-movement-tooltip-automatic-landing'),
+    ).toHaveTextContent('Automatic WiGE landing: 1/5 hexes');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-automatic-landing'),
+    ).toHaveAttribute('data-movement-context-kind', 'automatic-landing');
 
     act(() => {
       unmount();
@@ -3201,6 +3548,57 @@ describe('HexMapDisplay tactical visual layers', () => {
     const nestedToken = screen.getByTestId('unit-token-aero');
     expect(nestedToken).toHaveAttribute('data-aerospace-altitude', '4');
     expect(nestedToken).toHaveAttribute('data-aerospace-velocity', '7');
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('preserves WiGE altitude on isometric scene vehicle tokens', () => {
+    const wige = makeToken({
+      unitId: 'wige',
+      position: { q: 0, r: 0 },
+      unitType: TokenUnitType.Vehicle,
+      vehicleMotionType: VehicleMotionType.WiGE,
+      altitude: 2,
+    });
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[wige]}
+        selectedHex={null}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+
+    const sceneToken = screen.getByTestId('isometric-scene-token-wige');
+    expect(sceneToken).toHaveAttribute(
+      'data-isometric-token-unit-type',
+      TokenUnitType.Vehicle,
+    );
+    expect(sceneToken).toHaveAttribute(
+      'data-isometric-vehicle-motion-type',
+      VehicleMotionType.WiGE,
+    );
+    expect(sceneToken).toHaveAttribute('data-isometric-vehicle-altitude', '2');
+    expect(sceneToken).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('motion wige'),
+    );
+    expect(sceneToken).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('altitude 2'),
+    );
+    expect(sceneToken.querySelector('title')).toHaveTextContent('altitude 2');
+
+    const nestedToken = screen.getByTestId('unit-token-wige');
+    expect(nestedToken).toHaveAttribute('data-vehicle-altitude', '2');
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveTextContent(
+      'ALT2',
+    );
 
     act(() => {
       unmount();

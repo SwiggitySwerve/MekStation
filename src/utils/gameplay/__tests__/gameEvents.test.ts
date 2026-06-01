@@ -35,6 +35,7 @@ import {
   createHeatGeneratedEvent,
   createHeatDissipatedEvent,
   createPilotHitEvent,
+  createCriticalHitEvent,
   createUnitDestroyedEvent,
   serializeEvent,
   deserializeEvent,
@@ -638,6 +639,72 @@ describe('Movement Event Factories', () => {
         ],
       });
     });
+
+    it('should serialize two zero-cost represented conversion steps', () => {
+      const position = { q: 0, r: 0 };
+      const event = createMovementDeclaredEvent(
+        'game-1',
+        10,
+        1,
+        'lam-1',
+        position,
+        { q: 1, r: 0 },
+        Facing.Northeast,
+        MovementType.Walk,
+        1,
+        0,
+        [position, { q: 1, r: 0 }],
+        { conversionStepCount: 2, conversionMpCost: 0 },
+      );
+      const payload = event.payload as IMovementDeclaredPayload;
+
+      expect(payload).toMatchObject({
+        conversionStepCount: 2,
+        conversionMpCost: 0,
+        steps: [
+          {
+            kind: 'convertMode',
+            index: 0,
+            at: position,
+            mpCost: 0,
+            stepNumber: 1,
+            stepCount: 2,
+          },
+          {
+            kind: 'convertMode',
+            index: 1,
+            at: position,
+            mpCost: 0,
+            stepNumber: 2,
+            stepCount: 2,
+          },
+        ],
+      });
+    });
+
+    it('should serialize represented altitude-control MP metadata', () => {
+      const position = { q: 0, r: 0 };
+      const event = createMovementDeclaredEvent(
+        'game-1',
+        10,
+        1,
+        'wige-1',
+        position,
+        { q: 1, r: 0 },
+        Facing.Northeast,
+        MovementType.Walk,
+        2,
+        0,
+        [position, { q: 1, r: 0 }],
+        { altitudeControlStepCount: 1, altitudeControlMpCost: 1 },
+      );
+      const payload = event.payload as IMovementDeclaredPayload;
+
+      expect(payload).toMatchObject({
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+      });
+    });
   });
 
   describe('createMovementLockedEvent', () => {
@@ -920,6 +987,24 @@ describe('Combat Event Factories', () => {
 
       expect(payload.criticals).toBeUndefined();
     });
+
+    it('can stamp damage from runtime movement consequences in movement phase', () => {
+      const event = createDamageAppliedEvent(
+        'game-1',
+        32,
+        4,
+        'unit-2',
+        'center_torso',
+        5,
+        0,
+        8,
+        false,
+        undefined,
+        GamePhase.Movement,
+      );
+
+      expect(event.phase).toBe(GamePhase.Movement);
+    });
   });
 });
 
@@ -1130,6 +1215,36 @@ describe('Status Event Factories', () => {
 
       expect(payload.consciousnessCheckRequired).toBe(false);
       expect(payload.consciousnessCheckPassed).toBeUndefined();
+    });
+  });
+
+  describe('createCriticalHitEvent', () => {
+    it('should create a movement-phase critical hit event with source context', () => {
+      const event = createCriticalHitEvent(
+        'game-1',
+        65,
+        6,
+        GamePhase.Movement,
+        'target-1',
+        'center_torso',
+        'attacker-1',
+        'engine',
+        1,
+      );
+
+      expect(event.type).toBe(GameEventType.CriticalHit);
+      expect(event.gameId).toBe('game-1');
+      expect(event.sequence).toBe(65);
+      expect(event.turn).toBe(6);
+      expect(event.phase).toBe(GamePhase.Movement);
+      expect(event.actorId).toBe('attacker-1');
+      expect(event.payload).toMatchObject({
+        unitId: 'target-1',
+        location: 'center_torso',
+        sourceUnitId: 'attacker-1',
+        component: 'engine',
+        count: 1,
+      });
     });
   });
 

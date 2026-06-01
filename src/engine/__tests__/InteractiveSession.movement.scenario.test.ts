@@ -20,9 +20,12 @@ import {
   type IGameUnit,
   type IMovementDeclaredPayload,
   type IMovementInvalidPayload,
+  type IRuntimeMovementStateChangedPayload,
   type IUnitStoodPayload,
 } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   advancePhase,
   createGameSession,
@@ -56,7 +59,11 @@ function makeGrid(): IHexGrid {
   return { config: { radius: 6 }, hexes };
 }
 
-function makeUnit(id: string, side: GameSide): IGameUnit {
+function makeUnit(
+  id: string,
+  side: GameSide,
+  overrides: Partial<IGameUnit> = {},
+): IGameUnit {
   return {
     id,
     name: id,
@@ -65,10 +72,13 @@ function makeUnit(id: string, side: GameSide): IGameUnit {
     pilotRef: `${id}-pilot`,
     gunnery: 4,
     piloting: 5,
+    ...overrides,
   };
 }
 
-function setupSessionAtMovement(): IGameSession {
+function setupSessionAtMovement(
+  m1Overrides: Partial<IGameUnit> = {},
+): IGameSession {
   let session = createGameSession(
     {
       mapRadius: 6,
@@ -76,7 +86,10 @@ function setupSessionAtMovement(): IGameSession {
       victoryConditions: ['elimination'],
       optionalRules: [],
     } as never,
-    [makeUnit('m1', GameSide.Player), makeUnit('blocker', GameSide.Opponent)],
+    [
+      makeUnit('m1', GameSide.Player, m1Overrides),
+      makeUnit('blocker', GameSide.Opponent),
+    ],
   );
   session = startGame(session, GameSide.Player);
   session = advancePhase(session);
@@ -110,6 +123,55 @@ function fixed2d6(total: number) {
 }
 
 describe('applyInteractiveSessionMovement', () => {
+  it('auto-lands short positive-altitude WiGE movement after declaration', () => {
+    const session = setupSessionAtMovement({
+      unitType: UnitType.VEHICLE,
+      movementMode: 'wige',
+      vehicleInit: {
+        motionType: GroundMotionType.WIGE,
+        originalCruiseMP: 4,
+        armor: {},
+        structure: {},
+        altitude: 2,
+      },
+    });
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid: makeGrid(),
+      movementByUnit: capability({ walkMP: 4, runMP: 6, movementMode: 'wige' }),
+      unitId: 'm1',
+      to: { q: 0, r: 1 },
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+      path: [
+        { q: 0, r: 0 },
+        { q: 0, r: 1 },
+      ],
+    });
+
+    const appended = result.events.slice(session.events.length);
+    expect(appended.map((event) => event.type)).toEqual([
+      GameEventType.MovementDeclared,
+      GameEventType.RuntimeMovementStateChanged,
+      GameEventType.MovementLocked,
+    ]);
+    expect(
+      appended[1].payload as IRuntimeMovementStateChangedPayload,
+    ).toMatchObject({
+      unitId: 'm1',
+      source: 'automatic_wige_landing',
+      vehicleAltitude: 0,
+    });
+    expect(result.currentState.units.m1).toMatchObject({
+      position: { q: 0, r: 1 },
+      lockState: LockState.Locked,
+      combatState: {
+        kind: 'vehicle',
+        state: { altitude: 0, motionType: GroundMotionType.WIGE },
+      },
+    });
+  });
+
   it('rejects an occupied destination before declaring or locking movement', () => {
     const session = setupSessionAtMovement();
     const result = applyInteractiveSessionMovement({

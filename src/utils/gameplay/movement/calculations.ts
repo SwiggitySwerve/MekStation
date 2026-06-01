@@ -21,6 +21,10 @@ import type { UnitMovementType } from './types';
 import { getHex } from '../hexGrid';
 import { hexDistance, hexLine } from '../hexMath';
 import {
+  directionalCliffBlockedReason,
+  wigeSheerCliffAscentCost,
+} from './cliffTerrain';
+import {
   movementCostContextForStep,
   type IMovementCostContext,
 } from './costContext';
@@ -37,6 +41,7 @@ import {
   requiresWaterTerrain,
   waterMovementCostModifier,
 } from './terrainRules';
+import { wigeBuildingClimbModeCost } from './wigeClimbModeCost';
 
 export const PAVEMENT_ROAD_BONUS_MP = 1;
 
@@ -312,6 +317,26 @@ export function getMovementStepCostBreakdown(
     if (fromHex) {
       elevationDelta = hex.elevation - fromHex.elevation;
       const elevationChange = Math.abs(elevationDelta);
+      const cliffBlockedReason = directionalCliffBlockedReason({
+        movementType,
+        toTerrainFeatures: terrainFeatures,
+        fromCoord,
+        toCoord: coord,
+        elevationDelta,
+        hasPavementSurfaceFeature,
+        movementModeLabel: formatMovementModeForReason(movementType),
+      });
+      if (cliffBlockedReason) {
+        return {
+          mpCost: Infinity,
+          baseCost,
+          terrainCost,
+          elevationCost: 0,
+          elevationDelta,
+          blockedReason: cliffBlockedReason,
+        };
+      }
+
       if (elevationChange > 0 && paysElevationCost(movementType)) {
         elevationCost =
           elevationChange * elevationCostMultiplier(movementType, context);
@@ -338,6 +363,22 @@ export function getMovementStepCostBreakdown(
           };
         }
       }
+      terrainCost += wigeSheerCliffAscentCost({
+        grid,
+        fromCoord,
+        toCoord: coord,
+        toTerrainFeatures: terrainFeatures,
+        movementType,
+        elevationDelta,
+      });
+      terrainCost += wigeBuildingClimbModeCost({
+        grid,
+        fromCoord,
+        toCoord: coord,
+        toElevation: hex.elevation,
+        toTerrainFeatures: terrainFeatures,
+        movementType,
+      });
     }
   }
 
