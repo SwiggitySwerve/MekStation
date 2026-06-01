@@ -174,15 +174,14 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 101,
+      total: 99,
       byLevel: {
-        'helper-only': 91,
+        'helper-only': 89,
         unsupported: 10,
       },
       bySection: {
         damageAndDeath: 2,
         featureSupport: 60,
-        lifecycleAndPsr: 2,
         pilotSkills: 12,
         ruleSupport: 9,
         validationScope: 16,
@@ -314,6 +313,12 @@ describe('BattleMech combat validation catalog index', () => {
     );
     expect(unresolvedRefs).not.toContain(
       'validationScope.objectiveRequirements.heat-driven-modifiers',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'lifecycleAndPsr.psrTriggers.masc_failure',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'lifecycleAndPsr.psrTriggers.supercharger_failure',
     );
     const unsupportedRefs = unresolvedRows
       .filter((row) => row.level === 'unsupported')
