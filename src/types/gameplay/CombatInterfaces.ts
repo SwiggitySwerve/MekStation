@@ -649,6 +649,8 @@ export interface IAttackerState {
   readonly indirectFire?: IIndirectFire;
   readonly calledShot?: boolean;
   readonly teammateCalledShot?: boolean;
+  /** Set false for source-backed BattleMech combat paths that must not apply local called-shot SPA helper reductions. */
+  readonly applyLocalCalledShotAbilityReduction?: boolean;
   readonly abilities?: readonly string[];
   readonly weaponType?: string;
   readonly designatedWeaponType?: string;
