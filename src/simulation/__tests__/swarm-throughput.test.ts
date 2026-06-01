@@ -33,17 +33,29 @@ const THROUGHPUT_CONFIG: ISimulationConfig = {
   mapRadius: 5,
 };
 
-/** Number of sequential runs to execute. */
-const RUN_COUNT = 1000;
+function readPositiveIntEnv(name: string, fallback: number): number {
+  const parsed = Number.parseInt(process.env[name] ?? '', 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
 
-/** Wall-clock time budget in milliseconds (60 seconds). */
-const TIME_BUDGET_MS = 60_000;
+/** Number of sequential runs to execute. */
+const RUN_COUNT = readPositiveIntEnv('SWARM_THROUGHPUT_RUN_COUNT', 1000);
+
+/** Wall-clock time budget in milliseconds (60 seconds by default). */
+const TIME_BUDGET_MS = readPositiveIntEnv(
+  'SWARM_THROUGHPUT_TIME_BUDGET_MS',
+  60_000,
+);
+const JEST_TIMEOUT_MS =
+  TIME_BUDGET_MS + Math.max(5_000, Math.ceil(TIME_BUDGET_MS * 0.1));
 
 // =============================================================================
 // Tests
 // =============================================================================
 
-describe('Swarm throughput — 1000 sequential runs in < 60s (Task 5.12)', () => {
+describe(`Swarm throughput — ${RUN_COUNT} sequential runs in < ${
+  TIME_BUDGET_MS / 1000
+}s (Task 5.12)`, () => {
   it(
     `completes ${RUN_COUNT} sequential runs within ${TIME_BUDGET_MS / 1000}s`,
     () => {
@@ -81,11 +93,11 @@ describe('Swarm throughput — 1000 sequential runs in < 60s (Task 5.12)', () =>
 
       expect(elapsedMs).toBeLessThan(TIME_BUDGET_MS);
     },
-    TIME_BUDGET_MS + 5_000 /* Jest timeout: budget + 5s grace */,
+    JEST_TIMEOUT_MS,
   );
 
   it(
-    'all 1000 runs produce zero logic violations (state-cycle excluded)',
+    `all ${RUN_COUNT} runs produce zero logic violations (state-cycle excluded)`,
     () => {
       const behaviorA = getBehaviorVariant('default');
       const behaviorB = getBehaviorVariant('defensive');
@@ -111,7 +123,7 @@ describe('Swarm throughput — 1000 sequential runs in < 60s (Task 5.12)', () =>
         // Exclude state-cycle detector hits — these are heuristic cycle
         // detections that fire on short (turnLimit=5) runs when units repeat
         // positions on a small map. The invariant tested here is that no
-        // engine-logic violations occur across the full 1000-run batch.
+        // engine-logic violations occur across the full configured batch.
         logicViolations += result.violations.filter(
           (v) => v.invariant !== 'detector:state-cycle',
         ).length;
@@ -119,6 +131,6 @@ describe('Swarm throughput — 1000 sequential runs in < 60s (Task 5.12)', () =>
 
       expect(logicViolations).toBe(0);
     },
-    TIME_BUDGET_MS + 5_000,
+    JEST_TIMEOUT_MS,
   );
 });

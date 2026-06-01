@@ -186,6 +186,7 @@ Sequential `BatchRunner.runBatch` SHALL be the only execution path in this chang
 - **WHEN** the run completes
 - **THEN** total wall-clock time SHALL be less than 60 seconds
 - **AND** the runner SHALL NOT have spawned any `Worker` threads or child processes
+- **AND** CI smoke runs MAY set a lower run count and proportional wall-clock budget while preserving the 1,000-run / 60-second default as the explicit throughput proof
 
 #### Scenario: Output JSON validates against schema
 
@@ -635,4 +636,3 @@ After the file is written, the system SHALL append a corresponding `IQuickReplay
 - **GIVEN** a persisted `simulation-reports/quick/<gameId>.jsonl`
 - **WHEN** any line is parsed
 - **THEN** the parsed event SHALL have `replaySource: ReplaySource.Quick` (or `undefined` for events authored before this change shipped if the quick game was started under a legacy code path)
-
