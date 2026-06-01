@@ -40,10 +40,24 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §1.1, §1.2
  */
 
-import type { PhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types';
+import type {
+  IPhysicalAttackOption,
+  PhysicalAttackInvalidReason,
+  PhysicalAttackLimb,
+  PhysicalAttackType,
+} from '@/utils/gameplay/physicalAttacks/types';
 
-import type { GamePhase } from './GameSessionCoreTypes';
-import type { IHexCoordinate } from './HexGridInterfaces';
+import type { GroundMotionType } from '../unit/BaseUnitInterfaces';
+import type { ICombatRangeHex } from './CombatProjectionInterfaces';
+import type { IMovementRangeHex } from './GameplayUIInterfaces';
+import type { IAttackInvalidPayload } from './GameSessionAttackEvents';
+import type { GamePhase, LockState } from './GameSessionCoreTypes';
+import type { IComponentDamageState } from './GameSessionStateTypes';
+import type {
+  IHexCoordinate,
+  IMovementCapability,
+  MovementConversionMode,
+} from './HexGridInterfaces';
 
 /**
  * Top-level command categories. Determines dock grouping and which
@@ -107,12 +121,108 @@ export interface ITacticalCommandContext {
   readonly selectedUnitId: string | null;
   /** Target the player is aiming at (attack commands). */
   readonly targetUnitId: string | null;
+  /**
+   * Shared combat projection for targetUnitId, when the map has already
+   * derived one. Weapon commands use this to reject blocked volleys before
+   * commit with the same rules-backed reason shown on the map.
+   */
+  readonly targetCombatProjection?: ICombatRangeHex | null;
+  /**
+   * Target-id keyed combat projections. Context menus can override
+   * targetUnitId and pick the matching projection without recalculating
+   * range, arc, LOS, visibility, or weapon availability in the menu layer.
+   */
+  readonly combatProjectionByTargetId?: Readonly<
+    Record<string, ICombatRangeHex>
+  >;
+  /**
+   * Shared movement projection for hoveredHex, when the map has already
+   * derived one. Movement commands use this to reject blocked destinations
+   * before commit with the same rules-backed reason shown on the map.
+   */
+  readonly targetMovementProjection?: IMovementRangeHex | null;
+  /**
+   * Hex-keyed movement projections. Hex context menus can override
+   * hoveredHex and pick the matching projection without recalculating
+   * terrain, elevation, MP, heat, or illegal-destination reasons.
+   */
+  readonly movementProjectionByHex?: Readonly<
+    Record<string, IMovementRangeHex>
+  >;
+  /**
+   * Shared physical-attack projection for the currently planned target row.
+   * Physical commands use this to reject blocked punch/kick/charge/DFA/club
+   * commits before dispatch with the same rules-backed reason shown in the
+   * physical preview surface.
+   */
+  readonly targetPhysicalAttackOption?: IPhysicalAttackOption | null;
+  /**
+   * Physical attack options for the current target. Token context menus use
+   * this to gate each physical command against the right-clicked target without
+   * recalculating physical restrictions in the menu layer.
+   */
+  readonly targetPhysicalAttackOptions?:
+    | readonly IPhysicalAttackOption[]
+    | null;
+  /**
+   * Target-id keyed physical attack options. Enemy token context menus can
+   * override targetUnitId and pick the matching projection rows from this map.
+   */
+  readonly physicalAttackOptionsByTargetId?: Readonly<
+    Record<string, readonly IPhysicalAttackOption[]>
+  >;
   /** Hex the cursor is hovering, if any. */
   readonly hoveredHex: IHexCoordinate | null;
   /** Current game phase. Drives phase-filter at the registry level. */
   readonly phase: GamePhase;
   /** True if the local viewer can act (their turn + connected, etc). */
   readonly canAct: boolean;
+  /** True when the active unit is currently prone and can attempt to stand. */
+  readonly activeUnitProne?: boolean;
+  /** True when the active unit is currently hull-down and can exit that posture. */
+  readonly activeUnitHullDown?: boolean;
+  /** Current movement declaration lock state for the active unit. */
+  readonly activeUnitLockState?: LockState;
+  /** Current heat on the active unit, used for heat-reduced movement MP gates. */
+  readonly activeUnitHeat?: number;
+  /** True when the active unit already has a movement preview/plan queued. */
+  readonly activeUnitHasPlannedMovement?: boolean;
+  /** Runtime conversion mode for LAM / QuadVee style movement controls. */
+  readonly activeUnitConversionMode?: MovementConversionMode | number;
+  /** Represented vehicle motive used by VTOL/WiGE altitude controls. */
+  readonly activeUnitVehicleMotionType?: GroundMotionType;
+  /** Represented VTOL/WiGE vehicle altitude, where 0 means landed/hovering. */
+  readonly activeUnitVehicleAltitude?: number;
+  /** True when the active ProtoMek combat state is a represented Glider chassis. */
+  readonly activeUnitProtoGlider?: boolean;
+  /** Represented ProtoMek Glider altitude, where 0 means grounded. */
+  readonly activeUnitProtoAltitude?: number;
+  /** Represented LAM AirMek WiGE elevation selected through altitude controls. */
+  readonly activeUnitLamAirMekAltitude?: number;
+  /** Active unit terrain tag at its current hex, used by source-backed action gates. */
+  readonly activeUnitTerrain?: string;
+  /** Active unit elevation at its current hex, when represented by the map. */
+  readonly activeUnitElevation?: number;
+  /** Runtime mounted state for represented conventional infantry controls. */
+  readonly activeUnitInfantryMounted?: boolean;
+  /** Runtime or imported mount height for represented conventional infantry. */
+  readonly activeUnitInfantryMountHeight?: number;
+  /** Source-backed reason the active unit cannot complete a stand-up attempt. */
+  readonly activeUnitStandUpImpossibleReason?: string;
+  /** Active unit component damage used by posture commands with damage-scaled costs. */
+  readonly activeUnitComponentDamage?: IComponentDamageState;
+  /** Active unit gyro type used by damage-sensitive runtime movement gates. */
+  readonly activeUnitGyroType?: string;
+  /** Active unit destroyed locations used by posture commands with limb gates. */
+  readonly activeUnitDestroyedLocations?: readonly string[];
+  /** Active session optional-rule keys used by source-backed command gates. */
+  readonly optionalRules?: readonly string[];
+  /**
+   * Engine-derived movement envelope for activeUnitId, when available.
+   * Command availability uses this to explain unavailable movement modes
+   * before a player selects a map destination.
+   */
+  readonly movementCapability?: IMovementCapability | null;
 }
 
 /**
@@ -128,8 +238,20 @@ export interface IMovementCommandPreview {
   readonly mpCost: number;
   /** Proposed final facing after movement (0..5). */
   readonly finalFacing: number;
-  /** Walk/run/sprint/evade/jump (drives heat preview + indicator color). */
-  readonly mode: 'walk' | 'run' | 'sprint' | 'evade' | 'jump';
+  /** Walk vs run vs jump (drives heat preview + indicator color). */
+  readonly mode: 'walk' | 'run' | 'jump';
+  /** Rules-level movement mode used for terrain/elevation pathing. */
+  readonly movementMode?: string;
+  /** Terrain modifier paid on the final step into the destination hex. */
+  readonly terrainCost?: number;
+  /** Elevation delta from the previous path hex into the destination hex. */
+  readonly elevationDelta?: number;
+  /** Elevation MP paid on the final step into the destination hex. */
+  readonly elevationCost?: number;
+  /** Heat generated if the previewed movement is committed. */
+  readonly heatGenerated?: number;
+  /** Player-facing reason the previewed destination is blocked. */
+  readonly blockedReason?: string;
   /** True if the previewed destination is unreachable (over MP). */
   readonly unreachable: boolean;
 }
@@ -141,13 +263,25 @@ export interface IMovementCommandPreview {
 export interface IWeaponAttackCommandPreview {
   readonly kind: 'weapon-attack';
   readonly targetUnitId: string;
+  /** True when the rules projection says this attack can be committed. */
+  readonly attackable: boolean;
   /** To-hit number after all modifiers (2..12). */
   readonly toHit: number | null;
   /** Range band the target falls into. */
   readonly rangeBand: 'short' | 'medium' | 'long' | 'extreme' | 'out';
+  /** Engine-aligned attack rejection reason for blocked previews. */
+  readonly attackInvalidReason?: IAttackInvalidPayload['reason'];
+  /** Engine-style detail string paired with attackInvalidReason. */
+  readonly attackInvalidDetails?: string;
+  /** Player-facing reason the attack cannot be committed. */
+  readonly blockedReason?: string;
   /** Total heat the attack will generate. */
   readonly heatCost: number;
-  /** Ammo type → number of shots consumed. */
+  /** Weapon ids included in the projected attack volley. */
+  readonly weaponIds: readonly string[];
+  /** Player-facing weapon names included in the projected attack volley. */
+  readonly weaponNames: readonly string[];
+  /** Ammo type -> number of shots consumed. */
   readonly ammoUsage: Readonly<Record<string, number>>;
   /** Per-weapon expected damage (sum across selected weapons). */
   readonly expectedDamage: number;
@@ -161,12 +295,24 @@ export interface IPhysicalAttackCommandPreview {
   readonly kind: 'physical-attack';
   readonly targetUnitId: string;
   readonly attackType: PhysicalAttackType;
+  /** Selected limb for punch/kick rows and limb-specific restrictions. */
+  readonly limb?: PhysicalAttackLimb | null;
+  /** True when the physical-attack projection says this row can commit. */
+  readonly attackable: boolean;
   readonly toHit: number | null;
   readonly damage: number;
   /** Self-damage from the attack (e.g. DFA, charge). */
   readonly selfDamage: number;
   /** Whether a piloting skill roll is required. */
   readonly requiresPSR: boolean;
+  /** Per-leg self damage for DFA-style attacks. */
+  readonly attackerLegDamagePerLeg?: number;
+  /** Miss consequence surfaced before commit. */
+  readonly onMiss?: 'AttackerFalls' | 'None' | null;
+  /** Engine-side physical restriction codes blocking this attack. */
+  readonly restrictionReasonCodes?: readonly PhysicalAttackInvalidReason[];
+  /** Player-facing restriction text derived from the physical projection. */
+  readonly blockedReasons?: readonly string[];
 }
 
 /** Discriminated union of all preview kinds. */
@@ -176,10 +322,10 @@ export type ICommandPreview =
   | IPhysicalAttackCommandPreview;
 
 /**
- * Side-effect contract returned by `command.commit(state)`. The action
- * dock dispatches the underlying `actionId` through the existing
- * `onAction(actionId)` channel; the `engineMutation` is reserved for
- * the future direct-dispatch refactor.
+ * Side-effect contract returned by `command.commit(state)`. Command
+ * surfaces dispatch the underlying `actionId` through the existing
+ * `onAction(actionId, payload?)` channel; the `engineMutation` is
+ * reserved for the future direct-dispatch refactor.
  */
 export interface ICommandCommitResult {
   /** Action id forwarded to `onAction` for the existing engine plumbing. */
@@ -187,6 +333,15 @@ export interface ICommandCommitResult {
   /** Optional structured payload for downstream engine handlers. */
   readonly payload?: Readonly<Record<string, unknown>>;
 }
+
+/** Structured command payload forwarded alongside legacy action ids. */
+export type TacticalActionPayload = ICommandCommitResult['payload'];
+
+/** Dispatch callback shared by the dock, context menus, and host layout. */
+export type TacticalActionHandler = (
+  actionId: string,
+  payload?: TacticalActionPayload,
+) => void;
 
 /**
  * The core command shape — the UI adapter over an engine action.
@@ -225,7 +380,7 @@ export interface ITacticalCommand {
   /**
    * Compute the engine-dispatch payload at commit time. Pure — does
    * NOT touch the store directly. The dock takes the returned
-   * `actionId` and routes it through `onAction`.
+   * `actionId` and optional `payload` and routes them through `onAction`.
    */
   commit(ctx: ITacticalCommandContext): ICommandCommitResult;
   /**

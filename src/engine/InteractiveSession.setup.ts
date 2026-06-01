@@ -14,8 +14,13 @@
 
 import type { IWeapon } from '@/simulation/ai/types';
 import type {
+  VehicleLocation,
+  VTOLLocation,
+} from '@/types/construction/UnitLocation';
+import type {
   IGameConfig,
   IGameUnit,
+  IVehicleCriticalAvailabilityProfile,
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IMovementCapability } from '@/types/gameplay/HexGridInterfaces';
 
@@ -40,8 +45,8 @@ export interface IInteractiveSessionUnitMaps {
 /**
  * Build the per-unit lookup maps from the adapted units (weapons +
  * movement capability + tonnage) and the game units (gunnery +
- * piloting). Tonnage uses the Phase 1 stand-in of 65t because catalog
- * tonnage is not yet on `IAdaptedUnit` — matches `SimulationRunnerConstants`.
+ * piloting). Current adapted units carry catalog tonnage when available;
+ * missing/legacy fixtures still fall back to the 65t stand-in.
  */
 export function buildInteractiveSessionUnitMaps(
   playerUnits: readonly IAdaptedUnit[],
@@ -57,9 +62,7 @@ export function buildInteractiveSessionUnitMaps(
   for (const u of [...playerUnits, ...opponentUnits]) {
     weaponsByUnit.set(u.id, u.weapons);
     movementByUnit.set(u.id, toMovementCapability(u));
-    // Phase 1 stand-in: catalog tonnage isn't on `IAdaptedUnit` yet,
-    // so we default to 65t (matches `SimulationRunnerConstants`).
-    tonnageByUnit.set(u.id, 65);
+    tonnageByUnit.set(u.id, representedTonnage(u.tonnage));
   }
   for (const gu of gameUnits) {
     gunneryByUnit.set(gu.id, gu.gunnery);
@@ -75,6 +78,161 @@ export function buildInteractiveSessionUnitMaps(
   };
 }
 
+function representedTonnage(tonnage: number | undefined): number {
+  return tonnage !== undefined && Number.isFinite(tonnage) && tonnage > 0
+    ? tonnage
+    : 65;
+}
+
+export function gameUnitsWithAdaptedMovementModes(
+  gameUnits: readonly IGameUnit[],
+  playerUnits: readonly IAdaptedUnit[],
+  opponentUnits: readonly IAdaptedUnit[],
+): readonly IGameUnit[] {
+  const adaptedByUnit = new Map(
+    [...playerUnits, ...opponentUnits].map((unit) => [unit.id, unit]),
+  );
+
+  return gameUnits.map((unit) => {
+    const adapted = adaptedByUnit.get(unit.id);
+    if (!adapted) return unit;
+
+    const movementMode = adapted.movementMode;
+    const gyroType = adapted.gyroType;
+    const vehicleCriticalAvailability = vehicleCriticalAvailabilityFromWeapons(
+      adapted.weapons,
+    );
+    const hasMovementModeUpdate =
+      movementMode !== undefined && unit.movementMode !== movementMode;
+    const hasGyroTypeUpdate =
+      gyroType !== undefined && unit.gyroType !== gyroType;
+    const hasVehicleCriticalAvailabilityUpdate =
+      unit.vehicleInit !== undefined &&
+      vehicleCriticalAvailability !== undefined;
+
+    return hasMovementModeUpdate ||
+      hasGyroTypeUpdate ||
+      hasVehicleCriticalAvailabilityUpdate
+      ? {
+          ...unit,
+          ...(hasMovementModeUpdate ? { movementMode } : {}),
+          ...(hasGyroTypeUpdate ? { gyroType } : {}),
+          ...(hasVehicleCriticalAvailabilityUpdate
+            ? {
+                vehicleInit: {
+                  ...unit.vehicleInit,
+                  criticalAvailability: mergeVehicleCriticalAvailability(
+                    unit.vehicleInit.criticalAvailability,
+                    vehicleCriticalAvailability,
+                  ),
+                },
+              }
+            : {}),
+        }
+      : unit;
+  });
+}
+
+function vehicleCriticalAvailabilityFromWeapons(
+  weapons: readonly IWeapon[],
+): IVehicleCriticalAvailabilityProfile | undefined {
+  const mountedWeapons = weapons.filter(
+    (weapon) => weapon.vehicleMountLocation !== undefined,
+  );
+  if (mountedWeapons.length === 0) {
+    return undefined;
+  }
+
+  const weaponLocations = uniqueVehicleLocations(
+    mountedWeapons.map((weapon) => weapon.vehicleMountLocation),
+  );
+  const weaponLocationCounts = countVehicleLocations(
+    mountedWeapons.map((weapon) => weapon.vehicleMountLocation),
+  );
+  const liveWeaponLocations = uniqueVehicleLocations(
+    mountedWeapons
+      .filter((weapon) => !weapon.destroyed)
+      .map((weapon) => weapon.vehicleMountLocation),
+  );
+  const liveWeaponLocationCounts = countVehicleLocations(
+    mountedWeapons
+      .filter((weapon) => !weapon.destroyed)
+      .map((weapon) => weapon.vehicleMountLocation),
+  );
+
+  return {
+    weaponLocations,
+    weaponLocationCounts,
+    jammableWeaponLocations: liveWeaponLocations,
+    jammableWeaponLocationCounts: liveWeaponLocationCounts,
+    destroyableWeaponLocations: liveWeaponLocations,
+    destroyableWeaponLocationCounts: liveWeaponLocationCounts,
+  };
+}
+
+function uniqueVehicleLocations(
+  locations: readonly (VehicleLocation | VTOLLocation | undefined)[],
+): readonly (VehicleLocation | VTOLLocation)[] {
+  return Array.from(
+    new Set(
+      locations.filter(
+        (location): location is VehicleLocation | VTOLLocation =>
+          location !== undefined,
+      ),
+    ),
+  );
+}
+
+function countVehicleLocations(
+  locations: readonly (VehicleLocation | VTOLLocation | undefined)[],
+): Partial<Record<string, number>> {
+  return locations.reduce<Partial<Record<string, number>>>(
+    (counts, location) => {
+      return location === undefined
+        ? counts
+        : { ...counts, [location]: (counts[location] ?? 0) + 1 };
+    },
+    {},
+  );
+}
+
+function mergeVehicleCriticalAvailability(
+  existing: IVehicleCriticalAvailabilityProfile | undefined,
+  derived: IVehicleCriticalAvailabilityProfile,
+): IVehicleCriticalAvailabilityProfile {
+  if (!existing) {
+    return derived;
+  }
+
+  return {
+    weaponLocations: existing.weaponLocations ?? derived.weaponLocations,
+    weaponLocationCounts:
+      existing.weaponLocationCounts ?? derived.weaponLocationCounts,
+    jammableWeaponLocations:
+      existing.jammableWeaponLocations ??
+      existing.weaponLocations ??
+      derived.jammableWeaponLocations,
+    jammableWeaponLocationCounts:
+      existing.jammableWeaponLocationCounts ??
+      existing.weaponLocationCounts ??
+      derived.jammableWeaponLocationCounts,
+    destroyableWeaponLocations:
+      existing.destroyableWeaponLocations ??
+      existing.weaponLocations ??
+      derived.destroyableWeaponLocations,
+    destroyableWeaponLocationCounts:
+      existing.destroyableWeaponLocationCounts ??
+      existing.weaponLocationCounts ??
+      derived.destroyableWeaponLocationCounts,
+    ...(existing.cargoLoaded !== undefined
+      ? { cargoLoaded: existing.cargoLoaded }
+      : {}),
+    ...(existing.stabilizerHitLocations
+      ? { stabilizerHitLocations: existing.stabilizerHitLocations }
+      : {}),
+  };
+}
+
 /**
  * Assemble the `IGameConfig` from the raw constructor arguments and the
  * campaign linkage. The Wave 5 round-trip identifiers are stamped onto
@@ -85,12 +243,13 @@ export function buildInteractiveSessionGameConfig(
   mapRadius: number,
   turnLimit: number,
   linkage: IInteractiveSessionLinkage,
+  optionalRules: readonly string[] = [],
 ): IGameConfig {
   return {
     mapRadius,
     turnLimit,
     victoryConditions: ['elimination'],
-    optionalRules: [],
+    optionalRules: [...optionalRules],
     encounterId: linkage.encounterId ?? null,
     campaignId: linkage.campaignId ?? null,
     contractId: linkage.contractId ?? null,

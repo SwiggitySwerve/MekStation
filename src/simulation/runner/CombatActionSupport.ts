@@ -36,6 +36,18 @@ function integrated(
     : { id, layer, level: 'integrated', evidence };
 }
 
+function unsupported(
+  id: string,
+  layer: CombatActionLayer,
+  evidence: string,
+  gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatActionSupportEntry {
+  return sourceRefs
+    ? { id, layer, level: 'unsupported', evidence, gap, sourceRefs }
+    : { id, layer, level: 'unsupported', evidence, gap };
+}
+
 function outOfScope(
   id: string,
   layer: CombatActionLayer,
@@ -116,6 +128,65 @@ const MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MoveStep.canUseSprint gates sprinting on the TacOps sprint option and BattleMech unit scope.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/moves/MoveStep.java#L3908-L3922',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Mek.getSprintMP calculates BattleMech sprint MP as 2x walk MP, or boosted through armed MASC/Supercharger sprint formulas.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Mek.java#L1041-L1055',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MPBoosters.calculateSprintMP uses ceil(walk MP * 2.5) for one active booster and 3x walk MP for MASC plus Supercharger.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/enums/MPBoosters.java#L89-L97',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Mek.getSprintHeat delegates sprint heat to the engine sprint heat calculation plus damaged-coolant-system heat.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Mek.java#L1075-L1078',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Engine.getSprintHeat returns 3 heat for standard BattleMech engines without working supercooling myomer.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/Engine.java#L705-L713',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek ranged to-hit calculation makes attacks by sprinting attackers automatic failures.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/compute/Compute.java#L2678-L2680',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek ranged to-hit calculation applies a -1 modifier when the target sprinted.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/compute/Compute.java#L2847-L2850',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Entity.canSpot rejects sprinting entities before they can spot LRM indirect fire.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L9806-L9818',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEKSTATION_FACING_ROTATE_LEFT_COMMAND_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation buildFacingCommands exposes facing.rotate-left as a Movement-phase facing command that commits the local facing-left action id.',
@@ -170,63 +241,43 @@ const MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS = {
     'the local lock action id with a run movement mode payload',
     'L73-L91',
   ),
-  'movement.sprint': mekstationMovementCommandSourceRefs(
-    'movement.sprint',
-    'the local lock action id with a sprint movement mode payload',
-    'L114-L132',
-  ),
-  'movement.evade': mekstationMovementCommandSourceRefs(
-    'movement.evade',
-    'the local lock action id with an evade movement mode payload',
-    'L94-L112',
-  ),
   'movement.jump': mekstationMovementCommandSourceRefs(
     'movement.jump',
     'the local lock action id with a jump movement mode payload',
-    'L134-L157',
+    'L145-L247',
   ),
   'movement.stand': mekstationMovementCommandSourceRefs(
     'movement.stand',
     'the local stand action id',
-    'L138-L157',
+    'L250-L313',
   ),
-  'movement.go-prone': mekstationMovementCommandSourceRefs(
-    'movement.go-prone',
+  'movement.carefulStand': mekstationMovementCommandSourceRefs(
+    'movement.carefulStand',
+    'the local careful stand action id',
+    'L316-L354',
+  ),
+  'movement.hullDown': mekstationMovementCommandSourceRefs(
+    'movement.hullDown',
+    'the local hull-down action id',
+    'L357-L418',
+  ),
+  'movement.goProne': mekstationMovementCommandSourceRefs(
+    'movement.goProne',
     'the local go-prone action id',
-    'L159-L176',
-  ),
-  'movement.activate-masc': mekstationMovementCommandSourceRefs(
-    'movement.activate-masc',
-    'the local activate-masc action id',
-    'L178-L194',
-  ),
-  'movement.activate-supercharger': mekstationMovementCommandSourceRefs(
-    'movement.activate-supercharger',
-    'the local activate-supercharger action id',
-    'L196-L212',
+    'L421-L454',
   ),
 } satisfies Record<string, readonly ICombatFeatureSourceReference[]>;
 
 const MOVEMENT_GO_PRONE_ACTION_SOURCE_REFS = [
   ...MEGAMEK_GO_PRONE_SOURCE_REFS,
-  ...MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.go-prone'],
-] satisfies readonly ICombatFeatureSourceReference[];
-
-const MOVEMENT_ACTIVATE_MASC_ACTION_SOURCE_REFS = [
-  ...MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS,
-  ...MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.activate-masc'],
-] satisfies readonly ICombatFeatureSourceReference[];
-
-const MOVEMENT_ACTIVATE_SUPERCHARGER_ACTION_SOURCE_REFS = [
-  ...MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS,
-  ...MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.activate-supercharger'],
+  ...MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.goProne'],
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const MEKSTATION_STABILIZE_COMMAND_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation buildMovementCommands exposes movement.stabilize as a product-visible tactical command that commits the local stabilize action id.',
     'src/components/gameplay/TacticalActionDock/commands/movementCommands.ts',
-    'L214-L230',
+    'L457-L475',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -234,7 +285,7 @@ const MEKSTATION_MOVEMENT_CANCEL_COMMAND_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation buildMovementCommands exposes movement.cancel as a local movement-preview reset command that commits the undo action id.',
     'src/components/gameplay/TacticalActionDock/commands/movementCommands.ts',
-    'L232-L250',
+    'L477-L494',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -763,65 +814,6 @@ const MEKSTATION_WIRE_INTENT_SOURCE_REFS = {
   readonly ICombatFeatureSourceReference[]
 >;
 
-const MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS = [
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek MoveStep.canUseSprint gates sprinting on the TacOps sprint option and BattleMech unit scope.',
-    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/moves/MoveStep.java#L3908-L3922',
-    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-  },
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek Mek.getSprintMP calculates BattleMech sprint MP as 2x walk MP, or boosted through armed MASC/Supercharger sprint formulas.',
-    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Mek.java#L1041-L1055',
-    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-  },
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek MPBoosters.calculateSprintMP uses ceil(walk MP * 2.5) for one active booster and 3x walk MP for MASC plus Supercharger.',
-    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/enums/MPBoosters.java#L89-L97',
-    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-  },
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek Mek.getSprintHeat delegates sprint heat to the engine sprint heat calculation plus damaged-coolant-system heat.',
-    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Mek.java#L1075-L1078',
-    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-  },
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek Engine.getSprintHeat returns 3 heat for standard BattleMech engines without working supercooling myomer.',
-    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/Engine.java#L705-L713',
-    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-  },
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek ranged to-hit calculation makes attacks by sprinting attackers automatic failures.',
-    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/compute/Compute.java#L2678-L2680',
-    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-  },
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek ranged to-hit calculation applies a -1 modifier when the target sprinted.',
-    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/compute/Compute.java#L2847-L2850',
-    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-  },
-  {
-    kind: 'megamek-source',
-    citation:
-      'MegaMek Entity.canSpot rejects sprinting entities before they can spot LRM indirect fire.',
-    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L9806-L9818',
-    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-  },
-] satisfies readonly ICombatFeatureSourceReference[];
-
 export const COMBAT_COMMAND_ACTION_SUPPORT = {
   'movement.walk': integrated(
     'movement.walk',
@@ -835,24 +827,6 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'buildMovementCommands commits lock mode run; declareMovement/Move carries authoritative movement',
     MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.run'],
   ),
-  'movement.sprint': integrated(
-    'movement.sprint',
-    'tactical-command',
-    'buildMovementCommands commits lock mode sprint; MovementType.Sprint uses source-backed sprint MP, run-based pathing/PSRs, normal-engine sprint heat, current-turn sprint state, and declareMovement/Move/P2P movement validation carry it through the existing movement action path; engine-variant/coolant sprint heat remains a cataloged heat-rule gap',
-    [
-      ...MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS,
-      ...MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.sprint'],
-    ],
-  ),
-  'movement.evade': integrated(
-    'movement.evade',
-    'tactical-command',
-    'buildMovementCommands commits lock mode evade; MovementType.Evade uses run MP/pathing, creates authoritative evading/evasionBonus state, emits source-backed evasion heat, and declareMovement/Move/P2P movement validation carry it through the existing movement action path',
-    [
-      ...MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
-      ...MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.evade'],
-    ],
-  ),
   'movement.jump': integrated(
     'movement.jump',
     'tactical-command',
@@ -865,23 +839,23 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'buildMovementCommands commits stand; useGameplayStore, stand game intent, Stand wire payload, server dispatch, and P2P host command route through InteractiveSession.attemptStandUp',
     MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.stand'],
   ),
-  'movement.go-prone': integrated(
-    'movement.go-prone',
+  'movement.carefulStand': integrated(
+    'movement.carefulStand',
+    'tactical-command',
+    'buildMovementCommands commits careful stand through the local stand-careful action path for prone BattleMechs with enough walk MP',
+    MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.carefulStand'],
+  ),
+  'movement.hullDown': integrated(
+    'movement.hullDown',
+    'tactical-command',
+    'buildMovementCommands commits hull-down through the local hull-down action path for Mek-style movement profiles with intact support',
+    MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.hullDown'],
+  ),
+  'movement.goProne': integrated(
+    'movement.goProne',
     'tactical-command',
     'buildMovementCommands commits go-prone; useGameplayStore, goProne game intent, GoProne wire payload, server dispatch, P2P host command, and InteractiveSession.goProne emit a source-backed same-hex MovementDeclared goProne step with 1 MP and no heat',
     MOVEMENT_GO_PRONE_ACTION_SOURCE_REFS,
-  ),
-  'movement.activate-masc': integrated(
-    'movement.activate-masc',
-    'tactical-command',
-    'buildMovementCommands commits activate-masc; useGameplayStore, activateMovementEnhancement game intent, ActivateMovementEnhancement wire payload, server dispatch, P2P host command, and InteractiveSession.activateMovementEnhancement set replayable activeMASC state before the movement declaration consumes boosted MP and PSR checks',
-    MOVEMENT_ACTIVATE_MASC_ACTION_SOURCE_REFS,
-  ),
-  'movement.activate-supercharger': integrated(
-    'movement.activate-supercharger',
-    'tactical-command',
-    'buildMovementCommands commits activate-supercharger; useGameplayStore, activateMovementEnhancement game intent, ActivateMovementEnhancement wire payload, server dispatch, P2P host command, and InteractiveSession.activateMovementEnhancement set replayable activeSupercharger state before the movement declaration consumes boosted MP and PSR checks',
-    MOVEMENT_ACTIVATE_SUPERCHARGER_ACTION_SOURCE_REFS,
   ),
   'movement.stabilize': outOfScope(
     'movement.stabilize',
@@ -1115,10 +1089,85 @@ export const GM_COMMAND_EXCLUSION_SUPPORT = {
   ),
 } satisfies Record<string, ICombatActionSupportEntry>;
 
-export const BATTLEMECH_ABSENT_ACTION_SUPPORT = {} satisfies Record<
-  string,
-  ICombatActionSupportEntry
->;
+const MEKSTATION_ABSENT_MOVEMENT_COMMAND_SOURCE_REFS = {
+  'movement.sprint': [
+    mekstationDeviationSourceRef(
+      'MekStation buildMovementCommands currently exposes no movement.sprint player tactical command id.',
+      'src/components/gameplay/TacticalActionDock/commands/movementCommands.ts',
+      'L49-L62',
+    ),
+  ],
+  'movement.evade': [
+    mekstationDeviationSourceRef(
+      'MekStation buildMovementCommands currently exposes no movement.evade player tactical command id.',
+      'src/components/gameplay/TacticalActionDock/commands/movementCommands.ts',
+      'L49-L62',
+    ),
+  ],
+  'movement.activate-masc': [
+    mekstationDeviationSourceRef(
+      'MekStation buildMovementCommands currently exposes no movement.activate-masc player tactical command id.',
+      'src/components/gameplay/TacticalActionDock/commands/movementCommands.ts',
+      'L49-L62',
+    ),
+  ],
+  'movement.activate-supercharger': [
+    mekstationDeviationSourceRef(
+      'MekStation buildMovementCommands currently exposes no movement.activate-supercharger player tactical command id.',
+      'src/components/gameplay/TacticalActionDock/commands/movementCommands.ts',
+      'L49-L62',
+    ),
+  ],
+} satisfies Record<string, readonly ICombatFeatureSourceReference[]>;
+
+export const BATTLEMECH_ABSENT_ACTION_SUPPORT = {
+  'movement.sprint': unsupported(
+    'movement.sprint',
+    'absent-action-surface',
+    'MovementType.Sprint, Move wire payload mapping, and source-backed sprint rules exist below the current tactical command surface',
+    'Current player tactical command registry and movement switcher do not expose Sprint as a selectable player action.',
+    [
+      ...MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS,
+      ...MEKSTATION_ABSENT_MOVEMENT_COMMAND_SOURCE_REFS['movement.sprint'],
+    ],
+  ),
+  'movement.evade': unsupported(
+    'movement.evade',
+    'absent-action-surface',
+    'MovementType.Evade, Move wire payload mapping, and source-backed evasion rules exist below the current tactical command surface',
+    'Current player tactical command registry and movement switcher do not expose Evade as a selectable player action.',
+    [
+      ...MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
+      ...MEKSTATION_ABSENT_MOVEMENT_COMMAND_SOURCE_REFS['movement.evade'],
+    ],
+  ),
+  'movement.activate-masc': unsupported(
+    'movement.activate-masc',
+    'absent-action-surface',
+    'activateMovementEnhancement game and wire intents can carry MASC activation, but there is no current player tactical command surface for it',
+    'Current player tactical command registry does not expose MASC activation as a selectable player action.',
+    [
+      ...MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS,
+      ...MEKSTATION_GAME_INTENT_SOURCE_REFS.activateMovementEnhancement,
+      ...MEKSTATION_ABSENT_MOVEMENT_COMMAND_SOURCE_REFS[
+        'movement.activate-masc'
+      ],
+    ],
+  ),
+  'movement.activate-supercharger': unsupported(
+    'movement.activate-supercharger',
+    'absent-action-surface',
+    'activateMovementEnhancement game and wire intents can carry Supercharger activation, but there is no current player tactical command surface for it',
+    'Current player tactical command registry does not expose Supercharger activation as a selectable player action.',
+    [
+      ...MEGAMEK_MASC_SUPERCHARGER_ACTION_SOURCE_REFS,
+      ...MEKSTATION_GAME_INTENT_SOURCE_REFS.activateMovementEnhancement,
+      ...MEKSTATION_ABSENT_MOVEMENT_COMMAND_SOURCE_REFS[
+        'movement.activate-supercharger'
+      ],
+    ],
+  ),
+} satisfies Record<string, ICombatActionSupportEntry>;
 
 export const COMBAT_DIRECT_UI_ACTION_SUPPORT = {
   'utility.withdraw-control': integrated(

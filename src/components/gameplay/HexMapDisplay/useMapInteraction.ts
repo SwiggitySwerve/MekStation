@@ -18,7 +18,11 @@
 
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 
-import type { IHexCoordinate, MapProjectionMode } from '@/types/gameplay';
+import type {
+  IHexCoordinate,
+  MapIsometricRotationStep,
+  MapProjectionMode,
+} from '@/types/gameplay';
 
 import {
   HEX_SIZE,
@@ -27,6 +31,11 @@ import {
   hexToPixel,
 } from '@/constants/hexMap';
 
+import {
+  isometricRotationStepForTouchGesture,
+  touchAngleDegrees,
+  touchDistance,
+} from './mapTouchGestures';
 import {
   useMapLayerState,
   type IMapLayerInteractionState,
@@ -148,6 +157,7 @@ export interface MapInteractionState extends IMapLayerInteractionState {
   handleMouseDown: (e: React.MouseEvent) => void;
   handleMouseMove: (e: React.MouseEvent) => void;
   handleMouseUp: () => void;
+  handleKeyDown: (e: React.KeyboardEvent) => void;
   handleTouchStart: (e: React.TouchEvent) => void;
   handleTouchMove: (e: React.TouchEvent) => void;
   handleTouchEnd: () => void;
@@ -174,6 +184,8 @@ export function useMapInteraction(
   const [touchStart, setTouchStart] = useState<{
     dist: number;
     zoom: number;
+    angle: number;
+    rotationStep: MapIsometricRotationStep;
   } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const layerInteraction = useMapLayerState(initialProjectionMode);
@@ -421,20 +433,34 @@ export function useMapInteraction(
     setIsPanning(false);
   }, []);
 
-  const getTouchDistance = useCallback(
-    (t1: React.Touch, t2: React.Touch): number => {
-      const dx = t2.clientX - t1.clientX;
-      const dy = t2.clientY - t1.clientY;
-      return Math.sqrt(dx * dx + dy * dy);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (layerInteraction.projectionMode !== 'isometric2d') return;
+
+      if (e.key === 'q' || e.key === 'Q') {
+        e.preventDefault();
+        e.stopPropagation();
+        layerInteraction.rotateIsometricLeft();
+      } else if (e.key === 'e' || e.key === 'E') {
+        e.preventDefault();
+        e.stopPropagation();
+        layerInteraction.rotateIsometricRight();
+      }
     },
-    [],
+    [layerInteraction],
   );
 
   const handleTouchStart = useCallback(
     (e: React.TouchEvent) => {
       if (e.touches.length === 2) {
-        const dist = getTouchDistance(e.touches[0], e.touches[1]);
-        setTouchStart({ dist, zoom });
+        const dist = touchDistance(e.touches[0], e.touches[1]);
+        const angle = touchAngleDegrees(e.touches[0], e.touches[1]);
+        setTouchStart({
+          dist,
+          zoom,
+          angle,
+          rotationStep: layerInteraction.isometricRotationStep,
+        });
         setIsPanning(false);
       } else if (e.touches.length === 1) {
         setIsPanning(true);
@@ -445,7 +471,7 @@ export function useMapInteraction(
         setTouchStart(null);
       }
     },
-    [getTouchDistance, zoom, pan],
+    [layerInteraction.isometricRotationStep, zoom, pan],
   );
 
   const handleTouchMove = useCallback(
@@ -453,9 +479,19 @@ export function useMapInteraction(
       e.preventDefault();
 
       if (e.touches.length === 2 && touchStart) {
-        const dist = getTouchDistance(e.touches[0], e.touches[1]);
+        const dist = touchDistance(e.touches[0], e.touches[1]);
         const scale = dist / touchStart.dist;
         setZoom(clamp(touchStart.zoom * scale, ZOOM_MIN, ZOOM_MAX));
+
+        if (layerInteraction.projectionMode === 'isometric2d') {
+          layerInteraction.setIsometricRotationStep(
+            isometricRotationStepForTouchGesture(
+              touchStart.rotationStep,
+              touchStart.angle,
+              touchAngleDegrees(e.touches[0], e.touches[1]),
+            ),
+          );
+        }
       } else if (e.touches.length === 1 && isPanning) {
         const next = {
           x: e.touches[0].clientX - panStart.x,
@@ -464,7 +500,7 @@ export function useMapInteraction(
         setPan(clampPan(next, zoom));
       }
     },
-    [touchStart, getTouchDistance, isPanning, panStart, clampPan, zoom],
+    [touchStart, isPanning, panStart, clampPan, zoom, layerInteraction],
   );
 
   const handleTouchEnd = useCallback(() => {
@@ -515,6 +551,7 @@ export function useMapInteraction(
       handleMouseDown,
       handleMouseMove,
       handleMouseUp,
+      handleKeyDown,
       handleTouchStart,
       handleTouchMove,
       handleTouchEnd,
@@ -532,6 +569,7 @@ export function useMapInteraction(
       handleMouseDown,
       handleMouseMove,
       handleMouseUp,
+      handleKeyDown,
       handleTouchStart,
       handleTouchMove,
       handleTouchEnd,

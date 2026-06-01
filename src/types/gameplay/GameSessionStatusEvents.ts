@@ -54,13 +54,16 @@ import type {
   IFacingChangedPayload,
   IAttackLockedPayload,
   IMovementDeclaredPayload,
+  IMovementInvalidPayload,
   IMovementLockedPayload,
+  IRuntimeMovementStateChangedPayload,
 } from './GameSessionMovementEvents';
 import type {
   IObjectiveCapturedPayload,
   IObjectiveLostPayload,
   IObjectiveProgressPayload,
 } from './GameSessionObjectiveEvents';
+import type { IHexCoordinate } from './HexGridInterfaces';
 // Wave 8 PR-K4: indirect-fire dispatch events. Payloads extracted to
 // IndirectFireInterfaces.ts (PR-types-split G9).
 import type {
@@ -449,6 +452,23 @@ export interface IForcedWithdrawalTriggeredPayload {
 }
 
 /**
+ * Event-sourced terrain mutation. Carries the resolved terrain string rather
+ * than asking replay/hydration consumers to recompute rules from prior combat
+ * context.
+ */
+export interface ITerrainChangedPayload {
+  readonly hex: IHexCoordinate;
+  readonly terrain: string;
+  readonly elevation?: number;
+  readonly previousTerrain?: string;
+  readonly previousElevation?: number;
+  readonly reason: 'battlefield_wreckage';
+  readonly sourceEventId?: string;
+  readonly sourceUnitId?: string;
+  readonly optionalRule?: string;
+}
+
+/**
  * Union type for all event payloads.
  */
 export type GameEventPayload =
@@ -461,7 +481,9 @@ export type GameEventPayload =
   | IInitiativeRolledPayload
   | IInitiativeOrderSetPayload
   | IMovementDeclaredPayload
+  | IMovementInvalidPayload
   | IMovementLockedPayload
+  | IRuntimeMovementStateChangedPayload
   | IFacingChangedPayload
   | IAttackDeclaredPayload
   | IAttackLockedPayload
@@ -474,6 +496,7 @@ export type GameEventPayload =
   | IAmmoExplosionPayload
   | IUnitDestroyedPayload
   | IRedactedUnitDestroyedPayload
+  | ITerrainChangedPayload
   | ICriticalHitResolvedPayload
   | IPSRTriggeredPayload
   | IPSRResolvedPayload

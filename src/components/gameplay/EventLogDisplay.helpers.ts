@@ -16,6 +16,7 @@ import {
   formatUnitDestroyedEntry,
   humanLocation,
 } from '@/components/gameplay/damageFeedback';
+import { formatRuntimeMovementStateChangedEvent } from '@/components/gameplay/EventLogDisplay.runtimeMovement';
 import {
   GameEventType,
   GamePhase,
@@ -31,8 +32,10 @@ export interface IFormattedEventWithGrouping extends IFormattedEvent {
 export function getEventIcon(type: GameEventType): IFormattedEvent['icon'] {
   switch (type) {
     case GameEventType.MovementDeclared:
+    case GameEventType.MovementInvalid:
     case GameEventType.MovementLocked:
     case GameEventType.FacingChanged:
+    case GameEventType.RuntimeMovementStateChanged:
       return 'movement';
     case GameEventType.AttackDeclared:
     case GameEventType.AttackLocked:
@@ -116,6 +119,22 @@ export function formatEvent(
       };
       unitId = payload.unitId;
       text = `Unit moved (${payload.movementType}, ${payload.mpUsed} MP)`;
+      break;
+    }
+    case GameEventType.MovementInvalid: {
+      const payload = event.payload as {
+        unitId: string;
+        reason: string;
+        details?: string;
+      };
+      unitId = payload.unitId;
+      text = `Movement blocked: ${payload.details ?? payload.reason}`;
+      break;
+    }
+    case GameEventType.RuntimeMovementStateChanged: {
+      const formatted = formatRuntimeMovementStateChangedEvent(event);
+      text = formatted.text;
+      unitId = formatted.unitId;
       break;
     }
     case GameEventType.AttackDeclared: {

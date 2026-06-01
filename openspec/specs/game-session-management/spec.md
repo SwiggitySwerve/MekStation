@@ -1513,7 +1513,7 @@ The game session SHALL provide focus requests for active-unit changes without co
 
 ### Requirement: Interactive Session Terrain Ownership
 
-The interactive session SHALL own and expose the canonical combat grid used by the current battle.
+The interactive session SHALL own and expose the canonical combat grid used by the current battle. The initial `GameCreated` event emitted for that session SHALL carry non-default starting terrain/elevation in `payload.hexTerrain` so recovery consumers can rebuild the same grid from the event log.
 
 **Priority**: Critical
 
@@ -1531,6 +1531,20 @@ The interactive session SHALL own and expose the canonical combat grid used by t
 **WHEN** a game session is created
 **THEN** `session.config.mapRadius` SHALL match the injected grid radius unless an explicit map radius is supplied
 **AND** the tactical map SHALL render that radius
+
+#### Scenario: Session seed carries configured grid terrain
+
+**GIVEN** `GameEngine` is created with a configured `IHexGrid`
+**WHEN** `createInteractiveSession()` is called
+**THEN** the resulting `GameCreated` event SHALL include non-default terrain and elevation from that grid in `payload.hexTerrain`
+**AND** flat clear hexes SHALL be omitted from the seed payload
+
+#### Scenario: Recovery combines initial terrain with later overrides
+
+**GIVEN** a persisted session whose `GameCreated` event carries initial terrain
+**AND** later events derive terrain overrides from `TerrainChanged`
+**WHEN** `InteractiveSession.fromSession()` or `fromSessionAsync()` rebuilds the session
+**THEN** `getGrid()` SHALL include the initial terrain seed plus the later terrain overrides
 
 ## Dependencies
 

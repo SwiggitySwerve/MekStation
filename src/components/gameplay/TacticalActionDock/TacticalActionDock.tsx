@@ -22,16 +22,24 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §2.1, §2.3
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import type {
   CommandAvailability,
   ITacticalCommand,
   ITacticalCommandContext,
+  TacticalActionHandler,
 } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
+import { GamePhase } from '@/types/gameplay';
+
 import { CommandTooltip } from './CommandTooltip';
+import { CommandPreviewPanel } from './TacticalActionDock.preview';
+import {
+  useCommandPreview,
+  type ICommandPreviewInputs,
+} from './useCommandPreview';
 import {
   groupCommandsByCategory,
   useCommandRegistry,
@@ -43,18 +51,17 @@ export interface TacticalActionDockProps {
   /** Shell mode — gates GM commands. */
   readonly shellMode: ShellMode;
   /**
-   * Dispatch callback — same `onAction(actionId, payload?)` channel the legacy
-   * ActionBar uses. The dock calls this with the command's
-   * `commit(ctx).actionId`.
+   * Dispatch callback — same action channel the legacy ActionBar uses.
+   * The dock calls this with the command's `commit(ctx)` action id and
+   * any structured payload needed by the host.
    */
-  readonly onAction: (
-    actionId: string,
-    payload?: Readonly<Record<string, unknown>>,
-  ) => void;
+  readonly onAction: TacticalActionHandler;
   /** Optional content rendered in the trailing region (Concede, etc). */
   readonly trailingActions?: React.ReactNode;
   /** Optional informational text shown in the trailing region. */
   readonly infoText?: string;
+  /** Rules-backed projection inputs for the active command preview. */
+  readonly previewInputs?: ICommandPreviewInputs;
   /** Optional className for styling. */
   readonly className?: string;
 }
@@ -165,6 +172,71 @@ function CommandGroup({
   );
 }
 
+function previewCommandForContext({
+  commands,
+  ctx,
+  previewInputs,
+}: {
+  readonly commands: readonly ITacticalCommand[];
+  readonly ctx: ITacticalCommandContext;
+  readonly previewInputs: ICommandPreviewInputs | undefined;
+}): ITacticalCommand | null {
+  if (
+    ctx.phase === GamePhase.WeaponAttack &&
+    (ctx.targetUnitId || previewInputs?.combatInfo)
+  ) {
+    return (
+      commands.find((command) => command.id === 'weapon.fire-volley') ?? null
+    );
+  }
+
+  const movementMode =
+    previewInputs?.movementInfo?.movementType ?? previewInputs?.movementMode;
+  const hasMovementPreview =
+    Boolean(previewInputs?.movementInfo) ||
+    Boolean(previewInputs?.highlightPath?.length);
+  if (ctx.phase === GamePhase.Movement && movementMode && hasMovementPreview) {
+    return (
+      commands.find((command) => command.id === `movement.${movementMode}`) ??
+      null
+    );
+  }
+
+  const physicalAttackType =
+    previewInputs?.physicalAttackOption?.attackType ??
+    previewInputs?.physicalAttackType;
+  if (
+    ctx.phase === GamePhase.PhysicalAttack &&
+    physicalAttackType &&
+    (ctx.targetUnitId || previewInputs?.physicalTargetUnitId)
+  ) {
+    return (
+      commands.find(
+        (command) =>
+          command.id === commandIdForPhysicalAttack(physicalAttackType),
+      ) ?? null
+    );
+  }
+
+  return null;
+}
+
+function commandIdForPhysicalAttack(
+  attackType: NonNullable<ICommandPreviewInputs['physicalAttackType']>,
+): string {
+  switch (attackType) {
+    case 'dfa':
+      return 'physical.dfa';
+    case 'hatchet':
+    case 'sword':
+    case 'mace':
+    case 'lance':
+      return 'physical.club';
+    default:
+      return `physical.${attackType}`;
+  }
+}
+
 /**
  * The tactical action dock — primary command surface.
  *
@@ -178,14 +250,51 @@ export function TacticalActionDock({
   onAction,
   trailingActions,
   infoText,
+  previewInputs,
   className = '',
 }: TacticalActionDockProps): React.ReactElement {
-  const commands = useCommandRegistry(ctx, shellMode);
+  const effectiveCtx = useMemo<ITacticalCommandContext>(() => {
+    if (
+      !previewInputs?.movementInfo &&
+      !previewInputs?.physicalAttackOption &&
+      !previewInputs?.physicalTargetUnitId
+    ) {
+      return ctx;
+    }
+    return {
+      ...ctx,
+      ...(previewInputs.movementInfo
+        ? { targetMovementProjection: previewInputs.movementInfo }
+        : {}),
+      ...(previewInputs.physicalTargetUnitId
+        ? { targetUnitId: previewInputs.physicalTargetUnitId }
+        : {}),
+      ...(previewInputs.physicalAttackOption
+        ? { targetPhysicalAttackOption: previewInputs.physicalAttackOption }
+        : {}),
+    };
+  }, [
+    ctx,
+    previewInputs?.movementInfo,
+    previewInputs?.physicalAttackOption,
+    previewInputs?.physicalTargetUnitId,
+  ]);
+  const commands = useCommandRegistry(effectiveCtx, shellMode);
   const groups = groupCommandsByCategory(commands);
+  const previewCommand = previewCommandForContext({
+    commands,
+    ctx: effectiveCtx,
+    previewInputs,
+  });
+  const commandPreview = useCommandPreview(
+    previewCommand,
+    effectiveCtx,
+    previewInputs ?? {},
+  );
 
   const dispatchCommand = useCallback(
     (command: ITacticalCommand) => {
-      const availability = command.availability(ctx);
+      const availability = command.availability(effectiveCtx);
       if (!availability.available) {
         // Disabled-with-reason: refuse the click silently. The
         // tooltip is the explanation surface — no secondary toast.
@@ -204,10 +313,14 @@ export function TacticalActionDock({
             : window.confirm(`Confirm: ${command.label}?`);
         if (!ok) return;
       }
-      const result = command.commit(ctx);
-      onAction(result.actionId, result.payload);
+      const result = command.commit(effectiveCtx);
+      if (result.payload === undefined) {
+        onAction(result.actionId);
+      } else {
+        onAction(result.actionId, result.payload);
+      }
     },
-    [ctx, onAction],
+    [effectiveCtx, onAction],
   );
 
   return (
@@ -231,12 +344,13 @@ export function TacticalActionDock({
             key={g.category}
             category={g.category}
             commands={g.commands}
-            ctx={ctx}
+            ctx={effectiveCtx}
             onDispatch={dispatchCommand}
           />
         ))}
       </div>
       <div className="flex items-center gap-3">
+        {commandPreview && <CommandPreviewPanel preview={commandPreview} />}
         {infoText && (
           <div className="text-text-theme-secondary text-sm">{infoText}</div>
         )}

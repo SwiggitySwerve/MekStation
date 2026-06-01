@@ -4,9 +4,8 @@
  * Per `add-movement-phase-ui` task 9: a small preview chip the action
  * panel shows below the MP-type buttons during the Movement phase. It
  * surfaces the heat the unit will accumulate this turn for the chosen
- * movement type (Walk = +1, Run = +2, Sprint = +3, Evade = +4,
- * Jump = max(3, jumpMP)) so the player can plan around heat limits
- * before committing the move.
+ * movement type so the player can plan around heat limits before committing
+ * the move.
  *
  * Heat math is delegated to `calculateMovementHeat` from
  * `utils/gameplay/movement` so this component can never drift from the
@@ -17,6 +16,8 @@
 
 import React from 'react';
 
+import type { MovementHeatProfile } from '@/types/gameplay';
+
 import { MovementType } from '@/types/gameplay';
 import { calculateMovementHeat } from '@/utils/gameplay/movement';
 
@@ -24,11 +25,18 @@ export interface MovementHeatPreviewProps {
   /** The movement type the player is currently planning. */
   movementType: MovementType;
   /**
+   * Exact rules-backed heat from the movement projection. When present, it
+   * wins over local derivation so the action panel mirrors the map preview.
+   */
+  heatGenerated?: number;
+  /**
    * Number of hexes the unit will jump (only used when
-   * `movementType === MovementType.Jump`). Walk, Run, Sprint, and Evade heat are
-   * fixed regardless of distance per canonical rules.
+   * `movementType === MovementType.Jump`). Walk and Run heat are
+   * fixed at 1/2 regardless of distance per canonical rules.
    */
   jumpHexes?: number;
+  /** Rules-level movement heat source for fallback previews. */
+  movementHeatProfile?: MovementHeatProfile;
   /** Optional className for layout overrides. */
   className?: string;
 }
@@ -44,10 +52,19 @@ const MOVEMENT_TYPE_LABEL: Record<MovementType, string> = {
 
 export function MovementHeatPreview({
   movementType,
+  heatGenerated,
   jumpHexes = 0,
+  movementHeatProfile,
   className = '',
 }: MovementHeatPreviewProps): React.ReactElement {
-  const heat = calculateMovementHeat(movementType, jumpHexes);
+  const heat =
+    heatGenerated ??
+    calculateMovementHeat(
+      movementType,
+      jumpHexes,
+      undefined,
+      movementHeatProfile,
+    );
   const label = MOVEMENT_TYPE_LABEL[movementType] ?? 'Move';
 
   return (

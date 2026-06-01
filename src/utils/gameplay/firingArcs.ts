@@ -22,13 +22,12 @@ import { hexAngle, facingToAngle, hexEquals } from './hexMath';
 /**
  * Arc boundaries in degrees, relative to facing.
  * Front arc: -60 to +60 (120 degrees centered on facing)
- * Left side: +60 to +120 (60 degrees)
- * Right side: -60 to -120 (60 degrees)
- * Rear arc: +120 to +240 (120 degrees behind)
+ * Right side: +60 to +120 (60 degrees)
+ * Left side: -60 to -120 (60 degrees)
+ * Rear arc: strict interior behind the rear/side boundaries
  */
 const ARC_HALF_WIDTHS = {
-  front: 60, // +/- 60 degrees from center
-  side: 30, // Additional 30 degrees for each side
+  front: 60,
 };
 
 // =============================================================================
@@ -38,30 +37,26 @@ const ARC_HALF_WIDTHS = {
 /**
  * Determine which arc a target is in relative to the attacker.
  *
- * Arc-boundary convention (per `wire-firing-arc-resolution` spec task 6.2):
+ * Arc-boundary convention:
  *
- *   - Front arc: |relativeAngle| <= 60°
- *   - Rear  arc: |relativeAngle| >= 120°
- *   - Right arc: relativeAngle  >  0° and within (60°, 120°)
- *   - Left  arc: relativeAngle  <  0° and within (-120°, -60°)
+ * - Front arc: |relativeAngle| <= 60 degrees
+ * - Right arc: relativeAngle > 60 and <= 120 degrees
+ * - Left arc: relativeAngle < -60 and >= -120 degrees
+ * - Rear arc: remaining strict rear interior, |relativeAngle| > 120
  *
- * Because the front check uses `<=` and the rear check uses `>=`, the
- * front/side boundary (±60°) resolves to FRONT and the rear/side boundary
- * (±120°) resolves to REAR. Side arcs only claim the strict interior.
+ * This mirrors MegaMek `FacingArc`: front owns the front/side boundary
+ * (60/300 degrees), side arcs own the rear/side boundaries (120/240
+ * degrees), and rear is the strict interior between those boundaries.
  *
- * This gives the two precedence rules the spec requires:
- *   * Front precedence: front arc wins at the front/side boundary.
- *   * Rear  precedence: rear  arc wins at the rear/side boundary.
- *
- * The function is pure and deterministic — the same `(attacker, target)`
- * pair always returns the same `FiringArc`. A property-based sweep test
- * (see `__tests__/firingArc.test.ts`) verifies that rotating an attacker
- * around a target returns exactly one arc per position with no ambiguity.
+ * The function is pure and deterministic: the same `(attacker, target)` pair
+ * always returns the same `FiringArc`. A property-based sweep test (see
+ * `__tests__/firingArc.test.ts`) verifies that rotating an attacker around a
+ * target returns exactly one arc per position with no ambiguity.
  *
  * Same-hex case: any attacker/target sharing a hex resolves to `Front` with
- * `angle: 0`. Upstream (`gameSessionAttackResolution.ts`) rejects the
- * attack with `AttackInvalid { SameHex }` before calling — this branch
- * only matters for non-combat visualisation callers (`getArcHexes`).
+ * `angle: 0`. Upstream (`gameSessionAttackResolution.ts`) rejects the attack
+ * with `AttackInvalid { SameHex }` before calling. This branch only matters
+ * for non-combat visualization callers (`getArcHexes`).
  *
  * @param attacker Attacker's position with facing
  * @param target Target's coordinate
@@ -71,8 +66,6 @@ export function determineArc(
   attacker: IUnitPosition,
   target: IHexCoordinate,
 ): IArcResult {
-  // Same hex is always front arc (visualisation fallback — combat path
-  // rejects same-hex attacks upstream).
   if (hexEquals(attacker.coord, target)) {
     return {
       arc: FiringArc.Front,
@@ -80,42 +73,46 @@ export function determineArc(
     };
   }
 
-  // Calculate absolute angle from attacker to target
   const absoluteAngle = hexAngle(attacker.coord, target);
-
-  // Get the attacker's facing angle
   const facingAngle = facingToAngle(attacker.facing);
 
-  // Calculate relative angle (target angle relative to facing)
   let relativeAngle = absoluteAngle - facingAngle;
-
-  // Normalize to -180 to +180
   while (relativeAngle > 180) relativeAngle -= 360;
   while (relativeAngle < -180) relativeAngle += 360;
 
-  // Determine arc based on relative angle — boundary precedence documented
-  // in the JSDoc above. ORDER MATTERS: front check first (front precedence
-  // at ±60°), then rear check (rear precedence at ±120°), then sides fill
-  // the remaining strict interiors.
   const absRelative = Math.abs(relativeAngle);
 
   let arc: FiringArc;
   if (absRelative <= ARC_HALF_WIDTHS.front) {
-    // Front precedence: <= 60° inclusive
     arc = FiringArc.Front;
-  } else if (absRelative >= 180 - ARC_HALF_WIDTHS.front) {
-    // Rear precedence: >= 120° inclusive
-    arc = FiringArc.Rear;
-  } else if (relativeAngle > 0) {
+  } else if (relativeAngle > 0 && relativeAngle <= 120) {
     arc = FiringArc.Right;
-  } else {
+  } else if (relativeAngle < 0 && relativeAngle >= -120) {
     arc = FiringArc.Left;
+  } else {
+    arc = FiringArc.Rear;
   }
 
   return {
     arc,
     angle: absoluteAngle,
   };
+}
+
+export function firingArcProjectionLabel(
+  arc: FiringArc,
+): 'front' | 'left-side' | 'right-side' | 'rear' {
+  switch (arc) {
+    case FiringArc.Left:
+      return 'left-side';
+    case FiringArc.Right:
+      return 'right-side';
+    case FiringArc.Rear:
+      return 'rear';
+    case FiringArc.Front:
+    default:
+      return 'front';
+  }
 }
 
 /**
@@ -137,12 +134,10 @@ export function getArcHexes(
 
   const results: IHexCoordinate[] = [];
 
-  // Check all hexes in range
   for (let q = -maxRange; q <= maxRange; q++) {
     for (let r = -maxRange; r <= maxRange; r++) {
       const target: IHexCoordinate = { q: center.q + q, r: center.r + r };
 
-      // Skip center hex
       if (q === 0 && r === 0) continue;
 
       const arcResult = determineArc(position, target);
@@ -167,28 +162,24 @@ export function getFrontArcDirections(facing: Facing): readonly Facing[] {
 }
 
 /**
- * Get hexes in the rear arc (3 directions behind facing).
+ * Get the immediate hex direction in the strict rear arc.
  */
 export function getRearArcDirections(facing: Facing): readonly Facing[] {
-  return [
-    ((facing + 2) % 6) as Facing,
-    ((facing + 3) % 6) as Facing,
-    ((facing + 4) % 6) as Facing,
-  ];
+  return [((facing + 3) % 6) as Facing];
 }
 
 /**
- * Get the left side arc direction.
+ * Get the left side arc boundary direction.
  */
 export function getLeftArcDirection(facing: Facing): Facing {
-  return ((facing + 2) % 6) as Facing;
+  return ((facing - 2 + 6) % 6) as Facing;
 }
 
 /**
- * Get the right side arc direction.
+ * Get the right side arc boundary direction.
  */
 export function getRightArcDirection(facing: Facing): Facing {
-  return ((facing - 2 + 6) % 6) as Facing;
+  return ((facing + 2) % 6) as Facing;
 }
 
 // =============================================================================
@@ -206,17 +197,14 @@ export function canFireFromArc(
   weaponArc: FiringArc,
   targetArc: FiringArc,
 ): boolean {
-  // Front weapons can fire into front arc
   if (weaponArc === FiringArc.Front) {
     return targetArc === FiringArc.Front;
   }
 
-  // Rear weapons can fire into rear arc
   if (weaponArc === FiringArc.Rear) {
     return targetArc === FiringArc.Rear;
   }
 
-  // Side weapons can fire into their respective side arc
   if (weaponArc === FiringArc.Left) {
     return targetArc === FiringArc.Left;
   }
@@ -238,9 +226,9 @@ export function getArcHitModifier(arc: FiringArc): number {
       return 0;
     case FiringArc.Left:
     case FiringArc.Right:
-      return 0; // Side arcs use different hit location table, not modifier
+      return 0;
     case FiringArc.Rear:
-      return 0; // Rear uses rear armor values, not a to-hit modifier
+      return 0;
     default:
       return 0;
   }

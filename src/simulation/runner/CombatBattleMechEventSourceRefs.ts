@@ -356,8 +356,11 @@ export const BATTLEMECH_EVENT_SOURCE_REFS: Readonly<
   [GameEventType.InitiativeRolled]: BATTLEMECH_TURN_PHASE_EVENT_SOURCE_REFS,
   [GameEventType.InitiativeOrderSet]: BATTLEMECH_TURN_PHASE_EVENT_SOURCE_REFS,
   [GameEventType.MovementDeclared]: BATTLEMECH_MOVEMENT_EVENT_SOURCE_REFS,
+  [GameEventType.MovementInvalid]: BATTLEMECH_MOVEMENT_EVENT_SOURCE_REFS,
   [GameEventType.MovementLocked]: BATTLEMECH_MOVEMENT_EVENT_SOURCE_REFS,
   [GameEventType.MovementEnhancementActivated]:
+    BATTLEMECH_MOVEMENT_EVENT_SOURCE_REFS,
+  [GameEventType.RuntimeMovementStateChanged]:
     BATTLEMECH_MOVEMENT_EVENT_SOURCE_REFS,
   [GameEventType.FacingChanged]: BATTLEMECH_MOVEMENT_EVENT_SOURCE_REFS,
   [GameEventType.AttackDeclared]: BATTLEMECH_RANGED_ATTACK_EVENT_SOURCE_REFS,
@@ -375,6 +378,7 @@ export const BATTLEMECH_EVENT_SOURCE_REFS: Readonly<
   [GameEventType.IndirectFireNarcOverride]:
     BATTLEMECH_INDIRECT_FIRE_EVENT_SOURCE_REFS,
   [GameEventType.SpottingDeclared]: BATTLEMECH_SPOTTING_EVENT_SOURCE_REFS,
+  [GameEventType.TerrainChanged]: BATTLEMECH_MOVEMENT_EVENT_SOURCE_REFS,
   [GameEventType.HeatGenerated]: BATTLEMECH_HEAT_EVENT_SOURCE_REFS,
   [GameEventType.HeatDissipated]: BATTLEMECH_HEAT_EVENT_SOURCE_REFS,
   [GameEventType.HeatEffectApplied]: BATTLEMECH_HEAT_EVENT_SOURCE_REFS,

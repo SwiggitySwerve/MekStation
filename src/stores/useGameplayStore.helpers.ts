@@ -1,40 +1,36 @@
 import type { InteractiveSession } from '@/engine/GameEngine';
 
 import { getPrefersReducedMotion } from '@/hooks/useReducedMotion';
+import { unitStateToToken } from '@/lib/gameplay/unitStateToToken';
 import {
+  Facing,
+  GameEventType,
+  IGameSession,
+  IGameplayUIState,
+  IUnitToken,
+  IWeaponStatus,
   GamePhase,
   GameSide,
-  Facing,
-  LockState,
   MovementType,
-  type IGameSession,
-  type IGameplayUIState,
   type MovementEnhancementActivationKind,
 } from '@/types/gameplay';
-import {
-  getTwistedFacing,
-  type TorsoTwistDirection,
-} from '@/utils/gameplay/firingArc';
+import { deriveValidWeaponTargetIds } from '@/utils/gameplay/combatTargetIds';
 import { createUnitEjectedEvent } from '@/utils/gameplay/gameEvents';
 import {
-  lockMovement,
-  activateMovementEnhancement,
-  declareMovement,
-  torsoTwist,
-  requestSpot,
-  goProne,
-  attemptStandUp,
   advancePhase,
   appendEvent,
+  attemptStandUp,
+  activateMovementEnhancement,
   canAdvancePhase,
-  rollInitiative,
+  declareMovement,
   endGame,
+  goProne,
+  lockMovement,
+  requestSpot,
   replayToSequence,
+  rollInitiative,
+  torsoTwist,
 } from '@/utils/gameplay/gameSession';
-import {
-  rotateFacingClockwise,
-  rotateFacingCounterClockwise,
-} from '@/utils/gameplay/unitPosition';
 import { logger } from '@/utils/logger';
 
 import { useAnimationQueue } from './useAnimationQueue';
@@ -60,6 +56,7 @@ interface GameplayHelperState {
   validMovementHexes: readonly { q: number; r: number }[];
   validTargetIds: readonly string[];
   hitChance: number | null;
+  unitWeapons: Record<string, readonly IWeaponStatus[]>;
 }
 
 /**
@@ -75,23 +72,193 @@ type SetFn = {
  * Zustand get function type for gameplay helpers.
  */
 type GetFn = () => GameplayHelperState;
-type ActionPayload = Readonly<Record<string, unknown>> | undefined;
 
 let pendingPhaseAdvance = false;
 
+export interface IGameplayActionPayload {
+  readonly direction?: 'left' | 'right';
+  readonly secondaryFacing?: Facing;
+  readonly unitId?: string;
+  readonly targetUnitId?: string;
+}
+
 export function handleActionLogic(
   actionId: string,
-  payload: ActionPayload,
   session: IGameSession | null,
   ui: IGameplayUIState,
   set: SetFn,
   interactiveSession?: InteractiveSession | null,
+  payload?: IGameplayActionPayload,
 ): void {
   if (!session) return;
 
   const { phase } = session.currentState;
+  const selectedUnitId = payload?.unitId ?? ui.selectedUnitId;
+  const selectedUnit = selectedUnitId
+    ? session.currentState.units[selectedUnitId]
+    : undefined;
+
+  const clearSelectedUnit = (updatedSession: IGameSession): void => {
+    set((state) => ({
+      session: updatedSession,
+      ui: {
+        ...state.ui,
+        selectedUnitId: null,
+        targetUnitId: null,
+        queuedWeaponIds: [],
+      },
+    }));
+  };
+
+  const setSessionFromInteractive = (): void => {
+    if (!interactiveSession) return;
+    set({ session: interactiveSession.getSession() });
+  };
 
   switch (actionId) {
+    case 'eject': {
+      if (!selectedUnitId) return;
+      if (interactiveSession) {
+        interactiveSession.ejectUnit(selectedUnitId);
+        clearSelectedUnit(interactiveSession.getSession());
+        return;
+      }
+
+      clearSelectedUnit(
+        appendEvent(
+          session,
+          createUnitEjectedEvent(
+            session.id,
+            session.events.length,
+            session.currentState.turn,
+            session.currentState.phase,
+            selectedUnitId,
+            'player_declared',
+          ),
+        ),
+      );
+      break;
+    }
+    case 'stand': {
+      if (!selectedUnitId) return;
+      if (interactiveSession) {
+        interactiveSession.attemptStandUp(selectedUnitId);
+        clearSelectedUnit(interactiveSession.getSession());
+        return;
+      }
+
+      clearSelectedUnit(
+        attemptStandUp(session, selectedUnitId, () => ({
+          dice: [6, 6] as const,
+          total: 12,
+          isSnakeEyes: false,
+          isBoxcars: true,
+        })),
+      );
+      break;
+    }
+    case 'go-prone': {
+      if (!selectedUnitId) return;
+      if (interactiveSession) {
+        interactiveSession.goProne(selectedUnitId);
+        clearSelectedUnit(interactiveSession.getSession());
+        return;
+      }
+
+      clearSelectedUnit(goProne(session, selectedUnitId));
+      break;
+    }
+    case 'activate-masc':
+    case 'activate-supercharger': {
+      if (!selectedUnitId) return;
+      const enhancement: MovementEnhancementActivationKind =
+        actionId === 'activate-masc' ? 'MASC' : 'Supercharger';
+      if (interactiveSession) {
+        interactiveSession.activateMovementEnhancement(
+          selectedUnitId,
+          enhancement,
+        );
+        setSessionFromInteractive();
+        return;
+      }
+
+      set({
+        session: activateMovementEnhancement(
+          session,
+          selectedUnitId,
+          enhancement,
+        ),
+      });
+      break;
+    }
+    case 'facing-right':
+    case 'facing-left': {
+      if (!selectedUnitId || !selectedUnit) return;
+      const delta = actionId === 'facing-right' ? 1 : -1;
+      const facing = rotateFacing(selectedUnit.facing, delta);
+      if (interactiveSession) {
+        interactiveSession.applyMovement(
+          selectedUnitId,
+          selectedUnit.position,
+          facing,
+          MovementType.Walk,
+          [selectedUnit.position],
+        );
+        setSessionFromInteractive();
+        return;
+      }
+
+      const moved = declareMovement(
+        session,
+        selectedUnitId,
+        selectedUnit.position,
+        selectedUnit.position,
+        facing,
+        MovementType.Walk,
+        1,
+        1,
+        [selectedUnit.position],
+      );
+      set({ session: lockMovement(moved, selectedUnitId) });
+      break;
+    }
+    case 'torso-twist': {
+      if (!selectedUnitId || !selectedUnit) return;
+      const secondaryFacing =
+        payload?.secondaryFacing ??
+        rotateFacing(
+          selectedUnit.facing,
+          payload?.direction === 'right' ? -1 : 1,
+        );
+      if (interactiveSession) {
+        interactiveSession.torsoTwist(selectedUnitId, secondaryFacing);
+        setSessionFromInteractive();
+        return;
+      }
+
+      set({ session: torsoTwist(session, selectedUnitId, secondaryFacing) });
+      break;
+    }
+    case 'request-spot': {
+      const unitId = selectedUnitId;
+      const targetId = payload?.targetUnitId ?? ui.targetUnitId;
+      if (!unitId || !targetId) return;
+      if (interactiveSession) {
+        interactiveSession.requestSpot(unitId, targetId);
+        clearSelectedUnit(interactiveSession.getSession());
+        return;
+      }
+
+      clearSelectedUnit(requestSpot(session, unitId, targetId));
+      break;
+    }
+    case 'continue': {
+      if (phase === GamePhase.Heat && interactiveSession) {
+        interactiveSession.advancePhase();
+        setSessionFromInteractive();
+      }
+      break;
+    }
     case 'lock': {
       const unitId = ui.selectedUnitId;
       if (!unitId) return;
@@ -122,220 +289,13 @@ export function handleActionLogic(
       }
       break;
     }
-    case 'continue': {
-      if (phase !== GamePhase.Heat || !canAdvancePhase(session)) return;
-
-      if (interactiveSession) {
-        interactiveSession.advancePhase();
-        set({ session: interactiveSession.getSession() });
-        break;
-      }
-
-      const updatedSession = advancePhase(session);
-      set({ session: updatedSession });
-      break;
-    }
-    case 'stand': {
-      const unitId = ui.selectedUnitId;
-      if (!unitId || phase !== GamePhase.Movement) return;
-
-      if (interactiveSession) {
-        interactiveSession.attemptStandUp(unitId);
-        set({
-          session: interactiveSession.getSession(),
-          ui: clearCombatSelection(ui),
-        });
-        break;
-      }
-
-      set({
-        session: attemptStandUp(session, unitId),
-        ui: clearCombatSelection(ui),
-      });
-      break;
-    }
-    case 'go-prone': {
-      const unitId = ui.selectedUnitId;
-      if (!unitId || phase !== GamePhase.Movement) return;
-
-      const unit = session.currentState.units[unitId];
-      if (
-        !unit ||
-        unit.destroyed ||
-        unit.hasRetreated ||
-        unit.hasEjected ||
-        unit.prone
-      ) {
-        return;
-      }
-
-      if (interactiveSession) {
-        interactiveSession.goProne(unitId);
-        set({
-          session: interactiveSession.getSession(),
-          ui: clearCombatSelection(ui),
-        });
-        break;
-      }
-
-      set({
-        session: goProne(session, unitId),
-        ui: clearCombatSelection(ui),
-      });
-      break;
-    }
-    case 'activate-masc':
-    case 'activate-supercharger': {
-      const unitId = ui.selectedUnitId;
-      if (!unitId || phase !== GamePhase.Movement) return;
-
-      const enhancement: MovementEnhancementActivationKind =
-        actionId === 'activate-masc' ? 'MASC' : 'Supercharger';
-      const unit = session.currentState.units[unitId];
-      if (
-        !unit ||
-        unit.destroyed ||
-        unit.hasRetreated ||
-        unit.hasEjected ||
-        unit.lockState === LockState.Locked
-      ) {
-        return;
-      }
-
-      if (interactiveSession) {
-        interactiveSession.activateMovementEnhancement(unitId, enhancement);
-        set({ session: interactiveSession.getSession() });
-        break;
-      }
-
-      set({
-        session: activateMovementEnhancement(session, unitId, enhancement),
-      });
-      break;
-    }
-    case 'facing-left':
-    case 'facing-right': {
-      const unitId = ui.selectedUnitId;
-      if (!unitId || phase !== GamePhase.Movement) return;
-
-      const unit = session.currentState.units[unitId];
-      if (!unit || unit.destroyed || unit.hasRetreated || unit.hasEjected) {
-        return;
-      }
-
-      const facing =
-        actionId === 'facing-left'
-          ? rotateFacingCounterClockwise(unit.facing)
-          : rotateFacingClockwise(unit.facing);
-
-      if (interactiveSession) {
-        interactiveSession.applyMovement(
-          unitId,
-          unit.position,
-          facing,
-          MovementType.Walk,
-          [unit.position],
-        );
-        set({ session: interactiveSession.getSession() });
-        break;
-      }
-
-      let updatedSession = declareMovement(
-        session,
-        unitId,
-        unit.position,
-        unit.position,
-        facing,
-        MovementType.Walk,
-        1,
-        1,
-        [unit.position],
-      );
-      updatedSession = lockMovement(updatedSession, unitId);
-      set({ session: updatedSession });
-      break;
-    }
-    case 'torso-twist': {
-      const unitId = ui.selectedUnitId;
-      if (!unitId || phase !== GamePhase.WeaponAttack) return;
-
-      const unit = session.currentState.units[unitId];
-      if (
-        !unit ||
-        unit.destroyed ||
-        unit.hasRetreated ||
-        unit.hasEjected ||
-        !unit.pilotConscious
-      ) {
-        return;
-      }
-
-      const secondaryFacing = resolveTorsoTwistSecondaryFacing(
-        unit.facing,
-        payload,
-      );
-
-      if (interactiveSession) {
-        interactiveSession.torsoTwist(unitId, secondaryFacing);
-        set({ session: interactiveSession.getSession() });
-        break;
-      }
-
-      set({ session: torsoTwist(session, unitId, secondaryFacing) });
-      break;
-    }
-    case 'request-spot': {
-      if (phase !== GamePhase.WeaponAttack) return;
-
-      const unitId = stringPayloadValue(payload, 'unitId') ?? ui.selectedUnitId;
-      const targetId =
-        stringPayloadValue(payload, 'targetUnitId') ??
-        stringPayloadValue(payload, 'targetId') ??
-        ui.targetUnitId;
-      if (!unitId || !targetId) return;
-
-      const unit = session.currentState.units[unitId];
-      const target = session.currentState.units[targetId];
-      if (
-        !unit ||
-        !target ||
-        unit.destroyed ||
-        unit.hasRetreated ||
-        unit.hasEjected ||
-        unit.shutdown ||
-        !unit.pilotConscious ||
-        unit.sprintedThisTurn ||
-        unit.isEvading ||
-        unit.isSpotting ||
-        target.destroyed ||
-        target.hasRetreated ||
-        target.hasEjected ||
-        unit.side === target.side
-      ) {
-        return;
-      }
-
-      if (interactiveSession) {
-        interactiveSession.requestSpot(unitId, targetId);
-        set({
-          session: interactiveSession.getSession(),
-          ui: clearCombatSelection(ui),
-        });
-        break;
-      }
-
-      set({
-        session: requestSpot(session, unitId, targetId),
-        ui: clearCombatSelection(ui),
-      });
-      break;
-    }
     case 'clear':
       set((state) => {
         return {
           ui: { ...state.ui, queuedWeaponIds: [] },
         };
       });
+      break;
     case 'next-turn': {
       if (phase === GamePhase.End || phase === GamePhase.Initiative) {
         let updatedSession = session;
@@ -353,41 +313,14 @@ export function handleActionLogic(
       set({ session: updatedSession });
       break;
     }
-    case 'eject': {
-      const unitId = ui.selectedUnitId;
-      if (!unitId) return;
-
-      const unit = session.currentState.units[unitId];
-      if (!unit || unit.destroyed || unit.hasRetreated || unit.hasEjected) {
-        return;
-      }
-
-      if (interactiveSession) {
-        interactiveSession.ejectUnit(unitId);
-        set({
-          session: interactiveSession.getSession(),
-          ui: clearCombatSelection(ui),
-        });
-        break;
-      }
-
-      const ejectionEvent = createUnitEjectedEvent(
-        session.id,
-        session.events.length,
-        session.currentState.turn,
-        session.currentState.phase,
-        unitId,
-        'player_declared',
-      );
-      set({
-        session: appendEvent(session, ejectionEvent),
-        ui: clearCombatSelection(ui),
-      });
-      break;
-    }
     default:
       logger.warn('Unknown action:', actionId);
   }
+}
+
+function rotateFacing(facing: Facing, delta: 1 | -1): Facing {
+  const next = (facing + delta + 6) % 6;
+  return next as Facing;
 }
 
 export function runAITurnLogic(
@@ -476,6 +409,73 @@ export function advanceInteractivePhaseLogic(
   });
 }
 
+function buildCombatProjectionTokens(
+  state: ReturnType<InteractiveSession['getState']>,
+  session: IGameSession | null,
+  selectedUnitId: string,
+): readonly IUnitToken[] {
+  const unitInfoById = new Map(
+    (session?.units ?? []).map((unit) => [
+      unit.id,
+      { name: unit.name, side: unit.side },
+    ]),
+  );
+
+  return Object.entries(state.units).map(([unitId, unitState]) => {
+    const unitInfo = unitInfoById.get(unitId) ?? {
+      name: unitId,
+      side: unitState.side,
+    };
+    return unitStateToToken(unitId, unitState, unitInfo, {
+      isSelected: unitId === selectedUnitId,
+      isValidTarget: false,
+      isActiveTarget: false,
+    });
+  });
+}
+
+function deriveSelectableWeaponTargetIds(
+  interactiveSession: InteractiveSession,
+  storeState: GameplayHelperState,
+  selectedUnitIdOverride?: string,
+): readonly string[] {
+  const selectedUnitId = selectedUnitIdOverride ?? storeState.ui.selectedUnitId;
+  if (!selectedUnitId) return [];
+
+  const currentState = interactiveSession.getState();
+  const grid =
+    typeof interactiveSession.getGrid === 'function'
+      ? interactiveSession.getGrid()
+      : null;
+  if (!grid) {
+    const selectedUnit = currentState.units[selectedUnitId];
+    if (!selectedUnit) return [];
+    return Object.entries(currentState.units)
+      .filter(([, candidate]) => {
+        return (
+          candidate.side !== selectedUnit.side &&
+          !candidate.destroyed &&
+          !candidate.hasRetreated &&
+          !candidate.hasEjected
+        );
+      })
+      .map(([unitId]) => unitId);
+  }
+
+  return deriveValidWeaponTargetIds({
+    currentState,
+    selectedUnitId,
+    tokens: buildCombatProjectionTokens(
+      currentState,
+      storeState.session,
+      selectedUnitId,
+    ),
+    mapRadius: storeState.session?.config.mapRadius ?? grid.config.radius,
+    grid,
+    unitWeapons: storeState.unitWeapons,
+  });
+}
+
 export function handleInteractiveTokenClickLogic(
   unitId: string,
   interactivePhase: InteractivePhase,
@@ -489,15 +489,7 @@ export function handleInteractiveTokenClickLogic(
 
   const state = interactiveSession.getState();
   const unit = state.units[unitId];
-  if (
-    !unit ||
-    unit.destroyed ||
-    unit.hasRetreated ||
-    unit.hasEjected ||
-    !unit.pilotConscious
-  ) {
-    return;
-  }
+  if (!unit || unit.destroyed) return;
 
   const { phase } = state;
 
@@ -508,25 +500,27 @@ export function handleInteractiveTokenClickLogic(
       unit.side === GameSide.Player &&
       interactivePhase === InteractivePhase.SelectUnit
     ) {
+      const targetIds = deriveSelectableWeaponTargetIds(
+        interactiveSession,
+        get(),
+        unitId,
+      );
       set((s) => {
         return {
           ui: { ...s.ui, selectedUnitId: unitId },
           interactivePhase: InteractivePhase.SelectTarget,
-          validTargetIds: Object.entries(state.units)
-            .filter(
-              ([, u]) =>
-                u.side === GameSide.Opponent &&
-                !u.destroyed &&
-                !u.hasRetreated &&
-                !u.hasEjected,
-            )
-            .map(([id]) => id),
+          validTargetIds: targetIds,
         };
       });
     } else if (
       unit.side === GameSide.Opponent &&
       interactivePhase === InteractivePhase.SelectTarget
     ) {
+      const targetIds =
+        get().validTargetIds.length > 0
+          ? get().validTargetIds
+          : deriveSelectableWeaponTargetIds(interactiveSession, get());
+      if (!targetIds.includes(unitId)) return;
       selectAttackTarget(unitId);
     }
   } else if (
@@ -571,36 +565,6 @@ export function skipPhaseLogic(
       queuedWeaponIds: [],
     },
   });
-}
-
-function clearCombatSelection(ui: IGameplayUIState): IGameplayUIState {
-  return {
-    ...ui,
-    selectedUnitId: null,
-    targetUnitId: null,
-    queuedWeaponIds: [],
-  };
-}
-
-function resolveTorsoTwistSecondaryFacing(
-  facing: Facing,
-  payload: ActionPayload,
-): Facing {
-  if (typeof payload?.secondaryFacing === 'number') {
-    return (((Math.trunc(payload.secondaryFacing) % 6) + 6) % 6) as Facing;
-  }
-
-  const direction: TorsoTwistDirection =
-    payload?.direction === 'right' ? 'right' : 'left';
-  return getTwistedFacing(facing, direction);
-}
-
-function stringPayloadValue(
-  payload: ActionPayload,
-  key: string,
-): string | null {
-  const value = payload?.[key];
-  return typeof value === 'string' && value.length > 0 ? value : null;
 }
 
 function shouldWaitForAnimations(): boolean {

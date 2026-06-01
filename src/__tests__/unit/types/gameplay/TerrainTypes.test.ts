@@ -130,6 +130,7 @@ describe('TerrainTypes', () => {
 
     it('should not block LOS', () => {
       expect(props.blocksLOS).toBe(false);
+      expect(props.losBlockHeight).toBe(2);
     });
   });
 
@@ -155,9 +156,9 @@ describe('TerrainTypes', () => {
       expect(props.coverLevel).toBe(CoverLevel.Full);
     });
 
-    it('should block LOS', () => {
+    it('should contribute to LOS blocking at the woods height', () => {
       expect(props.blocksLOS).toBe(true);
-      expect(props.losBlockHeight).toBe(1);
+      expect(props.losBlockHeight).toBe(2);
     });
   });
 
@@ -491,11 +492,15 @@ describe('TerrainTypes', () => {
       });
     });
 
-    it('should have losBlockHeight > 0 only when blocksLOS is true', () => {
+    it('should have losBlockHeight > 0 only for LOS-affecting terrain', () => {
       Object.values(TerrainType).forEach((type) => {
         const props = TERRAIN_PROPERTIES[type];
         if (props.losBlockHeight > 0) {
-          expect(props.blocksLOS).toBe(true);
+          expect(
+            props.blocksLOS ||
+              type === TerrainType.LightWoods ||
+              type === TerrainType.HeavyWoods,
+          ).toBe(true);
         }
       });
     });

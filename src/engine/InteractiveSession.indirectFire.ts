@@ -197,5 +197,8 @@ export function computeIndirectFireContext(
     toHitPenalty: result.toHitPenalty,
     forwardObserverApplied: result.forwardObserverApplied,
     obliqueAttackerApplied: result.obliqueAttackerApplied,
+    spotterGunnery: result.spotterGunnery,
+    spotterSkillModifier: result.spotterSkillModifier,
+    spotterMovementPenaltyCancelled: result.spotterMovementPenaltyCancelled,
   };
 }

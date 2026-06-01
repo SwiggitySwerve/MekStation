@@ -162,6 +162,7 @@ export function runInteractiveSessionAITurn(
           atkEvt.payload.weapons,
           weapons,
           unitId,
+          undefined,
           {
             calledShots: atkEvt.payload.calledShots,
             teammateCalledShots: atkEvt.payload.teammateCalledShots,

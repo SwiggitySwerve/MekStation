@@ -58,6 +58,7 @@ export function vehicleCritFromRoll(
 
 export function rollVehicleCrit(
   diceRoller: D6Roller = defaultD6Roller,
+  _context?: unknown,
 ): IVehicleCritRollResult {
   const rolled = roll2d6(diceRoller);
   return vehicleCritFromRoll([rolled.dice[0], rolled.dice[1]]);

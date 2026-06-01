@@ -98,6 +98,11 @@ export interface IEligibilityContext {
   readonly targetMovementModifier?: number;
   /** Attacker movement modifier (used by charge to-hit). */
   readonly attackerMovementModifier?: number;
+  readonly attackerUnitType?: IPhysicalAttackInput['attackerUnitType'];
+  readonly attackerMovementMode?: IPhysicalAttackInput['attackerMovementMode'];
+  readonly attackerConversionMode?: IPhysicalAttackInput['attackerConversionMode'];
+  readonly attackerIsAirborneVTOLOrWiGE?: IPhysicalAttackInput['attackerIsAirborneVTOLOrWiGE'];
+  readonly targetUnitType?: IPhysicalAttackInput['targetUnitType'];
   /** Charge target movement-complete gate; false blocks unless target is immobile. */
   readonly targetMovementComplete?: boolean;
   /** Triple-strength myomer installed on the attacker. */
@@ -168,6 +173,8 @@ export interface IEligibilityContext {
   readonly unitQuirks?: readonly string[];
   /** Target elevation minus attacker elevation. */
   readonly elevationDifference?: number;
+  readonly elevationContext?: IPhysicalAttackInput['elevationContext'];
+  readonly terrainContext?: IPhysicalAttackInput['terrainContext'];
   /** False when a retractable blade is present but not extended. */
   readonly retractableBladeExtended?: boolean;
 }

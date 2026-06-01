@@ -35,6 +35,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import type {
   IPhysicalAttackInput,
   IPhysicalAttackOption,
+  PhysicalAttackLimb,
   PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks/types';
 
@@ -43,10 +44,12 @@ import {
   useSelectedUnit,
 } from '@/stores/useGameplayStore';
 import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
-import { GamePhase, type IHexCoordinate } from '@/types/gameplay';
+import { GamePhase, MovementType, type IHexCoordinate } from '@/types/gameplay';
 import { hexDistance } from '@/utils/gameplay/hexMath';
-import { physicalAttackLimbsUsedThisTurn } from '@/utils/gameplay/physicalAttacks/actionCount';
+import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
 import { getEligiblePhysicalAttacks } from '@/utils/gameplay/physicalAttacks/eligibility';
+import { buildPhysicalTerrainContext } from '@/utils/gameplay/physicalAttacks/terrain';
+import { isAirborneVTOLOrWiGEForPhysicalAttack } from '@/utils/gameplay/physicalAttacks/unitState';
 
 import type { PhysicalAttackIntentVariant } from './overlays/PhysicalAttackIntentArrow';
 
@@ -91,6 +94,14 @@ interface MeleeTarget {
   position: IHexCoordinate;
 }
 
+function armForPhysicalLimb(
+  limb: PhysicalAttackLimb | null,
+): 'left' | 'right' | undefined {
+  if (limb === 'leftArm') return 'left';
+  if (limb === 'rightArm') return 'right';
+  return undefined;
+}
+
 export function PhysicalAttackPanel({
   attackerTonnage = 65,
   meleeWeaponsEquipped,
@@ -127,6 +138,7 @@ export function PhysicalAttackPanel({
   const [committedSummary, setCommittedSummary] = useState<string | null>(null);
 
   const phase = session?.currentState.phase;
+  const physicalGrid = interactiveSession?.getGrid() ?? null;
 
   /**
    * Compute the list of adjacent enemy targets for the current
@@ -162,18 +174,7 @@ export function PhysicalAttackPanel({
     if (!physicalAttackPlan.targetUnitId || !session) return null;
     return session.currentState.units[physicalAttackPlan.targetUnitId] ?? null;
   }, [physicalAttackPlan.targetUnitId, session]);
-
-  const limbsUsedThisTurn = useMemo(
-    () =>
-      selected && session
-        ? physicalAttackLimbsUsedThisTurn(
-            session.events,
-            session.currentState.turn,
-            selected.id,
-          )
-        : [],
-    [selected, session],
-  );
+  const optionalRules = session?.config.optionalRules;
 
   /**
    * Per task 3.1-3.3: project the engine's `getEligiblePhysicalAttacks`
@@ -182,26 +183,48 @@ export function PhysicalAttackPanel({
    * tooltip (task 4.4).
    */
   const options = useMemo<readonly IPhysicalAttackOption[]>(() => {
-    if (!selected || !targetState || !session) return [];
+    if (!selected || !targetState) return [];
+    const targetUnit = session?.units.find(
+      (unit) => unit.id === physicalAttackPlan.targetUnitId,
+    );
     return getEligiblePhysicalAttacks(selected.state, targetState, {
       attackerTonnage,
       attackerPilotingSkill: selected.unit.piloting,
       targetTonnage: attackerTonnage,
+      attackerUnitType: selected.unit.unitType,
+      attackerMovementMode: selected.unit.movementMode,
+      optionalRules,
+      targetUnitType: targetUnit?.unitType,
       weaponsFiredFromLeftArm: selected.state.weaponsFiredThisTurn,
       weaponsFiredFromRightArm: selected.state.weaponsFiredThisTurn,
-      limbsUsedThisTurn,
-      attackerRanThisTurn: false,
-      attackerJumpedThisTurn: false,
+      limbsUsedThisTurn: undefined,
+      attackerRanThisTurn: selected.state.movementThisTurn === MovementType.Run,
+      attackerJumpedThisTurn:
+        selected.state.movementThisTurn === MovementType.Jump,
       meleeWeaponsEquipped,
-      optionalRules: session.config.optionalRules,
+      elevationContext: physicalGrid
+        ? buildPhysicalElevationContext(
+            selected.state,
+            targetState,
+            physicalGrid,
+            {
+              targetUnit,
+            },
+          )
+        : undefined,
+      terrainContext: physicalGrid
+        ? buildPhysicalTerrainContext(selected.state, targetState, physicalGrid)
+        : undefined,
     });
   }, [
     selected,
     targetState,
+    session?.units,
+    physicalAttackPlan.targetUnitId,
     attackerTonnage,
     meleeWeaponsEquipped,
-    limbsUsedThisTurn,
-    session,
+    physicalGrid,
+    optionalRules,
   ]);
 
   /**
@@ -212,19 +235,68 @@ export function PhysicalAttackPanel({
    */
   const forecastInput = useMemo<IPhysicalAttackInput | null>(() => {
     if (!selected || !physicalAttackPlan.attackType) return null;
+    const targetUnit = session?.units.find(
+      (unit) => unit.id === physicalAttackPlan.targetUnitId,
+    );
     return {
       attackerTonnage,
       pilotingSkill: selected.unit.piloting,
       componentDamage: selected.state.componentDamage ?? EMPTY_DAMAGE,
       attackType: physicalAttackPlan.attackType,
       limb: physicalAttackPlan.limb ?? undefined,
+      arm: armForPhysicalLimb(physicalAttackPlan.limb),
       heat: selected.state.heat,
       attackerProne: selected.state.prone,
+      attackerUnitType: selected.unit.unitType,
+      attackerMovementMode: selected.unit.movementMode,
+      attackerConversionMode: selected.state.conversionMode,
+      attackerIsAirborneVTOLOrWiGE: isAirborneVTOLOrWiGEForPhysicalAttack(
+        selected.state,
+        selected.unit.movementMode,
+      ),
+      optionalRules,
+      attackerDestroyedLocations: selected.state.destroyedLocations,
+      targetUnitType: targetUnit?.unitType,
+      attackerPosition: selected.state.position,
+      targetPosition: targetState?.position,
+      attackerFacing: selected.state.facing,
+      targetProne: targetState?.prone,
       hexesMoved: selected.state.hexesMovedThisTurn,
       weaponsFiredFromArm: selected.state.weaponsFiredThisTurn,
-      optionalRules: session?.config.optionalRules,
+      attackerRanThisTurn: selected.state.movementThisTurn === MovementType.Run,
+      attackerJumpedThisTurn:
+        selected.state.movementThisTurn === MovementType.Jump,
+      elevationContext:
+        targetState && physicalGrid
+          ? buildPhysicalElevationContext(
+              selected.state,
+              targetState,
+              physicalGrid,
+              {
+                targetUnit,
+              },
+            )
+          : undefined,
+      terrainContext:
+        targetState && physicalGrid
+          ? buildPhysicalTerrainContext(
+              selected.state,
+              targetState,
+              physicalGrid,
+            )
+          : undefined,
     };
-  }, [selected, attackerTonnage, physicalAttackPlan, session]);
+  }, [
+    selected,
+    session?.units,
+    targetState,
+    physicalGrid,
+    attackerTonnage,
+    physicalAttackPlan.targetUnitId,
+    physicalAttackPlan.attackType,
+    physicalAttackPlan.limb,
+    optionalRules,
+  ]);
 
   // ---------------------------------------------------------------------------
   // Callbacks
@@ -281,12 +353,41 @@ export function PhysicalAttackPanel({
 
   const handleConfirm = useCallback(() => {
     if (!interactiveSession || !selected) return;
+    const targetUnit = session?.units.find(
+      (unit) => unit.id === physicalAttackPlan.targetUnitId,
+    );
     const next = commitPhysicalAttack({
       interactiveSession,
       attackerId: selected.id,
       attackerPiloting: selected.unit.piloting,
       attackerTonnage,
+      attackerUnitType: selected.unit.unitType,
+      attackerMovementMode: selected.unit.movementMode,
+      optionalRules,
+      targetUnitType: targetUnit?.unitType,
       hexesMoved: selected.state.hexesMovedThisTurn,
+      weaponsFiredFromLeftArm: selected.state.weaponsFiredThisTurn,
+      weaponsFiredFromRightArm: selected.state.weaponsFiredThisTurn,
+      attackerRanThisTurn: selected.state.movementThisTurn === MovementType.Run,
+      attackerJumpedThisTurn:
+        selected.state.movementThisTurn === MovementType.Jump,
+      elevationContext:
+        targetState && physicalGrid
+          ? buildPhysicalElevationContext(
+              selected.state,
+              targetState,
+              physicalGrid,
+              { targetUnit },
+            )
+          : undefined,
+      terrainContext:
+        targetState && physicalGrid
+          ? buildPhysicalTerrainContext(
+              selected.state,
+              targetState,
+              physicalGrid,
+            )
+          : undefined,
     });
     if (next) {
       setSession(next);
@@ -305,6 +406,7 @@ export function PhysicalAttackPanel({
   }, [
     interactiveSession,
     selected,
+    session?.units,
     commitPhysicalAttack,
     setSession,
     attackerTonnage,
@@ -312,7 +414,10 @@ export function PhysicalAttackPanel({
     physicalAttackPlan.targetUnitId,
     physicalAttackPlan.attackType,
     physicalAttackPlan.limb,
+    targetState,
+    physicalGrid,
     onIntentChange,
+    optionalRules,
   ]);
 
   /**

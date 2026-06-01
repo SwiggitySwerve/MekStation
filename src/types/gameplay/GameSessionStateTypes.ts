@@ -16,9 +16,11 @@ import type { IProtoMechCombatState } from '@/utils/gameplay/protomech/state';
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 
 import type { IBattleArmorCombatState } from './BattleArmorCombatInterfaces';
+import type { CombatLocation } from './CombatLocationTypes';
 import type { IUnitDestroyedPayload } from './GameSessionAttackEvents';
 import type { IGameEvent } from './GameSessionStatusEvents';
 import type { IGameConfig, IGameUnit } from './GameSessionUnitTypes';
+import type { IVehicleCombatState } from './VehicleCombatInterfaces';
 
 import {
   GamePhase,
@@ -31,6 +33,7 @@ import {
   Facing,
   IHexCoordinate,
   MovementType,
+  type MovementConversionMode,
   RangeBracket,
 } from './HexGridInterfaces';
 import { PSRTrigger } from './PSRTriggerCodes';
@@ -57,12 +60,31 @@ export interface IComponentDamageState {
   readonly cockpitHit: boolean;
   /** Actuator destruction state per actuator type. */
   readonly actuators: Partial<Record<ActuatorType, boolean>>;
+  /** Actuator destruction state keyed by combat location when source data carries it. */
+  readonly actuatorsByLocation?: Partial<
+    Record<CombatLocation, Partial<Record<ActuatorType, boolean>>>
+  >;
   /** IDs of destroyed weapons. */
   readonly weaponsDestroyed: readonly string[];
+  /**
+   * Represented vehicle critical outcomes keyed by vehicle location. Used by
+   * later vehicle critical fallthrough so static target-equipment metadata can
+   * be reduced by already-applied weapon and stabilizer criticals.
+   */
+  readonly vehicleCriticalsByLocation?: Partial<
+    Record<string, IVehicleCriticalLocationDamageState>
+  >;
   /** Number of heat sinks destroyed (reduces dissipation by 1 single / 2 double each). */
   readonly heatSinksDestroyed: number;
   /** Number of jump jets destroyed (reduces max jump MP by 1 each). */
   readonly jumpJetsDestroyed: number;
+}
+
+export interface IVehicleCriticalLocationDamageState {
+  readonly weaponsDestroyed?: number;
+  readonly weaponsJammed?: number;
+  readonly stabilizerHit?: boolean;
+  readonly flightStabilizerHit?: boolean;
 }
 
 /**
@@ -79,6 +101,10 @@ export interface IAmmoSlotState {
   readonly remainingRounds: number;
   /** Maximum rounds capacity */
   readonly maxRounds: number;
+  /** Damage each round contributes when this bin explodes. */
+  readonly damagePerRound?: number;
+  /** CASE protection represented at this ammo location, when known. */
+  readonly caseProtection?: 'none' | 'case' | 'case_ii';
   /** Whether this ammo is explosive (for CASE interactions) */
   readonly isExplosive: boolean;
 }
@@ -315,6 +341,14 @@ export interface IUnitGameState {
    * semantics as `gunnery` — `DEFAULT_PILOTING` applies when absent.
    */
   readonly piloting?: number;
+  /**
+   * Canonical SPA ids copied from the session unit binding so rules projection
+   * and commit validation can resolve pilot abilities without reaching back
+   * into the campaign vault.
+   */
+  readonly pilotSpas?: readonly string[];
+  /** Represented construction gyro type copied from the session unit binding. */
+  readonly gyroType?: string;
   /** Total heat sinks on unit (default: 10 if omitted by legacy fixtures). */
   readonly heatSinks?: number;
   /** Heat-sink rating used for dissipation and destroyed-sink debits. */
@@ -425,6 +459,12 @@ export interface IUnitGameState {
   readonly isStuck?: boolean;
   /** Unit is in a hull-down defensive position. */
   readonly hullDown?: boolean;
+  /**
+   * True when the unit entered its current hull-down state through a backward
+   * movement step. MegaMek uses this to flip vehicle hull-down protected-facing
+   * hit-location behavior from front-facing to rear-facing cover.
+   */
+  readonly hullDownEnteredBackwards?: boolean;
   /** Unit is bracing and cannot change secondary facing. */
   readonly isBracing?: boolean;
   /** Unit is shut down (reactor offline) */
@@ -518,6 +558,47 @@ export interface IUnitGameState {
    */
   readonly isWithdrawing?: boolean;
   /**
+   * Runtime override for MegaMek-style entity height() above elevation.
+   * Movement projection/commit reads this before import-time movement
+   * capability height so conversion or mount-state events can affect bridge
+   * clearance without rebuilding the whole session cache.
+   */
+  readonly unitHeight?: number;
+  /**
+   * Runtime conversion state for represented LAM / QuadVee style units.
+   * Movement capability profiles translate this into the active unit height.
+   */
+  readonly conversionMode?: MovementConversionMode | number;
+  /**
+   * Pending represented CONVERT_MODE steps already chosen this movement phase.
+   * Movement projection and commit validation consume this before later path MP.
+   */
+  readonly pendingConversionStepCount?: number;
+  /** Pending MP reserved by represented CONVERT_MODE steps this movement phase. */
+  readonly pendingConversionMpCost?: number;
+  /**
+   * Pending represented VTOL/WiGE UP/DOWN altitude-control steps already chosen
+   * this movement phase. Projection and commit validation reserve this before
+   * later path MP.
+   */
+  readonly pendingAltitudeControlStepCount?: number;
+  /** Pending MP reserved by represented VTOL/WiGE altitude-control steps. */
+  readonly pendingAltitudeControlMpCost?: number;
+  /**
+   * Runtime LAM AirMek WiGE elevation selected through UP/DOWN altitude
+   * controls. Kept separate from aerospace altitude: MegaMek treats grounded
+   * AirMek WiGE elevation as terrain-board elevation while aerospace altitude
+   * stays 0 until full airborne flight rules take over.
+   */
+  readonly lamAirMekAltitude?: number;
+  /**
+   * Runtime mounted-infantry state. `false` forces conventional infantry
+   * height to 0; `true` uses the runtime or imported mount height when known.
+   */
+  readonly infantryMounted?: boolean;
+  /** Runtime mount height for conventional infantry mount/dismount updates. */
+  readonly infantryMountHeight?: number;
+  /**
    * Per-type combat-behavior envelope.
    *
    * Per Council #1 (`openspec/council-decisions/2026-05-02-cluster-F-combat-
@@ -534,9 +615,20 @@ export interface IUnitGameState {
    */
   readonly combatState?:
     | { readonly kind: 'aero'; readonly state: IAerospaceCombatState }
+    | { readonly kind: 'vehicle'; readonly state: IVehicleCombatState }
     | { readonly kind: 'proto'; readonly state: IProtoMechCombatState }
     | { readonly kind: 'platoon'; readonly state: IInfantryCombatState }
     | { readonly kind: 'squad'; readonly state: IBattleArmorCombatState };
+}
+
+export interface IGameTerrainOverride {
+  readonly hex: IHexCoordinate;
+  readonly terrain: string;
+  readonly elevation: number;
+  readonly reason?: 'battlefield_wreckage';
+  readonly sourceEventId?: string;
+  readonly sourceUnitId?: string;
+  readonly optionalRule?: string;
 }
 
 /**
@@ -559,6 +651,10 @@ export interface IGameState {
   readonly activationIndex: number;
   /** Per-unit states */
   readonly units: Record<string, IUnitGameState>;
+  /** Optional tactical C3 network snapshot used by attack projection/commit. */
+  readonly c3State?: IC3NetworkState;
+  /** Event-sourced terrain mutations keyed by canonical `"q,r"` hex. */
+  readonly terrainOverrides?: Record<string, IGameTerrainOverride>;
   /** Events this turn for display */
   readonly turnEvents: readonly IGameEvent[];
   /** Game result (if completed) */

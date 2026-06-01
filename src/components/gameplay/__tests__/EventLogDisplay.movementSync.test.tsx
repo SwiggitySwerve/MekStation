@@ -60,6 +60,34 @@ describe('EventLogDisplay movement animation sync', () => {
     expect(screen.getByText(/Unit moved/)).toBeInTheDocument();
     expect(screen.getByText(/Heat \+1/)).toBeInTheDocument();
   });
+
+  it('renders AirMek landing control context from runtime movement events', () => {
+    render(
+      <EventLogDisplay
+        events={[
+          makeEvent(1, GameEventType.RuntimeMovementStateChanged, {
+            unitId: 'lam-1',
+            source: 'altitude_control_action',
+            lamAirMekAltitude: 0,
+            lamAirMekLandingControlRequired: true,
+            lamAirMekLandingControlReason: 'landing with gyro or leg damage',
+            lamAirMekLandingControlModifier: 6,
+            lamAirMekLandingControlModifierDetails: [
+              'Gyro damage requires landing control roll',
+              'Right Leg destroyed +5',
+              'Left Leg Foot Actuator destroyed +1',
+            ],
+          }),
+        ]}
+      />,
+    );
+
+    expect(
+      screen.getByText(
+        /AirMek landing control: roll required \(\+6\).*Right Leg destroyed \+5/,
+      ),
+    ).toBeInTheDocument();
+  });
 });
 
 function makeEvent(

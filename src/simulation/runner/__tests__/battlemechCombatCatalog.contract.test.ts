@@ -3391,6 +3391,7 @@ describe('BattleMech combat feature-gap tracking', () => {
         PSRTrigger.ExitingWater,
         PSRTrigger.Skidding,
         PSRTrigger.SwampBogDown,
+        PSRTrigger.AirMekLanding,
         PSRTrigger.BuildingCollapse,
         PSRTrigger.RunningDamagedHip,
         PSRTrigger.RunningDamagedGyro,

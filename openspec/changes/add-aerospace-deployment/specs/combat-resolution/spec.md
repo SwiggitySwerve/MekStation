@@ -41,6 +41,16 @@ When the attacker is a ground unit and the target is an airborne aerospace unit,
 - **THEN** the resolver SHALL invoke the ground-to-air resolver
 - **AND** the to-hit penalty SHALL include +3 (high altitude)
 
+#### Scenario: Ground-to-air preview suppresses ground-only minimum range
+
+- **GIVEN** A is a ground unit with a direct-fire weapon that has minimum range
+- **AND** T is an airborne aerospace unit at altitude 3 within that weapon's nominal minimum range
+- **WHEN** the tactical map projects the target and A declares the attack
+- **THEN** the preview and committed to-hit modifiers SHALL NOT include `Minimum Range`
+- **AND** the preview and committed to-hit modifiers SHALL include the ground-to-air altitude-tier penalty
+- **AND** the tactical map SHALL NOT render a minimum-range badge for T's hex
+- **AND** T's altitude and velocity metadata SHALL remain visible in top-down and isometric map projections
+
 #### Scenario: Indirect-fire weapon rejected against airborne target
 
 - **GIVEN** A is a mech with LRM-15 in `weapon.mode: 'Indirect'`, T is airborne aero

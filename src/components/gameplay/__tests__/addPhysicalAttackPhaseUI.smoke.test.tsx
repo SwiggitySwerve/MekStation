@@ -36,6 +36,7 @@ import {
   GameEventType,
   GamePhase,
   GameSide,
+  MovementType,
   type IComponentDamageState,
   type IGameSession,
   type IPhysicalAttackDeclaredPayload,
@@ -368,7 +369,11 @@ describe('PhysicalAttackForecastModal', () => {
  * see is `currentState.units[attackerId]` so it can read heat / prone /
  * componentDamage. Everything else is filler.
  */
-function buildSession(): IGameSession {
+function buildSession(
+  overrides: {
+    readonly attackerMovementThisTurn?: MovementType;
+  } = {},
+): IGameSession {
   return {
     id: 'fake-session',
     createdAt: '',
@@ -394,7 +399,8 @@ function buildSession(): IGameSession {
           position: { q: 0, r: 0 },
           facing: 0,
           heat: 0,
-          movementThisTurn: 'walk',
+          movementThisTurn:
+            overrides.attackerMovementThisTurn ?? MovementType.Walk,
           hexesMovedThisTurn: 0,
           armor: {},
           structure: {},
@@ -412,7 +418,7 @@ function buildSession(): IGameSession {
           position: { q: 1, r: 0 },
           facing: 0,
           heat: 0,
-          movementThisTurn: 'walk',
+          movementThisTurn: MovementType.Walk,
           hexesMovedThisTurn: 0,
           armor: {},
           structure: {},
@@ -430,8 +436,10 @@ function buildSession(): IGameSession {
   } as unknown as IGameSession;
 }
 
-function buildFakeInteractiveSession(): InteractiveSession {
-  let session = buildSession();
+function buildFakeInteractiveSession(
+  sessionOverride?: IGameSession,
+): InteractiveSession {
+  let session = sessionOverride ?? buildSession();
   return {
     getSession: () => session,
     getState: () => session.currentState,
@@ -478,6 +486,18 @@ describe('usePhysicalAttackPlanStore', () => {
       targetUnitId: null,
       attackType: 'kick',
       limb: 'leftLeg',
+    });
+  });
+
+  it('setPhysicalAttackType stores the selected physical limb', () => {
+    usePhysicalAttackPlanStore
+      .getState()
+      .setPhysicalAttackType('punch', 'rightArm');
+    expect(
+      usePhysicalAttackPlanStore.getState().physicalAttackPlan,
+    ).toMatchObject({
+      attackType: 'punch',
+      limb: 'rightArm',
     });
   });
 
@@ -528,6 +548,32 @@ describe('usePhysicalAttackPlanStore', () => {
     expect(payload.targetId).toBe('defender');
     expect(payload.attackType).toBe('punch');
     expect(payload.limb).toBe('rightArm');
+  });
+
+  it('commitPhysicalAttack infers run-gated charge legality from attacker movement state', () => {
+    const fakeSession = buildFakeInteractiveSession(
+      buildSession({ attackerMovementThisTurn: MovementType.Run }),
+    );
+    const store = usePhysicalAttackPlanStore.getState();
+    store.setPhysicalAttackTarget('defender');
+    store.setPhysicalAttackType('charge');
+
+    const next = usePhysicalAttackPlanStore.getState().commitPhysicalAttack({
+      interactiveSession: fakeSession,
+      attackerId: 'attacker',
+      attackerPiloting: 4,
+      attackerTonnage: 50,
+      targetTonnage: 50,
+      hexesMoved: 3,
+    });
+
+    expect(next).not.toBeNull();
+    const declared = next!.events.find(
+      (e) => e.type === GameEventType.PhysicalAttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IPhysicalAttackDeclaredPayload;
+    expect(payload.attackType).toBe('charge');
   });
 
   it('commitPhysicalAttack clears the plan after a successful commit', () => {
@@ -632,6 +678,34 @@ describe('getEligiblePhysicalAttacks', () => {
     ) as { restrictionsFailed: readonly string[] } | undefined;
     expect(chargeRow).toBeDefined();
     expect(chargeRow!.restrictionsFailed).toContain('NoRunThisTurn');
+  });
+
+  it('marks charge row eligible when the caller projects a run this turn', () => {
+    const attacker = makeUnit('a', GameSide.Player, 0, 0);
+    const target = makeUnit('b', GameSide.Opponent, 1, 0);
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      ...baseContext,
+      attackerRanThisTurn: true,
+    });
+    const chargeRow = options.find(
+      (o: { attackType: string }) => o.attackType === 'charge',
+    ) as { restrictionsFailed: readonly string[] } | undefined;
+    expect(chargeRow).toBeDefined();
+    expect(chargeRow!.restrictionsFailed).not.toContain('NoRunThisTurn');
+  });
+
+  it('marks DFA row eligible when the caller projects a jump this turn', () => {
+    const attacker = makeUnit('a', GameSide.Player, 0, 0);
+    const target = makeUnit('b', GameSide.Opponent, 1, 0);
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      ...baseContext,
+      attackerJumpedThisTurn: true,
+    });
+    const dfaRow = options.find(
+      (o: { attackType: string }) => o.attackType === 'dfa',
+    ) as { restrictionsFailed: readonly string[] } | undefined;
+    expect(dfaRow).toBeDefined();
+    expect(dfaRow!.restrictionsFailed).not.toContain('NoJumpThisTurn');
   });
 });
 

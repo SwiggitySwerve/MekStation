@@ -7,6 +7,7 @@ import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
 
 import type { GamePhase, GameSide } from './GameSessionCoreTypes';
 import type { IGameConfig, IGameUnit } from './GameSessionUnitTypes';
+import type { IHexTerrain } from './TerrainTypes';
 
 /**
  * Encounter snapshot stamped onto `IGameCreatedPayload.encounterMeta` at
@@ -54,6 +55,11 @@ export interface IGameCreatedPayload {
   readonly config: IGameConfig;
   /** Participating units */
   readonly units: readonly IGameUnit[];
+  /**
+   * Non-default initial map terrain/elevation seed. Omitted for flat
+   * clear maps so legacy/event-light sessions keep their compact seed.
+   */
+  readonly hexTerrain?: readonly IHexTerrain[];
   /**
    * Per `link-encounters-to-replays` PR 3: encounter snapshot stamped at
    * session creation when the session originated from

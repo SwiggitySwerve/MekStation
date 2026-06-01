@@ -10,12 +10,13 @@ import type { ISemiGuidedTagToHitContext } from './semiGuidedTagModifiers';
 
 import {
   getC3TargetingBenefit,
+  type IC3TargetingOptions,
   IC3NetworkState,
-  IC3TargetingOptions,
   IC3TargetingResult,
+  isBetterBracket,
 } from '../c3Network';
 import { IWeaponRangeProfile } from '../range';
-import { calculateToHit } from './calculate';
+import { calculateToHit, type IEcmContext } from './calculate';
 
 export interface IC3ToHitInput {
   readonly attackerEntityId: string;
@@ -26,6 +27,71 @@ export interface IC3ToHitInput {
   readonly targetingOptions?: IC3TargetingOptions;
 }
 
+export interface IC3RangeBracketSelection {
+  readonly weaponIndex: number;
+  readonly effectiveRangeBracket: RangeBracket;
+  readonly c3Result: IC3TargetingResult;
+}
+
+export function selectC3RangeBracket({
+  attackerEntityId,
+  targetPosition,
+  weaponRangeProfiles,
+  directRangeBracket,
+  c3State,
+  attackerEcmDisrupted,
+}: {
+  readonly attackerEntityId: string;
+  readonly targetPosition: IHexCoordinate;
+  readonly weaponRangeProfiles: readonly IWeaponRangeProfile[];
+  readonly directRangeBracket: RangeBracket;
+  readonly c3State: IC3NetworkState;
+  readonly attackerEcmDisrupted?: boolean;
+}): IC3RangeBracketSelection | undefined {
+  if (
+    directRangeBracket === RangeBracket.Short ||
+    directRangeBracket === RangeBracket.OutOfRange
+  ) {
+    return undefined;
+  }
+
+  let bestSelection: IC3RangeBracketSelection | undefined;
+  for (
+    let weaponIndex = 0;
+    weaponIndex < weaponRangeProfiles.length;
+    weaponIndex += 1
+  ) {
+    const weaponRangeProfile = weaponRangeProfiles[weaponIndex];
+    if (!weaponRangeProfile) continue;
+    const c3Result = getC3TargetingBenefit(
+      attackerEntityId,
+      targetPosition,
+      weaponRangeProfile,
+      c3State,
+      attackerEcmDisrupted,
+    );
+    if (!c3Result.benefitApplied) continue;
+    if (!isBetterBracket(c3Result.bestBracket, directRangeBracket)) continue;
+    if (
+      bestSelection &&
+      !isBetterBracket(
+        c3Result.bestBracket,
+        bestSelection.effectiveRangeBracket,
+      )
+    ) {
+      continue;
+    }
+
+    bestSelection = {
+      weaponIndex,
+      effectiveRangeBracket: c3Result.bestBracket,
+      c3Result,
+    };
+  }
+
+  return bestSelection;
+}
+
 export function calculateToHitWithC3(
   attacker: IAttackerState,
   target: ITargetState,
@@ -33,7 +99,7 @@ export function calculateToHitWithC3(
   range: number,
   c3Input: IC3ToHitInput,
   minRange: number = 0,
-  weaponId?: string,
+  weaponIdOrEcmContext?: string | IEcmContext,
   semiGuidedTagContext?: ISemiGuidedTagToHitContext,
 ): IToHitCalculation & { readonly c3Result: IC3TargetingResult } {
   const c3Result = getC3TargetingBenefit(
@@ -55,7 +121,7 @@ export function calculateToHitWithC3(
     effectiveBracket,
     range,
     minRange,
-    weaponId,
+    weaponIdOrEcmContext,
     semiGuidedTagContext,
   );
 

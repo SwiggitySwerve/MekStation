@@ -13,12 +13,17 @@ import {
   IGameSession,
   IGameUnit,
   IHexCoordinate,
+  IHexTerrain,
   IToHitModifier,
+  IToHitModifierDetail,
   IWeaponAttack,
   IWeaponAttackData,
   MovementType,
   RangeBracket,
+  type StandUpMode,
 } from '@/types/gameplay';
+
+import type { ILOSInterveningTerrainEffect } from './lineOfSight';
 
 /**
  * Per `add-victory-and-post-battle-summary` design D3 + spec scenario
@@ -102,6 +107,7 @@ export interface ICreateGameSessionOptions {
    * manifest from disk. Null/omitted for non-encounter callers.
    */
   readonly encounterMeta?: IEncounterMeta;
+  readonly hexTerrain?: readonly IHexTerrain[];
 }
 
 export function createGameSession(
@@ -117,6 +123,8 @@ export function createGameSession(
     config,
     units,
     options.encounterMeta,
+    undefined,
+    options.hexTerrain,
   );
   const events: IGameEvent[] = [createdEvent];
   const currentState = deriveState(id, events);
@@ -382,6 +390,18 @@ export function declareMovement(
   mpUsed: number,
   heatGenerated: number,
   path?: readonly IHexCoordinate[],
+  options?: {
+    readonly standUpAttempt?: boolean;
+    readonly standUpSucceeded?: boolean;
+    readonly standUpMode?: StandUpMode;
+    readonly hullDownExitAttempt?: boolean;
+    readonly hullDownEntryAttempt?: boolean;
+    readonly goProneAttempt?: boolean;
+    readonly conversionStepCount?: number;
+    readonly conversionMpCost?: number;
+    readonly altitudeControlStepCount?: number;
+    readonly altitudeControlMpCost?: number;
+  },
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.Movement) {
     throw new Error('Not in movement phase');
@@ -406,6 +426,7 @@ export function declareMovement(
     mpUsed,
     heatGenerated,
     path,
+    options,
   );
 
   return appendEvent(session, event);
@@ -460,6 +481,12 @@ export function declareAttack(
    * Defaults to the live target unit position when omitted.
    */
   targetHex?: import('@/types/gameplay/HexGridInterfaces').IHexCoordinate,
+  /** Whether the target's hex grants partial cover for this declaration. */
+  targetPartialCover = false,
+  /** Intervening LOS terrain effects that should modify the attack to-hit. */
+  interveningTerrainEffects: readonly ILOSInterveningTerrainEffect[] = [],
+  /** Target-hex woods/smoke terrain modifier, separate from true partial cover. */
+  targetTerrainModifier: IToHitModifierDetail | null = null,
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.WeaponAttack) {
     throw new Error('Not in weapon attack phase');
@@ -547,9 +574,9 @@ export function declareAttack(
       undefined,
       weapons.some((weapon) => weapon.calledShot === true),
       weapons.some((weapon) => weapon.teammateCalledShot === true),
-      false,
+      targetPartialCover,
     ),
-    buildWeaponAttackTargetToHitState(targetUnit, false),
+    buildWeaponAttackTargetToHitState(targetUnit, targetPartialCover),
     rangeBracket,
     range,
     primaryWeapon?.minRange,
@@ -561,13 +588,36 @@ export function declareAttack(
     name: modifier.name,
     value: modifier.value,
     source: modifier.source,
+    description: modifier.description,
   }));
+  let attackContextModifierTotal = 0;
+
+  for (const terrainEffect of interveningTerrainEffects) {
+    if (terrainEffect.modifier === 0) continue;
+    attackContextModifierTotal += terrainEffect.modifier;
+    modifiers.push({
+      name: 'Intervening terrain',
+      value: terrainEffect.modifier,
+      source: 'terrain',
+      description: `${terrainEffect.terrain} at (${terrainEffect.coord.q}, ${terrainEffect.coord.r})`,
+    });
+  }
+
+  if (targetTerrainModifier) {
+    attackContextModifierTotal += targetTerrainModifier.value;
+    modifiers.push({
+      name: targetTerrainModifier.name,
+      value: targetTerrainModifier.value,
+      source: targetTerrainModifier.source,
+      description: targetTerrainModifier.description,
+    });
+  }
 
   // Wave 8 PR-K4: append indirect-fire penalty to the modifier list so
   // the AttackDeclared event's toHitNumber reflects the live indirect
   // resolution. The penalty math (base +1, +1 spotter-walked, -1 FO SPA)
   // happened upstream in `computeIndirectFireContext`.
-  let finalToHit = toHitCalc.finalToHit;
+  let finalToHit = toHitCalc.finalToHit + attackContextModifierTotal;
   if (
     indirectFireResolution &&
     indirectFireResolution.permitted &&

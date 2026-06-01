@@ -95,6 +95,13 @@ export interface IPhysicalAttackContext {
   /** Attacker jump MP for DFA reach against airborne VTOL/WIGE targets. */
   readonly attackerJumpMP?: number;
   readonly attackerRanThisTurn?: boolean;
+  readonly attackerUnitType?: string;
+  readonly attackerMovementMode?: string;
+  readonly attackerConversionMode?: string | number;
+  readonly attackerIsAirborneVTOLOrWiGE?: boolean;
+  readonly targetUnitType?: string;
+  readonly targetProne?: boolean;
+  readonly targetIsAirborne?: boolean;
   /** True when the attacker's MovementDeclared step chain used backward movement. */
   readonly attackerMovedBackwardThisTurn?: boolean;
   /**
@@ -112,6 +119,8 @@ export interface IPhysicalAttackContext {
   readonly unitQuirks?: readonly string[];
   /** Target elevation minus attacker elevation. */
   readonly elevationDifference?: number;
+  readonly elevationContext?: import('./physicalAttacks').IPhysicalAttackInput['elevationContext'];
+  readonly terrainContext?: import('./physicalAttacks').IPhysicalAttackInput['terrainContext'];
   readonly optionalRules?: readonly string[];
   readonly tacOpsTripAttackEnabled?: boolean;
   readonly tacOpsGrapplingEnabled?: boolean;

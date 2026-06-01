@@ -4,7 +4,11 @@
  */
 
 import type { IWeapon } from '@/simulation/ai/types';
-import type { IIndirectFireResolution } from '@/types/gameplay/IndirectFireInterfaces';
+import type { IRuntimeMovementStateChangedPayload } from '@/types/gameplay/GameSessionMovementEvents';
+import type {
+  IIndirectFireResolution,
+  WeaponFireMode,
+} from '@/types/gameplay/IndirectFireInterfaces';
 import type { D6Roller, DiceRoller } from '@/utils/gameplay/diceTypes';
 import type {
   PhysicalAttackLimb,
@@ -28,15 +32,18 @@ import {
   type ICombatOutcome,
 } from '@/types/combat/CombatOutcome';
 import {
+  GameEventType,
   GamePhase,
   GameSide,
   GameStatus,
+  type IGameCreatedPayload,
   type IGameSession,
   type IGameConfig,
   type IGameUnit,
   type IGameEvent,
   type IGameState,
   type MovementEnhancementActivationKind,
+  type StandUpMode,
 } from '@/types/gameplay/GameSessionInterfaces';
 import {
   Facing,
@@ -45,30 +52,43 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
-import { createUnitEjectedEvent } from '@/utils/gameplay/gameEvents';
 import {
+  applyBattlefieldWreckTerrainForSessionEvents,
+  terrainChangedPayloadFromBattlefieldWreckResult,
+} from '@/utils/gameplay/battlefieldWreckTerrain';
+import {
+  createTerrainChangedEvent,
+  createUnitEjectedEvent,
+} from '@/utils/gameplay/gameEvents';
+import {
+  activateMovementEnhancement as activateMovementEnhancementAction,
   createGameSession,
   startGame,
   appendEvent,
+  attemptStandUp as attemptStandUpAction,
   declarePhysicalAttack,
   endGame,
-  activateMovementEnhancement as activateMovementEnhancementAction,
   goProne as goProneAction,
-  attemptStandUp as attemptStandUpAction,
-  torsoTwist as torsoTwistAction,
   requestSpot as requestSpotAction,
+  torsoTwist as torsoTwistAction,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
 import { declarePlayerWithdrawal } from '@/utils/gameplay/morale';
+import { resolveRuntimeMovementCapability } from '@/utils/gameplay/movement';
+import { applyTerrainOverridesToGrid } from '@/utils/gameplay/terrainState';
 
 import type { IInteractiveSessionLinkage } from './InteractiveSession.types';
 import type { IAdaptedUnit, IAvailableActions } from './types';
 
 import { adaptUnit } from './adapters/CompendiumAdapter';
-import { createMinimalGrid } from './GameEngine.helpers';
+import {
+  createGridFromHexTerrain,
+  seedHexTerrainFromGrid,
+} from './GameEngine.helpers';
 import {
   applyInteractiveSessionAttack,
   applyInteractiveSessionMovement,
+  applyInteractiveSessionRuntimeMovementState,
 } from './InteractiveSession.actions';
 import { runInteractiveSessionAITurn } from './InteractiveSession.ai';
 import { computeIndirectFireContext as computeIndirectFireContextImpl } from './InteractiveSession.indirectFire';
@@ -90,6 +110,7 @@ import {
 import {
   buildInteractiveSessionGameConfig,
   buildInteractiveSessionUnitMaps,
+  gameUnitsWithAdaptedMovementModes,
 } from './InteractiveSession.setup';
 
 /**
@@ -101,6 +122,19 @@ import {
  * outcome resolves.
  */
 export type { IInteractiveSessionLinkage } from './InteractiveSession.types';
+
+function createRecoveredGridFromSession(session: IGameSession): IHexGrid {
+  const created = session.events.find(
+    (event) => event.type === GameEventType.GameCreated,
+  );
+  const initialTerrain =
+    (created?.payload as IGameCreatedPayload | undefined)?.hexTerrain ?? [];
+
+  return applyTerrainOverridesToGrid(
+    createGridFromHexTerrain(session.config.mapRadius, initialTerrain),
+    session.currentState.terrainOverrides,
+  );
+}
 
 export class InteractiveSession {
   private session: IGameSession;
@@ -147,6 +181,7 @@ export class InteractiveSession {
     gameUnits: readonly IGameUnit[],
     linkage: IInteractiveSessionLinkage = {},
     d6Roller?: D6Roller,
+    optionalRules: readonly string[] = [],
   ) {
     this.random = random;
     this.grid = grid;
@@ -171,12 +206,24 @@ export class InteractiveSession {
       mapRadius,
       turnLimit,
       linkage,
+      optionalRules,
     );
     this.linkage = linkage;
 
-    this.session = createGameSession(this.gameConfig, gameUnits, {
-      encounterMeta: linkage.encounterMeta,
-    });
+    const gameUnitsWithMovementModes = gameUnitsWithAdaptedMovementModes(
+      gameUnits,
+      playerUnits,
+      opponentUnits,
+    );
+
+    this.session = createGameSession(
+      this.gameConfig,
+      gameUnitsWithMovementModes,
+      {
+        encounterMeta: linkage.encounterMeta,
+        hexTerrain: seedHexTerrainFromGrid(this.grid),
+      },
+    );
     this.session = startGame(this.session, GameSide.Player);
   }
 
@@ -209,10 +256,13 @@ export class InteractiveSession {
       session.config.mapRadius,
       session.config.turnLimit,
       new SeededRandom(0xc0ffee),
-      createMinimalGrid(session.config.mapRadius),
+      createRecoveredGridFromSession(session),
       [],
       [],
       session.units,
+      {},
+      undefined,
+      session.config.optionalRules,
     );
     // Replace the fresh Setup-phase session with the replayed one so
     // `currentState` (status / turn / phase / board) matches history.
@@ -254,10 +304,13 @@ export class InteractiveSession {
       session.config.mapRadius,
       session.config.turnLimit,
       new SeededRandom(0xc0ffee),
-      createMinimalGrid(session.config.mapRadius),
+      createRecoveredGridFromSession(session),
       playerAdapted,
       opponentAdapted,
       session.units,
+      {},
+      undefined,
+      session.config.optionalRules,
     );
     // Replace the fresh Setup-phase session with the replayed one so
     // `currentState` (status / turn / phase / board) matches history.
@@ -285,7 +338,12 @@ export class InteractiveSession {
    * unknown (callers treat missing capability as "no movement").
    */
   getMovementCapability(unitId: string): IMovementCapability | null {
-    return this.movementByUnit.get(unitId) ?? null;
+    const capability = this.movementByUnit.get(unitId);
+    if (!capability) return null;
+    const unit = this.session.currentState.units[unitId];
+    return unit
+      ? (resolveRuntimeMovementCapability(unit, capability) ?? capability)
+      : capability;
   }
 
   /**
@@ -343,6 +401,11 @@ export class InteractiveSession {
     facing: Facing,
     movementType: MovementType,
     path?: readonly IHexCoordinate[],
+    standUpMode?: StandUpMode,
+    options?: {
+      readonly hullDownEntryAttempt?: boolean;
+      readonly goProneAttempt?: boolean;
+    },
   ): void {
     // Declare-then-lock logic lives in `InteractiveSession.actions`.
     this.session = applyInteractiveSessionMovement({
@@ -354,11 +417,15 @@ export class InteractiveSession {
       facing,
       movementType,
       path,
+      standUpMode,
+      hullDownEntryAttempt: options?.hullDownEntryAttempt,
+      goProneAttempt: options?.goProneAttempt,
+      diceRoller: this.diceRollerForResolvers(),
     });
     this.tryFinalizeAndPublish();
   }
 
-  attemptStandUp(unitId: string): void {
+  attemptStandUp(unitId: string, mode?: StandUpMode): void {
     if (this.session.currentState.status !== GameStatus.Active) return;
     if (this.session.currentState.phase !== GamePhase.Movement) return;
 
@@ -366,6 +433,7 @@ export class InteractiveSession {
       this.session,
       unitId,
       this.diceRollerForResolvers(),
+      mode,
     );
     this.tryFinalizeAndPublish();
   }
@@ -392,10 +460,25 @@ export class InteractiveSession {
     this.tryFinalizeAndPublish();
   }
 
+  applyRuntimeMovementState(
+    unitId: string,
+    patch: Omit<IRuntimeMovementStateChangedPayload, 'unitId'>,
+  ): void {
+    this.session = applyInteractiveSessionRuntimeMovementState({
+      session: this.session,
+      unitId,
+      patch,
+      diceRoller: this.d6RollerForResolvers(),
+      tonnageByUnit: this.tonnageByUnit,
+    });
+    this.tryFinalizeAndPublish();
+  }
+
   applyAttack(
     attackerId: string,
     targetId: string,
     weaponIds: readonly string[],
+    weaponModesByWeaponId?: Readonly<Record<string, WeaponFireMode>>,
   ): void {
     // Declare-then-lock logic lives in `InteractiveSession.actions`.
     // Wave 8 PR-K5: pass the grid + target hex so the action layer can
@@ -408,6 +491,7 @@ export class InteractiveSession {
       attackerId,
       targetId,
       weaponIds,
+      weaponModesByWeaponId,
       grid: this.grid,
       targetHex: targetUnit?.position,
     });
@@ -535,6 +619,7 @@ export class InteractiveSession {
     // through the phase-context callbacks and keeps ownership of the
     // trailing finalize/publish step so the once-per-session outcome
     // guard is not split across modules.
+    const sessionBeforePhase = this.session;
     advanceInteractiveSessionPhase({
       getSession: () => this.session,
       setSession: (session) => {
@@ -549,6 +634,7 @@ export class InteractiveSession {
         this.environmentHeatEffectAt(position),
       isGameOver: () => this.isGameOver(),
     });
+    this.applyBattlefieldWreckTerrainForNewEvents(sessionBeforePhase);
     // Wave 5: any phase transition can land us in a victory condition
     // (e.g., the final attack resolution destroys the last opponent
     // unit). Try to finalize+publish here so the campaign store is
@@ -576,12 +662,45 @@ export class InteractiveSession {
   }
 
   private appendAndPersistEvent(event: IGameEvent): void {
+    const sessionBeforeEvent = this.session;
     this.session = appendEvent(this.session, event);
+    this.persistMatchLogEvent(event);
+    this.applyBattlefieldWreckTerrainForNewEvents(sessionBeforeEvent);
+  }
+
+  private persistMatchLogEvent(event: IGameEvent): void {
     void matchLogStorage
       .appendEvent(this.session.matchId ?? this.session.id, event)
       .catch((error: unknown) => {
         reportMatchLogDivergence(error);
       });
+  }
+
+  private applyBattlefieldWreckTerrainForNewEvents(
+    sessionBeforeEvents: IGameSession,
+  ): void {
+    const newEvents = this.session.events.slice(
+      sessionBeforeEvents.events.length,
+    );
+    const results = applyBattlefieldWreckTerrainForSessionEvents(
+      this.grid,
+      sessionBeforeEvents,
+      newEvents,
+      this.tonnageByUnit,
+    );
+    for (const result of results) {
+      const payload = terrainChangedPayloadFromBattlefieldWreckResult(result);
+      if (payload === null) continue;
+      const event = createTerrainChangedEvent(
+        this.session.id,
+        this.session.events.length,
+        this.session.currentState.turn,
+        this.session.currentState.phase,
+        payload,
+      );
+      this.session = appendEvent(this.session, event);
+      this.persistMatchLogEvent(event);
+    }
   }
 
   // Resolver-input shaping lives in `InteractiveSession.resolvers`.

@@ -4,7 +4,7 @@
  * Receives a single `IUnitToken` and routes to the correct per-type renderer
  * based on `token.unitType`. Handles:
  *   - Event projection (shared across all renderers)
- *   - BattleArmor "mounted-on-mech" badge positioning
+ *   - BattleArmor passenger badges owned by host token groups
  *   - Pixel-coordinate translation from hex coords
  *   - Click handler delegation
  *
@@ -18,21 +18,35 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 
 import type { TacticalAnimation } from '@/stores/useAnimationQueue';
-import type { IGameEvent, IUnitToken } from '@/types/gameplay';
+import type { IGameEvent, IHexCoordinate, IUnitToken } from '@/types/gameplay';
 
 import { useMovementTween } from '@/components/gameplay/animation/useMovementTween';
 import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
 import { useElectedSpotters } from '@/components/gameplay/TacticalCommandShell';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
-import { MovementType, TokenUnitType } from '@/types/gameplay';
+import {
+  MovementType,
+  TokenUnitType,
+  VehicleMotionType,
+} from '@/types/gameplay';
+
+import type { IsometricVisibilityRule } from './UnitTokenForType.effects';
 
 import { AerospaceToken } from './AerospaceToken';
+import {
+  BattleArmorPassengerBadges,
+  battleArmorPassengerHostId,
+  battleArmorPassengerSlot,
+  findBattleArmorPassengerHost,
+  isBattleArmorPassengerToken,
+} from './BattleArmorPassengerBadges';
 import { BattleArmorToken } from './BattleArmorToken';
 import { InfantryToken } from './InfantryToken';
 import { MechToken } from './MechToken';
 import { ProtoMechToken } from './ProtoMechToken';
 import {
   renderFogMarker,
+  renderIsometricVisibilityRuleBadge,
   renderJumpArc,
   TokenVisualEffects,
 } from './UnitTokenForType.effects';
@@ -65,9 +79,21 @@ export interface UnitTokenForTypeProps {
   events?: readonly IGameEvent[];
   /** Active movement animation for this unit, supplied by HexMapDisplay. */
   movementAnimation?: TacticalAnimation;
+  /** Render an always-visible halo for selected units in the isometric view. */
+  isOcclusionHighlighted?: boolean;
+  isometricOcclusionReason?: string;
+  /** Isometric-only rule reason for contacts limited by fog/visibility rules. */
+  isometricVisibilityRule?: IsometricVisibilityRule;
+  isometricVisibilityRuleReason?: string;
   /**
-   * All tokens on the map — used to locate the host mech when BA is mounted.
-   * Only the token whose `unitId === baToken.mountedOn` is consulted.
+   * Combat projection override for valid-target chrome. Undefined keeps the
+   * legacy token flag path for callers without weapon-backed projection.
+   */
+  combatProjectionValidTarget?: boolean;
+  /**
+   * All tokens on the map. Host tokens render mounted BA passengers as child
+   * badges, and mounted BA tokens suppress their standalone wrapper when their
+   * host is present.
    */
   allTokens?: readonly IUnitToken[];
 }
@@ -81,6 +107,131 @@ export interface UnitTokenForTypeProps {
  *  token chrome at the standard `HEX_SIZE = 25` rendering scale. */
 const HEX_SPOTTER_RING_RADIUS = 22;
 
+type TokenWrapperMetadata = Record<string, string | number | undefined>;
+
+function formatTokenHex(hex: IHexCoordinate): string {
+  return `${hex.q},${hex.r}`;
+}
+
+function tokenTypeStateMetadata(token: IUnitToken): TokenWrapperMetadata {
+  switch (token.unitType) {
+    case TokenUnitType.Aerospace:
+      return {
+        'data-aerospace-altitude': token.altitude,
+        'data-aerospace-velocity': token.velocity,
+      };
+    case TokenUnitType.BattleArmor: {
+      const passengerHostId = battleArmorPassengerHostId(token);
+      return {
+        'data-mounted-on': token.mountedOn,
+        'data-passenger-host': passengerHostId,
+        'data-passenger-slot': passengerHostId
+          ? battleArmorPassengerSlot(token)
+          : undefined,
+      };
+    }
+    case TokenUnitType.Vehicle:
+      return {
+        'data-vehicle-motion-type': token.vehicleMotionType,
+        'data-vehicle-altitude': token.altitude,
+      };
+    default:
+      return {};
+  }
+}
+
+function formatVehicleMotionTypeLabel(
+  motionType: VehicleMotionType | undefined,
+): string | null {
+  switch (motionType) {
+    case VehicleMotionType.Tracked:
+      return 'Tracked';
+    case VehicleMotionType.Wheeled:
+      return 'Wheeled';
+    case VehicleMotionType.Hover:
+      return 'Hover';
+    case VehicleMotionType.VTOL:
+      return 'VTOL';
+    case VehicleMotionType.Naval:
+      return 'Naval';
+    case VehicleMotionType.WiGE:
+      return 'WiGE';
+    default:
+      return null;
+  }
+}
+
+function tokenWrapperMetadata(
+  token: IUnitToken,
+  displayPosition: IHexCoordinate,
+  sourcePosition: IHexCoordinate = token.position,
+): TokenWrapperMetadata {
+  return {
+    'data-unit-type': token.unitType,
+    'data-token-map-position': formatTokenHex(displayPosition),
+    'data-token-source-position': formatTokenHex(sourcePosition),
+    'data-token-facing': token.facing,
+    ...tokenTypeStateMetadata(token),
+  };
+}
+
+function tokenTypeLabelParts(token: IUnitToken): readonly string[] {
+  switch (token.unitType) {
+    case TokenUnitType.Aerospace: {
+      const parts = [`altitude ${token.altitude}`];
+      if (token.velocity !== undefined)
+        parts.push(`velocity ${token.velocity}`);
+      return parts;
+    }
+    case TokenUnitType.BattleArmor: {
+      const passengerHostId = battleArmorPassengerHostId(token);
+      if (!passengerHostId) return [];
+      return [
+        `mounted on ${passengerHostId}`,
+        `passenger slot ${battleArmorPassengerSlot(token)}`,
+      ];
+    }
+    case TokenUnitType.Vehicle: {
+      const motionLabel = formatVehicleMotionTypeLabel(token.vehicleMotionType);
+      return [
+        motionLabel ? `motion ${motionLabel}` : null,
+        token.altitude !== undefined ? `altitude ${token.altitude}` : null,
+      ].filter((part): part is string => Boolean(part));
+    }
+    default:
+      return [];
+  }
+}
+
+function formatTokenAriaLabel({
+  token,
+  displayPosition,
+  sourcePosition = token.position,
+  isSpotter,
+  isometricVisibilityLabel,
+}: {
+  readonly token: IUnitToken;
+  readonly displayPosition: IHexCoordinate;
+  readonly sourcePosition?: IHexCoordinate;
+  readonly isSpotter: boolean;
+  readonly isometricVisibilityLabel: string;
+}): string {
+  return [
+    `Unit ${token.name}`,
+    `id ${token.unitId}`,
+    `side ${token.side}`,
+    `type ${token.unitType}`,
+    `position ${formatTokenHex(displayPosition)}`,
+    `source position ${formatTokenHex(sourcePosition)}`,
+    `facing ${token.facing}`,
+    ...tokenTypeLabelParts(token),
+    isSpotter ? 'indirect-fire spotter' : null,
+    isometricVisibilityLabel || null,
+  ]
+    .filter((part): part is string => Boolean(part))
+    .join('; ');
+}
+
 // =============================================================================
 // Dispatcher Component
 // =============================================================================
@@ -92,6 +243,11 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
   events,
   movementAnimation,
   allTokens,
+  isOcclusionHighlighted = false,
+  isometricOcclusionReason,
+  isometricVisibilityRule,
+  isometricVisibilityRuleReason,
+  combatProjectionValidTarget,
 }: UnitTokenForTypeProps): React.ReactElement | null {
   const eventState = useMemo(
     () => projectEvents(token.unitId, events),
@@ -158,33 +314,13 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
   const shellSpotters = useElectedSpotters();
   const isSpotter = shellSpotters.some((s) => s.spotterId === token.unitId);
 
-  // BA mounted on a mech: render as a badge overlaid on the host mech token,
-  // not as a standalone token at its own hex position.
-  if (token.unitType === TokenUnitType.BattleArmor && token.mountedOn) {
-    const hostToken = allTokens?.find((t) => t.unitId === token.mountedOn);
-    if (hostToken) {
-      const { x, y } = hexToPixel(hostToken.position);
-      // Badge is offset to the top-right of the host mech token.
-      return (
-        <g
-          transform={`translate(${x + 18}, ${y - 18})`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onClick(token.unitId);
-          }}
-          onDoubleClick={handleDoubleClick}
-          style={{ cursor: 'pointer' }}
-          data-testid={`unit-token-${token.unitId}`}
-        >
-          <BattleArmorToken
-            token={token}
-            eventState={eventState}
-            mountedBadge
-          />
-        </g>
-      );
-    }
-    // Host not found yet (loading race) — fall through and render standalone.
+  // BA passengers are rendered by their host token group, so suppress their
+  // standalone wrapper when the host is present.
+  if (
+    isBattleArmorPassengerToken(token) &&
+    findBattleArmorPassengerHost(token, allTokens)
+  ) {
+    return null;
   }
 
   const displayPosition =
@@ -198,15 +334,23 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     token.fogStatus === 'hidden'
       ? { designation: '?', name: 'Hidden contact' }
       : {};
+  const projectedIsValidTarget =
+    combatProjectionValidTarget ?? token.isValidTarget;
   // Build the render-time token. The spread preserves `unitType`, but TS
   // can't infer that, so we re-narrow via a generic helper that re-tags the
   // discriminant. The result is the same `IUnitToken` discriminated union;
   // each switch branch below narrows it to its variant per `unitType`.
   const renderToken: IUnitToken = movementAnimation
-    ? ({ ...token, ...fogDisplayFields, facing: tween.facing } as IUnitToken)
+    ? ({
+        ...token,
+        ...fogDisplayFields,
+        isValidTarget: projectedIsValidTarget,
+        facing: tween.facing,
+      } as IUnitToken)
     : ({
         ...token,
         ...fogDisplayFields,
+        isValidTarget: projectedIsValidTarget,
         position: displayPosition,
       } as IUnitToken);
   const fogOpacity =
@@ -215,6 +359,21 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
       : token.fogStatus === 'lastKnown'
         ? 0.62
         : 1;
+  const isometricVisibilityLabel = [
+    isOcclusionHighlighted
+      ? (isometricOcclusionReason ?? 'Isometric visibility highlighted')
+      : null,
+    isometricVisibilityRuleReason,
+  ]
+    .filter((part): part is string => Boolean(part))
+    .join('; ');
+  const tokenAriaLabel = formatTokenAriaLabel({
+    token: renderToken,
+    displayPosition,
+    sourcePosition: token.position,
+    isSpotter,
+    isometricVisibilityLabel,
+  });
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -231,6 +390,20 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     'data-animation-id': movementAnimationId,
     'data-fog-status': token.fogStatus,
     'data-spotter': isSpotter ? 'true' : undefined,
+    'data-visibility-boost': isOcclusionHighlighted ? 'true' : undefined,
+    'data-isometric-occlusion-reason': isometricOcclusionReason,
+    'data-isometric-visibility-rule': isometricVisibilityRule,
+    'data-isometric-visibility-rule-reason': isometricVisibilityRuleReason,
+    'data-token-valid-target-source':
+      combatProjectionValidTarget === undefined ? 'token' : 'combat-projection',
+    'data-token-combat-projection-valid-target':
+      combatProjectionValidTarget === undefined
+        ? undefined
+        : combatProjectionValidTarget
+          ? 'true'
+          : 'false',
+    'aria-label': tokenAriaLabel,
+    ...tokenWrapperMetadata(renderToken, displayPosition, token.position),
   };
 
   const jumpArc = renderJumpArc(token.unitId, movementAnimation, tween);
@@ -238,12 +411,61 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     <>
       {jumpArc}
       <g {...wrapperProps}>
+        <title>{tokenAriaLabel}</title>
         <TokenVisualEffects
           token={token}
           events={events}
           thermalVisualState={thermalVisualState}
         >
           <>
+            {isOcclusionHighlighted && (
+              <circle
+                cx={0}
+                cy={0}
+                r={30}
+                fill="#f8fafc"
+                fillOpacity={0.18}
+                stroke="#38bdf8"
+                strokeWidth={3}
+                strokeDasharray="5 3"
+                pointerEvents="none"
+                data-testid={`isometric-visibility-halo-${token.unitId}`}
+              />
+            )}
+            {isometricOcclusionReason && (
+              <g
+                pointerEvents="none"
+                data-testid={`isometric-visibility-reason-${token.unitId}`}
+                data-isometric-occlusion-reason={isometricOcclusionReason}
+              >
+                <rect
+                  x={-18}
+                  y={-43}
+                  width={36}
+                  height={14}
+                  rx={3}
+                  fill="#0f172a"
+                  fillOpacity={0.9}
+                  stroke="#38bdf8"
+                  strokeWidth={1}
+                />
+                <text
+                  x={0}
+                  y={-33}
+                  textAnchor="middle"
+                  fontSize={8}
+                  fontWeight="bold"
+                  fill="#f8fafc"
+                >
+                  ELEV
+                </text>
+              </g>
+            )}
+            {renderIsometricVisibilityRuleBadge(
+              token.unitId,
+              isometricVisibilityRule,
+              isometricVisibilityRuleReason,
+            )}
             {isSpotter && (
               <circle
                 cx={0}
@@ -266,6 +488,15 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
               </circle>
             )}
             {children}
+            <BattleArmorPassengerBadges
+              hostToken={renderToken}
+              displayPosition={displayPosition}
+              allTokens={allTokens}
+              events={events}
+              electedSpotters={shellSpotters}
+              onClick={onClick}
+              onDoubleClick={onDoubleClick}
+            />
             {renderFogMarker(token)}
           </>
         </TokenVisualEffects>

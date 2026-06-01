@@ -7,6 +7,7 @@
 
 import type { CombatLocation } from './CombatLocationTypes';
 import type { IToHitModifier } from './GameSessionAttackEvents';
+import type { WeaponFireMode } from './IndirectFireInterfaces';
 import type { ITerrainFeature } from './TerrainTypes';
 
 // Re-export from construction for backwards compatibility
@@ -85,6 +86,21 @@ export interface IWeaponAttack {
   readonly weaponId: string;
   /** Weapon name */
   readonly weaponName: string;
+  /** Resolved per-weapon fire mode for this attack. Defaults to Direct. */
+  readonly mode?: WeaponFireMode;
+  /** Mounted firing arc, when known. Missing means legacy omnidirectional. */
+  readonly mountingArc?: FiringArc;
+  /**
+   * Mounted firing arcs when the represented mount covers multiple chassis
+   * arcs. Missing means legacy omnidirectional/unknown coverage.
+   */
+  readonly mountingArcs?: readonly FiringArc[];
+  /** Mounted chassis location, when known. */
+  readonly location?: string;
+  /** Vehicle mount location, when this attack originates from a vehicle. */
+  readonly vehicleMountLocation?: VehicleLocation | VTOLLocation;
+  /** True when the attack weapon is mounted in the vehicle primary turret. */
+  readonly vehicleIsTurretMounted?: boolean;
   /** Damage per hit */
   readonly damage: number;
   /** Heat generated */
@@ -107,6 +123,8 @@ export interface IWeaponAttack {
   readonly isCluster: boolean;
   /** Cluster size (if cluster weapon) */
   readonly clusterSize?: number;
+  /** True for represented torpedo weapons that must remain in water. */
+  readonly isTorpedo?: boolean;
   /** Attack declares a TacOps-style called shot. */
   readonly calledShot?: boolean;
   /** Called-shot setup was provided by a teammate. */
@@ -626,8 +644,10 @@ export interface ISecondaryTarget {
 export interface IIndirectFire {
   /** Whether this is an indirect fire attack */
   readonly isIndirect: boolean;
-  /** Whether the spotter walked this turn */
+  /** Whether the spotter walked this turn. Legacy field for +1 walk-only callers. */
   readonly spotterWalked: boolean;
+  /** Optional represented spotter movement penalty: walk=1, run=2, jump=3. */
+  readonly spotterMovementPenalty?: number;
 }
 
 /**

@@ -110,6 +110,7 @@ export function getPSRReasonCategory(code: PSRTrigger): PSRReasonCategory {
     case PSRTrigger.ExitingWater:
     case PSRTrigger.Skidding:
     case PSRTrigger.SwampBogDown:
+    case PSRTrigger.AirMekLanding:
     case PSRTrigger.RunningDamagedHip:
     case PSRTrigger.RunningDamagedGyro:
     case PSRTrigger.BuildingCollapse:

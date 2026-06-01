@@ -17,8 +17,11 @@ import type {
   IHexCoordinate,
   ITacticalCommand,
   ITacticalCommandContext,
+  TacticalActionHandler,
 } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
+
+import { coordToKey } from '@/utils/gameplay/hexMath';
 
 import { filterCommandsForHex, useCommandRegistry } from './useCommandRegistry';
 
@@ -38,10 +41,7 @@ export interface HexContextMenuProps {
   /** Close callback. */
   readonly onClose: () => void;
   /** Same dispatch contract as the dock. */
-  readonly onAction: (
-    actionId: string,
-    payload?: Readonly<Record<string, unknown>>,
-  ) => void;
+  readonly onAction: TacticalActionHandler;
 }
 
 interface MenuItemProps {
@@ -97,10 +97,20 @@ export function HexContextMenu({
   onClose,
   onAction,
 }: HexContextMenuProps): React.ReactElement {
-  const effectiveCtx: ITacticalCommandContext = useMemo(
-    () => ({ ...ctx, hoveredHex: hex }),
-    [ctx, hex],
-  );
+  const effectiveCtx = useMemo<ITacticalCommandContext>(() => {
+    const hexKey = coordToKey(hex);
+    const projectedTarget =
+      ctx.targetMovementProjection &&
+      coordToKey(ctx.targetMovementProjection.hex) === hexKey
+        ? ctx.targetMovementProjection
+        : null;
+    return {
+      ...ctx,
+      hoveredHex: hex,
+      targetMovementProjection:
+        ctx.movementProjectionByHex?.[hexKey] ?? projectedTarget,
+    };
+  }, [ctx, hex]);
   const commands = useCommandRegistry(effectiveCtx, shellMode);
   const visible = filterCommandsForHex(commands);
 
@@ -116,7 +126,11 @@ export function HexContextMenu({
         if (!ok) return;
       }
       const result = command.commit(effectiveCtx);
-      onAction(result.actionId, result.payload);
+      if (result.payload === undefined) {
+        onAction(result.actionId);
+      } else {
+        onAction(result.actionId, result.payload);
+      }
       onClose();
     },
     [effectiveCtx, onAction, onClose],

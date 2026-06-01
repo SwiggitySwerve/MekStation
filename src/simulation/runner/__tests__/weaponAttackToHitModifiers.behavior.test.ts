@@ -370,7 +370,7 @@ describe('runAttackPhase to-hit modifier integration', () => {
     });
   });
 
-  it('threads target movement, prone, shutdown, partial cover, and target terrain into AttackDeclared', () => {
+  it('threads target movement, prone, shutdown, and target terrain into AttackDeclared', () => {
     const events = runModifierScenario({
       state: createWeaponAttackState({
         target: {
@@ -393,7 +393,7 @@ describe('runAttackPhase to-hit modifier integration', () => {
       targetId: 'opponent-1',
       weapons: [MEDIUM_LASER_ID],
       range: 'short',
-      toHitNumber: 6,
+      toHitNumber: 5,
     });
     expectModifier(payload, {
       name: 'Target Movement (TMM)',
@@ -411,15 +411,13 @@ describe('runAttackPhase to-hit modifier integration', () => {
       source: 'other',
     });
     expectModifier(payload, {
-      name: 'Partial Cover',
-      value: 1,
-      source: 'terrain',
-    });
-    expectModifier(payload, {
       name: 'Target Terrain',
       value: 1,
       source: 'terrain',
     });
+    expect(payload.modifiers).not.toContainEqual(
+      expect.objectContaining({ name: 'Partial Cover' }),
+    );
   });
 
   it('threads explicit target hull-down state into AttackDeclared', () => {
@@ -1234,12 +1232,10 @@ describe('runAttackPhase to-hit modifier integration', () => {
       source: 'terrain',
     });
 
-    expect(smokePayload.toHitNumber).toBe(6);
-    expectModifier(smokePayload, {
-      name: 'Partial Cover',
-      value: 1,
-      source: 'terrain',
-    });
+    expect(smokePayload.toHitNumber).toBe(5);
+    expect(smokePayload.modifiers).not.toContainEqual(
+      expect.objectContaining({ name: 'Partial Cover' }),
+    );
     expectModifier(smokePayload, {
       name: 'Target Terrain',
       value: 1,
@@ -1525,7 +1521,7 @@ describe('runAttackPhase to-hit modifier integration', () => {
       }),
     );
 
-    expect(forestRangerPayload.toHitNumber).toBe(7);
+    expect(forestRangerPayload.toHitNumber).toBe(6);
     expectModifier(forestRangerPayload, {
       name: 'Forest Ranger',
       value: 1,

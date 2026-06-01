@@ -72,6 +72,10 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
     GameEventType.MovementDeclared,
     'runMovementPhase and declareMovement emit MovementDeclared with path, facing, MP, and heat payloads',
   ),
+  [GameEventType.MovementInvalid]: integrated(
+    GameEventType.MovementInvalid,
+    'movement validation emits MovementInvalid when a declared movement path is rejected before state mutation',
+  ),
   [GameEventType.MovementLocked]: integrated(
     GameEventType.MovementLocked,
     'lockMovement emits MovementLocked and applyMovementLocked closes movement action eligibility',
@@ -79,6 +83,10 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
   [GameEventType.MovementEnhancementActivated]: integrated(
     GameEventType.MovementEnhancementActivated,
     'activateMovementEnhancement emits MovementEnhancementActivated and applyMovementEnhancementActivated records replayable active MASC/Supercharger state before movement is locked',
+  ),
+  [GameEventType.RuntimeMovementStateChanged]: integrated(
+    GameEventType.RuntimeMovementStateChanged,
+    'runtime movement state commands emit RuntimeMovementStateChanged for conversion, mount state, altitude, and landing-control updates that affect combat legality',
   ),
   [GameEventType.FacingChanged]: integrated(
     GameEventType.FacingChanged,
@@ -123,6 +131,10 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
   [GameEventType.SpottingDeclared]: integrated(
     GameEventType.SpottingDeclared,
     'requestSpot emits SpottingDeclared and the reducer latches the spotting unit plus selected spot target for ranged and physical attacker penalties',
+  ),
+  [GameEventType.TerrainChanged]: integrated(
+    GameEventType.TerrainChanged,
+    'terrain mutation events preserve replayable battlefield changes that affect movement, LOS, and combat resolution',
   ),
   [GameEventType.HeatGenerated]: integrated(
     GameEventType.HeatGenerated,

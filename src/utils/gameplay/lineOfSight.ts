@@ -15,6 +15,7 @@ import {
 } from '@/types/gameplay/TerrainTypes';
 
 import { hexLine, coordToKey, hexEquals } from './hexMath';
+import { terrainFeaturesFromString } from './terrainEncoding';
 import { parseWaterDepth } from './waterDepth';
 
 // =============================================================================
@@ -33,8 +34,18 @@ export interface ILOSResult {
   readonly blockingTerrain?: TerrainType;
   /** Destroyed unit token that blocks LOS as a wreck (if blocked) */
   readonly blockingUnit?: IUnitToken;
+  /** Pure terrain elevation that blocks LOS without a blocking terrain feature */
+  readonly blockingElevation?: number;
   /** All intervening hexes (excluding endpoints) */
   readonly interveningHexes: readonly IHexCoordinate[];
+  /** Intervening terrain that affects LOS as a to-hit/visibility modifier */
+  readonly interveningTerrainEffects: readonly ILOSInterveningTerrainEffect[];
+}
+
+export interface ILOSInterveningTerrainEffect {
+  readonly coord: IHexCoordinate;
+  readonly terrain: TerrainType;
+  readonly modifier: number;
 }
 
 // =============================================================================
@@ -51,27 +62,7 @@ export interface ILOSResult {
 export function parseTerrainFeatures(
   terrainString: string,
 ): readonly ITerrainFeature[] {
-  if (!terrainString) {
-    return [];
-  }
-
-  // Try to parse as JSON first (future-proofing for complex terrain)
-  if (terrainString.startsWith('[')) {
-    try {
-      return JSON.parse(terrainString) as ITerrainFeature[];
-    } catch {
-      // Fall through to simple parsing
-    }
-  }
-
-  // Handle simple terrain type string
-  const terrainType = terrainString as TerrainType;
-  if (Object.values(TerrainType).includes(terrainType)) {
-    return [{ type: terrainType, level: 1 }];
-  }
-
-  // Unknown terrain, treat as clear
-  return [];
+  return terrainFeaturesFromString(terrainString);
 }
 
 /**
@@ -91,27 +82,37 @@ function getTerrainHeight(
     return feature.level;
   }
 
+  // MegaMek treats intervening smoke as an elevation-2 LOS effect.
+  if (feature.type === TerrainType.Smoke) {
+    return 2;
+  }
+
   // Standard terrain uses losBlockHeight from properties
   return props.losBlockHeight;
 }
 
-const CUMULATIVE_LOS_BLOCKING_THRESHOLD = 2;
-const MINIMUM_CUMULATIVE_LOS_TERRAIN_HEIGHT = 1;
-
-function getCumulativeLosDensity(feature: ITerrainFeature): number {
-  if (feature.type === TerrainType.LightWoods) {
-    return 1;
+function interveningLosDensity(feature: ITerrainFeature): number {
+  switch (feature.type) {
+    case TerrainType.LightWoods:
+      return 1;
+    case TerrainType.HeavyWoods:
+      return 2;
+    case TerrainType.Smoke:
+      return feature.level >= 2 ? 2 : 1;
+    default:
+      return 0;
   }
+}
 
-  if (feature.type === TerrainType.HeavyWoods) {
-    return 2;
-  }
+function terrainFeatureAffectsLOS(
+  feature: ITerrainFeature,
+  hexElevation: number,
+  losHeight: number,
+): boolean {
+  const props = TERRAIN_PROPERTIES[feature.type];
+  if (!props) return false;
 
-  if (feature.type === TerrainType.Smoke) {
-    return Math.min(Math.max(Math.trunc(feature.level || 1), 1), 2);
-  }
-
-  return 0;
+  return hexElevation + getTerrainHeight(feature, props) >= losHeight;
 }
 
 type EndpointWaterState = 'land' | 'in-water' | 'underwater';
@@ -180,7 +181,6 @@ function interpolateLOSHeight(
  * Implements basic BattleTech LOS rules:
  * - Draws a line from source to target
  * - Checks intervening hexes for blocking terrain
- * - Blocks through cumulative woods and smoke density greater than 2
  * - Considers elevation differences (can see over lower obstacles)
  *
  * @param from - Source hex coordinate
@@ -206,6 +206,15 @@ export function calculateLOS(
     (hex) => !hexEquals(hex, from) && !hexEquals(hex, to),
   );
 
+  // If adjacent, always have LOS
+  if (interveningHexes.length === 0) {
+    return {
+      hasLOS: true,
+      interveningHexes: [],
+      interveningTerrainEffects: [],
+    };
+  }
+
   // Get source and target hex data
   const fromHex = grid.hexes.get(coordToKey(from));
   const toHex = grid.hexes.get(coordToKey(to));
@@ -224,14 +233,7 @@ export function calculateLOS(
       blockedBy,
       blockingTerrain: TerrainType.Water,
       interveningHexes,
-    };
-  }
-
-  // If adjacent, always have LOS
-  if (interveningHexes.length === 0) {
-    return {
-      hasLOS: true,
-      interveningHexes: [],
+      interveningTerrainEffects: [],
     };
   }
 
@@ -242,6 +244,7 @@ export function calculateLOS(
   const targetHeight = toElevation ?? toBaseElevation + 1;
 
   const totalDistance = interveningHexes.length + 1; // +1 for target
+  const interveningTerrainEffects: ILOSInterveningTerrainEffect[] = [];
   let cumulativeLosDensity = 0;
 
   // Check each intervening hex for blocking terrain
@@ -254,6 +257,7 @@ export function calculateLOS(
         blockedBy: hex,
         blockingUnit,
         interveningHexes,
+        interveningTerrainEffects,
       };
     }
 
@@ -263,8 +267,19 @@ export function calculateLOS(
       continue; // No data = clear terrain
     }
 
+    const currentDistance = i + 1;
+    const losHeight = interpolateLOSHeight(
+      shooterHeight,
+      targetHeight,
+      totalDistance,
+      currentDistance,
+    );
+
     // Get terrain features and check if any block LOS
     const features = parseTerrainFeatures(hexData.terrain);
+    const cumulativeTerrainEffects: (ILOSInterveningTerrainEffect & {
+      readonly losDensity: number;
+    })[] = [];
 
     for (const feature of features) {
       const props = TERRAIN_PROPERTIES[feature.type];
@@ -273,40 +288,16 @@ export function calculateLOS(
         continue;
       }
 
-      // Calculate the blocking height (terrain height + hex elevation)
-      const density = getCumulativeLosDensity(feature);
-      const terrainHeight =
-        density > 0
-          ? Math.max(
-              getTerrainHeight(feature, props),
-              MINIMUM_CUMULATIVE_LOS_TERRAIN_HEIGHT,
-            )
-          : getTerrainHeight(feature, props);
-      const blockingHeight = hexData.elevation + terrainHeight;
-
-      // Calculate the LOS height at this hex (interpolate between shooter and target)
-      const currentDistance = i + 1;
-      const losHeight = interpolateLOSHeight(
-        shooterHeight,
-        targetHeight,
-        totalDistance,
-        currentDistance,
-      );
-
-      if (density > 0) {
-        if (blockingHeight >= losHeight) {
-          cumulativeLosDensity += density;
-
-          if (cumulativeLosDensity > CUMULATIVE_LOS_BLOCKING_THRESHOLD) {
-            return {
-              hasLOS: false,
-              blockedBy: hex,
-              blockingTerrain: feature.type,
-              interveningHexes,
-            };
-          }
+      const losDensity = interveningLosDensity(feature);
+      if (losDensity > 0) {
+        if (terrainFeatureAffectsLOS(feature, hexData.elevation, losHeight)) {
+          cumulativeTerrainEffects.push({
+            coord: hex,
+            terrain: feature.type,
+            modifier: losDensity,
+            losDensity,
+          });
         }
-
         continue;
       }
 
@@ -314,15 +305,54 @@ export function calculateLOS(
         continue;
       }
 
-      // LOS is blocked if the blocking terrain is taller than the line of sight
-      if (blockingHeight >= losHeight) {
+      // Calculate the blocking height (terrain height + hex elevation)
+      const terrainHeight = getTerrainHeight(feature, props);
+      const blockingHeight = hexData.elevation + terrainHeight;
+
+      // MegaMek normal LOS blocks intervening buildings/hills only when they
+      // are higher than the relevant unit/sight height. Equal-height terrain
+      // can still create cover, but it should not become "No LOS" here.
+      if (blockingHeight > losHeight) {
         return {
           hasLOS: false,
           blockedBy: hex,
           blockingTerrain: feature.type,
           interveningHexes,
+          interveningTerrainEffects,
         };
       }
+    }
+
+    for (const terrainEffect of cumulativeTerrainEffects) {
+      interveningTerrainEffects.push({
+        coord: terrainEffect.coord,
+        terrain: terrainEffect.terrain,
+        modifier: terrainEffect.modifier,
+      });
+      cumulativeLosDensity += terrainEffect.losDensity;
+
+      // MegaMek LOS stacks smoke and woods, including multiple effects in the
+      // same intervening hex. Light effects count as 1, heavy effects as 2;
+      // LOS is impossible only when the cumulative total exceeds 2.
+      if (cumulativeLosDensity > 2) {
+        return {
+          hasLOS: false,
+          blockedBy: hex,
+          blockingTerrain: terrainEffect.terrain,
+          interveningHexes,
+          interveningTerrainEffects,
+        };
+      }
+    }
+
+    if (hexData.elevation > losHeight) {
+      return {
+        hasLOS: false,
+        blockedBy: hex,
+        blockingElevation: hexData.elevation,
+        interveningHexes,
+        interveningTerrainEffects,
+      };
     }
   }
 
@@ -330,6 +360,7 @@ export function calculateLOS(
   return {
     hasLOS: true,
     interveningHexes,
+    interveningTerrainEffects,
   };
 }
 
@@ -344,9 +375,64 @@ function findBlockingWreck(
   );
 }
 
+function formatTerrainLabel(terrain: TerrainType): string {
+  return terrain.replace(/_/g, ' ');
+}
+
+function formatTerrainList(terrains: readonly TerrainType[]): string {
+  const labels = terrains.map(formatTerrainLabel);
+  if (labels.length <= 1) return labels[0] ?? 'terrain';
+  if (labels.length === 2) return `${labels[0]} and ${labels[1]}`;
+  return `${labels.slice(0, -1).join(', ')}, and ${labels[labels.length - 1]}`;
+}
+
+function formatElevationLabel(elevation: number): string {
+  return elevation >= 0 ? `+${elevation}` : `${elevation}`;
+}
+
+function stackedBlockingTerrainLabel(result: ILOSResult): string | undefined {
+  const blockedBy = result.blockedBy;
+  if (!blockedBy || !result.blockingTerrain) return undefined;
+
+  const stackedTerrains = result.interveningTerrainEffects
+    .filter(
+      (effect) =>
+        hexEquals(effect.coord, blockedBy) &&
+        (effect.terrain === TerrainType.LightWoods ||
+          effect.terrain === TerrainType.HeavyWoods ||
+          effect.terrain === TerrainType.Smoke),
+    )
+    .map((effect) => effect.terrain);
+
+  const uniqueTerrains = Array.from(new Set(stackedTerrains));
+  return uniqueTerrains.length > 1
+    ? formatTerrainList(uniqueTerrains)
+    : undefined;
+}
+
+export function formatLOSBlockedDetails(result: ILOSResult): string {
+  const blockedBy = result.blockedBy;
+  if (!blockedBy) return 'Line of sight blocked';
+
+  const hexLabel = `(${blockedBy.q}, ${blockedBy.r})`;
+  if (result.blockingUnit) {
+    return `Blocked by wreck ${result.blockingUnit.name} at ${hexLabel}`;
+  }
+  if (result.blockingTerrain) {
+    return `Blocked by ${
+      stackedBlockingTerrainLabel(result) ??
+      formatTerrainLabel(result.blockingTerrain)
+    } at ${hexLabel}`;
+  }
+  if (result.blockingElevation !== undefined) {
+    return `Blocked by elevation ${formatElevationLabel(result.blockingElevation)} at ${hexLabel}`;
+  }
+  return `Line of sight blocked at ${hexLabel}`;
+}
+
 /**
- * Check if a specific hex has terrain that directly blocks LOS.
- * Cumulative woods and smoke require full line context and are handled by calculateLOS.
+ * Check if a specific hex blocks LOS.
+ * Utility function for checking individual hexes.
  *
  * @param hex - The hex to check
  * @param grid - Hex grid with terrain data
@@ -366,7 +452,10 @@ export function getBlockingTerrain(
 
   for (const feature of features) {
     const props = TERRAIN_PROPERTIES[feature.type];
-    if (props?.blocksLOS && getCumulativeLosDensity(feature) === 0) {
+    if (interveningLosDensity(feature) > 0) {
+      continue;
+    }
+    if (props?.blocksLOS) {
       return feature.type;
     }
   }

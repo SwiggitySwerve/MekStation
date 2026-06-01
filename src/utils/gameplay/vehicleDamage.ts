@@ -352,6 +352,7 @@ export function createVehicleCombatState(params: {
   readonly armor: Partial<Record<VehicleLocation | VTOLLocation, number>>;
   readonly structure: Partial<Record<VehicleLocation | VTOLLocation, number>>;
   readonly altitude?: number;
+  readonly turretType?: IVehicleCombatState['turretType'];
 }): IVehicleCombatState {
   return {
     unitId: params.unitId,
@@ -371,6 +372,7 @@ export function createVehicleCombatState(params: {
       crewStunnedPhases: 0,
     },
     turretLock: { primaryLocked: false, secondaryLocked: false },
+    turretType: params.turretType,
     altitude: params.altitude,
     destroyed: false,
   };

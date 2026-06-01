@@ -18,9 +18,19 @@
 
 import type { IWeapon } from '@/simulation/ai/types';
 import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
+import type { WeaponFireMode } from '@/types/gameplay/IndirectFireInterfaces';
 
 import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
+import { isIndirectFireCapable } from '@/utils/gameplay/indirectFire';
 import { logger } from '@/utils/logger';
+
+export function resolveWeaponFireMode(
+  weaponId: string,
+  requestedMode?: WeaponFireMode,
+): WeaponFireMode {
+  if (requestedMode !== 'Indirect') return 'Direct';
+  return isIndirectFireCapable(weaponId) ? 'Indirect' : 'Direct';
+}
 
 export interface IWeaponAttackIntentOptions {
   readonly calledShots?: Readonly<Record<string, boolean>>;
@@ -41,6 +51,7 @@ export function buildWeaponAttack(
   weaponId: string,
   unitWeapons: readonly IWeapon[],
   attackerId?: string,
+  weaponModesByWeaponId?: Readonly<Record<string, WeaponFireMode>>,
   options?: IWeaponAttackIntentOptions,
 ): IWeaponAttack | null {
   const wData = unitWeapons.find((w) => w.id === weaponId);
@@ -63,6 +74,12 @@ export function buildWeaponAttack(
   return {
     weaponId: wData.id,
     weaponName: wData.name,
+    mode: resolveWeaponFireMode(wData.id, weaponModesByWeaponId?.[wData.id]),
+    mountingArc: wData.mountingArc,
+    mountingArcs: wData.mountingArcs,
+    location: wData.location,
+    vehicleMountLocation: wData.vehicleMountLocation,
+    vehicleIsTurretMounted: wData.vehicleIsTurretMounted,
     damage: wData.damage,
     heat: wData.heat,
     category: inferWeaponCategory(wData),
@@ -70,7 +87,9 @@ export function buildWeaponAttack(
     shortRange: wData.shortRange,
     mediumRange: wData.mediumRange,
     longRange: wData.longRange,
+    extremeRange: wData.extremeRange,
     isCluster: false,
+    isTorpedo: wData.isTorpedo,
     ...(options?.calledShots?.[weaponId] === true ? { calledShot: true } : {}),
     ...(options?.teammateCalledShots?.[weaponId] === true
       ? { teammateCalledShot: true }
@@ -87,11 +106,18 @@ export function buildWeaponAttacks(
   weaponIds: readonly string[],
   unitWeapons: readonly IWeapon[],
   attackerId?: string,
+  weaponModesByWeaponId?: Readonly<Record<string, WeaponFireMode>>,
   options?: IWeaponAttackIntentOptions,
 ): IWeaponAttack[] {
   const resolved: IWeaponAttack[] = [];
   for (const wId of weaponIds) {
-    const built = buildWeaponAttack(wId, unitWeapons, attackerId, options);
+    const built = buildWeaponAttack(
+      wId,
+      unitWeapons,
+      attackerId,
+      weaponModesByWeaponId,
+      options,
+    );
     if (built) resolved.push(built);
   }
   return resolved;

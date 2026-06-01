@@ -34,7 +34,8 @@
  *     arc takes over.
  *   - `turn` → movement animation carrying only `initialFacing` /
  *     `finalFacing`. The renderer treats this as a facing-only tween.
- *   - `standUp` / `goProne` / `chargeDeclared` / `dfaDeclared` /
+ *   - `standUp` / `convertMode` / `altitudeControl` / `goProne` /
+ *     `chargeDeclared` / `dfaDeclared` /
  *     `shakeOffSwarm` → skipped (state transitions handled by the
  *     existing token-renderer pose state).
  *
@@ -235,7 +236,8 @@ function enqueueMovementForEvent(
  * Translate a single `IMovementStep` into the matching
  * `TacticalAnimation` payload for `useAnimationQueue.enqueue`. Returns
  * `null` for steps that should not produce a queue entry (state-
- * transition kinds like `standUp` / `goProne` / charge / DFA / swarm).
+ * transition kinds like `standUp` / `convertMode` / `altitudeControl` /
+ * `hullDown` / `goProne` / charge / DFA / swarm).
  */
 function animationForStep(
   step: IMovementStep,
@@ -313,6 +315,9 @@ function animationForStep(
     // state (prone / standing / charging / DFA / swarm), not by an
     // interpolated tween. Skip silently per the spec contract.
     case 'standUp':
+    case 'convertMode':
+    case 'altitudeControl':
+    case 'hullDown':
     case 'goProne':
     case 'chargeDeclared':
     case 'dfaDeclared':

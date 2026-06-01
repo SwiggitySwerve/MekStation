@@ -77,6 +77,12 @@ export interface IIndirectFireResolution {
    * indirect-fire penalty. The net penalty remains in `toHitPenalty`.
    */
   readonly obliqueAttackerApplied?: boolean;
+  /** Gunnery skill of the elected LOS spotter, when represented. */
+  readonly spotterGunnery?: number;
+  /** Spotter-skill modifier applied to the indirect-fire penalty. */
+  readonly spotterSkillModifier?: number;
+  /** Penalty points cancelled by Forward Observer, when represented. */
+  readonly spotterMovementPenaltyCancelled?: number;
   /** Human-readable reason when permitted=false. */
   readonly reason?: string;
 }
@@ -107,6 +113,10 @@ export interface IIndirectFireEventBase {
   readonly toHitPenalty: number;
   /** How the resolution was established. */
   readonly basis: IndirectFireBasis;
+  /** Gunnery skill of the elected LOS spotter, when represented. */
+  readonly spotterGunnery?: number;
+  /** Spotter-skill modifier applied to the indirect-fire penalty. */
+  readonly spotterSkillModifier?: number;
 }
 
 /**

@@ -3,12 +3,22 @@
  */
 
 import { IHexCoordinate, IHexGrid } from '@/types/gameplay';
+import { terrainFeaturesFromString } from '@/utils/gameplay/terrainEncoding';
 
 import type { UnitMovementType } from './types';
 
 import { isInBounds, isOccupied } from '../hexGrid';
 import { hexDistance, hexEquals, hexNeighbors, coordToKey } from '../hexMath';
-import { getHexMovementCost, type IMovementCostContext } from './calculations';
+import {
+  getHexMovementCost,
+  type IMovementCostContext,
+  movementCostContextForStep,
+} from './calculations';
+import { isPavementRoadBonusSurfaceFeature } from './terrainRules';
+
+export interface IFindPathOptions {
+  readonly requirePavementRoadBonusSurface?: boolean;
+}
 
 /**
  * Find the shortest path between two hexes using A*.
@@ -20,7 +30,8 @@ export function findPath(
   end: IHexCoordinate,
   maxCost: number = Infinity,
   movementType: UnitMovementType = 'walk',
-  context?: IMovementCostContext,
+  context: IMovementCostContext = {},
+  options: IFindPathOptions = {},
 ): readonly IHexCoordinate[] | null {
   if (hexEquals(start, end)) {
     return [start];
@@ -87,14 +98,20 @@ export function findPath(
 
       if (!hexEquals(neighbor, end) && isOccupied(grid, neighbor)) continue;
 
+      if (
+        options.requirePavementRoadBonusSurface &&
+        !hexHasPavementRoadBonusSurface(grid, neighbor, movementType)
+      ) {
+        continue;
+      }
+
       const moveCost = getHexMovementCost(
         grid,
         neighbor,
         movementType,
         current.coord,
-        context,
+        movementCostContextForStep(context, current.parent === null),
       );
-      if (!Number.isFinite(moveCost)) continue;
       const tentativeG = current.g + moveCost;
 
       if (tentativeG > maxCost) continue;
@@ -113,4 +130,16 @@ export function findPath(
   }
 
   return null;
+}
+
+export function hexHasPavementRoadBonusSurface(
+  grid: IHexGrid,
+  coord: IHexCoordinate,
+  movementType: UnitMovementType,
+): boolean {
+  const hex = grid.hexes.get(coordToKey(coord));
+  if (!hex) return false;
+  return terrainFeaturesFromString(hex.terrain).some((feature) =>
+    isPavementRoadBonusSurfaceFeature(feature, movementType),
+  );
 }

@@ -138,6 +138,9 @@ export type PhysicalAttackInvalidReason =
   | 'NoArmsQuirk'
   | 'LowArmsQuirk'
   | 'AttackerProne'
+  | 'AttackerHullDown'
+  | 'AttackerCannotUsePhysical'
+  | 'AttackerCannotCharge'
   | 'TargetProne'
   | 'TargetMovementIncomplete'
   | 'TargetDropShip'
@@ -161,6 +164,8 @@ export type PhysicalAttackInvalidReason =
   | 'SelfTarget'
   | 'FriendlyTarget'
   | 'TargetNotAdjacent'
+  | 'TargetNotInPhysicalRange'
+  | 'TargetElevationNotInRange'
   | 'TargetNotSameHex'
   | 'TargetNotDirectlyAhead'
   | 'TargetNotDirectlyBehindFeet'
@@ -191,6 +196,21 @@ export type PhysicalAttackInvalidReason =
   | 'RetractableBladeNotExtended'
   | 'DestinationBlocked';
 
+export interface IPhysicalAttackElevationContext {
+  readonly attackerBaseElevation: number;
+  readonly attackerArmElevation: number;
+  readonly targetBaseElevation: number;
+  readonly targetTopElevation: number;
+  readonly targetIsAirborneVTOLOrWiGE?: boolean;
+}
+
+export interface IPhysicalAttackTerrainContext {
+  readonly attackerInBuilding: boolean;
+  readonly targetInBuilding: boolean;
+  readonly attackerBuildingId?: string;
+  readonly targetBuildingId?: string;
+}
+
 export interface IPhysicalAttackInput {
   readonly attackerId?: string;
   readonly targetId?: string;
@@ -220,6 +240,10 @@ export interface IPhysicalAttackInput {
    * targets/attackers that MegaMek would not treat as `Mek` instances.
    */
   readonly attackerUnitType?: string;
+  readonly attackerMovementMode?: string;
+  readonly attackerConversionMode?: string | number;
+  readonly attackerIsAirborneVTOLOrWiGE?: boolean;
+  readonly attackerVehicleCrewStunned?: boolean;
   /**
    * Source-backed push legality: quad BattleMechs cannot push.
    */
@@ -270,6 +294,7 @@ export interface IPhysicalAttackInput {
    */
   readonly attackerTargetedByDisplacementAttackerId?: string;
   readonly attackerProne?: boolean;
+  readonly attackerHullDown?: boolean;
   readonly targetTonnage?: number;
   /**
    * Source-backed physical legality gates can depend on the target's
@@ -559,6 +584,8 @@ export interface IPhysicalAttackInput {
    */
   readonly attackerHeight?: number;
   readonly targetHeight?: number;
+  readonly elevationContext?: IPhysicalAttackElevationContext;
+  readonly terrainContext?: IPhysicalAttackTerrainContext;
 }
 
 export interface IPhysicalToHitResult {

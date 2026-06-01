@@ -1,10 +1,10 @@
 /**
  * MovementTypeSwitcher
  *
- * Per `add-combat-phase-ui-flows`: movement-type toggle the player uses
- * during the Movement phase to choose Walk / Run / Evade / Jump before
- * picking a destination hex. Highlights the active type and disables
- * Jump if the unit has no jump MP.
+ * Per `add-combat-phase-ui-flows`: three-button toggle the player uses
+ * during the Movement phase to choose Walk / Run / Jump before picking
+ * a destination hex. Highlights the active type and disables Jump if
+ * the unit has no jump MP.
  *
  * Switching types clears any in-progress destination/facing pick (the
  * planning state is delegated to `useGameplayStore.clearPlannedMovement`)
@@ -15,13 +15,14 @@
 import React from 'react';
 
 import { MovementType } from '@/types/gameplay';
-import { calculateSprintMP } from '@/utils/gameplay/movement';
 
 export interface MovementTypeSwitcherProps {
   /** Current movement type the player is planning */
   active: MovementType;
   /** Walk MP available (>0 enables Walk button) */
   walkMP: number;
+  /** Run MP available from the selected unit's actual movement capability */
+  runMP?: number;
   /** Jump MP available (0 disables Jump button) */
   jumpMP: number;
   /** Callback fired when player picks a new type */
@@ -74,16 +75,16 @@ function TypeButton({
 export function MovementTypeSwitcher({
   active,
   walkMP,
+  runMP,
   jumpMP,
   onChange,
   className = '',
 }: MovementTypeSwitcherProps): React.ReactElement {
-  // Reasoning: we expose movement options always; disabling rather than
+  const displayedRunMP = runMP ?? Math.ceil(walkMP * 1.5);
+
+  // Reasoning: we expose three options always; disabling rather than
   // hiding keeps button positions stable across units (less visual
   // jitter when the player switches between mechs).
-  const runMP = Math.ceil(walkMP * 1.5);
-  const sprintMP = calculateSprintMP(walkMP);
-
   return (
     <div
       className={`flex items-center gap-2 ${className}`}
@@ -100,24 +101,10 @@ export function MovementTypeSwitcher({
       />
       <TypeButton
         type={MovementType.Run}
-        label={`Run (${runMP} MP)`}
+        label={`Run (${displayedRunMP} MP)`}
         active={active === MovementType.Run}
-        disabled={walkMP <= 0}
+        disabled={displayedRunMP <= 0}
         onClick={() => onChange(MovementType.Run)}
-      />
-      <TypeButton
-        type={MovementType.Sprint}
-        label={`Sprint (${sprintMP} MP)`}
-        active={active === MovementType.Sprint}
-        disabled={walkMP <= 0}
-        onClick={() => onChange(MovementType.Sprint)}
-      />
-      <TypeButton
-        type={MovementType.Evade}
-        label={`Evade (${runMP} MP)`}
-        active={active === MovementType.Evade}
-        disabled={walkMP <= 0}
-        onClick={() => onChange(MovementType.Evade)}
       />
       <TypeButton
         type={MovementType.Jump}

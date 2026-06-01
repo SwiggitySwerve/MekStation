@@ -2,24 +2,90 @@
  * Movement Modifiers
  */
 
+import type { MovementHeatProfile, MovementMotiveMode } from '@/types/gameplay';
+
 import { MovementType } from '@/types/gameplay';
 
 const STANDARD_EVADE_HEAT = 4;
 const STANDARD_SPRINT_HEAT = 3;
 
+function motiveModeGeneratesMovementHeat(
+  movementMode: MovementMotiveMode | undefined,
+): boolean {
+  return movementMode === undefined || movementMode === 'walk';
+}
+
+function heatProfileGeneratesMovementHeat(
+  movementHeatProfile: MovementHeatProfile | undefined,
+  movementMode: MovementMotiveMode | undefined,
+): boolean {
+  if (movementHeatProfile === 'none') {
+    return false;
+  }
+  if (movementHeatProfile === 'mek') {
+    return true;
+  }
+  return motiveModeGeneratesMovementHeat(movementMode);
+}
+
+function isMekSwimMovementMode(
+  movementMode: MovementMotiveMode | undefined,
+): boolean {
+  return movementMode === 'biped_swim' || movementMode === 'quad_swim';
+}
+
+function calculateAirMekMovementHeat(
+  movementType: MovementType,
+  hexesMoved: number,
+): number | null {
+  if (movementType === MovementType.Stationary) {
+    return 0;
+  }
+  if (movementType === MovementType.Walk || movementType === MovementType.Run) {
+    return Math.round(Math.max(hexesMoved, 3) / 3);
+  }
+  return null;
+}
+
 /**
  * Calculate heat generated from movement.
+ *
+ * MegaMek's base Entity movement heat is 0; Mek overrides that to engine
+ * walk/run/jump heat. MekStation represents non-Mek motive systems through
+ * `movementMode`, so only default/Mek-style movement generates this heat.
  */
 export function calculateMovementHeat(
   movementType: MovementType,
   hexesMoved: number,
-  partialWingJumpBonus: number = 0,
+  movementModeOrPartialWingBonus?: MovementMotiveMode | number,
+  movementHeatProfile?: MovementHeatProfile,
 ): number {
-  const normalizedPartialWingJumpBonus =
-    typeof partialWingJumpBonus === 'number' &&
-    Number.isFinite(partialWingJumpBonus)
-      ? Math.max(0, Math.floor(partialWingJumpBonus))
+  const partialWingJumpBonus =
+    typeof movementModeOrPartialWingBonus === 'number' &&
+    Number.isFinite(movementModeOrPartialWingBonus)
+      ? Math.max(0, Math.floor(movementModeOrPartialWingBonus))
       : 0;
+  const movementMode =
+    typeof movementModeOrPartialWingBonus === 'number'
+      ? undefined
+      : movementModeOrPartialWingBonus;
+
+  if (movementHeatProfile === 'airmek') {
+    const airMekHeat = calculateAirMekMovementHeat(movementType, hexesMoved);
+    if (airMekHeat !== null) return airMekHeat;
+  }
+
+  if (
+    isMekSwimMovementMode(movementMode) &&
+    movementHeatProfile !== 'none' &&
+    movementType !== MovementType.Stationary
+  ) {
+    return 1;
+  }
+
+  if (!heatProfileGeneratesMovementHeat(movementHeatProfile, movementMode)) {
+    return 0;
+  }
 
   switch (movementType) {
     case MovementType.Stationary:
@@ -33,7 +99,7 @@ export function calculateMovementHeat(
     case MovementType.Evade:
       return STANDARD_EVADE_HEAT;
     case MovementType.Jump:
-      return Math.max(hexesMoved - normalizedPartialWingJumpBonus, 3);
+      return Math.max(hexesMoved - partialWingJumpBonus, 3);
     default:
       return 0;
   }

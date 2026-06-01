@@ -19,7 +19,7 @@ import {
   buildDefaultCriticalSlotManifest,
 } from './criticalHitResolution';
 import { resolveDamage as resolveDamagePipeline } from './damage';
-import { type DiceRoller } from './diceTypes';
+import { type D6Roller, type DiceRoller } from './diceTypes';
 import { calculateFiringArc } from './firingArc';
 import {
   createAmmoConsumedEvent,
@@ -42,6 +42,7 @@ import {
 } from './gameSessionAttackResolutionHelpers';
 import { invalidateSameHexAttack } from './gameSessionAttackResolutionValidation';
 import { appendEvent } from './gameSessionCore';
+import { tryResolveVehicleAttackHit } from './gameSessionVehicleAttackResolution';
 import {
   determineHitLocationFromRoll,
   isHeadHit,
@@ -53,6 +54,7 @@ export function resolveAttack(
   session: IGameSession,
   attackEvent: IGameEvent,
   diceRoller: DiceRoller = rollDice,
+  criticalD6Roller?: D6Roller,
 ): IGameSession {
   const payload = attackEvent.payload as IAttackDeclaredPayload;
   const { attackerId, targetId, weapons, weaponAttacks, toHitNumber } = payload;
@@ -186,6 +188,30 @@ export function resolveAttack(
     const arcString = firingArcToString(firingArc);
 
     if (hit) {
+      const vehicleResolved = tryResolveVehicleAttackHit({
+        session: currentSession,
+        attackerId,
+        targetId,
+        weaponId,
+        weaponData,
+        attackRollTotal: attackRoll.total,
+        toHitNumber,
+        attackDirection: arcString,
+        ammoBinId: ammoBinIdForResolved,
+        targetState,
+        diceRoller,
+        d6Roller:
+          criticalD6Roller ??
+          (() => {
+            const roll = diceRoller();
+            return roll.dice[0] ?? 1;
+          }),
+      });
+      if (vehicleResolved) {
+        currentSession = vehicleResolved;
+        continue;
+      }
+
       const locationRoll = diceRoller();
       const hitLocationResult = determineHitLocationFromRoll(
         firingArc,

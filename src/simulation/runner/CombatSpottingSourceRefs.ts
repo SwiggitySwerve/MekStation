@@ -55,8 +55,8 @@ export const MEGAMEK_REQUEST_SPOT_SOURCE_REFS = [
 export const BATTLEMECH_SPOTTING_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation combat event factories create SpottingDeclared with the spotting unit, target, and turn payload.',
-    'src/utils/gameplay/gameEvents/combat.ts',
-    'L450-L483',
+    'src/utils/gameplay/gameEvents/status.ts',
+    'L142-L162',
   ),
   mekstationDeviationSourceRef(
     'MekStation requestSpot appends SpottingDeclared after phase, actor, target, and terminal-state validation.',

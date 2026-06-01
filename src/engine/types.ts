@@ -8,6 +8,7 @@ import type { IUnitGameState } from '@/types/gameplay/GameSessionInterfaces';
 import type {
   IHexCoordinate,
   IHexGrid,
+  IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
 
 // =============================================================================
@@ -29,6 +30,8 @@ export interface IGameEngineConfig {
    * AI pathing resolve against this grid instead of a clear placeholder map.
    */
   readonly grid?: IHexGrid;
+  /** Optional rule flags enabled for this match. */
+  readonly optionalRules?: readonly string[];
 }
 
 // =============================================================================
@@ -48,6 +51,14 @@ export interface IAdaptedUnit extends IUnitGameState {
   readonly runMP: number;
   /** Jump movement points (0 if no jump jets) */
   readonly jumpMP: number;
+  readonly movementMode?: IMovementCapability['movementMode'];
+  readonly movementHeatProfile?: IMovementCapability['movementHeatProfile'];
+  readonly movementTerrainProfile?: IMovementCapability['movementTerrainProfile'];
+  readonly pavementRoadBonusProfile?: IMovementCapability['pavementRoadBonusProfile'];
+  readonly unitHeight?: IMovementCapability['unitHeight'];
+  readonly unitHeightProfile?: IMovementCapability['unitHeightProfile'];
+  readonly waterCapability?: IMovementCapability['waterCapability'];
+  readonly standUpCapability?: IMovementCapability['standUpCapability'];
 }
 
 // =============================================================================

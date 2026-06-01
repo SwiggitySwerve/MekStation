@@ -2,6 +2,8 @@
  * Movement Types and Record Creation
  */
 
+import type { MovementTravelMode } from '@/types/gameplay';
+
 import {
   IMovementRecord,
   MovementType,
@@ -12,17 +14,8 @@ import {
 
 import { hexDistance } from '../hexMath';
 
-/**
- * Extended movement type including vehicle movement modes.
- */
-export type UnitMovementType =
-  | 'walk'
-  | 'run'
-  | 'jump'
-  | 'tracked'
-  | 'wheeled'
-  | 'hover'
-  | 'vtol';
+/** Extended movement type including vehicle movement modes. */
+export type UnitMovementType = MovementTravelMode;
 
 /**
  * Create a movement record for a completed movement.

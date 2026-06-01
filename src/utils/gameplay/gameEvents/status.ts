@@ -2,10 +2,13 @@ import {
   GameEventType,
   GamePhase,
   ICriticalHitResolvedPayload,
+  ICriticalHitPayload,
   IAmmoExplosionPayload,
   IGameEvent,
   IHeatPayload,
   IPilotHitPayload,
+  ISpottingDeclaredPayload,
+  ITerrainChangedPayload,
   IUnitDestroyedPayload,
 } from '@/types/gameplay';
 
@@ -105,10 +108,15 @@ export function createUnitDestroyedEvent(
   turn: number,
   phase: GamePhase,
   unitId: string,
-  cause: IUnitDestroyedPayload['cause'],
-  options?: {
-    readonly killerUnitId?: string;
-  },
+  cause:
+    | 'damage'
+    | 'ammo_explosion'
+    | 'pilot_death'
+    | 'engine_destroyed'
+    | 'impossible_displacement'
+    | 'ct_destroyed'
+    | 'head_destroyed',
+  options?: { readonly killerUnitId?: string },
 ): IGameEvent {
   const payload: IUnitDestroyedPayload = {
     unitId,
@@ -126,6 +134,48 @@ export function createUnitDestroyedEvent(
       turn,
       phase,
       unitId,
+    ),
+    payload,
+  };
+}
+
+export function createSpottingDeclaredEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  unitId: string,
+  targetId: string,
+): IGameEvent {
+  const payload: ISpottingDeclaredPayload = { unitId, targetId, turn };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.SpottingDeclared,
+      turn,
+      GamePhase.WeaponAttack,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+export function createTerrainChangedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  payload: ITerrainChangedPayload,
+): IGameEvent {
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.TerrainChanged,
+      turn,
+      phase,
+      payload.sourceUnitId,
     ),
     payload,
   };
@@ -182,6 +232,38 @@ export function createAmmoExplosionEvent(
   };
 }
 
+export function createCriticalHitEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  location: string,
+  sourceUnitId?: string,
+  component?: string,
+  count?: number,
+): IGameEvent {
+  const payload: ICriticalHitPayload = {
+    unitId,
+    location,
+    ...(sourceUnitId !== undefined ? { sourceUnitId } : {}),
+    ...(component !== undefined ? { component } : {}),
+    ...(count !== undefined ? { count } : {}),
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.CriticalHit,
+      turn,
+      phase,
+      sourceUnitId ?? unitId,
+    ),
+    payload,
+  };
+}
+
 export function createCriticalHitResolvedEvent(
   gameId: string,
   sequence: number,
@@ -202,9 +284,9 @@ export function createCriticalHitResolvedEvent(
     slotIndex,
     componentType,
     componentName,
-    ...(ammoBinId !== undefined ? { ammoBinId } : {}),
     effect,
     destroyed,
+    ...(ammoBinId !== undefined ? { ammoBinId } : {}),
   };
 
   return {
@@ -228,13 +310,11 @@ export {
   createStartupAttemptEvent,
   createUnitFellEvent,
   createUnitStoodEvent,
-  createUnitStuckEvent,
 } from './statusChecks';
 
 export {
   createPhysicalAttackDeclaredEvent,
   createPhysicalAttackResolvedEvent,
   createRetreatTriggeredEvent,
-  createUnitEjectedEvent,
   createUnitRetreatedEvent,
 } from './statusPhysical';

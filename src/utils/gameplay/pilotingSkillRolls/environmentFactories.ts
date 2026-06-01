@@ -228,6 +228,22 @@ export function createSwampBogDownPSR(
 }
 
 /**
+ * Create a pending PSR for a LAM AirMek landing with gyro or leg damage.
+ */
+export function createAirMekLandingPSR(
+  entityId: string,
+  additionalModifier = 0,
+): IPendingPSR {
+  return {
+    entityId,
+    reason: 'landing with gyro or leg damage',
+    reasonCode: PSRTrigger.AirMekLanding,
+    additionalModifier,
+    triggerSource: PSRTrigger.AirMekLanding,
+  };
+}
+
+/**
  * Create a pending PSR for building collapse.
  */
 export function createBuildingCollapsePSR(

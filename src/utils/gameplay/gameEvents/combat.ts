@@ -17,10 +17,10 @@ import {
   IDamageAppliedPayload,
   IGameEvent,
   ILocationDestroyedPayload,
-  ISpottingDeclaredPayload,
   IToHitModifier,
   ITransferDamagePayload,
   IWeaponAttackData,
+  RangeBracket,
 } from '@/types/gameplay';
 
 import { createEventBase } from './base';
@@ -35,6 +35,7 @@ export function createAttackDeclaredEvent(
   toHitNumber: number,
   modifiers: readonly IToHitModifier[],
   weaponAttacks?: readonly IWeaponAttackData[],
+  rangeBracket?: RangeBracket,
 ): IGameEvent {
   const payload: IAttackDeclaredPayload = {
     attackerId,
@@ -43,6 +44,10 @@ export function createAttackDeclaredEvent(
     toHitNumber,
     modifiers,
     weaponAttacks,
+    range:
+      rangeBracket === undefined || rangeBracket === RangeBracket.OutOfRange
+        ? undefined
+        : rangeBracket,
   };
 
   return {
@@ -152,32 +157,6 @@ export function createAttackInvalidEvent(
   };
 }
 
-export function createSpottingDeclaredEvent(
-  gameId: string,
-  sequence: number,
-  turn: number,
-  unitId: string,
-  targetId: string,
-): IGameEvent {
-  const payload: ISpottingDeclaredPayload = {
-    unitId,
-    targetId,
-    turn,
-  };
-
-  return {
-    ...createEventBase(
-      gameId,
-      sequence,
-      GameEventType.SpottingDeclared,
-      turn,
-      GamePhase.WeaponAttack,
-      unitId,
-    ),
-    payload,
-  };
-}
-
 export function createDamageAppliedEvent(
   gameId: string,
   sequence: number,
@@ -189,6 +168,7 @@ export function createDamageAppliedEvent(
   structureRemaining: number,
   locationDestroyed: boolean,
   criticals?: readonly string[],
+  phase: GamePhase = GamePhase.WeaponAttack,
 ): IGameEvent {
   const payload: IDamageAppliedPayload = {
     unitId,
@@ -206,7 +186,7 @@ export function createDamageAppliedEvent(
       sequence,
       GameEventType.DamageApplied,
       turn,
-      GamePhase.WeaponAttack,
+      phase,
       unitId,
     ),
     payload,
@@ -231,6 +211,7 @@ export function createLocationDestroyedEvent(
   location: string,
   cascadedTo?: string,
   viaTransfer?: boolean,
+  phase: GamePhase = GamePhase.WeaponAttack,
 ): IGameEvent {
   const payload: ILocationDestroyedPayload = {
     unitId,
@@ -245,7 +226,7 @@ export function createLocationDestroyedEvent(
       sequence,
       GameEventType.LocationDestroyed,
       turn,
-      GamePhase.WeaponAttack,
+      phase,
       unitId,
     ),
     payload,
@@ -265,6 +246,7 @@ export function createTransferDamageEvent(
   fromLocation: string,
   toLocation: string,
   damage: number,
+  phase: GamePhase = GamePhase.WeaponAttack,
 ): IGameEvent {
   const payload: ITransferDamagePayload = {
     unitId,
@@ -279,7 +261,7 @@ export function createTransferDamageEvent(
       sequence,
       GameEventType.TransferDamage,
       turn,
-      GamePhase.WeaponAttack,
+      phase,
       unitId,
     ),
     payload,
@@ -344,6 +326,8 @@ export function createIndirectFireSpotterSelectedEvent(
   targetHex: IHexCoordinate,
   toHitPenalty: number,
   ammoId?: string,
+  spotterGunnery?: number,
+  spotterSkillModifier?: number,
 ): IGameEvent {
   const payload: IIndirectFireSpotterSelectedPayload = {
     attackerId,
@@ -352,6 +336,8 @@ export function createIndirectFireSpotterSelectedEvent(
     ammoId,
     targetHex,
     toHitPenalty,
+    spotterGunnery,
+    spotterSkillModifier,
     basis: 'los',
   };
   return {
@@ -419,6 +405,8 @@ export function createIndirectFireForwardObserverEvent(
   targetHex: IHexCoordinate,
   toHitPenalty: number,
   ammoId?: string,
+  spotterGunnery?: number,
+  spotterSkillModifier?: number,
 ): IGameEvent {
   const payload: IIndirectFireForwardObserverPayload = {
     attackerId,
@@ -427,6 +415,8 @@ export function createIndirectFireForwardObserverEvent(
     ammoId,
     targetHex,
     toHitPenalty,
+    spotterGunnery,
+    spotterSkillModifier,
     basis: 'los',
     penaltyCancelled: 1,
   };

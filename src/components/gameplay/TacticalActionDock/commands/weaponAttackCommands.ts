@@ -11,6 +11,8 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §1.2
  */
 
+import type { ITacticalCommandContext } from '@/types/gameplay';
+
 import { GamePhase, type ITacticalCommand } from '@/types/gameplay';
 
 export function buildWeaponAttackCommands(): readonly ITacticalCommand[] {
@@ -63,15 +65,38 @@ const WeaponFireVolleyCommand: ITacticalCommand = {
     if (!ctx.targetUnitId) {
       return { available: false, reason: 'No target selected.' };
     }
-    // Per-weapon range/heat/ammo/arc gating happens in the engine.
-    // Wave 7.3+ will inject the projected gate into context so this
-    // predicate returns reason: "Target out of range" before commit.
+    const projectedBlock = projectedCombatBlockedReason(ctx);
+    if (projectedBlock) {
+      return { available: false, reason: projectedBlock };
+    }
     return { available: true };
   },
   commit() {
     return { actionId: 'lock', payload: { volley: true } };
   },
 };
+
+function projectedCombatBlockedReason(
+  ctx: ITacticalCommandContext,
+): string | null {
+  const projection = ctx.targetCombatProjection;
+  if (!ctx.targetUnitId || !projection) return null;
+  if (
+    projection.attackable &&
+    projection.validTargetUnitIds.includes(ctx.targetUnitId)
+  ) {
+    return null;
+  }
+
+  return (
+    projection.attackInvalidDetails ??
+    projection.blockedReason ??
+    projection.lineOfSightBlockerReason ??
+    projection.visibilityBlockedReason ??
+    projection.attackInvalidReason ??
+    'Target cannot be attacked from the current projection.'
+  );
+}
 
 const WeaponClearAttacksCommand: ITacticalCommand = {
   id: 'weapon.clear-attacks',

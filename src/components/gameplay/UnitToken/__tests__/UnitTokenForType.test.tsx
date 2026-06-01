@@ -26,6 +26,7 @@ import {
   MovementType,
   GameEventType,
   GamePhase,
+  VehicleMotionType,
 } from '@/types/gameplay';
 
 import { UnitTokenForType } from '../UnitTokenForType';
@@ -96,7 +97,20 @@ describe('UnitTokenForType dispatcher routing', () => {
   it('renders a <g> with data-testid="unit-token-unit-1" for any token', () => {
     const token = makeToken({ unitType: TokenUnitType.Mech });
     renderInSvg(<UnitTokenForType token={token} onClick={noop} />);
-    expect(screen.getByTestId('unit-token-unit-1')).toBeInTheDocument();
+    const wrapper = screen.getByTestId('unit-token-unit-1');
+    expect(wrapper).toBeInTheDocument();
+    expect(wrapper).toHaveAttribute('data-unit-type', TokenUnitType.Mech);
+    expect(wrapper).toHaveAttribute('data-token-map-position', '0,0');
+    expect(wrapper).toHaveAttribute('data-token-source-position', '0,0');
+    expect(wrapper).toHaveAttribute('data-token-facing', `${Facing.North}`);
+    expect(wrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('type mech'),
+    );
+    expect(wrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('position 0,0'),
+    );
   });
 
   it('renders a hidden-contact marker for fogged tokens', () => {
@@ -127,6 +141,14 @@ describe('UnitTokenForType dispatcher routing', () => {
     expect(
       screen.getByTestId('unit-token-unit-1').getAttribute('transform'),
     ).toContain('translate(60');
+    expect(screen.getByTestId('unit-token-unit-1')).toHaveAttribute(
+      'data-token-map-position',
+      '1,0',
+    );
+    expect(screen.getByTestId('unit-token-unit-1')).toHaveAttribute(
+      'data-token-source-position',
+      '0,0',
+    );
     expect(screen.getByTestId('fog-marker-unit-1')).toBeInTheDocument();
   });
 
@@ -146,6 +168,59 @@ describe('UnitTokenForType dispatcher routing', () => {
     expect(wrapper.querySelectorAll('rect').length).toBeGreaterThan(0);
   });
 
+  it('Vehicle VTOL → exposes altitude metadata and aria context', () => {
+    const token = makeToken({
+      unitType: TokenUnitType.Vehicle,
+      vehicleMotionType: VehicleMotionType.VTOL,
+      altitude: 4,
+    });
+    renderInSvg(<UnitTokenForType token={token} onClick={noop} />);
+    const wrapper = screen.getByTestId('unit-token-unit-1');
+
+    expect(wrapper).toHaveAttribute('data-unit-type', TokenUnitType.Vehicle);
+    expect(wrapper).toHaveAttribute(
+      'data-vehicle-motion-type',
+      VehicleMotionType.VTOL,
+    );
+    expect(wrapper).toHaveAttribute('data-vehicle-altitude', '4');
+    expect(wrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('motion VTOL'),
+    );
+    expect(wrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('altitude 4'),
+    );
+  });
+
+  it('Vehicle WiGE exposes altitude metadata and aria context', () => {
+    const token = makeToken({
+      unitType: TokenUnitType.Vehicle,
+      vehicleMotionType: VehicleMotionType.WiGE,
+      altitude: 2,
+    });
+    renderInSvg(<UnitTokenForType token={token} onClick={noop} />);
+    const wrapper = screen.getByTestId('unit-token-unit-1');
+
+    expect(wrapper).toHaveAttribute('data-unit-type', TokenUnitType.Vehicle);
+    expect(wrapper).toHaveAttribute(
+      'data-vehicle-motion-type',
+      VehicleMotionType.WiGE,
+    );
+    expect(wrapper).toHaveAttribute('data-vehicle-altitude', '2');
+    expect(wrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('motion WiGE'),
+    );
+    expect(wrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('altitude 2'),
+    );
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveTextContent(
+      'ALT2',
+    );
+  });
+
   it('Aerospace → renders altitude badge text element', () => {
     const token = makeToken({
       unitType: TokenUnitType.Aerospace,
@@ -159,6 +234,17 @@ describe('UnitTokenForType dispatcher routing', () => {
       (el) => el.textContent,
     );
     expect(texts.some((t) => t?.includes('3'))).toBe(true);
+    expect(wrapper).toHaveAttribute('data-unit-type', TokenUnitType.Aerospace);
+    expect(wrapper).toHaveAttribute('data-aerospace-altitude', '3');
+    expect(wrapper).toHaveAttribute('data-aerospace-velocity', '5');
+    expect(wrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('altitude 3'),
+    );
+    expect(wrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('velocity 5'),
+    );
   });
 
   it('Infantry → renders trooper-count label text', () => {
@@ -213,7 +299,7 @@ describe('UnitTokenForType dispatcher routing', () => {
 describe('BattleArmor mounted-on-mech badge', () => {
   const noop = jest.fn();
 
-  it('renders ba-badge testid when mountedOn is set and host token is present', () => {
+  it('renders a mounted BA badge as a child of the host token', () => {
     const hostToken = makeToken({
       unitId: 'mech-host',
       unitType: TokenUnitType.Mech,
@@ -222,6 +308,7 @@ describe('BattleArmor mounted-on-mech badge', () => {
       unitId: 'ba-1',
       unitType: TokenUnitType.BattleArmor,
       mountedOn: 'mech-host',
+      position: { q: 2, r: 0 },
       trooperCount: 4,
     });
 
@@ -240,8 +327,71 @@ describe('BattleArmor mounted-on-mech badge', () => {
       </>,
     );
 
-    // Badge variant renders inside unit-token-ba-1 with data-testid="ba-badge-ba-1".
+    const hostWrapper = screen.getByTestId('unit-token-mech-host');
+    const baWrapper = screen.getByTestId('unit-token-ba-1');
+
+    expect(hostWrapper).toContainElement(baWrapper);
     expect(screen.getByTestId('ba-badge-ba-1')).toBeInTheDocument();
+    expect(baWrapper).toHaveAttribute(
+      'data-unit-type',
+      TokenUnitType.BattleArmor,
+    );
+    expect(baWrapper).toHaveAttribute('data-mounted-on', 'mech-host');
+    expect(baWrapper).toHaveAttribute('data-passenger-host', 'mech-host');
+    expect(baWrapper).toHaveAttribute('data-passenger-slot', 'shoulder');
+    expect(baWrapper).toHaveAttribute('data-token-map-position', '0,0');
+    expect(baWrapper).toHaveAttribute('data-token-source-position', '2,0');
+    expect(baWrapper.getAttribute('transform')).toContain('translate(18, -18)');
+    expect(baWrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('mounted on mech-host'),
+    );
+    expect(baWrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('passenger slot shoulder'),
+    );
+    expect(screen.getByTestId('ba-badge-ba-1')).toHaveAttribute(
+      'data-ba-passenger-name',
+      'Test Unit',
+    );
+  });
+
+  it('uses passengerBadge host and slot metadata when provided', () => {
+    const hostToken = makeToken({
+      unitId: 'mech-host',
+      unitType: TokenUnitType.Mech,
+    });
+    const baToken = makeToken({
+      unitId: 'ba-back',
+      unitType: TokenUnitType.BattleArmor,
+      position: { q: 2, r: 0 },
+      trooperCount: 2,
+      passengerBadge: { hostTokenId: 'mech-host', slot: 'back' },
+    });
+
+    renderInSvg(
+      <UnitTokenForType
+        token={hostToken}
+        onClick={noop}
+        allTokens={[hostToken, baToken]}
+      />,
+    );
+
+    const baWrapper = screen.getByTestId('unit-token-ba-back');
+    expect(screen.getByTestId('unit-token-mech-host')).toContainElement(
+      baWrapper,
+    );
+    expect(baWrapper).toHaveAttribute('data-passenger-host', 'mech-host');
+    expect(baWrapper).toHaveAttribute('data-passenger-slot', 'back');
+    expect(baWrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('passenger slot back'),
+    );
+    expect(baWrapper.getAttribute('transform')).toContain('translate(-18, 18)');
+    expect(screen.getByTestId('ba-badge-ba-back')).toHaveAttribute(
+      'data-ba-passenger-troopers',
+      '2',
+    );
   });
 
   it('BA without host token falls back to standalone rendering', () => {

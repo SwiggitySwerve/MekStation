@@ -20,18 +20,13 @@
  *
  *   - Weapon attack preview is PARTIAL today. The to-hit number is
  *     plumbed through `hitChance` and the attack plan ID through the
- *     gameplay store, but heat cost / ammo usage / expected damage
- *     do not yet have a clean engine accessor. The hook returns a
- *     STUBBED preview with the to-hit value populated and the other
- *     fields zeroed; the visible to-hit indicator continues to use
- *     the existing surface.
- *     // TODO(wave-7.3): wire to lens-feed-replay change for full
- *     // attack envelope (heat, ammo, expected damage band).
+ *     gameplay store. When the caller supplies the shared combat hex
+ *     projection, the preview also mirrors the map's range band, to-hit
+ *     number, heat cost, ammo usage, and expected damage envelope.
  *
- *   - Physical attack preview ships as a STUB with the attackType
- *     plumbed from the physical-attack plan; to-hit / damage / self-
- *     damage / PSR flags wire later.
- *     // TODO(wave-7.3): wire to physical-attack engine projection.
+ *   - Physical attack preview mirrors the shared physical eligibility
+ *     projection, including to-hit, damage, self-risk, PSR triggers, and
+ *     typed restriction reasons for blocked rows.
  *
  * Preview state is SCOPED — when the active command changes the
  * prior preview clears; when the command commits the preview clears.
@@ -45,15 +40,27 @@
 import { useMemo } from 'react';
 
 import type {
+  ICombatRangeHex,
+  ICombatWeaponImpact,
   ICommandPreview,
   IHexCoordinate,
+  IMovementRangeHex,
   IMovementCommandPreview,
   IPhysicalAttackCommandPreview,
   ITacticalCommand,
   ITacticalCommandContext,
+  IWeaponStatus,
   IWeaponAttackCommandPreview,
 } from '@/types/gameplay';
-import type { PhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types';
+import type {
+  IPhysicalAttackOption,
+  PhysicalAttackLimb,
+  PhysicalAttackType,
+} from '@/utils/gameplay/physicalAttacks/types';
+
+import { RangeBracket } from '@/types/gameplay';
+
+import { REASON_COPY } from '../PhysicalAttackPanel.helpers';
 
 /**
  * Auxiliary inputs the preview hook needs that don't live on
@@ -67,6 +74,10 @@ export interface ICommandPreviewInputs {
   readonly hoverMpCost?: number;
   /** True if the previewed destination is over the unit's MP envelope. */
   readonly hoverUnreachable?: boolean;
+  /** Shared rules-backed movement projection for the hovered destination. */
+  readonly movementInfo?: IMovementRangeHex;
+  /** Player-facing blocked reason when no full movement projection is present. */
+  readonly movementBlockedReason?: string;
   /** Active movement mode (walk / run / jump). */
   readonly movementMode?: 'walk' | 'run' | 'jump';
   /** Final facing the previewed movement ends on (0..5). */
@@ -75,8 +86,20 @@ export interface ICommandPreviewInputs {
   readonly hitChance?: number | null;
   /** Range band for the current weapon attack. */
   readonly weaponRangeBand?: 'short' | 'medium' | 'long' | 'extreme' | 'out';
+  /** Shared rules-backed combat projection for the hovered/target hex. */
+  readonly combatInfo?: ICombatRangeHex;
+  /** Target-id keyed shared combat projections for command availability. */
+  readonly combatInfoByTargetId?: Readonly<Record<string, ICombatRangeHex>>;
+  /** Selected unit weapon statuses retained for call-site compatibility. */
+  readonly weaponStatuses?: readonly IWeaponStatus[];
+  /** Target unit selected in the physical-attack planning projection. */
+  readonly physicalTargetUnitId?: string | null;
   /** Active physical attack type from the physical-attack plan. */
   readonly physicalAttackType?: PhysicalAttackType | null;
+  /** Selected physical attack limb, when the projection row is limb-specific. */
+  readonly physicalAttackLimb?: PhysicalAttackLimb | null;
+  /** Shared rules-backed physical-attack option projection. */
+  readonly physicalAttackOption?: IPhysicalAttackOption;
 }
 
 /**
@@ -114,55 +137,182 @@ export function buildCommandPreview(
 function buildMovementPreview(
   inputs: ICommandPreviewInputs,
 ): IMovementCommandPreview | null {
-  const path = inputs.highlightPath ?? [];
+  const movementInfo = inputs.movementInfo;
+  const path = movementInfo
+    ? movementInfo.path && movementInfo.path.length > 0
+      ? movementInfo.path
+      : [movementInfo.hex]
+    : (inputs.highlightPath ?? []);
   if (path.length === 0) return null;
+  const blockedReason =
+    movementInfo?.movementInvalidDetails ??
+    movementInfo?.blockedReason ??
+    movementInfo?.movementInvalidReason ??
+    inputs.movementBlockedReason;
+
   return {
     kind: 'movement',
     path,
-    mpCost: inputs.hoverMpCost ?? 0,
+    mpCost: movementInfo?.mpCost ?? inputs.hoverMpCost ?? 0,
     finalFacing: inputs.previewFacing ?? 0,
-    mode: inputs.movementMode ?? 'walk',
-    unreachable: Boolean(inputs.hoverUnreachable),
+    mode: toPreviewMovementMode(
+      movementInfo?.movementType,
+      inputs.movementMode,
+    ),
+    movementMode: movementInfo?.movementMode,
+    terrainCost: movementInfo?.terrainCost,
+    elevationDelta: movementInfo?.elevationDelta,
+    elevationCost: movementInfo?.elevationCost,
+    heatGenerated: movementInfo?.heatGenerated,
+    blockedReason,
+    unreachable:
+      movementInfo !== undefined
+        ? !movementInfo.reachable
+        : Boolean(inputs.hoverUnreachable),
   };
+}
+
+function toPreviewMovementMode(
+  movementType?: IMovementRangeHex['movementType'],
+  fallback?: IMovementCommandPreview['mode'],
+): IMovementCommandPreview['mode'] {
+  if (movementType === 'run') return 'run';
+  if (movementType === 'jump') return 'jump';
+  return fallback ?? 'walk';
 }
 
 function buildWeaponPreview(
   ctx: ITacticalCommandContext,
   inputs: ICommandPreviewInputs,
 ): IWeaponAttackCommandPreview | null {
-  if (!ctx.targetUnitId) return null;
-  // TODO(wave-7.3): wire to lens-feed-replay change for full attack
-  // envelope. Today the to-hit number is the only fact we can pull
-  // cleanly from the existing surface; heat / ammo / damage zero out
-  // until the engine projection lands.
+  const targetUnitId =
+    ctx.targetUnitId ??
+    inputs.combatInfo?.validTargetUnitIds[0] ??
+    inputs.combatInfo?.visibleTargetUnitIds[0] ??
+    null;
+  if (!targetUnitId) return null;
+
+  const toHit = inputs.combatInfo?.toHitNumber ?? inputs.hitChance ?? null;
+  const attackable = inputs.combatInfo?.attackable ?? true;
+  const blockedReason = inputs.combatInfo
+    ? combatBlockedReason(inputs.combatInfo)
+    : undefined;
+  const availableWeaponImpacts =
+    attackable && inputs.combatInfo
+      ? inputs.combatInfo.availableWeaponImpacts
+      : [];
+
   return {
     kind: 'weapon-attack',
-    targetUnitId: ctx.targetUnitId,
-    toHit: inputs.hitChance ?? null,
-    rangeBand: inputs.weaponRangeBand ?? 'medium',
-    heatCost: 0,
-    ammoUsage: {},
-    expectedDamage: 0,
+    targetUnitId,
+    attackable,
+    toHit,
+    rangeBand: toPreviewRangeBand(
+      inputs.combatInfo?.rangeBracket,
+      inputs.weaponRangeBand,
+    ),
+    attackInvalidReason: inputs.combatInfo?.attackInvalidReason,
+    attackInvalidDetails: inputs.combatInfo?.attackInvalidDetails,
+    blockedReason,
+    heatCost:
+      availableWeaponImpacts.length > 0 && inputs.combatInfo
+        ? inputs.combatInfo.availableWeaponHeat
+        : 0,
+    weaponIds: availableWeaponImpacts.map((impact) => impact.weaponId),
+    weaponNames: availableWeaponImpacts.map((impact) => impact.weaponName),
+    ammoUsage: ammoUsageForImpacts(availableWeaponImpacts),
+    expectedDamage:
+      attackable && inputs.combatInfo
+        ? (inputs.combatInfo.expectedDamage ?? 0)
+        : 0,
   };
+}
+
+function combatBlockedReason(combatInfo: ICombatRangeHex): string | undefined {
+  if (combatInfo.attackable) return undefined;
+  return (
+    combatInfo.attackInvalidDetails ??
+    combatInfo.blockedReason ??
+    combatInfo.lineOfSightBlockerReason ??
+    combatInfo.visibilityBlockedReason ??
+    combatInfo.attackInvalidReason
+  );
+}
+
+function toPreviewRangeBand(
+  rangeBracket: ICombatRangeHex['rangeBracket'] | undefined,
+  fallback: IWeaponAttackCommandPreview['rangeBand'] | undefined,
+): IWeaponAttackCommandPreview['rangeBand'] {
+  switch (rangeBracket) {
+    case RangeBracket.Short:
+      return 'short';
+    case RangeBracket.Medium:
+      return 'medium';
+    case RangeBracket.Long:
+      return 'long';
+    case RangeBracket.Extreme:
+      return 'extreme';
+    case RangeBracket.OutOfRange:
+      return 'out';
+    default:
+      return fallback ?? 'medium';
+  }
+}
+
+function ammoUsageForImpacts(
+  impacts: readonly ICombatWeaponImpact[],
+): Readonly<Record<string, number>> {
+  return impacts.reduce<Record<string, number>>((usage, impact) => {
+    if (impact.ammoConsumed <= 0) return usage;
+    usage[impact.weaponName] =
+      (usage[impact.weaponName] ?? 0) + impact.ammoConsumed;
+    return usage;
+  }, {});
 }
 
 function buildPhysicalPreview(
   ctx: ITacticalCommandContext,
   inputs: ICommandPreviewInputs,
 ): IPhysicalAttackCommandPreview | null {
-  if (!ctx.targetUnitId) return null;
-  if (!inputs.physicalAttackType) return null;
-  // TODO(wave-7.3): wire to physical-attack engine projection for
-  // to-hit / damage / self-damage / PSR. Today we ship the kind +
-  // attack-type so the inspector can label the previewed attack.
+  const targetUnitId = ctx.targetUnitId ?? inputs.physicalTargetUnitId ?? null;
+  const attackType =
+    inputs.physicalAttackOption?.attackType ??
+    inputs.physicalAttackType ??
+    null;
+  if (!targetUnitId) return null;
+  if (!attackType) return null;
+  const option = inputs.physicalAttackOption;
+  const attackable = option
+    ? option.toHit.allowed && option.restrictionsFailed.length === 0
+    : true;
+  const restrictionReasonCodes = option?.restrictionsFailed;
+  const blockedReasons = restrictionReasonCodes
+    ?.map((reason) => REASON_COPY[reason])
+    .filter((reason): reason is string => reason !== undefined);
+  const toHit =
+    option && Number.isFinite(option.toHit.finalToHit)
+      ? option.toHit.finalToHit
+      : null;
+
   return {
     kind: 'physical-attack',
-    targetUnitId: ctx.targetUnitId,
-    attackType: inputs.physicalAttackType,
-    toHit: null,
-    damage: 0,
-    selfDamage: 0,
-    requiresPSR: false,
+    targetUnitId,
+    attackType,
+    limb: option?.limb ?? inputs.physicalAttackLimb,
+    attackable,
+    toHit,
+    damage: option?.damage.targetDamage ?? 0,
+    selfDamage:
+      option?.selfRisk.damageToAttacker ?? option?.damage.attackerDamage ?? 0,
+    requiresPSR: Boolean(
+      option?.selfRisk.pilotingSkillRoll?.required ||
+      option?.damage.targetPSR ||
+      option?.damage.attackerPSR,
+    ),
+    attackerLegDamagePerLeg: option?.selfRisk.legDamagePerLeg,
+    onMiss: option?.selfRisk.onMiss,
+    restrictionReasonCodes,
+    blockedReasons,
   };
 }
 
@@ -196,11 +346,17 @@ export function useCommandPreview(
       inputs.highlightPath,
       inputs.hoverMpCost,
       inputs.hoverUnreachable,
+      inputs.movementInfo,
+      inputs.movementBlockedReason,
       inputs.movementMode,
       inputs.previewFacing,
       inputs.hitChance,
       inputs.weaponRangeBand,
+      inputs.combatInfo,
+      inputs.physicalTargetUnitId,
       inputs.physicalAttackType,
+      inputs.physicalAttackLimb,
+      inputs.physicalAttackOption,
     ],
   );
   /* eslint-enable react-hooks/exhaustive-deps */

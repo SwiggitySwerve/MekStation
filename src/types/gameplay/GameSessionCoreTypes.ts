@@ -77,7 +77,9 @@ export enum GameEventType {
 
   // Movement events
   MovementDeclared = 'movement_declared',
+  MovementInvalid = 'movement_invalid',
   MovementLocked = 'movement_locked',
+  RuntimeMovementStateChanged = 'runtime_movement_state_changed',
   MovementEnhancementActivated = 'movement_enhancement_activated',
   FacingChanged = 'facing_changed',
 
@@ -101,6 +103,7 @@ export enum GameEventType {
   HeatEffectApplied = 'heat_effect_applied',
   PilotHit = 'pilot_hit',
   UnitDestroyed = 'unit_destroyed',
+  TerrainChanged = 'terrain_changed',
   AmmoExplosion = 'ammo_explosion',
   CriticalHit = 'critical_hit',
 

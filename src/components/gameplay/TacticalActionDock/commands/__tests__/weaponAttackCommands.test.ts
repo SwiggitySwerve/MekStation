@@ -9,7 +9,13 @@
  * @spec openspec/changes/add-tactical-action-menu-system/specs/tactical-map-interface/spec.md
  */
 
-import { GamePhase, type ITacticalCommandContext } from '@/types/gameplay';
+import {
+  CoverLevel,
+  GamePhase,
+  RangeBracket,
+  type ICombatRangeHex,
+  type ITacticalCommandContext,
+} from '@/types/gameplay';
 
 import { buildWeaponAttackCommands } from '../weaponAttackCommands';
 
@@ -23,6 +29,38 @@ function makeCtx(
     hoveredHex: null,
     phase: GamePhase.WeaponAttack,
     canAct: true,
+    ...overrides,
+  };
+}
+
+function makeCombatProjection(
+  overrides: Partial<ICombatRangeHex> = {},
+): ICombatRangeHex {
+  return {
+    hex: { q: 2, r: 0 },
+    distance: 2,
+    rangeBracket: RangeBracket.Short,
+    inRange: true,
+    inArc: true,
+    losState: 'clear',
+    targetCoverLevel: CoverLevel.None,
+    targetPartialCover: false,
+    targetCoverModifier: 0,
+    firingArc: 'front',
+    hasTarget: true,
+    targetVisibilityState: 'visible',
+    visibleTargetUnitIds: ['enemy-x'],
+    obscuredTargetUnitIds: [],
+    attackable: true,
+    weaponIdsInRange: ['medium-laser'],
+    weaponIdsInArc: ['medium-laser'],
+    weaponIdsAvailable: ['medium-laser'],
+    weaponRangeOptions: [],
+    availableWeaponImpacts: [],
+    availableWeaponHeat: 0,
+    availableWeaponDamage: 0,
+    targetUnitIds: ['enemy-x'],
+    validTargetUnitIds: ['enemy-x'],
     ...overrides,
   };
 }
@@ -63,6 +101,26 @@ describe('weaponAttackCommands', () => {
     const cmd = commands.find((c) => c.id === 'weapon.fire-volley')!;
     expect(cmd.requiresConfirmation).toBe(true);
     expect(cmd.undoable).toBe(false);
+  });
+
+  it('fire-volley is disabled by the shared combat projection reason', () => {
+    const cmd = commands.find((c) => c.id === 'weapon.fire-volley')!;
+    const result = cmd.availability(
+      makeCtx({
+        targetCombatProjection: makeCombatProjection({
+          attackable: false,
+          validTargetUnitIds: [],
+          attackInvalidReason: 'NoLineOfSight',
+          attackInvalidDetails: 'Blocked by elevation +2 at (1, 0)',
+          blockedReason: 'Blocked by elevation +2 at (1, 0)',
+        }),
+      }),
+    );
+
+    expect(result).toEqual({
+      available: false,
+      reason: 'Blocked by elevation +2 at (1, 0)',
+    });
   });
 
   it('all weapon commands target enemies', () => {

@@ -5,7 +5,14 @@
 
 import type { MovementAnimationMode } from './GameSessionCoreTypes';
 
-import { Facing, IHexCoordinate, MovementType } from './HexGridInterfaces';
+import {
+  Facing,
+  IHexCoordinate,
+  MovementConversionMode,
+  MovementType,
+} from './HexGridInterfaces';
+
+export type StandUpMode = 'normal' | 'careful';
 
 /**
  * Movement declared event payload.
@@ -35,6 +42,16 @@ export interface IMovementDeclaredPayload {
   readonly mpUsed: number;
   /** Heat generated */
   readonly heatGenerated: number;
+  readonly standUpAttempt?: boolean;
+  readonly standUpSucceeded?: boolean;
+  readonly standUpMode?: StandUpMode;
+  readonly hullDownExitAttempt?: boolean;
+  readonly hullDownEntryAttempt?: boolean;
+  readonly goProneAttempt?: boolean;
+  readonly conversionStepCount?: number;
+  readonly conversionMpCost?: number;
+  readonly altitudeControlStepCount?: number;
+  readonly altitudeControlMpCost?: number;
   /**
    * Per `enrich-movement-declared-with-chain-and-displacement` (movement-system
    * delta — Movement Decomposition Fields): total hex transitions in the
@@ -68,6 +85,29 @@ export interface IMovementDeclaredPayload {
    * compat. Discriminated union keyed on `kind`.
    */
   readonly steps?: readonly IMovementStep[];
+}
+
+export interface IMovementInvalidPayload {
+  readonly unitId: string;
+  readonly from: IHexCoordinate;
+  readonly to: IHexCoordinate;
+  readonly facing: Facing;
+  readonly movementType: MovementType;
+  readonly reason:
+    | 'NoMovementCapability'
+    | 'DestinationOutOfBounds'
+    | 'DestinationOccupied'
+    | 'JumpUnavailable'
+    | 'NoLegalPath'
+    | 'InsufficientMP'
+    | 'UnitImmobile'
+    | 'UnitAlreadyMoved'
+    | 'InvalidPath'
+    | 'TerrainBlocked'
+    | 'InvalidDestination';
+  readonly details?: string;
+  readonly mpCost?: number;
+  readonly heatGenerated?: number;
 }
 
 /**
@@ -145,6 +185,7 @@ export interface IStandUpStep {
   readonly mpCost: number;
   /** AttemptStand fires regardless of stand outcome — always `true`. */
   readonly psrTriggered: boolean;
+  readonly mode?: StandUpMode;
 }
 
 export interface IGoProneStep {
@@ -152,6 +193,32 @@ export interface IGoProneStep {
   readonly index: number;
   readonly at: IHexCoordinate;
   readonly mpCost: number;
+}
+
+export interface IHullDownStep {
+  readonly kind: 'hullDown';
+  readonly index: number;
+  readonly at: IHexCoordinate;
+  readonly mpCost: number;
+}
+
+export interface IConvertModeStep {
+  readonly kind: 'convertMode';
+  readonly index: number;
+  readonly at: IHexCoordinate;
+  readonly mpCost: number;
+  readonly stepNumber: number;
+  readonly stepCount: number;
+}
+
+export interface IAltitudeControlStep {
+  readonly kind: 'altitudeControl';
+  readonly index: number;
+  readonly at: IHexCoordinate;
+  readonly mpCost: number;
+  readonly direction: 'up' | 'down';
+  readonly stepNumber: number;
+  readonly stepCount: number;
 }
 
 export type MovementEnhancementActivationKind = 'MASC' | 'Supercharger';
@@ -209,6 +276,9 @@ export type IMovementStep =
   | IJumpStep
   | IStandUpStep
   | IGoProneStep
+  | IHullDownStep
+  | IConvertModeStep
+  | IAltitudeControlStep
   | IChargeDeclaredStep
   | IDfaDeclaredStep
   | IShakeOffSwarmStep;
@@ -219,6 +289,33 @@ export type IMovementStep =
 export interface IMovementLockedPayload {
   /** Unit whose movement was locked */
   readonly unitId: string;
+}
+
+export interface IRuntimeMovementStateChangedPayload {
+  readonly unitId: string;
+  readonly source:
+    | 'conversion_action'
+    | 'altitude_control_action'
+    | 'automatic_wige_landing'
+    | 'infantry_mount_action'
+    | 'scenario_setup'
+    | 'rules_correction';
+  readonly conversionMode?: MovementConversionMode | number | null;
+  readonly conversionStepCount?: number;
+  readonly conversionMpCost?: number;
+  readonly unitHeight?: number | null;
+  readonly vehicleAltitude?: number;
+  readonly protoAltitude?: number;
+  readonly lamAirMekAltitude?: number;
+  readonly altitudeControlStepCount?: number;
+  readonly altitudeControlMpCost?: number;
+  readonly lamAirMekLandingControlRequired?: boolean;
+  readonly lamAirMekLandingControlReason?: string;
+  readonly lamAirMekLandingControlModifier?: number;
+  readonly lamAirMekLandingControlModifierDetails?: readonly string[];
+  readonly lamAirMekLandingControlFallHeight?: number;
+  readonly infantryMounted?: boolean | null;
+  readonly infantryMountHeight?: number | null;
 }
 
 /**

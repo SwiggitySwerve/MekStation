@@ -392,6 +392,11 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
     'movementTerrainPsr queues createSwampBogDownPSR for non-jump BattleMech swamp entry and emits UnitStuck immediately for jump entry; failed swamp bog-down PSRs set isStuck instead of UnitFell/PilotHit',
     terrainPsrSourceRefs(TerrainType.Swamp),
   ),
+  [PSRTrigger.AirMekLanding]: integrated(
+    PSRTrigger.AirMekLanding,
+    'airMekLandingPsr queues createAirMekLandingPSR for LAM AirMek landings and resolves landing-control PSRs with represented gyro and optional-rule modifiers',
+    LOCAL_TERRAIN_PSR_SOURCE_REFS,
+  ),
   [PSRTrigger.RunningDamagedHip]: integrated(
     PSRTrigger.RunningDamagedHip,
     'movementDamagePsr queues createRunningDamagedHipPSR when a unit runs with hip actuator damage; MegaMek combines hip and gyro into one running-with-damage PSR while MekStation keeps separate reason codes',

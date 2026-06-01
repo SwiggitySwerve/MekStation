@@ -13,6 +13,8 @@ import React, {
   useEffect,
 } from 'react';
 
+import type { IPhysicalAttackOption } from '@/utils/gameplay/physicalAttacks/types';
+
 import { pixelToHex } from '@/constants/hexMap';
 import { hexTerrainFromGrid } from '@/engine/GameEngine.helpers';
 import { usePhaseQueueProjection } from '@/hooks/gameplay';
@@ -21,19 +23,32 @@ import { useCameraControls } from '@/hooks/useCameraControls';
 import { useGameplayHotkeys } from '@/hooks/useGameplayHotkeys';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
+import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
 import {
+  GamePhase,
   GameSide,
   ILayoutConfig,
   DEFAULT_LAYOUT_CONFIG,
   getLayoutForPhase,
+  MovementType,
+  type IMovementRangeHex,
 } from '@/types/gameplay';
+import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
+import { deriveValidWeaponTargetIds } from '@/utils/gameplay/combatTargetIds';
+import { coordToKey } from '@/utils/gameplay/hexMath';
+import { resolveRuntimeMovementCapability } from '@/utils/gameplay/movement';
 import { filterEventsForMovementAnimations } from '@/utils/gameplay/movement/eventLogSync';
+import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
+import { getEligiblePhysicalAttacks } from '@/utils/gameplay/physicalAttacks/eligibility';
+import { buildPhysicalTerrainContext } from '@/utils/gameplay/physicalAttacks/terrain';
+import { projectStandUpPsr } from '@/utils/gameplay/standUpRules';
 
 import type { GameplayLayoutProps } from './GameplayLayout.types';
 import type { MapInteractionState } from './HexMapDisplay/useMapInteraction';
 
 import { ActionBar } from './ActionBar';
 import { EventLogDisplay } from './EventLogDisplay';
+import { buildCommandPreviewInputs } from './GameplayLayout.commandPreview';
 import {
   HitChancePanel,
   MapOverlayChildren,
@@ -51,6 +66,7 @@ import {
 } from './GameplayLayout.viewModel';
 import { HexMapDisplay } from './HexMapDisplay';
 import { MoraleIndicator } from './MoraleIndicator';
+import { PhysicalAttackIntentArrow } from './overlays/PhysicalAttackIntentArrow';
 import { TacticalActionDock } from './TacticalActionDock';
 import {
   ShellSlot,
@@ -163,11 +179,15 @@ export function GameplayLayout({
   hitChance,
   validTargetIds = [],
   movementRange = [],
+  hoveredHex,
+  hoverMovementInfo,
   highlightPath = [],
   hoverMpCost,
   hoverUnreachable = false,
   mpLegend,
+  onMovementModeSelect,
   interactiveSession,
+  physicalAttackIntent,
   playerSide = GameSide.Player,
   shellMode = 'combat',
   className = '',
@@ -180,6 +200,12 @@ export function GameplayLayout({
   // red ring (distinct from the static validTarget ring painted on
   // every fireable enemy).
   const activeTargetId = useGameplaySelector((s) => s.attackPlan.targetUnitId);
+  const selectedWeaponIds = useGameplaySelector(
+    (s) => s.attackPlan.selectedWeapons,
+  );
+  const physicalAttackPlan = usePhysicalAttackPlanStore(
+    (s) => s.physicalAttackPlan,
+  );
 
   // Wave 7.2 PR-E: phase queue projection drives the TacticalTurnRail.
   // The projection is a derived view of session state — it never writes
@@ -267,14 +293,96 @@ export function GameplayLayout({
     [activeAnimations, events, queuedAnimations, session.id],
   );
 
+  const combatGrid = useMemo(
+    () => interactiveSession?.getGrid() ?? null,
+    [interactiveSession],
+  );
+
   const visibilityState = useMemo(
-    () => ({ ...currentState, sideOwners: session.sideOwners ?? null }),
-    [currentState, session.sideOwners],
+    () => ({
+      ...currentState,
+      sideOwners: session.sideOwners ?? null,
+      ...(combatGrid ? { grid: combatGrid } : {}),
+    }),
+    [combatGrid, currentState, session.sideOwners],
   );
   const localFogPlayerId =
     session.sideOwners?.[playerSide] ?? playerSide.toString();
 
-  const tokens = useMemo(
+  const physicalAttackOptionsByTargetId = useMemo<
+    Readonly<Record<string, readonly IPhysicalAttackOption[]>>
+  >(() => {
+    if (currentState.phase !== GamePhase.PhysicalAttack || !selectedUnitId) {
+      return {};
+    }
+    const attackerState = currentState.units[selectedUnitId] ?? null;
+    const attackerBinding = units.find((unit) => unit.id === selectedUnitId);
+    if (!attackerState) return {};
+
+    return Object.entries(currentState.units)
+      .filter(([, targetState]) => targetState.side !== attackerState.side)
+      .filter(([, targetState]) => !targetState.destroyed)
+      .reduce<Record<string, readonly IPhysicalAttackOption[]>>(
+        (byTargetId, [targetId, targetState]) => {
+          const targetBinding = units.find((unit) => unit.id === targetId);
+          const options = getEligiblePhysicalAttacks(
+            attackerState,
+            targetState,
+            {
+              attackerTonnage: 65,
+              attackerPilotingSkill:
+                attackerState.piloting ?? attackerBinding?.piloting ?? 5,
+              targetTonnage: 65,
+              attackerUnitType: attackerBinding?.unitType,
+              attackerMovementMode: attackerBinding?.movementMode,
+              optionalRules: config.optionalRules,
+              targetUnitType: targetBinding?.unitType,
+              weaponsFiredFromLeftArm: attackerState.weaponsFiredThisTurn,
+              weaponsFiredFromRightArm: attackerState.weaponsFiredThisTurn,
+              attackerRanThisTurn:
+                attackerState.movementThisTurn === MovementType.Run,
+              attackerJumpedThisTurn:
+                attackerState.movementThisTurn === MovementType.Jump,
+              elevationContext: combatGrid
+                ? buildPhysicalElevationContext(
+                    attackerState,
+                    targetState,
+                    combatGrid,
+                    {
+                      targetUnit: targetBinding,
+                    },
+                  )
+                : undefined,
+              terrainContext: combatGrid
+                ? buildPhysicalTerrainContext(
+                    attackerState,
+                    targetState,
+                    combatGrid,
+                  )
+                : undefined,
+            },
+          );
+          byTargetId[targetId] = options;
+          return byTargetId;
+        },
+        {},
+      );
+  }, [combatGrid, config.optionalRules, currentState, selectedUnitId, units]);
+
+  const validPhysicalTargetIds = useMemo(
+    () =>
+      Object.entries(physicalAttackOptionsByTargetId)
+        .filter(([, options]) =>
+          options.some(
+            (option) =>
+              option.toHit.allowed && option.restrictionsFailed.length === 0,
+          ),
+        )
+        .map(([unitId]) => unitId),
+    [physicalAttackOptionsByTargetId],
+  );
+
+  const baseTokens = useMemo(
     () =>
       buildGameplayTokens({
         currentState,
@@ -282,8 +390,11 @@ export function GameplayLayout({
         session,
         unitInfoLookup,
         selectedUnitId,
-        validTargetIds,
+        validTargetIds:
+          currentState.phase === GamePhase.WeaponAttack ? [] : validTargetIds,
         activeTargetId,
+        validPhysicalTargetIds,
+        activePhysicalTargetId: physicalAttackPlan.targetUnitId,
         playerSide,
         localFogPlayerId,
         visibilityState,
@@ -298,28 +409,163 @@ export function GameplayLayout({
       session,
       unitInfoLookup,
       validTargetIds,
+      validPhysicalTargetIds,
       visibilityState,
+      physicalAttackPlan.targetUnitId,
+    ],
+  );
+
+  const validWeaponTargetIds = useMemo(
+    () =>
+      deriveValidWeaponTargetIds({
+        currentState,
+        selectedUnitId,
+        tokens: baseTokens,
+        mapRadius: config.mapRadius,
+        grid: combatGrid,
+        unitWeapons,
+        selectedWeaponIds,
+      }),
+    [
+      baseTokens,
+      combatGrid,
+      config.mapRadius,
+      currentState,
+      selectedUnitId,
+      selectedWeaponIds,
+      unitWeapons,
+    ],
+  );
+
+  const effectiveValidTargetIds =
+    currentState.phase === GamePhase.WeaponAttack && interactiveSession
+      ? validWeaponTargetIds
+      : validTargetIds;
+
+  const tokens = useMemo(
+    () =>
+      buildGameplayTokens({
+        currentState,
+        config,
+        session,
+        unitInfoLookup,
+        selectedUnitId,
+        validTargetIds: effectiveValidTargetIds,
+        activeTargetId,
+        validPhysicalTargetIds,
+        activePhysicalTargetId: physicalAttackPlan.targetUnitId,
+        playerSide,
+        localFogPlayerId,
+        visibilityState,
+      }),
+    [
+      activeTargetId,
+      config,
+      currentState,
+      effectiveValidTargetIds,
+      localFogPlayerId,
+      playerSide,
+      selectedUnitId,
+      session,
+      unitInfoLookup,
+      validPhysicalTargetIds,
+      visibilityState,
+      physicalAttackPlan.targetUnitId,
     ],
   );
 
   const hexTerrain = useMemo(
+    () => (combatGrid ? hexTerrainFromGrid(combatGrid) : []),
+    [combatGrid],
+  );
+  const plannedMovement = useGameplaySelector((s) => s.plannedMovement);
+
+  const movementProjectionByHex = useMemo(() => {
+    const byHex: Record<string, IMovementRangeHex> = {};
+    for (const projection of movementRange) {
+      byHex[coordToKey(projection.hex)] = projection;
+    }
+    if (hoverMovementInfo) {
+      byHex[coordToKey(hoverMovementInfo.hex)] = hoverMovementInfo;
+    }
+    return byHex;
+  }, [hoverMovementInfo, movementRange]);
+
+  const commandPreviewInputs = useMemo(
     () =>
-      interactiveSession
-        ? hexTerrainFromGrid(interactiveSession.getGrid())
-        : [],
-    [interactiveSession],
+      buildCommandPreviewInputs({
+        currentState,
+        selectedUnitId,
+        activeTargetId,
+        tokens,
+        unitBindings: units,
+        mapRadius: config.mapRadius,
+        grid: combatGrid,
+        unitWeapons,
+        selectedWeaponIds,
+        hitChance,
+        physicalAttackTargetId: physicalAttackPlan.targetUnitId,
+        physicalAttackType: physicalAttackPlan.attackType,
+        physicalAttackLimb: physicalAttackPlan.limb,
+        optionalRules: config.optionalRules,
+        hoveredHex,
+        movementInfo: hoverMovementInfo,
+        highlightPath,
+        hoverMpCost,
+        hoverUnreachable,
+      }),
+    [
+      activeTargetId,
+      config.mapRadius,
+      config.optionalRules,
+      currentState,
+      highlightPath,
+      hitChance,
+      hoveredHex,
+      hoverMovementInfo,
+      hoverMpCost,
+      hoverUnreachable,
+      combatGrid,
+      physicalAttackPlan.attackType,
+      physicalAttackPlan.limb,
+      physicalAttackPlan.targetUnitId,
+      selectedUnitId,
+      selectedWeaponIds,
+      tokens,
+      units,
+      unitWeapons,
+    ],
   );
 
   // Selected unit data
   const selectedUnit = selectedUnitId
     ? currentState.units[selectedUnitId]
     : null;
+  const selectedUnitMapHex =
+    combatGrid && selectedUnit
+      ? (combatGrid.hexes.get(coordToKey(selectedUnit.position)) ?? null)
+      : null;
   const selectedUnitInfo = selectedUnitId
     ? unitInfoLookup[selectedUnitId]
     : null;
   const selectedUnitFromSession = selectedUnitId
     ? (units.find((u) => u.id === selectedUnitId) ?? null)
     : null;
+  const selectedMovementCapability = useMemo(() => {
+    if (!interactiveSession || !selectedUnitId) return null;
+    const capability = interactiveSession.getMovementCapability(selectedUnitId);
+    if (!capability || !selectedUnit) return capability;
+    return (
+      resolveRuntimeMovementCapability(selectedUnit, capability) ?? capability
+    );
+  }, [interactiveSession, selectedUnit, selectedUnitId]);
+  const selectedStandUpImpossibleReason = selectedUnit?.prone
+    ? projectStandUpPsr({
+        unitState: selectedUnit,
+        unitPiloting: selectedUnit.piloting,
+        unitType: selectedUnitFromSession?.unitType,
+      }).impossibleReason
+    : undefined;
 
   // Handle panel resize
   const handleMouseMove = useCallback(
@@ -570,17 +816,30 @@ export function GameplayLayout({
                 selectedHex={selectedUnit?.position || null}
                 hexTerrain={hexTerrain}
                 movementRange={movementRange}
+                targetUnitId={activeTargetId}
                 unitWeapons={unitWeapons}
+                selectedWeaponIds={selectedWeaponIds}
+                combatState={currentState}
                 friendlySide={playerSide}
                 highlightPath={highlightPath}
                 hoverMpCost={hoverMpCost}
                 hoverUnreachable={hoverUnreachable}
                 mpLegend={mpLegend}
+                onMovementModeSelect={onMovementModeSelect}
                 onHexClick={handleHexClick}
                 onHexHover={onHexHover}
                 onTokenClick={handleTokenClick}
                 onTokenDoubleClick={handleTokenDoubleClick}
                 onInteractionReady={setMapInteraction}
+                svgOverlayChildren={
+                  physicalAttackIntent ? (
+                    <PhysicalAttackIntentArrow
+                      {...physicalAttackIntent}
+                      side={selectedUnit?.side ?? playerSide}
+                      testId="physical-attack-intent-arrow"
+                    />
+                  ) : null
+                }
                 // TODO PR-C: MapOverlayChildren contains the minimap-cluster
                 // slot owner; register it via its own ShellSlot once the
                 // overlay-children prop contract is reworked to allow
@@ -666,12 +925,68 @@ export function GameplayLayout({
               activeUnitId: selectedUnitId,
               selectedUnitId,
               targetUnitId: activeTargetId ?? null,
+              targetCombatProjection: activeTargetId
+                ? (commandPreviewInputs.combatInfoByTargetId?.[
+                    activeTargetId
+                  ] ?? commandPreviewInputs.combatInfo)
+                : null,
+              combatProjectionByTargetId:
+                commandPreviewInputs.combatInfoByTargetId,
+              targetMovementProjection:
+                commandPreviewInputs.movementInfo ?? null,
+              movementProjectionByHex,
+              targetPhysicalAttackOptions: physicalAttackPlan.targetUnitId
+                ? (physicalAttackOptionsByTargetId[
+                    physicalAttackPlan.targetUnitId
+                  ] ?? null)
+                : null,
+              physicalAttackOptionsByTargetId,
               hoveredHex: null,
               phase: currentState.phase,
               canAct: isPlayerTurn,
+              activeUnitProne: selectedUnit?.prone ?? false,
+              activeUnitHullDown: selectedUnit?.hullDown ?? false,
+              activeUnitLockState: selectedUnit?.lockState,
+              activeUnitHeat: selectedUnit?.heat ?? 0,
+              activeUnitHasPlannedMovement: Boolean(
+                plannedMovement &&
+                (!plannedMovement.unitId ||
+                  plannedMovement.unitId === selectedUnit?.id),
+              ),
+              activeUnitConversionMode: selectedUnit?.conversionMode,
+              activeUnitVehicleMotionType:
+                selectedUnit?.combatState?.kind === 'vehicle'
+                  ? selectedUnit.combatState.state.motionType
+                  : undefined,
+              activeUnitVehicleAltitude:
+                selectedUnit?.combatState?.kind === 'vehicle'
+                  ? (selectedUnit.combatState.state.altitude ?? 0)
+                  : undefined,
+              activeUnitProtoGlider:
+                selectedUnit?.combatState?.kind === 'proto'
+                  ? selectedUnit.combatState.state.chassisType ===
+                    ProtoChassis.GLIDER
+                  : undefined,
+              activeUnitProtoAltitude:
+                selectedUnit?.combatState?.kind === 'proto'
+                  ? (selectedUnit.combatState.state.altitude ?? 0)
+                  : undefined,
+              activeUnitLamAirMekAltitude: selectedUnit?.lamAirMekAltitude,
+              activeUnitTerrain: selectedUnitMapHex?.terrain,
+              activeUnitElevation: selectedUnitMapHex?.elevation,
+              activeUnitInfantryMounted: selectedUnit?.infantryMounted,
+              activeUnitInfantryMountHeight: selectedUnit?.infantryMountHeight,
+              activeUnitStandUpImpossibleReason:
+                selectedStandUpImpossibleReason,
+              activeUnitComponentDamage: selectedUnit?.componentDamage,
+              activeUnitGyroType: selectedUnit?.gyroType,
+              activeUnitDestroyedLocations: selectedUnit?.destroyedLocations,
+              optionalRules: session.config.optionalRules,
+              movementCapability: selectedMovementCapability,
             }}
             shellMode={shellMode}
             onAction={onAction}
+            previewInputs={commandPreviewInputs}
             infoText={
               interactivePhase ? `Interactive: ${interactivePhase}` : undefined
             }

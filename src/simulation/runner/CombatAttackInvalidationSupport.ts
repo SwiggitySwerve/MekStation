@@ -68,9 +68,19 @@ export const ATTACK_INVALIDATION_REASON_SUPPORT = {
     'runAttackPhase emits AttackInvalid when getWeaponRangeBracket returns out_of_range',
     MEGAMEK_OUT_OF_RANGE_INVALIDATION_SOURCE_REFS,
   ),
+  OutOfArc: integrated(
+    'OutOfArc',
+    'interactive attack declaration emits AttackInvalid when no selected weapon can bear on the target arc',
+    MEGAMEK_NO_LINE_OF_SIGHT_INVALIDATION_SOURCE_REFS,
+  ),
   NoLineOfSight: integrated(
     'NoLineOfSight',
     'validateLineOfSightForAttack emits AttackInvalid for blocked direct fire and indirect fire without a spotter',
+    MEGAMEK_NO_LINE_OF_SIGHT_INVALIDATION_SOURCE_REFS,
+  ),
+  TargetNotVisible: integrated(
+    'TargetNotVisible',
+    'interactive attack declaration emits AttackInvalid when sensor/fog visibility blocks the target',
     MEGAMEK_NO_LINE_OF_SIGHT_INVALIDATION_SOURCE_REFS,
   ),
   AttackerEvading: integrated(

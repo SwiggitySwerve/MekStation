@@ -6,6 +6,8 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { IComponentDamageState, IPendingPSR } from '@/types/gameplay';
 
+import type { RepresentedGyroType } from '../gyroRules';
+
 import { defaultD6Roller } from '../diceTypes';
 import { D6Roller, roll2d6 } from '../hitLocation';
 import { calculatePilotingQuirkPSRModifier } from '../quirkModifiers';
@@ -17,6 +19,11 @@ import {
   getSwampBeastBogDownPSRModifier,
 } from '../spaModifiers';
 import { IPSRResult, IPSRBatchResult, IPSRModifier, PSRTrigger } from './types';
+
+export interface IPSRResolutionOptions {
+  readonly gyroType?: RepresentedGyroType;
+  readonly optionalRules?: readonly string[];
+}
 
 function isTerrainPSR(psr: IPendingPSR): boolean {
   switch (psr.reasonCode ?? psr.triggerSource) {
@@ -55,7 +62,7 @@ export function resolvePSR(
   componentDamage: IComponentDamageState,
   pilotWounds: number,
   diceRoller: D6Roller = defaultD6Roller,
-  unitQuirks: readonly string[] = [],
+  unitQuirks: readonly string[] | IPSRResolutionOptions = [],
   pilotAbilities: readonly string[] = [],
   isQuadMek = false,
   unitType?: string,
@@ -113,7 +120,7 @@ export function resolveAllPSRs(
   componentDamage: IComponentDamageState,
   pilotWounds: number,
   diceRoller: D6Roller = defaultD6Roller,
-  unitQuirks: readonly string[] = [],
+  unitQuirks: readonly string[] | IPSRResolutionOptions = [],
   pilotAbilities: readonly string[] = [],
   isQuadMek = false,
   unitType?: string,
@@ -186,12 +193,13 @@ export function calculatePSRModifiers(
   psr: IPendingPSR,
   componentDamage: IComponentDamageState,
   pilotWounds: number,
-  unitQuirks: readonly string[] = [],
+  unitQuirks: readonly string[] | IPSRResolutionOptions = [],
   pilotAbilities: readonly string[] = [],
   isQuadMek = false,
   unitType?: string,
   pilotingSkill?: number,
 ): readonly IPSRModifier[] {
+  const normalizedUnitQuirks = Array.isArray(unitQuirks) ? unitQuirks : [];
   if (psr.fixedTargetNumber !== undefined) {
     return psr.additionalModifier !== 0
       ? [
@@ -265,7 +273,7 @@ export function calculatePSRModifiers(
   }
 
   const quirkModifier = calculatePilotingQuirkPSRModifier(
-    unitQuirks,
+    normalizedUnitQuirks,
     isTerrainPSR(psr),
     psr.reasonCode ?? psr.triggerSource,
     pilotingSkill,

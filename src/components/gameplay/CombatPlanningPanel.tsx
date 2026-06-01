@@ -26,6 +26,7 @@ import type {
   IAttackerState,
   IHexCoordinate,
   ITargetState,
+  MovementHeatProfile,
 } from '@/types/gameplay';
 import type { IForecastInput } from '@/utils/gameplay/toHit/forecast';
 
@@ -55,8 +56,12 @@ import { WeaponSelector } from './WeaponSelector';
 export interface CombatPlanningPanelProps {
   /** Walk MP for the currently selected unit (provided by parent). */
   walkMP?: number;
+  /** Run MP for the currently selected unit (provided by parent). */
+  runMP?: number;
   /** Jump MP for the currently selected unit (provided by parent). */
   jumpMP?: number;
+  /** Rules-level movement heat source for the currently selected unit. */
+  movementHeatProfile?: MovementHeatProfile;
   /**
    * Weapons mounted on the currently selected unit (provided by
    * parent). Sourced from the unit's catalog data.
@@ -101,7 +106,9 @@ function weaponToForecastInput(weapon: IWeapon): IForecastInput {
 
 export function CombatPlanningPanel({
   walkMP = 0,
+  runMP = Math.ceil(walkMP * 1.5),
   jumpMP = 0,
+  movementHeatProfile,
   weapons = [],
   onPhysicalAttackIntentChange,
   attackerTonnage,
@@ -112,6 +119,7 @@ export function CombatPlanningPanel({
   const session = useGameplaySelector((s) => s.session);
   const plannedMovement = useGameplaySelector((s) => s.plannedMovement);
   const attackPlan = useGameplaySelector((s) => s.attackPlan);
+  const weaponModesByUnitId = useGameplaySelector((s) => s.weaponModesByUnitId);
   const setPlannedMovement = useGameplaySelector((s) => s.setPlannedMovement);
   const clearPlannedMovement = useGameplaySelector(
     (s) => s.clearPlannedMovement,
@@ -120,6 +128,9 @@ export function CombatPlanningPanel({
     (s) => s.commitPlannedMovement,
   );
   const togglePlannedWeapon = useGameplaySelector((s) => s.togglePlannedWeapon);
+  const setPlannedWeaponMode = useGameplaySelector(
+    (s) => s.setPlannedWeaponMode,
+  );
   const commitAttack = useGameplaySelector((s) => s.commitAttack);
   // Per `add-what-if-to-hit-preview` § 8.2: toggle state lives on the
   // store so other surfaces (e.g. ToHitForecastModal) can subscribe to
@@ -133,6 +144,9 @@ export function CombatPlanningPanel({
   const selected = useSelectedUnit();
 
   const [forecastOpen, setForecastOpen] = useState(false);
+  const selectedWeaponModes = selected
+    ? (weaponModesByUnitId[selected.id] ?? {})
+    : {};
 
   const phase = session?.currentState.phase;
 
@@ -149,6 +163,7 @@ export function CombatPlanningPanel({
       clearPlannedMovement();
       if (selected) {
         setPlannedMovement({
+          unitId: selected.id,
           destination: selected.state.position,
           facing: selected.state.facing,
           movementType: type,
@@ -179,7 +194,7 @@ export function CombatPlanningPanel({
   }, [plannedMovement, selected]);
 
   const movementType = plannedMovement?.movementType ?? MovementType.Walk;
-  const mpCost = plannedMovement?.path.length ?? 0;
+  const mpCost = plannedMovement?.mpCost ?? plannedMovement?.path.length ?? 0;
   const jumpHexes = movementType === MovementType.Jump ? mpCost : undefined;
 
   // ---------------------------------------------------------------------------
@@ -259,6 +274,7 @@ export function CombatPlanningPanel({
         <MovementTypeSwitcher
           active={movementType}
           walkMP={walkMP}
+          runMP={runMP}
           jumpMP={jumpMP}
           onChange={handleTypeChange}
         />
@@ -270,6 +286,12 @@ export function CombatPlanningPanel({
           ready={planReady && plannedMovement?.facing !== undefined}
           mpCost={mpCost}
           movementType={movementType}
+          heatGenerated={plannedMovement?.heatGenerated}
+          movementHeatProfile={movementHeatProfile}
+          movementMode={plannedMovement?.movementMode}
+          terrainCost={plannedMovement?.terrainCost}
+          elevationDelta={plannedMovement?.elevationDelta}
+          elevationCost={plannedMovement?.elevationCost}
           jumpHexes={jumpHexes}
           onCommit={commitPlannedMovement}
         />
@@ -367,8 +389,11 @@ export function CombatPlanningPanel({
             weapons={weapons}
             rangeToTarget={rangeToTarget}
             selectedWeaponIds={attackPlan.selectedWeapons}
+            weaponModesByWeaponId={selectedWeaponModes}
+            weaponModeError={attackPlan.weaponModeError}
             ammo={ammoMap}
             onToggle={togglePlannedWeapon}
+            onModeChange={setPlannedWeaponMode}
             attacker={attackerState}
             target={targetState}
             previewEnabled={previewEnabled}
@@ -450,6 +475,7 @@ export function CombatPlanningPanel({
               weapons={weapons}
               rangeToTarget={0}
               selectedWeaponIds={attackPlan.selectedWeapons}
+              weaponModesByWeaponId={selectedWeaponModes}
               ammo={ammoMap}
               // No-op toggle: even though pointer-events-none blocks
               // clicks, keyboard assistive tech might still reach the

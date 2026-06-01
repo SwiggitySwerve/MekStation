@@ -3,10 +3,17 @@
  * Extracted from GameSessionInterfaces.ts to keep focused type modules under the lint line cap.
  */
 
+import type { EngineType } from '../construction/EngineType';
+import type {
+  VehicleLocation,
+  VTOLLocation,
+} from '../construction/UnitLocation';
+import type { GroundMotionType } from '../unit/BaseUnitInterfaces';
+import type { TurretType } from '../unit/VehicleInterfaces';
 import type { IAmmoConstructionInit } from './AmmoTypes';
 import type { IEnvironmentalConditions } from './EnvironmentalConditions';
 import type { GameSide } from './GameSessionCoreTypes';
-import type { RangeBracket } from './HexGridInterfaces';
+import type { MovementMotiveMode, RangeBracket } from './HexGridInterfaces';
 
 // Game Configuration
 // =============================================================================
@@ -60,6 +67,35 @@ export interface IGameConfig {
   readonly forcedWithdrawal?: boolean;
 }
 
+export interface IVehicleCriticalAvailabilityProfile {
+  /**
+   * Vehicle locations with represented target weapon mounts, including weapons
+   * that are already unavailable for weapon-jam/destroyed critical entries.
+   * Stabilizer criticals use this as mount-presence evidence.
+   */
+  readonly weaponLocations?: readonly (VehicleLocation | VTOLLocation)[];
+  /** Count of represented target weapon mounts by vehicle location. */
+  readonly weaponLocationCounts?: Partial<Record<string, number>>;
+  /** Vehicle locations with represented weapons that can jam. */
+  readonly jammableWeaponLocations?: readonly (
+    | VehicleLocation
+    | VTOLLocation
+  )[];
+  /** Count of represented target weapons that can jam by vehicle location. */
+  readonly jammableWeaponLocationCounts?: Partial<Record<string, number>>;
+  /** Vehicle locations with represented weapons that can be destroyed. */
+  readonly destroyableWeaponLocations?: readonly (
+    | VehicleLocation
+    | VTOLLocation
+  )[];
+  /** Count of represented target weapons that can be destroyed by location. */
+  readonly destroyableWeaponLocationCounts?: Partial<Record<string, number>>;
+  /** True/false only when scenario construction can prove loaded cargo state. */
+  readonly cargoLoaded?: boolean;
+  /** Locations whose weapon stabilizer critical has already been represented. */
+  readonly stabilizerHitLocations?: readonly (VehicleLocation | VTOLLocation)[];
+}
+
 /**
  * Unit participating in a game.
  */
@@ -77,6 +113,20 @@ export interface IGameUnit {
   /** Pilot skills */
   readonly gunnery: number;
   readonly piloting: number;
+  /** Canonical Special Piloting Ability ids carried by this unit's pilot. */
+  readonly pilotSpas?: readonly string[];
+  /**
+   * Rules-level chassis/squad motive mode copied from the adapted unit.
+   * Physical projections use this to mirror MegaMek movement-mode gates
+   * such as WiGE/hover charge eligibility instead of treating every
+   * represented vehicle alike.
+   */
+  readonly movementMode?: MovementMotiveMode;
+  /**
+   * Represented construction gyro type. Movement and PSR projection use this
+   * for variant-specific destroyed thresholds such as heavy-duty gyros.
+   */
+  readonly gyroType?: string;
   /**
    * Unit mass in tons, projected into combat state for source-backed rules
    * that compare unit load against terrain or equipment thresholds.
@@ -288,6 +338,14 @@ export interface IGameUnit {
     readonly maxThrust: number;
     /** Initial altitude band; defaults to `1` (airborne) when omitted. */
     readonly altitude?: number;
+    /** Velocity entering the first turn; defaults to 0. */
+    readonly currentVelocity?: number;
+    /** Velocity after initial thrust planning; defaults to currentVelocity. */
+    readonly nextVelocity?: number;
+    /** Initial aerospace lifecycle state; defaults from altitude. */
+    readonly airborneState?: import('@/utils/gameplay/aerospace/state').AerospaceAirborneState;
+    /** Dogfight opponent if the scenario starts mid-engagement. */
+    readonly dogfightWith?: string;
   };
   readonly infantryInit?: import('@/types/unit/PersonnelInterfaces').IInfantry;
   readonly protoMechInit?: {
@@ -304,6 +362,16 @@ export interface IGameUnit {
     readonly hasMagneticClamp?: boolean;
     readonly hasVibroClaws?: boolean;
     readonly vibroClawCount?: number;
+  };
+  readonly vehicleInit?: {
+    readonly motionType: GroundMotionType;
+    readonly turretType?: TurretType;
+    readonly engineType?: EngineType | string | number;
+    readonly originalCruiseMP: number;
+    readonly armor: Partial<Record<VehicleLocation | VTOLLocation, number>>;
+    readonly structure: Partial<Record<VehicleLocation | VTOLLocation, number>>;
+    readonly altitude?: number;
+    readonly criticalAvailability?: IVehicleCriticalAvailabilityProfile;
   };
 }
 

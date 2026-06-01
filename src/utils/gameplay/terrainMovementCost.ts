@@ -21,11 +21,23 @@ import type { IHex, IHexTerrain } from '@/types/gameplay';
 import { TERRAIN_LAYER_ORDER } from '@/constants/terrain';
 import { TerrainType } from '@/types/gameplay';
 import { TERRAIN_PROPERTIES } from '@/types/gameplay/TerrainTypes';
+import { terrainFeaturesFromString } from '@/utils/gameplay/terrainEncoding';
 
 /** Set of valid `TerrainType` string values, used to narrow a raw `IHex.terrain`. */
 const TERRAIN_TYPE_VALUES: ReadonlySet<string> = new Set<string>(
   Object.values(TerrainType),
 );
+
+function getPrimaryTerrainFeatureFromFeatures(
+  features: readonly { type: TerrainType; level: number }[],
+): { type: TerrainType; level: number } | null {
+  if (features.length === 0) return null;
+
+  const sortedFeatures = [...features].sort(
+    (a, b) => TERRAIN_LAYER_ORDER[b.type] - TERRAIN_LAYER_ORDER[a.type],
+  );
+  return sortedFeatures[0];
+}
 
 /**
  * Get the primary terrain feature (highest layer order) for a hex.
@@ -38,12 +50,15 @@ const TERRAIN_TYPE_VALUES: ReadonlySet<string> = new Set<string>(
 export function getPrimaryTerrainFeature(
   terrain: IHexTerrain | undefined,
 ): { type: TerrainType; level: number } | null {
-  if (!terrain || terrain.features.length === 0) return null;
+  return getPrimaryTerrainFeatureFromFeatures(terrain?.features ?? []);
+}
 
-  const sortedFeatures = [...terrain.features].sort(
-    (a, b) => TERRAIN_LAYER_ORDER[b.type] - TERRAIN_LAYER_ORDER[a.type],
+export function getPrimaryTerrainFeatureFromTerrainTag(
+  terrainTag: string | undefined,
+): { type: TerrainType; level: number } | null {
+  return getPrimaryTerrainFeatureFromFeatures(
+    terrainFeaturesFromString(terrainTag ?? ''),
   );
-  return sortedFeatures[0];
 }
 
 /**
@@ -83,9 +98,12 @@ export function getTerrainMovementCost(
 export function getHexMovementCostFromTerrainTag(
   hex: IHex | undefined,
 ): number {
-  if (!hex || !TERRAIN_TYPE_VALUES.has(hex.terrain)) {
+  if (!hex) {
     return 1;
   }
-  const props = TERRAIN_PROPERTIES[hex.terrain as TerrainType];
+  const feature = getPrimaryTerrainFeatureFromTerrainTag(hex.terrain);
+  if (!feature || !TERRAIN_TYPE_VALUES.has(feature.type)) return 1;
+
+  const props = TERRAIN_PROPERTIES[feature.type];
   return 1 + (props?.movementCostModifier.walk ?? 0);
 }

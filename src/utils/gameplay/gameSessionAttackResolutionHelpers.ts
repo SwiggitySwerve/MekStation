@@ -44,8 +44,14 @@ export function emitCriticalEvents(
   events: readonly CriticalHitEvent[],
   turn: number,
   unitId: string,
+  options?: {
+    readonly phase?: GamePhase;
+    readonly sourceUnitId?: string;
+    readonly emitCriticalHitPrelude?: boolean;
+  },
 ): IGameSession {
   let currentSession = session;
+  const phase = options?.phase ?? GamePhase.WeaponAttack;
 
   for (const event of events) {
     const sequence = currentSession.events.length;
@@ -58,7 +64,7 @@ export function emitCriticalEvents(
           currentSession.id,
           sequence,
           turn,
-          GamePhase.WeaponAttack,
+          phase,
           payload.unitId,
           payload.location,
           payload.slotIndex,
@@ -87,7 +93,7 @@ export function emitCriticalEvents(
             payload.componentType,
             payload.slotIndex,
             payload.componentName,
-            GamePhase.WeaponAttack,
+            phase,
             payload.ammoBinId,
           ),
         );
