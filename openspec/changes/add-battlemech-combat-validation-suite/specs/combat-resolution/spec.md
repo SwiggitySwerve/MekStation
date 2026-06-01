@@ -1751,7 +1751,7 @@ Heat and movement runner PSR trigger rows SHALL expose structured source referen
 
 ### Requirement: Source-Backed Heat SPA Boundary
 
-Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior from local helper behavior before claiming parity. Some Like It Hot SHALL carry MegaMek source references for reducing positive heat firing modifiers by 1. Hot Dog startup, shutdown, heat-induced ammo-explosion, opt-in MaxTech pilot heat-damage, and opt-in MaxTech critical-damage checks SHALL apply MegaMek's `hotDogMod = 1` target-number relief without shifting heat thresholds. Default life-support heat damage SHALL remain threshold-based at heat 15/25+ because MegaMek does not apply `hotDogMod` to that path. Hot Dog SHALL be integrated for BattleMech heat lifecycle resolution once those source-backed paths are executable in runner and interactive heat resolution. Cool Under Fire SHALL remain helper-only until a source authority for generated-heat relief is identified.
+Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior from local helper behavior before claiming parity. Some Like It Hot SHALL carry MegaMek source references for reducing positive heat firing modifiers by 1. Hot Dog startup, shutdown, heat-induced ammo-explosion, opt-in MaxTech pilot heat-damage, and opt-in MaxTech critical-damage checks SHALL apply MegaMek's `hotDogMod = 1` target-number relief without shifting heat thresholds. Default life-support heat damage SHALL remain threshold-based at heat 15/25+ because MegaMek does not apply `hotDogMod` to that path. Hot Dog SHALL be integrated for BattleMech heat lifecycle resolution once those source-backed paths are executable in runner and interactive heat resolution. Cool Under Fire SHALL remain helper-only and SHALL NOT be consumed by the BattleMech heat resolver until a source authority for generated-heat relief is identified.
 
 #### Scenario: Heat SPA support rows expose source truth
 
@@ -1760,7 +1760,7 @@ Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior 
 - **THEN** Some Like It Hot SHALL be integrated with structured MegaMek source references
 - **AND** Hot Dog SHALL be integrated with structured MegaMek source references and executable startup, shutdown, ammo-explosion, optional MaxTech pilot heat-damage, and optional MaxTech critical-damage target-number coverage
 - **AND** Cool Under Fire SHALL be helper-only with the unresolved source authority recorded as a gap
-- **AND** the heat-application resolver SHALL remain helper-only while Cool Under Fire source authority is unresolved
+- **AND** the heat-application resolver SHALL be integrated for source-backed Hot Dog, Some Like It Hot, and weapon cooling behavior while leaving Cool Under Fire unconsumed
 
 #### Scenario: Heat-driven modifiers remain separate from core heat lifecycle completeness
 
@@ -1768,7 +1768,7 @@ Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior 
 - **WHEN** the BattleMech validation requirement crosswalk is inspected
 - **THEN** heat-driven pilot ability and quirk modifiers SHALL have their own `heat-driven-modifiers` requirement
 - **AND** that requirement SHALL reference Hot Dog, Some Like It Hot, Cool Under Fire, Improved Cooling, Poor Cooling, No Cooling, and the heat-application resolver row
-- **AND** the requirement SHALL remain helper-only while Cool Under Fire source authority is unresolved
+- **AND** the requirement SHALL remain helper-only while Cool Under Fire source authority is unresolved and unconsumed
 - **AND** the integrated `heat-lifecycle` requirement SHALL NOT imply complete heat-driven modifier parity
 
 ### Requirement: Source-Backed Pilot Skill Use Rows
@@ -1841,7 +1841,7 @@ Weapon cooling quirk validation SHALL use MegaMek weapon heat semantics before c
 - **WHEN** Improved Cooling, Poor Cooling, or No Cooling support is inspected
 - **THEN** each row SHALL be integrated with structured MegaMek source references for weapon heat calculation and quirk registration
 - **AND** focused helper and heat-phase tests SHALL prove Improved Cooling flooring, Poor Cooling `+1`, and No Cooling `+2`
-- **AND** the heat-application resolver SHALL cite the same weapon cooling source references while remaining helper-only for unrelated Cool Under Fire authority
+- **AND** the heat-application resolver SHALL cite the same weapon cooling source references while remaining integrated only for source-backed Hot Dog, Some Like It Hot, and weapon cooling behavior
 
 ### Requirement: Source-Truth Cross-Check Discipline
 
