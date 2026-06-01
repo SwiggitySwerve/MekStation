@@ -20,6 +20,10 @@ import {
 } from '@/utils/gameplay/tacticalMapProjection';
 
 import { formatCombatC3Label } from './HexMapDisplay.combatC3Context';
+import {
+  terrainCliffExitDirectionsAttributeForFeatures,
+  terrainCliffExitLabelsAttributeForFeatures,
+} from './HexMapDisplay.terrainMetadata';
 
 const TERRAIN_ELEVATION_PROJECTION_CHANNEL = 'terrain-elevation';
 const SHARED_TACTICAL_PROJECTION_SOURCE = 'shared-tactical-map-projection';
@@ -48,7 +52,11 @@ export function formatTerrainFeaturesLabel(
 
 function formatTerrainFeatureReference(feature: ITerrainFeature): string {
   const label = formatTerrainLabel(feature.type);
-  return feature.level > 0 ? `${label} L${feature.level}` : label;
+  const levelLabel = feature.level > 0 ? `${label} L${feature.level}` : label;
+  const cliffExitLabels = terrainCliffExitLabelsAttributeForFeatures([feature]);
+  return cliffExitLabels
+    ? `${levelLabel} cliff edges ${cliffExitLabels}`
+    : levelLabel;
 }
 
 export function formatTerrainFeatureReferenceLabel(
@@ -193,6 +201,17 @@ export function formatMovementLabel(movementInfo: IMovementRangeHex): string {
           : ` at altitude ${movementInfo.altitudeControlAltitude}`
       }`
     : '';
+  const automaticLandingLabel = movementInfo.automaticLandingRequired
+    ? `, automatic ${formatMovementModeLabel(
+        movementInfo.automaticLandingMode,
+      )} landing ${movementInfo.automaticLandingDistance ?? 0}/${
+        movementInfo.automaticLandingMinimumDistance ?? 0
+      } hexes${
+        movementInfo.automaticLandingReason
+          ? `: ${movementInfo.automaticLandingReason}`
+          : ''
+      }`
+    : '';
   const invalidLabel = movementInfo.movementInvalidReason
     ? `, invalid ${movementInfo.movementInvalidReason}${
         movementInfo.movementInvalidDetails
@@ -217,7 +236,7 @@ export function formatMovementLabel(movementInfo: IMovementRangeHex): string {
     movementInfo.heatGenerated !== undefined
       ? `, heat +${movementInfo.heatGenerated}`
       : ''
-  }${standLabel}${hullDownExitLabel}${altitudeControlLabel}${invalidLabel}${blockedLabel}`;
+  }${standLabel}${hullDownExitLabel}${altitudeControlLabel}${automaticLandingLabel}${invalidLabel}${blockedLabel}`;
 }
 
 function formatTerrainBadge(terrainType: string | null): string {
@@ -456,6 +475,12 @@ export function TerrainBadge({
         displayTypes.length > 0 ? displayTypes.join(',') : 'clear'
       }
       data-terrain-feature-levels={terrainFeatureLevelsAttribute(
+        displayFeatures,
+      )}
+      data-terrain-cliff-exits={terrainCliffExitDirectionsAttributeForFeatures(
+        displayFeatures,
+      )}
+      data-terrain-cliff-exit-labels={terrainCliffExitLabelsAttributeForFeatures(
         displayFeatures,
       )}
       data-terrain-feature-count={displayTypes.length}

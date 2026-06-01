@@ -420,6 +420,7 @@ export class InteractiveSession {
       unitId,
       patch,
       diceRoller: this.d6RollerForResolvers(),
+      tonnageByUnit: this.tonnageByUnit,
     });
     this.tryFinalizeAndPublish();
   }
