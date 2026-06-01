@@ -505,7 +505,7 @@ describe('heat environment runner/interactive parity boundaries', () => {
     });
     expect(runnerState.units['player-1'].heat).toBe(19);
     expect(SPA_COMBAT_SUPPORT['cool-under-fire']).toMatchObject({
-      level: 'helper-only',
+      level: 'out-of-scope',
       gap: expect.stringContaining('No MegaMek source'),
     });
     expect(QUIRK_COMBAT_SUPPORT.improved_cooling).toMatchObject({
