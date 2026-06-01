@@ -84,9 +84,12 @@ decisions are made, not because CI is stale.
   armor/internal state through movement-phase `DamageApplied` events via
   `apply-airmek-landing-fall-clusters`. Destroying landing fall clusters now fan
   out movement-phase `LocationDestroyed`, `TransferDamage`, and `UnitDestroyed`
-  events via `fanout-airmek-landing-destruction`; critical-hit follow-through,
-  full elevated AirMek/WiGE pathing, minimum-distance automatic
-  WiGE landing, and takeoff/hover sequencing remain follow-up work.
+  events via `fanout-airmek-landing-destruction`, and structure-exposing crash
+  clusters now resolve movement-phase `CriticalHit`, `CriticalHitResolved`, and
+  `ComponentDestroyed` follow-through via
+  `resolve-airmek-landing-crash-crits`; full elevated AirMek/WiGE pathing,
+  minimum-distance automatic WiGE landing, and takeoff/hover sequencing remain
+  follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
   `apply-runtime-movement-state-events`, and tactical command controls are now

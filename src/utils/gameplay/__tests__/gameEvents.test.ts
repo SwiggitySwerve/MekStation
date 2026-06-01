@@ -35,6 +35,7 @@ import {
   createHeatGeneratedEvent,
   createHeatDissipatedEvent,
   createPilotHitEvent,
+  createCriticalHitEvent,
   createUnitDestroyedEvent,
   serializeEvent,
   deserializeEvent,
@@ -1214,6 +1215,36 @@ describe('Status Event Factories', () => {
 
       expect(payload.consciousnessCheckRequired).toBe(false);
       expect(payload.consciousnessCheckPassed).toBeUndefined();
+    });
+  });
+
+  describe('createCriticalHitEvent', () => {
+    it('should create a movement-phase critical hit event with source context', () => {
+      const event = createCriticalHitEvent(
+        'game-1',
+        65,
+        6,
+        GamePhase.Movement,
+        'target-1',
+        'center_torso',
+        'attacker-1',
+        'engine',
+        1,
+      );
+
+      expect(event.type).toBe(GameEventType.CriticalHit);
+      expect(event.gameId).toBe('game-1');
+      expect(event.sequence).toBe(65);
+      expect(event.turn).toBe(6);
+      expect(event.phase).toBe(GamePhase.Movement);
+      expect(event.actorId).toBe('attacker-1');
+      expect(event.payload).toMatchObject({
+        unitId: 'target-1',
+        location: 'center_torso',
+        sourceUnitId: 'attacker-1',
+        component: 'engine',
+        count: 1,
+      });
     });
   });
 

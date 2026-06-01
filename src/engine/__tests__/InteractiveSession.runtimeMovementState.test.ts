@@ -3,6 +3,9 @@ import {
   GameEventType,
   GameSide,
   type IDamageAppliedPayload,
+  type IComponentDestroyedPayload,
+  type ICriticalHitPayload,
+  type ICriticalHitResolvedPayload,
   type IGameSession,
   type IGameUnit,
   type ILocationDestroyedPayload,
@@ -276,6 +279,91 @@ describe('applyInteractiveSessionRuntimeMovementState', () => {
       pilotWounds: 1,
       armor: expect.objectContaining({ center_torso: 0 }),
       structure: expect.objectContaining({ center_torso: 0 }),
+    });
+  });
+
+  it('resolves failed AirMek landing fall critical hits in movement phase', () => {
+    const session = setupSessionAtMovement(
+      { center_torso: 0 },
+      { center_torso: 12 },
+    );
+
+    const result = applyInteractiveSessionRuntimeMovementState({
+      session,
+      unitId: 'lam-1',
+      patch: {
+        source: 'altitude_control_action',
+        lamAirMekAltitude: 0,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+        lamAirMekLandingControlRequired: true,
+        lamAirMekLandingControlReason: 'landing with gyro or leg damage',
+        lamAirMekLandingControlModifier: 6,
+        lamAirMekLandingControlModifierDetails: [
+          '+5 destroyed leg',
+          '+1 foot actuator',
+        ],
+        lamAirMekLandingControlFallHeight: 1,
+      },
+      diceRoller: d6Sequence([1, 1, 1, 3, 4, 4, 4, 1]),
+      tonnageByUnit: new Map([['lam-1', 10]]),
+    });
+
+    const appended = result.events.slice(session.events.length);
+    expect(appended.map((event) => event.type)).toEqual([
+      GameEventType.RuntimeMovementStateChanged,
+      GameEventType.PSRTriggered,
+      GameEventType.PSRResolved,
+      GameEventType.UnitFell,
+      GameEventType.DamageApplied,
+      GameEventType.CriticalHit,
+      GameEventType.CriticalHitResolved,
+      GameEventType.ComponentDestroyed,
+      GameEventType.PilotHit,
+    ]);
+
+    expect(appended[4].payload as IDamageAppliedPayload).toMatchObject({
+      unitId: 'lam-1',
+      location: 'center_torso',
+      damage: 2,
+      armorRemaining: 0,
+      structureRemaining: 10,
+      locationDestroyed: false,
+    });
+    expect(appended[4].phase).toBe(GamePhase.Movement);
+    expect(appended[5].payload as ICriticalHitPayload).toMatchObject({
+      unitId: 'lam-1',
+      sourceUnitId: 'lam-1',
+      location: 'center_torso',
+      component: 'engine',
+      count: 1,
+    });
+    expect(appended[5].phase).toBe(GamePhase.Movement);
+    expect(appended[6].payload as ICriticalHitResolvedPayload).toMatchObject({
+      unitId: 'lam-1',
+      location: 'center_torso',
+      slotIndex: 0,
+      componentType: 'engine',
+      componentName: 'Engine',
+      destroyed: true,
+    });
+    expect(
+      (appended[6].payload as ICriticalHitResolvedPayload).effect,
+    ).toContain('+5 heat/turn');
+    expect(appended[6].phase).toBe(GamePhase.Movement);
+    expect(appended[7].payload as IComponentDestroyedPayload).toMatchObject({
+      unitId: 'lam-1',
+      location: 'center_torso',
+      componentType: 'engine',
+      slotIndex: 0,
+      componentName: 'Engine',
+    });
+    expect(appended[7].phase).toBe(GamePhase.Movement);
+    expect(result.currentState.units['lam-1']).toMatchObject({
+      componentDamage: expect.objectContaining({ engineHits: 1 }),
+      damageThisPhase: 2,
+      armor: expect.objectContaining({ center_torso: 0 }),
+      structure: expect.objectContaining({ center_torso: 10 }),
     });
   });
 
