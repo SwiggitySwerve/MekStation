@@ -60,6 +60,7 @@ import {
   terrainFeatureLevelsAttribute,
 } from './HexCell.labels';
 import {
+  MovementAutomaticLandingBadge,
   MovementPathStepBadge,
   MovementReachBadge,
   MovementStepCostBadge,
@@ -69,6 +70,7 @@ import { MovementBlockedOptionsBadge } from './HexCell.movementBlockedOptionsBad
 import {
   movementOptionAltitudeControlMpCostsAttribute,
   movementOptionAltitudeControlStepCountsAttribute,
+  movementOptionAutomaticLandingsAttribute,
   movementOptionCostsAttribute,
   movementOptionBlockedReasonsAttribute,
   movementOptionConversionMpCostsAttribute,
@@ -553,6 +555,9 @@ export const HexCell = React.memo(function HexCell({
       data-movement-option-altitude-control-mp-costs={movementOptionAltitudeControlMpCostsAttribute(
         movementOptions ?? [],
       )}
+      data-movement-option-automatic-landings={movementOptionAutomaticLandingsAttribute(
+        movementOptions ?? [],
+      )}
       data-mp-cost={movementInfo?.mpCost}
       data-terrain-cost={movementInfo?.terrainCost}
       data-heat-generated={movementInfo?.heatGenerated}
@@ -602,6 +607,19 @@ export const HexCell = React.memo(function HexCell({
       data-movement-altitude-control-mode={movementInfo?.altitudeControlMode}
       data-movement-altitude-control-altitude={
         movementInfo?.altitudeControlAltitude
+      }
+      data-movement-automatic-landing-required={
+        movementInfo?.automaticLandingRequired ? 'true' : undefined
+      }
+      data-movement-automatic-landing-mode={movementInfo?.automaticLandingMode}
+      data-movement-automatic-landing-distance={
+        movementInfo?.automaticLandingDistance
+      }
+      data-movement-automatic-landing-minimum-distance={
+        movementInfo?.automaticLandingMinimumDistance
+      }
+      data-movement-automatic-landing-reason={
+        movementInfo?.automaticLandingReason
       }
       data-path-index={pathIndex}
       data-path-step={
@@ -950,6 +968,12 @@ export const HexCell = React.memo(function HexCell({
         movementInfo={movementInfo}
       />
       <MovementStandUpBadge x={x} y={y} hex={hex} movementInfo={movementInfo} />
+      <MovementAutomaticLandingBadge
+        x={x}
+        y={y}
+        hex={hex}
+        movementInfo={movementInfo}
+      />
       <MovementPathStepBadge x={x} y={y} hex={hex} pathIndex={pathIndex} />
       <HeatBadge
         x={x}

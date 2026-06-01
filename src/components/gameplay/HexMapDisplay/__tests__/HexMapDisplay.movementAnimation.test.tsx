@@ -2971,6 +2971,86 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('surfaces automatic WiGE landing consequences on reachable movement hexes', () => {
+    const reason =
+      'MegaMek automatic WiGE landing: unit moved below the minimum airborne distance';
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 1,
+            terrainCost: 0,
+            elevationDelta: 2,
+            elevationCost: 0,
+            movementMode: 'wige',
+            reachable: true,
+            movementType: MovementType.Walk,
+            automaticLandingRequired: true,
+            automaticLandingMode: 'wige',
+            automaticLandingDistance: 1,
+            automaticLandingMinimumDistance: 5,
+            automaticLandingReason: reason,
+          },
+        ]}
+      />,
+    );
+
+    const wigeHex = screen.getByTestId('hex-1-0');
+    expect(wigeHex).toHaveAttribute(
+      'data-movement-automatic-landing-required',
+      'true',
+    );
+    expect(wigeHex).toHaveAttribute(
+      'data-movement-automatic-landing-mode',
+      'wige',
+    );
+    expect(wigeHex).toHaveAttribute(
+      'data-movement-automatic-landing-distance',
+      '1',
+    );
+    expect(wigeHex).toHaveAttribute(
+      'data-movement-automatic-landing-minimum-distance',
+      '5',
+    );
+    expect(wigeHex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('automatic WiGE landing 1/5 hexes'),
+    );
+
+    const movementBadge = screen.getByTestId('hex-movement-badge-1-0');
+    expect(movementBadge).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('automatic WiGE landing 1/5 hexes'),
+    );
+    expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-automatic-landing-required',
+      'true',
+    );
+    expect(
+      screen.getByTestId('hex-automatic-landing-badge-1-0'),
+    ).toHaveAccessibleName(`Automatic WiGE landing after 1/5 hexes: ${reason}`);
+    expect(
+      screen.getByTestId('hex-automatic-landing-badge-1-0'),
+    ).toHaveTextContent('LAND');
+
+    fireEvent.mouseEnter(wigeHex);
+    expect(
+      screen.getByTestId('hex-movement-tooltip-automatic-landing'),
+    ).toHaveTextContent('Automatic WiGE landing: 1/5 hexes');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-automatic-landing'),
+    ).toHaveAttribute('data-movement-context-kind', 'automatic-landing');
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('renders jump heat impact as map metadata and a visible badge', () => {
     const { unmount } = render(
       <HexMapDisplay

@@ -47,10 +47,12 @@ decisions are made, not because CI is stale.
   Represented altitude-positive VTOL/WiGE units now fail closed in the ground
   projection with source-backed altitude-control reasons via
   `block-airborne-vtol-wige-ground-projection`; full airborne altitude pathing,
-  hover/takeoff/landing sequencing, and automatic WiGE landing remain
-  follow-up work. WiGE vehicle tokens now expose represented altitude in the
-  same top-down/isometric metadata and visible badge channel as VTOL tokens via
-  `show-wige-altitude-token-context`. Stale or mismatched movement capability
+  hover/takeoff/landing sequencing, and non-represented airborne cases remain
+  follow-up work. Represented short-distance WiGE automatic landing is covered
+  by `auto-land-short-wige-movement`. WiGE vehicle tokens now expose
+  represented altitude in the same top-down/isometric metadata and visible
+  badge channel as VTOL tokens via `show-wige-altitude-token-context`.
+  Stale or mismatched movement capability
   motives now fail closed from represented altitude-positive VTOL/WiGE vehicle
   combat state via `block-airborne-vehicle-state-mismatch`. Blocked
   altitude-control projections now carry represented control mode and altitude
@@ -67,10 +69,12 @@ decisions are made, not because CI is stale.
   altitude-control MP, block airborne ground projection, and cap Climb at the
   source-backed altitude 12 ceiling via
   `gate-protomek-wige-altitude-ceiling`; full multi-step airborne pathing,
-  hover/takeoff/landing sequencing, and automatic WiGE landing remain
-  follow-up work. Represented LAM AirMek altitude controls now replay
-  `lamAirMekAltitude`, reserve altitude-control MP, block elevated ground
-  projection, and cap Climb at the LandAirMek-specific WiGE +25 ceiling via
+  hover/takeoff/landing sequencing, and non-represented airborne cases remain
+  follow-up work. Represented Glider ProtoMek short-distance automatic landing
+  is covered by `auto-land-short-wige-movement`. Represented LAM AirMek
+  altitude controls now replay `lamAirMekAltitude`, reserve altitude-control
+  MP, block elevated ground projection, and cap Climb at the
+  LandAirMek-specific WiGE +25 ceiling via
   `gate-lam-airmek-wige-altitude-ceiling`. AirMek-to-Mek conversion now clears
   represented AirMek WiGE elevation through a replayable automatic-landing
   state patch via `pin-lam-airmek-mek-automatic-landing`. AirMek Descend
@@ -87,9 +91,10 @@ decisions are made, not because CI is stale.
   events via `fanout-airmek-landing-destruction`, and structure-exposing crash
   clusters now resolve movement-phase `CriticalHit`, `CriticalHitResolved`, and
   `ComponentDestroyed` follow-through via
-  `resolve-airmek-landing-crash-crits`; full elevated AirMek/WiGE pathing,
-  minimum-distance automatic WiGE landing, and takeoff/hover sequencing remain
-  follow-up work.
+  `resolve-airmek-landing-crash-crits`; represented minimum-distance automatic
+  WiGE landing is covered by `auto-land-short-wige-movement`, while full
+  elevated AirMek/WiGE pathing and takeoff/hover sequencing remain follow-up
+  work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
   `apply-runtime-movement-state-events`, and tactical command controls are now

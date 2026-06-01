@@ -2144,19 +2144,35 @@ describe('deriveReachableHexes', () => {
         capability,
         { q: 1, r: 0 },
       );
-      expect(airbornePreview).toMatchObject({
-        mpCost: Infinity,
-        heatGenerated: 0,
-        movementMode,
-        reachable: false,
-        movementType: MovementType.Walk,
-        blockedReason: reason,
-        movementInvalidReason: 'InvalidDestination',
-        movementInvalidDetails: reason,
-        altitudeControlRequired: true,
-        altitudeControlMode: movementMode,
-        altitudeControlAltitude: 2,
-      });
+      if (movementMode === 'wige') {
+        expect(airbornePreview).toMatchObject({
+          mpCost: 1,
+          terrainCost: 0,
+          elevationDelta: 4,
+          elevationCost: 0,
+          movementMode,
+          reachable: true,
+          movementType: MovementType.Walk,
+          automaticLandingRequired: true,
+          automaticLandingMode: 'wige',
+          automaticLandingDistance: 1,
+          automaticLandingMinimumDistance: 5,
+        });
+      } else {
+        expect(airbornePreview).toMatchObject({
+          mpCost: Infinity,
+          heatGenerated: 0,
+          movementMode,
+          reachable: false,
+          movementType: MovementType.Walk,
+          blockedReason: reason,
+          movementInvalidReason: 'InvalidDestination',
+          movementInvalidDetails: reason,
+          altitudeControlRequired: true,
+          altitudeControlMode: movementMode,
+          altitudeControlAltitude: 2,
+        });
+      }
 
       const commit = validateCommittedMovement({
         grid,
@@ -2170,13 +2186,21 @@ describe('deriveReachableHexes', () => {
           { q: 1, r: 0 },
         ],
       });
-      expect(commit).toMatchObject({
-        valid: false,
-        reason: 'InvalidDestination',
-        details: reason,
-        mpCost: Infinity,
-        heatGenerated: 0,
-      });
+      if (movementMode === 'wige') {
+        expect(commit).toMatchObject({
+          valid: true,
+          mpCost: 1,
+          heatGenerated: 0,
+        });
+      } else {
+        expect(commit).toMatchObject({
+          valid: false,
+          reason: 'InvalidDestination',
+          details: reason,
+          mpCost: Infinity,
+          heatGenerated: 0,
+        });
+      }
 
       const landedPreview = deriveMovementRangeHexForDestination(
         landedUnit,

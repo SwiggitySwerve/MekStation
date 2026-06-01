@@ -451,6 +451,11 @@ function movementOptionsForProjection(
       altitudeControlRequired: movement.altitudeControlRequired,
       altitudeControlMode: movement.altitudeControlMode,
       altitudeControlAltitude: movement.altitudeControlAltitude,
+      automaticLandingRequired: movement.automaticLandingRequired,
+      automaticLandingReason: movement.automaticLandingReason,
+      automaticLandingMode: movement.automaticLandingMode,
+      automaticLandingDistance: movement.automaticLandingDistance,
+      automaticLandingMinimumDistance: movement.automaticLandingMinimumDistance,
       blockedReason: movement.blockedReason,
       movementInvalidReason: movement.movementInvalidReason,
       movementInvalidDetails: movement.movementInvalidDetails,
@@ -867,6 +872,18 @@ function formatProjectionExplanation({
         } MP`,
       );
     }
+    if (movement.automaticLandingRequired) {
+      parts.push(
+        `automatic landing ${movement.automaticLandingDistance ?? 0}/${
+          movement.automaticLandingMinimumDistance ?? 0
+        } hexes`,
+      );
+      if (movement.automaticLandingReason) {
+        parts.push(
+          `automatic landing reason ${movement.automaticLandingReason}`,
+        );
+      }
+    }
     if (movement.movementModeOptions?.length) {
       parts.push(
         `movement options ${movement.movementModeOptions
@@ -1067,11 +1084,16 @@ function formatMovementOption(option: IMovementRangeModeOption): string {
       : ` altitude control ${option.altitudeControlStepCount ?? 0} steps ${
           option.altitudeControlMpCost ?? 0
         } MP`;
+  const automaticLanding = option.automaticLandingRequired
+    ? ` automatic landing ${option.automaticLandingDistance ?? 0}/${
+        option.automaticLandingMinimumDistance ?? 0
+      } hexes`
+    : '';
   const blockedDetail = movementOptionBlockedDetail(option);
   const blocked = blockedDetail ? `: ${blockedDetail}` : '';
   return `${option.movementType}${mode} ${
     option.reachable ? 'reachable' : 'blocked'
-  } ${option.mpCost} MP${terrain}${elevation}${heat}${conversion}${altitudeControl}${option.reachable ? '' : blocked}`;
+  } ${option.mpCost} MP${terrain}${elevation}${heat}${conversion}${altitudeControl}${automaticLanding}${option.reachable ? '' : blocked}`;
 }
 
 function formatMovementOptionElevation(

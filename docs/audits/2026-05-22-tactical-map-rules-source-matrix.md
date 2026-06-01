@@ -35,6 +35,11 @@ landing-control required/not-required context via
 `pin-airmek-landing-control-context`, and required damaged landings now queue a
 canonical AirMek landing PSR via `queue-airmek-landing-psr`, then resolve that
 landing check in the same movement command via `resolve-airmek-landing-psr`.
+Short-distance automatic WiGE landing for represented positive-altitude WiGE
+vehicles, Glider ProtoMeks, and LAM AirMeks is now covered by
+`auto-land-short-wige-movement`, source-pinned to MegaMek
+`MovePath.java:1689-1738`, and replays through the same runtime movement-state
+channel used by altitude controls.
 Replayable gameplay events for runtime movement state are covered by
 `apply-runtime-movement-state-events`; player-facing tactical command controls
 for represented conversion and infantry mount-state changes are covered by
@@ -790,8 +795,9 @@ altitude from ground-map elevation. MekStation now tracks represented AirMek
 WiGE elevation in `lamAirMekAltitude`, exposes Climb/Descend controls in
 AirMek mode, dispatches replayable altitude-control MP reserves, caps Climb at
 25, and marks positive-elevation AirMek ground projection as altitude-control
-owned. Full elevated AirMek/WiGE pathing, takeoff/landing sequencing, and
-automatic WiGE landing remain follow-up work.
+owned. Represented short-distance automatic WiGE landing is covered by
+`auto-land-short-wige-movement`; full hover/takeoff/landing sequencing and
+broader elevated AirMek/WiGE pathing remain follow-up work.
 
 2026-05-31 LAM AirMek landing-control context pin: MegaMek
 `LandAirMek.java:789-847` requires an AirMek landing control roll only when
@@ -819,8 +825,9 @@ those fall clusters destroy locations or the unit.
 `resolve-airmek-landing-crash-crits` now routes structure-exposing landing fall
 clusters through the shared critical-hit resolver and emits movement-phase
 `CriticalHit`, `CriticalHitResolved`, and `ComponentDestroyed` follow-through
-events. Automatic forced landing from higher WiGE elevations remains follow-up
-work.
+events. Short-distance forced landing from represented higher WiGE elevations is
+covered by `auto-land-short-wige-movement`; finer-grained hover/takeoff
+direction state remains follow-up work.
 
 Additional small-unit movement data pin: MegaMek `Infantry.java:560-568` and
 `BattleArmor.java:520-523` return walk MP as base run MP unless optional TacOps
@@ -922,8 +929,10 @@ reason. MekStation blocked VTOL/WiGE ground projections now carry
 altitude-control required, represented control mode, and represented altitude
 through top-down hex metadata, movement badges, invalid badges, accessible
 labels, tooltip reason rows, and same-hex option metadata. This is explanatory
-context only; full airborne altitude pathing, hover, takeoff, landing, and
-automatic WiGE landing remain follow-ups.
+context only; full airborne altitude pathing, VTOL landing, hover, takeoff,
+and non-represented airborne paths remain follow-ups.
+Represented short-distance WiGE auto-landing is covered separately by
+`auto-land-short-wige-movement`.
 
 2026-05-31 VTOL/WiGE altitude-control command pin: MegaMek
 `MovementDisplay.java:5268-5286` handles raise/lower controls by adding UP/DOWN
@@ -946,8 +955,9 @@ projected movement costs and remaining budget, carries the metadata through
 top-down badges/tooltips/shared projection explanations, consumes the same
 reserve during committed movement validation, and clears the reserve when the
 movement declaration replays. Full airborne pathing, hover/takeoff/landing
-sequencing, automatic WiGE landing, and advanced WiGE subtype altitude ceilings
-remain follow-ups.
+sequencing and advanced WiGE subtype altitude ceilings remain follow-ups;
+represented short-distance WiGE auto-landing is covered by
+`auto-land-short-wige-movement`.
 
 2026-05-31 altitude-control clearance gate pin: MegaMek
 `Entity.java:2433-2497` derives minimum descent altitude from water, woods
@@ -959,7 +969,8 @@ selected unit's encoded terrain, map elevation, and represented unit height to
 disable misleading altitude controls before dispatch while preserving the same
 replayable altitude-control event and MP reserve for legal commands. Remaining
 altitude-control gaps are full airborne pathing, hover/takeoff/landing
-sequencing, automatic WiGE landing, and LAM/ProtoMek-specific WiGE ceilings.
+sequencing and LAM/ProtoMek-specific WiGE ceilings; represented short-distance
+WiGE auto-landing is covered by `auto-land-short-wige-movement`.
 
 Tracked-vehicle browser update: the tactical-map browser harness now pairs the
 VTOL proof with a tracked ground-vehicle abrupt-climb scenario. The top-down map
@@ -1571,8 +1582,9 @@ projection now also surfaces represented altitude-control mode and altitude in
 top-down hex metadata, movement badges, invalid badges, accessible labels,
 tooltip reason rows, and same-hex option metadata via
 `surface-airborne-altitude-control-context`. Full airborne VTOL/WiGE altitude
-pathing, hover/takeoff/landing sequencing, clearance, automatic WiGE landing,
-and broad oracle sweeps remain follow-ups. Basic Climb/Descend runtime
+pathing, hover/takeoff/landing sequencing, clearance, and broad oracle sweeps
+remain follow-ups. Represented short-distance WiGE auto-landing is covered by
+`auto-land-short-wige-movement`. Basic Climb/Descend runtime
 altitude-control commands now exist via `wire-vtol-wige-altitude-controls`, but
 full UP/DOWN MP accounting and terrain-clearance-specific gates remain pending.
 

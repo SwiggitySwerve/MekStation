@@ -193,6 +193,17 @@ export function formatMovementLabel(movementInfo: IMovementRangeHex): string {
           : ` at altitude ${movementInfo.altitudeControlAltitude}`
       }`
     : '';
+  const automaticLandingLabel = movementInfo.automaticLandingRequired
+    ? `, automatic ${formatMovementModeLabel(
+        movementInfo.automaticLandingMode,
+      )} landing ${movementInfo.automaticLandingDistance ?? 0}/${
+        movementInfo.automaticLandingMinimumDistance ?? 0
+      } hexes${
+        movementInfo.automaticLandingReason
+          ? `: ${movementInfo.automaticLandingReason}`
+          : ''
+      }`
+    : '';
   const invalidLabel = movementInfo.movementInvalidReason
     ? `, invalid ${movementInfo.movementInvalidReason}${
         movementInfo.movementInvalidDetails
@@ -217,7 +228,7 @@ export function formatMovementLabel(movementInfo: IMovementRangeHex): string {
     movementInfo.heatGenerated !== undefined
       ? `, heat +${movementInfo.heatGenerated}`
       : ''
-  }${standLabel}${hullDownExitLabel}${altitudeControlLabel}${invalidLabel}${blockedLabel}`;
+  }${standLabel}${hullDownExitLabel}${altitudeControlLabel}${automaticLandingLabel}${invalidLabel}${blockedLabel}`;
 }
 
 function formatTerrainBadge(terrainType: string | null): string {

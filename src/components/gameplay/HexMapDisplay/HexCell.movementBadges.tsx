@@ -11,6 +11,7 @@ import {
   movementOptionAltitudeControlsAttribute,
   movementOptionAltitudeControlMpCostsAttribute,
   movementOptionAltitudeControlStepCountsAttribute,
+  movementOptionAutomaticLandingsAttribute,
   movementOptionBlockedReasonsAttribute,
   movementOptionConversionMpCostsAttribute,
   movementOptionConversionStepCountsAttribute,
@@ -72,7 +73,16 @@ export function formatMovementReachBadgeTitle(
       : `; altitude control ${
           movementInfo.altitudeControlStepCount ?? 0
         } steps ${movementInfo.altitudeControlMpCost ?? 0} MP`;
-  const primary = `${formatMovementModeTitle(movementInfo)} reachable: ${movementInfo.mpCost} MP${conversion}${altitudeControl}`;
+  const automaticLanding = movementInfo.automaticLandingRequired
+    ? `; automatic ${
+        movementInfo.automaticLandingMode
+          ? formatMovementModeTitleLabel(movementInfo.automaticLandingMode)
+          : 'WiGE'
+      } landing ${movementInfo.automaticLandingDistance ?? 0}/${
+        movementInfo.automaticLandingMinimumDistance ?? 0
+      } hexes`
+    : '';
+  const primary = `${formatMovementModeTitle(movementInfo)} reachable: ${movementInfo.mpCost} MP${conversion}${altitudeControl}${automaticLanding}`;
   const options = movementInfo.movementModeOptions ?? [];
   if (options.length <= 1) return primary;
   return `${primary}; options ${options.map(formatMovementOptionTitle).join('; ')}`;
@@ -221,6 +231,18 @@ export function MovementReachBadge({
       data-movement-badge-altitude-control-altitude={
         movementInfo.altitudeControlAltitude
       }
+      data-movement-badge-automatic-landing-required={
+        movementInfo.automaticLandingRequired ? 'true' : undefined
+      }
+      data-movement-badge-automatic-landing-mode={
+        movementInfo.automaticLandingMode
+      }
+      data-movement-badge-automatic-landing-distance={
+        movementInfo.automaticLandingDistance
+      }
+      data-movement-badge-automatic-landing-minimum-distance={
+        movementInfo.automaticLandingMinimumDistance
+      }
       data-movement-badge-option-count={
         movementOptions.length > 1 ? movementOptions.length : undefined
       }
@@ -294,6 +316,11 @@ export function MovementReachBadge({
           ? movementOptionAltitudeControlsAttribute(movementOptions)
           : undefined
       }
+      data-movement-badge-option-automatic-landings={
+        movementOptions.length > 1
+          ? movementOptionAutomaticLandingsAttribute(movementOptions)
+          : undefined
+      }
     >
       <title>{title}</title>
       <rect
@@ -314,6 +341,72 @@ export function MovementReachBadge({
         fill="#ecfdf5"
       >
         {label}
+      </text>
+    </g>
+  );
+}
+
+function formatAutomaticLandingBadgeTitle(
+  movementInfo: IMovementRangeHex,
+): string {
+  const mode = movementInfo.automaticLandingMode
+    ? formatMovementModeTitleLabel(movementInfo.automaticLandingMode)
+    : 'WiGE';
+  const reason = movementInfo.automaticLandingReason
+    ? `: ${movementInfo.automaticLandingReason}`
+    : '';
+  return `Automatic ${mode} landing after ${
+    movementInfo.automaticLandingDistance ?? 0
+  }/${movementInfo.automaticLandingMinimumDistance ?? 0} hexes${reason}`;
+}
+
+export function MovementAutomaticLandingBadge({
+  x,
+  y,
+  hex,
+  movementInfo,
+}: {
+  readonly x: number;
+  readonly y: number;
+  readonly hex: IHexCoordinate;
+  readonly movementInfo?: IMovementRangeHex;
+}): React.ReactElement | null {
+  if (!movementInfo?.automaticLandingRequired) return null;
+  const title = formatAutomaticLandingBadgeTitle(movementInfo);
+  return (
+    <g
+      pointerEvents="none"
+      data-testid={`hex-automatic-landing-badge-${hex.q}-${hex.r}`}
+      aria-label={title}
+      data-automatic-landing-mode={movementInfo.automaticLandingMode}
+      data-automatic-landing-distance={movementInfo.automaticLandingDistance}
+      data-automatic-landing-minimum-distance={
+        movementInfo.automaticLandingMinimumDistance
+      }
+      data-automatic-landing-reason={movementInfo.automaticLandingReason}
+    >
+      <title>{title}</title>
+      <rect
+        x={x - 19}
+        y={y + 33}
+        width={38}
+        height={12}
+        rx={3}
+        fill="#7c2d12"
+        opacity={0.92}
+        stroke="#fed7aa"
+        strokeOpacity={0.65}
+        strokeWidth={0.7}
+      />
+      <text
+        x={x}
+        y={y + 42}
+        textAnchor="middle"
+        fontSize={8}
+        fontWeight="bold"
+        fill="#fff7ed"
+      >
+        LAND
       </text>
     </g>
   );

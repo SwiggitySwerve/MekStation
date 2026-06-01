@@ -96,6 +96,7 @@ import {
   validateCommittedMovement,
 } from '@/utils/gameplay/movement';
 import { pendingAltitudeControlMovementCost } from '@/utils/gameplay/movement/altitudeControlAccounting';
+import { automaticWigeLandingRuntimePatch } from '@/utils/gameplay/movement/automaticWigeLanding';
 import { pendingConversionMovementCost } from '@/utils/gameplay/movement/conversionAccounting';
 import { getWeaponRangeBracket } from '@/utils/gameplay/range';
 import {
@@ -370,6 +371,24 @@ export function applyInteractiveSessionMovement(
       altitudeControlMpCost: pendingAltitudeControl.mpCost,
     },
   );
+  const automaticLandingPatch = automaticWigeLandingRuntimePatch(
+    unit,
+    input.movementType,
+    validation.path,
+    input.to,
+  );
+  if (automaticLandingPatch) {
+    session = appendEvent(
+      session,
+      createRuntimeMovementStateChangedEvent(
+        session.id,
+        session.events.length,
+        session.currentState.turn,
+        input.unitId,
+        automaticLandingPatch,
+      ),
+    );
+  }
   session = lockMovement(session, input.unitId);
   return session;
 }
