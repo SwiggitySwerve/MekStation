@@ -174,6 +174,7 @@ export function calculateToHit(
       attacker.calledShot,
       attacker.teammateCalledShot,
       attacker.abilities,
+      attacker.applyLocalCalledShotAbilityReduction !== false,
     );
     if (calledMod) modifiers.push(calledMod);
   }
