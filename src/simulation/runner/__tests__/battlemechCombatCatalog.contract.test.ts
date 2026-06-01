@@ -2178,6 +2178,16 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(
       Object.values(SPA_COMBAT_SUPPORT).filter(
         (entry) => entry.level === 'unsupported',
+      ),
+    ).toHaveLength(0);
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.tm_nightwalker).toMatchObject({
+      level: 'unsupported',
+      evidence: expect.stringContaining('lighting-condition movement'),
+      gap: expect.stringContaining('Nightwalker movement penalties'),
+    });
+    expect(
+      Object.values(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT).filter(
+        (entry) => entry.level === 'unsupported',
       ).length,
     ).toBeGreaterThan(0);
     expect(
