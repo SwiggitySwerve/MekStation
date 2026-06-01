@@ -7,6 +7,7 @@ import type {
 
 import type { D6Roller } from './diceTypes';
 
+import { buildDefaultCriticalSlotManifest } from './criticalHitResolution';
 import { resolveDamage as resolveDamagePipeline } from './damage';
 import { resolveFall } from './fallMechanics';
 import {
@@ -19,7 +20,10 @@ import {
   createUnitFellEvent,
   createUnitDestroyedEvent,
 } from './gameEvents';
-import { buildDamageStateFromUnit } from './gameSessionAttackResolutionHelpers';
+import {
+  buildDamageStateFromUnit,
+  emitCriticalEvents,
+} from './gameSessionAttackResolutionHelpers';
 import { appendEvent } from './gameSessionCore';
 import { defaultD6Roller } from './hitLocation';
 import { createAirMekLandingPSR, resolvePSR } from './pilotingSkillRolls';
@@ -137,6 +141,7 @@ export function applyAirMekLandingControlPSR(
     currentSession,
     unitId,
     fallResult.clusters,
+    diceRoller,
   );
 
   const currentUnitState = currentSession.currentState.units[unitId];
@@ -165,6 +170,7 @@ function appendAirMekLandingFallDamageClusters(
     readonly damage: number;
     readonly location: CombatLocation;
   }[],
+  diceRoller: D6Roller,
 ): IGameSession {
   let currentSession = session;
   for (const cluster of clusters) {
@@ -173,12 +179,25 @@ function appendAirMekLandingFallDamageClusters(
       return currentSession;
     }
 
-    const damageState = buildDamageStateFromUnit(currentUnitState);
+    const damageState = {
+      ...buildDamageStateFromUnit(currentUnitState),
+      criticalContext: {
+        unitId,
+        manifest: buildDefaultCriticalSlotManifest(),
+        componentDamage:
+          currentUnitState.componentDamage ?? DEFAULT_COMPONENT_DAMAGE,
+      },
+    };
     const damageResult = resolveDamagePipeline(
       damageState,
       cluster.location,
       cluster.damage,
+      diceRoller,
     );
+    const hasCriticalDestruction =
+      damageResult.criticalEvents?.some(
+        (event) => event.type === 'unit_destroyed',
+      ) === true;
     const preDestroyedSet = new Set<CombatLocation>(
       damageState.destroyedLocations,
     );
@@ -256,7 +275,20 @@ function appendAirMekLandingFallDamageClusters(
         );
       }
     }
-    if (damageResult.result.unitDestroyed) {
+    if (damageResult.criticalEvents?.length) {
+      currentSession = emitCriticalEvents(
+        currentSession,
+        damageResult.criticalEvents,
+        currentSession.currentState.turn,
+        unitId,
+        {
+          phase,
+          sourceUnitId: unitId,
+          emitCriticalHitPrelude: true,
+        },
+      );
+    }
+    if (damageResult.result.unitDestroyed && !hasCriticalDestruction) {
       currentSession = appendEvent(
         currentSession,
         createUnitDestroyedEvent(

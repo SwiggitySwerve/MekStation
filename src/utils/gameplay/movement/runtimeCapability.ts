@@ -193,10 +193,13 @@ function airborneVtolOrWigeGroundMovementBlockedReason(
 ): string | undefined {
   if (!isAltitudeTrackedAirborneState(unit)) return undefined;
   const altitudeContext = runtimeMovementAltitudeControlContext(unit);
-  if (altitudeContext) return altitudeContext.blockedReason;
   if (movementMode === 'vtol') {
     return AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON;
   }
+  if (altitudeContext?.altitudeControlMode === 'wige') {
+    return movementMode === 'wige' ? undefined : altitudeContext.blockedReason;
+  }
+  if (altitudeContext) return altitudeContext.blockedReason;
   if (movementMode === 'wige') {
     return AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON;
   }
@@ -258,7 +261,8 @@ export function runtimeMovementProjectionBlockedReason(
   if (
     profile &&
     isLamAirMekMode(unit, profile) &&
-    normalizedLamAirMekAltitude(unit) > 0
+    normalizedLamAirMekAltitude(unit) > 0 &&
+    movementMode !== 'wige'
   ) {
     return AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON;
   }

@@ -307,6 +307,7 @@ export interface IRuntimeMovementStateChangedPayload {
   readonly source:
     | 'conversion_action'
     | 'altitude_control_action'
+    | 'automatic_wige_landing'
     | 'infantry_mount_action'
     | 'scenario_setup'
     | 'rules_correction';
