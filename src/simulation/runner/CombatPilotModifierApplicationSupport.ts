@@ -51,7 +51,6 @@ import {
   MEGAMEK_SENSOR_GHOSTS_TO_HIT_SOURCE_REFS,
   MEGAMEK_SHAKY_STICK_SOURCE_REFS,
   MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,
-  MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
   MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
   MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS,
   MEGAMEK_TARGETING_QUIRK_TO_HIT_SOURCE_REFS,
@@ -360,9 +359,8 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'movement-application': unsupported(
     'movement-application',
-    'Legacy Evasive SPA movement application is superseded by the integrated source-backed TacOps Evade action row; Maneuvering Ace lateral-shift movement and Heavy Lifter carry/throw actions are not wired in the BattleMech combat matrix even though Heavy Lifter lift-capacity helper math exists',
+    'Maneuvering Ace lateral-shift movement and Heavy Lifter carry/throw actions are not wired in the BattleMech combat matrix even though Maneuvering Ace skidding relief and Heavy Lifter lift-capacity helper math exist',
     [
-      ...MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
       ...MEGAMEK_MANEUVERING_ACE_MOVEMENT_SOURCE_REFS,
       ...MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
       ...MEKSTATION_HEAVY_LIFTER_HELPER_SOURCE_REFS,
@@ -489,7 +487,7 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
     quirkIds: [],
   },
   'movement-application': {
-    spaIds: ['evasive', 'maneuvering-ace', 'heavy-lifter'],
+    spaIds: ['maneuvering-ace', 'heavy-lifter'],
     quirkIds: [],
   },
   'multi-target-penalty-application': {
