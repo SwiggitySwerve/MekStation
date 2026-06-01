@@ -14,6 +14,7 @@ import {
   IGameState,
   IMovementStep,
   IUnitGameState,
+  MovementType,
 } from '@/types/gameplay';
 import { ScenarioObjectiveType } from '@/types/scenario/ScenarioInterfaces';
 import {
@@ -37,6 +38,7 @@ import {
   placeObjectives,
 } from '@/utils/gameplay/objectives';
 import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveEngine';
+import { applyDestroyedLocationPhysicalEquipmentState } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 
 import type { ISimulationConfig } from '../core/types';
 
@@ -448,6 +450,9 @@ export function resetTurnState(state: IGameState): IGameState {
       weaponsFiredThisTurn: [],
       pendingPSRs: [],
       tagDesignated: false,
+      sprintedThisTurn: false,
+      isEvading: false,
+      evasionBonus: undefined,
     };
 
     if (shouldTrackMASC(unit)) {
@@ -489,6 +494,10 @@ export function applyMovementEvent(
 ): IGameState {
   const unit = state.units[unitId];
   if (!unit) return state;
+  const wentProne =
+    payload.steps?.some((step) => step.kind === 'goProne') ?? false;
+  const isEvadeMovement = payload.movementType === MovementType.Evade;
+  const isSprintMovement = payload.movementType === MovementType.Sprint;
 
   const updatedUnit: IUnitGameState = {
     ...unit,
@@ -500,6 +509,11 @@ export function applyMovementEvent(
     usedMechanicalJumpBoosterThisTurn: movementStepsUseMechanicalJumpBooster(
       payload.steps,
     ),
+    isEvading: isEvadeMovement,
+    evasionBonus: isEvadeMovement ? 1 : undefined,
+    sprintedThisTurn: isSprintMovement,
+    prone: wentProne ? true : unit.prone,
+    ...(wentProne ? { hullDown: false } : {}),
   };
 
   return {
@@ -528,6 +542,7 @@ export function buildDamageState(unit: IUnitGameState): IUnitDamageState {
     structure: unit.structure as Record<CombatLocation, number>,
     destroyedLocations: unit.destroyedLocations as CombatLocation[],
     pilotWounds: unit.pilotWounds,
+    pilotToughness: unit.pilotToughness,
     pilotConscious: unit.pilotConscious,
     pilotAbilities: unit.abilities,
     destroyed: unit.destroyed,
@@ -614,22 +629,26 @@ export function applyDamageResultToState(
     ? (damageResult.destructionCause ?? target.destructionCause ?? 'damage')
     : target.destructionCause;
 
-  const updatedUnit: IUnitGameState = {
-    ...target,
-    armor: newArmor,
-    structure: newStructure,
-    destroyedLocations: newDestroyedLocations,
-    pilotWounds: damageState.pilotWounds,
-    pilotConscious: damageState.pilotConscious,
-    destroyed: damageResult.unitDestroyed,
-    ...(destructionCause !== undefined ? { destructionCause } : {}),
-    // When the runner supplied post-crit component damage, persist it.
-    // Engine/gyro hits drive PSR + heat thresholds + walk-MP penalties
-    // downstream; without persistence the runner re-rolls a fresh
-    // component-damage block every shot and crit-cascade scenarios
-    // (3 engine hits → destruction) can never accumulate.
-    ...(componentDamage !== undefined ? { componentDamage } : {}),
-  };
+  const updatedUnit: IUnitGameState =
+    applyDestroyedLocationPhysicalEquipmentState(
+      {
+        ...target,
+        armor: newArmor,
+        structure: newStructure,
+        destroyedLocations: newDestroyedLocations,
+        pilotWounds: damageState.pilotWounds,
+        pilotConscious: damageState.pilotConscious,
+        destroyed: damageResult.unitDestroyed,
+        ...(destructionCause !== undefined ? { destructionCause } : {}),
+        // When the runner supplied post-crit component damage, persist it.
+        // Engine/gyro hits drive PSR + heat thresholds + walk-MP penalties
+        // downstream; without persistence the runner re-rolls a fresh
+        // component-damage block every shot and crit-cascade scenarios
+        // (3 engine hits → destruction) can never accumulate.
+        ...(componentDamage !== undefined ? { componentDamage } : {}),
+      },
+      newDestroyedLocations,
+    );
 
   return {
     ...state,

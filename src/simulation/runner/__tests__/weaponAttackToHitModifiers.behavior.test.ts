@@ -193,7 +193,7 @@ function createUnit(options: {
   };
 }
 
-function createHex(q: number, r: number, terrain: TerrainType) {
+function createHex(q: number, r: number, terrain: string) {
   return { coord: { q, r }, occupantId: null, terrain, elevation: 0 };
 }
 
@@ -202,7 +202,7 @@ function createGrid(
   interveningTerrain: ReadonlyArray<{
     q: number;
     r: number;
-    terrain: TerrainType;
+    terrain: string;
   }> = [],
 ): IHexGrid {
   const hexes = new Map();
@@ -364,7 +364,10 @@ describe('runAttackPhase to-hit modifier integration', () => {
     });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application'],
-    ).toMatchObject({ level: 'helper-only' });
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('Some Like It Hot'),
+    });
   });
 
   it('threads target movement, prone, shutdown, partial cover, and target terrain into AttackDeclared', () => {
@@ -466,6 +469,48 @@ describe('runAttackPhase to-hit modifier integration', () => {
     ).toMatchObject({ level: 'integrated' });
   });
 
+  it('threads explicit Skilled Evasion target bonuses into AttackDeclared', () => {
+    const events = runModifierScenario({
+      state: createWeaponAttackState({
+        target: {
+          isEvading: true,
+          evasionBonus: 3,
+        },
+      }),
+    });
+
+    const payload = attackDeclaredPayload(events);
+
+    expect(payload.toHitNumber).toBe(7);
+    expectModifier(payload, {
+      name: 'Target Evasion',
+      value: 3,
+      source: 'target_movement',
+    });
+  });
+
+  it('threads explicit target sprinted state into AttackDeclared', () => {
+    const events = runModifierScenario({
+      state: createWeaponAttackState({
+        target: {
+          sprintedThisTurn: true,
+        },
+      }),
+    });
+
+    const payload = attackDeclaredPayload(events);
+
+    expect(payload.toHitNumber).toBe(3);
+    expectModifier(payload, {
+      name: 'Target Sprinted',
+      value: -1,
+      source: 'target_movement',
+    });
+    expect(
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['target-movement'],
+    ).toMatchObject({ level: 'integrated' });
+  });
+
   it('threads wounds, sensor hits, actuator damage, and attacker prone into AttackDeclared', () => {
     const events = runModifierScenario({
       state: createWeaponAttackState({
@@ -525,6 +570,33 @@ describe('runAttackPhase to-hit modifier integration', () => {
     expect(
       RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['attacker-prone'],
     ).toMatchObject({ level: 'integrated' });
+  });
+
+  it('keeps Pain Resistance from reducing ranged wound penalties in AttackDeclared', () => {
+    const events = runModifierScenario({
+      state: createWeaponAttackState({
+        attacker: {
+          abilities: ['pain-resistance'],
+          pilotWounds: 2,
+        },
+      }),
+    });
+
+    const payload = attackDeclaredPayload(events);
+    expect(payload.toHitNumber).toBe(6);
+    expectModifier(payload, {
+      name: 'Pilot Wounds',
+      value: 2,
+      source: 'other',
+    });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'legacy-pain-resistance-to-hit-application'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('preserve raw pilot wound penalties'),
+    });
   });
 
   it('threads non-blocking intervening terrain features into AttackDeclared', () => {
@@ -650,7 +722,14 @@ describe('runAttackPhase to-hit modifier integration', () => {
       target: { position: { q: 0, r: 0 } },
     });
     const grid = createGrid(TerrainType.Clear, [
-      { q: 1, r: 1, terrain: TerrainType.HeavyWoods },
+      {
+        q: 1,
+        r: 1,
+        terrain: JSON.stringify([
+          { type: TerrainType.HeavyWoods, level: 1 },
+          { type: TerrainType.LightWoods, level: 1 },
+        ]),
+      },
     ]);
 
     expect(network).not.toBeNull();
@@ -718,7 +797,14 @@ describe('runAttackPhase to-hit modifier integration', () => {
       target: { position: { q: 0, r: 0 } },
     });
     const grid = createGrid(TerrainType.Clear, [
-      { q: 1, r: 1, terrain: TerrainType.HeavyWoods },
+      {
+        q: 1,
+        r: 1,
+        terrain: JSON.stringify([
+          { type: TerrainType.HeavyWoods, level: 1 },
+          { type: TerrainType.LightWoods, level: 1 },
+        ]),
+      },
     ]);
 
     expect(network).not.toBeNull();
@@ -1169,6 +1255,7 @@ describe('runAttackPhase to-hit modifier integration', () => {
       light: 'night',
       precipitation: 'heavy_rain',
       fog: 'heavy_fog',
+      blowingSand: true,
       wind: 'strong',
     });
     const laserEvents = runModifierScenario({ environmentalConditions });
@@ -1180,7 +1267,7 @@ describe('runAttackPhase to-hit modifier integration', () => {
     const laserPayload = attackDeclaredPayload(laserEvents);
     const missilePayload = attackDeclaredPayload(missileEvents);
 
-    expect(laserPayload.toHitNumber).toBe(10);
+    expect(laserPayload.toHitNumber).toBe(11);
     expectModifier(laserPayload, {
       name: 'Light Conditions',
       value: 2,
@@ -1196,6 +1283,11 @@ describe('runAttackPhase to-hit modifier integration', () => {
       value: 2,
       source: 'environmental',
     });
+    expectModifier(laserPayload, {
+      name: 'Blowing Sand',
+      value: 1,
+      source: 'environmental',
+    });
     expect(
       laserPayload.modifiers.some((modifier) =>
         modifier.name.startsWith('Wind'),
@@ -1209,6 +1301,11 @@ describe('runAttackPhase to-hit modifier integration', () => {
       source: 'environmental',
     });
     expect(
+      missilePayload.modifiers.some(
+        (modifier) => modifier.name === 'Blowing Sand',
+      ),
+    ).toBe(false);
+    expect(
       RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['environmental-conditions'],
     ).toMatchObject({ level: 'integrated' });
     expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.fog).toMatchObject({
@@ -1218,6 +1315,9 @@ describe('runAttackPhase to-hit modifier integration', () => {
       level: 'integrated',
     });
     expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.wind).toMatchObject({
+      level: 'integrated',
+    });
+    expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.dust).toMatchObject({
       level: 'integrated',
     });
   });
@@ -1552,6 +1652,92 @@ describe('runAttackPhase to-hit modifier integration', () => {
     });
   });
 
+  it('does not consume local Multi-Target as source-backed Multi-Tasker relief', () => {
+    const secondaryWeaponId = 'medium-laser-secondary';
+    const state = createWeaponAttackState({
+      attacker: {
+        abilities: ['multi-target'],
+      },
+      target: {
+        position: { q: 0, r: 2 },
+      },
+    });
+    const multiTargetState: IGameState = {
+      ...state,
+      units: {
+        ...state.units,
+        'opponent-2': createUnit({
+          id: 'opponent-2',
+          side: GameSide.Opponent,
+          position: { q: 3, r: 0 },
+        }),
+      },
+    };
+    const events: IGameEvent[] = [];
+    const violations: IViolation[] = [];
+
+    runAttackPhase({
+      state: multiTargetState,
+      botPlayer: new DeclaresWeaponAttackAI(
+        MEDIUM_LASER_ID,
+        'opponent-1',
+        [MEDIUM_LASER_ID, secondaryWeaponId],
+        {
+          [MEDIUM_LASER_ID]: 'opponent-1',
+          [secondaryWeaponId]: 'opponent-2',
+        },
+      ),
+      grid: createGrid(),
+      invariantRunner: new InvariantRunner(),
+      violations,
+      events,
+      gameId: multiTargetState.gameId,
+      random: new SeededRandom(12345),
+      weaponsByUnit: new Map([
+        [
+          'player-1',
+          [
+            createMediumLaser(MEDIUM_LASER_ID),
+            createMediumLaser(secondaryWeaponId),
+          ],
+        ],
+        ['opponent-1', []],
+        ['opponent-2', []],
+      ]),
+    });
+
+    const secondaryPayload = attackDeclaredPayloads(events).find(
+      (payload) => payload.targetId === 'opponent-2',
+    );
+
+    expect(secondaryPayload).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-2',
+      weapons: [secondaryWeaponId],
+      toHitNumber: 6,
+    });
+    expectModifier(secondaryPayload!, {
+      name: 'Secondary Target',
+      value: 2,
+      source: 'other',
+    });
+    expect(
+      secondaryPayload?.modifiers.some(
+        (modifier) => modifier.name === 'Multi-Tasker',
+      ),
+    ).toBe(false);
+    expect(SPA_COMBAT_SUPPORT['multi-target']).toMatchObject({
+      level: 'out-of-scope',
+    });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'multi-target-penalty-application'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+    });
+  });
+
   it('threads secondary-facing torso twist into secondary target front-arc math', () => {
     const secondaryWeaponId = 'medium-laser-secondary';
     const state = createWeaponAttackState({
@@ -1659,6 +1845,51 @@ describe('runAttackPhase to-hit modifier integration', () => {
       source: 'other',
     });
     expect(RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['called-shot']).toMatchObject({
+      level: 'integrated',
+    });
+  });
+
+  it('uses source-backed called-shot penalties without local Marksman reductions', () => {
+    const events: IGameEvent[] = [];
+    const violations: IViolation[] = [];
+    const state = createWeaponAttackState({
+      attacker: { abilities: ['marksman', 'sharpshooter'] },
+    });
+
+    runAttackPhase({
+      state,
+      botPlayer: new DeclaresWeaponAttackAI(
+        MEDIUM_LASER_ID,
+        'opponent-1',
+        [MEDIUM_LASER_ID],
+        undefined,
+        { [MEDIUM_LASER_ID]: true },
+      ),
+      grid: createGrid(),
+      invariantRunner: new InvariantRunner(),
+      violations,
+      events,
+      gameId: state.gameId,
+      random: new SeededRandom(12345),
+      weaponsByUnit: new Map([
+        ['player-1', [createMediumLaser(MEDIUM_LASER_ID)]],
+        ['opponent-1', []],
+      ]),
+    });
+
+    const payload = attackDeclaredPayload(events);
+    const calledShotModifier = payload.modifiers.find(
+      (modifier) => modifier.name === 'Called Shot',
+    );
+
+    expect(payload.toHitNumber).toBe(7);
+    expect(calledShotModifier).toMatchObject({
+      value: 3,
+      source: 'other',
+    });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['called-shot-application'],
+    ).toMatchObject({
       level: 'integrated',
     });
   });

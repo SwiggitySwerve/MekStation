@@ -144,6 +144,11 @@ export interface IUnitGameState {
    */
   readonly unitType?: string;
   /**
+   * Unit mass in tons. Undefined preserves legacy synthetic fixtures, while
+   * explicit values allow terrain/load rules to avoid guessing.
+   */
+  readonly tonnage?: number;
+  /**
    * Construction-side movement/motion mode copied into combat state for
    * source-backed rules that distinguish VTOL/WIGE-like airborne targets
    * from generic vehicles. Undefined preserves legacy BattleMech fixtures.
@@ -189,6 +194,16 @@ export interface IUnitGameState {
    */
   readonly isPushing?: boolean;
   /**
+   * Source-backed TacOps grapple state. A successful grapple records the
+   * opposing unit id on both participants; the unit that initiated the
+   * grapple sets `isGrappleAttacker`.
+   */
+  readonly grappledUnitId?: string;
+  readonly isGrappleAttacker?: boolean;
+  readonly grappledThisRound?: boolean;
+  readonly grappleSide?: 'left' | 'right' | 'both';
+  readonly isChainWhipGrappled?: boolean;
+  /**
    * Target id of this unit's active displacement attack. Push legality uses
    * this to prove counter-push ownership when `isPushing` is true.
    */
@@ -216,6 +231,26 @@ export interface IUnitGameState {
    * preserves legacy fixtures without evasion state.
    */
   readonly isEvading?: boolean;
+  /**
+   * Whether this unit declared target spotting for indirect fire this turn.
+   * The state persists into the same turn's physical phase so source-backed
+   * "attacker is spotting" penalties can be applied before turn reset.
+   */
+  readonly isSpotting?: boolean;
+  /** Target id selected by this turn's spotting declaration. */
+  readonly spotTargetId?: string;
+  /**
+   * Optional source-backed target evasion to-hit bonus. Undefined preserves
+   * the normal +1 evasion bonus for explicit evading targets; explicit 0 lets
+   * Skilled Evasion state suppress the bonus without clearing evasion.
+   */
+  readonly evasionBonus?: number;
+  /**
+   * Whether this unit sprinted during the current turn. Explicit true feeds
+   * the source-backed target-sprinted ranged to-hit modifier and
+   * sprinting-attacker ranged attack invalidation.
+   */
+  readonly sprintedThisTurn?: boolean;
   /**
    * Whether this unit is loading or unloading cargo this turn. Explicit true
    * blocks source-backed physical attack declarations by this attacker;
@@ -323,10 +358,13 @@ export interface IUnitGameState {
   /**
    * Talon equipment projected into combat state. UnitHydration derives this
    * from leg critical slots for catalog units; undefined preserves synthetic
-   * fixtures that do not carry mounted talon equipment.
+   * fixtures that do not carry mounted talon equipment. For quad/non-biped
+   * BattleMechs, MegaMek stores the front leg talon checks on arm locations.
    */
   readonly leftLegHasTalons?: boolean;
   readonly rightLegHasTalons?: boolean;
+  readonly leftArmHasTalons?: boolean;
+  readonly rightArmHasTalons?: boolean;
   /**
    * Claw equipment projected into combat state. UnitHydration derives this
    * from arm critical slots for catalog units; undefined preserves synthetic
@@ -361,6 +399,12 @@ export interface IUnitGameState {
   readonly ammo: Record<string, number>;
   /** Pilot wounds */
   readonly pilotWounds: number;
+  /**
+   * Source-backed RPG Toughness numeric crew value for consciousness checks.
+   * Undefined preserves default behavior when the RPG Toughness option was not
+   * enabled or hydrated.
+   */
+  readonly pilotToughness?: number;
   /** Is pilot conscious? */
   readonly pilotConscious: boolean;
   /** Is unit destroyed? */
@@ -377,6 +421,8 @@ export interface IUnitGameState {
   readonly componentDamage?: IComponentDamageState;
   /** Unit is prone (fallen) */
   readonly prone?: boolean;
+  /** Unit is bogged down or otherwise stuck and cannot voluntarily move. */
+  readonly isStuck?: boolean;
   /** Unit is in a hull-down defensive position. */
   readonly hullDown?: boolean;
   /** Unit is bracing and cannot change secondary facing. */
@@ -385,6 +431,12 @@ export interface IUnitGameState {
   readonly shutdown?: boolean;
   /** Ammo bin state tracking */
   readonly ammoState?: Record<string, IAmmoSlotState>;
+  /**
+   * Optional per-location armor type projected from construction data or test
+   * fixtures. Missing keys are treated as standard armor for combat effects
+   * that care about special armor behavior.
+   */
+  readonly armorTypeByLocation?: Readonly<Record<string, string>>;
   /**
    * Per-location ammo explosion containment projected from mounted CASE
    * equipment. `case` and `case_ii` are explicit protection levels; missing

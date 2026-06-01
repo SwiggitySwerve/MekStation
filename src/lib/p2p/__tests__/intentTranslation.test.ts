@@ -28,6 +28,7 @@ import {
   buildEjectIntent,
   buildEndPhaseIntent,
   buildGoProneIntent,
+  buildRequestSpotIntent,
   buildStandIntent,
   buildTorsoTwistIntent,
   buildWithdrawIntent,
@@ -114,6 +115,25 @@ function withPhase(session: IGameSession, phase: GamePhase): IGameSession {
       ...session.currentState,
       phase,
       status: GameStatus.Active,
+    },
+  };
+}
+
+function withGuestAbilities(
+  session: IGameSession,
+  abilities: readonly string[],
+): IGameSession {
+  return {
+    ...session,
+    currentState: {
+      ...session.currentState,
+      units: {
+        ...session.currentState.units,
+        'guest-0': {
+          ...session.currentState.units['guest-0'],
+          abilities,
+        },
+      },
     },
   };
 }
@@ -234,6 +254,59 @@ describe('translateIntentToEvents', () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.reason).toBe('unowned-unit');
+  });
+
+  it('translates guest-owned TacOps Evade with authoritative run-mode heat', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const move = guestForwardMove(session);
+    const intent = buildDeclareMovementIntent(GUEST_PEER, {
+      unitId: 'guest-0',
+      from: move.from,
+      to: move.to,
+      facing: move.facing,
+      movementType: MovementType.Evade,
+      mpUsed: 99,
+      heatGenerated: 99,
+    });
+
+    const result = translateIntentToEvents(intent, session, authority());
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.events[0].payload).toMatchObject({
+      unitId: 'guest-0',
+      movementType: MovementType.Evade,
+      mode: MovementType.Run,
+      mpUsed: 1,
+      heatGenerated: 4,
+    });
+  });
+
+  it('translates guest-owned TacOps Sprint with authoritative run-mode animation and sprint heat', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const move = guestForwardMove(session);
+    const intent = buildDeclareMovementIntent(GUEST_PEER, {
+      unitId: 'guest-0',
+      from: move.from,
+      to: move.to,
+      facing: move.facing,
+      movementType: MovementType.Sprint,
+      mpUsed: 99,
+      heatGenerated: 99,
+    });
+
+    const result = translateIntentToEvents(intent, session, authority());
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.events[0].payload).toMatchObject({
+      unitId: 'guest-0',
+      movementType: MovementType.Sprint,
+      mode: MovementType.Run,
+      mpUsed: 1,
+      heatGenerated: 3,
+    });
+    expect(result.events[1].type).toBe('movement_locked');
   });
 
   it('translates a guest-owned stand intent into an authoritative host command', () => {
@@ -430,12 +503,58 @@ describe('translateIntentToEvents', () => {
     ]);
   });
 
+  it('translates a guest-owned requestSpot in the WeaponAttack phase', () => {
+    const session = withPhase(fixtureSession(), GamePhase.WeaponAttack);
+    const intent = buildRequestSpotIntent(GUEST_PEER, {
+      unitId: 'guest-0',
+      targetId: 'host-0',
+    });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.events).toHaveLength(1);
+    expect(result.events[0].type).toBe('spotting_declared');
+    expect(result.events[0].sequence).toBe(session.events.length);
+    expect(result.events[0].payload).toMatchObject({
+      unitId: 'guest-0',
+      targetId: 'host-0',
+      turn: session.currentState.turn,
+    });
+  });
+
+  it('rejects requestSpot outside WeaponAttack or for an unowned unit', () => {
+    const movementSession = withPhase(fixtureSession(), GamePhase.Movement);
+    const wrongPhase = translateIntentToEvents(
+      buildRequestSpotIntent(GUEST_PEER, {
+        unitId: 'guest-0',
+        targetId: 'host-0',
+      }),
+      movementSession,
+    );
+    expect(wrongPhase.ok).toBe(false);
+    if (!wrongPhase.ok) expect(wrongPhase.reason).toBe('wrong-phase');
+
+    const weaponSession = withPhase(fixtureSession(), GamePhase.WeaponAttack);
+    const unowned = translateIntentToEvents(
+      buildRequestSpotIntent(GUEST_PEER, {
+        unitId: 'host-0',
+        targetId: 'guest-0',
+      }),
+      weaponSession,
+    );
+    expect(unowned.ok).toBe(false);
+    if (!unowned.ok) expect(unowned.reason).toBe('unowned-unit');
+  });
+
   it('translates a guest-owned declarePhysical in the PhysicalAttack phase', () => {
     const session = withPhase(fixtureSession(), GamePhase.PhysicalAttack);
     const intent = buildDeclarePhysicalIntent(GUEST_PEER, {
       attackerId: 'guest-0',
       targetId: 'host-0',
       attackType: 'kick',
+      limb: 'leftLeg',
       toHitNumber: 6,
     });
 
@@ -451,7 +570,67 @@ describe('translateIntentToEvents', () => {
       targetId: 'host-0',
       attackType: 'kick',
       toHitNumber: 6,
+      limb: 'leftLeg',
     });
+  });
+
+  it('rejects a second physical declaration from a non-Melee Master unit', () => {
+    const session = withPhase(fixtureSession(), GamePhase.PhysicalAttack);
+    const firstIntent = buildDeclarePhysicalIntent(GUEST_PEER, {
+      attackerId: 'guest-0',
+      targetId: 'host-0',
+      attackType: 'punch',
+    });
+
+    const first = translateIntentToEvents(firstIntent, session);
+    expect(first.ok).toBe(true);
+    if (!first.ok) return;
+
+    const secondIntent = buildDeclarePhysicalIntent(GUEST_PEER, {
+      attackerId: 'guest-0',
+      targetId: 'host-0',
+      attackType: 'kick',
+    });
+    const second = translateIntentToEvents(secondIntent, {
+      ...session,
+      events: [...session.events, ...first.events],
+    });
+
+    expect(second.ok).toBe(false);
+    if (second.ok) return;
+    expect(second.reason).toBe('physical-attack-limit-reached');
+  });
+
+  it('rejects a Melee Master physical declaration that reuses the same limb over P2P', () => {
+    const session = withGuestAbilities(
+      withPhase(fixtureSession(), GamePhase.PhysicalAttack),
+      ['melee_master'],
+    );
+    const firstIntent = buildDeclarePhysicalIntent(GUEST_PEER, {
+      attackerId: 'guest-0',
+      targetId: 'host-0',
+      attackType: 'kick',
+      limb: 'leftLeg',
+    });
+
+    const first = translateIntentToEvents(firstIntent, session);
+    expect(first.ok).toBe(true);
+    if (!first.ok) return;
+
+    const secondIntent = buildDeclarePhysicalIntent(GUEST_PEER, {
+      attackerId: 'guest-0',
+      targetId: 'host-0',
+      attackType: 'kick',
+      limb: 'leftLeg',
+    });
+    const second = translateIntentToEvents(secondIntent, {
+      ...session,
+      events: [...session.events, ...first.events],
+    });
+
+    expect(second.ok).toBe(false);
+    if (second.ok) return;
+    expect(second.reason).toBe('physical-attack-limb-used');
   });
 
   it('rejects declarePhysical outside the PhysicalAttack phase', () => {

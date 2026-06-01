@@ -15,6 +15,7 @@ import {
 
 const ATTACK_INVALID_REASONS = [
   'AttackerEvading',
+  'AttackerSprinted',
   'InvalidTarget',
   'NoLineOfSight',
   'OutOfAmmo',
@@ -151,6 +152,14 @@ describe('BattleMech attack invalidation support catalog', () => {
       ),
     ).toEqual([
       'MegaMek ComputeToHitIsImpossible prevents non-large-spacecraft evading attackers from firing ranged attacks.',
+    ]);
+
+    expect(
+      ATTACK_INVALIDATION_REASON_SUPPORT.AttackerSprinted.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek ranged to-hit calculation makes attacks by sprinting attackers automatic failures.',
     ]);
 
     expect(

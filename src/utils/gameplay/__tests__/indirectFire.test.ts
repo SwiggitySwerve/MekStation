@@ -58,7 +58,8 @@ function makeBlockedGrid(): IHexGrid {
       hexes.set(`${q},${r}`, makeHex(q, r));
     }
   }
-  // Heavy woods at (3, 0) blocks LOS from (0,0) to (5,0)
+  // Light + heavy woods block LOS from (0,0) to (5,0).
+  hexes.set('2,0', makeHex(2, 0, TerrainType.LightWoods));
   hexes.set('3,0', makeHex(3, 0, TerrainType.HeavyWoods));
   return { config: { radius: 10 }, hexes };
 }
@@ -182,6 +183,23 @@ describe('Spotter Mechanics', () => {
       expect(isEligibleSpotter(spotter, 'attacker-1', 'team-A')).toBe(false);
     });
 
+    it('should reject sprinting or evading spotters', () => {
+      expect(
+        isEligibleSpotter(
+          makeSpotter({ sprintedThisTurn: true }),
+          'attacker-1',
+          'team-A',
+        ),
+      ).toBe(false);
+      expect(
+        isEligibleSpotter(
+          makeSpotter({ isEvading: true }),
+          'attacker-1',
+          'team-A',
+        ),
+      ).toBe(false);
+    });
+
     it('should reject destroyed/shutdown spotter', () => {
       const spotter = makeSpotter({ isOperational: false });
       expect(isEligibleSpotter(spotter, 'attacker-1', 'team-A')).toBe(false);
@@ -286,7 +304,7 @@ describe('Spotter Mechanics', () => {
       expect(result!.spotter.entityId).toBe('has-los');
     });
 
-    it('should filter out running and jumping spotters', () => {
+    it('should filter out running, jumping, sprinting, and evading spotters', () => {
       const running = makeSpotter({
         entityId: 'runner',
         movementType: MovementType.Run,
@@ -295,8 +313,16 @@ describe('Spotter Mechanics', () => {
         entityId: 'jumper',
         movementType: MovementType.Jump,
       });
+      const sprinting = makeSpotter({
+        entityId: 'sprinter',
+        sprintedThisTurn: true,
+      });
+      const evading = makeSpotter({
+        entityId: 'evader',
+        isEvading: true,
+      });
       const result = findBestSpotter(
-        [running, jumping],
+        [running, jumping, sprinting, evading],
         'attacker-1',
         'team-A',
         { q: 5, r: 0 },

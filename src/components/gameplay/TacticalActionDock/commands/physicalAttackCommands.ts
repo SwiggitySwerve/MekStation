@@ -16,6 +16,12 @@ export function buildPhysicalAttackCommands(): readonly ITacticalCommand[] {
     PhysicalPunchCommand,
     PhysicalKickCommand,
     PhysicalPushCommand,
+    PhysicalTripCommand,
+    PhysicalThrashCommand,
+    PhysicalJumpJetAttackCommand,
+    PhysicalBrushOffCommand,
+    PhysicalGrappleCommand,
+    PhysicalBreakGrappleCommand,
     PhysicalChargeCommand,
     PhysicalDeathFromAboveCommand,
     PhysicalClubCommand,
@@ -81,6 +87,99 @@ const PhysicalPushCommand: ITacticalCommand = {
   availability: requireActiveAndTarget,
   commit() {
     return { actionId: 'physical-attack', payload: { attackType: 'push' } };
+  },
+};
+
+const PhysicalTripCommand: ITacticalCommand = {
+  id: 'physical.trip',
+  category: 'physical',
+  label: 'Trip',
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return { actionId: 'physical-attack', payload: { attackType: 'trip' } };
+  },
+};
+
+const PhysicalThrashCommand: ITacticalCommand = {
+  id: 'physical.thrash',
+  category: 'physical',
+  label: 'Thrash',
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return { actionId: 'physical-attack', payload: { attackType: 'thrash' } };
+  },
+};
+
+const PhysicalJumpJetAttackCommand: ITacticalCommand = {
+  id: 'physical.jump-jet-attack',
+  category: 'physical',
+  label: 'Jump Jet Attack',
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return {
+      actionId: 'physical-attack',
+      payload: { attackType: 'jump-jet-attack', limb: 'rightLeg' },
+    };
+  },
+};
+
+const PhysicalBrushOffCommand: ITacticalCommand = {
+  id: 'physical.brush-off',
+  category: 'physical',
+  label: 'Brush Off',
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return {
+      actionId: 'physical-attack',
+      payload: { attackType: 'brush-off', limb: 'rightArm' },
+    };
+  },
+};
+
+const PhysicalGrappleCommand: ITacticalCommand = {
+  id: 'physical.grapple',
+  category: 'physical',
+  label: 'Grapple',
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return { actionId: 'physical-attack', payload: { attackType: 'grapple' } };
+  },
+};
+
+const PhysicalBreakGrappleCommand: ITacticalCommand = {
+  id: 'physical.break-grapple',
+  category: 'physical',
+  label: 'Break Grapple',
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return {
+      actionId: 'physical-attack',
+      payload: { attackType: 'break-grapple' },
+    };
   },
 };
 

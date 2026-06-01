@@ -43,6 +43,7 @@ export function buildWeaponAttackAttackerToHitState(
   secondaryTarget?: ISecondaryTarget,
   calledShot?: boolean,
   teammateCalledShot?: boolean,
+  applyLocalCalledShotAbilityReduction: boolean = true,
 ): IAttackerState {
   return {
     gunnery,
@@ -54,6 +55,7 @@ export function buildWeaponAttackAttackerToHitState(
     sensorHits: unit.componentDamage?.sensorHits,
     actuatorDamage: buildWeaponAttackActuatorDamage(unit.componentDamage),
     prone: unit.prone ?? false,
+    isSpotting: unit.isSpotting,
     abilities: unit.abilities,
     weaponType: weapon?.name ?? weapon?.id,
     weaponCategory: weapon?.category,
@@ -63,6 +65,7 @@ export function buildWeaponAttackAttackerToHitState(
     secondaryTarget,
     calledShot,
     teammateCalledShot,
+    applyLocalCalledShotAbilityReduction,
     designatedTargetId: unit.designatedTargetId,
     designatedRangeBracket: unit.designatedRangeBracket,
     unitQuirks: unit.unitQuirks,
@@ -89,6 +92,8 @@ export function buildWeaponAttackTargetToHitState(
     abilities: unit.abilities,
     isDodging: unit.isDodging,
     isEvading: unit.isEvading,
+    evasionBonus: unit.evasionBonus,
+    sprintedThisTurn: unit.sprintedThisTurn,
     terrainFeatures,
   };
 }

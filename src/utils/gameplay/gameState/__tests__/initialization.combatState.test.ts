@@ -178,6 +178,16 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     expect(state.isSwarming).toBe(true);
   });
 
+  it('copies optional armor-type state for special armor combat effects', () => {
+    const armorTypeByLocation = { center_torso: 'Reflective' } as const;
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      armorTypeByLocation,
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.armorTypeByLocation).toBe(armorTypeByLocation);
+  });
+
   it('copies optional DFA-making state for physical targetability gates', () => {
     const unit = baseGameUnit({
       unitType: UnitType.BATTLEMECH,
@@ -224,9 +234,13 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     const unit = baseGameUnit({
       unitType: UnitType.BATTLEMECH,
       isEvading: true,
+      evasionBonus: 3,
+      sprintedThisTurn: true,
     });
     const state = createInitialUnitState(unit, POSITION, Facing.North);
     expect(state.isEvading).toBe(true);
+    expect(state.evasionBonus).toBe(3);
+    expect(state.sprintedThisTurn).toBe(true);
   });
 
   it('copies optional cargo interaction state for physical attacker legality gates', () => {

@@ -32,6 +32,7 @@ import {
   calculateAttackerMovementModifier,
   calculateTMM,
   calculateTargetEvasionModifier,
+  calculateTargetSprintedModifier,
   calculateHeatModifier,
   calculateMinimumRangeModifier,
   calculateProneModifier,
@@ -46,6 +47,7 @@ import {
   calculateSensorDamageModifier,
   calculateActuatorDamageModifier,
   calculateAttackerProneModifier,
+  calculateSpottingAttackerModifier,
   calculateIndirectFireModifier,
   calculateCalledShotModifier,
   // Aggregation functions
@@ -158,6 +160,10 @@ describe('ATTACKER_MOVEMENT_MODIFIERS', () => {
 
   it('should have Run modifier of 2', () => {
     expect(ATTACKER_MOVEMENT_MODIFIERS[MovementType.Run]).toBe(2);
+  });
+
+  it('should have TacOps Evade modifier of 2', () => {
+    expect(ATTACKER_MOVEMENT_MODIFIERS[MovementType.Evade]).toBe(2);
   });
 
   it('should have Jump modifier of 3', () => {
@@ -579,6 +585,11 @@ describe('calculateAttackerMovementModifier', () => {
 
   it('should return +2 for running', () => {
     const modifier = calculateAttackerMovementModifier(MovementType.Run);
+    expect(modifier.value).toBe(2);
+  });
+
+  it('should return +2 for TacOps Evade', () => {
+    const modifier = calculateAttackerMovementModifier(MovementType.Evade);
     expect(modifier.value).toBe(2);
   });
 
@@ -1082,8 +1093,53 @@ describe('calculateToHit', () => {
     );
   });
 
+  it('should consume explicit Skilled Evasion target bonuses', () => {
+    const attacker = createTestAttackerState({ gunnery: 4 });
+    const target = createTestTargetState({
+      isEvading: true,
+      evasionBonus: 3,
+    });
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+
+    expect(result.finalToHit).toBe(7);
+    expect(result.modifiers).toContainEqual(
+      expect.objectContaining({
+        name: 'Target Evasion',
+        value: 3,
+        source: 'target_movement',
+      }),
+    );
+  });
+
+  it('should suppress explicit zero Skilled Evasion target bonuses', () => {
+    const modifier = calculateTargetEvasionModifier(true, false, 0);
+
+    expect(modifier).toBeNull();
+  });
+
   it('should suppress target evasion while the target is prone', () => {
     const modifier = calculateTargetEvasionModifier(true, true);
+
+    expect(modifier).toBeNull();
+  });
+
+  it('should include source-backed target sprinted relief', () => {
+    const attacker = createTestAttackerState({ gunnery: 4 });
+    const target = createTestTargetState({ sprintedThisTurn: true });
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+
+    expect(result.finalToHit).toBe(3);
+    expect(result.modifiers).toContainEqual(
+      expect.objectContaining({
+        name: 'Target Sprinted',
+        value: -1,
+        source: 'target_movement',
+      }),
+    );
+  });
+
+  it('should omit target sprinted relief unless explicit sprint state is set', () => {
+    const modifier = calculateTargetSprintedModifier(false);
 
     expect(modifier).toBeNull();
   });
@@ -1596,6 +1652,11 @@ describe('simpleToHit', () => {
 
   it('should include attacker movement modifier', () => {
     const result = simpleToHit(4, RangeBracket.Short, MovementType.Run);
+    expect(result.finalToHit).toBe(6); // 4 + 2
+  });
+
+  it('should include TacOps Sprint attacker movement modifier', () => {
+    const result = simpleToHit(4, RangeBracket.Short, MovementType.Sprint);
     expect(result.finalToHit).toBe(6); // 4 + 2
   });
 
@@ -2268,6 +2329,22 @@ describe('calculateAttackerProneModifier', () => {
   });
 });
 
+describe('calculateSpottingAttackerModifier', () => {
+  it('should return null when the attacker is not spotting', () => {
+    expect(calculateSpottingAttackerModifier(false)).toBeNull();
+    expect(calculateSpottingAttackerModifier()).toBeNull();
+  });
+
+  it('should apply +1 when the attacker is spotting', () => {
+    const modifier = calculateSpottingAttackerModifier(true);
+    expect(modifier).toMatchObject({
+      name: 'Attacker Spotting',
+      value: 1,
+      source: 'other',
+    });
+  });
+});
+
 describe('calculateIndirectFireModifier', () => {
   it('should return null when not indirect fire', () => {
     const info: IIndirectFire = { isIndirect: false, spotterWalked: false };
@@ -2490,6 +2567,20 @@ describe('calculateToHit with Phase 10 modifiers', () => {
     // Gunnery 4 + prone 2 = 6
     expect(result.finalToHit).toBe(6);
     expect(result.modifiers.some((m) => m.name === 'Attacker Prone')).toBe(
+      true,
+    );
+  });
+
+  it('should apply attacker spotting penalty', () => {
+    const attacker = createTestAttackerState({
+      gunnery: 4,
+      isSpotting: true,
+    });
+    const target = createTestTargetState();
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+
+    expect(result.finalToHit).toBe(5);
+    expect(result.modifiers.some((m) => m.name === 'Attacker Spotting')).toBe(
       true,
     );
   });

@@ -38,6 +38,10 @@ export enum MovementType {
   Walk = 'walk',
   /** Ran (1.5x walk MP) */
   Run = 'run',
+  /** Sprinted (TacOps optional movement with attack/targeting side effects) */
+  Sprint = 'sprint',
+  /** Evaded (TacOps optional running movement with evasion side effects) */
+  Evade = 'evade',
   /** Jumped (jump jets) */
   Jump = 'jump',
 }
@@ -141,6 +145,8 @@ export interface IUnitPosition {
   readonly facing: Facing;
   /** Whether unit is prone (fallen) */
   readonly prone: boolean;
+  /** Whether unit is stuck/bogged down and cannot voluntarily move */
+  readonly isStuck?: boolean;
 }
 
 /**
@@ -187,6 +193,8 @@ export interface IMovementCapability {
   readonly walkMP: number;
   /** Running MP (calculated: ceil(walkMP * 1.5)) */
   readonly runMP: number;
+  /** Optional TacOps Sprint MP (calculated from walk MP and boosters) */
+  readonly sprintMP?: number;
   /** Jump MP (0 if no jump jets) */
   readonly jumpMP: number;
   /**

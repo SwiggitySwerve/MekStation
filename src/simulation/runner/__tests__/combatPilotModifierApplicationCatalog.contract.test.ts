@@ -3,6 +3,7 @@ import { SPA_CATALOG } from '@/utils/gameplay/spaModifiers';
 
 import type { ICombatFeatureSupportEntry } from '../CombatFeatureSupport';
 
+import { CANONICAL_SPA_COMBAT_SCOPE_SUPPORT } from '../CombatCanonicalSpaSupport';
 import {
   QUIRK_COMBAT_SUPPORT,
   SPA_COMBAT_SUPPORT,
@@ -121,17 +122,46 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'ranged-to-hit-state-hydration',
         'sandblaster-application',
         'target-priority-application',
+        'vehicle-movement-application',
         'weapon-to-hit-quirk-application',
       ].sort(),
     );
     expect(supportGaps(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT)).toEqual([]);
   });
 
-  it('assigns every cataloged SPA and quirk to at least one combat resolver family', () => {
-    expect(assignedSpaIds()).toEqual(sortedKeys(SPA_CATALOG));
-    expect(assignedSpaIds()).toEqual(sortedKeys(SPA_COMBAT_SUPPORT));
+  it('assigns every combat-consumed SPA and quirk to at least one resolver family', () => {
+    const unconsumedLocalSpas = [
+      'acrobat',
+      'antagonizer',
+      'combat-intuition',
+      'cool-under-fire',
+      'evasive',
+      'iron-will',
+      'marksman',
+      'multi-target',
+      'natural-grace',
+      'sharpshooter',
+      'speed-demon',
+      'terrain-master',
+    ];
+    const expectedAssignedSpas = sortedKeys(SPA_CATALOG).filter(
+      (spaId) => !unconsumedLocalSpas.includes(spaId),
+    );
+
+    expect(assignedSpaIds()).toEqual(expectedAssignedSpas);
+    expect(assignedSpaIds()).toEqual(
+      sortedKeys(SPA_COMBAT_SUPPORT).filter(
+        (spaId) => !unconsumedLocalSpas.includes(spaId),
+      ),
+    );
     expect(assignedQuirkIds()).toEqual(sortedKeys(QUIRK_CATALOG));
     expect(assignedQuirkIds()).toEqual(sortedKeys(QUIRK_COMBAT_SUPPORT));
+    expect(SPA_COMBAT_SUPPORT.marksman.level).toBe('out-of-scope');
+    expect(SPA_COMBAT_SUPPORT['multi-target'].level).toBe('out-of-scope');
+    expect(SPA_COMBAT_SUPPORT.sharpshooter.level).toBe('out-of-scope');
+    expect(SPA_COMBAT_SUPPORT['cool-under-fire'].level).toBe('out-of-scope');
+    expect(SPA_COMBAT_SUPPORT['iron-will'].level).toBe('out-of-scope');
+    expect(SPA_COMBAT_SUPPORT['terrain-master'].level).toBe('out-of-scope');
   });
 
   it('does not assign unknown SPA or quirk ids to resolver families', () => {
@@ -171,8 +201,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       evidence: expect.stringContaining('physical damage'),
     });
     expect(SPA_COMBAT_SUPPORT['melee-master']).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('two allowed physical attacks'),
+      level: 'integrated',
+      evidence: expect.stringContaining('two-physical-attacks allowance'),
     });
   });
 
@@ -214,12 +244,28 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       evidence: expect.stringContaining('stand-up PSR'),
     });
     expect(QUIRK_COMBAT_SUPPORT.low_arms).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('does not expose a combat resolver'),
+      level: 'out-of-scope',
+      gap: expect.stringContaining('registry-only out-of-scope audit evidence'),
+    });
+    expect(QUIRK_COMBAT_SUPPORT.rugged_1).toMatchObject({
+      level: 'out-of-scope',
+      gap: expect.stringContaining('campaign maintenance quirk'),
+    });
+    expect(QUIRK_COMBAT_SUPPORT.rugged_2).toMatchObject({
+      level: 'out-of-scope',
+      gap: expect.stringContaining('campaign maintenance quirk'),
     });
     expect(QUIRK_COMBAT_SUPPORT.rugged_1.sourceRefs).toEqual(
       QUIRK_COMBAT_SUPPORT.rugged_2.sourceRefs,
     );
+    expect(QUIRK_COMBAT_SUPPORT.protected_actuators).toMatchObject({
+      level: 'out-of-scope',
+      gap: expect.stringContaining('non-BattleMech attacker actions'),
+    });
+    expect(QUIRK_COMBAT_SUPPORT.exposed_actuators).toMatchObject({
+      level: 'out-of-scope',
+      gap: expect.stringContaining('non-BattleMech attacker actions'),
+    });
     expect(QUIRK_COMBAT_SUPPORT.protected_actuators.sourceRefs).toEqual(
       QUIRK_COMBAT_SUPPORT.exposed_actuators.sourceRefs,
     );
@@ -230,14 +276,19 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       supportIdsByLevel(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT, 'integrated'),
     ).toEqual(
       [
-        'ranged-to-hit-calculation',
-        'ranged-to-hit-state-hydration',
+        'called-shot-application',
         'cluster-hitter-application',
+        'heat-application',
         'indirect-fire-spa-application',
-        'physical-restriction-application',
+        'legacy-pain-resistance-to-hit-application',
+        'multi-target-penalty-application',
+        'physical-action-count-application',
         'physical-damage-application',
+        'physical-restriction-application',
         'physical-to-hit-application',
         'psr-application',
+        'ranged-to-hit-calculation',
+        'ranged-to-hit-state-hydration',
         'weapon-to-hit-quirk-application',
       ].sort(),
     );
@@ -247,12 +298,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       [
         'initiative-command-console-hydration',
         'initiative-hq-equipment-hydration',
-        'legacy-pain-resistance-to-hit-application',
-        'low-arms-application',
         'movement-application',
-        'multi-target-penalty-application',
-        'physical-action-count-application',
-        'target-priority-application',
       ].sort(),
     );
     expect(
@@ -262,11 +308,19 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'critical-prevention-application',
         'consciousness-application',
         'legacy-defensive-quirk-to-hit-application',
-        'heat-application',
         'psr-spa-application',
         'sandblaster-application',
       ]),
     );
+    expect(
+      supportIdsByLevel(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT, 'out-of-scope'),
+    ).toEqual([
+      'anti-mek-actuator-application',
+      'campaign-maintenance-application',
+      'low-arms-application',
+      'target-priority-application',
+      'vehicle-movement-application',
+    ]);
   });
 
   it('keeps ranged to-hit feature support distinct from ranged attack state hydration', () => {
@@ -306,12 +360,15 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS[
         'legacy-pain-resistance-to-hit-application'
       ],
-    ).toEqual({ spaIds: ['pain-resistance'], quirkIds: [] });
+    ).toEqual({ spaIds: [], quirkIds: [] });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'legacy-pain-resistance-to-hit-application'
       ],
-    ).toMatchObject({ level: 'unsupported' });
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('preserve raw pilot wound penalties'),
+    });
   });
 
   it('keeps source-backed Multi-Tasker distinct from local Multi-Target', () => {
@@ -319,7 +376,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       level: 'integrated',
     });
     expect(SPA_COMBAT_SUPPORT['multi-target']).toMatchObject({
-      level: 'unsupported',
+      level: 'out-of-scope',
+      gap: expect.stringContaining('source-backed secondary-target penalty'),
     });
     expect(SPA_COMBAT_SUPPORT['multi-target'].gap).toContain(
       'Multi-Tasker/multi_tasker',
@@ -328,20 +386,35 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'multi-target-penalty-application'
       ],
-    ).toMatchObject({ level: 'unsupported' });
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('Multi-Tasker/multi_tasker'),
+    });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['multi-target-penalty-application']
-        .gap,
-    ).toContain('source-backed MegaMek');
+        .evidence,
+    ).toContain('leaving the out-of-scope local Multi-Target row unconsumed');
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['multi-target-penalty-application'],
+    ).toEqual({ spaIds: ['multi-tasker'], quirkIds: [] });
 
     const multiTaskerRefs = SPA_COMBAT_SUPPORT['multi-tasker'].sourceRefs ?? [];
     expect(multiTaskerRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek Compute.getSecondaryTargetMod applies the secondary-target modifier and reduces it for Multi-Tasker',
       'MegaMek OptionsConstants defines the source-backed Multi-Tasker SPA id as multi_tasker',
     ]);
-    expect(SPA_COMBAT_SUPPORT['multi-target'].sourceRefs).toEqual(
+    expect(SPA_COMBAT_SUPPORT['multi-target'].sourceRefs).not.toEqual(
       multiTaskerRefs,
     );
+    expect(
+      SPA_COMBAT_SUPPORT['multi-target'].sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek PilotOptions registers the source-backed pilot advantage ids in this combat source snapshot; MekStation local-only SPA ids are not part of that registry.',
+      'MegaMek OptionsConstants defines the source-backed pilot option constants used by the combat SPA catalog boundary.',
+      'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, Iron Will, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
+    ]);
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'multi-target-penalty-application'
@@ -393,9 +466,9 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ]);
 
     expect(QUIRK_COMBAT_SUPPORT.low_profile).toMatchObject({
-      level: 'helper-only',
-      evidence: expect.stringContaining('local +1 target to-hit helper'),
-      gap: expect.stringContaining('glancing-blow handling'),
+      level: 'unsupported',
+      evidence: expect.stringContaining('glancing-blow handling'),
+      gap: expect.stringContaining('glancing blows'),
     });
     expect(lowProfileRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek WeaponHandler.isLowProfileGlancingBlow applies Low Profile as glancing-blow handling when the attack roll equals the target number or target number plus one.',
@@ -552,6 +625,11 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     const psrSpaRefs =
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application']
         .sourceRefs ?? [];
+    const maneuveringAceRefs =
+      SPA_COMBAT_SUPPORT['maneuvering-ace'].sourceRefs ?? [];
+    const movementRefs =
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application']
+        .sourceRefs ?? [];
 
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application'],
@@ -583,10 +661,41 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     );
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['psr-spa-application'].spaIds,
+    ).not.toContain('terrain-master');
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['psr-spa-application'].spaIds,
     ).not.toContain('cross-country');
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application'].gap,
     ).not.toContain('Cross-Country');
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application'].gap,
+    ).not.toContain('Animal Mimicry');
+    expect(SPA_COMBAT_SUPPORT['maneuvering-ace'].gap).toContain(
+      'lateral-shift',
+    );
+    expect(SPA_COMBAT_SUPPORT['maneuvering-ace'].gap).toContain(
+      'out-of-control',
+    );
+    expect(maneuveringAceRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek Entity.getMovementBeforeSkidPSRModifier reduces the skidding PSR movement-distance modifier by 1 for PILOT_MANEUVERING_ACE.',
+      'MegaMek MovePath.canShift lets Maneuvering Ace biped Meks perform lateral shifts.',
+      'MegaMek SideStepStep preserves base lateral-step MP for QuadMek units with Maneuvering Ace instead of adding the normal side-step surcharge.',
+      'MegaMek ManeuverStep reduces aerospace maneuver thrust cost by 1 for Maneuvering Ace.',
+      'MegaMek Entity.checkSideSlip applies Maneuvering Ace relief to flanking-and-turning checks and suppresses controlled-sideslip checks for walking Maneuvering Ace units.',
+      'MegaMek TWGameManager.getControlRollTarget applies -1 Maneuvering Ace to out-of-control checks.',
+      'MegaMek OptionsConstants defines the source-backed Maneuvering Ace SPA id as maneuvering_ace.',
+    ]);
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['movement-application'].spaIds,
+    ).toEqual(expect.arrayContaining(['maneuvering-ace']));
+    expect(movementRefs.map(({ citation }) => citation)).toEqual(
+      expect.arrayContaining([
+        'MegaMek MovePath.canShift lets Maneuvering Ace biped Meks perform lateral shifts.',
+        'MegaMek SideStepStep preserves base lateral-step MP for QuadMek units with Maneuvering Ace instead of adding the normal side-step surcharge.',
+        'MegaMek ManeuverStep reduces aerospace maneuver thrust cost by 1 for Maneuvering Ace.',
+      ]),
+    );
   });
 
   it('pins Cross-Country to MegaMek combat-vehicle movement scope', () => {
@@ -595,13 +704,16 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     const movementRefs =
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application']
         .sourceRefs ?? [];
+    const vehicleMovementRefs =
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['vehicle-movement-application']
+        .sourceRefs ?? [];
 
     expect(SPA_COMBAT_SUPPORT['cross-country']).toMatchObject({
-      level: 'unsupported',
+      level: 'out-of-scope',
       gap: expect.stringContaining('combat-vehicle'),
     });
     expect(SPA_COMBAT_SUPPORT['cross-country'].gap).toContain(
-      'BattleMech terrain PSR',
+      'not a BattleMech terrain PSR',
     );
     expect(crossCountryRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek Terrain.movementCost applies Cross-Country only inside ground combat-vehicle terrain movement-cost gates.',
@@ -612,41 +724,50 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application'],
     ).toMatchObject({
       level: 'unsupported',
-      gap: expect.stringContaining('Cross-Country combat-vehicle'),
+      gap: expect.not.stringContaining('Cross-Country'),
     });
-    expect(movementRefs).toEqual(expect.arrayContaining([...crossCountryRefs]));
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['vehicle-movement-application'],
+    ).toMatchObject({
+      level: 'out-of-scope',
+      gap: expect.stringContaining('Vehicle movement/passability'),
+    });
+    expect(movementRefs).toEqual(
+      expect.not.arrayContaining([...crossCountryRefs]),
+    );
+    expect(vehicleMovementRefs).toEqual(crossCountryRefs);
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['movement-application'].spaIds,
-    ).toEqual(expect.arrayContaining(['cross-country']));
+    ).not.toContain('cross-country');
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['vehicle-movement-application']
+        .spaIds,
+    ).toEqual(['cross-country']);
   });
 
-  it('pins legacy Evasive to the source-backed TacOps Evade action gap', () => {
+  it('splits legacy Evasive from source-backed TacOps Evade action coverage', () => {
     const evasiveRefs = SPA_COMBAT_SUPPORT.evasive.sourceRefs ?? [];
     const movementRefs =
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application']
         .sourceRefs ?? [];
 
     expect(SPA_COMBAT_SUPPORT.evasive).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('optional TacOps Evade movement'),
+      level: 'out-of-scope',
+      evidence: expect.stringContaining('local SPA catalog'),
+      gap: expect.stringContaining('source-backed evasion remains covered'),
     });
     expect(SPA_COMBAT_SUPPORT.evasive.gap).toContain(
-      'attacker firing, and target modifier semantics',
+      'integrated optional TacOps Evade movement action row',
     );
-    expect(evasiveRefs.map(({ citation }) => citation)).toEqual(
-      expect.arrayContaining([
-        'MegaMek OptionsConstants defines optional TacOps Evade and Skilled Evasion option ids.',
-        'MegaMek GameOptions registers optional TacOps Evade and Skilled Evasion movement rules.',
-        'MegaMek MoveStepType defines EVADE as a movement step.',
-        'MegaMek Entity.getEvasionBonus returns the target evasion modifier, including optional Skilled Evasion piloting-skill scaling.',
-        'MegaMek ComputeTargetToHitMods applies the target evasion bonus to ranged weapon attacks.',
-        'MegaMek ComputeToHitIsImpossible prevents non-large-spacecraft evading attackers from firing ranged attacks.',
-      ]),
-    );
-    expect(movementRefs).toEqual(expect.arrayContaining([...evasiveRefs]));
+    expect(evasiveRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek PilotOptions registers the source-backed pilot advantage ids in this combat source snapshot; MekStation local-only SPA ids are not part of that registry.',
+      'MegaMek OptionsConstants defines the source-backed pilot option constants used by the combat SPA catalog boundary.',
+      'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, Iron Will, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
+    ]);
+    expect(movementRefs).toEqual(expect.not.arrayContaining([...evasiveRefs]));
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['movement-application'].spaIds,
-    ).toEqual(expect.arrayContaining(['evasive']));
+    ).toEqual(['maneuvering-ace', 'heavy-lifter']);
   });
 
   it('pins Heavy Lifter to MegaMek lift-capacity scope', () => {
@@ -656,16 +777,19 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         .sourceRefs ?? [];
 
     expect(SPA_COMBAT_SUPPORT['heavy-lifter']).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('lift capacity by 1.5'),
+      level: 'helper-only',
+      evidence: expect.stringContaining('lift-capacity multiplier'),
+      gap: expect.stringContaining('carry/throw-object'),
     });
     expect(SPA_COMBAT_SUPPORT['heavy-lifter'].gap).toContain(
-      'no carry/throw-object physical combat action path',
+      'no carry/throw-object physical combat action declaration or resolution path',
     );
     expect(heavyLifterRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek MekWithArms.maxGroundObjectTonnage multiplies BattleMech ground-object lift capacity by 1.5 for Heavy Lifter.',
       'MegaMek ProtoMek.maxGroundObjectTonnage multiplies ProtoMek ground-object lift capacity by 1.5 for Heavy Lifter.',
       'MegaMek OptionsConstants defines PILOT_HVY_LIFTER as hvy_lifter.',
+      'MekStation calculateGroundObjectLiftCapacity implements the source-backed 5 percent per available hand lift capacity plus Heavy Lifter and TSM pickup multipliers.',
+      'MekStation SPA helper tests prove canonical and legacy Heavy Lifter ids apply the 1.5 lift-capacity multiplier without adding carry or throw action support.',
     ]);
     expect(movementRefs).toEqual(expect.arrayContaining([...heavyLifterRefs]));
     expect(
@@ -714,15 +838,19 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     );
 
     expect(QUIRK_COMBAT_SUPPORT.command_mech).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('rollInitiative'),
-      gap: expect.stringContaining('equipment hydration'),
     });
+    expect(QUIRK_COMBAT_SUPPORT.command_mech.evidence).toContain(
+      'initiative-hq-equipment-hydration',
+    );
     expect(QUIRK_COMBAT_SUPPORT.battle_computer).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('non-cumulative'),
-      gap: expect.stringContaining('equipment hydration'),
     });
+    expect(QUIRK_COMBAT_SUPPORT.battle_computer.evidence).toContain(
+      'initiative-command-console-hydration',
+    );
     expect(SPA_COMBAT_SUPPORT['tactical-genius']).toMatchObject({
       level: 'integrated',
       evidence: expect.stringContaining('replaces only that side raw 2d6 roll'),
@@ -732,7 +860,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toMatchObject({
       level: 'helper-only',
       evidence: expect.stringContaining('raw 2d6 payload fields'),
-      gap: expect.stringContaining('Combat Intuition'),
+      gap: expect.stringContaining('equipment hydration'),
     });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['initiative-application'].gap,
@@ -809,24 +937,41 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual({ spaIds: [], quirkIds: [] });
   });
 
-  it('pins Terrain Master Mountaineer rubble PSR relief to MegaMek semantics', () => {
+  it('pins Terrain Master Mountaineer PSR and movement relief to MegaMek semantics', () => {
     const mountaineerRefs = SPA_COMBAT_SUPPORT.tm_mountaineer.sourceRefs ?? [];
+    const movementRefs =
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application']
+        .sourceRefs ?? [];
 
     expect(SPA_COMBAT_SUPPORT.tm_mountaineer).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('Mountaineer'),
-      gap: expect.stringContaining('movement-cost'),
     });
     expect(SPA_COMBAT_SUPPORT['terrain-master'].gap).toContain(
       'tm_mountaineer',
     );
     expect(mountaineerRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek Entity.checkRubbleMove applies -1 Mountaineer to entering-rubble piloting rolls.',
+      'MegaMek Terrain.movementCost applies -1 MP for Mountaineer in rough/rubble movement-cost branches.',
+      'MegaMek MoveStep applies Mountaineer as one MP less for upward elevation changes.',
       'MegaMek OptionsConstants defines Terrain Master: Mountaineer as tm_mountaineer.',
     ]);
     expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application'].gap,
+    ).not.toContain('Terrain Master: Mountaineer');
+    expect(movementRefs.map(({ citation }) => citation)).toEqual(
+      expect.not.arrayContaining([
+        'MegaMek Terrain.movementCost applies -1 MP for Mountaineer in rough/rubble movement-cost branches.',
+        'MegaMek MoveStep applies Mountaineer as one MP less for upward elevation changes.',
+        'MegaMek OptionsConstants defines PILOT_TM_MOUNTAINEER as tm_mountaineer.',
+      ]),
+    );
+    expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['psr-spa-application'].spaIds,
     ).toEqual(expect.arrayContaining(['tm_mountaineer']));
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['movement-application'].spaIds,
+    ).not.toContain('tm_mountaineer');
   });
 
   it('pins Terrain Master defender to-hit variants to MegaMek terrain and movement semantics', () => {
@@ -864,6 +1009,42 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual(expect.arrayContaining(['tm_forest_ranger', 'tm_swamp_beast']));
   });
 
+  it('splits generic Terrain Master from source-backed Nightwalker lighting behavior', () => {
+    const genericRefs = SPA_COMBAT_SUPPORT['terrain-master'].sourceRefs ?? [];
+    const nightwalker = CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.tm_nightwalker;
+    const nightwalkerRefs = nightwalker.sourceRefs ?? [];
+
+    expect(SPA_COMBAT_SUPPORT['terrain-master']).toMatchObject({
+      level: 'out-of-scope',
+      evidence: expect.stringContaining('generic terrain_master'),
+      gap: expect.stringContaining('canonical tm_nightwalker'),
+    });
+    expect(genericRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek PilotOptions registers Terrain Master variants rather than a generic terrain_master combat option.',
+      'MegaMek OptionsConstants defines Terrain Master variant ids for Forest Ranger, Frogman, Mountaineer, Nightwalker, and Swamp Beast.',
+      'MekStation SPA_CATALOG keeps a legacy generic terrain-master row and splits implemented Terrain Master behavior into tm_frogman, tm_mountaineer, tm_forest_ranger, and tm_swamp_beast rows.',
+    ]);
+    expect(nightwalker).toMatchObject({
+      level: 'unsupported',
+      evidence: expect.stringContaining('lighting-condition movement'),
+      gap: expect.stringContaining('Nightwalker movement penalties'),
+    });
+    expect(nightwalkerRefs.map(({ citation }) => citation)).toEqual(
+      expect.arrayContaining([
+        'MegaMek PilotOptions registers Terrain Master: Nightwalker as the source-backed tm_nightwalker pilot option.',
+        'MegaMek OptionsConstants defines Terrain Master: Nightwalker as tm_nightwalker.',
+        'MegaMek LandAirMek.isNightwalker applies Terrain Master: Nightwalker only while the LAM is not airborne.',
+        'MegaMek MoveStep uses isNightwalker to bypass full-moon, glare, moonless, solar-flare, and pitch-black movement light penalties, while prohibiting running in those light conditions.',
+      ]),
+    );
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['movement-application'].spaIds,
+    ).not.toContain('tm_nightwalker');
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['ranged-to-hit-calculation'].spaIds,
+    ).not.toContain('tm_nightwalker');
+  });
+
   it('pins Shaky Stick to MegaMek ground-to-air defender semantics', () => {
     const refs = SPA_COMBAT_SUPPORT.shaky_stick.sourceRefs ?? [];
 
@@ -886,20 +1067,31 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
 
   it('keeps local called-shot helpers out of MegaMek-backed SPA claims', () => {
     expect(SPA_COMBAT_SUPPORT.marksman).toMatchObject({
-      level: 'helper-only',
+      level: 'out-of-scope',
     });
     expect(SPA_COMBAT_SUPPORT.sharpshooter).toMatchObject({
-      level: 'helper-only',
+      level: 'out-of-scope',
     });
     expect(SPA_COMBAT_SUPPORT.marksman.gap).toContain(
-      'not Marksman as a called-shot SPA',
+      'local called-shot helper',
     );
     expect(SPA_COMBAT_SUPPORT.sharpshooter.gap).toContain(
       'Sharpshooter constant commented out',
     );
     expect(
-      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['called-shot-application'].gap,
-    ).toContain('not Marksman/Sharpshooter reduction');
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['called-shot-application'],
+    ).toEqual({
+      spaIds: [],
+      quirkIds: [],
+    });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['called-shot-application'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'disable local Marksman/legacy Sharpshooter helper reductions',
+      ),
+    });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'called-shot-application'
@@ -937,10 +1129,13 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ]);
 
     expect(SPA_COMBAT_SUPPORT['cool-under-fire']).toMatchObject({
-      level: 'helper-only',
+      level: 'out-of-scope',
       evidence: expect.stringContaining('getCoolUnderFireHeatReduction'),
       gap: expect.stringContaining('No MegaMek source-backed'),
     });
+    expect(SPA_COMBAT_SUPPORT['cool-under-fire'].evidence).toContain(
+      'without being consumed by BattleMech heat resolution',
+    );
     expect(
       SPA_COMBAT_SUPPORT['cool-under-fire'].sourceRefs?.some(
         (sourceRef) => sourceRef.kind === 'mekstation-deviation',
@@ -976,10 +1171,15 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application'],
     ).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('source-backed Some Like It Hot'),
-      gap: expect.stringContaining('Cool Under Fire'),
     });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application'].evidence,
+    ).toContain('leaving local Cool Under Fire unconsumed');
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['heat-application'].gap,
+    ).toBeUndefined();
     expect(heatApplicationRefs).toEqual([
       ...hotDogRefs,
       ...someLikeItHotRefs,
@@ -994,6 +1194,9 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'speed-demon',
       'combat-intuition',
       'cool-under-fire',
+      'evasive',
+      'multi-target',
+      'iron-will',
       'antagonizer',
     ] as const;
 
@@ -1002,7 +1205,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       expect(support.sourceRefs?.map(({ citation }) => citation)).toEqual([
         'MegaMek PilotOptions registers the source-backed pilot advantage ids in this combat source snapshot; MekStation local-only SPA ids are not part of that registry.',
         'MegaMek OptionsConstants defines the source-backed pilot option constants used by the combat SPA catalog boundary.',
-        'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, and Antagonizer; these must remain unsupported or helper-only until a source-backed combat authority is identified.',
+        'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, Iron Will, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
       ]);
       expect(
         support.sourceRefs?.some(
@@ -1015,22 +1218,37 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ).toBe(true);
     });
 
-    expect(SPA_COMBAT_SUPPORT['cool-under-fire'].level).toBe('helper-only');
+    expect(
+      localOnlySpaIds.map((spaId) => SPA_COMBAT_SUPPORT[spaId].level),
+    ).toEqual([
+      'out-of-scope',
+      'out-of-scope',
+      'out-of-scope',
+      'out-of-scope',
+      'out-of-scope',
+      'out-of-scope',
+      'out-of-scope',
+      'out-of-scope',
+      'out-of-scope',
+    ]);
+    expect(SPA_COMBAT_SUPPORT.evasive.gap).toContain(
+      'source-backed evasion remains covered by the integrated optional TacOps Evade movement action row',
+    );
     expect(SPA_COMBAT_SUPPORT['cool-under-fire'].gap).toContain(
-      'local helper behavior',
+      'outside the official BattleMech validation blocker inventory',
     );
     expect(SPA_COMBAT_SUPPORT['combat-intuition'].gap).toContain(
-      'no source-backed MegaMek combat SPA id',
+      'source-backed combat authority',
     );
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['target-priority-application'],
     ).toMatchObject({
-      level: 'unsupported',
+      level: 'out-of-scope',
       sourceRefs: SPA_COMBAT_SUPPORT.antagonizer.sourceRefs,
     });
   });
 
-  it('keeps Edge trigger support source-backed but helper-only', () => {
+  it('keeps generic Edge trigger state source-backed but helper-only', () => {
     const edgeRefs = SPA_COMBAT_SUPPORT.edge.sourceRefs ?? [];
     const edgeCitations = edgeRefs.map(({ citation }) => citation);
 
@@ -1044,12 +1262,16 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'MegaMek OptionsConstants defines Edge and the Mek trigger option ids for head hits, TACs, KO checks, explosions, and MASC failures.',
       'MegaMek Crew.hasEdgeRemaining and decreaseEdge consume the Edge point pool through OptionsConstants.EDGE.',
       'MegaMek Mek hit-location resolution consumes Edge for TAC and head-hit rerolls when the corresponding trigger option is enabled.',
+      'MegaMek TWGameManager consumes EDGE_WHEN_KO to reroll failed BattleMech crew knockout checks while Edge remains available.',
+      'MegaMek TWGameManager consumes EDGE_WHEN_EXPLOSION to reroll explosive equipment critical slots when another hittable critical slot exists.',
       'MegaMek TWGameManager consumes EDGE_WHEN_MASC_FAILS to reroll failed MASC checks, spends Edge, and suppresses failure processing when the reroll passes.',
       'MegaMek TWGameManager consumes EDGE_WHEN_MASC_FAILS to reroll failed Supercharger checks, spends Edge, and suppresses failure processing when the reroll passes.',
       'MekStation EDGE_TRIGGERS mirrors the known Edge trigger ids and createEdgeState/canUseEdge/useEdge model generic trigger point consumption.',
       'MekStation psrEdgeRerolls consumes edge_when_masc_fails to reroll failed MASCFailure and SuperchargerFailure PSRs before applying fall or booster-failure aftermath.',
     ]);
     expect(edgeRefs.map(({ kind }) => kind)).toEqual([
+      'megamek-source',
+      'megamek-source',
       'megamek-source',
       'megamek-source',
       'megamek-source',
@@ -1099,20 +1321,24 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       gap: expect.stringContaining('wake-up'),
     });
     expect(SPA_COMBAT_SUPPORT.toughness).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('numeric crew toughness'),
+      level: 'helper-only',
+      evidence: expect.stringContaining('explicit numeric pilotToughness'),
+      gap: expect.stringContaining('Automatic RPG Toughness'),
     });
     expect(SPA_COMBAT_SUPPORT['iron-will']).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('No source-backed MegaMek Iron Will'),
+      level: 'out-of-scope',
+      evidence: expect.stringContaining('local SPA catalog defines Iron Will'),
+      gap: expect.stringContaining('excluded from the official BattleMech'),
     });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'legacy-pain-resistance-to-hit-application'
       ],
     ).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('not ranged to-hit wound-penalty relief'),
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'not ranged to-hit wound-penalty relief',
+      ),
     });
     expect(ironManRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek TWGameManager reduces ammunition-explosion pilot damage by 1 for Pain Resistance or Iron Man.',
@@ -1175,22 +1401,28 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'mekstation-deviation',
     ]);
     expect(SPA_COMBAT_SUPPORT.toughness.sourceRefs).toEqual(painResistanceRefs);
-    expect(SPA_COMBAT_SUPPORT['iron-will'].sourceRefs).toEqual(
-      painResistanceRefs,
-    );
+    expect(
+      SPA_COMBAT_SUPPORT['iron-will'].sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek PilotOptions registers the source-backed pilot advantage ids in this combat source snapshot; MekStation local-only SPA ids are not part of that registry.',
+      'MegaMek OptionsConstants defines the source-backed pilot option constants used by the combat SPA catalog boundary.',
+      'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, Iron Will, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
+    ]);
     expect(consciousnessRefs).toEqual(painResistanceRefs);
     expect(painResistanceToHitRefs).toEqual(painResistanceRefs);
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['consciousness-application'],
     ).toEqual({
-      spaIds: ['iron-man', 'pain-resistance', 'toughness', 'iron-will'],
+      spaIds: ['iron-man', 'pain-resistance', 'toughness'],
       quirkIds: [],
     });
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS[
         'legacy-pain-resistance-to-hit-application'
       ],
-    ).toEqual({ spaIds: ['pain-resistance'], quirkIds: [] });
+    ).toEqual({ spaIds: [], quirkIds: [] });
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['ranged-to-hit-calculation'].spaIds,
     ).not.toContain('pain-resistance');

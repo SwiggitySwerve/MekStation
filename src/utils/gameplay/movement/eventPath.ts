@@ -19,6 +19,10 @@ import {
   hexLine,
 } from '@/utils/gameplay/hexMath';
 
+import {
+  getSprintMPForCapability,
+  type IMovementCostContext,
+} from './calculations';
 import { findPath } from './pathfinding';
 
 export function movementAnimationModeForType(
@@ -29,6 +33,9 @@ export function movementAnimationModeForType(
     case MovementType.Run:
     case MovementType.Jump:
       return movementType;
+    case MovementType.Evade:
+    case MovementType.Sprint:
+      return MovementType.Run;
     default:
       return null;
   }
@@ -52,8 +59,9 @@ export function buildMovementEventPath(params: {
   readonly to: IHexCoordinate;
   readonly movementType: MovementType;
   readonly maxCost?: number;
+  readonly movementContext?: IMovementCostContext;
 }): readonly IHexCoordinate[] {
-  const { grid, from, to, movementType, maxCost } = params;
+  const { grid, from, to, movementType, maxCost, movementContext } = params;
 
   if (hexEquals(from, to)) {
     return [copyHex(from)];
@@ -66,8 +74,32 @@ export function buildMovementEventPath(params: {
     return [copyHex(from), copyHex(to)];
   }
 
-  const path = findPath(grid, from, to, maxCost ?? Infinity);
+  const path = findPath(
+    grid,
+    from,
+    to,
+    maxCost ?? Infinity,
+    toUnitMovementType(movementType),
+    movementContext,
+  );
   return normalizeMovementEventPath(from, to, path ?? undefined);
+}
+
+function toUnitMovementType(
+  movementType: MovementType,
+): 'walk' | 'run' | 'jump' {
+  switch (movementType) {
+    case MovementType.Run:
+    case MovementType.Evade:
+    case MovementType.Sprint:
+      return 'run';
+    case MovementType.Jump:
+      return 'jump';
+    case MovementType.Walk:
+    case MovementType.Stationary:
+    default:
+      return 'walk';
+  }
 }
 
 export function maxMovementCostForCapability(
@@ -82,7 +114,10 @@ export function maxMovementCostForCapability(
     case MovementType.Walk:
       return capability.walkMP;
     case MovementType.Run:
+    case MovementType.Evade:
       return capability.runMP;
+    case MovementType.Sprint:
+      return getSprintMPForCapability(capability);
     case MovementType.Jump:
       return capability.jumpMP;
     default:

@@ -8,6 +8,7 @@ import type {
 
 import { MEGAMEK_TORSO_TWIST_SOURCE_REFS } from './CombatMovementSourceRefs';
 import { MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS } from './CombatPilotModifierSourceRefs';
+import { MEGAMEK_REQUEST_SPOT_SOURCE_REFS } from './CombatSpottingSourceRefs';
 
 export { P2P_INTENT_TRANSLATION_SUPPORT } from './CombatP2PIntentSupport';
 
@@ -35,7 +36,7 @@ function integrated(
     : { id, layer, level: 'integrated', evidence };
 }
 
-function helperOnly(
+function outOfScope(
   id: string,
   layer: CombatActionLayer,
   evidence: string,
@@ -43,24 +44,8 @@ function helperOnly(
   sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatActionSupportEntry {
   return sourceRefs
-    ? { id, layer, level: 'helper-only', evidence, gap, sourceRefs }
-    : { id, layer, level: 'helper-only', evidence, gap };
-}
-
-function unsupported(
-  id: string,
-  layer: CombatActionLayer,
-  gap: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
-): ICombatActionSupportEntry {
-  return {
-    id,
-    layer,
-    level: 'unsupported',
-    evidence: 'No BattleMech combat action behavior wired',
-    gap,
-    ...(sourceRefs ? { sourceRefs } : {}),
-  };
+    ? { id, layer, level: 'out-of-scope', evidence, gap, sourceRefs }
+    : { id, layer, level: 'out-of-scope', evidence, gap };
 }
 
 function mekstationDeviationSourceRef(
@@ -178,37 +163,47 @@ const MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS = {
   'movement.walk': mekstationMovementCommandSourceRefs(
     'movement.walk',
     'the local lock action id with a walk movement mode payload',
-    'L47-L68',
+    'L48-L71',
   ),
   'movement.run': mekstationMovementCommandSourceRefs(
     'movement.run',
     'the local lock action id with a run movement mode payload',
-    'L72-L88',
+    'L73-L91',
+  ),
+  'movement.sprint': mekstationMovementCommandSourceRefs(
+    'movement.sprint',
+    'the local lock action id with a sprint movement mode payload',
+    'L114-L132',
+  ),
+  'movement.evade': mekstationMovementCommandSourceRefs(
+    'movement.evade',
+    'the local lock action id with an evade movement mode payload',
+    'L94-L112',
   ),
   'movement.jump': mekstationMovementCommandSourceRefs(
     'movement.jump',
     'the local lock action id with a jump movement mode payload',
-    'L92-L113',
+    'L134-L157',
   ),
   'movement.stand': mekstationMovementCommandSourceRefs(
     'movement.stand',
     'the local stand action id',
-    'L117-L134',
+    'L138-L157',
   ),
   'movement.go-prone': mekstationMovementCommandSourceRefs(
     'movement.go-prone',
     'the local go-prone action id',
-    'L138-L153',
+    'L159-L176',
   ),
   'movement.activate-masc': mekstationMovementCommandSourceRefs(
     'movement.activate-masc',
     'the local activate-masc action id',
-    'L157-L171',
+    'L178-L194',
   ),
   'movement.activate-supercharger': mekstationMovementCommandSourceRefs(
     'movement.activate-supercharger',
     'the local activate-supercharger action id',
-    'L175-L189',
+    'L196-L212',
   ),
 } satisfies Record<string, readonly ICombatFeatureSourceReference[]>;
 
@@ -231,7 +226,7 @@ const MEKSTATION_STABILIZE_COMMAND_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation buildMovementCommands exposes movement.stabilize as a product-visible tactical command that commits the local stabilize action id.',
     'src/components/gameplay/TacticalActionDock/commands/movementCommands.ts',
-    'L193-L207',
+    'L214-L230',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -239,7 +234,7 @@ const MEKSTATION_MOVEMENT_CANCEL_COMMAND_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation buildMovementCommands exposes movement.cancel as a local movement-preview reset command that commits the undo action id.',
     'src/components/gameplay/TacticalActionDock/commands/movementCommands.ts',
-    'L211-L227',
+    'L232-L250',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -297,15 +292,45 @@ export const MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS = {
     'push',
     'L73-L83',
   ),
+  'physical.trip': mekstationPhysicalCommandSourceRefs(
+    'physical.trip',
+    'trip',
+    'L87-L99',
+  ),
+  'physical.thrash': mekstationPhysicalCommandSourceRefs(
+    'physical.thrash',
+    'thrash',
+    'L101-L113',
+  ),
+  'physical.jump-jet-attack': mekstationPhysicalCommandSourceRefs(
+    'physical.jump-jet-attack',
+    'jump-jet-attack',
+    'L117-L132',
+  ),
+  'physical.brush-off': mekstationPhysicalCommandSourceRefs(
+    'physical.brush-off',
+    'brush-off',
+    'L134-L150',
+  ),
+  'physical.grapple': mekstationPhysicalCommandSourceRefs(
+    'physical.grapple',
+    'grapple',
+    'L152-L164',
+  ),
+  'physical.break-grapple': mekstationPhysicalCommandSourceRefs(
+    'physical.break-grapple',
+    'break-grapple',
+    'L166-L180',
+  ),
   'physical.charge': mekstationPhysicalCommandSourceRefs(
     'physical.charge',
     'charge',
-    'L87-L97',
+    'L115-L125',
   ),
   'physical.dfa': mekstationPhysicalCommandSourceRefs(
     'physical.dfa',
     'dfa',
-    'L101-L118',
+    'L127-L144',
   ),
   'physical.club': mekstationPhysicalCommandSourceRefs(
     'physical.club',
@@ -407,9 +432,9 @@ const MEKSTATION_WITHDRAW_CONTROL_SOURCE_REFS = [
 
 const MEKSTATION_REQUEST_SPOT_COMMAND_SOURCE_REFS = [
   mekstationDeviationSourceRef(
-    'MekStation buildUtilityCommands exposes utility.request-spot as a target-aware local spotting command that commits the request-spot action id.',
+    'MekStation buildUtilityCommands exposes utility.request-spot as a target-aware local spotting command that commits the request-spot action id with active-unit and target-unit payload fields.',
     'src/components/gameplay/TacticalActionDock/commands/utilityCommands.ts',
-    'L85-L103',
+    'L85-L111',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -528,6 +553,18 @@ const MEKSTATION_GAME_INTENT_SOURCE_REFS = {
       'MekStation toServerIntent maps declarePhysical game intents to Physical wire payloads.',
       'src/lib/multiplayer/gameIntentMap.ts',
       'L218-L334',
+    ),
+  ],
+  requestSpot: [
+    mekstationDeviationSourceRef(
+      'MekStation requestSpotIntent builds requestSpot game intents with spotting unit and target ids.',
+      'src/lib/multiplayer/gameIntentMap.ts',
+      'L171-L176',
+    ),
+    mekstationDeviationSourceRef(
+      'MekStation toServerIntent maps requestSpot game intents to RequestSpot wire payloads.',
+      'src/lib/multiplayer/gameIntentMap.ts',
+      'L230-L343',
     ),
   ],
   confirmHeat: [
@@ -672,6 +709,16 @@ const MEKSTATION_WIRE_INTENT_SOURCE_REFS = {
       'L46-L52',
     ),
   ],
+  RequestSpot: [
+    wireProtocolSourceRef(
+      'MekStation Protocol defines RequestSpot wire intents with spotting unit id and target id.',
+      'L127-L132',
+    ),
+    wireDispatchSourceRef(
+      'MekStation dispatchToEngine routes RequestSpot wire intents to InteractiveSession.requestSpot.',
+      'L54-L58',
+    ),
+  ],
   GoProne: [
     wireDispatchSourceRef(
       'MekStation dispatchToEngine routes GoProne wire intents to InteractiveSession.goProne.',
@@ -748,6 +795,13 @@ const MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS = [
   {
     kind: 'megamek-source',
     citation:
+      'MegaMek Engine.getSprintHeat returns 3 heat for standard BattleMech engines without working supercooling myomer.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/Engine.java#L705-L713',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
       'MegaMek ranged to-hit calculation makes attacks by sprinting attackers automatic failures.',
     url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/compute/Compute.java#L2678-L2680',
     sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
@@ -757,6 +811,13 @@ const MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS = [
     citation:
       'MegaMek ranged to-hit calculation applies a -1 modifier when the target sprinted.',
     url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/compute/Compute.java#L2847-L2850',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Entity.canSpot rejects sprinting entities before they can spot LRM indirect fire.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L9806-L9818',
     sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
@@ -773,6 +834,24 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'tactical-command',
     'buildMovementCommands commits lock mode run; declareMovement/Move carries authoritative movement',
     MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.run'],
+  ),
+  'movement.sprint': integrated(
+    'movement.sprint',
+    'tactical-command',
+    'buildMovementCommands commits lock mode sprint; MovementType.Sprint uses source-backed sprint MP, run-based pathing/PSRs, normal-engine sprint heat, current-turn sprint state, and declareMovement/Move/P2P movement validation carry it through the existing movement action path; engine-variant/coolant sprint heat remains a cataloged heat-rule gap',
+    [
+      ...MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS,
+      ...MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.sprint'],
+    ],
+  ),
+  'movement.evade': integrated(
+    'movement.evade',
+    'tactical-command',
+    'buildMovementCommands commits lock mode evade; MovementType.Evade uses run MP/pathing, creates authoritative evading/evasionBonus state, emits source-backed evasion heat, and declareMovement/Move/P2P movement validation carry it through the existing movement action path',
+    [
+      ...MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
+      ...MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.evade'],
+    ],
   ),
   'movement.jump': integrated(
     'movement.jump',
@@ -804,13 +883,14 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'buildMovementCommands commits activate-supercharger; useGameplayStore, activateMovementEnhancement game intent, ActivateMovementEnhancement wire payload, server dispatch, P2P host command, and InteractiveSession.activateMovementEnhancement set replayable activeSupercharger state before the movement declaration consumes boosted MP and PSR checks',
     MOVEMENT_ACTIVATE_SUPERCHARGER_ACTION_SOURCE_REFS,
   ),
-  'movement.stabilize': unsupported(
+  'movement.stabilize': outOfScope(
     'movement.stabilize',
     'tactical-command',
+    'buildMovementCommands exposes movement.stabilize as a MekStation-local command surface without identified official BattleMech combat rule authority',
     'Stabilize is exposed as a MekStation-local command id but has no authoritative combat-state mutation path, no game intent, no wire payload, no P2P translation, and no identified BattleMech rule source',
     MEKSTATION_STABILIZE_COMMAND_SOURCE_REFS,
   ),
-  'movement.cancel': helperOnly(
+  'movement.cancel': outOfScope(
     'movement.cancel',
     'tactical-command',
     'buildMovementCommands commits undo for local preview cancellation',
@@ -835,7 +915,7 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'buildFacingCommands exposes source-backed torso-twist during WeaponAttack with a direction payload; useGameplayStore routes it to torsoTwist, which validates BattleMech legality and emits FacingChanged secondaryFacing state consumed by replay, AI weapon arcs, runner secondary-target math, game intent, wire, P2P, and server dispatch paths',
     FACING_TORSO_TWIST_ACTION_SOURCE_REFS,
   ),
-  'weapon.declare-attack': helperOnly(
+  'weapon.declare-attack': outOfScope(
     'weapon.declare-attack',
     'tactical-command',
     'buildWeaponAttackCommands exposes a target-selection declaration command',
@@ -848,7 +928,7 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'buildWeaponAttackCommands commits the irreversible volley; declareAttack/Attack/dispatchToEngine.applyAttack carry the authoritative attack path',
     MEKSTATION_WEAPON_FIRE_VOLLEY_COMMAND_SOURCE_REFS,
   ),
-  'weapon.clear-attacks': helperOnly(
+  'weapon.clear-attacks': outOfScope(
     'weapon.clear-attacks',
     'tactical-command',
     'buildWeaponAttackCommands clears queued local attack selections',
@@ -872,6 +952,42 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'tactical-command',
     'buildPhysicalAttackCommands commits physical-attack push; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
     MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.push'],
+  ),
+  'physical.trip': integrated(
+    'physical.trip',
+    'tactical-command',
+    'buildPhysicalAttackCommands commits physical-attack trip; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.trip'],
+  ),
+  'physical.thrash': integrated(
+    'physical.thrash',
+    'tactical-command',
+    'buildPhysicalAttackCommands commits physical-attack thrash; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.thrash'],
+  ),
+  'physical.jump-jet-attack': integrated(
+    'physical.jump-jet-attack',
+    'tactical-command',
+    'buildPhysicalAttackCommands commits right-leg jump-jet attack; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack preserve the selected leg limb',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.jump-jet-attack'],
+  ),
+  'physical.brush-off': integrated(
+    'physical.brush-off',
+    'tactical-command',
+    'buildPhysicalAttackCommands commits right-arm brush-off; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack preserve the selected arm limb',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.brush-off'],
+  ),
+  'physical.grapple': integrated(
+    'physical.grapple',
+    'tactical-command',
+    'buildPhysicalAttackCommands commits physical-attack grapple; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.grapple'],
+  ),
+  'physical.break-grapple': integrated(
+    'physical.break-grapple',
+    'tactical-command',
+    'buildPhysicalAttackCommands commits physical-attack break-grapple; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.break-grapple'],
   ),
   'physical.charge': integrated(
     'physical.charge',
@@ -951,11 +1067,11 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'buildUtilityCommands commits eject; eject game intent, Eject wire payload, and InteractiveSession.ejectUnit are wired',
     MEKSTATION_EJECT_COMMAND_SOURCE_REFS,
   ),
-  'utility.withdraw': helperOnly(
+  'utility.withdraw': outOfScope(
     'utility.withdraw',
     'tactical-command',
     'InteractiveSession.declareWithdrawal, withdraw game intent, Withdraw wire payload, server dispatch, and P2P translation model player withdrawal',
-    'The tactical command still has no edge-selection payload, so the UI command cannot directly produce the authoritative withdraw intent',
+    'The command-shell shortcut has no edge-selection payload and is superseded by the integrated edge-selecting WithdrawControl action path',
     MEKSTATION_WITHDRAW_COMMAND_SOURCE_REFS,
   ),
   'utility.concede': integrated(
@@ -964,50 +1080,45 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'buildUtilityCommands commits concede; concede game intent maps to Concede wire payload and server dispatch',
     MEKSTATION_CONCEDE_COMMAND_SOURCE_REFS,
   ),
-  'utility.request-spot': helperOnly(
+  'utility.request-spot': integrated(
     'utility.request-spot',
     'tactical-command',
-    'buildUtilityCommands exposes target spotting during WeaponAttack',
-    'No spotting lifecycle, TAG/NARC marker intent, wire payload, or dispatch path is wired',
-    MEKSTATION_REQUEST_SPOT_COMMAND_SOURCE_REFS,
+    'buildUtilityCommands commits request-spot with active/target payload; requestSpot emits SpottingDeclared, latches spotting state, clears on turn reset, and routes through game intent, wire dispatch, and P2P translation',
+    [
+      ...MEKSTATION_REQUEST_SPOT_COMMAND_SOURCE_REFS,
+      ...MEGAMEK_REQUEST_SPOT_SOURCE_REFS,
+    ],
   ),
 } satisfies Record<string, ICombatActionSupportEntry>;
 
 export const GM_COMMAND_EXCLUSION_SUPPORT = {
-  'gm.advance-phase': unsupported(
+  'gm.advance-phase': outOfScope(
     'gm.advance-phase',
     'tactical-command',
+    'buildGmReferralCommands exposes gm.advance-phase as a GM shell-mode command outside player BattleMech combat action handling',
     'GM referee commands are shell-mode tools, not player BattleMech combat actions',
     MEKSTATION_GM_COMMAND_SOURCE_REFS['gm.advance-phase'],
   ),
-  'gm.set-damage': unsupported(
+  'gm.set-damage': outOfScope(
     'gm.set-damage',
     'tactical-command',
+    'buildGmReferralCommands exposes gm.set-damage as a GM shell-mode command outside player BattleMech combat action handling',
     'GM referee commands are shell-mode tools, not player BattleMech combat actions',
     MEKSTATION_GM_COMMAND_SOURCE_REFS['gm.set-damage'],
   ),
-  'gm.grant-resource': unsupported(
+  'gm.grant-resource': outOfScope(
     'gm.grant-resource',
     'tactical-command',
+    'buildGmReferralCommands exposes gm.grant-resource as a GM shell-mode command outside player BattleMech combat action handling',
     'GM referee commands are shell-mode tools, not player BattleMech combat actions',
     MEKSTATION_GM_COMMAND_SOURCE_REFS['gm.grant-resource'],
   ),
 } satisfies Record<string, ICombatActionSupportEntry>;
 
-export const BATTLEMECH_ABSENT_ACTION_SUPPORT = {
-  'movement.evade': unsupported(
-    'movement.evade',
-    'absent-action-surface',
-    'Evade is a source-backed optional TacOps movement surface with running movement, evasion heat, attacker firing restrictions, and target to-hit modifiers; explicit evading attacker state now blocks ranged and physical attacks, and explicit target evasion now modifies ranged and physical to-hit, but tactical commands, MovementType, game intents, wire payloads, P2P translation, runner movement phases, authoritative evasion state creation, and Skilled Evasion scaling have no authoritative evade action path',
-    MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
-  ),
-  'movement.sprint': unsupported(
-    'movement.sprint',
-    'absent-action-surface',
-    'Sprint is a source-backed optional TacOps BattleMech movement surface with distinct MP, heat, and attack/targeting side effects, but MovementType, tactical commands, game intents, wire payloads, P2P translation, runner movement phases, and sprint attack restrictions have no authoritative sprint action path',
-    MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS,
-  ),
-} satisfies Record<string, ICombatActionSupportEntry>;
+export const BATTLEMECH_ABSENT_ACTION_SUPPORT = {} satisfies Record<
+  string,
+  ICombatActionSupportEntry
+>;
 
 export const COMBAT_DIRECT_UI_ACTION_SUPPORT = {
   'utility.withdraw-control': integrated(
@@ -1026,6 +1137,7 @@ export const GAME_INTENT_TO_WIRE_KIND = {
   torsoTwist: 'TorsoTwist',
   declareAttack: 'Attack',
   declarePhysical: 'Physical',
+  requestSpot: 'RequestSpot',
   confirmHeat: 'AdvancePhase',
   endPhase: 'AdvancePhase',
   eject: 'Eject',
@@ -1085,6 +1197,15 @@ export const GAME_INTENT_ACTION_SUPPORT = {
     'toServerIntent maps declarePhysical to Physical',
     MEKSTATION_GAME_INTENT_SOURCE_REFS.declarePhysical,
   ),
+  requestSpot: integrated(
+    'requestSpot',
+    'game-intent',
+    'toServerIntent maps requestSpot to RequestSpot',
+    [
+      ...MEKSTATION_GAME_INTENT_SOURCE_REFS.requestSpot,
+      ...MEGAMEK_REQUEST_SPOT_SOURCE_REFS,
+    ],
+  ),
   confirmHeat: integrated(
     'confirmHeat',
     'game-intent',
@@ -1124,6 +1245,7 @@ export const ENGINE_WIRE_COMBAT_INTENT_KINDS = [
   'Eject',
   'Move',
   'Physical',
+  'RequestSpot',
   'GoProne',
   'ActivateMovementEnhancement',
   'TorsoTwist',
@@ -1213,63 +1335,81 @@ export const WIRE_INTENT_KIND_ACTION_SUPPORT = {
     'dispatchToEngine routes Physical to InteractiveSession.applyPhysicalAttack',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.Physical,
   ),
+  RequestSpot: integrated(
+    'RequestSpot',
+    'wire-intent',
+    'Protocol accepts RequestSpot and dispatchToEngine routes it to InteractiveSession.requestSpot',
+    [
+      ...MEKSTATION_WIRE_INTENT_SOURCE_REFS.RequestSpot,
+      ...MEGAMEK_REQUEST_SPOT_SOURCE_REFS,
+    ],
+  ),
   Withdraw: integrated(
     'Withdraw',
     'wire-intent',
     'dispatchToEngine routes Withdraw to InteractiveSession.declareWithdrawal',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.Withdraw,
   ),
-  ForfeitMatch: unsupported(
+  ForfeitMatch: outOfScope(
     'ForfeitMatch',
     'wire-intent',
+    'Protocol and dispatch source refs classify ForfeitMatch as a reconnect/lobby timeout intent rejected before BattleMech engine dispatch',
     'Reconnect/lobby timeout intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.ForfeitMatch,
   ),
-  LaunchMatch: unsupported(
+  LaunchMatch: outOfScope(
     'LaunchMatch',
     'wire-intent',
+    'Protocol and dispatch source refs classify LaunchMatch as a lobby setup intent rejected before BattleMech engine dispatch',
     'Lobby setup intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.LaunchMatch,
   ),
-  LeaveSeat: unsupported(
+  LeaveSeat: outOfScope(
     'LeaveSeat',
     'wire-intent',
+    'Protocol and dispatch source refs classify LeaveSeat as a lobby seat intent rejected before BattleMech engine dispatch',
     'Lobby seat intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.LeaveSeat,
   ),
-  MarkSeatAi: unsupported(
+  MarkSeatAi: outOfScope(
     'MarkSeatAi',
     'wire-intent',
+    'Protocol and dispatch source refs classify MarkSeatAi as a reconnect/lobby seat intent rejected before BattleMech engine dispatch',
     'Reconnect/lobby seat intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.MarkSeatAi,
   ),
-  OccupySeat: unsupported(
+  OccupySeat: outOfScope(
     'OccupySeat',
     'wire-intent',
+    'Protocol and dispatch source refs classify OccupySeat as a lobby seat intent rejected before BattleMech engine dispatch',
     'Lobby seat intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.OccupySeat,
   ),
-  ReassignSeat: unsupported(
+  ReassignSeat: outOfScope(
     'ReassignSeat',
     'wire-intent',
+    'Protocol and dispatch source refs classify ReassignSeat as a lobby host intent rejected before BattleMech engine dispatch',
     'Lobby host intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.ReassignSeat,
   ),
-  SetAiSlot: unsupported(
+  SetAiSlot: outOfScope(
     'SetAiSlot',
     'wire-intent',
+    'Protocol and dispatch source refs classify SetAiSlot as a lobby slot intent rejected before BattleMech engine dispatch',
     'Lobby slot intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.SetAiSlot,
   ),
-  SetHumanSlot: unsupported(
+  SetHumanSlot: outOfScope(
     'SetHumanSlot',
     'wire-intent',
+    'Protocol and dispatch source refs classify SetHumanSlot as a lobby slot intent rejected before BattleMech engine dispatch',
     'Lobby slot intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.SetHumanSlot,
   ),
-  SetReady: unsupported(
+  SetReady: outOfScope(
     'SetReady',
     'wire-intent',
+    'Protocol and dispatch source refs classify SetReady as a lobby readiness intent rejected before BattleMech engine dispatch',
     'Lobby readiness intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.SetReady,
   ),

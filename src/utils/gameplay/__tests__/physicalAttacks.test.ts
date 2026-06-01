@@ -16,11 +16,17 @@ import {
   calculateMaceDamage,
   calculateRetractableBladeDamage,
   calculateWreckingBallDamage,
+  calculateThrashDamage,
+  calculateBrushOffAttackDamage,
   calculatePunchToHit,
   calculateKickToHit,
   calculateChargeToHit,
   calculateDFAToHit,
   calculatePushToHit,
+  calculateTripToHit,
+  calculateThrashToHit,
+  calculateGrappleToHit,
+  calculateBreakGrappleToHit,
   calculateMeleeWeaponToHit,
   calculatePhysicalToHit,
   calculatePhysicalDamage,
@@ -32,7 +38,15 @@ import {
   canDFA,
   canMeleeWeapon,
   canPush,
+  canTripPhysical,
+  canThrashPhysical,
+  canGrapplePhysical,
+  canBreakGrapplePhysical,
+  canJumpJetAttackPhysical,
+  canThrash,
+  canTrip,
   computeChargeDisplacementOutcome,
+  computeBreakGrappleDisplacementOutcome,
   computeDfaDisplacementOutcome,
   computeDfaDisplacements,
   computePreferredDisplacement,
@@ -49,7 +63,20 @@ import {
   TSM_ACTIVATION_HEAT,
   IPhysicalAttackInput,
   isPhysicalAirborneVtolOrWigeTarget,
+  isThrashAttackAutomaticSuccess,
   sourceContainsGroundedDropShip,
+  canBreakGrapple,
+  canBrushOff,
+  canGrapple,
+  getBreakGrappleAttackToHitModifiers,
+  getBreakGrappleWeightClassModifier,
+  getBrushOffAttackToHitModifiers,
+  getGrappleAttackToHitModifiers,
+  canJumpJetAttack,
+  getJumpJetAttackDamage,
+  getJumpJetAttackToHitModifiers,
+  getThrashAttackDamageForWeight,
+  getTripAttackBaseToHitAdjustment,
 } from '../physicalAttacks';
 
 const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
@@ -116,6 +143,33 @@ function makeDisplacementGrid(): IHexGrid {
     terrain: 'clear',
     elevation: 1,
   });
+  return { config: { radius: 2 }, hexes };
+}
+
+function makeBreakGrappleGrid(): IHexGrid {
+  const hexes = new Map();
+  const addHex = (
+    q: number,
+    r: number,
+    terrain: string,
+    elevation: number,
+    occupantId: string | null = null,
+  ) => {
+    hexes.set(`${q},${r}`, {
+      coord: { q, r },
+      occupantId,
+      terrain,
+      elevation,
+    });
+  };
+
+  addHex(0, 0, 'clear', 0, 'attacker');
+  addHex(0, -1, 'clear', 0);
+  addHex(1, -1, 'water:2', 0);
+  addHex(1, 0, 'magma', 0);
+  addHex(0, 1, 'clear', -2);
+  addHex(-1, 1, 'water:1', -2);
+  addHex(-1, 0, 'clear', 0);
   return { config: { radius: 2 }, hexes };
 }
 
@@ -813,6 +867,35 @@ describe('physicalAttacks', () => {
         ),
       ).toBe(10);
     });
+
+    it('maps quad kick talons through the matching arm-location front leg', () => {
+      expect(
+        calculateKickDamage(
+          makeInput({
+            attackerTonnage: 50,
+            attackType: 'kick',
+            attackerIsQuad: true,
+            limb: 'rightLeg',
+            rightArmHasTalons: true,
+          }),
+        ),
+      ).toBe(15);
+    });
+
+    it('requires the quad arm-location foot actuator for front-leg talon kick damage', () => {
+      expect(
+        calculateKickDamage(
+          makeInput({
+            attackerTonnage: 50,
+            attackType: 'kick',
+            attackerIsQuad: true,
+            limb: 'rightLeg',
+            rightArmHasTalons: true,
+            rightArmFootActuatorPresent: false,
+          }),
+        ),
+      ).toBe(10);
+    });
   });
 
   // =============================================================================
@@ -895,6 +978,32 @@ describe('physicalAttacks', () => {
             attackType: 'dfa',
             leftLegHasTalons: true,
             leftFootActuatorPresent: false,
+          }),
+        ),
+      ).toBe(21);
+    });
+
+    it('applies source-backed quad DFA talon damage from arm-location front legs', () => {
+      expect(
+        calculateDFADamageToTarget(
+          makeInput({
+            attackerTonnage: 70,
+            attackType: 'dfa',
+            attackerIsQuad: true,
+            rightArmHasTalons: true,
+          }),
+        ),
+      ).toBe(31);
+    });
+
+    it('honors MegaMek non-biped DFA right-arm talon gate for arm-location talons', () => {
+      expect(
+        calculateDFADamageToTarget(
+          makeInput({
+            attackerTonnage: 70,
+            attackType: 'dfa',
+            attackerIsQuad: true,
+            leftArmHasTalons: true,
           }),
         ),
       ).toBe(21);
@@ -1410,6 +1519,1291 @@ describe('physicalAttacks', () => {
       ).toMatchObject({
         allowed: false,
         reasonCode: 'LimbMissing',
+      });
+    });
+  });
+
+  describe('canTrip', () => {
+    const validTripInput = {
+      tacOpsTripAttackEnabled: true,
+      attackerIsMek: true,
+      targetIsMek: true,
+      targetDistance: 1,
+      targetInFrontArc: true,
+      sameElevation: true,
+      leftLegPresent: true,
+      rightLegPresent: true,
+      leftTripLimbUsable: true,
+      rightTripLimbUsable: true,
+    };
+
+    it('allows source-backed adjacent Mek trip attempts and exposes the base to-hit relief', () => {
+      expect(canTrip(validTripInput)).toEqual({ allowed: true });
+      expect(getTripAttackBaseToHitAdjustment()).toBe(-1);
+    });
+
+    it.each([
+      [
+        'disabled optional rule',
+        { tacOpsTripAttackEnabled: false },
+        'TacOpsTripDisabled',
+      ],
+      [
+        'already grappled attacker',
+        { attackerAlreadyGrappled: true },
+        'AttackerAlreadyGrappled',
+      ],
+      ['friendly target', { targetIsFriendly: true }, 'FriendlyTarget'],
+      ['non-Mek attacker', { attackerIsMek: false }, 'AttackerNotMek'],
+      ['non-Mek target', { targetIsMek: false }, 'TargetNotMek'],
+      [
+        'airborne attacker',
+        { attackerIsAirborneVTOLorWIGE: true },
+        'AttackerAirborne',
+      ],
+      ['missing leg', { leftLegPresent: false }, 'LegMissing'],
+      ['distant target', { targetDistance: 2 }, 'TargetNotAdjacent'],
+      [
+        'rear or side target',
+        { targetInFrontArc: false },
+        'TargetNotInFrontArc',
+      ],
+      ['prone attacker', { attackerProne: true }, 'AttackerProne'],
+      ['prone target', { targetProne: true }, 'TargetProne'],
+      ['elevation mismatch', { sameElevation: false }, 'ElevationMismatch'],
+      [
+        'both trip limbs unavailable',
+        { leftTripLimbUsable: false, rightTripLimbUsable: false },
+        'TripLimbUnavailable',
+      ],
+    ])('rejects %s', (_label, overrides, reasonCode) => {
+      expect(canTrip({ ...validTripInput, ...overrides })).toMatchObject({
+        allowed: false,
+        reasonCode,
+      });
+    });
+
+    it('maps source-backed trip gates into runtime physical restrictions and to-hit math', () => {
+      const input = makeInput({
+        attackType: 'trip',
+        optionalRules: ['tacops_trip_attack'],
+        targetDistance: 1,
+        targetInFrontArc: true,
+        elevationDifference: 0,
+      });
+
+      expect(canTripPhysical(input)).toEqual({ allowed: true });
+      expect(calculateTripToHit(input)).toMatchObject({
+        allowed: true,
+        baseToHit: 4,
+        finalToHit: 4,
+      });
+    });
+
+    it('rejects runtime trip attacks when the optional rule is not enabled', () => {
+      expect(
+        calculateTripToHit(
+          makeInput({
+            attackType: 'trip',
+            targetDistance: 1,
+            targetInFrontArc: true,
+            elevationDifference: 0,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        finalToHit: Infinity,
+        restrictionReasonCode: 'TacOpsTripDisabled',
+      });
+    });
+  });
+
+  describe('canThrash', () => {
+    const validThrashInput = {
+      attackerIsMek: true,
+      attackerProne: true,
+      targetIsInfantry: true,
+      targetDistance: 0,
+      sameElevation: true,
+      blockingTerrains: [],
+      hasWorkingArmOrLeg: true,
+    };
+
+    it('allows source-backed prone Mek same-hex infantry thrash and exposes automatic success damage math', () => {
+      expect(canThrash(validThrashInput)).toEqual({ allowed: true });
+      expect(isThrashAttackAutomaticSuccess()).toBe(true);
+      expect(getThrashAttackDamageForWeight(55)).toBe(18);
+      expect(getThrashAttackDamageForWeight(100)).toBe(33);
+    });
+
+    it.each([
+      ['friendly target', { targetIsFriendly: true }, 'FriendlyTarget'],
+      ['non-Mek attacker', { attackerIsMek: false }, 'AttackerNotMek'],
+      ['standing attacker', { attackerProne: false }, 'AttackerNotProne'],
+      ['non-infantry target', { targetIsInfantry: false }, 'TargetNotInfantry'],
+      ['swarming infantry', { targetIsSwarming: true }, 'TargetSwarming'],
+      ['different hex', { targetDistance: 1 }, 'TargetNotSameHex'],
+      ['elevation mismatch', { sameElevation: false }, 'ElevationMismatch'],
+      [
+        'building or hex target',
+        { targetIsBuildingFuelTankOrHex: true },
+        'InvalidExplicitTarget',
+      ],
+      [
+        'weapon fired this turn',
+        { weaponFiredThisTurn: true },
+        'WeaponFiredThisTurn',
+      ],
+      [
+        'no working arm or leg',
+        { hasWorkingArmOrLeg: false },
+        'ThrashLimbUnavailable',
+      ],
+    ])('rejects %s', (_label, overrides, reasonCode) => {
+      expect(canThrash({ ...validThrashInput, ...overrides })).toMatchObject({
+        allowed: false,
+        reasonCode,
+      });
+    });
+
+    it.each([
+      'woods',
+      'jungle',
+      'rough',
+      'rubble',
+      'fuel-tank',
+      'building',
+    ] as const)('rejects %s terrain as not clear or pavement', (terrain) => {
+      expect(
+        canThrash({
+          ...validThrashInput,
+          blockingTerrains: [terrain],
+        }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TerrainNotClearOrPavement',
+      });
+    });
+
+    it('maps source-backed thrash gates into runtime restrictions and automatic-hit to-hit math', () => {
+      const input = makeInput({
+        attackType: 'thrash',
+        attackerProne: true,
+        attackerUnitType: 'BattleMech',
+        targetUnitType: 'Infantry',
+        targetDistance: 0,
+        elevationDifference: 0,
+        thrashBlockingTerrains: [],
+      });
+
+      expect(canThrashPhysical(input)).toEqual({ allowed: true });
+      expect(calculateThrashToHit(input)).toMatchObject({
+        allowed: true,
+        baseToHit: 0,
+        finalToHit: 0,
+        automaticHit: true,
+        automaticHitReason: 'Thrash attacks always hit.',
+      });
+      expect(calculateThrashDamage(input)).toBe(27);
+    });
+
+    it('rejects runtime thrash attacks when a prone Mek is not in clear same-hex infantry conditions', () => {
+      expect(
+        canThrashPhysical(
+          makeInput({
+            attackType: 'thrash',
+            attackerProne: false,
+            attackerUnitType: 'BattleMech',
+            targetUnitType: 'Infantry',
+            targetDistance: 0,
+            elevationDifference: 0,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerNotProne',
+      });
+
+      expect(
+        canThrashPhysical(
+          makeInput({
+            attackType: 'thrash',
+            attackerProne: true,
+            attackerUnitType: 'BattleMech',
+            targetUnitType: 'Infantry',
+            targetDistance: 0,
+            elevationDifference: 0,
+            thrashBlockingTerrains: ['woods'],
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TerrainNotClearOrPavement',
+      });
+    });
+  });
+
+  describe('canBrushOff', () => {
+    const validBrushOffInput = {
+      attackerIsMek: true,
+      selectedArm: 'right',
+      targetIsSwarmingInfantryOnAttacker: true,
+      shoulderWorking: true,
+    } as const;
+
+    it('allows source-backed swarming-infantry and iNarc pod brush-off targets', () => {
+      expect(canBrushOff(validBrushOffInput)).toEqual({ allowed: true });
+      expect(
+        canBrushOff({
+          ...validBrushOffInput,
+          targetIsSwarmingInfantryOnAttacker: false,
+          targetIsINarcPod: true,
+        }),
+      ).toEqual({ allowed: true });
+    });
+
+    it.each([
+      ['non-Mek attacker', { attackerIsMek: false }, 'AttackerNotMek'],
+      [
+        'missing arm selection',
+        { selectedArm: undefined },
+        'InvalidArmSelection',
+      ],
+      ['both arms selected', { selectedArm: 'both' }, 'InvalidArmSelection'],
+      [
+        'non-swarming non-iNarc target',
+        { targetIsSwarmingInfantryOnAttacker: false },
+        'InvalidTarget',
+      ],
+      ['quad attacker', { attackerIsQuad: true }, 'AttackerQuad'],
+      ['flipped arms', { armsFlipped: true }, 'ArmsFlipped'],
+      ['missing selected arm', { selectedArmMissing: true }, 'ArmMissing'],
+      ['no/minimal arms quirk', { noMinimalArmsQuirk: true }, 'NoArmsQuirk'],
+      ['destroyed shoulder', { shoulderWorking: false }, 'ShoulderDestroyed'],
+      [
+        'selected arm fired weapons',
+        { armWeaponFiredThisTurn: true },
+        'ArmWeaponFiredThisTurn',
+      ],
+      ['DFA target', { targetMakingDfa: true }, 'TargetMakingDfa'],
+      ['prone attacker', { attackerProne: true }, 'AttackerProne'],
+      [
+        'building or hex target',
+        { targetIsBuildingFuelTankOrHex: true },
+        'InvalidExplicitTarget',
+      ],
+    ] as const)('rejects %s', (_label, overrides, reasonCode) => {
+      expect(
+        canBrushOff({ ...validBrushOffInput, ...overrides }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode,
+      });
+    });
+
+    it('exposes source-backed dedicated brush-off to-hit modifiers', () => {
+      expect(
+        getBrushOffAttackToHitModifiers({
+          upperArmWorking: false,
+          lowerArmWorking: false,
+          armAesFunctional: true,
+          handWorking: false,
+          defenderHasMagneticClaws: true,
+        }),
+      ).toEqual({
+        possible: true,
+        modifiers: [
+          expect.objectContaining({
+            value: 4,
+            reasonCode: 'BrushOffSwarmingInfantry',
+          }),
+          expect.objectContaining({
+            value: 2,
+            reasonCode: 'UpperArmActuatorDestroyed',
+          }),
+          expect.objectContaining({
+            value: 2,
+            reasonCode: 'LowerArmActuatorMissingOrDestroyed',
+          }),
+          expect.objectContaining({ value: -1, reasonCode: 'ArmAES' }),
+          expect.objectContaining({
+            value: 1,
+            reasonCode: 'HandActuatorDestroyed',
+          }),
+          expect.objectContaining({
+            value: 1,
+            reasonCode: 'DefenderMagneticClaws',
+          }),
+        ],
+      });
+    });
+
+    it('calculates runtime brush-off to-hit for swarming infantry and rejects normal targets', () => {
+      expect(
+        calculatePhysicalToHit(
+          makeInput({
+            attackType: 'brush-off',
+            arm: 'right',
+            limb: 'rightArm',
+            targetIsSwarming: true,
+            targetIsSwarmingInfantryOnAttacker: true,
+            targetUnitType: 'Infantry',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: true,
+        baseToHit: 5,
+        finalToHit: 9,
+        modifiers: expect.arrayContaining([
+          expect.objectContaining({
+            value: 4,
+            source: 'physical-action',
+          }),
+        ]),
+      });
+
+      expect(
+        calculatePhysicalToHit(
+          makeInput({
+            attackType: 'brush-off',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        restrictionReasonCode: 'InvalidBrushOffTarget',
+      });
+    });
+
+    it('uses the source-backed hand/claw modifier precedence', () => {
+      expect(
+        getBrushOffAttackToHitModifiers({
+          handActuatorPresent: false,
+          lowerArmWorking: true,
+        }).modifiers,
+      ).toContainEqual(
+        expect.objectContaining({ reasonCode: 'HandActuatorMissing' }),
+      );
+      expect(
+        getBrushOffAttackToHitModifiers({ hasClaws: true }).modifiers,
+      ).toContainEqual(expect.objectContaining({ reasonCode: 'UsingClaws' }));
+    });
+
+    it('exposes torso-mounted cockpit sensor branches', () => {
+      expect(
+        getBrushOffAttackToHitModifiers({
+          torsoMountedCockpit: true,
+          headSensorHits: 2,
+        }).modifiers,
+      ).toContainEqual(
+        expect.objectContaining({
+          value: 4,
+          reasonCode: 'TorsoMountedCockpitHeadSensorsDestroyed',
+        }),
+      );
+      expect(
+        getBrushOffAttackToHitModifiers({
+          torsoMountedCockpit: true,
+          headSensorHits: 2,
+          centerTorsoSensorHits: 1,
+        }),
+      ).toMatchObject({
+        possible: false,
+        impossibleReasonCode: 'TorsoMountedCockpitSensorsDestroyed',
+      });
+    });
+
+    it('uses punch-equivalent damage for brush-off hit and miss damage', () => {
+      const input = makeInput({ attackerTonnage: 80, arm: 'right' });
+      expect(calculateBrushOffAttackDamage(input)).toBe(
+        calculatePunchDamage(input),
+      );
+      expect(
+        calculateBrushOffAttackDamage(
+          makeInput({
+            attackerTonnage: 80,
+            arm: 'right',
+            componentDamage: {
+              ...DEFAULT_COMPONENT_DAMAGE,
+              actuators: { [ActuatorType.UPPER_ARM]: true },
+            },
+          }),
+        ),
+      ).toBe(4);
+    });
+
+    it('resolves runtime brush-off miss as punch-equivalent self-damage', () => {
+      const result = resolvePhysicalAttack(
+        makeInput({
+          attackType: 'brush-off',
+          arm: 'right',
+          limb: 'rightArm',
+          targetIsSwarming: true,
+          targetIsSwarmingInfantryOnAttacker: true,
+          targetUnitType: 'Infantry',
+          targetDistance: 1,
+        }),
+        makeDiceSequence([1, 1, 3]),
+      );
+
+      expect(result).toMatchObject({
+        attackType: 'brush-off',
+        roll: 2,
+        toHitNumber: 9,
+        hit: false,
+        targetDamage: 0,
+        attackerDamage: 8,
+        hitLocation: 'center_torso',
+      });
+    });
+  });
+
+  describe('canBreakGrapple', () => {
+    const validBreakGrappleInput = {
+      tacOpsGrapplingEnabled: true,
+      attackerIsMek: true,
+      commonImpossibleReasonCode: 'LockedInGrapple',
+      grappledTargetMatches: true,
+    } as const;
+
+    it('allows source-backed Mek and ProtoMek break-grapple attempts locked in grapple', () => {
+      expect(canBreakGrapple(validBreakGrappleInput)).toEqual({
+        allowed: true,
+      });
+      expect(
+        canBreakGrapple({
+          ...validBreakGrappleInput,
+          attackerIsMek: false,
+          attackerIsProtoMek: true,
+        }),
+      ).toEqual({ allowed: true });
+    });
+
+    it.each([
+      [
+        'disabled optional rule',
+        { tacOpsGrapplingEnabled: false },
+        'TacOpsGrapplingDisabled',
+      ],
+      [
+        'airborne attacker',
+        { attackerIsAirborneVTOLorWIGE: true },
+        'AttackerAirborne',
+      ],
+      [
+        'common impossible state other than locked grapple',
+        { commonImpossibleReasonCode: 'Other' },
+        'CommonImpossible',
+      ],
+      [
+        'chain-whip grapple',
+        { attackerChainWhipGrappled: true },
+        'ChainWhipGrappled',
+      ],
+      [
+        'non-Mek or ProtoMek attacker',
+        { attackerIsMek: false },
+        'AttackerNotMekOrProtoMek',
+      ],
+      [
+        'target not matching grapple state',
+        { grappledTargetMatches: false },
+        'NotGrappledToTarget',
+      ],
+    ] as const)('rejects %s', (_label, overrides, reasonCode) => {
+      expect(
+        canBreakGrapple({ ...validBreakGrappleInput, ...overrides }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode,
+      });
+    });
+
+    it('exposes source-backed original-attacker automatic success', () => {
+      expect(
+        getBreakGrappleAttackToHitModifiers({
+          originalGrappleAttacker: true,
+          attackerIsMek: true,
+          leftShoulderWorking: false,
+          targetUnitKind: 'mek',
+          attackerWeightClass: 2,
+          targetWeightClass: 5,
+        }),
+      ).toEqual({
+        automaticSuccess: true,
+        automaticSuccessReason: 'original attacker',
+        automaticSuccessReasonCode: 'OriginalGrappleAttacker',
+        modifiers: [],
+      });
+    });
+
+    it('exposes source-backed break-grapple actuator, AES, and weight modifiers', () => {
+      expect(
+        getBreakGrappleAttackToHitModifiers({
+          attackerIsMek: true,
+          leftShoulderWorking: false,
+          leftUpperArmWorking: false,
+          leftLowerArmWorking: false,
+          leftHandWorking: false,
+          rightShoulderWorking: false,
+          rightUpperArmWorking: false,
+          rightLowerArmWorking: false,
+          rightHandWorking: false,
+          bothArmAesFunctional: true,
+          attackerUnitKind: 'mek',
+          targetUnitKind: 'mek',
+          attackerWeightClass: 2,
+          targetWeightClass: 5,
+        }).modifiers,
+      ).toEqual([
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'LeftShoulderActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'LeftUpperArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'LeftLowerArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 1,
+          reasonCode: 'LeftHandActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'RightShoulderActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'RightUpperArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'RightLowerArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 1,
+          reasonCode: 'RightHandActuatorDestroyed',
+        }),
+        expect.objectContaining({ value: -1, reasonCode: 'ArmAES' }),
+        expect.objectContaining({
+          value: 3,
+          reasonCode: 'WeightClassDifference',
+        }),
+      ]);
+    });
+
+    it('uses MegaMek grapple weight-class branches for ProtoMeks', () => {
+      expect(
+        getBreakGrappleWeightClassModifier({
+          attackerUnitKind: 'mek',
+          targetUnitKind: 'protoMek',
+          attackerWeightClass: 4,
+          targetWeightClass: 1,
+        }),
+      ).toBe(-4);
+      expect(
+        getBreakGrappleWeightClassModifier({
+          attackerUnitKind: 'protoMek',
+          targetUnitKind: 'mek',
+          attackerWeightClass: 1,
+          targetWeightClass: 5,
+        }),
+      ).toBe(5);
+      expect(
+        getBreakGrappleWeightClassModifier({
+          attackerUnitKind: 'protoMek',
+          targetUnitKind: 'protoMek',
+          attackerWeightClass: 1,
+          targetWeightClass: 2,
+        }),
+      ).toBe(0);
+    });
+  });
+
+  describe('runtime break-grapple attack', () => {
+    const validBreakGrappleInput = () =>
+      makeInput({
+        attackerId: 'attacker',
+        targetId: 'target',
+        attackType: 'break-grapple',
+        optionalRules: ['tacops_grappling'],
+        commonPhysicalImpossibleReasonCode: 'LockedInGrapple',
+        attackerGrappledTargetId: 'target',
+        targetGrappledTargetId: 'attacker',
+        attackerUnitType: UnitType.BATTLEMECH,
+        targetUnitType: UnitType.BATTLEMECH,
+        targetDistance: 0,
+      });
+
+    it('allows source-backed break-grapple through runtime physical restrictions', () => {
+      expect(canBreakGrapplePhysical(validBreakGrappleInput())).toEqual({
+        allowed: true,
+      });
+    });
+
+    it('rejects chain-whip and non-matching grapple state before runtime side effects', () => {
+      expect(
+        canBreakGrapplePhysical({
+          ...validBreakGrappleInput(),
+          attackerChainWhipGrappled: true,
+        }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'ChainWhipGrappled',
+      });
+
+      expect(
+        canBreakGrapplePhysical({
+          ...validBreakGrappleInput(),
+          attackerGrappledTargetId: 'other-target',
+        }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'NotGrappledToTarget',
+      });
+    });
+
+    it('resolves original-attacker break-grapple as automatic zero-damage success', () => {
+      const result = resolvePhysicalAttack(
+        {
+          ...validBreakGrappleInput(),
+          attackerIsGrappleAttacker: true,
+        },
+        makeDiceSequence([1, 1]),
+      );
+
+      expect(result).toMatchObject({
+        attackType: 'break-grapple',
+        roll: 0,
+        toHitNumber: 0,
+        hit: true,
+        targetDamage: 0,
+        attackerDamage: 0,
+        automaticHit: true,
+        automaticHitReason: 'original attacker',
+      });
+      expect(result.hitLocation).toBeUndefined();
+    });
+
+    it('threads source-backed break-grapple actuator, AES, and weight modifiers into runtime to-hit', () => {
+      const toHit = calculateBreakGrappleToHit({
+        ...validBreakGrappleInput(),
+        attackerIsGrappleAttacker: false,
+        componentDamage: {
+          ...DEFAULT_COMPONENT_DAMAGE,
+          actuators: { [ActuatorType.SHOULDER]: true },
+        },
+        leftArmAesFunctional: true,
+        rightArmAesFunctional: true,
+        attackerWeightClass: 4,
+        targetWeightClass: 5,
+      });
+
+      expect(toHit.allowed).toBe(true);
+      expect(toHit.modifiers).toEqual([
+        expect.objectContaining({
+          name: 'Left shoulder actuator destroyed',
+          value: 2,
+          source: 'actuator',
+        }),
+        expect.objectContaining({
+          name: 'Right shoulder actuator destroyed',
+          value: 2,
+          source: 'actuator',
+        }),
+        expect.objectContaining({
+          name: 'AES modifier',
+          value: -1,
+          source: 'actuator',
+        }),
+        expect.objectContaining({
+          name: 'Weight class difference',
+          value: 1,
+          source: 'weight-class',
+        }),
+      ]);
+      expect(toHit.finalToHit).toBe(9);
+    });
+
+    it('chooses source-backed least- and most-dangerous adjacent displacement hexes', () => {
+      expect(
+        computeBreakGrappleDisplacementOutcome({
+          grid: makeBreakGrappleGrid(),
+          attackerId: 'attacker',
+          targetId: 'target',
+          attackerPosition: { q: 0, r: 0 },
+          targetPosition: { q: 0, r: 0 },
+          attackerIsGrappleAttacker: true,
+        }).displacements,
+      ).toEqual([
+        {
+          unitId: 'attacker',
+          from: { q: 0, r: 0 },
+          to: { q: 0, r: -1 },
+          reason: 'break-grapple',
+        },
+      ]);
+
+      expect(
+        computeBreakGrappleDisplacementOutcome({
+          grid: makeBreakGrappleGrid(),
+          attackerId: 'attacker',
+          targetId: 'target',
+          attackerPosition: { q: 0, r: 0 },
+          targetPosition: { q: 0, r: 0 },
+          attackerIsGrappleAttacker: false,
+        }).displacements,
+      ).toEqual([
+        {
+          unitId: 'target',
+          from: { q: 0, r: 0 },
+          to: { q: 1, r: 0 },
+          reason: 'break-grapple',
+        },
+      ]);
+    });
+  });
+
+  describe('canGrapple', () => {
+    const validGrappleInput = {
+      tacOpsGrapplingEnabled: true,
+      attackerIsBipedMek: true,
+      targetIsMek: true,
+      leftArmPresent: true,
+      rightArmPresent: true,
+      leftShoulderWorking: true,
+      rightShoulderWorking: true,
+      targetDistance: 1,
+      elevationDifference: 0,
+      maxElevationChange: 2,
+      targetInFrontArc: true,
+    } as const;
+
+    it('allows source-backed BipedMek and ProtoMek grapple attempts', () => {
+      expect(canGrapple(validGrappleInput)).toEqual({ allowed: true });
+      expect(
+        canGrapple({
+          ...validGrappleInput,
+          attackerIsBipedMek: false,
+          attackerIsProtoMek: true,
+          targetIsMek: false,
+          targetIsProtoMek: true,
+        }),
+      ).toEqual({ allowed: true });
+    });
+
+    it('allows source-backed counter-grapples to relax range, front-arc, and weapon-fire gates', () => {
+      expect(
+        canGrapple({
+          ...validGrappleInput,
+          counterGrapple: true,
+          commonImpossibleReasonCode: 'LockedInGrapple',
+          targetDistance: 3,
+          targetInFrontArc: false,
+          weaponFiredThisTurn: true,
+        }),
+      ).toEqual({ allowed: true });
+    });
+
+    it.each([
+      [
+        'disabled optional rule',
+        { tacOpsGrapplingEnabled: false },
+        'TacOpsGrapplingDisabled',
+      ],
+      [
+        'airborne attacker',
+        { attackerIsAirborneVTOLorWIGE: true },
+        'AttackerAirborne',
+      ],
+      [
+        'common impossible state other than locked grapple',
+        { commonImpossibleReasonCode: 'Other' },
+        'CommonImpossible',
+      ],
+      [
+        'friendly target while friendly fire is disabled',
+        { targetIsFriendly: true },
+        'FriendlyTarget',
+      ],
+      [
+        'non-BipedMek or ProtoMek attacker',
+        { attackerIsBipedMek: false, attackerIsProtoMek: false },
+        'AttackerNotBipedMekOrProtoMek',
+      ],
+      [
+        'non-Mek or ProtoMek target',
+        { targetIsMek: false, targetIsProtoMek: false },
+        'TargetNotMekOrProtoMek',
+      ],
+      ['No Arms quirk', { noMinimalArmsQuirk: true }, 'NoArmsQuirk'],
+      [
+        'missing selected arm',
+        { grappleSide: 'left', leftArmPresent: false },
+        'ArmMissing',
+      ],
+      [
+        'destroyed selected shoulder',
+        { grappleSide: 'right', rightShoulderWorking: false },
+        'ShoulderMissingOrDestroyed',
+      ],
+      ['non-adjacent target', { targetDistance: 2 }, 'TargetNotAdjacent'],
+      [
+        'target elevation outside attacker elevation change',
+        { elevationDifference: 3 },
+        'ElevationMismatch',
+      ],
+      [
+        'target outside front arc',
+        { targetInFrontArc: false },
+        'TargetNotInFrontArc',
+      ],
+      ['prone attacker', { attackerProne: true }, 'AttackerProne'],
+      ['prone target', { targetProne: true }, 'TargetProne'],
+      [
+        'weapon fired before non-counter grapple',
+        { weaponFiredThisTurn: true },
+        'WeaponFiredThisTurn',
+      ],
+      [
+        'already-grappled target state',
+        {
+          attackerGrappledTargetMatches: false,
+          targetIsGrappleAttacker: true,
+        },
+        'AlreadyGrappled',
+      ],
+    ] as const)('rejects %s', (_label, overrides, reasonCode) => {
+      expect(canGrapple({ ...validGrappleInput, ...overrides })).toMatchObject({
+        allowed: false,
+        reasonCode,
+      });
+    });
+
+    it('exposes source-backed both-arm actuator, AES, and weight modifiers', () => {
+      expect(
+        getGrappleAttackToHitModifiers({
+          attackerIsMek: true,
+          leftUpperArmWorking: false,
+          leftLowerArmWorking: false,
+          leftHandWorking: false,
+          rightUpperArmWorking: false,
+          rightLowerArmWorking: false,
+          rightHandWorking: false,
+          leftArmAesFunctional: true,
+          rightArmAesFunctional: true,
+          attackerUnitKind: 'mek',
+          targetUnitKind: 'mek',
+          attackerWeightClass: 2,
+          targetWeightClass: 5,
+        }).modifiers,
+      ).toEqual([
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'LeftUpperArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'LeftLowerArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 1,
+          reasonCode: 'LeftHandActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'RightUpperArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'RightLowerArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 1,
+          reasonCode: 'RightHandActuatorDestroyed',
+        }),
+        expect.objectContaining({ value: -1, reasonCode: 'ArmAES' }),
+        expect.objectContaining({
+          value: 3,
+          reasonCode: 'WeightClassDifference',
+        }),
+      ]);
+    });
+
+    it('exposes source-backed single-arm AES and TSM modifiers', () => {
+      expect(
+        getGrappleAttackToHitModifiers({
+          grappleSide: 'right',
+          attackerIsMek: true,
+          rightUpperArmWorking: false,
+          rightLowerArmWorking: false,
+          rightHandWorking: false,
+          rightArmAesFunctional: true,
+          attackerHasActiveTsm: true,
+        }).modifiers,
+      ).toEqual([
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'RightUpperArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 2,
+          reasonCode: 'RightLowerArmActuatorDestroyed',
+        }),
+        expect.objectContaining({
+          value: 1,
+          reasonCode: 'RightHandActuatorDestroyed',
+        }),
+        expect.objectContaining({ value: -1, reasonCode: 'ArmAES' }),
+        expect.objectContaining({ value: -2, reasonCode: 'TSMActiveBonus' }),
+      ]);
+    });
+
+    it('uses MegaMek grapple weight-class branches for ProtoMeks', () => {
+      expect(
+        getGrappleAttackToHitModifiers({
+          attackerUnitKind: 'mek',
+          targetUnitKind: 'protoMek',
+          attackerWeightClass: 4,
+          targetWeightClass: 1,
+        }).modifiers,
+      ).toEqual([
+        expect.objectContaining({
+          value: -4,
+          reasonCode: 'WeightClassDifference',
+        }),
+      ]);
+      expect(
+        getGrappleAttackToHitModifiers({
+          attackerUnitKind: 'protoMek',
+          targetUnitKind: 'mek',
+          attackerWeightClass: 1,
+          targetWeightClass: 5,
+        }).modifiers,
+      ).toEqual([
+        expect.objectContaining({
+          value: 5,
+          reasonCode: 'WeightClassDifference',
+        }),
+      ]);
+      expect(
+        getGrappleAttackToHitModifiers({
+          attackerUnitKind: 'protoMek',
+          targetUnitKind: 'protoMek',
+          attackerWeightClass: 1,
+          targetWeightClass: 2,
+        }).modifiers,
+      ).toEqual([]);
+    });
+  });
+
+  describe('runtime grapple attack', () => {
+    const validGrappleInput = () =>
+      makeInput({
+        attackerId: 'attacker',
+        targetId: 'target',
+        attackType: 'grapple',
+        optionalRules: ['tacops_grappling'],
+        targetDistance: 1,
+        targetInFrontArc: true,
+      });
+
+    it('allows source-backed normal TacOps grapple through physical restrictions', () => {
+      expect(canGrapplePhysical(validGrappleInput())).toEqual({
+        allowed: true,
+      });
+    });
+
+    it('rejects runtime grapple declarations when TacOps grappling is disabled', () => {
+      expect(
+        canGrapplePhysical({
+          ...validGrappleInput(),
+          optionalRules: [],
+        }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TacOpsGrapplingDisabled',
+      });
+    });
+
+    it('threads source-backed grapple modifiers into runtime to-hit', () => {
+      const toHit = calculateGrappleToHit({
+        ...validGrappleInput(),
+        attackerUnitType: UnitType.BATTLEMECH,
+        grappleSide: 'right',
+        componentDamage: {
+          ...DEFAULT_COMPONENT_DAMAGE,
+          actuators: { [ActuatorType.UPPER_ARM]: true },
+        },
+        rightArmAesFunctional: true,
+        hasTSM: true,
+        heat: TSM_ACTIVATION_HEAT,
+        attackerWeightClass: 4,
+        targetWeightClass: 5,
+      });
+
+      expect(toHit.allowed).toBe(true);
+      expect(toHit.modifiers).toEqual([
+        expect.objectContaining({
+          name: 'Right upper arm actuator destroyed',
+          value: 2,
+          source: 'actuator',
+        }),
+        expect.objectContaining({
+          name: 'AES modifier',
+          value: -1,
+          source: 'actuator',
+        }),
+        expect.objectContaining({
+          name: 'TSM Active Bonus',
+          value: -2,
+          source: 'myomer',
+        }),
+        expect.objectContaining({
+          name: 'Weight class difference',
+          value: 1,
+          source: 'weight-class',
+        }),
+      ]);
+      expect(toHit.finalToHit).toBe(5);
+    });
+
+    it('resolves a successful grapple as zero-damage grapple state setup', () => {
+      const result = resolvePhysicalAttack(
+        validGrappleInput(),
+        makeDiceSequence([6, 6]),
+      );
+
+      expect(result).toMatchObject({
+        attackType: 'grapple',
+        hit: true,
+        targetDamage: 0,
+        attackerDamage: 0,
+        targetPSR: false,
+        attackerPSR: false,
+        targetDisplaced: false,
+      });
+      expect(result.hitLocation).toBeUndefined();
+    });
+  });
+
+  describe('canJumpJetAttack', () => {
+    const validJumpJetAttackInput = {
+      tacOpsJumpJetAttackEnabled: true,
+      selectedLeg: 'left',
+      attackerIsMek: true,
+      leftLegPresent: true,
+      leftReadyJumpJetCount: 2,
+      targetDistance: 1,
+      standingAttackerHeightAboveTargetHeight: 1,
+      targetDirectlyAheadOfFeet: true,
+    } as const;
+
+    it('allows source-backed standing and prone jump jet attacks', () => {
+      expect(canJumpJetAttack(validJumpJetAttackInput)).toEqual({
+        allowed: true,
+      });
+      expect(
+        canJumpJetAttack({
+          ...validJumpJetAttackInput,
+          selectedLeg: 'both',
+          attackerProne: true,
+          rightLegPresent: true,
+          rightReadyJumpJetCount: 1,
+          standingAttackerHeightAboveTargetHeight: undefined,
+          targetDirectlyAheadOfFeet: undefined,
+          proneTargetElevationInRange: true,
+          targetDirectlyBehindFeet: true,
+        }),
+      ).toEqual({ allowed: true });
+    });
+
+    it.each([
+      [
+        'disabled optional rule',
+        { tacOpsJumpJetAttackEnabled: false },
+        'TacOpsJumpJetAttackDisabled',
+      ],
+      [
+        'common impossible state',
+        { commonImpossible: true },
+        'CommonImpossible',
+      ],
+      [
+        'LAM outside Mek mode',
+        { attackerIsLandAirMek: true, attackerIsMekMode: false },
+        'LandAirMekNotMekMode',
+      ],
+      [
+        'missing leg selection',
+        { selectedLeg: undefined },
+        'InvalidLegSelection',
+      ],
+      ['non-Mek attacker', { attackerIsMek: false }, 'AttackerNotMek'],
+      [
+        'standing both-leg attack',
+        {
+          selectedLeg: 'both',
+          rightLegPresent: true,
+          rightReadyJumpJetCount: 1,
+        },
+        'BothLegsRequiresProne',
+      ],
+      ['missing selected leg', { leftLegPresent: false }, 'LegMissing'],
+      [
+        'selected leg jump jets destroyed',
+        { leftReadyJumpJetCount: 0 },
+        'JumpJetsMissingOrDestroyed',
+      ],
+      [
+        'attacker already jumped',
+        { attackerMovedJump: true },
+        'AttackerJumpedThisTurn',
+      ],
+      [
+        'selected leg weapon fired',
+        { leftLegWeaponFiredThisTurn: true },
+        'LegWeaponFiredThisTurn',
+      ],
+      ['non-adjacent target', { targetDistance: 2 }, 'TargetNotAdjacent'],
+      [
+        'standing target elevation mismatch',
+        { standingAttackerHeightAboveTargetHeight: 0 },
+        'TargetElevationNotInRange',
+      ],
+      [
+        'standing target not ahead',
+        { targetDirectlyAheadOfFeet: false },
+        'TargetNotDirectlyAheadOfFeet',
+      ],
+      [
+        'prone target elevation mismatch',
+        {
+          attackerProne: true,
+          standingAttackerHeightAboveTargetHeight: undefined,
+          targetDirectlyAheadOfFeet: undefined,
+          proneTargetElevationInRange: false,
+        },
+        'TargetElevationNotInRange',
+      ],
+      [
+        'prone target not behind',
+        {
+          attackerProne: true,
+          standingAttackerHeightAboveTargetHeight: undefined,
+          targetDirectlyAheadOfFeet: undefined,
+          proneTargetElevationInRange: true,
+          targetDirectlyBehindFeet: false,
+        },
+        'TargetNotDirectlyBehindFeet',
+      ],
+    ] as const)('rejects %s', (_label, overrides, reasonCode) => {
+      expect(
+        canJumpJetAttack({ ...validJumpJetAttackInput, ...overrides }),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode,
+      });
+    });
+
+    it('uses source-backed selected-leg jump jet damage and wet-location zero damage', () => {
+      expect(
+        getJumpJetAttackDamage({
+          selectedLeg: 'both',
+          leftReadyJumpJetCount: 2,
+          rightReadyJumpJetCount: 1,
+        }),
+      ).toBe(9);
+      expect(
+        getJumpJetAttackDamage({
+          selectedLeg: 'left',
+          leftReadyJumpJetCount: 3,
+          leftLegWet: true,
+        }),
+      ).toBe(0);
+    });
+
+    it('exposes source-backed jump jet to-hit branches', () => {
+      expect(getJumpJetAttackToHitModifiers()).toEqual({
+        automaticSuccess: false,
+        modifiers: [
+          expect.objectContaining({ value: 2, reasonCode: 'JumpJetAttack' }),
+        ],
+      });
+      expect(
+        getJumpJetAttackToHitModifiers({ attackerProne: true }).modifiers,
+      ).toContainEqual(
+        expect.objectContaining({ value: 2, reasonCode: 'AttackerProne' }),
+      );
+      expect(
+        getJumpJetAttackToHitModifiers({
+          targetIsBuildingFuelTankOrGunEmplacement: true,
+        }),
+      ).toEqual({
+        automaticSuccess: true,
+        automaticSuccessReason: 'Targeting adjacent building.',
+        automaticSuccessReasonCode: 'AdjacentBuilding',
+        modifiers: [],
+      });
+    });
+
+    it('wires jump jet attack through runtime restrictions, to-hit, damage, and resolution', () => {
+      const input = makeInput({
+        attackType: 'jump-jet-attack',
+        optionalRules: ['tacops_jump_jet_attack'],
+        limb: 'rightLeg',
+        rightReadyJumpJetCount: 2,
+        targetDistance: 1,
+        standingAttackerHeightAboveTargetHeight: 1,
+        targetDirectlyAheadOfFeet: true,
+      });
+
+      expect(canJumpJetAttackPhysical(input)).toEqual({ allowed: true });
+      expect(calculatePhysicalToHit(input)).toMatchObject({
+        allowed: true,
+        baseToHit: 5,
+        finalToHit: 7,
+        modifiers: [expect.objectContaining({ name: 'Jump Jet', value: 2 })],
+      });
+      expect(calculatePhysicalDamage(input)).toMatchObject({
+        targetDamage: 6,
+        attackerDamage: 0,
+        attackerPSR: false,
+        targetPSR: false,
+      });
+      expect(
+        resolvePhysicalAttack(input, makeDiceSequence([4, 4, 3])),
+      ).toMatchObject({
+        attackType: 'jump-jet-attack',
+        hit: true,
+        targetDamage: 6,
+        attackerDamage: 0,
+      });
+    });
+
+    it('rejects runtime jump jet attacks without the TacOps option before side effects', () => {
+      expect(
+        resolvePhysicalAttack(
+          makeInput({
+            attackType: 'jump-jet-attack',
+            limb: 'rightLeg',
+            rightReadyJumpJetCount: 2,
+            targetDistance: 1,
+            standingAttackerHeightAboveTargetHeight: 1,
+            targetDirectlyAheadOfFeet: true,
+          }),
+          makeDiceSequence([6, 6, 6]),
+        ),
+      ).toMatchObject({
+        hit: false,
+        targetDamage: 0,
+        attackerDamage: 0,
+        restrictionReasonCode: 'TacOpsJumpJetAttackDisabled',
       });
     });
   });
@@ -2053,6 +3447,24 @@ describe('physicalAttacks', () => {
       ).toMatchObject({
         allowed: false,
         reasonCode: 'AttackerProne',
+      });
+    });
+
+    it('disallows stuck charge attackers before movement-path gates', () => {
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            attackerMovedBackwardThisTurn: true,
+            attackerProne: true,
+            attackerStuck: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerStuck',
       });
     });
 
@@ -3185,6 +4597,22 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows DFA by a stuck attacker before jump/prone gates', () => {
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            attackerProne: true,
+            attackerStuck: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerStuck',
+      });
+    });
+
     it('disallows DFA using mechanical jump boosters', () => {
       expect(
         canDFA(
@@ -3412,6 +4840,35 @@ describe('physicalAttacks', () => {
           source: 'physical-equipment',
         }),
       );
+    });
+
+    it('removes only the claw punch to-hit modifier when PLAYTEST_3 is enabled', () => {
+      const toHit = calculatePunchToHit(
+        makeInput({
+          pilotingSkill: 5,
+          arm: 'left',
+          leftArmHasClaw: true,
+          optionalRules: ['PLAYTEST_3'],
+        }),
+      );
+      const damage = calculatePunchDamage(
+        makeInput({
+          attackerTonnage: 55,
+          arm: 'left',
+          leftArmHasClaw: true,
+          optionalRules: ['PLAYTEST_3'],
+        }),
+      );
+
+      expect(toHit.finalToHit).toBe(5);
+      expect(toHit.modifiers).toContainEqual(
+        expect.objectContaining({
+          name: 'Using Claws',
+          value: 0,
+          source: 'physical-equipment',
+        }),
+      );
+      expect(damage).toBe(8);
     });
 
     it('uses claws instead of a destroyed hand actuator modifier', () => {
@@ -3746,6 +5203,49 @@ describe('physicalAttacks', () => {
       }
     });
 
+    it('applies explicit Skilled Evasion target bonuses to physical to-hit', () => {
+      const baseline = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'kick',
+          pilotingSkill: 5,
+        }),
+      );
+      const evadingTarget = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'kick',
+          pilotingSkill: 5,
+          targetEvading: true,
+          targetEvasionBonus: 3,
+        }),
+      );
+
+      expect(evadingTarget.allowed).toBe(true);
+      expect(evadingTarget.finalToHit).toBe(baseline.finalToHit + 3);
+      expect(evadingTarget.modifiers).toContainEqual({
+        name: 'Target Evasion',
+        value: 3,
+        source: 'movement',
+      });
+    });
+
+    it('suppresses explicit zero Skilled Evasion target bonuses for physical to-hit', () => {
+      const result = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'kick',
+          pilotingSkill: 5,
+          targetEvading: true,
+          targetEvasionBonus: 0,
+        }),
+      );
+
+      expect(result.finalToHit).toBe(3);
+      expect(result.modifiers).not.toContainEqual(
+        expect.objectContaining({
+          name: 'Target Evasion',
+        }),
+      );
+    });
+
     it('suppresses source-backed target evasion against prone physical targets', () => {
       const result = calculatePhysicalToHit(
         makeInput({
@@ -3915,6 +5415,16 @@ describe('physicalAttacks', () => {
       expect(result.attackerPSR).toBe(false);
       expect(result.attackerPSRModifier).toBe(0);
     });
+
+    it('brush-off miss damages the attacker on the punch table', () => {
+      const result = getPhysicalMissConsequences(
+        'brush-off',
+        makeInput({ attackType: 'brush-off', attackerTonnage: 80 }),
+      );
+      expect(result.attackerPSR).toBe(false);
+      expect(result.attackerDamage).toBe(8);
+      expect(result.hitTable).toBe('punch');
+    });
   });
 
   // =============================================================================
@@ -4080,6 +5590,56 @@ describe('physicalAttacks', () => {
       expect(result.targetDamage).toBe(0);
       expect(result.targetDisplaced).toBe(true);
       expect(result.targetPSR).toBe(true);
+    });
+
+    it('resolves optional TacOps trip as zero damage with a target PSR', () => {
+      const roller = makeDiceSequence([5, 4]);
+      const result = resolvePhysicalAttack(
+        makeInput({
+          attackType: 'trip',
+          pilotingSkill: 5,
+          optionalRules: ['tacops_trip_attack'],
+          targetDistance: 1,
+          targetInFrontArc: true,
+          elevationDifference: 0,
+        }),
+        roller,
+      );
+
+      expect(result.hit).toBe(true);
+      expect(result.toHitNumber).toBe(4);
+      expect(result.targetDamage).toBe(0);
+      expect(result.hitLocation).toBeUndefined();
+      expect(result.targetDisplaced).toBe(false);
+      expect(result.targetPSR).toBe(true);
+    });
+
+    it('resolves source-backed thrash as automatic infantry damage with attacker PSR', () => {
+      const roller = makeDiceSequence([3]);
+      const result = resolvePhysicalAttack(
+        makeInput({
+          attackType: 'thrash',
+          attackerTonnage: 80,
+          attackerProne: true,
+          attackerUnitType: 'BattleMech',
+          targetUnitType: 'Infantry',
+          targetDistance: 0,
+          elevationDifference: 0,
+          thrashBlockingTerrains: [],
+        }),
+        roller,
+      );
+
+      expect(result.hit).toBe(true);
+      expect(result.toHitNumber).toBe(0);
+      expect(result.roll).toBe(0);
+      expect(result.automaticHit).toBe(true);
+      expect(result.automaticHitReason).toBe('Thrash attacks always hit.');
+      expect(result.targetDamage).toBe(27);
+      expect(result.hitLocation).toBe('center_torso');
+      expect(result.attackerPSR).toBe(true);
+      expect(result.attackerPSRModifier).toBe(0);
+      expect(result.targetPSR).toBe(false);
     });
 
     it('should resolve charge with damage to both', () => {

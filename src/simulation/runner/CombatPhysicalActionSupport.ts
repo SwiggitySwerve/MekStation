@@ -25,6 +25,14 @@ const PHYSICAL_ATTACK_COMMAND_SOURCE_REFS = {
   charge: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.charge'],
   dfa: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.dfa'],
   push: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.push'],
+  trip: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.trip'],
+  thrash: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.thrash'],
+  'jump-jet-attack':
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.jump-jet-attack'],
+  'brush-off': MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.brush-off'],
+  grapple: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.grapple'],
+  'break-grapple':
+    MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.break-grapple'],
   hatchet: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.club'],
   sword: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.sword'],
   mace: MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS['physical.mace'],
@@ -64,6 +72,36 @@ export const PHYSICAL_ATTACK_ACTION_SUPPORT = {
     'push',
     'Tactical command, game intent, wire schema, dispatcher, and runner physical phase support push, including target displacement and attacker follow-through',
     PHYSICAL_ATTACK_COMMAND_SOURCE_REFS.push,
+  ),
+  trip: integrated(
+    'trip',
+    'Tactical command, game intent, wire schema, dispatcher, and runner physical phase support optional TacOps trip as a zero-damage target-PSR attack',
+    PHYSICAL_ATTACK_COMMAND_SOURCE_REFS.trip,
+  ),
+  thrash: integrated(
+    'thrash',
+    'Tactical command, game intent, wire schema, dispatcher, and runner physical phase support prone BattleMech same-hex thrash as an automatic-hit infantry attack with attacker PSR',
+    PHYSICAL_ATTACK_COMMAND_SOURCE_REFS.thrash,
+  ),
+  'jump-jet-attack': integrated(
+    'jump-jet-attack',
+    'Tactical command, game intent, wire schema, dispatcher, and runner physical phase support optional TacOps jump-jet attack with selected-leg damage and no self-PSR side effects',
+    PHYSICAL_ATTACK_COMMAND_SOURCE_REFS['jump-jet-attack'],
+  ),
+  'brush-off': integrated(
+    'brush-off',
+    'Tactical command, game intent, wire schema, dispatcher, event-sourced physical resolution, and runner physical phase support source-backed brush-off against swarming infantry, including hit dislodgement and miss self-damage',
+    PHYSICAL_ATTACK_COMMAND_SOURCE_REFS['brush-off'],
+  ),
+  grapple: integrated(
+    'grapple',
+    'Tactical command, game intent, wire schema, dispatcher, event-sourced physical resolution, and runner physical phase support source-backed normal TacOps grapple state without damage',
+    PHYSICAL_ATTACK_COMMAND_SOURCE_REFS.grapple,
+  ),
+  'break-grapple': integrated(
+    'break-grapple',
+    'Tactical command, game intent, wire schema, dispatcher, event-sourced physical resolution, and runner physical phase support source-backed normal TacOps break-grapple state clearing without damage',
+    PHYSICAL_ATTACK_COMMAND_SOURCE_REFS['break-grapple'],
   ),
   hatchet: integrated(
     'hatchet',

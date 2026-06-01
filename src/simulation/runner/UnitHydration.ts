@@ -102,6 +102,15 @@ export interface ICatalogAmmoStats {
 
 export type AmmoLookup = (idOrName: string) => ICatalogAmmoStats | null;
 
+const SOURCE_BACKED_WEAPON_LOOKUP_ALIASES = {
+  'plasma-cannon': 'clan-plasma-cannon',
+  plasmacannon: 'clan-plasma-cannon',
+  clplasmacannon: 'clan-plasma-cannon',
+  clanplasmacannon: 'clan-plasma-cannon',
+  plasmarifle: 'plasma-rifle',
+  isplasmarifle: 'plasma-rifle',
+} satisfies Readonly<Record<string, string>>;
+
 export interface IHydratedAIWeaponsReport {
   readonly weapons: readonly IWeapon[];
   readonly resolvedEquipmentIds: readonly string[];
@@ -400,6 +409,8 @@ export function hydrateHasStealthArmorFromFullUnit(
 export interface IHydratedTalonState {
   readonly leftLegHasTalons: boolean;
   readonly rightLegHasTalons: boolean;
+  readonly leftArmHasTalons: boolean;
+  readonly rightArmHasTalons: boolean;
 }
 
 export interface IHydratedClawState {
@@ -430,6 +441,12 @@ export function hydrateTalonStateFromFullUnit(
     ),
     rightLegHasTalons: hasTalonCriticalSlot(
       locationSlotTexts(criticalSlots, 'RIGHT_LEG'),
+    ),
+    leftArmHasTalons: hasTalonCriticalSlot(
+      locationSlotTexts(criticalSlots, 'LEFT_ARM'),
+    ),
+    rightArmHasTalons: hasTalonCriticalSlot(
+      locationSlotTexts(criticalSlots, 'RIGHT_ARM'),
     ),
   };
 }
@@ -1478,7 +1495,11 @@ export function hydrateAIWeaponsFromFullUnitWithReport(
     if (!raw || typeof raw !== 'object') continue;
     const entry = raw as IUnitEquipmentEntry;
     if (typeof entry.id !== 'string') continue;
-    const stats = weaponLookup(entry.id);
+    const normalizedEntryId = normalizeEquipmentId(entry.id);
+    const stats =
+      weaponLookup(entry.id) ??
+      weaponLookup(normalizedEntryId) ??
+      weaponLookup(normalizedWithoutTechPrefix(normalizedEntryId));
     if (!stats) {
       unresolvedEquipmentIds.push(entry.id);
       continue;
@@ -1660,6 +1681,20 @@ export function hydrateArmorFromFullUnit(fullUnit: IFullUnit): {
   return { armor, totalArmor: total, locationCount };
 }
 
+function hydrateArmorTypeByLocationFromFullUnit(
+  fullUnit: IFullUnit,
+  armor: Readonly<Record<string, number>>,
+): IUnitGameState['armorTypeByLocation'] | undefined {
+  const armorType = (fullUnit.armor as { type?: unknown } | undefined)?.type;
+  if (typeof armorType !== 'string' || armorType.length === 0) {
+    return undefined;
+  }
+
+  return Object.fromEntries(
+    Object.keys(armor).map((location) => [location, armorType]),
+  );
+}
+
 /**
  * Build the runner's per-location internal-structure map from the unit's
  * tonnage. Looks up `STANDARD_STRUCTURE_TABLE[tonnage]`; rounds to the
@@ -1735,6 +1770,10 @@ export function createHydratedUnitState(
   const { runnerUnitId, side, position, fullUnit, gunnery, piloting } =
     hydrated;
   const { armor } = hydrateArmorFromFullUnit(fullUnit);
+  const armorTypeByLocation = hydrateArmorTypeByLocationFromFullUnit(
+    fullUnit,
+    armor,
+  );
   const { structure } = hydrateStructureFromFullUnit(fullUnit);
   const heatSinks = hydrateHeatSinksFromFullUnit(fullUnit);
   const talons = hydrateTalonStateFromFullUnit(fullUnit);
@@ -1764,12 +1803,15 @@ export function createHydratedUnitState(
     partialWingJumpBonus: hydratePartialWingJumpBonusFromFullUnit(fullUnit),
     leftLegHasTalons: talons.leftLegHasTalons,
     rightLegHasTalons: talons.rightLegHasTalons,
+    leftArmHasTalons: talons.leftArmHasTalons,
+    rightArmHasTalons: talons.rightArmHasTalons,
     leftArmHasClaw: claws.leftArmHasClaw,
     rightArmHasClaw: claws.rightArmHasClaw,
     hasStealthArmor: hydrateHasStealthArmorFromFullUnit(fullUnit),
     unitQuirks: hydrateUnitQuirksFromFullUnit(fullUnit),
     weaponLocationById: weaponLocationByIdFromWeapons(hydrated.aiWeapons),
     armor,
+    ...(armorTypeByLocation !== undefined ? { armorTypeByLocation } : {}),
     // Mirror starting structure into `startingInternalStructure` so the
     // retreat-trigger ratio (per `add-bot-retreat-behavior`) sees the
     // canonical pre-damage value, matching the engine path's contract.
@@ -1788,6 +1830,7 @@ export function createHydratedUnitState(
     lockState: LockState.Pending,
     componentDamage: DEFAULT_COMPONENT_DAMAGE,
     prone: false,
+    isStuck: false,
     shutdown: false,
     pendingPSRs: [],
     damageThisPhase: 0,
@@ -1871,6 +1914,16 @@ export function buildWeaponLookupFromCatalogFiles(
       });
     }
   }
+
+  for (const [alias, canonicalId] of Object.entries(
+    SOURCE_BACKED_WEAPON_LOOKUP_ALIASES,
+  )) {
+    const stats = map.get(canonicalId);
+    if (!stats) continue;
+    map.set(alias, stats);
+    map.set(normalizeCriticalSlotText(alias), stats);
+  }
+
   return (id: string) => map.get(id) ?? null;
 }
 

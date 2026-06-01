@@ -22,11 +22,24 @@ function isTalonEquipment(name: string): boolean {
   return normalizeEquipmentName(name) === 'talons';
 }
 
-export function applyDestroyedPhysicalEquipmentCritical(
+function payloadRemovesMountedEquipment(
+  payload: ICriticalHitResolvedPayload,
+): boolean {
+  return (
+    payload.destroyed === true ||
+    payload.missing === true ||
+    payload.breached === true
+  );
+}
+
+export function applyDamagedPhysicalEquipmentCritical(
   unit: IUnitGameState,
   payload: ICriticalHitResolvedPayload,
 ): IUnitGameState {
-  if (payload.componentType !== 'equipment' || payload.destroyed !== true) {
+  if (
+    payload.componentType !== 'equipment' ||
+    !payloadRemovesMountedEquipment(payload)
+  ) {
     return unit;
   }
 
@@ -41,6 +54,12 @@ export function applyDestroyedPhysicalEquipmentCritical(
   }
 
   if (isTalonEquipment(payload.componentName)) {
+    if (payload.location === 'left_arm' && unit.leftArmHasTalons === true) {
+      return { ...unit, leftArmHasTalons: false };
+    }
+    if (payload.location === 'right_arm' && unit.rightArmHasTalons === true) {
+      return { ...unit, rightArmHasTalons: false };
+    }
     if (payload.location === 'left_leg' && unit.leftLegHasTalons === true) {
       return { ...unit, leftLegHasTalons: false };
     }
@@ -50,6 +69,68 @@ export function applyDestroyedPhysicalEquipmentCritical(
   }
 
   return unit;
+}
+
+export const applyDestroyedPhysicalEquipmentCritical =
+  applyDamagedPhysicalEquipmentCritical;
+
+export function applyDestroyedLocationPhysicalEquipmentState(
+  unit: IUnitGameState,
+  destroyedLocations: readonly string[],
+): IUnitGameState {
+  let nextUnit = unit;
+
+  for (const location of destroyedLocations) {
+    if (location === 'left_arm') {
+      const updates: {
+        leftArmHasClaw?: boolean;
+        leftArmHasTalons?: boolean;
+      } = {};
+      if (nextUnit.leftArmHasClaw === true) {
+        updates.leftArmHasClaw = false;
+      }
+      if (nextUnit.leftArmHasTalons === true) {
+        updates.leftArmHasTalons = false;
+      }
+      if (
+        updates.leftArmHasClaw !== undefined ||
+        updates.leftArmHasTalons !== undefined
+      ) {
+        nextUnit = { ...nextUnit, ...updates };
+      }
+      continue;
+    }
+
+    if (location === 'right_arm') {
+      const updates: {
+        rightArmHasClaw?: boolean;
+        rightArmHasTalons?: boolean;
+      } = {};
+      if (nextUnit.rightArmHasClaw === true) {
+        updates.rightArmHasClaw = false;
+      }
+      if (nextUnit.rightArmHasTalons === true) {
+        updates.rightArmHasTalons = false;
+      }
+      if (
+        updates.rightArmHasClaw !== undefined ||
+        updates.rightArmHasTalons !== undefined
+      ) {
+        nextUnit = { ...nextUnit, ...updates };
+      }
+      continue;
+    }
+
+    if (location === 'left_leg' && nextUnit.leftLegHasTalons === true) {
+      nextUnit = { ...nextUnit, leftLegHasTalons: false };
+      continue;
+    }
+    if (location === 'right_leg' && nextUnit.rightLegHasTalons === true) {
+      nextUnit = { ...nextUnit, rightLegHasTalons: false };
+    }
+  }
+
+  return nextUnit;
 }
 
 export function applyPhysicalEquipmentCriticalEvents(
@@ -65,7 +146,7 @@ export function applyPhysicalEquipmentCriticalEvents(
     if (event.type !== 'critical_hit_resolved') {
       continue;
     }
-    nextUnit = applyDestroyedPhysicalEquipmentCritical(nextUnit, event.payload);
+    nextUnit = applyDamagedPhysicalEquipmentCritical(nextUnit, event.payload);
   }
 
   return nextUnit;

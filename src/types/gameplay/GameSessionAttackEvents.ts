@@ -49,6 +49,18 @@ export interface IAttackDeclaredPayload {
 }
 
 /**
+ * All attack declarations for the weapon phase are locked and may now be
+ * exposed to every participant. The individual `AttackDeclared` events remain
+ * the source of weapon/target detail; this payload captures the reveal boundary.
+ */
+export interface IAttacksRevealedPayload {
+  /** Active units whose weapon-phase declarations are now revealed. */
+  readonly unitIds: readonly string[];
+  /** Number of AttackDeclared events revealed for this turn. */
+  readonly attackCount: number;
+}
+
+/**
  * Weapon attack data stored in attack events.
  * Carries the real weapon stats so resolveAttack can use actual damage/heat values.
  */
@@ -163,7 +175,8 @@ export interface IAttackInvalidPayload {
     | 'UnknownWeapon'
     | 'WeaponDestroyed'
     | 'WeaponJammed'
-    | 'AttackerEvading';
+    | 'AttackerEvading'
+    | 'AttackerSprinted';
   readonly details?: string;
 }
 
@@ -385,6 +398,8 @@ export interface ICriticalHitResolvedPayload {
   readonly ammoBinId?: string;
   readonly effect: string;
   readonly destroyed: boolean;
+  readonly missing?: boolean;
+  readonly breached?: boolean;
   /**
    * Per `add-authoritative-roll-arbitration` (Wave 3a): the server's
    * consumed d6 sequence for this crit (determination roll + slot
@@ -493,6 +508,16 @@ export interface IUnitFellPayload {
 }
 
 /**
+ * Emitted when a failed source-backed movement PSR makes a unit stuck
+ * instead of fallen, such as MegaMek swamp bog-down.
+ */
+export interface IUnitStuckPayload {
+  readonly unitId: string;
+  readonly reason?: string;
+  readonly reasonCode?: PSRTrigger;
+}
+
+/**
  * Per `wire-piloting-skill-rolls` task 0.5.4: emitted when a prone
  * unit passes an `AttemptStand` PSR and returns to upright state.
  */
@@ -521,6 +546,12 @@ export type PhysicalAttackEventType =
   | 'charge'
   | 'dfa'
   | 'push'
+  | 'trip'
+  | 'thrash'
+  | 'jump-jet-attack'
+  | 'brush-off'
+  | 'grapple'
+  | 'break-grapple'
   | 'hatchet'
   | 'sword'
   | 'mace'
@@ -552,6 +583,7 @@ export interface IPhysicalDisplacement {
     | 'charge_miss'
     | 'dfa'
     | 'dfa_miss'
+    | 'break-grapple'
     | 'domino';
 }
 

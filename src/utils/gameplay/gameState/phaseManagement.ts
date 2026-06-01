@@ -2,6 +2,7 @@ import {
   GamePhase,
   IGameEvent,
   IGameState,
+  IInitiativeOrderSetPayload,
   IInitiativeRolledPayload,
   IPhaseChangedPayload,
   LockState,
@@ -31,6 +32,10 @@ export function applyPhaseChanged(
         hexesMovedThisTurn: 0,
         movedBackwardThisTurn: false,
         usedMechanicalJumpBoosterThisTurn: false,
+        isEvading: false,
+        evasionBonus: undefined,
+        isSpotting: false,
+        spotTargetId: undefined,
       };
     }
   }
@@ -61,6 +66,8 @@ export function applyTurnStarted(
       weaponsFiredThisTurn: [],
       pendingPSRs: [],
       tagDesignated: false,
+      isSpotting: false,
+      spotTargetId: undefined,
     };
   }
 
@@ -82,5 +89,17 @@ export function applyInitiativeRolled(
     ...state,
     initiativeWinner: payload.winner,
     firstMover: payload.movesFirst,
+  };
+}
+
+export function applyInitiativeOrderSet(
+  state: IGameState,
+  payload: IInitiativeOrderSetPayload,
+): IGameState {
+  return {
+    ...state,
+    initiativeWinner: payload.winner,
+    firstMover: payload.firstMover,
+    activationIndex: 0,
   };
 }

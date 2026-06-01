@@ -10,6 +10,8 @@ import type { ICombatCatalogTriadEvidence } from '../CombatValidationCatalogTria
 import { BATTLEMECH_COMBAT_VALIDATION_CATALOG } from '../CombatValidationCatalog';
 import { COMBAT_CATALOG_TRIAD_EVIDENCE } from '../CombatValidationCatalogTriad';
 import {
+  getCombatValidationOutOfScopeRefs,
+  getCombatValidationOutOfScopeRows,
   getCombatValidationUnresolvedRefs,
   getCombatValidationUnresolvedRows,
 } from '../CombatValidationGapInventory';
@@ -172,37 +174,512 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 228,
+      total: 93,
       byLevel: {
-        'helper-only': 170,
-        unsupported: 58,
+        'helper-only': 84,
+        unsupported: 9,
       },
       bySection: {
-        actions: 31,
         damageAndDeath: 2,
-        eventStream: 17,
-        featureSupport: 115,
-        lifecycleAndPsr: 5,
-        pilotSkills: 20,
-        ruleSupport: 16,
-        validationScope: 22,
+        featureSupport: 55,
+        pilotSkills: 11,
+        ruleSupport: 9,
+        validationScope: 16,
       },
     });
     expect(unresolvedRefs).toEqual(
       expect.arrayContaining([
-        'actions.absentActionSurfaces.movement.evade',
-        'actions.absentActionSurfaces.movement.sprint',
+        'featureSupport.ammunitionCompatibility.battlemech-ammo-missing-compatible-weapon-refs',
+        'featureSupport.ammunitionCompatibility.nonstandard-empty-compatible-row',
+        'pilotSkills.pilotModifierResolvers.edge-application',
+        'ruleSupport.movementEnhancements.masc-side-paths',
+        'ruleSupport.movementEnhancements.supercharger-side-paths',
+        'ruleSupport.movementRules.go-prone-side-paths',
+        'ruleSupport.physicalDamageModifiers.claw-equipment-lifecycle',
+        'ruleSupport.physicalDamageModifiers.talon-equipment-lifecycle',
+        'ruleSupport.terrainEnvironment.terrain-los-side-paths',
+      ]),
+    );
+    expect(unresolvedRefs).not.toContain(
+      'actions.absentActionSurfaces.movement.sprint',
+    );
+    expect(unresolvedRefs).not.toContain('ruleSupport.terrainTypeLos.water');
+    expect(unresolvedRefs).not.toContain('ruleSupport.terrainEnvironment.dust');
+    expect(unresolvedRefs).not.toContain(
+      'ruleSupport.movementEnhancements.MASC',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'ruleSupport.movementEnhancements.Supercharger',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'ruleSupport.physicalDamageModifiers.claws',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'ruleSupport.physicalDamageModifiers.talons',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.physicalWeapons.claws',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.physicalWeapons.talons',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'validationScope.objectiveRequirements.official-physical-weapons',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.mechQuirks.command_mech',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.mechQuirks.battle_computer',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.specialWeaponFamilies.narc',
+    );
+    expect(unresolvedRefs).toContain(
+      'featureSupport.specialWeaponMechanics.inarc-pod-variants',
+    );
+    expect(unresolvedRefs).not.toContain('ruleSupport.movementRules.prone');
+    expect(unresolvedRefs).not.toContain(
+      'actions.absentActionSurfaces.movement.evade',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.canonicalPilotAbilityScope.edge_when_masc_fails',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.canonicalPilotAbilityScope.animal_mimic',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.animal-mimicry',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.canonicalPilotAbilityScope.cross_country',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.cross-country',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.mechQuirks.protected_actuators',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.mechQuirks.exposed_actuators',
+    );
+    expect(unresolvedRefs).not.toContain('featureSupport.mechQuirks.low_arms');
+    expect(unresolvedRefs).not.toContain(
+      'pilotSkills.pilotModifierResolvers.anti-mek-actuator-application',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'pilotSkills.pilotModifierResolvers.low-arms-application',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.canonicalPilotAbilityScope.melee_master',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.melee-master',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'pilotSkills.pilotModifierResolvers.physical-action-count-application',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'pilotSkills.pilotModifierResolvers.called-shot-application',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'pilotSkills.pilotModifierResolvers.heat-application',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'pilotSkills.pilotModifierResolvers.legacy-pain-resistance-to-hit-application',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.marksman',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.sharpshooter',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.acrobat',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.antagonizer',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.combat-intuition',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.cool-under-fire',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.evasive',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.natural-grace',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.speed-demon',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'pilotSkills.pilotModifierResolvers.target-priority-application',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'validationScope.objectiveRequirements.heat-driven-modifiers',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'lifecycleAndPsr.psrTriggers.masc_failure',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'lifecycleAndPsr.psrTriggers.supercharger_failure',
+    );
+    const unsupportedRefs = unresolvedRows
+      .filter((row) => row.level === 'unsupported')
+      .map((row) => row.ref);
+    expect(unsupportedRefs).not.toContain(
+      'featureSupport.canonicalPilotAbilityScope.hvy_lifter',
+    );
+    expect(unsupportedRefs).not.toContain(
+      'featureSupport.pilotAbilities.heavy-lifter',
+    );
+    expect(
+      unresolvedRows.find(
+        (row) =>
+          row.ref === 'featureSupport.canonicalPilotAbilityScope.hvy_lifter',
+      )?.level,
+    ).toBe('helper-only');
+    expect(
+      unresolvedRows.find(
+        (row) => row.ref === 'featureSupport.pilotAbilities.heavy-lifter',
+      )?.level,
+    ).toBe('helper-only');
+    expect(unresolvedRefs).not.toContain(
+      'ruleSupport.terrainTypeLos.light_woods',
+    );
+    expect(unresolvedRefs).not.toContain('ruleSupport.terrainTypeLos.smoke');
+    expect(unresolvedRefs).not.toContain(
+      'ruleSupport.terrainEnvironment.terrain-los-blocking',
+    );
+    expect(
+      unresolvedRefs.filter((ref) =>
+        ref.startsWith('eventStream.nonBattleMechEventScope.'),
+      ),
+    ).toEqual([]);
+    expect(unsupportedRefs).not.toContain(
+      'pilotSkills.pilotModifierResolvers.multi-target-penalty-application',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'pilotSkills.pilotModifierResolvers.multi-target-penalty-application',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.multi-target',
+    );
+    expect(unsupportedRefs).not.toContain(
+      'featureSupport.pilotAbilities.toughness',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.iron-will',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.terrain-master',
+    );
+    expect(unsupportedRefs).toEqual(
+      expect.arrayContaining([
+        'featureSupport.canonicalPilotAbilityScope.edge_when_headhit',
+        'featureSupport.canonicalPilotAbilityScope.edge_when_tac',
+        'featureSupport.canonicalPilotAbilityScope.edge_when_ko',
+        'featureSupport.canonicalPilotAbilityScope.edge_when_explosion',
+      ]),
+    );
+    for (const edgeRef of [
+      'featureSupport.canonicalPilotAbilityScope.edge_when_headhit',
+      'featureSupport.canonicalPilotAbilityScope.edge_when_tac',
+      'featureSupport.canonicalPilotAbilityScope.edge_when_ko',
+      'featureSupport.canonicalPilotAbilityScope.edge_when_explosion',
+    ]) {
+      expect(unresolvedRows.find((row) => row.ref === edgeRef)?.level).toBe(
+        'unsupported',
+      );
+    }
+    expect(unsupportedRefs).toContain(
+      'featureSupport.canonicalPilotAbilityScope.tm_nightwalker',
+    );
+    expect(unsupportedRefs).toContain('featureSupport.mechQuirks.low_profile');
+    expect(
+      unresolvedRows.find(
+        (row) =>
+          row.ref ===
+          'featureSupport.canonicalPilotAbilityScope.tm_nightwalker',
+      )?.level,
+    ).toBe('unsupported');
+    expect(
+      unresolvedRows.find(
+        (row) => row.ref === 'featureSupport.mechQuirks.low_profile',
+      )?.level,
+    ).toBe('unsupported');
+    expect(
+      unresolvedRows.find(
+        (row) => row.ref === 'featureSupport.pilotAbilities.toughness',
+      )?.level,
+    ).toBe('helper-only');
+    expect(unsupportedRefs).not.toContain(
+      'actions.physicalActionClassScope.trip',
+    );
+    expect(unsupportedRefs).not.toContain(
+      'actions.physicalActionClassScope.thrash',
+    );
+    expect(unsupportedRefs).not.toContain(
+      'actions.physicalActionClassScope.brush-off',
+    );
+    expect(unsupportedRefs).not.toContain(
+      'actions.physicalActionClassScope.break-grapple',
+    );
+    expect(unsupportedRefs).not.toContain(
+      'actions.physicalActionClassScope.jump-jet-attack',
+    );
+    expect(unsupportedRefs).not.toContain(
+      'actions.physicalActionClassScope.grapple',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'actions.physicalActionClassScope.grapple',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'actions.physicalActionClassScope.trip',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'actions.physicalActionClassScope.thrash',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'actions.physicalActionClassScope.jump-jet-attack',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'actions.physicalActionClassScope.brush-off',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'actions.physicalActionClassScope.break-grapple',
+    );
+  });
+
+  it('keeps non-BattleMech scope rows auditable without making them BattleMech blockers', () => {
+    const outOfScopeRows = getCombatValidationOutOfScopeRows();
+    const outOfScopeRefs = getCombatValidationOutOfScopeRefs();
+
+    expect(outOfScopeRefs).toEqual(outOfScopeRows.map((row) => row.ref));
+    expect(outOfScopeRefs).toEqual(
+      expect.arrayContaining([
+        'eventStream.nonBattleMechEventScope.leg_attack',
         'eventStream.nonBattleMechEventScope.motive_damaged',
+        'eventStream.nonBattleMechEventScope.swarm_damage',
+        'eventStream.nonBattleMechEventScope.vtol_crash_check',
+        'actions.physicalActionClassScope.airmek-ram',
+        'actions.physicalActionClassScope.battle-armor-vibro-claw',
+        'actions.physicalActionClassScope.lay-explosives',
+        'actions.physicalActionClassScope.protomek-physical',
+        'actions.physicalActionClassScope.ram',
         'featureSupport.ammunitionCompatibility.non-battlemech-aerospace-capital-ammo',
         'featureSupport.ammunitionCompatibility.non-battlemech-battle-armor',
         'featureSupport.ammunitionCompatibility.non-battlemech-protomech',
+        'featureSupport.ammunitionCompatibility.unsupported-aquatic-torpedo-ammo',
         'featureSupport.ammunitionCompatibility.unsupported-artillery-ammo',
-        'featureSupport.physicalWeapons.claws',
-        'featureSupport.physicalWeapons.talons',
+        'featureSupport.pilotAbilities.acrobat',
+        'featureSupport.pilotAbilities.antagonizer',
+        'featureSupport.pilotAbilities.combat-intuition',
+        'featureSupport.pilotAbilities.cool-under-fire',
+        'featureSupport.pilotAbilities.evasive',
+        'featureSupport.pilotAbilities.multi-target',
+        'featureSupport.canonicalPilotAbilityScope.aptitude_gunnery',
+        'featureSupport.canonicalPilotAbilityScope.aptitude_piloting',
+        'featureSupport.canonicalPilotAbilityScope.atow_combat_paralysis',
+        'featureSupport.canonicalPilotAbilityScope.atow_combat_sense',
+        'featureSupport.canonicalPilotAbilityScope.atow_g_tolerance',
+        'featureSupport.canonicalPilotAbilityScope.cross_country',
+        'featureSupport.canonicalPilotAbilityScope.edge_when_aero_alt_loss',
+        'featureSupport.canonicalPilotAbilityScope.foot_cav',
+        'featureSupport.canonicalPilotAbilityScope.gunnery_laser',
+        'featureSupport.canonicalPilotAbilityScope.weathered',
+        'featureSupport.pilotAbilities.cross-country',
+        'featureSupport.pilotAbilities.marksman',
+        'featureSupport.pilotAbilities.natural-grace',
+        'featureSupport.pilotAbilities.sharpshooter',
+        'featureSupport.pilotAbilities.speed-demon',
+        'featureSupport.mechQuirks.rugged_1',
+        'featureSupport.mechQuirks.rugged_2',
+        'lifecycleAndPsr.psrTriggers.charge_miss',
+        'lifecycleAndPsr.psrTriggers.dfa_miss',
         'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
+        'pilotSkills.pilotModifierResolvers.target-priority-application',
+        'pilotSkills.pilotModifierResolvers.anti-mek-actuator-application',
+        'pilotSkills.pilotModifierResolvers.vehicle-movement-application',
+        'validationScope.objectiveRequirements.campaign-quirk-behavior',
+        'validationScope.knownLimitationsAndScope.non-battlemech-ammo-scope',
+        'validationScope.knownLimitationsAndScope.non-battlemech-combat-system-split',
         'validationScope.objectiveRequirements.non-battlemech-scope',
+        'actions.gmCommandExclusions.gm.advance-phase',
+        'actions.gmCommandExclusions.gm.grant-resource',
+        'actions.gmCommandExclusions.gm.set-damage',
+        'actions.tacticalCommands.movement.cancel',
+        'actions.tacticalCommands.movement.stabilize',
+        'actions.tacticalCommands.utility.withdraw',
+        'actions.tacticalCommands.weapon.clear-attacks',
+        'actions.tacticalCommands.weapon.declare-attack',
+        'actions.wireIntents.ForfeitMatch',
+        'actions.wireIntents.LaunchMatch',
+        'actions.wireIntents.LeaveSeat',
+        'actions.wireIntents.MarkSeatAi',
+        'actions.wireIntents.OccupySeat',
+        'actions.wireIntents.ReassignSeat',
+        'actions.wireIntents.SetAiSlot',
+        'actions.wireIntents.SetHumanSlot',
+        'actions.wireIntents.SetReady',
       ]),
     );
+    expect(outOfScopeRows).toHaveLength(96);
+    expect(
+      outOfScopeRefs.filter((ref) =>
+        ref.startsWith('actions.physicalActionClassScope.'),
+      ),
+    ).toEqual([
+      'actions.physicalActionClassScope.airmek-ram',
+      'actions.physicalActionClassScope.battle-armor-vibro-claw',
+      'actions.physicalActionClassScope.lay-explosives',
+      'actions.physicalActionClassScope.protomek-physical',
+      'actions.physicalActionClassScope.ram',
+    ]);
+    expect(
+      outOfScopeRefs.filter((ref) =>
+        ref.startsWith('featureSupport.ammunitionCompatibility.'),
+      ),
+    ).toEqual([
+      'featureSupport.ammunitionCompatibility.non-battlemech-aerospace-capital-ammo',
+      'featureSupport.ammunitionCompatibility.non-battlemech-battle-armor',
+      'featureSupport.ammunitionCompatibility.non-battlemech-protomech',
+      'featureSupport.ammunitionCompatibility.unsupported-aquatic-torpedo-ammo',
+      'featureSupport.ammunitionCompatibility.unsupported-artillery-ammo',
+    ]);
+    expect(
+      outOfScopeRefs.filter((ref) =>
+        ref.startsWith('featureSupport.canonicalPilotAbilityScope.'),
+      ),
+    ).toEqual([
+      'featureSupport.canonicalPilotAbilityScope.allweather',
+      'featureSupport.canonicalPilotAbilityScope.aptitude_gunnery',
+      'featureSupport.canonicalPilotAbilityScope.aptitude_piloting',
+      'featureSupport.canonicalPilotAbilityScope.atow_combat_paralysis',
+      'featureSupport.canonicalPilotAbilityScope.atow_combat_sense',
+      'featureSupport.canonicalPilotAbilityScope.atow_g_tolerance',
+      'featureSupport.canonicalPilotAbilityScope.blind_fighter',
+      'featureSupport.canonicalPilotAbilityScope.clan_pilot_training',
+      'featureSupport.canonicalPilotAbilityScope.cluster_master',
+      'featureSupport.canonicalPilotAbilityScope.cross_country',
+      'featureSupport.canonicalPilotAbilityScope.edge_when_aero_alt_loss',
+      'featureSupport.canonicalPilotAbilityScope.edge_when_aero_explosion',
+      'featureSupport.canonicalPilotAbilityScope.edge_when_aero_ko',
+      'featureSupport.canonicalPilotAbilityScope.edge_when_aero_lucky_crit',
+      'featureSupport.canonicalPilotAbilityScope.edge_when_aero_nuke_crit',
+      'featureSupport.canonicalPilotAbilityScope.edge_when_aero_unit_cargo_lost',
+      'featureSupport.canonicalPilotAbilityScope.ei_implant',
+      'featureSupport.canonicalPilotAbilityScope.foot_cav',
+      'featureSupport.canonicalPilotAbilityScope.gunnery_ballistic',
+      'featureSupport.canonicalPilotAbilityScope.gunnery_laser',
+      'featureSupport.canonicalPilotAbilityScope.gunnery_missile',
+      'featureSupport.canonicalPilotAbilityScope.sensor_geek',
+      'featureSupport.canonicalPilotAbilityScope.small_pilot',
+      'featureSupport.canonicalPilotAbilityScope.urban_guerrilla',
+      'featureSupport.canonicalPilotAbilityScope.weathered',
+    ]);
+    expect(
+      outOfScopeRefs.filter((ref) =>
+        ref.startsWith('featureSupport.mechQuirks.'),
+      ),
+    ).toEqual([
+      'featureSupport.mechQuirks.exposed_actuators',
+      'featureSupport.mechQuirks.low_arms',
+      'featureSupport.mechQuirks.protected_actuators',
+      'featureSupport.mechQuirks.rugged_1',
+      'featureSupport.mechQuirks.rugged_2',
+    ]);
+    expect(
+      outOfScopeRefs.filter((ref) =>
+        ref.startsWith('featureSupport.pilotAbilities.'),
+      ),
+    ).toEqual([
+      'featureSupport.pilotAbilities.acrobat',
+      'featureSupport.pilotAbilities.antagonizer',
+      'featureSupport.pilotAbilities.combat-intuition',
+      'featureSupport.pilotAbilities.cool-under-fire',
+      'featureSupport.pilotAbilities.cross-country',
+      'featureSupport.pilotAbilities.evasive',
+      'featureSupport.pilotAbilities.iron-will',
+      'featureSupport.pilotAbilities.marksman',
+      'featureSupport.pilotAbilities.multi-target',
+      'featureSupport.pilotAbilities.natural-grace',
+      'featureSupport.pilotAbilities.sharpshooter',
+      'featureSupport.pilotAbilities.speed-demon',
+      'featureSupport.pilotAbilities.terrain-master',
+    ]);
+    expect(
+      outOfScopeRefs.filter((ref) =>
+        ref.startsWith('lifecycleAndPsr.psrTriggers.'),
+      ),
+    ).toEqual([
+      'lifecycleAndPsr.psrTriggers.charge_miss',
+      'lifecycleAndPsr.psrTriggers.dfa_miss',
+    ]);
+    expect(
+      outOfScopeRefs.filter((ref) =>
+        ref.startsWith('pilotSkills.pilotModifierResolvers.'),
+      ),
+    ).toEqual([
+      'pilotSkills.pilotModifierResolvers.anti-mek-actuator-application',
+      'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
+      'pilotSkills.pilotModifierResolvers.low-arms-application',
+      'pilotSkills.pilotModifierResolvers.target-priority-application',
+      'pilotSkills.pilotModifierResolvers.vehicle-movement-application',
+    ]);
+    expect(
+      outOfScopeRefs.filter((ref) => ref.startsWith('validationScope.')),
+    ).toEqual([
+      'validationScope.knownLimitationsAndScope.non-battlemech-ammo-scope',
+      'validationScope.knownLimitationsAndScope.non-battlemech-combat-system-split',
+      'validationScope.objectiveRequirements.campaign-quirk-behavior',
+      'validationScope.objectiveRequirements.non-battlemech-scope',
+    ]);
+    expect(
+      outOfScopeRefs.filter((ref) =>
+        ref.startsWith('actions.gmCommandExclusions.'),
+      ),
+    ).toEqual([
+      'actions.gmCommandExclusions.gm.advance-phase',
+      'actions.gmCommandExclusions.gm.grant-resource',
+      'actions.gmCommandExclusions.gm.set-damage',
+    ]);
+    expect(
+      outOfScopeRefs.filter((ref) =>
+        ref.startsWith('actions.tacticalCommands.'),
+      ),
+    ).toEqual([
+      'actions.tacticalCommands.movement.cancel',
+      'actions.tacticalCommands.movement.stabilize',
+      'actions.tacticalCommands.utility.withdraw',
+      'actions.tacticalCommands.weapon.clear-attacks',
+      'actions.tacticalCommands.weapon.declare-attack',
+    ]);
+    expect(
+      outOfScopeRefs.filter((ref) => ref.startsWith('actions.wireIntents.')),
+    ).toEqual([
+      'actions.wireIntents.ForfeitMatch',
+      'actions.wireIntents.LaunchMatch',
+      'actions.wireIntents.LeaveSeat',
+      'actions.wireIntents.MarkSeatAi',
+      'actions.wireIntents.OccupySeat',
+      'actions.wireIntents.ReassignSeat',
+      'actions.wireIntents.SetAiSlot',
+      'actions.wireIntents.SetHumanSlot',
+      'actions.wireIntents.SetReady',
+    ]);
+    expect(
+      outOfScopeRows.filter(
+        (row) =>
+          row.level !== 'out-of-scope' ||
+          row.gap.length === 0 ||
+          row.evidence.length === 0 ||
+          row.sourceRefs.length === 0,
+      ),
+    ).toEqual([]);
   });
 
   it('exposes the unresolved inventory through combat validation tooling', () => {
@@ -219,6 +696,12 @@ describe('BattleMech combat validation catalog index', () => {
     );
     expect(validateCombatSuite).toContain('print-combat-validation-gaps.ts');
     expect(validateCombatSuite).toContain('--format=summary');
+    expect(
+      readFileSync(
+        join(process.cwd(), 'scripts', 'print-combat-validation-gaps.ts'),
+        'utf8',
+      ),
+    ).toContain('getCombatValidationOutOfScopeRows');
 
     const triadTestFiles = Array.from(
       new Set(
@@ -463,6 +946,8 @@ describe('BattleMech combat validation catalog index', () => {
         'motive_damaged',
         'physical.charge',
         'physical.push',
+        'physical.thrash',
+        'physical.trip',
         'shared.displacement-elevation-cap',
         'shared.displacement-prohibited-terrain',
         'shared.displacement-overgrown-terrain',
@@ -501,7 +986,9 @@ describe('BattleMech combat validation catalog index', () => {
         'gunnery',
         'terrain-movement-costs',
         'MASC',
+        'masc-side-paths',
         'Supercharger',
+        'supercharger-side-paths',
         'Triple-Strength Myomer',
         'Partial Wing',
         'tsm',

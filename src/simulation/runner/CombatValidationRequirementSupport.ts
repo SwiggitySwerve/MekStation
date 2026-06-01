@@ -320,7 +320,6 @@ const HEAT_LIFECYCLE_SUPPORT_REFS = [
 const HEAT_DRIVEN_MODIFIER_SUPPORT_REFS = [
   'featureSupport.pilotAbilities.hot-dog',
   'featureSupport.pilotAbilities.some-like-it-hot',
-  'featureSupport.pilotAbilities.cool-under-fire',
   'featureSupport.mechQuirks.improved_cooling',
   'featureSupport.mechQuirks.poor_cooling',
   'featureSupport.mechQuirks.no_cooling',
@@ -593,6 +592,24 @@ function helperOnly(
   };
 }
 
+function outOfScope(
+  id: CombatRequirementId,
+  evidence: string,
+  gap: string,
+  supportMapRefs: readonly string[],
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatRequirementSupportEntry {
+  return {
+    id,
+    level: 'out-of-scope',
+    evidence,
+    gap,
+    primaryAuthority: primaryAuthorityFor(id),
+    supportMapRefs,
+    sourceRefs: sourceRefs ?? sourceRefsFromSupportMapRefs(supportMapRefs),
+  };
+}
+
 export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'official-ranged-weapons': integrated(
     'official-ranged-weapons',
@@ -601,10 +618,9 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       'validationScope.knownLimitationsAndScope.battlemech-official-catalog-scope',
     ],
   ),
-  'official-physical-weapons': helperOnly(
+  'official-physical-weapons': integrated(
     'official-physical-weapons',
-    'Catalog contracts enumerate official physical weapons, require construction definitions to match the official physical catalog, partition every row into either standalone runtime attacks or modifier-only helper equipment, and keep claws/talons out of selectable attack types',
-    'Claw/talon missing/breached equipment lifecycle is not wired from mounted equipment, and full mounted physical-weapon mode/location lifecycle remains partial',
+    'Catalog contracts enumerate official physical weapons, require construction definitions to match the official physical catalog, partition every row into either standalone runtime attacks or modifier-only integrated equipment, and keep claws/talons out of selectable attack types while their remaining lifecycle gaps stay under physical-weapon-actions',
     [
       'validationScope.knownLimitationsAndScope.battlemech-official-catalog-scope',
       'featureSupport.physicalWeapons.hatchet',
@@ -648,7 +664,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'special-weapon-families': helperOnly(
     'special-weapon-families',
     'Special weapon family support catalogs UAC, RAC, LB-X, Streak, MML, NARC, AMS, TAG, Artemis, and plasma-cannon responsibilities',
-    'Several family-specific mechanics are helper-only until remaining iNarc ECM sensor effects, ambiguous/player-authored C3 network assignment, AMS defender choice/arc rules, Artemis exact-link/Nova-network/damage-lifecycle edges, or plasma-cannon external target heat are wired',
+    'Several family-specific mechanics are helper-only until remaining iNarc ECM sensor effects, ambiguous/player-authored C3 network assignment, AMS defender choice/arc rules, Artemis exact-link/Nova-network/damage-lifecycle edges, or plasma-cannon external-heat timing/cap and non-Mek edges are wired',
     [
       'featureSupport.specialWeaponFamilies.ultra-ac',
       'featureSupport.specialWeaponFamilies.rotary-ac',
@@ -708,16 +724,16 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'movement-actions': helperOnly(
     'movement-actions',
-    'Action and movement rule maps cover walk, run, jump, same-hex facing rotation, stand, source-backed voluntary go-prone, source-backed MASC/Supercharger activation, prone state, source-backed torso-twist exposure with replayed secondaryFacing consumption, and source-backed first-class absent-action rows for optional TacOps sprint and evade',
-    'Sprint and evade action creation remain absent; torso-twist lower-level UI direction/reset refinements remain outside the authoritative action path',
+    'Action and movement rule maps cover walk, run, source-backed TacOps sprint and evade, jump, same-hex facing rotation, stand, source-backed voluntary go-prone including non-Mek/already-prone/stuck legality and hull-down zero-MP posture transition, source-backed MASC/Supercharger activation, prone state, source-backed torso-twist exposure with replayed secondaryFacing consumption, and local shell-row exclusions',
+    'Sprint now has command, MovementType, wire/P2P, runner movement, normal-engine heat, spotter, and ranged to-hit state coverage; engine-variant/coolant sprint heat, go-prone swarmer dislodge, and inferno wash-off side paths remain helper-only; torso-twist lower-level UI direction/reset refinements remain outside the authoritative action path',
     [
       'actions.tacticalCommands.movement.walk',
+      'actions.tacticalCommands.movement.sprint',
+      'actions.tacticalCommands.movement.evade',
       'actions.tacticalCommands.movement.stand',
       'actions.tacticalCommands.movement.go-prone',
       'actions.tacticalCommands.movement.activate-masc',
       'actions.tacticalCommands.movement.activate-supercharger',
-      'actions.absentActionSurfaces.movement.evade',
-      'actions.absentActionSurfaces.movement.sprint',
       'actions.gameIntents.activateMovementEnhancement',
       'actions.wireIntents.ActivateMovementEnhancement',
       'actions.p2pIntents.activateMovementEnhancement',
@@ -743,13 +759,13 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'movement-enhancements': helperOnly(
     'movement-enhancements',
-    'Movement enhancement support catalogs MASC, supercharger, source-backed replayable activation, source-backed active TSM movement validation, source-backed standard MASC/Supercharger fixed failure target numbers, automatic prior-use counter advance/decay at runner turn reset, and source-backed Partial Wing jump MP/heat validation against combat movement behavior',
-    'MASC and supercharger remain helper-only until MovementType.Sprint, alternate MASC option tables, IndustrialMek/support-unit supercharger roll adjustment, separate first-step equipment-check timing, and non-BattleMech Supercharger motive-damage branches are wired; Partial Wing atmosphere and damaged critical-slot lifecycle refinements remain explicit gaps until combat state hydrates them',
+    'Movement enhancement support catalogs integrated core MASC and Supercharger active-run/sprint, activation, failure-PSR, Edge-reroll, failure-damage, and prior-use lifecycle behavior, source-backed active TSM movement validation, source-backed Partial Wing jump MP/heat validation, and separate helper-only MASC/Supercharger side-path rows',
+    'MASC and Supercharger side paths remain helper-only until alternate MASC option tables, IndustrialMek/support-unit Supercharger roll adjustment, separate first-step equipment-check timing, and non-BattleMech Supercharger motive-damage branches are wired; Partial Wing atmosphere and damaged critical-slot lifecycle refinements remain explicit gaps until combat state hydrates them',
     MOVEMENT_ENHANCEMENT_SUPPORT_REFS,
   ),
   'heat-generation': integrated(
     'heat-generation',
-    'Heat rules cover movement heat, jump-distance heat, weapon heat, engine heat, environmental fire heat, and heat generated event emission',
+    'Heat rules cover movement heat, declared TacOps Sprint normal-engine heat, declared TacOps Evade heat, jump-distance heat, weapon heat, engine heat, environmental fire heat, and heat generated event emission',
     HEAT_GENERATION_SUPPORT_REFS,
   ),
   'heat-dissipation': integrated(
@@ -762,10 +778,9 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
     'Heat rules cover threshold effects, shutdown checks, auto-shutdown, startup, heat pilot damage, optional MaxTech heat critical damage, and runner/event-sourced heat-induced ammo explosion selection plus CASE-aware damage cascade',
     HEAT_LIFECYCLE_SUPPORT_REFS,
   ),
-  'heat-driven-modifiers': helperOnly(
+  'heat-driven-modifiers': integrated(
     'heat-driven-modifiers',
-    'Heat-driven modifier support separates source-backed Hot Dog heat roll relief, Some Like It Hot heat to-hit relief, and weapon cooling quirk heat changes from local-only Cool Under Fire generated-heat relief',
-    'Cool Under Fire source authority is unresolved, so generated-heat relief remains helper-only and cannot be counted as complete heat-modifier parity',
+    'Heat-driven modifier support covers source-backed Hot Dog heat roll relief, Some Like It Hot heat to-hit relief, and weapon cooling quirk heat changes while keeping local-only Cool Under Fire out-of-scope and unconsumed by BattleMech heat resolution',
     HEAT_DRIVEN_MODIFIER_SUPPORT_REFS,
   ),
   'range-validation': integrated(
@@ -784,25 +799,27 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'to-hit-core-modifiers': integrated(
     'to-hit-core-modifiers',
-    'Runner to-hit support covers gunnery, range, minimum range, movement, heat, environment, target state, DFA target class, DFA piloting differential, partial cover, terrain features, and indirect fire',
+    'Runner to-hit support covers gunnery, range, minimum range, movement including explicit target-sprinted relief, heat, environment, target state, DFA target class, DFA piloting differential, partial cover, terrain features, and indirect fire',
     TO_HIT_CORE_MODIFIER_SUPPORT_REFS,
   ),
   'to-hit-advanced-modifiers': helperOnly(
     'to-hit-advanced-modifiers',
-    'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, explicit target evasion across ranged and physical to-hit, ECM, C3, terrain features, and a source-backed absent-action row for optional TacOps Evade movement creation, with C3 explicit-state consumption, attack-time lifecycle and critical-slot damage refresh, attacker-evading ranged invalidation, and conservative runner initial network seeding separated from ambiguous battle-wide assignment gaps',
-    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, target hull-down state, target evasion state, secondary-target state, called-shot state, explicit C3 network state with current positions/lifecycle/ECM disruption and matching C3 critical-slot damage suppression, mounted C3 equipment roles, conservative unambiguous runner C3/C3i initial networks, non-blocking intervening terrain, and evading-attacker ranged invalidation, but ECM inputs, session/player-authored C3 network assignment, multiple or oversized C3 networks, Skilled Evasion scaling, and Evade movement-step state creation remain helper-only or absent',
+    'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, explicit target evasion including 0..3 Skilled Evasion bonus state across ranged and physical to-hit, ECM, C3, terrain features, and source-backed TacOps Sprint/Evade movement creation, with C3 explicit-state consumption, attack-time lifecycle and critical-slot damage refresh, attacker-evading ranged invalidation, and conservative runner initial network seeding separated from ambiguous battle-wide assignment gaps',
+    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, target hull-down state, target evasion/evasionBonus state, secondary-target state, called-shot state, explicit C3 network state with current positions/lifecycle/ECM disruption and matching C3 critical-slot damage suppression, mounted C3 equipment roles, conservative unambiguous runner C3/C3i initial networks, non-blocking intervening terrain, evading-attacker ranged invalidation, explicit sprinting-attacker ranged invalidation, explicit sprinting/evading spotter rejection for indirect fire, declared Sprint/Evade action state creation, declared Sprint normal-engine heat consumption, and declared Evade heat consumption, but ECM inputs, session/player-authored C3 network assignment, and multiple or oversized C3 networks remain helper-only or absent',
     [
       ...TO_HIT_ADVANCED_MODIFIER_SUPPORT_REFS,
-      'actions.absentActionSurfaces.movement.evade',
+      'actions.tacticalCommands.movement.sprint',
+      'actions.tacticalCommands.movement.evade',
     ],
   ),
   'terrain-movement-los-cover': helperOnly(
     'terrain-movement-los-cover',
-    'Terrain matrices cover movement, MekStation simplified LOS blocking, and partial-cover derivation for every TerrainType',
-    'Full MegaMek LOS parity remains helper-only because cumulative woods/smoke blocking, land-to-underwater sightline blocking, divided/diagram LOS, and richer building-level handling are not fully modeled',
+    'Terrain matrices cover movement, MekStation direct and cumulative-density LOS blocking, source-backed land-to-depth-2+ water endpoint blocking, and partial-cover derivation for every TerrainType',
+    'Full MegaMek LOS parity side paths remain helper-only because divided/diagram LOS, richer underwater-combat sightline tracing, and richer building-level handling are not fully modeled',
     [
       'ruleSupport.terrainEnvironment.terrain-movement-costs',
       'ruleSupport.terrainEnvironment.terrain-los-blocking',
+      'ruleSupport.terrainEnvironment.terrain-los-side-paths',
       'ruleSupport.terrainEnvironment.terrain-partial-cover',
       ...TERRAIN_TYPE_MOVEMENT_SUPPORT_REFS,
       ...TERRAIN_TYPE_LOS_SUPPORT_REFS,
@@ -810,8 +827,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'terrain-environment-modifiers': helperOnly(
     'terrain-environment-modifiers',
-    'Terrain/environment maps track woods, rubble, rough, water, ice, swamp, buildings, fire, smoke, fog, night, dust, mines, and extreme conditions',
-    'Building-collapse, source-backed swamp bog-down/stuck state, dust, and minefield modifiers remain helper-only until runner phases consume those battlefield conditions',
+    'Terrain/environment maps track woods, rubble, rough, water, ice, swamp, buildings, fire, smoke, fog, night, dust, mines, and extreme conditions, including explicit-load building-collapse PSR queueing',
+    'Damage-triggered building collapse, basement collapse, top-floor collapse, WiGE flyover collapse, and minefield modifiers remain helper-only; blowing-sand dust to-hit is integrated through explicit environmental state',
     [
       ...TERRAIN_ENVIRONMENT_SUPPORT_REFS,
       ...TERRAIN_TYPE_ATTACK_MODIFIER_SUPPORT_REFS,
@@ -821,12 +838,17 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'physical-core-actions': helperOnly(
     'physical-core-actions',
-    'Physical action maps, runner behavior tests, event-sourced physical resolution, the MegaMek physical action class scope catalog, and the source-checked legality gate catalog cover punch, kick, push, charge, death from above, active TSM damage, underwater modifiers, source-backed target-evasion physical to-hit, successful push/charge/DFA hit displacement, occupied-hex domino positional displacement cascades with DominoEffect PSRs, DFA-miss friendly occupied displacement avoidance, runtime-hydrated grounded DropShip radius-two DFA hit displacement search, source-backed two-level BattleMech displacement elevation caps, source-backed impassable-terrain and overgrown woods/jungle displacement rejection, runner same-phase displacement grid occupancy refresh, blocked successful-charge displacement no-op/no-PSR semantics, charge/DFA miss displacement, runner automatic charge/DFA selection from movement state, shared same-board rejection, shared retreated/ejected targetability removal/rejection, shared evading-attacker rejection, shared cargo-interaction attacker rejection, shared transported-passenger target rejection, shared swarming-target rejection, shared target-making-DFA rejection, shared airborne-target rejection, shared building-occupancy rejection, explicit non-unit invalid hex target rejection, source-backed gun-emplacement automatic success for punch/kick/DFA/melee targets, source-backed selected-arm-missing punch rejection, source-backed missing-leg kick rejection, source-backed prone charge-attacker rejection, source-backed BattleMech charge gun-emplacement target-class rejection, push attacker/target Mek unit-type rejection, push quad BattleMech rejection, push airborne-attacker rejection, push rear-flipped-arm rejection, push displacement-state/counter-push rejection, push building/fuel-tank explicit target rejection, charge/DFA building and fuel-tank explicit target rejection, charge standing-Mek target rejection, charge non-Mek-to-infantry/ProtoMech target rejection, charge elevation-overlap rejection, charge/DFA target movement-complete/immobile rejection, charge/DFA displacement-state rejection, DFA mechanical jump booster movement-step rejection, DFA infantry-family attacker rejection, DFA DropShip target rejection, DFA VTOL/WIGE elevation reach with hydrated jump MP/elevation context plus combat motion type in eligibility, event-sourced declaration/resolution, runner resolution, and automatic runner selection, DFA target-inside-building rejection, push both-arms-present rejection, push arm-fired helper/session/runner weapon-location rejection, and source-backed explicit scope splits for extra MegaMek physical classes',
-    'BattleMech-applicable MegaMek classes such as brush-off, thrash, trip, grapple, break grapple, and jump-jet attacks remain unsupported; non-unit building/fuel-tank damage resolution, domino step-out and broader displacement terrain/building/environment fallout, broader DropShip footprint/secondary-hex consequences, and remaining stricter push/charge/DFA legality gates are cataloged but not runtime-integrated',
+    'Physical action maps, runner behavior tests, event-sourced physical resolution, the MegaMek physical action class scope catalog, and the source-checked legality gate catalog cover punch, kick, push, optional TacOps trip, source-backed thrash, optional TacOps jump-jet attacks, source-backed brush-off, normal TacOps grapple, source-backed normal break-grapple, charge, death from above, active TSM damage, underwater modifiers, source-backed target-evasion physical to-hit, successful push/charge/DFA hit displacement, occupied-hex domino positional displacement cascades with DominoEffect PSRs, DFA-miss friendly occupied displacement avoidance, runtime-hydrated grounded DropShip radius-two DFA hit displacement search, source-backed two-level BattleMech displacement elevation caps, source-backed impassable-terrain and overgrown woods/jungle displacement rejection, runner same-phase displacement grid occupancy refresh, blocked successful-charge displacement no-op/no-PSR semantics, charge/DFA miss displacement, runner automatic charge/DFA selection from movement state, shared same-board rejection, shared retreated/ejected targetability removal/rejection, shared evading-attacker rejection, shared cargo-interaction attacker rejection, shared transported-passenger target rejection, shared swarming-target rejection, shared target-making-DFA rejection, shared airborne-target rejection, shared building-occupancy rejection, explicit non-unit invalid hex target rejection, source-backed gun-emplacement automatic success for punch/kick/DFA/melee targets, source-backed selected-arm-missing punch rejection, source-backed missing-leg kick rejection, source-backed prone charge-attacker rejection, source-backed stuck charge/DFA attacker rejection, source-backed BattleMech charge gun-emplacement target-class rejection, push attacker/target Mek unit-type rejection, push quad BattleMech rejection, push airborne-attacker rejection, push rear-flipped-arm rejection, push displacement-state/counter-push rejection, push building/fuel-tank explicit target rejection, charge/DFA building and fuel-tank explicit target rejection, charge standing-Mek target rejection, charge non-Mek-to-infantry/ProtoMech target rejection, charge elevation-overlap rejection, charge/DFA target movement-complete/immobile rejection, charge/DFA displacement-state rejection, DFA mechanical jump booster movement-step rejection, DFA infantry-family attacker rejection, DFA DropShip target rejection, DFA VTOL/WIGE elevation reach with hydrated jump MP/elevation context plus combat motion type in eligibility, event-sourced declaration/resolution, runner resolution, and automatic runner selection, DFA target-inside-building rejection, push both-arms-present rejection, push arm-fired helper/session/runner weapon-location rejection, and source-backed explicit scope splits for extra MegaMek physical classes',
+    'Normal break-grapple now has runtime PhysicalAttackType, tactical command, event-sourced declaration/resolution, runner state clearing, zero-damage handling, original-attacker automatic success, and grid-backed adjacent displacement coverage; remaining grappling gaps are chain-whip maintenance/follow-up behavior and simultaneous counter-grapple exchange semantics. Non-unit building/fuel-tank damage resolution, domino step-out and broader displacement terrain/building/environment fallout, broader DropShip footprint/secondary-hex consequences, and remaining non-integrated physical side paths are cataloged but not runtime-integrated',
     [
       'actions.physicalAttackCommands.punch',
       'actions.physicalAttackCommands.kick',
       'actions.physicalAttackCommands.push',
+      'actions.physicalAttackCommands.trip',
+      'actions.physicalAttackCommands.thrash',
+      'actions.physicalAttackCommands.jump-jet-attack',
+      'actions.physicalAttackCommands.grapple',
+      'actions.physicalAttackCommands.break-grapple',
       'actions.physicalAttackCommands.charge',
       'actions.physicalAttackCommands.dfa',
       'actions.physicalActionClassScope.punch',
@@ -855,8 +877,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'physical-weapon-actions': helperOnly(
     'physical-weapon-actions',
-    'Runtime physical weapon actions cover player commands, wire intents, runner resolution, active TSM damage context, source-backed melee damage/to-hit modifiers for hatchet, sword, mace, lance, retractable blade, flail, and wrecking ball, plus source-backed claw punch and talon kick/DFA damage modifiers including destroyed-equipment critical events',
-    'Claw/talon missing/breached equipment lifecycle, full physical weapon mount location/mode state, and non-BattleMech physical weapon families remain out of scope',
+    'Runtime physical weapon actions cover player commands, wire intents, runner resolution, active TSM damage context, source-backed melee damage/to-hit modifiers for hatchet, sword, mace, lance, retractable blade, flail, and wrecking ball, plus source-backed claw punch and talon kick/DFA damage modifiers including destroyed/missing/breached equipment critical events and represented destroyed-location replay',
+    'Automatic claw/talon missing/breached event production beyond represented destroyed-location replay, full physical weapon mount location/mode state, and non-BattleMech physical weapon families remain out of scope',
     [
       'actions.physicalAttackCommands.hatchet',
       'actions.physicalAttackCommands.sword',
@@ -874,8 +896,10 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       'featureSupport.physicalWeapons.flail',
       'featureSupport.physicalWeapons.talons',
       'featureSupport.physicalWeapons.wrecking-ball',
+      'ruleSupport.physicalDamageModifiers.claw-equipment-lifecycle',
       'ruleSupport.physicalDamageModifiers.claws',
       'ruleSupport.physicalDamageModifiers.tsm',
+      'ruleSupport.physicalDamageModifiers.talon-equipment-lifecycle',
       'ruleSupport.physicalDamageModifiers.talons',
       'ruleSupport.physicalDamageModifiers.underwater',
     ],
@@ -898,13 +922,13 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'pilot-skills': helperOnly(
     'pilot-skills',
     'Pilot skill support covers gunnery, piloting, indirect-fire spotter gunnery, wound penalties, PSR resolution, source-backed Command Mech/Battle Computer force initiative bonuses, explicit HQ/command equipment initiative bonuses, and Tactical Genius reroll requests',
-    'Combat Intuition first-round sequencing and automatic command-console/HQ initiative equipment hydration are still helper-only; equipment-derived initiative bonuses require complete eligibility state before they can be promoted from explicit-only inputs',
+    'Automatic command-console/HQ initiative equipment hydration is still helper-only; equipment-derived initiative bonuses require complete eligibility state before they can be promoted from explicit-only inputs',
     PILOT_SKILL_SUPPORT_REFS,
   ),
   'spa-quirk-catalog': helperOnly(
     'spa-quirk-catalog',
     'SPA and quirk support maps cover the combat SPA helper catalog, the canonical SPA catalog boundary, Maneuvering Ace skidding relief, Animal Mimicry quad-Mek PSR relief, and every mech or weapon quirk in the local catalogs',
-    'Several canonical SPA, SPA-helper, and quirk entries remain helper-only or unsupported until runner/application plumbing exists; Maneuvering Ace terrain PSRs beyond skidding and Animal Mimicry terrain-designation movement effects remain explicit gaps',
+    'Several canonical SPA, SPA-helper, and quirk entries remain helper-only or unsupported until runner/application plumbing exists; Maneuvering Ace terrain PSRs beyond skidding remain explicit gaps',
     [
       ...PILOT_ABILITY_SUPPORT_REFS,
       ...CANONICAL_SPA_SUPPORT_REFS,
@@ -917,10 +941,10 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
     'Most remaining non-ranged-to-hit resolver families are still helper-only until their phases consume hydrated ability and quirk state',
     PILOT_MODIFIER_RESOLVER_SUPPORT_REFS,
   ),
-  'campaign-quirk-behavior': helperOnly(
+  'campaign-quirk-behavior': outOfScope(
     'campaign-quirk-behavior',
     'Rugged quirk support exposes MekHQ-style maintenance-cycle multipliers and keeps that behavior separate from combat critical-hit prevention',
-    'The combat runner has no campaign maintenance cycle subsystem',
+    'Campaign maintenance-cycle behavior is source-pinned audit evidence outside BattleMech combat runner validation scope',
     [
       'featureSupport.mechQuirks.rugged_1',
       'featureSupport.mechQuirks.rugged_2',
@@ -953,8 +977,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'psr-trigger-catalog': helperOnly(
     'psr-trigger-catalog',
-    'PSR trigger support catalogs damage, leg/actuator/gyro/engine, kicked, charged, DFA, pushed, shutdown, standing, terrain, skid, MASC, and supercharger triggers, including source-backed standard MASC/Supercharger fixed failure target numbers plus automatic prior-use counter advance/decay at runner turn reset',
-    'Building-collapse remains helper-only; swamp bog-down is tracked as a terrain/stuck-state gap rather than a fall PSR; MASC and supercharger still lack alternate MASC option tables, IndustrialMek/support-unit supercharger roll adjustment, separate first-step equipment-check timing, and non-BattleMech Supercharger motive-damage branches after runner movement queues explicit active-run triggers',
+    'PSR trigger support catalogs damage, leg/actuator/gyro/engine, kicked, charged, DFA, pushed, shutdown, standing, terrain, skid, source-backed explicit-load building collapse, swamp bog-down stuck outcomes, MASC, and Supercharger triggers, including source-backed standard MASC/Supercharger fixed failure target numbers plus automatic prior-use counter advance/decay at runner turn reset',
+    'MASC and Supercharger side paths still lack alternate MASC option tables, IndustrialMek/support-unit Supercharger roll adjustment, separate first-step equipment-check timing, and non-BattleMech Supercharger motive-damage branches after runner movement queues explicit active-run triggers',
     PSR_TRIGGER_SUPPORT_REFS,
   ),
   'turn-rotation-removal': integrated(
@@ -1053,7 +1077,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       'validationScope.knownLimitationsAndScope.unresolved-completion-blocker-inventory',
     ],
   ),
-  'non-battlemech-scope': helperOnly(
+  'non-battlemech-scope': outOfScope(
     'non-battlemech-scope',
     'Validation scope support splits aerospace, vehicle, battle armor, infantry, protomech, and motive-system responsibilities out of this BattleMech suite',
     'Non-BattleMech systems need their own validation matrices rather than being treated as BattleMech coverage',

@@ -21,6 +21,7 @@ export {
   calculateAttackerMovementModifier,
   calculateTMM,
   calculateTargetEvasionModifier,
+  calculateTargetSprintedModifier,
 } from './movementModifiers';
 export {
   calculateHeatModifier,
@@ -37,6 +38,7 @@ export {
   calculateSensorDamageModifier,
   calculateActuatorDamageModifier,
   calculateAttackerProneModifier,
+  calculateSpottingAttackerModifier,
   calculateIndirectFireModifier,
   calculateCalledShotModifier,
 } from './damageModifiers';

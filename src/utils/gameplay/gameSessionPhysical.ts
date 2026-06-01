@@ -49,17 +49,25 @@ import { appendEvent } from './gameSessionCore';
 import {
   buildRestrictionEventReason,
   firedWeaponIdsFromMountedArm,
+  firedWeaponIdsFromMountedLeg,
 } from './gameSessionPhysicalHelpers';
 import { hexDistance } from './hexMath';
 import { roll2d6 as rollDice } from './hitLocation';
 import {
   canCharge,
   canDFA,
+  canBrushOffPhysical,
+  canBreakGrapplePhysical,
+  canGrapplePhysical,
   canKick,
+  canJumpJetAttackPhysical,
   canMeleeWeapon,
   canPunch,
   canPush,
+  canThrashPhysical,
+  canTripPhysical,
   computeChargeDisplacementOutcome,
+  computeBreakGrappleDisplacementOutcome,
   computeDfaDisplacementOutcome,
   computeDisplacementWithDominoChain,
   calculatePhysicalToHit,
@@ -68,13 +76,19 @@ import {
   CHARGE_HIT_PSR_MODIFIER,
   DFA_TARGET_PSR_MODIFIER,
   determinePhysicalHitLocation,
+  getAllowedPhysicalAttackCount,
   IPhysicalAttackInput,
   IPhysicalAttackRestriction,
   isPhysicalAirborneVtolOrWigeTarget,
   isTargetDirectlyAhead,
+  isTargetInFrontArc,
+  physicalAttackDeclarationsForTurn,
+  physicalAttackLimbForDeclaration,
+  physicalAttackLimbsUsedThisTurn,
   physicalTargetObjectTypeForUnitType,
   physicalTargetObjectInvalidReason,
   PhysicalAttackType,
+  type JumpJetAttackSelectedLeg,
   isSupportedPhysicalAttackType,
   resolveDfaMissFallDamage,
   resolveDfaMissFallPilotDamageAvoidance,
@@ -82,6 +96,7 @@ import {
   sourceContainsGroundedDropShip,
   splitPhysicalDamageIntoClusters,
   SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
+  thrashBlockingTerrainsForHexTerrain,
 } from './physicalAttacks';
 import { createDominoEffectPSR } from './pilotingSkillRolls';
 import { waterDepthAtPosition } from './waterDepth';
@@ -156,6 +171,17 @@ function computeResolvedPhysicalDisplacementOutcome(options: {
       attackerFacing: attacker.facing,
       targetId: target.id,
       targetPosition: target.position,
+    });
+  }
+
+  if (hit && attackType === 'break-grapple') {
+    return computeBreakGrappleDisplacementOutcome({
+      grid,
+      attackerId: attacker.id,
+      targetId: target.id,
+      attackerPosition: attacker.position,
+      targetPosition: target.position,
+      attackerIsGrappleAttacker: attacker.isGrappleAttacker,
     });
   }
 
@@ -320,6 +346,7 @@ function appendDfaMissFallPilotDamage(
     pilotDamage,
     pilotAbilities,
     d6Roller,
+    attacker.pilotToughness,
   );
   const consciousnessPassed =
     totalWounds < PILOT_DEATH_WOUND_THRESHOLD &&
@@ -377,8 +404,11 @@ function weaponsFiredFromArmForAttack(
   if (context.weaponsFiredFromArm !== undefined) {
     return context.weaponsFiredFromArm;
   }
+  if (attackType === 'thrash') return attackerState.weaponsFiredThisTurn ?? [];
+  if (attackType === 'grapple') return attackerState.weaponsFiredThisTurn ?? [];
   if (attackType === 'push') return firedWeaponIdsFromMountedArm(attackerState);
   if (
+    attackType === 'brush-off' ||
     attackType === 'punch' ||
     (SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES as readonly string[]).includes(
       attackType,
@@ -387,6 +417,78 @@ function weaponsFiredFromArmForAttack(
     return firedWeaponIdsFromMountedArm(attackerState, context.arm);
   }
   return undefined;
+}
+
+function jumpJetAttackSelectedLegForLimb(
+  limb: IPhysicalAttackDeclaredPayload['limb'] | undefined,
+  context: IPhysicalAttackContext,
+): JumpJetAttackSelectedLeg | undefined {
+  if (context.jumpJetAttackSelectedLeg) return context.jumpJetAttackSelectedLeg;
+  if (limb === 'leftLeg') return 'left';
+  if (limb === 'rightLeg') return 'right';
+  return undefined;
+}
+
+function legWeaponFiredThisTurn(
+  attackerState: IGameSession['currentState']['units'][string],
+  context: IPhysicalAttackContext,
+  leg: 'left' | 'right',
+): boolean | undefined {
+  const explicit =
+    leg === 'left'
+      ? context.leftLegWeaponFiredThisTurn
+      : context.rightLegWeaponFiredThisTurn;
+  if (explicit !== undefined) return explicit;
+  return firedWeaponIdsFromMountedLeg(attackerState, leg).length > 0;
+}
+
+function isTargetDirectlyBehindFeet(
+  attacker: IGameSession['currentState']['units'][string],
+  target: IGameSession['currentState']['units'][string],
+): boolean {
+  const oppositeFacing = ((attacker.facing + 3) % 6) as typeof attacker.facing;
+  return isTargetDirectlyAhead(
+    attacker.position,
+    oppositeFacing,
+    target.position,
+  );
+}
+
+function terrainAtPosition(
+  grid: IHexGrid | undefined,
+  position: IGameSession['currentState']['units'][string]['position'],
+): string | undefined {
+  if (!grid) return undefined;
+  return grid.hexes.get(`${position.q},${position.r}`)?.terrain;
+}
+
+function canonicalBrushOffTargetUnitType(unitType: string | undefined): string {
+  return unitType?.toLowerCase().replace(/[^a-z0-9]/g, '') ?? '';
+}
+
+function swarmingHostId(
+  target: IGameSession['currentState']['units'][string] | undefined,
+): string | undefined {
+  if (target?.combatState?.kind !== 'squad') return undefined;
+  return target.combatState.state.swarmingUnitId;
+}
+
+function targetIsSwarmingInfantryOnAttacker(
+  attackerId: string,
+  target: IGameSession['currentState']['units'][string] | undefined,
+): boolean | undefined {
+  if (!target?.isSwarming) return undefined;
+  const targetType = canonicalBrushOffTargetUnitType(target.unitType);
+  if (
+    targetType !== 'infantry' &&
+    targetType !== 'battlearmor' &&
+    target.combatState?.kind !== 'squad'
+  ) {
+    return false;
+  }
+
+  const hostId = swarmingHostId(target);
+  return hostId === undefined || hostId === attackerId;
 }
 
 function appendInvalidPhysicalResolution(
@@ -431,6 +533,37 @@ export function declarePhysicalAttack(
 
   const componentDamage =
     attackerState.componentDamage ?? buildDefaultComponentDamageState();
+  const declaredLimb = physicalAttackLimbForDeclaration(attackType, {
+    limb: context.limb,
+    arm: context.arm,
+  });
+  const priorPhysicalDeclarations = physicalAttackDeclarationsForTurn(
+    session.events,
+    session.currentState.turn,
+    attackerId,
+  );
+  const allowedPhysicalAttacks = getAllowedPhysicalAttackCount(
+    context.pilotAbilities ?? attackerState.abilities,
+  );
+  if (priorPhysicalDeclarations.length >= allowedPhysicalAttacks) {
+    return appendEvent(
+      session,
+      createPhysicalAttackResolvedEvent(
+        session.id,
+        session.events.length,
+        session.currentState.turn,
+        attackerId,
+        targetId,
+        attackType,
+        0,
+        Infinity,
+        false,
+        undefined,
+        'PhysicalAttackLimitReached',
+      ),
+    );
+  }
+
   const targetObjectType =
     context.targetObjectType ??
     physicalTargetObjectTypeForUnitType(targetState?.unitType);
@@ -461,10 +594,12 @@ export function declarePhysicalAttack(
     targetUnitType: targetState?.unitType,
     targetPilotingSkill: targetState?.piloting,
     attackerEvading: attackerState.isEvading,
+    attackerSpotting: attackerState.isSpotting,
     attackerLoadingOrUnloadingCargo: attackerState.isLoadingOrUnloadingCargo,
     attackerTargetedByDisplacementAttackerId:
       attackerState.targetedByDisplacementAttackerId,
     attackerProne: attackerState.prone,
+    attackerStuck: attackerState.isStuck,
     targetProne: targetState?.prone,
     targetMovementComplete: context.targetMovementComplete,
     targetImmobile: targetState?.shutdown,
@@ -505,6 +640,7 @@ export function declarePhysicalAttack(
     targetTonnage: context.targetTonnage,
     targetMovementModifier: context.targetMovementModifier,
     targetEvading: targetState?.isEvading,
+    targetEvasionBonus: targetState?.evasionBonus,
     attackerMovementModifier: context.attackerMovementModifier,
     retractableBladeExtended: context.retractableBladeExtended,
     attackerJumpedThisTurn:
@@ -517,8 +653,14 @@ export function declarePhysicalAttack(
     attackerMovedBackwardThisTurn:
       context.attackerMovedBackwardThisTurn ??
       attackerState.movedBackwardThisTurn,
-    limbsUsedThisTurn: context.limbsUsedThisTurn,
-    limb: context.limb,
+    limbsUsedThisTurn:
+      context.limbsUsedThisTurn ??
+      physicalAttackLimbsUsedThisTurn(
+        session.events,
+        session.currentState.turn,
+        attackerId,
+      ),
+    limb: declaredLimb,
     lowerArmActuatorPresent: context.lowerArmActuatorPresent,
     handActuatorPresent: context.handActuatorPresent,
     upperLegActuatorPresent: context.upperLegActuatorPresent,
@@ -527,10 +669,91 @@ export function declarePhysicalAttack(
       context.leftLegHasTalons ?? attackerState.leftLegHasTalons,
     rightLegHasTalons:
       context.rightLegHasTalons ?? attackerState.rightLegHasTalons,
+    leftArmHasTalons:
+      context.leftArmHasTalons ?? attackerState.leftArmHasTalons,
+    rightArmHasTalons:
+      context.rightArmHasTalons ?? attackerState.rightArmHasTalons,
     leftFootActuatorPresent: context.leftFootActuatorPresent,
     rightFootActuatorPresent: context.rightFootActuatorPresent,
+    leftArmFootActuatorPresent: context.leftArmFootActuatorPresent,
+    rightArmFootActuatorPresent: context.rightArmFootActuatorPresent,
     leftArmHasClaw: context.leftArmHasClaw ?? attackerState.leftArmHasClaw,
     rightArmHasClaw: context.rightArmHasClaw ?? attackerState.rightArmHasClaw,
+    optionalRules: context.optionalRules ?? session.config.optionalRules,
+    tacOpsTripAttackEnabled: context.tacOpsTripAttackEnabled,
+    tacOpsGrapplingEnabled: context.tacOpsGrapplingEnabled,
+    grappleSide: context.grappleSide,
+    attackerGrappledTargetId:
+      context.attackerGrappledTargetId ?? attackerState.grappledUnitId,
+    targetGrappledTargetId:
+      context.targetGrappledTargetId ?? targetState?.grappledUnitId,
+    attackerIsGrappleAttacker:
+      context.attackerIsGrappleAttacker ?? attackerState.isGrappleAttacker,
+    targetIsGrappleAttacker:
+      context.targetIsGrappleAttacker ?? targetState?.isGrappleAttacker,
+    attackerChainWhipGrappled:
+      context.attackerChainWhipGrappled ?? attackerState.isChainWhipGrappled,
+    leftArmAesFunctional: context.leftArmAesFunctional,
+    rightArmAesFunctional: context.rightArmAesFunctional,
+    attackerWeightClass: context.attackerWeightClass,
+    targetWeightClass: context.targetWeightClass,
+    attackerAlreadyGrappled: context.attackerAlreadyGrappled,
+    targetInFrontArc: targetState
+      ? (context.targetInFrontArc ??
+        isTargetInFrontArc(
+          attackerState.position,
+          attackerState.facing,
+          targetState.position,
+        ))
+      : context.targetInFrontArc,
+    leftTripLimbUsable: context.leftTripLimbUsable,
+    rightTripLimbUsable: context.rightTripLimbUsable,
+    legAesFunctional: context.legAesFunctional,
+    thrashBlockingTerrains: context.thrashBlockingTerrains,
+    hasWorkingThrashArmOrLeg: context.hasWorkingThrashArmOrLeg,
+    tacOpsJumpJetAttackEnabled: context.tacOpsJumpJetAttackEnabled,
+    jumpJetAttackSelectedLeg: jumpJetAttackSelectedLegForLimb(
+      declaredLimb,
+      context,
+    ),
+    leftReadyJumpJetCount: context.leftReadyJumpJetCount,
+    rightReadyJumpJetCount: context.rightReadyJumpJetCount,
+    leftLegWet: context.leftLegWet,
+    rightLegWet: context.rightLegWet,
+    leftLegWeaponFiredThisTurn: legWeaponFiredThisTurn(
+      attackerState,
+      context,
+      'left',
+    ),
+    rightLegWeaponFiredThisTurn: legWeaponFiredThisTurn(
+      attackerState,
+      context,
+      'right',
+    ),
+    standingAttackerHeightAboveTargetHeight:
+      context.standingAttackerHeightAboveTargetHeight,
+    proneTargetElevationInRange: context.proneTargetElevationInRange,
+    targetDirectlyAheadOfFeet: targetState
+      ? (context.targetDirectlyAheadOfFeet ??
+        isTargetDirectlyAhead(
+          attackerState.position,
+          attackerState.facing,
+          targetState.position,
+        ))
+      : context.targetDirectlyAheadOfFeet,
+    targetDirectlyBehindFeet: targetState
+      ? (context.targetDirectlyBehindFeet ??
+        isTargetDirectlyBehindFeet(attackerState, targetState))
+      : context.targetDirectlyBehindFeet,
+    targetIsSwarmingInfantryOnAttacker:
+      context.targetIsSwarmingInfantryOnAttacker ??
+      targetIsSwarmingInfantryOnAttacker(attackerId, targetState),
+    targetIsINarcPod: context.targetIsINarcPod,
+    armAesFunctional: context.armAesFunctional,
+    torsoMountedCockpit: context.torsoMountedCockpit,
+    headSensorHits: context.headSensorHits,
+    centerTorsoSensorHits: context.centerTorsoSensorHits,
+    defenderHasMagneticClaws: context.defenderHasMagneticClaws,
     pushDestinationValid: context.pushDestinationValid,
     pushTargetDirectlyAhead: targetState
       ? isTargetDirectlyAhead(
@@ -558,6 +781,18 @@ export function declarePhysicalAttack(
     restriction = canDFA(input);
   } else if (attackType === 'push') {
     restriction = canPush(input);
+  } else if (attackType === 'trip') {
+    restriction = canTripPhysical(input);
+  } else if (attackType === 'thrash') {
+    restriction = canThrashPhysical(input);
+  } else if (attackType === 'jump-jet-attack') {
+    restriction = canJumpJetAttackPhysical(input);
+  } else if (attackType === 'brush-off') {
+    restriction = canBrushOffPhysical(input);
+  } else if (attackType === 'grapple') {
+    restriction = canGrapplePhysical(input);
+  } else if (attackType === 'break-grapple') {
+    restriction = canBreakGrapplePhysical(input);
   } else if (
     attackType === 'hatchet' ||
     attackType === 'sword' ||
@@ -613,6 +848,7 @@ export function declarePhysicalAttack(
       targetId,
       attackType,
       declaredTN,
+      declaredLimb,
     ),
   );
 }
@@ -700,6 +936,7 @@ export function resolveAllPhysicalAttacks(
     const targetObjectType =
       context.targetObjectType ??
       physicalTargetObjectTypeForUnitType(targetState.unitType);
+    const resolvedLimb = payload.limb ?? context.limb;
 
     const input: IPhysicalAttackInput = {
       attackerId: payload.attackerId,
@@ -731,10 +968,12 @@ export function resolveAllPhysicalAttacks(
       targetUnitType: targetState.unitType,
       targetPilotingSkill: targetState.piloting,
       attackerEvading: attackerState.isEvading,
+      attackerSpotting: attackerState.isSpotting,
       attackerLoadingOrUnloadingCargo: attackerState.isLoadingOrUnloadingCargo,
       attackerTargetedByDisplacementAttackerId:
         attackerState.targetedByDisplacementAttackerId,
       attackerProne: attackerState.prone,
+      attackerStuck: attackerState.isStuck,
       targetProne: targetState.prone,
       targetMovementComplete: context.targetMovementComplete,
       targetImmobile: targetState.shutdown,
@@ -771,6 +1010,7 @@ export function resolveAllPhysicalAttacks(
       targetTonnage: context.targetTonnage,
       targetMovementModifier: context.targetMovementModifier,
       targetEvading: targetState.isEvading,
+      targetEvasionBonus: targetState.evasionBonus,
       attackerMovementModifier: context.attackerMovementModifier,
       retractableBladeExtended: context.retractableBladeExtended,
       attackerJumpedThisTurn:
@@ -784,7 +1024,7 @@ export function resolveAllPhysicalAttacks(
         context.attackerMovedBackwardThisTurn ??
         attackerState.movedBackwardThisTurn,
       limbsUsedThisTurn: context.limbsUsedThisTurn,
-      limb: context.limb,
+      limb: resolvedLimb,
       lowerArmActuatorPresent: context.lowerArmActuatorPresent,
       handActuatorPresent: context.handActuatorPresent,
       upperLegActuatorPresent: context.upperLegActuatorPresent,
@@ -793,10 +1033,93 @@ export function resolveAllPhysicalAttacks(
         context.leftLegHasTalons ?? attackerState.leftLegHasTalons,
       rightLegHasTalons:
         context.rightLegHasTalons ?? attackerState.rightLegHasTalons,
+      leftArmHasTalons:
+        context.leftArmHasTalons ?? attackerState.leftArmHasTalons,
+      rightArmHasTalons:
+        context.rightArmHasTalons ?? attackerState.rightArmHasTalons,
       leftFootActuatorPresent: context.leftFootActuatorPresent,
       rightFootActuatorPresent: context.rightFootActuatorPresent,
+      leftArmFootActuatorPresent: context.leftArmFootActuatorPresent,
+      rightArmFootActuatorPresent: context.rightArmFootActuatorPresent,
       leftArmHasClaw: context.leftArmHasClaw ?? attackerState.leftArmHasClaw,
       rightArmHasClaw: context.rightArmHasClaw ?? attackerState.rightArmHasClaw,
+      optionalRules:
+        context.optionalRules ?? currentSession.config.optionalRules,
+      tacOpsTripAttackEnabled: context.tacOpsTripAttackEnabled,
+      tacOpsGrapplingEnabled: context.tacOpsGrapplingEnabled,
+      grappleSide: context.grappleSide,
+      attackerGrappledTargetId:
+        context.attackerGrappledTargetId ?? attackerState.grappledUnitId,
+      targetGrappledTargetId:
+        context.targetGrappledTargetId ?? targetState.grappledUnitId,
+      attackerIsGrappleAttacker:
+        context.attackerIsGrappleAttacker ?? attackerState.isGrappleAttacker,
+      targetIsGrappleAttacker:
+        context.targetIsGrappleAttacker ?? targetState.isGrappleAttacker,
+      attackerChainWhipGrappled:
+        context.attackerChainWhipGrappled ?? attackerState.isChainWhipGrappled,
+      leftArmAesFunctional: context.leftArmAesFunctional,
+      rightArmAesFunctional: context.rightArmAesFunctional,
+      attackerWeightClass: context.attackerWeightClass,
+      targetWeightClass: context.targetWeightClass,
+      attackerAlreadyGrappled: context.attackerAlreadyGrappled,
+      targetInFrontArc:
+        context.targetInFrontArc ??
+        isTargetInFrontArc(
+          attackerState.position,
+          attackerState.facing,
+          targetState.position,
+        ),
+      leftTripLimbUsable: context.leftTripLimbUsable,
+      rightTripLimbUsable: context.rightTripLimbUsable,
+      legAesFunctional: context.legAesFunctional,
+      thrashBlockingTerrains:
+        context.thrashBlockingTerrains ??
+        thrashBlockingTerrainsForHexTerrain(
+          terrainAtPosition(grid, attackerState.position),
+        ),
+      hasWorkingThrashArmOrLeg: context.hasWorkingThrashArmOrLeg,
+      tacOpsJumpJetAttackEnabled: context.tacOpsJumpJetAttackEnabled,
+      jumpJetAttackSelectedLeg: jumpJetAttackSelectedLegForLimb(
+        resolvedLimb,
+        context,
+      ),
+      leftReadyJumpJetCount: context.leftReadyJumpJetCount,
+      rightReadyJumpJetCount: context.rightReadyJumpJetCount,
+      leftLegWet: context.leftLegWet,
+      rightLegWet: context.rightLegWet,
+      leftLegWeaponFiredThisTurn: legWeaponFiredThisTurn(
+        attackerState,
+        context,
+        'left',
+      ),
+      rightLegWeaponFiredThisTurn: legWeaponFiredThisTurn(
+        attackerState,
+        context,
+        'right',
+      ),
+      standingAttackerHeightAboveTargetHeight:
+        context.standingAttackerHeightAboveTargetHeight,
+      proneTargetElevationInRange: context.proneTargetElevationInRange,
+      targetDirectlyAheadOfFeet:
+        context.targetDirectlyAheadOfFeet ??
+        isTargetDirectlyAhead(
+          attackerState.position,
+          attackerState.facing,
+          targetState.position,
+        ),
+      targetDirectlyBehindFeet:
+        context.targetDirectlyBehindFeet ??
+        isTargetDirectlyBehindFeet(attackerState, targetState),
+      targetIsSwarmingInfantryOnAttacker:
+        context.targetIsSwarmingInfantryOnAttacker ??
+        targetIsSwarmingInfantryOnAttacker(payload.attackerId, targetState),
+      targetIsINarcPod: context.targetIsINarcPod,
+      armAesFunctional: context.armAesFunctional,
+      torsoMountedCockpit: context.torsoMountedCockpit,
+      headSensorHits: context.headSensorHits,
+      centerTorsoSensorHits: context.centerTorsoSensorHits,
+      defenderHasMagneticClaws: context.defenderHasMagneticClaws,
       pushDestinationValid: context.pushDestinationValid,
       pushTargetDirectlyAhead: isTargetDirectlyAhead(
         attackerState.position,
@@ -917,6 +1240,37 @@ export function resolveAllPhysicalAttacks(
             ),
           );
         }
+      }
+    }
+
+    if (
+      !result.hit &&
+      payload.attackType === 'brush-off' &&
+      result.attackerDamage > 0 &&
+      result.hitLocation
+    ) {
+      const damageState = buildDamageStateFromUnit(attackerState);
+      const damageResult = resolveDamagePipeline(
+        damageState,
+        result.hitLocation,
+        result.attackerDamage,
+      );
+      for (const locationDamage of damageResult.result.locationDamages) {
+        const damageSeq = currentSession.events.length;
+        currentSession = appendEvent(
+          currentSession,
+          createDamageAppliedEvent(
+            currentSession.id,
+            damageSeq,
+            turn,
+            payload.attackerId,
+            locationDamage.location,
+            locationDamage.damage,
+            locationDamage.armorRemaining,
+            locationDamage.structureRemaining,
+            locationDamage.destroyed,
+          ),
+        );
       }
     }
 
@@ -1048,12 +1402,19 @@ export function resolveAllPhysicalAttacks(
                     triggerSource: PSRTrigger.Pushed,
                     reasonCode: PSRTrigger.Pushed,
                   }
-                : {
-                    reason: 'Hit by physical attack',
-                    additionalModifier: 0,
-                    triggerSource: 'physical_attack_target',
-                    reasonCode: undefined,
-                  };
+                : payload.attackType === 'trip'
+                  ? {
+                      reason: 'Tripped',
+                      additionalModifier: 0,
+                      triggerSource: 'trip',
+                      reasonCode: undefined,
+                    }
+                  : {
+                      reason: 'Hit by physical attack',
+                      additionalModifier: 0,
+                      triggerSource: 'physical_attack_target',
+                      reasonCode: undefined,
+                    };
       const psrSeq = currentSession.events.length;
       currentSession = appendEvent(
         currentSession,
@@ -1080,7 +1441,9 @@ export function resolveAllPhysicalAttacks(
           ? 'charge_attacker_hit'
           : payload.attackType === 'dfa'
             ? 'dfa_attacker_hit'
-            : 'physical_attacker_hit';
+            : payload.attackType === 'thrash'
+              ? 'thrash_attacker_hit'
+              : 'physical_attacker_hit';
       // Attacker-on-hit PSRs share the canonical movement codes for the
       // attack family — Charged / DFATarget mirror the target codes per
       // the PSR Trigger Catalog. Kept undefined when no canonical code
@@ -1102,7 +1465,9 @@ export function resolveAllPhysicalAttacks(
           payload.attackerId,
           payload.attackType === 'dfa'
             ? 'Executed DFA'
-            : `Hit ${payload.attackType}`,
+            : payload.attackType === 'thrash'
+              ? 'Thrashing attack'
+              : `Hit ${payload.attackType}`,
           result.attackerPSRModifier,
           attackerHitTrigger,
           context.pilotingSkill,

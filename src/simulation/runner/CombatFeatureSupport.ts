@@ -22,6 +22,10 @@ import {
   MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
 } from './CombatEdgeSourceRefs';
 import {
+  MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
+  MEKSTATION_HEAVY_LIFTER_HELPER_SOURCE_REFS,
+} from './CombatHeavyLifterSourceRefs';
+import {
   MEGAMEK_BLOOD_STALKER_SOURCE_REFS,
   MEGAMEK_CLUSTER_HITTER_SOURCE_REFS,
   MEGAMEK_FORWARD_OBSERVER_SOURCE_REFS,
@@ -51,7 +55,6 @@ import {
 import {
   MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   MEGAMEK_DISTRACTING_QUIRK_SOURCE_REFS,
-  MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
   MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
   MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   MEGAMEK_LOW_PROFILE_GLANCING_SOURCE_REFS,
@@ -62,7 +65,6 @@ import {
   MEGAMEK_SENSOR_GHOSTS_TO_HIT_SOURCE_REFS,
   MEGAMEK_SHAKY_STICK_SOURCE_REFS,
   MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,
-  MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
   MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
   MEGAMEK_TARGETING_QUIRK_TO_HIT_SOURCE_REFS,
   MEGAMEK_WEAPON_COOLING_QUIRK_SOURCE_REFS,
@@ -89,7 +91,8 @@ export type {
 export type CombatFeatureSupportLevel =
   | 'integrated'
   | 'helper-only'
-  | 'unsupported';
+  | 'unsupported'
+  | 'out-of-scope';
 
 export interface ICombatFeatureSupportEntry {
   readonly id: string;
@@ -122,17 +125,24 @@ function helperOnly(
 
 function unsupported(
   id: string,
+  evidence: string,
   gap: string,
   sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatFeatureSupportEntry {
-  const entry: ICombatFeatureSupportEntry = {
-    id,
-    level: 'unsupported',
-    evidence: 'No combat behavior wired',
-    gap,
-  };
+  return sourceRefs
+    ? { id, level: 'unsupported', evidence, gap, sourceRefs }
+    : { id, level: 'unsupported', evidence, gap };
+}
 
-  return sourceRefs ? { ...entry, sourceRefs } : entry;
+function outOfScope(
+  id: string,
+  evidence: string,
+  gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'out-of-scope', evidence, gap, sourceRefs }
+    : { id, level: 'out-of-scope', evidence, gap };
 }
 
 const BMM_ERRATA_701_LANCE_TO_HIT = {
@@ -194,7 +204,7 @@ const MEGAMEK_325B_FLAIL_WRECKING_LEGALITY = {
 const MEGAMEK_325B_TALON_KICK_DAMAGE = {
   kind: 'megamek-source',
   citation:
-    'MegaMek KickAttackAction.getDamageFor applies a 1.5 talon multiplier when the kicking leg has working talons and a working foot actuator',
+    'MegaMek KickAttackAction.getDamageFor applies a 1.5 talon multiplier when the kicking leg has working talons and a working foot actuator, mapping quad front kicks to arm locations',
   url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/KickAttackAction.java#L95-L122',
   sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
@@ -210,8 +220,24 @@ const MEGAMEK_325B_TALON_DFA_DAMAGE = {
 const MEGAMEK_325B_TALON_DFA_LEG_GATE = {
   kind: 'megamek-source',
   citation:
-    'MegaMek DfaAttackAction.hasTalons checks working talons and working foot actuators on biped legs, with a separate non-biped path',
+    'MegaMek DfaAttackAction.hasTalons checks working talons and working foot actuators on biped legs plus non-biped leg and arm-location paths',
   url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/DfaAttackAction.java#L427-L445',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_MOUNTED_READY_DAMAGED_GATE = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Mounted.isReady excludes destroyed, missing, and breached/useless mounts from working equipment checks',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/Mounted.java#L590-L632',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_DESTROY_LOCATION_MISSING_MOUNT_GATE = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Entity.destroyLocation marks blown-off critical slots, mounted equipment, and dependent locations missing',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L11864-L11939',
   sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
 
@@ -226,7 +252,7 @@ const MEGAMEK_325B_CLAW_PUNCH_DAMAGE = {
 const MEGAMEK_325B_CLAW_PUNCH_TO_HIT = {
   kind: 'megamek-source',
   citation:
-    'MegaMek PunchAttackAction.toHit adds the claw punch modifier and suppresses hand actuator missing/destroyed penalties when claws replace the hand',
+    'MegaMek PunchAttackAction.toHit adds the claw punch modifier outside PLAYTEST_3, records a zero-value Using Claws modifier under PLAYTEST_3, and suppresses hand actuator missing/destroyed penalties when claws replace the hand',
   url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/PunchAttackAction.java#L309-L333',
   sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
@@ -378,6 +404,22 @@ const MEGAMEK_325B_MOUNTAINEER_RUBBLE_PSR = {
   sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
 
+const MEGAMEK_325B_MOUNTAINEER_TERRAIN_MOVEMENT_COST = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Terrain.movementCost applies -1 MP for Mountaineer in rough/rubble movement-cost branches.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Terrain.java#L404-L584',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_MOUNTAINEER_ELEVATION_MOVEMENT_COST = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek MoveStep applies Mountaineer as one MP less for upward elevation changes.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/moves/MoveStep.java#L2828-L2841',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
 const MEGAMEK_325B_MOUNTAINEER_OPTION = {
   kind: 'megamek-source',
   citation:
@@ -388,6 +430,8 @@ const MEGAMEK_325B_MOUNTAINEER_OPTION = {
 
 const MEGAMEK_325B_MOUNTAINEER_SOURCE_REFS = [
   MEGAMEK_325B_MOUNTAINEER_RUBBLE_PSR,
+  MEGAMEK_325B_MOUNTAINEER_TERRAIN_MOVEMENT_COST,
+  MEGAMEK_325B_MOUNTAINEER_ELEVATION_MOVEMENT_COST,
   MEGAMEK_325B_MOUNTAINEER_OPTION,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -420,6 +464,46 @@ const MEGAMEK_325B_MANEUVERING_ACE_SKID = {
   sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
 
+const MEGAMEK_325B_MANEUVERING_ACE_LATERAL_SHIFT = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek MovePath.canShift lets Maneuvering Ace biped Meks perform lateral shifts.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/moves/MovePath.java#L252-L266',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_MANEUVERING_ACE_QUAD_SIDE_STEP_COST = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek SideStepStep preserves base lateral-step MP for QuadMek units with Maneuvering Ace instead of adding the normal side-step surcharge.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/moves/SideStepStep.java#L47-L57',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_MANEUVERING_ACE_AERO_MANEUVER_COST = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek ManeuverStep reduces aerospace maneuver thrust cost by 1 for Maneuvering Ace.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/moves/ManeuverStep.java#L60-L66',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_MANEUVERING_ACE_SIDE_SLIP = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Entity.checkSideSlip applies Maneuvering Ace relief to flanking-and-turning checks and suppresses controlled-sideslip checks for walking Maneuvering Ace units.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L11978-L11998',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_MANEUVERING_ACE_OUT_OF_CONTROL = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek TWGameManager.getControlRollTarget applies -1 Maneuvering Ace to out-of-control checks.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L16908-L16920',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
 const MEGAMEK_325B_MANEUVERING_ACE_OPTION = {
   kind: 'megamek-source',
   citation:
@@ -430,6 +514,11 @@ const MEGAMEK_325B_MANEUVERING_ACE_OPTION = {
 
 const MEGAMEK_325B_MANEUVERING_ACE_SOURCE_REFS = [
   MEGAMEK_325B_MANEUVERING_ACE_SKID,
+  MEGAMEK_325B_MANEUVERING_ACE_LATERAL_SHIFT,
+  MEGAMEK_325B_MANEUVERING_ACE_QUAD_SIDE_STEP_COST,
+  MEGAMEK_325B_MANEUVERING_ACE_AERO_MANEUVER_COST,
+  MEGAMEK_325B_MANEUVERING_ACE_SIDE_SLIP,
+  MEGAMEK_325B_MANEUVERING_ACE_OUT_OF_CONTROL,
   MEGAMEK_325B_MANEUVERING_ACE_OPTION,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -465,10 +554,10 @@ export const SPA_COMBAT_SUPPORT = {
     'calculateGunnerySpecialistModifier + calculateAttackerSPAModifiers',
     MEGAMEK_GUNNERY_SPECIALIST_SOURCE_REFS,
   ),
-  marksman: helperOnly(
+  marksman: outOfScope(
     'marksman',
     'getSharpshooterBonus plus calculateCalledShotModifier reduce called-shot penalties for the local Marksman helper',
-    'MegaMek source cross-check found TacOps called shots but not Marksman as a called-shot SPA',
+    'Marksman is a local called-shot helper, not a source-backed official BattleMech combat SPA; source-backed BattleMech called shots use TacOps +3 penalties without this local reduction',
     MEKSTATION_MARKSMAN_CALLED_SHOT_SOURCE_REFS,
   ),
   sniper: integrated(
@@ -512,10 +601,10 @@ export const SPA_COMBAT_SUPPORT = {
     'computeIndirectFireContext hydrates spotter abilities into resolveIndirectFire, cancels walked-spotter penalties, and emits IndirectFireForwardObserver audit events',
     MEGAMEK_FORWARD_OBSERVER_SOURCE_REFS,
   ),
-  sharpshooter: helperOnly(
+  sharpshooter: outOfScope(
     'sharpshooter',
     'getSharpshooterBonus plus calculateCalledShotModifier preserve the local legacy Sharpshooter alias for called-shot penalty reduction',
-    'Sharpshooter is not a canonical SPA id, and MegaMek keeps the Sharpshooter constant commented out',
+    'Sharpshooter is a local legacy called-shot helper alias, not a source-backed official BattleMech combat SPA; MegaMek keeps the Sharpshooter constant commented out and source-backed BattleMech called shots use TacOps +3 penalties',
     MEKSTATION_SHARPSHOOTER_CALLED_SHOT_SOURCE_REFS,
   ),
   'jumping-jack': integrated(
@@ -533,20 +622,21 @@ export const SPA_COMBAT_SUPPORT = {
     'calculateMeleeSpecialistModifier and getMeleeSpecialistDamageBonus plus physical attack input pilotAbilities reduce helper, runner, and interactive physical to-hit TNs and add source-backed physical damage',
     MEGAMEK_MELEE_SPECIALIST_SOURCE_REFS,
   ),
-  'melee-master': unsupported(
+  'melee-master': integrated(
     'melee-master',
-    'MegaMek Melee Master grants two allowed physical attacks instead of a flat damage bonus; MekStation no longer applies a legacy damage bonus, but the second-physical-attack action-count rule is not modeled',
+    'getAllowedPhysicalAttackCount plus declarePhysicalAttack enforce the source-backed Melee Master two-physical-attacks allowance while getMeleeMasterDamageBonus preserves the no-flat-damage boundary',
     MEKSTATION_MELEE_MASTER_DEVIATION_SOURCE_REFS,
   ),
   'maneuvering-ace': helperOnly(
     'maneuvering-ace',
     'getManeuveringAceSkidModifier plus resolveAllPSRs apply source-backed Maneuvering Ace -1 to Skidding PSRs',
-    'Terrain-specific Maneuvering Ace PSR modifiers beyond skidding are not wired',
+    'Maneuvering Ace lateral-shift movement allowance, QuadMek lateral-step MP relief, aerospace maneuver-thrust relief, controlled-sideslip relief, and out-of-control checks are not wired',
     MEGAMEK_325B_MANEUVERING_ACE_SOURCE_REFS,
   ),
-  'terrain-master': unsupported(
+  'terrain-master': outOfScope(
     'terrain-master',
-    'Generic Terrain Master movement behavior and variants beyond Frogman/Mountaineer/Forest Ranger/Swamp Beast are not wired; source-backed Frogman physical to-hit relief, Frogman water-entry PSR relief, Mountaineer rubble-entry PSR relief, and Forest Ranger/Swamp Beast defensive to-hit variants are tracked separately as tm_frogman, tm_mountaineer, tm_forest_ranger, and tm_swamp_beast, while Swamp Beast bog-down relief remains a source-backed stuck-state gap',
+    'MegaMek registers Terrain Master as source-backed variant ids rather than a generic terrain_master combat option; MekStation keeps terrain-master as a legacy local helper row',
+    'The legacy generic terrain-master row is excluded from the official BattleMech blocker inventory; source-backed variants stay tracked separately as tm_frogman, tm_mountaineer, tm_forest_ranger, tm_swamp_beast, and canonical tm_nightwalker',
     MEGAMEK_TERRAIN_MASTER_GAP_SOURCE_REFS,
   ),
   tm_frogman: integrated(
@@ -559,25 +649,26 @@ export const SPA_COMBAT_SUPPORT = {
     'Source-backed calculateTerrainMasterDefensiveToHitModifier plus calculateToHit and runner target terrain hydration apply +1 to-hit against walking targets in woods',
     MEGAMEK_325B_TERRAIN_MASTER_DEFENSIVE_SOURCE_REFS,
   ),
-  tm_mountaineer: helperOnly(
+  tm_mountaineer: integrated(
     'tm_mountaineer',
-    'Source-backed getMountaineerRubblePSRModifier plus calculatePSRModifiers apply Mountaineer rubble-entry relief as -1 to entering-rubble PSR target numbers',
-    'Terrain Master: Mountaineer movement-cost and elevation movement effects are not wired',
+    'Source-backed getMountaineerRubblePSRModifier plus calculatePSRModifiers apply Mountaineer rubble-entry relief as -1 to entering-rubble PSR target numbers; getHexMovementCost, validateMovement, pathfinding, reachable movement previews, runner movement, interactive movement, and P2P movement validation apply rough/rubble and upward-elevation MP relief from unit pilot abilities',
     MEGAMEK_325B_MOUNTAINEER_SOURCE_REFS,
   ),
   tm_swamp_beast: integrated(
     'tm_swamp_beast',
-    'Source-backed calculateTerrainMasterDefensiveToHitModifier plus calculateToHit and runner target terrain hydration apply +1 to-hit against running targets in mud or swamp; source-backed bog-down relief is tracked under the PSR and terrain stuck-state gap rows',
+    'Source-backed calculateTerrainMasterDefensiveToHitModifier plus calculateToHit and runner target terrain hydration apply +1 to-hit against running targets in mud or swamp; calculatePSRModifiers applies Swamp Beast bog-down relief as -1 to swamp bog-down PSRs',
     MEGAMEK_325B_SWAMP_BEAST_SOURCE_REFS,
   ),
-  acrobat: unsupported(
+  acrobat: outOfScope(
     'acrobat',
-    'Local Acrobat DFA PSR modifier is not wired, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
+    'MekStation local SPA catalog defines Acrobat as a DFA PSR helper, but the pinned MegaMek pilot option registry does not identify Acrobat as an official BattleMech combat SPA',
+    'Local Acrobat behavior is excluded from the official BattleMech validation blocker inventory until a source-backed combat authority is identified',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
-  'cross-country': unsupported(
+  'cross-country': outOfScope(
     'cross-country',
-    'MegaMek Cross-Country is a combat-vehicle terrain movement-cost/passability modifier; no source-backed BattleMech terrain PSR modifier is represented in the BattleMech combat matrix',
+    'MegaMek Cross-Country is a combat-vehicle terrain movement-cost/passability modifier for the separate vehicle combat matrix',
+    'Cross-Country is combat-vehicle movement/passability behavior, not a BattleMech terrain PSR modifier, and is excluded from BattleMech runner validation until vehicle movement/passability coverage consumes it',
     MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   ),
   'dodge-maneuver': integrated(
@@ -590,14 +681,16 @@ export const SPA_COMBAT_SUPPORT = {
     'Source-backed calculateShakyStickModifier + calculateToHit applies +1 only for ground-to-air attacks when an airborne target is attacked by a non-airborne attacker',
     MEGAMEK_SHAKY_STICK_SOURCE_REFS,
   ),
-  evasive: unsupported(
+  evasive: outOfScope(
     'evasive',
-    'The legacy Evasive SPA TMM bonus is not wired as a pilot ability; the MegaMek source-backed behavior is optional TacOps Evade movement with separate action, heat, attacker firing, and target modifier semantics',
-    MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
+    'MekStation local SPA catalog defines Evasive as a target-movement-modifier helper, but the pinned MegaMek pilot option registry does not identify Evasive as an official BattleMech combat SPA',
+    'Local Evasive behavior is excluded from the official BattleMech validation blocker inventory; source-backed evasion remains covered by the integrated optional TacOps Evade movement action row',
+    MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
-  'natural-grace': unsupported(
+  'natural-grace': outOfScope(
     'natural-grace',
-    'Local Natural Grace fall PSR modifier is not wired, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
+    'MekStation local SPA catalog defines Natural Grace as a fall PSR helper, but the pinned MegaMek pilot option registry does not identify Natural Grace as an official BattleMech combat SPA',
+    'Local Natural Grace behavior is excluded from the official BattleMech validation blocker inventory until a source-backed combat authority is identified',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
   'iron-man': integrated(
@@ -620,15 +713,16 @@ export const SPA_COMBAT_SUPPORT = {
   edge: helperOnly(
     'edge',
     'Source-backed Edge trigger ids are represented by createEdgeState/canUseEdge/useEdge generic helper state, and runPSRPhase consumes edge_when_masc_fails for failed MASC/Supercharger rerolls',
-    'Attack, non-booster PSR, consciousness, TAC, head-hit, and explosion resolvers do not consume trigger-specific Edge state',
+    'Generic Edge helper state is partial; canonical head-hit, TAC, KO, and explosion trigger rows stay unsupported until those resolvers consume trigger-specific Edge state',
     [
       ...MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
       ...MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
     ],
   ),
-  toughness: unsupported(
+  toughness: helperOnly(
     'toughness',
-    'MegaMek RPG Toughness is a separate game option and numeric crew toughness value; MekStation has no numeric crew toughness state or RPG Toughness option resolver wired',
+    'resolvePilotConsciousnessCheck, applyPilotDamage, runner pilot-damage phases, and interactive PSR/heat/physical/ammo-explosion paths consume explicit numeric pilotToughness state without treating legacy toughness ability strings as source-backed relief',
+    'Automatic RPG Toughness game-option hydration and MUL crew toughness import remain unwired; explicit pilotToughness is the supported closed-world path',
     [
       ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
       ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
@@ -639,14 +733,16 @@ export const SPA_COMBAT_SUPPORT = {
     'rollInitiative accepts a source-backed Tactical Genius reroll request, requires an active conscious unit with tactical_genius, replaces only that side raw 2d6 roll, and records original raw rolls separately',
     MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
   ),
-  'speed-demon': unsupported(
+  'speed-demon': outOfScope(
     'speed-demon',
-    'Local Speed Demon run-distance and heat tradeoff is not wired, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
+    'MekStation local SPA catalog defines Speed Demon as a run-distance and heat tradeoff helper, but the pinned MegaMek pilot option registry does not identify Speed Demon as an official BattleMech combat SPA',
+    'Local Speed Demon behavior is excluded from the official BattleMech validation blocker inventory until a source-backed combat authority is identified',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
-  'combat-intuition': unsupported(
+  'combat-intuition': outOfScope(
     'combat-intuition',
-    'Local Combat Intuition round-one initiative sequencing is not wired, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
+    'MekStation local SPA catalog defines Combat Intuition as a round-one initiative sequencing helper, but the pinned MegaMek pilot option registry does not identify Combat Intuition as an official BattleMech combat SPA',
+    'Local Combat Intuition behavior is excluded from the official BattleMech validation blocker inventory until a source-backed combat authority is identified',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
   'hot-dog': integrated(
@@ -654,10 +750,10 @@ export const SPA_COMBAT_SUPPORT = {
     'getHotDogHeatTargetNumberModifier plus runHeatPhase and resolveHeatPhase apply source-backed -1 startup/shutdown, heat-induced ammo-explosion, opt-in MaxTech pilot heat-damage, and opt-in MaxTech critical-damage avoid-number relief while preserving default life-support heat damage thresholds',
     MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS,
   ),
-  'cool-under-fire': helperOnly(
+  'cool-under-fire': outOfScope(
     'cool-under-fire',
-    'runHeatPhase and resolveHeatPhase apply getCoolUnderFireHeatReduction as capped generated-heat relief in the HeatDissipated breakdown',
-    'No MegaMek source-backed Cool Under Fire ability id or generated-heat reduction path was found in commit 325b2504; keep this as local helper behavior until an authority is identified',
+    'getCoolUnderFireHeatReduction exposes the local generated-heat helper without being consumed by BattleMech heat resolution',
+    'No MegaMek source-backed Cool Under Fire ability id or generated-heat reduction path was found in commit 325b2504; keep this local helper behavior outside the official BattleMech validation blocker inventory until an authority is identified',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
   'some-like-it-hot': integrated(
@@ -665,33 +761,36 @@ export const SPA_COMBAT_SUPPORT = {
     'calculateToHit consumes getSomeLikeItHotHeatPenaltyReduction so runner AttackDeclared heat modifiers are reduced by 1',
     MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,
   ),
-  'multi-target': unsupported(
+  'multi-target': outOfScope(
     'multi-target',
-    'Local Multi-Target is not the MegaMek source-backed SPA; source-backed secondary-target penalty reduction is Multi-Tasker/multi_tasker',
-    MEGAMEK_325B_MULTI_TASKER_SOURCE_REFS,
+    'MekStation local SPA catalog defines Multi-Target as a secondary-target penalty helper, but the pinned MegaMek pilot option registry identifies the official source-backed SPA as Multi-Tasker/multi_tasker instead',
+    'Local Multi-Target behavior is excluded from the official BattleMech validation blocker inventory; source-backed secondary-target penalty reduction remains covered by Multi-Tasker/multi_tasker',
+    MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
-  'iron-will': unsupported(
+  'iron-will': outOfScope(
     'iron-will',
-    'No source-backed MegaMek Iron Will id or generic consciousness target-number relief path was identified, and source-backed Iron Man ammo-explosion reduction no longer accepts the local Iron Will alias',
+    'MekStation local SPA catalog defines Iron Will as a legacy Iron Man-style alias, but the pinned MegaMek pilot option registry identifies source-backed Iron Man instead and no separate Iron Will combat option id',
+    'Local Iron Will behavior is excluded from the official BattleMech validation blocker inventory; source-backed Iron Man remains covered as ammunition-explosion-only support, not generic consciousness relief',
+    MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
+  ),
+  'heavy-lifter': helperOnly(
+    'heavy-lifter',
+    'calculateGroundObjectLiftCapacity applies the source-backed 1.5 Heavy Lifter lift-capacity multiplier for canonical and legacy ids',
+    'MekStation still has no carry/throw-object physical combat action declaration or resolution path',
     [
-      ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
-      ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
+      ...MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
+      ...MEKSTATION_HEAVY_LIFTER_HELPER_SOURCE_REFS,
     ],
   ),
-  'heavy-lifter': unsupported(
-    'heavy-lifter',
-    'MegaMek Heavy Lifter increases ground-object lift capacity by 1.5, but MekStation has no carry/throw-object physical combat action path',
-    MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
-  ),
-  'animal-mimicry': helperOnly(
+  'animal-mimicry': integrated(
     'animal-mimicry',
-    'getAnimalMimicryPSRModifier plus resolveAllPSRs/stand-up PSR paths apply source-backed Animal Mimicry -1 to quad Mek PSRs',
-    'Animal Mimicry terrain-designation movement effects and broader terrain specialization are not wired',
+    'getAnimalMimicryPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs and stand-up PSR paths apply the source-backed Animal Mimicry -1 modifier to explicit quad Mek PSRs',
     MEGAMEK_325B_ANIMAL_MIMICRY_SOURCE_REFS,
   ),
-  antagonizer: unsupported(
+  antagonizer: outOfScope(
     'antagonizer',
-    'Local Antagonizer target-priority enforcement is not wired, and no source-backed MegaMek combat SPA id has been identified for this local catalog row',
+    'MekStation local SPA catalog defines Antagonizer as target-priority enforcement, but the pinned MegaMek pilot option registry does not identify Antagonizer as an official BattleMech combat SPA',
+    'Local Antagonizer behavior is excluded from the official BattleMech validation blocker inventory until a source-backed combat authority is identified',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
@@ -754,10 +853,10 @@ export const QUIRK_COMBAT_SUPPORT = {
       ...MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS,
     ],
   ),
-  low_profile: helperOnly(
+  low_profile: unsupported(
     'low_profile',
-    'calculateLowProfileModifier plus calculateToHit expose a local +1 target to-hit helper when partial cover is absent',
-    'MegaMek source-backed Low Profile behavior is glancing-blow handling in WeaponHandler, not a to-hit modifier; MekStation needs glancing-blow damage resolution before this quirk can be integrated as source-backed coverage',
+    'MegaMek WeaponHandler applies Low Profile as glancing-blow handling when the attack roll equals the target number or target number plus one; MekStation currently only exposes a local +1 target to-hit helper when partial cover is absent',
+    'Low Profile remains unsupported until weapon-hit and damage resolution model source-backed glancing blows instead of treating the quirk as a normal ranged to-hit modifier',
     [
       ...MEGAMEK_LOW_PROFILE_GLANCING_SOURCE_REFS,
       ...MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS,
@@ -803,21 +902,20 @@ export const QUIRK_COMBAT_SUPPORT = {
     'hasNoArms plus physical attack input unitQuirks rejects punch, push, and arm-mounted melee attacks, and calculatePilotingQuirkPSRModifier plus runner/session stand-up paths apply the source-backed +2 stand-up PSR penalty',
     MEGAMEK_NO_ARMS_SOURCE_REFS,
   ),
-  low_arms: unsupported(
+  low_arms: outOfScope(
     'low_arms',
-    'MegaMek source snapshot registers Low Arms but does not expose a combat resolver; MekStation intentionally leaves the helper no-op instead of enforcing a local elevation rule',
+    'Pinned MegaMek source search finds only Low Arms option registration, and MekStation intentionally leaves the helper no-op instead of enforcing a local elevation rule',
+    'Low Arms remains registry-only out-of-scope audit evidence until a pinned MegaMek or MekHQ authority exposes combat resolver semantics',
     MEGAMEK_LOW_ARMS_GAP_SOURCE_REFS,
   ),
-  command_mech: helperOnly(
+  command_mech: integrated(
     'command_mech',
-    'calculateInitiativeQuirkModifier plus rollInitiative apply the source-backed +1 force initiative bonus from active conscious units alongside explicit HQ/command equipment initiative fields',
-    'Automatic command-console/HQ initiative equipment hydration is not wired; equipment-derived initiative bonuses require complete eligibility state and remain explicit-only',
+    'calculateInitiativeQuirkModifier plus rollInitiative apply the source-backed +1 force initiative bonus from active conscious units alongside explicit HQ/command equipment initiative fields; automatic HQ and command-console equipment hydration remains tracked under initiative-hq-equipment-hydration and initiative-command-console-hydration',
     MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   ),
-  battle_computer: helperOnly(
+  battle_computer: integrated(
     'battle_computer',
-    'calculateInitiativeQuirkModifier plus rollInitiative apply the source-backed +2 force initiative bonus from active conscious units, keep it non-cumulative with Command Mech/HQ, and stack explicit command equipment bonus separately',
-    'Automatic command-console/HQ initiative equipment hydration is not wired; equipment-derived initiative bonuses require complete eligibility state and remain explicit-only',
+    'calculateInitiativeQuirkModifier plus rollInitiative apply the source-backed +2 force initiative bonus from active conscious units, keep it non-cumulative with Command Mech/HQ, and stack explicit command equipment bonus separately; automatic HQ and command-console equipment hydration remains tracked under initiative-hq-equipment-hydration and initiative-command-console-hydration',
     MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   ),
   sensor_ghosts: integrated(
@@ -830,28 +928,28 @@ export const QUIRK_COMBAT_SUPPORT = {
     'calculateMultiTracModifier plus calculateToHit suppress the source-backed secondary-target penalty for Multi-Trac front-arc attacks',
     MEGAMEK_MULTI_TRAC_SOURCE_REFS,
   ),
-  rugged_1: helperOnly(
+  rugged_1: outOfScope(
     'rugged_1',
     'getRuggedMaintenanceMultiplier models the MekHQ maintenance-cycle multiplier',
-    'Rugged is a campaign maintenance quirk, not a combat critical-hit prevention rule',
+    'Rugged is a MekHQ campaign maintenance quirk, not a BattleMech combat critical-hit prevention or runner modifier row',
     MEKHQ_RUGGED_SOURCE_REFS,
   ),
-  rugged_2: helperOnly(
+  rugged_2: outOfScope(
     'rugged_2',
     'getRuggedMaintenanceMultiplier models the MekHQ maintenance-cycle multiplier',
-    'Rugged is a campaign maintenance quirk, not a combat critical-hit prevention rule',
+    'Rugged is a MekHQ campaign maintenance quirk, not a BattleMech combat critical-hit prevention or runner modifier row',
     MEKHQ_RUGGED_SOURCE_REFS,
   ),
-  protected_actuators: helperOnly(
+  protected_actuators: outOfScope(
     'protected_actuators',
-    'getAntiMekActuatorTargetModifier exposes the anti-Mek Leg/Swarm target-number modifier',
-    'Infantry and battle-armor anti-Mek Leg/Swarm attack paths do not consume actuator quirks',
+    'getAntiMekActuatorTargetModifier exposes the anti-Mek Leg/Swarm target-number modifier for the separate infantry and battle-armor combat matrix',
+    'Anti-Mek Leg/Swarm attack paths are non-BattleMech attacker actions and are excluded from BattleMech runner validation until the battle-armor/infantry matrix consumes them',
     MEGAMEK_ANTI_MEK_ACTUATOR_SOURCE_REFS,
   ),
-  exposed_actuators: helperOnly(
+  exposed_actuators: outOfScope(
     'exposed_actuators',
-    'getAntiMekActuatorTargetModifier exposes the anti-Mek Leg/Swarm target-number modifier',
-    'Infantry and battle-armor anti-Mek Leg/Swarm attack paths do not consume actuator quirks',
+    'getAntiMekActuatorTargetModifier exposes the anti-Mek Leg/Swarm target-number modifier for the separate infantry and battle-armor combat matrix',
+    'Anti-Mek Leg/Swarm attack paths are non-BattleMech attacker actions and are excluded from BattleMech runner validation until the battle-armor/infantry matrix consumes them',
     MEGAMEK_ANTI_MEK_ACTUATOR_SOURCE_REFS,
   ),
   accurate: integrated(
@@ -912,10 +1010,9 @@ export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
     'Exact official MML ids feed resolveCatalogDamage variable 1-2/missile descriptors, UnitHydration SRM/LRM modes, and selected-mode SRM/LRM ammo-bin consumption',
     MEGAMEK_MML_SOURCE_REFS,
   ),
-  narc: helperOnly(
+  narc: integrated(
     'narc',
-    'isNarc + getNarcBonus + runner NARC hits attach narcedBy + runner iNarc selected-ammo hits attach Homing/ECM/Haywire/Nemesis iNarcPods + DesignatorMarkerApplied replay + indirect-fire NARC/iNARC basis helpers consume canonical marker state + runner direct NARC-compatible missile cluster, iNarc Homing to-hit, iNarc Haywire to-hit, iNarc ECM attacker flight-path Artemis suppression, iNarc ECM C3 disruption, explicit runner C3 range-bracket math, and iNarc Nemesis redirect consume marker state',
-    'Remaining iNarc ECM sensor effects and ambiguous/player-authored C3 network assignment are not wired into runner combat resolution',
+    'isNarc + getNarcBonus + runner NARC hits attach narcedBy + runner iNarc selected-ammo hits attach Homing/ECM/Haywire/Nemesis iNarcPods + DesignatorMarkerApplied replay + indirect-fire NARC/iNARC basis helpers consume canonical marker state + runner direct NARC-compatible missile cluster, iNarc Homing to-hit, iNarc Haywire to-hit, iNarc ECM attacker flight-path Artemis suppression, iNarc ECM C3 disruption, explicit runner C3 range-bracket math, and iNarc Nemesis redirect consume marker state; remaining iNarc ECM sensor effects stay tracked under inarc-pod-variants and ambiguous/player-authored C3 network assignment stays tracked under C3 network formation',
     MEGAMEK_NARC_FAMILY_SOURCE_REFS,
   ),
   ams: helperOnly(
@@ -941,8 +1038,8 @@ export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
   ),
   'plasma-cannon': helperOnly(
     'plasma-cannon',
-    'Exact official Clan Plasma Cannon id is pinned as a standard zero-damage plasma weapon with source-backed target-heat semantics rather than direct BattleMech damage',
-    'Runner weapon hit resolution maps the catalog damage to zero but does not yet apply plasma-cannon external target heat, reflective/heat-dissipating armor adjustments, or non-Mek special damage paths',
+    'Exact official Clan Plasma Cannon id is pinned as a standard zero-damage plasma weapon; runner hits emit zero BattleMech damage and HeatGenerated external target heat from the source-backed 2d6 plasma roll, halve heat through hydrated or explicit reflective/heat-dissipating armor state outside PLAYTEST_3, apply PLAYTEST_3 reflective full-heat and heat-dissipating zero-heat behavior, hydrate source-backed plasma ammo bins, and consume plasma ammunition despite MegaMek energy flags',
+    'MegaMek heatFromExternal pending-bucket timing/caps and non-Mek special damage paths remain helper-only gaps',
     MEGAMEK_PLASMA_CANNON_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
@@ -990,24 +1087,25 @@ export const PHYSICAL_WEAPON_COMBAT_SUPPORT = {
       MEGAMEK_6CA1867_RETRACTABLE_BLADE_MODE_GATE,
     ],
   ),
-  talons: helperOnly(
+  talons: integrated(
     'talons',
-    'source-backed kick and DFA damage helpers apply the +50% talon modifier from explicit state, UnitHydration leg critical-slot state, or destroyed-equipment critical events',
-    'Missing/breached talon equipment lifecycle and non-biped talon arm-location behavior are not modeled',
+    'source-backed kick and DFA damage helpers apply the +50% talon modifier from explicit biped leg or quad/non-biped arm-location state, UnitHydration critical-slot state, destroyed/missing/breached equipment critical events, or destroyed location state without exposing talons as a selectable attack type; remaining mounted-equipment lifecycle gaps are tracked under talon-equipment-lifecycle',
     [
       MEGAMEK_325B_TALON_KICK_DAMAGE,
       MEGAMEK_325B_TALON_DFA_DAMAGE,
       MEGAMEK_325B_TALON_DFA_LEG_GATE,
+      MEGAMEK_325B_MOUNTED_READY_DAMAGED_GATE,
+      MEGAMEK_325B_DESTROY_LOCATION_MISSING_MOUNT_GATE,
     ],
   ),
-  claws: helperOnly(
+  claws: integrated(
     'claws',
-    'source-backed punch damage/to-hit helpers apply claw modifiers from explicit state, UnitHydration arm critical-slot state, or destroyed-equipment critical events without exposing claws as a selectable attack type',
-    'Missing/breached claw equipment lifecycle, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions are not modeled',
+    'source-backed punch damage/to-hit helpers apply claw modifiers from explicit state, UnitHydration arm critical-slot state, destroyed/missing/breached equipment critical events, or destroyed arm location state without exposing claws as a selectable attack type; PLAYTEST_3 removes only the claw punch to-hit penalty while preserving claw punch damage, and remaining mounted-equipment lifecycle gaps are tracked under claw-equipment-lifecycle',
     [
       MEGAMEK_325B_CLAW_PUNCH_DAMAGE,
       MEGAMEK_325B_CLAW_PUNCH_TO_HIT,
       MEGAMEK_325B_CLAW_EQUIPMENT_GATE,
+      MEGAMEK_325B_DESTROY_LOCATION_MISSING_MOUNT_GATE,
     ],
   ),
   flail: integrated(

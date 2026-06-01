@@ -644,10 +644,13 @@ export interface IAttackerState {
   readonly actuatorDamage?: IActuatorDamage;
   readonly targetingComputer?: boolean;
   readonly prone?: boolean;
+  readonly isSpotting?: boolean;
   readonly secondaryTarget?: ISecondaryTarget;
   readonly indirectFire?: IIndirectFire;
   readonly calledShot?: boolean;
   readonly teammateCalledShot?: boolean;
+  /** Set false for source-backed BattleMech combat paths that must not apply local called-shot SPA helper reductions. */
+  readonly applyLocalCalledShotAbilityReduction?: boolean;
   readonly abilities?: readonly string[];
   readonly weaponType?: string;
   readonly designatedWeaponType?: string;
@@ -690,6 +693,18 @@ export interface ITargetState {
   readonly abilities?: readonly string[];
   readonly isDodging?: boolean;
   readonly isEvading?: boolean;
+  /**
+   * Optional source-backed evasion to-hit bonus copied into combat state.
+   * When absent, explicit `isEvading` keeps the normal +1; explicit 0 models
+   * Skilled Evasion cases that create an evading state without a bonus.
+   */
+  readonly evasionBonus?: number;
+  /**
+   * Explicit target movement state for optional TacOps Sprint. Declared
+   * sprint movement and replayed/prehydrated sprint state feed source-backed
+   * to-hit resolution.
+   */
+  readonly sprintedThisTurn?: boolean;
   readonly terrainFeatures?: readonly ITerrainFeature[];
 }
 

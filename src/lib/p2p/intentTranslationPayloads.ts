@@ -13,6 +13,7 @@ import {
 } from '@/types/gameplay/HexGridInterfaces';
 import {
   isSupportedPhysicalAttackType,
+  type PhysicalAttackLimb,
   type PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks/types';
 
@@ -69,7 +70,13 @@ export interface IDeclarePhysicalIntentPayload {
   readonly attackerId: string;
   readonly targetId: string;
   readonly attackType: PhysicalAttackType;
+  readonly limb?: PhysicalAttackLimb;
   readonly toHitNumber?: number;
+}
+
+export interface IRequestSpotIntentPayload {
+  readonly unitId: string;
+  readonly targetId: string;
 }
 
 /**
@@ -225,7 +232,28 @@ export function asPhysicalPayload(
   ) {
     return null;
   }
+  if (
+    payload.limb !== undefined &&
+    !['leftArm', 'rightArm', 'leftLeg', 'rightLeg'].includes(
+      String(payload.limb),
+    )
+  ) {
+    return null;
+  }
   return payload as unknown as IDeclarePhysicalIntentPayload;
+}
+
+export function asRequestSpotPayload(
+  payload: unknown,
+): IRequestSpotIntentPayload | null {
+  if (!isRecord(payload)) return null;
+  if (typeof payload.unitId !== 'string' || payload.unitId.length === 0) {
+    return null;
+  }
+  if (typeof payload.targetId !== 'string' || payload.targetId.length === 0) {
+    return null;
+  }
+  return payload as unknown as IRequestSpotIntentPayload;
 }
 
 export function asEndPhasePayload(
@@ -394,6 +422,17 @@ export function buildDeclarePhysicalIntent(
 ): IGameIntent {
   return {
     type: 'declarePhysical',
+    payload,
+    authorPeerId,
+  };
+}
+
+export function buildRequestSpotIntent(
+  authorPeerId: string,
+  payload: IRequestSpotIntentPayload,
+): IGameIntent {
+  return {
+    type: 'requestSpot',
     payload,
     authorPeerId,
   };

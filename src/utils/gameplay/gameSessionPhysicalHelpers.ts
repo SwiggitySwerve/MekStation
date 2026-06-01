@@ -2,8 +2,10 @@ import type { IUnitGameState } from '@/types/gameplay';
 
 import type {
   IPhysicalAttackRestriction,
+  JumpJetAttackSelectedLeg,
   PhysicalAttackLimb,
   PhysicalTargetObjectType,
+  ThrashAttackBlockingTerrain,
 } from './physicalAttacks';
 
 /**
@@ -66,12 +68,17 @@ export interface IPhysicalAttackContext {
   /**
    * Per-leg talon state for source-backed kick/DFA damage modifiers.
    * Equipment hydration is optional today, so callers may supply it
-   * explicitly through the physical context.
+   * explicitly through the physical context. Quad/non-biped front-leg
+   * talons are represented by arm-location state, matching MegaMek.
    */
   readonly leftLegHasTalons?: boolean;
   readonly rightLegHasTalons?: boolean;
+  readonly leftArmHasTalons?: boolean;
+  readonly rightArmHasTalons?: boolean;
   readonly leftFootActuatorPresent?: boolean;
   readonly rightFootActuatorPresent?: boolean;
+  readonly leftArmFootActuatorPresent?: boolean;
+  readonly rightArmFootActuatorPresent?: boolean;
   /**
    * Per-arm claw state for source-backed punch damage/to-hit modifiers.
    * Equipment hydration is optional today, so callers may supply it
@@ -105,9 +112,49 @@ export interface IPhysicalAttackContext {
   readonly unitQuirks?: readonly string[];
   /** Target elevation minus attacker elevation. */
   readonly elevationDifference?: number;
+  readonly optionalRules?: readonly string[];
+  readonly tacOpsTripAttackEnabled?: boolean;
+  readonly tacOpsGrapplingEnabled?: boolean;
+  readonly grappleSide?: 'left' | 'right' | 'both';
+  readonly attackerGrappledTargetId?: string;
+  readonly targetGrappledTargetId?: string;
+  readonly attackerIsGrappleAttacker?: boolean;
+  readonly targetIsGrappleAttacker?: boolean;
+  readonly attackerChainWhipGrappled?: boolean;
+  readonly leftArmAesFunctional?: boolean;
+  readonly rightArmAesFunctional?: boolean;
+  readonly attackerWeightClass?: number;
+  readonly targetWeightClass?: number;
+  readonly attackerAlreadyGrappled?: boolean;
+  readonly targetInFrontArc?: boolean;
+  readonly leftTripLimbUsable?: boolean;
+  readonly rightTripLimbUsable?: boolean;
+  readonly legAesFunctional?: boolean;
+  readonly thrashBlockingTerrains?: readonly ThrashAttackBlockingTerrain[];
+  readonly hasWorkingThrashArmOrLeg?: boolean;
+  readonly tacOpsJumpJetAttackEnabled?: boolean;
+  readonly jumpJetAttackSelectedLeg?: JumpJetAttackSelectedLeg;
+  readonly leftReadyJumpJetCount?: number;
+  readonly rightReadyJumpJetCount?: number;
+  readonly leftLegWet?: boolean;
+  readonly rightLegWet?: boolean;
+  readonly leftLegWeaponFiredThisTurn?: boolean;
+  readonly rightLegWeaponFiredThisTurn?: boolean;
+  readonly standingAttackerHeightAboveTargetHeight?: number;
+  readonly proneTargetElevationInRange?: boolean;
+  readonly targetDirectlyAheadOfFeet?: boolean;
+  readonly targetDirectlyBehindFeet?: boolean;
+  readonly targetIsSwarmingInfantryOnAttacker?: boolean;
+  readonly targetIsINarcPod?: boolean;
+  readonly armAesFunctional?: boolean;
+  readonly torsoMountedCockpit?: boolean;
+  readonly headSensorHits?: number;
+  readonly centerTorsoSensorHits?: number;
+  readonly defenderHasMagneticClaws?: boolean;
 }
 
 type ArmSide = 'left' | 'right';
+type LegSide = 'left' | 'right';
 
 function normalizeMountedLocation(location: string | undefined): string {
   return (location ?? '')
@@ -127,6 +174,17 @@ function isArmMountedLocation(location: string, arm?: ArmSide): boolean {
   );
 }
 
+function isLegMountedLocation(location: string, leg?: LegSide): boolean {
+  if (leg === 'left') return location === 'left_leg' || location === 'll';
+  if (leg === 'right') return location === 'right_leg' || location === 'rl';
+  return (
+    location === 'left_leg' ||
+    location === 'll' ||
+    location === 'right_leg' ||
+    location === 'rl'
+  );
+}
+
 export function firedWeaponIdsFromMountedArm(
   unit: Pick<IUnitGameState, 'weaponsFiredThisTurn' | 'weaponLocationById'>,
   arm?: ArmSide,
@@ -143,6 +201,26 @@ export function firedWeaponIdsFromMountedArm(
     );
     return (
       mountedLocation.length === 0 || isArmMountedLocation(mountedLocation, arm)
+    );
+  });
+}
+
+export function firedWeaponIdsFromMountedLeg(
+  unit: Pick<IUnitGameState, 'weaponsFiredThisTurn' | 'weaponLocationById'>,
+  leg?: LegSide,
+): readonly string[] {
+  const firedWeaponIds = unit.weaponsFiredThisTurn ?? [];
+  if (firedWeaponIds.length === 0) return [];
+
+  const weaponLocationById = unit.weaponLocationById;
+  if (weaponLocationById === undefined) return firedWeaponIds;
+
+  return firedWeaponIds.filter((weaponId) => {
+    const mountedLocation = normalizeMountedLocation(
+      weaponLocationById[weaponId],
+    );
+    return (
+      mountedLocation.length === 0 || isLegMountedLocation(mountedLocation, leg)
     );
   });
 }

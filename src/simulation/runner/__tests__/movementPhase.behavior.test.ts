@@ -93,6 +93,46 @@ class ScriptedMovePlayer implements IAIPlayer {
   }
 }
 
+class ScriptedGoPronePlayer implements IAIPlayer {
+  constructor(private readonly unitId: string) {}
+
+  evaluateRetreat(): IRetreatEvent | null {
+    return null;
+  }
+
+  playMovementPhase(unit: IAIUnitState): IMovementEvent | null {
+    if (unit.unitId !== this.unitId) return null;
+    return {
+      type: GameEventType.MovementDeclared,
+      payload: {
+        unitId: unit.unitId,
+        from: unit.position,
+        to: unit.position,
+        facing: unit.facing,
+        movementType: MovementType.Stationary,
+        mpUsed: 1,
+        heatGenerated: 0,
+        steps: [
+          {
+            kind: 'goProne',
+            index: 0,
+            at: { q: unit.position.q, r: unit.position.r },
+            mpCost: 1,
+          },
+        ],
+      },
+    };
+  }
+
+  playAttackPhase(): IAttackEvent | null {
+    return null;
+  }
+
+  playPhysicalAttackPhase(): IPhysicalAttackEvent | null {
+    return null;
+  }
+}
+
 function fixedRandom(nextValue: number): SeededRandom {
   return { next: () => nextValue } as unknown as SeededRandom;
 }
@@ -254,6 +294,185 @@ describe('runMovementPhase movement validation parity', () => {
     expect(next.units['player-1'].position).toEqual(target);
     expect(next.units['player-1'].hexesMovedThisTurn).toBe(1);
     expect(next.units['player-1'].heat).toBe(0);
+  });
+
+  it('commits TacOps Evade as run-based movement with source-backed evasion state', () => {
+    const target = { q: 2, r: 0 };
+    const { next, events } = runScriptedMove(
+      createMinimalGrid(4),
+      target,
+      {},
+      {
+        movementType: MovementType.Evade,
+        capability: { walkMP: 2, runMP: 3, jumpMP: 0 },
+      },
+    );
+    const payload = events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    )?.payload as IMovementDeclaredPayload | undefined;
+
+    expect(payload).toMatchObject({
+      unitId: 'player-1',
+      to: target,
+      movementType: MovementType.Evade,
+      mode: MovementType.Run,
+      mpUsed: 2,
+      heatGenerated: 4,
+      hexesMoved: 2,
+    });
+    expect(next.units['player-1']).toMatchObject({
+      position: target,
+      movementThisTurn: MovementType.Evade,
+      isEvading: true,
+      evasionBonus: 1,
+      hexesMovedThisTurn: 2,
+    });
+
+    const reset = resetTurnState(next);
+    expect(reset.units['player-1']).toMatchObject({
+      sprintedThisTurn: false,
+      isEvading: false,
+      evasionBonus: undefined,
+    });
+  });
+
+  it('does not allow MASC or Supercharger boosted MP to extend TacOps Evade reach', () => {
+    const target = { q: 4, r: 0 };
+    const { next, events } = runScriptedMove(
+      createMinimalGrid(5),
+      target,
+      {
+        hasMASC: true,
+        activeMASC: true,
+      },
+      {
+        movementType: MovementType.Evade,
+        capability: { walkMP: 2, runMP: 3, jumpMP: 0 },
+      },
+    );
+
+    expect(events).toEqual([]);
+    expect(next.units['player-1']).toMatchObject({
+      position: { q: 0, r: 0 },
+      movementThisTurn: MovementType.Stationary,
+    });
+    expect(next.units['player-1'].isEvading).not.toBe(true);
+    expect(next.units['player-1'].evasionBonus).toBeUndefined();
+  });
+
+  it('commits TacOps Sprint as run-based movement with source-backed sprint state', () => {
+    const target = { q: 4, r: 0 };
+    const { next, events } = runScriptedMove(
+      createMinimalGrid(5),
+      target,
+      {},
+      {
+        movementType: MovementType.Sprint,
+        capability: { walkMP: 2, runMP: 3, jumpMP: 0 },
+      },
+    );
+    const payload = events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    )?.payload as IMovementDeclaredPayload | undefined;
+
+    expect(payload).toMatchObject({
+      unitId: 'player-1',
+      to: target,
+      movementType: MovementType.Sprint,
+      mode: MovementType.Run,
+      mpUsed: 4,
+      heatGenerated: 3,
+      hexesMoved: 4,
+    });
+    expect(next.units['player-1']).toMatchObject({
+      position: target,
+      movementThisTurn: MovementType.Sprint,
+      sprintedThisTurn: true,
+      isEvading: false,
+      hexesMovedThisTurn: 4,
+    });
+
+    const reset = resetTurnState(next);
+    expect(reset.units['player-1']).toMatchObject({
+      sprintedThisTurn: false,
+      isEvading: false,
+      evasionBonus: undefined,
+    });
+  });
+
+  it('applies active MASC/Supercharger sprint MP and queues their failure PSRs', () => {
+    const target = { q: 12, r: 0 };
+    const { next, events } = runScriptedMove(
+      createMinimalGrid(13),
+      target,
+      {
+        hasMASC: true,
+        hasSupercharger: true,
+        activeMASC: true,
+        activeSupercharger: true,
+      },
+      {
+        movementType: MovementType.Sprint,
+        capability: { walkMP: 4, runMP: 6, jumpMP: 0 },
+      },
+    );
+    const movementPayload = events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    )?.payload as IMovementDeclaredPayload | undefined;
+    const payloads = psrPayloads(events);
+
+    expect(movementPayload).toMatchObject({
+      unitId: 'player-1',
+      to: target,
+      movementType: MovementType.Sprint,
+      mpUsed: 12,
+      heatGenerated: 3,
+    });
+    expect(next.units['player-1']).toMatchObject({
+      position: target,
+      sprintedThisTurn: true,
+    });
+    expect(payloads).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          fixedTargetNumber: 3,
+          reasonCode: PSRTrigger.MASCFailure,
+        }),
+        expect.objectContaining({
+          fixedTargetNumber: 3,
+          reasonCode: PSRTrigger.SuperchargerFailure,
+        }),
+      ]),
+    );
+  });
+
+  it('applies Terrain Master: Mountaineer movement relief before committing runner movement', () => {
+    const target = { q: 1, r: 0 };
+    const grid = setTerrain(createMinimalGrid(3), target, TerrainType.Rubble);
+
+    const { next, events } = runScriptedMove(
+      grid,
+      target,
+      { abilities: ['tm_mountaineer'] },
+      {
+        movementType: MovementType.Walk,
+        capability: { walkMP: 1, runMP: 1, jumpMP: 0 },
+      },
+    );
+    const payload = events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    )?.payload as IMovementDeclaredPayload | undefined;
+
+    expect(payload).toMatchObject({
+      unitId: 'player-1',
+      to: target,
+      mpUsed: 1,
+      heatGenerated: 1,
+    });
+    expect(next.units['player-1'].position).toEqual(target);
+    expect(SPA_COMBAT_SUPPORT.tm_mountaineer).toMatchObject({
+      level: 'integrated',
+    });
   });
 
   it('commits same-hex facing changes with authoritative turn MP', () => {
@@ -421,8 +640,17 @@ describe('runMovementPhase movement validation parity', () => {
     expect(
       MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT[MovementEnhancementType.MASC],
     ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('active MASC run and sprint MP'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({ kind: 'megamek-source' }),
+      ]),
+    });
+    expect(
+      MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT['masc-side-paths'],
+    ).toMatchObject({
       level: 'helper-only',
-      evidence: expect.stringContaining('active MASC run MP'),
+      gap: expect.stringContaining('Alternate MASC option tables'),
       sourceRefs: expect.arrayContaining([
         expect.objectContaining({ kind: 'megamek-source' }),
       ]),
@@ -430,7 +658,7 @@ describe('runMovementPhase movement validation parity', () => {
     expect(
       RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.MASCFailure],
     ).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('movementEnhancementPsr'),
     });
   });
@@ -505,8 +733,19 @@ describe('runMovementPhase movement validation parity', () => {
     expect(
       MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT[MovementEnhancementType.SUPERCHARGER],
     ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'active Supercharger run and sprint MP',
+      ),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({ kind: 'megamek-source' }),
+      ]),
+    });
+    expect(
+      MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT['supercharger-side-paths'],
+    ).toMatchObject({
       level: 'helper-only',
-      evidence: expect.stringContaining('active Supercharger run MP'),
+      gap: expect.stringContaining('IndustrialMek/support-unit'),
       sourceRefs: expect.arrayContaining([
         expect.objectContaining({ kind: 'megamek-source' }),
       ]),
@@ -721,6 +960,12 @@ describe('runMovementPhase movement validation parity', () => {
       expected: PSRTrigger.MovingOnIce,
     },
     {
+      name: 'swamp bog-down entry',
+      terrain: TerrainType.Swamp,
+      movementType: MovementType.Walk,
+      expected: PSRTrigger.SwampBogDown,
+    },
+    {
       name: 'jumping into water',
       terrain: TerrainType.Water,
       movementType: MovementType.Jump,
@@ -761,6 +1006,41 @@ describe('runMovementPhase movement validation parity', () => {
     });
   });
 
+  it('marks BattleMechs stuck immediately when they jump into swamp', () => {
+    const target = { q: 1, r: 0 };
+    const grid = setTerrain(createMinimalGrid(3), target, TerrainType.Swamp);
+
+    const { next, events } = runScriptedMove(
+      grid,
+      target,
+      {
+        unitType: UnitType.BATTLEMECH,
+      },
+      {
+        movementType: MovementType.Jump,
+        capability: { walkMP: 4, runMP: 6, jumpMP: 4 },
+      },
+    );
+
+    expect(next.units['player-1']).toMatchObject({
+      position: target,
+      isStuck: true,
+      pendingPSRs: [],
+    });
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        type: GameEventType.UnitStuck,
+        payload: expect.objectContaining({
+          unitId: 'player-1',
+          reasonCode: PSRTrigger.SwampBogDown,
+        }),
+      }),
+    );
+    expect(
+      events.some((event) => event.type === GameEventType.PSRTriggered),
+    ).toBe(false);
+  });
+
   it('queues depth-aware entering-water PSRs from complex terrain features', () => {
     const target = { q: 1, r: 0 };
     const grid = setTerrainFeatures(createMinimalGrid(3), target, [
@@ -798,6 +1078,79 @@ describe('runMovementPhase movement validation parity', () => {
       level: 'integrated',
       evidence: expect.stringContaining('water-entry PSR'),
     });
+  });
+
+  it('queues building-collapse PSRs when explicit unit load exceeds building CF', () => {
+    const target = { q: 1, r: 0 };
+    const grid = setTerrainFeatures(createMinimalGrid(3), target, [
+      { type: TerrainType.Building, level: 2, constructionFactor: 40 },
+    ]);
+
+    const { next, events } = runScriptedMove(
+      grid,
+      target,
+      {
+        tonnage: 55,
+        unitType: UnitType.BATTLEMECH,
+      },
+      { movementType: MovementType.Walk },
+    );
+    const payloads = psrPayloads(events);
+
+    expect(next.units['player-1'].position).toEqual(target);
+    expect(next.units['player-1'].pendingPSRs).toContainEqual(
+      expect.objectContaining({
+        reasonCode: PSRTrigger.BuildingCollapse,
+        additionalModifier: 0,
+      }),
+    );
+    expect(payloads).toContainEqual(
+      expect.objectContaining({
+        unitId: 'player-1',
+        reasonCode: PSRTrigger.BuildingCollapse,
+        triggerSource: expect.stringMatching(/^movement-step:/),
+      }),
+    );
+    expect(
+      RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.BuildingCollapse],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('constructionFactor'),
+    });
+    expect(TERRAIN_TYPE_PSR_COMBAT_SUPPORT[TerrainType.Building]).toMatchObject(
+      {
+        level: 'integrated',
+        evidence: expect.stringContaining('constructionFactor'),
+      },
+    );
+  });
+
+  it('does not invent building-collapse PSRs without explicit load metadata', () => {
+    const target = { q: 1, r: 0 };
+    const grid = setTerrainFeatures(createMinimalGrid(3), target, [
+      { type: TerrainType.Building, level: 2, constructionFactor: 40 },
+    ]);
+
+    const { next, events } = runScriptedMove(
+      grid,
+      target,
+      {
+        unitType: UnitType.BATTLEMECH,
+      },
+      { movementType: MovementType.Walk },
+    );
+
+    expect(next.units['player-1'].position).toEqual(target);
+    expect(next.units['player-1'].pendingPSRs).not.toContainEqual(
+      expect.objectContaining({
+        reasonCode: PSRTrigger.BuildingCollapse,
+      }),
+    );
+    expect(psrPayloads(events)).not.toContainEqual(
+      expect.objectContaining({
+        reasonCode: PSRTrigger.BuildingCollapse,
+      }),
+    );
   });
 
   it('queues water-exit PSRs when a unit leaves water terrain', () => {
@@ -905,6 +1258,147 @@ describe('runMovementPhase movement validation parity', () => {
     ).toMatchObject({ level: 'integrated' });
   });
 
+  it('commits scripted voluntary go-prone as a same-hex movement step', () => {
+    const unit = createMinimalUnitState('player-1', GameSide.Player, {
+      q: 0,
+      r: 0,
+    });
+    const state = {
+      gameId: 'runner-go-prone-validation',
+      status: GameStatus.Active,
+      turn: 1,
+      phase: GamePhase.Movement,
+      activationIndex: 0,
+      units: {
+        'player-1': unit,
+      },
+      turnEvents: [],
+    };
+    const events: Parameters<typeof runMovementPhase>[0]['events'] = [];
+    const violations: Parameters<typeof runMovementPhase>[0]['violations'] = [];
+
+    const next = runMovementPhase({
+      state,
+      botPlayer: new ScriptedGoPronePlayer('player-1'),
+      grid: createMinimalGrid(3),
+      invariantRunner: new InvariantRunner(),
+      violations,
+      events,
+      gameId: state.gameId,
+    });
+    const payload = events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    )?.payload as IMovementDeclaredPayload | undefined;
+
+    expect(payload).toMatchObject({
+      unitId: 'player-1',
+      from: { q: 0, r: 0 },
+      to: { q: 0, r: 0 },
+      movementType: MovementType.Stationary,
+      mpUsed: 1,
+      heatGenerated: 0,
+      hexesMoved: 0,
+      straightHexes: 0,
+      turningMpCost: 1,
+      netDisplacement: 0,
+      steps: [
+        expect.objectContaining({
+          kind: 'goProne',
+          at: { q: 0, r: 0 },
+          mpCost: 1,
+        }),
+      ],
+    });
+    expect(next.units['player-1'].position).toEqual({ q: 0, r: 0 });
+    expect(next.units['player-1'].prone).toBe(true);
+    expect(MOVEMENT_RULE_COMBAT_SUPPORT.prone).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('runner AI'),
+    });
+  });
+
+  it('commits hull-down go-prone at zero MP and clears hull-down posture', () => {
+    const unit = {
+      ...createMinimalUnitState('player-1', GameSide.Player, { q: 0, r: 0 }),
+      hullDown: true,
+    };
+    const state = {
+      gameId: 'runner-hull-down-go-prone-validation',
+      status: GameStatus.Active,
+      turn: 1,
+      phase: GamePhase.Movement,
+      activationIndex: 0,
+      units: {
+        'player-1': unit,
+      },
+      turnEvents: [],
+    };
+    const events: Parameters<typeof runMovementPhase>[0]['events'] = [];
+    const violations: Parameters<typeof runMovementPhase>[0]['violations'] = [];
+
+    const next = runMovementPhase({
+      state,
+      botPlayer: new ScriptedGoPronePlayer('player-1'),
+      grid: createMinimalGrid(3),
+      invariantRunner: new InvariantRunner(),
+      violations,
+      events,
+      gameId: state.gameId,
+    });
+    const payload = events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    )?.payload as IMovementDeclaredPayload | undefined;
+
+    expect(payload).toMatchObject({
+      unitId: 'player-1',
+      mpUsed: 0,
+      turningMpCost: 0,
+      steps: [
+        expect.objectContaining({
+          kind: 'goProne',
+          mpCost: 0,
+        }),
+      ],
+    });
+    expect(next.units['player-1'].prone).toBe(true);
+    expect(next.units['player-1'].hullDown).toBe(false);
+  });
+
+  it('rejects scripted go-prone for explicit non-Mek units', () => {
+    const unit = {
+      ...createMinimalUnitState('player-1', GameSide.Player, { q: 0, r: 0 }),
+      unitType: UnitType.VEHICLE,
+    };
+    const state = {
+      gameId: 'runner-non-mek-go-prone-validation',
+      status: GameStatus.Active,
+      turn: 1,
+      phase: GamePhase.Movement,
+      activationIndex: 0,
+      units: {
+        'player-1': unit,
+      },
+      turnEvents: [],
+    };
+    const events: Parameters<typeof runMovementPhase>[0]['events'] = [];
+    const violations: Parameters<typeof runMovementPhase>[0]['violations'] = [];
+
+    const next = runMovementPhase({
+      state,
+      botPlayer: new ScriptedGoPronePlayer('player-1'),
+      grid: createMinimalGrid(3),
+      invariantRunner: new InvariantRunner(),
+      violations,
+      events,
+      gameId: state.gameId,
+    });
+
+    expect(
+      events.some((event) => event.type === GameEventType.MovementDeclared),
+    ).toBe(false);
+    expect(next.units['player-1'].prone).toBe(false);
+  });
+
   it('resolves a successful stand-up PSR before committing prone movement', () => {
     const target = { q: 1, r: 0 };
 
@@ -988,7 +1482,7 @@ describe('runMovementPhase movement validation parity', () => {
       passed: true,
     });
     expect(SPA_COMBAT_SUPPORT['animal-mimicry']).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('Animal Mimicry'),
     });
   });
