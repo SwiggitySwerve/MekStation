@@ -474,7 +474,7 @@ export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
     quirkIds: ['improved_cooling', 'poor_cooling', 'no_cooling'],
   },
   'consciousness-application': {
-    spaIds: ['iron-man', 'pain-resistance', 'toughness', 'iron-will'],
+    spaIds: ['iron-man', 'pain-resistance', 'toughness'],
     quirkIds: [],
   },
   'edge-application': { spaIds: ['edge'], quirkIds: [] },
