@@ -213,7 +213,7 @@ const MECH_QUIRK_TRIAD = entryTriad(
   FEATURE_REFS,
 );
 const TERRAIN_ENVIRONMENT_TRIAD = entryTriad(
-  'Terrain/environment rows are source checked and must carry row-level sourceRefs for terrain costs, LOS/cover/to-hit features, water/fire heat, fog/night/wind/extreme temperature, local atmosphere, and explicit dust/mines gaps.',
+  'Terrain/environment rows are source checked and must carry row-level sourceRefs for terrain costs, LOS/cover/to-hit features, water/fire heat, fog/night/wind/dust/extreme temperature, local atmosphere, and explicit mines gaps.',
   TERRAIN_REFS,
 );
 const TERRAIN_TYPE_MOVEMENT_TRIAD = entryTriad(
