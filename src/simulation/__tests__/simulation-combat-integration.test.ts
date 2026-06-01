@@ -11,6 +11,28 @@ import { InvariantRunner } from '../invariants/InvariantRunner';
 import { BatchRunner } from '../runner/BatchRunner';
 import { SimulationRunner } from '../runner/SimulationRunner';
 
+function readPositiveIntEnv(name: string, fallback: number): number {
+  const parsed = Number.parseInt(process.env[name] ?? '', 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+const PSR_FALL_BATCH_COUNT = readPositiveIntEnv(
+  'SIMULATION_COMBAT_PSR_BATCH_COUNT',
+  20,
+);
+const DESTRUCTION_BATCH_COUNT = readPositiveIntEnv(
+  'SIMULATION_COMBAT_DESTRUCTION_BATCH_COUNT',
+  200,
+);
+const PILOT_DEATH_BATCH_COUNT = readPositiveIntEnv(
+  'SIMULATION_COMBAT_PILOT_DEATH_BATCH_COUNT',
+  50,
+);
+const FULL_COMBAT_BATCH_COUNT = readPositiveIntEnv(
+  'SIMULATION_COMBAT_FULL_BATCH_COUNT',
+  50,
+);
+
 function createInvariantRunner(): InvariantRunner {
   const runner = new InvariantRunner();
   runner.register({
@@ -291,7 +313,7 @@ describe('Simulation Combat Integration (Phase 17)', () => {
         unitCount: { player: 3, opponent: 3 },
         mapRadius: 4,
       };
-      const results = batchRunner.runBatch(20, config);
+      const results = batchRunner.runBatch(PSR_FALL_BATCH_COUNT, config);
 
       const allFallEvents = results.flatMap((r) =>
         r.events.filter((e) => e.type === GameEventType.UnitFell),
@@ -487,7 +509,7 @@ describe('Simulation Combat Integration (Phase 17)', () => {
         ...LIGHT_SKIRMISH,
         seed: 46001,
       };
-      const results = batchRunner.runBatch(200, config);
+      const results = batchRunner.runBatch(DESTRUCTION_BATCH_COUNT, config);
 
       const gamesWithDestruction = results.filter((r) =>
         r.events.some((e) => e.type === GameEventType.UnitDestroyed),
@@ -498,7 +520,9 @@ describe('Simulation Combat Integration (Phase 17)', () => {
       );
 
       // Damage should occur in most games
-      expect(gamesWithDamage.length).toBeGreaterThan(100);
+      expect(gamesWithDamage.length).toBeGreaterThan(
+        Math.floor(DESTRUCTION_BATCH_COUNT / 2),
+      );
 
       // With to-hit rolls and 10-turn limit, destruction is possible but not guaranteed
       // Verify that if destruction occurs, the events are properly structured
@@ -536,7 +560,7 @@ describe('Simulation Combat Integration (Phase 17)', () => {
         unitCount: { player: 3, opponent: 3 },
         mapRadius: 4,
       };
-      const results = batchRunner.runBatch(50, config);
+      const results = batchRunner.runBatch(PILOT_DEATH_BATCH_COUNT, config);
 
       const pilotDeathEvents = results.flatMap((r) =>
         r.events.filter(
@@ -546,7 +570,7 @@ describe('Simulation Combat Integration (Phase 17)', () => {
         ),
       );
 
-      // Pilot death from falls is rare but possible over 50 games
+      // Pilot death from falls is rare but possible over the configured batch
       // We just verify the event structure is valid if any occur
       for (const evt of pilotDeathEvents) {
         const payload = evt.payload as { unitId: string; cause: string };
@@ -636,16 +660,16 @@ describe('Simulation Combat Integration (Phase 17)', () => {
       expect(structuralViolations).toHaveLength(0);
     });
 
-    it('should complete batch of 50 games without crashes', () => {
+    it(`should complete batch of ${FULL_COMBAT_BATCH_COUNT} games without crashes`, () => {
       const batchRunner = new BatchRunner();
       const config: ISimulationConfig = {
         ...STANDARD_LANCE,
         seed: 47004,
       };
 
-      const results = batchRunner.runBatch(50, config);
+      const results = batchRunner.runBatch(FULL_COMBAT_BATCH_COUNT, config);
 
-      expect(results).toHaveLength(50);
+      expect(results).toHaveLength(FULL_COMBAT_BATCH_COUNT);
       for (const result of results) {
         expect(result.turns).toBeGreaterThan(0);
         expect(result.events.length).toBeGreaterThan(0);

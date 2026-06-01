@@ -45,6 +45,10 @@ const PROFILE_RUNNER_BUDGET_MS = readPositiveIntEnv(
   'SIMULATION_PROFILE_RUNNER_BUDGET_MS',
   750,
 );
+const PROFILE_AVG_GAME_BUDGET_MS = readPositiveIntEnv(
+  'SIMULATION_PROFILE_AVG_GAME_BUDGET_MS',
+  1500,
+);
 const PROFILE_TIME_BUDGET_MS = readPositiveIntEnv(
   'SIMULATION_PROFILE_TIME_BUDGET_MS',
   120000,
@@ -282,7 +286,7 @@ describe('Simulation System Integration', () => {
       // contention can push individual recorded game durations far above the
       // isolated profile. Keep this coarse enough for full-suite contention
       // while still catching runaway per-game regressions.
-      expect(avgDuration).toBeLessThan(1500);
+      expect(avgDuration).toBeLessThan(PROFILE_AVG_GAME_BUDGET_MS);
     });
   });
 

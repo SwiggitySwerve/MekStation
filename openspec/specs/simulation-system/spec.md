@@ -549,6 +549,14 @@ run finishes.
 - **THEN** side A's win rate SHALL exceed side B's win rate by at least 10 percentage points
 - **AND** average turns-to-victory for side A SHALL be lower than the symmetric-skill baseline
 
+#### Scenario: PR smoke keeps pilot-skill batch proof bounded
+
+- **GIVEN** the pilot-skill batch variance test preserves a default 100-run asymmetric batch and 100-run symmetric baseline
+- **WHEN** PR CI executes the perf-sensitive simulation smoke lane
+- **THEN** the run count MAY be lowered by explicit CI configuration
+- **AND** the smoke lane SHALL keep the same seeded asymmetric-vs-symmetric assertions
+- **AND** local/default execution SHALL remain the larger 100-run proof
+
 ### Requirement: Pluggable AI Player
 
 The simulator SHALL accept an injectable AI implementation conforming to the `IAIPlayer` interface, in place of the previously-hardcoded direct `BotPlayer` instantiation. `BotPlayer` SHALL conform to `IAIPlayer` with no runtime behavior change.
@@ -1431,4 +1439,3 @@ The StateCycleDetector SHALL include each unit's `position` field in its snapsho
 **WHEN** the scenario is generated
 **THEN** `scenario.turnLimit` SHALL be 50 (the caller's explicit value)
 **AND** the auto-scaling SHALL only apply when the caller leaves `turnLimit` undefined
-

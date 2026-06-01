@@ -47,7 +47,7 @@ const sharedTestPathIgnorePatterns = [
 ];
 
 const perfSensitiveSimulationTestPattern =
-  'src[/\\\\]simulation[/\\\\]__tests__[/\\\\](integration|swarm-throughput)\\.test\\.ts$';
+  'src[/\\\\]simulation[/\\\\]__tests__[/\\\\](integration|simulation-combat-integration|swarm-pilot-skills-batch|swarm-throughput)\\.test\\.ts$';
 
 const unitTestPathIgnorePatterns = [
   ...sharedTestPathIgnorePatterns,

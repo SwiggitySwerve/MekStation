@@ -160,11 +160,22 @@ jobs:
           node-version: '20'
 
       - name: Run CI-sized perf-sensitive simulation tests
-        run: npx jest --selectProjects unit --ci --runInBand --runTestsByPath src/simulation/__tests__/integration.test.ts src/simulation/__tests__/swarm-throughput.test.ts
+        run: >-
+          npx jest --selectProjects unit --ci --runInBand --runTestsByPath
+          src/simulation/__tests__/integration.test.ts
+          src/simulation/__tests__/simulation-combat-integration.test.ts
+          src/simulation/__tests__/swarm-pilot-skills-batch.test.ts
+          src/simulation/__tests__/swarm-throughput.test.ts
         env:
           SIMULATION_COUNT: '10'
+          SIMULATION_COMBAT_DESTRUCTION_BATCH_COUNT: '25'
+          SIMULATION_COMBAT_FULL_BATCH_COUNT: '10'
+          SIMULATION_COMBAT_PILOT_DEATH_BATCH_COUNT: '10'
+          SIMULATION_COMBAT_PSR_BATCH_COUNT: '8'
+          SIMULATION_PILOT_SKILL_BATCH_COUNT: '20'
+          SIMULATION_PROFILE_AVG_GAME_BUDGET_MS: '3000'
           SIMULATION_PROFILE_GAME_COUNT: '10'
-          SIMULATION_PROFILE_RUNNER_BUDGET_MS: '1500'
+          SIMULATION_PROFILE_RUNNER_BUDGET_MS: '3000'
           SIMULATION_PROFILE_TIME_BUDGET_MS: '30000'
           SWARM_THROUGHPUT_RUN_COUNT: '100'
           SWARM_THROUGHPUT_TIME_BUDGET_MS: '15000'

@@ -96,7 +96,7 @@ describe('Simulation Integration Tests', () => {
       }
     });
 
-    it('should complete within timeout', () => {
+    perfIt('should complete within timeout', () => {
       const totalDuration = batchResults.reduce(
         (sum, r) => sum + r.durationMs,
         0,

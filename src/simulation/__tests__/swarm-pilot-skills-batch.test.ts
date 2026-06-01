@@ -23,6 +23,8 @@
  * reach a destroyed state (they have ~270 total HP). This test uses a test-only
  * turn cap of `BATTLE_TURN_CAP = 100` — production code is unchanged. At ~100ms per
  * game × 200 games (two batches), wall-clock is ≈ 20s, well within the 120s limit.
+ * PR CI can lower the batch count through SIMULATION_PILOT_SKILL_BATCH_COUNT;
+ * the default remains the full 100+100 proof.
  */
 
 import {
@@ -56,6 +58,20 @@ import {
 } from '../runner/SimulationRunnerState';
 import { createMinimalGrid } from '../runner/SimulationRunnerSupport';
 
+function readPositiveIntEnv(name: string, fallback: number): number {
+  const parsed = Number.parseInt(process.env[name] ?? '', 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+const BATCH_COUNT = readPositiveIntEnv(
+  'SIMULATION_PILOT_SKILL_BATCH_COUNT',
+  100,
+);
+const BATTLE_TURN_CAP = readPositiveIntEnv(
+  'SIMULATION_PILOT_SKILL_TURN_CAP',
+  100,
+);
+
 // Use jest.setTimeout to allow 100 × ~250ms without hitting the default 30s timeout.
 jest.setTimeout(120_000);
 
@@ -66,8 +82,6 @@ jest.setTimeout(120_000);
  * the ~270 total HP, guaranteeing near-universal game completion and a clean
  * skill-delta signal. Production MAX_TURNS is not changed.
  */
-const BATTLE_TURN_CAP = 100;
-
 /**
  * Run a single simulation with per-side gunnery values patched onto every unit.
  *
@@ -226,7 +240,6 @@ function runBatchWithSkills(
   };
 }
 
-const BATCH_COUNT = 100;
 const BASE_SEED = 70000; // separate seed space from existing integration tests
 
 // Use LIGHT_SKIRMISH (2v2, mapRadius=5) for faster runs.
@@ -260,7 +273,7 @@ describe('Pilot skill batch variance (Task 1.9)', () => {
    * Player (gunnery 2) must win substantially more often than opponent (gunnery 5)
    * in the asymmetric batch.
    */
-  it('should complete 100 games for each skill configuration', () => {
+  it(`should complete ${BATCH_COUNT} games for each skill configuration`, () => {
     expect(asymmetricResults.results).toHaveLength(BATCH_COUNT);
     expect(symmetricResults.results).toHaveLength(BATCH_COUNT);
   });
