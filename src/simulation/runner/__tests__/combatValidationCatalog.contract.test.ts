@@ -174,18 +174,18 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 109,
+      total: 101,
       byLevel: {
-        'helper-only': 93,
-        unsupported: 16,
+        'helper-only': 91,
+        unsupported: 10,
       },
       bySection: {
         damageAndDeath: 2,
-        featureSupport: 66,
+        featureSupport: 60,
         lifecycleAndPsr: 2,
-        pilotSkills: 13,
+        pilotSkills: 12,
         ruleSupport: 9,
-        validationScope: 17,
+        validationScope: 16,
       },
     });
     expect(unresolvedRefs).toEqual(
@@ -291,6 +291,30 @@ describe('BattleMech combat validation catalog index', () => {
     expect(unresolvedRefs).not.toContain(
       'featureSupport.pilotAbilities.sharpshooter',
     );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.acrobat',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.antagonizer',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.combat-intuition',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.cool-under-fire',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.natural-grace',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.speed-demon',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'pilotSkills.pilotModifierResolvers.target-priority-application',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'validationScope.objectiveRequirements.heat-driven-modifiers',
+    );
     const unsupportedRefs = unresolvedRows
       .filter((row) => row.level === 'unsupported')
       .map((row) => row.ref);
@@ -391,6 +415,10 @@ describe('BattleMech combat validation catalog index', () => {
         'featureSupport.ammunitionCompatibility.non-battlemech-protomech',
         'featureSupport.ammunitionCompatibility.unsupported-aquatic-torpedo-ammo',
         'featureSupport.ammunitionCompatibility.unsupported-artillery-ammo',
+        'featureSupport.pilotAbilities.acrobat',
+        'featureSupport.pilotAbilities.antagonizer',
+        'featureSupport.pilotAbilities.combat-intuition',
+        'featureSupport.pilotAbilities.cool-under-fire',
         'featureSupport.canonicalPilotAbilityScope.aptitude_gunnery',
         'featureSupport.canonicalPilotAbilityScope.aptitude_piloting',
         'featureSupport.canonicalPilotAbilityScope.atow_combat_paralysis',
@@ -403,12 +431,15 @@ describe('BattleMech combat validation catalog index', () => {
         'featureSupport.canonicalPilotAbilityScope.weathered',
         'featureSupport.pilotAbilities.cross-country',
         'featureSupport.pilotAbilities.marksman',
+        'featureSupport.pilotAbilities.natural-grace',
         'featureSupport.pilotAbilities.sharpshooter',
+        'featureSupport.pilotAbilities.speed-demon',
         'featureSupport.mechQuirks.rugged_1',
         'featureSupport.mechQuirks.rugged_2',
         'lifecycleAndPsr.psrTriggers.charge_miss',
         'lifecycleAndPsr.psrTriggers.dfa_miss',
         'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
+        'pilotSkills.pilotModifierResolvers.target-priority-application',
         'pilotSkills.pilotModifierResolvers.anti-mek-actuator-application',
         'pilotSkills.pilotModifierResolvers.vehicle-movement-application',
         'validationScope.objectiveRequirements.campaign-quirk-behavior',
@@ -434,7 +465,7 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.wireIntents.SetReady',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(83);
+    expect(outOfScopeRows).toHaveLength(90);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('actions.physicalActionClassScope.'),
@@ -503,9 +534,15 @@ describe('BattleMech combat validation catalog index', () => {
         ref.startsWith('featureSupport.pilotAbilities.'),
       ),
     ).toEqual([
+      'featureSupport.pilotAbilities.acrobat',
+      'featureSupport.pilotAbilities.antagonizer',
+      'featureSupport.pilotAbilities.combat-intuition',
+      'featureSupport.pilotAbilities.cool-under-fire',
       'featureSupport.pilotAbilities.cross-country',
       'featureSupport.pilotAbilities.marksman',
+      'featureSupport.pilotAbilities.natural-grace',
       'featureSupport.pilotAbilities.sharpshooter',
+      'featureSupport.pilotAbilities.speed-demon',
     ]);
     expect(
       outOfScopeRefs.filter((ref) =>
@@ -522,6 +559,7 @@ describe('BattleMech combat validation catalog index', () => {
     ).toEqual([
       'pilotSkills.pilotModifierResolvers.anti-mek-actuator-application',
       'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
+      'pilotSkills.pilotModifierResolvers.target-priority-application',
       'pilotSkills.pilotModifierResolvers.vehicle-movement-application',
     ]);
     expect(
