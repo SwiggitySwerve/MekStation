@@ -1727,7 +1727,7 @@ describe('runAttackPhase to-hit modifier integration', () => {
       ),
     ).toBe(false);
     expect(SPA_COMBAT_SUPPORT['multi-target']).toMatchObject({
-      level: 'unsupported',
+      level: 'out-of-scope',
     });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
