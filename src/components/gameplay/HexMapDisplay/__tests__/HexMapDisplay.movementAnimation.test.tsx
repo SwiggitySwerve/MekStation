@@ -1296,6 +1296,33 @@ describe('HexMapDisplay tactical visual layers', () => {
       'data-movement-badge-option-heats',
       'walk:0|run:2|jump:1',
     );
+    expect(badge).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(badge).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'movement',
+    );
+    expect(badge).toHaveAttribute('data-tactical-rules-surface', 'movement');
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-source-refs',
+      expect.stringContaining(
+        'movement:megamek:MegaMek movement rules projection:walk/tracked,run/tracked,jump projection: walk via tracked reachable 3 MP terrain +1 elevation delta +1 cost +1 heat +0, run via tracked reachable 3 MP terrain +2 elevation delta +1 cost +1 heat +2, jump reachable 1 MP terrain +0 elevation delta +2 cost +0 heat +1',
+      ),
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-rule-refs',
+      expect.stringContaining(
+        'movement:megamek:MegaMek common/moves/MoveStep.java',
+      ),
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-projection-explanation',
+      expect.stringContaining(
+        'movement options walk via tracked reachable 3 MP terrain +1 elevation delta +1 cost +1 heat +0',
+      ),
+    );
     expect(screen.getByTestId('hex-heat-badge-1-0')).toHaveTextContent('+2H');
     expect(screen.getByTestId('hex-heat-badge-1-0')).toHaveAttribute(
       'data-movement-option-heats',
@@ -2690,6 +2717,32 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
       'data-movement-step-elevation-cost',
       '2',
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'movement',
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
+      'data-movement-step-source-refs',
+      expect.stringContaining(
+        'movement:megamek:MegaMek movement rules projection:walk/tracked projection: walk via tracked reachable 3 MP terrain +1 elevation delta +2 cost +2',
+      ),
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
+      'data-movement-step-rule-refs',
+      expect.stringContaining(
+        'movement:megamek:MegaMek common/moves/MoveStep.java',
+      ),
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
+      'data-movement-step-projection-explanation',
+      expect.stringContaining(
+        'Walk reachable 3 MP; mode tracked; terrain cost +1; elevation delta +2 cost +2',
+      ),
     );
 
     act(() => {
