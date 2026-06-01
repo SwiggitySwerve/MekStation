@@ -2156,7 +2156,7 @@ describe('BattleMech combat catalog validation lane', () => {
 });
 
 describe('BattleMech combat feature-gap tracking', () => {
-  it('classifies every combat-active SPA and quirk as integrated, helper-only, or unsupported', () => {
+  it('classifies every combat-active SPA and quirk as integrated, helper-only, unsupported, or out-of-scope', () => {
     expect(sortedKeys(SPA_COMBAT_SUPPORT)).toEqual(sortedKeys(SPA_CATALOG));
     expect(sortedKeys(QUIRK_COMBAT_SUPPORT)).toEqual(sortedKeys(QUIRK_CATALOG));
 
