@@ -750,8 +750,8 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'cool-under-fire': helperOnly(
     'cool-under-fire',
-    'runHeatPhase and resolveHeatPhase apply getCoolUnderFireHeatReduction as capped generated-heat relief in the HeatDissipated breakdown',
-    'No MegaMek source-backed Cool Under Fire ability id or generated-heat reduction path was found in commit 325b2504; keep this as local helper behavior until an authority is identified',
+    'getCoolUnderFireHeatReduction exposes the local generated-heat helper without being consumed by BattleMech heat resolution',
+    'No MegaMek source-backed Cool Under Fire ability id or generated-heat reduction path was found in commit 325b2504; keep this as local helper behavior outside the source-backed BattleMech heat resolver until an authority is identified',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
   'some-like-it-hot': integrated(
