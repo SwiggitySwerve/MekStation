@@ -960,7 +960,14 @@ export const HexCell = React.memo(function HexCell({
         sourceReferences={tacticalProjectionSourceReferences}
       />
       {hoverMpCost === undefined && (
-        <MovementReachBadge x={x} y={y} hex={hex} movementInfo={movementInfo} />
+        <MovementReachBadge
+          x={x}
+          y={y}
+          hex={hex}
+          movementInfo={movementInfo}
+          projectionExplanation={tacticalProjectionExplanation}
+          sourceReferences={tacticalProjectionSourceReferences}
+        />
       )}
       <MovementBlockedOptionsBadge
         x={x}

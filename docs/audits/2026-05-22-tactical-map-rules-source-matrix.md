@@ -84,6 +84,10 @@ source reference so same-hex walk/run/jump options carry their reachable or
 blocked state, MP cost, terrain and elevation costs, heat, and blocked reason
 directly in `movement:megamek` projection metadata instead of only in visible
 badges/tooltips.
+The `source-movement-reach-badge` slice pins the normal reachable movement
+badge to that same source-backed path, so the standing MP badge now exposes
+`movement:megamek` source refs, MegaMek rule refs, and projection explanation
+metadata before hover path preview replaces it.
 The `source-hover-path-preview-badge` slice keeps the hovered path MP badge on
 that same source-backed path: hovering a reachable destination now preserves
 terrain/elevation cost, heat, `movement:megamek` source refs, and MegaMek rule
