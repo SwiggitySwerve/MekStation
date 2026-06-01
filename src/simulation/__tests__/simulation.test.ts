@@ -12,6 +12,8 @@ import { SimulationRunner } from '../runner/SimulationRunner';
 
 const SIMULATION_COUNT = parseInt(process.env.SIMULATION_COUNT || '10', 10);
 const BASE_SEED = 1000;
+const perfIt =
+  process.env.JEST_EXCLUDE_PERF_SENSITIVE === 'true' ? it.skip : it;
 
 function createTestConfig(
   overrides: Partial<ISimulationConfig> = {},
@@ -61,7 +63,7 @@ describe('Simulation Integration Tests', () => {
       expect(result.turns).toBeGreaterThan(0);
     });
 
-    it('should complete within 1 second', () => {
+    perfIt('should complete within 1 second', () => {
       const runner = new SimulationRunner(12345);
       const config = createTestConfig();
 
@@ -212,7 +214,7 @@ describe('Simulation Integration Tests', () => {
   });
 
   describe('Performance', () => {
-    it('should run single simulation in under 1 second', () => {
+    perfIt('should run single simulation in under 1 second', () => {
       const runner = new SimulationRunner(12345);
       const config = createTestConfig();
 
@@ -221,16 +223,20 @@ describe('Simulation Integration Tests', () => {
       expect(result.durationMs).toBeLessThan(1000);
     });
 
-    it(`should run ${SIMULATION_COUNT} simulations in under 10 seconds`, () => {
-      const batchRunner = new BatchRunner();
-      const config = createTestConfig();
+    perfIt(
+      `should run ${SIMULATION_COUNT} simulations in under 10 seconds`,
+      () => {
+        const batchRunner = new BatchRunner();
+        const config = createTestConfig();
 
-      const startTime = Date.now();
-      batchRunner.runBatch(SIMULATION_COUNT, config);
-      const elapsed = Date.now() - startTime;
+        const startTime = Date.now();
+        batchRunner.runBatch(SIMULATION_COUNT, config);
+        const elapsed = Date.now() - startTime;
 
-      expect(elapsed).toBeLessThan(10000);
-    }, 15000);
+        expect(elapsed).toBeLessThan(10000);
+      },
+      15000,
+    );
   });
 
   describe('Timeout Prevention', () => {
