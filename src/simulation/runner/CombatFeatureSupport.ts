@@ -770,13 +770,11 @@ export const SPA_COMBAT_SUPPORT = {
     'Local Multi-Target behavior is excluded from the official BattleMech validation blocker inventory; source-backed secondary-target penalty reduction remains covered by Multi-Tasker/multi_tasker',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
-  'iron-will': unsupported(
+  'iron-will': outOfScope(
     'iron-will',
-    'No source-backed MegaMek Iron Will id or generic consciousness target-number relief path was identified, and source-backed Iron Man ammo-explosion reduction no longer accepts the local Iron Will alias',
-    [
-      ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
-      ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
-    ],
+    'MekStation local SPA catalog defines Iron Will as a legacy Iron Man-style alias, but the pinned MegaMek pilot option registry identifies source-backed Iron Man instead and no separate Iron Will combat option id',
+    'Local Iron Will behavior is excluded from the official BattleMech validation blocker inventory; source-backed Iron Man remains covered as ammunition-explosion-only support, not generic consciousness relief',
+    MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
   'heavy-lifter': helperOnly(
     'heavy-lifter',
