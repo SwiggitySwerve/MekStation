@@ -346,6 +346,7 @@ function appendDfaMissFallPilotDamage(
     pilotDamage,
     pilotAbilities,
     d6Roller,
+    attacker.pilotToughness,
   );
   const consciousnessPassed =
     totalWounds < PILOT_DEATH_WOUND_THRESHOLD &&
