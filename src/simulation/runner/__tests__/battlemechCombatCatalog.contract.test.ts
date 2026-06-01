@@ -3358,11 +3358,13 @@ describe('BattleMech combat feature-gap tracking', () => {
         PSRTrigger.BuildingCollapse,
         PSRTrigger.RunningDamagedHip,
         PSRTrigger.RunningDamagedGyro,
+        PSRTrigger.MASCFailure,
+        PSRTrigger.SuperchargerFailure,
       ].sort(),
     );
     expect(
       supportIdsByLevel(RUNNER_PSR_TRIGGER_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual([PSRTrigger.MASCFailure, PSRTrigger.SuperchargerFailure].sort());
+    ).toEqual([]);
     expect(
       supportIdsByLevel(RUNNER_PSR_TRIGGER_COMBAT_SUPPORT, 'out-of-scope'),
     ).toEqual([PSRTrigger.ChargeMiss, PSRTrigger.DFAMiss].sort());
