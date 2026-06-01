@@ -7,6 +7,7 @@ import {
   LockState,
   MovementType,
 } from '@/types/gameplay';
+import { clearPendingConversionMovementCost } from '@/utils/gameplay/movement/conversionAccounting';
 
 export function applyPhaseChanged(
   state: IGameState,
@@ -25,11 +26,11 @@ export function applyPhaseChanged(
 
   if (payload.toPhase === GamePhase.Movement) {
     for (const unitId of Object.keys(units)) {
-      units[unitId] = {
+      units[unitId] = clearPendingConversionMovementCost({
         ...units[unitId],
         movementThisTurn: MovementType.Stationary,
         hexesMovedThisTurn: 0,
-      };
+      });
     }
   }
 

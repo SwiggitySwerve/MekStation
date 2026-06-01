@@ -57,13 +57,22 @@ function formatVehicleAltitudeLabel(altitude: number): string {
   return altitude <= 0 ? 'HOV' : `ALT${altitude}`;
 }
 
+function isAltitudeBadgeMotion(
+  motionType: VehicleMotionType | undefined,
+): boolean {
+  return (
+    motionType === VehicleMotionType.VTOL ||
+    motionType === VehicleMotionType.WiGE
+  );
+}
+
 export const VehicleToken = React.memo(function VehicleToken({
   token,
   eventState,
 }: VehicleTokenProps): React.ReactElement {
   const isDestroyed = token.isDestroyed || eventState.destroyed;
   const shouldRenderAltitudeBadge =
-    token.vehicleMotionType === VehicleMotionType.VTOL &&
+    isAltitudeBadgeMotion(token.vehicleMotionType) &&
     token.altitude !== undefined;
 
   let bodyColor =

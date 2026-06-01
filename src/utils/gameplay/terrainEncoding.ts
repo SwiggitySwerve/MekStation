@@ -8,7 +8,8 @@ function hasFeatureMetadata(feature: ITerrainFeature): boolean {
     feature.constructionFactor !== undefined ||
     feature.buildingId !== undefined ||
     feature.isOnFire !== undefined ||
-    feature.isFrozen !== undefined
+    feature.isFrozen !== undefined ||
+    feature.cliffTopExits !== undefined
   );
 }
 

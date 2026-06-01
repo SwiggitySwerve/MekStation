@@ -1,5 +1,8 @@
 import { validateCommittedMovement } from '@/utils/gameplay/movement/commitValidation';
-import { AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON } from '@/utils/gameplay/movement/runtimeCapability';
+import {
+  AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON,
+  AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON,
+} from '@/utils/gameplay/movement/runtimeCapability';
 
 import {
   tacticalMapBattlefieldWreckCommitInput,
@@ -19,6 +22,9 @@ import {
   tacticalMapInfantryMountStateMovementRange,
 } from '../tactical-map.infantry-mount-state-scenario';
 import {
+  tacticalMapLamAirborneAirMekCommitInput,
+  tacticalMapLamAirborneAirMekMovementRange,
+  tacticalMapLamAirborneAirMekMpLegend,
   tacticalMapLamAirborneFighterCommitInput,
   tacticalMapLamAirborneFighterMovementRange,
   tacticalMapLamAirborneFighterMpLegend,
@@ -588,6 +594,45 @@ describe('tactical map movement scenarios', () => {
     );
     expect(fighterResult.mpCost).toBe(fighterProjection.mpCost);
     expect(fighterResult.heatGenerated).toBe(fighterProjection.heatGenerated);
+  });
+
+  it('keeps airborne LAM AirMek ground movement blocked between browser projection and commit validation', () => {
+    const airMekProjection = tacticalMapLamAirborneAirMekMovementRange[0];
+
+    expect(airMekProjection).toMatchObject({
+      hex: { q: 1, r: 0 },
+      reachable: false,
+      mpCost: Infinity,
+      terrainCost: 0,
+      elevationCost: 0,
+      heatGenerated: 0,
+      movementMode: 'wige',
+      movementType: 'walk',
+      blockedReason: AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON,
+      movementInvalidReason: 'InvalidDestination',
+      movementInvalidDetails:
+        AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON,
+    });
+    expect(tacticalMapLamAirborneAirMekMpLegend).toMatchObject({
+      movementMode: 'wige',
+      walkMP: 6,
+      runMP: 9,
+      jumpMP: 2,
+      jumpAvailable: true,
+    });
+
+    const airMekResult = validateCommittedMovement(
+      tacticalMapLamAirborneAirMekCommitInput(),
+    );
+
+    expect(airMekResult.valid).toBe(false);
+    if (airMekResult.valid) {
+      throw new Error('Expected airborne LAM AirMek movement to be blocked');
+    }
+    expect(airMekResult.reason).toBe(airMekProjection.movementInvalidReason);
+    expect(airMekResult.details).toBe(airMekProjection.movementInvalidDetails);
+    expect(airMekResult.mpCost).toBe(airMekProjection.mpCost);
+    expect(airMekResult.heatGenerated).toBe(airMekProjection.heatGenerated);
   });
 
   it('keeps run-selected water fallback committed as walking when running is blocked', () => {

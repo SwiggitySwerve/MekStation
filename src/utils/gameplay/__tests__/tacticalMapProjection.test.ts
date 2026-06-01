@@ -162,7 +162,8 @@ describe('tacticalMapProjection', () => {
         channel: 'movement',
         kind: 'megamek',
         label: 'MegaMek movement rules projection',
-        detail: 'walk projection',
+        detail:
+          'walk projection: walk reachable 2 MP terrain +1 elevation delta +1 cost +1',
         ruleReferences: MOVEMENT_RULE_REFERENCES,
       },
       {
@@ -176,7 +177,7 @@ describe('tacticalMapProjection', () => {
     expect(
       formatTacticalProjectionSourceReferences(projection.sourceReferences),
     ).toBe(
-      'terrain-elevation:mekstation:Rendered map terrain/elevation grid:rough level 1 elevation 2|movement:megamek:MegaMek movement rules projection:walk projection|combat:megamek:MegaMek combat target projection:target short 1 hexes LOS clear',
+      'terrain-elevation:mekstation:Rendered map terrain/elevation grid:rough level 1 elevation 2|movement:megamek:MegaMek movement rules projection:walk projection: walk reachable 2 MP terrain +1 elevation delta +1 cost +1|combat:megamek:MegaMek combat target projection:target short 1 hexes LOS clear',
     );
     expect(
       formatTacticalProjectionRuleReferences(projection.sourceReferences),
@@ -406,6 +407,20 @@ describe('tacticalMapProjection', () => {
     );
     expect(projection.explanation).toContain(
       'blocked Jump elevation rise of 4 exceeds jump MP 3; TerrainBlocked',
+    );
+    expect(projection.sourceReferences).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          channel: 'movement',
+          detail:
+            'walk/tracked,run/tracked,jump projection: walk via tracked reachable 3 MP heat +0, run via tracked reachable 3 MP heat +2, jump blocked 4 MP heat +1: Jump elevation rise of 4 exceeds jump MP 3',
+        }),
+      ]),
+    );
+    expect(
+      formatTacticalProjectionSourceReferences(projection.sourceReferences),
+    ).toContain(
+      'movement:megamek:MegaMek movement rules projection:walk/tracked,run/tracked,jump projection: walk via tracked reachable 3 MP heat +0, run via tracked reachable 3 MP heat +2, jump blocked 4 MP heat +1: Jump elevation rise of 4 exceeds jump MP 3',
     );
   });
 

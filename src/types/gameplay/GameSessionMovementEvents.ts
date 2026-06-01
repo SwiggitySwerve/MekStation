@@ -70,6 +70,14 @@ export interface IMovementDeclaredPayload {
    * GO_PRONE posture transition from hull-down to prone.
    */
   readonly goProneAttempt?: boolean;
+  /** Represented MegaMek CONVERT_MODE step count consumed before path steps. */
+  readonly conversionStepCount?: number;
+  /** Represented MP spent by CONVERT_MODE steps before path steps. */
+  readonly conversionMpCost?: number;
+  /** Represented VTOL/WiGE UP/DOWN altitude-control steps before path steps. */
+  readonly altitudeControlStepCount?: number;
+  /** MP spent by represented VTOL/WiGE altitude-control steps before path steps. */
+  readonly altitudeControlMpCost?: number;
   /**
    * Per `enrich-movement-declared-with-chain-and-displacement` (movement-system
    * delta — Movement Decomposition Fields): total hex transitions in the
@@ -220,6 +228,25 @@ export interface IHullDownStep {
   readonly mpCost: number;
 }
 
+export interface IConvertModeStep {
+  readonly kind: 'convertMode';
+  readonly index: number;
+  readonly at: IHexCoordinate;
+  readonly mpCost: number;
+  readonly stepNumber: number;
+  readonly stepCount: number;
+}
+
+export interface IAltitudeControlStep {
+  readonly kind: 'altitudeControl';
+  readonly index: number;
+  readonly at: IHexCoordinate;
+  readonly mpCost: number;
+  readonly direction: 'up' | 'down';
+  readonly stepNumber: number;
+  readonly stepCount: number;
+}
+
 export interface IChargeDeclaredStep {
   readonly kind: 'chargeDeclared';
   readonly index: number;
@@ -256,6 +283,8 @@ export type IMovementStep =
   | IStandUpStep
   | IGoProneStep
   | IHullDownStep
+  | IConvertModeStep
+  | IAltitudeControlStep
   | IChargeDeclaredStep
   | IDfaDeclaredStep
   | IShakeOffSwarmStep;
@@ -277,6 +306,8 @@ export interface IRuntimeMovementStateChangedPayload {
   readonly unitId: string;
   readonly source:
     | 'conversion_action'
+    | 'altitude_control_action'
+    | 'automatic_wige_landing'
     | 'infantry_mount_action'
     | 'scenario_setup'
     | 'rules_correction';
@@ -286,6 +317,26 @@ export interface IRuntimeMovementStateChangedPayload {
   /** Represented MP cost of the conversion action before later movement steps. */
   readonly conversionMpCost?: number;
   readonly unitHeight?: number | null;
+  /** Runtime VTOL/WiGE vehicle altitude changed through altitude controls. */
+  readonly vehicleAltitude?: number;
+  /** Runtime ProtoMek Glider altitude changed through WiGE-style altitude controls. */
+  readonly protoAltitude?: number;
+  /** Runtime LAM AirMek WiGE elevation changed through altitude controls. */
+  readonly lamAirMekAltitude?: number;
+  /** Represented MegaMek UP/DOWN step count for altitude-control audit/replay metadata. */
+  readonly altitudeControlStepCount?: number;
+  /** Represented MP cost of the altitude-control action before later movement steps. */
+  readonly altitudeControlMpCost?: number;
+  /** True when a LAM AirMek descent to ground level needs a landing control roll. */
+  readonly lamAirMekLandingControlRequired?: boolean;
+  /** Source-backed reason label for the represented AirMek landing control result. */
+  readonly lamAirMekLandingControlReason?: string;
+  /** Net landing control roll modifier represented from damaged legs/actuators. */
+  readonly lamAirMekLandingControlModifier?: number;
+  /** Human-readable modifier breakdown for AirMek landing control explanation. */
+  readonly lamAirMekLandingControlModifierDetails?: readonly string[];
+  /** Elevation/altitude height used for failed AirMek landing fall damage. */
+  readonly lamAirMekLandingControlFallHeight?: number;
   readonly infantryMounted?: boolean | null;
   readonly infantryMountHeight?: number | null;
 }

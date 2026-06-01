@@ -8,7 +8,10 @@ import {
   formatTacticalProjectionSourceReferences,
 } from '@/utils/gameplay/tacticalMapProjection';
 
-import { formatElevationLabel } from './HexCell.labels';
+import {
+  formatElevationLabel,
+  formatMovementModeLabel,
+} from './HexCell.labels';
 import { formatMovementPathSummaryLabel } from './HexMapDisplay.tooltipFormatters';
 
 function movementSourceAttributes(
@@ -64,11 +67,30 @@ export function MovementCostContextRows({
   const pathStepCount = movementInfo.path
     ? Math.max(0, movementInfo.path.length - 1)
     : undefined;
+  const hasConversionContext =
+    movementInfo.conversionStepCount !== undefined ||
+    movementInfo.conversionMpCost !== undefined;
+  const hasAltitudeControlContext =
+    movementInfo.altitudeControlStepCount !== undefined ||
+    movementInfo.altitudeControlMpCost !== undefined;
+  const hasAutomaticLandingContext =
+    movementInfo.automaticLandingRequired === true;
+  const conversionStepCount = movementInfo.conversionStepCount ?? 0;
+  const conversionStepLabel =
+    conversionStepCount === 1 ? '1 step' : `${conversionStepCount} steps`;
+  const altitudeControlStepCount = movementInfo.altitudeControlStepCount ?? 0;
+  const altitudeControlStepLabel =
+    altitudeControlStepCount === 1
+      ? '1 step'
+      : `${altitudeControlStepCount} steps`;
 
   if (
     movementInfo.terrainCost === undefined &&
     movementInfo.elevationDelta === undefined &&
     movementInfo.heatGenerated === undefined &&
+    !hasConversionContext &&
+    !hasAltitudeControlContext &&
+    !hasAutomaticLandingContext &&
     !pathSummaryLabel
   ) {
     return null;
@@ -108,6 +130,55 @@ export function MovementCostContextRows({
           {...sourceAttributes}
         >
           Heat: +{movementInfo.heatGenerated}
+        </div>
+      )}
+      {hasConversionContext && (
+        <div
+          data-testid={`${testIdPrefix}-conversion`}
+          data-movement-context-kind="conversion"
+          data-movement-conversion-step-count={conversionStepCount}
+          data-movement-conversion-mp-cost={movementInfo.conversionMpCost ?? 0}
+          {...sourceAttributes}
+        >
+          Conversion: {conversionStepLabel},{' '}
+          {movementInfo.conversionMpCost ?? 0} MP
+        </div>
+      )}
+      {hasAltitudeControlContext && (
+        <div
+          data-testid={`${testIdPrefix}-altitude-control`}
+          data-movement-context-kind="altitude-control"
+          data-movement-altitude-control-step-count={altitudeControlStepCount}
+          data-movement-altitude-control-mp-cost={
+            movementInfo.altitudeControlMpCost ?? 0
+          }
+          {...sourceAttributes}
+        >
+          Altitude control: {altitudeControlStepLabel},{' '}
+          {movementInfo.altitudeControlMpCost ?? 0} MP
+        </div>
+      )}
+      {hasAutomaticLandingContext && (
+        <div
+          data-testid={`${testIdPrefix}-automatic-landing`}
+          data-movement-context-kind="automatic-landing"
+          data-movement-automatic-landing-mode={
+            movementInfo.automaticLandingMode
+          }
+          data-movement-automatic-landing-distance={
+            movementInfo.automaticLandingDistance
+          }
+          data-movement-automatic-landing-minimum-distance={
+            movementInfo.automaticLandingMinimumDistance
+          }
+          data-movement-automatic-landing-reason={
+            movementInfo.automaticLandingReason
+          }
+          {...sourceAttributes}
+        >
+          Automatic {formatMovementModeLabel(movementInfo.automaticLandingMode)}{' '}
+          landing: {movementInfo.automaticLandingDistance ?? 0}/
+          {movementInfo.automaticLandingMinimumDistance ?? 0} hexes
         </div>
       )}
       {pathSummaryLabel && (

@@ -98,6 +98,23 @@ export function runtimeConversionCommandMetadata(
   };
 }
 
+export function runtimeLamAirMekAutomaticLandingPatch(
+  ctx: ITacticalCommandContext,
+  conversionMode: MovementConversionMode,
+): { readonly lamAirMekAltitude: number } | Record<string, never> {
+  const profile = ctx.movementCapability?.unitHeightProfile;
+  if (profile?.kind !== 'lam') return {};
+  const currentMode = normalizedCommandConversionMode(
+    ctx.activeUnitConversionMode,
+    profile,
+  );
+  const targetMode = normalizedCommandConversionMode(conversionMode, profile);
+  const altitude = normalizeNonNegativeInteger(ctx.activeUnitLamAirMekAltitude);
+  return currentMode === 'airmek' && targetMode === 'mek' && altitude > 0
+    ? { lamAirMekAltitude: 0 }
+    : {};
+}
+
 export function normalizedCommandConversionMode(
   value: MovementConversionMode | number | undefined,
   profile: MovementUnitHeightProfile | undefined,
@@ -131,6 +148,12 @@ export function normalizedCommandConversionMode(
     default:
       return undefined;
   }
+}
+
+function normalizeNonNegativeInteger(value: number | undefined): number {
+  return value === undefined || !Number.isFinite(value)
+    ? 0
+    : Math.max(0, Math.floor(value));
 }
 
 function lamConversionUnavailableReason(
@@ -197,9 +220,19 @@ function conversionStepCountFor(
     return 0;
   }
   return profile.kind === 'lam' &&
-    isDirectStandardLamMekFighterConversion(currentMode, targetMode)
+    requiresTwoLamConversionSteps(currentMode, targetMode)
     ? 2
     : 1;
+}
+
+function requiresTwoLamConversionSteps(
+  currentMode: string | undefined,
+  targetMode: string | undefined,
+): boolean {
+  return (
+    isDirectStandardLamMekFighterConversion(currentMode, targetMode) ||
+    (currentMode === 'airmek' && targetMode === 'mek')
+  );
 }
 
 function quadVeeConversionCost(

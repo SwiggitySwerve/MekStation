@@ -7,6 +7,8 @@ import type {
   MovementUnitHeightProfile,
 } from '@/types/gameplay';
 
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import { isGyroDestroyedForType } from '@/utils/gameplay/gyroRules';
 
 function normalizedHeight(value: number | undefined): number | undefined {
@@ -72,13 +74,136 @@ function quadVeeVehicleMovementMode(
   return capability.movementMode === 'wheeled' ? 'wheeled' : 'tracked';
 }
 
-function isAirborneLamFighter(unit: IUnitGameState): boolean {
+function isAirborneAeroState(unit: IUnitGameState): boolean {
   if (unit.combatState?.kind !== 'aero') return false;
   return (
     unit.combatState.state.altitude > 0 ||
     unit.combatState.state.airborneState === 'airborne' ||
     unit.combatState.state.airborneState === 'taking-off'
   );
+}
+
+function isAltitudeTrackedAirborneState(unit: IUnitGameState): boolean {
+  switch (unit.combatState?.kind) {
+    case 'vehicle':
+    case 'proto':
+      return (unit.combatState.state.altitude ?? 0) > 0;
+    case 'aero':
+      return isAirborneAeroState(unit);
+    default:
+      return false;
+  }
+}
+
+export interface IRuntimeMovementAltitudeControlContext {
+  readonly altitudeControlRequired: true;
+  readonly altitudeControlMode: 'vtol' | 'wige';
+  readonly altitudeControlAltitude: number;
+  readonly blockedReason: string;
+}
+
+function altitudePositiveVehicleMotionControlMode(
+  unit: IUnitGameState,
+): 'vtol' | 'wige' | undefined {
+  if (unit.combatState?.kind !== 'vehicle') return undefined;
+  if ((unit.combatState.state.altitude ?? 0) <= 0) return undefined;
+  switch (unit.combatState.state.motionType) {
+    case GroundMotionType.VTOL:
+      return 'vtol';
+    case GroundMotionType.WIGE:
+      return 'wige';
+    default:
+      return undefined;
+  }
+}
+
+function altitudePositiveProtoControlMode(
+  unit: IUnitGameState,
+): 'wige' | undefined {
+  if (unit.combatState?.kind !== 'proto') return undefined;
+  if (unit.combatState.state.chassisType !== ProtoChassis.GLIDER) {
+    return undefined;
+  }
+  return (unit.combatState.state.altitude ?? 0) > 0 ? 'wige' : undefined;
+}
+
+function normalizedLamAirMekAltitude(unit: IUnitGameState): number {
+  const altitude = unit.lamAirMekAltitude;
+  return altitude === undefined || !Number.isFinite(altitude)
+    ? 0
+    : Math.max(0, Math.floor(altitude));
+}
+
+function isLamAirMekAltitudeState(unit: IUnitGameState): boolean {
+  return (
+    unit.conversionMode === 1 ||
+    unit.conversionMode === 'airmek' ||
+    unit.conversionMode === 'airmech'
+  );
+}
+
+function altitudeControlBlockedReason(mode: 'vtol' | 'wige'): string {
+  return mode === 'vtol'
+    ? AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON
+    : AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON;
+}
+
+export function runtimeMovementAltitudeControlContext(
+  unit: IUnitGameState,
+): IRuntimeMovementAltitudeControlContext | undefined {
+  const vehicleState =
+    unit.combatState?.kind === 'vehicle' ? unit.combatState.state : undefined;
+  const vehicleMode = altitudePositiveVehicleMotionControlMode(unit);
+  if (vehicleState && vehicleMode) {
+    return {
+      altitudeControlRequired: true,
+      altitudeControlMode: vehicleMode,
+      altitudeControlAltitude: vehicleState.altitude ?? 0,
+      blockedReason: altitudeControlBlockedReason(vehicleMode),
+    };
+  }
+
+  const protoState =
+    unit.combatState?.kind === 'proto' ? unit.combatState.state : undefined;
+  const protoMode = altitudePositiveProtoControlMode(unit);
+  if (protoState && protoMode) {
+    return {
+      altitudeControlRequired: true,
+      altitudeControlMode: protoMode,
+      altitudeControlAltitude: protoState.altitude ?? 0,
+      blockedReason: altitudeControlBlockedReason(protoMode),
+    };
+  }
+
+  const lamAirMekAltitude = normalizedLamAirMekAltitude(unit);
+  if (lamAirMekAltitude <= 0 || !isLamAirMekAltitudeState(unit)) {
+    return undefined;
+  }
+  return {
+    altitudeControlRequired: true,
+    altitudeControlMode: 'wige',
+    altitudeControlAltitude: lamAirMekAltitude,
+    blockedReason: AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON,
+  };
+}
+
+function airborneVtolOrWigeGroundMovementBlockedReason(
+  movementMode: MovementTravelMode,
+  unit: IUnitGameState,
+): string | undefined {
+  if (!isAltitudeTrackedAirborneState(unit)) return undefined;
+  const altitudeContext = runtimeMovementAltitudeControlContext(unit);
+  if (movementMode === 'vtol') {
+    return AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON;
+  }
+  if (altitudeContext?.altitudeControlMode === 'wige') {
+    return movementMode === 'wige' ? undefined : altitudeContext.blockedReason;
+  }
+  if (altitudeContext) return altitudeContext.blockedReason;
+  if (movementMode === 'wige') {
+    return AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON;
+  }
+  return undefined;
 }
 
 function isLamFighterMode(
@@ -91,8 +216,27 @@ function isLamFighterMode(
   );
 }
 
+function isLamAirMekMode(
+  unit: IUnitGameState,
+  profile: MovementUnitHeightProfile,
+): boolean {
+  return (
+    profile.kind === 'lam' &&
+    normalizedConversionMode(unit.conversionMode, profile) === 'airmek'
+  );
+}
+
 export const AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON =
   'Airborne LAM Fighter movement uses aerospace flight rules and is not available in the ground movement projection';
+
+export const AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON =
+  'Airborne LAM AirMek movement uses airborne WiGE rules and is not available in the ground movement projection';
+
+export const AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON =
+  'Airborne VTOL movement uses altitude controls and is not available in the ground movement projection';
+
+export const AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON =
+  'Airborne WiGE movement uses altitude controls and is not available in the ground movement projection';
 
 export const DESTROYED_GYRO_NON_TRACKED_MOVEMENT_BLOCKED_REASON =
   'Destroyed gyro only permits tracked or wheeled movement';
@@ -108,13 +252,23 @@ export function runtimeMovementProjectionBlockedReason(
   ruleOptions: IRuntimeMovementRuleOptions = {},
 ): string | undefined {
   const profile = capability.unitHeightProfile;
-  if (
-    profile &&
-    isLamFighterMode(unit, profile) &&
-    isAirborneLamFighter(unit)
-  ) {
+  if (profile && isLamFighterMode(unit, profile) && isAirborneAeroState(unit)) {
     return AIRBORNE_LAM_FIGHTER_GROUND_MOVEMENT_BLOCKED_REASON;
   }
+  if (profile && isLamAirMekMode(unit, profile) && isAirborneAeroState(unit)) {
+    return AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON;
+  }
+  if (
+    profile &&
+    isLamAirMekMode(unit, profile) &&
+    normalizedLamAirMekAltitude(unit) > 0 &&
+    movementMode !== 'wige'
+  ) {
+    return AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON;
+  }
+  const airborneVtolOrWigeReason =
+    airborneVtolOrWigeGroundMovementBlockedReason(movementMode, unit);
+  if (airborneVtolOrWigeReason) return airborneVtolOrWigeReason;
   if (
     !unit.prone &&
     unit.componentDamage &&
@@ -141,7 +295,7 @@ function conversionModeMovementMode(
   if (
     profile.kind === 'lam' &&
     mode === 'fighter' &&
-    !isAirborneLamFighter(unit)
+    !isAirborneAeroState(unit)
   ) {
     return 'wheeled';
   }
@@ -169,7 +323,7 @@ function conversionModeMovementPoints(
   }
 
   if (mode === 'fighter') {
-    if (isAirborneLamFighter(unit)) {
+    if (isAirborneAeroState(unit)) {
       return { walkMP: thrust, runMP: Math.ceil(thrust * 1.5) };
     }
     const walkMP = Math.floor(thrust / 2);

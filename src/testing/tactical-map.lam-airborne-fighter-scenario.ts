@@ -74,6 +74,26 @@ const tacticalMapLamAirborneFighterUnit: IUnitGameState = {
   },
 };
 
+const tacticalMapLamAirborneAirMekUnit: IUnitGameState = {
+  ...tacticalMapLamAirborneFighterUnit,
+  conversionMode: 'airmek',
+  combatState: {
+    kind: 'aero',
+    state: createAerospaceCombatState({
+      maxSI: 3,
+      armorByArc: { nose: 1, leftWing: 1, rightWing: 1, aft: 1 },
+      heatSinks: 10,
+      fuelPoints: 20,
+      safeThrust: 2,
+      maxThrust: 3,
+      altitude: 1,
+      currentVelocity: 2,
+      nextVelocity: 2,
+      airborneState: 'airborne',
+    }),
+  },
+};
+
 function tacticalMapLamAirborneFighterGrid(): IHexGrid {
   const grid = createHexGrid({ radius: 3 });
   const hexes = new Map(grid.hexes);
@@ -106,12 +126,32 @@ const tacticalMapLamAirborneFighterResolvedCapability =
     tacticalMapLamAirborneFighterUnit,
     tacticalMapLamAirborneFighterCapability,
   ) ?? tacticalMapLamAirborneFighterCapability;
+const tacticalMapLamAirborneAirMekResolvedCapability =
+  resolveRuntimeMovementCapability(
+    tacticalMapLamAirborneAirMekUnit,
+    tacticalMapLamAirborneFighterCapability,
+  ) ?? tacticalMapLamAirborneFighterCapability;
 
 export const tacticalMapLamAirborneFighterTokens: readonly IUnitToken[] = [
   {
     unitId: 'attacker',
     name: 'LAM Airborne Fighter Mode',
     designation: 'LAF',
+    position: tacticalMapLamConversionSelectedHex,
+    facing: Facing.Northeast,
+    side: GameSide.Player,
+    isDestroyed: false,
+    isSelected: true,
+    isValidTarget: false,
+    unitType: TokenUnitType.Mech,
+  },
+];
+
+export const tacticalMapLamAirborneAirMekTokens: readonly IUnitToken[] = [
+  {
+    unitId: 'attacker',
+    name: 'LAM Airborne AirMek Mode',
+    designation: 'LAA',
     position: tacticalMapLamConversionSelectedHex,
     facing: Facing.Northeast,
     side: GameSide.Player,
@@ -135,6 +175,19 @@ export const tacticalMapLamAirborneFighterMovementRange: readonly IMovementRange
     ),
   ];
 
+export const tacticalMapLamAirborneAirMekMovementRange: readonly IMovementRangeHex[] =
+  [
+    requireSingleMovementProjection(
+      deriveMovementRangeHexForDestination(
+        tacticalMapLamAirborneAirMekUnit,
+        MovementType.Walk,
+        tacticalMapLamAirborneFighterGrid(),
+        tacticalMapLamAirborneFighterCapability,
+        tacticalMapLamAirborneFighterDestination,
+      ),
+    ),
+  ];
+
 export const tacticalMapLamAirborneFighterMpLegend: MapMovementPointLegendState =
   {
     active: 'walk',
@@ -145,10 +198,35 @@ export const tacticalMapLamAirborneFighterMpLegend: MapMovementPointLegendState 
     jumpAvailable: tacticalMapLamAirborneFighterResolvedCapability.jumpMP > 0,
   };
 
+export const tacticalMapLamAirborneAirMekMpLegend: MapMovementPointLegendState =
+  {
+    active: 'walk',
+    movementMode: tacticalMapLamAirborneAirMekResolvedCapability.movementMode,
+    walkMP: tacticalMapLamAirborneAirMekResolvedCapability.walkMP,
+    runMP: tacticalMapLamAirborneAirMekResolvedCapability.runMP,
+    jumpMP: tacticalMapLamAirborneAirMekResolvedCapability.jumpMP,
+    jumpAvailable: tacticalMapLamAirborneAirMekResolvedCapability.jumpMP > 0,
+  };
+
 export function tacticalMapLamAirborneFighterCommitInput(): ICommittedMovementValidationInput {
   return {
     grid: tacticalMapLamAirborneFighterGrid(),
     unit: tacticalMapLamAirborneFighterUnit,
+    to: tacticalMapLamAirborneFighterDestination,
+    facing: Facing.Northeast,
+    movementType: MovementType.Walk,
+    capability: tacticalMapLamAirborneFighterCapability,
+    path: [
+      tacticalMapLamConversionSelectedHex,
+      tacticalMapLamAirborneFighterDestination,
+    ],
+  };
+}
+
+export function tacticalMapLamAirborneAirMekCommitInput(): ICommittedMovementValidationInput {
+  return {
+    grid: tacticalMapLamAirborneFighterGrid(),
+    unit: tacticalMapLamAirborneAirMekUnit,
     to: tacticalMapLamAirborneFighterDestination,
     facing: Facing.Northeast,
     movementType: MovementType.Walk,

@@ -57,7 +57,7 @@ export interface IPSRBatchResult {
 
 /**
  * Per `structure-psr-reason-as-discriminated-code` (PR E): the four
- * coarse buckets that partition the 27-code `PSRTrigger` taxonomy.
+ * coarse buckets that partition the `PSRTrigger` taxonomy.
  * Consumers (the readable formatter, metrics aggregators) bucket PSRs
  * by category instead of enumerating all 27 codes.
  *
@@ -104,6 +104,7 @@ export function getPSRReasonCategory(code: PSRTrigger): PSRReasonCategory {
     case PSRTrigger.EnteringWater:
     case PSRTrigger.ExitingWater:
     case PSRTrigger.Skidding:
+    case PSRTrigger.AirMekLanding:
     case PSRTrigger.RunningDamagedHip:
     case PSRTrigger.RunningDamagedGyro:
     case PSRTrigger.BuildingCollapse:
