@@ -189,6 +189,7 @@ describe('id canonicalization helpers', () => {
         'terrain-master-forest-ranger',
         'terrain-master-frogman',
         'terrain-master-mountaineer',
+        'terrain-master-nightwalker',
         'terrain-master-swamp-beast',
         'weapon_specialist',
       ]),
@@ -198,6 +199,7 @@ describe('id canonicalization helpers', () => {
       'tm_forest_ranger',
       'tm_frogman',
       'tm_mountaineer',
+      'tm_nightwalker',
       'tm_swamp_beast',
       'weapon_specialist',
     ]);
