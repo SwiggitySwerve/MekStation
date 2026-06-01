@@ -18,6 +18,7 @@ export interface IEnvironmentalConditions {
   readonly light: LightCondition;
   readonly precipitation: PrecipitationCondition;
   readonly fog: FogCondition;
+  readonly blowingSand: boolean;
   readonly wind: WindCondition;
   readonly gravity: number;
   readonly atmosphere: AtmosphereCondition;
