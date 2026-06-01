@@ -658,7 +658,7 @@ describe('runMovementPhase movement validation parity', () => {
     expect(
       RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.MASCFailure],
     ).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('movementEnhancementPsr'),
     });
   });
