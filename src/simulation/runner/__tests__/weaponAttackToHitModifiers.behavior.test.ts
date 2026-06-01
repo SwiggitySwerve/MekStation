@@ -1225,6 +1225,7 @@ describe('runAttackPhase to-hit modifier integration', () => {
       light: 'night',
       precipitation: 'heavy_rain',
       fog: 'heavy_fog',
+      blowingSand: true,
       wind: 'strong',
     });
     const laserEvents = runModifierScenario({ environmentalConditions });
@@ -1236,7 +1237,7 @@ describe('runAttackPhase to-hit modifier integration', () => {
     const laserPayload = attackDeclaredPayload(laserEvents);
     const missilePayload = attackDeclaredPayload(missileEvents);
 
-    expect(laserPayload.toHitNumber).toBe(10);
+    expect(laserPayload.toHitNumber).toBe(11);
     expectModifier(laserPayload, {
       name: 'Light Conditions',
       value: 2,
@@ -1252,6 +1253,11 @@ describe('runAttackPhase to-hit modifier integration', () => {
       value: 2,
       source: 'environmental',
     });
+    expectModifier(laserPayload, {
+      name: 'Blowing Sand',
+      value: 1,
+      source: 'environmental',
+    });
     expect(
       laserPayload.modifiers.some((modifier) =>
         modifier.name.startsWith('Wind'),
@@ -1265,6 +1271,11 @@ describe('runAttackPhase to-hit modifier integration', () => {
       source: 'environmental',
     });
     expect(
+      missilePayload.modifiers.some(
+        (modifier) => modifier.name === 'Blowing Sand',
+      ),
+    ).toBe(false);
+    expect(
       RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['environmental-conditions'],
     ).toMatchObject({ level: 'integrated' });
     expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.fog).toMatchObject({
@@ -1274,6 +1285,9 @@ describe('runAttackPhase to-hit modifier integration', () => {
       level: 'integrated',
     });
     expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.wind).toMatchObject({
+      level: 'integrated',
+    });
+    expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.dust).toMatchObject({
       level: 'integrated',
     });
   });
