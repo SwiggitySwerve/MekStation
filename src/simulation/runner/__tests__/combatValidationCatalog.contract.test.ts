@@ -174,14 +174,14 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 98,
+      total: 97,
       byLevel: {
         'helper-only': 89,
-        unsupported: 9,
+        unsupported: 8,
       },
       bySection: {
         damageAndDeath: 2,
-        featureSupport: 59,
+        featureSupport: 58,
         pilotSkills: 12,
         ruleSupport: 9,
         validationScope: 16,
@@ -361,7 +361,7 @@ describe('BattleMech combat validation catalog index', () => {
     expect(unresolvedRefs).not.toContain(
       'pilotSkills.pilotModifierResolvers.multi-target-penalty-application',
     );
-    expect(unresolvedRefs).toContain(
+    expect(unresolvedRefs).not.toContain(
       'featureSupport.pilotAbilities.multi-target',
     );
     expect(unsupportedRefs).not.toContain(
@@ -428,6 +428,7 @@ describe('BattleMech combat validation catalog index', () => {
         'featureSupport.pilotAbilities.combat-intuition',
         'featureSupport.pilotAbilities.cool-under-fire',
         'featureSupport.pilotAbilities.evasive',
+        'featureSupport.pilotAbilities.multi-target',
         'featureSupport.canonicalPilotAbilityScope.aptitude_gunnery',
         'featureSupport.canonicalPilotAbilityScope.aptitude_piloting',
         'featureSupport.canonicalPilotAbilityScope.atow_combat_paralysis',
@@ -474,7 +475,7 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.wireIntents.SetReady',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(91);
+    expect(outOfScopeRows).toHaveLength(92);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('actions.physicalActionClassScope.'),
@@ -550,6 +551,7 @@ describe('BattleMech combat validation catalog index', () => {
       'featureSupport.pilotAbilities.cross-country',
       'featureSupport.pilotAbilities.evasive',
       'featureSupport.pilotAbilities.marksman',
+      'featureSupport.pilotAbilities.multi-target',
       'featureSupport.pilotAbilities.natural-grace',
       'featureSupport.pilotAbilities.sharpshooter',
       'featureSupport.pilotAbilities.speed-demon',
