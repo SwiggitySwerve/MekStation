@@ -448,17 +448,18 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['heat-driven-modifiers'],
     ).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('Some Like It Hot'),
-      gap: expect.stringContaining('Cool Under Fire'),
     });
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['heat-driven-modifiers'].gap,
+    ).toBeUndefined();
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['heat-driven-modifiers']
         .supportMapRefs,
     ).toEqual([
       'featureSupport.pilotAbilities.hot-dog',
       'featureSupport.pilotAbilities.some-like-it-hot',
-      'featureSupport.pilotAbilities.cool-under-fire',
       'featureSupport.mechQuirks.improved_cooling',
       'featureSupport.mechQuirks.poor_cooling',
       'featureSupport.mechQuirks.no_cooling',
@@ -880,7 +881,7 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     ).toBe('integrated');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['heat-driven-modifiers'].level,
-    ).toBe('helper-only');
+    ).toBe('integrated');
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-enhancements'].level,
     ).toBe('helper-only');
