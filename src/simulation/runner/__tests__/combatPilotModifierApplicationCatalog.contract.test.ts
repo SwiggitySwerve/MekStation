@@ -239,8 +239,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       evidence: expect.stringContaining('stand-up PSR'),
     });
     expect(QUIRK_COMBAT_SUPPORT.low_arms).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('does not expose a combat resolver'),
+      level: 'out-of-scope',
+      gap: expect.stringContaining('registry-only out-of-scope audit evidence'),
     });
     expect(QUIRK_COMBAT_SUPPORT.rugged_1).toMatchObject({
       level: 'out-of-scope',
@@ -293,7 +293,6 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       [
         'initiative-command-console-hydration',
         'initiative-hq-equipment-hydration',
-        'low-arms-application',
         'movement-application',
       ].sort(),
     );
@@ -313,6 +312,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual([
       'anti-mek-actuator-application',
       'campaign-maintenance-application',
+      'low-arms-application',
       'target-priority-application',
       'vehicle-movement-application',
     ]);
