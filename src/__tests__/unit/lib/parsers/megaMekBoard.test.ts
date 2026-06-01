@@ -103,6 +103,20 @@ end`;
       const result = parseMegaMekBoard(content);
       expect(result.hexes[0].coordinate).toEqual({ q: 103, r: 68 });
     });
+
+    it('should disambiguate large-board labels with MegaMek row order', () => {
+      const priorHexes = Array.from({ length: 100 }, (_, index) => {
+        const col = index + 1;
+        const label = `${col < 10 ? `0${col}` : col}01`;
+        return `hex ${label} 0 "" ""`;
+      });
+      const content = `size 170 120
+${priorHexes.join('\n')}
+hex 10101 0 "" ""
+end`;
+      const result = parseMegaMekBoard(content);
+      expect(result.hexes[100].coordinate).toEqual({ q: 100, r: -50 });
+    });
   });
 
   describe('single terrain features', () => {

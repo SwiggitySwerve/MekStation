@@ -112,8 +112,27 @@ decisions are made, not because CI is stale.
   2-level drop. Large-board MegaMek labels such as `10412`, `10016`, and
   `104120` are covered by `import-large-megamek-board-coordinates`, including
   dimension-disambiguated column/row parsing and large-coordinate cliff import
-  coverage. Full elevated AirMek/WiGE pathing and broader takeoff/hover
-  sequencing remain follow-up work.
+  coverage. The optional `audit-megamek-board-import-corpus` verifier now
+  source-checks the parser against a local MegaMek board corpus; the first
+  recorded run parsed 2,386 boards, 3,638,056 hex rows, 382,251
+  large-coordinate rows, and 5,253 `cliff_top` rows with 0 failures after
+  disambiguating labels by MegaMek row order. The
+  `surface-cliff-exits-map-context` slice now carries represented cliff exit
+  directions into rendered hex metadata, terrain labels, projection source
+  detail, and hover terrain context. The
+  `surface-movement-option-source-details` slice now expands movement source
+  references so same-hex walk/run/jump options carry their reachable/blocked
+  state, MP cost, terrain/elevation cost, heat, and blocked reason in the
+  shared projection metadata itself. The `source-movement-reach-badge` slice
+  now pins the normal reachable movement badge to the shared movement
+  projection source references, rule references, and explanation detail. The
+  `source-movement-step-cost-badge` slice does the same for the separate
+  terrain/elevation cost badge, so the visible `T+`/`E+`/`UP`/`DN` cost marker
+  is also pinned to `movement:megamek` evidence. The
+  `source-hover-path-preview-badge` slice keeps the hovered path MP badge tied
+  to that same source-backed movement badge path instead of thinning the
+  displayed commit preview. Full elevated AirMek/WiGE pathing and broader
+  takeoff/hover sequencing remain follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
   `apply-runtime-movement-state-events`, and tactical command controls are now

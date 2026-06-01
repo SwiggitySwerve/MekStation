@@ -90,6 +90,8 @@ import {
   terrainBuildingConstructionFactorsAttribute,
   terrainBuildingIdsAttribute,
   terrainBuildingLevelsAttribute,
+  terrainCliffExitDirectionsAttribute,
+  terrainCliffExitLabelsAttribute,
 } from './HexMapDisplay.terrainMetadata';
 import {
   isIsometricProjection,
@@ -297,6 +299,9 @@ export const HexCell = React.memo(function HexCell({
   const terrainBuildingLevelAttribute = terrainBuildingLevelsAttribute(terrain);
   const terrainBuildingCfAttribute =
     terrainBuildingConstructionFactorsAttribute(terrain);
+  const terrainCliffExitDirections =
+    terrainCliffExitDirectionsAttribute(terrain);
+  const terrainCliffExitLabels = terrainCliffExitLabelsAttribute(terrain);
   const elevation = terrain?.elevation ?? 0;
   const elevationLabel = formatElevationLabel(elevation);
   const isIsometricTile = isIsometricProjection(projectionMode);
@@ -569,6 +574,8 @@ export const HexCell = React.memo(function HexCell({
       data-terrain-feature-levels={terrainFeatureLevelsAttribute(
         terrainFeatures,
       )}
+      data-terrain-cliff-exits={terrainCliffExitDirections}
+      data-terrain-cliff-exit-labels={terrainCliffExitLabels}
       data-terrain-building-ids={terrainBuildingIdAttribute}
       data-terrain-building-levels={terrainBuildingLevelAttribute}
       data-terrain-construction-factors={terrainBuildingCfAttribute}
@@ -953,7 +960,14 @@ export const HexCell = React.memo(function HexCell({
         sourceReferences={tacticalProjectionSourceReferences}
       />
       {hoverMpCost === undefined && (
-        <MovementReachBadge x={x} y={y} hex={hex} movementInfo={movementInfo} />
+        <MovementReachBadge
+          x={x}
+          y={y}
+          hex={hex}
+          movementInfo={movementInfo}
+          projectionExplanation={tacticalProjectionExplanation}
+          sourceReferences={tacticalProjectionSourceReferences}
+        />
       )}
       <MovementBlockedOptionsBadge
         x={x}
@@ -966,6 +980,8 @@ export const HexCell = React.memo(function HexCell({
         y={y}
         hex={hex}
         movementInfo={movementInfo}
+        projectionExplanation={tacticalProjectionExplanation}
+        sourceReferences={tacticalProjectionSourceReferences}
       />
       <MovementStandUpBadge x={x} y={y} hex={hex} movementInfo={movementInfo} />
       <MovementAutomaticLandingBadge
@@ -991,6 +1007,8 @@ export const HexCell = React.memo(function HexCell({
         hex={hex}
         hoverMpCost={hoverMpCost}
         movementInfo={movementInfo}
+        projectionExplanation={tacticalProjectionExplanation}
+        sourceReferences={tacticalProjectionSourceReferences}
       />
       <CombatLineOfSightBlockerBadge
         x={x}
