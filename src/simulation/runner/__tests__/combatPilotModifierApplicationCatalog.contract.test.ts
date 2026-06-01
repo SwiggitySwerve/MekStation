@@ -3,6 +3,7 @@ import { SPA_CATALOG } from '@/utils/gameplay/spaModifiers';
 
 import type { ICombatFeatureSupportEntry } from '../CombatFeatureSupport';
 
+import { CANONICAL_SPA_COMBAT_SCOPE_SUPPORT } from '../CombatCanonicalSpaSupport';
 import {
   QUIRK_COMBAT_SUPPORT,
   SPA_COMBAT_SUPPORT,
@@ -141,6 +142,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'natural-grace',
       'sharpshooter',
       'speed-demon',
+      'terrain-master',
     ];
     const expectedAssignedSpas = sortedKeys(SPA_CATALOG).filter(
       (spaId) => !unconsumedLocalSpas.includes(spaId),
@@ -159,6 +161,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(SPA_COMBAT_SUPPORT.sharpshooter.level).toBe('out-of-scope');
     expect(SPA_COMBAT_SUPPORT['cool-under-fire'].level).toBe('out-of-scope');
     expect(SPA_COMBAT_SUPPORT['iron-will'].level).toBe('out-of-scope');
+    expect(SPA_COMBAT_SUPPORT['terrain-master'].level).toBe('out-of-scope');
   });
 
   it('does not assign unknown SPA or quirk ids to resolver families', () => {
@@ -658,6 +661,9 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     );
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['psr-spa-application'].spaIds,
+    ).not.toContain('terrain-master');
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['psr-spa-application'].spaIds,
     ).not.toContain('cross-country');
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application'].gap,
@@ -1001,6 +1007,42 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['ranged-to-hit-state-hydration']
         .spaIds,
     ).toEqual(expect.arrayContaining(['tm_forest_ranger', 'tm_swamp_beast']));
+  });
+
+  it('splits generic Terrain Master from source-backed Nightwalker lighting behavior', () => {
+    const genericRefs = SPA_COMBAT_SUPPORT['terrain-master'].sourceRefs ?? [];
+    const nightwalker = CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.tm_nightwalker;
+    const nightwalkerRefs = nightwalker.sourceRefs ?? [];
+
+    expect(SPA_COMBAT_SUPPORT['terrain-master']).toMatchObject({
+      level: 'out-of-scope',
+      evidence: expect.stringContaining('generic terrain_master'),
+      gap: expect.stringContaining('canonical tm_nightwalker'),
+    });
+    expect(genericRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek PilotOptions registers Terrain Master variants rather than a generic terrain_master combat option.',
+      'MegaMek OptionsConstants defines Terrain Master variant ids for Forest Ranger, Frogman, Mountaineer, Nightwalker, and Swamp Beast.',
+      'MekStation SPA_CATALOG keeps a legacy generic terrain-master row and splits implemented Terrain Master behavior into tm_frogman, tm_mountaineer, tm_forest_ranger, and tm_swamp_beast rows.',
+    ]);
+    expect(nightwalker).toMatchObject({
+      level: 'unsupported',
+      evidence: expect.stringContaining('lighting-condition movement'),
+      gap: expect.stringContaining('Nightwalker movement penalties'),
+    });
+    expect(nightwalkerRefs.map(({ citation }) => citation)).toEqual(
+      expect.arrayContaining([
+        'MegaMek PilotOptions registers Terrain Master: Nightwalker as the source-backed tm_nightwalker pilot option.',
+        'MegaMek OptionsConstants defines Terrain Master: Nightwalker as tm_nightwalker.',
+        'MegaMek LandAirMek.isNightwalker applies Terrain Master: Nightwalker only while the LAM is not airborne.',
+        'MegaMek MoveStep uses isNightwalker to bypass full-moon, glare, moonless, solar-flare, and pitch-black movement light penalties, while prohibiting running in those light conditions.',
+      ]),
+    );
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['movement-application'].spaIds,
+    ).not.toContain('tm_nightwalker');
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['ranged-to-hit-calculation'].spaIds,
+    ).not.toContain('tm_nightwalker');
   });
 
   it('pins Shaky Stick to MegaMek ground-to-air defender semantics', () => {
