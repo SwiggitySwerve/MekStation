@@ -44,6 +44,14 @@ export const MEGAMEK_EDGE_TRIGGER_SOURCE_REFS = [
     'megamek/src/megamek/common/units/Mek.java#L1945-L1963',
   ),
   megamekRef(
+    'MegaMek TWGameManager consumes EDGE_WHEN_KO to reroll failed BattleMech crew knockout checks while Edge remains available.',
+    'megamek/src/megamek/server/totalWarfare/TWGameManager.java#L17263-L17280',
+  ),
+  megamekRef(
+    'MegaMek TWGameManager consumes EDGE_WHEN_EXPLOSION to reroll explosive equipment critical slots when another hittable critical slot exists.',
+    'megamek/src/megamek/server/totalWarfare/TWGameManager.java#L21772-L21783',
+  ),
+  megamekRef(
     'MegaMek TWGameManager consumes EDGE_WHEN_MASC_FAILS to reroll failed MASC checks, spends Edge, and suppresses failure processing when the reroll passes.',
     'megamek/src/megamek/server/totalWarfare/TWGameManager.java#L5944-L5974',
   ),
