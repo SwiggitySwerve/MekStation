@@ -399,6 +399,12 @@ export interface IUnitGameState {
   readonly ammo: Record<string, number>;
   /** Pilot wounds */
   readonly pilotWounds: number;
+  /**
+   * Source-backed RPG Toughness numeric crew value for consciousness checks.
+   * Undefined preserves default behavior when the RPG Toughness option was not
+   * enabled or hydrated.
+   */
+  readonly pilotToughness?: number;
   /** Is pilot conscious? */
   readonly pilotConscious: boolean;
   /** Is unit destroyed? */
