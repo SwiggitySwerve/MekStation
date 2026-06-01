@@ -134,21 +134,6 @@ function outOfScope(
     : { id, level: 'out-of-scope', evidence, gap };
 }
 
-function unsupported(
-  id: string,
-  gap: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  const entry: ICombatFeatureSupportEntry = {
-    id,
-    level: 'unsupported',
-    evidence: 'No combat behavior wired',
-    gap,
-  };
-
-  return sourceRefs ? { ...entry, sourceRefs } : entry;
-}
-
 const BMM_ERRATA_701_LANCE_TO_HIT = {
   kind: 'rulebook',
   citation:
@@ -637,9 +622,10 @@ export const SPA_COMBAT_SUPPORT = {
     'Maneuvering Ace lateral-shift movement allowance, QuadMek lateral-step MP relief, aerospace maneuver-thrust relief, controlled-sideslip relief, and out-of-control checks are not wired',
     MEGAMEK_325B_MANEUVERING_ACE_SOURCE_REFS,
   ),
-  'terrain-master': unsupported(
+  'terrain-master': outOfScope(
     'terrain-master',
-    'Generic Terrain Master behavior and variants beyond Frogman/Mountaineer/Forest Ranger/Swamp Beast are not wired; source-backed Frogman physical to-hit relief, Frogman water-entry PSR relief, Mountaineer rubble-entry PSR plus rough/rubble/elevation MP relief, Swamp Beast bog-down PSR relief, and Forest Ranger/Swamp Beast defensive to-hit variants are tracked separately as tm_frogman, tm_mountaineer, tm_forest_ranger, and tm_swamp_beast',
+    'MegaMek registers Terrain Master as source-backed variant ids rather than a generic terrain_master combat option; MekStation keeps terrain-master as a legacy local helper row',
+    'The legacy generic terrain-master row is excluded from the official BattleMech blocker inventory; source-backed variants stay tracked separately as tm_frogman, tm_mountaineer, tm_forest_ranger, tm_swamp_beast, and canonical tm_nightwalker',
     MEGAMEK_TERRAIN_MASTER_GAP_SOURCE_REFS,
   ),
   tm_frogman: integrated(
