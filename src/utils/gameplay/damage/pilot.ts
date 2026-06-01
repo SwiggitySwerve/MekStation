@@ -21,6 +21,7 @@ export function resolvePilotConsciousnessCheck(
   woundsInflicted: number,
   pilotAbilities: readonly string[] = [],
   roller?: D6Roller,
+  pilotToughness = 0,
 ): IPilotConsciousnessCheckResult {
   const consciousnessCheckRequired =
     woundsInflicted > 0 && totalWounds < PILOT_DEATH_WOUND_THRESHOLD;
@@ -28,8 +29,12 @@ export function resolvePilotConsciousnessCheck(
     return { consciousnessCheckRequired };
   }
 
+  const toughnessModifier = Math.max(0, Math.trunc(pilotToughness));
   const consciousnessTarget =
-    3 + totalWounds + getConsciousnessCheckModifier(pilotAbilities);
+    3 +
+    totalWounds +
+    getConsciousnessCheckModifier(pilotAbilities) -
+    toughnessModifier;
   const consciousnessRoll = roll2d6(roller);
 
   return {
@@ -64,6 +69,7 @@ export function applyPilotDamage(
     wounds,
     state.pilotAbilities ?? [],
     roller,
+    state.pilotToughness,
   );
   let newPilotConscious = state.pilotConscious;
   let newDestroyed = state.destroyed;
