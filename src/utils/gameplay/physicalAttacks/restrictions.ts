@@ -1,6 +1,7 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { hasNoArms } from '@/utils/gameplay/quirkModifiers';
 
+import { HULL_DOWN_KICK_BLOCKED_REASON } from '../hullDownRestrictions';
 import {
   canBreakGrapple,
   type BreakGrappleAttackInvalidReason,
@@ -9,6 +10,7 @@ import {
   canBrushOff,
   type BrushOffAttackInvalidReason,
 } from './brushOffEligibility';
+import { physicalElevationRestriction } from './elevation';
 import {
   canGrapple,
   type GrappleAttackInvalidReason,
@@ -29,6 +31,7 @@ import {
   PhysicalAttackType,
   PhysicalTargetObjectType,
 } from './types';
+import { normalizedLamConversionMode } from './unitState';
 
 function blocked(
   reason: string,
@@ -70,6 +73,19 @@ const TACOPS_GRAPPLING_OPTIONS = new Set([
   'tacops_grappling',
   'advanced_combat_tac_ops_grappling',
   'grappling',
+]);
+const CHARGE_CAPABLE_UNIT_TYPES = new Set([
+  'battlemech',
+  'mek',
+  'mech',
+  'omnimech',
+  'industrialmech',
+  'vehicle',
+  'supportvehicle',
+]);
+const NO_HOVER_CHARGE_OPTION_KEYS = new Set([
+  'nohovercharge',
+  'advancedgroundmovementnohovercharge',
 ]);
 
 export function physicalTargetObjectInvalidReason(
@@ -336,6 +352,16 @@ function legacyOrMekUnitType(value: string | undefined): boolean {
   return canonical === undefined || MEK_UNIT_TYPES.has(canonical);
 }
 
+function knownMekUnitType(value: string | undefined): boolean {
+  const canonical = canonicalUnitType(value);
+  return canonical !== undefined && MEK_UNIT_TYPES.has(canonical);
+}
+
+function chargeCapableUnitType(value: string | undefined): boolean {
+  const canonical = canonicalUnitType(value);
+  return canonical === undefined || CHARGE_CAPABLE_UNIT_TYPES.has(canonical);
+}
+
 function protoMekUnitType(value: string | undefined): boolean {
   const canonical = canonicalUnitType(value);
   return canonical !== undefined && PROTOMEK_UNIT_TYPES.has(canonical);
@@ -430,6 +456,43 @@ function optionalRuleEnabled(
       ),
     ) ?? false
   );
+}
+
+function normalizedOptionalRuleKey(rule: string): string {
+  return rule.toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+function hasNoHoverChargeOptionalRule(
+  optionalRules: readonly string[] | undefined,
+): boolean {
+  return (optionalRules ?? []).some((rule) =>
+    NO_HOVER_CHARGE_OPTION_KEYS.has(normalizedOptionalRuleKey(rule)),
+  );
+}
+
+function chargeBlockedByMovementMode(input: IPhysicalAttackInput): boolean {
+  const conversionMode = normalizedLamConversionMode(
+    input.attackerConversionMode,
+  );
+  const movementMode = input.attackerMovementMode?.toLowerCase();
+
+  if (conversionMode === 'fighter') return true;
+  if (conversionMode === 'airmek' && input.attackerIsAirborneVTOLOrWiGE) {
+    return true;
+  }
+
+  switch (movementMode) {
+    case 'vtol':
+      return true;
+    case 'wige':
+      return !(
+        conversionMode === 'airmek' && knownMekUnitType(input.attackerUnitType)
+      );
+    case 'hover':
+      return hasNoHoverChargeOptionalRule(input.optionalRules);
+    default:
+      return false;
+  }
 }
 
 function tripAttackEnabled(input: IPhysicalAttackInput): boolean {
@@ -668,6 +731,18 @@ export function canPunch(
     };
   }
 
+  const elevationRestriction = physicalElevationRestriction(
+    'punch',
+    input.elevationContext,
+  );
+  if (elevationRestriction) {
+    return {
+      allowed: false,
+      reason: elevationRestriction,
+      reasonCode: 'TargetElevationNotInRange',
+    };
+  }
+
   return { allowed: true };
 }
 
@@ -682,6 +757,14 @@ export function canKick(
       allowed: false,
       reason: 'Cannot kick while prone',
       reasonCode: 'AttackerProne',
+    };
+  }
+
+  if (input.attackerHullDown) {
+    return {
+      allowed: false,
+      reason: HULL_DOWN_KICK_BLOCKED_REASON,
+      reasonCode: 'AttackerHullDown',
     };
   }
 
@@ -725,6 +808,18 @@ export function canKick(
       allowed: false,
       reason: 'Limb already used this turn',
       reasonCode: 'SameLimbUsedThisTurn',
+    };
+  }
+
+  const elevationRestriction = physicalElevationRestriction(
+    'kick',
+    input.elevationContext,
+  );
+  if (elevationRestriction) {
+    return {
+      allowed: false,
+      reason: elevationRestriction,
+      reasonCode: 'TargetElevationNotInRange',
     };
   }
 
@@ -895,6 +990,18 @@ export function canCharge(
   const sharedRestriction = sharedPhysicalTargetRestriction(input);
   if (!sharedRestriction.allowed) return sharedRestriction;
 
+  if (!chargeCapableUnitType(input.attackerUnitType)) {
+    return blocked("This unit type can't charge", 'AttackerCannotCharge');
+  }
+
+  if (chargeBlockedByMovementMode(input)) {
+    return blocked("This movement mode can't charge", 'AttackerCannotCharge');
+  }
+
+  if (input.attackerVehicleCrewStunned === true) {
+    return blocked("Stunned vehicle crew can't charge", 'AttackerCannotCharge');
+  }
+
   const targetObjectRestriction = chargeDfaTargetObjectRestriction(input);
   if (!targetObjectRestriction.allowed) return targetObjectRestriction;
 
@@ -1057,6 +1164,18 @@ export function canPush(
     };
   }
 
+  const elevationRestriction = physicalElevationRestriction(
+    'push',
+    input.elevationContext,
+  );
+  if (elevationRestriction) {
+    return {
+      allowed: false,
+      reason: elevationRestriction,
+      reasonCode: 'TargetElevationNotInRange',
+    };
+  }
+
   if (
     input.elevationDifference !== undefined &&
     input.elevationDifference !== 0
@@ -1065,6 +1184,22 @@ export function canPush(
       allowed: false,
       reason: 'Push requires the target to be at the same elevation',
       reasonCode: 'ElevationMismatch',
+    };
+  }
+
+  const terrainContext = input.terrainContext;
+  const differentKnownBuilding =
+    terrainContext?.attackerBuildingId !== undefined &&
+    terrainContext.targetBuildingId !== undefined &&
+    terrainContext.attackerBuildingId !== terrainContext.targetBuildingId;
+  if (
+    terrainContext?.targetInBuilding === true &&
+    (terrainContext.attackerInBuilding !== true || differentKnownBuilding)
+  ) {
+    return {
+      allowed: false,
+      reason: 'Target is inside building',
+      reasonCode: 'TargetInsideBuilding',
     };
   }
 

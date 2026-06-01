@@ -15,6 +15,7 @@ import { type CriticalHitEvent } from './criticalHitResolution';
 import { type IUnitDamageState } from './damage';
 import {
   createComponentDestroyedEvent,
+  createCriticalHitEvent,
   createCriticalHitResolvedEvent,
   createPilotHitEvent,
   createPSRTriggeredEvent,
@@ -54,15 +55,29 @@ export function emitCriticalEvents(
   const phase = options?.phase ?? GamePhase.WeaponAttack;
 
   for (const event of events) {
-    const sequence = currentSession.events.length;
-
     if (event.type === 'critical_hit_resolved') {
       const payload = event.payload;
+      if (options?.emitCriticalHitPrelude === true) {
+        currentSession = appendEvent(
+          currentSession,
+          createCriticalHitEvent(
+            currentSession.id,
+            currentSession.events.length,
+            turn,
+            phase,
+            payload.unitId,
+            payload.location,
+            options.sourceUnitId ?? payload.unitId,
+            payload.componentType,
+            1,
+          ),
+        );
+      }
       currentSession = appendEvent(
         currentSession,
         createCriticalHitResolvedEvent(
           currentSession.id,
-          sequence,
+          currentSession.events.length,
           turn,
           phase,
           payload.unitId,
@@ -112,9 +127,9 @@ export function emitCriticalEvents(
         currentSession,
         createPSRTriggeredEvent(
           currentSession.id,
-          sequence,
+          currentSession.events.length,
           turn,
-          GamePhase.WeaponAttack,
+          phase,
           payload.unitId,
           payload.reason,
           payload.additionalModifier,
@@ -132,9 +147,9 @@ export function emitCriticalEvents(
         currentSession,
         createUnitDestroyedEvent(
           currentSession.id,
-          sequence,
+          currentSession.events.length,
           turn,
-          GamePhase.WeaponAttack,
+          phase,
           unitId,
           payload.cause as IUnitDestroyedPayload['cause'],
         ),
@@ -148,9 +163,9 @@ export function emitCriticalEvents(
         currentSession,
         createPilotHitEvent(
           currentSession.id,
-          sequence,
+          currentSession.events.length,
           turn,
-          GamePhase.WeaponAttack,
+          phase,
           payload.unitId,
           payload.wounds,
           payload.totalWounds,

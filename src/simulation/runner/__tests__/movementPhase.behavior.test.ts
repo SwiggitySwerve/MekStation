@@ -23,6 +23,7 @@ import {
   MovementType,
   PSRTrigger,
   type IMovementDeclaredPayload,
+  type IMovementInvalidPayload,
   type IPSRResolvedPayload,
   type IPSRTriggeredPayload,
   type IUnitStoodPayload,
@@ -271,6 +272,20 @@ function psrPayloads(
     .map((event) => event.payload as IPSRTriggeredPayload);
 }
 
+function expectSingleMovementInvalid(
+  events: readonly Parameters<typeof runMovementPhase>[0]['events'][number][],
+  reason: IMovementInvalidPayload['reason'],
+): void {
+  expect(events).toHaveLength(1);
+  expect(events[0]).toMatchObject({
+    type: GameEventType.MovementInvalid,
+    payload: {
+      unitId: 'player-1',
+      reason,
+    },
+  });
+}
+
 describe('runMovementPhase movement validation parity', () => {
   it('rejects invalid ground movement before committing the bot payload', () => {
     const target = { q: 1, r: 0 };
@@ -278,7 +293,15 @@ describe('runMovementPhase movement validation parity', () => {
 
     const { next, events } = runScriptedMove(grid, target);
 
-    expect(events).toEqual([]);
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({
+      type: GameEventType.MovementInvalid,
+      payload: {
+        unitId: 'player-1',
+        to: target,
+        reason: 'TerrainBlocked',
+      },
+    });
     expect(next.units['player-1'].position).toEqual({ q: 0, r: 0 });
     expect(next.units['player-1'].movementThisTurn).toBe(
       MovementType.Stationary,
@@ -365,7 +388,7 @@ describe('runMovementPhase movement validation parity', () => {
       },
     );
 
-    expect(events).toEqual([]);
+    expectSingleMovementInvalid(events, 'InsufficientMP');
     expect(next.units['player-1']).toMatchObject({
       position: { q: 0, r: 0 },
       movementThisTurn: MovementType.Stationary,
@@ -560,7 +583,7 @@ describe('runMovementPhase movement validation parity', () => {
 
     expect(calmMove.events).toHaveLength(1);
     expect(calmMove.next.units['player-1'].position).toEqual(target);
-    expect(windyMove.events).toEqual([]);
+    expectSingleMovementInvalid(windyMove.events, 'InsufficientMP');
     expect(windyMove.next.units['player-1'].position).toEqual({ q: 0, r: 0 });
     expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.wind).toMatchObject({
       level: 'integrated',
@@ -611,7 +634,7 @@ describe('runMovementPhase movement validation parity', () => {
       },
     );
 
-    expect(events).toEqual([]);
+    expectSingleMovementInvalid(events, 'InsufficientMP');
     expect(next.units['player-1'].position).toEqual({ q: 0, r: 0 });
   });
 
@@ -689,7 +712,7 @@ describe('runMovementPhase movement validation parity', () => {
       },
     );
 
-    expect(events).toEqual([]);
+    expectSingleMovementInvalid(events, 'InsufficientMP');
     expect(next.units['player-1'].position).toEqual({ q: 0, r: 0 });
   });
 
@@ -896,7 +919,7 @@ describe('runMovementPhase movement validation parity', () => {
       },
     );
 
-    expect(events).toEqual([]);
+    expectSingleMovementInvalid(events, 'JumpUnavailable');
     expect(next.units['player-1'].position).toEqual({ q: 0, r: 0 });
   });
 
@@ -919,7 +942,7 @@ describe('runMovementPhase movement validation parity', () => {
       { movementType: MovementType.Jump, capability },
     );
 
-    expect(blocked.events).toEqual([]);
+    expectSingleMovementInvalid(blocked.events, 'InsufficientMP');
     expect(blocked.next.units['player-1'].position).toEqual({ q: 0, r: 0 });
     expect(allowed.next.units['player-1'].position).toEqual({ q: 3, r: 0 });
     expect(
@@ -950,7 +973,7 @@ describe('runMovementPhase movement validation parity', () => {
       },
     );
 
-    expect(events).toEqual([]);
+    expectSingleMovementInvalid(events, 'JumpUnavailable');
     expect(next.units['player-1'].position).toEqual({ q: 0, r: 0 });
   });
 

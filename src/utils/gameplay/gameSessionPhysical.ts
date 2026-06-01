@@ -93,6 +93,7 @@ import {
   resolveDfaMissFallDamage,
   resolveDfaMissFallPilotDamageAvoidance,
   resolvePhysicalAttack,
+  selectPhysicalHitTable,
   sourceContainsGroundedDropShip,
   splitPhysicalDamageIntoClusters,
   SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
@@ -567,6 +568,8 @@ export function declarePhysicalAttack(
   const targetObjectType =
     context.targetObjectType ??
     physicalTargetObjectTypeForUnitType(targetState?.unitType);
+  const attackerUnit = session.units.find((unit) => unit.id === attackerId);
+  const targetUnit = session.units.find((unit) => unit.id === targetId);
 
   const input: IPhysicalAttackInput = {
     attackerId,
@@ -587,11 +590,24 @@ export function declarePhysicalAttack(
       context,
     ),
     attackerDestroyedLocations: attackerState.destroyedLocations,
-    attackerUnitType: attackerState.unitType,
+    attackerUnitType:
+      context.attackerUnitType ??
+      attackerState.unitType ??
+      attackerUnit?.unitType,
+    attackerMovementMode:
+      context.attackerMovementMode ?? attackerState.motionType,
+    attackerConversionMode:
+      context.attackerConversionMode ?? attackerState.conversionMode,
+    attackerIsAirborneVTOLOrWiGE: context.attackerIsAirborneVTOLOrWiGE,
+    attackerVehicleCrewStunned:
+      attackerState.combatState?.kind === 'vehicle'
+        ? attackerState.combatState.state.motive.crewStunnedPhases > 0
+        : undefined,
     attackerIsQuad: attackerState.isQuad,
     attackerIsAirborne: attackerState.isAirborne,
     attackerArmsFlipped: attackerState.armsFlipped,
-    targetUnitType: targetState?.unitType,
+    targetUnitType:
+      context.targetUnitType ?? targetState?.unitType ?? targetUnit?.unitType,
     targetPilotingSkill: targetState?.piloting,
     attackerEvading: attackerState.isEvading,
     attackerSpotting: attackerState.isSpotting,
@@ -599,6 +615,7 @@ export function declarePhysicalAttack(
     attackerTargetedByDisplacementAttackerId:
       attackerState.targetedByDisplacementAttackerId,
     attackerProne: attackerState.prone,
+    attackerHullDown: attackerState.hullDown,
     attackerStuck: attackerState.isStuck,
     targetProne: targetState?.prone,
     targetMovementComplete: context.targetMovementComplete,
@@ -765,6 +782,8 @@ export function declarePhysicalAttack(
     pilotAbilities: context.pilotAbilities ?? attackerState.abilities,
     unitQuirks: context.unitQuirks ?? attackerState.unitQuirks,
     elevationDifference: context.elevationDifference,
+    elevationContext: context.elevationContext,
+    terrainContext: context.terrainContext,
   };
 
   // Per task 3.1 / 3.2 / 3.3 / 3.4 / 3.5 / 3.6 / 3.7: restrictions run
@@ -837,6 +856,7 @@ export function declarePhysicalAttack(
   // declared event carries the calculated TN so UI can show the
   // forecast modal before resolution.
   const declaredTN = calculatePhysicalToHit(input).finalToHit;
+  const hitTable = selectPhysicalHitTable(input);
 
   return appendEvent(
     session,
@@ -849,6 +869,7 @@ export function declarePhysicalAttack(
       attackType,
       declaredTN,
       declaredLimb,
+      hitTable,
     ),
   );
 }
@@ -933,6 +954,12 @@ export function resolveAllPhysicalAttacks(
 
     const componentDamage =
       attackerState.componentDamage ?? buildDefaultComponentDamageState();
+    const attackerUnit = currentSession.units.find(
+      (unit) => unit.id === payload.attackerId,
+    );
+    const targetUnit = currentSession.units.find(
+      (unit) => unit.id === payload.targetId,
+    );
     const targetObjectType =
       context.targetObjectType ??
       physicalTargetObjectTypeForUnitType(targetState.unitType);
@@ -961,11 +988,24 @@ export function resolveAllPhysicalAttacks(
         context,
       ),
       attackerDestroyedLocations: attackerState.destroyedLocations,
-      attackerUnitType: attackerState.unitType,
+      attackerUnitType:
+        context.attackerUnitType ??
+        attackerState.unitType ??
+        attackerUnit?.unitType,
+      attackerMovementMode:
+        context.attackerMovementMode ?? attackerState.motionType,
+      attackerConversionMode:
+        context.attackerConversionMode ?? attackerState.conversionMode,
+      attackerIsAirborneVTOLOrWiGE: context.attackerIsAirborneVTOLOrWiGE,
+      attackerVehicleCrewStunned:
+        attackerState.combatState?.kind === 'vehicle'
+          ? attackerState.combatState.state.motive.crewStunnedPhases > 0
+          : undefined,
       attackerIsQuad: attackerState.isQuad,
       attackerIsAirborne: attackerState.isAirborne,
       attackerArmsFlipped: attackerState.armsFlipped,
-      targetUnitType: targetState.unitType,
+      targetUnitType:
+        context.targetUnitType ?? targetState.unitType ?? targetUnit?.unitType,
       targetPilotingSkill: targetState.piloting,
       attackerEvading: attackerState.isEvading,
       attackerSpotting: attackerState.isSpotting,
@@ -973,6 +1013,7 @@ export function resolveAllPhysicalAttacks(
       attackerTargetedByDisplacementAttackerId:
         attackerState.targetedByDisplacementAttackerId,
       attackerProne: attackerState.prone,
+      attackerHullDown: attackerState.hullDown,
       attackerStuck: attackerState.isStuck,
       targetProne: targetState.prone,
       targetMovementComplete: context.targetMovementComplete,
@@ -1129,6 +1170,9 @@ export function resolveAllPhysicalAttacks(
       pilotAbilities: context.pilotAbilities ?? attackerState.abilities,
       unitQuirks: context.unitQuirks ?? attackerState.unitQuirks,
       elevationDifference: context.elevationDifference,
+      elevationContext: context.elevationContext,
+      terrainContext: context.terrainContext,
+      hitTableOverride: payload.hitTable,
     };
 
     // The standalone module uses a d6 roller; wrap our 2d6 roller's
@@ -1360,9 +1404,6 @@ export function resolveAllPhysicalAttacks(
     // pass the unit's base piloting skill (looked up from `IGameUnit`).
     // For the attacker the runner already has `context.pilotingSkill`;
     // for the target we look it up from `currentSession.units`.
-    const targetUnit = currentSession.units.find(
-      (u) => u.id === payload.targetId,
-    );
     if (
       result.hit &&
       result.targetPSR &&

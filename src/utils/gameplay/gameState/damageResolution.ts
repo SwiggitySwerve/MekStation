@@ -6,6 +6,7 @@ import {
   IPilotHitPayload,
   IUnitDestroyedPayload,
   IUnitGameState,
+  IVehicleCombatState,
 } from '@/types/gameplay';
 import { PILOT_DEATH_WOUND_THRESHOLD } from '@/utils/gameplay/damage/constants';
 import {
@@ -14,6 +15,7 @@ import {
 } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 
 import { DEFAULT_COMPONENT_DAMAGE } from './initialization';
+import { applyVehicleCriticalLocationDamage } from './vehicleCriticalLocationDamage';
 
 function getArmForSideTorso(location: string): string | null {
   if (location === 'left_torso' || location === 'left_torso_rear') {
@@ -97,19 +99,26 @@ export function applyDamageApplied(
 
   const currentDamageThisPhase = unit.damageThisPhase ?? 0;
 
+  const unitAfterDamage: IUnitGameState = {
+    ...unit,
+    armor: newArmor,
+    structure: newStructure,
+    startingInternalStructure: newStartingStructure,
+    destroyedLocations: newDestroyedLocations,
+    destroyedEquipment: payload.criticals
+      ? [...unit.destroyedEquipment, ...payload.criticals]
+      : unit.destroyedEquipment,
+    damageThisPhase: currentDamageThisPhase + payload.damage,
+    combatState: applyVehicleDamageToCombatState(
+      unit,
+      payload,
+      newDestroyedLocations,
+    ),
+  };
+
   const updatedUnit: IUnitGameState =
     applyDestroyedLocationPhysicalEquipmentState(
-      {
-        ...unit,
-        armor: newArmor,
-        structure: newStructure,
-        startingInternalStructure: newStartingStructure,
-        destroyedLocations: newDestroyedLocations,
-        destroyedEquipment: payload.criticals
-          ? [...unit.destroyedEquipment, ...payload.criticals]
-          : unit.destroyedEquipment,
-        damageThisPhase: currentDamageThisPhase + payload.damage,
-      },
+      unitAfterDamage,
       newDestroyedLocations,
     );
 
@@ -193,6 +202,7 @@ export function applyUnitDestroyed(
         ...unit,
         destroyed: true,
         destructionCause: payload.cause,
+        combatState: applyVehicleDestroyedToCombatState(unit, payload),
       },
     },
   };
@@ -272,6 +282,8 @@ export function applyCriticalHitResolved(
       };
       break;
   }
+  updatedDamage = applyVehicleCriticalLocationDamage(updatedDamage, payload);
+
   const updatedUnit = applyDamagedPhysicalEquipmentCritical(unit, payload);
 
   return {
@@ -281,7 +293,169 @@ export function applyCriticalHitResolved(
       [payload.unitId]: {
         ...updatedUnit,
         componentDamage: updatedDamage,
+        combatState: applyVehicleCriticalToCombatState(updatedUnit, payload),
       },
     },
   };
+}
+
+function applyVehicleDamageToCombatState(
+  unit: IUnitGameState,
+  payload: IDamageAppliedPayload,
+  destroyedLocations: readonly string[],
+): IUnitGameState['combatState'] {
+  if (unit.combatState?.kind !== 'vehicle') {
+    return unit.combatState;
+  }
+
+  const vehicle = unit.combatState.state;
+  const armor = {
+    ...(vehicle.armor as Record<string, number>),
+    [payload.location]: payload.armorRemaining,
+  } as IVehicleCombatState['armor'];
+  const structure = {
+    ...(vehicle.structure as Record<string, number>),
+    [payload.location]: payload.structureRemaining,
+  } as IVehicleCombatState['structure'];
+
+  return {
+    kind: 'vehicle',
+    state: {
+      ...vehicle,
+      armor,
+      structure,
+      destroyedLocations:
+        destroyedLocations as IVehicleCombatState['destroyedLocations'],
+    },
+  };
+}
+
+function applyVehicleDestroyedToCombatState(
+  unit: IUnitGameState,
+  payload: IUnitDestroyedPayload,
+): IUnitGameState['combatState'] {
+  if (unit.combatState?.kind !== 'vehicle') {
+    return unit.combatState;
+  }
+
+  const vehicle = unit.combatState.state;
+  return {
+    kind: 'vehicle',
+    state: {
+      ...vehicle,
+      destroyed: true,
+      destructionCause:
+        vehicle.destructionCause ??
+        vehicleCauseFromUnitDestroyed(payload.cause),
+    },
+  };
+}
+
+function vehicleCauseFromUnitDestroyed(
+  cause: IUnitDestroyedPayload['cause'],
+): IVehicleCombatState['destructionCause'] {
+  if (cause === 'ammo_explosion' || cause === 'engine_destroyed') {
+    return cause;
+  }
+  return 'damage';
+}
+
+function applyVehicleCriticalToCombatState(
+  unit: IUnitGameState,
+  payload: ICriticalHitResolvedPayload,
+): IUnitGameState['combatState'] {
+  if (unit.combatState?.kind !== 'vehicle') {
+    return unit.combatState;
+  }
+
+  const vehicle = unit.combatState.state;
+  const motive = { ...vehicle.motive };
+  let next: IVehicleCombatState = { ...vehicle, motive };
+
+  switch (payload.effect) {
+    case 'crew_stunned':
+      next = {
+        ...next,
+        motive: {
+          ...next.motive,
+          crewStunnedPhases: next.motive.crewStunnedPhases + 2,
+        },
+      };
+      break;
+    case 'driver_hit':
+    case 'pilot_hit':
+    case 'copilot_hit': {
+      const driverHits = next.motive.driverHits + 1;
+      next = {
+        ...next,
+        motive: { ...next.motive, driverHits },
+        ...(driverHits >= 2
+          ? {
+              destroyed: true as const,
+              destructionCause: 'crew_killed' as const,
+            }
+          : {}),
+      };
+      break;
+    }
+    case 'commander_hit': {
+      const commanderHits = next.motive.commanderHits + 1;
+      next = {
+        ...next,
+        motive: { ...next.motive, commanderHits },
+        ...(commanderHits >= 2
+          ? {
+              destroyed: true as const,
+              destructionCause: 'crew_killed' as const,
+            }
+          : {}),
+      };
+      break;
+    }
+    case 'crew_killed':
+      next = { ...next, destroyed: true, destructionCause: 'crew_killed' };
+      break;
+    case 'engine_hit': {
+      const engineHits = next.motive.engineHits + 1;
+      next = {
+        ...next,
+        motive: { ...next.motive, engineHits },
+        ...(engineHits >= 2
+          ? {
+              destroyed: true as const,
+              destructionCause: 'engine_destroyed' as const,
+            }
+          : {}),
+      };
+      break;
+    }
+    case 'fuel_tank':
+      next = {
+        ...next,
+        motive: { ...next.motive, engineHits: next.motive.engineHits + 1 },
+      };
+      break;
+    case 'ammo_explosion':
+      next = { ...next, destroyed: true, destructionCause: 'ammo_explosion' };
+      break;
+    case 'turret_destroyed':
+      next = { ...next, destroyed: true, destructionCause: 'turret_destroyed' };
+      break;
+    case 'turret_jammed':
+    case 'turret_locked':
+      next = {
+        ...next,
+        turretLock: { ...next.turretLock, primaryLocked: true },
+        motive: { ...next.motive, turretLocked: true },
+      };
+      break;
+    case 'rotor_destroyed':
+      next = {
+        ...next,
+        motive: { ...next.motive, immobilized: true },
+      };
+      break;
+  }
+
+  return { kind: 'vehicle', state: next };
 }

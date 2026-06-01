@@ -473,3 +473,8 @@
 - [x] 4.3.195 Split legacy generic Terrain Master into the local-only out-of-scope audit inventory while promoting source-backed `tm_nightwalker` to an explicit canonical unsupported lighting-condition movement blocker.
 - [x] 4.3.196 Promote non-MASC Mek Edge triggers into explicit canonical unsupported blockers by source-pinning head-hit, TAC, KO, and explosion reroll hooks while preserving `edge_when_masc_fails` as the only integrated Edge trigger.
 - [x] 4.3.197 Promote source-backed Low Profile glancing-blow behavior into an explicit unsupported quirk blocker while preserving MekStation's local defensive to-hit helper as non-integrated deviation coverage.
+- [x] 4.3.198 Lock the post-map-merge combat branch with an integrated 30-suite regression sweep covering movement, LOS/arcs, attack projection, indirect fire, physical attacks, terrain, replay, and runtime movement state.
+- [x] 4.3.199 Align runner and interactive invalid movement parity so illegal movement emits `MovementInvalid`, preserves turn/action state, and remains visible to scenario and UI assertions.
+- [x] 4.3.200 Align indirect-fire projection and commit paths so spotter SPA hydration accepts current `pilotSpas` state, legacy `abilities` remains supported, and no-spotter blocked-LOS attempts reject without locking an attack.
+- [x] 4.3.201 Align vehicle critical location replay with runtime vehicle combat state so location-sensitive criticals update armor/structure, availability, motive, turret, rotor, and destruction-cause state through reducer replay.
+- [x] 4.3.202 Preserve merged tactical-map behavior while closing terrain identity gaps by keeping generated buildings component-stable, water/building levels positive, wreck terrain replayable, and LOS/cover metadata intact.

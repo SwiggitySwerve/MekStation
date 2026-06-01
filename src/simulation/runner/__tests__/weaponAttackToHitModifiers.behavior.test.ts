@@ -1574,7 +1574,7 @@ describe('runAttackPhase to-hit modifier integration', () => {
         'opponent-2': createUnit({
           id: 'opponent-2',
           side: GameSide.Opponent,
-          position: { q: 3, r: 0 },
+          position: { q: 3, r: -1 },
         }),
       },
     };
@@ -1665,7 +1665,7 @@ describe('runAttackPhase to-hit modifier integration', () => {
         'opponent-2': createUnit({
           id: 'opponent-2',
           side: GameSide.Opponent,
-          position: { q: 3, r: 0 },
+          position: { q: 3, r: -1 },
         }),
       },
     };

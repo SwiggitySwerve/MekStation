@@ -455,11 +455,11 @@ describe('movement', () => {
       expect(cost).toBe(1);
     });
 
-    it('should return Infinity for water with walk', () => {
+    it('should add 1 MP for water with walk', () => {
       let grid = createHexGrid({ radius: 3 });
       grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Water);
       const cost = getHexMovementCost(grid, { q: 0, r: 0 }, 'walk');
-      expect(cost).toBe(Infinity);
+      expect(cost).toBe(2);
     });
 
     it('should add 1 MP for elevation change going up', () => {
@@ -495,7 +495,7 @@ describe('movement', () => {
       expect(cost).toBe(Infinity);
     });
 
-    it('should not add cost for elevation change going down', () => {
+    it('should add MP for elevation change going down', () => {
       let grid = createHexGrid({ radius: 3 });
       grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 2);
       grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.Clear, 0);
@@ -503,7 +503,7 @@ describe('movement', () => {
         q: 0,
         r: 0,
       });
-      expect(cost).toBe(1);
+      expect(cost).toBe(3);
     });
 
     it('should combine terrain and elevation costs', () => {

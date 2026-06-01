@@ -8,6 +8,7 @@ import type {
 
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
 import { coordToKey } from '@/utils/gameplay/hexMath';
+import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 import {
   classifyLOS,
   createLOSClassifier,
@@ -16,7 +17,7 @@ import {
 function createHex(
   q: number,
   r: number,
-  terrain: TerrainType = TerrainType.Clear,
+  terrain: string = TerrainType.Clear,
   elevation = 0,
 ): IHex {
   return {
@@ -81,7 +82,7 @@ describe('losClassifier', () => {
     expect(result.engineResult.hasLOS).toBe(true);
   });
 
-  it('classifies heavy woods as partial cover when elevation lets LOS pass over it', () => {
+  it('classifies heavy woods as clear when elevation lets LOS pass over it', () => {
     const grid = createGrid([
       createHex(0, 0, TerrainType.Clear, 3),
       createHex(1, 0, TerrainType.HeavyWoods, 0),
@@ -90,14 +91,9 @@ describe('losClassifier', () => {
 
     const result = classifyLOS(origin, target, grid);
 
-    expect(result.state).toBe('partial');
-    expect(result.blockerAnnotations[0]).toEqual(
-      expect.objectContaining({
-        coord: { q: 1, r: 0 },
-        terrain: TerrainType.HeavyWoods,
-        icon: 'cover',
-      }),
-    );
+    expect(result.state).toBe('clear');
+    expect(result.blockers).toEqual([]);
+    expect(result.blockerAnnotations).toEqual([]);
     expect(result.engineResult.hasLOS).toBe(true);
   });
 
@@ -126,7 +122,11 @@ describe('losClassifier', () => {
   it('classifies a blocking building through the existing LOS result', () => {
     const grid = createGrid([
       createHex(0, 0),
-      createHex(1, 0, TerrainType.Building),
+      createHex(
+        1,
+        0,
+        terrainStringFromFeatures([{ type: TerrainType.Building, level: 2 }]),
+      ),
       createHex(2, 0),
     ]);
 

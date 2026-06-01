@@ -6,13 +6,14 @@
  * + Discriminated Initialization Assertion). Verifies:
  *   - Each of the four per-type discriminants seeds the matching `combatState`
  *     envelope using the real factory (no mocks).
- *   - Mech / vehicle / capital paths leave `combatState === undefined`.
+ *   - Mech / capital paths leave `combatState === undefined`.
  *   - Missing required fields throw an Error whose message names the unit id
  *     and the missing field(s).
  */
 
 import type { IInfantry } from '@/types/unit/PersonnelInterfaces';
 
+import { VehicleLocation } from '@/types/construction/UnitLocation';
 import {
   Facing,
   GameSide,
@@ -100,6 +101,30 @@ const SAMPLE_AERO_INIT = {
   fuelPoints: 400,
   safeThrust: 5,
   maxThrust: 8,
+} as const;
+
+const SAMPLE_VEHICLE_ARMOR = {
+  [VehicleLocation.FRONT]: 20,
+  [VehicleLocation.LEFT]: 16,
+  [VehicleLocation.RIGHT]: 16,
+  [VehicleLocation.REAR]: 12,
+  [VehicleLocation.BODY]: 10,
+} as NonNullable<IGameUnit['vehicleInit']>['armor'];
+
+const SAMPLE_VEHICLE_STRUCTURE = {
+  [VehicleLocation.FRONT]: 8,
+  [VehicleLocation.LEFT]: 8,
+  [VehicleLocation.RIGHT]: 8,
+  [VehicleLocation.REAR]: 6,
+  [VehicleLocation.BODY]: 10,
+} as NonNullable<IGameUnit['vehicleInit']>['structure'];
+
+const SAMPLE_VEHICLE_INIT: NonNullable<IGameUnit['vehicleInit']> = {
+  motionType: GroundMotionType.WIGE,
+  originalCruiseMP: 5,
+  armor: SAMPLE_VEHICLE_ARMOR,
+  structure: SAMPLE_VEHICLE_STRUCTURE,
+  altitude: 1,
 } as const;
 
 const SAMPLE_PROTO_INIT = {
@@ -276,19 +301,27 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     });
   });
 
-  it('leaves combatState undefined for VEHICLE (kind: vehicle is a future variant)', () => {
+  it('requires vehicleInit for VEHICLE combat state seeding', () => {
     const unit = baseGameUnit({ unitType: UnitType.VEHICLE });
-    const state = createInitialUnitState(unit, POSITION, Facing.North);
-    expect(state.combatState).toBeUndefined();
+    expect(() => createInitialUnitState(unit, POSITION, Facing.North)).toThrow(
+      /vehicleInit/,
+    );
   });
 
   it('copies vehicle motion type into combat state for physical targetability', () => {
     const unit = baseGameUnit({
       unitType: UnitType.VEHICLE,
       motionType: GroundMotionType.WIGE,
+      vehicleInit: SAMPLE_VEHICLE_INIT,
     });
     const state = createInitialUnitState(unit, POSITION, Facing.North);
     expect(state.motionType).toBe(GroundMotionType.WIGE);
+    expect(state.combatState?.kind).toBe('vehicle');
+    if (state.combatState?.kind === 'vehicle') {
+      expect(state.combatState.state.motionType).toBe(GroundMotionType.WIGE);
+      expect(state.combatState.state.motive.originalCruiseMP).toBe(5);
+      expect(state.combatState.state.altitude).toBe(1);
+    }
   });
 });
 

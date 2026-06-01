@@ -50,6 +50,10 @@ import {
 } from './hitLocation';
 import { isLegLocation } from './pilotingSkillRolls';
 
+type WeaponAttackDataWithToHit = {
+  readonly toHitNumber?: number;
+};
+
 export function resolveAttack(
   session: IGameSession,
   attackEvent: IGameEvent,
@@ -124,8 +128,10 @@ export function resolveAttack(
       ammoBinIdForResolved = ammoResult.event.binId;
     }
 
+    const weaponToHitNumber =
+      (weaponData as WeaponAttackDataWithToHit).toHitNumber ?? toHitNumber;
     const attackRoll = diceRoller();
-    let hit = attackRoll.total >= toHitNumber;
+    let hit = attackRoll.total >= weaponToHitNumber;
 
     // Wave 8 PR-K6: spotter-liveness mid-resolution re-check.
     // Walk session.events backward to find the IndirectFireSpotterSelected
@@ -195,7 +201,7 @@ export function resolveAttack(
         weaponId,
         weaponData,
         attackRollTotal: attackRoll.total,
-        toHitNumber,
+        toHitNumber: weaponToHitNumber,
         attackDirection: arcString,
         ammoBinId: ammoBinIdForResolved,
         targetState,
@@ -232,7 +238,7 @@ export function resolveAttack(
         targetId,
         weaponId,
         attackRoll.total,
-        toHitNumber,
+        weaponToHitNumber,
         true,
         location,
         damage,
@@ -516,7 +522,7 @@ export function resolveAttack(
         targetId,
         weaponId,
         attackRoll.total,
-        toHitNumber,
+        weaponToHitNumber,
         false,
         undefined,
         undefined,

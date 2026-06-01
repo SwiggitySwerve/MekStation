@@ -25,6 +25,7 @@ export function createPhysicalAttackDeclaredEvent(
   attackType: PhysicalAttackEventType,
   toHitNumber: number,
   limb?: IPhysicalAttackDeclaredPayload['limb'],
+  hitTable?: IPhysicalAttackDeclaredPayload['hitTable'],
 ): IGameEvent {
   const payload: IPhysicalAttackDeclaredPayload = {
     attackerId,
@@ -32,6 +33,7 @@ export function createPhysicalAttackDeclaredEvent(
     attackType,
     toHitNumber,
     limb,
+    ...(hitTable ? { hitTable } : {}),
   };
   return {
     ...createEventBase(

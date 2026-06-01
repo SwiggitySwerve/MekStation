@@ -577,6 +577,11 @@ export interface IPhysicalAttackDeclaredPayload {
    * club attacks. OPTIONAL.
    */
   readonly limb?: 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg';
+  /**
+   * Hit-location table selected at declaration time so replay resolves the
+   * same hull-down/elevation-specific table that the command preview showed.
+   */
+  readonly hitTable?: 'punch' | 'kick';
 }
 
 export interface IPhysicalDisplacement {

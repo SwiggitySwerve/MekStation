@@ -77,6 +77,20 @@ function setHex(
   return { ...grid, hexes };
 }
 
+function setElevation(
+  grid: IHexGrid,
+  coord: IHexCoordinate,
+  elevation: number,
+): IHexGrid {
+  const key = coordToKey(coord);
+  const existing = grid.hexes.get(key);
+  if (!existing) throw new Error(`Hex at ${key} does not exist in grid`);
+
+  const hexes = new Map(grid.hexes);
+  hexes.set(key, { ...existing, elevation });
+  return { ...grid, hexes };
+}
+
 function latestMovementPayload(
   session: IGameSession,
 ): IMovementDeclaredPayload {
@@ -153,39 +167,37 @@ describe('InteractiveSession movement validation', () => {
     const session = createMovementPhaseSession();
     const from = session.currentState.units['unit-player'].position;
     const target = { q: from.q + 1, r: from.r - 1 };
-    const grid = setHex(
-      createHexGrid({ radius: 5 }),
-      target,
-      TerrainType.Water,
-    );
+    const grid = setElevation(createHexGrid({ radius: 5 }), target, 3);
 
-    expect(() =>
-      applyInteractiveSessionMovement({
-        session,
-        grid,
-        movementByUnit: new Map([
-          ['unit-player', { walkMP: 5, runMP: 8, jumpMP: 0 }],
-        ]),
-        unitId: 'unit-player',
-        to: target,
-        facing: Facing.North,
-        movementType: MovementType.Walk,
-      }),
-    ).toThrow('Invalid movement for unit-player');
+    const next = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit: new Map([
+        ['unit-player', { walkMP: 5, runMP: 8, jumpMP: 0 }],
+      ]),
+      unitId: 'unit-player',
+      to: target,
+      facing: Facing.North,
+      movementType: MovementType.Walk,
+    });
 
     expect(
-      session.events.some(
+      next.events.some(
         (event) => event.type === GameEventType.MovementDeclared,
       ),
     ).toBe(false);
+    expect(
+      next.events.some((event) => event.type === GameEventType.MovementInvalid),
+    ).toBe(true);
+    expect(next.currentState.units['unit-player'].position).toEqual(from);
   });
 
-  it('rebuilds authoritative ground paths instead of trusting an illegal caller path', () => {
+  it('rejects an explicit illegal caller path before declaring movement', () => {
     const session = createMovementPhaseSession();
     const from = session.currentState.units['unit-player'].position;
-    const water = { q: from.q + 1, r: from.r - 1 };
-    const target = { q: from.q + 2, r: from.r - 2 };
-    const grid = setHex(createHexGrid({ radius: 5 }), water, TerrainType.Water);
+    const blocked = { q: from.q + 1, r: from.r };
+    const target = { q: from.q + 2, r: from.r };
+    const grid = setElevation(createHexGrid({ radius: 5 }), blocked, 3);
 
     const next = applyInteractiveSessionMovement({
       session,
@@ -197,13 +209,17 @@ describe('InteractiveSession movement validation', () => {
       to: target,
       facing: Facing.North,
       movementType: MovementType.Walk,
-      path: [from, water, target],
+      path: [from, blocked, target],
     });
 
-    const payload = latestMovementPayload(next);
-    const committedPath = payload.path ?? [];
-    expect(payload.mpUsed).toBeGreaterThan(2);
-    expect(committedPath).not.toContainEqual(water);
-    expect(committedPath[committedPath.length - 1]).toEqual(target);
+    expect(
+      next.events.some((event) => event.type === GameEventType.MovementInvalid),
+    ).toBe(true);
+    expect(
+      next.events.some(
+        (event) => event.type === GameEventType.MovementDeclared,
+      ),
+    ).toBe(false);
+    expect(next.currentState.units['unit-player'].position).toEqual(from);
   });
 });

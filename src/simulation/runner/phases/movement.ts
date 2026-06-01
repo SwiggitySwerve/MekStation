@@ -10,6 +10,7 @@ import {
   type IMovementDeclaredPayload,
   MovementType,
 } from '@/types/gameplay';
+import { createMovementInvalidEvent } from '@/utils/gameplay/gameEvents/movement';
 import {
   canUnitGoProne,
   getGoProneMpCost,
@@ -20,6 +21,7 @@ import {
   applyPartialWingJumpBonus,
   getHeatAdjustedMovementCapability,
 } from '@/utils/gameplay/movement/calculations';
+import { movementInvalidReasonFromValidation } from '@/utils/gameplay/movement/commitValidation';
 import {
   buildMovementEventPath,
   decomposeMovementSteps,
@@ -222,6 +224,22 @@ export function runMovementPhase(options: {
       );
 
       if (!validation.valid) {
+        events.push(
+          createMovementInvalidEvent(
+            gameId,
+            events.length,
+            currentState.turn,
+            unitId,
+            unit.position,
+            moveEvent.payload.to,
+            moveEvent.payload.facing as Facing,
+            moveEvent.payload.movementType,
+            movementInvalidReasonFromValidation(validation.error),
+            validation.error,
+            validation.mpCost,
+            validation.heatGenerated,
+          ),
+        );
         continue;
       }
 

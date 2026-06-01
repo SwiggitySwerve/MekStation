@@ -55,6 +55,10 @@ import {
   isPhysicalAirborneVtolOrWigeTarget,
   physicalTargetObjectTypeForUnitType,
 } from './types';
+import {
+  isAirborneVTOLOrWiGEForPhysicalAttack,
+  isVehicleCrewStunned,
+} from './unitState';
 
 const SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPE_SET = new Set<string>(
   SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
@@ -386,11 +390,21 @@ export function getEligiblePhysicalAttacks(
     componentDamage,
     heat: attacker.heat,
     attackerDestroyedLocations: attacker.destroyedLocations,
-    attackerUnitType: attacker.unitType,
+    attackerUnitType: context.attackerUnitType ?? attacker.unitType,
+    attackerMovementMode: context.attackerMovementMode,
+    attackerConversionMode:
+      context.attackerConversionMode ?? attacker.conversionMode,
+    attackerIsAirborneVTOLOrWiGE:
+      context.attackerIsAirborneVTOLOrWiGE ??
+      isAirborneVTOLOrWiGEForPhysicalAttack(
+        attacker,
+        context.attackerMovementMode,
+      ),
+    attackerVehicleCrewStunned: isVehicleCrewStunned(attacker),
     attackerIsQuad: attacker.isQuad,
     attackerIsAirborne: attacker.isAirborne,
     attackerArmsFlipped: attacker.armsFlipped,
-    targetUnitType: target.unitType,
+    targetUnitType: context.targetUnitType ?? target.unitType,
     targetPilotingSkill: target.piloting,
     attackerEvading: attacker.isEvading,
     attackerSpotting: attacker.isSpotting,
@@ -528,6 +542,8 @@ export function getEligiblePhysicalAttacks(
     pilotAbilities: context.pilotAbilities ?? attacker.abilities,
     unitQuirks: context.unitQuirks ?? attacker.unitQuirks,
     elevationDifference: context.elevationDifference,
+    elevationContext: context.elevationContext,
+    terrainContext: context.terrainContext,
   } as const;
 
   const options: IPhysicalAttackOption[] = [];

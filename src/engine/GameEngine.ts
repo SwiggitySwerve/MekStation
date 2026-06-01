@@ -56,6 +56,7 @@ export class GameEngine {
   private readonly seed: number;
   private readonly random: SeededRandom;
   private readonly grid: IHexGrid;
+  private readonly optionalRules: readonly string[];
 
   constructor(config: IGameEngineConfig = {}) {
     this.mapRadius = config.mapRadius ?? config.grid?.config.radius ?? 7;
@@ -63,6 +64,7 @@ export class GameEngine {
     this.seed = config.seed ?? Date.now();
     this.random = new SeededRandom(this.seed);
     this.grid = config.grid ?? createMinimalGrid(this.mapRadius);
+    this.optionalRules = config.optionalRules ?? [];
   }
 
   /**
@@ -94,7 +96,7 @@ export class GameEngine {
       mapRadius: this.mapRadius,
       turnLimit: this.turnLimit,
       victoryConditions: ['elimination'],
-      optionalRules: [],
+      optionalRules: [...this.optionalRules],
     };
 
     let session = createGameSession(gameConfig, gameUnits);
@@ -209,6 +211,8 @@ export class GameEngine {
       opponentUnits,
       gameUnits,
       linkage,
+      undefined,
+      this.optionalRules,
     );
   }
 

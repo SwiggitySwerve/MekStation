@@ -59,7 +59,7 @@ function buildFakeSession(): {
 } {
   const calls: FakeSessionCalls = { movement: [], attacks: [] };
 
-  const sessionSnapshot = {
+  let sessionSnapshot: IGameSession = {
     id: 'fake-session',
     createdAt: '',
     updatedAt: '',
@@ -73,9 +73,9 @@ function buildFakeSession(): {
     events: [],
     currentState: {
       gameId: 'fake-session',
-      status: 'active',
+      status: GameStatus.Active,
       turn: 1,
-      phase: 'movement',
+      phase: GamePhase.Movement,
       activationIndex: 0,
       units: {},
       turnEvents: [],
@@ -97,6 +97,32 @@ function buildFakeSession(): {
         type,
         ...(path !== undefined ? { path } : {}),
       });
+      sessionSnapshot = {
+        ...sessionSnapshot,
+        events: [
+          ...sessionSnapshot.events,
+          {
+            id: `movement-event-${sessionSnapshot.events.length}`,
+            gameId: sessionSnapshot.id,
+            sequence: sessionSnapshot.events.length,
+            timestamp: '2026-04-29T00:00:00.000Z',
+            type: GameEventType.MovementDeclared,
+            turn: 1,
+            phase: GamePhase.Movement,
+            actorId: unitId,
+            payload: {
+              unitId,
+              from: { q: 0, r: 0 },
+              to,
+              facing,
+              movementType: type,
+              path,
+              mpUsed: path?.length ?? 0,
+              heatGenerated: 0,
+            },
+          },
+        ],
+      };
     },
     applyAttack: (
       attackerId: string,
@@ -257,6 +283,7 @@ describe('useGameplayStore — combat-phase planning actions', () => {
       expect(useGameplayStore.getState().attackPlan).toEqual({
         targetUnitId: null,
         selectedWeapons: [],
+        weaponModeError: null,
       });
     });
 
@@ -291,6 +318,7 @@ describe('useGameplayStore — combat-phase planning actions', () => {
       expect(useGameplayStore.getState().attackPlan).toEqual({
         targetUnitId: null,
         selectedWeapons: [],
+        weaponModeError: null,
       });
       expect(useGameplayStore.getState().ui.targetUnitId).toBeNull();
     });
@@ -315,6 +343,7 @@ describe('useGameplayStore — combat-phase planning actions', () => {
         attackPlan: {
           targetUnitId: 'enemy-1',
           selectedWeapons: ['med-laser', 'ac20'],
+          weaponModeError: null,
         },
         ui: {
           ...useGameplayStore.getState().ui,
@@ -332,6 +361,7 @@ describe('useGameplayStore — combat-phase planning actions', () => {
       expect(useGameplayStore.getState().attackPlan).toEqual({
         targetUnitId: null,
         selectedWeapons: [],
+        weaponModeError: null,
       });
     });
   });

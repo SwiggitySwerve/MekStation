@@ -21,6 +21,10 @@ import {
 } from '@/types/gameplay';
 
 import { D6Roller, defaultD6Roller, roll2d6 } from './diceTypes';
+import {
+  vehicleCritFromRollForLocation,
+  type IVehicleCriticalTableContext,
+} from './vehicleCriticalTables';
 
 // =============================================================================
 // Crit Table
@@ -58,9 +62,15 @@ export function vehicleCritFromRoll(
 
 export function rollVehicleCrit(
   diceRoller: D6Roller = defaultD6Roller,
-  _context?: unknown,
+  context?: IVehicleCriticalTableContext,
 ): IVehicleCritRollResult {
   const rolled = roll2d6(diceRoller);
+  if (context) {
+    return vehicleCritFromRollForLocation(
+      [rolled.dice[0], rolled.dice[1]],
+      context,
+    );
+  }
   return vehicleCritFromRoll([rolled.dice[0], rolled.dice[1]]);
 }
 
@@ -143,6 +153,39 @@ export function applyVehicleCritEffect(
       // Cargo / infantry damage handled by transport subsystem.
       return { state, applied, ammoExplosion: false };
 
+    case 'crew_killed':
+      next = {
+        ...state,
+        destroyed: true,
+        destructionCause: 'crew_killed',
+      };
+      break;
+
+    case 'commander_hit': {
+      const newCommanderHits = state.motive.commanderHits + 1;
+      const crewKilled = newCommanderHits >= 2;
+      next = {
+        ...state,
+        motive: { ...state.motive, commanderHits: newCommanderHits },
+        destroyed: crewKilled ? true : state.destroyed,
+        destructionCause: crewKilled ? 'crew_killed' : state.destructionCause,
+      };
+      break;
+    }
+
+    case 'copilot_hit':
+    case 'pilot_hit': {
+      const newDriverHits = state.motive.driverHits + 1;
+      const crewKilled = newDriverHits >= 2;
+      next = {
+        ...state,
+        motive: { ...state.motive, driverHits: newDriverHits },
+        destroyed: crewKilled ? true : state.destroyed,
+        destructionCause: crewKilled ? 'crew_killed' : state.destructionCause,
+      };
+      break;
+    }
+
     case 'driver_hit': {
       const newDriverHits = state.motive.driverHits + 1;
       const crewKilled = newDriverHits >= 2;
@@ -204,6 +247,34 @@ export function applyVehicleCritEffect(
       };
       break;
     }
+
+    case 'stabilizer_hit':
+    case 'flight_stabilizer':
+    case 'sensor_hit':
+    case 'weapon_jammed':
+    case 'weapon_destroyed':
+    case 'rotor_damage':
+      return { state, applied, ammoExplosion: false };
+
+    case 'turret_jammed':
+    case 'turret_locked':
+      next = applyTurretLocked(state);
+      break;
+
+    case 'turret_destroyed':
+      next = {
+        ...state,
+        destroyed: true,
+        destructionCause: 'turret_destroyed',
+      };
+      break;
+
+    case 'rotor_destroyed':
+      next = {
+        ...state,
+        motive: { ...state.motive, immobilized: true },
+      };
+      break;
   }
 
   return { state: next, applied, ammoExplosion };

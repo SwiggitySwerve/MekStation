@@ -270,7 +270,7 @@ describe('applyInteractiveSessionRuntimeMovementState', () => {
     expect(appended[5].phase).toBe(GamePhase.Movement);
     expect(appended[6].payload as IUnitDestroyedPayload).toMatchObject({
       unitId: 'lam-1',
-      cause: 'damage',
+      cause: 'ct_destroyed',
     });
     expect(appended[6].phase).toBe(GamePhase.Movement);
     expect(result.currentState.units['lam-1']).toMatchObject({
@@ -319,6 +319,7 @@ describe('applyInteractiveSessionRuntimeMovementState', () => {
       GameEventType.CriticalHit,
       GameEventType.CriticalHitResolved,
       GameEventType.ComponentDestroyed,
+      GameEventType.PSRTriggered,
       GameEventType.PilotHit,
     ]);
 

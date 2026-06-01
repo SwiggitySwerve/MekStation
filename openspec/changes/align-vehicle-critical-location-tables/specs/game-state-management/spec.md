@@ -26,3 +26,29 @@ the vehicle combat-state envelope.
 - **WHEN** a `CriticalHitResolved` event with `effect: "rotor_destroyed"` is
   replayed
 - **THEN** the vehicle motive state SHALL be immobilized.
+
+#### Scenario: Vehicle damage replay updates inner armor and structure
+
+- **GIVEN** a unit with `combatState.kind === "vehicle"`
+- **WHEN** a `DamageApplied` event is replayed against a vehicle location
+- **THEN** the vehicle combat-state envelope SHALL update the matching inner
+  armor and structure values
+- **AND** destroyed vehicle locations SHALL be recorded inside the vehicle
+  state, not only on the outer unit record.
+
+#### Scenario: Weapon critical replay records availability state
+
+- **GIVEN** a unit with `combatState.kind === "vehicle"`
+- **WHEN** a `CriticalHitResolved` event with `effect: "weapon_destroyed"` is
+  replayed for a mounted vehicle weapon
+- **THEN** the affected weapon SHALL be unavailable in the vehicle combat-state
+  envelope.
+
+#### Scenario: Critical destruction cause survives unit destruction replay
+
+- **GIVEN** a vehicle critical has already marked the vehicle destroyed with a
+  critical-specific destruction cause
+- **WHEN** a later `UnitDestroyed` event for the same vehicle is replayed
+- **THEN** the vehicle combat-state envelope SHALL preserve the
+  critical-specific destruction cause instead of replacing it with a generic
+  unit-destroyed cause.

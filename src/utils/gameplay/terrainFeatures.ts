@@ -37,13 +37,18 @@ const NEIGHBOUR_OFFSETS: readonly [number, number][] = [
 
 /**
  * Replace the single feature on a hex with the given terrain type, preserving
- * the hex coordinate and elevation. Water is given level 1 to match the base
- * generator's convention.
+ * the hex coordinate and elevation. Water and buildings are given level 1 to
+ * match the base generator's depth/height convention.
  */
-function stampHex(hex: IHexTerrain, type: TerrainType): IHexTerrain {
+function stampHex(
+  hex: IHexTerrain,
+  type: TerrainType,
+  overrides: Partial<Omit<ITerrainFeature, 'type'>> = {},
+): IHexTerrain {
   const feature: ITerrainFeature = {
     type,
-    level: type === TerrainType.Water ? 1 : 0,
+    level: type === TerrainType.Water || type === TerrainType.Building ? 1 : 0,
+    ...overrides,
   };
   return {
     coordinate: hex.coordinate,
@@ -207,6 +212,57 @@ function placeBuildingFootprints(
 }
 
 /**
+ * Assign deterministic IDs to the final connected building components. This
+ * runs after roads because road tracing can split or erase generated
+ * footprints.
+ */
+function assignBuildingComponentIds(
+  out: IHexTerrain[],
+  buildingHexes: ReadonlySet<number>,
+  width: number,
+  height: number,
+): void {
+  const visited = new Set<number>();
+  const sortedBuildingHexes = Array.from(buildingHexes).sort((a, b) => a - b);
+
+  for (const startIdx of sortedBuildingHexes) {
+    if (visited.has(startIdx)) continue;
+
+    const component: number[] = [];
+    const frontier = [startIdx];
+    visited.add(startIdx);
+
+    while (frontier.length > 0) {
+      const current = frontier.pop();
+      if (current === undefined) continue;
+      component.push(current);
+
+      const cq = current % width;
+      const cr = Math.floor(current / width);
+      for (const [dq, dr] of NEIGHBOUR_OFFSETS) {
+        const nq = cq + dq;
+        const nr = cr + dr;
+        if (nq < 0 || nq >= width || nr < 0 || nr >= height) continue;
+
+        const nIdx = hexIndex(nq, nr, width);
+        if (visited.has(nIdx) || !buildingHexes.has(nIdx)) continue;
+        visited.add(nIdx);
+        frontier.push(nIdx);
+      }
+    }
+
+    const anchorIdx = Math.min(...component);
+    const anchorQ = anchorIdx % width;
+    const anchorR = Math.floor(anchorIdx / width);
+    const buildingId = `building-${anchorQ}-${anchorR}`;
+
+    for (const idx of component) {
+      out[idx] = stampHex(out[idx], TerrainType.Building, { buildingId });
+    }
+  }
+}
+
+/**
  * Trace a connected `Road` path between two seeded map edges. Returns the
  * ordered list of linear hex indices on the path. On a grid too small to
  * trace a path (any dimension < 3) an empty list is returned and the caller
@@ -318,6 +374,8 @@ export function applyPresetFeatures(
 
   // Phase 4: pavement auto-fill — every still-natural hex orthogonally
   // adjacent to a building becomes pavement (D4).
+  assignBuildingComponentIds(out, buildingHexes, width, height);
+
   if (buildingHexes.size > 0) {
     const pavementHexes = new Set<number>();
     buildingHexes.forEach((bIdx) => {

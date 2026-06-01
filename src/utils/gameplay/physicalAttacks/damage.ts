@@ -42,7 +42,9 @@ import { getThrashAttackDamageForWeight } from './thrashEligibility';
 import {
   IPhysicalAttackInput,
   IPhysicalDamageResult,
+  PhysicalHitTable,
   PhysicalAttackType,
+  SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
 } from './types';
 
 export interface IPhysicalDamageCluster {
@@ -489,6 +491,52 @@ export function splitPhysicalDamageIntoClusters(
   return clusters;
 }
 
+const MELEE_WEAPON_ATTACK_TYPE_SET = new Set<string>(
+  SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
+);
+const MEK_TARGET_TYPES = new Set([
+  'battlemech',
+  'mek',
+  'mech',
+  'omnimech',
+  'industrialmech',
+]);
+
+function isMeleeWeaponAttack(attackType: PhysicalAttackType): boolean {
+  return MELEE_WEAPON_ATTACK_TYPE_SET.has(attackType);
+}
+
+function representedMekTarget(unitType: string | undefined): boolean {
+  const canonical = unitType?.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return canonical === undefined || MEK_TARGET_TYPES.has(canonical);
+}
+
+export function selectPhysicalHitTable(
+  input: IPhysicalAttackInput,
+): PhysicalHitTable {
+  if (input.hitTableOverride) return input.hitTableOverride;
+  if (input.attackType === 'kick') return 'kick';
+
+  if (input.attackType === 'punch') {
+    if (!input.attackerHullDown || !input.elevationContext) return 'punch';
+
+    return input.elevationContext.attackerArmElevation >
+      input.elevationContext.targetBaseElevation
+      ? 'punch'
+      : 'kick';
+  }
+
+  if (
+    isMeleeWeaponAttack(input.attackType) &&
+    input.attackerHullDown &&
+    representedMekTarget(input.targetUnitType)
+  ) {
+    return 'kick';
+  }
+
+  return 'punch';
+}
+
 export function calculatePhysicalDamage(
   input: IPhysicalAttackInput,
 ): IPhysicalDamageResult {
@@ -501,7 +549,7 @@ export function calculatePhysicalDamage(
         targetPSR: false,
         attackerPSR: false,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     case 'kick':
@@ -523,7 +571,7 @@ export function calculatePhysicalDamage(
         targetPSR: true,
         attackerPSR: true,
         attackerPSRModifier: CHARGE_HIT_PSR_MODIFIER,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     case 'dfa':
@@ -534,7 +582,7 @@ export function calculatePhysicalDamage(
         targetPSR: true,
         attackerPSR: true,
         attackerPSRModifier: DFA_HIT_ATTACKER_PSR_MODIFIER,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     case 'push':
@@ -545,7 +593,7 @@ export function calculatePhysicalDamage(
         targetPSR: true,
         attackerPSR: false,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: true,
       };
     case 'trip':
@@ -556,7 +604,7 @@ export function calculatePhysicalDamage(
         targetPSR: true,
         attackerPSR: false,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     case 'thrash':
@@ -567,7 +615,7 @@ export function calculatePhysicalDamage(
         targetPSR: false,
         attackerPSR: true,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     case 'jump-jet-attack':
@@ -578,7 +626,7 @@ export function calculatePhysicalDamage(
         targetPSR: false,
         attackerPSR: false,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     case 'brush-off':
@@ -589,7 +637,7 @@ export function calculatePhysicalDamage(
         targetPSR: false,
         attackerPSR: false,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     case 'grapple':
@@ -601,7 +649,7 @@ export function calculatePhysicalDamage(
         targetPSR: false,
         attackerPSR: false,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     case 'hatchet':
@@ -612,7 +660,7 @@ export function calculatePhysicalDamage(
         targetPSR: false,
         attackerPSR: false,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     case 'sword':
@@ -623,7 +671,7 @@ export function calculatePhysicalDamage(
         targetPSR: false,
         attackerPSR: false,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     case 'mace':
@@ -634,7 +682,7 @@ export function calculatePhysicalDamage(
         targetPSR: false,
         attackerPSR: false,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     case 'lance':
@@ -648,7 +696,7 @@ export function calculatePhysicalDamage(
         targetPSR: false,
         attackerPSR: false,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     case 'retractable-blade':
@@ -659,7 +707,7 @@ export function calculatePhysicalDamage(
         targetPSR: false,
         attackerPSR: false,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     case 'flail':
@@ -670,7 +718,7 @@ export function calculatePhysicalDamage(
         targetPSR: false,
         attackerPSR: false,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     case 'wrecking-ball':
@@ -681,7 +729,7 @@ export function calculatePhysicalDamage(
         targetPSR: false,
         attackerPSR: false,
         attackerPSRModifier: 0,
-        hitTable: 'punch',
+        hitTable: selectPhysicalHitTable(input),
         targetDisplaced: false,
       };
     default:

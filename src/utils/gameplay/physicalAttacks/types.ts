@@ -37,6 +37,8 @@ export const SUPPORTED_PHYSICAL_ATTACK_TYPES = [
 export type PhysicalAttackType =
   (typeof SUPPORTED_PHYSICAL_ATTACK_TYPES)[number];
 
+export type PhysicalHitTable = 'punch' | 'kick';
+
 export type PhysicalTargetObjectType =
   | 'entity'
   | 'building'
@@ -586,6 +588,7 @@ export interface IPhysicalAttackInput {
   readonly targetHeight?: number;
   readonly elevationContext?: IPhysicalAttackElevationContext;
   readonly terrainContext?: IPhysicalAttackTerrainContext;
+  readonly hitTableOverride?: PhysicalHitTable;
 }
 
 export interface IPhysicalToHitResult {
@@ -616,7 +619,7 @@ export interface IPhysicalDamageResult {
   readonly targetPSR: boolean;
   readonly attackerPSR: boolean;
   readonly attackerPSRModifier: number;
-  readonly hitTable: 'punch' | 'kick';
+  readonly hitTable: PhysicalHitTable;
   readonly targetDisplaced: boolean;
 }
 

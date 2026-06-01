@@ -306,7 +306,7 @@ describe('applyInteractiveSessionAttack — indirect-fire wiring (PR-K5)', () =>
     });
   });
 
-  it('NEGATIVE: no spotter present — no indirect-fire events emitted', () => {
+  it('NEGATIVE: no spotter present rejects blocked-LOS indirect fire', () => {
     const session = setupSessionAtWeaponAttack(false);
     const grid = makeBlockedGrid();
 
@@ -319,16 +319,19 @@ describe('applyInteractiveSessionAttack — indirect-fire wiring (PR-K5)', () =>
       grid,
     });
 
-    // AttackDeclared still emitted, but no Indirect fire modifier
-    const declared = result.events.find(
-      (e) => e.type === GameEventType.AttackDeclared,
+    const newEvents = result.events.slice(session.events.length);
+    expect(newEvents.map((event) => event.type)).toEqual([
+      GameEventType.AttackInvalid,
+    ]);
+    expect(newEvents[0].payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponId: 'lrm-15-1',
+      reason: 'NoLineOfSight',
+    });
+    expect(result.currentState.units.a1.lockState).toBe(
+      session.currentState.units.a1.lockState,
     );
-    expect(declared).toBeDefined();
-    const declaredPayload = declared!.payload as IAttackDeclaredPayload;
-    const indirectMod = declaredPayload.modifiers.find(
-      (m) => m.name === 'Indirect fire',
-    );
-    expect(indirectMod).toBeUndefined();
 
     // No indirect-fire events
     const indirectEvents = result.events.filter(

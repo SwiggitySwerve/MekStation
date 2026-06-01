@@ -601,7 +601,7 @@ describe('buildCommandPreviewInputs', () => {
       restrictionsFailed: ['TargetNotMek'],
       toHit: {
         allowed: false,
-        restrictionReason: 'Target is not a mek',
+        restrictionReason: 'Push target must be a Mek',
         restrictionReasonCode: 'TargetNotMek',
       },
     });
@@ -654,7 +654,7 @@ describe('buildCommandPreviewInputs', () => {
       restrictionsFailed: ['LimbMissing'],
       toHit: {
         allowed: false,
-        restrictionReason: 'Arm missing',
+        restrictionReason: 'Both arms must be present to push',
         restrictionReasonCode: 'LimbMissing',
       },
     });

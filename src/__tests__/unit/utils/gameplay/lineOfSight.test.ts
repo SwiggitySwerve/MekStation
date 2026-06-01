@@ -122,7 +122,7 @@ describe('lineOfSight', () => {
       expect(result.interveningHexes).toHaveLength(0);
     });
 
-    it('should block adjacent land-to-underwater LOS at depth 2+', () => {
+    it('should keep adjacent land-to-underwater LOS clear at depth 2+', () => {
       const hexes = [
         createHex(0, 0, TerrainType.Clear, 0),
         createHex(1, 0, 'water:2', 0),
@@ -131,13 +131,13 @@ describe('lineOfSight', () => {
 
       const result = calculateLOS({ q: 0, r: 0 }, { q: 1, r: 0 }, grid);
 
-      expect(result.hasLOS).toBe(false);
-      expect(result.blockedBy).toEqual({ q: 1, r: 0 });
-      expect(result.blockingTerrain).toBe(TerrainType.Water);
+      expect(result.hasLOS).toBe(true);
+      expect(result.blockedBy).toBeUndefined();
+      expect(result.blockingTerrain).toBeUndefined();
       expect(result.interveningHexes).toHaveLength(0);
     });
 
-    it('should block underwater-to-land LOS at depth 2+', () => {
+    it('should keep adjacent underwater-to-land LOS clear at depth 2+', () => {
       const underwater: ITerrainFeature[] = [
         { type: TerrainType.Water, level: 2 },
       ];
@@ -149,9 +149,9 @@ describe('lineOfSight', () => {
 
       const result = calculateLOS({ q: 0, r: 0 }, { q: 1, r: 0 }, grid);
 
-      expect(result.hasLOS).toBe(false);
-      expect(result.blockedBy).toEqual({ q: 0, r: 0 });
-      expect(result.blockingTerrain).toBe(TerrainType.Water);
+      expect(result.hasLOS).toBe(true);
+      expect(result.blockedBy).toBeUndefined();
+      expect(result.blockingTerrain).toBeUndefined();
     });
 
     it('should allow shallow-water-to-underwater endpoint LOS through this narrow water gate', () => {
@@ -277,7 +277,7 @@ describe('lineOfSight', () => {
       expect(result.blockingTerrain).toBe(TerrainType.HeavyWoods);
     });
 
-    it('should return hasLOS=false when building blocks', () => {
+    it('should keep LOS clear through a level-1 building equal to mech height', () => {
       const hexes = [
         createHex(0, 0, TerrainType.Clear, 0),
         createHex(1, 0, TerrainType.Building, 0),
@@ -289,8 +289,8 @@ describe('lineOfSight', () => {
       const to: IHexCoordinate = { q: 2, r: 0 };
       const result = calculateLOS(from, to, grid);
 
-      expect(result.hasLOS).toBe(false);
-      expect(result.blockingTerrain).toBe(TerrainType.Building);
+      expect(result.hasLOS).toBe(true);
+      expect(result.blockingTerrain).toBeUndefined();
     });
 
     it('should allow LOS over woods from higher elevation', () => {

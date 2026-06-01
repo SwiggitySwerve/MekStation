@@ -153,6 +153,20 @@ function setHex(
   return { ...grid, hexes };
 }
 
+function setElevation(
+  grid: IHexGrid,
+  coord: IHexCoordinate,
+  elevation: number,
+): IHexGrid {
+  const key = coordToKey(coord);
+  const existing = grid.hexes.get(key);
+  if (!existing) throw new Error(`Hex at ${key} does not exist in grid`);
+
+  const hexes = new Map(grid.hexes);
+  hexes.set(key, { ...existing, elevation });
+  return { ...grid, hexes };
+}
+
 function movementPayloads(
   session: IGameSession,
 ): readonly IMovementDeclaredPayload[] {
@@ -205,11 +219,7 @@ describe('GameEngine movement phase validation', () => {
     const session = createMovementPhaseSession();
     const from = session.currentState.units['unit-player'].position;
     const target = { q: from.q + 1, r: from.r - 1 };
-    const grid = setHex(
-      createHexGrid({ radius: 5 }),
-      target,
-      TerrainType.Water,
-    );
+    const grid = setElevation(createHexGrid({ radius: 5 }), target, 3);
 
     const next = runMovementPhase(
       session,

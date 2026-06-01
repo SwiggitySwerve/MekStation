@@ -1,9 +1,9 @@
 /**
  * terrainCover — partial-cover-from-terrain tests.
  *
- * `hexProvidesPartialCover` reads the canonical `TERRAIN_PROPERTIES` cover
- * mapping. These tests pin which terrain types grant partial cover and that
- * unrecognised / absent terrain never over-reports cover.
+ * `hexProvidesPartialCover` reads the source-pinned target-hex partial-cover
+ * subset. Woods/smoke target terrain modifiers are intentionally kept out of
+ * true partial cover so hit-location behavior stays rules-backed.
  *
  * @spec openspec/changes/complete-partial-cover-rules/specs/to-hit-resolution/spec.md
  */
@@ -27,23 +27,23 @@ function hex(terrain: string): IHex {
 describe('hexProvidesPartialCover', () => {
   it('returns true for terrain whose canonical cover level is Partial', () => {
     for (const t of [
-      TerrainType.LightWoods,
       TerrainType.Water,
       TerrainType.Swamp,
       TerrainType.Building,
-      TerrainType.Smoke,
     ]) {
       expect(hexProvidesPartialCover(hex(t))).toBe(true);
     }
   });
 
-  it('returns false for open terrain (cover level None)', () => {
+  it('returns false for open terrain and target terrain modifiers', () => {
     for (const t of [
       TerrainType.Clear,
       TerrainType.Pavement,
       TerrainType.Road,
       TerrainType.Rough,
       TerrainType.Rubble,
+      TerrainType.LightWoods,
+      TerrainType.Smoke,
     ]) {
       expect(hexProvidesPartialCover(hex(t))).toBe(false);
     }

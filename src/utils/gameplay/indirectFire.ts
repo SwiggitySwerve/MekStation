@@ -16,7 +16,7 @@ import { IHexCoordinate, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 
 import { hexDistance } from './hexMath';
 import { calculateLOS, ILOSResult } from './lineOfSight';
-import { getObliqueAttackerBonus } from './spaModifiers';
+import { getObliqueAttackerBonus, hasSPA } from './spaModifiers';
 import {
   isSemiGuidedLRM,
   isTargetTAGDesignated,
@@ -449,32 +449,10 @@ export function resolveIndirectFire(
     };
   }
 
-  // MegaMek's ComputeToHit first treats a friendly NARC/iNarc-marked
-  // target as the indirect spotter, then falls back to ordinary LOS spotters.
+  // Prefer a represented LOS spotter when one exists; NARC/iNarc then covers
+  // otherwise unspotted indirect fire.
   const narcMarked = request.targetNarcMarkedByTeam === true;
   const inarcMarked = request.targetINarcMarkedByTeam === true;
-
-  if (narcMarked) {
-    return {
-      permitted: true,
-      isIndirect: true,
-      basis: 'narc',
-      spotterWalked: false,
-      toHitPenalty: Math.max(0, 1 + obliqueAttackerModifier),
-      obliqueAttackerApplied,
-    };
-  }
-
-  if (inarcMarked) {
-    return {
-      permitted: true,
-      isIndirect: true,
-      basis: 'inarc',
-      spotterWalked: false,
-      toHitPenalty: Math.max(0, 1 + obliqueAttackerModifier),
-      obliqueAttackerApplied,
-    };
-  }
 
   const spotterResult = findBestSpotter(
     request.spotterCandidates,
@@ -491,7 +469,7 @@ export function resolveIndirectFire(
     // Forward Observer SPA cancels the +1 spotter-walked add. The base +1
     // indirect-fire penalty still applies, and run/jump spotter penalties are
     // left intact until those SPA interactions are represented explicitly.
-    const hasFoSpa = spotter.pilotSpas?.includes('forward_observer') ?? false;
+    const hasFoSpa = hasSPA(spotter.pilotSpas ?? [], 'forward_observer');
     const forwardObserverApplied = spotterWalked && hasFoSpa;
     const movementPenalty = forwardObserverApplied
       ? 0
@@ -528,6 +506,28 @@ export function resolveIndirectFire(
   }
 
   // No spotter and no NARC/iNarc override — reject.
+  if (narcMarked) {
+    return {
+      permitted: true,
+      isIndirect: true,
+      basis: 'narc',
+      spotterWalked: false,
+      toHitPenalty: Math.max(0, 1 + obliqueAttackerModifier),
+      obliqueAttackerApplied,
+    };
+  }
+
+  if (inarcMarked) {
+    return {
+      permitted: true,
+      isIndirect: true,
+      basis: 'inarc',
+      spotterWalked: false,
+      toHitPenalty: Math.max(0, 1 + obliqueAttackerModifier),
+      obliqueAttackerApplied,
+    };
+  }
+
   return {
     permitted: false,
     reason:
@@ -668,13 +668,7 @@ export function resolveIndirectFireWithSemiGuided(
     return {
       ...baseResult,
       basis: 'semi-guided-tag',
-      spotter: undefined,
-      toHitPenalty: 0,
-      spotterGunnery: undefined,
-      spotterSkillModifier: undefined,
-      spotterWalked: false,
-      forwardObserverApplied: false,
-      spotterMovementPenaltyCancelled: 0,
+      toHitPenalty: Math.max(0, baseResult.toHitPenalty - 1),
     };
   }
 

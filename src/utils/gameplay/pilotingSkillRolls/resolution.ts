@@ -26,6 +26,11 @@ import { IPSRResult, IPSRBatchResult, IPSRModifier, PSRTrigger } from './types';
 export interface IPSRResolutionOptions {
   readonly gyroType?: RepresentedGyroType;
   readonly optionalRules?: readonly string[];
+  readonly unitQuirks?: readonly string[];
+  readonly pilotAbilities?: readonly string[];
+  readonly isQuadMek?: boolean;
+  readonly unitType?: string;
+  readonly pilotingSkill?: number;
 }
 
 function isTerrainPSR(psr: IPendingPSR): boolean {
@@ -206,7 +211,21 @@ export function calculatePSRModifiers(
   const options: IPSRResolutionOptions = unitQuirksIsList
     ? {}
     : (unitQuirks as IPSRResolutionOptions);
-  const normalizedUnitQuirks = unitQuirksIsList ? unitQuirks : [];
+  const normalizedUnitQuirks = unitQuirksIsList
+    ? unitQuirks
+    : (options.unitQuirks ?? []);
+  const normalizedPilotAbilities = unitQuirksIsList
+    ? pilotAbilities
+    : (options.pilotAbilities ?? pilotAbilities);
+  const normalizedIsQuadMek = unitQuirksIsList
+    ? isQuadMek
+    : (options.isQuadMek ?? isQuadMek);
+  const normalizedUnitType = unitQuirksIsList
+    ? unitType
+    : (options.unitType ?? unitType);
+  const normalizedPilotingSkill = unitQuirksIsList
+    ? pilotingSkill
+    : (options.pilotingSkill ?? pilotingSkill);
   if (psr.fixedTargetNumber !== undefined) {
     return psr.additionalModifier !== 0
       ? [
@@ -293,8 +312,8 @@ export function calculatePSRModifiers(
     normalizedUnitQuirks,
     isTerrainPSR(psr),
     psr.reasonCode ?? psr.triggerSource,
-    pilotingSkill,
-    pilotAbilities,
+    normalizedPilotingSkill,
+    normalizedPilotAbilities,
   );
   if (quirkModifier !== 0) {
     modifiers.push({
@@ -305,8 +324,9 @@ export function calculatePSRModifiers(
   }
 
   if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.Skidding) {
-    const maneuveringAceModifier =
-      getManeuveringAceSkidModifier(pilotAbilities);
+    const maneuveringAceModifier = getManeuveringAceSkidModifier(
+      normalizedPilotAbilities,
+    );
     if (maneuveringAceModifier !== 0) {
       modifiers.push({
         name: 'Maneuvering Ace',
@@ -318,9 +338,9 @@ export function calculatePSRModifiers(
 
   if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.EnteringWater) {
     const frogmanModifier = getFrogmanWaterPSRModifier(
-      pilotAbilities,
+      normalizedPilotAbilities,
       psr.terrainLevel,
-      unitType,
+      normalizedUnitType,
     );
     if (frogmanModifier !== 0) {
       modifiers.push({
@@ -332,7 +352,9 @@ export function calculatePSRModifiers(
   }
 
   if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.EnteringRubble) {
-    const mountaineerModifier = getMountaineerRubblePSRModifier(pilotAbilities);
+    const mountaineerModifier = getMountaineerRubblePSRModifier(
+      normalizedPilotAbilities,
+    );
     if (mountaineerModifier !== 0) {
       modifiers.push({
         name: 'Mountaineer',
@@ -343,7 +365,9 @@ export function calculatePSRModifiers(
   }
 
   if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.SwampBogDown) {
-    const swampBeastModifier = getSwampBeastBogDownPSRModifier(pilotAbilities);
+    const swampBeastModifier = getSwampBeastBogDownPSRModifier(
+      normalizedPilotAbilities,
+    );
     if (swampBeastModifier !== 0) {
       modifiers.push({
         name: 'Swamp Beast',
@@ -354,8 +378,8 @@ export function calculatePSRModifiers(
   }
 
   const animalMimicryModifier = getAnimalMimicryPSRModifier(
-    pilotAbilities,
-    isQuadMek,
+    normalizedPilotAbilities,
+    normalizedIsQuadMek,
   );
   if (animalMimicryModifier !== 0) {
     modifiers.push({

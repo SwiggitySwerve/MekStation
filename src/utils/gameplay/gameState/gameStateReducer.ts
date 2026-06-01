@@ -34,6 +34,7 @@ import {
   IShutdownCheckPayload,
   ISpottingDeclaredPayload,
   IStartupAttemptPayload,
+  ITerrainChangedPayload,
   IUnitEjectedPayload,
   IUnitDestroyedPayload,
   IUnitFellPayload,
@@ -103,6 +104,7 @@ import {
   applyPhaseChanged,
   applyTurnStarted,
 } from './phaseManagement';
+import { applyTerrainChanged } from './terrainReducer';
 
 export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
   switch (event.type) {
@@ -280,6 +282,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
       return applyObjectiveProgress(
         state,
         event.payload as IObjectiveProgressPayload,
+      );
+
+    case GameEventType.TerrainChanged:
+      return applyTerrainChanged(
+        state,
+        event.payload as ITerrainChangedPayload,
       );
 
     case GameEventType.TurnEnded:
