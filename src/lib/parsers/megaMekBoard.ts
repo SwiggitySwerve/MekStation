@@ -43,6 +43,46 @@ function convertOffsetToAxial(
   return { q, r };
 }
 
+function formatMegaMekBoardCoordinatePart(value: number): string {
+  return value < 10 ? `0${value}` : `${value}`;
+}
+
+function parseMegaMekBoardCoordinate(
+  coordStr: string,
+  width: number,
+  height: number,
+): { col: number; row: number } {
+  if (!/^\d{4,}$/.test(coordStr)) {
+    throw new Error('Invalid hex coordinate');
+  }
+
+  const candidates: Array<{ col: number; row: number }> = [];
+
+  for (let splitIndex = 2; splitIndex <= coordStr.length - 2; splitIndex++) {
+    const col = parseInt(coordStr.slice(0, splitIndex), 10);
+    const row = parseInt(coordStr.slice(splitIndex), 10);
+
+    if (
+      col < 1 ||
+      col > width ||
+      row < 1 ||
+      row > height ||
+      `${formatMegaMekBoardCoordinatePart(col)}${formatMegaMekBoardCoordinatePart(row)}` !==
+        coordStr
+    ) {
+      continue;
+    }
+
+    candidates.push({ col, row });
+  }
+
+  if (candidates.length !== 1) {
+    throw new Error('Invalid hex coordinate');
+  }
+
+  return candidates[0];
+}
+
 function parseTerrainString(terrainStr: string): {
   features: ITerrainFeature[];
   buildingCF?: number;
@@ -212,12 +252,7 @@ export function parseMegaMekBoard(content: string): ParsedBoard {
       const elevationStr = parts[1];
       const terrainStr = parts.slice(2).join(' ');
 
-      if (!/^\d{4}$/.test(coordStr)) {
-        throw new Error('Invalid hex coordinate');
-      }
-
-      const col = parseInt(coordStr.substring(0, 2), 10);
-      const row = parseInt(coordStr.substring(2, 4), 10);
+      const { col, row } = parseMegaMekBoardCoordinate(coordStr, width, height);
       const elevation = parseInt(elevationStr, 10);
 
       if (isNaN(elevation)) {

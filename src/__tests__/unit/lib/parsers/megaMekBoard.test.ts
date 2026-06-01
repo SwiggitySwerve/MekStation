@@ -87,6 +87,22 @@ end`;
       // col=3, row=3: q = 3-1 = 2, r = 3-1 - floor(2/2) = 2 - 1 = 1
       expect(result.hexes[0].coordinate).toEqual({ q: 2, r: 1 });
     });
+
+    it('should parse MegaMek large-board coordinates with three-digit columns', () => {
+      const content = `size 170 120
+hex 10412 0 "" ""
+end`;
+      const result = parseMegaMekBoard(content);
+      expect(result.hexes[0].coordinate).toEqual({ q: 103, r: -40 });
+    });
+
+    it('should parse MegaMek large-board coordinates with three-digit rows', () => {
+      const content = `size 170 120
+hex 104120 0 "" ""
+end`;
+      const result = parseMegaMekBoard(content);
+      expect(result.hexes[0].coordinate).toEqual({ q: 103, r: 68 });
+    });
   });
 
   describe('single terrain features', () => {
@@ -349,6 +365,23 @@ end`;
         cliffTopExits: [Facing.Southeast],
       });
     });
+
+    it('should parse large-board cliff_top exits from MegaMek board labels', () => {
+      const content = `size 170 120
+hex 9916 3 "" ""
+hex 10015 3 "" ""
+hex 10016 4 "cliff_top:1:33;pavement:1" ""
+end`;
+      const result = parseMegaMekBoard(content);
+      const cliffHex = result.hexes.find(
+        (hex) => hex.coordinate.q === 99 && hex.coordinate.r === -34,
+      );
+      expect(cliffHex?.features[0]).toEqual({
+        type: TerrainType.Pavement,
+        level: 1,
+        cliffTopExits: [Facing.North, Facing.Northwest],
+      });
+    });
   });
 
   describe('full board parsing', () => {
@@ -448,6 +481,15 @@ end`;
     it('should throw on invalid hex coordinate', () => {
       const content = `size 2 2
 hex XXXX 0 "" ""
+end`;
+      expect(() => parseMegaMekBoard(content)).toThrow(
+        'Invalid hex coordinate',
+      );
+    });
+
+    it('should throw on hex coordinates outside the declared board size', () => {
+      const content = `size 2 2
+hex 9917 0 "" ""
 end`;
       expect(() => parseMegaMekBoard(content)).toThrow(
         'Invalid hex coordinate',

@@ -60,6 +60,14 @@ Imported MegaMek board cliff metadata is covered by
 `Board.java:537-602`: `.board` `cliff_top:1:<exitMask>` entries now import as
 `cliffTopExits` only for in-board 1- or 2-level drops, so real map data drives
 the same movement projection instead of relying on hand-authored fixtures.
+Large MegaMek board labels are covered by
+`import-large-megamek-board-coordinates`, source-pinned to MegaMek
+`Coords.java:510-514`, `Board.java:1062-1063`, and real
+`170x120 Fort David.board` labels such as `10412`, `10016`, and `104120`:
+the parser now splits two-or-more digit column/row components against declared
+board dimensions so large-board terrain, elevation, and cliff metadata reaches
+the same tactical projection path instead of failing the old fixed-four-digit
+guard.
 Replayable gameplay events for runtime movement state are covered by
 `apply-runtime-movement-state-events`; player-facing tactical command controls
 for represented conversion and infantry mount-state changes are covered by

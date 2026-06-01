@@ -109,7 +109,10 @@ decisions are made, not because CI is stale.
   `cliff_top:1:<exitMask>` import is covered by
   `import-megamek-cliff-top-exits`, including exit-mask conversion and
   MegaMek-style removal of exits that do not point to an in-board 1- or
-  2-level drop. Full elevated AirMek/WiGE pathing and broader takeoff/hover
+  2-level drop. Large-board MegaMek labels such as `10412`, `10016`, and
+  `104120` are covered by `import-large-megamek-board-coordinates`, including
+  dimension-disambiguated column/row parsing and large-coordinate cliff import
+  coverage. Full elevated AirMek/WiGE pathing and broader takeoff/hover
   sequencing remain follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
