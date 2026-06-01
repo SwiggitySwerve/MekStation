@@ -781,8 +781,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'heat-driven-modifiers': helperOnly(
     'heat-driven-modifiers',
-    'Heat-driven modifier support separates source-backed Hot Dog heat roll relief, Some Like It Hot heat to-hit relief, and weapon cooling quirk heat changes from local-only Cool Under Fire generated-heat relief',
-    'Cool Under Fire source authority is unresolved, so generated-heat relief remains helper-only and cannot be counted as complete heat-modifier parity',
+    'Heat-driven modifier support separates source-backed Hot Dog heat roll relief, Some Like It Hot heat to-hit relief, and weapon cooling quirk heat changes from local-only Cool Under Fire helper behavior',
+    'Cool Under Fire source authority is unresolved, so generated-heat relief remains helper-only and unconsumed by BattleMech heat resolution',
     HEAT_DRIVEN_MODIFIER_SUPPORT_REFS,
   ),
   'range-validation': integrated(
