@@ -46,5 +46,11 @@ export {
 } from './modifiers';
 export { findPath } from './pathfinding';
 export { deriveReachableHexes } from './reachable';
+export {
+  AUTOMATIC_WIGE_LANDING_REASON,
+  automaticWigeLandingContext,
+  automaticWigeLandingRuntimePatch,
+  withAutomaticWigeLandingProjection,
+} from './automaticWigeLanding';
 export { gridWithUnitOccupants } from './occupancy';
 export { movementDeclarationLockInvalidState } from './declarationEligibility';

@@ -471,6 +471,16 @@ export interface IMovementRangeModeOption {
   readonly altitudeControlMode?: 'vtol' | 'wige';
   /** Represented altitude that triggered altitude-control ownership. */
   readonly altitudeControlAltitude?: number;
+  /** True when source-backed WiGE rules will force a landing after this move. */
+  readonly automaticLandingRequired?: boolean;
+  /** Player-facing reason for the automatic landing consequence. */
+  readonly automaticLandingReason?: string;
+  /** Motive mode whose automatic landing rule owns this consequence. */
+  readonly automaticLandingMode?: 'wige';
+  /** Hexes moved for the automatic landing minimum-distance check. */
+  readonly automaticLandingDistance?: number;
+  /** Minimum hex distance needed to remain airborne for this unit. */
+  readonly automaticLandingMinimumDistance?: number;
   /** True when a hull-down unit must leave hull-down before this option. */
   readonly hullDownExitRequired?: boolean;
   /** MP reserved for leaving hull-down before entering this option's path. */
@@ -518,6 +528,16 @@ export interface IMovementRangeHex {
   readonly altitudeControlMode?: 'vtol' | 'wige';
   /** Represented altitude that triggered altitude-control ownership. */
   readonly altitudeControlAltitude?: number;
+  /** True when source-backed WiGE rules will force a landing after this move. */
+  readonly automaticLandingRequired?: boolean;
+  /** Player-facing reason for the automatic landing consequence. */
+  readonly automaticLandingReason?: string;
+  /** Motive mode whose automatic landing rule owns this consequence. */
+  readonly automaticLandingMode?: 'wige';
+  /** Hexes moved for the automatic landing minimum-distance check. */
+  readonly automaticLandingDistance?: number;
+  /** Minimum hex distance needed to remain airborne for this unit. */
+  readonly automaticLandingMinimumDistance?: number;
   /** True when a hull-down unit must leave hull-down before this movement can resolve. */
   readonly hullDownExitRequired?: boolean;
   /** MP reserved for leaving hull-down before entering the projected path. */

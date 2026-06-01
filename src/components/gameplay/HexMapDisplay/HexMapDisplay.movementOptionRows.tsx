@@ -15,6 +15,7 @@ import {
   formatMovementOptionTitle,
   movementOptionAltitudeControlMpCostsAttribute,
   movementOptionAltitudeControlStepCountsAttribute,
+  movementOptionAutomaticLandingsAttribute,
   movementOptionBlockedDetail,
   movementOptionBlockedReasonsAttribute,
   movementOptionConversionMpCostsAttribute,
@@ -99,6 +100,9 @@ export function MovementModeOptionRows({
       data-movement-option-altitude-control-mp-costs={movementOptionAltitudeControlMpCostsAttribute(
         options,
       )}
+      data-movement-option-automatic-landings={movementOptionAutomaticLandingsAttribute(
+        options,
+      )}
       data-movement-option-blocked-reasons={movementOptionBlockedReasonsAttribute(
         options,
       )}
@@ -144,6 +148,21 @@ export function MovementModeOptionRows({
             }
             data-movement-option-altitude-control-mp-cost={
               option.altitudeControlMpCost
+            }
+            data-movement-option-automatic-landing-required={
+              option.automaticLandingRequired ? 'true' : undefined
+            }
+            data-movement-option-automatic-landing-mode={
+              option.automaticLandingMode
+            }
+            data-movement-option-automatic-landing-distance={
+              option.automaticLandingDistance
+            }
+            data-movement-option-automatic-landing-minimum-distance={
+              option.automaticLandingMinimumDistance
+            }
+            data-movement-option-automatic-landing-reason={
+              option.automaticLandingReason
             }
             data-movement-option-blocked-reason={blockedDetail}
             data-movement-option-invalid-reason={option.movementInvalidReason}
