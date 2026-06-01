@@ -60,6 +60,7 @@ import {
   terrainFeatureLevelsAttribute,
 } from './HexCell.labels';
 import {
+  MovementAutomaticLandingBadge,
   MovementPathStepBadge,
   MovementReachBadge,
   MovementStepCostBadge,
@@ -67,8 +68,13 @@ import {
 } from './HexCell.movementBadges';
 import { MovementBlockedOptionsBadge } from './HexCell.movementBlockedOptionsBadge';
 import {
+  movementOptionAltitudeControlMpCostsAttribute,
+  movementOptionAltitudeControlStepCountsAttribute,
+  movementOptionAutomaticLandingsAttribute,
   movementOptionCostsAttribute,
   movementOptionBlockedReasonsAttribute,
+  movementOptionConversionMpCostsAttribute,
+  movementOptionConversionStepCountsAttribute,
   movementOptionElevationCostsAttribute,
   movementOptionElevationDeltasAttribute,
   movementOptionHeatGeneratedAttribute,
@@ -84,6 +90,8 @@ import {
   terrainBuildingConstructionFactorsAttribute,
   terrainBuildingIdsAttribute,
   terrainBuildingLevelsAttribute,
+  terrainCliffExitDirectionsAttribute,
+  terrainCliffExitLabelsAttribute,
 } from './HexMapDisplay.terrainMetadata';
 import {
   isIsometricProjection,
@@ -291,6 +299,9 @@ export const HexCell = React.memo(function HexCell({
   const terrainBuildingLevelAttribute = terrainBuildingLevelsAttribute(terrain);
   const terrainBuildingCfAttribute =
     terrainBuildingConstructionFactorsAttribute(terrain);
+  const terrainCliffExitDirections =
+    terrainCliffExitDirectionsAttribute(terrain);
+  const terrainCliffExitLabels = terrainCliffExitLabelsAttribute(terrain);
   const elevation = terrain?.elevation ?? 0;
   const elevationLabel = formatElevationLabel(elevation);
   const isIsometricTile = isIsometricProjection(projectionMode);
@@ -500,6 +511,14 @@ export const HexCell = React.memo(function HexCell({
       }
       data-movement-type={movementInfo?.movementType}
       data-movement-mode={movementInfo?.movementMode}
+      data-movement-conversion-step-count={movementInfo?.conversionStepCount}
+      data-movement-conversion-mp-cost={movementInfo?.conversionMpCost}
+      data-movement-altitude-control-step-count={
+        movementInfo?.altitudeControlStepCount
+      }
+      data-movement-altitude-control-mp-cost={
+        movementInfo?.altitudeControlMpCost
+      }
       data-movement-option-count={
         movementOptionCount && movementOptionCount > 1
           ? movementOptionCount
@@ -529,6 +548,21 @@ export const HexCell = React.memo(function HexCell({
       data-movement-option-heats={movementOptionHeatGeneratedAttribute(
         movementOptions ?? [],
       )}
+      data-movement-option-conversion-step-counts={movementOptionConversionStepCountsAttribute(
+        movementOptions ?? [],
+      )}
+      data-movement-option-conversion-mp-costs={movementOptionConversionMpCostsAttribute(
+        movementOptions ?? [],
+      )}
+      data-movement-option-altitude-control-step-counts={movementOptionAltitudeControlStepCountsAttribute(
+        movementOptions ?? [],
+      )}
+      data-movement-option-altitude-control-mp-costs={movementOptionAltitudeControlMpCostsAttribute(
+        movementOptions ?? [],
+      )}
+      data-movement-option-automatic-landings={movementOptionAutomaticLandingsAttribute(
+        movementOptions ?? [],
+      )}
       data-mp-cost={movementInfo?.mpCost}
       data-terrain-cost={movementInfo?.terrainCost}
       data-heat-generated={movementInfo?.heatGenerated}
@@ -540,6 +574,8 @@ export const HexCell = React.memo(function HexCell({
       data-terrain-feature-levels={terrainFeatureLevelsAttribute(
         terrainFeatures,
       )}
+      data-terrain-cliff-exits={terrainCliffExitDirections}
+      data-terrain-cliff-exit-labels={terrainCliffExitLabels}
       data-terrain-building-ids={terrainBuildingIdAttribute}
       data-terrain-building-levels={terrainBuildingLevelAttribute}
       data-terrain-construction-factors={terrainBuildingCfAttribute}
@@ -572,6 +608,26 @@ export const HexCell = React.memo(function HexCell({
       data-movement-blocked-reason={movementInfo?.blockedReason}
       data-movement-invalid-reason={movementInfo?.movementInvalidReason}
       data-movement-invalid-details={movementInfo?.movementInvalidDetails}
+      data-movement-altitude-control-required={
+        movementInfo?.altitudeControlRequired ? 'true' : undefined
+      }
+      data-movement-altitude-control-mode={movementInfo?.altitudeControlMode}
+      data-movement-altitude-control-altitude={
+        movementInfo?.altitudeControlAltitude
+      }
+      data-movement-automatic-landing-required={
+        movementInfo?.automaticLandingRequired ? 'true' : undefined
+      }
+      data-movement-automatic-landing-mode={movementInfo?.automaticLandingMode}
+      data-movement-automatic-landing-distance={
+        movementInfo?.automaticLandingDistance
+      }
+      data-movement-automatic-landing-minimum-distance={
+        movementInfo?.automaticLandingMinimumDistance
+      }
+      data-movement-automatic-landing-reason={
+        movementInfo?.automaticLandingReason
+      }
       data-path-index={pathIndex}
       data-path-step={
         pathIndex === undefined
@@ -904,7 +960,14 @@ export const HexCell = React.memo(function HexCell({
         sourceReferences={tacticalProjectionSourceReferences}
       />
       {hoverMpCost === undefined && (
-        <MovementReachBadge x={x} y={y} hex={hex} movementInfo={movementInfo} />
+        <MovementReachBadge
+          x={x}
+          y={y}
+          hex={hex}
+          movementInfo={movementInfo}
+          projectionExplanation={tacticalProjectionExplanation}
+          sourceReferences={tacticalProjectionSourceReferences}
+        />
       )}
       <MovementBlockedOptionsBadge
         x={x}
@@ -917,8 +980,16 @@ export const HexCell = React.memo(function HexCell({
         y={y}
         hex={hex}
         movementInfo={movementInfo}
+        projectionExplanation={tacticalProjectionExplanation}
+        sourceReferences={tacticalProjectionSourceReferences}
       />
       <MovementStandUpBadge x={x} y={y} hex={hex} movementInfo={movementInfo} />
+      <MovementAutomaticLandingBadge
+        x={x}
+        y={y}
+        hex={hex}
+        movementInfo={movementInfo}
+      />
       <MovementPathStepBadge x={x} y={y} hex={hex} pathIndex={pathIndex} />
       <HeatBadge
         x={x}
@@ -936,6 +1007,8 @@ export const HexCell = React.memo(function HexCell({
         hex={hex}
         hoverMpCost={hoverMpCost}
         movementInfo={movementInfo}
+        projectionExplanation={tacticalProjectionExplanation}
+        sourceReferences={tacticalProjectionSourceReferences}
       />
       <CombatLineOfSightBlockerBadge
         x={x}

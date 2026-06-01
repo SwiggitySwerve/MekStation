@@ -2,7 +2,12 @@ import type { IMovementRangeHex } from '@/types/gameplay';
 
 import { formatMovementModeTitle } from './HexCell.movementBadges';
 import {
+  movementOptionAltitudeControlMpCostsAttribute,
+  movementOptionAltitudeControlStepCountsAttribute,
+  movementOptionAutomaticLandingsAttribute,
   movementOptionBlockedReasonsAttribute,
+  movementOptionConversionMpCostsAttribute,
+  movementOptionConversionStepCountsAttribute,
   movementOptionElevationCostsAttribute,
   movementOptionElevationDeltasAttribute,
   movementOptionHeatGeneratedAttribute,
@@ -49,6 +54,23 @@ function formatMovementProjectionTitle(
     `elevation cost +${movementInfo.elevationCost ?? 0}`,
     `heat +${movementInfo.heatGenerated ?? 0}`,
   ];
+  if (
+    movementInfo.altitudeControlStepCount !== undefined ||
+    movementInfo.altitudeControlMpCost !== undefined
+  ) {
+    details.push(
+      `altitude control ${movementInfo.altitudeControlStepCount ?? 0} steps ${
+        movementInfo.altitudeControlMpCost ?? 0
+      } MP`,
+    );
+  }
+  if (movementInfo.automaticLandingRequired) {
+    details.push(
+      `automatic ${movementInfo.automaticLandingMode ?? 'wige'} landing ${
+        movementInfo.automaticLandingDistance ?? 0
+      }/${movementInfo.automaticLandingMinimumDistance ?? 0} hexes`,
+    );
+  }
   const blockedReason =
     movementInfo.movementInvalidDetails ??
     movementInfo.blockedReason ??
@@ -93,6 +115,22 @@ export function movementProjectionOverlayAttributes(
     'data-movement-projection-elevation-delta': movementInfo?.elevationDelta,
     'data-movement-projection-elevation-cost': movementInfo?.elevationCost,
     'data-movement-projection-heat-generated': movementInfo?.heatGenerated,
+    'data-movement-projection-conversion-step-count':
+      movementInfo?.conversionStepCount,
+    'data-movement-projection-conversion-mp-cost':
+      movementInfo?.conversionMpCost,
+    'data-movement-projection-altitude-control-step-count':
+      movementInfo?.altitudeControlStepCount,
+    'data-movement-projection-altitude-control-mp-cost':
+      movementInfo?.altitudeControlMpCost,
+    'data-movement-projection-automatic-landing-required':
+      movementInfo?.automaticLandingRequired ? 'true' : undefined,
+    'data-movement-projection-automatic-landing-mode':
+      movementInfo?.automaticLandingMode,
+    'data-movement-projection-automatic-landing-distance':
+      movementInfo?.automaticLandingDistance,
+    'data-movement-projection-automatic-landing-minimum-distance':
+      movementInfo?.automaticLandingMinimumDistance,
     'data-movement-projection-blocked-reason': movementInfo?.blockedReason,
     'data-movement-projection-invalid-reason':
       movementInfo?.movementInvalidReason,
@@ -112,6 +150,23 @@ export function movementProjectionOverlayAttributes(
       : undefined,
     'data-movement-projection-option-heats': hasMultipleOptions
       ? movementOptionHeatGeneratedAttribute(movementOptions)
+      : undefined,
+    'data-movement-projection-option-conversion-step-counts': hasMultipleOptions
+      ? movementOptionConversionStepCountsAttribute(movementOptions)
+      : undefined,
+    'data-movement-projection-option-conversion-mp-costs': hasMultipleOptions
+      ? movementOptionConversionMpCostsAttribute(movementOptions)
+      : undefined,
+    'data-movement-projection-option-altitude-control-step-counts':
+      hasMultipleOptions
+        ? movementOptionAltitudeControlStepCountsAttribute(movementOptions)
+        : undefined,
+    'data-movement-projection-option-altitude-control-mp-costs':
+      hasMultipleOptions
+        ? movementOptionAltitudeControlMpCostsAttribute(movementOptions)
+        : undefined,
+    'data-movement-projection-option-automatic-landings': hasMultipleOptions
+      ? movementOptionAutomaticLandingsAttribute(movementOptions)
       : undefined,
     'data-movement-projection-option-blocked-reasons': hasMultipleOptions
       ? movementOptionBlockedReasonsAttribute(movementOptions)

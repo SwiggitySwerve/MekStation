@@ -67,6 +67,10 @@ export interface IPlannedMovement {
   readonly conversionStepCount?: number;
   /** Represented conversion MP reserved before movement path steps. */
   readonly conversionMpCost?: number;
+  /** Represented altitude-control steps reserved before movement path steps. */
+  readonly altitudeControlStepCount?: number;
+  /** Represented altitude-control MP reserved before movement path steps. */
+  readonly altitudeControlMpCost?: number;
   /** Rules-level movement mode used for terrain/elevation pathing. */
   readonly movementMode?: string;
   /** Terrain modifier paid on the final step into the destination hex. */

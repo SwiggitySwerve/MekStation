@@ -1,6 +1,12 @@
 import React from 'react';
 
 import type { IHexCoordinate, IMovementRangeHex } from '@/types/gameplay';
+import type { ITacticalMapProjectionSourceReference } from '@/utils/gameplay/tacticalMapProjection';
+
+import {
+  formatTacticalProjectionRuleReferences,
+  formatTacticalProjectionSourceReferences,
+} from '@/utils/gameplay/tacticalMapProjection';
 
 import {
   formatMovementModeLabel,
@@ -8,7 +14,13 @@ import {
   formatMovementOptionCostBadgeLabel,
   formatMovementOptionTitle,
   formatMovementTypeLabel,
+  movementOptionAltitudeControlsAttribute,
+  movementOptionAltitudeControlMpCostsAttribute,
+  movementOptionAltitudeControlStepCountsAttribute,
+  movementOptionAutomaticLandingsAttribute,
   movementOptionBlockedReasonsAttribute,
+  movementOptionConversionMpCostsAttribute,
+  movementOptionConversionStepCountsAttribute,
   movementOptionElevationCostsAttribute,
   movementOptionElevationDeltasAttribute,
   movementOptionHeatGeneratedAttribute,
@@ -53,7 +65,30 @@ export function formatMovementModeTitle(
 export function formatMovementReachBadgeTitle(
   movementInfo: IMovementRangeHex,
 ): string {
-  const primary = `${formatMovementModeTitle(movementInfo)} reachable: ${movementInfo.mpCost} MP`;
+  const conversion =
+    movementInfo.conversionStepCount === undefined &&
+    movementInfo.conversionMpCost === undefined
+      ? ''
+      : `; conversion ${movementInfo.conversionStepCount ?? 0} steps ${
+          movementInfo.conversionMpCost ?? 0
+        } MP`;
+  const altitudeControl =
+    movementInfo.altitudeControlStepCount === undefined &&
+    movementInfo.altitudeControlMpCost === undefined
+      ? ''
+      : `; altitude control ${
+          movementInfo.altitudeControlStepCount ?? 0
+        } steps ${movementInfo.altitudeControlMpCost ?? 0} MP`;
+  const automaticLanding = movementInfo.automaticLandingRequired
+    ? `; automatic ${
+        movementInfo.automaticLandingMode
+          ? formatMovementModeTitleLabel(movementInfo.automaticLandingMode)
+          : 'WiGE'
+      } landing ${movementInfo.automaticLandingDistance ?? 0}/${
+        movementInfo.automaticLandingMinimumDistance ?? 0
+      } hexes`
+    : '';
+  const primary = `${formatMovementModeTitle(movementInfo)} reachable: ${movementInfo.mpCost} MP${conversion}${altitudeControl}${automaticLanding}`;
   const options = movementInfo.movementModeOptions ?? [];
   if (options.length <= 1) return primary;
   return `${primary}; options ${options.map(formatMovementOptionTitle).join('; ')}`;
@@ -162,27 +197,77 @@ export function MovementReachBadge({
   y,
   hex,
   movementInfo,
+  projectionExplanation,
+  sourceReferences,
 }: {
   readonly x: number;
   readonly y: number;
   readonly hex: IHexCoordinate;
   readonly movementInfo?: IMovementRangeHex;
+  readonly projectionExplanation?: string;
+  readonly sourceReferences?: readonly ITacticalMapProjectionSourceReference[];
 }): React.ReactElement | null {
   if (!movementInfo?.reachable) return null;
   const label = formatMovementReachBadgeLabel(movementInfo);
   const title = formatMovementReachBadgeTitle(movementInfo);
   const movementOptions = movementInfo.movementModeOptions ?? [];
   const width = Math.max(34, label.length * 5.6 + 10);
+  const movementSourceReferences =
+    sourceReferences?.filter((source) => source.channel === 'movement') ?? [];
+  const movementSourceRefsAttribute =
+    formatTacticalProjectionSourceReferences(movementSourceReferences) ||
+    undefined;
+  const movementRuleRefsAttribute =
+    formatTacticalProjectionRuleReferences(movementSourceReferences) ||
+    undefined;
+  const movementProjectionChannel =
+    movementSourceReferences.length > 0 ? 'movement' : undefined;
 
   return (
     <g
       pointerEvents="none"
       data-testid={`hex-movement-badge-${hex.q}-${hex.r}`}
       aria-label={title}
+      data-tactical-projection-source={
+        movementProjectionChannel ? 'shared-tactical-map-projection' : undefined
+      }
+      data-tactical-projection-channel={movementProjectionChannel}
+      data-tactical-rules-surface={movementProjectionChannel}
       data-movement-badge-type={movementInfo.movementType}
       data-movement-badge-mode={movementInfo.movementMode}
       data-movement-badge-mp-cost={movementInfo.mpCost}
       data-movement-badge-heat-generated={movementInfo.heatGenerated}
+      data-movement-badge-conversion-step-count={
+        movementInfo.conversionStepCount
+      }
+      data-movement-badge-conversion-mp-cost={movementInfo.conversionMpCost}
+      data-movement-badge-altitude-control-step-count={
+        movementInfo.altitudeControlStepCount
+      }
+      data-movement-badge-altitude-control-mp-cost={
+        movementInfo.altitudeControlMpCost
+      }
+      data-movement-badge-altitude-control-required={
+        movementInfo.altitudeControlRequired ? 'true' : undefined
+      }
+      data-movement-badge-altitude-control-mode={
+        movementInfo.altitudeControlMode
+      }
+      data-movement-badge-altitude-control-altitude={
+        movementInfo.altitudeControlAltitude
+      }
+      data-movement-badge-automatic-landing-required={
+        movementInfo.automaticLandingRequired ? 'true' : undefined
+      }
+      data-movement-badge-automatic-landing-mode={
+        movementInfo.automaticLandingMode
+      }
+      data-movement-badge-automatic-landing-distance={
+        movementInfo.automaticLandingDistance
+      }
+      data-movement-badge-automatic-landing-minimum-distance={
+        movementInfo.automaticLandingMinimumDistance
+      }
       data-movement-badge-option-count={
         movementOptions.length > 1 ? movementOptions.length : undefined
       }
@@ -231,6 +316,39 @@ export function MovementReachBadge({
       data-movement-badge-option-heats={movementOptionHeatGeneratedAttribute(
         movementOptions,
       )}
+      data-movement-badge-option-conversion-step-counts={
+        movementOptions.length > 1
+          ? movementOptionConversionStepCountsAttribute(movementOptions)
+          : undefined
+      }
+      data-movement-badge-option-conversion-mp-costs={
+        movementOptions.length > 1
+          ? movementOptionConversionMpCostsAttribute(movementOptions)
+          : undefined
+      }
+      data-movement-badge-option-altitude-control-step-counts={
+        movementOptions.length > 1
+          ? movementOptionAltitudeControlStepCountsAttribute(movementOptions)
+          : undefined
+      }
+      data-movement-badge-option-altitude-control-mp-costs={
+        movementOptions.length > 1
+          ? movementOptionAltitudeControlMpCostsAttribute(movementOptions)
+          : undefined
+      }
+      data-movement-badge-option-altitude-controls={
+        movementOptions.length > 1
+          ? movementOptionAltitudeControlsAttribute(movementOptions)
+          : undefined
+      }
+      data-movement-badge-option-automatic-landings={
+        movementOptions.length > 1
+          ? movementOptionAutomaticLandingsAttribute(movementOptions)
+          : undefined
+      }
+      data-movement-badge-source-refs={movementSourceRefsAttribute}
+      data-movement-badge-rule-refs={movementRuleRefsAttribute}
+      data-movement-badge-projection-explanation={projectionExplanation}
     >
       <title>{title}</title>
       <rect
@@ -256,7 +374,21 @@ export function MovementReachBadge({
   );
 }
 
-export function MovementStepCostBadge({
+function formatAutomaticLandingBadgeTitle(
+  movementInfo: IMovementRangeHex,
+): string {
+  const mode = movementInfo.automaticLandingMode
+    ? formatMovementModeTitleLabel(movementInfo.automaticLandingMode)
+    : 'WiGE';
+  const reason = movementInfo.automaticLandingReason
+    ? `: ${movementInfo.automaticLandingReason}`
+    : '';
+  return `Automatic ${mode} landing after ${
+    movementInfo.automaticLandingDistance ?? 0
+  }/${movementInfo.automaticLandingMinimumDistance ?? 0} hexes${reason}`;
+}
+
+export function MovementAutomaticLandingBadge({
   x,
   y,
   hex,
@@ -267,20 +399,94 @@ export function MovementStepCostBadge({
   readonly hex: IHexCoordinate;
   readonly movementInfo?: IMovementRangeHex;
 }): React.ReactElement | null {
+  if (!movementInfo?.automaticLandingRequired) return null;
+  const title = formatAutomaticLandingBadgeTitle(movementInfo);
+  return (
+    <g
+      pointerEvents="none"
+      data-testid={`hex-automatic-landing-badge-${hex.q}-${hex.r}`}
+      aria-label={title}
+      data-automatic-landing-mode={movementInfo.automaticLandingMode}
+      data-automatic-landing-distance={movementInfo.automaticLandingDistance}
+      data-automatic-landing-minimum-distance={
+        movementInfo.automaticLandingMinimumDistance
+      }
+      data-automatic-landing-reason={movementInfo.automaticLandingReason}
+    >
+      <title>{title}</title>
+      <rect
+        x={x - 19}
+        y={y + 33}
+        width={38}
+        height={12}
+        rx={3}
+        fill="#7c2d12"
+        opacity={0.92}
+        stroke="#fed7aa"
+        strokeOpacity={0.65}
+        strokeWidth={0.7}
+      />
+      <text
+        x={x}
+        y={y + 42}
+        textAnchor="middle"
+        fontSize={8}
+        fontWeight="bold"
+        fill="#fff7ed"
+      >
+        LAND
+      </text>
+    </g>
+  );
+}
+
+export function MovementStepCostBadge({
+  x,
+  y,
+  hex,
+  movementInfo,
+  projectionExplanation,
+  sourceReferences,
+}: {
+  readonly x: number;
+  readonly y: number;
+  readonly hex: IHexCoordinate;
+  readonly movementInfo?: IMovementRangeHex;
+  readonly projectionExplanation?: string;
+  readonly sourceReferences?: readonly ITacticalMapProjectionSourceReference[];
+}): React.ReactElement | null {
   if (!movementInfo?.reachable) return null;
   const label = formatMovementStepCostLabel(movementInfo);
   if (!label) return null;
 
   const title = formatMovementStepCostTitle(movementInfo);
   const width = Math.max(28, label.length * 5.4 + 8);
+  const movementSourceReferences =
+    sourceReferences?.filter((source) => source.channel === 'movement') ?? [];
+  const movementSourceRefsAttribute =
+    formatTacticalProjectionSourceReferences(movementSourceReferences) ||
+    undefined;
+  const movementRuleRefsAttribute =
+    formatTacticalProjectionRuleReferences(movementSourceReferences) ||
+    undefined;
+  const movementProjectionChannel =
+    movementSourceReferences.length > 0 ? 'movement' : undefined;
   return (
     <g
       pointerEvents="none"
       data-testid={`hex-movement-cost-badge-${hex.q}-${hex.r}`}
       aria-label={title}
+      data-tactical-projection-source={
+        movementProjectionChannel ? 'shared-tactical-map-projection' : undefined
+      }
+      data-tactical-projection-channel={movementProjectionChannel}
+      data-tactical-rules-surface={movementProjectionChannel}
       data-movement-step-terrain-cost={movementInfo.terrainCost}
       data-movement-step-elevation-cost={movementInfo.elevationCost}
       data-movement-step-elevation-delta={movementInfo.elevationDelta}
+      data-movement-step-source-refs={movementSourceRefsAttribute}
+      data-movement-step-rule-refs={movementRuleRefsAttribute}
+      data-movement-step-projection-explanation={projectionExplanation}
     >
       <title>{title}</title>
       <rect
