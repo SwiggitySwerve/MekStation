@@ -7,9 +7,12 @@ import {
   IHexGrid,
 } from '@/types/gameplay';
 import {
+  gridWithUnitOccupants,
+  validateCommittedMovement,
+} from '@/utils/gameplay/movement';
+import {
   decomposeMovementSteps,
   movementAnimationModeForType,
-  normalizeMovementEventPath,
 } from '@/utils/gameplay/movement/eventPath';
 
 import type { IAIPlayer } from '../../ai/IAIPlayer';
@@ -64,11 +67,44 @@ export function runMovementPhase(options: {
     const moveEvent = botPlayer.playMovementPhase(aiUnit, grid, capability);
 
     if (moveEvent) {
-      currentState = applyMovementEvent(
-        currentState,
-        unitId,
-        moveEvent.payload,
-      );
+      const validation = validateCommittedMovement({
+        grid: gridWithUnitOccupants(grid, currentState.units),
+        unit,
+        to: moveEvent.payload.to,
+        facing: moveEvent.payload.facing as Facing,
+        movementType: moveEvent.payload.movementType,
+        capability,
+      });
+
+      if (!validation.valid) {
+        events.push(
+          createGameEvent(
+            gameId,
+            events.length,
+            GameEventType.MovementInvalid,
+            currentState.turn,
+            GamePhase.Movement,
+            {
+              unitId,
+              from: unit.position,
+              to: moveEvent.payload.to,
+              facing: moveEvent.payload.facing as Facing,
+              movementType: moveEvent.payload.movementType,
+              reason: validation.reason,
+              details: validation.details,
+              mpCost: validation.mpCost,
+              heatGenerated: validation.heatGenerated,
+            },
+            unitId,
+          ),
+        );
+        continue;
+      }
+
+      currentState = applyMovementEvent(currentState, unitId, {
+        ...moveEvent.payload,
+        mpUsed: validation.mpCost,
+      });
 
       // Per `enrich-movement-declared-with-chain-and-displacement`
       // (movement-system delta): synthesize the per-step chain plus the
@@ -93,18 +129,14 @@ export function runMovementPhase(options: {
       // PSR phase exists. PSRs that fire OUTSIDE movement-step
       // resolution (damage, heat, gyro destroyed) MUST RETAIN their
       // existing free-string `triggerSource` values.
-      const path = normalizeMovementEventPath(
-        unit.position,
-        moveEvent.payload.to,
-      );
       const decomposition = decomposeMovementSteps({
         from: unit.position,
         to: moveEvent.payload.to,
         fromFacing: unit.facing as Facing,
         toFacing: moveEvent.payload.facing as Facing,
         movementType: moveEvent.payload.movementType,
-        mpUsed: moveEvent.payload.mpUsed,
-        path,
+        mpUsed: validation.mpCost,
+        path: validation.path,
         grid,
       });
       const mode = movementAnimationModeForType(moveEvent.payload.movementType);
@@ -123,9 +155,9 @@ export function runMovementPhase(options: {
             facing: moveEvent.payload.facing as Facing,
             movementType: moveEvent.payload.movementType,
             ...(mode ? { mode } : {}),
-            path,
-            mpUsed: moveEvent.payload.mpUsed,
-            heatGenerated: 0,
+            path: validation.path,
+            mpUsed: validation.mpCost,
+            heatGenerated: validation.heatGenerated,
             hexesMoved: decomposition.hexesMoved,
             straightHexes: decomposition.straightHexes,
             turningMpCost: decomposition.turningMpCost,

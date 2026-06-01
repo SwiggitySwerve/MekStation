@@ -18,14 +18,17 @@ import {
   LockState,
   MovementType,
   TokenUnitType,
+  VehicleMotionType,
   type IUnitGameState,
 } from '@/types/gameplay';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
 import { ProtoChassis, ProtoLocation } from '@/types/unit/ProtoMechInterfaces';
 import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
 import { createBattleArmorCombatState } from '@/utils/gameplay/battlearmor/state';
 import { createInfantryCombatState } from '@/utils/gameplay/infantry/state';
 import { createProtoMechCombatState } from '@/utils/gameplay/protomech/state';
+import { createVehicleCombatState } from '@/utils/gameplay/vehicleDamage';
 
 import { unitStateToToken, type IFogProjection } from '../unitStateToToken';
 
@@ -116,11 +119,114 @@ describe('unitStateToToken — mech / no-envelope path', () => {
 });
 
 // =============================================================================
+// Vehicle projection
+// =============================================================================
+
+describe('unitStateToToken — vehicle projection', () => {
+  it('returns the Vehicle variant when vehicle combat state is represented', () => {
+    const token = unitStateToToken(
+      'u1',
+      baseState({
+        combatState: {
+          kind: 'vehicle',
+          state: createVehicleCombatState({
+            unitId: 'u1',
+            motionType: GroundMotionType.HOVER,
+            originalCruiseMP: 8,
+            armor: {},
+            structure: {},
+          }),
+        },
+      }),
+      UNIT_INFO,
+    );
+
+    expect(token.unitType).toBe(TokenUnitType.Vehicle);
+    expect(widen(token).vehicleMotionType).toBe(VehicleMotionType.Hover);
+  });
+
+  it('projects VTOL altitude from vehicle combat state', () => {
+    const token = unitStateToToken(
+      'u1',
+      baseState({
+        combatState: {
+          kind: 'vehicle',
+          state: createVehicleCombatState({
+            unitId: 'u1',
+            motionType: GroundMotionType.VTOL,
+            originalCruiseMP: 10,
+            armor: {},
+            structure: {},
+            altitude: 3,
+          }),
+        },
+      }),
+      UNIT_INFO,
+    );
+
+    expect(token.unitType).toBe(TokenUnitType.Vehicle);
+    expect(widen(token).vehicleMotionType).toBe(VehicleMotionType.VTOL);
+    expect(widen(token).altitude).toBe(3);
+  });
+
+  it('projects WiGE altitude from vehicle combat state', () => {
+    const token = unitStateToToken(
+      'u1',
+      baseState({
+        combatState: {
+          kind: 'vehicle',
+          state: createVehicleCombatState({
+            unitId: 'u1',
+            motionType: GroundMotionType.WIGE,
+            originalCruiseMP: 10,
+            armor: {},
+            structure: {},
+            altitude: 2,
+          }),
+        },
+      }),
+      UNIT_INFO,
+    );
+
+    expect(token.unitType).toBe(TokenUnitType.Vehicle);
+    expect(widen(token).vehicleMotionType).toBe(VehicleMotionType.WiGE);
+    expect(widen(token).altitude).toBe(2);
+  });
+
+  it('does not project altitude for ground-only vehicles', () => {
+    const token = unitStateToToken(
+      'u1',
+      baseState({
+        combatState: {
+          kind: 'vehicle',
+          state: createVehicleCombatState({
+            unitId: 'u1',
+            motionType: GroundMotionType.HOVER,
+            originalCruiseMP: 8,
+            armor: {},
+            structure: {},
+            altitude: 2,
+          }),
+        },
+      }),
+      UNIT_INFO,
+    );
+
+    expect(token.unitType).toBe(TokenUnitType.Vehicle);
+    expect(widen(token).vehicleMotionType).toBe(VehicleMotionType.Hover);
+    expect(widen(token).altitude).toBeUndefined();
+  });
+});
+
+// =============================================================================
 // Aerospace projection
 // =============================================================================
 
 describe('unitStateToToken — aerospace projection', () => {
-  function aeroState(altitude: number): IUnitGameState {
+  function aeroState(
+    altitude: number,
+    currentVelocity: number = 0,
+  ): IUnitGameState {
     return baseState({
       combatState: {
         kind: 'aero',
@@ -132,6 +238,7 @@ describe('unitStateToToken — aerospace projection', () => {
           safeThrust: 5,
           maxThrust: 8,
           altitude,
+          currentVelocity,
         }),
       },
     });
@@ -148,9 +255,9 @@ describe('unitStateToToken — aerospace projection', () => {
     expect((token as { altitude?: number }).altitude).toBe(0);
   });
 
-  it('leaves velocity undefined (movement slice 2 future work)', () => {
-    const token = unitStateToToken('u1', aeroState(1), UNIT_INFO);
-    expect((token as { velocity?: number }).velocity).toBeUndefined();
+  it('projects current velocity from aerospace combat state', () => {
+    const token = unitStateToToken('u1', aeroState(4, 7), UNIT_INFO);
+    expect((token as { velocity?: number }).velocity).toBe(7);
   });
 });
 

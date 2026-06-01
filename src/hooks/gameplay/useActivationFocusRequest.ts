@@ -17,7 +17,7 @@
  *   "Activation Focus Requests" ADDED requirement
  */
 
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 
 import { useTacticalShell } from '@/components/gameplay/TacticalCommandShell';
 import { useGameplayStore } from '@/stores/useGameplayStore';

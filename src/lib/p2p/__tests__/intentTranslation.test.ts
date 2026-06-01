@@ -12,9 +12,19 @@ import {
   type IGameIntent,
   type IGameSession,
   type IGameUnit,
+  type IMovementDeclaredPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
-import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
+import {
+  Facing,
+  MovementType,
+  type IHexCoordinate,
+  type IHexGrid,
+  type IMovementCapability,
+} from '@/types/gameplay/HexGridInterfaces';
+import { TerrainType } from '@/types/gameplay/TerrainTypes';
 import { createGameSession, startGame } from '@/utils/gameplay/gameSessionCore';
+import { createHexGrid } from '@/utils/gameplay/hexGrid';
+import { coordToKey } from '@/utils/gameplay/hexMath';
 
 import {
   buildDeclareAttackIntent,
@@ -91,6 +101,31 @@ function withPhase(session: IGameSession, phase: GamePhase): IGameSession {
   };
 }
 
+function setHex(
+  grid: IHexGrid,
+  coord: IHexCoordinate,
+  terrain: TerrainType,
+  elevation = 0,
+): IHexGrid {
+  const key = coordToKey(coord);
+  const hex = grid.hexes.get(key);
+  if (!hex) throw new Error(`Missing test hex ${key}`);
+  const hexes = new Map(grid.hexes);
+  hexes.set(key, { ...hex, terrain, elevation });
+  return { ...grid, hexes };
+}
+
+function movementRules(grid: IHexGrid, capability?: IMovementCapability) {
+  return {
+    movementRules: {
+      grid,
+      movementByUnit: new Map<string, IMovementCapability>([
+        ['guest-0', capability ?? { walkMP: 4, runMP: 6, jumpMP: 0 }],
+      ]),
+    },
+  };
+}
+
 describe('translateIntentToEvents', () => {
   it('returns no-active-session when the host has no live match', () => {
     const intent: IGameIntent = {
@@ -141,6 +176,99 @@ describe('translateIntentToEvents', () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.reason).toBe('unowned-unit');
+  });
+
+  it('uses host movement rules to reject illegal guest movement before events are emitted', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const from = session.currentState.units['guest-0'].position;
+    const to = { q: from.q + 1, r: from.r };
+    const grid = setHex(createHexGrid({ radius: 8 }), to, TerrainType.Water);
+    const intent = buildDeclareMovementIntent(GUEST_PEER, {
+      unitId: 'guest-0',
+      from,
+      to,
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+      mpUsed: 1,
+      heatGenerated: 0,
+    });
+
+    const result = translateIntentToEvents(
+      intent,
+      session,
+      movementRules(grid, {
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 0,
+        movementMode: 'tracked',
+      }),
+    );
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe('illegal-movement');
+    expect(result.detail).toBe('Water blocks ground movement');
+  });
+
+  it('recomputes movement MP, heat, path, and origin from host rules instead of guest payload claims', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const from = session.currentState.units['guest-0'].position;
+    const to = { q: from.q + 1, r: from.r };
+    const grid = setHex(
+      createHexGrid({ radius: 8 }),
+      to,
+      TerrainType.LightWoods,
+      1,
+    );
+    const intent = buildDeclareMovementIntent(GUEST_PEER, {
+      unitId: 'guest-0',
+      from,
+      to,
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+      mpUsed: 1,
+      heatGenerated: 99,
+    });
+
+    const result = translateIntentToEvents(
+      intent,
+      session,
+      movementRules(grid),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const payload = result.events[0].payload as IMovementDeclaredPayload;
+    expect(payload.from).toEqual(from);
+    expect(payload.to).toEqual(to);
+    expect(payload.mpUsed).toBe(3);
+    expect(payload.heatGenerated).toBe(1);
+    expect(payload.path).toEqual([from, to]);
+  });
+
+  it('rejects stale movement intents whose claimed origin no longer matches the live unit', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const from = session.currentState.units['guest-0'].position;
+    const intent = buildDeclareMovementIntent(GUEST_PEER, {
+      unitId: 'guest-0',
+      from: { q: 0, r: 0 },
+      to: { q: from.q + 1, r: from.r },
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+      mpUsed: 1,
+      heatGenerated: 0,
+    });
+
+    const result = translateIntentToEvents(
+      intent,
+      session,
+      movementRules(createHexGrid({ radius: 8 })),
+    );
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe('illegal-movement');
+    expect(result.detail).toContain('Intent starts at');
   });
 
   it('rejects an attack declared from outside the WeaponAttack phase', () => {

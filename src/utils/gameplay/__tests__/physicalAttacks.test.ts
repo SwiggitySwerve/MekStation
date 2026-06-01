@@ -1,5 +1,14 @@
+import type {
+  IComponentDamageState,
+  IHex,
+  IHexGrid,
+  IUnitGameState,
+} from '@/types/gameplay';
+
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
-import { IComponentDamageState } from '@/types/gameplay';
+import { Facing, TerrainType } from '@/types/gameplay';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 import {
   calculatePunchDamage,
@@ -22,7 +31,12 @@ import {
   getPhysicalMissConsequences,
   canPunch,
   canKick,
+  canCharge,
+  canPush,
+  canDFA,
   canMeleeWeapon,
+  getEligiblePhysicalAttacks,
+  buildPhysicalTerrainContext,
   getEffectiveWeight,
   applyUnderwaterModifier,
   determinePhysicalHitLocation,
@@ -64,6 +78,24 @@ function makeDiceSequence(values: number[]) {
     if (i >= values.length) return values[values.length - 1];
     return values[i++];
   };
+}
+
+function makeTerrainGrid(terrainByKey: Record<string, string>): IHexGrid {
+  const hexes = new Map<string, IHex>();
+  Object.entries(terrainByKey).forEach(([key, terrain]) => {
+    const [q, r] = key.split(',').map(Number);
+    hexes.set(key, {
+      coord: { q, r },
+      occupantId: null,
+      terrain,
+      elevation: 0,
+    });
+  });
+  return { config: { radius: 2 }, hexes };
+}
+
+function unitAt(id: string, q: number, r: number): IUnitGameState {
+  return { id, position: { q, r } } as IUnitGameState;
 }
 
 // =============================================================================
@@ -419,6 +451,18 @@ describe('physicalAttacks', () => {
       expect(canPunch(makeInput()).allowed).toBe(true);
     });
 
+    it('should disallow punch for battle armor attackers', () => {
+      const result = canPunch(
+        makeInput({ attackerUnitType: UnitType.BATTLE_ARMOR }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: "Non-meks can't punch",
+        reasonCode: 'AttackerNotMek',
+      });
+    });
+
     it('should disallow punch with shoulder destroyed', () => {
       const result = canPunch(
         makeInput({
@@ -437,11 +481,45 @@ describe('physicalAttacks', () => {
       expect(result.allowed).toBe(false);
       expect(result.reason).toContain('fired');
     });
+
+    it('should disallow punch when target elevation is outside arm height', () => {
+      const result = canPunch(
+        makeInput({
+          elevationContext: {
+            attackerBaseElevation: 0,
+            attackerArmElevation: 1,
+            targetBaseElevation: 2,
+            targetTopElevation: 3,
+          },
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Target elevation not in range',
+        reasonCode: 'TargetElevationNotInRange',
+      });
+    });
   });
 
   describe('canKick', () => {
     it('should allow kick when standing', () => {
       expect(canKick(makeInput({ attackType: 'kick' })).allowed).toBe(true);
+    });
+
+    it('should disallow kick for battle armor attackers', () => {
+      const result = canKick(
+        makeInput({
+          attackType: 'kick',
+          attackerUnitType: UnitType.BATTLE_ARMOR,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: "Non-meks can't kick",
+        reasonCode: 'AttackerNotMek',
+      });
     });
 
     it('should disallow kick when prone', () => {
@@ -450,6 +528,18 @@ describe('physicalAttacks', () => {
       );
       expect(result.allowed).toBe(false);
       expect(result.reason).toContain('prone');
+    });
+
+    it('should disallow kick when attacker is hull-down', () => {
+      const result = canKick(
+        makeInput({ attackType: 'kick', attackerHullDown: true }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Attacker is hull down',
+        reasonCode: 'AttackerHullDown',
+      });
     });
 
     it('should disallow kick with hip destroyed', () => {
@@ -465,6 +555,220 @@ describe('physicalAttacks', () => {
       expect(result.allowed).toBe(false);
       expect(result.reason).toContain('Hip');
     });
+
+    it('should disallow kick when attacker elevation is outside target height', () => {
+      const result = canKick(
+        makeInput({
+          attackType: 'kick',
+          elevationContext: {
+            attackerBaseElevation: 0,
+            attackerArmElevation: 1,
+            targetBaseElevation: 1,
+            targetTopElevation: 2,
+          },
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Target elevation not in range',
+        reasonCode: 'TargetElevationNotInRange',
+      });
+    });
+  });
+
+  describe('canPush', () => {
+    it('should disallow airborne AirMek pushes', () => {
+      const result = canPush(
+        makeInput({
+          attackType: 'push',
+          attackerUnitType: UnitType.BATTLEMECH,
+          attackerConversionMode: 'airmek',
+          attackerIsAirborneVTOLOrWiGE: true,
+          targetUnitType: UnitType.BATTLEMECH,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Cannot push while airborne',
+        reasonCode: 'AttackerAirborne',
+      });
+    });
+
+    it('should disallow non-Mek push targets', () => {
+      const result = canPush(
+        makeInput({
+          attackType: 'push',
+          targetUnitType: UnitType.VEHICLE,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Target is not a mek',
+        reasonCode: 'TargetNotMek',
+      });
+    });
+
+    it('should disallow push targets that are not directly ahead', () => {
+      const result = canPush(
+        makeInput({
+          attackType: 'push',
+          attackerPosition: { q: 0, r: 0 },
+          targetPosition: { q: 0, r: 1 },
+          attackerFacing: Facing.Southeast,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Target not directly ahead of feet',
+        reasonCode: 'TargetNotDirectlyAhead',
+      });
+    });
+
+    it('should disallow push when either attacker arm is missing', () => {
+      const result = canPush(
+        makeInput({
+          attackType: 'push',
+          attackerDestroyedLocations: ['left_arm'],
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Arm missing',
+        reasonCode: 'LimbMissing',
+      });
+    });
+
+    it('should disallow outside pushes against targets in building hexes', () => {
+      const result = canPush(
+        makeInput({
+          attackType: 'push',
+          terrainContext: {
+            attackerInBuilding: false,
+            targetInBuilding: true,
+          },
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Target is inside building',
+        reasonCode: 'TargetInsideBuilding',
+      });
+    });
+
+    it('should disallow pushes against a different known building', () => {
+      const result = canPush(
+        makeInput({
+          attackType: 'push',
+          terrainContext: {
+            attackerInBuilding: true,
+            targetInBuilding: true,
+            attackerBuildingId: 'warehouse-a',
+            targetBuildingId: 'warehouse-b',
+          },
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Target is inside building',
+        reasonCode: 'TargetInsideBuilding',
+      });
+    });
+
+    it('should allow pushes inside the same known building', () => {
+      const result = canPush(
+        makeInput({
+          attackType: 'push',
+          terrainContext: {
+            attackerInBuilding: true,
+            targetInBuilding: true,
+            attackerBuildingId: 'warehouse-a',
+            targetBuildingId: 'warehouse-a',
+          },
+        }),
+      );
+
+      expect(result).toEqual({ allowed: true });
+    });
+
+    it('should derive known building ids from encoded terrain context', () => {
+      const grid = makeTerrainGrid({
+        '0,0': terrainStringFromFeatures([
+          {
+            type: TerrainType.Building,
+            level: 1,
+            buildingId: 'warehouse-a',
+          },
+        ]),
+        '1,0': terrainStringFromFeatures([
+          {
+            type: TerrainType.Building,
+            level: 2,
+            buildingId: 'warehouse-b',
+          },
+        ]),
+      });
+
+      expect(
+        buildPhysicalTerrainContext(
+          unitAt('attacker', 0, 0),
+          unitAt('target', 1, 0),
+          grid,
+        ),
+      ).toEqual({
+        attackerInBuilding: true,
+        targetInBuilding: true,
+        attackerBuildingId: 'warehouse-a',
+        targetBuildingId: 'warehouse-b',
+      });
+    });
+
+    it('should disallow push targets on a different base elevation', () => {
+      const result = canPush(
+        makeInput({
+          attackType: 'push',
+          elevationContext: {
+            attackerBaseElevation: 0,
+            attackerArmElevation: 1,
+            targetBaseElevation: 1,
+            targetTopElevation: 2,
+          },
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Target elevation not in range',
+        reasonCode: 'TargetElevationNotInRange',
+      });
+    });
+
+    it('should allow a same-elevation Mek directly ahead', () => {
+      const result = canPush(
+        makeInput({
+          attackType: 'push',
+          attackerUnitType: UnitType.BATTLEMECH,
+          targetUnitType: UnitType.OMNIMECH,
+          attackerPosition: { q: 0, r: 0 },
+          targetPosition: { q: 1, r: 0 },
+          attackerFacing: Facing.Southeast,
+          elevationContext: {
+            attackerBaseElevation: 0,
+            attackerArmElevation: 1,
+            targetBaseElevation: 0,
+            targetTopElevation: 1,
+          },
+        }),
+      );
+
+      expect(result).toEqual({ allowed: true });
+    });
   });
 
   describe('canMeleeWeapon', () => {
@@ -472,6 +776,21 @@ describe('physicalAttacks', () => {
       expect(canMeleeWeapon(makeInput({ attackType: 'hatchet' })).allowed).toBe(
         true,
       );
+    });
+
+    it('should disallow mech melee weapons for battle armor attackers', () => {
+      const result = canMeleeWeapon(
+        makeInput({
+          attackType: 'hatchet',
+          attackerUnitType: UnitType.BATTLE_ARMOR,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: "Non-meks can't use mech melee weapons",
+        reasonCode: 'AttackerNotMek',
+      });
     });
 
     it('should disallow if lower arm destroyed', () => {
@@ -505,6 +824,454 @@ describe('physicalAttacks', () => {
         makeInput({ attackType: 'hatchet', weaponsFiredFromArm: ['ppc-1'] }),
       );
       expect(result.allowed).toBe(false);
+    });
+  });
+
+  describe('canDFA', () => {
+    it('should disallow DFA for battle armor attackers', () => {
+      const result = canDFA(
+        makeInput({
+          attackType: 'dfa',
+          attackerUnitType: UnitType.BATTLE_ARMOR,
+          attackerJumpedThisTurn: true,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: "Non-meks can't DFA",
+        reasonCode: 'AttackerNotMek',
+      });
+    });
+  });
+
+  describe('canCharge', () => {
+    it.each([
+      UnitType.BATTLE_ARMOR,
+      UnitType.INFANTRY,
+      UnitType.PROTOMECH,
+      UnitType.VTOL,
+      UnitType.AEROSPACE,
+    ])('should disallow charge for %s attackers', (attackerUnitType) => {
+      const result = canCharge(
+        makeInput({
+          attackType: 'charge',
+          attackerUnitType,
+          attackerRanThisTurn: true,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: "This unit type can't charge",
+        reasonCode: 'AttackerCannotCharge',
+      });
+    });
+
+    it('should preserve represented vehicle charge eligibility when run-gated', () => {
+      const result = canCharge(
+        makeInput({
+          attackType: 'charge',
+          attackerUnitType: UnitType.VEHICLE,
+          attackerRanThisTurn: true,
+        }),
+      );
+
+      expect(result).toEqual({ allowed: true });
+    });
+
+    it('should disallow WiGE vehicle charge even after a run', () => {
+      const result = canCharge(
+        makeInput({
+          attackType: 'charge',
+          attackerUnitType: UnitType.VEHICLE,
+          attackerMovementMode: 'wige',
+          attackerRanThisTurn: true,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: "This movement mode can't charge",
+        reasonCode: 'AttackerCannotCharge',
+      });
+    });
+
+    it('should allow grounded AirMek charge while blocking fighter mode and airborne AirMek', () => {
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerUnitType: UnitType.BATTLEMECH,
+            attackerMovementMode: 'wige',
+            attackerConversionMode: 'airmek',
+            attackerIsAirborneVTOLOrWiGE: false,
+            attackerRanThisTurn: true,
+          }),
+        ),
+      ).toEqual({ allowed: true });
+
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerUnitType: UnitType.BATTLEMECH,
+            attackerMovementMode: 'wige',
+            attackerConversionMode: 'fighter',
+            attackerRanThisTurn: true,
+          }),
+        ),
+      ).toEqual({
+        allowed: false,
+        reason: "This movement mode can't charge",
+        reasonCode: 'AttackerCannotCharge',
+      });
+
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerUnitType: UnitType.BATTLEMECH,
+            attackerMovementMode: 'wige',
+            attackerConversionMode: 'airmek',
+            attackerIsAirborneVTOLOrWiGE: true,
+            attackerRanThisTurn: true,
+          }),
+        ),
+      ).toEqual({
+        allowed: false,
+        reason: "This movement mode can't charge",
+        reasonCode: 'AttackerCannotCharge',
+      });
+    });
+
+    it('should allow hover charge unless the optional no-hover-charge rule is enabled', () => {
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerUnitType: UnitType.VEHICLE,
+            attackerMovementMode: 'hover',
+            attackerRanThisTurn: true,
+          }),
+        ),
+      ).toEqual({ allowed: true });
+
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerUnitType: UnitType.VEHICLE,
+            attackerMovementMode: 'hover',
+            attackerRanThisTurn: true,
+            optionalRules: ['no_hover_charge'],
+          }),
+        ),
+      ).toEqual({
+        allowed: false,
+        reason: "This movement mode can't charge",
+        reasonCode: 'AttackerCannotCharge',
+      });
+    });
+
+    it('should disallow stunned vehicle charge even after a run', () => {
+      const result = canCharge(
+        makeInput({
+          attackType: 'charge',
+          attackerUnitType: UnitType.VEHICLE,
+          attackerRanThisTurn: true,
+          attackerVehicleCrewStunned: true,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: "Stunned vehicle crew can't charge",
+        reasonCode: 'AttackerCannotCharge',
+      });
+    });
+  });
+
+  describe('LAM fighter physical eligibility', () => {
+    it.each([
+      ['punch', canPunch],
+      ['kick', canKick],
+      ['push', canPush],
+      ['dfa', canDFA],
+      ['hatchet', canMeleeWeapon],
+    ] as const)('should block %s in fighter mode', (attackType, validator) => {
+      const result = validator(
+        makeInput({
+          attackType,
+          attackerUnitType: UnitType.BATTLEMECH,
+          attackerConversionMode: 'fighter',
+          attackerRanThisTurn: true,
+          attackerJumpedThisTurn: true,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: "LAM fighter mode can't make physical attacks",
+        reasonCode: 'AttackerCannotUsePhysical',
+      });
+    });
+  });
+
+  describe('getEligiblePhysicalAttacks', () => {
+    it('blocks stunned vehicle charge rows from generic physical highlights', () => {
+      const attacker = {
+        ...unitAt('stunned-vehicle-1', 0, 0),
+        combatState: {
+          kind: 'vehicle',
+          state: { motive: { crewStunnedPhases: 1 } },
+        },
+      } as IUnitGameState;
+      const target = unitAt('mech-1', 1, 0);
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 45,
+        attackerPilotingSkill: 4,
+        targetTonnage: 55,
+        attackerUnitType: UnitType.VEHICLE,
+        targetUnitType: UnitType.BATTLEMECH,
+        attackerRanThisTurn: true,
+      });
+
+      const charge = options.find((option) => option.attackType === 'charge');
+      expect(charge).toBeDefined();
+      expect(charge!.toHit.allowed).toBe(false);
+      expect(charge!.restrictionsFailed).toEqual(['AttackerCannotCharge']);
+    });
+
+    it('blocks WiGE vehicle charge rows from generic physical highlights', () => {
+      const attacker = unitAt('wige-1', 0, 0);
+      const target = unitAt('mech-1', 1, 0);
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 45,
+        attackerPilotingSkill: 4,
+        targetTonnage: 55,
+        attackerUnitType: UnitType.VEHICLE,
+        attackerMovementMode: 'wige',
+        targetUnitType: UnitType.BATTLEMECH,
+        attackerRanThisTurn: true,
+      });
+
+      const charge = options.find((option) => option.attackType === 'charge');
+      expect(charge).toBeDefined();
+      expect(charge!.toHit.allowed).toBe(false);
+      expect(charge!.restrictionsFailed).toEqual(['AttackerCannotCharge']);
+    });
+
+    it('derives represented LAM AirMek charge eligibility from runtime conversion state', () => {
+      const attacker = {
+        ...unitAt('airmek-1', 0, 0),
+        conversionMode: 'airmek',
+      } as IUnitGameState;
+      const target = unitAt('mech-1', 1, 0);
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 45,
+        attackerPilotingSkill: 4,
+        targetTonnage: 55,
+        attackerUnitType: UnitType.BATTLEMECH,
+        attackerMovementMode: 'wige',
+        targetUnitType: UnitType.BATTLEMECH,
+        attackerRanThisTurn: true,
+      });
+
+      const charge = options.find((option) => option.attackType === 'charge');
+      expect(charge).toBeDefined();
+      expect(charge!.toHit.allowed).toBe(true);
+      expect(charge!.restrictionsFailed).toEqual([]);
+    });
+
+    it('blocks represented airborne AirMek charge rows from runtime state', () => {
+      const attacker = {
+        ...unitAt('airborne-airmek-1', 0, 0),
+        conversionMode: 'airmek',
+        combatState: {
+          kind: 'aero',
+          state: { altitude: 1 },
+        },
+      } as IUnitGameState;
+      const target = unitAt('mech-1', 1, 0);
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 45,
+        attackerPilotingSkill: 4,
+        targetTonnage: 55,
+        attackerUnitType: UnitType.BATTLEMECH,
+        attackerMovementMode: 'wige',
+        targetUnitType: UnitType.BATTLEMECH,
+        attackerRanThisTurn: true,
+      });
+
+      const charge = options.find((option) => option.attackType === 'charge');
+      expect(charge).toBeDefined();
+      expect(charge!.toHit.allowed).toBe(false);
+      expect(charge!.restrictionsFailed).toEqual(['AttackerCannotCharge']);
+    });
+
+    it('blocks represented airborne AirMek push rows from runtime state', () => {
+      const attacker = {
+        ...unitAt('airborne-airmek-1', 0, 0),
+        conversionMode: 'airmek',
+        combatState: {
+          kind: 'aero',
+          state: { altitude: 1 },
+        },
+      } as IUnitGameState;
+      const target = unitAt('mech-1', 1, 0);
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 45,
+        attackerPilotingSkill: 4,
+        targetTonnage: 55,
+        attackerUnitType: UnitType.BATTLEMECH,
+        attackerMovementMode: 'wige',
+        targetUnitType: UnitType.BATTLEMECH,
+        attackerRanThisTurn: true,
+      });
+
+      const push = options.find((option) => option.attackType === 'push');
+      expect(push).toBeDefined();
+      expect(push!.toHit.allowed).toBe(false);
+      expect(push!.restrictionsFailed).toEqual(['AttackerAirborne']);
+    });
+
+    it('blocks represented LAM fighter physical rows from runtime state', () => {
+      const attacker = {
+        ...unitAt('fighter-lam-1', 0, 0),
+        conversionMode: 'fighter',
+      } as IUnitGameState;
+      const target = unitAt('mech-1', 1, 0);
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 45,
+        attackerPilotingSkill: 4,
+        targetTonnage: 55,
+        attackerUnitType: UnitType.BATTLEMECH,
+        attackerMovementMode: 'wheeled',
+        targetUnitType: UnitType.BATTLEMECH,
+        attackerRanThisTurn: true,
+        attackerJumpedThisTurn: true,
+      });
+
+      expect(options).not.toHaveLength(0);
+      expect(options.every((option) => option.toHit.allowed === false)).toBe(
+        true,
+      );
+      expect(
+        options
+          .filter((option) => option.attackType !== 'charge')
+          .every((option) =>
+            option.restrictionsFailed.includes('AttackerCannotUsePhysical'),
+          ),
+      ).toBe(true);
+    });
+
+    it('blocks kick rows when the runtime attacker is hull-down', () => {
+      const attacker = {
+        ...unitAt('hull-down-mek-1', 0, 0),
+        hullDown: true,
+      } as IUnitGameState;
+      const target = unitAt('mech-1', 1, 0);
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 55,
+        attackerPilotingSkill: 4,
+        targetTonnage: 55,
+        attackerUnitType: UnitType.BATTLEMECH,
+        targetUnitType: UnitType.BATTLEMECH,
+        attackerRanThisTurn: true,
+        attackerJumpedThisTurn: true,
+      });
+
+      const kicks = options.filter((option) => option.attackType === 'kick');
+      expect(kicks).toHaveLength(2);
+      expect(kicks.every((option) => option.toHit.allowed === false)).toBe(
+        true,
+      );
+      expect(kicks.map((option) => option.restrictionsFailed)).toEqual([
+        ['AttackerHullDown'],
+        ['AttackerHullDown'],
+      ]);
+    });
+
+    it('projects MegaMek hull-down punch and club hit tables from elevation context', () => {
+      const attacker = {
+        ...unitAt('hull-down-mek-1', 0, 0),
+        hullDown: true,
+      } as IUnitGameState;
+      const target = unitAt('mech-1', 1, 0);
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 55,
+        attackerPilotingSkill: 4,
+        targetTonnage: 55,
+        attackerUnitType: UnitType.BATTLEMECH,
+        targetUnitType: UnitType.BATTLEMECH,
+        meleeWeaponsEquipped: ['hatchet'],
+        elevationContext: {
+          attackerBaseElevation: 0,
+          attackerArmElevation: 1,
+          targetBaseElevation: 1,
+          targetTopElevation: 2,
+        },
+      });
+
+      const punch = options.find(
+        (option) => option.attackType === 'punch' && option.limb === 'rightArm',
+      );
+      const hatchet = options.find((option) => option.attackType === 'hatchet');
+
+      expect(punch).toBeDefined();
+      expect(punch!.toHit.allowed).toBe(true);
+      expect(punch!.damage.hitTable).toBe('kick');
+      expect(hatchet).toBeDefined();
+      expect(hatchet!.toHit.allowed).toBe(true);
+      expect(hatchet!.damage.hitTable).toBe('kick');
+    });
+
+    it('keeps battle armor from producing generic physical target highlights', () => {
+      const attacker = unitAt('ba-1', 0, 0);
+      const target = unitAt('mech-1', 1, 0);
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 1,
+        attackerPilotingSkill: 4,
+        targetTonnage: 55,
+        attackerUnitType: UnitType.BATTLE_ARMOR,
+        targetUnitType: UnitType.BATTLEMECH,
+        attackerRanThisTurn: true,
+        attackerJumpedThisTurn: true,
+      });
+
+      expect(
+        options.filter(
+          (option) =>
+            option.toHit.allowed && option.restrictionsFailed.length === 0,
+        ),
+      ).toHaveLength(0);
+      expect(options.map((option) => option.attackType)).toEqual(
+        expect.arrayContaining(['punch', 'kick', 'charge', 'dfa']),
+      );
+      expect(
+        options
+          .filter((option) =>
+            ['punch', 'kick', 'charge', 'dfa'].includes(option.attackType),
+          )
+          .flatMap((option) => option.restrictionsFailed),
+      ).toEqual(
+        expect.arrayContaining([
+          'AttackerNotMek',
+          'AttackerNotMek',
+          'AttackerNotMek',
+          'AttackerCannotCharge',
+        ]),
+      );
     });
   });
 
@@ -635,6 +1402,20 @@ describe('physicalAttacks', () => {
       expect(result.baseToHit).toBe(5);
       expect(result.allowed).toBe(true);
     });
+
+    it('should reject Battle Armor charge to-hit even after a run', () => {
+      const result = calculateChargeToHit(
+        makeInput({
+          pilotingSkill: 5,
+          attackType: 'charge',
+          attackerUnitType: UnitType.BATTLE_ARMOR,
+          attackerRanThisTurn: true,
+        }),
+      );
+
+      expect(result.allowed).toBe(false);
+      expect(result.restrictionReasonCode).toBe('AttackerCannotCharge');
+    });
   });
 
   describe('calculateDFAToHit', () => {
@@ -731,6 +1512,43 @@ describe('physicalAttacks', () => {
       expect(result.hitTable).toBe('punch');
     });
 
+    it('uses the kick hit table for a hull-down punch at attacker arm level', () => {
+      const result = calculatePhysicalDamage(
+        makeInput({
+          attackerTonnage: 80,
+          attackType: 'punch',
+          attackerHullDown: true,
+          elevationContext: {
+            attackerBaseElevation: 0,
+            attackerArmElevation: 1,
+            targetBaseElevation: 1,
+            targetTopElevation: 2,
+          },
+        }),
+      );
+
+      expect(result.targetDamage).toBe(8);
+      expect(result.hitTable).toBe('kick');
+    });
+
+    it('keeps the punch hit table for a hull-down punch from above the target base', () => {
+      const result = calculatePhysicalDamage(
+        makeInput({
+          attackerTonnage: 80,
+          attackType: 'punch',
+          attackerHullDown: true,
+          elevationContext: {
+            attackerBaseElevation: 1,
+            attackerArmElevation: 2,
+            targetBaseElevation: 0,
+            targetTopElevation: 1,
+          },
+        }),
+      );
+
+      expect(result.hitTable).toBe('punch');
+    });
+
     it('should return correct kick damage result with PSR', () => {
       const result = calculatePhysicalDamage(
         makeInput({ attackerTonnage: 80, attackType: 'kick' }),
@@ -779,6 +1597,20 @@ describe('physicalAttacks', () => {
       );
       expect(result.targetDamage).toBe(14);
       expect(result.hitTable).toBe('punch');
+    });
+
+    it('uses the kick hit table for a hull-down club attack against a represented Mek', () => {
+      const result = calculatePhysicalDamage(
+        makeInput({
+          attackerTonnage: 70,
+          attackType: 'hatchet',
+          attackerHullDown: true,
+          targetUnitType: UnitType.BATTLEMECH,
+        }),
+      );
+
+      expect(result.targetDamage).toBe(14);
+      expect(result.hitTable).toBe('kick');
     });
   });
 
@@ -871,6 +1703,30 @@ describe('physicalAttacks', () => {
       expect(result.roll).toBe(7);
       expect(result.targetDamage).toBe(8);
       expect(result.hitLocation).toBe('center_torso');
+    });
+
+    it('resolves a hull-down punch against a level arm-height target on the kick table', () => {
+      // dice: 6+6=12 (to-hit), 4 (kick table location = left leg)
+      const roller = makeDiceSequence([6, 6, 4]);
+      const result = resolvePhysicalAttack(
+        makeInput({
+          attackerTonnage: 80,
+          attackType: 'punch',
+          pilotingSkill: 5,
+          attackerHullDown: true,
+          elevationContext: {
+            attackerBaseElevation: 0,
+            attackerArmElevation: 1,
+            targetBaseElevation: 1,
+            targetTopElevation: 2,
+          },
+        }),
+        roller,
+      );
+
+      expect(result.hit).toBe(true);
+      expect(result.hitTable).toBe('kick');
+      expect(result.hitLocation).toBe('left_leg');
     });
 
     it('should resolve a missing punch', () => {

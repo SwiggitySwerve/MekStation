@@ -1,4 +1,13 @@
-import { IComponentDamageState, IUnitGameState } from '@/types/gameplay';
+import type { UnitType } from '@/types/unit/BattleMechInterfaces';
+
+import {
+  Facing,
+  IComponentDamageState,
+  IHexCoordinate,
+  IUnitGameState,
+  MovementConversionMode,
+  MovementMotiveMode,
+} from '@/types/gameplay';
 import { CombatLocation } from '@/types/gameplay';
 
 export type PhysicalAttackType =
@@ -11,6 +20,8 @@ export type PhysicalAttackType =
   | 'sword'
   | 'mace'
   | 'lance';
+
+export type PhysicalHitTable = 'punch' | 'kick';
 
 /**
  * Per `implement-physical-attack-phase` task 2.1: canonical declaration
@@ -53,8 +64,49 @@ export type PhysicalAttackInvalidReason =
   | 'NoRunThisTurn'
   | 'LimbMissing'
   | 'AttackerProne'
+  | 'AttackerHullDown'
+  | 'AttackerNotMek'
+  | 'AttackerCannotUsePhysical'
+  | 'AttackerCannotCharge'
+  | 'AttackerAirborne'
+  | 'TargetNotMek'
+  | 'TargetNotDirectlyAhead'
+  | 'TargetProne'
+  | 'TargetAirborne'
+  | 'TargetInsideBuilding'
+  | 'TargetNotInPhysicalRange'
+  | 'TargetElevationNotInRange'
   | 'UnsupportedAttackType'
   | 'DestinationBlocked';
+
+/**
+ * MegaMek-style absolute elevation context for punch / kick legality.
+ *
+ * `attackerBaseElevation` is the attacker's hex level plus any unit
+ * elevation/altitude. `attackerArmElevation` is the level of a Mek's arms.
+ * `targetBaseElevation` and `targetTopElevation` bracket the target's
+ * vertical space. Callers omit this when no authoritative grid is available,
+ * preserving legacy fixture behavior until the map/engine path can supply it.
+ */
+export interface IPhysicalAttackElevationContext {
+  readonly attackerBaseElevation: number;
+  readonly attackerArmElevation: number;
+  readonly targetBaseElevation: number;
+  readonly targetTopElevation: number;
+  readonly targetIsAirborneVTOLOrWiGE?: boolean;
+}
+
+/**
+ * Represented terrain state for physical-attack gates that depend on more than
+ * elevation. Building identity is optional because legacy/simple terrain tags
+ * only prove whether a unit occupies a building hex.
+ */
+export interface IPhysicalAttackTerrainContext {
+  readonly attackerInBuilding: boolean;
+  readonly targetInBuilding: boolean;
+  readonly attackerBuildingId?: string;
+  readonly targetBuildingId?: string;
+}
 
 export interface IPhysicalAttackInput {
   readonly attackerTonnage: number;
@@ -68,6 +120,20 @@ export interface IPhysicalAttackInput {
   readonly isUnderwater?: boolean;
   readonly weaponsFiredFromArm?: readonly string[];
   readonly attackerProne?: boolean;
+  readonly attackerHullDown?: boolean;
+  readonly attackerUnitType?: UnitType;
+  readonly attackerMovementMode?: MovementMotiveMode;
+  readonly attackerConversionMode?: MovementConversionMode | number;
+  readonly attackerIsAirborneVTOLOrWiGE?: boolean;
+  readonly attackerVehicleCrewStunned?: boolean;
+  readonly optionalRules?: readonly string[];
+  readonly attackerDestroyedLocations?: readonly string[];
+  readonly targetUnitType?: UnitType;
+  readonly attackerPosition?: IHexCoordinate;
+  readonly targetPosition?: IHexCoordinate;
+  readonly attackerFacing?: Facing;
+  readonly targetProne?: boolean;
+  readonly targetIsAirborne?: boolean;
   readonly targetTonnage?: number;
   /**
    * Per `implement-physical-attack-phase` task 4.3 / 5.3: target movement
@@ -116,6 +182,14 @@ export interface IPhysicalAttackInput {
    */
   readonly upperLegActuatorPresent?: boolean;
   readonly footActuatorPresent?: boolean;
+  readonly elevationContext?: IPhysicalAttackElevationContext;
+  readonly terrainContext?: IPhysicalAttackTerrainContext;
+  /**
+   * Hit table selected and persisted by the declaration path. Resolution uses
+   * this when present so target-specific projection facts cannot drift out of
+   * scope before the physical phase resolves.
+   */
+  readonly hitTableOverride?: PhysicalHitTable;
 }
 
 export interface IPhysicalToHitResult {
@@ -144,7 +218,7 @@ export interface IPhysicalDamageResult {
   readonly targetPSR: boolean;
   readonly attackerPSR: boolean;
   readonly attackerPSRModifier: number;
-  readonly hitTable: 'punch' | 'kick';
+  readonly hitTable: PhysicalHitTable;
   readonly targetDisplaced: boolean;
 }
 
@@ -159,6 +233,7 @@ export interface IPhysicalAttackResult {
   readonly targetPSR: boolean;
   readonly attackerPSR: boolean;
   readonly attackerPSRModifier: number;
+  readonly hitTable?: PhysicalHitTable;
   readonly hitLocation?: CombatLocation;
   readonly targetDisplaced: boolean;
 }

@@ -36,19 +36,20 @@ import {
   buildDamageStateFromUnit,
 } from './gameSessionAttackResolutionHelpers';
 import { appendEvent } from './gameSessionCore';
-import { buildRestrictionEventReason } from './gameSessionPhysicalHelpers';
+import {
+  appendPhysicalAttackRestrictionResolution,
+  physicalAttackRestrictionForType,
+  physicalTargetRangeRestriction,
+} from './gameSessionPhysicalHelpers';
 import { roll2d6 as rollDice } from './hitLocation';
 import {
-  canCharge,
-  canDFA,
-  canKick,
-  canMeleeWeapon,
-  canPunch,
   determinePhysicalHitLocation,
   IPhysicalAttackInput,
-  IPhysicalAttackRestriction,
+  isAirborneVTOLOrWiGEForPhysicalAttack,
+  isVehicleCrewStunned,
   PhysicalAttackType,
   resolvePhysicalAttack,
+  selectPhysicalHitTable,
   splitPhysicalDamageIntoClusters,
 } from './physicalAttacks';
 
@@ -71,9 +72,31 @@ export function declarePhysicalAttack(
   if (!attackerState || attackerState.destroyed) {
     return session;
   }
+  const targetState = session.currentState.units[targetId];
+  if (!targetState || targetState.destroyed) {
+    return session;
+  }
 
   const componentDamage =
     attackerState.componentDamage ?? buildDefaultComponentDamageState();
+  const attackerUnit = session.units.find((unit) => unit.id === attackerId);
+  const targetUnit = session.units.find((unit) => unit.id === targetId);
+  const attackerMovementMode =
+    context.attackerMovementMode ?? attackerUnit?.movementMode;
+
+  const targetRangeRestriction = physicalTargetRangeRestriction(
+    attackerState,
+    targetState,
+  );
+  if (!targetRangeRestriction.allowed) {
+    return appendPhysicalAttackRestrictionResolution(
+      session,
+      attackerId,
+      targetId,
+      attackType,
+      targetRangeRestriction,
+    );
+  }
 
   const input: IPhysicalAttackInput = {
     attackerTonnage: context.attackerTonnage,
@@ -86,41 +109,46 @@ export function declarePhysicalAttack(
     isUnderwater: false,
     weaponsFiredFromArm: context.weaponsFiredFromArm,
     attackerProne: attackerState.prone,
+    attackerHullDown: attackerState.hullDown,
     targetTonnage: context.targetTonnage,
     targetMovementModifier: context.targetMovementModifier,
     attackerMovementModifier: context.attackerMovementModifier,
     attackerJumpedThisTurn: context.attackerJumpedThisTurn,
     attackerRanThisTurn: context.attackerRanThisTurn,
+    attackerUnitType: context.attackerUnitType ?? attackerUnit?.unitType,
+    attackerMovementMode,
+    attackerConversionMode:
+      context.attackerConversionMode ?? attackerState.conversionMode,
+    attackerIsAirborneVTOLOrWiGE:
+      context.attackerIsAirborneVTOLOrWiGE ??
+      isAirborneVTOLOrWiGEForPhysicalAttack(
+        attackerState,
+        attackerMovementMode,
+      ),
+    attackerVehicleCrewStunned: isVehicleCrewStunned(attackerState),
+    optionalRules: context.optionalRules ?? session.config.optionalRules,
+    attackerDestroyedLocations: attackerState.destroyedLocations,
+    targetUnitType: context.targetUnitType ?? targetUnit?.unitType,
+    attackerPosition: attackerState.position,
+    targetPosition: targetState.position,
+    attackerFacing: attackerState.facing,
+    targetProne: context.targetProne ?? targetState.prone,
+    targetIsAirborne:
+      context.targetIsAirborne ??
+      ((targetState.combatState?.kind === 'aero' ||
+        targetState.combatState?.kind === 'proto') &&
+        (targetState.combatState.state.altitude ?? 0) > 0),
     limbsUsedThisTurn: context.limbsUsedThisTurn,
     limb: context.limb,
     lowerArmActuatorPresent: context.lowerArmActuatorPresent,
     handActuatorPresent: context.handActuatorPresent,
     upperLegActuatorPresent: context.upperLegActuatorPresent,
     footActuatorPresent: context.footActuatorPresent,
+    elevationContext: context.elevationContext,
+    terrainContext: context.terrainContext,
   };
 
-  // Per task 3.1 / 3.2 / 3.3 / 3.4 / 3.5 / 3.6 / 3.7: restrictions run
-  // per attack type. Charge / DFA / melee gate on the same helpers used
-  // by the to-hit layer.
-  let restriction: IPhysicalAttackRestriction;
-  if (attackType === 'punch') {
-    restriction = canPunch(input);
-  } else if (attackType === 'kick') {
-    restriction = canKick(input);
-  } else if (attackType === 'charge') {
-    restriction = canCharge(input);
-  } else if (attackType === 'dfa') {
-    restriction = canDFA(input);
-  } else if (
-    attackType === 'hatchet' ||
-    attackType === 'sword' ||
-    attackType === 'mace' ||
-    attackType === 'lance'
-  ) {
-    restriction = canMeleeWeapon(input);
-  } else {
-    restriction = { allowed: true };
-  }
+  const restriction = physicalAttackRestrictionForType(attackType, input);
 
   if (!restriction.allowed) {
     // Per spec task 3.8: rejections surface as a
@@ -128,23 +156,12 @@ export function declarePhysicalAttack(
     // event whose `location` field carries the reason code so replay +
     // UI can distinguish rejections from rolled misses. A future change
     // can promote this to a dedicated `PhysicalAttackInvalid` event.
-    const sequence = session.events.length;
-    const { turn } = session.currentState;
-    return appendEvent(
+    return appendPhysicalAttackRestrictionResolution(
       session,
-      createPhysicalAttackResolvedEvent(
-        session.id,
-        sequence,
-        turn,
-        attackerId,
-        targetId,
-        attackType,
-        0,
-        Infinity,
-        false,
-        undefined,
-        buildRestrictionEventReason(restriction),
-      ),
+      attackerId,
+      targetId,
+      attackType,
+      restriction,
     );
   }
 
@@ -154,6 +171,7 @@ export function declarePhysicalAttack(
   // declared event carries the calculated TN so UI can show the
   // forecast modal before resolution.
   const declaredTN = context.pilotingSkill;
+  const hitTable = selectPhysicalHitTable(input);
 
   return appendEvent(
     session,
@@ -165,6 +183,8 @@ export function declarePhysicalAttack(
       targetId,
       attackType as 'punch' | 'kick' | 'charge' | 'dfa' | 'push',
       declaredTN,
+      context.limb,
+      hitTable,
     ),
   );
 }
@@ -207,6 +227,14 @@ export function resolveAllPhysicalAttacks(
 
     const componentDamage =
       attackerState.componentDamage ?? buildDefaultComponentDamageState();
+    const attackerUnit = currentSession.units.find(
+      (unit) => unit.id === payload.attackerId,
+    );
+    const targetUnit = currentSession.units.find(
+      (unit) => unit.id === payload.targetId,
+    );
+    const attackerMovementMode =
+      context.attackerMovementMode ?? attackerUnit?.movementMode;
 
     const input: IPhysicalAttackInput = {
       attackerTonnage: context.attackerTonnage,
@@ -219,7 +247,27 @@ export function resolveAllPhysicalAttacks(
       isUnderwater: false,
       weaponsFiredFromArm: context.weaponsFiredFromArm,
       attackerProne: attackerState.prone,
+      attackerHullDown: attackerState.hullDown,
       targetTonnage: context.targetTonnage,
+      attackerJumpedThisTurn: context.attackerJumpedThisTurn,
+      attackerRanThisTurn: context.attackerRanThisTurn,
+      attackerUnitType: context.attackerUnitType,
+      attackerMovementMode,
+      attackerConversionMode:
+        context.attackerConversionMode ?? attackerState.conversionMode,
+      attackerIsAirborneVTOLOrWiGE:
+        context.attackerIsAirborneVTOLOrWiGE ??
+        isAirborneVTOLOrWiGEForPhysicalAttack(
+          attackerState,
+          attackerMovementMode,
+        ),
+      attackerVehicleCrewStunned: isVehicleCrewStunned(attackerState),
+      optionalRules: context.optionalRules ?? session.config.optionalRules,
+      targetUnitType: context.targetUnitType ?? targetUnit?.unitType,
+      limb: payload.limb ?? context.limb,
+      elevationContext: context.elevationContext,
+      terrainContext: context.terrainContext,
+      hitTableOverride: payload.hitTable,
     };
 
     // The standalone module uses a d6 roller; wrap our 2d6 roller's
@@ -271,7 +319,8 @@ export function resolveAllPhysicalAttacks(
           clusterIndex === 0
             ? result.hitLocation
             : determinePhysicalHitLocation(
-                payload.attackType === 'kick' ? 'kick' : 'punch',
+                result.hitTable ??
+                  (payload.attackType === 'kick' ? 'kick' : 'punch'),
                 d6Roller,
               );
 
@@ -387,9 +436,6 @@ export function resolveAllPhysicalAttacks(
     // pass the unit's base piloting skill (looked up from `IGameUnit`).
     // For the attacker the runner already has `context.pilotingSkill`;
     // for the target we look it up from `currentSession.units`.
-    const targetUnit = currentSession.units.find(
-      (u) => u.id === payload.targetId,
-    );
     if (result.hit && result.targetPSR) {
       // Per `structure-psr-reason-as-discriminated-code` (PR E): map the
       // generic `physical_attack_target` trigger source to the canonical

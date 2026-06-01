@@ -475,6 +475,201 @@ describe('applyEvent - MovementDeclared', () => {
 
     expect(newState.units['unit-1'].heat).toBe(9); // 5 + 4
   });
+
+  it('should replay hull-down go-prone declarations as prone posture', () => {
+    let state = createInitialGameState('game-1');
+
+    const createEvent = createTestEvent({
+      type: GameEventType.GameCreated,
+      payload: {
+        config: createTestConfig(),
+        units: [createTestUnit()],
+      } as IGameCreatedPayload,
+    });
+    state = applyEvent(state, createEvent);
+    state = {
+      ...state,
+      units: {
+        ...state.units,
+        'unit-1': {
+          ...state.units['unit-1'],
+          hullDown: true,
+          prone: false,
+        },
+      },
+    };
+
+    const movementEvent = createTestEvent({
+      sequence: 2,
+      type: GameEventType.MovementDeclared,
+      payload: {
+        unitId: 'unit-1',
+        from: { q: 0, r: 0 },
+        to: { q: 0, r: 0 },
+        facing: Facing.North,
+        movementType: MovementType.Stationary,
+        mpUsed: 0,
+        heatGenerated: 0,
+        goProneAttempt: true,
+      } as IMovementDeclaredPayload,
+    });
+
+    const newState = applyEvent(state, movementEvent);
+
+    expect(newState.units['unit-1']).toMatchObject({
+      prone: true,
+      hullDown: false,
+      movementThisTurn: MovementType.Stationary,
+      hexesMovedThisTurn: 0,
+    });
+  });
+
+  it('should replay hull-down entry declarations as hull-down posture', () => {
+    let state = createInitialGameState('game-1');
+
+    const createEvent = createTestEvent({
+      type: GameEventType.GameCreated,
+      payload: {
+        config: createTestConfig(),
+        units: [createTestUnit()],
+      } as IGameCreatedPayload,
+    });
+    state = applyEvent(state, createEvent);
+    state = {
+      ...state,
+      units: {
+        ...state.units,
+        'unit-1': {
+          ...state.units['unit-1'],
+          hullDown: false,
+          prone: false,
+        },
+      },
+    };
+
+    const movementEvent = createTestEvent({
+      sequence: 2,
+      type: GameEventType.MovementDeclared,
+      payload: {
+        unitId: 'unit-1',
+        from: { q: 0, r: 0 },
+        to: { q: 0, r: 0 },
+        facing: Facing.North,
+        movementType: MovementType.Walk,
+        mpUsed: 2,
+        heatGenerated: 1,
+        hullDownEntryAttempt: true,
+      } as IMovementDeclaredPayload,
+    });
+
+    const newState = applyEvent(state, movementEvent);
+
+    expect(newState.units['unit-1']).toMatchObject({
+      prone: false,
+      hullDown: true,
+      movementThisTurn: MovementType.Walk,
+      hexesMovedThisTurn: 2,
+    });
+  });
+
+  it('should remember when hull-down entry used a backward step', () => {
+    let state = createInitialGameState('game-1');
+
+    const createEvent = createTestEvent({
+      type: GameEventType.GameCreated,
+      payload: {
+        config: createTestConfig(),
+        units: [createTestUnit()],
+      } as IGameCreatedPayload,
+    });
+    state = applyEvent(state, createEvent);
+
+    const movementEvent = createTestEvent({
+      sequence: 2,
+      type: GameEventType.MovementDeclared,
+      payload: {
+        unitId: 'unit-1',
+        from: { q: 0, r: 0 },
+        to: { q: 0, r: 1 },
+        facing: Facing.North,
+        movementType: MovementType.Walk,
+        mpUsed: 3,
+        heatGenerated: 1,
+        hullDownEntryAttempt: true,
+        steps: [
+          {
+            kind: 'forward',
+            index: 0,
+            direction: 'backward',
+            from: { q: 0, r: 0 },
+            to: { q: 0, r: 1 },
+            mpCost: 1,
+            terrainEntered: 'Clear',
+            elevationDelta: 0,
+          },
+          {
+            kind: 'hullDown',
+            index: 1,
+            at: { q: 0, r: 1 },
+            mpCost: 2,
+          },
+        ],
+      } as IMovementDeclaredPayload,
+    });
+
+    const newState = applyEvent(state, movementEvent);
+
+    expect(newState.units['unit-1']).toMatchObject({
+      hullDown: true,
+      hullDownEnteredBackwards: true,
+    });
+  });
+
+  it('should clear backward hull-down state when the unit leaves hull-down', () => {
+    let state = createInitialGameState('game-1');
+
+    const createEvent = createTestEvent({
+      type: GameEventType.GameCreated,
+      payload: {
+        config: createTestConfig(),
+        units: [createTestUnit()],
+      } as IGameCreatedPayload,
+    });
+    state = applyEvent(state, createEvent);
+    state = {
+      ...state,
+      units: {
+        ...state.units,
+        'unit-1': {
+          ...state.units['unit-1'],
+          hullDown: true,
+          hullDownEnteredBackwards: true,
+        },
+      },
+    };
+
+    const movementEvent = createTestEvent({
+      sequence: 2,
+      type: GameEventType.MovementDeclared,
+      payload: {
+        unitId: 'unit-1',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        facing: Facing.North,
+        movementType: MovementType.Walk,
+        mpUsed: 3,
+        heatGenerated: 1,
+        hullDownExitAttempt: true,
+      } as IMovementDeclaredPayload,
+    });
+
+    const newState = applyEvent(state, movementEvent);
+
+    expect(newState.units['unit-1']).toMatchObject({
+      hullDown: false,
+      hullDownEnteredBackwards: false,
+    });
+  });
 });
 
 // =============================================================================

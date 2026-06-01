@@ -1,4 +1,3 @@
-import type { IUnitToken } from '@/types/gameplay/GameplayUIInterfaces';
 import type {
   IHexCoordinate,
   IHexGrid,
@@ -9,6 +8,7 @@ import { TerrainType } from '@/types/gameplay/TerrainTypes';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import {
   calculateLOS,
+  formatLOSBlockedDetails,
   parseTerrainFeatures,
 } from '@/utils/gameplay/lineOfSight';
 
@@ -33,16 +33,23 @@ export interface LOSClassification {
 export interface LOSClassifierOptions {
   readonly fromElevation?: number;
   readonly toElevation?: number;
-  readonly tokens?: readonly IUnitToken[];
 }
 
 const PARTIAL_COVER_TERRAINS: readonly TerrainType[] = [
   TerrainType.LightWoods,
   TerrainType.HeavyWoods,
+  TerrainType.Smoke,
 ];
 
 function terrainLabel(terrain: TerrainType): string {
   return terrain.replace(/_/g, ' ');
+}
+
+function terrainListLabel(terrains: readonly TerrainType[]): string {
+  const labels = terrains.map(terrainLabel);
+  if (labels.length <= 1) return labels[0] ?? 'terrain';
+  if (labels.length === 2) return `${labels[0]} and ${labels[1]}`;
+  return `${labels.slice(0, -1).join(', ')}, and ${labels[labels.length - 1]}`;
 }
 
 function hexLabel(hex: IHexCoordinate): string {
@@ -59,52 +66,65 @@ function terrainAt(
   return parseTerrainFeatures(hexData.terrain)[0]?.type;
 }
 
-function partialCoverTerrainAt(
-  grid: IHexGrid,
-  hex: IHexCoordinate,
-): TerrainType | undefined {
-  const hexData = grid.hexes.get(coordToKey(hex));
-  if (!hexData) return undefined;
-
-  const features = parseTerrainFeatures(hexData.terrain);
-  return features.find((feature) =>
-    PARTIAL_COVER_TERRAINS.includes(feature.type),
-  )?.type;
-}
-
 function partialCoverAnnotation(
   coord: IHexCoordinate,
   terrain: TerrainType,
+  terrains: readonly TerrainType[] = [terrain],
 ): LOSBlockerMetadata {
   return {
     coord,
     terrain,
     icon: 'cover',
-    title: `Partial cover through ${terrainLabel(terrain)} at ${hexLabel(coord)}`,
+    title: `Partial cover through ${terrainListLabel(terrains)} at ${hexLabel(coord)}`,
   };
 }
 
 function blockedAnnotation(
   coord: IHexCoordinate,
   terrain: TerrainType,
+  title = `Blocked by ${terrainLabel(terrain)} at ${hexLabel(coord)}`,
 ): LOSBlockerMetadata {
   return {
     coord,
     terrain,
     icon: 'wall',
-    title: `Blocked by ${terrainLabel(terrain)} at ${hexLabel(coord)}`,
+    title,
   };
 }
 
-function wreckAnnotation(
+function elevationAnnotation(
   coord: IHexCoordinate,
-  unitName: string,
+  elevation: number,
 ): LOSBlockerMetadata {
   return {
     coord,
     icon: 'wall',
-    title: `Blocked by wreck ${unitName} at ${hexLabel(coord)}`,
+    title: `Blocked by elevation ${elevation >= 0 ? `+${elevation}` : elevation} at ${hexLabel(coord)}`,
   };
+}
+
+function partialCoverAnnotationsFromEffects(
+  effects: ILOSResult['interveningTerrainEffects'],
+): readonly LOSBlockerMetadata[] {
+  const groups = new Map<
+    string,
+    { coord: IHexCoordinate; terrains: TerrainType[] }
+  >();
+
+  for (const effect of effects) {
+    if (!PARTIAL_COVER_TERRAINS.includes(effect.terrain)) continue;
+    const key = coordToKey(effect.coord);
+    const group = groups.get(key);
+    if (group) {
+      group.terrains.push(effect.terrain);
+      continue;
+    }
+    groups.set(key, { coord: effect.coord, terrains: [effect.terrain] });
+  }
+
+  return Array.from(groups.values(), ({ coord, terrains }) =>
+    partialCoverAnnotation(coord, terrains[0], Array.from(new Set(terrains))),
+  );
 }
 
 export function classifyLOS(
@@ -119,21 +139,20 @@ export function classifyLOS(
     grid,
     options.fromElevation,
     options.toElevation,
-    options.tokens,
   );
 
   if (!engineResult.hasLOS) {
     const blockedBy = engineResult.blockedBy;
-    const blockingUnit = engineResult.blockingUnit;
     const blockerAnnotations = blockedBy
       ? [
-          blockingUnit
-            ? wreckAnnotation(blockedBy, blockingUnit.name)
+          engineResult.blockingElevation !== undefined
+            ? elevationAnnotation(blockedBy, engineResult.blockingElevation)
             : blockedAnnotation(
                 blockedBy,
                 engineResult.blockingTerrain ??
                   terrainAt(grid, blockedBy) ??
                   TerrainType.Building,
+                formatLOSBlockedDetails(engineResult),
               ),
         ]
       : [];
@@ -141,20 +160,26 @@ export function classifyLOS(
     return {
       state: 'blocked',
       blockers: blockedBy ? [blockedBy] : [],
-      blockerAnnotations,
+      blockerAnnotations:
+        blockerAnnotations.length > 0
+          ? blockerAnnotations
+          : blockedBy
+            ? [
+                {
+                  coord: blockedBy,
+                  icon: 'wall',
+                  title: formatLOSBlockedDetails(engineResult),
+                },
+              ]
+            : [],
       lineEnd: blockedBy ?? to,
       engineResult,
     };
   }
 
-  const blockerAnnotations = engineResult.interveningHexes
-    .map((hex) => {
-      const terrain = partialCoverTerrainAt(grid, hex);
-      return terrain ? partialCoverAnnotation(hex, terrain) : null;
-    })
-    .filter(
-      (annotation): annotation is LOSBlockerMetadata => annotation !== null,
-    );
+  const blockerAnnotations = partialCoverAnnotationsFromEffects(
+    engineResult.interveningTerrainEffects,
+  );
 
   if (blockerAnnotations.length > 0) {
     return {

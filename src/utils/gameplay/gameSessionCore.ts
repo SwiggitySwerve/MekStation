@@ -13,12 +13,17 @@ import {
   IGameSession,
   IGameUnit,
   IHexCoordinate,
+  IHexTerrain,
   IToHitModifier,
+  IToHitModifierDetail,
   IWeaponAttack,
   IWeaponAttackData,
   MovementType,
   RangeBracket,
+  type StandUpMode,
 } from '@/types/gameplay';
+
+import type { ILOSInterveningTerrainEffect } from './lineOfSight';
 
 /**
  * Per `add-victory-and-post-battle-summary` design D3 + spec scenario
@@ -52,6 +57,8 @@ export function isTurnLimitDraw(
   return delta <= TURN_LIMIT_DRAW_TOLERANCE;
 }
 
+import { calculateGroundToAirAltitudeModifier } from './aerospace/groundToAir';
+import { isRepresentedTargetImmobile } from './combatImmobility';
 import { type D6Roller, defaultD6Roller } from './diceTypes';
 import {
   createAttackDeclaredEvent,
@@ -59,6 +66,7 @@ import {
   createGameCreatedEvent,
   createGameEndedEvent,
   createGameStartedEvent,
+  createIndirectFireForwardObserverEvent,
   createIndirectFireNarcOverrideEvent,
   createIndirectFireSpotterSelectedEvent,
   createInitiativeRolledEvent,
@@ -67,7 +75,11 @@ import {
   createPhaseChangedEvent,
 } from './gameEvents';
 import { allUnitsLocked, deriveState } from './gameState';
-import { calculateToHit } from './toHit';
+import { isGroundToGroundGameAttack } from './groundToGround';
+import { getWeaponRangeBracket } from './range';
+import { calculateInterveningTerrainModifier, calculateToHit } from './toHit';
+import { calculateToHitWithC3, selectC3RangeBracket } from './toHit/c3';
+import { deriveVehicleToHitContext } from './vehicleToHitContext';
 
 export interface ICreateGameSessionOptions {
   readonly id?: string;
@@ -83,6 +95,11 @@ export interface ICreateGameSessionOptions {
    * manifest from disk. Null/omitted for non-encounter callers.
    */
   readonly encounterMeta?: IEncounterMeta;
+  /**
+   * Non-default initial terrain/elevation seed captured from the grid
+   * used to start the session.
+   */
+  readonly hexTerrain?: readonly IHexTerrain[];
 }
 
 export function createGameSession(
@@ -98,6 +115,8 @@ export function createGameSession(
     config,
     units,
     options.encounterMeta,
+    undefined,
+    options.hexTerrain,
   );
   const events: IGameEvent[] = [createdEvent];
   const currentState = deriveState(id, events);
@@ -327,6 +346,18 @@ export function declareMovement(
   mpUsed: number,
   heatGenerated: number,
   path?: readonly IHexCoordinate[],
+  options?: {
+    readonly standUpAttempt?: boolean;
+    readonly standUpSucceeded?: boolean;
+    readonly standUpMode?: StandUpMode;
+    readonly hullDownExitAttempt?: boolean;
+    readonly hullDownEntryAttempt?: boolean;
+    readonly goProneAttempt?: boolean;
+    readonly conversionStepCount?: number;
+    readonly conversionMpCost?: number;
+    readonly altitudeControlStepCount?: number;
+    readonly altitudeControlMpCost?: number;
+  },
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.Movement) {
     throw new Error('Not in movement phase');
@@ -351,6 +382,7 @@ export function declareMovement(
     mpUsed,
     heatGenerated,
     path,
+    options,
   );
 
   return appendEvent(session, event);
@@ -405,6 +437,12 @@ export function declareAttack(
    * Defaults to the live target unit position when omitted.
    */
   targetHex?: import('@/types/gameplay/HexGridInterfaces').IHexCoordinate,
+  /** Whether the target's hex grants partial cover for this declaration. */
+  targetPartialCover = false,
+  /** Intervening LOS terrain effects that should modify the attack to-hit. */
+  interveningTerrainEffects: readonly ILOSInterveningTerrainEffect[] = [],
+  /** Target-hex woods/smoke terrain modifier, separate from true partial cover. */
+  targetTerrainModifier: IToHitModifierDetail | null = null,
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.WeaponAttack) {
     throw new Error('Not in weapon attack phase');
@@ -425,9 +463,6 @@ export function declareAttack(
     throw new Error(`Attacker ${attackerId} not found in units`);
   }
 
-  // Wave 8 PR-K11: normalize IAttackPreResolution union → bare resolution
-  // so the existing pipeline below uses one shape. Back-compat: pre-K11
-  // callers passing IIndirectFireResolution directly continue to work.
   const indirectFireResolution:
     | import('@/types/gameplay/IndirectFireInterfaces').IIndirectFireResolution
     | undefined = !indirectFireResolutionInput
@@ -438,56 +473,174 @@ export function declareAttack(
         : undefined
       : indirectFireResolutionInput;
 
-  const toHitCalc = calculateToHit(
-    {
+  const resolvedTargetHex = targetHex ?? targetUnit.position;
+  const interveningTerrainModifier = calculateInterveningTerrainModifier(
+    interveningTerrainEffects,
+  );
+  const groundToAirAltitudeModifier = calculateGroundToAirAltitudeModifier(
+    attackerUnit,
+    targetUnit,
+  );
+  const attackContextModifiers = [
+    interveningTerrainModifier,
+    targetTerrainModifier,
+    groundToAirAltitudeModifier,
+  ].filter(
+    (modifier): modifier is IToHitModifierDetail =>
+      modifier !== null && modifier !== undefined,
+  );
+
+  const c3State = session.currentState.c3State;
+  const indirectAttack =
+    indirectFireResolution?.permitted === true &&
+    indirectFireResolution.isIndirect;
+  const spottingPenaltyApplies =
+    !indirectAttack &&
+    wasElectedIndirectSpotterThisTurn(
+      session,
+      attackerId,
+      session.currentState.turn,
+    );
+  const calculateAttackToHitForWeapons = (
+    attackWeapons: readonly IWeaponAttack[],
+  ): {
+    readonly rangeBracket: RangeBracket;
+    readonly toHitNumber: number;
+    readonly modifiers: readonly IToHitModifier[];
+  } => {
+    const directRangeBracket = bestRangeBracketForAttack(range, attackWeapons);
+    const attackRangeBracket =
+      directRangeBracket === RangeBracket.OutOfRange
+        ? rangeBracket
+        : directRangeBracket;
+    const attackerState = {
       gunnery: attacker.gunnery,
       movementType: attackerUnit.movementThisTurn,
       heat: attackerUnit.heat,
-      damageModifiers: [],
-    },
-    {
+      damageModifiers: attackContextModifiers,
+      prone: attackerUnit.prone ?? false,
+      ...deriveVehicleToHitContext(attackerUnit, attackWeapons),
+    };
+    const targetState = {
       movementType: targetUnit.movementThisTurn,
       hexesMoved: targetUnit.hexesMovedThisTurn,
-      prone: false,
-      immobile: false,
-      partialCover: false,
-    },
-    rangeBracket,
-    range,
-  );
+      prone: targetUnit.prone ?? false,
+      immobile: isRepresentedTargetImmobile(targetUnit),
+      partialCover: targetPartialCover,
+      hullDown: targetUnit.hullDown === true,
+    };
+    const minimumRange = minimumRangeForAttack(
+      attackWeapons,
+      range,
+      isGroundToGroundGameAttack(attackerUnit, targetUnit),
+    );
+    const weaponRangeProfiles = attackWeapons.map((weapon) => ({
+      short: weapon.shortRange,
+      medium: weapon.mediumRange,
+      long: weapon.longRange,
+      extreme: weapon.extremeRange,
+      minimum: weapon.minRange,
+    }));
+    const c3Selection =
+      indirectAttack || !c3State
+        ? undefined
+        : selectC3RangeBracket({
+            attackerEntityId: attackerId,
+            targetPosition: resolvedTargetHex,
+            weaponRangeProfiles,
+            directRangeBracket: attackRangeBracket,
+            c3State,
+          });
+    const c3WeaponRangeProfile =
+      c3Selection !== undefined
+        ? weaponRangeProfiles[c3Selection.weaponIndex]
+        : undefined;
+    let effectiveRangeBracket = attackRangeBracket;
+    const toHitCalc =
+      c3Selection !== undefined && c3WeaponRangeProfile !== undefined && c3State
+        ? (() => {
+            const c3ToHit = calculateToHitWithC3(
+              attackerState,
+              targetState,
+              attackRangeBracket,
+              range,
+              {
+                attackerEntityId: attackerId,
+                targetPosition: resolvedTargetHex,
+                weaponRangeProfile: c3WeaponRangeProfile,
+                c3State,
+              },
+              minimumRange,
+            );
+            if (c3ToHit.c3Result.benefitApplied) {
+              effectiveRangeBracket = c3ToHit.c3Result.bestBracket;
+            }
+            return c3ToHit;
+          })()
+        : calculateToHit(
+            attackerState,
+            targetState,
+            attackRangeBracket,
+            range,
+            minimumRange,
+          );
 
-  const modifiers: IToHitModifier[] = toHitCalc.modifiers.map((modifier) => ({
-    name: modifier.name,
-    value: modifier.value,
-    source: modifier.source,
-  }));
+    const modifiers: IToHitModifier[] = toHitCalc.modifiers.map((modifier) => ({
+      name: modifier.name,
+      value: modifier.value,
+      source: modifier.source,
+      description: modifier.description,
+    }));
 
-  // Wave 8 PR-K4: append indirect-fire penalty to the modifier list so
-  // the AttackDeclared event's toHitNumber reflects the live indirect
-  // resolution. The penalty math (base +1, +1 spotter-walked, -1 FO SPA)
-  // happened upstream in `computeIndirectFireContext`.
-  let finalToHit = toHitCalc.finalToHit;
-  if (
-    indirectFireResolution &&
-    indirectFireResolution.permitted &&
-    indirectFireResolution.isIndirect &&
-    indirectFireResolution.toHitPenalty > 0
-  ) {
-    modifiers.push({
-      name: 'Indirect fire',
-      value: indirectFireResolution.toHitPenalty,
-      source: 'other',
-    });
-    finalToHit += indirectFireResolution.toHitPenalty;
-  }
+    // Wave 8 PR-K4: append indirect-fire and spotting penalties to the
+    // modifier list so target-number metadata stays replayable.
+    let finalToHit = toHitCalc.finalToHit;
+    if (
+      indirectFireResolution &&
+      indirectFireResolution.permitted &&
+      indirectFireResolution.isIndirect &&
+      indirectFireResolution.toHitPenalty > 0
+    ) {
+      modifiers.push({
+        name: 'Indirect fire',
+        value: indirectFireResolution.toHitPenalty,
+        source: 'other',
+      });
+      finalToHit += indirectFireResolution.toHitPenalty;
+    }
+    if (spottingPenaltyApplies) {
+      modifiers.push({
+        name: 'Spotting for indirect fire',
+        value: 1,
+        source: 'other',
+      });
+      finalToHit += 1;
+    }
+
+    return {
+      rangeBracket: effectiveRangeBracket,
+      toHitNumber: finalToHit,
+      modifiers,
+    };
+  };
 
   const weaponIds = weapons.map((weapon) => weapon.weaponId);
-  const weaponAttackData: IWeaponAttackData[] = weapons.map((weapon) => ({
-    weaponId: weapon.weaponId,
-    weaponName: weapon.weaponName,
-    damage: weapon.damage,
-    heat: weapon.heat,
-  }));
+  const aggregateToHit = calculateAttackToHitForWeapons(weapons);
+  const finalToHit = aggregateToHit.toHitNumber;
+  const modifiers = aggregateToHit.modifiers;
+  const effectiveRangeBracket = aggregateToHit.rangeBracket;
+  const weaponAttackData: IWeaponAttackData[] = weapons.map((weapon) => {
+    const weaponToHit = calculateAttackToHitForWeapons([weapon]);
+    return {
+      weaponId: weapon.weaponId,
+      weaponName: weapon.weaponName,
+      mode: weapon.mode ?? 'Direct',
+      damage: weapon.damage,
+      heat: weapon.heat,
+      toHitNumber: weaponToHit.toHitNumber,
+      modifiers: weaponToHit.modifiers,
+    };
+  });
 
   const sequence = session.events.length;
   const { turn } = session.currentState;
@@ -501,6 +654,7 @@ export function declareAttack(
     finalToHit,
     modifiers,
     weaponAttackData,
+    effectiveRangeBracket,
   );
 
   let updatedSession = appendEvent(session, event);
@@ -516,7 +670,6 @@ export function declareAttack(
     indirectFireResolution.isIndirect &&
     weaponIds.length > 0
   ) {
-    const resolvedTargetHex = targetHex ?? targetUnit.position;
     const eventWeaponId = weaponIds[0];
     const eventSequence = updatedSession.events.length;
     if (
@@ -544,12 +697,88 @@ export function declareAttack(
         eventWeaponId,
         resolvedTargetHex,
         indirectFireResolution.toHitPenalty,
+        undefined,
+        indirectFireResolution.spotterGunnery,
+        indirectFireResolution.spotterSkillModifier,
       );
       updatedSession = appendEvent(updatedSession, spotterEvent);
+      if (indirectFireResolution.forwardObserverApplied === true) {
+        const forwardObserverEvent = createIndirectFireForwardObserverEvent(
+          updatedSession.id,
+          updatedSession.events.length,
+          turn,
+          attackerId,
+          indirectFireResolution.spotterId,
+          eventWeaponId,
+          resolvedTargetHex,
+          indirectFireResolution.toHitPenalty,
+          undefined,
+          indirectFireResolution.spotterGunnery,
+          indirectFireResolution.spotterSkillModifier,
+        );
+        updatedSession = appendEvent(updatedSession, forwardObserverEvent);
+      }
     }
   }
 
   return updatedSession;
+}
+
+function minimumRangeForAttack(
+  weapons: readonly IWeaponAttack[],
+  range: number,
+  minimumRangeApplies = true,
+): number {
+  if (!minimumRangeApplies) return 0;
+  return weapons.reduce((strictestMinimum, weapon) => {
+    const minimum = weapon.minRange ?? 0;
+    return minimum > range
+      ? Math.max(strictestMinimum, minimum)
+      : strictestMinimum;
+  }, 0);
+}
+
+const ATTACK_RANGE_BRACKET_RANK: Readonly<Record<RangeBracket, number>> = {
+  [RangeBracket.Short]: 0,
+  [RangeBracket.Medium]: 1,
+  [RangeBracket.Long]: 2,
+  [RangeBracket.Extreme]: 3,
+  [RangeBracket.OutOfRange]: 4,
+};
+
+function bestRangeBracketForAttack(
+  range: number,
+  weapons: readonly IWeaponAttack[],
+): RangeBracket {
+  return weapons.reduce<RangeBracket>((best, weapon) => {
+    const bracket = getWeaponRangeBracket(range, {
+      short: weapon.shortRange,
+      medium: weapon.mediumRange,
+      long: weapon.longRange,
+      extreme: weapon.extremeRange,
+      minimum: weapon.minRange,
+    });
+    return ATTACK_RANGE_BRACKET_RANK[bracket] < ATTACK_RANGE_BRACKET_RANK[best]
+      ? bracket
+      : best;
+  }, RangeBracket.OutOfRange);
+}
+
+function wasElectedIndirectSpotterThisTurn(
+  session: IGameSession,
+  spotterId: string,
+  turn: number,
+): boolean {
+  return session.events.some((event) => {
+    if (
+      event.turn !== turn ||
+      event.type !== GameEventType.IndirectFireSpotterSelected
+    ) {
+      return false;
+    }
+    const payload = event.payload as { readonly spotterId?: string | null };
+    return payload.spotterId === spotterId;
+  });
 }
 
 export function lockAttack(

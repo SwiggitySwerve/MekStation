@@ -14,7 +14,15 @@
 
 import { fireEvent, render, screen } from '@testing-library/react';
 
-import { GamePhase, type ITacticalCommandContext } from '@/types/gameplay';
+import type { IPhysicalAttackOption } from '@/utils/gameplay/physicalAttacks/types';
+
+import {
+  CoverLevel,
+  GamePhase,
+  RangeBracket,
+  type ICombatRangeHex,
+  type ITacticalCommandContext,
+} from '@/types/gameplay';
 
 import { TokenContextMenu } from '../TokenContextMenu';
 
@@ -28,6 +36,70 @@ function makeCtx(
     hoveredHex: null,
     phase: GamePhase.WeaponAttack,
     canAct: true,
+    ...overrides,
+  };
+}
+
+function makeCombatProjection(
+  overrides: Partial<ICombatRangeHex> = {},
+): ICombatRangeHex {
+  return {
+    hex: { q: 2, r: 0 },
+    distance: 2,
+    rangeBracket: RangeBracket.Short,
+    inRange: true,
+    inArc: true,
+    losState: 'clear',
+    targetCoverLevel: CoverLevel.None,
+    targetPartialCover: false,
+    targetCoverModifier: 0,
+    firingArc: 'front',
+    hasTarget: true,
+    targetVisibilityState: 'visible',
+    visibleTargetUnitIds: ['enemy-x'],
+    obscuredTargetUnitIds: [],
+    attackable: true,
+    weaponIdsInRange: ['medium-laser'],
+    weaponIdsInArc: ['medium-laser'],
+    weaponIdsAvailable: ['medium-laser'],
+    weaponRangeOptions: [],
+    availableWeaponImpacts: [],
+    availableWeaponHeat: 0,
+    availableWeaponDamage: 0,
+    targetUnitIds: ['enemy-x'],
+    validTargetUnitIds: ['enemy-x'],
+    ...overrides,
+  };
+}
+
+function makePhysicalOption(
+  overrides: Partial<IPhysicalAttackOption> = {},
+): IPhysicalAttackOption {
+  return {
+    attackType: 'charge',
+    toHit: {
+      baseToHit: 5,
+      finalToHit: 8,
+      modifiers: [],
+      allowed: true,
+    },
+    damage: {
+      targetDamage: 12,
+      attackerDamage: 3,
+      attackerLegDamagePerLeg: 0,
+      targetPSR: true,
+      attackerPSR: true,
+      attackerPSRModifier: 0,
+      hitTable: 'kick',
+      targetDisplaced: false,
+    },
+    selfRisk: {
+      damageToAttacker: 3,
+      legDamagePerLeg: 0,
+      pilotingSkillRoll: { trigger: 'ChargeCompleted', required: true },
+      onMiss: 'None',
+    },
+    restrictionsFailed: [],
     ...overrides,
   };
 }
@@ -107,8 +179,92 @@ describe('TokenContextMenu', () => {
     );
     fireEvent.click(screen.getByTestId('token-menu-item-weapon.fire-volley'));
     expect(onTargetEnemy).toHaveBeenCalledWith('enemy-x');
-    expect(onAction).toHaveBeenCalledWith('lock');
+    expect(onAction).toHaveBeenCalledWith('lock', { volley: true });
     expect(onClose).toHaveBeenCalled();
+    confirmSpy.mockRestore();
+  });
+
+  it('enemy menu disables fire volley when that target projection is blocked', () => {
+    const onAction = jest.fn();
+    const onTargetEnemy = jest.fn();
+    const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+    render(
+      <TokenContextMenu
+        tokenUnitId="enemy-x"
+        isFriendly={false}
+        ctx={makeCtx({
+          combatProjectionByTargetId: {
+            'enemy-x': makeCombatProjection({
+              attackable: false,
+              validTargetUnitIds: [],
+              attackInvalidReason: 'OutOfRange',
+              attackInvalidDetails: 'Target at 8 hexes is outside range',
+              blockedReason: 'Out of weapon range',
+            }),
+          },
+        })}
+        shellMode="combat"
+        anchor={{ x: 100, y: 100 }}
+        onClose={() => {}}
+        onAction={onAction}
+        onTargetEnemy={onTargetEnemy}
+      />,
+    );
+
+    const volley = screen.getByTestId('token-menu-item-weapon.fire-volley');
+    expect(volley).toBeDisabled();
+    expect(
+      screen.getByTestId('token-menu-item-reason-weapon.fire-volley'),
+    ).toHaveTextContent('Target at 8 hexes is outside range');
+    fireEvent.click(volley);
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(onTargetEnemy).not.toHaveBeenCalled();
+    expect(onAction).not.toHaveBeenCalled();
+    confirmSpy.mockRestore();
+  });
+
+  it('enemy menu disables physical commands from the clicked target projection', () => {
+    const onAction = jest.fn();
+    const onTargetEnemy = jest.fn();
+    const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+    render(
+      <TokenContextMenu
+        tokenUnitId="enemy-x"
+        isFriendly={false}
+        ctx={makeCtx({
+          phase: GamePhase.PhysicalAttack,
+          physicalAttackOptionsByTargetId: {
+            'enemy-x': [
+              makePhysicalOption({
+                toHit: {
+                  baseToHit: 5,
+                  finalToHit: Number.POSITIVE_INFINITY,
+                  modifiers: [],
+                  allowed: false,
+                  restrictionReasonCode: 'NoRunThisTurn',
+                },
+                restrictionsFailed: ['NoRunThisTurn'],
+              }),
+            ],
+          },
+        })}
+        shellMode="combat"
+        anchor={{ x: 100, y: 100 }}
+        onClose={() => {}}
+        onAction={onAction}
+        onTargetEnemy={onTargetEnemy}
+      />,
+    );
+
+    const charge = screen.getByTestId('token-menu-item-physical.charge');
+    expect(charge).toBeDisabled();
+    expect(
+      screen.getByTestId('token-menu-item-reason-physical.charge'),
+    ).toHaveTextContent('Charge requires running this turn');
+    fireEvent.click(charge);
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(onTargetEnemy).not.toHaveBeenCalled();
+    expect(onAction).not.toHaveBeenCalled();
     confirmSpy.mockRestore();
   });
 

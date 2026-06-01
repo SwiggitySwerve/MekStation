@@ -5,8 +5,16 @@ export {
   createMovementCapability,
   getMaxMP,
   getHexMovementCost,
+  getMovementStepCostBreakdown,
+  calculatePathMovementCost,
   estimateMovementCost,
 } from './calculations';
+export type { IMovementStepCostBreakdown } from './calculations';
+export { movementModeForPath, movementModeForRange } from './mode';
+export {
+  resolveRuntimeMovementCapability,
+  runtimeUnitHeightForMovement,
+} from './runtimeCapability';
 export {
   validateMovement,
   canStand,
@@ -14,9 +22,35 @@ export {
   getValidDestinations,
 } from './validation';
 export {
+  getHullDownEntryCost,
+  getHullDownExitCost,
+  getProneHullDownEntryCost,
+  getStandingHullDownEntryCost,
+  hullDownSupportDestroyedReason,
+  PRONE_HULL_DOWN_ENTRY_BASE_MP_COST,
+  isMekStyleHullDownExitCapability,
+  STANDING_HULL_DOWN_ENTRY_MP_COST,
+} from './hullDownExit';
+export {
+  validateCommittedMovement,
+  movementInvalidReasonFromValidation,
+} from './commitValidation';
+export type {
+  ICommittedMovementValidationInput,
+  CommittedMovementValidationResult,
+} from './commitValidation';
+export {
   calculateMovementHeat,
   calculateTMM,
   calculateAttackerMovementModifier,
 } from './modifiers';
 export { findPath } from './pathfinding';
 export { deriveReachableHexes } from './reachable';
+export {
+  AUTOMATIC_WIGE_LANDING_REASON,
+  automaticWigeLandingContext,
+  automaticWigeLandingRuntimePatch,
+  withAutomaticWigeLandingProjection,
+} from './automaticWigeLanding';
+export { gridWithUnitOccupants } from './occupancy';
+export { movementDeclarationLockInvalidState } from './declarationEligibility';

@@ -5,9 +5,9 @@
  * Per `add-replay-viewer-from-ndjson` (combat-analytics delta —
  * "Replay State-From-Events Reducer Contract"): walks `events` in
  * monotonic `sequence` order up to and including the highest event with
- * `event.sequence <= currentSequence`, applying the eight covered
+ * `event.sequence <= currentSequence`, applying the covered
  * on-map event families (`GameCreated`, `MovementDeclared`,
- * `DamageApplied`, `LocationDestroyed`, `TransferDamage`,
+ * `TerrainChanged`, `DamageApplied`, `LocationDestroyed`, `TransferDamage`,
  * `UnitDestroyed`, `UnitFell` / `UnitStood`, `HeatGenerated` /
  * `HeatDissipated`, `PilotHit`). All other event types pass through
  * silently.
@@ -39,6 +39,7 @@ import type {
   ILocationDestroyedPayload,
   IMovementDeclaredPayload,
   IPilotHitPayload,
+  ITerrainChangedPayload,
   ITransferDamagePayload,
   IUnitDestroyedPayload,
   IUnitFellPayload,
@@ -47,6 +48,8 @@ import type {
 } from '@/types/gameplay';
 
 import { GameEventType, GameSide, TokenUnitType } from '@/types/gameplay';
+import { coordToKey } from '@/utils/gameplay/hexMath';
+import { terrainFeaturesFromString } from '@/utils/gameplay/terrainEncoding';
 import { logger } from '@/utils/logger';
 
 import type { UnitAccumulator } from './useHexMapStateFromEvents.tokens';
@@ -93,6 +96,7 @@ export function deriveHexMapStateFromEvents(
   // order so the projected `tokens` array order matches the unit list
   // ordering from `GameCreated.payload.units`.
   const accumulators = new Map<string, UnitAccumulator>();
+  const terrainByHex = new Map<string, IHexTerrain>();
   let mapRadius = 0;
 
   // ---------------------------------------------------------------------------
@@ -177,9 +181,24 @@ export function deriveHexMapStateFromEvents(
         const payload = event.payload as IGameCreatedPayload;
         mapRadius = payload.config.mapRadius;
         accumulators.clear();
+        terrainByHex.clear();
+        for (const terrain of payload.hexTerrain ?? []) {
+          terrainByHex.set(coordToKey(terrain.coordinate), terrain);
+        }
         for (const unit of payload.units) {
           accumulators.set(unit.id, seedAccumulator(unit));
         }
+        break;
+      }
+      case GameEventType.TerrainChanged: {
+        const payload = event.payload as ITerrainChangedPayload;
+        const key = coordToKey(payload.hex);
+        const existing = terrainByHex.get(key);
+        terrainByHex.set(key, {
+          coordinate: payload.hex,
+          elevation: payload.elevation ?? existing?.elevation ?? 0,
+          features: terrainFeaturesFromString(payload.terrain),
+        });
         break;
       }
       case GameEventType.MovementDeclared: {
@@ -323,10 +342,7 @@ export function deriveHexMapStateFromEvents(
 
   return {
     tokens,
-    // Terrain reconstruction from events is out of scope for this PR
-    // (engine emits no terrain-mutation events today). HexMapDisplay's
-    // Clear-default rendering applies when `hexTerrain` is empty.
-    hexTerrain: [],
+    hexTerrain: Array.from(terrainByHex.values()),
     mapRadius,
   };
 }

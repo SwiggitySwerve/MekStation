@@ -29,7 +29,6 @@ import type {
 import { BREAKPOINTS } from '@/constants/layout';
 import {
   DEFAULT_DENSITY_PER_BREAKPOINT,
-  DEFAULT_INPUT_MODE_PER_BREAKPOINT,
   RESPONSIVE_SLOT_PROFILES,
   TACTICAL_MIN_HEIGHT_PX,
 } from '@/types/gameplay/TacticalViewportInterfaces';

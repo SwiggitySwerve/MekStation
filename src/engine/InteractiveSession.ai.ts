@@ -6,6 +6,7 @@ import { hasReachedEdge } from '@/simulation/ai/RetreatAI';
 import {
   GamePhase,
   GameSide,
+  LockState,
   type IGameEvent,
   type IGameSession,
 } from '@/types/gameplay/GameSessionInterfaces';
@@ -21,18 +22,29 @@ import {
 } from '@/utils/gameplay/gameEvents';
 import {
   declareAttack,
-  declareMovement,
   declarePhysicalAttack,
   lockAttack,
   lockMovement,
 } from '@/utils/gameplay/gameSession';
 import {
-  buildMovementEventPath,
-  maxMovementCostForCapability,
-} from '@/utils/gameplay/movement/eventPath';
+  hullDownLegWeaponBlockedReason,
+  hullDownVehicleFrontWeaponBlockedReason,
+  isRepresentedVehicleAttacker,
+} from '@/utils/gameplay/hullDownRestrictions';
+import { calculateLOS } from '@/utils/gameplay/lineOfSight';
+import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
+import { buildPhysicalTerrainContext } from '@/utils/gameplay/physicalAttacks/terrain';
+import {
+  gameUnitUsesMekHorizontalCover,
+  gameUnitUsesMekWaterCover,
+  getTargetCoverInfo,
+} from '@/utils/gameplay/terrainCover';
+import { calculateTargetTerrainModifierFromHex } from '@/utils/gameplay/toHit';
+import { weaponPassesRepresentedWaterAttackRules } from '@/utils/gameplay/underwaterAttacks';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
 import { toAIUnitState } from './GameEngine.helpers';
+import { applyInteractiveSessionMovement } from './InteractiveSession.actions';
 
 export interface IInteractiveSessionAIContext {
   readonly side: GameSide;
@@ -84,31 +96,22 @@ export function runInteractiveSessionAITurn(
         cap,
       );
       if (moveEvt) {
-        const eventPath = buildMovementEventPath({
-          grid: context.grid,
-          from: refreshedUnit.position,
-          to: moveEvt.payload.to,
-          movementType: moveEvt.payload.movementType,
-          maxCost: maxMovementCostForCapability(
-            cap,
-            moveEvt.payload.movementType,
-          ),
-        });
         setSession(
-          declareMovement(
+          applyInteractiveSessionMovement({
             session,
+            grid: context.grid,
+            movementByUnit: context.movementByUnit,
             unitId,
-            refreshedUnit.position,
-            moveEvt.payload.to,
-            moveEvt.payload.facing as Facing,
-            moveEvt.payload.movementType,
-            moveEvt.payload.mpUsed,
-            moveEvt.payload.heatGenerated,
-            eventPath,
-          ),
+            to: moveEvt.payload.to,
+            facing: moveEvt.payload.facing as Facing,
+            movementType: moveEvt.payload.movementType,
+          }),
         );
+        session = context.getSession();
       }
-      setSession(lockMovement(session, unitId));
+      if (session.currentState.units[unitId]?.lockState !== LockState.Locked) {
+        setSession(lockMovement(session, unitId));
+      }
       emitUnitRetreatedIfNeeded(context, unitId);
     } else if (phase === GamePhase.WeaponAttack) {
       emitRetreatIfNeeded(context, unitId, weapons, gunnery);
@@ -123,14 +126,91 @@ export function runInteractiveSessionAITurn(
           weapons,
           unitId,
         );
+        const targetHex =
+          session.currentState.units[atkEvt.payload.targetId]?.position;
+        const attackerGameUnit = session.units.find(
+          (entry) => entry.id === unitId,
+        );
+        const attackerIsRepresentedVehicle = isRepresentedVehicleAttacker({
+          unitType: attackerGameUnit?.unitType,
+          combatStateKind: refreshedUnit?.combatState?.kind,
+        });
+        const usableWeaponAttacks = targetHex
+          ? weaponAttacks.filter(
+              (weapon) =>
+                weaponPassesRepresentedWaterAttackRules({
+                  grid: context.grid,
+                  attackerPosition: refreshedUnit?.position ?? unit.position,
+                  targetPosition: targetHex,
+                  weapon,
+                }) &&
+                !hullDownLegWeaponBlockedReason(
+                  refreshedUnit?.hullDown,
+                  weapon,
+                ) &&
+                !hullDownVehicleFrontWeaponBlockedReason(
+                  refreshedUnit?.hullDown,
+                  attackerIsRepresentedVehicle,
+                  weapon,
+                ),
+            )
+          : weaponAttacks.filter(
+              (weapon) =>
+                !hullDownLegWeaponBlockedReason(
+                  refreshedUnit?.hullDown,
+                  weapon,
+                ) &&
+                !hullDownVehicleFrontWeaponBlockedReason(
+                  refreshedUnit?.hullDown,
+                  attackerIsRepresentedVehicle,
+                  weapon,
+                ),
+            );
+        if (usableWeaponAttacks.length === 0) continue;
+        const targetPartialCover = targetHex
+          ? getTargetCoverInfo(
+              context.grid,
+              refreshedUnit?.position ?? unit.position,
+              targetHex,
+              {
+                horizontalCoverEligible: gameUnitUsesMekHorizontalCover(
+                  session.units.find(
+                    (entry) => entry.id === atkEvt.payload.targetId,
+                  ),
+                ),
+                targetHexWaterCoverEligible: gameUnitUsesMekWaterCover(
+                  session.units.find(
+                    (entry) => entry.id === atkEvt.payload.targetId,
+                  ),
+                ),
+              },
+            ).partialCover
+          : false;
+        const targetTerrainModifier = targetHex
+          ? calculateTargetTerrainModifierFromHex(
+              context.grid.hexes.get(`${targetHex.q},${targetHex.r}`),
+            )
+          : null;
+        const directLos = targetHex
+          ? calculateLOS(
+              refreshedUnit?.position ?? unit.position,
+              targetHex,
+              context.grid,
+            )
+          : undefined;
         setSession(
           declareAttack(
             session,
             unitId,
             atkEvt.payload.targetId,
-            weaponAttacks,
+            usableWeaponAttacks,
             3,
             RangeBracket.Short,
+            undefined,
+            targetHex,
+            targetPartialCover,
+            directLos?.hasLOS ? directLos.interveningTerrainEffects : [],
+            targetTerrainModifier,
           ),
         );
       }
@@ -143,6 +223,14 @@ export function runInteractiveSessionAITurn(
         enemies,
       );
       if (physEvt) {
+        const targetState =
+          session.currentState.units[physEvt.payload.targetId] ?? null;
+        const attackerBinding = session.units.find(
+          (entry) => entry.id === physEvt.payload.attackerId,
+        );
+        const targetBinding = session.units.find(
+          (entry) => entry.id === physEvt.payload.targetId,
+        );
         setSession(
           declarePhysicalAttack(
             session,
@@ -153,6 +241,16 @@ export function runInteractiveSessionAITurn(
               attackerTonnage: context.tonnageByUnit.get(unitId) ?? 65,
               pilotingSkill: context.pilotingByUnit.get(unitId) ?? 5,
               hexesMoved: unit.hexesMovedThisTurn,
+              attackerUnitType: attackerBinding?.unitType,
+              attackerMovementMode: attackerBinding?.movementMode,
+              optionalRules: session.config.optionalRules,
+              targetUnitType: targetBinding?.unitType,
+              elevationContext: targetState
+                ? buildPhysicalElevationContext(unit, targetState, context.grid)
+                : undefined,
+              terrainContext: targetState
+                ? buildPhysicalTerrainContext(unit, targetState, context.grid)
+                : undefined,
             },
           ),
         );

@@ -62,10 +62,19 @@ export interface IIndirectFireResolution {
   /**
    * Integer to-hit penalty to add to the running to-hit number.
    * 0 for direct-fire or semi-guided-tag with active TAG.
-   * 1 = base indirect only (stationary spotter or NARC/iNarc).
-   * 2 = base + spotter walked.
+   * 0 for direct-fire or semi-guided-tag with active TAG.
+   * LOS spotters add base indirect + movement + represented spotter skill.
+   * NARC/iNarc use the base indirect penalty only.
    */
   readonly toHitPenalty: number;
+  /** Gunnery skill of the elected LOS spotter, when represented. */
+  readonly spotterGunnery?: number;
+  /** Spotter-skill modifier folded into the indirect-fire penalty. */
+  readonly spotterSkillModifier?: number;
+  /** Forward Observer SPA cancelled the represented walked-spotter add. */
+  readonly forwardObserverApplied?: boolean;
+  /** Penalty points cancelled by Forward Observer, when represented. */
+  readonly spotterMovementPenaltyCancelled?: number;
   /** Human-readable reason when permitted=false. */
   readonly reason?: string;
 }
@@ -94,6 +103,10 @@ export interface IIndirectFireEventBase {
   readonly targetHex: IHexCoordinate;
   /** Net to-hit penalty applied by the indirect resolution. */
   readonly toHitPenalty: number;
+  /** Gunnery skill of the elected LOS spotter, when represented. */
+  readonly spotterGunnery?: number;
+  /** Spotter-skill modifier folded into the indirect-fire penalty. */
+  readonly spotterSkillModifier?: number;
   /** How the resolution was established. */
   readonly basis: IndirectFireBasis;
 }

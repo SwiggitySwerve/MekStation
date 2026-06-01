@@ -53,7 +53,7 @@ export function buildCommandRegistry(
   shellMode: ShellMode,
 ): readonly ITacticalCommand[] {
   const families: ITacticalCommand[] = [
-    ...buildMovementCommands(),
+    ...buildMovementCommands(ctx),
     ...buildFacingCommands(),
     ...buildWeaponAttackCommands(),
     ...buildPhysicalAttackCommands(),
@@ -99,6 +99,21 @@ export function useCommandRegistry(
       ctx.hoveredHex?.r,
       ctx.phase,
       ctx.canAct,
+      ctx.activeUnitConversionMode,
+      ctx.activeUnitVehicleMotionType,
+      ctx.activeUnitVehicleAltitude,
+      ctx.activeUnitProtoGlider,
+      ctx.activeUnitProtoAltitude,
+      ctx.activeUnitLamAirMekAltitude,
+      ctx.activeUnitTerrain,
+      ctx.activeUnitElevation,
+      ctx.activeUnitInfantryMounted,
+      ctx.activeUnitInfantryMountHeight,
+      ctx.movementCapability?.unitHeight,
+      ctx.movementCapability?.unitHeightProfile?.kind,
+      ctx.movementCapability?.unitHeightProfile?.kind === 'infantry_mount'
+        ? ctx.movementCapability.unitHeightProfile.mountedHeight
+        : undefined,
       shellMode,
     ],
   );

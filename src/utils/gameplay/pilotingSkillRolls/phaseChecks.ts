@@ -9,6 +9,7 @@ import type {
   IPendingPSR,
 } from '@/types/gameplay';
 
+import { type RepresentedGyroType, isGyroDestroyedForType } from '../gyroRules';
 import { createDamagePSR } from './damageFactories';
 import { createStandingUpPSR } from './environmentFactories';
 
@@ -58,11 +59,13 @@ export function createStandUpAttempt(
 }
 
 /**
- * Check if a gyro is destroyed (2 hits for standard gyro).
+ * Check if a gyro is destroyed (2 hits for standard gyro, 3 for heavy-duty).
  * A destroyed gyro means automatic fall — no PSR possible.
  */
 export function isGyroDestroyed(
   componentDamage: IComponentDamageState,
+  gyroType?: RepresentedGyroType,
+  optionalRules?: readonly string[],
 ): boolean {
-  return componentDamage.gyroHits >= 2;
+  return isGyroDestroyedForType(componentDamage, gyroType, { optionalRules });
 }

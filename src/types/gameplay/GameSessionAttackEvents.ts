@@ -7,6 +7,7 @@ import type {
   AttackVisualCategory,
   HeatVisualThreshold,
 } from './GameSessionCoreTypes';
+import type { WeaponFireMode } from './IndirectFireInterfaces';
 
 import { Facing } from './HexGridInterfaces';
 import { PSRTrigger } from './PSRTriggerCodes';
@@ -55,10 +56,16 @@ export interface IWeaponAttackData {
   readonly weaponId: string;
   /** Weapon name */
   readonly weaponName: string;
+  /** Resolved per-weapon fire mode at declaration time. */
+  readonly mode?: WeaponFireMode;
   /** Damage per hit */
   readonly damage: number;
   /** Heat generated */
   readonly heat: number;
+  /** Per-weapon target number used by resolution when available. */
+  readonly toHitNumber?: number;
+  /** Per-weapon modifier stack used to build toHitNumber. */
+  readonly modifiers?: readonly IToHitModifier[];
 }
 
 /**
@@ -156,7 +163,9 @@ export interface IAttackInvalidPayload {
     | 'OutOfAmmo'
     | 'SameHex'
     | 'OutOfRange'
+    | 'OutOfArc'
     | 'NoLineOfSight'
+    | 'TargetNotVisible'
     | 'InvalidTarget';
   readonly details?: string;
 }
@@ -347,6 +356,8 @@ export interface IToHitModifier {
   readonly value: number;
   /** Modifier source */
   readonly source: string;
+  /** Optional player-facing rule detail behind the modifier */
+  readonly description?: string;
 }
 
 // =============================================================================
@@ -462,6 +473,8 @@ export interface IUnitStoodPayload {
   readonly turn: number;
   readonly roll: number;
   readonly targetNumber: number;
+  /** Reason this stand-up succeeded without rolling, when no PSR was required. */
+  readonly automaticSuccessReason?: string;
   /**
    * Per `add-authoritative-roll-arbitration` (Wave 3a): the two d6 that
    * compose `roll`. OPTIONAL.
@@ -491,6 +504,12 @@ export interface IPhysicalAttackDeclaredPayload {
   readonly targetId: string;
   readonly attackType: PhysicalAttackEventType;
   readonly toHitNumber: number;
+  /**
+   * Physical hit-location table selected at declaration time. Optional for
+   * backward compatibility with older events that predate represented
+   * physical hit-table projection.
+   */
+  readonly hitTable?: 'punch' | 'kick';
   /**
    * Per `implement-physical-attack-phase` task 2.3: limb targeted by the
    * declaration. Required for `punch` and `kick`; may be supplied for

@@ -25,6 +25,9 @@ export {
   calculateHeatModifier,
   calculatePartialCoverModifier,
   calculateHullDownModifier,
+  calculateInterveningTerrainModifier,
+  calculateTargetTerrainModifier,
+  calculateTargetTerrainModifierFromHex,
   getTerrainToHitModifier,
 } from './environmentModifiers';
 export { calculateTargetingComputerModifier } from './equipmentModifiers';

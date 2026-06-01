@@ -11,6 +11,7 @@ import {
   IMovementValidation,
   MovementType,
   Facing,
+  StandUpMode,
 } from '@/types/gameplay';
 
 import { isInBounds, isOccupied } from '../hexGrid';
@@ -103,7 +104,12 @@ export function validateMovement(
     }
   }
 
-  const heatGenerated = calculateMovementHeat(movementType, distance);
+  const heatGenerated = calculateMovementHeat(
+    movementType,
+    distance,
+    capability.movementMode,
+    capability.movementHeatProfile,
+  );
 
   return {
     valid: true,
@@ -114,7 +120,8 @@ export function validateMovement(
 
 /**
  * Check if a unit is prone and needs to stand.
- * Standing costs all walking MP.
+ * Normal stand-up costs 2 MP. MegaMek charges 1 MP when the unit only has
+ * runMP 1, matching GetUpStep's reduced-cost edge case.
  */
 export function canStand(
   position: IUnitPosition,
@@ -125,9 +132,17 @@ export function canStand(
 
 /**
  * Get the MP cost to stand from prone.
+ * TacOps careful stand uses the whole walking allowance when walk MP is
+ * above 2; otherwise MegaMek falls back to the normal stand-up cost.
  */
-export function getStandingCost(capability: IMovementCapability): number {
-  return capability.walkMP;
+export function getStandingCost(
+  capability: IMovementCapability,
+  standUpMode: StandUpMode = 'normal',
+): number {
+  if (standUpMode === 'careful' && capability.walkMP > 2) {
+    return capability.walkMP;
+  }
+  return capability.runMP === 1 ? 1 : 2;
 }
 
 /**

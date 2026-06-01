@@ -1,4 +1,9 @@
-import type { IGameSession, IUnitToken, IWeaponStatus } from '@/types/gameplay';
+import type {
+  IGameSession,
+  IHexGrid,
+  IUnitToken,
+  IWeaponStatus,
+} from '@/types/gameplay';
 
 import { unitStateToToken } from '@/lib/gameplay/unitStateToToken';
 import { GamePhase, GameSide } from '@/types/gameplay';
@@ -46,10 +51,13 @@ export function buildGameplayTokens(params: {
   readonly selectedUnitId: string | null;
   readonly validTargetIds: readonly string[];
   readonly activeTargetId: string | null;
+  readonly validPhysicalTargetIds?: readonly string[];
+  readonly activePhysicalTargetId?: string | null;
   readonly playerSide: GameSide;
   readonly localFogPlayerId: string;
   readonly visibilityState: IGameSession['currentState'] & {
     readonly sideOwners: IGameSession['sideOwners'] | null;
+    readonly grid?: IHexGrid;
   };
 }): IUnitToken[] {
   return Object.entries(params.currentState.units).map(([unitId, state]) => {
@@ -58,15 +66,6 @@ export function buildGameplayTokens(params: {
       side: GameSide.Player,
     };
     const isSelected = unitId === params.selectedUnitId;
-    const isValidTarget =
-      params.validTargetIds.includes(unitId) ||
-      (params.currentState.phase === GamePhase.WeaponAttack &&
-        unitInfo.side === GameSide.Opponent &&
-        !state.destroyed);
-    const isActiveTarget =
-      params.currentState.phase === GamePhase.WeaponAttack &&
-      params.activeTargetId !== null &&
-      unitId === params.activeTargetId;
     const isFogActive = params.config.fogOfWar === true;
     const isOwnedSide = unitInfo.side === params.playerSide;
     const isVisibleEnemy = canPlayerSeeUnit(
@@ -75,6 +74,19 @@ export function buildGameplayTokens(params: {
       params.visibilityState,
     );
     const isHidden = isFogActive && !isOwnedSide && !isVisibleEnemy;
+    const canBeTargetedByViewer = !isHidden && !state.destroyed;
+    const isValidTarget =
+      canBeTargetedByViewer &&
+      (params.validTargetIds.includes(unitId) ||
+        params.validPhysicalTargetIds?.includes(unitId));
+    const isActiveTarget =
+      canBeTargetedByViewer &&
+      ((params.currentState.phase === GamePhase.WeaponAttack &&
+        params.activeTargetId !== null &&
+        unitId === params.activeTargetId) ||
+        (params.currentState.phase === GamePhase.PhysicalAttack &&
+          params.activePhysicalTargetId !== null &&
+          unitId === params.activePhysicalTargetId));
     const fogProjection = isFogActive
       ? isOwnedSide
         ? { sensorRange: DEFAULT_FOG_SENSOR_RANGE }

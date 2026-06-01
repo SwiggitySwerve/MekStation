@@ -9,6 +9,7 @@ import type {
   IStandUpStep,
   ITurnStep,
   MovementAnimationMode,
+  StandUpMode,
 } from '@/types/gameplay';
 
 import { AXIAL_DIRECTION_DELTAS, MovementType } from '@/types/gameplay';
@@ -19,6 +20,8 @@ import {
   hexLine,
 } from '@/utils/gameplay/hexMath';
 
+import { movementCostContextForCapability } from './calculations';
+import { movementModeForPath } from './mode';
 import { findPath } from './pathfinding';
 
 export function movementAnimationModeForType(
@@ -51,9 +54,12 @@ export function buildMovementEventPath(params: {
   readonly from: IHexCoordinate;
   readonly to: IHexCoordinate;
   readonly movementType: MovementType;
+  readonly capability?: IMovementCapability | null;
   readonly maxCost?: number;
+  readonly optionalRules?: readonly string[] | undefined;
 }): readonly IHexCoordinate[] {
-  const { grid, from, to, movementType, maxCost } = params;
+  const { grid, from, to, movementType, capability, maxCost, optionalRules } =
+    params;
 
   if (hexEquals(from, to)) {
     return [copyHex(from)];
@@ -66,7 +72,18 @@ export function buildMovementEventPath(params: {
     return [copyHex(from), copyHex(to)];
   }
 
-  const path = findPath(grid, from, to, maxCost ?? Infinity);
+  const path = findPath(
+    grid,
+    from,
+    to,
+    maxCost ?? Infinity,
+    movementModeForPath(movementType, capability),
+    capability
+      ? movementCostContextForCapability(movementType, capability, {
+          optionalRules,
+        })
+      : undefined,
+  );
   return normalizeMovementEventPath(from, to, path ?? undefined);
 }
 
@@ -153,6 +170,8 @@ export interface IDecomposeMovementInput {
    * future stand-up wiring.
    */
   readonly startedProne?: boolean;
+  readonly standUpCost?: number;
+  readonly standUpMode?: StandUpMode;
 }
 
 /**
@@ -269,11 +288,12 @@ export function decomposeMovementSteps(
       kind: 'standUp',
       index: nextIndex++,
       at: copyHex(from),
-      mpCost: 2,
+      mpCost: input.standUpCost ?? 2,
       psrTriggered: true,
+      ...(input.standUpMode ? { mode: input.standUpMode } : {}),
     };
     steps.push(standUp);
-    turningMpCost += 2;
+    turningMpCost += standUp.mpCost;
   }
 
   for (let i = 1; i < path.length; i++) {

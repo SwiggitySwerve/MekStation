@@ -24,13 +24,22 @@
 import React, { useMemo, useState } from 'react';
 
 import type { IWeapon } from '@/simulation/ai/types';
-import type { IAttackerState, ITargetState } from '@/types/gameplay';
+import type {
+  IAttackerState,
+  ITargetState,
+  WeaponFireMode,
+} from '@/types/gameplay';
 
+import { getMinimumRangePenalty } from '@/utils/gameplay/range';
 import {
   previewAttackOutcome,
   ZERO_PREVIEW,
   type IAttackPreview,
 } from '@/utils/gameplay/toHit/preview';
+
+import { WeaponModeControl } from './WeaponModeControl';
+import { PreviewToggle } from './WeaponSelectorPreviewToggle';
+import { StatusBadge } from './WeaponStatusBadge';
 
 export interface WeaponSelectorProps {
   /** All weapons mounted on the attacker */
@@ -39,10 +48,16 @@ export interface WeaponSelectorProps {
   rangeToTarget: number;
   /** Currently selected weapon ids */
   selectedWeaponIds: readonly string[];
+  /** Resolved or requested per-weapon fire modes for the active attacker. */
+  weaponModesByWeaponId?: Readonly<Record<string, WeaponFireMode>>;
+  /** Validation message from the last mode toggle attempt. */
+  weaponModeError?: string | null;
   /** Ammo remaining per weapon id (-1 = energy / unlimited) */
   ammo: Readonly<Record<string, number>>;
   /** Callback fired when a weapon is toggled */
   onToggle: (weaponId: string) => void;
+  /** Callback fired when a weapon fire mode is changed. */
+  onModeChange?: (weaponId: string, mode: WeaponFireMode) => void;
   /**
    * Per `add-what-if-to-hit-preview` § 8: attacker/target projections
    * needed to compute `previewAttackOutcome` per weapon. Both must be
@@ -103,48 +118,26 @@ function RangeBadge({
 
 /**
  * Pick the active range bracket for `range` vs the weapon's thresholds.
- * Returns `null` when the range is below minimum (in-range, but none of
- * S/M/L is the "active" bracket because minRange gating applies) or
- * above long (out of range — no bracket to highlight). Matches the
- * bracket semantics used by `buildToHitForecast`.
+ * Minimum range is legal with a to-hit penalty, so the normal S/M/L bracket
+ * remains active. Returns `null` only above long range.
  */
 function pickActiveBracket(
   range: number,
   weapon: IWeapon,
 ): 'S' | 'M' | 'L' | null {
-  if (weapon.minRange > 0 && range < weapon.minRange) return null;
   if (range > weapon.longRange) return null;
   if (range <= weapon.shortRange) return 'S';
   if (range <= weapon.mediumRange) return 'M';
   return 'L';
 }
 
-interface StatusBadgeProps {
-  label: string;
-  testid: string;
-  tone: 'red' | 'amber' | 'gray';
-}
-
-function StatusBadge({
-  label,
-  testid,
-  tone,
-}: StatusBadgeProps): React.ReactElement {
-  const toneClasses =
-    tone === 'red'
-      ? 'bg-red-100 text-red-700'
-      : tone === 'amber'
-        ? 'bg-amber-100 text-amber-700'
-        : 'bg-gray-100 text-gray-600';
-
-  return (
-    <span
-      className={`rounded px-2 py-0.5 text-xs font-semibold uppercase ${toneClasses}`}
-      data-testid={testid}
-    >
-      {label}
-    </span>
-  );
+function minimumRangePenaltyForWeapon(range: number, weapon: IWeapon): number {
+  return getMinimumRangePenalty(range, {
+    short: weapon.shortRange,
+    medium: weapon.mediumRange,
+    long: weapon.longRange,
+    minimum: weapon.minRange,
+  });
 }
 
 /**
@@ -227,6 +220,8 @@ interface WeaponRowProps {
   selected: boolean;
   ammoRemaining: number;
   onToggle: () => void;
+  mode: WeaponFireMode;
+  onModeChange?: (mode: WeaponFireMode) => void;
   /**
    * Pre-computed preview for this weapon (null when preview disabled
    * or out-of-range — § 7.3 / spec scenario "Preview null for
@@ -241,7 +236,8 @@ interface WeaponRowProps {
 /**
  * Single weapon row with its checkbox + badges. Out-of-range and
  * no-ammo conditions both disable the checkbox so the player can't
- * accidentally queue an unfireable weapon.
+ * accidentally queue an unfireable weapon. Minimum range remains legal
+ * and displays as a penalty warning, matching the map combat projection.
  */
 function WeaponRow({
   weapon,
@@ -249,6 +245,8 @@ function WeaponRow({
   selected,
   ammoRemaining,
   onToggle,
+  mode,
+  onModeChange,
   preview,
   showPreview,
 }: WeaponRowProps): React.ReactElement {
@@ -257,13 +255,16 @@ function WeaponRow({
   // Anything > 0 has ammo. Exactly 0 is empty. The lookup defaults to
   // -1 in the parent so weapons without bins are treated as energy.
   const noAmmo = ammoRemaining === 0;
-  const outOfRange =
-    rangeToTarget > weapon.longRange ||
-    (weapon.minRange > 0 && rangeToTarget < weapon.minRange);
+  const outOfRange = rangeToTarget > weapon.longRange;
+  const minimumRangePenalty = minimumRangePenaltyForWeapon(
+    rangeToTarget,
+    weapon,
+  );
+  const insideMinimumRange = minimumRangePenalty > 0;
 
   const disabled = destroyed || noAmmo || outOfRange;
   // Per `add-attack-phase-ui` task 4.2: highlight the bracket that the
-  // current range falls into (null when OOR or inside min-range).
+  // current range falls into (null only when out of range).
   const activeBracket = pickActiveBracket(rangeToTarget, weapon);
 
   return (
@@ -340,42 +341,24 @@ function WeaponRow({
             tone="red"
           />
         )}
+        {!destroyed && !outOfRange && insideMinimumRange && (
+          <StatusBadge
+            label={`Min +${minimumRangePenalty}`}
+            testid={`weapon-min-range-${weapon.id}`}
+            tone="amber"
+          />
+        )}
       </div>
+      {onModeChange && (
+        <WeaponModeControl
+          weaponId={weapon.id}
+          weaponName={weapon.name}
+          mode={mode}
+          onModeChange={onModeChange}
+        />
+      )}
       {showPreview && <PreviewColumns weaponId={weapon.id} preview={preview} />}
     </li>
-  );
-}
-
-/**
- * Per `add-what-if-to-hit-preview` § 8.1 / § 7.4: header toggle.
- * Renders only when `onTogglePreview` is wired so the legacy callers
- * (smoke tests that just want the checkbox grid) keep their compact
- * layout. Pure UI — never fires events.
- */
-interface PreviewToggleProps {
-  enabled: boolean;
-  onToggle: (next: boolean) => void;
-}
-
-function PreviewToggle({
-  enabled,
-  onToggle,
-}: PreviewToggleProps): React.ReactElement {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={enabled}
-      onClick={() => onToggle(!enabled)}
-      data-testid="weapon-selector-preview-toggle"
-      className={`min-h-[32px] rounded px-3 py-1 text-xs font-semibold transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none ${
-        enabled
-          ? 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
-          : 'text-text-theme-secondary bg-gray-200 hover:bg-gray-300 focus:ring-gray-400'
-      }`}
-    >
-      Preview Damage: {enabled ? 'ON' : 'OFF'}
-    </button>
   );
 }
 
@@ -383,8 +366,11 @@ export function WeaponSelector({
   weapons,
   rangeToTarget,
   selectedWeaponIds,
+  weaponModesByWeaponId = {},
+  weaponModeError = null,
   ammo,
   onToggle,
+  onModeChange,
   attacker = null,
   target = null,
   previewEnabled = false,
@@ -414,9 +400,7 @@ export function WeaponSelector({
     if (!previewEnabled || !attacker || !target) return {};
     const out: Record<string, IAttackPreview | null> = {};
     for (const w of weapons) {
-      const outOfRange =
-        rangeToTarget > w.longRange ||
-        (w.minRange > 0 && rangeToTarget < w.minRange);
+      const outOfRange = rangeToTarget > w.longRange;
       // Per spec scenario "Preview null for out-of-range weapons":
       // out-of-range previews must be `null` so the row renders "—"
       // not zeroed numbers.
@@ -500,6 +484,7 @@ export function WeaponSelector({
             // ammo entry — matches how `IAIUnitState.ammo` is shaped.
             const ammoRemaining = ammo[weapon.id] ?? -1;
             const preview = previews[weapon.id] ?? null;
+            const mode = weaponModesByWeaponId[weapon.id] ?? 'Direct';
             return (
               <WeaponRow
                 key={weapon.id}
@@ -508,12 +493,27 @@ export function WeaponSelector({
                 selected={selectedWeaponIds.includes(weapon.id)}
                 ammoRemaining={ammoRemaining}
                 onToggle={() => onToggle(weapon.id)}
+                mode={mode}
+                onModeChange={
+                  onModeChange
+                    ? (nextMode) => onModeChange(weapon.id, nextMode)
+                    : undefined
+                }
                 preview={preview}
                 showPreview={previewEnabled && Boolean(attacker && target)}
               />
             );
           })}
         </ul>
+      )}
+      {weaponModeError && (
+        <p
+          className="rounded border border-red-200 bg-red-50 px-2 py-1 text-xs font-semibold text-red-700"
+          role="alert"
+          data-testid="weapon-mode-error"
+        >
+          {weaponModeError}
+        </p>
       )}
       <div
         className="text-text-theme-secondary border-t border-gray-200 pt-2 text-xs"

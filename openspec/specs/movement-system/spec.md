@@ -515,6 +515,59 @@ reachable: true}`
 - **AND** intermediate hexes between origin and landing SHALL NOT be in
   the result
 
+#### Scenario: Jump path clearance blocks too-high represented terrain
+
+- **GIVEN** a unit with represented Jump MP
+- **AND** a target landing hex is within jump distance and has an otherwise legal base elevation
+- **AND** the straight jump path crosses represented terrain or building height above the unit's origin elevation plus available Jump MP
+- **WHEN** movement projection evaluates the landing hex
+- **THEN** the landing hex SHALL be blocked with an explicit jump-clearance terrain-blocked reason
+- **AND** the blocked projection SHALL keep jump terrain and elevation costs at 0
+- **AND** committed movement validation SHALL reject the same supplied jump path with the same blocked reason
+- **AND** ordinary jump landings that clear intervening terrain SHALL continue to ignore ground terrain costs
+
+#### Scenario: Ground elevation costs use absolute elevation change
+
+- **GIVEN** a non-exempt ground movement step changes elevation upward or downward
+- **WHEN** movement projection computes the step cost
+- **THEN** the elevation MP component SHALL be based on the absolute elevation delta
+- **AND** represented ground vehicles and non-flying infantry SHALL double that elevation MP component
+- **AND** over-limit downhill changes SHALL be blocked with the same explicit terrain-blocked projection reason as over-limit climbs
+- **AND** committed ground movement validation SHALL agree with the previewed downhill MP cost or blocked reason for the same supplied path
+- **AND** top-down movement cost badges SHALL show downhill steps as a paid positive elevation MP cost with a distinct down-direction delta label
+- **AND** VTOL, WiGE, jump, naval, and swim movement SHALL keep their existing elevation-cost exemptions
+
+#### Scenario: Playtest2 deep-water movement costs use the represented option
+
+- **GIVEN** a non-exempt movement step enters represented depth-2+ water
+- **WHEN** the Playtest2 optional rule is disabled
+- **THEN** the water-depth MP component SHALL remain the standard +3 MP
+- **WHEN** the same movement step is projected with the represented Playtest2 optional rule enabled
+- **THEN** the water-depth MP component SHALL be +2 MP
+- **AND** depth-1 water, amphibious, frogman, hover, VTOL, WiGE, naval, swim, and UMU water movement pricing SHALL keep their existing costs
+- **AND** committed movement validation SHALL agree with the previewed Playtest2 deep-water MP cost for the same supplied path
+
+#### Scenario: Playtest2 Mek-style running may enter water after the first step
+
+- **GIVEN** represented Mek-style ground movement declares Run
+- **AND** the run path enters water after its first step
+- **WHEN** the Playtest2 optional rule is disabled
+- **THEN** the movement projection SHALL block that path with the standard water terrain-blocked reason
+- **WHEN** the same path is projected with the represented Playtest2 optional rule enabled
+- **THEN** the movement projection SHALL allow the run-water path
+- **AND** infantry-profile, vehicle, naval, hover, VTOL, WiGE, UMU, swim, amphibious, bridge, and ice water movement rules SHALL keep their existing legality behavior
+- **AND** committed movement validation SHALL agree with the previewed Playtest2 run-water legality and MP cost for the same supplied path
+
+#### Scenario: Imported unit height feeds bridge clearance
+
+- **GIVEN** a represented unit has an explicit imported entity height or a source-derived entity height for a supported Mek, VTOL, tank, small craft, dropship, or conventional infantry mount class
+- **AND** LAM and QuadVee conversion-mode data, when represented, can change the source-derived entity height
+- **AND** represented conventional infantry mount height, beast-size, or MegaMek mount identity data can source-derive the infantry entity height
+- **AND** the unit's movement capability is used for movement projection
+- **WHEN** naval, hydrofoil, or submarine bridge-clearance movement is projected across represented water and bridge terrain
+- **THEN** the projection SHALL use the imported entity height for the bridge-clearance decision
+- **AND** the committed movement validation SHALL reject or accept the same supplied path with the same bridge-clearance result
+
 ### Requirement: Movement Commit Event Emission
 
 The movement system SHALL, on player-confirmed movement commit, append a

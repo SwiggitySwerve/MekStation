@@ -36,6 +36,7 @@ import {
   MovementType,
 } from '@/types/gameplay';
 import { STANDARD_STRUCTURE_TABLE } from '@/utils/gameplay/damage/constants';
+import { normalizeWeaponMountLocation } from '@/utils/gameplay/hullDownRestrictions';
 
 import type { IWeapon } from '../ai/types';
 
@@ -141,6 +142,7 @@ export function resolveCatalogDamage(
 export function toAIWeapon(
   catalogWeapon: ICatalogWeaponStats,
   mountIndex: number,
+  location?: string,
 ): IWeapon {
   return {
     id: `${catalogWeapon.id}-${mountIndex}`,
@@ -151,6 +153,7 @@ export function toAIWeapon(
     damage: resolveCatalogDamage(catalogWeapon.damage, catalogWeapon.id),
     heat: catalogWeapon.heat,
     minRange: catalogWeapon.ranges.minimum,
+    location,
     ammoPerTon: catalogWeapon.ammoPerTon ?? -1,
     destroyed: false,
   };
@@ -179,7 +182,13 @@ export function hydrateAIWeaponsFromFullUnit(
     if (typeof entry.id !== 'string') continue;
     const stats = weaponLookup(entry.id);
     if (!stats) continue;
-    out.push(toAIWeapon(stats, mountIndex));
+    out.push(
+      toAIWeapon(
+        stats,
+        mountIndex,
+        normalizeWeaponMountLocation(entry.location),
+      ),
+    );
     mountIndex++;
   }
   return out;

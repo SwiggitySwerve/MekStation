@@ -136,7 +136,7 @@ describe('fog-of-war unit visibility helpers', () => {
     const grid = makeGrid([
       makeHex(0, 0),
       makeHex(1, 0, TerrainType.HeavyWoods),
-      makeHex(2, 0),
+      makeHex(2, 0, TerrainType.LightWoods),
       makeHex(3, 0),
     ]);
     const state = makeState(

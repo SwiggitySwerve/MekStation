@@ -26,6 +26,7 @@ export function initializeAmmoState(
       location: data.location,
       remainingRounds: data.maxRounds,
       maxRounds: data.maxRounds,
+      damagePerRound: data.damagePerRound,
       isExplosive: data.isExplosive,
     };
   }

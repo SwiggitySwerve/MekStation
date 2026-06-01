@@ -21,6 +21,8 @@ export interface MovementTypeSwitcherProps {
   active: MovementType;
   /** Walk MP available (>0 enables Walk button) */
   walkMP: number;
+  /** Run MP available from the selected unit's actual movement capability */
+  runMP?: number;
   /** Jump MP available (0 disables Jump button) */
   jumpMP: number;
   /** Callback fired when player picks a new type */
@@ -73,10 +75,13 @@ function TypeButton({
 export function MovementTypeSwitcher({
   active,
   walkMP,
+  runMP,
   jumpMP,
   onChange,
   className = '',
 }: MovementTypeSwitcherProps): React.ReactElement {
+  const displayedRunMP = runMP ?? Math.ceil(walkMP * 1.5);
+
   // Reasoning: we expose three options always; disabling rather than
   // hiding keeps button positions stable across units (less visual
   // jitter when the player switches between mechs).
@@ -96,9 +101,9 @@ export function MovementTypeSwitcher({
       />
       <TypeButton
         type={MovementType.Run}
-        label={`Run (${Math.ceil(walkMP * 1.5)} MP)`}
+        label={`Run (${displayedRunMP} MP)`}
         active={active === MovementType.Run}
-        disabled={walkMP <= 0}
+        disabled={displayedRunMP <= 0}
         onClick={() => onChange(MovementType.Run)}
       />
       <TypeButton

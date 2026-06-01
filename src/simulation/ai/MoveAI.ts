@@ -706,7 +706,12 @@ export class MoveAI {
 
     for (const destination of destinations) {
       const distance = hexDistance(position.coord, destination);
-      const heatGenerated = calculateMovementHeat(movementType, distance);
+      const heatGenerated = calculateMovementHeat(
+        movementType,
+        distance,
+        capability.movementMode,
+        capability.movementHeatProfile,
+      );
 
       for (let facing = 0; facing < 6; facing++) {
         moves.push({

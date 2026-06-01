@@ -12,9 +12,12 @@
  * @spec openspec/changes/add-interactive-combat-core-ui/tasks.md § 12
  */
 
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import '@testing-library/jest-dom';
+import type { PhysicalAttackIntent } from '@/components/gameplay/PhysicalAttackPanel';
+import type { InteractiveSession } from '@/engine/InteractiveSession';
+
 import {
   createDemoHeatSinks,
   createDemoMaxArmor,
@@ -25,13 +28,18 @@ import {
   createDemoWeapons,
 } from '@/__fixtures__/gameplay';
 import { GameplayLayout } from '@/components/gameplay/GameplayLayout';
+import { createMinimalGrid } from '@/engine/GameEngine.helpers';
+import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
 import {
+  Facing,
   GameEventType,
   GamePhase,
   GameSide,
   type IDamageAppliedPayload,
   type IGameEvent,
   type IGameSession,
+  type IHexGrid,
+  type IWeaponStatus,
 } from '@/types/gameplay';
 
 // ---------------------------------------------------------------------------
@@ -48,11 +56,16 @@ function renderLayout(
     session?: IGameSession;
     selectedUnitId?: string | null;
     onUnitSelect?: (id: string | null) => void;
+    physicalAttackIntent?: PhysicalAttackIntent | null;
+    validTargetIds?: readonly string[];
+    unitWeapons?: Record<string, readonly IWeaponStatus[]>;
+    interactiveSession?: InteractiveSession;
   } = {},
 ) {
   const session = opts.session ?? createDemoSession();
   const selectedUnitId = opts.selectedUnitId ?? null;
   const onUnitSelect = opts.onUnitSelect ?? jest.fn();
+  const unitWeapons = opts.unitWeapons ?? createDemoWeapons();
 
   return {
     session,
@@ -64,15 +77,71 @@ function renderLayout(
         onUnitSelect={onUnitSelect}
         onAction={jest.fn()}
         isPlayerTurn={true}
-        unitWeapons={createDemoWeapons()}
+        unitWeapons={unitWeapons}
         maxArmor={createDemoMaxArmor()}
         maxStructure={createDemoMaxStructure()}
         pilotNames={createDemoPilotNames()}
         heatSinks={createDemoHeatSinks()}
         unitSpas={createDemoUnitSpas()}
+        physicalAttackIntent={opts.physicalAttackIntent}
+        validTargetIds={opts.validTargetIds}
+        interactiveSession={opts.interactiveSession}
         playerSide={GameSide.Player}
       />,
     ),
+  };
+}
+
+function createInteractiveSessionStub(
+  session: IGameSession,
+  gridOverride?: IHexGrid,
+): InteractiveSession {
+  const grid = gridOverride ?? createMinimalGrid(session.config.mapRadius);
+
+  return {
+    getGrid: () => grid,
+    getMovementCapability: () => ({ walkMP: 4, runMP: 6, jumpMP: 0 }),
+    declareWithdrawal: jest.fn(),
+    concede: jest.fn(),
+    isGameOver: () => false,
+    getSession: () => session,
+  } as unknown as InteractiveSession;
+}
+
+function createSmallLaser(): IWeaponStatus {
+  return {
+    id: 'small-laser',
+    name: 'Small Laser',
+    location: 'right_arm',
+    destroyed: false,
+    firedThisTurn: false,
+    heat: 1,
+    damage: 3,
+    ranges: { short: 1, medium: 2, long: 3 },
+  };
+}
+
+function createWeaponPhaseSession(targetQ: number): IGameSession {
+  const session = createDemoSession();
+
+  return {
+    ...session,
+    currentState: {
+      ...session.currentState,
+      phase: GamePhase.WeaponAttack,
+      units: {
+        ...session.currentState.units,
+        'unit-player-1': {
+          ...session.currentState.units['unit-player-1'],
+          position: { q: 0, r: 0 },
+          facing: Facing.Southeast,
+        },
+        'unit-opponent-1': {
+          ...session.currentState.units['unit-opponent-1'],
+          position: { q: targetQ, r: 0 },
+        },
+      },
+    },
   };
 }
 
@@ -156,7 +225,153 @@ describe('12.1 Token selection swaps record sheet', () => {
       'data-fog-status',
       'lastKnown',
     );
+    expect(
+      screen.queryByTestId('unit-valid-target-ring'),
+    ).not.toBeInTheDocument();
     expect(screen.getByTestId('sensor-ring-unit-player-1')).toBeInTheDocument();
+  });
+});
+
+describe('Weapon attack map target rings', () => {
+  it('does not ring an out-of-range enemy even when the store lists it as a target', () => {
+    const session = createWeaponPhaseSession(5);
+    renderLayout({
+      session,
+      selectedUnitId: 'unit-player-1',
+      validTargetIds: ['unit-opponent-1'],
+      unitWeapons: { 'unit-player-1': [createSmallLaser()] },
+      interactiveSession: createInteractiveSessionStub(session),
+    });
+
+    expect(
+      screen.queryByTestId('unit-valid-target-ring'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('rings weapon targets only after shared combat projection marks them legal', () => {
+    const session = createWeaponPhaseSession(2);
+    renderLayout({
+      session,
+      selectedUnitId: 'unit-player-1',
+      validTargetIds: [],
+      unitWeapons: { 'unit-player-1': [createSmallLaser()] },
+      interactiveSession: createInteractiveSessionStub(session),
+    });
+
+    expect(screen.getByTestId('unit-valid-target-ring')).toBeInTheDocument();
+  });
+});
+
+describe('Physical attack map intent overlay', () => {
+  afterEach(() => {
+    act(() => {
+      usePhysicalAttackPlanStore.getState().clearPhysicalAttackPlan();
+    });
+  });
+
+  it('renders physical attack intent arrows in the map SVG layer', () => {
+    renderLayout({
+      selectedUnitId: 'unit-player-1',
+      physicalAttackIntent: {
+        variant: 'charge',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+      },
+    });
+
+    const projectionLayer = screen.getByTestId('map-projection-layer');
+    const arrow = screen.getByTestId('physical-attack-intent-arrow');
+    expect(projectionLayer).toContainElement(arrow);
+  });
+
+  it('highlights adjacent physical attack targets on the map', () => {
+    const session = createDemoSession();
+    const physicalSession: IGameSession = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        phase: GamePhase.PhysicalAttack,
+        units: {
+          ...session.currentState.units,
+          'unit-player-1': {
+            ...session.currentState.units['unit-player-1'],
+            position: { q: 0, r: 0 },
+          },
+          'unit-opponent-1': {
+            ...session.currentState.units['unit-opponent-1'],
+            position: { q: 1, r: 0 },
+          },
+        },
+      },
+    };
+
+    renderLayout({
+      session: physicalSession,
+      selectedUnitId: 'unit-player-1',
+    });
+
+    expect(screen.getByTestId('unit-valid-target-ring')).toBeInTheDocument();
+  });
+
+  it('does not highlight physical attack targets outside adjacent range', () => {
+    const session = createDemoSession();
+    const physicalSession: IGameSession = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        phase: GamePhase.PhysicalAttack,
+        units: {
+          ...session.currentState.units,
+          'unit-player-1': {
+            ...session.currentState.units['unit-player-1'],
+            position: { q: 0, r: 0 },
+          },
+          'unit-opponent-1': {
+            ...session.currentState.units['unit-opponent-1'],
+            position: { q: 2, r: 0 },
+          },
+        },
+      },
+    };
+
+    renderLayout({
+      session: physicalSession,
+      selectedUnitId: 'unit-player-1',
+    });
+
+    expect(screen.queryByTestId('unit-valid-target-ring')).toBeNull();
+  });
+
+  it('renders the selected physical target as active on the map', () => {
+    usePhysicalAttackPlanStore
+      .getState()
+      .setPhysicalAttackTarget('unit-opponent-1');
+    const session = createDemoSession();
+    const physicalSession: IGameSession = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        phase: GamePhase.PhysicalAttack,
+        units: {
+          ...session.currentState.units,
+          'unit-player-1': {
+            ...session.currentState.units['unit-player-1'],
+            position: { q: 0, r: 0 },
+          },
+          'unit-opponent-1': {
+            ...session.currentState.units['unit-opponent-1'],
+            position: { q: 1, r: 0 },
+          },
+        },
+      },
+    };
+
+    renderLayout({
+      session: physicalSession,
+      selectedUnitId: 'unit-player-1',
+    });
+
+    expect(screen.getByTestId('unit-active-target-pulse')).toBeInTheDocument();
   });
 });
 

@@ -8,6 +8,7 @@ import type {
   IUnitToken,
 } from '@/types/gameplay';
 import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
+import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
 import { UnitTokenForType } from '@/components/gameplay/UnitToken/UnitTokenForType';
 import { HEX_SIZE } from '@/constants/hexMap';
@@ -27,6 +28,43 @@ interface SensorRingsLayerProps {
   readonly orderedTokens: readonly IUnitToken[];
 }
 
+interface SensorRingProjection {
+  readonly displayPosition: IHexCoordinate;
+  readonly positionSource: 'current' | 'last-known';
+  readonly fogStatus: 'visible' | NonNullable<IUnitToken['fogStatus']>;
+}
+
+function deriveSensorRingProjection(token: IUnitToken): SensorRingProjection {
+  if (token.fogStatus === 'lastKnown' && token.lastKnownPosition) {
+    return {
+      displayPosition: token.lastKnownPosition,
+      positionSource: 'last-known',
+      fogStatus: 'lastKnown',
+    };
+  }
+
+  return {
+    displayPosition: token.position,
+    positionSource: 'current',
+    fogStatus: token.fogStatus ?? 'visible',
+  };
+}
+
+function describeSensorRing(
+  token: IUnitToken,
+  projection: SensorRingProjection,
+  sensorRange: number,
+): string {
+  return [
+    `${token.name} sensor ring`,
+    `range ${sensorRange} hexes`,
+    `displayed at ${coordToKey(projection.displayPosition)}`,
+    `source ${coordToKey(token.position)}`,
+    `position source ${projection.positionSource}`,
+    `visibility ${projection.fogStatus}`,
+  ].join('; ');
+}
+
 export function SensorRingsLayer({
   orderedTokens,
 }: SensorRingsLayerProps): React.ReactElement {
@@ -41,18 +79,31 @@ export function SensorRingsLayer({
         )
         .map((token) => {
           const sensorRange = token.sensorRange ?? 0;
-          const center = hexToPixel(
-            token.fogStatus === 'lastKnown' && token.lastKnownPosition
-              ? token.lastKnownPosition
-              : token.position,
+          const projection = deriveSensorRingProjection(token);
+          const center = hexToPixel(projection.displayPosition);
+          const radius = sensorRange * HEX_SIZE * 1.5;
+          const description = describeSensorRing(
+            token,
+            projection,
+            sensorRange,
           );
           return (
             <circle
               key={`sensor-${token.unitId}`}
               data-testid={`sensor-ring-${token.unitId}`}
+              role="img"
+              aria-label={description}
+              data-sensor-range-hexes={sensorRange}
+              data-sensor-radius-px={radius}
+              data-sensor-display-position={coordToKey(
+                projection.displayPosition,
+              )}
+              data-sensor-source-position={coordToKey(token.position)}
+              data-sensor-position-source={projection.positionSource}
+              data-sensor-fog-status={projection.fogStatus}
               cx={center.x}
               cy={center.y}
-              r={sensorRange * HEX_SIZE * 1.5}
+              r={radius}
               fill="none"
               stroke="#38bdf8"
               strokeWidth={2}
@@ -196,6 +247,31 @@ interface UnitTokensLayerProps {
   readonly tokens: readonly IUnitToken[];
   readonly onTokenClick: (unitId: string) => void;
   readonly onTokenDoubleClick: (unitId: string) => void;
+  readonly isIsometricView: boolean;
+  readonly isometricOcclusionUnitIds: ReadonlySet<string>;
+  readonly combatProjectionValidTargetUnitIds?: ReadonlySet<string>;
+  readonly isometricOcclusionInfoByUnit?: ReadonlyMap<
+    string,
+    { readonly reason: string }
+  >;
+  readonly isometricOcclusionInfosByUnit?: ReadonlyMap<
+    string,
+    readonly { readonly reason: string }[]
+  >;
+}
+
+function deriveIsometricVisibilityRule(
+  token: IUnitToken,
+): 'hidden' | 'lastKnown' | undefined {
+  if (token.fogStatus === 'hidden') return 'hidden';
+  if (token.fogStatus === 'lastKnown') return 'lastKnown';
+  return undefined;
+}
+
+function describeIsometricVisibilityRule(rule: 'hidden' | 'lastKnown'): string {
+  return rule === 'hidden'
+    ? 'Hidden contact is limited by fog or visibility rules'
+    : 'Last known contact is limited to stale visibility information';
 }
 
 export function UnitTokensLayer({
@@ -205,34 +281,85 @@ export function UnitTokensLayer({
   tokens,
   onTokenClick,
   onTokenDoubleClick,
+  isIsometricView,
+  isometricOcclusionUnitIds,
+  combatProjectionValidTargetUnitIds,
+  isometricOcclusionInfoByUnit,
+  isometricOcclusionInfosByUnit,
 }: UnitTokensLayerProps): React.ReactElement {
   return (
     <g>
-      {orderedTokens.map((token) => (
-        <UnitTokenForType
-          key={token.unitId}
-          token={token}
-          movementAnimation={movementAnimationsByUnit.get(token.unitId)}
-          onClick={onTokenClick}
-          onDoubleClick={onTokenDoubleClick}
-          events={events}
-          allTokens={tokens}
-        />
-      ))}
+      {orderedTokens.map((token) => {
+        const visibilityRule = isIsometricView
+          ? deriveIsometricVisibilityRule(token)
+          : undefined;
+        const terrainOcclusionReason = isIsometricView
+          ? formatIsometricTokenOcclusionReason(
+              isometricOcclusionInfosByUnit?.get(token.unitId) ??
+                maybeSingleOcclusionInfo(
+                  isometricOcclusionInfoByUnit?.get(token.unitId),
+                ),
+            )
+          : undefined;
+
+        return (
+          <UnitTokenForType
+            key={token.unitId}
+            token={token}
+            movementAnimation={movementAnimationsByUnit.get(token.unitId)}
+            onClick={onTokenClick}
+            onDoubleClick={onTokenDoubleClick}
+            events={events}
+            allTokens={tokens}
+            combatProjectionValidTarget={combatProjectionValidTargetUnitIds?.has(
+              token.unitId,
+            )}
+            isOcclusionHighlighted={
+              isIsometricView &&
+              (token.isSelected || isometricOcclusionUnitIds.has(token.unitId))
+            }
+            isometricOcclusionReason={terrainOcclusionReason}
+            isometricVisibilityRule={visibilityRule}
+            isometricVisibilityRuleReason={
+              visibilityRule
+                ? describeIsometricVisibilityRule(visibilityRule)
+                : undefined
+            }
+          />
+        );
+      })}
     </g>
   );
+}
+
+function formatIsometricTokenOcclusionReason(
+  infos: readonly { readonly reason: string }[],
+): string | undefined {
+  if (infos.length === 0) return undefined;
+  return infos.map((info) => info.reason).join('; ');
+}
+
+function maybeSingleOcclusionInfo(
+  info: { readonly reason: string } | undefined,
+): readonly { readonly reason: string }[] {
+  return info ? [info] : [];
 }
 
 interface TerrainOverlayLayersProps {
   readonly interaction: MapInteractionState;
   readonly hexes: readonly IHexCoordinate[];
   readonly terrainLookup: ReadonlyMap<string, IHexTerrain>;
+  readonly tacticalMapProjectionLookup?: ReadonlyMap<
+    string,
+    ITacticalMapHexProjection
+  >;
 }
 
 export function TerrainOverlayLayers({
   interaction,
   hexes,
   terrainLookup,
+  tacticalMapProjectionLookup,
 }: TerrainOverlayLayersProps): React.ReactElement {
   return (
     <>
@@ -241,11 +368,14 @@ export function TerrainOverlayLayers({
           {hexes.map((hex) => {
             const key = coordToKey(hex);
             const terrain = terrainLookup.get(key);
+            const projection = tacticalMapProjectionLookup?.get(key);
             return (
               <MovementCostOverlay
                 key={`move-${key}`}
                 hex={hex}
                 terrain={terrain}
+                movementInfo={projection?.movement}
+                projectionExplanation={projection?.explanation}
               />
             );
           })}
@@ -257,75 +387,18 @@ export function TerrainOverlayLayers({
           {hexes.map((hex) => {
             const key = coordToKey(hex);
             const terrain = terrainLookup.get(key);
+            const projection = tacticalMapProjectionLookup?.get(key);
             return (
-              <CoverOverlay key={`cover-${key}`} hex={hex} terrain={terrain} />
+              <CoverOverlay
+                key={`cover-${key}`}
+                hex={hex}
+                terrain={terrain}
+                combatInfo={projection?.combat}
+                projectionExplanation={projection?.explanation}
+              />
             );
           })}
         </g>
-      )}
-    </>
-  );
-}
-
-interface MapHtmlOverlaysProps {
-  readonly hoverUnreachable: boolean;
-  readonly mpLegend?: {
-    readonly active: 'walk' | 'run' | 'jump';
-    readonly jumpAvailable: boolean;
-  };
-}
-
-export function MapHtmlOverlays({
-  hoverUnreachable,
-  mpLegend,
-}: MapHtmlOverlaysProps): React.ReactElement {
-  return (
-    <>
-      {hoverUnreachable && (
-        <div
-          className="pointer-events-none absolute top-2 left-1/2 -translate-x-1/2 rounded bg-slate-900/90 px-2 py-1 text-xs font-medium text-slate-100 shadow"
-          data-testid="hex-unreachable-tooltip"
-          role="tooltip"
-        >
-          Unreachable
-        </div>
-      )}
-
-      {mpLegend && (
-        <div
-          className="pointer-events-none absolute bottom-4 left-4 flex flex-col gap-1 rounded bg-white/90 p-2 text-xs shadow"
-          data-testid="mp-legend"
-        >
-          {(['walk', 'run', 'jump'] as const).map((kind) => {
-            const isActive = mpLegend.active === kind;
-            const isJumpDisabled = kind === 'jump' && !mpLegend.jumpAvailable;
-            const swatch =
-              kind === 'walk'
-                ? 'bg-green-500'
-                : kind === 'run'
-                  ? 'bg-yellow-500'
-                  : 'bg-blue-500';
-            const label =
-              kind === 'walk' ? 'Walk' : kind === 'run' ? 'Run' : 'Jump';
-            return (
-              <div
-                key={kind}
-                className={`flex items-center gap-2 rounded px-1 py-0.5 ${
-                  isActive
-                    ? 'font-semibold ring-1 ring-slate-700'
-                    : 'opacity-70'
-                } ${isJumpDisabled ? 'opacity-40' : ''}`}
-                data-testid={`mp-legend-${kind}`}
-                data-active={isActive ? 'true' : undefined}
-                data-disabled={isJumpDisabled ? 'true' : undefined}
-                title={isJumpDisabled ? 'No jump capability' : undefined}
-              >
-                <span className={`inline-block h-3 w-3 rounded-sm ${swatch}`} />
-                <span>{label}</span>
-              </div>
-            );
-          })}
-        </div>
       )}
     </>
   );

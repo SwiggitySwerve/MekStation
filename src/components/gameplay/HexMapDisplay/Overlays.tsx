@@ -1,45 +1,108 @@
 import React from 'react';
 
-import type { IHexCoordinate, IHexTerrain } from '@/types/gameplay';
+import type {
+  IHexCoordinate,
+  IHexTerrain,
+  ICombatRangeHex,
+  IMovementRangeHex,
+} from '@/types/gameplay';
 
 import { TERRAIN_COLORS } from '@/constants/terrain';
 import { TerrainType } from '@/types/gameplay';
 import { CoverLevel } from '@/types/gameplay/TerrainTypes';
 
 import {
+  coverProjectionOverlayAttributes,
+  coverProjectionOverlayLevel,
+  coverProjectionOverlayTitleParts,
+} from './CoverOverlay.projection';
+import {
+  formatElevationLabel,
+  formatTerrainFeaturesLabel,
+} from './HexCell.labels';
+import {
+  movementCostBandFill,
+  movementCostBandFor,
+  movementProjectionOverlayAttributes,
+  movementProjectionOverlayTitleParts,
+} from './MovementCostOverlay.projection';
+import {
   hexToPixel,
+  getPrimaryTerrainFeature,
   getTerrainMovementCost,
   getTerrainCoverLevel,
 } from './renderHelpers';
 
-// =============================================================================
-// MovementCostOverlay
-// =============================================================================
-
 export interface MovementCostOverlayProps {
   hex: IHexCoordinate;
   terrain: IHexTerrain | undefined;
+  movementInfo?: IMovementRangeHex;
+  projectionExplanation?: string;
 }
 
 export const MovementCostOverlay = React.memo(function MovementCostOverlay({
   hex,
   terrain,
+  movementInfo,
+  projectionExplanation,
 }: MovementCostOverlayProps): React.ReactElement {
   const { x, y } = hexToPixel(hex);
   const cost = getTerrainMovementCost(terrain);
+  const costBand = movementCostBandFor(cost);
+  const costBandFill = movementCostBandFill(costBand);
+  const terrainTypes = terrain?.features.map((feature) => feature.type) ?? [];
+  const terrainLabel = formatTerrainFeaturesLabel(terrainTypes);
+  const elevation = terrain?.elevation ?? 0;
+  const elevationLabel = formatElevationLabel(elevation);
+  const title = [
+    `Terrain movement cost ${cost}`,
+    `terrain ${terrainLabel}`,
+    `elevation ${elevationLabel}`,
+    ...movementProjectionOverlayTitleParts({
+      movementInfo,
+      projectionExplanation,
+    }),
+  ]
+    .filter(Boolean)
+    .join('; ');
+  const movementProjectionAttributes = movementProjectionOverlayAttributes(
+    movementInfo,
+    projectionExplanation,
+  );
 
   return (
-    <g pointerEvents="none">
-      <circle cx={x} cy={y} r={12} fill="#1e293b" opacity={0.85} />
+    <g
+      pointerEvents="none"
+      data-testid={`movement-cost-overlay-hex-${hex.q}-${hex.r}`}
+      data-terrain-movement-cost={cost}
+      data-terrain-features={
+        terrainTypes.length > 0 ? terrainTypes.join(',') : undefined
+      }
+      data-terrain-movement-cost-band={costBand}
+      data-terrain-movement-cost-fill={costBandFill}
+      data-elevation={elevation}
+      aria-label={title}
+      {...movementProjectionAttributes}
+    >
+      <title>{title}</title>
+      <circle
+        cx={x}
+        cy={y}
+        r={12}
+        fill={costBandFill}
+        stroke="#1e293b"
+        strokeWidth={1.5}
+        opacity={0.88}
+      />
       <text
         x={x}
         y={y + 4}
         textAnchor="middle"
-        fontSize={11}
+        fontSize={9}
         fontWeight="bold"
         fill="#f8fafc"
       >
-        {cost}
+        T{cost}
       </text>
     </g>
   );
@@ -52,14 +115,41 @@ export const MovementCostOverlay = React.memo(function MovementCostOverlay({
 export interface CoverOverlayProps {
   hex: IHexCoordinate;
   terrain: IHexTerrain | undefined;
+  combatInfo?: ICombatRangeHex;
+  projectionExplanation?: string;
 }
 
 export const CoverOverlay = React.memo(function CoverOverlay({
   hex,
   terrain,
-}: CoverOverlayProps): React.ReactElement {
+  combatInfo,
+  projectionExplanation,
+}: CoverOverlayProps): React.ReactElement | null {
   const { x, y } = hexToPixel(hex);
-  const coverLevel = getTerrainCoverLevel(terrain);
+  const terrainCoverLevel = getTerrainCoverLevel(terrain);
+  const coverLevel =
+    coverProjectionOverlayLevel(combatInfo) ?? terrainCoverLevel;
+  if (coverLevel === CoverLevel.None) return null;
+
+  const coverLabel = formatCoverOverlayLabel(coverLevel);
+  const terrainTypes = terrain?.features.map((feature) => feature.type) ?? [];
+  const terrainLabel = formatTerrainFeaturesLabel(terrainTypes);
+  const elevation = terrain?.elevation ?? 0;
+  const elevationLabel = formatElevationLabel(elevation);
+  const primaryTerrain = getPrimaryTerrainFeature(terrain)?.type ?? 'clear';
+  const coverTitle = formatCoverOverlayTitle(
+    coverLevel,
+    terrainLabel,
+    elevationLabel,
+    coverProjectionOverlayTitleParts({
+      combatInfo,
+      projectionExplanation,
+    }),
+  );
+  const coverProjectionAttributes = coverProjectionOverlayAttributes({
+    combatInfo,
+    projectionExplanation,
+  });
 
   const shieldPath = `M${x},${y - 14} L${x - 10},${y - 6} L${x - 10},${y + 4} Q${x},${y + 14} ${x + 10},${y + 4} L${x + 10},${y - 6} Z`;
 
@@ -74,13 +164,23 @@ export const CoverOverlay = React.memo(function CoverOverlay({
       fillColor = '#eab308';
       fillOpacity = 0.8;
       break;
-    default:
-      fillColor = '#64748b';
-      fillOpacity = 0.3;
   }
 
   return (
-    <g pointerEvents="none">
+    <g
+      pointerEvents="none"
+      data-testid={`cover-overlay-hex-${hex.q}-${hex.r}`}
+      data-cover-level={coverLevel}
+      data-terrain-cover-level={terrainCoverLevel}
+      data-cover-source-terrain={primaryTerrain}
+      data-terrain-features={
+        terrainTypes.length > 0 ? terrainTypes.join(',') : 'clear'
+      }
+      data-elevation={elevation}
+      aria-label={coverTitle}
+      {...coverProjectionAttributes}
+    >
+      <title>{coverTitle}</title>
       <path
         d={shieldPath}
         fill={fillColor}
@@ -98,9 +198,66 @@ export const CoverOverlay = React.memo(function CoverOverlay({
           strokeWidth={2}
         />
       )}
+      <rect
+        x={x - 17}
+        y={y + 9}
+        width={34}
+        height={11}
+        rx={3}
+        fill="#0f172a"
+        fillOpacity={0.86}
+      />
+      <text
+        x={x}
+        y={y + 17}
+        textAnchor="middle"
+        fontSize={7}
+        fontWeight="bold"
+        fill="#f8fafc"
+      >
+        {coverLabel}
+      </text>
     </g>
   );
 });
+
+function formatCoverOverlayLabel(coverLevel: CoverLevel): string {
+  switch (coverLevel) {
+    case CoverLevel.Full:
+      return 'FULL';
+    case CoverLevel.Partial:
+      return 'PART';
+    case CoverLevel.None:
+      return 'NONE';
+  }
+}
+
+function formatCoverOverlayBaseTitle(coverLevel: CoverLevel): string {
+  switch (coverLevel) {
+    case CoverLevel.Full:
+      return 'Full cover';
+    case CoverLevel.Partial:
+      return 'Partial cover';
+    case CoverLevel.None:
+      return 'No cover';
+  }
+}
+
+function formatCoverOverlayTitle(
+  coverLevel: CoverLevel,
+  terrainLabel: string,
+  elevationLabel: string,
+  projectionTitleParts: readonly string[] = [],
+): string {
+  return [
+    formatCoverOverlayBaseTitle(coverLevel),
+    `terrain ${terrainLabel}`,
+    `elevation ${elevationLabel}`,
+    ...projectionTitleParts,
+  ]
+    .filter(Boolean)
+    .join('; ');
+}
 
 // =============================================================================
 // LOSLine

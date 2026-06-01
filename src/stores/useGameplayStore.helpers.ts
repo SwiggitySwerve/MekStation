@@ -1,12 +1,16 @@
 import type { InteractiveSession } from '@/engine/GameEngine';
 
 import { getPrefersReducedMotion } from '@/hooks/useReducedMotion';
+import { unitStateToToken } from '@/lib/gameplay/unitStateToToken';
 import {
   IGameSession,
   IGameplayUIState,
+  IUnitToken,
+  IWeaponStatus,
   GamePhase,
   GameSide,
 } from '@/types/gameplay';
+import { deriveValidWeaponTargetIds } from '@/utils/gameplay/combatTargetIds';
 import {
   lockMovement,
   advancePhase,
@@ -40,6 +44,7 @@ interface GameplayHelperState {
   validMovementHexes: readonly { q: number; r: number }[];
   validTargetIds: readonly string[];
   hitChance: number | null;
+  unitWeapons: Record<string, readonly IWeaponStatus[]>;
 }
 
 /**
@@ -213,6 +218,56 @@ export function advanceInteractivePhaseLogic(
   });
 }
 
+function buildCombatProjectionTokens(
+  state: ReturnType<InteractiveSession['getState']>,
+  session: IGameSession | null,
+  selectedUnitId: string,
+): readonly IUnitToken[] {
+  const unitInfoById = new Map(
+    (session?.units ?? []).map((unit) => [
+      unit.id,
+      { name: unit.name, side: unit.side },
+    ]),
+  );
+
+  return Object.entries(state.units).map(([unitId, unitState]) => {
+    const unitInfo = unitInfoById.get(unitId) ?? {
+      name: unitId,
+      side: unitState.side,
+    };
+    return unitStateToToken(unitId, unitState, unitInfo, {
+      isSelected: unitId === selectedUnitId,
+      isValidTarget: false,
+      isActiveTarget: false,
+    });
+  });
+}
+
+function deriveSelectableWeaponTargetIds(
+  interactiveSession: InteractiveSession,
+  storeState: GameplayHelperState,
+  selectedUnitIdOverride?: string,
+): readonly string[] {
+  const selectedUnitId = selectedUnitIdOverride ?? storeState.ui.selectedUnitId;
+  if (!selectedUnitId) return [];
+
+  const currentState = interactiveSession.getState();
+  return deriveValidWeaponTargetIds({
+    currentState,
+    selectedUnitId,
+    tokens: buildCombatProjectionTokens(
+      currentState,
+      storeState.session,
+      selectedUnitId,
+    ),
+    mapRadius:
+      storeState.session?.config.mapRadius ??
+      interactiveSession.getGrid().config.radius,
+    grid: interactiveSession.getGrid(),
+    unitWeapons: storeState.unitWeapons,
+  });
+}
+
 export function handleInteractiveTokenClickLogic(
   unitId: string,
   interactivePhase: InteractivePhase,
@@ -237,19 +292,27 @@ export function handleInteractiveTokenClickLogic(
       unit.side === GameSide.Player &&
       interactivePhase === InteractivePhase.SelectUnit
     ) {
+      const targetIds = deriveSelectableWeaponTargetIds(
+        interactiveSession,
+        get(),
+        unitId,
+      );
       set((s) => {
         return {
           ui: { ...s.ui, selectedUnitId: unitId },
           interactivePhase: InteractivePhase.SelectTarget,
-          validTargetIds: Object.entries(state.units)
-            .filter(([, u]) => u.side === GameSide.Opponent && !u.destroyed)
-            .map(([id]) => id),
+          validTargetIds: targetIds,
         };
       });
     } else if (
       unit.side === GameSide.Opponent &&
       interactivePhase === InteractivePhase.SelectTarget
     ) {
+      const targetIds =
+        get().validTargetIds.length > 0
+          ? get().validTargetIds
+          : deriveSelectableWeaponTargetIds(interactiveSession, get());
+      if (!targetIds.includes(unitId)) return;
       selectAttackTarget(unitId);
     }
   } else if (

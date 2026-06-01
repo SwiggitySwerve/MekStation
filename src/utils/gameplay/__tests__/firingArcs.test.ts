@@ -22,6 +22,7 @@ import {
   getArcHitModifier,
   targetsRearArmor,
 } from '../firingArcs';
+import { hexAngle } from '../hexMath';
 
 // =============================================================================
 // Test Fixtures
@@ -44,6 +45,31 @@ function createTestPosition(
 // =============================================================================
 
 describe('determineArc', () => {
+  describe('MegaMek-aligned neighbor angles', () => {
+    it('places the six adjacent directions on exact 60-degree increments', () => {
+      const origin: IHexCoordinate = { q: 0, r: 0 };
+
+      expect(hexAngle(origin, { q: 0, r: -1 })).toBe(0);
+      expect(hexAngle(origin, { q: 1, r: -1 })).toBe(60);
+      expect(hexAngle(origin, { q: 1, r: 0 })).toBe(120);
+      expect(hexAngle(origin, { q: 0, r: 1 })).toBe(180);
+      expect(hexAngle(origin, { q: -1, r: 1 })).toBe(240);
+      expect(hexAngle(origin, { q: -1, r: 0 })).toBe(300);
+    });
+
+    it('uses MegaMek boundary precedence for a north-facing unit', () => {
+      const attacker = createTestPosition({
+        coord: { q: 0, r: 0 },
+        facing: Facing.North,
+      });
+
+      expect(determineArc(attacker, { q: 1, r: -1 }).arc).toBe(FiringArc.Front);
+      expect(determineArc(attacker, { q: -1, r: 0 }).arc).toBe(FiringArc.Front);
+      expect(determineArc(attacker, { q: 1, r: 0 }).arc).toBe(FiringArc.Right);
+      expect(determineArc(attacker, { q: -1, r: 1 }).arc).toBe(FiringArc.Left);
+    });
+  });
+
   describe('same hex', () => {
     it('should return front arc for target in same hex', () => {
       const attacker = createTestPosition({ coord: { q: 0, r: 0 } });
@@ -73,19 +99,12 @@ describe('determineArc', () => {
       expect(result.arc).toBe(FiringArc.Front);
     });
 
-    it('should detect side arc for target in adjacent hex to the side', () => {
-      // Adjacent hexes to the side are actually in side arcs per hex geometry
+    it('should keep adjacent front-boundary hexes in the front arc', () => {
       const resultNE = determineArc(attacker, { q: 1, r: -1 }); // Northeast adjacent
       const resultNW = determineArc(attacker, { q: -1, r: 0 }); // Northwest adjacent
 
-      // These are on the boundary - could be front or side depending on exact arc implementation
-      // The important thing is they're consistently classified
-      expect([FiringArc.Front, FiringArc.Right, FiringArc.Left]).toContain(
-        resultNE.arc,
-      );
-      expect([FiringArc.Front, FiringArc.Right, FiringArc.Left]).toContain(
-        resultNW.arc,
-      );
+      expect(resultNE.arc).toBe(FiringArc.Front);
+      expect(resultNW.arc).toBe(FiringArc.Front);
     });
   });
 
@@ -105,18 +124,12 @@ describe('determineArc', () => {
       expect(result.arc).toBe(FiringArc.Rear);
     });
 
-    it('should detect side arc for adjacent hexes to the side-rear', () => {
-      // Adjacent hexes in southeast/southwest may be side arcs per hex geometry
+    it('should give rear/side boundary hexes to the side arcs', () => {
       const resultSE = determineArc(attacker, { q: 1, r: 0 }); // Southeast adjacent
       const resultSW = determineArc(attacker, { q: -1, r: 1 }); // Southwest adjacent
 
-      // These are on the boundary - could be rear or side depending on exact arc implementation
-      expect([FiringArc.Rear, FiringArc.Right, FiringArc.Left]).toContain(
-        resultSE.arc,
-      );
-      expect([FiringArc.Rear, FiringArc.Right, FiringArc.Left]).toContain(
-        resultSW.arc,
-      );
+      expect(resultSE.arc).toBe(FiringArc.Right);
+      expect(resultSW.arc).toBe(FiringArc.Left);
     });
   });
 
@@ -271,12 +284,10 @@ describe('getFrontArcDirections', () => {
 });
 
 describe('getRearArcDirections', () => {
-  it('should return 3 directions for North facing', () => {
+  it('should return the strict rear direction for North facing', () => {
     const directions = getRearArcDirections(Facing.North);
-    expect(directions).toHaveLength(3);
+    expect(directions).toHaveLength(1);
     expect(directions).toContain(Facing.South);
-    expect(directions).toContain(Facing.Southeast);
-    expect(directions).toContain(Facing.Southwest);
   });
 
   it('should return opposite directions from front arc', () => {
@@ -291,15 +302,15 @@ describe('getRearArcDirections', () => {
 
 describe('getLeftArcDirection', () => {
   it('should return correct left direction for each facing', () => {
-    expect(getLeftArcDirection(Facing.North)).toBe(Facing.Southeast);
-    expect(getLeftArcDirection(Facing.South)).toBe(Facing.Northwest);
+    expect(getLeftArcDirection(Facing.North)).toBe(Facing.Southwest);
+    expect(getLeftArcDirection(Facing.South)).toBe(Facing.Northeast);
   });
 });
 
 describe('getRightArcDirection', () => {
   it('should return correct right direction for each facing', () => {
-    expect(getRightArcDirection(Facing.North)).toBe(Facing.Southwest);
-    expect(getRightArcDirection(Facing.South)).toBe(Facing.Northeast);
+    expect(getRightArcDirection(Facing.North)).toBe(Facing.Southeast);
+    expect(getRightArcDirection(Facing.South)).toBe(Facing.Northwest);
   });
 
   it('should be opposite of left arc direction rotated', () => {

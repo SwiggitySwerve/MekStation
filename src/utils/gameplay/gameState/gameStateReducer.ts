@@ -14,7 +14,10 @@ import {
   IHeatPayload,
   IInitiativeRolledPayload,
   IMoraleShiftedPayload,
+  IMotiveDamagedPayload,
+  IMotivePenaltyAppliedPayload,
   IMovementDeclaredPayload,
+  IRuntimeMovementStateChangedPayload,
   IObjectiveCapturedPayload,
   IObjectiveLostPayload,
   IObjectiveProgressPayload,
@@ -27,6 +30,8 @@ import {
   IRetreatTriggeredPayload,
   IShutdownCheckPayload,
   IStartupAttemptPayload,
+  ITerrainChangedPayload,
+  ITurretLockedPayload,
   IUnitDestroyedPayload,
   IUnitFellPayload,
   IUnitRetreatedPayload,
@@ -35,6 +40,8 @@ import {
   IWithdrawalDeclaredPayload,
   IGameStartedPayload,
   LockState,
+  IVehicleCrewStunnedPayload,
+  IVehicleImmobilizedPayload,
 } from '@/types/gameplay';
 import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveEngine';
 
@@ -43,13 +50,19 @@ import {
   applyAttackLocked,
   applyMovementDeclared,
   applyMovementLocked,
+  applyRuntimeMovementStateChanged,
 } from './actionLocking';
 import {
   applyCriticalHitResolved,
   applyDamageApplied,
   applyHeatChange,
+  applyMotiveDamaged,
+  applyMotivePenaltyApplied,
   applyPilotHit,
+  applyTurretLocked,
   applyUnitDestroyed,
+  applyVehicleCrewStunned,
+  applyVehicleImmobilized,
 } from './damageResolution';
 import {
   applyAmmoConsumed,
@@ -85,6 +98,7 @@ import {
   applyPhaseChanged,
   applyTurnStarted,
 } from './phaseManagement';
+import { applyTerrainChanged } from './terrainReducer';
 
 export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
   switch (event.type) {
@@ -122,6 +136,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
     case GameEventType.MovementLocked:
       return applyMovementLocked(state, event);
 
+    case GameEventType.RuntimeMovementStateChanged:
+      return applyRuntimeMovementStateChanged(
+        state,
+        event.payload as IRuntimeMovementStateChangedPayload,
+      );
+
     case GameEventType.AttackDeclared:
       return applyAttackDeclared(
         state,
@@ -143,6 +163,36 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.UnitDestroyed:
       return applyUnitDestroyed(state, event.payload as IUnitDestroyedPayload);
+
+    case GameEventType.MotiveDamaged:
+      return applyMotiveDamaged(state, event.payload as IMotiveDamagedPayload);
+
+    case GameEventType.MotivePenaltyApplied:
+      return applyMotivePenaltyApplied(
+        state,
+        event.payload as IMotivePenaltyAppliedPayload,
+      );
+
+    case GameEventType.VehicleImmobilized:
+      return applyVehicleImmobilized(
+        state,
+        event.payload as IVehicleImmobilizedPayload,
+      );
+
+    case GameEventType.TurretLocked:
+      return applyTurretLocked(state, event.payload as ITurretLockedPayload);
+
+    case GameEventType.VehicleCrewStunned:
+      return applyVehicleCrewStunned(
+        state,
+        event.payload as IVehicleCrewStunnedPayload,
+      );
+
+    case GameEventType.TerrainChanged:
+      return applyTerrainChanged(
+        state,
+        event.payload as ITerrainChangedPayload,
+      );
 
     case GameEventType.CriticalHitResolved:
       return applyCriticalHitResolved(
@@ -222,7 +272,9 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
     case GameEventType.TurnEnded:
     case GameEventType.InitiativeOrderSet:
     case GameEventType.AttacksRevealed:
+    case GameEventType.MovementInvalid:
     case GameEventType.AttackResolved:
+    case GameEventType.VTOLCrashCheck:
     case GameEventType.HeatEffectApplied:
     case GameEventType.CriticalHit:
     case GameEventType.FacingChanged:

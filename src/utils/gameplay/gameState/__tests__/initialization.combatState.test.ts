@@ -14,18 +14,26 @@
 import type { IInfantry } from '@/types/unit/PersonnelInterfaces';
 
 import {
+  VehicleLocation,
+  VTOLLocation,
+} from '@/types/construction/UnitLocation';
+import {
   Facing,
   GameSide,
   type IGameUnit,
   type IUnitGameState,
 } from '@/types/gameplay';
-import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
+import {
+  GroundMotionType,
+  SquadMotionType,
+} from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   InfantryArmorKit,
   InfantrySpecialization,
 } from '@/types/unit/PersonnelInterfaces';
 import { ProtoChassis, ProtoLocation } from '@/types/unit/ProtoMechInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
 
 import { createInitialUnitState } from '../initialization';
 
@@ -46,6 +54,12 @@ function baseGameUnit(overrides: Partial<IGameUnit> = {}): IGameUnit {
     piloting: 5,
     ...overrides,
   };
+}
+
+function vehicleArmor(
+  values: Record<string, number>,
+): Partial<Record<VehicleLocation | VTOLLocation, number>> {
+  return values as Partial<Record<VehicleLocation | VTOLLocation, number>>;
 }
 
 /** Minimal `IInfantry` shape sufficient for `createInfantryCombatStateFromUnit`. */
@@ -142,10 +156,80 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     expect(state.combatState).toBeUndefined();
   });
 
-  it('leaves combatState undefined for VEHICLE (kind: vehicle is a future variant)', () => {
-    const unit = baseGameUnit({ unitType: UnitType.VEHICLE });
+  it('throws when VEHICLE is missing vehicleInit', () => {
+    const unit = baseGameUnit({
+      id: 'vehicle-missing',
+      unitType: UnitType.VEHICLE,
+    });
+    expect(() => createInitialUnitState(unit, POSITION, Facing.North)).toThrow(
+      /vehicle-missing.*vehicleInit/i,
+    );
+  });
+
+  it("seeds combatState with kind='vehicle' for represented vehicles", () => {
+    const unit = baseGameUnit({
+      id: 'vehicle-1',
+      unitType: UnitType.VEHICLE,
+      vehicleInit: {
+        motionType: GroundMotionType.TRACKED,
+        turretType: TurretType.SINGLE,
+        originalCruiseMP: 4,
+        armor: vehicleArmor({
+          [VehicleLocation.FRONT]: 24,
+          [VehicleLocation.TURRET]: 12,
+        }),
+        structure: vehicleArmor({
+          [VehicleLocation.FRONT]: 12,
+          [VehicleLocation.TURRET]: 6,
+        }),
+      },
+    });
     const state = createInitialUnitState(unit, POSITION, Facing.North);
-    expect(state.combatState).toBeUndefined();
+
+    expect(state.combatState?.kind).toBe('vehicle');
+    if (state.combatState?.kind === 'vehicle') {
+      expect(state.combatState.state.motionType).toBe(GroundMotionType.TRACKED);
+      expect(state.combatState.state.motive.originalCruiseMP).toBe(4);
+      expect(
+        (state.combatState.state.armor as Record<string, number>)[
+          VehicleLocation.FRONT
+        ],
+      ).toBe(24);
+      expect(state.combatState.state.turretType).toBe(TurretType.SINGLE);
+    }
+  });
+
+  it('seeds VTOL vehicle state with altitude', () => {
+    const unit = baseGameUnit({
+      id: 'vtol-1',
+      unitType: UnitType.VTOL,
+      vehicleInit: {
+        motionType: GroundMotionType.VTOL,
+        turretType: TurretType.CHIN,
+        originalCruiseMP: 6,
+        altitude: 3,
+        armor: vehicleArmor({
+          [VTOLLocation.FRONT]: 18,
+          [VTOLLocation.ROTOR]: 2,
+        }),
+        structure: vehicleArmor({
+          [VTOLLocation.FRONT]: 9,
+          [VTOLLocation.ROTOR]: 1,
+        }),
+      },
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+
+    expect(state.combatState?.kind).toBe('vehicle');
+    if (state.combatState?.kind === 'vehicle') {
+      expect(state.combatState.state.motionType).toBe(GroundMotionType.VTOL);
+      expect(state.combatState.state.altitude).toBe(3);
+      expect(
+        (state.combatState.state.armor as Record<string, number>)[
+          VTOLLocation.ROTOR
+        ],
+      ).toBe(2);
+    }
   });
 });
 
@@ -198,6 +282,36 @@ describe('createInitialUnitState — aerospace seeding', () => {
     const state = createInitialUnitState(buildAeroUnit(0), POSITION);
     if (state.combatState?.kind === 'aero') {
       expect(state.combatState.state.altitude).toBe(0);
+      expect(state.combatState.state.currentVelocity).toBe(0);
+      expect(state.combatState.state.nextVelocity).toBe(0);
+      expect(state.combatState.state.airborneState).toBe('grounded');
+    } else {
+      throw new Error('expected aero combatState');
+    }
+  });
+
+  it('honours explicit aerospace velocity fields', () => {
+    const unit = baseGameUnit({
+      id: 'aero-velocity',
+      unitType: UnitType.AEROSPACE,
+      aerospaceInit: {
+        ...SAMPLE_AERO_INIT,
+        altitude: 4,
+        currentVelocity: 7,
+        nextVelocity: 8,
+        airborneState: 'airborne',
+        dogfightWith: 'bandit-1',
+      },
+    });
+    const state = createInitialUnitState(unit, POSITION);
+    if (state.combatState?.kind === 'aero') {
+      expect(state.combatState.state).toMatchObject({
+        altitude: 4,
+        currentVelocity: 7,
+        nextVelocity: 8,
+        airborneState: 'airborne',
+        dogfightWith: 'bandit-1',
+      });
     } else {
       throw new Error('expected aero combatState');
     }

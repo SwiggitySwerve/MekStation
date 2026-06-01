@@ -1,5 +1,6 @@
 import type { IWeapon } from '@/simulation/ai/types';
 import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
+import type { IIndirectFireResolution } from '@/types/gameplay/IndirectFireInterfaces';
 
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
 import { hasReachedEdge, resolveEdge } from '@/simulation/ai/RetreatAI';
@@ -11,6 +12,7 @@ import {
 import {
   Facing,
   RangeBracket,
+  type IHexCoordinate,
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
@@ -19,6 +21,7 @@ import {
   type DiceRoller,
   defaultD6Roller,
 } from '@/utils/gameplay/diceTypes';
+import { determineArc } from '@/utils/gameplay/firingArcs';
 import {
   createRetreatTriggeredEvent,
   createUnitRetreatedEvent,
@@ -27,7 +30,6 @@ import {
   rollInitiative,
   advancePhase,
   appendEvent,
-  declareMovement,
   lockMovement,
   declareAttack,
   lockAttack,
@@ -39,20 +41,35 @@ import {
   resolvePendingPSRs,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
+import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
+import {
+  hullDownLegWeaponBlockedReason,
+  hullDownVehicleFrontWeaponBlockedReason,
+  isRepresentedVehicleAttacker,
+} from '@/utils/gameplay/hullDownRestrictions';
+import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 import {
   applyForcedWithdrawalCheck,
   applyMoralePass,
   applyWithdrawalEdgeExits,
 } from '@/utils/gameplay/morale';
+import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
+import { buildPhysicalTerrainContext } from '@/utils/gameplay/physicalAttacks/terrain';
+import { getWeaponRangeBracket } from '@/utils/gameplay/range';
 import {
-  buildMovementEventPath,
-  maxMovementCostForCapability,
-} from '@/utils/gameplay/movement/eventPath';
+  gameUnitUsesMekHorizontalCover,
+  gameUnitUsesMekWaterCover,
+  getTargetCoverInfo,
+} from '@/utils/gameplay/terrainCover';
+import { calculateTargetTerrainModifierFromHex } from '@/utils/gameplay/toHit';
+import { weaponPassesRepresentedWaterAttackRules } from '@/utils/gameplay/underwaterAttacks';
 import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
+import { weaponMountCoversTargetArc } from '@/utils/gameplay/weaponMountArcs';
 
 import { prepareAttackContext } from './attackContext';
 import { toAIUnitState } from './GameEngine.helpers';
+import { applyInteractiveSessionMovement } from './InteractiveSession.actions';
 
 /**
  * Adapt a single-d6 roller into the 2d6 `DiceRoller` shape used by
@@ -82,6 +99,78 @@ function toDiceRoller(d6: D6Roller): DiceRoller {
 const DEFAULT_ATTACKER_TONNAGE = 65;
 /** Default piloting skill when no `IGameUnit` lookup is available. */
 const DEFAULT_PILOTING_SKILL = 5;
+
+const ATTACK_RANGE_BRACKET_RANK: Readonly<Record<RangeBracket, number>> = {
+  [RangeBracket.Short]: 0,
+  [RangeBracket.Medium]: 1,
+  [RangeBracket.Long]: 2,
+  [RangeBracket.Extreme]: 3,
+  [RangeBracket.OutOfRange]: 4,
+};
+
+function bestAttackRangeBracket(
+  range: number,
+  weaponAttacks: readonly IWeaponAttack[],
+): RangeBracket {
+  if (weaponAttacks.length === 0) return RangeBracket.Short;
+
+  return weaponAttacks.reduce<RangeBracket>((best, weapon) => {
+    const bracket = getWeaponRangeBracket(range, {
+      short: weapon.shortRange,
+      medium: weapon.mediumRange,
+      long: weapon.longRange,
+      extreme: weapon.extremeRange,
+      minimum: weapon.minRange,
+    });
+    return ATTACK_RANGE_BRACKET_RANK[bracket] < ATTACK_RANGE_BRACKET_RANK[best]
+      ? bracket
+      : best;
+  }, RangeBracket.OutOfRange);
+}
+
+function isWeaponInRange(weapon: IWeaponAttack, range: number): boolean {
+  return (
+    getWeaponRangeBracket(range, {
+      short: weapon.shortRange,
+      medium: weapon.mediumRange,
+      long: weapon.longRange,
+      extreme: weapon.extremeRange,
+      minimum: weapon.minRange,
+    }) !== RangeBracket.OutOfRange
+  );
+}
+
+function weaponCoversTargetArc(
+  weapon: IWeaponAttack,
+  targetArc: ReturnType<typeof determineArc>['arc'],
+): boolean {
+  return weaponMountCoversTargetArc(weapon, targetArc);
+}
+
+function indirectInterveningTerrainEffects({
+  session,
+  grid,
+  targetHex,
+  indirectFireResolution,
+}: {
+  readonly session: IGameSession;
+  readonly grid: IHexGrid;
+  readonly targetHex: IHexCoordinate;
+  readonly indirectFireResolution?: IIndirectFireResolution;
+}): ReturnType<typeof calculateLOS>['interveningTerrainEffects'] {
+  if (
+    indirectFireResolution?.permitted !== true ||
+    indirectFireResolution.isIndirect !== true ||
+    !indirectFireResolution.spotterId
+  ) {
+    return [];
+  }
+
+  const spotter = session.currentState.units[indirectFireResolution.spotterId];
+  if (!spotter) return [];
+  return calculateLOS(spotter.position, targetHex, grid)
+    .interveningTerrainEffects;
+}
 
 /**
  * Per `wire-bot-ai-helpers-and-capstone`: invoke the bot's retreat
@@ -159,29 +248,21 @@ export function runMovementPhase(
     const moveEvt = botPlayer.playMovementPhase(aiUnit, grid, cap);
 
     if (moveEvt) {
-      const eventPath = buildMovementEventPath({
+      updatedSession = applyInteractiveSessionMovement({
+        session: updatedSession,
         grid,
-        from: unit.position,
-        to: moveEvt.payload.to,
-        movementType: moveEvt.payload.movementType,
-        maxCost: maxMovementCostForCapability(
-          cap,
-          moveEvt.payload.movementType,
-        ),
-      });
-      updatedSession = declareMovement(
-        updatedSession,
+        movementByUnit,
         unitId,
-        unit.position,
-        moveEvt.payload.to,
-        moveEvt.payload.facing as Facing,
-        moveEvt.payload.movementType,
-        moveEvt.payload.mpUsed,
-        moveEvt.payload.heatGenerated,
-        eventPath,
-      );
+        to: moveEvt.payload.to,
+        facing: moveEvt.payload.facing as Facing,
+        movementType: moveEvt.payload.movementType,
+      });
     }
-    updatedSession = lockMovement(updatedSession, unitId);
+    if (
+      updatedSession.currentState.units[unitId]?.lockState !== LockState.Locked
+    ) {
+      updatedSession = lockMovement(updatedSession, unitId);
+    }
 
     // Per `add-bot-retreat-behavior` § 7.2–7.3: after the unit locks in
     // its movement, check whether the new position touches the locked
@@ -279,33 +360,135 @@ export function runAttackPhase(
         unitId,
       );
 
-      // Wave 8 PR-K5/K11: delegate indirect-fire pre-resolution to
-      // prepareAttackContext. The returned IAttackPreResolution union
-      // threads straight through declareAttack (accepts either shape).
       const targetUnit =
         updatedSession.currentState.units[atkEvt.payload.targetId];
       const targetHex = targetUnit?.position;
+      const attackRange = targetHex ? hexDistance(unit.position, targetHex) : 3;
+      const targetArc =
+        targetHex && attackRange > 0
+          ? determineArc(
+              {
+                unitId,
+                coord: unit.position,
+                facing: unit.facing,
+                prone: false,
+              },
+              targetHex,
+            ).arc
+          : null;
+      const rangeAndArcWeaponAttacks =
+        targetArc === null
+          ? []
+          : weaponAttacks.filter(
+              (weapon) =>
+                isWeaponInRange(weapon, attackRange) &&
+                weaponCoversTargetArc(weapon, targetArc),
+            );
+      const attackerGameUnit = updatedSession.units.find(
+        (entry) => entry.id === unitId,
+      );
+      const attackerIsRepresentedVehicle = isRepresentedVehicleAttacker({
+        unitType: attackerGameUnit?.unitType,
+        combatStateKind: unit.combatState?.kind,
+      });
+      const usableWeaponAttacks =
+        grid && targetHex
+          ? rangeAndArcWeaponAttacks.filter(
+              (weapon) =>
+                weaponPassesRepresentedWaterAttackRules({
+                  grid,
+                  attackerPosition: unit.position,
+                  targetPosition: targetHex,
+                  weapon,
+                }) &&
+                !hullDownLegWeaponBlockedReason(unit.hullDown, weapon) &&
+                !hullDownVehicleFrontWeaponBlockedReason(
+                  unit.hullDown,
+                  attackerIsRepresentedVehicle,
+                  weapon,
+                ),
+            )
+          : rangeAndArcWeaponAttacks.filter(
+              (weapon) =>
+                !hullDownLegWeaponBlockedReason(unit.hullDown, weapon) &&
+                !hullDownVehicleFrontWeaponBlockedReason(
+                  unit.hullDown,
+                  attackerIsRepresentedVehicle,
+                  weapon,
+                ),
+            );
+      const attackRangeBracket = bestAttackRangeBracket(
+        attackRange,
+        usableWeaponAttacks,
+      );
+      if (
+        usableWeaponAttacks.length === 0 ||
+        attackRangeBracket === RangeBracket.OutOfRange
+      ) {
+        updatedSession = lockAttack(updatedSession, unitId);
+        continue;
+      }
       const attackPreResolution =
-        grid && targetHex && targetUnit
+        grid && targetHex && targetUnit && usableWeaponAttacks.length > 0
           ? prepareAttackContext(
               unitId,
-              atkEvt.payload.weapons,
+              usableWeaponAttacks.map((weapon) => weapon.weaponId),
               atkEvt.payload.targetId,
               updatedSession.currentState,
               grid,
             )
           : undefined;
-
+      const indirectFireResolution: IIndirectFireResolution | undefined =
+        attackPreResolution?.kind === 'indirect'
+          ? attackPreResolution.resolution
+          : undefined;
+      const targetPartialCover =
+        grid && targetHex
+          ? getTargetCoverInfo(grid, unit.position, targetHex, {
+              horizontalCoverEligible: gameUnitUsesMekHorizontalCover(
+                updatedSession.units.find(
+                  (entry) => entry.id === atkEvt.payload.targetId,
+                ),
+              ),
+              targetHexWaterCoverEligible: gameUnitUsesMekWaterCover(
+                updatedSession.units.find(
+                  (entry) => entry.id === atkEvt.payload.targetId,
+                ),
+              ),
+            }).partialCover
+          : false;
+      const targetTerrainModifier =
+        grid && targetHex
+          ? calculateTargetTerrainModifierFromHex(
+              grid.hexes.get(coordToKey(targetHex)),
+            )
+          : null;
+      const directLos =
+        grid && targetHex
+          ? calculateLOS(unit.position, targetHex, grid)
+          : undefined;
       // Arc is computed inside resolveAttack at resolve time.
       updatedSession = declareAttack(
         updatedSession,
         unitId,
         atkEvt.payload.targetId,
-        weaponAttacks,
-        3,
-        RangeBracket.Short,
+        usableWeaponAttacks,
+        attackRange,
+        attackRangeBracket,
         attackPreResolution,
         targetHex,
+        targetPartialCover,
+        directLos?.hasLOS
+          ? directLos.interveningTerrainEffects
+          : grid && targetHex
+            ? indirectInterveningTerrainEffects({
+                session: updatedSession,
+                grid,
+                targetHex,
+                indirectFireResolution,
+              })
+            : [],
+        targetTerrainModifier,
       );
     }
     updatedSession = lockAttack(updatedSession, unitId);
@@ -327,6 +510,7 @@ export function runPhysicalAttackPhase(
   gunneryByUnit: Map<string, number>,
   pilotingByUnit: Map<string, number>,
   d6Roller: D6Roller = defaultD6Roller,
+  grid?: IHexGrid,
 ): IGameSession {
   let updatedSession = session;
 
@@ -355,6 +539,14 @@ export function runPhysicalAttackPhase(
     const physEvt = botPlayer.playPhysicalAttackPhase(aiUnit, enemies);
     if (physEvt) {
       const piloting = pilotingByUnit.get(unitId) ?? DEFAULT_PILOTING_SKILL;
+      const targetState =
+        updatedSession.currentState.units[physEvt.payload.targetId] ?? null;
+      const attackerBinding = updatedSession.units.find(
+        (entry) => entry.id === physEvt.payload.attackerId,
+      );
+      const targetBinding = updatedSession.units.find(
+        (entry) => entry.id === physEvt.payload.targetId,
+      );
       updatedSession = declarePhysicalAttack(
         updatedSession,
         physEvt.payload.attackerId,
@@ -364,6 +556,18 @@ export function runPhysicalAttackPhase(
           attackerTonnage: DEFAULT_ATTACKER_TONNAGE,
           pilotingSkill: piloting,
           hexesMoved: unit.hexesMovedThisTurn,
+          attackerUnitType: attackerBinding?.unitType,
+          attackerMovementMode: attackerBinding?.movementMode,
+          optionalRules: updatedSession.config.optionalRules,
+          targetUnitType: targetBinding?.unitType,
+          elevationContext:
+            grid && targetState
+              ? buildPhysicalElevationContext(unit, targetState, grid)
+              : undefined,
+          terrainContext:
+            grid && targetState
+              ? buildPhysicalTerrainContext(unit, targetState, grid)
+              : undefined,
         },
       );
     }
@@ -376,6 +580,9 @@ export function runPhysicalAttackPhase(
       attackerTonnage: DEFAULT_ATTACKER_TONNAGE,
       pilotingSkill: pilotingByUnit.get(uid) ?? DEFAULT_PILOTING_SKILL,
       hexesMoved: u.hexesMovedThisTurn,
+      attackerMovementMode: updatedSession.units.find((unit) => unit.id === uid)
+        ?.movementMode,
+      optionalRules: updatedSession.config.optionalRules,
     });
   }
   // Per `add-quick-resolve-monte-carlo`: thread the seeded roller into

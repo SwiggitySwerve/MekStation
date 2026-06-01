@@ -78,6 +78,22 @@ describe('MovementTypeSwitcher', () => {
     expect(screen.getByTestId('movement-type-jump')).not.toBeDisabled();
   });
 
+  it('uses explicit run MP so the mode label matches the rules projection', () => {
+    render(
+      <MovementTypeSwitcher
+        active={MovementType.Walk}
+        walkMP={4}
+        runMP={7}
+        jumpMP={0}
+        onChange={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId('movement-type-run')).toHaveTextContent(
+      'Run (7 MP)',
+    );
+  });
+
   it('fires onChange when a button is clicked', () => {
     const onChange = jest.fn();
     render(
@@ -184,6 +200,51 @@ describe('CommitMoveButton', () => {
     const preview = screen.getByTestId('movement-heat-preview');
     expect(preview.dataset.heat).toBe('5');
     expect(preview.dataset.movementType).toBe(MovementType.Jump);
+  });
+
+  it('uses projected movement heat when the planned move provides it', () => {
+    render(
+      <CommitMoveButton
+        ready={true}
+        mpCost={6}
+        movementType={MovementType.Jump}
+        heatGenerated={7}
+        jumpHexes={2}
+        onCommit={jest.fn()}
+      />,
+    );
+    expect(screen.getByTestId('movement-heat-preview').dataset.heat).toBe('7');
+    expect(screen.getByTestId('commit-move-button')).toHaveTextContent(
+      'Commit Move (6 MP)',
+    );
+  });
+
+  it('renders projected movement mode and terrain/elevation costs before commit', () => {
+    render(
+      <CommitMoveButton
+        ready={true}
+        mpCost={4}
+        movementType={MovementType.Run}
+        movementMode="tracked"
+        terrainCost={1}
+        elevationDelta={2}
+        elevationCost={2}
+        onCommit={jest.fn()}
+      />,
+    );
+
+    const summary = screen.getByTestId('movement-commit-summary');
+    expect(summary).toHaveAttribute('data-movement-mode', 'tracked');
+    expect(summary).toHaveAttribute('data-terrain-cost', '1');
+    expect(summary).toHaveAttribute('data-elevation-delta', '2');
+    expect(summary).toHaveAttribute('data-elevation-cost', '2');
+    expect(summary).toHaveAccessibleName(
+      'Movement rules summary: mode tracked; terrain cost 1; elevation delta +2; elevation cost 2',
+    );
+    expect(summary).toHaveTextContent('Tracked');
+    expect(summary).toHaveTextContent('+1 MP');
+    expect(summary).toHaveTextContent('+2');
+    expect(summary).toHaveTextContent('+2 MP');
   });
 });
 
@@ -299,7 +360,7 @@ describe('WeaponSelector', () => {
     expect(screen.getByTestId('weapon-checkbox-med-laser-1')).toBeDisabled();
   });
 
-  it('shows the Out-of-range badge for weapons closer than minimum range', () => {
+  it('shows a minimum-range penalty badge without disabling the weapon', () => {
     render(
       <WeaponSelector
         weapons={[lrm15]}
@@ -309,9 +370,13 @@ describe('WeaponSelector', () => {
         onToggle={jest.fn()}
       />,
     );
+    expect(screen.getByTestId('weapon-min-range-lrm15-1')).toHaveTextContent(
+      'Min +5',
+    );
     expect(
-      screen.getByTestId('weapon-out-of-range-lrm15-1'),
-    ).toBeInTheDocument();
+      screen.queryByTestId('weapon-out-of-range-lrm15-1'),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId('weapon-checkbox-lrm15-1')).not.toBeDisabled();
   });
 
   it('renders ammo count for ammo-using weapons', () => {

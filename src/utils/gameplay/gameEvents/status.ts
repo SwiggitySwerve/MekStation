@@ -2,10 +2,12 @@ import {
   GameEventType,
   GamePhase,
   ICriticalHitResolvedPayload,
+  ICriticalHitPayload,
   IAmmoExplosionPayload,
   IGameEvent,
   IHeatPayload,
   IPilotHitPayload,
+  ITerrainChangedPayload,
   IUnitDestroyedPayload,
 } from '@/types/gameplay';
 
@@ -129,6 +131,26 @@ export function createUnitDestroyedEvent(
   };
 }
 
+export function createTerrainChangedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  payload: ITerrainChangedPayload,
+): IGameEvent {
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.TerrainChanged,
+      turn,
+      phase,
+      payload.sourceUnitId,
+    ),
+    payload,
+  };
+}
+
 /**
  * Per `wire-heat-generation-and-effects` task 11.4: emitted when an
  * explosive ammo bin detonates. `source` distinguishes heat-induced
@@ -171,6 +193,38 @@ export function createAmmoExplosionEvent(
       turn,
       phase,
       unitId,
+    ),
+    payload,
+  };
+}
+
+export function createCriticalHitEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  location: string,
+  sourceUnitId?: string,
+  component?: string,
+  count?: number,
+): IGameEvent {
+  const payload: ICriticalHitPayload = {
+    unitId,
+    location,
+    ...(sourceUnitId !== undefined ? { sourceUnitId } : {}),
+    ...(component !== undefined ? { component } : {}),
+    ...(count !== undefined ? { count } : {}),
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.CriticalHit,
+      turn,
+      phase,
+      sourceUnitId ?? unitId,
     ),
     payload,
   };

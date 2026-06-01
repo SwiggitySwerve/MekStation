@@ -28,6 +28,10 @@ import {
   AbstractUnitTypeHandler,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
+import {
+  getBooleanFromRawTags,
+  hasVehicleEquipmentFeature,
+} from './vehicleFeatureTags';
 
 // ============================================================================
 // Constants
@@ -126,14 +130,22 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
 
     // Parse raw tags for additional fields
     const rawTags = document.rawTags || {};
-    const hasEnvironmentalSealing = this.getBooleanFromRaw(
+    const hasEnvironmentalSealing = getBooleanFromRawTags(
       rawTags,
       'environmentalsealing',
     );
-    const hasFlotationHull = this.getBooleanFromRaw(rawTags, 'flotationhull');
-    const isAmphibious = this.getBooleanFromRaw(rawTags, 'amphibious');
-    const hasTrailerHitch = this.getBooleanFromRaw(rawTags, 'trailerhitch');
-    const isTrailer = this.getBooleanFromRaw(rawTags, 'trailer');
+    const hasFlotationHull =
+      getBooleanFromRawTags(rawTags, 'flotationhull') ||
+      hasVehicleEquipmentFeature(equipment, 'flotationhull');
+    const isAmphibious =
+      getBooleanFromRawTags(rawTags, 'amphibious') ||
+      getBooleanFromRawTags(rawTags, 'fullyamphibious') ||
+      hasVehicleEquipmentFeature(equipment, 'fullyamphibious');
+    const limitedAmphibious =
+      getBooleanFromRawTags(rawTags, 'limitedamphibious') ||
+      hasVehicleEquipmentFeature(equipment, 'limitedamphibious');
+    const hasTrailerHitch = getBooleanFromRawTags(rawTags, 'trailerhitch');
+    const isTrailer = getBooleanFromRawTags(rawTags, 'trailer');
 
     // Internal structure type
     const internalStructureType = document.internalType || 0;
@@ -156,6 +168,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       hasEnvironmentalSealing,
       hasFlotationHull,
       isAmphibious,
+      limitedAmphibious,
       hasTrailerHitch,
       isTrailer,
       errors,
@@ -288,20 +301,6 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
    */
   private calculateMaxArmor(tonnage: number): number {
     return Math.floor(tonnage * 3.5);
-  }
-
-  /**
-   * Get boolean value from raw tags
-   */
-  private getBooleanFromRaw(
-    rawTags: Record<string, string | string[]>,
-    key: string,
-  ): boolean {
-    const value = rawTags[key];
-    if (Array.isArray(value)) {
-      return value[0]?.toLowerCase() === 'true' || value[0] === '1';
-    }
-    return value?.toLowerCase() === 'true' || value === '1';
   }
 
   /**

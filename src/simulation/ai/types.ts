@@ -3,6 +3,11 @@
  * Interfaces for bot behavior, movement, and weapon handling.
  */
 
+import type {
+  VehicleLocation,
+  VTOLLocation,
+} from '@/types/construction/UnitLocation';
+
 import {
   IHexCoordinate,
   Facing,
@@ -137,6 +142,9 @@ export interface IWeapon {
   /** Long range (hexes) */
   readonly longRange: number;
 
+  /** Extreme range (hexes), when represented for the weapon */
+  readonly extremeRange?: number;
+
   /** Damage dealt on hit */
   readonly damage: number;
 
@@ -145,6 +153,9 @@ export interface IWeapon {
 
   /** Minimum range penalty (0 = no minimum) */
   readonly minRange: number;
+
+  /** Mounted chassis location, when known. */
+  readonly location?: string;
 
   /** Ammo per ton (-1 = energy weapon, no ammo needed) */
   readonly ammoPerTon: number;
@@ -166,6 +177,19 @@ export interface IWeapon {
   readonly mountingArc?: FiringArc;
 
   /**
+   * Represented multi-arc mount coverage. Used for vehicle sponsons,
+   * unlocked turrets, and other mounts that legitimately cover more than one
+   * chassis arc. Missing means legacy omnidirectional/unknown coverage.
+   */
+  readonly mountingArcs?: readonly FiringArc[];
+
+  /** Vehicle mount location, when this weapon belongs to a vehicle. */
+  readonly vehicleMountLocation?: VehicleLocation | VTOLLocation;
+
+  /** True when the weapon is mounted in the vehicle primary turret. */
+  readonly vehicleIsTurretMounted?: boolean;
+
+  /**
    * Per `add-ai-resource-planning` (A2) design D4: optional firing-mode
    * metadata for multi-mode weapons — LB-X autocannons (cluster vs. slug),
    * Ultra / Rotary autocannons (rate of fire). When present,
@@ -182,6 +206,9 @@ export interface IWeapon {
    * with the selector module.
    */
   readonly firingModes?: IWeaponFiringModes;
+
+  /** True for represented torpedo weapons that must remain in water. */
+  readonly isTorpedo?: boolean;
 }
 
 /**

@@ -53,11 +53,27 @@ function motionLabel(motionType: VehicleMotionType | undefined): string {
   }
 }
 
+function formatVehicleAltitudeLabel(altitude: number): string {
+  return altitude <= 0 ? 'HOV' : `ALT${altitude}`;
+}
+
+function isAltitudeBadgeMotion(
+  motionType: VehicleMotionType | undefined,
+): boolean {
+  return (
+    motionType === VehicleMotionType.VTOL ||
+    motionType === VehicleMotionType.WiGE
+  );
+}
+
 export const VehicleToken = React.memo(function VehicleToken({
   token,
   eventState,
 }: VehicleTokenProps): React.ReactElement {
   const isDestroyed = token.isDestroyed || eventState.destroyed;
+  const shouldRenderAltitudeBadge =
+    isAltitudeBadgeMotion(token.vehicleMotionType) &&
+    token.altitude !== undefined;
 
   let bodyColor =
     token.side === GameSide.Player
@@ -122,6 +138,32 @@ export const VehicleToken = React.memo(function VehicleToken({
       >
         {motionLabel(token.vehicleMotionType)}
       </text>
+
+      {shouldRenderAltitudeBadge && (
+        <g transform={`translate(${HEX_SIZE * 0.42}, ${-HEX_SIZE * 0.42})`}>
+          <rect
+            x={-15}
+            y={-8}
+            width={30}
+            height={13}
+            rx={3}
+            fill={token.altitude === 0 ? '#475569' : '#1e293b'}
+            opacity={0.86}
+          />
+          <text
+            textAnchor="middle"
+            fontSize={7}
+            fontWeight="bold"
+            fill={token.altitude === 0 ? '#cbd5e1' : '#fde68a'}
+            dy={1}
+            data-testid="vehicle-altitude-badge"
+            data-vehicle-altitude-badge-motion={token.vehicleMotionType}
+            data-vehicle-altitude-badge-altitude={token.altitude}
+          >
+            {formatVehicleAltitudeLabel(token.altitude ?? 0)}
+          </text>
+        </g>
+      )}
 
       {/* Designation label below the body */}
       <text

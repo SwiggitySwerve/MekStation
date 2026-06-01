@@ -92,6 +92,8 @@ describe('Forward Observer SPA (indirectFire helper)', () => {
     // spotterWalked still true — FO cancels the penalty add but the fact stays
     expect(result.spotterWalked).toBe(true);
     expect(result.toHitPenalty).toBe(1);
+    expect(result.forwardObserverApplied).toBe(true);
+    expect(result.spotterMovementPenaltyCancelled).toBe(1);
   });
 
   // §2 Scenario: FO is a no-op when spotter is stationary
@@ -106,18 +108,22 @@ describe('Forward Observer SPA (indirectFire helper)', () => {
     expect(result.isIndirect).toBe(true);
     expect(result.spotterWalked).toBe(false);
     expect(result.toHitPenalty).toBe(1);
+    expect(result.forwardObserverApplied).toBe(false);
+    expect(result.spotterMovementPenaltyCancelled).toBe(0);
   });
 
-  // FO does NOT override run/jump ineligibility — spot-check
-  it('running spotter WITH FO SPA remains ineligible — attack rejected (no valid spotter)', () => {
+  // FO only cancels walked spotter movement in the currently represented rules.
+  it('running spotter WITH FO SPA remains legal but keeps run penalty', () => {
     const spotter = makeSpotter({
       movementType: MovementType.Run,
       pilotSpas: ['forward_observer'],
     });
     const result = resolveIndirectFire(makeRequest(spotter));
 
-    // Running spotter is screened by isEligibleSpotter before FO logic runs.
-    expect(result.permitted).toBe(false);
+    expect(result.permitted).toBe(true);
+    expect(result.toHitPenalty).toBe(3);
+    expect(result.forwardObserverApplied).toBe(false);
+    expect(result.spotterMovementPenaltyCancelled).toBe(0);
   });
 
   // pilotSpas undefined (legacy call site) — no regression

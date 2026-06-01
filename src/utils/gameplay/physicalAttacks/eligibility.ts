@@ -31,6 +31,7 @@ import {
   canKick,
   canMeleeWeapon,
   canPunch,
+  canPush,
 } from './restrictions';
 import { calculatePhysicalToHit } from './toHit';
 import {
@@ -42,6 +43,10 @@ import {
   PhysicalAttackLimb,
   PhysicalAttackType,
 } from './types';
+import {
+  isAirborneVTOLOrWiGEForPhysicalAttack,
+  isVehicleCrewStunned,
+} from './unitState';
 
 /**
  * Per `add-physical-attack-phase-ui` task 3.2: caller-supplied context
@@ -68,6 +73,12 @@ export interface IEligibilityContext {
   readonly targetMovementModifier?: number;
   /** Attacker movement modifier (used by charge to-hit). */
   readonly attackerMovementModifier?: number;
+  readonly attackerUnitType?: IPhysicalAttackInput['attackerUnitType'];
+  readonly attackerMovementMode?: IPhysicalAttackInput['attackerMovementMode'];
+  readonly attackerConversionMode?: IPhysicalAttackInput['attackerConversionMode'];
+  readonly attackerIsAirborneVTOLOrWiGE?: IPhysicalAttackInput['attackerIsAirborneVTOLOrWiGE'];
+  readonly optionalRules?: IPhysicalAttackInput['optionalRules'];
+  readonly targetUnitType?: IPhysicalAttackInput['targetUnitType'];
   /** Per-attacker presence flags for arm actuators (punches). */
   readonly lowerArmActuatorPresent?: boolean;
   readonly handActuatorPresent?: boolean;
@@ -75,6 +86,8 @@ export interface IEligibilityContext {
   readonly footActuatorPresent?: boolean;
   /** Equipped melee weapon types (hatchet / sword / mace / lance). */
   readonly meleeWeaponsEquipped?: readonly PhysicalAttackType[];
+  readonly elevationContext?: IPhysicalAttackInput['elevationContext'];
+  readonly terrainContext?: IPhysicalAttackInput['terrainContext'];
 }
 
 /**
@@ -211,17 +224,39 @@ export function getEligiblePhysicalAttacks(
     componentDamage,
     heat: attacker.heat,
     attackerProne: attacker.prone,
+    attackerHullDown: attacker.hullDown,
     hexesMoved: attacker.hexesMovedThisTurn,
     targetTonnage: context.targetTonnage,
     targetMovementModifier: context.targetMovementModifier,
     attackerMovementModifier: context.attackerMovementModifier,
     attackerRanThisTurn: context.attackerRanThisTurn,
     attackerJumpedThisTurn: context.attackerJumpedThisTurn,
+    attackerMovementMode: context.attackerMovementMode,
+    attackerConversionMode:
+      context.attackerConversionMode ?? attacker.conversionMode,
+    attackerIsAirborneVTOLOrWiGE:
+      context.attackerIsAirborneVTOLOrWiGE ??
+      isAirborneVTOLOrWiGEForPhysicalAttack(
+        attacker,
+        context.attackerMovementMode,
+      ),
+    attackerVehicleCrewStunned: isVehicleCrewStunned(attacker),
+    optionalRules: context.optionalRules,
     limbsUsedThisTurn: context.limbsUsedThisTurn,
+    attackerDestroyedLocations: attacker.destroyedLocations,
     lowerArmActuatorPresent: context.lowerArmActuatorPresent,
     handActuatorPresent: context.handActuatorPresent,
     upperLegActuatorPresent: context.upperLegActuatorPresent,
     footActuatorPresent: context.footActuatorPresent,
+    attackerUnitType: context.attackerUnitType,
+    targetUnitType: context.targetUnitType,
+    attackerPosition: attacker.position,
+    targetPosition: target.position,
+    attackerFacing: attacker.facing,
+    targetProne: target.prone,
+    targetIsAirborne: physicalTargetIsAirborne(target),
+    elevationContext: context.elevationContext,
+    terrainContext: context.terrainContext,
   } as const;
 
   const options: IPhysicalAttackOption[] = [];
@@ -292,13 +327,19 @@ export function getEligiblePhysicalAttacks(
   const dfaRestriction = canDFA(dfaInput);
   options.push(buildOption('dfa', dfaInput, dfaRestriction));
 
-  // Push — no restrictions today (the engine handles displacement
-  // rules at resolution). Always eligible when a target is adjacent.
+  // Push legality mirrors MegaMek's represented target-type, facing,
+  // prone, and elevation gates before commit. Displacement destination
+  // handling remains a resolution/intent-overlay concern.
   const pushInput: IPhysicalAttackInput = {
     ...baseInput,
     attackType: 'push',
+    weaponsFiredFromArm: [
+      ...(context.weaponsFiredFromLeftArm ?? []),
+      ...(context.weaponsFiredFromRightArm ?? []),
+    ],
   };
-  options.push(buildOption('push', pushInput, { allowed: true }));
+  const pushRestriction = canPush(pushInput);
+  options.push(buildOption('push', pushInput, pushRestriction));
 
   // Melee weapons — one row per equipped type, gated by
   // `canMeleeWeapon` (shoulder / hand / lower-arm actuator destruction
@@ -316,4 +357,14 @@ export function getEligiblePhysicalAttacks(
   }
 
   return options;
+}
+
+function physicalTargetIsAirborne(target: IUnitGameState): boolean {
+  switch (target.combatState?.kind) {
+    case 'aero':
+    case 'proto':
+      return (target.combatState.state.altitude ?? 0) > 0;
+    default:
+      return false;
+  }
 }

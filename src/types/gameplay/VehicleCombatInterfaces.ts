@@ -8,11 +8,14 @@
  * @spec openspec/changes/add-vehicle-combat-behavior/specs/vehicle-unit-system/spec.md
  */
 
+import type { EngineType } from '@/types/construction/EngineType';
+
 import {
   VehicleLocation,
   VTOLLocation,
 } from '@/types/construction/UnitLocation';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
 
 // =============================================================================
 // Hit Location (Vehicle)
@@ -47,6 +50,10 @@ export interface IVehicleHitLocationResult {
   readonly location: VehicleHitLocation;
   /** True when the table entry marks a TAC (Through-Armor Critical) trigger. */
   readonly isTAC: boolean;
+  /** True when hull-down vehicle rules fixed the location without using the table roll. */
+  readonly hullDownFixedLocation?: boolean;
+  /** Short replay/debug reason for a hull-down fixed-location result. */
+  readonly hullDownReason?: string;
 }
 
 // =============================================================================
@@ -86,12 +93,25 @@ export interface IMotiveDamageRollResult {
 export type VehicleCritKind =
   | 'none'
   | 'crew_stunned'
+  | 'crew_killed'
+  | 'commander_hit'
+  | 'copilot_hit'
+  | 'pilot_hit'
   | 'weapon_destroyed'
+  | 'weapon_jammed'
   | 'cargo_hit'
   | 'driver_hit'
   | 'fuel_tank'
   | 'engine_hit'
-  | 'ammo_explosion';
+  | 'ammo_explosion'
+  | 'stabilizer_hit'
+  | 'sensor_hit'
+  | 'turret_jammed'
+  | 'turret_locked'
+  | 'turret_destroyed'
+  | 'rotor_damage'
+  | 'rotor_destroyed'
+  | 'flight_stabilizer';
 
 /**
  * Result of a vehicle crit-table roll.
@@ -157,6 +177,10 @@ export interface IMotiveDamageState {
 export interface IVehicleCombatState {
   readonly unitId: string;
   readonly motionType: GroundMotionType;
+  /** Vehicle primary turret configuration used by vehicle-specific combat modifiers. */
+  readonly turretType?: TurretType;
+  /** Engine type used by vehicle critical-hit fuel-tank / engine-hit effects. */
+  readonly engineType?: EngineType | string | number;
   /** Armor remaining per vehicle location. */
   readonly armor: Readonly<
     Partial<Record<VehicleLocation | VTOLLocation, number>>
@@ -186,9 +210,11 @@ export interface IVehicleCombatState {
     | 'motive_immobilized'
     | 'engine_destroyed'
     | 'ammo_explosion'
+    | 'fuel_tank_explosion'
     | 'crash'
     | 'sinking'
-    | 'crew_killed';
+    | 'crew_killed'
+    | 'turret_destroyed';
 }
 
 // =============================================================================

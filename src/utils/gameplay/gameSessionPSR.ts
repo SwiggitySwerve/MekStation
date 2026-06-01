@@ -1,4 +1,8 @@
-import { IGameSession } from '@/types/gameplay';
+import type {
+  IGameSession,
+  IMovementCapability,
+  StandUpMode,
+} from '@/types/gameplay';
 
 import { type DiceRoller } from './diceTypes';
 import { resolveFall } from './fallMechanics';
@@ -17,6 +21,7 @@ import {
   isGyroDestroyed,
   resolveAllPSRs,
 } from './pilotingSkillRolls';
+import { projectStandUpPsr } from './standUpRules';
 
 export function checkAndQueueDamagePSRs(session: IGameSession): IGameSession {
   let currentSession = session;
@@ -87,7 +92,9 @@ export function resolvePendingPSRs(
       jumpJetsDestroyed: 0,
     };
 
-    if (isGyroDestroyed(componentDamage)) {
+    const gyroType = unitState.gyroType ?? unit.gyroType;
+    const optionalRules = session.config.optionalRules;
+    if (isGyroDestroyed(componentDamage, gyroType, optionalRules)) {
       const d6Roller = () => {
         const roll = diceRoller();
         return roll.dice[0];
@@ -171,6 +178,7 @@ export function resolvePendingPSRs(
       componentDamage,
       unitState.pilotWounds,
       d6Roller,
+      { gyroType, optionalRules },
     );
 
     for (const result of batchResult.results) {
@@ -279,6 +287,8 @@ export function attemptStandUp(
   session: IGameSession,
   unitId: string,
   diceRoller: DiceRoller = rollDice,
+  standUpMode: StandUpMode = 'normal',
+  movementCapability?: IMovementCapability,
 ): IGameSession {
   const { turn } = session.currentState;
   const phase = session.currentState.phase;
@@ -291,8 +301,34 @@ export function attemptStandUp(
 
   let currentSession = session;
 
-  // 1. Emit PSRTriggered so the reducer pushes the PSR onto the queue.
   const psr = createStandingUpPSR(unitId);
+  const standUpPsr = projectStandUpPsr({
+    unitState,
+    unitPiloting: unit.piloting,
+    unitType: unit.unitType,
+    movementCapability,
+    standUpMode,
+    optionalRules: session.config.optionalRules,
+  });
+
+  if (!standUpPsr.required && !standUpPsr.impossibleReason) {
+    const stoodSeq = currentSession.events.length;
+    return appendEvent(
+      currentSession,
+      createUnitStoodEvent(
+        currentSession.id,
+        stoodSeq,
+        turn,
+        phase,
+        unitId,
+        0,
+        0,
+        standUpPsr.automaticSuccessReason,
+      ),
+    );
+  }
+
+  // 1. Emit PSRTriggered so the reducer pushes the PSR onto the queue.
   const triggeredSeq = currentSession.events.length;
   currentSession = appendEvent(
     currentSession,
@@ -310,16 +346,13 @@ export function attemptStandUp(
     ),
   );
 
-  // 2. Roll the PSR: piloting skill + gyro-hit modifier + wound
-  //    modifier + trigger-specific modifier. Canonical stand-up TN is
-  //    piloting + 0 (plus any active modifiers).
-  const componentDamage = unitState.componentDamage;
-  const gyroModifier = (componentDamage?.gyroHits ?? 0) * 3;
-  const woundModifier = unitState.pilotWounds;
-  const tn =
-    unit.piloting + gyroModifier + woundModifier + psr.additionalModifier;
-  const roll = diceRoller();
-  const passed = roll.total >= tn;
+  // 2. Roll the PSR with the same modifier projection the map exposes.
+  //    Impossible stand-up targets resolve as automatic failures.
+  const tn = standUpPsr.targetNumber ?? unit.piloting;
+  const roll = standUpPsr.impossibleReason
+    ? { total: 0, dice: [0, 0] as const }
+    : diceRoller();
+  const passed = !standUpPsr.impossibleReason && roll.total >= tn;
 
   const resolvedSeq = currentSession.events.length;
   currentSession = appendEvent(
@@ -332,9 +365,9 @@ export function attemptStandUp(
       unitId,
       tn,
       roll.total,
-      gyroModifier + woundModifier,
+      standUpPsr.modifier,
       passed,
-      psr.reason,
+      standUpPsr.impossibleReason ?? psr.reason,
       psr.reasonCode,
     ),
   );

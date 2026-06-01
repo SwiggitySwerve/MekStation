@@ -1,11 +1,16 @@
 import type { IFullUnit } from '@/services/units/CanonicalUnitService';
 
+import { VehicleLocation } from '@/types/construction/UnitLocation';
+import { FiringArc } from '@/types/gameplay';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
+
 import {
   adaptUnit,
   adaptUnitFromData,
   canonicalizeWeaponId,
   getWeaponData,
 } from '../adapters/CompendiumAdapter';
+import { toMovementCapability } from '../GameEngine.helpers';
 
 jest.mock('@/services/units/CanonicalUnitService', () => {
   const unitStore: Record<string, IFullUnit> = {};
@@ -137,6 +142,33 @@ function createHunchbackData(): IFullUnit {
       { id: 'medium-laser', location: 'RIGHT_ARM' },
       { id: 'small-laser', location: 'HEAD' },
     ],
+  } as unknown as IFullUnit;
+}
+
+function createVehicleData(overrides: Partial<IFullUnit> = {}): IFullUnit {
+  return {
+    id: 'manticore-heavy-tank',
+    chassis: 'Manticore',
+    variant: 'Heavy Tank',
+    tonnage: 60,
+    techBase: 'INNER_SPHERE',
+    era: 'SUCCESSION_WARS',
+    unitType: 'Vehicle',
+    engine: { type: 'FUSION', rating: 240 },
+    armor: {
+      type: 'STANDARD',
+      allocation: {
+        FRONT: 40,
+        LEFT: 30,
+        RIGHT: 30,
+        REAR: 20,
+        TURRET: 30,
+      },
+    },
+    structure: { type: 'STANDARD' },
+    movement: { walk: 4, run: 6 },
+    equipment: [],
+    ...overrides,
   } as unknown as IFullUnit;
 }
 
@@ -326,6 +358,120 @@ describe('CompendiumAdapter', () => {
         warnSpy.mockRestore();
       }
     });
+
+    it('resolves vehicle equipmentId mounts and preserves chassis weapon arcs', () => {
+      const result = adaptUnitFromData(
+        createVehicleData({
+          equipment: [
+            {
+              id: 'mount-0',
+              equipmentId: 'AC/5',
+              name: 'AC/5',
+              location: VehicleLocation.REAR,
+              isTurretMounted: false,
+              isSponsonMounted: false,
+            },
+          ],
+        }),
+      );
+
+      expect(result.weapons).toHaveLength(1);
+      expect(result.weapons[0]).toMatchObject({
+        name: 'AC/5',
+        mountingArc: FiringArc.Rear,
+        mountingArcs: [FiringArc.Rear],
+        vehicleMountLocation: VehicleLocation.REAR,
+        vehicleIsTurretMounted: false,
+      });
+    });
+
+    it('uses a represented weapon name when a vehicle mount id is only a slot id', () => {
+      const result = adaptUnitFromData(
+        createVehicleData({
+          equipment: [
+            {
+              id: 'mount-0',
+              name: 'Medium Laser',
+              location: VehicleLocation.FRONT,
+              isTurretMounted: false,
+              isSponsonMounted: false,
+            },
+          ],
+        }),
+      );
+
+      expect(result.weapons).toHaveLength(1);
+      expect(result.weapons[0]).toMatchObject({
+        name: 'Medium Laser',
+        mountingArc: FiringArc.Front,
+        vehicleMountLocation: VehicleLocation.FRONT,
+        vehicleIsTurretMounted: false,
+      });
+    });
+
+    it('preserves represented vehicle sponson mounts as front plus same-side arcs', () => {
+      const result = adaptUnitFromData(
+        createVehicleData({
+          equipment: [
+            {
+              id: 'mount-0',
+              equipmentId: 'Medium Laser',
+              name: 'Medium Laser',
+              location: VehicleLocation.LEFT,
+              isTurretMounted: false,
+              isSponsonMounted: true,
+            },
+          ],
+        }),
+      );
+
+      expect(result.weapons).toHaveLength(1);
+      expect(result.weapons[0].mountingArc).toBeUndefined();
+      expect(result.weapons[0].mountingArcs).toEqual([
+        FiringArc.Front,
+        FiringArc.Left,
+      ]);
+      expect(result.weapons[0]).toMatchObject({
+        vehicleMountLocation: VehicleLocation.LEFT,
+        vehicleIsTurretMounted: false,
+      });
+    });
+
+    it('preserves represented vehicle turret mounts as all chassis arcs', () => {
+      const result = adaptUnitFromData(
+        createVehicleData({
+          turret: {
+            type: TurretType.SINGLE,
+            maxWeight: 6,
+            currentWeight: 0,
+            rotationArc: 360,
+          },
+          equipment: [
+            {
+              id: 'mount-0',
+              equipmentId: 'PPC',
+              name: 'PPC',
+              location: VehicleLocation.TURRET,
+              isTurretMounted: true,
+              isSponsonMounted: false,
+            },
+          ],
+        }),
+      );
+
+      expect(result.weapons).toHaveLength(1);
+      expect(result.weapons[0].mountingArc).toBeUndefined();
+      expect(result.weapons[0].mountingArcs).toEqual([
+        FiringArc.Front,
+        FiringArc.Left,
+        FiringArc.Right,
+        FiringArc.Rear,
+      ]);
+      expect(result.weapons[0]).toMatchObject({
+        vehicleMountLocation: VehicleLocation.TURRET,
+        vehicleIsTurretMounted: true,
+      });
+    });
   });
 
   describe('adaptUnitFromData — Atlas AS7-D', () => {
@@ -333,6 +479,7 @@ describe('CompendiumAdapter', () => {
       const result = adaptUnitFromData(createAtlasData());
       expect(result.id).toBe('atlas-as7-d');
       expect(result.side).toBe('player');
+      expect(result.tonnage).toBe(100);
     });
 
     it('should have correct movement (walk 3, run 5, jump 0)', () => {
@@ -340,6 +487,627 @@ describe('CompendiumAdapter', () => {
       expect(result.walkMP).toBe(3);
       expect(result.runMP).toBe(5);
       expect(result.jumpMP).toBe(0);
+      expect(result.movementHeatProfile).toBe('mek');
+    });
+
+    it('should preserve represented gyro type for runtime stand-up rules', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        gyro: { type: 'Heavy-Duty Gyro' },
+      } as unknown as IFullUnit);
+
+      expect(result.gyroType).toBe('Heavy-Duty Gyro');
+    });
+
+    it('should preserve no-arms quirk as represented stand-up capability', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        quirks: ['no_arms'],
+      } as unknown as IFullUnit);
+
+      expect(result.standUpCapability).toEqual({
+        noMinimalArmsQuirk: true,
+      });
+      expect(toMovementCapability(result).standUpCapability).toEqual({
+        noMinimalArmsQuirk: true,
+      });
+    });
+
+    it('should preserve represented TacOps stand-up arm actuator source fields', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        standUpCapability: {
+          tacOpsAttemptingStand: true,
+          armActuators: { left: 'shoulder', right: 'Lower Arm' },
+        },
+      } as unknown as IFullUnit);
+
+      expect(result.standUpCapability).toEqual({
+        tacOpsAttemptingStand: true,
+        armActuators: { left: 'shoulder', right: 'lower_arm' },
+      });
+      expect(toMovementCapability(result).standUpCapability).toEqual({
+        tacOpsAttemptingStand: true,
+        armActuators: { left: 'shoulder', right: 'lower_arm' },
+      });
+    });
+
+    it('should preserve represented TacOps stand-up arm actuator movement fields', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        movement: {
+          walk: 3,
+          jump: 0,
+          tacops_attempting_stand: true,
+          left_arm_actuator: 'Upper Arm',
+          rightArmActuator: 'hand',
+        },
+      } as unknown as IFullUnit);
+
+      expect(result.standUpCapability).toEqual({
+        tacOpsAttemptingStand: true,
+        armActuators: { left: 'upper_arm', right: 'hand' },
+      });
+      expect(toMovementCapability(result).standUpCapability).toEqual({
+        tacOpsAttemptingStand: true,
+        armActuators: { left: 'upper_arm', right: 'hand' },
+      });
+    });
+
+    it.each(['Quad', 'Quad Omnimech'] as const)(
+      'should derive represented quad stand-up leg profile from %s configuration',
+      (configuration) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          configuration,
+        } as unknown as IFullUnit);
+
+        expect(result.standUpCapability).toEqual({
+          standUpLegProfile: 'quad',
+        });
+        expect(toMovementCapability(result).standUpCapability).toEqual({
+          standUpLegProfile: 'quad',
+        });
+      },
+    );
+
+    it('should not derive normal quad stand-up profile from QuadVee configuration alone', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        configuration: 'QuadVee',
+      } as unknown as IFullUnit);
+
+      expect(result.standUpCapability).toBeUndefined();
+      expect(toMovementCapability(result).standUpCapability).toBeUndefined();
+    });
+
+    it('should derive represented Mek entity height for movement capability', () => {
+      const result = adaptUnitFromData(createAtlasData());
+
+      expect(result.unitHeight).toBe(1);
+      expect(toMovementCapability(result).unitHeight).toBe(1);
+    });
+
+    it('should derive represented super-heavy Mek entity height', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        tonnage: 135,
+        weightClass: 'Super Heavy',
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(2);
+      expect(toMovementCapability(result).unitHeight).toBe(2);
+    });
+
+    it.each([
+      ['Mek', 1],
+      ['AirMek', 0],
+      ['Fighter', 0],
+      [2, 0],
+    ] as const)(
+      'should derive represented LAM entity height from %s conversion mode',
+      (conversionMode, height) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          unitType: 'LandAirMek',
+          conversionMode,
+        } as unknown as IFullUnit);
+
+        expect(result.unitHeight).toBe(height);
+        expect(toMovementCapability(result).unitHeight).toBe(height);
+        expect(toMovementCapability(result).unitHeightProfile).toEqual({
+          kind: 'lam',
+          standingHeight: 1,
+        });
+      },
+    );
+
+    it.each([
+      ['Mek', 1],
+      ['Vehicle', 0],
+      [1, 0],
+      ['Tracked', 0],
+    ] as const)(
+      'should derive represented QuadVee entity height from %s conversion mode',
+      (conversionMode, height) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          unitType: 'QuadVee',
+          conversionMode:
+            typeof conversionMode === 'number' ? conversionMode : undefined,
+          motionType:
+            typeof conversionMode === 'string' && conversionMode === 'Tracked'
+              ? conversionMode
+              : 'Quad',
+          ...(typeof conversionMode === 'string' && conversionMode !== 'Tracked'
+            ? { conversionMode }
+            : {}),
+        } as unknown as IFullUnit);
+
+        expect(result.unitHeight).toBe(height);
+        expect(toMovementCapability(result).unitHeight).toBe(height);
+        expect(toMovementCapability(result).unitHeightProfile).toEqual({
+          kind: 'quadvee',
+          standingHeight: 1,
+        });
+      },
+    );
+
+    it('should derive represented LAM height from a generic Mek configuration', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'BATTLEMECH',
+        configuration: 'LAM',
+        movement: {
+          walk: 6,
+          jump: 0,
+          conversionMode: 'AirMek',
+        },
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(0);
+      expect(toMovementCapability(result).unitHeight).toBe(0);
+    });
+
+    it('should preserve explicit represented unit height over derived defaults', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'VEHICLE',
+        motionType: 'Naval',
+        movement: {
+          cruiseMP: 3,
+          flankMP: 5,
+          jumpMP: 0,
+          entityHeight: 1.9,
+        },
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(1);
+      expect(toMovementCapability(result)).toMatchObject({
+        movementMode: 'naval',
+        unitHeight: 1,
+      });
+    });
+
+    it('should derive represented super-heavy VTOL entity height', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'VEHICLE',
+        motionType: 'VTOL',
+        tonnage: 35,
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(1);
+      expect(toMovementCapability(result)).toMatchObject({
+        movementMode: 'vtol',
+        unitHeight: 1,
+      });
+    });
+
+    it('should derive represented non-super-heavy VTOL entity height', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'VTOL',
+        motionType: 'VTOL',
+        tonnage: 25,
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(0);
+      expect(toMovementCapability(result)).toMatchObject({
+        movementMode: 'vtol',
+        unitHeight: 0,
+      });
+    });
+
+    it('should derive represented support VTOL entity height from unit identity', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'SupportVTOL',
+        tonnage: 31,
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(1);
+      expect(toMovementCapability(result).unitHeight).toBe(1);
+    });
+
+    it.each([
+      ['SuperHeavyTank', 1],
+      ['LargeSupportTank', 1],
+    ] as const)(
+      'should derive represented %s entity height',
+      (unitType, height) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          unitType,
+          motionType: 'Tracked',
+        } as unknown as IFullUnit);
+
+        expect(result.unitHeight).toBe(height);
+        expect(toMovementCapability(result).unitHeight).toBe(height);
+      },
+    );
+
+    it('should derive represented super-heavy vehicle entity height', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'VEHICLE',
+        motionType: 'Tracked',
+        isSuperheavy: true,
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(1);
+      expect(toMovementCapability(result).unitHeight).toBe(1);
+    });
+
+    it.each([
+      ['Small Craft', undefined, 1],
+      ['SmallCraft', { altitude: 2 }, 0],
+      ['DropShip', { motionType: 'Spheroid' }, 9],
+      ['DropShip', { motionType: 'Aerodyne' }, 4],
+      ['DropShip', { configuration: 'Spheroid', motionType: 'Tracked' }, 9],
+      ['DropShip', { motionType: 'Spheroid', altitude: 1 }, 0],
+    ] as const)(
+      'should derive represented %s aerospace entity height',
+      (unitType, overrides, height) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          unitType,
+          motionType: 'Tracked',
+          ...(overrides ?? {}),
+        } as unknown as IFullUnit);
+
+        expect(result.unitHeight).toBe(height);
+        expect(toMovementCapability(result).unitHeight).toBe(height);
+      },
+    );
+
+    it('should leave state-dependent infantry mount height to explicit source data', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        name: 'Elephant',
+        unitType: 'INFANTRY',
+        motionType: 'Foot',
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBeUndefined();
+      expect(toMovementCapability(result).unitHeight).toBeUndefined();
+    });
+
+    it('should derive represented infantry mount height from nested mount size height', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'INFANTRY',
+        motionType: 'Beast',
+        infantryMount: {
+          size: { height: 1.9 },
+        },
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(1);
+      expect(toMovementCapability(result).unitHeight).toBe(1);
+      expect(toMovementCapability(result).unitHeightProfile).toEqual({
+        kind: 'infantry_mount',
+        mountedHeight: 1,
+      });
+    });
+
+    it.each([
+      ['LARGE', 0],
+      ['VERY_LARGE', 1],
+      ['MONSTROUS', 1],
+    ] as const)(
+      'should derive represented infantry mount height from MegaMek %s beast size',
+      (beastSize, height) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          unitType: 'Conventional Infantry',
+          motionType: 'Beast',
+          movement: {
+            walk: 3,
+            mountSize: beastSize,
+          },
+        } as unknown as IFullUnit);
+
+        expect(result.unitHeight).toBe(height);
+        expect(toMovementCapability(result).unitHeight).toBe(height);
+      },
+    );
+
+    it('should derive represented infantry mount height from MegaMek mount strings', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'INFANTRY',
+        motionType: 'Beast',
+        mount:
+          'Beast:Custom:Riding Beast,VERY_LARGE,7.2,5,SUBMARINE,2,1,2.0,2147483647,0,180',
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(1);
+      expect(toMovementCapability(result).unitHeight).toBe(1);
+    });
+
+    it('should derive represented infantry mount height from MegaMek sample mount names', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'INFANTRY',
+        motionType: 'Beast',
+        infantryMountName: 'Elephant',
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(1);
+      expect(toMovementCapability(result).unitHeight).toBe(1);
+    });
+
+    it('should map vehicle motion type into movement pathing mode', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'VEHICLE',
+        motionType: 'Hover',
+      } as unknown as IFullUnit);
+
+      expect(result.movementMode).toBe('hover');
+    });
+
+    it('should preserve represented vehicle water movement equipment', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'VEHICLE',
+        motionType: 'Tracked',
+        hasFlotationHull: true,
+        isAmphibious: true,
+      } as unknown as IFullUnit);
+
+      expect(result.waterCapability).toEqual({
+        fullyAmphibious: true,
+        limitedAmphibious: false,
+        flotationHull: true,
+      });
+    });
+
+    it.each([
+      ['Biped Swim', 'biped_swim'],
+      ['Quad Swim', 'quad_swim'],
+    ] as const)(
+      'should preserve %s Mek swim motion for map pathing',
+      (motionType, movementMode) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          unitType: 'BATTLEMECH',
+          motionType,
+        } as unknown as IFullUnit);
+
+        expect(result.movementMode).toBe(movementMode);
+        expect(result.movementHeatProfile).toBe('mek');
+      },
+    );
+
+    it('should preserve limited amphibious vehicle water movement equipment', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'VEHICLE',
+        motionType: 'Tracked',
+        isLimitedAmphibious: true,
+      } as unknown as IFullUnit);
+
+      expect(result.waterCapability).toEqual({
+        fullyAmphibious: false,
+        limitedAmphibious: true,
+        flotationHull: false,
+      });
+    });
+
+    it('should preserve represented Frogman water movement capability', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'PROTOMECH',
+        frogmanSpecialist: true,
+      } as unknown as IFullUnit);
+
+      expect(result.waterCapability).toEqual({
+        fullyAmphibious: false,
+        limitedAmphibious: false,
+        flotationHull: false,
+        frogmanSpecialist: true,
+      });
+    });
+
+    it.each([
+      ['Naval', 'naval'],
+      ['Hydrofoil', 'hydrofoil'],
+      ['Submarine', 'submarine'],
+      ['WiGE', 'wige'],
+      ['Rail', 'rail'],
+      ['Maglev', 'maglev'],
+    ] as const)(
+      'should preserve %s vehicle motion for map pathing',
+      (motionType, movementMode) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          unitType: 'VEHICLE',
+          motionType,
+        } as unknown as IFullUnit);
+
+        expect(result.movementMode).toBe(movementMode);
+      },
+    );
+
+    it('should read generated vehicle cruise/flank movement data', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'VEHICLE',
+        motionType: 'Tracked',
+        movement: { cruiseMP: 5, flankMP: 8, jumpMP: 0 },
+      } as unknown as IFullUnit);
+
+      expect(result.walkMP).toBe(5);
+      expect(result.runMP).toBe(8);
+      expect(result.jumpMP).toBe(0);
+      expect(result.movementMode).toBe('tracked');
+      expect(result.movementHeatProfile).toBe('none');
+    });
+
+    it('should read infantry ground/jump MP and use base infantry run MP', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'INFANTRY',
+        motiveType: 'Jump',
+        movement: { groundMP: 3, jumpMP: 3 },
+      } as unknown as IFullUnit);
+
+      // MegaMek Infantry#getRunMP returns walk MP unless optional TacOps
+      // fast infantry movement is enabled; MekStation projections do not
+      // model that optional rule yet.
+      expect(result.walkMP).toBe(3);
+      expect(result.runMP).toBe(3);
+      expect(result.jumpMP).toBe(3);
+      expect(result.movementMode).toBe('walk');
+      expect(result.movementHeatProfile).toBe('none');
+      expect(result.movementTerrainProfile).toBe('infantry');
+    });
+
+    it.each([
+      ['INFANTRY', 'Jump', 3, 4],
+      ['INFANTRY', 'Foot', 0, 2],
+      ['BATTLE_ARMOR', 'Foot', 2, 3],
+    ] as const)(
+      'should apply represented TacOps fast-infantry run MP for %s',
+      (unitType, motiveType, groundMP, expectedRunMP) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          unitType,
+          motiveType,
+          movement: { groundMP, jumpMP: 0 },
+          tacOpsFastInfantryMove: true,
+        } as unknown as IFullUnit);
+
+        expect(result.walkMP).toBe(groundMP);
+        expect(result.runMP).toBe(expectedRunMP);
+        expect(result.movementHeatProfile).toBe('none');
+      },
+    );
+
+    it.each([
+      ['MechanizedTracked', 3, 'tracked'],
+      ['MechanizedWheeled', 4, 'wheeled'],
+      ['MechanizedHover', 5, 'hover'],
+      ['MechanizedVTOL', 6, 'vtol'],
+    ] as const)(
+      'should map infantry %s motive into map pathing mode',
+      (motiveType, groundMP, movementMode) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          unitType: 'INFANTRY',
+          motiveType,
+          movement: { groundMP, jumpMP: 0 },
+        } as unknown as IFullUnit);
+
+        expect(result.walkMP).toBe(groundMP);
+        expect(result.runMP).toBe(groundMP);
+        expect(result.jumpMP).toBe(0);
+        expect(result.movementMode).toBe(movementMode);
+        expect(result.movementHeatProfile).toBe('none');
+        expect(result.movementTerrainProfile).toBeUndefined();
+        expect(result.pavementRoadBonusProfile).toBe(
+          movementMode === 'vtol' ? undefined : 'tacops_infantry',
+        );
+      },
+    );
+
+    it('should preserve infantry terrain profile for motorized infantry motive', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'INFANTRY',
+        motiveType: 'Motorized',
+        movement: { groundMP: 3, jumpMP: 0 },
+      } as unknown as IFullUnit);
+
+      expect(result.movementMode).toBe('wheeled');
+      expect(result.movementTerrainProfile).toBe('infantry');
+      expect(result.pavementRoadBonusProfile).toBe('tacops_infantry');
+    });
+
+    it('should read battle armor squad MP and VTOL motion type', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'BATTLE_ARMOR',
+        motionType: 'VTOL',
+        movement: { groundMP: 2, jumpMP: 0 },
+      } as unknown as IFullUnit);
+
+      // MegaMek BattleArmor#getRunMP also returns walk MP unless optional
+      // fast infantry movement is enabled.
+      expect(result.walkMP).toBe(2);
+      expect(result.runMP).toBe(2);
+      expect(result.jumpMP).toBe(0);
+      expect(result.movementMode).toBe('vtol');
+      expect(result.movementHeatProfile).toBe('none');
+      expect(result.movementTerrainProfile).toBeUndefined();
+    });
+
+    it('should preserve battle armor foot terrain profile', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'BATTLE_ARMOR',
+        motiveType: 'Foot',
+        movement: { groundMP: 2, jumpMP: 0 },
+      } as unknown as IFullUnit);
+
+      expect(result.walkMP).toBe(2);
+      expect(result.runMP).toBe(2);
+      expect(result.movementMode).toBe('walk');
+      expect(result.movementTerrainProfile).toBe('infantry');
+    });
+
+    it('should map battle armor UMU motion into underwater map pathing', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'BATTLE_ARMOR',
+        motiveType: 'UMU',
+        movement: { groundMP: 3, jumpMP: 0 },
+      } as unknown as IFullUnit);
+
+      expect(result.walkMP).toBe(3);
+      expect(result.runMP).toBe(3);
+      expect(result.jumpMP).toBe(0);
+      expect(result.movementMode).toBe('umu');
+      expect(result.movementHeatProfile).toBe('none');
+      expect(result.movementTerrainProfile).toBe('infantry');
+    });
+
+    it('should preserve explicit ProtoMech run MP from canonical unit data', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'PROTOMECH',
+        walkMP: 4,
+        runMP: 5,
+        jumpMP: 2,
+        movement: undefined,
+      } as unknown as IFullUnit);
+
+      expect(result.walkMP).toBe(4);
+      expect(result.runMP).toBe(5);
+      expect(result.jumpMP).toBe(2);
+      expect(result.movementHeatProfile).toBe('none');
     });
 
     it('should have 7 weapons (4 ML, 1 AC/20, 1 LRM-20, 1 SRM-6)', () => {

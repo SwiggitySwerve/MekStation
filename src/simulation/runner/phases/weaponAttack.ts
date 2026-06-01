@@ -9,13 +9,27 @@ import {
   IGameState,
   IHexGrid,
   ITargetState,
+  IToHitModifierDetail,
   RangeBracket,
 } from '@/types/gameplay';
 import { buildDefaultCriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
 import { calculateFiringArc } from '@/utils/gameplay/firingArc';
+import { isGroundToGroundGameAttack } from '@/utils/gameplay/groundToGround';
 import { hexDistance } from '@/utils/gameplay/hexMath';
-import { hexProvidesPartialCover } from '@/utils/gameplay/terrainCover';
-import { calculateToHit } from '@/utils/gameplay/toHit';
+import {
+  HULL_DOWN_FRONT_WEAPON_BLOCKED_REASON,
+  hullDownLegWeaponBlockedReason,
+  hullDownVehicleFrontWeaponBlockedReason,
+  HULL_DOWN_LEG_WEAPON_BLOCKED_REASON,
+  isRepresentedVehicleAttacker,
+} from '@/utils/gameplay/hullDownRestrictions';
+import { calculateLOS } from '@/utils/gameplay/lineOfSight';
+import { getHexCoverInfo } from '@/utils/gameplay/terrainCover';
+import {
+  calculateInterveningTerrainModifier,
+  calculateTargetTerrainModifierFromHex,
+  calculateToHit,
+} from '@/utils/gameplay/toHit';
 
 import type { IAIPlayer } from '../../ai/IAIPlayer';
 import type { IWeapon } from '../../ai/types';
@@ -40,10 +54,8 @@ export function runAttackPhase(options: {
   state: IGameState;
   botPlayer: IAIPlayer;
   /**
-   * The encounter hex grid. The weapon-attack phase reads the target hex's
-   * terrain to derive partial cover. Optional: when absent (no board loaded)
-   * no target is treated as in partial cover. The runner currently builds an
-   * all-clear grid, so partial cover stays inert until varied terrain lands.
+   * The encounter hex grid. The weapon-attack phase reads target/intervening
+   * terrain to derive target terrain modifiers and true partial cover.
    */
   grid?: IHexGrid;
   invariantRunner: InvariantRunner;
@@ -181,6 +193,55 @@ export function runAttackPhase(options: {
       const weapon: IWeapon =
         weaponLookup.get(weaponId) ?? createMinimalWeapon(weaponId);
 
+      if (hullDownLegWeaponBlockedReason(attackerNow.hullDown, weapon)) {
+        events.push(
+          createGameEvent(
+            gameId,
+            events.length,
+            GameEventType.AttackInvalid,
+            currentState.turn,
+            GamePhase.WeaponAttack,
+            {
+              attackerId: unitId,
+              targetId,
+              weaponId,
+              reason: 'InvalidTarget' as const,
+              details: HULL_DOWN_LEG_WEAPON_BLOCKED_REASON,
+            },
+            unitId,
+          ),
+        );
+        continue;
+      }
+      if (
+        hullDownVehicleFrontWeaponBlockedReason(
+          attackerNow.hullDown,
+          isRepresentedVehicleAttacker({
+            combatStateKind: attackerNow.combatState?.kind,
+          }),
+          weapon,
+        )
+      ) {
+        events.push(
+          createGameEvent(
+            gameId,
+            events.length,
+            GameEventType.AttackInvalid,
+            currentState.turn,
+            GamePhase.WeaponAttack,
+            {
+              attackerId: unitId,
+              targetId,
+              weaponId,
+              reason: 'InvalidTarget' as const,
+              details: HULL_DOWN_FRONT_WEAPON_BLOCKED_REASON,
+            },
+            unitId,
+          ),
+        );
+        continue;
+      }
+
       const distance = hexDistance(attackerNow.position, targetNow.position);
       const rangeBracket = getRangeBracket(
         distance,
@@ -211,6 +272,30 @@ export function runAttackPhase(options: {
         continue;
       }
 
+      const directLos = grid
+        ? calculateLOS(attackerNow.position, targetNow.position, grid)
+        : undefined;
+      const interveningTerrainModifier =
+        directLos?.hasLOS === true
+          ? calculateInterveningTerrainModifier(
+              directLos.interveningTerrainEffects,
+            )
+          : null;
+      // MegaMek keeps target-hex woods/smoke to-hit modifiers separate from
+      // true partial cover hit-location behavior.
+      const targetHex = grid?.hexes.get(
+        `${targetNow.position.q},${targetNow.position.r}`,
+      );
+      const targetPartialCover = getHexCoverInfo(targetHex).partialCover;
+      const targetTerrainModifier =
+        calculateTargetTerrainModifierFromHex(targetHex);
+      const damageModifiers = [
+        interveningTerrainModifier,
+        targetTerrainModifier,
+      ].filter(
+        (modifier): modifier is IToHitModifierDetail =>
+          modifier !== null && modifier !== undefined,
+      );
       const attackerState: IAttackerState = {
         // Per `add-encounter-swarm-harness` Phase 1: use the unit's real
         // gunnery so pilot skills drive hit probability, not just target
@@ -220,15 +305,8 @@ export function runAttackPhase(options: {
         gunnery: attackerNow.gunnery ?? DEFAULT_GUNNERY,
         movementType: attackerNow.movementThisTurn,
         heat: attackerNow.heat,
-        damageModifiers: [],
+        damageModifiers,
       };
-      // Partial cover is derived from the terrain of the target's own hex
-      // (Total Warfare p. 53). The runner's all-clear grid yields `false`
-      // today; the moment varied terrain lands this lights up automatically.
-      const targetHex = grid?.hexes.get(
-        `${targetNow.position.q},${targetNow.position.r}`,
-      );
-      const targetPartialCover = hexProvidesPartialCover(targetHex);
 
       const targetState: ITargetState = {
         movementType: targetNow.movementThisTurn,
@@ -236,6 +314,7 @@ export function runAttackPhase(options: {
         prone: targetNow.prone ?? false,
         immobile: targetNow.shutdown ?? false,
         partialCover: targetPartialCover,
+        hullDown: targetNow.hullDown === true,
       };
 
       const toHitCalc = calculateToHit(
@@ -243,7 +322,9 @@ export function runAttackPhase(options: {
         targetState,
         rangeBracket,
         distance,
-        weapon.minRange,
+        isGroundToGroundGameAttack(attackerNow, targetNow)
+          ? weapon.minRange
+          : 0,
       );
 
       // Wave 8 PR-K7/K11: Quick-Sim indirect-fire dispatch via the

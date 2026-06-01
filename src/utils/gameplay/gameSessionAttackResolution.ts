@@ -17,7 +17,7 @@ import {
   buildDefaultCriticalSlotManifest,
 } from './criticalHitResolution';
 import { resolveDamage as resolveDamagePipeline } from './damage';
-import { type DiceRoller } from './diceTypes';
+import { type D6Roller, type DiceRoller } from './diceTypes';
 import { calculateFiringArc } from './firingArc';
 import {
   createAmmoConsumedEvent,
@@ -40,6 +40,7 @@ import {
 } from './gameSessionAttackResolutionHelpers';
 import { invalidateSameHexAttack } from './gameSessionAttackResolutionValidation';
 import { appendEvent } from './gameSessionCore';
+import { tryResolveVehicleAttackHit } from './gameSessionVehicleAttackResolution';
 import {
   determineHitLocationFromRoll,
   isHeadHit,
@@ -51,6 +52,7 @@ export function resolveAttack(
   session: IGameSession,
   attackEvent: IGameEvent,
   diceRoller: DiceRoller = rollDice,
+  d6Roller: D6Roller = () => diceRoller().dice[0],
 ): IGameSession {
   const payload = attackEvent.payload as IAttackDeclaredPayload;
   const { attackerId, targetId, weapons, weaponAttacks, toHitNumber } = payload;
@@ -77,6 +79,7 @@ export function resolveAttack(
       continue;
     }
     const weaponName = weaponData.weaponName;
+    const weaponToHitNumber = weaponData.toHitNumber ?? toHitNumber;
 
     let ammoBinIdForResolved: string | null = null;
     const attackerStateForAmmo = currentSession.currentState.units[attackerId];
@@ -121,7 +124,7 @@ export function resolveAttack(
     }
 
     const attackRoll = diceRoller();
-    let hit = attackRoll.total >= toHitNumber;
+    let hit = attackRoll.total >= weaponToHitNumber;
 
     // Wave 8 PR-K6: spotter-liveness mid-resolution re-check.
     // Walk session.events backward to find the IndirectFireSpotterSelected
@@ -184,6 +187,25 @@ export function resolveAttack(
     const arcString = firingArcToString(firingArc);
 
     if (hit) {
+      const vehicleResolvedSession = tryResolveVehicleAttackHit({
+        session: currentSession,
+        attackerId,
+        targetId,
+        weaponId,
+        weaponData,
+        attackRollTotal: attackRoll.total,
+        toHitNumber: weaponToHitNumber,
+        attackDirection: arcString,
+        ammoBinId: ammoBinIdForResolved,
+        targetState,
+        diceRoller,
+        d6Roller,
+      });
+      if (vehicleResolvedSession) {
+        currentSession = vehicleResolvedSession;
+        continue;
+      }
+
       const locationRoll = diceRoller();
       const hitLocationResult = determineHitLocationFromRoll(
         firingArc,
@@ -204,7 +226,7 @@ export function resolveAttack(
         targetId,
         weaponId,
         attackRoll.total,
-        toHitNumber,
+        weaponToHitNumber,
         true,
         location,
         damage,
@@ -225,6 +247,7 @@ export function resolveAttack(
         damageState,
         location as CombatLocation,
         damage,
+        d6Roller,
       );
 
       // Per `integrate-damage-pipeline` tasks 3-5: emit the ordered event
@@ -333,10 +356,6 @@ export function resolveAttack(
         }
       }
 
-      const d6Roller = () => {
-        const roll = diceRoller();
-        return roll.dice[0];
-      };
       const manifest = buildDefaultCriticalSlotManifest();
       const targetComponentDamage =
         targetState.componentDamage ?? buildDefaultComponentDamageState();
@@ -489,7 +508,7 @@ export function resolveAttack(
         targetId,
         weaponId,
         attackRoll.total,
-        toHitNumber,
+        weaponToHitNumber,
         false,
         undefined,
         undefined,
@@ -507,12 +526,13 @@ export function resolveAttack(
 export function resolveAllAttacks(
   session: IGameSession,
   diceRoller: DiceRoller = rollDice,
+  d6Roller: D6Roller = () => diceRoller().dice[0],
 ): IGameSession {
   let currentSession = session;
   for (const event of session.events) {
     if (event.type !== GameEventType.AttackDeclared) continue;
     if (event.turn !== session.currentState.turn) continue;
-    currentSession = resolveAttack(currentSession, event, diceRoller);
+    currentSession = resolveAttack(currentSession, event, diceRoller, d6Roller);
   }
   return currentSession;
 }

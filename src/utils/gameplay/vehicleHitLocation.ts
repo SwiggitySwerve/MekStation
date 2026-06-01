@@ -140,6 +140,79 @@ export function getVehicleHitLocationTable(
 export interface IVehicleHitLocationOptions {
   /** True when the target is a VTOL (roll-of-12 from Front/Rear → Rotor). */
   readonly isVTOL?: boolean;
+  /** Fixed-location rules for hull-down vehicles and vehicle-mode QuadVees. */
+  readonly hullDown?: {
+    /** True when the target is currently hull-down. */
+    readonly active?: boolean;
+    /** True when the target entered hull-down through a backward movement step. */
+    readonly backedIntoHullDown?: boolean;
+    /** True when the target has a represented turret location available. */
+    readonly hasTurret?: boolean;
+    /** True when caller rules intentionally ignore turret assignment. */
+    readonly ignoreTurret?: boolean;
+  };
+}
+
+const HULL_DOWN_FIXED_DICE: readonly [number, number] = [0, 0];
+
+function directionToFixedLocation(
+  direction: VehicleAttackDirection,
+): VehicleHitLocation {
+  switch (direction) {
+    case 'front':
+      return 'front';
+    case 'left':
+      return 'left_side';
+    case 'right':
+      return 'right_side';
+    case 'rear':
+      return 'rear';
+  }
+}
+
+export function getHullDownVehicleFixedLocation(
+  direction: VehicleAttackDirection,
+  options: IVehicleHitLocationOptions,
+): VehicleHitLocation | undefined {
+  const hullDown = options.hullDown;
+  if (hullDown?.active !== true) {
+    return undefined;
+  }
+
+  const moveInDirection =
+    hullDown.backedIntoHullDown === true ? 'rear' : 'front';
+  const protectedByHull =
+    direction === moveInDirection ||
+    direction === 'left' ||
+    direction === 'right';
+  if (!protectedByHull) {
+    return undefined;
+  }
+
+  // MegaMek splits dual turrets after this point. MekStation currently has one
+  // generic `turret` vehicle location, so both turret outcomes collapse here.
+  if (hullDown.hasTurret === true && hullDown.ignoreTurret !== true) {
+    return 'turret';
+  }
+
+  return directionToFixedLocation(direction);
+}
+
+function createHullDownFixedResult(
+  direction: VehicleAttackDirection,
+  location: VehicleHitLocation,
+  dice: readonly [number, number] = HULL_DOWN_FIXED_DICE,
+): IVehicleHitLocationResult {
+  const [d1, d2] = dice;
+  return {
+    dice: [d1, d2],
+    roll: d1 + d2,
+    direction,
+    location,
+    isTAC: false,
+    hullDownFixedLocation: true,
+    hullDownReason: 'vehicle-hull-down-fixed-location',
+  };
 }
 
 /**
@@ -150,6 +223,11 @@ export function determineVehicleHitLocation(
   diceRoller: D6Roller = defaultD6Roller,
   options: IVehicleHitLocationOptions = {},
 ): IVehicleHitLocationResult {
+  const fixedLocation = getHullDownVehicleFixedLocation(direction, options);
+  if (fixedLocation) {
+    return createHullDownFixedResult(direction, fixedLocation);
+  }
+
   const dice = roll2d6(diceRoller);
   return determineVehicleHitLocationFromRoll(
     direction,
@@ -167,6 +245,11 @@ export function determineVehicleHitLocationFromRoll(
   dice: readonly [number, number],
   options: IVehicleHitLocationOptions = {},
 ): IVehicleHitLocationResult {
+  const fixedLocation = getHullDownVehicleFixedLocation(direction, options);
+  if (fixedLocation) {
+    return createHullDownFixedResult(direction, fixedLocation, dice);
+  }
+
   const [d1, d2] = dice;
   const roll = d1 + d2;
 

@@ -14,6 +14,8 @@ import { MovementType } from '@/types/gameplay';
 
 import type { UnitThermalVisualState } from './UnitTokenForType.projectors';
 
+export type IsometricVisibilityRule = 'hidden' | 'lastKnown';
+
 export function renderFogMarker(token: IUnitToken): React.ReactElement | null {
   if (token.fogStatus !== 'hidden' && token.fogStatus !== 'lastKnown') {
     return null;
@@ -41,6 +43,49 @@ export function renderFogMarker(token: IUnitToken): React.ReactElement | null {
         fill="#f8fafc"
       >
         ?
+      </text>
+    </g>
+  );
+}
+
+export function renderIsometricVisibilityRuleBadge(
+  unitId: string,
+  rule: IsometricVisibilityRule | undefined,
+  reason: string | undefined,
+): React.ReactElement | null {
+  if (!rule || !reason) return null;
+
+  const label = rule === 'hidden' ? 'FOG' : 'LAST';
+  const stroke = rule === 'hidden' ? '#94a3b8' : '#f59e0b';
+
+  return (
+    <g
+      pointerEvents="none"
+      data-testid={`isometric-visibility-rule-${unitId}`}
+      data-isometric-visibility-rule={rule}
+      data-isometric-visibility-rule-reason={reason}
+    >
+      <title>{reason}</title>
+      <rect
+        x={-20}
+        y={-61}
+        width={40}
+        height={14}
+        rx={3}
+        fill="#111827"
+        fillOpacity={0.94}
+        stroke={stroke}
+        strokeWidth={1}
+      />
+      <text
+        x={0}
+        y={-51}
+        textAnchor="middle"
+        fontSize={8}
+        fontWeight="bold"
+        fill="#f8fafc"
+      >
+        {label}
       </text>
     </g>
   );

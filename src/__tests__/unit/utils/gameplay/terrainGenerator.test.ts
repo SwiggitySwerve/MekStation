@@ -721,6 +721,79 @@ describe('terrainGenerator', () => {
         );
       });
 
+      it('assigns stable ids to connected generated building components', () => {
+        const width = 26;
+        const height = 26;
+        const config: TerrainGeneratorConfig = {
+          width,
+          height,
+          biome: 'temperate',
+          seed: 71,
+          presetFeatures: [
+            { type: TerrainType.Building, density: 0.15, clusterSize: 2 },
+          ],
+        };
+        const grid = generateTerrain(config);
+
+        const keyFor = (hex: IHexTerrain): string =>
+          `${hex.coordinate.q},${hex.coordinate.r}`;
+        const buildingsByKey = new Map(
+          grid
+            .filter((h) => h.features[0].type === TerrainType.Building)
+            .map((h) => [keyFor(h), h]),
+        );
+        expect(buildingsByKey.size).toBeGreaterThan(0);
+
+        for (const hex of Array.from(buildingsByKey.values())) {
+          expect(hex.features[0].level).toBeGreaterThan(0);
+          expect(hex.features[0].buildingId).toMatch(/^building-\d+-\d+$/);
+        }
+
+        const visited = new Set<string>();
+        const componentIds = new Set<string>();
+        let componentCount = 0;
+
+        for (const startKey of Array.from(buildingsByKey.keys())) {
+          if (visited.has(startKey)) continue;
+
+          componentCount++;
+          const frontier = [startKey];
+          visited.add(startKey);
+          const idsInComponent = new Set<string>();
+
+          while (frontier.length > 0) {
+            const key = frontier.pop();
+            if (!key) continue;
+            const hex = buildingsByKey.get(key);
+            if (!hex) continue;
+
+            const buildingId = hex.features[0].buildingId;
+            expect(buildingId).toBeDefined();
+            idsInComponent.add(buildingId ?? '');
+
+            const { q, r } = hex.coordinate;
+            const neighbours = [
+              `${q + 1},${r}`,
+              `${q - 1},${r}`,
+              `${q},${r + 1}`,
+              `${q},${r - 1}`,
+            ];
+            for (const neighbourKey of neighbours) {
+              if (!buildingsByKey.has(neighbourKey)) continue;
+              if (visited.has(neighbourKey)) continue;
+              visited.add(neighbourKey);
+              frontier.push(neighbourKey);
+            }
+          }
+
+          expect(idsInComponent.size).toBe(1);
+          componentIds.add(Array.from(idsInComponent)[0]);
+        }
+
+        expect(componentIds.size).toBe(componentCount);
+        expect(generateTerrain(config)).toEqual(grid);
+      });
+
       // Scenario: Road tracing skipped on a tiny grid
       it('skips road tracing on a 2x2 grid without error', () => {
         let grid: readonly IHexTerrain[] = [];

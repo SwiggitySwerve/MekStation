@@ -37,6 +37,8 @@ import {
   calculateImmobileModifier,
   calculatePartialCoverModifier,
   calculateHullDownModifier,
+  calculateTargetTerrainModifier,
+  calculateTargetTerrainModifierFromHex,
   getTerrainToHitModifier,
   // Phase 10 modifier functions
   calculatePilotWoundModifier,
@@ -784,6 +786,8 @@ describe('calculateHeatModifier', () => {
 // =============================================================================
 
 describe('calculateMinimumRangeModifier', () => {
+  // MegaMek parity: megamek/common/compute/Compute.java applies
+  // `(minimumRange - distance) + 1` when distance is at or inside minimum.
   describe('no minimum range', () => {
     it('should return null when minRange is 0', () => {
       const modifier = calculateMinimumRangeModifier(1, 0);
@@ -797,9 +801,9 @@ describe('calculateMinimumRangeModifier', () => {
   });
 
   describe('target outside minimum range', () => {
-    it('should return null when range equals minRange', () => {
+    it('should return +1 when range equals minRange', () => {
       const modifier = calculateMinimumRangeModifier(3, 3);
-      expect(modifier).toBeNull();
+      expect(modifier?.value).toBe(1);
     });
 
     it('should return null when range exceeds minRange', () => {
@@ -809,19 +813,19 @@ describe('calculateMinimumRangeModifier', () => {
   });
 
   describe('target inside minimum range', () => {
-    it('should return +1 for 1 hex under minimum', () => {
+    it('should return +2 for 1 hex under minimum', () => {
       const modifier = calculateMinimumRangeModifier(2, 3);
-      expect(modifier?.value).toBe(1);
+      expect(modifier?.value).toBe(2);
     });
 
-    it('should return +3 for 3 hexes under minimum', () => {
+    it('should return +4 for 3 hexes under minimum', () => {
       const modifier = calculateMinimumRangeModifier(0, 3);
-      expect(modifier?.value).toBe(3);
+      expect(modifier?.value).toBe(4);
     });
 
-    it('should return +5 for LRM with minRange 6 at range 1', () => {
+    it('should return +6 for LRM with minRange 6 at range 1', () => {
       const modifier = calculateMinimumRangeModifier(1, 6);
-      expect(modifier?.value).toBe(5);
+      expect(modifier?.value).toBe(6);
     });
   });
 
@@ -1019,8 +1023,8 @@ describe('calculateToHit', () => {
     const target = createTestTargetState();
     const result = calculateToHit(attacker, target, RangeBracket.Short, 2, 5);
 
-    // Gunnery 4 + Min range penalty 3 = 7
-    expect(result.finalToHit).toBe(7);
+    // Gunnery 4 + Min range penalty 4 = 8
+    expect(result.finalToHit).toBe(8);
   });
 
   it('should include prone modifier (close range)', () => {
@@ -1210,8 +1214,8 @@ describe('calculateToHitFromContext', () => {
     });
     const result = calculateToHitFromContext(context, 5);
 
-    // Gunnery 4 + Min range penalty 3 = 7
-    expect(result.finalToHit).toBe(7);
+    // Gunnery 4 + Min range penalty 4 = 8
+    expect(result.finalToHit).toBe(8);
   });
 });
 
@@ -1698,8 +1702,8 @@ describe('Integration: Full to-hit calculations', () => {
     const target = createTestTargetState();
     const result = calculateToHit(attacker, target, RangeBracket.Short, 1, 6);
 
-    // Gunnery 4 + MinRange penalty 5 = 9
-    expect(result.finalToHit).toBe(9);
+    // Gunnery 4 + MinRange penalty 6 = 10
+    expect(result.finalToHit).toBe(10);
   });
 });
 
@@ -1771,6 +1775,71 @@ describe('Edge cases', () => {
 // =============================================================================
 // getTerrainToHitModifier Tests
 // =============================================================================
+
+describe('calculateTargetTerrainModifier', () => {
+  it('adds target-hex woods as terrain, not partial cover', () => {
+    const modifier = calculateTargetTerrainModifier([
+      { type: TerrainType.LightWoods, level: 1 },
+    ]);
+
+    expect(modifier).toEqual({
+      name: 'Target Terrain',
+      value: 1,
+      source: 'terrain',
+      description: 'Target in light woods: +1',
+    });
+  });
+
+  it('stacks target-hex smoke and woods per MegaMek target terrain rules', () => {
+    const modifier = calculateTargetTerrainModifier([
+      { type: TerrainType.LightWoods, level: 1 },
+      { type: TerrainType.Smoke, level: 1 },
+    ]);
+
+    expect(modifier).toEqual({
+      name: 'Target Terrain',
+      value: 2,
+      source: 'terrain',
+      description: 'Target in woods and smoke: +2',
+    });
+  });
+
+  it('uses heavy smoke as a +2 target terrain modifier', () => {
+    const modifier = calculateTargetTerrainModifier([
+      { type: TerrainType.Smoke, level: 2 },
+    ]);
+
+    expect(modifier).toEqual(
+      expect.objectContaining({
+        name: 'Target Terrain',
+        value: 2,
+        description: 'Target in heavy smoke: +2',
+      }),
+    );
+  });
+
+  it('parses encoded target terrain from a map hex', () => {
+    const modifier = calculateTargetTerrainModifierFromHex({
+      terrain: JSON.stringify([
+        { type: TerrainType.HeavyWoods, level: 1 },
+        { type: TerrainType.Smoke, level: 2 },
+      ]),
+    });
+
+    expect(modifier).toEqual(
+      expect.objectContaining({
+        value: 4,
+        description: 'Target in woods and smoke: +4',
+      }),
+    );
+  });
+
+  it('returns null when target terrain has no source-pinned target modifier', () => {
+    expect(
+      calculateTargetTerrainModifier([{ type: TerrainType.Clear, level: 0 }]),
+    ).toBeNull();
+  });
+});
 
 describe('getTerrainToHitModifier', () => {
   describe('clear terrain', () => {
@@ -2170,6 +2239,16 @@ describe('calculateIndirectFireModifier', () => {
     expect(mod?.value).toBe(2);
   });
 
+  it('should use explicit spotter movement penalty when supplied', () => {
+    const info: IIndirectFire = {
+      isIndirect: true,
+      spotterWalked: false,
+      spotterMovementPenalty: 3,
+    };
+    const mod = calculateIndirectFireModifier(info);
+    expect(mod?.value).toBe(4);
+  });
+
   it('should set source to other', () => {
     const info: IIndirectFire = { isIndirect: true, spotterWalked: false };
     expect(calculateIndirectFireModifier(info)?.source).toBe('other');
@@ -2483,44 +2562,45 @@ describe('calculateHullDownModifier', () => {
     expect(calculateHullDownModifier(false, false)).toBeNull();
   });
 
-  it('should return +1 when hull-down and no terrain partial cover', () => {
+  it('should return null when hull-down lacks LOS/terrain partial cover', () => {
     const mod = calculateHullDownModifier(true, false);
-    expect(mod).not.toBeNull();
-    expect(mod?.value).toBe(1);
+    expect(mod).toBeNull();
   });
 
-  it('should return null when hull-down but already has terrain partial cover', () => {
-    // Hull-down does not stack with terrain partial cover
-    expect(calculateHullDownModifier(true, true)).toBeNull();
+  it('should return +2 when hull-down has LOS/terrain partial cover', () => {
+    const mod = calculateHullDownModifier(true, true);
+    expect(mod).not.toBeNull();
+    expect(mod?.value).toBe(2);
   });
 
   it('should set source to terrain', () => {
-    const mod = calculateHullDownModifier(true, false);
+    const mod = calculateHullDownModifier(true, true);
     expect(mod?.source).toBe('terrain');
   });
 
-  it('should set name to Hull-Down (Partial Cover)', () => {
-    const mod = calculateHullDownModifier(true, false);
-    expect(mod?.name).toBe('Hull-Down (Partial Cover)');
+  it('should set name to Hull Down', () => {
+    const mod = calculateHullDownModifier(true, true);
+    expect(mod?.name).toBe('Hull Down');
   });
 
   it('should include hull-down description', () => {
-    const mod = calculateHullDownModifier(true, false);
+    const mod = calculateHullDownModifier(true, true);
     expect(mod?.description).toContain('hull-down');
   });
 });
 
 describe('calculateToHit with hull-down modifier', () => {
-  it('should apply +1 hull-down modifier to attacks against hull-down target', () => {
+  it('should apply +2 hull-down modifier to attacks against covered hull-down target', () => {
     const attacker = createTestAttackerState({ gunnery: 4 });
-    const target = createTestTargetState({ hullDown: true });
+    const target = createTestTargetState({
+      hullDown: true,
+      partialCover: true,
+    });
     const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
 
-    // Gunnery 4 + Hull-down +1 = 5
-    expect(result.finalToHit).toBe(5);
-    expect(
-      result.modifiers.some((m) => m.name === 'Hull-Down (Partial Cover)'),
-    ).toBe(true);
+    // Gunnery 4 + Partial cover 1 + Hull-down 2 = 7
+    expect(result.finalToHit).toBe(7);
+    expect(result.modifiers.some((m) => m.name === 'Hull Down')).toBe(true);
   });
 
   it('should not apply hull-down when hullDown is false', () => {
@@ -2529,9 +2609,7 @@ describe('calculateToHit with hull-down modifier', () => {
     const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
 
     expect(result.finalToHit).toBe(4);
-    expect(
-      result.modifiers.some((m) => m.name === 'Hull-Down (Partial Cover)'),
-    ).toBe(false);
+    expect(result.modifiers.some((m) => m.name === 'Hull Down')).toBe(false);
   });
 
   it('should not apply hull-down when hullDown is undefined', () => {
@@ -2540,12 +2618,10 @@ describe('calculateToHit with hull-down modifier', () => {
     const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
 
     expect(result.finalToHit).toBe(4);
-    expect(
-      result.modifiers.some((m) => m.name === 'Hull-Down (Partial Cover)'),
-    ).toBe(false);
+    expect(result.modifiers.some((m) => m.name === 'Hull Down')).toBe(false);
   });
 
-  it('should not double-stack hull-down with terrain partial cover', () => {
+  it('should stack MegaMek hull-down modifier with terrain partial cover', () => {
     const attacker = createTestAttackerState({ gunnery: 4 });
     const target = createTestTargetState({
       partialCover: true,
@@ -2553,11 +2629,9 @@ describe('calculateToHit with hull-down modifier', () => {
     });
     const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
 
-    // Gunnery 4 + partial cover +1 = 5 (hull-down suppressed because partialCover is true)
-    expect(result.finalToHit).toBe(5);
-    expect(
-      result.modifiers.some((m) => m.name === 'Hull-Down (Partial Cover)'),
-    ).toBe(false);
+    // Gunnery 4 + partial cover +1 + hull-down +2 = 7
+    expect(result.finalToHit).toBe(7);
+    expect(result.modifiers.some((m) => m.name === 'Hull Down')).toBe(true);
     expect(result.modifiers.some((m) => m.name === 'Partial Cover')).toBe(true);
   });
 
@@ -2566,10 +2640,13 @@ describe('calculateToHit with hull-down modifier', () => {
       gunnery: 4,
       movementType: MovementType.Walk,
     });
-    const target = createTestTargetState({ hullDown: true });
+    const target = createTestTargetState({
+      hullDown: true,
+      partialCover: true,
+    });
     const result = calculateToHit(attacker, target, RangeBracket.Medium, 5);
 
-    // Gunnery 4 + Medium 2 + Walk 1 + Hull-down 1 = 8
-    expect(result.finalToHit).toBe(8);
+    // Gunnery 4 + Medium 2 + Walk 1 + Partial cover 1 + Hull-down 2 = 10
+    expect(result.finalToHit).toBe(10);
   });
 });

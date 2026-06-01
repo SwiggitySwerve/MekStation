@@ -21,6 +21,7 @@
 import { create } from 'zustand';
 
 import type { InteractiveSession } from '@/engine/GameEngine';
+import type { IRuntimeMovementStateChangedPayload } from '@/types/gameplay/GameSessionMovementEvents';
 
 import {
   DEFAULT_UI_STATE,
@@ -29,6 +30,8 @@ import {
   IGameplayUIState,
   IPilotSpaSummary,
   IWeaponStatus,
+  WeaponFireMode,
+  type StandUpMode,
 } from '@/types/gameplay';
 import { RECONNECT_GRACE_MS } from '@/types/multiplayer/Protocol';
 import { logger } from '@/utils/logger';
@@ -38,10 +41,15 @@ import {
   clearPlannedMovementLogic,
   commitAttackLogic,
   commitPlannedMovementLogic,
+  enterHullDownActiveUnitLogic,
   getAttackPlanFor,
+  goProneActiveUnitLogic,
+  applyRuntimeMovementStateForSelectedUnitLogic,
   setAttackTargetLogic,
   setPlannedMovementLogic,
+  setPlannedWeaponModeLogic,
   shouldClearAttackPlanOnPhaseChange,
+  standActiveUnitLogic,
   togglePlannedWeaponLogic,
   type IAttackPlan,
   type IPlannedMovement,
@@ -127,6 +135,7 @@ interface GameplayState {
    * state. Missing key → treated the same as an empty array.
    */
   unitSpas: Record<string, readonly IPilotSpaSummary[]>;
+  weaponModesByUnitId: Record<string, Readonly<Record<string, WeaponFireMode>>>;
   /**
    * Per `add-combat-phase-ui-flows`: in-progress movement the player is
    * building in the Movement phase. `null` until they pick a
@@ -203,6 +212,16 @@ interface GameplayActions {
   setPlannedMovement: (plan: IPlannedMovement) => void;
   clearPlannedMovement: () => void;
   commitPlannedMovement: () => void;
+  /** Commit a zero-hex stand-up movement for the selected prone unit. */
+  standActiveUnit: (standUpMode?: StandUpMode) => void;
+  /** Commit a zero-hex hull-down entry movement for the selected standing unit. */
+  enterHullDownActiveUnit: () => void;
+  /** Commit a zero-hex go-prone movement for the selected hull-down unit. */
+  goProneActiveUnit: () => void;
+  /** Commit a replayable conversion or infantry mount-state update. */
+  applyRuntimeMovementState: (
+    patch: Omit<IRuntimeMovementStateChangedPayload, 'unitId'>,
+  ) => void;
   /**
    * Per `add-combat-phase-ui-flows`: Attack-phase planning actions.
    * `setAttackTarget` sets the target id when an enemy token is
@@ -213,6 +232,7 @@ interface GameplayActions {
    */
   setAttackTarget: (unitId: string | null) => void;
   togglePlannedWeapon: (weaponId: string) => void;
+  setPlannedWeaponMode: (weaponId: string, mode: WeaponFireMode) => void;
   clearAttackPlan: () => void;
   commitAttack: () => void;
   /**
@@ -259,8 +279,13 @@ const initialState: GameplayState = {
   pilotNames: {},
   heatSinks: {},
   unitSpas: {},
+  weaponModesByUnitId: {},
   plannedMovement: null,
-  attackPlan: { targetUnitId: null, selectedWeapons: [] },
+  attackPlan: {
+    targetUnitId: null,
+    selectedWeapons: [],
+    weaponModeError: null,
+  },
   previewEnabled: false,
 };
 
@@ -435,8 +460,15 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   setPlannedMovement: (plan) => setPlannedMovementLogic(plan, set),
   clearPlannedMovement: () => clearPlannedMovementLogic(set),
   commitPlannedMovement: () => commitPlannedMovementLogic(get, set),
+  standActiveUnit: (standUpMode) => standActiveUnitLogic(get, set, standUpMode),
+  enterHullDownActiveUnit: () => enterHullDownActiveUnitLogic(get, set),
+  goProneActiveUnit: () => goProneActiveUnitLogic(get, set),
+  applyRuntimeMovementState: (patch) =>
+    applyRuntimeMovementStateForSelectedUnitLogic(get, set, patch),
   setAttackTarget: (unitId) => setAttackTargetLogic(unitId, set),
   togglePlannedWeapon: (weaponId) => togglePlannedWeaponLogic(weaponId, set),
+  setPlannedWeaponMode: (weaponId, mode) =>
+    setPlannedWeaponModeLogic(weaponId, mode, set),
   clearAttackPlan: () => clearAttackPlanLogic(set),
   commitAttack: () => commitAttackLogic(get, set),
   getAttackPlan: (attackerId) => {

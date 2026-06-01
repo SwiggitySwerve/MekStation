@@ -42,6 +42,9 @@ export function applyPSRTriggered(
             reason: payload.reason,
             additionalModifier: payload.additionalModifier,
             triggerSource: payload.triggerSource,
+            ...(payload.reasonCode !== undefined
+              ? { reasonCode: payload.reasonCode }
+              : {}),
           },
         ],
       },

@@ -1,11 +1,6 @@
 import { describe, it, expect, beforeEach } from '@jest/globals';
 
-import type { IUnitToken } from '@/types/gameplay/GameplayUIInterfaces';
-
-import { TokenUnitType } from '@/types/gameplay/GameplayUIInterfaces';
-import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import {
-  Facing,
   IHexGrid,
   IHex,
   IHexCoordinate,
@@ -14,9 +9,11 @@ import { TerrainType, ITerrainFeature } from '@/types/gameplay/TerrainTypes';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import {
   calculateLOS,
+  formatLOSBlockedDetails,
   parseTerrainFeatures,
   getBlockingTerrain,
 } from '@/utils/gameplay/lineOfSight';
+import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 function createHex(
   q: number,
@@ -40,25 +37,6 @@ function createGrid(hexes: IHex[]): IHexGrid {
   return {
     config: { radius: 10 },
     hexes: hexMap,
-  };
-}
-
-function createToken(
-  unitId: string,
-  position: IHexCoordinate,
-  isDestroyed: boolean,
-): IUnitToken {
-  return {
-    unitId,
-    name: unitId,
-    side: GameSide.Opponent,
-    position,
-    facing: Facing.North,
-    isSelected: false,
-    isValidTarget: false,
-    isDestroyed,
-    designation: unitId.toUpperCase(),
-    unitType: TokenUnitType.Mech,
   };
 }
 
@@ -131,7 +109,7 @@ describe('lineOfSight', () => {
       expect(result.interveningHexes.length).toBeGreaterThan(0);
     });
 
-    it('should return hasLOS=false when heavy woods blocks', () => {
+    it('should keep LOS through a single heavy woods hex', () => {
       const hexes = [
         createHex(0, 0, TerrainType.Clear, 0),
         createHex(1, 0, TerrainType.HeavyWoods, 0),
@@ -144,15 +122,100 @@ describe('lineOfSight', () => {
       const to: IHexCoordinate = { q: 3, r: 0 };
       const result = calculateLOS(from, to, grid);
 
+      expect(result.hasLOS).toBe(true);
+      expect(result.blockingTerrain).toBeUndefined();
+      expect(result.interveningTerrainEffects).toEqual([
+        expect.objectContaining({
+          coord: { q: 1, r: 0 },
+          terrain: TerrainType.HeavyWoods,
+          modifier: 2,
+        }),
+      ]);
+    });
+
+    it('should return hasLOS=false when cumulative woods exceed the MegaMek threshold', () => {
+      const hexes = [
+        createHex(0, 0, TerrainType.Clear, 0),
+        createHex(1, 0, TerrainType.HeavyWoods, 0),
+        createHex(2, 0, TerrainType.LightWoods, 0),
+        createHex(3, 0, TerrainType.Clear, 0),
+      ];
+      const grid = createGrid(hexes);
+
+      const from: IHexCoordinate = { q: 0, r: 0 };
+      const to: IHexCoordinate = { q: 3, r: 0 };
+      const result = calculateLOS(from, to, grid);
+
+      expect(result.hasLOS).toBe(false);
+      expect(result.blockedBy).toEqual({ q: 2, r: 0 });
+      expect(result.blockingTerrain).toBe(TerrainType.LightWoods);
+    });
+
+    it('should stack smoke and woods in the same intervening hex for MegaMek LOS density', () => {
+      const hexes = [
+        createHex(0, 0, TerrainType.Clear, 0),
+        createHex(
+          1,
+          0,
+          terrainStringFromFeatures([
+            { type: TerrainType.Smoke, level: 1 },
+            { type: TerrainType.HeavyWoods, level: 1 },
+          ]),
+          0,
+        ),
+        createHex(2, 0, TerrainType.Clear, 0),
+      ];
+      const grid = createGrid(hexes);
+
+      const from: IHexCoordinate = { q: 0, r: 0 };
+      const to: IHexCoordinate = { q: 2, r: 0 };
+      const result = calculateLOS(from, to, grid);
+
       expect(result.hasLOS).toBe(false);
       expect(result.blockedBy).toEqual({ q: 1, r: 0 });
       expect(result.blockingTerrain).toBe(TerrainType.HeavyWoods);
+      expect(result.interveningTerrainEffects).toEqual([
+        {
+          coord: { q: 1, r: 0 },
+          terrain: TerrainType.Smoke,
+          modifier: 1,
+        },
+        {
+          coord: { q: 1, r: 0 },
+          terrain: TerrainType.HeavyWoods,
+          modifier: 2,
+        },
+      ]);
+      expect(formatLOSBlockedDetails(result)).toBe(
+        'Blocked by smoke and heavy woods at (1, 0)',
+      );
     });
 
-    it('should return hasLOS=false when building blocks', () => {
+    it('should keep LOS clear through a level-1 building equal to mech height', () => {
       const hexes = [
         createHex(0, 0, TerrainType.Clear, 0),
         createHex(1, 0, TerrainType.Building, 0),
+        createHex(2, 0, TerrainType.Clear, 0),
+      ];
+      const grid = createGrid(hexes);
+
+      const from: IHexCoordinate = { q: 0, r: 0 };
+      const to: IHexCoordinate = { q: 2, r: 0 };
+      const result = calculateLOS(from, to, grid);
+
+      expect(result.hasLOS).toBe(true);
+      expect(result.blockingTerrain).toBeUndefined();
+    });
+
+    it('should return hasLOS=false when a building rises above mech height', () => {
+      const hexes = [
+        createHex(0, 0, TerrainType.Clear, 0),
+        createHex(
+          1,
+          0,
+          terrainStringFromFeatures([{ type: TerrainType.Building, level: 2 }]),
+          0,
+        ),
         createHex(2, 0, TerrainType.Clear, 0),
       ];
       const grid = createGrid(hexes);
@@ -165,7 +228,7 @@ describe('lineOfSight', () => {
       expect(result.blockingTerrain).toBe(TerrainType.Building);
     });
 
-    it('should allow LOS over woods from higher elevation', () => {
+    it('should allow LOS over woods from higher elevation without adding an intervening woods effect', () => {
       const hexes = [
         createHex(0, 0, TerrainType.Clear, 3),
         createHex(1, 0, TerrainType.HeavyWoods, 0),
@@ -178,6 +241,7 @@ describe('lineOfSight', () => {
       const result = calculateLOS(from, to, grid, 4, 1);
 
       expect(result.hasLOS).toBe(true);
+      expect(result.interveningTerrainEffects).toEqual([]);
     });
 
     it('should not block LOS with light woods', () => {
@@ -226,6 +290,42 @@ describe('lineOfSight', () => {
       expect(result.hasLOS).toBe(true);
     });
 
+    it('should keep LOS clear across a level-1 hill equal to mech height', () => {
+      const hexes = [
+        createHex(0, 0, TerrainType.Clear, 0),
+        createHex(1, 0, TerrainType.Clear, 1),
+        createHex(2, 0, TerrainType.Clear, 0),
+      ];
+      const grid = createGrid(hexes);
+
+      const from: IHexCoordinate = { q: 0, r: 0 };
+      const to: IHexCoordinate = { q: 2, r: 0 };
+      const result = calculateLOS(from, to, grid);
+
+      expect(result.hasLOS).toBe(true);
+      expect(result.blockingElevation).toBeUndefined();
+    });
+
+    it('should block LOS when a hill rises above mech height', () => {
+      const hexes = [
+        createHex(0, 0, TerrainType.Clear, 0),
+        createHex(1, 0, TerrainType.Clear, 2),
+        createHex(2, 0, TerrainType.Clear, 0),
+      ];
+      const grid = createGrid(hexes);
+
+      const from: IHexCoordinate = { q: 0, r: 0 };
+      const to: IHexCoordinate = { q: 2, r: 0 };
+      const result = calculateLOS(from, to, grid);
+
+      expect(result.hasLOS).toBe(false);
+      expect(result.blockedBy).toEqual({ q: 1, r: 0 });
+      expect(result.blockingElevation).toBe(2);
+      expect(formatLOSBlockedDetails(result)).toBe(
+        'Blocked by elevation +2 at (1, 0)',
+      );
+    });
+
     it('should block LOS with building of specific level', () => {
       const buildingFeature: ITerrainFeature[] = [
         { type: TerrainType.Building, level: 3 },
@@ -245,57 +345,24 @@ describe('lineOfSight', () => {
       expect(result.blockingTerrain).toBe(TerrainType.Building);
     });
 
-    it('should block LOS when a destroyed unit occupies an intervening hex', () => {
+    it('should not treat occupied or destroyed-token hexes as LOS terrain blockers', () => {
       const from: IHexCoordinate = { q: 0, r: 0 };
       const to: IHexCoordinate = { q: 3, r: 0 };
-      const wreck = createToken('wreck-a', { q: 1, r: 0 }, true);
-
-      const result = calculateLOS(from, to, clearGrid, undefined, undefined, [
-        wreck,
+      const grid = createGrid([
+        createHex(0, 0, TerrainType.Clear, 0),
+        {
+          ...createHex(1, 0, TerrainType.Clear, 0),
+          occupantId: 'destroyed-unit',
+        },
+        createHex(2, 0, TerrainType.Clear, 0),
+        createHex(3, 0, TerrainType.Clear, 0),
       ]);
 
-      expect(result.hasLOS).toBe(false);
-      expect(result.blockedBy).toEqual({ q: 1, r: 0 });
-      expect(result.blockingUnit).toBe(wreck);
+      const result = calculateLOS(from, to, grid);
+
+      expect(result.hasLOS).toBe(true);
+      expect(result.blockedBy).toBeUndefined();
       expect(result.blockingTerrain).toBeUndefined();
-    });
-
-    it('should report the first intervening wreck when multiple wrecks block LOS', () => {
-      const from: IHexCoordinate = { q: 0, r: 0 };
-      const to: IHexCoordinate = { q: 4, r: 0 };
-      const firstWreck = createToken('wreck-a', { q: 1, r: 0 }, true);
-      const secondWreck = createToken('wreck-b', { q: 2, r: 0 }, true);
-
-      const result = calculateLOS(from, to, clearGrid, undefined, undefined, [
-        secondWreck,
-        firstWreck,
-      ]);
-
-      expect(result.hasLOS).toBe(false);
-      expect(result.blockedBy).toEqual({ q: 1, r: 0 });
-      expect(result.blockingUnit).toBe(firstWreck);
-    });
-
-    it('should not block LOS when a destroyed unit is on an endpoint', () => {
-      const from: IHexCoordinate = { q: 0, r: 0 };
-      const to: IHexCoordinate = { q: 3, r: 0 };
-      const endpointWreck = createToken('wreck-target', to, true);
-
-      const result = calculateLOS(from, to, clearGrid, undefined, undefined, [
-        endpointWreck,
-      ]);
-
-      expect(result.hasLOS).toBe(true);
-      expect(result.blockingUnit).toBeUndefined();
-    });
-
-    it('should preserve terrain-only behavior when no tokens are passed', () => {
-      const from: IHexCoordinate = { q: 0, r: 0 };
-      const to: IHexCoordinate = { q: 3, r: 0 };
-      const result = calculateLOS(from, to, clearGrid);
-
-      expect(result.hasLOS).toBe(true);
-      expect(result.blockingUnit).toBeUndefined();
     });
   });
 
@@ -305,16 +372,21 @@ describe('lineOfSight', () => {
       expect(getBlockingTerrain({ q: 0, r: 0 }, grid)).toBeUndefined();
     });
 
-    it('should return terrain type for blocking terrain', () => {
-      const grid = createGrid([createHex(0, 0, TerrainType.HeavyWoods, 0)]);
+    it('should return terrain type for directly blocking terrain', () => {
+      const grid = createGrid([createHex(0, 0, TerrainType.Building, 0)]);
       expect(getBlockingTerrain({ q: 0, r: 0 }, grid)).toBe(
-        TerrainType.HeavyWoods,
+        TerrainType.Building,
       );
     });
 
-    it('should return undefined for non-blocking terrain', () => {
+    it('should return undefined for non-blocking and cumulative woods terrain', () => {
       const grid = createGrid([createHex(0, 0, TerrainType.LightWoods, 0)]);
       expect(getBlockingTerrain({ q: 0, r: 0 }, grid)).toBeUndefined();
+
+      const heavyGrid = createGrid([
+        createHex(0, 0, TerrainType.HeavyWoods, 0),
+      ]);
+      expect(getBlockingTerrain({ q: 0, r: 0 }, heavyGrid)).toBeUndefined();
     });
 
     it('should return undefined for missing hex', () => {

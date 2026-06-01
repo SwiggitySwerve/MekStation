@@ -7,8 +7,18 @@ import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { IComponentDamageState, IPendingPSR } from '@/types/gameplay';
 
 import { defaultD6Roller } from '../diceTypes';
+import {
+  type RepresentedGyroType,
+  gyroPsrModifierForType,
+  gyroPsrModifierName,
+} from '../gyroRules';
 import { D6Roller, roll2d6 } from '../hitLocation';
 import { IPSRResult, IPSRBatchResult, IPSRModifier, PSRTrigger } from './types';
+
+export interface IPSRResolutionOptions {
+  readonly gyroType?: RepresentedGyroType;
+  readonly optionalRules?: readonly string[];
+}
 
 /**
  * Resolve a single PSR.
@@ -27,8 +37,14 @@ export function resolvePSR(
   componentDamage: IComponentDamageState,
   pilotWounds: number,
   diceRoller: D6Roller = defaultD6Roller,
+  options: IPSRResolutionOptions = {},
 ): IPSRResult {
-  const modifiers = calculatePSRModifiers(psr, componentDamage, pilotWounds);
+  const modifiers = calculatePSRModifiers(
+    psr,
+    componentDamage,
+    pilotWounds,
+    options,
+  );
 
   const totalModifier = modifiers.reduce((sum, m) => sum + m.value, 0);
 
@@ -67,6 +83,7 @@ export function resolveAllPSRs(
   componentDamage: IComponentDamageState,
   pilotWounds: number,
   diceRoller: D6Roller = defaultD6Roller,
+  options: IPSRResolutionOptions = {},
 ): IPSRBatchResult {
   if (pendingPSRs.length === 0) {
     return {
@@ -87,6 +104,7 @@ export function resolveAllPSRs(
       componentDamage,
       pilotWounds,
       diceRoller,
+      options,
     );
     results.push(result);
 
@@ -122,16 +140,25 @@ export function calculatePSRModifiers(
   psr: IPendingPSR,
   componentDamage: IComponentDamageState,
   pilotWounds: number,
+  options: IPSRResolutionOptions = {},
 ): readonly IPSRModifier[] {
   const modifiers: IPSRModifier[] = [];
+  const landingSpecificDamageModifiers =
+    usesAirMekLandingSpecificDamageModifiers(psr);
 
-  // Gyro damage: +3 per hit
-  if (componentDamage.gyroHits > 0) {
-    modifiers.push({
-      name: 'Gyro damage',
-      value: componentDamage.gyroHits * 3,
-      source: 'gyro',
-    });
+  if (!landingSpecificDamageModifiers) {
+    const gyroModifier = gyroPsrModifierForType(
+      componentDamage,
+      options.gyroType,
+      { optionalRules: options.optionalRules },
+    );
+    if (gyroModifier !== 0) {
+      modifiers.push({
+        name: gyroPsrModifierName(options.gyroType),
+        value: gyroModifier,
+        source: 'gyro',
+      });
+    }
   }
 
   // Pilot wounds: +1 per wound
@@ -143,35 +170,37 @@ export function calculatePSRModifiers(
     });
   }
 
-  // Leg actuator damage modifiers
-  const actuators = componentDamage.actuators;
-  if (actuators[ActuatorType.HIP]) {
-    modifiers.push({
-      name: 'Hip actuator destroyed',
-      value: 2,
-      source: 'actuator',
-    });
-  }
-  if (actuators[ActuatorType.UPPER_LEG]) {
-    modifiers.push({
-      name: 'Upper leg actuator destroyed',
-      value: 1,
-      source: 'actuator',
-    });
-  }
-  if (actuators[ActuatorType.LOWER_LEG]) {
-    modifiers.push({
-      name: 'Lower leg actuator destroyed',
-      value: 1,
-      source: 'actuator',
-    });
-  }
-  if (actuators[ActuatorType.FOOT]) {
-    modifiers.push({
-      name: 'Foot actuator destroyed',
-      value: 1,
-      source: 'actuator',
-    });
+  if (!landingSpecificDamageModifiers) {
+    // Leg actuator damage modifiers
+    const actuators = componentDamage.actuators;
+    if (actuators[ActuatorType.HIP]) {
+      modifiers.push({
+        name: 'Hip actuator destroyed',
+        value: 2,
+        source: 'actuator',
+      });
+    }
+    if (actuators[ActuatorType.UPPER_LEG]) {
+      modifiers.push({
+        name: 'Upper leg actuator destroyed',
+        value: 1,
+        source: 'actuator',
+      });
+    }
+    if (actuators[ActuatorType.LOWER_LEG]) {
+      modifiers.push({
+        name: 'Lower leg actuator destroyed',
+        value: 1,
+        source: 'actuator',
+      });
+    }
+    if (actuators[ActuatorType.FOOT]) {
+      modifiers.push({
+        name: 'Foot actuator destroyed',
+        value: 1,
+        source: 'actuator',
+      });
+    }
   }
 
   // PSR-specific additional modifier (e.g., DFA miss +4)
@@ -184,4 +213,11 @@ export function calculatePSRModifiers(
   }
 
   return modifiers;
+}
+
+function usesAirMekLandingSpecificDamageModifiers(psr: IPendingPSR): boolean {
+  return (
+    psr.reasonCode === PSRTrigger.AirMekLanding ||
+    psr.triggerSource === PSRTrigger.AirMekLanding
+  );
 }

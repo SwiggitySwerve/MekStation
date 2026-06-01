@@ -257,7 +257,7 @@ A mech with attached swarmers SHALL be permitted to declare EITHER a brush-off a
 
 ### Requirement: Mounted-Trooper Passenger Badge
 
-When a BA squad's `combatState.mountedOn` is set to a host unit ID (BA mounted as passenger via magnetic clamps or mechanized chassis), the BA token SHALL render as a passenger badge attached to the host's token rather than as a standalone hex token. The badge SHALL display the trooper count and squad name; the BA token SHALL NOT occupy its own hex while mounted.
+When a BA squad's `combatState.mountedOn` is set to a host unit ID (BA mounted as passenger via magnetic clamps or mechanized chassis), the BA token SHALL render as a passenger badge attached to the host's token rather than as a standalone hex token. The badge SHALL display the trooper count and squad name; the BA token SHALL NOT occupy its own hex while mounted. The render token MAY carry `passengerBadge: { hostTokenId, slot }` as a presentation hint; when present, `hostTokenId` identifies the host render group and `slot` places the badge at the host shoulder, side, or back without changing the rules-state `mountedOn` relationship.
 
 #### Scenario: Mounted-on host suppresses standalone token
 
@@ -265,6 +265,17 @@ When a BA squad's `combatState.mountedOn` is set to a host unit ID (BA mounted a
 - **WHEN** the hex board renders
 - **THEN** B SHALL NOT have a standalone hex token at its position
 - **AND** the host token for `mech-host-1` SHALL display a passenger badge for B
+- **AND** the passenger badge SHALL be a child of the host token render group
+
+#### Scenario: Map projections preserve host-owned badge
+
+- **GIVEN** a tactical map that can switch between top-down and isometric projections
+- **AND** a BA squad B mounted on host H with a `passengerBadge` slot hint
+- **WHEN** the map renders in top-down projection
+- **THEN** B's passenger badge SHALL be a child of H's token render group
+- **AND** B's badge SHALL report H's map position while preserving B's source position
+- **WHEN** the map switches to isometric projection
+- **THEN** B's passenger badge SHALL remain a child of H's isometric token render group
 
 #### Scenario: Badge updates when troopers die
 

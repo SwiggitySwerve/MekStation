@@ -12,9 +12,12 @@ import {
   GameSide,
   IGameConfig,
   IGameUnit,
+  IAttackDeclaredPayload,
+  IMovementDeclaredPayload,
   Facing,
   MovementType,
   IToHitModifier,
+  IWeaponAttackData,
 } from '@/types/gameplay';
 
 import {
@@ -32,6 +35,7 @@ import {
   createHeatGeneratedEvent,
   createHeatDissipatedEvent,
   createPilotHitEvent,
+  createCriticalHitEvent,
   createUnitDestroyedEvent,
   serializeEvent,
   deserializeEvent,
@@ -531,6 +535,176 @@ describe('Movement Event Factories', () => {
       expect(payload.mpUsed).toBe(0);
       expect(payload.heatGenerated).toBe(0);
     });
+
+    it('should serialize a hull-down go-prone posture step', () => {
+      const position = { q: 0, r: 0 };
+      const event = createMovementDeclaredEvent(
+        'game-1',
+        10,
+        1,
+        'unit-1',
+        position,
+        position,
+        Facing.North,
+        MovementType.Stationary,
+        0,
+        0,
+        [position],
+        { goProneAttempt: true },
+      );
+      const payload = event.payload as IMovementDeclaredPayload;
+
+      expect(payload).toMatchObject({
+        goProneAttempt: true,
+        hexesMoved: 0,
+        straightHexes: 0,
+        turningMpCost: 0,
+        netDisplacement: 0,
+        steps: [
+          {
+            kind: 'goProne',
+            index: 0,
+            at: position,
+            mpCost: 0,
+          },
+        ],
+      });
+    });
+
+    it('should serialize a hull-down entry posture step', () => {
+      const position = { q: 0, r: 0 };
+      const event = createMovementDeclaredEvent(
+        'game-1',
+        10,
+        1,
+        'unit-1',
+        position,
+        position,
+        Facing.North,
+        MovementType.Walk,
+        2,
+        1,
+        [position],
+        { hullDownEntryAttempt: true },
+      );
+      const payload = event.payload as IMovementDeclaredPayload;
+
+      expect(payload).toMatchObject({
+        hullDownEntryAttempt: true,
+        hexesMoved: 0,
+        straightHexes: 0,
+        turningMpCost: 0,
+        netDisplacement: 0,
+        steps: [
+          {
+            kind: 'hullDown',
+            index: 0,
+            at: position,
+            mpCost: 2,
+          },
+        ],
+      });
+    });
+
+    it('should serialize represented conversion steps before movement path cost', () => {
+      const position = { q: 0, r: 0 };
+      const event = createMovementDeclaredEvent(
+        'game-1',
+        10,
+        1,
+        'unit-1',
+        position,
+        { q: 1, r: 0 },
+        Facing.Northeast,
+        MovementType.Walk,
+        4,
+        0,
+        [position, { q: 1, r: 0 }],
+        { conversionStepCount: 1, conversionMpCost: 3 },
+      );
+      const payload = event.payload as IMovementDeclaredPayload;
+
+      expect(payload).toMatchObject({
+        conversionStepCount: 1,
+        conversionMpCost: 3,
+        steps: [
+          {
+            kind: 'convertMode',
+            index: 0,
+            at: position,
+            mpCost: 3,
+            stepNumber: 1,
+            stepCount: 1,
+          },
+        ],
+      });
+    });
+
+    it('should serialize two zero-cost represented conversion steps', () => {
+      const position = { q: 0, r: 0 };
+      const event = createMovementDeclaredEvent(
+        'game-1',
+        10,
+        1,
+        'lam-1',
+        position,
+        { q: 1, r: 0 },
+        Facing.Northeast,
+        MovementType.Walk,
+        1,
+        0,
+        [position, { q: 1, r: 0 }],
+        { conversionStepCount: 2, conversionMpCost: 0 },
+      );
+      const payload = event.payload as IMovementDeclaredPayload;
+
+      expect(payload).toMatchObject({
+        conversionStepCount: 2,
+        conversionMpCost: 0,
+        steps: [
+          {
+            kind: 'convertMode',
+            index: 0,
+            at: position,
+            mpCost: 0,
+            stepNumber: 1,
+            stepCount: 2,
+          },
+          {
+            kind: 'convertMode',
+            index: 1,
+            at: position,
+            mpCost: 0,
+            stepNumber: 2,
+            stepCount: 2,
+          },
+        ],
+      });
+    });
+
+    it('should serialize represented altitude-control MP metadata', () => {
+      const position = { q: 0, r: 0 };
+      const event = createMovementDeclaredEvent(
+        'game-1',
+        10,
+        1,
+        'wige-1',
+        position,
+        { q: 1, r: 0 },
+        Facing.Northeast,
+        MovementType.Walk,
+        2,
+        0,
+        [position, { q: 1, r: 0 }],
+        { altitudeControlStepCount: 1, altitudeControlMpCost: 1 },
+      );
+      const payload = event.payload as IMovementDeclaredPayload;
+
+      expect(payload).toMatchObject({
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+      });
+    });
   });
 
   describe('createMovementLockedEvent', () => {
@@ -813,6 +987,24 @@ describe('Combat Event Factories', () => {
 
       expect(payload.criticals).toBeUndefined();
     });
+
+    it('can stamp damage from runtime movement consequences in movement phase', () => {
+      const event = createDamageAppliedEvent(
+        'game-1',
+        32,
+        4,
+        'unit-2',
+        'center_torso',
+        5,
+        0,
+        8,
+        false,
+        undefined,
+        GamePhase.Movement,
+      );
+
+      expect(event.phase).toBe(GamePhase.Movement);
+    });
   });
 });
 
@@ -1026,6 +1218,36 @@ describe('Status Event Factories', () => {
     });
   });
 
+  describe('createCriticalHitEvent', () => {
+    it('should create a movement-phase critical hit event with source context', () => {
+      const event = createCriticalHitEvent(
+        'game-1',
+        65,
+        6,
+        GamePhase.Movement,
+        'target-1',
+        'center_torso',
+        'attacker-1',
+        'engine',
+        1,
+      );
+
+      expect(event.type).toBe(GameEventType.CriticalHit);
+      expect(event.gameId).toBe('game-1');
+      expect(event.sequence).toBe(65);
+      expect(event.turn).toBe(6);
+      expect(event.phase).toBe(GamePhase.Movement);
+      expect(event.actorId).toBe('attacker-1');
+      expect(event.payload).toMatchObject({
+        unitId: 'target-1',
+        location: 'center_torso',
+        sourceUnitId: 'attacker-1',
+        component: 'engine',
+        count: 1,
+      });
+    });
+  });
+
   describe('createUnitDestroyedEvent', () => {
     it('should create a valid unit destroyed event', () => {
       const event = createUnitDestroyedEvent(
@@ -1211,6 +1433,47 @@ describe('Event Serialization', () => {
       const deserialized = deserializeEvents('[]');
 
       expect(deserialized).toHaveLength(0);
+    });
+
+    it('preserves per-weapon fire modes for attack replay logs', () => {
+      const weaponAttacks: readonly IWeaponAttackData[] = [
+        {
+          weaponId: 'lrm-15-1',
+          weaponName: 'LRM-15',
+          mode: 'Indirect',
+          damage: 15,
+          heat: 5,
+        },
+        {
+          weaponId: 'medium-laser-1',
+          weaponName: 'Medium Laser',
+          mode: 'Direct',
+          damage: 5,
+          heat: 3,
+        },
+      ];
+      const original = [
+        createAttackDeclaredEvent(
+          'game-1',
+          7,
+          1,
+          'attacker',
+          'target',
+          ['lrm-15-1', 'medium-laser-1'],
+          9,
+          createTestModifiers(),
+          weaponAttacks,
+        ),
+      ];
+
+      const restored = deserializeEvents(serializeEvents(original));
+      const payload = restored[0].payload as IAttackDeclaredPayload;
+
+      expect(payload.weaponAttacks).toEqual(weaponAttacks);
+      expect(payload.weaponAttacks?.map((weapon) => weapon.mode)).toEqual([
+        'Indirect',
+        'Direct',
+      ]);
     });
   });
 

@@ -141,14 +141,17 @@ export function calculateIndirectFireModifier(
     return null;
   }
 
-  const value = indirectFire.spotterWalked ? 2 : 1;
+  const movementPenalty =
+    indirectFire.spotterMovementPenalty ?? (indirectFire.spotterWalked ? 1 : 0);
+  const value = 1 + movementPenalty;
   return {
     name: 'Indirect Fire',
     value,
     source: 'other',
-    description: indirectFire.spotterWalked
-      ? 'Indirect fire (+1) + spotter walked (+1): +2'
-      : 'Indirect fire: +1',
+    description:
+      movementPenalty > 0
+        ? `Indirect fire (+1) + spotter movement (+${movementPenalty}): +${value}`
+        : 'Indirect fire: +1',
   };
 }
 

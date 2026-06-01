@@ -133,12 +133,14 @@ export function createUnitStoodEvent(
   unitId: string,
   roll: number,
   targetNumber: number,
+  automaticSuccessReason?: string,
 ): IGameEvent {
   const payload: IUnitStoodPayload = {
     unitId,
     turn,
     roll,
     targetNumber,
+    ...(automaticSuccessReason ? { automaticSuccessReason } : {}),
   };
   return {
     ...createEventBase(

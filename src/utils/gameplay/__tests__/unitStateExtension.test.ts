@@ -257,6 +257,27 @@ describe('Phase 4: IUnitGameState Extension', () => {
       ).toContain('Medium Laser');
     });
 
+    it('does not record vehicle critical location damage for non-vehicle units', () => {
+      const state = createStateWithUnit();
+      const event = makeEvent(GameEventType.CriticalHitResolved, {
+        unitId: 'unit-1',
+        location: 'right_arm',
+        slotIndex: 4,
+        componentType: 'weapon',
+        componentName: 'Medium Laser',
+        effect: 'weapon_destroyed',
+        destroyed: true,
+      } satisfies ICriticalHitResolvedPayload);
+
+      const result = applyEvent(state, event);
+      expect(
+        result.units['unit-1'].componentDamage?.weaponsDestroyed,
+      ).toContain('Medium Laser');
+      expect(
+        result.units['unit-1'].componentDamage?.vehicleCriticalsByLocation,
+      ).toBeUndefined();
+    });
+
     it('tracks heat sink destruction', () => {
       const state = createStateWithUnit();
       const event = makeEvent(GameEventType.CriticalHitResolved, {

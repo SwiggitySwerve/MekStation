@@ -94,6 +94,78 @@ describe('VehicleToken motion-type label', () => {
 });
 
 // -----------------------------------------------------------------------------
+// Altitude badge
+// -----------------------------------------------------------------------------
+
+describe('VehicleToken altitude badge', () => {
+  it('renders VTOL altitude as a visible non-color badge', () => {
+    const token = makeVehicleToken({
+      vehicleMotionType: VehicleMotionType.VTOL,
+      altitude: 3,
+    });
+    renderInSvg(<VehicleToken token={token} eventState={EMPTY_EVENT_STATE} />);
+
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveTextContent(
+      'ALT3',
+    );
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveAttribute(
+      'data-vehicle-altitude-badge-motion',
+      VehicleMotionType.VTOL,
+    );
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveAttribute(
+      'data-vehicle-altitude-badge-altitude',
+      '3',
+    );
+  });
+
+  it('renders WiGE altitude as a visible non-color badge', () => {
+    const token = makeVehicleToken({
+      vehicleMotionType: VehicleMotionType.WiGE,
+      altitude: 2,
+    });
+    renderInSvg(<VehicleToken token={token} eventState={EMPTY_EVENT_STATE} />);
+
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveTextContent(
+      'ALT2',
+    );
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveAttribute(
+      'data-vehicle-altitude-badge-motion',
+      VehicleMotionType.WiGE,
+    );
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveAttribute(
+      'data-vehicle-altitude-badge-altitude',
+      '2',
+    );
+  });
+
+  it('renders hover altitude zero distinctly', () => {
+    const token = makeVehicleToken({
+      vehicleMotionType: VehicleMotionType.VTOL,
+      altitude: 0,
+    });
+    renderInSvg(<VehicleToken token={token} eventState={EMPTY_EVENT_STATE} />);
+
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveTextContent(
+      'HOV',
+    );
+    expect(screen.getByTestId('vehicle-altitude-badge')).toHaveAttribute(
+      'data-vehicle-altitude-badge-altitude',
+      '0',
+    );
+  });
+
+  it('omits altitude badge for ground-only vehicles', () => {
+    const token = makeVehicleToken({
+      vehicleMotionType: VehicleMotionType.Hover,
+      altitude: 3,
+    });
+    renderInSvg(<VehicleToken token={token} eventState={EMPTY_EVENT_STATE} />);
+
+    expect(screen.queryByTestId('vehicle-altitude-badge')).toBeNull();
+  });
+});
+
+// -----------------------------------------------------------------------------
 // Turret indicator (spec §Per-Type Token Rendering — turret separate)
 // -----------------------------------------------------------------------------
 

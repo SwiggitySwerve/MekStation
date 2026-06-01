@@ -3,17 +3,18 @@
  *
  * Implements BattleTech indirect fire mechanics:
  * - LRM indirect fire mode: fire without LOS, requires spotter
- * - Spotter mechanics: friendly unit with LOS to target, movement restriction
- * - Indirect fire to-hit penalties: +1 base, +1 if spotter walked
+ * - Spotter mechanics: friendly unit with LOS to target
+ * - Indirect fire to-hit penalties: +1 base, plus represented spotter movement
  * - Semi-guided LRM with TAG designation
  * - Indirect fire LOS validation (spotter→target, not attacker→target)
  *
  * @spec openspec/changes/full-combat-parity/specs/indirect-fire-system/spec.md
  */
 
-import { MovementType } from '@/types/gameplay';
+import { MovementType, type IndirectFireBasis } from '@/types/gameplay';
 import { IHexCoordinate, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 
+import { hexDistance } from './hexMath';
 import { calculateLOS, ILOSResult } from './lineOfSight';
 import {
   isSemiGuidedLRM,
@@ -36,8 +37,22 @@ export interface ISpotterCandidate {
   readonly position: IHexCoordinate;
   /** Movement type this turn */
   readonly movementType: MovementType;
+  /** Infantry and battle armor ignore spotter movement penalties in MegaMek. */
+  readonly isInfantry?: boolean;
   /** Whether the unit is operational (not destroyed/shutdown) */
   readonly isOperational: boolean;
+  /**
+   * MegaMek `Aero.canSpot()` rejects airborne aerospace spotters unless
+   * represented recon/imager equipment is working. Grounded aerospace units
+   * and non-aero units leave this false/undefined.
+   */
+  readonly isAirborneAerospace?: boolean;
+  /**
+   * Source-equipment projection for the MegaMek airborne aerospace spotting
+   * exceptions. `highResolutionImagerDaylight` already folds in the current
+   * planetary light gate from `Aero.canSpot()`.
+   */
+  readonly airborneAeroSpottingEquipment?: IAirborneAeroSpottingEquipment;
   /**
    * Canonical SPA IDs owned by the pilot of this spotter unit. Optional for
    * backward compatibility — existing call sites that do not supply pilot data
@@ -57,6 +72,13 @@ export interface ISpotterCandidate {
   readonly spotterGunnery?: number;
 }
 
+export interface IAirborneAeroSpottingEquipment {
+  readonly reconCamera?: boolean;
+  readonly infraredImager?: boolean;
+  readonly hyperspectralImager?: boolean;
+  readonly highResolutionImagerDaylight?: boolean;
+}
+
 /** The firing unit's indirect fire context */
 export interface IIndirectFireRequest {
   /** Attacker entity ID */
@@ -71,6 +93,8 @@ export interface IIndirectFireRequest {
   readonly weaponId: string;
   /** Whether the attacker has direct LOS to target */
   readonly attackerHasLOS: boolean;
+  /** Whether the attacker is represented as airborne for indirect-fire gates. */
+  readonly attackerAirborne?: boolean;
   /** All friendly units that could spot */
   readonly spotterCandidates: readonly ISpotterCandidate[];
   /** The hex grid (for LOS checks) */
@@ -105,20 +129,29 @@ export interface IIndirectFireResult {
   readonly spotter?: ISpotterCandidate;
   /** Whether the spotter walked this turn */
   readonly spotterWalked: boolean;
-  /** Total indirect fire to-hit penalty (+1 base, +1 if spotter walked) */
+  /** Total indirect fire to-hit penalty (+1 base plus represented movement) */
   readonly toHitPenalty: number;
+  /** Gunnery skill of the elected LOS spotter, when represented. */
+  readonly spotterGunnery?: number;
+  /** Spotter-skill modifier applied to the indirect-fire penalty. */
+  readonly spotterSkillModifier?: number;
+  /** Forward Observer SPA cancelled the represented walked-spotter add. */
+  readonly forwardObserverApplied?: boolean;
+  /** Penalty points cancelled by Forward Observer, when represented. */
+  readonly spotterMovementPenaltyCancelled?: number;
   /** LOS result from spotter to target */
   readonly spotterLOS?: ILOSResult;
   /**
    * How the indirect resolution was established.
-   * - `'los'`   — a friendly LOS spotter was elected
-   * - `'narc'`  — NARC beacon on target by attacker's team (no LOS spotter needed)
-   * - `'inarc'` — iNarc beacon on target by attacker's team
+   * - `'los'`             — a friendly LOS spotter was elected
+   * - `'narc'`            — NARC beacon on target by attacker's team
+   * - `'inarc'`           — iNarc beacon on target by attacker's team
+   * - `'semi-guided-tag'` — semi-guided LRM with active TAG on target
    * Absent when isIndirect=false or permitted=false.
    *
    * @spec openspec/changes/add-indirect-fire-and-spotter-network/specs/indirect-fire-system/spec.md §3
    */
-  readonly basis?: 'los' | 'narc' | 'inarc';
+  readonly basis?: IndirectFireBasis;
 }
 
 /** Semi-guided LRM resolution context */
@@ -147,13 +180,25 @@ export interface ISemiGuidedResult {
 // Spotter Validation
 // =============================================================================
 
+function hasAirborneAeroSpottingEquipment(
+  candidate: ISpotterCandidate,
+): boolean {
+  const equipment = candidate.airborneAeroSpottingEquipment;
+  return (
+    equipment?.reconCamera === true ||
+    equipment?.infraredImager === true ||
+    equipment?.hyperspectralImager === true ||
+    equipment?.highResolutionImagerDaylight === true
+  );
+}
+
 /**
  * Check if a unit is eligible to act as a spotter for indirect fire.
  *
  * A valid spotter must:
  * - Be operational (not destroyed/shutdown)
  * - Be on the same team as the attacker
- * - NOT have run or jumped this turn (stationary or walked only)
+ * - NOT be sprinting/evading (not represented by the current MovementType)
  * - NOT be the attacker itself
  * - Have line of sight to the target
  */
@@ -171,15 +216,33 @@ export function isEligibleSpotter(
   // Cannot be the attacker itself
   if (candidate.entityId === attackerEntityId) return false;
 
-  // Must not have run or jumped (only stationary or walked)
+  // MegaMek airborne aerospace spotters need represented recon/imager gear.
   if (
-    candidate.movementType === MovementType.Run ||
-    candidate.movementType === MovementType.Jump
+    candidate.isAirborneAerospace === true &&
+    !hasAirborneAeroSpottingEquipment(candidate)
   ) {
     return false;
   }
 
   return true;
+}
+
+export function calculateSpotterMovementPenalty(
+  candidate: ISpotterCandidate,
+): number {
+  if (candidate.isInfantry === true) return 0;
+
+  switch (candidate.movementType) {
+    case MovementType.Walk:
+      return 1;
+    case MovementType.Run:
+      return 2;
+    case MovementType.Jump:
+      return 3;
+    case MovementType.Stationary:
+    default:
+      return 0;
+  }
 }
 
 /**
@@ -196,8 +259,9 @@ export function spotterHasLOS(
 /**
  * Find the best available spotter for an indirect fire attack.
  *
- * Prefers spotters that stood still (no additional penalty) over those
- * that walked (+1 penalty). Among equal movement, prefers the first eligible.
+ * Prefers spotters with the lowest represented MegaMek movement penalty.
+ * Among equal movement penalty, prefers lower intervening LOS modifiers,
+ * then the shorter spotter-target range, then stable unit id ordering.
  */
 export function findBestSpotter(
   candidates: readonly ISpotterCandidate[],
@@ -213,34 +277,47 @@ export function findBestSpotter(
 
   if (eligible.length === 0) return null;
 
-  // Check LOS for each eligible spotter, preferring stationary over walked
-  let bestStationary: {
+  let best: {
     spotter: ISpotterCandidate;
     losResult: ILOSResult;
-  } | null = null;
-  let bestWalked: {
-    spotter: ISpotterCandidate;
-    losResult: ILOSResult;
+    movementPenalty: number;
+    losModifier: number;
+    distance: number;
   } | null = null;
 
   for (const candidate of eligible) {
     const losResult = spotterHasLOS(candidate, targetPosition, grid);
     if (!losResult.hasLOS) continue;
 
-    if (candidate.movementType === MovementType.Stationary) {
-      if (!bestStationary) {
-        bestStationary = { spotter: candidate, losResult };
-      }
-    } else {
-      // Walk
-      if (!bestWalked) {
-        bestWalked = { spotter: candidate, losResult };
-      }
+    const contender = {
+      spotter: candidate,
+      losResult,
+      movementPenalty: calculateSpotterMovementPenalty(candidate),
+      losModifier: losResult.interveningTerrainEffects.reduce(
+        (sum, effect) => sum + effect.modifier,
+        0,
+      ),
+      distance: hexDistance(candidate.position, targetPosition),
+    };
+
+    if (
+      best === null ||
+      contender.movementPenalty < best.movementPenalty ||
+      (contender.movementPenalty === best.movementPenalty &&
+        contender.losModifier < best.losModifier) ||
+      (contender.movementPenalty === best.movementPenalty &&
+        contender.losModifier === best.losModifier &&
+        contender.distance < best.distance) ||
+      (contender.movementPenalty === best.movementPenalty &&
+        contender.losModifier === best.losModifier &&
+        contender.distance === best.distance &&
+        contender.spotter.entityId.localeCompare(best.spotter.entityId) < 0)
+    ) {
+      best = contender;
     }
   }
 
-  // Prefer stationary spotter (lower penalty)
-  return bestStationary ?? bestWalked ?? null;
+  return best;
 }
 
 // =============================================================================
@@ -302,9 +379,9 @@ export function isIndirectFireCapable(weaponId: string): boolean {
  * 3. The to-hit penalty (+1 base, +1 if spotter walked; NARC/iNarc = base only)
  *
  * Resolution priority when attacker has no LOS:
- *   a. LOS spotter elected → basis='los'
- *   b. No spotter + NARC mark by attacker's team → basis='narc', spotterId=null
- *   c. No spotter + iNarc mark by attacker's team → basis='inarc', spotterId=null
+ *   a. NARC mark by attacker's team → basis='narc', spotterId=null
+ *   b. iNarc mark by attacker's team → basis='inarc', spotterId=null
+ *   c. LOS spotter elected → basis='los'
  *   d. None of the above → rejected
  *
  * When both NARC and iNarc are true, NARC takes precedence (basis='narc').
@@ -324,6 +401,16 @@ export function resolveIndirectFire(
 
   // Attacker has no LOS — indirect fire is needed
   // Check if weapon can fire indirectly
+  if (request.attackerAirborne === true) {
+    return {
+      permitted: false,
+      reason: 'Airborne units cannot use indirect fire',
+      isIndirect: false,
+      spotterWalked: false,
+      toHitPenalty: 0,
+    };
+  }
+
   if (!isIndirectFireCapable(request.weaponId)) {
     return {
       permitted: false,
@@ -334,7 +421,31 @@ export function resolveIndirectFire(
     };
   }
 
-  // Find a valid LOS spotter first — preferred over NARC/iNarc override.
+  // MegaMek's ComputeToHit first treats a friendly NARC/iNarc-marked
+  // target as the indirect spotter, then falls back to ordinary LOS spotters.
+  const narcMarked = request.targetNarcMarkedByTeam === true;
+  const inarcMarked = request.targetINarcMarkedByTeam === true;
+
+  if (narcMarked) {
+    return {
+      permitted: true,
+      isIndirect: true,
+      basis: 'narc',
+      spotterWalked: false,
+      toHitPenalty: 1,
+    };
+  }
+
+  if (inarcMarked) {
+    return {
+      permitted: true,
+      isIndirect: true,
+      basis: 'inarc',
+      spotterWalked: false,
+      toHitPenalty: 1,
+    };
+  }
+
   const spotterResult = findBestSpotter(
     request.spotterCandidates,
     request.attackerEntityId,
@@ -348,10 +459,13 @@ export function resolveIndirectFire(
     const { spotter, losResult } = spotterResult;
     const spotterWalked = spotter.movementType === MovementType.Walk;
     // Forward Observer SPA cancels the +1 spotter-walked add. The base +1
-    // indirect-fire penalty still applies. Run/Jump ineligibility is enforced
-    // upstream in isEligibleSpotter — FO does not override that restriction.
+    // indirect-fire penalty still applies, and run/jump spotter penalties are
+    // left intact until those SPA interactions are represented explicitly.
     const hasFoSpa = spotter.pilotSpas?.includes('forward_observer') ?? false;
-    const walkedPenalty = spotterWalked && !hasFoSpa ? 1 : 0;
+    const forwardObserverApplied = spotterWalked && hasFoSpa;
+    const movementPenalty = forwardObserverApplied
+      ? 0
+      : calculateSpotterMovementPenalty(spotter);
 
     // Per MegaMek ArtilleryWeaponIndirectFireHandler.java L192-194:
     //   int spotterMod = (spotter.getGunnery() - 4) / 2;
@@ -361,8 +475,8 @@ export function resolveIndirectFire(
     const effectiveGunnery = spotter.spotterGunnery ?? 4;
     const gunneryMod = Math.trunc((effectiveGunnery - 4) / 2);
 
-    // Base +1 indirect-fire penalty + walked penalty + gunnery modifier.
-    const toHitPenalty = 1 + walkedPenalty + gunneryMod;
+    // Base +1 indirect-fire penalty + movement penalty + gunnery modifier.
+    const toHitPenalty = 1 + movementPenalty + gunneryMod;
 
     return {
       permitted: true,
@@ -371,34 +485,11 @@ export function resolveIndirectFire(
       spotter,
       spotterWalked,
       toHitPenalty,
+      spotterGunnery: effectiveGunnery,
+      spotterSkillModifier: gunneryMod,
+      forwardObserverApplied,
+      spotterMovementPenaltyCancelled: forwardObserverApplied ? 1 : 0,
       spotterLOS: losResult,
-    };
-  }
-
-  // No LOS spotter — check NARC/iNarc beacon override (§3).
-  // NARC takes precedence over iNarc when both are true.
-  const narcMarked = request.targetNarcMarkedByTeam === true;
-  const inarcMarked = request.targetINarcMarkedByTeam === true;
-
-  if (narcMarked) {
-    // NARC-marked by attacker's team → implicit spotter, base penalty only.
-    return {
-      permitted: true,
-      isIndirect: true,
-      basis: 'narc',
-      spotterWalked: false,
-      toHitPenalty: 1,
-    };
-  }
-
-  if (inarcMarked) {
-    // iNarc-marked by attacker's team → implicit spotter, base penalty only.
-    return {
-      permitted: true,
-      isIndirect: true,
-      basis: 'inarc',
-      spotterWalked: false,
-      toHitPenalty: 1,
     };
   }
 
@@ -417,6 +508,28 @@ export function resolveIndirectFire(
 // Semi-Guided LRM with TAG
 // =============================================================================
 
+export const ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON =
+  'TAG designation is nullified by ECM; semi-guided indirect fire is unavailable';
+
+function isSemiGuidedContext(context: ISemiGuidedContext): boolean {
+  return (
+    isSemiGuidedLRM(context.weaponId) || context.equipment.isSemiGuided === true
+  );
+}
+
+export function semiGuidedTagIndirectFireBlockedReason(
+  context: ISemiGuidedContext,
+): string | undefined {
+  if (!isSemiGuidedContext(context)) return undefined;
+  if (
+    context.targetStatus.tagDesignated === true &&
+    context.targetStatus.ecmProtected === true
+  ) {
+    return ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON;
+  }
+  return undefined;
+}
+
 /**
  * Resolve semi-guided LRM behavior.
  *
@@ -430,12 +543,22 @@ export function resolveSemiGuidedLRM(
   context: ISemiGuidedContext,
 ): ISemiGuidedResult {
   // Check if weapon is actually semi-guided
-  if (!isSemiGuidedLRM(context.weaponId) && !context.equipment.isSemiGuided) {
+  if (!isSemiGuidedContext(context)) {
     return {
       isSemiGuided: false,
       tagActive: false,
       useStandardToHit: false,
       description: 'Not a semi-guided LRM',
+    };
+  }
+
+  const blockedReason = semiGuidedTagIndirectFireBlockedReason(context);
+  if (blockedReason) {
+    return {
+      isSemiGuided: true,
+      tagActive: false,
+      useStandardToHit: false,
+      description: blockedReason,
     };
   }
 
@@ -479,24 +602,46 @@ export function resolveIndirectFireWithSemiGuided(
 ): IIndirectFireResult {
   // First resolve basic indirect fire
   const baseResult = resolveIndirectFire(request);
+  const semiGuidedResult = semiGuidedContext
+    ? resolveSemiGuidedLRM(semiGuidedContext)
+    : undefined;
+  const tagActive =
+    semiGuidedResult?.isSemiGuided === true &&
+    semiGuidedResult.tagActive === true;
+
+  if (
+    tagActive &&
+    !request.attackerHasLOS &&
+    request.attackerAirborne !== true &&
+    isIndirectFireCapable(request.weaponId) &&
+    !baseResult.permitted
+  ) {
+    return {
+      permitted: true,
+      isIndirect: true,
+      basis: 'semi-guided-tag',
+      spotterWalked: false,
+      toHitPenalty: 0,
+    };
+  }
 
   // If not indirect or not permitted, return as-is
   if (!baseResult.isIndirect || !baseResult.permitted) {
     return baseResult;
   }
 
-  // If semi-guided context provided, check TAG
-  if (semiGuidedContext) {
-    const semiGuidedResult = resolveSemiGuidedLRM(semiGuidedContext);
-
-    if (semiGuidedResult.isSemiGuided && semiGuidedResult.tagActive) {
-      // TAG active: use standard to-hit (no indirect penalty)
-      return {
-        ...baseResult,
-        toHitPenalty: 0,
-        spotterWalked: false, // Penalty negated by TAG
-      };
-    }
+  if (tagActive) {
+    return {
+      ...baseResult,
+      basis: 'semi-guided-tag',
+      spotter: undefined,
+      toHitPenalty: 0,
+      spotterGunnery: undefined,
+      spotterSkillModifier: undefined,
+      spotterWalked: false,
+      forwardObserverApplied: false,
+      spotterMovementPenaltyCancelled: 0,
+    };
   }
 
   return baseResult;

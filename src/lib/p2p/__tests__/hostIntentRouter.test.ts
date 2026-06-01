@@ -13,12 +13,21 @@ import {
   type IGameSession,
   type IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
-import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
+import {
+  Facing,
+  MovementType,
+  type IHexCoordinate,
+  type IHexGrid,
+  type IMovementCapability,
+} from '@/types/gameplay/HexGridInterfaces';
+import { TerrainType } from '@/types/gameplay/TerrainTypes';
 import {
   appendEvent,
   createGameSession,
   startGame,
 } from '@/utils/gameplay/gameSessionCore';
+import { createHexGrid } from '@/utils/gameplay/hexGrid';
+import { coordToKey } from '@/utils/gameplay/hexMath';
 
 import {
   createHostIntentRouter,
@@ -124,6 +133,34 @@ function makeAdapter(initial: IGameSession): {
   };
 }
 
+function setHex(
+  grid: IHexGrid,
+  coord: IHexCoordinate,
+  terrain: TerrainType,
+  elevation = 0,
+): IHexGrid {
+  const key = coordToKey(coord);
+  const hex = grid.hexes.get(key);
+  if (!hex) throw new Error(`Missing test hex ${key}`);
+  const hexes = new Map(grid.hexes);
+  hexes.set(key, { ...hex, terrain, elevation });
+  return { ...grid, hexes };
+}
+
+function movementOptions(
+  grid: IHexGrid,
+  capability: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 0 },
+) {
+  return {
+    movementRules: {
+      grid,
+      movementByUnit: new Map<string, IMovementCapability>([
+        ['guest-0', capability],
+      ]),
+    },
+  };
+}
+
 describe('hostIntentRouter', () => {
   it('§5.3: applies translated events on a valid intent', () => {
     const harness = makeAdapter(fixtureSession());
@@ -207,6 +244,47 @@ describe('hostIntentRouter', () => {
     ]);
     // Buffer is empty after drain.
     expect(router.getBufferState().pending).toEqual([]);
+  });
+
+  it('passes host movement rules into the translator and rejects illegal movement', () => {
+    const session = fixtureSession();
+    const harness = makeAdapter(session);
+    const from = session.currentState.units['guest-0'].position;
+    const to = { q: from.q + 1, r: from.r };
+    const grid = setHex(createHexGrid({ radius: 8 }), to, TerrainType.Water);
+    const router = createHostIntentRouter({
+      ...harness.adapter,
+      getIntentTranslationOptions: () =>
+        movementOptions(grid, {
+          walkMP: 4,
+          runMP: 6,
+          jumpMP: 0,
+          movementMode: 'tracked',
+        }),
+    });
+
+    const result = router.handleIntent(
+      buildDeclareMovementIntent(GUEST_PEER, {
+        unitId: 'guest-0',
+        from,
+        to,
+        facing: Facing.Northeast,
+        movementType: MovementType.Walk,
+        mpUsed: 1,
+        heatGenerated: 0,
+      }),
+    );
+
+    expect(result.outcome).toBe('rejected');
+    if (result.outcome !== 'rejected') return;
+    expect(result.reason).toBe('illegal-movement');
+    expect(harness.appended).toEqual([]);
+    expect(harness.rejections).toEqual([
+      {
+        reason: 'illegal-movement',
+        detail: 'Water blocks ground movement',
+      },
+    ]);
   });
 
   it('flushBuffered is a no-op when no intents are pending', () => {

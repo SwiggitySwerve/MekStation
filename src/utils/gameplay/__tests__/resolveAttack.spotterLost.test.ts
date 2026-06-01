@@ -67,7 +67,8 @@ function makeBlockedGrid(): IHexGrid {
       hexes.set(`${q},${r}`, makeHex(q, r));
     }
   }
-  hexes.set('3,0', makeHex(3, 0, TerrainType.HeavyWoods));
+  hexes.set('2,0', makeHex(2, 0, TerrainType.HeavyWoods));
+  hexes.set('3,0', makeHex(3, 0, TerrainType.LightWoods));
   return { config: { radius: 12 }, hexes };
 }
 

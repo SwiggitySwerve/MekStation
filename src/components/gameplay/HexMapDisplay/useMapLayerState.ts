@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
   IMapLayerStateById,
   MapLayerId,
+  MapIsometricRotationStep,
   MapProjectionMode,
 } from '@/types/gameplay';
 
@@ -14,6 +15,12 @@ import {
 export interface IMapLayerInteractionState {
   projectionMode: MapProjectionMode;
   setProjectionMode: React.Dispatch<React.SetStateAction<MapProjectionMode>>;
+  isometricRotationStep: MapIsometricRotationStep;
+  setIsometricRotationStep: React.Dispatch<
+    React.SetStateAction<MapIsometricRotationStep>
+  >;
+  rotateIsometricLeft: () => void;
+  rotateIsometricRight: () => void;
   layerState: IMapLayerStateById;
   setLayerVisibility: (
     id: MapLayerId,
@@ -29,12 +36,18 @@ export interface IMapLayerInteractionState {
   setShowLOSOverlay: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+function normalizeRotationStep(step: number): MapIsometricRotationStep {
+  return (((step % 6) + 6) % 6) as MapIsometricRotationStep;
+}
+
 export function useMapLayerState(
   initialProjectionMode: MapProjectionMode,
 ): IMapLayerInteractionState {
   const [projectionMode, setProjectionMode] = useState<MapProjectionMode>(
     initialProjectionMode,
   );
+  const [isometricRotationStep, setIsometricRotationStep] =
+    useState<MapIsometricRotationStep>(0);
   const [layerState, setLayerState] = useState<IMapLayerStateById>(
     DEFAULT_MAP_LAYER_STATE,
   );
@@ -70,10 +83,22 @@ export function useMapLayerState(
     React.Dispatch<React.SetStateAction<boolean>>
   >((next) => setLayerVisibility('los', next), [setLayerVisibility]);
 
+  const rotateIsometricLeft = useCallback(() => {
+    setIsometricRotationStep((step) => normalizeRotationStep(step - 1));
+  }, []);
+
+  const rotateIsometricRight = useCallback(() => {
+    setIsometricRotationStep((step) => normalizeRotationStep(step + 1));
+  }, []);
+
   return useMemo(
     () => ({
       projectionMode,
       setProjectionMode,
+      isometricRotationStep,
+      setIsometricRotationStep,
+      rotateIsometricLeft,
+      rotateIsometricRight,
       layerState,
       setLayerVisibility,
       showMovementOverlay: layerState.movement.visible,
@@ -87,7 +112,10 @@ export function useMapLayerState(
     }),
     [
       projectionMode,
+      isometricRotationStep,
       layerState,
+      rotateIsometricLeft,
+      rotateIsometricRight,
       setLayerVisibility,
       setShowMovementOverlay,
       setShowCoverOverlay,

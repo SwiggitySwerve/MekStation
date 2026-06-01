@@ -1,3 +1,8 @@
+import type {
+  MapMovementKind,
+  MapMovementPointLegendState,
+} from '@/components/gameplay/HexMapDisplay/HexMapDisplay.types';
+import type { PhysicalAttackIntent } from '@/components/gameplay/PhysicalAttackPanel';
 import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { InteractivePhase } from '@/stores/useGameplayStore';
 import type {
@@ -6,6 +11,7 @@ import type {
   IHexCoordinate,
   IMovementRangeHex,
   IPilotSpaSummary,
+  TacticalActionHandler,
   IWeaponStatus,
 } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
@@ -18,7 +24,7 @@ export interface GameplayLayoutProps {
   /** Callback when unit is selected */
   onUnitSelect: (unitId: string | null) => void;
   /** Callback when action is triggered */
-  onAction: (actionId: string) => void;
+  onAction: TacticalActionHandler;
   /** Callback when hex is clicked */
   onHexClick?: (hex: { q: number; r: number }) => void;
   /** Can the player undo? */
@@ -49,15 +55,16 @@ export interface GameplayLayoutProps {
   validTargetIds?: readonly string[];
   /** Movement range hexes for map display */
   movementRange?: readonly IMovementRangeHex[];
+  hoveredHex?: IHexCoordinate | null;
+  hoverMovementInfo?: IMovementRangeHex;
   highlightPath?: readonly IHexCoordinate[];
   hoverMpCost?: number;
   hoverUnreachable?: boolean;
-  mpLegend?: {
-    readonly active: 'walk' | 'run' | 'jump';
-    readonly jumpAvailable: boolean;
-  };
+  mpLegend?: MapMovementPointLegendState;
+  onMovementModeSelect?: (mode: MapMovementKind) => void;
   onHexHover?: (hex: IHexCoordinate | null) => void;
   interactiveSession?: InteractiveSession;
+  physicalAttackIntent?: PhysicalAttackIntent | null;
   /** Player side controlling this UI (defaults to GameSide.Player). */
   playerSide?: GameSide;
   /**
