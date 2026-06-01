@@ -763,10 +763,11 @@ export const SPA_COMBAT_SUPPORT = {
     'calculateToHit consumes getSomeLikeItHotHeatPenaltyReduction so runner AttackDeclared heat modifiers are reduced by 1',
     MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,
   ),
-  'multi-target': unsupported(
+  'multi-target': outOfScope(
     'multi-target',
-    'Local Multi-Target is not the MegaMek source-backed SPA; source-backed secondary-target penalty reduction is Multi-Tasker/multi_tasker',
-    MEGAMEK_325B_MULTI_TASKER_SOURCE_REFS,
+    'MekStation local SPA catalog defines Multi-Target as a secondary-target penalty helper, but the pinned MegaMek pilot option registry identifies the official source-backed SPA as Multi-Tasker/multi_tasker instead',
+    'Local Multi-Target behavior is excluded from the official BattleMech validation blocker inventory; source-backed secondary-target penalty reduction remains covered by Multi-Tasker/multi_tasker',
+    MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
   'iron-will': unsupported(
     'iron-will',
