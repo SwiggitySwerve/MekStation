@@ -2202,6 +2202,18 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.oblique_artillery.level).toBe(
       'helper-only',
     );
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.aptitude_gunnery).toMatchObject({
+      level: 'out-of-scope',
+      gap: expect.stringContaining('ATOW/origin-level'),
+    });
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.aptitude_piloting).toMatchObject({
+      level: 'out-of-scope',
+      gap: expect.stringContaining('ATOW/origin-level'),
+    });
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.atow_g_tolerance).toMatchObject({
+      level: 'out-of-scope',
+      gap: expect.stringContaining('aerospace-control'),
+    });
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.foot_cav.level).toBe(
       'out-of-scope',
     );
