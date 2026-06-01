@@ -174,14 +174,14 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 116,
+      total: 111,
       byLevel: {
-        'helper-only': 100,
+        'helper-only': 95,
         unsupported: 16,
       },
       bySection: {
         damageAndDeath: 2,
-        featureSupport: 73,
+        featureSupport: 68,
         lifecycleAndPsr: 2,
         pilotSkills: 13,
         ruleSupport: 9,
@@ -385,6 +385,11 @@ describe('BattleMech combat validation catalog index', () => {
         'featureSupport.ammunitionCompatibility.non-battlemech-protomech',
         'featureSupport.ammunitionCompatibility.unsupported-aquatic-torpedo-ammo',
         'featureSupport.ammunitionCompatibility.unsupported-artillery-ammo',
+        'featureSupport.canonicalPilotAbilityScope.aptitude_gunnery',
+        'featureSupport.canonicalPilotAbilityScope.aptitude_piloting',
+        'featureSupport.canonicalPilotAbilityScope.atow_combat_paralysis',
+        'featureSupport.canonicalPilotAbilityScope.atow_combat_sense',
+        'featureSupport.canonicalPilotAbilityScope.atow_g_tolerance',
         'featureSupport.canonicalPilotAbilityScope.cross_country',
         'featureSupport.canonicalPilotAbilityScope.edge_when_aero_alt_loss',
         'featureSupport.canonicalPilotAbilityScope.foot_cav',
@@ -421,7 +426,7 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.wireIntents.SetReady',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(76);
+    expect(outOfScopeRows).toHaveLength(81);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('actions.physicalActionClassScope.'),
@@ -450,6 +455,11 @@ describe('BattleMech combat validation catalog index', () => {
       ),
     ).toEqual([
       'featureSupport.canonicalPilotAbilityScope.allweather',
+      'featureSupport.canonicalPilotAbilityScope.aptitude_gunnery',
+      'featureSupport.canonicalPilotAbilityScope.aptitude_piloting',
+      'featureSupport.canonicalPilotAbilityScope.atow_combat_paralysis',
+      'featureSupport.canonicalPilotAbilityScope.atow_combat_sense',
+      'featureSupport.canonicalPilotAbilityScope.atow_g_tolerance',
       'featureSupport.canonicalPilotAbilityScope.blind_fighter',
       'featureSupport.canonicalPilotAbilityScope.clan_pilot_training',
       'featureSupport.canonicalPilotAbilityScope.cluster_master',
