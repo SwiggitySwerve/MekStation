@@ -174,14 +174,14 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 111,
+      total: 109,
       byLevel: {
-        'helper-only': 95,
+        'helper-only': 93,
         unsupported: 16,
       },
       bySection: {
         damageAndDeath: 2,
-        featureSupport: 68,
+        featureSupport: 66,
         lifecycleAndPsr: 2,
         pilotSkills: 13,
         ruleSupport: 9,
@@ -284,6 +284,12 @@ describe('BattleMech combat validation catalog index', () => {
     );
     expect(unresolvedRefs).not.toContain(
       'pilotSkills.pilotModifierResolvers.legacy-pain-resistance-to-hit-application',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.marksman',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.sharpshooter',
     );
     const unsupportedRefs = unresolvedRows
       .filter((row) => row.level === 'unsupported')
@@ -396,6 +402,8 @@ describe('BattleMech combat validation catalog index', () => {
         'featureSupport.canonicalPilotAbilityScope.gunnery_laser',
         'featureSupport.canonicalPilotAbilityScope.weathered',
         'featureSupport.pilotAbilities.cross-country',
+        'featureSupport.pilotAbilities.marksman',
+        'featureSupport.pilotAbilities.sharpshooter',
         'featureSupport.mechQuirks.rugged_1',
         'featureSupport.mechQuirks.rugged_2',
         'lifecycleAndPsr.psrTriggers.charge_miss',
@@ -426,7 +434,7 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.wireIntents.SetReady',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(81);
+    expect(outOfScopeRows).toHaveLength(83);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('actions.physicalActionClassScope.'),
@@ -494,7 +502,11 @@ describe('BattleMech combat validation catalog index', () => {
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('featureSupport.pilotAbilities.'),
       ),
-    ).toEqual(['featureSupport.pilotAbilities.cross-country']);
+    ).toEqual([
+      'featureSupport.pilotAbilities.cross-country',
+      'featureSupport.pilotAbilities.marksman',
+      'featureSupport.pilotAbilities.sharpshooter',
+    ]);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('lifecycleAndPsr.psrTriggers.'),
