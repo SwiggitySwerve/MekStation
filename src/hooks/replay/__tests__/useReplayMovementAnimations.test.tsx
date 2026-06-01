@@ -472,7 +472,7 @@ describe('useReplayMovementAnimations', () => {
       expect(snap[0].hasPath).toBe(true);
     });
 
-    it('skips chargeDeclared / dfaDeclared / shakeOffSwarm / goProne without throwing', () => {
+    it('skips chargeDeclared / dfaDeclared / shakeOffSwarm / goProne / altitudeControl without throwing', () => {
       // Mix of every skipped kind plus a single forward to prove the
       // surviving step still fires.
       const steps: IMovementStep[] = [
@@ -503,8 +503,17 @@ describe('useReplayMovementAnimations', () => {
           psrTriggered: false,
         },
         {
-          kind: 'forward',
+          kind: 'altitudeControl',
           index: 4,
+          at: { q: 0, r: 0 },
+          mpCost: 1,
+          direction: 'down',
+          stepNumber: 1,
+          stepCount: 1,
+        },
+        {
+          kind: 'forward',
+          index: 5,
           direction: 'forward',
           from: { q: 0, r: 0 },
           to: { q: 1, r: 0 },

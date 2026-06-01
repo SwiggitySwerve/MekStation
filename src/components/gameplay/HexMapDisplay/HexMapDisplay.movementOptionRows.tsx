@@ -13,6 +13,9 @@ import {
 
 import {
   formatMovementOptionTitle,
+  movementOptionAltitudeControlMpCostsAttribute,
+  movementOptionAltitudeControlStepCountsAttribute,
+  movementOptionAutomaticLandingsAttribute,
   movementOptionBlockedDetail,
   movementOptionBlockedReasonsAttribute,
   movementOptionConversionMpCostsAttribute,
@@ -91,6 +94,15 @@ export function MovementModeOptionRows({
       data-movement-option-conversion-mp-costs={movementOptionConversionMpCostsAttribute(
         options,
       )}
+      data-movement-option-altitude-control-step-counts={movementOptionAltitudeControlStepCountsAttribute(
+        options,
+      )}
+      data-movement-option-altitude-control-mp-costs={movementOptionAltitudeControlMpCostsAttribute(
+        options,
+      )}
+      data-movement-option-automatic-landings={movementOptionAutomaticLandingsAttribute(
+        options,
+      )}
       data-movement-option-blocked-reasons={movementOptionBlockedReasonsAttribute(
         options,
       )}
@@ -131,6 +143,27 @@ export function MovementModeOptionRows({
               option.conversionStepCount
             }
             data-movement-option-conversion-mp-cost={option.conversionMpCost}
+            data-movement-option-altitude-control-step-count={
+              option.altitudeControlStepCount
+            }
+            data-movement-option-altitude-control-mp-cost={
+              option.altitudeControlMpCost
+            }
+            data-movement-option-automatic-landing-required={
+              option.automaticLandingRequired ? 'true' : undefined
+            }
+            data-movement-option-automatic-landing-mode={
+              option.automaticLandingMode
+            }
+            data-movement-option-automatic-landing-distance={
+              option.automaticLandingDistance
+            }
+            data-movement-option-automatic-landing-minimum-distance={
+              option.automaticLandingMinimumDistance
+            }
+            data-movement-option-automatic-landing-reason={
+              option.automaticLandingReason
+            }
             data-movement-option-blocked-reason={blockedDetail}
             data-movement-option-invalid-reason={option.movementInvalidReason}
             data-movement-option-invalid-details={option.movementInvalidDetails}

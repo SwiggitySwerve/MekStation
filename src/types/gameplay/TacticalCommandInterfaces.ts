@@ -193,6 +193,12 @@ export interface ITacticalCommandContext {
   readonly activeUnitVehicleMotionType?: GroundMotionType;
   /** Represented VTOL/WiGE vehicle altitude, where 0 means landed/hovering. */
   readonly activeUnitVehicleAltitude?: number;
+  /** True when the active ProtoMek combat state is a represented Glider chassis. */
+  readonly activeUnitProtoGlider?: boolean;
+  /** Represented ProtoMek Glider altitude, where 0 means grounded. */
+  readonly activeUnitProtoAltitude?: number;
+  /** Represented LAM AirMek WiGE elevation selected through altitude controls. */
+  readonly activeUnitLamAirMekAltitude?: number;
   /** Active unit terrain tag at its current hex, used by source-backed action gates. */
   readonly activeUnitTerrain?: string;
   /** Active unit elevation at its current hex, when represented by the map. */
@@ -209,6 +215,8 @@ export interface ITacticalCommandContext {
   readonly activeUnitGyroType?: string;
   /** Active unit destroyed locations used by posture commands with limb gates. */
   readonly activeUnitDestroyedLocations?: readonly string[];
+  /** Active session optional-rule keys used by source-backed command gates. */
+  readonly optionalRules?: readonly string[];
   /**
    * Engine-derived movement envelope for activeUnitId, when available.
    * Command availability uses this to explain unavailable movement modes

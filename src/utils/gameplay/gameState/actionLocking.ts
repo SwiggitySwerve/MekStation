@@ -10,6 +10,10 @@ import {
   MovementType,
 } from '@/types/gameplay';
 import {
+  accumulatedAltitudeControlMovementPatch,
+  clearPendingAltitudeControlMovementCost,
+} from '@/utils/gameplay/movement/altitudeControlAccounting';
+import {
   accumulatedConversionMovementPatch,
   clearPendingConversionMovementCost,
 } from '@/utils/gameplay/movement/conversionAccounting';
@@ -50,18 +54,20 @@ export function applyMovementDeclared(
         ? unit.hullDownEnteredBackwards
         : false;
 
-  const updatedUnit: IUnitGameState = clearPendingConversionMovementCost({
-    ...unit,
-    position: payload.to,
-    facing: payload.facing,
-    movementThisTurn: payload.movementType,
-    hexesMovedThisTurn: payload.mpUsed,
-    heat: unit.heat + payload.heatGenerated,
-    prone,
-    hullDown,
-    hullDownEnteredBackwards,
-    lockState: LockState.Planning,
-  });
+  const updatedUnit: IUnitGameState = clearPendingAltitudeControlMovementCost(
+    clearPendingConversionMovementCost({
+      ...unit,
+      position: payload.to,
+      facing: payload.facing,
+      movementThisTurn: payload.movementType,
+      hexesMovedThisTurn: payload.mpUsed,
+      heat: unit.heat + payload.heatGenerated,
+      prone,
+      hullDown,
+      hullDownEnteredBackwards,
+      lockState: LockState.Planning,
+    }),
+  );
 
   return {
     ...state,
@@ -133,10 +139,16 @@ function applyRuntimeMovementPatch(
   next = applyNullableField(next, payload, 'conversionMode');
   next = applyNullableField(next, payload, 'unitHeight');
   next = applyVehicleAltitudeField(next, payload);
+  next = applyProtoAltitudeField(next, payload);
+  next = applyLamAirMekAltitudeField(next, payload);
   next = applyNullableField(next, payload, 'infantryMounted');
   next = applyNullableField(next, payload, 'infantryMountHeight');
   next = {
     ...next,
+    ...accumulatedAltitudeControlMovementPatch(
+      next as unknown as IUnitGameState,
+      payload,
+    ),
     ...accumulatedConversionMovementPatch(
       next as unknown as IUnitGameState,
       payload,
@@ -191,6 +203,50 @@ function applyVehicleAltitudeField(
         altitude: normalizedVehicleAltitude(payload.vehicleAltitude),
       },
     },
+  };
+}
+
+function applyProtoAltitudeField(
+  target: Record<string, unknown>,
+  payload: IRuntimeMovementStateChangedPayload,
+): Record<string, unknown> {
+  if (!Object.prototype.hasOwnProperty.call(payload, 'protoAltitude')) {
+    return target;
+  }
+  const combatState = target.combatState;
+  if (
+    !combatState ||
+    typeof combatState !== 'object' ||
+    (combatState as { readonly kind?: unknown }).kind !== 'proto'
+  ) {
+    return target;
+  }
+  const protoState = combatState as {
+    readonly kind: 'proto';
+    readonly state: Record<string, unknown>;
+  };
+  return {
+    ...target,
+    combatState: {
+      ...protoState,
+      state: {
+        ...protoState.state,
+        altitude: normalizedVehicleAltitude(payload.protoAltitude),
+      },
+    },
+  };
+}
+
+function applyLamAirMekAltitudeField(
+  target: Record<string, unknown>,
+  payload: IRuntimeMovementStateChangedPayload,
+): Record<string, unknown> {
+  if (!Object.prototype.hasOwnProperty.call(payload, 'lamAirMekAltitude')) {
+    return target;
+  }
+  return {
+    ...target,
+    lamAirMekAltitude: normalizedVehicleAltitude(payload.lamAirMekAltitude),
   };
 }
 
