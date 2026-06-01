@@ -1827,7 +1827,8 @@ Consciousness-related pilot ability rows SHALL distinguish MegaMek RPG Toughness
 - **THEN** each row SHALL expose structured MegaMek and MekStation deviation source references
 - **AND** Iron Man SHALL be integrated only as source-backed ammunition-explosion pilot-damage reduction
 - **AND** Pain Resistance SHALL remain helper-only until wake-up roll behavior is modeled, even though source-backed consciousness and ammo-explosion reduction paths are wired
-- **AND** Toughness, Iron Will, and the legacy Pain Resistance ranged to-hit row SHALL remain unsupported/no-op instead of using local alias or wound-penalty behavior
+- **AND** Toughness and Iron Will SHALL remain unsupported/no-op instead of using local alias behavior
+- **AND** the legacy Pain Resistance ranged to-hit row SHALL be integrated as a source-backed non-application only when runner and event-sourced ranged attacks preserve raw pilot wound penalties
 - **AND** consciousness application SHALL remain helper-only while RPG Toughness numeric crew state and Pain Resistance wake-up rolls remain absent
 - **AND** integrated ranged to-hit resolver rows SHALL NOT list Pain Resistance as source-backed ranged to-hit support
 
