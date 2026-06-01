@@ -1,3 +1,4 @@
+import type { CombatLocation } from '@/types/gameplay';
 import type { IRuntimeMovementStateChangedPayload } from '@/types/gameplay/GameSessionMovementEvents';
 import type {
   IComponentDamageState,
@@ -6,13 +7,16 @@ import type {
 
 import type { D6Roller } from './diceTypes';
 
+import { resolveDamage as resolveDamagePipeline } from './damage';
 import { resolveFall } from './fallMechanics';
 import {
+  createDamageAppliedEvent,
   createPilotHitEvent,
   createPSRResolvedEvent,
   createPSRTriggeredEvent,
   createUnitFellEvent,
 } from './gameEvents';
+import { buildDamageStateFromUnit } from './gameSessionAttackResolutionHelpers';
 import { appendEvent } from './gameSessionCore';
 import { defaultD6Roller } from './hitLocation';
 import { createAirMekLandingPSR, resolvePSR } from './pilotingSkillRolls';
@@ -126,6 +130,11 @@ export function applyAirMekLandingControlPSR(
       psr.reasonCode,
     ),
   );
+  currentSession = appendAirMekLandingFallDamageClusters(
+    currentSession,
+    unitId,
+    fallResult.clusters,
+  );
 
   const currentUnitState = currentSession.currentState.units[unitId];
   const totalWounds = currentUnitState.pilotWounds + 1;
@@ -144,6 +153,48 @@ export function applyAirMekLandingControlPSR(
       totalWounds < 6,
     ),
   );
+}
+
+function appendAirMekLandingFallDamageClusters(
+  session: IGameSession,
+  unitId: string,
+  clusters: readonly {
+    readonly damage: number;
+    readonly location: CombatLocation;
+  }[],
+): IGameSession {
+  let currentSession = session;
+  for (const cluster of clusters) {
+    const currentUnitState = currentSession.currentState.units[unitId];
+    if (!currentUnitState || currentUnitState.destroyed) {
+      return currentSession;
+    }
+
+    const damageResult = resolveDamagePipeline(
+      buildDamageStateFromUnit(currentUnitState),
+      cluster.location,
+      cluster.damage,
+    );
+    for (const locationDamage of damageResult.result.locationDamages) {
+      currentSession = appendEvent(
+        currentSession,
+        createDamageAppliedEvent(
+          currentSession.id,
+          currentSession.events.length,
+          currentSession.currentState.turn,
+          unitId,
+          locationDamage.location,
+          locationDamage.damage,
+          locationDamage.armorRemaining,
+          locationDamage.structureRemaining,
+          locationDamage.destroyed,
+          undefined,
+          currentSession.currentState.phase,
+        ),
+      );
+    }
+  }
+  return currentSession;
 }
 
 function landingFallTonnage(tonnage: number | undefined): number {

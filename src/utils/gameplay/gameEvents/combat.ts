@@ -168,6 +168,7 @@ export function createDamageAppliedEvent(
   structureRemaining: number,
   locationDestroyed: boolean,
   criticals?: readonly string[],
+  phase: GamePhase = GamePhase.WeaponAttack,
 ): IGameEvent {
   const payload: IDamageAppliedPayload = {
     unitId,
@@ -185,7 +186,7 @@ export function createDamageAppliedEvent(
       sequence,
       GameEventType.DamageApplied,
       turn,
-      GamePhase.WeaponAttack,
+      phase,
       unitId,
     ),
     payload,

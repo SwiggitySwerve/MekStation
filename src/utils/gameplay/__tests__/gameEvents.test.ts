@@ -986,6 +986,24 @@ describe('Combat Event Factories', () => {
 
       expect(payload.criticals).toBeUndefined();
     });
+
+    it('can stamp damage from runtime movement consequences in movement phase', () => {
+      const event = createDamageAppliedEvent(
+        'game-1',
+        32,
+        4,
+        'unit-2',
+        'center_torso',
+        5,
+        0,
+        8,
+        false,
+        undefined,
+        GamePhase.Movement,
+      );
+
+      expect(event.phase).toBe(GamePhase.Movement);
+    });
   });
 });
 

@@ -810,7 +810,10 @@ movement-command order and emits `PSRResolved`, `UnitFell`, and `PilotHit` on
 failed represented descents. `use-airmek-landing-fall-tonnage` now carries
 adapted catalog tonnage into the interactive-session resolver map so failed
 AirMek landing falls scale the `UnitFell` damage by the moved unit instead of a
-placeholder. Full crash armor/internal damage application and automatic forced
+placeholder. `apply-airmek-landing-fall-clusters` now applies those represented
+fall clusters through movement-phase `DamageApplied` events, so replay reduces
+armor/internal state after a failed AirMek landing. Broader crash extras such as
+destruction-event fan-out, critical-hit follow-through, and automatic forced
 landing from higher WiGE elevations remain follow-up work.
 
 Additional small-unit movement data pin: MegaMek `Infantry.java:560-568` and

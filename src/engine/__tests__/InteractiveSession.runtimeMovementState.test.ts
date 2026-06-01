@@ -2,15 +2,19 @@ import {
   Facing,
   GameEventType,
   GameSide,
+  type IDamageAppliedPayload,
   type IGameSession,
   type IGameUnit,
   type IPSRResolvedPayload,
   type IPSRTriggeredPayload,
   type IUnitFellPayload,
+  GamePhase,
   PSRTrigger,
 } from '@/types/gameplay';
+import { createDamageAppliedEvent } from '@/utils/gameplay/gameEvents';
 import {
   advancePhase,
+  appendEvent,
   createGameSession,
   startGame,
 } from '@/utils/gameplay/gameSession';
@@ -47,7 +51,22 @@ function setupSessionAtMovement(): IGameSession {
     facing: Facing.North,
     lamAirMekAltitude: 1,
   };
-  return session;
+  return appendEvent(
+    session,
+    createDamageAppliedEvent(
+      session.id,
+      session.events.length,
+      session.currentState.turn,
+      'lam-1',
+      'center_torso',
+      0,
+      10,
+      12,
+      false,
+      undefined,
+      GamePhase.Movement,
+    ),
+  );
 }
 
 function d6Sequence(rolls: readonly number[]): () => number {
@@ -129,7 +148,7 @@ describe('applyInteractiveSessionRuntimeMovementState', () => {
         ],
         lamAirMekLandingControlFallHeight: 1,
       },
-      diceRoller: d6Sequence([1, 1, 1, 3, 4, 3, 4]),
+      diceRoller: d6Sequence([1, 1, 1, 3, 4, 3, 4, 3, 4, 3, 4]),
       tonnageByUnit: new Map([['lam-1', 80]]),
     });
 
@@ -139,6 +158,10 @@ describe('applyInteractiveSessionRuntimeMovementState', () => {
       GameEventType.PSRTriggered,
       GameEventType.PSRResolved,
       GameEventType.UnitFell,
+      GameEventType.DamageApplied,
+      GameEventType.DamageApplied,
+      GameEventType.DamageApplied,
+      GameEventType.DamageApplied,
       GameEventType.PilotHit,
     ]);
 
@@ -158,11 +181,25 @@ describe('applyInteractiveSessionRuntimeMovementState', () => {
       reason: 'landing with gyro or leg damage',
       reasonCode: PSRTrigger.AirMekLanding,
     });
+    const fallDamageEvents = appended.slice(4, 8);
+    expect(
+      fallDamageEvents.map(
+        (event) => (event.payload as IDamageAppliedPayload).damage,
+      ),
+    ).toEqual([5, 5, 5, 1]);
+    expect(
+      fallDamageEvents.map(
+        (event) => (event.payload as IDamageAppliedPayload).location,
+      ),
+    ).toEqual(['center_torso', 'center_torso', 'center_torso', 'center_torso']);
     expect(result.currentState.units['lam-1']).toMatchObject({
       lamAirMekAltitude: 0,
       prone: true,
       pilotWounds: 1,
       pendingPSRs: [],
+      damageThisPhase: 16,
+      armor: expect.objectContaining({ center_torso: 0 }),
+      structure: expect.objectContaining({ center_torso: 6 }),
     });
   });
 

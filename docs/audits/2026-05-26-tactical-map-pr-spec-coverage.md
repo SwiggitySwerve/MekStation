@@ -80,8 +80,10 @@ decisions are made, not because CI is stale.
   a canonical AirMek landing PSR via `queue-airmek-landing-psr` and resolve in
   movement-command order through `resolve-airmek-landing-psr`. Failed landing
   fall damage now uses represented unit tonnage through
-  `use-airmek-landing-fall-tonnage`; full crash armor/internal damage
-  application, full elevated AirMek/WiGE pathing, minimum-distance automatic
+  `use-airmek-landing-fall-tonnage`, and represented fall clusters now reduce
+  armor/internal state through movement-phase `DamageApplied` events via
+  `apply-airmek-landing-fall-clusters`; destruction-event fan-out, critical-hit
+  follow-through, full elevated AirMek/WiGE pathing, minimum-distance automatic
   WiGE landing, and takeoff/hover sequencing remain follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
