@@ -135,6 +135,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'combat-intuition',
       'cool-under-fire',
       'evasive',
+      'iron-will',
       'marksman',
       'multi-target',
       'natural-grace',
@@ -157,6 +158,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(SPA_COMBAT_SUPPORT['multi-target'].level).toBe('out-of-scope');
     expect(SPA_COMBAT_SUPPORT.sharpshooter.level).toBe('out-of-scope');
     expect(SPA_COMBAT_SUPPORT['cool-under-fire'].level).toBe('out-of-scope');
+    expect(SPA_COMBAT_SUPPORT['iron-will'].level).toBe('out-of-scope');
   });
 
   it('does not assign unknown SPA or quirk ids to resolver families', () => {
@@ -408,7 +410,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual([
       'MegaMek PilotOptions registers the source-backed pilot advantage ids in this combat source snapshot; MekStation local-only SPA ids are not part of that registry.',
       'MegaMek OptionsConstants defines the source-backed pilot option constants used by the combat SPA catalog boundary.',
-      'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
+      'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, Iron Will, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
     ]);
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
@@ -754,7 +756,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(evasiveRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek PilotOptions registers the source-backed pilot advantage ids in this combat source snapshot; MekStation local-only SPA ids are not part of that registry.',
       'MegaMek OptionsConstants defines the source-backed pilot option constants used by the combat SPA catalog boundary.',
-      'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
+      'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, Iron Will, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
     ]);
     expect(movementRefs).toEqual(expect.not.arrayContaining([...evasiveRefs]));
     expect(
@@ -1152,6 +1154,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'cool-under-fire',
       'evasive',
       'multi-target',
+      'iron-will',
       'antagonizer',
     ] as const;
 
@@ -1160,7 +1163,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       expect(support.sourceRefs?.map(({ citation }) => citation)).toEqual([
         'MegaMek PilotOptions registers the source-backed pilot advantage ids in this combat source snapshot; MekStation local-only SPA ids are not part of that registry.',
         'MegaMek OptionsConstants defines the source-backed pilot option constants used by the combat SPA catalog boundary.',
-        'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
+        'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, Iron Will, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
       ]);
       expect(
         support.sourceRefs?.some(
@@ -1176,6 +1179,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(
       localOnlySpaIds.map((spaId) => SPA_COMBAT_SUPPORT[spaId].level),
     ).toEqual([
+      'out-of-scope',
       'out-of-scope',
       'out-of-scope',
       'out-of-scope',
@@ -1276,8 +1280,9 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       gap: expect.stringContaining('Automatic RPG Toughness'),
     });
     expect(SPA_COMBAT_SUPPORT['iron-will']).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('No source-backed MegaMek Iron Will'),
+      level: 'out-of-scope',
+      evidence: expect.stringContaining('local SPA catalog defines Iron Will'),
+      gap: expect.stringContaining('excluded from the official BattleMech'),
     });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
@@ -1350,15 +1355,21 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'mekstation-deviation',
     ]);
     expect(SPA_COMBAT_SUPPORT.toughness.sourceRefs).toEqual(painResistanceRefs);
-    expect(SPA_COMBAT_SUPPORT['iron-will'].sourceRefs).toEqual(
-      painResistanceRefs,
-    );
+    expect(
+      SPA_COMBAT_SUPPORT['iron-will'].sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek PilotOptions registers the source-backed pilot advantage ids in this combat source snapshot; MekStation local-only SPA ids are not part of that registry.',
+      'MegaMek OptionsConstants defines the source-backed pilot option constants used by the combat SPA catalog boundary.',
+      'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, Iron Will, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
+    ]);
     expect(consciousnessRefs).toEqual(painResistanceRefs);
     expect(painResistanceToHitRefs).toEqual(painResistanceRefs);
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['consciousness-application'],
     ).toEqual({
-      spaIds: ['iron-man', 'pain-resistance', 'toughness', 'iron-will'],
+      spaIds: ['iron-man', 'pain-resistance', 'toughness'],
       quirkIds: [],
     });
     expect(
