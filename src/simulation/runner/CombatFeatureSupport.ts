@@ -123,6 +123,17 @@ function helperOnly(
     : { id, level: 'helper-only', evidence, gap };
 }
 
+function unsupported(
+  id: string,
+  evidence: string,
+  gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'unsupported', evidence, gap, sourceRefs }
+    : { id, level: 'unsupported', evidence, gap };
+}
+
 function outOfScope(
   id: string,
   evidence: string,
@@ -842,10 +853,10 @@ export const QUIRK_COMBAT_SUPPORT = {
       ...MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS,
     ],
   ),
-  low_profile: helperOnly(
+  low_profile: unsupported(
     'low_profile',
-    'calculateLowProfileModifier plus calculateToHit expose a local +1 target to-hit helper when partial cover is absent',
-    'MegaMek source-backed Low Profile behavior is glancing-blow handling in WeaponHandler, not a to-hit modifier; MekStation needs glancing-blow damage resolution before this quirk can be integrated as source-backed coverage',
+    'MegaMek WeaponHandler applies Low Profile as glancing-blow handling when the attack roll equals the target number or target number plus one; MekStation currently only exposes a local +1 target to-hit helper when partial cover is absent',
+    'Low Profile remains unsupported until weapon-hit and damage resolution model source-backed glancing blows instead of treating the quirk as a normal ranged to-hit modifier',
     [
       ...MEGAMEK_LOW_PROFILE_GLANCING_SOURCE_REFS,
       ...MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS,
