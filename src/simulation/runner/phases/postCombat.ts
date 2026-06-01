@@ -209,6 +209,7 @@ export function runPSRPhase(options: {
         1,
         currentUnit.abilities ?? [],
         d6Roller,
+        currentUnit.pilotToughness,
       );
       const pilotConscious =
         newPilotWounds < LETHAL_PILOT_WOUNDS &&
