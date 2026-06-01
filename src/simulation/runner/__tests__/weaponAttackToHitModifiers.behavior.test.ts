@@ -1622,6 +1622,92 @@ describe('runAttackPhase to-hit modifier integration', () => {
     });
   });
 
+  it('does not consume local Multi-Target as source-backed Multi-Tasker relief', () => {
+    const secondaryWeaponId = 'medium-laser-secondary';
+    const state = createWeaponAttackState({
+      attacker: {
+        abilities: ['multi-target'],
+      },
+      target: {
+        position: { q: 0, r: 2 },
+      },
+    });
+    const multiTargetState: IGameState = {
+      ...state,
+      units: {
+        ...state.units,
+        'opponent-2': createUnit({
+          id: 'opponent-2',
+          side: GameSide.Opponent,
+          position: { q: 3, r: 0 },
+        }),
+      },
+    };
+    const events: IGameEvent[] = [];
+    const violations: IViolation[] = [];
+
+    runAttackPhase({
+      state: multiTargetState,
+      botPlayer: new DeclaresWeaponAttackAI(
+        MEDIUM_LASER_ID,
+        'opponent-1',
+        [MEDIUM_LASER_ID, secondaryWeaponId],
+        {
+          [MEDIUM_LASER_ID]: 'opponent-1',
+          [secondaryWeaponId]: 'opponent-2',
+        },
+      ),
+      grid: createGrid(),
+      invariantRunner: new InvariantRunner(),
+      violations,
+      events,
+      gameId: multiTargetState.gameId,
+      random: new SeededRandom(12345),
+      weaponsByUnit: new Map([
+        [
+          'player-1',
+          [
+            createMediumLaser(MEDIUM_LASER_ID),
+            createMediumLaser(secondaryWeaponId),
+          ],
+        ],
+        ['opponent-1', []],
+        ['opponent-2', []],
+      ]),
+    });
+
+    const secondaryPayload = attackDeclaredPayloads(events).find(
+      (payload) => payload.targetId === 'opponent-2',
+    );
+
+    expect(secondaryPayload).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-2',
+      weapons: [secondaryWeaponId],
+      toHitNumber: 6,
+    });
+    expectModifier(secondaryPayload!, {
+      name: 'Secondary Target',
+      value: 2,
+      source: 'other',
+    });
+    expect(
+      secondaryPayload?.modifiers.some(
+        (modifier) => modifier.name === 'Multi-Tasker',
+      ),
+    ).toBe(false);
+    expect(SPA_COMBAT_SUPPORT['multi-target']).toMatchObject({
+      level: 'unsupported',
+    });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'multi-target-penalty-application'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+    });
+  });
+
   it('threads secondary-facing torso twist into secondary target front-arc math', () => {
     const secondaryWeaponId = 'medium-laser-secondary';
     const state = createWeaponAttackState({
