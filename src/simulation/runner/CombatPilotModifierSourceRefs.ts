@@ -59,7 +59,7 @@ export const MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS = [
     'megamek/src/megamek/common/options/OptionsConstants.java#L169-L230',
   ),
   mekstationDeviationRef(
-    'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, and Antagonizer; these must remain unsupported or helper-only until a source-backed combat authority is identified.',
+    'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, Iron Will, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
     'src/utils/gameplay/spaModifiers/catalog.ts#L204-L386',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
@@ -330,21 +330,6 @@ export const MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS = [
   megamekRef(
     'MegaMek PhysicalAttackAction applies target evasion bonuses to physical to-hit.',
     'megamek/src/megamek/common/actions/PhysicalAttackAction.java#L285-L287',
-  ),
-] satisfies readonly ICombatFeatureSourceReference[];
-
-export const MEGAMEK_HEAVY_LIFTER_SOURCE_REFS = [
-  megamekRef(
-    'MegaMek MekWithArms.maxGroundObjectTonnage multiplies BattleMech ground-object lift capacity by 1.5 for Heavy Lifter.',
-    'megamek/src/megamek/common/units/MekWithArms.java#L97-L115',
-  ),
-  megamekRef(
-    'MegaMek ProtoMek.maxGroundObjectTonnage multiplies ProtoMek ground-object lift capacity by 1.5 for Heavy Lifter.',
-    'megamek/src/megamek/common/units/ProtoMek.java#L553-L567',
-  ),
-  megamekRef(
-    'MegaMek OptionsConstants defines PILOT_HVY_LIFTER as hvy_lifter.',
-    'megamek/src/megamek/common/options/OptionsConstants.java#L169-L178',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

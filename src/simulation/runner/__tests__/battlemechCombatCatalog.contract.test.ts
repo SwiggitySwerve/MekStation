@@ -156,11 +156,6 @@ type PinnedScopeSplitAmmoGapClass =
 
 const EXPECTED_BATTLEMECH_AMMO_GAP_IDS = {
   'battlemech-ammo-missing-compatible-weapon-refs': [
-    'clan-lb-2-x-cluster',
-    'impammoac10',
-    'impammoac2',
-    'impammoac20',
-    'impammoac5',
     'rotaryac10',
     'rotaryac20',
   ],
@@ -434,11 +429,17 @@ const EXPECTED_BATTLEMECH_COMPATIBLE_AMMO_IDS = [
   'atm-standard-ammo',
   'clan-ams-ammo',
   'clan-large-chemical-laser-ammo',
+  'clan-lb-2-x-cluster',
   'clan-medium-chemical-laser-ammo',
+  'clan-plasma-cannon-ammo',
   'clan-small-chemical-laser-ammo',
   'gauss-ammo',
   'heavy-gauss-ammo',
   'heavy-mg-ammo',
+  'impammoac10',
+  'impammoac2',
+  'impammoac20',
+  'impammoac5',
   'inarc-ammo',
   'lb-10-x-ammo',
   'lb-10-x-cluster-ammo',
@@ -456,6 +457,7 @@ const EXPECTED_BATTLEMECH_COMPATIBLE_AMMO_IDS = [
   'mg-ammo-half',
   'mrm-ammo',
   'narc-ammo',
+  'plasma-rifle-ammo',
   'srm-ammo',
   'srm-fragmentation-ammo',
   'srm-inferno-ammo',
@@ -1207,7 +1209,7 @@ describe('BattleMech combat catalog validation lane', () => {
       EXPECTED_NONSTANDARD_AMMO_GAP_IDS,
     );
     expect(countBy(gapClasses)).toEqual({
-      'battlemech-ammo-missing-compatible-weapon-refs': 7,
+      'battlemech-ammo-missing-compatible-weapon-refs': 2,
       'duplicate-runtime-id': 12,
       'non-battlemech-aerospace-capital-ammo': 8,
       'non-battlemech-battle-armor': 17,
@@ -1219,10 +1221,14 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(supportIdsByLevel(ammoCompatibilitySupport, 'helper-only')).toEqual(
       [
         'battlemech-ammo-missing-compatible-weapon-refs',
+        'nonstandard-empty-compatible-row',
+      ].sort(),
+    );
+    expect(supportIdsByLevel(ammoCompatibilitySupport, 'out-of-scope')).toEqual(
+      [
         'non-battlemech-aerospace-capital-ammo',
         'non-battlemech-battle-armor',
         'non-battlemech-protomech',
-        'nonstandard-empty-compatible-row',
         'unsupported-aquatic-torpedo-ammo',
         'unsupported-artillery-ammo',
       ].sort(),
@@ -1345,10 +1351,18 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(supportGaps(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT, 'integrated'),
-    ).toEqual(['lb-x-ac', 'mml', 'rotary-ac', 'streak-srm', 'tag', 'ultra-ac']);
+    ).toEqual([
+      'lb-x-ac',
+      'mml',
+      'narc',
+      'rotary-ac',
+      'streak-srm',
+      'tag',
+      'ultra-ac',
+    ]);
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['ams', 'artemis', 'narc', 'plasma-cannon']);
+    ).toEqual(['ams', 'artemis', 'plasma-cannon']);
 
     expect(supportGaps(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT)).toEqual([]);
     expect(
@@ -1633,7 +1647,10 @@ describe('BattleMech combat catalog validation lane', () => {
     }
 
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.mml.level).toBe('integrated');
-    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.level).toBe('helper-only');
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.level).toBe('integrated');
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.evidence).toContain(
+      'inarc-pod-variants',
+    );
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.level).toBe('helper-only');
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].level).toBe(
       'helper-only',
@@ -1679,7 +1696,6 @@ describe('BattleMech combat catalog validation lane', () => {
     ).toEqual([]);
     expect(
       [
-        SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.gap,
         SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap,
         SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.artemis.gap,
         SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].gap,
@@ -1756,7 +1772,8 @@ describe('BattleMech combat catalog validation lane', () => {
       sourceRefsFor('plasma-cannon').map(({ citation }) => citation),
     ).toEqual([
       'CLPlasmaCannon declares variable damage, heat 7, plasma/energy flags, plasma ammunition, and routes attacks to PlasmaCannonHandler.',
-      'PlasmaCannonHandler applies external target heat on heat-tracking entities, including armor-specific reflective and heat-dissipating adjustments.',
+      'MegaMek plasma rifle and Clan plasma cannon ammunition rows use AmmoTypeEnum.PLASMA, ten shots per ton, and non-explosive ammo state.',
+      'PlasmaCannonHandler applies external target heat on heat-tracking entities, including reflective, heat-dissipating, and PLAYTEST_3 armor-specific adjustments.',
       'PlasmaCannonHandler keeps plasma-cannon BattleMech damage at zero while applying non-Mek/terrain/building special damage paths.',
     ]);
 
@@ -2139,7 +2156,7 @@ describe('BattleMech combat catalog validation lane', () => {
 });
 
 describe('BattleMech combat feature-gap tracking', () => {
-  it('classifies every combat-active SPA and quirk as integrated, helper-only, or unsupported', () => {
+  it('classifies every combat-active SPA and quirk as integrated, helper-only, unsupported, or out-of-scope', () => {
     expect(sortedKeys(SPA_COMBAT_SUPPORT)).toEqual(sortedKeys(SPA_CATALOG));
     expect(sortedKeys(QUIRK_COMBAT_SUPPORT)).toEqual(sortedKeys(QUIRK_CATALOG));
 
@@ -2160,6 +2177,16 @@ describe('BattleMech combat feature-gap tracking', () => {
 
     expect(
       Object.values(SPA_COMBAT_SUPPORT).filter(
+        (entry) => entry.level === 'unsupported',
+      ),
+    ).toHaveLength(0);
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.tm_nightwalker).toMatchObject({
+      level: 'unsupported',
+      evidence: expect.stringContaining('lighting-condition movement'),
+      gap: expect.stringContaining('Nightwalker movement penalties'),
+    });
+    expect(
+      Object.values(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT).filter(
         (entry) => entry.level === 'unsupported',
       ).length,
     ).toBeGreaterThan(0);
@@ -2185,18 +2212,55 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.oblique_artillery.level).toBe(
       'helper-only',
     );
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.aptitude_gunnery).toMatchObject({
+      level: 'out-of-scope',
+      gap: expect.stringContaining('ATOW/origin-level'),
+    });
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.aptitude_piloting).toMatchObject({
+      level: 'out-of-scope',
+      gap: expect.stringContaining('ATOW/origin-level'),
+    });
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.atow_g_tolerance).toMatchObject({
+      level: 'out-of-scope',
+      gap: expect.stringContaining('aerospace-control'),
+    });
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.foot_cav.level).toBe(
-      'helper-only',
+      'out-of-scope',
     );
-    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_headhit.level).toBe(
-      'helper-only',
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_headhit).toMatchObject({
+      level: 'unsupported',
+      gap: expect.stringContaining('edge_when_headhit'),
+    });
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_tac).toMatchObject({
+      level: 'unsupported',
+      gap: expect.stringContaining('edge_when_tac'),
+    });
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_ko).toMatchObject({
+      level: 'unsupported',
+      gap: expect.stringContaining('edge_when_ko'),
+    });
+    expect(
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_explosion,
+    ).toMatchObject({
+      level: 'unsupported',
+      gap: expect.stringContaining('edge_when_explosion'),
+    });
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_masc_fails.level).toBe(
+      'integrated',
     );
+    expect(
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_aero_alt_loss.level,
+    ).toBe('out-of-scope');
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.animal_mimic).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('quad Mek PSRs'),
+    });
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.sandblaster).toMatchObject({
       level: 'helper-only',
       gap: expect.stringContaining('UAC/RAC'),
     });
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.cluster_master.level).toBe(
-      'unsupported',
+      'out-of-scope',
     );
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.shaky_stick).toMatchObject({
       level: 'integrated',
@@ -2276,7 +2340,18 @@ describe('BattleMech combat feature-gap tracking', () => {
       expect.arrayContaining([
         'MegaMek TWGameManager consumes EDGE_WHEN_MASC_FAILS to reroll failed MASC checks, spends Edge, and suppresses failure processing when the reroll passes.',
         'MekStation psrEdgeRerolls consumes edge_when_masc_fails to reroll failed MASCFailure and SuperchargerFailure PSRs before applying fall or booster-failure aftermath.',
-        'MekStation Edge SPA table defines the trigger-specific canonical Edge rows that canonicalPilotAbilityScope keeps helper-only except for MASC/Supercharger reroll consumption.',
+        'MekStation Edge SPA table defines trigger-specific canonical Edge rows; canonicalPilotAbilityScope marks non-MASC Mek Edge triggers unsupported, marks MASC/Supercharger reroll consumption integrated, and splits Aero Edge triggers out-of-scope.',
+      ]),
+    );
+    expect(
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_ko.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        'MegaMek TWGameManager consumes EDGE_WHEN_KO to reroll failed BattleMech crew knockout checks while Edge remains available.',
+        'MekStation EDGE_TRIGGERS mirrors the known Edge trigger ids and createEdgeState/canUseEdge/useEdge model generic trigger point consumption.',
+        'MekStation Edge SPA table defines trigger-specific canonical Edge rows; canonicalPilotAbilityScope marks non-MASC Mek Edge triggers unsupported, marks MASC/Supercharger reroll consumption integrated, and splits Aero Edge triggers out-of-scope.',
       ]),
     );
   });
@@ -2331,7 +2406,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       .sort();
 
     expect(integrated).toEqual(
-      [...SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES].sort(),
+      [...SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES, 'claws', 'talons'].sort(),
     );
     expect(
       Object.values(PHYSICAL_WEAPON_COMBAT_SUPPORT)
@@ -2340,7 +2415,7 @@ describe('BattleMech combat feature-gap tracking', () => {
           (entry.sourceRefs?.length ?? 0) === 0 ? [entry.id] : [],
         ),
     ).toEqual([]);
-    expect(helperOnly).toEqual(['claws', 'talons']);
+    expect(helperOnly).toEqual([]);
     expect(unsupported).toEqual([]);
   });
 
@@ -2399,6 +2474,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       'attacker-prone',
       'c3',
       'called-shot',
+      'ecm',
       'environmental-conditions',
       'gunnery',
       'heat',
@@ -2420,7 +2496,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['c3-equipment-network-formation', 'ecm']);
+    ).toEqual(['c3-equipment-network-formation']);
   });
 
   it('pins source-backed to-hit modifiers to MegaMek refs', () => {
@@ -2561,10 +2637,10 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(supportGaps(PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT, 'integrated'),
-    ).toEqual(['tsm', 'underwater']);
+    ).toEqual(['claws', 'talons', 'tsm', 'underwater']);
     expect(
       supportIdsByLevel(PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['claws', 'talons']);
+    ).toEqual(['claw-equipment-lifecycle', 'talon-equipment-lifecycle']);
   });
 
   it('pins physical damage modifier rows to MegaMek source refs', () => {
@@ -2588,7 +2664,8 @@ describe('BattleMech combat feature-gap tracking', () => {
       ),
     ).toEqual([
       'MegaMek PunchAttackAction.getDamageFor uses ceil(weight / 7) when the punching arm has working claws',
-      'MegaMek PunchAttackAction.toHit adds the claw punch modifier and suppresses hand actuator missing/destroyed penalties when claws replace the hand',
+      'MegaMek PunchAttackAction.toHit adds the claw punch modifier outside PLAYTEST_3, records a zero-value Using Claws modifier under PLAYTEST_3, and suppresses hand actuator missing/destroyed penalties when claws replace the hand',
+      'MegaMek Entity.destroyLocation marks blown-off critical slots, mounted equipment, and dependent locations missing',
     ]);
 
     expect(
@@ -2596,9 +2673,10 @@ describe('BattleMech combat feature-gap tracking', () => {
         ({ citation }) => citation,
       ),
     ).toEqual([
-      'MegaMek KickAttackAction.getDamageFor applies a 1.5 talon multiplier when the kicking leg has working talons and a working foot actuator',
+      'MegaMek KickAttackAction.getDamageFor applies a 1.5 talon multiplier when the kicking leg has working talons and a working foot actuator, mapping quad front kicks to arm locations',
       'MegaMek DfaAttackAction.getDamageFor and hasTalons apply 1.5 DFA damage when a qualifying talon leg has a working foot actuator',
-      'MegaMek DfaAttackAction.hasTalons checks working talons and working foot actuators on qualifying biped and non-biped leg locations.',
+      'MegaMek DfaAttackAction.hasTalons checks working talons and working foot actuators on qualifying biped legs plus non-biped leg and arm locations.',
+      'MegaMek Entity.destroyLocation marks blown-off critical slots, mounted equipment, and dependent locations missing',
     ]);
 
     expect(
@@ -2622,6 +2700,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       'heat-mp-penalty',
       'jump',
       'occupancy',
+      'prone',
       'run',
       'stand',
       'torso-twist',
@@ -2629,7 +2708,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(MOVEMENT_RULE_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['prone']);
+    ).toEqual(['go-prone-side-paths']);
     expect(
       MOVEMENT_RULE_COMBAT_SUPPORT['torso-twist'].sourceRefs?.map(
         (sourceRef) => sourceRef.citation,
@@ -2677,29 +2756,35 @@ describe('BattleMech combat feature-gap tracking', () => {
       ),
     ).toEqual([
       'MegaMek MovePath allows GO_PRONE while restricting follow-up moves after leaving and returning to an enemy-occupied start hex.',
+      'MegaMek GoProneStep assigns 1 MP when the entity is not hull-down, leaving hull-down go-prone as a zero-MP transition.',
+      'MegaMek MoveStep marks GO_PRONE illegal for already-prone units, non-Meks, or stuck entities.',
+      'MegaMek MoveStep updates GO_PRONE posture by setting prone state and clearing hull-down state.',
       'MegaMek MovePathHandler resolves GO_PRONE by setting the entity prone, with swarmer dislodge and inferno wash-off side paths.',
     ]);
 
+    const movementEnhancementDefinitionTypes =
+      MOVEMENT_ENHANCEMENT_DEFINITIONS.map(({ type }) => type).sort();
     expect(sortedKeys(MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT)).toEqual(
-      MOVEMENT_ENHANCEMENT_DEFINITIONS.map(({ type }) => type).sort(),
+      [
+        ...movementEnhancementDefinitionTypes,
+        'masc-side-paths',
+        'supercharger-side-paths',
+      ].sort(),
     );
     expect(supportGaps(MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT, 'integrated'),
     ).toEqual(
       [
+        MovementEnhancementType.MASC,
         MovementEnhancementType.PARTIAL_WING,
+        MovementEnhancementType.SUPERCHARGER,
         MovementEnhancementType.TSM,
       ].sort(),
     );
     expect(
       supportIdsByLevel(MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(
-      [
-        MovementEnhancementType.MASC,
-        MovementEnhancementType.SUPERCHARGER,
-      ].sort(),
-    );
+    ).toEqual(['masc-side-paths', 'supercharger-side-paths']);
 
     expect(TERRAIN_TYPE_MOVEMENT_COVERAGE).toHaveLength(17);
     expect(supportGaps(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT)).toEqual([]);
@@ -2707,11 +2792,13 @@ describe('BattleMech combat feature-gap tracking', () => {
       supportIdsByLevel(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT, 'integrated'),
     ).toEqual([
       'atmosphere',
+      'dust',
       'extreme-temperature',
       'fire-heat',
       'fog',
       'night',
       'smoke-to-hit',
+      'terrain-los-blocking',
       'terrain-movement-costs',
       'terrain-partial-cover',
       'terrain-to-hit-features',
@@ -2721,7 +2808,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['dust', 'mines', 'terrain-los-blocking']);
+    ).toEqual(['mines', 'terrain-los-side-paths']);
     expect(
       Object.values(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT)
         .filter((entry) => entry.level !== 'unsupported')
@@ -2778,7 +2865,8 @@ describe('BattleMech combat feature-gap tracking', () => {
     ).toEqual(
       expect.arrayContaining([
         expect.stringContaining('blowing sand'),
-        expect.stringContaining('no Dust or Mines entry'),
+        expect.stringContaining('IEnvironmentalConditions'),
+        expect.stringContaining('energy'),
       ]),
     );
     expect(
@@ -3302,21 +3390,20 @@ describe('BattleMech combat feature-gap tracking', () => {
         PSRTrigger.EnteringWater,
         PSRTrigger.ExitingWater,
         PSRTrigger.Skidding,
+        PSRTrigger.SwampBogDown,
+        PSRTrigger.BuildingCollapse,
         PSRTrigger.RunningDamagedHip,
         PSRTrigger.RunningDamagedGyro,
-      ].sort(),
-    );
-    expect(
-      supportIdsByLevel(RUNNER_PSR_TRIGGER_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(
-      [
-        PSRTrigger.ChargeMiss,
-        PSRTrigger.DFAMiss,
-        PSRTrigger.BuildingCollapse,
         PSRTrigger.MASCFailure,
         PSRTrigger.SuperchargerFailure,
       ].sort(),
     );
+    expect(
+      supportIdsByLevel(RUNNER_PSR_TRIGGER_COMBAT_SUPPORT, 'helper-only'),
+    ).toEqual([]);
+    expect(
+      supportIdsByLevel(RUNNER_PSR_TRIGGER_COMBAT_SUPPORT, 'out-of-scope'),
+    ).toEqual([PSRTrigger.ChargeMiss, PSRTrigger.DFAMiss].sort());
     const damageAndCriticalPsrTriggers = [
       PSRTrigger.PhaseDamage20Plus,
       PSRTrigger.LegDamage,

@@ -48,7 +48,12 @@ export function dispatchToEngine(
         intent.attackerId,
         intent.targetId,
         intent.attackType,
+        intent.limb,
       );
+      return;
+    }
+    case 'RequestSpot': {
+      session.requestSpot(intent.unitId, intent.targetId);
       return;
     }
     case 'AdvancePhase': {
@@ -99,6 +104,12 @@ export function parseMovementType(kind: string): MovementType {
     case 'run':
     case 'Run':
       return MovementType.Run;
+    case 'sprint':
+    case 'Sprint':
+      return MovementType.Sprint;
+    case 'evade':
+    case 'Evade':
+      return MovementType.Evade;
     case 'jump':
     case 'Jump':
       return MovementType.Jump;

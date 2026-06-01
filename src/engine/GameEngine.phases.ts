@@ -6,6 +6,7 @@ import { hasReachedEdge, resolveEdge } from '@/simulation/ai/RetreatAI';
 import {
   GamePhase,
   LockState,
+  type IMovementDeclaredPayload,
   type IGameSession,
   type IUnitGameState,
 } from '@/types/gameplay/GameSessionInterfaces';
@@ -21,6 +22,7 @@ import {
   defaultD6Roller,
 } from '@/utils/gameplay/diceTypes';
 import {
+  createGoProneMovementDeclaredEvent,
   createRetreatTriggeredEvent,
   createUnitRetreatedEvent,
 } from '@/utils/gameplay/gameEvents';
@@ -40,6 +42,10 @@ import {
   resolvePendingPSRs,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
+import {
+  canUnitGoProne,
+  getGoProneMpCost,
+} from '@/utils/gameplay/gameSessionProne';
 import { getGridTerrainHeatEffect } from '@/utils/gameplay/heat';
 import {
   applyForcedWithdrawalCheck,
@@ -111,6 +117,12 @@ function canUnitAct(unit: IUnitGameState): boolean {
 
 function canUnitBeTargeted(unit: IUnitGameState): boolean {
   return !unit.destroyed && !unit.hasRetreated && !unit.hasEjected;
+}
+
+function isGoProneMovementPayload(
+  payload: IMovementDeclaredPayload | undefined,
+): boolean {
+  return payload?.steps?.some((step) => step.kind === 'goProne') ?? false;
 }
 
 /**
@@ -190,6 +202,25 @@ export function runMovementPhase(
     const moveEvt = botPlayer.playMovementPhase(aiUnit, grid, cap);
 
     if (moveEvt) {
+      if (isGoProneMovementPayload(moveEvt.payload)) {
+        if (canUnitGoProne(unit)) {
+          updatedSession = appendEvent(
+            updatedSession,
+            createGoProneMovementDeclaredEvent(
+              updatedSession.id,
+              updatedSession.events.length,
+              updatedSession.currentState.turn,
+              unitId,
+              unit.position,
+              unit.facing,
+              getGoProneMpCost(unit),
+            ),
+          );
+        }
+        updatedSession = lockMovement(updatedSession, unitId);
+        continue;
+      }
+
       const validation = validateMovement(
         grid,
         {
@@ -197,12 +228,15 @@ export function runMovementPhase(
           coord: unit.position,
           facing: unit.facing,
           prone: unit.prone ?? false,
+          isStuck: unit.isStuck ?? false,
         },
         moveEvt.payload.to,
         moveEvt.payload.facing as Facing,
         moveEvt.payload.movementType,
         cap,
         unit.heat,
+        undefined,
+        { pilotAbilities: unit.abilities },
       );
       if (!validation.valid) {
         updatedSession = lockMovement(updatedSession, unitId);
@@ -218,6 +252,7 @@ export function runMovementPhase(
           validation.mpCost,
           maxMovementCostForCapability(cap, moveEvt.payload.movementType),
         ),
+        movementContext: { pilotAbilities: unit.abilities },
       });
       updatedSession = declareMovement(
         updatedSession,

@@ -51,6 +51,7 @@ import {
 } from '@/utils/gameplay/gameEvents/statusPhysical';
 import {
   declareAttack,
+  requestSpot,
   validateTorsoTwist,
 } from '@/utils/gameplay/gameSession';
 import { hexEquals } from '@/utils/gameplay/hexMath';
@@ -59,6 +60,12 @@ import {
   maxMovementCostForCapability,
 } from '@/utils/gameplay/movement/eventPath';
 import { validateMovement } from '@/utils/gameplay/movement/validation';
+import {
+  getAllowedPhysicalAttackCount,
+  physicalAttackDeclarationsForTurn,
+  physicalAttackLimbForDeclaration,
+  physicalAttackLimbsUsedThisTurn,
+} from '@/utils/gameplay/physicalAttacks';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
 import {
@@ -70,6 +77,7 @@ import {
   asGoPronePayload,
   asMovementPayload,
   asPhysicalPayload,
+  asRequestSpotPayload,
   asStandPayload,
   asTorsoTwistPayload,
   asWithdrawPayload,
@@ -84,6 +92,7 @@ export {
   buildEjectIntent,
   buildEndPhaseIntent,
   buildGoProneIntent,
+  buildRequestSpotIntent,
   buildStandIntent,
   buildTorsoTwistIntent,
   buildWithdrawIntent,
@@ -95,6 +104,7 @@ export {
   type IEjectIntentPayload,
   type IEndPhaseIntentPayload,
   type IGoProneIntentPayload,
+  type IRequestSpotIntentPayload,
   type IStandIntentPayload,
   type ITorsoTwistIntentPayload,
   type IWithdrawIntentPayload,
@@ -109,6 +119,8 @@ export type IntentRejectionReason =
   | 'malformed-payload'
   | 'wrong-phase'
   | 'unowned-unit'
+  | 'physical-attack-limit-reached'
+  | 'physical-attack-limb-used'
   | 'unsupported-intent';
 
 export interface IIntentRejection {
@@ -209,6 +221,8 @@ export function translateIntentToEvents(
       return translateDeclareAttack(intent, session, authority);
     case 'declarePhysical':
       return translateDeclarePhysical(intent, session);
+    case 'requestSpot':
+      return translateRequestSpot(intent, session);
     case 'eject':
       return translateEject(intent, session);
     case 'withdraw':
@@ -278,12 +292,15 @@ function translateDeclareMovement(
       coord: unit.position,
       facing: unit.facing,
       prone: unit.prone ?? false,
+      isStuck: unit.isStuck ?? false,
     },
     payload.to,
     payload.facing,
     payload.movementType,
     capability,
     unit.heat,
+    undefined,
+    { pilotAbilities: unit.abilities },
   );
   if (!validation.valid) {
     return {
@@ -302,6 +319,7 @@ function translateDeclareMovement(
       validation.mpCost,
       maxMovementCostForCapability(capability, payload.movementType),
     ),
+    movementContext: { pilotAbilities: unit.abilities },
   });
 
   const baseSeq = session.events.length;
@@ -549,6 +567,31 @@ function translateDeclarePhysical(
   }
 
   const attacker = session.currentState.units[payload.attackerId];
+  const declarationsThisTurn = physicalAttackDeclarationsForTurn(
+    session.events,
+    session.currentState.turn,
+    payload.attackerId,
+  );
+  const allowedPhysicalAttacks = getAllowedPhysicalAttackCount(
+    attacker?.abilities,
+  );
+  if (declarationsThisTurn.length >= allowedPhysicalAttacks) {
+    return { ok: false, reason: 'physical-attack-limit-reached' };
+  }
+  const declaredLimb = physicalAttackLimbForDeclaration(payload.attackType, {
+    limb: payload.limb,
+  });
+  if (
+    declaredLimb &&
+    physicalAttackLimbsUsedThisTurn(
+      session.events,
+      session.currentState.turn,
+      payload.attackerId,
+    ).includes(declaredLimb)
+  ) {
+    return { ok: false, reason: 'physical-attack-limb-used' };
+  }
+
   const event = createPhysicalAttackDeclaredEvent(
     session.id,
     session.events.length,
@@ -557,9 +600,47 @@ function translateDeclarePhysical(
     payload.targetId,
     payload.attackType,
     payload.toHitNumber ?? attacker?.piloting ?? 5,
+    declaredLimb,
   );
 
   return { ok: true, events: [event] };
+}
+
+function translateRequestSpot(
+  intent: IGameIntent,
+  session: IGameSession,
+): IntentTranslationResult {
+  const payload = asRequestSpotPayload(intent.payload);
+  if (!payload) {
+    return { ok: false, reason: 'malformed-payload' };
+  }
+
+  if (session.currentState.phase !== GamePhase.WeaponAttack) {
+    return { ok: false, reason: 'wrong-phase' };
+  }
+
+  if (!canLocalPeerControlUnit(session, intent.authorPeerId, payload.unitId)) {
+    return { ok: false, reason: 'unowned-unit' };
+  }
+
+  const eventCountBeforeDeclaration = session.events.length;
+  try {
+    const updatedSession = requestSpot(
+      session,
+      payload.unitId,
+      payload.targetId,
+    );
+    return {
+      ok: true,
+      events: updatedSession.events.slice(eventCountBeforeDeclaration),
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      reason: 'unsupported-intent',
+      detail: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 function translateEject(

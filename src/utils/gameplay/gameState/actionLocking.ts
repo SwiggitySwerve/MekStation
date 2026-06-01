@@ -1,5 +1,6 @@
 import {
   IAttackDeclaredPayload,
+  IAttacksRevealedPayload,
   IFacingChangedPayload,
   IGameEvent,
   IGameState,
@@ -7,6 +8,7 @@ import {
   IMovementDeclaredPayload,
   IUnitGameState,
   LockState,
+  MovementType,
 } from '@/types/gameplay';
 import {
   movementStepsUseBackwardMovement,
@@ -23,6 +25,8 @@ export function applyMovementDeclared(
   }
   const wentProne =
     payload.steps?.some((step) => step.kind === 'goProne') ?? false;
+  const isEvadeMovement = payload.movementType === MovementType.Evade;
+  const isSprintMovement = payload.movementType === MovementType.Sprint;
 
   const updatedUnit: IUnitGameState = {
     ...unit,
@@ -36,8 +40,12 @@ export function applyMovementDeclared(
     usedMechanicalJumpBoosterThisTurn: movementStepsUseMechanicalJumpBooster(
       payload.steps,
     ),
+    isEvading: isEvadeMovement,
+    evasionBonus: isEvadeMovement ? 1 : undefined,
+    sprintedThisTurn: isSprintMovement,
     heat: unit.heat + payload.heatGenerated,
     prone: wentProne ? true : unit.prone,
+    ...(wentProne ? { hullDown: false } : {}),
     lockState: LockState.Planning,
   };
 
@@ -177,5 +185,28 @@ export function applyAttackLocked(
       },
     },
     activationIndex: state.activationIndex + 1,
+  };
+}
+
+export function applyAttacksRevealed(
+  state: IGameState,
+  payload: IAttacksRevealedPayload,
+): IGameState {
+  const units = { ...state.units };
+  for (const unitId of payload.unitIds) {
+    const unit = units[unitId];
+    if (!unit || unit.lockState !== LockState.Locked) {
+      continue;
+    }
+
+    units[unitId] = {
+      ...unit,
+      lockState: LockState.Revealed,
+    };
+  }
+
+  return {
+    ...state,
+    units,
   };
 }

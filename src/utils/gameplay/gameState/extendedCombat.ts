@@ -10,15 +10,19 @@ import {
   IPSRTriggeredPayload,
   IRetreatTriggeredPayload,
   IShutdownCheckPayload,
+  ISpottingDeclaredPayload,
   IStartupAttemptPayload,
   IUnitEjectedPayload,
   IUnitFellPayload,
   IUnitRetreatedPayload,
   IUnitStoodPayload,
+  IUnitStuckPayload,
   IWithdrawalDeclaredPayload,
   LockState,
   type MoraleLevel,
 } from '@/types/gameplay';
+
+import { hexNeighbor } from '../hexMath';
 
 export function applyPSRTriggered(
   state: IGameState,
@@ -104,6 +108,28 @@ export function applyUnitFell(
   };
 }
 
+export function applyUnitStuck(
+  state: IGameState,
+  payload: IUnitStuckPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) {
+    return state;
+  }
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        isStuck: true,
+        pendingPSRs: [],
+      },
+    },
+  };
+}
+
 /**
  * Per `wire-piloting-skill-rolls` task 9.3: prone unit has passed an
  * `AttemptStand` PSR and returns upright. Clears prone flag;
@@ -151,6 +177,20 @@ export function applyPhysicalAttackDeclared(
   };
 }
 
+function facingToward(
+  source: IGameState['units'][string]['position'],
+  destination: IGameState['units'][string]['position'],
+  fallback: IGameState['units'][string]['facing'],
+): IGameState['units'][string]['facing'] {
+  for (let facing = 0; facing < 6; facing++) {
+    const neighbor = hexNeighbor(source, facing as typeof fallback);
+    if (neighbor.q === destination.q && neighbor.r === destination.r) {
+      return facing as typeof fallback;
+    }
+  }
+  return fallback;
+}
+
 export function applyPhysicalAttackResolved(
   state: IGameState,
   payload: IPhysicalAttackResolvedPayload,
@@ -165,13 +205,58 @@ export function applyPhysicalAttackResolved(
     const target = state.units[payload.targetId];
     if (target) {
       const currentDamageThisPhase = target.damageThisPhase ?? 0;
+      const brushOffState =
+        payload.attackType === 'brush-off'
+          ? (() => {
+              const combatState =
+                target.combatState?.kind === 'squad'
+                  ? (() => {
+                      const { swarmingUnitId: _swarmingUnitId, ...squadState } =
+                        target.combatState.state;
+                      return { ...target.combatState, state: squadState };
+                    })()
+                  : target.combatState;
+
+              return {
+                isSwarming: false,
+                ...(combatState ? { combatState } : {}),
+              };
+            })()
+          : {};
       units = {
         ...units,
         [payload.targetId]: {
           ...target,
+          ...brushOffState,
           damageThisPhase: currentDamageThisPhase + (payload.damage ?? 0),
         },
       };
+    }
+
+    if (payload.attackType === 'grapple') {
+      const attacker = units[payload.attackerId];
+      const grappleTarget = units[payload.targetId];
+      if (attacker && grappleTarget) {
+        units = {
+          ...units,
+          [payload.attackerId]: {
+            ...attacker,
+            grappledUnitId: payload.targetId,
+            isGrappleAttacker: true,
+            grappledThisRound: true,
+            grappleSide: 'both',
+            position: grappleTarget.position,
+          },
+          [payload.targetId]: {
+            ...grappleTarget,
+            grappledUnitId: payload.attackerId,
+            isGrappleAttacker: false,
+            grappledThisRound: true,
+            grappleSide: 'both',
+            facing: ((attacker.facing + 3) % 6) as typeof grappleTarget.facing,
+          },
+        };
+      }
     }
   }
 
@@ -185,6 +270,43 @@ export function applyPhysicalAttackResolved(
         position: displacement.to,
       },
     };
+  }
+
+  if (payload.hit && payload.attackType === 'break-grapple') {
+    const attacker = units[payload.attackerId];
+    const target = units[payload.targetId];
+    if (attacker && target) {
+      const movedUnitIds = new Set(
+        (payload.displacements ?? [])
+          .filter((displacement) => displacement.reason === 'break-grapple')
+          .map((displacement) => displacement.unitId),
+      );
+      units = {
+        ...units,
+        [payload.attackerId]: {
+          ...attacker,
+          grappledUnitId: undefined,
+          isGrappleAttacker: undefined,
+          grappledThisRound: false,
+          grappleSide: undefined,
+          isChainWhipGrappled: false,
+          facing: movedUnitIds.has(payload.attackerId)
+            ? facingToward(attacker.position, target.position, attacker.facing)
+            : attacker.facing,
+        },
+        [payload.targetId]: {
+          ...target,
+          grappledUnitId: undefined,
+          isGrappleAttacker: undefined,
+          grappledThisRound: false,
+          grappleSide: undefined,
+          isChainWhipGrappled: false,
+          facing: movedUnitIds.has(payload.targetId)
+            ? facingToward(target.position, attacker.position, target.facing)
+            : target.facing,
+        },
+      };
+    }
   }
 
   return { ...state, units };
@@ -346,6 +468,29 @@ export function applyDesignatorMarkerApplied(
       [payload.targetId]: {
         ...target,
         narcedBy: [...narcedBy, payload.teamId],
+      },
+    },
+  };
+}
+
+export function applySpottingDeclared(
+  state: IGameState,
+  payload: ISpottingDeclaredPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) {
+    return state;
+  }
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        isSpotting: true,
+        spotTargetId: payload.targetId,
+        lockState: LockState.Locked,
       },
     },
   };

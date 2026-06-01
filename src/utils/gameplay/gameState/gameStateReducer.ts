@@ -12,8 +12,10 @@ import {
   IGameEndedPayload,
   IGameEvent,
   IGameState,
+  IAttacksRevealedPayload,
   IFacingChangedPayload,
   IHeatPayload,
+  IInitiativeOrderSetPayload,
   IInitiativeRolledPayload,
   IMoraleShiftedPayload,
   IMovementEnhancementActivatedPayload,
@@ -29,12 +31,14 @@ import {
   IPSRTriggeredPayload,
   IRetreatTriggeredPayload,
   IShutdownCheckPayload,
+  ISpottingDeclaredPayload,
   IStartupAttemptPayload,
   IUnitEjectedPayload,
   IUnitDestroyedPayload,
   IUnitFellPayload,
   IUnitRetreatedPayload,
   IUnitStoodPayload,
+  IUnitStuckPayload,
   IUnitGameState,
   IWithdrawalDeclaredPayload,
   IGameStartedPayload,
@@ -45,6 +49,7 @@ import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveE
 import {
   applyAttackDeclared,
   applyAttackLocked,
+  applyAttacksRevealed,
   applyFacingChanged,
   applyMovementEnhancementActivated,
   applyMovementDeclared,
@@ -68,10 +73,12 @@ import {
   applyRetreatTriggered,
   applyShutdownCheck,
   applyStartupAttempt,
+  applySpottingDeclared,
   applyUnitEjected,
   applyUnitFell,
   applyUnitRetreated,
   applyUnitStood,
+  applyUnitStuck,
   applyWithdrawalDeclared,
 } from './extendedCombat';
 import {
@@ -89,6 +96,7 @@ import {
   applyObjectiveProgress,
 } from './objectiveReducer';
 import {
+  applyInitiativeOrderSet,
   applyInitiativeRolled,
   applyPhaseChanged,
   applyTurnStarted,
@@ -121,6 +129,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
         event.payload as IInitiativeRolledPayload,
       );
 
+    case GameEventType.InitiativeOrderSet:
+      return applyInitiativeOrderSet(
+        state,
+        event.payload as IInitiativeOrderSetPayload,
+      );
+
     case GameEventType.MovementDeclared:
       return applyMovementDeclared(
         state,
@@ -147,6 +161,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.AttackLocked:
       return applyAttackLocked(state, event);
+
+    case GameEventType.AttacksRevealed:
+      return applyAttacksRevealed(
+        state,
+        event.payload as IAttacksRevealedPayload,
+      );
 
     case GameEventType.DamageApplied:
       return applyDamageApplied(state, event.payload as IDamageAppliedPayload);
@@ -175,6 +195,9 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.UnitFell:
       return applyUnitFell(state, event.payload as IUnitFellPayload);
+
+    case GameEventType.UnitStuck:
+      return applyUnitStuck(state, event.payload as IUnitStuckPayload);
 
     case GameEventType.UnitStood:
       return applyUnitStood(state, event.payload as IUnitStoodPayload);
@@ -207,6 +230,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
       return applyDesignatorMarkerApplied(
         state,
         event.payload as IDesignatorMarkerAppliedPayload,
+      );
+
+    case GameEventType.SpottingDeclared:
+      return applySpottingDeclared(
+        state,
+        event.payload as ISpottingDeclaredPayload,
       );
 
     case GameEventType.RetreatTriggered:
@@ -246,8 +275,6 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
       );
 
     case GameEventType.TurnEnded:
-    case GameEventType.InitiativeOrderSet:
-    case GameEventType.AttacksRevealed:
     case GameEventType.AttackResolved:
     case GameEventType.HeatEffectApplied:
     case GameEventType.CriticalHit:
@@ -335,6 +362,7 @@ export function allUnitsLocked(state: IGameState): boolean {
   return activeUnits.every(
     (unit) =>
       unit.lockState === LockState.Locked ||
+      unit.lockState === LockState.Revealed ||
       unit.lockState === LockState.Resolved,
   );
 }

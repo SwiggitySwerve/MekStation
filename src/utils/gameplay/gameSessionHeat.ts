@@ -66,11 +66,7 @@ import {
   getWeaponCoolingHeatModifier,
   getWeaponQuirks,
 } from './quirkModifiers';
-import {
-  getCoolUnderFireHeatReduction,
-  getHotDogHeatTargetNumberModifier,
-  hasSPA,
-} from './spaModifiers';
+import { getHotDogHeatTargetNumberModifier, hasSPA } from './spaModifiers';
 
 /**
  * Per `wire-heat-generation-and-effects` task 5 (water cooling) and
@@ -337,6 +333,7 @@ function appendHeatAmmoExplosionPilotDamage(
     pilotDamage,
     unit.abilities,
     d6Roller,
+    unit.pilotToughness,
   );
   const consciousnessPassed =
     unit.pilotConscious &&
@@ -870,12 +867,8 @@ export function resolveHeatPhase(
       options?.environmentalConditions !== undefined
         ? calculateEnvironmentalHeatModifier(options.environmentalConditions)
         : 0;
-    const heatGenerationReduction = Math.min(
-      getCoolUnderFireHeatReduction(
-        unitState.abilities ?? unit.abilities ?? [],
-      ),
-      heatFromMovement + heatFromWeapons + heatFromEngine + heatFromEnvironment,
-    );
+    // Cool Under Fire is a local out-of-scope row until source authority exists.
+    const heatGenerationReduction = 0;
 
     const totalDissipation = Math.max(
       0,
@@ -1118,6 +1111,7 @@ export function resolveHeatPhase(
         pilotDamage,
         currentUnitState.abilities ?? unit.abilities ?? [],
         d6Roller,
+        currentUnitState.pilotToughness,
       );
       const consciousnessPassed =
         currentUnitState.pilotConscious &&

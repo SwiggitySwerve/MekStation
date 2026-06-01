@@ -4,6 +4,9 @@
 
 import { MovementType } from '@/types/gameplay';
 
+const STANDARD_EVADE_HEAT = 4;
+const STANDARD_SPRINT_HEAT = 3;
+
 /**
  * Calculate heat generated from movement.
  */
@@ -25,6 +28,10 @@ export function calculateMovementHeat(
       return 1;
     case MovementType.Run:
       return 2;
+    case MovementType.Sprint:
+      return STANDARD_SPRINT_HEAT;
+    case MovementType.Evade:
+      return STANDARD_EVADE_HEAT;
     case MovementType.Jump:
       return Math.max(hexesMoved - normalizedPartialWingJumpBonus, 3);
     default:
@@ -64,6 +71,8 @@ export function calculateAttackerMovementModifier(
     case MovementType.Walk:
       return 1;
     case MovementType.Run:
+    case MovementType.Evade:
+    case MovementType.Sprint:
       return 2;
     case MovementType.Jump:
       return 3;

@@ -7,9 +7,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "INTRODUCTORY",
-      "compatibleWeaponIds": [
-        "ac-2"
-      ],
+      "compatibleWeaponIds": ["ac-2"],
       "shotsPerTon": 45,
       "weight": 1,
       "criticalSlots": 1,
@@ -25,9 +23,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "INTRODUCTORY",
-      "compatibleWeaponIds": [
-        "ac-5"
-      ],
+      "compatibleWeaponIds": ["ac-5"],
       "shotsPerTon": 20,
       "weight": 1,
       "criticalSlots": 1,
@@ -43,9 +39,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "INTRODUCTORY",
-      "compatibleWeaponIds": [
-        "ac-10"
-      ],
+      "compatibleWeaponIds": ["ac-10"],
       "shotsPerTon": 10,
       "weight": 1,
       "criticalSlots": 1,
@@ -61,9 +55,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "INTRODUCTORY",
-      "compatibleWeaponIds": [
-        "ac-20"
-      ],
+      "compatibleWeaponIds": ["ac-20"],
       "shotsPerTon": 5,
       "weight": 1,
       "criticalSlots": 1,
@@ -79,9 +71,7 @@
       "variant": "Armor-Piercing",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "ac-2"
-      ],
+      "compatibleWeaponIds": ["ac-2"],
       "shotsPerTon": 22,
       "weight": 1,
       "criticalSlots": 1,
@@ -89,9 +79,7 @@
       "battleValue": 7,
       "isExplosive": true,
       "introductionYear": 3055,
-      "special": [
-        "+4 damage vs armor"
-      ]
+      "special": ["+4 damage vs armor"]
     },
     {
       "id": "ac-5-ap-ammo",
@@ -100,9 +88,7 @@
       "variant": "Armor-Piercing",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "ac-5"
-      ],
+      "compatibleWeaponIds": ["ac-5"],
       "shotsPerTon": 10,
       "weight": 1,
       "criticalSlots": 1,
@@ -110,9 +96,7 @@
       "battleValue": 14,
       "isExplosive": true,
       "introductionYear": 3055,
-      "special": [
-        "+4 damage vs armor"
-      ]
+      "special": ["+4 damage vs armor"]
     },
     {
       "id": "ac-2-precision-ammo",
@@ -121,9 +105,7 @@
       "variant": "Precision",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "ac-2"
-      ],
+      "compatibleWeaponIds": ["ac-2"],
       "shotsPerTon": 22,
       "weight": 1,
       "criticalSlots": 1,
@@ -131,9 +113,7 @@
       "battleValue": 7,
       "isExplosive": true,
       "introductionYear": 3062,
-      "special": [
-        "-1 to-hit modifier"
-      ]
+      "special": ["-1 to-hit modifier"]
     },
     {
       "id": "uac-2-ammo",
@@ -142,10 +122,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "uac-2",
-        "clan-uac-2"
-      ],
+      "compatibleWeaponIds": ["uac-2", "clan-uac-2"],
       "shotsPerTon": 45,
       "weight": 1,
       "criticalSlots": 1,
@@ -161,10 +138,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "uac-5",
-        "clan-uac-5"
-      ],
+      "compatibleWeaponIds": ["uac-5", "clan-uac-5"],
       "shotsPerTon": 20,
       "weight": 1,
       "criticalSlots": 1,
@@ -180,10 +154,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "uac-10",
-        "clan-uac-10"
-      ],
+      "compatibleWeaponIds": ["uac-10", "clan-uac-10"],
       "shotsPerTon": 10,
       "weight": 1,
       "criticalSlots": 1,
@@ -199,10 +170,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "uac-20",
-        "clan-uac-20"
-      ],
+      "compatibleWeaponIds": ["uac-20", "clan-uac-20"],
       "shotsPerTon": 5,
       "weight": 1,
       "criticalSlots": 1,
@@ -218,10 +186,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "lb-2-x-ac",
-        "clan-lb-2-x-ac"
-      ],
+      "compatibleWeaponIds": ["lb-2-x-ac", "clan-lb-2-x-ac"],
       "shotsPerTon": 45,
       "weight": 1,
       "criticalSlots": 1,
@@ -237,10 +202,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "lb-5-x-ac",
-        "clan-lb-5-x-ac"
-      ],
+      "compatibleWeaponIds": ["lb-5-x-ac", "clan-lb-5-x-ac"],
       "shotsPerTon": 20,
       "weight": 1,
       "criticalSlots": 1,
@@ -256,10 +218,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "lb-10-x-ac",
-        "clan-lb-10-x-ac"
-      ],
+      "compatibleWeaponIds": ["lb-10-x-ac", "clan-lb-10-x-ac"],
       "shotsPerTon": 10,
       "weight": 1,
       "criticalSlots": 1,
@@ -275,10 +234,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "lb-20-x-ac",
-        "clan-lb-20-x-ac"
-      ],
+      "compatibleWeaponIds": ["lb-20-x-ac", "clan-lb-20-x-ac"],
       "shotsPerTon": 5,
       "weight": 1,
       "criticalSlots": 1,
@@ -294,10 +250,7 @@
       "variant": "Cluster",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "lb-10-x-ac",
-        "clan-lb-10-x-ac"
-      ],
+      "compatibleWeaponIds": ["lb-10-x-ac", "clan-lb-10-x-ac"],
       "shotsPerTon": 10,
       "weight": 1,
       "criticalSlots": 1,
@@ -305,10 +258,7 @@
       "battleValue": 19,
       "isExplosive": true,
       "introductionYear": 2595,
-      "special": [
-        "-2 to-hit vs aerospace",
-        "Cluster damage"
-      ]
+      "special": ["-2 to-hit vs aerospace", "Cluster damage"]
     },
     {
       "id": "lb-20-x-cluster-ammo",
@@ -317,10 +267,7 @@
       "variant": "Cluster",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "lb-20-x-ac",
-        "clan-lb-20-x-ac"
-      ],
+      "compatibleWeaponIds": ["lb-20-x-ac", "clan-lb-20-x-ac"],
       "shotsPerTon": 5,
       "weight": 1,
       "criticalSlots": 1,
@@ -328,10 +275,7 @@
       "battleValue": 30,
       "isExplosive": true,
       "introductionYear": 2595,
-      "special": [
-        "-2 to-hit vs aerospace",
-        "Cluster damage"
-      ]
+      "special": ["-2 to-hit vs aerospace", "Cluster damage"]
     },
     {
       "id": "ammo-lac-2",
@@ -425,7 +369,7 @@
       "variant": "Cluster",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "ADVANCED",
-      "compatibleWeaponIds": [],
+      "compatibleWeaponIds": ["lb-2-x-ac", "clan-lb-2-x-ac"],
       "shotsPerTon": 45,
       "weight": 1,
       "criticalSlots": 1,
@@ -765,7 +709,7 @@
       "variant": "Standard",
       "techBase": "CLAN",
       "rulesLevel": "ADVANCED",
-      "compatibleWeaponIds": [],
+      "compatibleWeaponIds": ["improved-autocannon-2"],
       "shotsPerTon": 45,
       "weight": 1,
       "criticalSlots": 1,
@@ -782,7 +726,7 @@
       "variant": "Standard",
       "techBase": "CLAN",
       "rulesLevel": "ADVANCED",
-      "compatibleWeaponIds": [],
+      "compatibleWeaponIds": ["improved-autocannon-5"],
       "shotsPerTon": 20,
       "weight": 1,
       "criticalSlots": 1,
@@ -799,7 +743,7 @@
       "variant": "Standard",
       "techBase": "CLAN",
       "rulesLevel": "ADVANCED",
-      "compatibleWeaponIds": [],
+      "compatibleWeaponIds": ["improved-autocannon-10"],
       "shotsPerTon": 10,
       "weight": 1,
       "criticalSlots": 1,
@@ -816,7 +760,7 @@
       "variant": "Standard",
       "techBase": "CLAN",
       "rulesLevel": "ADVANCED",
-      "compatibleWeaponIds": [],
+      "compatibleWeaponIds": ["improved-autocannon-20"],
       "shotsPerTon": 5,
       "weight": 1,
       "criticalSlots": 1,

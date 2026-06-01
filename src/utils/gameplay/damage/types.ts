@@ -46,6 +46,12 @@ export interface IUnitDamageState {
   readonly pilotWounds: number;
   readonly pilotConscious: boolean;
   readonly pilotAbilities?: readonly string[];
+  /**
+   * Source-backed RPG Toughness numeric crew value. Undefined preserves the
+   * default MegaMek behavior when the RPG Toughness option is absent or not
+   * hydrated; ability aliases named "toughness" do not imply this value.
+   */
+  readonly pilotToughness?: number;
   readonly destroyed: boolean;
   readonly destructionCause?:
     | 'damage'

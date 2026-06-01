@@ -618,6 +618,8 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     expect(hydrateTalonStateFromFullUnit(fullUnit)).toEqual({
       leftLegHasTalons: true,
       rightLegHasTalons: true,
+      leftArmHasTalons: false,
+      rightArmHasTalons: false,
     });
 
     const unitState = createHydratedUnitState({
@@ -632,6 +634,44 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
 
     expect(unitState.leftLegHasTalons).toBe(true);
     expect(unitState.rightLegHasTalons).toBe(true);
+    expect(unitState.leftArmHasTalons).toBe(false);
+    expect(unitState.rightArmHasTalons).toBe(false);
+  });
+
+  it('hydrates quad front-leg talons from arm critical slots into unit state', () => {
+    const fullUnit = {
+      id: 'synthetic-quad-talons',
+      chassis: 'Synthetic Quad',
+      variant: 'QT',
+      tonnage: 80,
+      techBase: 'Inner Sphere',
+      era: 'Civil War',
+      unitType: 'BattleMech',
+      criticalSlots: {
+        LEFT_ARM: ['Talons'],
+        RIGHT_ARM: ['Talons'],
+      },
+    } satisfies IFullUnit;
+
+    expect(hydrateTalonStateFromFullUnit(fullUnit)).toEqual({
+      leftLegHasTalons: false,
+      rightLegHasTalons: false,
+      leftArmHasTalons: true,
+      rightArmHasTalons: true,
+    });
+
+    const unitState = createHydratedUnitState({
+      runnerUnitId: 'player-1',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      fullUnit,
+      aiWeapons: [],
+      gunnery: 4,
+      piloting: 5,
+    });
+
+    expect(unitState.leftArmHasTalons).toBe(true);
+    expect(unitState.rightArmHasTalons).toBe(true);
   });
 
   it('hydrates BattleMech claws from arm critical slots into unit state', async () => {
@@ -925,6 +965,12 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     );
     expect(armorTotal).toBe(ATLAS_CANONICAL_TOTAL_ARMOR);
     expect(unitState.structure.center_torso).toBe(31);
+    expect(unitState.armorTypeByLocation).toBeDefined();
+    expect(Object.keys(unitState.armorTypeByLocation ?? {}).sort()).toEqual(
+      Object.keys(unitState.armor).sort(),
+    );
+    expect(unitState.armorTypeByLocation?.head).toBe('STANDARD');
+    expect(unitState.armorTypeByLocation?.center_torso_rear).toBe('STANDARD');
 
     // startingInternalStructure is seeded for the retreat-trigger ratio.
     expect(unitState.startingInternalStructure).toBeDefined();

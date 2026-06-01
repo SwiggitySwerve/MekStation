@@ -23,6 +23,7 @@ import {
   getMovementDeclaredPayload,
   getMovementLockedPayload,
   getAttackDeclaredPayload,
+  getAttacksRevealedPayload,
   getAttackResolvedPayload,
   getDamageAppliedPayload,
   getHeatGeneratedPayload,
@@ -157,6 +158,17 @@ function createAttackDeclaredEvent(): IGameEvent {
         { name: 'Base', value: 4, source: 'gunnery' },
         { name: 'Range', value: 2, source: 'range' },
       ],
+    },
+  });
+}
+
+function createAttacksRevealedEvent(): IGameEvent {
+  return createBaseEvent({
+    type: GameEventType.AttacksRevealed,
+    phase: GamePhase.WeaponAttack,
+    payload: {
+      unitIds: ['unit-1', 'unit-2'],
+      attackCount: 2,
     },
   });
 }
@@ -450,6 +462,24 @@ describe('getAttackDeclaredPayload', () => {
   it('should return null for non-AttackDeclared event', () => {
     const event = createGameStartedEvent();
     const payload = getAttackDeclaredPayload(event);
+
+    expect(payload).toBeNull();
+  });
+});
+
+describe('getAttacksRevealedPayload', () => {
+  it('should extract payload from AttacksRevealed event', () => {
+    const event = createAttacksRevealedEvent();
+    const payload = getAttacksRevealedPayload(event);
+
+    expect(payload).not.toBeNull();
+    expect(payload?.unitIds).toEqual(['unit-1', 'unit-2']);
+    expect(payload?.attackCount).toBe(2);
+  });
+
+  it('should return null for non-AttacksRevealed event', () => {
+    const event = createAttackDeclaredEvent();
+    const payload = getAttacksRevealedPayload(event);
 
     expect(payload).toBeNull();
   });

@@ -99,7 +99,8 @@ export function emitCoveredLegMiss(options: {
  * Per `add-combat-fidelity-suite` Phase 4 (`combat-resolution` delta —
  * Ammo Consumption and Explosion Events): when a non-energy weapon fires,
  * decrement its ammo bin and emit `AmmoConsumed`. Energy weapons (laser /
- * PPC / flamer / plasma) are skipped via `isEnergyWeapon`. When the unit
+ * PPC / flamer) are skipped via `isEnergyWeapon`; source-backed plasma
+ * AmmoWeapon families remain ammo-fed despite their energy flag. When the unit
  * has no `ammoState` populated (synthetic test fixtures, legacy session)
  * the consumption is silently skipped — pre-P4 behaviour preserved.
  *

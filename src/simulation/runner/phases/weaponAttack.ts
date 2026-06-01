@@ -14,7 +14,7 @@ import {
   ITargetState,
   RangeBracket,
 } from '@/types/gameplay';
-import { consumeAmmo } from '@/utils/gameplay/ammoTracking';
+import { consumeAmmo, isEnergyWeapon } from '@/utils/gameplay/ammoTracking';
 import {
   updateC3UnitOperationalStatus,
   updateC3UnitECMStatus,
@@ -851,6 +851,7 @@ export function runAttackPhase(options: {
         ),
         calledShot,
         teammateCalledShot,
+        false,
       );
       // Partial cover is derived from the terrain of the target's own hex
       // (Total Warfare p. 53). The runner's all-clear grid yields `false`
@@ -1044,6 +1045,7 @@ export function runAttackPhase(options: {
       const environmentalModifiers =
         environmentalConditions !== undefined
           ? calculateEnvironmentalModifiers(environmentalConditions, {
+              isEnergyWeapon: isEnergyWeapon(baseWeapon.name),
               isMissileWeapon:
                 isMissileWeapon(baseWeapon.id) ||
                 isMissileWeapon(baseWeapon.name),
@@ -1366,6 +1368,7 @@ export function runAttackPhase(options: {
           partialCover: targetPartialCover,
           hullDown: targetBeforeShot.hullDown ?? false,
           d6Roller,
+          optionalRules,
           getOrSeedManifest,
           manifestsByUnit,
           weaponsByUnit,

@@ -14,6 +14,7 @@ import {
   ejectIntent,
   endPhaseIntent,
   goProneIntent,
+  requestSpotIntent,
   standIntent,
   toServerIntent,
   torsoTwistIntent,
@@ -98,6 +99,12 @@ describe('BattleMech combat action support catalog', () => {
     expect(playerCommandIds.filter((id) => id.startsWith('gm.'))).toEqual([]);
     expect(supportGaps(COMBAT_COMMAND_ACTION_SUPPORT)).toEqual([]);
     expect(supportGaps(GM_COMMAND_EXCLUSION_SUPPORT)).toEqual([]);
+    expect(
+      supportIdsByLevel(GM_COMMAND_EXCLUSION_SUPPORT, 'out-of-scope'),
+    ).toEqual(['gm.advance-phase', 'gm.grant-resource', 'gm.set-damage']);
+    expect(
+      supportIdsByLevel(GM_COMMAND_EXCLUSION_SUPPORT, 'unsupported'),
+    ).toEqual([]);
     for (const id of [
       'gm.advance-phase',
       'gm.set-damage',
@@ -124,15 +131,21 @@ describe('BattleMech combat action support catalog', () => {
       'heat.continue',
       'movement.activate-masc',
       'movement.activate-supercharger',
+      'movement.evade',
       'movement.go-prone',
       'movement.jump',
       'movement.run',
+      'movement.sprint',
       'movement.stand',
       'movement.walk',
+      'physical.break-grapple',
+      'physical.brush-off',
       'physical.charge',
       'physical.club',
       'physical.dfa',
       'physical.flail',
+      'physical.grapple',
+      'physical.jump-jet-attack',
       'physical.kick',
       'physical.lance',
       'physical.mace',
@@ -140,33 +153,31 @@ describe('BattleMech combat action support catalog', () => {
       'physical.push',
       'physical.retractable-blade',
       'physical.sword',
+      'physical.thrash',
+      'physical.trip',
       'physical.wrecking-ball',
       'utility.concede',
       'utility.eject',
+      'utility.request-spot',
       'weapon.fire-volley',
     ]);
     expect(
       supportIdsByLevel(COMBAT_COMMAND_ACTION_SUPPORT, 'helper-only'),
-    ).toEqual([
-      'movement.cancel',
-      'utility.request-spot',
-      'utility.withdraw',
-      'weapon.clear-attacks',
-      'weapon.declare-attack',
-    ]);
-    const helperCommandSourceFiles = {
+    ).toEqual([]);
+    const outOfScopeCommandSourceFiles = {
       'movement.cancel': 'movementCommands.ts',
-      'utility.request-spot': 'utilityCommands.ts',
+      'movement.stabilize': 'movementCommands.ts',
       'utility.withdraw': 'utilityCommands.ts',
       'weapon.clear-attacks': 'weaponAttackCommands.ts',
       'weapon.declare-attack': 'weaponAttackCommands.ts',
     } as const;
-    for (const [id, file] of Object.entries(helperCommandSourceFiles)) {
+    for (const [id, file] of Object.entries(outOfScopeCommandSourceFiles)) {
       const entry =
         COMBAT_COMMAND_ACTION_SUPPORT[
           id as keyof typeof COMBAT_COMMAND_ACTION_SUPPORT
         ];
 
+      expect(entry).toMatchObject({ level: 'out-of-scope' });
       expect(entry.sourceRefs).toEqual([
         expect.objectContaining({
           kind: 'mekstation-deviation',
@@ -179,6 +190,7 @@ describe('BattleMech combat action support catalog', () => {
     const integratedMovementCommandSourceRows = [
       'movement.activate-masc',
       'movement.activate-supercharger',
+      'movement.evade',
       'movement.go-prone',
       'movement.jump',
       'movement.run',
@@ -303,6 +315,8 @@ describe('BattleMech combat action support catalog', () => {
       'physical.club',
       'physical.dfa',
       'physical.flail',
+      'physical.brush-off',
+      'physical.jump-jet-attack',
       'physical.kick',
       'physical.lance',
       'physical.mace',
@@ -310,6 +324,7 @@ describe('BattleMech combat action support catalog', () => {
       'physical.push',
       'physical.retractable-blade',
       'physical.sword',
+      'physical.trip',
       'physical.wrecking-ball',
     ];
     for (const id of physicalCommandSourceRows) {
@@ -334,8 +349,9 @@ describe('BattleMech combat action support catalog', () => {
     }
     expect(
       supportIdsByLevel(COMBAT_COMMAND_ACTION_SUPPORT, 'unsupported'),
-    ).toEqual(['movement.stabilize']);
+    ).toEqual([]);
     expect(COMBAT_COMMAND_ACTION_SUPPORT['movement.stabilize']).toMatchObject({
+      level: 'out-of-scope',
       layer: 'tactical-command',
       gap: expect.stringContaining('MekStation-local command id'),
       sourceRefs: [
@@ -362,7 +378,7 @@ describe('BattleMech combat action support catalog', () => {
     ).toBeUndefined();
   });
 
-  it('tracks official BattleMech action surfaces that have no authoritative command or wire path', () => {
+  it('tracks source-backed optional BattleMech movement action surfaces explicitly', () => {
     const playerCommandIds = commandIds([
       ...buildMovementCommands(),
       ...buildFacingCommands(),
@@ -372,34 +388,54 @@ describe('BattleMech combat action support catalog', () => {
       ...buildUtilityCommands(),
     ]);
 
-    expect(sortedKeys(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([
-      'movement.evade',
-      'movement.sprint',
-    ]);
+    expect(sortedKeys(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([]);
     expect(supportGaps(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(BATTLEMECH_ABSENT_ACTION_SUPPORT, 'unsupported'),
-    ).toEqual(['movement.evade', 'movement.sprint']);
+    ).toEqual([]);
     expect(
       sortedKeys(BATTLEMECH_ABSENT_ACTION_SUPPORT).filter((id) =>
         playerCommandIds.includes(id),
       ),
     ).toEqual([]);
-    expect(Object.values(MovementType)).not.toContain('evade');
-    expect(Object.values(MovementType)).not.toContain('sprint');
-    expect(BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.evade']).toMatchObject({
-      layer: 'absent-action-surface',
-      gap: expect.stringContaining('no authoritative evade action path'),
+    expect(Object.values(MovementType)).toContain('evade');
+    expect(Object.values(MovementType)).toContain('sprint');
+    expect(COMBAT_COMMAND_ACTION_SUPPORT['movement.sprint']).toMatchObject({
+      layer: 'tactical-command',
+      level: 'integrated',
+      evidence: expect.stringContaining('MovementType.Sprint'),
     });
-    expect(BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.evade'].gap).toContain(
-      'feeds runner heat as run heat plus evasion heat',
-    );
     expect(
-      BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.evade'].sourceRefs?.map(
+      COMBAT_COMMAND_ACTION_SUPPORT['movement.sprint'].gap,
+    ).toBeUndefined();
+    expect(
+      COMBAT_COMMAND_ACTION_SUPPORT['movement.sprint'].sourceRefs?.map(
         (sourceRef) => sourceRef.citation,
       ),
     ).toEqual(
       expect.arrayContaining([
+        expect.stringContaining('movement.sprint'),
+        expect.stringContaining('MoveStep.canUseSprint'),
+        expect.stringContaining('Mek.getSprintMP'),
+        expect.stringContaining('Mek.getSprintHeat'),
+        expect.stringContaining('Engine.getSprintHeat'),
+        expect.stringContaining('attacks by sprinting attackers'),
+        expect.stringContaining('target sprinted'),
+      ]),
+    );
+    expect(COMBAT_COMMAND_ACTION_SUPPORT['movement.evade']).toMatchObject({
+      layer: 'tactical-command',
+      level: 'integrated',
+      evidence: expect.stringContaining('MovementType.Evade'),
+    });
+    expect(COMBAT_COMMAND_ACTION_SUPPORT['movement.evade'].gap).toBeUndefined();
+    expect(
+      COMBAT_COMMAND_ACTION_SUPPORT['movement.evade'].sourceRefs?.map(
+        (sourceRef) => sourceRef.citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('movement.evade'),
         expect.stringContaining('TacOps Evade'),
         expect.stringContaining('MoveStepType defines EVADE'),
         expect.stringContaining('sets the entity evading flag'),
@@ -407,27 +443,6 @@ describe('BattleMech combat action support catalog', () => {
         expect.stringContaining('getEvasionBonus'),
         expect.stringContaining('target evasion bonus'),
         expect.stringContaining('evading attackers from firing'),
-      ]),
-    );
-    expect(BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.sprint']).toMatchObject({
-      layer: 'absent-action-surface',
-      gap: expect.stringContaining('no authoritative sprint action path'),
-    });
-    expect(BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.sprint'].gap).toContain(
-      'feeds runner heat as normal-engine sprint heat',
-    );
-    expect(
-      BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.sprint'].sourceRefs?.map(
-        (sourceRef) => sourceRef.citation,
-      ),
-    ).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining('MoveStep.canUseSprint'),
-        expect.stringContaining('Mek.getSprintMP'),
-        expect.stringContaining('Mek.getSprintHeat'),
-        expect.stringContaining('Engine.getSprintHeat'),
-        expect.stringContaining('attacks by sprinting attackers'),
-        expect.stringContaining('target sprinted'),
       ]),
     );
   });
@@ -477,6 +492,12 @@ describe('BattleMech combat action support catalog', () => {
           attackType: 'kick',
         }),
       )?.kind,
+      requestSpot: toServerIntent(
+        requestSpotIntent(peer, {
+          unitId: 'player-1',
+          targetId: 'opponent-1',
+        }),
+      )?.kind,
       confirmHeat: toServerIntent(confirmHeatIntent)?.kind,
       endPhase: toServerIntent(endPhaseIntent(peer))?.kind,
       eject: toServerIntent(ejectIntent(peer, { unitId: 'player-1' }))?.kind,
@@ -514,6 +535,7 @@ describe('BattleMech combat action support catalog', () => {
       goProne: 'MoveStepType defines GO_PRONE',
       activateMovementEnhancement: 'MovePath derives active MASC/Supercharger',
       torsoTwist: 'TorsoTwistAction',
+      requestSpot: 'SpotAction carries',
     } as const;
     for (const [intentType, citation] of Object.entries(
       megamekBackedGameIntentRows,
@@ -558,8 +580,11 @@ describe('BattleMech combat action support catalog', () => {
       supportIdsByLevel(WIRE_INTENT_KIND_ACTION_SUPPORT, 'integrated'),
     ).toEqual([...ENGINE_WIRE_COMBAT_INTENT_KINDS].sort());
     expect(
-      supportIdsByLevel(WIRE_INTENT_KIND_ACTION_SUPPORT, 'unsupported'),
+      supportIdsByLevel(WIRE_INTENT_KIND_ACTION_SUPPORT, 'out-of-scope'),
     ).toEqual([...NON_COMBAT_WIRE_INTENT_KINDS].sort());
+    expect(
+      supportIdsByLevel(WIRE_INTENT_KIND_ACTION_SUPPORT, 'unsupported'),
+    ).toEqual([]);
     expect(
       ENGINE_WIRE_COMBAT_INTENT_KINDS.filter((kind) =>
         NON_COMBAT_WIRE_INTENT_KINDS.includes(kind as never),
@@ -598,6 +623,7 @@ describe('BattleMech combat action support catalog', () => {
       GoProne: 'MoveStepType defines GO_PRONE',
       ActivateMovementEnhancement: 'MovePath derives active MASC/Supercharger',
       TorsoTwist: 'TorsoTwistAction',
+      RequestSpot: 'SpotAction carries',
     } as const;
     for (const [kind, citation] of Object.entries(
       megamekBackedWireIntentRows,
@@ -627,6 +653,7 @@ describe('BattleMech combat action support catalog', () => {
       'eject',
       'endPhase',
       'goProne',
+      'requestSpot',
       'stand',
       'torsoTwist',
       'withdraw',
@@ -680,10 +707,14 @@ describe('BattleMech combat action support catalog', () => {
     );
     expect(supportGaps(PHYSICAL_ATTACK_ACTION_SUPPORT)).toEqual([]);
     expect(physicalCommandAttackTypes).toMatchObject({
+      'physical.break-grapple': 'break-grapple',
       'physical.charge': 'charge',
       'physical.club': 'hatchet',
       'physical.dfa': 'dfa',
       'physical.flail': 'flail',
+      'physical.brush-off': 'brush-off',
+      'physical.grapple': 'grapple',
+      'physical.jump-jet-attack': 'jump-jet-attack',
       'physical.kick': 'kick',
       'physical.lance': 'lance',
       'physical.mace': 'mace',
@@ -691,15 +722,21 @@ describe('BattleMech combat action support catalog', () => {
       'physical.push': 'push',
       'physical.retractable-blade': 'retractable-blade',
       'physical.sword': 'sword',
+      'physical.thrash': 'thrash',
+      'physical.trip': 'trip',
       'physical.wrecking-ball': 'wrecking-ball',
     });
     expect(
       supportIdsByLevel(PHYSICAL_ATTACK_ACTION_SUPPORT, 'integrated'),
     ).toEqual([
+      'break-grapple',
+      'brush-off',
       'charge',
       'dfa',
       'flail',
+      'grapple',
       'hatchet',
+      'jump-jet-attack',
       'kick',
       'lance',
       'mace',
@@ -707,6 +744,8 @@ describe('BattleMech combat action support catalog', () => {
       'push',
       'retractable-blade',
       'sword',
+      'thrash',
+      'trip',
       'wrecking-ball',
     ]);
     expect(
@@ -734,19 +773,28 @@ describe('BattleMech combat action support catalog', () => {
 
     expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'integrated'),
-    ).toEqual(['charge', 'club', 'dfa', 'kick', 'punch', 'push']);
-    expect(
-      supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'unsupported'),
     ).toEqual([
       'break-grapple',
       'brush-off',
+      'charge',
+      'club',
+      'dfa',
       'grapple',
       'jump-jet-attack',
+      'kick',
+      'punch',
+      'push',
       'thrash',
       'trip',
     ]);
     expect(
+      supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'unsupported'),
+    ).toEqual([]);
+    expect(
       supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'helper-only'),
+    ).toEqual([]);
+    expect(
+      supportIdsByLevel(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT, 'out-of-scope'),
     ).toEqual([
       'airmek-ram',
       'battle-armor-vibro-claw',
@@ -763,14 +811,51 @@ describe('BattleMech combat action support catalog', () => {
       )
       .map((entry) => entry.id)
       .sort();
-    expect(battleMechGaps).toEqual([
-      'break-grapple',
-      'brush-off',
-      'grapple',
-      'jump-jet-attack',
-      'thrash',
-      'trip',
-    ]);
+    expect(battleMechGaps).toEqual([]);
+    expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.grapple).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('runtime PhysicalAttackType'),
+      runtimeAttackTypes: ['grapple'],
+    });
+    expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.grapple.gap).toBeUndefined();
+    expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['break-grapple']).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('runtime PhysicalAttackType'),
+      runtimeAttackTypes: ['break-grapple'],
+    });
+    expect(
+      PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['break-grapple'].gap,
+    ).toBeUndefined();
+    expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['brush-off']).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('runtime PhysicalAttackType'),
+      runtimeAttackTypes: ['brush-off'],
+    });
+    expect(
+      PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['brush-off'].gap,
+    ).toBeUndefined();
+    expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.thrash).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('runtime PhysicalAttackType'),
+      runtimeAttackTypes: ['thrash'],
+    });
+    expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.thrash.gap).toBeUndefined();
+    expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.trip).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('runtime PhysicalAttackType'),
+      runtimeAttackTypes: ['trip'],
+    });
+    expect(PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.trip.gap).toBeUndefined();
+    expect(
+      PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['jump-jet-attack'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('runtime PhysicalAttackType'),
+      runtimeAttackTypes: ['jump-jet-attack'],
+    });
+    expect(
+      PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['jump-jet-attack'].gap,
+    ).toBeUndefined();
 
     const invalidPhysicalClassRefs = Object.values(
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT,
@@ -782,16 +867,32 @@ describe('BattleMech combat action support catalog', () => {
         const sourceRefId = `${entry.id}.sourceRefs[${index}]`;
         const failures: string[] = [];
 
-        if (sourceRef.kind !== 'megamek-source') {
-          failures.push(`${sourceRefId}: expected megamek-source`);
-        }
-        if (
-          sourceRef.sourceVersion !== '325b2504c7b7750ecdcb85468621fb2de2ad8e60'
-        ) {
-          failures.push(`${sourceRefId}: expected commit-pinned version`);
-        }
-        if (!sourceRef.url.includes(entry.sourceClass)) {
-          failures.push(`${sourceRefId}: expected source class URL`);
+        if (sourceRef.kind === 'megamek-source') {
+          if (
+            sourceRef.sourceVersion !==
+            '325b2504c7b7750ecdcb85468621fb2de2ad8e60'
+          ) {
+            failures.push(`${sourceRefId}: expected commit-pinned version`);
+          }
+          const expectedSourceClass =
+            entry.id === 'break-grapple' &&
+            sourceRef.citation.includes('shared grapple weight-class')
+              ? 'GrappleAttackAction'
+              : entry.sourceClass;
+          if (!sourceRef.url.includes(expectedSourceClass)) {
+            failures.push(`${sourceRefId}: expected source class URL`);
+          }
+        } else if (sourceRef.kind === 'mekstation-deviation') {
+          if (sourceRef.sourceVersion !== 'MekStation working-tree') {
+            failures.push(
+              `${sourceRefId}: expected MekStation working-tree version`,
+            );
+          }
+          if (!sourceRef.url.startsWith('src/')) {
+            failures.push(`${sourceRefId}: expected local src/ URL`);
+          }
+        } else {
+          failures.push(`${sourceRefId}: unexpected source ref kind`);
         }
         if (!sourceRef.url.includes('#L')) {
           failures.push(`${sourceRefId}: missing line anchor`);
@@ -805,32 +906,57 @@ describe('BattleMech combat action support catalog', () => {
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['brush-off'].sourceRefs?.map(
         ({ citation }) => citation,
       ),
-    ).toEqual([expect.stringContaining('BrushOffAttackAction')]);
+    ).toEqual([
+      expect.stringContaining('BrushOffAttackAction'),
+      expect.stringContaining('canBrushOff'),
+      expect.stringContaining('physical attack tests'),
+    ]);
     expect(
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.thrash.sourceRefs?.map(
         ({ citation }) => citation,
       ),
-    ).toEqual([expect.stringContaining('ThrashAttackAction')]);
+    ).toEqual([
+      expect.stringContaining('ThrashAttackAction'),
+      expect.stringContaining('canThrash'),
+      expect.stringContaining('physical attack tests'),
+    ]);
     expect(
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.trip.sourceRefs?.map(
         ({ citation }) => citation,
       ),
-    ).toEqual([expect.stringContaining('TripAttackAction')]);
+    ).toEqual([
+      expect.stringContaining('TripAttackAction'),
+      expect.stringContaining('canTrip'),
+      expect.stringContaining('physical attack tests'),
+    ]);
     expect(
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT.grapple.sourceRefs?.map(
         ({ citation }) => citation,
       ),
-    ).toEqual([expect.stringContaining('GrappleAttackAction')]);
+    ).toEqual([
+      expect.stringContaining('GrappleAttackAction'),
+      expect.stringContaining('canGrapple'),
+      expect.stringContaining('physical attack tests'),
+    ]);
     expect(
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['break-grapple'].sourceRefs?.map(
         ({ citation }) => citation,
       ),
-    ).toEqual([expect.stringContaining('BreakGrappleAttackAction')]);
+    ).toEqual([
+      expect.stringContaining('BreakGrappleAttackAction'),
+      expect.stringContaining('GrappleAttackAction'),
+      expect.stringContaining('canBreakGrapple'),
+      expect.stringContaining('physical attack tests'),
+    ]);
     expect(
       PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT['jump-jet-attack'].sourceRefs?.map(
         ({ citation }) => citation,
       ),
-    ).toEqual([expect.stringContaining('JumpJetAttackAction')]);
+    ).toEqual([
+      expect.stringContaining('JumpJetAttackAction'),
+      expect.stringContaining('canJumpJetAttack'),
+      expect.stringContaining('physical attack tests'),
+    ]);
   });
 
   it('anchors every physical legality gate to commit-pinned MegaMek source', () => {
@@ -912,6 +1038,28 @@ describe('BattleMech combat action support catalog', () => {
           citation: expect.stringContaining('ChargeAttackAction'),
         }),
       ],
+    });
+  });
+
+  it('catalogs charge and DFA stuck-attacker legality as integrated source-backed gates', () => {
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['charge.attacker-not-stuck'],
+    ).toMatchObject({
+      level: 'integrated',
+      attackFamily: 'charge',
+      evidence: expect.stringContaining('attackerStuck'),
+      sourceRefs: [
+        expect.objectContaining({
+          citation: expect.stringContaining('stuck'),
+        }),
+      ],
+    });
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['dfa.attacker-not-stuck'],
+    ).toMatchObject({
+      level: 'integrated',
+      attackFamily: 'dfa',
+      evidence: expect.stringContaining('attackerStuck'),
     });
   });
 

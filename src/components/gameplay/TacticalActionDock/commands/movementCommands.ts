@@ -1,5 +1,5 @@
 /**
- * Movement command family — walk, run, jump, stand-up, go prone, stabilize, cancel.
+ * Movement command family — walk, run, sprint, evade, jump, stand-up, go prone, stabilize, cancel.
  *
  * Wave 7.2 PR-D: command adapters bind to `activeUnitId` (whose turn it is)
  * from the tactical shell. Availability predicates are PURE — same input,
@@ -34,6 +34,8 @@ export function buildMovementCommands(): readonly ITacticalCommand[] {
   return [
     MovementWalkCommand,
     MovementRunCommand,
+    MovementSprintCommand,
+    MovementEvadeCommand,
     MovementJumpCommand,
     MovementStandCommand,
     MovementGoProneCommand,
@@ -86,6 +88,46 @@ const MovementRunCommand: ITacticalCommand = {
   },
   commit() {
     return { actionId: 'lock', payload: { mode: 'run' } };
+  },
+};
+
+const MovementEvadeCommand: ITacticalCommand = {
+  id: 'movement.evade',
+  category: 'movement',
+  label: 'Evade',
+  hotkey: 'E',
+  phaseConstraints: [GamePhase.Movement],
+  requiresConfirmation: false,
+  undoable: true,
+  targetsHex: true,
+  availability(ctx) {
+    if (!ctx.activeUnitId)
+      return { available: false, reason: 'No unit is active.' };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    return { available: true };
+  },
+  commit() {
+    return { actionId: 'lock', payload: { mode: 'evade' } };
+  },
+};
+
+const MovementSprintCommand: ITacticalCommand = {
+  id: 'movement.sprint',
+  category: 'movement',
+  label: 'Sprint',
+  hotkey: 'S',
+  phaseConstraints: [GamePhase.Movement],
+  requiresConfirmation: false,
+  undoable: true,
+  targetsHex: true,
+  availability(ctx) {
+    if (!ctx.activeUnitId)
+      return { available: false, reason: 'No unit is active.' };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    return { available: true };
+  },
+  commit() {
+    return { actionId: 'lock', payload: { mode: 'sprint' } };
   },
 };
 

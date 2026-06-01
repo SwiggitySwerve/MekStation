@@ -102,6 +102,39 @@ describe('deriveReachableHexes', () => {
     expect(run.length).toBeGreaterThan(walk.length);
   });
 
+  it('derives TacOps Evade reach from the run MP envelope', () => {
+    const grid = createHexGrid({ radius: 8 });
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = { walkMP: 5, runMP: 8, jumpMP: 0 };
+
+    const run = deriveReachableHexes(unit, MovementType.Run, grid, cap);
+    const evade = deriveReachableHexes(unit, MovementType.Evade, grid, cap);
+
+    expect(evade.length).toBe(run.length);
+    expect(
+      evade.every((entry) => entry.movementType === MovementType.Evade),
+    ).toBe(true);
+    expect(evade.map((entry) => entry.mpCost)).toEqual(
+      run.map((entry) => entry.mpCost),
+    );
+  });
+
+  it('derives TacOps Sprint reach from the sprint MP envelope using run terrain costs', () => {
+    const grid = createHexGrid({ radius: 10 });
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = { walkMP: 5, runMP: 8, jumpMP: 0 };
+
+    const run = deriveReachableHexes(unit, MovementType.Run, grid, cap);
+    const sprint = deriveReachableHexes(unit, MovementType.Sprint, grid, cap);
+
+    expect(sprint.length).toBeGreaterThan(run.length);
+    expect(
+      sprint.every((entry) => entry.movementType === MovementType.Sprint),
+    ).toBe(true);
+    expect(sprint.every((entry) => entry.mpCost <= 10)).toBe(true);
+    expect(sprint.some((entry) => entry.mpCost > 8)).toBe(true);
+  });
+
   it('jump reach is a flat hex-distance gate regardless of path', () => {
     const grid = createHexGrid({ radius: 5 });
     const unit = makeUnitAtOrigin();
