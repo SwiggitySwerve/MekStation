@@ -960,7 +960,14 @@ export const HexCell = React.memo(function HexCell({
         sourceReferences={tacticalProjectionSourceReferences}
       />
       {hoverMpCost === undefined && (
-        <MovementReachBadge x={x} y={y} hex={hex} movementInfo={movementInfo} />
+        <MovementReachBadge
+          x={x}
+          y={y}
+          hex={hex}
+          movementInfo={movementInfo}
+          projectionExplanation={tacticalProjectionExplanation}
+          sourceReferences={tacticalProjectionSourceReferences}
+        />
       )}
       <MovementBlockedOptionsBadge
         x={x}
@@ -973,6 +980,8 @@ export const HexCell = React.memo(function HexCell({
         y={y}
         hex={hex}
         movementInfo={movementInfo}
+        projectionExplanation={tacticalProjectionExplanation}
+        sourceReferences={tacticalProjectionSourceReferences}
       />
       <MovementStandUpBadge x={x} y={y} hex={hex} movementInfo={movementInfo} />
       <MovementAutomaticLandingBadge
@@ -998,6 +1007,8 @@ export const HexCell = React.memo(function HexCell({
         hex={hex}
         hoverMpCost={hoverMpCost}
         movementInfo={movementInfo}
+        projectionExplanation={tacticalProjectionExplanation}
+        sourceReferences={tacticalProjectionSourceReferences}
       />
       <CombatLineOfSightBlockerBadge
         x={x}
