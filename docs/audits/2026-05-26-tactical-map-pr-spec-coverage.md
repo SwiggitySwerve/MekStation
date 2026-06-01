@@ -119,7 +119,11 @@ decisions are made, not because CI is stale.
   disambiguating labels by MegaMek row order. The
   `surface-cliff-exits-map-context` slice now carries represented cliff exit
   directions into rendered hex metadata, terrain labels, projection source
-  detail, and hover terrain context. Full elevated AirMek/WiGE pathing and
+  detail, and hover terrain context. The
+  `surface-movement-option-source-details` slice now expands movement source
+  references so same-hex walk/run/jump options carry their reachable/blocked
+  state, MP cost, terrain/elevation cost, heat, and blocked reason in the
+  shared projection metadata itself. Full elevated AirMek/WiGE pathing and
   broader takeoff/hover sequencing remain follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by

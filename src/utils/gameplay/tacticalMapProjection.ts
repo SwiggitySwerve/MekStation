@@ -631,7 +631,9 @@ function formatMovementSourceDetail(movement: IMovementRangeHex): string {
       ),
     ),
   );
-  return `${modes.join(',')} projection`;
+  return `${modes.join(',')} projection: ${options
+    .map(formatMovementOption)
+    .join(', ')}`;
 }
 
 function movementHasStandUpContext(movement: IMovementRangeHex): boolean {
