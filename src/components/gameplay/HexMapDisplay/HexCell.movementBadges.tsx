@@ -1,6 +1,12 @@
 import React from 'react';
 
 import type { IHexCoordinate, IMovementRangeHex } from '@/types/gameplay';
+import type { ITacticalMapProjectionSourceReference } from '@/utils/gameplay/tacticalMapProjection';
+
+import {
+  formatTacticalProjectionRuleReferences,
+  formatTacticalProjectionSourceReferences,
+} from '@/utils/gameplay/tacticalMapProjection';
 
 import {
   formatMovementModeLabel,
@@ -191,23 +197,42 @@ export function MovementReachBadge({
   y,
   hex,
   movementInfo,
+  projectionExplanation,
+  sourceReferences,
 }: {
   readonly x: number;
   readonly y: number;
   readonly hex: IHexCoordinate;
   readonly movementInfo?: IMovementRangeHex;
+  readonly projectionExplanation?: string;
+  readonly sourceReferences?: readonly ITacticalMapProjectionSourceReference[];
 }): React.ReactElement | null {
   if (!movementInfo?.reachable) return null;
   const label = formatMovementReachBadgeLabel(movementInfo);
   const title = formatMovementReachBadgeTitle(movementInfo);
   const movementOptions = movementInfo.movementModeOptions ?? [];
   const width = Math.max(34, label.length * 5.6 + 10);
+  const movementSourceReferences =
+    sourceReferences?.filter((source) => source.channel === 'movement') ?? [];
+  const movementSourceRefsAttribute =
+    formatTacticalProjectionSourceReferences(movementSourceReferences) ||
+    undefined;
+  const movementRuleRefsAttribute =
+    formatTacticalProjectionRuleReferences(movementSourceReferences) ||
+    undefined;
+  const movementProjectionChannel =
+    movementSourceReferences.length > 0 ? 'movement' : undefined;
 
   return (
     <g
       pointerEvents="none"
       data-testid={`hex-movement-badge-${hex.q}-${hex.r}`}
       aria-label={title}
+      data-tactical-projection-source={
+        movementProjectionChannel ? 'shared-tactical-map-projection' : undefined
+      }
+      data-tactical-projection-channel={movementProjectionChannel}
+      data-tactical-rules-surface={movementProjectionChannel}
       data-movement-badge-type={movementInfo.movementType}
       data-movement-badge-mode={movementInfo.movementMode}
       data-movement-badge-mp-cost={movementInfo.mpCost}
@@ -321,6 +346,9 @@ export function MovementReachBadge({
           ? movementOptionAutomaticLandingsAttribute(movementOptions)
           : undefined
       }
+      data-movement-badge-source-refs={movementSourceRefsAttribute}
+      data-movement-badge-rule-refs={movementRuleRefsAttribute}
+      data-movement-badge-projection-explanation={projectionExplanation}
     >
       <title>{title}</title>
       <rect
@@ -417,11 +445,15 @@ export function MovementStepCostBadge({
   y,
   hex,
   movementInfo,
+  projectionExplanation,
+  sourceReferences,
 }: {
   readonly x: number;
   readonly y: number;
   readonly hex: IHexCoordinate;
   readonly movementInfo?: IMovementRangeHex;
+  readonly projectionExplanation?: string;
+  readonly sourceReferences?: readonly ITacticalMapProjectionSourceReference[];
 }): React.ReactElement | null {
   if (!movementInfo?.reachable) return null;
   const label = formatMovementStepCostLabel(movementInfo);
@@ -429,14 +461,32 @@ export function MovementStepCostBadge({
 
   const title = formatMovementStepCostTitle(movementInfo);
   const width = Math.max(28, label.length * 5.4 + 8);
+  const movementSourceReferences =
+    sourceReferences?.filter((source) => source.channel === 'movement') ?? [];
+  const movementSourceRefsAttribute =
+    formatTacticalProjectionSourceReferences(movementSourceReferences) ||
+    undefined;
+  const movementRuleRefsAttribute =
+    formatTacticalProjectionRuleReferences(movementSourceReferences) ||
+    undefined;
+  const movementProjectionChannel =
+    movementSourceReferences.length > 0 ? 'movement' : undefined;
   return (
     <g
       pointerEvents="none"
       data-testid={`hex-movement-cost-badge-${hex.q}-${hex.r}`}
       aria-label={title}
+      data-tactical-projection-source={
+        movementProjectionChannel ? 'shared-tactical-map-projection' : undefined
+      }
+      data-tactical-projection-channel={movementProjectionChannel}
+      data-tactical-rules-surface={movementProjectionChannel}
       data-movement-step-terrain-cost={movementInfo.terrainCost}
       data-movement-step-elevation-cost={movementInfo.elevationCost}
       data-movement-step-elevation-delta={movementInfo.elevationDelta}
+      data-movement-step-source-refs={movementSourceRefsAttribute}
+      data-movement-step-rule-refs={movementRuleRefsAttribute}
+      data-movement-step-projection-explanation={projectionExplanation}
     >
       <title>{title}</title>
       <rect
