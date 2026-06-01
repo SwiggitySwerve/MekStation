@@ -5,9 +5,11 @@ import {
   type IDamageAppliedPayload,
   type IGameSession,
   type IGameUnit,
+  type ILocationDestroyedPayload,
   type IPSRResolvedPayload,
   type IPSRTriggeredPayload,
   type IUnitFellPayload,
+  type IUnitDestroyedPayload,
   GamePhase,
   PSRTrigger,
 } from '@/types/gameplay';
@@ -33,7 +35,10 @@ function makeUnit(id: string, side: GameSide): IGameUnit {
   };
 }
 
-function setupSessionAtMovement(): IGameSession {
+function setupSessionAtMovement(
+  armorByLocation: Readonly<Record<string, number>> = { center_torso: 10 },
+  structureByLocation: Readonly<Record<string, number>> = { center_torso: 12 },
+): IGameSession {
   let session = createGameSession(
     {
       mapRadius: 4,
@@ -51,22 +56,25 @@ function setupSessionAtMovement(): IGameSession {
     facing: Facing.North,
     lamAirMekAltitude: 1,
   };
-  return appendEvent(
-    session,
-    createDamageAppliedEvent(
-      session.id,
-      session.events.length,
-      session.currentState.turn,
-      'lam-1',
-      'center_torso',
-      0,
-      10,
-      12,
-      false,
-      undefined,
-      GamePhase.Movement,
-    ),
-  );
+  for (const [location, armor] of Object.entries(armorByLocation)) {
+    session = appendEvent(
+      session,
+      createDamageAppliedEvent(
+        session.id,
+        session.events.length,
+        session.currentState.turn,
+        'lam-1',
+        location,
+        0,
+        armor,
+        structureByLocation[location] ?? 0,
+        false,
+        undefined,
+        GamePhase.Movement,
+      ),
+    );
+  }
+  return session;
 }
 
 function d6Sequence(rolls: readonly number[]): () => number {
@@ -200,6 +208,74 @@ describe('applyInteractiveSessionRuntimeMovementState', () => {
       damageThisPhase: 16,
       armor: expect.objectContaining({ center_torso: 0 }),
       structure: expect.objectContaining({ center_torso: 6 }),
+    });
+  });
+
+  it('fans out failed AirMek landing fall destruction before the pilot hit', () => {
+    const session = setupSessionAtMovement(
+      { center_torso: 1 },
+      { center_torso: 4 },
+    );
+
+    const result = applyInteractiveSessionRuntimeMovementState({
+      session,
+      unitId: 'lam-1',
+      patch: {
+        source: 'altitude_control_action',
+        lamAirMekAltitude: 0,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+        lamAirMekLandingControlRequired: true,
+        lamAirMekLandingControlReason: 'landing with gyro or leg damage',
+        lamAirMekLandingControlModifier: 6,
+        lamAirMekLandingControlModifierDetails: [
+          '+5 destroyed leg',
+          '+1 foot actuator',
+        ],
+        lamAirMekLandingControlFallHeight: 1,
+      },
+      diceRoller: d6Sequence([1, 1, 1, 3, 4]),
+      tonnageByUnit: new Map([['lam-1', 80]]),
+    });
+
+    const appended = result.events.slice(session.events.length);
+    expect(appended.map((event) => event.type)).toEqual([
+      GameEventType.RuntimeMovementStateChanged,
+      GameEventType.PSRTriggered,
+      GameEventType.PSRResolved,
+      GameEventType.UnitFell,
+      GameEventType.DamageApplied,
+      GameEventType.LocationDestroyed,
+      GameEventType.UnitDestroyed,
+      GameEventType.PilotHit,
+    ]);
+
+    expect(appended[4].payload as IDamageAppliedPayload).toMatchObject({
+      unitId: 'lam-1',
+      location: 'center_torso',
+      damage: 5,
+      armorRemaining: 0,
+      structureRemaining: 0,
+      locationDestroyed: true,
+    });
+    expect(appended[4].phase).toBe(GamePhase.Movement);
+    expect(appended[5].payload as ILocationDestroyedPayload).toMatchObject({
+      unitId: 'lam-1',
+      location: 'center_torso',
+      viaTransfer: false,
+    });
+    expect(appended[5].phase).toBe(GamePhase.Movement);
+    expect(appended[6].payload as IUnitDestroyedPayload).toMatchObject({
+      unitId: 'lam-1',
+      cause: 'damage',
+    });
+    expect(appended[6].phase).toBe(GamePhase.Movement);
+    expect(result.currentState.units['lam-1']).toMatchObject({
+      destroyed: true,
+      destroyedLocations: ['center_torso'],
+      pilotWounds: 1,
+      armor: expect.objectContaining({ center_torso: 0 }),
+      structure: expect.objectContaining({ center_torso: 0 }),
     });
   });
 

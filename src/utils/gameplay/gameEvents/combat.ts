@@ -211,6 +211,7 @@ export function createLocationDestroyedEvent(
   location: string,
   cascadedTo?: string,
   viaTransfer?: boolean,
+  phase: GamePhase = GamePhase.WeaponAttack,
 ): IGameEvent {
   const payload: ILocationDestroyedPayload = {
     unitId,
@@ -225,7 +226,7 @@ export function createLocationDestroyedEvent(
       sequence,
       GameEventType.LocationDestroyed,
       turn,
-      GamePhase.WeaponAttack,
+      phase,
       unitId,
     ),
     payload,
@@ -245,6 +246,7 @@ export function createTransferDamageEvent(
   fromLocation: string,
   toLocation: string,
   damage: number,
+  phase: GamePhase = GamePhase.WeaponAttack,
 ): IGameEvent {
   const payload: ITransferDamagePayload = {
     unitId,
@@ -259,7 +261,7 @@ export function createTransferDamageEvent(
       sequence,
       GameEventType.TransferDamage,
       turn,
-      GamePhase.WeaponAttack,
+      phase,
       unitId,
     ),
     payload,

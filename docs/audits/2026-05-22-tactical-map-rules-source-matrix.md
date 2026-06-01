@@ -813,8 +813,10 @@ AirMek landing falls scale the `UnitFell` damage by the moved unit instead of a
 placeholder. `apply-airmek-landing-fall-clusters` now applies those represented
 fall clusters through movement-phase `DamageApplied` events, so replay reduces
 armor/internal state after a failed AirMek landing. Broader crash extras such as
-destruction-event fan-out, critical-hit follow-through, and automatic forced
-landing from higher WiGE elevations remain follow-up work.
+`fanout-airmek-landing-destruction` now emits movement-phase
+`LocationDestroyed`, `TransferDamage`, and `UnitDestroyed` lifecycle events when
+those fall clusters destroy locations or the unit. Critical-hit follow-through
+and automatic forced landing from higher WiGE elevations remain follow-up work.
 
 Additional small-unit movement data pin: MegaMek `Infantry.java:560-568` and
 `BattleArmor.java:520-523` return walk MP as base run MP unless optional TacOps

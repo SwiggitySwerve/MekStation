@@ -82,8 +82,10 @@ decisions are made, not because CI is stale.
   fall damage now uses represented unit tonnage through
   `use-airmek-landing-fall-tonnage`, and represented fall clusters now reduce
   armor/internal state through movement-phase `DamageApplied` events via
-  `apply-airmek-landing-fall-clusters`; destruction-event fan-out, critical-hit
-  follow-through, full elevated AirMek/WiGE pathing, minimum-distance automatic
+  `apply-airmek-landing-fall-clusters`. Destroying landing fall clusters now fan
+  out movement-phase `LocationDestroyed`, `TransferDamage`, and `UnitDestroyed`
+  events via `fanout-airmek-landing-destruction`; critical-hit follow-through,
+  full elevated AirMek/WiGE pathing, minimum-distance automatic
   WiGE landing, and takeoff/hover sequencing remain follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by

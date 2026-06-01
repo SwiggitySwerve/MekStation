@@ -11,10 +11,13 @@ import { resolveDamage as resolveDamagePipeline } from './damage';
 import { resolveFall } from './fallMechanics';
 import {
   createDamageAppliedEvent,
+  createLocationDestroyedEvent,
   createPilotHitEvent,
   createPSRResolvedEvent,
   createPSRTriggeredEvent,
+  createTransferDamageEvent,
   createUnitFellEvent,
+  createUnitDestroyedEvent,
 } from './gameEvents';
 import { buildDamageStateFromUnit } from './gameSessionAttackResolutionHelpers';
 import { appendEvent } from './gameSessionCore';
@@ -170,11 +173,19 @@ function appendAirMekLandingFallDamageClusters(
       return currentSession;
     }
 
+    const damageState = buildDamageStateFromUnit(currentUnitState);
     const damageResult = resolveDamagePipeline(
-      buildDamageStateFromUnit(currentUnitState),
+      damageState,
       cluster.location,
       cluster.damage,
     );
+    const preDestroyedSet = new Set<CombatLocation>(
+      damageState.destroyedLocations,
+    );
+    const newlyDestroyed = damageResult.state.destroyedLocations.filter(
+      (location) => !preDestroyedSet.has(location),
+    );
+    const phase = currentSession.currentState.phase;
     for (const locationDamage of damageResult.result.locationDamages) {
       currentSession = appendEvent(
         currentSession,
@@ -189,12 +200,96 @@ function appendAirMekLandingFallDamageClusters(
           locationDamage.structureRemaining,
           locationDamage.destroyed,
           undefined,
-          currentSession.currentState.phase,
+          phase,
+        ),
+      );
+      if (locationDamage.destroyed) {
+        const cascadedArm = airMekFallCascadedArm(
+          locationDamage.location,
+          newlyDestroyed,
+        );
+        currentSession = appendEvent(
+          currentSession,
+          createLocationDestroyedEvent(
+            currentSession.id,
+            currentSession.events.length,
+            currentSession.currentState.turn,
+            unitId,
+            locationDamage.location,
+            cascadedArm,
+            false,
+            phase,
+          ),
+        );
+        if (cascadedArm) {
+          currentSession = appendEvent(
+            currentSession,
+            createLocationDestroyedEvent(
+              currentSession.id,
+              currentSession.events.length,
+              currentSession.currentState.turn,
+              unitId,
+              cascadedArm,
+              undefined,
+              false,
+              phase,
+            ),
+          );
+        }
+      }
+      if (
+        locationDamage.transferredDamage > 0 &&
+        locationDamage.transferLocation
+      ) {
+        currentSession = appendEvent(
+          currentSession,
+          createTransferDamageEvent(
+            currentSession.id,
+            currentSession.events.length,
+            currentSession.currentState.turn,
+            unitId,
+            locationDamage.location,
+            locationDamage.transferLocation,
+            locationDamage.transferredDamage,
+            phase,
+          ),
+        );
+      }
+    }
+    if (damageResult.result.unitDestroyed) {
+      currentSession = appendEvent(
+        currentSession,
+        createUnitDestroyedEvent(
+          currentSession.id,
+          currentSession.events.length,
+          currentSession.currentState.turn,
+          phase,
+          unitId,
+          damageResult.result.destructionCause ?? 'damage',
         ),
       );
     }
   }
   return currentSession;
+}
+
+function airMekFallCascadedArm(
+  location: CombatLocation,
+  newlyDestroyed: readonly CombatLocation[],
+): CombatLocation | undefined {
+  if (
+    location === 'left_torso' &&
+    newlyDestroyed.includes('left_arm' as CombatLocation)
+  ) {
+    return 'left_arm' as CombatLocation;
+  }
+  if (
+    location === 'right_torso' &&
+    newlyDestroyed.includes('right_arm' as CombatLocation)
+  ) {
+    return 'right_arm' as CombatLocation;
+  }
+  return undefined;
 }
 
 function landingFallTonnage(tonnage: number | undefined): number {
