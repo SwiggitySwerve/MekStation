@@ -68,6 +68,13 @@ the parser now splits two-or-more digit column/row components against declared
 board dimensions so large-board terrain, elevation, and cliff metadata reaches
 the same tactical projection path instead of failing the old fixed-four-digit
 guard.
+The follow-on `audit-megamek-board-import-corpus` verifier now makes that import
+claim repeatable against a local MegaMek board checkout. Its first local run
+found ambiguous labels such as `10101` on `170x120 Fort David.board`; MekStation
+now uses MegaMek row order to disambiguate those labels, matching
+`Board.java:1062-1063`. The verified local corpus run parsed all 2,386 boards
+under `E:\Projects\megamek\megamek\data\boards` with 0 failures, covering
+3,638,056 hex rows, 382,251 large-coordinate rows, and 5,253 `cliff_top` rows.
 Replayable gameplay events for runtime movement state are covered by
 `apply-runtime-movement-state-events`; player-facing tactical command controls
 for represented conversion and infantry mount-state changes are covered by

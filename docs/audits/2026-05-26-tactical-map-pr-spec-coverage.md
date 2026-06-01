@@ -112,8 +112,12 @@ decisions are made, not because CI is stale.
   2-level drop. Large-board MegaMek labels such as `10412`, `10016`, and
   `104120` are covered by `import-large-megamek-board-coordinates`, including
   dimension-disambiguated column/row parsing and large-coordinate cliff import
-  coverage. Full elevated AirMek/WiGE pathing and broader takeoff/hover
-  sequencing remain follow-up work.
+  coverage. The optional `audit-megamek-board-import-corpus` verifier now
+  source-checks the parser against a local MegaMek board corpus; the first
+  recorded run parsed 2,386 boards, 3,638,056 hex rows, 382,251
+  large-coordinate rows, and 5,253 `cliff_top` rows with 0 failures after
+  disambiguating labels by MegaMek row order. Full elevated AirMek/WiGE pathing
+  and broader takeoff/hover sequencing remain follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
   `apply-runtime-movement-state-events`, and tactical command controls are now
