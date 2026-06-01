@@ -851,6 +851,7 @@ export function runAttackPhase(options: {
         ),
         calledShot,
         teammateCalledShot,
+        false,
       );
       // Partial cover is derived from the terrain of the target's own hex
       // (Total Warfare p. 53). The runner's all-clear grid yields `false`
