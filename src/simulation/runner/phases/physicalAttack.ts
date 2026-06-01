@@ -341,6 +341,7 @@ function applyDfaMissFallPilotDamage(options: {
     pilotDamage,
     unit.abilities ?? [],
     d6Roller,
+    unit.pilotToughness,
   );
   const pilotConscious =
     totalWounds < LETHAL_PILOT_WOUNDS &&
