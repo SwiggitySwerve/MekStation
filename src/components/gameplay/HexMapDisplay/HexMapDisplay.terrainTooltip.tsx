@@ -22,6 +22,9 @@ import {
 } from './HexCell.labels';
 import { ProjectionContextRows } from './HexMapDisplay.projectionTooltipRows';
 import {
+  terrainCliffExitDetailLabel,
+  terrainCliffExitDirectionsAttribute,
+  terrainCliffExitLabelsAttribute,
   terrainBuildingConstructionFactorsAttribute,
   terrainBuildingDetailLabel,
   terrainBuildingIdsAttribute,
@@ -55,6 +58,8 @@ function terrainElevationSourceAttributes(
     sourceReferences.length > 0
       ? TERRAIN_ELEVATION_PROJECTION_CHANNEL
       : undefined;
+  const cliffExitDirections = terrainCliffExitDirectionsAttribute(terrain);
+  const cliffExitLabels = terrainCliffExitLabelsAttribute(terrain);
 
   return {
     'data-tactical-projection-source': projectionChannel
@@ -70,6 +75,8 @@ function terrainElevationSourceAttributes(
     'data-terrain-feature-levels': terrainFeatureLevelsAttribute(
       terrain.features,
     ),
+    'data-terrain-cliff-exits': cliffExitDirections,
+    'data-terrain-cliff-exit-labels': cliffExitLabels,
     'data-elevation': terrain.elevation,
     'data-terrain-source-refs': sourceRefsAttribute,
     'data-terrain-rule-refs': ruleRefsAttribute,
@@ -137,6 +144,7 @@ export function TerrainHoverTooltip({
   const buildingCfAttribute =
     terrainBuildingConstructionFactorsAttribute(terrain);
   const buildingDetailLabel = terrainBuildingDetailLabel(terrain);
+  const cliffExitDetailLabel = terrainCliffExitDetailLabel(terrain);
   const blocksLos = terrain.features.some(
     (feature) => TERRAIN_PROPERTIES[feature.type].blocksLOS,
   );
@@ -177,6 +185,14 @@ export function TerrainHoverTooltip({
           {...sourceAttributes}
         >
           Building: {buildingDetailLabel}
+        </div>
+      )}
+      {cliffExitDetailLabel && (
+        <div
+          data-testid="hex-terrain-tooltip-cliff-exits"
+          {...sourceAttributes}
+        >
+          {cliffExitDetailLabel}
         </div>
       )}
       <div data-testid="hex-terrain-tooltip-cover">
@@ -226,6 +242,7 @@ export function TerrainContextRows({
   const buildingCfAttribute =
     terrainBuildingConstructionFactorsAttribute(terrain);
   const buildingDetailLabel = terrainBuildingDetailLabel(terrain);
+  const cliffExitDetailLabel = terrainCliffExitDetailLabel(terrain);
   const sourceAttributes = terrainElevationSourceAttributes(
     terrain,
     projection,
@@ -254,6 +271,14 @@ export function TerrainContextRows({
           {...sourceAttributes}
         >
           Building: {buildingDetailLabel}
+        </div>
+      )}
+      {cliffExitDetailLabel && (
+        <div
+          data-testid={`${testIdPrefix}-cliff-exits-context`}
+          {...sourceAttributes}
+        >
+          {cliffExitDetailLabel}
         </div>
       )}
     </div>

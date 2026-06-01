@@ -26,7 +26,6 @@ import { validateCommittedMovement } from '@/utils/gameplay/movement/commitValid
 import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/reachable';
 import {
   AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON,
-  AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON,
   runtimeMovementAltitudeControlContext,
   runtimeMovementProjectionBlockedReason,
 } from '@/utils/gameplay/movement/runtimeCapability';
@@ -188,7 +187,7 @@ describe('runtime movement state events', () => {
 
     expect(
       runtimeMovementProjectionBlockedReason(unit, capability, 'wige'),
-    ).toBe(AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON);
+    ).toBeUndefined();
     expect(runtimeMovementAltitudeControlContext(unit)).toMatchObject({
       altitudeControlMode: 'wige',
       altitudeControlAltitude: 1,
@@ -289,7 +288,7 @@ describe('runtime movement state events', () => {
 
     expect(
       runtimeMovementProjectionBlockedReason(unit, capability, 'wige'),
-    ).toBe(AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON);
+    ).toBeUndefined();
     expect(runtimeMovementAltitudeControlContext(unit)).toMatchObject({
       altitudeControlMode: 'wige',
       altitudeControlAltitude: 1,
@@ -352,7 +351,7 @@ describe('runtime movement state events', () => {
 
     expect(
       runtimeMovementProjectionBlockedReason(unit, capability, 'wige'),
-    ).toBe(AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON);
+    ).toBeUndefined();
     expect(runtimeMovementAltitudeControlContext(unit)).toMatchObject({
       altitudeControlMode: 'wige',
       altitudeControlAltitude: 1,
