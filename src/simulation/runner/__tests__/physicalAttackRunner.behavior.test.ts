@@ -243,6 +243,50 @@ function createPhysicalGrid(
   return { config: { radius: 2 }, hexes };
 }
 
+function createSameHexPhysicalGrid(
+  attackerTerrain: string = TerrainType.Clear,
+): IHexGrid {
+  const grid = createPhysicalGrid();
+  const hexes = new Map(grid.hexes);
+  const attackerHex = hexes.get('0,0');
+  const targetHex = hexes.get('1,0');
+  if (attackerHex) {
+    hexes.set('0,0', { ...attackerHex, terrain: attackerTerrain });
+  }
+  if (targetHex) {
+    hexes.set('1,0', { ...targetHex, occupantId: null });
+  }
+  return { ...grid, hexes };
+}
+
+function createBreakGrapplePhysicalGrid(): IHexGrid {
+  const grid = createSameHexPhysicalGrid();
+  const hexes = new Map(grid.hexes);
+  hexes.set('0,-1', {
+    coord: { q: 0, r: -1 },
+    occupantId: null,
+    terrain: TerrainType.Clear,
+    elevation: 0,
+  });
+  hexes.set('1,-1', {
+    coord: { q: 1, r: -1 },
+    occupantId: null,
+    terrain: 'water:2',
+    elevation: 0,
+  });
+  hexes.set('-1,0', {
+    coord: { q: -1, r: 0 },
+    occupantId: null,
+    terrain: TerrainType.Clear,
+    elevation: 0,
+  });
+  const dangerousHex = hexes.get('1,0');
+  if (dangerousHex) {
+    hexes.set('1,0', { ...dangerousHex, terrain: 'magma' });
+  }
+  return { ...grid, hexes };
+}
+
 function createGroundedDropShipDfaGrid(): IHexGrid {
   const grid = createPhysicalGrid();
   const hexes = new Map(grid.hexes);
@@ -360,6 +404,7 @@ function runPhase(
     target?: Partial<IUnitGameState>;
     grid?: IHexGrid;
     movementCapabilitiesByUnit?: ReadonlyMap<string, IMovementCapability>;
+    optionalRules?: readonly string[];
   } = {},
 ): {
   initialState: IGameState;
@@ -393,6 +438,7 @@ function runPhase(
     gameId: state.gameId,
     grid: options.grid,
     movementCapabilitiesByUnit: options.movementCapabilitiesByUnit,
+    optionalRules: options.optionalRules,
     random: new SeededRandom(11),
   });
 
@@ -540,6 +586,333 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(result.units['opponent-1'].pendingPSRs).toEqual([
       expect.objectContaining({ reasonCode: PSRTrigger.Pushed }),
     ]);
+  });
+
+  it('honors an injected optional TacOps trip declaration and queues the tripped PSR', () => {
+    const { events, result } = runPhase('trip', {
+      attacker: { facing: Facing.Southeast },
+      optionalRules: ['tacops_trip_attack'],
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.PhysicalAttackDeclared,
+      GameEventType.PhysicalAttackResolved,
+    ]);
+
+    const resolved = events[1].payload as IPhysicalAttackResolvedPayload;
+    expect(resolved).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'trip',
+      roll: 8,
+      toHitNumber: 4,
+      hit: true,
+      damage: 0,
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
+    expect(result.units['opponent-1'].pendingPSRs).toEqual([
+      expect.objectContaining({
+        reason: 'Tripped',
+        additionalModifier: 0,
+        triggerSource: 'trip',
+      }),
+    ]);
+  });
+
+  it('honors an injected normal TacOps grapple declaration as zero-damage grapple state', () => {
+    const { events, result } = runPhase('grapple', {
+      attacker: {
+        facing: Facing.Southeast,
+        piloting: 1,
+      },
+      optionalRules: ['tacops_grappling'],
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.PhysicalAttackDeclared,
+      GameEventType.PhysicalAttackResolved,
+    ]);
+
+    const resolved = events[1].payload as IPhysicalAttackResolvedPayload;
+    expect(resolved).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'grapple',
+      roll: 8,
+      toHitNumber: 1,
+      hit: true,
+      damage: 0,
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
+    expect(result.units['player-1']).toMatchObject({
+      grappledUnitId: 'opponent-1',
+      isGrappleAttacker: true,
+      grappledThisRound: true,
+      grappleSide: 'both',
+      position: { q: 1, r: 0 },
+    });
+    expect(result.units['opponent-1']).toMatchObject({
+      grappledUnitId: 'player-1',
+      isGrappleAttacker: false,
+      grappledThisRound: true,
+      grappleSide: 'both',
+      facing: Facing.Northwest,
+    });
+  });
+
+  it('honors an injected break-grapple declaration as zero-damage state clearing', () => {
+    const { events, result } = runPhase('break-grapple', {
+      attacker: {
+        position: { q: 0, r: 0 },
+        facing: Facing.North,
+        grappledUnitId: 'opponent-1',
+        isGrappleAttacker: true,
+        grappledThisRound: true,
+        grappleSide: 'both',
+      },
+      target: {
+        position: { q: 0, r: 0 },
+        grappledUnitId: 'player-1',
+        isGrappleAttacker: false,
+        grappledThisRound: true,
+        grappleSide: 'both',
+      },
+      grid: createBreakGrapplePhysicalGrid(),
+      optionalRules: ['tacops_grappling'],
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.PhysicalAttackDeclared,
+      GameEventType.PhysicalAttackResolved,
+    ]);
+
+    const resolved = events[1].payload as IPhysicalAttackResolvedPayload;
+    expect(resolved).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'break-grapple',
+      roll: 0,
+      toHitNumber: 0,
+      hit: true,
+      damage: 0,
+      automaticHit: true,
+      automaticHitReason: 'original attacker',
+      displacements: [
+        {
+          unitId: 'player-1',
+          from: { q: 0, r: 0 },
+          to: { q: 0, r: -1 },
+          reason: 'break-grapple',
+        },
+      ],
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
+    expect(result.units['player-1']).toMatchObject({
+      position: { q: 0, r: -1 },
+      grappledUnitId: undefined,
+      isGrappleAttacker: undefined,
+      grappledThisRound: false,
+      grappleSide: undefined,
+      facing: Facing.South,
+    });
+    expect(result.units['opponent-1']).toMatchObject({
+      position: { q: 0, r: 0 },
+      grappledUnitId: undefined,
+      isGrappleAttacker: undefined,
+      grappledThisRound: false,
+      grappleSide: undefined,
+    });
+  });
+
+  it('honors an injected source-backed thrash declaration as automatic infantry damage with attacker PSR', () => {
+    const { events, result } = runPhase('thrash', {
+      attacker: { prone: true },
+      target: {
+        position: { q: 0, r: 0 },
+        unitType: UnitType.INFANTRY,
+      },
+      grid: createSameHexPhysicalGrid(),
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.PhysicalAttackDeclared,
+      GameEventType.DamageApplied,
+      GameEventType.PhysicalAttackResolved,
+    ]);
+
+    const resolved = resolvedPayload(events);
+    expect(resolved).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'thrash',
+      roll: 0,
+      toHitNumber: 0,
+      hit: true,
+      damage: 22,
+      automaticHit: true,
+      automaticHitReason: 'Thrash attacks always hit.',
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toEqual([
+      expect.objectContaining({
+        unitId: 'opponent-1',
+        damage: 22,
+        sourceUnitId: 'player-1',
+      }),
+    ]);
+    expect(result.units['player-1'].pendingPSRs).toEqual([
+      expect.objectContaining({
+        reason: 'Thrashing attack',
+        additionalModifier: 0,
+        triggerSource: 'thrash_attacker_hit',
+      }),
+    ]);
+    expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
+  });
+
+  it('honors an injected source-backed jump jet attack declaration as selected-leg damage without PSR side effects', () => {
+    const { events, result } = runPhase('jump-jet-attack', {
+      attacker: { facing: Facing.Southeast },
+      movementCapabilitiesByUnit: new Map([
+        ['player-1', { walkMP: 4, runMP: 6, jumpMP: 2 }],
+      ]),
+      optionalRules: ['tacops_jump_jet_attack'],
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.PhysicalAttackDeclared,
+      GameEventType.DamageApplied,
+      GameEventType.PhysicalAttackResolved,
+    ]);
+
+    const resolved = resolvedPayload(events);
+    expect(resolved).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'jump-jet-attack',
+      toHitNumber: 7,
+      hit: true,
+      damage: 6,
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toEqual([
+      expect.objectContaining({
+        unitId: 'opponent-1',
+        damage: 6,
+        sourceUnitId: 'player-1',
+      }),
+    ]);
+    expect(result.units['player-1'].pendingPSRs).toHaveLength(0);
+    expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
+  });
+
+  it('honors an injected source-backed brush-off declaration as swarmer damage and dislodgement', () => {
+    const { events, result } = runPhase('brush-off', {
+      attacker: { piloting: 1 },
+      target: {
+        isSwarming: true,
+        unitType: UnitType.INFANTRY,
+      },
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.PhysicalAttackDeclared,
+      GameEventType.DamageApplied,
+      GameEventType.PhysicalAttackResolved,
+    ]);
+
+    const resolved = resolvedPayload(events);
+    expect(resolved).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'brush-off',
+      toHitNumber: 5,
+      hit: true,
+      damage: 7,
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toEqual([
+      expect.objectContaining({
+        unitId: 'opponent-1',
+        damage: 7,
+        sourceUnitId: 'player-1',
+      }),
+    ]);
+    expect(result.units['opponent-1'].isSwarming).toBe(false);
+  });
+
+  it('honors an injected source-backed brush-off miss as attacker self-damage', () => {
+    const { events, result } = runPhase('brush-off', {
+      target: {
+        isSwarming: true,
+        unitType: UnitType.INFANTRY,
+      },
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.PhysicalAttackDeclared,
+      GameEventType.DamageApplied,
+      GameEventType.PhysicalAttackResolved,
+    ]);
+
+    const resolved = resolvedPayload(events);
+    expect(resolved).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'brush-off',
+      toHitNumber: 9,
+      hit: false,
+      damage: 0,
+    });
+    expect(damageEventsFor(events, 'player-1')).toEqual([
+      expect.objectContaining({
+        unitId: 'player-1',
+        damage: 7,
+        sourceUnitId: 'player-1',
+      }),
+    ]);
+    expect(result.units['opponent-1'].isSwarming).toBe(true);
+  });
+
+  it('rejects injected jump jet attacks without the TacOps option before side effects', () => {
+    const { events, result } = runPhase('jump-jet-attack', {
+      attacker: { facing: Facing.Southeast },
+      movementCapabilitiesByUnit: new Map([
+        ['player-1', { walkMP: 4, runMP: 6, jumpMP: 2 }],
+      ]),
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'jump-jet-attack',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'TacOpsJumpJetAttackDisabled',
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
+    expect(result.units['player-1'].pendingPSRs).toHaveLength(0);
+    expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
+  });
+
+  it('rejects injected thrash declarations in non-clear same-hex terrain before side effects', () => {
+    const { events, result } = runPhase('thrash', {
+      attacker: { prone: true },
+      target: {
+        position: { q: 0, r: 0 },
+        unitType: UnitType.INFANTRY,
+      },
+      grid: createSameHexPhysicalGrid(TerrainType.LightWoods),
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'thrash',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'TerrainNotClearOrPavement',
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
+    expect(result.units['player-1'].pendingPSRs).toHaveLength(0);
+    expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
   });
 
   it('rejects injected physical declarations against passenger targets before side effects', () => {
@@ -2035,6 +2408,23 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     });
   });
 
+  it('threads quad arm-location talon state into runner kick damage resolution', () => {
+    const { events } = runPhase('kick', {
+      attacker: {
+        isQuad: true,
+        rightArmHasTalons: true,
+      },
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'kick',
+      hit: true,
+      damage: 20,
+    });
+  });
+
   it('threads claw state into runner punch damage and to-hit resolution', () => {
     const { events } = runPhase('punch', {
       attacker: {
@@ -2048,6 +2438,25 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       attackType: 'punch',
       roll: 8,
       toHitNumber: 6,
+      hit: true,
+      damage: 10,
+    });
+  });
+
+  it('threads PLAYTEST_3 claw to-hit relief without removing runner claw damage', () => {
+    const { events } = runPhase('punch', {
+      attacker: {
+        rightArmHasClaw: true,
+      },
+      optionalRules: ['PLAYTEST_3'],
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'punch',
+      roll: 8,
+      toHitNumber: 5,
       hit: true,
       damage: 10,
     });

@@ -32,6 +32,12 @@ describe('physicalAttackCommands', () => {
       'physical.punch',
       'physical.kick',
       'physical.push',
+      'physical.trip',
+      'physical.thrash',
+      'physical.jump-jet-attack',
+      'physical.brush-off',
+      'physical.grapple',
+      'physical.break-grapple',
       'physical.charge',
       'physical.dfa',
       'physical.club',
@@ -79,6 +85,58 @@ describe('physicalAttackCommands', () => {
     expect(push.commit(makeCtx())).toEqual({
       actionId: 'physical-attack',
       payload: { attackType: 'push' },
+    });
+  });
+
+  it('trip dispatches physical-attack actionId with attackType=trip', () => {
+    const trip = commands.find((c) => c.id === 'physical.trip')!;
+    expect(trip.commit(makeCtx())).toEqual({
+      actionId: 'physical-attack',
+      payload: { attackType: 'trip' },
+    });
+  });
+
+  it('thrash dispatches physical-attack actionId with attackType=thrash', () => {
+    const thrash = commands.find((c) => c.id === 'physical.thrash')!;
+    expect(thrash.commit(makeCtx())).toEqual({
+      actionId: 'physical-attack',
+      payload: { attackType: 'thrash' },
+    });
+  });
+
+  it('jump jet attack dispatches right-leg physical-attack intent', () => {
+    const jumpJetAttack = commands.find(
+      (c) => c.id === 'physical.jump-jet-attack',
+    )!;
+    expect(jumpJetAttack.commit(makeCtx())).toEqual({
+      actionId: 'physical-attack',
+      payload: { attackType: 'jump-jet-attack', limb: 'rightLeg' },
+    });
+  });
+
+  it('brush off dispatches right-arm physical-attack intent', () => {
+    const brushOff = commands.find((c) => c.id === 'physical.brush-off')!;
+    expect(brushOff.commit(makeCtx())).toEqual({
+      actionId: 'physical-attack',
+      payload: { attackType: 'brush-off', limb: 'rightArm' },
+    });
+  });
+
+  it('grapple dispatches physical-attack actionId with attackType=grapple', () => {
+    const grapple = commands.find((c) => c.id === 'physical.grapple')!;
+    expect(grapple.commit(makeCtx())).toEqual({
+      actionId: 'physical-attack',
+      payload: { attackType: 'grapple' },
+    });
+  });
+
+  it('break grapple dispatches physical-attack actionId with attackType=break-grapple', () => {
+    const breakGrapple = commands.find(
+      (c) => c.id === 'physical.break-grapple',
+    )!;
+    expect(breakGrapple.commit(makeCtx())).toEqual({
+      actionId: 'physical-attack',
+      payload: { attackType: 'break-grapple' },
     });
   });
 

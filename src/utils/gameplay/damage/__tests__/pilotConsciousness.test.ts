@@ -77,4 +77,37 @@ describe('pilot consciousness SPA modifiers', () => {
       conscious: false,
     });
   });
+
+  it('lowers consciousness target numbers for explicit RPG Toughness state without using legacy ability aliases', () => {
+    const withLegacyAliasOnly = applyPilotDamage(
+      {
+        ...BASE_STATE,
+        pilotAbilities: ['toughness'],
+      },
+      1,
+      'head_hit',
+      scriptedD6([2, 2]),
+    );
+    const withNumericToughness = applyPilotDamage(
+      {
+        ...BASE_STATE,
+        pilotToughness: 1,
+      },
+      1,
+      'head_hit',
+      scriptedD6([2, 2]),
+    );
+
+    expect(withLegacyAliasOnly.result).toMatchObject({
+      totalWounds: 2,
+      consciousnessTarget: 5,
+      conscious: false,
+    });
+    expect(withNumericToughness.result).toMatchObject({
+      totalWounds: 2,
+      consciousnessTarget: 4,
+      conscious: true,
+    });
+    expect(withNumericToughness.state.pilotConscious).toBe(true);
+  });
 });

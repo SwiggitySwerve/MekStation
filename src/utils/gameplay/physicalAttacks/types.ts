@@ -1,12 +1,22 @@
 import { IComponentDamageState, IUnitGameState } from '@/types/gameplay';
 import { CombatLocation } from '@/types/gameplay';
 
+import type { GrappleAttackSide } from './grappleEligibility';
+import type { JumpJetAttackSelectedLeg } from './jumpJetAttackEligibility';
+import type { ThrashAttackBlockingTerrain } from './thrashEligibility';
+
 export const CORE_PHYSICAL_ATTACK_TYPES = [
   'punch',
   'kick',
   'charge',
   'dfa',
   'push',
+  'trip',
+  'thrash',
+  'jump-jet-attack',
+  'brush-off',
+  'grapple',
+  'break-grapple',
 ] as const;
 
 export const SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES = [
@@ -106,8 +116,10 @@ export type PhysicalAttackInvalidReason =
   | 'HipDestroyed'
   | 'ShoulderDestroyed'
   | 'SameLimbUsedThisTurn'
+  | 'InvalidArmSelection'
   | 'AttackerEvading'
   | 'AttackerCargoInteraction'
+  | 'AttackerStuck'
   | 'NoJumpThisTurn'
   | 'MechanicalJumpBooster'
   | 'ChargeJumpMovement'
@@ -115,10 +127,12 @@ export type PhysicalAttackInvalidReason =
   | 'ChargeBackwardMovement'
   | 'AttackerInfantry'
   | 'AttackerNotMek'
+  | 'AttackerNotProne'
   | 'AttackerQuad'
   | 'AttackerAirborne'
   | 'ArmsFlipped'
   | 'TargetNotMek'
+  | 'TargetNotInfantry'
   | 'TargetInfantryOrProtoMek'
   | 'LimbMissing'
   | 'NoArmsQuirk'
@@ -147,8 +161,33 @@ export type PhysicalAttackInvalidReason =
   | 'SelfTarget'
   | 'FriendlyTarget'
   | 'TargetNotAdjacent'
+  | 'TargetNotSameHex'
   | 'TargetNotDirectlyAhead'
+  | 'TargetNotDirectlyBehindFeet'
+  | 'TargetNotInFrontArc'
+  | 'InvalidBrushOffTarget'
+  | 'TerrainNotClearOrPavement'
+  | 'TacOpsTripDisabled'
+  | 'TacOpsJumpJetAttackDisabled'
+  | 'TacOpsGrapplingDisabled'
+  | 'CommonImpossible'
+  | 'ChainWhipGrappled'
+  | 'InvalidLegSelection'
+  | 'BothLegsRequiresProne'
+  | 'JumpJetsMissingOrDestroyed'
+  | 'AttackerJumpedThisTurn'
+  | 'LegWeaponFiredThisTurn'
+  | 'LandAirMekNotMekMode'
+  | 'AttackerAlreadyGrappled'
+  | 'AlreadyGrappled'
+  | 'AttackerNotBipedMekOrProtoMek'
+  | 'AttackerNotMekOrProtoMek'
+  | 'TargetNotMekOrProtoMek'
+  | 'NotGrappledToTarget'
+  | 'TripLimbUnavailable'
+  | 'ThrashLimbUnavailable'
   | 'UnsupportedAttackType'
+  | 'PhysicalAttackLimitReached'
   | 'RetractableBladeNotExtended'
   | 'DestinationBlocked';
 
@@ -206,10 +245,19 @@ export interface IPhysicalAttackInput {
    */
   readonly attackerEvading?: boolean;
   /**
+   * Source-backed spotting penalty: a unit that declared SpotAction-style
+   * target spotting applies +1 to its own weapon and physical attacks.
+   */
+  readonly attackerSpotting?: boolean;
+  /**
    * Source-backed shared physical legality: an attacker that is loading or
    * unloading cargo cannot make physical attacks.
    */
   readonly attackerLoadingOrUnloadingCargo?: boolean;
+  /**
+   * Source-backed bog-down legality: stuck Meks cannot charge or execute DFA.
+   */
+  readonly attackerStuck?: boolean;
   /**
    * Source-backed retractable blade legality: MegaMek rejects the attack
    * when the blade is not extended. Undefined preserves legacy runtime
@@ -404,13 +452,19 @@ export interface IPhysicalAttackInput {
   /**
    * Source-backed Talons modifier state. MegaMek applies the +50% damage
    * modifier only when the attacking leg (or either DFA leg) has working
-   * talons and a working foot actuator. Undefined preserves callers outside
-   * UnitHydration that do not carry mounted talon equipment.
+   * talons and a working foot actuator. For quad/non-biped BattleMechs,
+   * MegaMek maps front-leg talon checks through arm locations. Undefined
+   * preserves callers outside UnitHydration that do not carry mounted talon
+   * equipment.
    */
   readonly leftLegHasTalons?: boolean;
   readonly rightLegHasTalons?: boolean;
+  readonly leftArmHasTalons?: boolean;
+  readonly rightArmHasTalons?: boolean;
   readonly leftFootActuatorPresent?: boolean;
   readonly rightFootActuatorPresent?: boolean;
+  readonly leftArmFootActuatorPresent?: boolean;
+  readonly rightArmFootActuatorPresent?: boolean;
   /**
    * Source-backed Claw modifier state. MegaMek treats claws as working hand
    * weapons that modify punch damage/to-hit for the matching arm, not as a
@@ -418,6 +472,56 @@ export interface IPhysicalAttackInput {
    */
   readonly leftArmHasClaw?: boolean;
   readonly rightArmHasClaw?: boolean;
+  /**
+   * Optional combat rules that affect physical attack math. Current coverage
+   * uses PLAYTEST_3 for MegaMek's claw punch to-hit branch.
+   */
+  readonly optionalRules?: readonly string[];
+  /**
+   * Source-backed optional TacOps trip attacks can be enabled by a caller
+   * boolean or by the matching optional-rule token.
+   */
+  readonly tacOpsTripAttackEnabled?: boolean;
+  readonly tacOpsGrapplingEnabled?: boolean;
+  readonly grappleSide?: GrappleAttackSide;
+  readonly commonPhysicalImpossibleReasonCode?: 'LockedInGrapple' | 'Other';
+  readonly attackerGrappledTargetId?: string;
+  readonly targetGrappledTargetId?: string;
+  readonly attackerIsGrappleAttacker?: boolean;
+  readonly targetIsGrappleAttacker?: boolean;
+  readonly attackerChainWhipGrappled?: boolean;
+  readonly leftArmAesFunctional?: boolean;
+  readonly rightArmAesFunctional?: boolean;
+  readonly attackerWeightClass?: number;
+  readonly targetWeightClass?: number;
+  readonly attackerAlreadyGrappled?: boolean;
+  readonly targetInFrontArc?: boolean;
+  readonly leftTripLimbUsable?: boolean;
+  readonly rightTripLimbUsable?: boolean;
+  readonly legAesFunctional?: boolean;
+  readonly thrashBlockingTerrains?: readonly ThrashAttackBlockingTerrain[];
+  readonly hasWorkingThrashArmOrLeg?: boolean;
+  readonly tacOpsJumpJetAttackEnabled?: boolean;
+  readonly attackerIsLandAirMek?: boolean;
+  readonly attackerIsMekMode?: boolean;
+  readonly jumpJetAttackSelectedLeg?: JumpJetAttackSelectedLeg;
+  readonly leftReadyJumpJetCount?: number;
+  readonly rightReadyJumpJetCount?: number;
+  readonly leftLegWet?: boolean;
+  readonly rightLegWet?: boolean;
+  readonly leftLegWeaponFiredThisTurn?: boolean;
+  readonly rightLegWeaponFiredThisTurn?: boolean;
+  readonly standingAttackerHeightAboveTargetHeight?: number;
+  readonly proneTargetElevationInRange?: boolean;
+  readonly targetDirectlyAheadOfFeet?: boolean;
+  readonly targetDirectlyBehindFeet?: boolean;
+  readonly targetIsSwarmingInfantryOnAttacker?: boolean;
+  readonly targetIsINarcPod?: boolean;
+  readonly armAesFunctional?: boolean;
+  readonly torsoMountedCockpit?: boolean;
+  readonly headSensorHits?: number;
+  readonly centerTorsoSensorHits?: number;
+  readonly defenderHasMagneticClaws?: boolean;
   /**
    * Per task 8.5: a push is only legal when the displacement destination
    * is on-map and unoccupied. Undefined preserves legacy callers that have
@@ -530,14 +634,31 @@ export interface IChooseBestPhysicalAttackOptions {
   weaponsFiredFromLeftArm?: readonly string[];
   weaponsFiredFromRightArm?: readonly string[];
   attackerProne?: boolean;
+  attackerStuck?: boolean;
+  attackerUnitType?: string;
+  targetUnitType?: string;
+  targetDistance?: number;
+  targetIsSwarming?: boolean;
+  targetIsSwarmingInfantryOnAttacker?: boolean;
+  targetIsINarcPod?: boolean;
+  targetObjectType?: PhysicalTargetObjectType;
+  targetIsFriendly?: boolean;
+  weaponsFiredThisTurn?: readonly string[];
+  thrashBlockingTerrains?: readonly ThrashAttackBlockingTerrain[];
+  hasWorkingThrashArmOrLeg?: boolean;
   heat?: number;
   hasTSM?: boolean;
   pilotAbilities?: readonly string[];
   unitQuirks?: readonly string[];
+  attackerIsQuad?: boolean;
   leftLegHasTalons?: boolean;
   rightLegHasTalons?: boolean;
+  leftArmHasTalons?: boolean;
+  rightArmHasTalons?: boolean;
   leftFootActuatorPresent?: boolean;
   rightFootActuatorPresent?: boolean;
+  leftArmFootActuatorPresent?: boolean;
+  rightArmFootActuatorPresent?: boolean;
   leftArmHasClaw?: boolean;
   rightArmHasClaw?: boolean;
   attackerEvading?: boolean;
@@ -553,6 +674,28 @@ export interface IChooseBestPhysicalAttackOptions {
   targetIsPushing?: boolean;
   targetDisplacementAttackTargetId?: string;
   targetedByDisplacementAttackerId?: string;
+  optionalRules?: readonly string[];
+  tacOpsGrapplingEnabled?: boolean;
+  grappleSide?: GrappleAttackSide;
+  attackerGrappledTargetId?: string;
+  targetGrappledTargetId?: string;
+  attackerIsGrappleAttacker?: boolean;
+  targetIsGrappleAttacker?: boolean;
+  attackerChainWhipGrappled?: boolean;
+  leftArmAesFunctional?: boolean;
+  rightArmAesFunctional?: boolean;
+  attackerWeightClass?: number;
+  targetWeightClass?: number;
+  tacOpsJumpJetAttackEnabled?: boolean;
+  jumpJetAttackSelectedLeg?: JumpJetAttackSelectedLeg;
+  leftReadyJumpJetCount?: number;
+  rightReadyJumpJetCount?: number;
+  leftLegWeaponFiredThisTurn?: boolean;
+  rightLegWeaponFiredThisTurn?: boolean;
+  standingAttackerHeightAboveTargetHeight?: number;
+  proneTargetElevationInRange?: boolean;
+  targetDirectlyAheadOfFeet?: boolean;
+  targetDirectlyBehindFeet?: boolean;
 }
 
 export interface IPhysicalAttackCandidate {

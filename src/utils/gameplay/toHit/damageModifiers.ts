@@ -136,6 +136,21 @@ export function calculateAttackerProneModifier(
   };
 }
 
+export function calculateSpottingAttackerModifier(
+  isSpotting?: boolean,
+): IToHitModifierDetail | null {
+  if (!isSpotting) {
+    return null;
+  }
+
+  return {
+    name: 'Attacker Spotting',
+    value: 1,
+    source: 'other',
+    description: 'Attacker is spotting for indirect fire: +1',
+  };
+}
+
 export function calculateIndirectFireModifier(
   indirectFire: IIndirectFire,
 ): IToHitModifierDetail | null {
@@ -158,6 +173,7 @@ export function calculateCalledShotModifier(
   calledShot: boolean,
   teammateCalledShot?: boolean,
   abilities?: readonly string[],
+  applyLocalAbilityReduction: boolean = true,
 ): IToHitModifierDetail | null {
   if (!calledShot) {
     return null;
@@ -172,9 +188,9 @@ export function calculateCalledShotModifier(
     };
   }
 
-  const calledShotReduction = -(abilities
-    ? getSharpshooterBonus(abilities)
-    : 0);
+  const calledShotReduction = applyLocalAbilityReduction
+    ? -(abilities ? getSharpshooterBonus(abilities) : 0)
+    : 0;
   const value = 3 - calledShotReduction;
   const reductionName = abilities?.includes('marksman')
     ? 'Marksman'

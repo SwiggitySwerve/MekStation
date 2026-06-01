@@ -154,10 +154,7 @@ function helperOnly(
 
 export const TERRAIN_TYPE_COMBAT_COVERAGE = Object.values(TerrainType);
 
-export const TERRAIN_TYPES_WITH_PSR_GAPS = [
-  TerrainType.Building,
-  TerrainType.Swamp,
-] as const;
+export const TERRAIN_TYPES_WITH_PSR_GAPS = [] as readonly TerrainType[];
 
 const terrainTypesWithPsrGaps = new Set<TerrainType>(
   TERRAIN_TYPES_WITH_PSR_GAPS,
@@ -250,23 +247,30 @@ function makeTerrainMovementEntry(
 function makeTerrainLosEntry(terrain: TerrainType): ICombatFeatureSupportEntry {
   const properties = TERRAIN_PROPERTIES[terrain];
 
-  if (terrain === TerrainType.Building || terrain === TerrainType.HeavyWoods) {
+  if (terrain === TerrainType.Building) {
     return integrated(
       terrain,
-      'MekStation calculateLOS blocks this terrain through simplified blocksLOS and losBlockHeight local rules; MegaMek LOS uses richer building, woods, smoke, water, and diagramming thresholds',
+      'MekStation calculateLOS blocks this terrain through local blocksLOS and losBlockHeight rules while leaving richer MegaMek building-level handling visible in aggregate terrain LOS gaps',
       terrainLosSourceRefs(terrain),
     );
   }
 
   if (
     terrain === TerrainType.LightWoods ||
-    terrain === TerrainType.Smoke ||
-    terrain === TerrainType.Water
+    terrain === TerrainType.HeavyWoods ||
+    terrain === TerrainType.Smoke
   ) {
-    return helperOnly(
+    return integrated(
       terrain,
-      'MekStation calculateLOS records this TerrainType as non-blocking and relies on attack modifier rows for local to-hit effects',
-      'MegaMek can make cumulative woods/smoke or land-to-underwater LOS impossible, but MekStation LOS does not model cumulative density, underwater sightline state, or divided/diagram LOS paths',
+      'MekStation calculateLOS accumulates woods and smoke density through intervening hexes and blocks LOS once cumulative density exceeds 2 while still relying on attack modifier rows for local to-hit effects',
+      terrainLosSourceRefs(terrain),
+    );
+  }
+
+  if (terrain === TerrainType.Water) {
+    return integrated(
+      terrain,
+      'MekStation calculateLOS blocks source-backed land-to-depth-2+ water endpoint sightlines while keeping non-endpoint water non-blocking for local attack modifier and heat rows',
       terrainLosSourceRefs(terrain),
     );
   }
@@ -363,19 +367,18 @@ function makeTerrainHeatEntry(
 
 function makeTerrainPsrEntry(terrain: TerrainType): ICombatFeatureSupportEntry {
   if (terrainTypesWithPsrGaps.has(terrain)) {
-    if (terrain === TerrainType.Swamp) {
-      return helperOnly(
-        terrain,
-        'MegaMek source shows BattleMechs entering swamp can make a bog-down piloting roll with Terrain Master: Swamp Beast relief',
-        'MekStation has no bogged/stuck lifecycle state, so swamp bog-down must not be modeled as a normal failed-PSR fall',
-        terrainPsrSourceRefs(terrain),
-      );
-    }
-
     return helperOnly(
       terrain,
-      'MekStation exposes a local BuildingCollapse PSR factory, while MegaMek resolves building collapse through building load/damage state rather than a generic terrain-entry PSR',
-      'building-collapse PSRs are not wired into runner movement or damage resolution',
+      'MekStation exposes local terrain PSR helpers while this TerrainType still lacks runner integration',
+      'terrain PSRs are not wired into runner movement or damage resolution for this TerrainType',
+      terrainPsrSourceRefs(terrain),
+    );
+  }
+
+  if (terrain === TerrainType.Building) {
+    return integrated(
+      terrain,
+      'runMovementPhase queues source-backed building-collapse PSRs when explicit BattleMech tonnage exceeds a destination Building constructionFactor; richer damage-triggered, basement, top-floor, and WiGE collapse branches remain requirement-level gaps',
       terrainPsrSourceRefs(terrain),
     );
   }
@@ -400,6 +403,14 @@ function makeTerrainPsrEntry(terrain: TerrainType): ICombatFeatureSupportEntry {
     return integrated(
       terrain,
       'runMovementPhase queues local skidding PSRs for running turn steps on pavement or ice, with source-backed movement-before-skid distance modifiers',
+      terrainPsrSourceRefs(terrain),
+    );
+  }
+
+  if (terrain === TerrainType.Swamp) {
+    return integrated(
+      terrain,
+      'runMovementPhase queues source-backed swamp bog-down PSRs for non-jump BattleMech entry, emits UnitStuck immediately for jump entry, and resolvePSR applies Swamp Beast relief while failed bog-down PSRs set isStuck without UnitFell/PilotHit',
       terrainPsrSourceRefs(terrain),
     );
   }

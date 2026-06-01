@@ -193,7 +193,23 @@ function createBlockedGrid(): IHexGrid {
     }
   }
 
+  hexes.set('2,0', createHex(2, 0, TerrainType.LightWoods));
   hexes.set('3,0', createHex(3, 0, TerrainType.HeavyWoods));
+  return { config: { radius: 8 }, hexes };
+}
+
+function createLandToUnderwaterGrid(targetPosition: { q: number; r: number }) {
+  const hexes = new Map();
+  for (let q = -2; q <= 8; q++) {
+    for (let r = -2; r <= 2; r++) {
+      hexes.set(`${q},${r}`, createHex(q, r));
+    }
+  }
+
+  hexes.set(
+    `${targetPosition.q},${targetPosition.r}`,
+    createHex(targetPosition.q, targetPosition.r, 'water:2'),
+  );
   return { config: { radius: 8 }, hexes };
 }
 
@@ -687,6 +703,47 @@ describe('runAttackPhase invalid attacks', () => {
         grid,
       ).hasLOS,
     ).toBe(false);
+
+    const { events, result } = runInvalidationScenario({
+      state: stateWithAmmo,
+      weapon: createAC20(),
+      grid,
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.AttackInvalid,
+    ]);
+    expect(events[0].payload).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      weaponId: AC20_WEAPON_ID,
+      reason: 'NoLineOfSight',
+    });
+
+    assertNoCombatSideEffects(result, stateWithAmmo, ammoBin);
+  });
+
+  it('emits AttackInvalid for source-backed land-to-underwater no-LOS declarations without combat side effects', () => {
+    const targetPosition = { q: 3, r: 0 };
+    const ammoBin = createAmmoBin({
+      weaponType: AC20_WEAPON_ID,
+      remainingRounds: 4,
+    });
+    const initialState = createWeaponAttackState(targetPosition);
+    const stateWithAmmo = withAttackerAmmo(initialState, ammoBin);
+    const grid = createLandToUnderwaterGrid(targetPosition);
+
+    expect(
+      calculateLOS(
+        stateWithAmmo.units['player-1'].position,
+        stateWithAmmo.units['opponent-1'].position,
+        grid,
+      ),
+    ).toMatchObject({
+      hasLOS: false,
+      blockedBy: targetPosition,
+      blockingTerrain: TerrainType.Water,
+    });
 
     const { events, result } = runInvalidationScenario({
       state: stateWithAmmo,

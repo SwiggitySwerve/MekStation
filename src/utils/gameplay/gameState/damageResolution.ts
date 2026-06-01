@@ -8,7 +8,10 @@ import {
   IUnitGameState,
 } from '@/types/gameplay';
 import { PILOT_DEATH_WOUND_THRESHOLD } from '@/utils/gameplay/damage/constants';
-import { applyDestroyedPhysicalEquipmentCritical } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
+import {
+  applyDamagedPhysicalEquipmentCritical,
+  applyDestroyedLocationPhysicalEquipmentState,
+} from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 
 import { DEFAULT_COMPONENT_DAMAGE } from './initialization';
 
@@ -94,17 +97,21 @@ export function applyDamageApplied(
 
   const currentDamageThisPhase = unit.damageThisPhase ?? 0;
 
-  const updatedUnit: IUnitGameState = {
-    ...unit,
-    armor: newArmor,
-    structure: newStructure,
-    startingInternalStructure: newStartingStructure,
-    destroyedLocations: newDestroyedLocations,
-    destroyedEquipment: payload.criticals
-      ? [...unit.destroyedEquipment, ...payload.criticals]
-      : unit.destroyedEquipment,
-    damageThisPhase: currentDamageThisPhase + payload.damage,
-  };
+  const updatedUnit: IUnitGameState =
+    applyDestroyedLocationPhysicalEquipmentState(
+      {
+        ...unit,
+        armor: newArmor,
+        structure: newStructure,
+        startingInternalStructure: newStartingStructure,
+        destroyedLocations: newDestroyedLocations,
+        destroyedEquipment: payload.criticals
+          ? [...unit.destroyedEquipment, ...payload.criticals]
+          : unit.destroyedEquipment,
+        damageThisPhase: currentDamageThisPhase + payload.damage,
+      },
+      newDestroyedLocations,
+    );
 
   return {
     ...state,
@@ -265,7 +272,7 @@ export function applyCriticalHitResolved(
       };
       break;
   }
-  const updatedUnit = applyDestroyedPhysicalEquipmentCritical(unit, payload);
+  const updatedUnit = applyDamagedPhysicalEquipmentCritical(unit, payload);
 
   return {
     ...state,

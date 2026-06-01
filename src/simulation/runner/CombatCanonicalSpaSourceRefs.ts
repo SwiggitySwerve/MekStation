@@ -111,7 +111,7 @@ const MEGAMEK_INFANTRY_SPA_SOURCE_REFS = [
     'megamek/src/megamek/common/options/OptionsConstants.java#L217-L220',
   ),
   mekstationDeviationRef(
-    'MekStation infantry SPA table defines Foot Cavalry and Urban Guerrilla as canonical rows that remain helper-only for the BattleMech matrix.',
+    'MekStation infantry SPA table defines Foot Cavalry and Urban Guerrilla as canonical rows that remain out-of-scope for the BattleMech matrix.',
     'src/lib/spa/catalog/miscAndInfantrySPAs.ts#L65-L90',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
@@ -141,14 +141,14 @@ const MEGAMEK_UNOFFICIAL_SPA_SOURCE_REFS = [
     'megamek/src/megamek/common/options/OptionsConstants.java#L221-L233',
   ),
   mekstationDeviationRef(
-    'MekStation unofficial SPA table defines legacy and unofficial rows that canonicalPilotAbilityScope marks unsupported for the official BattleMech validation matrix.',
+    'MekStation unofficial SPA table defines legacy and unofficial rows that canonicalPilotAbilityScope marks out-of-scope for the official BattleMech validation matrix.',
     'src/lib/spa/catalog/unofficialSPAs.ts#L10-L96',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const MEKSTATION_EDGE_SPA_SOURCE_REFS = [
   mekstationDeviationRef(
-    'MekStation Edge SPA table defines the trigger-specific canonical Edge rows that canonicalPilotAbilityScope keeps helper-only except for MASC/Supercharger reroll consumption.',
+    'MekStation Edge SPA table defines trigger-specific canonical Edge rows; canonicalPilotAbilityScope marks non-MASC Mek Edge triggers unsupported, marks MASC/Supercharger reroll consumption integrated, and splits Aero Edge triggers out-of-scope.',
     'src/lib/spa/catalog/edgeSPAs.ts#L10-L67',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];

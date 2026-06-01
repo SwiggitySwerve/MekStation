@@ -143,6 +143,14 @@ const PILOT_REFS = [
     'src/simulation/runner/__tests__/combatPilotModifierApplicationCatalog.contract.test.ts',
     'Pilot modifier resolver rows stay aligned with executable SPA and quirk resolver paths.',
   ),
+  testRef(
+    'src/utils/gameplay/movement/__tests__/battlemechMovementTerrain.behavior.test.ts',
+    'Movement behavior proves source-backed Terrain Master: Mountaineer rough/rubble and upward-elevation MP relief in validation, pathfinding, and reachable previews.',
+  ),
+  testRef(
+    'src/simulation/runner/__tests__/movementPhase.behavior.test.ts',
+    'Runner movement behavior proves pilot-ability movement-cost relief before MovementDeclared commit.',
+  ),
 ] as const;
 
 const REQUIREMENT_REFS = [
@@ -205,7 +213,7 @@ const MECH_QUIRK_TRIAD = entryTriad(
   FEATURE_REFS,
 );
 const TERRAIN_ENVIRONMENT_TRIAD = entryTriad(
-  'Terrain/environment rows are source checked and must carry row-level sourceRefs for terrain costs, LOS/cover/to-hit features, water/fire heat, fog/night/wind/extreme temperature, local atmosphere, and explicit dust/mines gaps.',
+  'Terrain/environment rows are source checked and must carry row-level sourceRefs for terrain costs, LOS/cover/to-hit features, water/fire heat, fog/night/wind/dust/extreme temperature, local atmosphere, and explicit mines gaps.',
   TERRAIN_REFS,
 );
 const TERRAIN_TYPE_MOVEMENT_TRIAD = entryTriad(
@@ -221,7 +229,7 @@ const TERRAIN_TYPE_ATTACK_MODIFIER_TRIAD = entryTriad(
   TERRAIN_REFS,
 );
 const TERRAIN_TYPE_LOS_TRIAD = entryTriad(
-  'Per-TerrainType LOS rows are source checked and must carry row-level sourceRefs, distinguishing MekStation simplified blocksLOS behavior from MegaMek cumulative woods/smoke, building, water, and divided-LOS parity gaps.',
+  'Per-TerrainType LOS rows are source checked and must carry row-level sourceRefs, distinguishing MekStation direct and cumulative woods/smoke LOS behavior from MegaMek building, water, and divided-LOS parity gaps.',
   TERRAIN_REFS,
 );
 const TERRAIN_TYPE_PSR_TRIAD = entryTriad(
@@ -268,7 +276,7 @@ const PHYSICAL_LEGALITY_TRIAD = entryTriad(
   ],
 );
 const PHYSICAL_DAMAGE_TRIAD = entryTriad(
-  'Physical damage modifier rows are MegaMek-source checked and must carry row-level sourceRefs for active TSM, claw punch, talon kick/DFA, and underwater physical damage boundaries.',
+  'Physical damage modifier rows are MegaMek-source checked and must carry row-level sourceRefs for active TSM, claw punch, talon kick/DFA, underwater physical damage, and remaining claw/talon equipment-lifecycle side paths.',
   RULE_REFS,
 );
 const HEAT_TRIAD = entryTriad(
@@ -290,7 +298,7 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
   actions: {
     tacticalCommands: ACTION_TRIAD,
     absentActionSurfaces: entryTriad(
-      'Absent official BattleMech action surfaces must carry row-level sourceRefs so optional TacOps sprint/evade gaps remain explicit action blockers instead of inheriting broad movement authority.',
+      'Absent official BattleMech action surfaces must carry row-level sourceRefs so future optional-action gaps remain explicit blockers instead of inheriting broad movement authority.',
       ACTION_CONTRACT_REFS,
     ),
     directUiActions: ACTION_TRIAD,
@@ -361,12 +369,12 @@ export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
     physicalDamageModifiers: PHYSICAL_DAMAGE_TRIAD,
     movementRules: triad(
       'entry-source-refs',
-      'Core BattleMech movement rule rows are MegaMek-source checked and must carry row-level sourceRefs for walk, run, jump, stand, go-prone, facing, occupancy, elevation, heat movement penalties, and torso twist boundaries.',
+      'Core BattleMech movement rule rows are MegaMek-source checked and must carry row-level sourceRefs for walk, run, jump, stand, go-prone, go-prone side paths, facing, occupancy, elevation, heat movement penalties, and torso twist boundaries.',
       RULE_REFS,
     ),
     movementEnhancements: triad(
       'entry-source-refs',
-      'Movement enhancement rows are source-backed MASC, Supercharger, TSM, and Partial Wing boundaries and must carry row-level sourceRefs.',
+      'Movement enhancement rows are source-backed MASC, Supercharger, TSM, Partial Wing, and remaining MASC/Supercharger side-path boundaries and must carry row-level sourceRefs.',
       RULE_REFS,
     ),
     terrainEnvironment: TERRAIN_ENVIRONMENT_TRIAD,

@@ -20,6 +20,7 @@ import type {
   IAttackResolvedPayload,
   IAmmoExplosionPayload,
   IHeatPayload,
+  IAttacksRevealedPayload,
   IPhysicalAttackDeclaredPayload,
   IPhysicalAttackResolvedPayload,
   IPilotHitPayload,
@@ -30,6 +31,7 @@ import type {
   IUnitDestroyedPayload,
   IUnitFellPayload,
   IUnitStoodPayload,
+  IUnitStuckPayload,
   IDamageAppliedPayload,
   ICriticalHitResolvedPayload,
 } from './GameSessionAttackEvents';
@@ -42,6 +44,7 @@ import type {
   IGameCreatedPayload,
   IGameEndedPayload,
   IGameStartedPayload,
+  IInitiativeOrderSetPayload,
   IInitiativeRolledPayload,
   IPhaseChangedPayload,
   ITurnEndedPayload,
@@ -187,6 +190,17 @@ export interface IDesignatorMarkerAppliedPayload {
   readonly turn: number;
   readonly location?: string;
   readonly teamId?: string;
+}
+
+/**
+ * A unit declared source-backed target spotting for indirect fire. Mirrors
+ * MegaMek SpotAction's entity id + target id pair while keeping the state
+ * change replayable in MekStation's event log.
+ */
+export interface ISpottingDeclaredPayload {
+  readonly unitId: string;
+  readonly targetId: string;
+  readonly turn: number;
 }
 
 /**
@@ -445,11 +459,13 @@ export type GameEventPayload =
   | ITurnEndedPayload
   | IPhaseChangedPayload
   | IInitiativeRolledPayload
+  | IInitiativeOrderSetPayload
   | IMovementDeclaredPayload
   | IMovementLockedPayload
   | IFacingChangedPayload
   | IAttackDeclaredPayload
   | IAttackLockedPayload
+  | IAttacksRevealedPayload
   | IAttackResolvedPayload
   | IRedactedAttackResolvedPayload
   | IDamageAppliedPayload
@@ -462,6 +478,7 @@ export type GameEventPayload =
   | IPSRTriggeredPayload
   | IPSRResolvedPayload
   | IUnitFellPayload
+  | IUnitStuckPayload
   | IUnitStoodPayload
   | IPhysicalAttackDeclaredPayload
   | IPhysicalAttackResolvedPayload
@@ -471,6 +488,7 @@ export type GameEventPayload =
   | IAmmoConsumedPayload
   | IAMSInterceptionPayload
   | IDesignatorMarkerAppliedPayload
+  | ISpottingDeclaredPayload
   | IAttackInvalidPayload
   | ILocationDestroyedPayload
   | ITransferDamagePayload

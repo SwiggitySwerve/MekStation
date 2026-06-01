@@ -58,15 +58,15 @@ function integrated(
     : { id, level: 'integrated', evidence };
 }
 
-function helperOnly(
+function outOfScope(
   id: string,
   evidence: string,
   gap: string,
   sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatFeatureSupportEntry {
   return sourceRefs
-    ? { id, level: 'helper-only', evidence, gap, sourceRefs }
-    : { id, level: 'helper-only', evidence, gap };
+    ? { id, level: 'out-of-scope', evidence, gap, sourceRefs }
+    : { id, level: 'out-of-scope', evidence, gap };
 }
 
 const MEGAMEK_PSR_QUEUE_SOURCE_REFS = [
@@ -335,16 +335,16 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
     'physicalAttackPsr queues createKickMissPSR for attacker kick misses',
     PHYSICAL_KICK_PSR_SOURCE_REFS,
   ),
-  [PSRTrigger.ChargeMiss]: helperOnly(
+  [PSRTrigger.ChargeMiss]: outOfScope(
     PSRTrigger.ChargeMiss,
     'createChargeMissPSR remains available as a legacy/local factory, but source-backed charge misses displace without a normal ChargeMiss PSR',
-    'Normal source-backed missed charges no longer queue ChargeMiss; keep the legacy factory visible until callers that still depend on it are removed or reclassified',
+    'Normal source-backed missed-charge BattleMech behavior is covered by displacement; the ChargeMiss PSR factory is a local/legacy compatibility row outside unresolved BattleMech blocker accounting',
     PHYSICAL_CHARGE_MISS_SOURCE_REFS,
   ),
-  [PSRTrigger.DFAMiss]: helperOnly(
+  [PSRTrigger.DFAMiss]: outOfScope(
     PSRTrigger.DFAMiss,
     'createDFAMissPSR remains available for legacy/no-grid fallback coverage',
-    'Source-backed grid resolution applies immediate missed-DFA fall damage, UnitFell, and pilot-damage avoidance instead of queuing a normal DFAMiss PSR',
+    'Source-backed missed-DFA BattleMech behavior is covered by immediate fall, fall damage, UnitFell, and pilot-damage avoidance; the DFAMiss PSR factory is a local/no-grid fallback row outside unresolved BattleMech blocker accounting',
     MEGAMEK_DFA_MISS_FALL_SOURCE_REFS,
   ),
   [PSRTrigger.Shutdown]: integrated(
@@ -387,6 +387,11 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
     'movementTerrainPsr queues createSkiddingPSR for running turn steps on pavement or ice',
     terrainPsrSourceRefs(TerrainType.Pavement),
   ),
+  [PSRTrigger.SwampBogDown]: integrated(
+    PSRTrigger.SwampBogDown,
+    'movementTerrainPsr queues createSwampBogDownPSR for non-jump BattleMech swamp entry and emits UnitStuck immediately for jump entry; failed swamp bog-down PSRs set isStuck instead of UnitFell/PilotHit',
+    terrainPsrSourceRefs(TerrainType.Swamp),
+  ),
   [PSRTrigger.RunningDamagedHip]: integrated(
     PSRTrigger.RunningDamagedHip,
     'movementDamagePsr queues createRunningDamagedHipPSR when a unit runs with hip actuator damage; MegaMek combines hip and gyro into one running-with-damage PSR while MekStation keeps separate reason codes',
@@ -397,22 +402,19 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
     'movementDamagePsr queues createRunningDamagedGyroPSR when a unit runs with gyro damage; MegaMek combines hip and gyro into one running-with-damage PSR while MekStation keeps separate reason codes',
     RUNNING_WITH_DAMAGE_PSR_SOURCE_REFS,
   ),
-  [PSRTrigger.BuildingCollapse]: helperOnly(
+  [PSRTrigger.BuildingCollapse]: integrated(
     PSRTrigger.BuildingCollapse,
-    'createBuildingCollapsePSR factory + resolveAllPSRs modifier math',
-    'building collapse movement/damage triggers are not wired into runner combat',
+    'movementTerrainPsr queues createBuildingCollapsePSR when explicit unit tonnage exceeds Building constructionFactor, and resolveAllPSRs applies normal terrain PSR modifier math',
     terrainPsrSourceRefs(TerrainType.Building),
   ),
-  [PSRTrigger.MASCFailure]: helperOnly(
+  [PSRTrigger.MASCFailure]: integrated(
     PSRTrigger.MASCFailure,
     'movementEnhancementPsr queues createMASCFailurePSR for explicit active MASC run movement with source-backed standard fixed target numbers, runPSRPhase consumes edge_when_masc_fails rerolls and applies one critical hit to each leg when the final check fails, and resetTurnState advances/decays prior-use counters before clearing active use',
-    'Alternate MASC option tables and separate first-step equipment-check timing are not wired',
     MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS,
   ),
-  [PSRTrigger.SuperchargerFailure]: helperOnly(
+  [PSRTrigger.SuperchargerFailure]: integrated(
     PSRTrigger.SuperchargerFailure,
     'movementEnhancementPsr queues createSuperchargerFailurePSR for explicit active Supercharger run movement with source-backed standard fixed target numbers, runPSRPhase consumes edge_when_masc_fails rerolls and destroys the Supercharger slot plus applies the source-backed engine critical table when the final check fails, and resetTurnState advances/decays prior-use counters before clearing active use',
-    'IndustrialMek/support-unit supercharger roll adjustment, separate first-step equipment-check timing, and non-BattleMech motive-damage branches are not wired',
     MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS,
   ),
 } satisfies Record<PSRTrigger, ICombatFeatureSupportEntry>;

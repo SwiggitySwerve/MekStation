@@ -5,7 +5,7 @@
 
 import { IAmmoSlotState } from '@/types/gameplay/GameSessionInterfaces';
 
-import { hasAmmoForWeapon } from './state';
+import { hasAmmoForWeapon, normalizeAmmoWeaponType } from './state';
 
 /**
  * Get all weapons that can currently fire (have ammo or are energy weapons).
@@ -29,6 +29,11 @@ export function getFireableWeapons(
  */
 export function isEnergyWeapon(weaponName: string): boolean {
   const name = weaponName.toLowerCase();
+  const normalized = normalizeAmmoWeaponType(name);
+  if (normalized === 'clan-plasma-cannon' || normalized === 'plasma-rifle') {
+    return false;
+  }
+
   return (
     name.includes('laser') ||
     name.includes('ppc') ||
