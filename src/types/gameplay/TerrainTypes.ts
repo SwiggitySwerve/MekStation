@@ -68,6 +68,12 @@ export interface ITerrainFeature {
 
   /** Whether water/ice is frozen */
   readonly isFrozen?: boolean;
+
+  /**
+   * For MegaMek-style cliff-top edge metadata: Facing numeric directions
+   * from this hex toward adjacent lower hexes where the cliff edge exists.
+   */
+  readonly cliffTopExits?: readonly number[];
 }
 
 /**
