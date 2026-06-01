@@ -174,15 +174,15 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 97,
+      total: 95,
       byLevel: {
         'helper-only': 89,
-        unsupported: 8,
+        unsupported: 6,
       },
       bySection: {
         damageAndDeath: 2,
-        featureSupport: 58,
-        pilotSkills: 12,
+        featureSupport: 57,
+        pilotSkills: 11,
         ruleSupport: 9,
         validationScope: 16,
       },
@@ -263,8 +263,12 @@ describe('BattleMech combat validation catalog index', () => {
     expect(unresolvedRefs).not.toContain(
       'featureSupport.mechQuirks.exposed_actuators',
     );
+    expect(unresolvedRefs).not.toContain('featureSupport.mechQuirks.low_arms');
     expect(unresolvedRefs).not.toContain(
       'pilotSkills.pilotModifierResolvers.anti-mek-actuator-application',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'pilotSkills.pilotModifierResolvers.low-arms-application',
     );
     expect(unresolvedRefs).not.toContain(
       'featureSupport.canonicalPilotAbilityScope.melee_master',
@@ -475,7 +479,7 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.wireIntents.SetReady',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(92);
+    expect(outOfScopeRows).toHaveLength(94);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('actions.physicalActionClassScope.'),
@@ -535,6 +539,7 @@ describe('BattleMech combat validation catalog index', () => {
       ),
     ).toEqual([
       'featureSupport.mechQuirks.exposed_actuators',
+      'featureSupport.mechQuirks.low_arms',
       'featureSupport.mechQuirks.protected_actuators',
       'featureSupport.mechQuirks.rugged_1',
       'featureSupport.mechQuirks.rugged_2',
@@ -571,6 +576,7 @@ describe('BattleMech combat validation catalog index', () => {
     ).toEqual([
       'pilotSkills.pilotModifierResolvers.anti-mek-actuator-application',
       'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
+      'pilotSkills.pilotModifierResolvers.low-arms-application',
       'pilotSkills.pilotModifierResolvers.target-priority-application',
       'pilotSkills.pilotModifierResolvers.vehicle-movement-application',
     ]);
