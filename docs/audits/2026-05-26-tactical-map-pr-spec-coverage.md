@@ -101,9 +101,12 @@ decisions are made, not because CI is stale.
   runtime patches suppressed when MegaMek's represented prior-distance or
   hover-style exemptions apply. Represented WiGE building-top climb cost is now
   covered by `pin-wige-building-climb-cost`, including preview/commit
-  insufficient-MP agreement for the +2 MP climb-mode surcharge. Full elevated
-  AirMek/WiGE pathing, directional cliff metadata, and broader takeoff/hover
-  sequencing remain follow-up work.
+  insufficient-MP agreement for the +2 MP climb-mode surcharge. Directional
+  sheer-cliff metadata is now covered by
+  `pin-directional-cliff-movement-metadata`, including WiGE +1 MP cliff-ascent
+  cost and tracked/wheeled/hover vehicle cliff-ascent blocking when no
+  pavement/road surface cancels the cliff. Full elevated AirMek/WiGE pathing
+  and broader takeoff/hover sequencing remain follow-up work.
   Runtime infantry mounted/dismounted height precedence is now covered; the
   replayable gameplay-event mutation path is now covered by
   `apply-runtime-movement-state-events`, and tactical command controls are now

@@ -47,8 +47,13 @@ Represented WiGE building-top climb cost is now covered by
 `pin-wige-building-climb-cost`, source-pinned to MegaMek
 `MoveStep.java:2844-2864`: the shared movement-cost helper adds the +2 MP
 climb-mode surcharge when entering a higher represented building ceiling while
-leaving the separate +1 sheer-cliff surcharge as a follow-up until MekStation
-encodes directional cliff-top terrain metadata.
+leaving the separate cliff behavior to explicit edge metadata. Directional
+sheer-cliff movement is now covered by
+`pin-directional-cliff-movement-metadata`, source-pinned to MegaMek
+`Hex.java:744-750` and `MoveStep.java:2858-2864` / `:3159-3178`: encoded
+cliff-top exits add the WiGE +1 MP ascent surcharge and block represented
+tracked/wheeled/hover vehicle ascent when no pavement/road surface cancels the
+cliff effect, without inferring cliffs from ordinary elevation deltas.
 Replayable gameplay events for runtime movement state are covered by
 `apply-runtime-movement-state-events`; player-facing tactical command controls
 for represented conversion and infantry mount-state changes are covered by
