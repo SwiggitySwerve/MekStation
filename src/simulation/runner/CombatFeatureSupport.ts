@@ -65,7 +65,6 @@ import {
   MEGAMEK_SENSOR_GHOSTS_TO_HIT_SOURCE_REFS,
   MEGAMEK_SHAKY_STICK_SOURCE_REFS,
   MEGAMEK_SOME_LIKE_IT_HOT_HEAT_TO_HIT_SOURCE_REFS,
-  MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
   MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
   MEGAMEK_TARGETING_QUIRK_TO_HIT_SOURCE_REFS,
   MEGAMEK_WEAPON_COOLING_QUIRK_SOURCE_REFS,
@@ -685,10 +684,11 @@ export const SPA_COMBAT_SUPPORT = {
     'Source-backed calculateShakyStickModifier + calculateToHit applies +1 only for ground-to-air attacks when an airborne target is attacked by a non-airborne attacker',
     MEGAMEK_SHAKY_STICK_SOURCE_REFS,
   ),
-  evasive: unsupported(
+  evasive: outOfScope(
     'evasive',
-    'The legacy Evasive SPA TMM bonus is not wired as a pilot ability; the MegaMek source-backed behavior is optional TacOps Evade movement with action, heat, attacker firing, and target modifier semantics plus optional Skilled Evasion scaling',
-    MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
+    'MekStation local SPA catalog defines Evasive as a target-movement-modifier helper, but the pinned MegaMek pilot option registry does not identify Evasive as an official BattleMech combat SPA',
+    'Local Evasive behavior is excluded from the official BattleMech validation blocker inventory; source-backed evasion remains covered by the integrated optional TacOps Evade movement action row',
+    MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
   'natural-grace': outOfScope(
     'natural-grace',
