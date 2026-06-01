@@ -461,3 +461,4 @@
 - [x] 4.3.184 Promote source-backed Multi-Tasker secondary-target resolver coverage to integrated by leaving the local unsupported `multi-target` SPA unconsumed and proving runner secondary-target attacks do not treat it as `multi_tasker`.
 - [x] 4.3.185 Promote source-backed heat modifier resolver coverage to integrated by leaving the local helper-only Cool Under Fire generated-heat reducer unconsumed in runner and interactive BattleMech heat resolution.
 - [x] 4.3.186 Promote Pain Resistance ranged to-hit non-application to integrated by proving runner and event-sourced ranged attacks preserve raw pilot wound penalties while keeping Pain Resistance helper-only for missing wake-up behavior.
+- [x] 4.3.187 Split AToW/personnel-origin canonical SPA rows into the out-of-scope audit inventory so Natural Aptitude, Combat Sense/Paralysis, and G-Tolerance do not inflate official BattleMech combat blockers.
