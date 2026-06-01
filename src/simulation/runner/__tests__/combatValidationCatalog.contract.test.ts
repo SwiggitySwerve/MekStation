@@ -176,8 +176,8 @@ describe('BattleMech combat validation catalog index', () => {
     }).toEqual({
       total: 95,
       byLevel: {
-        'helper-only': 89,
-        unsupported: 6,
+        'helper-only': 90,
+        unsupported: 5,
       },
       bySection: {
         damageAndDeath: 2,
@@ -368,6 +368,14 @@ describe('BattleMech combat validation catalog index', () => {
     expect(unresolvedRefs).not.toContain(
       'featureSupport.pilotAbilities.multi-target',
     );
+    expect(unsupportedRefs).not.toContain(
+      'featureSupport.pilotAbilities.toughness',
+    );
+    expect(
+      unresolvedRows.find(
+        (row) => row.ref === 'featureSupport.pilotAbilities.toughness',
+      )?.level,
+    ).toBe('helper-only');
     expect(unsupportedRefs).not.toContain(
       'actions.physicalActionClassScope.trip',
     );
