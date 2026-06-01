@@ -9,7 +9,10 @@ import {
   PSRTrigger,
 } from '@/types/gameplay';
 import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
-import { firedWeaponIdsFromMountedArm } from '@/utils/gameplay/gameSessionPhysicalHelpers';
+import {
+  firedWeaponIdsFromMountedArm,
+  firedWeaponIdsFromMountedLeg,
+} from '@/utils/gameplay/gameSessionPhysicalHelpers';
 import { hexDistance } from '@/utils/gameplay/hexMath';
 import {
   applyJumpJetCriticalDamage,
@@ -22,6 +25,7 @@ import {
   IPhysicalAttackInput,
   isPhysicalAirborneVtolOrWigeTarget,
   isTargetDirectlyAhead,
+  isTargetInFrontArc,
   isValidDisplacement,
   physicalTargetObjectTypeForUnitType,
   PhysicalAttackType,
@@ -30,6 +34,8 @@ import {
   resolvePhysicalAttack,
   sourceContainsGroundedDropShip,
   splitPhysicalDamageIntoClusters,
+  thrashBlockingTerrainsForHexTerrain,
+  translateHex,
 } from '@/utils/gameplay/physicalAttacks';
 import {
   calculateAttackerMovementModifier,
@@ -110,6 +116,185 @@ function friendlyUnitIdsForDisplacement(
     .map((unit) => unit.id);
 }
 
+function terrainAtPosition(
+  grid: IHexGrid | undefined,
+  position: IGameState['units'][string]['position'],
+): string | undefined {
+  if (!grid) return undefined;
+  return grid.hexes.get(`${position.q},${position.r}`)?.terrain;
+}
+
+function targetDirectlyBehindFeet(
+  attacker: IGameState['units'][string],
+  target: IGameState['units'][string],
+): boolean {
+  const oppositeFacing = ((attacker.facing + 3) % 6) as typeof attacker.facing;
+  return isTargetDirectlyAhead(
+    attacker.position,
+    oppositeFacing,
+    target.position,
+  );
+}
+
+function canonicalBrushOffTargetUnitType(
+  unit: IGameState['units'][string],
+): string | undefined {
+  if (unit.combatState?.kind === 'squad') return 'battlearmor';
+  return unit.unitType?.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function swarmingHostId(unit: IGameState['units'][string]): string | undefined {
+  if (unit.combatState?.kind !== 'squad') return undefined;
+  return unit.combatState.state.swarmingUnitId;
+}
+
+function targetIsSwarmingInfantryOnAttacker(
+  attackerId: string,
+  target: IGameState['units'][string],
+): boolean {
+  if (target.isSwarming !== true) return false;
+
+  const canonical = canonicalBrushOffTargetUnitType(target);
+  if (canonical !== 'infantry' && canonical !== 'battlearmor') return false;
+
+  const hostId = swarmingHostId(target);
+  return hostId === undefined || hostId === attackerId;
+}
+
+function clearBrushOffSwarmingState(
+  state: IGameState,
+  unitId: string,
+): IGameState {
+  const unit = state.units[unitId];
+  if (!unit) return state;
+
+  const combatState =
+    unit.combatState?.kind === 'squad'
+      ? (() => {
+          const { swarmingUnitId: _swarmingUnitId, ...squadState } =
+            unit.combatState.state;
+          return {
+            ...unit.combatState,
+            state: squadState,
+          };
+        })()
+      : unit.combatState;
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [unitId]: {
+        ...unit,
+        isSwarming: false,
+        ...(combatState ? { combatState } : {}),
+      },
+    },
+  };
+}
+
+function applyGrappleState(
+  state: IGameState,
+  attackerId: string,
+  targetId: string,
+): IGameState {
+  const attacker = state.units[attackerId];
+  const target = state.units[targetId];
+  if (!attacker || !target) return state;
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [attackerId]: {
+        ...attacker,
+        grappledUnitId: targetId,
+        isGrappleAttacker: true,
+        grappledThisRound: true,
+        grappleSide: 'both',
+        position: target.position,
+      },
+      [targetId]: {
+        ...target,
+        grappledUnitId: attackerId,
+        isGrappleAttacker: false,
+        grappledThisRound: true,
+        grappleSide: 'both',
+        facing: ((attacker.facing + 3) % 6) as typeof target.facing,
+      },
+    },
+  };
+}
+
+function facingToward(
+  source: IGameState['units'][string]['position'],
+  destination: IGameState['units'][string]['position'],
+  fallback: IGameState['units'][string]['facing'],
+): IGameState['units'][string]['facing'] {
+  for (let facing = 0; facing < 6; facing++) {
+    const translated = translateHex(source, facing as typeof fallback);
+    if (translated.q === destination.q && translated.r === destination.r) {
+      return facing as typeof fallback;
+    }
+  }
+  return fallback;
+}
+
+function applyBreakGrappleState(options: {
+  readonly state: IGameState;
+  readonly attackerId: string;
+  readonly targetId: string;
+  readonly displacements: readonly {
+    readonly unitId: string;
+    readonly reason: string;
+  }[];
+}): IGameState {
+  const { attackerId, displacements, state, targetId } = options;
+  const attacker = state.units[attackerId];
+  const target = state.units[targetId];
+  if (!attacker || !target) return state;
+
+  const attackerMoved = displacements.some(
+    (displacement) =>
+      displacement.reason === 'break-grapple' &&
+      displacement.unitId === attackerId,
+  );
+  const targetMoved = displacements.some(
+    (displacement) =>
+      displacement.reason === 'break-grapple' &&
+      displacement.unitId === targetId,
+  );
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [attackerId]: {
+        ...attacker,
+        grappledUnitId: undefined,
+        isGrappleAttacker: undefined,
+        grappledThisRound: false,
+        grappleSide: undefined,
+        isChainWhipGrappled: false,
+        facing: attackerMoved
+          ? facingToward(attacker.position, target.position, attacker.facing)
+          : attacker.facing,
+      },
+      [targetId]: {
+        ...target,
+        grappledUnitId: undefined,
+        isGrappleAttacker: undefined,
+        grappledThisRound: false,
+        grappleSide: undefined,
+        isChainWhipGrappled: false,
+        facing: targetMoved
+          ? facingToward(target.position, attacker.position, target.facing)
+          : target.facing,
+      },
+    },
+  };
+}
+
 function markUnitFallenAfterDfaMiss(
   state: IGameState,
   unitId: string,
@@ -156,6 +341,7 @@ function applyDfaMissFallPilotDamage(options: {
     pilotDamage,
     unit.abilities ?? [],
     d6Roller,
+    unit.pilotToughness,
   );
   const pilotConscious =
     totalWounds < LETHAL_PILOT_WOUNDS &&
@@ -224,6 +410,7 @@ export function runPhysicalAttackPhase(options: {
   random: SeededRandom;
   grid?: IHexGrid;
   movementCapabilitiesByUnit?: ReadonlyMap<string, IMovementCapability>;
+  optionalRules?: readonly string[];
 }): IGameState {
   const {
     botPlayer,
@@ -232,6 +419,7 @@ export function runPhysicalAttackPhase(options: {
     grid,
     invariantRunner,
     movementCapabilitiesByUnit,
+    optionalRules,
     random,
     state,
     violations,
@@ -249,8 +437,7 @@ export function runPhysicalAttackPhase(options: {
       unit.hasRetreated ||
       unit.hasEjected ||
       unit.shutdown ||
-      !unit.pilotConscious ||
-      (unit.prone ?? false)
+      !unit.pilotConscious
     ) {
       continue;
     }
@@ -274,6 +461,11 @@ export function runPhysicalAttackPhase(options: {
       'right',
     );
     const weaponsFiredFromEitherArm = firedWeaponIdsFromMountedArm(unit);
+    const leftLegWeaponFiredThisTurn =
+      firedWeaponIdsFromMountedLeg(unit, 'left').length > 0;
+    const rightLegWeaponFiredThisTurn =
+      firedWeaponIdsFromMountedLeg(unit, 'right').length > 0;
+    const weaponsFiredThisTurn = unit.weaponsFiredThisTurn ?? [];
     const hexesMoved = unit.hexesMovedThisTurn ?? 0;
     const attackerRanThisTurn = unit.movementThisTurn === MovementType.Run;
     const attackerJumpedThisTurn = unit.movementThisTurn === MovementType.Jump;
@@ -330,12 +522,16 @@ export function runPhysicalAttackPhase(options: {
         componentDamage,
         {
           attackerProne: unit.prone ?? false,
+          attackerStuck: unit.isStuck ?? false,
           weaponsFiredFromLeftArm,
           weaponsFiredFromRightArm,
           heat: unit.heat,
           hasTSM: unit.hasTSM ?? false,
+          attackerIsQuad: unit.isQuad,
           leftLegHasTalons: unit.leftLegHasTalons,
           rightLegHasTalons: unit.rightLegHasTalons,
+          leftArmHasTalons: unit.leftArmHasTalons,
+          rightArmHasTalons: unit.rightArmHasTalons,
           leftArmHasClaw: unit.leftArmHasClaw,
           rightArmHasClaw: unit.rightArmHasClaw,
           canReachForCharge: attackerRanThisTurn && hexesMoved > 1,
@@ -360,6 +556,46 @@ export function runPhysicalAttackPhase(options: {
           targetedByDisplacementAttackerId:
             target.targetedByDisplacementAttackerId,
           elevationDifference,
+          targetUnitType: target.unitType,
+          targetDistance: hexDistance(unit.position, target.position),
+          targetIsSwarming: target.isSwarming,
+          targetIsSwarmingInfantryOnAttacker:
+            targetIsSwarmingInfantryOnAttacker(unit.id, target),
+          targetObjectType: physicalTargetObjectTypeForUnitType(
+            target.unitType,
+          ),
+          weaponsFiredThisTurn,
+          optionalRules,
+          tacOpsGrapplingEnabled: optionalRules?.includes('tacops_grappling'),
+          attackerGrappledTargetId: unit.grappledUnitId,
+          targetGrappledTargetId: target.grappledUnitId,
+          attackerIsGrappleAttacker: unit.isGrappleAttacker,
+          targetIsGrappleAttacker: target.isGrappleAttacker,
+          attackerChainWhipGrappled: unit.isChainWhipGrappled,
+          tacOpsJumpJetAttackEnabled: optionalRules?.includes(
+            'tacops_jump_jet_attack',
+          ),
+          jumpJetAttackSelectedLeg: 'right',
+          rightReadyJumpJetCount: attackerJumpMP,
+          leftLegWeaponFiredThisTurn,
+          rightLegWeaponFiredThisTurn,
+          standingAttackerHeightAboveTargetHeight:
+            elevationDifference === undefined
+              ? undefined
+              : 1 - elevationDifference,
+          proneTargetElevationInRange:
+            elevationDifference === undefined
+              ? undefined
+              : elevationDifference === 0,
+          targetDirectlyAheadOfFeet: isTargetDirectlyAhead(
+            unit.position,
+            unit.facing,
+            target.position,
+          ),
+          targetDirectlyBehindFeet: targetDirectlyBehindFeet(unit, target),
+          thrashBlockingTerrains: thrashBlockingTerrainsForHexTerrain(
+            terrainAtPosition(physicalGrid, unit.position),
+          ),
           targetIsAirborne: target.isAirborne,
           targetIsAirborneVTOLorWIGE,
           attackerJumpMP,
@@ -368,6 +604,12 @@ export function runPhysicalAttackPhase(options: {
     }
 
     if (!bestAttack) continue;
+    if (
+      (unit.prone ?? false) &&
+      bestAttack !== 'thrash' &&
+      bestAttack !== 'jump-jet-attack'
+    )
+      continue;
 
     const targetMovementModifier = calculateTMM(
       target.movementThisTurn,
@@ -417,12 +659,17 @@ export function runPhysicalAttackPhase(options: {
       arm: 'right',
       hexesMoved,
       attackerProne: unit.prone ?? false,
+      attackerStuck: unit.isStuck ?? false,
       weaponsFiredFromArm:
-        bestAttack === 'push'
-          ? weaponsFiredFromEitherArm
-          : bestAttack === 'punch'
-            ? weaponsFiredFromRightArm
-            : undefined,
+        bestAttack === 'thrash'
+          ? weaponsFiredThisTurn
+          : bestAttack === 'grapple'
+            ? weaponsFiredThisTurn
+            : bestAttack === 'push'
+              ? weaponsFiredFromEitherArm
+              : bestAttack === 'punch' || bestAttack === 'brush-off'
+                ? weaponsFiredFromRightArm
+                : undefined,
       attackerDestroyedLocations: unit.destroyedLocations,
       attackerUnitType: unit.unitType,
       attackerIsQuad: unit.isQuad,
@@ -438,8 +685,44 @@ export function runPhysicalAttackPhase(options: {
       hasTSM: unit.hasTSM ?? false,
       leftLegHasTalons: unit.leftLegHasTalons,
       rightLegHasTalons: unit.rightLegHasTalons,
+      leftArmHasTalons: unit.leftArmHasTalons,
+      rightArmHasTalons: unit.rightArmHasTalons,
       leftArmHasClaw: unit.leftArmHasClaw,
       rightArmHasClaw: unit.rightArmHasClaw,
+      optionalRules,
+      tacOpsGrapplingEnabled: optionalRules?.includes('tacops_grappling'),
+      attackerGrappledTargetId: unit.grappledUnitId,
+      targetGrappledTargetId: target.grappledUnitId,
+      attackerIsGrappleAttacker: unit.isGrappleAttacker,
+      targetIsGrappleAttacker: target.isGrappleAttacker,
+      attackerChainWhipGrappled: unit.isChainWhipGrappled,
+      targetInFrontArc: isTargetInFrontArc(
+        unit.position,
+        unit.facing,
+        target.position,
+      ),
+      thrashBlockingTerrains: thrashBlockingTerrainsForHexTerrain(
+        terrainAtPosition(physicalGrid, unit.position),
+      ),
+      tacOpsJumpJetAttackEnabled: optionalRules?.includes(
+        'tacops_jump_jet_attack',
+      ),
+      jumpJetAttackSelectedLeg: 'right',
+      rightReadyJumpJetCount: attackerJumpMP,
+      leftLegWeaponFiredThisTurn,
+      rightLegWeaponFiredThisTurn,
+      standingAttackerHeightAboveTargetHeight:
+        elevationDifference === undefined ? undefined : 1 - elevationDifference,
+      proneTargetElevationInRange:
+        elevationDifference === undefined
+          ? undefined
+          : elevationDifference === 0,
+      targetDirectlyAheadOfFeet: isTargetDirectlyAhead(
+        unit.position,
+        unit.facing,
+        target.position,
+      ),
+      targetDirectlyBehindFeet: targetDirectlyBehindFeet(unit, target),
       isUnderwater,
       attackerWaterDepth,
       targetTonnage: DEFAULT_TONNAGE,
@@ -457,6 +740,10 @@ export function runPhysicalAttackPhase(options: {
       targetBoardId: target.boardId,
       targetIsPassenger: target.isPassenger,
       targetIsSwarming: target.isSwarming,
+      targetIsSwarmingInfantryOnAttacker: targetIsSwarmingInfantryOnAttacker(
+        unit.id,
+        target,
+      ),
       targetIsMakingDFA: target.isMakingDFA,
       targetIsMakingDisplacementAttack: target.isMakingDisplacementAttack,
       targetIsPushing: target.isPushing,
@@ -552,6 +839,33 @@ export function runPhysicalAttackPhase(options: {
       });
     }
 
+    if (result.hit && bestAttack === 'brush-off') {
+      currentState = clearBrushOffSwarmingState(currentState, target.id);
+    }
+
+    if (result.hit && bestAttack === 'grapple') {
+      currentState = applyGrappleState(currentState, unitId, target.id);
+    }
+
+    if (
+      !result.hit &&
+      bestAttack === 'brush-off' &&
+      result.attackerDamage > 0 &&
+      result.hitLocation
+    ) {
+      currentState = applyPhysicalDamageClusters({
+        state: currentState,
+        events,
+        gameId,
+        unitId,
+        clusters: [result.attackerDamage],
+        hitTable: 'punch',
+        d6Roller,
+        sourceUnitId: unitId,
+        firstHitLocation: result.hitLocation,
+      });
+    }
+
     if (result.hit && bestAttack === 'charge' && result.attackerDamage > 0) {
       currentState = applyPhysicalDamageClusters({
         state: currentState,
@@ -624,6 +938,14 @@ export function runPhysicalAttackPhase(options: {
         displacement.unitId,
         displacement.to,
       );
+    }
+    if (result.hit && bestAttack === 'break-grapple') {
+      currentState = applyBreakGrappleState({
+        state: currentState,
+        attackerId: unitId,
+        targetId: target.id,
+        displacements,
+      });
     }
     physicalGrid = applyPhysicalDisplacementsToGrid(
       physicalGrid,

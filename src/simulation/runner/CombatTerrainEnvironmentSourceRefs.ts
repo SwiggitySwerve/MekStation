@@ -36,6 +36,14 @@ const MEGAMEK_CUMULATIVE_LOS_BLOCKING_SOURCE_REF = {
   sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
 } satisfies ICombatFeatureSourceReference;
 
+const MEGAMEK_LAND_UNDERWATER_LOS_SOURCE_REF = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek LosEffects blocks LOS when one endpoint is on land and the other endpoint is underwater before divided or straight LOS tracing.',
+  url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/common/LosEffects.java#L763-L768`,
+  sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
+} satisfies ICombatFeatureSourceReference;
+
 const MEGAMEK_INTERVENING_LOS_FEATURE_SOURCE_REF = {
   kind: 'megamek-source',
   citation:
@@ -122,28 +130,28 @@ const MEKSTATION_TERRAIN_PSR_PROPERTIES_SOURCE_REF =
   );
 
 const MEKSTATION_TERRAIN_PSR_RUNNER_SOURCE_REF = mekstationDeviationSourceRef(
-  'MekStation queueMovementTerrainPSRs queues water entry/exit, rubble, running rough terrain, ice, and pavement-or-ice skidding PSRs from movement-step terrain features.',
+  'MekStation queueMovementTerrainPSRs queues water entry/exit, rubble, running rough terrain, ice, swamp bog-down, overloaded building-collapse, and pavement-or-ice skidding PSRs from movement-step terrain features, and emits UnitStuck for jump-entry bog-down.',
   'src/simulation/runner/phases/movementTerrainPsr.ts',
-  'L37-L151',
+  'L37-L352',
 );
 
 const MEKSTATION_TERRAIN_PSR_FACTORY_SOURCE_REF = mekstationDeviationSourceRef(
-  'MekStation terrain PSR factories define rubble, running-rough, ice, water, skidding, and building-collapse pending PSRs plus local water-depth modifiers.',
+  'MekStation terrain PSR factories define rubble, running-rough, ice, water, swamp bog-down, skidding, and movement-step stamped building-collapse pending PSRs plus local water-depth and swamp-depth modifiers.',
   'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts',
-  'L94-L214',
+  'L94-L245',
 );
 
 const MEKSTATION_TERRAIN_PSR_CLASSIFICATION_SOURCE_REF =
   mekstationDeviationSourceRef(
     'MekStation PSR resolution classifies terrain PSRs for quirk handling before resolving terrain and pilot-ability modifiers.',
     'src/utils/gameplay/pilotingSkillRolls/resolution.ts',
-    'L20-L33',
+    'L20-L40',
   );
 
 const MEKSTATION_TERRAIN_PSR_SPA_SOURCE_REF = mekstationDeviationSourceRef(
-  'MekStation PSR resolution applies Maneuvering Ace to skidding, Frogman to entering-water, and Mountaineer to entering-rubble pending PSRs.',
+  'MekStation PSR resolution applies Maneuvering Ace to skidding, Frogman to entering-water, Mountaineer to entering-rubble, and Swamp Beast to swamp bog-down pending PSRs.',
   'src/utils/gameplay/pilotingSkillRolls/resolution.ts',
-  'L261-L297',
+  'L276-L328',
 );
 
 const MEKSTATION_LOS_FEATURE_PARSE_SOURCE_REF = mekstationDeviationSourceRef(
@@ -153,9 +161,9 @@ const MEKSTATION_LOS_FEATURE_PARSE_SOURCE_REF = mekstationDeviationSourceRef(
 );
 
 const MEKSTATION_LOS_BLOCKING_SOURCE_REF = mekstationDeviationSourceRef(
-  'MekStation calculateLOS checks intervening hexes for blocksLOS terrain, computes local blocking height, and returns blockingTerrain when the simplified sight line is blocked.',
+  'MekStation calculateLOS gates land-to-depth-2+ water endpoint sightlines, then checks intervening hexes for direct blocks, blocking wrecks, and cumulative woods or smoke density.',
   'src/utils/gameplay/lineOfSight.ts',
-  'L137-L232',
+  'L193-L334',
 );
 
 const MEKSTATION_ATTACK_LOS_PHASE_SOURCE_REF = mekstationDeviationSourceRef(
@@ -219,11 +227,15 @@ export function terrainLosSourceRefs(
   ];
 
   if (megaMekComparedLosTerrains.has(terrain)) {
-    return [
+    const sourceRefs = [
       MEGAMEK_CUMULATIVE_LOS_BLOCKING_SOURCE_REF,
       MEGAMEK_INTERVENING_LOS_FEATURE_SOURCE_REF,
       ...localLosRefs,
     ];
+
+    return terrain === TerrainType.Water
+      ? [MEGAMEK_LAND_UNDERWATER_LOS_SOURCE_REF, ...sourceRefs]
+      : sourceRefs;
   }
 
   return localLosRefs;

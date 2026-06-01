@@ -9,6 +9,7 @@ import {
   createPSRTriggeredEvent,
   createUnitFellEvent,
   createUnitStoodEvent,
+  createUnitStuckEvent,
 } from './gameEvents';
 import { appendEvent } from './gameSessionCore';
 import { roll2d6 as rollDice } from './hitLocation';
@@ -148,6 +149,7 @@ export function resolvePendingPSRs(
         1,
         currentUnitState.abilities ?? unit.abilities ?? [],
         d6Roller,
+        currentUnitState.pilotToughness,
       );
       const consciousnessPassed =
         currentUnitState.pilotConscious &&
@@ -230,7 +232,22 @@ export function resolvePendingPSRs(
       );
     }
 
-    if (batchResult.unitFell) {
+    if (batchResult.unitStuck) {
+      const failedPsr = batchResult.failedResult;
+      const stuckSequence = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createUnitStuckEvent(
+          currentSession.id,
+          stuckSequence,
+          turn,
+          phase,
+          unitId,
+          failedPsr?.psr.reason ?? pendingPSRs[0]?.reason,
+          failedPsr?.psr.reasonCode ?? pendingPSRs[0]?.reasonCode,
+        ),
+      );
+    } else if (batchResult.unitFell) {
       const fallResult = resolveFall(50, unitState.facing, 0, d6Roller);
 
       // Per `denormalize-event-envelope-and-close-emission-contract-gaps`
@@ -265,6 +282,7 @@ export function resolvePendingPSRs(
         1,
         currentUnitState.abilities ?? unit.abilities ?? [],
         d6Roller,
+        currentUnitState.pilotToughness,
       );
       const consciousnessPassed =
         currentUnitState.pilotConscious &&

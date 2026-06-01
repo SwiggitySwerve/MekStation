@@ -55,6 +55,7 @@ describe('runner designator marker lifecycle', () => {
     const state = createState(
       createUnit({
         tagDesignated: true,
+        sprintedThisTurn: true,
         narcedBy: [GameSide.Player],
       }),
     );
@@ -62,6 +63,7 @@ describe('runner designator marker lifecycle', () => {
     const result = resetTurnState(state);
 
     expect(result.units['opponent-1'].tagDesignated).toBe(false);
+    expect(result.units['opponent-1'].sprintedThisTurn).toBe(false);
     expect(result.units['opponent-1'].narcedBy).toEqual([GameSide.Player]);
     expect(result.units['opponent-1'].damageThisPhase).toBe(0);
     expect(result.units['opponent-1'].weaponsFiredThisTurn).toEqual([]);

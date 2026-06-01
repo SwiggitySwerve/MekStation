@@ -144,6 +144,14 @@ function hasAnyTerrain(
   return terrainFeatures.some((feature) => types.includes(feature.type));
 }
 
+function isRunBasedMovement(movementType: MovementType): boolean {
+  return (
+    movementType === MovementType.Run ||
+    movementType === MovementType.Evade ||
+    movementType === MovementType.Sprint
+  );
+}
+
 /**
  * Terrain Master defensive gunnery variants.
  */
@@ -171,7 +179,7 @@ export function calculateTerrainMasterDefensiveToHitModifier(
 
   if (
     hasSPA(targetAbilities, 'tm_swamp_beast') &&
-    targetMovementType === MovementType.Run &&
+    isRunBasedMovement(targetMovementType) &&
     hasAnyTerrain(targetTerrainFeatures, [TerrainType.Mud, TerrainType.Swamp])
   ) {
     return {
@@ -267,6 +275,15 @@ export function getMountaineerRubblePSRModifier(
 }
 
 /**
+ * Terrain Master: Swamp Beast: -1 to avoid-bog-down PSRs.
+ */
+export function getSwampBeastBogDownPSRModifier(
+  abilities: readonly string[],
+): number {
+  return hasSPA(abilities, 'tm_swamp_beast') ? -1 : 0;
+}
+
+/**
  * Melee Specialist: +1 physical attack damage bonus.
  * Not a to-hit modifier -- returns a damage bonus.
  */
@@ -283,6 +300,47 @@ export function getMeleeMasterDamageBonus(
   _abilities: readonly string[],
 ): number {
   return 0;
+}
+
+export interface IHeavyLifterGroundObjectCapacityInput {
+  readonly unitTonnage: number;
+  readonly abilities?: readonly string[];
+  readonly leftHandAvailable?: boolean;
+  readonly rightHandAvailable?: boolean;
+  readonly tsmPickupModifier?: number;
+}
+
+/**
+ * Heavy Lifter multiplies ground-object lift capacity by 1.5.
+ */
+export function getHeavyLifterGroundObjectLiftMultiplier(
+  abilities: readonly string[] = [],
+): number {
+  return hasSPA(abilities, 'hvy_lifter') ? 1.5 : 1;
+}
+
+/**
+ * MegaMek's MekWithArms lift capacity is 5% of tonnage per available hand,
+ * then Heavy Lifter and active TSM pickup modifiers multiply that base.
+ */
+export function calculateGroundObjectLiftCapacity({
+  unitTonnage,
+  abilities = [],
+  leftHandAvailable = true,
+  rightHandAvailable = true,
+  tsmPickupModifier = 1,
+}: IHeavyLifterGroundObjectCapacityInput): number {
+  const availableHandCount =
+    (leftHandAvailable ? 1 : 0) + (rightHandAvailable ? 1 : 0);
+  if (unitTonnage <= 0 || availableHandCount === 0) return 0;
+
+  return (
+    unitTonnage *
+    availableHandCount *
+    0.05 *
+    getHeavyLifterGroundObjectLiftMultiplier(abilities) *
+    Math.max(0, tsmPickupModifier)
+  );
 }
 
 /**

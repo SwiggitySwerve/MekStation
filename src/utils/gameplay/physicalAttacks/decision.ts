@@ -1,24 +1,32 @@
 import { IComponentDamageState } from '@/types/gameplay';
 
 import {
+  calculateBrushOffDamage,
   calculateChargeDamageToTarget,
   calculateDFADamageToTarget,
   calculateFlailDamage,
   calculateHatchetDamage,
+  calculateJumpJetAttackDamage,
   calculateKickDamage,
   calculateLanceDamage,
   calculateMaceDamage,
   calculatePunchDamage,
   calculateRetractableBladeDamage,
   calculateSwordDamage,
+  calculateThrashDamage,
   calculateWreckingBallDamage,
 } from './damage';
 import {
+  canBrushOffPhysical,
+  canBreakGrapplePhysical,
   canCharge,
   canDFA,
+  canGrapplePhysical,
   canKick,
+  canJumpJetAttackPhysical,
   canMeleeWeapon,
   canPunch,
+  canThrashPhysical,
 } from './restrictions';
 import {
   IChooseBestPhysicalAttackOptions,
@@ -44,12 +52,19 @@ export function chooseBestPhysicalAttack(
     attackType: 'punch',
     heat: options.heat,
     hasTSM: options.hasTSM,
+    attackerProne: options.attackerProne,
+    attackerStuck: options.attackerStuck,
     pilotAbilities: options.pilotAbilities,
     unitQuirks: options.unitQuirks,
+    attackerIsQuad: options.attackerIsQuad,
     leftLegHasTalons: options.leftLegHasTalons,
     rightLegHasTalons: options.rightLegHasTalons,
+    leftArmHasTalons: options.leftArmHasTalons,
+    rightArmHasTalons: options.rightArmHasTalons,
     leftFootActuatorPresent: options.leftFootActuatorPresent,
     rightFootActuatorPresent: options.rightFootActuatorPresent,
+    leftArmFootActuatorPresent: options.leftArmFootActuatorPresent,
+    rightArmFootActuatorPresent: options.rightArmFootActuatorPresent,
     leftArmHasClaw: options.leftArmHasClaw,
     rightArmHasClaw: options.rightArmHasClaw,
     attackerEvading: options.attackerEvading,
@@ -61,6 +76,14 @@ export function chooseBestPhysicalAttack(
     elevationDifference: options.elevationDifference,
     targetIsAirborne: options.targetIsAirborne,
     targetIsAirborneVTOLorWIGE: options.targetIsAirborneVTOLorWIGE,
+    targetIsFriendly: options.targetIsFriendly,
+    targetIsSwarming: options.targetIsSwarming,
+    targetIsSwarmingInfantryOnAttacker:
+      options.targetIsSwarmingInfantryOnAttacker,
+    targetIsINarcPod: options.targetIsINarcPod,
+    targetDistance: options.targetDistance,
+    targetObjectType: options.targetObjectType,
+    targetUnitType: options.targetUnitType,
     attackerJumpMP: options.attackerJumpMP,
     attackerUsedMechanicalJumpBooster:
       options.attackerUsedMechanicalJumpBooster,
@@ -68,12 +91,97 @@ export function chooseBestPhysicalAttack(
     targetIsPushing: options.targetIsPushing,
     targetDisplacementAttackTargetId: options.targetDisplacementAttackTargetId,
     targetedByDisplacementAttackerId: options.targetedByDisplacementAttackerId,
+    optionalRules: options.optionalRules,
+    tacOpsGrapplingEnabled: options.tacOpsGrapplingEnabled,
+    grappleSide: options.grappleSide,
+    attackerGrappledTargetId: options.attackerGrappledTargetId,
+    targetGrappledTargetId: options.targetGrappledTargetId,
+    attackerIsGrappleAttacker: options.attackerIsGrappleAttacker,
+    targetIsGrappleAttacker: options.targetIsGrappleAttacker,
+    attackerChainWhipGrappled: options.attackerChainWhipGrappled,
+    leftArmAesFunctional: options.leftArmAesFunctional,
+    rightArmAesFunctional: options.rightArmAesFunctional,
+    attackerWeightClass: options.attackerWeightClass,
+    targetWeightClass: options.targetWeightClass,
+    tacOpsJumpJetAttackEnabled: options.tacOpsJumpJetAttackEnabled,
+    jumpJetAttackSelectedLeg: options.jumpJetAttackSelectedLeg,
+    leftReadyJumpJetCount: options.leftReadyJumpJetCount,
+    rightReadyJumpJetCount: options.rightReadyJumpJetCount,
+    leftLegWeaponFiredThisTurn: options.leftLegWeaponFiredThisTurn,
+    rightLegWeaponFiredThisTurn: options.rightLegWeaponFiredThisTurn,
+    standingAttackerHeightAboveTargetHeight:
+      options.standingAttackerHeightAboveTargetHeight,
+    proneTargetElevationInRange: options.proneTargetElevationInRange,
+    targetDirectlyAheadOfFeet: options.targetDirectlyAheadOfFeet,
+    targetDirectlyBehindFeet: options.targetDirectlyBehindFeet,
+    thrashBlockingTerrains: options.thrashBlockingTerrains,
+    hasWorkingThrashArmOrLeg: options.hasWorkingThrashArmOrLeg,
   };
+
+  const thrashInput: IPhysicalAttackInput = {
+    ...baseInput,
+    attackType: 'thrash',
+    weaponsFiredFromArm: options.weaponsFiredThisTurn,
+  };
+  if (canThrashPhysical(thrashInput).allowed) {
+    candidates.push({
+      type: 'thrash',
+      expectedDamage: calculateThrashDamage(thrashInput),
+    });
+  }
+
+  const jumpJetInput: IPhysicalAttackInput = {
+    ...baseInput,
+    attackType: 'jump-jet-attack',
+    limb: options.jumpJetAttackSelectedLeg === 'left' ? 'leftLeg' : 'rightLeg',
+  };
+  if (canJumpJetAttackPhysical(jumpJetInput).allowed) {
+    candidates.push({
+      type: 'jump-jet-attack',
+      expectedDamage: calculateJumpJetAttackDamage(jumpJetInput),
+    });
+  }
+
+  const brushOffInput: IPhysicalAttackInput = {
+    ...baseInput,
+    attackType: 'brush-off',
+    arm: 'right',
+    limb: 'rightArm',
+    weaponsFiredFromArm: options.weaponsFiredFromRightArm,
+  };
+  if (canBrushOffPhysical(brushOffInput).allowed) {
+    candidates.push({
+      type: 'brush-off',
+      expectedDamage: calculateBrushOffDamage(brushOffInput),
+    });
+  }
+
+  const grappleInput: IPhysicalAttackInput = {
+    ...baseInput,
+    attackType: 'grapple',
+    weaponsFiredFromArm: options.weaponsFiredThisTurn,
+  };
+  if (canGrapplePhysical(grappleInput).allowed) {
+    candidates.push({
+      type: 'grapple',
+      expectedDamage: 0,
+    });
+  }
+
+  const breakGrappleInput: IPhysicalAttackInput = {
+    ...baseInput,
+    attackType: 'break-grapple',
+  };
+  if (canBreakGrapplePhysical(breakGrappleInput).allowed) {
+    candidates.push({
+      type: 'break-grapple',
+      expectedDamage: 0,
+    });
+  }
 
   const kickInput: IPhysicalAttackInput = {
     ...baseInput,
     attackType: 'kick',
-    attackerProne: options.attackerProne,
   };
   const kickRestriction = canKick(kickInput);
   if (kickRestriction.allowed) {

@@ -77,6 +77,11 @@ export interface IGameUnit {
   /** Pilot skills */
   readonly gunnery: number;
   readonly piloting: number;
+  /**
+   * Unit mass in tons, projected into combat state for source-backed rules
+   * that compare unit load against terrain or equipment thresholds.
+   */
+  readonly tonnage?: number;
   /** Total heat sinks on unit (default: 10 if not provided) */
   readonly heatSinks?: number;
   /**
@@ -111,6 +116,12 @@ export interface IGameUnit {
   readonly superchargerFailureLevelIncreasedLastTurn?: boolean;
   /** Pilot SPA ids copied into combat state for modifier resolution. */
   readonly abilities?: readonly string[];
+  /**
+   * Source-backed RPG Toughness numeric crew value copied into combat state
+   * for consciousness checks. Ability aliases named "toughness" do not imply
+   * this value.
+   */
+  readonly pilotToughness?: number;
   /** SPA designation fields copied into combat state for to-hit resolution. */
   readonly designatedWeaponType?: string;
   readonly designatedWeaponCategory?: string;
@@ -146,6 +157,12 @@ export interface IGameUnit {
    * data per `wire-ammo-consumption`.
    */
   readonly ammoConstruction?: readonly IAmmoConstructionInit[];
+  /**
+   * Optional per-location armor type projected into combat state. Producers
+   * may supply a single uniform armor type across all locations or a richer
+   * per-location map; missing keys behave as standard armor.
+   */
+  readonly armorTypeByLocation?: Readonly<Record<string, string>>;
   /**
    * Per-location ammo explosion containment projected from construction data
    * into interactive game sessions. Missing keys mean no CASE protection.
@@ -237,6 +254,12 @@ export interface IGameUnit {
    * state. Undefined keeps the normal +1 for explicit evading targets.
    */
   readonly evasionBonus?: number;
+  /**
+   * Optional current-turn sprint state copied into combat state. Declared
+   * TacOps Sprint sets this state for target-sprinted to-hit relief and
+   * sprinting-attacker invalidation.
+   */
+  readonly sprintedThisTurn?: boolean;
   /**
    * Optional end-of-turn cargo interaction state copied into combat state.
    * Explicit true blocks source-backed physical attack declarations by this

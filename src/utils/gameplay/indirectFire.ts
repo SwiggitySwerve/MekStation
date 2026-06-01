@@ -37,6 +37,10 @@ export interface ISpotterCandidate {
   readonly position: IHexCoordinate;
   /** Movement type this turn */
   readonly movementType: MovementType;
+  /** Explicit TacOps Sprint state. */
+  readonly sprintedThisTurn?: boolean;
+  /** Explicit TacOps Evade state. Evading units cannot spot in MegaMek. */
+  readonly isEvading?: boolean;
   /** Whether the unit is operational (not destroyed/shutdown) */
   readonly isOperational: boolean;
   /**
@@ -163,7 +167,7 @@ export interface ISemiGuidedResult {
  * A valid spotter must:
  * - Be operational (not destroyed/shutdown)
  * - Be on the same team as the attacker
- * - NOT have run or jumped this turn (stationary or walked only)
+ * - NOT have run, jumped, sprinted, or evaded this turn
  * - NOT be the attacker itself
  * - Have line of sight to the target
  */
@@ -184,7 +188,16 @@ export function isEligibleSpotter(
   // Must not have run or jumped (only stationary or walked)
   if (
     candidate.movementType === MovementType.Run ||
-    candidate.movementType === MovementType.Jump
+    candidate.movementType === MovementType.Jump ||
+    candidate.movementType === MovementType.Sprint
+  ) {
+    return false;
+  }
+
+  if (
+    candidate.sprintedThisTurn === true ||
+    candidate.isEvading === true ||
+    candidate.movementType === MovementType.Evade
   ) {
     return false;
   }

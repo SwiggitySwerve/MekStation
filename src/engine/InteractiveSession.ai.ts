@@ -107,12 +107,15 @@ export function runInteractiveSessionAITurn(
             coord: refreshedUnit.position,
             facing: refreshedUnit.facing,
             prone: refreshedUnit.prone ?? false,
+            isStuck: refreshedUnit.isStuck ?? false,
           },
           moveEvt.payload.to,
           moveEvt.payload.facing as Facing,
           moveEvt.payload.movementType,
           cap,
           refreshedUnit.heat,
+          undefined,
+          { pilotAbilities: refreshedUnit.abilities },
         );
         if (!validation.valid) {
           setSession(lockMovement(session, unitId));
@@ -129,6 +132,7 @@ export function runInteractiveSessionAITurn(
             validation.mpCost,
             maxMovementCostForCapability(cap, moveEvt.payload.movementType),
           ),
+          movementContext: { pilotAbilities: refreshedUnit.abilities },
         });
         setSession(
           declareMovement(

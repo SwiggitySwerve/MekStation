@@ -39,7 +39,7 @@ export const MEGAMEK_TARGET_MOVEMENT_TO_HIT_SOURCE_REFS = [
     'megamek/src/megamek/common/actions/compute/ComputeTargetToHitMods.java#L198-L223',
   ),
   megamekToHitRef(
-    'MegaMek Compute.getTargetMovementModifier maps target distance moved to the standard TMM brackets and adds +1 for jumped or airborne non-aerospace movement.',
+    'MegaMek Compute.getTargetMovementModifier maps target distance moved to the standard TMM brackets, adds +1 for jumped or airborne non-aerospace movement, and applies -1 when the target sprinted.',
     'megamek/src/megamek/common/compute/Compute.java#L2775-L2916',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
@@ -99,6 +99,10 @@ export const MEGAMEK_INDIRECT_FIRE_TO_HIT_SOURCE_REFS = [
   megamekToHitRef(
     'MegaMek Compute.getSpotterMovementModifier adds spotter walked +1, ran/skidded +2, jumped +3, or sprinted impossible for indirect fire spotting.',
     'megamek/src/megamek/common/compute/Compute.java#L2689-L2725',
+  ),
+  megamekToHitRef(
+    'MegaMek Entity.canSpot rejects off-board, sprinting, and evading entities before they can spot LRM indirect fire.',
+    'megamek/src/megamek/common/units/Entity.java#L9806-L9818',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

@@ -200,6 +200,27 @@ function adjacentPhysicalGrid() {
   return grid;
 }
 
+function sameHexPhysicalGrid(terrain = 'clear') {
+  let grid = createHexGrid({ radius: 3 });
+  grid = placeUnit(grid, { q: 0, r: 0 }, 'attacker');
+  const hexes = new Map(grid.hexes);
+  const hex = hexes.get('0,0');
+  if (hex) {
+    hexes.set('0,0', { ...hex, terrain });
+  }
+  return { ...grid, hexes };
+}
+
+function breakGrapplePhysicalGrid() {
+  const grid = sameHexPhysicalGrid();
+  const hexes = new Map(grid.hexes);
+  const dangerousHex = hexes.get('1,0');
+  if (dangerousHex) {
+    hexes.set('1,0', { ...dangerousHex, terrain: 'magma' });
+  }
+  return { ...grid, hexes };
+}
+
 function blockedDfaDisplacementGrid() {
   let grid = adjacentPhysicalGrid();
   [
@@ -362,6 +383,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       attackerRanThisTurn: true,
       attackerJumpedThisTurn: true,
       meleeWeaponsEquipped: meleeWeapons,
+      optionalRules: ['tacops_trip_attack', 'tacops_grappling'],
       pushDestinationValid: true,
     });
 
@@ -375,6 +397,8 @@ describe('BattleMech physical combat behavior validation lane', () => {
       'charge:-',
       'dfa:-',
       'push:-',
+      'grapple:-',
+      'trip:-',
       'hatchet:-',
       'sword:-',
       'mace:-',
@@ -393,6 +417,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(byType.get('kick')?.toHit.finalToHit).toBe(5);
     expect(byType.get('charge')?.toHit.finalToHit).toBe(8);
     expect(byType.get('dfa')?.toHit.finalToHit).toBe(7);
+    expect(byType.get('grapple')?.toHit.finalToHit).toBe(7);
     expect(byType.get('sword')?.toHit.finalToHit).toBe(5);
     expect(byType.get('mace')?.toHit.finalToHit).toBe(8);
     expect(byType.get('lance')?.toHit.finalToHit).toBe(8);
@@ -405,6 +430,185 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(byType.get('retractable-blade')?.damage.targetDamage).toBe(8);
     expect(byType.get('flail')?.damage.targetDamage).toBe(9);
     expect(byType.get('wrecking-ball')?.damage.targetDamage).toBe(8);
+  });
+
+  it('applies attacker spotting to every physical to-hit family', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        facing: Facing.Southeast,
+        isSpotting: true,
+        movementThisTurn: MovementType.Run,
+        hexesMovedThisTurn: 5,
+      },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      attackerMovementModifier: 1,
+      attackerRanThisTurn: true,
+      attackerJumpedThisTurn: true,
+      meleeWeaponsEquipped: ['sword'],
+      pushDestinationValid: true,
+    });
+    const byType = new Map(
+      options.map((option) => [option.attackType, option]),
+    );
+
+    for (const attackType of [
+      'punch',
+      'kick',
+      'charge',
+      'dfa',
+      'push',
+      'sword',
+    ] as const) {
+      expect(byType.get(attackType)?.toHit.modifiers).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: 'Attacker spotting',
+            value: 1,
+            source: 'other',
+          }),
+        ]),
+      );
+    }
+    expect(byType.get('punch')?.toHit.finalToHit).toBe(6);
+    expect(byType.get('charge')?.toHit.finalToHit).toBe(7);
+  });
+
+  it('projects break-grapple only for the current grappled target', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        grappledUnitId: 'target',
+        isGrappleAttacker: true,
+      },
+    );
+    const target = unitState(
+      'target',
+      GameSide.Opponent,
+      { q: 0, r: 0 },
+      {
+        grappledUnitId: 'attacker',
+        isGrappleAttacker: false,
+      },
+    );
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      optionalRules: ['tacops_grappling'],
+    });
+    const breakGrapple = options.find(
+      (option) => option.attackType === 'break-grapple',
+    );
+
+    expect(breakGrapple).toBeDefined();
+    expect(breakGrapple?.restrictionsFailed).toEqual([]);
+    expect(breakGrapple?.toHit).toMatchObject({
+      automaticHit: true,
+      finalToHit: 0,
+    });
+  });
+
+  it('projects optional jump jet attack when TacOps state and selected-leg jump jets are supplied', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      { facing: Facing.Southeast },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      optionalRules: ['tacops_jump_jet_attack'],
+      rightReadyJumpJetCount: 2,
+      standingAttackerHeightAboveTargetHeight: 1,
+    });
+    const jumpJetAttack = options.find(
+      (option) => option.attackType === 'jump-jet-attack',
+    );
+
+    expect(jumpJetAttack).toMatchObject({
+      attackType: 'jump-jet-attack',
+      limb: 'rightLeg',
+      restrictionsFailed: [],
+      toHit: { finalToHit: 7 },
+      damage: { targetDamage: 6, attackerDamage: 0 },
+    });
+  });
+
+  it('projects source-backed brush-off against swarming infantry with miss self-damage risk', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      { facing: Facing.Southeast },
+    );
+    const target = unitState(
+      'target',
+      GameSide.Opponent,
+      { q: 1, r: 0 },
+      {
+        isSwarming: true,
+        unitType: UnitType.INFANTRY,
+      },
+    );
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+    });
+    const brushOff = options.find(
+      (option) => option.attackType === 'brush-off',
+    );
+
+    expect(brushOff).toMatchObject({
+      attackType: 'brush-off',
+      limb: 'rightArm',
+      restrictionsFailed: [],
+      toHit: { finalToHit: 9 },
+      damage: { targetDamage: 8, attackerDamage: 0 },
+      selfRisk: { damageToAttacker: 8, onMiss: 'None' },
+    });
+  });
+
+  it('projects source-backed optional TacOps grapple as zero-damage state attack', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      { facing: Facing.Southeast },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      optionalRules: ['tacops_grappling'],
+      targetMovementModifier: 2,
+    });
+    const grapple = options.find((option) => option.attackType === 'grapple');
+
+    expect(grapple).toMatchObject({
+      attackType: 'grapple',
+      restrictionsFailed: [],
+      toHit: { finalToHit: 7 },
+      damage: { targetDamage: 0, attackerDamage: 0 },
+      selfRisk: { damageToAttacker: 0, onMiss: null },
+    });
   });
 
   it('projects source-backed talon damage on kick and DFA rows', () => {
@@ -439,6 +643,39 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(dfa?.damage.targetDamage).toBe(36);
   });
 
+  it('projects source-backed quad front-leg talon damage from arm-location state', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        facing: Facing.Southeast,
+        isQuad: true,
+        rightArmHasTalons: true,
+      },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      attackerJumpedThisTurn: true,
+      pushDestinationValid: true,
+    });
+    const leftKick = options.find(
+      (option) => option.attackType === 'kick' && option.limb === 'leftLeg',
+    );
+    const rightKick = options.find(
+      (option) => option.attackType === 'kick' && option.limb === 'rightLeg',
+    );
+    const dfa = options.find((option) => option.attackType === 'dfa');
+
+    expect(leftKick?.damage.targetDamage).toBe(16);
+    expect(rightKick?.damage.targetDamage).toBe(24);
+    expect(dfa?.damage.targetDamage).toBe(36);
+  });
+
   it('projects source-backed claw modifiers on matching punch rows', () => {
     const attacker = unitState(
       'attacker',
@@ -468,6 +705,40 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(leftPunch?.toHit.finalToHit).toBe(6);
     expect(rightPunch?.damage.targetDamage).toBe(6);
     expect(rightPunch?.toHit.finalToHit).toBe(5);
+  });
+
+  it('projects PLAYTEST_3 claw to-hit relief while keeping claw punch damage', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        facing: Facing.Southeast,
+        leftArmHasClaw: true,
+      },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 55,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      optionalRules: ['PLAYTEST_3'],
+      pushDestinationValid: true,
+    });
+    const leftPunch = options.find(
+      (option) => option.attackType === 'punch' && option.limb === 'leftArm',
+    );
+
+    expect(leftPunch?.damage.targetDamage).toBe(8);
+    expect(leftPunch?.toHit.finalToHit).toBe(5);
+    expect(leftPunch?.toHit.modifiers).toContainEqual(
+      expect.objectContaining({
+        name: 'Using Claws',
+        value: 0,
+        source: 'physical-equipment',
+      }),
+    );
   });
 
   it('projects missing-limb restrictions on punch and kick rows', () => {
@@ -536,7 +807,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       pushDestinationValid: true,
     });
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(
       options.every((option) =>
         option.restrictionsFailed.includes('TargetPassenger'),
@@ -631,7 +902,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       pushDestinationValid: true,
     });
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(
       options.every((option) =>
         option.restrictionsFailed.includes('TargetSwarming'),
@@ -666,7 +937,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       pushDestinationValid: true,
     });
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(
       options.every((option) =>
         option.restrictionsFailed.includes('TargetMakingDFA'),
@@ -704,7 +975,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       options.map((option) => [option.attackType, option]),
     );
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(byType.get('charge')?.restrictionsFailed).toContain(
       'TargetMakingDisplacementAttack',
     );
@@ -752,7 +1023,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       options.map((option) => [option.attackType, option]),
     );
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(byType.get('push')?.restrictionsFailed).toContain(
       'TargetPushingAnotherMek',
     );
@@ -791,7 +1062,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       pushDestinationValid: true,
     });
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(
       options.every((option) =>
         option.restrictionsFailed.includes('TargetInsideBuilding'),
@@ -826,7 +1097,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       pushDestinationValid: true,
     });
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(
       options.every((option) =>
         option.restrictionsFailed.includes('TargetAirborne'),
@@ -913,7 +1184,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       pushDestinationValid: true,
     });
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(
       options.every((option) =>
         option.restrictionsFailed.includes('AttackerEvading'),
@@ -942,7 +1213,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       pushDestinationValid: true,
     });
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(
       options.every((option) =>
         option.restrictionsFailed.includes('AttackerCargoInteraction'),
@@ -978,7 +1249,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       pushDestinationValid: true,
     });
 
-    expect(options).toHaveLength(7);
+    expect(options).toHaveLength(8);
     expect(
       options.every((option) =>
         option.restrictionsFailed.includes('DifferentBoard'),
@@ -1421,6 +1692,64 @@ describe('BattleMech physical combat behavior validation lane', () => {
     ).toEqual(['TargetDropShip']);
   });
 
+  it('projects source-backed thrash eligibility and rejects any prior weapon fire', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        prone: true,
+      },
+    );
+    const target = unitState(
+      'target',
+      GameSide.Opponent,
+      { q: 0, r: 0 },
+      { unitType: UnitType.INFANTRY },
+    );
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 5,
+      weaponsFiredThisTurn: [],
+      thrashBlockingTerrains: [],
+    });
+    const thrash = options.find((option) => option.attackType === 'thrash');
+
+    expect(thrash).toMatchObject({
+      restrictionsFailed: [],
+      damage: {
+        targetDamage: 27,
+        attackerPSR: true,
+        targetPSR: false,
+      },
+      selfRisk: {
+        pilotingSkillRoll: {
+          trigger: 'ThrashCompleted',
+          required: true,
+        },
+      },
+      toHit: {
+        finalToHit: 0,
+        automaticHit: true,
+      },
+    });
+
+    const afterWeaponFire = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 5,
+      weaponsFiredThisTurn: ['center-torso-medium-laser'],
+      thrashBlockingTerrains: [],
+    });
+
+    expect(
+      afterWeaponFire.find((option) => option.attackType === 'thrash')
+        ?.restrictionsFailed,
+    ).toEqual(['WeaponFiredThisTurn']);
+  });
+
   it('lets AI choose a lance when leg attacks are blocked', () => {
     const componentDamage = {
       ...DEFAULT_COMPONENT_DAMAGE,
@@ -1462,6 +1791,116 @@ describe('BattleMech physical combat behavior validation lane', () => {
       hit: false,
       location: 'DestinationBlocked',
     });
+  });
+
+  it('caps non-Melee Master units at one accepted physical attack declaration per turn', () => {
+    let session = withPhysicalPositions(physicalPhaseSession());
+    session = declarePhysicalAttack(
+      session,
+      'attacker',
+      'target',
+      'punch',
+      physicalContext({ limb: 'rightArm' }),
+    );
+    session = withPhysicalPositions(session);
+    session = declarePhysicalAttack(
+      session,
+      'attacker',
+      'target',
+      'kick',
+      physicalContext({ limb: 'rightLeg' }),
+    );
+
+    const declarations = session.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const rejection = session.events.findLast(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(1);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'kick',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'PhysicalAttackLimitReached',
+    });
+  });
+
+  it('lets Melee Master declare two physical attacks but rejects the third', () => {
+    const meleeMasterContext = physicalContext({
+      pilotAbilities: ['melee_master'],
+    });
+    const meleeMasterState = { abilities: ['melee_master'] };
+    let session = withPhysicalPositions(
+      physicalPhaseSession(),
+      meleeMasterState,
+    );
+    session = declarePhysicalAttack(session, 'attacker', 'target', 'punch', {
+      ...meleeMasterContext,
+      limb: 'rightArm',
+    });
+    session = withPhysicalPositions(session, meleeMasterState);
+    session = declarePhysicalAttack(session, 'attacker', 'target', 'kick', {
+      ...meleeMasterContext,
+      limb: 'rightLeg',
+    });
+    session = withPhysicalPositions(session, meleeMasterState);
+    session = declarePhysicalAttack(session, 'attacker', 'target', 'push', {
+      ...meleeMasterContext,
+      pushDestinationValid: true,
+    });
+
+    const declarations = session.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const declaredPayloads = declarations.map(
+      (event) => event.payload as IPhysicalAttackDeclaredPayload,
+    );
+    const rejection = session.events.findLast(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const rejectionPayload =
+      rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declaredPayloads).toMatchObject([
+      { attackType: 'punch', limb: 'rightArm' },
+      { attackType: 'kick', limb: 'rightLeg' },
+    ]);
+    expect(rejectionPayload.location).toBe('PhysicalAttackLimitReached');
+  });
+
+  it('rejects a Melee Master second declaration that reuses the same limb', () => {
+    const meleeMasterContext = physicalContext({
+      pilotAbilities: ['melee_master'],
+    });
+    let session = withPhysicalPositions(physicalPhaseSession(), {
+      abilities: ['melee_master'],
+    });
+    session = declarePhysicalAttack(session, 'attacker', 'target', 'punch', {
+      ...meleeMasterContext,
+      limb: 'rightArm',
+    });
+    session = withPhysicalPositions(session, { abilities: ['melee_master'] });
+    session = declarePhysicalAttack(session, 'attacker', 'target', 'punch', {
+      ...meleeMasterContext,
+      limb: 'rightArm',
+    });
+
+    const declarations = session.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const rejection = session.events.findLast(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(1);
+    expect(payload.location).toBe('SameLimbUsedThisTurn');
   });
 
   it('rejects push declarations against prone targets before scheduling resolution', () => {
@@ -2013,6 +2452,90 @@ describe('BattleMech physical combat behavior validation lane', () => {
 
     expect(declarations).toHaveLength(1);
     expect(rejection).toBeUndefined();
+  });
+
+  it('declares and resolves source-backed jump jet attacks through the event-sourced physical path', () => {
+    const context = physicalContext({
+      optionalRules: ['tacops_jump_jet_attack'],
+      limb: 'rightLeg',
+      rightReadyJumpJetCount: 2,
+      standingAttackerHeightAboveTargetHeight: 1,
+    });
+    const declared = declareAdjacentPhysicalAttack('jump-jet-attack', context);
+    const declaration = declared.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    )?.payload as IPhysicalAttackDeclaredPayload;
+
+    expect(declaration).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'jump-jet-attack',
+      limb: 'rightLeg',
+      toHitNumber: 7,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6, 6, 3]),
+    );
+    const resolution = resolved.events.findLast(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+    const damage = resolved.events.find(
+      (event) => event.type === GameEventType.DamageApplied,
+    )?.payload as IDamageAppliedPayload;
+
+    expect(resolution).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'jump-jet-attack',
+      roll: 12,
+      toHitNumber: 7,
+      hit: true,
+      damage: 6,
+    });
+    expect(damage).toMatchObject({
+      unitId: 'target',
+      damage: 6,
+    });
+  });
+
+  it('rejects jump jet attacks after hydrated selected-leg weapon fire', () => {
+    const session = declarePhysicalAttack(
+      withPhysicalPositions(physicalPhaseSession(), {
+        weaponsFiredThisTurn: ['medium-laser-0'],
+        weaponLocationById: { 'medium-laser-0': 'RIGHT_LEG' },
+      }),
+      'attacker',
+      'target',
+      'jump-jet-attack',
+      physicalContext({
+        optionalRules: ['tacops_jump_jet_attack'],
+        limb: 'rightLeg',
+        rightReadyJumpJetCount: 2,
+        standingAttackerHeightAboveTargetHeight: 1,
+      }),
+    );
+
+    const declarations = session.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const rejection = session.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'jump-jet-attack',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'LegWeaponFiredThisTurn',
+    });
   });
 
   it('rejects push declarations when either attacker arm is missing', () => {
@@ -3848,6 +4371,308 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(resolved.currentState.units.attacker.position).toEqual({
       q: 1,
       r: 0,
+    });
+  });
+
+  it('emits event-sourced optional TacOps trip as zero damage with a target PSR', () => {
+    const context = physicalContext({
+      optionalRules: ['tacops_trip_attack'],
+    });
+    const declared = declareAdjacentPhysicalAttack('trip', context, {
+      facing: Facing.Southeast,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6, 6]),
+      adjacentPhysicalGrid(),
+    );
+    const event = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = event?.payload as IPhysicalAttackResolvedPayload;
+    const damageEvents = resolved.events.filter(
+      (entry) => entry.type === GameEventType.DamageApplied,
+    );
+    const psrPayload = resolved.events.find(
+      (entry) =>
+        entry.type === GameEventType.PSRTriggered &&
+        (entry.payload as IPSRTriggeredPayload).unitId === 'target',
+    )?.payload as IPSRTriggeredPayload | undefined;
+
+    expect(payload).toMatchObject({
+      attackType: 'trip',
+      toHitNumber: 4,
+      hit: true,
+      damage: 0,
+    });
+    expect(payload.location).toBeUndefined();
+    expect(payload.displacements).toBeUndefined();
+    expect(damageEvents).toHaveLength(0);
+    expect(psrPayload).toMatchObject({
+      unitId: 'target',
+      reason: 'Tripped',
+      additionalModifier: 0,
+      triggerSource: 'trip',
+    });
+    expect(psrPayload?.reasonCode).toBeUndefined();
+  });
+
+  it('emits event-sourced thrash as automatic same-hex infantry damage with attacker PSR', () => {
+    const context = physicalContext();
+    const session = withPhysicalPositions(
+      physicalPhaseSession(),
+      { prone: true },
+      { position: { q: 0, r: 0 }, unitType: UnitType.INFANTRY },
+    );
+    const declared = declarePhysicalAttack(
+      session,
+      'attacker',
+      'target',
+      'thrash',
+      context,
+    );
+    const positioned = withPhysicalPositions(
+      declared,
+      { prone: true },
+      { position: { q: 0, r: 0 }, unitType: UnitType.INFANTRY },
+    );
+
+    const resolved = resolveAllPhysicalAttacks(
+      positioned,
+      new Map([['attacker', context]]),
+      scriptedDice([3, 3]),
+      sameHexPhysicalGrid(),
+    );
+    const payload = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+    const damageEvents = resolved.events.filter(
+      (entry) => entry.type === GameEventType.DamageApplied,
+    );
+    const psrPayload = resolved.events.find(
+      (entry) =>
+        entry.type === GameEventType.PSRTriggered &&
+        (entry.payload as IPSRTriggeredPayload).unitId === 'attacker',
+    )?.payload as IPSRTriggeredPayload | undefined;
+
+    expect(payload).toMatchObject({
+      attackType: 'thrash',
+      toHitNumber: 0,
+      roll: 0,
+      hit: true,
+      damage: 27,
+      automaticHit: true,
+      automaticHitReason: 'Thrash attacks always hit.',
+    });
+    expect(damageEvents).toHaveLength(1);
+    expect(psrPayload).toMatchObject({
+      unitId: 'attacker',
+      reason: 'Thrashing attack',
+      additionalModifier: 0,
+      triggerSource: 'thrash_attacker_hit',
+    });
+  });
+
+  it('emits event-sourced brush-off as swarming-infantry damage and dislodgement on hit', () => {
+    const context = physicalContext({ pilotingSkill: 1 });
+    const declared = declareAdjacentPhysicalAttack(
+      'brush-off',
+      context,
+      {},
+      { isSwarming: true, unitType: UnitType.INFANTRY },
+    );
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6]),
+    );
+    const payload = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+    const damage = resolved.events.find(
+      (entry) => entry.type === GameEventType.DamageApplied,
+    )?.payload as IDamageAppliedPayload;
+
+    expect(payload).toMatchObject({
+      attackType: 'brush-off',
+      roll: 12,
+      toHitNumber: 5,
+      hit: true,
+      damage: 8,
+    });
+    expect(damage).toMatchObject({
+      unitId: 'target',
+    });
+    expect(resolved.currentState.units.target.isSwarming).toBe(false);
+  });
+
+  it('emits event-sourced brush-off miss self-damage without dislodging the swarmer', () => {
+    const context = physicalContext();
+    const declared = declareAdjacentPhysicalAttack(
+      'brush-off',
+      context,
+      {},
+      { isSwarming: true, unitType: UnitType.INFANTRY },
+    );
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([1]),
+    );
+    const payload = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+    const damageEvents = resolved.events
+      .filter((entry) => entry.type === GameEventType.DamageApplied)
+      .map((entry) => entry.payload as IDamageAppliedPayload);
+
+    expect(payload).toMatchObject({
+      attackType: 'brush-off',
+      roll: 2,
+      toHitNumber: 9,
+      hit: false,
+    });
+    expect(damageEvents).toEqual([
+      expect.objectContaining({
+        unitId: 'attacker',
+        damage: 8,
+      }),
+    ]);
+    expect(damageEvents.some((entry) => entry.unitId === 'target')).toBe(false);
+  });
+
+  it('emits event-sourced grapple state and attacker relocation on hit', () => {
+    const context = physicalContext({
+      pilotingSkill: 1,
+      optionalRules: ['tacops_grappling'],
+    });
+    const declared = declareAdjacentPhysicalAttack('grapple', context, {
+      facing: Facing.Southeast,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6]),
+    );
+    const payload = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload).toMatchObject({
+      attackType: 'grapple',
+      roll: 12,
+      toHitNumber: 1,
+      hit: true,
+      damage: 0,
+    });
+    const grappleTargetPosition = resolved.currentState.units.target.position;
+    expect(resolved.currentState.units.attacker).toMatchObject({
+      grappledUnitId: 'target',
+      isGrappleAttacker: true,
+      grappledThisRound: true,
+      grappleSide: 'both',
+      position: grappleTargetPosition,
+    });
+    const oppositeAttackerFacing = ((resolved.currentState.units.attacker
+      .facing +
+      3) %
+      6) as IUnitGameState['facing'];
+    expect(resolved.currentState.units.target).toMatchObject({
+      grappledUnitId: 'attacker',
+      isGrappleAttacker: false,
+      grappledThisRound: true,
+      grappleSide: 'both',
+      facing: oppositeAttackerFacing,
+    });
+  });
+
+  it('emits event-sourced break-grapple state clearing and displacement on hit', () => {
+    const context = physicalContext({
+      optionalRules: ['tacops_grappling'],
+      attackerGrappledTargetId: 'target',
+      targetGrappledTargetId: 'attacker',
+      attackerIsGrappleAttacker: true,
+      targetIsGrappleAttacker: false,
+    });
+    const grappleState = {
+      position: { q: 0, r: 0 },
+      grappledThisRound: true,
+      grappleSide: 'both' as const,
+    };
+    let session = withUnitState(physicalPhaseSession(), 'attacker', {
+      ...grappleState,
+      facing: Facing.North,
+      grappledUnitId: 'target',
+      isGrappleAttacker: true,
+    });
+    session = withUnitState(session, 'target', {
+      ...grappleState,
+      facing: Facing.North,
+      grappledUnitId: 'attacker',
+      isGrappleAttacker: false,
+    });
+    let declared = declarePhysicalAttack(
+      session,
+      'attacker',
+      'target',
+      'break-grapple',
+      context,
+    );
+    declared = withUnitState(
+      declared,
+      'attacker',
+      session.currentState.units.attacker,
+    );
+    declared = withUnitState(
+      declared,
+      'target',
+      session.currentState.units.target,
+    );
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6]),
+      breakGrapplePhysicalGrid(),
+    );
+    const payload = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload).toMatchObject({
+      attackType: 'break-grapple',
+      roll: 0,
+      toHitNumber: 0,
+      hit: true,
+      damage: 0,
+      automaticHit: true,
+      automaticHitReason: 'original attacker',
+      displacements: [
+        {
+          unitId: 'attacker',
+          from: { q: 0, r: 0 },
+          to: { q: 0, r: -1 },
+          reason: 'break-grapple',
+        },
+      ],
+    });
+    expect(resolved.currentState.units.attacker).toMatchObject({
+      position: { q: 0, r: -1 },
+      grappledUnitId: undefined,
+      isGrappleAttacker: undefined,
+      grappledThisRound: false,
+      grappleSide: undefined,
+    });
+    expect(resolved.currentState.units.target).toMatchObject({
+      grappledUnitId: undefined,
+      isGrappleAttacker: undefined,
+      grappledThisRound: false,
+      grappleSide: undefined,
     });
   });
 

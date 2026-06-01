@@ -4,7 +4,7 @@
 
 ### Requirement: BattleMech Combat Validation Catalog
 
-Combat resolution SHALL maintain a catalog-driven validation suite that enumerates every BattleMech combat action, modifier, legality gate, source-truth reference, executable test surface, and unsupported gap. Catalog rows SHALL classify support as `integrated`, `partial`, or `unsupported`, and `unsupported` rows SHALL remain visible until an implementation and executable evidence exist.
+Combat resolution SHALL maintain a catalog-driven validation suite that enumerates every BattleMech combat action, modifier, legality gate, source-truth reference, executable test surface, and unsupported gap. Catalog rows SHALL classify support as `integrated`, `helper-only`, `unsupported`, or `out-of-scope`, and unresolved `helper-only` / `unsupported` rows SHALL remain visible until an implementation and executable evidence exist.
 
 #### Scenario: Unsupported mechanics stay explicit
 
@@ -16,6 +16,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** helper-only and unsupported rows SHALL remain queryable as a machine-readable unresolved completion-blocker inventory
 - **AND** the unresolved inventory SHALL expose stable catalog refs, support levels, evidence, gap text, and row-level source references outside test-local helper code
 - **AND** combat validation tooling SHALL expose the unresolved inventory through a named command suitable for review and PR gates
+- **AND** source-pinned non-BattleMech and non-combat control-plane rows SHALL be queryable as `out-of-scope` audit evidence through combat validation tooling without counting as BattleMech unresolved completion blockers
 
 #### Scenario: Integrated mechanics require executable evidence
 
@@ -110,24 +111,26 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 
 - **GIVEN** a BattleMech action surface has source-backed or product-visible relevance but no authoritative command, game intent, wire payload, P2P translation, or runner action path
 - **WHEN** the action support catalog is contract-tested
-- **THEN** optional TacOps sprint and evade movement SHALL appear as unsupported absent-action rows
-- **AND** the sprint row SHALL cite MegaMek source anchors for optional TacOps sprint availability, BattleMech sprint MP, sprint heat, attacker-sprinted firing failure, and target-sprinted to-hit relief
+- **THEN** optional TacOps sprint and evade movement SHALL appear as integrated tactical command rows when their command, intent, wire, P2P, movement, heat, and state paths exist
+- **AND** the sprint row SHALL cite MegaMek source anchors for optional TacOps sprint availability, BattleMech sprint MP, MASC/Supercharger sprint formulas, sprint heat, attacker-sprinted firing failure, target-sprinted to-hit relief, and sprinting spotter rejection
 - **AND** the evade row SHALL cite MegaMek source anchors for optional TacOps evade availability, evasion state, evasion heat, attacker-evading firing restrictions, and target-evading to-hit modifiers
-- **AND** product-visible MekStation command surfaces without identified BattleMech rule authority, including `movement.stabilize`, SHALL stay in `COMBAT_COMMAND_ACTION_SUPPORT` as unsupported `mekstation-deviation` rows rather than absent official action rows
-- **AND** integrated movement tactical command rows, including walk, run, jump, stand, go-prone, MASC activation, and Supercharger activation, SHALL cite the MekStation command factory that exposes the movement surface
+- **AND** product-visible MekStation command surfaces without identified BattleMech rule authority, including `movement.stabilize`, SHALL stay in `COMBAT_COMMAND_ACTION_SUPPORT` as `out-of-scope` `mekstation-deviation` rows rather than absent official action rows or BattleMech completion blockers
+- **AND** integrated movement tactical command rows, including walk, run, sprint, evade, jump, stand, go-prone, MASC activation, and Supercharger activation, SHALL cite the MekStation command factory that exposes the movement surface
 - **AND** utility tactical command rows, including eject, concede, withdraw, and request-spot, SHALL cite the MekStation command factory that exposes the utility surface
 - **AND** weapon tactical command rows, including the fire-volley attack commit surface, SHALL cite the MekStation command factory that exposes the weapon surface
 - **AND** facing tactical command rows, including chassis rotation and torso twist surfaces, SHALL cite the MekStation command factory that exposes the facing surface
 - **AND** physical tactical command rows, including punch, kick, push, charge, death from above, and melee weapon surfaces, SHALL cite the MekStation command factory that exposes the physical attack surface
 - **AND** heat/end tactical command rows, including heat continue, end phase, and next turn, SHALL cite the MekStation command factory that exposes the phase-control surface
-- **AND** helper-only product command rows, including local movement cancel, weapon draft declaration/clear, withdraw, and request-spot commands, SHALL cite the MekStation command factory that exposes the local surface
+- **AND** request-spot command rows SHALL cite the MekStation command factory that exposes the local surface, MegaMek `SpotAction` source anchors, and SHALL be integrated once the command preserves active/target ids, emits `SpottingDeclared`, latches `isSpotting` plus `spotTargetId`, locks the spotting unit, clears spotting on turn/movement reset, maps `requestSpot` to `RequestSpot`, dispatches through server and P2P paths, and applies the source-backed +1 spotting attacker penalty to ranged and physical attacks
+- **AND** request-spot coverage SHALL document that the active command-console exception remains unmodeled until command-console state is hydrated into MekStation combat state
+- **AND** local draft/reset and superseded command-shell rows, including movement cancel, weapon draft declaration/clear, and the edge-less withdraw shortcut, SHALL cite the MekStation command factory as `out-of-scope` UI shell rows outside official BattleMech combat action handling
 - **AND** direct UI action rows, including withdrawal edge selection, SHALL cite the MekStation component that exposes the direct action surface
 - **AND** every game-intent action row SHALL cite the MekStation game-intent mapper that constructs or maps the local intent to its server wire payload
-- **AND** every wire-intent action row SHALL cite the MekStation server dispatcher, with lobby and reconnect wire intents remaining source-visible non-combat scope splits
+- **AND** every wire-intent action row SHALL cite the MekStation server dispatcher, with lobby and reconnect wire intents remaining `out-of-scope` non-combat scope splits
 - **AND** every P2P intent translation row SHALL cite the MekStation intent translator, plus host-router source anchors for host-owned command translations
 - **AND** P2P phase-advance, movement, and weapon-attack rows SHALL prove the host revalidates or rebuilds combat state from authoritative host data instead of trusting guest-supplied phase events, movement MP/heat/path, to-hit numbers, or weapon stats
 - **AND** `physicalAttackCommands` catalog rows SHALL enforce row-level MekStation command source references before PR approval
-- **AND** GM command exclusion rows SHALL cite the MekStation GM/referee command factory and SHALL remain outside player BattleMech combat action handling
+- **AND** GM command exclusion rows SHALL cite the MekStation GM/referee command factory as `out-of-scope` control-plane rows and SHALL remain outside player BattleMech combat action handling
 - **AND** those rows SHALL NOT be inferred from helper prose or omitted because no UI command currently emits them
 
 #### Scenario: Torso twist emits source-backed secondary facing through command and wire paths
@@ -151,10 +154,13 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 #### Scenario: Voluntary go-prone emits source-backed movement step
 
 - **GIVEN** MegaMek defines voluntary go-prone as `MoveStepType.GO_PRONE` for standing Meks
-- **WHEN** a unit commits the go-prone movement command through local, wire, or P2P command routing
+- **WHEN** a unit commits the go-prone movement command through local, wire, P2P command routing, or an opt-in runner AI movement decision
 - **THEN** the action SHALL emit a same-hex `MovementDeclared` payload with a `goProne` step, `mpUsed: 1`, `heatGenerated: 0`, and `hexesMoved: 0`
 - **AND** the reducer SHALL mark the unit prone and lock its movement activation
-- **AND** hull-down, swarmer dislodge, inferno wash-off, and runner AI/planning choice SHALL remain explicit follow-up gaps
+- **AND** runner movement SHALL preserve the same `goProne` step when the AI chooses the opt-in stationary go-prone posture
+- **AND** explicit non-Mek and already-prone units SHALL be rejected before emitting a go-prone movement declaration
+- **AND** a hull-down go-prone transition SHALL cost 0 MP and clear `hullDown` when the reducer marks the unit prone
+- **AND** swarmer dislodge, inferno wash-off, and broader tactical go-prone policy SHALL remain explicit follow-up gaps
 
 #### Scenario: Movement booster activation emits replayable active state
 
@@ -176,13 +182,16 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **AND** every broad known-limitation category SHALL have a BattleMech validation trap proving the validation invariant bypass remains visible instead of filtered
 - **AND** known-limitation filtering and partitioning helpers SHALL preserve BattleMech validation traps as potential bugs even when their text matches broad known-limitation patterns
 - **AND** every validation-scope row for known-limitation bypasses, catalog filter gates, fallback guards, variable-damage parsing, and non-BattleMech scope splits SHALL carry anchored MekStation source references
+- **AND** validation-scope non-BattleMech ammo and combat-system split rows SHALL remain `out-of-scope` audit evidence instead of unresolved BattleMech completion blockers
+- **AND** the non-BattleMech objective requirement row SHALL remain `out-of-scope` until separate vehicle, aerospace, infantry, battle armor, and ProtoMech validation matrices exist
 
 #### Scenario: Non-BattleMech event scope rows stay explicit
 
 - **GIVEN** the BattleMech combat event support catalog partitions every `GameEventType`
 - **WHEN** event-stream support is contract-tested
-- **THEN** vehicle, VTOL, battle armor, swarm, leg-attack, mimetic, and stealth event rows SHALL remain helper-only non-BattleMech scope rows outside the BattleMech combat matrix
+- **THEN** vehicle, VTOL, battle armor, swarm, leg-attack, mimetic, and stealth event rows SHALL remain `out-of-scope` non-BattleMech rows outside the BattleMech combat matrix
 - **AND** each non-BattleMech event-scope row SHALL carry anchored MekStation source references to the event factory, payload, helper, or scenario surface that owns that non-BattleMech event family
+- **AND** non-BattleMech event-scope rows SHALL be excluded from the unresolved BattleMech gap count while remaining available through the catalog's out-of-scope audit inventory
 
 #### Scenario: BattleMech event stream rows stay source pinned
 
@@ -190,6 +199,8 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **WHEN** event-stream support is contract-tested
 - **THEN** each BattleMech event-stream row SHALL carry anchored MekStation source references to the event factory, runner phase, session helper, reducer, test, or explicit unsupported enum boundary that owns that event contract
 - **AND** broad event-stream triad prose SHALL NOT satisfy event coverage without row-level source references
+- **AND** initiative resolution SHALL emit both the dice-bearing `InitiativeRolled` event and a replayable `InitiativeOrderSet` event that records the winning side, first mover, and second mover for turn-rotation replay
+- **AND** weapon attack locking SHALL emit a public `AttacksRevealed` boundary after every active weapon-phase unit has locked attacks, replay that boundary into the `Revealed` lock state, and still allow phase advancement once all active units are locked, revealed, or resolved
 - **AND** replayable `FacingChanged` secondary-facing events SHALL be integrated when torso twist is covered through tactical command, game intent, wire intent, P2P translation, server dispatch, session emission, replay, and runner arc-consumption evidence
 
 #### Scenario: Ammo catalog compatibility traps stay explicit
@@ -198,13 +209,16 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **WHEN** the ammunition compatibility catalog is contract-tested
 - **THEN** official ammo rows that hydrate consumable BattleMech ammo bins SHALL be pinned by exact id
 - **AND** every compatible ammo row SHALL initialize an ammo bin, report total rounds, and consume through combat ammo tracking for each referenced official weapon id
+- **AND** source-backed Improved Autocannon ammunition rows SHALL name their matching official Improved Autocannon weapon ids before they are counted as consumable BattleMech ammo
+- **AND** source-backed LB 2-X cluster ammunition SHALL name the matching Inner Sphere and Clan LB 2-X AC weapon ids before it is counted as consumable BattleMech ammo
 - **AND** official ammo rows that duplicate weapon runtime ids SHALL be pinned by exact id and classified before compatibility checks
 - **AND** standard or advanced official ammo rows with no compatible weapon references SHALL be pinned by exact id as helper-only BattleMech ammo gaps
-- **AND** aerospace/capital, battle armor, ProtoMech, aquatic torpedo, and artillery ammo rows SHALL be pinned by exact id as separate validation-matrix scope splits
+- **AND** aerospace/capital, battle armor, ProtoMech, aquatic torpedo, and artillery ammo rows SHALL be pinned by exact id as `out-of-scope` separate validation-matrix scope splits
+- **AND** those non-BattleMech ammo scope splits SHALL be excluded from the unresolved BattleMech gap count while remaining available through the catalog's out-of-scope audit inventory
 - **AND** experimental or nonstandard official ammo rows with no compatible weapon references SHALL be pinned by exact id as catalog-visible scope gaps
 - **AND** every ammunition compatibility support row SHALL carry structured row-level source references to the official ammo catalog import list, ammo hydration or tracking path, and exact-id classification contract
 - **AND** the ammunition compatibility catalog triad SHALL enforce row-level source references before PR approval
-- **AND** these rows SHALL NOT be counted as consumable BattleMech ammunition until catalog data supplies unambiguous compatible weapon references
+- **AND** remaining no-compatible-reference rows SHALL NOT be counted as consumable BattleMech ammunition until catalog data supplies unambiguous compatible weapon references
 
 #### Scenario: Range bracket rows stay source-backed
 
@@ -221,7 +235,8 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **WHEN** the aggregate catalog triad and BattleMech combat catalog contract tests run
 - **THEN** every integrated or helper-only to-hit modifier row SHALL carry structured MegaMek source references with commit-pinned URLs and line anchors
 - **AND** the aggregate catalog triad for `toHitModifiers` SHALL require row-level source references rather than inherited requirement authority
-- **AND** helper-only modifier rows such as ECM coverage derivation and C3 equipment network formation SHALL keep their runtime gaps explicit instead of treating source-backed row evidence as complete parity
+- **AND** the integrated ECM row SHALL describe source-backed guidance suppression and no generic ECM to-hit penalty across Artemis, NARC/iNARC Homing, semi-guided TAG, and C3 paths
+- **AND** helper-only modifier rows such as C3 equipment network formation SHALL keep their runtime gaps explicit instead of treating source-backed row evidence as complete parity
 
 #### Scenario: Ranged invalid target-state rows stay source-backed
 
@@ -246,7 +261,53 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **WHEN** that unit attempts a ranged weapon attack through runner attack resolution or event-sourced `declareAttack`
 - **THEN** the attack SHALL emit `AttackInvalid` with reason `AttackerEvading`
 - **AND** no `AttackDeclared`, `AttackResolved`, heat, ammo, damage, or fired-weapon state side effects SHALL follow
-- **AND** optional TacOps Evade movement-step declaration SHALL remain an unsupported absent-action row until movement command, state, heat, wire, P2P, and authoritative evasion-bonus creation paths are implemented
+
+#### Scenario: TacOps Evade movement declares a source-backed run-based action
+
+- **GIVEN** a unit declares `MovementType.Evade` through the movement command, game intent, wire intent, P2P host translation, interactive reducer, or runner movement phase
+- **WHEN** movement validation and movement event creation resolve the action
+- **THEN** the action SHALL use the unit's unboosted run MP envelope, run pathing, and run animation mode
+- **AND** the action SHALL generate source-backed BattleMech evade movement heat of `4`
+- **AND** the action SHALL set authoritative current-turn `isEvading: true` and default `evasionBonus: 1` state for attack invalidation, target evasion modifiers, and spotter rejection
+- **AND** active MASC or Supercharger SHALL NOT extend the Evade movement envelope
+- **AND** turn reset SHALL clear Evade current-turn state before the next unit action cycle
+- **AND** the legacy local `evasive` SPA row SHALL remain out-of-scope so TacOps Evade action coverage is not counted as an unresolved pilot-ability blocker
+
+#### Scenario: Sprinting attackers cannot make ranged attacks
+
+- **GIVEN** a unit has explicit `sprintedThisTurn: true`
+- **WHEN** that unit attempts a ranged weapon attack through runner attack resolution or event-sourced `declareAttack`
+- **THEN** the attack SHALL emit `AttackInvalid` with reason `AttackerSprinted`
+- **AND** no `AttackDeclared`, `AttackResolved`, heat, ammo, damage, or fired-weapon state side effects SHALL follow
+- **AND** declared TacOps Sprint movement SHALL be one source-backed creator of that current-turn state
+- **AND** engine-variant/coolant sprint heat SHALL remain a visible heat-rule gap until source-backed engine-state hydration exists
+
+#### Scenario: TacOps Sprint declares movement state
+
+- **GIVEN** a BattleMech declares `MovementType.Sprint` through movement UI, game intent, wire, P2P, interactive, or runner movement paths
+- **WHEN** movement validation computes its envelope and commits the movement
+- **THEN** base Sprint MP SHALL be `walkMP * 2`
+- **AND** one active MASC or Supercharger SHALL validate Sprint MP against `ceil(walkMP * 2.5)`
+- **AND** active MASC plus active Supercharger SHALL validate Sprint MP against `walkMP * 3`
+- **AND** Sprint SHALL use run-based terrain/pathing/PSR behavior and queue active MASC/Supercharger failure PSRs when boosters are used
+- **AND** the committed movement SHALL create current-turn `sprintedThisTurn: true`, `movementThisTurn: MovementType.Sprint`, normal-engine sprint heat `+3`, and a run-mode movement animation payload
+- **AND** engine-variant/coolant sprint heat SHALL remain a visible heat-rule gap until source-backed engine-state hydration exists
+
+#### Scenario: Sprinting and evading units cannot spot indirect fire
+
+- **GIVEN** an indirect-capable ranged attack has no attacker-to-target line of sight
+- **AND** the only friendly spotter candidates with target line of sight have explicit `sprintedThisTurn: true`, `isEvading: true`, `movementType: MovementType.Sprint`, or `movementType: MovementType.Evade`
+- **WHEN** the runner or interactive indirect-fire context elects a LOS spotter
+- **THEN** those candidates SHALL be rejected before spotter election
+- **AND** the attack SHALL continue through the normal no-spotter `NoLineOfSight` invalidation path without heat, ammo, fired-weapon, or damage side effects
+
+#### Scenario: Sprint state and Evade movement generate movement heat
+
+- **GIVEN** a unit has explicit `sprintedThisTurn: true`, declared `MovementType.Sprint`, or declared `MovementType.Evade`
+- **WHEN** runner heat resolution computes movement heat
+- **THEN** explicit sprint state and declared Sprint movement SHALL generate normal-engine sprint heat
+- **AND** Evade movement SHALL generate run heat plus the source-backed evasion heat surcharge
+- **AND** engine-variant/coolant sprint heat SHALL remain a visible heat-rule gap until source-backed engine-state hydration exists
 
 #### Scenario: Evading targets modify ranged to-hit
 
@@ -255,7 +316,16 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **THEN** the attack SHALL include a `Target Evasion` to-hit modifier of `+1`
 - **AND** explicit `evasionBonus` values SHALL be consumed as a source-backed Skilled Evasion bonus from `0` through `3`, where `0` suppresses the modifier without clearing evasion
 - **AND** prone evading targets SHALL not receive the target-evasion modifier
-- **AND** optional TacOps Evade movement-step declaration and authoritative evasion-bonus state creation SHALL remain visible gaps until their source-backed paths exist
+- **AND** declared Evade movement SHALL create the default `+1` target-evasion state, while explicit `evasionBonus` state remains the source-backed hook for optional Skilled Evasion scaling
+
+#### Scenario: Sprinting targets modify ranged to-hit
+
+- **GIVEN** a ranged attack targets a unit with explicit `sprintedThisTurn: true`
+- **WHEN** helper to-hit calculation, event-sourced `declareAttack`, or runner attack resolution builds the `AttackDeclared` to-hit payload
+- **THEN** the attack SHALL include a `Target Sprinted` to-hit modifier of `-1`
+- **AND** runner turn reset SHALL clear `sprintedThisTurn` so the target-sprinted modifier is current-turn state
+- **AND** declared TacOps Sprint movement SHALL be one source-backed creator of that current-turn state
+- **AND** engine-variant/coolant sprint heat SHALL remain a visible heat-rule gap until source-backed engine-state hydration exists
 
 #### Scenario: Evading targets modify physical to-hit
 
@@ -264,7 +334,7 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **THEN** the physical attack SHALL apply a `Target Evasion` to-hit modifier of `+1`
 - **AND** explicit `evasionBonus` values SHALL be consumed as a source-backed Skilled Evasion bonus from `0` through `3`, where `0` suppresses the modifier without clearing evasion
 - **AND** prone evading physical targets SHALL not receive the target-evasion modifier
-- **AND** optional TacOps Evade movement-step declaration and authoritative evasion-bonus state creation SHALL remain visible gaps until their source-backed paths exist
+- **AND** declared Evade movement SHALL create the default `+1` target-evasion state, while explicit `evasionBonus` state remains the source-backed hook for optional Skilled Evasion scaling
 
 #### Scenario: Invalid ranged attack side-effect guards stay source-backed as MekStation contracts
 
@@ -279,7 +349,8 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **GIVEN** the physical damage modifier catalog covers active TSM, claws, talons, and underwater physical damage
 - **WHEN** the aggregate catalog triad and BattleMech combat catalog contract tests run
 - **THEN** every integrated or helper-only physical damage modifier row SHALL carry structured MegaMek source references with commit-pinned URLs and line anchors
-- **AND** helper-only claw and talon rows SHALL keep remaining missing/breached damaged-equipment and option-rule lifecycle gaps explicit instead of treating source-backed damage formulas as full parity
+- **AND** core claw punch and talon kick/DFA damage modifier rows SHALL be integrated only when their source-backed damage, to-hit, option-rule, hydration, critical-event cleanup, destroyed-location replay, and runner/session consumption paths are represented
+- **AND** separate helper-only claw and talon equipment-lifecycle rows SHALL keep remaining automatic damaged-equipment state creation and claw club-with-hand interaction gaps explicit instead of treating source-backed damage formulas as full physical-weapon lifecycle parity
 - **AND** the aggregate catalog triad for `physicalDamageModifiers` SHALL require row-level source references rather than inherited requirement authority
 
 #### Scenario: AMS helper boundary stays source-backed
@@ -297,7 +368,13 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **AND** official UAC, RAC, LB-X, and MML family ids SHALL be pinned exactly before their firing-mode support rows are treated as integrated
 - **AND** damage-capable official Streak SRM ids SHALL be pinned separately from zero-damage Streak LRM/OS/prototype catalog rows before Streak support is treated as integrated
 - **AND** zero-damage Streak LRM/OS/prototype rows SHALL remain catalog-visible data gaps instead of inheriting Streak SRM damage behavior by name match
-- **AND** the official zero-damage Clan Plasma Cannon SHALL remain a helper-only target-heat gap until runner combat applies external target heat and armor-specific plasma adjustments
+- **AND** the official zero-damage Clan Plasma Cannon SHALL emit zero BattleMech damage plus external target heat from the source-backed 2d6 plasma roll when runner combat hits a heat-tracking BattleMech target
+- **AND** the Clan Plasma Cannon SHALL halve external target heat through intact reflective or heat-dissipating armor when combat state includes armor-type data for the hit location
+- **AND** the Clan Plasma Cannon SHALL follow source-backed `PLAYTEST_3` armor behavior where reflective armor no longer halves plasma heat and heat-dissipating armor receives zero plasma heat
+- **AND** the Clan Plasma Cannon and Plasma Rifle SHALL hydrate official plasma ammunition bins from source-backed catalog ammo rows and consume those rounds during runner combat despite MegaMek energy weapon flags
+- **AND** the Clan Plasma Cannon SHALL remain helper-only until MegaMek external-heat timing/caps and non-Mek special damage paths are represented
+- **AND** the NARC/iNARC family row SHALL be integrated once standard NARC markers, iNARC selected-ammo pod attachment, Homing guidance, Haywire to-hit, ECM flight-path/C3 disruption, Nemesis redirect, event replay, and marker lifecycle behavior are represented
+- **AND** remaining iNARC ECM sensor side paths SHALL stay visible under the `inarc-pod-variants` mechanic row instead of keeping the NARC family row helper-only
 - **AND** the aggregate catalog triad for `specialWeaponFamilies` SHALL require row-level source references rather than inherited requirement authority
 - **AND** helper-only family rows SHALL keep their remaining runtime/session gaps explicit instead of treating source-backed family evidence as complete parity
 
@@ -380,15 +457,70 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 
 Physical attack declaration and resolution SHALL validate action-specific legality gates before scheduling a combat action. Push, charge, death from above, melee weapon, punch, kick, and club logic SHALL share the same legality helpers across eligibility display, event-sourced declaration, and simulation runner resolution so UI options, game events, and automated combat cannot diverge.
 
-#### Scenario: Unsupported BattleMech physical classes stay source-backed
+#### Scenario: BattleMech physical classes stay source-backed
 
 - **GIVEN** MegaMek exposes BattleMech-applicable brush-off, thrash, trip, grapple, break-grapple, and jump-jet physical action classes
 - **WHEN** the physical action class scope catalog is contract-tested
 - **THEN** every physical action class scope row SHALL cite the matching MegaMek source class with commit-pinned line anchors
-- **AND** supported punch, kick, push, charge, death-from-above, and club/melee rows SHALL expose row-level MegaMek source references before PR approval
-- **AND** non-BattleMech AirMek, battle armor, infantry explosive, ProtoMek, and aerospace ram rows SHALL remain explicit scope splits with row-level MegaMek source references
-- **AND** each row SHALL remain `unsupported` until MekStation has a runtime `PhysicalAttackType`, tactical command, event-sourced declaration/resolution, and runner resolution path for that class
+- **AND** supported punch, kick, push, trip, thrash, jump-jet attack, brush-off, grapple, charge, death-from-above, and club/melee rows SHALL expose row-level MegaMek source references before PR approval
+- **AND** non-BattleMech AirMek, battle armor, infantry explosive, ProtoMek, and aerospace ram rows SHALL remain explicit `out-of-scope` splits with row-level MegaMek source references
+- **AND** `break-grapple` SHALL expose a runtime `PhysicalAttackType`, tactical command, event-sourced declaration/resolution, runner resolution path, source-backed optional-rule, airborne, common locked-grapple, chain-whip rejection, unit-type, grapple-target, original-attacker automatic-success, actuator/AES, and weight-class modifier branches, zero damage, both-unit grapple state clearing, grid-backed adjacent displacement, and moved-unit facing updates
+- **AND** `brush-off` SHALL expose a runtime `PhysicalAttackType`, tactical command, selected-arm payload, event-sourced declaration/resolution, runner resolution path, source-backed swarming-infantry target legality, arm gates, dedicated brush-off modifiers, hit dislodgement, punch-equivalent target damage, and punch-equivalent miss self-damage while targetable iNARC pod removal remains visible under the iNARC pod mechanic gap
+- **AND** `grapple` SHALL expose a runtime `PhysicalAttackType`, tactical command, event-sourced declaration/resolution, runner resolution path, source-backed optional-rule, airborne, common locked-grapple, friendly-fire, unit-type, arm/shoulder, range, elevation, front-arc, prone, weapon-fire, already-grappled, actuator/AES/TSM, and weight-class branches, zero damage, attacker relocation into the target hex, target facing reversal, and both-unit grapple state
+- **AND** optional TacOps `trip` SHALL expose a runtime `PhysicalAttackType`, tactical command, event-sourced declaration/resolution, runner resolution path, optional-rule gate, source-backed front-arc/range/prone/elevation/usable-limb restrictions, `-1` base to-hit adjustment, zero damage on hit, and a target PSR trigger
+- **AND** `thrash` SHALL expose a runtime `PhysicalAttackType`, tactical command, event-sourced declaration/resolution, runner resolution path, prone-Mek same-hex infantry legality, clear/pavement terrain validation, automatic-hit resolution, weight-based infantry damage, no target PSR, and an attacker PSR trigger
+- **AND** optional TacOps `jump-jet-attack` SHALL expose a runtime `PhysicalAttackType`, tactical command, selected-leg payload, event-sourced declaration/resolution, runner resolution path, optional-rule gate, ready-jump-jet gate, leg-weapon-fire gate, source-backed range/elevation/facing restrictions, source-specific to-hit modifiers, selected-leg damage, and no self-PSR side effects
+- **AND** no BattleMech-applicable physical action class scope row SHALL remain `unsupported` or `helper-only` for the normal BattleMech physical action classes listed above while chain-whip maintenance and simultaneous counter-grapple exchange remain separate explicit gaps
 - **AND** the `physicalActionClassScope` catalog triad SHALL enforce row-level source references before PR approval
+
+#### Scenario: Jump jet attacks resolve as selected-leg optional TacOps damage
+
+- **GIVEN** a BattleMech with ready jump jets in the selected leg declares `jump-jet-attack` against an adjacent target with the TacOps jump-jet attack option enabled
+- **WHEN** helper, eligibility, tactical-command, intent/wire, event-sourced, or runner resolution surfaces validate the declaration
+- **THEN** the attack SHALL apply the source-backed jump-jet attack to-hit modifier
+- **AND** target damage SHALL be `3 * ready jump jets` for each selected non-wet leg
+- **AND** the attack SHALL not queue attacker or target PSR side effects
+- **AND** disabled optional rules, missing selected-leg jump jets, prior jump movement, prior selected-leg weapon fire, invalid range, invalid elevation, and invalid feet-facing state SHALL reject the attack before damage
+
+#### Scenario: Thrash resolves as source-backed automatic infantry damage
+
+- **GIVEN** a prone BattleMech declares `thrash` against enemy infantry in the same clear or pavement hex at the same elevation
+- **WHEN** helper, eligibility, tactical-command, intent/wire, event-sourced, or runner resolution surfaces validate the declaration
+- **THEN** the attack SHALL resolve as an automatic hit with a to-hit number and roll of `0`
+- **AND** target damage SHALL be `round(attackerWeight / 3)`
+- **AND** the target SHALL not receive a physical-hit PSR
+- **AND** the attacker SHALL receive a `thrash_attacker_hit` PSR for the thrashing attack
+- **AND** standing attackers, non-infantry targets, non-same-hex targets, non-clear/non-pavement terrain, prior weapon fire, and missing usable arm/leg state SHALL reject the attack before damage or PSR side effects
+
+#### Scenario: Brush-off resolves as source-backed swarmer dislodgement or miss self-damage
+
+- **GIVEN** a BattleMech declares `brush-off` with a selected arm against enemy swarming infantry or Battle Armor attached to that attacker
+- **WHEN** helper, eligibility, tactical-command, intent/wire, event-sourced, or runner resolution surfaces validate the declaration
+- **THEN** the attack SHALL apply the source-backed `+4` brush-off to-hit modifier plus selected-arm actuator/AES/claw/sensor/magnetic-claw modifiers
+- **AND** a hit SHALL apply punch-equivalent damage to the swarming target and clear that target's swarming attachment state
+- **AND** a miss SHALL apply punch-equivalent self-damage to the attacker on the punch hit table without dislodging the swarmer
+- **AND** non-Mek attackers, missing or invalid selected arms, non-swarming non-iNARC targets, quad attackers, flipped arms, no/minimal-arms quirks, shoulder destruction, selected-arm weapon fire, target-DFA state, prone attackers, and explicit building/fuel-tank/hex targets SHALL reject the attack before damage
+- **AND** targetable iNARC pod brush-off removal SHALL remain tracked as a separate iNARC pod target-model gap until pod objects can be selected and removed by physical attack resolution
+
+#### Scenario: Grapple resolves as source-backed zero-damage grapple state
+
+- **GIVEN** a biped BattleMech declares `grapple` against an adjacent Mek or ProtoMek with the TacOps grappling option enabled
+- **WHEN** helper, eligibility, tactical-command, intent/wire, event-sourced, or runner resolution surfaces validate the declaration
+- **THEN** the attack SHALL apply source-backed actuator/AES/TSM, target movement, evasion, spotting, SPA, and weight-class to-hit modifiers
+- **AND** a hit SHALL deal zero damage, set both units' grapple state, move the attacker into the target hex, mark both units as grappled this round, mark the attacker as the grapple initiator, and face the target opposite the attacker
+- **AND** disabled optional rules, airborne state, common locked-grapple impossibility, friendly targets, invalid attacker or target unit type, missing arms, destroyed shoulders, invalid range, invalid elevation, non-front-arc targets, prone-state gates, selected-arm weapon fire, and already-grappled state SHALL reject the attack before grapple state changes
+- **AND** chain-whip follow-up behavior and simultaneous counter-grapple exchange SHALL remain tracked as separate gaps from normal grapple state resolution
+
+#### Scenario: Break-grapple resolves as source-backed zero-damage grapple release
+
+- **GIVEN** a biped BattleMech or ProtoMek declares `break-grapple` against its currently grappled target with the TacOps grappling option enabled
+- **WHEN** helper, eligibility, tactical-command, intent/wire, event-sourced, or runner resolution surfaces validate the declaration
+- **THEN** the original grapple attacker SHALL resolve break-grapple as an automatic hit with a to-hit number and roll of `0`
+- **AND** a defender breaking free SHALL apply source-backed both-arm actuator, both-arm AES, weight-class, target movement, evasion, spotting, SPA, and normal physical to-hit modifiers
+- **AND** a hit SHALL deal zero damage, clear both units' grapple state, move the original grapple attacker to the least-dangerous valid adjacent hex when the original attacker breaks the grapple, or move the defender's opponent to the most-dangerous valid adjacent hex when the defender breaks free
+- **AND** the moved unit SHALL face back toward its counterpart after displacement
+- **AND** disabled optional rules, airborne state, common locked-grapple impossibility, chain-whip grapple state, invalid attacker unit type, target mismatch, and missing grapple target state SHALL reject the attack before grapple state, displacement, or damage side effects
+- **AND** chain-whip maintenance/follow-up behavior and simultaneous counter-grapple exchange SHALL remain tracked as separate gaps from normal break-grapple release
 
 #### Scenario: Physical attacks require existing targets
 
@@ -753,8 +885,8 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** kick target, kick miss, push target, charge hit, DFA target, successful-DFA attacker, charge miss, and missed-DFA rows SHALL carry structured MegaMek source references with commit-pinned line anchors
 - **AND** successful charge target and attacker PSRs SHALL use the MegaMek-backed `+2` modifier
 - **AND** successful DFA target PSRs SHALL use the MegaMek-backed `+2` modifier
-- **AND** normal missed charges SHALL displace the attacker without queuing a normal `ChargeMiss` PSR, keeping the legacy/local `ChargeMiss` factory helper-only rather than an integrated parity claim
-- **AND** missed-DFA grid resolution SHALL remain immediate fall handling rather than a queued normal `DFAMiss` PSR
+- **AND** normal missed charges SHALL displace the attacker without queuing a normal `ChargeMiss` PSR, keeping the legacy/local `ChargeMiss` factory in the `out-of-scope` audit inventory rather than an integrated parity claim or unresolved BattleMech blocker
+- **AND** missed-DFA grid resolution SHALL remain immediate fall handling rather than a queued normal `DFAMiss` PSR, with the no-grid fallback factory remaining an `out-of-scope` audit row outside source-backed BattleMech blocker accounting
 
 #### Scenario: Death from above miss immediately drops the attacker
 
@@ -775,7 +907,7 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 - **THEN** every official physical weapon id SHALL have a combat support row
 - **AND** local construction physical weapon definitions SHALL expose the same id set as `weapons/physical.json`
 - **AND** standalone physical weapon rows SHALL exactly match `SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES`
-- **AND** claws and talons SHALL remain modifier-only helper rows that do not pass intent, wire, or physical option validation as selectable attack types
+- **AND** claws and talons SHALL remain integrated modifier-only rows that do not pass intent, wire, or physical option validation as selectable attack types
 - **AND** no official physical weapon row SHALL be left unsupported without an explicit support-map entry
 
 #### Scenario: Retractable blade uses source-backed damage, to-hit, and extension gate
@@ -799,19 +931,22 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 - **AND** flail to-hit SHALL include source-backed `+0` and wrecking ball to-hit SHALL include source-backed `+1`
 - **AND** flail SHALL not require a hand actuator but SHALL stay blocked on quad BattleMechs
 - **AND** wrecking ball SHALL be treated as a non-arm-mounted physical weapon for arm, hand, shoulder, No Arms, and quad legality gates
-- **AND** the validation catalog SHALL have no unsupported standalone official physical weapon runtime types after flail and wrecking ball integration, while modifier-only claw/talon lifecycle and full mounted physical-weapon lifecycle remain visible gaps
+- **AND** the validation catalog SHALL have no unsupported standalone official physical weapon runtime types after flail and wrecking ball integration, while modifier-only claw/talon lifecycle and full mounted physical-weapon lifecycle remain visible gaps under the physical-weapon action and damage-modifier lifecycle rows
 
 #### Scenario: Talons modify kick and DFA damage without becoming a selectable attack type
 
 - **GIVEN** a BattleMech has explicit biped leg talon combat state and a working foot actuator
 - **WHEN** it resolves a kick using that leg
 - **THEN** kick target damage SHALL apply MegaMek's source-backed `round(baseKickDamage * 1.5)` talon modifier before physical damage bonuses
+- **AND** quad/non-biped BattleMech front-leg kicks SHALL map the selected kicking leg to the matching arm-location talon state before applying the same modifier
 - **WHEN** it resolves death from above with at least one qualifying talon leg
 - **THEN** DFA target damage SHALL apply MegaMek's source-backed truncating `baseDfaDamage * 1.5` talon modifier before physical damage bonuses
+- **AND** quad/non-biped DFA talon checks SHALL include MegaMek's right-arm talon gate plus explicit and catalog-hydrated arm-location talon state for front legs
 - **AND** talons SHALL remain non-selectable in runtime physical attack option lists because they modify existing kick/DFA actions rather than declaring a distinct physical attack
-- **AND** catalog UnitHydration SHALL derive biped leg talon state from `LEFT_LEG` and `RIGHT_LEG` critical slots containing Talons entries
-- **AND** `CriticalHitResolved` events that destroy Talons equipment SHALL remove the matching leg talon modifier from event replay and runner combat state
-- **AND** the validation catalog SHALL keep missing/breached talon equipment lifecycle and non-biped talon arm-location behavior visible as remaining gaps
+- **AND** catalog UnitHydration SHALL derive biped leg talon state from `LEFT_LEG` and `RIGHT_LEG` critical slots and quad/non-biped front-leg talon state from `LEFT_ARM` and `RIGHT_ARM` critical slots containing Talons entries
+- **AND** `CriticalHitResolved` events that destroy, mark missing, or mark breached Talons equipment SHALL remove the matching leg or arm-location talon modifier from event replay and runner combat state
+- **AND** destroyed leg or arm-location replay and runner damage persistence SHALL remove the matching talon modifier from represented combat state
+- **AND** the validation catalog SHALL mark core talon damage modifier behavior integrated while keeping automatic missing/breached talon event production from mounted-equipment state beyond represented destroyed-location replay visible through a separate helper-only lifecycle row
 
 #### Scenario: Claws modify punch damage and to-hit without becoming a selectable attack type
 
@@ -821,12 +956,14 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 - **AND** punch to-hit SHALL include MegaMek's source-backed `+1` claw modifier while suppressing the hand-actuator destroyed modifier for that claw arm
 - **AND** claws SHALL remain non-selectable in runtime physical attack option lists because they modify punch rather than declaring a distinct physical attack
 - **AND** catalog UnitHydration SHALL derive arm claw state from `LEFT_ARM` and `RIGHT_ARM` critical slots containing `ISClaw` entries
-- **AND** `CriticalHitResolved` events that destroy Claw equipment SHALL remove the matching arm claw modifier from event replay and runner combat state
-- **AND** the validation catalog SHALL keep missing/breached claw equipment lifecycle, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions visible as remaining gaps
+- **AND** `CriticalHitResolved` events that destroy, mark missing, or mark breached Claw equipment SHALL remove the matching arm claw modifier from event replay and runner combat state
+- **AND** destroyed arm location replay and runner damage persistence, including side-torso arm cascades, SHALL remove the matching arm claw modifier from represented combat state
+- **AND** PLAYTEST_3 SHALL remove only the claw punch to-hit penalty while preserving claw punch damage
+- **AND** the validation catalog SHALL mark core claw damage modifier behavior integrated while keeping automatic missing/breached claw event production from mounted-equipment state beyond represented destroyed-location replay and claw club-with-hand interactions visible through a separate helper-only lifecycle row
 
 ### Requirement: Designator Marker Replay State
 
-Designator marker events SHALL replay into the same target marker state consumed by combat resolution. TAG markers SHALL set transient `tagDesignated` state that clears at turn start. Standard NARC markers SHALL append the marking team to `narcedBy` without duplicate entries and SHALL persist across turn starts. iNARC launcher hits SHALL derive the attached `iNarcPods` `podType` from the selected ammo weapon type so Homing, ECM, Haywire, and Nemesis ammo can each attach distinct marker state without falling back to `narcedBy`. Direct NARC-compatible missile cluster resolution and runner to-hit declaration SHALL consume Homing pod state. Runner to-hit declaration SHALL consume Haywire pod state on the attacker as a source-backed +1 attacker to-hit modifier. Semi-guided TAG to-hit resolution SHALL cancel positive target-movement modifiers and apply source-backed indirect-fire relief when semi-guided ammunition attacks a TAG-designated target not protected by ECM. Semi-guided TAG SHALL NOT expose or consume a cluster-table helper in official combat resolution. Runner missile cluster resolution SHALL consume attacker iNARC ECM pod state as flight-path ECM for Artemis IV/prototype IV/V suppression without treating it as target ECM for NARC guidance. C3 ECM disruption SHALL consume iNARC ECM pod state and deny C3 targeting benefit through the same ECM-disrupted C3 helper path. Runner weapon attack resolution SHALL consume friendly intervening iNARC Nemesis pod state to redirect source-backed direct confusable missile attacks. Remaining iNARC ECM sensor effects and ambiguous/player-authored C3 network assignment SHALL remain explicit gaps until their variant-specific runner effects are represented.
+Designator marker events SHALL replay into the same target marker state consumed by combat resolution. TAG markers SHALL set transient `tagDesignated` state that clears at turn start. Standard NARC markers SHALL append the marking team to `narcedBy` without duplicate entries and SHALL persist across turn starts. iNARC launcher hits SHALL derive the attached `iNarcPods` `podType` from the selected ammo weapon type so Homing, ECM, Haywire, and Nemesis ammo can each attach distinct marker state without falling back to `narcedBy`. Direct NARC-compatible missile cluster resolution and runner to-hit declaration SHALL consume Homing pod state when the target is not ECM-protected. Target ECM SHALL suppress standard NARC and iNARC Homing guidance without adding a generic ECM to-hit penalty. Runner to-hit declaration SHALL consume Haywire pod state on the attacker as a source-backed +1 attacker to-hit modifier. Semi-guided TAG to-hit resolution SHALL cancel positive target-movement modifiers and apply source-backed indirect-fire relief when semi-guided ammunition attacks a TAG-designated target not protected by ECM. Semi-guided TAG SHALL NOT expose or consume a cluster-table helper in official combat resolution. Runner missile cluster resolution SHALL consume attacker iNARC ECM pod state as flight-path ECM for Artemis IV/prototype IV/V suppression without treating it as target ECM for NARC guidance. C3 ECM disruption SHALL consume iNARC ECM pod state and deny C3 targeting benefit through the same ECM-disrupted C3 helper path. Runner weapon attack resolution SHALL consume friendly intervening iNARC Nemesis pod state to redirect source-backed direct confusable missile attacks. Remaining iNARC ECM sensor effects, targetable iNARC pod brush-off removal, and ambiguous/player-authored C3 network assignment SHALL remain explicit gaps until their variant-specific runner effects are represented.
 
 #### Scenario: Replay applies TAG, standard NARC, and iNARC variant marker state
 
@@ -835,12 +972,13 @@ Designator marker events SHALL replay into the same target marker state consumed
 - **THEN** TAG events SHALL mark the target as TAG-designated for the turn
 - **AND** standard NARC events SHALL add the marking team to the target's `narcedBy` list without duplicate markers
 - **AND** iNARC selected-ammo hits SHALL add Homing, ECM, Haywire, or Nemesis `{ teamId, podType }` entries to target `iNarcPods` without adding the team to `narcedBy`
-- **AND** direct NARC-compatible missile cluster and to-hit resolution SHALL consume source-backed iNARC Homing state while indirect-fire cluster bonuses stay suppressed
+- **AND** direct NARC-compatible missile cluster and to-hit resolution SHALL consume source-backed iNARC Homing state while indirect-fire and target-ECM-suppressed guidance bonuses stay suppressed
 - **AND** attack declaration SHALL consume source-backed iNARC Haywire state on the attacker as a +1 to-hit modifier
+- **AND** target ECM SHALL suppress standard NARC and iNARC Homing guidance without adding a generic ECM to-hit modifier
 - **AND** missile cluster resolution SHALL consume source-backed attacker iNARC ECM state to suppress Artemis flight-path guidance while preserving target-only NARC guidance
 - **AND** C3 ECM disruption helpers SHALL consume source-backed iNARC ECM pod state to deny C3 targeting benefit
 - **AND** direct confusable missile attacks SHALL redirect to friendly intervening units carrying source-backed iNARC Nemesis pod state
-- **AND** the catalog SHALL continue to list remaining iNARC ECM sensor effects and ambiguous/player-authored C3 network assignment as explicit gaps until those effects are implemented
+- **AND** the catalog SHALL continue to list remaining iNARC ECM sensor effects, targetable iNARC pod brush-off removal, and ambiguous/player-authored C3 network assignment as explicit gaps until those effects are implemented
 
 #### Scenario: Semi-guided TAG to-hit cancels target movement and offsets indirect fire
 
@@ -946,11 +1084,11 @@ Runner movement validation SHALL consume explicit BattleMech `hasTSM` state and 
 - **WHEN** the runner validates a 5 MP walking movement
 - **THEN** the movement SHALL be accepted with 5 MP used
 - **AND** a BattleMech with the same TSM equipment below heat 9 SHALL NOT receive the TSM walk bonus
-- **AND** the movement-enhancement catalog SHALL mark TSM movement as integrated while leaving MASC and Supercharger helper-only
+- **AND** the movement-enhancement catalog SHALL mark TSM, core MASC, and core Supercharger movement behavior as integrated while keeping remaining MASC/Supercharger side paths helper-only
 
 ### Requirement: Source-Backed Active MASC/Supercharger Run Movement Boundary
 
-Runner movement validation SHALL consume explicit active `activeMASC` and `activeSupercharger` BattleMech combat state when calculating running movement capability. A single active MASC or Supercharger SHALL double the effective walk MP for run validation, and active MASC plus active Supercharger SHALL validate run movement against `ceil(effectiveWalkMP * 2.5)`. Runner movement SHALL queue the corresponding MASC and/or Supercharger failure PSR triggers when an explicit active booster is used for running movement. Those pending PSRs SHALL carry source-backed standard fixed target numbers from explicit `mascTurnsUsed` and `superchargerTurnsUsed` prior-use state, defaulting first use to 3 and mapping prior-use counts through `[3, 5, 7, 11, 13, 13, 13]`. When a runner `MASCFailure` or `SuperchargerFailure` check fails and the pilot has `edge_when_masc_fails` plus remaining Edge, runner PSR resolution SHALL spend one Edge point and reroll the failed check before applying fall or movement-enhancement failure aftermath. When the Edge reroll passes, the original failed roll SHALL be marked superseded and no fall or movement-enhancement failure aftermath SHALL occur. When a final runner `MASCFailure` check fails, runner PSR resolution SHALL apply one critical-slot hit to each leg from the current critical-slot manifest and SHALL NOT destroy the MASC system. When a final runner `SuperchargerFailure` check fails, runner PSR resolution SHALL destroy the Supercharger slot when present, roll the source-backed 2d6 engine critical table (`<=7` no engine hits, `8-9` one hit, `10-11` two hits, `12` three hits), and apply resulting engine critical slots in the center torso. At turn reset, runner state SHALL advance the used booster's prior-use counter, clear active booster use, and decay idle prior-use counters. Alternate MASC option tables, IndustrialMek/support-unit supercharger adjustment, `MovementType.Sprint`, separate first-step equipment-check timing, and non-BattleMech Supercharger motive-damage branches SHALL remain explicit gaps.
+Runner movement validation SHALL consume explicit active `activeMASC` and `activeSupercharger` BattleMech combat state when calculating running and sprinting movement capability. A single active MASC or Supercharger SHALL double the effective walk MP for run validation and validate Sprint MP against `ceil(effectiveWalkMP * 2.5)`, and active MASC plus active Supercharger SHALL validate run movement against `ceil(effectiveWalkMP * 2.5)` and Sprint movement against `effectiveWalkMP * 3`. Runner movement SHALL queue the corresponding MASC and/or Supercharger failure PSR triggers when an explicit active booster is used for running or sprinting movement. TacOps Evade SHALL remain run-based but SHALL use the unboosted run MP envelope rather than the MASC/Supercharger-boosted run capability. Those pending PSRs SHALL carry source-backed standard fixed target numbers from explicit `mascTurnsUsed` and `superchargerTurnsUsed` prior-use state, defaulting first use to 3 and mapping prior-use counts through `[3, 5, 7, 11, 13, 13, 13]`. When a runner `MASCFailure` or `SuperchargerFailure` check fails and the pilot has `edge_when_masc_fails` plus remaining Edge, runner PSR resolution SHALL spend one Edge point and reroll the failed check before applying fall or movement-enhancement failure aftermath. When the Edge reroll passes, the original failed roll SHALL be marked superseded and no fall or movement-enhancement failure aftermath SHALL occur. When a final runner `MASCFailure` check fails, runner PSR resolution SHALL apply one critical-slot hit to each leg from the current critical-slot manifest and SHALL NOT destroy the MASC system. When a final runner `SuperchargerFailure` check fails, runner PSR resolution SHALL destroy the Supercharger slot when present, roll the source-backed 2d6 engine critical table (`<=7` no engine hits, `8-9` one hit, `10-11` two hits, `12` three hits), and apply resulting engine critical slots in the center torso. At turn reset, runner state SHALL advance the used booster's prior-use counter, clear active booster use, and decay idle prior-use counters. Alternate MASC option tables, IndustrialMek/support-unit supercharger adjustment, separate first-step equipment-check timing, and non-BattleMech Supercharger motive-damage branches SHALL remain explicit gaps.
 
 #### Scenario: Active MASC expands run validation and queues a failure PSR
 
@@ -958,7 +1096,8 @@ Runner movement validation SHALL consume explicit active `activeMASC` and `activ
 - **WHEN** the runner validates an 8 MP running movement
 - **THEN** the movement SHALL be accepted with 8 MP used
 - **AND** the unit SHALL receive a pending `MASCFailure` PSR with fixed target number 3
-- **AND** the movement-enhancement catalog SHALL keep MASC helper-only with MegaMek source anchors for the implemented run/trigger boundary and explicit gaps for sprint and full failure lifecycle
+- **AND** the movement-enhancement catalog SHALL mark the core MASC row integrated and keep alternate table and first-step timing side paths in a separate helper-only row with MegaMek source anchors
+- **AND** the PSR trigger catalog SHALL mark the core MASC failure trigger integrated because alternate table and first-step timing concerns live on the separate MASC side-path row
 
 #### Scenario: Failed MASC check applies leg critical damage
 
@@ -975,6 +1114,7 @@ Runner movement validation SHALL consume explicit active `activeMASC` and `activ
 - **THEN** the Supercharger critical slot SHALL be marked destroyed when present
 - **AND** three center-torso engine critical slots SHALL be marked destroyed
 - **AND** the unit SHALL be marked destroyed from engine destruction
+- **AND** the PSR trigger catalog SHALL mark the core Supercharger failure trigger integrated because IndustrialMek/support-unit adjustments, separate first-step timing, and non-BattleMech motive-damage behavior live on the separate Supercharger side-path row
 
 #### Scenario: Edge reroll suppresses movement-enhancement failure aftermath
 
@@ -1074,7 +1214,7 @@ Ranged to-hit validation SHALL apply MegaMek's jump-attacker SPA relief: Jumping
 
 ### Requirement: Source-Backed Terrain Master Frogman Physical To-Hit
 
-Physical to-hit validation SHALL apply MegaMek's Terrain Master: Frogman relief as a `-1` to-hit modifier only when the attacker has canonical `tm_frogman` or legacy `terrain-master-frogman`, the attacker is a Mek or ProtoMek, and the attacker occupies water deeper than level 1. Runner and event-sourced physical resolution SHALL derive or accept attacker water depth without using target-only water. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry and Mountaineer rubble-entry relief SHALL remain an explicit gap until separately source-backed.
+Physical to-hit validation SHALL apply MegaMek's Terrain Master: Frogman relief as a `-1` to-hit modifier only when the attacker has canonical `tm_frogman` or legacy `terrain-master-frogman`, the attacker is a Mek or ProtoMek, and the attacker occupies water deeper than level 1. Runner and event-sourced physical resolution SHALL derive or accept attacker water depth without using target-only water. Terrain Master source-backed variant coverage includes Frogman water-entry, Mountaineer rubble-entry plus movement-cost relief, Forest Ranger defender to-hit, Swamp Beast defender to-hit, and Swamp Beast bog-down relief. The local generic `terrain-master` helper row SHALL remain out-of-scope because MegaMek registers variant ids rather than a generic `terrain_master` option. Source-backed Nightwalker low-light movement behavior SHALL remain a canonical unsupported gap until lighting-condition combat state is represented.
 
 #### Scenario: Frogman applies in depth-2 attacker water
 
@@ -1121,9 +1261,9 @@ Movement PSR validation SHALL apply MegaMek's water-entry depth modifier when a 
 - **WHEN** the PSR reason is not entering water
 - **THEN** no `Frogman` PSR modifier SHALL apply
 
-### Requirement: Source-Backed Terrain Master Mountaineer Rubble-Entry PSR
+### Requirement: Source-Backed Terrain Master Mountaineer Movement And Rubble-Entry PSR
 
-Movement PSR validation SHALL apply MegaMek's Terrain Master: Mountaineer relief as a named `-1` SPA modifier only when the pending PSR is an entering-rubble PSR and the acting unit has canonical `tm_mountaineer` or legacy `terrain-master-mountaineer`. Mountaineer movement-cost and elevation movement effects SHALL remain explicit gaps until separately wired.
+Movement PSR validation SHALL apply MegaMek's Terrain Master: Mountaineer relief as a named `-1` SPA modifier only when the pending PSR is an entering-rubble PSR and the acting unit has canonical `tm_mountaineer` or legacy `terrain-master-mountaineer`. BattleMech movement pricing SHALL also apply Mountaineer rough/rubble terrain MP relief and upward-elevation MP relief when unit pilot abilities include `tm_mountaineer` or legacy `terrain-master-mountaineer`. Runner movement validation, interactive movement, P2P movement intent validation, pathfinding, and reachable movement previews SHALL consume the same movement-cost context so committed movement and previews agree.
 
 #### Scenario: Mountaineer applies to entering-rubble PSR
 
@@ -1138,16 +1278,41 @@ Movement PSR validation SHALL apply MegaMek's Terrain Master: Mountaineer relief
 - **WHEN** the pending PSR reason is not entering rubble
 - **THEN** no `Mountaineer` PSR modifier SHALL apply
 
-### Requirement: Source-Backed Swamp Bog-Down Gap
+#### Scenario: Mountaineer movement-cost relief
 
-Terrain PSR validation SHALL keep MegaMek's BattleMech swamp bog-down rule visible as an explicit unsupported stuck-state gap until MekStation has a bogged/stuck lifecycle state. The catalog SHALL NOT model swamp bog-down as a normal pending PSR that causes a fall on failure. MegaMek mud bog-down SHALL remain excluded from the BattleMech swamp gap because biped and quad movement modes do not bog down in mud. Terrain Master: Swamp Beast bog-down relief SHALL remain helper-only until the stuck-state path exists.
+- **GIVEN** a unit with `tm_mountaineer`
+- **WHEN** the unit validates ground movement into rough or rubble terrain
+- **THEN** the terrain entry MP surcharge SHALL be reduced by 1 and never below 0
+- **WHEN** the unit validates ground movement up 1 or 2 elevation levels
+- **THEN** the upward-elevation MP surcharge SHALL be reduced by 1 and never below 0
+- **AND** the normal impassable climb cap for upward elevation changes greater than 2 SHALL still apply
+- **AND** runner movement, interactive movement, P2P movement validation, pathfinding, and reachable previews SHALL report the same reduced MP cost
 
-#### Scenario: Swamp bog-down is cataloged as stuck-state gap
+### Requirement: Source-Backed Swamp Bog-Down Stuck State
 
-- **GIVEN** the terrain PSR support catalog is generated
-- **WHEN** swamp terrain support is inspected
-- **THEN** swamp SHALL be helper-only with MegaMek source references for bog-down and Swamp Beast relief
-- **AND** the gap SHALL name the missing bogged/stuck lifecycle state
+Terrain PSR validation SHALL queue MegaMek's BattleMech swamp bog-down rule as a stuck-state PSR when a BattleMech-like unit enters swamp by ground movement. The catalog SHALL NOT model swamp bog-down as a normal failed-PSR fall. A failed swamp bog-down PSR SHALL emit `UnitStuck`, set `isStuck`, clear pending PSRs, and SHALL NOT emit `UnitFell` or pilot fall damage. Jumping into swamp SHALL mark BattleMech-like units stuck immediately without queueing a fall PSR. Terrain Master: Swamp Beast bog-down relief SHALL apply as `-1` to swamp bog-down PSRs. MegaMek mud bog-down SHALL remain excluded from BattleMech swamp bog-down coverage because biped and quad movement modes do not bog down in mud.
+
+#### Scenario: Swamp bog-down queues stuck-state PSR
+
+- **GIVEN** a BattleMech-like unit enters swamp by ground movement
+- **WHEN** movement terrain PSRs are queued
+- **THEN** a swamp bog-down PSR SHALL be queued with MegaMek source references
+- **AND** a pilot with `tm_swamp_beast` SHALL receive a `-1` Swamp Beast bog-down modifier
+
+#### Scenario: Failed swamp bog-down marks unit stuck
+
+- **GIVEN** a BattleMech-like unit has a pending swamp bog-down PSR
+- **WHEN** the PSR fails during runner or event-sourced PSR resolution
+- **THEN** the unit SHALL be marked `isStuck`
+- **AND** a `UnitStuck` event SHALL preserve the failed PSR reason and reason code
+- **AND** no `UnitFell`, `PilotHit`, or fall-damage side effect SHALL be emitted for that failure
+
+#### Scenario: Jumping into swamp marks unit stuck immediately
+
+- **GIVEN** a BattleMech-like unit jumps into swamp
+- **WHEN** the movement phase applies terrain PSR handling
+- **THEN** the unit SHALL be marked `isStuck` immediately
+- **AND** the terrain handling SHALL emit `UnitStuck` without queueing a normal fall PSR
 
 #### Scenario: Mud is not promoted to a BattleMech bog-down gap
 
@@ -1157,26 +1322,27 @@ Terrain PSR validation SHALL keep MegaMek's BattleMech swamp bog-down rule visib
 
 ### Requirement: Source-Backed Cross-Country Scope Split
 
-Pilot modifier validation SHALL keep MegaMek's Cross-Country SPA visible as an explicit non-BattleMech combat-vehicle movement/passability scope split. The BattleMech combat matrix SHALL NOT represent Cross-Country as a terrain PSR modifier unless a future source-backed BattleMech rule is identified.
+Pilot modifier validation SHALL keep MegaMek's Cross-Country SPA visible as an explicit non-BattleMech combat-vehicle movement/passability scope split. The BattleMech combat matrix SHALL NOT represent Cross-Country as a terrain PSR modifier unless a future source-backed BattleMech rule is identified. Cross-Country SHALL stay in the `out-of-scope` audit inventory until vehicle movement/passability coverage consumes it.
 
 #### Scenario: Cross-Country is cataloged outside BattleMech PSRs
 
 - **GIVEN** the BattleMech SPA and pilot modifier catalogs are generated
 - **WHEN** Cross-Country support is inspected
-- **THEN** the SPA SHALL be unsupported with MegaMek source references to combat-vehicle terrain movement-cost and passability behavior
-- **AND** the movement resolver family SHALL own the visible gap
+- **THEN** the SPA SHALL be out-of-scope with MegaMek source references to combat-vehicle terrain movement-cost and passability behavior
+- **AND** the BattleMech movement resolver family SHALL NOT assign Cross-Country while it remains vehicle-scoped
+- **AND** a vehicle movement resolver family SHALL assign Cross-Country as out-of-scope audit coverage
 - **AND** the PSR resolver family SHALL NOT assign Cross-Country
 
 ### Requirement: Source-Backed Heavy Lifter Carry/Throw Gap
 
-Pilot modifier validation SHALL keep MegaMek's Heavy Lifter SPA visible as an unsupported carry/throw-object action gap. The source-backed BattleMech behavior SHALL be recorded as a `1.5x` ground-object lift-capacity multiplier for Meks with arms, while MekStation lacks object carry/throw physical action declarations and resolution.
+Pilot modifier validation SHALL keep MegaMek's Heavy Lifter SPA visible as helper-only lift-capacity coverage plus an unsupported carry/throw-object action gap. The source-backed BattleMech helper behavior SHALL calculate `5%` of unit tonnage per available hand, apply the `1.5x` Heavy Lifter multiplier for canonical `hvy_lifter` and legacy `heavy-lifter` ids, and then apply the active TSM pickup multiplier. MekStation SHALL still report missing object carry/throw physical action declarations and resolution through the movement/application gap.
 
 #### Scenario: Heavy Lifter is cataloged as lift capacity without action support
 
 - **GIVEN** the BattleMech SPA and pilot modifier catalogs are generated
 - **WHEN** Heavy Lifter support is inspected
-- **THEN** the SPA SHALL be unsupported with MegaMek source references to BattleMech lift-capacity behavior
-- **AND** the movement resolver family SHALL own the visible carry/throw action gap
+- **THEN** the SPA SHALL be helper-only with MegaMek source references to BattleMech lift-capacity behavior and MekStation helper/test anchors
+- **AND** the movement resolver family SHALL own the visible unsupported carry/throw action gap
 - **AND** Heavy Lifter SHALL NOT be represented as a physical damage or to-hit modifier
 
 ### Requirement: Source-Backed Shaky Stick Ground-To-Air To-Hit
@@ -1215,6 +1381,19 @@ Ranged to-hit validation SHALL keep Improved Targeting and Poor Targeting rows s
 - **AND** every row SHALL cite the MekStation alias boundary for the local `improved_targeting_*` and `poor_targeting_*` ids
 - **AND** the ranged to-hit resolver row SHALL cite the MegaMek targeting quirk behavior without hiding the alias boundary on each quirk support row
 
+### Requirement: Source-Backed Multi-Tasker Secondary Target Relief
+
+Ranged to-hit validation SHALL keep MegaMek's Multi-Tasker SPA distinct from MekStation's legacy local Multi-Target row. The `multi-tasker` SPA row SHALL stay integrated for source-backed `multi_tasker` behavior that reduces secondary-target penalties through ranged to-hit calculation. The `multi-target-penalty-application` resolver row SHALL stay integrated only for source-backed secondary-target penalty application and Multi-Tasker relief. The local `multi-target` SPA row SHALL remain out-of-scope and unconsumed by the integrated resolver unless an independent source-backed combat authority is identified.
+
+#### Scenario: Multi-Tasker application stays separate from local Multi-Target
+
+- **GIVEN** the BattleMech SPA and pilot modifier resolver catalogs are generated
+- **WHEN** secondary-target penalty support is inspected
+- **THEN** `multi-tasker` SHALL be integrated with structured MegaMek source references
+- **AND** `multi-target-penalty-application` SHALL be integrated with the same source-backed Multi-Tasker references
+- **AND** the resolver assignment SHALL include `multi-tasker` and SHALL NOT include local `multi-target`
+- **AND** `multi-target` SHALL remain out-of-scope as a local SPA source-boundary
+
 ### Requirement: Source-Backed Multi-Trac Secondary Target Relief
 
 Ranged to-hit validation SHALL keep Multi-Trac source-backed as secondary-target penalty relief. The `multi_trac` quirk row SHALL cite MegaMek `Compute.getSecondaryTargetMod` and option-id anchors, and the ranged to-hit resolver row SHALL expose the same source-backed modifier family before claiming complete quirk to-hit coverage.
@@ -1229,19 +1408,20 @@ Ranged to-hit validation SHALL keep Multi-Trac source-backed as secondary-target
 
 ### Requirement: Source-Backed Defensive Quirk Boundary
 
-Ranged to-hit validation SHALL NOT count legacy defensive quirk to-hit helpers as source-backed integrated coverage when the source authority does not match the local helper behavior. `Distracting` SHALL remain helper-only until a combat resolver authority is identified. `Low Profile` SHALL remain helper-only until MekStation implements the source-backed glancing-blow behavior rather than treating it as a normal target to-hit modifier.
+Ranged to-hit validation SHALL NOT count legacy defensive quirk to-hit helpers as source-backed integrated coverage when the source authority does not match the local helper behavior. `Distracting` SHALL remain helper-only until a combat resolver authority is identified. `Low Profile` SHALL be tracked as an unsupported source-backed glancing-blow blocker until MekStation implements that hit/damage resolution behavior rather than treating it as a normal target to-hit modifier.
 
 #### Scenario: Defensive quirk helpers expose source mismatch instead of hiding it
 
 - **GIVEN** the BattleMech quirk and pilot modifier resolver catalogs are generated
 - **WHEN** `distracting` and `low_profile` support is inspected
-- **THEN** both rows SHALL be helper-only with structured MegaMek source references and MekStation deviation references
+- **THEN** `distracting` SHALL be helper-only with structured MegaMek source references and MekStation deviation references
+- **AND** `low_profile` SHALL be unsupported with structured MegaMek glancing-blow source references and MekStation deviation references
 - **AND** the helper-only resolver row SHALL own the local `+1` target to-hit helper boundary
 - **AND** the source-backed ranged to-hit resolver row SHALL NOT count those two defensive quirk helpers as integrated quirk to-hit coverage
 
 ### Requirement: Source-Backed Initiative Quirk Bonuses
 
-Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer force initiative bonuses from active conscious units. Battle Computer SHALL provide `+2`, Command Mech SHALL provide `+1`, and the bonuses SHALL NOT stack. Explicit HQ initiative equipment bonuses SHALL be treated as the same best-of force turn bonus as initiative quirks, while explicit command initiative equipment bonuses SHALL stack as a separate command bonus. Tactical Genius SHALL be modeled as a reroll request that replaces only the requested side's raw initiative roll when that side has an active conscious Tactical Genius unit, not as a flat modifier. Raw `2d6` initiative payload fields SHALL remain raw dice values for replay/RNG arbitration, with modifier and total fields carrying adjusted values. Automatic command-console/HQ equipment hydration and Combat Intuition first-round sequencing SHALL remain explicit gaps until equipment-derived command state and movement-before-initiative flow are modeled. Automatic initiative equipment hydration SHALL fail closed unless source-kind/rules-profile, working/default-mode communications tonnage, active command-console crew, heavy-or-larger weight class, IndustrialMek, and advanced-fire-control eligibility context are represented.
+Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer force initiative bonuses from active conscious units. Battle Computer SHALL provide `+2`, Command Mech SHALL provide `+1`, and the bonuses SHALL NOT stack. Explicit HQ initiative equipment bonuses SHALL be treated as the same best-of force turn bonus as initiative quirks, while explicit command initiative equipment bonuses SHALL stack as a separate command bonus. Tactical Genius SHALL be modeled as a reroll request that replaces only the requested side's raw initiative roll when that side has an active conscious Tactical Genius unit, not as a flat modifier. Raw `2d6` initiative payload fields SHALL remain raw dice values for replay/RNG arbitration, with modifier and total fields carrying adjusted values. The Command Mech and Battle Computer quirk rows SHALL be integrated once their source-backed quirk behavior is covered; automatic command-console/HQ equipment hydration SHALL remain an explicit gap until equipment-derived command state is modeled. Automatic initiative equipment hydration SHALL fail closed unless source-kind/rules-profile, working/default-mode communications tonnage, active command-console crew, heavy-or-larger weight class, IndustrialMek, and advanced-fire-control eligibility context are represented.
 
 #### Scenario: Battle Computer bonus remains non-cumulative with Command Mech
 
@@ -1251,6 +1431,7 @@ Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer for
 - **THEN** the player receives only the source-backed `+2` bonus
 - **AND** the opponent still wins
 - **AND** the event payload retains raw `2d6` values plus modifier and total fields
+- **AND** the `command_mech` and `battle_computer` quirk catalog rows SHALL be integrated while automatic HQ and command-console equipment hydration remains tracked under separate unsupported resolver rows
 
 #### Scenario: Explicit command bonus stacks with the best HQ or quirk bonus
 
@@ -1293,14 +1474,15 @@ Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer for
 
 ### Requirement: Local-Only SPA Gap Boundaries
 
-Pilot modifier validation SHALL keep local-only SPA rows visible as MekStation deviation boundaries when a MegaMek combat SPA authority has not been identified. Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, and Antagonizer SHALL NOT be treated as MegaMek parity claims unless the catalog row carries source-backed implementation evidence. Unsupported or helper-only rows SHALL cite the current MegaMek pilot option registry plus the MekStation SPA catalog row that introduced the local behavior.
+Pilot modifier validation SHALL keep local-only SPA rows visible as MekStation deviation boundaries when a MegaMek combat SPA authority has not been identified. Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, and Antagonizer SHALL NOT be treated as MegaMek parity claims unless the catalog row carries source-backed implementation evidence. Those local-only rows SHALL remain out-of-scope audit evidence and SHALL cite the current MegaMek pilot option registry plus the MekStation SPA catalog row that introduced the local behavior.
 
 #### Scenario: Local SPA rows stay source-boundary explicit
 
-- **GIVEN** the combat catalog includes Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, or Antagonizer
-- **WHEN** the support row is helper-only or unsupported
+- **GIVEN** the combat catalog includes Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, or Antagonizer
+- **WHEN** the support row is inspected
 - **THEN** the row SHALL cite the MegaMek pilot option registry used for the source-truth cross-check
 - **AND** the row SHALL cite the MekStation SPA catalog as a `mekstation-deviation`
+- **AND** the row SHALL remain out-of-scope until source-backed combat authority exists
 - **AND** no row SHALL be promoted to integrated until an implementation and source-backed combat authority exist
 
 ### Requirement: Canonical SPA Scope Source References
@@ -1313,23 +1495,27 @@ Pilot modifier validation SHALL treat every canonical SPA catalog row as source-
 - **WHEN** any canonical SPA row is inspected
 - **THEN** the row SHALL carry at least one anchored `mekstation-deviation` reference to the canonical SPA catalog or category file
 - **AND** the row SHALL carry anchored source references for MegaMek `PilotOptions` or `OptionsConstants` when the id is mirrored from the MegaMek pilot option registry
-- **AND** helper-only or unsupported rows for infantry, ATOW, bioware, unofficial, and Edge partitions SHALL cite the specific partition authority that keeps the row out of integrated BattleMech combat coverage
+- **AND** helper-only, unsupported, or out-of-scope rows for infantry, ATOW, bioware, unofficial, legacy, and Edge partitions SHALL cite the specific partition authority that keeps the row out of integrated BattleMech combat coverage
+- **AND** infantry-scoped SPAs, AToW/personnel-origin and aerospace-control SPAs, unofficial or legacy SPAs without explicit integrated support, and Aero Edge triggers SHALL remain `out-of-scope` audit evidence instead of unresolved official BattleMech blockers
 
 ### Requirement: Source-Backed Edge Trigger Boundary
 
-Pilot modifier validation SHALL keep Edge as helper-only trigger-state coverage until combat resolvers consume each trigger-specific Edge behavior. Edge rows SHALL cite MegaMek's point-pool and trigger-option source anchors plus MekStation's local generic trigger helper. The `edge_when_masc_fails` trigger SHALL be counted as consumed by runner `MASCFailure` and `SuperchargerFailure` PSR rerolls only; TAC, head-hit, KO, explosion, attack, non-booster PSR, and consciousness resolvers SHALL NOT be treated as Edge-integrated until those trigger-specific reroll or prevention paths are wired.
+Pilot modifier validation SHALL keep generic Edge point state as helper-only trigger-state coverage, SHALL split non-MASC Mek Edge triggers into explicit unsupported blockers, and SHALL split Aero Edge triggers out of the BattleMech matrix. Edge rows SHALL cite MegaMek's point-pool and trigger-option source anchors plus MekStation's local generic trigger helper. The `edge_when_masc_fails` trigger SHALL be counted as consumed by runner `MASCFailure` and `SuperchargerFailure` PSR rerolls only; `edge_when_headhit`, `edge_when_tac`, `edge_when_ko`, and `edge_when_explosion` SHALL remain unsupported until hit-location, consciousness, and critical-slot resolvers consume those trigger-specific reroll paths.
 
 #### Scenario: Edge helper rows cite source truth without claiming resolver parity
 
 - **GIVEN** the BattleMech SPA and pilot modifier resolver catalogs are generated
 - **WHEN** Edge, Edge application, or critical-prevention support is inspected
-- **THEN** each row SHALL remain helper-only with structured source references to MegaMek Edge trigger registration and point consumption
-- **AND** each row SHALL cite the MekStation generic Edge helper as a local deviation boundary
+- **THEN** generic Edge point state SHALL remain helper-only with structured source references to MegaMek Edge trigger registration and point consumption
+- **AND** `edge_when_headhit`, `edge_when_tac`, `edge_when_ko`, and `edge_when_explosion` SHALL remain unsupported with source references to their MegaMek hit-location, consciousness, or critical-slot consumption paths until the matching MekStation resolvers spend Edge and reroll those outcomes
+- **AND** `edge_when_masc_fails` SHALL be integrated only for source-backed runner `MASCFailure` and `SuperchargerFailure` rerolls that spend Edge and suppress failure aftermath when the reroll passes
+- **AND** each Aero Edge trigger row SHALL remain out-of-scope with the same source references until an aerospace validation matrix exists
+- **AND** each row SHALL cite the MekStation generic Edge helper or SPA catalog partition as a local deviation boundary
 - **AND** no attack, non-booster PSR, consciousness, TAC, head-hit, or explosion resolver SHALL be counted as Edge-integrated until trigger-specific combat behavior exists
 
 ### Requirement: Source-Backed Terrain Master Defender To-Hit Variants
 
-Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit variants from target state and target terrain: Forest Ranger SHALL add a `+1` to-hit modifier only when the target has canonical `tm_forest_ranger` or legacy `terrain-master-forest-ranger`, the target moved by walking, and the target occupies wooded terrain; Swamp Beast SHALL add a `+1` to-hit modifier only when the target has canonical `tm_swamp_beast` or legacy `terrain-master-swamp-beast`, the target moved by running, and the target occupies mud or swamp. Runner ranged attacks SHALL hydrate target terrain features into to-hit state. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry and Mountaineer rubble-entry relief, including Swamp Beast bog-down relief, SHALL remain an explicit gap until separately source-backed.
+Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit variants from target state and target terrain: Forest Ranger SHALL add a `+1` to-hit modifier only when the target has canonical `tm_forest_ranger` or legacy `terrain-master-forest-ranger`, the target moved by walking, and the target occupies wooded terrain; Swamp Beast SHALL add a `+1` to-hit modifier only when the target has canonical `tm_swamp_beast` or legacy `terrain-master-swamp-beast`, the target moved by running, and the target occupies mud or swamp. Runner ranged attacks SHALL hydrate target terrain features into to-hit state. Terrain Master source-backed variant coverage includes Frogman water-entry, Mountaineer rubble-entry plus movement-cost relief, Forest Ranger/Swamp Beast defender to-hit relief, and Swamp Beast bog-down relief. The local generic `terrain-master` helper row SHALL remain out-of-scope because MegaMek registers variant ids rather than a generic `terrain_master` option. Source-backed Nightwalker low-light movement behavior SHALL remain a canonical unsupported gap until lighting-condition combat state is represented.
 
 #### Scenario: Forest Ranger applies to walking wooded targets
 
@@ -1357,7 +1543,7 @@ Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit va
 
 ### Requirement: Source-Backed Maneuvering Ace Skidding PSR Relief
 
-Runner movement and PSR resolution SHALL apply MegaMek's movement-before-skid PSR distance table and subtract 1 for canonical Maneuvering Ace only when resolving skidding PSRs. The skidding distance modifier SHALL be queued as PSR trigger state, while Maneuvering Ace SHALL be applied during PSR resolution from hydrated pilot ability state so runner and interactive paths share the same target-number math. Terrain-specific Maneuvering Ace PSR behavior beyond skidding SHALL remain an explicit catalog gap.
+Runner movement and PSR resolution SHALL apply MegaMek's movement-before-skid PSR distance table and subtract 1 for canonical Maneuvering Ace only when resolving skidding PSRs. The skidding distance modifier SHALL be queued as PSR trigger state, while Maneuvering Ace SHALL be applied during PSR resolution from hydrated pilot ability state so runner and interactive paths share the same target-number math. Maneuvering Ace lateral-shift movement allowance, QuadMek lateral-step MP relief, aerospace maneuver-thrust relief, controlled-sideslip relief, and out-of-control checks SHALL remain explicit catalog gaps until separately wired.
 
 #### Scenario: Skidding PSRs consume distance and Maneuvering Ace modifiers
 
@@ -1370,7 +1556,7 @@ Runner movement and PSR resolution SHALL apply MegaMek's movement-before-skid PS
 
 ### Requirement: Source-Backed Animal Mimicry Quad-Mek PSR Relief
 
-Runner and interactive PSR resolution SHALL apply MegaMek's source-backed Animal Mimicry `-1` piloting-roll modifier only for explicit quad BattleMech combat state. Both canonical `animal_mimic` and legacy `animal-mimicry` ids SHALL resolve through the SPA canonicalization layer. Animal Mimicry terrain-designation movement effects SHALL remain an explicit catalog gap until movement state consumes those designated-terrain rules.
+Runner and interactive PSR resolution SHALL apply MegaMek's source-backed Animal Mimicry `-1` piloting-roll modifier only for explicit quad BattleMech combat state. Both canonical `animal_mimic` and legacy `animal-mimicry` ids SHALL resolve through the SPA canonicalization layer, and the Animal Mimicry SPA and canonical scope rows SHALL be marked integrated once those runner and interactive PSR paths are covered.
 
 #### Scenario: Quad Mek PSRs consume Animal Mimicry relief
 
@@ -1396,7 +1582,7 @@ Heat rule support rows SHALL carry source references before they are treated as 
 
 ### Requirement: Source-Backed Terrain Environment Catalog Anchors
 
-Terrain/environment support rows SHALL carry source references before they are treated as validation coverage. Terrain movement costs, partial cover, terrain to-hit features, water cooling, fire heat, smoke to-hit, fog, night, wind, and extreme-temperature rows SHALL be pinned to MegaMek source references with commit-pinned URLs and line anchors when they claim comparable source-backed behavior. The terrain LOS blocking row SHALL remain helper-only while MekStation uses simplified `blocksLOS` / `losBlockHeight` behavior instead of MegaMek cumulative woods/smoke, water, divided-LOS, and building-level handling. MekStation-only water walk/run rejection and atmosphere heat adjustment SHALL be marked as MekStation deviation sources instead of being attributed to MegaMek. Dust and mines SHALL remain helper-only until first-class battlefield condition and minefield movement-damage resolution exist, and those gap rows SHALL carry both source-truth and local absence references.
+Terrain/environment support rows SHALL carry source references before they are treated as validation coverage. Terrain movement costs, direct terrain LOS blocking, cumulative woods/smoke LOS density, land-to-depth-2+ water endpoint LOS blocking, partial cover, terrain to-hit features, water cooling, fire heat, smoke to-hit, fog, night, wind, blowing-sand dust, and extreme-temperature rows SHALL be pinned to MegaMek source references with commit-pinned URLs and line anchors when they claim comparable source-backed behavior. The terrain LOS blocking row SHALL be integrated for MekStation direct blockers, cumulative woods/smoke density, and land-to-depth-2+ water endpoint blocking, while a separate terrain LOS side-path row SHALL remain helper-only for divided/diagram LOS, richer underwater-combat sightline tracing, and richer building-level handling. MekStation-only water walk/run rejection and atmosphere heat adjustment SHALL be marked as MekStation deviation sources instead of being attributed to MegaMek. Dust SHALL be represented as explicit environmental `blowingSand` state that applies the source-backed +1 to-hit modifier only to energy-weapon attacks; minefields SHALL remain helper-only until first-class minefield movement-damage resolution exists, and the mine gap row SHALL carry both source-truth and local absence references.
 
 #### Scenario: Terrain environment rows expose source truth
 
@@ -1404,7 +1590,7 @@ Terrain/environment support rows SHALL carry source references before they are t
 - **WHEN** any terrain/environment support row is inspected
 - **THEN** each integrated or helper-only row SHALL expose structured source references
 - **AND** MegaMek-backed terrain/environment rows SHALL use commit-pinned MegaMek URLs with line anchors
-- **AND** MekStation-only water ground-disallow, terrain LOS simplification, atmosphere, dust, and mines boundaries SHALL use MekStation deviation source references where the behavior or absence is local
+- **AND** MekStation-only water ground-disallow, terrain LOS side-path, atmosphere, blowing-sand state, and mines boundaries SHALL use MekStation deviation source references where the behavior or absence is local
 - **AND** the terrain/environment catalog triad SHALL enforce row-level source references before PR approval
 
 ### Requirement: Source-Backed TerrainType Movement Catalog Anchors
@@ -1422,7 +1608,7 @@ Every TerrainType movement support row SHALL expose structured source references
 
 ### Requirement: Source-Backed TerrainType LOS Catalog Anchors
 
-Every TerrainType LOS support row SHALL expose structured source references before the map is treated as source-backed validation coverage. Every row SHALL cite the local `TERRAIN_PROPERTIES`, `calculateLOS`, and runner attack LOS validation paths. Building and heavy woods SHALL be marked as MekStation simplified blocking behavior rather than full MegaMek LOS parity. Light woods, smoke, and water SHALL remain helper-only gap rows for cumulative woods/smoke density, land-to-underwater sightline blocking, and divided/diagram LOS behavior. Terrain rows with no LOS blocking behavior SHALL remain source-checked through local no-op source references instead of inheriting generic terrain authority. Any future TerrainType LOS expansion SHALL either add a MegaMek/MekHQ source reference or explicitly mark the row as a local deviation/gap.
+Every TerrainType LOS support row SHALL expose structured source references before the map is treated as source-backed validation coverage. Every row SHALL cite the local `TERRAIN_PROPERTIES`, `calculateLOS`, and runner attack LOS validation paths. Building SHALL be marked as MekStation direct blocking behavior rather than full MegaMek building-level parity. Heavy woods, light woods, and smoke SHALL be marked integrated only when `calculateLOS` accumulates intervening density and blocks LOS once woods/smoke density exceeds 2. Water SHALL be marked integrated only when `calculateLOS` blocks land-to-depth-2+ water endpoint sightlines in both directions while preserving non-endpoint water as non-blocking local terrain. The separate terrain LOS side-path row SHALL remain helper-only for divided/diagram LOS behavior, richer underwater-combat sightline tracing, and richer building-level handling. Terrain rows with no LOS blocking behavior SHALL remain source-checked through local no-op source references instead of inheriting generic terrain authority. Any future TerrainType LOS expansion SHALL either add a MegaMek/MekHQ source reference or explicitly mark the row as a local deviation/gap.
 
 #### Scenario: TerrainType LOS rows expose source truth
 
@@ -1430,7 +1616,9 @@ Every TerrainType LOS support row SHALL expose structured source references befo
 - **WHEN** any TerrainType LOS row is inspected
 - **THEN** the row SHALL expose structured source references with line anchors
 - **AND** building, heavy woods, light woods, smoke, and water rows SHALL include commit-pinned MegaMek LOS comparison references
-- **AND** light woods, smoke, and water rows SHALL remain helper-only until cumulative woods/smoke density, land-to-underwater LOS, and divided/diagram LOS behavior are implemented
+- **AND** heavy woods, light woods, and smoke rows SHALL be integrated only when cumulative density blocking over 2 is implemented and covered by behavior tests
+- **AND** water SHALL be integrated only when land-to-depth-2+ endpoint LOS blocking is covered by behavior tests
+- **AND** divided/diagram LOS and richer underwater-combat sightline tracing SHALL remain explicit helper-only side-path gaps until implemented
 - **AND** local no-LOS-effect terrain rows SHALL use MekStation deviation source references for the local no-op mapping
 - **AND** the terrainTypeLos catalog triad SHALL enforce row-level source references before PR approval
 
@@ -1462,7 +1650,7 @@ Every TerrainType heat support row SHALL expose structured source references bef
 
 ### Requirement: Source-Backed TerrainType PSR Catalog Anchors
 
-Every TerrainType PSR support row SHALL expose structured source references before the map is treated as source-backed validation coverage. Rubble, water, pavement, ice, swamp, and building rows SHALL cite commit-pinned MegaMek source URLs with line anchors for rubble-entry PSRs, water-entry PSRs, skidding PSRs, swamp bog-down, or building-collapse handling, plus local movement-runner, PSR factory, and PSR-resolution paths. Swamp SHALL remain helper-only until MekStation has a bogged/stuck lifecycle state. Building SHALL remain helper-only until building collapse is wired through runner movement or damage resolution. Terrain rows with no terrain-entry PSR SHALL remain source-checked through local no-PSR references instead of inheriting a generic terrain authority. Any future TerrainType PSR expansion SHALL either add a MegaMek/MekHQ source reference or explicitly mark the row as a local deviation/gap.
+Every TerrainType PSR support row SHALL expose structured source references before the map is treated as source-backed validation coverage. Rubble, water, pavement, ice, swamp, and building rows SHALL cite commit-pinned MegaMek source URLs with line anchors for rubble-entry PSRs, water-entry PSRs, skidding PSRs, swamp bog-down, or building-collapse handling, plus local movement-runner, PSR factory, and PSR-resolution paths. Swamp SHALL be integrated only when movement queues swamp bog-down PSRs, jump-entry immediate stuck handling, Swamp Beast relief, and failed-PSR `UnitStuck` outcomes are covered. Building SHALL be integrated only when movement queues building-collapse PSRs from explicit BattleMech tonnage and Building constructionFactor overload checks; damage-triggered collapse, basement collapse, top-floor collapse, and WiGE flyover collapse SHALL remain explicit requirement-level gaps until those state branches are wired. Terrain rows with no terrain-entry PSR SHALL remain source-checked through local no-PSR references instead of inheriting a generic terrain authority. Any future TerrainType PSR expansion SHALL either add a MegaMek/MekHQ source reference or explicitly mark the row as a local deviation/gap.
 
 #### Scenario: TerrainType PSR rows expose source truth
 
@@ -1470,7 +1658,8 @@ Every TerrainType PSR support row SHALL expose structured source references befo
 - **WHEN** any TerrainType PSR row is inspected
 - **THEN** the row SHALL expose structured source references with line anchors
 - **AND** rubble, water, pavement, ice, swamp, and building rows SHALL include commit-pinned MegaMek comparison references
-- **AND** swamp and building rows SHALL remain helper-only until bogged/stuck lifecycle and building-collapse runtime wiring exist
+- **AND** swamp SHALL remain integrated only while the stuck-state PSR lifecycle stays covered by behavior tests
+- **AND** building rows SHALL remain helper-only until building-collapse runtime wiring exists
 - **AND** local no-PSR terrain rows SHALL use MekStation deviation source references for the local no-op mapping
 - **AND** the terrainTypePsr catalog triad SHALL enforce row-level source references before PR approval
 
@@ -1568,7 +1757,7 @@ Heat and movement runner PSR trigger rows SHALL expose structured source referen
 
 ### Requirement: Source-Backed Heat SPA Boundary
 
-Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior from local helper behavior before claiming parity. Some Like It Hot SHALL carry MegaMek source references for reducing positive heat firing modifiers by 1. Hot Dog startup, shutdown, heat-induced ammo-explosion, opt-in MaxTech pilot heat-damage, and opt-in MaxTech critical-damage checks SHALL apply MegaMek's `hotDogMod = 1` target-number relief without shifting heat thresholds. Default life-support heat damage SHALL remain threshold-based at heat 15/25+ because MegaMek does not apply `hotDogMod` to that path. Hot Dog SHALL be integrated for BattleMech heat lifecycle resolution once those source-backed paths are executable in runner and interactive heat resolution. Cool Under Fire SHALL remain helper-only until a source authority for generated-heat relief is identified.
+Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior from local helper behavior before claiming parity. Some Like It Hot SHALL carry MegaMek source references for reducing positive heat firing modifiers by 1. Hot Dog startup, shutdown, heat-induced ammo-explosion, opt-in MaxTech pilot heat-damage, and opt-in MaxTech critical-damage checks SHALL apply MegaMek's `hotDogMod = 1` target-number relief without shifting heat thresholds. Default life-support heat damage SHALL remain threshold-based at heat 15/25+ because MegaMek does not apply `hotDogMod` to that path. Hot Dog SHALL be integrated for BattleMech heat lifecycle resolution once those source-backed paths are executable in runner and interactive heat resolution. Cool Under Fire SHALL remain out-of-scope local helper evidence and SHALL NOT be consumed by the BattleMech heat resolver until a source authority for generated-heat relief is identified.
 
 #### Scenario: Heat SPA support rows expose source truth
 
@@ -1576,21 +1765,21 @@ Heat-driven pilot ability rows SHALL distinguish source-backed MegaMek behavior 
 - **WHEN** Hot Dog, Cool Under Fire, Some Like It Hot, and the heat-application resolver row are inspected
 - **THEN** Some Like It Hot SHALL be integrated with structured MegaMek source references
 - **AND** Hot Dog SHALL be integrated with structured MegaMek source references and executable startup, shutdown, ammo-explosion, optional MaxTech pilot heat-damage, and optional MaxTech critical-damage target-number coverage
-- **AND** Cool Under Fire SHALL be helper-only with the unresolved source authority recorded as a gap
-- **AND** the heat-application resolver SHALL remain helper-only while Cool Under Fire source authority is unresolved
+- **AND** Cool Under Fire SHALL be out-of-scope with the unresolved source authority recorded as local helper evidence
+- **AND** the heat-application resolver SHALL be integrated for source-backed Hot Dog, Some Like It Hot, and weapon cooling behavior while leaving Cool Under Fire unconsumed
 
 #### Scenario: Heat-driven modifiers remain separate from core heat lifecycle completeness
 
 - **GIVEN** core heat generation, dissipation, and lifecycle rows are integrated
 - **WHEN** the BattleMech validation requirement crosswalk is inspected
 - **THEN** heat-driven pilot ability and quirk modifiers SHALL have their own `heat-driven-modifiers` requirement
-- **AND** that requirement SHALL reference Hot Dog, Some Like It Hot, Cool Under Fire, Improved Cooling, Poor Cooling, No Cooling, and the heat-application resolver row
-- **AND** the requirement SHALL remain helper-only while Cool Under Fire source authority is unresolved
+- **AND** that requirement SHALL reference Hot Dog, Some Like It Hot, Improved Cooling, Poor Cooling, No Cooling, and the heat-application resolver row while Cool Under Fire remains visible through the out-of-scope audit inventory
+- **AND** the requirement SHALL be integrated for source-backed official heat modifiers while Cool Under Fire remains out-of-scope and unconsumed
 - **AND** the integrated `heat-lifecycle` requirement SHALL NOT imply complete heat-driven modifier parity
 
 ### Requirement: Source-Backed Pilot Skill Use Rows
 
-Pilot skill use support rows SHALL expose structured row-level source references before the map is treated as validation coverage. Ranged gunnery rows SHALL cite MegaMek ranged attack gunnery anchors plus MekStation runner/session to-hit hydration. Physical piloting rows SHALL cite MegaMek physical attack piloting baselines plus MekStation runner/session physical to-hit paths. PSR and stand-up rows SHALL cite MegaMek base piloting roll, PSR resolution, and stand-up anchors plus MekStation runner/session resolution paths. Initiative rows SHALL cite source-backed Command Mech, Battle Computer, HQ/command equipment, and Tactical Genius anchors while preserving helper-only gaps for Combat Intuition and automatic equipment hydration. MekStation-local pilot wound penalties and PSR event skill stamping SHALL be marked as explicit MekStation deviation refs rather than inferred MegaMek parity.
+Pilot skill use support rows SHALL expose structured row-level source references before the map is treated as validation coverage. Ranged gunnery rows SHALL cite MegaMek ranged attack gunnery anchors plus MekStation runner/session to-hit hydration. Physical piloting rows SHALL cite MegaMek physical attack piloting baselines plus MekStation runner/session physical to-hit paths. PSR and stand-up rows SHALL cite MegaMek base piloting roll, PSR resolution, and stand-up anchors plus MekStation runner/session resolution paths. Initiative rows SHALL cite source-backed Command Mech, Battle Computer, HQ/command equipment, and Tactical Genius anchors while preserving helper-only gaps for automatic equipment hydration. MekStation-local pilot wound penalties and PSR event skill stamping SHALL be marked as explicit MekStation deviation refs rather than inferred MegaMek parity.
 
 #### Scenario: Pilot skill use rows expose source truth
 
@@ -1603,7 +1792,7 @@ Pilot skill use support rows SHALL expose structured row-level source references
 
 ### Requirement: Source-Backed Legacy Pilot Ability Support Rows
 
-Legacy `pilotAbilities` support rows SHALL expose structured row-level source references before the map is treated as validation coverage. Weapon Specialist, Gunnery Specialist, Blood Stalker, Cluster Hitter, Range Master, Sniper, Oblique Attacker, and Forward Observer rows SHALL cite pinned MegaMek behavior plus MekStation helper or runner paths. Marksman and Sharpshooter SHALL remain helper-only local called-shot helpers because MegaMek source backs TacOps called-shot penalties but does not validate those reductions. Melee Specialist SHALL apply both source-backed physical to-hit relief and +1 physical damage. Melee Master SHALL remain unsupported until the two-allowed-physical-attacks rule exists, and it SHALL NOT be treated as a flat physical damage bonus. Generic Terrain Master SHALL remain an unsupported variant-split row while source-backed Terrain Master variants are tracked separately.
+Legacy `pilotAbilities` support rows SHALL expose structured row-level source references before the map is treated as validation coverage. Weapon Specialist, Gunnery Specialist, Blood Stalker, Cluster Hitter, Range Master, Sniper, Oblique Attacker, and Forward Observer rows SHALL cite pinned MegaMek behavior plus MekStation helper or runner paths. Called-shot application SHALL be integrated only for the MegaMek-backed TacOps +3 called-shot penalty, and runner/event-sourced BattleMech attack declarations SHALL NOT apply local Marksman or legacy Sharpshooter called-shot reductions to that source-backed path. Marksman and Sharpshooter SHALL remain out-of-scope audit rows because MegaMek source backs TacOps called-shot penalties but does not validate those local reductions. Melee Specialist SHALL apply both source-backed physical to-hit relief and +1 physical damage. Melee Master SHALL enforce the source-backed two-allowed-physical-attacks rule and SHALL NOT be treated as a flat physical damage bonus. Generic Terrain Master SHALL remain an out-of-scope local helper row while source-backed Terrain Master variants are tracked separately, including canonical `tm_nightwalker` as unsupported until low-light movement state is wired.
 
 #### Scenario: Legacy pilot ability rows expose source truth
 
@@ -1611,12 +1800,13 @@ Legacy `pilotAbilities` support rows SHALL expose structured row-level source re
 - **WHEN** any `pilotAbilities` support row is inspected
 - **THEN** the row SHALL carry at least one structured source reference with a line anchor
 - **AND** the `pilotAbilities` catalog triad SHALL enforce row-level source references before PR approval
+- **AND** called-shot application SHALL remain integrated only when runner and event-sourced BattleMech attack declarations apply the +3 TacOps called-shot penalty without consuming Marksman or legacy Sharpshooter reductions
 - **AND** Melee Specialist rows SHALL be integrated only when both physical to-hit and +1 physical damage behavior are wired
-- **AND** Melee Master rows SHALL identify the missing two-attack rule as unsupported and SHALL NOT claim flat physical damage behavior
+- **AND** Melee Master rows SHALL be integrated only when event-sourced declarations, P2P translation, UI planning, and catalog evidence enforce one physical attack for normal pilots, two physical attacks for Melee Master pilots, independent same-limb reuse rejection, and no flat physical damage behavior
 
 ### Requirement: Source-Backed Legacy Mech Quirk Support Rows
 
-Legacy `mechQuirks` support rows SHALL expose structured row-level source references before the map is treated as validation coverage. PSR quirks SHALL cite MegaMek PSR behavior and preserve helper-only gaps where MekStation local semantics differ: Easy Pilot SHALL apply only through MegaMek's base-piloting gate for BattleMech difficult-terrain and 20+ phase-damage PSRs before being treated as integrated, Cramped Cockpit SHALL apply only when the pilot lacks MegaMek's `small_pilot` ability before being treated as integrated, Stable SHALL apply only to source-backed Kick/Push PSRs before being treated as integrated, and No Arms SHALL apply only to MegaMek's stand-up PSR branch before its PSR behavior is treated as integrated. Physical quirk rows SHALL cite MegaMek punch/arm/stand-up or local resolver anchors. Battle Fists SHALL apply source-backed matching-arm punch to-hit relief when the hand actuator is working and SHALL NOT be treated as flat punch damage. No Arms physical restrictions SHALL cover punch, push, and arm-mounted melee restrictions before being treated as integrated. Low Arms SHALL remain unsupported registry-only behavior unless a pinned MegaMek or MekHQ authority exposes combat resolver semantics; local elevation gates SHALL NOT be treated as covered behavior. Rugged SHALL cite MekHQ maintenance behavior and remain outside combat runner parity.
+Legacy `mechQuirks` support rows SHALL expose structured row-level source references before the map is treated as validation coverage. PSR quirks SHALL cite MegaMek PSR behavior and preserve helper-only gaps where MekStation local semantics differ: Easy Pilot SHALL apply only through MegaMek's base-piloting gate for BattleMech difficult-terrain and 20+ phase-damage PSRs before being treated as integrated, Cramped Cockpit SHALL apply only when the pilot lacks MegaMek's `small_pilot` ability before being treated as integrated, Stable SHALL apply only to source-backed Kick/Push PSRs before being treated as integrated, and No Arms SHALL apply only to MegaMek's stand-up PSR branch before its PSR behavior is treated as integrated. Physical quirk rows SHALL cite MegaMek punch/arm/stand-up or local resolver anchors. Battle Fists SHALL apply source-backed matching-arm punch to-hit relief when the hand actuator is working and SHALL NOT be treated as flat punch damage. No Arms physical restrictions SHALL cover punch, push, and arm-mounted melee restrictions before being treated as integrated. Low Arms SHALL remain registry-only `out-of-scope` audit evidence unless a pinned MegaMek or MekHQ authority exposes combat resolver semantics; local elevation gates SHALL NOT be treated as covered behavior. Rugged SHALL cite MekHQ maintenance behavior and stay in the `out-of-scope` audit inventory because campaign maintenance-cycle behavior is outside BattleMech combat runner validation scope. Protected/Exposed Actuators SHALL cite MegaMek anti-Mek target-number behavior and stay in the `out-of-scope` audit inventory because Leg/Swarm anti-Mek attacks belong to the battle-armor/infantry combat matrix.
 
 #### Scenario: Legacy quirk rows expose source truth
 
@@ -1628,12 +1818,13 @@ Legacy `mechQuirks` support rows SHALL expose structured row-level source refere
 - **AND** Easy Pilot SHALL be integrated only when both terrain and 20+ phase-damage PSRs consume the MegaMek piloting-skill gate
 - **AND** Cramped Cockpit SHALL be integrated only when Small Pilot suppresses the PSR penalty
 - **AND** No Arms SHALL be integrated only when punch, push, arm-mounted melee, runner stand-up PSRs, and interactive stand-up PSRs all consume the MegaMek No/Minimal Arms branches
-- **AND** Low Arms SHALL stay unsupported and no-op until a pinned MegaMek or MekHQ authority exposes combat resolver semantics
-- **AND** the physical-restriction resolver row SHALL NOT assign Low Arms while the quirk remains unsupported registry-only behavior
+- **AND** Low Arms SHALL stay out-of-scope and no-op until a pinned MegaMek or MekHQ authority exposes combat resolver semantics
+- **AND** Protected/Exposed Actuators SHALL stay out-of-scope for the BattleMech runner matrix while anti-Mek Leg/Swarm actions remain owned by the battle-armor/infantry combat matrix
+- **AND** the physical-restriction resolver row SHALL NOT assign Low Arms while the quirk remains registry-only out-of-scope audit evidence
 
 ### Requirement: Source-Backed Consciousness Toughness Boundary
 
-Consciousness-related pilot ability rows SHALL distinguish MegaMek RPG Toughness, Pain Resistance, and Iron Man semantics from MekStation legacy aliases before claiming parity. RPG Toughness SHALL be treated as a game-option-gated numeric crew toughness target-number reduction, not as the Pain Resistance SPA. Pain Resistance SHALL be source-backed as +1 consciousness and wake-up rolls plus ammunition-explosion pilot-damage reduction, not ranged to-hit wound-penalty relief. Iron Man SHALL be source-backed as ammunition-explosion pilot-hit reduction, not generic consciousness target-number relief. MekStation local Iron Will and Toughness aliases SHALL remain unsupported until source-backed ids or explicit migration behavior are represented.
+Consciousness-related pilot ability rows SHALL distinguish MegaMek RPG Toughness, Pain Resistance, and Iron Man semantics from MekStation legacy aliases before claiming parity. RPG Toughness SHALL be treated as a game-option-gated numeric crew toughness target-number reduction, not as the Pain Resistance SPA. MekStation SHALL support that reduction only through explicit numeric `pilotToughness` combat state until automatic game-option hydration and MUL crew-toughness import are wired. Pain Resistance SHALL be source-backed as +1 consciousness and wake-up rolls plus ammunition-explosion pilot-damage reduction, not ranged to-hit wound-penalty relief. Iron Man SHALL be source-backed as ammunition-explosion pilot-hit reduction, not generic consciousness target-number relief. MekStation local Iron Will SHALL remain out-of-scope for the official BattleMech blocker inventory until a source-backed combat option id is identified, and local Toughness aliases SHALL remain unsupported/no-op for generic consciousness relief.
 
 #### Scenario: Consciousness toughness rows expose source truth
 
@@ -1642,8 +1833,11 @@ Consciousness-related pilot ability rows SHALL distinguish MegaMek RPG Toughness
 - **THEN** each row SHALL expose structured MegaMek and MekStation deviation source references
 - **AND** Iron Man SHALL be integrated only as source-backed ammunition-explosion pilot-damage reduction
 - **AND** Pain Resistance SHALL remain helper-only until wake-up roll behavior is modeled, even though source-backed consciousness and ammo-explosion reduction paths are wired
-- **AND** Toughness, Iron Will, and the legacy Pain Resistance ranged to-hit row SHALL remain unsupported/no-op instead of using local alias or wound-penalty behavior
-- **AND** consciousness application SHALL remain helper-only while RPG Toughness numeric crew state and Pain Resistance wake-up rolls remain absent
+- **AND** explicit numeric `pilotToughness` state SHALL lower consciousness target numbers in shared damage, runner pilot-damage phases, and interactive PSR/heat/physical/ammo-explosion paths
+- **AND** legacy Toughness ability strings SHALL remain unsupported/no-op for generic consciousness relief instead of using local alias behavior
+- **AND** local Iron Will SHALL remain out-of-scope for the official BattleMech blocker inventory while source-backed Iron Man remains ammo-explosion-only
+- **AND** the legacy Pain Resistance ranged to-hit row SHALL be integrated as a source-backed non-application only when runner and event-sourced ranged attacks preserve raw pilot wound penalties
+- **AND** consciousness application SHALL remain helper-only while automatic RPG Toughness game-option hydration, MUL crew toughness import, and Pain Resistance wake-up rolls remain absent
 - **AND** integrated ranged to-hit resolver rows SHALL NOT list Pain Resistance as source-backed ranged to-hit support
 
 ### Requirement: Source-Backed Weapon Cooling Quirk Heat
@@ -1656,7 +1850,7 @@ Weapon cooling quirk validation SHALL use MegaMek weapon heat semantics before c
 - **WHEN** Improved Cooling, Poor Cooling, or No Cooling support is inspected
 - **THEN** each row SHALL be integrated with structured MegaMek source references for weapon heat calculation and quirk registration
 - **AND** focused helper and heat-phase tests SHALL prove Improved Cooling flooring, Poor Cooling `+1`, and No Cooling `+2`
-- **AND** the heat-application resolver SHALL cite the same weapon cooling source references while remaining helper-only for unrelated Cool Under Fire authority
+- **AND** the heat-application resolver SHALL cite the same weapon cooling source references while remaining integrated only for source-backed Hot Dog, Some Like It Hot, and weapon cooling behavior
 
 ### Requirement: Source-Truth Cross-Check Discipline
 

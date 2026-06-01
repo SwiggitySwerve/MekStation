@@ -4,10 +4,15 @@ import { CANONICAL_SPA_LIST, resolveSPAId } from '@/lib/spa';
 
 import { canonicalSpaScopeSourceRefs } from './CombatCanonicalSpaSourceRefs';
 import {
+  MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
+  MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
+} from './CombatEdgeSourceRefs';
+import {
   SPA_COMBAT_SUPPORT,
   type ICombatFeatureSourceReference,
   type ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
+import { MEGAMEK_NIGHTWALKER_SOURCE_REFS } from './CombatLegacyPilotAbilitySourceRefs';
 
 const SPA_SUPPORT_BY_ID: Record<string, ICombatFeatureSupportEntry> =
   SPA_COMBAT_SUPPORT;
@@ -23,25 +28,84 @@ function helperOnly(
     : { id, level: 'helper-only', evidence, gap };
 }
 
-function unsupported(
+function integrated(
   id: string,
+  evidence: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'integrated', evidence, sourceRefs }
+    : { id, level: 'integrated', evidence };
+}
+
+function outOfScope(
+  id: string,
+  evidence: string,
   gap: string,
   sourceRefs?: readonly ICombatFeatureSourceReference[],
-  evidence = 'No combat behavior wired',
 ): ICombatFeatureSupportEntry {
-  const entry: ICombatFeatureSupportEntry = {
-    id,
-    level: 'unsupported',
-    evidence,
-    gap,
-  };
+  return sourceRefs
+    ? { id, level: 'out-of-scope', evidence, gap, sourceRefs }
+    : { id, level: 'out-of-scope', evidence, gap };
+}
 
-  return sourceRefs ? { ...entry, sourceRefs } : entry;
+function unsupported(
+  id: string,
+  evidence: string,
+  gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'unsupported', evidence, gap, sourceRefs }
+    : { id, level: 'unsupported', evidence, gap };
 }
 
 const CANONICAL_ONLY_SPA_SUPPORT: Readonly<
   Record<string, ICombatFeatureSupportEntry>
-> = {};
+> = {
+  edge_when_headhit: unsupported(
+    'edge_when_headhit',
+    'MegaMek source consumes Edge for BattleMech head-hit rerolls, while MekStation only has generic Edge point helper state plus MASC/Supercharger Edge consumption',
+    'Edge: Head Hit remains unsupported until BattleMech hit-location damage resolution consumes edge_when_headhit trigger-specific state, spends Edge, and rerolls head hits',
+    [
+      ...MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
+      ...MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
+    ],
+  ),
+  edge_when_tac: unsupported(
+    'edge_when_tac',
+    'MegaMek source consumes Edge for TAC and special critical hit-location rerolls, while MekStation only has generic Edge point helper state plus MASC/Supercharger Edge consumption',
+    'Edge: Through Armor Crit remains unsupported until BattleMech hit-location damage resolution consumes edge_when_tac trigger-specific state, spends Edge, and rerolls TAC or special critical outcomes',
+    [
+      ...MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
+      ...MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
+    ],
+  ),
+  edge_when_ko: unsupported(
+    'edge_when_ko',
+    'MegaMek source consumes Edge for failed BattleMech crew knockout checks, while MekStation only has generic Edge point helper state plus MASC/Supercharger Edge consumption',
+    'Edge: Pilot KO remains unsupported until BattleMech consciousness resolution consumes edge_when_ko trigger-specific state, spends Edge, and rerolls failed knockout checks',
+    [
+      ...MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
+      ...MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
+    ],
+  ),
+  edge_when_explosion: unsupported(
+    'edge_when_explosion',
+    'MegaMek source consumes Edge for explosive equipment critical-slot rerolls, while MekStation only has generic Edge point helper state plus MASC/Supercharger Edge consumption',
+    'Edge: Critical Explosion remains unsupported until BattleMech critical-slot resolution consumes edge_when_explosion trigger-specific state, spends Edge, and rerolls explosive equipment critical slots',
+    [
+      ...MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
+      ...MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
+    ],
+  ),
+  tm_nightwalker: unsupported(
+    'tm_nightwalker',
+    'MegaMek source applies Terrain Master: Nightwalker through light-condition movement handling, but MekStation has no combat resolver for lighting-condition movement or to-hit penalties',
+    'Terrain Master: Nightwalker remains unsupported until combat state represents lighting conditions, Nightwalker movement penalties/run prohibition, and any source-backed darkness to-hit interactions',
+    MEGAMEK_NIGHTWALKER_SOURCE_REFS,
+  ),
+};
 
 function cloneForCanonicalSpa(
   spa: ISPADefinition,
@@ -76,19 +140,37 @@ function canonicalSpaFallback(spa: ISPADefinition): ICombatFeatureSupportEntry {
   const pipelineList = spa.pipelines.join(', ') || 'none';
   const evidence = `Canonical SPA catalog entry "${spa.displayName}" (${spa.id}) affects pipeline(s): ${pipelineList}`;
 
-  if (spa.source === 'Unofficial') {
-    return unsupported(
+  if (spa.source === 'Unofficial' || spa.source === 'Legacy') {
+    return outOfScope(
       spa.id,
-      `${evidence}; unofficial SPAs are excluded from the official BattleMech validation matrix until explicitly enabled`,
+      evidence,
+      'Unofficial and legacy SPA rows are excluded from the official BattleMech validation matrix until explicitly enabled',
       canonicalSpaScopeSourceRefs(spa),
     );
   }
 
   if (spa.category === 'infantry') {
-    return helperOnly(
+    return outOfScope(
       spa.id,
       evidence,
       'Infantry-scoped SPAs belong in the separate infantry or battle-armor validation matrix',
+      canonicalSpaScopeSourceRefs(spa),
+    );
+  }
+
+  if (spa.category === 'edge' && spa.id.startsWith('edge_when_aero_')) {
+    return outOfScope(
+      spa.id,
+      evidence,
+      'Aero Edge triggers belong in the separate aerospace validation matrix; Mek Edge triggers remain BattleMech combat gaps until their resolvers consume trigger-specific Edge state',
+      canonicalSpaScopeSourceRefs(spa),
+    );
+  }
+
+  if (spa.category === 'edge' && spa.id === 'edge_when_masc_fails') {
+    return integrated(
+      spa.id,
+      `${evidence}; runPSRPhase consumes this trigger for source-backed MASC and Supercharger failure rerolls, spends Edge, emits superseded/reroll evidence, and suppresses failure aftermath when the reroll passes`,
       canonicalSpaScopeSourceRefs(spa),
     );
   }
@@ -106,16 +188,16 @@ function canonicalSpaFallback(spa: ISPADefinition): ICombatFeatureSupportEntry {
     return helperOnly(
       spa.id,
       evidence,
-      'Trigger-specific Edge SPAs are catalog-visible; edge_when_masc_fails is consumed by runner MASC/Supercharger failure rerolls, while attack, other PSR, consciousness, and critical resolvers still do not consume Edge trigger state',
+      'Trigger-specific Edge SPAs are catalog-visible; non-MASC BattleMech Edge triggers are split into explicit unsupported rows until their resolvers consume trigger-specific Edge state',
       canonicalSpaScopeSourceRefs(spa),
     );
   }
 
   if (spa.source === 'ATOW') {
-    return helperOnly(
+    return outOfScope(
       spa.id,
       evidence,
-      'ATOW/origin-level SPA effects are catalog-visible but not hydrated into BattleMech combat resolvers',
+      'ATOW/origin-level and aerospace-control SPA effects belong in a separate personnel or aerospace validation matrix instead of the official BattleMech combat blocker inventory',
       canonicalSpaScopeSourceRefs(spa),
     );
   }
@@ -140,7 +222,8 @@ function canonicalSpaSupportEntry(
   if (aliasedSupport) return cloneForCanonicalSpa(spa, aliasedSupport);
 
   const canonicalOnlySupport = CANONICAL_ONLY_SPA_SUPPORT[spa.id];
-  if (canonicalOnlySupport) return canonicalOnlySupport;
+  if (canonicalOnlySupport)
+    return cloneForCanonicalSpa(spa, canonicalOnlySupport);
 
   return canonicalSpaFallback(spa);
 }

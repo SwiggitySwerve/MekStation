@@ -130,8 +130,24 @@ describe('BattleMech combat event support catalog', () => {
     );
     expect(urlsFor(GameEventType.AttacksRevealed)).toEqual(
       expect.arrayContaining([
-        'src/types/gameplay/GameSessionCoreTypes.ts#L76-L87',
-        'src/utils/gameplay/gameState/gameStateReducer.ts#L248-L253',
+        'src/utils/gameplay/gameEvents/attackReveal.ts#L1-L28',
+        'src/utils/gameplay/gameSessionCore.ts#L667-L679',
+        'src/utils/gameplay/gameSessionAttackReveal.ts#L22-L87',
+        'src/utils/gameplay/gameState/actionLocking.ts#L157-L205',
+        'src/utils/gameplay/gameState/gameStateReducer.ts#L161-L165',
+      ]),
+    );
+    expect(urlsFor(GameEventType.InitiativeOrderSet)).toEqual(
+      expect.arrayContaining([
+        'src/utils/gameplay/gameEvents/initiative.ts#L11-L85',
+        'src/utils/gameplay/gameSessionCore.ts#L258-L380',
+      ]),
+    );
+    expect(urlsFor(GameEventType.UnitStuck)).toEqual(
+      expect.arrayContaining([
+        'src/utils/gameplay/gameEvents/statusChecks.ts#L18-L243',
+        'src/utils/gameplay/gameSessionPSR.ts#L44-L388',
+        'src/simulation/runner/phases/postCombat.ts#L101-L469',
       ]),
     );
   });
@@ -141,7 +157,7 @@ describe('BattleMech combat event support catalog', () => {
       [...NON_BATTLEMECH_EVENT_TYPES].sort(),
     );
     expect(
-      supportIdsByLevel(NON_BATTLEMECH_EVENT_SCOPE_SUPPORT, 'helper-only'),
+      supportIdsByLevel(NON_BATTLEMECH_EVENT_SCOPE_SUPPORT, 'out-of-scope'),
     ).toEqual([...NON_BATTLEMECH_EVENT_TYPES].sort());
   });
 
@@ -208,9 +224,7 @@ describe('BattleMech combat event support catalog', () => {
   it('documents remaining BattleMech event-stream gaps instead of treating enum visibility as coverage', () => {
     expect(
       supportIdsByLevel(BATTLEMECH_COMBAT_EVENT_SUPPORT, 'unsupported'),
-    ).toEqual(
-      [GameEventType.AttacksRevealed, GameEventType.InitiativeOrderSet].sort(),
-    );
+    ).toEqual([]);
     expect(
       supportIdsByLevel(BATTLEMECH_COMBAT_EVENT_SUPPORT, 'helper-only'),
     ).toEqual([]);
@@ -225,6 +239,7 @@ describe('BattleMech combat event support catalog', () => {
         GameEventType.MovementEnhancementActivated,
         GameEventType.FacingChanged,
         GameEventType.AttackDeclared,
+        GameEventType.AttacksRevealed,
         GameEventType.AttackInvalid,
         GameEventType.AttackResolved,
         GameEventType.DamageApplied,
@@ -239,6 +254,7 @@ describe('BattleMech combat event support catalog', () => {
         GameEventType.PSRTriggered,
         GameEventType.PSRResolved,
         GameEventType.UnitFell,
+        GameEventType.UnitStuck,
         GameEventType.PhysicalAttackDeclared,
         GameEventType.PhysicalAttackResolved,
         GameEventType.UnitDestroyed,

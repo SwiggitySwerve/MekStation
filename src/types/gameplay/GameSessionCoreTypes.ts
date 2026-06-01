@@ -87,6 +87,7 @@ export enum GameEventType {
   AttacksRevealed = 'attacks_revealed',
   AttackResolved = 'attack_resolved',
   DamageApplied = 'damage_applied',
+  SpottingDeclared = 'spotting_declared',
 
   // Indirect-fire events (Wave 8 PR-K4)
   IndirectFireSpotterSelected = 'indirect_fire_spotter_selected',
@@ -108,6 +109,7 @@ export enum GameEventType {
   PSRTriggered = 'psr_triggered',
   PSRResolved = 'psr_resolved',
   UnitFell = 'unit_fell',
+  UnitStuck = 'unit_stuck',
   /**
    * Per `wire-piloting-skill-rolls` task 0.5.2: emitted when a prone
    * unit successfully passes an `AttemptStand` PSR and returns to its
@@ -377,6 +379,7 @@ export const GAME_INTENT_TYPES = [
   'torsoTwist',
   'declareAttack',
   'declarePhysical',
+  'requestSpot',
   'confirmHeat',
   'endPhase',
   'eject',

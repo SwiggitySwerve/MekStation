@@ -20,7 +20,10 @@
  */
 
 import type { IIntentPayload } from '@/types/multiplayer/Protocol';
-import type { PhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types';
+import type {
+  PhysicalAttackLimb,
+  PhysicalAttackType,
+} from '@/utils/gameplay/physicalAttacks/types';
 
 import {
   GameSide,
@@ -87,6 +90,12 @@ export interface IDeclarePhysicalPayload {
   readonly attackerId: string;
   readonly targetId: string;
   readonly attackType: PhysicalAttackType;
+  readonly limb?: PhysicalAttackLimb;
+}
+
+export interface IRequestSpotPayload {
+  readonly unitId: string;
+  readonly targetId: string;
 }
 
 /**
@@ -167,6 +176,13 @@ export function declarePhysicalIntent(
   return { type: 'declarePhysical', payload, authorPeerId };
 }
 
+export function requestSpotIntent(
+  authorPeerId: string,
+  payload: IRequestSpotPayload,
+): IGameIntent {
+  return { type: 'requestSpot', payload, authorPeerId };
+}
+
 export function endPhaseIntent(authorPeerId: string): IGameIntent {
   return { type: 'endPhase', payload: {}, authorPeerId };
 }
@@ -231,6 +247,8 @@ export function toServerIntent(intent: IGameIntent): IIntentPayload | null {
       return toAttackIntent(intent.payload);
     case 'declarePhysical':
       return toPhysicalIntent(intent.payload);
+    case 'requestSpot':
+      return toRequestSpotIntent(intent.payload);
     case 'endPhase':
     case 'confirmHeat':
       return { kind: 'AdvancePhase' };
@@ -321,16 +339,31 @@ function toAttackIntent(payload: unknown): IIntentPayload | null {
 
 function toPhysicalIntent(payload: unknown): IIntentPayload | null {
   if (!isRecord(payload)) return null;
-  const { attackerId, targetId, attackType } = payload;
+  const { attackerId, targetId, attackType, limb } = payload;
   if (typeof attackerId !== 'string' || attackerId.length === 0) return null;
   if (typeof targetId !== 'string' || targetId.length === 0) return null;
   if (!isSupportedPhysicalAttackType(attackType)) return null;
+  if (
+    limb !== undefined &&
+    !['leftArm', 'rightArm', 'leftLeg', 'rightLeg'].includes(String(limb))
+  ) {
+    return null;
+  }
   return {
     kind: 'Physical',
     attackerId,
     targetId,
     attackType,
+    ...(limb !== undefined ? { limb: limb as PhysicalAttackLimb } : {}),
   };
+}
+
+function toRequestSpotIntent(payload: unknown): IIntentPayload | null {
+  if (!isRecord(payload)) return null;
+  const { unitId, targetId } = payload;
+  if (typeof unitId !== 'string' || unitId.length === 0) return null;
+  if (typeof targetId !== 'string' || targetId.length === 0) return null;
+  return { kind: 'RequestSpot', unitId, targetId };
 }
 
 function toEjectIntent(payload: unknown): IIntentPayload | null {

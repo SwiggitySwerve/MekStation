@@ -16,10 +16,7 @@ import {
 import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
 import { calculateEnvironmentalHeatModifier } from '@/utils/gameplay/environmentalModifiers';
 import { getGridTerrainHeatEffect } from '@/utils/gameplay/heat';
-import {
-  getCoolUnderFireHeatReduction,
-  getHotDogHeatTargetNumberModifier,
-} from '@/utils/gameplay/spaModifiers';
+import { getHotDogHeatTargetNumberModifier } from '@/utils/gameplay/spaModifiers';
 
 import type { IWeapon } from '../../ai/types';
 
@@ -135,7 +132,38 @@ export function runPSRPhase(options: {
       );
     }
 
-    if (batchResult.unitFell) {
+    if (batchResult.unitStuck) {
+      const failedPsr = batchResult.failedResult;
+      currentState = {
+        ...currentState,
+        units: {
+          ...currentState.units,
+          [unitId]: {
+            ...batchResult.unit,
+            isStuck: true,
+            pendingPSRs: [],
+          },
+        },
+      };
+
+      events.push(
+        createGameEvent(
+          gameId,
+          events.length,
+          GameEventType.UnitStuck,
+          currentState.turn,
+          currentState.phase,
+          {
+            unitId,
+            ...(failedPsr ? { reason: failedPsr.psr.reason } : {}),
+            ...(failedPsr?.psr.reasonCode !== undefined
+              ? { reasonCode: failedPsr.psr.reasonCode }
+              : {}),
+          },
+          unitId,
+        ),
+      );
+    } else if (batchResult.unitFell) {
       let currentUnit = batchResult.unit;
       const failedPsr = batchResult.failedResult;
       const failureReason = failedPsr?.psr.reasonCode;
@@ -181,6 +209,7 @@ export function runPSRPhase(options: {
         1,
         currentUnit.abilities ?? [],
         d6Roller,
+        currentUnit.pilotToughness,
       );
       const pilotConscious =
         newPilotWounds < LETHAL_PILOT_WOUNDS &&
@@ -348,10 +377,8 @@ export function runHeatPhase(options: {
       environmentalConditions !== undefined
         ? calculateEnvironmentalHeatModifier(environmentalConditions)
         : 0;
-    const heatGenerationReduction = Math.min(
-      getCoolUnderFireHeatReduction(unit.abilities ?? []),
-      weaponHeat + movementHeat + engineHeat + environmentHeat,
-    );
+    // Cool Under Fire is a local out-of-scope row until source authority exists.
+    const heatGenerationReduction = 0;
     const hotDogTargetNumberModifier = getHotDogHeatTargetNumberModifier(
       unit.abilities ?? [],
     );

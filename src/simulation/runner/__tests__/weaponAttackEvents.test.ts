@@ -108,6 +108,21 @@ function createMediumLaser(id = 'medium-laser-test'): IWeapon {
   };
 }
 
+function createPlasmaCannon(id = 'clan-plasma-cannon'): IWeapon {
+  return {
+    id,
+    name: 'Plasma Cannon (Clan)',
+    shortRange: 6,
+    mediumRange: 12,
+    longRange: 18,
+    damage: 0,
+    heat: 7,
+    minRange: 0,
+    ammoPerTon: 10,
+    destroyed: false,
+  };
+}
+
 function createUltraAC5(id = 'uac-5-test'): IWeapon {
   return {
     id,
@@ -524,6 +539,24 @@ function createUnit(
   };
 }
 
+function armorTypeByLocation(
+  armorType: string,
+): Readonly<Record<string, string>> {
+  return {
+    head: armorType,
+    center_torso: armorType,
+    center_torso_rear: armorType,
+    left_torso: armorType,
+    left_torso_rear: armorType,
+    right_torso: armorType,
+    right_torso_rear: armorType,
+    left_arm: armorType,
+    right_arm: armorType,
+    left_leg: armorType,
+    right_leg: armorType,
+  };
+}
+
 /**
  * Build a 1v1 game state with two units placed at the supplied
  * positions and a hydration map seeding both with the supplied
@@ -598,6 +631,7 @@ function runPhase(options: {
   seed?: number;
   botBehavior?: IBotBehavior;
   botPlayer?: IAIPlayer;
+  optionalRules?: readonly string[];
 }): IGameEvent[] {
   return runPhaseWithResult(options).events;
 }
@@ -609,6 +643,7 @@ function runPhaseWithResult(options: {
   random?: SeededRandom;
   botBehavior?: IBotBehavior;
   botPlayer?: IAIPlayer;
+  optionalRules?: readonly string[];
 }): { events: IGameEvent[]; state: IGameState } {
   const random = options.random ?? new SeededRandom(options.seed ?? 12345);
   const botPlayer =
@@ -626,6 +661,7 @@ function runPhaseWithResult(options: {
     gameId: options.state.gameId,
     random,
     weaponsByUnit: options.weaponsByUnit,
+    optionalRules: options.optionalRules,
   });
 
   return { events, state: result };
@@ -1124,10 +1160,13 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       expect(consumed?.payload.roundsConsumed).toBe(1);
       expect(consumed?.payload.roundsRemaining).toBe(1);
       expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.level).toBe(
-        'helper-only',
+        'integrated',
       );
       expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.evidence).toContain(
         'narcedBy',
+      );
+      expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.evidence).toContain(
+        'inarc-pod-variants',
       );
     });
 
@@ -1448,6 +1487,212 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       );
     });
 
+    it('plasma cannon hits apply external target heat without BattleMech damage', () => {
+      const weapon = createPlasmaCannon();
+      const { state, weaponsByUnit } = buildScenario({
+        attackerWeapons: [weapon],
+        attackerStateOverride: { gunnery: 0 },
+        targetStateOverride: { heat: 4 },
+        targetPosition: { q: 5, r: 0 },
+      });
+
+      const result = runPhaseWithResult({
+        state,
+        weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(weapon.id),
+        random: new SequenceRandom([6, 6, 3, 4, 2, 5]),
+      });
+
+      const resolved = result.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+      const heatGenerated = result.events.find(
+        (event) =>
+          event.type === GameEventType.HeatGenerated &&
+          (event.payload as { unitId?: string }).unitId === 'opponent-1',
+      ) as
+        | (IGameEvent & {
+            payload: {
+              amount: number;
+              source: string;
+              previousTotal: number;
+              newTotal: number;
+            };
+          })
+        | undefined;
+
+      expect(resolved.payload).toMatchObject({
+        hit: true,
+        damage: 0,
+        heat: 7,
+        location: expect.any(String),
+      });
+      expect(heatGenerated?.payload).toMatchObject({
+        amount: 7,
+        source: 'external',
+        previousTotal: 4,
+        newTotal: 11,
+      });
+      expect(result.state.units['opponent-1'].heat).toBe(11);
+      expect(
+        result.events.some(
+          (event) => event.type === GameEventType.DamageApplied,
+        ),
+      ).toBe(false);
+      expect(
+        SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].evidence,
+      ).toContain('HeatGenerated');
+      expect(
+        SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].gap,
+      ).not.toContain('external target heat');
+    });
+
+    it('plasma cannon hits consume source-backed plasma ammunition', () => {
+      const weapon = createPlasmaCannon();
+      const ammoBin = createAmmoBin({
+        binId: 'right-arm-plasma-bin',
+        weaponType: 'CLPlasmaCannonAmmo',
+        remainingRounds: 2,
+      });
+      const { state, weaponsByUnit } = buildScenario({
+        attackerWeapons: [weapon],
+        attackerStateOverride: {
+          gunnery: 0,
+          ammoState: { [ammoBin.binId]: ammoBin },
+        },
+        targetStateOverride: { heat: 4 },
+        targetPosition: { q: 5, r: 0 },
+      });
+
+      const result = runPhaseWithResult({
+        state,
+        weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(weapon.id),
+        random: new SequenceRandom([6, 6, 3, 4, 2, 5]),
+      });
+      const consumed = result.events.find(
+        (event) => event.type === GameEventType.AmmoConsumed,
+      );
+
+      expect(consumed?.payload).toMatchObject({
+        unitId: 'player-1',
+        binId: ammoBin.binId,
+        weaponType: 'clan-plasma-cannon',
+        roundsConsumed: 1,
+        roundsRemaining: 1,
+      });
+      expect(
+        result.state.units['player-1'].ammoState?.[ammoBin.binId]
+          .remainingRounds,
+      ).toBe(1);
+      expect(
+        result.events.some(
+          (event) =>
+            event.type === GameEventType.HeatGenerated &&
+            (event.payload as { unitId?: string }).unitId === 'opponent-1',
+        ),
+      ).toBe(true);
+    });
+
+    it.each([
+      ['reflective armor', 'Reflective', 3],
+      ['heat-dissipating armor', 'Heat-Dissipating', 3],
+    ])(
+      'plasma cannon target heat is halved by intact %s outside PLAYTEST_3',
+      (_label, armorType, expectedHeat) => {
+        const weapon = createPlasmaCannon();
+        const { state, weaponsByUnit } = buildScenario({
+          attackerWeapons: [weapon],
+          attackerStateOverride: { gunnery: 0 },
+          targetStateOverride: {
+            heat: 4,
+            armorTypeByLocation: armorTypeByLocation(armorType),
+          },
+          targetPosition: { q: 5, r: 0 },
+        });
+
+        const result = runPhaseWithResult({
+          state,
+          weaponsByUnit,
+          botPlayer: new ScriptedAttackAI(weapon.id),
+          random: new SequenceRandom([6, 6, 3, 4, 2, 5]),
+        });
+        const heatGenerated = result.events.find(
+          (event) =>
+            event.type === GameEventType.HeatGenerated &&
+            (event.payload as { unitId?: string }).unitId === 'opponent-1',
+        ) as
+          | (IGameEvent & {
+              payload: {
+                amount: number;
+                source: string;
+                previousTotal: number;
+                newTotal: number;
+              };
+            })
+          | undefined;
+
+        expect(heatGenerated?.payload).toMatchObject({
+          amount: expectedHeat,
+          source: 'external',
+          previousTotal: 4,
+          newTotal: 4 + expectedHeat,
+        });
+        expect(result.state.units['opponent-1'].heat).toBe(4 + expectedHeat);
+      },
+    );
+
+    it.each([
+      ['reflective armor', 'Reflective', 7],
+      ['heat-dissipating armor', 'Heat-Dissipating', 0],
+    ])(
+      'PLAYTEST_3 plasma cannon target heat applies source-backed %s behavior',
+      (_label, armorType, expectedHeat) => {
+        const weapon = createPlasmaCannon();
+        const { state, weaponsByUnit } = buildScenario({
+          attackerWeapons: [weapon],
+          attackerStateOverride: { gunnery: 0 },
+          targetStateOverride: {
+            heat: 4,
+            armorTypeByLocation: armorTypeByLocation(armorType),
+          },
+          targetPosition: { q: 5, r: 0 },
+        });
+
+        const result = runPhaseWithResult({
+          state,
+          weaponsByUnit,
+          botPlayer: new ScriptedAttackAI(weapon.id),
+          random: new SequenceRandom([6, 6, 3, 4, 2, 5]),
+          optionalRules: ['PLAYTEST_3'],
+        });
+        const heatGenerated = result.events.find(
+          (event) =>
+            event.type === GameEventType.HeatGenerated &&
+            (event.payload as { unitId?: string }).unitId === 'opponent-1',
+        ) as
+          | (IGameEvent & {
+              payload: {
+                amount: number;
+                source: string;
+                previousTotal: number;
+                newTotal: number;
+              };
+            })
+          | undefined;
+
+        expect(heatGenerated?.payload).toMatchObject({
+          amount: expectedHeat,
+          source: 'external',
+          previousTotal: 4,
+          newTotal: 4 + expectedHeat,
+        });
+        expect(result.state.units['opponent-1'].heat).toBe(4 + expectedHeat);
+      },
+    );
+
     it('standard missile salvos use the cluster table with NARC and MRM modifiers', () => {
       const lrm = createLRM10();
       const unmarked = resolveSpecialProjectileHit({
@@ -1466,6 +1711,17 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
           targetNarcedBy: [GameSide.Player],
         },
       });
+      const narcedThroughTargetEcm = resolveSpecialProjectileHit({
+        baseWeapon: lrm,
+        shotWeapon: lrm,
+        selectedMode: undefined,
+        d6Roller: sequenceD6Roller(3, 4),
+        clusterContext: {
+          attackerTeamId: GameSide.Player,
+          targetNarcedBy: [GameSide.Player],
+          targetEcmProtected: true,
+        },
+      });
       const mrm = createMRM10();
       const mrmWithPenalty = resolveSpecialProjectileHit({
         baseWeapon: mrm,
@@ -1482,6 +1738,7 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
         projectileCount: 8,
         weapon: { damage: 8 },
       });
+      expect(narcedThroughTargetEcm).toMatchObject(unmarked);
       expect(mrmWithPenalty).toMatchObject({
         projectileCount: 6,
         weapon: { damage: 6 },
@@ -1514,6 +1771,17 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
           isIndirectFire: true,
         },
       });
+      const ecmProtectedINarced = resolveSpecialProjectileHit({
+        baseWeapon: lrm,
+        shotWeapon: lrm,
+        selectedMode: undefined,
+        d6Roller: sequenceD6Roller(3, 4),
+        clusterContext: {
+          attackerTeamId: GameSide.Player,
+          targetINarcedBy: [GameSide.Player],
+          targetEcmProtected: true,
+        },
+      });
       const mrm = createMRM10();
       const mrmWithoutGuidance = resolveSpecialProjectileHit({
         baseWeapon: mrm,
@@ -1537,6 +1805,10 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
         weapon: { damage: 8 },
       });
       expect(indirectINarced).toMatchObject({
+        projectileCount: 6,
+        weapon: { damage: 6 },
+      });
+      expect(ecmProtectedINarced).toMatchObject({
         projectileCount: 6,
         weapon: { damage: 6 },
       });
@@ -1586,6 +1858,66 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
             source: 'equipment',
           }),
         ]),
+      );
+    });
+
+    it('target ECM suppresses source-backed iNARC homing to-hit guidance', () => {
+      const lrm = createLRM10();
+      const baseline = buildScenario({
+        attackerWeapons: [lrm],
+      });
+      const ecmProtected = buildScenario({
+        attackerWeapons: [lrm],
+        targetStateOverride: {
+          iNarcPods: [{ teamId: GameSide.Player, podType: 'homing' }],
+        },
+      });
+      const targetPosition = ecmProtected.state.units['opponent-1'].position;
+      const ecmProtectedState: IGameState = {
+        ...ecmProtected.state,
+        electronicWarfare: {
+          ecmSuites: [
+            {
+              type: 'guardian',
+              mode: 'ecm',
+              operational: true,
+              entityId: 'opponent-ecm-suite',
+              teamId: GameSide.Opponent,
+              position: targetPosition,
+            },
+          ],
+          activeProbes: [],
+        },
+      };
+
+      const baselineResult = runPhaseWithResult({
+        state: baseline.state,
+        weaponsByUnit: baseline.weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(lrm.id),
+        random: new SequenceRandom([6, 6, 1, 1]),
+      });
+      const ecmProtectedResult = runPhaseWithResult({
+        state: ecmProtectedState,
+        weaponsByUnit: ecmProtected.weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(lrm.id),
+        random: new SequenceRandom([6, 6, 1, 1]),
+      });
+
+      const declared = ecmProtectedResult.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ) as IGameEvent & { payload: IAttackDeclaredPayload };
+      const baselineDeclared = baselineResult.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ) as IGameEvent & { payload: IAttackDeclaredPayload };
+
+      expect(declared.payload.toHitNumber).toBe(
+        baselineDeclared.payload.toHitNumber,
+      );
+      expect(declared.payload.modifiers).not.toContainEqual(
+        expect.objectContaining({ name: 'iNARC Homing' }),
+      );
+      expect(declared.payload.modifiers).not.toContainEqual(
+        expect.objectContaining({ name: expect.stringContaining('ECM') }),
       );
     });
 

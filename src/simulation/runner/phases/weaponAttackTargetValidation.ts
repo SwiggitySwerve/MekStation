@@ -31,13 +31,21 @@ function evadingAttackerDetails(
   return `Attacker '${attackerId}' is evading and cannot fire ranged weapons`;
 }
 
+function sprintingAttackerDetails(
+  attacker: IUnitGameState,
+  attackerId: string,
+): string | null {
+  if (attacker.sprintedThisTurn !== true) return null;
+  return `Attacker '${attackerId}' sprinted and cannot fire ranged weapons`;
+}
+
 function emitAttackInvalid(options: {
   currentState: IGameState;
   declaredWeaponIds: readonly string[];
   details: string;
   events: IGameEvent[];
   gameId: string;
-  reason: 'InvalidTarget' | 'AttackerEvading';
+  reason: 'InvalidTarget' | 'AttackerEvading' | 'AttackerSprinted';
   targetId: string;
   unitId: string;
 }): void {
@@ -110,6 +118,21 @@ export function validateDeclaredAttackTarget(options: {
       events,
       gameId,
       reason: 'AttackerEvading',
+      targetId,
+      unitId,
+    });
+    return { permitted: false };
+  }
+
+  const sprintingAttackerReason = sprintingAttackerDetails(attacker, unitId);
+  if (sprintingAttackerReason) {
+    emitAttackInvalid({
+      currentState,
+      declaredWeaponIds,
+      details: sprintingAttackerReason,
+      events,
+      gameId,
+      reason: 'AttackerSprinted',
       targetId,
       unitId,
     });
