@@ -154,7 +154,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(assignedQuirkIds()).toEqual(sortedKeys(QUIRK_CATALOG));
     expect(assignedQuirkIds()).toEqual(sortedKeys(QUIRK_COMBAT_SUPPORT));
     expect(SPA_COMBAT_SUPPORT.marksman.level).toBe('out-of-scope');
-    expect(SPA_COMBAT_SUPPORT['multi-target'].level).toBe('unsupported');
+    expect(SPA_COMBAT_SUPPORT['multi-target'].level).toBe('out-of-scope');
     expect(SPA_COMBAT_SUPPORT.sharpshooter.level).toBe('out-of-scope');
     expect(SPA_COMBAT_SUPPORT['cool-under-fire'].level).toBe('out-of-scope');
   });
@@ -371,7 +371,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       level: 'integrated',
     });
     expect(SPA_COMBAT_SUPPORT['multi-target']).toMatchObject({
-      level: 'unsupported',
+      level: 'out-of-scope',
+      gap: expect.stringContaining('source-backed secondary-target penalty'),
     });
     expect(SPA_COMBAT_SUPPORT['multi-target'].gap).toContain(
       'Multi-Tasker/multi_tasker',
@@ -387,7 +388,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['multi-target-penalty-application']
         .evidence,
-    ).toContain('leaving the unsupported local Multi-Target row unconsumed');
+    ).toContain('leaving the out-of-scope local Multi-Target row unconsumed');
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['multi-target-penalty-application'],
     ).toEqual({ spaIds: ['multi-tasker'], quirkIds: [] });
@@ -397,9 +398,18 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'MegaMek Compute.getSecondaryTargetMod applies the secondary-target modifier and reduces it for Multi-Tasker',
       'MegaMek OptionsConstants defines the source-backed Multi-Tasker SPA id as multi_tasker',
     ]);
-    expect(SPA_COMBAT_SUPPORT['multi-target'].sourceRefs).toEqual(
+    expect(SPA_COMBAT_SUPPORT['multi-target'].sourceRefs).not.toEqual(
       multiTaskerRefs,
     );
+    expect(
+      SPA_COMBAT_SUPPORT['multi-target'].sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek PilotOptions registers the source-backed pilot advantage ids in this combat source snapshot; MekStation local-only SPA ids are not part of that registry.',
+      'MegaMek OptionsConstants defines the source-backed pilot option constants used by the combat SPA catalog boundary.',
+      'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
+    ]);
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'multi-target-penalty-application'
@@ -744,7 +754,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(evasiveRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek PilotOptions registers the source-backed pilot advantage ids in this combat source snapshot; MekStation local-only SPA ids are not part of that registry.',
       'MegaMek OptionsConstants defines the source-backed pilot option constants used by the combat SPA catalog boundary.',
-      'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
+      'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
     ]);
     expect(movementRefs).toEqual(expect.not.arrayContaining([...evasiveRefs]));
     expect(
@@ -1141,6 +1151,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       'combat-intuition',
       'cool-under-fire',
       'evasive',
+      'multi-target',
       'antagonizer',
     ] as const;
 
@@ -1149,7 +1160,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       expect(support.sourceRefs?.map(({ citation }) => citation)).toEqual([
         'MegaMek PilotOptions registers the source-backed pilot advantage ids in this combat source snapshot; MekStation local-only SPA ids are not part of that registry.',
         'MegaMek OptionsConstants defines the source-backed pilot option constants used by the combat SPA catalog boundary.',
-        'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
+        'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, Multi-Target, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
       ]);
       expect(
         support.sourceRefs?.some(
@@ -1165,6 +1176,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(
       localOnlySpaIds.map((spaId) => SPA_COMBAT_SUPPORT[spaId].level),
     ).toEqual([
+      'out-of-scope',
       'out-of-scope',
       'out-of-scope',
       'out-of-scope',
