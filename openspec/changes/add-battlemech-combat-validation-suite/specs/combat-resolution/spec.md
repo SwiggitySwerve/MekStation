@@ -271,6 +271,7 @@ Every implementation area touched by the BattleMech combat validation suite SHAL
 - **AND** the action SHALL set authoritative current-turn `isEvading: true` and default `evasionBonus: 1` state for attack invalidation, target evasion modifiers, and spotter rejection
 - **AND** active MASC or Supercharger SHALL NOT extend the Evade movement envelope
 - **AND** turn reset SHALL clear Evade current-turn state before the next unit action cycle
+- **AND** the legacy local `evasive` SPA row SHALL remain out-of-scope so TacOps Evade action coverage is not counted as an unresolved pilot-ability blocker
 
 #### Scenario: Sprinting attackers cannot make ranged attacks
 
@@ -1472,11 +1473,11 @@ Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer for
 
 ### Requirement: Local-Only SPA Gap Boundaries
 
-Pilot modifier validation SHALL keep local-only SPA rows visible as MekStation deviation boundaries when a MegaMek combat SPA authority has not been identified. Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, and Antagonizer SHALL NOT be treated as MegaMek parity claims unless the catalog row carries source-backed implementation evidence. Those local-only rows SHALL remain out-of-scope audit evidence and SHALL cite the current MegaMek pilot option registry plus the MekStation SPA catalog row that introduced the local behavior.
+Pilot modifier validation SHALL keep local-only SPA rows visible as MekStation deviation boundaries when a MegaMek combat SPA authority has not been identified. Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, and Antagonizer SHALL NOT be treated as MegaMek parity claims unless the catalog row carries source-backed implementation evidence. Those local-only rows SHALL remain out-of-scope audit evidence and SHALL cite the current MegaMek pilot option registry plus the MekStation SPA catalog row that introduced the local behavior.
 
 #### Scenario: Local SPA rows stay source-boundary explicit
 
-- **GIVEN** the combat catalog includes Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, or Antagonizer
+- **GIVEN** the combat catalog includes Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, Evasive, or Antagonizer
 - **WHEN** the support row is inspected
 - **THEN** the row SHALL cite the MegaMek pilot option registry used for the source-truth cross-check
 - **AND** the row SHALL cite the MekStation SPA catalog as a `mekstation-deviation`
