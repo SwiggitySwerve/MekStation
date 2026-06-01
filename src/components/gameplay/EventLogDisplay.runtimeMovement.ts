@@ -8,6 +8,13 @@ export function formatRuntimeMovementStateChangedEvent(event: IGameEvent): {
   readonly unitId?: string;
 } {
   const payload = event.payload as IRuntimeMovementStateChangedPayload;
+  if (payload.source === 'automatic_wige_landing') {
+    return {
+      text: 'Automatic WiGE landing',
+      unitId: payload.unitId,
+    };
+  }
+
   if (payload.lamAirMekLandingControlRequired === undefined) {
     return {
       text: event.type.replace(/_/g, ' '),

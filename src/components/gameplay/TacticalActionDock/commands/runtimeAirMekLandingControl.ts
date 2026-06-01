@@ -28,6 +28,7 @@ type LamAirMekLandingControlPatch = Pick<
   | 'lamAirMekLandingControlReason'
   | 'lamAirMekLandingControlModifier'
   | 'lamAirMekLandingControlModifierDetails'
+  | 'lamAirMekLandingControlFallHeight'
 >;
 
 const LEG_LOCATION_LABELS: Record<LegLocation, string> = {
@@ -79,6 +80,7 @@ export function lamAirMekLandingControlPatch(
       : LAM_AIRMEK_LANDING_CONTROL_NOT_REQUIRED_REASON,
     lamAirMekLandingControlModifier: modifier,
     lamAirMekLandingControlModifierDetails: details,
+    lamAirMekLandingControlFallHeight: currentAltitude,
   };
 }
 

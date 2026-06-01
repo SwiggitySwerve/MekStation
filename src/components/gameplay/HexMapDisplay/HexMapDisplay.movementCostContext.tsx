@@ -8,7 +8,10 @@ import {
   formatTacticalProjectionSourceReferences,
 } from '@/utils/gameplay/tacticalMapProjection';
 
-import { formatElevationLabel } from './HexCell.labels';
+import {
+  formatElevationLabel,
+  formatMovementModeLabel,
+} from './HexCell.labels';
 import { formatMovementPathSummaryLabel } from './HexMapDisplay.tooltipFormatters';
 
 function movementSourceAttributes(
@@ -70,6 +73,8 @@ export function MovementCostContextRows({
   const hasAltitudeControlContext =
     movementInfo.altitudeControlStepCount !== undefined ||
     movementInfo.altitudeControlMpCost !== undefined;
+  const hasAutomaticLandingContext =
+    movementInfo.automaticLandingRequired === true;
   const conversionStepCount = movementInfo.conversionStepCount ?? 0;
   const conversionStepLabel =
     conversionStepCount === 1 ? '1 step' : `${conversionStepCount} steps`;
@@ -85,6 +90,7 @@ export function MovementCostContextRows({
     movementInfo.heatGenerated === undefined &&
     !hasConversionContext &&
     !hasAltitudeControlContext &&
+    !hasAutomaticLandingContext &&
     !pathSummaryLabel
   ) {
     return null;
@@ -150,6 +156,29 @@ export function MovementCostContextRows({
         >
           Altitude control: {altitudeControlStepLabel},{' '}
           {movementInfo.altitudeControlMpCost ?? 0} MP
+        </div>
+      )}
+      {hasAutomaticLandingContext && (
+        <div
+          data-testid={`${testIdPrefix}-automatic-landing`}
+          data-movement-context-kind="automatic-landing"
+          data-movement-automatic-landing-mode={
+            movementInfo.automaticLandingMode
+          }
+          data-movement-automatic-landing-distance={
+            movementInfo.automaticLandingDistance
+          }
+          data-movement-automatic-landing-minimum-distance={
+            movementInfo.automaticLandingMinimumDistance
+          }
+          data-movement-automatic-landing-reason={
+            movementInfo.automaticLandingReason
+          }
+          {...sourceAttributes}
+        >
+          Automatic {formatMovementModeLabel(movementInfo.automaticLandingMode)}{' '}
+          landing: {movementInfo.automaticLandingDistance ?? 0}/
+          {movementInfo.automaticLandingMinimumDistance ?? 0} hexes
         </div>
       )}
       {pathSummaryLabel && (

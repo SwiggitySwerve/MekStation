@@ -252,7 +252,7 @@ describe('runtime movement capability', () => {
         capability,
         'wige',
       ),
-    ).toBe(AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON);
+    ).toBeUndefined();
     expect(runtimeMovementAltitudeControlContext(elevatedAirMek)).toMatchObject(
       {
         altitudeControlRequired: true,
@@ -327,7 +327,7 @@ describe('runtime movement capability', () => {
           capability,
           movementMode,
         ),
-      ).toBe(reason);
+      ).toBe(movementMode === 'wige' ? undefined : reason);
       expect(
         runtimeMovementAltitudeControlContext(airborneVehicle),
       ).toMatchObject({
@@ -402,7 +402,7 @@ describe('runtime movement capability', () => {
         capability,
         'wige',
       ),
-    ).toBe(AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON);
+    ).toBeUndefined();
     expect(runtimeMovementAltitudeControlContext(airborneGlider)).toMatchObject(
       {
         altitudeControlRequired: true,
