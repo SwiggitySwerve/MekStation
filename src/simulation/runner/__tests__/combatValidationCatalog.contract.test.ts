@@ -174,14 +174,14 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 95,
+      total: 94,
       byLevel: {
         'helper-only': 90,
-        unsupported: 5,
+        unsupported: 4,
       },
       bySection: {
         damageAndDeath: 2,
-        featureSupport: 57,
+        featureSupport: 56,
         pilotSkills: 11,
         ruleSupport: 9,
         validationScope: 16,
@@ -371,6 +371,9 @@ describe('BattleMech combat validation catalog index', () => {
     expect(unsupportedRefs).not.toContain(
       'featureSupport.pilotAbilities.toughness',
     );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.pilotAbilities.iron-will',
+    );
     expect(
       unresolvedRows.find(
         (row) => row.ref === 'featureSupport.pilotAbilities.toughness',
@@ -487,7 +490,7 @@ describe('BattleMech combat validation catalog index', () => {
         'actions.wireIntents.SetReady',
       ]),
     );
-    expect(outOfScopeRows).toHaveLength(94);
+    expect(outOfScopeRows).toHaveLength(95);
     expect(
       outOfScopeRefs.filter((ref) =>
         ref.startsWith('actions.physicalActionClassScope.'),
@@ -563,6 +566,7 @@ describe('BattleMech combat validation catalog index', () => {
       'featureSupport.pilotAbilities.cool-under-fire',
       'featureSupport.pilotAbilities.cross-country',
       'featureSupport.pilotAbilities.evasive',
+      'featureSupport.pilotAbilities.iron-will',
       'featureSupport.pilotAbilities.marksman',
       'featureSupport.pilotAbilities.multi-target',
       'featureSupport.pilotAbilities.natural-grace',
