@@ -307,6 +307,7 @@ export interface IRuntimeMovementStateChangedPayload {
   readonly source:
     | 'conversion_action'
     | 'altitude_control_action'
+    | 'automatic_wige_landing'
     | 'infantry_mount_action'
     | 'scenario_setup'
     | 'rules_correction';
@@ -334,6 +335,8 @@ export interface IRuntimeMovementStateChangedPayload {
   readonly lamAirMekLandingControlModifier?: number;
   /** Human-readable modifier breakdown for AirMek landing control explanation. */
   readonly lamAirMekLandingControlModifierDetails?: readonly string[];
+  /** Elevation/altitude height used for failed AirMek landing fall damage. */
+  readonly lamAirMekLandingControlFallHeight?: number;
   readonly infantryMounted?: boolean | null;
   readonly infantryMountHeight?: number | null;
 }

@@ -4,6 +4,7 @@ import { formatMovementModeTitle } from './HexCell.movementBadges';
 import {
   movementOptionAltitudeControlMpCostsAttribute,
   movementOptionAltitudeControlStepCountsAttribute,
+  movementOptionAutomaticLandingsAttribute,
   movementOptionBlockedReasonsAttribute,
   movementOptionConversionMpCostsAttribute,
   movementOptionConversionStepCountsAttribute,
@@ -63,6 +64,13 @@ function formatMovementProjectionTitle(
       } MP`,
     );
   }
+  if (movementInfo.automaticLandingRequired) {
+    details.push(
+      `automatic ${movementInfo.automaticLandingMode ?? 'wige'} landing ${
+        movementInfo.automaticLandingDistance ?? 0
+      }/${movementInfo.automaticLandingMinimumDistance ?? 0} hexes`,
+    );
+  }
   const blockedReason =
     movementInfo.movementInvalidDetails ??
     movementInfo.blockedReason ??
@@ -115,6 +123,14 @@ export function movementProjectionOverlayAttributes(
       movementInfo?.altitudeControlStepCount,
     'data-movement-projection-altitude-control-mp-cost':
       movementInfo?.altitudeControlMpCost,
+    'data-movement-projection-automatic-landing-required':
+      movementInfo?.automaticLandingRequired ? 'true' : undefined,
+    'data-movement-projection-automatic-landing-mode':
+      movementInfo?.automaticLandingMode,
+    'data-movement-projection-automatic-landing-distance':
+      movementInfo?.automaticLandingDistance,
+    'data-movement-projection-automatic-landing-minimum-distance':
+      movementInfo?.automaticLandingMinimumDistance,
     'data-movement-projection-blocked-reason': movementInfo?.blockedReason,
     'data-movement-projection-invalid-reason':
       movementInfo?.movementInvalidReason,
@@ -149,6 +165,9 @@ export function movementProjectionOverlayAttributes(
       hasMultipleOptions
         ? movementOptionAltitudeControlMpCostsAttribute(movementOptions)
         : undefined,
+    'data-movement-projection-option-automatic-landings': hasMultipleOptions
+      ? movementOptionAutomaticLandingsAttribute(movementOptions)
+      : undefined,
     'data-movement-projection-option-blocked-reasons': hasMultipleOptions
       ? movementOptionBlockedReasonsAttribute(movementOptions)
       : undefined,
