@@ -130,10 +130,15 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
 
   it('assigns every combat-consumed SPA and quirk to at least one resolver family', () => {
     const unconsumedLocalSpas = [
+      'acrobat',
+      'antagonizer',
+      'combat-intuition',
       'cool-under-fire',
       'marksman',
       'multi-target',
+      'natural-grace',
       'sharpshooter',
+      'speed-demon',
     ];
     const expectedAssignedSpas = sortedKeys(SPA_CATALOG).filter(
       (spaId) => !unconsumedLocalSpas.includes(spaId),
@@ -150,7 +155,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(SPA_COMBAT_SUPPORT.marksman.level).toBe('out-of-scope');
     expect(SPA_COMBAT_SUPPORT['multi-target'].level).toBe('unsupported');
     expect(SPA_COMBAT_SUPPORT.sharpshooter.level).toBe('out-of-scope');
-    expect(SPA_COMBAT_SUPPORT['cool-under-fire'].level).toBe('helper-only');
+    expect(SPA_COMBAT_SUPPORT['cool-under-fire'].level).toBe('out-of-scope');
   });
 
   it('does not assign unknown SPA or quirk ids to resolver families', () => {
@@ -289,7 +294,6 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'initiative-hq-equipment-hydration',
         'low-arms-application',
         'movement-application',
-        'target-priority-application',
       ].sort(),
     );
     expect(
@@ -308,6 +312,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toEqual([
       'anti-mek-actuator-application',
       'campaign-maintenance-application',
+      'target-priority-application',
       'vehicle-movement-application',
     ]);
   });
@@ -840,7 +845,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ).toMatchObject({
       level: 'helper-only',
       evidence: expect.stringContaining('raw 2d6 payload fields'),
-      gap: expect.stringContaining('Combat Intuition'),
+      gap: expect.stringContaining('equipment hydration'),
     });
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['initiative-application'].gap,
@@ -1073,7 +1078,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     ]);
 
     expect(SPA_COMBAT_SUPPORT['cool-under-fire']).toMatchObject({
-      level: 'helper-only',
+      level: 'out-of-scope',
       evidence: expect.stringContaining('getCoolUnderFireHeatReduction'),
       gap: expect.stringContaining('No MegaMek source-backed'),
     });
@@ -1146,7 +1151,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       expect(support.sourceRefs?.map(({ citation }) => citation)).toEqual([
         'MegaMek PilotOptions registers the source-backed pilot advantage ids in this combat source snapshot; MekStation local-only SPA ids are not part of that registry.',
         'MegaMek OptionsConstants defines the source-backed pilot option constants used by the combat SPA catalog boundary.',
-        'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, and Antagonizer; these must remain unsupported or helper-only until a source-backed combat authority is identified.',
+        'MekStation SPA_CATALOG defines local-only combat claims for Acrobat, Natural Grace, Speed Demon, Combat Intuition, Cool Under Fire, and Antagonizer; these must remain out-of-scope until a source-backed combat authority is identified.',
       ]);
       expect(
         support.sourceRefs?.some(
@@ -1159,17 +1164,26 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ).toBe(true);
     });
 
-    expect(SPA_COMBAT_SUPPORT['cool-under-fire'].level).toBe('helper-only');
+    expect(
+      localOnlySpaIds.map((spaId) => SPA_COMBAT_SUPPORT[spaId].level),
+    ).toEqual([
+      'out-of-scope',
+      'out-of-scope',
+      'out-of-scope',
+      'out-of-scope',
+      'out-of-scope',
+      'out-of-scope',
+    ]);
     expect(SPA_COMBAT_SUPPORT['cool-under-fire'].gap).toContain(
-      'local helper behavior',
+      'outside the official BattleMech validation blocker inventory',
     );
     expect(SPA_COMBAT_SUPPORT['combat-intuition'].gap).toContain(
-      'no source-backed MegaMek combat SPA id',
+      'source-backed combat authority',
     );
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['target-priority-application'],
     ).toMatchObject({
-      level: 'unsupported',
+      level: 'out-of-scope',
       sourceRefs: SPA_COMBAT_SUPPORT.antagonizer.sourceRefs,
     });
   });
