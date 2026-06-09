@@ -29,11 +29,6 @@ import {
   calculateCalledShotModifier,
 } from './damageModifiers';
 import {
-  type IEcmCoverageState,
-  type WeaponGuidanceType,
-  calculateEcmModifier,
-} from './ecmModifier';
-import {
   calculateHeatModifier,
   calculatePartialCoverModifier,
   calculateHullDownModifier,
@@ -57,36 +52,19 @@ import {
 } from './semiGuidedTagModifiers';
 import { calculateChinTurretPivotModifier } from './vehicleModifiers';
 
-export interface IEcmContext {
-  readonly guidance: WeaponGuidanceType;
-  readonly coverage: IEcmCoverageState;
-}
-
 export function calculateToHit(
   attacker: IAttackerState,
   target: ITargetState,
   rangeBracket: RangeBracket,
   range: number,
   minRange: number = 0,
-  weaponIdOrEcmContext?: string | IEcmContext,
+  weaponId?: string,
   semiGuidedTagContext?: ISemiGuidedTagToHitContext,
 ): IToHitCalculation {
-  const weaponId =
-    typeof weaponIdOrEcmContext === 'string' ? weaponIdOrEcmContext : undefined;
-  const ecmContext =
-    typeof weaponIdOrEcmContext === 'object' ? weaponIdOrEcmContext : undefined;
   const modifiers: IToHitModifierDetail[] = [];
 
   modifiers.push(createBaseModifier(attacker.gunnery));
   modifiers.push(getRangeModifierForBracket(rangeBracket));
-
-  if (ecmContext !== undefined) {
-    const ecmMod = calculateEcmModifier(
-      ecmContext.guidance,
-      ecmContext.coverage,
-    );
-    if (ecmMod !== null) modifiers.push(ecmMod);
-  }
 
   const minRangeMod = calculateMinimumRangeModifier(range, minRange);
   if (minRangeMod) modifiers.push(minRangeMod);

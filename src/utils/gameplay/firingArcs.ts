@@ -13,7 +13,7 @@ import {
   IArcResult,
 } from '@/types/gameplay';
 
-import { facingToAngle, hexEquals } from './hexMath';
+import { facingToAngle, hexAngle, hexEquals } from './hexMath';
 
 // =============================================================================
 // Arc Constants
@@ -29,22 +29,6 @@ import { facingToAngle, hexEquals } from './hexMath';
 const ARC_HALF_WIDTHS = {
   front: 60,
 };
-
-function firingArcHexAngle(from: IHexCoordinate, to: IHexCoordinate): number {
-  const dq = to.q - from.q;
-  const dr = to.r - from.r;
-  const dx = dq * Math.sqrt(3);
-  const dy = 2 * dr + dq;
-
-  const radians = Math.atan2(dx, -dy);
-  let degrees = radians * (180 / Math.PI);
-  if (degrees < 0) {
-    degrees += 360;
-  }
-
-  const rounded = Math.round(degrees);
-  return rounded === 360 ? 0 : rounded;
-}
 
 // =============================================================================
 // Arc Determination
@@ -89,7 +73,10 @@ export function determineArc(
     };
   }
 
-  const absoluteAngle = firingArcHexAngle(attacker.coord, target);
+  // Shared MegaMek-aligned hex geometry (hexMath.hexAngle): neighbor
+  // directions land on exact 60-degree increments, which the boundary
+  // comparisons below depend on.
+  const absoluteAngle = hexAngle(attacker.coord, target);
   const facingAngle = facingToAngle(attacker.facing);
 
   let relativeAngle = absoluteAngle - facingAngle;
