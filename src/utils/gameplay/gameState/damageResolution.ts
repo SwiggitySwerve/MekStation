@@ -1,3 +1,5 @@
+import type { ActuatorType } from '@/types/construction/MechConfigurationSystem';
+
 import {
   ICriticalHitResolvedPayload,
   IDamageAppliedPayload,
@@ -8,6 +10,7 @@ import {
   IUnitGameState,
   IVehicleCombatState,
 } from '@/types/gameplay';
+import { asCombatLocation } from '@/utils/gameplay/criticalHitResolution/actuatorEffects';
 import { PILOT_DEATH_WOUND_THRESHOLD } from '@/utils/gameplay/damage/constants';
 import {
   applyDamagedPhysicalEquipmentCritical,
@@ -272,15 +275,35 @@ export function applyCriticalHitResolved(
         jumpJetsDestroyed: updatedDamage.jumpJetsDestroyed + 1,
       };
       break;
-    case 'actuator':
+    case 'actuator': {
+      // Per audit 2026-06-09 A-6: mirror `applyActuatorHit`'s per-location
+      // bookkeeping into the event-sourced replay path. Store-fed readers
+      // (hull-down entry pricing per MegaMek HullDownStep.java:61-82,
+      // QuadVee conversion gates, AirMek landing control) consume
+      // `actuatorsByLocation` from this reducer's output in live and
+      // replay flows. For actuator slots `componentName` carries the
+      // canonical `ActuatorType` value (see criticalHitResolution/manifest).
+      const combatLocation = asCombatLocation(payload.location);
       updatedDamage = {
         ...updatedDamage,
         actuators: {
           ...updatedDamage.actuators,
           [payload.componentName]: true,
         },
+        ...(combatLocation
+          ? {
+              actuatorsByLocation: {
+                ...updatedDamage.actuatorsByLocation,
+                [combatLocation]: {
+                  ...updatedDamage.actuatorsByLocation?.[combatLocation],
+                  [payload.componentName as ActuatorType]: true,
+                },
+              },
+            }
+          : {}),
       };
       break;
+    }
   }
   updatedDamage = applyVehicleCriticalLocationDamage(updatedDamage, payload);
 
