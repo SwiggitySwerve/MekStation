@@ -1,5 +1,6 @@
 /**
- * Movement command family — walk, run, jump, stand-up, stabilize, cancel.
+ * Movement command family — walk, run, sprint, evade, jump, stand-up,
+ * posture transitions, MASC/Supercharger activation, stabilize, cancel.
  *
  * Wave 7.2 PR-D: command adapters bind to `activeUnitId` (whose turn it is)
  * from the tactical shell. Availability predicates are PURE — same input,
@@ -50,11 +51,15 @@ export function buildMovementCommands(
   return [
     MovementWalkCommand,
     MovementRunCommand,
+    MovementSprintCommand,
+    MovementEvadeCommand,
     MovementJumpCommand,
     MovementStandCommand,
     MovementCarefulStandCommand,
     MovementHullDownCommand,
     MovementGoProneCommand,
+    MovementActivateMASCCommand,
+    MovementActivateSuperchargerCommand,
     ...buildRuntimeMovementStateCommands(ctx),
     MovementStabilizeCommand,
     MovementCancelCommand,
@@ -142,6 +147,86 @@ const MovementRunCommand: ITacticalCommand = {
   },
 };
 
+// Audit 2026-06-09 A-3 restoration: the reconciliation merge dropped the
+// sprint/evade/MASC/supercharger command surface that the combat-validation
+// stack shipped (tasks 4.3.164/4.3.165/3.2.11). Sprint and Evade mirror the
+// Run command's availability gates (turn, declaration lock, heat-reduced MP,
+// blocked destination projection) because `getMaxMP` already resolves
+// MovementType.Sprint/Evade budgets from the unit capability.
+const MovementSprintCommand: ITacticalCommand = {
+  id: 'movement.sprint',
+  category: 'movement',
+  label: 'Sprint',
+  hotkey: 'S',
+  phaseConstraints: [GamePhase.Movement],
+  requiresConfirmation: false,
+  undoable: true,
+  targetsHex: true,
+  availability(ctx) {
+    if (!ctx.activeUnitId)
+      return { available: false, reason: 'No unit is active.' };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    const locked = movementDeclarationLockInvalidState(ctx.activeUnitLockState);
+    if (locked) return { available: false, reason: locked.details };
+    const modeUnavailable = movementModeUnavailableReason(
+      ctx,
+      MovementType.Sprint,
+      'sprint',
+    );
+    if (modeUnavailable) {
+      return { available: false, reason: modeUnavailable };
+    }
+    const destinationUnavailable = movementProjectionUnavailableReason(
+      ctx,
+      MovementType.Sprint,
+    );
+    if (destinationUnavailable) {
+      return { available: false, reason: destinationUnavailable };
+    }
+    return { available: true };
+  },
+  commit() {
+    return { actionId: 'lock', payload: { mode: 'sprint' } };
+  },
+};
+
+const MovementEvadeCommand: ITacticalCommand = {
+  id: 'movement.evade',
+  category: 'movement',
+  label: 'Evade',
+  hotkey: 'E',
+  phaseConstraints: [GamePhase.Movement],
+  requiresConfirmation: false,
+  undoable: true,
+  targetsHex: true,
+  availability(ctx) {
+    if (!ctx.activeUnitId)
+      return { available: false, reason: 'No unit is active.' };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    const locked = movementDeclarationLockInvalidState(ctx.activeUnitLockState);
+    if (locked) return { available: false, reason: locked.details };
+    const modeUnavailable = movementModeUnavailableReason(
+      ctx,
+      MovementType.Evade,
+      'evade',
+    );
+    if (modeUnavailable) {
+      return { available: false, reason: modeUnavailable };
+    }
+    const destinationUnavailable = movementProjectionUnavailableReason(
+      ctx,
+      MovementType.Evade,
+    );
+    if (destinationUnavailable) {
+      return { available: false, reason: destinationUnavailable };
+    }
+    return { available: true };
+  },
+  commit() {
+    return { actionId: 'lock', payload: { mode: 'evade' } };
+  },
+};
+
 const MovementJumpCommand: ITacticalCommand = {
   id: 'movement.jump',
   category: 'movement',
@@ -198,7 +283,7 @@ const MovementJumpCommand: ITacticalCommand = {
 function movementModeUnavailableReason(
   ctx: ITacticalCommandContext,
   movementType: MovementType,
-  label: 'walk' | 'run' | 'jump',
+  label: 'walk' | 'run' | 'sprint' | 'evade' | 'jump',
 ): string | null {
   if (!ctx.movementCapability) return null;
 
@@ -451,6 +536,52 @@ const MovementGoProneCommand: ITacticalCommand = {
   },
   commit() {
     return { actionId: 'go-prone', payload: {} };
+  },
+};
+
+// Audit 2026-06-09 A-3 restoration: MASC/Supercharger activation routes
+// through the existing `activate-masc` / `activate-supercharger` action ids
+// that `useGameplayStore` forwards to
+// `InteractiveSession.activateMovementEnhancement`. Installed-equipment
+// gating stays engine-side — the engine refuses activation for units
+// without the equipment, matching the stack-side command surface.
+const MovementActivateMASCCommand: ITacticalCommand = {
+  id: 'movement.activate-masc',
+  category: 'movement',
+  label: 'Activate MASC',
+  phaseConstraints: [GamePhase.Movement],
+  requiresConfirmation: false,
+  undoable: true,
+  availability(ctx) {
+    if (!ctx.activeUnitId)
+      return { available: false, reason: 'No unit is active.' };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    const locked = movementDeclarationLockInvalidState(ctx.activeUnitLockState);
+    if (locked) return { available: false, reason: locked.details };
+    return { available: true };
+  },
+  commit() {
+    return { actionId: 'activate-masc', payload: {} };
+  },
+};
+
+const MovementActivateSuperchargerCommand: ITacticalCommand = {
+  id: 'movement.activate-supercharger',
+  category: 'movement',
+  label: 'Activate Supercharger',
+  phaseConstraints: [GamePhase.Movement],
+  requiresConfirmation: false,
+  undoable: true,
+  availability(ctx) {
+    if (!ctx.activeUnitId)
+      return { available: false, reason: 'No unit is active.' };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    const locked = movementDeclarationLockInvalidState(ctx.activeUnitLockState);
+    if (locked) return { available: false, reason: locked.details };
+    return { available: true };
+  },
+  commit() {
+    return { actionId: 'activate-supercharger', payload: {} };
   },
 };
 

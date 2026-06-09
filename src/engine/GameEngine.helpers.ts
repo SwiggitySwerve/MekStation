@@ -202,6 +202,14 @@ export function toAIUnitState(
     gunnery,
     movementType: unit.movementThisTurn,
     hexesMoved: unit.hexesMovedThisTurn,
+    // Audit 2026-06-09 A-9 restoration: `BotPlayer` consumes posture
+    // (`prone` gates voluntary go-prone), construction type, and pilot
+    // SPA ids (`pilotAbilities` for movement option generation), so the
+    // producer must populate them. `prone` defaults to an explicit false
+    // because the AI contract is a boolean, never undefined.
+    prone: unit.prone ?? false,
+    unitType: unit.unitType,
+    abilities: unit.abilities,
     // Per `wire-bot-ai-helpers-and-capstone`: propagate retreat latch
     // through to the AI so RetreatAI helpers can read it without a
     // round-trip through the session lookup.

@@ -22,7 +22,7 @@ reconciliation merge `7f22e4f22` · audited main `442f90855`.
 | W0.2 | A-2, A-5, A-14, A-7p | Fuel-tank destruction, VTOL rotor MP/immobilization, delete `vehicleCriticalReplay.ts`, restore `vehicleHitLocation.test.ts` | done    |
 | W0.3 | A-6, A-7p            | `actuatorsByLocation` writer; restore `reachable.test.ts` + `terrainCover.test.ts`                                           | done    |
 | W0.4 | A-13, A-8            | MegaMek `hexAngle` restored + private copy removed; ECM helper deletion re-applied                                           | done    |
-| W0.5 | A-9, A-3, A-7p       | `toAIUnitState` fields; Sprint/Evade/MASC/Supercharger commands + catalog rows; `weaponAttackBuilder`/`indirectFire` tests   | pending |
+| W0.5 | A-9, A-3, A-7p       | `toAIUnitState` fields; Sprint/Evade/MASC/Supercharger commands + catalog rows; `weaponAttackBuilder`/`indirectFire` tests   | done    |
 | W0.6 | A-4, A-12, A-15      | Boxcars PSR hack removed; request-spot guard chain; heat.continue fallback                                                   | pending |
 | W0.7 | A-11                 | `REASON_COPY` ~85 codes + exhaustiveness check                                                                               | pending |
 | W0.8 | A-1                  | CompendiumAdapter motive/MP/water pipeline + tests                                                                           | pending |

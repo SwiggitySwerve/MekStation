@@ -129,11 +129,15 @@ describe('BattleMech combat action support catalog', () => {
       'heat-end.end-phase',
       'heat-end.next-turn',
       'heat.continue',
+      'movement.activate-masc',
+      'movement.activate-supercharger',
       'movement.carefulStand',
+      'movement.evade',
       'movement.goProne',
       'movement.hullDown',
       'movement.jump',
       'movement.run',
+      'movement.sprint',
       'movement.stand',
       'movement.walk',
       'physical.break-grapple',
@@ -186,11 +190,15 @@ describe('BattleMech combat action support catalog', () => {
       ]);
     }
     const integratedMovementCommandSourceRows = [
+      'movement.activate-masc',
+      'movement.activate-supercharger',
       'movement.carefulStand',
+      'movement.evade',
       'movement.goProne',
       'movement.hullDown',
       'movement.jump',
       'movement.run',
+      'movement.sprint',
       'movement.stand',
       'movement.walk',
     ];
@@ -375,7 +383,7 @@ describe('BattleMech combat action support catalog', () => {
     ).toBeUndefined();
   });
 
-  it('tracks source-backed BattleMech movement surfaces that lack player commands explicitly', () => {
+  it('tracks source-backed optional BattleMech movement action surfaces explicitly', () => {
     const playerCommandIds = commandIds([
       ...buildMovementCommands(),
       ...buildFacingCommands(),
@@ -385,20 +393,11 @@ describe('BattleMech combat action support catalog', () => {
       ...buildUtilityCommands(),
     ]);
 
-    const absentMovementActionIds = [
-      'movement.activate-masc',
-      'movement.activate-supercharger',
-      'movement.evade',
-      'movement.sprint',
-    ] as const;
-
-    expect(sortedKeys(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([
-      ...absentMovementActionIds,
-    ]);
+    expect(sortedKeys(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([]);
     expect(supportGaps(BATTLEMECH_ABSENT_ACTION_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(BATTLEMECH_ABSENT_ACTION_SUPPORT, 'unsupported'),
-    ).toEqual([...absentMovementActionIds]);
+    ).toEqual([]);
     expect(
       sortedKeys(BATTLEMECH_ABSENT_ACTION_SUPPORT).filter((id) =>
         playerCommandIds.includes(id),
@@ -406,16 +405,16 @@ describe('BattleMech combat action support catalog', () => {
     ).toEqual([]);
     expect(Object.values(MovementType)).toContain('evade');
     expect(Object.values(MovementType)).toContain('sprint');
-    expect(COMBAT_COMMAND_ACTION_SUPPORT).not.toHaveProperty('movement.sprint');
-    expect(COMBAT_COMMAND_ACTION_SUPPORT).not.toHaveProperty('movement.evade');
-    expect(BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.sprint']).toMatchObject({
-      layer: 'absent-action-surface',
-      level: 'unsupported',
+    expect(COMBAT_COMMAND_ACTION_SUPPORT['movement.sprint']).toMatchObject({
+      layer: 'tactical-command',
+      level: 'integrated',
       evidence: expect.stringContaining('MovementType.Sprint'),
-      gap: expect.stringContaining('Sprint'),
     });
     expect(
-      BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.sprint'].sourceRefs?.map(
+      COMBAT_COMMAND_ACTION_SUPPORT['movement.sprint'].gap,
+    ).toBeUndefined();
+    expect(
+      COMBAT_COMMAND_ACTION_SUPPORT['movement.sprint'].sourceRefs?.map(
         (sourceRef) => sourceRef.citation,
       ),
     ).toEqual(
@@ -429,14 +428,14 @@ describe('BattleMech combat action support catalog', () => {
         expect.stringContaining('target sprinted'),
       ]),
     );
-    expect(BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.evade']).toMatchObject({
-      layer: 'absent-action-surface',
-      level: 'unsupported',
+    expect(COMBAT_COMMAND_ACTION_SUPPORT['movement.evade']).toMatchObject({
+      layer: 'tactical-command',
+      level: 'integrated',
       evidence: expect.stringContaining('MovementType.Evade'),
-      gap: expect.stringContaining('Evade'),
     });
+    expect(COMBAT_COMMAND_ACTION_SUPPORT['movement.evade'].gap).toBeUndefined();
     expect(
-      BATTLEMECH_ABSENT_ACTION_SUPPORT['movement.evade'].sourceRefs?.map(
+      COMBAT_COMMAND_ACTION_SUPPORT['movement.evade'].sourceRefs?.map(
         (sourceRef) => sourceRef.citation,
       ),
     ).toEqual(
@@ -455,21 +454,20 @@ describe('BattleMech combat action support catalog', () => {
       'movement.activate-masc',
       'movement.activate-supercharger',
     ] as const) {
-      expect(BATTLEMECH_ABSENT_ACTION_SUPPORT[id]).toMatchObject({
-        layer: 'absent-action-surface',
-        level: 'unsupported',
+      expect(COMBAT_COMMAND_ACTION_SUPPORT[id]).toMatchObject({
+        layer: 'tactical-command',
+        level: 'integrated',
         evidence: expect.stringContaining('activateMovementEnhancement'),
-        gap: expect.stringContaining('player tactical command'),
       });
+      expect(COMBAT_COMMAND_ACTION_SUPPORT[id].gap).toBeUndefined();
       expect(
-        BATTLEMECH_ABSENT_ACTION_SUPPORT[id].sourceRefs?.map(
+        COMBAT_COMMAND_ACTION_SUPPORT[id].sourceRefs?.map(
           (sourceRef) => sourceRef.citation,
         ),
       ).toEqual(
         expect.arrayContaining([
           expect.stringContaining(id),
           expect.stringContaining('active MASC/Supercharger'),
-          expect.stringContaining('activateMovementEnhancementIntent'),
         ]),
       );
     }

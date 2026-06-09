@@ -4,12 +4,15 @@ import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
 import {
   isEligibleSpotter,
+  calculateSpotterMovementPenalty,
   spotterHasLOS,
   findBestSpotter,
   isIndirectFireCapable,
+  ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON,
   resolveIndirectFire,
   resolveSemiGuidedLRM,
   resolveIndirectFireWithSemiGuided,
+  semiGuidedTagIndirectFireBlockedReason,
   ISpotterCandidate,
   IIndirectFireRequest,
   ISemiGuidedContext,
@@ -132,6 +135,15 @@ describe('LRM Indirect Fire Mode', () => {
       expect(result.spotter!.entityId).toBe('spotter-1');
     });
 
+    it('should reject indirect fire from airborne attackers', () => {
+      const result = resolveIndirectFire(
+        makeRequest({ attackerAirborne: true }),
+      );
+      expect(result.permitted).toBe(false);
+      expect(result.isIndirect).toBe(false);
+      expect(result.reason).toBe('Airborne units cannot use indirect fire');
+    });
+
     it('should reject indirect fire when no spotter available', () => {
       const result = resolveIndirectFire(
         makeRequest({ spotterCandidates: [] }),
@@ -213,6 +225,45 @@ describe('Spotter Mechanics', () => {
     it('should reject attacker as its own spotter', () => {
       const spotter = makeSpotter({ entityId: 'attacker-1' });
       expect(isEligibleSpotter(spotter, 'attacker-1', 'team-A')).toBe(false);
+    });
+
+    it('should reject airborne aerospace spotter without recon or imager equipment', () => {
+      const spotter = makeSpotter({ isAirborneAerospace: true });
+      expect(isEligibleSpotter(spotter, 'attacker-1', 'team-A')).toBe(false);
+    });
+
+    it('should accept airborne aerospace spotter with represented recon equipment', () => {
+      const spotter = makeSpotter({
+        isAirborneAerospace: true,
+        airborneAeroSpottingEquipment: { reconCamera: true },
+      });
+      expect(isEligibleSpotter(spotter, 'attacker-1', 'team-A')).toBe(true);
+    });
+  });
+
+  describe('calculateSpotterMovementPenalty', () => {
+    it.each([
+      [MovementType.Stationary, 0],
+      [MovementType.Walk, 1],
+      [MovementType.Run, 2],
+      [MovementType.Jump, 3],
+    ] as const)(
+      'maps %s to MegaMek spotter penalty %i',
+      (movement, penalty) => {
+        expect(
+          calculateSpotterMovementPenalty(
+            makeSpotter({ movementType: movement }),
+          ),
+        ).toBe(penalty);
+      },
+    );
+
+    it('does not apply a movement penalty to infantry spotters', () => {
+      expect(
+        calculateSpotterMovementPenalty(
+          makeSpotter({ movementType: MovementType.Jump, isInfantry: true }),
+        ),
+      ).toBe(0);
     });
   });
 
@@ -330,6 +381,27 @@ describe('Spotter Mechanics', () => {
       );
       expect(result).toBeNull();
     });
+
+    it('should skip airborne aerospace spotters that lack represented spotting gear', () => {
+      const airborneAero = makeSpotter({
+        entityId: 'airborne-aero',
+        isAirborneAerospace: true,
+        position: { q: 5, r: -1 },
+      });
+      const groundSpotter = makeSpotter({
+        entityId: 'ground-spotter',
+        position: { q: 5, r: 1 },
+      });
+      const result = findBestSpotter(
+        [airborneAero, groundSpotter],
+        'attacker-1',
+        'team-A',
+        { q: 5, r: 0 },
+        makeClearGrid(),
+      );
+      expect(result).not.toBeNull();
+      expect(result!.spotter.entityId).toBe('ground-spotter');
+    });
   });
 });
 
@@ -421,6 +493,7 @@ describe('Semi-Guided LRM with TAG', () => {
       expect(result.isSemiGuided).toBe(true);
       expect(result.tagActive).toBe(false);
       expect(result.useStandardToHit).toBe(false);
+      expect(semiGuidedTagIndirectFireBlockedReason(context)).toBeUndefined();
     });
 
     it('should not activate semi-guided for non-semi-guided weapons', () => {
@@ -444,6 +517,12 @@ describe('Semi-Guided LRM with TAG', () => {
       expect(result.isSemiGuided).toBe(true);
       expect(result.tagActive).toBe(false);
       expect(result.useStandardToHit).toBe(false);
+      expect(result.description).toBe(
+        ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON,
+      );
+      expect(semiGuidedTagIndirectFireBlockedReason(context)).toBe(
+        ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON,
+      );
     });
 
     it('should recognize isSemiGuided equipment flag even if weapon name differs', () => {
@@ -492,6 +571,44 @@ describe('Semi-Guided LRM with TAG', () => {
       expect(result.isIndirect).toBe(true);
       expect(result.toHitPenalty).toBe(1);
       expect(result.spotterWalked).toBe(true);
+    });
+
+    it('should permit semi-guided TAG indirect fire when no LOS spotter is available', () => {
+      const semiGuidedContext: ISemiGuidedContext = {
+        weaponId: 'semi-guided-lrm-5',
+        equipment: { isSemiGuided: true },
+        targetStatus: { tagDesignated: true },
+      };
+      const result = resolveIndirectFireWithSemiGuided(
+        makeRequest({
+          weaponId: 'semi-guided-lrm-5',
+          spotterCandidates: [],
+        }),
+        semiGuidedContext,
+      );
+      expect(result.permitted).toBe(true);
+      expect(result.isIndirect).toBe(true);
+      expect(result.basis).toBe('semi-guided-tag');
+      expect(result.spotter).toBeUndefined();
+      expect(result.toHitPenalty).toBe(0);
+    });
+
+    it('should reject semi-guided TAG when ECM nullifies the designation and no spotter is available', () => {
+      const semiGuidedContext: ISemiGuidedContext = {
+        weaponId: 'semi-guided-lrm-5',
+        equipment: { isSemiGuided: true },
+        targetStatus: { tagDesignated: true, ecmProtected: true },
+      };
+      const result = resolveIndirectFireWithSemiGuided(
+        makeRequest({
+          weaponId: 'semi-guided-lrm-5',
+          spotterCandidates: [],
+        }),
+        semiGuidedContext,
+      );
+      expect(result.permitted).toBe(false);
+      expect(result.isIndirect).toBe(false);
+      expect(result.toHitPenalty).toBe(0);
     });
 
     it('should keep indirect penalty when TAG not active', () => {
@@ -619,6 +736,7 @@ describe('Indirect Fire Edge Cases', () => {
       makeSpotter({ entityId: 'jumper', movementType: MovementType.Jump }),
       makeSpotter({ entityId: 'dead', isOperational: false }),
       makeSpotter({ entityId: 'attacker-1' }), // same as attacker
+      makeSpotter({ entityId: 'enemy', teamId: 'team-B' }),
     ];
     const result = resolveIndirectFire(
       makeRequest({ spotterCandidates: spotters }),

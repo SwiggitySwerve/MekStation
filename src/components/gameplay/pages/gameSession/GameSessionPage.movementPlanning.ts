@@ -126,6 +126,13 @@ export function movementTypeFromCommandPayload(
       return MovementType.Run;
     case 'jump':
       return MovementType.Jump;
+    // Audit 2026-06-09 A-3 restoration: the tactical dock's sprint/evade
+    // commands commit `lock` with these modes; without the mapping the
+    // game-page dispatcher would fall through to skipPhase().
+    case 'sprint':
+      return MovementType.Sprint;
+    case 'evade':
+      return MovementType.Evade;
     default:
       return null;
   }

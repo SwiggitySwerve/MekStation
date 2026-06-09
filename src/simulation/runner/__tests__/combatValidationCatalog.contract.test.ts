@@ -174,13 +174,12 @@ describe('BattleMech combat validation catalog index', () => {
         {},
       ),
     }).toEqual({
-      total: 97,
+      total: 93,
       byLevel: {
         'helper-only': 84,
-        unsupported: 13,
+        unsupported: 9,
       },
       bySection: {
-        actions: 4,
         damageAndDeath: 2,
         featureSupport: 55,
         pilotSkills: 11,
@@ -196,16 +195,12 @@ describe('BattleMech combat validation catalog index', () => {
         'ruleSupport.movementEnhancements.masc-side-paths',
         'ruleSupport.movementEnhancements.supercharger-side-paths',
         'ruleSupport.movementRules.go-prone-side-paths',
-        'actions.absentActionSurfaces.movement.activate-masc',
-        'actions.absentActionSurfaces.movement.activate-supercharger',
-        'actions.absentActionSurfaces.movement.evade',
-        'actions.absentActionSurfaces.movement.sprint',
         'ruleSupport.physicalDamageModifiers.claw-equipment-lifecycle',
         'ruleSupport.physicalDamageModifiers.talon-equipment-lifecycle',
         'ruleSupport.terrainEnvironment.terrain-los-side-paths',
       ]),
     );
-    expect(unresolvedRefs).toContain(
+    expect(unresolvedRefs).not.toContain(
       'actions.absentActionSurfaces.movement.sprint',
     );
     expect(unresolvedRefs).not.toContain('ruleSupport.terrainTypeLos.water');
@@ -244,7 +239,7 @@ describe('BattleMech combat validation catalog index', () => {
       'featureSupport.specialWeaponMechanics.inarc-pod-variants',
     );
     expect(unresolvedRefs).not.toContain('ruleSupport.movementRules.prone');
-    expect(unresolvedRefs).toContain(
+    expect(unresolvedRefs).not.toContain(
       'actions.absentActionSurfaces.movement.evade',
     );
     expect(unresolvedRefs).not.toContain(
