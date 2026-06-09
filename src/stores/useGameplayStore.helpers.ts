@@ -147,14 +147,12 @@ export function handleActionLogic(
         return;
       }
 
-      clearSelectedUnit(
-        attemptStandUp(session, selectedUnitId, () => ({
-          dice: [6, 6] as const,
-          total: 12,
-          isSnakeEyes: false,
-          isBoxcars: true,
-        })),
-      );
+      // Local sessions roll the stand-up PSR through the engine's
+      // injectable dice seam (`attemptStandUp` defaults to the production
+      // 2d6 roller). Never hardcode a roll result here — a fixed boxcars
+      // total made stand-up unfailable in non-interactive sessions
+      // (audit A-4).
+      clearSelectedUnit(attemptStandUp(session, selectedUnitId));
       break;
     }
     case 'go-prone': {
@@ -240,9 +238,37 @@ export function handleActionLogic(
       break;
     }
     case 'request-spot': {
+      // Spotting can only be declared during the weapon-attack phase.
+      if (phase !== GamePhase.WeaponAttack) return;
+
       const unitId = selectedUnitId;
       const targetId = payload?.targetUnitId ?? ui.targetUnitId;
       if (!unitId || !targetId) return;
+
+      // Eligibility guard chain mirrors the reducer's
+      // `assertCanRequestSpot` so an ineligible UI request no-ops
+      // instead of surfacing an uncaught Error (audit A-12).
+      const unit = session.currentState.units[unitId];
+      const target = session.currentState.units[targetId];
+      if (
+        !unit ||
+        !target ||
+        unit.destroyed ||
+        unit.hasRetreated ||
+        unit.hasEjected ||
+        unit.shutdown ||
+        !unit.pilotConscious ||
+        unit.sprintedThisTurn ||
+        unit.isEvading ||
+        unit.isSpotting ||
+        target.destroyed ||
+        target.hasRetreated ||
+        target.hasEjected ||
+        unit.side === target.side
+      ) {
+        return;
+      }
+
       if (interactiveSession) {
         interactiveSession.requestSpot(unitId, targetId);
         clearSelectedUnit(interactiveSession.getSession());
@@ -253,10 +279,20 @@ export function handleActionLogic(
       break;
     }
     case 'continue': {
-      if (phase === GamePhase.Heat && interactiveSession) {
+      // Heat-phase confirmation only; other phases advance via 'skip'
+      // or 'next-turn'.
+      if (phase !== GamePhase.Heat || !canAdvancePhase(session)) return;
+
+      if (interactiveSession) {
         interactiveSession.advancePhase();
         setSessionFromInteractive();
+        break;
       }
+
+      // Non-interactive (local event-sourced) sessions advance through
+      // the plain reducer — without this fallback the dock's
+      // heat.continue command no-ops in local sessions (audit A-15).
+      set({ session: advancePhase(session) });
       break;
     }
     case 'lock': {
