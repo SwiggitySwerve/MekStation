@@ -19,7 +19,7 @@ reconciliation merge `7f22e4f22` · audited main `442f90855`.
 | Task | Finding              | Scope                                                                                                                        | Status  |
 | ---- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------- |
 | W0.1 | A-10                 | `vehicleFiringArc.ts` arc spans (Front/Rear 120, sides 60) + BODY->Front + deleted test cases                                | done    |
-| W0.2 | A-2, A-5, A-14, A-7p | Fuel-tank destruction, VTOL rotor MP/immobilization, delete `vehicleCriticalReplay.ts`, restore `vehicleHitLocation.test.ts` | pending |
+| W0.2 | A-2, A-5, A-14, A-7p | Fuel-tank destruction, VTOL rotor MP/immobilization, delete `vehicleCriticalReplay.ts`, restore `vehicleHitLocation.test.ts` | done    |
 | W0.3 | A-6, A-7p            | `actuatorsByLocation` writer; restore `reachable.test.ts` + `terrainCover.test.ts`                                           | pending |
 | W0.4 | A-13, A-8            | MegaMek `hexAngle` restored + private copy removed; ECM helper deletion re-applied                                           | pending |
 | W0.5 | A-9, A-3, A-7p       | `toAIUnitState` fields; Sprint/Evade/MASC/Supercharger commands + catalog rows; `weaponAttackBuilder`/`indirectFire` tests   | pending |
