@@ -226,8 +226,13 @@ describe('TerrainTypes', () => {
   describe('Sand terrain', () => {
     const props = TERRAIN_PROPERTIES[TerrainType.Sand];
 
-    it('should have +1 movement cost modifier', () => {
-      expect(props.movementCostModifier.walk).toBe(1);
+    // Audit 2026-06-09 C-3: MegaMek Terrain.movementCost SAND charges only
+    // non-dune-buggy wheeled vehicles; meks/tracked/hover pay nothing.
+    it('should charge only wheeled vehicles', () => {
+      expect(props.movementCostModifier.walk).toBe(0);
+      expect(props.movementCostModifier.tracked).toBe(0);
+      expect(props.movementCostModifier.hover).toBe(0);
+      expect(props.movementCostModifier.wheeled).toBe(1);
     });
 
     it('should have zero to-hit modifiers', () => {
@@ -239,8 +244,12 @@ describe('TerrainTypes', () => {
   describe('Mud terrain', () => {
     const props = TERRAIN_PROPERTIES[TerrainType.Mud];
 
-    it('should have +1 movement cost modifier', () => {
+    // Audit 2026-06-09 C-3: MegaMek Terrain.movementCost MUD exempts
+    // hover/WiGE/naval.
+    it('should have +1 movement cost modifier except for hover', () => {
       expect(props.movementCostModifier.walk).toBe(1);
+      expect(props.movementCostModifier.tracked).toBe(1);
+      expect(props.movementCostModifier.hover).toBe(0);
     });
 
     it('should have zero to-hit modifiers', () => {
@@ -252,8 +261,12 @@ describe('TerrainTypes', () => {
   describe('Snow terrain', () => {
     const props = TERRAIN_PROPERTIES[TerrainType.Snow];
 
-    it('should have zero movement cost modifier', () => {
+    // Audit 2026-06-09 C-3: MegaMek Terrain.movementCost SNOW level 1 charges
+    // wheeled vehicles only (level 2 handled by the level-aware accessor).
+    it('should charge only wheeled vehicles at level 1', () => {
       expect(props.movementCostModifier.walk).toBe(0);
+      expect(props.movementCostModifier.tracked).toBe(0);
+      expect(props.movementCostModifier.wheeled).toBe(1);
     });
 
     it('should have zero to-hit modifiers', () => {
@@ -269,8 +282,12 @@ describe('TerrainTypes', () => {
   describe('Ice terrain', () => {
     const props = TERRAIN_PROPERTIES[TerrainType.Ice];
 
-    it('should have zero movement cost modifier', () => {
-      expect(props.movementCostModifier.walk).toBe(0);
+    // Audit 2026-06-09 C-3: MegaMek Terrain.movementCost ICE charges 1 to
+    // every motive except hover/WiGE.
+    it('should have +1 movement cost modifier except for hover', () => {
+      expect(props.movementCostModifier.walk).toBe(1);
+      expect(props.movementCostModifier.tracked).toBe(1);
+      expect(props.movementCostModifier.hover).toBe(0);
     });
 
     it('should have zero to-hit modifiers', () => {
@@ -286,8 +303,14 @@ describe('TerrainTypes', () => {
   describe('Swamp terrain', () => {
     const props = TERRAIN_PROPERTIES[TerrainType.Swamp];
 
-    it('should have +2 movement cost modifier', () => {
-      expect(props.movementCostModifier.walk).toBe(2);
+    // Audit 2026-06-09 C-3: MegaMek Terrain.movementCost SWAMP base 2 drops
+    // to 1 for biped/quad meks and 0 for hover/WiGE.
+    it('should charge meks 1, vehicles 2, hover nothing', () => {
+      expect(props.movementCostModifier.walk).toBe(1);
+      expect(props.movementCostModifier.run).toBe(1);
+      expect(props.movementCostModifier.tracked).toBe(2);
+      expect(props.movementCostModifier.wheeled).toBe(2);
+      expect(props.movementCostModifier.hover).toBe(0);
     });
 
     it('should have zero intervening modifier but +1 target modifier', () => {
@@ -295,8 +318,10 @@ describe('TerrainTypes', () => {
       expect(props.toHitTargetInModifier).toBe(1);
     });
 
-    it('should provide partial cover', () => {
-      expect(props.coverLevel).toBe(CoverLevel.Partial);
+    // Audit 2026-06-09 C-7: swamp grants no cover — MegaMek LosEffects has no
+    // swamp partial-cover source.
+    it('should provide no cover', () => {
+      expect(props.coverLevel).toBe(CoverLevel.None);
     });
 
     it('should not block LOS', () => {

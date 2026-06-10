@@ -28,11 +28,11 @@ export const PILOT_SKILL_COMBAT_SUPPORT = {
     'runAttackPhase passes attacker.gunnery into calculateToHit and to-hit aggregation uses it as the base modifier',
     PILOT_SKILL_SOURCE_REFS['ranged-gunnery-to-hit'],
   ),
-  'indirect-fire-spotter-gunnery': integrated(
-    'indirect-fire-spotter-gunnery',
-    'computeIndirectFireContext derives spotter-assisted indirect-fire penalties with the spotter gunnery baseline',
-    PILOT_SKILL_SOURCE_REFS['indirect-fire-spotter-gunnery'],
-  ),
+  // Audit C-5: the former 'indirect-fire-spotter-gunnery' entry is removed.
+  // The (gunnery-4)/2 spotter modifier it cataloged is an artillery-only rule
+  // (ArtilleryWeaponIndirectFireHandler); MegaMek LRM indirect fire consumes
+  // NO spotter pilot skill (ComputeToHit.java L1512-1545 — spotter movement
+  // modifier and +1 spotter-attacking only).
   'physical-piloting-to-hit': integrated(
     'physical-piloting-to-hit',
     'runPhysicalAttackPhase passes unit.piloting into resolvePhysicalAttack and all physical to-hit helpers use pilotingSkill as their base TN',

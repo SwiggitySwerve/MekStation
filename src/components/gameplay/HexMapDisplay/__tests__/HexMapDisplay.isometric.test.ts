@@ -1,4 +1,8 @@
-import type { IHexTerrain, IUnitToken } from '@/types/gameplay';
+import type {
+  IHexTerrain,
+  IUnitToken,
+  MapIsometricRotationStep,
+} from '@/types/gameplay';
 
 import { Facing, GameSide, TerrainType, TokenUnitType } from '@/types/gameplay';
 
@@ -10,7 +14,10 @@ import {
   deriveIsometricTerrainOcclusionInfoByUnit,
   deriveIsometricTerrainOccluderInfo,
   deriveIsometricTerrainOcclusionInfo,
+  getMapProjectionTransform,
+  rotateAxialCamera,
 } from '../projection';
+import { hexToPixel } from '../renderHelpers';
 
 function makeTerrain(
   q: number,
@@ -64,7 +71,116 @@ function isTokenItem(
   return item.kind === 'token';
 }
 
+/**
+ * SVG affine matrix [a b c d e f] (matching SVG's matrix(a b c d e f)
+ * parameter order). Used to verify the composed layer transform against the
+ * depth model's assumed geometry.
+ */
+type SvgMatrix = readonly [number, number, number, number, number, number];
+
+/** Multiply two SVG matrices: the result applies m2 to points first, then m1. */
+function multiplyMatrices(m1: SvgMatrix, m2: SvgMatrix): SvgMatrix {
+  const [a1, b1, c1, d1, e1, f1] = m1;
+  const [a2, b2, c2, d2, e2, f2] = m2;
+  return [
+    a1 * a2 + c1 * b2,
+    b1 * a2 + d1 * b2,
+    a1 * c2 + c1 * d2,
+    b1 * c2 + d1 * d2,
+    a1 * e2 + c1 * f2 + e1,
+    b1 * e2 + d1 * f2 + f1,
+  ];
+}
+
+/** Apply an SVG matrix to a point. */
+function applyMatrix(
+  m: SvgMatrix,
+  point: { readonly x: number; readonly y: number },
+): { x: number; y: number } {
+  const [a, b, c, d, e, f] = m;
+  return { x: a * point.x + c * point.y + e, y: b * point.x + d * point.y + f };
+}
+
+/**
+ * Parse an SVG transform list ("rotate(deg)" and "matrix(a b c d e f)"
+ * tokens) into a single composed matrix. SVG composes list entries
+ * left-to-right with the RIGHTMOST entry applied to points first.
+ */
+function parseSvgTransform(transform: string): SvgMatrix {
+  const identity: SvgMatrix = [1, 0, 0, 1, 0, 0];
+  const tokens = transform.match(/(rotate|matrix)\(([^)]*)\)/g) ?? [];
+  return tokens.reduce<SvgMatrix>((composed, token) => {
+    const [, name, args] = token.match(/(rotate|matrix)\(([^)]*)\)/) ?? [];
+    const values = (args ?? '')
+      .split(/[\s,]+/)
+      .filter(Boolean)
+      .map(Number);
+    if (name === 'rotate') {
+      const radians = ((values[0] ?? 0) * Math.PI) / 180;
+      const cos = Math.cos(radians);
+      const sin = Math.sin(radians);
+      return multiplyMatrices(composed, [cos, sin, -sin, cos, 0, 0]);
+    }
+    return multiplyMatrices(composed, values as unknown as SvgMatrix);
+  }, identity);
+}
+
 describe('HexMapDisplay isometric projection helpers', () => {
+  // Audit 2026-06-09 C-15: the layer transform used to compose
+  // rotate-AFTER-shear (`rotate(θ) matrix(shear)` — SVG applies the rightmost
+  // entry first, so the shear hit points before the rotation), while the
+  // depth/occlusion model (isometricDepthKey → rotateAxialCamera) rotates hex
+  // coordinates BEFORE projecting. At rotation steps 2-4 the screen geometry
+  // visibly diverged from the assumed paint order. The transform must place
+  // each hex exactly where the depth model assumes:
+  // shear(hexToPixel(rotateAxial(hex, step))).
+  it('matches the depth model geometry at rotation step 2 (rotate before shear)', () => {
+    const step = 2;
+    const composed = parseSvgTransform(
+      getMapProjectionTransform('isometric2d', step) ?? '',
+    );
+    const shearOnly = parseSvgTransform(
+      getMapProjectionTransform('isometric2d', 0) ?? '',
+    );
+    const sampleHexes = [
+      { q: 1, r: 0 },
+      { q: 0, r: 1 },
+      { q: 2, r: -1 },
+      { q: -1, r: 2 },
+      { q: 3, r: 1 },
+    ];
+
+    for (const hex of sampleHexes) {
+      const screen = applyMatrix(composed, hexToPixel(hex));
+      const expected = applyMatrix(
+        shearOnly,
+        hexToPixel(rotateAxialCamera(hex, step)),
+      );
+      expect(screen.x).toBeCloseTo(expected.x, 6);
+      expect(screen.y).toBeCloseTo(expected.y, 6);
+    }
+  });
+
+  // Audit 2026-06-09 C-15: a full 6-step cycle is a 360° rotation — the
+  // composed transform must return every hex to its step-0 screen position.
+  it('returns to step-0 screen geometry after a full rotation cycle', () => {
+    // The UI wraps step 5 → 0, but the raw matrix at 6 × 60° = 360° must be
+    // geometry-identical to step 0 (same invariance the depth tests pin).
+    const fullCycle = parseSvgTransform(
+      getMapProjectionTransform('isometric2d', 6 as MapIsometricRotationStep) ??
+        '',
+    );
+    const stepZero = parseSvgTransform(
+      getMapProjectionTransform('isometric2d', 0) ?? '',
+    );
+    const point = hexToPixel({ q: 2, r: -1 });
+
+    const cycled = applyMatrix(fullCycle, point);
+    const original = applyMatrix(stepZero, point);
+    expect(cycled.x).toBeCloseTo(original.x, 6);
+    expect(cycled.y).toBeCloseTo(original.y, 6);
+  });
+
   it('changes terrain depth ordering when the isometric camera rotates', () => {
     const terrainLookup = makeTerrainLookup([]);
     const renderedHexes = [

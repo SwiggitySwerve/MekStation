@@ -19,7 +19,14 @@ export function getMapProjectionTransform(
   rotationStep: MapIsometricRotationStep = 0,
 ): string | undefined {
   if (mode === 'topDown') return undefined;
-  return `rotate(${rotationStep * 60}) matrix(1 0 0.28 0.72 0 0)`;
+  // Audit 2026-06-09 C-15: compose rotate BEFORE shear. SVG applies the
+  // RIGHTMOST transform-list entry to points first, so `matrix(shear)
+  // rotate(θ)` rotates the axial layout and then shears it — matching the
+  // depth/occlusion model (isometricDepthKey/rotateAxialCamera), which
+  // rotates hex coordinates first and projects afterwards. The previous
+  // `rotate(θ) matrix(shear)` order sheared first and visibly distorted the
+  // map at rotation steps 2-4 while the paint order assumed the rotated grid.
+  return `matrix(1 0 0.28 0.72 0 0) rotate(${rotationStep * 60})`;
 }
 
 export function isIsometricProjection(mode: MapProjectionMode): boolean {

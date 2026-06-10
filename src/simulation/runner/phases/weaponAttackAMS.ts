@@ -6,9 +6,9 @@ import {
   isEnergyWeapon,
 } from '@/utils/gameplay/ammoTracking';
 import { lookupClusterHits } from '@/utils/gameplay/clusterWeapons';
-import { canFireFromArc } from '@/utils/gameplay/firingArcs';
 import { isNarc } from '@/utils/gameplay/specialWeaponMechanics';
 import { isAMS } from '@/utils/gameplay/specialWeaponMechanics/defensiveSystems';
+import { weaponMountCoversTargetArc } from '@/utils/gameplay/weaponMountArcs';
 
 import type { IWeapon } from '../../ai/types';
 
@@ -58,15 +58,25 @@ function hasAmmoForAMS(
   );
 }
 
+/**
+ * Mirror MegaMek `Entity.assignAMS` (filters active AMS by firing arc).
+ *
+ * Audit C-8 (2026-06-09): routed through `weaponMountCoversTargetArc` so
+ * arm-mounted AMS — which now hydrates multi-arc `mountingArcs`
+ * [Front, Left/Right] per `Mek.getWeaponArc` ARC_LEFTARM/ARC_RIGHTARM —
+ * unions its front+side coverage instead of falling back to the
+ * permissive no-arc-metadata branch. AMS without any arc state stays
+ * permissive (legacy fixtures and pre-hydration wiring).
+ */
 function canAMSInterceptFromArc(
   weapon: IWeapon,
   incomingAttackArc: FiringArc | undefined,
 ): boolean {
-  if (weapon.mountingArc === undefined || incomingAttackArc === undefined) {
+  if (incomingAttackArc === undefined) {
     return true;
   }
 
-  return canFireFromArc(weapon.mountingArc, incomingAttackArc);
+  return weaponMountCoversTargetArc(weapon, incomingAttackArc);
 }
 
 function findOperationalAMS(

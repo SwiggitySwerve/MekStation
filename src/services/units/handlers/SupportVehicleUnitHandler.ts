@@ -87,8 +87,11 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
       MOTION_TYPE_MAP[motionTypeStr] || GroundMotionType.WHEELED;
 
     // Movement (support vehicles can have 0 MP for stationary types)
+    // Audit 2026-06-09 C-14: flank MP rounds UP — MegaMek Entity.getRunMP is
+    // ceil(walk MP * 1.5) (Tank inherits it) and the project's own BLK Python
+    // converter (blk_vehicle_converter.py) uses math.ceil.
     const cruiseMP = document.cruiseMP || 0;
-    const flankMP = cruiseMP > 0 ? Math.floor(cruiseMP * 1.5) : 0;
+    const flankMP = cruiseMP > 0 ? Math.ceil(cruiseMP * 1.5) : 0;
     const jumpMP = document.jumpingMP || 0;
     const movement: IGroundMovement = { cruiseMP, flankMP, jumpMP };
 

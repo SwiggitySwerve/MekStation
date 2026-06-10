@@ -77,8 +77,11 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     const motionType = GroundMotionType.VTOL;
 
     // Movement
+    // Audit 2026-06-09 C-14: flank MP rounds UP — MegaMek Entity.getRunMP is
+    // ceil(walk MP * 1.5) (Tank inherits it) and the project's own BLK Python
+    // converter (blk_vehicle_converter.py) uses math.ceil.
     const cruiseMP = document.cruiseMP || 0;
-    const flankMP = Math.floor(cruiseMP * 1.5);
+    const flankMP = Math.ceil(cruiseMP * 1.5);
     const jumpMP = 0; // VTOLs don't jump - they fly
     const movement: IGroundMovement = { cruiseMP, flankMP, jumpMP };
 

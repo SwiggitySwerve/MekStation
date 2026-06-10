@@ -52,8 +52,11 @@ const MEK_HORIZONTAL_COVER_UNIT_TYPES = new Set<UnitType>([
   UnitType.INDUSTRIALMECH,
 ]);
 
+// Audit 2026-06-09 C-7: Swamp removed — MegaMek grants no swamp partial cover
+// (LosEffects has no swamp cover source; cover comes from intervening
+// elevation/buildings and depth-1 water), and the to-hit-resolution spec's
+// Partial Cover Modifier list never included swamp.
 const TARGET_HEX_PARTIAL_COVER_TERRAINS = new Set<TerrainType>([
-  TerrainType.Swamp,
   TerrainType.Building,
 ]);
 

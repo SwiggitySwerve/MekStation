@@ -32,6 +32,11 @@ export const tacticalMapSpotterSkillIndirectFireTokens =
 export const tacticalMapSpotterSkillIndirectFireHexTerrain =
   tacticalMapIndirectFireHexTerrain;
 
+// Audit C-5: this scenario formerly pinned a spotter-gunnery (gunnery 6 ->
+// +1) indirect-fire modifier — an artillery-only rule misapplied to LRMs.
+// It now exercises the corrected +1 spotter-attacking modifier (MegaMek
+// ComputeToHit.java L1540-1544): the spotter has already fired a weapon this
+// turn, so the composed indirect penalty stays at +2 (base +1, attacked +1).
 export const tacticalMapSpotterSkillIndirectFireCombatState: IGameState = {
   ...tacticalMapIndirectFireCombatState,
   units: {
@@ -40,7 +45,7 @@ export const tacticalMapSpotterSkillIndirectFireCombatState: IGameState = {
       ...tacticalMapIndirectFireCombatState.units[
         tacticalMapSpotterSkillSpotterId
       ],
-      gunnery: 6,
+      weaponsFiredThisTurn: ['spotter-medium-laser'],
     },
   },
 };

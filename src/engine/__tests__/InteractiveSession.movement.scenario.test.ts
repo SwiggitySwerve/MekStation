@@ -832,11 +832,14 @@ describe('applyInteractiveSessionMovement', () => {
       movementByUnit.get('m1')!,
     ).find((entry) => entry.hex.q === 1 && entry.hex.r === 0);
 
+    // Audit 2026-06-09 C-3: ice charges +1 to tracked (only hover/WiGE are
+    // exempt per MegaMek Terrain.movementCost) — the crossing stays legal but
+    // is no longer free.
     expect(preview).toMatchObject({
       reachable: true,
       movementMode: 'tracked',
-      mpCost: 1,
-      terrainCost: 0,
+      mpCost: 2,
+      terrainCost: 1,
       elevationCost: 0,
       heatGenerated: 0,
       movementType: MovementType.Walk,
@@ -2644,7 +2647,11 @@ describe('applyInteractiveSessionMovement', () => {
     });
   });
 
-  it('keeps heat-reduced zero jump MP hover and commit validation aligned', () => {
+  // Audit 2026-06-09 C-2: jump MP is heat-immune (MegaMek Mek.getJumpMP has
+  // no heat term) — this scenario previously pinned the wrong pre-fix
+  // behavior where heat 25 (penalty 5) zeroed a jump-2 capability. The
+  // hover preview and commit validation must now AGREE the jump is legal.
+  it('keeps overheated jump hover and commit validation aligned (jump MP heat-immune)', () => {
     const session = setupSessionAtMovement();
     session.currentState.units.m1 = {
       ...session.currentState.units.m1,
@@ -2670,12 +2677,9 @@ describe('applyInteractiveSessionMovement', () => {
     );
 
     expect(preview).toMatchObject({
-      reachable: false,
-      heatGenerated: 0,
+      reachable: true,
+      heatGenerated: 3,
       movementType: MovementType.Jump,
-      movementInvalidReason: 'InsufficientMP',
-      movementInvalidDetails:
-        'Destination is 1 hexes away, but max range for jump is 0',
     });
 
     const result = applyInteractiveSessionMovement({
@@ -2694,20 +2698,14 @@ describe('applyInteractiveSessionMovement', () => {
 
     expect(
       result.events.some(
-        (event) => event.type === GameEventType.MovementDeclared,
+        (event) => event.type === GameEventType.MovementInvalid,
       ),
     ).toBe(false);
-
-    const invalid = result.events.find(
-      (event) => event.type === GameEventType.MovementInvalid,
-    );
-    expect(invalid).toBeDefined();
-    expect(invalid!.payload as IMovementInvalidPayload).toMatchObject({
-      unitId: 'm1',
-      reason: preview!.movementInvalidReason,
-      details: preview!.movementInvalidDetails,
-      heatGenerated: preview!.heatGenerated,
-    });
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.MovementDeclared,
+      ),
+    ).toBe(true);
   });
 
   it('keeps prone stand-up movement preview, commit cost, and unit state aligned', () => {

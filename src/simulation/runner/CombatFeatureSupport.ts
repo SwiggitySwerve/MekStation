@@ -1017,7 +1017,7 @@ export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
   ),
   ams: helperOnly(
     'ams',
-    'isAMS + resolveAMSInterception applies the MegaMek/TW -4 cluster-table modifier, filters mounted AMS by incoming firing arc when mountingArc state is available, UnitHydration maps canonical isRearMounted equipment into explicit Front/Rear mountingArc state, resolveSingleMissileAMSInterception handles NARC/Thunderbolt-style single missiles, consumes defender AMS ammo, emits AMSInterception events, marks ammo-fed or Laser AMS as fired for heat accounting, and handles Streak as cluster-roll 11',
+    'isAMS + resolveAMSInterception applies the MegaMek/TW -4 cluster-table modifier, filters mounted AMS by incoming firing arc when mountingArc or multi-arc mountingArcs state is available, UnitHydration maps canonical isRearMounted equipment into explicit Front/Rear mountingArc state and biped arm mounts into front+side mountingArcs coverage, resolveSingleMissileAMSInterception handles NARC/Thunderbolt-style single missiles, consumes defender AMS ammo, emits AMSInterception events, marks ammo-fed or Laser AMS as fired for heat accounting, and handles Streak as cluster-roll 11',
     'AMS defender choice and optional multi-use/PLAYTEST_3 lifecycle remain helper-only gaps outside runner/session combat',
     MEGAMEK_AMS_SOURCE_REFS,
   ),

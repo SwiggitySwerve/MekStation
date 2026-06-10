@@ -83,17 +83,27 @@ export interface IBATrooperAllocation {
  */
 export interface IAllocateSquadDamageOptions {
   /**
-   * When true, two consecutive rolls that land on the same trooper index
-   * trigger `criticalHit: true` on the second hit — provided the attacker is
-   * NOT conventional infantry.  Mirrors MegaMek game option
-   * `ADVANCED_COMBAT_TAC_OPS_BA_CRITICAL_SLOTS`.
+   * When true, each hit rolls a SECOND confirmation d6 after trooper
+   * selection; the hit is `criticalHit: true` when the confirmation matches
+   * the selection roll — provided the attacker is NOT conventional infantry.
+   * Mirrors MegaMek game option `ADVANCED_COMBAT_TAC_OPS_BA_CRITICAL_SLOTS`
+   * (TO:AR p.108, `BattleArmor.rollHitLocation`; audit C-10).
    */
   readonly tacOpsCritSlots: boolean;
   /**
    * Set true when the attacker unit is conventional infantry so the TacOps
    * crit-slot rule is suppressed even when `tacOpsCritSlots` is enabled.
+   * The confirmation d6 is still consumed (mirrors MegaMek's short-circuit
+   * evaluation order) — only the crit outcome is suppressed.
    */
   readonly isAttackingConvInfantry?: boolean;
+  /**
+   * Unit id of the BA squad taking the damage. Stamped onto emitted
+   * `BATrooperKilled` events as `squadId` (audit C-11 — previously the HOST
+   * mech id leaked into that field). The squad shape itself does not carry
+   * its own unit id, so callers thread it through here.
+   */
+  readonly squadId?: string;
 }
 
 /**
@@ -118,18 +128,20 @@ export interface IAllocateSquadDamageResult {
 
 /**
  * Allocate `totalDamage` points of incoming damage across the troopers of
- * `squad`.  Each point is assigned by rolling a d6 — roll result is mapped
- * to a trooper index via `(rollResult - 1) % squad.troopers.length`; dead
- * troopers are re-rolled until an alive trooper is selected.
+ * `squad`.  Each point is assigned by rolling a d6 mapped DIRECTLY to a
+ * trooper slot (`roll - 1`); rolls that point past the last trooper or at a
+ * dead trooper are re-rolled until a living trooper is selected. This mirrors
+ * MegaMek `BattleArmor.rollHitLocation` — the previous modulo reduction
+ * biased damage 2× onto low-index troopers in 4/5-trooper squads (audit C-9).
  *
  * When a trooper's `armorRemaining` reaches 0 the trooper is marked
  * `alive: false` and a `BATrooperKilled` event is pushed.  Excess damage
  * beyond the trooper's remaining armor is discarded (per TW anti-infantry
  * rule — each damage point kills at most one trooper).
  *
- * The TacOps crit-slot rule fires when ALL of:
+ * The TacOps crit-slot rule (TO:AR p.108; audit C-10) fires when ALL of:
  *   - `options.tacOpsCritSlots === true`
- *   - The previous allocation landed on the SAME trooper index
+ *   - A SECOND confirmation d6 equals the selection roll
  *   - The attacker is NOT conventional infantry
  */
 export function allocateSquadDamage(
@@ -146,24 +158,27 @@ export function allocateSquadDamage(
   const allocations: IBATrooperAllocation[] = [];
   const events: BACombatEvent[] = [];
 
-  let previousTrooperIndex: number | null = null;
-
   for (let i = 0; i < totalDamage; i++) {
     // Find an alive trooper to receive this damage point, re-rolling on dead
-    // slots.  Guard against a fully-destroyed squad (all dead).
-    const trooperIndex = selectAliveTrooper(troopers, rng);
-    if (trooperIndex === -1) {
+    // or out-of-range slots.  Guard against a fully-destroyed squad.
+    const selection = selectAliveTrooper(troopers, rng);
+    if (selection === null) {
       // Squad wiped out mid-allocation — remaining damage is discarded.
       break;
     }
+    const trooperIndex = selection.trooperIndex;
 
-    // Tactical Operations crit-slot rule: second consecutive hit on the same
-    // trooper triggers a critical when the option is enabled and the attacker
-    // is not conventional infantry.
-    const criticalHit =
-      options.tacOpsCritSlots &&
-      !options.isAttackingConvInfantry &&
-      previousTrooperIndex === trooperIndex;
+    // Tactical Operations crit-slot rule (TO:AR p.108, audit C-10): roll a
+    // SECOND d6; the hit is a critical when it matches the selection roll and
+    // the attacker is not conventional infantry. The confirmation die is
+    // consumed whenever the option is enabled — mirrors the short-circuit
+    // evaluation order in MegaMek `BattleArmor.rollHitLocation`.
+    let criticalHit = false;
+    if (options.tacOpsCritSlots) {
+      const confirmRoll = rng();
+      criticalHit =
+        confirmRoll === selection.roll && !options.isAttackingConvInfantry;
+    }
 
     // Apply 1 damage point to the trooper.
     const trooper = troopers[trooperIndex];
@@ -174,13 +189,16 @@ export function allocateSquadDamage(
       trooper.alive = false;
       events.push({
         kind: 'BATrooperKilled',
-        squadId: squad.swarmingUnitId ?? '',
+        // Audit C-11: squadId carries the BA squad's OWN unit id (threaded by
+        // the caller) — never the host mech id. The host, when the squad is
+        // swarming, is reported separately via hostId.
+        squadId: options.squadId ?? '',
         trooperIndex,
+        hostId: squad.swarmingUnitId,
       });
     }
 
     allocations.push({ trooperIndex, damage: 1, criticalHit });
-    previousTrooperIndex = trooperIndex;
   }
 
   return { squad: updatedSquad, allocations, events };
@@ -191,32 +209,48 @@ export function allocateSquadDamage(
 // =============================================================================
 
 /**
+ * Result of one trooper-selection roll sequence: the 0-based index of the
+ * living trooper hit, plus the raw d6 value that selected it (needed by the
+ * TacOps crit confirmation, which compares raw d6 location values).
+ */
+interface ITrooperSelection {
+  readonly trooperIndex: number;
+  readonly roll: number;
+}
+
+/**
  * Roll a d6 (with re-rolls) until a living trooper is selected.  Returns the
- * 0-based index into `troopers`, or -1 if no troopers are alive.
+ * selection (index + raw roll), or null if no troopers are alive.
  *
- * The d6 result is mapped to a trooper slot via `(roll - 1) % troopers.length`
- * which gives a uniform distribution over slots 0..(n-1) for squad sizes 1–6.
+ * Per MegaMek `BattleArmor.rollHitLocation` (audit C-9): the d6 maps DIRECTLY
+ * to a trooper slot (`roll - 1`); rolls past the last trooper or onto a dead
+ * trooper are re-rolled. No modulo reduction — that wrapped rolls 5/6 onto
+ * troopers 0/1 and biased damage 2× in 4/5-trooper squads.
  */
 function selectAliveTrooper(
   troopers: readonly ITrooperState[],
   rng: D6Roller,
-): number {
+): ITrooperSelection | null {
   const anyAlive = troopers.some((t) => t.alive);
-  if (!anyAlive) return -1;
+  if (!anyAlive) return null;
 
-  // Re-roll up to a generous bound to avoid infinite loops in degenerate tests.
+  // Re-roll up to a generous bound to avoid infinite loops in degenerate
+  // tests (a real d6 terminates with probability 1).
   for (let attempt = 0; attempt < 100; attempt++) {
     const roll = rng(); // 1–6
-    const idx = (roll - 1) % troopers.length;
-    if (troopers[idx].alive) return idx;
+    const idx = roll - 1;
+    if (idx < troopers.length && troopers[idx].alive) {
+      return { trooperIndex: idx, roll };
+    }
   }
 
   // Fallback: linear scan for the first alive trooper (deterministic safety).
+  // Synthesize the matching raw roll so crit confirmation stays well-defined.
   for (let j = 0; j < troopers.length; j++) {
-    if (troopers[j].alive) return j;
+    if (troopers[j].alive) return { trooperIndex: j, roll: j + 1 };
   }
 
-  return -1;
+  return null;
 }
 
 // =============================================================================

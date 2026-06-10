@@ -867,8 +867,9 @@ function preResolutionFromProjection(
       basis: projection.indirectFireBasis,
       toHitPenalty: projection.indirectFireToHitPenalty ?? 0,
       forwardObserverApplied: projection.indirectFireForwardObserver,
-      spotterGunnery: projection.indirectFireSpotterGunnery,
-      spotterSkillModifier: projection.indirectFireSpotterSkillModifier,
+      // Audit C-5: the spotter-attacked flag replaces the retired
+      // spotterGunnery/spotterSkillModifier fields (artillery-only rule).
+      spotterAttackedThisTurn: projection.indirectFireSpotterAttacked,
       spotterMovementPenaltyCancelled: projection.indirectFirePenaltyCancelled,
     },
   };
@@ -976,12 +977,14 @@ function enrichAttackDeclaredEventFromProjection({
       candidate.type === GameEventType.IndirectFireSpotterSelected &&
       projection.indirectFireSpotterId
     ) {
+      // Audit C-5: stamp the spotter-attacked flag (the retired
+      // spotterGunnery/spotterSkillModifier stamps described an
+      // artillery-only modifier that never applied to LRM indirect fire).
       return {
         ...candidate,
         payload: {
           ...candidate.payload,
-          spotterGunnery: projection.indirectFireSpotterGunnery,
-          spotterSkillModifier: projection.indirectFireSpotterSkillModifier,
+          spotterAttackedThisTurn: projection.indirectFireSpotterAttacked,
         },
       };
     }

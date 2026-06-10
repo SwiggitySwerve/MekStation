@@ -336,7 +336,10 @@ describe('tactical map combat scenarios', () => {
     );
   });
 
-  it('keeps spotter-gunnery indirect fire aligned between browser projection and committed attack', () => {
+  // Audit C-5: this agreement scenario formerly pinned the artillery-only
+  // spotter-gunnery modifier; it now pins the corrected +1 spotter-attacking
+  // modifier (MegaMek ComputeToHit.java L1540-1544).
+  it('keeps spotter-attacked indirect fire aligned between browser projection and committed attack', () => {
     expect(tacticalMapSpotterSkillIndirectFireCombatProjection).toMatchObject({
       hex: { q: 3, r: 0 },
       distance: 3,
@@ -348,10 +351,9 @@ describe('tactical map combat scenarios', () => {
       indirectFireSpotterId: 'indirect-spotter',
       indirectFireBasis: 'los',
       indirectFireToHitPenalty: 2,
-      indirectFireSpotterGunnery: 6,
-      indirectFireSpotterSkillModifier: 1,
+      indirectFireSpotterAttacked: true,
       indirectFireReason:
-        'Indirect fire via spotter indirect-spotter (+2); spotter gunnery 6 adds +1',
+        'Indirect fire via spotter indirect-spotter (+2); spotter attacked this turn adds +1',
     });
     expect(
       tacticalMapSpotterSkillIndirectFireCombatProjection.toHitModifiers,
@@ -400,8 +402,7 @@ describe('tactical map combat scenarios', () => {
             spotterId: 'indirect-spotter',
             basis: 'los',
             toHitPenalty: 2,
-            spotterGunnery: 6,
-            spotterSkillModifier: 1,
+            spotterAttackedThisTurn: true,
           }),
         }),
       ]),

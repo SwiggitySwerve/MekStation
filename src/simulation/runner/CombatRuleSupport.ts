@@ -902,7 +902,10 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
   ),
   jump: integrated(
     'jump',
-    'validateMovement enforces jump MP/no-jump-jets and ignores ground terrain entry modifiers',
+    // Audit 2026-06-09 C-13: validateMovement now enforces the jump
+    // elevation/clearance terrain gates the reachability projection already
+    // used — the old blurb claimed integration while only reachable.ts gated.
+    'validateMovement enforces jump MP/no-jump-jets plus the shared jump elevation/clearance terrain gates and ignores ground terrain entry modifiers',
     MEGAMEK_JUMP_MOVEMENT_SOURCE_REFS,
   ),
   stand: integrated(
@@ -943,7 +946,7 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
   ),
   'heat-mp-penalty': integrated(
     'heat-mp-penalty',
-    'validateMovement applies getHeatMovementPenalty to effective MP',
+    'validateMovement applies getHeatMovementPenalty to walk MP and re-derives run/sprint MP from the heat-adjusted walk; jump MP is heat-immune',
     MEGAMEK_HEAT_MOVEMENT_PENALTY_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
@@ -990,7 +993,7 @@ export const MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT = {
 export const TERRAIN_ENVIRONMENT_COMBAT_SUPPORT = {
   'terrain-movement-costs': integrated(
     'terrain-movement-costs',
-    'validateMovement consumes TERRAIN_PROPERTIES movementCostModifier for every TerrainType',
+    'validateMovement consumes per-motive, per-level TERRAIN_PROPERTIES entry costs summed across every terrain feature in the hex (audit 2026-06-09 C-3/C-4)',
     [MEGAMEK_TERRAIN_TYPE_SOURCE_REF, MEGAMEK_TERRAIN_MOVEMENT_COST_SOURCE_REF],
   ),
   'terrain-los-blocking': integrated(

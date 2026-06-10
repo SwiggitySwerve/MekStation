@@ -53,27 +53,38 @@ function gridWith(hexes: readonly IHex[]): IHexGrid {
 
 describe('hexProvidesPartialCover', () => {
   it('returns true for source-pinned target-hex partial-cover terrain', () => {
-    for (const t of [
-      TerrainType.Water,
-      TerrainType.Swamp,
-      TerrainType.Building,
-    ]) {
+    for (const t of [TerrainType.Water, TerrainType.Building]) {
       expect(hexProvidesPartialCover(hex(t))).toBe(true);
     }
   });
 
   it('returns false for open terrain and target terrain modifiers', () => {
+    // Audit 2026-06-09 C-7: Swamp moved here — MegaMek grants no swamp partial
+    // cover (LosEffects has no swamp cover source), so swamp must not produce
+    // the +1 cover modifier or the leg-hit conversion.
     for (const t of [
       TerrainType.Clear,
       TerrainType.Pavement,
       TerrainType.Road,
       TerrainType.Rough,
       TerrainType.Rubble,
+      TerrainType.Swamp,
       TerrainType.LightWoods,
       TerrainType.Smoke,
     ]) {
       expect(hexProvidesPartialCover(hex(t))).toBe(false);
     }
+  });
+
+  it('reports no cover metadata for a swamp target hex (audit 2026-06-09 C-7)', () => {
+    // Shared gate for both the to-hit +1 and the hit-location leg-hit
+    // conversion: weaponAttack and InteractiveSession both route through
+    // getHexCoverInfo / hexProvidesPartialCover.
+    expect(getHexCoverInfo(hex(TerrainType.Swamp))).toMatchObject({
+      coverLevel: CoverLevel.None,
+      partialCover: false,
+      modifier: 0,
+    });
   });
 
   it('returns false for full-cover terrain (Partial means partial, not full)', () => {

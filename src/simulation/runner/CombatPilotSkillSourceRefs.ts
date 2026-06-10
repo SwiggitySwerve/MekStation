@@ -8,7 +8,6 @@ import {
 import { STANDING_UP_PSR_SOURCE_REFS } from './CombatPsrTriggerSourceRefs';
 import {
   MEGAMEK_GUNNERY_TO_HIT_SOURCE_REFS,
-  MEGAMEK_INDIRECT_FIRE_TO_HIT_SOURCE_REFS,
   MEGAMEK_PILOT_WOUNDS_TO_HIT_SOURCE_REFS,
 } from './CombatToHitSourceRefs';
 
@@ -98,17 +97,6 @@ const MEKSTATION_RANGED_GUNNERY_SOURCE_REFS = [
   mekstationRef(
     'MekStation declareAttack passes the interactive attacker gunnery value into the same ranged to-hit state builder.',
     'src/utils/gameplay/gameSessionCore.ts#L504-L528',
-  ),
-] satisfies readonly ICombatFeatureSourceReference[];
-
-const MEKSTATION_INDIRECT_SPOTTER_GUNNERY_SOURCE_REFS = [
-  mekstationRef(
-    'MekStation validateLineOfSightForAttack routes no-LOS attacks through computeIndirectFireContext before accepting an indirect-fire declaration.',
-    'src/simulation/runner/phases/weaponAttackLineOfSight.ts#L53-L71',
-  ),
-  mekstationRef(
-    'MekStation computeIndirectFireContext derives the spotter gunnery modifier from effective spotter gunnery with Java-style truncation.',
-    'src/utils/gameplay/indirectFire.ts#L381-L385',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -221,10 +209,10 @@ export const PILOT_SKILL_SOURCE_REFS = {
     ...MEGAMEK_GUNNERY_TO_HIT_SOURCE_REFS,
     ...MEKSTATION_RANGED_GUNNERY_SOURCE_REFS,
   ],
-  'indirect-fire-spotter-gunnery': [
-    ...MEGAMEK_INDIRECT_FIRE_TO_HIT_SOURCE_REFS,
-    ...MEKSTATION_INDIRECT_SPOTTER_GUNNERY_SOURCE_REFS,
-  ],
+  // Audit C-5: 'indirect-fire-spotter-gunnery' removed — the (gunnery-4)/2
+  // spotter modifier is artillery-only (ArtilleryWeaponIndirectFireHandler);
+  // MegaMek LRM indirect fire consumes no spotter pilot skill
+  // (ComputeToHit.java L1512-1545).
   'physical-piloting-to-hit': [
     ...MEGAMEK_PHYSICAL_PILOTING_TO_HIT_SOURCE_REFS,
     ...MEKSTATION_PHYSICAL_PILOTING_SOURCE_REFS,

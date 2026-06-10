@@ -8,14 +8,14 @@ import {
   IMovementCapability,
   MovementType,
 } from '@/types/gameplay';
-import { TERRAIN_PROPERTIES, TerrainType } from '@/types/gameplay/TerrainTypes';
+import { TerrainType } from '@/types/gameplay/TerrainTypes';
 import {
   getHeatMovementPenalty,
   isTSMActive,
 } from '@/types/validation/HeatManagement';
 import { hasSPA } from '@/utils/gameplay/spaModifiers/canonicalize';
 import { terrainFeaturesFromString } from '@/utils/gameplay/terrainEncoding';
-import { getPrimaryTerrainFeatureFromTerrainTag } from '@/utils/gameplay/terrainMovementCost';
+import { getTerrainFeatureMovementCostModifier } from '@/utils/gameplay/terrainMovementCost';
 
 import type { UnitMovementType } from './types';
 
@@ -201,25 +201,112 @@ export function applyActiveMPBoosters(
 }
 
 /**
+ * Re-derive run MP from a heat-adjusted walk MP, preserving the run/walk
+ * formula family the capability encodes. MegaMek derives run MP from the
+ * already-heat-adjusted walk MP (Entity.getRunMP `ceil(walk * 1.5)`; with
+ * boosters Mek.getRunMP routes through MPBoosters.calculateRunMP(walk)),
+ * so MASC/Supercharger and run-equals-walk capabilities must keep their
+ * own derivation instead of collapsing to the standard 1.5x formula.
+ * Audit 2026-06-09 C-1.
+ */
+function deriveRunMPFromAdjustedWalk(
+  capability: IMovementCapability,
+  adjustedWalkMP: number,
+): number {
+  const { walkMP, runMP } = capability;
+  // Standard BattleMech derivation: run = ceil(walk * 1.5).
+  if (runMP === calculateRunMP(walkMP)) return calculateRunMP(adjustedWalkMP);
+  // Single active MASC or Supercharger: run = walk * 2.
+  if (runMP === walkMP * 2) return adjustedWalkMP * 2;
+  // MASC + Supercharger both active: run = ceil(walk * 2.5).
+  if (runMP === Math.ceil(walkMP * 2.5)) {
+    return Math.ceil(adjustedWalkMP * 2.5);
+  }
+  // Run-equals-walk capabilities (e.g. LAM fighter ground taxi).
+  if (runMP === walkMP) return adjustedWalkMP;
+  // Unknown relationship: preserve the capability's additive offset from
+  // the standard derivation (e.g. flat run-MP reductions).
+  return Math.max(
+    0,
+    calculateRunMP(adjustedWalkMP) + (runMP - calculateRunMP(walkMP)),
+  );
+}
+
+/**
+ * Re-derive sprint MP from a heat-adjusted walk MP, preserving the
+ * sprint/walk formula family the capability encodes. MegaMek computes
+ * sprint MP from the heat-adjusted walk MP (Mek.getSprintMP: walk * 2
+ * without boosters, MPBoosters.calculateSprintMP(walk) with boosters).
+ * Audit 2026-06-09 C-1.
+ */
+function deriveSprintMPFromAdjustedWalk(
+  capability: IMovementCapability,
+  adjustedWalkMP: number,
+): number {
+  const { walkMP } = capability;
+  const sprintMP = getSprintMPForCapability(capability);
+  // Standard sprint derivation: sprint = walk * 2.
+  if (sprintMP === calculateSprintMP(walkMP)) {
+    return calculateSprintMP(adjustedWalkMP);
+  }
+  // Single active MASC or Supercharger: sprint = ceil(walk * 2.5).
+  if (sprintMP === Math.ceil(walkMP * 2.5)) {
+    return Math.ceil(adjustedWalkMP * 2.5);
+  }
+  // MASC + Supercharger both active: sprint = walk * 3.
+  if (sprintMP === walkMP * 3) return adjustedWalkMP * 3;
+  // Unknown relationship: preserve the additive offset from the standard
+  // derivation.
+  return Math.max(
+    0,
+    calculateSprintMP(adjustedWalkMP) + (sprintMP - calculateSprintMP(walkMP)),
+  );
+}
+
+/**
  * Get the maximum MP available for a movement type.
  *
- * Per `wire-heat-generation-and-effects` tasks 7.1 / 7.2 /
- * decisions.md "Heat movement penalty integration point":
- * overheated units lose MP by `floor(heat / 5)`. Callers that
- * track current heat pass `heatPenalty`; legacy callers that omit
- * it get the raw MP. Jump MP also has heat applied (per heat
- * chart — total MP reduction). The penalty never drives MP
- * negative; floor is 0 so a heat-30 walking unit still has 0
- * walkMP, not -N.
+ * Audit 2026-06-09 C-1/C-2 (MegaMek rules alignment): the heat penalty
+ * `floor(heat / 5)` applies to WALK MP only (BipedMek.getWalkMP
+ * `mp -= heat / 5`). Run / sprint / evade MP are re-derived from the
+ * heat-adjusted walk MP (Entity.getRunMP `ceil(walk * 1.5)`,
+ * Mek.getSprintMP `walk * 2`) — never by subtracting the penalty from the
+ * pre-derived run/sprint values. Jump MP has NO heat term (Mek.getJumpMP).
+ * Worked example: walk 5 / run 8 at heat 10 → penalty 2 → walk 3,
+ * run ceil(3 * 1.5) = 5 (not 8 - 2 = 6); jump unchanged. Callers that
+ * track current heat pass `heatPenalty`; legacy callers that omit it get
+ * the raw MP. The penalty never drives MP negative.
  */
 export function getMaxMP(
   capability: IMovementCapability,
   movementType: MovementType,
   heatPenalty: number = 0,
 ): number {
-  const raw = getRawMaxMP(capability, movementType);
-  if (heatPenalty <= 0) return raw;
-  return Math.max(0, raw - heatPenalty);
+  if (heatPenalty <= 0) return getRawMaxMP(capability, movementType);
+
+  const adjustedWalkMP = Math.max(0, capability.walkMP - heatPenalty);
+  switch (movementType) {
+    case MovementType.Stationary:
+      return 0;
+    case MovementType.Walk:
+      return adjustedWalkMP;
+    case MovementType.Run:
+    case MovementType.Evade:
+      return Math.max(
+        0,
+        deriveRunMPFromAdjustedWalk(capability, adjustedWalkMP),
+      );
+    case MovementType.Sprint:
+      return Math.max(
+        0,
+        deriveSprintMPFromAdjustedWalk(capability, adjustedWalkMP),
+      );
+    case MovementType.Jump:
+      // Audit 2026-06-09 C-2: jump MP is heat-immune.
+      return capability.jumpMP;
+    default:
+      return 0;
+  }
 }
 
 function getRawMaxMP(
@@ -376,46 +463,53 @@ export function getMovementStepCostBreakdown(
     };
   }
 
-  const primaryTerrainFeature = getPrimaryTerrainFeatureFromTerrainTag(
-    hex.terrain,
-  );
-  if (primaryTerrainFeature) {
-    const terrainType = primaryTerrainFeature.type;
-    const terrainProps = TERRAIN_PROPERTIES[terrainType];
-
-    if (terrainProps) {
-      terrainCost =
-        terrainType === TerrainType.Water
-          ? 0
-          : (terrainProps.movementCostModifier[movementType] ?? 0);
+  // Audit 2026-06-09 C-3/C-4: MegaMek Hex.movementCost sums Terrain.movementCost
+  // over every terrain in the hex, so multi-feature hexes (e.g. rough under
+  // light woods) charge each feature — not just the primary one — with
+  // per-motive, per-level costs. Water is excluded because its depth-based
+  // surcharge is applied separately below, and a pavement/road/bridge surface
+  // bypasses the terrain sum entirely (MegaMek MoveStep: "Account for
+  // terrain, unless we're moving along a road").
+  if (!hasPavementSurfaceFeature) {
+    for (const feature of terrainFeatures) {
+      if (feature.type === TerrainType.Water) continue;
+      let featureCost = getTerrainFeatureMovementCostModifier(
+        feature,
+        movementType,
+      );
+      // Terrain Master: Mountaineer relieves 1 MP per rough/rubble feature
+      // (MegaMek Terrain.movementCost applies the SPA inside each terrain
+      // case, so the relief is per-feature, not per-hex).
       if (
+        featureCost > 0 &&
         hasMountaineerMovementRelief(context) &&
         isBattleMechGroundMovement(movementType) &&
-        (terrainType === TerrainType.Rough ||
-          terrainType === TerrainType.Rubble)
+        (feature.type === TerrainType.Rough ||
+          feature.type === TerrainType.Rubble)
       ) {
-        terrainCost = Math.max(0, terrainCost - 1);
+        featureCost -= 1;
       }
-
-      if (
-        hasWaterFeature &&
-        !hasPavementSurfaceFeature &&
-        !hasSurfaceIce &&
-        waterLevel > 0 &&
-        blocksWaterMovement(movementType, context) &&
-        !context.waterCapability?.fullyAmphibious &&
-        !hasFrogmanWaterMovement(context)
-      ) {
-        return {
-          mpCost: Infinity,
-          baseCost,
-          terrainCost,
-          elevationCost: 0,
-          elevationDelta: 0,
-          blockedReason: 'Water blocks ground movement',
-        };
-      }
+      terrainCost += featureCost;
     }
+  }
+
+  if (
+    hasWaterFeature &&
+    !hasPavementSurfaceFeature &&
+    !hasSurfaceIce &&
+    waterLevel > 0 &&
+    blocksWaterMovement(movementType, context) &&
+    !context.waterCapability?.fullyAmphibious &&
+    !hasFrogmanWaterMovement(context)
+  ) {
+    return {
+      mpCost: Infinity,
+      baseCost,
+      terrainCost,
+      elevationCost: 0,
+      elevationDelta: 0,
+      blockedReason: 'Water blocks ground movement',
+    };
   }
 
   if (hasWaterFeature && !hasPavementSurfaceFeature && !hasSurfaceIce) {
@@ -642,8 +736,8 @@ export function estimateMovementCost(
  *
  *   - TSM (Triple Strength Myomer) bonus: +2 walk MP when active (heat >= 9
  *     activation threshold, see `isTSMActive`).
- *   - Heat-induced movement penalty: -1 / -2 / -3 / -4 MP at heat 5+ / 7+ /
- *     8+ / 10+ respectively (see `getHeatMovementPenalty`).
+ *   - Heat-induced movement penalty: `floor(heat / 5)` MP — -1 at heat 5+,
+ *     -2 at 10+, -3 at 15+, and so on (see `getHeatMovementPenalty`).
  *
  * The two modifiers stack additively against base walk MP and the result is
  * floored at 0 (an overheated TSM-less mech never has negative walk MP).
@@ -669,21 +763,30 @@ export function getEffectiveWalkMP(
 /**
  * Build the movement capability a BattleMech should validate against when TSM
  * and heat are both known at runner time. MegaMek applies heat/TSM to walk MP
- * first, then derives run MP from the adjusted walk MP; jump MP keeps the heat
- * penalty only.
+ * first, then derives run (and sprint) MP from the adjusted walk MP; jump MP
+ * is heat-immune — Mek.getJumpMP has no heat term (audit 2026-06-09 C-2; the
+ * previous jump reduction here pinned the wrong behavior).
  */
 export function getHeatAdjustedMovementCapability(
   capability: IMovementCapability,
   currentHeat: number,
   hasTSM: boolean,
 ): IMovementCapability {
-  const heatPenalty = getHeatMovementPenalty(currentHeat);
   const walkMP = getEffectiveWalkMP(capability.walkMP, currentHeat, hasTSM);
 
   return {
     ...capability,
     walkMP,
-    runMP: calculateRunMP(walkMP),
-    jumpMP: Math.max(0, capability.jumpMP - heatPenalty),
+    runMP: Math.max(0, deriveRunMPFromAdjustedWalk(capability, walkMP)),
+    // Audit 2026-06-09 C-1: a pre-set sprint MP must also re-derive from the
+    // adjusted walk so it cannot go stale against the new walk/run values.
+    ...(capability.sprintMP !== undefined
+      ? {
+          sprintMP: Math.max(
+            0,
+            deriveSprintMPFromAdjustedWalk(capability, walkMP),
+          ),
+        }
+      : {}),
   };
 }

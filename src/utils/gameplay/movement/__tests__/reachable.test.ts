@@ -975,16 +975,19 @@ describe('deriveReachableHexes', () => {
       0,
     );
     const unit = makeUnitAtOrigin();
-    const cap: IMovementCapability = { walkMP: 3, runMP: 5, jumpMP: 0 };
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 0 };
 
     const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
 
     const encodedHeavyWoods = result.find(
       (r) => r.hex.q === 1 && r.hex.r === 0,
     );
+    // Audit 2026-06-09 C-4: MegaMek Hex.movementCost sums every terrain
+    // feature in the hex, so rough + heavy woods now charges 1 + 1 + 2 = 4
+    // (the old primary-feature lookup charged only the woods).
     expect(encodedHeavyWoods).toMatchObject({
-      mpCost: 3,
-      terrainCost: 2,
+      mpCost: 4,
+      terrainCost: 3,
       elevationDelta: 0,
       elevationCost: 0,
       reachable: true,
@@ -1506,9 +1509,12 @@ describe('deriveReachableHexes', () => {
       movementMode: 'tracked',
     }).find((r) => r.hex.q === 1 && r.hex.r === 0);
 
+    // Audit 2026-06-09 C-3: ice charges +1 to tracked (only hover/WiGE are
+    // exempt per MegaMek Terrain.movementCost) — the surface crossing stays
+    // legal but is no longer free.
     expect(tracked).toMatchObject({
-      mpCost: 1,
-      terrainCost: 0,
+      mpCost: 2,
+      terrainCost: 1,
       heatGenerated: 0,
       movementMode: 'tracked',
       reachable: true,
@@ -3118,7 +3124,10 @@ describe('deriveMovementRangeHexForDestination', () => {
     });
   });
 
-  it('projects a hover destination even when heat leaves no jump MP', () => {
+  // Audit 2026-06-09 C-2: jump MP is heat-immune (MegaMek Mek.getJumpMP has
+  // no heat term) — this test previously pinned the wrong pre-fix behavior
+  // where heat 25 (penalty 5) zeroed a jump-2 capability.
+  it('projects a reachable jump destination because jump MP is heat-immune', () => {
     const grid = createHexGrid({ radius: 5 });
     const unit = { ...makeUnitAtOrigin(), heat: 25 };
     const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 2 };
@@ -3134,16 +3143,10 @@ describe('deriveMovementRangeHexForDestination', () => {
     expect(projected).toMatchObject({
       hex: { q: 1, r: 0 },
       mpCost: 1,
-      terrainCost: 0,
-      elevationCost: 0,
-      heatGenerated: 0,
-      reachable: false,
+      heatGenerated: 3,
+      reachable: true,
       movementType: MovementType.Jump,
       movementMode: 'jump',
-      blockedReason: 'Destination is 1 hexes away, but max range for jump is 0',
-      movementInvalidReason: 'InsufficientMP',
-      movementInvalidDetails:
-        'Destination is 1 hexes away, but max range for jump is 0',
     });
   });
 

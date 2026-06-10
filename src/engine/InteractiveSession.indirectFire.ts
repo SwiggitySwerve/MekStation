@@ -126,11 +126,12 @@ export function computeIndirectFireContext(
       // Thread pilot SPA list into candidate when caller supplies it, falling
       // back to the combat-state ability list hydrated onto the unit.
       pilotSpas: pilotSpasByUnitId?.[unitId] ?? unit.abilities,
-      // Thread pilot gunnery into candidate for the spotter-skill modifier.
-      // IUnitGameState.gunnery is optional (seeded at session-creation time from
-      // IGameUnit.gunnery). When absent (synthetic fixtures, legacy saves), the
-      // helper defaults to 4 (MegaMek baseline, modifier = 0).
-      spotterGunnery: unit.gunnery,
+      // Audit C-5: thread the per-turn fired state into the candidate so the
+      // helper can apply the +1 spotter-attacking modifier (MegaMek
+      // ComputeToHit.java L1540-1544 / Entity.isAttackingThisTurn).
+      // weaponsFiredThisTurn is reset on every TurnStarted boundary
+      // (gameState/phaseManagement.ts), so it is an honest this-turn signal.
+      attackedThisTurn: (unit.weaponsFiredThisTurn?.length ?? 0) > 0,
     });
   }
 
@@ -197,8 +198,7 @@ export function computeIndirectFireContext(
     toHitPenalty: result.toHitPenalty,
     forwardObserverApplied: result.forwardObserverApplied,
     obliqueAttackerApplied: result.obliqueAttackerApplied,
-    spotterGunnery: result.spotterGunnery,
-    spotterSkillModifier: result.spotterSkillModifier,
+    spotterAttackedThisTurn: result.spotterAttackedThisTurn,
     spotterMovementPenaltyCancelled: result.spotterMovementPenaltyCancelled,
   };
 }

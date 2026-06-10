@@ -16,6 +16,7 @@ import {
   type IMovementCapability,
 } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import { DEFAULT_ENVIRONMENTAL_CONDITIONS } from '@/utils/gameplay/environmentalModifiers';
 import { createHexGrid, placeUnit } from '@/utils/gameplay/hexGrid';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import {
@@ -118,29 +119,62 @@ describe('movement', () => {
       expect(getMaxMP(cap, MovementType.Jump)).toBe(4);
     });
 
-    // Task 7.3 (wire-heat-generation-and-effects):
-    // floor(heat/5) reduces effective walk + run MP.
-    // walk 5, run 8, heat 15 → effective walk 2, effective run 5.
-    it('subtracts heat penalty from walk/run/jump MP', () => {
+    // Audit 2026-06-09 C-1: heat reduces WALK MP only; run MP is re-derived
+    // from the heat-adjusted walk (MegaMek BipedMek.getWalkMP `mp -= heat/5`,
+    // Entity.getRunMP `ceil(walk * 1.5)`) — never subtracted from raw run MP.
+    // Audit 2026-06-09 C-2: jump MP is heat-immune (Mek.getJumpMP has no heat
+    // term). The old expectations (run 8-3=5, jump 4-3=1) pinned the wrong
+    // pre-fix subtraction behavior.
+    it('applies heat penalty to walk and re-derives run; jump is heat-immune', () => {
       const cap = { walkMP: 5, runMP: 8, jumpMP: 4 };
 
-      // Heat 15 → penalty 3
+      // Heat 15 → penalty 3: walk 5→2, run = ceil(2 * 1.5) = 3 (NOT 8-3=5)
       expect(getMaxMP(cap, MovementType.Walk, 3)).toBe(2);
-      expect(getMaxMP(cap, MovementType.Run, 3)).toBe(5);
-      expect(getMaxMP(cap, MovementType.Jump, 3)).toBe(1);
+      expect(getMaxMP(cap, MovementType.Run, 3)).toBe(3);
+      expect(getMaxMP(cap, MovementType.Jump, 3)).toBe(4);
 
       // No penalty when heat < 5
       expect(getMaxMP(cap, MovementType.Walk, 0)).toBe(5);
       expect(getMaxMP(cap, MovementType.Run, 0)).toBe(8);
     });
 
-    it('clamps effective MP at 0 (never negative)', () => {
+    // Audit 2026-06-09 C-1 worked example: walk 5 / run 8 / heat 10 →
+    // penalty 2 → walk 3, run = ceil(3 * 1.5) = 5 (NOT 8 - 2 = 6).
+    it('locks the C-1 worked example: walk 5/run 8/heat 10 → run 5', () => {
+      const cap = { walkMP: 5, runMP: 8, jumpMP: 0 };
+
+      expect(getMaxMP(cap, MovementType.Walk, 2)).toBe(3);
+      expect(getMaxMP(cap, MovementType.Run, 2)).toBe(5);
+      expect(getMaxMP(cap, MovementType.Evade, 2)).toBe(5);
+    });
+
+    // Audit 2026-06-09 C-1: sprint also derives from heat-adjusted walk
+    // (MegaMek Mek.getSprintMP = getWalkMP(setting) * 2 without boosters).
+    it('derives sprint MP from heat-adjusted walk', () => {
+      const cap = { walkMP: 5, runMP: 8, jumpMP: 0 };
+
+      // penalty 2 → walk 3 → sprint 3 * 2 = 6 (NOT 10 - 2 = 8)
+      expect(getMaxMP(cap, MovementType.Sprint, 2)).toBe(6);
+    });
+
+    // Audit 2026-06-09 C-1: MASC/Supercharger-boosted capabilities keep their
+    // booster formula family under heat — MegaMek computes boosted run MP from
+    // the heat-adjusted walk (Mek.getRunMP → MPBoosters.calculateRunMP(walk)).
+    it('preserves MP-booster derivation under heat', () => {
+      // Single active booster: run = walk * 2
+      const boosted = { walkMP: 5, runMP: 10, jumpMP: 0 };
+      // penalty 2 → walk 3 → run 3 * 2 = 6 (NOT 10 - 2 = 8)
+      expect(getMaxMP(boosted, MovementType.Run, 2)).toBe(6);
+    });
+
+    it('clamps effective walk/run MP at 0 (never negative); jump unaffected', () => {
       const cap = { walkMP: 3, runMP: 5, jumpMP: 2 };
 
-      // Huge penalty → 0, not negative
+      // Huge penalty → walk/run 0, not negative.
       expect(getMaxMP(cap, MovementType.Walk, 10)).toBe(0);
       expect(getMaxMP(cap, MovementType.Run, 10)).toBe(0);
-      expect(getMaxMP(cap, MovementType.Jump, 10)).toBe(0);
+      // Audit 2026-06-09 C-2: jump MP is heat-immune (was pinned to 0 pre-fix).
+      expect(getMaxMP(cap, MovementType.Jump, 10)).toBe(2);
     });
 
     it('legacy callers (no heatPenalty arg) are unaffected', () => {
@@ -404,6 +438,136 @@ describe('movement', () => {
         0,
       );
       expect(ok.valid).toBe(true);
+    });
+
+    // Audit 2026-06-09 C-2: jump MP is heat-immune (MegaMek Mek.getJumpMP has
+    // no heat term) — a heat-15 unit with jump 4 still validates a 3-hex jump.
+    it('validates jump distance against heat-immune jump MP', () => {
+      const hotGrid = createHexGrid({ radius: 5 });
+      const cap = { walkMP: 5, runMP: 8, jumpMP: 4 };
+      const pos: IUnitPosition = {
+        unitId: 'hot-jumper',
+        coord: { q: 0, r: 0 },
+        facing: Facing.North,
+        prone: false,
+      };
+
+      const ok = validateMovement(
+        hotGrid,
+        pos,
+        { q: 3, r: 0 },
+        Facing.North,
+        MovementType.Jump,
+        cap,
+        15, // currentHeat → penalty 3, must NOT reduce jump MP
+      );
+      expect(ok.valid).toBe(true);
+    });
+
+    // Audit 2026-06-09 C-2: the environmental jump branch must not subtract
+    // the heat penalty either — gravity and wind are the only jump modifiers.
+    it('keeps jump MP heat-immune on the environmental-conditions branch', () => {
+      const hotGrid = createHexGrid({ radius: 5 });
+      const cap = { walkMP: 5, runMP: 8, jumpMP: 4 };
+      const pos: IUnitPosition = {
+        unitId: 'hot-jumper-env',
+        coord: { q: 0, r: 0 },
+        facing: Facing.North,
+        prone: false,
+      };
+
+      const ok = validateMovement(
+        hotGrid,
+        pos,
+        { q: 3, r: 0 },
+        Facing.North,
+        MovementType.Jump,
+        cap,
+        15, // currentHeat → penalty 3, must NOT reduce jump MP
+        DEFAULT_ENVIRONMENTAL_CONDITIONS, // gravity 1.0, wind none
+      );
+      expect(ok.valid).toBe(true);
+    });
+
+    // Audit 2026-06-09 C-13: the simulation runner validates bot moves solely
+    // through validateMovement, whose Jump branch skipped the terrain gates
+    // the reachability projection (reachable.ts) already enforces — bots
+    // could jump onto elevation rises above jump MP. MegaMek marks such jump
+    // steps illegal (MovePath jump path elevation helpers; MoveStep
+    // elevation-change legality).
+    it('rejects a jump onto an elevation rise above effective jump MP', () => {
+      let jumpGrid = createHexGrid({ radius: 5 });
+      jumpGrid = setHexTerrain(jumpGrid, { q: 2, r: 0 }, 'clear', 5);
+      const cap = { walkMP: 5, runMP: 8, jumpMP: 4 };
+      const pos: IUnitPosition = {
+        unitId: 'jumper',
+        coord: { q: 0, r: 0 },
+        facing: Facing.North,
+        prone: false,
+      };
+
+      const blocked = validateMovement(
+        jumpGrid,
+        pos,
+        { q: 2, r: 0 },
+        Facing.North,
+        MovementType.Jump,
+        cap,
+      );
+      expect(blocked.valid).toBe(false);
+      expect(blocked.error).toContain('Jump elevation rise');
+    });
+
+    // Audit 2026-06-09 C-13: intervening terrain above the jump clearance
+    // (origin elevation + effective jump MP) must also block the jump, just
+    // like the reachability projection's getJumpClearanceBlockedReason gate.
+    it('rejects a jump over intervening terrain above jump clearance', () => {
+      let jumpGrid = createHexGrid({ radius: 5 });
+      jumpGrid = setHexTerrain(jumpGrid, { q: 1, r: 0 }, 'clear', 6);
+      const cap = { walkMP: 5, runMP: 8, jumpMP: 4 };
+      const pos: IUnitPosition = {
+        unitId: 'jumper-clearance',
+        coord: { q: 0, r: 0 },
+        facing: Facing.North,
+        prone: false,
+      };
+
+      const blocked = validateMovement(
+        jumpGrid,
+        pos,
+        { q: 2, r: 0 },
+        Facing.North,
+        MovementType.Jump,
+        cap,
+      );
+      expect(blocked.valid).toBe(false);
+      expect(blocked.error).toContain('exceeds jump clearance');
+    });
+
+    // Audit 2026-06-09 C-13: legal jumps stay legal — clearing terrain at or
+    // below the jump clearance and landing within the elevation budget.
+    it('still validates a legal jump over lower intervening terrain', () => {
+      let jumpGrid = createHexGrid({ radius: 5 });
+      jumpGrid = setHexTerrain(jumpGrid, { q: 1, r: 0 }, 'clear', 3);
+      jumpGrid = setHexTerrain(jumpGrid, { q: 2, r: 0 }, 'clear', 2);
+      const cap = { walkMP: 5, runMP: 8, jumpMP: 4 };
+      const pos: IUnitPosition = {
+        unitId: 'jumper-legal',
+        coord: { q: 0, r: 0 },
+        facing: Facing.North,
+        prone: false,
+      };
+
+      const ok = validateMovement(
+        jumpGrid,
+        pos,
+        { q: 2, r: 0 },
+        Facing.North,
+        MovementType.Jump,
+        cap,
+      );
+      expect(ok.valid).toBe(true);
+      expect(ok.mpCost).toBe(2);
     });
 
     // Audit 2026-06-09 B-3: validateMovement used to forward only the

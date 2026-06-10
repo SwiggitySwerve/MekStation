@@ -81,9 +81,11 @@ function sourceRefFailures(
 
 describe('BattleMech pilot skill combat support catalog', () => {
   it('catalogs combat use of gunnery, piloting, initiative, and wound skill modifiers', () => {
+    // Audit C-5: 'indirect-fire-spotter-gunnery' removed from the catalog —
+    // the spotter gunnery modifier is artillery-only; LRM indirect fire
+    // consumes no spotter pilot skill (ComputeToHit.java L1512-1545).
     expect(sortedKeys(PILOT_SKILL_COMBAT_SUPPORT)).toEqual(
       [
-        'indirect-fire-spotter-gunnery',
         'initiative-skill-modifiers',
         'pending-psr-wound-penalty',
         'physical-piloting-to-hit',
@@ -99,9 +101,9 @@ describe('BattleMech pilot skill combat support catalog', () => {
   });
 
   it('keeps consumed pilot-skill paths separate from helper-only gaps', () => {
+    // Audit C-5: 'indirect-fire-spotter-gunnery' removed (see above).
     expect(supportIdsByLevel(PILOT_SKILL_COMBAT_SUPPORT, 'integrated')).toEqual(
       [
-        'indirect-fire-spotter-gunnery',
         'pending-psr-wound-penalty',
         'physical-piloting-to-hit',
         'pilot-wound-ranged-penalty',

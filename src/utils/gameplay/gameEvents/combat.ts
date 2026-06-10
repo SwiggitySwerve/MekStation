@@ -326,8 +326,9 @@ export function createIndirectFireSpotterSelectedEvent(
   targetHex: IHexCoordinate,
   toHitPenalty: number,
   ammoId?: string,
-  spotterGunnery?: number,
-  spotterSkillModifier?: number,
+  // Audit C-5: replaces the retired spotterGunnery/spotterSkillModifier
+  // params — the (gunnery-4)/2 term was artillery-only, never LRM indirect.
+  spotterAttackedThisTurn?: boolean,
 ): IGameEvent {
   const payload: IIndirectFireSpotterSelectedPayload = {
     attackerId,
@@ -336,8 +337,7 @@ export function createIndirectFireSpotterSelectedEvent(
     ammoId,
     targetHex,
     toHitPenalty,
-    spotterGunnery,
-    spotterSkillModifier,
+    spotterAttackedThisTurn,
     basis: 'los',
   };
   return {
@@ -405,8 +405,9 @@ export function createIndirectFireForwardObserverEvent(
   targetHex: IHexCoordinate,
   toHitPenalty: number,
   ammoId?: string,
-  spotterGunnery?: number,
-  spotterSkillModifier?: number,
+  // Audit C-5: replaces the retired spotterGunnery/spotterSkillModifier
+  // params — the (gunnery-4)/2 term was artillery-only, never LRM indirect.
+  spotterAttackedThisTurn?: boolean,
 ): IGameEvent {
   const payload: IIndirectFireForwardObserverPayload = {
     attackerId,
@@ -415,8 +416,7 @@ export function createIndirectFireForwardObserverEvent(
     ammoId,
     targetHex,
     toHitPenalty,
-    spotterGunnery,
-    spotterSkillModifier,
+    spotterAttackedThisTurn,
     basis: 'los',
     penaltyCancelled: 1,
   };

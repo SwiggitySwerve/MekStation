@@ -60,7 +60,7 @@ const MEGAMEK_PAVEMENT_ROAD_BRIDGE_MOVEMENT_SOURCE_REF = {
 const MEKSTATION_TERRAIN_MOVEMENT_PROPERTIES_SOURCE_REF = {
   kind: 'mekstation-deviation',
   citation:
-    'MekStation TERRAIN_PROPERTIES defines the simplified movementCostModifier table consumed by getHexMovementCost for every local TerrainType row.',
+    'MekStation TERRAIN_PROPERTIES defines the per-motive movementCostModifier table consumed by getHexMovementCost, summed across all hex features with level-aware swamp/sand/mud/snow/ice/rough/rubble costs per MegaMek Terrain.movementCost (audit 2026-06-09 C-3/C-4).',
   url: 'src/types/gameplay/TerrainTypes.ts#L146-L488',
   sourceVersion: 'MekStation working-tree',
 } satisfies ICombatFeatureSourceReference;

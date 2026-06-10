@@ -2538,6 +2538,52 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       expect(rearArcAMS.projectileCount).toBe(6);
     });
 
+    // Audit C-8: arm-mounted mech weapons (including AMS) hydrate with
+    // multi-arc front+side coverage; the AMS arc filter must union the
+    // plural mountingArcs instead of falling back to permissive when the
+    // singular mountingArc is absent.
+    it('filters multi-arc arm-mounted AMS by the unioned front+side coverage (audit C-8)', () => {
+      const lrm = createLRM10();
+      const ams = createAMS();
+      const amsBin = createAmmoBin({
+        binId: 'ams-bin',
+        weaponType: 'ams',
+        remainingRounds: 2,
+      });
+      const leftArmAMS = {
+        ...ams,
+        mountingArcs: [FiringArc.Front, FiringArc.Left],
+      };
+
+      const leftArcIntercept = resolveSpecialProjectileHit({
+        baseWeapon: lrm,
+        shotWeapon: lrm,
+        selectedMode: undefined,
+        d6Roller: sequenceD6Roller(3, 4),
+        clusterContext: {
+          incomingAttackArc: FiringArc.Left,
+          targetWeapons: [leftArmAMS],
+          targetAmmoState: { [amsBin.binId]: amsBin },
+        },
+      });
+      const rearArcMiss = resolveSpecialProjectileHit({
+        baseWeapon: lrm,
+        shotWeapon: lrm,
+        selectedMode: undefined,
+        d6Roller: sequenceD6Roller(3, 4),
+        clusterContext: {
+          incomingAttackArc: FiringArc.Rear,
+          targetWeapons: [leftArmAMS],
+          targetAmmoState: { [amsBin.binId]: amsBin },
+        },
+      });
+
+      expect(leftArcIntercept.amsInterception?.amsWeaponId).toBe(ams.id);
+      expect(leftArcIntercept.projectileCount).toBe(3);
+      expect(rearArcMiss.amsInterception).toBeUndefined();
+      expect(rearArcMiss.projectileCount).toBe(6);
+    });
+
     it('runner attack resolution passes target AMS mounts into missile interception', () => {
       const lrm = createLRM10();
       const ams = createAMS();

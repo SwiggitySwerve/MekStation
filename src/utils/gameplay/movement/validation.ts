@@ -25,6 +25,8 @@ import { isInBounds, isOccupied } from '../hexGrid';
 import { hexDistance, hexEquals } from '../hexMath';
 import {
   getHexMovementCost,
+  getJumpClearanceBlockedReason,
+  getJumpElevationBlockedReason,
   getMaxMP,
   type IMovementCostContext,
 } from './calculations';
@@ -36,12 +38,13 @@ import { findPath } from './pathfinding';
 /**
  * Validate a movement action.
  *
- * Per `wire-heat-generation-and-effects` task 7.3: when `currentHeat`
- * is provided, `getHeatMovementPenalty(currentHeat)` is subtracted
- * from the unit's effective MP so overheated units cannot over-move.
- * At heat 15 (penalty 3), a walk-5 unit validates against walk-2
- * (not walk-5); attempting distance > 2 fails validation with the
- * heat-penalised range in the error string.
+ * Per `wire-heat-generation-and-effects` task 7.3 as corrected by audit
+ * 2026-06-09 C-1/C-2: when `currentHeat` is provided,
+ * `getHeatMovementPenalty(currentHeat)` reduces WALK MP only; run/sprint
+ * MP are re-derived from the heat-adjusted walk inside `getMaxMP`, and
+ * jump MP is heat-immune. At heat 15 (penalty 3), a walk-5 unit validates
+ * against walk-2 (not walk-5); attempting distance > 2 fails validation
+ * with the heat-penalised range in the error string.
  */
 export function validateMovement(
   grid: IHexGrid,
@@ -167,6 +170,27 @@ export function validateMovement(
     };
   }
 
+  // Audit 2026-06-09 C-13: jump movement must respect the same terrain gates
+  // as the reachability projection (reachable.ts) — the simulation runner
+  // validates bot moves solely through validateMovement, so without these
+  // gates bots could jump onto elevation rises above jump MP or over
+  // intervening terrain above the jump clearance (MegaMek marks such jump
+  // steps illegal). maxMP here is the effective jump MP: gravity/wind
+  // scaled and heat-immune, mirroring reachable.ts's pathBudget usage.
+  if (movementType === MovementType.Jump && distance > 0) {
+    const jumpBlockedReason =
+      getJumpElevationBlockedReason(grid, position.coord, destination, maxMP) ??
+      getJumpClearanceBlockedReason(grid, position.coord, destination, maxMP);
+    if (jumpBlockedReason) {
+      return {
+        valid: false,
+        error: jumpBlockedReason,
+        mpCost,
+        heatGenerated: 0,
+      };
+    }
+  }
+
   // Audit 2026-06-09 B-3: pass the full capability heat state — previously
   // only the Partial Wing bonus was forwarded, so non-Mek units (hover,
   // tracked, …) were charged Mek movement heat here.
@@ -205,11 +229,12 @@ function getEnvironmentalMaxMP(
     capability.jumpMP,
     environmentalConditions.gravity,
   );
-  const windAdjustedJumpMP = Math.max(
+  // Audit 2026-06-09 C-2: jump MP is heat-immune (MegaMek Mek.getJumpMP has
+  // no heat term) — gravity and wind are the only jump MP modifiers here.
+  return Math.max(
     0,
     scaledJumpMP - getWindJumpReduction(environmentalConditions.wind),
   );
-  return Math.max(0, windAdjustedJumpMP - heatPenalty);
 }
 
 function calculatePathMovementCost(
@@ -283,9 +308,10 @@ export function getStandingCost(
 /**
  * Get all valid destinations for a movement type.
  *
- * Per `wire-heat-generation-and-effects` task 7.3: when `currentHeat`
- * is provided, destinations are constrained by the heat-reduced MP
- * so UI previews + bot planning both respect the penalty.
+ * Per `wire-heat-generation-and-effects` task 7.3 as corrected by audit
+ * 2026-06-09 C-1/C-2: when `currentHeat` is provided, walk MP is
+ * heat-reduced and run/sprint MP re-derive from it (jump MP is
+ * heat-immune) so UI previews + bot planning both respect the penalty.
  */
 export function getValidDestinations(
   grid: IHexGrid,

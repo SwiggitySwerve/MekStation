@@ -51,16 +51,33 @@ export interface IBattleArmorResolveDamageOptions {
 /**
  * Pick a uniformly-random surviving trooper index, driven by the injected
  * d6 roller. Returns `-1` if no survivors remain.
+ *
+ * Per MegaMek `BattleArmor.rollHitLocation` (audit C-9): the d6 maps DIRECTLY
+ * to a trooper slot (`die - 1`) and is RE-ROLLED while it points past the
+ * last trooper or at a dead trooper. The previous modulo reduction over the
+ * survivor list biased damage 2× onto specific troopers in 4/5-trooper
+ * squads.
  */
 function pickRandomSurvivor(
   state: IBattleArmorCombatState,
   diceRoller: D6Roller,
 ): number {
-  const alive = getSurvivingTrooperIndices(state);
-  if (alive.length === 0) return -1;
-  // Roll a d6 and reduce modulo len — fine for small squads (1-6 troopers).
-  const die = diceRoller();
-  return alive[die % alive.length];
+  const survivors = getSurvivingTrooperIndices(state);
+  if (survivors.length === 0) return -1;
+
+  // Re-roll up to a generous bound so degenerate scripted rollers cannot
+  // hang the loop (a real d6 terminates with probability 1).
+  for (let attempt = 0; attempt < 100; attempt++) {
+    const die = diceRoller(); // 1–6
+    const idx = die - 1;
+    if (idx < state.troopers.length) {
+      const trooper = state.troopers[idx];
+      if (trooper.alive && trooper.armorRemaining > 0) return idx;
+    }
+  }
+
+  // Defensive fallback: first survivor (deterministic safety).
+  return survivors[0];
 }
 
 /**
