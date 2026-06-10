@@ -2804,24 +2804,20 @@ The tactical map interface SHALL identify tall isometric terrain that may obscur
 
 ### Requirement: Movement Projection Detail Surface
 
-The tactical map SHALL expose movement projection details from the same
-rules-backed movement capability and commit-validation path used by the engine.
-Runtime state changes that alter movement capability, unit height, movement
-mode, movement points, heat profile, stand-up cost, or failed stand-up fallback
-events SHALL be reflected before the player commits movement.
+Failed represented LAM AirMek landing-control checks SHALL expose crash
+critical-hit outcomes in the same event stream that explains the movement
+consequence.
 
-#### Scenario: Runtime movement commit side effects match projection capability
+#### Scenario: Failed AirMek landing-control descent causes a critical hit
 
-- **GIVEN** a represented unit's runtime state changes after import in a way
-  that changes its effective movement capability
-- **WHEN** the movement projection previews a stand-up cost, movement mode, heat
-  profile, reachable destination, blocked destination, or failed stand-up
-  fallback declaration
-- **THEN** the interactive movement commit path SHALL use the same runtime
-  movement capability for validation, stand-up PSR projection, heat, MP cost,
-  and emitted movement events
-- **AND** the movement declaration SHALL NOT fall back to stale import-time MP or
-  movement-mode data.
+- **GIVEN** a selected movement-phase Land-Air 'Mech fails a required
+  AirMek landing-control roll
+- **AND** the represented fall cluster damage exposes internal structure and
+  triggers a represented critical hit
+- **WHEN** the runtime movement-state command resolves the failed landing
+- **THEN** map/replay consumers SHALL receive movement-phase critical and
+  component-destruction events without recomputing critical state from armor
+  numbers.
 
 ### Requirement: Isometric Occluder Hover Explanations
 
@@ -2893,19 +2889,18 @@ Rendered tactical map unit token wrappers SHALL expose inspectable state metadat
 ### Requirement: Combat Projection Detail Surface
 
 The tactical map SHALL expose combat projection details from the same
-rules-backed combat validation path used by the engine. Projection source
-metadata for weapon environment restrictions SHALL identify the rule surface
-that justifies underwater target restrictions, torpedo-only water legality, and
-torpedo path water-line failures.
+rules-backed combat validation path used by the engine. Blocked combat
+projections SHALL explain unavailable indirect-fire fallbacks when that fallback
+is tactically relevant to why the attack cannot be committed.
 
-#### Scenario: Underwater weapon environment restrictions expose source-backed context
+#### Scenario: ECM-nullified TAG explains unavailable semi-guided indirect fire
 
-- **GIVEN** a selected unit previews attacks against a water or underwater target
-- **WHEN** a non-underwater weapon is blocked by the target's water state or a
-  torpedo path leaves water
-- **THEN** the combat projection SHALL expose the blocked weapon id, blocked
-  reason, projection channel, source reference, and rule reference
-- **AND** the source and rule references SHALL point at the MegaMek-backed underwater weapon environment source instead of a pending MekStation-only helper.
+- **GIVEN** a selected unit has semi-guided LRM fire selected
+- **AND** the direct LOS to a TAG-designated target is blocked
+- **AND** the target's TAG designation is nullified by ECM
+- **WHEN** the map previews the target hex and the player attempts the attack
+- **THEN** the combat projection SHALL preserve `NoLineOfSight` as the engine rejection reason
+- **AND** the projection, browser metadata, invalid combat badge reason, accessible reason context, and committed `AttackInvalid` event SHALL include that TAG was nullified by ECM and semi-guided indirect fire is unavailable.
 
 ### Requirement: Physical Attack Projection Detail Surface
 
@@ -3218,46 +3213,37 @@ elevation cost, and heat
 
 ### Requirement: Per-Type Token Rendering
 
-Vehicle tokens representing VTOL combat state SHALL expose the current VTOL
-altitude as visible token chrome, token wrapper metadata, and accessible token
-context. Non-VTOL vehicle tokens SHALL NOT render VTOL altitude chrome even if a
-legacy caller provides altitude-like data.
+Vehicle tokens representing altitude-tracked VTOL or WiGE combat state SHALL
+expose the current altitude as visible token chrome, token wrapper metadata,
+isometric scene metadata, and accessible token context. Ground-only vehicle
+tokens SHALL NOT render altitude chrome even if a legacy caller provides
+altitude-like data.
 
-#### Scenario: VTOL token exposes altitude context
+#### Scenario: WiGE token exposes altitude context
 
-**GIVEN** a vehicle unit has represented combat state with motion type `VTOL`
-**AND** the represented vehicle combat state has altitude 3
-**WHEN** the tactical map projects that unit into a vehicle token
-**THEN** the token SHALL expose altitude 3 in wrapper metadata
-**AND** the token accessible label SHALL include altitude 3
-**AND** the vehicle token SHALL render a visible non-color altitude badge
+- **GIVEN** a vehicle unit has represented combat state with motion type `WiGE`
+- **AND** the represented vehicle combat state has altitude 2
+- **WHEN** the tactical map projects that unit into a vehicle token
+- **THEN** the token SHALL expose altitude 2 in wrapper metadata
+- **AND** the token accessible label SHALL include altitude 2
+- **AND** the vehicle token SHALL render a visible non-color altitude badge
 
-#### Scenario: Browser harness preserves VTOL altitude context
+#### Scenario: Isometric scene preserves WiGE altitude context
 
-**GIVEN** the tactical-map browser harness renders a VTOL elevation movement
-scenario
-**AND** the selected VTOL token has altitude 3
-**WHEN** the top-down map SVG renders the token and movement overlay together
-**THEN** the rendered token wrapper SHALL expose altitude 3 metadata
-**AND** the rendered token accessible label SHALL include altitude 3
-**AND** the rendered vehicle token SHALL show the visible altitude badge
+- **GIVEN** a vehicle token uses WiGE motion
+- **AND** the token has represented altitude 2
+- **WHEN** the player switches the map to isometric mode
+- **THEN** the isometric scene token wrapper SHALL expose the unit type as
+  vehicle
+- **AND** the isometric scene token wrapper SHALL expose the WiGE motion type
+- **AND** the isometric scene token wrapper SHALL expose altitude 2
+- **AND** the nested vehicle token SHALL keep the visible altitude badge
 
-#### Scenario: Isometric scene preserves VTOL altitude context
+#### Scenario: Ground-only vehicle token does not expose altitude chrome
 
-**GIVEN** the tactical-map browser harness renders a VTOL elevation movement
-scenario
-**AND** the player switches the map to isometric mode
-**WHEN** the isometric scene depth-sorts the VTOL token
-**THEN** the isometric scene token wrapper SHALL expose the unit type as vehicle
-**AND** the isometric scene token wrapper SHALL expose the VTOL motion type
-**AND** the isometric scene token wrapper SHALL expose altitude 3
-**AND** the nested vehicle token SHALL keep the visible altitude badge
-
-#### Scenario: Non-VTOL vehicle token does not expose altitude chrome
-
-**GIVEN** a vehicle unit does not use VTOL motion
-**WHEN** the tactical map renders that unit as a vehicle token
-**THEN** the vehicle token SHALL NOT render the VTOL altitude badge
+- **GIVEN** a vehicle unit does not use VTOL or WiGE motion
+- **WHEN** the tactical map renders that unit as a vehicle token
+- **THEN** the vehicle token SHALL NOT render the altitude badge
 
 ### Requirement: Isometric Scene Token Context
 
@@ -3428,16 +3414,16 @@ source-pinned, oracle-differenced, or interaction-swept.
 ### Requirement: Combat Projection Explains Engine Rejections
 
 The tactical map SHALL use shared engine-facing projection data to explain
-attacker-side hull-down weapon restrictions before a player commits a weapon
-attack.
+vehicle attacker-side hull-down front-weapon restrictions before a player
+commits a weapon attack.
 
-#### Scenario: Hull-down leg-weapon block appears on weapon option
+#### Scenario: Hull-down vehicle front-weapon block appears on weapon option
 
-- **GIVEN** the selected attacker is hull-down
+- **GIVEN** the selected attacker is a represented hull-down vehicle
 - **AND** the selected target is in range and arc
-- **AND** one selected weapon is leg-mounted
+- **AND** one selected weapon is front-mounted and using direct fire
 - **WHEN** the player inspects the target hex or weapon option list
-- **THEN** the leg-mounted weapon SHALL be shown as unavailable
+- **THEN** the front-mounted weapon SHALL be shown as unavailable
 - **AND** the blocked reason SHALL match the commit-path invalid reason.
 
 ### Requirement: Physical Attack Projection Explains Engine Rejections
@@ -3545,43 +3531,35 @@ actions.
 
 ### Requirement: Movement Preview And Commit Agreement
 
-Represented altitude-positive VTOL or WiGE vehicle combat state SHALL block
-ordinary ground movement projection even when the selected movement capability
-has a stale, missing, or mismatched motive mode. The blocked projection and
-commit validation SHALL expose the same altitude-control reason. Represented
-VTOL/WiGE vehicles at altitude zero SHALL continue to use the ordinary movement
-projection for their selected capability.
+Blocked movement projections SHALL expose altitude-control context for
+represented altitude-positive VTOL or WiGE vehicle combat state. That context
+names the represented control mode and represented altitude responsible for the
+block.
+The altitude-control context SHALL be explanatory and SHALL NOT imply that full
+airborne altitude pathing, hover, takeoff, landing, or altitude-change controls
+are available from ordinary ground movement projection.
 
-#### Scenario: Airborne WiGE state blocks stale ground capability
+#### Scenario: Airborne WiGE blocked projection exposes altitude-control context
 
 - **GIVEN** a vehicle unit has represented combat state with motion type `WiGE`
 - **AND** the represented vehicle combat state has altitude 2
-- **AND** the selected movement capability still reports ordinary walk movement
-- **WHEN** the tactical map projects a walk destination for that unit
+- **WHEN** the tactical map projects a blocked ordinary ground movement
+  destination for that unit
 - **THEN** the destination SHALL be unreachable
-- **AND** the blocked reason SHALL explain that airborne WiGE movement uses
-  altitude controls
-- **WHEN** the same destination is submitted to commit validation
-- **THEN** commit validation SHALL reject the move with the same reason
+- **AND** the projection SHALL expose that altitude controls are required
+- **AND** the projection SHALL expose altitude-control mode `wige`
+- **AND** the projection SHALL expose represented altitude 2
 
-#### Scenario: Airborne VTOL state blocks stale ground capability
+#### Scenario: Airborne VTOL blocked projection exposes altitude-control context
 
 - **GIVEN** a vehicle unit has represented combat state with motion type `VTOL`
 - **AND** the represented vehicle combat state has altitude 2
-- **AND** the selected movement capability still reports ordinary walk movement
-- **WHEN** the tactical map projects a walk destination for that unit
+- **WHEN** the tactical map projects a blocked ordinary ground movement
+  destination for that unit
 - **THEN** the destination SHALL be unreachable
-- **AND** the blocked reason SHALL explain that airborne VTOL movement uses
-  altitude controls
-- **WHEN** the same destination is submitted to commit validation
-- **THEN** commit validation SHALL reject the move with the same reason
-
-#### Scenario: Landed WiGE state preserves ordinary projection
-
-- **GIVEN** a vehicle unit has represented combat state with motion type `WiGE`
-- **AND** the represented vehicle combat state has altitude 0
-- **WHEN** the tactical map projects a movement destination for that unit
-- **THEN** the altitude-control blocker SHALL NOT be applied
+- **AND** the projection SHALL expose that altitude controls are required
+- **AND** the projection SHALL expose altitude-control mode `vtol`
+- **AND** the projection SHALL expose represented altitude 2
 
 ### Requirement: Tactical map runtime movement controls are replayable and rules-backed
 
@@ -3673,6 +3651,27 @@ validation and resolution.
 - **AND** rendering or browser tests SHALL cover player-visible map metadata
   when the outcome depends on top-down labels, badges, tooltips, or isometric
   layers/rotation.
+
+### Requirement: Tactical Map Explanation Layer
+
+Top-down movement hexes SHALL surface altitude-control context without relying
+on color alone. Movement badges, invalid movement badges, accessible labels,
+tooltip reason rows, and same-hex movement-option metadata SHALL expose the same
+context when a blocked movement projection is owned by represented
+altitude-positive VTOL/WiGE altitude controls.
+
+#### Scenario: Blocked altitude-control hex is inspectable
+
+- **GIVEN** a top-down tactical-map hex has a blocked movement projection with
+  altitude-control mode `wige`
+- **AND** the blocked movement projection has represented altitude 2
+- **WHEN** the map renders the movement overlay
+- **THEN** the hex metadata SHALL mark altitude-control required
+- **AND** the hex metadata SHALL expose mode `wige` and altitude 2
+- **AND** the accessible movement label SHALL include the altitude-control mode
+  and altitude
+- **AND** the invalid movement badge SHALL use a non-color altitude-control cue
+- **AND** the tooltip reason row SHALL expose the same altitude-control context
 
 ## Data Model Requirements
 

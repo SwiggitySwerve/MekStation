@@ -6,21 +6,19 @@ TBD - created by archiving change full-combat-parity. Update Purpose after archi
 ## Requirements
 ### Requirement: PSR Resolution Mechanic
 
-The system SHALL resolve piloting skill rolls (PSR) by rolling 2d6, requiring a result greater than or equal to the pilot's piloting skill plus all applicable modifiers.
+Failed AirMek landing PSRs SHALL use the current fall-resolution event model
+with fall height taken from the runtime landing-control payload and tonnage
+taken from the represented unit when available.
 
-#### Scenario: Successful PSR
+#### Scenario: Failed AirMek landing PSR uses represented unit tonnage
 
-- **WHEN** a PSR is triggered with piloting skill 5 and total modifiers +2
-- **THEN** the target number SHALL be 7 (5 + 2)
-- **AND** a 2d6 roll of 7 or higher SHALL succeed
-- **AND** the unit SHALL remain standing
-
-#### Scenario: Failed PSR causes fall
-
-- **WHEN** a PSR is triggered with target number 7 and the roll result is 6 or less
-- **THEN** the PSR SHALL fail
-- **AND** the unit SHALL fall (triggering fall-mechanics)
-- **AND** all remaining queued PSRs for this phase SHALL be cleared
+- **GIVEN** an AirMek landing-control payload carries a landing fall height
+- **AND** the interactive session has represented catalog tonnage for the unit
+- **WHEN** the landing PSR fails
+- **THEN** the emitted `UnitFell` event SHALL carry fall damage based on that
+  fall height and represented tonnage under the current MekStation fall model
+- **AND** synthetic sessions with no represented tonnage SHALL retain the legacy
+  fallback tonnage.
 
 ### Requirement: PSR Trigger — 20+ Phase Damage
 
@@ -237,17 +235,18 @@ resolve as an automatic failure instead of rolling dice.
 
 ### Requirement: PSR Modifier — Gyro Damage
 
-Each gyro hit SHALL add +3 to all PSR target numbers.
+AirMek landing PSRs SHALL use the landing-control modifier already computed
+from MegaMek `LandAirMek.checkAirMekLanding()` semantics instead of applying
+the generic gyro PSR modifier. Pilot wound modifiers SHALL still apply through
+the normal PSR resolver.
 
-#### Scenario: One gyro hit modifier
+#### Scenario: AirMek landing PSR avoids generic gyro double-counting
 
-- **WHEN** a unit with 1 gyro hit makes a PSR
-- **THEN** the PSR target number SHALL include a +3 modifier
-
-#### Scenario: Two gyro hits (standard gyro destroyed)
-
-- **WHEN** a unit with 2 gyro hits on a standard gyro
-- **THEN** the gyro SHALL be destroyed and the unit SHALL fall automatically
+- **GIVEN** an AirMek landing PSR has a landing-control modifier
+- **AND** the unit state also has represented gyro damage
+- **WHEN** the PSR is resolved
+- **THEN** the target number SHALL include the landing-control modifier
+- **AND** it SHALL NOT include the generic gyro-hit PSR modifier.
 
 ### Requirement: PSR Modifier — Pilot Wounds
 
@@ -260,12 +259,17 @@ Each pilot wound SHALL add +1 to all PSR target numbers.
 
 ### Requirement: PSR Modifier — Leg Actuator Damage
 
-Leg actuator damage SHALL add modifiers to PSRs.
+AirMek landing PSRs SHALL use the landing-control modifier already computed
+from MegaMek `LandAirMek.checkAirMekLanding()` semantics instead of applying
+generic leg-actuator PSR modifiers.
 
-#### Scenario: Damaged leg actuator PSR modifier
+#### Scenario: AirMek landing PSR avoids generic actuator double-counting
 
-- **WHEN** a unit with a damaged lower leg actuator makes a PSR
-- **THEN** the PSR target number SHALL include the appropriate actuator modifier
+- **GIVEN** an AirMek landing PSR has a landing-control modifier
+- **AND** the unit state also has represented leg-actuator damage
+- **WHEN** the PSR is resolved
+- **THEN** the target number SHALL include the landing-control modifier
+- **AND** it SHALL NOT include generic actuator PSR modifiers.
 
 ### Requirement: PSR Modifier — Terrain
 
@@ -660,4 +664,17 @@ The function SHALL deterministically map every `PSRTrigger` value to exactly one
 - **WHEN** `getPSRReasonCategory` is called for each
 - **THEN** every code SHALL map to exactly one of `'movement' | 'damage' | 'heat' | 'recovery'`
 - **AND** the partition SHALL match the category column in the spec's 27-code table
+
+### Requirement: AirMek Landing PSR Trigger
+
+The PSR taxonomy SHALL include a canonical `PSRTrigger.AirMekLanding` code for
+LAM AirMek landing control checks, and the AirMek landing PSR factory SHALL
+populate both the human-readable reason and the canonical reason code.
+
+#### Scenario: AirMek landing factory stamps canonical reason code
+
+- **WHEN** an AirMek landing PSR is created
+- **THEN** the pending PSR SHALL use reason `landing with gyro or leg damage`
+- **AND** it SHALL use `triggerSource: PSRTrigger.AirMekLanding`
+- **AND** it SHALL use `reasonCode: PSRTrigger.AirMekLanding`.
 

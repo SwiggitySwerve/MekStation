@@ -1831,3 +1831,65 @@ enforce.
 - **AND** rejected attacks SHALL surface the same typed reason the preview
   exposed before commit.
 
+### Requirement: Damage Application Events
+
+Damage caused by runtime movement consequences SHALL use the same
+`DamageApplied` replay/reducer event shape as weapon and physical-attack damage,
+while preserving the phase in which the consequence occurred.
+
+#### Scenario: Movement consequence damage carries movement phase
+
+- **GIVEN** a movement-phase runtime command produces armor/internal damage
+- **WHEN** that damage is emitted as `DamageApplied`
+- **THEN** the event SHALL carry `phase: GamePhase.Movement`
+- **AND** replaying the event SHALL update the target unit's armor, structure,
+  and phase-damage counters through the standard reducer.
+
+### Requirement: Destruction Lifecycle Events
+
+Damage caused by runtime movement consequences SHALL fan out through the same
+destruction lifecycle event vocabulary as weapon and physical-attack damage.
+
+#### Scenario: Movement consequence damage destroys a location
+
+- **GIVEN** a movement-phase runtime consequence applies damage through
+  `DamageApplied`
+- **WHEN** that damage destroys a location
+- **THEN** the event stream SHALL append a movement-phase `LocationDestroyed`
+  event for that location
+- **AND** any normal transfer overflow SHALL append a movement-phase
+  `TransferDamage` event.
+
+#### Scenario: Movement consequence damage destroys the unit
+
+- **GIVEN** a movement-phase runtime consequence applies fall damage
+- **WHEN** the damage resolver marks the unit destroyed
+- **THEN** the event stream SHALL append a movement-phase `UnitDestroyed`
+  event before later pilot-hit consequence events.
+
+### Requirement: Movement Consequence Critical Events
+
+Structure-exposing damage caused by runtime movement consequences SHALL resolve
+critical-hit follow-through through the same shared damage/critical resolver as
+weapon and physical-attack damage.
+
+#### Scenario: AirMek landing crash damage triggers a critical hit
+
+- **GIVEN** a failed AirMek landing-control check applies fall cluster damage
+  during movement phase
+- **AND** that cluster exposes internal structure without destroying the hit
+  location
+- **WHEN** the critical-hit roll succeeds
+- **THEN** the event stream SHALL append movement-phase `CriticalHit`,
+  `CriticalHitResolved`, and `ComponentDestroyed` events in causal order after
+  the matching `DamageApplied`
+- **AND** the target unit state SHALL replay the resolved component damage.
+
+#### Scenario: AirMek landing crash critical destroys the unit
+
+- **GIVEN** movement-phase AirMek landing crash damage triggers a critical
+  cascade that destroys the unit
+- **WHEN** the critical stream emits `UnitDestroyed`
+- **THEN** the runtime movement command SHALL emit exactly one movement-phase
+  `UnitDestroyed` event for that critical destruction.
+

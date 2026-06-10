@@ -188,30 +188,27 @@ The system SHALL allow a hull-down mech to exit the position by spending a movem
 
 ### Requirement: Hull-Down Firing Restrictions
 
-The system SHALL prevent a represented hull-down Mek attacker from firing
-leg-mounted weapons, while allowing otherwise legal non-leg weapons in the same
-selection to remain available.
+The system SHALL prevent represented hull-down vehicle attackers from firing
+direct front-mounted weapons while preserving MegaMek's indirect-fire exception.
 
-#### Scenario: Hull-down Mek cannot fire leg-mounted weapon
+#### Scenario: Hull-down vehicle cannot directly fire front-mounted weapon
 
-- **GIVEN** a represented Mek attacker is hull-down
-- **AND** the attacker has a weapon mounted in a leg location
+- **GIVEN** a represented vehicle attacker is hull-down
+- **AND** the attacker has a front-mounted weapon
+- **AND** the attack is not declared as indirect fire
 - **WHEN** the player previews or declares a weapon attack with that weapon
 - **THEN** the weapon option SHALL be marked unavailable
-- **AND** the blocked reason SHALL explain that hull-down Meks cannot fire
-  leg-mounted weapons
-- **AND** a commit containing only blocked leg-mounted weapons SHALL emit an
-  invalid attack before declaration.
+- **AND** the blocked reason SHALL explain that hull-down vehicle front-mounted
+  weapons are blocked by terrain
+- **AND** a commit containing only blocked front-mounted direct weapons SHALL
+  emit an invalid attack before declaration.
 
-#### Scenario: Hull-down Mek can still fire upper-body weapons
+#### Scenario: Hull-down vehicle can still fire front-mounted weapon indirectly
 
-- **GIVEN** a represented Mek attacker is hull-down
-- **AND** the selected weapons include a leg-mounted weapon and an arm-mounted or
-  torso-mounted weapon
-- **WHEN** the player previews or declares the attack
-- **THEN** the leg-mounted weapon SHALL be excluded with a blocked reason
-- **AND** the otherwise legal upper-body weapon SHALL remain available for the
-  preview and commit.
+- **GIVEN** a represented vehicle attacker is hull-down
+- **AND** the attacker has an indirect-fire-capable front-mounted weapon
+- **WHEN** the weapon is declared in indirect mode
+- **THEN** the hull-down front-mount restriction SHALL NOT block that weapon.
 
 ### Requirement: Hull-Down Physical Attack Restrictions
 
