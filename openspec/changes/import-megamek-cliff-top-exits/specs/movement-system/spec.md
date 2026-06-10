@@ -1,6 +1,6 @@
 # Spec Delta: Movement System
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Movement Terrain And Elevation Costs
 

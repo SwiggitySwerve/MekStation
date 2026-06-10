@@ -1,6 +1,6 @@
 # Spec Delta: Physical Attack System
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Physical Attack Eligibility Projection
 
