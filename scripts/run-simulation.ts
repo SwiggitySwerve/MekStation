@@ -53,18 +53,14 @@ import { SeededRandom } from '../src/simulation/core/SeededRandom';
 import { ISimulationConfig } from '../src/simulation/core/types';
 import { STANDARD_LANCE } from '../src/simulation/generator/presets';
 import { defaultTurnLimit } from '../src/simulation/generator/ScenarioGenerator';
-import {
-  checkUnitPositionUniqueness,
-  checkHeatNonNegative,
-  checkArmorBounds,
-} from '../src/simulation/invariants/checkers';
-import { InvariantRunner } from '../src/simulation/invariants/InvariantRunner';
+import { createDefaultInvariantRunner } from '../src/simulation/invariants/createDefaultInvariantRunner';
 import { MetricsCollector } from '../src/simulation/metrics/MetricsCollector';
 import { ReportGenerator } from '../src/simulation/reporting/ReportGenerator';
 import { BatchRunner } from '../src/simulation/runner/BatchRunner';
 import { writeSwarmEventLog } from '../src/simulation/runner/eventLogPersistence';
 import { SimulationRunner } from '../src/simulation/runner/SimulationRunner';
 import { buildSwarmManifestEntry } from '../src/simulation/runner/swarmManifestEntry';
+import { deriveSwarmUnitCounts } from '../src/simulation/runner/swarmUnitCounts';
 import {
   IParticipant,
   ISimulationRunResult,
@@ -148,29 +144,6 @@ Examples:
   npx tsx scripts/run-simulation.ts --config=scripts/swarm-configs/duel-3kbv-temperate.json
   npx tsx scripts/run-simulation.ts --config=scripts/swarm-configs/duel-3kbv-temperate.json --runs=50
 `);
-}
-
-function createInvariantRunner(): InvariantRunner {
-  const runner = new InvariantRunner();
-  runner.register({
-    name: 'unit_position_uniqueness',
-    description: 'Each hex can only have one unit',
-    severity: 'critical',
-    check: checkUnitPositionUniqueness,
-  });
-  runner.register({
-    name: 'heat_non_negative',
-    description: 'Heat cannot be negative',
-    severity: 'critical',
-    check: checkHeatNonNegative,
-  });
-  runner.register({
-    name: 'armor_bounds',
-    description: 'Armor/structure cannot be negative',
-    severity: 'critical',
-    check: checkArmorBounds,
-  });
-  return runner;
 }
 
 function getPresetConfig(preset: string, seed: number): ISimulationConfig {
@@ -579,9 +552,19 @@ async function runSwarmMode(
       techBase: config.sideB.techBase,
     });
 
+    // --- Derive ACTUAL per-side unit counts from the generated forces ---
+    // Per audit 2026-06-09 E-8: generateRandomForce may retry at count+1
+    // (PT-010 widening) or fill short of count, so everything downstream —
+    // pilot generation, simConfig.unitCount, and (transitively) the runner's
+    // `player-${1..N}` / `opponent-${1..N}` unit creation — derives from
+    // assignments.length, NOT the configured counts. Otherwise the runner
+    // fields fewer units than participants[] describes (phantom
+    // participants) and bvTotal includes BV that never fielded.
+    const actualUnitCounts = deriveSwarmUnitCounts(forceA, forceB);
+
     // --- Generate pilots ---
     const pilotsA = generateRandomPilots({
-      count: config.sideA.unitCount,
+      count: actualUnitCounts.player,
       strategy:
         config.sideA.pilotStrategy === 'vault'
           ? 'vault-sample'
@@ -592,7 +575,7 @@ async function runSwarmMode(
     });
 
     const pilotsB = generateRandomPilots({
-      count: config.sideB.unitCount,
+      count: actualUnitCounts.opponent,
       strategy:
         config.sideB.pilotStrategy === 'vault'
           ? 'vault-sample'
@@ -675,7 +658,9 @@ async function runSwarmMode(
       );
 
     // --- Build ISimulationConfig ---
-    // unitCount must match the actual force sizes.
+    // unitCount must match the actual force sizes — `actualUnitCounts` is
+    // derived from assignments.length above (audit E-8), so the runner
+    // fields exactly the units that participants[] / hydration describe.
     //
     // Per `polish-wave-6.2-gaps` (gap #12, closes PT-003): swarm runs no
     // longer hardcode `turnLimit: 50`. The default scales by map radius so
@@ -684,10 +669,7 @@ async function runSwarmMode(
     const simConfig: ISimulationConfig = {
       seed: runSeed,
       turnLimit: defaultTurnLimit(config.mapRadius),
-      unitCount: {
-        player: config.sideA.unitCount,
-        opponent: config.sideB.unitCount,
-      },
+      unitCount: actualUnitCounts,
       mapRadius: config.mapRadius,
     };
 
@@ -695,6 +677,10 @@ async function runSwarmMode(
     // BatchRunner does not support per-run aiFactory injection, so we use
     // SimulationRunner directly here. The aiFactory is injected via the
     // constructor so the SideKeyedAIPlayer routes by unitId prefix.
+    // The 2nd positional arg wires the default invariant runner (audit
+    // E-7) so the three registered state invariants actually execute each
+    // turn — without it the runner defaults to an EMPTY InvariantRunner
+    // and the "Total Violations" exit gate below can never fire.
     // The 6th positional `hydration` arg routes the runner away from the
     // synthetic single-medium-laser fallback at `createMinimalUnitState`
     // and into real catalog armor / structure / multi-mount AI weapons
@@ -702,7 +688,7 @@ async function runSwarmMode(
     // in archived `add-combat-fidelity-suite`).
     const runner = new SimulationRunner(
       runSeed,
-      undefined,
+      createDefaultInvariantRunner(),
       undefined,
       aiFactory,
       undefined,
@@ -849,13 +835,25 @@ async function runPresetMode(): Promise<void> {
   const startTime = Date.now();
 
   let lastProgress = 0;
-  const results = batchRunner.runBatch(count, config, (current, total) => {
-    const progress = Math.floor((current / total) * 100);
-    if (progress >= lastProgress + 10) {
-      process.stdout.write(`\r  Progress: ${progress}% (${current}/${total})`);
-      lastProgress = progress;
-    }
-  });
+  // 5th arg wires the default invariant runner (audit E-7) so preset-mode
+  // batches actually execute the registered state invariants — previously
+  // BatchRunner constructed SimulationRunner with no invariant runner and
+  // the violation exit gate below could never fire.
+  const results = batchRunner.runBatch(
+    count,
+    config,
+    (current, total) => {
+      const progress = Math.floor((current / total) * 100);
+      if (progress >= lastProgress + 10) {
+        process.stdout.write(
+          `\r  Progress: ${progress}% (${current}/${total})`,
+        );
+        lastProgress = progress;
+      }
+    },
+    undefined,
+    createDefaultInvariantRunner(),
+  );
 
   const elapsed = Date.now() - startTime;
   console.log(`\r  Progress: 100% (${count}/${count})    `);

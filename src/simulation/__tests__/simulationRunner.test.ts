@@ -1045,4 +1045,82 @@ describe('BatchRunner', () => {
       }
     });
   });
+
+  describe('invariant runner threading (audit 2026-06-09 E-7)', () => {
+    /**
+     * Build an InvariantRunner whose single registered invariant fires on
+     * EVERY state check. Threading this through runBatch proves the
+     * injected runner actually executes inside each per-run
+     * SimulationRunner — the exact wiring the preset CLI relies on for
+     * its violation exit gate (`totalViolations > 0 ? 1 : 0`).
+     */
+    function createAlwaysFiringRunner(): InvariantRunner {
+      const runner = new InvariantRunner();
+      runner.register({
+        name: 'always_fires',
+        description: 'Injected violation fixture — fires on every check',
+        severity: 'critical',
+        check: () => [
+          {
+            invariant: 'always_fires',
+            severity: 'critical' as const,
+            message: 'injected violation fixture',
+            context: {},
+          },
+        ],
+      });
+      return runner;
+    }
+
+    it('threads an injected invariant runner into every run and surfaces violations', () => {
+      const batchRunner = new BatchRunner();
+      const config = createTestConfig({ turnLimit: 3 });
+
+      const results = batchRunner.runBatch(
+        2,
+        config,
+        undefined,
+        undefined,
+        createAlwaysFiringRunner(),
+      );
+
+      expect(results).toHaveLength(2);
+      for (const result of results) {
+        // The injected invariant runs per phase/turn — at least one hit
+        // per run proves the runner executed inside the simulation loop.
+        expect(result.violations.length).toBeGreaterThan(0);
+        expect(
+          result.violations.some((v) => v.invariant === 'always_fires'),
+        ).toBe(true);
+      }
+
+      // The CLI exit gate condition: totalViolations > 0 flips exit code 1.
+      const totalViolations = results.reduce(
+        (sum, r) => sum + r.violations.length,
+        0,
+      );
+      expect(totalViolations).toBeGreaterThan(0);
+    });
+
+    it('omitting the invariant runner preserves legacy behavior (zero violations)', () => {
+      // Pre-fix behavior: no invariant runner → default EMPTY
+      // InvariantRunner → no checks execute → violations stay empty.
+      // This is the hole the audit flagged — kept here as the contrast
+      // case so the threading test above is provably non-vacuous.
+      const batchRunner = new BatchRunner();
+      const config = createTestConfig({ turnLimit: 3 });
+
+      const results = batchRunner.runBatch(2, config);
+
+      for (const result of results) {
+        // Detector anomalies are converted into `detector:*`-prefixed
+        // violations independently of the invariant runner — exclude them
+        // so this contrast case isolates invariant-check output only.
+        const invariantViolations = result.violations.filter(
+          (v) => !v.invariant.startsWith('detector:'),
+        );
+        expect(invariantViolations).toHaveLength(0);
+      }
+    });
+  });
 });
