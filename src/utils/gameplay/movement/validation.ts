@@ -25,6 +25,8 @@ import { isInBounds, isOccupied } from '../hexGrid';
 import { hexDistance, hexEquals } from '../hexMath';
 import {
   getHexMovementCost,
+  getJumpClearanceBlockedReason,
+  getJumpElevationBlockedReason,
   getMaxMP,
   type IMovementCostContext,
 } from './calculations';
@@ -166,6 +168,27 @@ export function validateMovement(
       mpCost,
       heatGenerated: 0,
     };
+  }
+
+  // Audit 2026-06-09 C-13: jump movement must respect the same terrain gates
+  // as the reachability projection (reachable.ts) — the simulation runner
+  // validates bot moves solely through validateMovement, so without these
+  // gates bots could jump onto elevation rises above jump MP or over
+  // intervening terrain above the jump clearance (MegaMek marks such jump
+  // steps illegal). maxMP here is the effective jump MP: gravity/wind
+  // scaled and heat-immune, mirroring reachable.ts's pathBudget usage.
+  if (movementType === MovementType.Jump && distance > 0) {
+    const jumpBlockedReason =
+      getJumpElevationBlockedReason(grid, position.coord, destination, maxMP) ??
+      getJumpClearanceBlockedReason(grid, position.coord, destination, maxMP);
+    if (jumpBlockedReason) {
+      return {
+        valid: false,
+        error: jumpBlockedReason,
+        mpCost,
+        heatGenerated: 0,
+      };
+    }
   }
 
   // Audit 2026-06-09 B-3: pass the full capability heat state — previously

@@ -38,15 +38,15 @@ reconciliation merge `7f22e4f22` · audited main `442f90855`.
 
 ## W2 — MegaMek rules fixes (cluster C; 3 MODIFIED deltas)
 
-| Task | Finding          | Scope                                                                                                                                     | Status  |
-| ---- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| W2.1 | C-1, C-2         | Run/sprint MP derived from heat-adjusted walk; jump MP heat-immune. MODIFIED delta: movement-system heat requirements (verbatim headings) | done    |
-| W2.2 | C-3, C-4         | Terrain entry-cost table per motive/level; multi-feature hex cost summing. MODIFIED delta: terrain-system table                           | done    |
-| W2.3 | C-7              | Swamp partial cover removed. MODIFIED delta: terrain-system cover column                                                                  | done    |
-| W2.4 | C-5, C-6         | Indirect fire: drop artillery-only gunnery mod for LRM; +1 spotter-attacking; semi-guided TAG net-0 composition                           | done    |
-| W2.5 | C-8              | Arm-mounted weapons multi-arc [Front, Left/Right]                                                                                         | done    |
-| W2.6 | C-9, C-10, C-11  | BA trooper re-roll selection; crit confirmation d6; BATrooperKilled squadId semantics                                                     | done    |
-| W2.7 | C-13, C-14, C-15 | Sim-runner jump elevation gate; flank MP round-up; isometric rotate-before-shear ordering                                                 | pending |
+| Task | Finding          | Scope                                                                                                                                     | Status |
+| ---- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| W2.1 | C-1, C-2         | Run/sprint MP derived from heat-adjusted walk; jump MP heat-immune. MODIFIED delta: movement-system heat requirements (verbatim headings) | done   |
+| W2.2 | C-3, C-4         | Terrain entry-cost table per motive/level; multi-feature hex cost summing. MODIFIED delta: terrain-system table                           | done   |
+| W2.3 | C-7              | Swamp partial cover removed. MODIFIED delta: terrain-system cover column                                                                  | done   |
+| W2.4 | C-5, C-6         | Indirect fire: drop artillery-only gunnery mod for LRM; +1 spotter-attacking; semi-guided TAG net-0 composition                           | done   |
+| W2.5 | C-8              | Arm-mounted weapons multi-arc [Front, Left/Right]                                                                                         | done   |
+| W2.6 | C-9, C-10, C-11  | BA trooper re-roll selection; crit confirmation d6; BATrooperKilled squadId semantics                                                     | done   |
+| W2.7 | C-13, C-14, C-15 | Sim-runner jump elevation gate; flank MP round-up; isometric rotate-before-shear ordering                                                 | done   |
 
 ## W3 — Campaign engine (cluster D)
 

@@ -902,7 +902,10 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
   ),
   jump: integrated(
     'jump',
-    'validateMovement enforces jump MP/no-jump-jets and ignores ground terrain entry modifiers',
+    // Audit 2026-06-09 C-13: validateMovement now enforces the jump
+    // elevation/clearance terrain gates the reachability projection already
+    // used — the old blurb claimed integration while only reachable.ts gated.
+    'validateMovement enforces jump MP/no-jump-jets plus the shared jump elevation/clearance terrain gates and ignores ground terrain entry modifiers',
     MEGAMEK_JUMP_MOVEMENT_SOURCE_REFS,
   ),
   stand: integrated(

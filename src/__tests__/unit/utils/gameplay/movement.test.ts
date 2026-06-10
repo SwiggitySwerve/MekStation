@@ -489,6 +489,87 @@ describe('movement', () => {
       expect(ok.valid).toBe(true);
     });
 
+    // Audit 2026-06-09 C-13: the simulation runner validates bot moves solely
+    // through validateMovement, whose Jump branch skipped the terrain gates
+    // the reachability projection (reachable.ts) already enforces — bots
+    // could jump onto elevation rises above jump MP. MegaMek marks such jump
+    // steps illegal (MovePath jump path elevation helpers; MoveStep
+    // elevation-change legality).
+    it('rejects a jump onto an elevation rise above effective jump MP', () => {
+      let jumpGrid = createHexGrid({ radius: 5 });
+      jumpGrid = setHexTerrain(jumpGrid, { q: 2, r: 0 }, 'clear', 5);
+      const cap = { walkMP: 5, runMP: 8, jumpMP: 4 };
+      const pos: IUnitPosition = {
+        unitId: 'jumper',
+        coord: { q: 0, r: 0 },
+        facing: Facing.North,
+        prone: false,
+      };
+
+      const blocked = validateMovement(
+        jumpGrid,
+        pos,
+        { q: 2, r: 0 },
+        Facing.North,
+        MovementType.Jump,
+        cap,
+      );
+      expect(blocked.valid).toBe(false);
+      expect(blocked.error).toContain('Jump elevation rise');
+    });
+
+    // Audit 2026-06-09 C-13: intervening terrain above the jump clearance
+    // (origin elevation + effective jump MP) must also block the jump, just
+    // like the reachability projection's getJumpClearanceBlockedReason gate.
+    it('rejects a jump over intervening terrain above jump clearance', () => {
+      let jumpGrid = createHexGrid({ radius: 5 });
+      jumpGrid = setHexTerrain(jumpGrid, { q: 1, r: 0 }, 'clear', 6);
+      const cap = { walkMP: 5, runMP: 8, jumpMP: 4 };
+      const pos: IUnitPosition = {
+        unitId: 'jumper-clearance',
+        coord: { q: 0, r: 0 },
+        facing: Facing.North,
+        prone: false,
+      };
+
+      const blocked = validateMovement(
+        jumpGrid,
+        pos,
+        { q: 2, r: 0 },
+        Facing.North,
+        MovementType.Jump,
+        cap,
+      );
+      expect(blocked.valid).toBe(false);
+      expect(blocked.error).toContain('exceeds jump clearance');
+    });
+
+    // Audit 2026-06-09 C-13: legal jumps stay legal — clearing terrain at or
+    // below the jump clearance and landing within the elevation budget.
+    it('still validates a legal jump over lower intervening terrain', () => {
+      let jumpGrid = createHexGrid({ radius: 5 });
+      jumpGrid = setHexTerrain(jumpGrid, { q: 1, r: 0 }, 'clear', 3);
+      jumpGrid = setHexTerrain(jumpGrid, { q: 2, r: 0 }, 'clear', 2);
+      const cap = { walkMP: 5, runMP: 8, jumpMP: 4 };
+      const pos: IUnitPosition = {
+        unitId: 'jumper-legal',
+        coord: { q: 0, r: 0 },
+        facing: Facing.North,
+        prone: false,
+      };
+
+      const ok = validateMovement(
+        jumpGrid,
+        pos,
+        { q: 2, r: 0 },
+        Facing.North,
+        MovementType.Jump,
+        cap,
+      );
+      expect(ok.valid).toBe(true);
+      expect(ok.mpCost).toBe(2);
+    });
+
     // Audit 2026-06-09 B-3: validateMovement used to forward only the
     // Partial Wing bonus to calculateMovementHeat, dropping the motive-mode
     // gate — hover/tracked units were charged Mek walk heat. MegaMek's base

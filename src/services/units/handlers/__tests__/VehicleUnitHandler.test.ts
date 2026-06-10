@@ -214,6 +214,17 @@ describe('VehicleUnitHandler', () => {
       expect(result.data?.unit?.movement.flankMP).toBe(6); // 4 * 1.5 = 6
     });
 
+    // Audit 2026-06-09 C-14: flank MP rounds UP — MegaMek Entity.getRunMP is
+    // ceil(walk MP * 1.5) (Tank inherits it) and the project's own BLK Python
+    // converter (blk_vehicle_converter.py) uses math.ceil.
+    it('should round flank MP up for odd cruise values', () => {
+      const doc = createMockBlkDocument({ cruiseMP: 5 });
+      const result = handler.parse(doc);
+
+      expect(result.success).toBe(true);
+      expect(result.data?.unit?.movement.flankMP).toBe(8); // ceil(5 * 1.5) = 8
+    });
+
     it('should parse armor by location', () => {
       const doc = createMockBlkDocument({
         armor: [20, 15, 15, 10, 12],

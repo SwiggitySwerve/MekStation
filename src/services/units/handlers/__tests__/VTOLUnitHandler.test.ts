@@ -363,12 +363,14 @@ describe('VTOLUnitHandler', () => {
       expect(result.data?.unit?.movement.flankMP).toBe(12); // 8 * 1.5 = 12
     });
 
-    it('should floor flank MP for odd cruise values', () => {
+    // Audit 2026-06-09 C-14: was pinned to floor(7 * 1.5) = 10 — MegaMek
+    // Entity.getRunMP rounds UP (ceil(walk MP * 1.5)).
+    it('should round flank MP up for odd cruise values', () => {
       const doc = createMockBlkDocument({ cruiseMP: 7 });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.movement.flankMP).toBe(10); // floor(7 * 1.5) = 10
+      expect(result.data?.unit?.movement.flankMP).toBe(11); // ceil(7 * 1.5) = 11
     });
 
     it('should set jump MP to 0 (VTOLs fly, not jump)', () => {

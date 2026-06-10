@@ -641,12 +641,14 @@ describe('SupportVehicleUnitHandler', () => {
       expect(result.data?.unit?.movement.flankMP).toBe(6); // 4 * 1.5 = 6
     });
 
-    it('should floor flankMP for odd cruise values', () => {
+    // Audit 2026-06-09 C-14: was pinned to floor(5 * 1.5) = 7 — MegaMek
+    // Entity.getRunMP rounds UP (ceil(walk MP * 1.5)).
+    it('should round flankMP up for odd cruise values', () => {
       const doc = createMockBlkDocument({ cruiseMP: 5 });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.movement.flankMP).toBe(7); // floor(5 * 1.5) = 7
+      expect(result.data?.unit?.movement.flankMP).toBe(8); // ceil(5 * 1.5) = 8
     });
 
     it('should parse jumpMP correctly', () => {
