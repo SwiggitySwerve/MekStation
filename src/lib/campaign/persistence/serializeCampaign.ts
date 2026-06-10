@@ -15,7 +15,9 @@
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
 import type { IFinances } from '@/types/campaign/IFinances';
+import type { ILoan } from '@/types/campaign/Loan';
 import type {
+  SerializedAmortizedLoan,
   SerializedCampaignBody,
   SerializedFinances,
   SerializedTransaction,
@@ -46,6 +48,24 @@ function serializeFinances(finances: IFinances): SerializedFinances {
       }),
     ),
     balance: finances.balance.amount,
+    // W3.1 follow-on (T3): flatten the amortization-engine ledger
+    // (Money → scalar, Date → ISO) so financialProcessor's loan state
+    // survives the server round trip — the same treatment the store path
+    // applies. Omitted when the campaign never used the loan system.
+    loans: finances.loans?.map(
+      (l): SerializedAmortizedLoan => ({
+        id: l.id,
+        principal: l.principal.amount,
+        annualRate: l.annualRate,
+        termMonths: l.termMonths,
+        monthlyPayment: l.monthlyPayment.amount,
+        remainingPrincipal: l.remainingPrincipal.amount,
+        startDate: l.startDate.toISOString(),
+        nextPaymentDate: l.nextPaymentDate.toISOString(),
+        paymentsRemaining: l.paymentsRemaining,
+        isDefaulted: l.isDefaulted,
+      }),
+    ),
   };
 }
 
@@ -65,6 +85,24 @@ function deserializeFinances(finances: SerializedFinances): IFinances {
       }),
     ),
     balance: new Money(finances.balance),
+    // W3.1 follow-on (T3): rehydrate the amortization ledger with live
+    // Money / Date instances — financialProcessor.processLoanPayments does
+    // Money math and Date comparisons on these. Absent on pre-fix
+    // snapshots, in which case the finances simply carry no ledger.
+    loans: finances.loans?.map(
+      (l): ILoan => ({
+        id: l.id,
+        principal: new Money(l.principal),
+        annualRate: l.annualRate,
+        termMonths: l.termMonths,
+        monthlyPayment: new Money(l.monthlyPayment),
+        remainingPrincipal: new Money(l.remainingPrincipal),
+        startDate: new Date(l.startDate),
+        nextPaymentDate: new Date(l.nextPaymentDate),
+        paymentsRemaining: l.paymentsRemaining,
+        isDefaulted: l.isDefaulted,
+      }),
+    ),
   };
 }
 
@@ -80,6 +118,11 @@ function deserializeFinances(finances: SerializedFinances): IFinances {
  * Pure and total — never throws, never mutates the input.
  */
 export function serializeCampaign(campaign: ICampaign): SerializedCampaignBody {
+  // Command-tier extension fields (loans / markets) live on the campaign
+  // behind `ICampaignCommandExtensions` — widen once so the serializer
+  // sees them (same convention as the store-path serializer in
+  // stores/campaign/useCampaignStore.persistence.ts).
+  const extended = campaign as ICampaignWithCommand;
   return {
     id: campaign.id,
     name: campaign.name,
@@ -109,9 +152,24 @@ export function serializeCampaign(campaign: ICampaign): SerializedCampaignBody {
     // The loan ledger (CP2b — `add-campaign-command-ui`, design D4) is
     // a campaign-extension field; every `ICampaignLoan` field is already
     // a JSON-safe scalar so it serializes directly. Omitted when absent.
-    loans: (campaign as ICampaignWithCommand).loans,
+    loans: extended.loans,
     // Audit D-10 (W3.4): the replayability seed travels with the body.
     rngSeed: campaign.rngSeed,
+    // W3.1 follow-on (T3): mirror the remaining store-path fields into the
+    // server body — combat teams, refit/prestige/morale/starmap state,
+    // co-op identity, and the command-tier markets. All JSON-safe shapes;
+    // all optional, so they vanish from the wire when absent.
+    combatTeams: campaign.combatTeams,
+    refitOrders: campaign.refitOrders,
+    unitConfigurations: campaign.unitConfigurations,
+    unitPrestige: campaign.unitPrestige,
+    moraleState: campaign.moraleState,
+    moraleTransitions: campaign.moraleTransitions,
+    currentSystemId: campaign.currentSystemId,
+    coopSession: campaign.coopSession,
+    personnelMarket: extended.personnelMarket,
+    contractMarket: extended.contractMarket,
+    unitMarket: extended.unitMarket,
   };
 }
 
@@ -153,5 +211,20 @@ export function deserializeCampaignBody(
     // Audit D-10 (W3.4): restore the replayability seed. Absent on
     // pre-fix snapshots — daily RNG falls back to an id-derived seed.
     ...(body.rngSeed !== undefined ? { rngSeed: body.rngSeed } : {}),
+    // W3.1 follow-on (T3): restore the mirrored store-path fields. All
+    // optional — absent on pre-fix snapshots, in which case the campaign
+    // simply carries no such field (every consumer already defaults to an
+    // empty projection), matching the store path's deserializeCampaign.
+    combatTeams: body.combatTeams,
+    refitOrders: body.refitOrders,
+    unitConfigurations: body.unitConfigurations,
+    unitPrestige: body.unitPrestige,
+    moraleState: body.moraleState,
+    moraleTransitions: body.moraleTransitions,
+    currentSystemId: body.currentSystemId,
+    coopSession: body.coopSession,
+    personnelMarket: body.personnelMarket,
+    contractMarket: body.contractMarket,
+    unitMarket: body.unitMarket,
   } as ICampaign;
 }
