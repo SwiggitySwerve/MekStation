@@ -6,14 +6,24 @@
  *   - Crew Stunned: skip next movement + weapon phase.
  *   - Engine Hit: 1st disables for a turn, 2nd destroys the vehicle.
  *   - Driver/Commander: wound counter; 2 kills the crew (vehicle destroyed).
- *   - Fuel Tank: ICE/FuelCell only — engine disabled; fusion → reroll.
+ *   - Fuel Tank: ICE/FuelCell only — vehicle destroyed by fuel explosion
+ *     (MegaMek `Tank.CRIT_FUEL_TANK` → destroyEntity "fuel explosion");
+ *     fusion → reroll.
  *   - Ammo Explosion: vehicle destroyed (per ammo-explosion system).
+ *   - VTOL Rotor Damage: cumulative MP penalty; immobilized once the penalty
+ *     reaches the original cruise MP (MegaMek `VTOL.CRIT_ROTOR_DAMAGE`).
+ *
+ * The legacy `vehicleCritFromRoll` generic table remains for direct callers;
+ * committed session attacks pass a location context to `rollVehicleCrit` so
+ * Tank / VTOL critical results follow the struck location table.
  *
  * @spec openspec/changes/add-vehicle-combat-behavior/specs/combat-resolution/spec.md
  *   #requirement vehicle-critical-hit-table
+ * @spec openspec/changes/align-vehicle-critical-location-tables/specs/combat-resolution/spec.md
  */
 
 import { EngineType } from '@/types/construction/EngineType';
+import { VehicleLocation } from '@/types/construction/UnitLocation';
 import {
   IVehicleCombatState,
   IVehicleCritRollResult,
@@ -60,6 +70,11 @@ export function vehicleCritFromRoll(
   return { dice: [d1, d2], roll, kind };
 }
 
+/**
+ * Roll a vehicle crit. With a location context the roll resolves against the
+ * MegaMek Tank/VTOL struck-location table; without one it falls back to the
+ * legacy generic 2d6 table for older direct callers.
+ */
 export function rollVehicleCrit(
   diceRoller: D6Roller = defaultD6Roller,
   context?: IVehicleCriticalTableContext,
@@ -132,73 +147,25 @@ export function applyVehicleCritEffect(
     case 'none':
       return { state, applied, ammoExplosion: false };
 
-    case 'crew_stunned': {
-      // Skip next movement + weapon phase (2 phases).
-      next = {
-        ...state,
-        motive: {
-          ...state.motive,
-          crewStunnedPhases: state.motive.crewStunnedPhases + 2,
-        },
-      };
+    case 'crew_stunned':
+      next = applyCrewStunned(state);
       break;
-    }
 
-    case 'weapon_destroyed':
-      // Weapon destruction handled by the equipment subsystem; combat state
-      // doesn't track weapon status here. Caller emits `ComponentDestroyed`.
-      return { state, applied, ammoExplosion: false };
+    case 'driver_hit':
+    case 'pilot_hit':
+      next = applyDriverHit(state);
+      break;
 
-    case 'cargo_hit':
-      // Cargo / infantry damage handled by transport subsystem.
-      return { state, applied, ammoExplosion: false };
+    case 'commander_hit':
+    case 'copilot_hit':
+      next = applyCommanderHit(state);
+      break;
 
     case 'crew_killed':
-      next = {
-        ...state,
-        destroyed: true,
-        destructionCause: 'crew_killed',
-      };
+      next = { ...state, destroyed: true, destructionCause: 'crew_killed' };
       break;
 
-    case 'commander_hit': {
-      const newCommanderHits = state.motive.commanderHits + 1;
-      const crewKilled = newCommanderHits >= 2;
-      next = {
-        ...state,
-        motive: { ...state.motive, commanderHits: newCommanderHits },
-        destroyed: crewKilled ? true : state.destroyed,
-        destructionCause: crewKilled ? 'crew_killed' : state.destructionCause,
-      };
-      break;
-    }
-
-    case 'copilot_hit':
-    case 'pilot_hit': {
-      const newDriverHits = state.motive.driverHits + 1;
-      const crewKilled = newDriverHits >= 2;
-      next = {
-        ...state,
-        motive: { ...state.motive, driverHits: newDriverHits },
-        destroyed: crewKilled ? true : state.destroyed,
-        destructionCause: crewKilled ? 'crew_killed' : state.destructionCause,
-      };
-      break;
-    }
-
-    case 'driver_hit': {
-      const newDriverHits = state.motive.driverHits + 1;
-      const crewKilled = newDriverHits >= 2;
-      next = {
-        ...state,
-        motive: { ...state.motive, driverHits: newDriverHits },
-        destroyed: crewKilled ? true : state.destroyed,
-        destructionCause: crewKilled ? 'crew_killed' : state.destructionCause,
-      };
-      break;
-    }
-
-    case 'fuel_tank': {
+    case 'fuel_tank':
       if (!engineHasFuelTank(ctx.engineType)) {
         // Fusion/energy engines → reroll becomes "no effect" in this
         // simplified implementation (caller may opt to reroll).
@@ -208,29 +175,20 @@ export function applyVehicleCritEffect(
           ammoExplosion: false,
         };
       }
-      // Fuel tank: engine disabled this turn (treat as first engine hit).
+      // Fuel tank hit on a fuel-bearing engine destroys the vehicle outright
+      // per MegaMek `Tank.CRIT_FUEL_TANK` (destroyEntity "fuel explosion").
       next = {
         ...state,
-        motive: { ...state.motive, engineHits: state.motive.engineHits + 1 },
+        destroyed: true,
+        destructionCause: 'fuel_tank_explosion',
       };
       break;
-    }
 
-    case 'engine_hit': {
-      const newEngineHits = state.motive.engineHits + 1;
-      const destroyed = newEngineHits >= 2;
-      next = {
-        ...state,
-        motive: { ...state.motive, engineHits: newEngineHits },
-        destroyed: destroyed ? true : state.destroyed,
-        destructionCause: destroyed
-          ? 'engine_destroyed'
-          : state.destructionCause,
-      };
+    case 'engine_hit':
+      next = applyEngineHit(state);
       break;
-    }
 
-    case 'ammo_explosion': {
+    case 'ammo_explosion':
       if (!ctx.hasAmmoInSlot) {
         // No ammo in slot → no effect (per spec).
         return {
@@ -240,33 +198,19 @@ export function applyVehicleCritEffect(
         };
       }
       ammoExplosion = true;
-      next = {
-        ...state,
-        destroyed: true,
-        destructionCause: 'ammo_explosion',
-      };
+      next = { ...state, destroyed: true, destructionCause: 'ammo_explosion' };
       break;
-    }
 
-    case 'stabilizer_hit':
-    case 'flight_stabilizer':
-    case 'sensor_hit':
-    case 'weapon_jammed':
-    case 'weapon_destroyed':
-    case 'rotor_damage':
-      return { state, applied, ammoExplosion: false };
-
-    case 'turret_jammed':
     case 'turret_locked':
-      next = applyTurretLocked(state);
+      next = applyTurretLocked(state, ctx.secondaryTurret === true);
       break;
 
     case 'turret_destroyed':
-      next = {
-        ...state,
-        destroyed: true,
-        destructionCause: 'turret_destroyed',
-      };
+      next = applyTurretDestroyed(state);
+      break;
+
+    case 'rotor_damage':
+      next = applyRotorDamage(state);
       break;
 
     case 'rotor_destroyed':
@@ -275,6 +219,17 @@ export function applyVehicleCritEffect(
         motive: { ...state.motive, immobilized: true },
       };
       break;
+
+    case 'weapon_destroyed':
+    case 'weapon_jammed':
+    case 'cargo_hit':
+    case 'stabilizer_hit':
+    case 'sensor_hit':
+    case 'turret_jammed':
+    case 'flight_stabilizer':
+      // Handled by the equipment/transport/turret subsystems; the combat
+      // state envelope has no representation here. Caller emits the events.
+      return { state, applied, ammoExplosion: false };
   }
 
   return { state: next, applied, ammoExplosion };
@@ -311,5 +266,98 @@ export function applyTurretLocked(
       ? { ...state.turretLock, secondaryLocked: true }
       : { ...state.turretLock, primaryLocked: true },
     motive: secondary ? state.motive : { ...state.motive, turretLocked: true },
+  };
+}
+
+// =============================================================================
+// Per-kind effect helpers
+// =============================================================================
+
+/** Crew stunned: skip the next movement + weapon phase (2 phases). */
+function applyCrewStunned(state: IVehicleCombatState): IVehicleCombatState {
+  return {
+    ...state,
+    motive: {
+      ...state.motive,
+      crewStunnedPhases: state.motive.crewStunnedPhases + 2,
+    },
+  };
+}
+
+/** Driver/pilot wound counter; the second hit kills the crew. */
+function applyDriverHit(state: IVehicleCombatState): IVehicleCombatState {
+  const driverHits = state.motive.driverHits + 1;
+  return {
+    ...state,
+    motive: { ...state.motive, driverHits },
+    destroyed: driverHits >= 2 ? true : state.destroyed,
+    destructionCause: driverHits >= 2 ? 'crew_killed' : state.destructionCause,
+  };
+}
+
+/**
+ * Commander/copilot wound counter. A commander hit also stuns the crew for
+ * a turn (TW vehicle crit table: treat as Crew Stunned for one turn); the
+ * second hit kills the crew.
+ */
+function applyCommanderHit(state: IVehicleCombatState): IVehicleCombatState {
+  const commanderHits = state.motive.commanderHits + 1;
+  const crewKilled = commanderHits >= 2;
+  return {
+    ...state,
+    motive: {
+      ...state.motive,
+      commanderHits,
+      crewStunnedPhases: state.motive.crewStunnedPhases + 2,
+    },
+    destroyed: crewKilled ? true : state.destroyed,
+    destructionCause: crewKilled ? 'crew_killed' : state.destructionCause,
+  };
+}
+
+/** Engine hit counter; the second hit destroys the vehicle. */
+function applyEngineHit(state: IVehicleCombatState): IVehicleCombatState {
+  const engineHits = state.motive.engineHits + 1;
+  return {
+    ...state,
+    motive: { ...state.motive, engineHits },
+    destroyed: engineHits >= 2 ? true : state.destroyed,
+    destructionCause:
+      engineHits >= 2 ? 'engine_destroyed' : state.destructionCause,
+  };
+}
+
+/**
+ * Turret destroyed: record the turret as a destroyed location and destroy
+ * the vehicle, mirroring MegaMek `Tank.CRIT_TURRET_DESTROYED`
+ * (destroyLocation + destroyEntity "turret blown off").
+ */
+function applyTurretDestroyed(state: IVehicleCombatState): IVehicleCombatState {
+  const turretLocation = VehicleLocation.TURRET;
+  return {
+    ...state,
+    destroyedLocations: state.destroyedLocations.includes(turretLocation)
+      ? state.destroyedLocations
+      : [...state.destroyedLocations, turretLocation],
+    destroyed: true,
+    destructionCause: 'turret_destroyed',
+  };
+}
+
+/**
+ * VTOL rotor damage: each hit adds 1 MP penalty; the VTOL immobilizes once
+ * the accumulated penalty reaches its original cruise MP (MegaMek
+ * `VTOL.CRIT_ROTOR_DAMAGE`: setMotiveDamage + immobilize at originalWalkMP).
+ */
+function applyRotorDamage(state: IVehicleCombatState): IVehicleCombatState {
+  const penaltyMP = state.motive.penaltyMP + 1;
+  return {
+    ...state,
+    motive: {
+      ...state.motive,
+      penaltyMP,
+      immobilized:
+        state.motive.immobilized || penaltyMP >= state.motive.originalCruiseMP,
+    },
   };
 }

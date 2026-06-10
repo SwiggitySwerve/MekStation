@@ -1,3 +1,5 @@
+import type { ActuatorType } from '@/types/construction/MechConfigurationSystem';
+
 import {
   ICriticalHitResolvedPayload,
   IDamageAppliedPayload,
@@ -8,6 +10,7 @@ import {
   IUnitGameState,
   IVehicleCombatState,
 } from '@/types/gameplay';
+import { asCombatLocation } from '@/utils/gameplay/criticalHitResolution/actuatorEffects';
 import { PILOT_DEATH_WOUND_THRESHOLD } from '@/utils/gameplay/damage/constants';
 import {
   applyDamagedPhysicalEquipmentCritical,
@@ -272,15 +275,35 @@ export function applyCriticalHitResolved(
         jumpJetsDestroyed: updatedDamage.jumpJetsDestroyed + 1,
       };
       break;
-    case 'actuator':
+    case 'actuator': {
+      // Per audit 2026-06-09 A-6: mirror `applyActuatorHit`'s per-location
+      // bookkeeping into the event-sourced replay path. Store-fed readers
+      // (hull-down entry pricing per MegaMek HullDownStep.java:61-82,
+      // QuadVee conversion gates, AirMek landing control) consume
+      // `actuatorsByLocation` from this reducer's output in live and
+      // replay flows. For actuator slots `componentName` carries the
+      // canonical `ActuatorType` value (see criticalHitResolution/manifest).
+      const combatLocation = asCombatLocation(payload.location);
       updatedDamage = {
         ...updatedDamage,
         actuators: {
           ...updatedDamage.actuators,
           [payload.componentName]: true,
         },
+        ...(combatLocation
+          ? {
+              actuatorsByLocation: {
+                ...updatedDamage.actuatorsByLocation,
+                [combatLocation]: {
+                  ...updatedDamage.actuatorsByLocation?.[combatLocation],
+                  [payload.componentName as ActuatorType]: true,
+                },
+              },
+            }
+          : {}),
       };
       break;
+    }
   }
   updatedDamage = applyVehicleCriticalLocationDamage(updatedDamage, payload);
 
@@ -430,9 +453,15 @@ function applyVehicleCriticalToCombatState(
       break;
     }
     case 'fuel_tank':
+      // Fuel tank hit destroys the vehicle outright per MegaMek
+      // `Tank.CRIT_FUEL_TANK` (destroyEntity "fuel explosion") and the
+      // `align-vehicle-critical-location-tables` game-state delta. The
+      // resolver only emits this effect for fuel-bearing engines, so the
+      // replay mirror destroys unconditionally.
       next = {
         ...next,
-        motive: { ...next.motive, engineHits: next.motive.engineHits + 1 },
+        destroyed: true,
+        destructionCause: 'fuel_tank_explosion',
       };
       break;
     case 'ammo_explosion':
@@ -449,6 +478,24 @@ function applyVehicleCriticalToCombatState(
         motive: { ...next.motive, turretLocked: true },
       };
       break;
+    case 'rotor_damage': {
+      // VTOL rotor damage: each hit adds 1 MP penalty; immobilized once the
+      // penalty reaches the original cruise MP (MegaMek
+      // `VTOL.CRIT_ROTOR_DAMAGE`: setMotiveDamage + immobilize at
+      // originalWalkMP).
+      const penaltyMP = next.motive.penaltyMP + 1;
+      next = {
+        ...next,
+        motive: {
+          ...next.motive,
+          penaltyMP,
+          immobilized:
+            next.motive.immobilized ||
+            penaltyMP >= next.motive.originalCruiseMP,
+        },
+      };
+      break;
+    }
     case 'rotor_destroyed':
       next = {
         ...next,

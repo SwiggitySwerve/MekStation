@@ -334,6 +334,12 @@ describe('movement command payload planning', () => {
     expect(movementTypeFromCommandPayload({ mode: 'jump' })).toBe(
       MovementType.Jump,
     );
+    expect(movementTypeFromCommandPayload({ mode: 'sprint' })).toBe(
+      MovementType.Sprint,
+    );
+    expect(movementTypeFromCommandPayload({ mode: 'evade' })).toBe(
+      MovementType.Evade,
+    );
     expect(movementTypeFromCommandPayload({ mode: 'careful' })).toBeNull();
     expect(movementTypeFromCommandPayload({ volley: true })).toBeNull();
   });

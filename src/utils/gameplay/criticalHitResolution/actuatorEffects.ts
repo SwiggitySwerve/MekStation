@@ -1,5 +1,6 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import {
+  type CombatLocation,
   CriticalEffectType,
   ICriticalEffect,
   PSRTrigger,
@@ -26,17 +27,34 @@ import {
 export function applyActuatorHit(
   slot: ICriticalSlotEntry,
   unitId: string,
-  _location: string,
+  location: string,
   componentDamage: IComponentDamageState,
   events: CriticalHitEvent[],
 ): { effect: ICriticalEffect; updatedDamage: IComponentDamageState } {
   const actuatorType = slot.actuatorType;
+  // Per audit 2026-06-09 A-6: actuator criticals are tracked both globally
+  // and per combat location. The per-location map feeds hull-down entry/exit
+  // pricing (MegaMek HullDownStep.java:61-82 — 1 MP plus non-hip leg
+  // actuator crits, one more for hip), QuadVee conversion gates, and AirMek
+  // landing control.
+  const combatLocation = asCombatLocation(location);
   const updatedDamage = {
     ...componentDamage,
     actuators: {
       ...componentDamage.actuators,
       ...(actuatorType ? { [actuatorType]: true } : {}),
     },
+    ...(actuatorType && combatLocation
+      ? {
+          actuatorsByLocation: {
+            ...componentDamage.actuatorsByLocation,
+            [combatLocation]: {
+              ...componentDamage.actuatorsByLocation?.[combatLocation],
+              [actuatorType]: true,
+            },
+          },
+        }
+      : {}),
   };
 
   if (
@@ -84,6 +102,31 @@ export function applyActuatorHit(
     },
     updatedDamage,
   };
+}
+
+/**
+ * Canonicalizes a raw location string into a `CombatLocation` key, or null
+ * when the source data isn't a mech combat location (e.g. vehicle facings).
+ * Exported so the event-sourced replay reducer (`gameState/damageResolution`)
+ * applies the same guard when mirroring per-location actuator damage.
+ */
+export function asCombatLocation(location: string): CombatLocation | null {
+  switch (location) {
+    case 'head':
+    case 'center_torso':
+    case 'center_torso_rear':
+    case 'left_torso':
+    case 'left_torso_rear':
+    case 'right_torso':
+    case 'right_torso_rear':
+    case 'left_arm':
+    case 'right_arm':
+    case 'left_leg':
+    case 'right_leg':
+      return location;
+    default:
+      return null;
+  }
 }
 
 export function getActuatorToHitModifier(actuatorType: ActuatorType): number {

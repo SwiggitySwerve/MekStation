@@ -17,8 +17,10 @@ import {
   type IMovementDeclaredPayload,
   type ISpottingDeclaredPayload,
 } from '@/types/gameplay';
+import { createUnitFellEvent } from '@/utils/gameplay/gameEvents';
 import {
   advancePhase,
+  appendEvent,
   createGameSession,
   rollInitiative,
   startGame,
@@ -309,6 +311,62 @@ describe('useGameplayStore utility actions', () => {
     expect(useGameplayStore.getState().ui.selectedUnitId).toBeNull();
     expect(useGameplayStore.getState().ui.targetUnitId).toBeNull();
     expect(useGameplayStore.getState().ui.queuedWeaponIds).toEqual([]);
+  });
+
+  it('rolls real stand-up PSR dice locally so a failing roll keeps the unit prone', () => {
+    // Audit A-4: the reconciliation merge hardcoded a boxcars (12) roll into
+    // the local stand path, so stand-up could never fail. Pin the real
+    // behavior: piloting 5 => TN 5, and a forced snake-eyes roll (2) through
+    // the engine's default dice seam must FAIL the PSR and leave the unit
+    // prone. Seed prone through a real UnitFell event (not a hand-edited
+    // currentState) because appendEvent re-derives state from the event log.
+    const base = makeSession();
+    const session = appendEvent(
+      base,
+      createUnitFellEvent(
+        base.id,
+        base.events.length,
+        base.currentState.turn,
+        GamePhase.Movement,
+        'player-a',
+        0,
+        Facing.North,
+        0,
+      ),
+    );
+    expect(session.currentState.units['player-a'].prone).toBe(true);
+    useGameplayStore.setState({
+      session,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+      },
+    });
+
+    // Force both d6 to roll 1 (total 2) via the production roller's
+    // Math.random source. A hardcoded dice result ignores this mock.
+    const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0);
+    try {
+      useGameplayStore.getState().handleAction('stand');
+    } finally {
+      randomSpy.mockRestore();
+    }
+
+    const updated = useGameplayStore.getState().session!;
+    const resolved = updated.events.find(
+      (entry) => entry.type === GameEventType.PSRResolved,
+    );
+    expect(resolved).toBeDefined();
+    expect(resolved!.payload).toMatchObject({
+      unitId: 'player-a',
+      targetNumber: 5,
+      roll: 2,
+      passed: false,
+    });
+    expect(
+      updated.events.some((entry) => entry.type === GameEventType.UnitStood),
+    ).toBe(false);
+    expect(updated.currentState.units['player-a'].prone).toBe(true);
   });
 
   it('turns go-prone into same-hex movement and locks the local unit', () => {
@@ -753,6 +811,104 @@ describe('useGameplayStore utility actions', () => {
     expect(useGameplayStore.getState().ui.queuedWeaponIds).toEqual([]);
   });
 
+  it('no-ops request-spot when the spotter is already spotting', () => {
+    // Audit A-12: the reconciliation merge dropped the store-level
+    // eligibility guard chain, so ineligible requests surfaced the
+    // reducer's Error ("Unit ... is already spotting") uncaught in the UI.
+    const base = forceWeaponAttackState(makeSession());
+    const session: IGameSession = {
+      ...base,
+      currentState: {
+        ...base.currentState,
+        units: {
+          ...base.currentState.units,
+          'player-a': {
+            ...base.currentState.units['player-a'],
+            isSpotting: true,
+            spotTargetId: 'opponent-a',
+          },
+        },
+      },
+    };
+    useGameplayStore.setState({
+      session,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+        targetUnitId: 'opponent-a',
+      },
+    });
+
+    expect(() =>
+      useGameplayStore.getState().handleAction('request-spot', {
+        unitId: 'player-a',
+        targetUnitId: 'opponent-a',
+      }),
+    ).not.toThrow();
+
+    const updated = useGameplayStore.getState().session!;
+    // Ineligible request is a pure no-op: no event appended.
+    expect(updated.events).toHaveLength(session.events.length);
+    expect(
+      updated.events.some(
+        (entry) => entry.type === GameEventType.SpottingDeclared,
+      ),
+    ).toBe(false);
+  });
+
+  it('no-ops request-spot against a friendly target', () => {
+    // Audit A-12: spotting a same-side unit must no-op instead of
+    // throwing "Cannot spot a friendly target" from the reducer.
+    const session = forceWeaponAttackState(makeSession());
+    useGameplayStore.setState({
+      session,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+      },
+    });
+
+    expect(() =>
+      useGameplayStore.getState().handleAction('request-spot', {
+        unitId: 'player-a',
+        targetUnitId: 'player-b',
+      }),
+    ).not.toThrow();
+
+    const updated = useGameplayStore.getState().session!;
+    expect(updated.events).toHaveLength(session.events.length);
+    expect(updated.currentState.units['player-a'].isSpotting).toBeFalsy();
+  });
+
+  it('no-ops request-spot outside the weapon-attack phase', () => {
+    // Audit A-12: spotting is only legal during the weapon-attack phase;
+    // a movement-phase request must no-op instead of throwing
+    // "Not in weapon attack phase".
+    const session = forceMovementState(makeSession());
+    useGameplayStore.setState({
+      session,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+        targetUnitId: 'opponent-a',
+      },
+    });
+
+    expect(() =>
+      useGameplayStore.getState().handleAction('request-spot', {
+        unitId: 'player-a',
+        targetUnitId: 'opponent-a',
+      }),
+    ).not.toThrow();
+
+    const updated = useGameplayStore.getState().session!;
+    expect(
+      updated.events.some(
+        (entry) => entry.type === GameEventType.SpottingDeclared,
+      ),
+    ).toBe(false);
+  });
+
   it('excludes ejected targets when selecting a weapon-attack target', () => {
     const base = forceWeaponAttackState(makeSession());
     const session = {
@@ -856,6 +1012,27 @@ describe('useGameplayStore utility actions', () => {
     expect(advancedFrom).toEqual([]);
     expect(useGameplayStore.getState().session!.currentState.phase).toBe(
       GamePhase.WeaponAttack,
+    );
+  });
+
+  it('advances the heat phase through the local reducer when no interactive session exists', () => {
+    // Audit A-15: the reconciliation merge dropped the non-interactive
+    // advancePhase fallback, so the dock's heat.continue command no-oped
+    // in local event-sourced sessions.
+    const session = forceHeatState(makeSession());
+    useGameplayStore.setState({
+      session,
+      ui: DEFAULT_UI_STATE,
+    });
+
+    useGameplayStore.getState().handleAction('continue');
+
+    const updated = useGameplayStore.getState().session!;
+    expect(updated.currentState.phase).toBe(GamePhase.End);
+    // The fallback goes through the event-sourced reducer, so the phase
+    // change must be recorded as a replayable event.
+    expect(updated.events[updated.events.length - 1]!.type).toBe(
+      GameEventType.PhaseChanged,
     );
   });
 });

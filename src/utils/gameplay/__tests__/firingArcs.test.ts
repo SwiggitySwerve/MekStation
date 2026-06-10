@@ -22,6 +22,7 @@ import {
   getArcHitModifier,
   targetsRearArmor,
 } from '../firingArcs';
+import { hexAngle } from '../hexMath';
 
 // =============================================================================
 // Test Fixtures
@@ -45,6 +46,20 @@ function createTestPosition(
 
 describe('determineArc', () => {
   describe('MegaMek-aligned neighbor angles', () => {
+    it('places the six adjacent directions on exact 60-degree increments', () => {
+      // Pins the public hexAngle directly (not just via determineArc):
+      // MegaMek IdealHex center geometry puts each adjacent hex on an
+      // exact 60-degree increment from North, clockwise.
+      const origin: IHexCoordinate = { q: 0, r: 0 };
+
+      expect(hexAngle(origin, { q: 0, r: -1 })).toBe(0);
+      expect(hexAngle(origin, { q: 1, r: -1 })).toBe(60);
+      expect(hexAngle(origin, { q: 1, r: 0 })).toBe(120);
+      expect(hexAngle(origin, { q: 0, r: 1 })).toBe(180);
+      expect(hexAngle(origin, { q: -1, r: 1 })).toBe(240);
+      expect(hexAngle(origin, { q: -1, r: 0 })).toBe(300);
+    });
+
     it('places the six adjacent arc angles on exact 60-degree increments', () => {
       const attacker = createTestPosition({
         coord: { q: 0, r: 0 },

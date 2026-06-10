@@ -76,19 +76,112 @@ function makeComponentDamage(
 describe('movementCommands', () => {
   const commands = buildMovementCommands();
 
-  it('exposes walk / run / jump / stand / posture / stabilize / cancel', () => {
+  it('exposes walk / run / sprint / evade / jump / stand / posture / MASC / supercharger / stabilize / cancel', () => {
     const ids = commands.map((c) => c.id);
     expect(ids).toEqual([
       'movement.walk',
       'movement.run',
+      'movement.sprint',
+      'movement.evade',
       'movement.jump',
       'movement.stand',
       'movement.carefulStand',
       'movement.hullDown',
       'movement.goProne',
+      'movement.activate-masc',
+      'movement.activate-supercharger',
       'movement.stabilize',
       'movement.cancel',
     ]);
+  });
+
+  it('sprint and evade are available with an active unit on the player turn', () => {
+    const ctx = makeCtx({
+      activeUnitProne: false,
+      movementCapability: { walkMP: 4, runMP: 6, jumpMP: 0 },
+    });
+    expect(
+      commands.find((c) => c.id === 'movement.sprint')!.availability(ctx),
+    ).toEqual({ available: true });
+    expect(
+      commands.find((c) => c.id === 'movement.evade')!.availability(ctx),
+    ).toEqual({ available: true });
+  });
+
+  it('sprint and evade are disabled when the active unit already locked movement', () => {
+    for (const id of ['movement.sprint', 'movement.evade']) {
+      const command = commands.find((c) => c.id === id)!;
+      const result = command.availability(
+        makeCtx({
+          activeUnitProne: false,
+          activeUnitLockState: LockState.Locked,
+          movementCapability: { walkMP: 4, runMP: 6, jumpMP: 0 },
+        }),
+      );
+      expect(result).toEqual({
+        available: false,
+        reason: 'Unit has already locked movement this phase',
+      });
+    }
+  });
+
+  it('sprint commit produces a lock actionId with mode=sprint', () => {
+    const sprint = commands.find((c) => c.id === 'movement.sprint')!;
+    expect(sprint.commit(makeCtx())).toEqual({
+      actionId: 'lock',
+      payload: { mode: 'sprint' },
+    });
+  });
+
+  it('evade commit produces a lock actionId with mode=evade', () => {
+    const evade = commands.find((c) => c.id === 'movement.evade')!;
+    expect(evade.commit(makeCtx())).toEqual({
+      actionId: 'lock',
+      payload: { mode: 'evade' },
+    });
+  });
+
+  it('MASC and Supercharger commands commit their activation action ids', () => {
+    const masc = commands.find((c) => c.id === 'movement.activate-masc')!;
+    const supercharger = commands.find(
+      (c) => c.id === 'movement.activate-supercharger',
+    )!;
+
+    expect(masc.availability(makeCtx())).toEqual({ available: true });
+    expect(masc.commit(makeCtx())).toEqual({
+      actionId: 'activate-masc',
+      payload: {},
+    });
+    expect(supercharger.availability(makeCtx())).toEqual({ available: true });
+    expect(supercharger.commit(makeCtx())).toEqual({
+      actionId: 'activate-supercharger',
+      payload: {},
+    });
+  });
+
+  it('MASC and Supercharger commands are gated by turn and lock state', () => {
+    for (const id of [
+      'movement.activate-masc',
+      'movement.activate-supercharger',
+    ]) {
+      const command = commands.find((c) => c.id === id)!;
+      expect(command.availability(makeCtx({ activeUnitId: null }))).toEqual({
+        available: false,
+        reason: 'No unit is active.',
+      });
+      expect(command.availability(makeCtx({ canAct: false }))).toEqual({
+        available: false,
+        reason: 'Not your turn.',
+      });
+      expect(
+        command.availability(
+          makeCtx({ activeUnitLockState: LockState.Locked }),
+        ),
+      ).toEqual({
+        available: false,
+        reason: 'Unit has already locked movement this phase',
+      });
+    }
   });
 
   it('every command targets Movement phase', () => {

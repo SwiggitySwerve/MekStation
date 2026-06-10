@@ -177,7 +177,7 @@ describe('BattleMech terrain and environment combat support catalog', () => {
           }),
           expect.objectContaining({
             kind: 'mekstation-deviation',
-            url: 'src/utils/gameplay/lineOfSight.ts#L193-L334',
+            url: 'src/utils/gameplay/lineOfSight.ts#L189-L349',
           }),
           expect.objectContaining({
             kind: 'mekstation-deviation',

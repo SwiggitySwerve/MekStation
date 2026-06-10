@@ -1,11 +1,11 @@
 /**
  * Vehicle Firing Arc Calculation
  *
- * Per TW, ground vehicles have a fixed Front (60°), Left Side (120°),
- * Right Side (120°), and Rear (60°) arc based on chassis facing. Turret
- * weapons ignore chassis facing and fire in a 360° arc unless the turret is
- * locked (in which case they fire in the chassis Front arc only). Sponson
- * turrets fire in a 180° forward-side hemisphere.
+ * Ground vehicles use MegaMek's default chassis arc constants: Front/Rear are
+ * the 120-degree forward/rear intervals and Left/Right are the 60-degree side
+ * intervals. Turret weapons are currently represented as 360-degree coverage
+ * unless locked. Sponson turrets are represented as a 180-degree front-side
+ * hemisphere.
  *
  * @spec openspec/changes/add-vehicle-combat-behavior/specs/firing-arc-calculation/spec.md
  */
@@ -29,14 +29,14 @@ import { calculateFiringArc } from './firingArc';
 // =============================================================================
 
 /**
- * Degree span for each vehicle arc. Full 360° is covered by:
- *   Front (60) + Right Side (120) + Rear (60) + Left Side (120) = 360.
+ * Degree span for each basic chassis arc. Full 360 degrees is covered by:
+ *   Front (120) + Right Side (60) + Rear (120) + Left Side (60) = 360.
  */
 export const VEHICLE_ARC_DEGREES: Readonly<Record<FiringArc, number>> = {
-  [FiringArc.Front]: 60,
-  [FiringArc.Left]: 120,
-  [FiringArc.Right]: 120,
-  [FiringArc.Rear]: 60,
+  [FiringArc.Front]: 120,
+  [FiringArc.Left]: 60,
+  [FiringArc.Right]: 60,
+  [FiringArc.Rear]: 120,
 };
 
 // =============================================================================
@@ -124,6 +124,8 @@ export function getVehicleWeaponArcs(params: {
 
   // Chassis-mounted weapon: fires in the arc matching its location.
   switch (params.mountLocation) {
+    case VehicleLocation.BODY:
+    case VTOLLocation.BODY:
     case VehicleLocation.FRONT:
       return [FiringArc.Front];
     case VehicleLocation.LEFT:

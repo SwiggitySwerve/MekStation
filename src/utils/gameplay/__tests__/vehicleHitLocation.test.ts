@@ -12,6 +12,7 @@ import {
   VEHICLE_REAR_HIT_TABLE,
   VEHICLE_SIDE_HIT_TABLE_LEFT,
   VEHICLE_SIDE_HIT_TABLE_RIGHT,
+  determineVehicleHitLocation,
   determineVehicleHitLocationFromRoll,
   getVehicleHitLocationTable,
   isVehicleTACRoll,
@@ -199,6 +200,106 @@ describe('vehicleHitLocation', () => {
         determineVehicleHitLocationFromRoll('rear', [4, 5], { isVTOL: true })
           .location,
       ).toBe('turret');
+    });
+  });
+
+  describe('hull-down vehicle fixed locations', () => {
+    it('fixes front protected hits to turret without consuming dice when turreted', () => {
+      const diceRoller = jest.fn(() => 6);
+
+      const result = determineVehicleHitLocation('front', diceRoller, {
+        hullDown: { active: true, hasTurret: true },
+      });
+
+      expect(diceRoller).not.toHaveBeenCalled();
+      expect(result).toMatchObject({
+        dice: [0, 0],
+        roll: 0,
+        direction: 'front',
+        location: 'turret',
+        isTAC: false,
+        hullDownFixedLocation: true,
+        hullDownReason: 'vehicle-hull-down-fixed-location',
+      });
+    });
+
+    it('fixes side protected hits to the incoming side when no turret is available', () => {
+      const result = determineVehicleHitLocationFromRoll('left', [6, 6], {
+        hullDown: { active: true },
+      });
+
+      expect(result).toMatchObject({
+        dice: [6, 6],
+        roll: 12,
+        direction: 'left',
+        location: 'left_side',
+        isTAC: false,
+        hullDownFixedLocation: true,
+      });
+    });
+
+    it('uses the normal rear table when a non-backed hull-down vehicle is hit from behind', () => {
+      const diceRoller = jest
+        .fn()
+        .mockReturnValueOnce(6)
+        .mockReturnValueOnce(6);
+
+      const result = determineVehicleHitLocation('rear', diceRoller, {
+        hullDown: { active: true, hasTurret: true },
+      });
+
+      expect(diceRoller).toHaveBeenCalledTimes(2);
+      expect(result.location).toBe('rear');
+      expect(result.isTAC).toBe(true);
+      expect(result.hullDownFixedLocation).toBeUndefined();
+    });
+
+    it('flips the protected direction when the vehicle backed into hull-down', () => {
+      const rearResult = determineVehicleHitLocationFromRoll('rear', [6, 6], {
+        hullDown: {
+          active: true,
+          backedIntoHullDown: true,
+          hasTurret: true,
+        },
+      });
+      const frontResult = determineVehicleHitLocationFromRoll('front', [6, 6], {
+        hullDown: {
+          active: true,
+          backedIntoHullDown: true,
+          hasTurret: true,
+        },
+      });
+
+      expect(rearResult).toMatchObject({
+        location: 'turret',
+        isTAC: false,
+        hullDownFixedLocation: true,
+      });
+      expect(frontResult).toMatchObject({
+        location: 'front',
+        isTAC: true,
+      });
+      expect(frontResult.hullDownFixedLocation).toBeUndefined();
+    });
+
+    it('keeps VTOL rotor redirection on normal-table branches only', () => {
+      const protectedFront = determineVehicleHitLocationFromRoll(
+        'front',
+        [6, 6],
+        {
+          isVTOL: true,
+          hullDown: { active: true },
+        },
+      );
+      const exposedRear = determineVehicleHitLocationFromRoll('rear', [6, 6], {
+        isVTOL: true,
+        hullDown: { active: true },
+      });
+
+      expect(protectedFront.location).toBe('front');
+      expect(protectedFront.hullDownFixedLocation).toBe(true);
+      expect(exposedRear.location).toBe('rotor');
+      expect(exposedRear.hullDownFixedLocation).toBeUndefined();
     });
   });
 
