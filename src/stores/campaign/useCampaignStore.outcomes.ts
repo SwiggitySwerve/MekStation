@@ -1,5 +1,6 @@
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
+import { reconcileCoopOutcomeForCampaign } from '@/lib/campaign/coop/coopHostRegistry';
 import {
   applyPostBattle,
   type ICampaignWithBattleState,
@@ -7,6 +8,7 @@ import {
 
 import type { CampaignStore } from './useCampaignStore.types';
 
+import { useCampaignRosterStore } from './useCampaignRosterStore';
 import {
   emitPendingOutcomeAddedEvent,
   persistCampaignRecord,
@@ -56,6 +58,30 @@ export function enqueueCampaignOutcome(
     );
   }
   emitPendingOutcomeAddedEvent(campaign, outcome, nextPending.length);
+  // D-4 remediation (2026-06-09 audit): a co-op HOST campaign reconciles
+  // the battle's campaign-facing consequences (salvage, roster changes)
+  // into the shared CO1 event log the moment the outcome lands — this is
+  // the production caller `reconcileCoopBattle` shipped without. Runs
+  // AFTER the dedup guards above so a re-published matchId can never
+  // double-reconcile. Fire-and-forget: the gate never throws, and it
+  // resolves null for single-player campaigns, guest mirrors, or when no
+  // live CampaignMatchHost is registered for this campaign.
+  void reconcileCoopOutcomeForCampaign(
+    campaign,
+    outcome,
+    buildRosterDesignations(),
+  );
+}
+
+/**
+ * Unit id -> display name lookup for the reconciliation's
+ * `RosterUnitChanged` events. Read off the roster store (the campaign's
+ * unit-name source of truth); `deriveCoopBattleConsequences` falls back
+ * to the raw unit id for any unit missing here.
+ */
+function buildRosterDesignations(): Record<string, string> {
+  const units = useCampaignRosterStore.getState().units;
+  return Object.fromEntries(units.map((u) => [u.unitId, u.unitName]));
 }
 
 export function dequeueCampaignOutcome(
