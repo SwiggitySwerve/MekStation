@@ -45,7 +45,7 @@ reconciliation merge `7f22e4f22` · audited main `442f90855`.
 | W2.3 | C-7              | Swamp partial cover removed. MODIFIED delta: terrain-system cover column                                                                  | done    |
 | W2.4 | C-5, C-6         | Indirect fire: drop artillery-only gunnery mod for LRM; +1 spotter-attacking; semi-guided TAG net-0 composition                           | done    |
 | W2.5 | C-8              | Arm-mounted weapons multi-arc [Front, Left/Right]                                                                                         | done    |
-| W2.6 | C-9, C-10, C-11  | BA trooper re-roll selection; crit confirmation d6; BATrooperKilled squadId semantics                                                     | pending |
+| W2.6 | C-9, C-10, C-11  | BA trooper re-roll selection; crit confirmation d6; BATrooperKilled squadId semantics                                                     | done    |
 | W2.7 | C-13, C-14, C-15 | Sim-runner jump elevation gate; flank MP round-up; isometric rotate-before-shear ordering                                                 | pending |
 
 ## W3 — Campaign engine (cluster D)

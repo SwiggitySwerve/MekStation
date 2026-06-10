@@ -41,7 +41,10 @@ function scriptedRoller(values: readonly number[]): D6Roller {
 describe('battleArmorResolveDamage — one-hit-at-a-time', () => {
   it('routes a single hit to one trooper', () => {
     const state = makeState(5, 10);
-    const roller = scriptedRoller([6]); // 6 % 5 = 1 → trooper index 1
+    // Audit C-9: d6 maps DIRECTLY to a trooper slot (MegaMek
+    // BattleArmor.rollHitLocation); 6 exceeds the 5-trooper squad → re-roll
+    // → 2 → trooper index 1. (Previously 6 % 5 = 1 via biased modulo.)
+    const roller = scriptedRoller([6, 2]);
     const r = battleArmorResolveDamage(state, [5], { diceRoller: roller });
     expect(r.hits).toHaveLength(1);
     expect(r.hits[0].trooperIndex).toBe(1);
@@ -52,35 +55,37 @@ describe('battleArmorResolveDamage — one-hit-at-a-time', () => {
 
   it('overflow damage kills the trooper and the rest of the shot is lost', () => {
     const state = makeState(3, 4);
-    // 3 survivors -> index = die % 3. Die = 3 → index 0.
+    // Audit C-9: die 3 → trooper index 2 (direct map, was index 0 via modulo).
     const roller = scriptedRoller([3]);
     const r = battleArmorResolveDamage(state, [10], { diceRoller: roller });
-    expect(r.hits[0].trooperIndex).toBe(0);
+    expect(r.hits[0].trooperIndex).toBe(2);
     expect(r.hits[0].killed).toBe(true);
-    expect(r.trooperKills).toEqual([0]);
-    expect(r.state.troopers[0].alive).toBe(false);
+    expect(r.trooperKills).toEqual([2]);
+    expect(r.state.troopers[2].alive).toBe(false);
+    expect(r.state.troopers[0].armorRemaining).toBe(4); // untouched
     expect(r.state.troopers[1].armorRemaining).toBe(4); // untouched
-    expect(r.state.troopers[2].armorRemaining).toBe(4); // untouched
   });
 
   it('multiple hits pick independently; subsequent hits route to survivors', () => {
     const state = makeState(3, 2);
-    // First roll: 3 → index 3 % 3 = 0 → kills trooper 0 (2 armor, 5 dmg).
-    // After kill: 2 survivors (indices 1,2). Next roll: 4 → 4 % 2 = 0 → survivor list[0] = 1.
-    const roller = scriptedRoller([3, 4]);
+    // Audit C-9 re-roll semantics: first roll 3 → trooper 2 killed (2 armor,
+    // 5 dmg). Second hit rolls 3 again → trooper 2 is dead → re-roll → 1 →
+    // trooper 0 killed.
+    const roller = scriptedRoller([3, 3, 1]);
     const r = battleArmorResolveDamage(state, [5, 5], { diceRoller: roller });
     expect(r.hits).toHaveLength(2);
-    expect(r.hits[0].trooperIndex).toBe(0);
+    expect(r.hits[0].trooperIndex).toBe(2);
     expect(r.hits[0].killed).toBe(true);
-    expect(r.hits[1].trooperIndex).toBe(1);
+    expect(r.hits[1].trooperIndex).toBe(0);
     expect(r.hits[1].killed).toBe(true);
-    expect(r.trooperKills).toEqual([0, 1]);
+    expect(r.trooperKills).toEqual([2, 0]);
   });
 
   it('stops early when the squad is eliminated', () => {
     const state = makeState(2, 2);
-    // Dice: 2 → 2%2=0, 3 → 3%1=0 (only index 1 left)
-    const roller = scriptedRoller([2, 3, 5, 5]);
+    // Audit C-9: dice map directly — 2 → trooper 1 (killed), 1 → trooper 0
+    // (killed) → squad eliminated, remaining hits discarded.
+    const roller = scriptedRoller([2, 1]);
     const r = battleArmorResolveDamage(state, [10, 10, 10, 10], {
       diceRoller: roller,
     });
@@ -92,13 +97,28 @@ describe('battleArmorResolveDamage — one-hit-at-a-time', () => {
 
   it('doubles each hit when isFlamer=true', () => {
     const state = makeState(5, 10);
+    // Audit C-9: die 5 → trooper index 4 (direct map, was index 0 via modulo).
     const roller = scriptedRoller([5]);
     const r = battleArmorResolveDamage(state, [3], {
       diceRoller: roller,
       isFlamer: true,
     });
     expect(r.hits[0].damage).toBe(6); // 3 × 2
-    expect(r.state.troopers[5 % 5].armorRemaining).toBe(10 - 6);
+    expect(r.state.troopers[4].armorRemaining).toBe(10 - 6);
+  });
+
+  it('selects troopers uniformly via re-roll — no modulo bias in 5-trooper squads (C-9)', () => {
+    // Audit C-9 distribution proof: cycling seeded rolls 1..6 over 20 hits,
+    // every trooper must take exactly 4 hits (roll 6 re-rolls). Under the
+    // pre-fix modulo mapping trooper 0 absorbed roll 6 too (2× bias).
+    const state = makeState(5, 10);
+    const roller = scriptedRoller([1, 2, 3, 4, 5, 6]);
+    const r = battleArmorResolveDamage(state, Array(20).fill(1), {
+      diceRoller: roller,
+    });
+    const counts = [0, 0, 0, 0, 0];
+    for (const h of r.hits) counts[h.trooperIndex]++;
+    expect(counts).toEqual([4, 4, 4, 4, 4]);
   });
 });
 
@@ -106,7 +126,7 @@ describe('battleArmorResolveCluster', () => {
   it('uses cluster hit table with squad as cluster input', () => {
     const state = makeState(5, 10);
     // 2d6 = [4,4] = total 8. Cluster size 5, row 8 = 4 hits. Each hit 2 dmg.
-    // Trooper-selection rolls follow: 1,2,3,4 → indices 1,2,3,4.
+    // Trooper-selection rolls follow: 1,2,3 → indices 0,1,2 (direct map, C-9).
     const roller = scriptedRoller([4, 4, 1, 2, 3, 4]);
     const r = battleArmorResolveCluster(state, {
       missileCount: 5,

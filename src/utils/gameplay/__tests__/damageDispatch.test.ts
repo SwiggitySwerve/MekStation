@@ -127,7 +127,7 @@ describe('damageDispatch', () => {
       kind: 'battlearmor',
       state: baState,
       perHitDamage: [3],
-      options: { diceRoller: () => 4 }, // 4 % 4 = 0 → trooper index 0
+      options: { diceRoller: () => 4 }, // d6=4 → trooper index 3 (direct map per MegaMek re-roll selection, C-9)
     });
 
     expect(r.kind).toBe('battlearmor');
