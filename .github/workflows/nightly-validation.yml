@@ -1,0 +1,255 @@
+name: Nightly Validation
+
+# ---------------------------------------------------------------
+# Scheduled full-size enforcement lane (2026-06-09 audit, cluster E;
+# remediation tracker W4.4). The PR pipeline targets ~5 minutes, so
+# PR lanes run shrunken smoke counts and a single Playwright spec.
+# This workflow runs the proofs the PR pipeline legitimately cannot
+# afford, daily on main:
+#   - E-2: perf budget assertions actually execute in CI
+#     (SIMULATION_PERF_ASSERTIONS=true overrides the shard exclusion)
+#   - E-4: statistical existence assertions engage at full batch sizes
+#   - E-5: pilot-skill >=10pp win-rate proofs at the N=100 default
+#     (statisticalIt gates open because no shrink env vars are set)
+#   - E-6: swarm throughput at the spec'd 1,000-run / 60s scale
+#     (openspec/specs/quick-session/spec.md, "Throughput target met
+#     for 1,000 runs")
+#   - E-1 remainder: the FULL Playwright suite on chromium (the PR
+#     e2e-smoke lane runs only tactical-map-visual-smoke.spec.ts)
+#   - E-9: jest.config.js coverageThreshold enforced via a coverage run
+#
+# No detect-changes/paths-filter gating here: scheduled runs have no
+# diff to filter on and must always validate everything.
+# ---------------------------------------------------------------
+
+on:
+  schedule:
+    # Daily at 09:00 UTC.
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  # Warms the shared node_modules cache so the fan-out lanes restore
+  # instead of each running their own `npm ci` (same pattern as
+  # pr-checks.yml).
+  install-deps:
+    name: Install Dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
+
+  # ---------------------------------------------------------------
+  # Full-size statistical + perf proofs (E-2/E-4/E-5/E-6).
+  #
+  # Runs the four perf-sensitive simulation suites PLUS
+  # simulation.test.ts (home of the E-2 perfIt budgets) at their
+  # DEFAULT batch counts — deliberately NO count-shrink env vars
+  # (SIMULATION_COUNT, *_BATCH_COUNT), so every statisticalIt gate
+  # opens and the existence/win-rate proofs run with real teeth:
+  #   - integration.test.ts: N=100 statistical batch + N=100 profile
+  #   - simulation-combat-integration.test.ts: 20/200/50/50 batches
+  #   - swarm-pilot-skills-batch.test.ts: 100+100 win-rate proof
+  #   - swarm-throughput.test.ts: 1,000 sequential runs
+  # ---------------------------------------------------------------
+  full-statistical-proofs:
+    name: Full Statistical + Perf Proofs
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
+
+      - name: Run full-size statistical and perf proof suites
+        run: >-
+          npx jest --selectProjects unit --ci --runInBand --runTestsByPath
+          src/simulation/__tests__/simulation.test.ts
+          src/simulation/__tests__/integration.test.ts
+          src/simulation/__tests__/simulation-combat-integration.test.ts
+          src/simulation/__tests__/swarm-pilot-skills-batch.test.ts
+          src/simulation/__tests__/swarm-throughput.test.ts
+        env:
+          # E-2: force the perfIt wall-clock budget tests to execute in
+          # CI. Without this lane the perf assertions ran nowhere: unit
+          # shards skip them via JEST_EXCLUDE_PERF_SENSITIVE and the PR
+          # perf-smoke lane does not include simulation.test.ts.
+          SIMULATION_PERF_ASSERTIONS: 'true'
+          # E-6: the spec'd throughput scale (quick-session spec,
+          # "Throughput target met for 1,000 runs"). The run COUNT is
+          # the proof shape and stays at the spec'd 1,000; set
+          # explicitly so the proof stays pinned even if defaults
+          # drift. The 60s wall-clock budget is spec'd for "a developer
+          # machine (M1 / Ryzen-class CPU)" — measured 2026-06-10 at
+          # 54.76 ms/run (54.8s total) on an idle dev box, i.e. ~9%
+          # headroom, which a contended shared CI runner will not have.
+          # Budget widened 3x per the repo perf-budget convention; a 3x
+          # ceiling still fails loudly on the order-of-magnitude
+          # regression class this lane exists to catch.
+          SWARM_THROUGHPUT_RUN_COUNT: '1000'
+          SWARM_THROUGHPUT_TIME_BUDGET_MS: '180000'
+          # Wall-clock budgets for the contended shared CI runner: 3x
+          # the local-dev defaults per the repo perf-budget convention
+          # (see the 750 -> 2250 widening comment in integration.test.ts).
+          # These widen TIME budgets only — batch COUNTS stay at their
+          # full defaults, which is what makes the statistical proofs
+          # non-vacuous. A 3x budget still fails loudly on
+          # order-of-magnitude regressions, which is the class that
+          # slipped through unseen (2026-06-09 audit headline).
+          SIMULATION_PROFILE_RUNNER_BUDGET_MS: '6750'
+          SIMULATION_PROFILE_AVG_GAME_BUDGET_MS: '4500'
+          SIMULATION_PROFILE_TIME_BUDGET_MS: '360000'
+
+  # ---------------------------------------------------------------
+  # Full Playwright suite on chromium (E-1 remainder). The PR
+  # e2e-smoke lane is bounded to ONE spec file for the ~5-minute PR
+  # budget; this lane runs the entire e2e/ directory against the
+  # self-booted Next dev server (playwright.config.ts webServer).
+  #
+  # --ignore-snapshots: the committed screenshot baselines are
+  # win32-only (e.g. *-chromium-win32.png), so pixel comparisons on a
+  # linux runner would fail with "snapshot doesn't exist" rather than
+  # catching regressions. The lane proves the functional flows in
+  # every spec; pixel-level visual regression remains a local
+  # (win32) concern.
+  # ---------------------------------------------------------------
+  e2e-full:
+    name: Full E2E Suite (chromium)
+    needs: install-deps
+    runs-on: ubuntu-latest
+    # 642 tests in 37 files at the CI single-worker setting
+    # (playwright.config.ts workers: 1) — generous first-run ceiling;
+    # tighten once real nightly durations are known.
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
+
+      - name: Resolve Playwright version for browser cache key
+        id: playwright-version
+        shell: bash
+        run: echo "version=$(node -e "console.log(require('@playwright/test/package.json').version)")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright chromium browser
+        id: playwright-cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright chromium browser
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Install Playwright system dependencies (browser cached)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Run full Playwright e2e suite
+        run: npx playwright test --project=chromium --ignore-snapshots
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: nightly-playwright-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
+
+  # ---------------------------------------------------------------
+  # Coverage thresholds (E-9). jest.config.js has carried
+  # coverageThreshold values since 2026-04-25, but no CI lane ever ran
+  # with --coverage, so the ratchet never actually gated anything.
+  #
+  # JEST_EXCLUDE_PERF_SENSITIVE=true matches the PR unit-shard test
+  # surface: the four full-size statistical suites are excluded here
+  # because (a) they run for real in full-statistical-proofs above and
+  # (b) coverage instrumentation distorts their wall-clock budgets.
+  # The thresholds in jest.config.js are calibrated against exactly
+  # this surface.
+  # ---------------------------------------------------------------
+  coverage:
+    name: Coverage Thresholds
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
+
+      - name: Run unit tests with coverage thresholds
+        run: npx jest --selectProjects unit --ci --coverage
+        env:
+          JEST_EXCLUDE_PERF_SENSITIVE: 'true'
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: nightly-coverage-lcov
+          path: coverage/lcov.info
+          retention-days: 7
+
+  # ---------------------------------------------------------------
+  # Failure notification: a red nightly run must not scroll away
+  # unseen in the Actions tab (that silence is exactly how the
+  # 2026-06-09 audit findings accumulated). Opens a tracking issue on
+  # first failure and comments on the existing one for repeats.
+  # ---------------------------------------------------------------
+  notify-on-failure:
+    name: Notify on Failure
+    needs: [full-statistical-proofs, e2e-full, coverage]
+    if: failure()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+
+    steps:
+      - name: Open or update nightly-validation failure issue
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          title="Nightly validation failed"
+          existing="$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "Nightly validation failed again: $RUN_URL"
+            echo "Commented on existing issue #$existing"
+          else
+            gh issue create --title "$title" --body "$(printf 'The scheduled nightly validation run failed.\n\nRun: %s\n\nLanes: full statistical/perf proofs, full Playwright e2e (chromium), coverage thresholds. See docs/audits/2026-06-09-remediation-tracker.md (W4.4) for what each lane enforces.' "$RUN_URL")"
+            echo "Opened new failure issue"
+          fi

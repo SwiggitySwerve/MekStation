@@ -6,3 +6,4 @@
 export * from './types';
 export * from './checkers';
 export { InvariantRunner } from './InvariantRunner';
+export { createDefaultInvariantRunner } from './createDefaultInvariantRunner';

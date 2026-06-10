@@ -1,9 +1,22 @@
 /**
- * Known Limitations - Programmatic Exclusion Logic
+ * Known Limitations - Legacy Generic-Detector Exclusion Logic
  *
- * This module provides functions to identify violations that correspond to
- * documented limitations in the game engine, preventing false positives in
- * simulation bug reports.
+ * This module filters violation messages emitted by LEGACY generic simulation
+ * detectors whose wording cannot distinguish real bugs from historic engine
+ * gaps. It is NOT a feature-status ledger: per the 2026-06-09 audit (finding
+ * E-10), several buckets below name features that are now fully integrated
+ * (heat shutdown, LOS, critical-hit effects, pilot skill checks, ammo
+ * consumption, terrain costs). Feature status lives in
+ * `src/simulation/runner/CombatValidationCatalog.ts` and
+ * `src/simulation/runner/CombatValidationGapInventory.ts`.
+ *
+ * The buckets survive because legacy detectors may still emit matching
+ * messages; the BattleMech combat validation lane bypasses this filter
+ * entirely (see KNOWN_LIMITATION_BYPASS_INVARIANTS), so real validation
+ * evidence is never suppressed. The category list and patterns are pinned by
+ * contract tests (one validation trap per category in
+ * CombatValidationScopeSupport.ts) — retire a bucket only in lockstep with
+ * those traps.
  *
  * @see src/simulation/known-limitations.md for human-readable documentation
  */
@@ -268,23 +281,23 @@ export function getLimitationExplanation(violation: IViolation): string | null {
     physicalAttacks:
       'Physical attacks generic detector gap; catalog validation lanes bypass this broad filter (see known-limitations.md)',
     ammoConsumption:
-      'Ammo consumption tracking is not enforced (see known-limitations.md)',
+      'Ammo consumption is implemented; bucket retained for legacy generic detectors only (see known-limitations.md)',
     heatShutdown:
-      'Heat shutdown mechanics are partially implemented (see known-limitations.md)',
+      'Heat shutdown mechanics are implemented; bucket retained for legacy generic detectors only (see known-limitations.md)',
     terrainMovement:
-      'Terrain movement costs use simplified rules (see known-limitations.md)',
+      'Terrain movement costs are implemented; bucket retained for legacy generic detectors only (see known-limitations.md)',
     pilotingChecks:
-      'Piloting skill checks are partially implemented (see known-limitations.md)',
+      'Piloting skill checks are implemented; bucket retained for legacy generic detectors only (see known-limitations.md)',
     criticalEffects:
-      'Critical hit effects are not fully enforced (see known-limitations.md)',
+      'Critical hit effects are implemented for system slots; bucket retained for legacy generic detectors only (see known-limitations.md)',
     lineOfSight:
-      'Line of sight validation is not implemented (see known-limitations.md)',
+      'Line of sight validation is implemented; bucket retained for legacy generic detectors only (see known-limitations.md)',
     specialAbilities:
-      'Special Pilot Abilities are not enforced (see known-limitations.md)',
+      'Special Pilot Abilities are partially enforced per the combat validation catalog (see known-limitations.md)',
     vehicleAerospace:
-      'Vehicle and aerospace rules are not implemented (see known-limitations.md)',
+      'Vehicle and aerospace rules are outside the BattleMech validation lane (see known-limitations.md)',
     campaignProgression:
-      'Campaign progression systems are stubbed (see known-limitations.md)',
+      'Campaign progression is partially implemented; academy/education and coming-of-age SPA systems remain stubbed (see known-limitations.md)',
     mtfParsing:
       'MTF file parsing is not implemented (see known-limitations.md)',
   };

@@ -1,4 +1,7 @@
-import type { IPhysicalAttackResolvedPayload } from '@/types/gameplay';
+import type {
+  IGameEvent,
+  IPhysicalAttackResolvedPayload,
+} from '@/types/gameplay';
 
 import { GameEventType } from '@/types/gameplay';
 import { SUPPORTED_PHYSICAL_ATTACK_TYPES } from '@/utils/gameplay/physicalAttacks/types';
@@ -33,6 +36,20 @@ const FULL_COMBAT_BATCH_COUNT = readPositiveIntEnv(
   50,
 );
 
+// Statistical existence teeth (2026-06-09 audit finding E-4): the batch tests
+// below previously validated only the SHAPE of whatever events happened to
+// occur, so at the CI smoke counts (N=3-10) a regression that silenced the
+// event entirely still passed. Existence assertions are gated on the
+// configured batch count reaching the statistical default, following the
+// statisticalIt pattern from swarm-pilot-skills-batch.test.ts (audit E-5
+// fix): smoke counts keep the structure-only checks; full counts (local
+// default + the nightly full-size lane, tracker W4.4) additionally require
+// the events to actually occur. Calibrated by direct measurement 2026-06-10:
+// 68 UnitFell events across the 20-game PSR batch (every game had a fall);
+// 23 pilot_death destructions across the 50-game batch.
+const psrFallStatisticalIt = PSR_FALL_BATCH_COUNT >= 20 ? it : it.skip;
+const pilotDeathStatisticalIt = PILOT_DEATH_BATCH_COUNT >= 50 ? it : it.skip;
+
 function createInvariantRunner(): InvariantRunner {
   const runner = new InvariantRunner();
   runner.register({
@@ -61,16 +78,25 @@ describe('Simulation Combat Integration (Phase 17)', () => {
       const runner = new SimulationRunner(40001, createInvariantRunner());
       const result = runner.run(config);
 
-      const damageEvents = result.events.filter(
-        (e) => e.type === GameEventType.DamageApplied,
+      const resolvedAttacks = result.events.filter(
+        (e) => e.type === GameEventType.AttackResolved,
       );
-      const attackDeclarations = result.events.filter(
-        (e) => e.type === GameEventType.MovementDeclared,
+      const hits = resolvedAttacks.filter(
+        (e) => (e.payload as { hit: boolean }).hit === true,
+      );
+      const misses = resolvedAttacks.filter(
+        (e) => (e.payload as { hit: boolean }).hit === false,
       );
 
-      // Not every attack should hit — some should miss due to to-hit rolls
-      // With 2 units per side over 5 turns, we'd expect some attacks but not max
-      expect(result.events.length).toBeGreaterThan(0);
+      // Real to-hit teeth (2026-06-09 audit finding E-4): the original test
+      // claimed "some should miss due to to-hit rolls" but asserted nothing
+      // about attacks at all. With seeded dice the outcome is deterministic
+      // at seed 40001 (measured 2026-06-10: 20 resolutions — 13 hits, 7
+      // misses), so a regression to auto-hit (or auto-miss) empties one
+      // bucket and fails here at every batch size.
+      expect(resolvedAttacks.length).toBeGreaterThan(0);
+      expect(hits.length).toBeGreaterThan(0);
+      expect(misses.length).toBeGreaterThan(0);
       expect(result.turns).toBeGreaterThan(0);
     });
 
@@ -304,26 +330,48 @@ describe('Simulation Combat Integration (Phase 17)', () => {
       }
     });
 
-    it('should emit UnitFell when PSR fails', () => {
-      // Run many simulations to statistically ensure at least one fall occurs
-      const batchRunner = new BatchRunner();
-      const config: ISimulationConfig = {
-        seed: 42002,
-        turnLimit: 10,
-        unitCount: { player: 3, opponent: 3 },
-        mapRadius: 4,
-      };
-      const results = batchRunner.runBatch(PSR_FALL_BATCH_COUNT, config);
+    describe('UnitFell emission across the PSR batch', () => {
+      let allFallEvents: IGameEvent[];
 
-      const allFallEvents = results.flatMap((r) =>
-        r.events.filter((e) => e.type === GameEventType.UnitFell),
+      beforeAll(() => {
+        // Run many simulations to statistically ensure at least one fall
+        // occurs. The batch is shared between the structure-only check
+        // (every count) and the existence check (statistical counts only).
+        const batchRunner = new BatchRunner();
+        const config: ISimulationConfig = {
+          seed: 42002,
+          turnLimit: 10,
+          unitCount: { player: 3, opponent: 3 },
+          mapRadius: 4,
+        };
+        const results = batchRunner.runBatch(PSR_FALL_BATCH_COUNT, config);
+
+        allFallEvents = results.flatMap((r) =>
+          r.events.filter((e) => e.type === GameEventType.UnitFell),
+        );
+      }, 60000);
+
+      it('should structure UnitFell payloads correctly', () => {
+        for (const evt of allFallEvents) {
+          const payload = evt.payload as {
+            unitId: string;
+            pilotDamage: number;
+          };
+          expect(payload.unitId).toBeDefined();
+          expect(payload.pilotDamage).toBe(1);
+        }
+      });
+
+      psrFallStatisticalIt(
+        'should emit UnitFell when PSR fails (existence at the statistical batch size)',
+        () => {
+          // Audit E-4 teeth: at the full 20-game batch falls are certain
+          // (measured 2026-06-10: 68 events, all 20 games had one). If
+          // PSR-driven falls regress to never firing, this fails instead
+          // of the old structure-only loop silently passing on [].
+          expect(allFallEvents.length).toBeGreaterThan(0);
+        },
       );
-
-      for (const evt of allFallEvents) {
-        const payload = evt.payload as { unitId: string; pilotDamage: number };
-        expect(payload.unitId).toBeDefined();
-        expect(payload.pilotDamage).toBe(1);
-      }
     });
 
     it('should clear pending PSRs after resolution', () => {
@@ -551,32 +599,50 @@ describe('Simulation Combat Integration (Phase 17)', () => {
       }
     });
 
-    it('should detect pilot death from falls (consciousness failure)', () => {
-      // Run many games to find pilot death cases
-      const batchRunner = new BatchRunner();
-      const config: ISimulationConfig = {
-        seed: 46002,
-        turnLimit: 10,
-        unitCount: { player: 3, opponent: 3 },
-        mapRadius: 4,
-      };
-      const results = batchRunner.runBatch(PILOT_DEATH_BATCH_COUNT, config);
+    describe('pilot death from falls (consciousness failure)', () => {
+      let pilotDeathEvents: IGameEvent[];
 
-      const pilotDeathEvents = results.flatMap((r) =>
-        r.events.filter(
-          (e) =>
-            e.type === GameEventType.UnitDestroyed &&
-            (e.payload as { cause: string }).cause === 'pilot_death',
-        ),
+      beforeAll(() => {
+        // Run many games to find pilot death cases. The batch is shared
+        // between the structure-only check (every count) and the existence
+        // check (statistical counts only).
+        const batchRunner = new BatchRunner();
+        const config: ISimulationConfig = {
+          seed: 46002,
+          turnLimit: 10,
+          unitCount: { player: 3, opponent: 3 },
+          mapRadius: 4,
+        };
+        const results = batchRunner.runBatch(PILOT_DEATH_BATCH_COUNT, config);
+
+        pilotDeathEvents = results.flatMap((r) =>
+          r.events.filter(
+            (e) =>
+              e.type === GameEventType.UnitDestroyed &&
+              (e.payload as { cause: string }).cause === 'pilot_death',
+          ),
+        );
+      }, 60000);
+
+      it('should structure pilot-death destruction payloads correctly', () => {
+        for (const evt of pilotDeathEvents) {
+          const payload = evt.payload as { unitId: string; cause: string };
+          expect(payload.cause).toBe('pilot_death');
+          expect(payload.unitId).toBeDefined();
+        }
+      });
+
+      pilotDeathStatisticalIt(
+        'should detect pilot death from falls (existence at the statistical batch size)',
+        () => {
+          // Audit E-4 teeth: pilot death is rare per game but certain over
+          // the full 50-game batch (measured 2026-06-10: 23 pilot_death
+          // destructions). If consciousness-failure deaths regress to never
+          // firing, this fails instead of the old structure-only loop
+          // silently passing on [].
+          expect(pilotDeathEvents.length).toBeGreaterThan(0);
+        },
       );
-
-      // Pilot death from falls is rare but possible over the configured batch
-      // We just verify the event structure is valid if any occur
-      for (const evt of pilotDeathEvents) {
-        const payload = evt.payload as { unitId: string; cause: string };
-        expect(payload.cause).toBe('pilot_death');
-        expect(payload.unitId).toBeDefined();
-      }
     });
 
     it('should end game when all units on one side are destroyed/inoperable', () => {

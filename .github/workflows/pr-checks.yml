@@ -20,6 +20,7 @@ jobs:
     timeout-minutes: 2
     outputs:
       code: ${{ steps.filter.outputs.code }}
+      e2e: ${{ steps.filter.outputs.e2e }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -44,6 +45,9 @@ jobs:
               - '.babelrc*'
               - '.github/workflows/**'
               - '.github/actions/**'
+            e2e:
+              - 'e2e/**'
+              - 'playwright.config.*'
 
   # ---------------------------------------------------------------
   # install-deps runs first so the other lint/test/type/build jobs
@@ -348,6 +352,74 @@ jobs:
           fi
           echo "Determinism audit passed: no unseeded dice in combat pipeline."
 
+  # ---------------------------------------------------------------
+  # e2e-smoke runs the tactical-map Playwright gate spec in a real
+  # chromium browser against the self-booted Next dev server
+  # (playwright.config.ts webServer). Closes audit finding E-1: the
+  # Playwright suite previously ran in NO CI workflow, so e2e
+  # assertions drifted from production unseen. Bounded to ONE spec
+  # file and ONE project to keep the lane inside the PR budget.
+  # The job always runs (so the lint-and-test aggregator's needs
+  # chain stays green), but its work is gated per-step on the
+  # detect-changes code/e2e filters — docs/openspec-only PRs no-op.
+  # ---------------------------------------------------------------
+  e2e-smoke:
+    name: E2E Smoke
+    needs: [detect-changes, install-deps]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Skip (no code or e2e changes)
+        if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'
+        run: echo "No code or e2e changes — skipping e2e smoke."
+
+      - name: Checkout code
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
+
+      - name: Resolve Playwright version for browser cache key
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        id: playwright-version
+        shell: bash
+        run: echo "version=$(node -e "console.log(require('@playwright/test/package.json').version)")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright chromium browser
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        id: playwright-cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright chromium browser
+        if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Install Playwright system dependencies (browser cached)
+        if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Run tactical-map visual smoke suite
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        run: npx playwright test e2e/tactical-map-visual-smoke.spec.ts --project=chromium
+
+      - name: Upload Playwright report
+        if: failure() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
+
   # Aggregator that preserves the "Lint and Test" required-check name
   # from before the fan-out. Passes only if every fan-out job passed.
   lint-and-test:
@@ -364,6 +436,7 @@ jobs:
         storybook-build,
         schema-bridge,
         determinism-audit,
+        e2e-smoke,
       ]
     runs-on: ubuntu-latest
     timeout-minutes: 1
