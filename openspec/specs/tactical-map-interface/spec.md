@@ -2459,51 +2459,15 @@ tall stacks.
 
 The tactical map interface SHALL compose terrain, elevation, movement, combat, path, selected, and hover state into a single per-hex projection before rendering hex cells or hover explanations.
 
-**Priority**: Critical
+#### Scenario: QuadVee vehicle conversion changes movement projection and commit legality
 
-#### Scenario: Projection composes existing rules outputs
-
-**GIVEN** `HexMapDisplay` has terrain, movement range, combat range, selected hex, hovered hex, and highlighted path inputs
-**WHEN** the map derives cell render state
-**THEN** each rendered hex SHALL have one projection containing its terrain/elevation data
-**AND** any matching `IMovementRangeHex` SHALL be attached without recalculating movement rules
-**AND** any matching `ICombatRangeHex` SHALL be attached without recalculating combat, LOS, cover, range, or firing-arc rules
-**AND** selected, hovered, path-index, and attack-range state SHALL be represented on the same projection
-
-#### Scenario: Projection explains legal and blocked states
-
-**GIVEN** a projected hex has reachable movement, blocked movement, attackable combat, blocked combat, or both movement and combat data
-**WHEN** the projection is built
-**THEN** it SHALL expose a stable `status` of `neutral`, `legal`, `blocked`, or `mixed`
-**AND** it SHALL expose an `intent` describing whether the hex is currently terrain-only, selected, path, movement, combat, or movement+combat
-**AND** it SHALL preserve player-facing movement and combat blocked reasons from the underlying rules projection
-
-#### Scenario: Top-down and isometric consume the same projection
-
-**GIVEN** a map can switch between `topDown` and an isometric projection mode
-**WHEN** the projection mode changes
-**THEN** the same per-hex projection facts SHALL remain attached to the rendered hex
-**AND** projection mode SHALL NOT recalculate or mutate movement, combat, LOS, terrain, or path legality
-
-#### Scenario: Isometric scene wrapper preserves projection summary
-
-**GIVEN** a tactical map hex is rendered in isometric mode
-**WHEN** the isometric scene depth-sorts that hex
-**THEN** the scene hex wrapper SHALL expose the hex coordinate used for map lookup
-**AND** it SHALL expose the terrain elevation and primary terrain type from the shared projection
-**AND** it SHALL expose the projection intent, overall status, movement status, and combat status
-**AND** it SHALL expose any blocked reasons, source references, and projection explanation from the same per-hex projection used by the nested rendered hex
-**AND** its title and accessible label SHALL summarize the same projection status, channel state, blocked reasons, and explanation without recalculating rules
-
-#### Scenario: Rendered hex labels carry projection context
-
-**GIVEN** a rendered hex has a shared tactical projection
-**WHEN** the hex cell renders in top-down or isometric mode
-**THEN** the rendered hex title and accessible label SHALL include the projection status and intent
-**AND** the label SHALL include movement-channel and combat-channel status from the shared projection
-**AND** the label SHALL include shared projection blocked reasons when present
-**AND** the label SHALL include the shared projection explanation when present
-**AND** the label SHALL NOT recalculate movement, combat, LOS, terrain, elevation, or path legality
+**GIVEN** a tactical-map browser harness renders a QuadVee with a runtime conversion profile
+**WHEN** the QuadVee remains in Mek mode and previews a walking move up a 2-level elevation climb
+**THEN** the map SHALL render the destination as reachable using Mek-style ground movement, elevation cost, and movement heat metadata
+**WHEN** the same represented QuadVee is in tracked vehicle mode and previews the same elevation climb
+**THEN** the map SHALL render the destination as blocked with tracked movement motive metadata
+**AND** the MP legend SHALL show jump movement disabled from the same runtime conversion state
+**AND** committed movement validation SHALL accept or reject each case with the same MP, heat, path, invalid reason, and details as the rendered projection
 
 ### Requirement: Projection Status Badges
 
@@ -2611,21 +2575,16 @@ The tactical map interface SHALL expose movement-mode legend state in accessible
 
 ### Requirement: Combat Projection Explanation Details
 
-The tactical map interface SHALL include rules-backed combat details in the
-shared per-hex tactical projection explanation.
+The tactical map interface SHALL expose rules-backed combat projection details for range, target legality, LOS, firing arc, visibility, cover, and weapon availability without recalculating combat legality in the renderer.
 
-#### Scenario: Projection explanation summarizes per-weapon combat options
+#### Scenario: Fire volley command is gated by selected target projection
 
-- **GIVEN** a combat projection evaluates selected operational weapons against a
-  hex
-- **WHEN** the shared tactical projection and rendered hex metadata are exposed
-- **THEN** every evaluated weapon SHALL retain its own range bracket, in-range
-  state, in-arc state, environment legality, availability state, and blocked
-  reason when blocked
-- **AND** the projection explanation SHALL describe those per-weapon option
-  states separately from aggregate weapon availability
-- **AND** the rendered hex and combat badge metadata SHALL expose those
-  per-weapon option states without relying on color alone
+- **GIVEN** the tactical map has derived a combat projection for the selected attack target
+- **AND** the projection says the target is blocked by range, arc, LOS, visibility, weapon readiness, or represented environment rules
+- **WHEN** the player views the `Fire Volley` command in the dock or enemy token context menu
+- **THEN** the command SHALL be disabled before confirmation or commit
+- **AND** the disabled reason SHALL match the player-facing blocked detail from the combat projection
+- **AND** the command surface SHALL consume the shared projection data rather than recalculating attack legality in the command renderer.
 
 ### Requirement: Movement Projection Explanation Details
 
@@ -2874,27 +2833,18 @@ cumulative MP cost, terrain cost, elevation delta/cost, heat impact where
 applicable, path/facing preview where applicable, and invalid reason when
 blocked.
 
-#### Scenario: Same-hex movement options preserve cost breakdowns
+#### Scenario: Movement commands consume the selected destination projection
 
-- **GIVEN** a map receives multiple movement projections for the same hex
-- **AND** those projections have different terrain costs, elevation deltas, or
-  elevation costs
-- **WHEN** the shared tactical projection and rendered hex metadata are exposed
-- **THEN** every same-hex movement option SHALL retain its own terrain cost,
-  elevation delta, and elevation cost
-- **AND** the projection explanation SHALL describe each option's cost
-  components separately from the primary option
-- **AND** the rendered hex and movement badge metadata SHALL expose those
-  per-option cost components without relying on color alone
-
-#### Scenario: Zero-cost elevation changes remain explicit
-
-- **GIVEN** a projected movement step changes elevation but rules charge zero
-  elevation MP for that motive, such as represented VTOL movement or jumping
-- **WHEN** the movement cost badge renders
-- **THEN** the visible badge and accessible title SHALL expose the elevation
-  cost as `+0`
-- **AND** the badge SHALL still expose the elevation delta separately
+- **GIVEN** a map or context menu has a movement projection for the selected
+  destination hex
+- **AND** that projection marks one or more walk, run, or jump options as
+  blocked
+- **WHEN** the tactical action dock or hex context menu renders matching
+  movement commands
+- **THEN** the blocked movement command SHALL be disabled with the same
+  player-facing reason exposed by the movement projection
+- **AND** legal same-hex movement options SHALL remain available without
+  recalculating movement legality in the command surface.
 
 ### Requirement: Isometric Occluder Hover Explanations
 
@@ -2970,35 +2920,42 @@ arc, line of sight, valid target state, blocked target state, cover/visibility
 implications, available weapons, and invalid reasons from the shared combat
 projection.
 
-#### Scenario: Multi-weapon targets show visible weapon availability
+#### Scenario: Combat cover badges identify cover level and modifier
 
-- **GIVEN** a target hex has combat projection data for multiple weapons
-- **AND** some weapons are available while other weapons are blocked by range,
-  arc, environment, or another projected legality reason
-- **WHEN** the target hex combat badge is rendered
-- **THEN** the map SHALL show a compact visible available/total weapon count
-- **AND** the badge metadata SHALL expose available count, total count, blocked
-  count, available weapon ids, and blocked weapon reasons from the shared combat
-  projection
-- **AND** single-weapon target badges SHALL remain uncluttered by the count.
+- **GIVEN** a combat projection target has a positive cover modifier
+- **WHEN** the target combat cover badge is rendered
+- **THEN** the visible badge label SHALL include both the projected cover level
+  shorthand and the projected to-hit modifier
+- **AND** the badge metadata SHALL expose the rendered cover label, cover level,
+  modifier, and reason without recalculating combat legality outside the shared
+  combat projection.
+
+#### Scenario: Elevation partial cover remains attackable
+
+- **GIVEN** one target is blocked by an intervening elevation hex and another
+  target is only partially covered by lower adjacent elevation
+- **WHEN** the tactical map renders combat projection metadata
+- **THEN** the blocked target SHALL expose `NoLineOfSight` rejection metadata
+- **AND** the partially covered target SHALL remain attackable while exposing
+  the projected partial-cover level, modifier, reason, and to-hit modifier
 
 ### Requirement: Physical Attack Projection Detail Surface
 
-Physical attack previews SHALL expose whether the selected attack row is legal,
-its to-hit value when legal, its damage and self-risk summary, and all
-rules-backed restriction reasons when blocked.
+Physical attack previews and command surfaces SHALL consume the same
+rules-backed target/attack option projections, including per-limb alternatives
+and restriction reasons.
 
-#### Scenario: Physical commands consume the selected attack projection
+#### Scenario: Enemy token menus consume clicked target physical projections
 
-- **GIVEN** the action dock has a physical attack option projection for the
-  selected target and attack type
-- **AND** that projection marks the selected punch, kick, charge, DFA, or
-  melee-weapon attack row as blocked
-- **WHEN** the matching physical command renders in the tactical action dock
-- **THEN** the matching command SHALL be disabled with the same player-facing
-  reason exposed by the physical attack projection
-- **AND** other physical commands SHALL remain available when the blocked
-  projection belongs to a different attack type.
+- **GIVEN** an enemy token context menu is opened during Physical Attack phase
+- **AND** the clicked enemy has physical attack option projections for the
+  active unit
+- **WHEN** a matching physical command renders in that enemy token menu
+- **THEN** the command SHALL be disabled when every matching projected option is
+  blocked
+- **AND** the disabled reason SHALL match the first projected restriction reason
+- **AND** multi-option physical commands such as punch SHALL remain available
+  when at least one matching projected limb option is legal.
 
 ### Requirement: Physical Attack Map Projection Agreement
 
