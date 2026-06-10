@@ -7,18 +7,16 @@ TBD - created by archiving change full-combat-parity. Update Purpose after archi
 ### Requirement: PSR Resolution Mechanic
 
 Failed AirMek landing PSRs SHALL use the current fall-resolution event model
-with fall height taken from the runtime landing-control payload and tonnage
-taken from the represented unit when available.
+with fall height taken from the runtime landing-control payload.
 
-#### Scenario: Failed AirMek landing PSR uses represented unit tonnage
+#### Scenario: Failed AirMek landing PSR uses represented fall height
 
 - **GIVEN** an AirMek landing-control payload carries a landing fall height
-- **AND** the interactive session has represented catalog tonnage for the unit
 - **WHEN** the landing PSR fails
 - **THEN** the emitted `UnitFell` event SHALL carry fall damage based on that
-  fall height and represented tonnage under the current MekStation fall model
-- **AND** synthetic sessions with no represented tonnage SHALL retain the legacy
-  fallback tonnage.
+  fall height under the current MekStation fall model
+- **AND** the `UnitFell` event SHALL carry `reasonCode:
+  PSRTrigger.AirMekLanding`.
 
 ### Requirement: PSR Trigger — 20+ Phase Damage
 
@@ -667,14 +665,17 @@ The function SHALL deterministically map every `PSRTrigger` value to exactly one
 
 ### Requirement: AirMek Landing PSR Trigger
 
-The PSR taxonomy SHALL include a canonical `PSRTrigger.AirMekLanding` code for
-LAM AirMek landing control checks, and the AirMek landing PSR factory SHALL
-populate both the human-readable reason and the canonical reason code.
+AirMek landing PSRs created from runtime landing-control map commands SHALL be
+resolved immediately in movement phase, rather than waiting for the general
+end-phase pending-PSR resolver.
 
-#### Scenario: AirMek landing factory stamps canonical reason code
+#### Scenario: AirMek landing PSR resolves in movement phase
 
-- **WHEN** an AirMek landing PSR is created
-- **THEN** the pending PSR SHALL use reason `landing with gyro or leg damage`
-- **AND** it SHALL use `triggerSource: PSRTrigger.AirMekLanding`
-- **AND** it SHALL use `reasonCode: PSRTrigger.AirMekLanding`.
+- **GIVEN** an AirMek landing PSR is created from a runtime landing-control
+  command
+- **WHEN** the roll is evaluated
+- **THEN** the engine SHALL append `PSRResolved` in the same movement-phase
+  command sequence
+- **AND** the pending AirMek landing PSR SHALL be cleared by replaying that
+  `PSRResolved` event.
 

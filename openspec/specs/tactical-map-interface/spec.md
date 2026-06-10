@@ -2804,20 +2804,32 @@ The tactical map interface SHALL identify tall isometric terrain that may obscur
 
 ### Requirement: Movement Projection Detail Surface
 
-Failed represented LAM AirMek landing-control checks SHALL expose crash
-critical-hit outcomes in the same event stream that explains the movement
-consequence.
+Required represented LAM AirMek landing-control checks SHALL resolve during the
+runtime movement-state command that lands the unit. The event stream SHALL
+explain the command in source order: landing state mutation, canonical
+`PSRTriggered`, `PSRResolved`, and failed-landing fall consequences when the
+roll fails.
 
-#### Scenario: Failed AirMek landing-control descent causes a critical hit
+#### Scenario: Passing AirMek landing-control descent resolves immediately
 
-- **GIVEN** a selected movement-phase Land-Air 'Mech fails a required
-  AirMek landing-control roll
-- **AND** the represented fall cluster damage exposes internal structure and
-  triggers a represented critical hit
-- **WHEN** the runtime movement-state command resolves the failed landing
-- **THEN** map/replay consumers SHALL receive movement-phase critical and
-  component-destruction events without recomputing critical state from armor
-  numbers.
+- **GIVEN** a selected movement-phase Land-Air 'Mech descends from represented
+  AirMek WiGE altitude 1 to ground level
+- **AND** the landing-control metadata marks the roll as required
+- **WHEN** the landing-control roll passes
+- **THEN** the event stream SHALL append `RuntimeMovementStateChanged`,
+  `PSRTriggered`, and `PSRResolved` in that order
+- **AND** the unit SHALL have no remaining pending AirMek landing PSR.
+
+#### Scenario: Failed AirMek landing-control descent emits fall consequences
+
+- **GIVEN** a selected movement-phase Land-Air 'Mech descends from represented
+  AirMek WiGE altitude 1 to ground level
+- **AND** the landing-control metadata marks the roll as required
+- **WHEN** the landing-control roll fails
+- **THEN** the event stream SHALL append `RuntimeMovementStateChanged`,
+  `PSRTriggered`, `PSRResolved`, `UnitFell`, and `PilotHit` in that order
+- **AND** `UnitFell` SHALL use `reasonCode: PSRTrigger.AirMekLanding`
+- **AND** the unit SHALL be prone with the AirMek landing PSR cleared.
 
 ### Requirement: Isometric Occluder Hover Explanations
 
@@ -3586,17 +3598,15 @@ Movement overlays SHALL be derived from shared movement projection data and
 SHALL explain legal, blocked, and consequential movement outcomes before the
 player commits them.
 
-#### Scenario: WiGE hover and prior-distance exemptions match the engine
+#### Scenario: Encoded cliff movement appears in map projection
 
-- **GIVEN** a selected represented positive-altitude WiGE unit has legal
-  movement destinations in top-down or isometric mode
-- **WHEN** the projected destination uses hover-style movement or the unit's
-  accumulated movement distance already reaches the source-backed WiGE minimum
-- **THEN** the destination SHALL NOT expose automatic-landing metadata
-- **AND** the destination SHALL NOT render the automatic landing `LAND` badge
-  or automatic-landing tooltip row
-- **AND** committed movement to the same destination SHALL preserve altitude
-  rather than replaying an automatic landing patch.
+- **GIVEN** a selected represented unit previews movement across an encoded
+  directional cliff edge
+- **WHEN** the movement mode is WiGE, tracked, wheeled, or hover
+- **THEN** the destination projection SHALL expose the same added cost or
+  terrain-blocked reason that committed movement validation would apply
+- **AND** ordinary elevation changes without cliff metadata SHALL continue to
+  display as non-cliff movement.
 
 ### Requirement: Integrated Rules-Backed Tactical Map Outcomes
 
