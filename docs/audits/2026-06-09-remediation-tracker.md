@@ -99,6 +99,13 @@ capabilities (legitimate; archive creates the new specs).
 | W6.A    | Archive all complete changes in the recorded topological order (hold `add-battlemech-combat-validation-suite` — 6 open tasks), batches of ~25 with strict validation between, 1-2 openspec-only PRs                                                                                              | done — **all 204 archived, zero failures**, 9 batch commits on `fix/w6-archive-execution`, strict validation green at every checkpoint; archive dirs `openspec/changes/archive/2026-06-10-*`                                                                                                                                                                                                          |
 | W6.V    | Final inventory re-run; SoT spot-check vs shipped behavior on movement-system heat, piloting-skill-rolls gyro, tactical-map-interface contested headings; file the rubble-cover divergence (to-hit-resolution lists rubble; MegaMek grants none) as its own follow-up delta decision             | done — final inventory: 1 unarchived (the held in-flight suite), 0 findings, 0 contested; 199 SoT capabilities (aerospace-deployment + battle-armor-combat created); 200/200 strict; SoT spot-checks confirm heat re-derivation SHALL, playtest3 gyro union, per-motive MegaMek terrain costs all merged. Rubble-cover divergence remains a named follow-up (needs a rules decision before any delta) |
 
+## Parallel track — e2e triage wave (nightly run 27290135427)
+
+| Track | Scope                                                                                                                                                                                                                                                                  | Status |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| T1    | Classify all 51 nightly e2e failures (stale-assertion 18 / real-bug 21 / obsolete-spec 5 / infra-flake 7; 18 distinct root causes). Binding work order for T2: `docs/audits/2026-06-10-e2e-triage.md`. All 17 spec files re-run locally; 49/51 reproduced identically. | done   |
+| T2    | Execute the triage work order (fixture repairs, production fixes, stale-assertion sweep, obsolete-spec decisions)                                                                                                                                                      | open   |
+
 ## Resolution log
 
 (append: `<task> resolved @PR #N — <commit>`)
