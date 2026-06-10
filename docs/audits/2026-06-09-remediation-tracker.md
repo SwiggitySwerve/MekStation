@@ -53,7 +53,7 @@ reconciliation merge `7f22e4f22` · audited main `442f90855`.
 | Task | Finding   | Scope                                                                                                     | Status  |
 | ---- | --------- | --------------------------------------------------------------------------------------------------------- | ------- |
 | W3.1 | D-1       | Persistence stops wiping unit battle damage + loan ledger on reload                                       | done    |
-| W3.2 | D-2       | Register financial/turnover/factionStanding/vocationalTraining processors                                 | pending |
+| W3.2 | D-2       | Register financial/turnover/factionStanding/vocationalTraining processors                                 | done    |
 | W3.3 | D-3, D-4  | applyPreset wired into creation; reconcileCoopBattle invoked                                              | pending |
 | W3.4 | D-5..D-10 | XP double-apply guard; processedBattleIds; market offers; kill counters; combatTeams; seeded campaign RNG | pending |
 

@@ -254,17 +254,19 @@ describe('registerBuiltinProcessors', () => {
     _resetBuiltinRegistration();
   });
 
-  it('should register all seventeen builtin processors', () => {
+  it('should register all twenty-one builtin processors', () => {
     registerBuiltinProcessors();
     const processors = getDayPipeline().getProcessors();
 
-    // 17 = 15 prior + refit and morale
-    // (add-campaign-refit-and-prestige, Wave 4 CP3).
-    expect(processors).toHaveLength(17);
+    // 21 = 17 prior + financial, turnover, faction-standing, and
+    // vocational-training (audit finding D-2, 2026-06-09 — these four
+    // were shipped and unit-tested but never registered in production).
+    expect(processors).toHaveLength(21);
     expect(processors.map((p) => p.id).sort()).toEqual(
       [
         'healing',
         'auto-awards',
+        'turnover',
         'unit-market',
         'personnel-market',
         'contract-market',
@@ -273,9 +275,12 @@ describe('registerBuiltinProcessors', () => {
         'contracts',
         'repair-queue-builder',
         'dailyCosts',
+        'financial',
         'acquisition',
         'random-events',
+        'vocational-training',
         'scenario-generation',
+        'faction-standing',
         'scenario-encounter-bridge',
         'inventory-projection',
         'refit',
@@ -289,7 +294,7 @@ describe('registerBuiltinProcessors', () => {
     registerBuiltinProcessors();
 
     const processors = getDayPipeline().getProcessors();
-    expect(processors).toHaveLength(17);
+    expect(processors).toHaveLength(21);
   });
 
   it('should register processors in correct phase order', () => {
@@ -304,26 +309,34 @@ describe('registerBuiltinProcessors', () => {
     // scenario-encounter-bridge (EVENTS+10=810), inventory-projection
     // (CLEANUP=900). add-campaign-refit-and-prestige (Wave 4 CP3) adds
     // the refit processor (UNITS=500) and the morale processor
-    // (EVENTS=800). Expected order:
-    //   PERSONNEL × 2, MARKETS × 3, post-battle, salvage, repair,
-    //   contracts, refit (UNITS), FINANCES, EVENTS × 4, EVENTS+10,
+    // (EVENTS=800). Audit finding D-2 (2026-06-09) wires the four
+    // shipped-but-unregistered processors: turnover (PERSONNEL=100,
+    // after healing/auto-awards), financial (FINANCES=700, after
+    // dailyCosts), vocational-training (EVENTS=800), faction-standing
+    // (EVENTS=800, last EVENTS step per MekHQ). Expected order:
+    //   PERSONNEL × 3, MARKETS × 3, post-battle, salvage, repair,
+    //   contracts, refit (UNITS), FINANCES × 2, EVENTS × 6, EVENTS+10,
     //   CLEANUP.
     expect(processors[0].phase).toBe(DayPhase.PERSONNEL);
     expect(processors[1].phase).toBe(DayPhase.PERSONNEL);
-    expect(processors[2].phase).toBe(DayPhase.MARKETS);
+    expect(processors[2].phase).toBe(DayPhase.PERSONNEL); // turnover (D-2)
     expect(processors[3].phase).toBe(DayPhase.MARKETS);
     expect(processors[4].phase).toBe(DayPhase.MARKETS);
-    expect(processors[5].phase).toBe(DayPhase.MISSIONS - 50); // post-battle
-    expect(processors[6].phase).toBe(DayPhase.MISSIONS - 25); // salvage
-    expect(processors[7].phase).toBe(DayPhase.MISSIONS - 10); // repair
-    expect(processors[8].phase).toBe(DayPhase.MISSIONS); // contracts
-    expect(processors[9].phase).toBe(DayPhase.UNITS); // refit
-    expect(processors[10].phase).toBe(DayPhase.FINANCES);
-    expect(processors[11].phase).toBe(DayPhase.EVENTS);
-    expect(processors[12].phase).toBe(DayPhase.EVENTS);
+    expect(processors[5].phase).toBe(DayPhase.MARKETS);
+    expect(processors[6].phase).toBe(DayPhase.MISSIONS - 50); // post-battle
+    expect(processors[7].phase).toBe(DayPhase.MISSIONS - 25); // salvage
+    expect(processors[8].phase).toBe(DayPhase.MISSIONS - 10); // repair
+    expect(processors[9].phase).toBe(DayPhase.MISSIONS); // contracts
+    expect(processors[10].phase).toBe(DayPhase.UNITS); // refit
+    expect(processors[11].phase).toBe(DayPhase.FINANCES); // dailyCosts
+    expect(processors[12].phase).toBe(DayPhase.FINANCES); // financial (D-2)
     expect(processors[13].phase).toBe(DayPhase.EVENTS);
     expect(processors[14].phase).toBe(DayPhase.EVENTS);
-    expect(processors[15].phase).toBe(DayPhase.EVENTS + 10); // bridge
-    expect(processors[16].phase).toBe(DayPhase.CLEANUP); // inventory
+    expect(processors[15].phase).toBe(DayPhase.EVENTS); // vocational (D-2)
+    expect(processors[16].phase).toBe(DayPhase.EVENTS);
+    expect(processors[17].phase).toBe(DayPhase.EVENTS);
+    expect(processors[18].phase).toBe(DayPhase.EVENTS); // faction-standing (D-2)
+    expect(processors[19].phase).toBe(DayPhase.EVENTS + 10); // bridge
+    expect(processors[20].phase).toBe(DayPhase.CLEANUP); // inventory
   });
 });

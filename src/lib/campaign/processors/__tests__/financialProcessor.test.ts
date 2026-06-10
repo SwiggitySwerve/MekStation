@@ -531,6 +531,45 @@ describe('dailyCostsProcessor gate - double-deduction prevention', () => {
     expect(result.campaign).toBe(campaign);
   });
 
+  it('financialProcessor should return early (no-op) when useRoleBasedSalaries is false', () => {
+    // Per audit finding D-2 (2026-06-09): mirror gate. Now that the
+    // financial processor is registered in production alongside
+    // dailyCosts, it must no-op in legacy (flat-rate) mode or a
+    // default-options campaign would be double-charged for salaries
+    // and maintenance.
+    seedRoster();
+    const forces = new Map();
+    forces.set('force-root', {
+      id: 'force-root',
+      name: 'Root Force',
+      parentForceId: undefined,
+      subForceIds: [],
+      unitIds: ['unit-001'],
+      forceType: 'standard',
+      formationLevel: 'lance',
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-01T00:00:00Z',
+    });
+
+    const campaign = createTestCampaign({
+      forces,
+      options: {
+        ...createDefaultCampaignOptions(),
+        useRoleBasedSalaries: false,
+        payForSalaries: true,
+        payForMaintenance: true,
+      },
+    });
+
+    // First of month — every monthly financial step would fire if the
+    // gate were missing.
+    const firstOfMonth = new Date('3025-01-01T00:00:00Z');
+    const result = financialProcessor.process(campaign, firstOfMonth);
+
+    expect(result.events.length).toBe(0);
+    expect(result.campaign).toBe(campaign);
+  });
+
   it('should still work normally when useRoleBasedSalaries is false', () => {
     const forces = new Map();
     forces.set('force-root', {
