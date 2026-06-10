@@ -32,7 +32,7 @@ reconciliation merge `7f22e4f22` · audited main `442f90855`.
 
 | Task | Finding       | Scope                                                                                                                 | Status  |
 | ---- | ------------- | --------------------------------------------------------------------------------------------------------------------- | ------- |
-| W1.1 | B-1           | Stop commit path overwriting engine's hydrated to-hit; hydrate projection via `buildWeaponAttack*ToHitState`          | pending |
+| W1.1 | B-1           | Stop commit path overwriting engine's hydrated to-hit; hydrate projection via `buildWeaponAttack*ToHitState`          | done    |
 | W1.2 | B-2, B-5, B-6 | Evade/sprint attacker gates in projection; positional-arg bug; min-range `>=` + drift                                 | pending |
 | W1.3 | B-3, B-4      | `calculateMovementHeat` options-object refactor (4 call sites); movement validator agreement (no permissive fallback) | pending |
 

@@ -812,6 +812,11 @@ function weaponStatusForAttack(weapon: IWeaponAttack): IWeaponStatus {
       ...(weapon.minRange > 0 ? { minimum: weapon.minRange } : {}),
     },
     isTorpedo: weapon.isTorpedo,
+    // Audit B-1 (W1.1): carry the called-shot election into the committed
+    // projection so its hydrated attacker state matches declareAttack's and
+    // the enrichment below never stamps a number missing the +3 modifier.
+    calledShot: weapon.calledShot,
+    teammateCalledShot: weapon.teammateCalledShot,
   };
 }
 
@@ -906,6 +911,20 @@ function enrichedWeaponAttackData({
   });
 }
 
+/**
+ * Stamps the committed-attack projection's to-hit data onto the AttackDeclared
+ * payload that `resolveAttack` rolls against.
+ *
+ * Audit B-1 (W1.1) invariant: this stamp is only legal because the projection
+ * hydrates attacker/target state through the SAME
+ * buildWeaponAttackAttackerToHitState / buildWeaponAttackTargetToHitState
+ * builders declareAttack uses (see combatProjection.toHit.ts), so the stamped
+ * number contains the engine's full hydrated modifier set (pilot wounds,
+ * sensor hits, actuator damage, SPAs, quirks, evasion, called shot) PLUS
+ * projection-only context the engine cannot derive here (C3 bracket election,
+ * ground-to-air altitude, vehicle turret pivot, per-weapon brackets). It must
+ * never regress to a hand-built subset of the engine's state.
+ */
 function enrichAttackDeclaredEventFromProjection({
   session,
   attackerId,

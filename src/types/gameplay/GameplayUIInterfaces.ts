@@ -715,6 +715,15 @@ export interface IWeaponStatus {
   };
   /** True for represented torpedo weapons that must remain in water. */
   readonly isTorpedo?: boolean;
+  /**
+   * Called-shot election carried into committed-attack to-hit projections so
+   * the projection hydrates the same attacker state as the engine commit path
+   * (audit 2026-06-09 B-1). Optional: UI previews that have no election yet
+   * leave both unset.
+   */
+  readonly calledShot?: boolean;
+  /** Teammate-assisted called-shot election; see `calledShot`. */
+  readonly teammateCalledShot?: boolean;
 }
 
 /**

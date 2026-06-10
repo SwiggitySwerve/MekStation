@@ -10,6 +10,8 @@ import type { ITerrainFeature } from '@/types/gameplay/TerrainTypes';
 
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 
+import { isRepresentedTargetImmobile } from '../combatImmobility';
+
 interface IWeaponToHitDescriptor {
   readonly id: string;
   readonly name: string;
@@ -84,7 +86,11 @@ export function buildWeaponAttackTargetToHitState(
     isAirborne: unit.isAirborne,
     hexesMoved: unit.hexesMovedThisTurn,
     prone: unit.prone ?? false,
-    immobile: unit.shutdown ?? false,
+    // Audit B-1 (W1.1): MegaMek's Targetable immobile contract covers
+    // shutdown units AND unconscious crews. Route through the centralized
+    // isRepresentedTargetImmobile helper (instead of `unit.shutdown` alone)
+    // so the engine commit path and the combat projection agree.
+    immobile: isRepresentedTargetImmobile(unit),
     partialCover,
     hullDown: unit.hullDown ?? false,
     unitQuirks: unit.unitQuirks,
