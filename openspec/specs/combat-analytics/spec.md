@@ -763,46 +763,11 @@ Chainable methods SHALL be order-independent — `query.ofType(X).bySide(Y)` and
 
 ### Requirement: Replay State-From-Events Reducer Contract
 
-The application SHALL ship a pure projection hook at `src/hooks/replay/useHexMapStateFromEvents.ts` that consumes `events: readonly IGameEvent[]` plus a `currentSequence: number` cursor and returns `{ tokens, hexTerrain, mapRadius }` ready for `<HexMapDisplay>` rendering. The hook SHALL have NO I/O, NO side effects, and NO React refs — it is a memoized projection over its inputs.
-
-```ts
-export interface ReplayHexMapState {
-  readonly tokens: readonly IUnitToken[];
-  readonly hexTerrain: readonly IHexTerrain[];
-  readonly mapRadius: number;
-}
-
-export function useHexMapStateFromEvents(
-  events: readonly IGameEvent[],
-  currentSequence: number,
-): ReplayHexMapState;
-```
-
-The reducer SHALL walk events in monotonic `sequence` order from the start of the array up to and including the highest event whose `event.sequence <= currentSequence`. It SHALL apply per-event mutations only for the on-map event families enumerated below. All other event types SHALL pass through silently — they may flow through the timeline scrubber but they SHALL NOT change `tokens`, `hexTerrain`, or `mapRadius`.
-
-The covered event families and their mutations:
+The covered event families and their mutations SHALL include:
 
 | Event type | Mutation |
 |---|---|
-| `GameCreated` | Seeds the initial `tokens` array from `payload.units` (one `IUnitToken` per unit, with the variant chosen by `unit.unitType`). Sets `mapRadius = payload.config.mapRadius`. When `payload.hexTerrain` is present, seeds the initial `hexTerrain` array before later terrain mutations apply. |
-| `MovementDeclared` | Updates the actor token's `position` to `payload.to` and `facing` to `payload.facing`. |
-| `TerrainChanged` | Upserts the changed hex into `hexTerrain` using `payload.hex`, `payload.terrain`, and `payload.elevation`. The mutation applies only when `event.sequence <= currentSequence`; earlier cursors SHALL NOT include the terrain change. |
-| `DamageApplied` | Tracks accumulated location-level damage on the affected unit (per-unit per-location bookkeeping). When `payload.locationDestroyed === true` AND `payload.location === 'CT'`, sets the unit's `isDestroyed = true`. |
-| `LocationDestroyed` | Records the destroyed location in the per-unit damage map. When `payload.location === 'CT'`, sets the unit's `isDestroyed = true`. |
-| `TransferDamage` | Records the transfer in the per-unit damage map (informational; does not flip `isDestroyed` on its own). |
-| `UnitDestroyed` | Sets the unit's `isDestroyed = true`. |
-| `UnitFell` | Tags the unit as prone (rendered via the existing token component's prone visualization). |
-| `UnitStood` | Clears the unit's prone tag. |
-| `HeatGenerated` / `HeatDissipated` | Tracks `currentHeat` per unit (consumed by the token's existing heat-band rendering). |
-| `PilotHit` | Increments per-unit `pilotWounds`. |
-| `ComponentDestroyed` | When the actor unit projects to an `IMechToken` (Mech archetype): translates the runner's 2-letter MegaMek location code (`'HD'`, `'CT'`, `'LT'`, `'RT'`, `'LA'`, `'RA'`, `'LL'`, `'RL'`, plus the quad-specific `'FLL'`, `'FRL'`, `'RLL'`, `'RRL'`) into the corresponding `BipedPipLocation` / `QuadPipLocation` key, then updates the unit's `armorPipState.locations[mappedKey]`. The reducer SHALL initialize `armorPipState` lazily — first damage event allocates the `archetype`-appropriate `locations` map (humanoid / quad / lam) with every location set to `'full'`, then mutates the affected location. Transitions: `'full'` → `'partial'` on the first damage event for that location, and from any state → `'structure'` when `payload.componentType` is an internal component (`engine`, `gyro`, `weapon`, `actuator`, `heat_sink`, `cockpit`, `sensor`, `life_support`, `jump_jet`, `ammo`). When `LocationDestroyed` has already fired on the same location, transitions to `'destroyed'`. Non-Mech tokens SHALL pass `ComponentDestroyed` through silently — `armorPipState` is Mech-only per `IMechToken`. Unrecognized location codes SHALL pass through silently (no throw, no mutation). |
-| `CriticalHitResolved` | Same projection logic as `ComponentDestroyed` (covers the post-PR-`add-combat-fidelity-suite` Phase-4 emitter path while `ComponentDestroyed` covers the legacy Phase-3 path). |
-
-The reducer SHALL be idempotent: for any input `(events, currentSequence)`, repeated invocation SHALL produce structurally equivalent output (deep-equal `tokens` and `hexTerrain` arrays).
-
-The reducer SHALL NOT assume monotonic forward progression of `currentSequence` between calls. Stepping the cursor backward SHALL produce the correct state for the new cursor value (re-walking from the beginning of `events` is acceptable; a forward-only optimization is out of scope for this PR).
-
-The reducer SHALL be `useMemo`-d on `[events, currentSequence]` so re-renders that do not change the cursor reuse the prior projection.
+| `GameCreated` | Seeds the initial `tokens` array from `payload.units` and sets `mapRadius = payload.config.mapRadius`. When `payload.hexTerrain` is present, it SHALL also seed `hexTerrain` before later terrain mutations apply. |
 
 #### Scenario: GameCreated seeds initial replay terrain
 
@@ -810,46 +775,6 @@ The reducer SHALL be `useMemo`-d on `[events, currentSequence]` so re-renders th
 - **WHEN** the replay reducer walks to sequence 0
 - **THEN** `hexTerrain` SHALL include that heavy-woods elevation-2 hex
 - **AND** later `TerrainChanged` events for the same coordinate SHALL override the seeded terrain at or after their sequence
-
-#### Scenario: TerrainChanged projects replay hex terrain
-
-- **GIVEN** an event log containing `GameCreated` followed by `TerrainChanged { hex: { q: 2, r: -1 }, terrain: 'rough', elevation: 1 }`
-- **WHEN** the replay reducer walks to `currentSequence` at or after the `TerrainChanged` sequence
-- **THEN** `hexTerrain` SHALL include the changed hex with rough terrain and elevation 1
-- **AND** walking to a cursor before the `TerrainChanged` sequence SHALL leave `hexTerrain` unchanged
-
-#### Scenario: ComponentDestroyed populates Mech armorPipState
-
-- **GIVEN** an event log containing `GameCreated` (seeding a humanoid Mech `player-1`) followed by `ComponentDestroyed { unitId: 'player-1', location: 'LA', componentType: 'actuator' }`
-- **WHEN** the reducer walks to `currentSequence ≥ 2`
-- **THEN** the `player-1` token's `armorPipState.archetype === 'humanoid'`
-- **AND** `armorPipState.locations.leftArm === 'structure'` (actuator is an internal component)
-- **AND** all other `BipedPipLocation` values default to `'full'`
-
-#### Scenario: First non-internal damage transitions full → partial
-
-- **GIVEN** a humanoid Mech with no prior `armorPipState`
-- **WHEN** a `ComponentDestroyed { location: 'RT', componentType: 'armor' }` event applies
-- **THEN** `armorPipState.locations.rightTorso === 'partial'`
-
-#### Scenario: LocationDestroyed plus ComponentDestroyed transitions to destroyed
-
-- **GIVEN** a humanoid Mech that received `LocationDestroyed { location: 'LL' }` at sequence 5
-- **WHEN** `ComponentDestroyed { location: 'LL', componentType: 'actuator' }` applies at sequence 10 with cursor at 10
-- **THEN** `armorPipState.locations.leftLeg === 'destroyed'`
-
-#### Scenario: ComponentDestroyed on a vehicle is a no-op
-
-- **GIVEN** an event log seeding an `IVehicleToken` for `tank-1` followed by `ComponentDestroyed { unitId: 'tank-1', location: 'turret', componentType: 'weapon' }`
-- **WHEN** the reducer walks past the destroyed event
-- **THEN** the `tank-1` token has NO `armorPipState` field (vehicles do not project `armorPipState`)
-- **AND** the reducer does NOT throw
-
-#### Scenario: CriticalHitResolved follows the same projection rules
-
-- **GIVEN** the Phase-4 emitter shipping `CriticalHitResolved` instead of `ComponentDestroyed`
-- **WHEN** the reducer applies a `CriticalHitResolved { unitId: 'player-1', location: 'CT', componentType: 'engine', destroyed: true }` event to a humanoid Mech
-- **THEN** `armorPipState.locations.centerTorso === 'structure'` (or `'destroyed'` if `LocationDestroyed` already fired on CT)
 
 ### Requirement: Replay Timeline Key-Moment Markers Contract
 

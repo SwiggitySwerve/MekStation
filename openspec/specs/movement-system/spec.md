@@ -100,23 +100,36 @@ The system SHALL provide calculation context for variable equipment.
 
 ### Requirement: Heat MP Reduction
 
-Heat SHALL reduce available movement points using the formula `floor(heat / 5)`.
+Heat SHALL reduce available walking movement points using the formula `floor(heat / 5)`. Available running and sprinting MP SHALL be re-derived from the heat-adjusted walk MP (`run = ceil(adjustedWalk * 1.5)`; `sprint = adjustedWalk * 2` without active MP boosters), never by subtracting the penalty from the pre-derived run or sprint values. Jump MP SHALL NOT be reduced by heat.
 
 #### Scenario: Heat 9 reduces MP by 1
 
 - **WHEN** a unit has heat level 9
-- **THEN** available walking and running MP SHALL be reduced by `floor(9 / 5) = 1`
+- **THEN** available walking MP SHALL be reduced by `floor(9 / 5) = 1`
+- **AND** available running MP SHALL be re-derived from the reduced walk MP
 
 #### Scenario: Heat 15 reduces MP by 3
 
 - **WHEN** a unit has heat level 15
-- **THEN** available walking and running MP SHALL be reduced by `floor(15 / 5) = 3`
+- **THEN** available walking MP SHALL be reduced by `floor(15 / 5) = 3`
+- **AND** available running MP SHALL be re-derived from the reduced walk MP
 
 #### Scenario: Heat does not reduce MP below 0
 
 - **WHEN** a unit with Walk 2 has heat level 15 (reduction of 3)
 - **THEN** available Walk MP SHALL be 0 (not negative)
 - **AND** the unit SHALL be unable to walk or run
+
+#### Scenario: Run MP derives from heat-adjusted walk, not raw subtraction
+
+- **WHEN** a unit with walk 5 and run 8 has heat level 10 (penalty 2)
+- **THEN** available walk MP SHALL be 3
+- **AND** available run MP SHALL be `ceil(3 * 1.5) = 5` (not `8 - 2 = 6`)
+
+#### Scenario: Jump MP is heat-immune
+
+- **WHEN** a unit with jump 4 has heat level 15 (penalty 3)
+- **THEN** available jump MP SHALL remain 4
 
 ### Requirement: Movement Generates Heat
 
@@ -154,14 +167,14 @@ Movement SHALL generate heat per the canonical rules and add it to the unit's he
 
 ### Requirement: Heat Reduces Effective Movement
 
-Effective walk and run MP SHALL be reduced by `floor(heat / 5)` each turn the unit has heat.
+Effective walk MP SHALL be reduced by `floor(heat / 5)` each turn the unit has heat. Effective run and sprint MP SHALL be re-derived from the heat-adjusted walk MP (`run = ceil(adjustedWalk * 1.5)`; `sprint = adjustedWalk * 2` without active MP boosters). Effective jump MP SHALL NOT be reduced by heat.
 
 #### Scenario: Heat 9 reduces effective MP by 1
 
 - **GIVEN** a unit with walk 5, run 8, heat 9
 - **WHEN** effective MP is computed
 - **THEN** effective walk SHALL be 4
-- **AND** effective run SHALL be 7
+- **AND** effective run SHALL be `ceil(4 * 1.5) = 6`
 
 #### Scenario: Heat 15 reduces effective MP by 3
 
@@ -174,6 +187,19 @@ Effective walk and run MP SHALL be reduced by `floor(heat / 5)` each turn the un
 - **GIVEN** a unit with walk 5 and TSM active at heat 9
 - **WHEN** effective MP is computed
 - **THEN** effective walk SHALL be 6 (5 base + 2 TSM - 1 heat)
+
+#### Scenario: Run derives from heat-adjusted walk at heat 10
+
+- **GIVEN** a unit with walk 5, run 8, heat 10
+- **WHEN** effective MP is computed
+- **THEN** effective walk SHALL be 3
+- **AND** effective run SHALL be `ceil(3 * 1.5) = 5` (not `8 - 2 = 6`)
+
+#### Scenario: Jump MP unaffected by heat
+
+- **GIVEN** a unit with walk 5, jump 5, heat 10
+- **WHEN** effective MP is computed
+- **THEN** effective jump SHALL remain 5
 
 ### Requirement: Terrain PSR Triggers
 
@@ -201,25 +227,34 @@ The movement system SHALL trigger piloting skill rolls when entering specific te
 
 ### Requirement: Prone/Standing-Up Movement Costs
 
-Standing up from prone SHALL cost the unit's full walking MP and require a successful PSR.
+Standing up from prone SHALL cost the represented stand-up MP and require a
+successful PSR unless represented unit rules make the stand-up automatic or
+impossible.
 
-#### Scenario: Standing up costs full walking MP
+#### Scenario: Playtest3 three-hit heavy-duty gyro stand-up remains rollable
 
-- **WHEN** a prone unit attempts to stand up in the movement phase
-- **THEN** standing up SHALL cost the entire walking MP allotment
-- **AND** the unit SHALL NOT move further that turn after standing
+- **GIVEN** `playtest_3` is enabled
+- **AND** a prone Mek has a represented heavy-duty gyro with three gyro hits
+- **WHEN** movement projection or committed movement evaluates a ground
+  stand-up attempt
+- **THEN** the destination SHALL remain reachable when the path is otherwise
+  legal and within budget
+- **AND** the projection SHALL expose a finite stand-up PSR target
+- **AND** the projection SHALL include the represented heavy-duty gyro damage
+  modifier
+- **AND** committed movement SHALL resolve the same finite stand-up PSR instead
+  of treating the gyro as destroyed
 
-#### Scenario: Standing up requires PSR
+#### Scenario: Playtest3 four-hit heavy-duty gyro stand-up is impossible
 
-- **WHEN** a prone unit attempts to stand up
-- **THEN** a PSR SHALL be required
-- **AND** failure SHALL leave the unit prone (MP still expended)
-
-#### Scenario: Prone unit crawling
-
-- **WHEN** a prone unit does not stand up
-- **THEN** the unit SHALL be able to crawl at 1 MP per hex
-- **AND** the unit SHALL remain prone while crawling
+- **GIVEN** `playtest_3` is enabled
+- **AND** a prone Mek has a represented heavy-duty gyro with four gyro hits
+- **WHEN** movement projection or committed movement evaluates a ground
+  stand-up attempt
+- **THEN** the destination SHALL be marked unreachable before commit
+- **AND** the projection SHALL expose `Cannot stand with a destroyed gyro`
+- **AND** committed movement SHALL keep the unit at its origin and prone
+- **AND** committed movement SHALL NOT emit `UnitStood`
 
 ### Requirement: Shutdown Prevents Movement
 
@@ -401,35 +436,42 @@ The hook SHALL memoize all computed values to prevent unnecessary recalculations
 
 ### Requirement: Aerospace 2D Simplified Movement
 
-Aerospace units SHALL move under a 2D-simplified flight model for Phase 6 combat.
+Aerospace units SHALL move under a 2D-simplified flight model when `scenarioOptions.aerospaceMode === '2d-simplified'` (legacy default). When `scenarioOptions.aerospaceMode === '3d-tactical'` (new), the 3D thrust/velocity/altitude rules in `aerospace-deployment` SHALL apply instead, and this 2D rule SHALL NOT be used.
 
-#### Scenario: Flying unit range per turn
+#### Scenario: 2D-simplified mode — legacy flying unit range
 
-- **GIVEN** an ASF with safeThrust 6
+- **GIVEN** an ASF with safeThrust 6 in a scenario with `aerospaceMode: '2d-simplified'`
 - **WHEN** computing legal movement for the turn
 - **THEN** the unit SHALL be allowed to move up to `2 × safeThrust = 12 hexes`
 - **AND** the path SHALL be a straight line from the current hex plus at most one ≤ 60° turn
 
-#### Scenario: No altitude tracking
+#### Scenario: 2D-simplified mode — no altitude tracking
 
-- **GIVEN** any flying unit in Phase 6 2D mode
+- **GIVEN** any flying unit in a `'2d-simplified'` scenario
 - **WHEN** reading combat state
-- **THEN** the unit SHALL NOT have an altitude property
+- **THEN** the unit SHALL NOT have an altitude property in use
 - **AND** line-of-sight SHALL always treat flying units as "above the board"
 
-#### Scenario: Reaching board edge exits unit
+#### Scenario: 2D-simplified mode — reaching board edge exits unit
 
-- **GIVEN** a flying unit whose path reaches a board-edge hex
+- **GIVEN** a flying unit whose path reaches a board-edge hex in `'2d-simplified'` mode
 - **WHEN** movement is resolved
 - **THEN** an `AerospaceExited` event SHALL fire
 - **AND** the unit SHALL enter off-map state for the scenario-defined return delay (default 2 turns)
 
-#### Scenario: Re-entry from off-map
+#### Scenario: 2D-simplified mode — re-entry from off-map
 
 - **GIVEN** a flying unit in off-map state whose return delay has elapsed
 - **WHEN** its owner chooses a board-edge re-entry hex
 - **THEN** an `AerospaceEntered` event SHALL fire
 - **AND** the unit SHALL resume movement with the facing it had at exit
+
+#### Scenario: 3D-tactical mode — this 2D rule does NOT apply
+
+- **GIVEN** a scenario with `aerospaceMode: '3d-tactical'`
+- **WHEN** an aerospace unit's movement resolves
+- **THEN** the rules in `aerospace-deployment` SHALL apply
+- **AND** this `Aerospace 2D Simplified Movement` rule SHALL NOT be used for that unit
 
 ### Requirement: Fuel Consumption per Turn
 
@@ -445,15 +487,29 @@ Flying units SHALL consume fuel equal to the thrust used each turn.
 
 ### Requirement: Fly-Over Strafe Movement
 
-The system SHALL allow a flying unit to declare a strafe path during movement, applying attacks to ground units in the path hexes.
+The system SHALL allow a flying unit to declare a strafe path during movement, applying attacks to ground units in the path hexes. The base +2 to-hit penalty SHALL apply in 2D-simplified mode; in 3D-tactical mode (`aerospaceMode === '3d-tactical'`), the altitude-tier modifier (low +0, med +1, high +2) from `aerospace-deployment → Air-to-Ground Combat` SHALL be added on top of the base +2.
 
-#### Scenario: Strafe declaration
+#### Scenario: 2D-simplified strafe — base +2 only
 
-- **GIVEN** an ASF moving over 4 hexes, 2 of which contain enemy ground units
+- **GIVEN** an ASF in `'2d-simplified'` mode strafing 4 hexes, 2 of which contain enemy ground units
 - **WHEN** the player declares strafe on those hexes
 - **THEN** Nose or Wing weapons SHALL fire at ground units in those hexes during movement
-- **AND** each strafed hex SHALL add +2 to-hit penalty to that shot
+- **AND** each strafed shot SHALL add +2 to-hit penalty
 - **AND** an `AerospaceFlyOver` event SHALL record affected hexes and damage applied
+
+#### Scenario: 3D-tactical strafe — base +2 + altitude modifier
+
+- **GIVEN** an ASF at altitude 8 (high tier) in `'3d-tactical'` mode strafing 2 ground hexes
+- **WHEN** the player declares strafe
+- **THEN** each strafed shot SHALL add +2 base + 2 (high altitude) = +4 to-hit penalty
+- **AND** an `AerospaceAirToGroundAttack` event SHALL fire (per `aerospace-deployment`) instead of the legacy `AerospaceFlyOver`
+
+#### Scenario: 3D-tactical strafe at low altitude — minimal penalty
+
+- **GIVEN** an ASF at altitude 1 (low tier) in `'3d-tactical'` mode strafing a ground hex
+- **WHEN** the player declares strafe
+- **THEN** the to-hit penalty SHALL be +2 base + 0 (low altitude) = +2
+- **AND** the per-attack to-hit SHALL match the 2D-simplified penalty in this special case
 
 ### Requirement: Planned Movement UI Projection
 
@@ -488,85 +544,28 @@ and facing pickers without mutating session state.
 
 The movement system SHALL provide a `deriveReachableHexes(unit, mpType)`
 function that returns every hex reachable with the given movement type
-(Walk, Run, Jump), including the MP cost to each hex, using the existing A\*
+(Walk, Run, Jump), including the MP cost to each hex, using the existing A*
 pathfinder.
-
-#### Scenario: Walk reachable hexes
-
-- **GIVEN** a BattleMech with 5 walk MP at hex {0,0}
-- **WHEN** `deriveReachableHexes(unit, MpType.Walk)` is called
-- **THEN** the result SHALL contain every hex whose cheapest path cost is
-  <= 5 MP
-- **AND** each entry SHALL contain `{hex, mpCost, mpType: MpType.Walk,
-reachable: true}`
-
-#### Scenario: Run reachable hexes extend walk reach
-
-- **GIVEN** a BattleMech with 5 walk MP, 8 run MP
-- **WHEN** `deriveReachableHexes(unit, MpType.Run)` is called
-- **THEN** the result SHALL contain every hex whose cheapest path cost is
-  <= 8 MP
-
-#### Scenario: Jump reachable hexes skip blocked terrain
-
-- **GIVEN** a BattleMech with 4 jump MP and a woods hex 3 hexes away
-- **WHEN** `deriveReachableHexes(unit, MpType.Jump)` is called
-- **THEN** the woods hex SHALL be marked reachable with `mpCost = 3`
-- **AND** intermediate hexes between origin and landing SHALL NOT be in
-  the result
-
-#### Scenario: Jump path clearance blocks too-high represented terrain
-
-- **GIVEN** a unit with represented Jump MP
-- **AND** a target landing hex is within jump distance and has an otherwise legal base elevation
-- **AND** the straight jump path crosses represented terrain or building height above the unit's origin elevation plus available Jump MP
-- **WHEN** movement projection evaluates the landing hex
-- **THEN** the landing hex SHALL be blocked with an explicit jump-clearance terrain-blocked reason
-- **AND** the blocked projection SHALL keep jump terrain and elevation costs at 0
-- **AND** committed movement validation SHALL reject the same supplied jump path with the same blocked reason
-- **AND** ordinary jump landings that clear intervening terrain SHALL continue to ignore ground terrain costs
-
-#### Scenario: Ground elevation costs use absolute elevation change
-
-- **GIVEN** a non-exempt ground movement step changes elevation upward or downward
-- **WHEN** movement projection computes the step cost
-- **THEN** the elevation MP component SHALL be based on the absolute elevation delta
-- **AND** represented ground vehicles and non-flying infantry SHALL double that elevation MP component
-- **AND** over-limit downhill changes SHALL be blocked with the same explicit terrain-blocked projection reason as over-limit climbs
-- **AND** committed ground movement validation SHALL agree with the previewed downhill MP cost or blocked reason for the same supplied path
-- **AND** top-down movement cost badges SHALL show downhill steps as a paid positive elevation MP cost with a distinct down-direction delta label
-- **AND** VTOL, WiGE, jump, naval, and swim movement SHALL keep their existing elevation-cost exemptions
-
-#### Scenario: Playtest2 deep-water movement costs use the represented option
-
-- **GIVEN** a non-exempt movement step enters represented depth-2+ water
-- **WHEN** the Playtest2 optional rule is disabled
-- **THEN** the water-depth MP component SHALL remain the standard +3 MP
-- **WHEN** the same movement step is projected with the represented Playtest2 optional rule enabled
-- **THEN** the water-depth MP component SHALL be +2 MP
-- **AND** depth-1 water, amphibious, frogman, hover, VTOL, WiGE, naval, swim, and UMU water movement pricing SHALL keep their existing costs
-- **AND** committed movement validation SHALL agree with the previewed Playtest2 deep-water MP cost for the same supplied path
-
-#### Scenario: Playtest2 Mek-style running may enter water after the first step
-
-- **GIVEN** represented Mek-style ground movement declares Run
-- **AND** the run path enters water after its first step
-- **WHEN** the Playtest2 optional rule is disabled
-- **THEN** the movement projection SHALL block that path with the standard water terrain-blocked reason
-- **WHEN** the same path is projected with the represented Playtest2 optional rule enabled
-- **THEN** the movement projection SHALL allow the run-water path
-- **AND** infantry-profile, vehicle, naval, hover, VTOL, WiGE, UMU, swim, amphibious, bridge, and ice water movement rules SHALL keep their existing legality behavior
-- **AND** committed movement validation SHALL agree with the previewed Playtest2 run-water legality and MP cost for the same supplied path
 
 #### Scenario: Imported unit height feeds bridge clearance
 
-- **GIVEN** a represented unit has an explicit imported entity height or a source-derived entity height for a supported Mek, VTOL, tank, small craft, dropship, or conventional infantry mount class
-- **AND** LAM and QuadVee conversion-mode data, when represented, can change the source-derived entity height
-- **AND** represented conventional infantry mount height, beast-size, or MegaMek mount identity data can source-derive the infantry entity height
+- **GIVEN** a represented unit has an explicit imported entity height or a
+  source-derived entity height for a supported Mek, VTOL, tank, small craft,
+  dropship, or conventional infantry mount class
+- **AND** LAM and QuadVee conversion-mode data, when represented, can change the
+  source-derived entity height
+- **AND** represented conventional infantry mount height, beast-size, or
+  MegaMek mount identity data can source-derive the infantry entity height
+- **AND** later runtime state may override the imported height directly, switch
+  a LAM/QuadVee conversion mode, or mount/dismount conventional infantry
 - **AND** the unit's movement capability is used for movement projection
-- **WHEN** naval, hydrofoil, or submarine bridge-clearance movement is projected across represented water and bridge terrain
-- **THEN** the projection SHALL use the imported entity height for the bridge-clearance decision
-- **AND** the committed movement validation SHALL reject or accept the same supplied path with the same bridge-clearance result
+- **WHEN** naval, hydrofoil, or submarine bridge-clearance movement is projected
+  across represented water and bridge terrain
+- **THEN** the projection SHALL use the runtime-resolved entity height, falling
+  back to the imported entity height when no runtime override is present, for
+  the bridge-clearance decision
+- **AND** the committed movement validation SHALL reject or accept the same
+  supplied path with the same bridge-clearance result
 
 ### Requirement: Movement Commit Event Emission
 
@@ -710,6 +709,197 @@ The function SHALL be the inverse of the existing `convertOffsetToAxial(col, row
 - **AND** the axial coordinate produced by `convertOffsetToAxial(12, 7)`
 - **WHEN** `coordToBoardLabel` is called on that axial coordinate
 - **THEN** the return value SHALL be `'1207'`
+
+### Requirement: Destroyed Gyro Nontracked Movement Projection
+
+Movement projection and movement commit validation SHALL reject represented
+non-prone destroyed-gyro movement when the active movement mode is not tracked
+or wheeled.
+
+#### Scenario: Standing destroyed-gyro Mek cannot use ordinary movement
+
+- **GIVEN** a non-prone unit has represented destroyed-gyro damage
+- **AND** the selected movement mode resolves to ordinary walk, run, jump, or
+  another non-tracked/non-wheeled mode
+- **WHEN** the player previews or commits movement to a destination hex
+- **THEN** the destination SHALL be invalid
+- **AND** the projection and commit rejection SHALL explain that destroyed gyro
+  movement only permits tracked or wheeled movement.
+
+#### Scenario: Tracked and wheeled destroyed-gyro movement remains legal
+
+- **GIVEN** a non-prone unit has represented destroyed-gyro damage
+- **AND** the active movement capability resolves to tracked or wheeled
+  movement
+- **WHEN** the player previews and commits a legal destination
+- **THEN** the destination SHALL remain reachable when terrain and MP allow it
+- **AND** committed movement SHALL use the same MP/path outcome as the preview.
+
+### Requirement: Movement Declaration Captures Go-Prone Posture Attempts
+
+The movement event model SHALL capture same-hex hull-down `GO_PRONE`
+posture attempts as replay-safe movement declarations.
+
+#### Scenario: Go-prone declaration carries posture metadata
+
+- **GIVEN** a hull-down Mek-style unit commits the go-prone posture action
+- **WHEN** the movement event is serialized
+- **THEN** the `MovementDeclared` payload SHALL include `goProneAttempt: true`
+- **AND** the payload SHALL include a `goProne` movement step at the unit's
+  current hex with `mpCost: 0`
+- **AND** the declaration SHALL preserve zero hex displacement and zero
+  movement heat.
+
+### Requirement: Movement Declaration Captures Hull-Down Entry Attempts
+
+The movement event model SHALL capture same-hex standing `HULL_DOWN` posture
+attempts as replay-safe movement declarations.
+
+#### Scenario: Hull-down entry declaration carries posture metadata
+
+- **GIVEN** a standing Mek-style unit commits the hull-down posture action
+- **WHEN** the movement event is serialized
+- **THEN** the `MovementDeclared` payload SHALL include
+  `hullDownEntryAttempt: true`
+- **AND** the payload SHALL include a `hullDown` movement step at the unit's
+  current hex with the entry MP cost
+- **AND** the declaration SHALL preserve zero hex displacement and walking
+  movement heat.
+
+### Requirement: Prone Hull-Down Entry Uses Source-Backed Location Costs
+
+Movement declaration SHALL price a prone Mek-style unit's `HULL_DOWN` posture
+entry from represented per-location leg/support damage.
+
+#### Scenario: Prone hull-down entry pays actuator and hip costs
+
+- **GIVEN** a prone Mek-style unit has represented actuator critical damage on
+  its support locations
+- **WHEN** it commits the hull-down posture action
+- **THEN** the movement declaration SHALL stay in the current hex/facing
+- **AND** the declaration SHALL include `hullDownEntryAttempt: true`
+- **AND** the hull-down step MP cost SHALL be 1 MP plus one MP per represented
+  non-hip leg actuator crit and one MP per represented hip crit
+- **AND** replay SHALL clear prone and set hull-down without emitting a stand-up
+  PSR.
+
+#### Scenario: Destroyed support location blocks prone hull-down entry
+
+- **GIVEN** a prone Mek-style unit has a destroyed required support location
+- **WHEN** it attempts the hull-down posture action
+- **THEN** no movement declaration SHALL be emitted
+- **AND** movement invalid metadata SHALL report an impossible-cost 99 MP
+  support-location blocker.
+
+### Requirement: Automatic WiGE Landing
+
+Represented positive-altitude WiGE movement SHALL apply MegaMek's automatic
+landing rule when a WiGE vehicle, Glider ProtoMek, or LAM AirMek moves below
+its source-backed minimum airborne distance.
+
+#### Scenario: Prior movement distance contributes to automatic WiGE landing
+
+- **GIVEN** a represented positive-altitude WiGE unit has already moved hexes
+  this turn
+- **WHEN** the player previews or commits another legal WiGE movement segment
+- **THEN** the automatic landing minimum-distance check SHALL count both the
+  represented hexes already moved this turn and the currently projected path
+- **AND** a unit whose accumulated distance reaches the source-backed minimum
+  SHALL remain airborne
+- **AND** a unit whose accumulated distance stays below the source-backed
+  minimum SHALL receive the same automatic landing projection and runtime state
+  patch as a one-segment short move.
+
+#### Scenario: Hover-style represented movement stays airborne
+
+- **GIVEN** a represented positive-altitude WiGE unit can use a hover-style
+  movement mode
+- **WHEN** the player previews or commits a legal hover-style movement segment
+- **THEN** the automatic WiGE landing helper SHALL NOT require a landing
+- **AND** the runtime movement command SHALL NOT append an automatic WiGE
+  landing state patch for that hover-style movement.
+
+### Requirement: Movement Terrain And Elevation Costs
+
+Movement cost calculation SHALL apply source-backed terrain and elevation MP
+costs for represented unit movement modes while preserving preview and commit
+validation agreement.
+
+#### Scenario: Directional cliff metadata distinguishes sheer cliffs from hills
+
+- **GIVEN** a represented map hex has terrain-feature metadata identifying
+  cliff-top exits toward one or more adjacent hexes
+- **WHEN** a unit moves across an edge not listed in that cliff-top metadata
+- **THEN** movement cost and legality SHALL follow ordinary non-cliff elevation
+  rules
+- **AND** the system SHALL NOT infer sheer-cliff behavior from elevation delta
+  alone.
+
+#### Scenario: WiGE pays the sheer-cliff ascent surcharge
+
+- **GIVEN** a represented WiGE mover crosses upward into a destination hex whose
+  cliff-top metadata exits toward the source hex
+- **WHEN** the player previews or commits that movement
+- **THEN** movement cost SHALL include the source-backed +1 MP sheer-cliff
+  ascent surcharge
+- **AND** preview/pathfinding and committed movement validation SHALL use the
+  same cost.
+
+#### Scenario: Vehicles cannot ascend an encoded sheer cliff without road cover
+
+- **GIVEN** a represented tracked, wheeled, or hover vehicle attempts to move
+  upward into a destination hex whose cliff-top metadata exits toward the source
+  hex
+- **AND** the destination does not have a pavement, paved-road, or bridge
+  surface that cancels cliff effects for road-capable movement
+- **WHEN** the player previews or commits that movement
+- **THEN** the movement SHALL be blocked with a terrain-blocked reason before
+  commit.
+
+### Requirement: Integrated Movement Projection Agreement
+
+Movement projection SHALL represent the same destination legality, MP cost,
+terrain cost, elevation cost, heat impact, stand-up state, and blocked reason
+that committed movement validation and resolution will enforce for represented
+unit movement modes.
+
+#### Scenario: Represented movement modes stay preview/commit aligned
+
+- **GIVEN** a represented unit previews walk, run, jump, vehicle-style, VTOL,
+  WiGE, naval, hover, tracked, UMU, infantry, prone, or stand-up movement
+- **WHEN** the projection marks a destination legal, costly, blocked, or
+  unreachable
+- **THEN** the committed movement path for the unchanged destination SHALL spend
+  the same MP and heat or reject with the same reason
+- **AND** terrain and elevation contributors SHALL remain inspectable by the
+  player before commit.
+
+### Requirement: Movement Declaration Runtime State Agreement
+
+Committed positive-altitude WiGE-style movement SHALL replay the automatic
+landing state transition when MegaMek's short-distance landing rule applies, so
+post-movement map projection, combat modifiers, and replay state all observe
+the landed unit state.
+
+#### Scenario: Short WiGE movement commits automatic landing
+
+- **GIVEN** a positive-altitude WiGE-style unit commits a non-jump movement path
+  shorter than the source-backed minimum airborne distance
+- **AND** the unit did not use represented altitude-control/takeoff steps during
+  this movement declaration
+- **WHEN** the engine accepts the movement declaration
+- **THEN** it SHALL append a replayable runtime movement-state change that
+  clears the represented WiGE altitude after the movement declaration
+- **AND** subsequent movement projection SHALL no longer treat the unit as
+  positive-altitude airborne.
+
+#### Scenario: Glider ProtoMek uses four-hex minimum distance
+
+- **GIVEN** a positive-altitude Glider ProtoMek commits represented WiGE
+  movement
+- **WHEN** it moves four or more hexes without jumping or altitude-control
+  takeoff steps
+- **THEN** the automatic landing runtime state SHALL NOT be emitted.
 
 ## Data Model Requirements
 

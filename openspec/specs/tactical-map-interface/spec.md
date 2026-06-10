@@ -129,159 +129,46 @@ The system SHALL provide pan and zoom controls for map navigation.
 
 The system SHALL render terrain types with distinct visual treatments based on terrain data.
 
-**Priority**: High
+#### Scenario: Building rendering exposes structure metadata
 
-#### Scenario: Clear terrain rendering
-
-**GIVEN** a hex with terrain type Clear
-**WHEN** rendering the hex
-**THEN** fill color SHALL be light gray (#e2e8f0)
-**AND** stroke SHALL be grid line color (#cbd5e1)
-
-#### Scenario: Light woods rendering
-
-**GIVEN** a hex with terrain type LightWoods
-**WHEN** rendering the hex
-**THEN** fill color SHALL be light green (#bbf7d0)
-**AND** a woods pattern indicator SHALL be displayed
-
-#### Scenario: Heavy woods rendering
-
-**GIVEN** a hex with terrain type HeavyWoods
-**WHEN** rendering the hex
-**THEN** fill color SHALL be dark green (#86efac)
-**AND** a dense woods pattern indicator SHALL be displayed
-
-#### Scenario: Water depth rendering
-
-**GIVEN** a hex with terrain type Water at depth 1
-**WHEN** rendering the hex
-**THEN** fill color SHALL be light blue (#bfdbfe)
-**WHEN** depth is 2
-**THEN** fill color SHALL be medium blue (#93c5fd)
-**WHEN** depth is 3+
-**THEN** fill color SHALL be dark blue (#60a5fa)
-
-#### Scenario: Building rendering
-
-**GIVEN** a hex with terrain type Building at level 2
-**WHEN** rendering the hex
-**THEN** fill color SHALL be gray (#94a3b8)
-**AND** building height indicator SHALL be displayed
-**AND** construction factor (CF) SHALL be shown if available
-
----
+- **GIVEN** a hex has building terrain with represented level or construction factor metadata
+- **WHEN** the hex renders and the player inspects terrain context
+- **THEN** the hex SHALL expose building level metadata
+- **AND** the hex SHALL expose construction factor metadata when available
+- **AND** hover terrain context SHALL show the building level and construction factor when available
+- **AND** exposing structure metadata SHALL NOT change movement, combat, LOS, cover, or physical attack legality
 
 ### Requirement: Effect Overlays
 
 The system SHALL provide toggleable overlays showing calculated terrain effects.
 
-**Priority**: High
+#### Scenario: Movement cost overlay color-codes terrain cost bands
 
-#### Scenario: Movement cost overlay
-
-**GIVEN** a unit is selected with movement type Walk
-**WHEN** the movement cost overlay is enabled
-**THEN** each hex SHALL display its movement cost in MP
-**AND** hexes SHALL be color-coded (green=1MP, yellow=2-3MP, red=4+MP)
-**AND** impassable hexes SHALL be marked with an X
-
-#### Scenario: Cover level overlay
-
-**GIVEN** the cover overlay is enabled
-**WHEN** rendering the map
-**THEN** hexes with no cover SHALL show no indicator
-**AND** hexes with partial cover SHALL show a half-shield icon
-**AND** hexes with full cover SHALL show a full-shield icon
-
-#### Scenario: Heat effect overlay
-
-**GIVEN** the heat overlay is enabled
-**WHEN** rendering the map
-**THEN** hexes with cooling effects SHALL have blue tint
-**AND** hexes with heating effects SHALL have red tint
-**AND** heat modifier value SHALL be displayed (+5, -2, etc.)
-
-#### Scenario: Line of sight overlay
-
-**GIVEN** a unit is selected at hex {q: 0, r: 0}
-**WHEN** the LOS overlay is enabled
-**THEN** raycasts SHALL be drawn from the selected hex to all visible hexes
-**AND** blocked LOS SHALL be shown in red
-**AND** clear LOS SHALL be shown in green
-
-#### Scenario: Elevation overlay
-
-**GIVEN** the elevation overlay is enabled
-**WHEN** rendering the map
-**THEN** hexes SHALL be shaded by elevation level
-**AND** contour lines SHALL be drawn between elevation changes
-**AND** elevation value SHALL be displayed on each hex
-
-#### Scenario: Multiple overlays stacking
-
-**GIVEN** movement cost and cover overlays are both enabled
-**WHEN** rendering a hex
-**THEN** both movement cost numbers AND cover icons SHALL be visible
-**AND** visual elements SHALL NOT overlap
-**AND** overlay priority SHALL be: terrain < movement < cover < LOS
-
----
+- **GIVEN** a unit is selected with movement type Walk
+- **WHEN** the movement cost overlay is enabled
+- **THEN** each hex SHALL display its movement cost in MP
+- **AND** 1 MP terrain costs SHALL render with the low-cost green marker fill
+- **AND** 2-3 MP terrain costs SHALL render with the medium-cost yellow marker fill
+- **AND** 4+ MP terrain costs SHALL render with the high-cost red marker fill
+- **AND** movement-cost markers SHALL expose their cost band and fill color from the same terrain movement-cost value used by the visible label
 
 ### Requirement: Unit Token Rendering
 
-The system SHALL render unit tokens with facing indicators, selection rings, and status markers.
+The system SHALL render unit tokens with facing indicators, selection rings,
+target rings, status markers, type-specific visuals, and event-driven damage
+feedback overlays through the production per-type token dispatcher. When
+weapon-backed combat projection is active for the selected unit, the rendered
+valid-target ring SHALL be driven by shared combat projection data instead of
+by legacy token flags.
 
-**Priority**: Critical
+#### Scenario: Production dispatcher owns token feedback overlays
 
-#### Scenario: Player unit token
-
-**GIVEN** a player-controlled unit at hex {q: 2, r: 1} facing Northeast
-**WHEN** rendering the token
-**THEN** a circular token SHALL be drawn at the hex center
-**AND** token color SHALL be blue (#3b82f6)
-**AND** facing arrow SHALL point Northeast (60° rotation)
-**AND** unit designation SHALL be displayed in the center
-
-#### Scenario: Opponent unit token
-
-**GIVEN** an opponent-controlled unit at hex {q: -2, r: 1}
-**WHEN** rendering the token
-**THEN** token color SHALL be red (#ef4444)
-**AND** all other rendering rules SHALL match player tokens
-
-#### Scenario: Selected unit token
-
-**GIVEN** a unit is selected
-**WHEN** rendering the token
-**THEN** a yellow selection ring SHALL be drawn around the token
-**AND** ring radius SHALL be 0.7 × HEX_SIZE
-**AND** ring stroke width SHALL be 3px
-
-#### Scenario: Valid target token
-
-**GIVEN** a unit is a valid attack target
-**WHEN** rendering the token
-**THEN** a red target ring SHALL be drawn around the token
-**AND** ring SHALL pulse with animation
-
-#### Scenario: Destroyed unit token
-
-**GIVEN** a unit is destroyed
-**WHEN** rendering the token
-**THEN** token color SHALL be gray (#6b7280)
-**AND** a red X SHALL be drawn over the token
-**AND** the token SHALL remain visible but non-interactive
-
-#### Scenario: Facing indicator
-
-**GIVEN** a unit facing South (180°)
-**WHEN** rendering the facing arrow
-**THEN** the arrow SHALL point downward
-**AND** arrow SHALL be white with dark stroke
-**AND** arrow SHALL be clearly visible against token background
-
----
+**GIVEN** the tactical map has unit tokens and a relevant game-event log
+**WHEN** damage, critical-hit, pilot-hit, or unit-destroyed events target a unit
+**THEN** the token SHALL render the corresponding damage-feedback overlay
+through `UnitTokenForType`
+**AND** no HexMapDisplay-local legacy token renderer SHALL be required to show
+those overlays
 
 ### Requirement: Hex Selection and Hover States
 
@@ -932,37 +819,36 @@ Clicking "Declare" on an eligible row SHALL append a `PhysicalAttackDeclared` ev
 
 ### Requirement: Reachable Hex Overlay by MP Type
 
-The tactical map interface SHALL render a reachable-hex overlay during the
-Movement phase for the selected Player-side unit, coloring each tile by the
-movement type (Walk, Run, Jump) required to reach it.
+The tactical map interface SHALL render a reachable-hex overlay during the Movement phase for the selected Player-side unit, coloring each tile by the movement type (Walk, Run, Jump) required to reach it using the MegaMek movement palette: Walk cyan, Run yellow, Jump red, and projected illegal/blocked movement dark gray.
 
 **Priority**: Critical
 
-#### Scenario: Walk-range tiles rendered green
+#### Scenario: Walk-range tiles rendered cyan
 
-- **GIVEN** a selected unit has 5 walk MP and the player selects MP type
-  Walk
+- **GIVEN** a selected unit has 5 walk MP and the player selects MP type Walk
 - **WHEN** the overlay renders
-- **THEN** every hex with `mpCost <= 5` via walk SHALL be tinted green
-  (`#bbf7d0`)
+- **THEN** every hex with `mpCost <= 5` via walk SHALL be tinted cyan (`#67e8f9`)
 - **AND** each tile SHALL display its MP cost in small text
 
 #### Scenario: Run-range tiles rendered yellow
 
 - **GIVEN** the player selects MP type Run
 - **WHEN** the overlay renders
-- **THEN** tiles reachable only with run MP SHALL be tinted yellow
-  (`#fef08a`)
-- **AND** walk-reachable tiles SHALL retain their green tint under the
-  run set
+- **THEN** tiles reachable only with run MP SHALL be tinted yellow (`#fef08a`)
+- **AND** walk-reachable fallback tiles SHALL retain Walk movement metadata when the Run projection is blocked
 
-#### Scenario: Jump-range tiles rendered blue with pattern
+#### Scenario: Jump-range tiles rendered red with pattern
 
 - **GIVEN** the player selects MP type Jump
 - **WHEN** the overlay renders
-- **THEN** landing hexes reachable with jump SHALL be tinted blue
-  (`#bfdbfe`) with a distinct diagonal pattern
-- **AND** tiles unreachable by any MP type SHALL have no overlay tint
+- **THEN** landing hexes reachable with jump SHALL be tinted red (`#f87171`) with a distinct diagonal pattern
+
+#### Scenario: Blocked movement projections rendered dark gray
+
+- **GIVEN** a movement projection exists for an illegal or over-capacity destination
+- **WHEN** the overlay renders that projected blocked tile
+- **THEN** the blocked movement tile SHALL be tinted dark gray (`#64748b`)
+- **AND** tiles with no movement projection SHALL have no movement overlay tint
 
 ### Requirement: Path Preview on Hover
 
@@ -1664,84 +1550,25 @@ with one or more engine critical hits, persisting until destruction.
 On unit destruction, the tactical map interface SHALL play a debris
 cloud burst and transition the token to a wreck sprite variant.
 
-#### Scenario: Unit destroyed plays debris + wreck
+#### Scenario: Wreck markers do not block LOS
 
-- **GIVEN** a unit's CT reaches 0 internal structure (unit destroyed)
-- **WHEN** the effect renders
-- **THEN** an 800ms debris cloud burst SHALL play over the token
-- **AND** the token SHALL transition to a homemade wreck sprite variant
-  for its archetype
-- **AND** the wreck SHALL render at ~50% opacity
-- **AND** the wreck marker SHALL NOT create LOS-blocker highlights or
-  `NoLineOfSight` attack projections by itself
-
-#### Scenario: Pilot killed triggers destruction effect
-
-- **GIVEN** a pilot dies from consciousness failures
-- **WHEN** the UnitDestroyed event fires
-- **THEN** the same debris cloud + wreck transition SHALL play
-
-#### Scenario: Wreck badge for accessibility
-
-- **GIVEN** a unit is a wreck
-- **WHEN** the token renders
-- **THEN** a textual "WRECK" badge SHALL render on the token for
-  colorblind-safe legibility
+- **GIVEN** a destroyed unit marker occupies an intervening hex between an attacker and target
+- **WHEN** the tactical map derives combat projection and LOS highlights
+- **THEN** the destroyed marker SHALL NOT create a LOS blocker reference, LOS blocker badge, or LOS hover context
+- **AND** the target hex SHALL remain direct-fire attackable when terrain, elevation, range, and arc rules otherwise allow it
+- **AND** committed attack validation SHALL use the same non-blocking LOS result as the preview
 
 ### Requirement: Optional Battlefield Wreckage Terrain
 
-The tactical map SHALL apply source-pinned terrain conversion from destroyed
-unit events to the shared tactical grid used by movement projection when the
-represented TacOps battlefield wreckage optional rule is enabled.
-
-#### Scenario: Destroyed heavy ground unit creates rough terrain
-
-- **GIVEN** `tacops_battle_wreck` is enabled
-- **AND** a non-infantry, non-battle-armor, non-protomek ground unit of
-  at least 40 tons is destroyed
-- **WHEN** the `UnitDestroyed` event is applied in a live interactive
-  session
-- **THEN** the destroyed unit's hex SHALL gain level-1 rough terrain if it
-  does not already contain rough terrain
-- **AND** later movement projection SHALL price that hex using the same
-  mutated grid
-- **AND** the wreck marker itself SHALL remain non-blocking for LOS
-
-#### Scenario: Optional rule disabled leaves terrain unchanged
-
-- **GIVEN** `tacops_battle_wreck` is disabled
-- **WHEN** a unit is destroyed
-- **THEN** the destroyed unit marker MAY render as a wreck visual
-- **AND** the underlying hex terrain SHALL NOT change because of battlefield
-  wreckage conversion
-
-#### Scenario: Excluded or light units do not create rough terrain
-
-- **GIVEN** `tacops_battle_wreck` is enabled
-- **WHEN** infantry, battle armor, protomek, or a unit below 40 tons is
-  destroyed
-- **THEN** the destroyed unit's hex terrain SHALL NOT change because of
-  battlefield wreckage conversion
-
-#### Scenario: Large support tank can create level-2 rough terrain
-
-- **GIVEN** `tacops_battle_wreck` is enabled
-- **AND** a represented large support tank profile is destroyed
-- **WHEN** the destroyed unit's hex contains no rough terrain or only
-  level-1 rough terrain
-- **THEN** the destroyed unit's hex SHALL contain level-2 rough terrain
-- **AND** other stacked terrain features on that hex SHALL be preserved
+Battlefield wreckage terrain conversion SHALL be event-sourced. When a live conversion changes the grid, the session event log SHALL include `TerrainChanged` with the resolved hex, terrain, optional elevation, previous terrain/elevation when known, `reason: 'battlefield_wreckage'`, `sourceUnitId`, and `sourceEventId`.
 
 #### Scenario: Battlefield wreck terrain survives recovery
 
 - **GIVEN** `tacops_battle_wreck` is enabled
 - **AND** a destroyed heavy ground unit changes its hex to rough terrain
 - **WHEN** the session is recovered from its event-derived state
-- **THEN** the recovered interactive grid SHALL contain the same rough
-  terrain at the destroyed unit's hex
-- **AND** the session event log SHALL include `TerrainChanged` with
-  `reason: 'battlefield_wreckage'`, `sourceUnitId`, and `sourceEventId`
-  identifying the `UnitDestroyed` event that caused the terrain mutation
+- **THEN** the recovered interactive grid SHALL contain the same rough terrain at the destroyed unit's hex
+- **AND** the `TerrainChanged` event SHALL identify the `UnitDestroyed` event that caused the terrain mutation
 
 ### Requirement: Persistent Effects Survive Replay
 
@@ -2499,291 +2326,68 @@ The tactical map interface SHALL support `MapProjectionMode = 'topDown' | 'isome
 
 ### Requirement: Rules-Backed Tactical Projection Contract
 
-The tactical map interface SHALL render movement, combat, terrain/elevation, fog, LOS, cover, and firing-arc highlights from shared rules projections rather than from view-local legality calculations.
+The tactical map interface SHALL render movement, combat, terrain/elevation,
+fog, LOS, cover, and firing-arc highlights from shared rules projections rather
+than from view-local legality calculations.
 
-Every projection that affects action legality SHALL identify the rule source it is pinned to, using this source order: official BattleTech rules where citable, MegaMek tactical behavior as practical oracle for tactical ambiguity, MekHQ only for campaign/scenario context, then local OpenSpec/Jest fixtures as the project acceptance contract.
+Every projection that affects action legality SHALL identify the rule source it
+is pinned to, using this source order: official BattleTech rules where citable,
+MegaMek tactical behavior as practical oracle for tactical ambiguity, MekHQ
+only for campaign/scenario context, then local OpenSpec/Jest fixtures as the
+project acceptance contract.
 
-#### Scenario: Highlight legality matches commit legality
+#### Scenario: Movement step-cost badge keeps projection provenance
 
-- **GIVEN** a selected unit, current tactical grid, current phase, and a highlighted destination or target
-- **WHEN** the player commits that highlighted action without changing state
-- **THEN** engine validation SHALL accept the action
-- **AND** if validation rejects the action, the preview SHALL have already exposed the same rejection reason before commit
-
-#### Scenario: UI-local legality is prohibited
-
-- **GIVEN** a map component renders a movement or combat highlight
-- **WHEN** the highlight determines whether a hex is legal, costly, or blocked
-- **THEN** that determination SHALL come from a shared rules/projection utility
-- **AND** the component SHALL NOT duplicate movement cost, weapon range, firing arc, LOS, fog targetability, or elevation legality rules inline
+- **GIVEN** a reachable movement destination has represented terrain or
+  elevation step costs
+- **WHEN** the tactical map renders the visible movement step-cost badge
+- **THEN** the badge SHALL expose the shared movement-channel tactical
+  projection source and MegaMek-backed rule references
+- **AND** the badge SHALL expose the projection explanation that includes the
+  represented terrain and elevation cost details
+- **AND** the badge SHALL continue to expose terrain cost, elevation delta, and
+  elevation cost metadata without relying only on color
+- **AND** exposing those details SHALL NOT change terrain/elevation MP math,
+  pathfinding, or commit legality
 
 ### Requirement: Movement Projection Explanation
 
-Movement highlights SHALL expose the BattleTech movement facts required to understand walk, run, jump, and unit-type-specific movement legality.
+Movement highlights SHALL expose the BattleTech movement facts required to
+understand walk, run, jump, and unit-type-specific movement legality.
 
-For each projected movement hex, the map SHALL expose at least movement mode, cumulative MP cost, terrain cost, elevation delta/cost, heat impact where applicable, path/facing preview where applicable, and invalid reason when blocked.
+For each projected movement hex, the map SHALL expose at least movement mode,
+cumulative MP cost, terrain cost, elevation delta/cost, heat impact where
+applicable, path/facing preview where applicable, stand-up cost and stand-up PSR
+state where applicable, and invalid reason when blocked. When live movement
+overlays combine multiple projections for the same destination, they SHALL
+preserve the per-mode option facts instead of collapsing them into an
+unexplained single state.
 
-When live movement overlays combine multiple projections for the same destination, they SHALL preserve the per-mode option facts instead of collapsing them into an unexplained single state.
+#### Scenario: Intact Quad Mek stand-up exposes no-PSR reason
 
-#### Scenario: Walk/run/jump ranges explain costs
-
-- **GIVEN** a unit is selected during the Movement phase
-- **WHEN** walk, run, or jump range highlights render
-- **THEN** each reachable hex SHALL display or expose its cumulative MP cost
-- **AND** each reachable hex SHALL expose the movement mode by which it is reachable
-- **AND** each reachable hex SHALL expose terrain and elevation contributors to that cost
-
-#### Scenario: Zero-cost elevation changes remain explicit
-
-- **GIVEN** a projected movement step changes elevation but rules charge zero elevation MP for that motive, such as represented VTOL movement or jumping
-- **WHEN** the movement cost badge renders
-- **THEN** the visible badge and accessible title SHALL expose the elevation cost as `+0`
-- **AND** the badge SHALL still expose the elevation delta separately
-
-#### Scenario: Live run overlay preserves walk and run options
-
-- **GIVEN** a selected unit can evaluate the same destination by both walking and running
-- **WHEN** the run movement overlay renders that destination
-- **THEN** the highlighted hex SHALL expose both walk and run option metadata, including reachability, MP cost, terrain cost, elevation delta/cost, and heat impact
-- **AND** a reachable run projection SHALL remain the primary active-mode projection for map-click movement planning
-
-#### Scenario: Hovered run option keeps the active path preview label
-
-- **GIVEN** a run movement overlay exposes a destination that also has a walk
-  option
-- **AND** the reachable run projection is the primary active-mode projection
-- **WHEN** the destination is hovered during path preview
-- **THEN** the hover cost badge SHALL show the run movement type, motive mode,
-  and hover MP cost
-- **AND** the hover cost badge SHALL NOT replace the active preview label with
-  the combined walk/run option summary
-
-#### Scenario: Live run overlay keeps blocked run reason with walk fallback
-
-- **GIVEN** a selected unit can walk to a destination but the corresponding run projection is blocked
-- **WHEN** the run movement overlay renders that destination
-- **THEN** the highlighted hex SHALL use the reachable walk fallback as the primary projection
-- **AND** the same-hex option metadata SHALL still expose the blocked run option and its invalid reason
-
-#### Scenario: Live jump overlay preserves same-hex walk and run options
-
-- **GIVEN** a selected unit can evaluate a jump destination by walking or running as well
-- **WHEN** the jump movement overlay renders that destination
-- **THEN** the highlighted hex SHALL expose the jump, walk, and run option metadata, including reachability, MP cost, terrain cost, elevation delta/cost, and heat impact
-- **AND** the jump projection SHALL remain the primary projection for map-click movement planning
-
-#### Scenario: Live jump overlay does not widen with ground-only options
-
-- **GIVEN** a selected unit has walk or run projections for destinations that are not present in the jump projection
-- **WHEN** the jump movement overlay renders
-- **THEN** those ground-only destinations SHALL NOT be added to the jump overlay solely as alternatives
-
-#### Scenario: Blocked jump remains primary with reachable ground option
-
-- **GIVEN** a selected unit can walk to a destination but its jump projection for that destination is blocked
-- **WHEN** the jump movement overlay renders that destination
-- **THEN** the highlighted hex SHALL keep the blocked jump projection primary
-- **AND** same-hex option metadata SHALL expose the reachable walk or run alternative and the blocked jump invalid reason
-
-#### Scenario: Blocked movement explains reason
-
-- **GIVEN** a destination is blocked by terrain, elevation, unit type, heat-reduced MP, prone state, or jump landing restrictions
-- **WHEN** the player hovers or attempts to preview that hex
-- **THEN** the map SHALL avoid presenting it as a legal destination
-- **AND** the UI SHALL expose the specific invalid reason from movement validation
-
-#### Scenario: Prone movement reserves stand-up MP
-
-- **GIVEN** a prone unit previews ground movement
-- **WHEN** the map projects walk or run destinations
-- **THEN** the projection SHALL reserve normal stand-up MP before path MP
-- **AND** the projected hex metadata SHALL expose stand-up cost, PSR target/modifiers when represented, and impossible stand-up reasons
-- **AND** jump destinations SHALL be blocked until the unit stands
-
-#### Scenario: Playtest2 trying-to-stand bonus agrees between map and commit
-
-- **GIVEN** a prone unit attempts to stand while the represented `playtest_2` optional rule is enabled
-- **WHEN** the map projects the stand-up PSR and committed movement resolves the stand-up attempt
-- **THEN** both projection and resolution SHALL include the `Trying to stand -1` PSR modifier
-- **AND** the projected target number SHALL match the committed PSR target number
-
-#### Scenario: Careful stand consumes the movement turn
-
-- **GIVEN** a prone unit chooses TacOps careful stand
-- **WHEN** movement projection or commit validation evaluates a non-origin destination
-- **THEN** the destination SHALL be rejected with the same invalid reason before commit and at commit time
-- **AND** a standalone careful stand SHALL spend walking MP when walk MP is above 2
-- **AND** the stand-up PSR projection and resolution SHALL include the careful-stand -2 modifier
-- **AND** movement events SHALL identify the stand-up mode as `careful`
-
-#### Scenario: Non-Mek movement does not inherit Mek heat
-
-- **GIVEN** a represented non-Mek unit uses walk-like pathing for terrain and elevation costs
-- **WHEN** the map projects walk, run, or jump destinations for that unit
-- **THEN** movement heat SHALL come from the unit's movement heat profile rather than the pathing mode alone
-- **AND** previewed movement heat SHALL match committed movement events
-
-#### Scenario: Infantry terrain profile adjusts movement costs
-
-- **GIVEN** a represented non-mechanized infantry or battle armor unit previews ground movement
-- **WHEN** the destination includes woods or an upward elevation change
-- **THEN** the movement projection SHALL apply the represented infantry terrain-cost profile
-- **AND** committed movement SHALL spend the same MP cost that the preview exposed
-
-#### Scenario: TacOps infantry pavement bonus is optional-rule gated
-
-- **GIVEN** a represented motorized, tracked, wheeled, or hover infantry unit previews pavement or paved-road movement
-- **WHEN** the TacOps infantry pavement bonus optional rule is disabled
-- **THEN** the movement projection SHALL NOT grant the vehicle-style +1 pavement/road MP bonus
-- **WHEN** the same session enables the represented TacOps infantry pavement bonus optional rule
-- **THEN** the movement projection SHALL allow the +1 MP pavement/road bonus for that eligible infantry unit
-- **AND** committed movement SHALL accept the same destination, MP cost, heat, and path that the preview exposed
-
-#### Scenario: UMU and swim movement match represented water movement
-
-- **GIVEN** a represented UMU, biped-swim, or quad-swim movement mode enters water terrain
-- **WHEN** movement projection computes the destination MP cost
-- **THEN** the water-depth surcharge SHALL NOT be added for that movement mode
-- **AND** UMU run movement SHALL remain legal when entering water after the first step
-- **AND** biped-swim and quad-swim destinations SHALL require represented water terrain
-- **AND** biped-swim and quad-swim movement SHALL NOT add represented ground-elevation rise cost while swimming underwater
-- **AND** biped-swim and quad-swim movement SHALL expose the represented flat UMU heat generated by swim movement
-- **AND** committed movement SHALL spend the same MP cost and heat that the preview exposed
-
-#### Scenario: Represented Frogman reduces deep-water movement cost
-
-- **GIVEN** a represented Frogman movement capability enters depth-2 or deeper water terrain
-- **WHEN** movement projection computes the destination MP cost
-- **THEN** the deep-water surcharge SHALL use the represented Frogman +2 MP adjustment
-- **AND** committed movement SHALL spend the same MP cost and heat that the preview exposed
-- **AND** units without the represented Frogman capability SHALL continue to use the normal deep-water movement cost
+- **GIVEN** a prone unit has a represented quad stand-up leg profile
+- **AND** no represented quad leg location is destroyed
+- **WHEN** the tactical map renders a ground movement destination that requires standing
+- **THEN** the hex metadata SHALL expose stand-up cost and `standUpPsrRequired=false`
+- **AND** badges, tooltip rows, and projection explanation text SHALL expose the no-PSR automatic-success reason without relying only on color
+- **AND** the map SHALL still reserve the stand-up MP before path MP
 
 ### Requirement: Combat Projection Explanation
 
-Combat highlights SHALL expose weapon-backed attack legality, range, firing arc, LOS, cover, visibility, heat, ammo, and disabled reasons.
+Combat highlights SHALL expose the weapon-range, firing-arc, LOS, cover,
+visibility, and target-number facts needed to understand attack legality before
+the player commits.
 
-When a selected unit has a configured weapon list, the map SHALL derive attack-range highlighting from the weapon-backed combat projection. Legacy raw `attackRange` props MAY be used only when no configured weapon list exists.
-When the attack plan has one or more selected weapon IDs, combat projection surfaces SHALL use only those selected weapons; an empty selected-weapon list SHALL preserve the all-weapons preview behavior.
+#### Scenario: Combat hover explains represented hull-down target cover
 
-#### Scenario: Weapon-backed range overrides legacy attackRange
-
-- **GIVEN** a selected unit has configured weapons
-- **AND** the view receives a stale raw `attackRange` prop
-- **WHEN** attack range highlighting renders
-- **THEN** highlighted attack hexes SHALL come from the weapon-backed combat projection
-- **AND** stale raw `attackRange` data SHALL NOT mark additional targets as valid
-
-#### Scenario: Range brackets and minimum range match committed attacks
-
-- **GIVEN** a selected unit has weapons with represented minimum, short, medium, long, and extreme ranges
-- **WHEN** the map previews attacks at those distances
-- **THEN** the combat projection SHALL expose the same range bracket the committed attack will declare
-- **AND** represented extreme range SHALL remain attackable when the weapon carries an extreme cutoff
-- **AND** minimum-range penalties SHALL be exposed in preview and committed to-hit modifiers for represented ground-to-ground attacks
-- **AND** represented airborne/aerospace targets SHALL not receive ground-to-ground minimum-range penalties
-
-#### Scenario: Underwater and torpedo legality matches committed attacks
-
-- **GIVEN** a selected unit previews attacks against represented depth-2 water targets or with represented torpedo weapons
-- **WHEN** the target is underwater, the target is not in water, or the torpedo line leaves water
-- **THEN** the combat projection SHALL filter illegal weapons and expose the same invalid reason a committed attack will emit
-- **AND** non-torpedo weapons SHALL NOT be highlighted as valid against represented underwater targets
-- **AND** torpedo weapons SHALL be highlighted as valid only when the target is in water and every represented line hex has water depth at least 1
-
-#### Scenario: C3 spotter range improves projected and committed brackets
-
-- **GIVEN** a selected unit is represented in an operational C3 network
-- **AND** a networked spotter has a better weapon range bracket to the target than the attacker
-- **WHEN** the map previews a direct weapon attack
-- **THEN** the combat projection SHALL expose the C3-improved range bracket and spotter identity
-- **AND** the committed `AttackDeclared` event SHALL use the same C3-improved range bracket and to-hit number
-- **AND** indirect fire SHALL continue to use its indirect-fire resolution instead of C3 range improvement
-
-#### Scenario: Indirect-fire spotter movement penalty matches commit
-
-- **GIVEN** a selected unit has no direct LOS to a target
-- **AND** an indirect-fire-capable weapon is selected
-- **AND** a friendly represented spotter has LOS to the target after walking, running, or jumping
-- **WHEN** the map previews the attack
-- **THEN** the target hex SHALL remain attackable via indirect fire
-- **AND** the combat projection SHALL expose the elected spotter and the total indirect-fire penalty including represented spotter movement
-- **AND** the committed `AttackDeclared` event SHALL apply the same indirect-fire penalty
-- **AND** represented infantry or battle armor spotters SHALL not receive a spotter movement penalty
-
-#### Scenario: Selected weapon constrains visible firing arcs
-
-- **GIVEN** the selected unit has operational weapons with known mounted arcs
-- **WHEN** the player selects or previews a weapon attack
-- **THEN** firing-arc shading SHALL render only arcs compatible with those operational mounted weapons
-- **AND** rear-mounted weapons SHALL not shade front arcs as if they were front-mounted
-
-#### Scenario: Selected weapon extreme range shades firing arc envelope
-
-- **GIVEN** a selected unit has an operational selected weapon with represented long range 6 and extreme range 8
-- **AND** a visible enemy target is in the selected weapon's mounted arc at distance 7
-- **WHEN** the combat map renders selected-weapon range, target, and firing-arc projection
-- **THEN** the target hex SHALL report the `extreme` combat range bracket
-- **AND** the firing-arc overlay SHALL shade that distance-7 hex as part of the selected weapon's compatible arc
-
-#### Scenario: Weapons without extreme range keep long-range arc envelope
-
-- **GIVEN** a selected unit has an operational selected weapon with no represented extreme range
-- **WHEN** the firing-arc overlay renders for the selected weapon
-- **THEN** the overlay SHALL use the weapon's represented long range as its maximum shaded envelope
-
-#### Scenario: Selected weapon ids constrain map combat projection
-
-- **GIVEN** a selected unit has multiple configured weapons
-- **AND** the current attack plan selects only a subset of those weapon IDs
-- **WHEN** the map renders range bands, firing arcs, and valid-target metadata
-- **THEN** those combat highlights SHALL be derived only from the selected weapons
-- **AND** unselected weapons SHALL NOT make a target appear in range, in arc, or valid
-
-#### Scenario: Empty selected weapon list preserves broad preview
-
-- **GIVEN** a selected unit has configured weapons
-- **AND** the current attack plan has no selected weapon IDs
-- **WHEN** combat projection renders
-- **THEN** range bands, firing arcs, and target metadata SHALL continue to use all configured operational weapons for broad preview
-
-#### Scenario: Unknown or all-arc weapons keep broad overlay
-
-- **GIVEN** at least one operational selected weapon has all-arc, turret, or unknown mounting semantics
-- **WHEN** firing-arc shading renders
-- **THEN** the overlay SHALL avoid claiming a narrower arc than the rules projection can justify
-- **AND** target validation SHALL remain the authority for final legality
-
-#### Scenario: Vehicle equipment IDs are imported for combat projection
-
-- **GIVEN** a represented vehicle weapon mount carries `equipmentId`
-- **AND** its mount `id` is only a mount-slot identifier
-- **WHEN** the unit is adapted for combat
-- **THEN** the weapon SHALL be resolved from `equipmentId`
-- **AND** the mount-slot id SHALL NOT be treated as the weapon catalog id
-
-#### Scenario: Vehicle sponson mount highlights only covered arcs
-
-- **GIVEN** a selected vehicle weapon is represented as a left sponson mount
-- **WHEN** combat projection and firing-arc shading render
-- **THEN** front and left-side target hexes SHALL be treated as covered
-- **AND** rear and right-side target hexes SHALL be blocked as out of arc
-- **AND** committed attacks SHALL accept and reject the same targets as the map projection
-
-#### Scenario: Physical attack elevation legality matches commit
-
-- **GIVEN** a unit previews punch or kick options against an adjacent target on a different elevation
-- **WHEN** the target's vertical span is outside the represented attacker's punch arm height or kick base elevation
-- **THEN** the physical attack option SHALL be disabled with a target-elevation invalid reason
-- **AND** a direct commit of that same punch or kick SHALL reject with the same typed reason
-- **AND** the command preview SHALL preserve the restriction instead of showing the row as legal
-
-#### Scenario: Physical push legality matches commit
-
-- **GIVEN** a unit previews a push option against an adjacent represented target
-- **WHEN** the target is not a Mek, is prone or airborne, is not directly ahead of the attacker, is not at the attacker's base elevation, either attacker arm is destroyed, or the target occupies a represented building hex while the attacker is outside
-- **THEN** the push option SHALL be disabled with the matching typed reason
-- **AND** a direct commit of that same push SHALL reject with the same typed reason
-- **AND** the command preview SHALL preserve the restriction instead of showing push as legal
+- **GIVEN** a combat projection targets a represented hull-down unit
+- **AND** LOS or terrain cover is present for that target
+- **WHEN** the player inspects the target hex in the tactical map
+- **THEN** the map SHALL expose the represented hull-down flag, hull-down
+  modifier, and hull-down reason through stable metadata
+- **AND** combat hover context SHALL include the hull-down cover explanation
+- **AND** the to-hit modifier context SHALL include the same `Hull Down +2`
+  modifier that committed attack declaration records.
 
 ### Requirement: Fog-Aware Target Projection
 
@@ -2815,29 +2419,566 @@ Each rendered hex SHALL expose terrain type and elevation. Elevation SHALL be vi
 
 Replay and recovery surfaces SHALL render terrain and elevation from the same event-log terrain seed used by the game session, so saved matches start with the same battlefield information as live play.
 
-#### Scenario: Terrain and elevation visible in top-down mode
+#### Scenario: Terrain and elevation hover context exposes projection provenance
 
-- **GIVEN** a top-down tactical map with mixed terrain and elevations
-- **WHEN** the map renders at normal playable zoom
-- **THEN** each visible hex SHALL communicate its terrain type
-- **AND** each visible hex SHALL show or expose its elevation number
-- **AND** movement/combat overlays SHALL NOT obscure all elevation information needed for tactical decisions
+- **GIVEN** a player inspects terrain/elevation context from a terrain-only, unreachable, movement-only, combat-only, or combined tactical hover
+- **WHEN** the tooltip renders terrain and elevation rows
+- **THEN** those rows SHALL expose stable machine-readable primary terrain, feature-level, and elevation attributes
+- **AND** those rows SHALL expose the terrain/elevation projection source references and rule references from the shared tactical projection when available
+- **AND** combined movement+combat hovers SHALL use the same terrain/elevation context representation as movement-only and combat-only hovers instead of a separate UI-only terrain calculation
+- **AND** adding this metadata SHALL NOT change movement reachability, combat legality, LOS classification, terrain generation, terrain labels, elevation labels, or action resolution
 
-#### Scenario: Terrain feature levels remain referenceable
+### Requirement: Isometric Projection Parity And Occlusion Tools
 
-- **GIVEN** a top-down or isometric tactical map hex contains layered terrain such as depth-2 water, level-2 smoke, and a level-3 building
-- **WHEN** the hex and terrain badge render
-- **THEN** the hex reference label SHALL include each terrain feature's level/depth/intensity
-- **AND** the terrain badge SHALL expose stable feature-level metadata for the same ordered terrain features
-- **AND** the compact terrain badge SHALL preserve a visible level/depth/intensity suffix when a represented feature level is greater than 1
-- **AND** shared tactical projection source metadata SHALL preserve the same terrain feature levels, water depths, and smoke/fire intensities instead of collapsing them to type-only labels
+Isometric mode SHALL be presentation state only and SHALL consume the same
+terrain, elevation, movement, combat, LOS, fog, cover, and firing-arc projection
+data as top-down mode.
 
-#### Scenario: Replay starts with seeded terrain and elevation
+Isometric mode SHALL make stacked elevation layers readable, support battlefield
+rotation, and provide interaction aids for units obscured by high terrain or
+tall stacks.
 
-- **GIVEN** a replay event log whose `GameCreated` event carries `payload.hexTerrain`
-- **WHEN** the replay map renders at sequence 0
-- **THEN** top-down mode SHALL show the seeded terrain type and elevation number for those hexes
-- **AND** the map SHALL retain the same terrain/elevation data when switching to isometric presentation mode
+#### Scenario: Camera rotation retargets rendered terrain occlusion metadata
+
+- **GIVEN** the tactical map is in isometric mode with a unit between tall
+  terrain on opposite camera sides
+- **WHEN** the player rotates the isometric camera until the opposite tall hex
+  becomes the foreground occluder
+- **THEN** the rendered scene token SHALL expose the occluding hex or hexes for
+  the current camera step
+- **AND** the rendered scene token SHALL expose the camera rotation step that
+  produced the occlusion metadata
+- **AND** the tall-hex occluder highlight and elevation stack SHALL expose the
+  same camera rotation step
+- **AND** the previous camera-side occluder highlight SHALL be removed once that
+  hex is no longer in front of the unit
+- **AND** the scene token accessibility label SHALL name the camera step for the
+  current terrain-occlusion explanation.
+
+### Requirement: Rules-Backed Hex Projection Contract
+
+The tactical map interface SHALL compose terrain, elevation, movement, combat, path, selected, and hover state into a single per-hex projection before rendering hex cells or hover explanations.
+
+#### Scenario: Movement option rows expose rule-reference evidence
+
+**GIVEN** a tactical movement projection renders multiple movement options for the same destination hex
+**WHEN** the player hovers that destination and the Walk, Run, and Jump option rows are shown
+**THEN** the option-row group SHALL expose the movement-channel source references and rule references from the shared per-hex tactical projection
+**AND** each individual movement option row SHALL expose the same movement-channel rule references
+**AND** movement cost, heat, terrain, elevation, blocked-reason, and command validation behavior SHALL remain unchanged
+
+### Requirement: Projection Status Badges
+
+The tactical map interface SHALL render compact non-color status badges for blocked or mixed per-hex tactical projections.
+
+**Priority**: High
+
+#### Scenario: Mixed movement and combat projection is visible
+
+**GIVEN** a hex projection has reachable movement data and blocked combat data
+**WHEN** the hex cell renders
+**THEN** the cell SHALL expose projection intent `movement-combat`
+**AND** the cell SHALL expose projection status `mixed`
+**AND** the cell SHALL render a projection status badge for that hex
+**AND** the badge SHALL expose the projection status, intent, blocked reasons, and explanation as stable metadata
+**AND** existing movement, combat, terrain, elevation, and invalid badges SHALL remain available
+
+#### Scenario: Blocked projection is visible
+
+**GIVEN** a hex projection has blocked movement or blocked combat without a legal tactical surface
+**WHEN** the hex cell renders
+**THEN** the cell SHALL expose projection status `blocked`
+**AND** the cell SHALL render a projection status badge for that blocked state
+**AND** the badge SHALL use the projection blocked reasons instead of recalculating movement or combat legality
+
+### Requirement: Combined Projection Hover Explanation
+
+The tactical map interface SHALL show a combined hover explanation when the hovered hex projection contains both movement and combat data.
+
+**Priority**: High
+
+#### Scenario: Mixed movement and combat hover shows both rules surfaces
+
+**GIVEN** a hovered hex projection has reachable movement data and blocked combat data
+**WHEN** the hover explanation renders
+**THEN** it SHALL expose the projection status and intent
+**AND** it SHALL show the movement legality and MP cost
+**AND** it SHALL show the combat legality, target, range, LOS, and blocked reason
+**AND** it SHALL show terrain and elevation context for the same hex
+**AND** it SHALL preserve projection blocked reasons without recalculating movement or combat legality
+**AND** it SHALL expose the shared projection explanation as stable metadata and readable text
+
+#### Scenario: Single-surface hovers keep existing tooltip behavior
+
+**GIVEN** a hovered hex projection contains only movement data, only combat data, only terrain data, or an unreachable hover state
+**WHEN** the hover explanation renders
+**THEN** the existing single-surface tooltip behavior SHALL remain available
+**AND** the combined tooltip SHALL NOT replace those narrower explanations
+
+### Requirement: Isometric Fog Visibility Reasons
+
+The tactical map interface SHALL distinguish isometric visibility-rule limits from terrain/elevation occlusion when rendering fogged contacts.
+
+**Priority**: High
+
+#### Scenario: Hidden contact shows fog-rule reason without elevation boost
+
+**GIVEN** an enemy contact is hidden by fog or visibility rules
+**WHEN** the map is rendered in isometric mode
+**THEN** the contact SHALL expose a visibility-rule indicator identifying it as fog-limited
+**AND** the contact SHALL NOT receive the terrain occlusion foreground boost solely because it is hidden
+**AND** the existing hidden-contact fog marker SHALL remain visible
+
+#### Scenario: Last-known contact shows stale-visibility reason
+
+**GIVEN** an enemy contact is rendered at a last-known position
+**WHEN** the map is rendered in isometric mode
+**THEN** the contact SHALL expose a visibility-rule indicator identifying it as a last-known contact
+**AND** the existing last-known fog marker SHALL remain visible
+**AND** terrain/elevation occlusion indicators MAY still appear separately when elevated terrain also occludes the last-known marker
+
+#### Scenario: Last-known contact is projected from stale display hex
+
+**GIVEN** an enemy contact has a hidden current position and a last-known display position
+**WHEN** the map is rendered in isometric mode
+**THEN** scene depth, terrain occlusion, and hover metadata for that contact SHALL be derived from the last-known display position
+**AND** the hidden current position SHALL NOT affect the isometric sort order or occluder chosen for the displayed marker
+
+#### Scenario: Top-down fog rendering remains unchanged
+
+**GIVEN** hidden or last-known contacts are rendered in top-down mode
+**WHEN** the map displays fog markers
+**THEN** the isometric visibility-rule indicator SHALL NOT replace the existing top-down fog marker behavior
+
+### Requirement: Movement Legend State Metadata
+
+The tactical map interface SHALL expose movement-mode legend state in accessible, inspectable metadata.
+
+**Priority**: Medium
+
+#### Scenario: Active movement mode is inspectable
+
+**GIVEN** the movement MP legend is visible
+**WHEN** one of Walk, Run, or Jump is the active movement mode
+**THEN** that legend row SHALL expose active state without relying only on color or font weight
+**AND** inactive rows SHALL remain distinguishable from the active row
+
+#### Scenario: Disabled Jump exposes reason
+
+**GIVEN** the selected unit has no jump capability
+**WHEN** the movement MP legend renders
+**THEN** the Jump row SHALL expose a disabled state
+**AND** the Jump row SHALL expose the reason `No jump capability`
+**AND** hovering the Jump row SHALL be possible even though the legend overlay does not broadly block map interaction
+
+### Requirement: Combat Projection Explanation Details
+
+The tactical map interface SHALL include rules-backed combat details in the
+shared per-hex tactical projection explanation.
+
+#### Scenario: Combat environment context rows expose rule-reference evidence
+
+- **GIVEN** a combat projection includes weapon options blocked by represented
+  environment rules
+- **WHEN** the player hovers that combat hex and the environment context row is
+  shown
+- **THEN** the environment context row SHALL expose environment-specific source
+  references and rule references from the shared per-hex tactical projection
+- **AND** the row SHALL preserve blocked weapon ids and blocked environment
+  reasons from `ICombatRangeHex.weaponRangeOptions`
+- **AND** represented MekStation helper provenance SHALL be labeled as
+  represented behavior and SHALL NOT imply a narrower MegaMek or official
+  source pin before that source is explicitly linked
+- **AND** underwater legality, torpedo path legality, target legality,
+  attack-command behavior, and committed attack resolution SHALL remain
+  unchanged
+
+### Requirement: Movement Projection Explanation Details
+
+The tactical map interface SHALL include rules-backed movement details in the
+shared per-hex tactical projection explanation.
+
+**Priority**: High
+
+#### Scenario: Projection explanation summarizes movement costs
+
+**GIVEN** a hex projection contains movement data
+**WHEN** the projection explanation is exposed through map metadata or projection badge text
+**THEN** the explanation SHALL include movement type, reachability, and total MP cost
+**AND** it SHALL include movement mode, terrain cost, elevation delta/cost, heat generated, and path length when those values are present
+
+#### Scenario: Projection explanation summarizes stand-up requirements
+
+**GIVEN** a hex projection contains stand-up movement data
+**WHEN** the projection explanation is exposed
+**THEN** the explanation SHALL include stand-up cost, stand-up PSR target, impossible reason, and modifier details when those values are present
+
+#### Scenario: Rendered impossible stand-up explains destination block
+
+**GIVEN** a movement projection contains an impossible stand-up reason
+**WHEN** the projected destination is rendered in the tactical map
+**THEN** the destination hex SHALL expose non-reachable movement metadata with invalid reason and details
+**AND** the hex SHALL expose stand-up required, stand-up cost, and impossible-reason metadata
+**AND** visible stand-up and invalid badges SHALL identify the stand-up block without relying on color alone
+**AND** the tactical hover explanation SHALL show the impossible stand-up reason
+
+#### Scenario: Combat and terrain explanation remains present
+
+**GIVEN** a hex projection contains terrain, movement, combat, or blocked-reason data
+**WHEN** movement explanation details are added
+**THEN** existing terrain, elevation, combat, and blocked-reason explanation content SHALL remain present
+
+### Requirement: Movement Legend Capability Metadata
+
+The tactical map interface SHALL expose the selected unit's movement capability
+metadata in the on-map movement legend.
+
+**Priority**: Medium
+
+#### Scenario: Legend summarizes selected motive mode
+
+**GIVEN** the movement phase map is showing a selected unit's movement range
+**WHEN** the MP legend is rendered
+**THEN** the legend SHALL identify the selected unit's motive mode when one is available
+**AND** the motive mode SHALL be exposed through accessible text and machine-readable metadata
+
+#### Scenario: Legend summarizes effective MP values
+
+**GIVEN** the movement phase map is showing a selected unit's movement range
+**WHEN** the MP legend is rendered
+**THEN** the legend SHALL show the effective walk, run, and jump MP values used for the current overlay state
+**AND** disabled jump state SHALL remain visible when jump MP is zero
+
+#### Scenario: Existing legend state remains intact
+
+**GIVEN** the MP legend has active, inactive, or disabled rows
+**WHEN** capability metadata is added
+**THEN** existing active/inactive/disabled labels and data attributes SHALL remain present
+
+### Requirement: Combined Tooltip Stand-Up Movement Details
+
+The tactical map interface SHALL preserve stand-up movement details when rendering the combined movement+combat hover tooltip.
+
+#### Scenario: Combined hover shows stand-up cost and PSR
+
+**GIVEN** a hex has both movement projection data and combat projection data
+**AND** the movement projection requires standing before movement
+**WHEN** the player hovers that hex
+**THEN** the combined tactical tooltip SHALL show the stand-up MP cost
+**AND** it SHALL show the stand-up PSR target number when present
+**AND** it SHALL show stand-up PSR modifier details when present
+**AND** it SHALL still show the combined movement, combat, terrain, and projection-reason rows.
+
+#### Scenario: Combined hover shows impossible stand-up reason
+
+**GIVEN** a hex has both movement projection data and combat projection data
+**AND** the movement projection has an impossible stand-up PSR reason
+**WHEN** the player hovers that hex
+**THEN** the combined tactical tooltip SHALL show the impossible stand-up reason instead of hiding it behind the combined combat state.
+
+### Requirement: Isometric Rotation Heading Metadata
+
+The tactical map interface SHALL expose the current isometric camera heading
+whenever isometric rotation controls are visible. The map SHALL provide a reset
+control that restores pan, zoom, and the isometric camera heading to their
+canonical defaults without changing axial hex click coordinates.
+
+#### Scenario: Reset view restores canonical isometric heading
+
+**GIVEN** the tactical map is in isometric mode
+**AND** the player has rotated the isometric camera away from heading 0
+**WHEN** the player activates reset view
+**THEN** the projection layer SHALL expose rotation step 0
+**AND** the heading metadata SHALL expose 0 degrees
+**AND** the projection transform SHALL use the canonical heading
+**AND** axial hex clicks SHALL still target the same battlefield coordinates
+
+### Requirement: Movement Tooltip Path Summary
+
+The tactical map interface SHALL summarize projected movement path length in hover explanations when movement projection includes a path.
+
+#### Scenario: Movement-only hover shows path length
+
+**GIVEN** a movement destination has movement projection data with a path containing multiple hexes
+**WHEN** the player hovers the destination and no combat projection is active for that hex
+**THEN** the movement tooltip SHALL show the number of path steps
+**AND** it SHALL preserve MP, terrain, elevation, heat, stand-up, and blocked-reason rows when present.
+
+#### Scenario: Combined movement and combat hover shows path length
+
+**GIVEN** a destination has both movement projection data and combat projection data
+**AND** the movement projection includes a path containing multiple hexes
+**WHEN** the player hovers the destination
+**THEN** the combined tactical tooltip SHALL show the number of path steps
+**AND** it SHALL preserve the combined movement, combat, terrain, stand-up, and projection-reason rows.
+
+#### Scenario: Rendered path badges expose projected sequence
+
+**GIVEN** the tactical map receives a movement path from the shared movement projection
+**WHEN** the path is rendered in top-down or isometric mode
+**THEN** each path hex SHALL expose its path index and step metadata
+**AND** the visible path badges SHALL label the start and each numbered step without relying on color alone
+
+### Requirement: Combat Tooltip Weapon Impact
+
+The tactical map interface SHALL expose projected weapon heat and ammo impact from the shared combat projection when combat hover explanations are shown.
+
+#### Scenario: Combat-only hover shows weapon impact
+
+**GIVEN** a combat projection marks one or more weapons as available against a target hex
+**WHEN** the player hovers that target hex and no movement projection is active for that hex
+**THEN** the combat tooltip SHALL show the projected heat generated by the available weapons
+**AND** it SHALL show ammo-consuming weapons with projected ammo use and remaining ammo when known
+**AND** it SHALL preserve target, range, LOS, arc, cover, visibility, to-hit, indirect-fire, and blocked-reason rows when present.
+
+#### Scenario: Combined tactical hover shows weapon impact
+
+**GIVEN** a hex has both movement projection data and combat projection data
+**AND** the combat projection marks one or more weapons as available
+**WHEN** the player hovers that hex
+**THEN** the combined tactical tooltip SHALL show the projected weapon heat and ammo impact
+**AND** it SHALL preserve the combined movement, combat, terrain, stand-up, and projection-reason rows.
+
+#### Scenario: Projection explanation carries weapon impact
+
+**GIVEN** a hex projection contains combat data with available weapon impact metadata
+**WHEN** the projection explanation is exposed through map metadata or projection badge text
+**THEN** the explanation SHALL include projected weapon heat
+**AND** it SHALL include ammo impact for ammo-consuming available weapons without recalculating combat legality in the map renderer.
+
+### Requirement: Weapon Command Preview Uses Combat Projection Impact
+
+The tactical command preview SHALL use shared combat projection weapon impact metadata for projected weapon attack heat and ammo usage.
+
+#### Scenario: Attack preview heat and ammo come from combat projection
+
+**GIVEN** a weapon attack command preview receives combat projection data for an attackable target
+**AND** the projection contains available weapon impact metadata
+**WHEN** the command preview is built
+**THEN** preview heat SHALL equal the combat projection's available weapon heat
+**AND** preview ammo usage SHALL be derived from the combat projection's available weapon impacts
+**AND** preview weapon ids and names SHALL match the projected available weapon impacts.
+
+#### Scenario: Blocked attack preview spends no heat or ammo
+
+**GIVEN** a weapon attack command preview receives combat projection data for a blocked target
+**WHEN** the command preview is built
+**THEN** preview heat SHALL be zero
+**AND** preview ammo usage SHALL be empty
+**AND** the blocked reason SHALL remain the projection-derived attack invalid detail or blocked reason.
+
+#### Scenario: Expected damage can still use weapon status data
+
+**GIVEN** combat projection data provides weapon impact metadata
+**AND** weapon status data is available for those projected weapons
+**WHEN** the command preview is built
+**THEN** expected damage MAY be computed from weapon status damage values until combat projection carries damage envelope metadata.
+
+### Requirement: Combat Projection Damage Envelope
+
+The tactical map interface SHALL expose projected weapon damage envelope metadata from the shared combat projection for attackable weapon targets.
+
+#### Scenario: Attackable target shows compact impact badge
+
+- **GIVEN** a combat projection marks a target hex attackable
+- **AND** available weapon impacts include projected heat, listed damage, expected damage, and ammo use
+- **WHEN** the target hex renders on the tactical map
+- **THEN** the map SHALL show a compact combat impact badge for that target
+- **AND** the badge SHALL visibly summarize projected heat, listed damage, expected damage when known, and ammo spent when nonzero
+- **AND** the badge SHALL expose those same values as metadata from the combat projection
+- **AND** the renderer SHALL NOT recalculate attack legality, weapon damage, heat, ammo, or expected damage
+
+### Requirement: Isometric Occluder Hex Highlights
+
+The tactical map interface SHALL identify tall isometric terrain that may obscure units behind it.
+
+#### Scenario: Scene token summarizes multiple active occluders
+
+- **GIVEN** more than one elevated terrain hex may hide the same unit from the current isometric camera heading
+- **WHEN** the unit token is rendered inside the depth-sorted isometric scene
+- **THEN** the token wrapper SHALL preserve a representative first occluder hex and elevation for compact compatibility
+- **AND** the token wrapper SHALL expose the complete active occluder hex list
+- **AND** the token wrapper SHALL expose the complete active occluder effective-elevation list
+- **AND** the token wrapper SHALL expose every active terrain-occlusion reason
+- **AND** the nested token visibility context SHALL use those same existing terrain-occlusion reasons without recalculating movement, combat, LOS, fog, or visibility legality
+
+### Requirement: Movement Projection Detail Surface
+
+Required represented LAM AirMek landing-control checks SHALL resolve during the
+runtime movement-state command that lands the unit. The event stream SHALL
+explain the command in source order: landing state mutation, canonical
+`PSRTriggered`, `PSRResolved`, and failed-landing fall consequences when the
+roll fails.
+
+#### Scenario: Passing AirMek landing-control descent resolves immediately
+
+- **GIVEN** a selected movement-phase Land-Air 'Mech descends from represented
+  AirMek WiGE altitude 1 to ground level
+- **AND** the landing-control metadata marks the roll as required
+- **WHEN** the landing-control roll passes
+- **THEN** the event stream SHALL append `RuntimeMovementStateChanged`,
+  `PSRTriggered`, and `PSRResolved` in that order
+- **AND** the unit SHALL have no remaining pending AirMek landing PSR.
+
+#### Scenario: Failed AirMek landing-control descent emits fall consequences
+
+- **GIVEN** a selected movement-phase Land-Air 'Mech descends from represented
+  AirMek WiGE altitude 1 to ground level
+- **AND** the landing-control metadata marks the roll as required
+- **WHEN** the landing-control roll fails
+- **THEN** the event stream SHALL append `RuntimeMovementStateChanged`,
+  `PSRTriggered`, `PSRResolved`, `UnitFell`, and `PilotHit` in that order
+- **AND** `UnitFell` SHALL use `reasonCode: PSRTrigger.AirMekLanding`
+- **AND** the unit SHALL be prone with the AirMek landing PSR cleared.
+
+### Requirement: Isometric Occluder Hover Explanations
+
+The tactical map interface SHALL explain isometric occluder hexes in hover tooltips using the existing projection-derived occluder metadata.
+
+**Priority**: High
+
+#### Scenario: Occluder hover identifies hidden units
+
+**GIVEN** elevated terrain may hide one or more units from the current isometric camera angle
+**WHEN** the player hovers the occluding terrain hex in isometric mode
+**THEN** the hover tooltip SHALL identify the unit ids the terrain may hide
+**AND** the tooltip SHALL expose the occluder elevation and camera rotation context
+**AND** the tooltip SHALL show the projection-derived occlusion reason
+
+#### Scenario: Occluder rows appear with tactical hover variants
+
+**GIVEN** an isometric occluder hex also has movement, combat, unreachable, or combined tactical context
+**WHEN** the map renders the corresponding hover tooltip
+**THEN** the tooltip SHALL include the occluder explanation without replacing the movement, combat, or terrain details
+
+#### Scenario: Camera rotation clears stale hover explanations
+
+**GIVEN** a tall terrain hex only occludes a unit from some camera angles
+**WHEN** the isometric camera rotates to an angle where the terrain is no longer an occluder
+**THEN** the prior occluder hover explanation SHALL no longer render for that hex
+
+### Requirement: Unit Token State Metadata
+
+Rendered tactical map unit token wrappers SHALL expose inspectable state metadata for the unit represented by the token.
+
+#### Scenario: Token wrapper exposes common map state
+
+**GIVEN** a tactical map unit token is rendered
+**WHEN** the token wrapper is inspected
+**THEN** it SHALL expose the unit type
+**AND** it SHALL expose the displayed map position
+**AND** it SHALL expose the source game-state position
+**AND** it SHALL expose the facing used by the rendered token
+**AND** its accessible label SHALL include unit type, position, and facing context
+
+#### Scenario: Type-specific token state remains inspectable
+
+**GIVEN** a rendered unit token carries type-specific state
+**WHEN** the token wrapper is inspected
+**THEN** aerospace tokens SHALL expose altitude and velocity when present
+**AND** mounted battle armor tokens SHALL expose the host unit id used for badge placement
+**AND** this metadata SHALL NOT change token visuals, animation behavior, fog behavior, or click handling
+
+#### Scenario: Isometric scene wrapper preserves airborne token state
+
+**GIVEN** an aerospace token carries altitude and velocity state
+**AND** the tactical map is rendered in isometric mode
+**WHEN** the isometric scene depth-sorts that token
+**THEN** the isometric scene token wrapper SHALL expose the unit type as aerospace
+**AND** it SHALL expose the aerospace altitude
+**AND** it SHALL expose the aerospace velocity
+**AND** the nested token wrapper SHALL retain its own altitude and velocity metadata
+
+#### Scenario: Isometric scene wrapper preserves common token state
+
+**GIVEN** a tactical map unit token is rendered in isometric mode
+**WHEN** the isometric scene depth-sorts that token
+**THEN** the isometric scene token wrapper SHALL expose the unit type
+**AND** it SHALL expose the displayed map position used for depth sorting
+**AND** it SHALL expose the source game-state position
+**AND** it SHALL expose the facing used by the rendered token
+
+### Requirement: Combat Projection Detail Surface
+
+The tactical map SHALL expose combat projection details from the same
+rules-backed combat validation path used by the engine. Blocked combat
+projections SHALL explain unavailable indirect-fire fallbacks when that fallback
+is tactically relevant to why the attack cannot be committed.
+
+#### Scenario: ECM-nullified TAG explains unavailable semi-guided indirect fire
+
+- **GIVEN** a selected unit has semi-guided LRM fire selected
+- **AND** the direct LOS to a TAG-designated target is blocked
+- **AND** the target's TAG designation is nullified by ECM
+- **WHEN** the map previews the target hex and the player attempts the attack
+- **THEN** the combat projection SHALL preserve `NoLineOfSight` as the engine rejection reason
+- **AND** the projection, browser metadata, invalid combat badge reason, accessible reason context, and committed `AttackInvalid` event SHALL include that TAG was nullified by ECM and semi-guided indirect fire is unavailable.
+
+### Requirement: Physical Attack Projection Detail Surface
+
+Physical attack previews and command surfaces SHALL consume the same
+rules-backed target/attack option projections, including per-limb alternatives
+and restriction reasons.
+
+#### Scenario: Enemy token menus consume clicked target physical projections
+
+- **GIVEN** an enemy token context menu is opened during Physical Attack phase
+- **AND** the clicked enemy has physical attack option projections for the
+  active unit
+- **WHEN** a matching physical command renders in that enemy token menu
+- **THEN** the command SHALL be disabled when every matching projected option is
+  blocked
+- **AND** the disabled reason SHALL match the first projected restriction reason
+- **AND** multi-option physical commands such as punch SHALL remain available
+  when at least one matching projected limb option is legal.
+
+### Requirement: Physical Attack Map Projection Agreement
+
+The tactical map interface SHALL keep physical-attack target highlights, command
+preview rows, and committed physical declarations aligned with the represented
+physical attack legality projection.
+
+#### Scenario: Push respects represented building identity
+
+**GIVEN** a push target occupies a represented building hex
+**WHEN** the physical terrain context can identify the attacker's building and
+target's building
+**THEN** the push SHALL remain illegal when the attacker is outside the target
+building
+**AND** the push SHALL remain illegal when attacker and target occupy different
+known buildings
+**AND** legacy building terrain without known building ids SHALL preserve the
+existing coarse occupancy gate without guessing identity
+
+### Requirement: Isometric Presentation
+
+The tactical map interface SHALL render isometric mode as a presentation layer
+over the same axial battlefield state while keeping elevation stacks, camera
+rotation, and occlusion aids inspectable.
+
+#### Scenario: Rotation updates active terrain occluder
+
+- **GIVEN** a unit may be hidden behind different elevated terrain from different isometric camera headings
+- **WHEN** the player rotates the isometric camera until another elevated hex is in front of the unit
+- **THEN** token foreground boost metadata SHALL identify the newly active occluder hex and elevation
+- **AND** the previous occluder hex SHALL no longer expose active occluder highlight metadata
+- **AND** hover context for the new occluder SHALL show its elevation, camera heading, affected unit ids, and source reason
+
+#### Scenario: Full rotation cycle restores original occluder state
+
+- **GIVEN** an isometric battlefield has a camera-dependent elevated-terrain occluder
+- **WHEN** the player rotates through all six discrete camera headings and returns to the original heading
+- **THEN** the projection layer SHALL expose the original rotation step
+- **AND** scene depth metadata SHALL match the original heading
+- **AND** active occluder metadata and highlights SHALL return to the original terrain hex
+
+### Requirement: Top-Down and Isometric Tactical Map Rendering
+
+Each rendered hex SHALL expose terrain type and elevation. Elevation SHALL be visible as a readable number on or near the hex at playable zoom levels, while terrain visuals and overlays remain distinguishable.
+
+Isometric mode SHALL render terrain/elevation stacks, unit tokens, occluder
+highlights, and camera rotation metadata from the same projection data used by
+the top-down map.
 
 #### Scenario: Browser smoke covers top-down and isometric tactical context
 
@@ -2849,81 +2990,698 @@ Replay and recovery surfaces SHALL render terrain and elevation from the same ev
 - **AND** a movement-highlighted hex with multiple legal movement modes SHALL
   expose the walk, run, and jump option costs, terrain costs, elevation costs,
   and heat metadata together
-- **AND** a jump-highlighted hex with a represented elevation change and no
-  elevation MP adder SHALL expose both the elevation delta and explicit `E+0`
-  movement-cost badge metadata
-- **AND** a VTOL-style movement-highlighted hex with a represented elevation
-  change and no elevation MP adder SHALL expose the VTOL movement mode, movement
-  type, elevation delta, and explicit `E+0` movement-cost badge metadata
 - **AND** a reachable movement-highlighted hex with a blocked movement mode
   SHALL expose legal option states, blocked option reason metadata, and a
   separate blocked-options badge that does not rely on color alone
+- **AND** each rendered hex SHALL keep its base shape pointer-targetable even
+  when the terrain fill is transparent, so hover/click tactical details remain
+  reachable on clear terrain
+- **AND** when the Run overlay contains a destination whose Run path is blocked
+  but a Walk path is legal, the map SHALL render the reachable Walk projection
+  as primary while retaining the blocked Run option metadata
+- **AND** a tracked vehicle destination with an over-limit elevation change
+  SHALL expose the terrain-blocked elevation reason, elevation delta/cost, and
+  a non-color invalid badge
+- **AND** a hover vehicle destination over represented deep water SHALL expose
+  reachable movement, zero terrain/elevation surcharge, motive metadata, and
+  the water/smoke terrain layers
+- **AND** a naval vehicle destination on represented clear land SHALL expose
+  the water-required terrain blocker, zero heat, motive metadata, and a
+  non-color invalid badge
+- **AND** a biped swim destination through represented deep water SHALL expose
+  reachable movement, zero water/elevation surcharge, swim heat, elevation
+  delta, and water terrain metadata
+- **AND** a Frogman destination into represented deep water SHALL expose
+  reachable movement, the reduced terrain surcharge, heat, and water terrain
+  metadata
+- **AND** a TacOps battlefield-wreck destination converted into represented
+  rough terrain SHALL expose reachable movement, rough terrain metadata, the
+  shared terrain surcharge, heat, and non-color cost badge metadata
+- **AND** a prone unit's represented stand-up movement destination SHALL expose
+  the stand-up MP cost, PSR target metadata, heat, and stand-up badge metadata
 - **AND** a movement-blocked hex SHALL expose the engine-aligned rejection
   reason and render an invalid badge that does not rely on color alone
 - **AND** a LOS-blocked combat target SHALL expose the blocked target id,
   NoLineOfSight rejection, blocker hex metadata, and an invalid combat badge
+- **AND** an elevation-LOS-blocked combat target SHALL expose the elevation
+  blocker reason, blocker hex metadata, elevation label, and non-color invalid
+  and blocker badges
+- **AND** a combat target blocked by cumulative intervening heavy woods SHALL
+  expose the shared `NoLineOfSight` rejection, woods blocker reason, woods
+  terrain metadata, and non-color invalid and blocker badges
+- **AND** a combat target blocked by stacked intervening smoke and woods SHALL
+  expose the shared combined `NoLineOfSight` blocker reason, terrain-layer
+  metadata for both effects, and non-color invalid and blocker badges
+- **AND** a combat target hidden by fog visibility recalculated through
+  represented LOS terrain blockers SHALL render as a last-known contact,
+  expose obscured target ids, `TargetNotVisible` metadata, terrain blocker
+  context, and non-color visibility/invalid badges
 - **AND** a medium-range combat target SHALL expose the target id, distance,
   range band, available weapon ids, and per-weapon range option metadata
-- **AND** when only some selected weapons can reach a legal target, the target
-  SHALL remain attackable while blocked selected weapons expose per-weapon
-  range-blocked metadata and a non-color weapon count badge
-- **AND** a selected weapon at its represented extreme range cutoff SHALL remain
-  available and expose an `extreme` per-weapon range option instead of being
-  reported as out of range
-- **AND** when every selected weapon is out of range of a represented target,
-  the target SHALL remain non-attackable while exposing `OutOfRange`, blocked
-  weapon option metadata, and a non-color weapon count badge
-- **AND** a target inside a represented weapon minimum range SHALL expose the
-  minimum-range penalty, affected weapon ids, to-hit modifier, reason, and a
-  badge that does not rely on color alone
+- **AND** a combat target whose represented C3 spotter improves the effective
+  range SHALL expose the improved range band, spotter id, spotter range,
+  to-hit metadata, and C3 accessible context
+- **AND** a LOS-blocked LRM target with a represented friendly spotter SHALL
+  remain attackable and expose indirect-fire basis, spotter id, penalty,
+  to-hit metadata, and non-color indirect-fire badge context
+- **AND** a LOS-blocked LRM target whose elected spotter has a represented
+  gunnery penalty SHALL expose the net indirect-fire penalty, spotter gunnery,
+  skill modifier, to-hit metadata, and non-color indirect-fire badge context
+- **AND** a LOS-blocked LRM target whose represented walked spotter has Forward
+  Observer SHALL expose indirect-fire penalty, cancellation metadata, the
+  Forward Observer flag, to-hit metadata, and non-color indirect-fire badge
+  context
+- **AND** a LOS-blocked NARC-marked LRM target with no represented spotter SHALL
+  remain attackable and expose beacon basis, no-spotter metadata, penalty,
+  to-hit metadata, and non-color indirect-fire badge context
+- **AND** a LOS-blocked iNarc-marked LRM target with no represented spotter
+  SHALL remain attackable and expose beacon basis, no-spotter metadata,
+  penalty, to-hit metadata, and non-color indirect-fire badge context
+- **AND** a LOS-blocked TAG-designated target attacked by semi-guided LRM fire
+  SHALL remain attackable and expose no-spotter TAG basis, zero indirect
+  penalty, to-hit metadata, and non-color indirect-fire badge context
+- **AND** a LOS-blocked ECM-protected TAG-designated target attacked by
+  semi-guided LRM fire SHALL remain blocked and expose the no-line-of-sight
+  rejection without indirect-fire basis or badge metadata
+- **AND** a combat target outside the selected weapon's firing arc SHALL expose
+  `OutOfArc` rejection metadata, per-weapon arc blocker details, and a combat
+  invalid badge that does not rely on color alone
+- **AND** combat targets inside represented left- and right-sponson vehicle
+  weapon front-plus-side coverage SHALL remain attackable and expose in-arc
+  per-weapon availability metadata
+- **AND** a combat target outside a represented locked vehicle turret's
+  front-only coverage SHALL expose `OutOfArc` rejection metadata and per-weapon
+  arc blocker details
+- **AND** a same-hex combat target SHALL expose `SameHex` rejection metadata
+  and a combat invalid badge that does not rely on color alone, even when the
+  selected weapon is otherwise in range
 - **AND** a combat target in represented partial cover SHALL expose the cover
   level, modifier, to-hit modifier, reason, and a cover badge that does not rely
   on color alone
-- **AND** hidden-only and last-known fog contacts SHALL expose non-attackable
-  combat visibility metadata, obscured target ids, visibility-blocked reasons,
-  and invalid badges that do not rely on color alone
+- **AND** a combat target involving represented prone attacker and target state
+  SHALL expose the attacker-prone and target-prone to-hit modifiers, final
+  target number, badge, and tooltip rows
+- **AND** a combat target with represented shutdown immobility SHALL expose the
+  target-immobile to-hit modifier, final target number, badge, and tooltip rows
+- **AND** a combat target fired by a represented hot attacker SHALL expose the
+  heat to-hit modifier, final target number, badge, and tooltip rows
+- **AND** a combat target involving represented attacker movement and target
+  movement SHALL expose the attacker movement and target TMM to-hit modifiers,
+  final target number, badge, and tooltip rows
+- **AND** a combat target involving represented jump movement SHALL expose the
+  attacker jump penalty, the jumped target TMM bonus, final target number,
+  badge, and tooltip rows
+- **AND** a combat target involving represented walk movement SHALL expose the
+  attacker walk penalty, target walk TMM, final target number, badge, and
+  tooltip rows
 - **WHEN** browser automation switches to isometric mode and rotates the camera
 - **THEN** isometric stack, occluder, visibility, rotation, and depth metadata
   SHALL update in the rendered DOM
-- **AND** hidden-only and last-known fog contacts SHALL expose isometric
-  visibility-rule markers explaining that fog visibility, not terrain
-  occlusion, prevents direct inspection or targeting
 - **AND** rotating the camera SHALL move the active occluder metadata and
   highlight to the tall elevation stack that is actually in front for that
   camera angle
+- **AND** pointer and touch camera interactions SHALL pan, pinch-zoom, or
+  rotate the isometric view while preserving the same shared projection-layer
+  mode, occluder metadata, and presentation-only camera control provenance
 - **AND** the rendered map output SHALL contain nonblank top-down and isometric
   pixels
 
-### Requirement: Isometric Projection Parity And Occlusion Tools
+### Requirement: LAM AirMek Runtime Conversion Movement Projection
 
-Isometric mode SHALL be presentation state only and SHALL consume the same terrain, elevation, movement, combat, LOS, fog, cover, and firing-arc projection data as top-down mode.
+The tactical map SHALL resolve represented LAM runtime AirMek conversion state before deriving movement overlays and committed movement validation. AirMek conversion SHALL use WiGE movement for terrain/elevation projection, SHALL derive walking/cruise MP from Jump MP times three, SHALL derive running/flank MP from the AirMek cruise MP times 1.5 rounded up, and SHALL use unit height 0.
 
-Isometric mode SHALL make stacked elevation layers readable, support battlefield rotation, and provide interaction aids for units obscured by high terrain or tall stacks.
+#### Scenario: LAM AirMek conversion changes movement projection and commit legality
 
-#### Scenario: Isometric uses same rules projection as top-down
+**GIVEN** a tactical-map browser harness renders a LAM with a runtime conversion profile and a destination elevation route
+**WHEN** the LAM remains in Mek mode
+**THEN** the map shows the destination as blocked for walking with the Mek-mode movement reason and committed movement validation rejects the same destination with matching reason, MP, and heat
+**WHEN** the same represented LAM is in AirMek mode
+**THEN** the map shows WiGE movement, AirMek cruise/flank MP, elevation cost 0, and a reachable destination
+**AND** committed movement validation accepts the same destination with matching MP, heat, and path
 
-- **GIVEN** the same tactical state is rendered in top-down and isometric modes
-- **WHEN** movement and combat projections are computed
-- **THEN** both modes SHALL expose the same legal destinations, targets, costs, range bands, LOS results, cover states, and firing arcs
-- **AND** no legality SHALL be derived from isometric screen coordinates
+### Requirement: Over-Budget Movement Path Cost Explanation
 
-#### Scenario: Isometric rotation preserves selection
+The tactical map SHALL distinguish terrain-blocked movement destinations from
+terrain-legal destinations whose cheapest path exceeds the selected movement
+mode's available MP. A terrain-legal over-budget ground destination SHALL be
+reported as `InsufficientMP` with the diagnostic path's total MP cost and the
+final step's terrain cost, elevation delta, and elevation cost. A direct terrain
+blocker SHALL remain `TerrainBlocked`.
 
-- **GIVEN** the map is in isometric mode
-- **AND** a unit or hex is selected
-- **WHEN** the player rotates the camera around the battlefield
-- **THEN** the selected axial coordinate SHALL remain selected
-- **AND** movement/combat highlights SHALL rotate visually without changing rules meaning
+#### Scenario: Passable elevation route exceeds walk MP
 
-#### Scenario: Obscured units remain inspectable
+**GIVEN** a ground unit previews a walking move to an in-bounds destination
+**AND** a legal path exists to that destination when the MP cap is ignored
+**WHEN** the legal path's movement cost exceeds the unit's selected walk MP
+**THEN** the map SHALL render the destination as not reachable with
+`InsufficientMP`
+**AND** the destination SHALL expose total MP, terrain cost, elevation delta,
+and elevation cost metadata from the diagnostic path
+**AND** committed movement validation SHALL reject the same destination with the
+same reason, details, MP cost, and heat
 
-- **GIVEN** a unit is behind or below a large elevation stack in isometric mode
-- **WHEN** the player hovers, cycles, slices layers, rotates, or uses another occlusion aid
-- **THEN** the hidden unit SHALL be highlightable and selectable if visibility rules allow it
-- **AND** the map SHALL communicate when fog or visibility rules, rather than terrain occlusion, prevent inspection
-- **AND** represented building levels SHALL contribute to isometric occluder height and scene depth ordering so tall buildings do not disappear as flat ground in 2.5D mode
-- **AND** isometric occluder highlight labels SHALL report the effective occluder height, including represented building levels
-- **AND** represented building levels SHALL render as visible isometric stack layers even when the base terrain elevation is flat
+#### Scenario: Direct terrain block remains terrain blocked
+
+**GIVEN** a tracked or wheeled unit previews direct entry into an adjacent
+elevation change that exceeds its motive limit
+**WHEN** the destination projection is derived
+**THEN** the map SHALL preserve the terrain-blocked elevation reason
+**AND** it SHALL NOT replace the blocker with an over-budget alternate-route
+explanation
+
+### Requirement: Grounded LAM Fighter Runtime Conversion Movement Projection
+
+The tactical map SHALL resolve represented LAM runtime Fighter conversion state before deriving movement overlays and committed movement validation. A grounded Fighter conversion SHALL use grounded aerospace terrain restrictions represented as wheeled/taxing movement, SHALL derive walking/cruise MP from current thrust halved while grounded, SHALL derive running/flank MP as equal to grounded cruise MP, SHALL make jump movement unavailable, and SHALL use unit height 0.
+
+#### Scenario: Grounded LAM Fighter conversion blocks abrupt elevation entry
+
+**GIVEN** a tactical-map browser harness renders a LAM in represented grounded Fighter conversion state
+**AND** the selected destination is adjacent with an elevation increase greater than grounded wheeled/taxing movement allows
+**WHEN** the map derives walking movement projection for that destination
+**THEN** the map SHALL render the destination as not reachable with `TerrainBlocked`
+**AND** the destination SHALL expose wheeled movement mode, zero terrain cost, elevation delta, elevation cost, and the elevation blocked reason
+**AND** the movement legend SHALL expose grounded Fighter cruise/flank MP with jump unavailable
+**AND** committed movement validation SHALL reject the same destination with the same reason, details, MP cost, and heat
+
+### Requirement: LAM AirMek Movement Heat Projection
+
+The tactical map SHALL resolve represented LAM runtime AirMek conversion state to an AirMek-specific movement heat profile before deriving movement overlays and committed movement validation. AirMek walk and run heat SHALL be derived from used movement points divided by three, rounded to the nearest integer, with a minimum basis of three movement points for represented standard jump heat.
+
+#### Scenario: Long AirMek cruise reports source-backed movement heat
+
+**GIVEN** a tactical-map browser harness renders a LAM in represented AirMek conversion state
+**AND** the selected destination is reachable at six AirMek movement points
+**WHEN** the map derives walking movement projection for that destination
+**THEN** the map SHALL render the destination as reachable with WiGE movement, 6 MP, and 2 generated heat
+**AND** committed movement validation SHALL accept the same destination with the same path, MP cost, and generated heat
+
+### Requirement: Isometric Terrain And Unit Visibility
+
+The tactical map interface SHALL keep important units readable in isometric
+mode through depth ordering, selected-unit foregrounding, terrain-occlusion
+visibility halos, and target readability boosts. When weapon-backed combat
+projection is active, valid-target foreground boosts SHALL be driven by shared
+combat projection data instead of stale legacy token flags.
+
+#### Scenario: Projection-active isometric target boost ignores stale token flag
+
+**GIVEN** the map is in isometric mode
+**AND** a selected friendly unit has configured weapon projection data
+**AND** another token has a stale legacy `isValidTarget` flag
+**WHEN** that token's unit id does not appear in the combat-projected valid
+target ids
+**THEN** the token SHALL NOT receive a valid-target foreground boost from the
+legacy token flag
+**AND** terrain-occlusion and selected-unit foreground boosts SHALL remain
+unchanged
+
+#### Scenario: Legacy target flag remains isometric fallback
+
+**GIVEN** the map is in isometric mode
+**AND** the selected unit does not have configured weapon projection data
+**WHEN** a token has `IUnitToken.isValidTarget === true`
+**THEN** the token SHALL continue to receive the legacy foreground readability
+boost
+
+### Requirement: Terrain and Elevation Labels
+
+The system SHALL show readable terrain type and elevation reference labels on
+hexes in both top-down and isometric projection modes. When a movement
+projection applies to a hex, the hex explanation SHALL include the movement MP
+cost, terrain MP cost when known, elevation delta when known, elevation MP cost
+when known, and heat impact when known.
+
+#### Scenario: Movement explanation includes elevation MP cost
+
+**GIVEN** a destination hex has terrain and elevation data
+**AND** movement projection supplies MP cost, terrain cost, elevation delta,
+elevation cost, and heat
+**WHEN** the tactical map renders that hex with tactical overlays
+**THEN** the hex explanation SHALL include the movement MP cost
+**AND** it SHALL include the terrain MP cost
+**AND** it SHALL include the elevation delta
+**AND** it SHALL include the elevation MP cost
+**AND** it SHALL include the heat impact
+
+### Requirement: Per-Type Token Rendering
+
+Vehicle tokens representing altitude-tracked VTOL or WiGE combat state SHALL
+expose the current altitude as visible token chrome, token wrapper metadata,
+isometric scene metadata, and accessible token context. Ground-only vehicle
+tokens SHALL NOT render altitude chrome even if a legacy caller provides
+altitude-like data.
+
+#### Scenario: WiGE token exposes altitude context
+
+- **GIVEN** a vehicle unit has represented combat state with motion type `WiGE`
+- **AND** the represented vehicle combat state has altitude 2
+- **WHEN** the tactical map projects that unit into a vehicle token
+- **THEN** the token SHALL expose altitude 2 in wrapper metadata
+- **AND** the token accessible label SHALL include altitude 2
+- **AND** the vehicle token SHALL render a visible non-color altitude badge
+
+#### Scenario: Isometric scene preserves WiGE altitude context
+
+- **GIVEN** a vehicle token uses WiGE motion
+- **AND** the token has represented altitude 2
+- **WHEN** the player switches the map to isometric mode
+- **THEN** the isometric scene token wrapper SHALL expose the unit type as
+  vehicle
+- **AND** the isometric scene token wrapper SHALL expose the WiGE motion type
+- **AND** the isometric scene token wrapper SHALL expose altitude 2
+- **AND** the nested vehicle token SHALL keep the visible altitude badge
+
+#### Scenario: Ground-only vehicle token does not expose altitude chrome
+
+- **GIVEN** a vehicle unit does not use VTOL or WiGE motion
+- **WHEN** the tactical map renders that unit as a vehicle token
+- **THEN** the vehicle token SHALL NOT render the altitude badge
+
+### Requirement: Isometric Scene Token Context
+
+The tactical map interface SHALL expose inspectable context on depth-sorted
+isometric scene token wrappers without recalculating movement, combat,
+visibility, terrain, or unit-state rules.
+
+**Priority**: High
+
+#### Scenario: Scene token wrapper summarizes represented token state
+
+**GIVEN** a unit token is rendered in isometric mode
+**WHEN** the isometric scene depth-sorts that token
+**THEN** the scene token wrapper SHALL expose a title and accessible label
+**AND** the label SHALL include the displayed map position, source position,
+unit type, and facing used by the nested token renderer
+**AND** the label SHALL include represented per-type context such as aerospace
+altitude/velocity or VTOL vehicle altitude when present
+
+#### Scenario: Scene token wrapper preserves projection and visibility context
+
+**GIVEN** a token is combat-projected, terrain-occluded, hidden by fog, or shown
+from a last-known position
+**WHEN** the token is rendered inside the isometric scene
+**THEN** the scene token wrapper label SHALL include the existing
+combat-projection target state when weapon-backed projection data exists
+**AND** the label SHALL include terrain-occlusion foreground-boost context and
+reason when the token is boosted for readability
+**AND** the label SHALL include hidden or last-known visibility state when
+present
+**AND** the wrapper SHALL NOT recalculate or mutate combat target legality,
+fog state, terrain occlusion, depth sorting, or unit state
+
+### Requirement: Sensor Ring Visibility Source Context
+
+The tactical map interface SHALL expose source-aware context for rendered sensor
+rings so players and tests can distinguish live-position rings from last-known
+fog-position rings.
+
+**Priority**: High
+
+#### Scenario: Visible unit sensor ring exposes current source context
+
+**GIVEN** a visible unit has a positive sensor range
+**WHEN** the tactical map renders that unit's sensor ring
+**THEN** the ring SHALL expose the represented range in hexes
+**AND** the ring SHALL expose the rendered pixel radius
+**AND** the ring SHALL expose the displayed map position
+**AND** the ring SHALL expose the source unit position
+**AND** the ring SHALL identify the position source as current
+**AND** the ring SHALL identify the fog status as visible
+
+#### Scenario: Last-known contact sensor ring exposes stale display context
+
+**GIVEN** an enemy contact has a positive sensor range, a hidden current
+position, and a last-known display position
+**WHEN** the tactical map renders that contact's sensor ring
+**THEN** the ring SHALL be placed at the last-known display position
+**AND** the ring SHALL expose the hidden source unit position separately
+**AND** the ring SHALL identify the position source as last-known
+**AND** the ring SHALL identify the fog status as last-known
+
+#### Scenario: Hidden contact sensor ring remains suppressed
+
+**GIVEN** an enemy contact is hidden by fog or visibility rules
+**WHEN** the tactical map renders sensor rings
+**THEN** the hidden contact SHALL NOT render a sensor ring
+
+### Requirement: Tactical Projection Explainability
+
+The tactical map SHALL expose shared projection metadata for rendered terrain,
+movement, combat, LOS blocker, cover, firing arc, fog, and fallback range
+surfaces so the same rules-backed projection can be inspected in top-down and
+isometric views.
+
+#### Scenario: Rendered projection surfaces expose rule references
+
+- **GIVEN** a tactical map hex has terrain/elevation, movement, combat, LOS blocker, or legacy range projection sources
+- **WHEN** a user, accessibility surface, or browser test inspects the rendered hex or overlay
+- **THEN** the surface SHALL expose formatted rule-reference metadata for every source channel that has rule references
+- **AND** movement and combat rule references SHALL identify MegaMek as the tactical rules oracle
+- **AND** legacy attack-range fallback references SHALL identify that the fallback is MekStation compatibility metadata, not a rules-backed attack option
+
+- **GIVEN** the same hex renders projection badges, terrain/elevation labels, tooltips, or isometric scene wrappers
+- **WHEN** those surfaces expose projection source metadata
+- **THEN** they SHALL also expose the corresponding rule-reference metadata without recalculating movement, combat, LOS, terrain, or isometric legality
+
+### Requirement: Rule-Backed Movement Highlight Projection
+
+Movement highlights SHALL be sourced from shared movement projection metadata
+that agrees with committed movement validation and resolution.
+
+#### Scenario: Destroyed gyro stand-up explanation appears before commit
+
+- **GIVEN** a prone Mek with a represented standard destroyed gyro is selected
+- **WHEN** the player previews ground movement
+- **THEN** affected hexes SHALL be rendered as blocked/unreachable
+- **AND** the hex metadata, badge, and hover explanation SHALL expose
+  `Cannot stand with a destroyed gyro`
+- **AND** the map SHALL NOT present the destination as a rollable legal move
+
+### Requirement: Tactical Map Rule-Trust Follow-Up Boundaries
+
+The tactical map interface SHALL keep unresolved rule-trust boundaries explicit
+whenever a represented map behavior is useful to players but is not yet fully
+source-pinned, oracle-differenced, or interaction-swept.
+
+#### Scenario: Source-pinned helper follow-ups are retired
+
+- **GIVEN** a tactical-map follow-up previously tracked represented helper
+  provenance rather than a MegaMek or official rules source pin
+- **WHEN** a later OpenSpec change links that behavior to concrete MegaMek or
+  official source references and adds focused map coverage
+- **THEN** the follow-up tracker SHALL stop listing that behavior as an open
+  helper-provenance gap
+- **AND** any remaining limitations SHALL be restated as narrower behavior gaps,
+  such as missing range math, hit-table expansion, or broader oracle sweeps.
+
+#### Scenario: Movement oracle gaps remain named follow-up work
+
+- **GIVEN** movement highlights use represented runtime movement capability,
+  terrain cost, elevation cost, and commit-validation paths
+- **WHEN** unresolved runtime transitions such as conversion action timing,
+  remaining airborne LAM Fighter or AirMek submodes, or broad external oracle
+  sweeps are required
+- **THEN** those cases SHALL remain tracked as follow-up outcomes before the
+  map claims full movement-oracle coverage
+- **AND** future coverage SHALL compare preview highlights, command gating, and
+  committed movement results for each affected runtime state.
+- **AND** movement gaps that already have source-pinned preview/commit coverage,
+  such as frogman/swim movement, optional infantry pavement bonus, represented
+  unit-height bridge clearance, runtime infantry mounted/dismounted height
+  precedence, runtime LAM/QuadVee conversion projection, and replayable runtime
+  movement-state gameplay events plus runtime movement-state command controls,
+  SHALL NOT remain listed as open headline gaps.
+- **AND** hull-down `GET_UP` movement exit projection and replay-state clearing
+  SHALL NOT remain grouped under unresolved hull-down entry action
+  gaps once source-pinned coverage exists.
+- **AND** hull-down `GO_PRONE` movement action projection and replay-state
+  clearing SHALL NOT remain grouped under unresolved hull-down entry action
+  gaps once source-pinned coverage exists.
+
+#### Scenario: Isometric browser coverage distinguishes smoke from full interaction sweep
+
+- **GIVEN** isometric topography, occluder highlighting, and camera rotation
+  have representative smoke coverage, including button/keyboard rotation,
+  pointer pan, touch pan, pinch-zoom, direct touch rotation, and rendered
+  occluder retargeting when camera rotation changes which tall hex is in front
+  of a unit
+- **WHEN** the map is evaluated for full battlefield interaction readiness
+- **THEN** broader mobile gesture-matrix and occlusion interaction sweeps SHALL
+  remain tracked as follow-up outcomes
+- **AND** those sweeps SHALL verify that isometric presentation continues to
+  consume the same shared projection data as top-down movement, combat,
+  terrain, elevation, LOS, and visibility highlights.
+
+#### Scenario: Vehicle critical table follow-ups are narrowed after source-pinned dispatch
+
+- **GIVEN** represented vehicle critical dispatch is source-pinned to MegaMek
+  Tank and VTOL struck-location critical tables
+- **WHEN** focused coverage proves front, rear, side/body, turret, VTOL rotor,
+  engine-type, fuel-tank, and replay-visible state outcomes
+- **THEN** tactical-map rule-trust tracking SHALL NOT keep full
+  location-sensitive vehicle critical-table dispatch listed as an open gap
+- **AND** the remaining vehicle critical follow-ups SHALL be narrowed to cargo
+  import parity, dual-turret split identity, and broader external oracle sweeps.
+
+### Requirement: Combat Projection Explains Engine Rejections
+
+The tactical map SHALL use shared engine-facing projection data to explain
+vehicle attacker-side hull-down front-weapon restrictions before a player
+commits a weapon attack.
+
+#### Scenario: Hull-down vehicle front-weapon block appears on weapon option
+
+- **GIVEN** the selected attacker is a represented hull-down vehicle
+- **AND** the selected target is in range and arc
+- **AND** one selected weapon is front-mounted and using direct fire
+- **WHEN** the player inspects the target hex or weapon option list
+- **THEN** the front-mounted weapon SHALL be shown as unavailable
+- **AND** the blocked reason SHALL match the commit-path invalid reason.
+
+### Requirement: Physical Attack Projection Explains Engine Rejections
+
+The tactical map SHALL show hull-down kick restrictions in the physical attack
+panel, command preview, and token action surfaces through the existing physical
+attack option restriction data.
+
+#### Scenario: Hull-down kick is disabled before command
+
+- **GIVEN** the selected attacker is hull-down
+- **AND** a valid adjacent target is selected
+- **WHEN** physical attack actions are shown
+- **THEN** kick commands SHALL be disabled
+- **AND** the tooltip or preview reason SHALL identify hull-down as the block.
+
+### Requirement: Hull-Down Exit Movement Projection
+
+The tactical map interface SHALL project and commit Mek-style hull-down exit
+movement as a rules-backed posture transition before ground movement, using
+MegaMek `GET_UP` cost semantics and shared movement projection data.
+
+#### Scenario: Hull-down ground highlights reserve exit MP
+
+- **GIVEN** the active unit is hull-down, not prone, uses Mek-style movement,
+  and is previewing walk or run movement
+- **WHEN** the map derives movement range and hovered-destination metadata
+- **THEN** each reachable ground option SHALL reserve the same `GET_UP` MP cost
+  used by MegaMek before adding path movement cost
+- **AND** movement labels, badges, and context rows SHALL expose the hull-down
+  exit cost separately from terrain, elevation, heat, and stand-up PSR data.
+
+#### Scenario: Direct hull-down jump is blocked until posture exit
+
+- **GIVEN** the active unit is hull-down, uses Mek-style movement, and has jump
+  MP
+- **WHEN** the player previews or commands jump movement without first exiting
+  hull-down
+- **THEN** the jump option SHALL be blocked with a player-facing reason that the
+  unit must stand before jumping
+- **AND** the action dock SHALL present the same reason.
+
+#### Scenario: Committed hull-down exit clears state through movement replay
+
+- **GIVEN** a Mek-style hull-down unit commits a same-hex posture exit or
+  ground movement
+- **WHEN** the engine declares and locks the movement
+- **THEN** the movement event SHALL record that hull-down exit was attempted
+- **AND** replay SHALL clear `hullDown` without emitting a prone stand-up PSR or
+  `UnitStood` event.
+
+### Requirement: Hull-Down Go-Prone Movement Action
+
+The tactical map interface SHALL expose MegaMek's hull-down `GO_PRONE`
+posture transition as a rules-backed movement action for Mek-style units,
+using the same movement declaration, replay, and lock path as other movement
+phase actions.
+
+#### Scenario: Hull-down Mek-style unit can go prone for zero MP
+
+- **GIVEN** the active unit is hull-down, not prone, uses Mek-style movement,
+  and is in the Movement phase
+- **WHEN** the player chooses Go Prone
+- **THEN** the engine SHALL declare same-hex stationary movement with 0 MP and
+  0 heat
+- **AND** the declaration SHALL record `goProneAttempt` and a `goProne` step
+- **AND** replay SHALL set `prone` to true, clear `hullDown`, and lock the
+  unit's movement without emitting a stand-up PSR or `UnitStood` event.
+
+#### Scenario: Invalid go-prone attempts explain their blocker
+
+- **GIVEN** the active unit is not hull-down, already prone, lacks movement
+  capability, or uses a non-Mek-style represented movement profile
+- **WHEN** the player inspects or attempts Go Prone
+- **THEN** the command or commit path SHALL reject the action with a
+  player-facing reason before any posture state is changed.
+
+### Requirement: Standing Hull-Down Movement Action
+
+The tactical map interface SHALL expose MegaMek's standing `HULL_DOWN` posture
+transition as a rules-backed movement action for Mek-style units, using the
+same movement declaration, replay, and lock path as other movement phase
+actions.
+
+#### Scenario: Standing Mek-style unit can enter hull-down for 2 MP
+
+- **GIVEN** the active unit is standing, not hull-down, uses Mek-style
+  movement, has enough walk MP, and is in the Movement phase
+- **WHEN** the player chooses Hull Down
+- **THEN** the engine SHALL declare same-hex walk movement with 2 MP and
+  walking movement heat
+- **AND** the declaration SHALL record `hullDownEntryAttempt` and a
+  `hullDown` step
+- **AND** replay SHALL set `hullDown` to true, clear `prone`, and lock the
+  unit's movement without emitting a stand-up PSR or `UnitStood` event.
+
+#### Scenario: Invalid hull-down entry attempts explain their blocker
+
+- **GIVEN** the active unit is prone, already hull-down, lacks movement
+  capability, uses a non-Mek-style represented movement profile, lacks enough
+  walk MP, or has a destroyed gyro
+- **WHEN** the player inspects or attempts Hull Down
+- **THEN** the command or commit path SHALL reject the action with a
+  player-facing reason before any posture state is changed.
+
+### Requirement: Movement Preview And Commit Agreement
+
+Blocked movement projections SHALL expose altitude-control context for
+represented altitude-positive VTOL or WiGE vehicle combat state. That context
+names the represented control mode and represented altitude responsible for the
+block.
+The altitude-control context SHALL be explanatory and SHALL NOT imply that full
+airborne altitude pathing, hover, takeoff, landing, or altitude-change controls
+are available from ordinary ground movement projection.
+
+#### Scenario: Airborne WiGE blocked projection exposes altitude-control context
+
+- **GIVEN** a vehicle unit has represented combat state with motion type `WiGE`
+- **AND** the represented vehicle combat state has altitude 2
+- **WHEN** the tactical map projects a blocked ordinary ground movement
+  destination for that unit
+- **THEN** the destination SHALL be unreachable
+- **AND** the projection SHALL expose that altitude controls are required
+- **AND** the projection SHALL expose altitude-control mode `wige`
+- **AND** the projection SHALL expose represented altitude 2
+
+#### Scenario: Airborne VTOL blocked projection exposes altitude-control context
+
+- **GIVEN** a vehicle unit has represented combat state with motion type `VTOL`
+- **AND** the represented vehicle combat state has altitude 2
+- **WHEN** the tactical map projects a blocked ordinary ground movement
+  destination for that unit
+- **THEN** the destination SHALL be unreachable
+- **AND** the projection SHALL expose that altitude controls are required
+- **AND** the projection SHALL expose altitude-control mode `vtol`
+- **AND** the projection SHALL expose represented altitude 2
+
+### Requirement: Tactical map runtime movement controls are replayable and rules-backed
+
+Movement projection state controls SHALL dispatch replayable runtime movement
+state events that keep selected-unit command state, map projection, and
+committed movement validation aligned with the represented tactical rules.
+
+#### Scenario: AirMek-to-Mek conversion automatically grounds represented AirMek elevation
+
+- **GIVEN** a represented LAM is selected in AirMek mode with positive
+  `lamAirMekAltitude`
+- **WHEN** the player chooses the Mek Mode conversion command
+- **THEN** the conversion command SHALL dispatch `conversionMode: "mek"`,
+  the source-backed AirMek-to-Mek conversion step metadata, and
+  `lamAirMekAltitude: 0`
+- **AND** replaying that conversion SHALL leave the unit in Mek mode with no
+  stale AirMek altitude-control ground-projection blocker
+- **AND** AirMek-to-Fighter conversion SHALL NOT implicitly clear represented
+  AirMek elevation.
+
+### Requirement: Rules-Backed Movement Projection
+
+Movement overlays SHALL be derived from shared movement projection data and
+SHALL explain legal, blocked, and consequential movement outcomes before the
+player commits them.
+
+#### Scenario: Encoded cliff movement appears in map projection
+
+- **GIVEN** a selected represented unit previews movement across an encoded
+  directional cliff edge
+- **WHEN** the movement mode is WiGE, tracked, wheeled, or hover
+- **THEN** the destination projection SHALL expose the same added cost or
+  terrain-blocked reason that committed movement validation would apply
+- **AND** ordinary elevation changes without cliff metadata SHALL continue to
+  display as non-cliff movement.
+
+### Requirement: Integrated Rules-Backed Tactical Map Outcomes
+
+The tactical map SHALL behave as the primary player-facing explanation layer
+for represented battlefield rules. Movement, combat, terrain, elevation, line
+of sight, visibility, top-down highlights, and isometric highlights SHALL be
+derived from shared projection data that agrees with committed engine
+validation and resolution.
+
+#### Scenario: Selected unit exposes actionable movement and combat meaning
+
+- **GIVEN** a player selects a represented unit during a legal tactical phase
+- **WHEN** the map renders available movement and attack options
+- **THEN** every highlighted hex SHALL identify whether the selected unit can
+  legally move or attack there
+- **AND** blocked or illegal options SHALL expose a non-color reason before the
+  player commits the action
+- **AND** costly but legal movement SHALL expose MP cost, terrain contribution,
+  elevation contribution, heat impact when represented, and movement mode
+- **AND** attack highlights SHALL expose range band, firing arc coverage,
+  selected-weapon applicability, LOS/visibility state, terrain blockers, cover,
+  and represented weapon/environment restrictions
+- **AND** committing an unchanged highlighted action SHALL be accepted by the
+  engine, while any engine rejection SHALL have been previewed with the same
+  reason.
+
+#### Scenario: Top-down and isometric modes preserve the same rules meaning
+
+- **GIVEN** the same tactical state is viewed in top-down and isometric modes
+- **WHEN** the player inspects terrain, elevation, movement, combat, LOS, and
+  visibility highlights
+- **THEN** both modes SHALL consume the same shared projection data
+- **AND** top-down mode SHALL show readable hex terrain/elevation information,
+  including an elevation number directly on the hex
+- **AND** isometric mode SHALL render stacked/elevated hex layers from the same
+  terrain/elevation facts
+- **AND** isometric camera rotation SHALL change presentation only, not
+  movement or combat legality
+- **AND** units hidden behind tall elevations or terrain stacks SHALL retain
+  discoverable visibility affordances such as occluder highlights, ghosting, or
+  projection metadata.
+
+#### Scenario: Representative tests prove player-visible agreement
+
+- **GIVEN** the integration touches represented movement, combat, terrain,
+  elevation, LOS, visibility, or isometric rendering
+- **WHEN** the change is prepared for review
+- **THEN** focused tests SHALL cover representative legal, illegal, costly, and
+  blocked scenarios for the affected surface
+- **AND** at least one preview-to-commit agreement test SHALL cover any changed
+  action legality path
+- **AND** rendering or browser tests SHALL cover player-visible map metadata
+  when the outcome depends on top-down labels, badges, tooltips, or isometric
+  layers/rotation.
+
+### Requirement: Tactical Map Explanation Layer
+
+Top-down movement hexes SHALL surface altitude-control context without relying
+on color alone. Movement badges, invalid movement badges, accessible labels,
+tooltip reason rows, and same-hex movement-option metadata SHALL expose the same
+context when a blocked movement projection is owned by represented
+altitude-positive VTOL/WiGE altitude controls.
+
+#### Scenario: Blocked altitude-control hex is inspectable
+
+- **GIVEN** a top-down tactical-map hex has a blocked movement projection with
+  altitude-control mode `wige`
+- **AND** the blocked movement projection has represented altitude 2
+- **WHEN** the map renders the movement overlay
+- **THEN** the hex metadata SHALL mark altitude-control required
+- **AND** the hex metadata SHALL expose mode `wige` and altitude 2
+- **AND** the accessible movement label SHALL include the altitude-control mode
+  and altitude
+- **AND** the invalid movement badge SHALL use a non-color altitude-control cue
+- **AND** the tooltip reason row SHALL expose the same altitude-control context
 
 ## Data Model Requirements
 

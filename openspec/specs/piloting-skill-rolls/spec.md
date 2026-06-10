@@ -6,21 +6,17 @@ TBD - created by archiving change full-combat-parity. Update Purpose after archi
 ## Requirements
 ### Requirement: PSR Resolution Mechanic
 
-The system SHALL resolve piloting skill rolls (PSR) by rolling 2d6, requiring a result greater than or equal to the pilot's piloting skill plus all applicable modifiers.
+Failed AirMek landing PSRs SHALL use the current fall-resolution event model
+with fall height taken from the runtime landing-control payload.
 
-#### Scenario: Successful PSR
+#### Scenario: Failed AirMek landing PSR uses represented fall height
 
-- **WHEN** a PSR is triggered with piloting skill 5 and total modifiers +2
-- **THEN** the target number SHALL be 7 (5 + 2)
-- **AND** a 2d6 roll of 7 or higher SHALL succeed
-- **AND** the unit SHALL remain standing
-
-#### Scenario: Failed PSR causes fall
-
-- **WHEN** a PSR is triggered with target number 7 and the roll result is 6 or less
-- **THEN** the PSR SHALL fail
-- **AND** the unit SHALL fall (triggering fall-mechanics)
-- **AND** all remaining queued PSRs for this phase SHALL be cleared
+- **GIVEN** an AirMek landing-control payload carries a landing fall height
+- **WHEN** the landing PSR fails
+- **THEN** the emitted `UnitFell` event SHALL carry fall damage based on that
+  fall height under the current MekStation fall model
+- **AND** the `UnitFell` event SHALL carry `reasonCode:
+  PSRTrigger.AirMekLanding`.
 
 ### Requirement: PSR Trigger — 20+ Phase Damage
 
@@ -192,28 +188,63 @@ The system SHALL trigger a PSR when a unit shuts down.
 
 ### Requirement: PSR Trigger — Standing Up
 
-The system SHALL trigger a PSR when a prone unit attempts to stand.
+The system SHALL trigger or project the stand-up PSR outcome required by the
+represented stand-up rules. If the stand-up target is impossible, the PSR SHALL
+resolve as an automatic failure instead of rolling dice.
 
-#### Scenario: Attempting to stand
+#### Scenario: Playtest3 heavy-duty gyro stand-up uses hit-count modifier
 
-- **WHEN** a prone unit attempts to stand up
-- **THEN** a PSR SHALL be required
-- **AND** failure SHALL leave the unit prone
-- **AND** the unit SHALL have expended its walking MP regardless of success or failure
+- **GIVEN** `playtest_3` is enabled
+- **AND** a prone Mek has a represented heavy-duty gyro
+- **WHEN** the stand-up attempt is projected or committed
+- **THEN** one, two, and three represented heavy-duty gyro hits SHALL contribute
+  +1, +2, and +3 respectively to the stand-up PSR modifier
+- **AND** three heavy-duty gyro hits SHALL still use a finite stand-up target
+  under Playtest3.
+
+#### Scenario: Playtest3 heavy-duty gyro destroyed threshold remains automatic failure
+
+- **GIVEN** `playtest_3` is enabled
+- **AND** a prone Mek has a represented heavy-duty gyro with four gyro hits
+- **WHEN** the stand-up attempt is committed
+- **THEN** the stand-up PSR SHALL resolve with an impossible target
+- **AND** the roll SHALL be recorded as 0 without invoking the dice roller
+- **AND** the reason SHALL be `Cannot stand with a destroyed gyro`
+- **AND** the unit SHALL remain prone
+
+#### Scenario: Heavy-duty gyro two-hit stand-up uses represented modifier
+
+- **GIVEN** a prone Mek has a represented heavy-duty gyro with two gyro hits
+- **WHEN** the stand-up attempt is projected or committed
+- **THEN** the stand-up PSR SHALL use a finite target number
+- **AND** the target modifiers SHALL include the represented heavy-duty gyro
+  damage modifier
+- **AND** a successful dice result SHALL stand the unit instead of resolving as
+  an automatic failure
+
+#### Scenario: Heavy-duty gyro destroyed threshold remains automatic failure
+
+- **GIVEN** a prone Mek has a represented heavy-duty gyro with three gyro hits
+- **WHEN** the stand-up attempt is committed
+- **THEN** the stand-up PSR SHALL resolve with an impossible target
+- **AND** the roll SHALL be recorded as 0 without invoking the dice roller
+- **AND** the reason SHALL be `Cannot stand with a destroyed gyro`
+- **AND** the unit SHALL remain prone
 
 ### Requirement: PSR Modifier — Gyro Damage
 
-Each gyro hit SHALL add +3 to all PSR target numbers.
+AirMek landing PSRs SHALL use the landing-control modifier already computed
+from MegaMek `LandAirMek.checkAirMekLanding()` semantics instead of applying
+the generic gyro PSR modifier. Pilot wound modifiers SHALL still apply through
+the normal PSR resolver.
 
-#### Scenario: One gyro hit modifier
+#### Scenario: AirMek landing PSR avoids generic gyro double-counting
 
-- **WHEN** a unit with 1 gyro hit makes a PSR
-- **THEN** the PSR target number SHALL include a +3 modifier
-
-#### Scenario: Two gyro hits (standard gyro destroyed)
-
-- **WHEN** a unit with 2 gyro hits on a standard gyro
-- **THEN** the gyro SHALL be destroyed and the unit SHALL fall automatically
+- **GIVEN** an AirMek landing PSR has a landing-control modifier
+- **AND** the unit state also has represented gyro damage
+- **WHEN** the PSR is resolved
+- **THEN** the target number SHALL include the landing-control modifier
+- **AND** it SHALL NOT include the generic gyro-hit PSR modifier.
 
 ### Requirement: PSR Modifier — Pilot Wounds
 
@@ -226,12 +257,17 @@ Each pilot wound SHALL add +1 to all PSR target numbers.
 
 ### Requirement: PSR Modifier — Leg Actuator Damage
 
-Leg actuator damage SHALL add modifiers to PSRs.
+AirMek landing PSRs SHALL use the landing-control modifier already computed
+from MegaMek `LandAirMek.checkAirMekLanding()` semantics instead of applying
+generic leg-actuator PSR modifiers.
 
-#### Scenario: Damaged leg actuator PSR modifier
+#### Scenario: AirMek landing PSR avoids generic actuator double-counting
 
-- **WHEN** a unit with a damaged lower leg actuator makes a PSR
-- **THEN** the PSR target number SHALL include the appropriate actuator modifier
+- **GIVEN** an AirMek landing PSR has a landing-control modifier
+- **AND** the unit state also has represented leg-actuator damage
+- **WHEN** the PSR is resolved
+- **THEN** the target number SHALL include the landing-control modifier
+- **AND** it SHALL NOT include generic actuator PSR modifiers.
 
 ### Requirement: PSR Modifier — Terrain
 
@@ -626,4 +662,20 @@ The function SHALL deterministically map every `PSRTrigger` value to exactly one
 - **WHEN** `getPSRReasonCategory` is called for each
 - **THEN** every code SHALL map to exactly one of `'movement' | 'damage' | 'heat' | 'recovery'`
 - **AND** the partition SHALL match the category column in the spec's 27-code table
+
+### Requirement: AirMek Landing PSR Trigger
+
+AirMek landing PSRs created from runtime landing-control map commands SHALL be
+resolved immediately in movement phase, rather than waiting for the general
+end-phase pending-PSR resolver.
+
+#### Scenario: AirMek landing PSR resolves in movement phase
+
+- **GIVEN** an AirMek landing PSR is created from a runtime landing-control
+  command
+- **WHEN** the roll is evaluated
+- **THEN** the engine SHALL append `PSRResolved` in the same movement-phase
+  command sequence
+- **AND** the pending AirMek landing PSR SHALL be cleared by replaying that
+  `PSRResolved` event.
 

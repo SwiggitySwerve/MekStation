@@ -3,9 +3,7 @@
 ## Purpose
 
 TBD - created by archiving change implement-phase5-data-models. Update Purpose after archive.
-
 ## Requirements
-
 ### Requirement: Unit Entity Structure
 
 The system SHALL define a complete unit data model.
@@ -19,14 +17,20 @@ The system SHALL define a complete unit data model.
 
 ### Requirement: Component References
 
-Unit entity SHALL reference components by type.
+The unit entity SHALL reference components by type. When represented unit data
+includes a gyro type, runtime combat-state initialization SHALL preserve that
+gyro type so movement and piloting rules can evaluate represented gyro
+thresholds.
 
-#### Scenario: Component composition
+#### Scenario: Represented gyro type reaches runtime state
 
-- **WHEN** unit contains components
-- **THEN** engine, gyro, cockpit SHALL be single references
-- **AND** equipment SHALL be array of placed items
-- **AND** armor SHALL be allocation per location
+- **GIVEN** imported unit data identifies a heavy-duty gyro
+- **WHEN** the compendium adapter creates the game unit and combat state is
+  initialized
+- **THEN** the game unit SHALL carry the represented gyro type
+- **AND** the runtime unit state SHALL carry the same represented gyro type
+- **AND** stand-up projection and PSR resolution SHALL consume that runtime
+  gyro type instead of defaulting to standard-gyro thresholds
 
 ### Requirement: Unit Calculations
 
@@ -38,3 +42,4 @@ Unit entity SHALL support derived calculations.
 - **THEN** total weight SHALL be calculated from components
 - **AND** battle value SHALL be calculated
 - **AND** movement profile SHALL be calculated
+

@@ -541,24 +541,46 @@ When damage exposes structure at a vehicle's Front, Side, or Rear location, the 
 
 ### Requirement: Vehicle Hit Location Tables
 
-The system SHALL use vehicle-specific hit-location tables per attack direction.
+The system SHALL use vehicle-specific hit-location tables per attack direction,
+and SHALL apply MegaMek hull-down fixed-location behavior when a hull-down
+vehicle or vehicle-mode QuadVee is hit through a protected arc.
 
-#### Scenario: Front attack table
+#### Scenario: Hull-down turreted vehicle protected arc uses turret
 
-- **GIVEN** an attack from the Front arc
-- **WHEN** 2d6 is rolled
-- **THEN** 2 SHALL resolve to Front (TAC)
-- **AND** 3-4 SHALL resolve to Right Side
-- **AND** 5-7 SHALL resolve to Front
-- **AND** 8-9 SHALL resolve to Left Side
-- **AND** 10-11 SHALL resolve to Turret
-- **AND** 12 SHALL resolve to Front (TAC)
+- **GIVEN** a hull-down vehicle or vehicle-mode QuadVee with an available turret
+- **AND** the attack direction is front, left, or right for a non-backed entry
+- **WHEN** vehicle hit location is resolved
+- **THEN** the hit location SHALL be `turret`
+- **AND** no normal vehicle hit-location table roll SHALL be consumed
+- **AND** the result SHALL not be a TAC result.
 
-#### Scenario: VTOL roll 12 hits Rotor
+#### Scenario: Hull-down non-turret vehicle protected arc uses incoming side
 
-- **GIVEN** a VTOL target
-- **WHEN** a Front or Rear hit location roll is 12
-- **THEN** the hit SHALL land on Rotor instead of Turret
+- **GIVEN** a hull-down vehicle or vehicle-mode QuadVee without an available
+  turret, or whose turret is ignored
+- **AND** the attack direction is front, left, or right for a non-backed entry
+- **WHEN** vehicle hit location is resolved
+- **THEN** the hit location SHALL be the fixed incoming side location:
+  `front`, `left_side`, or `right_side`
+- **AND** the result SHALL not be a TAC result.
+
+#### Scenario: Hull-down vehicle exposed opposite arc uses normal table
+
+- **GIVEN** a hull-down vehicle or vehicle-mode QuadVee that did not back into
+  hull-down
+- **AND** the attack direction is rear
+- **WHEN** vehicle hit location is resolved
+- **THEN** the normal rear vehicle hit-location table SHALL be used
+- **AND** VTOL rotor redirection and TAC handling SHALL remain normal.
+
+#### Scenario: Backed hull-down entry flips protected direction
+
+- **GIVEN** a hull-down vehicle or vehicle-mode QuadVee whose entry path
+  included a backward step
+- **WHEN** vehicle hit location is resolved
+- **THEN** rear, left, and right attacks SHALL use hull-down fixed-location
+  behavior
+- **AND** front attacks SHALL use the normal front vehicle hit-location table.
 
 ### Requirement: Vehicle Critical Hit Table
 
@@ -1288,3 +1310,586 @@ For misses (`hit: false`), the runner SHALL emit `attack_resolved` and SHALL NOT
 - **WHEN** the runner resolves the attack
 - **THEN** the event log SHALL contain exactly one `attack_resolved` event with `hit: false`
 - **AND** the event log SHALL NOT contain any of `damage_applied`, `location_destroyed`, `transfer_damage`, `critical_hit`, `critical_hit_resolved`, `component_destroyed`, `unit_destroyed` causally attributable to this attack
+
+### Requirement: Air-to-Air Dispatch
+
+When both the attacker and the target are airborne aerospace units (`airborneState === 'airborne'` or `'taking-off'` or `'landing'`), the combat resolver SHALL route the attack to the air-to-air resolver in `aerospace-deployment`. The air-to-air resolver SHALL handle to-hit modifier calculation and delegate damage application to the existing `aerospaceResolveDamage` per the existing `Aerospace Damage Chain` requirement.
+
+#### Scenario: Two airborne aero — air-to-air dispatch
+
+- **GIVEN** attacker A and target T both in `airborneState: 'airborne'`
+- **WHEN** A declares an attack against T
+- **THEN** the resolver SHALL invoke the air-to-air resolver
+- **AND** the existing `aerospaceResolveDamage` SHALL be invoked for damage application
+
+#### Scenario: Grounded aero attacker bypasses air-to-air
+
+- **GIVEN** A is a grounded aero (`airborneState: 'grounded'`), T is airborne
+- **WHEN** A declares an attack at T
+- **THEN** the resolver SHALL route through Ground-to-Air Dispatch (A is treated as a ground unit)
+
+### Requirement: Air-to-Ground Dispatch
+
+When the attacker is an airborne aerospace unit and the target is a ground unit (BattleMech, Vehicle, Infantry, Battle Armor, ProtoMek, grounded Aero), the combat resolver SHALL route the attack to the air-to-ground resolver in `aerospace-deployment`. The resolver SHALL apply the +2 base strafe penalty + altitude-tier modifier per `aerospace-deployment → Air-to-Ground Combat`.
+
+#### Scenario: Airborne ASF fires at ground mech — air-to-ground
+
+- **GIVEN** A is `airborneState: 'airborne'` at altitude 5, T is a ground mech
+- **WHEN** A declares a forward-arc weapon attack at T's hex during movement
+- **THEN** the resolver SHALL invoke the air-to-ground resolver
+- **AND** the to-hit penalty SHALL include +2 (strafe) + 1 (medium altitude) = +3
+
+### Requirement: Ground-to-Air Dispatch
+
+When the attacker is a ground unit and the target is an airborne aerospace unit, the combat resolver SHALL route the attack to the ground-to-air resolver in `aerospace-deployment`. The resolver SHALL apply the altitude-tier penalty (low +1, med +2, high +3) and SHALL reject indirect-fire weapons with a warning event.
+
+#### Scenario: Ground mech fires at airborne aero — ground-to-air
+
+- **GIVEN** A is a mech with PPC, T is airborne aero at altitude 8 (high tier)
+- **WHEN** A declares the attack
+- **THEN** the resolver SHALL invoke the ground-to-air resolver
+- **AND** the to-hit penalty SHALL include +3 (high altitude)
+
+#### Scenario: Ground-to-air preview suppresses ground-only minimum range
+
+- **GIVEN** A is a ground unit with a direct-fire weapon that has minimum range
+- **AND** T is an airborne aerospace unit at altitude 3 within that weapon's nominal minimum range
+- **WHEN** the tactical map projects the target and A declares the attack
+- **THEN** the preview and committed to-hit modifiers SHALL NOT include `Minimum Range`
+- **AND** the preview and committed to-hit modifiers SHALL include the ground-to-air altitude-tier penalty
+- **AND** the tactical map SHALL NOT render a minimum-range badge for T's hex
+- **AND** T's altitude and velocity metadata SHALL remain visible in top-down and isometric map projections
+
+#### Scenario: Indirect-fire weapon rejected against airborne target
+
+- **GIVEN** A is a mech with LRM-15 in `weapon.mode: 'Indirect'`, T is airborne aero
+- **WHEN** A attempts the attack
+- **THEN** the resolver SHALL reject the attack
+- **AND** a warning event SHALL be emitted: `'Indirect-fire weapons cannot engage airborne targets'`
+- **AND** no ammo or heat SHALL be consumed (attack fully rejected, not auto-miss)
+
+### Requirement: Aerospace Dispatch Matrix Completeness
+
+The combat resolver's aerospace dispatch SHALL cover all combinations of (attacker airborne-state × target airborne-state) for aerospace units per the following matrix:
+
+| Attacker | Target | Dispatch |
+|---|---|---|
+| Airborne aero | Airborne aero | Air-to-Air |
+| Airborne aero | Ground unit | Air-to-Ground |
+| Airborne aero | Grounded aero | Air-to-Ground (grounded aero treated as ground unit) |
+| Grounded aero | Airborne aero | Ground-to-Air |
+| Grounded aero | Ground unit | Standard ground-combat dispatch (per existing `combat-resolution`) |
+| Ground unit | Airborne aero | Ground-to-Air |
+| Ground unit | Grounded aero | Standard ground-combat dispatch with `aerospaceResolveDamage` for hit-location |
+
+#### Scenario: Grounded aero vs airborne aero — ground-to-air
+
+- **GIVEN** A is a grounded aero, T is airborne
+- **WHEN** A declares an attack at T
+- **THEN** the resolver SHALL invoke the ground-to-air resolver (A treated as ground)
+
+#### Scenario: Airborne aero vs grounded aero — air-to-ground
+
+- **GIVEN** A is airborne, T is grounded aero
+- **WHEN** A declares an attack at T
+- **THEN** the resolver SHALL invoke the air-to-ground resolver (T treated as ground unit)
+
+### Requirement: Battle Armor Combat Dispatch
+
+The combat resolver SHALL route attacks involving Battle Armor units to BA-specific handlers per the following dispatch table:
+
+| Attacker | Target | Weapon kind | Handler |
+|---|---|---|---|
+| BA | Mek | `SwarmAttack` | `swarmAttachResolver` |
+| BA (swarmed) | Mek host | `SwarmWeaponAttack` | `swarmFireResolver` |
+| BA | Mek | `LegAttack` | `legAttackResolver` |
+| BA | Any adjacent | `BAVibroClawAttack` | `vibroclawResolver` |
+| Mek | (swarmed by BA) | (brush-off declared) | `brushOffResolver` |
+| Non-BA | BA squad | (any weapon) | apply `allocateSquadDamage` instead of mech hit-location |
+| Non-BA | Mek with mounted BA | (hits to CT/LT/RT) | route via `getTrooperAtLocation` adapter |
+
+#### Scenario: BA-attacker SwarmAttack routes correctly
+
+- **GIVEN** attacker A has `unitType === BATTLE_ARMOR` and weapon kind is `SwarmAttack`
+- **WHEN** the resolver processes the attack
+- **THEN** the `swarmAttachResolver` SHALL be invoked (not the mech weapon handler)
+
+#### Scenario: Non-BA attacker fires at BA target — squad damage allocation
+
+- **GIVEN** attacker A is a mech, target T has `unitType === BATTLE_ARMOR`
+- **WHEN** A's weapon hits T
+- **THEN** the resolver SHALL invoke `allocateSquadDamage(T.combatState.squad, damage, rng)` instead of mech hit-location
+- **AND** emitted events SHALL include per-trooper damage allocations + any `BATrooperKilled` events
+
+#### Scenario: Non-BA attacker hits host mech with mounted-trooper at location
+
+- **GIVEN** host mech L has swarmer B attached, A fires a hit landing on L's CT-rear
+- **WHEN** damage is applied
+- **THEN** the resolver SHALL consult `getTrooperAtLocation(CT_rear, ...)` → trooper 5
+- **AND** if trooper 5 is alive, damage SHALL be routed to that trooper (per `Anti-Personnel Fire on Mounted Troopers` in `battle-armor-combat`)
+- **AND** if trooper 5 is dead, damage SHALL be applied to L's CT-rear armor normally
+
+#### Scenario: Mek brush-off declaration consumes weapon slot
+
+- **GIVEN** mek L with attached swarmer B declares Brush-Off
+- **WHEN** the resolver processes the declaration
+- **THEN** one of L's weapon-attack slots for the turn SHALL be marked consumed
+- **AND** the `brushOffResolver` SHALL be invoked
+
+### Requirement: Battle Armor Combat Event Coverage
+
+The typed combat event log SHALL emit one or more of seven BA-specific event variants whenever a BA-related attack resolves: `BASwarmAttached`, `BASwarmDetached`, `BASwarmDamageApplied`, `BALegAttackResolved`, `BAVibroclawAttackResolved`, `BATrooperKilled`, `BABrushOffAttempted`. Each event SHALL carry stable fields per the discriminated-union definition in `battle-armor-combat`.
+
+#### Scenario: Swarm-attached emits BASwarmAttached
+
+- **GIVEN** B's `SwarmAttack` against L succeeds
+- **WHEN** the resolver records the result
+- **THEN** a `BASwarmAttached { attackerId: B.id, hostId: L.id }` event SHALL be emitted
+
+#### Scenario: Squad destroyed mid-swarm emits both BATrooperKilled and BASwarmDetached
+
+- **GIVEN** swarmer B attached to L, last surviving trooper killed by enemy fire
+- **WHEN** the trooper-killing damage is applied
+- **THEN** a `BATrooperKilled` event SHALL be emitted for that trooper
+- **AND** at end-of-turn cleanup, a `BASwarmDetached { reason: 'SquadDestroyed' }` event SHALL be emitted
+- **AND** the two events SHALL be ordered: trooper kill first, detach second
+
+#### Scenario: Brush-off attempt emits BABrushOffAttempted regardless of outcome
+
+- **GIVEN** L declares Brush-Off against B
+- **WHEN** the resolver processes the attempt
+- **THEN** a `BABrushOffAttempted` event SHALL be emitted with `outcome: 'hit' | 'miss'`
+- **AND** on hit, an additional `BASwarmDetached { reason: 'BrushedOff' }` SHALL be emitted
+
+#### Scenario: Event log replay round-trips BA events
+
+- **GIVEN** a JSONL event log containing all 7 BA event variants
+- **WHEN** the replay loader replays the log
+- **THEN** all 7 event types SHALL be parsed without loss
+- **AND** the columnar formatter SHALL render each with its stable fields per the line-format suite (pairs with `project_event_log_line_format_suite`)
+
+### Requirement: Indirect-Fire Dispatch
+
+The combat resolver SHALL invoke `InteractiveSession.computeIndirectFireContext` before `computeToHit` whenever an attack's weapon mode is `'Indirect'` OR the attacker has no line of sight to the target. The returned `IIndirectFireResolution` SHALL be folded into the attack record and the `toHitPenalty` SHALL be added to the running to-hit number.
+
+#### Scenario: Indirect mode triggers dispatch
+
+- **GIVEN** attacker A has weapon W toggled to `mode: 'Indirect'`
+- **WHEN** A declares an attack against hex H
+- **THEN** the resolver SHALL call `computeIndirectFireContext(A.id, W.id, H)` before `computeToHit`
+- **AND** the resolution SHALL be attached to the attack record as `attackRecord.indirectFire = IIndirectFireResolution`
+
+#### Scenario: No LOS triggers dispatch even when mode is Direct
+
+- **GIVEN** attacker A has weapon W in `mode: 'Direct'`
+- **AND** A has no line of sight to target hex H
+- **WHEN** A declares an attack against H
+- **THEN** the resolver SHALL call `computeIndirectFireContext` to check whether indirect resolution is available
+- **AND** if the resolution is `{ permitted: true, isIndirect: true }`, the attack SHALL proceed as indirect
+- **AND** if the resolution is `{ permitted: false }`, the attack SHALL be rejected with the resolution's `reason` field
+
+#### Scenario: LOS + Direct mode bypasses dispatch
+
+- **GIVEN** attacker A has line of sight to target T
+- **AND** weapon W is in `mode: 'Direct'`
+- **WHEN** A declares an attack against T
+- **THEN** the resolver SHALL NOT call `computeIndirectFireContext`
+- **AND** the attack SHALL resolve via the existing direct-fire pipeline
+
+### Requirement: Indirect-Fire Event Coverage
+
+The typed combat event log SHALL emit one of four event variants whenever an indirect-fire resolution is computed: `IndirectFireSpotterSelected` (basis='los'), `IndirectFireNarcOverride` (basis='narc' or 'inarc'), `IndirectFireForwardObserver` (FO SPA cancelled the spotter-walked penalty), or `IndirectFireSpotterLost` (spotter destroyed before damage resolution).
+
+#### Scenario: LOS spotter selected — emits IndirectFireSpotterSelected
+
+- **GIVEN** an indirect attack resolves with a friendly LOS spotter elected
+- **WHEN** `computeIndirectFireContext` completes
+- **THEN** an `IndirectFireSpotterSelected` event SHALL be emitted with fields `{ attackerId, spotterId, weaponId, ammoId, targetHex, toHitPenalty, basis: 'los' }`
+
+#### Scenario: NARC override — emits IndirectFireNarcOverride
+
+- **GIVEN** an indirect attack resolves via NARC override (no LOS spotter, target NARC-marked by friendly team)
+- **WHEN** `computeIndirectFireContext` completes
+- **THEN** an `IndirectFireNarcOverride` event SHALL be emitted with fields `{ attackerId, spotterId: null, weaponId, ammoId, targetHex, toHitPenalty, basis: 'narc' | 'inarc' }`
+
+#### Scenario: Forward Observer SPA active — emits IndirectFireForwardObserver
+
+- **GIVEN** an indirect attack with a walking spotter whose pilot has the `FORWARD_OBSERVER` SPA
+- **WHEN** the resolver cancels the +1 spotter-walked penalty
+- **THEN** an `IndirectFireForwardObserver` event SHALL be emitted with fields `{ attackerId, spotterId, weaponId, basis: 'los', penaltyCancelled: 1 }`
+- **AND** this event SHALL be emitted in addition to (not instead of) the `IndirectFireSpotterSelected` event
+
+#### Scenario: Spotter destroyed mid-attack — emits IndirectFireSpotterLost
+
+- **GIVEN** a spotter elected at to-hit time
+- **WHEN** the spotter is destroyed by an intervening attack before damage resolution
+- **THEN** an `IndirectFireSpotterLost` event SHALL be emitted with fields `{ attackerId, spotterId, weaponId, ammoId, targetHex, reason: 'Spotter destroyed before resolution' }`
+- **AND** the attack outcome SHALL be `'auto-miss'` with ammo + heat still consumed
+
+#### Scenario: Event log replay round-trips indirect events
+
+- **GIVEN** an indirect-fire attack with all four event types in the JSONL event log
+- **WHEN** the replay loader replays the log
+- **THEN** the four event types SHALL be parsed without loss
+- **AND** the columnar formatter SHALL render each with its stable fields per the line-format suite
+
+### Requirement: Spotter-Fire Penalty on Elected Spotter
+
+The spotter unit elected for an indirect-fire attack SHALL receive a +1 to-hit modifier on any of its OWN direct-fire attacks during the same turn, mirroring MegaMek's `ComputeAttackerToHitMods.java:172-177` rule. This penalty SHALL apply for the entire turn once the spotter has been elected, even if a subsequent indirect attack invalidates the spotter via liveness check.
+
+#### Scenario: Spotter takes its own attack — +1 penalty
+
+- **GIVEN** spotter S was elected for attacker A's indirect attack
+- **WHEN** S subsequently fires its own direct attack on a different target
+- **THEN** S's to-hit calculation SHALL include `+1 spotting-fire` modifier
+- **AND** the modifier SHALL be tagged in the to-hit breakdown as `'Spotting for indirect fire'`
+
+#### Scenario: Penalty persists after spotter-lost auto-miss
+
+- **GIVEN** S was elected as spotter and S was subsequently destroyed before A's damage step
+- **WHEN** S's earlier own-attacks are replayed
+- **THEN** the +1 spotting-fire penalty SHALL still apply (the penalty is fixed at election time, not retroactively cancelled)
+
+### Requirement: Session Vehicle Damage Dispatch
+
+The system SHALL resolve committed weapon hits against targets whose derived
+unit state carries `combatState.kind === "vehicle"` with the vehicle combat
+pipeline rather than the generic Mek hit-location and damage pipeline.
+
+#### Scenario: Represented vehicle target uses vehicle damage
+
+- **GIVEN** a weapon attack hits a target with `combatState.kind === "vehicle"`
+- **WHEN** the session resolves the attack
+- **THEN** the hit location SHALL be selected by the vehicle hit-location table
+  for the computed attack direction
+- **AND** the emitted `AttackResolved.location` SHALL be the corresponding
+  vehicle armor location such as `Front`, `Left`, `Right`, `Rear`, `Turret`, or
+  `Rotor`
+- **AND** emitted `DamageApplied` events SHALL carry vehicle armor and
+  structure remaining values from `vehicleResolveDamage`
+- **AND** the generic Mek damage transfer chain SHALL NOT be used for that hit.
+
+#### Scenario: Hull-down fixed location is honored during session resolution
+
+- **GIVEN** a hull-down represented vehicle target is hit through a protected
+  arc
+- **AND** the vehicle has an available represented turret
+- **WHEN** the session resolves the attack
+- **THEN** the committed hit SHALL resolve to `Turret`
+- **AND** no normal vehicle location-table dice SHALL be consumed for that hit.
+
+#### Scenario: Vehicle motive and crash events are replay-visible
+
+- **GIVEN** vehicle damage triggers motive damage, immobilization, or VTOL rotor
+  crash handling
+- **WHEN** the session resolves the attack
+- **THEN** the event stream SHALL include the applicable vehicle events:
+  `MotiveDamaged`, `MotivePenaltyApplied`, `VehicleImmobilized`, and
+  `VTOLCrashCheck`
+- **AND** fatal vehicle damage SHALL emit `UnitDestroyed` with a compatible
+  destruction cause.
+
+### Requirement: Session Vehicle Critical Dispatch
+
+The system SHALL dispatch represented vehicle weapon-hit critical triggers from
+the committed session attack path through the vehicle critical-hit resolver.
+
+#### Scenario: Vehicle TAC critical is replay-visible
+
+- **GIVEN** a committed weapon attack hits a target with
+  `combatState.kind === "vehicle"`
+- **AND** the vehicle hit-location result is a TAC trigger
+- **WHEN** the session resolves the attack
+- **THEN** the session SHALL roll and apply a vehicle critical result
+- **AND** the event stream SHALL include a `CriticalHitResolved` event naming
+  the vehicle critical effect that was applied.
+
+#### Scenario: Vehicle structure exposure triggers critical dispatch
+
+- **GIVEN** a committed weapon attack hits a target with
+  `combatState.kind === "vehicle"`
+- **AND** vehicle damage exposes structure at the hit location
+- **WHEN** the session resolves the attack
+- **THEN** the session SHALL roll and apply a vehicle critical result after the
+  vehicle damage event has been emitted.
+
+#### Scenario: Vehicle critical effects emit state-specific events
+
+- **GIVEN** a vehicle critical result applies a crew stun, weapon destruction,
+  ammo explosion, engine destruction, or crew kill effect
+- **WHEN** the session emits replay events for the critical
+- **THEN** the event stream SHALL include the applicable state-specific events
+  from `VehicleCrewStunned`, `ComponentDestroyed`, `AmmoExplosion`, and
+  `UnitDestroyed`
+- **AND** replaying the events SHALL reconstruct the vehicle combat-state
+  mutation.
+
+### Requirement: Location-Sensitive Vehicle Critical Tables
+
+The vehicle critical resolver SHALL select critical effects using the struck
+vehicle location instead of one generic vehicle critical table.
+
+#### Scenario: Front vehicle critical roll uses the front table
+
+- **GIVEN** a represented ground vehicle is critically hit in the front
+- **WHEN** the vehicle critical roll total is 12
+- **THEN** the applied critical effect SHALL be `crew_killed`.
+
+#### Scenario: Rear vehicle critical roll uses engine fuel context
+
+- **GIVEN** a represented ground vehicle is critically hit in the rear
+- **WHEN** the vehicle critical roll total is 12
+- **AND** the vehicle has a non-fusion fuel-bearing engine
+- **THEN** the applied critical effect SHALL be `fuel_tank`.
+
+#### Scenario: Turret vehicle critical roll can lock or destroy the turret
+
+- **GIVEN** a represented vehicle is critically hit in the turret
+- **WHEN** the vehicle critical roll total is 9 or 12
+- **THEN** the applied critical effect SHALL be `turret_locked` for 9 and
+  `turret_destroyed` for 12.
+
+#### Scenario: VTOL rotor critical roll uses rotor-specific results
+
+- **GIVEN** a represented VTOL is critically hit in the rotor
+- **WHEN** the vehicle critical roll total is 6, 9, or 11
+- **THEN** the applied critical effect SHALL be `rotor_damage`,
+  `flight_stabilizer`, or `rotor_destroyed` respectively.
+
+### Requirement: Vehicle Critical Availability Fallthrough
+
+Vehicle critical resolution SHALL continue through the struck-location critical
+table when represented state proves that the current table entry cannot apply.
+If no later entry applies, the resolver SHALL retry the same struck-location
+table once from roll 6 before resolving to `none`, matching MegaMek Tank / VTOL
+critical-effect selection.
+
+#### Scenario: Rear ammo critical falls through when no explosive ammo is represented
+
+- **GIVEN** a represented ground vehicle is critically hit in the rear
+- **AND** the vehicle has no represented explosive ammo remaining
+- **WHEN** the vehicle critical roll total is 11
+- **THEN** the resolver SHALL skip `ammo_explosion`
+- **AND** the applied critical effect SHALL fall through to the roll-12
+  engine or fuel-tank outcome for that vehicle's represented engine state.
+
+#### Scenario: Turret ammo critical falls through to turret destruction
+
+- **GIVEN** a represented vehicle is critically hit in the turret
+- **AND** the vehicle has no represented explosive ammo remaining
+- **WHEN** the vehicle critical roll total is 11
+- **THEN** the applied critical effect SHALL be `turret_destroyed`
+- **AND** the event stream SHALL NOT emit an `AmmoExplosion` event.
+
+#### Scenario: Crew hit counters alter repeated front criticals
+
+- **GIVEN** a represented ground vehicle is critically hit in the front
+- **AND** the driver has already taken a represented hit
+- **WHEN** the vehicle critical roll total is 6
+- **THEN** the applied critical effect SHALL fall through to a crew-stun or
+  crew-kill outcome instead of a duplicate driver hit.
+
+#### Scenario: Rotor damage falls through when the VTOL is already immobile
+
+- **GIVEN** a represented VTOL is critically hit in the rotor
+- **AND** the VTOL is already immobilized
+- **WHEN** the vehicle critical roll total is 6
+- **THEN** the resolver SHALL skip `rotor_damage`
+- **AND** the applied critical effect SHALL fall through to the next available
+  rotor-table result.
+
+#### Scenario: Unrepresented equipment availability remains optimistic
+
+- **GIVEN** the current session state does not represent target vehicle weapon,
+  cargo, or stabilizer inventory availability
+- **WHEN** a vehicle critical result depends on that unrepresented inventory
+- **THEN** the resolver SHALL preserve the existing optimistic table behavior
+  unless a caller supplies explicit availability context.
+
+### Requirement: Vehicle Critical Target Equipment Availability
+
+Committed vehicle critical resolution SHALL use represented target vehicle
+equipment availability when selecting availability-sensitive critical effects.
+When target equipment availability is unknown, the resolver SHALL preserve the
+existing optimistic table behavior rather than inventing absence.
+
+#### Scenario: Adapted vehicle weapons seed critical availability
+
+- **GIVEN** a represented vehicle enters a session with adapted weapons carrying
+  vehicle mount locations
+- **WHEN** the session unit bindings are created
+- **THEN** the vehicle unit SHALL carry critical availability metadata listing
+  the locations with represented weapon mounts
+- **AND** the metadata SHALL separately list represented locations with live
+  weapons available for weapon-jam and weapon-destroyed critical entries.
+
+#### Scenario: Missing target weapon location falls through weapon criticals
+
+- **GIVEN** a represented vehicle is critically hit in the front
+- **AND** target availability metadata proves there is no mounted weapon at the
+  front location
+- **WHEN** the vehicle critical roll total selects a front weapon critical
+- **THEN** the resolver SHALL skip weapon-jam, weapon-destroyed, and stabilizer
+  outcomes that require a weapon at that location
+- **AND** the committed event stream SHALL emit the next available critical
+  effect selected by the struck-location fallthrough table.
+
+#### Scenario: Explicit cargo absence falls through cargo criticals
+
+- **GIVEN** a represented vehicle is critically hit in a location whose table can
+  select `cargo_hit`
+- **AND** target availability metadata explicitly says no cargo is loaded
+- **WHEN** the vehicle critical roll total selects `cargo_hit`
+- **THEN** the resolver SHALL skip `cargo_hit`
+- **AND** the resolver SHALL continue through the same struck-location
+  fallthrough table.
+
+#### Scenario: Unknown equipment state remains optimistic
+
+- **GIVEN** a represented vehicle has no target equipment availability metadata
+- **WHEN** a vehicle critical entry depends on weapon, cargo, or stabilizer
+  availability
+- **THEN** the resolver SHALL preserve legacy optimistic behavior for that entry.
+
+### Requirement: Vehicle Critical Stabilizer Mount Presence
+
+Committed vehicle critical resolution SHALL distinguish represented weapon mount
+presence from represented live weapon availability when selecting Tank / VTOL
+location-sensitive critical results.
+
+#### Scenario: Unavailable mounted weapon still allows stabilizer critical
+
+- **GIVEN** a represented vehicle target has a weapon mounted at the struck
+  location
+- **AND** the same target has no represented jammable or destroyable weapon
+  available at that location
+- **WHEN** the vehicle critical table falls through from a weapon entry to a
+  stabilizer entry for that location
+- **THEN** committed vehicle critical resolution SHALL keep the stabilizer
+  result available
+- **AND** the weapon-jam and weapon-destroyed entries SHALL remain unavailable.
+
+#### Scenario: No mounted weapon skips stabilizer critical
+
+- **GIVEN** target metadata proves the struck vehicle location has no mounted
+  weapon
+- **WHEN** the vehicle critical table reaches a stabilizer entry for that
+  location
+- **THEN** committed vehicle critical resolution SHALL skip the stabilizer result
+  and continue fallthrough to the next eligible critical result.
+
+### Requirement: Runtime Vehicle Critical Equipment State
+
+Committed vehicle critical resolution SHALL use represented runtime target
+equipment state from prior vehicle critical events when selecting later
+availability-sensitive vehicle critical results.
+
+#### Scenario: Prior weapon destruction reduces live weapon availability
+
+- **GIVEN** a represented vehicle target has one known live weapon at the struck
+  location
+- **AND** a prior committed vehicle critical destroyed a weapon at that location
+- **WHEN** a later vehicle critical roll reaches a weapon-jam or
+  weapon-destroyed entry for the same location
+- **THEN** committed vehicle critical resolution SHALL treat that live weapon as
+  unavailable for weapon-jam and weapon-destroyed selection
+- **AND** mounted weapon presence SHALL remain available for stabilizer
+  selection at that location.
+
+#### Scenario: Prior stabilizer hit falls through later stabilizer entries
+
+- **GIVEN** a represented vehicle target has already resolved a stabilizer
+  critical at a struck location
+- **WHEN** a later vehicle critical roll reaches a stabilizer entry for that
+  same location
+- **THEN** committed vehicle critical resolution SHALL skip the stabilizer entry
+  and continue through the struck-location fallthrough table.
+
+#### Scenario: Unknown weapon counts remain optimistic
+
+- **GIVEN** a represented vehicle target has location-level weapon availability
+  but no represented count of live weapons at that location
+- **WHEN** a prior vehicle weapon critical exists at the same location
+- **THEN** committed vehicle critical resolution SHALL NOT infer that all live
+  weapons at that location are unavailable.
+
+### Requirement: Integrated Combat Projection Agreement
+
+Combat projection SHALL represent the same target legality, range band, firing
+arc, selected-weapon applicability, LOS/visibility state, cover, and represented
+environmental restrictions that committed attack validation and resolution will
+enforce.
+
+#### Scenario: Represented attacks stay preview/commit aligned
+
+- **GIVEN** a selected unit previews weapon or physical attacks on the tactical
+  map
+- **WHEN** the projection marks a target legal, blocked, out of range, out of
+  arc, hidden, covered, or restricted by represented terrain/environment state
+- **THEN** committing the unchanged attack SHALL use the same range, arc, LOS,
+  cover, weapon, and to-hit context
+- **AND** rejected attacks SHALL surface the same typed reason the preview
+  exposed before commit.
+
+### Requirement: Damage Application Events
+
+Damage caused by runtime movement consequences SHALL use the same
+`DamageApplied` replay/reducer event shape as weapon and physical-attack damage,
+while preserving the phase in which the consequence occurred.
+
+#### Scenario: Movement consequence damage carries movement phase
+
+- **GIVEN** a movement-phase runtime command produces armor/internal damage
+- **WHEN** that damage is emitted as `DamageApplied`
+- **THEN** the event SHALL carry `phase: GamePhase.Movement`
+- **AND** replaying the event SHALL update the target unit's armor, structure,
+  and phase-damage counters through the standard reducer.
+
+### Requirement: Destruction Lifecycle Events
+
+Damage caused by runtime movement consequences SHALL fan out through the same
+destruction lifecycle event vocabulary as weapon and physical-attack damage.
+
+#### Scenario: Movement consequence damage destroys a location
+
+- **GIVEN** a movement-phase runtime consequence applies damage through
+  `DamageApplied`
+- **WHEN** that damage destroys a location
+- **THEN** the event stream SHALL append a movement-phase `LocationDestroyed`
+  event for that location
+- **AND** any normal transfer overflow SHALL append a movement-phase
+  `TransferDamage` event.
+
+#### Scenario: Movement consequence damage destroys the unit
+
+- **GIVEN** a movement-phase runtime consequence applies fall damage
+- **WHEN** the damage resolver marks the unit destroyed
+- **THEN** the event stream SHALL append a movement-phase `UnitDestroyed`
+  event before later pilot-hit consequence events.
+
+### Requirement: Movement Consequence Critical Events
+
+Structure-exposing damage caused by runtime movement consequences SHALL resolve
+critical-hit follow-through through the same shared damage/critical resolver as
+weapon and physical-attack damage.
+
+#### Scenario: AirMek landing crash damage triggers a critical hit
+
+- **GIVEN** a failed AirMek landing-control check applies fall cluster damage
+  during movement phase
+- **AND** that cluster exposes internal structure without destroying the hit
+  location
+- **WHEN** the critical-hit roll succeeds
+- **THEN** the event stream SHALL append movement-phase `CriticalHit`,
+  `CriticalHitResolved`, and `ComponentDestroyed` events in causal order after
+  the matching `DamageApplied`
+- **AND** the target unit state SHALL replay the resolved component damage.
+
+#### Scenario: AirMek landing crash critical destroys the unit
+
+- **GIVEN** movement-phase AirMek landing crash damage triggers a critical
+  cascade that destroys the unit
+- **WHEN** the critical stream emits `UnitDestroyed`
+- **THEN** the runtime movement command SHALL emit exactly one movement-phase
+  `UnitDestroyed` event for that critical destruction.
+

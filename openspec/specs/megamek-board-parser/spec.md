@@ -45,9 +45,7 @@ Defines the parsing logic for MegaMek .board files, which encode hexagonal battl
 - **Terrain Level**: Numeric intensity/depth modifier for terrain features
 
 ---
-
 ## Requirements
-
 ### Requirement: Board Dimension Parsing
 
 The parser SHALL extract board width and height from the size declaration line.
@@ -85,47 +83,17 @@ The parser SHALL extract board width and height from the size declaration line.
 
 ### Requirement: Hex Coordinate Parsing
 
-The parser SHALL parse hex coordinates in MegaMek's 4-digit offset format (CCRRR) and convert to axial coordinates.
+The parser SHALL preserve existing explicit-coordinate parsing for unambiguous
+MegaMek board labels, and SHALL use MegaMek row order to disambiguate labels
+that can be split into multiple valid column/row pairs.
 
-**Rationale**: MegaMek uses 1-indexed offset coordinates (column, row), while MekStation uses 0-indexed axial coordinates (q, r) for hex grid calculations.
+#### Scenario: Disambiguate ambiguous large-board labels by row order
 
-**Priority**: Critical
-
-#### Scenario: Parse coordinate 0101 (origin)
-
-**GIVEN** a hex line "hex 0101 0 "" """
-**WHEN** parsing the coordinate
-**THEN** the parser SHALL extract column 1, row 1
-**AND** convert to axial coordinate q=0, r=0
-
-#### Scenario: Parse coordinate 0201
-
-**GIVEN** a hex line "hex 0201 0 "" """
-**WHEN** parsing the coordinate
-**THEN** the parser SHALL extract column 2, row 1
-**AND** convert to axial coordinate q=1, r=0
-
-#### Scenario: Parse coordinate 0102
-
-**GIVEN** a hex line "hex 0102 0 "" """
-**WHEN** parsing the coordinate
-**THEN** the parser SHALL extract column 1, row 2
-**AND** convert to axial coordinate q=0, r=1
-
-#### Scenario: Parse coordinate 0303
-
-**GIVEN** a hex line "hex 0303 0 "" """
-**WHEN** parsing the coordinate
-**THEN** the parser SHALL extract column 3, row 3
-**AND** convert to axial coordinate q=2, r=1
-
-#### Scenario: Invalid coordinate format
-
-**GIVEN** a hex line "hex XXXX 0 "" """
-**WHEN** parsing the coordinate
-**THEN** the parser SHALL throw error "Invalid hex coordinate"
-
----
+- **GIVEN** a `.board` file declares `size 170 120`
+- **AND** the 101st `hex` row uses board label `10101`
+- **WHEN** parsing the coordinate
+- **THEN** the parser SHALL choose column `101`, row `1` from MegaMek row order
+  rather than column `10`, row `101`.
 
 ### Requirement: Elevation Parsing
 
@@ -157,46 +125,26 @@ The parser SHALL extract elevation values from hex data and validate numeric for
 
 ### Requirement: Terrain String Parsing
 
-The parser SHALL parse semicolon-delimited terrain feature strings and extract terrain type and level.
+The parser SHALL parse semicolon-delimited terrain feature strings and extract
+terrain type, level, and supported source metadata.
 
-**Rationale**: MegaMek encodes multiple terrain features per hex using semicolon-separated type:level pairs.
+#### Scenario: Parse cliff-top exit metadata
 
-**Priority**: Critical
+- **GIVEN** a board hex terrain string contains `cliff_top:1:<exitMask>`
+- **WHEN** the parser reads the board
+- **THEN** the parser SHALL convert each active bit in `<exitMask>` into a
+  `cliffTopExits` facing direction on that hex's terrain-feature metadata
+- **AND** each active exit SHALL use MegaMek's `1 << direction` encoding for
+  directions `0..5`.
 
-#### Scenario: Parse empty terrain
+#### Scenario: Correct imported cliff exits against board elevations
 
-**GIVEN** a hex line with terrain string '""' or '""'
-**WHEN** parsing terrain features
-**THEN** the parser SHALL return empty features array
-
-#### Scenario: Parse single terrain feature
-
-**GIVEN** a hex line with terrain string '"woods:1"'
-**WHEN** parsing terrain features
-**THEN** the parser SHALL extract terrain type "woods" with level 1
-
-#### Scenario: Parse multiple terrain features
-
-**GIVEN** a hex line with terrain string '"woods:1;water:2"'
-**WHEN** parsing terrain features
-**THEN** the parser SHALL extract two features
-**AND** first feature SHALL be type "woods" with level 1
-**AND** second feature SHALL be type "water" with level 2
-
-#### Scenario: Ignore unknown terrain types
-
-**GIVEN** a hex line with terrain string '"unknown:1;woods:1"'
-**WHEN** parsing terrain features
-**THEN** the parser SHALL skip "unknown" terrain
-**AND** extract only "woods:1" feature
-
-#### Scenario: Handle invalid level format
-
-**GIVEN** a hex line with terrain string '"woods:invalid"'
-**WHEN** parsing terrain features
-**THEN** the parser SHALL skip the feature with invalid level
-
----
+- **GIVEN** a board hex has imported `cliff_top` exits
+- **WHEN** an exit points off board or toward a neighbor that is not exactly 1
+  or 2 elevation levels lower
+- **THEN** the parser SHALL omit that exit from `cliffTopExits`
+- **AND** the parser SHALL NOT create cliff metadata when no imported exits
+  remain valid.
 
 ### Requirement: Terrain Type Mapping
 
@@ -338,6 +286,51 @@ The parser SHALL skip comment lines, option lines, and end markers while process
 **AND** not create hex data from them
 
 ---
+
+### Requirement: Local MegaMek Board Corpus Audit
+
+MekStation SHALL provide a developer-run audit command that parses selected
+MegaMek `.board` files with the MekStation board parser and reports import
+coverage.
+
+#### Scenario: Audit parses a local MegaMek board corpus
+
+- **GIVEN** a developer has a local MegaMek checkout with `data/boards`
+- **WHEN** the developer runs the MegaMek board import audit command
+- **THEN** the command SHALL recursively scan `.board` files
+- **AND** parse each selected file with `parseMegaMekBoard`
+- **AND** report parsed board count and parsed hex count.
+
+#### Scenario: Audit reports terrain metadata coverage
+
+- **GIVEN** selected MegaMek board files contain large board-coordinate labels
+  or `cliff_top` terrain metadata
+- **WHEN** the audit completes
+- **THEN** the command SHALL report how many selected boards and hex rows used
+  large-coordinate labels
+- **AND** how many selected boards and hex rows contained `cliff_top` metadata.
+
+#### Scenario: Audit fails on parser regressions
+
+- **GIVEN** a selected MegaMek board cannot be parsed by MekStation
+- **WHEN** the audit reaches that board
+- **THEN** the command SHALL include the file and parser error in its failure
+  report
+- **AND** exit non-zero.
+
+#### Scenario: Audit fails on skipped hex rows
+
+- **GIVEN** a selected MegaMek board contains `hex` rows
+- **WHEN** parsing succeeds but the parsed hex count differs from the number of
+  `hex` rows in the source file
+- **THEN** the command SHALL report the mismatch
+- **AND** exit non-zero.
+
+#### Scenario: Audit remains optional outside local oracle environments
+
+- **GIVEN** CI or a developer machine does not have a local MegaMek checkout
+- **WHEN** normal unit tests, typecheck, lint, format, and build commands run
+- **THEN** they SHALL NOT require the corpus audit command.
 
 ## Data Model Requirements
 
