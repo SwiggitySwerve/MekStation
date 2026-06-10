@@ -804,11 +804,14 @@ export class MoveAI {
           facing: typedFacing,
           movementType,
           mpCost,
-          heatGenerated: calculateMovementHeat(
-            movementType,
-            distance,
-            capability.partialWingJumpBonus,
-          ),
+          // Audit 2026-06-09 B-3: pass the full capability heat state —
+          // previously only the Partial Wing bonus was forwarded, charging
+          // Mek movement heat to non-Mek motive modes.
+          heatGenerated: calculateMovementHeat(movementType, distance, {
+            movementMode: capability.movementMode,
+            movementHeatProfile: capability.movementHeatProfile,
+            partialWingJumpBonus: capability.partialWingJumpBonus,
+          }),
         });
       }
     }

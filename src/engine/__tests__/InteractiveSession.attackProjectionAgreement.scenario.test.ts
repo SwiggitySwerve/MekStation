@@ -8,6 +8,7 @@ import type {
   IWeaponStatus,
 } from '@/types/gameplay';
 
+import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
 import {
   Facing,
@@ -39,6 +40,7 @@ import {
   startGame,
 } from '@/utils/gameplay/gameSession';
 import { resolveAttack } from '@/utils/gameplay/gameSessionAttackResolution';
+import { buildDefaultComponentDamageState } from '@/utils/gameplay/gameSessionAttackResolutionHelpers';
 import {
   HULL_DOWN_FRONT_WEAPON_BLOCKED_REASON,
   HULL_DOWN_LEG_WEAPON_BLOCKED_REASON,
@@ -2960,6 +2962,231 @@ describe('interactive attack projection agreement', () => {
     expect(payload.toHitNumber).toBe(projection!.toHitNumber);
   });
 
+  it('applies the +1 minimum-range penalty at exactly minimum range in both preview and committed attacks', () => {
+    // Audit B-6 (W1.2): MegaMek Compute.java#L1714-L1716 applies the penalty
+    // when `distance <= minRange` — +1 AT exactly minimum range. The
+    // projection previously used a strict `minimum > distance` comparison,
+    // so the previewed (and stamped) to-hit silently dropped the +1 the
+    // engine's own calculator produces.
+    const session = setupSessionAtWeaponAttack();
+    session.currentState.units.t1 = {
+      ...session.currentState.units.t1,
+      position: { q: 6, r: 0 },
+    };
+    const grid = makeClearGrid(8);
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 6, r: 0 },
+      facing: Facing.North,
+    });
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons: [
+        makeWeaponStatus({
+          id: 'lrm-15-1',
+          name: 'LRM-15',
+          heat: 5,
+          damage: 9,
+          ranges: { short: 7, medium: 14, long: 21, minimum: 6 },
+        }),
+      ],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 6 && hex.hex.r === 0);
+
+    expect(projection).toBeDefined();
+    expect(projection).toMatchObject({
+      attackable: true,
+      rangeBracket: RangeBracket.Short,
+      minimumRangePenalty: 1,
+      minimumRangeWeaponIds: ['lrm-15-1'],
+      minimumRangeReason: 'Minimum range penalty +1 (lrm-15-1)',
+      toHitNumber: 5,
+    });
+    expect(projection?.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Minimum Range',
+          value: 1,
+          source: 'range',
+        }),
+      ]),
+    );
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildMinimumRangeWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['lrm-15-1'],
+      grid,
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Minimum Range',
+          value: 1,
+          source: 'range',
+        }),
+      ]),
+    );
+    expect(payload.toHitNumber).toBe(projection!.toHitNumber);
+  });
+
+  it('keeps evading attackers blocked in both preview and committed attacks', () => {
+    // Audit B-2 (W1.2): the engine commit path rejects evading attackers
+    // (declareAttack -> invalidateEvadingAttackerAttack). The projection must
+    // refuse the same hexes with the same reason/details instead of
+    // previewing an attack the engine will refuse.
+    const session = setupSessionAtWeaponAttack();
+    session.currentState.units.a1 = {
+      ...session.currentState.units.a1,
+      isEvading: true,
+    };
+    const grid = makeClearGrid(3);
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+      facing: Facing.North,
+    });
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons: [makeWeaponStatus()],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(projection).toBeDefined();
+    expect(projection).toMatchObject({
+      attackable: false,
+      attackInvalidReason: 'AttackerEvading',
+      attackInvalidDetails:
+        "Attacker 'a1' is evading and cannot fire ranged weapons",
+      blockedReason: "Attacker 'a1' is evading and cannot fire ranged weapons",
+      validTargetUnitIds: [],
+    });
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['medium-laser'],
+      grid,
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponId: 'medium-laser',
+      reason: projection!.attackInvalidReason,
+      details: projection!.attackInvalidDetails,
+    });
+  });
+
+  it('keeps sprinting attackers blocked in both preview and committed attacks', () => {
+    // Audit B-2 (W1.2): same agreement contract as the evading gate —
+    // declareAttack -> invalidateSprintingAttackerAttack on the engine side.
+    const session = setupSessionAtWeaponAttack();
+    session.currentState.units.a1 = {
+      ...session.currentState.units.a1,
+      sprintedThisTurn: true,
+    };
+    const grid = makeClearGrid(3);
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+      facing: Facing.North,
+    });
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons: [makeWeaponStatus()],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(projection).toBeDefined();
+    expect(projection).toMatchObject({
+      attackable: false,
+      attackInvalidReason: 'AttackerSprinted',
+      attackInvalidDetails:
+        "Attacker 'a1' sprinted and cannot fire ranged weapons",
+      blockedReason: "Attacker 'a1' sprinted and cannot fire ranged weapons",
+      validTargetUnitIds: [],
+    });
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['medium-laser'],
+      grid,
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponId: 'medium-laser',
+      reason: projection!.attackInvalidReason,
+      details: projection!.attackInvalidDetails,
+    });
+  });
+
   it('keeps extreme-range preview brackets aligned with committed attacks', () => {
     const session = setupSessionAtWeaponAttack();
     session.currentState.units.t1 = {
@@ -3795,5 +4022,322 @@ describe('interactive attack projection agreement', () => {
         (event) => event.type === GameEventType.IndirectFireSpotterSelected,
       ),
     ).toBe(false);
+  });
+
+  // ---------------------------------------------------------------------------
+  // Audit 2026-06-09 finding B-1 (W1.1): the projection must hydrate attacker/
+  // target to-hit state through the SAME buildWeaponAttackAttackerToHitState /
+  // buildWeaponAttackTargetToHitState builders the engine uses, so the
+  // committed AttackDeclared payload (which resolution rolls against) carries
+  // pilot wounds, sensor hits, actuator damage, SPAs, quirks, and target
+  // evasion identically in preview and commit.
+  // ---------------------------------------------------------------------------
+
+  it('keeps attacker sensor hits and pilot wounds aligned between preview and committed attacks', () => {
+    const session = setupSessionAtWeaponAttack();
+    session.currentState.units.a1 = {
+      ...session.currentState.units.a1,
+      pilotWounds: 1,
+      componentDamage: {
+        ...buildDefaultComponentDamageState(),
+        sensorHits: 2,
+      },
+    };
+    const grid = makeClearGrid(3);
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+      facing: Facing.North,
+    });
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons: [makeWeaponStatus()],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(projection).toBeDefined();
+    // Base 4 (gunnery) + 1 (pilot wound) + 2 (two sensor hits) = 7.
+    expect(projection).toMatchObject({
+      attackable: true,
+      toHitNumber: 7,
+    });
+    expect(projection?.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'Pilot Wounds', value: 1 }),
+        expect.objectContaining({ name: 'Sensor Damage', value: 2 }),
+      ]),
+    );
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['medium-laser'],
+      grid,
+    });
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.toHitNumber).toBe(7);
+    expect(payload.toHitNumber).toBe(projection!.toHitNumber);
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'Pilot Wounds', value: 1 }),
+        expect.objectContaining({ name: 'Sensor Damage', value: 2 }),
+      ]),
+    );
+  });
+
+  it('keeps attacker arm actuator damage aligned between preview and committed attacks', () => {
+    const session = setupSessionAtWeaponAttack();
+    session.currentState.units.a1 = {
+      ...session.currentState.units.a1,
+      componentDamage: {
+        ...buildDefaultComponentDamageState(),
+        actuators: { [ActuatorType.SHOULDER]: true },
+      },
+    };
+    const grid = makeClearGrid(3);
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+      facing: Facing.North,
+    });
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      // Arm-mounted weapon (makeWeaponStatus defaults to right_arm).
+      weapons: [makeWeaponStatus()],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(projection).toBeDefined();
+    // Base 4 (gunnery) + 4 (destroyed shoulder actuator) = 8.
+    expect(projection).toMatchObject({
+      attackable: true,
+      toHitNumber: 8,
+    });
+    expect(projection?.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'Actuator Damage', value: 4 }),
+      ]),
+    );
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['medium-laser'],
+      grid,
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.toHitNumber).toBe(8);
+    expect(payload.toHitNumber).toBe(projection!.toHitNumber);
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'Actuator Damage', value: 4 }),
+      ]),
+    );
+  });
+
+  it('keeps target evasion bonus aligned between preview and committed attacks', () => {
+    const session = setupSessionAtWeaponAttack();
+    session.currentState.units.t1 = {
+      ...session.currentState.units.t1,
+      isEvading: true,
+      evasionBonus: 2,
+    };
+    const grid = makeClearGrid(3);
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+      facing: Facing.North,
+    });
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons: [makeWeaponStatus()],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(projection).toBeDefined();
+    // Base 4 (gunnery) + 2 (explicit evasion bonus) = 6.
+    expect(projection).toMatchObject({
+      attackable: true,
+      toHitNumber: 6,
+    });
+    expect(projection?.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'Target Evasion', value: 2 }),
+      ]),
+    );
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['medium-laser'],
+      grid,
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.toHitNumber).toBe(6);
+    expect(payload.toHitNumber).toBe(projection!.toHitNumber);
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'Target Evasion', value: 2 }),
+      ]),
+    );
+  });
+
+  it('keeps attacker gunnery SPA and weapon quirk modifiers aligned between preview and committed attacks', () => {
+    const session = setupSessionAtWeaponAttack();
+    session.currentState.units.a1 = {
+      ...session.currentState.units.a1,
+      // Sniper halves the positive range modifier; Accurate weapon quirk -1.
+      abilities: ['sniper'],
+      weaponQuirks: { 'medium-laser': ['accurate'] },
+    };
+    session.currentState.units.t1 = {
+      ...session.currentState.units.t1,
+      position: { q: 4, r: 0 },
+    };
+    const grid = makeClearGrid(4);
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 4, r: 0 },
+      facing: Facing.North,
+    });
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons: [makeWeaponStatus()],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 4 && hex.hex.r === 0);
+
+    expect(projection).toBeDefined();
+    // Base 4 + 2 (medium range) - 1 (Sniper halves range mod) - 1 (Accurate) = 4.
+    expect(projection).toMatchObject({
+      attackable: true,
+      toHitNumber: 4,
+    });
+    expect(projection?.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'Sniper', value: -1 }),
+        expect.objectContaining({ name: 'Accurate Weapon', value: -1 }),
+      ]),
+    );
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['medium-laser'],
+      grid,
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.toHitNumber).toBe(4);
+    expect(payload.toHitNumber).toBe(projection!.toHitNumber);
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'Sniper', value: -1 }),
+        expect.objectContaining({ name: 'Accurate Weapon', value: -1 }),
+      ]),
+    );
+  });
+
+  it('preserves engine called-shot modifiers through committed-attack projection enrichment', () => {
+    const session = setupSessionAtWeaponAttack();
+    const grid = makeClearGrid(3);
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['medium-laser'],
+      calledShots: { 'medium-laser': true },
+      grid,
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    // Base 4 (gunnery) + 3 (called shot) = 7. The committed-attack projection
+    // must not strip the engine's called-shot modifier when it enriches the
+    // AttackDeclared payload (audit B-1: projection overwrite of engine to-hit).
+    expect(payload.toHitNumber).toBe(7);
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'Called Shot', value: 3 }),
+      ]),
+    );
   });
 });

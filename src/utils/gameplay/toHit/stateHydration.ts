@@ -10,10 +10,32 @@ import type { ITerrainFeature } from '@/types/gameplay/TerrainTypes';
 
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 
+import { isRepresentedTargetImmobile } from '../combatImmobility';
+
 interface IWeaponToHitDescriptor {
   readonly id: string;
   readonly name: string;
   readonly category?: string;
+}
+
+/**
+ * Audit B-5 (W1.2): the called-shot inputs were three adjacent positional
+ * booleans, which let `declareAttack` pass `targetPartialCover` into the
+ * `applyLocalCalledShotAbilityReduction` slot unnoticed (the call still
+ * type-checked). A named options object makes that bug class impossible.
+ */
+export interface ICalledShotHydrationOptions {
+  /** True when any weapon in the declared volley elected a called shot. */
+  readonly calledShot?: boolean;
+  /** True when the called shot is spotted by a teammate (+0 variant). */
+  readonly teammateCalledShot?: boolean;
+  /**
+   * Whether the local Marksman/Sharpshooter called-shot reduction applies.
+   * Defaults to true (interactive/local-campaign paths); the source-backed
+   * simulation runner opts out explicitly because TacOps called shots carry
+   * the full +3 without the local helper SPA.
+   */
+  readonly applyLocalCalledShotAbilityReduction?: boolean;
 }
 
 export function buildWeaponAttackActuatorDamage(
@@ -41,9 +63,7 @@ export function buildWeaponAttackAttackerToHitState(
   weapon?: IWeaponToHitDescriptor,
   targetId?: string,
   secondaryTarget?: ISecondaryTarget,
-  calledShot?: boolean,
-  teammateCalledShot?: boolean,
-  applyLocalCalledShotAbilityReduction: boolean = true,
+  calledShotOptions: ICalledShotHydrationOptions = {},
 ): IAttackerState {
   return {
     gunnery,
@@ -63,9 +83,10 @@ export function buildWeaponAttackAttackerToHitState(
     designatedWeaponCategory: unit.designatedWeaponCategory,
     targetId,
     secondaryTarget,
-    calledShot,
-    teammateCalledShot,
-    applyLocalCalledShotAbilityReduction,
+    calledShot: calledShotOptions.calledShot,
+    teammateCalledShot: calledShotOptions.teammateCalledShot,
+    applyLocalCalledShotAbilityReduction:
+      calledShotOptions.applyLocalCalledShotAbilityReduction ?? true,
     designatedTargetId: unit.designatedTargetId,
     designatedRangeBracket: unit.designatedRangeBracket,
     unitQuirks: unit.unitQuirks,
@@ -84,7 +105,11 @@ export function buildWeaponAttackTargetToHitState(
     isAirborne: unit.isAirborne,
     hexesMoved: unit.hexesMovedThisTurn,
     prone: unit.prone ?? false,
-    immobile: unit.shutdown ?? false,
+    // Audit B-1 (W1.1): MegaMek's Targetable immobile contract covers
+    // shutdown units AND unconscious crews. Route through the centralized
+    // isRepresentedTargetImmobile helper (instead of `unit.shutdown` alone)
+    // so the engine commit path and the combat projection agree.
+    immobile: isRepresentedTargetImmobile(unit),
     partialCover,
     hullDown: unit.hullDown ?? false,
     unitQuirks: unit.unitQuirks,

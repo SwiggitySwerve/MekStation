@@ -849,9 +849,14 @@ export function runAttackPhase(options: {
           targetId,
           primaryTargetId,
         ),
-        calledShot,
-        teammateCalledShot,
-        false,
+        // Audit B-5 (W1.2): named options. The source-backed runner opts out
+        // of the local Marksman/Sharpshooter called-shot reduction — TacOps
+        // called shots carry the full +3 without the local helper SPA.
+        {
+          calledShot,
+          teammateCalledShot,
+          applyLocalCalledShotAbilityReduction: false,
+        },
       );
       // Partial cover is derived from the terrain of the target's own hex
       // (Total Warfare p. 53). The runner's all-clear grid yields `false`

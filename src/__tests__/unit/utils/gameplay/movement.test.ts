@@ -13,6 +13,7 @@ import {
   Facing,
   IHexGrid,
   IHexCoordinate,
+  type IMovementCapability,
 } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
 import { createHexGrid, placeUnit } from '@/utils/gameplay/hexGrid';
@@ -175,8 +176,42 @@ describe('movement', () => {
     });
 
     it('should subtract Partial Wing bonus from jump heat before the floor', () => {
-      expect(calculateMovementHeat(MovementType.Jump, 5, 2)).toBe(3);
-      expect(calculateMovementHeat(MovementType.Jump, 8, 2)).toBe(6);
+      expect(
+        calculateMovementHeat(MovementType.Jump, 5, {
+          partialWingJumpBonus: 2,
+        }),
+      ).toBe(3);
+      expect(
+        calculateMovementHeat(MovementType.Jump, 8, {
+          partialWingJumpBonus: 2,
+        }),
+      ).toBe(6);
+    });
+
+    // Audit 2026-06-09 B-3: the old union 3rd parameter forced callers to
+    // choose between the motive-mode gate and the Partial Wing bonus. Both
+    // must apply from a single call so projection and engine agree.
+    it('applies the motive-mode gate and the Partial Wing bonus together', () => {
+      expect(
+        calculateMovementHeat(MovementType.Jump, 8, {
+          movementMode: 'tracked',
+          partialWingJumpBonus: 2,
+        }),
+      ).toBe(0);
+      expect(
+        calculateMovementHeat(MovementType.Jump, 8, {
+          movementHeatProfile: 'mek',
+          partialWingJumpBonus: 2,
+        }),
+      ).toBe(6);
+      expect(
+        calculateMovementHeat(MovementType.Walk, 4, { movementMode: 'hover' }),
+      ).toBe(0);
+      expect(
+        calculateMovementHeat(MovementType.Walk, 4, {
+          movementHeatProfile: 'none',
+        }),
+      ).toBe(0);
     });
   });
 
@@ -369,6 +404,88 @@ describe('movement', () => {
         0,
       );
       expect(ok.valid).toBe(true);
+    });
+
+    // Audit 2026-06-09 B-3: validateMovement used to forward only the
+    // Partial Wing bonus to calculateMovementHeat, dropping the motive-mode
+    // gate — hover/tracked units were charged Mek walk heat. MegaMek's base
+    // Entity movement heat is 0; only Meks override it.
+    it('generates no Mek movement heat for non-Mek motive modes', () => {
+      const hoverCap: IMovementCapability = {
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 0,
+        movementMode: 'hover',
+      };
+      const result = validateMovement(
+        grid,
+        position,
+        { q: 0, r: -2 },
+        Facing.North,
+        MovementType.Walk,
+        hoverCap,
+      );
+
+      expect(result.valid).toBe(true);
+      expect(result.heatGenerated).toBe(0);
+    });
+
+    // Regression pin: the Partial Wing jump-heat reduction must survive the
+    // options-object refactor (jump 5 − bonus 2 → max(3, 3) = 3 heat).
+    it('keeps the Partial Wing jump-heat reduction for Mek jumps', () => {
+      const wingCap: IMovementCapability = {
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 6,
+        partialWingJumpBonus: 2,
+      };
+      const result = validateMovement(
+        grid,
+        position,
+        { q: 0, r: -5 },
+        Facing.North,
+        MovementType.Jump,
+        wingCap,
+      );
+
+      expect(result.valid).toBe(true);
+      expect(result.heatGenerated).toBe(3);
+    });
+
+    // Audit 2026-06-09 B-4: validateMovement used to path with the plain
+    // walk/run mapping while the reachability projection honored
+    // capability.movementMode — hover units crossing depth-1 water were
+    // charged the Mek water surcharge and falsely rejected destinations the
+    // canonical projection accepts.
+    it('paths with capability.movementMode so motive costs match the projection', () => {
+      let waterGrid = createHexGrid({ radius: 3 });
+      waterGrid = setHexTerrain(waterGrid, { q: 0, r: -1 }, TerrainType.Water);
+      const hoverCap: IMovementCapability = {
+        walkMP: 1,
+        runMP: 2,
+        jumpMP: 0,
+        movementMode: 'hover',
+      };
+      const pos: IUnitPosition = {
+        unitId: 'hover',
+        coord: { q: 0, r: 0 },
+        facing: Facing.North,
+        prone: false,
+      };
+
+      const result = validateMovement(
+        waterGrid,
+        pos,
+        { q: 0, r: -1 },
+        Facing.North,
+        MovementType.Walk,
+        hoverCap,
+      );
+
+      // Hover pays no water-depth surcharge: 1 MP, matching the projection.
+      expect(result.valid).toBe(true);
+      expect(result.mpCost).toBe(1);
+      expect(result.heatGenerated).toBe(0);
     });
   });
 

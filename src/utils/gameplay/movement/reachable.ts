@@ -333,12 +333,14 @@ export function deriveMovementRangeHexForDestination(
 
   const mp = getMaxMP(capability, mpType, getHeatMovementPenalty(unit.heat));
   const dist = hexDistance(origin, hex);
-  const heatGenerated = calculateMovementHeat(
-    mpType,
-    dist,
-    capability.movementMode,
-    capability.movementHeatProfile,
-  );
+  // Audit 2026-06-09 B-3: pass the full capability heat state so the
+  // projection's heat matches the engine (Partial Wing units previously
+  // lost their jump-heat bonus here).
+  const heatGenerated = calculateMovementHeat(mpType, dist, {
+    movementMode: capability.movementMode,
+    movementHeatProfile: capability.movementHeatProfile,
+    partialWingJumpBonus: capability.partialWingJumpBonus,
+  });
   const movementMode =
     mpType === MovementType.Jump
       ? movementModeForRange(mpType, capability)

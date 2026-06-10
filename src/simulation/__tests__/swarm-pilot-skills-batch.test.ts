@@ -67,6 +67,15 @@ const BATCH_COUNT = readPositiveIntEnv(
   'SIMULATION_PILOT_SKILL_BATCH_COUNT',
   100,
 );
+
+// Statistical SHALL proofs are only meaningful at the full batch size: at the
+// CI smoke count (N=5) win rates quantize to 0.2 steps, so the ≥10pp deltas
+// can deterministically collapse to 0 when unrelated rules fixes shift seeded
+// outcomes (2026-06-09 audit finding E-5 — that exact collapse blocked PR
+// #801). Smoke runs keep the completion/invariant/ceiling assertions; the
+// win-rate proofs run at the default 100-game batches (local + full-size lane).
+const STATISTICAL_PROOF_BATCH_MIN = 100;
+const statisticalIt = BATCH_COUNT >= STATISTICAL_PROOF_BATCH_MIN ? it : it.skip;
 const BATTLE_TURN_CAP = readPositiveIntEnv(
   'SIMULATION_PILOT_SKILL_TURN_CAP',
   100,
@@ -278,23 +287,29 @@ describe('Pilot skill batch variance (Task 1.9)', () => {
     expect(symmetricResults.results).toHaveLength(BATCH_COUNT);
   });
 
-  it('asymmetric batch: gunnery-2 player win rate SHALL exceed gunnery-5 opponent win rate by ≥10pp', () => {
-    const { playerWinRate, opponentWinRate } = asymmetricResults;
-    const winRateDelta = playerWinRate - opponentWinRate;
+  statisticalIt(
+    'asymmetric batch: gunnery-2 player win rate SHALL exceed gunnery-5 opponent win rate by ≥10pp',
+    () => {
+      const { playerWinRate, opponentWinRate } = asymmetricResults;
+      const winRateDelta = playerWinRate - opponentWinRate;
 
-    // Player (gunnery 2 = skilled) should dominate opponent (gunnery 5 = green).
-    expect(winRateDelta).toBeGreaterThanOrEqual(0.1);
-  });
+      // Player (gunnery 2 = skilled) should dominate opponent (gunnery 5 = green).
+      expect(winRateDelta).toBeGreaterThanOrEqual(0.1);
+    },
+  );
 
-  it('asymmetric vs symmetric: player win-rate delta SHALL be ≥10 percentage points', () => {
-    // In the symmetric batch both sides are equal → win rate ≈ 50% each.
-    // In the asymmetric batch the skilled player should pull ahead by ≥10pp.
-    const asymmetricPlayerWinRate = asymmetricResults.playerWinRate;
-    const symmetricPlayerWinRate = symmetricResults.playerWinRate;
-    const delta = Math.abs(asymmetricPlayerWinRate - symmetricPlayerWinRate);
+  statisticalIt(
+    'asymmetric vs symmetric: player win-rate delta SHALL be ≥10 percentage points',
+    () => {
+      // In the symmetric batch both sides are equal → win rate ≈ 50% each.
+      // In the asymmetric batch the skilled player should pull ahead by ≥10pp.
+      const asymmetricPlayerWinRate = asymmetricResults.playerWinRate;
+      const symmetricPlayerWinRate = symmetricResults.playerWinRate;
+      const delta = Math.abs(asymmetricPlayerWinRate - symmetricPlayerWinRate);
 
-    expect(delta).toBeGreaterThanOrEqual(0.1);
-  });
+      expect(delta).toBeGreaterThanOrEqual(0.1);
+    },
+  );
 
   it('symmetric batch: player and opponent win rates should be roughly balanced (neither side > 90%)', () => {
     // Sanity check — with equal skills neither side should dominate

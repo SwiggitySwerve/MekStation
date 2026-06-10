@@ -17,7 +17,6 @@ import {
   calculateGroundToAirAltitudeModifier,
   isGroundToAirAerospaceAttack,
 } from './aerospace/groundToAir';
-import { isRepresentedTargetImmobile } from './combatImmobility';
 import { minimumRangeForWeapons } from './combatProjection.targeting';
 import {
   isAirborneGameUnit,
@@ -33,6 +32,10 @@ import {
 import { calculateToHitWithC3, selectC3RangeBracket } from './toHit/c3';
 import { calculateToHit } from './toHit/calculate';
 import { calculateInterveningTerrainModifier } from './toHit/environmentModifiers';
+import {
+  buildWeaponAttackAttackerToHitState,
+  buildWeaponAttackTargetToHitState,
+} from './toHit/stateHydration';
 import { deriveVehicleToHitContext } from './vehicleToHitContext';
 
 type AirborneAeroSpottingUnitState = IGameState['units'][string] & {
@@ -147,22 +150,41 @@ export function deriveToHitProjection({
       modifier !== null && modifier !== undefined,
   );
 
+  // Audit B-1 (W1.1): hydrate attacker/target to-hit state through the SAME
+  // builders the engine commit path uses (declareAttack in gameSessionCore and
+  // the simulation runner both call them). Hand-building the state here is
+  // what dropped pilot wounds, sensor hits, actuator damage, SPAs, quirks,
+  // and target evasion/sprint/dodge from the preview — and, because the
+  // interactive commit path stamps the projection's number onto the
+  // AttackDeclared payload, from resolution too. Projection-only context
+  // (intervening terrain, target-hex terrain, ground-to-air altitude, vehicle
+  // turret context) merges INTO the hydrated state rather than replacing it.
+  const primaryWeapon = weapons[0];
   const attackerState = {
-    gunnery: attackerUnit.gunnery ?? DEFAULT_GUNNERY,
-    movementType: attackerUnit.movementThisTurn ?? MovementType.Stationary,
-    heat: attackerUnit.heat ?? 0,
+    ...buildWeaponAttackAttackerToHitState(
+      attackerUnit,
+      attackerUnit.gunnery ?? DEFAULT_GUNNERY,
+      primaryWeapon
+        ? { id: primaryWeapon.id, name: primaryWeapon.name }
+        : undefined,
+      targetUnitId,
+      undefined,
+      // Audit B-5 (W1.2): named called-shot options shared with declareAttack;
+      // the local ability reduction stays on its default (true) on BOTH paths.
+      {
+        calledShot: weapons.some((weapon) => weapon.calledShot === true),
+        teammateCalledShot: weapons.some(
+          (weapon) => weapon.teammateCalledShot === true,
+        ),
+      },
+    ),
     damageModifiers: attackContextModifiers,
-    prone: attackerUnit.prone ?? false,
     ...deriveVehicleToHitContext(attackerUnit, weapons),
   };
-  const targetState = {
-    movementType: targetUnit.movementThisTurn ?? MovementType.Stationary,
-    hexesMoved: targetUnit.hexesMovedThisTurn ?? 0,
-    prone: targetUnit.prone ?? false,
-    immobile: isRepresentedTargetImmobile(targetUnit),
-    partialCover: targetPartialCover,
-    hullDown: targetUnit.hullDown === true,
-  };
+  const targetState = buildWeaponAttackTargetToHitState(
+    targetUnit,
+    targetPartialCover,
+  );
   const minimumRange = minimumRangeForWeapons(
     weapons,
     distance,
@@ -206,6 +228,10 @@ export function deriveToHitProjection({
               c3State,
             },
             minimumRange,
+            // Weapon id keeps weapon-quirk modifiers (Accurate/Inaccurate/
+            // Stable) in agreement with the engine, which passes the primary
+            // weapon id into calculateToHit (gameSessionCore declareAttack).
+            primaryWeapon?.id,
           );
           c3Result = c3ToHit.c3Result.benefitApplied
             ? c3ToHit.c3Result
@@ -218,6 +244,9 @@ export function deriveToHitProjection({
           rangeBracket,
           distance,
           minimumRange,
+          // Weapon id keeps weapon-quirk modifiers in agreement with the
+          // engine commit path (see declareAttack in gameSessionCore).
+          primaryWeapon?.id,
         );
   const modifiers: IToHitModifier[] = toHitCalc.modifiers.map((modifier) => ({
     name: modifier.name,
