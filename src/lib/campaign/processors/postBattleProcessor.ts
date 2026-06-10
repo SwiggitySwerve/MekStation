@@ -72,6 +72,11 @@ function applyOutcome(
   const vault = usePilotStore.getState().pilots;
   const pilotsByPilotId = buildPilotLookup(vault);
   const entriesByPilotId = new Map(rosterEntries.map((e) => [e.pilotId, e]));
+  // D-8 remediation (2026-06-09 audit): kill attribution comes from the
+  // after-action report's per-unit rows so campaignKills can increment.
+  const reportUnitsById = new Map(
+    outcome.report.units.map((u) => [u.unitId, u]),
+  );
   const pilotPatches = new Map<string, Partial<ICampaignRosterEntry>>();
   for (const delta of outcome.unitDeltas) {
     const entry = entriesByPilotId.get(delta.unitId) ?? null;
@@ -83,6 +88,7 @@ function applyOutcome(
       wonByPlayer,
       entry,
       pilot,
+      reportUnitsById.get(delta.unitId)?.kills ?? 0,
     );
     if (pilotResult) {
       pilotPatches.set(delta.unitId, pilotResult.patch);
@@ -106,9 +112,13 @@ function applyOutcome(
       );
     }
   }
-  if (pilotPatches.size > 0) {
-    useCampaignRosterStore.getState().applyPilotPatches(pilotPatches);
-  }
+  // D-5 remediation (2026-06-09 audit): pilot patches are NOT committed
+  // here. Every step that can throw (contract delta, prestige) must run
+  // first — the roster-store commit happens at the very end of this
+  // function so a partial failure leaves zero side effects and the
+  // outcome retained in the retry queue can be re-applied safely. The
+  // matchId dedup against processedBattleIds (above) stays the
+  // apply-once guard; this ordering makes it sound.
   const contractDelta = applyContractDelta(campaign, missions, outcome);
   const updatedContract = contractDelta?.contract ?? null;
   const remainingQueue = (campaign.pendingBattleOutcomes ?? []).filter(
@@ -131,15 +141,6 @@ function applyOutcome(
   const nextFulfilled = contractDelta?.flippedToTerminal
     ? [...previousFulfilled, contractDelta.contract.id]
     : previousFulfilled;
-  if (contractDelta?.flippedToTerminal) {
-    publishContractFulfilled({
-      contractId: contractDelta.contract.id,
-      newStatus: contractDelta.contract.status,
-      matchId: outcome.matchId,
-      playerWon: playerWon(outcome),
-      publishedAt: nowIso,
-    });
-  }
   // Per `add-campaign-refit-and-prestige` design D7: the prestige-update
   // step runs when a battle outcome is applied, so per-unit prestige
   // tracks combat results deterministically. The post-battle processor's
@@ -189,6 +190,25 @@ function applyOutcome(
         matchId: outcome.matchId,
       },
     });
+  }
+  // --- Commit point (D-5) ---------------------------------------------
+  // Every throwing computation is complete. The side effects below are
+  // non-throwing by contract: the fulfillment bus isolates listener
+  // errors, and the roster patch commit is a plain zustand state write.
+  // Committing here means a throw anywhere above leaves the roster (and
+  // the campaign) untouched while the outcome stays queued for retry —
+  // the apply is all-or-nothing from the caller's perspective.
+  if (contractDelta?.flippedToTerminal) {
+    publishContractFulfilled({
+      contractId: contractDelta.contract.id,
+      newStatus: contractDelta.contract.status,
+      matchId: outcome.matchId,
+      playerWon: playerWon(outcome),
+      publishedAt: nowIso,
+    });
+  }
+  if (pilotPatches.size > 0) {
+    useCampaignRosterStore.getState().applyPilotPatches(pilotPatches);
   }
   return {
     campaign: updatedCampaign,

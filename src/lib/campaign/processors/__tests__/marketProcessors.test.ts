@@ -1,10 +1,18 @@
+import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
+import type { IUnitMarketOffer } from '@/types/campaign/markets/marketTypes';
+
 import {
   ICampaign,
   createDefaultCampaignOptions,
 } from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { IForce } from '@/types/campaign/Force';
-import { PersonnelMarketStyle } from '@/types/campaign/markets/marketTypes';
+import {
+  MarketExperienceLevel,
+  PersonnelMarketStyle,
+  type IPersonnelMarketOffer,
+} from '@/types/campaign/markets/marketTypes';
 import { IMission } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
 
@@ -237,5 +245,107 @@ describe('contractMarketProcessor', () => {
     expect(result.events[0].type).toBe('market_refresh');
     expect(result.events[0].severity).toBe('info');
     expect(result.events[0].description).toContain('Contract market refreshed');
+  });
+});
+
+// =============================================================================
+// D-7 (2026-06-09 audit, W3.4): generated offers must be STORED on the
+// campaign where the command UI reads them (CampaignCommandExtensions),
+// not discarded while the day report claims a refresh happened.
+// =============================================================================
+
+/** Widened campaign view carrying the command-tier market fields. */
+type IMarketCampaign = ICampaignWithCommand & {
+  readonly unitMarket?: readonly IUnitMarketOffer[];
+};
+
+/** Builds a personnel offer with a controllable expiration date. */
+function makePersonnelOffer(
+  id: string,
+  expirationDate: string,
+): IPersonnelMarketOffer {
+  return {
+    id,
+    name: `Recruit ${id}`,
+    role: CampaignPersonnelRole.PILOT,
+    experienceLevel: MarketExperienceLevel.REGULAR,
+    skills: { gunnery: 4, piloting: 5 },
+    hireCost: 50000,
+    expirationDate,
+  };
+}
+
+describe('market offers stored on campaign state (D-7)', () => {
+  it('unit market refresh stores the generated offers on campaign.unitMarket', () => {
+    const campaign = createTestCampaign({
+      currentDate: new Date('3025-01-01T00:00:00Z'),
+      options: {
+        ...createDefaultCampaignOptions(),
+        unitMarketMethod: 'atb_monthly',
+      },
+    });
+
+    const result = unitMarketProcessor.process(campaign, campaign.currentDate);
+
+    const next = result.campaign as IMarketCampaign;
+    const reportedCount = result.events[0].data?.offerCount as number;
+    expect(next.unitMarket).toBeDefined();
+    expect(next.unitMarket).toHaveLength(reportedCount);
+  });
+
+  it('personnel market refresh appends the day offers and prunes expired ones', () => {
+    const keep = makePersonnelOffer('pmo-keep', '3025-12-31');
+    const expired = makePersonnelOffer('pmo-expired', '3025-06-01');
+    const campaign = createTestCampaign({
+      currentDate: new Date('3025-06-15T00:00:00Z'),
+      options: {
+        ...createDefaultCampaignOptions(),
+        personnelMarketStyle: PersonnelMarketStyle.MEKHQ,
+      },
+      personnelMarket: [keep, expired],
+    } as Partial<ICampaign>);
+
+    const result = personnelMarketProcessor.process(
+      campaign,
+      campaign.currentDate,
+    );
+
+    const next = result.campaign as IMarketCampaign;
+    const reportedCount = result.events[0].data?.offerCount as number;
+    const pool = next.personnelMarket ?? [];
+    // Non-expired carry-over offer survives the daily refresh…
+    expect(pool.some((o) => o.id === 'pmo-keep')).toBe(true);
+    // …the expired one is pruned…
+    expect(pool.some((o) => o.id === 'pmo-expired')).toBe(false);
+    // …and the day's generated offers land in the pool.
+    expect(pool).toHaveLength(1 + reportedCount);
+  });
+
+  it('contract market refresh replaces offers and clears declined ids', () => {
+    const campaign = createTestCampaign({
+      currentDate: new Date('3025-01-01T00:00:00Z'),
+      options: {
+        ...createDefaultCampaignOptions(),
+        contractMarketMethod: 'atb_monthly',
+      },
+      contractMarket: {
+        offers: [],
+        declinedOfferIds: ['stale-declined-id'],
+      },
+    } as Partial<ICampaign>);
+
+    const result = contractMarketProcessor.process(
+      campaign,
+      campaign.currentDate,
+    );
+
+    const next = result.campaign as IMarketCampaign;
+    const reportedCount = result.events[0].data?.contractCount as number;
+    expect(next.contractMarket).toBeDefined();
+    expect(next.contractMarket?.offers).toHaveLength(reportedCount);
+    // A refresh starts a new market cycle — declined ids reset (the
+    // ICampaignContractMarket contract: declined offers stay hidden
+    // "until the next contractMarketProcessor refresh").
+    expect(next.contractMarket?.declinedOfferIds).toEqual([]);
   });
 });

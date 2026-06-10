@@ -72,6 +72,12 @@ function pilotFinalToRosterStatus(
  * NPC rule: XP helpers (awardScenarioXP / awardKillXP) return null when
  * `pilot === null` â€” NPCs don't earn XP.
  *
+ * Per audit finding D-8 (2026-06-09, W3.4): the patch also increments
+ * `campaignMissions` (every applied outcome counts as one mission for
+ * the pilot) and `campaignKills` by `killCount` â€” the unit's kill total
+ * from the after-action report â€” so kill/mission auto-awards
+ * (`awards/categoryCheckers.ts`) can ever fire.
+ *
  * Returns `null` when the pilot id can't be resolved to a roster entry â€”
  * non-fatal; the rest of the outcome continues processing.
  */
@@ -82,6 +88,7 @@ export function applyPilotDelta(
   outcomeWonByPlayer: boolean,
   entry: ICampaignRosterEntry | null,
   pilot: IPilot | null,
+  killCount: number = 0,
 ): { patch: Partial<ICampaignRosterEntry>; xpAwarded: number } | null {
   if (!entry) {
     logger.warn(
@@ -131,6 +138,11 @@ export function applyPilotDelta(
     status: newStatus,
     xp: entry.xp + xpDelta,
     campaignXpEarned: entry.campaignXpEarned + campaignXpDelta,
+    // D-8: lifetime counters the auto-award checkers threshold against.
+    // Participation in an applied outcome is one mission; kills come from
+    // the after-action report's attribution for this unit.
+    campaignKills: entry.campaignKills + Math.max(0, killCount),
+    campaignMissions: entry.campaignMissions + 1,
     recoveryTime: isWounded
       ? Math.max(entry.recoveryTime, newWounds * 7)
       : entry.recoveryTime,

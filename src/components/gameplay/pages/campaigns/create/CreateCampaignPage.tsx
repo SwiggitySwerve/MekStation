@@ -6,6 +6,7 @@ import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjectio
 
 import { useToast } from '@/components/shared/Toast';
 import { PageLayout, Button } from '@/components/ui';
+import { applyPreset } from '@/lib/campaign/presetService';
 import { UNIT_TEMPLATES } from '@/simulation/generator';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
@@ -115,9 +116,16 @@ export default function CreateCampaignPage(): React.ReactElement {
     setIsSubmitting(true);
 
     try {
+      // D-3 remediation (2026-06-09 audit): the preset picked on the
+      // wizard's Preset step must actually configure the campaign.
+      // `applyPreset` layers the preset's overrides + campaign-type
+      // defaults over the option defaults; threading the result through
+      // `createCampaign`'s options seam is what makes the selection
+      // real instead of cosmetic.
+      const presetOptions = applyPreset(selectedPreset, campaignType);
       const campaignId = store
         .getState()
-        .createCampaign(name.trim(), campaignType);
+        .createCampaign(name.trim(), campaignType, presetOptions);
 
       if (campaignId) {
         if (description.trim()) {
@@ -206,6 +214,7 @@ export default function CreateCampaignPage(): React.ReactElement {
     pilotAssignments,
     router,
     selectedPilots,
+    selectedPreset,
     selectedUnits,
     setLocalError,
     showToast,

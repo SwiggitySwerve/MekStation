@@ -16,7 +16,9 @@ import {
   createDefaultCampaignOptions,
 } from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
+import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { IForce } from '@/types/campaign/Force';
 import { IContract } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
 import {
@@ -844,6 +846,106 @@ describe('scenarioGenerationProcessor', () => {
       );
       expect(result.campaign).toBeDefined();
       expect(result.campaign.id).toBe(campaign.id);
+    });
+  });
+
+  // ===========================================================================
+  // D-9 (2026-06-09 audit, W3.4): with no explicit campaign.combatTeams,
+  // teams must derive from the force structure so AtB generation is
+  // reachable on real campaigns (production never populates combatTeams).
+  // Derivation mirrors MekHQ CombatTeam.recalculateCombatTeams: every
+  // STANDARD-type force with assigned units forms one team; the
+  // CombatTeam ctor's default role is FRONTLINE.
+  // ===========================================================================
+  describe('combat team derivation from force structure (D-9)', () => {
+    /** Builds a unit-bearing lance force eligible for team derivation. */
+    function makeLanceForce(overrides?: Partial<IForce>): IForce {
+      return {
+        id: 'force-lance-1',
+        name: 'Alpha Lance',
+        parentForceId: 'force-root',
+        subForceIds: [],
+        unitIds: ['u1', 'u2', 'u3', 'u4'],
+        forceType: ForceRole.STANDARD,
+        formationLevel: FormationLevel.LANCE,
+        createdAt: '2025-01-01T00:00:00Z',
+        updatedAt: '2025-01-01T00:00:00Z',
+        ...overrides,
+      };
+    }
+
+    it('generates a scenario for a unit-bearing STANDARD force when combatTeams is absent', () => {
+      const force = makeLanceForce();
+      const campaign = createMockCampaign({
+        currentDate: new Date('2025-01-27'), // Monday
+        options: { ...createMockCampaign().options, useAtBScenarios: true },
+        combatTeams: undefined,
+        forces: new Map([[force.id, force]]),
+        missions: new Map([['contract-001', createMockContract()]]),
+      });
+      // random()=0 → d100 roll of 1 → battle for FRONTLINE (20% chance).
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0),
+      );
+
+      const result = processor.process(campaign, campaign.currentDate);
+
+      const generated = result.events.filter(
+        (e) => e.type === 'scenario_generated',
+      );
+      expect(generated).toHaveLength(1);
+      expect(generated[0].data?.teamId).toBe('force-lance-1');
+    });
+
+    it('skips unit-less and non-STANDARD forces during derivation', () => {
+      const emptyForce = makeLanceForce({ id: 'force-empty', unitIds: [] });
+      const supportForce = makeLanceForce({
+        id: 'force-support',
+        forceType: ForceRole.SUPPORT,
+      });
+      const campaign = createMockCampaign({
+        currentDate: new Date('2025-01-27'), // Monday
+        options: { ...createMockCampaign().options, useAtBScenarios: true },
+        combatTeams: undefined,
+        forces: new Map([
+          [emptyForce.id, emptyForce],
+          [supportForce.id, supportForce],
+        ]),
+        missions: new Map([['contract-001', createMockContract()]]),
+      });
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0),
+      );
+
+      const result = processor.process(campaign, campaign.currentDate);
+
+      expect(
+        result.events.filter((e) => e.type === 'scenario_generated'),
+      ).toHaveLength(0);
+    });
+
+    it('prefers explicit campaign.combatTeams over derivation', () => {
+      const force = makeLanceForce();
+      const campaign = createMockCampaign({
+        currentDate: new Date('2025-01-27'), // Monday
+        options: { ...createMockCampaign().options, useAtBScenarios: true },
+        combatTeams: [
+          createMockTeam({ forceId: 'explicit-team', role: CombatRole.PATROL }),
+        ],
+        forces: new Map([[force.id, force]]),
+        missions: new Map([['contract-001', createMockContract()]]),
+      });
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0),
+      );
+
+      const result = processor.process(campaign, campaign.currentDate);
+
+      const generated = result.events.filter(
+        (e) => e.type === 'scenario_generated',
+      );
+      expect(generated).toHaveLength(1);
+      expect(generated[0].data?.teamId).toBe('explicit-team');
     });
   });
 });

@@ -7,6 +7,7 @@ import {
   processPrisonerEvents,
   countPrisoners,
 } from '@/lib/campaign/events/prisonerEvents';
+import { createDailyRandom } from '@/lib/campaign/utils/campaignRng';
 import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { usePilotStore } from '@/stores/usePilotStore';
@@ -43,7 +44,13 @@ export const randomEventsProcessor: IDayProcessor = {
     }
 
     const dateStr = date.toISOString();
-    const random: () => number = Math.random;
+    // D-10 (2026-06-09 audit, W3.4): life/prisoner event rolls draw from
+    // the campaign's seeded daily stream so days are replayable.
+    const random: () => number = createDailyRandom(
+      campaign,
+      date,
+      'random-events',
+    );
     const allRandomEvents: IRandomEvent[] = [];
 
     // Read entries directly from roster store (canonical source per PR4

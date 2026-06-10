@@ -1,5 +1,6 @@
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
+import { reconcileCoopOutcomeForCampaign } from '@/lib/campaign/coop/coopHostRegistry';
 import {
   applyPostBattle,
   type ICampaignWithBattleState,
@@ -7,6 +8,7 @@ import {
 
 import type { CampaignStore } from './useCampaignStore.types';
 
+import { useCampaignRosterStore } from './useCampaignRosterStore';
 import {
   emitPendingOutcomeAddedEvent,
   persistCampaignRecord,
@@ -56,6 +58,30 @@ export function enqueueCampaignOutcome(
     );
   }
   emitPendingOutcomeAddedEvent(campaign, outcome, nextPending.length);
+  // D-4 remediation (2026-06-09 audit): a co-op HOST campaign reconciles
+  // the battle's campaign-facing consequences (salvage, roster changes)
+  // into the shared CO1 event log the moment the outcome lands — this is
+  // the production caller `reconcileCoopBattle` shipped without. Runs
+  // AFTER the dedup guards above so a re-published matchId can never
+  // double-reconcile. Fire-and-forget: the gate never throws, and it
+  // resolves null for single-player campaigns, guest mirrors, or when no
+  // live CampaignMatchHost is registered for this campaign.
+  void reconcileCoopOutcomeForCampaign(
+    campaign,
+    outcome,
+    buildRosterDesignations(),
+  );
+}
+
+/**
+ * Unit id -> display name lookup for the reconciliation's
+ * `RosterUnitChanged` events. Read off the roster store (the campaign's
+ * unit-name source of truth); `deriveCoopBattleConsequences` falls back
+ * to the raw unit id for any unit missing here.
+ */
+function buildRosterDesignations(): Record<string, string> {
+  const units = useCampaignRosterStore.getState().units;
+  return Object.fromEntries(units.map((u) => [u.unitId, u.unitName]));
 }
 
 export function dequeueCampaignOutcome(
@@ -97,12 +123,31 @@ export function markCampaignBattleReviewed(
   const nextPending = pendingBattleOutcomes.filter(
     (o) => o.matchId !== matchId,
   );
-  set({ reviewedBattleIds, pendingBattleOutcomes: nextPending });
+  // D-6 remediation (2026-06-09 audit): the review page's Apply runs
+  // `applyPostBattle` (which stamps the matchId onto the CAMPAIGN-embedded
+  // processedBattleIds ledger) and then calls this action. Pre-fix the
+  // STORE-level ledger — the one advanceDay rebuilds the campaign from,
+  // persistCampaignRecord writes, and the enqueue dedup guard reads —
+  // never learned about the applied battle, so the next advanceDay erased
+  // the dedup and a re-published outcome could double-apply. Union the
+  // campaign-embedded ledger into the store ledger here so every
+  // downstream reader agrees. For a reviewed-but-never-applied battle the
+  // campaign ledger lacks the id and the union is a no-op.
+  const campaignLedger =
+    (campaign as ICampaignWithBattleState | null)?.processedBattleIds ?? [];
+  const nextProcessed = Array.from(
+    new Set([...processedBattleIds, ...campaignLedger]),
+  );
+  set({
+    reviewedBattleIds,
+    pendingBattleOutcomes: nextPending,
+    processedBattleIds: nextProcessed,
+  });
   if (campaign) {
     persistCampaignRecord(
       campaign,
       nextPending,
-      processedBattleIds,
+      nextProcessed,
       reviewedBattleIds,
     );
   }

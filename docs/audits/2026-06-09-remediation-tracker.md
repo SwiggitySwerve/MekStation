@@ -50,12 +50,12 @@ reconciliation merge `7f22e4f22` · audited main `442f90855`.
 
 ## W3 — Campaign engine (cluster D)
 
-| Task | Finding   | Scope                                                                                                     | Status  |
-| ---- | --------- | --------------------------------------------------------------------------------------------------------- | ------- |
-| W3.1 | D-1       | Persistence stops wiping unit battle damage + loan ledger on reload                                       | pending |
-| W3.2 | D-2       | Register financial/turnover/factionStanding/vocationalTraining processors                                 | pending |
-| W3.3 | D-3, D-4  | applyPreset wired into creation; reconcileCoopBattle invoked                                              | pending |
-| W3.4 | D-5..D-10 | XP double-apply guard; processedBattleIds; market offers; kill counters; combatTeams; seeded campaign RNG | pending |
+| Task | Finding   | Scope                                                                                                                                                                                                                            | Status |
+| ---- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| W3.1 | D-1       | Persistence stops wiping unit battle damage + loan ledger on reload                                                                                                                                                              | done   |
+| W3.2 | D-2       | Register financial/turnover/factionStanding/vocationalTraining processors                                                                                                                                                        | done   |
+| W3.3 | D-3, D-4  | applyPreset wired into creation; reconcileCoopBattle invoked at the combat-outcome enqueue seam (coopHostRegistry gate; live CampaignMatchHost registration still has no production owner — Wave 6.2 CO1 transport never landed) | done   |
+| W3.4 | D-5..D-10 | XP double-apply guard; processedBattleIds; market offers; kill counters; combatTeams; seeded campaign RNG                                                                                                                        | done   |
 
 ## W4 — CI/test enforcement (cluster E)
 
