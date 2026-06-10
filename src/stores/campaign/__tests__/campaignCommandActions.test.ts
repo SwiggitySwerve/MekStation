@@ -54,6 +54,13 @@ function currentCampaign(): ICampaignWithCommand {
 describe('campaignCommandActions', () => {
   beforeEach(() => {
     jest.useFakeTimers();
+    // Clear persisted state BEFORE resetting the singleton: the next
+    // useCampaignStore() call rehydrates from localStorage, and since the
+    // D-1 persistence fix the round-trip preserves personnelMarket /
+    // contractMarket / loans — a prior test's campaign would otherwise
+    // leak into "no campaign loaded" assertions through the persist
+    // middleware's merge().
+    window.localStorage.clear();
     resetCampaignStore();
     useCampaignRosterStore.getState().reset();
     useCampaignPersistenceStore.getState().reset();
