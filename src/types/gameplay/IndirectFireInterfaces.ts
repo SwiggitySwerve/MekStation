@@ -77,10 +77,11 @@ export interface IIndirectFireResolution {
    * indirect-fire penalty. The net penalty remains in `toHitPenalty`.
    */
   readonly obliqueAttackerApplied?: boolean;
-  /** Gunnery skill of the elected LOS spotter, when represented. */
-  readonly spotterGunnery?: number;
-  /** Spotter-skill modifier applied to the indirect-fire penalty. */
-  readonly spotterSkillModifier?: number;
+  /**
+   * Elected LOS spotter attacked this turn, adding +1 to the penalty
+   * (MegaMek ComputeToHit.java L1540-1544 — audit C-5).
+   */
+  readonly spotterAttackedThisTurn?: boolean;
   /** Penalty points cancelled by Forward Observer, when represented. */
   readonly spotterMovementPenaltyCancelled?: number;
   /** Human-readable reason when permitted=false. */
@@ -113,10 +114,13 @@ export interface IIndirectFireEventBase {
   readonly toHitPenalty: number;
   /** How the resolution was established. */
   readonly basis: IndirectFireBasis;
-  /** Gunnery skill of the elected LOS spotter, when represented. */
-  readonly spotterGunnery?: number;
-  /** Spotter-skill modifier applied to the indirect-fire penalty. */
-  readonly spotterSkillModifier?: number;
+  /**
+   * Elected LOS spotter attacked this turn, adding +1 to the penalty
+   * (MegaMek ComputeToHit.java L1540-1544 — audit C-5). The pre-fix
+   * spotterGunnery/spotterSkillModifier payload fields are retired: the
+   * (gunnery-4)/2 term was an artillery-only rule misapplied to LRMs.
+   */
+  readonly spotterAttackedThisTurn?: boolean;
 }
 
 /**

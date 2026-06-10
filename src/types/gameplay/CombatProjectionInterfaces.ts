@@ -181,10 +181,11 @@ export interface ICombatRangeHex {
   readonly indirectFireBasis?: IndirectFireBasis;
   /** To-hit penalty contributed by indirect fire */
   readonly indirectFireToHitPenalty?: number;
-  /** Gunnery skill of the elected LOS spotter, when represented */
-  readonly indirectFireSpotterGunnery?: number;
-  /** Spotter-skill modifier folded into the indirect-fire penalty */
-  readonly indirectFireSpotterSkillModifier?: number;
+  /**
+   * Elected LOS spotter attacked this turn, adding +1 to the penalty
+   * (MegaMek ComputeToHit.java L1540-1544 — audit C-5)
+   */
+  readonly indirectFireSpotterAttacked?: boolean;
   /** Forward Observer SPA cancelled the walked-spotter indirect-fire add */
   readonly indirectFireForwardObserver?: boolean;
   /** Indirect-fire penalty points cancelled by Forward Observer */

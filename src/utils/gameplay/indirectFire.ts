@@ -67,14 +67,19 @@ export interface ISpotterCandidate {
    */
   readonly pilotSpas?: readonly string[];
   /**
-   * Gunnery skill of the spotter's pilot. Optional for backward compatibility —
-   * call sites that pre-date PR-K9 leave this undefined, which is treated as
-   * the MegaMek default gunnery of 4 (modifier = 0).
+   * Whether this unit has attacked (declared/resolved weapon fire) this turn.
+   * Mirrors MegaMek `Entity.isAttackingThisTurn()` (Entity.java L10445-10453),
+   * which scans the turn's declared attack actions. MekStation's sequential
+   * resolution maps this to the per-turn `weaponsFiredThisTurn` unit state.
+   * Optional for backward compatibility — absent means "has not attacked".
    *
-   * Per MegaMek ArtilleryWeaponIndirectFireHandler.java L192-194:
-   *   int spotterMod = (spotter.getGunnery() - 4) / 2;  // Java integer division
+   * Per MegaMek ComputeToHit.java L1540-1544 an attacking LOS spotter adds +1
+   * to the indirect-fire to-hit (audit C-5). The command-console and
+   * target-tagged exemptions on that line are not represented here: command
+   * consoles are not modeled, and the semi-guided TAG composition skips the
+   * spotter branch entirely (see resolveIndirectFireWithSemiGuided).
    */
-  readonly spotterGunnery?: number;
+  readonly attackedThisTurn?: boolean;
 }
 
 export interface IAirborneAeroSpottingEquipment {
@@ -141,10 +146,11 @@ export interface IIndirectFireResult {
   readonly spotterWalked: boolean;
   /** Total indirect fire to-hit penalty (+1 base plus represented movement) */
   readonly toHitPenalty: number;
-  /** Gunnery skill of the elected LOS spotter, when represented. */
-  readonly spotterGunnery?: number;
-  /** Spotter-skill modifier applied to the indirect-fire penalty. */
-  readonly spotterSkillModifier?: number;
+  /**
+   * Elected LOS spotter attacked this turn, adding +1 to the penalty
+   * (MegaMek ComputeToHit.java L1540-1544 — audit C-5).
+   */
+  readonly spotterAttackedThisTurn?: boolean;
   /** Forward Observer SPA cancelled the represented walked-spotter add. */
   readonly forwardObserverApplied?: boolean;
   /** Oblique Attacker SPA reduced the final indirect-fire penalty. */
@@ -399,7 +405,9 @@ export function isIndirectFireCapable(weaponId: string): boolean {
  * It determines:
  * 1. Whether the attack needs indirect fire (LOS blocked)
  * 2. Whether indirect fire is possible (valid spotter or NARC/iNarc override)
- * 3. The to-hit penalty (+1 base, +1 if spotter walked; NARC/iNarc = base only)
+ * 3. The to-hit penalty (+1 base, + spotter movement modifier, +1 if the
+ *    spotter attacked this turn; NARC/iNarc = base only) — per MegaMek
+ *    ComputeToHit.java L1512-1545 (audit C-5)
  *
  * Resolution priority when attacker has no LOS:
  *   a. NARC mark by attacker's team → basis='narc', spotterId=null
@@ -475,18 +483,20 @@ export function resolveIndirectFire(
       ? 0
       : calculateSpotterMovementPenalty(spotter);
 
-    // Per MegaMek ArtilleryWeaponIndirectFireHandler.java L192-194:
-    //   int spotterMod = (spotter.getGunnery() - 4) / 2;
-    // Java uses integer division which truncates toward zero (NOT floor).
-    // G2 → -1, G3 → 0, G4 → 0, G5 → 0, G6 → +1.
-    // Absent spotterGunnery defaults to 4 (MegaMek default, modifier = 0).
-    const effectiveGunnery = spotter.spotterGunnery ?? 4;
-    const gunneryMod = Math.trunc((effectiveGunnery - 4) / 2);
+    // Audit C-5: there is NO spotter-gunnery term for LRM-family indirect
+    // fire. The (gunnery-4)/2 modifier the pre-fix code applied here comes
+    // from ArtilleryWeaponIndirectFireHandler.java — an artillery-only rule
+    // the original comment mis-cited. The LRM indirect to-hit composition is
+    // MegaMek ComputeToHit.java L1512-1545: +1 base, spotter movement
+    // modifier (Compute.getSpotterMovementModifier, Compute.java L2702-2726),
+    // and +1 when the spotter is attacking this turn (L1540-1544).
+    const spotterAttackedThisTurn = spotter.attackedThisTurn === true;
+    const spotterAttackPenalty = spotterAttackedThisTurn ? 1 : 0;
 
-    // Base +1 indirect-fire penalty + movement penalty + gunnery modifier.
+    // Base +1 indirect-fire penalty + movement penalty + spotter-attacked +1.
     const toHitPenalty = Math.max(
       0,
-      1 + movementPenalty + gunneryMod + obliqueAttackerModifier,
+      1 + movementPenalty + spotterAttackPenalty + obliqueAttackerModifier,
     );
 
     return {
@@ -496,8 +506,7 @@ export function resolveIndirectFire(
       spotter,
       spotterWalked,
       toHitPenalty,
-      spotterGunnery: effectiveGunnery,
-      spotterSkillModifier: gunneryMod,
+      spotterAttackedThisTurn,
       forwardObserverApplied,
       obliqueAttackerApplied,
       spotterMovementPenaltyCancelled: forwardObserverApplied ? 1 : 0,
@@ -665,10 +674,16 @@ export function resolveIndirectFireWithSemiGuided(
   }
 
   if (tagActive) {
+    // Audit C-6: MegaMek ComputeToHit.java L1524-1535 — semi-guided ammo at a
+    // TAG-designated target takes -1 (cancelling the +1 indirect base) AND
+    // the spotter movement/attacked branch is the else-if (L1536), skipped
+    // entirely. Net indirect penalty contribution is therefore 0 regardless
+    // of spotter state — NOT the composed total minus 1.
     return {
       ...baseResult,
       basis: 'semi-guided-tag',
-      toHitPenalty: Math.max(0, baseResult.toHitPenalty - 1),
+      toHitPenalty: 0,
+      spotterAttackedThisTurn: false,
     };
   }
 

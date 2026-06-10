@@ -3395,7 +3395,10 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(combatBadge).toHaveAttribute('data-combat-badge-label', 'M3');
   });
 
-  test('shows spotter-gunnery indirect fire in browser', async ({ page }) => {
+  // Audit C-5: this browser check formerly pinned the artillery-only
+  // spotter-gunnery modifier; it now pins the corrected +1 spotter-attacking
+  // modifier (MegaMek ComputeToHit.java L1540-1544).
+  test('shows spotter-attacked indirect fire in browser', async ({ page }) => {
     await page.goto('/e2e/tactical-map?scenario=indirect-fire-spotter-skill');
 
     await expect(page.getByTestId('unit-token-indirect-spotter')).toContainText(
@@ -3422,16 +3425,12 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       '2',
     );
     await expect(targetHex).toHaveAttribute(
-      'data-combat-indirect-spotter-gunnery',
-      '6',
-    );
-    await expect(targetHex).toHaveAttribute(
-      'data-combat-indirect-spotter-skill-modifier',
-      '1',
+      'data-combat-indirect-spotter-attacked',
+      'true',
     );
     await expect(targetHex).toHaveAttribute(
       'data-combat-indirect-reason',
-      'Indirect fire via spotter indirect-spotter (+2); spotter gunnery 6 adds +1',
+      'Indirect fire via spotter indirect-spotter (+2); spotter attacked this turn adds +1',
     );
     await expect(targetHex).toHaveAttribute('data-combat-to-hit-number', '8');
     await expect(targetHex).toHaveAttribute(
@@ -3440,21 +3439,17 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
     await expect(targetHex).toHaveAttribute(
       'aria-label',
-      /spotter gunnery 6 adds \+1/,
+      /spotter attacked this turn adds \+1/,
     );
 
     const indirectBadge = page.getByTestId('hex-indirect-fire-badge-3-0');
     await expect(indirectBadge).toHaveAttribute(
-      'data-combat-indirect-badge-spotter-gunnery',
-      '6',
-    );
-    await expect(indirectBadge).toHaveAttribute(
-      'data-combat-indirect-badge-spotter-skill-modifier',
-      '1',
+      'data-combat-indirect-badge-spotter-attacked',
+      'true',
     );
     await expect(indirectBadge).toHaveAttribute(
       'aria-label',
-      /spotter gunnery 6 adds \+1/,
+      /spotter attacked this turn adds \+1/,
     );
   });
 

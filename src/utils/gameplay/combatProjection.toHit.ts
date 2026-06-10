@@ -52,21 +52,22 @@ function formatIndirectFireReason({
   basis,
   spotterId,
   toHitPenalty,
-  spotterGunnery,
-  spotterSkillModifier,
+  spotterAttackedThisTurn,
   forwardObserverApplied,
 }: {
   readonly basis: IndirectFireBasis;
   readonly spotterId?: string | null;
   readonly toHitPenalty: number;
-  readonly spotterGunnery?: number;
-  readonly spotterSkillModifier?: number;
+  readonly spotterAttackedThisTurn?: boolean;
   readonly forwardObserverApplied?: boolean;
 }): string {
   if (basis === 'los') {
     const details = [
-      spotterSkillModifier !== undefined && spotterSkillModifier !== 0
-        ? `spotter gunnery ${spotterGunnery ?? 'unknown'} ${spotterSkillModifier > 0 ? 'adds' : 'reduces'} ${spotterSkillModifier > 0 ? '+' : ''}${spotterSkillModifier}`
+      // Audit C-5: the spotter detail is the +1 spotter-attacking modifier
+      // (MegaMek ComputeToHit.java L1540-1544); the pre-fix spotter-gunnery
+      // detail described an artillery-only rule misapplied to LRMs.
+      spotterAttackedThisTurn === true
+        ? 'spotter attacked this turn adds +1'
         : undefined,
       forwardObserverApplied
         ? 'Forward Observer cancels walked spotter penalty'
@@ -291,7 +292,10 @@ function buildSpotterCandidates(
     isAirborneAerospace: isAirborneGameUnit(unit),
     airborneAeroSpottingEquipment: getAirborneAeroSpottingEquipment(unit),
     pilotSpas: unit.pilotSpas ?? unit.abilities,
-    spotterGunnery: unit.gunnery,
+    // Audit C-5: the projection mirrors the engine's spotter-attacked signal
+    // (per-turn weaponsFiredThisTurn state) so preview and commit paths agree
+    // on the +1 spotter-attacking modifier (ComputeToHit.java L1540-1544).
+    attackedThisTurn: (unit.weaponsFiredThisTurn?.length ?? 0) > 0,
   }));
 }
 
@@ -351,8 +355,7 @@ export function deriveIndirectFireProjection({
       readonly spotterId: string | null;
       readonly basis: IndirectFireBasis;
       readonly toHitPenalty: number;
-      readonly spotterGunnery?: number;
-      readonly spotterSkillModifier?: number;
+      readonly spotterAttackedThisTurn?: boolean;
       readonly forwardObserverApplied?: boolean;
       readonly penaltyCancelled?: number;
       readonly reason: string;
@@ -410,8 +413,7 @@ export function deriveIndirectFireProjection({
     spotterId,
     basis: result.basis,
     toHitPenalty: result.toHitPenalty,
-    spotterGunnery: result.spotterGunnery,
-    spotterSkillModifier: result.spotterSkillModifier,
+    spotterAttackedThisTurn: result.spotterAttackedThisTurn,
     forwardObserverApplied: result.forwardObserverApplied,
     penaltyCancelled: result.spotterMovementPenaltyCancelled,
     interveningTerrainEffects:
@@ -420,8 +422,7 @@ export function deriveIndirectFireProjection({
       basis: result.basis,
       spotterId,
       toHitPenalty: result.toHitPenalty,
-      spotterGunnery: result.spotterGunnery,
-      spotterSkillModifier: result.spotterSkillModifier,
+      spotterAttackedThisTurn: result.spotterAttackedThisTurn,
       forwardObserverApplied: result.forwardObserverApplied,
     }),
   };

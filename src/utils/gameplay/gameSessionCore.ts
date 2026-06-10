@@ -715,6 +715,10 @@ export function declareAttack(
         eventWeaponId,
         resolvedTargetHex,
         indirectFireResolution.toHitPenalty,
+        undefined,
+        // Audit C-5: carry the spotter-attacked +1 flag onto the event so
+        // replay/event-log consumers can explain the penalty composition.
+        indirectFireResolution.spotterAttackedThisTurn,
       );
       updatedSession = appendEvent(updatedSession, spotterEvent);
       if (indirectFireResolution.forwardObserverApplied) {
@@ -727,6 +731,9 @@ export function declareAttack(
           eventWeaponId,
           resolvedTargetHex,
           indirectFireResolution.toHitPenalty,
+          undefined,
+          // Audit C-5: same spotter-attacked flag as the selection event.
+          indirectFireResolution.spotterAttackedThisTurn,
         );
         updatedSession = appendEvent(updatedSession, forwardObserverEvent);
       }

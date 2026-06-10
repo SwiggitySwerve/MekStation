@@ -553,7 +553,12 @@ describe('Semi-Guided LRM with TAG', () => {
       expect(result.toHitPenalty).toBe(0);
     });
 
-    it('should leave walked spotter penalty after semi-guided TAG relief', () => {
+    // Audit C-6: MegaMek ComputeToHit.java L1524-1535 — semi-guided ammo at a
+    // TAG-designated target takes -1 (cancelling the +1 indirect base) AND the
+    // spotter movement/attacked branch is the else-if, skipped entirely. Net
+    // indirect contribution is 0 regardless of spotter state — NOT the
+    // composed total minus 1 that the pre-fix code produced.
+    it('skips spotter movement modifiers entirely when TAG is active (net 0 with a moved spotter)', () => {
       const semiGuidedContext: ISemiGuidedContext = {
         weaponId: 'semi-guided-lrm-5',
         equipment: { isSemiGuided: true },
@@ -569,8 +574,33 @@ describe('Semi-Guided LRM with TAG', () => {
 
       expect(result.permitted).toBe(true);
       expect(result.isIndirect).toBe(true);
-      expect(result.toHitPenalty).toBe(1);
+      expect(result.toHitPenalty).toBe(0);
       expect(result.spotterWalked).toBe(true);
+    });
+
+    it('skips the spotter-attacked modifier when TAG is active (net 0 with a moved, attacking spotter)', () => {
+      // Audit C-6: same else-if skip covers the +1 spotter-attacking modifier.
+      const semiGuidedContext: ISemiGuidedContext = {
+        weaponId: 'semi-guided-lrm-5',
+        equipment: { isSemiGuided: true },
+        targetStatus: { tagDesignated: true },
+      };
+      const result = resolveIndirectFireWithSemiGuided(
+        makeRequest({
+          weaponId: 'semi-guided-lrm-5',
+          spotterCandidates: [
+            makeSpotter({
+              movementType: MovementType.Walk,
+              attackedThisTurn: true,
+            }),
+          ],
+        }),
+        semiGuidedContext,
+      );
+
+      expect(result.permitted).toBe(true);
+      expect(result.isIndirect).toBe(true);
+      expect(result.toHitPenalty).toBe(0);
     });
 
     it('should permit semi-guided TAG indirect fire when no LOS spotter is available', () => {
@@ -758,87 +788,22 @@ describe('Indirect Fire Edge Cases', () => {
 });
 
 // =============================================================================
-// Gunnery Skill Modifier (PR-K9 — MegaMek parity)
+// LOS Spotter Modifier Parity (audit C-5 — MegaMek ComputeToHit.java)
 //
-// Per MegaMek ArtilleryWeaponIndirectFireHandler.java L192-194:
-//   int spotterMod = (spotter.getGunnery() - 4) / 2;  // Java integer division
-// Java truncates toward zero (Math.trunc), not floor. Key values:
-//   G2 -> trunc(-2/2) = -1
-//   G3 -> trunc(-1/2) =  0  (Java trunc, NOT Math.floor which gives -1)
-//   G4 -> trunc( 0/2) =  0  (baseline, no change)
-//   G5 -> trunc( 1/2) =  0
-//   G6 -> trunc( 2/2) = +1
+// Per MegaMek ComputeToHit.java L1512-1545 the LRM indirect-fire to-hit is:
+//   +1 base indirect (L1513-1514), -1 Oblique Attacker SPA (L1516-1518),
+//   spotter movement modifier via Compute.getSpotterMovementModifier
+//   (Compute.java L2702-2726: walk +1 / run +2 / jump +3, infantry 0),
+//   and +1 when the spotter is attacking this turn (L1540-1544,
+//   Entity.isAttackingThisTurn — Entity.java L10445-10453).
+//
+// There is NO spotter-gunnery term. The (gunnery-4)/2 modifier the pre-fix
+// code applied lives only in ArtilleryWeaponIndirectFireHandler.java —
+// an artillery-only rule the original PR-K9 comment mis-cited (audit C-5).
 // =============================================================================
 
-describe('Gunnery Skill Modifier', () => {
-  it('G2 spotter (ace) applies -1 modifier to base penalty', () => {
-    // Base=1, gunneryMod=-1, walkedPenalty=0 -> total=0
-    const result = resolveIndirectFire(
-      makeRequest({
-        spotterCandidates: [
-          makeSpotter({
-            movementType: MovementType.Stationary,
-            spotterGunnery: 2,
-          }),
-        ],
-      }),
-    );
-    expect(result.permitted).toBe(true);
-    expect(result.isIndirect).toBe(true);
-    expect(result.toHitPenalty).toBe(0);
-  });
-
-  it('G4 spotter (baseline) applies no modifier', () => {
-    // Base=1, gunneryMod=0 -> total=1 (unchanged from pre-K9 behaviour)
-    const result = resolveIndirectFire(
-      makeRequest({
-        spotterCandidates: [
-          makeSpotter({
-            movementType: MovementType.Stationary,
-            spotterGunnery: 4,
-          }),
-        ],
-      }),
-    );
-    expect(result.permitted).toBe(true);
-    expect(result.toHitPenalty).toBe(1);
-  });
-
-  it('G6 spotter (poor) applies +1 modifier', () => {
-    // Base=1, gunneryMod=+1 -> total=2
-    const result = resolveIndirectFire(
-      makeRequest({
-        spotterCandidates: [
-          makeSpotter({
-            movementType: MovementType.Stationary,
-            spotterGunnery: 6,
-          }),
-        ],
-      }),
-    );
-    expect(result.permitted).toBe(true);
-    expect(result.toHitPenalty).toBe(2);
-  });
-
-  it('G3 spotter applies 0 modifier — Java trunc(-1/2)=0, not Math.floor(-0.5)=-1', () => {
-    // The key parity test: Java integer division truncates toward zero.
-    // Base=1, gunneryMod=0 -> total=1
-    const result = resolveIndirectFire(
-      makeRequest({
-        spotterCandidates: [
-          makeSpotter({
-            movementType: MovementType.Stationary,
-            spotterGunnery: 3,
-          }),
-        ],
-      }),
-    );
-    expect(result.permitted).toBe(true);
-    expect(result.toHitPenalty).toBe(1);
-  });
-
-  it('absent spotterGunnery defaults to G4 (modifier = 0)', () => {
-    // Backward-compat: pre-K9 candidates lack spotterGunnery -> treat as G4.
+describe('LOS Spotter Modifier Parity (C-5)', () => {
+  it('stationary spotter: base +1 only, no spotter-skill term', () => {
     const result = resolveIndirectFire(
       makeRequest({
         spotterCandidates: [
@@ -847,45 +812,83 @@ describe('Gunnery Skill Modifier', () => {
       }),
     );
     expect(result.permitted).toBe(true);
+    expect(result.isIndirect).toBe(true);
     expect(result.toHitPenalty).toBe(1);
+    expect(result.spotterAttackedThisTurn).toBe(false);
   });
 
-  it('G2 spotter + walked: gunnery(-1) and walk(+1) cancel -> penalty=1', () => {
-    // Base=1, walkedPenalty=+1, gunneryMod=-1 -> total=1
+  it('spotter pilot data carries no gunnery term — elite or poor pilots leave the penalty unchanged', () => {
+    // Audit C-5: the (gunnery-4)/2 term is artillery-only. A legacy caller
+    // still passing the removed spotterGunnery field must not change the
+    // penalty (the resolver no longer reads it). The cast simulates a stale
+    // pre-fix candidate shape.
+    for (const legacyGunnery of [2, 6]) {
+      const legacyCandidate = {
+        ...makeSpotter({ movementType: MovementType.Stationary }),
+        spotterGunnery: legacyGunnery,
+      } as ISpotterCandidate;
+      const result = resolveIndirectFire(
+        makeRequest({ spotterCandidates: [legacyCandidate] }),
+      );
+      expect(result.permitted).toBe(true);
+      expect(result.toHitPenalty).toBe(1);
+    }
+  });
+
+  it('walked spotter: base +1 plus walk +1 -> penalty=2', () => {
     const result = resolveIndirectFire(
       makeRequest({
-        spotterCandidates: [
-          makeSpotter({ movementType: MovementType.Walk, spotterGunnery: 2 }),
-        ],
+        spotterCandidates: [makeSpotter({ movementType: MovementType.Walk })],
       }),
     );
     expect(result.permitted).toBe(true);
     expect(result.spotterWalked).toBe(true);
-    expect(result.toHitPenalty).toBe(1);
+    expect(result.toHitPenalty).toBe(2);
   });
 
-  it('G6 spotter + walked: gunnery(+1) and walk(+1) stack -> penalty=3', () => {
-    // Base=1, walkedPenalty=+1, gunneryMod=+1 -> total=3
+  it('spotter attacking this turn: base +1 plus attack +1 -> penalty=2', () => {
+    // ComputeToHit.java L1540-1544: +1 when spotter.isAttackingThisTurn().
     const result = resolveIndirectFire(
       makeRequest({
         spotterCandidates: [
-          makeSpotter({ movementType: MovementType.Walk, spotterGunnery: 6 }),
+          makeSpotter({
+            movementType: MovementType.Stationary,
+            attackedThisTurn: true,
+          }),
+        ],
+      }),
+    );
+    expect(result.permitted).toBe(true);
+    expect(result.toHitPenalty).toBe(2);
+    expect(result.spotterAttackedThisTurn).toBe(true);
+  });
+
+  it('walked + attacking spotter: base +1, walk +1, attack +1 -> penalty=3', () => {
+    const result = resolveIndirectFire(
+      makeRequest({
+        spotterCandidates: [
+          makeSpotter({
+            movementType: MovementType.Walk,
+            attackedThisTurn: true,
+          }),
         ],
       }),
     );
     expect(result.permitted).toBe(true);
     expect(result.spotterWalked).toBe(true);
     expect(result.toHitPenalty).toBe(3);
+    expect(result.spotterAttackedThisTurn).toBe(true);
   });
 
-  it('G2 + Forward Observer SPA: FO cancels walk penalty, gunnery(-1) still applies -> penalty=0', () => {
-    // FO SPA cancels walkedPenalty. Base=1, walkedPenalty=0, gunneryMod=-1 -> total=0
+  it('Forward Observer cancels the walk +1 but not the spotter-attacked +1', () => {
+    // FO SPA cancels only the represented walked-spotter movement add.
+    // Base=1, walk cancelled, attack +1 -> total=2.
     const result = resolveIndirectFire(
       makeRequest({
         spotterCandidates: [
           makeSpotter({
             movementType: MovementType.Walk,
-            spotterGunnery: 2,
+            attackedThisTurn: true,
             pilotSpas: ['forward_observer'],
           }),
         ],
@@ -893,27 +896,11 @@ describe('Gunnery Skill Modifier', () => {
     );
     expect(result.permitted).toBe(true);
     expect(result.spotterWalked).toBe(true);
-    expect(result.toHitPenalty).toBe(0);
-  });
-
-  it('G7 spotter applies +1 (trunc(3/2)=1, same tier as G6)', () => {
-    // Base=1, gunneryMod=+1 -> total=2
-    const result = resolveIndirectFire(
-      makeRequest({
-        spotterCandidates: [
-          makeSpotter({
-            movementType: MovementType.Stationary,
-            spotterGunnery: 7,
-          }),
-        ],
-      }),
-    );
-    expect(result.permitted).toBe(true);
+    expect(result.forwardObserverApplied).toBe(true);
     expect(result.toHitPenalty).toBe(2);
   });
 
-  it('NARC-only path: spotter gunnery is irrelevant (no LOS spotter elected)', () => {
-    // NARC path has no elected LOS spotter -> penalty=1 (base only)
+  it('NARC-only path: no LOS spotter elected -> base penalty only', () => {
     const result = resolveIndirectFire(
       makeRequest({
         spotterCandidates: [],
