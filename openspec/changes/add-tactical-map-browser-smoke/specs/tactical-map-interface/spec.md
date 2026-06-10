@@ -1,6 +1,6 @@
 # Spec Delta: Tactical Map Interface
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Top-Down and Isometric Tactical Map Rendering
 

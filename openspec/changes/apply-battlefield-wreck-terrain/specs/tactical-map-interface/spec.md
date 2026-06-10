@@ -1,6 +1,6 @@
 # Spec Delta: Tactical Map Interface
 
-## ADDED Requirements
+## MODIFIED Requirements
 
 ### Requirement: Optional Battlefield Wreckage Terrain
 
