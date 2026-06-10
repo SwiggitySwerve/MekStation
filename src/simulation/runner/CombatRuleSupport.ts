@@ -943,7 +943,7 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
   ),
   'heat-mp-penalty': integrated(
     'heat-mp-penalty',
-    'validateMovement applies getHeatMovementPenalty to effective MP',
+    'validateMovement applies getHeatMovementPenalty to walk MP and re-derives run/sprint MP from the heat-adjusted walk; jump MP is heat-immune',
     MEGAMEK_HEAT_MOVEMENT_PENALTY_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;

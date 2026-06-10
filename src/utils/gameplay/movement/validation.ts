@@ -36,12 +36,13 @@ import { findPath } from './pathfinding';
 /**
  * Validate a movement action.
  *
- * Per `wire-heat-generation-and-effects` task 7.3: when `currentHeat`
- * is provided, `getHeatMovementPenalty(currentHeat)` is subtracted
- * from the unit's effective MP so overheated units cannot over-move.
- * At heat 15 (penalty 3), a walk-5 unit validates against walk-2
- * (not walk-5); attempting distance > 2 fails validation with the
- * heat-penalised range in the error string.
+ * Per `wire-heat-generation-and-effects` task 7.3 as corrected by audit
+ * 2026-06-09 C-1/C-2: when `currentHeat` is provided,
+ * `getHeatMovementPenalty(currentHeat)` reduces WALK MP only; run/sprint
+ * MP are re-derived from the heat-adjusted walk inside `getMaxMP`, and
+ * jump MP is heat-immune. At heat 15 (penalty 3), a walk-5 unit validates
+ * against walk-2 (not walk-5); attempting distance > 2 fails validation
+ * with the heat-penalised range in the error string.
  */
 export function validateMovement(
   grid: IHexGrid,
@@ -205,11 +206,12 @@ function getEnvironmentalMaxMP(
     capability.jumpMP,
     environmentalConditions.gravity,
   );
-  const windAdjustedJumpMP = Math.max(
+  // Audit 2026-06-09 C-2: jump MP is heat-immune (MegaMek Mek.getJumpMP has
+  // no heat term) — gravity and wind are the only jump MP modifiers here.
+  return Math.max(
     0,
     scaledJumpMP - getWindJumpReduction(environmentalConditions.wind),
   );
-  return Math.max(0, windAdjustedJumpMP - heatPenalty);
 }
 
 function calculatePathMovementCost(
@@ -283,9 +285,10 @@ export function getStandingCost(
 /**
  * Get all valid destinations for a movement type.
  *
- * Per `wire-heat-generation-and-effects` task 7.3: when `currentHeat`
- * is provided, destinations are constrained by the heat-reduced MP
- * so UI previews + bot planning both respect the penalty.
+ * Per `wire-heat-generation-and-effects` task 7.3 as corrected by audit
+ * 2026-06-09 C-1/C-2: when `currentHeat` is provided, walk MP is
+ * heat-reduced and run/sprint MP re-derive from it (jump MP is
+ * heat-immune) so UI previews + bot planning both respect the penalty.
  */
 export function getValidDestinations(
   grid: IHexGrid,

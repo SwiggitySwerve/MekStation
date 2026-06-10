@@ -230,7 +230,9 @@ describe('movementCommands', () => {
     }
   });
 
-  it('walk/run/jump are disabled when heat-reduced MP leaves no budget', () => {
+  // Audit 2026-06-09 C-2: jump MP is heat-immune (MegaMek Mek.getJumpMP has
+  // no heat term) — jump previously pinned the wrong pre-fix disabled state.
+  it('walk/run are disabled when heat-reduced MP leaves no budget; jump stays available', () => {
     const ctx = makeCtx({
       activeUnitProne: false,
       activeUnitHeat: 30,
@@ -252,8 +254,7 @@ describe('movementCommands', () => {
     expect(
       commands.find((c) => c.id === 'movement.jump')!.availability(ctx),
     ).toEqual({
-      available: false,
-      reason: 'Heat penalty leaves no jump MP.',
+      available: true,
     });
   });
 

@@ -97,8 +97,10 @@ import { getStandingCost } from './validation';
  * `hexesInRange(origin, mp)` window; keep the hex if the cheapest
  * path cost is `<= mp`.
  *
- * Jump: flat hex-distance gate — any hex within heat-adjusted `jumpMP`
- * hex distance lands, regardless of terrain between origin and landing.
+ * Jump: flat hex-distance gate — any hex within `jumpMP` hex distance
+ * lands, regardless of terrain between origin and landing. Jump MP is
+ * heat-immune (audit 2026-06-09 C-2; MegaMek Mek.getJumpMP has no heat
+ * term).
  *
  * Stationary: returns an empty array (spec: the overlay only
  * renders during Walk/Run/Jump type selection).

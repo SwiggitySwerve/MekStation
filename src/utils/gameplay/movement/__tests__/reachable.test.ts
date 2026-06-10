@@ -3118,7 +3118,10 @@ describe('deriveMovementRangeHexForDestination', () => {
     });
   });
 
-  it('projects a hover destination even when heat leaves no jump MP', () => {
+  // Audit 2026-06-09 C-2: jump MP is heat-immune (MegaMek Mek.getJumpMP has
+  // no heat term) — this test previously pinned the wrong pre-fix behavior
+  // where heat 25 (penalty 5) zeroed a jump-2 capability.
+  it('projects a reachable jump destination because jump MP is heat-immune', () => {
     const grid = createHexGrid({ radius: 5 });
     const unit = { ...makeUnitAtOrigin(), heat: 25 };
     const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 2 };
@@ -3134,16 +3137,10 @@ describe('deriveMovementRangeHexForDestination', () => {
     expect(projected).toMatchObject({
       hex: { q: 1, r: 0 },
       mpCost: 1,
-      terrainCost: 0,
-      elevationCost: 0,
-      heatGenerated: 0,
-      reachable: false,
+      heatGenerated: 3,
+      reachable: true,
       movementType: MovementType.Jump,
       movementMode: 'jump',
-      blockedReason: 'Destination is 1 hexes away, but max range for jump is 0',
-      movementInvalidReason: 'InsufficientMP',
-      movementInvalidDetails:
-        'Destination is 1 hexes away, but max range for jump is 0',
     });
   });
 

@@ -40,7 +40,7 @@ reconciliation merge `7f22e4f22` · audited main `442f90855`.
 
 | Task | Finding          | Scope                                                                                                                                     | Status  |
 | ---- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| W2.1 | C-1, C-2         | Run/sprint MP derived from heat-adjusted walk; jump MP heat-immune. MODIFIED delta: movement-system heat requirements (verbatim headings) | pending |
+| W2.1 | C-1, C-2         | Run/sprint MP derived from heat-adjusted walk; jump MP heat-immune. MODIFIED delta: movement-system heat requirements (verbatim headings) | done    |
 | W2.2 | C-3, C-4         | Terrain entry-cost table per motive/level; multi-feature hex cost summing. MODIFIED delta: terrain-system table                           | pending |
 | W2.3 | C-7              | Swamp partial cover removed. MODIFIED delta: terrain-system cover column                                                                  | pending |
 | W2.4 | C-5, C-6         | Indirect fire: drop artillery-only gunnery mod for LRM; +1 spotter-attacking; semi-guided TAG net-0 composition                           | pending |

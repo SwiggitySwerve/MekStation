@@ -76,7 +76,10 @@ describe('getEffectiveWalkMP — TSM + heat-penalty interaction', () => {
 });
 
 describe('getHeatAdjustedMovementCapability', () => {
-  it('derives run MP from heat-and-TSM adjusted walk MP', () => {
+  // Audit 2026-06-09 C-2: jump MP is heat-immune (MegaMek Mek.getJumpMP has
+  // no heat term) — the old `jumpMP: 2` expectations pinned the wrong
+  // pre-fix heat subtraction.
+  it('derives run MP from heat-and-TSM adjusted walk MP; jump is heat-immune', () => {
     expect(
       getHeatAdjustedMovementCapability(
         { walkMP: 4, runMP: 6, jumpMP: 3 },
@@ -86,7 +89,7 @@ describe('getHeatAdjustedMovementCapability', () => {
     ).toEqual({
       walkMP: 5,
       runMP: 8,
-      jumpMP: 2,
+      jumpMP: 3,
     });
   });
 
@@ -100,7 +103,23 @@ describe('getHeatAdjustedMovementCapability', () => {
     ).toEqual({
       walkMP: 3,
       runMP: 5,
-      jumpMP: 2,
+      jumpMP: 3,
+    });
+  });
+
+  // Audit 2026-06-09 C-1: heat 10 worked example — walk 5 / run 8 →
+  // penalty 2 → walk 3, run = ceil(3 * 1.5) = 5 (NOT 8 - 2 = 6).
+  it('locks the C-1 worked example for non-TSM units at heat 10', () => {
+    expect(
+      getHeatAdjustedMovementCapability(
+        { walkMP: 5, runMP: 8, jumpMP: 5 },
+        10,
+        false,
+      ),
+    ).toEqual({
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 5,
     });
   });
 });
