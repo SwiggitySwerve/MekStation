@@ -541,24 +541,46 @@ When damage exposes structure at a vehicle's Front, Side, or Rear location, the 
 
 ### Requirement: Vehicle Hit Location Tables
 
-The system SHALL use vehicle-specific hit-location tables per attack direction.
+The system SHALL use vehicle-specific hit-location tables per attack direction,
+and SHALL apply MegaMek hull-down fixed-location behavior when a hull-down
+vehicle or vehicle-mode QuadVee is hit through a protected arc.
 
-#### Scenario: Front attack table
+#### Scenario: Hull-down turreted vehicle protected arc uses turret
 
-- **GIVEN** an attack from the Front arc
-- **WHEN** 2d6 is rolled
-- **THEN** 2 SHALL resolve to Front (TAC)
-- **AND** 3-4 SHALL resolve to Right Side
-- **AND** 5-7 SHALL resolve to Front
-- **AND** 8-9 SHALL resolve to Left Side
-- **AND** 10-11 SHALL resolve to Turret
-- **AND** 12 SHALL resolve to Front (TAC)
+- **GIVEN** a hull-down vehicle or vehicle-mode QuadVee with an available turret
+- **AND** the attack direction is front, left, or right for a non-backed entry
+- **WHEN** vehicle hit location is resolved
+- **THEN** the hit location SHALL be `turret`
+- **AND** no normal vehicle hit-location table roll SHALL be consumed
+- **AND** the result SHALL not be a TAC result.
 
-#### Scenario: VTOL roll 12 hits Rotor
+#### Scenario: Hull-down non-turret vehicle protected arc uses incoming side
 
-- **GIVEN** a VTOL target
-- **WHEN** a Front or Rear hit location roll is 12
-- **THEN** the hit SHALL land on Rotor instead of Turret
+- **GIVEN** a hull-down vehicle or vehicle-mode QuadVee without an available
+  turret, or whose turret is ignored
+- **AND** the attack direction is front, left, or right for a non-backed entry
+- **WHEN** vehicle hit location is resolved
+- **THEN** the hit location SHALL be the fixed incoming side location:
+  `front`, `left_side`, or `right_side`
+- **AND** the result SHALL not be a TAC result.
+
+#### Scenario: Hull-down vehicle exposed opposite arc uses normal table
+
+- **GIVEN** a hull-down vehicle or vehicle-mode QuadVee that did not back into
+  hull-down
+- **AND** the attack direction is rear
+- **WHEN** vehicle hit location is resolved
+- **THEN** the normal rear vehicle hit-location table SHALL be used
+- **AND** VTOL rotor redirection and TAC handling SHALL remain normal.
+
+#### Scenario: Backed hull-down entry flips protected direction
+
+- **GIVEN** a hull-down vehicle or vehicle-mode QuadVee whose entry path
+  included a backward step
+- **WHEN** vehicle hit location is resolved
+- **THEN** rear, left, and right attacks SHALL use hull-down fixed-location
+  behavior
+- **AND** front attacks SHALL use the normal front vehicle hit-location table.
 
 ### Requirement: Vehicle Critical Hit Table
 
@@ -1527,4 +1549,160 @@ The spotter unit elected for an indirect-fire attack SHALL receive a +1 to-hit m
 - **GIVEN** S was elected as spotter and S was subsequently destroyed before A's damage step
 - **WHEN** S's earlier own-attacks are replayed
 - **THEN** the +1 spotting-fire penalty SHALL still apply (the penalty is fixed at election time, not retroactively cancelled)
+
+### Requirement: Session Vehicle Damage Dispatch
+
+The system SHALL resolve committed weapon hits against targets whose derived
+unit state carries `combatState.kind === "vehicle"` with the vehicle combat
+pipeline rather than the generic Mek hit-location and damage pipeline.
+
+#### Scenario: Represented vehicle target uses vehicle damage
+
+- **GIVEN** a weapon attack hits a target with `combatState.kind === "vehicle"`
+- **WHEN** the session resolves the attack
+- **THEN** the hit location SHALL be selected by the vehicle hit-location table
+  for the computed attack direction
+- **AND** the emitted `AttackResolved.location` SHALL be the corresponding
+  vehicle armor location such as `Front`, `Left`, `Right`, `Rear`, `Turret`, or
+  `Rotor`
+- **AND** emitted `DamageApplied` events SHALL carry vehicle armor and
+  structure remaining values from `vehicleResolveDamage`
+- **AND** the generic Mek damage transfer chain SHALL NOT be used for that hit.
+
+#### Scenario: Hull-down fixed location is honored during session resolution
+
+- **GIVEN** a hull-down represented vehicle target is hit through a protected
+  arc
+- **AND** the vehicle has an available represented turret
+- **WHEN** the session resolves the attack
+- **THEN** the committed hit SHALL resolve to `Turret`
+- **AND** no normal vehicle location-table dice SHALL be consumed for that hit.
+
+#### Scenario: Vehicle motive and crash events are replay-visible
+
+- **GIVEN** vehicle damage triggers motive damage, immobilization, or VTOL rotor
+  crash handling
+- **WHEN** the session resolves the attack
+- **THEN** the event stream SHALL include the applicable vehicle events:
+  `MotiveDamaged`, `MotivePenaltyApplied`, `VehicleImmobilized`, and
+  `VTOLCrashCheck`
+- **AND** fatal vehicle damage SHALL emit `UnitDestroyed` with a compatible
+  destruction cause.
+
+### Requirement: Session Vehicle Critical Dispatch
+
+The system SHALL dispatch represented vehicle weapon-hit critical triggers from
+the committed session attack path through the vehicle critical-hit resolver.
+
+#### Scenario: Vehicle TAC critical is replay-visible
+
+- **GIVEN** a committed weapon attack hits a target with
+  `combatState.kind === "vehicle"`
+- **AND** the vehicle hit-location result is a TAC trigger
+- **WHEN** the session resolves the attack
+- **THEN** the session SHALL roll and apply a vehicle critical result
+- **AND** the event stream SHALL include a `CriticalHitResolved` event naming
+  the vehicle critical effect that was applied.
+
+#### Scenario: Vehicle structure exposure triggers critical dispatch
+
+- **GIVEN** a committed weapon attack hits a target with
+  `combatState.kind === "vehicle"`
+- **AND** vehicle damage exposes structure at the hit location
+- **WHEN** the session resolves the attack
+- **THEN** the session SHALL roll and apply a vehicle critical result after the
+  vehicle damage event has been emitted.
+
+#### Scenario: Vehicle critical effects emit state-specific events
+
+- **GIVEN** a vehicle critical result applies a crew stun, weapon destruction,
+  ammo explosion, engine destruction, or crew kill effect
+- **WHEN** the session emits replay events for the critical
+- **THEN** the event stream SHALL include the applicable state-specific events
+  from `VehicleCrewStunned`, `ComponentDestroyed`, `AmmoExplosion`, and
+  `UnitDestroyed`
+- **AND** replaying the events SHALL reconstruct the vehicle combat-state
+  mutation.
+
+### Requirement: Location-Sensitive Vehicle Critical Tables
+
+The vehicle critical resolver SHALL select critical effects using the struck
+vehicle location instead of one generic vehicle critical table.
+
+#### Scenario: Front vehicle critical roll uses the front table
+
+- **GIVEN** a represented ground vehicle is critically hit in the front
+- **WHEN** the vehicle critical roll total is 12
+- **THEN** the applied critical effect SHALL be `crew_killed`.
+
+#### Scenario: Rear vehicle critical roll uses engine fuel context
+
+- **GIVEN** a represented ground vehicle is critically hit in the rear
+- **WHEN** the vehicle critical roll total is 12
+- **AND** the vehicle has a non-fusion fuel-bearing engine
+- **THEN** the applied critical effect SHALL be `fuel_tank`.
+
+#### Scenario: Turret vehicle critical roll can lock or destroy the turret
+
+- **GIVEN** a represented vehicle is critically hit in the turret
+- **WHEN** the vehicle critical roll total is 9 or 12
+- **THEN** the applied critical effect SHALL be `turret_locked` for 9 and
+  `turret_destroyed` for 12.
+
+#### Scenario: VTOL rotor critical roll uses rotor-specific results
+
+- **GIVEN** a represented VTOL is critically hit in the rotor
+- **WHEN** the vehicle critical roll total is 6, 9, or 11
+- **THEN** the applied critical effect SHALL be `rotor_damage`,
+  `flight_stabilizer`, or `rotor_destroyed` respectively.
+
+### Requirement: Vehicle Critical Availability Fallthrough
+
+Vehicle critical resolution SHALL continue through the struck-location critical
+table when represented state proves that the current table entry cannot apply.
+If no later entry applies, the resolver SHALL retry the same struck-location
+table once from roll 6 before resolving to `none`, matching MegaMek Tank / VTOL
+critical-effect selection.
+
+#### Scenario: Rear ammo critical falls through when no explosive ammo is represented
+
+- **GIVEN** a represented ground vehicle is critically hit in the rear
+- **AND** the vehicle has no represented explosive ammo remaining
+- **WHEN** the vehicle critical roll total is 11
+- **THEN** the resolver SHALL skip `ammo_explosion`
+- **AND** the applied critical effect SHALL fall through to the roll-12
+  engine or fuel-tank outcome for that vehicle's represented engine state.
+
+#### Scenario: Turret ammo critical falls through to turret destruction
+
+- **GIVEN** a represented vehicle is critically hit in the turret
+- **AND** the vehicle has no represented explosive ammo remaining
+- **WHEN** the vehicle critical roll total is 11
+- **THEN** the applied critical effect SHALL be `turret_destroyed`
+- **AND** the event stream SHALL NOT emit an `AmmoExplosion` event.
+
+#### Scenario: Crew hit counters alter repeated front criticals
+
+- **GIVEN** a represented ground vehicle is critically hit in the front
+- **AND** the driver has already taken a represented hit
+- **WHEN** the vehicle critical roll total is 6
+- **THEN** the applied critical effect SHALL fall through to a crew-stun or
+  crew-kill outcome instead of a duplicate driver hit.
+
+#### Scenario: Rotor damage falls through when the VTOL is already immobile
+
+- **GIVEN** a represented VTOL is critically hit in the rotor
+- **AND** the VTOL is already immobilized
+- **WHEN** the vehicle critical roll total is 6
+- **THEN** the resolver SHALL skip `rotor_damage`
+- **AND** the applied critical effect SHALL fall through to the next available
+  rotor-table result.
+
+#### Scenario: Unrepresented equipment availability remains optimistic
+
+- **GIVEN** the current session state does not represent target vehicle weapon,
+  cargo, or stabilizer inventory availability
+- **WHEN** a vehicle critical result depends on that unrepresented inventory
+- **THEN** the resolver SHALL preserve the existing optimistic table behavior
+  unless a caller supplies explicit availability context.
 

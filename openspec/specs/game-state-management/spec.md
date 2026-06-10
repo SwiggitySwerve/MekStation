@@ -221,42 +221,27 @@ The system SHALL record initiative winner and first mover when InitiativeRolled 
 
 ### Requirement: Movement Event Handlers
 
-The system SHALL update unit position, facing, movement type, heat, and lock state when movement events are applied.
+Movement replay SHALL preserve whether a unit entered its current hull-down
+state through a backward movement step so downstream combat projection can
+apply vehicle backed-entry side-table rules.
 
-#### Scenario: Apply MovementDeclared event
+#### Scenario: Hull-down entry records backward movement
 
-- **GIVEN** a unit "mech-1" at position {q: 0, r: 5} facing North with heat=0
-- **AND** a MovementDeclared event with unitId="mech-1", to={q: 3, r: 3}, facing=Northeast, movementType=Walk, mpUsed=4, heatGenerated=0
-- **WHEN** the event is applied
-- **THEN** unit "mech-1" position SHALL be {q: 3, r: 3}
-- **AND** facing SHALL be Northeast
-- **AND** movementThisTurn SHALL be Walk
-- **AND** hexesMovedThisTurn SHALL be 4
-- **AND** heat SHALL remain 0 (0 + 0)
-- **AND** lockState SHALL be LockState.Planning
+- **GIVEN** a `MovementDeclared` payload with `hullDownEntryAttempt: true`
+- **AND** its `steps` include a `kind: "forward"` step whose direction is
+  `"backward"`
+- **WHEN** game state is derived from the event stream
+- **THEN** the unit SHALL have `hullDown: true`
+- **AND** the unit SHALL have `hullDownEnteredBackwards: true`.
 
-#### Scenario: Apply MovementDeclared with jump heat
+#### Scenario: Hull-down exit clears backward-entry state
 
-- **GIVEN** a unit "mech-1" with heat=2
-- **AND** a MovementDeclared event with movementType=Jump, mpUsed=5, heatGenerated=5
-- **WHEN** the event is applied
-- **THEN** heat SHALL be 7 (2 + 5)
-
-#### Scenario: Apply MovementLocked event
-
-- **GIVEN** a unit "mech-1" with lockState=Planning
-- **AND** state.activationIndex=2
-- **AND** a MovementLocked event with actorId="mech-1"
-- **WHEN** the event is applied
-- **THEN** unit "mech-1" lockState SHALL be LockState.Locked
-- **AND** state.activationIndex SHALL be 3 (incremented by 1)
-
-#### Scenario: MovementDeclared for nonexistent unit is no-op
-
-- **GIVEN** a game state with no unit "mech-99"
-- **AND** a MovementDeclared event with unitId="mech-99"
-- **WHEN** the event is applied
-- **THEN** the state SHALL be returned unchanged
+- **GIVEN** a unit state has `hullDown: true`
+- **AND** `hullDownEnteredBackwards: true`
+- **WHEN** a `MovementDeclared` payload exits, goes prone from, or successfully
+  stands out of hull-down
+- **THEN** the unit SHALL have `hullDown: false`
+- **AND** `hullDownEnteredBackwards` SHALL no longer be true.
 
 ### Requirement: Attack Event Handlers
 
@@ -796,43 +781,29 @@ The envelope MUST be immutable from the consumer's perspective: producers (reduc
 
 ### Requirement: Combat-State Seeding at Initialization
 
-`createInitialUnitState` SHALL seed `combatState` whenever the input `IGameUnit.unitType` is one of the four supported per-type discriminants (aerospace fighter / conventional fighter / small craft → `aero`; protomech → `proto`; infantry → `platoon`; battle armor → `squad`). The seeded `state` MUST be the return value of the matching existing factory: `createAerospaceCombatState`, `createProtoMechCombatState`, `createInfantryCombatStateFromUnit`, or `createBattleArmorCombatState`.
+`createInitialUnitState` SHALL seed `combatState.kind === "vehicle"` for
+represented vehicle-family units (`VEHICLE`, `VTOL`, and `SUPPORT_VEHICLE`)
+when the session unit supplies `vehicleInit`.
 
-Mech and vehicle units MUST leave `combatState` unset (until vehicle support lands as a future `kind: 'vehicle'` variant).
+#### Scenario: Vehicle init seeds vehicle combat state
 
-#### Scenario: Aerospace seeding
+- **GIVEN** an `IGameUnit` with `unitType: VEHICLE`, `VTOL`, or
+  `SUPPORT_VEHICLE`
+- **AND** the unit supplies `vehicleInit.motionType`,
+  `vehicleInit.originalCruiseMP`, `vehicleInit.armor`, and
+  `vehicleInit.structure`
+- **WHEN** initial game state is created
+- **THEN** the unit SHALL have `combatState.kind === "vehicle"`
+- **AND** the inner state SHALL preserve the vehicle motion type, turret type,
+  starting motive state, armor, structure, and VTOL altitude when supplied.
 
-- **GIVEN** an `IGameUnit` whose `unitType` is `AEROSPACE_FIGHTER`, `CONVENTIONAL_FIGHTER`, or `SMALL_CRAFT`
-- **WHEN** `createInitialUnitState(unit, position)` runs
-- **THEN** the returned `IUnitGameState` SHALL have `combatState.kind === 'aero'`
-- **AND** `combatState.state` SHALL equal `createAerospaceCombatState({...})` invoked with the unit's construction-time `maxSI`, `armorByArc`, `heatSinks`, `fuelPoints`, `safeThrust`, `maxThrust`
+#### Scenario: Missing vehicle init is rejected
 
-#### Scenario: Infantry seeding
-
-- **GIVEN** an `IGameUnit` whose `unitType` is `INFANTRY`
-- **WHEN** `createInitialUnitState(unit, position)` runs
-- **THEN** `combatState.kind` SHALL be `'platoon'`
-- **AND** `combatState.state` SHALL equal `createInfantryCombatStateFromUnit(unit)`
-
-#### Scenario: Protomech seeding
-
-- **GIVEN** an `IGameUnit` whose `unitType` is `PROTOMECH`
-- **WHEN** `createInitialUnitState(unit, position)` runs
-- **THEN** `combatState.kind` SHALL be `'proto'`
-- **AND** `combatState.state` SHALL equal `createProtoMechCombatState({...})` invoked with the unit's `chassisType`, `hasMainGun`, per-location armor / structure maps
-
-#### Scenario: Battle armor seeding
-
-- **GIVEN** an `IGameUnit` whose `unitType` is `BATTLE_ARMOR`
-- **WHEN** `createInitialUnitState(unit, position)` runs
-- **THEN** `combatState.kind` SHALL be `'squad'`
-- **AND** `combatState.state` SHALL equal `createBattleArmorCombatState({...})` invoked with the unit's `squadSize`, per-trooper armor, stealth kind, magnetic-clamp / vibroclaw flags
-
-#### Scenario: Mech and vehicle units leave the slot unset
-
-- **GIVEN** an `IGameUnit` whose `unitType` is `BATTLEMECH` or any vehicle motive type
-- **WHEN** `createInitialUnitState(unit, position)` runs
-- **THEN** the returned `IUnitGameState.combatState` SHALL be `undefined`
+- **GIVEN** an `IGameUnit` with a represented vehicle-family `unitType`
+- **AND** the required `vehicleInit` block or required field is missing
+- **WHEN** initial game state is created
+- **THEN** initialization SHALL throw an error naming the unit id and missing
+  field.
 
 ### Requirement: Discriminated Initialization Assertion
 
@@ -870,6 +841,135 @@ Mech and vehicle units MUST leave `combatState` unset (until vehicle support lan
 - **WHEN** the resulting state is inspected
 - **THEN** `altitude` SHALL equal `0`
 - **AND** downstream renderers SHALL treat the unit as landed
+
+### Requirement: Component Damage Preserves Actuator Location When Available
+
+Component damage state SHALL preserve actuator critical damage by combat
+location when the critical-hit resolver receives a combat location.
+
+#### Scenario: Actuator critical hit records location-keyed damage
+
+- **GIVEN** a critical slot actuator is destroyed in a known combat location
+- **WHEN** the critical effect updates component damage
+- **THEN** the aggregate actuator flag SHALL remain set for existing consumers
+- **AND** the same actuator SHALL be marked under `actuatorsByLocation` for the
+  hit location.
+
+### Requirement: Physical Attack Declaration Payloads
+
+`PhysicalAttackDeclared` events SHALL preserve the player-facing physical
+attack selection needed by later resolution and replay consumers.
+
+#### Scenario: Physical declaration preserves selected hit table
+
+- **GIVEN** a physical attack declaration is accepted from a rules-backed map
+  projection
+- **WHEN** the projection selected a physical hit-location table for the attack
+- **THEN** the emitted `PhysicalAttackDeclared` payload SHALL include that
+  `hitTable`
+- **AND** physical attack resolution SHALL prefer the declared table over
+  recalculating from incomplete attacker-only context.
+
+### Requirement: Vehicle Combat-State Replay
+
+Vehicle damage and vehicle-specific combat events SHALL update the
+`combatState.kind === "vehicle"` envelope during event replay so derived state
+matches the committed event log.
+
+#### Scenario: DamageApplied mirrors vehicle armor and structure
+
+- **GIVEN** a vehicle unit has `combatState.kind === "vehicle"`
+- **WHEN** replay applies `DamageApplied` for a vehicle location
+- **THEN** the top-level unit armor and structure SHALL update as before
+- **AND** the inner vehicle combat state's armor, structure, and destroyed
+  locations SHALL update for the same location.
+
+#### Scenario: Motive events mutate vehicle motive state
+
+- **GIVEN** a vehicle unit has `combatState.kind === "vehicle"`
+- **WHEN** replay applies `MotiveDamaged`, `VehicleImmobilized`,
+  `TurretLocked`, or `VehicleCrewStunned`
+- **THEN** the inner vehicle combat state SHALL reflect the corresponding
+  motive penalty, immobilized flag, turret lock, or crew-stun duration.
+
+### Requirement: Vehicle Critical Replay State
+
+The game-state reducer SHALL mirror replayed vehicle critical effects into the
+vehicle combat-state envelope.
+
+#### Scenario: Vehicle engine critical is replayed
+
+- **GIVEN** a unit with `combatState.kind === "vehicle"`
+- **WHEN** a `CriticalHitResolved` event with `effect: "engine_hit"` is replayed
+- **THEN** the unit's vehicle combat-state `motive.engineHits` SHALL increase
+  by one.
+
+#### Scenario: Vehicle driver critical is replayed
+
+- **GIVEN** a unit with `combatState.kind === "vehicle"`
+- **WHEN** a `CriticalHitResolved` event with `effect: "driver_hit"` is replayed
+- **THEN** the unit's vehicle combat-state `motive.driverHits` SHALL increase
+  by one.
+
+#### Scenario: Vehicle ammo critical destruction is replayed
+
+- **GIVEN** a unit with `combatState.kind === "vehicle"`
+- **WHEN** a crit-induced `AmmoExplosion` and matching `UnitDestroyed` event are
+  replayed
+- **THEN** the unit SHALL be marked destroyed
+- **AND** the inner vehicle combat state SHALL carry
+  `destructionCause: "ammo_explosion"`.
+
+### Requirement: Representable Vehicle Critical Replay Effects
+
+The game-state reducer SHALL mirror representable vehicle critical effects into
+the vehicle combat-state envelope.
+
+#### Scenario: Fuel tank critical destroys the vehicle
+
+- **GIVEN** a unit with `combatState.kind === "vehicle"`
+- **WHEN** a `CriticalHitResolved` event with `effect: "fuel_tank"` is replayed
+- **THEN** the vehicle combat state SHALL be marked destroyed
+- **AND** the inner destruction cause SHALL be `fuel_tank_explosion`.
+
+#### Scenario: Turret lock critical updates turret lock state
+
+- **GIVEN** a unit with `combatState.kind === "vehicle"`
+- **WHEN** a `TurretLocked` event is replayed after a `turret_locked` critical
+- **THEN** the vehicle turret lock state SHALL mark the affected turret locked.
+
+#### Scenario: Rotor destroyed critical immobilizes a VTOL
+
+- **GIVEN** a VTOL unit with `combatState.kind === "vehicle"`
+- **WHEN** a `CriticalHitResolved` event with `effect: "rotor_destroyed"` is
+  replayed
+- **THEN** the vehicle motive state SHALL be immobilized.
+
+#### Scenario: Vehicle damage replay updates inner armor and structure
+
+- **GIVEN** a unit with `combatState.kind === "vehicle"`
+- **WHEN** a `DamageApplied` event is replayed against a vehicle location
+- **THEN** the vehicle combat-state envelope SHALL update the matching inner
+  armor and structure values
+- **AND** destroyed vehicle locations SHALL be recorded inside the vehicle
+  state, not only on the outer unit record.
+
+#### Scenario: Weapon critical replay records availability state
+
+- **GIVEN** a unit with `combatState.kind === "vehicle"`
+- **WHEN** a `CriticalHitResolved` event with `effect: "weapon_destroyed"` is
+  replayed for a mounted vehicle weapon
+- **THEN** the affected weapon SHALL be unavailable in the vehicle combat-state
+  envelope.
+
+#### Scenario: Critical destruction cause survives unit destruction replay
+
+- **GIVEN** a vehicle critical has already marked the vehicle destroyed with a
+  critical-specific destruction cause
+- **WHEN** a later `UnitDestroyed` event for the same vehicle is replayed
+- **THEN** the vehicle combat-state envelope SHALL preserve the
+  critical-specific destruction cause instead of replacing it with a generic
+  unit-destroyed cause.
 
 ## Dependencies
 

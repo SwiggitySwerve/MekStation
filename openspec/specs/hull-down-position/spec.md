@@ -41,9 +41,7 @@ Defines the hull-down defensive position for BattleMechs, where a mech uses terr
 - **Deliberate Action**: Entering hull-down requires spending movement phase action (the mech does not move)
 
 ---
-
 ## Requirements
-
 ### Requirement: Hull-Down Entry Conditions
 
 The system SHALL allow a BattleMech to enter hull-down position as a deliberate action during the movement phase, provided the mech occupies a hex with suitable terrain (hill crest, ridge, or elevation change providing lower-body cover).
@@ -76,35 +74,26 @@ The system SHALL allow a BattleMech to enter hull-down position as a deliberate 
 
 ### Requirement: Hull-Down To-Hit Modifier
 
-The system SHALL apply a +2 to-hit modifier to all attacks against a hull-down target, representing the reduced target profile.
+The system SHALL apply the MegaMek-backed hull-down target modifier to
+represented Mek-style targets when the target is hull-down and LOS or terrain
+cover is present.
 
-**Rationale**: MegaMek `ComputeTerrainMods` applies `WeaponAttackAction.HullDown` as a +2 terrain modifier for hull-down Mek targets when LOS reports target cover.
+#### Scenario: Covered hull-down target gets MegaMek modifier
 
-**Priority**: Critical
+- **GIVEN** a represented target is hull-down
+- **AND** the attack LOS or target terrain grants partial cover
+- **WHEN** an attacker previews or declares a weapon attack against that target
+- **THEN** the to-hit calculation SHALL include a `Hull Down` terrain modifier
+  of `+2`
+- **AND** the modifier SHALL be separate from the represented partial-cover
+  modifier already carried by the cover projection.
 
-#### Scenario: Attack against hull-down target gets +2 modifier
+#### Scenario: Hull-down without cover does not add target modifier
 
-- **GIVEN** a target BattleMech is in hull-down position
-- **WHEN** an attacker makes a weapon attack against the hull-down target
-- **THEN** the to-hit calculation SHALL include a +2 hull-down modifier
-- **AND** the modifier source SHALL be 'terrain'
-- **AND** the modifier name SHALL be 'Hull-Down'
-
-#### Scenario: Hull-down modifier stacks with other modifiers
-
-- **GIVEN** a target is hull-down and the attacker has gunnery 4, fires at medium range while walking
-- **WHEN** calculating the to-hit number
-- **THEN** the final to-hit SHALL include the +2 hull-down modifier in addition to all other applicable modifiers
-- **AND** the result SHALL be 4 (gunnery) + 2 (medium range) + 1 (walking) + 2 (hull-down) = 9
-
-#### Scenario: Hull-down and existing partial cover do not double-stack
-
-- **GIVEN** a target is hull-down AND also has partial cover from terrain
-- **WHEN** calculating to-hit modifiers
-- **THEN** the hull-down modifier SHALL replace (not stack with) the terrain partial cover
-- **AND** only the +2 hull-down modifier SHALL be applied
-
----
+- **GIVEN** a represented target is hull-down
+- **AND** the attack LOS and target terrain do not provide cover
+- **WHEN** an attacker previews or declares a weapon attack against that target
+- **THEN** the to-hit calculation SHALL NOT add the `Hull Down` modifier.
 
 ### Requirement: Hull-Down Hit Location Modification
 
@@ -196,6 +185,70 @@ The system SHALL allow a hull-down mech to exit the position by spending a movem
 - **AND** hull-down modifiers SHALL continue to apply
 
 ---
+
+### Requirement: Hull-Down Firing Restrictions
+
+The system SHALL prevent a represented hull-down Mek attacker from firing
+leg-mounted weapons, while allowing otherwise legal non-leg weapons in the same
+selection to remain available.
+
+#### Scenario: Hull-down Mek cannot fire leg-mounted weapon
+
+- **GIVEN** a represented Mek attacker is hull-down
+- **AND** the attacker has a weapon mounted in a leg location
+- **WHEN** the player previews or declares a weapon attack with that weapon
+- **THEN** the weapon option SHALL be marked unavailable
+- **AND** the blocked reason SHALL explain that hull-down Meks cannot fire
+  leg-mounted weapons
+- **AND** a commit containing only blocked leg-mounted weapons SHALL emit an
+  invalid attack before declaration.
+
+#### Scenario: Hull-down Mek can still fire upper-body weapons
+
+- **GIVEN** a represented Mek attacker is hull-down
+- **AND** the selected weapons include a leg-mounted weapon and an arm-mounted or
+  torso-mounted weapon
+- **WHEN** the player previews or declares the attack
+- **THEN** the leg-mounted weapon SHALL be excluded with a blocked reason
+- **AND** the otherwise legal upper-body weapon SHALL remain available for the
+  preview and commit.
+
+### Requirement: Hull-Down Physical Attack Restrictions
+
+The system SHALL prevent a represented hull-down attacker from making a kick
+attack and SHALL expose the restriction in physical attack projections before
+commit.
+
+#### Scenario: Hull-down attacker cannot kick
+
+- **GIVEN** a represented attacker is hull-down
+- **AND** an adjacent target is selected
+- **WHEN** the map projects physical attack options
+- **THEN** kick options SHALL be marked ineligible
+- **AND** the restriction reason SHALL explain that the attacker is hull-down.
+
+### Requirement: Standing Mek Hull-Down Entry Legality
+
+The system SHALL treat represented standing Mek-style hull-down entry as a
+movement posture action gated by Mek-style movement, sufficient entry MP, and
+a non-destroyed gyro before the hull-down state is applied.
+
+#### Scenario: Standing Mek entry sets hull-down state
+
+- **GIVEN** a represented standing Mek-style unit is not already hull-down
+- **AND** the unit has enough walk MP for the standing hull-down entry cost
+- **AND** the unit does not have a destroyed gyro
+- **WHEN** the unit commits the Hull Down movement action
+- **THEN** the unit SHALL become hull-down
+- **AND** the unit SHALL remain not prone.
+
+#### Scenario: Blocked entry leaves posture unchanged
+
+- **GIVEN** a represented unit is prone, already hull-down, non-Mek-style,
+  lacks enough walk MP, or has a destroyed gyro
+- **WHEN** the unit attempts the Hull Down movement action
+- **THEN** the action SHALL be rejected with a player-facing reason
+- **AND** the unit's prone and hull-down posture flags SHALL remain unchanged.
 
 ## Data Model Requirements
 

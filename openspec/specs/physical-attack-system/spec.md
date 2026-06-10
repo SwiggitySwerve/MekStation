@@ -294,41 +294,28 @@ All physical attack resolution SHALL use injectable DiceRoller for deterministic
 
 ### Requirement: UI-Facing Eligibility Projection
 
-The physical-attack system SHALL expose a `getEligiblePhysicalAttacks(attacker: IUnitGameState, target: IUnitGameState): IPhysicalAttackOption[]` function that returns every physical attack type (punch, kick, charge, DFA, push, club) along with its computed to-hit TN, damage, self-risk summary, and a list of any failed restrictions. The UI consumes this projection to render both enabled and disabled rows without duplicating rule logic on the client.
+The physical-attack system SHALL expose a `getEligiblePhysicalAttacks(attacker:
+IUnitGameState, target: IUnitGameState | null, context: IEligibilityContext)`
+projection that returns every represented physical attack type with its
+computed to-hit TN, damage, self-risk summary, failed restriction codes, and
+the hit-location table that the resolver will use if the attack hits.
 
-**Priority**: Critical
+#### Scenario: Hull-down punch projects MegaMek hit table
 
-#### Scenario: Fully-intact mech returns punch + kick options
+- **GIVEN** a hull-down represented Mek-style attacker has a legal punch target
+- **AND** the target base elevation is at the attacker's arm elevation
+- **WHEN** physical attack options are projected for that target
+- **THEN** the punch row's damage summary SHALL use the kick hit-location table
+- **AND** a later resolver consuming the declaration SHALL use the same table
+  for hit-location resolution.
 
-- **GIVEN** a 50-ton mech with all actuators intact, not having fired any arm weapon this turn, adjacent to an enemy
-- **WHEN** `getEligiblePhysicalAttacks(attacker, target)` is called
-- **THEN** the returned list SHALL include a `Punch` option for each arm with `toHit = pilotingSkill + TMM`, `damage = ceil(50/10) = 5`, `restrictionsFailed = []`
-- **AND** the returned list SHALL include a `Kick` option for each leg with `toHit = pilotingSkill - 2 + TMM`, `damage = floor(50/5) = 10`, `restrictionsFailed = []`
+#### Scenario: Hull-down club projects MegaMek hit table
 
-#### Scenario: Arm that fired weapon returns failed restriction
-
-- **GIVEN** a mech whose right arm fired an LRM-10 this turn
-- **WHEN** `getEligiblePhysicalAttacks(attacker, target)` is called for a target adjacent
-- **THEN** the `Punch (Right Arm)` option SHALL include `restrictionsFailed: ["WeaponFiredThisTurn"]`
-- **AND** the option SHALL still include the computed TN and damage so the UI can show what would-have-been
-
-#### Scenario: Non-adjacent target returns empty list
-
-- **GIVEN** a mech with no adjacent enemies
-- **WHEN** `getEligiblePhysicalAttacks(attacker, null)` is called (or for a non-adjacent target)
-- **THEN** the returned list SHALL be empty
-
-#### Scenario: Charge option requires ran this turn
-
-- **GIVEN** an attacker that walked (did not run) this turn
-- **WHEN** `getEligiblePhysicalAttacks` computes options against an adjacent target
-- **THEN** the `Charge` option SHALL include `restrictionsFailed: ["DidNotRun"]`
-
-#### Scenario: DFA option requires jumped this turn
-
-- **GIVEN** an attacker that did not jump this turn
-- **WHEN** `getEligiblePhysicalAttacks` computes options
-- **THEN** the `DFA` option SHALL include `restrictionsFailed: ["DidNotJump"]`
+- **GIVEN** a hull-down represented Mek-style attacker has a represented
+  Mek-style target and an equipped melee weapon
+- **WHEN** physical attack options are projected for that target
+- **THEN** the melee weapon row's damage summary SHALL use the kick
+  hit-location table that MegaMek applies to hull-down club-style attacks.
 
 ### Requirement: Self-Risk Summary in Options
 

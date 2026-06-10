@@ -201,25 +201,34 @@ The movement system SHALL trigger piloting skill rolls when entering specific te
 
 ### Requirement: Prone/Standing-Up Movement Costs
 
-Standing up from prone SHALL cost the unit's full walking MP and require a successful PSR.
+Standing up from prone SHALL cost the represented stand-up MP and require a
+successful PSR unless represented unit rules make the stand-up automatic or
+impossible.
 
-#### Scenario: Standing up costs full walking MP
+#### Scenario: Playtest3 three-hit heavy-duty gyro stand-up remains rollable
 
-- **WHEN** a prone unit attempts to stand up in the movement phase
-- **THEN** standing up SHALL cost the entire walking MP allotment
-- **AND** the unit SHALL NOT move further that turn after standing
+- **GIVEN** `playtest_3` is enabled
+- **AND** a prone Mek has a represented heavy-duty gyro with three gyro hits
+- **WHEN** movement projection or committed movement evaluates a ground
+  stand-up attempt
+- **THEN** the destination SHALL remain reachable when the path is otherwise
+  legal and within budget
+- **AND** the projection SHALL expose a finite stand-up PSR target
+- **AND** the projection SHALL include the represented heavy-duty gyro damage
+  modifier
+- **AND** committed movement SHALL resolve the same finite stand-up PSR instead
+  of treating the gyro as destroyed
 
-#### Scenario: Standing up requires PSR
+#### Scenario: Playtest3 four-hit heavy-duty gyro stand-up is impossible
 
-- **WHEN** a prone unit attempts to stand up
-- **THEN** a PSR SHALL be required
-- **AND** failure SHALL leave the unit prone (MP still expended)
-
-#### Scenario: Prone unit crawling
-
-- **WHEN** a prone unit does not stand up
-- **THEN** the unit SHALL be able to crawl at 1 MP per hex
-- **AND** the unit SHALL remain prone while crawling
+- **GIVEN** `playtest_3` is enabled
+- **AND** a prone Mek has a represented heavy-duty gyro with four gyro hits
+- **WHEN** movement projection or committed movement evaluates a ground
+  stand-up attempt
+- **THEN** the destination SHALL be marked unreachable before commit
+- **AND** the projection SHALL expose `Cannot stand with a destroyed gyro`
+- **AND** committed movement SHALL keep the unit at its origin and prone
+- **AND** committed movement SHALL NOT emit `UnitStood`
 
 ### Requirement: Shutdown Prevents Movement
 
@@ -674,6 +683,87 @@ The function SHALL be the inverse of the existing `convertOffsetToAxial(col, row
 - **AND** the axial coordinate produced by `convertOffsetToAxial(12, 7)`
 - **WHEN** `coordToBoardLabel` is called on that axial coordinate
 - **THEN** the return value SHALL be `'1207'`
+
+### Requirement: Destroyed Gyro Nontracked Movement Projection
+
+Movement projection and movement commit validation SHALL reject represented
+non-prone destroyed-gyro movement when the active movement mode is not tracked
+or wheeled.
+
+#### Scenario: Standing destroyed-gyro Mek cannot use ordinary movement
+
+- **GIVEN** a non-prone unit has represented destroyed-gyro damage
+- **AND** the selected movement mode resolves to ordinary walk, run, jump, or
+  another non-tracked/non-wheeled mode
+- **WHEN** the player previews or commits movement to a destination hex
+- **THEN** the destination SHALL be invalid
+- **AND** the projection and commit rejection SHALL explain that destroyed gyro
+  movement only permits tracked or wheeled movement.
+
+#### Scenario: Tracked and wheeled destroyed-gyro movement remains legal
+
+- **GIVEN** a non-prone unit has represented destroyed-gyro damage
+- **AND** the active movement capability resolves to tracked or wheeled
+  movement
+- **WHEN** the player previews and commits a legal destination
+- **THEN** the destination SHALL remain reachable when terrain and MP allow it
+- **AND** committed movement SHALL use the same MP/path outcome as the preview.
+
+### Requirement: Movement Declaration Captures Go-Prone Posture Attempts
+
+The movement event model SHALL capture same-hex hull-down `GO_PRONE`
+posture attempts as replay-safe movement declarations.
+
+#### Scenario: Go-prone declaration carries posture metadata
+
+- **GIVEN** a hull-down Mek-style unit commits the go-prone posture action
+- **WHEN** the movement event is serialized
+- **THEN** the `MovementDeclared` payload SHALL include `goProneAttempt: true`
+- **AND** the payload SHALL include a `goProne` movement step at the unit's
+  current hex with `mpCost: 0`
+- **AND** the declaration SHALL preserve zero hex displacement and zero
+  movement heat.
+
+### Requirement: Movement Declaration Captures Hull-Down Entry Attempts
+
+The movement event model SHALL capture same-hex standing `HULL_DOWN` posture
+attempts as replay-safe movement declarations.
+
+#### Scenario: Hull-down entry declaration carries posture metadata
+
+- **GIVEN** a standing Mek-style unit commits the hull-down posture action
+- **WHEN** the movement event is serialized
+- **THEN** the `MovementDeclared` payload SHALL include
+  `hullDownEntryAttempt: true`
+- **AND** the payload SHALL include a `hullDown` movement step at the unit's
+  current hex with the entry MP cost
+- **AND** the declaration SHALL preserve zero hex displacement and walking
+  movement heat.
+
+### Requirement: Prone Hull-Down Entry Uses Source-Backed Location Costs
+
+Movement declaration SHALL price a prone Mek-style unit's `HULL_DOWN` posture
+entry from represented per-location leg/support damage.
+
+#### Scenario: Prone hull-down entry pays actuator and hip costs
+
+- **GIVEN** a prone Mek-style unit has represented actuator critical damage on
+  its support locations
+- **WHEN** it commits the hull-down posture action
+- **THEN** the movement declaration SHALL stay in the current hex/facing
+- **AND** the declaration SHALL include `hullDownEntryAttempt: true`
+- **AND** the hull-down step MP cost SHALL be 1 MP plus one MP per represented
+  non-hip leg actuator crit and one MP per represented hip crit
+- **AND** replay SHALL clear prone and set hull-down without emitting a stand-up
+  PSR.
+
+#### Scenario: Destroyed support location blocks prone hull-down entry
+
+- **GIVEN** a prone Mek-style unit has a destroyed required support location
+- **WHEN** it attempts the hull-down posture action
+- **THEN** no movement declaration SHALL be emitted
+- **AND** movement invalid metadata SHALL report an impossible-cost 99 MP
+  support-location blocker.
 
 ## Data Model Requirements
 
