@@ -21,6 +21,7 @@ import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import { toCampaignSummary } from '@/lib/campaign/persistence';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import { logger } from '@/utils/logger';
 
 // =============================================================================
 // Result types
@@ -35,6 +36,17 @@ export type CampaignSaveResult =
   | { readonly kind: 'ok'; readonly record: SerializedCampaign }
   | { readonly kind: 'conflict'; readonly current: SerializedCampaign };
 
+/**
+ * Read-side result discriminator, mirroring `MatchLogService`'s
+ * `MatchLogReadResult` pattern (audit 2026-06-09 W5.2): a corrupt JSON
+ * payload surfaces as an explicit tagged variant instead of an
+ * unhandled `JSON.parse` throw that 500-crashed the API route.
+ */
+export type CampaignReadResult =
+  | { readonly kind: 'ok'; readonly record: SerializedCampaign }
+  | { readonly kind: 'not_found' }
+  | { readonly kind: 'corrupt'; readonly id: string };
+
 // =============================================================================
 // Row shape
 // =============================================================================
@@ -48,18 +60,28 @@ interface ICampaignRow {
 // =============================================================================
 
 /**
- * Read a stored campaign envelope by id. Returns `null` if no record
- * exists.
+ * Read a stored campaign envelope by id. Returns a tagged union so the
+ * API route can pick the right HTTP surface (404 for missing, explicit
+ * 500 for a corrupt stored payload, 200 for ok) without exceptions
+ * crossing the API boundary.
  */
-export function readCampaign(id: string): SerializedCampaign | null {
+export function readCampaign(id: string): CampaignReadResult {
   const db = getSQLiteService().getDatabase();
   const row = db
     .prepare('SELECT payload FROM campaigns WHERE id = ?')
     .get(id) as ICampaignRow | undefined;
   if (!row) {
-    return null;
+    return { kind: 'not_found' };
   }
-  return JSON.parse(row.payload) as SerializedCampaign;
+  try {
+    return {
+      kind: 'ok',
+      record: JSON.parse(row.payload) as SerializedCampaign,
+    };
+  } catch {
+    // Corrupt JSON in storage — explicit variant, never a throw.
+    return { kind: 'corrupt', id };
+  }
 }
 
 /**
@@ -85,15 +107,31 @@ export function saveCampaign(
   // The whole compare-and-set runs inside one transaction so a concurrent
   // writer cannot slip a write between the version check and the upsert.
   const tx = db.transaction((): CampaignSaveResult => {
-    const existing = readCampaign(envelope.campaignId);
-    const currentVersion = existing ? existing.version : 0;
+    // The denormalized `version` COLUMN is the CAS authority — not the
+    // JSON payload. This keeps a corrupt payload row repairable: the
+    // client that knows the last version can overwrite it with a clean
+    // envelope instead of being locked out by a parse failure.
+    const row = db
+      .prepare('SELECT version, payload FROM campaigns WHERE id = ?')
+      .get(envelope.campaignId) as
+      | { version: number; payload: string }
+      | undefined;
+    const currentVersion = row ? row.version : 0;
 
     if (baseVersion !== currentVersion) {
       // Stale write — the client's baseVersion does not match the stored
       // record. Reject rather than overwrite (D5). For a brand-new
       // campaign `currentVersion` is 0, so a non-zero baseVersion that
-      // has no record also conflicts (synthesizes a record so the client
-      // can recover).
+      // has no record also conflicts. When the stored payload is missing
+      // or corrupt, synthesize a record so the client can recover.
+      let existing: SerializedCampaign | null = null;
+      if (row) {
+        try {
+          existing = JSON.parse(row.payload) as SerializedCampaign;
+        } catch {
+          existing = null;
+        }
+      }
       const current: SerializedCampaign =
         existing ??
         ({
@@ -106,9 +144,12 @@ export function saveCampaign(
     const nextVersion = baseVersion + 1;
     const stored: SerializedCampaign = { ...envelope, version: nextVersion };
 
+    // `campaign_date` (not `current_date`): the bare identifier
+    // `current_date` parses as the SQLite CURRENT_DATE builtin and
+    // shadows the column — renamed in migration v7 (audit W5.2).
     db.prepare(
       `INSERT OR REPLACE INTO campaigns
-         (id, version, schema_version, name, faction_id, current_date,
+         (id, version, schema_version, name, faction_id, campaign_date,
           balance, saved_at, origin_device_id, payload)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).run(
@@ -143,13 +184,29 @@ export function deleteCampaign(id: string): void {
 /**
  * List every stored campaign as a lightweight `ICampaignSummary` — no
  * full bodies (design D7). Ordered newest-saved first.
+ *
+ * Corrupt rows are skipped (with a warning) rather than thrown — one
+ * bad payload must never kill the whole list endpoint (audit W5.2).
  */
 export function listCampaignSummaries(): readonly ICampaignSummary[] {
   const db = getSQLiteService().getDatabase();
   const rows = db
-    .prepare('SELECT payload FROM campaigns ORDER BY saved_at DESC')
-    .all() as ICampaignRow[];
-  return rows.map((row) =>
-    toCampaignSummary(JSON.parse(row.payload) as SerializedCampaign),
-  );
+    .prepare('SELECT id, payload FROM campaigns ORDER BY saved_at DESC')
+    .all() as Array<{ id: string; payload: string }>;
+
+  const summaries: ICampaignSummary[] = [];
+  for (const row of rows) {
+    let parsed: SerializedCampaign;
+    try {
+      parsed = JSON.parse(row.payload) as SerializedCampaign;
+    } catch {
+      logger.warn(
+        '[CampaignPersistence] skipping corrupt campaign row in list',
+        { id: row.id },
+      );
+      continue;
+    }
+    summaries.push(toCampaignSummary(parsed));
+  }
+  return summaries;
 }

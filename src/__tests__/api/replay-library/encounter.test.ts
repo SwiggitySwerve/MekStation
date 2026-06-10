@@ -70,7 +70,9 @@ jest.mock('@/components/encounter/persistEncounterGame', () => {
 // eslint-disable-next-line import/first
 import { persistEncounterGame } from '@/components/encounter/persistEncounterGame';
 // eslint-disable-next-line import/first
-import handler from '@/pages/api/replay-library/encounter';
+import handler, {
+  config as routeConfig,
+} from '@/pages/api/replay-library/encounter';
 
 const mockedPersistEncounterGame = persistEncounterGame as jest.MockedFunction<
   typeof persistEncounterGame
@@ -392,6 +394,109 @@ describe('POST /api/replay-library/encounter', () => {
       error: 'events must be an array',
       code: 'BAD_EVENTS',
     });
+  });
+
+  // ===========================================================================
+  // Audit W5.2 (H cluster): events element validation BEFORE any FS write.
+  // A payload-less game_created used to pass the array-only check, write
+  // the JSONL, then throw in the manifest builder — orphan file on disk.
+  // ===========================================================================
+
+  it('returns 400 BAD_EVENTS when an event is missing its payload (no persist call)', async () => {
+    const [gameCreated, turnStarted] = makeEvents('encounter-bad-evt-1');
+    const payloadless = { ...gameCreated } as Record<string, unknown>;
+    delete payloadless.payload;
+
+    const req = createMockRequest({
+      body: {
+        ...validBody('encounter-bad-evt-1'),
+        events: [payloadless, turnStarted],
+      },
+    });
+    const res = createMockResponse();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'BAD_EVENTS' }),
+    );
+    expect(mockedPersistEncounterGame).not.toHaveBeenCalled();
+  });
+
+  it('returns 400 BAD_EVENTS when an event is not an object (no persist call)', async () => {
+    const req = createMockRequest({
+      body: {
+        ...validBody('encounter-bad-evt-2'),
+        events: ['not-an-event'],
+      },
+    });
+    const res = createMockResponse();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'BAD_EVENTS' }),
+    );
+    expect(mockedPersistEncounterGame).not.toHaveBeenCalled();
+  });
+
+  // ===========================================================================
+  // Audit W5.2 (H cluster): body-size ceiling. Real event logs already
+  // brush Next's 1MB default (largest on-disk replay measured 1,105,638
+  // bytes) — the route must raise the bodyParser limit and reject
+  // over-ceiling payloads with an explicit 413.
+  // ===========================================================================
+
+  it('exports a Next bodyParser sizeLimit of 16mb (real logs already exceed the 1mb default)', () => {
+    expect(routeConfig?.api?.bodyParser?.sizeLimit).toBe('16mb');
+  });
+
+  it('returns 413 PAYLOAD_TOO_LARGE when Content-Length exceeds the ceiling', async () => {
+    const req = createMockRequest({
+      body: validBody('encounter-huge-1'),
+      headers: { 'content-length': String(17 * 1024 * 1024) },
+    });
+    const res = createMockResponse();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(413);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'PAYLOAD_TOO_LARGE' }),
+    );
+    expect(mockedPersistEncounterGame).not.toHaveBeenCalled();
+  });
+
+  it('persists a >1MB event log (the old silent-failure size) when under the ceiling', async () => {
+    const result = makeWriteSuccess('encounter-large-1');
+    mockedPersistEncounterGame.mockResolvedValueOnce(result);
+
+    // ~1.5MB of serialized events — over Next's old 1MB default, well
+    // under the 16mb ceiling. Direct handler calls bypass Next's body
+    // parser, so this pins the route logic itself imposing no cap.
+    const [gameCreated] = makeEvents('encounter-large-1');
+    const bigEvents = Array.from({ length: 1500 }, (_, i) => ({
+      ...gameCreated,
+      id: `encounter-large-1-evt-${i}`,
+      sequence: i,
+      payload: { filler: 'x'.repeat(1000) },
+    }));
+    const body = { ...validBody('encounter-large-1'), events: bigEvents };
+    const serializedBytes = JSON.stringify(body).length;
+    expect(serializedBytes).toBeGreaterThan(1024 * 1024);
+
+    const req = createMockRequest({
+      body,
+      headers: { 'content-length': String(serializedBytes) },
+    });
+    const res = createMockResponse();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(mockedPersistEncounterGame).toHaveBeenCalledTimes(1);
   });
 
   it('returns 400 BAD_WINNER when winner is an unknown string', async () => {

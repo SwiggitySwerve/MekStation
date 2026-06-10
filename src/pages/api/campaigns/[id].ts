@@ -85,12 +85,19 @@ export default async function handler(
 
   switch (req.method) {
     case 'GET': {
-      const record = readCampaign(id);
-      if (!record) {
+      const result = readCampaign(id);
+      if (result.kind === 'not_found') {
         res.status(404).json({ error: 'not found' });
         return;
       }
-      res.status(200).json(record);
+      if (result.kind === 'corrupt') {
+        // Explicit, intentional error surface for a corrupt stored
+        // payload — never an unhandled JSON.parse throw (audit W5.2).
+        // The row stays repairable via PUT with the correct baseVersion.
+        res.status(500).json({ error: 'stored campaign record is corrupt' });
+        return;
+      }
+      res.status(200).json(result.record);
       return;
     }
 

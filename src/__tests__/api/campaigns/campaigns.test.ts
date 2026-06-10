@@ -262,4 +262,83 @@ describe('Campaign persistence API', () => {
     const reloaded = res._getJSONData() as SerializedCampaign;
     expect(reloaded.body).toEqual(envelope.body);
   });
+
+  // ---------------------------------------------------------------------------
+  // Audit W5.2 (H cluster) — corrupt-row resilience + CURRENT_DATE shadowing
+  // ---------------------------------------------------------------------------
+
+  /** Corrupt a stored campaign's payload directly in SQLite. */
+  function corruptPayload(id: string): void {
+    getSQLiteService()
+      .getDatabase()
+      .prepare('UPDATE campaigns SET payload = ? WHERE id = ?')
+      .run('not-json{', id);
+  }
+
+  it('GET of a corrupt row returns an explicit error instead of an unhandled throw', async () => {
+    await callId('PUT', 'camp-corrupt', {
+      envelope: envelopeFor('camp-corrupt'),
+      baseVersion: 0,
+    });
+    corruptPayload('camp-corrupt');
+
+    const { res } = await callId('GET', 'camp-corrupt');
+    expect(res._getStatusCode()).toBe(500);
+    expect(res._getJSONData()).toEqual({
+      error: 'stored campaign record is corrupt',
+    });
+  });
+
+  it('one corrupt row does not kill the list endpoint — healthy rows still return', async () => {
+    for (const id of ['healthy-a', 'camp-rot', 'healthy-b']) {
+      await callId('PUT', id, { envelope: envelopeFor(id), baseVersion: 0 });
+    }
+    corruptPayload('camp-rot');
+
+    const { res } = await callIndex();
+    expect(res._getStatusCode()).toBe(200);
+    const summaries = res._getJSONData() as ICampaignSummary[];
+    expect(summaries.map((s) => s.id).sort()).toEqual([
+      'healthy-a',
+      'healthy-b',
+    ]);
+  });
+
+  it('a corrupt row stays repairable: PUT with the correct baseVersion overwrites it', async () => {
+    await callId('PUT', 'camp-repair', {
+      envelope: envelopeFor('camp-repair'),
+      baseVersion: 0,
+    });
+    corruptPayload('camp-repair');
+
+    // The version COLUMN (not the corrupt payload) is the CAS authority,
+    // so a client that knows the last version can heal the record.
+    const { res } = await callId('PUT', 'camp-repair', {
+      envelope: envelopeFor('camp-repair'),
+      baseVersion: 1,
+    });
+    expect(res._getStatusCode()).toBe(200);
+
+    const after = await callId('GET', 'camp-repair');
+    expect(after.res._getStatusCode()).toBe(200);
+    expect((after.res._getJSONData() as SerializedCampaign).version).toBe(2);
+  });
+
+  it('stores body.currentDate in campaign_date — a column NOT shadowed by the CURRENT_DATE builtin', async () => {
+    const envelope = envelopeFor('camp-date');
+    await callId('PUT', 'camp-date', { envelope, baseVersion: 0 });
+
+    const db = getSQLiteService().getDatabase();
+    const cols = db.pragma('table_info(campaigns)') as Array<{ name: string }>;
+    const names = cols.map((c) => c.name);
+    expect(names).toContain('campaign_date');
+    // A bare `current_date` identifier parses as the SQLite builtin and
+    // returns TODAY — the column must not carry that name.
+    expect(names).not.toContain('current_date');
+
+    const row = db
+      .prepare('SELECT campaign_date AS v FROM campaigns WHERE id = ?')
+      .get('camp-date') as { v: string };
+    expect(row.v).toBe(envelope.body.currentDate);
+  });
 });

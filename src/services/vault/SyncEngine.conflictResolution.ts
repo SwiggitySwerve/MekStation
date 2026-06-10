@@ -65,9 +65,16 @@ export async function findPendingConflictById(
 }
 
 /**
- * Resolve a conflict by accepting the remote version. Marks the conflict
- * resolved and — if remoteData + applyFn are provided — writes the remote
- * payload back to local storage.
+ * Resolve a conflict by accepting the remote version. Looks the conflict
+ * up while it is STILL pending, writes the remote payload back to local
+ * storage (when remoteData + applyFn are provided), then marks it
+ * resolved.
+ *
+ * Ordering matters (audit 2026-06-09 W5.2): `resolveConflict()` flips
+ * `resolution` away from `'pending'`, and the lookup only scans pending
+ * rows — resolving first made the conflict invisible, so accept-remote
+ * never actually applied the remote data. Applying BEFORE resolving also
+ * keeps the conflict pending (retryable) if the apply callback throws.
  */
 export async function resolveAcceptRemote(
   changeLog: ChangeLogRepository,
@@ -77,9 +84,6 @@ export async function resolveAcceptRemote(
     readonly applyFn?: ContentApplyFn;
   },
 ): Promise<boolean> {
-  const resolved = await changeLog.resolveConflict(conflictId, 'remote');
-  if (!resolved) return false;
-
   if (options.remoteData && options.applyFn) {
     const conflict = await findPendingConflictById(changeLog, conflictId);
     if (conflict) {
@@ -91,7 +95,7 @@ export async function resolveAcceptRemote(
     }
   }
 
-  return resolved;
+  return changeLog.resolveConflict(conflictId, 'remote');
 }
 
 /**
@@ -99,6 +103,11 @@ export async function resolveAcceptRemote(
  * remote payload into a new local item with a generated id. Returns the
  * forked item id when a fork was materialized; returns `true` when only
  * the resolution bookkeeping happened (no data and/or no applyFn).
+ *
+ * Same ordering fix as {@link resolveAcceptRemote} (audit 2026-06-09
+ * W5.2): the conflict must be looked up while still pending, and the
+ * fork materialized BEFORE the resolution flips — otherwise the lookup
+ * misses and the fork silently never exists.
  */
 export async function resolveFork(
   changeLog: ChangeLogRepository,
@@ -113,13 +122,12 @@ export async function resolveFork(
     ) => Promise<IChangeLogEntry>;
   },
 ): Promise<boolean | { forkedItemId: string }> {
-  const resolved = await changeLog.resolveConflict(conflictId, 'forked');
-  if (!resolved) return false;
+  let forkedItemId: string | null = null;
 
   if (options.remoteData && options.applyFn) {
     const conflict = await findPendingConflictById(changeLog, conflictId);
     if (conflict) {
-      const forkedItemId = `${conflict.itemId}-fork-${Date.now()}`;
+      forkedItemId = `${conflict.itemId}-fork-${Date.now()}`;
       await options.applyFn(
         forkedItemId,
         conflict.contentType,
@@ -130,9 +138,11 @@ export async function resolveFork(
         forkedItemId,
         options.remoteData,
       );
-      return { forkedItemId };
     }
   }
 
-  return resolved;
+  const resolved = await changeLog.resolveConflict(conflictId, 'forked');
+  if (!resolved) return false;
+
+  return forkedItemId !== null ? { forkedItemId } : resolved;
 }

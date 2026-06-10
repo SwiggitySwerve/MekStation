@@ -431,4 +431,41 @@ describe('persistEncounterGame (Node env)', () => {
     );
     expect(files).toContain(`${FIXTURE_GAME_ID}.jsonl`);
   });
+
+  it('audit W5.2: a payload-less game_created throws BEFORE any write — no orphan JSONL, no manifest', async () => {
+    // The old ordering wrote the JSONL first, then threw building the
+    // manifest entry off `payload.units` — leaving an orphan file on
+    // disk that the manifest never references.
+    const malformed = { ...gameCreatedEvent([]) } as unknown as Record<
+      string,
+      unknown
+    >;
+    delete malformed.payload;
+
+    await expect(
+      persistEncounterGame({
+        ...makeBaseInput({ events: [malformed as unknown as IGameEvent] }),
+        cwd,
+      }),
+    ).rejects.toThrow();
+
+    // Nothing may exist on disk: neither the partition file nor the
+    // manifest. ENOENT on the reports dir is the fully-clean outcome.
+    let partitionFiles: string[] = [];
+    try {
+      partitionFiles = await readdir(
+        path.resolve(cwd, 'simulation-reports', 'encounter'),
+      );
+    } catch {
+      // ENOENT — directory never created. Expected.
+    }
+    expect(partitionFiles).toHaveLength(0);
+
+    await expect(
+      readFile(
+        path.resolve(cwd, 'simulation-reports', 'replay-index.json'),
+        'utf-8',
+      ),
+    ).rejects.toThrow();
+  });
 });

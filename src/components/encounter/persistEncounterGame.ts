@@ -242,6 +242,13 @@ export async function persistEncounterGame(
     return { persisted: false, path: null, manifestEntry: null };
   }
 
+  // Build the manifest entry BEFORE any disk IO (audit 2026-06-09
+  // W5.2): the builder reads `game_created.payload.units`, so a
+  // malformed event throws here — with the old write-then-build order
+  // that throw landed AFTER the JSONL write, leaving an orphan file the
+  // manifest never references.
+  const manifestEntry = buildEncounterManifestEntry(input);
+
   // Lazy-import the Node-only modules so the browser bundle never
   // pulls them in. `await import` returns the module namespace; the
   // bundler tree-shakes the dynamic-import branch when statically
@@ -269,7 +276,6 @@ export async function persistEncounterGame(
   const filePath = path.resolve(partitionDir, `${input.gameId}.jsonl`);
   await writeFile(filePath, body, 'utf-8');
 
-  const manifestEntry = buildEncounterManifestEntry(input);
   await appendManifestEntry(manifestEntry, { cwd: input.cwd });
 
   return { persisted: true, path: filePath, manifestEntry };

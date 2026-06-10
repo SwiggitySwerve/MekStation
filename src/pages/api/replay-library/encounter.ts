@@ -46,7 +46,37 @@ import {
 } from '@/components/encounter/persistEncounterGame';
 import { readReplayIndex } from '@/replay-library/index-reader';
 import { ScenarioTemplateType } from '@/types/encounter/EncounterInterfaces';
+import { isGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import { logger } from '@/utils/logger';
+
+// =============================================================================
+// Body-size ceiling (audit 2026-06-09 W5.2)
+// =============================================================================
+
+/**
+ * 16 MiB request-body ceiling. Measured: the largest real replay in the
+ * library is 1,105,638 bytes (2,614 events ≈ 423 B/event) — already
+ * over Next's 1MB bodyParser default, which made long games silently
+ * fail to persist. A worst-case long interactive game (~10-20k events)
+ * models out to ~4-9 MB; 16 MiB gives 2-4x headroom on top of that.
+ * Duplicated in the sibling `quick.ts` route per this directory's
+ * copy-not-import convention.
+ */
+const MAX_BODY_BYTES = 16 * 1024 * 1024;
+
+/**
+ * Next pages-router override: lift the bodyParser limit from the 1MB
+ * default to the measured ceiling. Next itself rejects anything larger
+ * with a 413 before the handler runs; the in-handler Content-Length
+ * guard below mirrors that with this route's JSON error shape.
+ */
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '16mb',
+    },
+  },
+};
 
 // =============================================================================
 // Response Types
@@ -130,6 +160,26 @@ function parseBody(
     return {
       ok: false,
       error: { error: 'events must be an array', code: 'BAD_EVENTS' },
+    };
+  }
+
+  // Validate every element against the canonical wire-shape guard
+  // BEFORE any persistence work (audit W5.2): a payload-less
+  // `game_created` used to pass the array-only check, get written to
+  // disk, then blow up in the manifest builder — orphan JSONL on disk.
+  // `isGameEvent` is the same guard the replay loader uses on read, so
+  // anything rejected here could never have been replayed anyway. The
+  // explicit null check closes the `typeof null === 'object'` hole.
+  const badIndex = events.findIndex(
+    (event) => !isGameEvent(event) || event.payload === null,
+  );
+  if (badIndex !== -1) {
+    return {
+      ok: false,
+      error: {
+        error: `events[${badIndex}] is not a valid game event (id/gameId/sequence/timestamp/type/turn/phase/payload required)`,
+        code: 'BAD_EVENTS',
+      },
     };
   }
 
@@ -225,8 +275,9 @@ function parseBody(
  * Returns:
  *   - 200 `{ persisted: true,  alreadyPersisted: false, manifestEntry, path }` — first persist
  *   - 200 `{ persisted: false, alreadyPersisted: true,  manifestEntry, path }` — already in manifest
- *   - 400 on bad body / gameId / winner / encounterId / encounterName / templateType / summaries
+ *   - 400 on bad body / gameId / events / winner / encounterId / encounterName / templateType / summaries
  *   - 405 on non-POST
+ *   - 413 when the body exceeds the 16 MiB persist ceiling
  *   - 500 if `persistEncounterGame` throws
  */
 export default async function handler(
@@ -236,6 +287,20 @@ export default async function handler(
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+    return;
+  }
+
+  // Explicit over-ceiling rejection (audit W5.2). Next's bodyParser
+  // already 413s anything over the exported `sizeLimit` before this
+  // handler runs; this guard re-checks Content-Length so the rejection
+  // carries this route's JSON error shape and stays enforced for
+  // callers that bypass the Next parser (tests, custom servers).
+  const contentLength = Number(req.headers['content-length']);
+  if (Number.isFinite(contentLength) && contentLength > MAX_BODY_BYTES) {
+    res.status(413).json({
+      error: `request body exceeds the ${MAX_BODY_BYTES}-byte replay persist ceiling`,
+      code: 'PAYLOAD_TOO_LARGE',
+    });
     return;
   }
 
