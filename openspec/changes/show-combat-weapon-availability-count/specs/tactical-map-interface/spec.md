@@ -1,6 +1,6 @@
 # Spec Delta: Tactical Map Interface
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Combat Projection Detail Surface
 

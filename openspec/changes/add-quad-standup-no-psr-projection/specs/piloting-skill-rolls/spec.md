@@ -2,7 +2,7 @@
 
 ## MODIFIED Requirements
 
-### Requirement: PSR Trigger -- Standing Up
+### Requirement: PSR Trigger — Standing Up
 
 The system SHALL trigger a PSR when a prone unit attempts to stand unless
 represented unit rules classify the stand-up as automatic success.

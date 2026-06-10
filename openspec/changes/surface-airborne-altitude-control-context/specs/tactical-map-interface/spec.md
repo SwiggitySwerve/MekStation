@@ -34,6 +34,8 @@ are available from ordinary ground movement projection.
 - **AND** the projection SHALL expose altitude-control mode `vtol`
 - **AND** the projection SHALL expose represented altitude 2
 
+## ADDED Requirements
+
 ### Requirement: Tactical Map Explanation Layer
 
 Top-down movement hexes SHALL surface altitude-control context without relying

@@ -17,7 +17,7 @@ populate both the human-readable reason and the canonical reason code.
 
 ## MODIFIED Requirements
 
-### Requirement: PSR Modifier - Gyro Damage
+### Requirement: PSR Modifier — Gyro Damage
 
 AirMek landing PSRs SHALL use the landing-control modifier already computed
 from MegaMek `LandAirMek.checkAirMekLanding()` semantics instead of applying
@@ -32,7 +32,7 @@ the normal PSR resolver.
 - **THEN** the target number SHALL include the landing-control modifier
 - **AND** it SHALL NOT include the generic gyro-hit PSR modifier.
 
-### Requirement: PSR Modifier - Leg Actuator Damage
+### Requirement: PSR Modifier — Leg Actuator Damage
 
 AirMek landing PSRs SHALL use the landing-control modifier already computed
 from MegaMek `LandAirMek.checkAirMekLanding()` semantics instead of applying

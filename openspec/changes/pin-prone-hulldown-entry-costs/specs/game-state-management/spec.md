@@ -1,4 +1,4 @@
-# Spec Delta: Game State
+# Spec Delta: Game State Management
 
 ## ADDED Requirements
 

@@ -1,6 +1,6 @@
 # Spec Delta: Movement System
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Automatic WiGE Landing
 

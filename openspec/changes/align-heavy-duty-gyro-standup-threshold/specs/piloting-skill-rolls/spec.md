@@ -2,7 +2,7 @@
 
 ## MODIFIED Requirements
 
-### Requirement: PSR Trigger - Standing Up
+### Requirement: PSR Trigger — Standing Up
 
 The system SHALL trigger or project the stand-up PSR outcome required by the
 represented stand-up rules. If the stand-up target is impossible, the PSR SHALL

@@ -1,6 +1,6 @@
 # Spec Delta: Combat Resolution
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Destruction Lifecycle Events
 

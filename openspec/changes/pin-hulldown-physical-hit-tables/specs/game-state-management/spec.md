@@ -1,6 +1,6 @@
-# Spec Delta: Game State
+# Spec Delta: Game State Management
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Physical Attack Declaration Payloads
 

@@ -1,6 +1,6 @@
 # Spec Delta: Hull-Down Position
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Hull-Down Firing Restrictions
 

@@ -75,8 +75,29 @@ reconciliation merge `7f22e4f22` · audited main `442f90855`.
 
 ## W6 — OpenSpec archive remediation (cluster F) — separate project, LAST
 
-79 phantom-target deltas, 2 conflicting gyro deltas, dash-drift headings,
-~37 archive-order dependencies, then archive ~202 changes. Not started.
+Branch `fix/w6-openspec-archive-remediation`. Measured by
+`scripts/openspec-archive-inventory.mjs` (full report:
+`validation-output/openspec-archive-inventory.json`, 2026-06-10): 205
+unarchived changes; **78 phantom-target deltas across 26 unique headings**
+(61 in tactical-map-interface — top: "Movement Projection Detail Surface"
+×35), **6 dash-drift headings** (all piloting-skill-rolls `-`/`--` vs SoT
+em-dash), **1 add-conflict** (apply-battlefield-wreck-terrain re-ADDs
+"Optional Battlefield Wreckage Terrain"), **2 wrong-capability deltas**
+(`game-state` → `game-state-management`), 37 dependent deltas (valid once
+their provider archives first), **0 dependency cycles** — a clean
+provider-before-dependent archive order exists and is recorded in the JSON.
+add-aerospace-deployment / add-battle-armor-combat are ADDED-only new
+capabilities (legitimate; archive creates the new specs).
+
+| Phase   | Scope                                                                                                                                                                                                                                                                                            | Status  |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
+| W6.R1   | Move the 2 `game-state` deltas to `game-state-management`, verify/repair their headings                                                                                                                                                                                                          | done    |
+| W6.R2   | Fix the 6 dash-drift headings byte-for-byte to SoT em-dash; union the conflicting gyro pair's scenarios (align-heavy-duty-gyro-standup-threshold + align-playtest3-heavy-duty-gyro-standup) into the chronologically later delta                                                                 | done    |
+| W6.R3a  | tactical-map-interface phantoms (18 unique headings, 61 deltas): flip the chronologically earliest MODIFIED per heading to ADDED (provider creation); verify the chronologically latest version reflects shipped behavior on the top contested headings; fix the 1 add-conflict (ADDED→MODIFIED) | done    |
+| W6.R3b  | Remaining phantoms (8 unique headings: physical-attack-system ×6-deltas, movement-system ×5, combat-resolution ×3, hull-down-position ×3): same earliest-MODIFIED→ADDED repair                                                                                                                   | done    |
+| W6.GATE | Re-run inventory → 0 phantom / 0 drift / 0 add-conflict / 0 bad-cap (new-caps exempt); `openspec validate --all --strict` green; PR                                                                                                                                                              | pending |
+| W6.A    | Archive all complete changes in the recorded topological order (hold `add-battlemech-combat-validation-suite` — 6 open tasks), batches of ~25 with strict validation between, 1-2 openspec-only PRs                                                                                              | pending |
+| W6.V    | Final inventory re-run; SoT spot-check vs shipped behavior on movement-system heat, piloting-skill-rolls gyro, tactical-map-interface contested headings; file the rubble-cover divergence (to-hit-resolution lists rubble; MegaMek grants none) as its own follow-up delta decision             | pending |
 
 ## Resolution log
 
